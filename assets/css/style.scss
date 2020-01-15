@@ -1,0 +1,39 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+
+@import "minima";
+
+.main-content {
+  padding-bottom: 50px;
+}
+
+footer.footer-min {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 3px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #eeeeee;
+  text-align: center;
+}
+
+.text-muted {
+    color:
+    #777;
+}
+
+.legend-done {
+    color:
+    Green;
+}
+
+.legend-close {
+    color:
+    Olive;
+}
+
+.legend-inwork {
+    color:
+    Orange;
+}
