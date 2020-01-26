@@ -6,6 +6,8 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
+Last updated: 2020-01-26.
+
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
 Items in the list are color-coded using the following interpretation:
@@ -16,11 +18,15 @@ Items in the list are color-coded using the following interpretation:
 
 
 ### 0.1 (Build toolchain)
-- <span class="legend-inwork">
-Roll out basic CMAKE based build system that supports cross-platform toolchain configurations
-</span>
-- Refactor build scripts to support a proper folder structure or packaging concept
-- Consolidate code generator scripts to simplify the configuration process, provide better configurability and support calls from and to old Watcom code
+- <span class="legend-close">
+  Roll out basic CMAKE based build system that supports cross-platform toolchain configurations
+  </span>
+- <span class="legend-done">
+  Refactor build scripts to support a proper folder structure or packaging concept
+  </span>
+- <span class="legend-close">
+  Consolidate code generator scripts to simplify the configuration process, provide better configurability and support calls from and to old Watcom code
+  </span>
 - Roll out basic Github Actions setup as CI/CD tool
 - Document build toolchain via Github wiki
 
