@@ -24,4 +24,15 @@
 
 #include <SDL.h>
 
+typedef enum kb_layout_e { english, french, german, italian, spanish } kb_layout_t;
+
+void key_init(void);
+void key_close(void);
+void kb_clear(void);
+int kb_getch(void);
+void kb_set_layout(kb_layout_t layout);
+kb_layout_t kb_get_layout(void);
+void kb_simulate_key(unsigned short scan_code);
+void kb_init_lock_status(void);
+
 #endif /* define KEY_H */

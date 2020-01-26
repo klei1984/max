@@ -24,4 +24,7 @@
 
 #include <SDL.h>
 
+void setSystemPalette(unsigned char *cmap);
+void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
+
 #endif /* COLOR_H */

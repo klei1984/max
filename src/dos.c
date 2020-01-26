@@ -26,6 +26,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "svga.h"
+#include "wrappers.h"
+
 #ifdef __unix__
 #include <unistd.h>
 
@@ -47,11 +50,9 @@ static int open_flag_mapping[][2] = {{DOS_O_RDONLY, O_RDONLY},
                                      {-1, -1}};
 
 #ifdef __unix__
-static inline char *strupr(char *s) {
-    __asm__ __volatile__("	call	strupr_\n" : /* out  */ "=a"(s) : /* in   */ "a"(s) : /* clob */);
-
-    return s;
-}
+static inline char *strupr(char *s) { return dos_strupr(s); }
+int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
+int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1, s2, len); }
 #endif
 
 int dos_open_flags_to_native(int flags) {

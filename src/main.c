@@ -22,8 +22,10 @@
 #include <SDL.h>
 
 #include "game.h"
+#include "svga.h"
+#include "wrappers.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
     int retval;
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
@@ -32,7 +34,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* run all initializer routines */
-    asm volatile("call __InitRtns\n" : : "a"(0xFF));
+    __InitRtns(0xFF);
 
     /* initialize debug services - requires environment variable
      * DEBUGACTIVE with one of the following values to be set:
@@ -44,9 +46,9 @@ int main(int argc, char* argv[]) {
     debug_register_env();
 
     /* call game main() */
-    asm volatile("call main_\n" : "=a"(retval) : "a"(argc), "d"(argv));
+    retval = dos_main(argc, argv);
 
     SDL_Quit();
 
-    return 0;
+    return retval;
 }
