@@ -16,9 +16,8 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/")
 
 find_package(PythonInterp)
 
-set(CHGC_TOOL "${CMAKE_CURRENT_SOURCE_DIR}/util/chgcalls.py")
-set(CHGC_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/conf/wrappers.conf")
-set(CHGC_RENAME_FILE "${CMAKE_CURRENT_SOURCE_DIR}/conf/fnmap_chgcalls.conf")
+set(CODEGEN_TOOL "${CMAKE_CURRENT_SOURCE_DIR}/util/codegen.py")
+set(CODEGEN_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/conf/codegen.json")
 
 set(GAME_SOURCES
     ${GAME_SOURCES}
@@ -26,32 +25,17 @@ set(GAME_SOURCES
 )
 
 add_custom_command(
-    COMMAND ${PYTHON_EXECUTABLE} ${CHGC_TOOL} --rename-config=${CHGC_RENAME_FILE} ${CHGC_CONFIG_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in ${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
-    DEPENDS ${CHGC_TOOL} ${CHGC_CONFIG_FILE} ${CHGC_RENAME_FILE}
-    OUTPUT ${GAME_BINARY}.S
-    COMMENT "Generating ${GAME_BINARY}.S."
-)
-
-set(MKW_TOOL "${CMAKE_CURRENT_SOURCE_DIR}/util/mkwrappers.py")
-set(MKW_RENAME_FILE "${CMAKE_CURRENT_SOURCE_DIR}/conf/fnmap_posix.conf")
-set(MKW_FLAGS "")
-
-set(GAME_SOURCES
-    ${GAME_SOURCES}
-    ${CMAKE_CURRENT_BINARY_DIR}/wrappers.S
-)
-
-add_custom_command(
-    COMMAND ${PYTHON_EXECUTABLE} ${MKW_TOOL} ${MKW_FLAGS} -o ${CMAKE_CURRENT_BINARY_DIR}/wrappers.S -r ${MKW_RENAME_FILE} ${CHGC_CONFIG_FILE}
-    DEPENDS ${MKW_TOOL} ${CHGC_CONFIG_FILE} ${MKW_RENAME_FILE}
-    OUTPUT wrappers.S
-    COMMENT "Generating wrappers.S."
+    COMMAND ${PYTHON_EXECUTABLE} ${CODEGEN_TOOL} --input=${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in --output=${CMAKE_CURRENT_BINARY_DIR} ${CODEGEN_CONFIG_FILE}
+    DEPENDS ${CODEGEN_TOOL} ${CODEGEN_CONFIG_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in
+    OUTPUT ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h
+    COMMENT "Generating ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h."
 )
 
 find_package(SDL2 REQUIRED)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_BINARY_DIR}
     ${GAME_INCLUDES}
     ${SDL2_INCLUDE_DIRS}
 )
