@@ -75,28 +75,25 @@ struct SosSoundSample_s {
 };
 
 unsigned int sosTIMERInitSystem(unsigned int wTimerRate, unsigned int wDebug);
-unsigned int sosTIMERRegisterEvent(/* unsigned int wTimerRate, unsigned int * far hEvent? */);
+unsigned int sosTIMERRegisterEvent(unsigned int wCallRate, void (*lpTimerEvent)(void), unsigned int* lpTimerHandle);
 unsigned int sosTIMERRemoveEvent(unsigned int hEvent);
 unsigned int sosTIMERUnInitSystem(unsigned int wTimerRate);
 
-unsigned int sosDIGIDetectInit(/* eax, dx */);
-unsigned int sosDIGIDetectFindHardware(/* eax, ebx, cx */);
+unsigned int sosDIGIDetectInit(char* sDriverPath);
+unsigned int sosDIGIDetectFindHardware(unsigned int wDriverId, void /*_SOS_CAPABILITIES*/* pDriver,
+                                       unsigned int* pPort);
 unsigned int sosDIGIDetectUnInit(void);
 
-unsigned int sosDIGIInitSystem(/* eax, dx, ebx */);
+unsigned int sosDIGIInitSystem(char* sPath, unsigned int wDebugFlags);
 unsigned int sosDIGIUnInitSystem(void);
 
-unsigned int sosDIGIInitDriver(unsigned int driver_id, unsigned int unused1,
-                               struct SosHardware_s* sos_hardware_settings, unsigned int unused2,
-                               struct SosInitDriver_s* sos_init_driver, unsigned int unused3, unsigned int* hDriver,
-                               unsigned int unused4);
+unsigned int sosDIGIInitDriver(unsigned int driver_id, struct SosHardware_s* sos_hardware_settings,
+                               struct SosInitDriver_s* sos_init_driver, unsigned int* hDriver);
 unsigned int sosDIGIUnInitDriver(unsigned int hDriver);
 
-unsigned int sosDIGIStartSample(unsigned int hDriver, unsigned int unused1, struct SosSoundSample_s* sSample,
-                                unsigned int unused2);
+unsigned int sosDIGIStartSample(unsigned int hDriver, struct SosSoundSample_s* sSample);
 unsigned int sosDIGIStopSample(unsigned int hDriver, unsigned int hSample);
-unsigned int sosDIGIContinueSample(unsigned int hDriver, unsigned int hSample, struct SosSoundSample_s* sSample,
-                                   unsigned int unused);
+unsigned int sosDIGIContinueSample(unsigned int hDriver, unsigned int hSample, struct SosSoundSample_s* sSample);
 unsigned int sosDIGISampleDone(unsigned int hDriver, unsigned int hSample);
 
 unsigned int sosDIGISetSampleVolume(unsigned int hDriver, unsigned int hSample, unsigned int wVolume);
@@ -107,26 +104,22 @@ static void sound_callback(void* userdata, Uint8* stream, int len);
 static struct sound_s { SDL_AudioDeviceID audio_device_id; } sound_object;
 
 unsigned int sosTIMERInitSystem(unsigned int wTimerRate, unsigned int wDebug) { return 0; }
-unsigned int sosTIMERRegisterEvent() { return 0; }
+unsigned int sosTIMERRegisterEvent(unsigned int wCallRate, void (*lpTimerEvent)(void), unsigned int* lpTimerHandle) {
+    return 0;
+}
 unsigned int sosTIMERRemoveEvent(unsigned int hEvent) { return 0; }
 unsigned int sosTIMERUnInitSystem(unsigned int wTimerRate) { return 0; }
-unsigned int sosDIGIDetectInit() { return 0; }
-unsigned int sosDIGIDetectFindHardware() { return 0; }
+unsigned int sosDIGIDetectInit(char* sDriverPath) { return 0; }
+unsigned int sosDIGIDetectFindHardware(unsigned int wDriverId, void /*_SOS_CAPABILITIES*/* pDriver,
+                                       unsigned int* pPort) {
+    return 0;
+}
 unsigned int sosDIGIDetectUnInit(void) { return 0; }
-unsigned int sosDIGIInitSystem() { return 0; }
+unsigned int sosDIGIInitSystem(char* sPath, unsigned int wDebugFlags) { return 0; }
 unsigned int sosDIGIUnInitSystem(void) { return 0; }
 
-unsigned int sosDIGIInitDriver(unsigned int driver_id, unsigned int unused1,
-                               struct SosHardware_s* sos_hardware_settings, unsigned int unused2,
-                               struct SosInitDriver_s* sos_init_driver, unsigned int unused3, unsigned int* hDriver,
-                               unsigned int unused4) {
-    /* eax - driver_id
-     * edx - unused
-     * cx:ebx - far pointer to sos_hardware_settings (ebx is enough to use)
-     * sp-8: - far pointer to sos_init_driver
-     * sp-8: - far pointer to hDriver
-     */
-
+unsigned int sosDIGIInitDriver(unsigned int driver_id, struct SosHardware_s* sos_hardware_settings,
+                               struct SosInitDriver_s* sos_init_driver, unsigned int* hDriver) {
     SDL_assert(hDriver != NULL);
     SDL_assert(sos_hardware_settings != NULL);
     SDL_assert(sos_init_driver != NULL);
@@ -160,13 +153,7 @@ unsigned int sosDIGIUnInitDriver(unsigned int hDriver) {
     return 0;
 }
 
-unsigned int sosDIGIStartSample(unsigned int hDriver, unsigned int unused1, struct SosSoundSample_s* sSample,
-                                unsigned int unused2) {
-    /* eax - hDriver
-     * edx - not used
-     * cx:ebx - far pointer to SosSoundSample_s (ebx is enough to use)
-     */
-
+unsigned int sosDIGIStartSample(unsigned int hDriver, struct SosSoundSample_s* sSample) {
     SDL_assert(sSample);
 
     if (SDL_QueueAudio(hDriver, sSample->lpSamplePtr, sSample->dwSampleSize) != 0) {
@@ -184,13 +171,7 @@ unsigned int sosDIGIStopSample(unsigned int hDriver, unsigned int hSample) {
     return 0;
 }
 
-unsigned int sosDIGIContinueSample(unsigned int hDriver, unsigned int hSample, struct SosSoundSample_s* sSample,
-                                   unsigned int unused) {
-    /* eax - hDriver
-     * edx - hSample
-     * cx:ebx - far pointer to SosSoundSample_s (ebx is enough to use)
-     */
-
+unsigned int sosDIGIContinueSample(unsigned int hDriver, unsigned int hSample, struct SosSoundSample_s* sSample) {
     return 0;
 }
 

@@ -25,12 +25,4 @@
 #include "gnw.h"
 #include "units.h"
 
-int register_critical_error_handler();
-
-void check_available_extended_memory(void);
-
-void check_available_disk_space(void);
-
-void debug_register_env(void);
-
 #endif /* GAME_H */

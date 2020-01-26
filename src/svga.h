@@ -25,20 +25,18 @@
 #include <SDL.h>
 #include <SDL_surface.h>
 
+#include "rect.h"
+
 SDL_Surface *svga_get_screen(void);
 
 typedef void (*ScreenBlitFunc)(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX,
                                unsigned int subY, unsigned int subW, unsigned int subH, unsigned int dstX,
                                unsigned int dstY);
 
-typedef struct Rect_s {
-    int ulx;
-    int uly;
-    int lrx;
-    int lry;
-} Rect;
-
-extern ScreenBlitFunc scr_blit;
-extern Rect scr_size;
+int init_vesa_mode(int mode, int width, int height, int half);
+void get_start_mode(void);
+void reset_mode(void);
+void vesa_screen_blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX, unsigned int subY,
+                      unsigned int subW, unsigned int subH, unsigned int dstX, unsigned int dstY);
 
 #endif /* SVGA_H */

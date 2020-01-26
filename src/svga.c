@@ -21,11 +21,7 @@
 
 #include "svga.h"
 
-int init_vesa_mode(int mode, int width, int height, int half);
-void get_start_mode(void);
-void reset_mode(void);
-void vesa_screen_blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX, unsigned int subY,
-                      unsigned int subW, unsigned int subH, unsigned int dstX, unsigned int dstY);
+#include "wrappers.h"
 
 static SDL_Window *sdlWindow;
 static SDL_Renderer *sdlRenderer;

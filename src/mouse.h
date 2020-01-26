@@ -24,4 +24,7 @@
 
 #include <SDL.h>
 
+int GNW_mouse_init(void);
+void mouse_info(void);
+
 #endif /* define MOUSE_H */

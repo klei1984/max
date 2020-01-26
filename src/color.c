@@ -24,13 +24,9 @@
 #include <stdio.h>
 
 #include "svga.h"
-
-extern unsigned char currentGammaTable[64];
-extern unsigned char systemCmap[768];
+#include "wrappers.h"
 
 static void update_system_palette(SDL_Palette *palette);
-void setSystemPalette(unsigned char *cmap);
-void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
 
 static SDL_Palette *SystemPalette;
 

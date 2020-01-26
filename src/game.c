@@ -19,7 +19,11 @@
  * SOFTWARE.
  */
 
-int register_critical_error_handler() { return 0; }
+#include "game.h"
+#include "svga.h"
+#include "wrappers.h"
+
+int register_critical_error_handler(void) { return 0; }
 
 void check_available_extended_memory(void) { return; }
 
