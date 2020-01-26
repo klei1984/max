@@ -3058,7 +3058,7 @@
 		},
 		{
 			"name": "dos_main",
-			"prototype": "int dos_main(int argc, const char *argv[])",
+			"prototype": "int dos_main(int argc, char *argv[])",
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "main_",

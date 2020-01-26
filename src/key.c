@@ -111,4 +111,4 @@ void kb_set_layout(kb_layout_t layout) { kb_layout = layout; };
 
 kb_layout_t kb_get_layout(void) { return kb_layout; }
 
-void kb_simulate_key(unsigned short scan_code) { printf("kb_simulate_key(scan_code %i)", scan_code); }
+void kb_simulate_key(unsigned short scan_code) {}

@@ -163,13 +163,16 @@ class Codegen:
                 self.generate_wrapper(function)
                 self.write_line()
             elif function["mode"] == "expose":
+                if self.underscore:
+                    self.write_line("#define %s %s\n" % (function["symbol"], self.prefix_name(function["symbol"])))
                 self.write_line("GLOBAL(%s)" % (self.prefix_name(function["symbol"])))
                 self.write_line()
 
         for variable in self.config["variables"]:
             if variable["mode"] == "expose":
-                self.write_line("#define %s %s\n" % (variable["symbol"], self.prefix_name(variable["name"])))
-                self.write_line("GLOBAL(%s)" % (self.prefix_name(variable["symbol"])))
+                self.write_line(
+                    "#define %s %s\n" % (variable["symbol"], self.prefix_name(variable["name"])))
+                self.write_line("GLOBAL(%s)" % (variable["symbol"]))
                 self.write_line()
 
         self.output_file.close()
@@ -213,7 +216,7 @@ class Codegen:
         self.write_line(".align %i" % (f["align"]))
 
     def label(self, f):
-        self.write_line('%s: /* %s %s; */' % (self.prefix_name(f["symbol"]), f["type"], f["prototype"]))
+        self.write_line('%s: /* %s %s; */' % (f["symbol"], f["type"], f["prototype"]))
 
     def prologue(self, f):
         prologue_args = 0

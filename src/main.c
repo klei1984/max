@@ -25,7 +25,7 @@
 #include "svga.h"
 #include "wrappers.h"
 
-int main(int argc, const char* argv[]) {
+int main(int argc, char *argv[]) {
     int retval;
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
