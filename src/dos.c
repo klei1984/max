@@ -122,25 +122,22 @@ unsigned int get_dpmi_physical_memory(void) { return 64000000uLL; }
 
 static int open_helper(const char *path, unsigned int flags) {
     int handle;
+    int length;
+    char *path_ptr;
 
-    if ((handle = open(path, flags, 0666) == -1)) {
-        int length;
-        char *path_ptr;
+    if ((length = strlen(path)) != 0) {
+        path_ptr = malloc(length + 1);
+        if (path_ptr) {
+            int handle;
 
-        if ((length = strlen(path)) != 0) {
-            path_ptr = malloc(length + 1);
-            if (path_ptr) {
-                int handle;
+            path_ptr = strncpy(path_ptr, path, length + 1);
+            path_ptr = strupr(path_ptr);
 
-                path_ptr = strncpy(path_ptr, path, length + 1);
-                path_ptr = strupr(path_ptr);
+            handle = open(path_ptr, flags, 0666);
 
-                handle = open(path_ptr, flags, 0666);
+            free(path_ptr);
 
-                free(path_ptr);
-
-                return handle;
-            }
+            return handle;
         }
     }
 
