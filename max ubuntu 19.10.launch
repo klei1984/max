@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.cdt.launch.applicationLaunchType">
+    <booleanAttribute key="org.eclipse.cdt.dsf.gdb.AUTO_SOLIB" value="true"/>
+    <listAttribute key="org.eclipse.cdt.dsf.gdb.AUTO_SOLIB_LIST"/>
+    <stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="gdb"/>
+    <booleanAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_ON_FORK" value="false"/>
+    <stringAttribute key="org.eclipse.cdt.dsf.gdb.GDB_INIT" value=".gdbinit"/>
+    <booleanAttribute key="org.eclipse.cdt.dsf.gdb.NON_STOP" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.dsf.gdb.REVERSE" value="false"/>
+    <stringAttribute key="org.eclipse.cdt.dsf.gdb.REVERSE_MODE" value="UseSoftTrace"/>
+    <listAttribute key="org.eclipse.cdt.dsf.gdb.SOLIB_PATH"/>
+    <stringAttribute key="org.eclipse.cdt.dsf.gdb.TRACEPOINT_MODE" value="TP_NORMAL_ONLY"/>
+    <booleanAttribute key="org.eclipse.cdt.dsf.gdb.UPDATE_THREADLIST_ON_SUSPEND" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.dsf.gdb.internal.ui.launching.LocalApplicationCDebuggerTab.DEFAULTS_SET" value="true"/>
+    <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
+    <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
+    <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_ID" value="gdb"/>
+    <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_START_MODE" value="run"/>
+    <booleanAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="main"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_ARGUMENTS" value="-fD:\MAX"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="build/maxrun"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="max"/>
+    <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="cdt.managedbuild.toolchain.gnu.base.762831889"/>
+    <stringAttribute key="org.eclipse.cdt.launch.WORKING_DIRECTORY" value="${workspace_loc:max/build}"/>
+    <booleanAttribute key="org.eclipse.cdt.launch.use_terminal" value="true"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/max"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="4"/>
+    </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="DEBUGACTIVE" value="screen"/>
+    </mapAttribute>
+    <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+        <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+    </listAttribute>
+    <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;&gt;&#10;    &lt;gdbmemoryBlockExpression address=&quot;3749867536&quot; label=&quot;0xdf827010&quot;/&gt;&#10;    &lt;gdbmemoryBlockExpression address=&quot;141935776&quot; label=&quot;0x875c4a0&quot;/&gt;&#10;&lt;/memoryBlockExpressionList&gt;&#10;"/>
+    <stringAttribute key="org.eclipse.linuxtools.callgraph.launch.ARGUMENTS" value=""/>
+    <stringAttribute key="org.eclipse.linuxtools.callgraph.launch.BINARY_ARGUMENTS" value=""/>
+    <stringAttribute key="org.eclipse.linuxtools.callgraph.launch.BINARY_PATH" value=""/>
+    <intAttribute key="org.eclipse.linuxtools.callgraph.launch.BUFFER_BYTES" value="0"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.BULK_MODE" value="false"/>
+    <intAttribute key="org.eclipse.linuxtools.callgraph.launch.COMMAND_VERBOSE" value="0"/>
+    <stringAttribute key="org.eclipse.linuxtools.callgraph.launch.C_DIRECTIVES" value=""/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.DISABLE_WARNINGS" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.GURU" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.IGNORE_DWARF" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.KEEP_TEMPORARY" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.LEAVE_RUNNING" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.NO_CODE_ELISION" value="false"/>
+    <stringAttribute key="org.eclipse.linuxtools.callgraph.launch.OUTPUT_PATH" value=""/>
+    <stringAttribute key="org.eclipse.linuxtools.callgraph.launch.PARSER_CLASS" value="org.eclipse.linuxtools.callgraph.graphparser"/>
+    <intAttribute key="org.eclipse.linuxtools.callgraph.launch.PASS" value="0"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.PROLOGUE_SEARCH" value="false"/>
+    <stringAttribute key="org.eclipse.linuxtools.callgraph.launch.SCRIPT_PATH" value=""/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.SKIP_BADVARS" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.TAPSET_COVERAGE" value="false"/>
+    <intAttribute key="org.eclipse.linuxtools.callgraph.launch.TARGET_PID" value="0"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.TIMING_INFO" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.callgraph.launch.USE_COLOUR" value="false"/>
+    <stringAttribute key="org.eclipse.linuxtools.callgraph.launch.VIEW_CLASS" value="org.eclipse.linuxtools.callgraph.callgraphview"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.DefaultEvent" value="true"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.HideUnresolvedSymbols" value="true"/>
+    <stringAttribute key="org.eclipse.linuxtools.internal.perf.attr.Kernel.Location" value=""/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.Kernel.SourceLineNumbers" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.ModuleSymbols" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.MultipleEvents" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.Record.Realtime" value="false"/>
+    <intAttribute key="org.eclipse.linuxtools.internal.perf.attr.Record.Realtime.Priority" value="1"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.Record.Verbose" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.ShowSourceDisassembly" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.ShowStat" value="false"/>
+    <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.SourceLineNumbers" value="true"/>
+    <intAttribute key="org.eclipse.linuxtools.internal.perf.attr.StatRunCount" value="1"/>
+    <intAttribute key="org.eclipse.linuxtools.oprofile.launch.oprofile.EXECUTIONS_NUMBER" value="1"/>
+    <stringAttribute key="org.eclipse.linuxtools.oprofile.launch.oprofile.KERNEL_IMAGE" value=""/>
+    <stringAttribute key="org.eclipse.linuxtools.oprofile.launch.oprofile.OPROFILE_COMBO_TEXT" value="operf"/>
+    <intAttribute key="org.eclipse.linuxtools.oprofile.launch.oprofile.SEPARATE_SAMPLES" value="0"/>
+    <booleanAttribute key="org.eclipse.linuxtools.oprofile.launch.oprofile.USE_DEFAULT_EVENT" value="true"/>
+    <stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
+    <stringAttribute key="provider" value="org.eclipse.linuxtools.perf.provider"/>
+</launchConfiguration>
