@@ -13,4 +13,4 @@ Interplay created several demo versions of M.A.X.
 <br>The game crashed in the end of the video, but reloading the last auto save recovered the state and I was able to continue the game. I could overpower the attacking enemy by *hiding* my assault tanks within the depot.
 The AI priorized destroying the power generators and the fuel reserves. Clever plan... or is it? I unloaded my assault tanks fully repaired, zero moves spent and now within range, and destroyed all the assault tanks of the enemy within a single turn. Muahaha :) Stupid AI.
 <br><br>On exiting the game there was a neat advertisement screen, max.res resource OEMONE, which is only available in the demos.
-<img src="{{ site.baseurl }}/assets/images/screenshot_from_2020-02-15_11-28-34.jpg" alt="Fixed colors">
+<img src="{{ site.baseurl }}/assets/images/screenshot_from_2020-02-15_11-28-34.jpg" alt="Advertisement Poster">
