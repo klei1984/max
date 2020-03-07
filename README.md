@@ -1,5 +1,7 @@
 # M.A.X. Port 
 
+![Build Workflow](https://github.com/klei1984/max/workflows/Build%20Workflow/badge.svg)
+
 M.A.X. Port is an [SDL library](https://wiki.libsdl.org/) based runtime executable for the 1996 DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.
 
 Official home page: [https://klei1984.github.io/max/](https://klei1984.github.io/max/) 

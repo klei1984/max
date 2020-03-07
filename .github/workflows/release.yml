@@ -5,11 +5,11 @@ on:
     - 'v[0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
-  Linux-i386:
+  Create Release:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Release Package
+    - name: Create Release
       id: create_release
       if: startsWith(github.event.ref, 'refs/tags')
       uses: actions/create-release@v1
