@@ -1,0 +1,58 @@
+name: Build Workflow
+on:
+  push:
+    branches:
+    - master
+    paths-ignore:
+    - '**.md'
+
+  pull_request:
+    types:
+    - opened
+    - synchronize
+    - reopened
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  Linux-i386:
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_DIR: build
+      BUILD_TYPE: Debug
+
+    steps:
+    - name: Setup Dependencies
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update -y -qq
+        sudo apt-get install -y -qq build-essential gcc-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386
+
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: |-
+        mkdir $BUILD_DIR
+        cd $BUILD_DIR
+        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=/usr/local -DSDL2_DIR=/usr/lib/i386-linux-gnu/cmake/SDL2 ..
+        cmake --build .
+
+    - name: Package
+      run: |
+        cd $BUILD_DIR
+        cpack
+        mkdir Artifacts
+        cp *.deb Artifacts/
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: build artifacts
+        path: ${{env.BUILD_DIR}}/Artifacts
