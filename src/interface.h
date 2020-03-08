@@ -22,11 +22,22 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include "rect.h"
+
 typedef int WinID;
 
 typedef struct GNW_Menu_s GNW_Menu;
 
 typedef struct GNW_Window_s {
 } GNW_Window;
+
+struct __attribute__((packed)) Window_s {
+    Rect window;
+    unsigned short unknown;
+    WinID id;
+    unsigned char *buffer;
+};
+
+typedef struct Window_s Window;
 
 #endif /* INTERFACE_H */

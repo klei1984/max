@@ -92,7 +92,7 @@ include_directories(
 )
 
 add_executable(${GAME_BINARY} ${GAME_SOURCES})
-set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-m32 -O0 -no-pie" LINK_FLAGS "-m32 -O0 -no-pie")
+set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-m32 -O0 -no-pie -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\"" LINK_FLAGS "-m32 -O0 -no-pie")
 target_link_libraries(${GAME_BINARY} ${SDL2_LIBRARIES})
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})

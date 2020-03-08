@@ -13,7 +13,7 @@ including limited support for the big code model for __far calls and the big dat
 __author__ = "M.A.X. Port Team"
 __copyright__ = "Copyright (c) 2020 M.A.X. Port Team"
 __license__ = "MIT License"
-__version__ = "0.3"
+__version__ = "0.31"
 
 import re
 import sys
@@ -103,15 +103,17 @@ class Codegen:
 
     def generate_function_body(self, f):
         n_args = len(f["arguments_list"])
+        n_args_offset = -1
 
         if f["return"]:
             self.write_line("\t%s result;" % f["return"]["type_name"])
             self.write_line()
+            n_args_offset = 0
 
         self.write_line("\t__asm__ __volatile__(")
         if n_args > len(Codegen.registers_32bit):
             for index in range(n_args, len(Codegen.registers_32bit), -1):
-                self.write_line("\t\t\"\tpushl\t%%%i\\n\"" % index)
+                self.write_line("\t\t\"\tpushl\t%%%i\\n\"" % (index + n_args_offset))
         self.write_line("\t\t\"\tcall\t%s\\n\"" % self.prefix_name(f["symbol"]))
         self.write_line("\t\t: /* out  */%s" % self.generate_out_args(f))
         self.write_line("\t\t: /* in   */%s" % self.generate_in_args(f))

@@ -5,6 +5,8 @@ on:
     - master
     paths-ignore:
     - '**.md'
+    - '**.yml'
+    - '**/doc'
 
   pull_request:
     types:
@@ -13,6 +15,8 @@ on:
     - reopened
     paths-ignore:
     - '**.md'
+    - '**.yml'
+    - '**/doc'
 
 jobs:
   Linux-i386:

@@ -2995,6 +2995,27 @@
 			]
 		},
 		{
+			"name": "draw_copyright_label",
+			"prototype": "void draw_copyright_label(Window * window)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "draw_copyright_label_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "window",
+					"is_far": false
+				}
+			]
+		},
+		{
 			"name": "__InitRtns",
 			"prototype": "void __InitRtns(unsigned limit)",
 			"component": "libc",
@@ -3211,6 +3232,102 @@
 			"stack_align": 4,
 			"return": null,
 			"arguments_list": [
+			]
+		},
+		{
+			"name": "text_font",
+			"prototype": "void text_font(int font_num)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "text_font_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "font_num",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "draw_color_text_label",
+			"prototype": "void draw_color_text_label(unsigned char *buffer, unsigned short unknown, char *text, int ulx, int uly, int width, int height, int color, int horizontal_align, int vertical_align)",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "draw_color_text_label_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "buffer",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned short",
+					"type_class": "integer",
+					"arg_name": "unknown",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "text",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "height",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
+					"is_far": false
+				},
+				{
+					"type_name": "bool",
+					"type_class": "integer",
+					"arg_name": "horizontal_align",
+					"is_far": false
+				},
+				{
+					"type_name": "bool",
+					"type_class": "integer",
+					"arg_name": "vertical_align",
+					"is_far": false
+				}
 			]
 		}
 	],
