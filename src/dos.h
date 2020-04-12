@@ -22,9 +22,6 @@
 #ifndef DOS_H
 #define DOS_H
 
-#include <stddef.h>
-#include <stdint.h>
-
 #define DOS_O_RDONLY 0x0000
 #define DOS_O_WRONLY 0x0001
 #define DOS_O_RDWR 0x0002
@@ -39,48 +36,48 @@
 #define DOS_CLOCKS_PER_SEC 100
 
 struct DOS_Registers32 {
-    uint32_t eax;    /* 00 */
-    uint32_t ebx;    /* 04 */
-    uint32_t ecx;    /* 08 */
-    uint32_t edx;    /* 0c */
-    uint32_t esi;    /* 10 */
-    uint32_t edi;    /* 14 */
-    uint32_t eflags; /* 18 */
-} __attribute__((packed));
+    unsigned int eax;    /* 00 */
+    unsigned int ebx;    /* 04 */
+    unsigned int ecx;    /* 08 */
+    unsigned int edx;    /* 0c */
+    unsigned int esi;    /* 10 */
+    unsigned int edi;    /* 14 */
+    unsigned int eflags; /* 18 */
+};
 
 typedef struct DOS_Registers32 DOS_Registers32;
 
 struct DOS_Registers16 {
-    uint16_t ax;
-    uint16_t _unused_1;
-    uint16_t bx;
-    uint16_t _unused_2;
-    uint16_t cx;
-    uint16_t _unused_3;
-    uint16_t dx;
-    uint16_t _unused_4;
-    uint16_t si;
-    uint16_t _unused_5;
-    uint16_t di;
-    uint16_t _unused_6;
-    int16_t flags;
-} __attribute__((packed));
+    unsigned short ax;
+    unsigned short _unused_1;
+    unsigned short bx;
+    unsigned short _unused_2;
+    unsigned short cx;
+    unsigned short _unused_3;
+    unsigned short dx;
+    unsigned short _unused_4;
+    unsigned short si;
+    unsigned short _unused_5;
+    unsigned short di;
+    unsigned short _unused_6;
+    signed short flags;
+};
 
 typedef struct DOS_Registers16 DOS_Registers16;
 
 struct DOS_Registers8 {
-    uint8_t al;
-    uint8_t ah;
-    uint16_t _unused_1;
-    uint8_t bl;
-    uint8_t bh;
-    uint16_t _unused_2;
-    uint8_t cl;
-    uint8_t ch;
-    uint16_t _unused_3;
-    uint8_t dl;
-    uint8_t dh;
-} __attribute__((packed));
+    unsigned char al;
+    unsigned char ah;
+    unsigned short _unused_1;
+    unsigned char bl;
+    unsigned char bh;
+    unsigned short _unused_2;
+    unsigned char cl;
+    unsigned char ch;
+    unsigned short _unused_3;
+    unsigned char dl;
+    unsigned char dh;
+};
 
 typedef struct DOS_Registers8 DOS_Registers8;
 
@@ -93,28 +90,28 @@ union DOS_Registers {
 typedef union DOS_Registers DOS_Registers;
 
 struct DOS_SegmentRegisters {
-    uint16_t es;
-    uint16_t cs;
-    uint16_t ss;
-    uint16_t ds;
-    uint16_t fs;
-    uint16_t gs;
+    unsigned short es;
+    unsigned short cs;
+    unsigned short ss;
+    unsigned short ds;
+    unsigned short fs;
+    unsigned short gs;
 };
 
 typedef struct DOS_SegmentRegisters DOS_SegmentRegisters;
 
 struct dostime_t {
-    uint8_t hour;
-    uint8_t minute;
-    uint8_t second;
-    uint8_t hsecond; /* .01 of a sec */
+    unsigned char hour;
+    unsigned char minute;
+    unsigned char second;
+    unsigned char hsecond; /* .01 of a sec */
 };
 
 struct dosdate_t {
-    uint8_t day;
-    uint8_t month;
-    uint16_t year;
-    uint8_t dayofweek;
+    unsigned char day;
+    unsigned char month;
+    unsigned short year;
+    unsigned char dayofweek;
 };
 
 // int dos_open_flags_to_native (int flags);

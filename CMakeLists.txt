@@ -54,6 +54,8 @@ else()
     set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
 endif()
 
+message(STATUS "Set build version to v${GAME_VERSION}")
+
 enable_language(C ASM)
 
 set(GAME_INCLUDES "")
@@ -68,6 +70,10 @@ set(CODEGEN_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/conf/codegen.json")
 if (WIN32)
     set(CODEGEN_OPTIONS "--underscore")
 endif (WIN32)
+
+if (MINGW)
+    add_compile_options(-mno-ms-bitfields)
+endif (MINGW)
 
 set(GAME_SOURCES
     ${GAME_SOURCES}
@@ -92,7 +98,7 @@ include_directories(
 )
 
 add_executable(${GAME_BINARY} ${GAME_SOURCES})
-set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-m32 -O0 -no-pie -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\"" LINK_FLAGS "-m32 -O0 -no-pie")
+set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-m32 -O0 -fno-eliminate-unused-debug-types -no-pie -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\"" LINK_FLAGS "-m32 -O0 -no-pie")
 target_link_libraries(${GAME_BINARY} ${SDL2_LIBRARIES})
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})

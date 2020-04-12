@@ -44,6 +44,8 @@ struct __attribute__((packed)) UnitInfo_s {
 
 typedef struct UnitInfo_s* UnitInfoPtr;
 
+static_assert(sizeof(struct UnitInfo_s) == 43, "The structure needs to be packed.");
+
 struct __attribute__((packed)) UnitInfo2_s {
     unsigned int flags;
     unsigned short data;
@@ -64,6 +66,8 @@ struct __attribute__((packed)) UnitInfo2_s {
     int unknown_4;
     int unknown_5;
 };
+
+static_assert(sizeof(struct UnitInfo2_s) == 51, "The structure needs to be packed.");
 
 typedef struct UnitInfo2_s* UnitInfo2Ptr;
 

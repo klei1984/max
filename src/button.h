@@ -22,10 +22,6 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "interface.h"
-#include "rect.h"
-#include "vcr.h"
-
 typedef int ButtonID;
 
 typedef void (*ButtonFunc)(ButtonID, int);

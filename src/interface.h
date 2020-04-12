@@ -22,14 +22,13 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include "rect.h"
-
 typedef int WinID;
+
+typedef void(__fastcall *trans_b2b)(unsigned char *, int, int, int, unsigned char *, int);
 
 typedef struct GNW_Menu_s GNW_Menu;
 
-typedef struct GNW_Window_s {
-} GNW_Window;
+typedef struct GNW_Window_s GNW_Window;
 
 struct __attribute__((packed)) Window_s {
     Rect window;
@@ -37,6 +36,8 @@ struct __attribute__((packed)) Window_s {
     WinID id;
     unsigned char *buffer;
 };
+
+static_assert(sizeof(struct Window_s) == 26, "The structure needs to be packed.");
 
 typedef struct Window_s Window;
 

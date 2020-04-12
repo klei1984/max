@@ -141,6 +141,8 @@ static int open_helper(const char *path, unsigned int flags) {
         }
     }
 
+    SDL_Log("open helper failed: %s\n", path);
+
     return -1;
 }
 
@@ -158,6 +160,8 @@ unsigned int _dos_open(const char *path, unsigned int mode, int *handle) {
             return 0;
         }
     }
+
+    SDL_Log("open failed: %s\n", path);
 
     return -1;
 }
@@ -180,6 +184,8 @@ FILE *dos_fopen(const char *filename, const char *mode) {
             return handle;
         }
     }
+
+    SDL_Log("fopen failed: %s\n", filename);
 
     return NULL;
 }

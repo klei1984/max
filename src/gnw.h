@@ -22,11 +22,30 @@
 #ifndef GNW_H
 #define GNW_H
 
+#include <assert.h>
+
+#include "rect.h"
+#include "interface.h"
 #include "button.h"
 #include "input.h"
-#include "interface.h"
 #include "kb.h"
-#include "rect.h"
 #include "vcr.h"
+
+struct GNW_Window_s {
+    WinID id;
+    unsigned int flags;
+    Rect w;
+    int width;
+    int length;
+    int color;
+    int tx;
+    int ty;
+    unsigned char *buf;
+    GNW_ButtonPtr button_list;
+    GNW_ButtonPtr last_over;
+    GNW_ButtonPtr last_click;
+    GNW_Menu *menu;
+    trans_b2b trans_b2b_ptr;
+};
 
 #endif /* GNW_H */
