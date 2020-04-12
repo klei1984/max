@@ -24,7 +24,7 @@
 
 typedef int WinID;
 
-typedef void(__fastcall *trans_b2b)(unsigned char *, int, int, int, unsigned char *, int);
+typedef void (*trans_b2b)(unsigned char *, int, int, int, unsigned char *, int);
 
 typedef struct GNW_Menu_s GNW_Menu;
 
