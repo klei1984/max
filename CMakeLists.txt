@@ -94,7 +94,6 @@ include_directories(
     ${CMAKE_BINARY_DIR}
     ${GAME_INCLUDES}
     ${SDL2_INCLUDE_DIRS}
-    ${SDL2_INCLUDE_DIRS_HACK}
 )
 
 add_executable(${GAME_BINARY} ${GAME_SOURCES})

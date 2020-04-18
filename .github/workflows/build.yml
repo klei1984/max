@@ -60,3 +60,35 @@ jobs:
       with:
         name: build artifacts
         path: ${{env.BUILD_DIR}}/Artifacts
+
+  Windows-i386:
+    runs-on: windows-latest
+    env:
+      BUILD_DIR: build
+      BUILD_TYPE: Debug
+
+    steps:
+    - name: Install MSYS2
+      uses: numworks/setup-msys2@v1
+      with:
+        msystem: MING32
+
+    - name: Setup Dependencies
+      run: msys2do pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_image mingw32/mingw-w64-i686-SDL2_ttf mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-cmake make 
+
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build & Package
+      run: msys2do cmake/mingw32-i686-build.sh
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: build artifacts
+        path: ${{env.BUILD_DIR}}/Artifacts

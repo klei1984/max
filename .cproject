@@ -15,7 +15,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.base.762831889" name="Default" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="org.eclipse.cdt.build.core.emptycfg">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.base.762831889" name="Default" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.762831889.328966871" name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1231057479" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF;org.eclipse.cdt.core.PE64" id="cdt.managedbuild.target.gnu.platform.base.97854221" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
@@ -64,7 +64,6 @@
 		<project id="max.null.1216990879" name="max"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/max"/>
@@ -83,5 +82,17 @@
 		<doc-comment-owner id="org.eclipse.cdt.ui.doxygen">
 			<path value=""/>
 		</doc-comment-owner>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="cpack nsis installer" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>cpack</buildCommand>
+				<buildArguments/>
+				<buildTarget>-C Debug</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>false</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+		</buildTargets>
 	</storageModule>
 </cproject>
