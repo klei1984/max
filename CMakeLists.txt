@@ -73,6 +73,7 @@ endif (WIN32)
 
 if (MINGW)
     add_compile_options(-mno-ms-bitfields)
+    add_link_options(-mconsole)
 endif (MINGW)
 
 set(GAME_SOURCES

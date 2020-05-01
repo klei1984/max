@@ -24,6 +24,7 @@ import json
 
 
 class Codegen:
+    debug_all = False
     underscore = False
     config = None
     input_file = ""
@@ -37,14 +38,15 @@ class Codegen:
     @staticmethod
     def print_help():
         print(
-            ("Usage: %s OPTIONS\n"
+            ("Usage: %s OPTIONS <config.json>\n"
              "\n"
-             "Options:\n"
-             "  -h  --help		    shows this help text\n"
-             "  -i  --input         input resource file to process"
-             "  -o  --output        output directory to emit generated source files"
-             "  -u  --underscore	prefixes symbol names with an underscore\n") % (
-                sys.argv[0]))
+             "<config.json> path to configuration file\n"
+             "OPTIONS:\n"
+             "  -h  --help          shows this help text\n"
+             "  -i  --input         input resource file to process\n"
+             "  -o  --output        output directory to emit generated source files\n"
+             "  -u  --underscore    prefixes symbol names with an underscore\n"
+             "  -d  --debug-all     enable console log for all replaced functions\n") % (sys.argv[0]))
 
     @staticmethod
     def minify(file_path):
@@ -226,7 +228,7 @@ class Codegen:
         self.write_line('\t\tmov\t%esp,%ebp')
         if f["stack_align"] > 4:
             prologue_args += 1
-            if f["debug"]:
+            if f["debug"] or self.debug_all:
                 prologue_args += 1
 
         if prologue_args > 0:
@@ -288,7 +290,7 @@ class Codegen:
             self.write_line()
             for n in range(n_args):
                 self.write_line("\t\tpush\t0x%x(%%ebp)" % ((n_args - n + 1) * 4))
-        elif f["type"] == "vararg":
+        elif f["type"] == "variadic":
             assert n_args > 0
 
             self.write_line()
@@ -298,13 +300,13 @@ class Codegen:
                 self.write_line("\t\tpush\t0x%x(%%ebp)" % ((n_args - n) * 4))
 
     def debug(self, f):
-        if not f["debug"]:
+        if not f["debug"] and not self.debug_all:
             return
         self.align_push(f, 1)
         self.push_arguments(f)
         self.write_line('\t\tpush\t$0f')
         self.write_line('\t\tcall\t%s' % self.prefix_name("printf"))
-        arg_count = f["arguments_list"]
+        arg_count = len(f["arguments_list"])
         if arg_count == 0:
             return
         self.write_line('\t\tadd\t$0x%x,%%esp' % ((arg_count + 1) * 4))
@@ -341,21 +343,23 @@ class Codegen:
         for n, arg in enumerate(args):
             if n > 0:
                 buf.write(', ')
-            if arg == 'd':
-                buf.write('%lf')
-            if arg == 'i':
+            if arg["type_class"] == "integer":
                 buf.write('%i')
-            elif arg == 'x':
+            elif arg["type_class"] == "double":
+                buf.write('%lf')
+            elif arg["type_class"] == "float":
+                buf.write('%f')
+            elif arg["type_class"] == "hex":
                 buf.write('0x%x')
-            elif arg == 'p':
+            elif arg["type_class"] == "pointer":
                 buf.write('%p')
-            elif arg == 's':
+            elif arg["type_class"] == "string":
                 buf.write('\\"%s\\"')
-            elif arg == 'c':
+            elif arg["type_class"] == "character":
                 buf.write('\'%c\'')
-            elif arg == 'v':
+            elif arg["type_class"] == "stdarg":
                 buf.write('...')
-            elif arg == 'l':
+            elif arg["type_class"] == "varargs":
                 buf.write('(va_list) %p')
         return buf.getvalue()
 
@@ -381,12 +385,12 @@ class Codegen:
         self.epilogue()
         self.ret()
 
-        if f["debug"]:
+        if f["debug"] or self.debug_all:
             self.generate_format_string(f)
 
     def main(self):
         try:
-            opts, args = gnu_getopt(sys.argv[1:], 'hi:o:u', ('help', 'input=', 'output=', 'underscore'))
+            opts, args = gnu_getopt(sys.argv[1:], 'hi:o:ud', ('help', 'input=', 'output=', 'underscore', 'debug-all'))
 
         except GetoptError as message:
             print('Error:', message, file=sys.stderr)
@@ -402,13 +406,15 @@ class Codegen:
                 self.output_directory = arg
             elif opt in ('-u', '--underscore'):
                 self.underscore = True
+            elif opt in ('-d', '--debug-all'):
+                self.debug_all = True
 
-        if len(args) == 1:
-            self.config = self.minify(args[0])
-        elif len(args) > 1:
-            print('Error: Too many arguments', file=sys.stderr)
+        if len(args) != 1:
+            print('Error: Wrong number of arguments\n', file=sys.stderr)
+            self.print_help()
             sys.exit(1)
 
+        self.config = self.minify(args[0])
         self.read_config()
         self.process_resource_file()
         self.create_resource_header()

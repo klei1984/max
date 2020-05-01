@@ -24,7 +24,7 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "ptr",
 					"is_far": false
 				}
@@ -51,13 +51,13 @@
 				},
 				{
 					"type_name": "char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "str_expr",
 					"is_far": false
 				},
 				{
 					"type_name": "char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "str_file",
 					"is_far": false
 				},
@@ -89,7 +89,7 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "path",
 					"is_far": false
 				}
@@ -115,7 +115,7 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "path",
 					"is_far": false
 				},
@@ -127,7 +127,7 @@
 				},
 				{
 					"type_name": "...",
-					"type_class": "vararg",
+					"type_class": "stdarg",
 					"arg_name": null,
 					"is_far": false
 				}
@@ -200,7 +200,7 @@
 			"arguments_list": [
 				{
 					"type_name": "char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "path",
 					"is_far": false
 				},
@@ -238,13 +238,13 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "filename",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "mode",
 					"is_far": false
 				}
@@ -373,7 +373,7 @@
 			"mode": "replace",
 			"symbol": "fprintf_",
 			"debug": false,
-			"type": "vararg",
+			"type": "variadic",
 			"bitness": 32,
 			"align": 4,
 			"stack_align": 4,
@@ -392,13 +392,13 @@
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "format",
 					"is_far": false
 				},
 				{
 					"type_name": "...",
-					"type_class": "vararg",
+					"type_class": "stdarg",
 					"arg_name": null,
 					"is_far": false
 				}
@@ -693,7 +693,7 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "name",
 					"is_far": false
 				}
@@ -993,7 +993,7 @@
 				},
 				{
 					"type_name": "...",
-					"type_class": "vararg",
+					"type_class": "stdarg",
 					"arg_name": null,
 					"is_far": false
 				}
@@ -1102,7 +1102,7 @@
 			"mode": "replace",
 			"symbol": "sprintf_",
 			"debug": false,
-			"type": "vararg",
+			"type": "variadic",
 			"bitness": 32,
 			"align": 4,
 			"stack_align": 4,
@@ -1121,13 +1121,13 @@
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "format",
 					"is_far": false
 				},
 				{
 					"type_name": "...",
-					"type_class": "vararg",
+					"type_class": "stdarg",
 					"arg_name": null,
 					"is_far": false
 				}
@@ -1153,13 +1153,13 @@
 			"arguments_list": [
 				{
 					"type_name": "char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "dst",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "src",
 					"is_far": false
 				}
@@ -1185,13 +1185,13 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s1",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s2",
 					"is_far": false
 				}
@@ -1217,13 +1217,13 @@
 			"arguments_list": [
 				{
 					"type_name": "char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "dst",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "src",
 					"is_far": false
 				}
@@ -1249,13 +1249,13 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s1",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s2",
 					"is_far": false
 				}
@@ -1281,7 +1281,7 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s",
 					"is_far": false
 				}
@@ -1307,13 +1307,13 @@
 			"arguments_list": [
 				{
 					"type_name": "char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "dst",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "src",
 					"is_far": false
 				},
@@ -1345,13 +1345,13 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s1",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s2",
 					"is_far": false
 				},
@@ -1383,13 +1383,13 @@
 			"arguments_list": [
 				{
 					"type_name": "char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "dst",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "src",
 					"is_far": false
 				},
@@ -1421,13 +1421,13 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s1",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s2",
 					"is_far": false
 				},
@@ -1459,13 +1459,13 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "s",
 					"is_far": false
 				},
 				{
 					"type_name": "int",
-					"type_class": "integer",
+					"type_class": "character",
 					"arg_name": "c",
 					"is_far": false
 				}
@@ -1491,13 +1491,13 @@
 			"arguments_list": [
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "str",
 					"is_far": false
 				},
 				{
 					"type_name": "const char *",
-					"type_class": "pointer",
+					"type_class": "string",
 					"arg_name": "substr",
 					"is_far": false
 				}
@@ -1549,7 +1549,7 @@
 			"arguments_list": [
 				{
 					"type_name": "int",
-					"type_class": "integer",
+					"type_class": "character",
 					"arg_name": "c",
 					"is_far": false
 				}
@@ -1575,7 +1575,7 @@
 			"arguments_list": [
 				{
 					"type_name": "int",
-					"type_class": "integer",
+					"type_class": "character",
 					"arg_name": "c",
 					"is_far": false
 				}
