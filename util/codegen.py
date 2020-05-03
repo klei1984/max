@@ -134,13 +134,21 @@ class Codegen:
         self.write_line("#ifndef %s_H" % file_name.upper())
         self.write_line("#define %s_H" % file_name.upper())
         for function in self.config["functions"]:
-            if function["mode"] == "expose" and function["type"] == "watcall":
+            if function["mode"] == "expose":
                 assert function["name"] != function["symbol"]
                 self.write_line()
-                self.write_line("static inline %s {" % (function["prototype"]))
-                self.generate_function_body(function)
-                self.write_line("}")
-                self.write_line()
+
+                if function["type"] == "watcall":
+                    self.write_line("static inline %s {" % (function["prototype"]))
+                    self.generate_function_body(function)
+                    self.write_line("}")
+                    self.write_line()
+
+                elif function["type"] == "variadic" or function["type"] == "cdecl":
+                    self.write_line(
+                        "extern %s\t__asm(\"%s\");\n" % (function["prototype"], self.prefix_name(function["symbol"])))
+                else:
+                    assert False
 
         for variable in self.config["variables"]:
             self.write_line("extern %s;" % variable["prototype"])

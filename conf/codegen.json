@@ -3329,6 +3329,38 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "debug_printf",
+			"prototype": "int debug_printf(char *format, ...)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "debug_printf_",
+			"debug": false,
+			"type": "variadic",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "char *",
+					"type_class": "string",
+					"arg_name": "format",
+					"is_far": false
+				},
+				{
+					"type_name": "",
+					"type_class": "stdarg",
+					"arg_name": "...",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
