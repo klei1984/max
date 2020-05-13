@@ -23,8 +23,7 @@
 
 #include <stdio.h>
 
-#include "svga.h"
-#include "wrappers.h"
+#include "game.h"
 
 static void update_system_palette(SDL_Palette *palette);
 

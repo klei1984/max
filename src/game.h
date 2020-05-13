@@ -23,6 +23,10 @@
 #define GAME_H
 
 #include "gnw.h"
+#include "mouse.h"
+#include "svga.h"
 #include "units.h"
+#include "resrcmgr.h"
+#include "wrappers.h"
 
 #endif /* GAME_H */

@@ -22,6 +22,8 @@
 #ifndef UNITS_H
 #define UNITS_H
 
+#include <assert.h>
+
 struct __attribute__((packed)) UnitInfo_s {
     unsigned int flags;
     unsigned short data;
@@ -62,13 +64,38 @@ struct __attribute__((packed)) UnitInfo2_s {
     char* plural_name;
     char* description;
     char* alt_description;
-    int unknown_3;
-    int unknown_4;
-    int unknown_5;
+    void* sprite_ptr;
+    void* shadow_ptr;
+    void* unknown_5;
 };
 
 static_assert(sizeof(struct UnitInfo2_s) == 51, "The structure needs to be packed.");
 
 typedef struct UnitInfo2_s* UnitInfo2Ptr;
+
+struct __attribute__((packed)) Attribs_s {
+    unsigned short unknown1;
+    void* function_pointer;
+    unsigned short unknow2;
+    unsigned short turns_to_build;
+    unsigned short hit_points;
+    unsigned short armor_rating;
+    unsigned short attack_power;
+    unsigned short movement_speed;
+    unsigned short attack_range;
+    unsigned short rounds_per_turn;
+    unsigned char fire_speed;
+    unsigned short scan_range;
+    unsigned short storage_size;
+    unsigned short ammunition;
+    unsigned short area_attack_size;
+    unsigned short unknow3;
+    unsigned short unknow4;
+    unsigned char unknow5;
+};
+
+static_assert(sizeof(struct Attribs_s) == 36, "The structure needs to be packed.");
+
+typedef struct Attribs_s* AttribsPtr;
 
 #endif /* UNITS_H */

@@ -21,9 +21,7 @@
 
 #include "mouse.h"
 
-#include "svga.h"
-#include "vcr.h"
-#include "wrappers.h"
+#include "game.h"
 
 int GNW_mouse_init(void) {
     SDL_ShowCursor(SDL_DISABLE);

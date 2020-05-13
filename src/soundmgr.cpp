@@ -21,7 +21,7 @@
 
 #include "soundmgr.hpp"
 
-#include "resrcmgr.hpp"
+#include "resrcmgr.h"
 
 extern "C" {
 

@@ -26,8 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "svga.h"
-#include "wrappers.h"
+#include "game.h"
 
 #ifdef __unix__
 #include <unistd.h>

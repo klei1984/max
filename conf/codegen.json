@@ -3361,6 +3361,458 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "fatal_error",
+			"prototype": "void fatal_error(unsigned char error_code)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "fatal_error_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char",
+					"type_class": "integer",
+					"arg_name": "error_code",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "mouse_hide",
+			"prototype": "void mouse_hide(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "mouse_hide_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "mouse_show",
+			"prototype": "void mouse_show(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "mouse_show_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "init_mouse_gfx_luts",
+			"prototype": "void init_mouse_gfx_luts(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "init_mouse_gfx_luts_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "sub_C0D94",
+			"prototype": "void sub_C0D94(char unknown)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "sub_C0D94_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "char",
+					"type_class": "integer",
+					"arg_name": "unknown",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "sub_C36FA",
+			"prototype": "int sub_C36FA(void *object, const char *string)",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "sub_C36FA_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "object",
+					"is_far": false
+				},
+				{
+					"type_name": "const char *",
+					"type_class": "string",
+					"arg_name": "string",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "sub_C4113",
+			"prototype": "int sub_C4113(void *object, const char *string, unsigned int *unknown)",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "sub_C4113_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "object",
+					"is_far": false
+				},
+				{
+					"type_name": "const char *",
+					"type_class": "string",
+					"arg_name": "string",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned int *",
+					"type_class": "integer",
+					"arg_name": "unknown",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "unit2_init",
+			"prototype": "void unit2_init(UnitInfo2Ptr ptr, UnitInfoPtr unit_ptr)",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "unit2_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "UnitInfo2Ptr",
+					"type_class": "pointer",
+					"arg_name": "ptr",
+					"is_far": false
+				},
+				{
+					"type_name": "UnitInfoPtr",
+					"type_class": "pointer",
+					"arg_name": "unit_ptr",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "get_attribs_param",
+			"prototype": "int get_attribs_param(const char *string, unsigned short *offset)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "get_attribs_param_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "const char *",
+					"type_class": "pointer",
+					"arg_name": "string",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned short *",
+					"type_class": "pointer",
+					"arg_name": "offset",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "load_game_resource",
+			"prototype": "void *load_game_resource(GAME_RESOURCE id)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "load_game_resource_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "void *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "realloc_game_resource",
+			"prototype": "void realloc_game_resource(GAME_RESOURCE id, char *buffer, int data_size)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "realloc_game_resource_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "buffer",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "data_size",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "read_game_resource",
+			"prototype": "void *read_game_resource(GAME_RESOURCE id)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "read_game_resource_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "void *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "get_resource_data_size",
+			"prototype": "unsigned int get_resource_data_size(GAME_RESOURCE id)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "get_resource_data_size_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "get_file_ptr_to_resource",
+			"prototype": "FILE *get_file_ptr_to_resource(GAME_RESOURCE id)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "get_file_ptr_to_resource_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "FILE *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "deinit_mem_type_resources",
+			"prototype": "void deinit_mem_type_resources(void)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "deinit_mem_type_resources_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "read_game_resource_into_buffer",
+			"prototype": "int read_game_resource_into_buffer(GAME_RESOURCE id, void *buffer)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "read_game_resource_into_buffer_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "buffer",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "init_game_resources",
+			"prototype": "int init_game_resources(void)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "init_game_resources_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "sub_A697A",
+			"prototype": "unsigned int sub_A697A(void *unknown, GAME_RESOURCE id)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "sub_A697A_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "unknown",
+					"is_far": false
+				},
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
@@ -3474,6 +3926,254 @@
 			"component": "vcr",
 			"mode": "expose",
 			"symbol": "_scr_size",
+			"align": 1
+		},
+		{
+			"name": "units",
+			"prototype": "struct UnitInfo_s units[93]",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_units",
+			"align": 1
+		},
+		{
+			"name": "units2",
+			"prototype": "struct UnitInfo2_s units2[93]",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_units2",
+			"align": 1
+		},
+		{
+			"name": "unknown_path1",
+			"prototype": "char unknown_path1[100]",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_unknown_path1",
+			"align": 1
+		},
+		{
+			"name": "unknown_path2",
+			"prototype": "char unknown_path2[100]",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_unknown_path2",
+			"align": 1
+		},
+		{
+			"name": "dword_1770E0",
+			"prototype": "char *dword_1770E0",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770E0",
+			"align": 1
+		},
+		{
+			"name": "dword_1770E4",
+			"prototype": "char *dword_1770E4",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770E4",
+			"align": 1
+		},
+		{
+			"name": "dword_1770E8",
+			"prototype": "char *dword_1770E8",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770E8",
+			"align": 1
+		},
+		{
+			"name": "dword_1770A0",
+			"prototype": "char *dword_1770A0",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770A0",
+			"align": 1
+		},
+		{
+			"name": "dword_1770A4",
+			"prototype": "char *dword_1770A4",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770A4",
+			"align": 1
+		},
+		{
+			"name": "dword_1770A8",
+			"prototype": "char *dword_1770A8",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770A8",
+			"align": 1
+		},
+		{
+			"name": "dword_1770AC",
+			"prototype": "char *dword_1770AC",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770AC",
+			"align": 1
+		},
+		{
+			"name": "dword_1770B0",
+			"prototype": "char *dword_1770B0",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770B0",
+			"align": 1
+		},
+		{
+			"name": "dword_1770B4",
+			"prototype": "char *dword_1770B4",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770B4",
+			"align": 1
+		},
+		{
+			"name": "dword_1770B8",
+			"prototype": "char *dword_1770B8",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770B8",
+			"align": 1
+		},
+		{
+			"name": "dword_1770BC",
+			"prototype": "char *dword_1770BC",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770BC",
+			"align": 1
+		},
+		{
+			"name": "dword_1770C4",
+			"prototype": "char *dword_1770C4",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770C4",
+			"align": 1
+		},
+		{
+			"name": "dword_1770C0",
+			"prototype": "char *dword_1770C0",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770C0",
+			"align": 1
+		},
+		{
+			"name": "dword_1770C8",
+			"prototype": "char *dword_1770C8",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770C8",
+			"align": 1
+		},
+		{
+			"name": "dword_1770CC",
+			"prototype": "char *dword_1770CC",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1770CC",
+			"align": 1
+		},
+		{
+			"name": "dword_17945C",
+			"prototype": "char *dword_17945C",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_17945C",
+			"align": 1
+		},
+		{
+			"name": "dword_1761B6",
+			"prototype": "char *dword_1761B6",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1761B6",
+			"align": 1
+		},
+		{
+			"name": "dword_1764B2",
+			"prototype": "char *dword_1764B2",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1764B2",
+			"align": 1
+		},
+		{
+			"name": "dword_1767AE",
+			"prototype": "char *dword_1767AE",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_1767AE",
+			"align": 1
+		},
+		{
+			"name": "dword_176AAA",
+			"prototype": "char *dword_176AAA",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_176AAA",
+			"align": 1
+		},
+		{
+			"name": "dword_176DA6",
+			"prototype": "char *dword_176DA6",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_dword_176DA6",
+			"align": 1
+		},
+		{
+			"name": "word_1761B4",
+			"prototype": "short word_1761B4",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_word_1761B4",
+			"align": 1
+		},
+		{
+			"name": "word_1764B0",
+			"prototype": "short word_1764B0",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_word_1764B0",
+			"align": 1
+		},
+		{
+			"name": "word_1767AC",
+			"prototype": "short word_1767AC",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_word_1767AC",
+			"align": 1
+		},
+		{
+			"name": "word_176AA8",
+			"prototype": "short word_176AA8",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_word_176AA8",
+			"align": 1
+		},
+		{
+			"name": "word_176DA4",
+			"prototype": "short word_176DA4",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_word_176DA4",
+			"align": 1
+		},
+		{
+			"name": "game_resource_meta_ptr",
+			"prototype": "GameResourceMeta *game_resource_meta_ptr",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "_game_resource_meta_ptr",
 			"align": 1
 		}
 	]
