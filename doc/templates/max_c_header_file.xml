@@ -19,8 +19,7 @@
  * SOFTWARE.
  */
 
-
-#ifndef 
+#ifndef ${file_base}_H
 #define ${file_base}_H
 
 ${includes}
