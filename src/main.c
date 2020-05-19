@@ -22,8 +22,6 @@
 #include <SDL.h>
 
 #include "game.h"
-#include "svga.h"
-#include "wrappers.h"
 
 int main(int argc, char *argv[]) {
     int retval;

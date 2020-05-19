@@ -24,10 +24,12 @@
 
 #include <assert.h>
 
+#include "memory.h"
 #include "rect.h"
+#include "debug.h"
+#include "input.h"
 #include "interface.h"
 #include "button.h"
-#include "input.h"
 #include "kb.h"
 #include "vcr.h"
 

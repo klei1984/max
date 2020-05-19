@@ -29,4 +29,14 @@ typedef struct Rect_s {
     int lry;
 } Rect;
 
+typedef struct rectdata* RectPtr;
+
+void GNW_rect_exit(void);
+void rect_clip_list(RectPtr* pCur, Rect* bound);
+RectPtr rect_clip(Rect* b, Rect* t);
+RectPtr rect_malloc(void);
+void rect_free(RectPtr ptr);
+void rect_min_bound(Rect* r1, Rect* r2, Rect* min_bound);
+int rect_inside_bound(Rect* r1, Rect* bound, Rect* r2);
+
 #endif /* RECT_H */

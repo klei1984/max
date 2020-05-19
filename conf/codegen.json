@@ -3813,6 +3813,239 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "mem_free",
+			"prototype": "void mem_free(void *ptr)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "mem_free_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "ptr",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "mem_malloc",
+			"prototype": "void *mem_malloc(size_t size)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "mem_malloc_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "void *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "size_t",
+					"type_class": "integer",
+					"arg_name": "size",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_rect_exit",
+			"prototype": "void GNW_rect_exit(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_rect_exit_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "rect_clip_list",
+			"prototype": "void rect_clip_list(RectPtr* pCur, Rect* bound)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "rect_clip_list_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "RectPtr*",
+					"type_class": "pointer",
+					"arg_name": "pCur",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "bound",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "rect_clip",
+			"prototype": "RectPtr rect_clip(Rect* b, Rect* t)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "rect_clip_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "RectPtr",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "b",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "t",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "rect_malloc",
+			"prototype": "RectPtr rect_malloc(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "rect_malloc_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "RectPtr",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "rect_free",
+			"prototype": "void rect_free(RectPtr ptr)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "rect_free_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "RectPtr",
+					"type_class": "pointer",
+					"arg_name": "ptr",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "rect_min_bound",
+			"prototype": "void rect_min_bound(Rect* r1, Rect* r2, Rect* min_bound)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "rect_min_bound_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "r1",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "r2",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "min_bound",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "rect_inside_bound",
+			"prototype": "int rect_inside_bound(Rect* r1, Rect* bound, Rect* r2)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "rect_inside_bound_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "r1",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "bound",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect*",
+					"type_class": "pointer",
+					"arg_name": "r2",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
