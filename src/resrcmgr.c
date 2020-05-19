@@ -232,7 +232,7 @@ void deinit_mem_type_resources(void) {
         }
     }
 
-    for (short j; j < UNIT_END; ++j) {
+    for (short j = 0; j < UNIT_END; ++j) {
         units2[j].sprite_ptr = NULL;
         units2[j].shadow_ptr = NULL;
         units2[j].unknown_5 = NULL;
