@@ -24,14 +24,14 @@
 
 #include <stddef.h>
 
-typedef void (*MallocFunc)(size_t);
+typedef void* (*MallocFunc)(size_t);
 typedef void* (*ReallocFunc)(void*, size_t);
 typedef void (*FreeFunc)(void*);
 
 char* mem_strdup(char* src);
-// void* mem_malloc(size_t size);
+void* mem_malloc(size_t size);
 void* mem_realloc(void* old_blk, size_t size);
-// void mem_free(void* ptr);
+void mem_free(void* ptr);
 void mem_check(void);
 void mem_register_func(MallocFunc* new_malloc, ReallocFunc* new_realloc, FreeFunc* new_free);
 

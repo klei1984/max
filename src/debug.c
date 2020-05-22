@@ -27,3 +27,5 @@ static int debug_screen(char* str);
 static void debug_putc(int c);
 static void debug_scroll(void);
 static void debug_exit(void);
+
+void GNW_debug_init(void) { atexit(debug_exit); }

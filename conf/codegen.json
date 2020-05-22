@@ -3818,7 +3818,7 @@
 			"name": "mem_free",
 			"prototype": "void mem_free(void *ptr)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "mem_free_",
 			"debug": false,
 			"type": "watcall",
@@ -3839,7 +3839,7 @@
 			"name": "mem_malloc",
 			"prototype": "void *mem_malloc(size_t size)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "mem_malloc_",
 			"debug": false,
 			"type": "watcall",
@@ -3853,6 +3853,38 @@
 				"is_far": false
 			},
 			"arguments_list": [
+				{
+					"type_name": "size_t",
+					"type_class": "integer",
+					"arg_name": "size",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "mem_realloc",
+			"prototype": "void *mem_realloc(void *old_blk, size_t size)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "mem_realloc_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "void *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "old_blk",
+					"is_far": false
+				},
 				{
 					"type_name": "size_t",
 					"type_class": "integer",
@@ -3878,7 +3910,7 @@
 		},
 		{
 			"name": "rect_clip_list",
-			"prototype": "void rect_clip_list(RectPtr* pCur, Rect* bound)",
+			"prototype": "void rect_clip_list(RectPtr *pCur, Rect *bound)",
 			"component": "gnw",
 			"mode": "replace",
 			"symbol": "rect_clip_list_",
@@ -3890,13 +3922,13 @@
 			"return": null,
 			"arguments_list": [
 				{
-					"type_name": "RectPtr*",
+					"type_name": "RectPtr *",
 					"type_class": "pointer",
 					"arg_name": "pCur",
 					"is_far": false
 				},
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "bound",
 					"is_far": false
@@ -3905,7 +3937,7 @@
 		},
 		{
 			"name": "rect_clip",
-			"prototype": "RectPtr rect_clip(Rect* b, Rect* t)",
+			"prototype": "RectPtr rect_clip(Rect *b, Rect *t)",
 			"component": "gnw",
 			"mode": "replace",
 			"symbol": "rect_clip_",
@@ -3922,13 +3954,13 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "b",
 					"is_far": false
 				},
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "t",
 					"is_far": false
@@ -3978,7 +4010,7 @@
 		},
 		{
 			"name": "rect_min_bound",
-			"prototype": "void rect_min_bound(Rect* r1, Rect* r2, Rect* min_bound)",
+			"prototype": "void rect_min_bound(Rect *r1, Rect *r2, Rect *min_bound)",
 			"component": "gnw",
 			"mode": "replace",
 			"symbol": "rect_min_bound_",
@@ -3990,19 +4022,19 @@
 			"return": null,
 			"arguments_list": [
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "r1",
 					"is_far": false
 				},
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "r2",
 					"is_far": false
 				},
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "min_bound",
 					"is_far": false
@@ -4011,7 +4043,7 @@
 		},
 		{
 			"name": "rect_inside_bound",
-			"prototype": "int rect_inside_bound(Rect* r1, Rect* bound, Rect* r2)",
+			"prototype": "int rect_inside_bound(Rect *r1, Rect *bound, Rect *r2)",
 			"component": "gnw",
 			"mode": "replace",
 			"symbol": "rect_inside_bound_",
@@ -4028,21 +4060,66 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "r1",
 					"is_far": false
 				},
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "bound",
 					"is_far": false
 				},
 				{
-					"type_name": "Rect*",
+					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "r2",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "buf_fill",
+			"prototype": "void buf_fill(unsigned char* buf, int width, int length, int full, int color)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "buf_fill_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char*",
+					"type_class": "pointer",
+					"arg_name": "buf",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
 					"is_far": false
 				}
 			]
@@ -4407,6 +4484,14 @@
 			"component": "max",
 			"mode": "expose",
 			"symbol": "_game_resource_meta_ptr",
+			"align": 1
+		},
+		{
+			"name": "GNW_win_init_flag",
+			"prototype": "int GNW_win_init_flag",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_GNW_win_init_flag",
 			"align": 1
 		}
 	]

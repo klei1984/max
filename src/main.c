@@ -46,6 +46,8 @@ int main(int argc, char *argv[]) {
     /* call game main() */
     retval = dos_main(argc, argv);
 
+    mem_check();
+
     SDL_Quit();
 
     return retval;
