@@ -3063,11 +3063,11 @@
 			]
 		},
 		{
-			"name": "debug_register_env",
-			"prototype": "void debug_register_env(void)",
+			"name": "GNW_debug_init",
+			"prototype": "void GNW_debug_init(void)",
 			"component": "gnw",
-			"mode": "expose",
-			"symbol": "debug_register_env_",
+			"mode": "replace",
+			"symbol": "GNW_debug_init_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,
@@ -3103,7 +3103,7 @@
 				},
 				{
 					"type_name": "char* []",
-					"type_class": "integer",
+					"type_class": "pointer",
 					"arg_name": "argv",
 					"is_far": false
 				}
@@ -3326,38 +3326,6 @@
 					"type_name": "bool",
 					"type_class": "integer",
 					"arg_name": "vertical_align",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "debug_printf",
-			"prototype": "int debug_printf(char *format, ...)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "debug_printf_",
-			"debug": false,
-			"type": "variadic",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "char *",
-					"type_class": "string",
-					"arg_name": "format",
-					"is_far": false
-				},
-				{
-					"type_name": "",
-					"type_class": "stdarg",
-					"arg_name": "...",
 					"is_far": false
 				}
 			]
@@ -4120,6 +4088,32 @@
 					"type_name": "int",
 					"type_class": "integer",
 					"arg_name": "color",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_debug",
+			"prototype": "int win_debug(char* str)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "win_debug_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "char*",
+					"type_class": "pointer",
+					"arg_name": "str",
 					"is_far": false
 				}
 			]

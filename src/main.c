@@ -34,12 +34,8 @@ int main(int argc, char *argv[]) {
     /* run all initializer routines */
     __InitRtns(0xFF);
 
-    /* initialize debug services - requires environment variable
-     * DEBUGACTIVE with one of the following values to be set:
-     * - mono
-     * - log
-     * - screen
-     * - gnw
+    /* initialize debug services - requires environment variable DEBUGACTIVE with
+     * one of the following values to be set: log, screen, gnw
      */
     debug_register_env();
 

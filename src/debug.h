@@ -22,13 +22,14 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+typedef int (*text_size_func)(char*);
+
 void GNW_debug_init(void);
-void debug_register_mono(void);
 void debug_register_log(char* fname, char* mode);
 void debug_register_screen(void);
-// void debug_register_env(void);
-// void debug_register_func(?* func);
-// int debug_printf(char* format);
+void debug_register_env(void);
+void debug_register_func(text_size_func);
+int debug_printf(char* format, ...);
 int debug_puts(char* str);
 void debug_clear(void);
 
