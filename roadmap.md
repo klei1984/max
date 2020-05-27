@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2020-05-03.
+Last updated: 2020-05-27.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -81,7 +81,9 @@ Items in the list are color-coded using the following interpretation:
 - Replace the VESA driver
 - Replace VBE driver
 - Replace HMI SOS
-- Reimplement GNW library (debug support, windowing, memory manager, ...)
+- <span class="legend-inwork">
+  Reimplement GNW library (debug support, windowing, memory manager, ...)
+  </span>
 - Reimplement the color palette manager library
 - Reimplement the database library
 - Reimplement the MVE library

@@ -6,7 +6,7 @@ driveId: 1rnWtWycZB-T-73v4Xeo1rsSuuDFW9omP/preview
 categories:
 ---
 M.A.X. has many hidden secrets.
-<br><br>Back in 1996 when I played the v1.00 Interactive Demo I seen a building called **Monopole Mine** that was not possible to build actually. The building required 60 game turns to build and the demo concluded after just 50 turns of gameplay; in the v1.00 demo faster build time for more resources was not available yet.
+<br><br>Back in 1996 when I played the v1.00 Interactive Demo I seen a building called **Monopole Mine** that was not possible to build actually.
 <br>Any ways the building's statistics was actually observable via the initial upgrades menu and I always wondered what was the purpose of this building and why was it removed from the retail version. A building that exploits magnetic monopoles for free infinite energy... sure would have had come in handy as a super-duper power generator if there would have been buildings that would have consumed tons of energy... like a shield generator for example.
 <br><br>Apparently there are several buildings and even a mobile unit that never made it into the actual game in the form as they were originally designed. For example the **Recreation Center** was converted into an **Alien Derelict**. A recreation center? Like foot soldiers not only gain experience level, but would require relaxation? Or productivity in Eco-Spheres could be increased by relaxed workers living in Habitats?
 <br><img src="{{ site.baseurl }}/assets/images/recreation_center_alienized.jpg" alt="Recreation Center converted to an Alien Derelict">
