@@ -24,10 +24,10 @@ In a certain unclarified game mode when the game concludes with either winning o
 <br>
 **\*\*TODO\*\*** After figuring out which game mode the offending code belongs to the defect could be fixed if it is proven that the sound is played in a meaningful context when the proper input argument is passed.
 
-7. **\*\*FIXED\*\*** The load_font() function in GNW's text.c module leaks a file handle in case the requested amount of character descriptions cannot be read from the font file.
+7. **\*\*FIXED\*\*** The load_font() function in GNW's text.c module leaks a file handle in case the requested amount of character descriptors cannot be read from the font file.
 
 8. **\*\*FIXED\*\*** The text_remove_manager() function in GNW's text.c module could perform out of bounds read access to an array of structures in corner cases.
 
-9. **\*\*FIXED\*\*** The text_remove_manager() function in GNW's text.c module is supposed to remove a previously created text manager instance. Instead of linked lists and dynamic memory allocation the module supports maximum ten managers that could be stored in a preallocated array. E.g. to remove a manager from array position 3 the function would simply shift managers 4-9 to positions 3-8 overwriting position 3 in the process. The function uses memmove() which allows overlapping source and destination addresses which is good. The problem is that the data size to move is defined by count * sizeof(FontMgrPtr) instead of count * sizeof(FontMgr). The structure is 20 bytes long while its pointer is just 4 on 2 bit platforms. In sort this GNW API function is broken. Maybe this is the reason why M.A.X. does not even call it.
+9. **\*\*FIXED\*\*** The text_remove_manager() function in GNW's text.c module is supposed to remove a previously created text manager instance. Instead of linked lists and dynamic memory allocation the module supports maximum ten managers that could be stored in a preallocated array. E.g. to remove a manager from array position 3 the function would simply shift managers 4-9 to positions 3-8 overwriting position 3 in the process. The function uses memmove() which allows overlapping source and destination addresses which is good. The problem is that the data size to move is defined by count * sizeof(FontMgrPtr) instead of count * sizeof(FontMgr). The structure is 20 bytes long while its pointer is just 4 on 32 bit platforms. In sort this GNW API function is broken. Maybe this is the reason why M.A.X. does not even call it.
 
 10.
