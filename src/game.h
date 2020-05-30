@@ -22,6 +22,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+void init_callbacks(void);
+
 #include "gnw.h"
 #include "mouse.h"
 #include "resrcmgr.h"

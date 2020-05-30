@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
      */
     debug_register_env();
 
+    init_callbacks();
+
     /* call game main() */
     retval = dos_main(argc, argv);
 

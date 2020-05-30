@@ -22,45 +22,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef void (*text_font_func)(int);
-typedef void (*text_to_buf_func)(unsigned char*, char*, int, int, int);
-typedef int (*text_height_func)(void);
-typedef int (*text_width_func)(char*);
-typedef int (*text_char_width_func)(char);
-typedef int (*text_mono_width_func)(char*);
-typedef int (*text_spacing_func)(void);
-typedef int (*text_size_func)(char*);
-typedef int (*text_max_func)(void);
-
-typedef struct {
-    int low_font_num;
-    int high_font_num;
-    text_font_func text_font;
-    text_to_buf_func text_to_buf;
-    text_height_func text_height;
-    text_width_func text_width;
-    text_char_width_func text_char_width;
-    text_mono_width_func text_mono_width;
-    text_spacing_func text_spacing;
-    text_size_func text_size;
-    text_max_func text_max;
-} FontMgr, *FontMgrPtr;
-
-int text_font_exists(int font_num, FontMgrPtr* mgr);
-int text_add_manager(FontMgrPtr mgr);
-int GNW_text_init(void);
 void get_start_mode(void);
 int init_mode_640_480(void);
 int init_vesa_mode(int mode, int width, int height, int half);
-
-typedef struct Rect_s {
-    int ulx;
-    int uly;
-    int lrx;
-    int lry;
-} Rect;
-
-typedef void* DB_FILE;
 
 struct _RMREGSX {
     unsigned int edi;

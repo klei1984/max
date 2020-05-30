@@ -24,6 +24,8 @@
 
 #include <SDL.h>
 
+typedef unsigned char ColorIndex;
+
 void setSystemPalette(unsigned char *cmap);
 void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
 

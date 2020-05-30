@@ -27,11 +27,14 @@
 #include "memory.h"
 #include "rect.h"
 #include "debug.h"
+#include "text.h"
 #include "input.h"
+#include "db.h"
 #include "interface.h"
 #include "button.h"
 #include "kb.h"
 #include "vcr.h"
+#include "color.h"
 
 struct GNW_Window_s {
     WinID id;

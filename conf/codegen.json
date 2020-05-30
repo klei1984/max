@@ -3235,10 +3235,117 @@
 			]
 		},
 		{
+			"name": "GNW_text_init",
+			"prototype": "int GNW_text_init(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_text_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "GNW_text_exit",
+			"prototype": "void GNW_text_exit(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_text_exit_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "text_add_manager",
+			"prototype": "int text_add_manager(FontMgrPtr mgr)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "text_add_manager_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "FontMgrPtr",
+					"type_class": "pointer",
+					"arg_name": "mgr",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "text_remove_manager",
+			"prototype": "int text_remove_manager(int font_num)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "text_remove_manager_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "font_num",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "text_curr",
+			"prototype": "int text_curr(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "text_curr_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
 			"name": "text_font",
 			"prototype": "void text_font(int font_num)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "text_font_",
 			"debug": false,
 			"type": "watcall",
@@ -4117,6 +4224,108 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "db_fopen",
+			"prototype": "DB_FILE * db_fopen(char * filename, char * mode)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_fopen_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "DB_FILE *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "filename",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "mode",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "db_fread",
+			"prototype": "size_t db_fread(void* ptr, size_t size, size_t nmemb, DB_FILE* stream)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_fread_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "size_t",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "void*",
+					"type_class": "pointer",
+					"arg_name": "ptr",
+					"is_far": false
+				},
+				{
+					"type_name": "size_t",
+					"type_class": "integer",
+					"arg_name": "size",
+					"is_far": false
+				},
+				{
+					"type_name": "size_t",
+					"type_class": "integer",
+					"arg_name": "nmemb",
+					"is_far": false
+				},
+				{
+					"type_name": "DB_FILE*",
+					"type_class": "pointer",
+					"arg_name": "stream",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "db_fclose",
+			"prototype": "int db_fclose(DB_FILE* stream)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_fclose_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "DB_FILE *",
+					"type_class": "pointer",
+					"arg_name": "stream",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
@@ -4486,6 +4695,14 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_GNW_win_init_flag",
+			"align": 1
+		},
+		{
+			"name": "colorTable",
+			"prototype": "ColorIndex colorTable[32768]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_colorTable",
 			"align": 1
 		}
 	]

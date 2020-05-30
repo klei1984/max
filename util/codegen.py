@@ -13,7 +13,7 @@ including limited support for the big code model for __far calls and the big dat
 __author__ = "M.A.X. Port Team"
 __copyright__ = "Copyright (c) 2020 M.A.X. Port Team"
 __license__ = "MIT License"
-__version__ = "0.31"
+__version__ = "0.32"
 
 import re
 import sys
@@ -167,6 +167,8 @@ class Codegen:
         self.write_line("/* Helper macros */")
         self.write_line("#define GLOBAL(sym) .global sym")
         self.write_line("#define REPLACE(sym) REMOVED_##sym")
+        self.write_line()
+        self.write_line("#include \"user.h\"")
         self.write_line()
         self.write_line("/* Replaced and exposed symbols */")
 
