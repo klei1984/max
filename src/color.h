@@ -26,6 +26,8 @@
 
 typedef unsigned char ColorIndex;
 
+extern ColorIndex colorTable[32768];
+
 void setSystemPalette(unsigned char *cmap);
 void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
 

@@ -21,6 +21,8 @@
 
 #include "timer.h"
 
+#include <SDL.h>
+
 int timer_init(void) { return 0; }
 
 int timer_close(void) { return 0; }

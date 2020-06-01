@@ -25,7 +25,6 @@
 void init_callbacks(void);
 
 #include "gnw.h"
-#include "mouse.h"
 #include "resrcmgr.h"
 #include "svga.h"
 #include "units.h"

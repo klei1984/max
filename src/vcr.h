@@ -22,8 +22,8 @@
 #ifndef VCR_H
 #define VCR_H
 
-#include "input.h"
 #include "kb.h"
+#include "timer.h"
 
 typedef enum VCREventType_e {
     nop = 0x0,
@@ -68,5 +68,12 @@ typedef struct VCREventRecord_s {
     unsigned long counter;
     VCREventData data;
 } VCREventRecord;
+
+extern int vcr_buffer_index;
+extern VCREventRecord* vcr_buffer;
+extern TOCKS vcr_time;
+extern unsigned int vcr_counter;
+
+// int vcr_dump_buffer(void);
 
 #endif /* VCR_H */

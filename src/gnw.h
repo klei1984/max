@@ -26,6 +26,7 @@
 
 #include "memory.h"
 #include "rect.h"
+#include "mouse.h"
 #include "debug.h"
 #include "text.h"
 #include "input.h"
@@ -52,5 +53,8 @@ struct GNW_Window_s {
     GNW_Menu *menu;
     trans_b2b trans_b2b_ptr;
 };
+
+// void win_refresh_all(Rect *bound);
+// void win_get_mouse_buf(char *buf);
 
 #endif /* GNW_H */

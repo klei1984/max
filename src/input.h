@@ -22,6 +22,12 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-typedef unsigned int TOCKS;
+#include "timer.h"
+
+typedef void (*BackgroundProcess)(void);
+
+// void add_bk_process(BackgroundProcess f);
+// void remove_bk_process(BackgroundProcess f);
+// TOCKS elapsed_time(TOCKS past_time);
 
 #endif /* INPUT_H */
