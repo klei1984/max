@@ -26,8 +26,6 @@
 #include "svga.h"
 #include "timer.h"
 
-extern ScreenBlitFunc mouse_blit;
-
 int GNW_mouse_init(void);
 void GNW_mouse_exit(void);
 int mouse_get_shape(unsigned char** buf, int* width, int* length, int* full, int* hotx, int* hoty, char* trans);

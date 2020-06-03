@@ -3520,7 +3520,7 @@
 			"name": "vcr_stop",
 			"prototype": "void vcr_stop(void)",
 			"component": "vcr",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "vcr_stop_",
 			"debug": false,
 			"type": "watcall",
@@ -4738,7 +4738,7 @@
 			"name": "vcr_dump_buffer",
 			"prototype": "int vcr_dump_buffer(void)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "vcr_dump_buffer_",
 			"debug": false,
 			"type": "watcall",
@@ -4747,6 +4747,154 @@
 			"stack_align": 4,
 			"return": {
 				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "db_fwriteLong",
+			"prototype": "int db_fwriteLong(DB_FILE* stream, unsigned long l)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_fwriteLong_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "DB_FILE *",
+					"type_class": "pointer",
+					"arg_name": "stream",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned long",
+					"type_class": "integer",
+					"arg_name": "l",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "db_freadInt",
+			"prototype": "int db_freadInt(DB_FILE* stream, int* i)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_freadInt_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "DB_FILE *",
+					"type_class": "pointer",
+					"arg_name": "stream",
+					"is_far": false
+				},
+				{
+					"type_name": "int * ",
+					"type_class": "integer",
+					"arg_name": "i",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "db_freadShort",
+			"prototype": "int db_freadShort(DB_FILE* stream, unsigned short* s)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_freadShort_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "DB_FILE *",
+					"type_class": "pointer",
+					"arg_name": "stream",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned short *",
+					"type_class": "pointer",
+					"arg_name": "s",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "db_fwriteShort",
+			"prototype": "int db_fwriteShort(DB_FILE* stream, unsigned short s)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_fwriteShort_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "DB_FILE *",
+					"type_class": "pointer",
+					"arg_name": "stream",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned short",
+					"type_class": "pointer",
+					"arg_name": "s",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "vcr_update",
+			"prototype": "VCREventType vcr_update(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "vcr_update_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "VCREventType",
 				"type_class": "integer",
 				"arg_name": null,
 				"is_far": false

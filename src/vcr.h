@@ -22,6 +22,9 @@
 #ifndef VCR_H
 #define VCR_H
 
+#include <assert.h>
+
+#include "db.h"
 #include "kb.h"
 #include "timer.h"
 
@@ -69,11 +72,25 @@ typedef struct VCREventRecord_s {
     VCREventData data;
 } VCREventRecord;
 
+static_assert(sizeof(struct VCREventRecord_s) == 24, "The structure needs to be packed.");
+
+typedef void (*VCRNotifyCallback)(int);
+
 extern int vcr_buffer_index;
 extern VCREventRecord* vcr_buffer;
 extern TOCKS vcr_time;
 extern unsigned int vcr_counter;
+extern int vcr_state;
+extern int vcr_terminate_flags;
+extern int vcr_terminated_condition;
 
-// int vcr_dump_buffer(void);
+int vcr_record(char* record_file);
+int vcr_play(char* playback_file, int terminate_flags, VCRNotifyCallback notify_callback);
+int vcr_stop(void);
+int vcr_status(void);
+VCREventType vcr_update(void);
+int vcr_dump_buffer(void);
+int vcr_save_record(VCREventRecord* record, DB_FILE* fp);
+int vcr_load_record(VCREventRecord* record, DB_FILE* fp);
 
 #endif /* VCR_H */
