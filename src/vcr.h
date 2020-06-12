@@ -26,7 +26,7 @@
 
 #include "db.h"
 #include "kb.h"
-#include "timer.h"
+#include "input.h"
 
 typedef enum VCREventType_e {
     nop = 0x0,

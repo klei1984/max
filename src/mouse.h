@@ -24,7 +24,9 @@
 
 #include "rect.h"
 #include "svga.h"
-#include "timer.h"
+#include "input.h"
+
+extern ScreenBlitFunc mouse_blit;
 
 int GNW_mouse_init(void);
 void GNW_mouse_exit(void);

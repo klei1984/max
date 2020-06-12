@@ -320,7 +320,6 @@ void mouse_info(void) {
     if (have_mouse && !mouse_is_hidden && !mouse_disabled) {
         unsigned int button_bitmask;
 
-        SDL_PumpEvents();
         button_bitmask = SDL_GetRelativeMouseState(&delta_x, &delta_y);
 
         if (SDL_BUTTON(SDL_BUTTON_LEFT) & button_bitmask) {

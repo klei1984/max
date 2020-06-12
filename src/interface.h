@@ -22,9 +22,13 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include <assert.h>
+
+#include "rect.h"
+
 typedef int WinID;
 
-typedef void (*trans_b2b)(unsigned char *, int, int, int, unsigned char *, int);
+typedef void (*Trans_b2b)(unsigned char *, int, int, int, unsigned char *, int);
 
 typedef struct GNW_Menu_s GNW_Menu;
 
@@ -41,6 +45,6 @@ static_assert(sizeof(struct Window_s) == 26, "The structure needs to be packed."
 
 typedef struct Window_s Window;
 
-//int win_debug(char *str);
+// int win_debug(char *str);
 
 #endif /* INTERFACE_H */

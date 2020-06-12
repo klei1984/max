@@ -2691,153 +2691,6 @@
 			]
 		},
 		{
-			"name": "key_init",
-			"prototype": "void key_init(void)",
-			"component": "key",
-			"mode": "replace",
-			"symbol": "key_init_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "key_close",
-			"prototype": "void key_close(void)",
-			"component": "kb",
-			"mode": "replace",
-			"symbol": "key_close_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "kb_getch",
-			"prototype": "int kb_getch(void)",
-			"component": "kb",
-			"mode": "replace",
-			"symbol": "kb_getch_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "kb_set_layout",
-			"prototype": "void kb_set_layout(kb_layout_t layout)",
-			"component": "kb",
-			"mode": "replace",
-			"symbol": "kb_set_layout_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "kb_layout_t",
-					"type_class": "integer",
-					"arg_name": "layout",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "kb_get_layout",
-			"prototype": "kb_layout_t kb_get_layout(void)",
-			"component": "kb",
-			"mode": "replace",
-			"symbol": "kb_get_layout_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "kb_layout_t",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "kb_simulate_key",
-			"prototype": "void kb_simulate_key(unsigned short scan_code)",
-			"component": "kb",
-			"mode": "replace",
-			"symbol": "kb_simulate_key_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "unsigned short",
-					"type_class": "integer",
-					"arg_name": "scan_code",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "GNW_mouse_init",
-			"prototype": "int GNW_mouse_init(void)",
-			"component": "mouse",
-			"mode": "replace",
-			"symbol": "GNW_mouse_init_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "GNW_mouse_exit",
-			"prototype": "void GNW_mouse_exit(void)",
-			"component": "mouse",
-			"mode": "replace",
-			"symbol": "GNW_mouse_exit_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
 			"name": "mouse_in",
 			"prototype": "int mouse_in(int ulx, int uly, int lrx, int lry)",
 			"component": "mouse",
@@ -3193,26 +3046,6 @@
 			]
 		},
 		{
-			"name": "get_time",
-			"prototype": "TOCKS get_time(void)",
-			"component": "timer",
-			"mode": "replace",
-			"symbol": "get_time_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "TOCKS",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-			]
-		},
-		{
 			"name": "timer_get_stamp32",
 			"prototype": "unsigned int timer_get_stamp32(void)",
 			"component": "timer",
@@ -3481,54 +3314,6 @@
 					"arg_name": "speed",
 					"is_far": false
 				}
-			]
-		},
-		{
-			"name": "mouse_simulate_input",
-			"prototype": "void mouse_simulate_input(int delta_x, int delta_y, int buttons)",
-			"component": "mouse",
-			"mode": "replace",
-			"symbol": "mouse_simulate_input_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "int",
-					"type_class": "integer",
-					"arg_name": "delta_x",
-					"is_far": false
-				},
-				{
-					"type_name": "int",
-					"type_class": "integer",
-					"arg_name": "delta_y",
-					"is_far": false
-				},
-				{
-					"type_name": "int",
-					"type_class": "integer",
-					"arg_name": "buttons",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "vcr_stop",
-			"prototype": "void vcr_stop(void)",
-			"component": "vcr",
-			"mode": "replace",
-			"symbol": "vcr_stop_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
 			]
 		},
 		{
@@ -4625,48 +4410,6 @@
 			]
 		},
 		{
-			"name": "add_bk_process",
-			"prototype": "void add_bk_process(BackgroundProcess f)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "add_bk_process_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "BackgroundProcess",
-					"type_class": "pointer",
-					"arg_name": "f",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "remove_bk_process",
-			"prototype": "void remove_bk_process(BackgroundProcess f)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "remove_bk_process_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "BackgroundProcess",
-					"type_class": "pointer",
-					"arg_name": "f",
-					"is_far": false
-				}
-			]
-		},
-		{
 			"name": "win_refresh_all",
 			"prototype": "void win_refresh_all(Rect* bound)",
 			"component": "gnw",
@@ -4683,32 +4426,6 @@
 					"type_name": "Rect *",
 					"type_class": "pointer",
 					"arg_name": "bound",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "elapsed_time",
-			"prototype": "TOCKS elapsed_time(TOCKS past_time)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "elapsed_time_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "TOCKS",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "TOCKS",
-					"type_class": "integer",
-					"arg_name": "past_time",
 					"is_far": false
 				}
 			]
@@ -4732,26 +4449,6 @@
 					"arg_name": "buf",
 					"is_far": false
 				}
-			]
-		},
-		{
-			"name": "vcr_dump_buffer",
-			"prototype": "int vcr_dump_buffer(void)",
-			"component": "gnw",
-			"mode": "replace",
-			"symbol": "vcr_dump_buffer_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
 			]
 		},
 		{
@@ -4901,6 +4598,653 @@
 			},
 			"arguments_list": [
 			]
+		},
+		{
+			"name": "GNW_check_menu_bars",
+			"prototype": "int GNW_check_menu_bars(int input)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "GNW_check_menu_bars_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "input",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_check_all_buttons",
+			"prototype": "int win_check_all_buttons(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "win_check_all_buttons_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "win_delete",
+			"prototype": "void win_delete(WinID id)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "win_delete_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_add",
+			"prototype": "WinID win_add(int ulx, int uly, int width, int length, int color, int flags)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "win_add_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "WinID",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "flags",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_border",
+			"prototype": "void win_border(WinID id)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "win_border_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_get_buf",
+			"prototype": "unsigned char* win_get_buf(WinID id)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "win_get_buf_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned char *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_register_text_button",
+			"prototype": "ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int off_value, int p_value, int r_value, char* name, int flags)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "win_register_text_button_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "ButtonID",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "on_value",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "off_value",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "p_value",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "r_value",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "name",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "flags",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_draw",
+			"prototype": "void win_draw(WinID id)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "win_draw_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "getSystemPalette",
+			"prototype": "unsigned char* getSystemPalette(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "getSystemPalette_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned char *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "buf_to_buf",
+			"prototype": "void buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "buf_to_buf_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "src",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "dst",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full2",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_input_init",
+			"prototype": "int GNW_input_init(int use_msec_timer)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_input_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "use_msec_timer",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_input_exit",
+			"prototype": "void GNW_input_exit(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_input_exit_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "get_input",
+			"prototype": "int get_input(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "get_input_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "get_input_position",
+			"prototype": "void get_input_position(int* x, int* y)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "get_input_position_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "int *",
+					"type_class": "pointer",
+					"arg_name": "x",
+					"is_far": false
+				},
+				{
+					"type_name": "int *",
+					"type_class": "pointer",
+					"arg_name": "y",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "process_bk",
+			"prototype": "void process_bk(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "process_bk_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "GNW_add_input_buffer",
+			"prototype": "void GNW_add_input_buffer(int input)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_add_input_buffer_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "input",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "flush_input_buffer",
+			"prototype": "void flush_input_buffer(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "flush_input_buffer_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "GNW_do_bk_process",
+			"prototype": "void GNW_do_bk_process(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_do_bk_process_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "add_bk_process",
+			"prototype": "void add_bk_process(BackgroundProcess f)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "add_bk_process_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "BackgroundProcess",
+					"type_class": "pointer",
+					"arg_name": "f",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "remove_bk_process",
+			"prototype": "void remove_bk_process(BackgroundProcess f)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "remove_bk_process_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "BackgroundProcess",
+					"type_class": "pointer",
+					"arg_name": "f",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "enable_bk",
+			"prototype": "void enable_bk(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "enable_bk_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "register_pause",
+			"prototype": "void register_pause(int new_pause_key, PauseWinFunc new_pause_win_func)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "register_pause_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "new_pause_key",
+					"is_far": false
+				},
+				{
+					"type_name": "PauseWinFunc",
+					"type_class": "pointer",
+					"arg_name": "new_pause_win_func",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "register_screendump",
+			"prototype": "void register_screendump(int new_screendump_key, ScreenDumpFunc new_screendump_func)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "register_screendump_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "new_screendump_key",
+					"is_far": false
+				},
+				{
+					"type_name": "ScreenDumpFunc",
+					"type_class": "pointer",
+					"arg_name": "new_screendump_func",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "get_time",
+			"prototype": "TOCKS get_time(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "get_time_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "TOCKS",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "elapsed_time",
+			"prototype": "TOCKS elapsed_time(TOCKS past_time)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "elapsed_time_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "TOCKS",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "TOCKS",
+					"type_class": "integer",
+					"arg_name": "past_time",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
@@ -4926,38 +5270,6 @@
 			"component": "svga",
 			"mode": "expose",
 			"symbol": "_scr_blit",
-			"align": 1
-		},
-		{
-			"name": "mouse_blit",
-			"prototype": "ScreenBlitFunc mouse_blit",
-			"component": "svga",
-			"mode": "expose",
-			"symbol": "_mouse_blit",
-			"align": 1
-		},
-		{
-			"name": "vcr_state",
-			"prototype": "int vcr_state",
-			"component": "vcr",
-			"mode": "expose",
-			"symbol": "_vcr_state",
-			"align": 1
-		},
-		{
-			"name": "vcr_terminate_flags",
-			"prototype": "int vcr_terminate_flags",
-			"component": "vcr",
-			"mode": "expose",
-			"symbol": "_vcr_terminate_flags",
-			"align": 1
-		},
-		{
-			"name": "vcr_terminated_condition",
-			"prototype": "int vcr_terminated_condition",
-			"component": "vcr",
-			"mode": "expose",
-			"symbol": "_vcr_terminated_condition",
 			"align": 1
 		},
 		{
@@ -5233,35 +5545,11 @@
 			"align": 1
 		},
 		{
-			"name": "vcr_buffer_index",
-			"prototype": "int vcr_buffer_index",
+			"name": "keys",
+			"prototype": "char keys[256]",
 			"component": "gnw",
 			"mode": "expose",
-			"symbol": "_vcr_buffer_index",
-			"align": 1
-		},
-		{
-			"name": "vcr_buffer",
-			"prototype": "VCREventRecord* vcr_buffer",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "_vcr_buffer",
-			"align": 1
-		},
-		{
-			"name": "vcr_time",
-			"prototype": "TOCKS vcr_time",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "_vcr_time",
-			"align": 1
-		},
-		{
-			"name": "vcr_counter",
-			"prototype": "unsigned int vcr_counter",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "_vcr_counter",
+			"symbol": "_keys",
 			"align": 1
 		}
 	]

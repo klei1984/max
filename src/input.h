@@ -22,12 +22,34 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include "timer.h"
+#include "interface.h"
+
+typedef unsigned int TOCKS;
 
 typedef void (*BackgroundProcess)(void);
+typedef WinID (*PauseWinFunc)(void);
+typedef int (*ScreenDumpFunc)(int width, int length, unsigned char* buf, unsigned char* pal);
 
-// void add_bk_process(BackgroundProcess f);
-// void remove_bk_process(BackgroundProcess f);
-// TOCKS elapsed_time(TOCKS past_time);
+int GNW_input_init(int use_msec_timer);
+void GNW_input_exit(void);
+int get_input(void);
+void get_input_position(int* x, int* y);
+void process_bk(void);
+void GNW_add_input_buffer(int input);
+void flush_input_buffer(void);
+void GNW_do_bk_process(void);
+void add_bk_process(BackgroundProcess f);
+void remove_bk_process(BackgroundProcess f);
+void enable_bk(void);
+void disable_bk(void);
+void register_pause(int new_pause_key, PauseWinFunc new_pause_win_func);
+void dump_screen(void);
+void register_screendump(int new_screendump_key, ScreenDumpFunc new_screendump_func);
+TOCKS get_time(void);
+void pause_for_tocks(unsigned int tocks);
+void block_for_tocks(unsigned int tocks);
+TOCKS elapsed_time(TOCKS past_time);
+TOCKS elapsed_tocks(TOCKS end_time, TOCKS start_time);
+void GNW_process_message(void);
 
 #endif /* INPUT_H */

@@ -22,15 +22,24 @@
 #ifndef KB_H
 #define KB_H
 
-typedef enum kb_layout_e { english, french, german, italian, spanish } kb_layout_t;
+#include "kb_code.h"
+#include "timer.h"
 
-void key_init(void);
-void key_close(void);
+typedef enum kb_layout_e { english, french, german, italian, spanish, unsupported_language } kb_layout_t;
+
+extern char keys[256];
+
+void GNW_kb_set(void);
+void GNW_kb_restore(void);
+void kb_wait(void);
 void kb_clear(void);
 int kb_getch(void);
+void kb_disable(void);
+void kb_enable(void);
+int kb_is_disabled(void);
 void kb_set_layout(kb_layout_t layout);
 kb_layout_t kb_get_layout(void);
+int kb_ascii_to_scan(int ascii);
 void kb_simulate_key(unsigned short scan_code);
-void kb_init_lock_status(void);
 
 #endif /* KB_H */

@@ -20,3 +20,5 @@
  */
 
 #include "gnw.h"
+
+static int button_under_mouse(GNW_ButtonPtr b, Rect* r);

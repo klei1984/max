@@ -58,10 +58,3 @@ unsigned int timer_get_stamp32(void) {
      */
     return (SDL_GetTicks() * 105000uL) / 88uL;
 }
-
-TOCKS get_time(void) {
-    /* PIT clock rate is 105/88 = 1.19318 MHz
-     * SDL_GetTicks works on milliseconds basis
-     */
-    return (SDL_GetTicks() * 105000uL) / 88uL;
-};
