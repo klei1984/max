@@ -13,7 +13,7 @@ including limited support for the big code model for __far calls and the big dat
 __author__ = "M.A.X. Port Team"
 __copyright__ = "Copyright (c) 2020 M.A.X. Port Team"
 __license__ = "MIT License"
-__version__ = "0.32"
+__version__ = "0.33"
 
 import re
 import sys
@@ -278,6 +278,7 @@ class Codegen:
 
         if f["type"] == "watcall":
             if not f["arguments_list"]:
+                f["argument_count"] = 0
                 return
 
             self.write_line()
@@ -288,12 +289,17 @@ class Codegen:
                     index += 1
                 arg_list.append(
                     "\t\tpush\t%s /* %s %s */" % (self.get_argument(f, index), arg["type_name"], arg["arg_name"]))
+                if arg["is_far"]:
+                    index += 1
                 index += 1
+
+            f["argument_count"] = index
 
             for arg in reversed(arg_list):
                 self.write_line(arg)
 
         elif f["type"] == "cdecl":
+            f["argument_count"] = 0
             if n_args == 0:
                 return
 
@@ -301,6 +307,7 @@ class Codegen:
             for n in range(n_args):
                 self.write_line("\t\tpush\t0x%x(%%ebp)" % ((n_args - n + 1) * 4))
         elif f["type"] == "variadic":
+            f["argument_count"] = 0
             assert n_args > 0
 
             self.write_line()
@@ -344,8 +351,11 @@ class Codegen:
         self.write_line()
         self.write_line('\t\tleave')
 
-    def ret(self):
-        self.write_line('\t\tret')
+    def ret(self, f):
+        if f["argument_count"] and f["argument_count"] > 4:
+            self.write_line('\t\tret $0x%x' % ((f["argument_count"] - 4) * 4))
+        else:
+            self.write_line('\t\tret')
 
     @staticmethod
     def arg_string(args):
@@ -393,7 +403,7 @@ class Codegen:
         self.align_pop(f)
         self.restore_registers()
         self.epilogue()
-        self.ret()
+        self.ret(f)
 
         if f["debug"] or self.debug_all:
             self.generate_format_string(f)
