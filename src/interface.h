@@ -27,8 +27,9 @@
 #include "rect.h"
 
 typedef int WinID;
+typedef unsigned int TOCKS;
 
-typedef void (*Trans_b2b)(unsigned char *, int, int, int, unsigned char *, int);
+typedef void (*Trans_b2b)(unsigned char*, int, int, int, unsigned char*, int);
 
 typedef struct GNW_Menu_s GNW_Menu;
 
@@ -38,13 +39,35 @@ struct __attribute__((packed)) Window_s {
     Rect window;
     unsigned short unknown;
     WinID id;
-    unsigned char *buffer;
+    unsigned char* buffer;
 };
 
 static_assert(sizeof(struct Window_s) == 26, "The structure needs to be packed.");
 
 typedef struct Window_s Window;
 
-// int win_debug(char *str);
+typedef void (*SelectFunc)(char**, int);
+
+int win_list_select(char* title, char** list, int num, SelectFunc select_func, int ulx, int uly, int color);
+int win_list_select_at(char* title, char** list, int num, SelectFunc select_func, int ulx, int uly, int color,
+                       int start);
+int win_get_str(char* str, int limit, char* title, int x, int y);
+int win_output(char* title, char** list, int num, int ulx, int uly, int color, char* extra_button);
+int win_yes_no(char* question, int ulx, int uly, int color);
+int win_msg(char* msg, int ulx, int uly, int color);
+int win_pull_down(char** list, int num, int ulx, int uly, int color);
+// int win_debug(char* str);
+int win_register_menu_bar(WinID wid, int ulx, int uly, int width, int length, int fore_color, int back_color);
+int win_register_menu_pulldown(WinID wid, int offx, char* name, int value, int num, char** list, int fore_color,
+                               int back_color);
+void win_delete_menu_bar(WinID wid);
+// int GNW_process_menu(GNW_Menu* m, int num_pd);
+int win_width_needed(char** list, int num);
+int win_input_str(WinID id, char* str, int limit, int x, int y, int text_color, int back_color);
+int win_get_num_i(int* value, int min, int max, int clear, char* title, int x, int y);
+// void GNW_intr_init(void);
+void win_timed_msg_defaults(TOCKS persistence);
+// void GNW_intr_exit(void);
+int win_timed_msg(char* msg, int color);
 
 #endif /* INTERFACE_H */

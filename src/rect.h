@@ -31,6 +31,11 @@ typedef struct Rect_s {
 
 typedef struct rectdata* RectPtr;
 
+struct rectdata {
+    Rect r;
+    RectPtr next;
+};
+
 void GNW_rect_exit(void);
 void rect_clip_list(RectPtr* pCur, Rect* bound);
 RectPtr rect_clip(Rect* b, Rect* t);

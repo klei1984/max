@@ -21,18 +21,34 @@
 
 #include "color.h"
 
+#include <SDL.h>
 #include <stdio.h>
 
 #include "game.h"
 
-static void update_system_palette(SDL_Palette *palette);
+static unsigned long colorOpen(char* file, int mode);
+static unsigned long colorRead(unsigned long handle, void* buf, unsigned long size);
+static unsigned long colorClose(unsigned long handle);
+static void* defaultMalloc(size_t t);
+static void* defaultRealloc(void* p, size_t t);
+static void defaultFree(void* p);
+static void setIntensityTableColor(int cc);
+static void setIntensityTables(void);
+static void setMixTableColor(int i);
+static void setMixTable(void);
+static void buildBlendTable(ColorBlendTable* table, ColorIndex c);
+static void rebuildColorBlendTables(void);
+static int redloop(void);
+static int greenloop(int restart);
+static int blueloop(int restart);
+static void maxfill(unsigned long* buffer, int side);
 
-static SDL_Palette *SystemPalette;
+static void update_system_palette(SDL_Palette* palette);
 
-#define PALETTE_SIZE 256
+static SDL_Palette* SystemPalette;
 
-static void update_system_palette(SDL_Palette *palette) {
-    SDL_Surface *screen;
+static void update_system_palette(SDL_Palette* palette) {
+    SDL_Surface* screen;
 
     screen = svga_get_screen();
 
@@ -45,7 +61,7 @@ static void update_system_palette(SDL_Palette *palette) {
     }
 }
 
-void setSystemPalette(unsigned char *cmap) {
+void setSystemPalette(unsigned char* cmap) {
     unsigned char npal[3 * PALETTE_SIZE];
 
     if (NULL == SystemPalette) {

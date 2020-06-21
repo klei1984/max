@@ -64,6 +64,9 @@ ASM_PREFIX(init_callbacks): /* watcall void init_callbacks(void) */
 		ASM_INIT_CALLBACK(text_spacing_func, ASM_PREFIX(_text_spacing))
 		ASM_INIT_CALLBACK(text_size_func, ASM_PREFIX(_text_size))
 		ASM_INIT_CALLBACK(text_max_func, ASM_PREFIX(_text_max))
+		ASM_INIT_CALLBACK(openFunc_func, ASM_PREFIX(_openFunc))
+		ASM_INIT_CALLBACK(readFunc_func, ASM_PREFIX(_readFunc))
+		ASM_INIT_CALLBACK(closeFunc_func, ASM_PREFIX(_closeFunc))
 
 		ASM_EPILOGUE
 
@@ -166,6 +169,51 @@ CALLBACK(text_max_func): /* watcall int (*text_max_func)(void) */
 
 		ASM_EPILOGUE
 
+.code32
+.text
+.align 4
+CALLBACK(openFunc_func): /* watcall unsigned long (*openFunc_func)(char *file, int mode) */
+		ASM_PROLOGUE
+
+		push	%edx /* int mode */
+		push	%eax /* char *file */
+
+		call	ASM_PREFIX(colorOpen)
+		add	$0x8,%esp
+
+		ASM_EPILOGUE
+
+
+.code32
+.text
+.align 4
+CALLBACK(readFunc_func): /* watcall unsigned long (*readFunc_func)(unsigned long handle, void *buf, unsigned long size) */
+		ASM_PROLOGUE
+
+		push	%ebx /* unsigned long size */
+		push	%edx /* void *buf */
+		push	%eax /* unsigned long handle */
+
+		call	ASM_PREFIX(colorRead)
+		add	$0xC,%esp
+
+		ASM_EPILOGUE
+
+
+.code32
+.text
+.align 4
+CALLBACK(closeFunc_func): /* watcall unsigned long (*closeFunc_func)(unsigned long handle) */
+		ASM_PROLOGUE
+
+		push	%eax /* unsigned long handle */
+
+		call	ASM_PREFIX(colorClose)
+		add	$0x4,%esp
+
+		ASM_EPILOGUE
+
+
 #define _text_to_buf ASM_PREFIX(_text_to_buf)
 #define _text_height ASM_PREFIX(_text_height)
 #define _text_width ASM_PREFIX(_text_width)
@@ -174,6 +222,9 @@ CALLBACK(text_max_func): /* watcall int (*text_max_func)(void) */
 #define _text_spacing ASM_PREFIX(_text_spacing)
 #define _text_size ASM_PREFIX(_text_size)
 #define _text_max ASM_PREFIX(_text_max)
+#define _openFunc ASM_PREFIX(_openFunc)
+#define _readFunc ASM_PREFIX(_readFunc)
+#define _closeFunc ASM_PREFIX(_closeFunc)
 
 #undef CALLBACK
 #undef ASM_PROLOGUE

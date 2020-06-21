@@ -22,21 +22,21 @@
 #ifndef GRBUF_H
 #define GRBUF_H
 
-void draw_line(unsigned char* buffer, int width, int x1, int y1, int x2, int y2, int color);
-void draw_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color);
-void draw_shaded_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color1, int color2);
+// void draw_line(unsigned char* buffer, int width, int x1, int y1, int x2, int y2, int color);
+// void draw_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color);
+// void draw_shaded_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color1, int color2);
 void draw_circle(unsigned char* buf, int full, int x, int y, int r, int color);
 void cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, int nw, int nl, int full2);
 void trans_cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, int nw, int nl, int full2);
 void buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2);
-void trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2);
+// void trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2);
 void mask_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* msk, int full2,
                      unsigned char* dst, int full3);
 void mask_trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* msk, int full2,
                            unsigned char* dst, int full3);
 // void buf_fill(unsigned char* buf, int width, int length, int full, int color);
-void buf_texture(unsigned char* buf, int width, int length, int full, unsigned char* texture, int tx, int ty);
-void lighten_buf(unsigned char* buf, int width, int length, int full);
+// void buf_texture(unsigned char* buf, int width, int length, int full, unsigned char* texture, int tx, int ty);
+// void lighten_buf(unsigned char* buf, int width, int length, int full);
 void swap_color_buf(unsigned char* buf, int width, int length, int full, int c1, int c2);
 
 #endif /* GRBUF_H */

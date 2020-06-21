@@ -2779,21 +2779,6 @@
 			]
 		},
 		{
-			"name": "mouse_info",
-			"prototype": "void mouse_info(void)",
-			"component": "mouse",
-			"mode": "replace",
-			"symbol": "mouse_info_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
 			"name": "mouse_get_rect",
 			"prototype": "void mouse_get_rect(Rect* m)",
 			"component": "mouse",
@@ -4410,10 +4395,68 @@
 			]
 		},
 		{
+			"name": "db_init",
+			"prototype": "int db_init(char* datafile, char* datafile_path, char* patches_path)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "datafile",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "datafile_path",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "patches_path",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "db_total",
+			"prototype": "int db_total(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "db_total_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
 			"name": "win_refresh_all",
 			"prototype": "void win_refresh_all(Rect* bound)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_refresh_all_",
 			"debug": false,
 			"type": "watcall",
@@ -4434,7 +4477,7 @@
 			"name": "win_get_mouse_buf",
 			"prototype": "void win_get_mouse_buf(char* buf)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_get_mouse_buf_",
 			"debug": false,
 			"type": "watcall",
@@ -4580,30 +4623,36 @@
 			]
 		},
 		{
-			"name": "vcr_update",
-			"prototype": "VCREventType vcr_update(void)",
+			"name": "db_fgetc",
+			"prototype": "int db_fgetc(DB_FILE* stream)",
 			"component": "gnw",
-			"mode": "replace",
-			"symbol": "vcr_update_",
+			"mode": "expose",
+			"symbol": "db_fgetc_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,
 			"align": 4,
 			"stack_align": 4,
 			"return": {
-				"type_name": "VCREventType",
+				"type_name": "int",
 				"type_class": "integer",
 				"arg_name": null,
 				"is_far": false
 			},
 			"arguments_list": [
+				{
+					"type_name": "DB_FILE *",
+					"type_class": "pointer",
+					"arg_name": "stream",
+					"is_far": false
+				}
 			]
 		},
 		{
 			"name": "GNW_check_menu_bars",
 			"prototype": "int GNW_check_menu_bars(int input)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "GNW_check_menu_bars_",
 			"debug": false,
 			"type": "watcall",
@@ -4629,7 +4678,7 @@
 			"name": "win_check_all_buttons",
 			"prototype": "int win_check_all_buttons(void)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_check_all_buttons_",
 			"debug": false,
 			"type": "watcall",
@@ -4649,7 +4698,7 @@
 			"name": "win_delete",
 			"prototype": "void win_delete(WinID id)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_delete_",
 			"debug": false,
 			"type": "watcall",
@@ -4670,7 +4719,7 @@
 			"name": "win_add",
 			"prototype": "WinID win_add(int ulx, int uly, int width, int length, int color, int flags)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_add_",
 			"debug": false,
 			"type": "watcall",
@@ -4726,7 +4775,7 @@
 			"name": "win_border",
 			"prototype": "void win_border(WinID id)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_border_",
 			"debug": false,
 			"type": "watcall",
@@ -4747,7 +4796,7 @@
 			"name": "win_get_buf",
 			"prototype": "unsigned char* win_get_buf(WinID id)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_get_buf_",
 			"debug": false,
 			"type": "watcall",
@@ -4847,7 +4896,7 @@
 			"name": "win_draw",
 			"prototype": "void win_draw(WinID id)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_draw_",
 			"debug": false,
 			"type": "watcall",
@@ -4860,6 +4909,135 @@
 					"type_name": "WinID",
 					"type_class": "integer",
 					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_drag",
+			"prototype": "void win_drag(WinID id)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_drag_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_text",
+			"prototype": "void win_text(WinID id, char **list, int num, int field_width, int x, int y, int color)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_text_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "char **",
+					"type_class": "pointer",
+					"arg_name": "list",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "num",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "field_width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "x",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "y",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_box",
+			"prototype": "void win_box(WinID id, int ulx, int uly, int lrx, int lry, int color)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_box_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "lrx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "lry",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
 					"is_far": false
 				}
 			]
@@ -5245,6 +5423,1035 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "GNW_intr_init",
+			"prototype": "void GNW_intr_init(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "GNW_intr_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "GNW_intr_exit",
+			"prototype": "void GNW_intr_exit(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "GNW_intr_exit_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "win_init",
+			"prototype": "int win_init(SetModeFunc set, ResetModeFunc reset, int flags)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "SetModeFunc",
+					"type_class": "pointer",
+					"arg_name": "set",
+					"is_far": false
+				},
+				{
+					"type_name": "ResetModeFunc",
+					"type_class": "pointer",
+					"arg_name": "reset",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "flags",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_reinit",
+			"prototype": "int win_reinit(SetModeFunc set_mode_func)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_reinit_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "SetModeFunc",
+					"type_class": "pointer",
+					"arg_name": "set_mode_func",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "colorRegisterAlloc",
+			"prototype": "void colorRegisterAlloc(MallocFunc m, ReallocFunc r, FreeFunc f)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "colorRegisterAlloc_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "MallocFunc",
+					"type_class": "pointer",
+					"arg_name": "m",
+					"is_far": false
+				},
+				{
+					"type_name": "ReallocFunc",
+					"type_class": "pointer",
+					"arg_name": "r",
+					"is_far": false
+				},
+				{
+					"type_name": "FreeFunc",
+					"type_class": "pointer",
+					"arg_name": "f",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "colorInitIO",
+			"prototype": "void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "colorInitIO_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "ColorOpenFunc",
+					"type_class": "pointer",
+					"arg_name": "o",
+					"is_far": false
+				},
+				{
+					"type_name": "ColorReadFunc",
+					"type_class": "pointer",
+					"arg_name": "r",
+					"is_far": false
+				},
+				{
+					"type_name": "ColorCloseFunc",
+					"type_class": "pointer",
+					"arg_name": "c",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "initColors",
+			"prototype": "int initColors(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "initColors_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "colorsClose",
+			"prototype": "void colorsClose(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "colorsClose_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "GNW_delete_button",
+			"prototype": "void GNW_delete_button(GNW_ButtonPtr b)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "GNW_delete_button_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GNW_ButtonPtr",
+					"type_class": "pointer",
+					"arg_name": "b",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "colorBuildColorTable",
+			"prototype": "int colorBuildColorTable(unsigned char* colormap, unsigned char* matchtable)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "colorBuildColorTable_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "colormap",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "matchtable",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_get_top_win",
+			"prototype": "WinID win_get_top_win(int x, int y)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_get_top_win_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "WinID",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "x",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "y",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_width",
+			"prototype": "int win_width(WinID id)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_width_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_height",
+			"prototype": "int win_height(WinID id)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_height_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_get_rect",
+			"prototype": "int win_get_rect(WinID id, Rect *r)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_get_rect_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_check_buttons",
+			"prototype": "int GNW_check_buttons(GNW_Window* w, int* press)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "GNW_check_buttons_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GNW_Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				},
+				{
+					"type_name": "int *",
+					"type_class": "pointer",
+					"arg_name": "press",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_find_button",
+			"prototype": "GNW_ButtonPtr GNW_find_button(ButtonID id, GNW_Window **w)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_find_button_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "GNW_ButtonPtr",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "GNW_Window **",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_draw_rect",
+			"prototype": "void win_draw_rect(WinID id, Rect *bound)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_draw_rect_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect *",
+					"type_class": "pointer",
+					"arg_name": "bound",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_exit",
+			"prototype": "void win_exit(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_exit_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "GNW_find",
+			"prototype": "GNW_Window *GNW_find(WinID id)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_find_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "GNW_Window *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_show",
+			"prototype": "void win_show(WinID id)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_show_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_win_refresh",
+			"prototype": "void GNW_win_refresh(GNW_Window *w, Rect *bound, char *scr_buf)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_win_refresh_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GNW_Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect *",
+					"type_class": "pointer",
+					"arg_name": "bound",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "scr_buf",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_process_menu",
+			"prototype": "int GNW_process_menu(GNW_Menu* m, int num_pd)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "GNW_process_menu_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GNW_Menu *",
+					"type_class": "pointer",
+					"arg_name": "m",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "num_pd",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_fill",
+			"prototype": "void win_fill(WinID id, int ulx, int uly, int width, int length, int color)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_fill_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_print",
+			"prototype": "void win_print(WinID id, char *str, int field_width, int x, int y, int color)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_print_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "str",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "field_width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "x",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "y",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "buf_texture",
+			"prototype": "void buf_texture(unsigned char* buf, int width, int length, int full, unsigned char* texture, int tx, int ty)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "buf_texture_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "buf",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "texture",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "tx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ty",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "trans_buf_to_buf",
+			"prototype": "void trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "trans_buf_to_buf_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "src",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "dst",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full2",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "draw_line",
+			"prototype": "void draw_line(unsigned char* buffer, int width, int x1, int y1, int x2, int y2, int color)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "draw_line_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "buffer",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "x1",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "y1",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "x2",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "y2",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "draw_box",
+			"prototype": "void draw_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "draw_box_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "buf",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "lrx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "lry",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "draw_shaded_box",
+			"prototype": "void draw_shaded_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color1, int color2)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "draw_shaded_box_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "buf",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "lrx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "lry",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color1",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "color2",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "lighten_buf",
+			"prototype": "void lighten_buf(unsigned char* buf, int width, int length, int full)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "lighten_buf_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "buf",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_button_refresh",
+			"prototype": "void GNW_button_refresh(GNW_Window* w, Rect* r)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "GNW_button_refresh_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GNW_Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect *",
+					"type_class": "pointer",
+					"arg_name": "r",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
@@ -5550,6 +6757,30 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_keys",
+			"align": 1
+		},
+		{
+			"name": "GNW_texture",
+			"prototype": "char *GNW_texture",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_GNW_texture",
+			"align": 1
+		},
+		{
+			"name": "GNW_wcolor",
+			"prototype": "ColorRGB GNW_wcolor[6]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_GNW_wcolor",
+			"align": 1
+		},
+		{
+			"name": "dword_16D9BC",
+			"prototype": "int *dword_16D9BC",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_dword_16D9BC",
 			"align": 1
 		}
 	]

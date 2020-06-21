@@ -22,14 +22,57 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include <SDL.h>
+#include <stddef.h>
+
+#include "memory.h"
+
+#define PALETTE_SIZE 256
 
 typedef unsigned char ColorIndex;
+typedef long ColorRGB;
+typedef unsigned char Color;
+typedef long fixed;
+typedef ColorIndex ColorBlendTable[PALETTE_SIZE][0x00000010];
+
+typedef unsigned long (*ColorOpenFunc)(char* file, int mode);
+typedef unsigned long (*ColorReadFunc)(unsigned long handle, void* buf, unsigned long size);
+typedef unsigned long (*ColorCloseFunc)(unsigned long handle);
+typedef char* (*ColorNameMangleFunc)(char*);
 
 extern ColorIndex colorTable[32768];
 
+// void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c);
+void colorSetNameMangler(ColorNameMangleFunc c);
+Color colorMixAdd(Color a, Color b);
+Color colorMixMul(Color a, Color b);
+Color calculateColor(fixed intensity, Color color);
+Color RGB2Color(ColorRGB c);
+ColorRGB Index2RGB(ColorIndex c);
+ColorRGB Color2RGB(Color c);
+void fadeSystemPalette(unsigned char* src, unsigned char* dest, int steps);
+void setBlackSystemPalette(void);
 // unsigned char* getSystemPalette(void);
+// void setSystemPaletteEntries(unsigned char* pal, unsigned int start, unsigned int end);
+// void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
+void getSystemPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b);
 void setSystemPalette(unsigned char* cmap);
-void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
+int loadColorTable(char* table);
+char* colorError(void);
+void setColorPalette(unsigned char* pal);
+void setColorPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
+void getColorPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b);
+ColorBlendTable* getColorBlendTable(ColorIndex c);
+void freeColorBlendTable(ColorIndex c);
+// void colorRegisterAlloc(MallocFunc m, ReallocFunc r, FreeFunc f);
+void colorGamma(double gamma);
+double colorGetGamma(void);
+int colorMappedColor(ColorIndex i);
+// int colorBuildColorTable(unsigned char* colormap, unsigned char* matchtable);
+int colorSetColorTable(unsigned char* colormap, unsigned char* reserved);
+int colorPushColorPalette(void);
+int colorPopColorPalette(void);
+// int initColors(void);
+// void colorsClose(void);
+unsigned char* getColorPalette(void);
 
 #endif /* COLOR_H */

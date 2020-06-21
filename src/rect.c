@@ -23,11 +23,6 @@
 
 #include "game.h"
 
-struct rectdata {
-    Rect r;
-    RectPtr next;
-};
-
 static RectPtr rlist;
 
 void GNW_rect_exit(void) {
@@ -123,6 +118,7 @@ RectPtr rect_clip(Rect *b, Rect *t) {
             } while (i < 4);
         }
     }
+
     return ptr;
 }
 

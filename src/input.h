@@ -24,8 +24,6 @@
 
 #include "interface.h"
 
-typedef unsigned int TOCKS;
-
 typedef void (*BackgroundProcess)(void);
 typedef WinID (*PauseWinFunc)(void);
 typedef int (*ScreenDumpFunc)(int width, int length, unsigned char* buf, unsigned char* pal);
