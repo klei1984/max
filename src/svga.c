@@ -29,7 +29,12 @@ static SDL_Surface *sdlWindowSurface;
 static SDL_Surface *sdlPaletteSurface;
 static SDL_Texture *sdlTexture;
 
+Rect scr_size;
+ScreenBlitFunc scr_blit;
+
 SDL_Surface *svga_get_screen(void) { return sdlPaletteSurface; }
+
+int init_mode_640_480(void) { return init_vesa_mode(0x101, 640, 480, 0); }
 
 int init_vesa_mode(int mode, int width, int height, int half) {
     Uint32 flags;

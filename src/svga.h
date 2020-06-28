@@ -36,6 +36,7 @@ typedef void (*ScreenBlitFunc)(unsigned char *srcBuf, unsigned int srcW, unsigne
 extern Rect scr_size;
 extern ScreenBlitFunc scr_blit;
 
+int init_mode_640_480(void);
 int init_vesa_mode(int mode, int width, int height, int half);
 void get_start_mode(void);
 void reset_mode(void);

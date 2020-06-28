@@ -2659,6 +2659,26 @@
 			]
 		},
 		{
+			"name": "init_mode_640_480",
+			"prototype": "int init_mode_640_480(void)",
+			"component": "svga",
+			"mode": "replace",
+			"symbol": "init_mode_640_480_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
 			"name": "get_start_mode",
 			"prototype": "void get_start_mode(void)",
 			"component": "svga",
