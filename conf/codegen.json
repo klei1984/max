@@ -181,6 +181,27 @@
 			]
 		},
 		{
+			"name": "atexit",
+			"prototype": "int atexit( void (*func)(void) )",
+			"component": "libc",
+			"mode": "replace",
+			"symbol": "atexit_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "void (*)(void)",
+					"type_class": "pointer",
+					"arg_name": "func",
+					"is_far": false
+				}
+			]
+		},
+		{
 			"name": "_dos_open",
 			"prototype": "unsigned _dos_open(char *path, unsigned mode, int *handle)",
 			"component": "libc",
@@ -277,6 +298,27 @@
 			]
 		},
 		{
+			"name": "rewind",
+			"prototype": "void rewind(FILE *fp)",
+			"component": "libc",
+			"mode": "replace",
+			"symbol": "rewind_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "FILE *",
+					"type_class": "pointer",
+					"arg_name": "fp",
+					"is_far": false
+				}
+			]
+		},
+		{
 			"name": "fflush",
 			"prototype": "int fflush(FILE *fp)",
 			"component": "libc",
@@ -324,6 +366,76 @@
 					"type_name": "FILE *",
 					"type_class": "pointer",
 					"arg_name": "fp",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "ungetc",
+			"prototype": "int ungetc(int c, FILE *fp)",
+			"component": "libc",
+			"mode": "replace",
+			"symbol": "ungetc_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "c",
+					"is_far": false
+				},
+				{
+					"type_name": "FILE *",
+					"type_class": "pointer",
+					"arg_name": "fp",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "strtol",
+			"prototype": "long int strtol(const char *ptr, char **endptr, int base)",
+			"component": "libc",
+			"mode": "replace",
+			"symbol": "strtol_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "long int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "const char *",
+					"type_class": "pointer",
+					"arg_name": "ptr",
+					"is_far": false
+				},
+				{
+					"type_name": "char **",
+					"type_class": "pointer",
+					"arg_name": "endptr",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "base",
 					"is_far": false
 				}
 			]
@@ -1096,6 +1208,44 @@
 			]
 		},
 		{
+			"name": "dos_vsprintf",
+			"prototype": "int vsprintf(char *buf, const char *format, va_list arg)",
+			"component": "libc",
+			"mode": "replace",
+			"symbol": "vsprintf_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "buf",
+					"is_far": false
+				},
+				{
+					"type_name": "const char *",
+					"type_class": "string",
+					"arg_name": "format",
+					"is_far": false
+				},
+				{
+					"type_name": "va_list",
+					"type_class": "stdarg",
+					"arg_name": "arg",
+					"is_far": false
+				}
+			]
+		},
+		{
 			"name": "vsprintf",
 			"prototype": "int sprintf(char *buf, const char *format, ...)",
 			"component": "libc",
@@ -1283,6 +1433,32 @@
 					"type_name": "const char *",
 					"type_class": "string",
 					"arg_name": "s",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "labs",
+			"prototype": "long int labs(long int j)",
+			"component": "libc",
+			"mode": "replace",
+			"symbol": "labs_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "long int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "long int",
+					"type_class": "integer",
+					"arg_name": "j",
 					"is_far": false
 				}
 			]
@@ -5585,26 +5761,6 @@
 			]
 		},
 		{
-			"name": "initColors",
-			"prototype": "int initColors(void)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "initColors_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-			]
-		},
-		{
 			"name": "colorsClose",
 			"prototype": "void colorsClose(void)",
 			"component": "gnw",
@@ -6749,6 +6905,14 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_colorTable",
+			"align": 1
+		},
+		{
+			"name": "cmap",
+			"prototype": "unsigned char cmap[768]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_cmap",
 			"align": 1
 		},
 		{

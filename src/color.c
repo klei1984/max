@@ -47,19 +47,25 @@ static void update_system_palette(SDL_Palette* palette);
 
 static SDL_Palette* SystemPalette;
 
-static void update_system_palette(SDL_Palette* palette) {
-    SDL_Surface* screen;
+static int colorsInited;
+static double currentGamma = 1.0;
 
-    screen = svga_get_screen();
-
-    if (screen) {
-        if (0 != SDL_SetPaletteColors(screen->format->palette, SystemPalette->colors, 0, PALETTE_SIZE)) {
-            fprintf(stderr, "SDL_SetPaletteColors failed: %s\n", SDL_GetError());
-        }
-    } else {
-        fprintf(stderr, "SDL_Surface is NULL\n");
-    }
-}
+unsigned long colorOpen(char* file, int mode) {}
+unsigned long colorRead(unsigned long handle, void* buf, unsigned long size) {}
+unsigned long colorClose(unsigned long handle) {}
+// void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c) {}
+void* defaultMalloc(size_t t) {}
+void* defaultRealloc(void* p, size_t t) {}
+void defaultFree(void* p) {}
+void colorSetNameMangler(ColorNameMangleFunc c) {}
+Color colorMixAdd(Color a, Color b) {}
+Color colorMixMul(Color a, Color b) {}
+Color calculateColor(fixed intensity, Color color) {}
+Color RGB2Color(ColorRGB c) {}
+ColorRGB Index2RGB(ColorIndex c) {}
+ColorRGB Color2RGB(Color c) {}
+void fadeSystemPalette(unsigned char* src, unsigned char* dest, int steps) {}
+void setBlackSystemPalette(void) {}
 
 void setSystemPalette(unsigned char* cmap) {
     unsigned char npal[3 * PALETTE_SIZE];
@@ -84,6 +90,9 @@ void setSystemPalette(unsigned char* cmap) {
     update_system_palette(SystemPalette);
 }
 
+// unsigned char* getSystemPalette(void) {}
+void setSystemPaletteEntries(unsigned char* pal, unsigned int start, unsigned int end) {}
+
 void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b) {
     SDL_assert(r < sizeof(currentGammaTable));
     SDL_assert(g < sizeof(currentGammaTable));
@@ -98,4 +107,92 @@ void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned
     SystemPalette->colors[entry].b = currentGammaTable[b] * 4;
 
     update_system_palette(SystemPalette);
+}
+
+void getSystemPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b) {}
+void setIntensityTableColor(int cc) {}
+void setIntensityTables(void) {}
+void setMixTableColor(int i) {}
+void setMixTable(void) {}
+int loadColorTable(char* table) {}
+char* colorError(void) {}
+void setColorPalette(unsigned char* pal) {}
+void setColorPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b) {}
+void getColorPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b) {}
+void buildBlendTable(ColorBlendTable* table, ColorIndex c) {}
+void rebuildColorBlendTables(void) {}
+ColorBlendTable* getColorBlendTable(ColorIndex c) {}
+void freeColorBlendTable(ColorIndex c) {}
+// void colorRegisterAlloc(MallocFunc m, ReallocFunc r, FreeFunc f) {}
+
+void colorGamma(double gamma) {
+    double a;
+
+    currentGamma = gamma;
+
+    for (int i = 0; i < 64; i++) {
+        a = pow(i, currentGamma);
+
+        if (a > 63.0) {
+            a = 63.0;
+        }
+
+        if (a < 0.0) {
+            a = 0.0;
+        }
+
+        currentGammaTable[i] = a;
+    }
+
+    return setSystemPalette(systemCmap);
+}
+
+double colorGetGamma(void) {}
+int colorMappedColor(ColorIndex i) {}
+// int colorBuildColorTable(unsigned char* colormap, unsigned char* matchtable) {}
+int colorSetColorTable(unsigned char* colormap, unsigned char* reserved) {}
+int redloop(void) {}
+int greenloop(int restart) {}
+int blueloop(int restart) {}
+void maxfill(unsigned long* buffer, int side) {}
+int colorPushColorPalette(void) {}
+int colorPopColorPalette(void) {}
+
+int initColors(void) {
+    int result;
+
+    if (colorsInited) {
+        result = 1;
+    } else {
+        colorsInited = 1;
+
+        colorGamma(1.0);
+
+        if (loadColorTable("COLOR.PAL") == 1) {
+            setSystemPalette(cmap);
+
+            result = 1;
+        } else {
+            result = 0;
+        }
+    }
+
+    return result;
+}
+
+// void colorsClose(void) {}
+unsigned char* getColorPalette(void) {}
+
+static void update_system_palette(SDL_Palette* palette) {
+    SDL_Surface* screen;
+
+    screen = svga_get_screen();
+
+    if (screen) {
+        if (0 != SDL_SetPaletteColors(screen->format->palette, SystemPalette->colors, 0, PALETTE_SIZE)) {
+            fprintf(stderr, "SDL_SetPaletteColors failed: %s\n", SDL_GetError());
+        }
+    } else {
+        fprintf(stderr, "SDL_Surface is NULL\n");
+    }
 }
