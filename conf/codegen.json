@@ -5015,10 +5015,108 @@
 			]
 		},
 		{
+			"name": "win_register_button",
+			"prototype": "ButtonID win_register_button(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value, int p_value, int r_value, char* up, char* down, char* hover, int flags)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_register_button_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "ButtonID",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "on_value",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "off_value",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "p_value",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "r_value",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "up",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "down",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "hover",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "flags",
+					"is_far": false
+				}
+			]
+		},
+		{
 			"name": "win_register_text_button",
 			"prototype": "ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int off_value, int p_value, int r_value, char* name, int flags)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_register_text_button_",
 			"debug": false,
 			"type": "watcall",
@@ -5084,6 +5182,391 @@
 					"type_name": "int",
 					"type_class": "integer",
 					"arg_name": "flags",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_register_button_image",
+			"prototype": "int win_register_button_image(ButtonID bid, char* up, char* down, char* hover, int draw)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_register_button_image_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "bid",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "up",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "down",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "hover",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "draw",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_register_button_func",
+			"prototype": "int win_register_button_func(ButtonID bid, ButtonFunc on_func, ButtonFunc off_func, ButtonFunc p_func, ButtonFunc r_func)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_register_button_func_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "bid",
+					"is_far": false
+				},
+				{
+					"type_name": "ButtonFunc",
+					"type_class": "pointer",
+					"arg_name": "on_func",
+					"is_far": false
+				},
+				{
+					"type_name": "ButtonFunc",
+					"type_class": "pointer",
+					"arg_name": "off_func",
+					"is_far": false
+				},
+				{
+					"type_name": "ButtonFunc",
+					"type_class": "pointer",
+					"arg_name": "p_func",
+					"is_far": false
+				},
+				{
+					"type_name": "ButtonFunc",
+					"type_class": "pointer",
+					"arg_name": "r_func",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "button_new_id",
+			"prototype": "ButtonID button_new_id(void)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "button_new_id_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "ButtonID",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "win_button_down",
+			"prototype": "int win_button_down(ButtonID bid)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_button_down_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "bid",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_button_winID",
+			"prototype": "WinID win_button_winID(ButtonID bid)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_button_winID_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "WinID",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "bid",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_delete_button",
+			"prototype": "int win_delete_button(ButtonID bid)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_delete_button_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "bid",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "GNW_delete_button",
+			"prototype": "void GNW_delete_button(GNW_ButtonPtr b)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "GNW_delete_button_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GNW_ButtonPtr",
+					"type_class": "pointer",
+					"arg_name": "b",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_enable_button",
+			"prototype": "int win_enable_button(ButtonID bid)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_enable_button_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "bid",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_disable_button",
+			"prototype": "int win_disable_button(ButtonID bid)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_disable_button_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "bid",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_set_button_rest_state",
+			"prototype": "int win_set_button_rest_state(ButtonID bid, int rest_down, int flags)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_set_button_rest_state_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "ButtonID",
+					"type_class": "integer",
+					"arg_name": "bid",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "rest_down",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "flags",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_group_check_buttons",
+			"prototype": "int win_group_check_buttons(int num_buttons, ButtonID* button_list, int max_checked, CheckButtonFunc func)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_group_check_buttons_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "num_buttons",
+					"is_far": false
+				},
+				{
+					"type_name": "ButtonID *",
+					"type_class": "pointer",
+					"arg_name": "button_list",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "max_checked",
+					"is_far": false
+				},
+				{
+					"type_name": "CheckButtonFunc",
+					"type_class": "pointer",
+					"arg_name": "func",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "win_group_radio_buttons",
+			"prototype": "int win_group_radio_buttons(int num_buttons, ButtonID* button_list)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "win_group_radio_buttons_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "num_buttons",
+					"is_far": false
+				},
+				{
+					"type_name": "ButtonID *",
+					"type_class": "pointer",
+					"arg_name": "button_list",
 					"is_far": false
 				}
 			]
@@ -5796,27 +6279,6 @@
 			]
 		},
 		{
-			"name": "GNW_delete_button",
-			"prototype": "void GNW_delete_button(GNW_ButtonPtr b)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "GNW_delete_button_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "GNW_ButtonPtr",
-					"type_class": "pointer",
-					"arg_name": "b",
-					"is_far": false
-				}
-			]
-		},
-		{
 			"name": "colorBuildColorTable",
 			"prototype": "int colorBuildColorTable(unsigned char* colormap, unsigned char* matchtable)",
 			"component": "gnw",
@@ -5962,7 +6424,7 @@
 			"name": "GNW_check_buttons",
 			"prototype": "int GNW_check_buttons(GNW_Window* w, int* press)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "GNW_check_buttons_",
 			"debug": false,
 			"type": "watcall",
@@ -6342,7 +6804,7 @@
 			"mode": "expose",
 			"symbol": "trans_buf_to_buf_",
 			"debug": false,
-			"type": "watcall",
+			"type": "cdecl",
 			"bitness": 32,
 			"align": 4,
 			"stack_align": 4,
@@ -6606,7 +7068,7 @@
 			"name": "GNW_button_refresh",
 			"prototype": "void GNW_button_refresh(GNW_Window* w, Rect* r)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "GNW_button_refresh_",
 			"debug": false,
 			"type": "watcall",
