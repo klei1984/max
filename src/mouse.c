@@ -250,22 +250,20 @@ void mouse_show(void) {
     int yoff;
 
     if (have_mouse) {
-        if (!mouse_is_hidden) {
-            win_get_mouse_buf(mouse_buf);
+        win_get_mouse_buf(mouse_buf);
 
-            yoff = 0;
-            xoff = 0;
+        yoff = 0;
+        xoff = 0;
 
-            for (int i = 0; i < mouse_length; i++) {
-                for (int j = 0; j < mouse_width; j++) {
-                    if (mouse_shape[j + yoff] != mouse_trans) {
-                        mouse_buf[xoff] = mouse_shape[j + yoff];
-                    }
-
-                    xoff++;
+        for (int i = 0; i < mouse_length; i++) {
+            for (int j = 0; j < mouse_width; j++) {
+                if (mouse_shape[j + yoff] != mouse_trans) {
+                    mouse_buf[xoff] = mouse_shape[j + yoff];
                 }
-                yoff += mouse_full;
+
+                xoff++;
             }
+            yoff += mouse_full;
         }
 
         if (mouse_x >= scr_size.ulx) {
