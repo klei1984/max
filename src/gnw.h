@@ -59,6 +59,8 @@ typedef struct GNW_Menu_s {
     int bcolor;
 } GNW_Menu;
 
+static_assert(sizeof(struct GNW_Menu_s) == 572, "The structure needs to be packed.");
+
 typedef struct GNW_Window_s {
     WinID id;
     unsigned int flags;
@@ -75,6 +77,8 @@ typedef struct GNW_Window_s {
     GNW_Menu* menu;
     Trans_b2b trans_b2b;
 } GNW_Window;
+
+extern int GNW_win_init_flag;
 
 int win_init(SetModeFunc set_mode_func, ResetModeFunc reset_mode_func, int flags);
 int win_reinit(SetModeFunc set_mode_func);

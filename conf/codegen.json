@@ -3330,22 +3330,17 @@
 			]
 		},
 		{
-			"name": "dos_main",
-			"prototype": "int dos_main(int argc, char *argv[])",
+			"name": "init_args",
+			"prototype": "void init_args(int argc, char *argv[])",
 			"component": "gnw",
 			"mode": "expose",
-			"symbol": "main_",
+			"symbol": "init_args_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,
 			"align": 4,
 			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
+			"return": null,
 			"arguments_list": [
 				{
 					"type_name": "int",
@@ -3359,6 +3354,83 @@
 					"arg_name": "argv",
 					"is_far": false
 				}
+			]
+		},
+		{
+			"name": "init_resources",
+			"prototype": "void init_resources(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "init_resources_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "menu_play_into",
+			"prototype": "int menu_play_into(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "menu_play_into_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "menu_display_logo",
+			"prototype": "void menu_display_logo(GAME_RESOURCE id, int time_limit)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "menu_display_logo_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "time_limit",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "game_main",
+			"prototype": "void game_main(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "game_main_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
 			]
 		},
 		{
@@ -4466,7 +4538,7 @@
 			"name": "win_debug",
 			"prototype": "int win_debug(char* str)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "win_debug_",
 			"debug": false,
 			"type": "watcall",
@@ -6107,7 +6179,7 @@
 			"name": "GNW_intr_init",
 			"prototype": "void GNW_intr_init(void)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "GNW_intr_init_",
 			"debug": false,
 			"type": "watcall",
@@ -6122,7 +6194,7 @@
 			"name": "GNW_intr_exit",
 			"prototype": "void GNW_intr_exit(void)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "GNW_intr_exit_",
 			"debug": false,
 			"type": "watcall",
@@ -6610,7 +6682,7 @@
 			"name": "GNW_process_menu",
 			"prototype": "int GNW_process_menu(GNW_Menu* m, int num_pd)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "GNW_process_menu_",
 			"debug": false,
 			"type": "watcall",
@@ -7371,14 +7443,6 @@
 			"component": "max",
 			"mode": "expose",
 			"symbol": "_game_resource_meta_ptr",
-			"align": 1
-		},
-		{
-			"name": "GNW_win_init_flag",
-			"prototype": "int GNW_win_init_flag",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "_GNW_win_init_flag",
 			"align": 1
 		},
 		{

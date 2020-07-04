@@ -24,8 +24,6 @@
 #include "game.h"
 
 int main(int argc, char *argv[]) {
-    int retval;
-
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
         return 1;
@@ -41,12 +39,16 @@ int main(int argc, char *argv[]) {
 
     init_callbacks();
 
-    /* call game main() */
-    retval = dos_main(argc, argv);
+    init_args(argc, argv);
+    init_resources();
 
-    mem_check();
+    if (!menu_play_into()) {
+        menu_display_logo(ILOGO, 3000);
+    }
 
-    SDL_Quit();
+    //    digi_play_music(&sound_mgr, MAIN_MSC, 0);
+    menu_display_logo(MLOGO, 3000);
 
-    return retval;
+    /* never returns */
+    game_main();
 }

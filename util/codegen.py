@@ -13,7 +13,7 @@ including limited support for the big code model for __far calls and the big dat
 __author__ = "M.A.X. Port Team"
 __copyright__ = "Copyright (c) 2020 M.A.X. Port Team"
 __license__ = "MIT License"
-__version__ = "0.33"
+__version__ = "0.34"
 
 import re
 import sys
@@ -26,10 +26,13 @@ import json
 class Codegen:
     debug_all = False
     underscore = False
+    config_file = ""
     config = None
     input_file = ""
     output_directory = ""
-    function_regex = None
+    replace_function_regex = None
+    expose_function_regex = None
+    function_list = {}
     output_file = None
     operands = ['a', 'd', 'b', 'c']
     registers_32bit = ["%eax", "%edx", "%ebx", "%ecx"]
@@ -59,19 +62,30 @@ class Codegen:
             json_list = json.loads('\n'.join([row for row in f.readlines() if len(row.split('//')) == 1]))
         return json_list
 
-    def read_config(self):
-        """Build a regexp that will match all the function names that are
-        meant to be replaced, and save it in self.function_regex."""
+    def read_config(self, mode):
+        """ Return a regexp that will match all the function names that are meant to be replaced or exposed
+        """
         all_regex = StringIO()
         all_regex.write(r"(^\s*)\b((")
 
         for function in self.config["functions"]:
-            if function["mode"] == "replace":
+            if function["mode"] == mode:
                 if all_regex.tell() > 9:
                     all_regex.write("|")
                 all_regex.write(function["symbol"])
         all_regex.write(r"):)(.*)")
-        self.function_regex = re.compile(all_regex.getvalue())
+        return re.compile(all_regex.getvalue())
+
+    def read_config_file_positions(self):
+        with open(self.config_file) as f:
+            for index, line in enumerate(f):
+                for function in self.config["functions"]:
+                    if "file_position" in function:
+                        continue
+                    position = line.find("\"name\": \"" + function["name"] + "\",")
+                    if position != -1:
+                        function["file_position"] = [index, position]
+                        break
 
     def prefix_name(self, name):
         if not self.underscore:
@@ -200,20 +214,42 @@ class Codegen:
         self.output_file.write(self.config["copyrights"]["proprietary"])
         self.output_file.write("#include \"%s.h\"\n\n" % file_name)
 
+        count = 0
         while True:
             line = input_file.readline().rstrip(" \t")
+            count += 1
             if len(line) == 0:
                 break
 
-            while True:
-                m = self.function_regex.match(line)
-                if m is None:
-                    break
+            m = self.replace_function_regex.match(line)
+            if m:
                 line = "%sREPLACE(%s):%s\n" % (m.group(1), m.group(3), m.group(4))
+                if m.group(3) in self.function_list:
+                    self.function_list[m.group(3)] += 1
+                else:
+                    self.function_list[m.group(3)] = 1
+
+                print("%s:%i:0: warning: replaced function %s is still defined" % (
+                    self.input_file, count, m.group(3)))
+
+            m = self.expose_function_regex.match(line)
+            if m:
+                if m.group(3) in self.function_list:
+                    self.function_list[m.group(3)] += 1
+                else:
+                    self.function_list[m.group(3)] = 1
 
             self.output_file.write(line)
         self.output_file.close()
         self.output_file = None
+
+        self.read_config_file_positions()
+        for function in self.config["functions"]:
+            if function["mode"] == "expose" and not function["symbol"] in self.function_list:
+                print("%s:%i:%i: warning: configuration for %s is not in use" % (
+                    self.config_file, function["file_position"][0] + 1, function["file_position"][1] + 9,
+                    function["name"]))
+
         input_file.close()
 
     def write_line(self, line=''):
@@ -434,8 +470,10 @@ class Codegen:
             self.print_help()
             sys.exit(1)
 
-        self.config = self.minify(args[0])
-        self.read_config()
+        self.config_file = args[0]
+        self.config = self.minify(self.config_file)
+        self.replace_function_regex = self.read_config("replace")
+        self.expose_function_regex = self.read_config("expose")
         self.process_resource_file()
         self.create_resource_header()
         self.create_access_providers()
