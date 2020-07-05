@@ -46,7 +46,7 @@ int init_vesa_mode(int mode, int width, int height, int half) {
                                       SDL_WINDOWPOS_CENTERED, width, height, flags)) == NULL) {
         SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
     }
-    if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC)) == NULL) {
+    if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED)) == NULL) {
         SDL_Log("SDL_CreateRenderer failed: %s\n", SDL_GetError());
     }
 
