@@ -47,12 +47,17 @@ In a certain unclarified game mode when the game concludes with either winning o
     </video>
     It is not allowed to instruct a unit to move to the coordinates found within the tape as the mouse hoover shows that the enemy constructor is found within those cells, but when a pathway is planned with shift + left mouse click the planned path crosses over the affected cells. When the constructor finishes the building the tape and the error remains. The tape and the unit referenced by the area remains even after the offending constructor is destroyed. Mouse hover also detects the constructor at cell 69-100. After finishing the building the unit might have left the construction area in that direction. This would indicate that the tape is not misplaced, but the process to remove the tape on finishing the building and moving the constructor out of the construction zone is bogus.
 
+13. Infiltrator could stuck and game could hang if mine is on a bridge that the unit wants to pass.
+    <video width="720" height="540" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_13.mp4" type="video/mp4">
+    </video>
+    In case of water platforms the game correctly finds that there is no path to the destination. In case of bridges this is bogus. The infiltrator cannot take the path as there is a mine in the way, but the path finding algorith tells there is a valid path. When the issue occurs the game does not accept the end turn action, the affected infiltrator cannot be moved any more and it cannot be loaded by personnel carriers. The affected bridge at the same time is redrawn as if there would be a ship under the bridge. Interestingly it is possible to load back a game in this state and if done so the queued action to end the turn from the previous game activates. This also implies that command or event queues are not cleared on loading games.
+
+14. AI does not consider to leave a free square for engineer to leave the construction site making it stuck.
+    <img src="{{ site.baseurl }}/assets/images/defect_14.jpg" alt="defect 14" width="740" height="600"> 
+
 {% comment %}
-13. Unit could stuck if mine, sea bridge and connector are on the same cell.
+15. Unit gets stuck at square that is occupied by constructor's construction zone.
 
-14. Unit gets stuck at square that is occupied by constructor's construction zone.
-
-15. Menu while enemy turn is ongoing crashes the game to desktop.
-
-16. 
+16. First player to take turns gets 0 raw materials within the initial mining station's storage container on turn 1. Rest of the players get 14 raw materials. This is potentially a defect.
 {% endcomment %}
