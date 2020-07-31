@@ -28,6 +28,7 @@
 #include "rect.h"
 
 SDL_Surface *svga_get_screen(void);
+void svga_render(void);
 
 typedef void (*ScreenBlitFunc)(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX,
                                unsigned int subY, unsigned int subW, unsigned int subH, unsigned int dstX,

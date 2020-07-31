@@ -40,7 +40,7 @@ int init_vesa_mode(int mode, int width, int height, int half) {
     Uint32 flags;
 
     flags = 0;
-    // flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
+    //    flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
 
     if ((sdlWindow = SDL_CreateWindow("M.A.X.: Mechanized Assault & Exploration", SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED, width, height, flags)) == NULL) {
@@ -51,6 +51,7 @@ int init_vesa_mode(int mode, int width, int height, int half) {
     }
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    //    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
     SDL_RenderSetLogicalSize(sdlRenderer, width, height);
 
     sdlWindowSurface = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
@@ -98,29 +99,35 @@ void vesa_screen_blit(unsigned char *srcBuf, unsigned int srcW, unsigned int src
         }
     }
 
-    {
-        void *pixels;
-        int pitch;
+    svga_render();
+}
 
-        /* Blit 8-bit palette surface onto the window surface that's closer to the texture's format */
-        if (SDL_BlitSurface(sdlPaletteSurface, NULL, sdlWindowSurface, NULL) != 0) {
-            SDL_Log("SDL_BlitSurface failed: %s\n", SDL_GetError());
-        }
+void svga_render(void) {
+    void *pixels;
+    int pitch;
 
-        /* Modify the texture's pixels */
-        if (SDL_LockTexture(sdlTexture, NULL, &pixels, &pitch) == 0) {
-            if (SDL_ConvertPixels(sdlWindowSurface->w, sdlWindowSurface->h, sdlWindowSurface->format->format,
-                                  sdlWindowSurface->pixels, sdlWindowSurface->pitch, SDL_PIXELFORMAT_RGBA8888, pixels,
-                                  pitch) != 0) {
-                SDL_Log("SDL_ConvertPixels failed: %s\n", SDL_GetError());
-            }
-            SDL_UnlockTexture(sdlTexture);
-        }
-
-        /* Make the modified texture visible by rendering it */
-        if (SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL) != 0) {
-            SDL_Log("SDL_RenderCopy failed: %s\n", SDL_GetError());
-        }
-        SDL_RenderPresent(sdlRenderer);
+    /* Blit 8-bit palette surface onto the window surface that's closer to the texture's format */
+    if (SDL_BlitSurface(sdlPaletteSurface, NULL, sdlWindowSurface, NULL) != 0) {
+        SDL_Log("SDL_BlitSurface failed: %s\n", SDL_GetError());
     }
+
+    /* Modify the texture's pixels */
+    if (SDL_LockTexture(sdlTexture, NULL, &pixels, &pitch) == 0) {
+        if (SDL_ConvertPixels(sdlWindowSurface->w, sdlWindowSurface->h, sdlWindowSurface->format->format,
+                              sdlWindowSurface->pixels, sdlWindowSurface->pitch, SDL_PIXELFORMAT_RGBA8888, pixels,
+                              pitch) != 0) {
+            SDL_Log("SDL_ConvertPixels failed: %s\n", SDL_GetError());
+        }
+
+        SDL_UnlockTexture(sdlTexture);
+    }
+
+    SDL_assert(sdlRenderer);
+
+    /* Make the modified texture visible by rendering it */
+    if (SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL) != 0) {
+        SDL_Log("SDL_RenderCopy failed: %s\n", SDL_GetError());
+    }
+
+    SDL_RenderPresent(sdlRenderer);
 }

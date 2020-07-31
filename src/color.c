@@ -189,9 +189,11 @@ static void update_system_palette(SDL_Palette* palette) {
     screen = svga_get_screen();
 
     if (screen) {
-        if (0 != SDL_SetPaletteColors(screen->format->palette, SystemPalette->colors, 0, PALETTE_SIZE)) {
+        if (0 != SDL_SetPaletteColors(screen->format->palette, palette->colors, 0, PALETTE_SIZE)) {
             fprintf(stderr, "SDL_SetPaletteColors failed: %s\n", SDL_GetError());
         }
+
+        svga_render();
     } else {
         fprintf(stderr, "SDL_Surface is NULL\n");
     }
