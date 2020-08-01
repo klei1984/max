@@ -11,7 +11,8 @@ The article maintains a comprehensive list of game defects that is present in th
 2. **\*\*FIXED\*\*** If the game cannot play the intro movie, INTROFLC (maxint.mve), it tries to load and render a full screen Interplay logo image, ILOGO, which was removed from the game resource database max.res. The game continues gracefully after failing to open the ILOGO resource.
 <br>
 The game supports loading game resources from a secondary resource file called patches.res. The file does not exist in v1.04, but when created the contents of it are processed as expected. ILOGO is taken from the interactive demo of M.A.X. where the resource exists.
-    <video autoplay loop muted playsinline>
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_2.mp4" type="video/mp4">
     <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_2.vtt" default>
     </video>
@@ -35,29 +36,36 @@ In a certain unclarified game mode when the game concludes with either winning o
 10. **\*\*FIXED\*\*** The tm_click_response() internal GNW function within the interface.c module is a GNW button on mouse click release event handler which returns a result code in the original implementation. The button module's ButtonFunc function prototype defines void return type and thus the button module does not expect any return value. The b_value parameter is incremented in certain cases within the handler, but the changed value is basically lost. As M.A.X. does not use the services that rely on this handler it is not clear whether this could cause any negative side effects.
 
 11. AI endlessly loads units into a deport and then unloads them to load another.
-    <video width="720" height="540" autoplay loop muted playsinline>
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_11.mp4" type="video/mp4">
     </video>
     The deport contains 12 units which is the maximum it can hold. Moving a unit into and out from a depot does not cost movement points for the unit if it stands next to the depot. The AI is able to perform other tasks parallel which indicates that the issue is not related to code runaway. The game UI is partly unoperational though. For example clicking on the Preferences button pops up the GUI element, but afterwards clicking on the Files button crashes the game. The AI loop does not end even when the end turn timer counts down to zero.
 
 
 12. Construction tape remains or is misplaced when AI constructor builds a building.
-    <video width="720" height="540" autoplay loop muted playsinline>
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_12.mp4" type="video/mp4">
     </video>
     It is not allowed to instruct a unit to move to the coordinates found within the tape as the mouse hoover shows that the enemy constructor is found within those cells, but when a pathway is planned with shift + left mouse click the planned path crosses over the affected cells. When the constructor finishes the building the tape and the error remains. The tape and the unit referenced by the area remains even after the offending constructor is destroyed. Mouse hover also detects the constructor at cell 69-100. After finishing the building the unit might have left the construction area in that direction. This would indicate that the tape is not misplaced, but the process to remove the tape on finishing the building and moving the constructor out of the construction zone is bogus.
 
 13. Infiltrator could stuck and game could hang if mine is on a bridge that the unit wants to pass.
-    <video width="720" height="540" autoplay loop muted playsinline>
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_13.mp4" type="video/mp4">
     </video>
     In case of water platforms the game correctly finds that there is no path to the destination. In case of bridges this is bogus. The infiltrator cannot take the path as there is a mine in the way, but the path finding algorith tells there is a valid path. When the issue occurs the game does not accept the end turn action, the affected infiltrator cannot be moved any more and it cannot be loaded by personnel carriers. The affected bridge at the same time is redrawn as if there would be a ship under the bridge. Interestingly it is possible to load back a game in this state and if done so the queued action to end the turn from the previous game activates. This also implies that command or event queues are not cleared on loading games.
 
 14. AI does not consider to leave a free square for engineer to leave the construction site making it stuck.
-    <img src="{{ site.baseurl }}/assets/images/defect_14.jpg" alt="defect 14" width="740" height="600"> 
+    <img src="{{ site.baseurl }}/assets/images/defect_14.jpg" alt="defect 14" width="740"> 
 
 {% comment %}
-15. Unit gets stuck at square that is occupied by constructor's construction zone.
+15. Help mouse spot is at wrong position.
 
-16. First player to take turns gets 0 raw materials within the initial mining station's storage container on turn 1. Rest of the players get 14 raw materials. This is potentially a defect.
+16. Landing Zone help button dereferences NULL.
+
+17. Unit gets stuck at square that is occupied by constructor's construction zone.
+
+18. First player to take turns gets 0 raw materials within the initial mining station's storage container on turn 1. Rest of the players get 14 raw materials. This is potentially a defect.
 {% endcomment %}

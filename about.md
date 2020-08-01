@@ -37,13 +37,11 @@ A few intriguing quotes (the first one is from an actual Interplay associate fro
 After learning that there is no hope to see a bug fixed version of the game I started my own research to find a solution and strangely enough one of the culprits for the memory assertion errors and game crashes was not related to the game itself. The original v1.04 M.A.X. linear executable is bound to Tenberry Software's DOS/4GW v1.97 DOS extender. A DOS extender, among many things, is a memory and file manager and according to the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html) there were a couple of defects that could had affected M.A.X. as well.
 A proof of that assumption is that after like 13 years, back in 2009, I was finally able, for the first time in history, to play an EPIC custom game against three compupter players for more than 266 turns without unrecoverable crashes or hangs
 
-<img src="{{ site.baseurl }}/assets/images/utopia_city.jpg" alt="Utopia City" width="740" height="600">
+<img src="{{ site.baseurl }}/assets/images/utopia_city.jpg" alt="Utopia City" width="100%" height="100%">
 
 until finally the AI started an endless loop of loading mobile units into a depot building and then unloading the same again and again and...
 
-<video width="370" height="300" autoplay loop muted playsinline>
-<source src="{{ site.baseurl }}/assets/clips/defect_11.mp4" type="video/mp4">
-</video>
+{% include video_player.html id="defect_11.mp4" %}
 
 sad story.
 

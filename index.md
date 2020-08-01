@@ -1,6 +1,7 @@
 ---
 layout: home
-list_title: Recent News
+list_title_news: Latest News
+list_title_posts: Posts
 ---
 
 M.A.X. Port is an [SDL library](https://wiki.libsdl.org/) based runtime executable for the 1996 DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.

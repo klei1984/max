@@ -32,6 +32,7 @@ plugins:
 
 header_pages:
   - about.md
+  - evolution.md
   - roadmap.md
   - documentation.md
   - license.md
