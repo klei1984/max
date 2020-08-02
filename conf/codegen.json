@@ -96,6 +96,70 @@
 			]
 		},
 		{
+			"name": "ginit_change_drive_to_cdrom",
+			"prototype": "int ginit_change_drive_to_cdrom(char prompt_user, char restore_drive_on_error)",
+			"component": "max",
+			"mode": "replace",
+			"symbol": "ginit_change_drive_to_cdrom_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "char",
+					"type_class": "integer",
+					"arg_name": "prompt_user",
+					"is_far": false
+				},
+				{
+					"type_name": "char",
+					"type_class": "integer",
+					"arg_name": "restore_drive_on_error",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "draw_yes_no_popup",
+			"prototype": "int draw_yes_no_popup(char *text, char mode)",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "draw_yes_no_popup_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "char *",
+					"type_class": "string",
+					"arg_name": "text",
+					"is_far": false
+				},
+				{
+					"type_name": "char",
+					"type_class": "integer",
+					"arg_name": "mode",
+					"is_far": false
+				}
+			]
+		},
+		{
 			"name": "posix_open",
 			"prototype": "int open(const char *path, int access, ...)",
 			"component": "libc",
@@ -3315,6 +3379,32 @@
 			]
 		},
 		{
+			"name": "dos_strlwr",
+			"prototype": "char *dos_strlwr(char *s1)",
+			"component": "libc",
+			"mode": "expose",
+			"symbol": "strlwr_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "char *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "char*",
+					"type_class": "integer",
+					"arg_name": "s1",
+					"is_far": false
+				}
+			]
+		},
+		{
 			"name": "GNW_debug_init",
 			"prototype": "void GNW_debug_init(void)",
 			"component": "gnw",
@@ -3327,33 +3417,6 @@
 			"stack_align": 4,
 			"return": null,
 			"arguments_list": [
-			]
-		},
-		{
-			"name": "init_args",
-			"prototype": "void init_args(int argc, char *argv[])",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "init_args_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "int",
-					"type_class": "integer",
-					"arg_name": "argc",
-					"is_far": false
-				},
-				{
-					"type_name": "char* []",
-					"type_class": "pointer",
-					"arg_name": "argv",
-					"is_far": false
-				}
 			]
 		},
 		{
@@ -7214,22 +7277,6 @@
 			"align": 1
 		},
 		{
-			"name": "unknown_path1",
-			"prototype": "char unknown_path1[100]",
-			"component": "max",
-			"mode": "expose",
-			"symbol": "_unknown_path1",
-			"align": 1
-		},
-		{
-			"name": "unknown_path2",
-			"prototype": "char unknown_path2[100]",
-			"component": "max",
-			"mode": "expose",
-			"symbol": "_unknown_path2",
-			"align": 1
-		},
-		{
 			"name": "dword_1770E0",
 			"prototype": "char *dword_1770E0",
 			"component": "max",
@@ -7462,14 +7509,6 @@
 			"align": 1
 		},
 		{
-			"name": "keys",
-			"prototype": "char keys[256]",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "_keys",
-			"align": 1
-		},
-		{
 			"name": "GNW_texture",
 			"prototype": "char *GNW_texture",
 			"component": "gnw",
@@ -7491,6 +7530,70 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_dword_16D9BC",
+			"align": 1
+		},
+		{
+			"name": "file_path_game_install",
+			"prototype": "char file_path_game_install[PATH_MAX]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_file_path_game_install",
+			"align": 1
+		},
+		{
+			"name": "file_path_movie",
+			"prototype": "char file_path_movie[PATH_MAX]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_file_path_movie",
+			"align": 1
+		},
+		{
+			"name": "file_path_text",
+			"prototype": "char file_path_text[PATH_MAX]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_file_path_text",
+			"align": 1
+		},
+		{
+			"name": "file_path_flc",
+			"prototype": "char file_path_flc[PATH_MAX]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_file_path_flc",
+			"align": 1
+		},
+		{
+			"name": "file_path_voice_spw",
+			"prototype": "char file_path_voice_spw[PATH_MAX]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_file_path_voice_spw",
+			"align": 1
+		},
+		{
+			"name": "file_path_sfx_spw",
+			"prototype": "char file_path_sfx_spw[PATH_MAX]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_file_path_sfx_spw",
+			"align": 1
+		},
+		{
+			"name": "file_path_msc",
+			"prototype": "char file_path_msc[PATH_MAX]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_file_path_msc",
+			"align": 1
+		},
+		{
+			"name": "keys",
+			"prototype": "char keys[256]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_keys",
 			"align": 1
 		}
 	]

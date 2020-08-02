@@ -151,4 +151,8 @@ unsigned int _dos_open(const char *path, unsigned int mode, int *handle);
 
 void dos_assert(int expr, char *str_expr, char *str_file, int line);
 
+void dos_getdrive(unsigned int *drive);
+
+void dos_setdrive(unsigned int drive, unsigned int *total);
+
 #endif /* DOS_H */

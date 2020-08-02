@@ -111,7 +111,7 @@ void GNW_input_exit(void) {
 
 void GNW_process_message(void) {
     if (!kb_is_disabled()) {
-        const size_t max_events = 256;
+        const size_t max_events = 1;
         size_t event;
         SDL_Event ev;
 

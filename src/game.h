@@ -28,6 +28,7 @@ void init_callbacks(void);
 #include "resrcmgr.h"
 #include "svga.h"
 #include "units.h"
+#include "ginit.h"
 #include "wrappers.h"
 
 #endif /* GAME_H */

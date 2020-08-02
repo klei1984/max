@@ -196,3 +196,7 @@ void dos_assert(int expr, char *str_expr, char *str_file, int line) {
 }
 
 int dos_vsprintf(char *buf, const char *format, va_list *va_arg) { return vsprintf(buf, format, *va_arg); }
+
+void dos_getdrive(unsigned int *drive) { *drive = 4; }
+
+void dos_setdrive(unsigned int drive, unsigned int *total) {}

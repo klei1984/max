@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 
     init_callbacks();
 
-    init_args(argc, argv);
+    ginit_init_paths(argc, argv);
     init_resources();
 
     if (!menu_play_into()) {

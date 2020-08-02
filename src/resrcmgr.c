@@ -247,6 +247,8 @@ void deinit_mem_type_resources(void) {
 int read_game_resource_into_buffer(GAME_RESOURCE id, void *buffer) {
     int result;
 
+    SDL_assert(game_resource_meta_ptr);
+
     if (id == INVALID_ID || game_resource_meta_ptr[id].res_file_item_index == -1) {
         result = 0;
     } else {
@@ -402,13 +404,13 @@ int init_game_resources(void) {
         }
         res_item_count_in_lut = 0;
 
-        strcpy(file_path, unknown_path1);
+        strcpy(file_path, file_path_game_install);
         strcat(file_path, "PATCHES.RES");
 
         result = build_res_file_index_db(file_path);
 
         if (result == 0 || result == 6) {
-            strcpy(file_path, unknown_path2);
+            strcpy(file_path, file_path_game_res);
             strcat(file_path, "MAX.RES");
 
             result = build_res_file_index_db(file_path);
