@@ -1,0 +1,9 @@
+<div style="float: right; margin-left: 3em;margin-bottom: 3em; width:500px; border:1px solid white">
+  <div>
+    <img src="{{ site.baseurl }}/assets/images/{{ include.image }}" alt="">
+  </div>
+  <div style="color:gray; font-size: 80%; text-align: right;">
+    <b>{{ include.title }}</b>
+    {{ include.description | markdownify }}
+  </div>
+</div>
