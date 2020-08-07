@@ -54,7 +54,7 @@ There is actually a game series titled Mech Commander which plays in the officia
 
 
 <br style="clear:both"><br>
-So Atabek joined Interplay Prodcutions in 1994 as producer and was supposed to bring Mechamander to release. Paul Kellner, another former Mindcraft associate, also joined Interplay at that time and the two together helped publish Cyberia in 1994 and Virtual Pool in mid 1995 for Interplay.
+So Atabek joined Interplay Prodcutions in 1994 as producer and was supposed to bring Mechamander to release. Paul Kellner, another former Mindcraft associate, also joined Interplay at that time and the two together helped publish Cyberia in 1994 and Virtual Pool in mid 1995.
 
 The UK based PC GAMER magazine wrote in its February 1995 issue that _"As for Virgin's MechaMander, it's in the works with no set release date."_ [\[9\]](#ref9). Virgin Interactive Entertainment distributed many Interplay titles in Europe and M.A.X. was no exception to that in 1996.
 
@@ -67,9 +67,9 @@ M.A.X. is based on an original idea by Larry Froistad who worked at Mindcraft So
 **M.A.X. is Dedicated to the memory of Amanda Froistad.**<br>
 Froistad molested he's 5 year old daughter and murdered her in 1995, but this was not proven until 1998 when Froistad confessed both crimes [\[10\]](#ref10).
 {: style="color:gray; font-size: 100%; text-align: right;"}
-
-<br><br>
+<br>
 So in theory Froistad could not have joined Interplay which was located in Irvine, California as he had to be in North Dakota at the time. Atabek and Kellner were working on other titles till at least mid of 1995 when Virtual Pool was released for MS-DOS. So if the original game idea of M.A.X. came from Froistad, and Froistad himself did not work for Interplay, then the idea most probably came from him back in 1993 or earlier. This would be yet another reason to think that M.A.X. is actually Mechamader from Mindcraft Software.
+<br><br>
 
 Based on MobyGames developer biographies many engineers working on M.A.X. were first time credited so they surely had no connections to Mindcraft. But there is one important exception, Anthony Postma. He worked at both companies as a graphics artist. In case of M.A.X. he and Kellner were writers as well. If M.A.X. is Mechamader, than the reason for this is obvious. By the way Postma is not credited on MobyGames for any games between he's last one at Mindcraft back in 1993 and M.A.X. at Interplay in 1996 so maybe he was hired exactly due to he's history with Mechamader.
 
@@ -90,8 +90,14 @@ Some of the dark themed UI elements can also be found within older versions of t
 The first version of the game that was found so far is the V1.00 interactive demo from 15th of August, 1996. An internal test build, or press presentation demo, from one week later was put on a major gaming magazine's cover CD instead of the public demo version [\[12\]](#ref12). This is the most interesting build that is available from the game.
 
 {% include drive_player.html id=page.driveId %}
+<br><br>
 
-
+| Time stamp | Description | Screenshot | Reference Screenshot |
+|-------|--------|---------|---------|
+| 00:02.071 | The title logo is the same as in the V1.00 Interactive Demo. It was changed in the V1.01 Interactive Demo first to a version that is much closer to the retail one. | <img src="{{ site.baseurl }}/assets/images/max_frame_00_02_071.jpg" alt=""> | <img src="{{ site.baseurl }}/assets/images/max_ref_01.jpg" alt=""> |
+| 00:06.142 | The main title screen clearly warns the user that this is an internal build:<br>_"For game play testing and debugging only.<br>Do not distribute to any unauthorized human."_<br><br>The M.A.X. logo looks rather basic design compared to the retail one and there is no unit art display window on the left.<br> | <img src="{{ site.baseurl }}/assets/images/max_frame_00_06_142.jpg" alt=""> |  <img src="{{ site.baseurl }}/assets/images/max_ref_02.jpg" alt=""> |
+| 00:57.851 | At the end of the game credits Gus Smedstad hidden a secret message which was removed in the V1.01 Interactive Demo. The background shows the title screen art which was changed in the internal test build V1.56 to the retail version.<br> | <img src="{{ site.baseurl }}/assets/images/max_frame_00_57_851.jpg" alt=""> | <img src="{{ site.baseurl }}/assets/images/max_ref_03.jpg" alt=""> |
+| 01:09.750 | The main setup screen offers much less options. There is no enhanced graphics option, selective audio channel enable settings or player name.<br> | <img src="{{ site.baseurl }}/assets/images/max_frame_01_09_750.jpg" alt=""> | <img src="{{ site.baseurl }}/assets/images/max_ref_04.jpg" alt=""> |
 
 <br><br>
 The first retail version of the game that was found so far is V1.0.1 from December 10, 1996.
@@ -104,9 +110,18 @@ and online pre-orders arriving at doorsteps. The term itself comes from the old 
 Hence the gold colored CD actually being the source, with no reference to copies sold as in the recording industry." - Urban Dictionary
 {: style="color:gray; font-size: 100%; text-align: right;"}
 
+Interplay made an inhouse interview with Ali Atabek in December 1996 [\[13\]](#ref13). It is rather strange that the interviewer could not even spell Atabek's name correctly and that the interview begins with utter nonsense. _"... You have the opportunity to dominate a maximum of 24 worlds and eight clans-- each with its own advanced artificial intelligence (AI). All that you need to do is solve the problems of war, famine and pestilence. You must also reverse ecological collapse, genetic manipulation and tectonic disasters that, otherwise, would surely result in the demise of the world."_ - Say what? Tectonic disasters, famine and pestilence? Genetic manipulation and the demise of the world? In this game the player is supposed to conquer countless new worlds for the Condord so who cares about the demise of "the" world? But then again the campaign is all about getting our hands on technologies and alien artefacts giving a damn about the dominion of worlds and in this effort 4 clans are actually our allies.
+
+Another interesting sentence from the interview says that _"the goal for the creation of M.A.X. was to have been a step above Virgin's "Command and Conquer" meets "Conquest of the New World"_. Probably the interviewer wanted to say that M.A.X. wanted to combine the merits of "Command & Conquer" and "Conquest of the New World". Mechamander had similar ideas.
+
+According to the interview M.A.X. was scheduled to be released on December 30th, 1996 and the development lasted about 10 months only which implies that M.A.X. was not actively developed during 1994 and 1995. Shortly after Atabek was promoted to become division head of Interplay's new strategy division.
+
+To be continued...
+
 # Catalogue of M.A.X. Revisions
 
 | Publication Date* | Type of Publication | Version Number** |
+|-------|--------|---------|
 | 1996-08-15        | Interactive Demo    | V1.00 Demo       |
 | 1996-08-21        | Internal Test Build | V1.01 Demo       |
 | 1996-10-09        | Interactive Demo    | V1.01 Demo       |
@@ -138,3 +153,4 @@ Hence the gold colored CD actually being the source, with no reference to copies
 <a name="ref10"></a>\[10\] [Supreme Court Case Decisions 2002](https://law.justia.com/cases/south-dakota/supreme-court/2002/1063.html)<br>
 <a name="ref11"></a>\[11\] Secret Service magazine Cover CD #38 - September, 1996<br>
 <a name="ref12"></a>\[12\] Secret Service magazine Cover CD #40 - November, 1996<br>
+<a name="ref13"></a>\[13\] [Interplay RAG 1st Edition - December, 1996](https://web.archive.org/web/19970605231746/http://www.interplay.com/rag/rag1/max.html)<br>
