@@ -4556,7 +4556,7 @@
 			"name": "buf_fill",
 			"prototype": "void buf_fill(unsigned char* buf, int width, int length, int full, int color)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "buf_fill_",
 			"debug": false,
 			"type": "watcall",
@@ -5880,7 +5880,7 @@
 			"name": "buf_to_buf",
 			"prototype": "void buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "buf_to_buf_",
 			"debug": false,
 			"type": "cdecl",
@@ -6879,7 +6879,7 @@
 			"name": "buf_texture",
 			"prototype": "void buf_texture(unsigned char* buf, int width, int length, int full, unsigned char* texture, int tx, int ty)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "buf_texture_",
 			"debug": false,
 			"type": "watcall",
@@ -6936,7 +6936,7 @@
 			"name": "trans_buf_to_buf",
 			"prototype": "void trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "trans_buf_to_buf_",
 			"debug": false,
 			"type": "cdecl",
@@ -6987,7 +6987,7 @@
 			"name": "draw_line",
 			"prototype": "void draw_line(unsigned char* buffer, int width, int x1, int y1, int x2, int y2, int color)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "draw_line_",
 			"debug": false,
 			"type": "watcall",
@@ -7044,7 +7044,7 @@
 			"name": "draw_box",
 			"prototype": "void draw_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "draw_box_",
 			"debug": false,
 			"type": "watcall",
@@ -7101,7 +7101,7 @@
 			"name": "draw_shaded_box",
 			"prototype": "void draw_shaded_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color1, int color2)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "draw_shaded_box_",
 			"debug": false,
 			"type": "watcall",
@@ -7164,7 +7164,7 @@
 			"name": "lighten_buf",
 			"prototype": "void lighten_buf(unsigned char* buf, int width, int length, int full)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "lighten_buf_",
 			"debug": false,
 			"type": "watcall",
@@ -7195,6 +7195,57 @@
 					"type_name": "int",
 					"type_class": "integer",
 					"arg_name": "full",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "swap_color_buf",
+			"prototype": "void swap_color_buf(unsigned char* buf, int width, int length, int full, int c1, int c2)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "swap_color_buf_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "buf",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "length",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "full",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "c1",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "c2",
 					"is_far": false
 				}
 			]
@@ -7498,6 +7549,14 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_colorTable",
+			"align": 1
+		},
+		{
+			"name": "intensityColorTable",
+			"prototype": "Color intensityColorTable[256][256]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_intensityColorTable",
 			"align": 1
 		},
 		{
