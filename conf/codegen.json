@@ -7276,6 +7276,184 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "assoc_init",
+			"prototype": "int assoc_init(assoc_array* a, int n, size_t datasize, assoc_func_list* assoc_funcs)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "assoc_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "assoc_array*",
+					"type_class": "pointer",
+					"arg_name": "a",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "n",
+					"is_far": false
+				},
+				{
+					"type_name": "size_t",
+					"type_class": "integer",
+					"arg_name": "datasize",
+					"is_far": false
+				},
+				{
+					"type_name": "assoc_func_list*",
+					"type_class": "pointer",
+					"arg_name": "assoc_funcs",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "assoc_free",
+			"prototype": "int assoc_free(assoc_array* a)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "assoc_free_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "assoc_array*",
+					"type_class": "pointer",
+					"arg_name": "a",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "assoc_search",
+			"prototype": "int assoc_search(assoc_array* a, char* name)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "assoc_search_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "assoc_array*",
+					"type_class": "pointer",
+					"arg_name": "a",
+					"is_far": false
+				},
+				{
+					"type_name": "char*",
+					"type_class": "pointer",
+					"arg_name": "name",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "assoc_insert",
+			"prototype": "int assoc_insert(assoc_array* a, char* name, void* data)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "assoc_insert_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "assoc_array*",
+					"type_class": "pointer",
+					"arg_name": "a",
+					"is_far": false
+				},
+				{
+					"type_name": "char*",
+					"type_class": "pointer",
+					"arg_name": "name",
+					"is_far": false
+				},
+				{
+					"type_name": "void*",
+					"type_class": "pointer",
+					"arg_name": "data",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "assoc_load",
+			"prototype": "int assoc_load(FILE* fp, assoc_array* a, int flags)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "assoc_load_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "FILE*",
+					"type_class": "pointer",
+					"arg_name": "fp",
+					"is_far": false
+				},
+				{
+					"type_name": "assoc_array*",
+					"type_class": "pointer",
+					"arg_name": "a",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "flags",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
