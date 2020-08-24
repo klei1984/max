@@ -35,12 +35,12 @@ In a certain unclarified game mode when the game concludes with either winning o
 
 10. **\*\*FIXED\*\*** The tm_click_response() internal GNW function within the interface.c module is a GNW button on mouse click release event handler which returns a result code in the original implementation. The button module's ButtonFunc function prototype defines void return type and thus the button module does not expect any return value. The b_value parameter is incremented in certain cases within the handler, but the changed value is basically lost. As M.A.X. does not use the services that rely on this handler it is not clear whether this could cause any negative side effects.
 
-11. AI endlessly loads units into a deport and then unloads them to load another.
+11. AI endlessly loads units into a depot and then unloads them to load another.
     <br>
     <video class="embed-video" autoplay loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_11.mp4" type="video/mp4">
     </video>
-    The deport contains 12 units which is the maximum it can hold. Moving a unit into and out from a depot does not cost movement points for the unit if it stands next to the depot. The AI is able to perform other tasks parallel which indicates that the issue is not related to code runaway. The game UI is partly unoperational though. For example clicking on the Preferences button pops up the GUI element, but afterwards clicking on the Files button crashes the game. The AI loop does not end even when the end turn timer counts down to zero.
+    The depot contains 12 units which is the maximum it can hold. Moving a unit into and out from a depot does not cost movement points for the unit if it stands next to the depot. The AI is able to perform other tasks parallel which indicates that the issue is not related to code runaway. The game UI is partly unoperational though. For example clicking on the Preferences button pops up the GUI element, but afterwards clicking on the Files button crashes the game. The AI loop does not end even when the end turn timer counts down to zero.
 
 
 12. Construction tape remains or is misplaced when AI constructor builds a building.

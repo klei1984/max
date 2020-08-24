@@ -1,7 +1,9 @@
 ---
 layout: page
 title: Evolution
-driveId: 1oUagR73PRBctRhApyzHFXRgr3ulnsC28/preview
+driveId1: 1vdtAKyBLOQzMfeRpt_jp-gpVKIaVuGOo/preview
+driveId2: 1oUagR73PRBctRhApyzHFXRgr3ulnsC28/preview
+driveId3: 1xQNrix0qZJt1ZTxHOrkMav1haNypkoju/preview
 permalink: /evolution/
 ---
 
@@ -92,12 +94,13 @@ Then in the July 1994 issue of Computer Gaming World magazine a news article rep
 There is actually a game series titled Mech Commander which plays in the official (licensed) BattleTech universe. The first game came out in 1998. It was developed by FASA Studio and published by MicroProse Software, Inc.
 
 Another interesting fact from Mindcraft's legacy is that Edward Del Castillo also worked there in 1993. Later he worked on the Command & Conquer series as writer and producer between 1995-1997 and in 2020 (C&C Remastered Collection). Just think about it. The producers of M.A.X. (Mechamader) and the C&C games came from the very same small company.
-<br><br>
-
 <br style="clear:both"><br>
+
+# Development of M.A.X. at Interplay
+
 So Atabek joined Interplay Prodcutions in 1994 as producer and was supposed to bring Mechamander to release. Paul Kellner, another former Mindcraft associate, also joined Interplay at that time and the two together helped publish Cyberia in 1994 and Virtual Pool in mid 1995.
 
-The UK based PC GAMER magazine wrote in its February 1995 issue that _"As for Virgin's MechaMander, it's in the works with no set release date."_ [\[9\]](#ref9). Virgin Interactive Entertainment distributed many Interplay titles in Europe and M.A.X. was no exception to that in 1996.
+The UK based PC GAMER magazine wrote in its February 1995 issue that _"As for Virgin's MechaMander, it's in the works with no set release date."_ [\[9\]](#ref9). Virgin Interactive Entertainment distributed many Interplay titles in Europe and M.A.X. was no exception to that in 1996. On the other hand the journalist might have simply mixed-up something.
 <br><br>
   
 ----
@@ -159,9 +162,21 @@ Several screenshots exist that show content that originates from before the firs
 The first screenshot shows the old design of the ground attack plane. The _charge_ attribute indicates that units had fuel; the game resource called ATTRIBS also contains the fuel unit attribute even in the retail version of the game. The art was later modified to become the alien attack plane.
 Some of the dark themed UI elements can also be found within older versions of the game resource file, MAX.RES.
 
-The first version of the game that was found so far is the V1.00 interactive demo from 15th of August, 1996. An internal test build, or press presentation demo, from one week later was put on a major gaming magazine's cover CD instead of the public demo version [\[12\]](#ref12). When it comes to development history and research this is the most interesting build that is available from the game.
+The December, 1996 issue of the German PC Games magazine [\[12\]](#ref12) featured a video report about their visit at Interplay. There is a short interview with Ali Atabek about M.A.X. in it.
 
-{% include drive_player.html id=page.driveId %}
+{% include drive_player.html id=page.driveId1 %}
+Copyright 1996 - Computec Verlag & Three Dog Productions 
+{: style="color:gray; font-size: 100%; text-align: right;"}
+
+The video demonstrates two different versions of the game. Based on the main menu graphics the modern looking one is newer than the V1.00 and V1.01 interactive demos, but it is not the retail version as it has the internal build warning message on the title screen. The other version has the dark GUI design and is very interesting.
+* At time stamp 00:55.733 the master builder is shown which was cut from the later versions of the game. This proves that the unit art existed. This is the only unit in the retail version of the game for which sprites do not exist.
+* At time stamp 01:28.667 the master builder animation starts, but this version plays during the day while in the retail version of the game the video plays at night or on a world where there is no direct sunlight.
+* The music track playing in the background is Cold Reality from Descent II.  
+<br><br>
+
+The first version of the game that was found so far is the V1.00 interactive demo from 15th of August, 1996. An internal test build, or press presentation demo, from one week later was put on a major gaming magazine's cover CD instead of the public demo version [\[13\]](#ref13). When it comes to development history and research this is the most interesting build that is available from the game.
+
+{% include drive_player.html id=page.driveId2 %}
 <br><br>
 
 | Time stamp | Description | Screenshot | Reference Screenshot |
@@ -170,7 +185,8 @@ The first version of the game that was found so far is the V1.00 interactive dem
 | 00:06.142 | The main title screen clearly warns the user that this is an internal build:<br>_"For game play testing and debugging only.<br>Do not distribute to any unauthorized human."_<br><br>The M.A.X. logo looks rather basic design compared to the retail one and there is no unit art display window on the left.<br> | <img src="{{ site.baseurl }}/assets/images/max_frame_00_06_142.jpg" alt=""> |  <img src="{{ site.baseurl }}/assets/images/max_ref_02.jpg" alt=""> |
 | 00:57.851 | At the end of the game credits Gus Smedstad hidden a secret message which was removed in the V1.01 Interactive Demo. The background shows the title screen art which was changed in the internal test build V1.56 to the retail version.<br> | <img src="{{ site.baseurl }}/assets/images/max_frame_00_57_851.jpg" alt=""> | <img src="{{ site.baseurl }}/assets/images/max_ref_03.jpg" alt=""> |
 | 01:09.750 | The main setup screen offers much less options. There is no enhanced graphics option, selective audio channel enable settings or player name.<br> | <img src="{{ site.baseurl }}/assets/images/max_frame_01_09_750.jpg" alt=""> | <img src="{{ site.baseurl }}/assets/images/max_ref_04.jpg" alt=""> |
-| 01:36.662 | The landing sequence screen did not have the protective panels on the left in case of tutorial missions. The English localization was hard coded into the graphics assets at the time. The developers probably considered internationalization way too late in the development. The planet surface scanner had no visulation yet.<br> | <img src="{{ site.baseurl }}/assets/images/max_frame_01_36_662.jpg" alt=""> | <img src="{{ site.baseurl }}/assets/images/max_ref_05.jpg" alt=""> |
+| 01:36.662 | The landing sequence screen did not have the protective panels on the left in case of tutorial missions. The English localization was hard coded into the graphics assets at the time. The developers probably considered internationalization way too late in the development. The planet surface scanner had no visualization yet.<br> | <img src="{{ site.baseurl }}/assets/images/max_frame_01_36_662.jpg" alt=""> | <img src="{{ site.baseurl }}/assets/images/max_ref_05.jpg" alt=""> |
+| | To be continued... | | |
 
 <br><br>
 The first retail version of the game that was found so far is V1.0.1 from December 10, 1996.
@@ -183,13 +199,22 @@ and online pre-orders arriving at doorsteps. The term itself comes from the old 
 Hence the gold colored CD actually being the source, with no reference to copies sold as in the recording industry." - Urban Dictionary
 {: style="color:gray; font-size: 100%; text-align: right;"}
 
-Interplay made an inhouse interview with Ali Atabek in December 1996 [\[13\]](#ref13). It is rather strange that the interviewer could not even spell Atabek's name correctly and that the interview begins with utter nonsense. _"... You have the opportunity to dominate a maximum of 24 worlds and eight clans-- each with its own advanced artificial intelligence (AI). All that you need to do is solve the problems of war, famine and pestilence. You must also reverse ecological collapse, genetic manipulation and tectonic disasters that, otherwise, would surely result in the demise of the world."_ - Say what? Tectonic disasters, famine and pestilence? Genetic manipulation and the demise of the world? In this game the player is supposed to conquer countless new worlds for the Condord so who cares about the demise of "the" world? But then again the campaign is all about getting our hands on technologies and alien artefacts giving a damn about the dominion of worlds and in this effort 4 clans are actually our allies.
+Interplay made an inhouse interview with Ali Atabek in December 1996 [\[14\]](#ref14). It is rather strange that the interviewer could not even spell Atabek's name correctly and that the interview begins with utter nonsense. _"... You have the opportunity to dominate a maximum of 24 worlds and eight clans-- each with its own advanced artificial intelligence (AI). All that you need to do is solve the problems of war, famine and pestilence. You must also reverse ecological collapse, genetic manipulation and tectonic disasters that, otherwise, would surely result in the demise of the world."_ - Say what? Tectonic disasters, famine and pestilence? Genetic manipulation and the demise of the world? In this game the player is supposed to conquer countless new worlds for the Condord so who cares about the demise of "the" world? But then again the campaign is all about getting our hands on technologies and alien artefacts giving a damn about the dominion of worlds and in this effort 4 clans are actually our allies.
 
 Another interesting sentence from the interview says that _"the goal for the creation of M.A.X. was to have been a step above Virgin's "Command and Conquer" meets "Conquest of the New World"_. Probably the interviewer wanted to say that M.A.X. wanted to combine the merits of "Command & Conquer" and "Conquest of the New World". Mechamander had similar ideas in 1993. Conquest of the New World is a strategy title published by Interplay.
 
-According to the interview M.A.X. was scheduled to be released on December 30th, 1996 and the development lasted about 10 months only which implies that M.A.X. was not actively developed during 1994 and 1995 which is not true. Shortly after Atabek was promoted to become division head of Interplay's new strategy division called Flat Cat [\[14\]](#ref14).
+According to the interview M.A.X. was scheduled to be released on December 30th, 1996 and the development lasted about 10 months only which implies that M.A.X. was not actively developed during 1994 and 1995 which is not true. Shortly after Atabek was promoted to become division head of Interplay's new strategy division called Flat Cat [\[15\]](#ref15).
 
 To be continued...
+
+The year 1997 ...
+
+The year 1998 ...
+
+Amazing M.A.X. 2 trailer
+
+{% include drive_player.html id=page.driveId3 %}
+<br><br>
 
 # Catalogue of M.A.X. Revisions
 
@@ -225,6 +250,7 @@ To be continued...
 <a name="ref9"></a>\[9\] PC GAMER - February 1995, page 33<br>
 <a name="ref10"></a>\[10\] [Supreme Court Case Decisions 2002](https://law.justia.com/cases/south-dakota/supreme-court/2002/1063.html)<br>
 <a name="ref11"></a>\[11\] Secret Service magazine Cover CD #38 - September, 1996<br>
-<a name="ref12"></a>\[12\] Secret Service magazine Cover CD #40 - November, 1996<br>
-<a name="ref13"></a>\[13\] [Interplay RAG 1st Edition - December, 1996](https://web.archive.org/web/19970605231746/http://www.interplay.com/rag/rag1/max.html)<br>
-<a name="ref14"></a>\[13\] [Press release about Flat Cat's first game debut: M.A.X. 2 - July 7, 1998](https://web.archive.org/web/19980710123025/https://www.interplay.com/press/flatcat.html)<br>
+<a name="ref12"></a>\[12\] PC Games magazine Cover CD - December, 1996<br>
+<a name="ref13"></a>\[13\] Secret Service magazine Cover CD #40 - November, 1996<br>
+<a name="ref14"></a>\[14\] [Interplay RAG 1st Edition - December, 1996](https://web.archive.org/web/19970605231746/http://www.interplay.com/rag/rag1/max.html)<br>
+<a name="ref15"></a>\[15\] [Press release about Flat Cat's first game debut: M.A.X. 2 - July 7, 1998](https://web.archive.org/web/19980710123025/https://www.interplay.com/press/flatcat.html)<br>
