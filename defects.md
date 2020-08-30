@@ -58,11 +58,14 @@ In a certain unclarified game mode when the game concludes with either winning o
     In case of water platforms the game correctly finds that there is no path to the destination. In case of bridges this is bogus. The infiltrator cannot take the path as there is a mine in the way, but the path finding algorith tells there is a valid path. When the issue occurs the game does not accept the end turn action, the affected infiltrator cannot be moved any more and it cannot be loaded by personnel carriers. The affected bridge at the same time is redrawn as if there would be a ship under the bridge. Interestingly it is possible to load back a game in this state and if done so the queued action to end the turn from the previous game activates. This also implies that command or event queues are not cleared on loading games.
 
 14. AI does not consider to leave a free square for engineer to leave the construction site making it stuck.
+      
     <img src="{{ site.baseurl }}/assets/images/defect_14.jpg" alt="defect 14" width="740"> 
 
-{% comment %}
-15. Help mouse spot is at wrong position.
+15. The in-game help mouse spot for the map coordinate display holder arm is at the old top left location. The arm was on top in the old v1.00 interactive demo and was moved to the bottom later. The developers forgot to move the hot spot with the art to its new location.
+      
+    <img src="{{ site.baseurl }}/assets/images/defect_15.jpg" alt="defect 14" width="740"> 
 
+{% comment %}
 16. Landing Zone help button dereferences NULL.
 
 17. Unit gets stuck at square that is occupied by constructor's construction zone.

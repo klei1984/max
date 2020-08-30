@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2020-07-18.
+Last updated: 2020-08-30.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -68,10 +68,10 @@ The original GNW library was implemented in pure C. The workflow within this pac
 - <span class="legend-done">
   Replace the human machine interface related modules (kb, mouse, vcr, input)
   </span>
-- <span class="legend-none">
+- <span class="legend-inwork">
   Replace the color management module (color)
   </span>
-- <span class="legend-close">
+- <span class="legend-done">
   Replace the GUI controls related modules (gnw, rect, grbuf, interface, button)
   </span>
 - <span class="legend-done">
@@ -80,7 +80,7 @@ The original GNW library was implemented in pure C. The workflow within this pac
 - <span class="legend-done">
   Replace the debug services module (debug)
   </span>
-- <span class="legend-none">
+- <span class="legend-done">
   Replace the database management module (db, assoc)
   </span>
 - <span class="legend-close">
