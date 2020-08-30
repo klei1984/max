@@ -25,14 +25,14 @@
 #include <stddef.h>
 #include <stdio.h>
 
-typedef void* DB_FILE;
+typedef struct db_file_s* DB_FILE;
 
 typedef void* (*assoc_malloc_func)(size_t);
 typedef void* (*assoc_realloc_func)(void*, size_t);
 typedef void (*assoc_free_func)(void*);
 
-typedef int (*assoc_load_func_db)(DB_FILE* stream, void*, size_t, int);
-typedef int (*assoc_save_func_db)(DB_FILE* stream, void*, size_t, int);
+typedef int (*assoc_load_func_db)(DB_FILE stream, void*, size_t, int);
+typedef int (*assoc_save_func_db)(DB_FILE stream, void*, size_t, int);
 typedef int (*assoc_load_func)(FILE* fp, void*, size_t, int);
 typedef int (*assoc_save_func)(FILE* fp, void*, size_t, int);
 

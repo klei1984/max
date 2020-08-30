@@ -19,20 +19,7 @@
  * SOFTWARE.
  */
 
-#ifdef __unix__
-#include <sys/io.h>
-#include <unistd.h>
-#else
-#include <io.h>
-#endif
-
-#include "dos.h"
 #include "game.h"
-
-#ifdef __unix__
-static inline char *strupr(char *s) { return dos_strupr(s); }
-static inline char *strlwr(char *s) { return dos_strlwr(s); }
-#endif
 
 char file_path_cdrom[PATH_MAX];
 char file_path_game_install[PATH_MAX];

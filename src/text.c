@@ -123,7 +123,7 @@ void GNW_text_exit(void) {
 
 int load_font(int n) {
     char str[13];
-    DB_FILE* fp;
+    DB_FILE fp;
     int result;
 
     sprintf((char*)&str, "FONT%d.FON", n);

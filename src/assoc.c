@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "game.h"
+
 static void* default_malloc(size_t t);
 static void* default_realloc(void* p, size_t t);
 static void default_free(void* p);
@@ -475,8 +477,10 @@ int assoc_load(FILE* fp, assoc_array* a, int flags) {
                 }
             }
         }
+
         return 0;
     }
+
     return -1;
 }
 

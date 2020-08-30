@@ -60,7 +60,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
         window_index[i] = -1;
     }
 
-    if (!db_total() && db_init(0, 0, 0) == -1) {
+    if (!db_total() && db_init(NULL, NULL, NULL) == NULL) {
         return 7;
     }
 
@@ -1270,8 +1270,8 @@ unsigned long colorOpen(char *file, int mode) {
     return result;
 }
 
-unsigned long colorClose(unsigned long handle) { return db_fclose((DB_FILE *)handle); }
+unsigned long colorClose(unsigned long handle) { return db_fclose((DB_FILE)handle); }
 
 unsigned long colorRead(unsigned long handle, void *buf, unsigned long size) {
-    return db_fread(buf, 1, size, (DB_FILE *)handle);
+    return db_fread(buf, 1, size, (DB_FILE)handle);
 }

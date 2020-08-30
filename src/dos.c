@@ -49,10 +49,22 @@ static int open_flag_mapping[][2] = {{DOS_O_RDONLY, O_RDONLY},
                                      {-1, -1}};
 
 #ifdef __unix__
-static inline char *strupr(char *s) { return dos_strupr(s); }
+char *strupr(char *s) { return dos_strupr(s); }
+char *strlwr(char *s) { return dos_strlwr(s); }
 int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
 int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1, s2, len); }
 #endif
+
+long int filesize(FILE *fp) {
+    long int save_pos, size_of_file;
+
+    save_pos = ftell(fp);
+    fseek(fp, 0, SEEK_END);
+    size_of_file = ftell(fp);
+    fseek(fp, save_pos, SEEK_SET);
+
+    return (size_of_file);
+}
 
 int dos_open_flags_to_native(int flags) {
     int rflags = 0;

@@ -37,6 +37,8 @@
 #include "rect.h"
 #include "text.h"
 #include "vcr.h"
+#include "assoc.h"
+#include "lzss.h"
 
 typedef int (*SetModeFunc)(void);
 typedef void (*ResetModeFunc)(void);

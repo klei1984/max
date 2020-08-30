@@ -22,6 +22,15 @@
 #ifndef DOS_H
 #define DOS_H
 
+#include <stdio.h>
+
+#ifdef __unix__
+#include <sys/io.h>
+#include <unistd.h>
+#else
+#include <io.h>
+#endif
+
 #define DOS_O_RDONLY 0x0000
 #define DOS_O_WRONLY 0x0001
 #define DOS_O_RDWR 0x0002
@@ -113,6 +122,16 @@ struct dosdate_t {
     unsigned short year;
     unsigned char dayofweek;
 };
+
+#ifdef __unix__
+char *strupr(char *s);
+char *strlwr(char *s);
+char *strupr(char *s);
+int stricmp(const char *s1, const char *s2);
+int strnicmp(const char *s1, const char *s2, size_t len);
+#endif
+
+long int filesize(FILE *fp);
 
 // int dos_open_flags_to_native (int flags);
 

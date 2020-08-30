@@ -25,8 +25,8 @@
 #include <assert.h>
 
 #include "db.h"
-#include "kb.h"
 #include "input.h"
+#include "kb.h"
 
 typedef enum VCREventType_e {
     nop = 0x0,
@@ -90,7 +90,7 @@ int vcr_stop(void);
 int vcr_status(void);
 VCREventType vcr_update(void);
 int vcr_dump_buffer(void);
-int vcr_save_record(VCREventRecord* record, DB_FILE* fp);
-int vcr_load_record(VCREventRecord* record, DB_FILE* fp);
+int vcr_save_record(VCREventRecord* record, DB_FILE fp);
+int vcr_load_record(VCREventRecord* record, DB_FILE fp);
 
 #endif /* VCR_H */

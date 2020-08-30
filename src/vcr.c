@@ -29,7 +29,7 @@ static int vcr_clear_buffer(void);
 static int vcr_load_buffer(void);
 
 static int vcr_buffer_end;
-static DB_FILE *vcr_file;
+static DB_FILE vcr_file;
 static int vcr_temp_terminate_flags;
 static VCRNotifyCallback vcr_notify_callback;
 static TOCKS vcr_start_time;
@@ -327,7 +327,7 @@ int vcr_load_buffer(void) {
     return result;
 }
 
-int vcr_save_record(VCREventRecord *record, DB_FILE *fp) {
+int vcr_save_record(VCREventRecord *record, DB_FILE fp) {
     int result = 0;
 
     if ((db_fwriteLong(fp, record->type) != -1) && (db_fwriteLong(fp, record->time) != -1) &&
@@ -361,7 +361,7 @@ int vcr_save_record(VCREventRecord *record, DB_FILE *fp) {
     return result;
 }
 
-int vcr_load_record(VCREventRecord *record, DB_FILE *fp) {
+int vcr_load_record(VCREventRecord *record, DB_FILE fp) {
     int result = 0;
 
     if ((db_freadInt(fp, (int *)&record->type) != -1) && (db_freadInt(fp, (int *)&record->time) != -1) &&

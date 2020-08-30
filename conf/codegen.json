@@ -4625,9 +4625,9 @@
 		},
 		{
 			"name": "db_fopen",
-			"prototype": "DB_FILE * db_fopen(char * filename, char * mode)",
+			"prototype": "DB_FILE db_fopen(char * filename, char * mode)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_fopen_",
 			"debug": false,
 			"type": "watcall",
@@ -4635,7 +4635,7 @@
 			"align": 4,
 			"stack_align": 4,
 			"return": {
-				"type_name": "DB_FILE *",
+				"type_name": "DB_FILE",
 				"type_class": "pointer",
 				"arg_name": null,
 				"is_far": false
@@ -4657,9 +4657,9 @@
 		},
 		{
 			"name": "db_fread",
-			"prototype": "size_t db_fread(void* ptr, size_t size, size_t nmemb, DB_FILE* stream)",
+			"prototype": "size_t db_fread(void* ptr, size_t size, size_t nmemb, DB_FILE stream)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_fread_",
 			"debug": false,
 			"type": "watcall",
@@ -4692,7 +4692,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "DB_FILE*",
+					"type_name": "DB_FILE",
 					"type_class": "pointer",
 					"arg_name": "stream",
 					"is_far": false
@@ -4701,9 +4701,9 @@
 		},
 		{
 			"name": "db_fclose",
-			"prototype": "int db_fclose(DB_FILE* stream)",
+			"prototype": "int db_fclose(DB_FILE stream)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_fclose_",
 			"debug": false,
 			"type": "watcall",
@@ -4718,7 +4718,7 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "DB_FILE *",
+					"type_name": "DB_FILE",
 					"type_class": "pointer",
 					"arg_name": "stream",
 					"is_far": false
@@ -4729,7 +4729,7 @@
 			"name": "db_init",
 			"prototype": "int db_init(char* datafile, char* datafile_path, char* patches_path)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_init_",
 			"debug": false,
 			"type": "watcall",
@@ -4767,7 +4767,7 @@
 			"name": "db_total",
 			"prototype": "int db_total(void)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_total_",
 			"debug": false,
 			"type": "watcall",
@@ -4827,9 +4827,9 @@
 		},
 		{
 			"name": "db_fwriteLong",
-			"prototype": "int db_fwriteLong(DB_FILE* stream, unsigned long l)",
+			"prototype": "int db_fwriteLong(DB_FILE stream, unsigned long l)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_fwriteLong_",
 			"debug": false,
 			"type": "watcall",
@@ -4844,7 +4844,7 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "DB_FILE *",
+					"type_name": "DB_FILE",
 					"type_class": "pointer",
 					"arg_name": "stream",
 					"is_far": false
@@ -4859,9 +4859,9 @@
 		},
 		{
 			"name": "db_freadInt",
-			"prototype": "int db_freadInt(DB_FILE* stream, int* i)",
+			"prototype": "int db_freadInt(DB_FILE stream, int* i)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_freadInt_",
 			"debug": false,
 			"type": "watcall",
@@ -4876,7 +4876,7 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "DB_FILE *",
+					"type_name": "DB_FILE",
 					"type_class": "pointer",
 					"arg_name": "stream",
 					"is_far": false
@@ -4891,9 +4891,9 @@
 		},
 		{
 			"name": "db_freadShort",
-			"prototype": "int db_freadShort(DB_FILE* stream, unsigned short* s)",
+			"prototype": "int db_freadShort(DB_FILE stream, unsigned short* s)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_freadShort_",
 			"debug": false,
 			"type": "watcall",
@@ -4908,7 +4908,7 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "DB_FILE *",
+					"type_name": "DB_FILE",
 					"type_class": "pointer",
 					"arg_name": "stream",
 					"is_far": false
@@ -4923,9 +4923,9 @@
 		},
 		{
 			"name": "db_fwriteShort",
-			"prototype": "int db_fwriteShort(DB_FILE* stream, unsigned short s)",
+			"prototype": "int db_fwriteShort(DB_FILE stream, unsigned short s)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_fwriteShort_",
 			"debug": false,
 			"type": "watcall",
@@ -4940,7 +4940,7 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "DB_FILE *",
+					"type_name": "DB_FILE",
 					"type_class": "pointer",
 					"arg_name": "stream",
 					"is_far": false
@@ -4955,9 +4955,9 @@
 		},
 		{
 			"name": "db_fgetc",
-			"prototype": "int db_fgetc(DB_FILE* stream)",
+			"prototype": "int db_fgetc(DB_FILE stream)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "db_fgetc_",
 			"debug": false,
 			"type": "watcall",
@@ -4972,7 +4972,7 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "DB_FILE *",
+					"type_name": "DB_FILE",
 					"type_class": "pointer",
 					"arg_name": "stream",
 					"is_far": false
