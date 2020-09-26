@@ -2419,4 +2419,7 @@ typedef enum GAME_RESOURCE_e {
 
 typedef struct GameResourceMeta_s GameResourceMeta;
 
+void *read_game_resource(GAME_RESOURCE id);
+int read_game_resource_into_buffer(GAME_RESOURCE id, void *buffer);
+
 #endif /* RESRCMGR_H */

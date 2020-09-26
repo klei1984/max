@@ -20,8 +20,6 @@ M.A.X. Port requires the original game data. The port only provides a modernized
 2. [Download](x) M.A.X. Port or [build](x) the runtime using the source code.
    - Copy the runtime to your M.A.X. installation folder, e.g. C:\MAX.
 
-3. The mve video player library is not yet ported to the SDL2 backend. Due to this the following game files shall be renamed to something else in the M.A.X. installation folder: MAXINT.MVE MAXMVE1.MVE MAXMVE2.MVE.
-
 ### Compatibility with Interactive Demo versions of M.A.X.
 
 There were several demo versions published for M.A.X. Version v1.03a of the demo is marginally compatible with M.A.X. Port. Missing resources like audio files, unit sprites or images will simply not play or render.

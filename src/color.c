@@ -43,8 +43,6 @@ static int greenloop(int restart);
 static int blueloop(int restart);
 static void maxfill(unsigned long* buffer, int side);
 
-static void update_system_palette(SDL_Palette* palette);
-
 static SDL_Palette* SystemPalette;
 
 static int colorsInited;
@@ -87,7 +85,7 @@ void setSystemPalette(unsigned char* cmap) {
         SystemPalette->colors[n].a = 0;
     }
 
-    update_system_palette(SystemPalette);
+    update_system_palette(SystemPalette, 1);
 }
 
 // unsigned char* getSystemPalette(void) {}
@@ -106,7 +104,7 @@ void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned
     SystemPalette->colors[entry].g = currentGammaTable[g] * 4;
     SystemPalette->colors[entry].b = currentGammaTable[b] * 4;
 
-    update_system_palette(SystemPalette);
+    update_system_palette(SystemPalette, 1);
 }
 
 void getSystemPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b) {}
@@ -183,7 +181,7 @@ int initColors(void) {
 // void colorsClose(void) {}
 unsigned char* getColorPalette(void) {}
 
-static void update_system_palette(SDL_Palette* palette) {
+void update_system_palette(SDL_Palette* palette, int render) {
     SDL_Surface* screen;
 
     screen = svga_get_screen();
@@ -193,7 +191,9 @@ static void update_system_palette(SDL_Palette* palette) {
             fprintf(stderr, "SDL_SetPaletteColors failed: %s\n", SDL_GetError());
         }
 
-        svga_render();
+        if (render) {
+            svga_render();
+        }
     } else {
         fprintf(stderr, "SDL_Surface is NULL\n");
     }

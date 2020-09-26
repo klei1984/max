@@ -240,7 +240,7 @@ void deinit_mem_type_resources(void) {
 
     resource_buffer_size = 0;
     init_mouse_gfx_luts();
-    sub_C0D94(1);
+    mouse_set_gfx(1);
     mouse_show();
 }
 

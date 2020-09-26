@@ -42,11 +42,11 @@ int main(int argc, char *argv[]) {
     ginit_init_paths(argc, argv);
     init_resources();
 
-    if (!menu_play_into()) {
+    if (movie_play_intro()) {
         menu_display_logo(ILOGO, 3000);
     }
 
-    //    digi_play_music(&sound_mgr, MAIN_MSC, 0);
+    // digi_play_music(&sound_mgr, MAIN_MSC, 0);
     menu_display_logo(MLOGO, 3000);
 
     /* never returns */

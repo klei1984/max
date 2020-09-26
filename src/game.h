@@ -25,7 +25,10 @@
 void init_callbacks(void);
 
 #include "gnw.h"
+#include "mvelib32.h"
+#include "movie.h"
 #include "dos.h"
+#include "ini.h"
 #include "resrcmgr.h"
 #include "svga.h"
 #include "units.h"

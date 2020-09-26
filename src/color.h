@@ -22,6 +22,7 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include <SDL.h>
 #include <stddef.h>
 
 #include "memory.h"
@@ -75,5 +76,7 @@ int colorPopColorPalette(void);
 int initColors(void);
 // void colorsClose(void);
 unsigned char* getColorPalette(void);
+
+void update_system_palette(SDL_Palette* palette, int render);
 
 #endif /* COLOR_H */

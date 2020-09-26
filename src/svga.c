@@ -29,6 +29,8 @@ static SDL_Surface *sdlWindowSurface;
 static SDL_Surface *sdlPaletteSurface;
 static SDL_Texture *sdlTexture;
 
+static int sdl_win_init_flag;
+
 Rect scr_size;
 ScreenBlitFunc scr_blit;
 
@@ -39,8 +41,12 @@ int init_mode_640_480(void) { return init_vesa_mode(0x101, 640, 480, 0); }
 int init_vesa_mode(int mode, int width, int height, int half) {
     Uint32 flags;
 
+    if (sdl_win_init_flag) {
+        return 0;
+    }
+
     flags = 0;
-    //    flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
+    // flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
 
     if ((sdlWindow = SDL_CreateWindow("M.A.X.: Mechanized Assault & Exploration", SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED, width, height, flags)) == NULL) {
@@ -51,7 +57,7 @@ int init_vesa_mode(int mode, int width, int height, int half) {
     }
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-    //    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
+    // SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
     SDL_RenderSetLogicalSize(sdlRenderer, width, height);
 
     sdlWindowSurface = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
@@ -72,8 +78,10 @@ int init_vesa_mode(int mode, int width, int height, int half) {
     SDL_RenderPresent(sdlRenderer);
 
     if (sdlWindowSurface && sdlTexture && sdlPaletteSurface) {
+        sdl_win_init_flag = 1;
         return 0;
     } else {
+        sdl_win_init_flag = 0;
         return -1;
     }
 }

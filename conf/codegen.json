@@ -3435,26 +3435,6 @@
 			]
 		},
 		{
-			"name": "menu_play_into",
-			"prototype": "int menu_play_into(void)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "menu_play_into_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-			]
-		},
-		{
 			"name": "menu_display_logo",
 			"prototype": "void menu_display_logo(GAME_RESOURCE id, int time_limit)",
 			"component": "gnw",
@@ -3899,27 +3879,6 @@
 			"stack_align": 4,
 			"return": null,
 			"arguments_list": [
-			]
-		},
-		{
-			"name": "sub_C0D94",
-			"prototype": "void sub_C0D94(char unknown)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "sub_C0D94_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "char",
-					"type_class": "integer",
-					"arg_name": "unknown",
-					"is_far": false
-				}
 			]
 		},
 		{
@@ -7251,11 +7210,26 @@
 			]
 		},
 		{
-			"name": "GNW_button_refresh",
-			"prototype": "void GNW_button_refresh(GNW_Window* w, Rect* r)",
-			"component": "gnw",
-			"mode": "replace",
-			"symbol": "GNW_button_refresh_",
+			"name": "clear_main_window",
+			"prototype": "void clear_main_window(void)",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "clear_main_window_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "mouse_set_gfx",
+			"prototype": "void mouse_set_gfx(char unknown)",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "mouse_set_gfx_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,
@@ -7264,69 +7238,45 @@
 			"return": null,
 			"arguments_list": [
 				{
-					"type_name": "GNW_Window *",
-					"type_class": "pointer",
-					"arg_name": "w",
-					"is_far": false
-				},
-				{
-					"type_name": "Rect *",
-					"type_class": "pointer",
-					"arg_name": "r",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "assoc_init",
-			"prototype": "int assoc_init(assoc_array* a, int n, size_t datasize, assoc_func_list* assoc_funcs)",
-			"component": "gnw",
-			"mode": "replace",
-			"symbol": "assoc_init_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "assoc_array*",
-					"type_class": "pointer",
-					"arg_name": "a",
-					"is_far": false
-				},
-				{
-					"type_name": "int",
+					"type_name": "char",
 					"type_class": "integer",
-					"arg_name": "n",
+					"arg_name": "unknown",
 					"is_far": false
-				},
+				}
+			]
+		},
+		{
+			"name": "ini_get_setting",
+			"prototype": "unsigned int ini_get_setting(GAME_INI index)",
+			"component": "max",
+			"mode": "expose",
+			"symbol": "ini_get_setting_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
 				{
-					"type_name": "size_t",
+					"type_name": "GAME_INI",
 					"type_class": "integer",
-					"arg_name": "datasize",
-					"is_far": false
-				},
-				{
-					"type_name": "assoc_func_list*",
-					"type_class": "pointer",
-					"arg_name": "assoc_funcs",
+					"arg_name": "index",
 					"is_far": false
 				}
 			]
 		},
 		{
-			"name": "assoc_free",
-			"prototype": "int assoc_free(assoc_array* a)",
-			"component": "gnw",
+			"name": "movie_play",
+			"prototype": "int movie_play(GAME_RESOURCE resource_id)",
+			"component": "max",
 			"mode": "replace",
-			"symbol": "assoc_free_",
+			"symbol": "movie_play_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,
@@ -7340,19 +7290,19 @@
 			},
 			"arguments_list": [
 				{
-					"type_name": "assoc_array*",
-					"type_class": "pointer",
-					"arg_name": "a",
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "resource_id",
 					"is_far": false
 				}
 			]
 		},
 		{
-			"name": "assoc_search",
-			"prototype": "int assoc_search(assoc_array* a, char* name)",
+			"name": "movie_play_intro",
+			"prototype": "int movie_play_intro(void)",
 			"component": "gnw",
 			"mode": "replace",
-			"symbol": "assoc_search_",
+			"symbol": "movie_play_intro_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,
@@ -7365,66 +7315,16 @@
 				"is_far": false
 			},
 			"arguments_list": [
-				{
-					"type_name": "assoc_array*",
-					"type_class": "pointer",
-					"arg_name": "a",
-					"is_far": false
-				},
-				{
-					"type_name": "char*",
-					"type_class": "pointer",
-					"arg_name": "name",
-					"is_far": false
-				}
 			]
 		},
 		{
-			"name": "assoc_insert",
-			"prototype": "int assoc_insert(assoc_array* a, char* name, void* data)",
+			"name": "MVE_RunMovie",
+			"prototype": "int MVE_RunMovie(FILE* fp, int dx, int dy, int track)",
 			"component": "gnw",
-			"mode": "replace",
-			"symbol": "assoc_insert_",
+			"mode": "expose",
+			"symbol": "MVE_RunMovie_",
 			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "assoc_array*",
-					"type_class": "pointer",
-					"arg_name": "a",
-					"is_far": false
-				},
-				{
-					"type_name": "char*",
-					"type_class": "pointer",
-					"arg_name": "name",
-					"is_far": false
-				},
-				{
-					"type_name": "void*",
-					"type_class": "pointer",
-					"arg_name": "data",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "assoc_load",
-			"prototype": "int assoc_load(FILE* fp, assoc_array* a, int flags)",
-			"component": "gnw",
-			"mode": "replace",
-			"symbol": "assoc_load_",
-			"debug": false,
-			"type": "watcall",
+			"type": "cdecl",
 			"bitness": 32,
 			"align": 4,
 			"stack_align": 4,
@@ -7442,17 +7342,332 @@
 					"is_far": false
 				},
 				{
-					"type_name": "assoc_array*",
-					"type_class": "pointer",
-					"arg_name": "a",
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "dx",
 					"is_far": false
 				},
 				{
 					"type_name": "int",
 					"type_class": "integer",
-					"arg_name": "flags",
+					"arg_name": "dy",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "track",
 					"is_far": false
 				}
+			]
+		},
+		{
+			"name": "MVE_gfxMode",
+			"prototype": "int MVE_gfxMode(int mode)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "MVE_gfxMode_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "mode",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "MVE_sfSVGA",
+			"prototype": "void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, void *write_win_ptr, int window_size, int window_granuality, void *window_function, int hicolor)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "MVE_sfSVGA_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "height",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "bytes_per_scan_line",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "write_window",
+					"is_far": false
+				},
+				{
+					"type_name": "void*",
+					"type_class": "pointer",
+					"arg_name": "write_win_ptr",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "window_size",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "window_granuality",
+					"is_far": false
+				},
+				{
+					"type_name": "void*",
+					"type_class": "pointer",
+					"arg_name": "window_function",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "hicolor",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "MVE_rmPrepMovie",
+			"prototype": "int MVE_rmPrepMovie(FILE* fp, int dx, int dy, int track)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "MVE_rmPrepMovie_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "FILE*",
+					"type_class": "pointer",
+					"arg_name": "fp",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "dx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "dy",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "track",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "MVE_rmStepMovie",
+			"prototype": "int MVE_rmStepMovie(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "MVE_rmStepMovie_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "MVE_rmEndMovie",
+			"prototype": "void MVE_rmEndMovie(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "MVE_rmEndMovie_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "MVE_ReleaseMem",
+			"prototype": "void MVE_ReleaseMem(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "MVE_ReleaseMem_",
+			"debug": false,
+			"type": "cdecl",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "MemFree",
+			"prototype": "void MemFree(MveMemBlock *ptr)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "MemFree_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "MveMemBlock *",
+					"type_class": "pointer",
+					"arg_name": "ptr",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "MemAlloc",
+			"prototype": "void *MemAlloc(MveMemBlock *ptr, size_t size)",
+			"component": "gnw",
+			"mode": "replace",
+			"symbol": "MemAlloc_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "void *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "MveMemBlock *",
+					"type_class": "pointer",
+					"arg_name": "ptr",
+					"is_far": false
+				},
+				{
+					"type_name": "size_t",
+					"type_class": "integer",
+					"arg_name": "size",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "ioReset",
+			"prototype": "int ioReset(FILE *handle)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "ioReset_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "FILE *",
+					"type_class": "pointer",
+					"arg_name": "handle",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "ioRead",
+			"prototype": "void *ioRead(size_t size)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "ioRead_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "void *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "size_t",
+					"type_class": "integer",
+					"arg_name": "size",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "ioNextRecord",
+			"prototype": "unsigned char *ioNextRecord(void)",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "ioNextRecord_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned char *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
 			]
 		}
 	],
@@ -7831,6 +8046,94 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_keys",
+			"align": 1
+		},
+		{
+			"name": "mve_mem_alloc",
+			"prototype": "mve_cb_Alloc mve_mem_alloc",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_mem_alloc",
+			"align": 1
+		},
+		{
+			"name": "mve_mem_free",
+			"prototype": "mve_cb_Free mve_mem_free",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_mem_free",
+			"align": 1
+		},
+		{
+			"name": "mve_io_read",
+			"prototype": "mve_cb_Read mve_io_read",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_io_read",
+			"align": 1
+		},
+		{
+			"name": "mve_sf_ShowFrame",
+			"prototype": "mve_cb_ShowFrame mve_sf_ShowFrame",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_sf_ShowFrame",
+			"align": 1
+		},
+		{
+			"name": "mve_pal_SetPalette",
+			"prototype": "mve_cb_SetPalette mve_pal_SetPalette",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_pal_SetPalette",
+			"align": 1
+		},
+		{
+			"name": "mve_rm_ctl",
+			"prototype": "mve_cb_Ctl mve_rm_ctl",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_rm_ctl",
+			"align": 1
+		},
+		{
+			"name": "mve_opt_fastmode",
+			"prototype": "int mve_opt_fastmode",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_opt_fastmode",
+			"align": 1
+		},
+		{
+			"name": "mve_opt_hscale_step",
+			"prototype": "int mve_opt_hscale_step",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_opt_hscale_step",
+			"align": 1
+		},
+		{
+			"name": "mve_snd_vol",
+			"prototype": "unsigned int mve_snd_vol",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_snd_vol",
+			"align": 1
+		},
+		{
+			"name": "nf_buf_prv",
+			"prototype": "unsigned char* nf_buf_prv",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_nf_buf_prv",
+			"align": 1
+		},
+		{
+			"name": "nf_buf_cur",
+			"prototype": "unsigned char* nf_buf_cur",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_nf_buf_cur",
 			"align": 1
 		}
 	]
