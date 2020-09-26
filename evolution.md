@@ -224,7 +224,8 @@ Amazing M.A.X. 2 trailer
 | 1996-08-21        | Internal Test Build | V1.01 Demo       |
 | 1996-10-09        | Interactive Demo    | V1.01 Demo       |
 | 1996-11-20        | Internal Test Build | V1.56            |
-| 1996-12-10        | Retail (CD)         | V1.01            |
+| 1996-12-08        | Retail (CD)         | V1.00 (Serial CD-ICD-082-EU) |
+| 1996-12-10        | Retail (CD)         | V1.01 (Serial CD-ICD-082-G) |
 | 1996-12-12        | Retail (CD)         | V1.02            |
 | 1997-01-08        | Retail (patch)      | V1.03            |
 | 1997-01-16        | Interactive Demo    | V1.03a Demo      |

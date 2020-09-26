@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2020-08-30.
+Last updated: 2020-09-26.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -91,8 +91,14 @@ The original GNW library was implemented in pure C. The workflow within this pac
 The original MVE library was implmeneted in C and Assembly. The MVE library uses its own version of MS-DOS svga and sound drivers.
 The workflow within this package is similar to the one in package 0.3 except for the OS dependent drivers layer.
 
-- Replace the low level OS dependent drivers (sos, vbe, ...)
-- Replace the MVE library modules (mvelib32, mveliba)
+- <span class="legend-inwork">
+  Replace the low level OS dependent drivers (sos, vbe, ...)
+  </span>
+- <span class="legend-inwork">
+  Replace the MVE library modules (mvelib32, mveliba)
+  </span>
+- Implement feature to scale videos to match screen resolution
+- Implement feature to render captions (subtitles)
 - <span class="legend-none">
   Remove all replaced functions from maxrun.in
   </span>
