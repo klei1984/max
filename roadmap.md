@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2020-09-26.
+Last updated: 2020-10-08.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -59,16 +59,16 @@ Items in the list are color-coded using the following interpretation:
   Remove all replaced functions from maxrun.in
   </span>
 
-### 0.3 Reimplement original GNW library modules
-The original GNW library was implemented in pure C. The workflow within this package includes steps to
- reenginer the original GNW modules based on available information into ISO C99 source code,
- replace references to the original GNW API calls within maxrun.in by the reimplemented versions,
+### 0.3 Reimplement original platform library modules
+The original platform library was implemented in pure C. The workflow within this package includes steps to
+ reenginer the original GNW and related modules based on available information into ISO C99 source code,
+ replace references to the original API calls within maxrun.in by the reimplemented versions,
  and finally remove the replaced old assembler code from maxrun.in.
 
 - <span class="legend-done">
   Replace the human machine interface related modules (kb, mouse, vcr, input)
   </span>
-- <span class="legend-inwork">
+- <span class="legend-done">
   Replace the color management module (color)
   </span>
 - <span class="legend-done">
@@ -82,6 +82,9 @@ The original GNW library was implemented in pure C. The workflow within this pac
   </span>
 - <span class="legend-done">
   Replace the database management module (db, assoc)
+  </span>
+- <span class="legend-inwork">
+  Replace the IPX driver and related dpmi modules (ipx, dpmi)
   </span>
 - <span class="legend-close">
   Remove all replaced functions from maxrun.in
