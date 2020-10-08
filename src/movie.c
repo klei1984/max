@@ -159,8 +159,8 @@ int movie_run(GAME_RESOURCE resource_id, int mode) {
 
             MVE_ReleaseMem();
 
-            memcpy(cmap, palette, 3 * PALETTE_SIZE);
-            setColorPalette(cmap);
+            memcpy(getColorPalette(), palette, 3 * PALETTE_SIZE);
+            setColorPalette(getColorPalette());
             fclose(fp);
 
             result = 0;

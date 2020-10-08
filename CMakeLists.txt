@@ -72,6 +72,7 @@ if (WIN32)
 endif (WIN32)
 
 if (MINGW)
+	add_definitions(-DSDL_MAIN_HANDLED)
     add_compile_options(-mno-ms-bitfields)
     add_link_options(-mconsole)
 endif (MINGW)
@@ -90,16 +91,21 @@ add_custom_command(
 
 find_package(SDL2 REQUIRED)
 
+if(NOT TARGET SDL2::SDL2)
+    add_library(SDL2::SDL2 INTERFACE IMPORTED)
+    set_property(TARGET SDL2::SDL2 APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${SDL2_LIBRARIES})
+     set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIRS})
+endif()
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_BINARY_DIR}
     ${GAME_INCLUDES}
-    ${SDL2_INCLUDE_DIRS}
 )
 
 add_executable(${GAME_BINARY} ${GAME_SOURCES})
 set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-m32 -O0 -fno-eliminate-unused-debug-types -no-pie -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\"" LINK_FLAGS "-m32 -O0 -no-pie")
-target_link_libraries(${GAME_BINARY} ${SDL2_LIBRARIES} m)
+target_link_libraries(${GAME_BINARY} SDL2::SDL2 m)
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${GAME_VERSION_MINOR})

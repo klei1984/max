@@ -29,9 +29,9 @@ static void win_free(WinID id);
 static void win_clip(GNW_Window *w, RectPtr *L, char *buf);
 static void refresh_all(Rect *bound, char *buf);
 static char *load_texture(char *filename);
-/*static*/ unsigned long colorOpen(char *file, int mode);
-/*static*/ unsigned long colorClose(unsigned long handle);
-/*static*/ unsigned long colorRead(unsigned long handle, void *buf, unsigned long size);
+static unsigned long colorOpen(char *file, int mode);
+static unsigned long colorClose(unsigned long handle);
+static unsigned long colorRead(unsigned long handle, void *buf, unsigned long size);
 
 static int window_index[50];
 static GNW_Window *window[50];

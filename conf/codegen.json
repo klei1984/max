@@ -2891,6 +2891,106 @@
 			]
 		},
 		{
+			"name": "Color2RGB",
+			"prototype": "ColorRGB Color2RGB(Color c)",
+			"component": "color",
+			"mode": "replace",
+			"symbol": "Color2RGB_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "ColorRGB",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "Color",
+					"type_class": "integer",
+					"arg_name": "c",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "setColorPalette",
+			"prototype": "void setColorPalette(unsigned char* pal)",
+			"component": "color",
+			"mode": "replace",
+			"symbol": "setColorPalette_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "pal",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "getColorPalette",
+			"prototype": "unsigned char* getColorPalette(void)",
+			"component": "color",
+			"mode": "replace",
+			"symbol": "getColorPalette_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned char *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "fadeSystemPalette",
+			"prototype": "void fadeSystemPalette(unsigned char* src, unsigned char* dest, int steps)",
+			"component": "color",
+			"mode": "replace",
+			"symbol": "fadeSystemPalette_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "src",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "dest",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "steps",
+					"is_far": false
+				}
+			]
+		},
+		{
 			"name": "setSystemPalette",
 			"prototype": "void setSystemPalette(unsigned char *cmap)",
 			"component": "color",
@@ -5819,7 +5919,7 @@
 			"name": "getSystemPalette",
 			"prototype": "unsigned char* getSystemPalette(void)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "getSystemPalette_",
 			"debug": false,
 			"type": "watcall",
@@ -6295,7 +6395,7 @@
 			"name": "colorRegisterAlloc",
 			"prototype": "void colorRegisterAlloc(MallocFunc m, ReallocFunc r, FreeFunc f)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "colorRegisterAlloc_",
 			"debug": false,
 			"type": "watcall",
@@ -6325,43 +6425,10 @@
 			]
 		},
 		{
-			"name": "colorInitIO",
-			"prototype": "void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "colorInitIO_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "ColorOpenFunc",
-					"type_class": "pointer",
-					"arg_name": "o",
-					"is_far": false
-				},
-				{
-					"type_name": "ColorReadFunc",
-					"type_class": "pointer",
-					"arg_name": "r",
-					"is_far": false
-				},
-				{
-					"type_name": "ColorCloseFunc",
-					"type_class": "pointer",
-					"arg_name": "c",
-					"is_far": false
-				}
-			]
-		},
-		{
 			"name": "colorsClose",
 			"prototype": "void colorsClose(void)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "colorsClose_",
 			"debug": false,
 			"type": "watcall",
@@ -6376,7 +6443,7 @@
 			"name": "colorBuildColorTable",
 			"prototype": "int colorBuildColorTable(unsigned char* colormap, unsigned char* matchtable)",
 			"component": "gnw",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "colorBuildColorTable_",
 			"debug": false,
 			"type": "watcall",
@@ -7669,25 +7736,70 @@
 			},
 			"arguments_list": [
 			]
+		},
+		{
+			"name": "ipx_init",
+			"prototype": "int ipx_init(int socket_number)",
+			"component": "ipx",
+			"mode": "replace",
+			"symbol": "ipx_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "socket_number",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "ipx_close",
+			"prototype": "void ipx_close(void)",
+			"component": "ipx",
+			"mode": "replace",
+			"symbol": "ipx_close_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "ipx_get_my_local_address",
+			"prototype": "unsigned char *ipx_get_my_local_address(void)",
+			"component": "ipx",
+			"mode": "replace",
+			"symbol": "ipx_get_my_local_address_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned char *",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+			]
 		}
 	],
 	"variables": [
-		{
-			"name": "currentGammaTable",
-			"prototype": "unsigned char currentGammaTable[64]",
-			"component": "color",
-			"mode": "expose",
-			"symbol": "_currentGammaTable",
-			"align": 1
-		},
-		{
-			"name": "systemCmap",
-			"prototype": "unsigned char systemCmap[768]",
-			"component": "color",
-			"mode": "expose",
-			"symbol": "_systemCmap",
-			"align": 1
-		},
 		{
 			"name": "scr_blit",
 			"prototype": "ScreenBlitFunc scr_blit",
@@ -7937,30 +8049,6 @@
 			"align": 1
 		},
 		{
-			"name": "colorTable",
-			"prototype": "ColorIndex colorTable[32768]",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "_colorTable",
-			"align": 1
-		},
-		{
-			"name": "intensityColorTable",
-			"prototype": "Color intensityColorTable[256][256]",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "_intensityColorTable",
-			"align": 1
-		},
-		{
-			"name": "cmap",
-			"prototype": "unsigned char cmap[768]",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "_cmap",
-			"align": 1
-		},
-		{
 			"name": "GNW_texture",
 			"prototype": "char *GNW_texture",
 			"component": "gnw",
@@ -8134,6 +8222,14 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_nf_buf_cur",
+			"align": 1
+		},
+		{
+			"name": "colorTable",
+			"prototype": "ColorIndex colorTable[32768]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_colorTable",
 			"align": 1
 		}
 	]

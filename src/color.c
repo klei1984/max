@@ -26,6 +26,10 @@
 
 #include "game.h"
 
+typedef void* (*color_malloc_func)(size_t);
+typedef void* (*color_realloc_func)(void*, size_t);
+typedef void (*color_free_func)(void*);
+
 static unsigned long colorOpen(char* file, int mode);
 static unsigned long colorRead(unsigned long handle, void* buf, unsigned long size);
 static unsigned long colorClose(unsigned long handle);
@@ -45,51 +49,207 @@ static void maxfill(unsigned long* buffer, int side);
 
 static SDL_Palette* SystemPalette;
 
+unsigned char systemCmap[3 * PALETTE_SIZE];
+unsigned char currentGammaTable[64];
+ColorBlendTable* blendTable[PALETTE_SIZE];
+unsigned char mappedColor[PALETTE_SIZE];
+Color colorMixAddTable[256][PALETTE_SIZE];
+Color intensityColorTable[256][PALETTE_SIZE];
+Color colorMixMulTable[256][PALETTE_SIZE];
+ColorIndex colorTable[128 * PALETTE_SIZE];
+
+static int tos;
+static int crinc;
+static int cbinc;
+static int cginc;
+static unsigned int* rdp;
+static unsigned long* cdp;
+static int cindex;
+static unsigned char* crgbp;
+static int gcenter;
+static int x;
+static int bcenter;
+static int colormax;
+static int xsqr;
+static unsigned int* gdp;
+static unsigned int cdist;
+static int rcenter;
+static unsigned int rdist;
+static unsigned char* rrgbp;
+static unsigned char* grgbp;
+static unsigned int gdist;
+static int gstride;
+static int rstride;
+
+static ColorOpenFunc openFunc;
+static ColorReadFunc readFunc;
+static ColorCloseFunc closeFunc;
+
+static char* errorStr = "color.c: No errors\n";
+
 static int colorsInited;
 static double currentGamma = 1.0;
 
-unsigned long colorOpen(char* file, int mode) {}
-unsigned long colorRead(unsigned long handle, void* buf, unsigned long size) {}
-unsigned long colorClose(unsigned long handle) {}
-// void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c) {}
-void* defaultMalloc(size_t t) {}
-void* defaultRealloc(void* p, size_t t) {}
-void defaultFree(void* p) {}
-void colorSetNameMangler(ColorNameMangleFunc c) {}
-Color colorMixAdd(Color a, Color b) {}
-Color colorMixMul(Color a, Color b) {}
-Color calculateColor(fixed intensity, Color color) {}
-Color RGB2Color(ColorRGB c) {}
-ColorRGB Index2RGB(ColorIndex c) {}
-ColorRGB Color2RGB(Color c) {}
-void fadeSystemPalette(unsigned char* src, unsigned char* dest, int steps) {}
-void setBlackSystemPalette(void) {}
+static color_malloc_func mallocPtr = defaultMalloc;
+static color_realloc_func reallocPtr = defaultRealloc;
+static color_free_func freePtr = defaultFree;
+static ColorNameMangleFunc colorNameMangler;
+
+static unsigned char cmap[768];
+
+unsigned long colorOpen(char* file, int mode) {
+    unsigned int result;
+
+    if (openFunc) {
+        result = openFunc(file, mode);
+    } else {
+        result = -1;
+    }
+
+    return result;
+}
+
+unsigned long colorRead(unsigned long handle, void* buf, unsigned long size) {
+    unsigned int result;
+
+    if (readFunc) {
+        result = readFunc(handle, buf, size);
+    } else {
+        result = -1;
+    }
+
+    return result;
+}
+
+unsigned long colorClose(unsigned long handle) {
+    unsigned int result;
+
+    if (closeFunc) {
+        result = closeFunc(handle);
+    } else {
+        result = -1;
+    }
+
+    return result;
+}
+
+void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c) {
+    openFunc = o;
+    readFunc = r;
+    closeFunc = c;
+}
+
+void* defaultMalloc(size_t t) { return malloc(t); }
+
+void* defaultRealloc(void* p, size_t t) { return realloc(p, t); }
+
+void defaultFree(void* p) { free(p); }
+
+void colorSetNameMangler(ColorNameMangleFunc c) { colorNameMangler = c; }
+
+Color colorMixAdd(Color a, Color b) { return colorMixAddTable[a][b]; }
+
+Color colorMixMul(Color a, Color b) { return colorMixMulTable[a][b]; }
+
+Color calculateColor(fixed intensity, Color color) { return intensityColorTable[color][intensity >> 9]; }
+
+ColorIndex Color2Index(Color c) { return c; }
+
+ColorIndex RGB2Index(ColorRGB c) { return Color2Index(RGB2Color(c)); }
+
+Color Index2Color(ColorIndex c) { return c; }
+
+Color RGB2Color(ColorRGB c) { return colorTable[c]; }
+
+ColorRGB Index2RGB(ColorIndex c) { return Color2RGB(Index2Color(c)); }
+
+ColorRGB Color2RGB(Color c) {
+    ColorRGB result;
+
+    result = (((signed int)cmap[3 * c + 2]) >> 1);
+    result |= ((signed int)cmap[3 * c + 1] >> 1) << 5;
+    result |= ((signed int)cmap[3 * c] >> 1) << 10;
+
+    return ((signed int)cmap[3 * c + 2] >> 1) |
+           32 * (((signed int)cmap[3 * c + 1] >> 1) | 32 * ((signed int)cmap[3 * c] >> 1));
+}
+
+void fadeSystemPalette(unsigned char* src, unsigned char* dest, int steps) {
+    unsigned char temp[3 * PALETTE_SIZE];
+    int i;
+    int j;
+    int d;
+
+    for (i = 0; i < steps; i++) {
+        for (j = 0; j < sizeof(temp); j++) {
+            d = src[j] - dest[j];
+            temp[j] = src[j] - (unsigned int)(i * d / steps);
+        }
+
+        setSystemPalette(temp);
+    }
+
+    setSystemPalette(dest);
+}
+
+void setBlackSystemPalette(void) {
+    unsigned char tmp[3 * PALETTE_SIZE];
+
+    memset(tmp, 0, sizeof(tmp));
+
+    setSystemPalette(tmp);
+}
 
 void setSystemPalette(unsigned char* cmap) {
     unsigned char npal[3 * PALETTE_SIZE];
+    int i;
 
-    if (NULL == SystemPalette) {
-        SystemPalette = SDL_AllocPalette(PALETTE_SIZE);
-        SDL_assert(SystemPalette);
+    for (i = 0; i < sizeof(npal); i++) {
+        npal[i] = currentGammaTable[cmap[i]];
+        systemCmap[i] = cmap[i];
     }
 
-    for (unsigned short index = 0; index < sizeof(npal); index++) {
-        npal[index] = currentGammaTable[cmap[index]];
-        systemCmap[index] = cmap[index];
-    }
-
-    for (int n = 0; n < PALETTE_SIZE; n++) {
-        SystemPalette->colors[n].r = npal[3 * n + 0] * 4;
-        SystemPalette->colors[n].g = npal[3 * n + 1] * 4;
-        SystemPalette->colors[n].b = npal[3 * n + 2] * 4;
-        SystemPalette->colors[n].a = 0;
+    for (i = 0; i < PALETTE_SIZE; i++) {
+        SystemPalette->colors[i].r = npal[3 * i + 0] * 4;
+        SystemPalette->colors[i].g = npal[3 * i + 1] * 4;
+        SystemPalette->colors[i].b = npal[3 * i + 2] * 4;
+        SystemPalette->colors[i].a = 0;
     }
 
     update_system_palette(SystemPalette, 1);
 }
 
-// unsigned char* getSystemPalette(void) {}
-void setSystemPaletteEntries(unsigned char* pal, unsigned int start, unsigned int end) {}
+unsigned char* getSystemPalette(void) { return systemCmap; }
+
+void setSystemPaletteEntries(unsigned char* pal, unsigned int start, unsigned int end) {
+    unsigned char npal[3 * PALETTE_SIZE];
+    unsigned int baseIndex;
+    int endCount;
+    int i;
+
+    endCount = 3 * (end - start + 1);
+
+    for (i = 0; i < endCount; i += 3) {
+        npal[i] = currentGammaTable[pal[i]];
+        npal[i + 1] = currentGammaTable[pal[i + 1]];
+        npal[i + 2] = currentGammaTable[pal[i + 2]];
+
+        systemCmap[baseIndex + i] = pal[i];
+        systemCmap[baseIndex + i + 1] = pal[i + 1];
+        systemCmap[baseIndex + i + 2] = pal[i + 2];
+    }
+
+    endCount = end - start + 1;
+
+    for (i = start; i < endCount; i++) {
+        SystemPalette->colors[i].r = npal[3 * i + 0] * 4;
+        SystemPalette->colors[i].g = npal[3 * i + 1] * 4;
+        SystemPalette->colors[i].b = npal[3 * i + 2] * 4;
+        SystemPalette->colors[i].a = 0;
+    }
+
+    update_system_palette(SystemPalette, 1);
+}
 
 void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b) {
     SDL_assert(r < sizeof(currentGammaTable));
@@ -103,25 +263,338 @@ void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned
     SystemPalette->colors[entry].r = currentGammaTable[r] * 4;
     SystemPalette->colors[entry].g = currentGammaTable[g] * 4;
     SystemPalette->colors[entry].b = currentGammaTable[b] * 4;
+    SystemPalette->colors[entry].a = 0;
 
     update_system_palette(SystemPalette, 1);
 }
 
-void getSystemPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b) {}
-void setIntensityTableColor(int cc) {}
-void setIntensityTables(void) {}
-void setMixTableColor(int i) {}
-void setMixTable(void) {}
-int loadColorTable(char* table) {}
-char* colorError(void) {}
-void setColorPalette(unsigned char* pal) {}
-void setColorPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b) {}
-void getColorPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b) {}
-void buildBlendTable(ColorBlendTable* table, ColorIndex c) {}
-void rebuildColorBlendTables(void) {}
-ColorBlendTable* getColorBlendTable(ColorIndex c) {}
-void freeColorBlendTable(ColorIndex c) {}
-// void colorRegisterAlloc(MallocFunc m, ReallocFunc r, FreeFunc f) {}
+void getSystemPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b) {
+    r[0] = systemCmap[entry * 3];
+    g[0] = systemCmap[entry * 3 + 1];
+    b[0] = systemCmap[entry * 3 + 2];
+}
+
+void setIntensityTableColor(int cc) {
+    Color color;
+    ColorRGB r;
+    ColorRGB g;
+    ColorRGB b;
+    int nr;
+    int ng;
+    int nb;
+    int i;
+    int iShifted;
+    ColorIndex c;
+
+    c = cc;
+
+    for (i = 0; i < 128; i++) {
+        color = Index2Color(c);
+
+        r = (Color2RGB(color) & 0x7C00) >> 10;
+        g = (Color2RGB(color) & 0x03E0) >> 5;
+        b = (Color2RGB(color) & 0x001F);
+
+        iShifted = i << 9;
+
+        nr = ((iShifted * r) >> 16) << 10;
+        ng = ((iShifted * g) >> 16) << 5;
+        nb = ((iShifted * b) >> 16);
+
+        intensityColorTable[c][i] = Index2Color(colorTable[nr | ng | nb]);
+
+        nr = ((iShifted * (31 - r) >> 16) + r) << 10;
+        ng = ((iShifted * (31 - g) >> 16) + g) << 5;
+        nb = ((iShifted * (31 - b) >> 16) + b);
+
+        intensityColorTable[c][i + 128] = Index2Color(colorTable[nr | ng | nb]);
+    }
+}
+
+void setIntensityTables(void) {
+    int i;
+
+    for (i = 0; i < PALETTE_SIZE; i++) {
+        if (mappedColor[i]) {
+            setIntensityTableColor(i);
+        } else {
+            memset(intensityColorTable[i], 0, PALETTE_SIZE);
+        }
+    }
+}
+
+void setMixTableColor(int i) {
+    ColorRGB r;
+    ColorRGB g;
+    ColorRGB b;
+
+    ColorRGB nr;
+    ColorRGB ng;
+    ColorRGB nb;
+
+    ColorRGB max;
+
+    for (int j = 0; j < PALETTE_SIZE; j++) {
+        if (mappedColor[i]) {
+            if (mappedColor[j]) {
+                r = ((Color2RGB(i) & 0x7C00) >> 10) + ((Color2RGB(j) & 0x7C00) >> 10);
+                g = ((Color2RGB(i) & 0x03E0) >> 5) + ((Color2RGB(j) & 0x03E0) >> 5);
+                b = (Color2RGB(i) & 0x001F) + (Color2RGB(j) & 0x001F);
+
+                max = r;
+
+                if (g > r) {
+                    max = g;
+                }
+
+                if (b > max) {
+                    max = b;
+                }
+
+                if (max <= 31) {
+                    colorMixAddTable[i][j] = Index2Color(colorTable[(r << 10) | (g << 5) | b]);
+                } else {
+                    nr = r - (max - 31);
+                    ng = g - (max - 31);
+                    nb = b - (max - 31);
+
+                    if (nr < 0) {
+                        nr = 0;
+                    }
+
+                    if (ng < 0) {
+                        ng = 0;
+                    }
+
+                    if (nb < 0) {
+                        nb = 0;
+                    }
+
+                    colorMixAddTable[i][j] = calculateColor((((double)max - 31.0) * 0.0078125 + 1.0) * 65536.0,
+                                                            Index2Color(colorTable[(nr << 10) | (ng << 5) | nb]));
+                }
+
+                r = (((Color2RGB(i) & 0x7C00) >> 10) * ((Color2RGB(j) & 0x7C00) >> 10)) >> 5;
+                g = ((Color2RGB(i) & 0x03E0) >> 5) * ((Color2RGB(j) & 0x03E0) >> 5);
+                b = (Color2RGB(i) & 0x001F) * (Color2RGB(j) & 0x001F);
+
+                colorMixMulTable[i][j] = Index2Color(colorTable[(r << 10) | (g << 5) | b]);
+            } else {
+                colorMixAddTable[i][j] = i;
+                colorMixMulTable[i][j] = i;
+            }
+        } else if (mappedColor[j]) {
+            colorMixAddTable[i][j] = j;
+            colorMixMulTable[i][j] = j;
+        } else {
+            colorMixAddTable[i][j] = i;
+            colorMixMulTable[i][j] = i;
+        }
+    }
+}
+
+void setMixTable(void) {
+    for (int i = 0; i < PALETTE_SIZE; i++) {
+        setMixTableColor(i);
+    }
+}
+
+int loadColorTable(char* table) {
+    Color r;
+    Color b;
+    Color g;
+    int result;
+    unsigned int in;
+    unsigned int tag;
+    int i;
+
+    if (colorNameMangler) {
+        table = colorNameMangler(table);
+    }
+
+    if (openFunc) {
+        in = openFunc(table, 0x200);
+    } else {
+        in = -1;
+    }
+
+    if (in == -1) {
+        errorStr = "color.c: color table not found\n";
+        result = 0;
+    } else {
+        for (i = 0; i < PALETTE_SIZE; i++) {
+            if (readFunc) {
+                readFunc(in, &r, sizeof(Color));
+                readFunc(in, &g, sizeof(Color));
+                readFunc(in, &b, sizeof(Color));
+            }
+
+            if ((r <= 0x3F) && (g <= 0x3F) && (b <= 0x3F)) {
+                mappedColor[i] = 1;
+            } else {
+                r = 0;
+                g = 0;
+                b = 0;
+                mappedColor[i] = 0;
+            }
+
+            setColorPaletteEntry(i, r, g, b);
+        }
+
+        if (readFunc) {
+            readFunc(in, colorTable, 128 * PALETTE_SIZE);
+        }
+
+        tag = 0;
+        if (readFunc) {
+            readFunc(in, &tag, sizeof(tag));
+        }
+
+        if (tag == 0x4E455743 /* 'NEWC' */) {
+            if (readFunc) {
+                readFunc(in, intensityColorTable, 256 * PALETTE_SIZE);
+                readFunc(in, colorMixAddTable, 256 * PALETTE_SIZE);
+                readFunc(in, colorMixMulTable, 256 * PALETTE_SIZE);
+            }
+        } else {
+            setIntensityTables();
+            setMixTable();
+        }
+
+        rebuildColorBlendTables();
+
+        if (closeFunc) {
+            closeFunc(in);
+        }
+
+        result = 1;
+    }
+
+    return result;
+}
+
+char* colorError(void) { return errorStr; }
+
+void setColorPalette(unsigned char* pal) {
+    memcpy(cmap, pal, sizeof(cmap));
+    memset(mappedColor, 1, sizeof(mappedColor));
+}
+
+void setColorPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b) {
+    int baseIndex;
+
+    baseIndex = 3 * entry;
+
+    cmap[baseIndex] = r;
+    cmap[baseIndex + 1] = g;
+    cmap[baseIndex + 2] = b;
+}
+
+void getColorPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b) {
+    int baseIndex;
+
+    baseIndex = 3 * entry;
+
+    *r = cmap[baseIndex];
+    *g = cmap[baseIndex + 1];
+    *b = cmap[baseIndex + 2];
+}
+
+void buildBlendTable(ColorBlendTable* table, ColorIndex c) {
+    Color mixcolor;
+    Color backcolor;
+
+    ColorRGB r;
+    ColorRGB g;
+    ColorRGB b;
+
+    ColorRGB nr;
+    ColorRGB ng;
+    ColorRGB nb;
+
+    ColorRGB br;
+    ColorRGB bg;
+    ColorRGB bb;
+
+    Color v7;
+    Color v8;
+
+    int k;
+    int j;
+
+    mixcolor = Index2Color(c);
+
+    br = (Color2RGB(mixcolor) & 0x7C00) >> 10;
+    bg = (Color2RGB(mixcolor) & 0x3E0) >> 5;
+    bb = Color2RGB(mixcolor) & 0x1F;
+
+    for (k = 0; k < 256; k++) {
+        (*table)[0][k] = k;
+    }
+
+    for (j = 1; j < 8; j++) {
+        for (k = 0; k < 256; k++) {
+            backcolor = Index2Color(k);
+
+            r = (Color2RGB(backcolor) & 0x7C00) >> 10;
+            g = (Color2RGB(backcolor) & 0x3E0) >> 5;
+            b = Color2RGB(backcolor) & 0x1F;
+
+            nr = ((r * (7 - j) + br * j) / 7) << 10;
+            ng = ((g * (7 - j) + bg * j) / 7) << 5;
+            nb = (b * (7 - j) + bb * j) / 7;
+
+            (*table)[16 * j][k] = Color2Index(Index2Color(colorTable[nr | ng | nb]));
+        }
+    }
+
+    for (j = 8; j < 16; j++) {
+        for (k = 0; k < 256; k++) {
+            (*table)[16 * j][k] = Color2Index(calculateColor(((j - 8) << 16) / 7 + 0xFFFF, mixcolor));
+        }
+    }
+}
+
+void rebuildColorBlendTables(void) {
+    for (int i = 0; i < 256; i++) {
+        if (blendTable[i]) {
+            buildBlendTable(blendTable[i], i);
+        }
+    }
+}
+
+ColorBlendTable* getColorBlendTable(ColorIndex c) {
+    if (!blendTable[c]) {
+        blendTable[c] = (ColorBlendTable*)((char*)mallocPtr(sizeof(ColorBlendTable) + sizeof(int)) + sizeof(int));
+
+        SDL_assert(blendTable[c]);
+
+        ((int*)blendTable[c])[-1] = 1;
+
+        buildBlendTable(blendTable[c], c);
+    }
+
+    ((int*)blendTable[c])[-1]++;
+
+    return blendTable[c];
+}
+
+void freeColorBlendTable(ColorIndex c) {
+    if (blendTable[c]) {
+        ((int*)blendTable[c])[-1]--;
+
+        if (!((int*)blendTable[c])[-1]) {
+            freePtr(&((int*)blendTable[c])[-1]);
+            blendTable[c] = NULL;
+        }
+    }
+}
+
+void colorRegisterAlloc(MallocFunc m, ReallocFunc r, FreeFunc f) {
+    mallocPtr = m;
+    reallocPtr = r;
+    freePtr = f;
+}
 
 void colorGamma(double gamma) {
     double a;
@@ -145,16 +618,138 @@ void colorGamma(double gamma) {
     return setSystemPalette(systemCmap);
 }
 
-double colorGetGamma(void) {}
-int colorMappedColor(ColorIndex i) {}
-// int colorBuildColorTable(unsigned char* colormap, unsigned char* matchtable) {}
-int colorSetColorTable(unsigned char* colormap, unsigned char* reserved) {}
-int redloop(void) {}
-int greenloop(int restart) {}
-int blueloop(int restart) {}
-void maxfill(unsigned long* buffer, int side) {}
-int colorPushColorPalette(void) {}
-int colorPopColorPalette(void) {}
+double colorGetGamma(void) { return currentGamma; }
+
+int colorMappedColor(ColorIndex i) { return mappedColor[i]; }
+
+int colorBuildColorTable(unsigned char* colormap, unsigned char* matchtable) {
+    Color r;
+    Color g;
+    Color b;
+
+    int c3Index;
+    int result;
+    unsigned long* dist_buf;
+
+    colormax = 1 << 5;
+    x = 8;
+    xsqr = 8 * 8;
+    gstride = 1 << 5;
+    rstride = 1 << 10;
+
+    dist_buf = (unsigned long*)malloc(sizeof(unsigned long) * colormax * colormax * colormax);
+
+    if (dist_buf) {
+        maxfill(dist_buf, colormax);
+        memset(colorTable, 0, sizeof(colorTable));
+
+        for (cindex = 0; cindex < PALETTE_SIZE; cindex++) {
+            if (matchtable && matchtable[cindex]) {
+                mappedColor[cindex] = 0;
+            } else {
+                c3Index = 3 * cindex;
+
+                r = colormap[c3Index];
+                g = colormap[c3Index + 1];
+                b = colormap[c3Index + 2];
+
+                rcenter = (int)r >> 3;
+                gcenter = (int)g >> 3;
+                bcenter = (int)b >> 3;
+
+                rdist = r - (x * ((int)r >> 3) + x / 2);
+                gdist = g - (x * ((int)g >> 3) + x / 2);
+                cdist = b - (x * ((int)b >> 3) + x / 2);
+
+                cdist = cdist * cdist + gdist * gdist / 36 + rdist * rdist / 9;
+
+                crinc = 2 * ((rcenter + 1) * xsqr - x * r);
+                cginc = 2 * ((gcenter + 1) * xsqr - x * g);
+                cbinc = 2 * ((bcenter + 1) * xsqr - x * b);
+
+                cdp = &dist_buf[rstride * rcenter + gstride * gcenter + bcenter];
+
+                crgbp = &colorTable[rstride * rcenter + gstride * gcenter + bcenter];
+
+                redloop();
+
+                cmap[c3Index] = r >> 2;
+                cmap[c3Index + 1] = g >> 2;
+                cmap[c3Index + 2] = b >> 2;
+
+                mappedColor[cindex] = 1;
+            }
+        }
+
+        free(dist_buf);
+
+        setIntensityTables();
+
+        setMixTable();
+
+        rebuildColorBlendTables();
+
+        result = 0;
+    } else {
+        result = 1;
+    }
+
+    return result;
+}
+
+int colorSetColorTable(unsigned char* colormap, unsigned char* matchtable) {
+    signed int result;
+
+    if (colorBuildColorTable(colormap, matchtable)) {
+        result = 1;
+    } else {
+        setSystemPalette(cmap);
+
+        result = 0;
+    }
+
+    return result;
+}
+
+int redloop(void) {
+    SDL_assert(0 /** \todo implement unused code */);
+
+    return 0;
+}
+
+int greenloop(int restart) {
+    SDL_assert(0 /** \todo implement unused code */);
+
+    return 0;
+}
+
+int blueloop(int restart) {
+    SDL_assert(0 /** \todo implement unused code */);
+
+    return 0;
+}
+
+void maxfill(unsigned long* buffer, int side) {
+    int i;
+    int count;
+
+    count = side * side * side;
+
+    for (i = 0; i < count; i++) {
+        buffer[i] = -1;
+    }
+}
+
+int colorPushColorPalette(void) {
+    SDL_assert(0 /** \todo implement unused code */);
+
+    return 0;
+}
+int colorPopColorPalette(void) {
+    SDL_assert(0 /** \todo implement unused code */);
+
+    return 0;
+}
 
 int initColors(void) {
     int result;
@@ -163,6 +758,11 @@ int initColors(void) {
         result = 1;
     } else {
         colorsInited = 1;
+
+        if (NULL == SystemPalette) {
+            SystemPalette = SDL_AllocPalette(PALETTE_SIZE);
+            SDL_assert(SystemPalette);
+        }
 
         colorGamma(1.0);
 
@@ -178,8 +778,17 @@ int initColors(void) {
     return result;
 }
 
-// void colorsClose(void) {}
-unsigned char* getColorPalette(void) {}
+void colorsClose(void) {
+    int i;
+
+    for (i = 0; i < 256; i++) {
+        freeColorBlendTable(i);
+    }
+
+    /** \todo implement color palette stack clean up code */
+}
+
+unsigned char* getColorPalette(void) { return cmap; }
 
 void update_system_palette(SDL_Palette* palette, int render) {
     SDL_Surface* screen;
