@@ -7791,11 +7791,71 @@
 			"stack_align": 4,
 			"return": {
 				"type_name": "unsigned char *",
-				"type_class": "integer",
+				"type_class": "pointer",
 				"arg_name": null,
 				"is_far": false
 			},
 			"arguments_list": [
+			]
+		},
+		{
+			"name": "ipx_send_packet_data",
+			"prototype": "void ipx_send_packet_data(unsigned char *data, int datasize, unsigned char *address, char unknown)",
+			"component": "ipx",
+			"mode": "replace",
+			"symbol": "ipx_send_packet_data_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "data",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "datasize",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "address",
+					"is_far": false
+				},
+				{
+					"type_name": "char",
+					"type_class": "integer",
+					"arg_name": "unknown",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "ipx_process_packets",
+			"prototype": "void ipx_process_packets(void *data)",
+			"component": "ipx",
+			"mode": "replace",
+			"symbol": "ipx_process_packets_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "data",
+					"is_far": false
+				}
 			]
 		}
 	],
@@ -8230,6 +8290,38 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_colorTable",
+			"align": 1
+		},
+		{
+			"name": "byte_175630",
+			"prototype": "unsigned char byte_175630",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_byte_175630",
+			"align": 1
+		},
+		{
+			"name": "byte_1759B8",
+			"prototype": "unsigned char byte_1759B8",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_byte_1759B8",
+			"align": 1
+		},
+		{
+			"name": "byte_1737DA",
+			"prototype": "unsigned char byte_1737DA",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_byte_1737DA",
+			"align": 1
+		},
+		{
+			"name": "players",
+			"prototype": "PlayerInfo players[5]",
+			"component": "gnw",
+			"mode": "expose",
+			"symbol": "_players",
 			"align": 1
 		}
 	]

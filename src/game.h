@@ -25,6 +25,8 @@
 void init_callbacks(void);
 
 #include "gnw.h"
+#include "ipx.h"
+#include "crc16.h"
 #include "mvelib32.h"
 #include "movie.h"
 #include "dos.h"

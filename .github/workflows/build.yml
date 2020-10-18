@@ -31,7 +31,7 @@ jobs:
       run: |
         sudo dpkg --add-architecture i386
         sudo apt-get update -y -qq
-        sudo apt-get install -y -qq build-essential gcc-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386
+        sudo apt-get install -y -qq build-essential gcc-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-image-dev:i386 libsdl2-ttf-dev:i386 libsdl2-net-dev:i386
 
     - name: Setup Python
       uses: actions/setup-python@v1

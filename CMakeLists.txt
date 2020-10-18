@@ -67,15 +67,16 @@ find_package(PythonInterp)
 set(CODEGEN_TOOL "${CMAKE_CURRENT_SOURCE_DIR}/util/codegen.py")
 set(CODEGEN_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/conf/codegen.json")
 
-if (WIN32)
-    set(CODEGEN_OPTIONS "--underscore")
-endif (WIN32)
-
 if (MINGW)
+    set(CODEGEN_OPTIONS "--underscore")
 	add_definitions(-DSDL_MAIN_HANDLED)
     add_compile_options(-mno-ms-bitfields)
     add_link_options(-mconsole)
 endif (MINGW)
+
+if (UNIX)
+    set(ENV{PKG_CONFIG_PATH} "/usr/lib/i386-linux-gnu/pkgconfig")
+endif (UNIX)
 
 set(GAME_SOURCES
     ${GAME_SOURCES}
@@ -89,12 +90,21 @@ add_custom_command(
     COMMENT "Generating ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h."
 )
 
-find_package(SDL2 REQUIRED)
+INCLUDE(FindPkgConfig)
+
+PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2 )
+PKG_SEARCH_MODULE(SDL2_NET REQUIRED SDL2_net>=2.0.0)
 
 if(NOT TARGET SDL2::SDL2)
     add_library(SDL2::SDL2 INTERFACE IMPORTED)
     set_property(TARGET SDL2::SDL2 APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${SDL2_LIBRARIES})
-     set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIRS})
+    set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIRS})
+endif()
+
+if(NOT TARGET SDL2::NET)
+    add_library(SDL2::NET INTERFACE IMPORTED)
+    set_property(TARGET SDL2::NET APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${SDL2_NET_LIBRARIES})
+    set_property(TARGET SDL2::NET PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_NET_INCLUDE_DIRS})
 endif()
 
 include_directories(
@@ -105,7 +115,7 @@ include_directories(
 
 add_executable(${GAME_BINARY} ${GAME_SOURCES})
 set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-m32 -O0 -fno-eliminate-unused-debug-types -no-pie -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\"" LINK_FLAGS "-m32 -O0 -no-pie")
-target_link_libraries(${GAME_BINARY} SDL2::SDL2 m)
+target_link_libraries(${GAME_BINARY} SDL2::SDL2 SDL2::NET m)
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${GAME_VERSION_MINOR})

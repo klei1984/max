@@ -98,4 +98,10 @@ static_assert(sizeof(struct Attribs_s) == 36, "The structure needs to be packed.
 
 typedef struct Attribs_s* AttribsPtr;
 
+struct PlayerInfo_s {
+    unsigned char unknown[583];
+};
+
+typedef struct PlayerInfo_s PlayerInfo;
+
 #endif /* UNITS_H */

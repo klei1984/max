@@ -22,6 +22,10 @@
 #ifndef IPX_H
 #define IPX_H
 
+#define IPX_MAX_PACKET_SIZE (sizeof(ipx_packet) - sizeof(ecb_header))
+#define IPX_MAX_DATA_SIZE 550
+#define IPX_META_DATA_SIZE (sizeof(packet_data) - IPX_MAX_DATA_SIZE)
+
 typedef struct local_address {
     unsigned char address[6];
 } local_address;
@@ -58,8 +62,8 @@ typedef struct ecb_header {
 typedef struct __attribute__((packed)) packet_data {
     int packetnum;
     unsigned short field_4;
-    unsigned short field_6;
-    char data[550];
+    unsigned short crc16;
+    unsigned char data[IPX_MAX_DATA_SIZE];
 } packet_data;
 
 typedef struct ipx_packet {
@@ -68,6 +72,7 @@ typedef struct ipx_packet {
     packet_data pd;
 } ipx_packet;
 
+int ipx_process_packets(unsigned char *data);
 unsigned char *ipx_get_my_local_address(void);
 unsigned char *ipx_get_my_server_address(void);
 void ipx_send_packet(ecb_header *ecb);
