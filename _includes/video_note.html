@@ -1,0 +1,11 @@
+<div style="float: right; margin-left: 3em;margin-bottom: 3em; border:1px solid white">
+  <div style=" text-align: center; margin: 0 auto">
+    <video class="embed-video" autoplay loop muted playsinline>
+        <source src="{{ site.baseurl }}/assets/clips/{{ include.video }}" type="video/mp4">
+    </video>
+  </div>
+  <div style="color:gray; font-size: 80%; text-align: right;">
+    <b>{{ include.title }}</b>
+    {{ include.description | markdownify }}
+  </div>
+</div>
