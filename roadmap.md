@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2020-10-08.
+Last updated: 2020-11-22.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -118,10 +118,15 @@ Most of the menus are implemented in C, but they use several C++ resources. Orig
 ### 0.6 Reimplement original C++ modules
 Most of the game itself was implemented in C++. Even though the Watcom C/C++ compiler became open source it is still very difficult to fully understand how the original compiler organizes constructor, destructor, operator overload and such behind the scenes C++ runtime specific data. Clear understanding of the Watcom C++ runtime library and related data that the compiler emits into executables is a prerequisit to be able to reimplement the C++ modules from the game.
 
-- <span class="legend-inwork">
-  Study Open Watcom V1.1.0 source code and set up test environment
+- <span class="legend-close">
+  Study Watcom V11.0b and Open Watcom V1.1.0 source code and set up test environment
   </span>
-- Build reference classes with Watcom V10.5 and/or Open Watcom V1.1.0 with debug information to learn how C++ library specific meta data are emitted by the compiler and used by the C++ runtime library (plib3r.lib).
+- <span class="legend-inwork">
+  Build reference classes with Watcom V10.5 and/or Open Watcom V1.1.0 with debug information to learn how C++ library specific meta data are emitted by the compiler and used by the C++ runtime library (plib3r.lib).
+  </span>
+- <span class="legend-inwork">
+  Document findings in an article
+  </span>
 - Develop tools to automate the binding of original C++ method calls to reimplemented C++ class members.
 <br><br>
 - Replace the AI modules (ai.cpp, ai_build.cpp, ai_main.cpp, ai_move.cpp, ai_playr.cpp, ai_explr.cpp, ai_attk.cpp)
