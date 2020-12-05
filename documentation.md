@@ -2,6 +2,7 @@
 layout: page
 title: Documentation
 permalink: /documentation/
+custom_css: documentation
 ---
 
 ## Preface
@@ -91,16 +92,97 @@ For the signature checks a set of regex patterns based scripts were developed in
 ### Detecting the presence of C++ constructs in executables
 The Watcom C++32 Runtime library provides services to manage global objects and their life cycles, exceptions and more. The easiest way to detect the presence of C++ constructs in an executable is to search for error messages related to the C++ runtime. A good example is the error message that is emitted when a non existent copy constructor is attempted to be invoked: ```undefined constructor or destructor called!```. There are many more such diagnostic messages.  
   
+~~~ c
+/*
+C++ Runtime Library Error Messages
+pure virtual function called!
+undefined constructor or destructor called!
+compiler error: eliminated virtual function call!
+stack data has been corrupted!
+violation of function exception specification!
+throw while "terminate" function active!
+throw during construction of exception!
+throw during destructor for handled exception!
+re-throw when no exception handler active!
+no handler active to catch thrown object!
+system exception! code = 0x00000000
+no memory left to handle thrown exception!
+return from "terminate" function!
+return from "unexpected" function!
+... 
+*/
+~~~
+  
 
 After basic identification, the previously described signature checks and setup of a reversing database allows identification of the C++ runtime library functions and their calling contexts can be analyzed further.  
   
+
 | C++ Runtime Library Function  | Symbol Name | Description |
 | ------------- | ------------- | ------------- |
 | void CPPLIB(fatal_runtime_error)( char *msg, int code ) | \_\_wcpp_2_fatal_runtime_error\_\_ | Called on fatal runtime errors. Exit the application with diagnostic error message. |
 | void CPPLIB( undefed_cdtor )( void ) | \_\_wcpp_2_undefed_cdtor\_\_ | The function is emitted by the compiler for undefined constructors and destructors as a placeholder in type signature tables. When a default constructor, copy constructor or destructor is not required by an application they are not generated instead this placeholder function is used. |
-| void CPPLIB(mod_register)( RW_DTREG* rw ) | \_\_wcpp_2_mod_register\_\_ | Register constructed static objects into a linked list to be able to destruct them at application exit. |
-| void CPPLIB(module_dtor)( void ) | \_\_wcpp_2_module_dtor\_\_ | Iterate the list of previously constructed static objects in reverse order and call their appropriate destructor. |
-|  |  |  |
+| void CPPLIB(mod_register)( RW_DTREG* rw ) | \_\_wcpp_2_mod_register\_\_ | Register constructed global, namspace, or class static objects into a linked list to be able to destruct them at termination of the program. These objects are constructed at the start of the program. |
+| void CPPLIB(lcl_register)( RW_DTREG RT_FAR *rw ) | \_\_wcpp_2_lcl_register\_\_ | Register constructed local static objects into a linked list to be able to destruct them at termination of the program. The main difference compared to CPPLIB(mod_register) is that local static objects are only registered and constructed if their declaration is encountered at least once during program execution. |
+| void CPPLIB(module_dtor)( void ) | \_\_wcpp_2_module_dtor\_\_ | Iterate the list of previously constructed global, namspace, class static or local static objects in reverse order and call their appropriate destructor. |
+| void * CPPLIB(ctor_array)( void *array, unsigned count, RT_TYPE_SIG sig ) | \_\_wcpp_2_ctor_array\_\_ | Emitted by the compiler to construct named automatic or temporary object arrays. |
+| void * CPPLIB(dtor_array)( void *array, unsigned count, RT_TYPE_SIG sig ) | \_\_wcpp_2_dtor_array\_\_ | Destruct a previously constructed object array. The function is not directly emitted into user defined code. For named automic and temporary objects a unique object instance specific function is emitted by the compiler called \_\_arrdtorblk. This instance specific function defines the parameters to be used by the runtime library function. |
+| void* CPPLIB( ctor_array_storage_g )( void* array, unsigned count, RT_TYPE_SIG sig ) | \_\_wcpp_2_ctor_array_storage_g\_\_ | Emitted by the compiler to register and contruct free-store objects created with the new[] operator. |
+| ARRAY_STORAGE* CPPLIB(dtor_array_store)( void *array, RT_TYPE_SIG sig ) | \_\_wcpp_2_dtor_array_store\_\_ | Emitted by the compiler before a free-store object array is destroyed with the delete[] operator. |
+| void CPPLIB(pure_error)( void ) | \_\_wcpp_2_pure_error\_\_ | Trap function for non-overridden pure virtual method calls emitted by the compiler into class virtual function tables. |
+| void CPPLIB(undef_vfun)( void ) | \_\_wcpp_2_undef_vfun\_\_ | Trap function for stripped virtual function calls. Unless the compiler is broken this function is never called. |
+| ... |  |  |
+
+#### Finding class members via the _this pointer_
+
+Named automatic and temporary objects are allocated into _automatic memory_. In practice this means the stack frame of the function in which the object declaration is found. As constructors, destructors and most class member functions expect the _this pointer_ as the first argument and Watcom typically uses their own register calling convention in these scenarios this creates a promising method to identify class member functions simply by just looking at the assembly listing:
+
+~~~ nasm
+; The %ebp register holds the start address of the stack frame.
+; The -0x14 offset from %ebp points to the start address of the object.
+; The lea instruction takes the address to the location and moves the value to the %eax register.
+; The %eax register holds the first function argument, in this case the 'this pointer'.
+
+lea    -0x000014(%ebp),%eax
+call   class_default_ctor_
+...
+lea    -0x000014(%ebp),%eax
+call   class_method_ ; this is clearly a method of the previously identified class.
+~~~
+
+#### Finding class default constructors, copy constructors and destructors
+
+Typically the compiler emits class and class instance related data for the C++ runtime into the CONST2 segment. Original C++ module boundaries could be guessed by looking at the layout of this data. For each compiled module the compiler first emits const variable initializers and than the metadata for classes.
+
+<br style="clear:both">
+By default, the data group "DGROUP" consists of the "CONST", "CONST2", "_DATA", and "_BSS" segments.  
+The compiler places certain types of data in each segment.  
+The "CONST" segment contains constant literals that appear in your source code.  
+The "CONST2" segment contains initialized read-only data.  
+The "_BSS" segment contains uninitialized data such as scalars, structures, or arrays. [\[11\]](#ref11)"
+{: style="color:gray; font-size: 100%; text-align: right;"}
+<br>
+  
+
+Identification of the default constructor, copy constructor and destructor of global, namspace, class static and local static objects is rather easy in most scenarios.
+
+The compiler emits a type signature for each unstripped class and the data is not stripped even in cases when the C++ runtime does not reference them. 
+
+~~~ nasm
+; Comdat: char unsigned const near __typesig[]  SEGMENT ANY 'DGROUP:CONST2'  00000011 bytes  
+ 0000  00                                      - .
+ 0001  00 00 00 00                             DD      near A::A()
+ 0005  00 00 00 00                             DD      near A::A( A const near & ) ; replaced by __wcpp_2_undefed_cdtor__ if function is not referenced
+ 0009  00 00 00 00                             DD      near A::~A()
+ 000d  11 00 00 00                             - ....
+~~~
+
+The first byte is a header, which seems to be always zero in the analyzed executables. In later versions of the compiler the header contains four bytes. The next three 32 bit words are function pointers to the default constructor, copy constructor and destructor in this order. These functions are not necessarily defined for a class. If the class does not have a copy constructor or if it is not referenced, \_\_wcpp_2_undefed_cdtor\_\_ is emitted instead. If the class does not define a default constructor it is replaced with a NULL pointer, but in certain scenarios \_\_wcpp_2_undefed_cdtor\_\_ is emitted instead of NULL. The type signature is not emitted into the executable if the class does not have a default constructor, a copy constructor and the destructor. The last 32 bit word is the object data size in bytes. The given class in the example above has 17 bytes of data. It is very important that alignment rules for basic types do not apply here. In other words object data are always packed.
+
+#### Global, namspace, and class static objects
+
+For objects constructed, or classes instantiated, at program startup the compiler emits a special function unique for each instance called ```.fn_init()```. This function is responsible to call the appropriate constructors required for the object and track the state of the instantiation.
+
+...
 
 ## Debug Options in M.A.X. v1.04
 
@@ -116,3 +198,4 @@ After basic identification, the previously described signature checks and setup 
 <a name="ref8"></a>\[8\] A History of C++: 1979 - 1991, Bjarne Stroustrup - March, 1993<br>
 <a name="ref9"></a>\[9\] [Open Watcom FTP](ftp://ftp.openwatcom.org/source)<br>
 <a name="ref10"></a>\[10\] [Watcom C/C++ release history](https://en.wikipedia.org/wiki/Watcom_C/C%2B%2B)<br>
+<a name="ref11"></a>\[11\] Open Watcom C/C++ User’s Guide<br>

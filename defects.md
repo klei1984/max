@@ -71,4 +71,9 @@ In a certain unclarified game mode when the game concludes with either winning o
 17. Unit gets stuck at square that is occupied by constructor's construction zone.
 
 18. First player to take turns gets 0 raw materials within the initial mining station's storage container on turn 1. Rest of the players get 14 raw materials. This is potentially a defect.
+
+19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
+
+20. Targeting water tiles with the missile launcher's area attack hits underwater personnel carriers directly as well as indirectly, but the same cannot hit submarines at all. Ground attack planes can hit underwater personnel carriers as well as submarines. If any land or air unit hits an underwater personnel carrier it is revealed. An indirect area attack does not reveal the personnel carrier. In early builds the personnel carrier was not able to enter or pass the sea, it was a normal land unit only. It is assumed something is not working correctly here.
+
 {% endcomment %}

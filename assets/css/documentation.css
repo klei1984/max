@@ -1,0 +1,9 @@
+.post-content table {
+  width: auto;
+}
+
+.highlight .c { color: #008000 } /* Comment */
+.highlight .cm { color: #008000 } /* Comment.Multiline */
+.highlight .cp { color: #008000 } /* Comment.Preproc */
+.highlight .c1 { color: #008000 } /* Comment.Single */
+.highlight .cs { color: #008000 } /* Comment.Special */
