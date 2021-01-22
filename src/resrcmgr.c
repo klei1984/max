@@ -70,7 +70,7 @@ const unsigned char byte_16B500[8] = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 
 const unsigned char byte_16B508[8] = {0xFF, 0xA1, 0xAC, 0xA9, 0xD8, 0xD5, 0xD4, 0xCF};
 const unsigned char byte_16B510[8] = {0xD8, 0xD7, 0xD6, 0xD5, 0xD4, 0xD3, 0xD2, 0xD1};
 
-const char *resource_id_list[RESOURCE_E] = {RESOURCE_LIST_INIT};
+const char *const resource_id_list[RESOURCE_E] = {RESOURCE_LIST_INIT};
 
 GAME_RESOURCE res_get_resource_id(int index) {
     char buffer[9];
@@ -85,6 +85,9 @@ GAME_RESOURCE res_get_resource_id(int index) {
 
     return INVALID_ID;
 }
+
+const char *const res_get_resource_id_string(GAME_RESOURCE id) { return resource_id_list[id]; }
+short res_get_resource_file_index(GAME_RESOURCE id) { return game_resource_meta_ptr[id].res_file_item_index; }
 
 int get_attribs_param(const char *string, unsigned short *offset) {
     int number;
@@ -121,11 +124,11 @@ void *load_game_resource(GAME_RESOURCE id) {
 
                 char *buffer = malloc(data_size);
                 if (!buffer) {
-                    fatal_error(3);
+                    gexit(3);
                 }
 
                 if (!fread(buffer, data_size, 1, fp)) {
-                    fatal_error(7);
+                    gexit(7);
                 }
 
                 game_resource_meta_ptr[id].resource_buffer = buffer;
@@ -167,11 +170,11 @@ void *read_game_resource(GAME_RESOURCE id) {
 
             char *buffer = malloc(data_size + sizeof('\0'));
             if (!buffer) {
-                fatal_error(3);
+                gexit(3);
             }
 
             if (!fread(buffer, data_size, 1, fp)) {
-                fatal_error(7);
+                gexit(7);
             }
 
             buffer[data_size] = '\0';
@@ -258,7 +261,7 @@ int read_game_resource_into_buffer(GAME_RESOURCE id, void *buffer) {
         fseek(fp, data_offset, SEEK_SET);
 
         if (!fread(buffer, 777, 1, fp)) {
-            fatal_error(7);
+            gexit(7);
         }
 
         result = 1;

@@ -22,6 +22,13 @@
 #ifndef INI_H
 #define INI_H
 
+#include <limits.h>
+
+#include "resrcmgr.h"
+#ifdef __unix__
+#include <linux/limits.h>
+#endif
+
 enum GAME_INI_e {
     ini_debug = 0x1,
     ini_all_visible = 0x2,
@@ -143,5 +150,39 @@ enum GAME_INI_e {
 };
 
 typedef enum GAME_INI_e GAME_INI;
+
+struct Ini_descriptor {
+    unsigned char unknown_1;
+    unsigned char flags;
+    unsigned char unknown_2[2];
+    char ini_file_path[PATH_MAX];
+    char *buffer;
+    unsigned int file_size;
+    unsigned int buffer_size;
+    char *current_address;
+    char *section_start_address;
+    char *key_start_address;
+    char *value_start_address;
+    char *next_value_address;
+    char *param_start_address;
+};
+
+typedef struct Ini_descriptor Ini_descriptor;
+
+int inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini);
+int inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const char *const inifile_path);
+unsigned int inifile_hex_to_dec(const char *const hex);
+int inifile_ini_seek_section(Ini_descriptor *const pini, const char *const ini_section_name);
+int inifile_ini_seek_param(Ini_descriptor *const pini, const char *const ini_param_name);
+int inifile_ini_get_numeric_value(Ini_descriptor *const pini, const char *const ini_param_name, int *const value);
+int inifile_ini_set_numeric_value(Ini_descriptor *const pini, const int value);
+int inifile_ini_set_string_value(Ini_descriptor *const pini, char *value);
+int inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const int buffer_size, const int mode);
+int inifile_save_to_file(Ini_descriptor *const pini);
+void inifile_load_from_resource(Ini_descriptor *const pini, const GAME_RESOURCE resource_id);
+int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buffer, const int buffer_size);
+
+int ini_get_setting(GAME_INI index);
+int ini_set_setting(GAME_INI index, int value);
 
 #endif /* INI_H */

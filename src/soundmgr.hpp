@@ -22,11 +22,12 @@
 #ifndef SOUNDMGR_HPP
 #define SOUNDMGR_HPP
 
-#include <SDL.h>
+class SoundMgr {
+public:
+    SoundMgr();
+    ~SoundMgr();
 
-extern "C" {
-typedef struct SoundMgr_s *SoundMgrPtr;
+private:
+};
 
-void digi_init(SoundMgrPtr sound_mgr);
-}
 #endif /* SOUNDMGR_HPP */

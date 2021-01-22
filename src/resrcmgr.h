@@ -2421,5 +2421,9 @@ typedef struct GameResourceMeta_s GameResourceMeta;
 
 void *read_game_resource(GAME_RESOURCE id);
 int read_game_resource_into_buffer(GAME_RESOURCE id, void *buffer);
+unsigned int get_resource_data_size(GAME_RESOURCE id);
+void *load_game_resource(GAME_RESOURCE id);
+const char *const res_get_resource_id_string(GAME_RESOURCE id);
+short res_get_resource_file_index(GAME_RESOURCE id);
 
 #endif /* RESRCMGR_H */

@@ -3916,11 +3916,11 @@
 			]
 		},
 		{
-			"name": "fatal_error",
-			"prototype": "void fatal_error(unsigned char error_code)",
-			"component": "gnw",
+			"name": "gexit",
+			"prototype": "void gexit(unsigned char error_code)",
+			"component": "max",
 			"mode": "expose",
-			"symbol": "fatal_error_",
+			"symbol": "gexit_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,
@@ -7313,32 +7313,6 @@
 			]
 		},
 		{
-			"name": "ini_get_setting",
-			"prototype": "unsigned int ini_get_setting(GAME_INI index)",
-			"component": "max",
-			"mode": "expose",
-			"symbol": "ini_get_setting_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "GAME_INI",
-					"type_class": "integer",
-					"arg_name": "index",
-					"is_far": false
-				}
-			]
-		},
-		{
 			"name": "movie_play",
 			"prototype": "int movie_play(GAME_RESOURCE resource_id)",
 			"component": "max",
@@ -7857,6 +7831,126 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "smartfile_write_int",
+			"prototype": "void smartfile_write_int(void *smartfile_handle, int value)",
+			"component": "smartfile",
+			"mode": "expose",
+			"symbol": "smartfile_write_int_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "smartfile_handle",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned int",
+					"type_class": "integer",
+					"arg_name": "value",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "smartfile_read_int",
+			"prototype": "void smartfile_read_int(void *smartfile_handle, int *value)",
+			"component": "smartfile",
+			"mode": "expose",
+			"symbol": "smartfile_read_int_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "smartfile_handle",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned int *",
+					"type_class": "pointer",
+					"arg_name": "value",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "smartfile_write",
+			"prototype": "void smartfile_write(void *smartfile_handle, char *buffer, int buffer_size)",
+			"component": "smartfile",
+			"mode": "expose",
+			"symbol": "smartfile_write_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "smartfile_handle",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "buffer",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "buffer_size",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "smartfile_read",
+			"prototype": "void smartfile_read(void *smartfile_handle, char *buffer, int buffer_size)",
+			"component": "smartfile",
+			"mode": "expose",
+			"symbol": "smartfile_read_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "smartfile_handle",
+					"is_far": false
+				},
+				{
+					"type_name": "char *",
+					"type_class": "pointer",
+					"arg_name": "buffer",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "buffer_size",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
@@ -8322,6 +8416,22 @@
 			"component": "gnw",
 			"mode": "expose",
 			"symbol": "_players",
+			"align": 1
+		},
+		{
+			"name": "ini_setting_victory_type",
+			"prototype": "unsigned short ini_setting_victory_type",
+			"component": "game",
+			"mode": "expose",
+			"symbol": "_ini_setting_victory_type",
+			"align": 1
+		},
+		{
+			"name": "ini_setting_victory_limit",
+			"prototype": "unsigned short ini_setting_victory_limit",
+			"component": "game",
+			"mode": "expose",
+			"symbol": "_ini_setting_victory_limit",
 			"align": 1
 		}
 	]
