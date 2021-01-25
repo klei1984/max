@@ -90,7 +90,7 @@ int inifile_save_to_file(Ini_descriptor *const pini) {
     FILE *fp;
 
     if (pini->buffer) {
-        if (pini->flags < 0) {
+        if (pini->flags & 0x80u) {
             fp = fopen(pini->ini_file_path, "wb");
 
             if (fp == NULL) {
@@ -178,15 +178,16 @@ int inifile_ini_seek_param(Ini_descriptor *const pini, const char *const ini_par
     char *address;
     char *key_start;
     char *end_address;
-    int offset;
     int result;
 
     result = 0;
-    offset = 0;
+
     address = pini->current_address;
     end_address = &pini->buffer[pini->file_size];
 
     do {
+        int offset = 0;
+
         if (*address == ini_param_name[offset]) {
             key_start = address;
             address++;
@@ -238,7 +239,7 @@ int inifile_ini_process_numeric_value(Ini_descriptor *const pini, int *const val
     char number[30];
     char *address;
     char *end_address;
-    int offset;
+    unsigned int offset;
 
     if (pini->next_value_address) {
         address = pini->next_value_address;
@@ -291,13 +292,13 @@ int inifile_ini_process_numeric_value(Ini_descriptor *const pini, int *const val
     if (number[1] == 'x') {
         *value = inifile_hex_to_dec(&number[2]);
     } else {
-        *value = atoi(number);
+        *value = strtol(number, NULL, 0);
     }
 
     return 1;
 }
 
-int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buffer, const int buffer_size) {
+int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buffer, const unsigned int buffer_size) {
     char *address;
     unsigned int offset;
 
@@ -341,7 +342,8 @@ int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buf
     return 1;
 }
 
-int inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const int buffer_size, const int mode) {
+int inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const unsigned int buffer_size,
+                           const int mode) {
     char *address;
     char *end_address;
     unsigned int offset;
@@ -453,9 +455,6 @@ int inifile_ini_set_numeric_value(Ini_descriptor *const pini, const int value) {
 }
 
 int inifile_ini_set_string_value(Ini_descriptor *const pini, char *value) {
-    char *v2;
-    char *v3;
-    char *v4;
     char *address;
     char *source_address;
     unsigned int offset;

@@ -516,9 +516,6 @@ void buildBlendTable(ColorBlendTable* table, ColorIndex c) {
     ColorRGB bg;
     ColorRGB bb;
 
-    Color v7;
-    Color v8;
-
     int k;
     int j;
 
@@ -615,7 +612,7 @@ void colorGamma(double gamma) {
         currentGammaTable[i] = a;
     }
 
-    return setSystemPalette(systemCmap);
+    setSystemPalette(systemCmap);
 }
 
 double colorGetGamma(void) { return currentGamma; }

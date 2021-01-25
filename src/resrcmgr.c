@@ -86,7 +86,7 @@ GAME_RESOURCE res_get_resource_id(int index) {
     return INVALID_ID;
 }
 
-const char *const res_get_resource_id_string(GAME_RESOURCE id) { return resource_id_list[id]; }
+const char *res_get_resource_id_string(GAME_RESOURCE id) { return resource_id_list[id]; }
 short res_get_resource_file_index(GAME_RESOURCE id) { return game_resource_meta_ptr[id].res_file_item_index; }
 
 int get_attribs_param(const char *string, unsigned short *offset) {
@@ -95,7 +95,7 @@ int get_attribs_param(const char *string, unsigned short *offset) {
     while (string[*offset] == ' ') {
         ++*offset;
     }
-    number = atoi(&string[*offset]);
+    number = strtol(&string[*offset], NULL, 0);
 
     while (string[*offset] != ' ' && string[*offset] != '\0') {
         ++*offset;
@@ -439,24 +439,6 @@ int init_game_resources(void) {
         }
     } else {
         result = 3;
-    }
-
-    return result;
-}
-
-unsigned int sub_A697A(void *unknown, GAME_RESOURCE id) {
-    unsigned int unknown2;
-    unsigned int result;
-
-    if (*(int *)((char *)unknown + 132)) {
-        if (sub_C36FA(unknown, "Unit Volumes") && (game_resource_meta_ptr[id].res_file_item_index != INVALID_ID) &&
-            sub_C4113(unknown, resource_id_list[id], &unknown2)) {
-            result = 0x7FFF * unknown2 / 100;
-        } else {
-            result = 0x7FFF;
-        }
-    } else {
-        result = 0x7FFF;
     }
 
     return result;

@@ -498,8 +498,6 @@ void mouse_get_hotspot(int *hotx, int *hoty) {
 }
 
 void mouse_set_hotspot(int hotx, int hoty) {
-    Rect rect;
-
     if (!mouse_is_hidden) {
         mouse_hide();
     }

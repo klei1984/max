@@ -156,10 +156,6 @@ void dos_setvect(int num, void *function) __attribute__((noreturn));
 
 void dos_delay_init();
 
-void dos_init_387_emulator(int);
-
-void dos_fini_387_emulator(void);
-
 void dos_init_argv();
 
 void dos_setenvp();

@@ -180,4 +180,106 @@ CALLBACK(text_max_func): /* watcall int (*text_max_func)(void) */
 #undef ASM_EPILOGUE
 #undef ASM_INIT_CALLBACK
 
+/* C++ specific manual overrides */
+
+#define ASM_CPP_FASTCALL_0_PARAM(func)  \
+		push   %ecx; \
+		mov    %eax,%ecx; \
+		call   func; \
+		pop    %ecx
+
+#define ASM_CPP_FASTCALL_1_PARAM(func)  \
+		push   %ecx; \
+		push   %edx; \
+		push   %edx; \
+		mov    %eax,%ecx; \
+		call   func; \
+		pop    %edx; \
+		pop    %ecx
+
+#define ASM_CPP_FASTCALL_2_PARAM(func)  \
+		push   %ecx; \
+		push   %ebx; \
+		push   %edx; \
+		push   %ebx; \
+		push   %edx; \
+		mov    %eax,%ecx; \
+		call   func; \
+		pop    %edx; \
+		pop    %ebx; \
+		pop    %ecx
+
+#define ASM_CPP_FASTCALL_3_PARAM(func)  \
+		push   %ecx; \
+		push   %ebx; \
+		push   %edx; \
+		push   %ecx; \
+		push   %ebx; \
+		push   %edx; \
+		mov    %eax,%ecx; \
+		call   func; \
+		pop    %edx; \
+		pop    %ebx; \
+		pop    %ecx
+
+#define ini_config ASM_PREFIX(ini_config)
+GLOBAL(ASM_PREFIX(ini_config))
+
+#define _ZN11IniSettings4InitEv ASM_PREFIX(_ZN11IniSettings4InitEv)
+GLOBAL(ASM_PREFIX(_ZN11IniSettings4InitEv))
+
+#define _ZN11IniSettings4SaveEv ASM_PREFIX(_ZN11IniSettings4SaveEv)
+GLOBAL(ASM_PREFIX(_ZN11IniSettings4SaveEv))
+
+#define _ZN11IniSettings15GetNumericValueE10GAME_INI_e ASM_PREFIX(_ZN11IniSettings15GetNumericValueE10GAME_INI_e)
+GLOBAL(ASM_PREFIX(_ZN11IniSettings15GetNumericValueE10GAME_INI_e))
+
+#define _ZN11IniSettings14SetStringValueE10GAME_INI_ePc ASM_PREFIX(_ZN11IniSettings14SetStringValueE10GAME_INI_ePc)
+GLOBAL(ASM_PREFIX(_ZN11IniSettings14SetStringValueE10GAME_INI_ePc))
+
+#define _ZN11IniSettings14GetStringValueE10GAME_INI_ePci ASM_PREFIX(_ZN11IniSettings14GetStringValueE10GAME_INI_ePci)
+GLOBAL(ASM_PREFIX(_ZN11IniSettings14GetStringValueE10GAME_INI_ePci))
+
+#define _ZN11IniSettings11SaveSectionEPv10GAME_INI_e ASM_PREFIX(_ZN11IniSettings11SaveSectionEPv10GAME_INI_e)
+GLOBAL(ASM_PREFIX(_ZN11IniSettings11SaveSectionEPv10GAME_INI_e))
+
+#define _ZN11IniSettings11LoadSectionEPv10GAME_INI_ec ASM_PREFIX(_ZN11IniSettings11LoadSectionEPv10GAME_INI_ec)
+GLOBAL(ASM_PREFIX(_ZN11IniSettings11LoadSectionEPv10GAME_INI_ec))
+
+#define ini_clans ASM_PREFIX(ini_clans)
+GLOBAL(ASM_PREFIX(ini_clans))
+
+#define _ZN8IniClans4InitEv ASM_PREFIX(_ZN8IniClans4InitEv)
+GLOBAL(ASM_PREFIX(_ZN8IniClans4InitEv))
+
+#define _ZN8IniClans8SeekUnitEii ASM_PREFIX(_ZN8IniClans8SeekUnitEii)
+GLOBAL(ASM_PREFIX(_ZN8IniClans8SeekUnitEii))
+
+#define _ZN8IniClans18GetNextUnitUpgradeEPsS0_ ASM_PREFIX(_ZN8IniClans18GetNextUnitUpgradeEPsS0_)
+GLOBAL(ASM_PREFIX(_ZN8IniClans18GetNextUnitUpgradeEPsS0_))
+
+#define _ZN8IniClans14GetStringValueEPci ASM_PREFIX(_ZN8IniClans14GetStringValueEPci)
+GLOBAL(ASM_PREFIX(_ZN8IniClans14GetStringValueEPci))
+
+#define _ZN8IniClans11GetClanGoldEi ASM_PREFIX(_ZN8IniClans11GetClanGoldEi)
+GLOBAL(ASM_PREFIX(_ZN8IniClans11GetClanGoldEi))
+
+#define _ZN8IniClans11GetClanTextEiPci ASM_PREFIX(_ZN8IniClans11GetClanTextEiPci)
+GLOBAL(ASM_PREFIX(_ZN8IniClans11GetClanTextEiPci))
+
+#define _ZN8IniClans11GetClanNameEiPci ASM_PREFIX(_ZN8IniClans11GetClanNameEiPci)
+GLOBAL(ASM_PREFIX(_ZN8IniClans11GetClanNameEiPci))
+
+#define _ZN15IniSoundVolumesC1Ev ASM_PREFIX(_ZN15IniSoundVolumesC1Ev)
+GLOBAL(ASM_PREFIX(_ZN15IniSoundVolumesC1Ev))
+
+#define _ZN15IniSoundVolumesD1Ev ASM_PREFIX(_ZN15IniSoundVolumesD1Ev)
+GLOBAL(ASM_PREFIX(__ZN15IniSoundVolumesD1Ev))
+
+#define _ZN15IniSoundVolumes4InitEv ASM_PREFIX(_ZN15IniSoundVolumes4InitEv)
+GLOBAL(ASM_PREFIX(_ZN15IniSoundVolumes4InitEv))
+
+#define _ZN15IniSoundVolumes13GetUnitVolumeE15GAME_RESOURCE_e ASM_PREFIX(_ZN15IniSoundVolumes13GetUnitVolumeE15GAME_RESOURCE_e)
+GLOBAL(ASM_PREFIX(_ZN15IniSoundVolumes13GetUnitVolumeE15GAME_RESOURCE_e))
+
 #endif /* USER_H */

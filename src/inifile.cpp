@@ -222,11 +222,11 @@ void IniSettings::Init() {
     fp = fopen(filename, "rt");
 
     if (!fp) {
-        printf("\nMAX.INI File not found..  Using Defaults...\n");
+        SDL_Log("\nMAX.INI File not found..  Using Defaults...\n");
         fp = fopen(filename, "wt");
 
         if (!fp) {
-            printf("\nUnable to Write File..  Disk Full?\n");
+            SDL_Log("\nUnable to Write File..  Disk Full?\n");
             gexit(12);
         }
 
@@ -257,7 +257,7 @@ void IniSettings::Init() {
         gexit(12);
     }
 
-    for (index = 0; index < ini_keys_table_size; ++index) {
+    for (index = 0; index < ini_keys_table_size; index++) {
         if (ini_keys_table[index].type & INI_SECTION) {
             inifile_ini_seek_section(&ini, ini_keys_table[index].name);
         } else if (ini_keys_table[index].type & INI_NUMERIC) {
@@ -267,7 +267,7 @@ void IniSettings::Init() {
                 if (!strncmp(ini_keys_table[index].value, "0x", 2)) {
                     v1 = inifile_hex_to_dec(ini_keys_table[index].value + 2);
                 } else {
-                    v1 = atoi(ini_keys_table[index].value);
+                    v1 = strtol(ini_keys_table[index].value, NULL, 0);
                 }
 
                 SetNumericValue(static_cast<GAME_INI>(index), v1);
@@ -293,7 +293,6 @@ const char *IniSettings::SeekToSection(GAME_INI param) {
 }
 
 int IniSettings::SetNumericValue(GAME_INI param, int value) {
-    const char *section_name;
     unsigned int old_value;
 
     if (param >= ini_keys_table_size) {
@@ -396,6 +395,7 @@ void IniSettings::LoadSection(void *smartfile_handle, GAME_INI section, char mod
             }
         }
     }
+
     if (mode) {
         if (section == ini_OPTIONS) {
             ini_setting_victory_type = ini_get_setting(ini_victory_type);
@@ -424,9 +424,6 @@ int IniClans::SeekUnit(int clan, int unit) {
 
 int IniClans::GetNextUnitUpgrade(short *attrib_id, short *value) {
     const char *cstr;
-    short *entry;
-
-    entry = attrib_id;
 
     if (!inifile_ini_process_string_value(&ini, buffer, sizeof(buffer))) {
         return 0;
@@ -438,17 +435,20 @@ int IniClans::GetNextUnitUpgrade(short *attrib_id, short *value) {
         return 0;
     }
 
-    *value = atoi(cstr);
+    *value = strtol(cstr, NULL, 0);
 
-    do {
+    while (*cstr != ' ') {
         cstr++;
-    } while (*cstr != ' ');
+    }
 
-    for (*entry = 0; *entry != ini_attribs_table_size && stricmp(clan_ini_attrib_name_lut[*entry], cstr); ++*entry) {
+    cstr++;
+
+    for (*attrib_id = 0; *attrib_id != ini_attribs_table_size && stricmp(clan_ini_attrib_name_lut[*attrib_id], cstr);
+         (*attrib_id)++) {
         ;
     }
 
-    SDL_assert(*entry < ini_attribs_table_size);
+    SDL_assert(*attrib_id < ini_attribs_table_size);
 
     return 1;
 }
@@ -460,7 +460,7 @@ int IniClans::GetClanGold(int clan) {
 
     if (inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) && inifile_ini_seek_param(&ini, "Gold") &&
         inifile_ini_process_string_value(&ini, buffer, sizeof(buffer))) {
-        result = atoi(buffer);
+        result = strtol(buffer, NULL, 0);
     } else {
         result = 0;
     }

@@ -286,8 +286,6 @@ int win_register_button_mask(ButtonID bid, char* mask) {
 
 GNW_ButtonPtr button_create(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value, int p_value,
                             int r_value, int flags, char* up, char* down, char* hover) {
-    int v13;
-    int v14;
     GNW_ButtonPtr result;
     GNW_ButtonPtr b;
     GNW_Window* w;

@@ -829,7 +829,7 @@ TOCKS get_time(void) {
      * SDL_GetTicks works on milliseconds basis
      */
     return (SDL_GetTicks() * 105000uL) / 88uL;
-};
+}
 
 void pause_for_tocks(unsigned int tocks) {
     TOCKS past_time;

@@ -102,7 +102,7 @@ void ginit_init_paths(int argc, char *argv[]) {
 
             if (strstr(argv[i], "-s") || strstr(argv[i], "-m") || strstr(argv[i], "-l")) {
                 if (!ginit_change_drive_to_cdrom(0, 0)) {
-                    printf("\nPlease insert the M.A.X. CD and try again.\n");
+                    SDL_Log("\nPlease insert the M.A.X. CD and try again.\n");
                     exit(1);
                 }
 

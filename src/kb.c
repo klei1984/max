@@ -88,7 +88,7 @@ void GNW_kb_set(void) {
     }
 }
 
-void GNW_kb_restore(void) { kb_installed = 0; };
+void GNW_kb_restore(void) { kb_installed = 0; }
 
 void kb_wait(void) {
     if (kb_installed) {
@@ -107,7 +107,7 @@ void kb_clear(void) {
         kb_put = 0;
         kb_get = 0;
     }
-};
+}
 
 int kb_getch(void) {
     int result;
@@ -119,7 +119,7 @@ int kb_getch(void) {
     }
 
     return result;
-};
+}
 
 void kb_disable(void) { kb_disabled = 1; }
 
@@ -159,7 +159,7 @@ void kb_set_layout(kb_layout_t layout) {
                 break;
         }
     }
-};
+}
 
 kb_layout_t kb_get_layout(void) { return kb_layout; }
 
