@@ -7871,6 +7871,115 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "flicsmgr_construct",
+			"prototype": "Flic *flicsmgr_construct(GAME_RESOURCE id, Window *w, int width, int ulx, int uly, char animate, char load_flic_palette)",
+			"component": "flicsmgr",
+			"mode": "replace",
+			"symbol": "flicsmgr_construct_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "Flic *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "char",
+					"type_class": "integer",
+					"arg_name": "animate",
+					"is_far": false
+				},
+				{
+					"type_name": "char",
+					"type_class": "integer",
+					"arg_name": "load_flic_palette",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "flicsmgr_advance_animation",
+			"prototype": "char flicsmgr_advance_animation(Flic *flc)",
+			"component": "flicsmgr",
+			"mode": "replace",
+			"symbol": "flicsmgr_advance_animation_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "char",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "Flic *",
+					"type_class": "pointer",
+					"arg_name": "flc",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "flicsmgr_delete",
+			"prototype": "void flicsmgr_delete(Flic *flc)",
+			"component": "flicsmgr",
+			"mode": "replace",
+			"symbol": "flicsmgr_delete_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "Flic *",
+					"type_class": "pointer",
+					"arg_name": "flc",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
