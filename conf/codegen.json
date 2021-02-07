@@ -129,7 +129,7 @@
 		},
 		{
 			"name": "draw_yes_no_popup",
-			"prototype": "int draw_yes_no_popup(char *text, char mode)",
+			"prototype": "int draw_yes_no_popup(const char * text, char mode)",
 			"component": "max",
 			"mode": "expose",
 			"symbol": "draw_yes_no_popup_",
@@ -2622,36 +2622,6 @@
 			]
 		},
 		{
-			"name": "register_critical_error_handler",
-			"prototype": "void register_critical_error_handler(void)",
-			"component": "max",
-			"mode": "replace",
-			"symbol": "register_critical_error_handler_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "check_available_extended_memory",
-			"prototype": "void check_available_extended_memory(void)",
-			"component": "max",
-			"mode": "replace",
-			"symbol": "check_available_extended_memory_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
 			"name": "get_dpmi_physical_memory",
 			"prototype": "unsigned int get_dpmi_physical_memory(void)",
 			"component": "max",
@@ -2668,21 +2638,6 @@
 				"arg_name": null,
 				"is_far": false
 			},
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "check_available_disk_space",
-			"prototype": "void check_available_disk_space(void)",
-			"component": "max",
-			"mode": "replace",
-			"symbol": "check_available_disk_space_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
 			"arguments_list": [
 			]
 		},
@@ -3484,21 +3439,6 @@
 			]
 		},
 		{
-			"name": "init_resources",
-			"prototype": "void init_resources(void)",
-			"component": "gnw",
-			"mode": "expose",
-			"symbol": "init_resources_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
 			"name": "menu_display_logo",
 			"prototype": "void menu_display_logo(GAME_RESOURCE id, int time_limit)",
 			"component": "gnw",
@@ -3883,7 +3823,7 @@
 			"name": "gexit",
 			"prototype": "void gexit(unsigned char error_code)",
 			"component": "max",
-			"mode": "expose",
+			"mode": "replace",
 			"symbol": "gexit_",
 			"debug": false,
 			"type": "watcall",
@@ -4186,26 +4126,6 @@
 					"arg_name": "buffer",
 					"is_far": false
 				}
-			]
-		},
-		{
-			"name": "init_game_resources",
-			"prototype": "int init_game_resources(void)",
-			"component": "max",
-			"mode": "replace",
-			"symbol": "init_game_resources_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
 			]
 		},
 		{
@@ -7139,21 +7059,6 @@
 			]
 		},
 		{
-			"name": "clear_main_window",
-			"prototype": "void clear_main_window(void)",
-			"component": "max",
-			"mode": "expose",
-			"symbol": "clear_main_window_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
 			"name": "mouse_set_gfx",
 			"prototype": "void mouse_set_gfx(char unknown)",
 			"component": "max",
@@ -7980,6 +7885,307 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "gwin_get_window",
+			"prototype": "Window *gwin_get_window(unsigned char id)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_get_window_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "Window *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "unsigned char",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gwin_clear_window",
+			"prototype": "void gwin_clear_window(void)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_clear_window_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+			]
+		},
+		{
+			"name": "gwin_fade_in",
+			"prototype": "void gwin_fade_in(int steps)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_fade_in_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "steps",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gwin_fade_out",
+			"prototype": "void gwin_fade_out(int steps)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_fade_out_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "steps",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gwin_load_palette_from_resource",
+			"prototype": "void gwin_load_palette_from_resource(GAME_RESOURCE id)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_load_palette_from_resource_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gwin_decode_image",
+			"prototype": "void gwin_decode_image(ImageHeader *image, unsigned char *buffer, int width, int height, int ulx)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_decode_image_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "ImageHeader *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "unsigned char *",
+					"type_class": "pointer",
+					"arg_name": "buffer",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "height",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gwin_load_image",
+			"prototype": "int gwin_load_image(GAME_RESOURCE id, Window *wid, short offx, short palette_from_image, int draw_to_screen, int width_from_image, int height_from_image)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_load_image_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "wid",
+					"is_far": false
+				},
+				{
+					"type_name": "short",
+					"type_class": "integer",
+					"arg_name": "offx",
+					"is_far": false
+				},
+				{
+					"type_name": "short",
+					"type_class": "integer",
+					"arg_name": "palette_from_image",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "draw_to_screen",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width_from_image",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "height_from_image",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gwin_decode_image2",
+			"prototype": "void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transparency, Window *w)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_decode_image2_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "ImageHeader2 *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "has_transparency",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gwin_load_image2",
+			"prototype": "void gwin_load_image2(GAME_RESOURCE id, int ulx, int uly, int has_transparency, Window *w)",
+			"component": "gwin",
+			"mode": "replace",
+			"symbol": "gwin_load_image2_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "has_transparency",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
@@ -8461,6 +8667,38 @@
 			"component": "game",
 			"mode": "expose",
 			"symbol": "_ini_setting_victory_limit",
+			"align": 1
+		},
+		{
+			"name": "disable_enhanced_graphics",
+			"prototype": "char disable_enhanced_graphics",
+			"component": "game",
+			"mode": "expose",
+			"symbol": "_disable_enhanced_graphics",
+			"align": 1
+		},
+		{
+			"name": "system_palette_ptr",
+			"prototype": "unsigned char *system_palette_ptr",
+			"component": "game",
+			"mode": "expose",
+			"symbol": "_system_palette_ptr",
+			"align": 1
+		},
+		{
+			"name": "color_palette",
+			"prototype": "unsigned char *color_palette",
+			"component": "game",
+			"mode": "expose",
+			"symbol": "_color_palette",
+			"align": 1
+		},
+		{
+			"name": "word_173658",
+			"prototype": "unsigned short word_173658",
+			"component": "unknown",
+			"mode": "expose",
+			"symbol": "_word_173658",
 			"align": 1
 		}
 	]

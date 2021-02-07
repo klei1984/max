@@ -21,21 +21,12 @@
 
 #include "game.h"
 
-#include "svga.h"
-#include "wrappers.h"
-
 #if !defined(GAME_VERSION)
 #define GAME_VERSION ""
 #warning "Game version number is not set by CMake."
 #endif
 
-int register_critical_error_handler(void) { return 0; }
-
-void check_available_extended_memory(void) { return; }
-
-void check_available_disk_space(void) { return; }
-
-void draw_copyright_label(Window *window) {
+void draw_copyright_label(Window* window) {
     text_font(5);
     draw_color_text_label(window->buffer, window->unknown,
                           "Copyright 1996 Interplay Productions. v1.04"

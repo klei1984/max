@@ -23,7 +23,6 @@
 #define TYPES_H
 
 void get_start_mode(void);
-int init_mode_640_480(void);
 int init_vesa_mode(int mode, int width, int height, int half);
 
 struct _RMREGSX {

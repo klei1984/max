@@ -394,9 +394,9 @@ int build_res_file_index_db(const char *file_path) {
     return result;
 }
 
-int init_game_resources(void) {
+unsigned char init_game_resources(void) {
     char file_path[PATH_MAX];
-    int result;
+    unsigned char result;
 
     game_resource_meta_ptr = (GameResourceMeta *)malloc(RESOURCE_E * sizeof(GameResourceMeta));
 
@@ -412,13 +412,13 @@ int init_game_resources(void) {
 
         result = build_res_file_index_db(file_path);
 
-        if (result == 0 || result == 6) {
+        if (result == EXIT_CODE_NO_ERROR || result == EXIT_CODE_RES_FILE_NOT_FOUND) {
             strcpy(file_path, file_path_game_res);
             strcat(file_path, "MAX.RES");
 
             result = build_res_file_index_db(file_path);
 
-            if (result == 0) {
+            if (result == EXIT_CODE_NO_ERROR) {
                 dword_1770E8 = (char *)malloc(112 * 112);
                 dword_1770E0 = (char *)malloc(112 * 112);
                 dword_1770E4 = (char *)malloc(112 * 112);
@@ -428,17 +428,17 @@ int init_game_resources(void) {
                         for (short j = 0; j < UNIT_END; ++j) {
                             unit2_init(&units2[j], &units[j]);
                         }
-                        result = 0;
+                        result = EXIT_CODE_NO_ERROR;
                     } else {
-                        result = 3;
+                        result = EXIT_CODE_INSUFFICIENT_MEMORY;
                     }
                 } else {
-                    result = 3;
+                    result = EXIT_CODE_INSUFFICIENT_MEMORY;
                 }
             }
         }
     } else {
-        result = 3;
+        result = EXIT_CODE_INSUFFICIENT_MEMORY;
     }
 
     return result;

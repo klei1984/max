@@ -96,9 +96,9 @@ int movie_run(GAME_RESOURCE resource_id, int mode) {
     char* file_name;
     unsigned char* palette;
 
-    // digi_delete_music((SoundMgrPtr)&sound_mgr);
+    /// \todo Soundmgr_delete_music((SoundMgrPtr)&sound_mgr);
 
-    clear_main_window();
+    gwin_clear_window();
 
     file_name = read_game_resource(resource_id);
     if (file_name) {
@@ -171,7 +171,7 @@ int movie_run(GAME_RESOURCE resource_id, int mode) {
 
         if (!result || result == 3) {
             win_reinit(init_mode_640_480);
-            clear_main_window();
+            gwin_clear_window();
 
             result = 0;
         }
@@ -191,6 +191,6 @@ int movie_play_oem_logo(void) { return movie_run(LOGOFLIC, 0); }
 int movie_play_intro(void) { return movie_run(INTROFLC, 1); }
 
 int movie_play(GAME_RESOURCE resource_id) {
-    clear_main_window();
+    gwin_clear_window();
     return movie_run(resource_id, 0);
 }
