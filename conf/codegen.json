@@ -8186,6 +8186,511 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "gimage_get_buffer",
+			"prototype": "unsigned char *gimage_get_buffer(GImage *image)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_get_buffer_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned char *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_get_ulx",
+			"prototype": "int gimage_get_ulx(GImage *image)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_get_ulx_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_get_uly",
+			"prototype": "int gimage_get_uly(GImage *image)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_get_uly_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_get_height",
+			"prototype": "int gimage_get_height(GImage *image)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_get_height_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_get_width",
+			"prototype": "int gimage_get_width(GImage *image)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_get_width_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "int",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_alloc_ex",
+			"prototype": "GImage *gimage_alloc_ex(GImage *image, int ulx, int uly, int width, int height)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_alloc_ex_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "GImage *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "width",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "height",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_init",
+			"prototype": "GImage *gimage_init(GImage *image, GAME_RESOURCE id, int ulx, int uly)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_init_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "GImage *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "GAME_RESOURCE",
+					"type_class": "integer",
+					"arg_name": "id",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_delete",
+			"prototype": "GImage *gimage_delete(GImage *image)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_delete_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "GImage *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_alloc",
+			"prototype": "void gimage_alloc(GImage *image)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_alloc_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_copy_from_window",
+			"prototype": "void gimage_copy_from_window(GImage *image, Window *w)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_copy_from_window_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_copy_from_image",
+			"prototype": "void gimage_copy_from_image(GImage *image, Window *w)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_copy_from_image_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_copy_content",
+			"prototype": "void gimage_copy_content(GImage *dst, GImage *src)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_copy_content_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "dst",
+					"is_far": false
+				},
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "src",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_copy_to_window",
+			"prototype": "void gimage_copy_to_window(GImage *image, Window *w)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_copy_to_window_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_copy_rect_to_window",
+			"prototype": "void gimage_copy_rect_to_window(GImage *image, Window *w, Rect *r)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_copy_rect_to_window_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect *",
+					"type_class": "pointer",
+					"arg_name": "r",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_copy_offset_to_window",
+			"prototype": "void gimage_copy_offset_to_window(GImage *image, Window *w, int ulx, int uly)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_copy_offset_to_window_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "Window *",
+					"type_class": "pointer",
+					"arg_name": "w",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "ulx",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "uly",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_get_image_rect",
+			"prototype": "void gimage_get_image_rect(GImage *image, Rect *r)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_get_image_rect_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "Rect *",
+					"type_class": "pointer",
+					"arg_name": "r",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "gimage_draw_rect",
+			"prototype": "void gimage_draw_rect(GImage *image, WinID wid)",
+			"component": "gimage",
+			"mode": "replace",
+			"symbol": "gimage_draw_rect_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": null,
+			"arguments_list": [
+				{
+					"type_name": "GImage *",
+					"type_class": "pointer",
+					"arg_name": "image",
+					"is_far": false
+				},
+				{
+					"type_name": "WinID",
+					"type_class": "integer",
+					"arg_name": "wid",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [

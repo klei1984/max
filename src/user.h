@@ -225,9 +225,6 @@ CALLBACK(text_max_func): /* watcall int (*text_max_func)(void) */
 #define ini_config ASM_PREFIX(ini_config)
 GLOBAL(ASM_PREFIX(ini_config))
 
-#define _ZN11IniSettings4InitEv ASM_PREFIX(_ZN11IniSettings4InitEv)
-GLOBAL(ASM_PREFIX(_ZN11IniSettings4InitEv))
-
 #define _ZN11IniSettings4SaveEv ASM_PREFIX(_ZN11IniSettings4SaveEv)
 GLOBAL(ASM_PREFIX(_ZN11IniSettings4SaveEv))
 
@@ -248,9 +245,6 @@ GLOBAL(ASM_PREFIX(_ZN11IniSettings11LoadSectionEPv10GAME_INI_ec))
 
 #define ini_clans ASM_PREFIX(ini_clans)
 GLOBAL(ASM_PREFIX(ini_clans))
-
-#define _ZN8IniClans4InitEv ASM_PREFIX(_ZN8IniClans4InitEv)
-GLOBAL(ASM_PREFIX(_ZN8IniClans4InitEv))
 
 #define _ZN8IniClans8SeekUnitEii ASM_PREFIX(_ZN8IniClans8SeekUnitEii)
 GLOBAL(ASM_PREFIX(_ZN8IniClans8SeekUnitEii))

@@ -26,17 +26,18 @@ void init_callbacks(void);
 
 #include "crc16.h"
 #include "dos.h"
+#include "gimage.h"
+#include "ginit.h"
 #include "gnw.h"
+#include "gwindow.h"
 #include "ini.h"
 #include "ipx.h"
 #include "movie.h"
 #include "mvelib32.h"
 #include "resrcmgr.h"
+#include "screendump.h"
 #include "svga.h"
 #include "units.h"
 #include "wrappers.h"
-#include "ginit.h"
-#include "gwindow.h"
-#include "screendump.h"
 
 #endif /* GAME_H */
