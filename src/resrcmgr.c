@@ -95,7 +95,7 @@ int get_attribs_param(const char *string, unsigned short *offset) {
     while (string[*offset] == ' ') {
         ++*offset;
     }
-    number = strtol(&string[*offset], NULL, 0);
+    number = strtol(&string[*offset], NULL, 10);
 
     while (string[*offset] != ' ' && string[*offset] != '\0') {
         ++*offset;

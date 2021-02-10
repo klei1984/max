@@ -292,7 +292,7 @@ int inifile_ini_process_numeric_value(Ini_descriptor *const pini, int *const val
     if (number[1] == 'x') {
         *value = inifile_hex_to_dec(&number[2]);
     } else {
-        *value = strtol(number, NULL, 0);
+        *value = strtol(number, NULL, 10);
     }
 
     return 1;

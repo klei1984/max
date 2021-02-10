@@ -267,7 +267,7 @@ void IniSettings::Init() {
                 if (!strncmp(ini_keys_table[index].value, "0x", 2)) {
                     v1 = inifile_hex_to_dec(ini_keys_table[index].value + 2);
                 } else {
-                    v1 = strtol(ini_keys_table[index].value, NULL, 0);
+                    v1 = strtol(ini_keys_table[index].value, NULL, 10);
                 }
 
                 SetNumericValue(static_cast<GAME_INI>(index), v1);
@@ -435,7 +435,7 @@ int IniClans::GetNextUnitUpgrade(short *attrib_id, short *value) {
         return 0;
     }
 
-    *value = strtol(cstr, NULL, 0);
+    *value = strtol(cstr, NULL, 10);
 
     while (*cstr != ' ') {
         cstr++;
@@ -460,7 +460,7 @@ int IniClans::GetClanGold(int clan) {
 
     if (inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) && inifile_ini_seek_param(&ini, "Gold") &&
         inifile_ini_process_string_value(&ini, buffer, sizeof(buffer))) {
-        result = strtol(buffer, NULL, 0);
+        result = strtol(buffer, NULL, 10);
     } else {
         result = 0;
     }
