@@ -105,6 +105,8 @@ void GNW_input_exit(void) {
         mem_free(fp);
     }
 
+    bk_list = NULL;
+
     GNW_kb_restore();
     GNW_mouse_exit();
 }
@@ -705,6 +707,7 @@ void dump_screen(void) {
         screendump_func(width, length, screendump_buf, pal);
 
         mem_free(screendump_buf);
+        screendump_buf = NULL;
     }
 }
 

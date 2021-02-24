@@ -22,12 +22,89 @@
 #ifndef SOUNDMGR_HPP
 #define SOUNDMGR_HPP
 
+#include <SDL_mixer.h>
+
+#include <list>
+
+extern "C" {
+#include "resrcmgr.h"
+}
+
+enum { LEFT_CHANNEL, RIGHT_CHANNEL, CENTER_CHANNEL, INTERLEAVED };
+typedef enum { SOUND_TYPE_SFX0, SOUND_TYPE_SFX1, SOUND_TYPE_SFX2, SOUND_TYPE_VOICE, SOUND_TYPE_MUSIC } SOUND_TYPE;
+
 class SoundMgr {
 public:
     SoundMgr();
     ~SoundMgr();
+    void Init();
+    void Deinit();
+
+    void FreeChunk(Mix_Chunk* chunk);
+    void FreeAllChunks();
+
+    void PlayMusic(GAME_RESOURCE id, bool shuffle);
+    void DisableEnableMusic(bool disable);
+    void FreeMusic();
+
+    void PlaySfx(GAME_RESOURCE id);
+    void DisableEnableSfx(bool disable);
+
+    void PlayVoice(GAME_RESOURCE id1, GAME_RESOURCE id2, short priority);
+    void DisableEnableVoice(bool disable);
+    void FreeVoice(GAME_RESOURCE id1, GAME_RESOURCE id2);
+
+    void SetVolume(int type, int volume);
+    void BkProcess();
 
 private:
+    typedef struct {
+        int volume;
+        char flags;
+    } SoundVolume;
+
+    typedef struct {
+        GAME_RESOURCE id;
+        SOUND_TYPE type;
+        unsigned int volume_1;
+        unsigned int volume_2;
+        unsigned short panning;
+        int loop_count;
+        short priority;
+    } SoundSample;
+
+    typedef struct {
+        Mix_Music* chunk;
+    } MusicChunk;
+
+    typedef struct {
+        Mix_Chunk* chunk;
+    } VoiceChunk;
+
+    bool is_audio_enabled;
+
+    SoundVolume* volumes;
+
+    GAME_RESOURCE current_music_played;
+    GAME_RESOURCE last_music_played;
+
+    bool shuffle_music;
+    bool shuffle_music_playlist[BKG9_MSC - MAIN_MSC + 1];
+
+    GAME_RESOURCE last_voice_played;
+
+    std::list<SoundSample> samples;
+
+    MusicChunk music_chunk;
+    VoiceChunk voice_chunk;
+
+    void AddSample(SoundSample& sample);
+    void UpdateMusic(SoundSample& sample);
+    void UpdateSfx(SoundSample& sample);
+    void UpdateVoice(SoundSample& sample);
+    bool IsVoiceGroupScheduled(GAME_RESOURCE id1, GAME_RESOURCE id2);
 };
+
+extern SoundMgr soundmgr;
 
 #endif /* SOUNDMGR_HPP */

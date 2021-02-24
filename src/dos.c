@@ -29,31 +29,13 @@
 #include "game.h"
 
 #ifdef __unix__
-#include <unistd.h>
-
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-#endif
-
-static int open_flag_mapping[][2] = {{DOS_O_RDONLY, O_RDONLY},
-                                     {DOS_O_WRONLY, O_WRONLY},
-                                     {DOS_O_RDWR, O_RDWR},
-                                     {DOS_O_APPEND, O_APPEND},
-                                     {DOS_O_CREAT, O_CREAT},
-                                     {DOS_O_TRUNC, O_TRUNC},
-                                     {DOS_O_NOINHERIT, 0},
-                                     {DOS_O_TEXT, 0},
-                                     {DOS_O_BINARY, O_BINARY},
-                                     {DOS_O_EXCL, O_EXCL},
-                                     {-1, -1}};
-
-#ifdef __unix__
 char *strupr(char *s) { return dos_strupr(s); }
 char *strlwr(char *s) { return dos_strlwr(s); }
 int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
 int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1, s2, len); }
 #endif
+
+static unsigned int next = 1;
 
 long int filesize(FILE *fp) {
     long int save_pos, size_of_file;
@@ -64,17 +46,6 @@ long int filesize(FILE *fp) {
     fseek(fp, save_pos, SEEK_SET);
 
     return (size_of_file);
-}
-
-int dos_open_flags_to_native(int flags) {
-    int rflags = 0;
-    int n;
-
-    for (n = 0; open_flag_mapping[n][0] != -1; n++) {
-        if ((open_flag_mapping[n][0] & flags) == open_flag_mapping[n][0]) rflags |= open_flag_mapping[n][1];
-    }
-
-    return rflags;
 }
 
 static void __attribute__((noreturn)) print_interrupt_info_and_abort(int num, DOS_Registers *regs, void *caller) {
@@ -95,30 +66,6 @@ int dos_int386(int num, DOS_Registers *regs, DOS_Registers *out_regs) {
     print_interrupt_info_and_abort(num, regs, eip_caller);
 }
 
-int dos_int386x(int num, DOS_Registers *regs, DOS_Registers *out_regs, DOS_SegmentRegisters *sregs) {
-    void *eip_caller = *(&eip_caller + 9);
-    print_interrupt_info_and_abort(num, regs, eip_caller);
-}
-
-static void __attribute__((noreturn)) print_caller_info_and_abort(const char *function, void *caller) {
-    fprintf(stderr,
-            "DOS-specific function %s ()\n"
-            "  Called from: %p\n",
-            function, caller);
-    fflush(stderr);
-    abort();
-}
-
-void *__attribute__((noreturn)) dos_getvect(int num) {
-    void *eip_caller = *(&eip_caller + 6);
-    print_caller_info_and_abort("dos_getvect", eip_caller);
-}
-
-void __attribute__((noreturn)) dos_setvect(int num, void *function) {
-    void *eip_caller = *(&eip_caller + 7);
-    print_caller_info_and_abort("dos_setvect", eip_caller);
-}
-
 void dos_delay_init() { return; }
 
 void dos_init_argv() { return; }
@@ -126,52 +73,6 @@ void dos_init_argv() { return; }
 void dos_setenvp() { return; }
 
 unsigned int get_dpmi_physical_memory(void) { return 64000000uLL; }
-
-static int open_helper(const char *path, unsigned int flags) {
-    int handle;
-    int length;
-    char *path_ptr;
-
-    if ((length = strlen(path)) != 0) {
-        path_ptr = malloc(length + 1);
-        if (path_ptr) {
-            int handle;
-
-            path_ptr = strncpy(path_ptr, path, length + 1);
-            path_ptr = strupr(path_ptr);
-
-            handle = open(path_ptr, flags, 0666);
-
-            free(path_ptr);
-
-            return handle;
-        }
-    }
-
-    SDL_Log("open helper failed: %s\n", path);
-
-    return -1;
-}
-
-int posix_open(const char *path, int open_flags, ...) {
-    return open_helper(path, dos_open_flags_to_native(open_flags));
-}
-
-unsigned int _dos_open(const char *path, unsigned int mode, int *handle) {
-    int file_handle;
-
-    if (handle) {
-        file_handle = open_helper(path, dos_open_flags_to_native(mode));
-        if (file_handle != -1) {
-            *handle = file_handle;
-            return 0;
-        }
-    }
-
-    SDL_Log("open failed: %s\n", path);
-
-    return -1;
-}
 
 FILE *dos_fopen(const char *filename, const char *mode) {
     int length;
@@ -208,3 +109,29 @@ int dos_vsprintf(char *buf, const char *format, va_list *va_arg) { return vsprin
 void dos_getdrive(unsigned int *drive) { *drive = 4; }
 
 void dos_setdrive(unsigned int drive, unsigned int *total) {}
+
+static unsigned int *initrandnext() { return &next; }
+
+int dos_rand(void) {
+    unsigned int *next;
+    int result;
+
+    next = initrandnext();
+    if (next) {
+        *next = (*next) * 1103515245UL  + 12345UL;
+        result = ((*next) >> 16) & 0x7FFF;
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+void dos_srand(unsigned int seed) {
+    unsigned int *next;
+
+    next = initrandnext();
+    if (next) {
+        *next = seed;
+    }
+}

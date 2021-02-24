@@ -24,6 +24,7 @@ extern "C" {
 }
 
 #include "inifile.hpp"
+#include "soundmgr.hpp"
 
 char file_path_cdrom[PATH_MAX];
 char file_path_game_install[PATH_MAX];
@@ -186,7 +187,7 @@ void check_available_extended_memory(void) {
     memory = SDL_GetSystemRAM();
     if (memory < 6L) {
         SDL_Log("\nNot enough memory available to run M.A.X.\nAmount Needed: %i MB, Amount found: %i MB\n\n", 6,
-               memory);
+                memory);
         exit(1);
     }
 }
@@ -245,7 +246,7 @@ void ginit_init(void) {
     ini_set_setting(ini_enhanced_graphics, !disable_enhanced_graphics);
 
     timer_init();
-    /// \todo Soundmgr_init(&sound_mgr);
+    soundmgr.Init();
     timer_ch2_setup();
 
     register_pause(-1, NULL);
@@ -259,13 +260,13 @@ void check_mouse_driver(void) {
 }
 
 void gexit(unsigned char error_code) {
-    /// \todo Soundmgr_sample_delete_all(&sound_mgr);
+    soundmgr.FreeAllChunks();
 
     if ((error_code == 0) || (error_code == 1)) {
         menu_draw_exit_logos();
     }
 
-    /// \todo Soundmgr_uninit(&sound_mgr);
+    soundmgr.Deinit();
 
     timer_close();
 

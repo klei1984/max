@@ -25,6 +25,7 @@
 
 #include "SDL_assert.h"
 #include "gwindow.h"
+#include "soundmgr.hpp"
 
 static_assert(sizeof(GButton) == 56, "The structure needs to be packed.");
 
@@ -586,9 +587,7 @@ void gbutton_set_rest_state(GButton *b, char rest_state) {
     }
 }
 
-void gbutton_play_sound(GButton *b) {
-    /// \todo Soundmgr_play_sfx(b->sfx);
-}
+void gbutton_play_sound(GButton *b) { soundmgr.PlaySfx((GAME_RESOURCE)b->sfx); }
 
 static inline void gbutton_watcall(ButtonFunc func, ButtonID id, int value) {
     __asm__ __volatile__("	call	*%2\n"

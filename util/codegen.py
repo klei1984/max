@@ -13,7 +13,7 @@ including limited support for the big code model for __far calls and the big dat
 __author__ = "M.A.X. Port Team"
 __copyright__ = "Copyright (c) 2020 M.A.X. Port Team"
 __license__ = "MIT License"
-__version__ = "0.34"
+__version__ = "0.40"
 
 import re
 import sys
@@ -31,8 +31,12 @@ class Codegen:
     input_file = ""
     output_directory = ""
     replace_function_regex = None
+    replace_function_list = None
     expose_function_regex = None
+    expose_function_list = None
+    reference_function_regex = None
     function_list = {}
+    reference_list = {}
     output_file = None
     operands = ['a', 'd', 'b', 'c']
     registers_32bit = ["%eax", "%edx", "%ebx", "%ecx"]
@@ -65,16 +69,50 @@ class Codegen:
     def read_config(self, mode):
         """ Return a regexp that will match all the function names that are meant to be replaced or exposed
         """
-        all_regex = StringIO()
-        all_regex.write(r"(^\s*)\b((")
+        r = StringIO()
 
         for function in self.config["functions"]:
             if function["mode"] == mode:
-                if all_regex.tell() > 9:
-                    all_regex.write("|")
-                all_regex.write(function["symbol"])
-        all_regex.write(r"):)(.*)")
-        return re.compile(all_regex.getvalue())
+                r.write(function["symbol"])
+                r.write("|")
+        return r.getvalue()[:-1]
+
+    def get_replace_regex(self):
+        """ Return a regexp that will match all the function names that are meant to be replaced
+        """
+        if self.replace_function_regex is None:
+            r = StringIO()
+            r.write(r"(^\s*)\b((")
+            r.write(self.replace_function_list)
+            r.write(r"):)(.*)")
+            self.replace_function_regex = re.compile(r.getvalue())
+        return self.replace_function_regex
+
+    def get_expose_regex(self):
+        """ Return a regexp that will match all the function names that are meant to be exposed
+        """
+        if self.expose_function_regex is None:
+            r = StringIO()
+            r.write(r"(^\s*)\b((")
+            r.write(self.expose_function_list)
+            r.write(r"):)(.*)")
+            self.expose_function_regex = re.compile(r.getvalue())
+        return self.expose_function_regex
+
+    def get_reference_regex(self):
+        """ Return a regexp that will match all the function names that are
+            supposed to be referenced in the resource file
+        """
+        if self.reference_function_regex is None:
+            r = StringIO()
+            r.write(r"(\b(")
+            r.write(self.replace_function_list)
+            if r.tell() > 4:
+                r.write(r"|")
+            r.write(self.expose_function_list)
+            r.write(r")\b)")
+            self.reference_function_regex = re.compile(r.getvalue())
+        return self.reference_function_regex
 
     def read_config_file_positions(self):
         with open(self.config_file) as f:
@@ -221,7 +259,7 @@ class Codegen:
             if len(line) == 0:
                 break
 
-            m = self.replace_function_regex.match(line)
+            m = self.get_replace_regex().match(line)
             if m:
                 line = "%sREPLACE(%s):%s\n" % (m.group(1), m.group(3), m.group(4))
                 if m.group(3) in self.function_list:
@@ -232,12 +270,19 @@ class Codegen:
                 print("%s:%i:0: warning: replaced function %s is still defined" % (
                     self.input_file, count, m.group(3)))
 
-            m = self.expose_function_regex.match(line)
+            m = self.get_expose_regex().match(line)
             if m:
                 if m.group(3) in self.function_list:
                     self.function_list[m.group(3)] += 1
                 else:
                     self.function_list[m.group(3)] = 1
+
+            m = self.get_reference_regex().search(line)
+            if m:
+                if m.group(2) in self.reference_list:
+                    self.reference_list[m.group(2)] += 1
+                else:
+                    self.reference_list[m.group(2)] = 1
 
             self.output_file.write(line)
         self.output_file.close()
@@ -247,6 +292,10 @@ class Codegen:
         for function in self.config["functions"]:
             if function["mode"] == "expose" and not function["symbol"] in self.function_list:
                 print("%s:%i:%i: warning: configuration for %s is not in use" % (
+                    self.config_file, function["file_position"][0] + 1, function["file_position"][1] + 9,
+                    function["name"]))
+            elif not function["symbol"] in self.reference_list:
+                print("%s:%i:%i: warning: configuration for %s is not referenced" % (
                     self.config_file, function["file_position"][0] + 1, function["file_position"][1] + 9,
                     function["name"]))
 
@@ -472,8 +521,8 @@ class Codegen:
 
         self.config_file = args[0]
         self.config = self.minify(self.config_file)
-        self.replace_function_regex = self.read_config("replace")
-        self.expose_function_regex = self.read_config("expose")
+        self.replace_function_list = self.read_config("replace")
+        self.expose_function_list = self.read_config("expose")
         self.process_resource_file()
         self.create_resource_header()
         self.create_access_providers()

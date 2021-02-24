@@ -31,19 +31,6 @@
 #include <io.h>
 #endif
 
-#define DOS_O_RDONLY 0x0000
-#define DOS_O_WRONLY 0x0001
-#define DOS_O_RDWR 0x0002
-#define DOS_O_APPEND 0x0010
-#define DOS_O_CREAT 0x0020
-#define DOS_O_TRUNC 0x0040
-#define DOS_O_NOINHERIT 0x0080
-#define DOS_O_TEXT 0x0100
-#define DOS_O_BINARY 0x0200
-#define DOS_O_EXCL 0x0400
-
-#define DOS_CLOCKS_PER_SEC 100
-
 struct DOS_Registers32 {
     unsigned int eax;    /* 00 */
     unsigned int ebx;    /* 04 */
@@ -98,31 +85,6 @@ union DOS_Registers {
 
 typedef union DOS_Registers DOS_Registers;
 
-struct DOS_SegmentRegisters {
-    unsigned short es;
-    unsigned short cs;
-    unsigned short ss;
-    unsigned short ds;
-    unsigned short fs;
-    unsigned short gs;
-};
-
-typedef struct DOS_SegmentRegisters DOS_SegmentRegisters;
-
-struct dostime_t {
-    unsigned char hour;
-    unsigned char minute;
-    unsigned char second;
-    unsigned char hsecond; /* .01 of a sec */
-};
-
-struct dosdate_t {
-    unsigned char day;
-    unsigned char month;
-    unsigned short year;
-    unsigned char dayofweek;
-};
-
 #ifdef __unix__
 char *strupr(char *s);
 char *strlwr(char *s);
@@ -133,26 +95,7 @@ int strnicmp(const char *s1, const char *s2, size_t len);
 
 long int filesize(FILE *fp);
 
-// int dos_open_flags_to_native (int flags);
-
-// bool dos_path_to_native (const char *path, char *buffer, size_t len);
-
-int dos_sopen(const char *path, int open_flags, int share_flags, ...);
-
-int dos_open(const char *path, int open_flags, ...);
-
-void dos_gettime(struct dostime_t *t);
-
-void dos_getdate(struct dosdate_t *d);
-
 int dos_int386(int num, DOS_Registers *regs, DOS_Registers *out_regs) __attribute__((noreturn));
-
-int dos_int386x(int num, DOS_Registers *regs, DOS_Registers *out_regs, DOS_SegmentRegisters *sregs)
-    __attribute__((noreturn));
-
-void *dos_getvect(int num) __attribute__((noreturn));
-
-void dos_setvect(int num, void *function) __attribute__((noreturn));
 
 void dos_delay_init();
 
@@ -162,12 +105,14 @@ void dos_setenvp();
 
 unsigned int get_dpmi_physical_memory(void);
 
-unsigned int _dos_open(const char *path, unsigned int mode, int *handle);
-
 void dos_assert(int expr, char *str_expr, char *str_file, int line);
 
 void dos_getdrive(unsigned int *drive);
 
 void dos_setdrive(unsigned int drive, unsigned int *total);
+
+int dos_rand(void);
+
+void dos_srand(unsigned int seed);
 
 #endif /* DOS_H */

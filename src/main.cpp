@@ -25,11 +25,15 @@ extern "C" {
 #include "game.h"
 }
 
+#include "soundmgr.hpp"
+
 int main(int argc, char *argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
         SDL_Log("Unable to initialize SDL: %s\n", SDL_GetError());
         return 1;
     }
+
+    atexit(SDL_Quit);
 
     /* run all initializer routines */
     __InitRtns(0xFF);
@@ -48,7 +52,8 @@ int main(int argc, char *argv[]) {
         menu_display_logo(ILOGO, 3000);
     }
 
-    /// \todo Soundmgr_play_music(&sound_mgr, MAIN_MSC, 0);
+    soundmgr.PlayMusic(MAIN_MSC, false);
+
     menu_display_logo(MLOGO, 3000);
 
     /* never returns */
