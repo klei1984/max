@@ -93,7 +93,7 @@ Then in the July 1994 issue of Computer Gaming World magazine a news article rep
 
 There is actually a game series titled Mech Commander which plays in the official (licensed) BattleTech universe. The first game came out in 1998. It was developed by FASA Studio and published by MicroProse Software, Inc.
 
-Another interesting fact from Mindcraft's legacy is that Edward Del Castillo also worked there in 1993. Later he worked on the Command & Conquer series as writer and producer between 1995-1997 and in 2020 (C&C Remastered Collection). Just think about it. The producers of M.A.X. (Mechamader) and the C&C games came from the very same small company.
+Another interesting fact from Mindcraft's legacy is that Edward del Castillo also worked there in 1993. Later he worked on the Command & Conquer series as writer and producer between 1995-1997 and in 2020 (C&C Remastered Collection). Just think about it. The producers of M.A.X. (Mechamader) and the C&C games came from the very same small company.
 <br style="clear:both"><br>
 
 # Development of M.A.X. at Interplay
@@ -282,7 +282,7 @@ _Did you write all of these SW components or were you mainly in the designer rol
 
 **Gus**: _At Interplay, I was primarily viewed as a programmer, not a designer. Getting design credit was an uphill battle._  
   
-_I wrote the C++ libraries  you mentioned. The rest of the team were C programmers, not really comfortable with C++. Dave, for example, had a background in device drivers, and mostly focused on assembler and network code._  
+_I wrote the C++ libraries you mentioned. The rest of the team were C programmers, not really comfortable with C++. Dave, for example, had a background in device drivers, and mostly focused on assembler and network code._  
 
 **Tamas**: _Based on my current understanding of the code base Interplay developed their own C++ memory managers as well. E.g. they used their own smart list, array, object pointer, file, hash, vector and such managers. What I find odd in this is that other Interplay titles did not reuse any of these._  
   

@@ -21,11 +21,10 @@ The game supports loading game resources from a secondary resource file called p
 
 4. **\*\*FIXED\*\*** M.A.X. allocates 5 player objects. The fifth player is used for alien derelicts - *citation needed*. Certain init routines initialize arrays holding structures related to player data. Some arrays have four elements while the others have five elements. The structures held in these mixed size arrays are indexed from 4 to 0 in a loop. This creates an out of bounds write access to a totally unrelated memory area for the array that only holds four structure instances. The given structure is 19 bytes long and who knows what gets corrupted by the out of bounds write accesses.
 
-5. **\*\*FIXED\*\*** M.A.X. has several units that were planned and never released for the final game or that were repurposed during game development. There is a mobile unit called the **Master Builder** which can be seen in one of the shorter movie clips of the game and has the following unit description text: *Specialized vehicle which transforms to become a new mining station.* The related game assets, like unit sprites, never made it into the game or they were not even created by the developers at all. Never the less the unit is initialized by one of the C++ constructors and when mandatory game resources are not found a NULL pointer dereference occurs. Like in case of defect 3 the game does not crash with out of bounds access under DOS environment but utterfy fails on modern operating system with a segmentation fault.
+5. **\*\*FIXED\*\*** M.A.X. has several units that were planned and never released for the final game or that were repurposed during game development. There is a mobile unit called the **Master Builder** which can be seen in one of the shorter movie clips of the game and has the following unit description text: *Specialized vehicle which transforms to become a new mining station.* The related game assets, like unit sprites, never made it into the game or they were not even created by the developers at all. Never the less the unit is initialized by one of the C++ constructors and when mandatory game resources are not found a NULL pointer dereference occurs. Like in case of defect 3 the game does not crash with out of bounds access under DOS environment but utterfy fails on modern operating systems with a segmentation fault.
 The following resources are missing from max.res or patches.res: A_MASTER, I_MASTER, P_MASTER, F_MASTER, S_MASTER, MASTER.
 
-6. The sound manager in M.A.X. handles three different sound sources. Voices, a streaming music track and sound effects. The voice interface always accepts two sound samples. A male and a female voice. Male voice samples are not present in the game but the sound manager API requires resource IDs to be passed to it any ways.
-In a certain unclarified game mode when the game concludes with either winning or losing, the sound manager is instructed to play WINR_MSC or LOSE_MSC that are distinct music tracks for winnind and losing. At the same time if the game was won a voice sample is also fed into the sound manager but instead of a femail and a male sample only two identical male samples are passed as arguments to digi_play_voice(). The male voice sample resource id is V_M283 which does not exist. But there is a V_F283 which references sound file F283.spw. The sound file is a female voice sample which says *Mission Successful!*.
+6. The voice interface always accepts two resource indices. The reason for this is that in most cases several alternative voice samples are available for an event or action which improves immersion. So there is always a start marker, which is excluded, and a last included sample index. The game selects from the defined voice sample range in a pseudo random manner, but thanks to the implementation it is guaranteed that the start marker plus 1 is the smallest resource ID that could be chosen. There is a defect in one of the functions where the play voice API is called without a valid range. Instead of a start marker and a valid resource ID the start marker is fed into the API function twice. E.g. play_voice(Marker_283, Marker_283). The defect was not found by the original developers as in such a failure case the start marker plus 1 is played which coincidentally is the resource ID that is supposed to be played.
 
 7. **\*\*FIXED\*\*** The load_font() function in GNW's text.c module leaks a file handle in case the requested amount of character descriptors cannot be read from the font file.
 
@@ -58,22 +57,33 @@ In a certain unclarified game mode when the game concludes with either winning o
     In case of water platforms the game correctly finds that there is no path to the destination. In case of bridges this is bogus. The infiltrator cannot take the path as there is a mine in the way, but the path finding algorith tells there is a valid path. When the issue occurs the game does not accept the end turn action, the affected infiltrator cannot be moved any more and it cannot be loaded by personnel carriers. The affected bridge at the same time is redrawn as if there would be a ship under the bridge. Interestingly it is possible to load back a game in this state and if done so the queued action to end the turn from the previous game activates. This also implies that command or event queues are not cleared on loading games.
 
 14. AI does not consider to leave a free square for engineer to leave the construction site making it stuck.
-      
+    
     <img src="{{ site.baseurl }}/assets/images/defect_14.jpg" alt="defect 14" width="740"> 
 
 15. The in-game help mouse spot for the map coordinate display holder arm is at the old top left location. The arm was on top in the old v1.00 interactive demo and was moved to the bottom later. The developers forgot to move the hot spot with the art to its new location.
-      
+    
     <img src="{{ site.baseurl }}/assets/images/defect_15.jpg" alt="defect 14" width="740"> 
 
-{% comment %}
-16. Landing Zone help button dereferences NULL.
+16. Clicking the Landing Zone help button seamingly dereference NULL. The Landing Zone has a dedicated Cancel and Help button. This Help button is not the same as the one found on the normal in-game GUI control panel. While the Landing Zone Help button works without any issues there is a GUI on click event handler function which manages all the 24 normal in-game menu elements and this function incorrectly calls the rest state setter function for the wrong Help button. This issue, like many others, does not lead to a crash under DOS, but it causes segmentation fault on modern operating systems.
 
-17. Unit gets stuck at square that is occupied by constructor's construction zone.
+17. Unit gets stuck at map square that is occupied by constructor's construction tape. This issue was observed only once so far. As soon as it could be reproduced a video will be added for it. The issue happened with a computer player that moved two units at the "same" time. One unit moved to a certain location while another one, a big constructor, moved next to it and started a construction job.
 
 18. First player to take turns gets 0 raw materials within the initial mining station's storage container on turn 1. Rest of the players get 14 raw materials. This is potentially a defect.
 
+20. Targeting water tiles with the missile launcher's area attack hits underwater personnel carriers directly as well as indirectly, but the same cannot hit submarines at all. Ground attack planes can hit underwater personnel carriers as well as submarines. If any land or air unit hits an underwater personnel carrier it is revealed. An indirect area attack does not reveal the personnel carrier. In early builds the personnel carrier was not able to enter or pass the sea, it was a normal land unit only. It is assumed something is not working correctly here.
+
+21. **\*\*FIXED\*\*** When the ini configuration file, MAX.INI, does not exist at game startup the original game printed a message to standard output: "\nMANDER.INI File not found..  Using Defaults...\n". MANDER.INI should have been changed in the error message to MAX.INI after the developers changed the name of the game.
+
+22. Configuration settings are not saved to non volatile storage medium unless the parsed MAX.INI file contains the relevant option already. This is odd as the original inifile manager would have supported addition and removal of ini file entries. Probably the default MAX.INI that is found on the CD-ROM contains the settings that the developers wanted the game to remember. On the other hand if the configuration file is not found by the game it dumps a new version which contains all the entires.
+
+25. While enemy takes turn clicking an actively selected unit resets the flic animation's sequence. This is odd as the same cannot be observed while the player's turn is active.
+
+{% comment %}
+
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
 
-20. Targeting water tiles with the missile launcher's area attack hits underwater personnel carriers directly as well as indirectly, but the same cannot hit submarines at all. Ground attack planes can hit underwater personnel carriers as well as submarines. If any land or air unit hits an underwater personnel carrier it is revealed. An indirect area attack does not reveal the personnel carrier. In early builds the personnel carrier was not able to enter or pass the sea, it was a normal land unit only. It is assumed something is not working correctly here.
+23. gexit: mander ini error code
+
+24. gwin_init: wrong exit code
 
 {% endcomment %}
