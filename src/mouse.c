@@ -91,7 +91,7 @@ int GNW_mouse_init(void) {
 
 void GNW_mouse_exit(void) {
     if (mouse_buf) {
-        mem_free(mouse_buf);
+        free(mouse_buf);
         mouse_buf = NULL;
     }
 
@@ -141,7 +141,7 @@ int mouse_set_shape(unsigned char *buf, int width, int length, int full, int hot
     if (width != mouse_width || length != mouse_length) {
         unsigned char *temp;
 
-        temp = (unsigned char *)mem_malloc(length * width);
+        temp = (unsigned char *)malloc(length * width);
         if (!temp) {
             if (!mh) {
                 mouse_show();
@@ -151,7 +151,7 @@ int mouse_set_shape(unsigned char *buf, int width, int length, int full, int hot
         }
 
         if (mouse_buf) {
-            mem_free(mouse_buf);
+            free(mouse_buf);
         }
 
         mouse_buf = temp;

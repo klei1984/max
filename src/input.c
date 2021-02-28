@@ -102,7 +102,7 @@ void GNW_input_exit(void) {
 
     for (fp = bk_list; fp; fp = np) {
         np = fp->next;
-        mem_free(fp);
+        free(fp);
     }
 
     bk_list = NULL;
@@ -571,7 +571,7 @@ void GNW_do_bk_process(void) {
             next = fp->next;
             if (fp->flags & 1) {
                 *prev = fp->next;
-                mem_free(fp);
+                free(fp);
             } else {
                 fp->f();
                 prev = &fp->next;
@@ -593,7 +593,7 @@ void add_bk_process(BackgroundProcess f) {
         }
     }
 
-    fp = (FuncPtr)mem_malloc(sizeof(struct funcdata));
+    fp = (FuncPtr)malloc(sizeof(struct funcdata));
     if (fp) {
         fp->flags = 0;
         fp->f = f;
@@ -689,7 +689,7 @@ void dump_screen(void) {
     width = scr_size.lrx - scr_size.ulx + 1;
     length = scr_size.lry - scr_size.uly + 1;
 
-    screendump_buf = (char *)mem_malloc(length * width);
+    screendump_buf = (char *)malloc(length * width);
 
     if (screendump_buf) {
         old_scr_blit = scr_blit;
@@ -706,7 +706,7 @@ void dump_screen(void) {
 
         screendump_func(width, length, screendump_buf, pal);
 
-        mem_free(screendump_buf);
+        free(screendump_buf);
         screendump_buf = NULL;
     }
 }

@@ -38,11 +38,6 @@ int main(int argc, char *argv[]) {
     /* run all initializer routines */
     __InitRtns(0xFF);
 
-    /* initialize debug services - requires environment variable DEBUGACTIVE with
-     * one of the following values to be set: log, screen, gnw
-     */
-    debug_register_env();
-
     init_callbacks();
 
     ginit_init_paths(argc, argv);

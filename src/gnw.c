@@ -80,7 +80,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
     if (flags & 1) {
         size_t size = (scr_size.lry - scr_size.uly + 1) * (scr_size.lrx - scr_size.ulx + 1);
 
-        screen_buffer = (unsigned char *)mem_malloc(size);
+        screen_buffer = (unsigned char *)malloc(size);
 
         if (!screen_buffer) {
             if (reset_mode_ptr) {
@@ -97,10 +97,9 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
     doing_refresh_all = 0;
 
     colorInitIO(colorOpen, colorRead, colorClose);
-    colorRegisterAlloc(mem_malloc, mem_realloc, mem_free);
 
     if (!initColors()) {
-        pal = (unsigned char *)mem_malloc(768);
+        pal = (unsigned char *)malloc(768);
 
         if (!pal) {
             if (reset_mode_ptr) {
@@ -109,7 +108,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
                 reset_mode();
             }
             if (screen_buffer) {
-                mem_free(screen_buffer);
+                free(screen_buffer);
             }
 
             return 2;
@@ -117,14 +116,13 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
 
         buf_fill(pal, 768, 1, 768, 0);
         colorBuildColorTable(getSystemPalette(), pal);
-        mem_free(pal);
+        free(pal);
     }
 
-    GNW_debug_init();
     GNW_input_init((flags & 2) == 0);
     GNW_intr_init();
 
-    window[0] = (GNW_Window *)mem_malloc(sizeof(GNW_Window));
+    window[0] = (GNW_Window *)malloc(sizeof(GNW_Window));
 
     if (window[0]) {
         window[0]->buf = NULL;
@@ -169,7 +167,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
         else
             reset_mode();
         if (screen_buffer) {
-            mem_free(screen_buffer);
+            free(screen_buffer);
         }
 
         result = 2;
@@ -196,10 +194,10 @@ int win_reinit(SetModeFunc set) {
 
             if (!result && (window_flags & 1)) {
                 size_t size = (scr_size.lry - scr_size.uly + 1) * (scr_size.lrx - scr_size.ulx + 1);
-                unsigned char *buffer = (unsigned char *)mem_malloc(size);
+                unsigned char *buffer = (unsigned char *)malloc(size);
 
                 if (buffer) {
-                    mem_free(screen_buffer);
+                    free(screen_buffer);
                     screen_buffer = buffer;
                 } else {
                     result = 2;
@@ -254,11 +252,11 @@ void win_exit(void) {
             }
 
             if (GNW_texture) {
-                mem_free(GNW_texture);
+                free(GNW_texture);
             }
 
             if (screen_buffer) {
-                mem_free(screen_buffer);
+                free(screen_buffer);
             }
 
             if (reset_mode_ptr) {
@@ -286,12 +284,12 @@ WinID win_add(int ulx, int uly, int width, int length, int color, int flags) {
 
     if (GNW_win_init_flag && (num_windows != 50) && ((scr_size.lrx - scr_size.ulx + 1) >= width) &&
         ((scr_size.lry - scr_size.uly + 1) >= length)) {
-        w = (GNW_Window *)mem_malloc(sizeof(GNW_Window));
+        w = (GNW_Window *)malloc(sizeof(GNW_Window));
 
         if (w) {
             window[num_windows] = w;
 
-            w->buf = (unsigned char *)mem_malloc(length * width);
+            w->buf = (unsigned char *)malloc(length * width);
 
             if (w->buf) {
                 for (id = 1; GNW_find(id); id++) {
@@ -354,7 +352,7 @@ WinID win_add(int ulx, int uly, int width, int length, int color, int flags) {
 
                 result = id;
             } else {
-                mem_free(w);
+                free(w);
                 result = -1;
             }
         } else {
@@ -399,15 +397,15 @@ void win_free(WinID id) {
     w = GNW_find(id);
 
     if (w) {
-        if (w->buf) mem_free(w->buf);
-        if (w->menu) mem_free(w->menu);
+        if (w->buf) free(w->buf);
+        if (w->menu) free(w->menu);
 
         for (bp = w->button_list; bp; bp = np) {
             np = bp->next;
             GNW_delete_button(bp);
         }
 
-        mem_free(w);
+        free(w);
     }
 }
 
@@ -876,7 +874,7 @@ void GNW_win_refresh(GNW_Window *w, Rect *bound, char *scr_buf) {
                             srcW = L->r.lrx - L->r.ulx + 1;
                             srcH = L->r.lry - L->r.uly + 1;
 
-                            buf = (unsigned char *)mem_malloc(srcH * srcW);
+                            buf = (unsigned char *)malloc(srcH * srcW);
 
                             if (buf) {
                                 buf_fill(buf, srcW, srcH, srcW, bk_color);
@@ -894,7 +892,7 @@ void GNW_win_refresh(GNW_Window *w, Rect *bound, char *scr_buf) {
                                     scr_blit(buf, srcW, srcH, 0, 0, srcW, srcH, L->r.ulx, L->r.uly);
                                 }
 
-                                mem_free(buf);
+                                free(buf);
                             }
                         }
                     }

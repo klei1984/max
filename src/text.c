@@ -115,8 +115,8 @@ int GNW_text_init(void) {
 void GNW_text_exit(void) {
     for (int i = 0; i < GNW_TEXT_FONT_COUNT; i++) {
         if (font[i].num) {
-            mem_free(font[i].info);
-            mem_free(font[i].data);
+            free(font[i].info);
+            free(font[i].data);
         }
     }
 }
@@ -132,7 +132,7 @@ int load_font(int n) {
 
     if (fp) {
         if (db_fread(&font[n], sizeof(Font), 1, fp) == 1) {
-            font[n].info = (FontInfo*)mem_malloc(sizeof(FontInfo) * font[n].num);
+            font[n].info = (FontInfo*)malloc(sizeof(FontInfo) * font[n].num);
 
             if (font[n].info) {
                 int nelem = db_fread(font[n].info, sizeof(FontInfo), font[n].num, fp);
@@ -142,25 +142,25 @@ int load_font(int n) {
 
                     last = nelem - 1;
                     size = font[n].height * ((font[n].info[last].width + 7) >> 3) + font[n].info[last].offset;
-                    font[n].data = (unsigned char*)mem_malloc(size);
+                    font[n].data = (unsigned char*)malloc(size);
                     if (font[n].data) {
                         if (db_fread(font[n].data, sizeof(unsigned char), size, fp) == size) {
                             db_fclose(fp);
                             result = 0;
                         } else {
                             db_fclose(fp);
-                            mem_free(font[n].info);
-                            mem_free(font[n].data);
+                            free(font[n].info);
+                            free(font[n].data);
                             result = -1;
                         }
                     } else {
                         db_fclose(fp);
-                        mem_free(font[n].info);
+                        free(font[n].info);
                         result = -1;
                     }
                 } else {
                     db_fclose(fp);
-                    mem_free(font[n].info);
+                    free(font[n].info);
                     result = -1;
                 }
             } else {

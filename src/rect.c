@@ -28,7 +28,7 @@ static RectPtr rlist;
 void GNW_rect_exit(void) {
     while (rlist) {
         RectPtr ptr = rlist->next;
-        mem_free(rlist);
+        free(rlist);
         rlist = ptr;
     }
 }
@@ -129,7 +129,7 @@ RectPtr rect_malloc(void) {
         int i = 0;
 
         do {
-            ptr = (RectPtr)mem_malloc(sizeof(struct rectdata));
+            ptr = (RectPtr)malloc(sizeof(struct rectdata));
             if (!ptr) {
                 break;
             } else {

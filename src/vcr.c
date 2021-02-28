@@ -252,7 +252,7 @@ int vcr_create_buffer(void) {
     if (vcr_buffer) {
         result = 0;
     } else {
-        vcr_buffer = (VCREventRecord *)mem_malloc(sizeof(VCREventRecord) * 4096);
+        vcr_buffer = (VCREventRecord *)malloc(sizeof(VCREventRecord) * 4096);
         result = vcr_clear_buffer();
     }
 
@@ -264,7 +264,7 @@ int vcr_destroy_buffer(void) {
 
     result = vcr_clear_buffer();
     if (result) {
-        mem_free(vcr_buffer);
+        free(vcr_buffer);
         vcr_buffer = NULL;
     }
 

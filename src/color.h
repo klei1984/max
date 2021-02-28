@@ -25,8 +25,6 @@
 #include <SDL.h>
 #include <stddef.h>
 
-#include "memory.h"
-
 #define PALETTE_SIZE 256
 
 typedef unsigned char ColorIndex;
@@ -68,7 +66,6 @@ void setColorPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned 
 void getColorPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b);
 ColorBlendTable* getColorBlendTable(ColorIndex c);
 void freeColorBlendTable(ColorIndex c);
-void colorRegisterAlloc(MallocFunc m, ReallocFunc r, FreeFunc f);
 void colorGamma(double gamma);
 double colorGetGamma(void);
 int colorMappedColor(ColorIndex i);

@@ -229,7 +229,7 @@ int win_register_menu_bar(WinID wid, int ulx, int uly, int width, int length, in
 
     w = GNW_find(wid);
     if (GNW_win_init_flag && w && !w->menu && (width + ulx <= w->width) && (length + uly <= w->length)) {
-        w->menu = (GNW_Menu*)mem_malloc(sizeof(GNW_Menu));
+        w->menu = (GNW_Menu*)malloc(sizeof(GNW_Menu));
 
         if (w->menu) {
             w->menu->wid = wid;
@@ -310,7 +310,7 @@ void win_delete_menu_bar(WinID wid) {
             win_fill(wid, w->menu->m.ulx, w->menu->m.uly, w->menu->m.lrx - w->menu->m.ulx + 1,
                      w->menu->m.lry - w->menu->m.uly + 1, w->color);
 
-            mem_free(w->menu);
+            free(w->menu);
             w->menu = NULL;
         }
     }
@@ -418,7 +418,7 @@ int calc_max_field_chars_wcursor(int min, int max) {
     int len_max;
     int r;
 
-    str_num = (char*)mem_malloc(17);
+    str_num = (char*)malloc(17);
 
     if (str_num) {
         sprintf(str_num, "%d", min);
@@ -427,7 +427,7 @@ int calc_max_field_chars_wcursor(int min, int max) {
         sprintf(str_num, "%d", max);
         len_max = strlen(str_num);
 
-        mem_free(str_num);
+        free(str_num);
 
         if (len_max <= len_min) {
             r = len_min;

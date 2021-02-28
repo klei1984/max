@@ -36,9 +36,9 @@ static int movie_run(GAME_RESOURCE resource_id, int mode);
 static unsigned int movie_music_level;
 static SDL_Palette* movie_palette;
 
-void* mve_cb_alloc(size_t size) { return mem_malloc(size); }
+void* mve_cb_alloc(size_t size) { return malloc(size); }
 
-void mve_cb_free(void* p) { mem_free(p); }
+void mve_cb_free(void* p) { free(p); }
 
 int mve_cb_read(FILE* handle, void* buf, size_t count) { return fread(buf, 1, count, handle); }
 

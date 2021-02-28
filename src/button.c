@@ -81,10 +81,10 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
         width = text_width(name) + 16;
         length = text_height() + 6;
 
-        up = (char*)mem_malloc(length * width);
+        up = (char*)malloc(length * width);
 
         if (up) {
-            down = (char*)mem_malloc(length * width);
+            down = (char*)malloc(length * width);
 
             if (down) {
                 if (w->color == 0x100 && GNW_texture) {
@@ -124,13 +124,13 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
 
                     result = b->id;
                 } else {
-                    mem_free(up);
-                    mem_free(down);
+                    free(up);
+                    free(down);
 
                     result = -1;
                 }
             } else {
-                mem_free(up);
+                free(up);
 
                 result = -1;
             }
@@ -294,7 +294,7 @@ GNW_ButtonPtr button_create(WinID id, int ulx, int uly, int width, int length, i
 
     if (w) {
         if ((ulx >= 0) && (uly >= 0) && ((width + ulx) <= win_width(id)) && ((length + uly) <= win_height(id))) {
-            b = (GNW_ButtonPtr)mem_malloc(sizeof(struct GNW_buttondata));
+            b = (GNW_ButtonPtr)malloc(sizeof(struct GNW_buttondata));
 
             if (b) {
                 if (!(flags & 0x01)) {
@@ -890,27 +890,27 @@ int win_delete_button(ButtonID bid) {
 void GNW_delete_button(GNW_ButtonPtr b) {
     if (!(b->flags & 0x10000)) {
         if (b->up) {
-            mem_free(b->up);
+            free(b->up);
         }
 
         if (b->down) {
-            mem_free(b->down);
+            free(b->down);
         }
 
         if (b->hover) {
-            mem_free(b->hover);
+            free(b->hover);
         }
 
         if (b->dis_up) {
-            mem_free(b->dis_up);
+            free(b->dis_up);
         }
 
         if (b->dis_down) {
-            mem_free(b->dis_down);
+            free(b->dis_down);
         }
 
         if (b->dis_hover) {
-            mem_free(b->dis_hover);
+            free(b->dis_hover);
         }
     }
 
@@ -923,12 +923,12 @@ void GNW_delete_button(GNW_ButtonPtr b) {
 
                 b->group->num_buttons--;
 
-                mem_free(b);
+                free(b);
                 return;
             }
         }
     } else {
-        mem_free(b);
+        free(b);
     }
 }
 

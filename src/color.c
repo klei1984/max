@@ -26,16 +26,9 @@
 
 #include "game.h"
 
-typedef void* (*color_malloc_func)(size_t);
-typedef void* (*color_realloc_func)(void*, size_t);
-typedef void (*color_free_func)(void*);
-
 static unsigned long colorOpen(char* file, int mode);
 static unsigned long colorRead(unsigned long handle, void* buf, unsigned long size);
 static unsigned long colorClose(unsigned long handle);
-static void* defaultMalloc(size_t t);
-static void* defaultRealloc(void* p, size_t t);
-static void defaultFree(void* p);
 static void setIntensityTableColor(int cc);
 static void setIntensityTables(void);
 static void setMixTableColor(int i);
@@ -90,9 +83,6 @@ static char* errorStr = "color.c: No errors\n";
 static int colorsInited;
 static double currentGamma = 1.0;
 
-static color_malloc_func mallocPtr = defaultMalloc;
-static color_realloc_func reallocPtr = defaultRealloc;
-static color_free_func freePtr = defaultFree;
 static ColorNameMangleFunc colorNameMangler;
 
 static unsigned char cmap[768];
@@ -138,12 +128,6 @@ void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c) {
     readFunc = r;
     closeFunc = c;
 }
-
-void* defaultMalloc(size_t t) { return malloc(t); }
-
-void* defaultRealloc(void* p, size_t t) { return realloc(p, t); }
-
-void defaultFree(void* p) { free(p); }
 
 void colorSetNameMangler(ColorNameMangleFunc c) { colorNameMangler = c; }
 
@@ -562,7 +546,7 @@ void rebuildColorBlendTables(void) {
 
 ColorBlendTable* getColorBlendTable(ColorIndex c) {
     if (!blendTable[c]) {
-        blendTable[c] = (ColorBlendTable*)((char*)mallocPtr(sizeof(ColorBlendTable) + sizeof(int)) + sizeof(int));
+        blendTable[c] = (ColorBlendTable*)((char*)malloc(sizeof(ColorBlendTable) + sizeof(int)) + sizeof(int));
 
         SDL_assert(blendTable[c]);
 
@@ -581,16 +565,10 @@ void freeColorBlendTable(ColorIndex c) {
         ((int*)blendTable[c])[-1]--;
 
         if (!((int*)blendTable[c])[-1]) {
-            freePtr(&((int*)blendTable[c])[-1]);
+            free(&((int*)blendTable[c])[-1]);
             blendTable[c] = NULL;
         }
     }
-}
-
-void colorRegisterAlloc(MallocFunc m, ReallocFunc r, FreeFunc f) {
-    mallocPtr = m;
-    reallocPtr = r;
-    freePtr = f;
 }
 
 void colorGamma(double gamma) {
