@@ -2217,11 +2217,11 @@
 			]
 		},
 		{
-			"name": "timer_time_remaining_ms",
-			"prototype": "unsigned int timer_time_remaining_ms(unsigned int time_stamp)",
+			"name": "timer_elapsed_time_ms",
+			"prototype": "unsigned int timer_elapsed_time_ms(unsigned int time_stamp)",
 			"component": "timer",
 			"mode": "replace",
-			"symbol": "timer_time_remaining_ms_",
+			"symbol": "timer_elapsed_time_ms_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,

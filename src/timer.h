@@ -25,7 +25,7 @@
 int timer_init(void);
 int timer_close(void);
 void timer_wait(unsigned int ticks_to_wait);
-unsigned int timer_time_remaining_ms(unsigned int time_stamp);
+unsigned int timer_elapsed_time_ms(unsigned int time_stamp);
 void timer_ch2_setup(void);
 void timer_set_rate(void);
 unsigned int timer_get_stamp32(void);
