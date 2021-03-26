@@ -30,34 +30,60 @@ extern "C" {
 #include "resrcmgr.h"
 }
 
-enum { LEFT_CHANNEL, RIGHT_CHANNEL, CENTER_CHANNEL, INTERLEAVED };
-typedef enum { SOUND_TYPE_SFX0, SOUND_TYPE_SFX1, SOUND_TYPE_SFX2, SOUND_TYPE_VOICE, SOUND_TYPE_MUSIC } SOUND_TYPE;
+#include "unitinfo.h"
 
 class SoundMgr {
 public:
+    typedef enum {
+        SFX_TYPE_INVALID,
+        SFX_TYPE_IDLE,
+        SFX_TYPE_WATER_IDLE,
+        SFX_TYPE_DRIVE,
+        SFX_TYPE_WATER_DRIVE,
+        SFX_TYPE_STOP,
+        SFX_TYPE_WATER_STOP,
+        SFX_TYPE_TRANSFORM,
+        SFX_TYPE_BUILDING,
+        SFX_TYPE_SHRINK,
+        SFX_TYPE_EXPAND,
+        SFX_TYPE_TURRET,
+        SFX_TYPE_FIRE,
+        SFX_TYPE_HIT,
+        SFX_TYPE_EXPLOAD,
+        SFX_TYPE_POWER_CONSUMPTION_START,
+        SFX_TYPE_POWER_CONSUMPTION_END,
+        SFX_TYPE_LAND,
+        SFX_TYPE_TAKE,
+        SFX_TYPE_LIMIT
+    } SFX_TYPE;
+
     SoundMgr();
     ~SoundMgr();
     void Init();
     void Deinit();
 
-    void FreeChunk(Mix_Chunk* chunk);
-    void FreeAllChunks();
-
     void PlayMusic(GAME_RESOURCE id, bool shuffle);
-    void DisableEnableMusic(bool disable);
+    void HaltMusicPlayback(bool disable);
     void FreeMusic();
 
     void PlaySfx(GAME_RESOURCE id);
-    void DisableEnableSfx(bool disable);
+    void PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode);
+    void UpdateSfxPosition();
+    void UpdateSfxPosition(UnitInfo* unit);
+    void UpdateAllSfxPositions();
+    void HaltSfxPlayback(bool disable);
 
     void PlayVoice(GAME_RESOURCE id1, GAME_RESOURCE id2, short priority);
-    void DisableEnableVoice(bool disable);
-    void FreeVoice(GAME_RESOURCE id1, GAME_RESOURCE id2);
+    void HaltVoicePlayback(bool disable);
 
+    void FreeAllSamples();
     void SetVolume(int type, int volume);
+
     void BkProcess();
 
 private:
+    typedef enum { JOB_TYPE_SFX0, JOB_TYPE_SFX1, JOB_TYPE_SFX2, JOB_TYPE_VOICE, JOB_TYPE_MUSIC } JOB_TYPE;
+
     typedef struct {
         int volume;
         char flags;
@@ -65,21 +91,35 @@ private:
 
     typedef struct {
         GAME_RESOURCE id;
-        SOUND_TYPE type;
+        JOB_TYPE type;
         unsigned int volume_1;
         unsigned int volume_2;
         unsigned short panning;
         int loop_count;
+        short grid_x;
+        short grid_y;
         short priority;
-    } SoundSample;
+        SFX_TYPE sound;
+        unsigned short unit_id;
+    } SoundJob;
 
     typedef struct {
-        Mix_Music* chunk;
-    } MusicChunk;
+        GAME_RESOURCE id;
+        JOB_TYPE type;
+        unsigned int volume_1;
+        unsigned int volume_2;
+        int loop_count;
+        short grid_x;
+        short grid_y;
+        short priority;
+        unsigned int time_stamp;
+        unsigned int loop_point_start;
+        int loop_point_length;
 
-    typedef struct {
+        int mixer_channel;
         Mix_Chunk* chunk;
-    } VoiceChunk;
+        Mix_Music* music;
+    } SoundSample;
 
     bool is_audio_enabled;
 
@@ -91,18 +131,27 @@ private:
     bool shuffle_music;
     bool shuffle_music_playlist[BKG9_MSC - MAIN_MSC + 1];
 
-    GAME_RESOURCE last_voice_played;
+    GAME_RESOURCE voice_played;
+
+    std::list<SoundJob> jobs;
 
     std::list<SoundSample> samples;
+    int mixer_channels_count;
+    SoundSample* music;
+    SoundSample* voice;
+    SoundSample* sfx;
 
-    MusicChunk music_chunk;
-    VoiceChunk voice_chunk;
-
-    void AddSample(SoundSample& sample);
-    void UpdateMusic(SoundSample& sample);
-    void UpdateSfx(SoundSample& sample);
-    void UpdateVoice(SoundSample& sample);
+    void AddJob(SoundJob& job);
+    int ProcessJob(SoundJob& job);
+    void FreeSample(SoundSample* sample);
+    void UpdateMusic();
+    void FreeSfx(UnitInfo* unit);
+    void FreeVoice(GAME_RESOURCE id1, GAME_RESOURCE id2);
     bool IsVoiceGroupScheduled(GAME_RESOURCE id1, GAME_RESOURCE id2);
+    static int GetPanning(int distance, bool reverse);
+    bool LoadMusic(GAME_RESOURCE id);
+    int LoadSound(SoundJob& job, SoundSample& sample);
+    void LoadLoopPoints(FILE* fp, SoundSample& sample);
 };
 
 extern SoundMgr soundmgr;

@@ -1383,38 +1383,6 @@
 			]
 		},
 		{
-			"name": "sosTIMERInitSystem",
-			"prototype": "unsigned int sosTIMERInitSystem(unsigned int wTimerRate, unsigned int wDebug)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosTIMERInitSystem_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wTimerRate",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "pointer",
-					"arg_name": "wDebug",
-					"is_far": false
-				}
-			]
-		},
-		{
 			"name": "sosTIMERRegisterEvent",
 			"prototype": "unsigned int sosTIMERRegisterEvent(unsigned int wCallRate, void (__far *lpTimerEvent)(void), unsigned int __far *lpTimerHandle)",
 			"component": "sos",
@@ -1475,277 +1443,6 @@
 					"type_class": "integer",
 					"arg_name": "wEvent",
 					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "sosTIMERUnInitSystem",
-			"prototype": "unsigned int sosTIMERUnInitSystem(unsigned int wDriver)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosTIMERUnInitSystem_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDriver",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "sosDIGIDetectInit",
-			"prototype": "unsigned int sosDIGIDetectInit(char __far *sDriverPath)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIDetectInit_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "char *",
-					"type_class": "pointer",
-					"arg_name": "sDriverPath",
-					"is_far": true
-				}
-			]
-		},
-		{
-			"name": "sosDIGIDetectFindHardware",
-			"prototype": "unsigned int sosDIGIDetectFindHardware(unsigned int wDriverId, _SOS_CAPABILITIES __far *pDriver, unsigned int __far *pPort)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIDetectFindHardware_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDriverId",
-					"is_far": false
-				},
-				{
-					"type_name": "_SOS_CAPABILITIES *",
-					"type_class": "pointer",
-					"arg_name": "pDriver",
-					"is_far": true
-				},
-				{
-					"type_name": "unsigned int *",
-					"type_class": "pointer",
-					"arg_name": "pPort",
-					"is_far": true
-				}
-			]
-		},
-		{
-			"name": "sosDIGIDetectUnInit",
-			"prototype": "unsigned int sosDIGIDetectUnInit(void)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIDetectUnInit_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "sosDIGIInitSystem",
-			"prototype": "unsigned int sosDIGIInitSystem(char __far *sPath, unsigned int wDebugFlags)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIInitSystem_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "char *",
-					"type_class": "pointer",
-					"arg_name": "sPath",
-					"is_far": true
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDebugFlags",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "sosDIGIUnInitSystem",
-			"prototype": "unsigned int sosDIGIUnInitSystem(void)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIUnInitSystem_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "sosDIGIInitDriver",
-			"prototype": "unsigned int sosDIGIInitDriver(unsigned int wDeviceId, _SOS_HARDWARE __far *pHwSettings, _SOS_INIT_DRIVER __far *pInitDriver, unsigned int __far *pDriver)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIInitDriver_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDeviceId",
-					"is_far": false
-				},
-				{
-					"type_name": "_SOS_HARDWARE *",
-					"type_class": "pointer",
-					"arg_name": "pHwSettings",
-					"is_far": true
-				},
-				{
-					"type_name": "_SOS_INIT_DRIVER *",
-					"type_class": "pointer",
-					"arg_name": "pInitDriver",
-					"is_far": true
-				},
-				{
-					"type_name": "unsigned int *",
-					"type_class": "pointer",
-					"arg_name": "pDriver",
-					"is_far": true
-				}
-			]
-		},
-		{
-			"name": "sosDIGIUnInitDriver",
-			"prototype": "unsigned int sosDIGIUnInitDriver(unsigned int wDriver, unsigned int wFreeBuffer, unsigned int wFreeDriver)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIUnInitDriver_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDriver",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wFreeBuffer",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wFreeDriver",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "sosDIGIStartSample",
-			"prototype": "unsigned int sosDIGIStartSample(unsigned int wDriver, _SOS_START_SAMPLE __far *pSample)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIStartSample_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDriver",
-					"is_far": false
-				},
-				{
-					"type_name": "_SOS_START_SAMPLE *",
-					"type_class": "pointer",
-					"arg_name": "pSample",
-					"is_far": true
 				}
 			]
 		},
@@ -1816,146 +1513,6 @@
 					"type_class": "pointer",
 					"arg_name": "pSample",
 					"is_far": true
-				}
-			]
-		},
-		{
-			"name": "sosDIGISampleDone",
-			"prototype": "unsigned int sosDIGISampleDone(unsigned int wDriver, unsigned int wSample)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGISampleDone_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDriver",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wSample",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "sosDIGISetSampleVolume",
-			"prototype": "unsigned int sosDIGISetSampleVolume(unsigned int wDriver, unsigned int wSample, unsigned int wVolume)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGISetSampleVolume_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDriver",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wSample",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wVolume",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "sosDIGIGetPanLocation",
-			"prototype": "unsigned int sosDIGIGetPanLocation(unsigned int wDriver, unsigned int wSample)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGIGetPanLocation_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDriver",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wSample",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "sosDIGISetPanLocation",
-			"prototype": "unsigned int sosDIGISetPanLocation(unsigned int wDriver, unsigned int wSample, unsigned int wLocation)",
-			"component": "sos",
-			"mode": "replace",
-			"symbol": "sosDIGISetPanLocation_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": {
-				"type_name": "unsigned int",
-				"type_class": "integer",
-				"arg_name": null,
-				"is_far": false
-			},
-			"arguments_list": [
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wDriver",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wSample",
-					"is_far": false
-				},
-				{
-					"type_name": "unsigned int",
-					"type_class": "integer",
-					"arg_name": "wLocation",
-					"is_far": false
 				}
 			]
 		},
@@ -3504,42 +3061,6 @@
 			"component": "gnw",
 			"mode": "replace",
 			"symbol": "process_bk_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-			]
-		},
-		{
-			"name": "add_bk_process",
-			"prototype": "void add_bk_process(BackgroundProcess f)",
-			"component": "gnw",
-			"mode": "replace",
-			"symbol": "add_bk_process_",
-			"debug": false,
-			"type": "watcall",
-			"bitness": 32,
-			"align": 4,
-			"stack_align": 4,
-			"return": null,
-			"arguments_list": [
-				{
-					"type_name": "BackgroundProcess",
-					"type_class": "pointer",
-					"arg_name": "f",
-					"is_far": false
-				}
-			]
-		},
-		{
-			"name": "enable_bk",
-			"prototype": "void enable_bk(void)",
-			"component": "gnw",
-			"mode": "replace",
-			"symbol": "enable_bk_",
 			"debug": false,
 			"type": "watcall",
 			"bitness": 32,
@@ -6129,6 +5650,116 @@
 					"is_far": false
 				}
 			]
+		},
+		{
+			"name": "unitinfo_get_id",
+			"prototype": "unsigned short unitinfo_get_id(UnitInfo *unit)",
+			"component": "unitinfo",
+			"mode": "expose",
+			"symbol": "unitinfo_get_id_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "unsigned short",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "UnitInfo *",
+					"type_class": "pointer",
+					"arg_name": "unit",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "smartptr_check",
+			"prototype": "char smartptr_check(void *handle, int mode)",
+			"component": "smartptr",
+			"mode": "expose",
+			"symbol": "smartptr_check_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "char",
+				"type_class": "integer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "handle",
+					"is_far": false
+				},
+				{
+					"type_name": "int",
+					"type_class": "integer",
+					"arg_name": "mode",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "smartptr_get_unitinfo_ptr",
+			"prototype": "UnitInfo* smartptr_get_unitinfo_ptr(void *handle)",
+			"component": "smartptr",
+			"mode": "expose",
+			"symbol": "smartptr_get_unitinfo_ptr_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "UnitInfo *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "handle",
+					"is_far": false
+				}
+			]
+		},
+		{
+			"name": "smartptr_get_unitinfo_ref",
+			"prototype": "UnitInfo* smartptr_get_unitinfo_ref(void *handle)",
+			"component": "smartptr",
+			"mode": "expose",
+			"symbol": "smartptr_get_unitinfo_ref_",
+			"debug": false,
+			"type": "watcall",
+			"bitness": 32,
+			"align": 4,
+			"stack_align": 4,
+			"return": {
+				"type_name": "UnitInfo *",
+				"type_class": "pointer",
+				"arg_name": null,
+				"is_far": false
+			},
+			"arguments_list": [
+				{
+					"type_name": "void *",
+					"type_class": "pointer",
+					"arg_name": "handle",
+					"is_far": false
+				}
+			]
 		}
 	],
 	"variables": [
@@ -6642,6 +6273,46 @@
 			"component": "unknown",
 			"mode": "expose",
 			"symbol": "_word_173658",
+			"align": 1
+		},
+		{
+			"name": "grid_ulx",
+			"prototype": "unsigned short grid_ulx",
+			"component": "drawmap",
+			"mode": "expose",
+			"symbol": "_grid_ulx",
+			"align": 1
+		},
+		{
+			"name": "grid_uly",
+			"prototype": "unsigned short grid_uly",
+			"component": "drawmap",
+			"mode": "expose",
+			"symbol": "_grid_uly",
+			"align": 1
+		},
+		{
+			"name": "grid_lrx",
+			"prototype": "unsigned short grid_lrx",
+			"component": "drawmap",
+			"mode": "expose",
+			"symbol": "_grid_lrx",
+			"align": 1
+		},
+		{
+			"name": "grid_lry",
+			"prototype": "unsigned short grid_lry",
+			"component": "drawmap",
+			"mode": "expose",
+			"symbol": "_grid_lry",
+			"align": 1
+		},
+		{
+			"name": "selected_unit",
+			"prototype": "void* selected_unit",
+			"component": "",
+			"mode": "expose",
+			"symbol": "_selected_unit",
 			"align": 1
 		}
 	]

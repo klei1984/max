@@ -260,7 +260,7 @@ void check_mouse_driver(void) {
 }
 
 void gexit(unsigned char error_code) {
-    soundmgr.FreeAllChunks();
+    soundmgr.FreeAllSamples();
 
     if ((error_code == 0) || (error_code == 1)) {
         menu_draw_exit_logos();

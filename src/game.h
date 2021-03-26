@@ -38,6 +38,7 @@ void init_callbacks(void);
 #include "screendump.h"
 #include "svga.h"
 #include "units.h"
+#include "unitinfo.h"
 #include "wrappers.h"
 
 #endif /* GAME_H */

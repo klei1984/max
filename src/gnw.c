@@ -305,8 +305,8 @@ WinID win_add(int ulx, int uly, int width, int length, int color, int flags) {
                 w->flags = flags;
                 w->width = width;
                 w->length = length;
-                w->tx = rand() & 0xFFFE;
-                w->ty = rand() & 0xFFFE;
+                w->tx = dos_rand() & 0xFFFE;
+                w->ty = dos_rand() & 0xFFFE;
 
                 if (color == 0x100) {
                     if (!GNW_texture) {

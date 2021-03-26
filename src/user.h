@@ -182,12 +182,28 @@ CALLBACK(text_max_func): /* watcall int (*text_max_func)(void) */
 
 /* C++ specific manual overrides */
 
+#if defined(__unix__)
+#define ASM_CPP_FASTCALL_0_PARAM(func)  \
+		push   %eax; \
+		call   func;
+#elif defined(_WIN32)
 #define ASM_CPP_FASTCALL_0_PARAM(func)  \
 		push   %ecx; \
 		mov    %eax,%ecx; \
 		call   func; \
 		pop    %ecx
+#else
+#error "Platform is not supported"
+#endif /* defined(platform) */
 
+#if defined(__unix__)
+#define ASM_CPP_FASTCALL_1_PARAM(func)  \
+		push   %edx; \
+		push   %edx; \
+		push   %eax; \
+		call   func; \
+		pop    %edx
+#else
 #define ASM_CPP_FASTCALL_1_PARAM(func)  \
 		push   %ecx; \
 		push   %edx; \
@@ -196,7 +212,19 @@ CALLBACK(text_max_func): /* watcall int (*text_max_func)(void) */
 		call   func; \
 		pop    %edx; \
 		pop    %ecx
+#endif /* defined(platform) */
 
+#if defined(__unix__)
+#define ASM_CPP_FASTCALL_2_PARAM(func)  \
+		push   %ebx; \
+		push   %edx; \
+		push   %ebx; \
+		push   %edx; \
+		push   %eax; \
+		call   func; \
+		pop    %edx; \
+		pop    %ebx
+#else
 #define ASM_CPP_FASTCALL_2_PARAM(func)  \
 		push   %ecx; \
 		push   %ebx; \
@@ -208,7 +236,22 @@ CALLBACK(text_max_func): /* watcall int (*text_max_func)(void) */
 		pop    %edx; \
 		pop    %ebx; \
 		pop    %ecx
+#endif /* defined(platform) */
 
+#if defined(__unix__)
+#define ASM_CPP_FASTCALL_3_PARAM(func)  \
+		push   %ecx; \
+		push   %ebx; \
+		push   %edx; \
+		push   %ecx; \
+		push   %ebx; \
+		push   %edx; \
+		push   %eax; \
+		call   func; \
+		pop    %edx; \
+		pop    %ebx; \
+		pop    %ecx
+#else
 #define ASM_CPP_FASTCALL_3_PARAM(func)  \
 		push   %ecx; \
 		push   %ebx; \
@@ -221,7 +264,10 @@ CALLBACK(text_max_func): /* watcall int (*text_max_func)(void) */
 		pop    %edx; \
 		pop    %ebx; \
 		pop    %ecx
+#endif /* defined(platform) */
 
+
+/* ini_config object and class methods */
 #define ini_config ASM_PREFIX(ini_config)
 GLOBAL(ASM_PREFIX(ini_config))
 
@@ -243,6 +289,7 @@ GLOBAL(ASM_PREFIX(_ZN11IniSettings11SaveSectionEPv10GAME_INI_e))
 #define _ZN11IniSettings11LoadSectionEPv10GAME_INI_ec ASM_PREFIX(_ZN11IniSettings11LoadSectionEPv10GAME_INI_ec)
 GLOBAL(ASM_PREFIX(_ZN11IniSettings11LoadSectionEPv10GAME_INI_ec))
 
+/* ini_clans object and class methods */
 #define ini_clans ASM_PREFIX(ini_clans)
 GLOBAL(ASM_PREFIX(ini_clans))
 
@@ -264,16 +311,44 @@ GLOBAL(ASM_PREFIX(_ZN8IniClans11GetClanTextEiPci))
 #define _ZN8IniClans11GetClanNameEiPci ASM_PREFIX(_ZN8IniClans11GetClanNameEiPci)
 GLOBAL(ASM_PREFIX(_ZN8IniClans11GetClanNameEiPci))
 
-#define _ZN15IniSoundVolumesC1Ev ASM_PREFIX(_ZN15IniSoundVolumesC1Ev)
-GLOBAL(ASM_PREFIX(_ZN15IniSoundVolumesC1Ev))
+/* soundmgr object and class methods */
+#define soundmgr ASM_PREFIX(soundmgr)
+GLOBAL(ASM_PREFIX(soundmgr))
 
-#define _ZN15IniSoundVolumesD1Ev ASM_PREFIX(_ZN15IniSoundVolumesD1Ev)
-GLOBAL(ASM_PREFIX(__ZN15IniSoundVolumesD1Ev))
+#define _ZN8SoundMgr7PlaySfxE15GAME_RESOURCE_e ASM_PREFIX(_ZN8SoundMgr7PlaySfxE15GAME_RESOURCE_e)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr7PlaySfxE15GAME_RESOURCE_e))
 
-#define _ZN15IniSoundVolumes4InitEv ASM_PREFIX(_ZN15IniSoundVolumes4InitEv)
-GLOBAL(ASM_PREFIX(_ZN15IniSoundVolumes4InitEv))
+#define _ZN8SoundMgr9PlayVoiceE15GAME_RESOURCE_eS0_s ASM_PREFIX(_ZN8SoundMgr9PlayVoiceE15GAME_RESOURCE_eS0_s)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr9PlayVoiceE15GAME_RESOURCE_eS0_s))
 
-#define _ZN15IniSoundVolumes13GetUnitVolumeE15GAME_RESOURCE_e ASM_PREFIX(_ZN15IniSoundVolumes13GetUnitVolumeE15GAME_RESOURCE_e)
-GLOBAL(ASM_PREFIX(_ZN15IniSoundVolumes13GetUnitVolumeE15GAME_RESOURCE_e))
+#define _ZN8SoundMgr9PlayMusicE15GAME_RESOURCE_eb ASM_PREFIX(_ZN8SoundMgr9PlayMusicE15GAME_RESOURCE_eb)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr9PlayMusicE15GAME_RESOURCE_eb))
+
+#define _ZN8SoundMgr14FreeAllSamplesEv ASM_PREFIX(_ZN8SoundMgr14FreeAllSamplesEv)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr14FreeAllSamplesEv))
+
+#define _ZN8SoundMgr17HaltMusicPlaybackEb ASM_PREFIX(_ZN8SoundMgr17HaltMusicPlaybackEb)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr17HaltMusicPlaybackEb))
+
+#define _ZN8SoundMgr15HaltSfxPlaybackEb ASM_PREFIX(_ZN8SoundMgr15HaltSfxPlaybackEb)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr15HaltSfxPlaybackEb))
+
+#define _ZN8SoundMgr17HaltVoicePlaybackEb ASM_PREFIX(_ZN8SoundMgr17HaltVoicePlaybackEb)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr17HaltVoicePlaybackEb))
+
+#define _ZN8SoundMgr9SetVolumeEii ASM_PREFIX(_ZN8SoundMgr9SetVolumeEii)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr9SetVolumeEii))
+
+#define _ZN8SoundMgr9FreeMusicEv ASM_PREFIX(_ZN8SoundMgr9FreeMusicEv)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr9FreeMusicEv))
+
+#define _ZN8SoundMgr7PlaySfxEP8UnitInfoNS_8SFX_TYPEEb ASM_PREFIX(_ZN8SoundMgr7PlaySfxEP8UnitInfoNS_8SFX_TYPEEb)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr7PlaySfxEP8UnitInfoNS_8SFX_TYPEEb))
+
+#define _ZN8SoundMgr17UpdateSfxPositionEv ASM_PREFIX(_ZN8SoundMgr17UpdateSfxPositionEv)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr17UpdateSfxPositionEv))
+
+#define _ZN8SoundMgr17UpdateSfxPositionEP8UnitInfo ASM_PREFIX(_ZN8SoundMgr17UpdateSfxPositionEP8UnitInfo)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr17UpdateSfxPositionEP8UnitInfo))
 
 #endif /* USER_H */

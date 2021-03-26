@@ -95,6 +95,7 @@ int get_attribs_param(const char *string, unsigned short *offset) {
     while (string[*offset] == ' ') {
         ++*offset;
     }
+
     number = strtol(&string[*offset], NULL, 10);
 
     while (string[*offset] != ' ' && string[*offset] != '\0') {
@@ -153,6 +154,8 @@ void realloc_game_resource(GAME_RESOURCE id, char *buffer, int data_size) {
 
 void *read_game_resource(GAME_RESOURCE id) {
     void *resource_buffer;
+
+    SDL_assert(id < RESOURCE_E);
 
     if (id == INVALID_ID) {
         resource_buffer = NULL;
