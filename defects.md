@@ -24,7 +24,7 @@ The game supports loading game resources from a secondary resource file called p
 5. **\*\*FIXED\*\*** M.A.X. has several units that were planned and never released for the final game or that were repurposed during game development. There is a mobile unit called the **Master Builder** which can be seen in one of the shorter movie clips of the game and has the following unit description text: *Specialized vehicle which transforms to become a new mining station.* The related game assets, like unit sprites, never made it into the game or they were not even created by the developers at all. Never the less the unit is initialized by one of the C++ constructors and when mandatory game resources are not found a NULL pointer dereference occurs. Like in case of defect 3 the game does not crash with out of bounds access under DOS environment but utterfy fails on modern operating systems with a segmentation fault.
 The following resources are missing from max.res or patches.res: A_MASTER, I_MASTER, P_MASTER, F_MASTER, S_MASTER, MASTER.
 
-6. The voice interface always accepts two resource indices. The reason for this is that in most cases several alternative voice samples are available for an event or action which improves immersion. So there is always a start marker, which is excluded, and a last included sample index. The game selects from the defined voice sample range in a pseudo random manner, but thanks to the implementation it is guaranteed that the start marker plus 1 is the smallest resource ID that could be chosen. There is a defect in one of the functions where the play voice API is called without a valid range. Instead of a start marker and a valid resource ID the start marker is fed into the API function twice. E.g. play_voice(Marker_283, Marker_283). The defect was not found by the original developers as in such a failure case the start marker plus 1 is played which coincidentally is the resource ID that is supposed to be played.
+6. **\*\*FIXED\*\*** The voice interface always accepts two resource indices. The reason for this is that in most cases several alternative voice samples are available for an event or action which improves immersion. So there is always a start marker, which is excluded, and a last included sample index. The game selects from the defined voice sample range in a pseudo random manner, but thanks to the implementation it is guaranteed that the start marker plus 1 is the smallest resource ID that could be chosen. There is a defect in one of the functions where the play voice API is called without a valid range. Instead of a start marker and a valid resource ID the start marker is fed into the API function twice. E.g. play_voice(Marker_283, Marker_283). Probably the defect was not found by the original developers as in such a failure case the start marker plus 1 is played which coincidentally is the resource ID that is supposed to be played. Resource ID V_F283 which corresponds to the "Mission Successful!" voice sample.
 
 7. **\*\*FIXED\*\*** The load_font() function in GNW's text.c module leaks a file handle in case the requested amount of character descriptors cannot be read from the font file.
 
@@ -85,5 +85,17 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 23. gexit: mander ini error code
 
 24. gwin_init: wrong exit code
+
+26. Soundmgr_init_sound_data_info: leak file handle if opening non RIFF file
+
+27. Unit names are typically constructed as follows Mark [version number] Type [Count]. The unit counter is stored by the game on a byte. In long games it is easy to have 300+ roads in which case the counter overflows and indexing starts again from 0 even though at init the counter starts from 1.
+
+28. The game stores gold reserves for upgrades an a signed 16 bit word. Having a gold reserve of 32767+ crashes the game?
+
+29. The game tracks a statistic about how much gold is spent on upgrades. The counter is 16 bit?
+
+30. The unitinfo common structure size is 20, while it has only 18 or 19? elements!
+
+31. no abstractrion for fclose in adaption layer in seg32:000DD5C0 file_open + fclose?
 
 {% endcomment %}

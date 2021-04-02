@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2021-02-25.
+Last updated: 2021-04-02.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -30,7 +30,9 @@ Items in the list are color-coded using the following interpretation:
 -  <span class="legend-done">
   Roll out basic Github Actions setup as CI/CD tool
   </span>
-- Document build toolchain
+-  <span class="legend-inwork">
+  Document build toolchain
+  </span>
 
 ### 0.2 Mock up basic OS dependent libraries and services
 - <span class="legend-done">
@@ -139,7 +141,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
   </span>
 - Replace the message manager classes (mssgsmgr.cpp)
 - Replace the path finding classes (paths.cpp)
-- <span class="legend-inwork">
+- <span class="legend-close">
   Replace the sound manager classes (soundmgr.cpp)
   </span>
 - Replace the units manager classes (unitsmgr.cpp)

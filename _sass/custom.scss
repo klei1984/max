@@ -54,3 +54,87 @@ footer.footer-min {
   top: 0;
   left: 0;
 }
+
+.nav-list {
+  color: $text-color;
+  margin-left: inherit;
+  margin-bottom: inherit;
+  padding-left: 0;
+  padding-right: 0;
+
+  &:not(:last-child) {
+    margin-right: 20px;
+  }
+}
+
+.nav-item {
+  box-sizing: border-box;
+  list-style: none;
+
+  .nav-item-trigger {
+    display: none;
+  }
+}
+
+input ~ .dropdown-trigger {
+  clear: both;
+  display: none;
+}
+
+input:checked ~ .nav-label {
+  text-decoration: underline;
+}
+
+input:checked ~ .dropdown-trigger {
+  display: block;
+  background-color: $background-color;
+  border: 1px solid $grey-color-light;
+  border-radius: 5px;
+}
+
+.nav-label:hover {
+  cursor:pointer;
+  text-decoration: underline;
+}
+
+.nav-item>.nav-link {
+  color: $text-color;
+}
+
+.dropdown-trigger {
+  text-align: right;
+  background-color: $background-color;
+  background-clip: padding-box;
+  width: inherit;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.dropdown-trigger > .nav-link {
+  color: $text-color;
+  padding: inherit;
+}
+
+.dropdown-trigger > .dropdown-item {
+  box-sizing: border-box;
+  display: block;
+  text-align: inherit;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  padding-top: 0.625rem;
+  &:last-child {
+    padding-bottom: 0.625rem;
+  }
+}
+
+.site-nav {
+  @media screen and (min-width: $on-palm + 1px) {
+    .nav-list > .nav-item {
+      display:inline-block;
+    }
+
+    input ~ .dropdown-trigger {
+      position: absolute;
+    }
+  }
+}

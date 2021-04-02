@@ -31,12 +31,14 @@ plugins:
   - jekyll-feed
 
 header_pages:
-  - about.md
-  - evolution.md
-  - roadmap.md
-  - documentation.md
-  - license.md
-  - defects.md
+  "About": about.md
+  "Evolution": evolution.md
+  "Roadmap": roadmap.md
+  "Articles":
+    - "Documentation": documentation.md
+    - "Build Instructions": build.md
+  "License": license.md
+  "Defects": defects.md
 
 # Exclude from processing.
 # The following items will not be processed, by default.
