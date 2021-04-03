@@ -94,6 +94,8 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     Opinion: it would be better to cancel the AI kill unit task in case there is no path to the destination any more and to add a new AI attack plan task instead. Rationale: The overall goal does not change this way. Problem: The game does not allow to issue a new AI kill unit or AI attack plan task if there is no valid path to the destination. To at least avoid the advisor voice spamming it would be possible to filter multiple voice events from the same voice category for the actively selected unit.
 
+35. **\*\*FIXED\*\*** Similarly to defect 6 a cargo transfer related function calls the play voice API with an invalid voice range. PlayVoice(V_M224, V_M224, PRIO_0) instead of PlayVoice(V_M224, V_F224, PRIO_0).
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
