@@ -90,7 +90,7 @@ set_source_files_properties(
 add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${CODEGEN_TOOL} ${CODEGEN_OPTIONS} --input=${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in --output=${CMAKE_CURRENT_BINARY_DIR} ${CODEGEN_CONFIG_FILE}
     DEPENDS ${CODEGEN_TOOL} ${CODEGEN_CONFIG_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in
-    OUTPUT wrappers.h
+    OUTPUT ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h
     COMMENT "Generating ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h."
 )
 
