@@ -7,6 +7,6 @@ categories:
 excerpt_separator: <!--more-->
 ---
 Basic mouse handling had been reimplemented in SDL.
-excerpt_separator: <!--more-->
+<!--more-->
 Clicking with the mouse still crashes the game though...
 {% include drive_player.html id=page.driveId %}
