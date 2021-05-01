@@ -17,7 +17,7 @@ M.A.X. Port requires the original game data. The port only provides a modernized
    - If you have the gog.com release of the game it is already patched to v1.04.
    - If you have the steam release of the game it is already patched to v1.04.
 
-2. [Download](x) M.A.X. Port or [build](x) the runtime using the source code.
+2. [Download](https://github.com/klei1984/max/releases) M.A.X. Port or [build](https://klei1984.github.io/max/build/) the runtime using the source code.
    - Copy the runtime to your M.A.X. installation folder, e.g. C:\MAX.
 
 ### Compatibility with Interactive Demo versions of M.A.X.

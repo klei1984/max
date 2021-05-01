@@ -15,36 +15,34 @@ if(Git_FOUND)
 
     string(STRIP "${GIT_OUTPUT}" GIT_OUTPUT)
 
-    if(GIT_RESULT EQUAL 0)
-        string(REGEX MATCH "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)\\-([0-9]+)\\-([a-fA-F0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
-        if(CMAKE_MATCH_COUNT EQUAL 5)
+    string(REGEX MATCH "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)\\-([0-9]+)\\-([a-fA-F0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
+    if(CMAKE_MATCH_COUNT EQUAL 5)
+        set(GAME_VERSION_MAJOR ${CMAKE_MATCH_1})
+        set(GAME_VERSION_MINOR ${CMAKE_MATCH_2})
+        set(GAME_VERSION_PATCH ${CMAKE_MATCH_3})
+        set(GAME_VERSION_BUILD ${CMAKE_MATCH_4})
+        set(GAME_VERSION_REVISION ${CMAKE_MATCH_5})
+        set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH} Build ${GAME_VERSION_BUILD} Revision ${GAME_VERSION_REVISION}")
+    else()
+        string(REGEX MATCH "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
+        if(CMAKE_MATCH_COUNT EQUAL 3)
             set(GAME_VERSION_MAJOR ${CMAKE_MATCH_1})
             set(GAME_VERSION_MINOR ${CMAKE_MATCH_2})
             set(GAME_VERSION_PATCH ${CMAKE_MATCH_3})
-            set(GAME_VERSION_BUILD ${CMAKE_MATCH_4})
-            set(GAME_VERSION_REVISION ${CMAKE_MATCH_5})
-            set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH} Build ${GAME_VERSION_BUILD} Revision ${GAME_VERSION_REVISION}")
+            set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
         else()
-            string(REGEX MATCH "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
-            if(CMAKE_MATCH_COUNT EQUAL 3)
-                set(GAME_VERSION_MAJOR ${CMAKE_MATCH_1})
-                set(GAME_VERSION_MINOR ${CMAKE_MATCH_2})
-                set(GAME_VERSION_PATCH ${CMAKE_MATCH_3})
-                set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
+            string(REGEX MATCH "^([a-fA-F0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
+            if(CMAKE_MATCH_COUNT EQUAL 1)
+                set(GAME_VERSION_REVISION ${CMAKE_MATCH_1})
             else()
-                string(REGEX MATCH "^([a-fA-F0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
-                if(CMAKE_MATCH_COUNT EQUAL 1)
-                    set(GAME_VERSION_REVISION ${CMAKE_MATCH_1})
-                else()
-                    string(TIMESTAMP DATE_TIME "%Y-%m-%d %H:%M:%S")
-                    set(GAME_VERSION_REVISION "${DATE_TIME}")
-                endif()
-
-                set(GAME_VERSION_MAJOR "0")
-                set(GAME_VERSION_MINOR "2")
-                set(GAME_VERSION_PATCH "0")
-                set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH} Revision ${GAME_VERSION_REVISION}")
+                string(TIMESTAMP DATE_TIME "%Y-%m-%d %H:%M:%S")
+                set(GAME_VERSION_REVISION "${DATE_TIME}")
             endif()
+
+            set(GAME_VERSION_MAJOR "0")
+            set(GAME_VERSION_MINOR "2")
+            set(GAME_VERSION_PATCH "0")
+            set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH} Revision ${GAME_VERSION_REVISION}")
         endif()
     endif()
 else()
@@ -83,10 +81,16 @@ set(GAME_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
 )
 
+set_source_files_properties(
+	${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
+	PROPERTIES
+	OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.h;${CMAKE_CURRENT_SOURCE_DIR}/src/user.h"
+)
+
 add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${CODEGEN_TOOL} ${CODEGEN_OPTIONS} --input=${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in --output=${CMAKE_CURRENT_BINARY_DIR} ${CODEGEN_CONFIG_FILE}
     DEPENDS ${CODEGEN_TOOL} ${CODEGEN_CONFIG_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in
-    OUTPUT ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h
+    OUTPUT wrappers.h
     COMMENT "Generating ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h."
 )
 
