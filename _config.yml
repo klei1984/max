@@ -35,8 +35,9 @@ header_pages:
   "Evolution": evolution.md
   "Roadmap": roadmap.md
   "Articles":
-    - "Documentation": documentation.md
     - "Build Instructions": build.md
+    - "Development Environments": devenv.md
+    - "Documentation": documentation.md
   "License": license.md
   "Defects": defects.md
 
