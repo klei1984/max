@@ -351,4 +351,6 @@ GLOBAL(ASM_PREFIX(_ZN8SoundMgr17UpdateSfxPositionEv))
 #define _ZN8SoundMgr17UpdateSfxPositionEP8UnitInfo ASM_PREFIX(_ZN8SoundMgr17UpdateSfxPositionEP8UnitInfo)
 GLOBAL(ASM_PREFIX(_ZN8SoundMgr17UpdateSfxPositionEP8UnitInfo))
 
+#define PATH_DEBUGGER 0
+
 #endif /* USER_H */
