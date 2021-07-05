@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2021-04-02.
+Last updated: 2021-07-05.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -136,7 +136,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-done">
   Replace the ini file manager classes (inifile.cpp)
   </span>
-- <span class="legend-none">
+- <span class="legend-done">
   Replace the smart C string manager classes (strobj.cpp)
   </span>
 - Replace the message manager classes (mssgsmgr.cpp)
@@ -152,7 +152,16 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - Replace the access classes (access.cpp)
 - Replace the remote classes (remote.cpp)
 - Replace the reports classes (reports.cpp)
-- Replace the smart memory manager classes (smartlst.cpp, smartptr.cpp, smrtarry.cpp, smrtfile.cpp)
+- <span class="legend-done">
+  Replace the smart pointer classes (smartptr.cpp)
+  </span>
+- <span class="legend-close">
+  Replace the smart array classes (smrtarry.cpp)
+  </span>
+- <span class="legend-inwork">
+  Replace the smart file classes (smrtfile.cpp)
+  </span>
+- Replace the smart list classes (smartlst.cpp)
 - Replace the textfile classes (textfile.cpp)
 
 ### 0.7 - 1.0 and beyond
