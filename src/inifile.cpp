@@ -218,7 +218,7 @@ void IniSettings::Init() {
     int index;
 
     strcpy(filename, file_path_game_install);
-    strcat(filename, "max.ini");
+    strcat(filename, "MAX.INI");
     fp = fopen(filename, "rt");
 
     if (!fp) {

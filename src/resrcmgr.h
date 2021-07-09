@@ -2426,5 +2426,6 @@ void *load_game_resource(GAME_RESOURCE id);
 const char *res_get_resource_id_string(GAME_RESOURCE id);
 short res_get_resource_file_index(GAME_RESOURCE id);
 unsigned char init_game_resources(void);
+char *to_upper_case(char *cstr);
 
 #endif /* RESRCMGR_H */

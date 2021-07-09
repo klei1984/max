@@ -446,3 +446,11 @@ unsigned char init_game_resources(void) {
 
     return result;
 }
+
+char *to_upper_case(char *cstr) {
+    for (char *cstring = cstr; *cstring; ++cstring) {
+        *cstring = toupper(*cstring);
+    }
+
+    return cstr;
+}

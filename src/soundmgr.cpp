@@ -21,6 +21,7 @@
 
 #include "soundmgr.hpp"
 
+#include <cstring>
 #include <new>
 
 extern "C" {
@@ -404,6 +405,8 @@ void SoundMgr::PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode) {
 
                 if (filename) {
                     FILE* fp;
+
+                    to_upper_case(filename);
                     fp = fopen(filename, "rb");
 
                     if (fp) {
@@ -944,6 +947,8 @@ int SoundMgr::LoadSound(SoundJob& job, SoundSample& sample) {
         } else {
             strncpy(file_path, file_path_sfx_spw, PATH_MAX);
         }
+
+        to_upper_case(file);
 
         strncat(file_path, file, PATH_MAX);
         free(file);

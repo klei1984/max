@@ -410,6 +410,8 @@ char flicsmgr_load(char *flic_file, Flic *flc) {
         return 0;
     }
 
+    to_upper_case(flic_file);
+
     strcpy(filename, file_path_flc);
     strcat(filename, flic_file);
 
