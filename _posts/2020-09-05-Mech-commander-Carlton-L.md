@@ -8,10 +8,10 @@ excerpt_separator: <!--more-->
 ---
 Who is Carlton L.? Why is he a Mech Commander instead of a M.A.X. Commander? Why would a mechanical engineer fix that sealing plate with so many screws? This is not cost effective... immersion ruined! :P
   
+<!--more-->
 <img src="{{ site.baseurl }}/assets/images/carlton_l.jpg" alt="Image - Mech Commander - Carlton L." width="740">
   
 First visible progress in playing back in-game videos. Further details are inside the post.
-<!--more-->
 <br><br>
 {% include drive_player.html id=page.driveId %}
 <br>
