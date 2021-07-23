@@ -96,6 +96,8 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 35. **\*\*FIXED\*\*** Similarly to defect 6 a cargo transfer related function calls the play voice API with an invalid voice range. PlayVoice(V_M224, V_M224, PRIO_0) instead of PlayVoice(V_M224, V_F224, PRIO_0).
 
+36. The ObjectArray base class uses memcpy() to shift data in its internally allocated buffer after removal of an array element. In case the destination and source addresses overlap memmove() is supposed to be used instead of memcpy() as the latter does not guarantee proper handling of overlapping memory areas. The original compiler's memcpy() implementation for example performs 32 bit word copy operations and only the final non 32 bit sized data chunk is copied per byte. This means that if the instantiated derived array class holds a type which has an element size that is smaller than 32 bits each removal could result in data corruption in all the elements that were held after the removed item. It is not yet confirmed whether there were any offending types though.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
