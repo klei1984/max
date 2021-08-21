@@ -34,8 +34,6 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/gimage.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gbutton.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/soundmgr.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/smartptr.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/smartarray.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartstring.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartfile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/textfile.cpp

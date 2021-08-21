@@ -22,21 +22,78 @@
 #ifndef SMARTARRAY_HPP
 #define SMARTARRAY_HPP
 
-#include "smartptr.hpp"
+#include "smartpointer.hpp"
 
+template <class T>
 class SmartArray {
     unsigned short capacity;
     unsigned short growth_factor;
     unsigned short count;
-    SmartPointer* smartarray;
+    SmartPointer<T>* smartarray;
 
 public:
-    SmartArray(unsigned short growth_factor);
-    ~SmartArray();
-    void Insert(SmartObject& object, unsigned short index);
-    void Erase(unsigned short index);
-    void Release();
-    unsigned short GetCount() const;
+    SmartArray(unsigned short growth_factor)
+        : capacity(0), growth_factor(growth_factor), count(0), smartarray(nullptr) {}
+    ~SmartArray() {
+        Release();
+
+        if (smartarray) {
+            delete[] smartarray;
+        }
+    }
+
+    void Insert(T& object, unsigned short index) {
+        SmartPointer<T>* array;
+
+        if (count == capacity) {
+            array = new (std::nothrow) SmartPointer<T>[growth_factor + capacity + 1];
+
+            for (int i = 0; index < count; ++i) {
+                array[i] = smartarray[i];
+            }
+
+            if (smartarray) {
+                delete[] smartarray;
+            }
+
+            smartarray = array;
+            capacity += growth_factor;
+        }
+
+        if (index > count) {
+            index = count;
+        }
+
+        for (int i = count; i > index; --index) {
+            smartarray[i] = smartarray[i - 1];
+        }
+
+        smartarray[index] = object;
+        ++count;
+    }
+
+    void Erase(unsigned short index) {
+        SDL_assert(index < count);
+
+        for (int i = index; i < count - 1; ++i) {
+            smartarray[i] = smartarray[i + 1];
+        }
+
+        SmartPointer<T> sp;
+        smartarray[count - 1] = sp;
+        --count;
+    }
+
+    void Release() {
+        for (int i = 0; i < count; ++i) {
+            SmartPointer<T> sp;
+            smartarray[i] = sp;
+        }
+
+        count = 0;
+    }
+
+    unsigned short GetCount() const { return count; }
 };
 
 #endif /* SMARTARRAY_HPP */

@@ -24,7 +24,7 @@
 
 #include "textfile.hpp"
 
-class UnitValues : TextFileObject {
+class UnitValues : public TextFileObject {
     unsigned short turns;
     unsigned short hits;
     unsigned short armor;

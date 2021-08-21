@@ -26,9 +26,11 @@
 
 #include "smartarray.hpp"
 
+class FileObject;
+
 class SmartFile {
     FILE* file;
-    SmartArray read_objects;
+    SmartArray<FileObject> read_objects;
 
 public:
     SmartFile();
@@ -47,7 +49,7 @@ void SmartFile::Read(T& buffer) {
     Read(&buffer, sizeof(T));
 }
 
-class FileObject : SmartObject {
+class FileObject : public SmartObject {
     unsigned short field_6;
 
 public:

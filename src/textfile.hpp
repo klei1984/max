@@ -24,7 +24,7 @@
 
 #include "smartfile.hpp"
 
-class TextFileObject : FileObject {
+class TextFileObject : public FileObject {
 public:
     TextFileObject();
     TextFileObject(const TextFileObject& other);
