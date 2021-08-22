@@ -39,6 +39,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/textfile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitvalues.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/complex.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/registerarray.cpp
 )
 
 set(GAME_SOURCES

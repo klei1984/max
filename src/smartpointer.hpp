@@ -31,13 +31,14 @@ class SmartObject {
     friend class SmartPointer;
     unsigned short reference_count;
 
+protected:
+    inline void Increment() { ++reference_count; }
+    inline unsigned short Decrement() { return --reference_count; }
+
 public:
     SmartObject() : reference_count(0) {}
     SmartObject(const SmartObject& other) : reference_count(0) {}
     virtual ~SmartObject() { SDL_assert(reference_count == 0); }
-
-    inline void Increment() { ++reference_count; }
-    inline unsigned short Decrement() { return --reference_count; }
 };
 
 template <class T>

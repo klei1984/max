@@ -94,6 +94,8 @@ public:
     }
 
     unsigned short GetCount() const { return count; }
+
+    T& operator[](unsigned short index) const { return *smartarray[index]; }
 };
 
 #endif /* SMARTARRAY_HPP */
