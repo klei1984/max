@@ -45,7 +45,7 @@ public:
     unsigned short* GetTypeIndexPointer() const { return type_index; }
     static void SetTypeIndex(unsigned short* type_index_pointer, unsigned short value) { *type_index_pointer = value; }
     SortKey& GetSortKey() { return sortkey; }
-    const char* GetClassName() const { return sortkey.GetName(); }
+    const char* GetClassName() const { return sortkey.GetKey(); }
 };
 
 class RegisterArray : public SortedArray<MAXRegisterClass> {
@@ -59,7 +59,7 @@ public:
         }
     }
 
-    SortKey& GetSortKey(MAXRegisterClass& object) { return object.GetSortKey(); }
+    SortKey& GetSortKey(MAXRegisterClass& object) const { return object.GetSortKey(); }
 };
 
 extern RegisterArray* registered_classes;

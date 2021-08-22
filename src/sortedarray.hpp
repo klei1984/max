@@ -43,7 +43,7 @@ public:
     CharSortKey(const CharSortKey& other) : name(other.name) {}
 
     int Compare(const SortKey& other) const { return strcmp(name, dynamic_cast<const CharSortKey&>(other).name); }
-    const char* GetName() const { return name; }
+    const char* GetKey() const { return name; }
 };
 
 class ShortSortKey : public SortKey {
@@ -54,20 +54,12 @@ public:
     ShortSortKey(const ShortSortKey& other) : key(other.key) {}
 
     int Compare(const SortKey& other) const { return key - dynamic_cast<const ShortSortKey&>(other).key; }
-};
-
-class SmartSortKey : public SmartObject {
-    CharSortKey char_sort_key;
-    ShortSortKey short_sort_key;
-
-public:
-    SmartSortKey(const char* name, unsigned short key) : char_sort_key(name), short_sort_key(key) {}
-    virtual ~SmartSortKey() {}
+    unsigned short GetKey() const { return key; }
 };
 
 template <class T>
 class SortedArray : public SmartArray<T> {
-    int Find(SortKey& sort_key, bool mode) {
+    int Find(SortKey& sort_key, bool mode) const {
         int last = this->GetCount() - 1;
         int first = 0;
         int position;
@@ -76,6 +68,8 @@ class SortedArray : public SmartArray<T> {
             int comparison_result;
 
             position = (first + last) / 2;
+
+            comparison_result = sort_key.Compare(GetSortKey(operator[](position)));
 
             if (0 == comparison_result) {
                 return position;
@@ -108,19 +102,19 @@ public:
         return position;
     }
 
-    virtual SortKey& GetSortKey(T& object) = 0;
+    virtual SortKey& GetSortKey(T& object) const = 0;
     T& operator[](SortKey& sort_key) const {
-        T& object;
+        T* object;
         int position;
 
         position = Find(sort_key, true);
         if (position >= 0) {
-            object = *(SmartArray<T>::operator[](position));
+            object = &(SmartArray<T>::operator[](position));
         } else {
             object = nullptr;
         }
 
-        return object;
+        return *object;
     }
     T& operator[](unsigned short index) const { return SmartArray<T>::operator[](index); }
 };
