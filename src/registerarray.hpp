@@ -23,7 +23,7 @@
 #define REGISTERARRAY_HPP
 
 #include "sortedarray.hpp"
-#include "textfile.hpp"
+#include "textfileobject.hpp"
 
 class MAXRegisterClass : public SmartObject {
     CharSortKey sortkey;

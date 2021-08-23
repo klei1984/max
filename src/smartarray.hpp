@@ -22,6 +22,8 @@
 #ifndef SMARTARRAY_HPP
 #define SMARTARRAY_HPP
 
+#include <climits>
+
 #include "smartpointer.hpp"
 
 template <class T>
@@ -42,7 +44,7 @@ public:
         }
     }
 
-    void Insert(T& object, unsigned short index) {
+    void Insert(T& object, unsigned short index = SHRT_MAX) {
         SmartPointer<T>* array;
 
         if (count == capacity) {

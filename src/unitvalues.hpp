@@ -22,7 +22,7 @@
 #ifndef UNITVALUES_HPP
 #define UNITVALUES_HPP
 
-#include "textfile.hpp"
+#include "smartfile.hpp"
 
 class UnitValues : public TextFileObject {
     unsigned short turns;
@@ -46,9 +46,9 @@ public:
     UnitValues(const UnitValues& other);
     ~UnitValues();
 
-    void Unknown();
-    void FileLoad(SmartFile & file);
-    void FileSave();
+    unsigned short GetTypeIndex();
+    void FileLoad(SmartFileReader& file);
+    void FileSave(SmartFileWriter& file);
     void TextLoad();
     void TextSave();
 };

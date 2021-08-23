@@ -57,9 +57,9 @@ UnitValues::UnitValues(const UnitValues& other)
 
 UnitValues::~UnitValues() {}
 
-void UnitValues::Unknown() {}
+unsigned short UnitValues::GetTypeIndex() { return 1; }
 
-void UnitValues::FileLoad(SmartFile& file) {
+void UnitValues::FileLoad(SmartFileReader& file) {
     file.Read(turns);
     file.Read(hits);
     file.Read(armor);
@@ -77,7 +77,7 @@ void UnitValues::FileLoad(SmartFile& file) {
     file.Read(units_built);
 }
 
-void UnitValues::FileSave() {}
+void UnitValues::FileSave(SmartFileWriter& file) {}
 
 void UnitValues::TextLoad() {}
 

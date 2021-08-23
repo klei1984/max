@@ -21,11 +21,13 @@
 
 #include "registerarray.hpp"
 
+#define REGISTER_ARRAY_DEFAULT_CAPACITY 5
+
 RegisterArray* registered_classes = nullptr;
 
 void MAXRegisterClass::Insert() {
     if (nullptr == registered_classes) {
-        registered_classes = new (std::nothrow) RegisterArray(5);
+        registered_classes = new (std::nothrow) RegisterArray(REGISTER_ARRAY_DEFAULT_CAPACITY);
     }
 
     MAXRegisterClass* object = new (std::nothrow) MAXRegisterClass(*this);

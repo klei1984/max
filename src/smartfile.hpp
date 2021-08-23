@@ -25,41 +25,59 @@
 #include <cstdio>
 
 #include "smartarray.hpp"
+#include "smartlist.hpp"
+#include "textfileobject.hpp"
 
-class FileObject;
-
-class SmartFile {
+class SmartFileReader {
     FILE* file;
-    SmartArray<FileObject> read_objects;
+    SmartArray<TextFileObject> read_objects;
+    void LoadObject(TextFileObject& object);
+    unsigned short ReadIndex();
 
 public:
-    SmartFile();
-    SmartFile(const char* const path);
-    ~SmartFile();
+    SmartFileReader();
+    SmartFileReader(const char* const path);
+    ~SmartFileReader();
 
     bool Open(const char* const path);
     void Close();
     void Read(void* buffer, int size);
     template <typename T>
     void Read(T& buffer);
+    TextFileObject* ReadObject();
+};
+
+class SmartFileWriter {
+    FILE* file;
+    SmartList<TextFileObject> objects;
+
+    void SaveObject(TextFileObject* object);
+    void WriteIndex(unsigned short index);
+
+protected:
+    void AddObject(TextFileObject* object);
+
+public:
+    SmartFileWriter();
+    SmartFileWriter(const char* const path);
+    ~SmartFileWriter();
+
+    bool Open(const char* const path);
+    void Close();
+    void Write(void* buffer, int size);
+    template <typename T>
+    void Write(T& buffer);
+    void WriteObject(TextFileObject* object);
 };
 
 template <typename T>
-void SmartFile::Read(T& buffer) {
+void SmartFileReader::Read(T& buffer) {
     Read(&buffer, sizeof(T));
 }
 
-class FileObject : public SmartObject {
-    unsigned short field_6;
-
-public:
-    FileObject();
-    FileObject(const FileObject& other);
-    ~FileObject();
-
-    virtual void Unknown() = 0;
-    virtual void FileLoad(SmartFile& file) = 0;
-    virtual void FileSave() = 0;
-};
+template <typename T>
+void SmartFileWriter::Write(T& buffer) {
+    Write(&buffer, sizeof(T));
+}
 
 #endif /* SMARTFILE_HPP */

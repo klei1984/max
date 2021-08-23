@@ -19,10 +19,10 @@
  * SOFTWARE.
  */
 
-#ifndef TEXTFILE_HPP
-#define TEXTFILE_HPP
+#ifndef TEXTFILEOBJECT_HPP
+#define TEXTFILEOBJECT_HPP
 
-#include "smartfile.hpp"
+#include "fileobject.hpp"
 
 class TextFileObject : public FileObject {
 public:
@@ -34,4 +34,4 @@ public:
     virtual void TextSave() = 0;
 };
 
-#endif /* TEXTFILE_HPP */
+#endif /* TEXTFILEOBJECT_HPP */

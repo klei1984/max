@@ -19,8 +19,28 @@
  * SOFTWARE.
  */
 
-#include "textfile.hpp"
+#ifndef FILEOBJECT_HPP
+#define FILEOBJECT_HPP
 
-TextFileObject::TextFileObject() {}
-TextFileObject::TextFileObject(const TextFileObject& other) {}
-TextFileObject::~TextFileObject() {}
+#include "smartpointer.hpp"
+
+class SmartFileReader;
+class SmartFileWriter;
+
+class FileObject : public SmartObject {
+    unsigned short object_index;
+
+public:
+    FileObject();
+    FileObject(const FileObject& other);
+    ~FileObject();
+
+    virtual unsigned short GetTypeIndex() = 0;
+    virtual void FileLoad(SmartFileReader& file) = 0;
+    virtual void FileSave(SmartFileWriter& file) = 0;
+
+    unsigned short GetIndex() const { return object_index; }
+    void SetIndex(unsigned short index) { object_index = index; }
+};
+
+#endif /* FILEOBJECT_HPP */

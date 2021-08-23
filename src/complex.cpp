@@ -50,7 +50,7 @@ Complex::~Complex() {}
 
 void Complex::Unknown() {}
 
-void Complex::FileLoad(SmartFile& file) {
+void Complex::FileLoad(SmartFileReader& file) {
     file.Read(material);
     file.Read(fuel);
     file.Read(gold);

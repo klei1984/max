@@ -22,7 +22,7 @@
 #ifndef COMPLEX_HPP
 #define COMPLEX_HPP
 
-#include "textfile.hpp"
+#include "smartfile.hpp"
 
 class Complex : TextFileObject {
     short material;
@@ -38,7 +38,7 @@ public:
     ~Complex();
 
     void Unknown();
-    void FileLoad(SmartFile& file);
+    void FileLoad(SmartFileReader& file);
     void FileSave();
     void TextLoad();
     void TextSave();

@@ -22,7 +22,7 @@
 #ifndef PATHS_HPP
 #define PATHS_HPP
 
-#include "textfile.hpp"
+#include "textfileobject.hpp"
 
 class UnitPath : TextFileObject {
 public:
