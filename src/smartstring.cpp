@@ -137,6 +137,8 @@ unsigned short SmartString::CalcOptimalCapacity(unsigned short needed_capacity) 
 
 char *SmartString::GetCStr() const { return object_pointer->GetCStr(); }
 
+unsigned short SmartString::GetLength() const { return object_pointer->GetLength(); }
+
 /// \todo This API seems to handle length inconsistently
 SmartString &SmartString::Substr(SmartString *destination, unsigned short position, unsigned short length) {
     int size;

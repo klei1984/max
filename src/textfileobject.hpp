@@ -24,14 +24,17 @@
 
 #include "fileobject.hpp"
 
+class TextStructure;
+class SmartTextfileWriter;
+
 class TextFileObject : public FileObject {
 public:
     TextFileObject();
     TextFileObject(const TextFileObject& other);
     ~TextFileObject();
 
-    virtual void TextLoad() = 0;
-    virtual void TextSave() = 0;
+    virtual void TextLoad(TextStructure& object) = 0;
+    virtual void TextSave(SmartTextfileWriter& file) = 0;
 };
 
 #endif /* TEXTFILEOBJECT_HPP */

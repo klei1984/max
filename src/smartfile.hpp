@@ -29,10 +29,12 @@
 #include "textfileobject.hpp"
 
 class SmartFileReader {
-    FILE* file;
-    SmartArray<TextFileObject> read_objects;
     void LoadObject(TextFileObject& object);
     unsigned short ReadIndex();
+
+protected:
+    FILE* file;
+    SmartArray<TextFileObject> read_objects;
 
 public:
     SmartFileReader();
@@ -48,13 +50,13 @@ public:
 };
 
 class SmartFileWriter {
-    FILE* file;
-    SmartList<TextFileObject> objects;
-
     void SaveObject(TextFileObject* object);
     void WriteIndex(unsigned short index);
 
 protected:
+    SmartList<TextFileObject> objects;
+    FILE* file;
+
     void AddObject(TextFileObject* object);
 
 public:

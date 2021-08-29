@@ -21,6 +21,8 @@
 
 #include "unitvalues.hpp"
 
+#include "registerarray.hpp"
+
 UnitValues::UnitValues()
     : turns(0),
       hits(0),
@@ -57,7 +59,12 @@ UnitValues::UnitValues(const UnitValues& other)
 
 UnitValues::~UnitValues() {}
 
-unsigned short UnitValues::GetTypeIndex() { return 1; }
+TextFileObject* UnitValues::Allocate() { return new (std::nothrow) UnitValues(); }
+
+static unsigned short UnitValues_TypeIndex;
+static MAXRegisterClass UnitValues_ClassRegister("UnitValues", &UnitValues_TypeIndex, &UnitValues::Allocate);
+
+unsigned short UnitValues::GetTypeIndex() const { return UnitValues_TypeIndex; }
 
 void UnitValues::FileLoad(SmartFileReader& file) {
     file.Read(turns);
@@ -77,8 +84,105 @@ void UnitValues::FileLoad(SmartFileReader& file) {
     file.Read(units_built);
 }
 
-void UnitValues::FileSave(SmartFileWriter& file) {}
+void UnitValues::FileSave(SmartFileWriter& file) {
+    file.Write(turns);
+    file.Write(hits);
+    file.Write(armor);
+    file.Write(attack);
+    file.Write(speed);
+    file.Write(range);
+    file.Write(rounds);
+    file.Write(move_and_fire);
+    file.Write(scan);
+    file.Write(storage);
+    file.Write(ammo);
+    file.Write(attack_radius);
+    file.Write(agent_adjust);
+    file.Write(version);
+    file.Write(units_built);
+}
 
-void UnitValues::TextLoad() {}
+void UnitValues::TextLoad(TextStructure& object) {
+    turns = object.ReadInt("turns");
+    hits = object.ReadInt("hits");
+    armor = object.ReadInt("armor");
+    attack = object.ReadInt("attack");
+    speed = object.ReadInt("speed");
+    range = object.ReadInt("range");
+    rounds = object.ReadInt("rounds");
+    move_and_fire = object.ReadBool("move_and_fire");
+    scan = object.ReadInt("scan");
+    storage = object.ReadInt("storage");
+    ammo = object.ReadInt("ammo");
+    attack_radius = object.ReadInt("attack_radius");
+    agent_adjust = object.ReadInt("agent_adjust");
+    version = object.ReadInt("version");
+    units_built = object.ReadInt("units_built");
+}
 
-void UnitValues::TextSave() {}
+void UnitValues::TextSave(SmartTextfileWriter& file) {
+    file.WriteInt("turns", turns);
+    file.WriteInt("hits", hits);
+    file.WriteInt("armor", armor);
+    file.WriteInt("attack", attack);
+    file.WriteInt("speed", speed);
+    file.WriteInt("range", range);
+    file.WriteInt("rounds", rounds);
+    file.WriteBool("move_and_fire", move_and_fire);
+    file.WriteInt("scan", scan);
+    file.WriteInt("storage", storage);
+    file.WriteInt("ammo", ammo);
+    file.WriteInt("attack_radius", attack_radius);
+    file.WriteInt("agent_adjust", agent_adjust);
+    file.WriteInt("version", version);
+    file.WriteInt("units_built", units_built);
+}
+
+unsigned short* UnitValues::GetAttribute(char index) {
+    unsigned short* result;
+
+    switch (index) {
+        case 1:
+            result = &attack;
+            break;
+        case 2:
+            result = &rounds;
+            break;
+        case 3:
+            result = &range;
+            break;
+        case 4:
+            result = &ammo;
+            break;
+        case 5:
+            result = &armor;
+            break;
+        case 6:
+            result = &hits;
+            break;
+        case 7:
+            result = &scan;
+            break;
+        case 8:
+            result = &speed;
+            break;
+        case 9:
+            result = &turns;
+            break;
+        default:
+            SDL_assert("UnitValues::GetAttribute called with invalid index.");
+            result = nullptr;
+    }
+
+    return result;
+}
+
+bool UnitValues::operator==(const UnitValues& other) const {
+    return turns == other.turns && hits == other.hits && armor == other.armor && attack == other.attack &&
+           speed == other.speed && range == other.range && rounds == other.rounds &&
+           move_and_fire == other.move_and_fire && scan == other.scan && storage == other.storage &&
+           ammo == other.ammo && attack_radius == other.attack_radius && version == other.version &&
+           units_built == other.units_built && agent_adjust == other.agent_adjust;
+}
+
+bool UnitValues::operator!=(const UnitValues& other) const { return !this->operator==(other); }

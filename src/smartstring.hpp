@@ -61,6 +61,7 @@ public:
     ~SmartString();
 
     char* GetCStr() const;
+    unsigned short GetLength() const;
     SmartString& Substr(SmartString* destination, unsigned short position, unsigned short length);
     char& operator[](unsigned short position);
     SmartString& operator+=(SmartString const& other);

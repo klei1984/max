@@ -33,9 +33,9 @@ class FileObject : public SmartObject {
 public:
     FileObject();
     FileObject(const FileObject& other);
-    ~FileObject();
+    virtual ~FileObject();
 
-    virtual unsigned short GetTypeIndex() = 0;
+    virtual unsigned short GetTypeIndex() const = 0;
     virtual void FileLoad(SmartFileReader& file) = 0;
     virtual void FileSave(SmartFileWriter& file) = 0;
 

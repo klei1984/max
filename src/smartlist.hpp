@@ -251,6 +251,8 @@ public:
         return result;
     }
 
+    void Remove(Iterator& position) { Erase(position.GetNode()); }
+
     void Clear() {
         while (first != nullptr) {
             last = first->next;
