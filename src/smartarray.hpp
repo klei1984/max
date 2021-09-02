@@ -70,7 +70,7 @@ public:
             smartarray[i] = smartarray[i - 1];
         }
 
-        smartarray[index] = object;
+        smartarray[count] = object;
         ++count;
     }
 

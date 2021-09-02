@@ -19,41 +19,25 @@
  * SOFTWARE.
  */
 
-#ifndef COMPLEX_HPP
-#define COMPLEX_HPP
+#include "unitinfo.hpp"
 
-#include "textfile.hpp"
+#include "registerarray.hpp"
 
-class UnitInfo;
+UnitInfo::UnitInfo() {}
 
-class Complex : TextFileObject {
-    short material;
-    short fuel;
-    short gold;
-    short power;
-    short workers;
-    short buildings;
-    short id;
+UnitInfo::~UnitInfo() {}
 
-public:
-    Complex(short id);
-    ~Complex();
+TextFileObject* UnitInfo::Allocate() { return new (std::nothrow) UnitInfo(); }
 
-    static TextFileObject* Allocate();
+static unsigned short UnitInfo_TypeIndex;
+static MAXRegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &UnitInfo::Allocate);
 
-    short GetId() const;
+unsigned short UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
 
-    unsigned short GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
+void UnitInfo::FileLoad(SmartFileReader& file) {}
 
-    int Get(void* buffer);
-    void Set(void* buffer);
+void UnitInfo::FileSave(SmartFileWriter& file) {}
 
-    void AddBuilding(UnitInfo& unit);
-    void RemoveBuilding(UnitInfo& unit);
-};
+void UnitInfo::TextLoad(TextStructure& object) {}
 
-#endif /* COMPLEX_HPP */
+void UnitInfo::TextSave(SmartTextfileWriter& file) {}

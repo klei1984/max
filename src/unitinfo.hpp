@@ -19,41 +19,25 @@
  * SOFTWARE.
  */
 
-#ifndef COMPLEX_HPP
-#define COMPLEX_HPP
+#ifndef UNITINFO_HPP
+#define UNITINFO_HPP
 
 #include "textfile.hpp"
 
-class UnitInfo;
-
-class Complex : TextFileObject {
-    short material;
-    short fuel;
-    short gold;
-    short power;
-    short workers;
-    short buildings;
-    short id;
-
+class UnitInfo : public TextFileObject {
 public:
-    Complex(short id);
-    ~Complex();
+    UnitInfo();
+    UnitInfo(const UnitInfo& other);
+    ~UnitInfo();
 
     static TextFileObject* Allocate();
-
-    short GetId() const;
+    unsigned short* GetAttribute(char index);
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
     void TextLoad(TextStructure& object);
     void TextSave(SmartTextfileWriter& file);
-
-    int Get(void* buffer);
-    void Set(void* buffer);
-
-    void AddBuilding(UnitInfo& unit);
-    void RemoveBuilding(UnitInfo& unit);
 };
 
-#endif /* COMPLEX_HPP */
+#endif /* UNITINFO_HPP */
