@@ -98,6 +98,8 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 36. The ObjectArray base class uses memcpy() to shift data in its internally allocated buffer after removal of an array element. In case the destination and source addresses overlap memmove() is supposed to be used instead of memcpy() as the latter does not guarantee proper handling of overlapping memory areas. The original compiler's memcpy() implementation for example performs 32 bit word copy operations and only the final non 32 bit sized data chunk is copied per byte. This means that if the instantiated derived array class holds a type which has an element size that is smaller than 32 bits each removal could result in data corruption in all the elements that were held after the removed item. It is not yet confirmed whether there were any offending types though.
 
+37. **\*\*FIXED\*\*** The TeamUnits class specific TextLoad method patches one of the unit ATTRIBS entires to disable the unit specific move & fire capability via code. Most probably the Infantry was the unit in question as it lost this capability during development. There are other inconsistencies between the human readable and binary parsers of TextfileObject based classes which indicates that after switching to binary format from the initial text based one the text parsers were not fully maintained.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
