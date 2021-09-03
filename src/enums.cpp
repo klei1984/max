@@ -19,41 +19,8 @@
  * SOFTWARE.
  */
 
-#ifndef COMPLEX_HPP
-#define COMPLEX_HPP
+#include "enums.hpp"
 
-#include "textfile.hpp"
+#define ENUMS_UNIT_TYPE_GROWTH_FACTOR 5
 
-class UnitInfo;
-
-class Complex : public TextFileObject {
-    short material;
-    short fuel;
-    short gold;
-    short power;
-    short workers;
-    short buildings;
-    short id;
-
-public:
-    Complex(short id);
-    ~Complex();
-
-    static TextFileObject* Allocate();
-
-    short GetId() const;
-
-    unsigned short GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
-
-    int WritePacket(void* buffer);
-    void ReadPacket(void* buffer);
-
-    void AddBuilding(UnitInfo& unit);
-    void RemoveBuilding(UnitInfo& unit);
-};
-
-#endif /* COMPLEX_HPP */
+SortedEnum Enums_UnitType(ENUMS_UNIT_TYPE_GROWTH_FACTOR);

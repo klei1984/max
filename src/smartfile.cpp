@@ -80,6 +80,14 @@ unsigned short SmartFileReader::ReadIndex() {
     return value;
 }
 
+unsigned short SmartFileReader::ReadObjectCount() {
+    unsigned short value;
+
+    Read(value);
+
+    return value;
+}
+
 TextFileObject* SmartFileReader::ReadObject() {
     unsigned short object_index;
     unsigned short type_index;
@@ -150,6 +158,8 @@ void SmartFileWriter::SaveObject(TextFileObject* object) {
 }
 
 void SmartFileWriter::WriteIndex(unsigned short index) { Write(index); }
+
+void SmartFileWriter::WriteObjectCount(unsigned short count) { Write(count); }
 
 void SmartFileWriter::WriteObject(TextFileObject* object) {
     if (nullptr == object) {

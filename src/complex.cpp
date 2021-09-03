@@ -77,8 +77,8 @@ void Complex::TextSave(SmartTextfileWriter& file) {
     file.WriteInt("id", id);
 }
 
-int Complex::Get(void* buffer) {
-    /// \todo Update complex from network packet
+int Complex::WritePacket(void* buffer) {
+    /// \todo Fill network packet with complex data
 
     ((short*)buffer)[0] = material;
     ((short*)buffer)[1] = fuel;
@@ -91,7 +91,7 @@ int Complex::Get(void* buffer) {
     return 12;
 }
 
-void Complex::Set(void* buffer) {
+void Complex::ReadPacket(void* buffer) {
     /// \todo Update complex from network packet
 
     material = ((short*)buffer)[0];

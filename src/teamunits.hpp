@@ -19,41 +19,46 @@
  * SOFTWARE.
  */
 
-#ifndef COMPLEX_HPP
-#define COMPLEX_HPP
+#ifndef TEAMUNITS_HPP
+#define TEAMUNITS_HPP
 
-#include "textfile.hpp"
+#include "complex.hpp"
+#include "resource_manager.hpp"
+#include "smartlist.hpp"
+#include "unitvalues.hpp"
 
-class UnitInfo;
-
-class Complex : public TextFileObject {
-    short material;
-    short fuel;
-    short gold;
-    short power;
-    short workers;
-    short buildings;
-    short id;
+class TeamUnits {
+    unsigned short color_field_0;
+    unsigned short color_field_2;
+    unsigned short gold;
+    SmartPointer<UnitValues> base_values[UNIT_END];
+    SmartPointer<UnitValues> current_values[UNIT_END];
+    SmartList<Complex> complexes;
 
 public:
-    Complex(short id);
-    ~Complex();
+    TeamUnits();
+    ~TeamUnits();
 
-    static TextFileObject* Allocate();
-
-    short GetId() const;
-
-    unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
     void TextLoad(TextStructure& object);
     void TextSave(SmartTextfileWriter& file);
 
-    int WritePacket(void* buffer);
-    void ReadPacket(void* buffer);
+    int WriteComplexPacket(unsigned short complex_id, void* buffer);
+    void ReadComplexPacket(void* buffer);
 
-    void AddBuilding(UnitInfo& unit);
-    void RemoveBuilding(UnitInfo& unit);
+    unsigned short GetGold();
+    void SetGold(unsigned short value);
+
+    Complex* CreateComplex();
+    Complex* GetComplex(unsigned short complex_id);
+    void sub_7F3DC(unsigned short team);
+    void RemoveComplex(Complex& object);
+
+    UnitValues* GetBaseUnitValues(unsigned short id);
+
+    UnitValues* GetCurrentUnitValues(unsigned short id);
+    void SetCurrentUnitValues(unsigned short id, UnitValues& object);
 };
 
-#endif /* COMPLEX_HPP */
+#endif /* TEAMUNITS_HPP */

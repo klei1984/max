@@ -22,6 +22,7 @@
 #ifndef TEXTFILE_HPP
 #define TEXTFILE_HPP
 
+#include "enums.hpp"
 #include "smartfile.hpp"
 #include "smartlist.hpp"
 #include "smartstring.hpp"

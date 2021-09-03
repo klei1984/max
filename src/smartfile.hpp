@@ -46,6 +46,7 @@ public:
     void Read(void* buffer, int size);
     template <typename T>
     void Read(T& buffer);
+    unsigned short ReadObjectCount();
     TextFileObject* ReadObject();
 };
 
@@ -69,6 +70,7 @@ public:
     void Write(void* buffer, int size);
     template <typename T>
     void Write(T& buffer);
+    void WriteObjectCount(unsigned short count);
     void WriteObject(TextFileObject* object);
 };
 
