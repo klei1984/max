@@ -21,6 +21,8 @@
 
 #include "unitvalues.hpp"
 
+#include <SDL.h>
+
 #include "registerarray.hpp"
 
 UnitValues::UnitValues()
@@ -29,6 +31,7 @@ UnitValues::UnitValues()
       armor(0),
       attack(0),
       speed(0),
+      fuel(0),
       range(0),
       rounds(0),
       move_and_fire(0),
@@ -46,6 +49,7 @@ UnitValues::UnitValues(const UnitValues& other)
       armor(other.armor),
       attack(other.attack),
       speed(other.speed),
+      fuel(other.speed),
       range(other.range),
       rounds(other.rounds),
       move_and_fire(other.move_and_fire),
@@ -138,43 +142,105 @@ void UnitValues::TextSave(SmartTextfileWriter& file) {
     file.WriteInt("units_built", units_built);
 }
 
-unsigned short* UnitValues::GetAttribute(char index) {
-    unsigned short* result;
+int UnitValues::GetAttribute(char attribute) {
+    int result;
 
-    switch (index) {
-        case 1:
-            result = &attack;
+    switch (attribute) {
+        case ATTRIB_TURNS:
+            result = turns;
             break;
-        case 2:
-            result = &rounds;
+        case ATTRIB_HITS:
+            result = hits;
             break;
-        case 3:
-            result = &range;
+        case ATTRIB_ARMOR:
+            result = armor;
             break;
-        case 4:
-            result = &ammo;
+        case ATTRIB_ATTACK:
+            result = attack;
             break;
-        case 5:
-            result = &armor;
+        case ATTRIB_MOVE_AND_FIRE:
+            result = move_and_fire;
             break;
-        case 6:
-            result = &hits;
+        case ATTRIB_SPEED:
+            result = speed;
             break;
-        case 7:
-            result = &scan;
+        case ATTRIB_FUEL:
+            result = fuel;
             break;
-        case 8:
-            result = &speed;
+        case ATTRIB_RANGE:
+            result = range;
             break;
-        case 9:
-            result = &turns;
+        case ATTRIB_ROUNDS:
+            result = rounds;
+            break;
+        case ATTRIB_SCAN:
+            result = scan;
+            break;
+        case ATTRIB_STORAGE:
+            result = storage;
+            break;
+        case ATTRIB_AMMO:
+            result = ammo;
+            break;
+        case ATTRIB_ATTACK_RADIUS:
+            result = attack_radius;
             break;
         default:
-            SDL_assert("UnitValues::GetAttribute called with invalid index.");
-            result = nullptr;
+            SDL_Log("UnitValues::GetAttribute called with invalid index.");
+            SDL_assert(0);
+            result = 0;
+            break;
     }
 
     return result;
+}
+
+void UnitValues::SetAttribute(char attribute, int value) {
+    switch (attribute) {
+        case ATTRIB_TURNS:
+            turns = value;
+            break;
+        case ATTRIB_HITS:
+            hits = value;
+            break;
+        case ATTRIB_ARMOR:
+            armor = value;
+            break;
+        case ATTRIB_ATTACK:
+            attack = value;
+            break;
+        case ATTRIB_MOVE_AND_FIRE:
+            move_and_fire = value;
+            break;
+        case ATTRIB_SPEED:
+            speed = value;
+            break;
+        case ATTRIB_FUEL:
+            fuel = value;
+            break;
+        case ATTRIB_RANGE:
+            range = value;
+            break;
+        case ATTRIB_ROUNDS:
+            rounds = value;
+            break;
+        case ATTRIB_SCAN:
+            scan = value;
+            break;
+        case ATTRIB_STORAGE:
+            storage = value;
+            break;
+        case ATTRIB_AMMO:
+            ammo = value;
+            break;
+        case ATTRIB_ATTACK_RADIUS:
+            attack_radius = value;
+            break;
+        default:
+            SDL_Log("UnitValues::SetAttribute called with invalid index.");
+            SDL_assert(0);
+            break;
+    }
 }
 
 bool UnitValues::operator==(const UnitValues& other) const {

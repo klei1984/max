@@ -30,6 +30,7 @@ class UnitValues : public TextFileObject {
     unsigned short armor;
     unsigned short attack;
     unsigned short speed;
+    unsigned short fuel;
     unsigned short range;
     unsigned short rounds;
     unsigned char move_and_fire;
@@ -47,7 +48,8 @@ public:
     ~UnitValues();
 
     static TextFileObject* Allocate();
-    unsigned short* GetAttribute(char index);
+    int GetAttribute(char attribute);
+    void SetAttribute(char attribute, int value);
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
@@ -57,6 +59,22 @@ public:
 
     bool operator==(const UnitValues& other) const;
     bool operator!=(const UnitValues& other) const;
+};
+
+enum : char {
+    ATTRIB_TURNS,
+    ATTRIB_HITS,
+    ATTRIB_ARMOR,
+    ATTRIB_ATTACK,
+    ATTRIB_MOVE_AND_FIRE,
+    ATTRIB_SPEED,
+    ATTRIB_FUEL,
+    ATTRIB_RANGE,
+    ATTRIB_ROUNDS,
+    ATTRIB_SCAN,
+    ATTRIB_STORAGE,
+    ATTRIB_AMMO,
+    ATTRIB_ATTACK_RADIUS
 };
 
 #endif /* UNITVALUES_HPP */

@@ -1954,4 +1954,7 @@ enum : unsigned short {
     INVALID_ID = 0xFFFF
 };
 
+char *ResourceManager_LoadResource(unsigned short id);
+unsigned int ResourceManager_GetResourceSize(unsigned short id);
+
 #endif /* RESOURCE_MANAGER_HPP */

@@ -21,12 +21,10 @@
 
 #include "units_manager.hpp"
 
-#include <SDL.h>
-
-#include <cctype>
-
+#include "ctinfo.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
+#include "teamunits.hpp"
 #include "unitinfo.hpp"
 
 SmartList<UnitInfo> UnitsManager_UnitList1;
@@ -1934,43 +1932,4 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* tutorial description (optional) */
         )};
 
-AbstractUnit::AbstractUnit(unsigned int flags, unsigned short sprite, unsigned short shadows, unsigned short data,
-                           unsigned short flics, unsigned short portrait, unsigned short icon,
-                           unsigned short armory_portrait, unsigned short field_18, unsigned char cargo_type,
-                           unsigned char land_type, char new_gender, const char* singular_name, const char* plural_name,
-                           const char* description, const char* tutorial)
-    : flags(flags),
-      sprite(sprite),
-      shadows(shadows),
-      data(data),
-      flics(flics),
-      portrait(portrait),
-      icon(icon),
-      armory_portrait(armory_portrait),
-      field_18(field_18),
-      cargo_type(cargo_type),
-      land_type(land_type),
-      singular_name(singular_name),
-      plural_name(plural_name),
-      description(description),
-      tutorial(tutorial),
-      field_6(0) {
-    new_gender = toupper(new_gender);
-    switch (new_gender) {
-        case 'F':
-            gender = 2;
-            break;
-        case 'M':
-            gender = 1;
-            break;
-        case 'N':
-            gender = 0;
-            break;
-        default:
-            SDL_Log("Incorrect gender for %s", singular_name);
-            SDL_assert(new_gender == 'M' || new_gender == 'F' || new_gender == 'N');
-    }
-}
-
-BaseUnit::BaseUnit() {}
-BaseUnit::~BaseUnit() {}
+CTInfo UnitsManager_TeamInfo[5];

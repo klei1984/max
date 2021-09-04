@@ -19,7 +19,13 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#include "resource_manager.hpp"
 
-#endif /* UNITS_MANAGER_HPP */
+extern "C" {
+extern char *read_game_resource(unsigned short id);
+extern unsigned int get_resource_data_size(unsigned short id);
+}
+
+char *ResourceManager_LoadResource(unsigned short id) { return read_game_resource(id); }
+
+unsigned int ResourceManager_GetResourceSize(unsigned short id) { return get_resource_data_size(id); }

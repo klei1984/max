@@ -21,9 +21,132 @@
 
 #include "teamunits.hpp"
 
+#include <SDL.h>
+
+#include <cctype>
+#include <cstdlib>
+
+#include "resource_manager.hpp"
+
+AbstractUnit::AbstractUnit(unsigned int flags, unsigned short sprite, unsigned short shadows, unsigned short data,
+                           unsigned short flics, unsigned short portrait, unsigned short icon,
+                           unsigned short armory_portrait, unsigned short field_18, unsigned char cargo_type,
+                           unsigned char land_type, char new_gender, const char* singular_name, const char* plural_name,
+                           const char* description, const char* tutorial)
+    : flags(flags),
+      sprite(sprite),
+      shadows(shadows),
+      data(data),
+      flics(flics),
+      portrait(portrait),
+      icon(icon),
+      armory_portrait(armory_portrait),
+      field_18(field_18),
+      cargo_type(cargo_type),
+      land_type(land_type),
+      singular_name(singular_name),
+      plural_name(plural_name),
+      description(description),
+      tutorial(tutorial),
+      field_6(0) {
+    new_gender = toupper(new_gender);
+    switch (new_gender) {
+        case 'F':
+            gender = 2;
+            break;
+        case 'M':
+            gender = 1;
+            break;
+        case 'N':
+            gender = 0;
+            break;
+        default:
+            SDL_Log("Incorrect gender for %s", singular_name);
+            SDL_assert(new_gender == 'M' || new_gender == 'F' || new_gender == 'N');
+    }
+}
+
+BaseUnit::BaseUnit() {}
+BaseUnit::~BaseUnit() {}
+
+int TeamUnits::GetParam(char* string, int* offset) {
+    int number;
+
+    while (string[*offset] == ' ') {
+        ++*offset;
+    }
+
+    number = strtol(&string[*offset], NULL, 10);
+
+    while (string[*offset] != ' ' && string[*offset] != '\0') {
+        ++*offset;
+    }
+
+    return number;
+}
+
 TeamUnits::TeamUnits() : gold(0), color_field_0(0), color_field_2(0) {}
 
 TeamUnits::~TeamUnits() {}
+
+void TeamUnits::Init() {
+    char* attribs;
+
+    attribs = ResourceManager_LoadResource(ATTRIBS);
+
+    if (attribs) {
+        unsigned int file_size;
+        unsigned int file_pos;
+
+        file_size = ResourceManager_GetResourceSize(ATTRIBS);
+        file_pos = 0;
+
+        for (int id = 0; id < UNIT_END;) {
+            char buffer[100];
+            int position;
+
+            position = 0;
+
+            do {
+                buffer[position] = attribs[file_pos++];
+
+                if (buffer[position] == '\r') {
+                    --position;
+                }
+
+                if (!--file_size) {
+                    break;
+                }
+
+            } while (buffer[position++] != '\n');
+            buffer[position] = '\0';
+
+            if (buffer[0] != ';' && buffer[0] != '\n') {
+                SmartPointer<UnitValues> unitvalues = new (std::nothrow) UnitValues();
+
+                position = 0;
+                unitvalues->SetAttribute(ATTRIB_TURNS, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_HITS, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_ARMOR, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_ATTACK, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_MOVE_AND_FIRE, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_SPEED, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_FUEL, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_RANGE, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_ROUNDS, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_SCAN, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_STORAGE, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_AMMO, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_ATTACK_RADIUS, GetParam(buffer, &position));
+
+                SetBaseUnitValues(id, *unitvalues);
+                ++id;
+            }
+        }
+
+        delete attribs;
+    }
+}
 
 void TeamUnits::FileLoad(SmartFileReader& file) {
     file.Read(gold);
@@ -196,7 +319,11 @@ void TeamUnits::sub_7F3DC(unsigned short team) {
 
 void TeamUnits::RemoveComplex(Complex& object) { complexes.Remove(object); }
 
+void TeamUnits::ClearComplexes() { complexes.Clear(); }
+
 UnitValues* TeamUnits::GetBaseUnitValues(unsigned short id) { return &*base_values[id]; }
+
+void TeamUnits::SetBaseUnitValues(unsigned short id, UnitValues& object) { base_values[id] = object; }
 
 UnitValues* TeamUnits::GetCurrentUnitValues(unsigned short id) { return &*current_values[id]; }
 

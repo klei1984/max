@@ -22,9 +22,9 @@
 #ifndef SMARTPOINTER_HPP
 #define SMARTPOINTER_HPP
 
-#include <new>
+#include <SDL_assert.h>
 
-#include "SDL_assert.h"
+#include <new>
 
 class SmartObject {
     template <class T>
