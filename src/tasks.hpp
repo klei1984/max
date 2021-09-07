@@ -19,13 +19,16 @@
  * SOFTWARE.
  */
 
-#include "enums.hpp"
+#ifndef TASKS_HPP
+#define TASKS_HPP
 
-SortedEnum Enums_UnitType;
-SortedEnum Enums_ResearchTopic;
-SortedEnum Enums_Sound;
-SortedEnum Enums_Orders;
-SortedEnum Enums_States;
-SortedEnum Enums_LayingState;
-SortedEnum Enums_Cursor;
-SortedEnum Enums_EngineWeaponComm;
+#include "smartpointer.hpp"
+
+class Task : public SmartObject {
+public:
+    Task(unsigned short team, Task* parent, unsigned short flags);
+    Task(const Task& other);
+    virtual ~Task();
+};
+
+#endif /* TASKS_HPP */

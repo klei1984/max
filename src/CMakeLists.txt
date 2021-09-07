@@ -45,6 +45,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/teamunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/enums.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/resource_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/maphashlist.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/hash.cpp
 )
 
 set(GAME_SOURCES

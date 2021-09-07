@@ -24,6 +24,8 @@
 
 #include "sortedarray.hpp"
 
+#define SORTEDENUM_DEFAULT_GROWTH_FACTOR 5
+
 class EnumObject : public SmartObject {
     CharSortKey name;
     ShortSortKey value;
@@ -69,7 +71,8 @@ class SortedEnum {
     EnumsSortedByValue enums_value;
 
 public:
-    SortedEnum(unsigned short growth_factor) : enums_name(growth_factor), enums_value(growth_factor) {}
+    SortedEnum(unsigned short growth_factor = SORTEDENUM_DEFAULT_GROWTH_FACTOR)
+        : enums_name(growth_factor), enums_value(growth_factor) {}
     ~SortedEnum() {}
 
     void Insert(const char* name, unsigned short value) {

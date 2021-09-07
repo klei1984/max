@@ -19,13 +19,29 @@
  * SOFTWARE.
  */
 
-#include "enums.hpp"
+#ifndef HASH_HPP
+#define HASH_HPP
 
-SortedEnum Enums_UnitType;
-SortedEnum Enums_ResearchTopic;
-SortedEnum Enums_Sound;
-SortedEnum Enums_Orders;
-SortedEnum Enums_States;
-SortedEnum Enums_LayingState;
-SortedEnum Enums_Cursor;
-SortedEnum Enums_EngineWeaponComm;
+#include "unitinfo.hpp"
+
+class Hash {
+    unsigned short hash_size;
+    SmartList<UnitInfo>* list;
+
+public:
+    Hash(unsigned short hash_size);
+    ~Hash();
+
+    void PushBack(UnitInfo* unit);
+    void Remove(UnitInfo* unit);
+    void Clear();
+
+    void FileLoad(SmartFileReader& file);
+    void FileSave(SmartFileWriter& file);
+    void TextLoad(TextStructure& object);
+    void TextSave(SmartTextfileWriter& file);
+
+    UnitInfo* operator[](const unsigned short& key);
+};
+
+#endif /* HASH_HPP */

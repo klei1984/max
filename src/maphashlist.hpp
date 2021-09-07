@@ -19,13 +19,34 @@
  * SOFTWARE.
  */
 
-#include "enums.hpp"
+#ifndef MAPHASHLIST_HPP
+#define MAPHASHLIST_HPP
 
-SortedEnum Enums_UnitType;
-SortedEnum Enums_ResearchTopic;
-SortedEnum Enums_Sound;
-SortedEnum Enums_Orders;
-SortedEnum Enums_States;
-SortedEnum Enums_LayingState;
-SortedEnum Enums_Cursor;
-SortedEnum Enums_EngineWeaponComm;
+#include "point.hpp"
+#include "tasks.hpp"
+#include "unitinfo.hpp"
+
+class MapHashList : public SmartObject {
+    SmartPointer<UnitInfo> unit;
+    SmartPointer<Task> task;
+    unsigned short team;
+    Point point;
+    bool visible;
+
+public:
+    MapHashList(UnitInfo& unit, unsigned short team);
+    MapHashList(SmartFileReader& file);
+    virtual ~MapHashList();
+
+    void FileSave(SmartFileWriter& file);
+    Task* GetTask();
+    void SetTask(Task* task);
+    Point GetPosition();
+    void SetPosition(Point point);
+    short GetPositionX();
+    short GetPositionY();
+    void UpdatePosition();
+    void UpdateVisibility();
+};
+
+#endif /* MAPHASHLIST_HPP */

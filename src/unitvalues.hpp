@@ -50,6 +50,8 @@ public:
     static TextFileObject* Allocate();
     int GetAttribute(char attribute);
     void SetAttribute(char attribute, int value);
+    void UpdateVersion();
+    void SetUnitsBuilt(unsigned char count);
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);

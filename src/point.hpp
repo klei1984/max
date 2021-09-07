@@ -19,13 +19,26 @@
  * SOFTWARE.
  */
 
-#include "enums.hpp"
+#ifndef POINT_HPP
+#define POINT_HPP
 
-SortedEnum Enums_UnitType;
-SortedEnum Enums_ResearchTopic;
-SortedEnum Enums_Sound;
-SortedEnum Enums_Orders;
-SortedEnum Enums_States;
-SortedEnum Enums_LayingState;
-SortedEnum Enums_Cursor;
-SortedEnum Enums_EngineWeaponComm;
+struct Point {
+    short x;
+    short y;
+
+    Point& operator=(const Point& other) {
+        x = other.x;
+        y = other.y;
+
+        return *this;
+    }
+
+    Point& operator+=(const Point& other) {
+        x += other.x;
+        y += other.y;
+
+        return *this;
+    }
+};
+
+#endif /* POINT_HPP */

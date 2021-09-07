@@ -24,14 +24,14 @@
 
 #include "textfileobject.hpp"
 
-class UnitPath : TextFileObject {
+class UnitPath : public TextFileObject {
 public:
     UnitPath(short id);
     ~UnitPath();
 };
 
-class GroundPath : UnitPath {};
-class AirPath : UnitPath {};
-class BuilderPath : UnitPath {};
+class GroundPath : public UnitPath {};
+class AirPath : public UnitPath {};
+class BuilderPath : public UnitPath {};
 
 #endif /* PATHS_HPP */

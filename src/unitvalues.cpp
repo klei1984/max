@@ -243,6 +243,14 @@ void UnitValues::SetAttribute(char attribute, int value) {
     }
 }
 
+void UnitValues::UpdateVersion() {
+    if (units_built) {
+        ++version;
+    }
+}
+
+void UnitValues::SetUnitsBuilt(unsigned char count) { units_built = count; }
+
 bool UnitValues::operator==(const UnitValues& other) const {
     return turns == other.turns && hits == other.hits && armor == other.armor && attack == other.attack &&
            speed == other.speed && range == other.range && rounds == other.rounds &&

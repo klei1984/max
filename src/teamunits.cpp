@@ -226,7 +226,7 @@ void TeamUnits::TextLoad(TextStructure& object) {
 }
 
 void TeamUnits::TextSave(SmartTextfileWriter& file) {
-    file.Write(gold);
+    file.WriteInt("gold", gold);
 
     file.WriteIdentifier("base_values");
     for (int unit_id = 0; unit_id < UNIT_END; ++unit_id) {

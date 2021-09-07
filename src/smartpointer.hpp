@@ -78,6 +78,14 @@ public:
         return *this;
     }
 
+    SmartPointer<T>& operator=(T* other) {
+        ++other->reference_count;
+        Decrement();
+        object_pointer = other;
+
+        return *this;
+    }
+
     SmartPointer<T>& operator=(T& other) {
         ++other.reference_count;
         Decrement();
