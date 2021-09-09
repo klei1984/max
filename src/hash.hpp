@@ -24,13 +24,39 @@
 
 #include "unitinfo.hpp"
 
-class Hash {
+class MapHashObject;
+
+class MapHash {
+    unsigned short hash_size;
+    unsigned short x_shift;
+    SmartList<MapHashObject>* entry;
+
+    void AddEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y, bool mode);
+    void RemoveEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y);
+
+public:
+    MapHash(unsigned short hash_size);
+    ~MapHash();
+
+    void Add(UnitInfo* unit, bool mode);
+    void Remove(UnitInfo* unit);
+    void Clear();
+
+    void FileLoad(SmartFileReader& file);
+    void FileSave(SmartFileWriter& file);
+    void TextLoad(TextStructure& object);
+    void TextSave(SmartTextfileWriter& file);
+
+    UnitInfo* operator[](const Point& key);
+};
+
+class UnitHash {
     unsigned short hash_size;
     SmartList<UnitInfo>* list;
 
 public:
-    Hash(unsigned short hash_size);
-    ~Hash();
+    UnitHash(unsigned short hash_size);
+    ~UnitHash();
 
     void PushBack(UnitInfo* unit);
     void Remove(UnitInfo* unit);

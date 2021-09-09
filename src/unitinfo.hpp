@@ -74,7 +74,7 @@ public:
     short grid_x;
     short grid_y;
     unsigned char field_30[4];
-    unsigned int field_34;
+    char* color_cycling_lut;
     unsigned char team;
     unsigned char unit_id;
     unsigned char brightness;
@@ -141,7 +141,7 @@ public:
     unsigned short id;
     SmartList<UnitInfo>* unit_list;
     SmartPointer<UnitInfo> parent_unit;
-    SmartPointer<UnitInfo> field_134;
+    SmartPointer<UnitInfo> enemy_unit;
     SmartList<Task> task_list1;
     SmartList<Task> task_list2;
     unsigned char field_158;
@@ -182,7 +182,9 @@ public:
     bool IsVisibleToTeam(unsigned short team) const;
     unsigned short GetId() const;
     void ClearUnitList();
+    void ClearTask1List();
     void SetParent(UnitInfo* parent);
+    void SetEnemy(UnitInfo* enemy);
 };
 
 #endif /* UNITINFO_HPP */

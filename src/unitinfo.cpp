@@ -707,4 +707,9 @@ void UnitInfo::ClearUnitList() {
     }
 }
 
+void UnitInfo::ClearTask1List() {
+    /// \todo Implement method
+}
+
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
+void UnitInfo::SetEnemy(UnitInfo* parent) { enemy_unit = parent; }
