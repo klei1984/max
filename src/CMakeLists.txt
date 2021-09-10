@@ -47,6 +47,9 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/resource_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/maphashlist.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/hash.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/image.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/button.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/fonts.cpp
 )
 
 set(GAME_SOURCES
