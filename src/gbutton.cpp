@@ -111,7 +111,7 @@ GButton *gbutton_delete(GButton *b) {
 
             gimage_alloc_ex(image, b->ulx, b->uly, b->lrx, b->lry);
 
-            Window window;
+            WindowInfo window;
 
             window.id = b->wid;
             window.buffer = win_get_buf(b->wid);
@@ -224,7 +224,7 @@ unsigned char *gbutton_get_down_disabled_image(GButton *b) {
 }
 
 void gbutton_copy_from_window(GButton *b, WinID wid) {
-    Window window;
+    WindowInfo window;
     GImage *source_image;
 
     window.id = wid;
@@ -309,7 +309,7 @@ void gbutton_copy_from_window(GButton *b, WinID wid) {
 }
 
 void gbutton_copy_from_resource(GButton *b, GAME_RESOURCE id, int ulx, int uly) {
-    Window window;
+    WindowInfo window;
 
     gbutton_alloc(b);
 
@@ -326,7 +326,7 @@ void gbutton_copy_from_resource(GButton *b, GAME_RESOURCE id, int ulx, int uly) 
     gwin_load_image2(id, ulx, uly + 1, 1, &window);
 }
 
-void gbutton_copy_disabled_from_window(GButton *b, Window *w) {
+void gbutton_copy_disabled_from_window(GButton *b, WindowInfo *w) {
     GImage *up_disabled_image;
     GImage *down_disabled_image;
 
@@ -495,7 +495,7 @@ void gbutton_set_r_func(GButton *b, ButtonFunc r_func, int r_value) {
 }
 
 void gbutton_register_button(GButton *b, WinID wid) {
-    Window w;
+    WindowInfo w;
     GImage *image;
     unsigned char *up;
     unsigned char *down;

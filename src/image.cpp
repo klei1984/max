@@ -28,14 +28,6 @@
 
 #include "resource_manager.hpp"
 
-struct SpriteHeader {
-    short width;
-    short height;
-    short ulx;
-    short uly;
-    char data[];
-};
-
 Image::Image(short ulx, short uly, short with, short height)
     : ulx(ulx),
       uly(uly),
@@ -103,7 +95,7 @@ void Image::Allocate() {
 
 Rect Image::GetBounds() const { return {ulx, uly, width + ulx, height + uly}; }
 
-void Image::Copy(Window *w) {
+void Image::Copy(WindowInfo *w) {
     Allocate();
     buf_to_buf(&w->buffer[ulx + w->unknown * uly], width, height, w->unknown, reinterpret_cast<unsigned char *>(data),
                width);
@@ -148,17 +140,17 @@ void Image::Blend(const Image &other) {
     }
 }
 
-void Image::Write(Window *w) const {
+void Image::Write(WindowInfo *w) const {
     buf_to_buf(reinterpret_cast<unsigned char *>(data), width, height, width, &w->buffer[ulx + w->unknown * uly],
                w->unknown);
 }
 
-void Image::Write(Window *w, Rect *r) const {
+void Image::Write(WindowInfo *w, Rect *r) const {
     buf_to_buf(reinterpret_cast<unsigned char *>(&data[r->ulx + r->uly * width]), r->lrx - r->ulx, r->lry - r->uly,
                width, &w->buffer[ulx + r->ulx + w->unknown * (r->uly + uly)], w->unknown);
 }
 
-void Image::Write(Window *w, int ulx, int uly) const {
+void Image::Write(WindowInfo *w, int ulx, int uly) const {
     buf_to_buf(reinterpret_cast<unsigned char *>(data), width, height, width, &w->buffer[ulx + w->unknown * uly],
                w->unknown);
 }

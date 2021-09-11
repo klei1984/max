@@ -28,7 +28,7 @@ extern "C" {
 
 typedef struct Flic_s Flic;
 
-Flic *flicsmgr_construct(GAME_RESOURCE id, Window *w, int width, int ulx, int uly, char animate,
+Flic *flicsmgr_construct(GAME_RESOURCE id, WindowInfo *w, int width, int ulx, int uly, char animate,
                          char load_flic_palette);
 char flicsmgr_advance_animation(Flic *flc);
 void flicsmgr_delete(Flic *flc);

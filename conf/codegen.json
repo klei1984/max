@@ -1821,7 +1821,7 @@
 		},
 		{
 			"name": "draw_copyright_label",
-			"prototype": "void draw_copyright_label(Window * window)",
+			"prototype": "void draw_copyright_label(WindowInfo * window)",
 			"component": "max",
 			"mode": "replace",
 			"symbol": "draw_copyright_label_",
@@ -1833,7 +1833,7 @@
 			"return": null,
 			"arguments_list": [
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "window",
 					"is_far": false
@@ -4133,7 +4133,7 @@
 		},
 		{
 			"name": "flicsmgr_construct",
-			"prototype": "Flic *flicsmgr_construct(GAME_RESOURCE id, Window *w, int width, int ulx, int uly, char animate, char load_flic_palette)",
+			"prototype": "Flic *flicsmgr_construct(GAME_RESOURCE id, WindowInfo *w, int width, int ulx, int uly, char animate, char load_flic_palette)",
 			"component": "flicsmgr",
 			"mode": "replace",
 			"symbol": "flicsmgr_construct_",
@@ -4156,7 +4156,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "w",
 					"is_far": false
@@ -4242,7 +4242,7 @@
 		},
 		{
 			"name": "gwin_get_window",
-			"prototype": "Window *gwin_get_window(unsigned char id)",
+			"prototype": "WindowInfo *gwin_get_window(unsigned char id)",
 			"component": "gwin",
 			"mode": "replace",
 			"symbol": "gwin_get_window_",
@@ -4252,7 +4252,7 @@
 			"align": 4,
 			"stack_align": 4,
 			"return": {
-				"type_name": "Window *",
+				"type_name": "WindowInfo *",
 				"type_class": "pointer",
 				"arg_name": null,
 				"is_far": false
@@ -4391,7 +4391,7 @@
 		},
 		{
 			"name": "gwin_load_image",
-			"prototype": "int gwin_load_image(GAME_RESOURCE id, Window *wid, short offx, short palette_from_image, int draw_to_screen, int width_from_image, int height_from_image)",
+			"prototype": "int gwin_load_image(GAME_RESOURCE id, WindowInfo *wid, short offx, short palette_from_image, int draw_to_screen, int width_from_image, int height_from_image)",
 			"component": "gwin",
 			"mode": "replace",
 			"symbol": "gwin_load_image_",
@@ -4414,7 +4414,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "wid",
 					"is_far": false
@@ -4453,7 +4453,7 @@
 		},
 		{
 			"name": "gwin_decode_image2",
-			"prototype": "void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transparency, Window *w)",
+			"prototype": "void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transparency, WindowInfo *w)",
 			"component": "gwin",
 			"mode": "replace",
 			"symbol": "gwin_decode_image2_",
@@ -4489,7 +4489,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "w",
 					"is_far": false
@@ -4498,7 +4498,7 @@
 		},
 		{
 			"name": "gwin_load_image2",
-			"prototype": "void gwin_load_image2(GAME_RESOURCE id, int ulx, int uly, int has_transparency, Window *w)",
+			"prototype": "void gwin_load_image2(GAME_RESOURCE id, int ulx, int uly, int has_transparency, WindowInfo *w)",
 			"component": "gwin",
 			"mode": "replace",
 			"symbol": "gwin_load_image2_",
@@ -4534,7 +4534,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "w",
 					"is_far": false
@@ -4749,7 +4749,7 @@
 		},
 		{
 			"name": "gimage_copy_from_window",
-			"prototype": "void gimage_copy_from_window(GImage *image, Window *w)",
+			"prototype": "void gimage_copy_from_window(GImage *image, WindowInfo *w)",
 			"component": "gimage",
 			"mode": "replace",
 			"symbol": "gimage_copy_from_window_",
@@ -4767,7 +4767,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "w",
 					"is_far": false
@@ -4776,7 +4776,7 @@
 		},
 		{
 			"name": "gimage_copy_to_window",
-			"prototype": "void gimage_copy_to_window(GImage *image, Window *w)",
+			"prototype": "void gimage_copy_to_window(GImage *image, WindowInfo *w)",
 			"component": "gimage",
 			"mode": "replace",
 			"symbol": "gimage_copy_to_window_",
@@ -4794,7 +4794,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "w",
 					"is_far": false
@@ -4803,7 +4803,7 @@
 		},
 		{
 			"name": "gimage_copy_rect_to_window",
-			"prototype": "void gimage_copy_rect_to_window(GImage *image, Window *w, Rect *r)",
+			"prototype": "void gimage_copy_rect_to_window(GImage *image, WindowInfo *w, Rect *r)",
 			"component": "gimage",
 			"mode": "replace",
 			"symbol": "gimage_copy_rect_to_window_",
@@ -4821,7 +4821,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "w",
 					"is_far": false
@@ -4836,7 +4836,7 @@
 		},
 		{
 			"name": "gimage_copy_offset_to_window",
-			"prototype": "void gimage_copy_offset_to_window(GImage *image, Window *w, int ulx, int uly)",
+			"prototype": "void gimage_copy_offset_to_window(GImage *image, WindowInfo *w, int ulx, int uly)",
 			"component": "gimage",
 			"mode": "replace",
 			"symbol": "gimage_copy_offset_to_window_",
@@ -4854,7 +4854,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "w",
 					"is_far": false
@@ -5094,7 +5094,7 @@
 		},
 		{
 			"name": "gbutton_copy_disabled_from_window",
-			"prototype": "void gbutton_copy_disabled_from_window(GButton *b, Window *w)",
+			"prototype": "void gbutton_copy_disabled_from_window(GButton *b, WindowInfo *w)",
 			"component": "gbutton",
 			"mode": "replace",
 			"symbol": "gbutton_copy_disabled_from_window_",
@@ -5112,7 +5112,7 @@
 					"is_far": false
 				},
 				{
-					"type_name": "Window *",
+					"type_name": "WindowInfo *",
 					"type_class": "pointer",
 					"arg_name": "w",
 					"is_far": false

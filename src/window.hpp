@@ -19,41 +19,33 @@
  * SOFTWARE.
  */
 
-#ifndef IMAGE_HPP
-#define IMAGE_HPP
+#ifndef WINDOW_HPP
+#define WINDOW_HPP
 
 extern "C" {
 #include "gnw.h"
 }
 
-class Image {
-    char *data;
+class Window {
+    WinID window_id;
     short ulx;
     short uly;
     short width;
     short height;
-    bool allocated;
+    unsigned int flags;
+    unsigned short resource_id;
+    bool palette_from_image;
 
 public:
-    Image(short ulx, short uly, short with, short height);
-    Image(unsigned short id, short ulx, short uly);
-    ~Image();
+    Window(short ulx, short uly, short width, short height);
+    Window(unsigned short resource_id);
+    Window(unsigned short resource_id, unsigned char win_id);
+    virtual ~Window();
 
-    char *GetData() const;
-    short GetULX() const;
-    short GetULY() const;
-    short GetWidth() const;
-    short GetHeight() const;
-
-    void Allocate();
-    Rect GetBounds() const;
-    void Copy(WindowInfo *w);
-    void Copy(const Image &other);
-    void Blend(const Image &other);
-    void Write(WindowInfo *w) const;
-    void Write(WindowInfo *w, Rect *r) const;
-    void Write(WindowInfo *w, int ulx, int uly) const;
-    void Draw(WinID wid) const;
+    void FillWindowInfo(WindowInfo* window);
+    void Add(bool draw_to_screen = false);
+    void GetCursorPosition(int& x, int& y) const;
+    virtual bool EventHandler();
 };
 
-#endif /* IMAGE_HPP */
+#endif /* WINDOW_HPP */

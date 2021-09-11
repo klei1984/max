@@ -35,16 +35,16 @@ typedef struct GNW_Menu_s GNW_Menu;
 
 typedef struct GNW_Window_s GNW_Window;
 
-struct __attribute__((packed)) Window_s {
+struct __attribute__((packed)) WindowInfo {
     Rect window;
     unsigned short unknown;
     WinID id;
     unsigned char* buffer;
 };
 
-static_assert(sizeof(struct Window_s) == 26, "The structure needs to be packed.");
+static_assert(sizeof(struct WindowInfo) == 26, "The structure needs to be packed.");
 
-typedef struct Window_s Window;
+typedef struct WindowInfo WindowInfo;
 
 typedef void (*SelectFunc)(char**, int);
 

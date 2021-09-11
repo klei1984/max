@@ -19,41 +19,39 @@
  * SOFTWARE.
  */
 
-#ifndef IMAGE_HPP
-#define IMAGE_HPP
+#ifndef SCROLLBAR_HPP
+#define SCROLLBAR_HPP
 
-extern "C" {
-#include "gnw.h"
-}
+#include "button.hpp"
+#include "window.hpp"
 
-class Image {
-    char *data;
-    short ulx;
-    short uly;
-    short width;
-    short height;
-    bool allocated;
+class Scrollbar {
+    unsigned short free_capacity;
+    unsigned short zero_offset;
+    unsigned short value;
+    Image *xfer_slider;
+    Image *xfer_amount_background;
+    unsigned short material_bar;
+    unsigned int key_code_increase;
+    unsigned int key_code_decrease;
+    unsigned int button_p_value;
+    Button *button_slider;
+    Window *window;
+    unsigned short scaling_factor;
+    unsigned char scrollbar_type;
 
 public:
-    Image(short ulx, short uly, short with, short height);
-    Image(unsigned short id, short ulx, short uly);
-    ~Image();
-
-    char *GetData() const;
-    short GetULX() const;
-    short GetULY() const;
-    short GetWidth() const;
-    short GetHeight() const;
-
-    void Allocate();
-    Rect GetBounds() const;
-    void Copy(WindowInfo *w);
-    void Copy(const Image &other);
-    void Blend(const Image &other);
-    void Write(WindowInfo *w) const;
-    void Write(WindowInfo *w, Rect *r) const;
-    void Write(WindowInfo *w, int ulx, int uly) const;
-    void Draw(WinID wid) const;
+    Scrollbar();
+    ~Scrollbar();
 };
 
-#endif /* IMAGE_HPP */
+class LimitedScrollbar : public Scrollbar {
+    unsigned short xfer_give_max;
+    unsigned short xfer_take_max;
+
+public:
+    LimitedScrollbar();
+    ~LimitedScrollbar();
+};
+
+#endif /* SCROLLBAR_HPP */

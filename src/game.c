@@ -26,7 +26,7 @@
 #warning "Game version number is not set by CMake."
 #endif
 
-void draw_copyright_label(Window* window) {
+void draw_copyright_label(WindowInfo* window) {
     text_font(5);
     draw_color_text_label(window->buffer, window->unknown,
                           "Copyright 1996 Interplay Productions. v1.04"

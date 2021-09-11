@@ -63,7 +63,7 @@ public:
 
     void Copy(WinID wid);
     void Copy(unsigned short id, int ulx, int uly);
-    void CopyDisabled(Window *w);
+    void CopyDisabled(WindowInfo *w);
     void CopyUp(unsigned short id);
     void CopyDown(unsigned short id);
     void CopyUpDisabled(unsigned short id);

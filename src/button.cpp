@@ -91,7 +91,7 @@ Button::~Button() {
         if (wid) {
             Image image = Image(ulx, uly, lrx, lry);
 
-            Window window;
+            WindowInfo window;
 
             window.id = wid;
             window.buffer = win_get_buf(wid);
@@ -182,7 +182,7 @@ char *Button::GetDownDisabledData() const {
 void Button::Copy(WinID wid) {
     Image image = Image(ulx, uly, lrx, lry);
 
-    Window window;
+    WindowInfo window;
 
     window.id = wid;
     window.buffer = win_get_buf(wid);
@@ -224,7 +224,7 @@ void Button::Copy(WinID wid) {
 }
 
 void Button::Copy(unsigned short id, int ulx, int uly) {
-    Window window;
+    WindowInfo window;
 
     Allocate();
 
@@ -241,7 +241,7 @@ void Button::Copy(unsigned short id, int ulx, int uly) {
     window.buffer = reinterpret_cast<unsigned char *>(down->GetData());
     //    gwin_load_image2(id, ulx, uly + 1, 1, &window);
 }
-void Button::CopyDisabled(Window *w) {
+void Button::CopyDisabled(WindowInfo *w) {
     delete up_disabled;
     delete down_disabled;
 
@@ -319,7 +319,7 @@ void Button::RegisterButton(WinID wid) {
 
     if (down && ((down->GetWidth() != lrx) || (down->GetHeight() != lry))) {
         Image *image;
-        Window w;
+        WindowInfo w;
 
         w.id = wid;
         w.buffer = win_get_buf(wid);

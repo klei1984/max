@@ -22,7 +22,25 @@
 #ifndef RESOURCE_MANAGER_HPP
 #define RESOURCE_MANAGER_HPP
 
+struct SpriteHeader {
+    short ulx;
+    short uly;
+    short width;
+    short height;
+    char data[];
+};
+
+struct SpriteMeta {
+    short ulx;
+    short uly;
+    short width;
+    short height;
+    unsigned char palette[768];
+    char data[];
+};
+
 char *ResourceManager_LoadResource(unsigned short id);
 unsigned int ResourceManager_GetResourceSize(unsigned short id);
+int ResourceManager_ReadImageHeader(unsigned short id, struct SpriteMeta *buffer);
 
 #endif /* RESOURCE_MANAGER_HPP */

@@ -60,7 +60,7 @@ GButton *gbutton_init_texture(GButton *b, GAME_RESOURCE up, GAME_RESOURCE down, 
 GButton *gbutton_delete(GButton *b);
 void gbutton_copy_from_window(GButton *b, WinID wid);
 void gbutton_copy_from_resource(GButton *b, GAME_RESOURCE id, int ulx, int uly);
-void gbutton_copy_disabled_from_window(GButton *b, Window *w);
+void gbutton_copy_disabled_from_window(GButton *b, WindowInfo *w);
 void gbutton_copy_up_from_resource(GButton *b, GAME_RESOURCE id);
 void gbutton_copy_down_from_resource(GButton *b, GAME_RESOURCE id);
 void gbutton_copy_up_disabled_from_resource(GButton *b, GAME_RESOURCE id);

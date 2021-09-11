@@ -46,16 +46,16 @@ typedef struct {
 } ImageHeader2;
 
 unsigned char gwin_init(void);
-Window *gwin_get_window(unsigned char id);
+WindowInfo *gwin_get_window(unsigned char id);
 void gwin_clear_window(void);
 void gwin_fade_in(int steps);
 void gwin_fade_out(int steps);
 void gwin_load_palette_from_resource(GAME_RESOURCE id);
 void gwin_decode_image(ImageHeader *image, unsigned char *buffer, int width, int height, int ulx);
-int gwin_load_image(GAME_RESOURCE id, Window *wid, short offx, short palette_from_image, int draw_to_screen,
+int gwin_load_image(GAME_RESOURCE id, WindowInfo *wid, short offx, short palette_from_image, int draw_to_screen,
                     int width_from_image, int height_from_image);
-void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transparency, Window *w);
-void gwin_load_image2(GAME_RESOURCE id, int ulx, int uly, int has_transparency, Window *w);
+void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transparency, WindowInfo *w);
+void gwin_load_image2(GAME_RESOURCE id, int ulx, int uly, int has_transparency, WindowInfo *w);
 
 #ifdef __cplusplus
 }

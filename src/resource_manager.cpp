@@ -24,8 +24,13 @@
 extern "C" {
 extern char *read_game_resource(unsigned short id);
 extern unsigned int get_resource_data_size(unsigned short id);
+extern int read_game_resource_into_buffer(unsigned short id, void *buffer);
 }
 
 char *ResourceManager_LoadResource(unsigned short id) { return read_game_resource(id); }
 
 unsigned int ResourceManager_GetResourceSize(unsigned short id) { return get_resource_data_size(id); }
+
+int ResourceManager_ReadImageHeader(unsigned short id, struct SpriteMeta *buffer) {
+    return read_game_resource_into_buffer(id, buffer);
+}

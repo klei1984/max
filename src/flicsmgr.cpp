@@ -434,7 +434,7 @@ char flicsmgr_load(char *flic_file, Flic *flc) {
     return 0;
 }
 
-Flic *flicsmgr_construct(GAME_RESOURCE id, Window *w, int width, int ulx, int uly, char animate,
+Flic *flicsmgr_construct(GAME_RESOURCE id, WindowInfo *w, int width, int ulx, int uly, char animate,
                          char load_flic_palette) {
     Flic *flc = new (std::nothrow) Flic();
 

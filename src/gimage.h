@@ -49,12 +49,12 @@ GImage *gimage_alloc_ex(GImage *image, int ulx, int uly, int width, int height);
 GImage *gimage_init(GImage *image, GAME_RESOURCE resource_id, int ulx, int uly);
 GImage *gimage_delete(GImage *image);
 void gimage_alloc(GImage *image);
-void gimage_copy_from_window(GImage *image, Window *w);
+void gimage_copy_from_window(GImage *image, WindowInfo *w);
 void gimage_copy_from_image(GImage *dst, GImage *src);
 void gimage_copy_content(GImage *dst, GImage *src);
-void gimage_copy_to_window(GImage *image, Window *w);
-void gimage_copy_rect_to_window(GImage *image, Window *w, Rect *r);
-void gimage_copy_offset_to_window(GImage *image, Window *w, int ulx, int uly);
+void gimage_copy_to_window(GImage *image, WindowInfo *w);
+void gimage_copy_rect_to_window(GImage *image, WindowInfo *w, Rect *r);
+void gimage_copy_offset_to_window(GImage *image, WindowInfo *w, int ulx, int uly);
 void gimage_get_image_rect(GImage *image, Rect *r);
 void gimage_draw_rect(GImage *image, WinID wid);
 
