@@ -28,7 +28,7 @@
 
 #include "resource_manager.hpp"
 
-Image::Image(short ulx, short uly, short with, short height)
+Image::Image(short ulx, short uly, short width, short height)
     : ulx(ulx),
       uly(uly),
       width(width),
@@ -37,8 +37,6 @@ Image::Image(short ulx, short uly, short with, short height)
       allocated(true) {}
 
 Image::Image(unsigned short id, short ulx, short uly) {
-    ResourceManager_LoadResource(0);
-
     struct SpriteHeader *sprite;
 
     sprite = reinterpret_cast<SpriteHeader *>(ResourceManager_LoadResource(id));
@@ -97,7 +95,7 @@ Rect Image::GetBounds() const { return {ulx, uly, width + ulx, height + uly}; }
 
 void Image::Copy(WindowInfo *w) {
     Allocate();
-    buf_to_buf(&w->buffer[ulx + w->unknown * uly], width, height, w->unknown, reinterpret_cast<unsigned char *>(data),
+    buf_to_buf(&w->buffer[ulx + w->width * uly], width, height, w->width, reinterpret_cast<unsigned char *>(data),
                width);
 }
 
@@ -141,18 +139,18 @@ void Image::Blend(const Image &other) {
 }
 
 void Image::Write(WindowInfo *w) const {
-    buf_to_buf(reinterpret_cast<unsigned char *>(data), width, height, width, &w->buffer[ulx + w->unknown * uly],
-               w->unknown);
+    buf_to_buf(reinterpret_cast<unsigned char *>(data), width, height, width, &w->buffer[ulx + w->width * uly],
+               w->width);
 }
 
 void Image::Write(WindowInfo *w, Rect *r) const {
     buf_to_buf(reinterpret_cast<unsigned char *>(&data[r->ulx + r->uly * width]), r->lrx - r->ulx, r->lry - r->uly,
-               width, &w->buffer[ulx + r->ulx + w->unknown * (r->uly + uly)], w->unknown);
+               width, &w->buffer[ulx + r->ulx + w->width * (r->uly + uly)], w->width);
 }
 
 void Image::Write(WindowInfo *w, int ulx, int uly) const {
-    buf_to_buf(reinterpret_cast<unsigned char *>(data), width, height, width, &w->buffer[ulx + w->unknown * uly],
-               w->unknown);
+    buf_to_buf(reinterpret_cast<unsigned char *>(data), width, height, width, &w->buffer[ulx + w->width * uly],
+               w->width);
 }
 
 void Image::Draw(WinID wid) const {

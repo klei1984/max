@@ -115,7 +115,7 @@ GButton *gbutton_delete(GButton *b) {
 
             window.id = b->wid;
             window.buffer = win_get_buf(b->wid);
-            window.unknown = win_width(b->wid);
+            window.width = win_width(b->wid);
 
             gimage_copy_from_window(image, &window);
             win_delete_button(b->bid);
@@ -229,7 +229,7 @@ void gbutton_copy_from_window(GButton *b, WinID wid) {
 
     window.id = wid;
     window.buffer = win_get_buf(wid);
-    window.unknown = win_width(wid);
+    window.width = win_width(wid);
 
     source_image = new (std::nothrow) GImage();
     SDL_assert(source_image);
@@ -313,7 +313,7 @@ void gbutton_copy_from_resource(GButton *b, GAME_RESOURCE id, int ulx, int uly) 
 
     gbutton_alloc(b);
 
-    window.unknown = b->lrx;
+    window.width = b->lrx;
     window.window.ulx = 0;
     window.window.uly = 0;
     window.window.lrx = b->lrx;
@@ -506,7 +506,7 @@ void gbutton_register_button(GButton *b, WinID wid) {
     if (b->down && ((gimage_get_width(b->down) != b->lrx) || (gimage_get_height(b->down) != b->lry))) {
         w.id = wid;
         w.buffer = win_get_buf(wid);
-        w.unknown = win_width(wid);
+        w.width = win_width(wid);
 
         image = new (std::nothrow) GImage();
         if (image) {

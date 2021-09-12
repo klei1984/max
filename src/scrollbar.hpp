@@ -23,12 +23,25 @@
 #define SCROLLBAR_HPP
 
 #include "button.hpp"
+#include "events.hpp"
 #include "window.hpp"
 
+class Scrollbar;
+
+class EventScrollbarChange : public Event {
+    Scrollbar *scrollbar;
+    short value;
+
+public:
+    EventScrollbarChange(Scrollbar *scrollbar, short value);
+    unsigned short GetEventId();
+};
+
 class Scrollbar {
-    unsigned short free_capacity;
-    unsigned short zero_offset;
-    unsigned short value;
+protected:
+    short free_capacity;
+    short zero_offset;
+    short value;
     Image *xfer_slider;
     Image *xfer_amount_background;
     unsigned short material_bar;
@@ -38,11 +51,26 @@ class Scrollbar {
     Button *button_slider;
     Window *window;
     unsigned short scaling_factor;
-    unsigned char scrollbar_type;
+    bool scrollbar_type;
+
+    friend void LoadHorizontalBar(char *buffer, short width, short capacity, short height, unsigned short id);
+    friend void LoadVerticalBar(char *buffer, short width, short capacity, short height, unsigned short id);
+    void ProcessValueChange(short value);
 
 public:
-    Scrollbar();
-    ~Scrollbar();
+    Scrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, unsigned short material_bar_id,
+              int key_code_increase, int key_code_decrease, int key_code_click_slider, short scaling_factor,
+              bool vertical);
+    virtual ~Scrollbar();
+
+    void SetValue(unsigned short value);
+    void SetZeroOffset(short offset);
+    void SetFreeCapacity(short free_capacity);
+    void SetMaterialBar(unsigned short id);
+
+    virtual void Register();
+    virtual void RefreshScreen();
+    virtual bool ProcessKey(int key_code);
 };
 
 class LimitedScrollbar : public Scrollbar {
@@ -50,8 +78,15 @@ class LimitedScrollbar : public Scrollbar {
     unsigned short xfer_take_max;
 
 public:
-    LimitedScrollbar();
+    LimitedScrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, unsigned short material_bar_id,
+                     int key_code_increase, int key_code_decrease, int key_code_click_slider, short scaling_factor,
+                     bool vertical);
     ~LimitedScrollbar();
+
+    void SetXferGiveMax(unsigned short limit);
+    void SetXferTakeMax(unsigned short limit);
+
+    bool ProcessKey(int key_code);
 };
 
 #endif /* SCROLLBAR_HPP */

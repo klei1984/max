@@ -19,41 +19,23 @@
  * SOFTWARE.
  */
 
-#ifndef IMAGE_HPP
-#define IMAGE_HPP
+#ifndef EVENTS_HPP
+#define EVENTS_HPP
 
-extern "C" {
-#include "gnw.h"
-}
-
-class Image {
-    char *data;
-    short ulx;
-    short uly;
-    short width;
-    short height;
-    bool allocated;
-
+class Event {
 public:
-    Image(short ulx, short uly, short width, short height);
-    Image(unsigned short id, short ulx, short uly);
-    ~Image();
-
-    char *GetData() const;
-    short GetULX() const;
-    short GetULY() const;
-    short GetWidth() const;
-    short GetHeight() const;
-
-    void Allocate();
-    Rect GetBounds() const;
-    void Copy(WindowInfo *w);
-    void Copy(const Image &other);
-    void Blend(const Image &other);
-    void Write(WindowInfo *w) const;
-    void Write(WindowInfo *w, Rect *r) const;
-    void Write(WindowInfo *w, int ulx, int uly) const;
-    void Draw(WinID wid) const;
+    virtual unsigned short GetEventId() = 0;
 };
 
-#endif /* IMAGE_HPP */
+struct RegisterEvent {
+    static unsigned short IdRegistry;
+    RegisterEvent(unsigned short& id) { id = IdRegistry++; }
+};
+
+#define EVENTS_REGISTER_EVENT(event)        \
+    unsigned short RegisterEventId_##event; \
+    RegisterEvent RegisterEvent_##event(RegisterEventId_##event)
+
+#define EVENTS_GET_EVENT_ID(event) RegisterEventId_##event
+
+#endif /* EVENTS_HPP */

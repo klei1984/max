@@ -19,41 +19,6 @@
  * SOFTWARE.
  */
 
-#ifndef IMAGE_HPP
-#define IMAGE_HPP
+#include "events.hpp"
 
-extern "C" {
-#include "gnw.h"
-}
-
-class Image {
-    char *data;
-    short ulx;
-    short uly;
-    short width;
-    short height;
-    bool allocated;
-
-public:
-    Image(short ulx, short uly, short width, short height);
-    Image(unsigned short id, short ulx, short uly);
-    ~Image();
-
-    char *GetData() const;
-    short GetULX() const;
-    short GetULY() const;
-    short GetWidth() const;
-    short GetHeight() const;
-
-    void Allocate();
-    Rect GetBounds() const;
-    void Copy(WindowInfo *w);
-    void Copy(const Image &other);
-    void Blend(const Image &other);
-    void Write(WindowInfo *w) const;
-    void Write(WindowInfo *w, Rect *r) const;
-    void Write(WindowInfo *w, int ulx, int uly) const;
-    void Draw(WinID wid) const;
-};
-
-#endif /* IMAGE_HPP */
+unsigned short RegisterEvent::IdRegistry = 0;

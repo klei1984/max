@@ -26,6 +26,8 @@ extern "C" {
 #include "gnw.h"
 }
 
+#include "events.hpp"
+
 class Window {
     WinID window_id;
     short ulx;
@@ -45,7 +47,7 @@ public:
     void FillWindowInfo(WindowInfo* window);
     void Add(bool draw_to_screen = false);
     void GetCursorPosition(int& x, int& y) const;
-    virtual bool EventHandler();
+    virtual bool EventHandler(Event& event);
 };
 
 #endif /* WINDOW_HPP */

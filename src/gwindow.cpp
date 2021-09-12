@@ -290,7 +290,7 @@ void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transpare
         ulx -= image->width;
         uly -= image->height;
 
-        buffer = &w->buffer[ulx + uly * w->unknown];
+        buffer = &w->buffer[ulx + uly * w->width];
         image_data = image->data;
 
         if (ulx < 0) {
@@ -317,7 +317,7 @@ void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transpare
             }
 
             image_data += image->field_0;
-            buffer += w->unknown;
+            buffer += w->width;
             uly++;
         }
     }

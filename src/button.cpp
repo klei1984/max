@@ -22,6 +22,7 @@
 #include "button.hpp"
 
 #include "enums.hpp"
+//#include "soundmgr.hpp"
 
 void Button_PFunc(ButtonID bid, Button *b) {
     if (!b->rest_state) {
@@ -95,7 +96,7 @@ Button::~Button() {
 
             window.id = wid;
             window.buffer = win_get_buf(wid);
-            window.unknown = win_width(wid);
+            window.width = win_width(wid);
 
             image.Copy(&window);
             win_delete_button(bid);
@@ -186,7 +187,7 @@ void Button::Copy(WinID wid) {
 
     window.id = wid;
     window.buffer = win_get_buf(wid);
-    window.unknown = win_width(wid);
+    window.width = win_width(wid);
 
     image.Copy(&window);
 
@@ -228,7 +229,7 @@ void Button::Copy(unsigned short id, int ulx, int uly) {
 
     Allocate();
 
-    window.unknown = lrx;
+    window.width = lrx;
     window.window.ulx = 0;
     window.window.uly = 0;
     window.window.lrx = lrx;
@@ -323,7 +324,7 @@ void Button::RegisterButton(WinID wid) {
 
         w.id = wid;
         w.buffer = win_get_buf(wid);
-        w.unknown = win_width(wid);
+        w.width = win_width(wid);
 
         image = new (std::nothrow) Image(ulx, uly, lrx, lry);
         image->Copy(&w);
@@ -409,10 +410,41 @@ void Button::SetRValue(int r_value) { this->r_value = r_value; }
 
 void Button::SetFlags(unsigned int flags) { this->flags = flags; }
 
-void Button::SetCaption(const char *caption, short x, short y, FontColor a, FontColor b, FontColor c, FontColor d) {
-    SetCaption(caption, {0, 0, lrx - x, lry - y}, a, b, c, d);
+void Button::SetCaption(const char *caption, short x, short y, FontColor color_up, FontColor color_down,
+                        FontColor color_up_disabled, FontColor color_down_disabled) {
+    SetCaption(caption, {0, 0, lrx - x, lry - y}, color_up, color_down, color_up_disabled, color_down_disabled);
 }
 
-void Button::SetCaption(const char *caption, Rect r, FontColor a, FontColor b, FontColor c, FontColor d) {
-    /// \todo Implement function
+void Button::SetCaption(const char *caption, Rect r, FontColor color_up, FontColor color_down,
+                        FontColor color_up_disabled, FontColor color_down_disabled) {
+    WindowInfo window;
+    int width;
+    int height;
+    int uly_caption;
+
+    Allocate();
+
+    width = r.lrx - r.ulx;
+    height = r.lry - r.uly;
+
+    window.buffer = reinterpret_cast<unsigned char *>(up->GetData());
+    window.width = up->GetWidth();
+    uly_caption = ((height - text_height()) / 2) + r.uly, width;
+    /// \todo Implement draw_capion
+    //    draw_caption(&window, caption, r.ulx, uly_caption, 1, color_up);
+
+    window.buffer = reinterpret_cast<unsigned char *>(down->GetData());
+    //    draw_caption(&window, caption, r.ulx, uly_caption, 1, color_down);
+
+    if (up_disabled) {
+        window.buffer = reinterpret_cast<unsigned char *>(up_disabled->GetData());
+        window.width = up_disabled->GetWidth();
+        //        draw_caption(&window, caption, r.ulx, uly_caption, 1, color_up_disabled);
+    }
+
+    if (down_disabled) {
+        window.buffer = reinterpret_cast<unsigned char *>(down_disabled->GetData());
+        window.width = down_disabled->GetWidth();
+        //        draw_caption(&window, caption, r.ulx, uly_caption, 1, color_down_disabled);
+    }
 }

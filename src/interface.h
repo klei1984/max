@@ -37,7 +37,7 @@ typedef struct GNW_Window_s GNW_Window;
 
 struct __attribute__((packed)) WindowInfo {
     Rect window;
-    unsigned short unknown;
+    unsigned short width;
     WinID id;
     unsigned char* buffer;
 };

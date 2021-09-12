@@ -84,7 +84,7 @@ void Window::FillWindowInfo(WindowInfo* window) {
     window->window.uly = 0;
     window->window.lrx = width;
     window->window.lry = height;
-    window->unknown = width;
+    window->width = width;
 }
 
 void Window::Add(bool draw_to_screen) {
@@ -109,4 +109,4 @@ void Window::GetCursorPosition(int& x, int& y) const {
     y = position_y - uly;
 }
 
-bool Window::EventHandler() { return false; }
+bool Window::EventHandler(Event& event) { return false; }

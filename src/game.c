@@ -28,7 +28,7 @@
 
 void draw_copyright_label(WindowInfo* window) {
     text_font(5);
-    draw_color_text_label(window->buffer, window->unknown,
+    draw_color_text_label(window->buffer, window->width,
                           "Copyright 1996 Interplay Productions. v1.04"
                           "  (M.A.X. Port " GAME_VERSION ")",
                           10, 469, 620, 10, 0, 1, 0);

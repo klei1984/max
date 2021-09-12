@@ -112,7 +112,7 @@ void gimage_alloc(GImage *image) {
 
 void gimage_copy_from_window(GImage *image, WindowInfo *w) {
     gimage_alloc(image);
-    buf_to_buf(&w->buffer[image->ulx + w->unknown * image->uly], image->width, image->height, w->unknown, image->buffer,
+    buf_to_buf(&w->buffer[image->ulx + w->width * image->uly], image->width, image->height, w->width, image->buffer,
                image->width);
 }
 
@@ -157,17 +157,17 @@ void gimage_copy_content(GImage *dst, GImage *src) {
 
 void gimage_copy_to_window(GImage *image, WindowInfo *w) {
     buf_to_buf(image->buffer, image->width, image->height, image->width,
-               &w->buffer[image->ulx + w->unknown * image->uly], w->unknown);
+               &w->buffer[image->ulx + w->width * image->uly], w->width);
 }
 
 void gimage_copy_rect_to_window(GImage *image, WindowInfo *w, Rect *r) {
     buf_to_buf(&image->buffer[r->ulx + r->uly * image->width], r->lrx - r->ulx, r->lry - r->uly, image->width,
-               &w->buffer[image->ulx + r->ulx + w->unknown * (r->uly + image->uly)], w->unknown);
+               &w->buffer[image->ulx + r->ulx + w->width * (r->uly + image->uly)], w->width);
 }
 
 void gimage_copy_offset_to_window(GImage *image, WindowInfo *w, int ulx, int uly) {
-    buf_to_buf(image->buffer, image->width, image->height, image->width, &w->buffer[ulx + w->unknown * uly],
-               w->unknown);
+    buf_to_buf(image->buffer, image->width, image->height, image->width, &w->buffer[ulx + w->width * uly],
+               w->width);
 }
 
 void gimage_get_image_rect(GImage *image, Rect *r) {
