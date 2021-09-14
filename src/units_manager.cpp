@@ -1933,3 +1933,25 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         )};
 
 CTInfo UnitsManager_TeamInfo[5];
+
+int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential) {
+    int target_armor = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);
+    int attacker_damage = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
+
+    if (damage_potential > 1) {
+        attacker_damage *= (5 - damage_potential) / 4;
+    }
+
+    if (target_unit->unit_type == SUBMARNE &&
+        (attacker_unit->unit_type == BOMBER || attacker_unit->unit_type == ALNPLANE)) {
+        attacker_damage /= 2;
+    }
+
+    if (target_armor < attacker_damage) {
+        attacker_damage -= target_armor;
+    } else {
+        attacker_damage = 1;
+    }
+
+    return attacker_damage;
+}

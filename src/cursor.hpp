@@ -19,11 +19,49 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#ifndef CURSOR_HPP
+#define CURSOR_HPP
 
 #include "unitinfo.hpp"
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+enum : unsigned char {
+    CURSOR_HIDDEN,
+    CURSOR_HAND,
+    CURSOR_ARROW_N,
+    CURSOR_ARROW_NE,
+    CURSOR_ARROW_E,
+    CURSOR_ARROW_SE,
+    CURSOR_ARROW_S,
+    CURSOR_ARROW_SW,
+    CURSOR_ARROW_W,
+    CURSOR_ARROW_NW,
+    CURSOR_MAP,
+    CURSOR_MINI,
+    CURSOR_REPAIR,
+    CURSOR_TRANSFER,
+    CURSOR_FUEL,
+    CURSOR_RELOAD,
+    CURSOR_LOAD,
+    CURSOR_FRIEND,
+    CURSOR_ENEMY,
+    CURSOR_FAR_TARGET,
+    CURSOR_UNIT_GO,
+    CURSOR_UNIT_NO_GO,
+    CURSOR_WAY,
+    CURSOR_GROUP,
+    CURSOR_ACTIVATE,
+    CURSOR_MAP2,
+    CURSOR_STEAL,
+    CURSOR_DISABLE,
+    CURSOR_PATH,
+    CURSOR_HELP
+};
 
-#endif /* UNITS_MANAGER_HPP */
+void Cursor_Init();
+unsigned char Cursor_GetCursor();
+unsigned char Cursor_GetDefaultWindowCursor(unsigned char window_index);
+void Cursor_SetCursor(unsigned char cursor_index);
+void Cursor_DrawAttackPowerCursor(UnitInfo* selected_unit, UnitInfo* target_unit, unsigned char cursor_index);
+void Cursor_DrawStealthActionChanceCursor(int experience_level, unsigned char cursor_index);
+
+#endif /* CURSOR_HPP */

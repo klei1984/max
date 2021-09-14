@@ -19,11 +19,21 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#ifndef DRAWLOADBAR_HPP
+#define DRAWLOADBAR_HPP
 
-#include "unitinfo.hpp"
+#include "scrollbar.hpp"
+#include "window.hpp"
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+class DrawLoadBar : public Window {
+    WindowInfo window;
+    LimitedScrollbar* loadbar;
 
-#endif /* UNITS_MANAGER_HPP */
+public:
+    DrawLoadBar(const char* caption);
+    ~DrawLoadBar();
+
+    void SetValue(short value);
+};
+
+#endif /* DRAWLOADBAR_HPP */

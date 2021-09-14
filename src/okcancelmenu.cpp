@@ -19,11 +19,13 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#include "okcancelmenu.hpp"
 
-#include "unitinfo.hpp"
+#include "enums.hpp"
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+OKCancelMenu::OKCancelMenu(const char *caption, bool mode) : Window(HELPFRAM, mode ? 0 : 38) {
+    //    mouse_set_gfx(1);
+    text_font(5);
+}
 
-#endif /* UNITS_MANAGER_HPP */
+OKCancelMenu::~OKCancelMenu() {}

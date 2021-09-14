@@ -19,11 +19,23 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#ifndef OKCANCELMENU_HPP
+#define OKCANCELMENU_HPP
 
-#include "unitinfo.hpp"
+#include "button.hpp"
+#include "window.hpp"
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+class OKCancelMenu : public Window {
+    WindowInfo window;
+    unsigned char field_49;
+    unsigned char field_50;
+    Button *button_ok;
+    Button *button_cancel;
+    unsigned char field_60;
 
-#endif /* UNITS_MANAGER_HPP */
+public:
+    OKCancelMenu(const char *caption, bool mode);
+    ~OKCancelMenu();
+};
+
+#endif /* OKCANCELMENU_HPP */

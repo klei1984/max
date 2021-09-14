@@ -185,6 +185,7 @@ public:
     void ClearTask1List();
     void SetParent(UnitInfo* parent);
     void SetEnemy(UnitInfo* enemy);
+    UnitValues* GetBaseValues();
 };
 
 #endif /* UNITINFO_HPP */

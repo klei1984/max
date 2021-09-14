@@ -53,6 +53,9 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scrollbar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/events.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/cursor.cpp
 )
 
 set(GAME_SOURCES

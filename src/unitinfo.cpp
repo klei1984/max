@@ -712,4 +712,7 @@ void UnitInfo::ClearTask1List() {
 }
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
-void UnitInfo::SetEnemy(UnitInfo* parent) { enemy_unit = parent; }
+
+void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
+
+UnitValues* UnitInfo::GetBaseValues() { return &*base_values; }
