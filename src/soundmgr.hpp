@@ -26,11 +26,7 @@
 
 #include <list>
 
-extern "C" {
-#include "resrcmgr.h"
-}
-
-#include "unitinfo.h"
+#include "unitinfo.hpp"
 
 class SoundMgr {
 public:
@@ -62,18 +58,18 @@ public:
     void Init();
     void Deinit();
 
-    void PlayMusic(GAME_RESOURCE id, bool shuffle);
+    void PlayMusic(ResourceID id, bool shuffle);
     void HaltMusicPlayback(bool disable);
     void FreeMusic();
 
-    void PlaySfx(GAME_RESOURCE id);
+    void PlaySfx(ResourceID id);
     void PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode);
     void UpdateSfxPosition();
     void UpdateSfxPosition(UnitInfo* unit);
     void UpdateAllSfxPositions();
     void HaltSfxPlayback(bool disable);
 
-    void PlayVoice(GAME_RESOURCE id1, GAME_RESOURCE id2, short priority);
+    void PlayVoice(ResourceID id1, ResourceID id2, short priority);
     void HaltVoicePlayback(bool disable);
 
     void FreeAllSamples();
@@ -90,7 +86,7 @@ private:
     } SoundVolume;
 
     typedef struct {
-        GAME_RESOURCE id;
+        ResourceID id;
         JOB_TYPE type;
         unsigned int volume_1;
         unsigned int volume_2;
@@ -104,7 +100,7 @@ private:
     } SoundJob;
 
     typedef struct {
-        GAME_RESOURCE id;
+        ResourceID id;
         JOB_TYPE type;
         unsigned int volume_1;
         unsigned int volume_2;
@@ -125,13 +121,13 @@ private:
 
     SoundVolume* volumes;
 
-    GAME_RESOURCE current_music_played;
-    GAME_RESOURCE last_music_played;
+    ResourceID current_music_played;
+    ResourceID last_music_played;
 
     bool shuffle_music;
     bool shuffle_music_playlist[BKG9_MSC - MAIN_MSC + 1];
 
-    GAME_RESOURCE voice_played;
+    ResourceID voice_played;
 
     std::list<SoundJob> jobs;
 
@@ -146,10 +142,10 @@ private:
     void FreeSample(SoundSample* sample);
     void UpdateMusic();
     void FreeSfx(UnitInfo* unit);
-    void FreeVoice(GAME_RESOURCE id1, GAME_RESOURCE id2);
-    bool IsVoiceGroupScheduled(GAME_RESOURCE id1, GAME_RESOURCE id2);
+    void FreeVoice(ResourceID id1, ResourceID id2);
+    bool IsVoiceGroupScheduled(ResourceID id1, ResourceID id2);
     static int GetPanning(int distance, bool reverse);
-    bool LoadMusic(GAME_RESOURCE id);
+    bool LoadMusic(ResourceID id);
     int LoadSound(SoundJob& job, SoundSample& sample);
     void LoadLoopPoints(FILE* fp, SoundSample& sample);
 };

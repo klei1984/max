@@ -28,9 +28,9 @@
 
 #include "resource_manager.hpp"
 
-AbstractUnit::AbstractUnit(unsigned int flags, unsigned short sprite, unsigned short shadows, unsigned short data,
-                           unsigned short flics, unsigned short portrait, unsigned short icon,
-                           unsigned short armory_portrait, unsigned short field_18, unsigned char cargo_type,
+AbstractUnit::AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data,
+                           ResourceID flics, ResourceID portrait, ResourceID icon,
+                           ResourceID armory_portrait, ResourceID field_18, unsigned char cargo_type,
                            unsigned char land_type, char new_gender, const char* singular_name, const char* plural_name,
                            const char* description, const char* tutorial)
     : flags(flags),
@@ -66,8 +66,33 @@ AbstractUnit::AbstractUnit(unsigned int flags, unsigned short sprite, unsigned s
     }
 }
 
-BaseUnit::BaseUnit() {}
-BaseUnit::~BaseUnit() {}
+BaseUnit::BaseUnit() : sprite(nullptr), shadows(nullptr), field_47(nullptr) {}
+
+void BaseUnit::Init(AbstractUnit* unit) {
+    sprite = nullptr;
+    shadows = nullptr;
+    field_47 = nullptr;
+
+    data = unit->data;
+
+    data_buffer = ResourceManager_LoadResource(data);
+
+    flags = unit->flags;
+    flics = unit->flics;
+    portrait = unit->portrait;
+    icon = unit->icon;
+    armory_portrait = unit->armory_portrait;
+    field_18 = unit->field_18;
+
+    land_type = unit->land_type;
+    cargo_type = unit->cargo_type;
+    gender = unit->gender;
+
+    singular_name = unit->singular_name;
+    plural_name = unit->plural_name;
+    description = unit->description;
+    tutorial = unit->tutorial;
+}
 
 int TeamUnits::GetParam(char* string, int* offset) {
     int number;

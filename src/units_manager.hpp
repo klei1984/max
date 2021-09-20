@@ -22,7 +22,17 @@
 #ifndef UNITS_MANAGER_HPP
 #define UNITS_MANAGER_HPP
 
+#include "teamunits.hpp"
 #include "unitinfo.hpp"
+
+extern SmartList<UnitInfo> UnitsManager_UnitList1;
+extern SmartList<UnitInfo> UnitsManager_UnitList2;
+extern SmartList<UnitInfo> UnitsManager_UnitList3;
+extern SmartList<UnitInfo> UnitsManager_UnitList4;
+extern SmartList<UnitInfo> UnitsManager_UnitList5;
+extern SmartList<UnitInfo> UnitsManager_UnitList6;
+
+extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
 int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
 

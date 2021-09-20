@@ -19,16 +19,30 @@
  * SOFTWARE.
  */
 
-#include "soundmgr.hpp"
+#include "enums.hpp"
+#include "unitinfo.h"
+#define UNITINFO_HPP
 
 #include <cstring>
 #include <new>
 
+#include "soundmgr.hpp"
+
 extern "C" {
-#include "game.h"
+#include "gnw.h"
+
+/// \todo Fix includes
+typedef ResourceID GAME_RESOURCE;
+typedef void GameResourceMeta;
+#include "mvelib32.h"
+#include "screendump.h"
+#include "units.h"
+#include "wrappers.h"
+extern char* to_upper_case(char* cstr);
 }
 
 #include "inifile.hpp"
+#include "resource_manager.hpp"
 
 #define SOUNDMGR_MAX_SAMPLES 20
 #define SOUNDMGR_CHUNK_SIZE 4096
@@ -119,7 +133,7 @@ void SoundMgr::Init() {
         SDL_assert(volumes);
 
         for (int i = 0; i < (FXS_END - FXS_STRT - 1); i++) {
-            volumes[i].volume = ini_soundvol.GetUnitVolume((GAME_RESOURCE)(FXS_STRT + i + 1));
+            volumes[i].volume = ini_soundvol.GetUnitVolume((ResourceID)(FXS_STRT + i + 1));
             volumes[i].flags = -1;
         }
 
@@ -160,7 +174,7 @@ void SoundMgr::Deinit() {
 void SoundMgr::UpdateMusic() {
     if (music && !Mix_PlayingMusic()) {
         if (shuffle_music) {
-            GAME_RESOURCE resource_id;
+            ResourceID resource_id;
             int index;
 
             /* if all tracks were played from the list, reset list state */
@@ -177,7 +191,7 @@ void SoundMgr::UpdateMusic() {
             for (;;) {
                 do {
                     index = (((BKG9_MSC - MAIN_MSC + 1) * dos_rand()) >> 15);
-                    resource_id = (GAME_RESOURCE)(index + MAIN_MSC);
+                    resource_id = (ResourceID)(index + MAIN_MSC);
                 } while (!shuffle_music_playlist[index]);
 
                 shuffle_music_playlist[index] = false;
@@ -267,7 +281,7 @@ void SoundMgr::FreeSample(SoundSample* sample) {
     }
 }
 
-void SoundMgr::PlayMusic(GAME_RESOURCE id, bool shuffle) {
+void SoundMgr::PlayMusic(ResourceID id, bool shuffle) {
     if ((id != INVALID_ID) && (id != current_music_played)) {
         if (ini_get_setting(ini_disable_music)) {
             last_music_played = id;
@@ -318,7 +332,7 @@ void SoundMgr::FreeMusic() {
     }
 }
 
-void SoundMgr::PlaySfx(GAME_RESOURCE id) {
+void SoundMgr::PlaySfx(ResourceID id) {
     if (!ini_get_setting(ini_disable_fx)) {
         SoundJob job;
 
@@ -370,7 +384,7 @@ void SoundMgr::PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode) {
             int loop_count;
             int sound_index;
             int volume_index;
-            int resource_id;
+            unsigned short resource_id;
 
             for (sound_index = 0;
                  sound_index != unit->sound_table->count && unit->sound_table->item[sound_index].type != sound;
@@ -401,7 +415,7 @@ void SoundMgr::PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode) {
                 char* filename;
                 volumes[volume_index].flags = 1;
 
-                filename = (char*)read_game_resource((GAME_RESOURCE)resource_id);
+                filename = ResourceManager_LoadResource((ResourceID)resource_id);
 
                 if (filename) {
                     FILE* fp;
@@ -424,7 +438,7 @@ void SoundMgr::PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode) {
             }
 
             job.type = (JOB_TYPE)((flags & SOUNDMGR_SFX_FLAG_UNKNOWN_2) != 0);
-            job.id = (GAME_RESOURCE)resource_id;
+            job.id = (ResourceID)resource_id;
 
             job.grid_x = unit->grid_x;
             job.grid_y = unit->grid_y;
@@ -567,11 +581,11 @@ void SoundMgr::HaltSfxPlayback(bool disable) {
     }
 }
 
-void SoundMgr::PlayVoice(GAME_RESOURCE id1, GAME_RESOURCE id2, short priority) {
+void SoundMgr::PlayVoice(ResourceID id1, ResourceID id2, short priority) {
     if (priority >= 0) {
         if (!IsVoiceGroupScheduled(id1, id2) && !ini_get_setting(ini_disable_voice)) {
             short priority_value;
-            int randomized_voice_id;
+            unsigned short randomized_voice_id;
 
             if (priority > 0) {
                 priority_value = priority;
@@ -585,7 +599,7 @@ void SoundMgr::PlayVoice(GAME_RESOURCE id1, GAME_RESOURCE id2, short priority) {
             for (auto it = jobs.begin(); it != jobs.end(); it++) {
                 if (it->type == JOB_TYPE_VOICE) {
                     if (priority_value >= it->priority) {
-                        it->id = (GAME_RESOURCE)randomized_voice_id;
+                        it->id = (ResourceID)randomized_voice_id;
                         it->priority = priority_value;
                     }
 
@@ -595,7 +609,7 @@ void SoundMgr::PlayVoice(GAME_RESOURCE id1, GAME_RESOURCE id2, short priority) {
 
             SoundJob job;
 
-            job.id = (GAME_RESOURCE)randomized_voice_id;
+            job.id = (ResourceID)randomized_voice_id;
             job.type = JOB_TYPE_VOICE;
             job.volume_1 = SOUNDMGR_MAX_VALUE;
             job.volume_2 = SOUNDMGR_MAX_VALUE;
@@ -853,7 +867,7 @@ int SoundMgr::ProcessJob(SoundJob& job) {
     return result;
 }
 
-void SoundMgr::FreeVoice(GAME_RESOURCE id1, GAME_RESOURCE id2) {
+void SoundMgr::FreeVoice(ResourceID id1, ResourceID id2) {
     if (voice && voice_played >= id1 && voice_played <= id2) {
         FreeSample(voice);
     }
@@ -867,7 +881,7 @@ void SoundMgr::FreeVoice(GAME_RESOURCE id1, GAME_RESOURCE id2) {
     }
 }
 
-bool SoundMgr::IsVoiceGroupScheduled(GAME_RESOURCE id1, GAME_RESOURCE id2) {
+bool SoundMgr::IsVoiceGroupScheduled(ResourceID id1, ResourceID id2) {
     if (voice_played >= id1 && voice_played <= id2 && voice && Mix_Playing(voice->mixer_channel)) {
         return true;
     }
@@ -901,13 +915,13 @@ int SoundMgr::GetPanning(int distance, bool reverse) {
     return panning;
 }
 
-bool SoundMgr::LoadMusic(GAME_RESOURCE id) {
+bool SoundMgr::LoadMusic(ResourceID id) {
     Mix_Music* sample;
     char* file;
     char file_path[PATH_MAX];
     bool result = false;
 
-    file = (char*)read_game_resource(id);
+    file = ResourceManager_LoadResource(id);
 
     if (file) {
         strncpy(file_path, file_path_msc, PATH_MAX);
@@ -935,7 +949,7 @@ int SoundMgr::LoadSound(SoundJob& job, SoundSample& sample) {
     char file_path[PATH_MAX];
     int result;
 
-    file = (char*)read_game_resource(job.id);
+    file = ResourceManager_LoadResource(job.id);
 
     if (file) {
         file_path[0] = '\0';

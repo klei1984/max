@@ -21,7 +21,7 @@
 
 #include "button.h"
 
-#include "game.h"
+#include "gnw.h"
 
 static GNW_ButtonPtr button_create(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value,
                                    int p_value, int r_value, int flags, char* up, char* down, char* hover);

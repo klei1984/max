@@ -21,7 +21,7 @@
 
 #include "text.h"
 
-#include "game.h"
+#include "gnw.h"
 
 typedef void (*text_font_func)(int);
 

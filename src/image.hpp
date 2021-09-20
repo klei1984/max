@@ -22,6 +22,8 @@
 #ifndef IMAGE_HPP
 #define IMAGE_HPP
 
+#include "enums.hpp"
+
 extern "C" {
 #include "gnw.h"
 }
@@ -36,7 +38,7 @@ class Image {
 
 public:
     Image(short ulx, short uly, short width, short height);
-    Image(unsigned short id, short ulx, short uly);
+    Image(ResourceID id, short ulx, short uly);
     ~Image();
 
     char *GetData() const;

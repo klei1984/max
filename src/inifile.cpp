@@ -22,15 +22,28 @@
 #include "inifile.hpp"
 
 #include <cstddef>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "SDL_assert.h"
+#include "resource_manager.hpp"
 
 extern "C" {
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "gnw.h"
+}
 
-#include "game.h"
+/// \todo Convert this module to C++
+#include "ginit.h"
+
+/// \todo Fix includes and dependencies
+extern "C" {
+typedef ResourceID GAME_RESOURCE;
+typedef void GameResourceMeta;
+#include "mvelib32.h"
+#include "unitinfo.h"
+#include "units.h"
+#include "wrappers.h"
 }
 
 enum IniKeyValueType_e {
@@ -489,7 +502,7 @@ IniSoundVolumes::~IniSoundVolumes() { inifile_save_to_file_and_free_buffer(&ini)
 
 void IniSoundVolumes::Init() { inifile_load_from_resource(&ini, SOUNDVOL); }
 
-int IniSoundVolumes::GetUnitVolume(GAME_RESOURCE id) {
+int IniSoundVolumes::GetUnitVolume(ResourceID id) {
     int value;
 
     if (!this->ini.buffer) {
@@ -497,8 +510,8 @@ int IniSoundVolumes::GetUnitVolume(GAME_RESOURCE id) {
     }
 
     if (inifile_ini_seek_section(&ini, "Unit Volumes")) {
-        if (res_get_resource_file_index(id) != -1) {
-            if (inifile_ini_get_numeric_value(&ini, res_get_resource_id_string(id), &value)) {
+        if (ResourceManager_GetResourceFileID(id) != -1) {
+            if (inifile_ini_get_numeric_value(&ini, ResourceManager_GetResourceID(id), &value)) {
                 return 0x7FFF * value / 100u;
             }
         }

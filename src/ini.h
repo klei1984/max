@@ -24,7 +24,6 @@
 
 #include <limits.h>
 
-#include "resrcmgr.h"
 #ifdef __unix__
 #include <linux/limits.h>
 #endif
@@ -179,7 +178,7 @@ int inifile_ini_set_numeric_value(Ini_descriptor *const pini, const int value);
 int inifile_ini_set_string_value(Ini_descriptor *const pini, char *value);
 int inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const unsigned int buffer_size, const int mode);
 int inifile_save_to_file(Ini_descriptor *const pini);
-void inifile_load_from_resource(Ini_descriptor *const pini, const GAME_RESOURCE resource_id);
+void inifile_load_from_resource(Ini_descriptor *const pini, const unsigned short resource_id);
 int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buffer, const unsigned int buffer_size);
 
 int ini_get_setting(GAME_INI index);

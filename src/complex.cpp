@@ -23,6 +23,7 @@
 
 #include "registerarray.hpp"
 #include "unitinfo.hpp"
+#include "units_manager.hpp"
 
 Complex::Complex(short id) : material(0), fuel(0), gold(0), power(0), workers(0), buildings(0), id(id) {}
 
@@ -110,5 +111,17 @@ void Complex::RemoveBuilding(UnitInfo& unit) {
 
     if (0 == buildings) {
         /// \todo Remove complex from CTinfo)
+    }
+}
+
+void Complex::GetCargoInfo(Cargo& materials, Cargo& capacity) {
+    Cargo cargo;
+
+    materials.Init();
+    capacity.Init();
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_UnitList4.Begin(); it != UnitsManager_UnitList4.End(); ++it) {
+        materials += *Cargo_GetCargo(&*it, &cargo);
+        capacity += *Cargo_GetCargoCapacity(&*it, &cargo);
     }
 }

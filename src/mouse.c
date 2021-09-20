@@ -23,7 +23,7 @@
 
 #include <SDL.h>
 
-#include "game.h"
+#include "gnw.h"
 
 #define GNW_MOUSE_BUTTON_LEFT 1
 #define GNW_MOUSE_BUTTON_RIGHT 2

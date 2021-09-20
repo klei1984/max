@@ -22,10 +22,8 @@
 #ifndef MOVIE_H
 #define MOVIE_H
 
-#include "resrcmgr.h"
-
 int movie_play_oem_logo(void);
 int movie_play_intro(void);
-int movie_play(GAME_RESOURCE resource_id);
+int movie_play(unsigned short resource_id);
 
 #endif /* MOVIE_H */

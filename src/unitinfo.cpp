@@ -713,6 +713,10 @@ void UnitInfo::ClearTask1List() {
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
 
+UnitInfo* UnitInfo::GetParent() const { return &*parent_unit; }
+
 void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
 
-UnitValues* UnitInfo::GetBaseValues() { return &*base_values; }
+UnitValues* UnitInfo::GetBaseValues() const { return &*base_values; }
+
+Complex* UnitInfo::GetComplex() const { return &*complex; }

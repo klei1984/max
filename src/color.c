@@ -24,7 +24,7 @@
 #include <SDL.h>
 #include <stdio.h>
 
-#include "game.h"
+#include "gnw.h"
 
 static unsigned long colorOpen(char* file, int mode);
 static unsigned long colorRead(unsigned long handle, void* buf, unsigned long size);

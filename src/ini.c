@@ -21,14 +21,15 @@
 
 #include "ini.h"
 
-#include "game.h"
+#include "gnw.h"
+#include "resrcmgr.h"
 
 static const char *hex_to_dec_lut1 = "0123456789ABCDEF";
 static unsigned int hex_to_dec_lut2[] = {0x00, 0x01, 0x10, 0x100, 0x1000, 0x10000, 0x100000, 0x1000000, 0x10000000};
 
 static int inifile_hex_to_dec_digit(char c);
 
-void inifile_load_from_resource(Ini_descriptor *const pini, const GAME_RESOURCE resource_id) {
+void inifile_load_from_resource(Ini_descriptor *const pini, const unsigned short resource_id) {
     pini->ini_file_path[0] = '\0';
     pini->file_size = get_resource_data_size(resource_id);
     pini->buffer_size = pini->file_size;

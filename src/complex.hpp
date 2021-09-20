@@ -22,6 +22,7 @@
 #ifndef COMPLEX_HPP
 #define COMPLEX_HPP
 
+#include "cargo.hpp"
 #include "textfile.hpp"
 
 class UnitInfo;
@@ -54,6 +55,8 @@ public:
 
     void AddBuilding(UnitInfo& unit);
     void RemoveBuilding(UnitInfo& unit);
+
+    void GetCargoInfo(Cargo& materials, Cargo& capacity);
 };
 
 #endif /* COMPLEX_HPP */

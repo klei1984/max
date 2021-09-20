@@ -21,7 +21,7 @@
 
 #include "svga.h"
 
-#include "game.h"
+#include "gnw.h"
 
 static SDL_Window *sdlWindow;
 static SDL_Renderer *sdlRenderer;

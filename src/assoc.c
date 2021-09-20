@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "game.h"
+#include "gnw.h"
 
 static void* default_malloc(size_t t);
 static void* default_realloc(void* p, size_t t);

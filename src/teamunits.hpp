@@ -28,26 +28,26 @@
 #include "unitvalues.hpp"
 
 struct AbstractUnit {
-    AbstractUnit(unsigned int flags, unsigned short sprite, unsigned short shadows, unsigned short data,
-                 unsigned short flics, unsigned short portrait, unsigned short icon, unsigned short armory_portrait,
-                 unsigned short field_18, unsigned char cargo_type, unsigned char land_type, char new_gender,
+    AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data,
+                 ResourceID flics, ResourceID portrait, ResourceID icon, ResourceID armory_portrait,
+                 ResourceID field_18, unsigned char cargo_type, unsigned char land_type, char new_gender,
                  const char* singular_name, const char* plural_name, const char* description,
                  const char* tutorial = "");
 
     unsigned int flags;
 
-    unsigned short data;
+    ResourceID data;
 
     unsigned int field_6;
 
-    unsigned short flics;
-    unsigned short portrait;
-    unsigned short icon;
-    unsigned short armory_portrait;
-    unsigned short field_18;
+    ResourceID flics;
+    ResourceID portrait;
+    ResourceID icon;
+    ResourceID armory_portrait;
+    ResourceID field_18;
 
-    unsigned char cargo_type;
     unsigned char land_type;
+    unsigned char cargo_type;
     unsigned char gender;
 
     const char* singular_name;
@@ -55,14 +55,32 @@ struct AbstractUnit {
     const char* description;
     const char* tutorial;
 
-    unsigned short sprite;
-    unsigned short shadows;
+    ResourceID sprite;
+    ResourceID shadows;
 };
 
-class BaseUnit {
-public:
+struct BaseUnit {
     BaseUnit();
-    ~BaseUnit();
+    void Init(AbstractUnit* unit);
+
+    unsigned int flags;
+    ResourceID data;
+    char* data_buffer;
+    ResourceID flics;
+    ResourceID portrait;
+    ResourceID icon;
+    ResourceID armory_portrait;
+    ResourceID field_18;
+    unsigned char land_type;
+    unsigned char cargo_type;
+    unsigned char gender;
+    const char* singular_name;
+    const char* plural_name;
+    const char* description;
+    const char* tutorial;
+    char* sprite;
+    char* shadows;
+    char* field_47;
 };
 
 class TeamUnits {

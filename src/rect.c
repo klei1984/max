@@ -21,7 +21,7 @@
 
 #include "rect.h"
 
-#include "game.h"
+#include "gnw.h"
 
 static RectPtr rlist;
 

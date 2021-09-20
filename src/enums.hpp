@@ -24,7 +24,7 @@
 
 #include "sortedenum.hpp"
 
-enum : unsigned short {
+enum ResourceID : unsigned short {
     COMMTWR = 0x0,
     POWERSTN = 0x1,
     POWGEN = 0x2,
@@ -1989,6 +1989,41 @@ enum {
 enum : unsigned char { LAND = 0x1, WATER = 0x2 };
 
 enum : unsigned char { NO_CARGO = 0x0, MATERIALS = 0x1, FUEL = 0x2, GOLD = 0x3 };
+
+enum : unsigned char {
+    ORDER_AWAITING = 0x0,
+    ORDER_TRANSFORMING = 0x1,
+    ORDER_MOVING = 0x2,
+    ORDER_FIRING = 0x3,
+    ORDER_BUILDING = 0x4,
+    ORDER_ACTIVATE_ORDER = 0x5,
+    ORDER_NEW_ALLOCATE_ORDER = 0x6,
+    ORDER_POWER_ON = 0x7,
+    ORDER_POWER_OFF = 0x8,
+    ORDER_EXPLODING = 0x9,
+    ORDER_UNLOADING = 0xA,
+    ORDER_CLEARING = 0xB,
+    ORDER_SENTRY = 0xC,
+    ORDER_LANDING = 0xD,
+    ORDER_TAKING_OFF = 0xE,
+    ORDER_LOADING = 0xF,
+    ORDER_IDLE = 0x10,
+    ORDER_REPAIRING = 0x11,
+    ORDER_REFUELING = 0x12,
+    ORDER_RELOADING = 0x13,
+    ORDER_TRANSFERRING = 0x14,
+    ORDER_AWAITING_21 = 0x15,
+    ORDER_AWAITING_22 = 0x16,
+    ORDER_AWAITING_23 = 0x17,
+    ORDER_AWAITING_24 = 0x18,
+    ORDER_AWAITING_25 = 0x19,
+    ORDER_DISABLED = 0x1A,
+    ORDER_MOVING_27 = 0x1B,
+    ORDER_REPAIRING_28 = 0x1C,
+    ORDER_TRANSFERRING_29 = 0x1D,
+    ORDER_ATTACKING = 0x1E,
+    ORDER_BUILDING_HALTED = 0x1F
+};
 
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;

@@ -22,6 +22,8 @@
 #ifndef INIFILE_HPP
 #define INIFILE_HPP
 
+#include "enums.hpp"
+
 extern "C" {
 #include "ini.h"
 }
@@ -65,14 +67,13 @@ private:
 };
 
 class IniSoundVolumes {
+    Ini_descriptor ini;
+
 public:
     IniSoundVolumes();
     ~IniSoundVolumes();
     void Init();
-    int GetUnitVolume(GAME_RESOURCE id);
-
-private:
-    Ini_descriptor ini;
+    int GetUnitVolume(ResourceID id);
 };
 
 extern IniSettings ini_config;

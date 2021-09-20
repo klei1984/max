@@ -21,7 +21,18 @@
 
 #include "movie.h"
 
-#include "game.h"
+#include "gnw.h"
+#include "ini.h"
+
+/// \todo Convert this module to C++
+
+/// \todo Fix includes and dependencies
+#include "ginit.h"
+#include "gwindow.h"
+#include "mvelib32.h"
+#include "unitinfo.h"
+#include "units.h"
+#include "wrappers.h"
 
 static void* mve_cb_alloc(size_t size);
 static void mve_cb_free(void* p);
@@ -190,7 +201,7 @@ int movie_play_oem_logo(void) { return movie_run(LOGOFLIC, 0); }
 
 int movie_play_intro(void) { return movie_run(INTROFLC, 1); }
 
-int movie_play(GAME_RESOURCE resource_id) {
+int movie_play(unsigned short resource_id) {
     gwin_clear_window();
     return movie_run(resource_id, 0);
 }

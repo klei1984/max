@@ -44,7 +44,7 @@ protected:
     short value;
     Image *xfer_slider;
     Image *xfer_amount_background;
-    unsigned short material_bar;
+    ResourceID material_bar;
     unsigned int key_code_increase;
     unsigned int key_code_decrease;
     unsigned int button_p_value;
@@ -53,20 +53,21 @@ protected:
     unsigned short scaling_factor;
     bool scrollbar_type;
 
-    friend void LoadHorizontalBar(char *buffer, short width, short capacity, short height, unsigned short id);
-    friend void LoadVerticalBar(char *buffer, short width, short capacity, short height, unsigned short id);
+    friend void LoadHorizontalBar(char *buffer, short width, short capacity, short height, ResourceID id);
+    friend void LoadVerticalBar(char *buffer, short width, short capacity, short height, ResourceID id);
     void ProcessValueChange(short value);
 
 public:
-    Scrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, unsigned short material_bar_id,
-              int key_code_increase, int key_code_decrease, int key_code_click_slider, short scaling_factor,
-              bool vertical);
+    Scrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id, int key_code_increase,
+              int key_code_decrease, int key_code_click_slider, short scaling_factor, bool vertical = false);
     virtual ~Scrollbar();
 
     void SetValue(unsigned short value);
     void SetZeroOffset(short offset);
     void SetFreeCapacity(short free_capacity);
-    void SetMaterialBar(unsigned short id);
+    void SetMaterialBar(ResourceID id);
+
+    short GetValue() const;
 
     virtual void Register();
     virtual void RefreshScreen();
@@ -78,9 +79,9 @@ class LimitedScrollbar : public Scrollbar {
     unsigned short xfer_take_max;
 
 public:
-    LimitedScrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, unsigned short material_bar_id,
+    LimitedScrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id,
                      int key_code_increase, int key_code_decrease, int key_code_click_slider, short scaling_factor,
-                     bool vertical);
+                     bool vertical = false);
     ~LimitedScrollbar();
 
     void SetXferGiveMax(unsigned short limit);

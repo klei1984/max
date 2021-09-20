@@ -23,7 +23,7 @@
 
 #include <SDL.h>
 
-#include "game.h"
+#include "gnw.h"
 
 #define GNW_INPUT_BUFFER_SIZE 40
 

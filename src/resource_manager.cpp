@@ -22,15 +22,23 @@
 #include "resource_manager.hpp"
 
 extern "C" {
-extern char *read_game_resource(unsigned short id);
-extern unsigned int get_resource_data_size(unsigned short id);
-extern int read_game_resource_into_buffer(unsigned short id, void *buffer);
+extern char *read_game_resource(ResourceID id);
+extern unsigned int get_resource_data_size(ResourceID id);
+extern int read_game_resource_into_buffer(ResourceID id, void *buffer);
+const char *res_get_resource_id_string(ResourceID id);
+short res_get_resource_file_index(ResourceID id);
+unsigned char init_game_resources(void);
 }
 
-char *ResourceManager_LoadResource(unsigned short id) { return read_game_resource(id); }
+unsigned char ResourceManager_Init() { return init_game_resources(); }
 
-unsigned int ResourceManager_GetResourceSize(unsigned short id) { return get_resource_data_size(id); }
+char *ResourceManager_LoadResource(ResourceID id) { return read_game_resource(id); }
 
-int ResourceManager_ReadImageHeader(unsigned short id, struct SpriteMeta *buffer) {
+unsigned int ResourceManager_GetResourceSize(ResourceID id) { return get_resource_data_size(id); }
+
+int ResourceManager_ReadImageHeader(ResourceID id, struct SpriteMeta *buffer) {
     return read_game_resource_into_buffer(id, buffer);
 }
+
+int ResourceManager_GetResourceFileID(ResourceID id) { return res_get_resource_file_index(id); }
+const char *ResourceManager_GetResourceID(ResourceID id) { return res_get_resource_id_string(id); }

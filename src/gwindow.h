@@ -26,7 +26,8 @@
 extern "C" {
 #endif
 
-#include "interface.h"
+#include "gnw.h"
+#include "resrcmgr.h"
 
 typedef struct {
     unsigned short field_0;

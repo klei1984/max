@@ -67,7 +67,7 @@ class UnitInfo : public TextFileObject {
 public:
     unsigned short unit_type;
     void (*sound_function)();
-    SoundTable* sound_table;
+    struct SoundTable* sound_table;
     unsigned int flags;
     unsigned short x;
     unsigned short y;
@@ -184,8 +184,10 @@ public:
     void ClearUnitList();
     void ClearTask1List();
     void SetParent(UnitInfo* parent);
+    UnitInfo* GetParent() const;
     void SetEnemy(UnitInfo* enemy);
-    UnitValues* GetBaseValues();
+    UnitValues* GetBaseValues() const;
+    Complex* GetComplex() const;
 };
 
 #endif /* UNITINFO_HPP */

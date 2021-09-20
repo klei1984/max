@@ -27,11 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __unix__
-#include <linux/limits.h>
-#endif
-
-#include "game.h"
+#include "gnw.h"
 
 #define GNW_DB_DATABASE_LIST_SIZE 10
 #define GNW_DB_FILE_LIST_SIZE 10

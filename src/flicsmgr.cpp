@@ -26,7 +26,8 @@
 extern "C" {
 #include <stdio.h>
 
-#include "game.h"
+#include "ginit.h"
+#include "gnw.h"
 }
 
 #define FLICSMGR_FLI_TYPE 0xAF11u

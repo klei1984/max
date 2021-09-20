@@ -22,7 +22,13 @@
 #include "button.hpp"
 
 #include "enums.hpp"
+#include "text.hpp"
 //#include "soundmgr.hpp"
+
+/// \todo Fix includes
+extern "C" {
+void gwin_load_image2(ResourceID id, int ulx, int uly, int has_transparency, WindowInfo *w);
+}
 
 void Button_PFunc(ButtonID bid, Button *b) {
     if (!b->rest_state) {
@@ -66,7 +72,7 @@ Button::Button(short ulx, short uly, short lrx, short lry)
       sfx(INVALID_ID),
       rest_state(false) {}
 
-Button::Button(unsigned short up, unsigned short down, short ulx, short uly)
+Button::Button(ResourceID up, ResourceID down, short ulx, short uly)
     : bid(0),
       up_disabled(nullptr),
       down_disabled(nullptr),
@@ -224,7 +230,7 @@ void Button::Copy(WinID wid) {
     }
 }
 
-void Button::Copy(unsigned short id, int ulx, int uly) {
+void Button::Copy(ResourceID id, int ulx, int uly) {
     WindowInfo window;
 
     Allocate();
@@ -236,12 +242,12 @@ void Button::Copy(unsigned short id, int ulx, int uly) {
     window.window.lry = lry;
 
     window.buffer = reinterpret_cast<unsigned char *>(up->GetData());
-    /// \todo Integrate with gwin
-    //    gwin_load_image2(id, ulx, uly, 1, &window);
+    gwin_load_image2(id, ulx, uly, 1, &window);
 
     window.buffer = reinterpret_cast<unsigned char *>(down->GetData());
-    //    gwin_load_image2(id, ulx, uly + 1, 1, &window);
+    gwin_load_image2(id, ulx, uly + 1, 1, &window);
 }
+
 void Button::CopyDisabled(WindowInfo *w) {
     delete up_disabled;
     delete down_disabled;
@@ -253,22 +259,22 @@ void Button::CopyDisabled(WindowInfo *w) {
     down_disabled->Copy(*up_disabled);
 }
 
-void Button::CopyUp(unsigned short id) {
+void Button::CopyUp(ResourceID id) {
     delete up;
     up = new (std::nothrow) Image(id, ulx, uly);
 }
 
-void Button::CopyDown(unsigned short id) {
+void Button::CopyDown(ResourceID id) {
     delete down;
     down = new (std::nothrow) Image(id, ulx, uly);
 }
 
-void Button::CopyUpDisabled(unsigned short id) {
+void Button::CopyUpDisabled(ResourceID id) {
     delete up_disabled;
     up_disabled = new (std::nothrow) Image(id, ulx, uly);
 }
 
-void Button::CopyDownDisabled(unsigned short id) {
+void Button::CopyDownDisabled(ResourceID id) {
     delete down_disabled;
     down_disabled = new (std::nothrow) Image(id, ulx, uly);
 }
@@ -400,7 +406,7 @@ void Button::PlaySound() const {
     //	soundmgr.PlaySfx(sfx);
 }
 
-void Button::SetSfx(unsigned short id) { sfx = id; }
+void Button::SetSfx(ResourceID id) { sfx = id; }
 
 ButtonID Button::GetId() const { return bid; }
 
@@ -430,21 +436,20 @@ void Button::SetCaption(const char *caption, Rect r, FontColor color_up, FontCol
     window.buffer = reinterpret_cast<unsigned char *>(up->GetData());
     window.width = up->GetWidth();
     uly_caption = ((height - text_height()) / 2) + r.uly, width;
-    /// \todo Implement draw_capion
-    //    draw_caption(&window, caption, r.ulx, uly_caption, 1, color_up);
+    Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_up);
 
     window.buffer = reinterpret_cast<unsigned char *>(down->GetData());
-    //    draw_caption(&window, caption, r.ulx, uly_caption, 1, color_down);
+    Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_down);
 
     if (up_disabled) {
         window.buffer = reinterpret_cast<unsigned char *>(up_disabled->GetData());
         window.width = up_disabled->GetWidth();
-        //        draw_caption(&window, caption, r.ulx, uly_caption, 1, color_up_disabled);
+        Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_up_disabled);
     }
 
     if (down_disabled) {
         window.buffer = reinterpret_cast<unsigned char *>(down_disabled->GetData());
         window.width = down_disabled->GetWidth();
-        //        draw_caption(&window, caption, r.ulx, uly_caption, 1, color_down_disabled);
+        Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_down_disabled);
     }
 }

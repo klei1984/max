@@ -27,15 +27,17 @@
 
 class OKCancelMenu : public Window {
     WindowInfo window;
-    unsigned char field_49;
-    unsigned char field_50;
+    bool event_click_ok;
+    bool event_click_cancel;
     Button *button_ok;
     Button *button_cancel;
-    unsigned char field_60;
+    bool event_release;
 
 public:
     OKCancelMenu(const char *caption, bool mode);
     ~OKCancelMenu();
+
+    bool Run();
 };
 
 #endif /* OKCANCELMENU_HPP */

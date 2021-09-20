@@ -26,7 +26,19 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "game.h"
+#ifdef __unix__
+#include <linux/limits.h>
+#endif
+
+#include "gnw.h"
+
+/// \todo Fix includes and dependencies
+typedef unsigned short GAME_RESOURCE;
+typedef void GameResourceMeta;
+#include "mvelib32.h"
+#include "unitinfo.h"
+#include "units.h"
+#include "wrappers.h"
 
 #ifdef __unix__
 char *strupr(char *s) { return dos_strupr(s); }

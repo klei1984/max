@@ -33,7 +33,7 @@ EVENTS_REGISTER_EVENT(ScrollbarEvent);
 EventScrollbarChange::EventScrollbarChange(Scrollbar* scrollbar, short value) : scrollbar(scrollbar), value(value) {}
 unsigned short EventScrollbarChange::GetEventId() { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
 
-void LoadHorizontalBar(char* buffer, short width, short capacity, short height, unsigned short id) {
+void LoadHorizontalBar(char* buffer, short width, short capacity, short height, ResourceID id) {
     struct SpriteHeader* sprite;
     char transparent_color;
     char* data;
@@ -55,7 +55,7 @@ void LoadHorizontalBar(char* buffer, short width, short capacity, short height, 
     }
 }
 
-void LoadVerticalBar(char* buffer, short width, short capacity, short height, unsigned short id) {
+void LoadVerticalBar(char* buffer, short width, short capacity, short height, ResourceID id) {
     struct SpriteHeader* sprite;
     char transparent_color;
     char* data;
@@ -99,10 +99,10 @@ void Scrollbar::ProcessValueChange(short value) {
     }
 }
 
-Scrollbar::Scrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds, unsigned short material_bar_id,
+Scrollbar::Scrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds, ResourceID id,
                      int key_code_increase, int key_code_decrease, int key_code_click_slider, short scaling_factor,
                      bool vertical)
-    : material_bar(material_bar_id),
+    : material_bar(id),
       key_code_increase(key_code_increase),
       key_code_decrease(key_code_decrease),
       button_p_value(key_code_click_slider),
@@ -164,7 +164,9 @@ void Scrollbar::SetZeroOffset(short offset) { zero_offset = offset; }
 
 void Scrollbar::SetFreeCapacity(short free_capacity) { this->free_capacity = free_capacity; }
 
-void Scrollbar::SetMaterialBar(unsigned short id) { material_bar = id; }
+void Scrollbar::SetMaterialBar(ResourceID id) { material_bar = id; }
+
+short Scrollbar::GetValue() const { return value; }
 
 void Scrollbar::Register() {
     WindowInfo win;
@@ -284,10 +286,10 @@ bool Scrollbar::ProcessKey(int key_code) {
     return result;
 }
 
-LimitedScrollbar::LimitedScrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds,
-                                   unsigned short material_bar_id, int key_code_increase, int key_code_decrease,
-                                   int key_code_click_slider, short scaling_factor, bool vertical)
-    : Scrollbar(window, xfer_slider_bounds, xfer_amount_bounds, material_bar_id, key_code_increase, key_code_decrease,
+LimitedScrollbar::LimitedScrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds, ResourceID id,
+                                   int key_code_increase, int key_code_decrease, int key_code_click_slider,
+                                   short scaling_factor, bool vertical)
+    : Scrollbar(window, xfer_slider_bounds, xfer_amount_bounds, id, key_code_increase, key_code_decrease,
                 key_code_click_slider, scaling_factor, vertical),
       xfer_give_max(0),
       xfer_take_max(36864) {}

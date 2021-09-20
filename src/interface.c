@@ -21,7 +21,7 @@
 
 #include "interface.h"
 
-#include "game.h"
+#include "gnw.h"
 
 typedef struct tm_item_s {
     TOCKS created;

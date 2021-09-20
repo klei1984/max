@@ -24,19 +24,20 @@
 
 #include <assert.h>
 
+#include "assoc.h"
 #include "button.h"
 #include "color.h"
 #include "db.h"
+#include "dos.h"
 #include "grbuf.h"
 #include "input.h"
 #include "interface.h"
 #include "kb.h"
+#include "lzss.h"
 #include "mouse.h"
 #include "rect.h"
 #include "text.h"
 #include "vcr.h"
-#include "assoc.h"
-#include "lzss.h"
 
 typedef int (*SetModeFunc)(void);
 typedef void (*ResetModeFunc)(void);
@@ -78,7 +79,9 @@ typedef struct GNW_Window_s {
     Trans_b2b trans_b2b;
 } GNW_Window;
 
+extern char* GNW_texture;
 extern int GNW_win_init_flag;
+extern ColorRGB GNW_wcolor[6];
 
 int win_init(SetModeFunc set_mode_func, ResetModeFunc reset_mode_func, int flags);
 int win_reinit(SetModeFunc set_mode_func);

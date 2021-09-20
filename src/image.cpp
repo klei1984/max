@@ -36,7 +36,7 @@ Image::Image(short ulx, short uly, short width, short height)
       data(new (std::nothrow) char[width * height]),
       allocated(true) {}
 
-Image::Image(unsigned short id, short ulx, short uly) {
+Image::Image(ResourceID id, short ulx, short uly) {
     struct SpriteHeader *sprite;
 
     sprite = reinterpret_cast<SpriteHeader *>(ResourceManager_LoadResource(id));

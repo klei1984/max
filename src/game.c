@@ -19,7 +19,22 @@
  * SOFTWARE.
  */
 
-#include "game.h"
+#include "gnw.h"
+
+#include <string.h>
+#include <stdlib.h>
+
+#ifdef __unix__
+#include <linux/limits.h>
+#endif
+
+/// \todo Fix includes and dependencies
+typedef unsigned short GAME_RESOURCE;
+typedef void GameResourceMeta;
+#include "mvelib32.h"
+#include "unitinfo.h"
+#include "units.h"
+#include "wrappers.h"
 
 #if !defined(GAME_VERSION)
 #define GAME_VERSION ""

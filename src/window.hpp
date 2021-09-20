@@ -22,11 +22,12 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
+#include "enums.hpp"
+#include "events.hpp"
+
 extern "C" {
 #include "gnw.h"
 }
-
-#include "events.hpp"
 
 class Window {
     WinID window_id;
@@ -40,13 +41,15 @@ class Window {
 
 public:
     Window(short ulx, short uly, short width, short height);
-    Window(unsigned short resource_id);
-    Window(unsigned short resource_id, unsigned char win_id);
+    Window(ResourceID id);
+    Window(ResourceID id, unsigned char win_id);
     virtual ~Window();
 
     void FillWindowInfo(WindowInfo* window);
     void Add(bool draw_to_screen = false);
     void GetCursorPosition(int& x, int& y) const;
+    void SetFlags(unsigned int flags);
+    void SetPaletteMode(bool palette_from_image);
     virtual bool EventHandler(Event& event);
 };
 

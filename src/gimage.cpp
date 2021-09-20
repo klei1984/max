@@ -25,6 +25,10 @@
 
 #include "SDL_assert.h"
 
+extern "C" {
+extern void *load_game_resource(GAME_RESOURCE id);
+}
+
 struct SpriteHeader {
     unsigned short width;
     unsigned short height;
@@ -156,8 +160,8 @@ void gimage_copy_content(GImage *dst, GImage *src) {
 }
 
 void gimage_copy_to_window(GImage *image, WindowInfo *w) {
-    buf_to_buf(image->buffer, image->width, image->height, image->width,
-               &w->buffer[image->ulx + w->width * image->uly], w->width);
+    buf_to_buf(image->buffer, image->width, image->height, image->width, &w->buffer[image->ulx + w->width * image->uly],
+               w->width);
 }
 
 void gimage_copy_rect_to_window(GImage *image, WindowInfo *w, Rect *r) {
@@ -166,8 +170,7 @@ void gimage_copy_rect_to_window(GImage *image, WindowInfo *w, Rect *r) {
 }
 
 void gimage_copy_offset_to_window(GImage *image, WindowInfo *w, int ulx, int uly) {
-    buf_to_buf(image->buffer, image->width, image->height, image->width, &w->buffer[ulx + w->width * uly],
-               w->width);
+    buf_to_buf(image->buffer, image->width, image->height, image->width, &w->buffer[ulx + w->width * uly], w->width);
 }
 
 void gimage_get_image_rect(GImage *image, Rect *r) {

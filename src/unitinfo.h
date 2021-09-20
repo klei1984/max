@@ -26,19 +26,18 @@
 extern "C" {
 #endif
 
-typedef struct __attribute__((packed)) {
+struct SoundElement {
     unsigned char type;
     unsigned short resource_id;
-} SoundElement;
+};
 
-static_assert(sizeof(SoundElement) == 3, "The structure needs to be packed.");
-
-typedef struct __attribute__((packed)) {
+struct SoundTable {
     unsigned char count;
-    SoundElement item[];
-} SoundTable;
+    struct SoundElement item[];
+};
 
 enum {
+#if !defined(ENUMS_HPP)
     GROUND_COVER = 0x1,
     EXPLODING = 0x2,
     ANIMATED = 0x4,
@@ -60,7 +59,8 @@ enum {
     REQUIRES_SLAB = 0x1000000,
     TURRET_SPRITE = 0x2000000,
     SENTRY_UNIT = 0x4000000,
-    SPINNING_TURRET = 0x8000000,
+    SPINNING_TURRET = 0x8000000
+#endif
 };
 
 typedef struct __attribute__((packed)) {
@@ -69,7 +69,7 @@ typedef struct __attribute__((packed)) {
     unsigned short field_6;
     unsigned short unit_type;
     unsigned int field_10;
-    SoundTable *sound_table;
+    struct SoundTable *sound_table;
     unsigned int flags;
     unsigned short x;
     unsigned short y;

@@ -37,7 +37,7 @@ struct Cursor_Descriptor {
     char* data;
 };
 
-static unsigned short Cursor_ResourceLut[CURSOR_CURSOR_COUNT] = {
+static ResourceID Cursor_ResourceLut[CURSOR_CURSOR_COUNT] = {
     HIDDNPTR, HANDPTR,  ARROW_N,  ARROW_NE, ARROW_E,  ARROW_SE, ARROW_S,  ARROW_SW, ARROW_W,  ARROW_NW,
     MAP_PTR,  MINI_PTR, FRND_FIX, FRND_XFR, FRND_FUE, PTR_RLD,  FRND_LOD, FRND_PTR, ENMY_PTR, PTR_FTRG,
     UNIT_GO,  UNIT_NGO, WAY_PTR,  GROUPPTR, ACTVTPTR, MAP_PTR,  STEALPTR, DISBLPTR, PTR_PATH, PTR_HELP};

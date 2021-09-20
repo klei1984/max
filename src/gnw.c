@@ -23,7 +23,14 @@
 
 #include <SDL.h>
 
-#include "game.h"
+/// \todo Fix includes and dependencies
+typedef unsigned short GAME_RESOURCE;
+typedef void GameResourceMeta;
+#include "ginit.h"
+#include "mvelib32.h"
+#include "unitinfo.h"
+#include "units.h"
+#include "wrappers.h"
 
 static void win_free(WinID id);
 static void win_clip(GNW_Window *w, RectPtr *L, char *buf);

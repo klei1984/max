@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "game.h"
+#include "gnw.h"
 
 void draw_line(unsigned char* buffer, int width, int x1, int y1, int x2, int y2, int color) {
     int delta_x;

@@ -22,6 +22,7 @@
 #ifndef BUTTON_HPP
 #define BUTTON_HPP
 
+#include "enums.hpp"
 #include "fonts.hpp"
 #include "image.hpp"
 
@@ -42,7 +43,7 @@ class Button {
     ButtonFunc p_func;
     ButtonFunc r_func;
     WinID wid;
-    unsigned short sfx;
+    ResourceID sfx;
     bool rest_state;
 
     friend void Button_PFunc(ButtonID bid, Button *b);
@@ -50,7 +51,7 @@ class Button {
 
 public:
     Button(short ulx, short uly, short lrx, short lry);
-    Button(unsigned short up, unsigned short down, short ulx, short uly);
+    Button(ResourceID up, ResourceID down, short ulx, short uly);
     ~Button();
 
     void Allocate();
@@ -62,12 +63,12 @@ public:
     char *GetDownDisabledData() const;
 
     void Copy(WinID wid);
-    void Copy(unsigned short id, int ulx, int uly);
+    void Copy(ResourceID id, int ulx, int uly);
     void CopyDisabled(WindowInfo *w);
-    void CopyUp(unsigned short id);
-    void CopyDown(unsigned short id);
-    void CopyUpDisabled(unsigned short id);
-    void CopyDownDisabled(unsigned short id);
+    void CopyUp(ResourceID id);
+    void CopyDown(ResourceID id);
+    void CopyUpDisabled(ResourceID id);
+    void CopyDownDisabled(ResourceID id);
     void CopyUp(char *data);
     void CopyDown(char *data);
     void CopyUpDisabled(char *data);
@@ -83,7 +84,7 @@ public:
 
     void SetRestState(bool rest_state);
     void PlaySound() const;
-    void SetSfx(unsigned short id);
+    void SetSfx(ResourceID id);
     ButtonID GetId() const;
     void SetPValue(int r_value);
     void SetRValue(int r_value);

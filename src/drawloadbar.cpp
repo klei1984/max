@@ -22,14 +22,13 @@
 #include "drawloadbar.hpp"
 
 #include "enums.hpp"
-#include "fonts.hpp"
+#include "text.hpp"
 
 DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, 38) {
     text_font(5);
     Add();
     FillWindowInfo(&window);
-    /// \todo Implement draw function
-    //    draw_texture_text_label(&window, text, 0, 140, window.width, 30, 1, 1, Fonts_GoldColor);
+    Text_TextBox(&window, text, 0, 140, window.width, 30, true);
     Rect slider_bounds = {14, 175, 171, 192};
     Rect value_bounds = {0, 0, 0, 0};
     loadbar = new (std::nothrow) LimitedScrollbar(this, &slider_bounds, &value_bounds, SMBRRAW, 0, 0, 0, 0, false);

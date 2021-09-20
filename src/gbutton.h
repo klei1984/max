@@ -28,7 +28,6 @@ extern "C" {
 
 #include "gimage.h"
 #include "gnw.h"
-#include "resrcmgr.h"
 
 struct __attribute__((packed)) GButton {
     ButtonID bid;

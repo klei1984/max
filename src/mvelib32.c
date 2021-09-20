@@ -21,7 +21,16 @@
 
 #include "mvelib32.h"
 
-#include "game.h"
+#include "gnw.h"
+
+/// \todo Fix includes and dependencies
+typedef unsigned short GAME_RESOURCE;
+typedef void GameResourceMeta;
+#include "ginit.h"
+#include "mvelib32.h"
+#include "unitinfo.h"
+#include "units.h"
+#include "wrappers.h"
 
 #if defined(__unix__)
 #include <errno.h>

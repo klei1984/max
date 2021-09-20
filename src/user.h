@@ -315,14 +315,14 @@ GLOBAL(ASM_PREFIX(_ZN8IniClans11GetClanNameEiPci))
 #define soundmgr ASM_PREFIX(soundmgr)
 GLOBAL(ASM_PREFIX(soundmgr))
 
-#define _ZN8SoundMgr7PlaySfxE15GAME_RESOURCE_e ASM_PREFIX(_ZN8SoundMgr7PlaySfxE15GAME_RESOURCE_e)
-GLOBAL(ASM_PREFIX(_ZN8SoundMgr7PlaySfxE15GAME_RESOURCE_e))
+#define _ZN8SoundMgr7PlaySfxE10ResourceID ASM_PREFIX(_ZN8SoundMgr7PlaySfxE10ResourceID)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr7PlaySfxE10ResourceID))
 
-#define _ZN8SoundMgr9PlayVoiceE15GAME_RESOURCE_eS0_s ASM_PREFIX(_ZN8SoundMgr9PlayVoiceE15GAME_RESOURCE_eS0_s)
-GLOBAL(ASM_PREFIX(_ZN8SoundMgr9PlayVoiceE15GAME_RESOURCE_eS0_s))
+#define _ZN8SoundMgr9PlayVoiceE10ResourceIDS0_s ASM_PREFIX(_ZN8SoundMgr9PlayVoiceE10ResourceIDS0_s)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr9PlayVoiceE10ResourceIDS0_s))
 
-#define _ZN8SoundMgr9PlayMusicE15GAME_RESOURCE_eb ASM_PREFIX(_ZN8SoundMgr9PlayMusicE15GAME_RESOURCE_eb)
-GLOBAL(ASM_PREFIX(_ZN8SoundMgr9PlayMusicE15GAME_RESOURCE_eb))
+#define _ZN8SoundMgr9PlayMusicE10ResourceIDb ASM_PREFIX(_ZN8SoundMgr9PlayMusicE10ResourceIDb)
+GLOBAL(ASM_PREFIX(_ZN8SoundMgr9PlayMusicE10ResourceIDb))
 
 #define _ZN8SoundMgr14FreeAllSamplesEv ASM_PREFIX(_ZN8SoundMgr14FreeAllSamplesEv)
 GLOBAL(ASM_PREFIX(_ZN8SoundMgr14FreeAllSamplesEv))

@@ -26,7 +26,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "game.h"
+#include "gnw.h"
+
+/// \todo Fix includes and dependencies
+#include "ginit.h"
+#include "mvelib32.h"
+#include "unitinfo.h"
+#include "units.h"
+#include "wrappers.h"
 
 #ifdef __unix__
 #include <linux/limits.h>

@@ -28,7 +28,9 @@
 #include <unistd.h>
 #endif
 
-#include "game.h"
+#include "crc16.h"
+#include "gnw.h"
+#include "ini.h"
 
 static_assert(sizeof(struct ipx_packet) == 630, "The structure needs to be packed.");
 
@@ -304,9 +306,10 @@ int ipx_process_packets(unsigned char *data) {
 
     ipx_byte_174D80[player_index] = 0;
 
-    if (byte_1759B8 && players[player_index].unknown[40] != 3) {
-        players[player_index].unknown[40] = ini_get_setting(ini_player_team_lut[player_index]);
-    }
+    /// \todo Convert to C++ and integrate players object
+    //    if (byte_1759B8 && players[player_index].unknown[40] != 3) {
+    //        players[player_index].unknown[40] = ini_get_setting(ini_player_team_lut[player_index]);
+    //    }
 
     return data_length;
 }

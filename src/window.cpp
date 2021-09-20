@@ -21,7 +21,6 @@
 
 #include "window.hpp"
 
-#include "enums.hpp"
 #include "resource_manager.hpp"
 
 /// \todo Fix gwin includes
@@ -41,12 +40,11 @@ Window::Window(short ulx, short uly, short width, short height)
       resource_id(INVALID_ID),
       palette_from_image(false) {}
 
-Window::Window(unsigned short resource_id)
-    : window_id(0), flags(0), resource_id(resource_id), palette_from_image(false) {
+Window::Window(ResourceID id) : window_id(0), flags(0), resource_id(id), palette_from_image(false) {
     struct SpriteMeta image_header;
     int result;
 
-    result = ResourceManager_ReadImageHeader(resource_id, &image_header);
+    result = ResourceManager_ReadImageHeader(id, &image_header);
     SDL_assert(result == 1);
 
     ulx = (640 - image_header.width) / 2;
@@ -55,14 +53,14 @@ Window::Window(unsigned short resource_id)
     height = image_header.height;
 }
 
-Window::Window(unsigned short resource_id, unsigned char win_id)
-    : window_id(0), flags(0), resource_id(resource_id), palette_from_image(false) {
+Window::Window(ResourceID id, unsigned char win_id)
+    : window_id(0), flags(0), resource_id(id), palette_from_image(false) {
     struct SpriteMeta image_header;
     WindowInfo* window;
     int result;
 
     window = gwin_get_window(win_id);
-    result = ResourceManager_ReadImageHeader(resource_id, &image_header);
+    result = ResourceManager_ReadImageHeader(id, &image_header);
     SDL_assert(result == 1);
 
     width = image_header.width;
@@ -108,5 +106,9 @@ void Window::GetCursorPosition(int& x, int& y) const {
     x = position_x - ulx;
     y = position_y - uly;
 }
+
+void Window::SetFlags(unsigned int flags) { this->flags = flags; }
+
+void Window::SetPaletteMode(bool palette_from_image) { this->palette_from_image = palette_from_image; }
 
 bool Window::EventHandler(Event& event) { return false; }

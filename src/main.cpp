@@ -21,8 +21,17 @@
 
 #include <SDL.h>
 
+#include "enums.hpp"
 extern "C" {
+#define RESRCMGR_H
+#define UnitInfo UnitInfo_ss
+#define SoundElement SoundElement_s
+#define SoundTable SoundTable_s
+typedef void GameResourceMeta;
 #include "game.h"
+#undef UnitInfo
+#undef SoundElement
+#undef SoundTable
 }
 
 #include "soundmgr.hpp"

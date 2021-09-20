@@ -27,7 +27,8 @@ extern "C" {
 #endif
 
 #include "gnw.h"
-#include "resrcmgr.h"
+typedef unsigned short GAME_RESOURCE;
+//#include "resrcmgr.h"
 
 struct __attribute__((packed)) GImage {
     unsigned char *buffer;

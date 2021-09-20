@@ -19,12 +19,27 @@
  * SOFTWARE.
  */
 
-extern "C" {
-#include "game.h"
-}
+#include "ginit.h"
 
 #include "inifile.hpp"
+#include "resource_manager.hpp"
 #include "soundmgr.hpp"
+
+extern "C" {
+#include "gnw.h"
+}
+
+/// \todo Fix includes and dependencies
+extern "C" {
+typedef ResourceID GAME_RESOURCE;
+typedef void GameResourceMeta;
+#define RESRCMGR_H
+#include "gwindow.h"
+#include "mvelib32.h"
+#include "screendump.h"
+#include "units.h"
+#include "wrappers.h"
+}
 
 char file_path_cdrom[PATH_MAX];
 char file_path_game_install[PATH_MAX];
@@ -233,7 +248,7 @@ void ginit_init(void) {
         gexit(EXIT_CODE_SCREEN_INIT_FAILED);
     }
 
-    error_code = init_game_resources();
+    error_code = ResourceManager_Init();
 
     if (error_code) {
         gexit(error_code);

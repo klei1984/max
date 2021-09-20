@@ -21,7 +21,7 @@
 
 #include "vcr.h"
 
-#include "game.h"
+#include "gnw.h"
 
 static int vcr_create_buffer(void);
 static int vcr_destroy_buffer(void);

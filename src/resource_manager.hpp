@@ -22,6 +22,8 @@
 #ifndef RESOURCE_MANAGER_HPP
 #define RESOURCE_MANAGER_HPP
 
+#include "enums.hpp"
+
 struct SpriteHeader {
     short ulx;
     short uly;
@@ -39,8 +41,12 @@ struct SpriteMeta {
     char data[];
 };
 
-char *ResourceManager_LoadResource(unsigned short id);
-unsigned int ResourceManager_GetResourceSize(unsigned short id);
-int ResourceManager_ReadImageHeader(unsigned short id, struct SpriteMeta *buffer);
+unsigned char ResourceManager_Init();
+char *ResourceManager_LoadResource(ResourceID id);
+unsigned int ResourceManager_GetResourceSize(ResourceID id);
+int ResourceManager_ReadImageHeader(ResourceID id, struct SpriteMeta *buffer);
+
+int ResourceManager_GetResourceFileID(ResourceID id);
+const char *ResourceManager_GetResourceID(ResourceID id);
 
 #endif /* RESOURCE_MANAGER_HPP */

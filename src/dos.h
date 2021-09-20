@@ -25,77 +25,76 @@
 #include <stdio.h>
 
 #ifdef __unix__
+#include <linux/limits.h>
 #include <sys/io.h>
 #include <unistd.h>
+
+char* strupr(char *s);
+char* strlwr(char *s);
+int stricmp(const char *s1, const char *s2);
+int strnicmp(const char *s1, const char *s2, size_t len);
 #else
 #include <io.h>
 #endif
 
 struct DOS_Registers32 {
-    unsigned int eax;    /* 00 */
-    unsigned int ebx;    /* 04 */
-    unsigned int ecx;    /* 08 */
-    unsigned int edx;    /* 0c */
-    unsigned int esi;    /* 10 */
-    unsigned int edi;    /* 14 */
-    unsigned int eflags; /* 18 */
+	unsigned int eax; /* 00 */
+	unsigned int ebx; /* 04 */
+	unsigned int ecx; /* 08 */
+	unsigned int edx; /* 0c */
+	unsigned int esi; /* 10 */
+	unsigned int edi; /* 14 */
+	unsigned int eflags; /* 18 */
 };
 
 typedef struct DOS_Registers32 DOS_Registers32;
 
 struct DOS_Registers16 {
-    unsigned short ax;
-    unsigned short _unused_1;
-    unsigned short bx;
-    unsigned short _unused_2;
-    unsigned short cx;
-    unsigned short _unused_3;
-    unsigned short dx;
-    unsigned short _unused_4;
-    unsigned short si;
-    unsigned short _unused_5;
-    unsigned short di;
-    unsigned short _unused_6;
-    signed short flags;
+	unsigned short ax;
+	unsigned short _unused_1;
+	unsigned short bx;
+	unsigned short _unused_2;
+	unsigned short cx;
+	unsigned short _unused_3;
+	unsigned short dx;
+	unsigned short _unused_4;
+	unsigned short si;
+	unsigned short _unused_5;
+	unsigned short di;
+	unsigned short _unused_6;
+	signed short flags;
 };
 
 typedef struct DOS_Registers16 DOS_Registers16;
 
 struct DOS_Registers8 {
-    unsigned char al;
-    unsigned char ah;
-    unsigned short _unused_1;
-    unsigned char bl;
-    unsigned char bh;
-    unsigned short _unused_2;
-    unsigned char cl;
-    unsigned char ch;
-    unsigned short _unused_3;
-    unsigned char dl;
-    unsigned char dh;
+	unsigned char al;
+	unsigned char ah;
+	unsigned short _unused_1;
+	unsigned char bl;
+	unsigned char bh;
+	unsigned short _unused_2;
+	unsigned char cl;
+	unsigned char ch;
+	unsigned short _unused_3;
+	unsigned char dl;
+	unsigned char dh;
 };
 
 typedef struct DOS_Registers8 DOS_Registers8;
 
 union DOS_Registers {
-    DOS_Registers32 r32;
-    DOS_Registers16 r16;
-    DOS_Registers8 r8;
+	DOS_Registers32 r32;
+	DOS_Registers16 r16;
+	DOS_Registers8 r8;
 };
 
 typedef union DOS_Registers DOS_Registers;
 
-#ifdef __unix__
-char *strupr(char *s);
-char *strlwr(char *s);
-char *strupr(char *s);
-int stricmp(const char *s1, const char *s2);
-int strnicmp(const char *s1, const char *s2, size_t len);
-#endif
-
 long int filesize(FILE *fp);
 
-int dos_int386(int num, DOS_Registers *regs, DOS_Registers *out_regs) __attribute__((noreturn));
+int dos_int386(int num, DOS_Registers *regs, DOS_Registers *out_regs)
+		__attribute__((noreturn));
 
 void dos_delay_init();
 

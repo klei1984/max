@@ -24,6 +24,7 @@
 #include <new>
 
 #include "SDL_assert.h"
+#define RESRCMGR_H
 #include "gwindow.h"
 #include "soundmgr.hpp"
 
@@ -587,7 +588,7 @@ void gbutton_set_rest_state(GButton *b, char rest_state) {
     }
 }
 
-void gbutton_play_sound(GButton *b) { soundmgr.PlaySfx((GAME_RESOURCE)b->sfx); }
+void gbutton_play_sound(GButton *b) { soundmgr.PlaySfx((ResourceID)b->sfx); }
 
 static inline void gbutton_watcall(ButtonFunc func, ButtonID id, int value) {
     __asm__ __volatile__("	call	*%2\n"
