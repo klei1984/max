@@ -52,14 +52,16 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scrollbar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/events.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cursor.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cargo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/text.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/desyncmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transfermenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/dialogmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 

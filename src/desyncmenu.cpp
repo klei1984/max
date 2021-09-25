@@ -80,7 +80,7 @@ bool DesyncMenu::Run() {
         }
 
         if (key == 0x0D) {
-            //            sub_C8897(51, team_index, 0);
+            //            sub_C8897(51, GUI_PlayerTeamIndex, 0);
             event_click_restart = true;
         } else if (key == 0x1B) {
             event_click_quit = true;

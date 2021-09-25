@@ -19,17 +19,36 @@
  * SOFTWARE.
  */
 
-#ifndef GUI_HPP
-#define GUI_HPP
+#ifndef DIALOGMENU_HPP
+#define DIALOGMENU_HPP
 
-#include "unitinfo.hpp"
+#include "button.hpp"
+#include "smartstring.hpp"
+#include "window.hpp"
 
-extern char GUI_PlayerTeamIndex;
-extern char GUI_GameMode;
+class DialogMenu : Window {
+    WindowInfo window;
+    bool event_click_ok;
+    Button *button_ok;
+    Button *button_up;
+    Button *button_down;
+    bool field_62;
+    bool event_release;
+    bool field_64;
+    Image *canvas;
+    SmartString *strings;
+    int row_count;
+    int max_row_count;
+    int row_offset;
 
-bool GUI_OKCancelMenu(const char* caption, bool mode);
-bool GUI_DesyncMenu();
-bool GUI_SelfDestructMenu();
-unsigned short GUI_TransferMenu(UnitInfo* unit);
+    void DrawText();
+    bool ProcessKey(int key);
 
-#endif /* GUI_HPP */
+public:
+    DialogMenu(const char *text, bool mode);
+    ~DialogMenu();
+
+    void Run();
+};
+
+#endif /* DIALOGMENU_HPP */

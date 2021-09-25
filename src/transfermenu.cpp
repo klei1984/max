@@ -69,9 +69,9 @@ void TransferMenu::UpdateIndicators() {
     char target[8];
 
     text_font(5);
-    snprintf(total, sizeof(total),"%ld", labs(total_materials_transferred));
-    snprintf(source, sizeof(source),"%ld", labs(unit1_materials));
-    snprintf(target, sizeof(target),"%ld", labs(unit2_materials));
+    snprintf(total, sizeof(total), "%ld", labs(total_materials_transferred));
+    snprintf(source, sizeof(source), "%ld", labs(unit1_materials));
+    snprintf(target, sizeof(target), "%ld", labs(unit2_materials));
 
     xfer_amount->Write(&window);
     Text_TextBox(reinterpret_cast<char *>(window.buffer), window.width, total, 141, 15, 29, 20, 0xFF, true);
@@ -236,12 +236,12 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, 38) {
     scrollbar->RefreshScreen();
 
     /// \todo Implement functions
-    //    sub_CB6AF(window.buffer, width, source_unit->unit_type, team_index, 104, 36);
+    //    sub_CB6AF(window.buffer, width, source_unit->unit_type, GUI_PlayerTeamIndex, 104, 36);
 
     Text_TextBox(reinterpret_cast<char *>(window.buffer), window.width,
                  UnitsManager_BaseUnits[source_unit->unit_type].singular_name, 10, 52, 110, 30, 0, true);
 
-    //    sub_CB6AF(window.buffer, width, unit2->unit_type, team_index, 207, 36);
+    //    sub_CB6AF(window.buffer, width, unit2->unit_type, GUI_PlayerTeamIndex, 207, 36);
 
     Text_TextBox(reinterpret_cast<char *>(window.buffer), window.width,
                  UnitsManager_BaseUnits[target_unit->unit_type].singular_name, 191, 52, 110, 30, 0, true);
@@ -275,7 +275,7 @@ void TransferMenu::Run() {
 
         /// \todo Implement missing stuff
         if (/* byte_1737D2 || */ source_unit->orders == ORDER_DISABLED || target_unit->orders == ORDER_DISABLED
-            /* || source_unit->team != team_index || target_unit->team != team_index */) {
+            /* || source_unit->team != GUI_PlayerTeamIndex || target_unit->team != GUI_PlayerTeamIndex */) {
             key = 0x1B;
         }
 

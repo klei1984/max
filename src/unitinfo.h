@@ -26,12 +26,12 @@
 extern "C" {
 #endif
 
-struct SoundElement {
+struct __attribute__((packed)) SoundElement {
     unsigned char type;
     unsigned short resource_id;
 };
 
-struct SoundTable {
+struct __attribute__((packed)) SoundTable {
     unsigned char count;
     struct SoundElement item[];
 };
