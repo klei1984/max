@@ -19,24 +19,41 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#ifndef ZONE_HPP
+#define ZONE_HPP
 
-#include "ctinfo.hpp"
-#include "teamunits.hpp"
-#include "unitinfo.hpp"
+#include "point.hpp"
+#include "smartobjectarray.hpp"
 
-extern SmartList<UnitInfo> UnitsManager_UnitList1;
-extern SmartList<UnitInfo> UnitsManager_UnitList2;
-extern SmartList<UnitInfo> UnitsManager_UnitList3;
-extern SmartList<UnitInfo> UnitsManager_UnitList4;
-extern SmartList<UnitInfo> UnitsManager_UnitList5;
-extern SmartList<UnitInfo> UnitsManager_UnitList6;
+class UnitInfo;
+class Task;
 
-extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
+extern "C" {
+#include "gnw.h"
+}
 
-extern CTInfo UnitsManager_TeamInfo[5];
+class Zone : public SmartObject {
+    ObjectArray<Point> points;
+    SmartPointer<UnitInfo> unit;
+    SmartPointer<Task> task;
+    bool field_30;
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+public:
+    Zone(UnitInfo* unit, Task* task);
+    Zone(UnitInfo* unit, Task* task, Rect* bounds);
+    ~Zone();
 
-#endif /* UNITS_MANAGER_HPP */
+    void Add(Point* point);
+    void Add(Rect* bounds);
+    void CallTaskVfunc27(bool mode);
+    bool GetField30() const;
+};
+
+struct ZoneSquare {
+    Point point;
+    UnitInfo* unit;
+
+    ZoneSquare(int grid_x, int grid_y, UnitInfo* unit);
+};
+
+#endif /* ZONE_HPP */

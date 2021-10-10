@@ -28,6 +28,15 @@ extern "C" {
 #include "ini.h"
 }
 
+enum : unsigned char {
+    OPPONENT_TYPE_CLUELESS,
+    OPPONENT_TYPE_APPRENTICE,
+    OPPONENT_TYPE_AVERAGE,
+    OPPONENT_TYPE_EXPERT,
+    OPPONENT_TYPE_MASTER,
+    OPPONENT_TYPE_GOD
+};
+
 class IniSettings {
 public:
     IniSettings();

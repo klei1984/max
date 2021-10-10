@@ -26,6 +26,9 @@
 
 #include "textfile.hpp"
 
+#define OBJECTARRAY_DEFAULT_GROWTH_FACTOR 5
+#define SMARTOBJECTARRAY_DEFAULT_GROWTH_FACTOR 5
+
 template <class T>
 class ObjectArray {
     unsigned short item_size;
@@ -35,7 +38,7 @@ class ObjectArray {
     T* object_array;
 
 public:
-    ObjectArray(unsigned short growth_factor)
+    ObjectArray(unsigned short growth_factor = OBJECTARRAY_DEFAULT_GROWTH_FACTOR)
         : growth_factor(growth_factor), item_size(sizeof(T)), count(0), capacity(0), object_array(nullptr) {}
 
     ObjectArray(const ObjectArray<T>& other)
@@ -85,6 +88,8 @@ public:
         ++count;
     }
 
+    void Append(T* object) { Insert(object, count); }
+
     void Remove(unsigned short position) {
         if (position < count) {
             if (position < (count - 1)) {
@@ -129,7 +134,7 @@ class SmartObjectArray : public SmartPointer<ObjectSmartArrayData<T>> {
     ObjectArray<T>* GetArray() const { return this->object_pointer; }
 
 public:
-    SmartObjectArray(unsigned short growth_factor)
+    SmartObjectArray(unsigned short growth_factor = SMARTOBJECTARRAY_DEFAULT_GROWTH_FACTOR)
         : SmartPointer<ObjectSmartArrayData<T>>(*new (std::nothrow) ObjectSmartArrayData<T>(growth_factor)) {}
 
     SmartObjectArray(const SmartObjectArray& other, bool deep_copy = false)

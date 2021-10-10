@@ -65,7 +65,7 @@ enum : unsigned char {
 
 class UnitInfo : public TextFileObject {
 public:
-    unsigned short unit_type;
+    ResourceID unit_type;
     void (*sound_function)();
     struct SoundTable* sound_table;
     unsigned int flags;
@@ -181,13 +181,17 @@ public:
     void Init();
     bool IsVisibleToTeam(unsigned short team) const;
     unsigned short GetId() const;
+    unsigned int GetField221() const;
     void ClearUnitList();
+    void PushFrontTask1List(Task* task);
     void ClearTask1List();
+    Task* GetTask1ListFront() const;
     void SetParent(UnitInfo* parent);
     UnitInfo* GetParent() const;
     void SetEnemy(UnitInfo* enemy);
     UnitValues* GetBaseValues() const;
     Complex* GetComplex() const;
+    bool UnitInfo_sub_430A2(short grid_x, short grid_y);
 };
 
 #endif /* UNITINFO_HPP */

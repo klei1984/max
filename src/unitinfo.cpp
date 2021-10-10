@@ -701,14 +701,30 @@ bool UnitInfo::IsVisibleToTeam(unsigned short team) const { return visible_to_te
 
 unsigned short UnitInfo::GetId() const { return id; }
 
+unsigned int UnitInfo::GetField221() const { return field_221; }
+
 void UnitInfo::ClearUnitList() {
     if (unit_list) {
         /// \todo Implement method
     }
 }
 
+void UnitInfo::PushFrontTask1List(Task* task) { task_list1.PushFront(*task); }
+
 void UnitInfo::ClearTask1List() {
     /// \todo Implement method
+}
+
+Task* UnitInfo::GetTask1ListFront() const {
+    Task* task;
+
+    if (task_list1.GetCount()) {
+        task = &task_list1[0];
+    } else {
+        task = nullptr;
+    }
+
+    return task;
 }
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
@@ -720,3 +736,8 @@ void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
 UnitValues* UnitInfo::GetBaseValues() const { return &*base_values; }
 
 Complex* UnitInfo::GetComplex() const { return &*complex; }
+
+bool UnitInfo::UnitInfo_sub_430A2(short grid_x, short grid_y) {
+    /// \todo Implement method
+    return false;
+}

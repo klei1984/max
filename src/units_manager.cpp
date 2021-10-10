@@ -21,7 +21,6 @@
 
 #include "units_manager.hpp"
 
-#include "ctinfo.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
 #include "teamunits.hpp"

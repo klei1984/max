@@ -19,24 +19,39 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#ifndef TASK_MANAGER_HPP
+#define TASK_MANAGER_HPP
 
-#include "ctinfo.hpp"
-#include "teamunits.hpp"
+#include "reminders.hpp"
+#include "smartlist.hpp"
+#include "tasks.hpp"
 #include "unitinfo.hpp"
 
-extern SmartList<UnitInfo> UnitsManager_UnitList1;
-extern SmartList<UnitInfo> UnitsManager_UnitList2;
-extern SmartList<UnitInfo> UnitsManager_UnitList3;
-extern SmartList<UnitInfo> UnitsManager_UnitList4;
-extern SmartList<UnitInfo> UnitsManager_UnitList5;
-extern SmartList<UnitInfo> UnitsManager_UnitList6;
+int Taskmanager_sub_45F65(int distance_x, int distance_y);
+int TaskManager_sub_4601A(UnitInfo* unit1, UnitInfo* unit2);
 
-extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
+class TaskManager {
+    SmartList<Task> tasklist;
+    SmartList<TaskObtainUnits> taskobtainunitslist;
+    SmartList<Reminder> reminderlist_0;
+    SmartList<Reminder> reminderlist_1;
+    SmartList<UnitInfo> unitinfolist;
+    unsigned short field_44;
 
-extern CTInfo UnitsManager_TeamInfo[5];
+public:
+    TaskManager();
+    ~TaskManager();
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+    void AddReminder(Reminder* reminder, bool priority = false);
+    void AddTask(Task& task);
+    void RemoveTask(Task& task);
 
-#endif /* UNITS_MANAGER_HPP */
+    void TaskManager_sub_44954(ResourceID unit_type, unsigned short team, Point point, Task* task);
+    void TaskManager_sub_449D0(ResourceID unit_type, unsigned short team, Point point, Task* task);
+    void TaskManager_sub_44A73(ResourceID unit_type, unsigned short team, int requested_amount, Task* task,
+                               Point point);
+};
+
+extern class TaskManager TaskManager;
+
+#endif /* TASK_MANAGER_HPP */

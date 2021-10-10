@@ -19,24 +19,11 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#include "helpmenu.hpp"
 
-#include "ctinfo.hpp"
-#include "teamunits.hpp"
-#include "unitinfo.hpp"
+HelpMenu::HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window_id)
+    : Window(HELPFRAM, window_id), section(section) {}
 
-extern SmartList<UnitInfo> UnitsManager_UnitList1;
-extern SmartList<UnitInfo> UnitsManager_UnitList2;
-extern SmartList<UnitInfo> UnitsManager_UnitList3;
-extern SmartList<UnitInfo> UnitsManager_UnitList4;
-extern SmartList<UnitInfo> UnitsManager_UnitList5;
-extern SmartList<UnitInfo> UnitsManager_UnitList6;
+HelpMenu::~HelpMenu() {}
 
-extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
-
-extern CTInfo UnitsManager_TeamInfo[5];
-
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
-
-#endif /* UNITS_MANAGER_HPP */
+bool HelpMenu::Run() {}

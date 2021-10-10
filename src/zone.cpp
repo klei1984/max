@@ -19,24 +19,31 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#include "zone.hpp"
 
-#include "ctinfo.hpp"
-#include "teamunits.hpp"
+#include "tasks.hpp"
 #include "unitinfo.hpp"
 
-extern SmartList<UnitInfo> UnitsManager_UnitList1;
-extern SmartList<UnitInfo> UnitsManager_UnitList2;
-extern SmartList<UnitInfo> UnitsManager_UnitList3;
-extern SmartList<UnitInfo> UnitsManager_UnitList4;
-extern SmartList<UnitInfo> UnitsManager_UnitList5;
-extern SmartList<UnitInfo> UnitsManager_UnitList6;
+Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), field_30(false) {}
 
-extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
+Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), field_30(false) { Add(bounds); }
 
-extern CTInfo UnitsManager_TeamInfo[5];
+Zone::~Zone() {}
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+void Zone::Add(Point* point) { points.Append(point); }
 
-#endif /* UNITS_MANAGER_HPP */
+void Zone::Add(Rect* bounds) {
+    Point point;
+
+    for (point.x = bounds->ulx; point.x < bounds->lrx; ++point.x) {
+        for (point.y = bounds->uly; point.y < bounds->lry; ++point.y) {
+            points.Append(&point);
+        }
+    }
+}
+
+void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
+
+bool Zone::GetField30() const { return field_30; }
+
+ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}

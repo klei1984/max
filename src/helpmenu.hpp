@@ -19,24 +19,42 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#ifndef HELPMENU_HPP
+#define HELPMENU_HPP
 
-#include "ctinfo.hpp"
-#include "teamunits.hpp"
-#include "unitinfo.hpp"
+#include "button.hpp"
+#include "smartstring.hpp"
+#include "window.hpp"
 
-extern SmartList<UnitInfo> UnitsManager_UnitList1;
-extern SmartList<UnitInfo> UnitsManager_UnitList2;
-extern SmartList<UnitInfo> UnitsManager_UnitList3;
-extern SmartList<UnitInfo> UnitsManager_UnitList4;
-extern SmartList<UnitInfo> UnitsManager_UnitList5;
-extern SmartList<UnitInfo> UnitsManager_UnitList6;
+class HelpMenu : public Window {
+    WindowInfo window;
+    bool field_49;
+    bool field_50;
+    Button *button_done;
+    Button *button_keys;
+    Button *button_up;
+    Button *button_down;
+    unsigned short field_67;
+    unsigned short help_cache_use_count;
+    char **help_cache[10];
+    unsigned char buffer[1000];
+    unsigned char section;
+    unsigned char window_id;
+    FILE *file;
+    int file_size;
+    bool field_1121;
+    Image *canvas;
+    unsigned short field_1126;
+    unsigned short field_1128;
+    unsigned short field_1130;
+    SmartString *strings;
+    bool field_1136;
 
-extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
+public:
+    HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window_id);
+    ~HelpMenu();
 
-extern CTInfo UnitsManager_TeamInfo[5];
+    bool Run();
+};
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
-
-#endif /* UNITS_MANAGER_HPP */
+#endif /* HELPMENU_HPP */
