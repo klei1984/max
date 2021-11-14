@@ -102,6 +102,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 38. **\*\*FIXED\*\*** The ScrollBar base class and therefore the derived LimitedScrollbar class forget to delete the Button class instance in their destructor leaking heap memory at least 56 bytes at a time.
 
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
@@ -121,5 +122,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 30. The unitinfo common structure size is 20, while it has only 18 or 19? elements!
 
 31. no abstractrion for fclose in adaption layer in seg32:000DD5C0 file_open + fclose?
+
+39. The play voice API is called with wrong voice range. PlayVoice(V_M229, V_F256, PRIO_0) is called when a unit is under attack and it does not gets destroyed. There are only four under attack type voice samples: V_F229 - V_F232 so the correct range would be PlayVoice(V_M229, V_F232, PRIO_0). It is not easy to test the failure scenario as a unit might be destroyed in a single shot and the API call could still randomly select a correct sample or a sample that does not exists so no incorrect sound would play.
 
 {% endcomment %}
