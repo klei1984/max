@@ -78,7 +78,7 @@ void crc16(unsigned short *crc, unsigned char c) {
     int i;
     int carry;
 
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < 8; ++i) {
         carry = *crc & 0x8000;
         *crc <<= 1;
 
@@ -180,6 +180,8 @@ struct MAX_Packet_05
 <a name="packet_ref06"></a>
 ### Packet 06
 
+IPX unicast message sent by the player that ended their turn to all other players as an event notification. The *target_node* is set to node address 0 to 3 representing the sender player's team slot.
+
 ~~~ c
 struct MAX_Packet_06
 {
@@ -187,6 +189,8 @@ struct MAX_Packet_06
   uint8                 field_0;
 }
 ~~~
+
+*field_0* Always set to 0x0000. Note that the field is not used for anything, it is basically reserved.
 
 <a name="packet_ref07"></a>
 ### Packet 07
@@ -257,11 +261,109 @@ struct MAX_Packet_09
 <a name="packet_ref10"></a>
 ### Packet 10
 
+IPX unicast message sent by a player to other players to inform them about a unit type specific upgrade. The UnitValues class members are sent to the other players. This packet is sent also when an upgrade is made within the Purchase Menu before starting a game. The *target_node* is set to node address 0 to 3 representing the team slots (Red, Green, Blue and Gray).
+
 ~~~ c
+enum16 MAX_UnitType
+{
+  COMMTWR 0x0
+  POWERSTN 0x1
+  POWGEN 0x2
+  BARRACKS 0x3
+  SHIELDGN 0x4
+  RADAR 0x5
+  ADUMP 0x6
+  FDUMP 0x7
+  GOLDSM 0x8
+  DEPOT 0x9
+  HANGAR 0xA
+  DOCK 0xB
+  CNCT_4W 0xC
+  LRGRUBLE 0xD
+  SMLRUBLE 0xE
+  LRGTAPE 0xF
+  SMLTAPE 0x10
+  LRGSLAB 0x11
+  SMLSLAB 0x12
+  LRGCONES 0x13
+  SMLCONES 0x14
+  ROAD 0x15
+  LANDPAD 0x16
+  SHIPYARD 0x17
+  LIGHTPLT 0x18
+  LANDPLT 0x19
+  SUPRTPLT 0x1A
+  AIRPLT 0x1B
+  HABITAT 0x1C
+  RESEARCH 0x1D
+  GREENHSE 0x1E
+  RECCENTR 0x1F
+  TRAINHAL 0x20
+  WTRPLTFM 0x21
+  GUNTURRT 0x22
+  ANTIAIR 0x23
+  ARTYTRRT 0x24
+  ANTIMSSL 0x25
+  BLOCK 0x26
+  BRIDGE 0x27
+  MININGST 0x28
+  LANDMINE 0x29
+  SEAMINE 0x2A
+  LNDEXPLD 0x2B
+  AIREXPLD 0x2C
+  SEAEXPLD 0x2D
+  BLDEXPLD 0x2E
+  HITEXPLD 0x2F
+  CONSTRCT 0x31
+  SCOUT 0x32
+  TANK 0x33
+  ARTILLRY 0x34
+  ROCKTLCH 0x35
+  MISSLLCH 0x36
+  SP_FLAK 0x37
+  MINELAYR 0x38
+  SURVEYOR 0x39
+  SCANNER 0x3A
+  SPLYTRCK 0x3B
+  GOLDTRCK 0x3C
+  ENGINEER 0x3D
+  BULLDOZR 0x3E
+  REPAIR 0x3F
+  FUELTRCK 0x40
+  CLNTRANS 0x41
+  COMMANDO 0x42
+  INFANTRY 0x43
+  FASTBOAT 0x44
+  CORVETTE 0x45
+  BATTLSHP 0x46
+  SUBMARNE 0x47
+  SEATRANS 0x48
+  MSSLBOAT 0x49
+  SEAMNLYR 0x4A
+  CARGOSHP 0x4B
+  FIGHTER 0x4C
+  BOMBER 0x4D
+  AIRTRANS 0x4E
+  AWAC 0x4F
+  JUGGRNT 0x50
+  ALNTANK 0x51
+  ALNASGUN 0x52
+  ALNPLANE 0x53
+  ROCKET 0x54
+  TORPEDO 0x55
+  ALNMISSL 0x56
+  ALNTBALL 0x57
+  ALNABALL 0x58
+  RKTSMOKE 0x59
+  TRPBUBLE 0x5A
+  HARVSTER 0x5B
+  WALDO 0x5C
+}
+
 struct MAX_Packet_10
 {
   MAX_PacketHeader      Header;
-  uint16                unit_type;
+  MAX_UnitType          unit_type;
   uint16                turns;
   uint16                hits;
   uint16                armor;
@@ -277,6 +379,34 @@ struct MAX_Packet_10
   uint16                agent_adjust;
 }
 ~~~
+
+*unit_type* See MAX_UnitType.
+
+*turns* Turns required to build the unit type.
+
+*hits* Base health points of the unit type.
+
+*armor* Armour rating of the unit type.
+
+*attack* Attack rating of the unit type.
+
+*speed* Base movement points of the unit type.
+
+*range* Attack range of the unit type. Only meaningful if the unit has rounds > 0.
+
+*rounds* Shots available for the unit type per game turn.
+
+*move_and_fire* True or False. Available shots are not decreased if movement points are spent.
+
+*scan* Scan range of the unit type.
+
+*storage* Base storage capacity of the unit type. TODO Document infiltrator use case.
+
+*ammo* Base ammunition of the unit type.
+
+*attack_radius* Area attack radius. 0 means a single square at the attack cursor. 1 means 9 squares in a rectange. 2 means 25 squares in a rectange. The rocket launcher is the only unit where this is non zero.
+
+*agent_adjust* TODO Document infiltrator use case.
 
 <a name="packet_ref11"></a>
 ### Packet 11
@@ -298,13 +428,53 @@ struct MAX_Packet_11
 <a name="packet_ref12"></a>
 ### Packet 12
 
+IPX unicast message sent by each player to every other player during landing zone selection at the beginning of a game. The *target_node* is set to node address 0 to 3 representing the team slots (Red, Green, Blue and Gray).
+
+Overlapping landing zones are evaluated by each player by an algorithm that places supplied and purchased units around the selected starting location.
+
 ~~~ c
+struct MAX_Point
+{
+  byte_order          little_endian;
+
+  uint16              x;
+  uint16              y;
+}
+
+struct MAX_MissionSupply
+{
+  byte_order          little_endian;
+
+  MAX_UnitType        unit_type;
+  uint16              unit_storage;
+}
+
 struct MAX_Packet_12
 {
   MAX_PacketHeader      Header;
-  raw(*)                data;
+  uint16                field_0;
+  uint16                credits;
+  uint16                unit_count;
+  uint16                credits_spent;
+  MAX_Point             start_position;
+  uint8                 field_12;
+  MAX_MissionSupply[unit_count] units;
 }
 ~~~
+
+*field_0* TODO Unknown field.
+
+*credits* The sum of the starting credits and the clan credits. Note that none of the clans have credits in M.A.X. v1.04.
+
+*unit_count* Number of units supplied and purchased for the mission.
+
+*credits_spent* Credits spent in the purchase menu. The value is tracked by the game for mission statistics that are shown at the end of the game.
+
+*start_position* Grid coordinates selected as landing zone for the team. The given position is the top left point of a 3 by 3 rectange. The initial mining station and its power generator are not found in the *units* array. Units in the array are placed from top left corner in a clock wise order in the 3 by 3 rectangle. If there more than four units a 5 by 5 rectangle is filled up again starting from top left corner and so on to 7 by 7 rectangle. The maximum *packet data* size is 550 bytes so in theory 134 units can be allocated to a team at game startup. Of course M.A.X. v1.04 does not provide enough starting credits to do so.
+
+*field_12* TODO Unknown field.
+
+*units* Array of units and their stored materials corresponding to the supplied and purchased units list.
 
 <a name="packet_ref13"></a>
 ### Packet 13
@@ -408,6 +578,8 @@ TODO: Describe all fields.
 <a name="packet_ref18"></a>
 ### Packet 18
 
+IPX unicast message sent by a player to another player. The message content is an in-game chat message. If an in-game chat message needs to be sent to multiple players than simply multiple packets are sent to the applicable IPX local address. The *target_node* is set to the sender.
+
 ~~~ c
 struct MAX_Packet_18
 {
@@ -415,6 +587,11 @@ struct MAX_Packet_18
   string(data_size)     chat_message;
 }
 ~~~
+
+*chat_message* Null terminated string. The packet size depends on the length of the chat message string. The sender's name is prefixed by the receiving client before the message is shown to the given player.
+
+On the sender side the chat message is limited to 550 characters including the null character at the end.
+On the receiver side the client statically reserves an 550 bytes long buffer for the message but it additionally prefixes the received chat message with a maximum 30 characters long player name and a colon plus a space character. So if a player would really be able to send such a long chat message it would corrupt all receiving player's IPX network manager state data even certain callback functions could be overwritten so it would be possible to execute hostile code on the remote computer. The in-game chat GUI only allows 60 characters to be sent though.
 
 <a name="packet_ref19"></a>
 ### Packet 19
@@ -913,12 +1090,35 @@ struct MAX_Packet_44
 <a name="packet_ref45"></a>
 ### Packet 45
 
+IPX unicast message sent by player that started their turn to the others. The other players respond with their own calculation results for the sender specific local data. If any player's calculation of the current player's data does not match a network desynchronization error is reported. The game cannot be continued in such cases, but the last backup save could be reloaded or a restart sequence could be attempted.
+
 ~~~ c
 struct MAX_Packet_45
 {
   MAX_PacketHeader      Header;
-  uint8                 field_0;
-  uint16                field_1;
+  uint8                 next_turn;
+  uint16                checksum;
+}
+~~~
+
+*next_turn* Current turn index plus one. See *[Packet 52](#packet_ref52)*.
+
+*checksum* A 16 bit special CRC checksum calculated over specific unit lists. The algorithm is simple, but the data fed to the algorithm is complex and numerous. As `xor` operation is involved in the algorithm the order of data fed to the algorithm matters.
+
+Initial CRC value is 0xFFFF.
+
+~~~ c
+unsigned short crc16(unsigned short crc, unsigned short data) {
+    for (int i = 0; i < 16; ++i) {
+        if (data & 0x8000) {
+            data *= 2;
+            data ^= 0x1021;
+        } else {
+            data *= 2;
+        }
+    }
+
+    return crc ^ data;
 }
 ~~~
 
@@ -985,13 +1185,17 @@ struct MAX_Packet_51
 <a name="packet_ref52"></a>
 ### Packet 52
 
+IPX unicast message sent by each player after *[Packet 06](#packet_ref06)*. The *target_node* is set to node address 0 to 3 representing the sender player's team slot.
+
 ~~~ c
 struct MAX_Packet_52
 {
   MAX_PacketHeader      Header;
-  uint8                 field_0;
+  uint8                 turn_index;
 }
 ~~~
+
+*turn_index* Current turn counter value. Each player's turn increments this count. The turn counter displayed in-game is not equal to this counter value.
 
 ## M.A.X. Protocol Behaviors
 
