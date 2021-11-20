@@ -157,7 +157,7 @@ Only implemented in early game versions.
 Only implemented in early game versions.
 
 <a name="packet_ref05"></a>
-### Packet 05
+### Packet 05 - Announce IPX Local Address
 
 IPX unicast message sent by the client to the host to acknowledge *[Packet 32](#packet_ref32)* and to announce the client's IPX local address to the host. When the host received all client's IPX local address via this message it responds with *[Packet 34](#packet_ref34)* to each client. The *target_node* field is set to the host.
 
@@ -178,7 +178,7 @@ struct MAX_Packet_05
 *address* Local IPX address of the client. See *[Packet 29](#packet_ref29)*.
 
 <a name="packet_ref06"></a>
-### Packet 06
+### Packet 06 - End Turn
 
 IPX unicast message sent by the player that ended their turn to all other players as an event notification. The *target_node* is set to node address 0 to 3 representing the sender player's team slot.
 
@@ -205,21 +205,39 @@ struct MAX_Packet_07
 ~~~
 
 <a name="packet_ref08"></a>
-### Packet 08
+### Packet 08 - Unit Order
+
+IPX unicast message sent by player that issued an order to all other players. The *target_node* is set to the unit's hash key for which the order applies to.
+
+There are 32 different orders in M.A.X. v1.04.
 
 ~~~ c
-struct MAX_Packet_08
+struct MAX_OrderCategory_01
 {
-  MAX_PacketHeader      Header;
-  MAX_Orders            orders;
-  uint8                 state;
-  MAX_Orders            prior_orders;
-  uint8                 prior_state;
-  uint8                 disabled_reaction_fire;
+  uint16                parent_unit_id;
 
-  switch(orders)
-  {
-    case MAX_Orders::NEW_ALLOCATE_ORDER :
+  uint16                target_grid_x;
+  uint16                target_grid_y;
+  uint16                enemy_unit_id;
+
+  uint8                 repeat_build;
+  uint8                 build_time;
+  uint8                 build_rate;
+  uint16                list_size;
+  MAX_UnitType[list_size] build_orders;
+}
+
+struct MAX_OrderCategory_02
+{
+      uint16    parent_unit_id;
+
+      uint16    target_grid_x;
+      uint16    target_grid_y;
+      uint16    enemy_unit_id;
+}
+
+struct MAX_OrderCategory_03
+{
       uint16    parent_unit_id;
 
       uint16    target_grid_x;
@@ -230,8 +248,57 @@ struct MAX_Packet_08
       uint8     raw_mining;
       uint8     fuel_mining;
       uint8     gold_mining;
-    default :
-      raw(*)    order_specific_data;
+}
+
+struct MAX_OrderCategory_04
+{
+  uint16                parent_unit_id;
+}
+
+struct MAX_Packet_08
+{
+  MAX_PacketHeader      Header;
+
+  MAX_Orders            order;
+  uint8                 state;
+  MAX_Orders            prior_order;
+  uint8                 prior_state;
+  uint8                 disabled_reaction_fire;
+
+  switch(order)
+  {
+    case MAX_Orders::AWAITING :
+    case MAX_Orders::TRANSFORMING : MAX_OrderCategory_01 order_data;
+    case MAX_Orders::MOVING : MAX_OrderCategory_02 order_data;
+    case MAX_Orders::FIRING : MAX_OrderCategory_02 order_data;
+    case MAX_Orders::ORDER_BUILDING : MAX_OrderCategory_01 order_data;
+    case MAX_Orders::ACTIVATE_ORDER : MAX_OrderCategory_02 order_data;
+    case MAX_Orders::NEW_ALLOCATE_ORDER : MAX_OrderCategory_03 order_data;
+    case MAX_Orders::POWER_ON :
+    case MAX_Orders::POWER_OFF :
+    case MAX_Orders::EXPLODING :
+    case MAX_Orders::UNLOADING : MAX_OrderCategory_04 order_data;
+    case MAX_Orders::CLEARING : MAX_OrderCategory_01 order_data;
+    case MAX_Orders::SENTRY :
+    case MAX_Orders::LANDING :
+    case MAX_Orders::TAKING_OFF :
+    case MAX_Orders::LOADING :
+    case MAX_Orders::IDLE :
+    case MAX_Orders::REPAIRING : MAX_OrderCategory_04 order_data;
+    case MAX_Orders::REFUELING : MAX_OrderCategory_04 order_data;
+    case MAX_Orders::RELOADING : MAX_OrderCategory_04 order_data;
+    case MAX_Orders::TRANSFERRING : MAX_OrderCategory_02 order_data;
+    case MAX_Orders::AWAITING_21 :
+    case MAX_Orders::AWAITING_22 :
+    case MAX_Orders::AWAITING_23 :
+    case MAX_Orders::AWAITING_24 :
+    case MAX_Orders::AWAITING_25 :
+    case MAX_Orders::DISABLED : MAX_OrderCategory_01 order_data;
+    case MAX_Orders::MOVING_27 : MAX_OrderCategory_02 order_data;
+    case MAX_Orders::REPAIRING_28 : MAX_OrderCategory_04 order_data;
+    case MAX_Orders::TRANSFERRING_29 :
+    case MAX_Orders::ATTACKING : MAX_OrderCategory_02 order_data;
+    case MAX_Orders::BUILDING_HALTED :
   }
 }
 ~~~
@@ -250,8 +317,8 @@ struct MAX_ResearchTopic
 struct MAX_Packet_09
 {
   MAX_PacketHeader      Header;
-  uint16                team_gold;
-  uint16                gold_spent;
+  uint16                team_credits;
+  uint16                credits_spent;
   uint8[40]             field_4;
   string(30)            team_name;
   MAX_ResearchTopic[8]  research_topics;
@@ -259,9 +326,11 @@ struct MAX_Packet_09
 ~~~
 
 <a name="packet_ref10"></a>
-### Packet 10
+### Packet 10 - Unit Type Upgrade
 
 IPX unicast message sent by a player to other players to inform them about a unit type specific upgrade. The UnitValues class members are sent to the other players. This packet is sent also when an upgrade is made within the Purchase Menu before starting a game. The *target_node* is set to node address 0 to 3 representing the team slots (Red, Green, Blue and Gray).
+
+If credits are spent to make an upgrade, then *[Packet 09](#packet_ref09)* is also sent to update the *gold_spent* metric.
 
 ~~~ c
 enum16 MAX_UnitType
@@ -400,16 +469,20 @@ struct MAX_Packet_10
 
 *scan* Scan range of the unit type.
 
-*storage* Base storage capacity of the unit type. TODO Document infiltrator use case.
+*storage* Base storage capacity of the unit type. TODO: Document infiltrator use case.
 
 *ammo* Base ammunition of the unit type.
 
 *attack_radius* Area attack radius. 0 means a single square at the attack cursor. 1 means 9 squares in a rectange. 2 means 25 squares in a rectange. The rocket launcher is the only unit where this is non zero.
 
-*agent_adjust* TODO Document infiltrator use case.
+*agent_adjust* TODO: Document infiltrator use case.
 
 <a name="packet_ref11"></a>
-### Packet 11
+### Packet 11 - Update Complex
+
+IPX unicast message sent by the player to every other player. The *target_node* is set to node address 0 to 3 representing the team slots (Red, Green, Blue and Gray).
+
+For each complex a dedicated message is sent. At the beginning of each turn resource consumption optimizations are made which could lead to change of resources available in a complex.
 
 ~~~ c
 struct MAX_Packet_11
@@ -425,8 +498,22 @@ struct MAX_Packet_11
 }
 ~~~
 
+*id* Complex identifier starting with index 1.
+
+*material* Raw materials resource available in the complex.
+
+*fuel* Fuel resource available in the complex.
+
+*gold* Gold resource available in the complex.
+
+*power* Power resource available in the complex. This is the available surplus only.
+
+*workers* Workers resource available in the complex. This is the available surplus only.
+
+*buildings* Number of buildings in the complex.
+
 <a name="packet_ref12"></a>
-### Packet 12
+### Packet 12 - Select Landing Zone
 
 IPX unicast message sent by each player to every other player during landing zone selection at the beginning of a game. The *target_node* is set to node address 0 to 3 representing the team slots (Red, Green, Blue and Gray).
 
@@ -462,7 +549,7 @@ struct MAX_Packet_12
 }
 ~~~
 
-*field_0* TODO Unknown field.
+*field_0* TODO: Unknown field.
 
 *credits* The sum of the starting credits and the clan credits. Note that none of the clans have credits in M.A.X. v1.04.
 
@@ -472,12 +559,12 @@ struct MAX_Packet_12
 
 *start_position* Grid coordinates selected as landing zone for the team. The given position is the top left point of a 3 by 3 rectange. The initial mining station and its power generator are not found in the *units* array. Units in the array are placed from top left corner in a clock wise order in the 3 by 3 rectangle. If there more than four units a 5 by 5 rectangle is filled up again starting from top left corner and so on to 7 by 7 rectangle. The maximum *packet data* size is 550 bytes so in theory 134 units can be allocated to a team at game startup. Of course M.A.X. v1.04 does not provide enough starting credits to do so.
 
-*field_12* TODO Unknown field.
+*field_12* TODO: Unknown field.
 
 *units* Array of units and their stored materials corresponding to the supplied and purchased units list.
 
 <a name="packet_ref13"></a>
-### Packet 13
+### Packet 13 - Update RNG Seed
 
 IPX unicast message sent by the host to each client right after *[Packet 34](#packet_ref34)*. The *target_node* is set to the host.
 
@@ -510,19 +597,25 @@ struct MAX_Packet_14
 Not implemented in M.A.X. v1.04.
 
 <a name="packet_ref16"></a>
-### Packet 16
+### Packet 16 Save Game
+
+IPX unicast message sent by the player that issued a save operation to all other players. The *target_node* is hardcoded to 0 by the sender and the field value is not used by the receivers.
 
 ~~~ c
 struct MAX_Packet_16
 {
   MAX_PacketHeader      Header;
   string(30)            file_name;
-  string(30)            log_message;
+  string(30)            title;
 }
 ~~~
 
+*file_name* Name of the save file to be created on the file system. The field is always 30 characters long.
+
+*title* Title of the save game set via the game GUI. The field is always 30 characters long.
+
 <a name="packet_ref17"></a>
-### Packet 17
+### Packet 17 - Update Game Settings
 
 IPX unicast message sent by the host to each client right after *[Packet 13](#packet_ref13)*. The *target_node* is hardcoded to 0 by the sender and the field value is not used by the receivers.
 
@@ -576,7 +669,7 @@ struct MAX_Packet_17
 TODO: Describe all fields.
 
 <a name="packet_ref18"></a>
-### Packet 18
+### Packet 18 - In-game Chat Message
 
 IPX unicast message sent by a player to another player. The message content is an in-game chat message. If an in-game chat message needs to be sent to multiple players than simply multiple packets are sent to the applicable IPX local address. The *target_node* is set to the sender.
 
@@ -991,13 +1084,23 @@ struct MAX_Packet_37
 TODO: Describe all fields.
 
 <a name="packet_ref38"></a>
-### Packet 38
+### Packet 38 - Unit Path
+
+IPX unicast message sent by player to all other players when unit path is changed. The *target_node* is set to a UnitHash type hash map key. The UnitPath (or derived) path object of the given unit is replaced with a new object constructed from the data found in this packet. The packet is sent usually right after *[Packet 08](#packet_ref08)*.
 
 ~~~ c
+struct MAX_PathStep
+{
+  byte_order            little_endian;
+
+  int8                  x;
+  int8                  y;
+}
+
 struct MAX_Packet_38
 {
   MAX_PacketHeader      Header;
-  MAX_Orders            orders;
+  MAX_Orders            order;
   uint8                 state;
   uint16                target_grid_x;
   uint16                target_grid_y;
@@ -1010,9 +1113,42 @@ struct MAX_Packet_38
   uint8                 speed;
   uint8                 move_fraction;
   uint8                 max_velocity;
-  uint16                field_24;
+  uint16                list_size;
+  MAX_PathStep[list_size] steps;
 }
 ~~~
+
+*order* Current unit order. See *[Packet 08](#packet_ref08)*.
+
+*state* State variable of the current order. TODO: Figure out states.
+
+*target_grid_x* X coordinate of the calculated path's end point on the grid. Note that the game GUI shows grid position +1.
+
+*target_grid_x* Y coordinate of the calculated path's end point on the grid. Note that the game GUI shows grid position +1.
+
+*end_x* 
+
+*end_y* 
+
+*distance_x*
+
+*distance_y*
+
+*euclidean_distance*
+
+*field_79*
+
+*speed*
+
+*move_fraction*
+
+*max_velocity*
+
+*list_size* Number of path steps that follows.
+
+*steps* Each element represents an 8-direction path step. E.g. {-1,0} means take one step to the left. Units not looking in the given direction need to turn.
+
+TODO: Describe all fields.
 
 <a name="packet_ref39"></a>
 ### Packet 39
@@ -1059,15 +1195,19 @@ struct MAX_Packet_42
 ~~~
 
 <a name="packet_ref43"></a>
-### Packet 43
+### Packet 43 Rename Unit
+
+IPX unicast message sent by player to all other players when unit name has changed. The *target_node* is set to a UnitHash type hash map key.
 
 ~~~ c
 struct MAX_Packet_43
 {
   MAX_PacketHeader      Header;
-  string(data_size)     message;
+  string(data_size)     unit_name;
 }
 ~~~
+
+*unit_name* New name of the unit. Null terminated string. The maximum length of the name is 30 bytes including the null character. The game GUI does not allow longer names to be set. A longer (malformed) packet does not corrupt memory as the name is stored in heap memory. A malformed packet where the null character is missing could potentially lead to sementation fault or other issues still.
 
 <a name="packet_ref44"></a>
 ### Packet 44
@@ -1097,7 +1237,7 @@ struct MAX_Packet_45
 {
   MAX_PacketHeader      Header;
   uint8                 next_turn;
-  uint16                checksum;
+  uint16{d=hex}         checksum;
 }
 ~~~
 
@@ -1162,7 +1302,9 @@ struct MAX_Packet_49
 ~~~
 
 <a name="packet_ref50"></a>
-### Packet 50
+### Packet 50 - Enemy Spotted
+
+IPX unicast message sent by spotter player to all other players. The *target_node* is set to the spotter unit's hash key.
 
 ~~~ c
 struct MAX_Packet_50
