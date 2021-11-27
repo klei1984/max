@@ -102,6 +102,13 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 38. **\*\*FIXED\*\*** The ScrollBar base class and therefore the derived LimitedScrollbar class forget to delete the Button class instance in their destructor leaking heap memory at least 56 bytes at a time.
 
+40. The function which builds network packet 41 (path blocked) forgets to set the packet header's *data_size* field so random garbage in random size is sent over the network. Typically a single byte of data is sent as the most common packet on the network has one data byte.
+
+41. On the Network Game lobby screen clients cannot see the maps, load, scenarios and options buttons as these are only available for the host. The in-game help mouse spot areas for these buttons are not deactivated for clients.
+
+42. In the Multiplayer Menu the 'O' hot key for the Options Menu is not disabled even though the menu item itself was removed from the GUI.
+
+43. Saving a game in multiplayer game modes via network packet 16 does not verify whether peers are already desynchronized. The game also does not check for desynchronization when a previously saved multiplayer game is loaded. This leads to situations where previously saved games are basically corrupted already at the time of loading.
 
 {% comment %}
 

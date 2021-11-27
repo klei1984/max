@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="549px" preserveAspectRatio="none" style="width:836px;height:549px;background:#FFFFFF;" version="1.1" viewBox="0 0 836 549" width="836px" zoomAndPan="magnify"><defs><filter height="300%" id="fix079mbr1a6z" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="331" x2="331" y1="40.2969" y2="506.6875"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="520" x2="520" y1="40.2969" y2="506.6875"/><rect fill="#FEFECE" filter="url(#fix079mbr1a6z)" height="30.2969" style="stroke:#A80036;stroke-width:1.5;" width="60" x="299" y="5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="46" x="306" y="24.9951">Host 1</text><rect fill="#FEFECE" filter="url(#fix079mbr1a6z)" height="30.2969" style="stroke:#A80036;stroke-width:1.5;" width="60" x="299" y="505.6875"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="46" x="306" y="525.6826">Host 1</text><rect fill="#FEFECE" filter="url(#fix079mbr1a6z)" height="30.2969" style="stroke:#A80036;stroke-width:1.5;" width="70" x="483" y="5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56" x="490" y="24.9951">Client 1</text><rect fill="#FEFECE" filter="url(#fix079mbr1a6z)" height="30.2969" style="stroke:#A80036;stroke-width:1.5;" width="70" x="483" y="505.6875"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56" x="490" y="525.6826">Client 1</text><line style="stroke:#A80036;stroke-width:1.0;" x1="331" x2="373" y1="77.4961" y2="77.4961"/><line style="stroke:#A80036;stroke-width:1.0;" x1="373" x2="373" y1="77.4961" y2="90.4961"/><line style="stroke:#A80036;stroke-width:1.0;" x1="332" x2="373" y1="90.4961" y2="90.4961"/><polygon fill="#A80036" points="342,86.4961,332,90.4961,342,94.4961,338,90.4961" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="165" x="338" y="72.4302">[IPX Broadcast] Packet 44</text><path d="M58,55.2969 L58,95.2969 L322,95.2969 L322,65.2969 L312,55.2969 L58,55.2969 " fill="#FBFB77" filter="url(#fix079mbr1a6z)" style="stroke:#A80036;stroke-width:1.0;"/><path d="M312,55.2969 L312,65.2969 L322,65.2969 L312,55.2969 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="138" x="64" y="72.3638">[Target node: Host 1]</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="235" x="72" y="87.4966">Host announces itself (periodic ~3s).</text><line style="stroke:#A80036;stroke-width:1.0;" x1="331" x2="373" y1="125.6953" y2="125.6953"/><line style="stroke:#A80036;stroke-width:1.0;" x1="373" x2="373" y1="125.6953" y2="138.6953"/><line style="stroke:#A80036;stroke-width:1.0;" x1="332" x2="373" y1="138.6953" y2="138.6953"/><polygon fill="#A80036" points="342,134.6953,332,138.6953,342,142.6953,338,138.6953" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="165" x="338" y="120.6294">[IPX Broadcast] Packet 44</text><polygon fill="#A80036" points="342,191.5273,332,195.5273,342,199.5273,338,195.5273" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="336" x2="519" y1="195.5273" y2="195.5273"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="165" x="348" y="190.4614">[IPX Broadcast] Packet 28</text><path d="M525,151.6953 L525,221.6953 L827,221.6953 L827,161.6953 L817,151.6953 L525,151.6953 " fill="#FBFB77" filter="url(#fix079mbr1a6z)" style="stroke:#A80036;stroke-width:1.0;"/><path d="M817,151.6953 L817,161.6953 L827,161.6953 L817,151.6953 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="104" x="531" y="168.7622">[Target node: *]</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="260" x="539" y="183.895">New Client arrives and requests hosts to</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="273" x="539" y="199.0278">announce themselves using the broadcast</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="143" x="539" y="214.1606">node address 0x0000.</text><line style="stroke:#A80036;stroke-width:1.0;" x1="331" x2="373" y1="252.3594" y2="252.3594"/><line style="stroke:#A80036;stroke-width:1.0;" x1="373" x2="373" y1="252.3594" y2="265.3594"/><line style="stroke:#A80036;stroke-width:1.0;" x1="332" x2="373" y1="265.3594" y2="265.3594"/><polygon fill="#A80036" points="342,261.3594,332,265.3594,342,269.3594,338,265.3594" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="165" x="338" y="247.2935">[IPX Broadcast] Packet 44</text><polygon fill="#A80036" points="342,310.625,332,314.625,342,318.625,338,314.625" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="336" x2="519" y1="314.625" y2="314.625"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="165" x="348" y="309.5591">[IPX Broadcast] Packet 29</text><path d="M525,278.3594 L525,333.3594 L772,333.3594 L772,288.3594 L762,278.3594 L525,278.3594 " fill="#FBFB77" filter="url(#fix079mbr1a6z)" style="stroke:#A80036;stroke-width:1.0;"/><path d="M762,278.3594 L762,288.3594 L772,288.3594 L762,278.3594 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="138" x="531" y="295.4263">[Target node: Host 1]</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="162" x="539" y="310.5591">Client received Packet 44</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="218" x="539" y="325.6919">from Host and sends Join request.</text><polygon fill="#A80036" points="508,387.5898,518,391.5898,508,395.5898,512,391.5898" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="331" x2="514" y1="391.5898" y2="391.5898"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="148" x="338" y="386.5239">[IPX Unicast] Packet 30</text><path d="M5,347.7578 L5,417.7578 L322,417.7578 L322,357.7578 L312,347.7578 L5,347.7578 " fill="#FBFB77" filter="url(#fix079mbr1a6z)" style="stroke:#A80036;stroke-width:1.0;"/><path d="M312,347.7578 L312,357.7578 L322,357.7578 L312,347.7578 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="145" x="11" y="364.8247">[Target node: Client 1]</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="273" x="19" y="379.9575">Host sends game settings including known</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="238" x="19" y="395.0903">nodes and their names to client only.</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="288" x="19" y="410.2231">NOTE: This is not an IPX broadcast message.</text><polygon fill="#A80036" points="342,464.5547,332,468.5547,342,472.5547,338,468.5547" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="336" x2="519" y1="468.5547" y2="468.5547"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="165" x="348" y="463.4888">[IPX Broadcast] Packet 35</text><path d="M525,432.2891 L525,487.2891 L753,487.2891 L753,442.2891 L743,432.2891 L525,432.2891 " fill="#FBFB77" filter="url(#fix079mbr1a6z)" style="stroke:#A80036;stroke-width:1.0;"/><path d="M743,432.2891 L743,442.2891 L753,442.2891 L743,432.2891 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="145" x="531" y="449.356">[Target node: Client 1]</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="199" x="539" y="464.4888">Client requests Host to register</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="117" x="539" y="479.6216">it for a player slot.</text><!--MD5=[5c2b06e91fa65be41efb063bb04de63d]
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="526px" preserveAspectRatio="none" style="width:835px;height:526px;background:none;" version="1.1" viewBox="0 0 835 526" width="835px" zoomAndPan="magnify"><defs/><g><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="332" x2="332" y1="36.2969" y2="490.8203"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="521" x2="521" y1="36.2969" y2="490.8203"/><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="60" x="302" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="46" x="309" y="24.9951">Host 1</text><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="60" x="302" y="489.8203"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="46" x="309" y="509.8154">Host 1</text><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="70" x="486" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="56" x="493" y="24.9951">Client 1</text><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="70" x="486" y="489.8203"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="56" x="493" y="509.8154">Client 1</text><line style="stroke:#000000;stroke-width:1.0;" x1="332" x2="374" y1="71.4961" y2="71.4961"/><line style="stroke:#000000;stroke-width:1.0;" x1="374" x2="374" y1="71.4961" y2="84.4961"/><line style="stroke:#000000;stroke-width:1.0;" x1="333" x2="374" y1="84.4961" y2="84.4961"/><polygon fill="#000000" points="343,80.4961,333,84.4961,343,88.4961,339,84.4961" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="165" x="339" y="66.4302">[IPX Broadcast] Packet 44</text><path d="M63,51.2969 L63,91.2969 L327,91.2969 L327,61.2969 L317,51.2969 L63,51.2969 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M317,51.2969 L317,61.2969 L327,61.2969 L317,51.2969 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="138" x="69" y="68.3638">[Target node: Host 1]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="235" x="77" y="83.4966">Host announces itself (periodic ~3s).</text><line style="stroke:#000000;stroke-width:1.0;" x1="332" x2="374" y1="117.6953" y2="117.6953"/><line style="stroke:#000000;stroke-width:1.0;" x1="374" x2="374" y1="117.6953" y2="130.6953"/><line style="stroke:#000000;stroke-width:1.0;" x1="333" x2="374" y1="130.6953" y2="130.6953"/><polygon fill="#000000" points="343,126.6953,333,130.6953,343,134.6953,339,130.6953" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="165" x="339" y="112.6294">[IPX Broadcast] Packet 44</text><polygon fill="#000000" points="343,181.5273,333,185.5273,343,189.5273,339,185.5273" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="337" x2="520" y1="185.5273" y2="185.5273"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="165" x="349" y="180.4614">[IPX Broadcast] Packet 28</text><path d="M526,143.6953 L526,213.6953 L828,213.6953 L828,153.6953 L818,143.6953 L526,143.6953 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M818,143.6953 L818,153.6953 L828,153.6953 L818,143.6953 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="104" x="532" y="160.7622">[Target node: *]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="260" x="540" y="175.895">New Client arrives and requests hosts to</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="273" x="540" y="191.0278">announce themselves using the broadcast</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="143" x="540" y="206.1606">node address 0x0000.</text><polygon fill="#000000" points="509,246.9258,519,250.9258,509,254.9258,513,250.9258" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="332" x2="515" y1="250.9258" y2="250.9258"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="165" x="339" y="245.8599">[IPX Broadcast] Packet 44</text><path d="M92,224.2266 L92,264.2266 L327,264.2266 L327,234.2266 L317,224.2266 L92,224.2266 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M317,224.2266 L317,234.2266 L327,234.2266 L317,224.2266 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="138" x="98" y="241.2935">[Target node: Host 1]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="206" x="106" y="256.4263">Host responds to Client request.</text><polygon fill="#000000" points="343,304.7578,333,308.7578,343,312.7578,339,308.7578" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="337" x2="520" y1="308.7578" y2="308.7578"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="165" x="349" y="303.6919">[IPX Broadcast] Packet 29</text><path d="M526,274.4922 L526,329.4922 L773,329.4922 L773,284.4922 L763,274.4922 L526,274.4922 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M763,274.4922 L763,284.4922 L773,284.4922 L763,274.4922 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="138" x="532" y="291.5591">[Target node: Host 1]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="162" x="540" y="306.6919">Client received Packet 44</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="218" x="540" y="321.8247">from Host and sends Join request.</text><polygon fill="#000000" points="509,377.7227,519,381.7227,509,385.7227,513,381.7227" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="332" x2="515" y1="381.7227" y2="381.7227"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="339" y="376.6567">[IPX Unicast] Packet 30</text><path d="M10,339.8906 L10,409.8906 L327,409.8906 L327,349.8906 L317,339.8906 L10,339.8906 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M317,339.8906 L317,349.8906 L327,349.8906 L317,339.8906 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="145" x="16" y="356.9575">[Target node: Client 1]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="273" x="24" y="372.0903">Host sends game settings including known</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="238" x="24" y="387.2231">nodes and their names to client only.</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="288" x="24" y="402.356">NOTE: This is not an IPX broadcast message.</text><polygon fill="#000000" points="343,450.6875,333,454.6875,343,458.6875,339,454.6875" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="337" x2="520" y1="454.6875" y2="454.6875"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="165" x="349" y="449.6216">[IPX Broadcast] Packet 35</text><path d="M526,420.4219 L526,475.4219 L754,475.4219 L754,430.4219 L744,420.4219 L526,420.4219 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M744,420.4219 L744,430.4219 L754,430.4219 L744,420.4219 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="145" x="532" y="437.4888">[Target node: Client 1]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="199" x="540" y="452.6216">Client requests Host to register</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="117" x="540" y="467.7544">it for a player slot.</text><!--MD5=[812cb6b243db55757554a017ead22f53]
 @startuml
+!theme plain
 participant "Host 1" as H1
 ' participant "Host 2" as H2
 participant "Client 1" as C1
@@ -20,7 +22,11 @@ note right
   announce themselves using the broadcast
   node address 0x0000.
 end note
-H1 -> H1 : [IPX Broadcast] Packet 44
+H1 -> C1 : [IPX Broadcast] Packet 44
+note left
+[Target node: Host 1]
+  Host responds to Client request.
+end note
 C1 -> H1 : [IPX Broadcast] Packet 29
 note right
 [Target node: Host 1]
@@ -43,6 +49,150 @@ end note
 @enduml
 
 @startuml
+
+
+
+
+
+
+
+<style>
+  root {
+    BackgroundColor white
+    FontColor black
+    FontName Verdana
+    HyperLinkColor blue
+    LineColor black
+    LineThickness 1
+    Margin 5
+  }
+  caption {
+    LineThickness 0
+  }
+  footer {
+    LineThickness 0
+  }
+  header {
+    LineThickness 0
+  }
+  node {
+    MaximumWidth 300
+  }
+  title {
+    FontSize 22
+    LineThickness 0
+  }
+</style>
+
+skinparam ArrowLollipopColor black
+skinparam BackgroundColor white
+skinparam DefaultFontName Verdana
+skinparam DefaultMonospacedFontName Courier
+skinparam LifelineStrategy nosolid
+skinparam ParticipantPadding 10
+skinparam SequenceLifeLineBorderColor black
+skinparam Shadowing false
+skinparam UseBetaStyle true
+
+skinparam Activity {
+  BackgroundColor white
+  BarColor black
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam Boundary {
+  FontColor black
+}
+skinparam Box {
+  Padding 5
+}
+skinparam CircledCharacter {
+  FontColor black
+  FontName Courier
+  Radius 9
+}
+skinparam Class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassAttribute {
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassStereotype {
+  FontColor black
+  FontName Verdana
+}
+skinparam Footer {
+  FontColor black
+  FontName Verdana
+}
+skinparam Header {
+  FontColor black
+  FontName Verdana
+}
+skinparam Hyperlink {
+  Color blue
+}
+skinparam IconPackage {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPrivate {
+  Color black
+  BackgroundColor white
+}
+skinparam IconProtected {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPublic {
+  Color black
+  BackgroundColor white
+}
+skinparam Note {
+  FontColor black
+  FontName Verdana
+}
+skinparam Object {
+  BorderColor black
+}
+skinparam Package {
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam State {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeA {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeC {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeE {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeI {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeN {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam UseCaseStereoType {
+  FontColor black
+  FontName Verdana
+}
 participant "Host 1" as H1
 participant "Client 1" as C1
 
@@ -60,7 +210,11 @@ note right
   announce themselves using the broadcast
   node address 0x0000.
 end note
-H1 -> H1 : [IPX Broadcast] Packet 44
+H1 -> C1 : [IPX Broadcast] Packet 44
+note left
+[Target node: Host 1]
+  Host responds to Client request.
+end note
 C1 -> H1 : [IPX Broadcast] Packet 29
 note right
 [Target node: Host 1]
@@ -82,7 +236,7 @@ note right
 end note
 @enduml
 
-PlantUML version 1.2021.14(Fri Nov 12 16:46:50 UTC 2021)
+PlantUML version 1.2021.15beta8(Unknown compile time)
 (GPL source distribution)
 Java Runtime: Java(TM) SE Runtime Environment
 JVM: Java HotSpot(TM) 64-Bit Server VM
