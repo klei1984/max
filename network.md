@@ -10,9 +10,9 @@ The article tries to document the network communication related aspects of M.A.X
 be interesting for an enthusiast or could be relevant for an engineer.<br>
 The information found herein is not guaranteed to be complete or technically accurate.
 
-## Network Protocols
+## Overview
 
-M.A.X. supports three networking options.
+M.A.X. supports three networking options (link layers).
 
 - IPX protocol based local area network play for maximum four human players.
 - Dial-up Modem play for two human players.
@@ -34,7 +34,31 @@ There are two potential goals for M.A.X. Port:
 - Keep M.A.X. Port compatible with DOSBox and original M.A.X. v1.04. This would allow easier testing, incremental reimplementation of networking related aspects of the game and cross-play.
 - Ditch the entire Link layer (or Data Link and Physical layers) together with Null Modem, Dial-Up Modem and IPX LAN play and replace all of these with a single TCP/IP or UDP/IP based alternative design. Which transport layer protocol to use depends on the netcode of the original game.
 
-Research to date indicates that the game implements an input-synchronous, lock-step peer-to-peer networking model. For the used terminology see [\[2\]](#ref2). Turn-based and simultaneous game modes behave differently. Matchmaking uses its own netcode.
+Research to date indicates that the game implements an input-synchronous, lockstep peer-to-peer networking model. For the used terminology see [\[2\]](#ref2). Turn-based and simultaneous game modes behave differently. Matchmaking uses its own netcode.
+
+The following chapters document the application layer protocols above the IPX link.
+
+## Protocols
+
+The application layer protocols act in a connectionless peer-to-peer network topology. There are two types of actors, a host and its clients.
+
+- ***Matchmaking*** This protocol is used to set up multiplayer games. It has its own set of packets and most transmissions are broadcast type as the IPX local node addresses of actors are not yet known. It is capable of distinguishing multiple hosts and keeping track which clients belong to which lobby.
+
+- ***Turn Based Play*** This protocol implements an input-synchronous lockstep architecture.
+
+- ***Simultaneous Moves Play*** This is very similar to the turn based play protocol, but its lockstep implementation differs.
+
+### Matchmaking
+
+Typical message sequence when a Client joins a Host during game setup:
+
+<img src="{{ site.baseurl }}/assets/images/protocol_basic_join.svg" alt="Network Protocol - Basic Join">
+
+Typical message sequence when the Host starts a configured game with two Clients:
+
+### Turn Based Play
+
+### Simultaneous Moves Play
 
 ## Packet Structures
 
@@ -104,7 +128,7 @@ void crc16(unsigned short *crc, unsigned char c) {
 
 M.A.X. v1.04 defines 53 packet types, although some of them are not implemented.
 
-Wireshark Generic Dissector ([wsgd]({{ site.url }}/assets/files/max_v104.7z)) profile for DOSBox M.A.X. v1.04 IPX LAN network play.
+Wireshark Generic Dissector ([wsgd]({{ site.baseurl }}/assets/files/max_v104.7z)) profile for DOSBox M.A.X. v1.04 IPX LAN network play.
 
 ### Packet Header
 
@@ -798,7 +822,11 @@ struct MAX_Packet_22
 ~~~
 
 <a name="packet_ref23"></a>
-### Packet 23
+### Packet 23 - Unit State
+
+IPX multicast message sent by host to another players. The message needs to be acknowledged by each player with *[Packet 24](#packet_ref24)*.
+
+*[Packet 23](#packet_ref23)*, *[Packet 24](#packet_ref24)* and *[Packet 49](#packet_ref49)* are only used for lockstep desynchronization analysis, for debugging purposes.
 
 ~~~ c
 struct MAX_Packet_23
@@ -819,7 +847,7 @@ struct MAX_Packet_23
   uint8                 gold_mining;
   uint16                build_time;
   uint16                build_rate;
-  uint16                unit_type;
+  MAX_UnitType          unit_type;
   uint16                unit_id;
   uint16                grid_x;
   uint16                grid_y;
@@ -832,16 +860,24 @@ struct MAX_Packet_23
 }
 ~~~
 
+***entity_id*** The unit's UnitHash type hash key.
+
 <a name="packet_ref24"></a>
-### Packet 24
+### Packet 24 - Acknowledge Unit State Message
+
+IPX multicast message sent by client to another players. The message acknowledges the reception of *[Packet 23](#packet_ref23)*.
 
 ~~~ c
 struct MAX_Packet_24
 {
   MAX_PacketHeader      Header;
-  uint8                 field_0;
+  uint8                 status;
 }
 ~~~
+
+***entity_id*** Sender's team slot (node address 0 - 3).
+
+***status*** Hardcoded to 1 (true) by the sender.
 
 <a name="packet_ref25"></a>
 ### Packet 25 - Remote Debug Log
@@ -1182,7 +1218,7 @@ struct MAX_Packet_38
 }
 ~~~
 
-***entity_id*** The unit's UnitHash type hash key for which the order applies to.
+***entity_id*** The unit's UnitHash type hash key.
 
 ***order*** Current unit order. See *[Packet 08](#packet_ref08)*.
 
@@ -1265,7 +1301,7 @@ struct MAX_Packet_41
 }
 ~~~
 
-***entity_id*** The unit's UnitHash type hash key for which the order applies to.
+***entity_id*** The unit's UnitHash type hash key.
 
 <a name="packet_ref42"></a>
 ### Packet 42 - 
@@ -1297,7 +1333,7 @@ struct MAX_Packet_43
 }
 ~~~
 
-***entity_id*** The unit's UnitHash type hash key for which the order applies to.
+***entity_id*** The unit's UnitHash type hash key.
 
 ***unit_name*** New name of the unit. Null terminated string. The maximum length of the name is 30 bytes including the null character. The game GUI does not allow longer names to be set. A longer (malformed) packet does not corrupt memory as the name is stored in heap memory. A malformed packet where the null character is missing could potentially lead to segmentation fault or other issues still.
 
@@ -1398,23 +1434,21 @@ struct MAX_Packet_48
 ***request_uid*** Unique request identifier from previously received *[Packet 07](#packet_ref07)*.
 
 <a name="packet_ref49"></a>
-### Packet 49
+### Packet 49 - Conclude Analysis
 
-IPX multicast message.
-
-TODO
+IPX multicast message sent by host to each players to conclude a lockstep desynchronization analysis process. See *[Packet 23](#packet_ref23)*.
 
 ~~~ c
 struct MAX_Packet_49
 {
   MAX_PacketHeader      Header;
-  uint8                 field_0;
+  uint8                 status;
 }
 ~~~
 
 ***entity_id*** Hardcoded to 0 by the sender and the field value is not used by the receivers.
 
-TODO
+***status*** Hardcoded to 1 (true) by the sender.
 
 <a name="packet_ref50"></a>
 ### Packet 50 - Enemy Spotted
@@ -1428,7 +1462,7 @@ struct MAX_Packet_50
 }
 ~~~
 
-***entity_id*** The unit's UnitHash type hash key for which the order applies to.
+***entity_id*** The unit's UnitHash type hash key.
 
 <a name="packet_ref51"></a>
 ### Packet 51 - 
@@ -1465,16 +1499,6 @@ struct MAX_Packet_52
 ***entity_id*** Sender's team slot (node address 0 - 3).
 
 ***turn_index*** Current turn counter value. Each player's turn increments this field. The turn counter displayed in-game is not equal to this counter value in turn based games.
-
-## M.A.X. Protocol Behaviors
-
-### Game Setup Phase
-
-Typical message sequence when a Client joins a Host during game setup:
-
-<img src="{{ site.baseurl }}/assets/images/protocol_basic_join.svg" alt="Network Protocol - Basic Join">
-
-Typical message sequence when the Host starts a configured game with two Clients:
 
 ## References
 <a name="ref1"></a>\[1\] [DOSBox Connectivity](https://www.dosbox.com/wiki/Connectivity)<br>
