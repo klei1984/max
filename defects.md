@@ -110,6 +110,15 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 43. Saving a game in multiplayer game modes via network packet 16 does not verify whether peers are already desynchronized. The game also does not check for desynchronization when a previously saved multiplayer game is loaded. This leads to situations where previously saved games are basically corrupted already at the time of loading.
 
+44. The help button and the help feature in general does not work on the IPX multiplayer initial cargo setup screen.
+
+45. When initial upgrades are made during mission loadout and the player proceeds to the landing zone selection screen then goes back to the purchase menu by pushing the cancel button the upgrades can be cancelled to get back the upgrade costs, but the game keeps the upgrades still. This can be used as an exploit in both single and multiplayer games where the purchase menu is available.
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_45.mp4" type="video/mp4">
+    </video>
+    In multiplayer the purchased unit count must remain below 134 otherwise buffer overflows or other wicked stuff could happen.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).

@@ -12,7 +12,7 @@ The information found herein is not guaranteed to be complete or technically acc
 
 ## Overview
 
-M.A.X. supports three networking options (link layers).
+M.A.X. supports three networking options.
 
 - IPX protocol based local area network play for maximum four human players.
 - Dial-up Modem play for two human players.
@@ -22,23 +22,93 @@ M.A.X. supports three networking options (link layers).
 
 The implementations rely on MS-DOS DPMI services and direct I/O port manipulation. None of these are available in modern OS environments anymore.
 
+DOSBox emulates the IPX protocol and related DPMI services and tunnels IPX packets over UDP/IP protocol using a client-server architecture [\[1\]](#ref1). Dial-up modem emulation supports making and answering calls and routes transmission data over TCP/IP protocol [\[1\]](#ref1).
+
+M.A.X. implements an input-synchronous, lockstep peer-to-peer networking model. For the used terminology see [\[2\]](#ref2). Turn-based and simultaneous game modes behave differently. Matchmaking uses its own netcode.
+
+There are several design alternatives for M.A.X. Port to consider for the reimplementation:
+
+#### DOSBox Compatible Model
+
+Keep M.A.X. Port compatible with DOSBox and original M.A.X. v1.04. This would allow easier testing, incremental reimplementation of networking related aspects of the game and cross-play.
+
+With this approach the IPX driver remains the original except for DPMI and direct I/O manipulation interfaces. The game would realize the DOSBox IPX client first that would connect to a DOSBox IPX server configuration. The original M.A.X. v1.04 under DOSBox would connect to M.A.X. Port. Starting from such a setup incremental reimplementation of higher networking layer functionalities would theoretically be easier.
+
+The problem is that this cross-compatibility could become a negative trait pretty fast:
+- First of all fixing defects is not possible as long as the original game remains in the communication loop.
+
+- DOSBox implements a client-server architecture to emulate IPX networks while M.A.X. uses a peer-to-peer networking model. This means that every message is first sent to the DOSBox IPX server and that distributes messages to their true destinations. The left side depicts message transfers under DOSBox. The right side shows how MAX communicated over IPX LAN originally.
+<br>
+<img src="{{ site.baseurl }}/assets/images/network_topology.svg" alt="Network Topology">
+<br>
+I experienced a lot of desyncs with this setup even on localhost, although maybe they had to do something with my decade old PC, Wireshark sniffing all traffic on its loopback adapter, and four DOSBox instances plus several other memory hungry applications running in parallel.
+
+- The protocol overhead is considerable. The game produces IPX packets. DOSBox wraps IPX packets into UDP/IP packets. The IPX header is 30 bytes long. The game specific IPX Protocol Header adds 8 bytes on top of that. The UDP and IP headers add 20 + 8 bytes overhead or so. The application layer protocol does not stream data. One application layer packet is basically wrapped into one UDP packet at the end. The smallest payload size of an application layer packet is 0 byte while the biggest one is 316 bytes. Based on a network trace of 220k+ packets, 97.74% of those packets were 62 to 79 bytes long. Thats quite a lot of wasted bandwidth due to protocol overhead.
+
+- There is risk of data corruption. The application layer protocol implements a CRC16 checksum using the CRC16-CCITT polynomial. With a worst case payload size of 316 bytes 4 bit errors might be detected, but not much more. I do not think that this is sufficient for Internet play use case when the networking model depends on 100% deterministic lockstep. This is a potential root case for desyncs.
+
+- The IPX driver does not implement much error recovery functionality... in most cases the game just exits on errors without any recovery attempt. In case of a packet loss the game makes one attempt to get the missing packet via retransmission, but if that retransmit request is also lost than it is guaranteed game over.
+
+#### Peer-to-Peer Model
+
+Ditch everything below the Transport layer together with Null Modem, Dial-Up Modem and IPX LAN play and replace all of these with a single UDP/IP based alternative design enabling Internet play.
+
+This approach keeps the original input-synchronous, lockstep peer-to-peer networking model, but removes the overhead of IPX protocol emulation and could switch to a streaming buffer or could use redundant transfers to balance bandwidth and packet retransmission round trip times or could introduce a CRC32 checksum for added plausibility or whatever that helps to gain stability and robustness against network errors.
+
+Potential problem sources:
+- Broadcast messaging is currently a requirement for the application layer. If Internet play is targeted this must be worked around.
+
+- Multicast messaging would be highly beneficial to use due to the peer-to-peer model of the game, but it is not viable for Internet play. It makes no sense to implement different protocols for LAN and Internet play.
+
+- With a peer-to-peer setup matchmaking will be interesting over the Internet.
+
+#### Client-Server Model
+
+This is not viable or meaningful as long as the game architecture is not adapted to such an architecture. Security is a huge concern for such a setup. Server hosting and maintenance costs need to be considered.
+
+## Documentation
+
+The following chapters only document the IPX protocol based networking option. Dial-up and Null Modem specific features and protocols are not in scope.
+
+### Internet Layer Protocols
+
+#### IPX Protocol
+
+IPX is a connectionless datagram protocol. Datagram means that each packet is treated as an
+individual entity, having no logical or sequential relation to any other packet [\[3\]](#ref3).
+
+This section describes the game specific protocol that is built above Novell's IPX protocol. From now on the IPX protocol term will refer to the game specific feature set that incorporates the IPX protocol itself.
+
 In the case of IPX protocol the game distinguishes 3 types of message transmission mode:
 - ***Unicast***: The message is sent to a single destination.
 - ***Multicast***: The message is sent to all known destinations one by one as IPX protocol does not support real multicast messaging.
 - ***Broadcast***: The message is sent to all nodes on the local network using the IPX broadcast address.
 
-DOSBox emulates the IPX protocol and related DPMI services and tunnels IPX packets over UDP/IP protocol [\[1\]](#ref1). Dial-up modem emulation supports making and answering calls and routes transmission data over TCP/IP protocol [\[1\]](#ref1).
+The Internet or Network layer protocol of M.A.X. built above Novell's IPX protocol implements:
+- organization of nodes into virtual communication channels
+- packet verification
+- packet filtering
+- packet loss detection
+- packet retransmission
+- message (re)ordering
+- message buffering
+- basic transmit rate limitation
 
-There are two potential goals for M.A.X. Port:
+The IPX protocol layer is not responsible for:
+- node discovery
+- node address allocation or (re)assignments
+- round trip time measurements
+- timeout monitoring
 
-- Keep M.A.X. Port compatible with DOSBox and original M.A.X. v1.04. This would allow easier testing, incremental reimplementation of networking related aspects of the game and cross-play.
-- Ditch the entire Link layer (or Data Link and Physical layers) together with Null Modem, Dial-Up Modem and IPX LAN play and replace all of these with a single TCP/IP or UDP/IP based alternative design. Which transport layer protocol to use depends on the netcode of the original game.
+DPMI services that interface with the system's IPX driver use so called Event Control Blocks (ECBs) to send and receive packets. The game registers 4 transmit ECBs and 28 receive ECBs.
 
-Research to date indicates that the game implements an input-synchronous, lockstep peer-to-peer networking model. For the used terminology see [\[2\]](#ref2). Turn-based and simultaneous game modes behave differently. Matchmaking uses its own netcode.
+To transmit a packet the game uses DPMI service INT 7A, function 3 (IPX Driver, SEND PACKET). The service is asynchronous, non blocking. Transmit requests are rate limited to 1 millisecond per packet. The transmit ECB slots are operated like a ring buffer. If the current ECB slot is still busy the game enters a busy wait loop without looking for another slot that might already be free. If the completion code of the ECB that was in the given ECB slot previously indicates any kind of protocol error the game terminates itself immediately.
 
-The following chapters document the application layer protocols above the IPX link.
+<img src="{{ site.baseurl }}/assets/images/ipx_transmit.svg" alt="IPX Transmit">
 
-## Protocols
+To receive a packet DPMI service INT 7A, function 4 (IPX Driver, LISTEN FOR PACKET) is used. The function is non blocking, it just registers the ECB slot to be used for reception. Reception is polling based. The game checks in a loop whether any of the Rx ECBs are in ready state.
+
+### Application Layer Protocols
 
 The application layer protocols act in a connectionless peer-to-peer network topology. There are two types of actors, a host and its clients.
 
@@ -48,7 +118,7 @@ The application layer protocols act in a connectionless peer-to-peer network top
 
 - ***Simultaneous Moves Play*** This is very similar to the turn based play protocol, but its lockstep implementation differs.
 
-### Matchmaking
+#### Matchmaking
 
 Typical message sequence when a Client joins a Host during game setup:
 
@@ -56,11 +126,18 @@ Typical message sequence when a Client joins a Host during game setup:
 
 Typical message sequence when the Host starts a configured game with two Clients:
 
-### Turn Based Play
+<img src="{{ site.baseurl }}/assets/images/protocol_game_setup.svg" alt="Network Protocol - Game Setup">
 
-### Simultaneous Moves Play
 
-## Packet Structures
+#### Turn Based Play
+
+Typical message sequence when players make their initial mission supplies configuration and select a landing zone:
+
+<img src="{{ site.baseurl }}/assets/images/protocol_deployment.svg" alt="Network Protocol - Deployment">
+
+#### Simultaneous Moves Play
+
+#### Packet Structures
 
 The transport protocol layer wraps M.A.X. packets with IPX or Modem / Serial protocol specific meta data.
 
@@ -68,19 +145,19 @@ The transport protocol layer wraps M.A.X. packets with IPX or Modem / Serial pro
 
 All M.A.X. specific formats use little endian byte order.
 
-### IPX Packet - IPX Protocol Header
+#### IPX Packet - IPX Protocol Header
 
 - ***Packet Number (4 bytes)***: Only 6 LSBs are used in the value range 0 - 63. Default value is 0. The field is only incremented after an actual game is started by the Host. Each player's counter is managed individually.
-- ***RNG Seed (2 bytes)***: The default value is 0x913F. The value is set to a random number when the Host starts a game. See *[Packet 32](#packet_ref32)*.
+- ***Session ID (2 bytes)***: The default value is 0x913F. The value is set to a random number when the Host starts a game. See *[Packet 32](#packet_ref32)*.
 - ***CRC16 (2 bytes)***: The checksum is calculated over the M.A.X. Packet structure and the first byte of the packet number field.
 
-### Modem Packet
+#### Modem Packet
 
 - ***Packet Number (1 byte)***: Only 6 LSBs are used in the value range 0-63. Default value is 0. The field is only incremented after an actual game is started by the Host. Each player's counter is managed individually.
 - ***Packet Length (2 bytes)***: Size of the M.A.X. Packet in bytes.
 - ***CRC16 (2 bytes)***: The checksum is calculated over the M.A.X. Packet structure and finally two additional bytes are fed to the CRC16 algorithm, 0x00 and 0xFF.
 
-### M.A.X. Packet
+#### M.A.X. Packet
 
 - ***Packet Type (1 byte)***: Type of data structure found in the Packet Data field. See M.A.X. Packet Types section.
 - ***Entity ID (2 bytes)***: Packet Type specific meaning. E.g. Unit hash key or Node address of game client.
@@ -99,7 +176,7 @@ Node address 4: Alien Derelicts (Player 4).
 
 Normal addresses are calculated as `rand(0 to 32767) * 31991 >> 15 + 10`. The game implements its own pseudo random number generator. The host allocates all node addresses. The previous formula is rerolled as long as the resulting node address is not yet defined for any registered players.
 
-### CRC16 Algorithm
+#### CRC16 Algorithm
 
 Initial CRC value is 0x0000.
 
@@ -124,13 +201,13 @@ void crc16(unsigned short *crc, unsigned char c) {
 }
 ~~~
 
-## M.A.X. Packet Types
+### M.A.X. Packet Types
 
-M.A.X. v1.04 defines 53 packet types, although some of them are not implemented.
+M.A.X. v1.04 defines 54 packet types, although some of them are not implemented.
 
 Wireshark Generic Dissector ([wsgd]({{ site.baseurl }}/assets/files/max_v104.7z)) profile for DOSBox M.A.X. v1.04 IPX LAN network play.
 
-### Packet Header
+#### Packet Header
 
 All fields are encoded in little endian byte order.
 
@@ -152,7 +229,7 @@ struct MAX_PacketHeader
 ***data_size*** Size of the packet type specific data that follows the packet header.
 
 <a name="packet_ref00"></a>
-### Packet 00
+#### Packet 00
 
 ~~~ c
 struct MAX_Packet_00
@@ -163,7 +240,7 @@ struct MAX_Packet_00
 ~~~
 
 <a name="packet_ref01"></a>
-### Packet 01
+#### Packet 01
 
 ~~~ c
 struct MAX_Packet_01
@@ -174,22 +251,22 @@ struct MAX_Packet_01
 ~~~
 
 <a name="packet_ref02"></a>
-### Packet 02
+#### Packet 02
 
 Only implemented in early game versions.
 
 <a name="packet_ref03"></a>
-### Packet 03
+#### Packet 03
 
 Only implemented in early game versions.
 
 <a name="packet_ref04"></a>
-### Packet 04
+#### Packet 04
 
 Only implemented in early game versions.
 
 <a name="packet_ref05"></a>
-### Packet 05 - Announce IPX Local Address
+#### Packet 05 - Announce IPX Local Address
 
 IPX unicast message sent by the client to the host to acknowledge *[Packet 32](#packet_ref32)* and to announce the client's IPX local address to the host. When the host received all client's IPX local address via this message it responds with *[Packet 34](#packet_ref34)* to each client.
 
@@ -212,7 +289,7 @@ struct MAX_Packet_05
 ***address*** Local IPX address of the client. See *[Packet 29](#packet_ref29)*.
 
 <a name="packet_ref06"></a>
-### Packet 06 - End Turn
+#### Packet 06 - End Turn
 
 IPX multicast message sent by the player that ended their turn to all other players as an event notification.
 
@@ -229,7 +306,7 @@ struct MAX_Packet_06
 ***field_0*** Always set to 0x0000. Note that the field is not used for anything, it is basically reserved.
 
 <a name="packet_ref07"></a>
-### Packet 07 - Exit Game
+#### Packet 07 - Exit Game
 
 IPX multicast message sent by the player that leaves the game to all other players. The player that sends the request to exit the game first increments their own ***request_uid*** counter. Other players respond with *[Packet 48](#packet_ref48)*.
 
@@ -249,7 +326,7 @@ struct MAX_Packet_07
 ***request_uid*** Unique request identifier. Initial value is 0x00.
 
 <a name="packet_ref08"></a>
-### Packet 08 - Unit Order
+#### Packet 08 - Unit Order
 
 IPX multicast message sent by player that issued an order to all other players.
 
@@ -352,7 +429,7 @@ struct MAX_Packet_08
 TODO: Describe all fields.
 
 <a name="packet_ref09"></a>
-### Packet 09 - TODO
+#### Packet 09 - TODO
 
 IPX multicast message.
 
@@ -380,7 +457,7 @@ struct MAX_Packet_09
 TODO: Describe all fields.
 
 <a name="packet_ref10"></a>
-### Packet 10 - Unit Type Upgrade
+#### Packet 10 - Unit Type Upgrade
 
 IPX multicast message sent by a player to all other players to inform them about a unit type specific upgrade. The UnitValues class members are sent to the other players. This packet is sent also when an upgrade is made within the Purchase Menu before starting a game.
 
@@ -534,7 +611,7 @@ struct MAX_Packet_10
 ***agent_adjust*** TODO: Document infiltrator use case.
 
 <a name="packet_ref11"></a>
-### Packet 11 - Update Complex
+#### Packet 11 - Update Complex
 
 IPX multicast message sent by the player to every other player.
 
@@ -571,7 +648,7 @@ struct MAX_Packet_11
 ***buildings*** Number of buildings in the complex.
 
 <a name="packet_ref12"></a>
-### Packet 12 - Select Landing Zone
+#### Packet 12 - Select Landing Zone
 
 IPX multicast message sent by player to every other player during landing zone selection at the beginning of a game.
 
@@ -602,7 +679,7 @@ struct MAX_Packet_12
   uint16                unit_count;
   uint16                credits_spent;
   MAX_Point             start_position;
-  uint8                 field_12;
+  uint8                 proximity_state;
   MAX_MissionSupply[unit_count] units;
 }
 ~~~
@@ -617,14 +694,14 @@ struct MAX_Packet_12
 
 ***credits_spent*** Credits spent in the purchase menu. The value is tracked by the game for mission statistics that are shown at the end of the game.
 
-***start_position*** Grid coordinates selected as landing zone for the team. The given position is the top left point of a 3 by 3 rectange. The initial mining station and its power generator are not found in the ***units*** array. Units in the array are placed from top left corner in a clock wise order in the 3 by 3 rectangle. If there are more than four units a 5 by 5 rectangle is filled up again starting from top left corner and so on to 7 by 7 rectangle. The maximum ***data_size*** is 550 bytes so in theory 134 units can be allocated to a team at game startup. Of course M.A.X. v1.04 does not provide enough starting credits to do so.
+***start_position*** Grid coordinates selected as landing zone for the team. The given position is the top left point of a 3 by 3 rectange. The initial mining station and its power generator are not found in the ***units*** array. Units in the array are placed from top left corner in a clock wise order in the 3 by 3 rectangle. If there are more than four units a 5 by 5 rectangle is filled up again starting from top left corner and so on to 7 by 7 rectangle. The maximum ***data_size*** is 550 bytes so in theory 134 units can be allocated to a team at game startup. Of course M.A.X. v1.04 does not provide enough starting credits to do so unless someone deliberately uses one of the game defects as an exploit.
 
-***field_12*** TODO: Unknown field.
+***proximity_state*** Initially set to 1. If proximity zones overlap an additional confirmation is required from the affected players to stay. If a player remains within the original landing zone the value is set to 4, otherwise a new landing zone is selected with value 1. The player that made a valid selection locks its position with a value of 5 in a new message.
 
 ***units*** Array of units and their stored materials corresponding to the supplied and purchased units list.
 
 <a name="packet_ref13"></a>
-### Packet 13 - Update RNG Seed
+#### Packet 13 - Update RNG Seed
 
 IPX multicast message sent by the host to each client right after *[Packet 34](#packet_ref34)*.
 
@@ -641,7 +718,7 @@ struct MAX_Packet_13
 ***rng_seed*** The field value is used by game clients to set the RNG seed value via srand(). The value is derived from the time() C-API function from \<time.h\>. The time function determines the current calendar time which represents the time since January 1, 1970 (UTC) also known as Unix epoch time.
 
 <a name="packet_ref14"></a>
-### Packet 14 - TODO
+#### Packet 14 - TODO
 
 IPX multicast message. TODO
 
@@ -650,7 +727,7 @@ struct MAX_Packet_14
 {
   MAX_PacketHeader      Header;
   uint16                unit_type;
-  uint16                grid_X;
+  uint16                grid_x;
   uint16                grid_y;
 }
 ~~~
@@ -660,12 +737,12 @@ struct MAX_Packet_14
 TODO
 
 <a name="packet_ref15"></a>
-### Packet 15
+#### Packet 15
 
 Not implemented in M.A.X. v1.04.
 
 <a name="packet_ref16"></a>
-### Packet 16 - Save Game
+#### Packet 16 - Save Game
 
 IPX multicast message sent by the player that issued a save operation to all other players.
 
@@ -685,7 +762,7 @@ struct MAX_Packet_16
 ***title*** Title of the save game set via the game GUI. The field is always 30 characters long.
 
 <a name="packet_ref17"></a>
-### Packet 17 - Update Game Settings
+#### Packet 17 - Update Game Settings
 
 IPX multicast message sent by the host to each client right after *[Packet 13](#packet_ref13)*.
 
@@ -740,7 +817,7 @@ struct MAX_Packet_17
 TODO: Describe all fields.
 
 <a name="packet_ref18"></a>
-### Packet 18 - In-game Chat Message
+#### Packet 18 - In-game Chat Message
 
 IPX unicast message sent by a player to another player. The message content is an in-game chat message. If an in-game chat message needs to be sent to multiple players than simply multiple packets are sent to the applicable IPX local address.
 
@@ -760,12 +837,12 @@ On the sender side the chat message is limited to 550 characters including the n
 On the receiver side the client statically reserves an 550 bytes long buffer for the message but it additionally prefixes the received chat message with a maximum 30 characters long player name and a colon plus a space character. So if a player would really be able to send such a long chat message it would corrupt all receiving player's IPX network manager state data even certain callback functions could be overwritten so it would be possible to execute hostile code on the remote computer. The in-game chat GUI only allows 60 characters to be sent though.
 
 <a name="packet_ref19"></a>
-### Packet 19
+#### Packet 19
 
 Not implemented in M.A.X. v1.04.
 
 <a name="packet_ref20"></a>
-### Packet 20
+#### Packet 20
 
 ~~~ c
 struct MAX_Packet_20
@@ -789,7 +866,7 @@ struct MAX_Packet_20
 ~~~
 
 <a name="packet_ref21"></a>
-### Packet 21
+#### Packet 21
 
 ~~~ c
 struct MAX_Packet_21
@@ -803,7 +880,7 @@ struct MAX_Packet_21
 ~~~
 
 <a name="packet_ref22"></a>
-### Packet 22
+#### Packet 22
 
 ~~~ c
 struct MAX_Packet_22
@@ -822,7 +899,7 @@ struct MAX_Packet_22
 ~~~
 
 <a name="packet_ref23"></a>
-### Packet 23 - Unit State
+#### Packet 23 - Unit State
 
 IPX multicast message sent by host to another players. The message needs to be acknowledged by each player with *[Packet 24](#packet_ref24)*.
 
@@ -863,7 +940,7 @@ struct MAX_Packet_23
 ***entity_id*** The unit's UnitHash type hash key.
 
 <a name="packet_ref24"></a>
-### Packet 24 - Acknowledge Unit State Message
+#### Packet 24 - Acknowledge Unit State Message
 
 IPX multicast message sent by client to another players. The message acknowledges the reception of *[Packet 23](#packet_ref23)*.
 
@@ -880,12 +957,12 @@ struct MAX_Packet_24
 ***status*** Hardcoded to 1 (true) by the sender.
 
 <a name="packet_ref25"></a>
-### Packet 25 - Remote Debug Log
+#### Packet 25 - Remote Debug Log
 
 Not implemented in M.A.X. v1.04.
 
 <a name="packet_ref26"></a>
-### Packet 26 - Set Team Clan
+#### Packet 26 - Set Team Clan
 
 IPX multicast message sent by player to each other player after the host sent *[Packet 17](#packet_ref17)*.
 
@@ -902,12 +979,12 @@ struct MAX_Packet_26
 ***team_clan*** Clan index. Valid value range is 0 - 7.
 
 <a name="packet_ref27"></a>
-### Packet 27
+#### Packet 27
 
 Not implemented in M.A.X. v1.04.
 
 <a name="packet_ref28"></a>
-### Packet 28 - Join Request
+#### Packet 28 - Join Request
 
 IPX broadcast message sent by client that wants to join a game. The packet is only sent by a client if the host and its node address is not yet known. E.g. if the client did not receive any *[Packet 44](#packet_ref44)* messages yet.
 
@@ -927,7 +1004,7 @@ struct MAX_Packet_28
 ***data*** See [Packet 31](#packet_ref31).
 
 <a name="packet_ref29"></a>
-### Packet 29
+#### Packet 29
 
 IPX broadcast message sent by client to host indicating that client wants to join the game that host is setting up. The host is identified via its *[Packet 44](#packet_ref44)* message contents.
 
@@ -946,7 +1023,7 @@ struct MAX_Packet_29
 ***address*** On MS-DOS systems this is the real IPX address of the network interface. In DOSBox the first 4 bytes is the IPv4 address, the last two bytes are the UDP source port.
 
 <a name="packet_ref30"></a>
-### Packet 30
+#### Packet 30
 
 IPX unicast message sent to client from host as response to *[Packet 29](#packet_ref29)*. The packet synchronizes all game setup settings with the client.
 
@@ -989,7 +1066,7 @@ struct MAX_Packet_30
 TODO: Describe all fields.
 
 <a name="packet_ref31"></a>
-### Packet 31 - Leave Game
+#### Packet 31 - Leave Game
 
 IPX broadcast message sent by a player during game setup phase to denounce itself.
 
@@ -1009,7 +1086,7 @@ struct MAX_Packet_31
 ***data*** The packet size is always 6 bytes, but the last 4 bytes (this field) are not set. Unset random buffer content is sent by the player.
 
 <a name="packet_ref32"></a>
-### Packet 32 - Start Game
+#### Packet 32 - Start Game
 
 IPX broadcast message sent by the host to start the configured network game. Each client sends *[Packet 05](#packet_ref05)* as response to the host.
 
@@ -1018,7 +1095,7 @@ struct MAX_Packet_32
 {
   MAX_PacketHeader      Header;
   MAX_TeamType          team;
-  uint16                random_seed;
+  uint16                session_id;
   MAX_IpxAddress        address;
 }
 ~~~
@@ -1027,12 +1104,12 @@ struct MAX_Packet_32
 
 ***team*** Team slot of the sender (host).
 
-***random_seed*** A newly generated random number in the range 0 to 32767. Starting from the next packet the ***RNG Seed*** field inside the IPX Protocol Header will be set to this field's value for every node participating in the communication.
+***session_id*** A newly generated random number in the range 0 to 32767. Starting from the next packet the ***Session ID*** field inside the IPX Protocol Header will be set to this field's value for every node participating in the communication.
 
 ***address*** Local IPX address of the host. See *[Packet 29](#packet_ref29)*.
 
 <a name="packet_ref33"></a>
-### Packet 33 - Chat Message
+#### Packet 33 - Chat Message
 
 IPX broadcast message sent by the player that wants to send a chat message.
 
@@ -1049,7 +1126,7 @@ struct MAX_Packet_33
 ***message*** Null terminated string. The field is always 120 bytes long. The message is prefixed with the sender's team name ("Red Team: Hello M.A.X. Commander Green Team!"). In theory this means that the message contents could be 87 (120 - 1 - 30 -2) bytes long maximum. It is not possible to send a message to a single player only.
 
 <a name="packet_ref34"></a>
-### Packet 34 - Announce IPX Addresses
+#### Packet 34 - Announce IPX Addresses
 
 IPX multicast message sent by the host to all clients to acknowledge *[Packet 05](#packet_ref05)* and to announce all players' IPX local address.
 
@@ -1068,7 +1145,7 @@ struct MAX_Packet_34
 ***address [4]*** Local IPX addresses of each player. See *[Packet 29](#packet_ref29)*.
 
 <a name="packet_ref35"></a>
-### Packet 35 - Change Team Slot
+#### Packet 35 - Change Team Slot
 
 IPX broadcast message sent by a player that selected a new team slot (red, green, blue, gray).
 
@@ -1101,7 +1178,7 @@ The game does not allow an empty string as the ***team_name***. If the player at
 M.A.X. v1.04 implements an alternative Packet 35 format too, but it is unused. Probably dead code.
 
 <a name="packet_ref36"></a>
-### Packet 36 - Change Player Name
+#### Packet 36 - Change Player Name
 
 IPX broadcast message sent by a player that changed their name.
 
@@ -1118,7 +1195,7 @@ struct MAX_Packet_36
 ***team_name*** See *[Packet 35](#packet_ref35)* and *[Packet 44](#packet_ref44)*. Note that players could have identical names which could be confusing as chat messages are prefixed with the team names only.
 
 <a name="packet_ref37"></a>
-### Packet 37 - Change Game Options
+#### Packet 37 - Change Game Options
 
 IPX broadcast message sent by host when map is changed, a previous network game is loaded, a multiplayer scenario is selected or game options like starting credit is changed.
 
@@ -1184,7 +1261,7 @@ struct MAX_Packet_37
 TODO: Describe all fields.
 
 <a name="packet_ref38"></a>
-### Packet 38 - Unit Path
+#### Packet 38 - Unit Path
 
 IPX multicast message sent by player to all other players when unit path is changed. The UnitPath (or derived) path object of the given unit is replaced with a new object constructed from the data found in this packet. The packet is sent usually right after *[Packet 08](#packet_ref08)*.
 
@@ -1253,7 +1330,7 @@ struct MAX_Packet_38
 TODO: Describe all fields.
 
 <a name="packet_ref39"></a>
-### Packet 39 - Pause Game
+#### Packet 39 - Pause Game
 
 IPX multicast message sent by player to all other players to pause the game. See *[Packet 40](#packet_ref40)* to continue the game.
 
@@ -1270,7 +1347,7 @@ struct MAX_Packet_39
 ***field_0*** Always set to 0. Note that the field is not used for anything, it is basically reserved.
 
 <a name="packet_ref40"></a>
-### Packet 40 - Unpause Game
+#### Packet 40 - Unpause Game
 
 IPX multicast message sent by each player to all other players to unpause the game.
 
@@ -1287,7 +1364,7 @@ struct MAX_Packet_40
 ***field_0*** Always set to 0. Note that the field is not used for anything, it is basically reserved.
 
 <a name="packet_ref41"></a>
-### Packet 41 - Path Blocked
+#### Packet 41 - Path Blocked
 
 IPX multicast message sent by player to all other players that owns the blocked unit.
 
@@ -1304,7 +1381,7 @@ struct MAX_Packet_41
 ***entity_id*** The unit's UnitHash type hash key.
 
 <a name="packet_ref42"></a>
-### Packet 42 - 
+#### Packet 42 - 
 
 IPX multicast message. TODO
 
@@ -1321,7 +1398,7 @@ struct MAX_Packet_42
 ***field_0*** Always set to 0. Note that the field is not used for anything, it is basically reserved.
 
 <a name="packet_ref43"></a>
-### Packet 43 - Rename Unit
+#### Packet 43 - Rename Unit
 
 IPX multicast message sent by player to all other players when unit name has changed.
 
@@ -1338,7 +1415,7 @@ struct MAX_Packet_43
 ***unit_name*** New name of the unit. Null terminated string. The maximum length of the name is 30 bytes including the null character. The game GUI does not allow longer names to be set. A longer (malformed) packet does not corrupt memory as the name is stored in heap memory. A malformed packet where the null character is missing could potentially lead to segmentation fault or other issues still.
 
 <a name="packet_ref44"></a>
-### Packet 44 - Announce Host
+#### Packet 44 - Announce Host
 
 IPX broadcast message sent by host every 3 seconds or so during game setup phase to announce itself.
 
@@ -1358,7 +1435,7 @@ struct MAX_Packet_44
 ***team_name*** The host player's name like "**Red Team**" or "**Player 1**" or "**Mech Commander** - **Carlton L.**". The field is always 30 characters long and it is processed as a null terminated string. Therefore at least the last byte shall be 0x00.
 
 <a name="packet_ref45"></a>
-### Packet 45 - 
+#### Packet 45 - 
 
 IPX multicast message sent by player that started their turn to the others. The other players respond with their own calculation results for the sender specific local data. If any player's calculation of the current player's data does not match a network desynchronization error is reported. The game cannot be continued in such cases, but the last backup save could be reloaded or a restart sequence could be attempted.
 
@@ -1395,7 +1472,7 @@ unsigned short crc16(unsigned short crc, unsigned short data) {
 ~~~
 
 <a name="packet_ref46"></a>
-### Packet 46 - 
+#### Packet 46 - 
 
 IPX multicast message. TODO
 ~~~ c
@@ -1412,12 +1489,12 @@ struct MAX_Packet_46
 TODO
 
 <a name="packet_ref47"></a>
-### Packet 47
+#### Packet 47
 
 Not implemented in M.A.X. v1.04.
 
 <a name="packet_ref48"></a>
-### Packet 48 - Acknowledge Exit Game
+#### Packet 48 - Acknowledge Exit Game
 
 IPX multicast message sent by player to each other player after receiving *[Packet 07](#packet_ref07)*.
 
@@ -1434,7 +1511,7 @@ struct MAX_Packet_48
 ***request_uid*** Unique request identifier from previously received *[Packet 07](#packet_ref07)*.
 
 <a name="packet_ref49"></a>
-### Packet 49 - Conclude Analysis
+#### Packet 49 - Conclude Analysis
 
 IPX multicast message sent by host to each players to conclude a lockstep desynchronization analysis process. See *[Packet 23](#packet_ref23)*.
 
@@ -1451,7 +1528,7 @@ struct MAX_Packet_49
 ***status*** Hardcoded to 1 (true) by the sender.
 
 <a name="packet_ref50"></a>
-### Packet 50 - Enemy Spotted
+#### Packet 50 - Enemy Spotted
 
 IPX multicast message sent by player to all other players.
 
@@ -1465,11 +1542,9 @@ struct MAX_Packet_50
 ***entity_id*** The unit's UnitHash type hash key.
 
 <a name="packet_ref51"></a>
-### Packet 51 - 
+#### Packet 51 - Restart After Desync
 
-IPX multicast message sent by player to all other players.
-
-TODO
+IPX multicast message sent by player that selected option to restart from last save after desync to all other players.
 
 ~~~ c
 struct MAX_Packet_51
@@ -1481,10 +1556,10 @@ struct MAX_Packet_51
 
 ***entity_id*** Sender's team slot (node address 0 - 3).
 
-TODO
+***field_0*** Always set to 0. Note that the field is not used for anything, it is basically reserved.
 
 <a name="packet_ref52"></a>
-### Packet 52 - Acknowledge End Turn
+#### Packet 52 - Acknowledge End Turn
 
 IPX multicast message sent by player to each other player after receiving *[Packet 06](#packet_ref06)*.
 
@@ -1500,6 +1575,23 @@ struct MAX_Packet_52
 
 ***turn_index*** Current turn counter value. Each player's turn increments this field. The turn counter displayed in-game is not equal to this counter value in turn based games.
 
+<a name="packet_ref255"></a>
+#### Packet 255
+
+IPX unicast message. This is an Internet or Network layer packet used by the IPX driver to request (re)transmission of the next packet that the receiver node expects to read in case it is not yet found in the IPX driver's Rx ring buffer. The ***data_size*** field in the header is 0 as there is no data associated with this packet type.
+
+If network conditions are good, then this packet type does not appear in the communication flow.
+
+~~~ c
+struct MAX_Packet_255
+{
+  MAX_PacketHeader      Header;
+}
+~~~
+
+***entity_id*** The field is set to the Rx packet index, ***Packet Number*** field of the IPX Protocol Header, that is requested by the receiver node that sends the request.
+
 ## References
 <a name="ref1"></a>\[1\] [DOSBox Connectivity](https://www.dosbox.com/wiki/Connectivity)<br>
-<a name="ref1"></a>\[2\] [Age of Empires Multiplayer Design](https://www.gamedeveloper.com/programming/1500-archers-on-a-28-8-network-programming-in-age-of-empires-and-beyond)<br>
+<a name="ref2"></a>\[2\] [Age of Empires Multiplayer Design](https://www.gamedeveloper.com/programming/1500-archers-on-a-28-8-network-programming-in-age-of-empires-and-beyond)<br>
+<a name="ref3"></a>\[3\] [Internetwork Packet Exchange](https://www.novell.com/documentation/nw6p/pdfdoc/ipx_enu/ipx_enu.pdf) - October 2001<br>

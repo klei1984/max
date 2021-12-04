@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1164px" preserveAspectRatio="none" style="width:797px;height:1164px;background:none;" version="1.1" viewBox="0 0 797 1164" width="797px" zoomAndPan="magnify"><defs/><g><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="377" x2="377" y1="36.2969" y2="1128.9375"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="567" x2="567" y1="36.2969" y2="1128.9375"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="756.5" x2="756.5" y1="36.2969" y2="1128.9375"/><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="60" x="347" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="46" x="354" y="24.9951">Host 1</text><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="60" x="347" y="1127.9375"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="46" x="354" y="1147.9326">Host 1</text><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="70" x="532" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="56" x="539" y="24.9951">Client 1</text><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="70" x="532" y="1127.9375"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="56" x="539" y="1147.9326">Client 1</text><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="69" x="722.5" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="55" x="729.5" y="24.9951">Client 2</text><rect fill="#FFFFFF" height="30.2969" style="stroke:#000000;stroke-width:1.0;" width="69" x="722.5" y="1127.9375"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="55" x="729.5" y="1147.9326">Client 2</text><polygon fill="#000000" points="745,81.5625,755,85.5625,745,89.5625,749,85.5625" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="377" x2="751" y1="85.5625" y2="85.5625"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="384" y="65.3638">[IPX Unicast] Packet 26</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="42" x="384" y="80.4966">PN: 03</text><path d="M19,51.2969 L19,91.2969 L372,91.2969 L372,61.2969 L362,51.2969 L19,51.2969 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M362,51.2969 L362,61.2969 L372,61.2969 L362,51.2969 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="154" x="25" y="68.3638">[Entity ID: Team slot ID]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="332" x="25" y="83.4966">Each player sends their selected clan to each other.</text><polygon fill="#000000" points="555,128.8281,565,132.8281,555,136.8281,559,132.8281" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="377" x2="561" y1="132.8281" y2="132.8281"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="384" y="112.6294">[IPX Unicast] Packet 26</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="42" x="384" y="127.7622">PN: 03</text><polygon fill="#000000" points="745,173.0938,755,177.0938,745,181.0938,749,177.0938" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="567" x2="751" y1="177.0938" y2="177.0938"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="574" y="156.895">[IPX Unicast] Packet 26</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="42" x="574" y="172.0278">PN: 00</text><polygon fill="#000000" points="388,217.3594,378,221.3594,388,225.3594,384,221.3594" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="382" x2="566" y1="221.3594" y2="221.3594"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="394" y="201.1606">[IPX Unicast] Packet 26</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="42" x="394" y="216.2935">PN: 01</text><polygon fill="#000000" points="578,261.625,568,265.625,578,269.625,574,265.625" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="572" x2="756" y1="265.625" y2="265.625"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="584" y="245.4263">[IPX Unicast] Packet 26</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="42" x="584" y="260.5591">PN: 00</text><polygon fill="#000000" points="388,305.8906,378,309.8906,388,313.8906,384,309.8906" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="382" x2="756" y1="309.8906" y2="309.8906"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="394" y="289.6919">[IPX Unicast] Packet 26</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="42" x="394" y="304.8247">PN: 01</text><polygon fill="#000000" points="745,375.8555,755,379.8555,745,383.8555,749,379.8555" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="377" x2="751" y1="379.8555" y2="379.8555"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="384" y="359.6567">[IPX Unicast] Packet 10</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="42" x="384" y="374.7896">PN: 04</text><path d="M28,322.8906 L28,407.8906 L372,407.8906 L372,332.8906 L362,322.8906 L28,322.8906 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M362,322.8906 L362,332.8906 L372,332.8906 L362,322.8906 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="154" x="34" y="339.9575">[Entity ID: Team slot ID]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="323" x="34" y="355.0903">Each player sends their unit type upgrades one by</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="283" x="34" y="370.2231">one to each player after clicking Done in the</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="316" x="34" y="385.356">Purchase Menu. In the following scenario only the</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="137" x="34" y="400.4888">host made upgrades.</text><polygon fill="#000000" points="555,456.3867,565,460.3867,555,464.3867,559,460.3867" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="377" x2="561" y1="460.3867" y2="460.3867"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="384" y="440.188">[IPX Unicast] Packet 10</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="42" x="384" y="455.3208">PN: 04</text><path d="M58,418.5547 L58,473.5547 L372,473.5547 L372,428.5547 L362,418.5547 L58,418.5547 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M362,418.5547 L362,428.5547 L372,428.5547 L362,418.5547 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="154" x="64" y="435.6216">[Entity ID: Team slot ID]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="293" x="64" y="450.7544">Each player sends their selected landing zone</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="223" x="64" y="465.8872">position with their mission loadout.</text><polygon fill="#000000" points="745,511.2188,755,515.2188,745,519.2188,749,515.2188" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="377" x2="751" y1="515.2188" y2="515.2188"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="384" y="495.02">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="384" y="510.1528">PN: 05, Proximity State: 1</text><polygon fill="#000000" points="555,555.4844,565,559.4844,555,563.4844,559,559.4844" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="377" x2="561" y1="559.4844" y2="559.4844"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="384" y="539.2856">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="384" y="554.4185">PN: 05, Proximity State: 1</text><polygon fill="#000000" points="745,599.75,755,603.75,745,607.75,749,603.75" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="567" x2="751" y1="603.75" y2="603.75"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="574" y="583.5513">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="574" y="598.6841">PN: 01, Proximity State: 1</text><polygon fill="#000000" points="388,644.0156,378,648.0156,388,652.0156,384,648.0156" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="382" x2="566" y1="648.0156" y2="648.0156"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="394" y="627.8169">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="394" y="642.9497">PN: 02, Proximity State: 1</text><polygon fill="#000000" points="578,688.2813,568,692.2813,578,696.2813,574,692.2813" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="572" x2="756" y1="692.2813" y2="692.2813"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="584" y="672.0825">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="584" y="687.2153">PN: 01, Proximity State: 1</text><polygon fill="#000000" points="388,732.5469,378,736.5469,388,740.5469,384,736.5469" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="382" x2="756" y1="736.5469" y2="736.5469"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="394" y="716.3481">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="394" y="731.481">PN: 02, Proximity State: 1</text><polygon fill="#000000" points="578,817.6445,568,821.6445,578,825.6445,574,821.6445" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="572" x2="756" y1="821.6445" y2="821.6445"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="584" y="801.4458">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="584" y="816.5786">PN: 02, Proximity State: 5</text><path d="M184,749.5469 L184,864.5469 L562,864.5469 L562,759.5469 L552,749.5469 L184,749.5469 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M552,749.5469 L552,759.5469 L562,759.5469 L552,749.5469 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="329" x="190" y="766.6138">If proximity zones overlap affected players need to</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="313" x="190" y="781.7466">select a new landing zone or confirm to keep the</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="87" x="190" y="796.8794">previous one.</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="0" x="194" y="812.0122"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="154" x="190" y="827.145">[Entity ID: Team slot ID]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="357" x="190" y="842.2778">Client 2 informs the others that its landing zone is valid.</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="344" x="190" y="857.4106">The others have overlapping proximity zones though.</text><polygon fill="#000000" points="388,902.7422,378,906.7422,388,910.7422,384,906.7422" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="382" x2="756" y1="906.7422" y2="906.7422"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="394" y="886.5435">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="394" y="901.6763">PN: 03, Proximity State: 5</text><polygon fill="#000000" points="745,950.0078,755,954.0078,745,958.0078,749,954.0078" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="567" x2="751" y1="954.0078" y2="954.0078"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="574" y="933.8091">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="574" y="948.9419">PN: 02, Proximity State: 4</text><path d="M158,919.7422 L158,959.7422 L562,959.7422 L562,929.7422 L552,919.7422 L158,919.7422 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M552,919.7422 L552,929.7422 L562,929.7422 L552,919.7422 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="154" x="164" y="936.8091">[Entity ID: Team slot ID]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="383" x="164" y="951.9419">Client 1 informs the others that it stays at the original zone.</text><polygon fill="#000000" points="388,997.2734,378,1001.2734,388,1005.2734,384,1001.2734" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="382" x2="566" y1="1001.2734" y2="1001.2734"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="394" y="981.0747">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="394" y="996.2075">PN: 03, Proximity State: 4</text><polygon fill="#000000" points="745,1052.1055,755,1056.1055,745,1060.1055,749,1056.1055" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="377" x2="751" y1="1056.1055" y2="1056.1055"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="384" y="1035.9067">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="384" y="1051.0396">PN: 06, Proximity State: 1</text><path d="M10,1014.2734 L10,1069.2734 L372,1069.2734 L372,1024.2734 L362,1014.2734 L10,1014.2734 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M362,1014.2734 L362,1024.2734 L372,1024.2734 L362,1014.2734 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="154" x="16" y="1031.3403">[Entity ID: Team slot ID]</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="333" x="16" y="1046.4731">The host selects a new landing zone and it does not</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="341" x="16" y="1061.606">overlap with the others so the game can finally start.</text><polygon fill="#000000" points="555,1106.9375,565,1110.9375,555,1114.9375,559,1110.9375" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="377" x2="561" y1="1110.9375" y2="1110.9375"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="384" y="1090.7388">[IPX Unicast] Packet 12</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="166" x="384" y="1105.8716">PN: 06, Proximity State: 1</text><!--MD5=[2367e51ce7ac17979ac0d3dc0656b7fe]
+@startuml
+!theme plain
+participant "Host 1" as H1
+' participant "Host 2" as H2
+participant "Client 1" as C1
+participant "Client 2" as C2
+' participant "Client 3" as C3
+
+
+
+H1 -> C2 : [IPX Unicast] Packet 26\nPN: 03
+
+note left
+[Entity ID: Team slot ID]
+Each player sends their selected clan to each other.
+end note
+
+H1 -> C1 : [IPX Unicast] Packet 26\nPN: 03
+
+C1 -> C2 : [IPX Unicast] Packet 26\nPN: 00
+C1 -> H1 : [IPX Unicast] Packet 26\nPN: 01
+
+C2 -> C1 : [IPX Unicast] Packet 26\nPN: 00
+C2 -> H1 : [IPX Unicast] Packet 26\nPN: 01
+
+H1 -> C2 : [IPX Unicast] Packet 10\nPN: 04
+
+note left
+[Entity ID: Team slot ID]
+Each player sends their unit type upgrades one by
+one to each player after clicking Done in the
+Purchase Menu. In the following scenario only the
+host made upgrades.
+end note
+
+H1 -> C1 : [IPX Unicast] Packet 10\nPN: 04
+
+note left
+[Entity ID: Team slot ID]
+Each player sends their selected landing zone
+position with their mission loadout.
+end note
+
+H1 -> C2 : [IPX Unicast] Packet 12\nPN: 05, Proximity State: 1
+H1 -> C1 : [IPX Unicast] Packet 12\nPN: 05, Proximity State: 1
+
+C1 -> C2 : [IPX Unicast] Packet 12\nPN: 01, Proximity State: 1
+C1 -> H1 : [IPX Unicast] Packet 12\nPN: 02, Proximity State: 1
+
+C2 -> C1 : [IPX Unicast] Packet 12\nPN: 01, Proximity State: 1
+C2 -> H1 : [IPX Unicast] Packet 12\nPN: 02, Proximity State: 1
+
+C2 -> C1 : [IPX Unicast] Packet 12\nPN: 02, Proximity State: 5
+
+note left
+If proximity zones overlap affected players need to
+select a new landing zone or confirm to keep the
+previous one.
+
+[Entity ID: Team slot ID]
+Client 2 informs the others that its landing zone is valid.
+The others have overlapping proximity zones though.
+end note
+
+C2 -> H1 : [IPX Unicast] Packet 12\nPN: 03, Proximity State: 5
+
+C1 -> C2 : [IPX Unicast] Packet 12\nPN: 02, Proximity State: 4
+
+note left
+[Entity ID: Team slot ID]
+Client 1 informs the others that it stays at the original zone.
+end note
+
+C1 -> H1 : [IPX Unicast] Packet 12\nPN: 03, Proximity State: 4
+
+H1 -> C2 : [IPX Unicast] Packet 12\nPN: 06, Proximity State: 1
+
+note left
+[Entity ID: Team slot ID]
+The host selects a new landing zone and it does not
+overlap with the others so the game can finally start.
+end note
+
+H1 -> C1 : [IPX Unicast] Packet 12\nPN: 06, Proximity State: 1
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+<style>
+  root {
+    BackgroundColor white
+    FontColor black
+    FontName Verdana
+    HyperLinkColor blue
+    LineColor black
+    LineThickness 1
+    Margin 5
+  }
+  caption {
+    LineThickness 0
+  }
+  footer {
+    LineThickness 0
+  }
+  header {
+    LineThickness 0
+  }
+  node {
+    MaximumWidth 300
+  }
+  title {
+    FontSize 22
+    LineThickness 0
+  }
+</style>
+
+skinparam ArrowLollipopColor black
+skinparam BackgroundColor white
+skinparam DefaultFontName Verdana
+skinparam DefaultMonospacedFontName Courier
+skinparam LifelineStrategy nosolid
+skinparam ParticipantPadding 10
+skinparam SequenceLifeLineBorderColor black
+skinparam Shadowing false
+skinparam UseBetaStyle true
+
+skinparam Activity {
+  BackgroundColor white
+  BarColor black
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam Boundary {
+  FontColor black
+}
+skinparam Box {
+  Padding 5
+}
+skinparam CircledCharacter {
+  FontColor black
+  FontName Courier
+  Radius 9
+}
+skinparam Class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassAttribute {
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassStereotype {
+  FontColor black
+  FontName Verdana
+}
+skinparam Footer {
+  FontColor black
+  FontName Verdana
+}
+skinparam Header {
+  FontColor black
+  FontName Verdana
+}
+skinparam Hyperlink {
+  Color blue
+}
+skinparam IconPackage {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPrivate {
+  Color black
+  BackgroundColor white
+}
+skinparam IconProtected {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPublic {
+  Color black
+  BackgroundColor white
+}
+skinparam Note {
+  FontColor black
+  FontName Verdana
+}
+skinparam Object {
+  BorderColor black
+}
+skinparam Package {
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam State {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeA {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeC {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeE {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeI {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeN {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam UseCaseStereoType {
+  FontColor black
+  FontName Verdana
+}
+participant "Host 1" as H1
+participant "Client 1" as C1
+participant "Client 2" as C2
+
+
+
+H1 -> C2 : [IPX Unicast] Packet 26\nPN: 03
+
+note left
+[Entity ID: Team slot ID]
+Each player sends their selected clan to each other.
+end note
+
+H1 -> C1 : [IPX Unicast] Packet 26\nPN: 03
+
+C1 -> C2 : [IPX Unicast] Packet 26\nPN: 00
+C1 -> H1 : [IPX Unicast] Packet 26\nPN: 01
+
+C2 -> C1 : [IPX Unicast] Packet 26\nPN: 00
+C2 -> H1 : [IPX Unicast] Packet 26\nPN: 01
+
+H1 -> C2 : [IPX Unicast] Packet 10\nPN: 04
+
+note left
+[Entity ID: Team slot ID]
+Each player sends their unit type upgrades one by
+one to each player after clicking Done in the
+Purchase Menu. In the following scenario only the
+host made upgrades.
+end note
+
+H1 -> C1 : [IPX Unicast] Packet 10\nPN: 04
+
+note left
+[Entity ID: Team slot ID]
+Each player sends their selected landing zone
+position with their mission loadout.
+end note
+
+H1 -> C2 : [IPX Unicast] Packet 12\nPN: 05, Proximity State: 1
+H1 -> C1 : [IPX Unicast] Packet 12\nPN: 05, Proximity State: 1
+
+C1 -> C2 : [IPX Unicast] Packet 12\nPN: 01, Proximity State: 1
+C1 -> H1 : [IPX Unicast] Packet 12\nPN: 02, Proximity State: 1
+
+C2 -> C1 : [IPX Unicast] Packet 12\nPN: 01, Proximity State: 1
+C2 -> H1 : [IPX Unicast] Packet 12\nPN: 02, Proximity State: 1
+
+C2 -> C1 : [IPX Unicast] Packet 12\nPN: 02, Proximity State: 5
+
+note left
+If proximity zones overlap affected players need to
+select a new landing zone or confirm to keep the
+previous one.
+
+[Entity ID: Team slot ID]
+Client 2 informs the others that its landing zone is valid.
+The others have overlapping proximity zones though.
+end note
+
+C2 -> H1 : [IPX Unicast] Packet 12\nPN: 03, Proximity State: 5
+
+C1 -> C2 : [IPX Unicast] Packet 12\nPN: 02, Proximity State: 4
+
+note left
+[Entity ID: Team slot ID]
+Client 1 informs the others that it stays at the original zone.
+end note
+
+C1 -> H1 : [IPX Unicast] Packet 12\nPN: 03, Proximity State: 4
+
+H1 -> C2 : [IPX Unicast] Packet 12\nPN: 06, Proximity State: 1
+
+note left
+[Entity ID: Team slot ID]
+The host selects a new landing zone and it does not
+overlap with the others so the game can finally start.
+end note
+
+H1 -> C1 : [IPX Unicast] Packet 12\nPN: 06, Proximity State: 1
+@enduml
+
+PlantUML version 1.2021.16beta1(Unknown compile time)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
