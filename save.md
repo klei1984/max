@@ -1,0 +1,857 @@
+---
+layout: page
+title: Save File Format
+permalink: /save/
+---
+
+## Preface
+
+The article documents the binary game save file format of M.A.X. v1.04.
+
+## Overview
+
+This technical information enables postmortem analysis of certain network game desynchronization issues.
+
+During its development M.A.X. supported two save file formats. There is a human readable format, which is disabled by default, and there is the normal binary format. Unfortunately it seems that the human readable format was not fully maintained at later stages of development and the feature to pretty print enumerated types got stripped from release builds of the game.
+
+With this information it also technically becomes possible to develop a scenario editor for the original game, but certain limitations apply.
+
+Training missions, scenarios and even the campaign games are normal game save files. In theory this means that one can develop additional missions for the game. But unfortunately M.A.X. hardcodes mission goals, or victory and loss conditions, and thus the number of supported scenarios, campaign and training missions.
+
+For example campaign game #2 is lost as soon as the player loses a research center or won as soon as the victory turns limit configured within the save file is reached. One can change the victory turns limit which is 30 turns currently, but there is no way to change the loss condition.
+
+Without reimplementing and externalizing hardcoded missions specific aspects of the game many constraints apply to what kind of missions, scenarios an enthusiast could create in a hypothetical scenario editor.
+
+Nevertheless the first step to do is the specification of the original binary game save file format.
+
+## Save File Location
+
+M.A.X. does not use a conventional folder structure. Basically every installed file is copied into a single installation folder. Assumably this is done to conserve RAM space.
+
+By default the game is installed to `C:\INTRPLAY\MAX`, but under DOSBox or similar virtual machines this is not that interesting.
+
+In short, game save files are located at the installation folder where the M.A.X. game executable resides.
+
+A few trivial examples:<br>
+`c:\Program Files (x86)\GOG Galaxy\Games\MAX\`<br>
+`c:\Program Files (x86)\Steam\steamapps\common\M.A.X. Mechanized Assault & Exploration\max\`
+
+## Save File Format
+
+The format specification is described as a set of strongly typed basic fields, member fields of structures or arrays that are laid out in a hierarchical manner. This format specification uses ISO C99 basic types wherever possible, but it is important to note that standard alignment rules do not apply, there are no implicit padding bytes or the like. All M.A.X. specific formats use little endian [\[1\]](#ref1) byte order.
+
+The format contains conditional sections, subsections. The signedness of fields and properties are not 100% accurate yet.
+
+### File Header
+
+~~~ c
+struct __attribute__((packed)) SaveFormatHeader
+{
+  short version;
+  char save_file_type;
+  char save_game_name[30];
+  char planet;
+  short mission_index;
+  char team_name[4][30];
+  char team_type[4];
+  char field_160;
+  char team_clan[4];
+  char field_165;
+  unsigned int rng_seed;
+  char opponent;
+  short turn_timer;
+  short endturn;
+  char play_mode;
+};
+~~~
+
+***version***: Version of the save file format. M.A.X. 1 does not support conversion between various formats.
+
+| Publication Date* | Type of Publication | Game Version** | Save File Format Version |
+|:-----:|:-----:|:-----:|:-----:|
+| 1996-08-15 | M.A.X. 1 Interactive Demo    | V1.00 Demo  | V54 |
+| 1996-08-21 | M.A.X. 1 Internal Test Build | V1.01 Demo  | V54 |
+| 1996-10-09 | M.A.X. 1 Interactive Demo    | V1.01 Demo  | V64 |
+| 1996-11-20 | M.A.X. 1 Internal Test Build | V1.56       | V69 |
+| 1996-12-08 | M.A.X. 1 Retail (CD)         | V1.00       | V70 |
+| 1996-12-10 | M.A.X. 1 Retail (CD)         | V1.01       | V70 |
+| 1996-12-12 | M.A.X. 1 Retail (CD)         | V1.02       | V70 |
+| 1997-01-08 | M.A.X. 1 Retail (patch)      | V1.03       | V70 |
+| 1997-01-16 | M.A.X. 1 Interactive Demo    | V1.03a Demo | V70 |
+| 1997-03-26 | M.A.X. 1 Retail (patch)      | V1.04       | **V70** |
+| 1998-05-26 | M.A.X. 2 BETA Demo           | V.161 Beta  | V130 |
+| 1998-06-17 | M.A.X. 2 Retail (CD)         | V1.0        | V135 |
+| 1998-06-19 | M.A.X. 2 Retail (CD)         | V1.1        | V137 |
+| 1998-06-29 | M.A.X. 2 Retail (CD)         | V1.2        | V137 |
+| 1998-06-30 | M.A.X. 2 Demo                | V1.1c Demo  | V137 |
+| 1998-07-10 | M.A.X. 2 Retail (patch)      | V1.3        | V137 |
+| 1998-07-22 | M.A.X. 2 Retail (patch #2)   | V1.3        | V137 |
+| 1998-09-17 | M.A.X. 2 Retail (patch)      | V1.40       | V137 |
+
+\* The publication date is based on file system date and time stamps. Date format used is YYYY-MM-DD.
+<br>
+\*\* The version number is taken from the game executable.
+
+***save_file_type***: Type of game save file.
+
+| Type Index | Save File Type | File Extensions** |
+|:-----:|:-----:|:-----:|
+| 0 | Single player **Custom** game | dta |
+| 1 | Tutorial or **Learning** game | tra |
+| 2 | **Campaign** game | cam |
+| 3 | **Hot seat** game | hot |
+| 4 | **Multi** player game | mlt |
+| 5 | **Demo** or attract mode game | dmo |
+| 6 | **Debug** mode game save* | dbg |
+| 7 | **Text** or human readable format save file | txt |
+| 8 | Single player **Scenario** game | sce |
+| 9 | Multi player scenario (**MPS**) game | mps |
+
+\*  Only created during simultaneous multiplayer games if the *log_file_debug* feature is enabled.
+
+\** The file extensions listed in this column do not necessarily match the file extensions given when players save their games. For example campaign games created by the developers have the *.cam file extension, while if players save their campaign games the actual game save files get the *.dta extension.
+
+***save_game_name***: Null terminated string. Name given to the saved game by the player or the name of the scenario or mission visible in menus.
+
+<a name="cross_ref01"></a>
+***planet***: Planet index. There are four world types offered by M.A.X. [\[2\]](#ref2). Each world type has six planets to choose from.
+
+| Planet Index | Planet Name | World Type |
+|:-----:|:-----:|:-----:|
+| 0 | Snowcrab | Frozen **Snow** world |
+| 1 | Frigia | Frozen **Snow** world |
+| 2 | Ice Berg | Frozen **Snow** world |
+| 3 | The Cooler | Frozen **Snow** world |
+| 4 | Ultima Thule | Frozen **Snow** world |
+| 5 | Long Floes | Frozen **Snow** world |
+| 6 | Iron Cross | Rocky **Crater** world |
+| 7 | Splatterscape | Rocky **Crater** world |
+| 8 | Peak-a-boo | Rocky **Crater** world |
+| 9 | Valentine's Planet | Rocky **Crater** world |
+| 10 | Three Rings | Rocky **Crater** world |
+| 11 | Great divide | Rocky **Crater** world |
+| 12 | New Luzon |  Lush tropical **Green** world |
+| 13 | Middle Sea |  Lush tropical **Green** world |
+| 14 | High Impact |  Lush tropical **Green** world |
+| 15 | Sanctuary |  Lush tropical **Green** world |
+| 16 | Islandia |  Lush tropical **Green** world |
+| 17 | Hammerhead |  Lush tropical **Green** world |
+| 18 | Freckles | Barren **Desert** world |
+| 19 | Sandspit | Barren **Desert** world |
+| 20 | Great Circle | Barren **Desert** world |
+| 21 | Long Passage | Barren **Desert** world |
+| 22 | Flash Point | Barren **Desert** world |
+| 23 | Bottleneck | Barren **Desert** world |
+
+***mission_index***: Index of the mission. This field determines the victory and loss conditions of training missions, campaign games and single player scenarios or stand alone missions. The rules are hardcoded by the game executable. Valid indices start from 1 as 0 means generic custom game rules apply. See *[victory conditions](#cross_ref02)* section.
+
+***team_name***: Array of null terminated strings. Each player's name. Order of teams: red, green, blue, gray.
+
+***team_type***: Array defining the type of players. In single player games only one *HUMAN_TEAM* can be defined, the player. In a self running demo game, attract mode of main menu, there are only *COMPUTER_TEAM*s. In a multi player game every opponent is a human *REMOTE_TEAM*. Terminated opponents are *ELIMINATED_TEAM*s.
+
+<a name="cross_ref03"></a>
+~~~ c
+enum TeamType : char
+{
+  TEAM_TYPE_NONE = 0,
+  TEAM_TYPE_HUMAN = 1,
+  TEAM_TYPE_COMPUTER = 2,
+  TEAM_TYPE_REMOTE = 3,
+  TEAM_TYPE_ELIMINATED = 4
+};
+~~~
+
+***team_clan***: Array defining clan of teams.
+
+<a name="cross_ref04"></a>
+~~~ c
+enum TeamClan : char
+{
+  TEAM_CLAN_THE_CHOSEN = 1,
+  TEAM_CLAN_CRIMSON_PATH = 2,
+  TEAM_CLAN_VON_GRIFFIN = 3,
+  TEAM_CLAN_AYERS_HAND = 4,
+  TEAM_CLAN_MUSASHI = 5,
+  TEAM_CLAN_SACRED_EIGHTS = 6,
+  TEAM_CLAN_7_KNIGHTS = 7,
+  TEAM_CLAN_AXIS_INC = 8
+};
+~~~
+
+***rng_seed***: The game uses this as seed value for it's pseudo random number generator. Network games share the same *rng_seed* to be fully deterministic. The value is derived from the time() C-API function from \<time.h\>. The time function determines the current calendar time which represents the time since January 1, 1970 (UTC) also known as Unix epoch time.
+
+<a name="cross_ref08"></a>
+***opponent***: Difficulty level of *TEAM_TYPE_COMPUTER* teams.
+
+~~~ c
+enum OpponentType : char
+{
+  CLUELESS = 0,
+  APPRENTICE = 1,
+  AVERAGE = 2,
+  EXPERT = 3,
+  MASTER = 4,
+  GOD = 5
+};
+~~~
+
+<a name="cross_ref05"></a>
+***turn_timer*** and ***endturn***: Timer values are in seconds. 0 means infinite.
+
+The Game Clock works somewhat like a chess timer. Two timer values are of significance: the Turn Timer, and the End Turn Timer. As each new turn is started, the Turn Timer resets and starts to count-down to zero. The default Turn time is 180 seconds, or three minutes. This is the time available for each turn. When the timer gets to zero, the turn ends automatically, and the next turn starts. You may click the End Turn button when you are finished with each turn to reset the timer and start a new turn. After clicking End Turn, the End Turn Timer starts counting down to allow your opponent(s) the opportunity to finish their turns. The default End Turn time is 45 seconds [\[2\]](#ref2).
+
+<a name="cross_ref06"></a>
+***play_mode***: M.A.X. can be played in standard Turn-Based mode or in Concurrent mode, in which players take their turns simultaneously as in a realtime game [\[2\]](#ref2).
+
+~~~ c
+enum PlayMode : char
+{
+  PLAY_MODE_TURN_BASED = 0,
+  PLAY_MODE_SIMULTANEOUS_MOVES = 1
+};
+~~~
+
+<a name="cross_ref02"></a>
+### Victory and Loss Conditions
+
+#### Generic Rules
+
+If ***mission_index*** is 0, then generic *custom game* victory and loss conditions are applicable.
+
+Two *victory conditions* are available during *custom games*, and are based either on reaching a certain goal of points or upon the number of turns played [\[2\]](#ref2).
+
+<a name="cross_ref07"></a>
+***Victory Conditions***:
+
+Option 1: When playing for a set number of victory points, the first player who reaches the goal is designated the winner.
+
+Option 2: When playing based on the number of turns, the player with the highest number of victory points when the turn limit is reached wins the game.
+
+Regardless of selecting option 1 or option 2 during game setup, if all opponents are eliminated, when all of them fulfill the loss conditions, the remaining player wins.
+
+In case there is a tie based on victory points derived from eco-spheres the game calculates the sum of turns that were required to build all built and still standing buildings at build rate 1x speed and the player with the more “valuable” base wins.
+
+The turns required to build certain buildings depend on clan (dis)advantages. But even worse the game uses the given team's latest upgraded unit attributes tables. This means that a highly researched turns attribute puts players at a disadvantage as the calculated “value” of their bases will be lower. In case of a tie this could greatly affect which team would win at the end.
+
+If there is still a tie even after comparing the “value” of bases, the player with the smaller team index wins. Red team’s index is the smallest, and the gray team’s is the highest.
+
+***Loss Conditions***:
+
+The following diagram sums up the generic loss conditions.
+
+<img src="{{ site.baseurl }}/assets/images/loss_conditions.svg" alt="Loss Conditions">
+
+There are corner cases that are not handled well. For example if the *construction power* loss condition needs to be evaluated and the team has mining stations but they cannot mine materials as there are no raw material deposits beneath them the game will not signal defeat. The first mining station of a team always has at least 10 raw materials and 7 fuel, but that mining station could get destroyed.
+
+We could rationalize that in case we have working eco-spheres our victory points may still be increasing passively even if we have no military power and we cannot build anything at all. The game play would be rather boring, but maybe just a few turns are remaining till victory conditions are met.
+
+It is also strange why stealth units do not count towards military power while fighters (airplane) do. It is true that most buildings have higher armor rating than the attack power of infiltrators, but they could steal mobile enemy or neutral (alien) military units. On a map like Sandspit there is a high chance that a few submarines could destroy some enemy eco-spheres or could protect their own ones that could considerably affect victory points.
+
+#### Training Missions
+
+#### Stand Alone Missions
+
+#### Campaign Game
+
+***Mission 1 - Islands in the Sun***
+
+TODO
+
+### Options Section of INI settings
+
+M.A.X. v1.04 defines the following INI configuration settings within the OPTIONS section. The numeric values are just default values. These settings are all numeric so they are stored as 32 bit integers. An alphanumeric setting would be stored as a null terminated string always on 30 bytes.
+
+~~~ c
+[OPTIONS]
+world=0
+timer=180
+endturn=45
+start_gold=150
+play_mode=1
+victory_type=0
+victory_limit=50
+opponent=1
+raw_resource=1
+fuel_resource=1
+gold_resource=1
+alien_derelicts=0
+~~~
+
+The above settings are stored as follows:
+
+~~~ c
+struct __attribute__((packed)) SaveFormatOptions
+{
+  int world;
+  int turn_timer;
+  int endturn;
+  int start_gold;
+  int play_mode;
+  int victory_type;
+  int victory_limit;
+  int opponent;
+  int raw_resource;
+  int fuel_resource;
+  int gold_resource;
+  int alien_derelicts;
+};
+~~~
+
+In case of campaign, single and multi player scenario games the ***opponent***, ***timer***, ***endturn*** and ***play_mode*** settings are overwritten by the SaveFormatHeader fields of the same name.
+
+***world***: See *[planet field](#cross_ref01)*.
+
+***turn_timer*** and ***endturn***: See *[reference](#cross_ref05)*.
+
+***start_gold***: This is the starting credit ranging from 0 to 250 credits.
+
+***play_mode***: See *[reference](#cross_ref06)*.
+
+***victory_type*** and ***victory_limit***: See *[reference](#cross_ref07)*.
+
+~~~ c
+enum VictoryType : char
+{
+  VICTORY_TYPE_DURATION = 0,
+  VICTORY_TYPE_SCORE = 1
+};
+~~~
+
+***opponent***: See *[reference](#cross_ref08)*.
+
+***raw_resource***, ***fuel_resource*** and ***gold_resource***: The Resource Levels options allow to set the amount and distribution of the various resources (Raw Material, Fuel and Gold) that will be available during the game [\[2\]](#ref2).
+
+The valid value range is 0 to 2 representing Poor, Medium and Rich settings.
+
+***alien_derelicts***: The option allows to set the amount and distribution of alien derelicts.
+
+The valid value range is 0 to 2 representing None, Rare and Common settings.
+
+### Planet Surface Map
+
+M.A.X. uses a top-down square grid or tile map system. The coordinate system is based on a standard x,y grid, with coordinate 0,0 at the top left of the map. X-coordinate measures from left to right and Y-coordinates from top to bottom [\[2\]](#ref2).
+
+~~~ c
+enum SurfaceType : char
+{
+  SURFACE_TYPE_LAND = 1,
+  SURFACE_TYPE_WATER = 2,
+  SURFACE_TYPE_COAST = 4,
+  SURFACE_TYPE_AIR = 8
+};
+
+enum SurfaceType SaveFormatSurfaceMap[x][y];
+~~~
+
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `SaveFormatSurfaceMap[x][y]`.
+
+Each element in the above array defines the accessibility property of the associated grid map cell. For example if a cell can only be crossed by air units, then the surface type is *SURFACE_TYPE_AIR*.
+
+### Planet Resource Map
+
+~~~ c
+CARGO_FUEL 0x20
+CARGO_GOLD 0x40
+CARGO_MATERIALS 0x80
+
+TEAM_VISIBILITY_RED 0x2000
+TEAM_VISIBILITY_GREEN 0x1000
+TEAM_VISIBILITY_BLUE 0x800
+TEAM_VISIBILITY_GRAY 0x400
+
+RESOURCE_AMOUNT_MASK 0x1F
+RESOURCE_TYPE_MASK 0xE0
+TEAM_VISIBILITY_MASK 0x1C00
+
+short SaveFormatGridResourceMap[x][y];
+~~~
+
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `SaveFormatGridResourceMap[x][y]`.
+
+<img src="{{ site.baseurl }}/assets/images/bitfield_save_rmap_entry.svg" alt="Resource Map Entry Bitfield">
+
+***cargo amount***: The 5 LSBs represent the amount of  resource available at the cell. The game limits the usable amount to 16 though.
+
+***cargo type***: The type of resource present at the cell. Bit 5 is *CARGO_FUEL*, bit 6 is *CARGO_GOLD* and bit 7 is *CARGO_MATERIALS*. Only one bit should be set.
+
+***team visibility***: If a specific team surveyed the cell, then the team specific bit is set. Bit 10 is *GRAY_TEAM*, bit 11 is *BLUE_TEAM*, bit 12 is *GREEN_TEAM* and bit 13 is *RED_TEAM*.
+
+Example: the 16 bit value of 0x208C means 12 raw materials visible by red team only.
+
+### Serialized Team Info Objects
+
+~~~ c
+struct __attribute__((packed)) Point
+{
+  short x;
+  short y;
+};
+
+struct __attribute__((packed)) ResearchTopicInfo
+{
+  unsigned int research_level;
+  unsigned int turns_to_complete;
+  unsigned int allocation;
+};
+
+struct __attribute__((packed)) ScreenLocation
+{
+  char x;
+  char y;
+};
+
+struct __attribute__((packed)) SaveFormatTeamInfo
+{
+  Point markers[10];
+  TeamType team_type;
+  char field_41;
+  TeamClan team_clan;
+  ResearchTopicInfo research_topics[8];
+  unsigned int victory_points;
+  unsigned short last_unit_id;
+  char unit_counters[93];
+  ScreenLocation screen_location[6];
+  short score_graph[50];
+  unsigned short selected_unit;
+  unsigned short zoom_level;
+  Point screen_position;
+  char gui_button_state_range;
+  char gui_button_state_scan;
+  char gui_button_state_status;
+  char gui_button_state_colors;
+  char gui_button_state_hits;
+  char gui_button_state_ammo;
+  char gui_button_state_survey;
+  char gui_button_state_names;
+  char gui_button_state_minimap_2x;
+  char gui_button_state_minimap_tnt;
+  char gui_button_state_grid;
+  short stats_factories_built;
+  short stats_mines_built;
+  short stats_buildings_built;
+  short stats_units_built;
+  unsigned short casualties[93];
+  short stats_gold_spent_on_upgrades;
+};
+~~~
+
+Four instances of the `SaveFormatTeamInfo` structure are written to the save file representing the four teams. Red is the first, green is the second, blue is the third, gray is the fourth.
+
+***markers***: Array elements are initialized to {-1, -1} or simply 0xFFFF, 0xFFFF. The feature was removed from the game so this field is useless.
+
+***team_type***: Type of the given team. See *[TeamType](#cross_ref03)* type.
+
+***field_41***: TODO
+
+***team_clan***: Clan of the given team. See *[TeamClan](#cross_ref04)* type.
+
+***research_topics***: There are 8 research topics. The *research_level* field defines the number of research cycles already finished.  The *turns_to_complete* field defines the number of turns required to complete a given research cycle if a single research center would be assigned to work on the topic. If the value is 0 it means the next level's research is not yet started. The formula for the actual turns required is as follows: `turns = ceil(turns_to_complete / allocation);`. The *allocation* field defines the number of research centers allocated to a given topic.
+
+~~~ c
+enum ResearchTopic : char
+{
+  RESEARCH_TOPIC_ATTACK = 0,
+  RESEARCH_TOPIC_SHOTS = 1,
+  RESEARCH_TOPIC_RANGE = 2,
+  RESEARCH_TOPIC_ARMOR = 3,
+  RESEARCH_TOPIC_HITS = 4,
+  RESEARCH_TOPIC_SPEED = 5,
+  RESEARCH_TOPIC_SCAN = 6,
+  RESEARCH_TOPIC_COST = 7
+};
+~~~
+
+***victory_points***: Number of victory points acquired for operating eco-spheres.
+
+***last_unit_id***: The valid value range is 1 to 8191. Unit hash identifiers are derived from this counter's value.
+
+***unit_counters***: There are 93 different types of units in the game. Each array element represents a given type of unit. The value is used to derive basic unit names to newly created units. For example if a team has 10 tanks then `unit_counters[UNIT_TYPE_TANK] = 11` as the next unit index will be 11. The array elements are initialized to 1. The 10th tank would get the basic unit name *MK 1 TANK 10*. The counter could easily overflow during a long game which means that multiple units could have the exact same name. In case of an overflow index 0 is skipped.
+
+***screen_location***: {x, y} coordinates of the previously saved screen locations. The array has 6 elements which is odd as only four function keys can be used to set or recall locations using F5 to F8. Array elements are initialized to {-1, -1} or simply 0xFF, 0xFF. See chapter *Setting Locations* in [\[2\]](#ref2) for further details on the feature.
+
+***score_graph***: The score report presents a graph of each teams point totals over a period of the last 50 turns [\[2\]](#ref2).
+
+***selected_unit***: Default value is 0xFFFF which means no unit is selected. Otherwise the value is set to the hash ID of the selected unit. Not every *UnitInfo* object gets a hash ID, in cases the default 0xFFFF could also be used.
+
+The hash ID is derived from the *last_unit_id* field and the unit's *team index*. Mind that there are 5 teams actually. All neutral alien derelicts related units belong to the fifth team.
+
+<img src="{{ site.baseurl }}/assets/images/bitfield_unit_hash_id.svg" alt="Unit Hash ID Bitfield">
+
+***zoom_level***: Resolution of the main map display window. The minimum value is 4, maximum is 64. Zoom level 64 is pixel perfect 1:1 resolution.
+
+***screen_position***: {x, y} grid coordinates to be used as the center of the screen if possible. The valid value range for the coordinates is 0 to 111.
+
+***gui_button_state_xyz***: Each of the display buttons are toggles which activate a visual display of some kind on the map display window [\[2\]](#ref2). 0 means the toggle is off, any other value means on.
+
+***stats_factories_built***: Number of factory buildings built by the team during the game. The statistic is displayed on the game over screen.
+
+***stats_mines_built***: Number of mining stations built by the team during the game. The statistic is displayed on the game over screen.
+
+***stats_buildings_built***: Number of buildings built by the team during the game. The statistic is displayed on the game over screen.
+
+***stats_units_built***: Number of mobile units built by the team during the game. The statistic is displayed on the game over screen.
+
+***casualties***: There are 93 different types of units in the game. Each array element represents the number of units of a particular type lost by the team during the game. The statistic is displayed in the reports menu. The array is also used from time to time to determine victory and loss conditions.
+
+***stats_gold_spent_on_upgrades***: Amount of gold spent by the team on unit upgrades during the game. The statistic is displayed on the game over screen.
+
+### Game Manager State
+
+~~~ c
+enum TeamIndex : char
+{
+  TEAM_INDEX_RED = 0,
+  TEAM_INDEX_GREEN = 1,
+  TEAM_INDEX_BLUE = 2,
+  TEAM_INDEX_GRAY = 3
+};
+
+struct __attribute__((packed)) SaveFormatGameManagerState
+{
+  TeamIndex active_turn_team;
+  TeamIndex player_team;
+  int turn_counter;
+  short game_state;
+  short turn_timer;
+};
+~~~
+
+TODO
+
+### Preferences Section of INI settings
+
+M.A.X. v1.04 defines the following INI configuration settings within the PREFERENCES section. The numeric values are just default values. These settings are all numeric so they are stored as 32 bit integers. An alphanumeric setting would be stored as a null terminated string always on 30 bytes.
+
+~~~ c
+[PREFERENCES]
+effects=1
+click_scroll=1
+quick_scroll=16
+fast_movement=1
+follow_unit=0
+auto_select=0
+enemy_halt=1
+~~~
+
+The above settings are stored as follows:
+
+~~~ c
+struct __attribute__((packed)) SaveFormatPreferences
+{
+  int effects;
+  int click_scroll;
+  int quick_scroll;
+  int fast_movement;
+  int follow_unit;
+  int auto_select;
+  int enemy_halt;
+};
+~~~
+
+See the game user manual for detailed descriptions of the settings [\[2\]](#ref2). Most settings are toggles so their valid value range is 0 to 1.
+
+***effects***: Animate effects.
+
+***click_scroll***: Click to scroll.
+
+***quick_scroll***: Quick scroll. The valid value range is 4 to 128.
+
+***fast_movement***: Fast unit moves.
+
+***follow_unit***: Follow unit.
+
+***auto_select***: Automatically switch to the next unit when the selected unit has run out of movement points.
+
+***enemy_halt***: Halt movement when enemy is detected.
+
+### Serialized Team Units Objects
+
+~~~ c
+struct __attribute__((packed)) UnitValues
+{
+  unsigned short object_index;
+  unsigned short class_type;
+
+  unsigned short turns;
+  unsigned short hits;
+  unsigned short armor;
+  unsigned short attack;
+  unsigned short speed;
+  unsigned short range;
+  unsigned short rounds;
+  unsigned char move_and_fire;
+  unsigned short scan;
+  unsigned short storage;
+  unsigned short ammo;
+  unsigned short attack_radius;
+  unsigned short agent_adjust;
+  unsigned short version;
+  unsigned char units_built;
+};
+
+struct __attribute__((packed)) Complex
+{
+  unsigned short object_index;
+  unsigned short class_type;
+
+  short material;
+  short fuel;
+  short gold;
+  short power;
+  short workers;
+  short buildings;
+  short id;
+};
+
+struct __attribute__((packed)) SaveFormatTeamUnits
+{
+  signed short gold;
+  UnitValues base_unit_values[93];
+  UnitValues current_unit_values[93];
+  unsigned short complex_count;
+  Complex complexes[complex_count];
+};
+~~~
+
+Four instances of the `SaveFormatTeamUnits` structure are written to the save file representing the four teams. Red is the first, green is the second, blue is the third, gray is the fourth.
+
+***gold***: Team credits that could be used to purchase upgrades in gold refineries. The field is stored as a 16 bit signed value.
+
+***base_unit_values***: There are 93 different types of units in the game. Each array element represents a unit type's base unit values data. Base unit values incorporate clan upgrades. This might not seem to be a big deal at first, but it is as the higher the initial unit attribute value the cheaper it is to upgrade later. So an already excellent clan special unit type could be upgraded into a superb unit type faster. The *version* field defines the mark level of a unit. The initial value of the *version* field is 1. If the *units_built* field is zero when a new version is created from the unit type the *version* field is not incremented. The *storage* field has special meaning for units that gather experience.
+
+***current_unit_values***: Each array element represents a unit type's current unit values data. This array represents the latest technology. New units will be created using these unit values.
+
+***complex_count***: Complexes are buildings that are connected together. Complexes share power and cargo supplies. The number of team complexes dynamically change during the course of game play. This field defines the number of serialized *Complex* class objects that follows. In case the given team does not have any complexes the value is 0 and no *Complex* structure follows.
+
+***complexes***: The *material*, *fuel* and *gold* fields represent the stored and the produced resources. The *power* and *workers* fields represent the surplus of generated power and unallocated workforce within the complex. The *buildings* field defines the number of buildings currently associated with the given complex. The *id* field is the unique index of the given complex. The game stores complexes in an ordered linked list so the *id* should monotonically increase in the save file for each team.
+
+### Serialized Unit Info Object Lists
+
+Even though there are 6 *UnitInfo* object lists, only 5 of them are saved.
+
+~~~ c
+enum UnitType : short
+{
+  UNIT_TYPE_GOLD_REFINERY = 0,
+  UNIT_TYPE_POWER_STATION = 1,
+  UNIT_TYPE_POWER_GENERATOR = 2,
+  UNIT_TYPE_BARRACKS = 3,
+  UNIT_TYPE_ALIEN_BUILDING_1 = 4,
+  UNIT_TYPE_RADAR = 5,
+  UNIT_TYPE_STORAGE_UNIT = 6,
+  UNIT_TYPE_FUEL_TANK = 7,
+  UNIT_TYPE_GOLD_VAULT = 8,
+  UNIT_TYPE_DEPOT = 9,
+  UNIT_TYPE_HANGAR = 10,
+  UNIT_TYPE_DOCK = 11,
+  UNIT_TYPE_CONNECTOR = 12,
+  UNIT_TYPE_LARGE_RUBBLE_1 = 13,
+  UNIT_TYPE_SMALL_RUBBLE_1 = 14,
+  UNIT_TYPE_LARGE_TAPE = 15,
+  UNIT_TYPE_SMALL_TAPE = 16,
+  UNIT_TYPE_LARGE_SLAB = 17,
+  UNIT_TYPE_SMALL_SLAB = 18,
+  UNIT_TYPE_LARGE_CONES = 19,
+  UNIT_TYPE_SMALL_CONES = 20,
+  UNIT_TYPE_ROAD = 21,
+  UNIT_TYPE_LANDING_PAD = 22,
+  UNIT_TYPE_SHIPYARD = 23,
+  UNIT_TYPE_LIGHT_VEHICLE_PLANT = 24,
+  UNIT_TYPE_HEAVY_VEHICLE_PLANT = 25,
+  UNIT_TYPE_ALIEN_BUILDING_2 = 26,
+  UNIT_TYPE_AIR_UNITS_PLANT = 27,
+  UNIT_TYPE_HABITAT = 28,
+  UNIT_TYPE_RESEARCH_CENTER = 29,
+  UNIT_TYPE_ECOSPHERE = 30,
+  UNIT_TYPE_ALIEN_BUILDING_3 = 31,
+  UNIT_TYPE_TRAINING_HALL = 32,
+  UNIT_TYPE_WATER_PLATFORM = 33,
+  UNIT_TYPE_GUN_TURRET = 34,
+  UNIT_TYPE_ANTI_AIRCRAFT = 35,
+  UNIT_TYPE_ARTILLERY = 36,
+  UNIT_TYPE_MISSILE_LAUNCHER = 37,
+  UNIT_TYPE_CONCRETE_BLOCK = 38,
+  UNIT_TYPE_BRIDGE = 39,
+  UNIT_TYPE_MINING_STATION = 40,
+  UNIT_TYPE_LAND_MINE = 41,
+  UNIT_TYPE_SEA_MINE = 42,
+  UNIT_TYPE_LAND_EXPLOSION = 43,
+  UNIT_TYPE_AIR_EXPLOSION = 44,
+  UNIT_TYPE_SEA_EXPLOSION = 45,
+  UNIT_TYPE_BUILDING_EXPLOSION = 46,
+  UNIT_TYPE_HIT_EXPLOSION = 47,
+  UNIT_TYPE_MASTER_BUILDER = 48,
+  UNIT_TYPE_CONSTRUCTOR = 49,
+  UNIT_TYPE_SCOUT = 50,
+  UNIT_TYPE_TANK = 51,
+  UNIT_TYPE_ASSAULT_GUN  = 52,
+  UNIT_TYPE_ROCKET_LAUNCHER = 53,
+  UNIT_TYPE_MISSILE_CRAWLER = 54,
+  UNIT_TYPE_MOBILE_ANTI_AIRCRAFT = 55,
+  UNIT_TYPE_MINE_LAYER = 56,
+  UNIT_TYPE_SURVEYOR = 57,
+  UNIT_TYPE_SCANNER = 58,
+  UNIT_TYPE_SUPPLY_TRUCK = 59,
+  UNIT_TYPE_GOLD_TRUCK = 60,
+  UNIT_TYPE_ENGINEER = 61,
+  UNIT_TYPE_BULLDOZER = 62,
+  UNIT_TYPE_REPAIR_UNIT = 63,
+  UNIT_TYPE_FUEL_TRUCK = 64,
+  UNIT_TYPE_PERSONNEL_CARRIER = 65,
+  UNIT_TYPE_INFILTRATOR = 66,
+  UNIT_TYPE_INFANTRY = 67,
+  UNIT_TYPE_ESCORT = 68,
+  UNIT_TYPE_CORVETTE = 69,
+  UNIT_TYPE_GUNBOAT = 70,
+  UNIT_TYPE_SUBMARINE = 71,
+  UNIT_TYPE_SEA_TRANSPORT = 72,
+  UNIT_TYPE_MISSILE_CRUISER = 73,
+  UNIT_TYPE_SEA_MINE_LAYER = 74,
+  UNIT_TYPE_CARGO_SHIP = 75,
+  UNIT_TYPE_FIGHTER = 76,
+  UNIT_TYPE_GROUND_ATTACK_PLANE = 77,
+  UNIT_TYPE_AIR_TRANSPORT = 78,
+  UNIT_TYPE_AWAC = 79,
+  UNIT_TYPE_ALIEN_GUNBOAT = 80,
+  UNIT_TYPE_ALIEN_TANK = 81,
+  UNIT_TYPE_ALIEN_ASSAULT_GUN = 82,
+  UNIT_TYPE_ALIEN_ATTACK_PLANE = 83,
+  UNIT_TYPE_MISSILE = 84,
+  UNIT_TYPE_TORPEDO = 85,
+  UNIT_TYPE_ALIEN_MISSILE = 86,
+  UNIT_TYPE_TANK_PLASMA_BALL = 87,
+  UNIT_TYPE_ARTILLERY_PLASMA_BALL = 88,
+  UNIT_TYPE_SMOKE_TRAIL = 89,
+  UNIT_TYPE_BUBBLE_TRAIL = 90,
+  UNIT_TYPE_HARVESTER = 91,
+  UNIT_TYPE_DEAD_WALDO = 92
+};
+
+struct __attribute__((packed)) Rect
+{
+  int ulx;
+  int uly;
+  int lrx;
+  int lry;
+};
+
+struct __attribute__((packed)) Path
+{
+  unsigned short object_index;
+  unsigned short class_type;
+
+  Air, Builder or Ground path type data TODO
+};
+
+struct __attribute__((packed)) UnitTypeArray
+{
+  unsigned short object_count;
+
+  UnitType array[object_count];
+};
+
+struct __attribute__((packed)) UnitInfo
+{
+  unsigned short object_index;
+  unsigned short class_type;
+
+  UnitType unit_type;
+  unsigned short hash_id;
+  unsigned int flags;
+  Point pixel_position;
+  Point grid_position;
+  unsigned short name_length;
+  char name[name_length];
+  Point shadow_offset;
+  TeamType team;
+  unsigned char name_index;
+  unsigned char brightness;
+  unsigned char angle;
+  unsigned char visible_to_team[5];
+  unsigned char spotted_by_team[5];
+  unsigned char max_velocity;
+  unsigned char velocity;
+  unsigned char sound;
+  unsigned char scaler_adjust;
+  Rect sprite_bounds;
+  Rect shadow_bounds;
+  unsigned char turret_angle;
+  char turret_offset_x;
+  char turret_offset_y;
+  unsigned short total_images;
+  unsigned short image_base;
+  unsigned short turret_image_base;
+  unsigned short firing_image_base;
+  unsigned short connector_image_base;
+  unsigned short image_index;
+  unsigned short turret_image_index;
+  unsigned short image_index_max;
+  OrderType orders;
+  unsigned char state;
+  OrderType prior_orders;
+  unsigned char prior_state;
+  unsigned char laying_state;
+  Point target_grid;
+  unsigned char build_time;
+  unsigned char total_mining;
+  unsigned char raw_mining;
+  unsigned char fuel_mining;
+  unsigned char gold_mining;
+  unsigned char raw_mining_max;
+  unsigned char gold_mining_max;
+  unsigned char fuel_mining_max;
+  unsigned char hits;
+  unsigned char speed;
+  unsigned char shots;
+  unsigned char move_and_fire;
+  unsigned short storage;
+  unsigned char ammo;
+  unsigned char targeting_mode;
+  unsigned char enter_mode;
+  unsigned char cursor;
+  unsigned char recoil_delay;
+  unsigned char delayed_reaction;
+  unsigned char damaged_this_turn;
+  unsigned char research_topic;
+  unsigned char moved;
+  unsigned char bobbed;
+  unsigned char field_107;
+  unsigned char engine;
+  unsigned char weapon;
+  unsigned char comm;
+  unsigned char fuel_distance;
+  unsigned char move_fraction;
+  unsigned char energized;
+  unsigned char repeat_build;
+  unsigned short build_rate;
+  unsigned char disabled_reaction_fire;
+  unsigned char auto_survey;
+  unsigned int field_221;
+  Path path;
+  unsigned short connectors;
+  UnitValues base_values;
+  Complex complex;
+  UnitInfo parent_unit;
+  UnitTypeArray build_list;
+};
+
+struct __attribute__((packed)) SaveFormatUnitInfoList
+{
+  unsigned short unitinfo_count;
+  UnitInfo units[unitinfo_count];
+};
+~~~
+
+### Serialized Hash Maps
+
+There are two hash maps. The first is a Hash_UnitInfo type object, the second is a Hash_MapHash type object.
+
+### Heat Maps
+
+### Serialized Message Log Object List
+
+### Serialized AI Team Objects
+
+## References
+<a name="ref1"></a>\[1\] [Endianness](https://en.wikipedia.org/wiki/Endianness)<br>
+<a name="ref2"></a>\[2\] M.A.X. User Manual (MC-ICD-082-GEN)<br>

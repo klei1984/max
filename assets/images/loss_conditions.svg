@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1627px" preserveAspectRatio="none" style="width:616px;height:1627px;background:#FFFFFF;" version="1.1" viewBox="0 0 616 1627" width="616px" zoomAndPan="magnify"><defs/><g><ellipse cx="317.5" cy="15" fill="#000000" rx="10" ry="10" style="stroke:none;stroke-width:1.0;"/><rect fill="#FFFFFF" height="305.3867" style="stroke:#000000;stroke-width:2.0;" width="271" x="194" y="35"/><path d="M305,35 L305,44.2969 L295,54.2969 L194,54.2969 " fill="none" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="101" x="197" y="48.9951">Military Power</text><rect fill="#FFFFFF" height="47.9375" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="187" x="224" y="171.3203"/><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="167" x="234" y="192.459">Not defeated yet as we can</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="161" x="234" y="206.4277">attack or defend our base.</text><ellipse cx="317.5" cy="251.3867" fill="#FFFFFF" rx="11" ry="11" style="stroke:#000000;stroke-width:1.0;"/><ellipse cx="317.5" cy="251.3867" fill="#000000" rx="6" ry="6" style="stroke:#7F7F7F;stroke-width:1.0;"/><polygon fill="#FFFFFF" points="236.5,121.3086,398.5,121.3086,410.5,134.1133,398.5,146.918,236.5,146.918,224.5,134.1133,236.5,121.3086" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="321.5" y="157.1284">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="137" x="236.5" y="131.519">Is this military unit not a</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="162" x="236.5" y="144.3237">Submarine nor an Infiltrator?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="410.5" y="131.519">no</text><polygon fill="#FFFFFF" points="240.5,71.2969,394.5,71.2969,406.5,84.1016,394.5,96.9063,240.5,96.9063,228.5,84.1016,240.5,71.2969" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="321.5" y="107.1167">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="152" x="240.5" y="81.5073">Do we have a military unit</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="154" x="240.5" y="94.312">with remaining ammo &gt; 0?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="406.5" y="81.5073">no</text><polygon fill="#FFFFFF" points="317.5,304.3867,329.5,316.3867,317.5,328.3867,305.5,316.3867,317.5,304.3867" style="stroke:#000000;stroke-width:1.5;"/><rect fill="#FFFFFF" height="516.2964" style="stroke:#000000;stroke-width:2.0;" width="604.5" x="6" y="350.3867"/><path d="M122,350.3867 L122,359.6836 L112,369.6836 L6,369.6836 " fill="none" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="106" x="9" y="364.3818">Industry Power</text><rect fill="#FFFFFF" height="33.9688" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="149" x="243" y="435.0859"/><text fill="#000000" font-family="Verdana" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="108" x="253" y="456.2246">power_demand</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="21" x="361" y="456.2246">= 1</text><polygon fill="#FFFFFF" points="49.5,489.0547,230.5,489.0547,242.5,501.8594,230.5,514.6641,49.5,514.6641,37.5,501.8594,49.5,489.0547" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="144" y="524.8745">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="181" x="49.5" y="499.2651">Are our fuel reserves &gt;= 8 and</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="148" x="49.5" y="512.0698">material reserves &gt;= 24?</text><rect fill="#FFFFFF" height="47.9375" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="187" x="46.5" y="595.5815"/><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="167" x="56.5" y="616.7202">Not defeated yet as we can</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="139" x="56.5" y="630.689">build something useful.</text><ellipse cx="140" cy="689.519" fill="#FFFFFF" rx="11" ry="11" style="stroke:#000000;stroke-width:1.0;"/><ellipse cx="140" cy="689.519" fill="#000000" rx="6" ry="6" style="stroke:#7F7F7F;stroke-width:1.0;"/><polygon fill="#FFFFFF" points="30,547.1792,250,547.1792,262,559.1792,250,571.1792,30,571.1792,18,559.1792,30,547.1792" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="144" y="581.3896">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="111" x="30" y="562.9873">Is power supply &gt;=</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="99" x="145" y="562.9873">power_demand</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="6" x="244" y="562.9873">?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="262" y="556.585">no</text><polygon fill="#FFFFFF" points="339,489.8594,510,489.8594,522,501.8594,510,513.8594,339,513.8594,327,501.8594,339,489.8594" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="428.5" y="524.0698">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="171" x="339" y="505.6675">Do we have a mining station?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="522" y="499.2651">no</text><rect fill="#FFFFFF" height="33.9688" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="154" x="347.5" y="546.3745"/><text fill="#000000" font-family="Verdana" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="108" x="357.5" y="567.5132">power_demand</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="22" x="469.5" y="567.5132">= 2</text><rect fill="#FFFFFF" height="47.9375" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="241" x="304" y="663.7456"/><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="198" x="314" y="684.8843">Not defeated yet as we will mine</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="221" x="314" y="698.853">resources to build something useful.</text><ellipse cx="424.5" cy="757.6831" fill="#FFFFFF" rx="11" ry="11" style="stroke:#000000;stroke-width:1.0;"/><ellipse cx="424.5" cy="757.6831" fill="#000000" rx="6" ry="6" style="stroke:#7F7F7F;stroke-width:1.0;"/><polygon fill="#FFFFFF" points="314.5,615.3433,534.5,615.3433,546.5,627.3433,534.5,639.3433,314.5,639.3433,302.5,627.3433,314.5,615.3433" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="428.5" y="649.5537">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="111" x="314.5" y="631.1514">Is power supply &gt;=</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="99" x="429.5" y="631.1514">power_demand</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="6" x="528.5" y="631.1514">?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="546.5" y="624.749">no</text><polygon fill="#FFFFFF" points="215.5,386.6836,419.5,386.6836,431.5,398.6836,419.5,410.6836,215.5,410.6836,203.5,398.6836,215.5,386.6836" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="321.5" y="420.894">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="204" x="215.5" y="402.4917">Do we have a manufacturing plant?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="431.5" y="396.0894">no</text><polygon fill="#FFFFFF" points="317.5,830.6831,329.5,842.6831,317.5,854.6831,305.5,842.6831,317.5,830.6831" style="stroke:#000000;stroke-width:1.5;"/><rect fill="#FFFFFF" height="649.2813" style="stroke:#000000;stroke-width:2.0;" width="418" x="120.5" y="876.6831"/><path d="M271.5,876.6831 L271.5,885.98 L261.5,895.98 L120.5,895.98 " fill="none" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="141" x="123.5" y="890.6782">Construction Power</text><rect fill="#FFFFFF" height="33.9688" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="188" x="223.5" y="961.3823"/><text fill="#000000" font-family="Verdana" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="134" x="233.5" y="982.521">resources_needed</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="30" x="371.5" y="982.521">= 38</text><rect fill="#FFFFFF" height="33.9688" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="180" x="227.5" y="1063.7534"/><text fill="#000000" font-family="Verdana" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="134" x="237.5" y="1084.8921">resources_needed</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="22" x="375.5" y="1084.8921">= 8</text><polygon fill="#FFFFFF" points="232,1015.3511,403,1015.3511,415,1027.3511,403,1039.3511,232,1039.3511,220,1027.3511,232,1015.3511" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="321.5" y="1049.5615">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="171" x="232" y="1031.1592">Do we have a mining station?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="415" y="1024.7568">no</text><polygon fill="#FFFFFF" points="317.5,1117.7222,329.5,1129.7222,317.5,1141.7222,305.5,1129.7222,317.5,1117.7222" style="stroke:#000000;stroke-width:1.5;"/><rect fill="#FFFFFF" height="33.9688" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="185" x="225" y="1210.1245"/><text fill="#000000" font-family="Verdana" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="134" x="235" y="1231.2632">resources_needed</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="27" x="373" y="1231.2632">-= 8</text><polygon fill="#FFFFFF" points="155,1161.7222,480,1161.7222,492,1173.7222,480,1185.7222,155,1185.7222,143,1173.7222,155,1161.7222" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="321.5" y="1195.9326">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="325" x="155" y="1177.5303">Do we have enough power to supply the mining station?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="492" y="1171.1279">no</text><polygon fill="#FFFFFF" points="317.5,1264.0933,329.5,1276.0933,317.5,1288.0933,305.5,1276.0933,317.5,1264.0933" style="stroke:#000000;stroke-width:1.5;"/><rect fill="#FFFFFF" height="47.9375" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="187" x="224" y="1356.4956"/><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="167" x="234" y="1377.6343">Not defeated yet as we can</text><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="157" x="234" y="1391.603">build some new buildings.</text><ellipse cx="317.5" cy="1436.9644" fill="#FFFFFF" rx="11" ry="11" style="stroke:#000000;stroke-width:1.0;"/><ellipse cx="317.5" cy="1436.9644" fill="#000000" rx="6" ry="6" style="stroke:#7F7F7F;stroke-width:1.0;"/><polygon fill="#FFFFFF" points="152.5,1308.0933,482.5,1308.0933,494.5,1320.0933,482.5,1332.0933,152.5,1332.0933,140.5,1320.0933,152.5,1308.0933" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="321.5" y="1342.3037">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="200" x="152.5" y="1323.9014">Is the sum of our raw materials &gt;=</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="120" x="356.5" y="1323.9014">resources_needed</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="6" x="476.5" y="1323.9014">?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="494.5" y="1317.499">no</text><polygon fill="#FFFFFF" points="191.5,912.98,443.5,912.98,455.5,924.98,443.5,936.98,191.5,936.98,179.5,924.98,191.5,912.98" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="21" x="321.5" y="947.1904">yes</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="252" x="191.5" y="928.7881">Do we have a constructor and an engineer?</text><text fill="#000000" font-family="Verdana" font-size="11" lengthAdjust="spacing" textLength="14" x="455.5" y="922.3857">no</text><polygon fill="#FFFFFF" points="317.5,1489.9644,329.5,1501.9644,317.5,1513.9644,305.5,1501.9644,317.5,1489.9644" style="stroke:#000000;stroke-width:1.5;"/><rect fill="#FFFFFF" height="33.9688" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:1.0;" width="126" x="254.5" y="1545.9644"/><text fill="#000000" font-family="Verdana" font-size="12" lengthAdjust="spacing" textLength="106" x="264.5" y="1567.103">We are defeated.</text><ellipse cx="317.5" cy="1610.9331" fill="#FFFFFF" rx="11" ry="11" style="stroke:#000000;stroke-width:1.0;"/><ellipse cx="317.5" cy="1610.9331" fill="#000000" rx="6" ry="6" style="stroke:#7F7F7F;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="219.2578" y2="240.3867"/><polygon fill="#000000" points="313.5,230.3867,317.5,240.3867,321.5,230.3867,317.5,234.3867" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="146.918" y2="171.3203"/><polygon fill="#000000" points="313.5,161.3203,317.5,171.3203,321.5,161.3203,317.5,165.3203" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="410.5" x2="422.5" y1="134.1133" y2="134.1133"/><polygon fill="#000000" points="418.5,210.3867,422.5,220.3867,426.5,210.3867,422.5,214.3867" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="422.5" x2="422.5" y1="134.1133" y2="284.3867"/><line style="stroke:#000000;stroke-width:1.5;" x1="422.5" x2="317.5" y1="284.3867" y2="284.3867"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="284.3867" y2="304.3867"/><polygon fill="#000000" points="313.5,294.3867,317.5,304.3867,321.5,294.3867,317.5,298.3867" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="96.9063" y2="121.3086"/><polygon fill="#000000" points="313.5,111.3086,317.5,121.3086,321.5,111.3086,317.5,115.3086" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="406.5" x2="443" y1="84.1016" y2="84.1016"/><polygon fill="#000000" points="439,203.582,443,213.582,447,203.582,443,207.582" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="443" x2="443" y1="84.1016" y2="316.3867"/><line style="stroke:#000000;stroke-width:1.5;" x1="443" x2="329.5" y1="316.3867" y2="316.3867"/><polygon fill="#000000" points="339.5,312.3867,329.5,316.3867,339.5,320.3867,335.5,316.3867" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="25" y2="71.2969"/><polygon fill="#000000" points="313.5,61.2969,317.5,71.2969,321.5,61.2969,317.5,65.2969" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="140" x2="140" y1="643.519" y2="678.519"/><polygon fill="#000000" points="136,668.519,140,678.519,144,668.519,140,672.519" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="140" x2="140" y1="571.1792" y2="595.5815"/><polygon fill="#000000" points="136,585.5815,140,595.5815,144,585.5815,140,589.5815" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="262" x2="274" y1="559.1792" y2="559.1792"/><polygon fill="#000000" points="270,635.0503,274,645.0503,278,635.0503,274,639.0503" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="274" x2="274" y1="559.1792" y2="730.9214"/><line style="stroke:#000000;stroke-width:1.5;" x1="274" x2="140" y1="730.9214" y2="730.9214"/><line style="stroke:#000000;stroke-width:1.5;" x1="140" x2="140" y1="730.9214" y2="810.6831"/><polygon fill="#000000" points="136,800.6831,140,810.6831,144,800.6831,140,804.6831" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="424.5" x2="424.5" y1="711.6831" y2="746.6831"/><polygon fill="#000000" points="420.5,736.6831,424.5,746.6831,428.5,736.6831,424.5,740.6831" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="424.5" x2="424.5" y1="639.3433" y2="663.7456"/><polygon fill="#000000" points="420.5,653.7456,424.5,663.7456,428.5,653.7456,424.5,657.7456" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="546.5" x2="558.5" y1="627.3433" y2="627.3433"/><polygon fill="#000000" points="554.5,703.2144,558.5,713.2144,562.5,703.2144,558.5,707.2144" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="558.5" x2="558.5" y1="627.3433" y2="790.6831"/><line style="stroke:#000000;stroke-width:1.5;" x1="558.5" x2="424.5" y1="790.6831" y2="790.6831"/><line style="stroke:#000000;stroke-width:1.5;" x1="424.5" x2="424.5" y1="790.6831" y2="810.6831"/><polygon fill="#000000" points="420.5,800.6831,424.5,810.6831,428.5,800.6831,424.5,804.6831" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="424.5" x2="424.5" y1="580.3433" y2="615.3433"/><polygon fill="#000000" points="420.5,605.3433,424.5,615.3433,428.5,605.3433,424.5,609.3433" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="140" x2="140" y1="514.6641" y2="547.1792"/><polygon fill="#000000" points="136,537.1792,140,547.1792,144,537.1792,140,541.1792" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="424.5" x2="424.5" y1="513.8594" y2="546.3745"/><polygon fill="#000000" points="420.5,536.3745,424.5,546.3745,428.5,536.3745,424.5,540.3745" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="242.5" x2="327" y1="501.8594" y2="501.8594"/><polygon fill="#000000" points="317,497.8594,327,501.8594,317,505.8594,321,501.8594" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="469.0547" y2="474.0547"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="140" y1="474.0547" y2="474.0547"/><line style="stroke:#000000;stroke-width:1.5;" x1="140" x2="140" y1="474.0547" y2="489.0547"/><polygon fill="#000000" points="136,479.0547,140,489.0547,144,479.0547,140,483.0547" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="522" x2="576.5" y1="501.8594" y2="501.8594"/><line style="stroke:#000000;stroke-width:1.5;" x1="576.5" x2="576.5" y1="501.8594" y2="810.6831"/><polygon fill="#000000" points="572.5,800.6831,576.5,810.6831,580.5,800.6831,576.5,804.6831" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="140" x2="576.5" y1="810.6831" y2="810.6831"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="410.6836" y2="435.0859"/><polygon fill="#000000" points="313.5,425.0859,317.5,435.0859,321.5,425.0859,317.5,429.0859" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="431.5" x2="594.5" y1="398.6836" y2="398.6836"/><polygon fill="#000000" points="590.5,624.4409,594.5,634.4409,598.5,624.4409,594.5,628.4409" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="594.5" x2="594.5" y1="398.6836" y2="842.6831"/><line style="stroke:#000000;stroke-width:1.5;" x1="594.5" x2="329.5" y1="842.6831" y2="842.6831"/><polygon fill="#000000" points="339.5,838.6831,329.5,842.6831,339.5,846.6831,335.5,842.6831" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="810.6831" y2="830.6831"/><polygon fill="#000000" points="313.5,820.6831,317.5,830.6831,321.5,820.6831,317.5,824.6831" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="328.3867" y2="386.6836"/><polygon fill="#000000" points="313.5,376.6836,317.5,386.6836,321.5,376.6836,317.5,380.6836" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1039.3511" y2="1063.7534"/><polygon fill="#000000" points="313.5,1053.7534,317.5,1063.7534,321.5,1053.7534,317.5,1057.7534" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="415" x2="427" y1="1027.3511" y2="1027.3511"/><polygon fill="#000000" points="423,1070.7378,427,1080.7378,431,1070.7378,427,1074.7378" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="427" x2="427" y1="1027.3511" y2="1129.7222"/><line style="stroke:#000000;stroke-width:1.5;" x1="427" x2="329.5" y1="1129.7222" y2="1129.7222"/><polygon fill="#000000" points="339.5,1125.7222,329.5,1129.7222,339.5,1133.7222,335.5,1129.7222" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1097.7222" y2="1117.7222"/><polygon fill="#000000" points="313.5,1107.7222,317.5,1117.7222,321.5,1107.7222,317.5,1111.7222" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="995.3511" y2="1015.3511"/><polygon fill="#000000" points="313.5,1005.3511,317.5,1015.3511,321.5,1005.3511,317.5,1009.3511" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1185.7222" y2="1210.1245"/><polygon fill="#000000" points="313.5,1200.1245,317.5,1210.1245,321.5,1200.1245,317.5,1204.1245" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="492" x2="504" y1="1173.7222" y2="1173.7222"/><polygon fill="#000000" points="500,1217.1089,504,1227.1089,508,1217.1089,504,1221.1089" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="504" x2="504" y1="1173.7222" y2="1276.0933"/><line style="stroke:#000000;stroke-width:1.5;" x1="504" x2="329.5" y1="1276.0933" y2="1276.0933"/><polygon fill="#000000" points="339.5,1272.0933,329.5,1276.0933,339.5,1280.0933,335.5,1276.0933" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1244.0933" y2="1264.0933"/><polygon fill="#000000" points="313.5,1254.0933,317.5,1264.0933,321.5,1254.0933,317.5,1258.0933" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1141.7222" y2="1161.7222"/><polygon fill="#000000" points="313.5,1151.7222,317.5,1161.7222,321.5,1151.7222,317.5,1155.7222" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1404.4331" y2="1425.9644"/><polygon fill="#000000" points="313.5,1415.9644,317.5,1425.9644,321.5,1415.9644,317.5,1419.9644" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1332.0933" y2="1356.4956"/><polygon fill="#000000" points="313.5,1346.4956,317.5,1356.4956,321.5,1346.4956,317.5,1350.4956" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="494.5" x2="506.5" y1="1320.0933" y2="1320.0933"/><polygon fill="#000000" points="502.5,1395.9644,506.5,1405.9644,510.5,1395.9644,506.5,1399.9644" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="506.5" x2="506.5" y1="1320.0933" y2="1469.9644"/><line style="stroke:#000000;stroke-width:1.5;" x1="506.5" x2="317.5" y1="1469.9644" y2="1469.9644"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1469.9644" y2="1489.9644"/><polygon fill="#000000" points="313.5,1479.9644,317.5,1489.9644,321.5,1479.9644,317.5,1483.9644" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1288.0933" y2="1308.0933"/><polygon fill="#000000" points="313.5,1298.0933,317.5,1308.0933,321.5,1298.0933,317.5,1302.0933" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="936.98" y2="961.3823"/><polygon fill="#000000" points="313.5,951.3823,317.5,961.3823,321.5,951.3823,317.5,955.3823" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="455.5" x2="516.5" y1="924.98" y2="924.98"/><polygon fill="#000000" points="512.5,1209.1089,516.5,1219.1089,520.5,1209.1089,516.5,1213.1089" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="516.5" x2="516.5" y1="924.98" y2="1501.9644"/><line style="stroke:#000000;stroke-width:1.5;" x1="516.5" x2="329.5" y1="1501.9644" y2="1501.9644"/><polygon fill="#000000" points="339.5,1497.9644,329.5,1501.9644,339.5,1505.9644,335.5,1501.9644" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="854.6831" y2="912.98"/><polygon fill="#000000" points="313.5,902.98,317.5,912.98,321.5,902.98,317.5,906.98" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1513.9644" y2="1545.9644"/><polygon fill="#000000" points="313.5,1535.9644,317.5,1545.9644,321.5,1535.9644,317.5,1539.9644" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.5;" x1="317.5" x2="317.5" y1="1579.9331" y2="1599.9331"/><polygon fill="#000000" points="313.5,1589.9331,317.5,1599.9331,321.5,1589.9331,317.5,1593.9331" style="stroke:#000000;stroke-width:1.0;"/><!--MD5=[9795819299255756ea6f92afb158b047]
+@startuml
+!theme plain
+start
+partition "Military Power" {
+if (Do we have a military unit\nwith remaining ammo > 0?) then (yes)
+  if (Is this military unit not a\nSubmarine nor an Infiltrator?) then (yes)
+    :Not defeated yet as we can
+    attack or defend our base.;
+    stop
+  else (no)
+  endif
+else (no)
+endif
+}
+
+partition "Industry Power" {
+if (Do we have a manufacturing plant?) then (yes)
+  :<b>power_demand</b>= 1;
+  if (Are our fuel reserves >= 8 and\nmaterial reserves >= 24?) then (yes)
+    if (Is power supply >= <b>power_demand</b>?) then (yes)
+      :Not defeated yet as we can
+      build something useful.;
+      stop
+    else (no)
+    endif
+  elseif (Do we have a mining station?) then (yes)
+    :<b>power_demand</b> = 2;
+    if (Is power supply >= <b>power_demand</b>?) then (yes)
+      :Not defeated yet as we will mine
+      resources to build something useful.;
+      stop
+    else (no)
+    endif
+  else (no)
+  endif
+else (no)
+endif
+}
+
+partition "Construction Power" {
+if (Do we have a constructor and an engineer?) then (yes)
+  :<b>resources_needed</b> = 38;
+  if (Do we have a mining station?) then (yes)
+    :<b>resources_needed</b> = 8;
+  else (no)
+  endif
+  if (Do we have enough power to supply the mining station?) then (yes)
+    :<b>resources_needed</b> -= 8;
+  else (no)
+  endif
+  if (Is the sum of our raw materials >= <b>resources_needed</b>?) then (yes)
+    :Not defeated yet as we can
+    build some new buildings.;
+    stop
+  else (no)
+  endif
+else (no)
+endif
+}
+
+:We are defeated.;
+stop
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+<style>
+  root {
+    BackgroundColor white
+    FontColor black
+    FontName Verdana
+    HyperLinkColor blue
+    LineColor black
+    LineThickness 1
+    Margin 5
+  }
+  caption {
+    LineThickness 0
+  }
+  footer {
+    LineThickness 0
+  }
+  header {
+    LineThickness 0
+  }
+  node {
+    MaximumWidth 300
+  }
+  title {
+    FontSize 22
+    LineThickness 0
+  }
+</style>
+
+skinparam ArrowLollipopColor black
+skinparam BackgroundColor white
+skinparam DefaultFontName Verdana
+skinparam DefaultMonospacedFontName Courier
+skinparam LifelineStrategy nosolid
+skinparam ParticipantPadding 10
+skinparam SequenceLifeLineBorderColor black
+skinparam Shadowing false
+skinparam UseBetaStyle true
+
+skinparam Activity {
+  BackgroundColor white
+  BarColor black
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam Boundary {
+  FontColor black
+}
+skinparam Box {
+  Padding 5
+}
+skinparam CircledCharacter {
+  FontColor black
+  FontName Courier
+  Radius 9
+}
+skinparam Class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassAttribute {
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassStereotype {
+  FontColor black
+  FontName Verdana
+}
+skinparam Footer {
+  FontColor black
+  FontName Verdana
+}
+skinparam Header {
+  FontColor black
+  FontName Verdana
+}
+skinparam Hyperlink {
+  Color blue
+}
+skinparam IconPackage {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPrivate {
+  Color black
+  BackgroundColor white
+}
+skinparam IconProtected {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPublic {
+  Color black
+  BackgroundColor white
+}
+skinparam Note {
+  FontColor black
+  FontName Verdana
+}
+skinparam Object {
+  BorderColor black
+}
+skinparam Package {
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam State {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeA {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeC {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeE {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeI {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeN {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam UseCaseStereoType {
+  FontColor black
+  FontName Verdana
+}
+start
+partition "Military Power" {
+if (Do we have a military unit\nwith remaining ammo > 0?) then (yes)
+  if (Is this military unit not a\nSubmarine nor an Infiltrator?) then (yes)
+    :Not defeated yet as we can
+    attack or defend our base.;
+    stop
+  else (no)
+  endif
+else (no)
+endif
+}
+
+partition "Industry Power" {
+if (Do we have a manufacturing plant?) then (yes)
+  :<b>power_demand</b>= 1;
+  if (Are our fuel reserves >= 8 and\nmaterial reserves >= 24?) then (yes)
+    if (Is power supply >= <b>power_demand</b>?) then (yes)
+      :Not defeated yet as we can
+      build something useful.;
+      stop
+    else (no)
+    endif
+  elseif (Do we have a mining station?) then (yes)
+    :<b>power_demand</b> = 2;
+    if (Is power supply >= <b>power_demand</b>?) then (yes)
+      :Not defeated yet as we will mine
+      resources to build something useful.;
+      stop
+    else (no)
+    endif
+  else (no)
+  endif
+else (no)
+endif
+}
+
+partition "Construction Power" {
+if (Do we have a constructor and an engineer?) then (yes)
+  :<b>resources_needed</b> = 38;
+  if (Do we have a mining station?) then (yes)
+    :<b>resources_needed</b> = 8;
+  else (no)
+  endif
+  if (Do we have enough power to supply the mining station?) then (yes)
+    :<b>resources_needed</b> -= 8;
+  else (no)
+  endif
+  if (Is the sum of our raw materials >= <b>resources_needed</b>?) then (yes)
+    :Not defeated yet as we can
+    build some new buildings.;
+    stop
+  else (no)
+  endif
+else (no)
+endif
+}
+
+:We are defeated.;
+stop
+@enduml
+
+PlantUML version 1.2021.17beta3(Unknown compile time)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

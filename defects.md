@@ -78,6 +78,12 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 25. While enemy takes turn clicking an actively selected unit resets the flic animation's sequence. This is odd as the same cannot be observed while the player's turn is active.
 
+27. Unit names are typically constructed as follows Mark [version number] Type [Count]. The unit counter is stored by the game on a byte. In long games it is easy to have 300+ roads in which case the counter overflows. To fix this limitation the save file format version needs to be updated.
+
+28. The game stores gold reserves for upgrades as a signed 16 bit word. Having a gold reserve of 32767+ does not crash the game, but it becomes impossible to purchase upgrades and it is also impossible to recover from this state via normal means.
+
+29. The game tracks team casualties. These counters are stored as 8 bit words and could overflow in very long games. Interestingly fighters and infiltrators have the highest death rates.
+
 32. The default mouse action for an infiltrator (and probably any other unit) is to attack a neutral bridge if an enemy flying entity is located in the cell.
     <br>
     <video class="embed-video" autoplay loop muted playsinline>
@@ -119,6 +125,12 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     In multiplayer the purchased unit count must remain below 134 otherwise buffer overflows or other wicked stuff could happen.
 
+46. The TeamInfo class still allocates space for the map markers feature (40 bytes) which was removed by the original developers before release. To fix this technical debt the save file format version needs to be updated.
+
+47. The TeamInfo class allocates 6 slots for screen locations while only 4 locations can be saved and restored by the game logic. To fix this technical debt the save file format version needs to be updated.
+
+48. The save file format header allocates 5 team instances for team type and team clan parameters but only 4 team instances are filled up with valid data. To fix this technical debt the save file format version needs to be updated.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
@@ -128,12 +140,6 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 24. gwin_init: wrong exit code
 
 26. Soundmgr_init_sound_data_info: leak file handle if opening non RIFF file
-
-27. Unit names are typically constructed as follows Mark [version number] Type [Count]. The unit counter is stored by the game on a byte. In long games it is easy to have 300+ roads in which case the counter overflows and indexing starts again from 0 even though at init the counter starts from 1.
-
-28. The game stores gold reserves for upgrades an a signed 16 bit word. Having a gold reserve of 32767+ crashes the game?
-
-29. The game tracks a statistic about how much gold is spent on upgrades. The counter is 16 bit?
 
 30. The unitinfo common structure size is 20, while it has only 18 or 19? elements!
 

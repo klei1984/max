@@ -38,6 +38,7 @@ header_pages:
     - "Build Instructions": build.md
     - "Development Environments": devenv.md
     - "Documentation": documentation.md
+    - "Save File Format": save.md
     - "Networking": network.md
   "License": license.md
   "Defects": defects.md
