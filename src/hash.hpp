@@ -38,7 +38,7 @@ public:
     MapHash(unsigned short hash_size);
     ~MapHash();
 
-    void Add(UnitInfo* unit, bool mode);
+    void Add(UnitInfo* unit, bool mode = false);
     void Remove(UnitInfo* unit);
     void Clear();
 
@@ -69,5 +69,8 @@ public:
 
     UnitInfo* operator[](const unsigned short& key);
 };
+
+extern UnitHash Hash_UnitHash;
+extern MapHash Hash_MapHash;
 
 #endif /* HASH_HPP */

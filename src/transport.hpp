@@ -19,41 +19,18 @@
  * SOFTWARE.
  */
 
-#ifndef POINT_HPP
-#define POINT_HPP
+#ifndef TRANSPORT_HPP
+#define TRANSPORT_HPP
 
-struct Point {
-    short x;
-    short y;
+class Transport {
+    bool NetState;
 
-    Point() : x(0), y(0) {}
-    Point(int x, int y) : x(x), y(y) {}
-    Point(const Point& other) : x(other.x), y(other.y) {}
+public:
+    Transport();
+    ~Transport();
 
-    Point& operator=(const Point& other) {
-        x = other.x;
-        y = other.y;
-
-        return *this;
-    }
-
-    Point& operator+=(const Point& other) {
-        x += other.x;
-        y += other.y;
-
-        return *this;
-    }
-
-    Point& operator-=(const Point& other) {
-        x -= other.x;
-        y -= other.y;
-
-        return *this;
-    }
+    bool Init();
+    bool Deinit();
 };
 
-inline bool operator==(const Point& point1, const Point& point2) {
-    return point1.x == point2.x && point1.y == point2.y;
-}
-
-#endif /* POINT_HPP */
+#endif /* TRANSPORT_HPP */

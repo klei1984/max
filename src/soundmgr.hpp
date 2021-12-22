@@ -63,7 +63,7 @@ public:
     void FreeMusic();
 
     void PlaySfx(ResourceID id);
-    void PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode);
+    void PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode = false);
     void UpdateSfxPosition();
     void UpdateSfxPosition(UnitInfo* unit);
     void UpdateAllSfxPositions();

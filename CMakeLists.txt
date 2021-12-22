@@ -67,7 +67,7 @@ set(CODEGEN_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/conf/codegen.json")
 
 if (MINGW)
     set(CODEGEN_OPTIONS "--underscore")
-	add_definitions(-DSDL_MAIN_HANDLED)
+    add_definitions(-DSDL_MAIN_HANDLED)
     add_compile_options(-mno-ms-bitfields)
     add_link_options(-mconsole)
 endif (MINGW)
@@ -82,9 +82,9 @@ set(GAME_SOURCES
 )
 
 set_source_files_properties(
-	${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
-	PROPERTIES
-	OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.h;${CMAKE_CURRENT_SOURCE_DIR}/src/user.h"
+    ${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
+    PROPERTIES
+    OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.h;${CMAKE_CURRENT_SOURCE_DIR}/src/user.h"
 )
 
 add_custom_command(
@@ -139,6 +139,8 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.")
 
+install(FILES "LICENSE" DESTINATION .)
+
 if(UNIX)
     set(CPACK_GENERATOR "DEB")
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
@@ -148,21 +150,27 @@ if(UNIX)
 
     install(TARGETS ${GAME_BINARY}
         CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-        RUNTIME DESTINATION ${CMAKE_PROJECT_NAME}/${CMAKE_BUILD_TYPE}/bin
+        RUNTIME DESTINATION .
     )
 endif()
 
 if(MINGW)
     set(CPACK_GENERATOR "NSIS")
     set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-    set(CPACK_NSIS_MUI_FINISHPAGE_RUN "maxrun.exe")
+    set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${GAME_BINARY}")
     set(CPACK_NSIS_DISPLAY_NAME "M.A.X. Port")
     set(CPACK_NSIS_PACKAGE_NAME "M.A.X. Port v${GAME_VERSION}")
     set(CPACK_NSIS_URL_INFO_ABOUT "https://klei1984.github.io/max/")
 
     install(TARGETS ${GAME_BINARY}
         CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-        RUNTIME DESTINATION ${CMAKE_PROJECT_NAME}/${CMAKE_BUILD_TYPE}/bin
+        RUNTIME DESTINATION .
+    )
+
+    install(CODE "
+        include(BundleUtilities)
+        fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${GAME_BINARY}${CMAKE_EXECUTABLE_SUFFIX}\" \"\" \"\")
+        "
     )
 endif()
 

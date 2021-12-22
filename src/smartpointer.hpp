@@ -32,8 +32,17 @@ class SmartObject {
     unsigned short reference_count;
 
 protected:
-    inline void Increment() { ++reference_count; }
-    inline unsigned short Decrement() { return --reference_count; }
+    inline void Increment() {
+        if (this) {
+            ++reference_count;
+        }
+    }
+
+    inline void Decrement() {
+        if (this && --reference_count == 0) {
+            delete this;
+        }
+    }
 
 public:
     SmartObject() : reference_count(0) {}
@@ -48,47 +57,34 @@ protected:
 
 public:
     SmartPointer() : object_pointer(nullptr) {}
-    SmartPointer(T* object) : object_pointer(object) { Increment(); }
-    SmartPointer(T& object) : object_pointer(&object) { Increment(); }
-    SmartPointer(const SmartPointer<T>& other) : object_pointer(other.object_pointer) { Increment(); }
-    ~SmartPointer() { Decrement(); }
-
-    void Increment() const {
-        if (object_pointer) {
-            object_pointer->Increment();
-        }
-    }
-
-    void Decrement() {
-        if (object_pointer && object_pointer->Decrement() == 0) {
-            delete object_pointer;
-            object_pointer = nullptr;
-        }
-    }
+    SmartPointer(T* object) : object_pointer(object) { object_pointer->Increment(); }
+    SmartPointer(T& object) : object_pointer(&object) { object_pointer->Increment(); }
+    SmartPointer(const SmartPointer<T>& other) : object_pointer(other.object_pointer) { object_pointer->Increment(); }
+    ~SmartPointer() { object_pointer->Decrement(); }
 
     T* operator->() const { return object_pointer; }
 
     T& operator*() const { return *object_pointer; }
 
     SmartPointer<T>& operator=(const SmartPointer<T>& other) {
-        other.Increment();
-        Decrement();
+        other.object_pointer->Increment();
+        object_pointer->Decrement();
         object_pointer = other.object_pointer;
 
         return *this;
     }
 
     SmartPointer<T>& operator=(T* other) {
-        ++other->reference_count;
-        Decrement();
+        other->Increment();
+        object_pointer->Decrement();
         object_pointer = other;
 
         return *this;
     }
 
     SmartPointer<T>& operator=(T& other) {
-        ++other.reference_count;
-        Decrement();
+        other.Increment();
+        object_pointer->Decrement();
         object_pointer = &other;
 
         return *this;

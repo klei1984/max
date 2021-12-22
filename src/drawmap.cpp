@@ -19,41 +19,12 @@
  * SOFTWARE.
  */
 
-#ifndef POINT_HPP
-#define POINT_HPP
+#include "drawmap.hpp"
 
-struct Point {
-    short x;
-    short y;
+#include "smartobjectarray.hpp"
 
-    Point() : x(0), y(0) {}
-    Point(int x, int y) : x(x), y(y) {}
-    Point(const Point& other) : x(other.x), y(other.y) {}
-
-    Point& operator=(const Point& other) {
-        x = other.x;
-        y = other.y;
-
-        return *this;
-    }
-
-    Point& operator+=(const Point& other) {
-        x += other.x;
-        y += other.y;
-
-        return *this;
-    }
-
-    Point& operator-=(const Point& other) {
-        x -= other.x;
-        y -= other.y;
-
-        return *this;
-    }
-};
-
-inline bool operator==(const Point& point1, const Point& point2) {
-    return point1.x == point2.x && point1.y == point2.y;
+extern "C" {
+#include "gnw.h"
 }
 
-#endif /* POINT_HPP */
+ObjectArray<Rect> DrawMap_DirtyRectangles;

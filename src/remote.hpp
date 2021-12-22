@@ -19,41 +19,7 @@
  * SOFTWARE.
  */
 
-#ifndef POINT_HPP
-#define POINT_HPP
+#ifndef REMOTE_HPP
+#define REMOTE_HPP
 
-struct Point {
-    short x;
-    short y;
-
-    Point() : x(0), y(0) {}
-    Point(int x, int y) : x(x), y(y) {}
-    Point(const Point& other) : x(other.x), y(other.y) {}
-
-    Point& operator=(const Point& other) {
-        x = other.x;
-        y = other.y;
-
-        return *this;
-    }
-
-    Point& operator+=(const Point& other) {
-        x += other.x;
-        y += other.y;
-
-        return *this;
-    }
-
-    Point& operator-=(const Point& other) {
-        x -= other.x;
-        y -= other.y;
-
-        return *this;
-    }
-};
-
-inline bool operator==(const Point& point1, const Point& point2) {
-    return point1.x == point2.x && point1.y == point2.y;
-}
-
-#endif /* POINT_HPP */
+#endif /* REMOTE_HPP */

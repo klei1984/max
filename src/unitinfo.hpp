@@ -152,14 +152,8 @@ public:
     char* name;
     unsigned char visible_to_team[5];
     unsigned char spotted_by_team[5];
-    unsigned int field_181;
-    unsigned int field_185;
-    unsigned int field_189;
-    unsigned int field_193;
-    unsigned int field_197;
-    unsigned int field_201;
-    unsigned int field_205;
-    unsigned int field_209;
+    Rect sprite_bounds;
+    Rect shadow_bounds;
     unsigned short image_index;
     unsigned short turret_image_index;
     Point shadow_offset;
@@ -182,6 +176,7 @@ public:
     bool IsVisibleToTeam(unsigned short team) const;
     unsigned short GetId() const;
     unsigned int GetField221() const;
+    unsigned short GetImageIndex() const;
     void ClearUnitList();
     void PushFrontTask1List(Task* task);
     void ClearTask1List();
@@ -192,6 +187,8 @@ public:
     UnitValues* GetBaseValues() const;
     Complex* GetComplex() const;
     bool UnitInfo_sub_430A2(short grid_x, short grid_y);
+    SmartPointer<UnitInfo> MakeCopy();
+    void OffsetDrawZones(int offset_x, int offset_y);
 };
 
 #endif /* UNITINFO_HPP */

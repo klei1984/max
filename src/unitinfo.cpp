@@ -465,6 +465,8 @@ struct SoundTable UnitInfo_SfxAlienAttackPlane = {8,
 
 UnitInfo::UnitInfo() : build_list(0) {}
 
+UnitInfo::UnitInfo(const UnitInfo& other) {}
+
 UnitInfo::~UnitInfo() {}
 
 TextFileObject* UnitInfo::Allocate() { return new (std::nothrow) UnitInfo(); }
@@ -703,6 +705,8 @@ unsigned short UnitInfo::GetId() const { return id; }
 
 unsigned int UnitInfo::GetField221() const { return field_221; }
 
+unsigned short UnitInfo::GetImageIndex() const { return image_index; }
+
 void UnitInfo::ClearUnitList() {
     if (unit_list) {
         /// \todo Implement method
@@ -740,4 +744,25 @@ Complex* UnitInfo::GetComplex() const { return &*complex; }
 bool UnitInfo::UnitInfo_sub_430A2(short grid_x, short grid_y) {
     /// \todo Implement method
     return false;
+}
+
+SmartPointer<UnitInfo> UnitInfo::MakeCopy() {
+    SmartPointer<UnitInfo> copy = new (std::nothrow) UnitInfo(*this);
+    copy->path = nullptr;
+
+    return copy;
+}
+
+void UnitInfo::OffsetDrawZones(int offset_x, int offset_y) {
+    x = offset_x;
+    sprite_bounds.ulx += offset_x;
+    sprite_bounds.lrx += offset_x;
+    shadow_bounds.ulx += offset_x;
+    shadow_bounds.lrx += offset_x;
+
+    x = offset_y;
+    sprite_bounds.uly += offset_y;
+    sprite_bounds.lry += offset_y;
+    sprite_bounds.uly += offset_y;
+    sprite_bounds.lry += offset_y;
 }
