@@ -2,14 +2,14 @@
 layout: post
 title:  "Debugging the AI in M.A.X."
 date:   2021-07-18
-driveId: 1Wu-iM3SdjAXzNGGYUmiSyEHQrvVi49Hz/preview
+videoId: 7IL-8mbTYxU
 categories:
 excerpt_separator: <!--more-->
 ---
 The AI or Task Manager of M.A.X. distinguishes more than 44 different types of tasks and 5 or more reminder events that are related to tasks. There is a built-in AI debugger within the game with two major features. It is possible to inspect the task tree hierarchy at any given time and it is possible to log the timeline of task manager events into a file for later offline analysis. The video in this post demonstrates the first feature.
 <!--more-->
 <br><br>
-{% include drive_player.html id=page.driveId %}
+{% include yt_player.html id=page.videoId %}
 <br>
   
 I always thought that the AI of M.A.X. was so advanced for its time. I still think that it is fun to play against, but now I also see so many of its quirks.

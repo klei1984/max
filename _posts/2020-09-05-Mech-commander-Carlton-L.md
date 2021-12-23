@@ -2,18 +2,16 @@
 layout: post
 title:  "Mech Commander - Carlton L."
 date:   2020-09-05
-driveId: 1EpLDEChc6gvTS2owx74wHnf7WmtoIt4J/preview
+videoId: UNfvMI7sk74
 categories:
 excerpt_separator: <!--more-->
 ---
 Who is Carlton L.? Why is he a Mech Commander instead of a M.A.X. Commander? Why would a mechanical engineer fix that sealing plate with so many screws? This is not cost effective... immersion ruined! :P
   
 <!--more-->
-<img src="{{ site.baseurl }}/assets/images/carlton_l.jpg" alt="Image - Mech Commander - Carlton L." width="740">
-  
-First visible progress in playing back in-game videos. Further details are inside the post.
+First visible progress in playing back in-game videos.
 <br><br>
-{% include drive_player.html id=page.driveId %}
+{% include yt_player.html id=page.videoId %}
 <br>
   
 Frame rate is wrong, audio is disabled, some of the block decoder algorithms seem to be broken still, and the renderer seems to draw half of a previous frame as well, but at least MVE video files do not crash the game any more. Even more it will most probably be possible to add captions to the intro video for languages without audio support. It is quite interesting that the technology to support captions was already present in the MVE library used by M.A.X. and that the developers utilized this capability or feature within Fallout and Descent II, but ignored it in M.A.X.

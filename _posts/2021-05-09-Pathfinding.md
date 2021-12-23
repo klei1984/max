@@ -2,14 +2,14 @@
 layout: post
 title:  "Debugging the Pathfinding module in M.A.X."
 date:   2021-05-09
-driveId: 1jSE0Z0XtmdxB_uRdG9jkE5bRJmCNpLLy/preview
+videoId: EyqtnuWi8Mc
 categories:
 excerpt_separator: <!--more-->
 ---
 The path finding algorithm of M.A.X. was very powerful compared to other strategy games of the time. Of course it is not fair to compare turn based, simultaneous real-time and real-time games, but I do not care. Pathfinding in M.A.X. is outstanding.
 <!--more-->
 <br><br>
-{% include drive_player.html id=page.driveId %}
+{% include yt_player.html id=page.videoId %}
 <br>
   
 M.A.X. had three path finding algorithms. One for construction units, one for any land and sea units and one for air units.
