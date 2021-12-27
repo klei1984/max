@@ -42,21 +42,69 @@ The format specification is described as a set of strongly typed basic fields, m
 
 The format contains conditional sections, subsections. The signedness of fields and properties are not 100% accurate yet.
 
+ImHex pattern language ([profile]({{ site.baseurl }}/assets/files/max_v104_saveformat.7z)) for M.A.X. save file format v70. Tested with ImHex v1.12.1.
+
+### Serialized Class Objects
+
+The game implements its own class serializer. Each class gets a unique type index called `class_type`. Each emitted object gets an item index called `object_index`. The item index starts from 1 and regardless of the class being serialized the value is monotonically incremented by one. Pointers to serializable objects found within other serializable objects are not emitted in a special way. Instead of the pointers, the actual objects to where the pointer points gets serialized. This could potentially lead to circular references, but the game handles these corner cases elegantly. The item index that each emitted object gets is used to tell whether the object was already emitted once. If the object item index is bigger than the last emitted object's item index it means it is not yet saved into the save file so the full object gets dumped to the save file while if the object was already emitted based on its item index only its allocated item index gets written into the file.
+
+The above concepts imply that the class serializer must register supported classes in a specific order so that their `class_type` field could be matched. This is achieved by putting classes into a map with sorted or ordered keys where the key matches the class name. But of course this also means that the algorithm saving the objects to a save file must be matched with the algorithm that is loading the objects from the save file. It is not a big deal, but the reimplementation of these algorithms should be fully accurate to be able to parse and reproduce the original save file format.
+
 ### File Header
 
 ~~~ c
-struct __attribute__((packed)) SaveFormatHeader
+enum FileType : unsigned char
+{
+  Custom,
+  Tutorial,
+  Campaign,
+  Hot_seat,
+  Multiplayer,
+  Demo,
+  Debug,
+  Text,
+  Scenario,
+  Multi_scenario
+};
+
+enum PlanetType : unsigned char
+{
+  Snowcrab,
+  Frigia,
+  Ice_Berg,
+  The_Cooler,
+  Ultima_Thule,
+  Long_Floes,
+  Iron_Cross,
+  Splatterscape,
+  Peak_a_boo,
+  Valentines_Planet,
+  Three_Rings,
+  Great_divide,
+  New_Luzon,
+  Middle_Sea,
+  High_Impact,
+  Sanctuary,
+  Islandia,
+  Hammerhead,
+  Freckles,
+  Sandspit,
+  Great_Circle,
+  Long_Passage,
+  Flash_Point,
+  Bottleneck
+};
+
+struct __attribute__((packed)) Header
 {
   short version;
-  char save_file_type;
+  FileType save_file_type;
   char save_game_name[30];
-  char planet;
+  PlanetType planet;
   short mission_index;
   char team_name[4][30];
-  char team_type[4];
-  char field_160;
-  char team_clan[4];
-  char field_165;
+  char team_type[5];
+  char team_clan[5];
   unsigned int rng_seed;
   char opponent;
   short turn_timer;
@@ -280,7 +328,7 @@ alien_derelicts=0
 The above settings are stored as follows:
 
 ~~~ c
-struct __attribute__((packed)) SaveFormatOptions
+struct __attribute__((packed)) IniOptions
 {
   int world;
   int turn_timer;
@@ -297,7 +345,7 @@ struct __attribute__((packed)) SaveFormatOptions
 };
 ~~~
 
-In case of campaign, single and multi player scenario games the ***opponent***, ***timer***, ***endturn*** and ***play_mode*** settings are overwritten by the SaveFormatHeader fields of the same name.
+In case of campaign, single and multi player scenario games the ***opponent***, ***timer***, ***endturn*** and ***play_mode*** settings are overwritten by the Header fields of the same name.
 
 ***world***: See *[planet field](#cross_ref01)*.
 
@@ -340,10 +388,10 @@ enum SurfaceType : char
   SURFACE_TYPE_AIR = 8
 };
 
-enum SurfaceType SaveFormatSurfaceMap[x][y];
+enum SurfaceType SurfaceMap[x][y];
 ~~~
 
-In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `SaveFormatSurfaceMap[x][y]`.
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `SurfaceMap[x][y]`.
 
 Each element in the above array defines the accessibility property of the associated grid map cell. For example if a cell can only be crossed by air units, then the surface type is *SURFACE_TYPE_AIR*.
 
@@ -363,10 +411,10 @@ RESOURCE_AMOUNT_MASK 0x1F
 RESOURCE_TYPE_MASK 0xE0
 TEAM_VISIBILITY_MASK 0x1C00
 
-short SaveFormatGridResourceMap[x][y];
+short GridResourceMapEntry[x][y];
 ~~~
 
-In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `SaveFormatGridResourceMap[x][y]`.
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `GridResourceMapEntry[x][y]`.
 
 <img src="{{ site.baseurl }}/assets/images/bitfield_save_rmap_entry.svg" alt="Resource Map Entry Bitfield">
 
@@ -400,7 +448,7 @@ struct __attribute__((packed)) ScreenLocation
   char y;
 };
 
-struct __attribute__((packed)) SaveFormatTeamInfo
+struct __attribute__((packed)) TeamInfo
 {
   Point markers[10];
   TeamType team_type;
@@ -435,7 +483,7 @@ struct __attribute__((packed)) SaveFormatTeamInfo
 };
 ~~~
 
-Four instances of the `SaveFormatTeamInfo` structure are written to the save file representing the four teams. Red is the first, green is the second, blue is the third, gray is the fourth.
+Four instances of the `TeamInfo` structure are written to the save file representing the four teams. Red is the first, green is the second, blue is the third, gray is the fourth.
 
 ***markers***: Array elements are initialized to {-1, -1} or simply 0xFFFF, 0xFFFF. The feature was removed from the game so this field is useless.
 
@@ -506,7 +554,7 @@ enum TeamIndex : char
   TEAM_INDEX_GRAY = 3
 };
 
-struct __attribute__((packed)) SaveFormatGameManagerState
+struct __attribute__((packed)) GameManagerState
 {
   TeamIndex active_turn_team;
   TeamIndex player_team;
@@ -515,6 +563,16 @@ struct __attribute__((packed)) SaveFormatGameManagerState
   short turn_timer;
 };
 ~~~
+
+***active_turn_team***:
+
+***player_team***:
+
+***turn_counter***:
+
+***game_state***: 
+
+***turn_timer***: 
 
 TODO
 
@@ -536,7 +594,7 @@ enemy_halt=1
 The above settings are stored as follows:
 
 ~~~ c
-struct __attribute__((packed)) SaveFormatPreferences
+struct __attribute__((packed)) IniPreferences
 {
   int effects;
   int click_scroll;
@@ -570,40 +628,50 @@ See the game user manual for detailed descriptions of the settings [\[2\]](#ref2
 struct __attribute__((packed)) UnitValues
 {
   unsigned short object_index;
-  unsigned short class_type;
 
-  unsigned short turns;
-  unsigned short hits;
-  unsigned short armor;
-  unsigned short attack;
-  unsigned short speed;
-  unsigned short range;
-  unsigned short rounds;
-  unsigned char move_and_fire;
-  unsigned short scan;
-  unsigned short storage;
-  unsigned short ammo;
-  unsigned short attack_radius;
-  unsigned short agent_adjust;
-  unsigned short version;
-  unsigned char units_built;
+  if (object_index < last_object_index)
+  {
+    last_object_index++;
+
+    unsigned short class_type;
+    unsigned short turns;
+    unsigned short hits;
+    unsigned short armor;
+    unsigned short attack;
+    unsigned short speed;
+    unsigned short range;
+    unsigned short rounds;
+    unsigned char move_and_fire;
+    unsigned short scan;
+    unsigned short storage;
+    unsigned short ammo;
+    unsigned short attack_radius;
+    unsigned short agent_adjust;
+    unsigned short version;
+    unsigned char units_built;
+  }
 };
 
 struct __attribute__((packed)) Complex
 {
   unsigned short object_index;
-  unsigned short class_type;
 
-  short material;
-  short fuel;
-  short gold;
-  short power;
-  short workers;
-  short buildings;
-  short id;
+  if (object_index < last_object_index)
+  {
+    last_object_index++;
+
+    unsigned short class_type;
+    short material;
+    short fuel;
+    short gold;
+    short power;
+    short workers;
+    short buildings;
+    short id;
+  }
 };
 
-struct __attribute__((packed)) SaveFormatTeamUnits
+struct __attribute__((packed)) TeamUnits
 {
   signed short gold;
   UnitValues base_unit_values[93];
@@ -613,7 +681,7 @@ struct __attribute__((packed)) SaveFormatTeamUnits
 };
 ~~~
 
-Four instances of the `SaveFormatTeamUnits` structure are written to the save file representing the four teams. Red is the first, green is the second, blue is the third, gray is the fourth.
+Four instances of the `TeamUnits` structure are written to the save file representing the four teams. Red is the first, green is the second, blue is the third, gray is the fourth.
 
 ***gold***: Team credits that could be used to purchase upgrades in gold refineries. The field is stored as a 16 bit signed value.
 
@@ -727,6 +795,42 @@ enum UnitType : short
   UNIT_TYPE_DEAD_WALDO = 92
 };
 
+enum OrderType : short
+{
+  ORDER_TYPE_AWAITING = 0x0,
+  ORDER_TYPE_TRANSFORMING = 0x1,
+  ORDER_TYPE_MOVING = 0x2,
+  ORDER_TYPE_FIRING = 0x3,
+  ORDER_TYPE_ORDER_BUILDING = 0x4,
+  ORDER_TYPE_ACTIVATE_ORDER = 0x5,
+  ORDER_TYPE_NEW_ALLOCATE_ORDER = 0x6,
+  ORDER_TYPE_POWER_ON = 0x7,
+  ORDER_TYPE_POWER_OFF = 0x8,
+  ORDER_TYPE_EXPLODING = 0x9,
+  ORDER_TYPE_UNLOADING = 0xA,
+  ORDER_TYPE_CLEARING = 0xB,
+  ORDER_TYPE_SENTRY = 0xC,
+  ORDER_TYPE_LANDING = 0xD,
+  ORDER_TYPE_TAKING_OFF = 0xE,
+  ORDER_TYPE_LOADING = 0xF,
+  ORDER_TYPE_IDLE = 0x10,
+  ORDER_TYPE_REPAIRING = 0x11,
+  ORDER_TYPE_REFUELING = 0x12,
+  ORDER_TYPE_RELOADING = 0x13,
+  ORDER_TYPE_TRANSFERRING = 0x14,
+  ORDER_TYPE_AWAITING_21 = 0x15,
+  ORDER_TYPE_AWAITING_22 = 0x16,
+  ORDER_TYPE_AWAITING_23 = 0x17,
+  ORDER_TYPE_AWAITING_24 = 0x18,
+  ORDER_TYPE_AWAITING_25 = 0x19,
+  ORDER_TYPE_DISABLED = 0x1A,
+  ORDER_TYPE_MOVING_27 = 0x1B,
+  ORDER_TYPE_REPAIRING_28 = 0x1C,
+  ORDER_TYPE_TRANSFERRING_29 = 0x1D,
+  ORDER_TYPE_ATTACKING = 0x1E,
+  ORDER_TYPE_BUILDING_HALTED = 0x1F
+};
+
 struct __attribute__((packed)) Rect
 {
   int ulx;
@@ -735,12 +839,55 @@ struct __attribute__((packed)) Rect
   int lry;
 };
 
+enum ClassType : short
+{
+  CLASS_TYPE_AIR_PATH = 1,
+  CLASS_TYPE_BUILDER_PATH = 2,
+  CLASS_TYPE_GROUND_PATH = 4
+};
+
+struct __attribute__((packed)) PathStep
+{
+  char x;
+  char y;
+};
+
 struct __attribute__((packed)) Path
 {
   unsigned short object_index;
-  unsigned short class_type;
 
-  Air, Builder or Ground path type data TODO
+  if (object_index < last_object_index)
+  {
+    last_object_index++;
+
+    unsigned short class_type;
+
+    if (class_type == CLASS_TYPE_AIR_PATH)
+    {
+      short length;
+      unsigned char angle;
+      Point pixel_start;
+      Point pixel_end;
+      int x_step;
+      int y_step;
+      int delta_x;
+      int delta_y;
+    }
+    else if (class_type == CLASS_TYPE_GROUND_PATH)
+    {
+      Point pixel_end;
+      short index;
+      short steps_count;
+      PathStep steps[steps_count];
+    }
+    else if (class_type == CLASS_TYPE_BUILDER_PATH)
+    {
+      Point coordinate;
+    }
+    else
+    {
+      assert(0, "Unknown path class");
+    }
 };
 
 struct __attribute__((packed)) UnitTypeArray
@@ -753,89 +900,101 @@ struct __attribute__((packed)) UnitTypeArray
 struct __attribute__((packed)) UnitInfo
 {
   unsigned short object_index;
-  unsigned short class_type;
 
-  UnitType unit_type;
-  unsigned short hash_id;
-  unsigned int flags;
-  Point pixel_position;
-  Point grid_position;
-  unsigned short name_length;
-  char name[name_length];
-  Point shadow_offset;
-  TeamType team;
-  unsigned char name_index;
-  unsigned char brightness;
-  unsigned char angle;
-  unsigned char visible_to_team[5];
-  unsigned char spotted_by_team[5];
-  unsigned char max_velocity;
-  unsigned char velocity;
-  unsigned char sound;
-  unsigned char scaler_adjust;
-  Rect sprite_bounds;
-  Rect shadow_bounds;
-  unsigned char turret_angle;
-  char turret_offset_x;
-  char turret_offset_y;
-  unsigned short total_images;
-  unsigned short image_base;
-  unsigned short turret_image_base;
-  unsigned short firing_image_base;
-  unsigned short connector_image_base;
-  unsigned short image_index;
-  unsigned short turret_image_index;
-  unsigned short image_index_max;
-  OrderType orders;
-  unsigned char state;
-  OrderType prior_orders;
-  unsigned char prior_state;
-  unsigned char laying_state;
-  Point target_grid;
-  unsigned char build_time;
-  unsigned char total_mining;
-  unsigned char raw_mining;
-  unsigned char fuel_mining;
-  unsigned char gold_mining;
-  unsigned char raw_mining_max;
-  unsigned char gold_mining_max;
-  unsigned char fuel_mining_max;
-  unsigned char hits;
-  unsigned char speed;
-  unsigned char shots;
-  unsigned char move_and_fire;
-  unsigned short storage;
-  unsigned char ammo;
-  unsigned char targeting_mode;
-  unsigned char enter_mode;
-  unsigned char cursor;
-  unsigned char recoil_delay;
-  unsigned char delayed_reaction;
-  unsigned char damaged_this_turn;
-  unsigned char research_topic;
-  unsigned char moved;
-  unsigned char bobbed;
-  unsigned char field_107;
-  unsigned char engine;
-  unsigned char weapon;
-  unsigned char comm;
-  unsigned char fuel_distance;
-  unsigned char move_fraction;
-  unsigned char energized;
-  unsigned char repeat_build;
-  unsigned short build_rate;
-  unsigned char disabled_reaction_fire;
-  unsigned char auto_survey;
-  unsigned int field_221;
-  Path path;
-  unsigned short connectors;
-  UnitValues base_values;
-  Complex complex;
-  UnitInfo parent_unit;
-  UnitTypeArray build_list;
+  if (object_index < last_object_index)
+  {
+    last_object_index++;
+
+    unsigned short class_type;
+    UnitType unit_type;
+
+    if (unit_type == UNIT_TYPE_DEAD_WALDO)
+    {
+      print("Found Waldo!");
+    }
+
+    unsigned short hash_id;
+    unsigned int flags;
+    Point pixel_position;
+    Point grid_position;
+    unsigned short name_length;
+    char name[name_length];
+    Point shadow_offset;
+    TeamIndex team;
+    unsigned char name_index;
+    unsigned char brightness;
+    unsigned char angle;
+    unsigned char visible_to_team[5];
+    unsigned char spotted_by_team[5];
+    unsigned char max_velocity;
+    unsigned char velocity;
+    unsigned char sound;
+    unsigned char scaler_adjust;
+    Rect sprite_bounds;
+    Rect shadow_bounds;
+    unsigned char turret_angle;
+    char turret_offset_x;
+    char turret_offset_y;
+    unsigned short total_images;
+    unsigned short image_base;
+    unsigned short turret_image_base;
+    unsigned short firing_image_base;
+    unsigned short connector_image_base;
+    unsigned short image_index;
+    unsigned short turret_image_index;
+    unsigned short image_index_max;
+    OrderType orders;
+    unsigned char state;
+    OrderType prior_orders;
+    unsigned char prior_state;
+    unsigned char laying_state;
+    Point target_grid;
+    unsigned char build_time;
+    unsigned char total_mining;
+    unsigned char raw_mining;
+    unsigned char fuel_mining;
+    unsigned char gold_mining;
+    unsigned char raw_mining_max;
+    unsigned char gold_mining_max;
+    unsigned char fuel_mining_max;
+    unsigned char hits;
+    unsigned char speed;
+    unsigned char shots;
+    unsigned char move_and_fire;
+    unsigned short storage;
+    unsigned char ammo;
+    unsigned char targeting_mode;
+    unsigned char enter_mode;
+    unsigned char cursor;
+    unsigned char recoil_delay;
+    unsigned char delayed_reaction;
+    unsigned char damaged_this_turn;
+    unsigned char research_topic;
+    unsigned char moved;
+    unsigned char bobbed;
+    unsigned char shake_effect_state;
+    unsigned char engine;
+    unsigned char weapon;
+    unsigned char comm;
+    unsigned char fuel_distance;
+    unsigned char move_fraction;
+    unsigned char energized;
+    unsigned char repeat_build;
+    unsigned short build_rate;
+    unsigned char disabled_reaction_fire;
+    unsigned char auto_survey;
+    unsigned int field_221;
+    Path path;
+    unsigned short connectors;
+    UnitValues base_values;
+    Complex complex;
+    UnitInfo parent_unit;
+    UnitInfo enemy_unit;
+    UnitTypeArray build_list;
+  }
 };
 
-struct __attribute__((packed)) SaveFormatUnitInfoList
+struct __attribute__((packed)) UnitInfoList
 {
   unsigned short unitinfo_count;
   UnitInfo units[unitinfo_count];
@@ -846,11 +1005,224 @@ struct __attribute__((packed)) SaveFormatUnitInfoList
 
 There are two hash maps. The first is a Hash_UnitInfo type object, the second is a Hash_MapHash type object.
 
+~~~c
+struct __attribute__((packed)) Hash_UnitInfo
+{
+  unsigned short hash_size;
+  UnitInfoList map[hash_size];
+};
+
+struct __attribute__((packed)) MapHash
+{
+  Point coordinates;
+  UnitInfoList units;
+};
+
+struct __attribute__((packed)) MapHashList
+{
+  unsigned short maphash_count;
+  MapHash objects[maphash_count];
+};
+
+struct __attribute__((packed)) Hash_MapHash
+{
+  unsigned short hash_size;
+  short x_shift;
+  MapHashList map[hash_size];
+};
+~~~
+
 ### Heat Maps
+
+~~~c
+struct __attribute__((packed)) TeamHeatMaps
+{
+  char heatmap_complete[x][y];
+  char heatmap_stealth_sea[x][y];
+  char heatmap_stealth_land[x][y];
+};
+~~~
+
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `heatmap_`xyz.
+
+Heat maps are only emitted for valid teams.
 
 ### Serialized Message Log Object List
 
+~~~c
+struct __attribute__((packed)) MessageLog
+{
+  short length;
+  char text[length];
+  UnitInfo unit;
+  Point coordinates;
+  bool is_alert_message;
+  unsigned short resource_id;
+};
+
+struct __attribute__((packed)) MessageLogList
+{
+  unsigned short message_log_count;
+  MessageLog entires[message_log_count];
+};
+~~~
+
+***is_alert_message***: The *coordinates* field only contains valid data if this flag is set.
+
 ### Serialized AI Team Objects
+
+~~~c
+enum TeamIndex16 : short
+{
+  TEAM_INDEX_RED = 0,
+  TEAM_INDEX_GREEN = 1,
+  TEAM_INDEX_BLUE = 2,
+  TEAM_INDEX_GRAY = 3
+};
+
+struct __attribute__((packed)) AiMap
+{
+  UnitInfo unit;
+  TeamIndex16 team;
+  bool visible_to_team;
+  Point point;
+};
+
+struct __attribute__((packed)) AiMapList
+{
+  unsigned short ai_map_count;
+  AiMap objects[ai_map_count];
+};
+
+struct __attribute__((packed)) AiPlayer
+{
+  TeamIndex16 team;
+  AiStrategy strategy;
+  short field_3;
+  short field_5;
+  short field_7;
+  TeamIndex16 target_team;
+  AiMapList map_list;
+  unsigned short has_info_map;
+  
+  if (has_info_map)
+  {
+  	unsigned char info_map[x][y];
+  }
+  
+  unsigned short has_mine_map;
+  
+  if (has_mine_map)
+  {
+    unsigned char mine_map[x][y];
+  }
+  
+  Point target_location;
+};
+~~~
+
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in the above xyz maps.
+
+### Complete Save File
+
+~~~c
+struct __attribute__((packed)) SaveFile
+{
+  short version;
+  FileType save_file_type;
+  char save_game_name[30];
+  PlanetType planet;
+  short mission_index;
+  char team_name_red[30];
+  char team_name_green[30];
+  char team_name_blue[30];
+  char team_name_gray[30];
+  TeamType team_type_red;
+  TeamType team_type_green;
+  TeamType team_type_blue;
+  TeamType team_type_gray;
+  TeamType team_type_alien;
+  TeamClan team_clan_red;
+  TeamClan team_clan_green;
+  TeamClan team_clan_blue;
+  TeamClan team_clan_gray;
+  TeamClan team_clan_alien;
+  unsigned int rng_seed;
+  OpponentType opponent;
+  short turn_timer;
+  short endturn;
+  PlayMode play_mode;
+  IniOptions options;
+  SurfaceType surface_map[112*112];
+  GridResourceMapEntry GridResourceMap[112*112];
+  TeamInfo team_info_red;
+  TeamInfo team_info_green;
+  TeamInfo team_info_blue;
+  TeamInfo team_info_gray;
+  TeamIndex active_turn_team;
+  TeamIndex player_team;
+  int turn_counter;
+  short game_state;
+  unsigned short turn_timer;
+  IniPreferences preferences;
+  TeamUnits team_units_red;
+  TeamUnits team_units_green;
+  TeamUnits team_units_blue;
+  TeamUnits team_units_gray;
+  UnitInfoList unit_info_list_ground_cover_units;
+  UnitInfoList unit_info_list_mobile_land_sea_units;
+  UnitInfoList unit_info_list_stationary_units;
+  UnitInfoList unit_info_list_mobile_air_units;
+  UnitInfoList unit_info_list_particles;
+  Hash_UnitInfo hash_map_unit_info;
+  Hash_MapHash hash_map_map_hash;
+
+  if (team_type_red != TEAM_TYPE_NONE)
+  {
+    TeamHeatMaps heat_maps_red;
+  }
+
+  if (team_type_green != TEAM_TYPE_NONE)
+  {
+    TeamHeatMaps heat_maps_green;
+  }
+
+  if (team_type_blue != TEAM_TYPE_NONE)
+  {
+    TeamHeatMaps heat_maps_blue;
+  }
+
+  if (team_type_gray != TEAM_TYPE_NONE)
+  {
+    TeamHeatMaps heat_maps_gray;
+  }
+
+  MessageLogList message_log_red;
+  MessageLogList message_log_green;
+  MessageLogList message_log_blue;
+  MessageLogList message_log_gray;
+  
+  if (team_type_red == TEAM_TYPE_COMPUTER)
+  {
+    AiPlayer ai_player_red;
+  }
+
+  if (team_type_green == TEAM_TYPE_COMPUTER)
+  {
+    AiPlayer ai_player_green;
+  }
+
+  if (team_type_blue == TEAM_TYPE_COMPUTER)
+  {
+    AiPlayer ai_player_blue;
+  }
+
+  if (team_type_gray == TEAM_TYPE_COMPUTER)
+  {
+    AiPlayer ai_player_gray;
+  }
+};
+~~~
 
 ## References
 <a name="ref1"></a>\[1\] [Endianness](https://en.wikipedia.org/wiki/Endianness)<br>
