@@ -19,12 +19,24 @@
  * SOFTWARE.
  */
 
-#include "remote.hpp"
+#ifndef MENU_HPP
+#define MENU_HPP
 
-#include "transport.hpp"
+extern "C" {
+#include "gnw.h"
+}
 
-unsigned char Remote_GameState;
+struct MenuTitleItem {
+    Rect bounds;
+    const char* title;
+};
 
-void Remote_Deinit() {}
+const char* menu_planet_descriptions[];
+extern const char* menu_planet_names[];
 
-int Remote_Lobby(bool is_host_mode) { return 0; }
+void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align = false,
+                          bool vertical_align = true);
+
+int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width);
+
+#endif /* MENU_HPP */

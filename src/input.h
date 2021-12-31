@@ -28,6 +28,8 @@ typedef void (*BackgroundProcess)(void);
 typedef WinID (*PauseWinFunc)(void);
 typedef int (*ScreenDumpFunc)(int width, int length, unsigned char* buf, unsigned char* pal);
 
+#define GNW_INPUT_PRESS 0x7000
+
 int GNW_input_init(int use_msec_timer);
 void GNW_input_exit(void);
 int get_input(void);

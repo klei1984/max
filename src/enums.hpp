@@ -2025,6 +2025,27 @@ enum : unsigned char {
     ORDER_BUILDING_HALTED = 0x1F
 };
 
+enum : unsigned char {
+    GAME_TYPE_CUSTOM = 0x0,
+    GAME_TYPE_TRAINING = 0x1,
+    GAME_TYPE_CAMPAIGN = 0x2,
+    GAME_TYPE_HOT_SEAT = 0x3,
+    GAME_TYPE_MULTI = 0x4,
+    GAME_TYPE_DEMO = 0x5,
+    GAME_TYPE_DEBUG = 0x6,
+    GAME_TYPE_TEXT = 0x7,
+    GAME_TYPE_SCENARIO = 0x8,
+    GAME_TYPE_MULTI_PLAYER_SCENARIO = 0x9
+};
+
+enum : unsigned char {
+    PLAYER_TEAM_RED = 0x0,
+    PLAYER_TEAM_GREEN = 0x1,
+    PLAYER_TEAM_BLUE = 0x2,
+    PLAYER_TEAM_GRAY = 0x3,
+    PLAYER_TEAM_ALIEN = 0x4,
+};
+
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;
 extern SortedEnum Enums_Sound;

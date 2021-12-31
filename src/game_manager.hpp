@@ -19,12 +19,9 @@
  * SOFTWARE.
  */
 
-#include "remote.hpp"
+#ifndef GAME_MANAGER_HPP
+#define GAME_MANAGER_HPP
 
-#include "transport.hpp"
+void GameManager_GameLoop(int game_state);
 
-unsigned char Remote_GameState;
-
-void Remote_Deinit() {}
-
-int Remote_Lobby(bool is_host_mode) { return 0; }
+#endif /* GAME_MANAGER_HPP */

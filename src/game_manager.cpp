@@ -19,12 +19,11 @@
  * SOFTWARE.
  */
 
-#include "remote.hpp"
+#include "game_manager.hpp"
 
-#include "transport.hpp"
+#include "soundmgr.hpp"
 
-unsigned char Remote_GameState;
-
-void Remote_Deinit() {}
-
-int Remote_Lobby(bool is_host_mode) { return 0; }
+void GameManager_GameLoop(int game_state) {
+    /// \todo Implement function
+    soundmgr.PlayMusic(MAIN_MSC, false);
+}

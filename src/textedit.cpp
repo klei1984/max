@@ -19,12 +19,8 @@
  * SOFTWARE.
  */
 
-#include "remote.hpp"
+#include "textedit.hpp"
 
-#include "transport.hpp"
+TextEdit::TextEdit() {}
 
-unsigned char Remote_GameState;
-
-void Remote_Deinit() {}
-
-int Remote_Lobby(bool is_host_mode) { return 0; }
+TextEdit::~TextEdit() {}

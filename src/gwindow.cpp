@@ -29,8 +29,6 @@
 #include "units.h"
 #include "wrappers.h"
 
-#define GWINDOW_COUNT 59
-
 #define WINDOW_RECT(ulx, uly, lrx, lry) \
     { ulx, uly, lrx, lry }
 #define WINDOW_ITEM(rect, unknown, id, buffer) \
@@ -113,13 +111,14 @@ unsigned char gwin_init(void) {
     if (wid == -1) {
         result = EXIT_CODE_INSUFFICIENT_MEMORY;
     } else {
-        windows[0].id = wid;
-        windows[0].buffer = win_get_buf(wid);
+        windows[GWINDOW_MAIN_WINDOW].id = wid;
+        windows[GWINDOW_MAIN_WINDOW].buffer = win_get_buf(wid);
 
         if (windows[0].buffer) {
             for (int i = 0; i < GWINDOW_COUNT; i++) {
                 windows[i].id = wid;
-                windows[i].buffer = &windows[0].buffer[640 * windows[i].window.uly + windows[i].window.ulx];
+                windows[i].buffer =
+                    &windows[GWINDOW_MAIN_WINDOW].buffer[640 * windows[i].window.uly + windows[i].window.ulx];
             }
 
             system_palette_ptr = (unsigned char *)malloc(3 * PALETTE_SIZE);
@@ -246,11 +245,11 @@ int gwin_load_image(GAME_RESOURCE id, WindowInfo *wid, short offx, short palette
     }
 
     if (width_from_image == -1) {
-        width_from_image = image->field_0;
+        width_from_image = image->ulx;
     }
 
     if (height_from_image == -1) {
-        height_from_image = image->field_2;
+        height_from_image = image->uly;
     }
 
     gwin_decode_image(image, wid->buffer, width_from_image, height_from_image, offx);
@@ -287,9 +286,9 @@ void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transpare
             height = 480;
         }
 
-        length = image->field_0;
+        length = image->ulx;
 
-        word_173658 = image->field_2;
+        word_173658 = image->uly;
 
         ulx -= image->width;
         uly -= image->height;
@@ -303,8 +302,8 @@ void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transpare
             length += ulx;
         }
 
-        if (image->field_0 + ulx >= width) {
-            length -= image->field_0 + ulx - width;
+        if (image->ulx + ulx >= width) {
+            length -= image->ulx + ulx - width;
         }
 
         for (int i = 0; (i < word_173658) && (uly < height); i++) {
@@ -320,7 +319,7 @@ void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transpare
                 }
             }
 
-            image_data += image->field_0;
+            image_data += image->ulx;
             buffer += w->width;
             uly++;
         }

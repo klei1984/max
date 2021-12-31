@@ -19,12 +19,30 @@
  * SOFTWARE.
  */
 
-#include "remote.hpp"
+#ifndef TEXTEDIT_HPP
+#define TEXTEDIT_HPP
 
-#include "transport.hpp"
+#include "image.hpp"
 
-unsigned char Remote_GameState;
+class TextEdit {
+    WindowInfo window;
+    bool is_being_edited;
+    Image *bg_image;
+    char *approved_text;
+    char *edited_text;
+    char *text_before_cursor;
+    unsigned char field_43;
+    unsigned short cursor_position;
+    unsigned short field_46;
+    unsigned short color;
+    bool is_selected;
+    unsigned short font_num;
+    unsigned char field_53;
+    unsigned int time_stamp;
 
-void Remote_Deinit() {}
+public:
+    TextEdit();
+    ~TextEdit();
+};
 
-int Remote_Lobby(bool is_host_mode) { return 0; }
+#endif /* TEXTEDIT_HPP */

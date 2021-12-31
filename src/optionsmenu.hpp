@@ -19,12 +19,34 @@
  * SOFTWARE.
  */
 
-#include "remote.hpp"
+#ifndef OPTIONSMENU_HPP
+#define OPTIONSMENU_HPP
 
-#include "transport.hpp"
+#include "button.hpp"
+#include "smartstring.hpp"
+#include "textedit.hpp"
+#include "window.hpp"
 
-unsigned char Remote_GameState;
+class OptionsMenu : public Window {
+    WindowInfo window;
+    unsigned char field_49;
+    Button *button_cancel;
+    Button *button_done;
+    Button *button_help;
+    unsigned short team;
+    ResourceID bg_image;
+    TextEdit *text_edit;
+    unsigned short field_70;
+    unsigned char field_72;
+    unsigned short button_count;
+    unsigned char field_75;
 
-void Remote_Deinit() {}
+public:
+    OptionsMenu(unsigned short team, ResourceID bg_image);
+    ~OptionsMenu();
 
-int Remote_Lobby(bool is_host_mode) { return 0; }
+    void Init();
+    bool Run();
+};
+
+#endif /* OPTIONSMENU_HPP */

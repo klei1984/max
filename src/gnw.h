@@ -22,6 +22,10 @@
 #ifndef GNW_H
 #define GNW_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <assert.h>
 
 #include "assoc.h"
@@ -120,5 +124,9 @@ GNW_ButtonPtr GNW_find_button(ButtonID id, GNW_Window** w);
 int GNW_check_menu_bars(int input);
 void win_set_trans_b2b(WinID id, Trans_b2b trans_b2b);
 unsigned long GNWSystemError(char* errStr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GNW_H */

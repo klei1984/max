@@ -19,12 +19,12 @@
  * SOFTWARE.
  */
 
-#include "remote.hpp"
+#ifndef VERSION_HPP
+#define VERSION_HPP
 
-#include "transport.hpp"
+#if !defined(GAME_VERSION)
+#define GAME_VERSION ""
+#warning "Game version number is not set by CMake."
+#endif
 
-unsigned char Remote_GameState;
-
-void Remote_Deinit() {}
-
-int Remote_Lobby(bool is_host_mode) { return 0; }
+#endif /* VERSION_HPP */

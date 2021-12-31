@@ -34,7 +34,7 @@ void gwin_load_image2(unsigned short id, int ulx, int uly, int has_transparency,
 }
 
 char GUI_PlayerTeamIndex;
-char GUI_GameMode;
+char GUI_GameState;
 
 bool GUI_OKCancelMenu(const char* caption, bool mode) { return OKCancelMenu(caption, mode).Run(); }
 

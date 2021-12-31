@@ -22,4 +22,9 @@
 #ifndef REMOTE_HPP
 #define REMOTE_HPP
 
+void Remote_Deinit();
+int Remote_Lobby(bool is_host_mode);
+
+extern unsigned char Remote_GameState;
+
 #endif /* REMOTE_HPP */
