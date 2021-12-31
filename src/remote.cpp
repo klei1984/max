@@ -22,3 +22,9 @@
 #include "remote.hpp"
 
 #include "transport.hpp"
+
+unsigned char Remote_GameState;
+
+void Remote_Deinit() {}
+
+int Remote_Lobby(bool is_host_mode) { return 0; }

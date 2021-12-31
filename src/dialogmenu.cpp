@@ -134,8 +134,8 @@ bool DialogMenu::ProcessKey(int key) {
 }
 
 DialogMenu::DialogMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, GUI_GameMode == 3 ? 0 : 38),
-      field_62(GUI_GameMode != 3),
+    : Window(HELPFRAM, GUI_GameState == GAME_STATE_3_MAIN_MENU ? 0 : 38),
+      field_62(GUI_GameState != GAME_STATE_3_MAIN_MENU),
       strings(nullptr),
       row_offset(0),
       button_up(nullptr),

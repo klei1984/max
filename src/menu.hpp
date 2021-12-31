@@ -19,10 +19,24 @@
  * SOFTWARE.
  */
 
-#include "fonts.hpp"
+#ifndef MENU_HPP
+#define MENU_HPP
 
-FontColor Fonts_GoldColor(165, 175, 199);
-FontColor Fonts_DarkOrageColor(5, 56, 199);
-FontColor Fonts_DarkGrayColor(179, 215, 199);
-FontColor Fonts_BrightBrownColor(164, 173, 199);
-FontColor Fonts_BrightYellowColor(162, 8, 199);
+extern "C" {
+#include "gnw.h"
+}
+
+struct MenuTitleItem {
+    Rect bounds;
+    const char* title;
+};
+
+const char* menu_planet_descriptions[];
+extern const char* menu_planet_names[];
+
+void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align = false,
+                          bool vertical_align = true);
+
+int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width);
+
+#endif /* MENU_HPP */

@@ -19,10 +19,40 @@
  * SOFTWARE.
  */
 
-#include "fonts.hpp"
+#ifndef OPTIONSMENU_HPP
+#define OPTIONSMENU_HPP
 
-FontColor Fonts_GoldColor(165, 175, 199);
-FontColor Fonts_DarkOrageColor(5, 56, 199);
-FontColor Fonts_DarkGrayColor(179, 215, 199);
-FontColor Fonts_BrightBrownColor(164, 173, 199);
-FontColor Fonts_BrightYellowColor(162, 8, 199);
+#include "button.hpp"
+#include "smartstring.hpp"
+#include "textedit.hpp"
+#include "window.hpp"
+
+class OptionsMenu : public Window {
+    WindowInfo window;
+    unsigned char field_49;
+    Button *button_cancel;
+    Button *button_done;
+    Button *button_help;
+    unsigned short team;
+    ResourceID bg_image;
+    TextEdit *text_edit;
+    unsigned short field_70;
+    unsigned char field_72;
+    unsigned short button_count;
+    unsigned char field_75;
+
+    void Init();
+    void InitSliderControl(int id, int ulx, int uly);
+    void InitEditControl(int id, int ulx, int uly);
+    void InitCheckboxControl(int id, int ulx, int uly);
+    void InitLabelControl(int id, int ulx, int uly);
+    void DrawSlider(int id, int value);
+
+public:
+    OptionsMenu(unsigned short team, ResourceID bg_image);
+    ~OptionsMenu();
+
+    bool Run();
+};
+
+#endif /* OPTIONSMENU_HPP */

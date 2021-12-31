@@ -46,7 +46,7 @@ int init_vesa_mode(int mode, int width, int height, int half) {
     }
 
     flags = 0;
-    // flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
+    flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
 
     if ((sdlWindow = SDL_CreateWindow("M.A.X.: Mechanized Assault & Exploration", SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED, width, height, flags)) == NULL) {
@@ -57,7 +57,7 @@ int init_vesa_mode(int mode, int width, int height, int half) {
     }
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-    // SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
     SDL_RenderSetLogicalSize(sdlRenderer, width, height);
 
     sdlWindowSurface = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);

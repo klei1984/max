@@ -118,7 +118,7 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
                     new_array[i] = string_array[i];
                 }
 
-                delete string_array;
+                delete[] string_array;
                 string_array = new_array;
 
                 string_array[*row_count] = string;

@@ -19,15 +19,11 @@
  * SOFTWARE.
  */
 
-#ifndef GWINDOW_H
-#define GWINDOW_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef GWINDOW_HPP
+#define GWINDOW_HPP
 
 #include "gnw.h"
-#include "resrcmgr.h"
+#include "resource_manager.hpp"
 
 enum {
     GWINDOW_MAIN_WINDOW,
@@ -114,15 +110,11 @@ WindowInfo *gwin_get_window(unsigned char id);
 void gwin_clear_window(void);
 void gwin_fade_in(int steps);
 void gwin_fade_out(int steps);
-void gwin_load_palette_from_resource(GAME_RESOURCE id);
+void gwin_load_palette_from_resource(ResourceID id);
 void gwin_decode_image(ImageHeader *image, unsigned char *buffer, int width, int height, int ulx);
-int gwin_load_image(GAME_RESOURCE id, WindowInfo *wid, short offx, short palette_from_image, int draw_to_screen,
-                    int width_from_image, int height_from_image);
+int gwin_load_image(ResourceID id, WindowInfo *wid, short offx, short palette_from_image, int draw_to_screen,
+                    int width_from_image = -1, int height_from_image = -1);
 void gwin_decode_image2(ImageHeader2 *image, int ulx, int uly, int has_transparency, WindowInfo *w);
-void gwin_load_image2(GAME_RESOURCE id, int ulx, int uly, int has_transparency, WindowInfo *w);
+void gwin_load_image2(ResourceID id, int ulx, int uly, int has_transparency, WindowInfo *w);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* GWINDOW_H */
+#endif /* GWINDOW_HPP */

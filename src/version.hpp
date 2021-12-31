@@ -19,10 +19,12 @@
  * SOFTWARE.
  */
 
-#include "fonts.hpp"
+#ifndef VERSION_HPP
+#define VERSION_HPP
 
-FontColor Fonts_GoldColor(165, 175, 199);
-FontColor Fonts_DarkOrageColor(5, 56, 199);
-FontColor Fonts_DarkGrayColor(179, 215, 199);
-FontColor Fonts_BrightBrownColor(164, 173, 199);
-FontColor Fonts_BrightYellowColor(162, 8, 199);
+#if !defined(GAME_VERSION)
+#define GAME_VERSION ""
+#warning "Game version number is not set by CMake."
+#endif
+
+#endif /* VERSION_HPP */

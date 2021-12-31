@@ -30,10 +30,19 @@ struct FontColor {
     FontColor(unsigned char base, unsigned char outline, unsigned char shadow)
         : base(base), outline(outline), shadow(shadow) {}
     FontColor(const FontColor& other) : base(other.base), outline(other.outline), shadow(other.shadow) {}
+    FontColor& operator=(const FontColor& other) {
+        base = other.base;
+        outline = other.outline;
+        shadow = other.shadow;
+
+        return *this;
+    }
 };
 
 extern FontColor Fonts_GoldColor;
 extern FontColor Fonts_DarkOrageColor;
 extern FontColor Fonts_DarkGrayColor;
+extern FontColor Fonts_BrightBrownColor;
+extern FontColor Fonts_BrightYellowColor;
 
 #endif /* FONTS_HPP */
