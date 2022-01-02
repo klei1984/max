@@ -26,23 +26,42 @@
 
 class TextEdit {
     WindowInfo window;
-    bool is_being_edited;
     Image *bg_image;
     char *approved_text;
     char *edited_text;
     char *text_before_cursor;
-    unsigned char field_43;
     unsigned short cursor_position;
-    unsigned short field_46;
+    unsigned short buffer_size;
     unsigned short color;
+    bool cursor_blink;
     bool is_selected;
+    bool is_being_edited;
     unsigned short font_num;
-    unsigned char field_53;
+    unsigned char mode;
     unsigned int time_stamp;
 
+    void DrawTillCursor();
+    void Clear();
+    void SetCursorPosition(int position);
+    void Delete();
+    void Backspace();
+    void InsertCharacter(char character);
+
 public:
-    TextEdit();
+    TextEdit(WindowInfo *window, char *text, int buffer_size, int ulx, int uly, int width, int height,
+             unsigned short color, int font_num);
     ~TextEdit();
+
+    void SetMode(int mode);
+    void LeaveTextEditField();
+    void SetEditedText(const char *text);
+    void LoadBgImage();
+    void EnterTextEditField();
+    void LeaveTextEditField();
+    void DrawFullText(int refresh_screen = true);
+    void UpdateWindow(WindowInfo *window);
+    void AcceptEditedText();
+    int ProcessKeyPress(int key);
 };
 
 #endif /* TEXTEDIT_HPP */
