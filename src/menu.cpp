@@ -1178,6 +1178,12 @@ int menu_new_game_menu_loop() {
     return key == 9000;
 }
 
+void menu_preferences_window(unsigned short team) {
+    OptionsMenu* options_menu = new (std::nothrow) OptionsMenu(team, PREFSPIC);
+
+    options_menu->Run();
+}
+
 void menu_setup_window() {
     OptionsMenu* options_menu = new (std::nothrow) OptionsMenu(PLAYER_TEAM_RED, SETUPPIC);
 

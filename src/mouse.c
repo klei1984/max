@@ -378,34 +378,34 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons) {
 
     if (old & 5) {
         if (!(buttons & GNW_MOUSE_BUTTON_LEFT)) {
-            mouse_buttons = 16;
+            mouse_buttons = MOUSE_RELEASE_LEFT;
         } else {
-            mouse_buttons = 4;
+            mouse_buttons = MOUSE_LONG_PRESS_LEFT;
 
             if (elapsed_time(left_time) > 250) {
-                mouse_buttons |= 1;
+                mouse_buttons |= MOUSE_PRESS_LEFT;
                 left_time = get_time();
             }
         }
     } else {
         if (buttons & GNW_MOUSE_BUTTON_LEFT) {
-            mouse_buttons = 1;
+            mouse_buttons = MOUSE_PRESS_LEFT;
             left_time = get_time();
         }
     }
 
     if (old & 10) {
         if (buttons & GNW_MOUSE_BUTTON_RIGHT) {
-            mouse_buttons |= 8;
+            mouse_buttons |= MOUSE_LONG_PRESS_RIGHT;
             if (elapsed_time(right_time) > 250) {
-                mouse_buttons |= 2;
+                mouse_buttons |= MOUSE_PRESS_RIGHT;
                 right_time = get_time();
             }
         } else {
-            mouse_buttons |= 32;
+            mouse_buttons |= MOUSE_RELEASE_RIGHT;
         }
     } else if (buttons & GNW_MOUSE_BUTTON_RIGHT) {
-        mouse_buttons |= 2;
+        mouse_buttons |= MOUSE_PRESS_RIGHT;
         right_time = get_time();
     }
 

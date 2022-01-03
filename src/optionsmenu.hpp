@@ -39,7 +39,7 @@ class OptionsMenu : public Window {
     unsigned short field_70;
     unsigned char field_72;
     unsigned short button_count;
-    unsigned char field_75;
+    unsigned char event_release;
 
     void Init();
     void InitSliderControl(int id, int ulx, int uly);
@@ -47,12 +47,16 @@ class OptionsMenu : public Window {
     void InitCheckboxControl(int id, int ulx, int uly);
     void InitLabelControl(int id, int ulx, int uly);
     void DrawSlider(int id, int value);
+    void UpdateSlider(int id);
+    void SetVolume(int id, int audio_type, int value);
+    int ProcessTextEditKeyPress(int key);
+    int ProcessKeyPress(int key);
 
 public:
     OptionsMenu(unsigned short team, ResourceID bg_image);
     ~OptionsMenu();
 
-    bool Run();
+    void Run();
 };
 
 #endif /* OPTIONSMENU_HPP */

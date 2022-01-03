@@ -26,3 +26,4 @@ FontColor Fonts_DarkOrageColor(5, 56, 199);
 FontColor Fonts_DarkGrayColor(179, 215, 199);
 FontColor Fonts_BrightBrownColor(164, 173, 199);
 FontColor Fonts_BrightYellowColor(162, 8, 199);
+FontColor Fonts_BrightSilverColor(162, 172, 199);

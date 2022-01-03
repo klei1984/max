@@ -25,7 +25,10 @@
 
 #include "cursor.hpp"
 #include "gwindow.hpp"
+#include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "remote.hpp"
+#include "soundmgr.hpp"
 #include "text.hpp"
 
 struct OptionsButton {
@@ -50,6 +53,14 @@ enum OptionsType {
     OPTIONS_TYPE_EDIT_STR,
     OPTIONS_TYPE_CHECKBOX,
     OPTIONS_TYPE_LABEL,
+};
+
+enum AudioType {
+    AUDIO_TYPE_SFX0,
+    AUDIO_TYPE_SFX1,
+    AUDIO_TYPE_SFX2,
+    AUDIO_TYPE_VOICE,
+    AUDIO_TYPE_MUSIC,
 };
 
 #define OPTIONS_BUTTON_DEF(type, caption, ini_param_index, ulx, range_min, range_max) \
@@ -333,7 +344,7 @@ void OptionsMenu::DrawSlider(int id, int value) {
     int width;
     int height;
 
-    button = options_menu_buttons[id].button;
+    button = &options_menu_buttons[id];
     button->image->Write(&window);
 
     max = std::max(value, static_cast<int>(button->range_min));
@@ -356,6 +367,91 @@ void OptionsMenu::DrawSlider(int id, int value) {
     gwin_load_image2(PRFSLIDE, ulx, uly, 1, &window);
 
     button->rest_state = value;
+}
+
+void OptionsMenu::UpdateSlider(int id) {
+    OptionsButton *button;
+    Rect bounds;
+    int mouse_x;
+    int mouse_y;
+    int value;
+    int audio_type;
+
+    button = &options_menu_buttons[id];
+
+    bounds.ulx = button->image->GetULX();
+    bounds.uly = button->image->GetULY();
+    bounds.lrx = bounds.ulx + button->image->GetWidth();
+    bounds.lry = bounds.uly + button->image->GetHeight();
+
+    GetCursorPosition(mouse_x, mouse_y);
+
+    value = ((mouse_x - (bounds.ulx + 10)) * button->range_max) / (bounds.lrx - bounds.ulx - 20);
+
+    DrawSlider(id, value);
+
+    win_draw_rect(window.id, &bounds);
+
+    if (button->ini_param_index != ini_quick_scroll) {
+        if (button->ini_param_index == ini_music_level) {
+            audio_type = AUDIO_TYPE_MUSIC;
+        } else if (button->ini_param_index == ini_fx_sound_level) {
+            audio_type = AUDIO_TYPE_SFX2;
+        } else {
+            audio_type = AUDIO_TYPE_VOICE;
+        }
+
+        SetVolume(id, audio_type, button->rest_state);
+    }
+}
+
+void OptionsMenu::SetVolume(int id, int audio_type, int value) {
+    soundmgr.SetVolume(audio_type, value);
+    ini_set_setting(options_menu_buttons[id].ini_param_index, value);
+}
+
+int OptionsMenu::ProcessTextEditKeyPress(int key) {
+    int result;
+
+    if (text_edit) {
+        OptionsButton *button;
+
+        button = &options_menu_buttons[field_70];
+
+        text_edit->ProcessKeyPress(key);
+        text_edit->AcceptEditedText();
+        text_edit->LeaveTextEditField();
+
+        delete text_edit;
+        text_edit = nullptr;
+
+        if (button->type == OPTIONS_TYPE_EDIT_INT) {
+            int value;
+            int max;
+
+            value = strtol(button->ini_string_value, nullptr, 10);
+
+            max = std::max(value, static_cast<int>(button->range_min));
+            value = std::min(static_cast<int>(button->range_max), max);
+
+            snprintf(button->ini_string_value, 30, "%d", value);
+        }
+
+        button->image->Write(&window);
+
+        Text_TextBox(window.buffer, window.width, button->ini_string_value, button->image->GetULX(),
+                     button->image->GetULY(), button->image->GetWidth(), button->image->GetHeight(), 0xA2, true, true);
+
+        field_70 = 0;
+        win_draw_rect(window.id, &window.window);
+
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 void OptionsMenu::Init() {
@@ -417,4 +513,287 @@ void OptionsMenu::Init() {
     }
 }
 
-bool OptionsMenu::Run() {}
+int OptionsMenu::ProcessKeyPress(int key) {
+    if (field_72) {
+        int mouse_buttons;
+
+        mouse_buttons = mouse_get_buttons();
+
+        if ((mouse_buttons & MOUSE_RELEASE_LEFT) == 0 && mouse_buttons) {
+            UpdateSlider(field_70);
+        } else {
+            field_70 = 0;
+            field_72 = false;
+        }
+    }
+
+    switch (key) {
+        case GNW_KB_KEY_SHIFT_DIVIDE: {
+            if (text_edit) {
+                text_edit->ProcessKeyPress(key);
+            } else if (bg_image == SETUPPIC) {
+                HelpMenu_Menu(HELPMENU_SETUP_MENU_SETUP, GWINDOW_MAIN_WINDOW, false);
+            } else {
+                HelpMenu_Menu(HELPMENU_PREFS_MENU_SETUP, GWINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
+            }
+
+        } break;
+
+        case GNW_KB_KEY_RETURN: {
+            if (ProcessTextEditKeyPress(key)) {
+                break;
+            }
+        } /* intentional fall through */
+        case 1000: {
+            ProcessTextEditKeyPress(GNW_KB_KEY_RETURN);
+
+            for (int i = 0; i < button_count; ++i) {
+                int ini_param_index;
+                int option_type;
+
+                ini_param_index = options_menu_buttons[i].ini_param_index;
+                option_type = options_menu_buttons[i].type;
+
+                switch (option_type) {
+                    case OPTIONS_TYPE_SLIDER: {
+                        ini_set_setting(ini_param_index, options_menu_buttons[i].rest_state);
+                    } break;
+
+                    case OPTIONS_TYPE_EDIT_INT: {
+                        ini_set_setting(ini_param_index, strtol(options_menu_buttons[i].ini_string_value, nullptr, 10));
+                    } break;
+
+                    case OPTIONS_TYPE_EDIT_HEX: {
+                        char buffer[20];
+
+                        snprintf(buffer, 20, "0x%s", options_menu_buttons[i].ini_string_value);
+
+                        ini_config.SetStringValue(ini_param_index, buffer);
+                        ini_set_setting(ini_param_index, strtol(options_menu_buttons[i].ini_string_value, nullptr, 16));
+                    } break;
+
+                    case OPTIONS_TYPE_EDIT_STR: {
+                        ini_config.SetStringValue(ini_param_index, options_menu_buttons[i].ini_string_value);
+
+                        if (bg_image == PREFSPIC) {
+                            ini_param_index = ini_red_team_name + team;
+                            ini_config.SetStringValue(ini_param_index, options_menu_buttons[i].ini_string_value);
+
+                            if (Remote_IsNetworkGame) {
+                                Remote_SendNetPacket_09(team);
+                            }
+                        }
+
+                    } break;
+
+                    case OPTIONS_TYPE_CHECKBOX: {
+                        if (options_menu_buttons[i].button) {
+                            ini_set_setting(ini_param_index, win_button_down(options_menu_buttons[i].button->GetId()));
+                        }
+
+                    } break;
+                }
+            }
+
+            if (bg_image == SETUPPIC) {
+                disable_enhanced_graphics = !ini_get_setting(ini_enhanced_graphics);
+            }
+
+            ini_config.Save();
+            field_49 = true;
+
+        } break;
+
+        case GNW_KB_KEY_LALT_P: {
+            Pausemenu_sub_B6BA6();
+
+        } break;
+
+        case GNW_KB_KEY_ESCAPE: {
+            if (ProcessTextEditKeyPress(key)) {
+                break;
+            }
+        } /* intentional fall through */
+        case 1001: {
+            ProcessTextEditKeyPress(GNW_KB_KEY_ESCAPE);
+
+            for (int i = 0; i < button_count; ++i) {
+                int ini_param_index;
+                int last_value;
+
+                ini_param_index = options_menu_buttons[i].ini_param_index;
+                last_value = options_menu_buttons[i].last_rest_state;
+
+                if (last_value != options_menu_buttons[i].rest_state) {
+                    switch (ini_param_index) {
+                        case ini_music_level: {
+                            SetVolume(AUDIO_TYPE_MUSIC, last_value, i);
+                        } break;
+
+                        case ini_fx_sound_level: {
+                            SetVolume(AUDIO_TYPE_SFX2, last_value, i);
+                        } break;
+
+                        case ini_voice_level: {
+                            SetVolume(AUDIO_TYPE_VOICE, last_value, i);
+
+                        } break;
+                        case ini_disable_music: {
+                            ini_set_setting(ini_disable_music, last_value);
+                            soundmgr.HaltMusicPlayback(last_value);
+
+                        } break;
+
+                        case ini_disable_fx: {
+                            ini_set_setting(ini_disable_fx, last_value);
+                            soundmgr.HaltSfxPlayback(last_value);
+
+                        } break;
+
+                        case ini_disable_voice: {
+                            ini_set_setting(ini_disable_voice, last_value);
+                            soundmgr.HaltVoicePlayback(last_value);
+
+                        } break;
+                    }
+                }
+            }
+
+            field_49 = true;
+
+        } break;
+
+        default: {
+            if (key < GNW_INPUT_PRESS) {
+                if (key < 1002) {
+                    if (text_edit) {
+                        text_edit->ProcessKeyPress(key);
+                    }
+
+                } else {
+                    key -= 1002;
+
+                    if (key != field_70) {
+                        ProcessTextEditKeyPress(GNW_KB_KEY_RETURN);
+
+                        if (options_menu_buttons[key].type == OPTIONS_TYPE_CHECKBOX) {
+                            int ini_param_index;
+                            int value;
+
+                            options_menu_buttons[key].button->PlaySound();
+                            value = win_button_down(options_menu_buttons[key].button->GetId());
+                            options_menu_buttons[key].rest_state = value;
+
+                            ini_param_index = options_menu_buttons[key].ini_param_index;
+                            ini_set_setting(ini_param_index, value);
+
+                            switch (ini_param_index) {
+                                case ini_music_level: {
+                                    soundmgr.HaltVoicePlayback(value);
+                                } break;
+
+                                case ini_fx_sound_level: {
+                                    soundmgr.HaltSfxPlayback(value);
+                                } break;
+
+                                case ini_voice_level: {
+                                    soundmgr.HaltVoicePlayback(value);
+
+                                } break;
+                            }
+
+                        } else if (options_menu_buttons[key].type == OPTIONS_TYPE_SLIDER) {
+                            field_70 = key;
+                            UpdateSlider(field_70);
+                            field_72 = true;
+
+                        } else {
+                            field_70 = key;
+                            options_menu_buttons[key].image->Write(&window);
+                            text_edit =
+                                new (std::nothrow) TextEdit(&window, options_menu_buttons[key].ini_string_value, 30,
+                                                            options_menu_buttons[key].image->GetULX() + 5,
+                                                            options_menu_buttons[key].image->GetULY(),
+                                                            options_menu_buttons[key].image->GetWidth() - 5,
+                                                            options_menu_buttons[key].image->GetHeight() + 1, 0xA2, 5);
+
+                            switch (options_menu_buttons[key].type) {
+                                case OPTIONS_TYPE_EDIT_INT: {
+                                    text_edit->SetMode(TEXTEDIT_MODE_INT);
+                                } break;
+
+                                case OPTIONS_TYPE_EDIT_HEX: {
+                                    text_edit->SetMode(TEXTEDIT_MODE_HEX);
+                                } break;
+
+                                case OPTIONS_TYPE_EDIT_STR: {
+                                    text_edit->SetMode(TEXTEDIT_MODE_STR);
+                                } break;
+                            }
+
+                            text_edit->LoadBgImage();
+                            text_edit->SetEditedText(options_menu_buttons[key].ini_string_value);
+                            text_edit->DrawFullText();
+                            text_edit->EnterTextEditField();
+                        }
+                    }
+                }
+
+            } else if (!event_release) {
+                event_release = true;
+
+                key -= GNW_INPUT_PRESS;
+
+                switch (key) {
+                    case 1000: {
+                        button_done->PlaySound();
+                    } break;
+
+                    case 1001: {
+                        button_help->PlaySound();
+                    } break;
+
+                    case GNW_KB_KEY_SHIFT_DIVIDE: {
+                        button_cancel->PlaySound();
+                    } break;
+
+                    default: {
+                        options_menu_buttons[key - 1002].button->PlaySound();
+                        event_release = false;
+
+                    } break;
+                }
+            }
+
+        } break;
+    }
+
+    return true;
+}
+
+void OptionsMenu::Run() {
+    field_49 = false;
+    event_release = false;
+
+    while (!field_49) {
+        int key = get_input();
+
+        if (key > 0 && key < GNW_INPUT_PRESS) {
+            event_release = false;
+        }
+
+        if (bg_image == PREFSPIC && Remote_IsNetworkGame) {
+            if (byte_1737D2) {
+                key = 1001;
+            }
+
+            sub_A0E32(1);
+        }
+
+        ProcessKeyPress(key);
+    }
+
+    if (!Remote_IsNetworkGame) {
+        Remote_PauseTimeStamp = timer_get_stamp32();
+    }
+}

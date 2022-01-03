@@ -22,9 +22,18 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
+#include "input.h"
 #include "rect.h"
 #include "svga.h"
-#include "input.h"
+
+enum {
+    MOUSE_PRESS_LEFT = 0x1,
+    MOUSE_PRESS_RIGHT = 0x2,
+    MOUSE_LONG_PRESS_LEFT = 0x4,
+    MOUSE_LONG_PRESS_RIGHT = 0x8,
+    MOUSE_RELEASE_LEFT = 0x10,
+    MOUSE_RELEASE_RIGHT = 0x20,
+};
 
 extern ScreenBlitFunc mouse_blit;
 

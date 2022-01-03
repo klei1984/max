@@ -24,6 +24,12 @@
 
 #include "image.hpp"
 
+enum {
+    TEXTEDIT_MODE_STR,
+    TEXTEDIT_MODE_INT,
+    TEXTEDIT_MODE_HEX,
+};
+
 class TextEdit {
     WindowInfo window;
     Image *bg_image;
