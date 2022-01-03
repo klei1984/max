@@ -25,8 +25,6 @@
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 
-enum : unsigned char { TEAM_TYPE_NONE, TEAM_TYPE_PLAYER, TEAM_TYPE_COMPUTER };
-
 struct ResearchTopic {
     unsigned int research_level;
     unsigned int turns_to_complete;

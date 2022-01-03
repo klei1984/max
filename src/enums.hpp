@@ -2046,6 +2046,14 @@ enum : unsigned char {
     PLAYER_TEAM_ALIEN = 0x4,
 };
 
+enum : unsigned char {
+    TEAM_TYPE_NONE,
+    TEAM_TYPE_PLAYER,
+    TEAM_TYPE_COMPUTER,
+    TEAM_TYPE_REMOTE,
+    TEAM_TYPE_ELIMINATED,
+};
+
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;
 extern SortedEnum Enums_Sound;

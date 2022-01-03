@@ -23,7 +23,6 @@
 #define PLANETSELECTMENU_HPP
 
 #include "button.hpp"
-#include "image.hpp"
 
 #define PLANET_SELECT_MENU_ITEM_COUNT 12
 
@@ -78,8 +77,8 @@ public:
     Image *image1;
     Image *image2;
     Image *image3;
-    Button *buttons[12];
-    PlanetSelectMenuItem menu_item[12];
+    Button *buttons[PLANET_SELECT_MENU_ITEM_COUNT];
+    PlanetSelectMenuItem menu_item[PLANET_SELECT_MENU_ITEM_COUNT];
 
     void Init();
     void Deinit();

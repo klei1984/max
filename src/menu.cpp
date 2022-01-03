@@ -24,6 +24,7 @@
 #include <ctime>
 
 #include "button.hpp"
+#include "chooseplayermenu.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "ginit.h"
@@ -439,6 +440,8 @@ const char* menu_planet_names[] = {"Snowcrab",     "Frigia",       "Ice Berg",  
                                    "Great Circle", "Long Passage", "Flash Point",   "Bottleneck"};
 
 static const char* save_file_extensions[] = {"dmo", "dbg", "txt", "sce", "mps"};
+
+static const char* menu_team_names[] = {"Red Team", "Green Team", "Blue Team", "Gray Team"};
 
 void draw_menu_title(WindowInfo* window, const char* caption) {
     text_font(5);
@@ -985,6 +988,89 @@ int menu_planet_select_menu_loop() {
 }
 
 int menu_options_menu_loop() {}
+
+int menu_choose_player_menu_loop(bool game_type) {
+    ChoosePlayerMenu choose_player_menu;
+    bool event_release;
+
+    if (game_type) {
+        ini_set_setting(ini_red_team_player, TEAM_TYPE_PLAYER);
+        ini_set_setting(ini_green_team_player, TEAM_TYPE_COMPUTER);
+    } else {
+        ini_set_setting(ini_red_team_player, TEAM_TYPE_PLAYER);
+        ini_set_setting(ini_green_team_player, TEAM_TYPE_PLAYER);
+    }
+
+    ini_set_setting(ini_blue_team_player, TEAM_TYPE_NONE);
+    ini_set_setting(ini_gray_team_player, TEAM_TYPE_NONE);
+
+    event_release = false;
+
+    choose_player_menu.game_type = game_type;
+    choose_player_menu.Init();
+    choose_player_menu.event_click_done = false;
+
+    do {
+        choose_player_menu.key_press = get_input();
+
+        if (choose_player_menu.key_press > 0 && choose_player_menu.key_press < GNW_INPUT_PRESS) {
+            event_release = false;
+        }
+
+        for (int i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
+            if (choose_player_menu.buttons[i]) {
+                if (choose_player_menu.key_press == i + GNW_INPUT_PRESS) {
+                    if (!event_release) {
+                        choose_player_menu.buttons[i]->PlaySound();
+                    }
+
+                    event_release = true;
+                    break;
+                }
+
+                if (choose_player_menu.key_press == choose_player_menu.menu_item[i].event_code) {
+                    choose_player_menu.key_press = choose_player_menu.menu_item[i].r_value;
+                }
+
+                if (choose_player_menu.key_press == choose_player_menu.menu_item[i].r_value) {
+                    if (i < 12) {
+                        choose_player_menu.buttons[i]->PlaySound();
+                    }
+
+                    choose_player_menu.key_press -= 1000;
+                    choose_player_menu.menu_item[i].event_handler();
+                    break;
+                }
+            }
+        }
+
+        if (choose_player_menu.event_click_cancel) {
+            choose_player_menu.Deinit();
+
+            return false;
+        }
+
+    } while (!choose_player_menu.event_click_done);
+
+    choose_player_menu.Deinit();
+
+    for (int i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
+        int team_type;
+        char buffer[30];
+
+        team_type = ini_get_setting(ini_red_team_player + i);
+
+        if (game_type && team_type == TEAM_TYPE_PLAYER) {
+            ini_config.GetStringValue(ini_player_name, buffer, sizeof(buffer));
+            ini_config.SetStringValue(ini_red_team_name + i, buffer);
+            game_type = 0;
+        } else {
+            ini_config.SetStringValue(ini_red_team_name + i, menu_team_names[i]);
+        }
+    }
+
+    return true;
+}
 
 int menu_custom_game_menu(bool game_type) {
     int result;
