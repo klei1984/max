@@ -31,6 +31,9 @@ struct MenuTitleItem {
     const char* title;
 };
 
+#define MENU_TITLE_ITEM_DEF(ulx, uly, lrx, lry, text) \
+    { {(ulx), (uly), (lrx), (lry)}, (text) }
+
 const char* menu_planet_descriptions[];
 extern const char* menu_planet_names[];
 
