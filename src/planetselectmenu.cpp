@@ -52,9 +52,10 @@ static struct PlanetSelectMenuControlItem planet_select_menu_controls[] = {
     MENU_CONTROL_DEF(60, 248, 0, 0, MNULAROU, nullptr, 0, PlanetSelectMenu::EventWorld, PSELW0),
     MENU_CONTROL_DEF(92, 248, 0, 0, MNURAROU, nullptr, 0, PlanetSelectMenu::EventWorld, PSELW0),
     MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN4U, "Random", 0, PlanetSelectMenu::EventRandom, PDONE0),
-    MENU_CONTROL_DEF(92, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, PlanetSelectMenu::EventCancel, PCANC0),
-    MENU_CONTROL_DEF(92, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, PlanetSelectMenu::EventHelp, PHELP0),
-    MENU_CONTROL_DEF(92, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, PlanetSelectMenu::EventDone, PDONE0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, PlanetSelectMenu::EventCancel,
+                     PCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, PlanetSelectMenu::EventHelp, PHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, PlanetSelectMenu::EventDone, PDONE0),
 };
 
 static_assert(PLANET_SELECT_MENU_ITEM_COUNT ==

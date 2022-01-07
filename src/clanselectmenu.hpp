@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,29 +19,46 @@
  * SOFTWARE.
  */
 
-#ifndef MENU_HPP
-#define MENU_HPP
+#ifndef CLANSELECTMENU_HPP
+#define CLANSELECTMENU_HPP
 
-extern "C" {
-#include "gnw.h"
-}
+#include "button.hpp"
 
-struct MenuTitleItem {
-    Rect bounds;
-    const char* title;
+#define CLAN_SELECT_MENU_ITEM_COUNT 12
+
+class ClanSelectMenu;
+
+struct ClanSelectMenuItem {
+    int r_value;
+    int event_code;
+    void (ClanSelectMenu::*event_handler)();
 };
 
-#define MENU_TITLE_ITEM_DEF(ulx, uly, lrx, lry, text) \
-    { {(ulx), (uly), (lrx), (lry)}, (text) }
+class ClanSelectMenu {
+    void ButtonInit(int index, int mode);
+    void SelectMenuItems();
+    void DrawClanUpgrades(const char *text, int index, int color);
 
-const char* menu_planet_descriptions[];
-extern const char* menu_planet_names[];
+public:
+    WindowInfo *window;
 
-void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align = false,
-                          bool vertical_align = true);
+    bool event_click_done_cancel_random;
+    int team_clan_ini_id;
+    int team_clan;
+    int team_clan_selection;
+    int key;
+    Image *image;
 
-int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width);
+    Button *buttons[CLAN_SELECT_MENU_ITEM_COUNT];
+    ClanSelectMenuItem menu_item[CLAN_SELECT_MENU_ITEM_COUNT];
 
-int menu_clan_select_menu_loop(int team);
+    void Init(int team);
+    void Deinit();
+    void ClanSelection();
+    void EventRandom();
+    void EventCancel();
+    void EventHelp();
+    void EventDone();
+};
 
-#endif /* MENU_HPP */
+#endif /* CLANSELECTMENU_HPP */

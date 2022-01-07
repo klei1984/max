@@ -25,6 +25,7 @@
 
 #include "button.hpp"
 #include "chooseplayermenu.hpp"
+#include "clanselectmenu.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "ginit.h"
@@ -38,6 +39,7 @@
 #include "smartstring.hpp"
 #include "soundmgr.hpp"
 #include "text.hpp"
+#include "units_manager.hpp"
 #include "version.hpp"
 
 struct MenuButton {
@@ -931,6 +933,66 @@ void menu_credits_menu_loop() {
 }
 
 int GameSetupMenu_menu_loop(int game_file_type, bool flag1 = true, bool flag2 = true) {}
+
+int menu_clan_select_menu_loop(int team) {
+    ClanSelectMenu clan_select_menu;
+    int result;
+    bool event_release;
+
+    event_release = false;
+    clan_select_menu.Init(team);
+
+    do {
+        if (Remote_GameState) {
+            Remote_sub_CAC94();
+        }
+
+        if (Remote_GameState == 2) {
+            break;
+        }
+
+        clan_select_menu.key = get_input();
+
+        if (clan_select_menu.key > 0 && clan_select_menu.key < GNW_INPUT_PRESS) {
+            event_release = false;
+        }
+
+        for (int i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
+            if (clan_select_menu.buttons[i]) {
+                if (clan_select_menu.key == GNW_INPUT_PRESS + i) {
+                    if (!event_release) {
+                        clan_select_menu.buttons[i]->PlaySound();
+                    }
+
+                    event_release = true;
+                    break;
+                }
+
+                if (clan_select_menu.key == clan_select_menu.menu_item[i].event_code) {
+                    clan_select_menu.key = clan_select_menu.menu_item[i].r_value;
+                }
+
+                if (clan_select_menu.key == clan_select_menu.menu_item[i].r_value) {
+                    if (i < 8) {
+                        clan_select_menu.buttons[i]->PlaySound();
+                    }
+
+                    clan_select_menu.key -= 1000;
+                    clan_select_menu.menu_item[i].event_handler();
+                    break;
+                }
+            }
+        }
+
+    } while (!clan_select_menu.event_click_done_cancel_random);
+
+    clan_select_menu.Deinit();
+
+    UnitsManager_TeamInfo[team].team_clan = clan_select_menu.team_clan;
+    result = clan_select_menu.team_clan;
+
+    return result;
+}
 
 int menu_planet_select_menu_loop() {
     PlanetSelectMenu planet_select_menu;

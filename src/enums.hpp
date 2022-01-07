@@ -2054,6 +2054,18 @@ enum : unsigned char {
     TEAM_TYPE_ELIMINATED,
 };
 
+enum : unsigned char {
+    TEAM_CLAN_RANDOM = 0x0,
+    TEAM_CLAN_THE_CHOSEN = 0x1,
+    TEAM_CLAN_CRIMSON_PATH = 0x2,
+    TEAM_CLAN_VON_GRIFFIN = 0x3,
+    TEAM_CLAN_AYERS_HAND = 0x4,
+    TEAM_CLAN_MUSASHI = 0x5,
+    TEAM_CLAN_SACRED_EIGHTS = 0x6,
+    TEAM_CLAN_7_KNIGHTS = 0x7,
+    TEAM_CLAN_AXIS_INC = 0x8,
+};
+
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;
 extern SortedEnum Enums_Sound;
