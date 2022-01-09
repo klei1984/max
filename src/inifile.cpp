@@ -366,11 +366,11 @@ void IniSettings::SaveSection(void *smartfile_handle, GAME_INI section) {
     int backup_victory_limit;
     int index = section;
 
-    backup_victory_limit = ini_get_setting(ini_victory_limit);
-    victory_type = ini_get_setting(ini_victory_type);
+    backup_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+    victory_type = ini_get_setting(INI_VICTORY_TYPE);
 
-    ini_set_setting(ini_victory_limit, ini_setting_victory_limit);
-    ini_set_setting(ini_victory_type, ini_setting_victory_type);
+    ini_set_setting(INI_VICTORY_LIMIT, ini_setting_victory_limit);
+    ini_set_setting(INI_VICTORY_TYPE, ini_setting_victory_type);
 
     while (!(ini_keys_table[++index].type & INI_SECTION) && index < ini_keys_table_size) {
         if (ini_keys_table[index].type & INI_NUMERIC) {
@@ -381,8 +381,8 @@ void IniSettings::SaveSection(void *smartfile_handle, GAME_INI section) {
         }
     }
 
-    ini_set_setting(ini_victory_limit, backup_victory_limit);
-    ini_set_setting(ini_victory_type, victory_type);
+    ini_set_setting(INI_VICTORY_LIMIT, backup_victory_limit);
+    ini_set_setting(INI_VICTORY_TYPE, victory_type);
 }
 
 void IniSettings::LoadSection(void *smartfile_handle, GAME_INI section, char mode) {
@@ -392,8 +392,8 @@ void IniSettings::LoadSection(void *smartfile_handle, GAME_INI section, char mod
     int backup_victory_limit;
     int index = section;
 
-    backup_victory_limit = ini_get_setting(ini_victory_limit);
-    victory_type = ini_get_setting(ini_victory_type);
+    backup_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+    victory_type = ini_get_setting(INI_VICTORY_TYPE);
 
     while (!(ini_keys_table[++index].type & INI_SECTION) && index < ini_keys_table_size) {
         if (ini_keys_table[index].type & INI_NUMERIC) {
@@ -410,12 +410,12 @@ void IniSettings::LoadSection(void *smartfile_handle, GAME_INI section, char mod
     }
 
     if (mode) {
-        if (section == ini_OPTIONS) {
-            ini_setting_victory_type = ini_get_setting(ini_victory_type);
-            ini_setting_victory_limit = ini_get_setting(ini_victory_limit);
+        if (section == INI_OPTIONS) {
+            ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
+            ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
 
-            ini_set_setting(ini_victory_limit, backup_victory_limit);
-            ini_set_setting(ini_victory_type, victory_type);
+            ini_set_setting(INI_VICTORY_LIMIT, backup_victory_limit);
+            ini_set_setting(INI_VICTORY_TYPE, victory_type);
         }
     }
 }

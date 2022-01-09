@@ -258,7 +258,7 @@ void ginit_init(void) {
     ini_clans.Init();
 
     disable_enhanced_graphics = get_dpmi_physical_memory() < 13312000L;
-    ini_set_setting(ini_enhanced_graphics, !disable_enhanced_graphics);
+    ini_set_setting(INI_ENHANCED_GRAPHICS, !disable_enhanced_graphics);
 
     timer_init();
     soundmgr.Init();

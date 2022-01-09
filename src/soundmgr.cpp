@@ -283,7 +283,7 @@ void SoundMgr::FreeSample(SoundSample* sample) {
 
 void SoundMgr::PlayMusic(ResourceID id, bool shuffle) {
     if ((id != INVALID_ID) && (id != current_music_played)) {
-        if (ini_get_setting(ini_disable_music)) {
+        if (ini_get_setting(INI_DISABLE_MUSIC)) {
             last_music_played = id;
         } else {
             FreeMusic();
@@ -333,7 +333,7 @@ void SoundMgr::FreeMusic() {
 }
 
 void SoundMgr::PlaySfx(ResourceID id) {
-    if (!ini_get_setting(ini_disable_fx)) {
+    if (!ini_get_setting(INI_DISABLE_FX)) {
         SoundJob job;
 
         job.id = id;
@@ -373,7 +373,7 @@ void SoundMgr::PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode) {
             return;
         }
 
-        if (!ini_get_setting(ini_disable_fx) && is_audio_enabled) {
+        if (!ini_get_setting(INI_DISABLE_FX) && is_audio_enabled) {
             int grid_center_x;
             int grid_center_y;
             int grid_offset_x;
@@ -510,7 +510,7 @@ void SoundMgr::UpdateSfxPosition() {
             }
 
             sound_level = it->volume_2 - it->volume_2 * std::max(grid_distance_x, grid_distance_y) / 112;
-            sound_level = (ini_get_setting(ini_fx_sound_level) * sound_level) / 100;
+            sound_level = (ini_get_setting(INI_FX_SOUND_LEVEL) * sound_level) / 100;
             Mix_Volume(it->mixer_channel, SOUNDMGR_SCALE_VOLUME(sound_level));
         }
     }
@@ -556,7 +556,7 @@ void SoundMgr::UpdateSfxPosition(UnitInfo* unit) {
         }
 
         sound_level = sfx->volume_2 - sfx->volume_2 * std::max(grid_distance_x, grid_distance_y) / 112;
-        sound_level = (ini_get_setting(ini_fx_sound_level) * sound_level) / 100;
+        sound_level = (ini_get_setting(INI_FX_SOUND_LEVEL) * sound_level) / 100;
         Mix_Volume(sfx->mixer_channel, SOUNDMGR_SCALE_VOLUME(sound_level));
     }
 }
@@ -583,7 +583,7 @@ void SoundMgr::HaltSfxPlayback(bool disable) {
 
 void SoundMgr::PlayVoice(ResourceID id1, ResourceID id2, short priority) {
     if (priority >= 0) {
-        if (!IsVoiceGroupScheduled(id1, id2) && !ini_get_setting(ini_disable_voice)) {
+        if (!IsVoiceGroupScheduled(id1, id2) && !ini_get_setting(INI_DISABLE_VOICE)) {
             short priority_value;
             unsigned short randomized_voice_id;
 
@@ -684,7 +684,7 @@ void SoundMgr::BkProcess() {
                     it->volume_2 /= 2;
 
                     if (it->volume_2) {
-                        int sfx_volume = ini_get_setting(ini_fx_sound_level);
+                        int sfx_volume = ini_get_setting(INI_FX_SOUND_LEVEL);
                         SDL_assert(sfx_volume <= 100);
 
                         it->volume_1 /= 2;
@@ -792,11 +792,11 @@ int SoundMgr::ProcessJob(SoundJob& job) {
                 }
 
                 if (job.type == JOB_TYPE_MUSIC) {
-                    sound_level = ini_get_setting(ini_music_level);
+                    sound_level = ini_get_setting(INI_MUSIC_LEVEL);
                 } else if (job.type == JOB_TYPE_VOICE) {
-                    sound_level = ini_get_setting(ini_voice_level);
+                    sound_level = ini_get_setting(INI_VOICE_LEVEL);
                 } else {
-                    sound_level = ini_get_setting(ini_fx_sound_level);
+                    sound_level = ini_get_setting(INI_FX_SOUND_LEVEL);
                 }
 
                 SDL_assert(sound_level <= 100);
@@ -908,7 +908,7 @@ int SoundMgr::GetPanning(int distance, bool reverse) {
 
     panning = (SOUNDMGR_PANNING_RIGHT * (distance + 56)) / 112;
 
-    if (ini_get_setting(ini_Channels_Reversed)) {
+    if (ini_get_setting(INI_CHANNELS_REVERSED)) {
         panning = SOUNDMGR_PANNING_RIGHT - panning;
     }
 

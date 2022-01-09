@@ -120,7 +120,7 @@ int Task::Task_vfunc3(UnitInfo& unit) {
     int result;
 
     if (unit.base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
-        ini_get_setting(ini_opponent) >= OPPONENT_TYPE_AVERAGE) {
+        ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
         if (unit.shots) {
             result = 1;
         } else {

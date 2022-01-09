@@ -252,7 +252,7 @@ void PlanetSelectMenu::Init() {
     image1 = nullptr;
     image2 = nullptr;
     image3 = nullptr;
-    world = ini_get_setting(ini_world);
+    world = ini_get_setting(INI_WORLD);
 
     mouse_hide();
 

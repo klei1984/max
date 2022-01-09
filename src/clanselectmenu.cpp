@@ -71,7 +71,7 @@ void ClanSelectMenu::Init(int team) {
 
     window = gwin_get_window(GWINDOW_MAIN_WINDOW);
 
-    team_clan_ini_id = ini_red_team_clan + team;
+    team_clan_ini_id = INI_RED_TEAM_CLAN + team;
     team_clan = ini_get_setting(team_clan_ini_id);
     team_clan_selection = team_clan;
     image = nullptr;

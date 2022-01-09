@@ -28,6 +28,7 @@
 #include "clanselectmenu.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
+#include "gameconfigmenu.hpp"
 #include "ginit.h"
 #include "gui.hpp"
 #include "gwindow.hpp"
@@ -494,6 +495,27 @@ void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int colo
     }
 }
 
+void menu_draw_logo(ResourceID resource_id, int time_limit) {
+    WindowInfo* window;
+    unsigned int time_stamp;
+
+    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+
+    if (gwin_load_image(resource_id, window, 640, true, false)) {
+        Cursor_SetCursor(CURSOR_HIDDEN);
+        mouse_show();
+        setSystemPalette(system_palette_ptr);
+        win_draw(window->id);
+        gwin_fade_out(500);
+
+        time_stamp = timer_get_stamp32();
+        while (timer_elapsed_time_ms(time_stamp) < time_limit && get_input() != -1) {
+        }
+
+        gwin_clear_window();
+    }
+}
+
 template <typename T>
 void ReadFile(FILE* fp, T& buffer) {
     if (fread(&buffer, sizeof(char), sizeof(T), fp) != (sizeof(T))) {
@@ -570,6 +592,179 @@ int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width) {
     }
 
     return result;
+}
+
+void menu_update_resource_levels() {
+    int resource_min;
+    int resource_max;
+    int resource_raw;
+    int resource_fuel;
+    int resource_gold;
+    int resource_derelicts;
+
+    resource_raw = ini_get_setting(INI_RAW_RESOURCE);
+    resource_fuel = ini_get_setting(INI_FUEL_RESOURCE);
+    resource_gold = ini_get_setting(INI_GOLD_RESOURCE);
+    resource_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
+
+    resource_min = 1;
+    resource_max = 15;
+
+    switch (resource_raw) {
+        case 0: {
+            ini_set_setting(INI_RAW_NORMAL_LOW, 0);
+            ini_set_setting(INI_RAW_NORMAL_HIGH, 3);
+            ini_set_setting(INI_RAW_CONCENTRATE_LOW, 8);
+            ini_set_setting(INI_RAW_CONCENTRATE_HIGH, 12);
+            ini_set_setting(INI_RAW_CONCENTRATE_SEPERATION, 28);
+            ini_set_setting(INI_RAW_CONCENTRATE_DIFFUSION, 6);
+
+            resource_min = 4;
+            resource_max = 16;
+        } break;
+
+        case 1: {
+            ini_set_setting(INI_RAW_NORMAL_LOW, 0);
+            ini_set_setting(INI_RAW_NORMAL_HIGH, 5);
+            ini_set_setting(INI_RAW_CONCENTRATE_LOW, 13);
+            ini_set_setting(INI_RAW_CONCENTRATE_HIGH, 16);
+            ini_set_setting(INI_RAW_CONCENTRATE_SEPERATION, 23);
+            ini_set_setting(INI_RAW_CONCENTRATE_DIFFUSION, 5);
+
+            resource_min = 6;
+            resource_max = 17;
+        } break;
+
+        case 2: {
+            ini_set_setting(INI_RAW_NORMAL_LOW, 1);
+            ini_set_setting(INI_RAW_NORMAL_HIGH, 5);
+            ini_set_setting(INI_RAW_CONCENTRATE_LOW, 16);
+            ini_set_setting(INI_RAW_CONCENTRATE_HIGH, 16);
+            ini_set_setting(INI_RAW_CONCENTRATE_SEPERATION, 19);
+            ini_set_setting(INI_RAW_CONCENTRATE_DIFFUSION, 4);
+
+            resource_min = 7;
+            resource_max = 18;
+        } break;
+    }
+
+    switch (resource_fuel) {
+        case 0: {
+            ini_set_setting(INI_FUEL_NORMAL_LOW, 1);
+            ini_set_setting(INI_FUEL_NORMAL_HIGH, 2);
+            ini_set_setting(INI_FUEL_CONCENTRATE_LOW, 8);
+            ini_set_setting(INI_FUEL_CONCENTRATE_HIGH, 12);
+            ini_set_setting(INI_FUEL_CONCENTRATE_SEPERATION, 29);
+            ini_set_setting(INI_FUEL_CONCENTRATE_DIFFUSION, 6);
+
+            resource_min += 2;
+            resource_max += 1;
+        } break;
+
+        case 1: {
+            ini_set_setting(INI_FUEL_NORMAL_LOW, 2);
+            ini_set_setting(INI_FUEL_NORMAL_HIGH, 3);
+            ini_set_setting(INI_FUEL_CONCENTRATE_LOW, 12);
+            ini_set_setting(INI_FUEL_CONCENTRATE_HIGH, 16);
+            ini_set_setting(INI_FUEL_CONCENTRATE_SEPERATION, 24);
+            ini_set_setting(INI_FUEL_CONCENTRATE_DIFFUSION, 5);
+
+            resource_min += 3;
+            resource_max += 2;
+        } break;
+
+        case 2: {
+            ini_set_setting(INI_FUEL_NORMAL_LOW, 2);
+            ini_set_setting(INI_FUEL_NORMAL_HIGH, 4);
+            ini_set_setting(INI_FUEL_CONCENTRATE_LOW, 16);
+            ini_set_setting(INI_FUEL_CONCENTRATE_HIGH, 16);
+            ini_set_setting(INI_FUEL_CONCENTRATE_SEPERATION, 20);
+            ini_set_setting(INI_FUEL_CONCENTRATE_DIFFUSION, 4);
+
+            resource_min += 4;
+            resource_max += 3;
+        } break;
+    }
+
+    switch (resource_raw + resource_fuel) {
+        case 0: {
+            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 49);
+        } break;
+
+        case 1: {
+            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 44);
+        } break;
+
+        case 2: {
+            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 40);
+        } break;
+
+        case 3: {
+            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 36);
+        } break;
+
+        case 4: {
+            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 33);
+        } break;
+    }
+
+    switch (resource_gold) {
+        case 0: {
+            ini_set_setting(INI_GOLD_NORMAL_LOW, 0);
+            ini_set_setting(INI_GOLD_NORMAL_HIGH, 0);
+            ini_set_setting(INI_GOLD_CONCENTRATE_LOW, 5);
+            ini_set_setting(INI_GOLD_CONCENTRATE_HIGH, 9);
+            ini_set_setting(INI_GOLD_CONCENTRATE_SEPERATION, 39);
+            ini_set_setting(INI_GOLD_CONCENTRATE_DIFFUSION, 6);
+
+            resource_min += 0;
+            resource_max += 0;
+        } break;
+
+        case 1: {
+            ini_set_setting(INI_GOLD_NORMAL_LOW, 0);
+            ini_set_setting(INI_GOLD_NORMAL_HIGH, 0);
+            ini_set_setting(INI_GOLD_CONCENTRATE_LOW, 8);
+            ini_set_setting(INI_GOLD_CONCENTRATE_HIGH, 12);
+            ini_set_setting(INI_GOLD_CONCENTRATE_SEPERATION, 32);
+            ini_set_setting(INI_GOLD_CONCENTRATE_DIFFUSION, 5);
+
+            resource_min += 0;
+            resource_max += 1;
+        } break;
+
+        case 2: {
+            ini_set_setting(INI_GOLD_NORMAL_LOW, 0);
+            ini_set_setting(INI_GOLD_NORMAL_HIGH, 1);
+            ini_set_setting(INI_GOLD_CONCENTRATE_LOW, 12);
+            ini_set_setting(INI_GOLD_CONCENTRATE_HIGH, 16);
+            ini_set_setting(INI_GOLD_CONCENTRATE_SEPERATION, 26);
+            ini_set_setting(INI_GOLD_CONCENTRATE_DIFFUSION, 4);
+
+            resource_min += 1;
+            resource_max += 2;
+        } break;
+    }
+
+    ini_set_setting(INI_MIN_RESOURCES, resource_min);
+    ini_set_setting(INI_MAX_RESOURCES, resource_max);
+
+    switch (resource_derelicts) {
+        case 0: {
+            ini_set_setting(INI_ALIEN_SEPERATION, 0);
+            ini_set_setting(INI_ALIEN_UNIT_VALUE, 0);
+        } break;
+
+        case 1: {
+            ini_set_setting(INI_ALIEN_SEPERATION, 65);
+            ini_set_setting(INI_ALIEN_UNIT_VALUE, 20);
+        } break;
+
+        case 2: {
+            ini_set_setting(INI_ALIEN_SEPERATION, 50);
+            ini_set_setting(INI_ALIEN_UNIT_VALUE, 30);
+        } break;
+    }
 }
 
 void draw_copyright_label(WindowInfo* window) {
@@ -787,42 +982,42 @@ int play_attract_demo(int save_slot) {
 
         fclose(fp);
 
-        backup_opponent = ini_get_setting(ini_opponent);
-        backup_timer = ini_get_setting(ini_timer);
-        backup_endturn = ini_get_setting(ini_endturn);
-        backup_play_mode = ini_get_setting(ini_play_mode);
-        backup_start_gold = ini_get_setting(ini_start_gold);
-        backup_raw_resource = ini_get_setting(ini_raw_resource);
-        backup_fuel_resource = ini_get_setting(ini_fuel_resource);
-        backup_gold_resource = ini_get_setting(ini_gold_resource);
-        backup_alien_derelicts = ini_get_setting(ini_alien_derelicts);
+        backup_opponent = ini_get_setting(INI_OPPONENT);
+        backup_timer = ini_get_setting(INI_TIMER);
+        backup_endturn = ini_get_setting(INI_ENDTURN);
+        backup_play_mode = ini_get_setting(INI_PLAY_MODE);
+        backup_start_gold = ini_get_setting(INI_START_GOLD);
+        backup_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
+        backup_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
+        backup_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
+        backup_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
 
-        ini_config.GetStringValue(ini_player_name, backup_player_name, 30);
-        ini_config.GetStringValue(ini_red_team_name, backup_red_team_name, 30);
-        ini_config.GetStringValue(ini_green_team_name, backup_green_team_name, 30);
-        ini_config.GetStringValue(ini_blue_team_name, backup_blue_team_name, 30);
-        ini_config.GetStringValue(ini_gray_team_name, backup_gray_team_name, 30);
+        ini_config.GetStringValue(INI_PLAYER_NAME, backup_player_name, 30);
+        ini_config.GetStringValue(INI_RED_TEAM_NAME, backup_red_team_name, 30);
+        ini_config.GetStringValue(INI_GREEN_TEAM_NAME, backup_green_team_name, 30);
+        ini_config.GetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name, 30);
+        ini_config.GetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name, 30);
 
-        ini_set_setting(ini_game_file_number, save_slot);
-        ini_set_setting(ini_game_file_type, GAME_TYPE_DEMO);
+        ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
+        ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_DEMO);
 
         GameManager_GameLoop(GAME_STATE_10);
 
-        ini_set_setting(ini_opponent, backup_opponent);
-        ini_set_setting(ini_timer, backup_timer);
-        ini_set_setting(ini_endturn, backup_endturn);
-        ini_set_setting(ini_play_mode, backup_play_mode);
-        ini_set_setting(ini_start_gold, backup_start_gold);
-        ini_set_setting(ini_raw_resource, backup_raw_resource);
-        ini_set_setting(ini_fuel_resource, backup_fuel_resource);
-        ini_set_setting(ini_gold_resource, backup_gold_resource);
-        ini_set_setting(ini_alien_derelicts, backup_alien_derelicts);
+        ini_set_setting(INI_OPPONENT, backup_opponent);
+        ini_set_setting(INI_TIMER, backup_timer);
+        ini_set_setting(INI_ENDTURN, backup_endturn);
+        ini_set_setting(INI_PLAY_MODE, backup_play_mode);
+        ini_set_setting(INI_START_GOLD, backup_start_gold);
+        ini_set_setting(INI_RAW_RESOURCE, backup_raw_resource);
+        ini_set_setting(INI_FUEL_RESOURCE, backup_fuel_resource);
+        ini_set_setting(INI_GOLD_RESOURCE, backup_gold_resource);
+        ini_set_setting(INI_ALIEN_DERELICTS, backup_alien_derelicts);
 
-        ini_config.SetStringValue(ini_player_name, backup_player_name);
-        ini_config.SetStringValue(ini_red_team_name, backup_red_team_name);
-        ini_config.SetStringValue(ini_green_team_name, backup_green_team_name);
-        ini_config.SetStringValue(ini_blue_team_name, backup_blue_team_name);
-        ini_config.SetStringValue(ini_gray_team_name, backup_gray_team_name);
+        ini_config.SetStringValue(INI_PLAYER_NAME, backup_player_name);
+        ini_config.SetStringValue(INI_RED_TEAM_NAME, backup_red_team_name);
+        ini_config.SetStringValue(INI_GREEN_TEAM_NAME, backup_green_team_name);
+        ini_config.SetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name);
+        ini_config.SetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name);
 
         result = 1;
 
@@ -1039,7 +1234,7 @@ int menu_planet_select_menu_loop() {
 
     planet_select_menu.Deinit();
     if (!planet_select_menu.event_click_cancel) {
-        ini_set_setting(ini_world, planet_select_menu.world);
+        ini_set_setting(INI_WORLD, planet_select_menu.world);
 
         result = 1;
     } else {
@@ -1049,22 +1244,83 @@ int menu_planet_select_menu_loop() {
     return result;
 }
 
-int menu_options_menu_loop() {}
+int menu_options_menu_loop(int game_mode) {
+    GameConfigMenu game_config_menu;
+    int result;
+    bool event_release;
+
+    event_release = false;
+    game_config_menu.game_mode = game_mode;
+    game_config_menu.Init();
+
+    do {
+        if (Remote_GameState == 1) {
+            Remote_sub_CAC94();
+        }
+
+        game_config_menu.key = get_input();
+
+        if (game_config_menu.key > 0 && game_config_menu.key < GNW_INPUT_PRESS) {
+            event_release = false;
+        }
+
+        if (game_config_menu.text_edit) {
+            if (game_config_menu.text_edit->ProcessKeyPress(game_config_menu.key)) {
+                if (game_config_menu.key == GNW_KB_KEY_ESCAPE || game_config_menu.key == GNW_KB_KEY_RETURN) {
+                    game_config_menu.UpdateTextEdit(game_config_menu.key == GNW_KB_KEY_RETURN);
+                }
+
+                game_config_menu.key = 0;
+                continue;
+            }
+
+            if (game_config_menu.key > 0) {
+                game_config_menu.text_edit->ProcessKeyPress(GNW_KB_KEY_RETURN);
+                game_config_menu.UpdateTextEdit(1);
+            }
+        }
+
+        for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
+            if (game_config_menu.buttons[i]) {
+                if (game_config_menu.key == game_config_menu.menu_item[i].event_code) {
+                    game_config_menu.key = game_config_menu.menu_item[i].r_value;
+                }
+
+                if (game_config_menu.key == game_config_menu.menu_item[i].r_value) {
+                    if (!event_release) {
+                        game_config_menu.buttons[i]->PlaySound();
+                    }
+
+                    event_release = true;
+                    game_config_menu.key -= 1000;
+                    game_config_menu.menu_item[i].event_handler();
+                    break;
+                }
+            }
+        }
+
+    } while (!game_config_menu.event_click_cancel && !game_config_menu.event_click_done);
+
+    game_config_menu.Deinit();
+    result = game_config_menu.event_click_done;
+
+    return result;
+}
 
 int menu_choose_player_menu_loop(bool game_type) {
     ChoosePlayerMenu choose_player_menu;
     bool event_release;
 
     if (game_type) {
-        ini_set_setting(ini_red_team_player, TEAM_TYPE_PLAYER);
-        ini_set_setting(ini_green_team_player, TEAM_TYPE_COMPUTER);
+        ini_set_setting(INI_RED_TEAM_PLAYER, TEAM_TYPE_PLAYER);
+        ini_set_setting(INI_GREEN_TEAM_PLAYER, TEAM_TYPE_COMPUTER);
     } else {
-        ini_set_setting(ini_red_team_player, TEAM_TYPE_PLAYER);
-        ini_set_setting(ini_green_team_player, TEAM_TYPE_PLAYER);
+        ini_set_setting(INI_RED_TEAM_PLAYER, TEAM_TYPE_PLAYER);
+        ini_set_setting(INI_GREEN_TEAM_PLAYER, TEAM_TYPE_PLAYER);
     }
 
-    ini_set_setting(ini_blue_team_player, TEAM_TYPE_NONE);
-    ini_set_setting(ini_gray_team_player, TEAM_TYPE_NONE);
+    ini_set_setting(INI_BLUE_TEAM_PLAYER, TEAM_TYPE_NONE);
+    ini_set_setting(INI_GRAY_TEAM_PLAYER, TEAM_TYPE_NONE);
 
     event_release = false;
 
@@ -1120,14 +1376,14 @@ int menu_choose_player_menu_loop(bool game_type) {
         int team_type;
         char buffer[30];
 
-        team_type = ini_get_setting(ini_red_team_player + i);
+        team_type = ini_get_setting(INI_RED_TEAM_PLAYER + i);
 
         if (game_type && team_type == TEAM_TYPE_PLAYER) {
-            ini_config.GetStringValue(ini_player_name, buffer, sizeof(buffer));
-            ini_config.SetStringValue(ini_red_team_name + i, buffer);
+            ini_config.GetStringValue(INI_PLAYER_NAME, buffer, sizeof(buffer));
+            ini_config.SetStringValue(INI_RED_TEAM_NAME + i, buffer);
             game_type = 0;
         } else {
-            ini_config.SetStringValue(ini_red_team_name + i, menu_team_names[i]);
+            ini_config.SetStringValue(INI_RED_TEAM_NAME + i, menu_team_names[i]);
         }
     }
 
@@ -1163,7 +1419,7 @@ int menu_custom_game_menu(bool game_type) {
         }
 
         for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_ALIEN; ++i) {
-            ini_set_setting(static_cast<IniParameter>(ini_red_team_clan + i), ini_get_setting(ini_player_clan));
+            ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i), ini_get_setting(INI_PLAYER_CLAN));
         }
 
         player_menu_passed = menu_choose_player_menu_loop(game_type);
@@ -1238,7 +1494,7 @@ int menu_new_game_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_U: {
                     menu_delete_menu_buttons();
-                    ini_set_setting(ini_game_file_type, GAME_TYPE_CUSTOM);
+                    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
                     if (menu_custom_game_menu(true)) {
                         key = 9000;
                     }
@@ -1249,7 +1505,7 @@ int menu_new_game_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_M: {
                     menu_delete_menu_buttons();
-                    ini_set_setting(ini_game_file_type, GAME_TYPE_CUSTOM);
+                    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
                     if (GameSetupMenu_menu_loop(GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
                         key = 9000;
                     }
@@ -1341,7 +1597,7 @@ void menu_setup_window() {
 int menu_network_game_menu(bool is_host_mode) {
     if (Remote_Lobby(is_host_mode)) {
         if (is_host_mode) {
-            menu_options_menu_update_resource_levels();
+            menu_update_resource_levels();
             Remote_SendNetPacket_17();
         }
 
@@ -1373,7 +1629,7 @@ int menu_multiplayer_menu_loop() {
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(network_game_menu_buttons,
                                     sizeof(network_game_menu_buttons) / sizeof(struct MenuButton));
-        ini_set_setting(ini_game_file_type, GAME_TYPE_MULTI);
+        ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI);
         palette_from_image = 0;
         mouse_show();
 
@@ -1390,11 +1646,11 @@ int menu_multiplayer_menu_loop() {
                 case GNW_KB_KEY_SHIFT_L: {
                     int game_file_number;
                     menu_delete_menu_buttons();
-                    ini_set_setting(ini_game_file_type, GAME_TYPE_HOT_SEAT);
+                    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_HOT_SEAT);
                     game_file_number = SaveLoadMenu_menu_loop(false, false);
 
                     if (game_file_number) {
-                        ini_set_setting(ini_game_file_number, game_file_number);
+                        ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
                         GameManager_GameLoop(GAME_STATE_10);
 
                         key = 9000;
@@ -1422,7 +1678,7 @@ int menu_multiplayer_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_O: {
                     menu_delete_menu_buttons();
-                    ini_set_setting(ini_game_file_type, GAME_TYPE_HOT_SEAT);
+                    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_HOT_SEAT);
 
                     if (menu_custom_game_menu(false)) {
                         key = 9000;
@@ -1497,8 +1753,8 @@ void main_menu() {
     mouse_set_position(320, 240);
     menu_portrait_id = INVALID_ID;
     dos_srand(time(nullptr));
-    ini_setting_victory_type = ini_get_setting(ini_victory_type);
-    ini_setting_victory_limit = ini_get_setting(ini_victory_limit);
+    ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
+    ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
 
     for (;;) {
         event_release = false;
@@ -1515,7 +1771,7 @@ void main_menu() {
         Cursor_SetCursor(CURSOR_HAND);
         mouse_show();
         palette_from_image = 0;
-        ini_set_setting(ini_game_file_type, GAME_TYPE_CUSTOM);
+        ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
 
         exit_loop = false;
 
@@ -1562,7 +1818,7 @@ void main_menu() {
                         game_file_number = SaveLoadMenu_menu_loop(false, false);
 
                         if (game_file_number) {
-                            ini_set_setting(ini_game_file_number, game_file_number);
+                            ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
                         }
 
                         GameManager_GameLoop(GAME_STATE_10);
@@ -1580,8 +1836,8 @@ void main_menu() {
                         game_file_number = SaveLoadMenu_menu_loop(false, true);
 
                         if (game_file_number) {
-                            ini_set_setting(ini_game_file_type, GAME_TYPE_TEXT);
-                            ini_set_setting(ini_game_file_number, game_file_number);
+                            ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_TEXT);
+                            ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
                         }
 
                         GameManager_GameLoop(GAME_STATE_10);

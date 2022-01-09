@@ -136,15 +136,15 @@ int movie_run(GAME_RESOURCE resource_id, int mode) {
             movie_init_palette();
             MVE_palCallbacks(movie_cb_set_palette);
 
-            movie_music_level = (32767 * ini_get_setting(ini_music_level)) / 100;
+            movie_music_level = (32767 * ini_get_setting(INI_MUSIC_LEVEL)) / 100;
 
-            if (ini_get_setting(ini_disable_music)) {
+            if (ini_get_setting(INI_DISABLE_MUSIC)) {
                 movie_music_level = 0;
             }
 
             MVE_sndVolume(movie_music_level);
 
-            if (ini_get_setting(ini_movie_play)) {
+            if (ini_get_setting(INI_MOVIE_PLAY)) {
                 MVE_rmFastMode(1);
             }
 

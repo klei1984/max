@@ -40,8 +40,12 @@ extern const char* menu_planet_names[];
 void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align = false,
                           bool vertical_align = true);
 
+void menu_draw_logo(ResourceID resource_id, int time_limit);
+
 int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width);
 
 int menu_clan_select_menu_loop(int team);
+
+void menu_update_resource_levels();
 
 #endif /* MENU_HPP */

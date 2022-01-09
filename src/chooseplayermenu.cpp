@@ -73,7 +73,7 @@ static_assert(CHOOSE_PLAYER_MENU_ITEM_COUNT ==
 void ChoosePlayerMenu::ButtonSetState(int team, int rest_state) {
     int team_player_ini_setting;
 
-    team_player_ini_setting = ini_get_setting(ini_red_team_player + team) - 1;
+    team_player_ini_setting = ini_get_setting(INI_RED_TEAM_PLAYER + team) - 1;
 
     if (team_player_ini_setting < 0) {
         team_player_ini_setting = TEAM_TYPE_COMPUTER;
@@ -123,26 +123,26 @@ void ChoosePlayerMenu::Deinit() {
 void ChoosePlayerMenu::EventSelectHuman() {
     if (game_type) {
         for (int i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
-            if (ini_get_setting(ini_red_team_player + i) == TEAM_TYPE_PLAYER) {
+            if (ini_get_setting(INI_RED_TEAM_PLAYER + i) == TEAM_TYPE_PLAYER) {
                 ButtonSetState(i, 0);
-                ini_set_setting(ini_red_team_player + i, ini_get_setting(ini_red_team_player + key_press));
+                ini_set_setting(INI_RED_TEAM_PLAYER + i, ini_get_setting(INI_RED_TEAM_PLAYER + key_press));
                 ButtonSetState(i, 1);
                 break;
             }
         }
     }
 
-    ini_set_setting(ini_red_team_player + key_press, TEAM_TYPE_PLAYER);
+    ini_set_setting(INI_RED_TEAM_PLAYER + key_press, TEAM_TYPE_PLAYER);
     UpdateButtons();
 }
 
 void ChoosePlayerMenu::EventSelectComputer() {
-    ini_set_setting(ini_red_team_player + key_press - 4, TEAM_TYPE_COMPUTER);
+    ini_set_setting(INI_RED_TEAM_PLAYER + key_press - 4, TEAM_TYPE_COMPUTER);
     UpdateButtons();
 }
 
 void ChoosePlayerMenu::EventSelectNone() {
-    ini_set_setting(ini_red_team_player + key_press - 8, TEAM_TYPE_NONE);
+    ini_set_setting(INI_RED_TEAM_PLAYER + key_press - 8, TEAM_TYPE_NONE);
     UpdateButtons();
 }
 
@@ -172,13 +172,13 @@ void ChoosePlayerMenu::ButtonInit(int index, int mode) {
         image_id = control->image_id + 1;
         clan_logo_id = CLN0LOGO;
 
-        if (ini_get_setting(ini_red_team_player + index - 12) == TEAM_TYPE_PLAYER) {
-            if (ini_get_setting(ini_game_file_type) != GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+        if (ini_get_setting(INI_RED_TEAM_PLAYER + index - 12) == TEAM_TYPE_PLAYER) {
+            if (ini_get_setting(INI_GAME_FILE_TYPE) != GAME_TYPE_MULTI_PLAYER_SCENARIO) {
                 image_id = control->image_id;
             }
 
-            if (game_type || ini_get_setting(ini_game_file_type) == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                clan_logo_id = CLN0LOGO + ini_get_setting(ini_red_team_clan + index - 12);
+            if (game_type || ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+                clan_logo_id = CLN0LOGO + ini_get_setting(INI_RED_TEAM_CLAN + index - 12);
             }
         }
 
@@ -243,8 +243,8 @@ void ChoosePlayerMenu::UpdateButtons() {
         buttons[i]->Enable();
 
         if (i >= 12 && i < 16 &&
-            (ini_get_setting(ini_red_team_player + i - 12) != TEAM_TYPE_PLAYER ||
-             ini_get_setting(ini_game_file_type) == GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
+            (ini_get_setting(INI_RED_TEAM_PLAYER + i - 12) != TEAM_TYPE_PLAYER ||
+             ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
             buttons[i]->Disable();
         }
     }
@@ -262,7 +262,7 @@ void ChoosePlayerMenu::EventDone() {
     for (int i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
         int team_type;
 
-        team_type = ini_get_setting(ini_red_team_player + i);
+        team_type = ini_get_setting(INI_RED_TEAM_PLAYER + i);
 
         if (team_type == TEAM_TYPE_PLAYER) {
             ++human_player_count;

@@ -67,39 +67,39 @@ enum AudioType {
     { (type), (caption), (ini_param_index), (ulx), (range_min), (range_max), nullptr, nullptr, nullptr, 0, 0 }
 
 static struct OptionsButton options_menu_buttons[] = {
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, ini_SETUP, 0, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Volume:", ini_music_level, 25, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Enhanced graphics (requires 16MB)", ini_enhanced_graphics, 210, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Music", ini_music_level, 25, 0, 100),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Disable Music", ini_disable_music, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "FX", ini_fx_sound_level, 25, 0, 100),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "FX Disabled", ini_disable_fx, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Voice", ini_voice_level, 25, 0, 100),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Voice Disabled", ini_disable_voice, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Auto-Save Enabled", ini_auto_save, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_HEX, "IPX Socket:", ini_ipx_socket, 210, 0, 0x7FFF),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_STR, "Player Name:", ini_player_name, 25, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, ini_PREFERENCES, 0, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Animate Effects", ini_effects, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Click to Scroll", ini_click_scroll, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Double Unit Steps", ini_fast_movement, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Track Selected Unit", ini_follow_unit, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Halt movement when enemy is detected", ini_enemy_halt, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Auto-Select Next Unit", ini_auto_select, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Scroll Speed", ini_quick_scroll, 25, 4, 128),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, ini_OPTIONS, 0, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Turn Time:", ini_timer, 25, 0, 32767),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "End Turn Time:", ini_endturn, 210, 0, 32767),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Play Mode: %s", ini_play_mode, 25, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Computer Player(s): %s", ini_opponent, 25, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Game ends at %i %s.", ini_victory_limit, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_SETUP, 0, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Volume:", INI_MUSIC_LEVEL, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Enhanced graphics (requires 16MB)", INI_ENHANCED_GRAPHICS, 210, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Music", INI_MUSIC_LEVEL, 25, 0, 100),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Disable Music", INI_DISABLE_MUSIC, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "FX", INI_FX_SOUND_LEVEL, 25, 0, 100),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "FX Disabled", INI_DISABLE_FX, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Voice", INI_VOICE_LEVEL, 25, 0, 100),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Voice Disabled", INI_DISABLE_VOICE, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Auto-Save Enabled", INI_AUTO_SAVE, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_HEX, "IPX Socket:", INI_IPX_SOCKET, 210, 0, 0x7FFF),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_STR, "Player Name:", INI_PLAYER_NAME, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_PREFERENCES, 0, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Animate Effects", INI_EFFECTS, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Click to Scroll", INI_CLICK_SCROLL, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Double Unit Steps", INI_FAST_MOVEMENT, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Track Selected Unit", INI_FOLLOW_UNIT, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Halt movement when enemy is detected", INI_ENEMY_HALT, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Auto-Select Next Unit", INI_AUTO_SELECT, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Scroll Speed", INI_QUICK_SCROLL, 25, 4, 128),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_OPTIONS, 0, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Turn Time:", INI_TIMER, 25, 0, 32767),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "End Turn Time:", INI_ENDTURN, 210, 0, 32767),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Play Mode: %s", INI_PLAY_MODE, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Computer Player(s): %s", INI_OPPONENT, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Game ends at %i %s.", INI_VICTORY_LIMIT, 25, 0, 0),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, 0, 0, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Disable Fire", ini_disable_fire, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Real Time", ini_real_time, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Red Team", ini_red_team_player, 25, 0, 3),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Green Team", ini_green_team_player, 210, 0, 3),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Blue Team", ini_blue_team_player, 25, 0, 3),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Gray Team", ini_gray_team_player, 210, 0, 3),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Disable Fire", INI_DISABLE_FIRE, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Real Time", INI_REAL_TIME, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Red Team", INI_RED_TEAM_PLAYER, 25, 0, 3),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Green Team", INI_GREEN_TEAM_PLAYER, 210, 0, 3),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Blue Team", INI_BLUE_TEAM_PLAYER, 25, 0, 3),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Gray Team", INI_GRAY_TEAM_PLAYER, 210, 0, 3),
 };
 
 static const char *options_menu_play_mode_strings[] = {"Turn Based", "Simultaneous Moves"};
@@ -151,7 +151,7 @@ OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
     win_draw_rect(window.id, &window.window);
 
     for (int i = 0; i < button_count; ++i) {
-        if ((options_menu_buttons[i].ini_param_index != ini_enhanced_graphics || bg_image == SETUPPIC) &&
+        if ((options_menu_buttons[i].ini_param_index != INI_ENHANCED_GRAPHICS || bg_image == SETUPPIC) &&
             options_menu_buttons[i].type == OPTIONS_TYPE_CHECKBOX) {
             options_menu_buttons[i].button->SetRestState(options_menu_buttons[i].rest_state);
         }
@@ -245,7 +245,7 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
             options_menu_buttons[id].ini_string_value = new (std::nothrow) char[30];
 
             if (bg_image == PREFSPIC) {
-                ini_param_index = ini_red_team_name + team;
+                ini_param_index = INI_RED_TEAM_NAME + team;
             }
 
             ini_config.GetStringValue(ini_param_index, options_menu_buttons[id].ini_string_value, 30);
@@ -287,8 +287,8 @@ void OptionsMenu::InitCheckboxControl(int id, int ulx, int uly) {
     button->Copy(window.id);
     button->SetFlags(1);
 
-    if (ini_param_index == ini_disable_music || ini_param_index == ini_disable_fx ||
-        ini_param_index == ini_disable_voice || ini_param_index == ini_enhanced_graphics) {
+    if (ini_param_index == INI_DISABLE_MUSIC || ini_param_index == INI_DISABLE_FX ||
+        ini_param_index == INI_DISABLE_VOICE || ini_param_index == INI_ENHANCED_GRAPHICS) {
         button->SetPValue(1002 + id);
         button->SetRValue(1002 + id);
     } else {
@@ -310,22 +310,22 @@ void OptionsMenu::InitLabelControl(int id, int ulx, int uly) {
     ini_param_index = options_menu_buttons[id].ini_param_index;
 
     switch (ini_param_index) {
-        case ini_play_mode: {
+        case INI_PLAY_MODE: {
             sprintf(buffer, options_menu_buttons[id].format,
                     options_menu_play_mode_strings[ini_get_setting(ini_param_index)]);
         } break;
 
-        case ini_opponent: {
+        case INI_OPPONENT: {
             sprintf(buffer, options_menu_buttons[id].format,
                     options_menu_opponent_strings[ini_get_setting(ini_param_index)]);
         } break;
 
-        case ini_victory_limit: {
+        case INI_VICTORY_LIMIT: {
             sprintf(buffer, options_menu_buttons[id].format, ini_setting_victory_limit,
                     options_menu_victory_type_strings[ini_setting_victory_type]);
         } break;
 
-        case ini_music_level: {
+        case INI_MUSIC_LEVEL: {
             strcpy(buffer, options_menu_buttons[id].format);
             font_color = Fonts_GoldColor;
         } break;
@@ -392,10 +392,10 @@ void OptionsMenu::UpdateSlider(int id) {
 
     win_draw_rect(window.id, &bounds);
 
-    if (button->ini_param_index != ini_quick_scroll) {
-        if (button->ini_param_index == ini_music_level) {
+    if (button->ini_param_index != INI_QUICK_SCROLL) {
+        if (button->ini_param_index == INI_MUSIC_LEVEL) {
             audio_type = AUDIO_TYPE_MUSIC;
-        } else if (button->ini_param_index == ini_fx_sound_level) {
+        } else if (button->ini_param_index == INI_FX_SOUND_LEVEL) {
             audio_type = AUDIO_TYPE_SFX2;
         } else {
             audio_type = AUDIO_TYPE_VOICE;
@@ -469,7 +469,7 @@ void OptionsMenu::Init() {
         ulx = options_menu_buttons[i].ulx;
         ini_param_index = options_menu_buttons[i].ini_param_index;
 
-        if (ini_param_index != ini_enhanced_graphics || bg_image == SETUPPIC) {
+        if (ini_param_index != INI_ENHANCED_GRAPHICS || bg_image == SETUPPIC) {
             if (ulx == 25) {
                 uly += 20;
             }
@@ -497,7 +497,7 @@ void OptionsMenu::Init() {
                 }
 
             } else {
-                if (bg_image == SETUPPIC && ini_param_index != ini_SETUP) {
+                if (bg_image == SETUPPIC && ini_param_index != INI_SETUP) {
                     button_count = i;
                     return;
                 }
@@ -576,7 +576,7 @@ int OptionsMenu::ProcessKeyPress(int key) {
                         ini_config.SetStringValue(ini_param_index, options_menu_buttons[i].ini_string_value);
 
                         if (bg_image == PREFSPIC) {
-                            ini_param_index = ini_red_team_name + team;
+                            ini_param_index = INI_RED_TEAM_NAME + team;
                             ini_config.SetStringValue(ini_param_index, options_menu_buttons[i].ini_string_value);
 
                             if (Remote_IsNetworkGame) {
@@ -596,7 +596,7 @@ int OptionsMenu::ProcessKeyPress(int key) {
             }
 
             if (bg_image == SETUPPIC) {
-                disable_enhanced_graphics = !ini_get_setting(ini_enhanced_graphics);
+                disable_enhanced_graphics = !ini_get_setting(INI_ENHANCED_GRAPHICS);
             }
 
             ini_config.Save();
@@ -626,32 +626,32 @@ int OptionsMenu::ProcessKeyPress(int key) {
 
                 if (last_value != options_menu_buttons[i].rest_state) {
                     switch (ini_param_index) {
-                        case ini_music_level: {
+                        case INI_MUSIC_LEVEL: {
                             SetVolume(AUDIO_TYPE_MUSIC, last_value, i);
                         } break;
 
-                        case ini_fx_sound_level: {
+                        case INI_FX_SOUND_LEVEL: {
                             SetVolume(AUDIO_TYPE_SFX2, last_value, i);
                         } break;
 
-                        case ini_voice_level: {
+                        case INI_VOICE_LEVEL: {
                             SetVolume(AUDIO_TYPE_VOICE, last_value, i);
 
                         } break;
-                        case ini_disable_music: {
-                            ini_set_setting(ini_disable_music, last_value);
+                        case INI_DISABLE_MUSIC: {
+                            ini_set_setting(INI_DISABLE_MUSIC, last_value);
                             soundmgr.HaltMusicPlayback(last_value);
 
                         } break;
 
-                        case ini_disable_fx: {
-                            ini_set_setting(ini_disable_fx, last_value);
+                        case INI_DISABLE_FX: {
+                            ini_set_setting(INI_DISABLE_FX, last_value);
                             soundmgr.HaltSfxPlayback(last_value);
 
                         } break;
 
-                        case ini_disable_voice: {
-                            ini_set_setting(ini_disable_voice, last_value);
+                        case INI_DISABLE_VOICE: {
+                            ini_set_setting(INI_DISABLE_VOICE, last_value);
                             soundmgr.HaltVoicePlayback(last_value);
 
                         } break;
@@ -688,15 +688,15 @@ int OptionsMenu::ProcessKeyPress(int key) {
                             ini_set_setting(ini_param_index, value);
 
                             switch (ini_param_index) {
-                                case ini_music_level: {
+                                case INI_MUSIC_LEVEL: {
                                     soundmgr.HaltVoicePlayback(value);
                                 } break;
 
-                                case ini_fx_sound_level: {
+                                case INI_FX_SOUND_LEVEL: {
                                     soundmgr.HaltSfxPlayback(value);
                                 } break;
 
-                                case ini_voice_level: {
+                                case INI_VOICE_LEVEL: {
                                     soundmgr.HaltVoicePlayback(value);
 
                                 } break;

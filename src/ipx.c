@@ -90,8 +90,8 @@ static int ipx_tx_time_stamp_list[4];
 static unsigned char ipx_packet_data[5] = {0xFF, 0x00, 0x00, 0x00, 0x00};
 static unsigned char ipx_broadcast_address[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-static enum GAME_INI_e ini_player_team_lut[4] = {ini_red_team_player, ini_green_team_player, ini_blue_team_player,
-                                                 ini_gray_team_player};
+static enum GAME_INI_e ini_player_team_lut[4] = {INI_RED_TEAM_PLAYER, INI_GREEN_TEAM_PLAYER, INI_BLUE_TEAM_PLAYER,
+                                                 INI_GRAY_TEAM_PLAYER};
 
 void ipx_listen_for_packet(ecb_header *ecb) {}
 
