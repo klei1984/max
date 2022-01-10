@@ -64,35 +64,45 @@ enum HelpSectionId {
 
 class HelpMenu : public Window {
     WindowInfo window;
-    bool field_49;
-    bool field_50;
     Button *button_done;
     Button *button_keys;
     Button *button_up;
     Button *button_down;
-    unsigned short field_67;
+    bool event_click_cancel;
+    bool event_click_help;
+    bool event_click_done;
+    bool keys_mode;
+    unsigned short help_cache_index;
     unsigned short help_cache_use_count;
-    char **help_cache[10];
-    unsigned char buffer[1000];
+    char *help_cache[10];
+    char buffer[1000];
     unsigned char section;
     unsigned char window_id;
     FILE *file;
     int file_size;
-    bool field_1121;
     Image *canvas;
-    unsigned short field_1126;
-    unsigned short field_1128;
-    unsigned short field_1130;
+    unsigned short rows_per_page;
+    int string_row_count;
+    unsigned short string_row_index;
     SmartString *strings;
-    bool field_1136;
+
+    void GetHotZone(const char *chunk, Rect *hot_zone) const;
+    int ReadNextChunk();
+    int SeekSection();
+    int SeekEntry(int cursor_x, int cursor_y);
+    int ReadEntry();
+    void ProcessText(const char *text);
+    bool ProcessKey(int key);
+    void DrawText();
 
 public:
     HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window_id);
     ~HelpMenu();
 
-    bool Run();
+    bool Run(int mode);
 };
 
 void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode = false);
+bool HelpMenu_UnitReport(int mouse_x, int mouse_y);
 
 #endif /* HELPMENU_HPP */

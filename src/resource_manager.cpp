@@ -28,6 +28,7 @@ extern int read_game_resource_into_buffer(ResourceID id, void *buffer);
 const char *res_get_resource_id_string(ResourceID id);
 short res_get_resource_file_index(ResourceID id);
 unsigned char init_game_resources(void);
+FILE *get_file_ptr_to_resource(ResourceID id);
 }
 
 unsigned char ResourceManager_Init() { return init_game_resources(); }
@@ -41,4 +42,7 @@ int ResourceManager_ReadImageHeader(ResourceID id, struct SpriteMeta *buffer) {
 }
 
 int ResourceManager_GetResourceFileID(ResourceID id) { return res_get_resource_file_index(id); }
+
 const char *ResourceManager_GetResourceID(ResourceID id) { return res_get_resource_id_string(id); }
+
+FILE *ResourceManager_GetFileHandle(ResourceID id) { return get_file_ptr_to_resource(id); }

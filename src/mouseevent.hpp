@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,36 +19,18 @@
  * SOFTWARE.
  */
 
-#ifndef RESOURCE_MANAGER_HPP
-#define RESOURCE_MANAGER_HPP
+#ifndef MOUSEEVENT_HPP
+#define MOUSEEVENT_HPP
 
-#include <cstdio>
+#include "point.hpp"
 
-#include "enums.hpp"
+struct MouseEvent {
+    unsigned char buttons;
+    Point point;
 
-struct SpriteHeader {
-    short ulx;
-    short uly;
-    short width;
-    short height;
-    char data[];
+    static void Clear();
+    static void ProcessInput();
+    static bool PopFront(MouseEvent& mouse_event);
 };
 
-struct SpriteMeta {
-    short ulx;
-    short uly;
-    short width;
-    short height;
-    unsigned char palette[768];
-    char data[];
-};
-
-unsigned char ResourceManager_Init();
-char *ResourceManager_LoadResource(ResourceID id);
-unsigned int ResourceManager_GetResourceSize(ResourceID id);
-int ResourceManager_ReadImageHeader(ResourceID id, struct SpriteMeta *buffer);
-int ResourceManager_GetResourceFileID(ResourceID id);
-const char *ResourceManager_GetResourceID(ResourceID id);
-FILE *ResourceManager_GetFileHandle(ResourceID id);
-
-#endif /* RESOURCE_MANAGER_HPP */
+#endif /* MOUSEEVENT_HPP */

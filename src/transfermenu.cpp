@@ -101,9 +101,9 @@ bool TransferMenu::ProcessKey(int key) {
         event_click_done = true;
     } else if (key == 0x3F) {
         /// \todo Implement functions
-        //            Helpmenu_sub_A5B00(15, 38);
+        //            HelpMenu_Menu(15, 38);
     } else if (key == 0x119) {
-        //            Pausemenu_sub_B6BA6();
+        //            PauseMenu_Menu();
     } else if (key < 0x7000) {
         if (scrollbar->ProcessKey(key)) {
             int old_value = total_materials_transferred;

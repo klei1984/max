@@ -678,7 +678,7 @@ SmartPointer<TextItem> SmartTextfileReader::ReadField(SmartString& field) {
                 ReadNextCharacter();
             }
 
-            return SmartPointer<TextItem>(new (std::nothrow) TextInteger(field, error_log, atoi(string.GetCStr())));
+            return SmartPointer<TextItem>(new (std::nothrow) TextInteger(field, error_log, strtol(string.GetCStr(), nullptr, 10)));
         }
     }
 

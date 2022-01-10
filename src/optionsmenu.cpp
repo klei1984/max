@@ -605,7 +605,7 @@ int OptionsMenu::ProcessKeyPress(int key) {
         } break;
 
         case GNW_KB_KEY_LALT_P: {
-            Pausemenu_sub_B6BA6();
+            PauseMenu_Menu();
 
         } break;
 
