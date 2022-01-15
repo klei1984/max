@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,37 +19,12 @@
  * SOFTWARE.
  */
 
-#ifndef MENU_HPP
-#define MENU_HPP
+#include "saveloadmenu.hpp"
 
-extern "C" {
-#include "gnw.h"
-}
+static_assert(sizeof(struct SaveFormatHeader) == 176,
+              "The structure needs to be packed due to save file format compatibility.");
 
-struct MenuTitleItem {
-    Rect bounds;
-    const char* title;
-};
+const char* save_file_tpyes[] = {"dta", "tra", "cam", "hot", "mlt"};
 
-#define MENU_TITLE_ITEM_DEF(ulx, uly, lrx, lry, text) \
-    { {(ulx), (uly), (lrx), (lry)}, (text) }
-
-const char* menu_planet_descriptions[];
-extern const char* menu_planet_names[];
-
-void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align = false,
-                          bool vertical_align = true);
-
-void menu_draw_logo(ResourceID resource_id, int time_limit);
-
-int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width);
-
-int menu_clan_select_menu_loop(int team);
-
-void menu_update_resource_levels();
-
-void menu_draw_menu_portrait_frame(WindowInfo* window);
-
-void draw_menu_title(WindowInfo* window, const char* caption);
-
-#endif /* MENU_HPP */
+int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct SaveFormatHeader& save_file_header,
+                                  bool load_ini_options) {}

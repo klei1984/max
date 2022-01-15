@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,37 +19,28 @@
  * SOFTWARE.
  */
 
-#ifndef MENU_HPP
-#define MENU_HPP
+#ifndef SAVELOADMENU_HPP
+#define SAVELOADMENU_HPP
 
-extern "C" {
-#include "gnw.h"
-}
-
-struct MenuTitleItem {
-    Rect bounds;
-    const char* title;
+struct __attribute__((packed)) SaveFormatHeader {
+    unsigned short version;
+    char save_game_type;
+    char save_name[30];
+    char world;
+    unsigned short mission_index;
+    char team_name[4][30];
+    char team_type[5];
+    char team_clan[5];
+    unsigned int rng_seed;
+    char opponent;
+    unsigned short turn_timer_time;
+    unsigned short endturn_time;
+    char play_mode;
 };
 
-#define MENU_TITLE_ITEM_DEF(ulx, uly, lrx, lry, text) \
-    { {(ulx), (uly), (lrx), (lry)}, (text) }
+extern const char* save_file_tpyes[];
 
-const char* menu_planet_descriptions[];
-extern const char* menu_planet_names[];
+int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct SaveFormatHeader& save_file_header,
+                                  bool load_ini_options = true);
 
-void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align = false,
-                          bool vertical_align = true);
-
-void menu_draw_logo(ResourceID resource_id, int time_limit);
-
-int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width);
-
-int menu_clan_select_menu_loop(int team);
-
-void menu_update_resource_levels();
-
-void menu_draw_menu_portrait_frame(WindowInfo* window);
-
-void draw_menu_title(WindowInfo* window, const char* caption);
-
-#endif /* MENU_HPP */
+#endif /* SAVELOADMENU_HPP */

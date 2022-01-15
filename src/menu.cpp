@@ -29,6 +29,7 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "gameconfigmenu.hpp"
+#include "gamesetupmenu.hpp"
 #include "ginit.h"
 #include "gui.hpp"
 #include "gwindow.hpp"
@@ -37,6 +38,7 @@
 #include "optionsmenu.hpp"
 #include "planetselectmenu.hpp"
 #include "remote.hpp"
+#include "saveloadmenu.hpp"
 #include "smartstring.hpp"
 #include "soundmgr.hpp"
 #include "text.hpp"
@@ -74,6 +76,8 @@ static ResourceID menu_portrait_id;
 
 static struct MenuButton* menu_button_items;
 static int menu_button_items_count;
+
+static int menu_game_file_number;
 
 static struct MenuButton main_menu_buttons[] = {
     MENU_BUTTON_DEF(true, 385, 175, "New Game", GNW_KB_KEY_SHIFT_N, MBUTT0),
@@ -1127,8 +1131,6 @@ void menu_credits_menu_loop() {
     delete image2;
 }
 
-int GameSetupMenu_menu_loop(int game_file_type, bool flag1 = true, bool flag2 = true) {}
-
 int menu_clan_select_menu_loop(int team) {
     ClanSelectMenu clan_select_menu;
     int result;
@@ -1388,6 +1390,139 @@ int menu_choose_player_menu_loop(bool game_type) {
     }
 
     return true;
+}
+
+int GameSetupMenu_menu_loop(int game_file_type, bool flag1 = true, bool flag2 = true) {
+    GameSetupMenu game_setup_menu;
+    SaveFormatHeader save_file_header;
+    bool palette_from_image;
+    bool event_release;
+    int result;
+
+    palette_from_image = false;
+    game_setup_menu.game_file_type = game_file_type;
+
+    if (game_file_type == GAME_TYPE_CAMPAIGN) {
+        ini_set_setting(INI_GAME_FILE_NUMBER, ini_get_setting(INI_LAST_CAMPAIGN));
+    } else {
+        ini_set_setting(INI_GAME_FILE_NUMBER, 1);
+    }
+
+    for (;;) {
+        event_release = false;
+        game_setup_menu.Init(palette_from_image);
+
+        do {
+            if (Remote_GameState == 1) {
+                Remote_sub_CAC94();
+            }
+
+            game_setup_menu.key = get_input();
+
+            if (game_setup_menu.key > 0 && game_setup_menu.key < GNW_INPUT_PRESS) {
+                event_release = false;
+            }
+
+            switch (key) {
+                case GNW_KB_KEY_PAGEUP: {
+                    game_setup_menu.key = 12;
+                    game_setup_menu.EventScrollButton();
+                } break;
+
+                case GNW_KB_KEY_PAGEDOWN: {
+                    game_setup_menu.key = 13;
+                    game_setup_menu.EventScrollButton();
+                } break;
+
+                case GNW_KB_KEY_UP:
+                case GNW_KB_KEY_DOWN: {
+                    game_setup_menu.EventStepButton();
+                } break;
+
+                default: {
+                    for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
+                        if (game_setup_menu.buttons[i]) {
+                            if (game_setup_menu.key == GNW_INPUT_PRESS + i) {
+                                if (!event_release) {
+                                    game_setup_menu.buttons[i]->PlaySound();
+                                }
+
+                                event_release = true;
+                                break;
+                            }
+
+                            if (game_setup_menu.key == game_setup_menu.menu_item[i].event_code) {
+                                game_setup_menu.key = game_setup_menu.menu_item[i].r_value;
+                            }
+
+                            if (game_setup_menu.key == game_setup_menu.menu_item[i].r_value) {
+                                game_setup_menu.key -= 1000;
+                                game_setup_menu.menu_item[i].event_handler();
+                                break;
+                            }
+                        }
+                    }
+
+                } break;
+            }
+
+        } while (!game_setup_menu.event_click_done && !game_setup_menu.event_click_cancel);
+
+        game_setup_menu.Deinit();
+
+        if (game_setup_menu.event_click_cancel) {
+            result = false;
+            break;
+        }
+
+        menu_game_file_number = game_setup_menu.game_file_number;
+
+        ini_set_setting(INI_GAME_FILE_NUMBER, menu_game_file_number);
+        ini_set_setting(INI_GAME_FILE_TYPE, game_setup_menu.game_file_type);
+
+        if (game_setup_menu.game_file_type != GAME_TYPE_MULTI_PLAYER_SCENARIO || flag1) {
+            if (menu_options_menu_loop(2)) {
+                if (game_setup_menu.game_file_type == GAME_TYPE_CAMPAIGN) {
+                    menu_draw_campaign_mission_briefing_screen();
+                }
+
+                if (menu_game_file_number == 1 && game_setup_menu.game_file_type == GAME_TYPE_CAMPAIGN) {
+                    movie_play(DEMO2FLC);
+                }
+
+                if (game_setup_menu.game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+                    SaveLoadMenu_GetSavedGameInfo(menu_game_file_number, ini_get_setting(INI_GAME_FILE_TYPE),
+                                                  save_file_header, false);
+
+                    ini_set_setting(INI_RED_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_RED]);
+                    ini_set_setting(INI_GREEN_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_GREEN]);
+                    ini_set_setting(INI_BLUE_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_BLUE]);
+                    ini_set_setting(INI_GRAY_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_GRAY]);
+
+                    if (menu_choose_player_menu_loop(flag2)) {
+                        game_loop(GAME_STATE_10);
+                        palette_from_image = true;
+                    } else {
+                        palette_from_image = false;
+                    }
+
+                } else {
+                    game_loop(GAME_STATE_10);
+                    palette_from_image = true;
+                }
+
+            } else {
+                palette_from_image = false;
+            }
+
+            continue;
+        }
+
+        result = true;
+        break;
+    };
+
+    return result;
 }
 
 int menu_custom_game_menu(bool game_type) {
