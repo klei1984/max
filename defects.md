@@ -112,24 +112,32 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 41. On the Network Game lobby screen clients cannot see the maps, load, scenarios and options buttons as these are only available for the host. The in-game help mouse spot areas for these buttons are not deactivated for clients.
 
-42. In the Multiplayer Menu the 'O' hot key for the Options Menu is not disabled even though the menu item itself was removed from the GUI.
+42. Saving a game in multiplayer game modes via network packet 16 does not verify whether peers are already desynchronized. The game also does not check for desynchronization when a previously saved multiplayer game is loaded. This leads to situations where previously saved games are basically corrupted already at the time of loading.
 
-43. Saving a game in multiplayer game modes via network packet 16 does not verify whether peers are already desynchronized. The game also does not check for desynchronization when a previously saved multiplayer game is loaded. This leads to situations where previously saved games are basically corrupted already at the time of loading.
+43. The help button and the help feature in general does not work on the IPX multiplayer initial cargo setup screen.
 
-44. The help button and the help feature in general does not work on the IPX multiplayer initial cargo setup screen.
-
-45. When initial upgrades are made during mission loadout and the player proceeds to the landing zone selection screen then goes back to the purchase menu by pushing the cancel button the upgrades can be cancelled to get back the upgrade costs, but the game keeps the upgrades still. This can be used as an exploit in both single and multiplayer games where the purchase menu is available.
+44. When initial upgrades are made during mission loadout and the player proceeds to the landing zone selection screen then goes back to the purchase menu by pushing the cancel button the upgrades can be cancelled to get back the upgrade costs, but the game keeps the upgrades still. This can be used as an exploit in both single and multiplayer games where the purchase menu is available.
     <br>
     <video class="embed-video" autoplay loop muted playsinline>
-    <source src="{{ site.baseurl }}/assets/clips/defect_45.mp4" type="video/mp4">
+    <source src="{{ site.baseurl }}/assets/clips/defect_44.mp4" type="video/mp4">
     </video>
     In multiplayer the purchased unit count must remain below 134 otherwise buffer overflows or other wicked stuff could happen.
 
-46. The TeamInfo class still allocates space for the map markers feature (40 bytes) which was removed by the original developers before release. To fix this technical debt the save file format version needs to be updated.
+45. The TeamInfo class still allocates space for the map markers feature (40 bytes) which was removed by the original developers before release. To fix this technical debt the save file format version needs to be updated.
 
-47. The TeamInfo class allocates 6 slots for screen locations while only 4 locations can be saved and restored by the game logic. To fix this technical debt the save file format version needs to be updated.
+46. The TeamInfo class allocates 6 slots for screen locations while only 4 locations can be saved and restored by the game logic. To fix this technical debt the save file format version needs to be updated.
 
-48. The save file format header allocates 5 team instances for team type and team clan parameters but only 4 team instances are filled up with valid data. To fix this technical debt the save file format version needs to be updated.
+47. The save file format header allocates 5 team instances for team type and team clan parameters but only 4 team instances are filled up with valid data. To fix this technical debt the save file format version needs to be updated.
+
+48. There is a typo in the description of Valentine's Planet. "Two to four can be easily accomodated." -> accommodated.
+
+49. The resource levels panel of the game options menu allows to configure the amount of alien derelicts. The built-in help entry for the panel does not explain the meaning of alien derelicts indicating that the English help is older than the concept of alien derelicts. Additionally the "Alien Derelicts" caption is the only one without a colon within the panel.
+
+50. The built-in help menu's pop-up window supports rendering multiple pages of text. If more than one page is needed to display the help entry arrow buttons are added to the window. The up arrow registers an sfx, the down arrow does not. Interestingly neither is played by the game for some reason.
+
+51. The game setup menu allocates char buffers to hold mission titles using new char[], but deletes the buffers using the delete operator instead of the delete[] operator which is undefined behavior.
+
+52. The event handler of the scroll up button on mission selection screens tests against an uninitialized local (stack) variable. In the extremely unlikely case when the test would pass the function does nothing to the GameSetupMenu class object's state as the function prematurely exits.
 
 {% comment %}
 

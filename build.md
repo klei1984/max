@@ -17,7 +17,7 @@ permalink: /build/
 
 ### General Notes
 
-The M.A.X. Port source code is only *compatible* with the 32 bit x86 architecture. 64 bit builds cannot be created and in general x86_64 bit compilers cannot be used. The code generator scritps heavily rely on GCC extensions so compilers that are not GCC compatible will not work either. Only Windows and Linux operating systems are targeted currently, but potentially an x86 architecture based macOS build would be possible to do if self modifying code is supported by the platform. It is assumed that the OS is built for a 64 bit platform.
+The M.A.X. Port source code is only *compatible* with the 32 bit x86 architecture. 64 bit builds cannot be created and in general x86_64 bit compilers cannot be used. The code generator scripts heavily rely on GCC extensions so compilers that are not GCC compatible will not work either. Only Windows and Linux operating systems are targeted currently, but potentially an x86 architecture based macOS build would be possible to do if self modifying code is supported by the platform. It is assumed that the OS is built for a 64 bit platform.
 
 ### Build options
 
