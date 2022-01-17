@@ -23,7 +23,7 @@
 
 #include <SDL_net.h>
 
-Transport::Transport() : NetState(false) {}
+Transport::Transport() : NetState(false), LastError("No error.\n") {}
 
 Transport::~Transport() {}
 
@@ -33,8 +33,14 @@ bool Transport::Init() {
     if (SDLNet_Init() == -1) {
         SDL_Log("Unable to initialize SDL Net: %s\n", SDLNet_GetError());
 
+        SetError("Network not available.");
+
         result = false;
     }
 }
 
 bool Transport::Deinit() { SDLNet_Quit(); }
+
+void Transport::SetError(const char* error) { LastError = error; }
+
+const char* Transport::GetError() { return LastError; }

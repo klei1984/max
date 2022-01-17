@@ -24,10 +24,14 @@
 
 class Transport {
     bool NetState;
+    const char* LastError;
+    void SetError(const char* error);
 
 public:
     Transport();
     ~Transport();
+
+    const char* GetError();
 
     bool Init();
     bool Deinit();

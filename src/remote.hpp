@@ -26,7 +26,9 @@ void Remote_Deinit();
 int Remote_Lobby(bool is_host_mode);
 
 extern unsigned char Remote_GameState;
+extern bool Remote_IsHostMode;
 extern bool Remote_IsNetworkGame;
 extern unsigned int Remote_PauseTimeStamp;
+extern unsigned int Remote_RngSeed;
 
 #endif /* REMOTE_HPP */

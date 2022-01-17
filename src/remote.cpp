@@ -21,10 +21,64 @@
 
 #include "remote.hpp"
 
+#include "gwindow.hpp"
+#include "message_manager.hpp"
+#include "networkmenu.hpp"
 #include "transport.hpp"
 
 unsigned char Remote_GameState;
+bool Remote_IsHostMode;
+bool Remote_IsNetworkGame;
+unsigned int Remote_PauseTimeStamp;
+unsigned int Remote_RngSeed;
 
-void Remote_Deinit() {}
+Transport* Remote_Transport;
 
-int Remote_Lobby(bool is_host_mode) { return 0; }
+void Remote_Init() {}
+
+void Remote_Deinit() {
+    if (Remote_Transport) {
+        Remote_Transport->Deinit();
+
+        delete Remote_Transport;
+        Remote_Transport = nullptr;
+    }
+
+    Remote_GameState = 0;
+    Remote_IsNetworkGame = false;
+}
+
+int Remote_Lobby(bool is_host_mode) {
+    WindowInfo* window;
+    int result;
+
+    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+
+    Remote_IsHostMode = is_host_mode;
+
+    CTInfo_Init();
+    Remote_Init();
+
+    SDL_assert(Remote_Transport == nullptr);
+    Remote_Transport = new (std::nothrow) Transport();
+
+    if (Remote_Transport) {
+        if (Remote_Transport->Init()) {
+            Remote_IsNetworkGame = NetworkMenu_MenuLoop(Remote_IsHostMode);
+
+            result = Remote_IsNetworkGame;
+
+        } else {
+            gwin_load_image(MAINPIC, gwin_get_window(GWINDOW_MAIN_WINDOW), 640, false, true);
+            MessageManager_DrawMessage(Remote_Transport->GetError(), 2, 1);
+
+            result = false;
+        }
+
+    } else {
+        SDL_Log("Unable to initialize network transport layer.\n");
+        result = false;
+    }
+
+    return result;
+}
