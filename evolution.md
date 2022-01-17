@@ -298,27 +298,8 @@ _Do you remember what was the reason for having so many unique, game specific mo
 
 **Gus**: _As for specific design changes - it's much too long ago for me to say. Off the top of my head, I'd probably try and tackle the "research" system, which is a bit too generic._  
   
-
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
   
-----
-M.A.X. is based on an original idea by Larry Froistad who worked at Mindcraft Software between 1991 and 1993 at least. Froistad worked on several Mindcraft titles during that time. Froistad most probably did not join Interplay as he was living in Bowman, North Dakota around 1994-1995.
-<br>
 
-**M.A.X. is Dedicated to the memory of Amanda Froistad.**<br>
-Froistad molested he's 5 year old daughter and murdered her in 1995, but this was not proven until 1998 when Froistad confessed both crimes [\[10\]](#ref10).
-{: style="color:gray; font-size: 100%; text-align: right;"}
-  
-----
 <br><br>
 <br style="clear:both"><br>
 

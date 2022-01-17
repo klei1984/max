@@ -139,6 +139,8 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 52. The event handler of the scroll up button on mission selection screens tests against an uninitialized local (stack) variable. In the extremely unlikely case when the test would pass the function does nothing to the GameSetupMenu class object's state as the function prematurely exits.
 
+53. If a multiplayer game desyncs on the beginning of the first round before a new autosave is made, thus no autosave exists for the given game session, the game still asks whether players, any of them, wants to reload the last save.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).

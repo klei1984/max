@@ -70,7 +70,92 @@ MS-DOS 6.22 runs well under [VirtualBox](https://www.virtualbox.org/). The MS-DO
 
 ### DOSBox & DBGL
 
-[DBGL](https://dbgl.org/) is a feature ritch GUI and manager for DOSBox.
+[DBGL](https://dbgl.org/) is a feature rich GUI and manager for DOSBox.  
+[DOSBox Debugger](https://www.vogons.org/viewtopic.php?t=7323) v0.74-3 is used for debugging.
+
+Executable used under DOSBox: M.A.X. v1.04 (MD5 hash: 285d81dcd57e62390944c68a6bdcc54a *MAXRUN.EXE)  
+Unbound linear executable analyzed in IDA: M.A.X. v1.04 (MD5 hash: fc51699f3c8e884cc6c2f0a7129f67ec *MAXRUN.LE)
+
+#### Memory Mapping
+
+Object Table as output by WDUMP from the Open Watcom compiler:
+```
+                                 Object Table
+==============================================================================
+object  1: virtual memory size             = 0012D469H
+          relocation base address          = 00010000H
+          object flag bits                 = 00002045H
+          object page table index          = 00000001H
+          # of object page table entries   = 0000012EH
+          reserved                         = 00000000H
+          flags = READABLE|EXECUTABLE|PRELOAD|BIG
+
+object  2: virtual memory size             = 0000016BH
+          relocation base address          = 00140000H
+          object flag bits                 = 00000045H
+          object page table index          = 0000012FH
+          # of object page table entries   = 00000001H
+          reserved                         = 00000000H
+          flags = READABLE|EXECUTABLE|PRELOAD
+
+object  3: virtual memory size             = 0006F170H
+          relocation base address          = 00150000H
+          object flag bits                 = 00002043H
+          object page table index          = 00000130H
+          # of object page table entries   = 00000024H
+          reserved                         = 00000000H
+          flags = READABLE|WRITABLE|PRELOAD|BIG
+```
+
+Segment definitions in IDA:
+```
+static Segments(void) {
+	set_selector(0X1,0);
+	set_selector(0X2,0X14000);
+	set_selector(0X3,0);
+	;
+	add_segm_ex(0X10000,0X13E000,0X1,1,3,2,ADDSEG_NOSREG);
+	SegRename(0X10000,"cseg01");
+	SegClass (0X10000,"CODE");
+	SegDefReg(0x10000,"ds",0x3);
+	set_segm_type(0X10000,2);
+	add_segm_ex(0X140000,0X141000,0X2,0,3,2,ADDSEG_NOSREG);
+	SegRename(0X140000,"cseg02");
+	SegClass (0X140000,"CODE");
+	SegDefReg(0x140000,"ds",0x3);
+	set_segm_type(0X140000,2);
+	add_segm_ex(0X150000,0X1BF170,0X3,1,3,5,ADDSEG_NOSREG);
+	SegRename(0X150000,"dseg03");
+	SegClass (0X150000,"STACK");
+	SegDefReg(0x150000,"ds",0x3);
+	set_segm_type(0X150000,9);
+	set_inf_attr(INF_LOW_OFF, 0x0);
+	set_inf_attr(INF_HIGH_OFF, 0x1BF170);
+}
+```
+
+Code segment offset from IDA to DOSBox: 0x00120010.  
+Data segment offset from IDA to DOSBox: 0x0010D610.
+
+Examples:
+
+| DOSBox | IDA |
+| ------------- | ------------- |
+| 1038:00120010 | cseg01:00010000 |
+| 1028:0010D610 | dseg03:00150000 |
+
+
+A few useful debugger commands:  
+**ALT-PAUSE** - Break into the debugger.  
+**help** - List available commands.  
+**F5** - Continue code execution.  
+**Cursor Up**, **Cursor Down** - Move code window view up or down.  
+**C \[segment\]:\[address\]** - Jump code view to segment:address.  
+**Page Up**, **Page Down** - Move data window view up or down.  
+**D \[segment\]:\[address\]** - Jump data view to segment:address.  
+**BP \[segment\]:\[address\]** - Set breakpoint to segment:address.  
+
+To break into the debugger within DOSBox it might be necessary to remap the key code associated to the debug break event. To enter the keymapper tool press CTRL-F1. Click the Debugger special event and add a new key binding.
 
 ## M.A.X. Port - Home Page Editing
 
