@@ -1392,7 +1392,7 @@ int menu_choose_player_menu_loop(bool game_type) {
     return true;
 }
 
-int GameSetupMenu_menu_loop(int game_file_type, bool flag1 = true, bool flag2 = true) {
+int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
     GameSetupMenu game_setup_menu;
     SaveFormatHeader save_file_header;
     bool palette_from_image;

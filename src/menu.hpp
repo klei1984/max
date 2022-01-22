@@ -52,4 +52,8 @@ void menu_draw_menu_portrait_frame(WindowInfo* window);
 
 void draw_menu_title(WindowInfo* window, const char* caption);
 
+int menu_options_menu_loop(int game_mode);
+int GameSetupMenu_menu_loop(int game_file_type, bool flag1 = true, bool flag2 = true);
+int menu_planet_select_menu_loop();
+
 #endif /* MENU_HPP */

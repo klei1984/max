@@ -23,6 +23,7 @@
 #define NETWORKMENU_HPP
 
 #include "button.hpp"
+#include "saveloadmenu.hpp"
 #include "textedit.hpp"
 
 #define NETWORK_MENU_ITEM_COUNT 24
@@ -44,6 +45,17 @@ class NetworkMenu {
     void SetButtonState(int button_index, bool state);
     void ReadIniSettings(int game_state);
     void DrawTextLine(int line_index, char *text, int height, bool horizontal_align);
+    void UpdateSaveSettings(struct SaveFormatHeader *save_file_header);
+    void SetClans(int team_clan);
+    void UpdateMenuButtonStates();
+    int IsAllowedToStartGame();
+    void NetSync(int player_team);
+    void NetSync(struct SaveFormatHeader &save_file_header);
+    TextEdit *CreateTextEdit(int index);
+    void DrawTextWindow();
+    void DrawJars();
+    void DrawJoinScreen();
+    void InitJoinScreen();
 
 public:
     WindowInfo *window;
@@ -58,7 +70,7 @@ public:
     char player_team;
     char player_clan;
     char is_incompatible_save_file;
-    short host_node;
+    short player_node;
     Button *buttons[NETWORK_MENU_ITEM_COUNT];
     NetworkMenuItem menu_items[NETWORK_MENU_ITEM_COUNT];
     TextEdit *text_edit1;
@@ -72,7 +84,7 @@ public:
     char chat_input_buffer[150];
     char chat_message_buffer[150];
     short team_nodes[4];
-    short team_clan[4];
+    short team_clans[4];
     char team_jar_in_use[4];
     char world_name[30];
     char ini_world_index;
@@ -89,7 +101,7 @@ public:
     short ini_victory_limit;
     char is_map_changed;
     char is_multi_scenario;
-    char default_team_name[4][30];
+    char default_team_names[4][30];
     char multi_scenario_id;
     unsigned int rng_seed;
     Image *images[NETWORK_MENU_IMAGE_COUNT];
@@ -98,6 +110,7 @@ public:
     void Init();
     void Deinit();
     void DrawScreen();
+    int SetupScenario(int mode);
     void EventEditPlayerName();
     void EventSelectClan();
     void EventTextWindow();
@@ -105,12 +118,14 @@ public:
     void EventLoadButton();
     void EventScenarioButton();
     void EventSetJar();
+    void ResetJar(int team);
     void EventChat();
     void EventOptions();
     void EventCancel();
     void EventHelp();
     void EventReady();
     void EventStart();
+    void LeaveEditField();
 };
 
 bool NetworkMenu_MenuLoop(bool is_host_mode);

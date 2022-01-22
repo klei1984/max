@@ -39,7 +39,7 @@ struct GameConfigMenuControlItem {
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
     { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
 
-static struct MenuTitleItem game_config_menu_items[] = {
+struct MenuTitleItem game_config_menu_items[] = {
     MENU_TITLE_ITEM_DEF(230, 5, 409, 25, "Options Menu"),
     MENU_TITLE_ITEM_DEF(19, 50, 199, 70, "Computer Opponent"),
     MENU_TITLE_ITEM_DEF(230, 50, 409, 70, "Turn Timers"),

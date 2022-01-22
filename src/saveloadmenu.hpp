@@ -43,4 +43,6 @@ extern const char* save_file_tpyes[];
 int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct SaveFormatHeader& save_file_header,
                                   bool load_ini_options = true);
 
+int SaveLoadMenu_menu_loop(int is_saving_allowed, int is_text_mode);
+
 #endif /* SAVELOADMENU_HPP */

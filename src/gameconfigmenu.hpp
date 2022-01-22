@@ -97,4 +97,6 @@ public:
     void UpdateTextEdit(int mode);
 };
 
+extern struct MenuTitleItem game_config_menu_items[];
+
 #endif /* GAMECONFIGMENU_HPP */
