@@ -59,7 +59,6 @@ public:
     ~TextEdit();
 
     void SetMode(int mode);
-    void LeaveTextEditField();
     void SetEditedText(const char *text);
     void LoadBgImage();
     void EnterTextEditField();

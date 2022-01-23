@@ -24,14 +24,11 @@
 #include "cursor.hpp"
 #include "desyncmenu.hpp"
 #include "enums.hpp"
+#include "gwindow.hpp"
 #include "okcancelmenu.hpp"
+#include "remote.hpp"
+#include "soundmgr.hpp"
 #include "transfermenu.hpp"
-//#include "soundmgr.hpp"
-
-/// \todo Fix includes
-extern "C" {
-void gwin_load_image2(unsigned short id, int ulx, int uly, int has_transparency, WindowInfo* w);
-}
 
 char GUI_PlayerTeamIndex;
 char GUI_GameState;
@@ -39,8 +36,7 @@ char GUI_GameState;
 bool GUI_OKCancelMenu(const char* caption, bool mode) { return OKCancelMenu(caption, mode).Run(); }
 
 bool GUI_DesyncMenu() {
-    /// \todo Implement function
-    //	sub_C9753();
+    Remote_sub_C9753();
 
     return DesyncMenu().Run();
 }
@@ -54,7 +50,7 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
     for (unsigned short id = SLFDOPN1; id <= SLFDOPN6; ++id) {
         unsigned int time_Stamp = timer_get_stamp32();
 
-        gwin_load_image2(id, 13, 11, 0, window);
+        // gwin_load_image2(static_cast<ResourceID>(id), 13, 11, 0, window);
         win_draw(window->id);
         /// \todo Implement function
         //        sub_A0E32(1, 1);
@@ -65,8 +61,8 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
     }
 
     button_destruct = new (std::nothrow) Button(SLFDOK_U, SLFDOK_D, 13, 11);
-    button_destruct->SetRValue(0x0D);
-    button_destruct->SetPValue(0x700D);
+    button_destruct->SetRValue(GNW_KB_KEY_RETURN);
+    button_destruct->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
     button_destruct->SetSfx(NDONE0);
     button_destruct->RegisterButton(window->id);
 
@@ -81,19 +77,19 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
 
         /// \todo Implement missing stuff
         //        if (byte_1737D2) {
-        //            key = 0x1B;
+        //            key = GNW_KB_KEY_ESCAPE;
         //        }
 
-        if (key == 0x0D) {
+        if (key == GNW_KB_KEY_RETURN) {
             event_click_destruct = true;
-        } else if (key == 0x1B) {
+        } else if (key == GNW_KB_KEY_ESCAPE) {
             event_click_cancel = true;
-        } else if (key >= 0x7000 && !event_release) {
-            if (key == 0x700D) {
+        } else if (key >= GNW_INPUT_PRESS && !event_release) {
+            if (key == GNW_INPUT_PRESS + GNW_KB_KEY_RETURN) {
                 button_destruct->PlaySound();
             } else {
                 /// \todo integrate interface
-                //                soundmgr.PlaySfx(NCANC0);
+                soundmgr.PlaySfx(NCANC0);
             }
 
             event_release = true;
@@ -109,7 +105,7 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
 }
 
 bool GUI_SelfDestructMenu() {
-    Window destruct_window(SELFDSTR, 38);
+    Window destruct_window(SELFDSTR, GWINDOW_38);
     WindowInfo window;
     Button* button_arm;
     Button* button_cancel;
@@ -127,14 +123,14 @@ bool GUI_SelfDestructMenu() {
     button_arm = new (std::nothrow) Button(SLFDAR_U, SLFDAR_D, 89, 14);
     button_arm->SetCaption("Arm");
     button_arm->SetFlags(0x05);
-    button_arm->SetPValue(0x0D);
+    button_arm->SetPValue(GNW_KB_KEY_RETURN);
     button_arm->SetSfx(MBUTT0);
     button_arm->RegisterButton(window.id);
 
     button_cancel = new (std::nothrow) Button(SLFDCN_U, SLFDCN_D, 89, 46);
     button_cancel->SetCaption("Cancel");
-    button_cancel->SetRValue(0x1B);
-    button_cancel->SetPValue(0x701B);
+    button_cancel->SetRValue(GNW_KB_KEY_ESCAPE);
+    button_cancel->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
     button_cancel->SetSfx(NCANC0);
     button_cancel->RegisterButton(window.id);
 
@@ -149,10 +145,10 @@ bool GUI_SelfDestructMenu() {
 
         /// \todo Implement missing stuff
         //        if (byte_1737D2) {
-        //            key = 0x1B;
+        //            key = GNW_KB_KEY_ESCAPE;
         //        }
 
-        if (key == 0x0D) {
+        if (key == GNW_KB_KEY_RETURN) {
             button_arm->PlaySound();
             button_arm->Disable();
             if (GUI_SelfDestructActiveMenu(&window)) {
@@ -160,9 +156,9 @@ bool GUI_SelfDestructMenu() {
             } else {
                 event_click_cancel = true;
             }
-        } else if (key == 0x1B) {
+        } else if (key == GNW_KB_KEY_ESCAPE) {
             event_click_cancel = true;
-        } else if (key >= 0x7000 && !event_release) {
+        } else if (key >= GNW_INPUT_PRESS && !event_release) {
             button_cancel->PlaySound();
             event_release = true;
         }

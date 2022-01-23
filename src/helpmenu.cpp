@@ -494,18 +494,18 @@ bool HelpMenu::Run(int mode) {
     while (!event_click_cancel) {
         key = get_input();
 
-        /** \todo Implement missing stuff
-        if (byte_1737D2) {
-            key = GNW_KB_KEY_RETURN;
-        }
+        /// \todo Implement missing stuff
+        // if (byte_1737D2) {
+        //   key = GNW_KB_KEY_RETURN;
+        // }
 
         ProcessKey(key);
 
         if (!mode) {
             if (window_id == GWINDOW_38) {
-                sub_A0E32(1, 0);
+                // sub_A0E32(1, 0);
             } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
-                sub_A0E32(0, 0);
+                // sub_A0E32(0, 0);
             } else if (Remote_GameState) {
                 Remote_sub_CAC94();
 
@@ -515,11 +515,10 @@ bool HelpMenu::Run(int mode) {
 
             } else if (Remote_IsNetworkGame) {
                 if (Remote_sub_C8835()) {
-                    sub_102CB8();
+                    // sub_102CB8();
                 }
             }
         }
-        */
     }
 
     return event_click_help;
@@ -559,11 +558,11 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
             }
 
             if (!mode) {
-                /** \todo Implement missing stuff
+                /// \todo Implement missing stuff
                 if (window_index == GWINDOW_38) {
-                    sub_A0E32(1, 0);
+                    // sub_A0E32(1, 0);
                 } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
-                    sub_A0E32(0, 0);
+                    // sub_A0E32(0, 0);
                 } else if (Remote_GameState) {
                     Remote_sub_CAC94();
                     if (Remote_GameState == 2) {
@@ -572,10 +571,9 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
 
                 } else if (Remote_IsNetworkGame) {
                     if (Remote_sub_C8835()) {
-                        sub_102CB8();
+                        // sub_102CB8();
                     }
                 }
-                */
             }
         }
     }

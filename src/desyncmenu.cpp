@@ -22,10 +22,14 @@
 #include "desyncmenu.hpp"
 
 #include "cursor.hpp"
+#include "gui.hpp"
+#include "gwindow.hpp"
+#include "mouseevent.hpp"
+#include "remote.hpp"
 #include "text.hpp"
 
 DesyncMenu::DesyncMenu()
-    : Window(HELPFRAM, 38), event_click_restart(false), event_click_quit(false), event_release(false) {
+    : Window(HELPFRAM, GWINDOW_38), event_click_restart(false), event_click_quit(false), event_release(false) {
     Cursor_SetCursor(CURSOR_HAND);
     text_font(5);
     SetFlags(0x10);
@@ -35,15 +39,15 @@ DesyncMenu::DesyncMenu()
 
     button_restart = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 155, 193);
     button_restart->SetCaption("Restart", 2, 2);
-    button_restart->SetRValue(0x0D);
-    button_restart->SetPValue(0x700D);
+    button_restart->SetRValue(GNW_KB_KEY_RETURN);
+    button_restart->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
     button_restart->SetSfx(NDONE0);
     button_restart->RegisterButton(window.id);
 
     button_quit = new (std::nothrow) Button(XFRCAN_U, XFRCAN_D, 85, 193);
     button_quit->SetCaption("Quit", 2, 2);
-    button_quit->SetRValue(0x1B);
-    button_quit->SetPValue(0x701B);
+    button_quit->SetRValue(GNW_KB_KEY_ESCAPE);
+    button_quit->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
     button_quit->SetSfx(NCANC0);
     button_quit->RegisterButton(window.id);
 
@@ -57,7 +61,8 @@ DesyncMenu::DesyncMenu()
 DesyncMenu::~DesyncMenu() {
     delete button_restart;
     delete button_quit;
-    /// \todo Clear MouseEvent object array
+
+    MouseEvent::Clear();
 }
 
 bool DesyncMenu::Run() {
@@ -65,29 +70,28 @@ bool DesyncMenu::Run() {
     event_click_quit = false;
     event_release = false;
 
-    /// \todo Integrate missing stuff
-    while (!event_click_restart && !event_click_quit /* && dword_175624 */) {
+    while (!event_click_restart && !event_click_quit && Remote_IsNetworkGame) {
         int key;
 
-        //        if (sub_C8626()) {
-        //            key = 0x0D;
-        //        } else {
-        key = get_input();
-        //        }
+        if (Remote_CheckRestartAfterDesyncEvent()) {
+            key = GNW_KB_KEY_RETURN;
+        } else {
+            key = get_input();
+        }
 
-        if (key > 0 && key < 0x7000) {
+        if (key > 0 && key < GNW_INPUT_PRESS) {
             event_release = false;
         }
 
-        if (key == 0x0D) {
-            //            sub_C8897(51, GUI_PlayerTeamIndex, 0);
+        if (key == GNW_KB_KEY_RETURN) {
+            Remote_SendNetPacket_signal(51, GUI_PlayerTeamIndex, 0);
             event_click_restart = true;
-        } else if (key == 0x1B) {
+        } else if (key == GNW_KB_KEY_ESCAPE) {
             event_click_quit = true;
         }
 
         if (!event_release) {
-            if (key == 0x700D) {
+            if (key == GNW_INPUT_PRESS + GNW_KB_KEY_RETURN) {
                 button_restart->PlaySound();
             } else {
                 button_quit->PlaySound();

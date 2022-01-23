@@ -23,6 +23,8 @@
 
 #include "cursor.hpp"
 #include "gui.hpp"
+#include "gwindow.hpp"
+#include "remote.hpp"
 #include "text.hpp"
 
 extern "C" {
@@ -72,55 +74,64 @@ void DialogMenu::DrawText() {
 }
 
 bool DialogMenu::ProcessKey(int key) {
-    if (key > 0 && key < 0x7000) {
+    if (key > 0 && key < GNW_INPUT_PRESS) {
         event_release = false;
     }
 
-    if (key == 0x149 || key == 0x3E8) {
-        if (row_offset) {
-            int num_rows;
+    switch (key) {
+        case GNW_KB_KEY_PAGEUP:
+        case 1000: {
+            if (row_offset) {
+                int num_rows;
 
-            num_rows = row_offset - max_row_count;
+                num_rows = row_offset - max_row_count;
 
-            if (num_rows < 0) {
-                num_rows = 0;
+                if (num_rows < 0) {
+                    num_rows = 0;
+                }
+
+                do {
+                    unsigned int time_Stamp = timer_get_stamp32();
+
+                    --row_offset;
+                    DrawText();
+
+                    while (timer_get_stamp32() - time_Stamp < 12428) {
+                        ;
+                    }
+                } while (num_rows != row_offset);
             }
+        } break;
 
-            do {
-                unsigned int time_Stamp = timer_get_stamp32();
+        case GNW_KB_KEY_RETURN:
+        case GNW_KB_KEY_ESCAPE: {
+            event_click_ok = true;
+        } break;
 
-                --row_offset;
-                DrawText();
+        case GNW_KB_KEY_PAGEDOWN:
+        case 1001: {
+            if ((max_row_count + row_offset) < row_count) {
+                int num_rows;
 
-                while (timer_get_stamp32() - time_Stamp < 12428) {
-                    ;
-                }
-            } while (num_rows != row_offset);
-        }
-    } else if (key == 0x0D || key == 0x1B) {
-        event_click_ok = true;
-    } else if (key == 0x151 || key == 0x3E9) {
-        if ((max_row_count + row_offset) < row_count) {
-            int num_rows;
+                num_rows = row_offset + max_row_count;
 
-            num_rows = row_offset + max_row_count;
+                do {
+                    unsigned int time_Stamp = timer_get_stamp32();
 
-            do {
-                unsigned int time_Stamp = timer_get_stamp32();
+                    ++row_offset;
+                    DrawText();
 
-                ++row_offset;
-                DrawText();
-
-                while (timer_get_stamp32() - time_Stamp < 12428) {
-                    ;
-                }
-            } while (num_rows != row_offset);
-        }
+                    while (timer_get_stamp32() - time_Stamp < 12428) {
+                        ;
+                    }
+                } while (num_rows != row_offset);
+            }
+        } break;
     }
 
-    if (key >= 0x7000) {
+    if (key >= GNW_INPUT_PRESS) {
         if (!event_release) {
-            if (key == 0x700D) {
+            if (key == GNW_INPUT_PRESS + GNW_KB_KEY_RETURN) {
                 button_ok->PlaySound();
             } else {
                 button_up->PlaySound();
@@ -134,7 +145,7 @@ bool DialogMenu::ProcessKey(int key) {
 }
 
 DialogMenu::DialogMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, GUI_GameState == GAME_STATE_3_MAIN_MENU ? 0 : 38),
+    : Window(HELPFRAM, GUI_GameState == GAME_STATE_3_MAIN_MENU ? GWINDOW_MAIN_WINDOW : GWINDOW_38),
       field_62(GUI_GameState != GAME_STATE_3_MAIN_MENU),
       strings(nullptr),
       row_offset(0),
@@ -152,8 +163,8 @@ DialogMenu::DialogMenu(const char* caption, bool mode)
 
     button_ok = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 120, 193);
     button_ok->SetCaption("OK", 2, 2);
-    button_ok->SetRValue(0x0D);
-    button_ok->SetPValue(0x700D);
+    button_ok->SetRValue(GNW_KB_KEY_RETURN);
+    button_ok->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
     button_ok->SetSfx(NDONE0);
     button_ok->RegisterButton(window.id);
 
@@ -163,14 +174,14 @@ DialogMenu::DialogMenu(const char* caption, bool mode)
 
     if (row_count > max_row_count) {
         button_up = new (std::nothrow) Button(BLDUP__U, BLDUP__D, 20, 197);
-        button_up->SetRValue(0x3E8);
-        button_up->SetPValue(0x73E8);
+        button_up->SetRValue(1000);
+        button_up->SetPValue(GNW_INPUT_PRESS + 1000);
         button_up->SetSfx(KCARG0);
         button_up->RegisterButton(window.id);
 
         button_down = new (std::nothrow) Button(BLDDWN_U, BLDDWN_D, 40, 197);
-        button_down->SetRValue(0x3E9);
-        button_down->SetPValue(0x73E9);
+        button_down->SetRValue(1001);
+        button_down->SetPValue(GNW_INPUT_PRESS + 1001);
         button_down->SetSfx(KCARG0);
         button_down->RegisterButton(window.id);
     }
@@ -196,14 +207,14 @@ void DialogMenu::Run() {
         ProcessKey(key);
 
         /// \todo Implement missing stuff
-        //        if (dword_175624) {
-        //            if (sub_C8835()) {
-        //                sub_102CB8();
-        //            }
-        //        } else {
-        //            if (field_62) {
-        //                sub_A0E32(1, 1);
-        //            }
-        //        }
+        if (Remote_IsNetworkGame) {
+            if (Remote_sub_C8835()) {
+                // sub_102CB8();
+            }
+        } else {
+            if (field_62) {
+                // sub_A0E32(1, 1);
+            }
+        }
     }
 }

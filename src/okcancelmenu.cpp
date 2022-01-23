@@ -22,10 +22,15 @@
 #include "okcancelmenu.hpp"
 
 #include "cursor.hpp"
+#include "gwindow.hpp"
+#include "mouseevent.hpp"
 #include "text.hpp"
 
 OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, mode ? 0 : 38), event_click_ok(false), event_click_cancel(false), event_release(false) {
+    : Window(HELPFRAM, mode ? GWINDOW_MAIN_WINDOW : GWINDOW_38),
+      event_click_ok(false),
+      event_click_cancel(false),
+      event_release(false) {
     Cursor_SetCursor(CURSOR_HAND);
     text_font(5);
     SetFlags(0x10);
@@ -35,15 +40,15 @@ OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
 
     button_ok = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 155, 193);
     button_ok->SetCaption("OK", 2, 2);
-    button_ok->SetRValue(0x0D);
-    button_ok->SetPValue(0x700D);
+    button_ok->SetRValue(GNW_KB_KEY_RETURN);
+    button_ok->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
     button_ok->SetSfx(NDONE0);
     button_ok->RegisterButton(window.id);
 
     button_cancel = new (std::nothrow) Button(XFRCAN_U, XFRCAN_D, 85, 193);
     button_cancel->SetCaption("Cancel", 2, 2);
-    button_cancel->SetRValue(0x1B);
-    button_cancel->SetPValue(0x701B);
+    button_cancel->SetRValue(GNW_KB_KEY_ESCAPE);
+    button_cancel->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
     button_cancel->SetSfx(NCANC0);
     button_cancel->RegisterButton(window.id);
 
@@ -54,7 +59,8 @@ OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
 OKCancelMenu::~OKCancelMenu() {
     delete button_ok;
     delete button_cancel;
-    /// \todo Clear MouseEvent object array
+
+    MouseEvent::Clear();
 }
 
 bool OKCancelMenu::Run() {
@@ -65,18 +71,18 @@ bool OKCancelMenu::Run() {
     while (!event_click_ok && !event_click_cancel) {
         int key = get_input();
 
-        if (key > 0 && key < 0x7000) {
+        if (key > 0 && key < GNW_INPUT_PRESS) {
             event_release = false;
         }
 
-        if (key == 0x0D) {
+        if (key == GNW_KB_KEY_RETURN) {
             event_click_ok = true;
-        } else if (key == 0x1B) {
+        } else if (key == GNW_KB_KEY_ESCAPE) {
             event_click_cancel = true;
         }
 
         if (!event_release) {
-            if (key == 0x700D) {
+            if (key == GNW_INPUT_PRESS + GNW_KB_KEY_RETURN) {
                 button_ok->PlaySound();
             } else {
                 button_cancel->PlaySound();

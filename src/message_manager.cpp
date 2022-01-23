@@ -57,7 +57,7 @@ char** MessageManager_MessageBox_BgColorArray[] = {0, 0, 0};
 
 SmartList<MessageLogEntry> MessageManager_TeamMessageLog[MESSAGE_MANAGER_TEAM_COUNT];
 
-void MessageManager_WrapText(char* text, short width) {
+void MessageManager_WrapText(const char* text, short width) {
     int position = 0;
     short row_width = 0;
     char* buffer = MessageManager_MessageBuffer;
@@ -134,7 +134,7 @@ void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int lef
     } while (text[offset] != '\0');
 }
 
-void MessageManager_AddMessage(char* text, ResourceID id) {
+void MessageManager_AddMessage(const char* text, ResourceID id) {
     MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].PushBack(
         *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, id)));
 
@@ -144,7 +144,7 @@ void MessageManager_AddMessage(char* text, ResourceID id) {
     }
 }
 
-void MessageManager_DrawMessage(char* text, char type, UnitInfo* unit, Point point) {
+void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Point point) {
     if (text[0] != '\0') {
         MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].PushBack(
             *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, unit, point)));
@@ -158,7 +158,7 @@ void MessageManager_DrawMessage(char* text, char type, UnitInfo* unit, Point poi
     }
 }
 
-void MessageManager_DrawMessage(char* text, char type, int mode, bool flag1, bool save_to_log) {
+void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag1, bool save_to_log) {
     if (*text != '\0') {
         if (mode) {
             DialogMenu dialog(text, flag1);
@@ -321,9 +321,9 @@ MessageLogEntry::MessageLogEntry(SmartFileReader& file) {
     file.Read(id);
 }
 
-MessageLogEntry::MessageLogEntry(char* text, ResourceID id) : id(id), text(strdup(text)), field_20(false) {}
+MessageLogEntry::MessageLogEntry(const char* text, ResourceID id) : id(id), text(strdup(text)), field_20(false) {}
 
-MessageLogEntry::MessageLogEntry(char* text, UnitInfo* unit, Point point)
+MessageLogEntry::MessageLogEntry(const char* text, UnitInfo* unit, Point point)
     : text(strdup(text)), unit(unit), point(point), field_20(true), id(INVALID_ID) {}
 
 MessageLogEntry::~MessageLogEntry() { delete text; }

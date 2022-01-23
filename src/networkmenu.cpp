@@ -221,7 +221,7 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
     if (network_menu.connection_state) {
         if (is_host_mode) {
             Remote_RngSeed = time(nullptr);
-            Remote_SendNetPacket_13();
+            Remote_SendNetPacket_13(Remote_RngSeed);
 
         } else {
             while (GUI_GameState == GAME_STATE_3_MAIN_MENU) {
@@ -385,7 +385,7 @@ void NetworkMenu::Init() {
 
     minimap_world_index = -1;
     DrawScreen();
-    Remote_sub_CAC41();
+    Remote_RegisterMenu(this);
 
     if (is_host_mode) {
         NetSync(0);
@@ -587,7 +587,7 @@ void NetworkMenu::EventOptions() {
 
 void NetworkMenu::EventCancel() {
     if (node) {
-        Remote_SendNetPacket_28_31(31, player_node, 0);
+        Remote_SendNetPacket_31(player_node);
     }
 
     GUI_GameState = GAME_STATE_3_MAIN_MENU;

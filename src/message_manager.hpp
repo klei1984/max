@@ -25,9 +25,9 @@
 #include "smartfile.hpp"
 #include "unitinfo.hpp"
 
-void MessageManager_AddMessage(char* text, ResourceID id);
-void MessageManager_DrawMessage(char* text, char type, UnitInfo* unit, Point point);
-void MessageManager_DrawMessage(char* text, char type, int mode, bool flag1 = false, bool save_to_log = false);
+void MessageManager_AddMessage(const char* text, ResourceID id);
+void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Point point);
+void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag1 = false, bool save_to_log = false);
 void MessageManager_DrawMessageBox();
 void MessageManager_ClearMessageBox();
 /// \todo Fix WindowInfo includes
@@ -46,8 +46,8 @@ class MessageLogEntry : public SmartObject {
 
 public:
     MessageLogEntry(SmartFileReader& file);
-    MessageLogEntry(char* text, ResourceID id);
-    MessageLogEntry(char* text, UnitInfo* unit, Point point);
+    MessageLogEntry(const char* text, ResourceID id);
+    MessageLogEntry(const char* text, UnitInfo* unit, Point point);
 
     virtual ~MessageLogEntry();
 
