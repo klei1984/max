@@ -26,25 +26,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "SDL_assert.h"
-#include "resource_manager.hpp"
-
-extern "C" {
 #include "gnw.h"
-}
-
-/// \todo Convert this module to C++
-#include "ginit.h"
-
-/// \todo Fix includes and dependencies
-extern "C" {
-typedef ResourceID GAME_RESOURCE;
-typedef void GameResourceMeta;
-#include "mvelib32.h"
-#include "unitinfo.h"
-#include "units.h"
-#include "wrappers.h"
-}
+#include "resource_manager.hpp"
+#include "units_manager.hpp"
 
 enum IniKeyValueType_e {
     INI_SECTION = 0x1,
@@ -58,135 +42,141 @@ struct IniKey {
     const IniKeyValueType_e type;
 };
 
-extern "C" {
-unsigned short ini_setting_victory_type;
-unsigned short ini_setting_victory_limit;
-}
+int ini_setting_victory_type;
+int ini_setting_victory_limit;
 
-static const IniKey ini_keys_table[] = {{"DEBUG", NULL, INI_SECTION},
-                                        {"debug", "0", INI_NUMERIC},
-                                        {"all_visible", "0", INI_NUMERIC},
-                                        {"disable_fire", "0", INI_NUMERIC},
-                                        {"quick_build", "0", INI_NUMERIC},
-                                        {"real_time", "0", INI_NUMERIC},
-                                        {"exclude_range", "3", INI_NUMERIC},
-                                        {"proximity_range", "14", INI_NUMERIC},
-                                        {"log_file_debug", "0", INI_NUMERIC},
-                                        {"raw_normal_low", "0", INI_NUMERIC},
-                                        {"raw_normal_high", "5", INI_NUMERIC},
-                                        {"raw_concentrate_low", "13", INI_NUMERIC},
-                                        {"raw_concentrate_high", "16", INI_NUMERIC},
-                                        {"raw_concentrate_seperation", "23", INI_NUMERIC},
-                                        {"raw_concentrate_diffusion", "6", INI_NUMERIC},
-                                        {"fuel_normal_low", "2", INI_NUMERIC},
-                                        {"fuel_normal_high", "3", INI_NUMERIC},
-                                        {"fuel_concentrate_low", "12", INI_NUMERIC},
-                                        {"fuel_concentrate_high", "16", INI_NUMERIC},
-                                        {"fuel_concentrate_seperation", "24", INI_NUMERIC},
-                                        {"fuel_concentrate_diffusion", "5", INI_NUMERIC},
-                                        {"gold_normal_low", "0", INI_NUMERIC},
-                                        {"gold_normal_high", "0", INI_NUMERIC},
-                                        {"gold_concentrate_low", "10", INI_NUMERIC},
-                                        {"gold_concentrate_high", "16", INI_NUMERIC},
-                                        {"gold_concentrate_seperation", "32", INI_NUMERIC},
-                                        {"gold_concentrate_diffusion", "5", INI_NUMERIC},
-                                        {"mixed_resource_seperation", "40", INI_NUMERIC},
-                                        {"min_resources", "9", INI_NUMERIC},
-                                        {"max_resources", "20", INI_NUMERIC},
-                                        {"attack_factor", "16", INI_NUMERIC},
-                                        {"shots_factor", "16", INI_NUMERIC},
-                                        {"range_factor", "8", INI_NUMERIC},
-                                        {"armor_factor", "32", INI_NUMERIC},
-                                        {"hits_factor", "32", INI_NUMERIC},
-                                        {"speed_factor", "16", INI_NUMERIC},
-                                        {"scan_factor", "8", INI_NUMERIC},
-                                        {"cost_factor", "8", INI_NUMERIC},
-                                        {"steal_percent", "30", INI_NUMERIC},
-                                        {"disable_percent", "50", INI_NUMERIC},
-                                        {"max_percent", "90", INI_NUMERIC},
-                                        {"step_percent", "10", INI_NUMERIC},
-                                        {"repair_turns", "10", INI_NUMERIC},
-                                        {"alien_seperation", "60", INI_NUMERIC},
-                                        {"alien_unit_value", "0", INI_NUMERIC},
-                                        {"red_strategy", "random", INI_STRING},
-                                        {"green_strategy", "random", INI_STRING},
-                                        {"blue_strategy", "random", INI_STRING},
-                                        {"gray_strategy", "random", INI_STRING},
+static const IniKey ini_keys_table[] = {
+    {"DEBUG", nullptr, INI_SECTION},
+    {"debug", "0", INI_NUMERIC},
+    {"all_visible", "0", INI_NUMERIC},
+    {"disable_fire", "0", INI_NUMERIC},
+    {"quick_build", "0", INI_NUMERIC},
+    {"real_time", "0", INI_NUMERIC},
+    {"exclude_range", "3", INI_NUMERIC},
+    {"proximity_range", "14", INI_NUMERIC},
+    {"log_file_debug", "0", INI_NUMERIC},
+    {"raw_normal_low", "0", INI_NUMERIC},
+    {"raw_normal_high", "5", INI_NUMERIC},
+    {"raw_concentrate_low", "13", INI_NUMERIC},
+    {"raw_concentrate_high", "16", INI_NUMERIC},
+    {"raw_concentrate_seperation", "23", INI_NUMERIC},
+    {"raw_concentrate_diffusion", "6", INI_NUMERIC},
+    {"fuel_normal_low", "2", INI_NUMERIC},
+    {"fuel_normal_high", "3", INI_NUMERIC},
+    {"fuel_concentrate_low", "12", INI_NUMERIC},
+    {"fuel_concentrate_high", "16", INI_NUMERIC},
+    {"fuel_concentrate_seperation", "24", INI_NUMERIC},
+    {"fuel_concentrate_diffusion", "5", INI_NUMERIC},
+    {"gold_normal_low", "0", INI_NUMERIC},
+    {"gold_normal_high", "0", INI_NUMERIC},
+    {"gold_concentrate_low", "10", INI_NUMERIC},
+    {"gold_concentrate_high", "16", INI_NUMERIC},
+    {"gold_concentrate_seperation", "32", INI_NUMERIC},
+    {"gold_concentrate_diffusion", "5", INI_NUMERIC},
+    {"mixed_resource_seperation", "40", INI_NUMERIC},
+    {"min_resources", "9", INI_NUMERIC},
+    {"max_resources", "20", INI_NUMERIC},
+    {"attack_factor", "16", INI_NUMERIC},
+    {"shots_factor", "16", INI_NUMERIC},
+    {"range_factor", "8", INI_NUMERIC},
+    {"armor_factor", "32", INI_NUMERIC},
+    {"hits_factor", "32", INI_NUMERIC},
+    {"speed_factor", "16", INI_NUMERIC},
+    {"scan_factor", "8", INI_NUMERIC},
+    {"cost_factor", "8", INI_NUMERIC},
+    {"steal_percent", "30", INI_NUMERIC},
+    {"disable_percent", "50", INI_NUMERIC},
+    {"max_percent", "90", INI_NUMERIC},
+    {"step_percent", "10", INI_NUMERIC},
+    {"repair_turns", "10", INI_NUMERIC},
+    {"alien_seperation", "60", INI_NUMERIC},
+    {"alien_unit_value", "0", INI_NUMERIC},
+    {"red_strategy", "random", INI_STRING},
+    {"green_strategy", "random", INI_STRING},
+    {"blue_strategy", "random", INI_STRING},
+    {"gray_strategy", "random", INI_STRING},
 
-                                        {"SETUP", NULL, INI_SECTION},
-                                        {"player_name", "Player 1", INI_STRING},
-                                        {"player_clan", "0", INI_NUMERIC},
-                                        {"intro_movie", "0", INI_NUMERIC},
-                                        {"ipx_socket", "0x51E7", INI_NUMERIC},
-                                        {"music_level", "100", INI_NUMERIC},
-                                        {"fx_sound_level", "100", INI_NUMERIC},
-                                        {"voice_level", "100", INI_NUMERIC},
-                                        {"disable_music", "0", INI_NUMERIC},
-                                        {"disable_fx", "0", INI_NUMERIC},
-                                        {"disable_voice", "0", INI_NUMERIC},
-                                        {"auto_save", "1", INI_NUMERIC},
-                                        {"game_file_number", "1", INI_NUMERIC},
-                                        {"game_file_type", "0", INI_NUMERIC},
-                                        {"demo_turns", "0", INI_NUMERIC},
-                                        {"enhanced_graphics", "1", INI_NUMERIC},
-                                        {"last_campaign", "1", INI_NUMERIC},
-                                        {"movie_play", "0", INI_NUMERIC},
-                                        {"alt_movie_res", "0", INI_NUMERIC},
+    {"SETUP", nullptr, INI_SECTION},
+    {"player_name", "Player 1", INI_STRING},
+    {"player_clan", "0", INI_NUMERIC},
+    {"intro_movie", "0", INI_NUMERIC},
+    {"ipx_socket", "0x51E7", INI_NUMERIC},
+    {"music_level", "100", INI_NUMERIC},
+    {"fx_sound_level", "100", INI_NUMERIC},
+    {"voice_level", "100", INI_NUMERIC},
+    {"disable_music", "0", INI_NUMERIC},
+    {"disable_fx", "0", INI_NUMERIC},
+    {"disable_voice", "0", INI_NUMERIC},
+    {"auto_save", "1", INI_NUMERIC},
+    {"game_file_number", "1", INI_NUMERIC},
+    {"game_file_type", "0", INI_NUMERIC},
+    {"demo_turns", "0", INI_NUMERIC},
+    {"enhanced_graphics", "1", INI_NUMERIC},
+    {"last_campaign", "1", INI_NUMERIC},
+    {"movie_play", "0", INI_NUMERIC},
+    {"alt_movie_res", "0", INI_NUMERIC},
 
-                                        {"OPTIONS", NULL, INI_SECTION},
-                                        {"world", "0", INI_NUMERIC},
-                                        {"timer", "180", INI_NUMERIC},
-                                        {"endturn", "45", INI_NUMERIC},
-                                        {"start_gold", "150", INI_NUMERIC},
-                                        {"play_mode", "1", INI_NUMERIC},
-                                        {"victory_type", "0", INI_NUMERIC},
-                                        {"victory_limit", "50", INI_NUMERIC},
-                                        {"opponent", "1", INI_NUMERIC},
-                                        {"raw_resource", "1", INI_NUMERIC},
-                                        {"fuel_resource", "1", INI_NUMERIC},
-                                        {"gold_resource", "1", INI_NUMERIC},
-                                        {"alien_derelicts", "0", INI_NUMERIC},
+    {"OPTIONS", nullptr, INI_SECTION},
+    {"world", "0", INI_NUMERIC},
+    {"timer", "180", INI_NUMERIC},
+    {"endturn", "45", INI_NUMERIC},
+    {"start_gold", "150", INI_NUMERIC},
+    {"play_mode", "1", INI_NUMERIC},
+    {"victory_type", "0", INI_NUMERIC},
+    {"victory_limit", "50", INI_NUMERIC},
+    {"opponent", "1", INI_NUMERIC},
+    {"raw_resource", "1", INI_NUMERIC},
+    {"fuel_resource", "1", INI_NUMERIC},
+    {"gold_resource", "1", INI_NUMERIC},
+    {"alien_derelicts", "0", INI_NUMERIC},
 
-                                        {"PREFERENCES", NULL, INI_SECTION},
-                                        {"effects", "1", INI_NUMERIC},
-                                        {"click_scroll", "1", INI_NUMERIC},
-                                        {"quick_scroll", "16", INI_NUMERIC},
-                                        {"fast_movement", "1", INI_NUMERIC},
-                                        {"follow_unit", "0", INI_NUMERIC},
-                                        {"auto_select", "0", INI_NUMERIC},
-                                        {"enemy_halt", "1", INI_NUMERIC},
+    {"PREFERENCES", nullptr, INI_SECTION},
+    {"effects", "1", INI_NUMERIC},
+    {"click_scroll", "1", INI_NUMERIC},
+    {"quick_scroll", "16", INI_NUMERIC},
+    {"fast_movement", "1", INI_NUMERIC},
+    {"follow_unit", "0", INI_NUMERIC},
+    {"auto_select", "0", INI_NUMERIC},
+    {"enemy_halt", "1", INI_NUMERIC},
 
-                                        {"MODEM", NULL, INI_SECTION},
-                                        {"modem_port", "3f8 (Com1)", INI_STRING},
-                                        {"modem_baud", "9600", INI_NUMERIC},
-                                        {"modem_irq", "4", INI_NUMERIC},
-                                        {"modem_init", "ATZ", INI_STRING},
-                                        {"modem_answer", "ATS0=1", INI_STRING},
-                                        {"modem_call", "ATDT", INI_STRING},
-                                        {"modem_hangup", "~~~+++~~~ATH0", INI_STRING},
-                                        {"modem_phone", "", INI_STRING},
+    {"MODEM", nullptr, INI_SECTION},
+    {"modem_port", "3f8 (Com1)", INI_STRING},
+    {"modem_baud", "9600", INI_NUMERIC},
+    {"modem_irq", "4", INI_NUMERIC},
+    {"modem_init", "ATZ", INI_STRING},
+    {"modem_answer", "ATS0=1", INI_STRING},
+    {"modem_call", "ATDT", INI_STRING},
+    {"modem_hangup", "~~~+++~~~ATH0", INI_STRING},
+    {"modem_phone", "", INI_STRING},
 
-                                        {"TEAMS", NULL, INI_SECTION},
-                                        {"red_team_name", "Player 1", INI_STRING},
-                                        {"green_team_name", "Player 2", INI_STRING},
-                                        {"blue_team_name", "Player 3", INI_STRING},
-                                        {"gray_team_name", "Player 4", INI_STRING},
-                                        {"red_team_player", "1", INI_NUMERIC},
-                                        {"green_team_player", "2", INI_NUMERIC},
-                                        {"blue_team_player", "0", INI_NUMERIC},
-                                        {"gray_team_player", "0", INI_NUMERIC},
-                                        {"red_team_clan", "0", INI_NUMERIC},
-                                        {"green_team_clan", "0", INI_NUMERIC},
-                                        {"blue_team_clan", "0", INI_NUMERIC},
-                                        {"gray_team_clan", "0", INI_NUMERIC},
+    {"TEAMS", nullptr, INI_SECTION},
+    {"red_team_name", "Player 1", INI_STRING},
+    {"green_team_name", "Player 2", INI_STRING},
+    {"blue_team_name", "Player 3", INI_STRING},
+    {"gray_team_name", "Player 4", INI_STRING},
+    {"red_team_player", "1", INI_NUMERIC},
+    {"green_team_player", "2", INI_NUMERIC},
+    {"blue_team_player", "0", INI_NUMERIC},
+    {"gray_team_player", "0", INI_NUMERIC},
+    {"red_team_clan", "0", INI_NUMERIC},
+    {"green_team_clan", "0", INI_NUMERIC},
+    {"blue_team_clan", "0", INI_NUMERIC},
+    {"gray_team_clan", "0", INI_NUMERIC},
 
-                                        {"DIGITAL", NULL, INI_SECTION},
-                                        {"Device_Name", "None", INI_STRING},
-                                        {"Device_IRQ", "5", INI_NUMERIC},
-                                        {"Device_DMA", "1", INI_NUMERIC},
-                                        {"Device_Port", "0x220", INI_NUMERIC},
-                                        {"Device_ID", "-1", INI_NUMERIC},
-                                        {"Channels_Reversed", "0", INI_NUMERIC}};
+    {"DIGITAL", nullptr, INI_SECTION},
+    {"Device_Name", "None", INI_STRING},
+    {"Device_IRQ", "5", INI_NUMERIC},
+    {"Device_DMA", "1", INI_NUMERIC},
+    {"Device_Port", "0x220", INI_NUMERIC},
+    {"Device_ID", "-1", INI_NUMERIC},
+    {"Channels_Reversed", "0", INI_NUMERIC},
+
+    {"GRAPHICS_SETTINGS", nullptr, INI_SECTION},
+    {"screen_mode", "2", INI_NUMERIC},
+    {"scale_quality", "1", INI_NUMERIC},
+    {"window_width", "640", INI_NUMERIC},
+    {"window_height", "480", INI_NUMERIC},
+};
 
 static const int ini_keys_table_size = sizeof(ini_keys_table) / sizeof(struct IniKey);
 
@@ -201,7 +191,8 @@ static const char *const clan_ini_section_name_lut[] = {"Clan ?", "Clan A", "Cla
 
 static const int ini_clans_table_size = sizeof(clan_ini_section_name_lut) / sizeof(char *);
 
-static_assert(ini_keys_table_size == 118, "M.A.X. v1.04 has 118 configuration ini parameters");
+static_assert(ini_keys_table_size == INI_END_DELIMITER,
+              "INI enumerator list and configuration ini parameters table size do not match");
 
 static_assert(ini_attribs_table_size == 13, "M.A.X. v1.04 has 13 clan attributes");
 
@@ -211,7 +202,7 @@ IniSettings ini_config;
 IniClans ini_clans;
 
 IniSettings::IniSettings() {
-    ini.buffer = NULL;
+    ini.buffer = nullptr;
 
     for (int ini_index = 0; ini_index < ini_keys_table_size; ++ini_index) {
         item[ini_index] = 0;
@@ -230,7 +221,7 @@ void IniSettings::Init() {
     FILE *fp;
     int index;
 
-    strcpy(filename, file_path_game_install);
+    strcpy(filename, ResourceManager_FilePathGameInstall);
     strcat(filename, "MAX.INI");
     fp = fopen(filename, "rt");
 
@@ -240,7 +231,7 @@ void IniSettings::Init() {
 
         if (!fp) {
             SDL_Log("\nUnable to Write File..  Disk Full?\n");
-            gexit(12);
+            ResourceManager_ExitGame(EXIT_CODE_CANNOT_FIND_MAX_INI);
         }
 
         for (index = 0; index < ini_keys_table_size; ++index) {
@@ -267,7 +258,7 @@ void IniSettings::Init() {
     fclose(fp);
 
     if (!inifile_init_ini_object_from_ini_file(&ini, filename)) {
-        gexit(12);
+        ResourceManager_ExitGame(EXIT_CODE_CANNOT_FIND_MAX_INI);
     }
 
     for (index = 0; index < ini_keys_table_size; index++) {
@@ -275,15 +266,15 @@ void IniSettings::Init() {
             inifile_ini_seek_section(&ini, ini_keys_table[index].name);
         } else if (ini_keys_table[index].type & INI_NUMERIC) {
             if (inifile_ini_get_numeric_value(&ini, ini_keys_table[index].name, &value)) {
-                SetNumericValue(static_cast<GAME_INI>(index), value);
+                SetNumericValue(static_cast<IniParameter>(index), value);
             } else {
                 if (!strncmp(ini_keys_table[index].value, "0x", 2)) {
                     v1 = inifile_hex_to_dec(ini_keys_table[index].value + 2);
                 } else {
-                    v1 = strtol(ini_keys_table[index].value, NULL, 10);
+                    v1 = strtol(ini_keys_table[index].value, nullptr, 10);
                 }
 
-                SetNumericValue(static_cast<GAME_INI>(index), v1);
+                SetNumericValue(static_cast<IniParameter>(index), v1);
             }
         }
     }
@@ -291,7 +282,7 @@ void IniSettings::Init() {
 
 void IniSettings::Save() { inifile_save_to_file(&ini); }
 
-const char *IniSettings::SeekToSection(GAME_INI param) {
+const char *IniSettings::SeekToSection(IniParameter param) {
     int index = param;
 
     do {
@@ -305,7 +296,7 @@ const char *IniSettings::SeekToSection(GAME_INI param) {
     return ini_keys_table[index].name;
 }
 
-int IniSettings::SetNumericValue(GAME_INI param, int value) {
+int IniSettings::SetNumericValue(IniParameter param, int value) {
     unsigned int old_value;
 
     if (param >= ini_keys_table_size) {
@@ -323,7 +314,7 @@ int IniSettings::SetNumericValue(GAME_INI param, int value) {
     return old_value;
 }
 
-int IniSettings::GetNumericValue(GAME_INI param) {
+int IniSettings::GetNumericValue(IniParameter param) {
     int value;
 
     if (param >= ini_keys_table_size) {
@@ -335,7 +326,7 @@ int IniSettings::GetNumericValue(GAME_INI param) {
     return value;
 }
 
-int IniSettings::SetStringValue(GAME_INI param, char *value) {
+int IniSettings::SetStringValue(IniParameter param, const char *value) {
     int result;
 
     if (inifile_ini_seek_section(&ini, IniSettings::SeekToSection(param)) &&
@@ -347,7 +338,7 @@ int IniSettings::SetStringValue(GAME_INI param, char *value) {
     return result;
 }
 
-int IniSettings::GetStringValue(GAME_INI param, char *buffer, int buffer_size) {
+int IniSettings::GetStringValue(IniParameter param, char *buffer, int buffer_size) {
     int result;
 
     if (inifile_ini_seek_section(&ini, IniSettings::SeekToSection(param)) &&
@@ -360,7 +351,7 @@ int IniSettings::GetStringValue(GAME_INI param, char *buffer, int buffer_size) {
     return result;
 }
 
-void IniSettings::SaveSection(void *smartfile_handle, GAME_INI section) {
+void IniSettings::SaveSection(SmartFileWriter &file, IniParameter section) {
     char buffer[30];
     int victory_type;
     int backup_victory_limit;
@@ -374,10 +365,14 @@ void IniSettings::SaveSection(void *smartfile_handle, GAME_INI section) {
 
     while (!(ini_keys_table[++index].type & INI_SECTION) && index < ini_keys_table_size) {
         if (ini_keys_table[index].type & INI_NUMERIC) {
-            smartfile_write_int(smartfile_handle, GetNumericValue(static_cast<GAME_INI>(index)));
+            int ini_param;
+
+            ini_param = GetNumericValue(static_cast<IniParameter>(index));
+
+            file.Write(ini_param);
         } else {
-            GetStringValue(static_cast<GAME_INI>(index), buffer, sizeof(buffer));
-            smartfile_write(smartfile_handle, buffer, sizeof(buffer));
+            GetStringValue(static_cast<IniParameter>(index), buffer, sizeof(buffer));
+            file.Write(buffer, sizeof(buffer));
         }
     }
 
@@ -385,7 +380,7 @@ void IniSettings::SaveSection(void *smartfile_handle, GAME_INI section) {
     ini_set_setting(INI_VICTORY_TYPE, victory_type);
 }
 
-void IniSettings::LoadSection(void *smartfile_handle, GAME_INI section, char mode) {
+void IniSettings::LoadSection(SmartFileReader &file, IniParameter section, char mode) {
     char buffer[30];
     int value;
     int victory_type;
@@ -397,14 +392,14 @@ void IniSettings::LoadSection(void *smartfile_handle, GAME_INI section, char mod
 
     while (!(ini_keys_table[++index].type & INI_SECTION) && index < ini_keys_table_size) {
         if (ini_keys_table[index].type & INI_NUMERIC) {
-            smartfile_read_int(smartfile_handle, &value);
+            file.Read(value);
             if (mode) {
-                SetNumericValue(static_cast<GAME_INI>(index), value);
+                SetNumericValue(static_cast<IniParameter>(index), value);
             }
         } else {
-            smartfile_read(smartfile_handle, buffer, sizeof(buffer));
+            file.Read(buffer, sizeof(buffer));
             if (mode) {
-                SetStringValue(static_cast<GAME_INI>(index), buffer);
+                SetStringValue(static_cast<IniParameter>(index), buffer);
             }
         }
     }
@@ -420,11 +415,11 @@ void IniSettings::LoadSection(void *smartfile_handle, GAME_INI section, char mod
     }
 }
 
-int ini_get_setting(GAME_INI index) { return ini_config.GetNumericValue(static_cast<GAME_INI>(index)); }
+int ini_get_setting(IniParameter index) { return ini_config.GetNumericValue(static_cast<IniParameter>(index)); }
 
-int ini_set_setting(GAME_INI param, int value) { return ini_config.SetNumericValue(param, value); }
+int ini_set_setting(IniParameter param, int value) { return ini_config.SetNumericValue(param, value); }
 
-IniClans::IniClans() { ini.buffer = NULL; }
+IniClans::IniClans() { ini.buffer = nullptr; }
 
 IniClans::~IniClans() { inifile_save_to_file_and_free_buffer(&ini); }
 
@@ -432,7 +427,7 @@ void IniClans::Init() { inifile_load_from_resource(&ini, CLANATRB); }
 
 int IniClans::SeekUnit(int clan, int unit) {
     return inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) &&
-           inifile_ini_seek_param(&ini, units2[unit].singular_name);
+           inifile_ini_seek_param(&ini, UnitsManager_BaseUnits[unit].singular_name);
 }
 
 int IniClans::GetNextUnitUpgrade(short *attrib_id, short *value) {
@@ -448,7 +443,7 @@ int IniClans::GetNextUnitUpgrade(short *attrib_id, short *value) {
         return 0;
     }
 
-    *value = strtol(cstr, NULL, 10);
+    *value = strtol(cstr, nullptr, 10);
 
     while (*cstr != ' ') {
         cstr++;
@@ -473,7 +468,7 @@ int IniClans::GetClanGold(int clan) {
 
     if (inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) && inifile_ini_seek_param(&ini, "Gold") &&
         inifile_ini_process_string_value(&ini, buffer, sizeof(buffer))) {
-        result = strtol(buffer, NULL, 10);
+        result = strtol(buffer, nullptr, 10);
     } else {
         result = 0;
     }
@@ -496,7 +491,7 @@ void IniClans::GetClanName(int clan, char *buffer, int buffer_size) {
     }
 }
 
-IniSoundVolumes::IniSoundVolumes() { ini.buffer = NULL; }
+IniSoundVolumes::IniSoundVolumes() { ini.buffer = nullptr; }
 
 IniSoundVolumes::~IniSoundVolumes() { inifile_save_to_file_and_free_buffer(&ini); }
 

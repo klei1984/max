@@ -24,6 +24,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void *(*mve_cb_Alloc)(size_t size);
 typedef void (*mve_cb_Free)(void *ptr);
 typedef int (*mve_cb_Read)(FILE *handle, void *buf, size_t count);
@@ -55,5 +59,18 @@ void MVE_rmEndMovie(void);
 int MVE_RunMovie(FILE *handle, int dx, int dy, int track);
 void MVE_ReleaseMem(void);
 const char *MVE_strerror(int error_code);
+
+/// \todo Reimplement missing stuff
+extern int MVE_RunMovie(FILE* fp, int dx, int dy, int track)	__asm("_MVE_RunMovie_");
+extern int MVE_gfxMode(int mode)	__asm("_MVE_gfxMode_");
+extern void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, void *write_win_ptr, int window_size, int window_granuality, void *window_function, int hicolor)	__asm("_MVE_sfSVGA_");
+extern int MVE_rmPrepMovie(FILE* fp, int dx, int dy, int track)	__asm("_MVE_rmPrepMovie_");
+extern int MVE_rmStepMovie(void)	__asm("_MVE_rmStepMovie_");
+extern void MVE_rmEndMovie(void)	__asm("_MVE_rmEndMovie_");
+extern void MVE_ReleaseMem(void)	__asm("_MVE_ReleaseMem_");
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MVELIB32_H */

@@ -21,7 +21,13 @@
 
 #include "game_manager.hpp"
 
-#include "soundmgr.hpp"
+#include "sound_manager.hpp"
+
+Rect GameManager_GridPosition;
+SmartPointer<UnitInfo> GameManager_SelectedUnit;
+unsigned int GameManager_TurnCounter;
+int GameMamager_GameFileNumber;
+int GameManager_HumanPlayerCount;
 
 void GameManager_GameLoop(int game_state) {
     /// \todo Implement function

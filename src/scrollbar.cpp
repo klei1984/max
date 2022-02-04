@@ -26,21 +26,21 @@
 #include <new>
 
 #include "resource_manager.hpp"
-#include "soundmgr.hpp"
+#include "sound_manager.hpp"
 
 EVENTS_REGISTER_EVENT(ScrollbarEvent);
 
 EventScrollbarChange::EventScrollbarChange(Scrollbar* scrollbar, short value) : scrollbar(scrollbar), value(value) {}
 unsigned short EventScrollbarChange::GetEventId() { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
 
-void LoadHorizontalBar(char* buffer, short width, short capacity, short height, ResourceID id) {
-    struct SpriteHeader* sprite;
+void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
+    struct ImageSimpleHeader* sprite;
     char transparent_color;
-    char* data;
+    unsigned char* data;
 
-    sprite = reinterpret_cast<SpriteHeader*>(ResourceManager_LoadResource(id));
+    sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
 
-    data = reinterpret_cast<char*>(&sprite->data[sprite->width - height]);
+    data = &sprite->data[sprite->width - height];
     transparent_color = sprite->data[0];
 
     for (int i = 0; i < capacity; ++i) {
@@ -55,20 +55,20 @@ void LoadHorizontalBar(char* buffer, short width, short capacity, short height, 
     }
 }
 
-void LoadVerticalBar(char* buffer, short width, short capacity, short height, ResourceID id) {
-    struct SpriteHeader* sprite;
+void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
+    struct ImageSimpleHeader* sprite;
     char transparent_color;
-    char* data;
+    unsigned char* data;
     int offset;
 
     if (capacity > 0) {
-        sprite = reinterpret_cast<SpriteHeader*>(ResourceManager_LoadResource(id));
+        sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
 
         if (capacity > sprite->height) {
             capacity = sprite->height;
         }
 
-        data = reinterpret_cast<char*>(sprite->data);
+        data = sprite->data;
         buffer = &buffer[(sprite->width - height) / 2];
         transparent_color = sprite->data[0];
 
@@ -184,7 +184,7 @@ void Scrollbar::Register() {
 void Scrollbar::RefreshScreen() {
     WindowInfo win;
     int capacity;
-    char* buffer;
+    unsigned char* buffer;
 
     window->FillWindowInfo(&win);
 
@@ -196,7 +196,7 @@ void Scrollbar::RefreshScreen() {
 
     capacity = free_capacity - zero_offset;
 
-    buffer = reinterpret_cast<char*>(&win.buffer[xfer_slider->GetULX() + xfer_slider->GetULY() * win.width]);
+    buffer = &win.buffer[xfer_slider->GetULX() + xfer_slider->GetULY() * win.width];
 
     if (scrollbar_type) {
         if (capacity) {
@@ -219,12 +219,11 @@ void Scrollbar::RefreshScreen() {
 
         sprintf(text, "%i", scaling_factor * value);
 
-        buffer = reinterpret_cast<char*>(
-            &win.buffer[xfer_amount_background->GetULX() + xfer_amount_background->GetULY() * win.width]);
+        buffer = &win.buffer[xfer_amount_background->GetULX() + xfer_amount_background->GetULY() * win.width];
 
         buffer = &buffer[((xfer_amount_background->GetHeight() - text_height()) / 2) * win.width];
         buffer = &buffer[(xfer_amount_background->GetWidth() - text_width(text)) / 2];
-        text_to_buf(reinterpret_cast<unsigned char*>(buffer), text, text_width(text), win.width, 255);
+        text_to_buf(buffer, text, text_width(text), win.width, 255);
 
         r.ulx = xfer_slider->GetULX();
         r.uly = xfer_slider->GetULY();

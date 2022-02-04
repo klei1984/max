@@ -37,9 +37,15 @@ bool Transport::Init() {
 
         result = false;
     }
+
+    return result;
 }
 
-bool Transport::Deinit() { SDLNet_Quit(); }
+bool Transport::Deinit() {
+    SDLNet_Quit();
+
+    return true;
+}
 
 void Transport::SetError(const char* error) { LastError = error; }
 

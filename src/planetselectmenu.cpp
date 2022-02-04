@@ -21,10 +21,11 @@
 
 #include "planetselectmenu.hpp"
 
-#include "gwindow.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "resource_manager.hpp"
+#include "window_manager.hpp"
 
 struct PlanetSelectMenuControlItem {
     Rect bounds;
@@ -62,7 +63,7 @@ static_assert(PLANET_SELECT_MENU_ITEM_COUNT ==
               sizeof(planet_select_menu_controls) / sizeof(PlanetSelectMenuControlItem));
 
 void PlanetSelectMenu::ButtonInit(int index) {
-    struct PlanetSelectMenuControlItem* control = planet_select_menu_controls[index];
+    struct PlanetSelectMenuControlItem* control = &planet_select_menu_controls[index];
 
     text_font(1);
 
@@ -71,8 +72,8 @@ void PlanetSelectMenu::ButtonInit(int index) {
             Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
                    control->bounds.lry - control->bounds.uly);
     } else {
-        buttons[index] = new (std::nothrow)
-            Button(control->image_id, control->image_id + 1, control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   control->bounds.ulx, control->bounds.uly);
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);
@@ -93,7 +94,7 @@ void PlanetSelectMenu::ButtonInit(int index) {
 void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
     int world_first;
     int world_last;
-    char* buffer_position;
+    unsigned char* buffer_position;
 
     world_first = (world / 6) * 6;
     world_last = world_first + 6;
@@ -115,7 +116,7 @@ void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
         }
     }
 
-    gwin_load_image(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false);
+    WindowManager_LoadImage(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false);
 
     if (!image3) {
         image3 = new (std::nothrow)
@@ -173,43 +174,43 @@ void PlanetSelectMenu::DrawTexts() {
 
 void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction) {
     ResourceID resource;
-    char* world1_image;
-    char* world2_image;
-    char* stars_image;
-    char* window_buffer;
+    unsigned char* world1_image;
+    unsigned char* world2_image;
+    unsigned char* stars_image;
+    unsigned char* window_buffer;
 
     resource = static_cast<ResourceID>(SNOW_PIC + (world1 / 6));
-    world1_image = ResourceManager_LoadResource(resource);
+    world1_image = ResourceManager_ReadResource(resource);
 
     resource = static_cast<ResourceID>(SNOW_PIC + (world2 / 6));
-    world2_image = ResourceManager_LoadResource(resource);
+    world2_image = ResourceManager_ReadResource(resource);
 
-    stars_image = ResourceManager_LoadResource(STAR_PIC);
+    stars_image = ResourceManager_ReadResource(STAR_PIC);
 
     if (world1_image && world2_image && stars_image) {
-        ImageHeader* image1_header = world1_image;
-        ImageHeader* image2_header = world2_image;
-        ImageHeader* image3_header = stars_image;
+        struct ImageBigHeader* image1_header = reinterpret_cast<struct ImageBigHeader*>(world1_image);
+        struct ImageBigHeader* image2_header = reinterpret_cast<struct ImageBigHeader*>(world2_image);
+        struct ImageBigHeader* image3_header = reinterpret_cast<struct ImageBigHeader*>(stars_image);
         int width;
         int height;
         Rect bounds;
-        char* buffer_position;
+        unsigned char* buffer_position;
         unsigned int time_stamp;
         int offset;
 
         width = image1_header->width;
         height = image1_header->height;
 
-        window_buffer = new (std::nothrow) char[width * height * 3];
+        window_buffer = new (std::nothrow) unsigned char[width * height * 3];
 
         if (direction) {
-            gwin_decode_image(image1_header, window_buffer, false, false, width * 3);
-            gwin_decode_image(image3_header, &window_buffer[width], false, false, width * 3);
-            gwin_decode_image(image2_header, &window_buffer[width * 2], false, false, width * 3);
+            WindowManager_DecodeImage(image1_header, window_buffer, false, false, width * 3);
+            WindowManager_DecodeImage(image3_header, &window_buffer[width], false, false, width * 3);
+            WindowManager_DecodeImage(image2_header, &window_buffer[width * 2], false, false, width * 3);
         } else {
-            gwin_decode_image(image1_header, &window_buffer[width * 2], false, false, width * 3);
-            gwin_decode_image(image3_header, &window_buffer[width], false, false, width * 3);
-            gwin_decode_image(image2_header, window_buffer, false, false, width * 3);
+            WindowManager_DecodeImage(image1_header, &window_buffer[width * 2], false, false, width * 3);
+            WindowManager_DecodeImage(image3_header, &window_buffer[width], false, false, width * 3);
+            WindowManager_DecodeImage(image2_header, window_buffer, false, false, width * 3);
         }
 
         bounds.ulx = image1_header->ulx;
@@ -239,13 +240,13 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
         delete window_buffer;
     }
 
-    free(world1_image);
-    free(world2_image);
-    free(stars_image);
+    delete[] world1_image;
+    delete[] world2_image;
+    delete[] stars_image;
 }
 
 void PlanetSelectMenu::Init() {
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
 
     event_click_done = 0;
     event_click_cancel = 0;
@@ -260,7 +261,7 @@ void PlanetSelectMenu::Init() {
         ButtonInit(i);
     }
 
-    gwin_load_image(PLANETSE, window, window->width, false, false);
+    WindowManager_LoadImage(PLANETSE, window, window->width, false, false);
 
     DrawMaps(false);
     DrawTexts();

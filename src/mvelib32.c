@@ -23,15 +23,6 @@
 
 #include "gnw.h"
 
-/// \todo Fix includes and dependencies
-typedef unsigned short GAME_RESOURCE;
-typedef void GameResourceMeta;
-#include "ginit.h"
-#include "mvelib32.h"
-#include "unitinfo.h"
-#include "units.h"
-#include "wrappers.h"
-
 #if defined(__unix__)
 #include <errno.h>
 #include <sys/mman.h>
@@ -116,15 +107,15 @@ static MveMemBlock mve_io_mem_buf;
 
 static MveMemBlock nf_mem_buf1;
 static MveMemBlock nf_mem_buf2;
-// static unsigned char *nf_buf_cur;
-// static unsigned char *nf_buf_prv;
-//
-// static mve_cb_Alloc mve_mem_alloc;
-// static mve_cb_Free mve_mem_free;
-// static mve_cb_Read mve_io_read;
-// static mve_cb_ShowFrame mve_sf_ShowFrame;
-// static mve_cb_SetPalette mve_pal_SetPalette;
-// static mve_cb_Ctl mve_rm_ctl;
+static unsigned char *nf_buf_cur;
+static unsigned char *nf_buf_prv;
+
+static mve_cb_Alloc mve_mem_alloc;
+static mve_cb_Free mve_mem_free;
+static mve_cb_Read mve_io_read;
+static mve_cb_ShowFrame mve_sf_ShowFrame;
+static mve_cb_SetPalette mve_pal_SetPalette;
+static mve_cb_Ctl mve_rm_ctl;
 
 static int mve_rm_hold;
 static int mve_rm_active;
@@ -138,9 +129,9 @@ static int mve_rm_dx;
 static int mve_rm_dy;
 
 int mve_opt_fastmode;
-// int mve_opt_hscale_step = 4;
+int mve_opt_hscale_step = 4;
 
-// unsigned int mve_snd_vol = 32767;
+unsigned int mve_snd_vol = 32767;
 
 void MVE_memCallbacks(mve_cb_Alloc alloc, mve_cb_Free free) {
     mve_mem_alloc = alloc;
@@ -205,7 +196,7 @@ void MVE_logDumpStats(void) { SDL_Log("Logging support disabled.\n"); }
 
 void MVE_ioCallbacks(mve_cb_Read read) { mve_io_read = read; }
 
-int _ioReset(FILE *handle) {
+int ioReset(FILE *handle) {
     MveHeader *header;
     int result;
 
@@ -224,7 +215,7 @@ int _ioReset(FILE *handle) {
     return result;
 }
 
-void *_ioRead(size_t size) {
+void *ioRead(size_t size) {
     void *buffer = MemAlloc(&mve_io_mem_buf, size);
 
     if (!buffer || !mve_io_read(mve_io_handle, buffer, size)) {
@@ -234,7 +225,7 @@ void *_ioRead(size_t size) {
     return buffer;
 }
 
-unsigned char *_ioNextRecord(void) {
+unsigned char *ioNextRecord(void) {
     unsigned char *buffer;
 
     buffer = ioRead(mve_io_next_hdr + sizeof(int));
@@ -274,8 +265,8 @@ void nfAdvance(void) {
     nf_buf_cur = ptr;
 }
 
-void _MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, void *write_win_ptr, int window_size,
-                 int window_granuality, void *window_function, int hicolor) {
+void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, void *write_win_ptr, int window_size,
+                int window_granuality, void *window_function, int hicolor) {
     //    int line_width;            // ecx@1
     //    unsigned int v10;  // ebx@4
     //
@@ -333,10 +324,10 @@ int MVE_rmUnprotect(void) {
             return -1;
         }
 #elif defined(_WIN32)
-        if (!VirtualProtect(mveliba_start, mveliba_end - mveliba_start, PAGE_EXECUTE_READWRITE, &flOldProtect)) {
-            SDL_Log("VirtualProtect failed: %i\n", GetLastError());
-            return -1;
-        }
+//        if (!VirtualProtect(mveliba_start, mveliba_end - mveliba_start, PAGE_EXECUTE_READWRITE, &flOldProtect)) {
+//            SDL_Log("VirtualProtect failed: %i\n", GetLastError());
+//            return -1;
+//        }
 #else
 #error "Platform is not supported"
 #endif /* defined(platform) */
@@ -347,7 +338,7 @@ int MVE_rmUnprotect(void) {
     return 0;
 }
 
-int _MVE_rmPrepMovie(FILE *handle, int dx, int dy, int track) {
+int MVE_rmPrepMovie(FILE *handle, int dx, int dy, int track) {
     int result;
 
     mve_rm_dx = dx;
@@ -382,7 +373,7 @@ int _MVE_rmPrepMovie(FILE *handle, int dx, int dy, int track) {
     return result;
 }
 
-int _MVE_rmStepMovie(void) {
+int MVE_rmStepMovie(void) {
     unsigned char *buffer;
     unsigned char *decoding_map;
     int buffer_length;
@@ -509,7 +500,7 @@ int MVE_rmHoldMovie(void) {
     return 0;
 }
 
-void _MVE_rmEndMovie(void) {
+void MVE_rmEndMovie(void) {
     if (mve_rm_active) {
         syncWait();
         syncRelease();
@@ -518,7 +509,7 @@ void _MVE_rmEndMovie(void) {
     }
 }
 
-int _MVE_RunMovie(FILE *handle, int dx, int dy, int track) {
+int MVE_RunMovie(FILE *handle, int dx, int dy, int track) {
     int result;
     int aborted = 0;
 
@@ -542,7 +533,7 @@ int _MVE_RunMovie(FILE *handle, int dx, int dy, int track) {
     return result;
 }
 
-void _MVE_ReleaseMem(void) {
+void MVE_ReleaseMem(void) {
     MVE_rmEndMovie();
     ioRelease();
     nfRelease();

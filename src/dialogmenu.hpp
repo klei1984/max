@@ -28,18 +28,18 @@
 
 class DialogMenu : Window {
     WindowInfo window;
-    bool event_click_ok;
     Button *button_ok;
     Button *button_up;
     Button *button_down;
-    bool field_62;
-    bool event_release;
-    bool field_64;
     Image *canvas;
     SmartString *strings;
     int row_count;
     int max_row_count;
     int row_offset;
+    bool event_click_ok;
+    bool field_62;
+    bool event_release;
+    bool field_64;
 
     void DrawText();
     bool ProcessKey(int key);
@@ -49,6 +49,7 @@ public:
     ~DialogMenu();
 
     void Run();
+    void RunMenu();
 };
 
 #endif /* DIALOGMENU_HPP */

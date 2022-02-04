@@ -32,14 +32,6 @@
 
 #include "gnw.h"
 
-/// \todo Fix includes and dependencies
-typedef unsigned short GAME_RESOURCE;
-typedef void GameResourceMeta;
-#include "mvelib32.h"
-#include "unitinfo.h"
-#include "units.h"
-#include "wrappers.h"
-
 #ifdef __unix__
 char *strupr(char *s) { return dos_strupr(s); }
 char *strlwr(char *s) { return dos_strlwr(s); }
@@ -130,7 +122,7 @@ int dos_rand(void) {
 
     next = initrandnext();
     if (next) {
-        *next = (*next) * 1103515245UL  + 12345UL;
+        *next = (*next) * 1103515245UL + 12345UL;
         result = ((*next) >> 16) & 0x7FFF;
     } else {
         result = 0;

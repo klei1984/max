@@ -33,6 +33,7 @@ extern SmartList<UnitInfo> UnitsManager_UnitList4;
 extern SmartList<UnitInfo> UnitsManager_UnitList5;
 extern SmartList<UnitInfo> UnitsManager_UnitList6;
 
+extern AbstractUnit UnitsManager_AbstractUnits[UNIT_END];
 extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
 extern CTInfo UnitsManager_TeamInfo[5];

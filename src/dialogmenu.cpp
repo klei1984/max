@@ -22,24 +22,21 @@
 #include "dialogmenu.hpp"
 
 #include "cursor.hpp"
+#include "gnw.h"
 #include "gui.hpp"
-#include "gwindow.hpp"
 #include "remote.hpp"
 #include "text.hpp"
-
-extern "C" {
-#include "gnw.h"
-}
+#include "window_manager.hpp"
 
 void DialogMenu::DrawText() {
-    char* buffer;
+    unsigned char* buffer;
     int height;
     int num_rows;
     int row_width;
 
     canvas->Write(&window);
 
-    buffer = reinterpret_cast<char*>(&window.buffer[window.width * 14 + 20]);
+    buffer = &window.buffer[window.width * 14 + 20];
     height = text_height() * row_count;
 
     if (height < 175) {
@@ -65,9 +62,8 @@ void DialogMenu::DrawText() {
             row_width = (265 - row_width) / 2;
         }
 
-        text_to_buf(
-            reinterpret_cast<unsigned char*>(&buffer[row_width + ((i - row_offset) * text_height()) * window.width]),
-            strings[i].GetCStr(), 265, window.width, 0x100FF);
+        text_to_buf(&buffer[row_width + ((i - row_offset) * text_height()) * window.width], strings[i].GetCStr(), 265,
+                    window.width, 0x100FF);
     }
 
     win_draw_rect(window.id, &window.window);
@@ -216,5 +212,21 @@ void DialogMenu::Run() {
                 // sub_A0E32(1, 1);
             }
         }
+    }
+}
+
+void DialogMenu::RunMenu() {
+    event_click_ok = false;
+
+    while (!event_click_ok) {
+        int key = get_input();
+
+        if (Remote_IsNetworkGame) {
+            if (Remote_CheckUnpauseEvent()) {
+                key = GNW_KB_KEY_ESCAPE;
+            }
+        }
+
+        ProcessKey(key);
     }
 }

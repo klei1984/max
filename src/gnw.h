@@ -22,11 +22,11 @@
 #ifndef GNW_H
 #define GNW_H
 
+#include <assert.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <assert.h>
 
 #include "assoc.h"
 #include "button.h"
@@ -42,6 +42,23 @@ extern "C" {
 #include "rect.h"
 #include "text.h"
 #include "vcr.h"
+
+struct ImageBigHeader {
+    unsigned short ulx;
+    unsigned short uly;
+    unsigned short width;
+    unsigned short height;
+    Color palette[3 * PALETTE_SIZE];
+    unsigned char data[];
+};
+
+struct ImageSimpleHeader {
+    unsigned short ulx;
+    unsigned short uly;
+    unsigned short width;
+    unsigned short height;
+    unsigned char data[];
+};
 
 typedef int (*SetModeFunc)(void);
 typedef void (*ResetModeFunc)(void);

@@ -33,7 +33,8 @@ static WinID last_button_winID = -1;
 static GNW_ButtonGroup btn_grp[64];
 
 ButtonID win_register_button(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value,
-                             int p_value, int r_value, char* up, char* down, char* hover, int flags) {
+                             int p_value, int r_value, unsigned char* up, unsigned char* down, unsigned char* hover,
+                             int flags) {
     ButtonID result;
     GNW_Window* w;
 
@@ -144,7 +145,8 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
     return result;
 }
 
-int win_register_button_disable(ButtonID bid, char* disabled_up, char* disabled_down, char* disabled_hover) {
+int win_register_button_disable(ButtonID bid, unsigned char* disabled_up, unsigned char* disabled_down,
+                                unsigned char* disabled_hover) {
     int result;
     GNW_ButtonPtr b;
 
@@ -167,7 +169,7 @@ int win_register_button_disable(ButtonID bid, char* disabled_up, char* disabled_
     return result;
 }
 
-int win_register_button_image(ButtonID bid, char* up, char* down, char* hover, int draw) {
+int win_register_button_image(ButtonID bid, unsigned char* up, unsigned char* down, unsigned char* hover, int draw) {
     int result;
     GNW_ButtonPtr b;
     GNW_Window* w;

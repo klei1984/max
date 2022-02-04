@@ -30,9 +30,8 @@ void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Poi
 void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag1 = false, bool save_to_log = false);
 void MessageManager_DrawMessageBox();
 void MessageManager_ClearMessageBox();
-/// \todo Fix WindowInfo includes
-// void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, int width, int left_margin,
-//                                    int top_margin, char* text, int color, bool screen_refresh);
+void MessageManager_DrawTextMessage(WindowInfo* window, char* buffer, int width, int left_margin, int top_margin,
+                                    char* text, int color, bool screen_refresh);
 void MessageManager_LoadMessageLogs(SmartFileReader& file);
 void MessageManager_SaveMessageLogs(SmartFileWriter& file);
 void MessageManager_ClearMessageLogs();

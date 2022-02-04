@@ -53,8 +53,8 @@ protected:
     unsigned short scaling_factor;
     bool scrollbar_type;
 
-    friend void LoadHorizontalBar(char *buffer, short width, short capacity, short height, ResourceID id);
-    friend void LoadVerticalBar(char *buffer, short width, short capacity, short height, ResourceID id);
+    friend void LoadHorizontalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
+    friend void LoadVerticalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
     void ProcessValueChange(short value);
 
 public:

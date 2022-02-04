@@ -24,16 +24,13 @@
 #include "cursor.hpp"
 #include "desyncmenu.hpp"
 #include "enums.hpp"
-#include "gwindow.hpp"
-#include "okcancelmenu.hpp"
 #include "remote.hpp"
-#include "soundmgr.hpp"
+#include "sound_manager.hpp"
 #include "transfermenu.hpp"
+#include "window_manager.hpp"
 
 char GUI_PlayerTeamIndex;
 char GUI_GameState;
-
-bool GUI_OKCancelMenu(const char* caption, bool mode) { return OKCancelMenu(caption, mode).Run(); }
 
 bool GUI_DesyncMenu() {
     Remote_sub_C9753();

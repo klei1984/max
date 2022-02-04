@@ -78,7 +78,7 @@ endif (UNIX)
 
 set(GAME_SOURCES
     ${GAME_SOURCES}
-    ${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
+#    ${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
 )
 
 set_source_files_properties(

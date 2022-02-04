@@ -21,15 +21,17 @@
 
 #include "remote.hpp"
 
-#include "gwindow.hpp"
 #include "message_manager.hpp"
 #include "networkmenu.hpp"
 #include "transport.hpp"
+#include "window_manager.hpp"
 
 unsigned char Remote_GameState;
 bool Remote_IsHostMode;
 bool Remote_IsNetworkGame;
+bool Remote_UnpauseGameEvent;
 unsigned int Remote_PauseTimeStamp;
+unsigned int Remote_TimeoutTimeStamp;
 unsigned int Remote_RngSeed;
 
 Transport* Remote_Transport;
@@ -54,7 +56,7 @@ int Remote_Lobby(bool is_host_mode) {
     WindowInfo* window;
     int result;
 
-    // window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
 
     Remote_IsHostMode = is_host_mode;
 
@@ -67,12 +69,12 @@ int Remote_Lobby(bool is_host_mode) {
 
     if (Remote_Transport) {
         if (Remote_Transport->Init()) {
-            // Remote_IsNetworkGame = NetworkMenu_MenuLoop(Remote_IsHostMode);
+            Remote_IsNetworkGame = NetworkMenu_MenuLoop(Remote_IsHostMode);
 
             result = Remote_IsNetworkGame;
 
         } else {
-            // gwin_load_image(MAINPIC, gwin_get_window(GWINDOW_MAIN_WINDOW), 640, false, true);
+            WindowManager_LoadImage(MAINPIC, WindowManager_GetWindow(GWINDOW_MAIN_WINDOW), 640, false, true);
             MessageManager_DrawMessage(Remote_Transport->GetError(), 2, 1);
 
             result = false;
@@ -88,17 +90,26 @@ int Remote_Lobby(bool is_host_mode) {
 
 void Remote_SetupConnection() {}
 
-bool Remote_sub_CAC94() {}
+bool Remote_sub_CAC94() { return false; }
 
-bool Remote_sub_C8835(bool mode) {}
+bool Remote_sub_C8835(bool mode) { return false; }
 
-bool Remote_CheckRestartAfterDesyncEvent() {}
+bool Remote_CheckRestartAfterDesyncEvent() { return false; }
 
 void Remote_RegisterMenu(NetworkMenu* menu) {}
 
 void Remote_ProcessNetPackets() {}
 
 void Remote_sub_C9753() {}
+
+int Remote_CheckUnpauseEvent() {
+    Remote_UnpauseGameEvent = false;
+
+    Remote_ProcessNetPackets();
+    Remote_TimeoutTimeStamp = timer_get_stamp32();
+
+    return Remote_UnpauseGameEvent;
+}
 
 void Remote_SendNetPacket_signal(int packet_type, int team, int parameter) {}
 

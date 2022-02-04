@@ -24,9 +24,9 @@
 
 typedef struct FontMgr_s* FontMgrPtr;
 
-typedef void (*text_to_buf_func)(unsigned char*, char*, int, int, int);
+typedef void (*text_to_buf_func)(unsigned char*, const char*, int, int, int);
 typedef int (*text_height_func)(void);
-typedef int (*text_width_func)(char*);
+typedef int (*text_width_func)(const char*);
 typedef int (*text_char_width_func)(char);
 typedef int (*text_mono_width_func)(char*);
 typedef int (*text_spacing_func)(void);

@@ -29,17 +29,17 @@
 
 class OptionsMenu : public Window {
     WindowInfo window;
-    unsigned char field_49;
     Button *button_cancel;
     Button *button_done;
     Button *button_help;
     unsigned short team;
     ResourceID bg_image;
     TextEdit *text_edit;
-    unsigned short field_70;
-    unsigned char field_72;
+    unsigned short control_id;
     unsigned short button_count;
-    unsigned char event_release;
+    bool exit_menu;
+    bool is_slider_active;
+    bool event_release;
 
     void Init();
     void InitSliderControl(int id, int ulx, int uly);

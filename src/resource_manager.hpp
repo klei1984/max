@@ -25,30 +25,54 @@
 #include <cstdio>
 
 #include "enums.hpp"
+#include "gnw.h"
 
-struct SpriteHeader {
-    short ulx;
-    short uly;
-    short width;
-    short height;
-    char data[];
-};
+extern "C" {
 
-struct SpriteMeta {
-    short ulx;
-    short uly;
-    short width;
-    short height;
-    unsigned char palette[768];
-    char data[];
-};
+extern char ResourceManager_FilePathCd[PATH_MAX];
+extern char ResourceManager_FilePathGameInstall[PATH_MAX];
+extern char ResourceManager_FilePathGameResFile[PATH_MAX];
+extern char ResourceManager_FilePathMovie[PATH_MAX];
+extern char ResourceManager_FilePathText[PATH_MAX];
+extern char ResourceManager_FilePathFlc[PATH_MAX];
+extern char ResourceManager_FilePathVoiceSpw[PATH_MAX];
+extern char ResourceManager_FilePathSfxSpw[PATH_MAX];
+extern char ResourceManager_FilePathMsc[PATH_MAX];
 
-unsigned char ResourceManager_Init();
-char *ResourceManager_LoadResource(ResourceID id);
+extern bool ResourceManager_IsMaxDdInUse;
+extern bool ResourceManager_DisableEnhancedGraphics;
+
+extern ColorIndex *ResourceManager_TeamRedColorIndexTable;
+extern ColorIndex *ResourceManager_TeamGreenColorIndexTable;
+extern ColorIndex *ResourceManager_TeamBlueColorIndexTable;
+extern ColorIndex *ResourceManager_TeamGrayColorIndexTable;
+extern ColorIndex *ResourceManager_TeamDerelictColorIndexTable;
+extern ColorIndex *dword_1770B4;
+extern ColorIndex *dword_1770B8;
+extern ColorIndex *dword_1770BC;
+extern ColorIndex *dword_1770C4;
+extern ColorIndex *dword_1770C0;
+extern ColorIndex *dword_1770C8;
+extern ColorIndex *dword_1770CC;
+extern ColorIndex *dword_17945C;
+
+extern char *ResourceManager_MinimapFov;
+extern char *ResourceManager_Minimap;
+extern char *ResourceManager_Minimap2x;
+
+void ResourceManager_InitPaths(int argc, char *argv[]);
+void ResourceManager_InitResources();
+void ResourceManager_ExitGame(int error_code);
+ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bool full_scan);
+unsigned char *ResourceManager_ReadResource(ResourceID id);
+unsigned char *ResourceManager_LoadResource(ResourceID id);
 unsigned int ResourceManager_GetResourceSize(ResourceID id);
-int ResourceManager_ReadImageHeader(ResourceID id, struct SpriteMeta *buffer);
+int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer);
 int ResourceManager_GetResourceFileID(ResourceID id);
 const char *ResourceManager_GetResourceID(ResourceID id);
 FILE *ResourceManager_GetFileHandle(ResourceID id);
+
+char *ResourceManager_ToUpperCase(char *cstr);
+}
 
 #endif /* RESOURCE_MANAGER_HPP */

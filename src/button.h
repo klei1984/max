@@ -73,11 +73,13 @@ struct GNW_buttondata {
 static_assert(sizeof(struct GNW_buttondata) == 116, "The structure needs to be packed.");
 
 ButtonID win_register_button(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value,
-                             int p_value, int r_value, char* up, char* down, char* hover, int flags);
+                             int p_value, int r_value, unsigned char* up, unsigned char* down, unsigned char* hover,
+                             int flags);
 ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int off_value, int p_value, int r_value,
                                   char* name, int flags);
-int win_register_button_disable(ButtonID bid, char* disabled_up, char* disabled_down, char* disabled_hover);
-int win_register_button_image(ButtonID bid, char* up, char* down, char* hover, int draw);
+int win_register_button_disable(ButtonID bid, unsigned char* disabled_up, unsigned char* disabled_down,
+                                unsigned char* disabled_hover);
+int win_register_button_image(ButtonID bid, unsigned char* up, unsigned char* down, unsigned char* hover, int draw);
 int win_register_button_func(ButtonID bid, ButtonFunc on_func, ButtonFunc off_func, ButtonFunc p_func,
                              ButtonFunc r_func);
 int win_register_right_button(ButtonID bid, int p_value, int r_value, ButtonFunc p_func, ButtonFunc r_func);

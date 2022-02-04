@@ -28,11 +28,11 @@
 
 #include "resource_manager.hpp"
 
-AbstractUnit::AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data,
-                           ResourceID flics, ResourceID portrait, ResourceID icon,
-                           ResourceID armory_portrait, ResourceID field_18, unsigned char cargo_type,
-                           unsigned char land_type, char new_gender, const char* singular_name, const char* plural_name,
-                           const char* description, const char* tutorial)
+AbstractUnit::AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
+                           ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
+                           unsigned char cargo_type, unsigned char land_type, char new_gender,
+                           const char* singular_name, const char* plural_name, const char* description,
+                           const char* tutorial)
     : flags(flags),
       sprite(sprite),
       shadows(shadows),
@@ -110,14 +110,14 @@ int TeamUnits::GetParam(char* string, int* offset) {
     return number;
 }
 
-TeamUnits::TeamUnits() : gold(0), color_field_0(0), color_field_2(0) {}
+TeamUnits::TeamUnits() : gold(0), hash_team_id(0), color_index_table(0) {}
 
 TeamUnits::~TeamUnits() {}
 
 void TeamUnits::Init() {
     char* attribs;
 
-    attribs = ResourceManager_LoadResource(ATTRIBS);
+    attribs = reinterpret_cast<char*>(ResourceManager_ReadResource(ATTRIBS));
 
     if (attribs) {
         unsigned int file_size;
@@ -169,7 +169,7 @@ void TeamUnits::Init() {
             }
         }
 
-        delete attribs;
+        delete[] attribs;
     }
 }
 

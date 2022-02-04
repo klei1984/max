@@ -22,8 +22,8 @@
 #ifndef REMOTE_HPP
 #define REMOTE_HPP
 
+#include "enums.hpp"
 #include "networkmenu.hpp"
-#include "resource_manager.hpp"
 #include "unitinfo.hpp"
 
 void Remote_Deinit();
@@ -35,6 +35,7 @@ bool Remote_CheckRestartAfterDesyncEvent();
 void Remote_RegisterMenu(NetworkMenu* menu);
 void Remote_ProcessNetPackets();
 void Remote_sub_C9753();
+int Remote_CheckUnpauseEvent();
 
 void Remote_SendNetPacket_signal(int packet_type, int team, int parameter);
 void Remote_SendNetPacket_08(UnitInfo* unit);

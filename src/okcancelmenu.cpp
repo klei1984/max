@@ -22,9 +22,9 @@
 #include "okcancelmenu.hpp"
 
 #include "cursor.hpp"
-#include "gwindow.hpp"
 #include "mouseevent.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
 OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
     : Window(HELPFRAM, mode ? GWINDOW_MAIN_WINDOW : GWINDOW_38),
@@ -52,7 +52,7 @@ OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
     button_cancel->SetSfx(NCANC0);
     button_cancel->RegisterButton(window.id);
 
-    Text_TextBox(reinterpret_cast<char*>(window.buffer), window.width, caption, 20, 14, 265, 175, 0x100FF, true);
+    Text_TextBox(window.buffer, window.width, caption, 20, 14, 265, 175, 0x100FF, true);
     win_draw_rect(window.id, &window.window);
 }
 

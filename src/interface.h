@@ -29,20 +29,18 @@
 typedef int WinID;
 typedef unsigned int TOCKS;
 
-typedef void (*Trans_b2b)(unsigned char*, int, int, int, unsigned char*, int);
+typedef void (*Trans_b2b)(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2);
 
 typedef struct GNW_Menu_s GNW_Menu;
 
 typedef struct GNW_Window_s GNW_Window;
 
-struct __attribute__((packed)) WindowInfo {
+struct WindowInfo {
     Rect window;
     unsigned short width;
     WinID id;
     unsigned char* buffer;
 };
-
-static_assert(sizeof(struct WindowInfo) == 26, "The structure needs to be packed.");
 
 typedef struct WindowInfo WindowInfo;
 

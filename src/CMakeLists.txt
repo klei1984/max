@@ -1,15 +1,11 @@
 file(GLOB LOCAL_GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 set(LOCAL_GAME_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/game.c
     ${CMAKE_CURRENT_SOURCE_DIR}/color.c
     ${CMAKE_CURRENT_SOURCE_DIR}/kb.c
     ${CMAKE_CURRENT_SOURCE_DIR}/mouse.c
     ${CMAKE_CURRENT_SOURCE_DIR}/button.c
     ${CMAKE_CURRENT_SOURCE_DIR}/timer.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sound.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/svga.c
     ${CMAKE_CURRENT_SOURCE_DIR}/dos.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/resrcmgr.c
     ${CMAKE_CURRENT_SOURCE_DIR}/rect.c
 	${CMAKE_CURRENT_SOURCE_DIR}/text.c
 	${CMAKE_CURRENT_SOURCE_DIR}/vcr.c
@@ -21,18 +17,13 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/db.c
 	${CMAKE_CURRENT_SOURCE_DIR}/gnw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/mvelib32.c
-	${CMAKE_CURRENT_SOURCE_DIR}/movie.c
-	${CMAKE_CURRENT_SOURCE_DIR}/ipx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/crc16.c
-	${CMAKE_CURRENT_SOURCE_DIR}/ini.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/svga.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/screendump.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ini.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/inifile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/flicsmgr.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/ginit.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/gwindow.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/screendump.c
-	${CMAKE_CURRENT_SOURCE_DIR}/gimage.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/gbutton.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/soundmgr.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/movie.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartstring.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartfile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitvalues.cpp
@@ -43,7 +34,10 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/units_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/teamunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/enums.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/window_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/resource_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/game_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sound_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/maphashlist.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/hash.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/image.cpp
@@ -56,20 +50,30 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/cursor.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cargo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/text.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/textedit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/desyncmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transfermenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/dialogmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/helpmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gameconfigmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/clanselectmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/planetselectmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/chooseplayermenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gamesetupmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/optionsmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/zone.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/networkmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transport.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/remote.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/menu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 

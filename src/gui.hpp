@@ -46,7 +46,6 @@ enum : unsigned char {
     GAME_STATE_15_FATAL_ERROR = 0xF
 };
 
-bool GUI_OKCancelMenu(const char* caption, bool mode);
 bool GUI_DesyncMenu();
 bool GUI_SelfDestructMenu();
 unsigned short GUI_TransferMenu(UnitInfo* unit);

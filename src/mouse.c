@@ -74,7 +74,7 @@ int GNW_mouse_init(void) {
 
     if (result != -1) {
         SDL_ShowCursor(SDL_DISABLE);
-        if (SDL_SetRelativeMouseMode(SDL_FALSE) != 0) {
+        if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0) {
             SDL_Log("SDL_SetRelativeMouseMode failed: %s\n", SDL_GetError());
             result = -1;
         }
@@ -469,6 +469,8 @@ void mouse_set_position(int x, int y) {
     mouse_y = y - mouse_hoty;
 
     mouse_clip();
+
+    svga_warp_mouse(mouse_x, mouse_y);
 }
 
 void mouse_clip(void) {
@@ -506,6 +508,8 @@ void mouse_set_hotspot(int hotx, int hoty) {
     mouse_y += mouse_hoty - hoty;
     mouse_hotx = hotx;
     mouse_hoty = hoty;
+
+    svga_warp_mouse(mouse_x, mouse_y);
 
     if (!mouse_is_hidden) {
         mouse_show();

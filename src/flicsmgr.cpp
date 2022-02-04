@@ -21,14 +21,7 @@
 
 #include "flicsmgr.hpp"
 
-#include <new>
-
-extern "C" {
-#include <stdio.h>
-
-#include "ginit.h"
-#include "gnw.h"
-}
+#include "resource_manager.hpp"
 
 #define FLICSMGR_FLI_TYPE 0xAF11u
 #define FLICSMGR_FLC_TYPE 0xAF12u
@@ -85,7 +78,7 @@ typedef struct {
     char *buffer;
 } FlicFrame;
 
-struct Flic_s {
+struct Flic {
     FILE *fp;
     short field_4;
     short field_6;
@@ -277,7 +270,8 @@ void flicsmgr_decode_frame(FlicFrame *frame, Flic *flc) {
                 flicsmgr_decode_byte_run((unsigned char *)&chunk[1], flc);
                 break;
             case LITERAL:
-                buf_to_buf((unsigned char *)(&chunk[1]), flc->width, flc->width, flc->height, flc->buffer, flc->full);
+                buf_to_buf(reinterpret_cast<unsigned char *>(&chunk[1]), flc->width, flc->width, flc->height,
+                           flc->buffer, flc->full);
                 break;
             default:
                 break;
@@ -294,7 +288,7 @@ char Flicsmgr_load_frame(FILE *file, FlicFrame *frame) {
 
     if (frame->buffer) {
         free(frame->buffer);
-        frame->buffer = NULL;
+        frame->buffer = nullptr;
     }
 
     SDL_assert(file);
@@ -316,7 +310,7 @@ char Flicsmgr_load_frame(FILE *file, FlicFrame *frame) {
     }
 
     free(frame->buffer);
-    frame->buffer = NULL;
+    frame->buffer = nullptr;
 
     return 0;
 }
@@ -371,9 +365,9 @@ char flicsmgr_read(Flic *flc) {
     flicsmgr_decode_frame(&flc->frames[0], flc);
 
     free(flc->frames[0].buffer);
-    flc->frames[0].buffer = NULL;
+    flc->frames[0].buffer = nullptr;
 
-    if (is_max_cd_in_use && strcmp(file_path_flc, file_path_game_install)) {
+    if (ResourceManager_IsMaxDdInUse && strcmp(ResourceManager_FilePathFlc, ResourceManager_FilePathGameInstall)) {
         flc->frame_count = 1;
     }
 
@@ -385,7 +379,7 @@ char flicsmgr_read(Flic *flc) {
             flc->frame_pos = 0;
             if ((flc->frame_count - 1) <= FLICSMGR_FRAME_BUFFER) {
                 fclose(flc->fp);
-                flc->fp = NULL;
+                flc->fp = nullptr;
             }
 
             result = 1;
@@ -396,7 +390,7 @@ char flicsmgr_read(Flic *flc) {
         flc->animate = 0;
         flc->frame_count = 0;
         fclose(flc->fp);
-        flc->fp = NULL;
+        flc->fp = nullptr;
 
         result = 1;
     }
@@ -411,13 +405,12 @@ char flicsmgr_load(char *flic_file, Flic *flc) {
         return 0;
     }
 
-    to_upper_case(flic_file);
+    ResourceManager_ToUpperCase(flic_file);
 
-    strcpy(filename, file_path_flc);
+    strcpy(filename, ResourceManager_FilePathFlc);
     strcat(filename, flic_file);
 
-    /* allocated by resource manager */
-    free(flic_file);
+    delete[] flic_file;
 
     flc->fp = fopen(filename, "rb");
 
@@ -430,16 +423,16 @@ char flicsmgr_load(char *flic_file, Flic *flc) {
     }
 
     fclose(flc->fp);
-    flc->fp = NULL;
+    flc->fp = nullptr;
 
     return 0;
 }
 
-Flic *flicsmgr_construct(GAME_RESOURCE id, WindowInfo *w, int width, int ulx, int uly, char animate,
+Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int uly, char animate,
                          char load_flic_palette) {
     Flic *flc = new (std::nothrow) Flic();
 
-    flc->fp = NULL;
+    flc->fp = nullptr;
 
     flc->bound.ulx = ulx;
     flc->bound.uly = uly;
@@ -451,13 +444,13 @@ Flic *flicsmgr_construct(GAME_RESOURCE id, WindowInfo *w, int width, int ulx, in
     flc->load_flic_palette = load_flic_palette;
 
     for (int i = 0; i < FLICSMGR_FRAME_BUFFER; i++) {
-        flc->frames[i].buffer = NULL;
+        flc->frames[i].buffer = nullptr;
     }
 
-    if (flicsmgr_load((char *)read_game_resource(id), flc)) {
+    if (flicsmgr_load(reinterpret_cast<char *>(ResourceManager_ReadResource(id)), flc)) {
         if (!flc->animate) {
             delete flc;
-            flc = NULL;
+            flc = nullptr;
         }
 
     } else {
@@ -475,7 +468,7 @@ Flic *flicsmgr_construct(GAME_RESOURCE id, WindowInfo *w, int width, int ulx, in
         }
 
         delete flc;
-        flc = NULL;
+        flc = nullptr;
     }
 
     return flc;
@@ -510,13 +503,13 @@ void flicsmgr_delete(Flic *flc) {
     for (int i = 0; i < FLICSMGR_FRAME_BUFFER; i++) {
         if (flc->frames[i].buffer) {
             free(flc->frames[i].buffer);
-            flc->frames[i].buffer = NULL;
+            flc->frames[i].buffer = nullptr;
         }
     }
 
     if (flc->fp) {
         fclose(flc->fp);
-        flc->fp = NULL;
+        flc->fp = nullptr;
     }
 
     flc->wid = 0;

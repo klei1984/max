@@ -23,15 +23,6 @@
 
 #include <SDL.h>
 
-/// \todo Fix includes and dependencies
-typedef unsigned short GAME_RESOURCE;
-typedef void GameResourceMeta;
-#include "ginit.h"
-#include "mvelib32.h"
-#include "unitinfo.h"
-#include "units.h"
-#include "wrappers.h"
-
 static void win_free(WinID id);
 static void win_clip(GNW_Window *w, RectPtr *L, char *buf);
 static void refresh_all(Rect *bound, char *buf);
@@ -320,7 +311,7 @@ WinID win_add(int ulx, int uly, int width, int length, int color, int flags) {
                         color = colorTable[GNW_wcolor[0]];
                     }
                 } else if (color & 0xFF00) {
-                    color = (color & 0xFFFF0000) | colorTable[dword_16D9BC[color & 0xFFFF]];
+                    color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
                 }
 
                 w->color = color;
@@ -506,7 +497,7 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
             }
 
             if (color & 0xFF00) {
-                color = (color & 0xFFFF0000) | colorTable[dword_16D9BC[color & 0xFFFF]];
+                color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
             }
 
             text_to_buf(buf, str, field_width, w->width, color);
@@ -563,7 +554,7 @@ void win_line(WinID id, int x1, int y1, int x2, int y2, int color) {
 
     if (GNW_win_init_flag && w) {
         if (color & 0xFF00) {
-            color = (color & 0xFFFF0000) | colorTable[dword_16D9BC[color & 0xFFFF]];
+            color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
         }
 
         draw_line(w->buf, w->width, x1, y1, x2, y2, color);
@@ -584,7 +575,7 @@ void win_box(WinID id, int ulx, int uly, int lrx, int lry, int color) {
 
     if (GNW_win_init_flag && w) {
         if (color & 0xFF00) {
-            color = (color & 0xFFFF0000) | colorTable[dword_16D9BC[color & 0xFFFF]];
+            color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
         }
 
         if (lrx < ulx) {
@@ -610,11 +601,11 @@ void win_shaded_box(WinID id, int ulx, int uly, int lrx, int lry, int color1, in
 
     if (GNW_win_init_flag && w) {
         if (color1 & 0xFF00) {
-            color1 = (color1 & 0xFFFF0000) | colorTable[dword_16D9BC[color1 & 0xFFFF]];
+            color1 = (color1 & 0xFFFF0000) | colorTable[GNW_wcolor[(color1 & 0xFFFF) >> 8]];
         }
 
         if (color2 & 0xFF00) {
-            color2 = (color2 & 0xFFFF0000) | colorTable[dword_16D9BC[color2 & 0xFFFF]];
+            color2 = (color2 & 0xFFFF0000) | colorTable[GNW_wcolor[(color2 & 0xFFFF) >> 8]];
         }
 
         draw_shaded_box(w->buf, w->width, ulx, uly, lrx, lry, color1, color2);
@@ -635,7 +626,7 @@ void win_fill(WinID id, int ulx, int uly, int width, int length, int color) {
                 color = colorTable[GNW_wcolor[0]];
             }
         } else if (color & 0xFF00) {
-            color = (color & 0xFFFF0000) | colorTable[dword_16D9BC[color & 0xFFFF]];
+            color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
         }
 
         if (color < 0x100) {
@@ -1083,7 +1074,7 @@ GNW_Window *GNW_find(WinID id) {
 }
 
 unsigned char *win_get_buf(WinID id) {
-    unsigned char *buf;
+    char *buf;
     GNW_Window *w;
 
     w = GNW_find(id);

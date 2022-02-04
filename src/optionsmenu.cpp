@@ -24,17 +24,19 @@
 #include <algorithm>
 
 #include "cursor.hpp"
-#include "gwindow.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "menu.hpp"
 #include "remote.hpp"
-#include "soundmgr.hpp"
+#include "resource_manager.hpp"
+#include "sound_manager.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
 struct OptionsButton {
     char type;
-    char *format;
-    char ini_param_index;
+    const char *format;
+    IniParameter ini_param_index;
     short ulx;
     short range_min;
     short range_max;
@@ -93,7 +95,7 @@ static struct OptionsButton options_menu_buttons[] = {
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Play Mode: %s", INI_PLAY_MODE, 25, 0, 0),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Computer Player(s): %s", INI_OPPONENT, 25, 0, 0),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Game ends at %i %s.", INI_VICTORY_LIMIT, 25, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, 0, 0, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_INVALID_ID, 0, 0, 0),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Disable Fire", INI_DISABLE_FIRE, 25, 0, 1),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Real Time", INI_REAL_TIME, 210, 0, 1),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Red Team", INI_RED_TEAM_PLAYER, 25, 0, 3),
@@ -113,7 +115,8 @@ OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
       team(team),
       bg_image(bg_image),
       text_edit(nullptr),
-      field_72(0),
+      control_id(0),
+      is_slider_active(false),
       button_count(sizeof(options_menu_buttons) / sizeof(struct OptionsButton)) {
     int uly = bg_image == SETUPPIC ? 141 : 383;
 
@@ -176,13 +179,14 @@ OptionsMenu::~OptionsMenu() {
     }
 
     if (bg_image == PREFSPIC) {
-        sub_A0EFE(1);
+        /// \todo Implement missing function
+        // sub_A0EFE(1);
     }
 }
 
 void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
-    enum GAME_INI_e ini_param_index;
-    ImageHeader2 *slider_slit_image;
+    IniParameter ini_param_index;
+    struct ImageSimpleHeader *slider_slit_image;
     int prfslit_ulx;
     int prfslit_uly;
     int prfslit_pos_x;
@@ -191,13 +195,13 @@ void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
     ini_param_index = options_menu_buttons[id].ini_param_index;
 
     Text_TextBox(&window, options_menu_buttons[id].format, ulx, uly, 185, 20, false, true);
-    slider_slit_image = ResourceManager_LoadResource(PRFSLIT);
+    slider_slit_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIT));
     prfslit_ulx = slider_slit_image->ulx;
 
     prfslit_pos_x = text_width(options_menu_buttons[id].format) + ulx + 10;
     prfslit_pos_y = uly + (20 - slider_slit_image->uly) / 2;
 
-    gwin_load_image2(PRFSLIT, prfslit_pos_x, prfslit_pos_y, 1, &window);
+    WindowManager_LoadImage2(PRFSLIT, prfslit_pos_x, prfslit_pos_y, 1, &window);
 
     prfslit_pos_x -= 10;
     prfslit_ulx += 20;
@@ -214,9 +218,9 @@ void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
 }
 
 void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
-    enum GAME_INI_e ini_param_index;
+    IniParameter ini_param_index;
     ResourceID resource_id;
-    ImageHeader2 *resource_image;
+    struct ImageSimpleHeader *resource_image;
     int image_ulx;
     int image_uly;
     int image_pos_x;
@@ -245,7 +249,7 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
             options_menu_buttons[id].ini_string_value = new (std::nothrow) char[30];
 
             if (bg_image == PREFSPIC) {
-                ini_param_index = INI_RED_TEAM_NAME + team;
+                ini_param_index = static_cast<IniParameter>(INI_RED_TEAM_NAME + team);
             }
 
             ini_config.GetStringValue(ini_param_index, options_menu_buttons[id].ini_string_value, 30);
@@ -254,7 +258,7 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
         } break;
     }
 
-    resource_image = ResourceManager_LoadResource(resource_id);
+    resource_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(resource_id));
 
     image_ulx = resource_image->ulx;
     image_uly = resource_image->uly;
@@ -262,7 +266,7 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
     image_pos_x = text_width(options_menu_buttons[id].format) + ulx + 10;
     image_pos_y = uly + (20 - image_uly) / 2;
 
-    gwin_load_image2(resource_id, image_pos_x, image_pos_y, 1, &window);
+    WindowManager_LoadImage2(resource_id, image_pos_x, image_pos_y, 1, &window);
 
     options_menu_buttons[id].image = new (std::nothrow) Image(image_pos_x, uly, image_ulx, 20);
     options_menu_buttons[id].image->Copy(&window);
@@ -278,11 +282,10 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
 
 void OptionsMenu::InitCheckboxControl(int id, int ulx, int uly) {
     Button *button;
-    enum GAME_INI_e ini_param_index;
+    IniParameter ini_param_index;
 
     ini_param_index = options_menu_buttons[id].ini_param_index;
 
-    button = options_menu_buttons[id].button;
     button = new (std::nothrow) Button(UNCHKED, CHECKED, ulx, uly);
     button->Copy(window.id);
     button->SetFlags(1);
@@ -299,11 +302,13 @@ void OptionsMenu::InitCheckboxControl(int id, int ulx, int uly) {
     button->SetSfx(MBUTT0);
     button->RegisterButton(window.id);
 
+    options_menu_buttons[id].button = button;
+
     Text_TextBox(&window, options_menu_buttons[id].format, ulx + 25, uly - 2, 155, 24, false, true);
 }
 
 void OptionsMenu::InitLabelControl(int id, int ulx, int uly) {
-    enum GAME_INI_e ini_param_index;
+    IniParameter ini_param_index;
     char buffer[200];
     FontColor font_color = Fonts_BrightYellowColor;
 
@@ -336,8 +341,8 @@ void OptionsMenu::InitLabelControl(int id, int ulx, int uly) {
 
 void OptionsMenu::DrawSlider(int id, int value) {
     OptionsButton *button;
-    ImageHeader2 *slider_slit_image;
-    ImageHeader2 *slider_slide_image;
+    struct ImageSimpleHeader *slider_slit_image;
+    struct ImageSimpleHeader *slider_slide_image;
     short max;
     int ulx;
     int uly;
@@ -355,16 +360,16 @@ void OptionsMenu::DrawSlider(int id, int value) {
     width = button->image->GetWidth() - 20;
     height = button->image->GetHeight();
 
-    slider_slit_image = ResourceManager_LoadResource(PRFSLIT);
+    slider_slit_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIT));
 
     ulx += (value * slider_slit_image->ulx) / button->range_max;
 
-    slider_slide_image = ResourceManager_LoadResource(PRFSLIDE);
+    slider_slide_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIDE));
 
     ulx -= slider_slide_image->ulx / 2;
     uly += (20 - slider_slide_image->uly) / 2;
 
-    gwin_load_image2(PRFSLIDE, ulx, uly, 1, &window);
+    WindowManager_LoadImage2(PRFSLIDE, ulx, uly, 1, &window);
 
     button->rest_state = value;
 }
@@ -416,7 +421,7 @@ int OptionsMenu::ProcessTextEditKeyPress(int key) {
     if (text_edit) {
         OptionsButton *button;
 
-        button = &options_menu_buttons[field_70];
+        button = &options_menu_buttons[control_id];
 
         text_edit->ProcessKeyPress(key);
         text_edit->AcceptEditedText();
@@ -442,7 +447,7 @@ int OptionsMenu::ProcessTextEditKeyPress(int key) {
         Text_TextBox(window.buffer, window.width, button->ini_string_value, button->image->GetULX(),
                      button->image->GetULY(), button->image->GetWidth(), button->image->GetHeight(), 0xA2, true, true);
 
-        field_70 = 0;
+        control_id = 0;
         win_draw_rect(window.id, &window.window);
 
         result = true;
@@ -457,7 +462,7 @@ int OptionsMenu::ProcessTextEditKeyPress(int key) {
 void OptionsMenu::Init() {
     int ulx;
     int uly;
-    enum GAME_INI_e ini_param_index;
+    IniParameter ini_param_index;
 
     if (bg_image == PREFSPIC) {
         uly = 20;
@@ -514,16 +519,16 @@ void OptionsMenu::Init() {
 }
 
 int OptionsMenu::ProcessKeyPress(int key) {
-    if (field_72) {
+    if (is_slider_active) {
         int mouse_buttons;
 
         mouse_buttons = mouse_get_buttons();
 
         if ((mouse_buttons & MOUSE_RELEASE_LEFT) == 0 && mouse_buttons) {
-            UpdateSlider(field_70);
+            UpdateSlider(control_id);
         } else {
-            field_70 = 0;
-            field_72 = false;
+            control_id = 0;
+            is_slider_active = false;
         }
     }
 
@@ -548,7 +553,7 @@ int OptionsMenu::ProcessKeyPress(int key) {
             ProcessTextEditKeyPress(GNW_KB_KEY_RETURN);
 
             for (int i = 0; i < button_count; ++i) {
-                int ini_param_index;
+                IniParameter ini_param_index;
                 int option_type;
 
                 ini_param_index = options_menu_buttons[i].ini_param_index;
@@ -576,7 +581,7 @@ int OptionsMenu::ProcessKeyPress(int key) {
                         ini_config.SetStringValue(ini_param_index, options_menu_buttons[i].ini_string_value);
 
                         if (bg_image == PREFSPIC) {
-                            ini_param_index = INI_RED_TEAM_NAME + team;
+                            ini_param_index = static_cast<IniParameter>(INI_RED_TEAM_NAME + team);
                             ini_config.SetStringValue(ini_param_index, options_menu_buttons[i].ini_string_value);
 
                             if (Remote_IsNetworkGame) {
@@ -596,11 +601,11 @@ int OptionsMenu::ProcessKeyPress(int key) {
             }
 
             if (bg_image == SETUPPIC) {
-                disable_enhanced_graphics = !ini_get_setting(INI_ENHANCED_GRAPHICS);
+                ResourceManager_DisableEnhancedGraphics = !ini_get_setting(INI_ENHANCED_GRAPHICS);
             }
 
             ini_config.Save();
-            field_49 = true;
+            exit_menu = true;
 
         } break;
 
@@ -659,7 +664,7 @@ int OptionsMenu::ProcessKeyPress(int key) {
                 }
             }
 
-            field_49 = true;
+            exit_menu = true;
 
         } break;
 
@@ -673,11 +678,11 @@ int OptionsMenu::ProcessKeyPress(int key) {
                 } else {
                     key -= 1002;
 
-                    if (key != field_70) {
+                    if (key != control_id) {
                         ProcessTextEditKeyPress(GNW_KB_KEY_RETURN);
 
                         if (options_menu_buttons[key].type == OPTIONS_TYPE_CHECKBOX) {
-                            int ini_param_index;
+                            IniParameter ini_param_index;
                             int value;
 
                             options_menu_buttons[key].button->PlaySound();
@@ -688,27 +693,26 @@ int OptionsMenu::ProcessKeyPress(int key) {
                             ini_set_setting(ini_param_index, value);
 
                             switch (ini_param_index) {
-                                case INI_MUSIC_LEVEL: {
-                                    soundmgr.HaltVoicePlayback(value);
+                                case INI_DISABLE_MUSIC: {
+                                    soundmgr.HaltMusicPlayback(value);
                                 } break;
 
-                                case INI_FX_SOUND_LEVEL: {
+                                case INI_DISABLE_FX: {
                                     soundmgr.HaltSfxPlayback(value);
                                 } break;
 
-                                case INI_VOICE_LEVEL: {
+                                case INI_DISABLE_VOICE: {
                                     soundmgr.HaltVoicePlayback(value);
-
                                 } break;
                             }
 
                         } else if (options_menu_buttons[key].type == OPTIONS_TYPE_SLIDER) {
-                            field_70 = key;
-                            UpdateSlider(field_70);
-                            field_72 = true;
+                            control_id = key;
+                            UpdateSlider(control_id);
+                            is_slider_active = true;
 
                         } else {
-                            field_70 = key;
+                            control_id = key;
                             options_menu_buttons[key].image->Write(&window);
                             text_edit =
                                 new (std::nothrow) TextEdit(&window, options_menu_buttons[key].ini_string_value, 30,
@@ -772,10 +776,10 @@ int OptionsMenu::ProcessKeyPress(int key) {
 }
 
 void OptionsMenu::Run() {
-    field_49 = false;
+    exit_menu = false;
     event_release = false;
 
-    while (!field_49) {
+    while (!exit_menu) {
         int key = get_input();
 
         if (key > 0 && key < GNW_INPUT_PRESS) {
@@ -783,11 +787,12 @@ void OptionsMenu::Run() {
         }
 
         if (bg_image == PREFSPIC && Remote_IsNetworkGame) {
-            if (byte_1737D2) {
-                key = 1001;
-            }
-
-            sub_A0E32(1);
+            /// \todo Implement missing stuff
+            // if (byte_1737D2) {
+            //     key = 1001;
+            // }
+            //
+            // sub_A0E32(1);
         }
 
         ProcessKeyPress(key);

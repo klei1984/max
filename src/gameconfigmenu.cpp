@@ -21,11 +21,11 @@
 
 #include "gameconfigmenu.hpp"
 
-#include "gwindow.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
 struct GameConfigMenuControlItem {
     Rect bounds;
@@ -162,9 +162,9 @@ static struct GameConfigMenuControlItem game_config_menu_controls[] = {
     MENU_CONTROL_DEF(551, 345, 611, 360, INVALID_ID, nullptr, 0, GameConfigMenu::EventVictoryCondition, KCARG0),
     MENU_CONTROL_DEF(447, 370, 507, 390, PREFEDIT, nullptr, 0, GameConfigMenu::EventVictoryConditionPrefs, KCARG0),
     MENU_CONTROL_DEF(551, 370, 611, 390, PREFEDIT, nullptr, 0, GameConfigMenu::EventVictoryConditionPrefs, KCARG0),
-    MENU_CONTROL_DEF(354, 438, nullptr, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, GameConfigMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(465, 438, nullptr, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, GameConfigMenu::EventHelp, NHELP0),
-    MENU_CONTROL_DEF(514, 438, nullptr, 0, MNUBTN6U, "Done", GNW_KB_KEY_RETURN, GameConfigMenu::EventDone, NDONE0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, GameConfigMenu::EventCancel, NCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, GameConfigMenu::EventHelp, NHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_RETURN, GameConfigMenu::EventDone, NDONE0),
 };
 
 static const char* game_config_menu_difficulty_descriptions[] = {
@@ -207,7 +207,7 @@ void GameConfigMenu::Init() {
     ini_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
     ini_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
     event_click_done = false;
     event_click_cancel = false;
 
@@ -216,7 +216,7 @@ void GameConfigMenu::Init() {
     field_867 = 0;
 
     mouse_hide();
-    gwin_load_image(OPTNFRM, window, window->width, false, false);
+    WindowManager_LoadImage(OPTNFRM, window, window->width, false, false);
 
     for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
@@ -227,6 +227,8 @@ void GameConfigMenu::Init() {
             ButtonInit(i);
         }
     }
+
+    text_font(5);
 
     bg_panels[0] = new (std::nothrow) Image(6, 38, 200, 190);
     bg_panels[1] = new (std::nothrow) Image(216, 38, 200, 190);
@@ -417,11 +419,11 @@ void GameConfigMenu::ButtonInit(int index) {
 
     control = &game_config_menu_controls[index];
 
-    text_font((index < 48) ? 1 : 5);
+    text_font((index < 48) ? 5 : 1);
 
     if (control->image_id != INVALID_ID && control->label) {
-        buttons[index] = new (std::nothrow)
-            Button(control->image_id, control->image_id + 1, control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   control->bounds.ulx, control->bounds.uly);
         buttons[index]->SetCaption(control->label);
     } else {
         buttons[index] = new (std::nothrow)
@@ -429,7 +431,7 @@ void GameConfigMenu::ButtonInit(int index) {
                    control->bounds.lry - control->bounds.uly);
 
         if (control->image_id != INVALID_ID) {
-            gwin_load_image2(control->image_id, control->bounds.ulx, control->bounds.uly, true, window);
+            WindowManager_LoadImage2(control->image_id, control->bounds.ulx, control->bounds.uly, true, window);
         }
     }
 
@@ -487,16 +489,22 @@ void GameConfigMenu::DrawPanelTurnTimers() {
 
     timer_setting = ini_get_setting(INI_TIMER);
 
-    for (timer_index = 6, timer_value = timer_setting + 1; timer_index >= 0 && timer_setting < timer_value;
-         ++timer_index) {
+    for (timer_index = 6; timer_index > 0; --timer_index) {
         timer_value = strtol(game_config_menu_items[timer_index + 15].title, nullptr, 10);
+
+        if (timer_setting >= timer_value) {
+            break;
+        }
     }
 
-    endturn_setting = ini_get_setting(INI_TIMER);
+    endturn_setting = ini_get_setting(INI_ENDTURN);
 
-    for (endturn_index = 6, endturn_value = endturn_setting + 1; endturn_index >= 0 && endturn_setting < endturn_value;
-         ++endturn_index) {
+    for (endturn_index = 6; endturn_index > 0; --endturn_index) {
         endturn_value = strtol(game_config_menu_items[endturn_index + 22].title, nullptr, 10);
+
+        if (endturn_setting >= endturn_value) {
+            break;
+        }
     }
 
     DrawRadioButtons(7, 15, timer_index);
@@ -521,8 +529,12 @@ void GameConfigMenu::DrawPanelStartingCredit() {
 
     starting_credits = ini_get_setting(INI_START_GOLD);
 
-    for (index = 5, credits = starting_credits + 1; index >= 0 && starting_credits < credits; ++index) {
+    for (index = 5; index > 0; --index) {
         credits = strtol(game_config_menu_items[index + 37].title, nullptr, 10);
+
+        if (starting_credits >= credits) {
+            break;
+        }
     }
 
     DrawRadioButtons(6, 37, index);
@@ -605,7 +617,7 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
 }
 
 void GameConfigMenu::DrawBgPanel(int group_index) {
-    bg_panels[group_index]->Write(window);
+    bg_panels[group_index - 1]->Write(window);
     menu_draw_menu_title(window, &game_config_menu_items[group_index], 0x10002, true);
 }
 

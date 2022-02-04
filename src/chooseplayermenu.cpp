@@ -21,11 +21,11 @@
 
 #include "chooseplayermenu.hpp"
 
-#include "gwindow.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
+#include "window_manager.hpp"
 
 struct ChoosePlayerMenuControlItem {
     Rect bounds;
@@ -40,9 +40,9 @@ struct ChoosePlayerMenuControlItem {
     { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
 
 static struct MenuTitleItem choose_player_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, nullptr),  MENU_TITLE_ITEM_DEF(61, 31, 141, 51, nullptr),
-    MENU_TITLE_ITEM_DEF(162, 31, 241, 51, nullptr), MENU_TITLE_ITEM_DEF(272, 31, 351, 51, nullptr),
-    MENU_TITLE_ITEM_DEF(380, 31, 459, 51, nullptr), MENU_TITLE_ITEM_DEF(497, 31, 576, 51, nullptr),
+    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, nullptr),  MENU_TITLE_ITEM_DEF(61, 31, 141, 51, "Team"),
+    MENU_TITLE_ITEM_DEF(162, 31, 241, 51, "Human"), MENU_TITLE_ITEM_DEF(272, 31, 351, 51, "Computer"),
+    MENU_TITLE_ITEM_DEF(380, 31, 459, 51, "None"),  MENU_TITLE_ITEM_DEF(497, 31, 576, 51, "Clan"),
 };
 
 static struct ChoosePlayerMenuControlItem choose_player_menu_controls[] = {
@@ -73,7 +73,7 @@ static_assert(CHOOSE_PLAYER_MENU_ITEM_COUNT ==
 void ChoosePlayerMenu::ButtonSetState(int team, int rest_state) {
     int team_player_ini_setting;
 
-    team_player_ini_setting = ini_get_setting(INI_RED_TEAM_PLAYER + team) - 1;
+    team_player_ini_setting = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team)) - 1;
 
     if (team_player_ini_setting < 0) {
         team_player_ini_setting = TEAM_TYPE_COMPUTER;
@@ -83,16 +83,16 @@ void ChoosePlayerMenu::ButtonSetState(int team, int rest_state) {
 }
 
 void ChoosePlayerMenu::Init() {
-    ButtonID button_list[3];
     const int team_count = 4;
     const int num_buttons = 3;
+    ButtonID button_list[num_buttons];
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
     event_click_done = false;
     event_click_cancel = false;
 
     mouse_hide();
-    gwin_load_image(CHOSPLYR, window, window->width, false, false);
+    WindowManager_LoadImage(CHOSPLYR, window, window->width, false, false);
 
     for (int i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
@@ -123,26 +123,27 @@ void ChoosePlayerMenu::Deinit() {
 void ChoosePlayerMenu::EventSelectHuman() {
     if (game_type) {
         for (int i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
-            if (ini_get_setting(INI_RED_TEAM_PLAYER + i) == TEAM_TYPE_PLAYER) {
+            if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i)) == TEAM_TYPE_PLAYER) {
                 ButtonSetState(i, 0);
-                ini_set_setting(INI_RED_TEAM_PLAYER + i, ini_get_setting(INI_RED_TEAM_PLAYER + key_press));
+                ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i),
+                                ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + key_press)));
                 ButtonSetState(i, 1);
                 break;
             }
         }
     }
 
-    ini_set_setting(INI_RED_TEAM_PLAYER + key_press, TEAM_TYPE_PLAYER);
+    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + key_press), TEAM_TYPE_PLAYER);
     UpdateButtons();
 }
 
 void ChoosePlayerMenu::EventSelectComputer() {
-    ini_set_setting(INI_RED_TEAM_PLAYER + key_press - 4, TEAM_TYPE_COMPUTER);
+    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + key_press - 4), TEAM_TYPE_COMPUTER);
     UpdateButtons();
 }
 
 void ChoosePlayerMenu::EventSelectNone() {
-    ini_set_setting(INI_RED_TEAM_PLAYER + key_press - 8, TEAM_TYPE_NONE);
+    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + key_press - 8), TEAM_TYPE_NONE);
     UpdateButtons();
 }
 
@@ -169,21 +170,22 @@ void ChoosePlayerMenu::ButtonInit(int index, int mode) {
         ResourceID image_id;
         ResourceID clan_logo_id;
 
-        image_id = control->image_id + 1;
+        image_id = static_cast<ResourceID>(control->image_id + 1);
         clan_logo_id = CLN0LOGO;
 
-        if (ini_get_setting(INI_RED_TEAM_PLAYER + index - 12) == TEAM_TYPE_PLAYER) {
+        if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + index - 12)) == TEAM_TYPE_PLAYER) {
             if (ini_get_setting(INI_GAME_FILE_TYPE) != GAME_TYPE_MULTI_PLAYER_SCENARIO) {
                 image_id = control->image_id;
             }
 
             if (game_type || ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                clan_logo_id = CLN0LOGO + ini_get_setting(INI_RED_TEAM_CLAN + index - 12);
+                clan_logo_id = static_cast<ResourceID>(
+                    CLN0LOGO + ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + index - 12)));
             }
         }
 
-        buttons[index] =
-            new (std::nothrow) Button(image_id, control->image_id + 1, control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow)
+            Button(image_id, static_cast<ResourceID>(control->image_id + 1), control->bounds.ulx, control->bounds.uly);
 
         buttons[index]->Copy(clan_logo_id, 41, 40);
     } else if (control->image_id == INVALID_ID) {
@@ -191,8 +193,8 @@ void ChoosePlayerMenu::ButtonInit(int index, int mode) {
             Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
                    control->bounds.lry - control->bounds.uly);
     } else {
-        buttons[index] = new (std::nothrow)
-            Button(control->image_id, control->image_id + 1, control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   control->bounds.ulx, control->bounds.uly);
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);
@@ -219,7 +221,7 @@ void ChoosePlayerMenu::ButtonInit(int index, int mode) {
 void ChoosePlayerMenu::UpdateButtons() {
     char buffer[100];
 
-    for (int i = 0; i < 16; ++i) {
+    for (int i = 12; i < 16; ++i) {
         delete buttons[i];
 
         ButtonInit(i, false);
@@ -243,7 +245,7 @@ void ChoosePlayerMenu::UpdateButtons() {
         buttons[i]->Enable();
 
         if (i >= 12 && i < 16 &&
-            (ini_get_setting(INI_RED_TEAM_PLAYER + i - 12) != TEAM_TYPE_PLAYER ||
+            (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i - 12)) != TEAM_TYPE_PLAYER ||
              ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
             buttons[i]->Disable();
         }
@@ -262,7 +264,7 @@ void ChoosePlayerMenu::EventDone() {
     for (int i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
         int team_type;
 
-        team_type = ini_get_setting(INI_RED_TEAM_PLAYER + i);
+        team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
 
         if (team_type == TEAM_TYPE_PLAYER) {
             ++human_player_count;

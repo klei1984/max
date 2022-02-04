@@ -28,11 +28,10 @@
 #include "unitvalues.hpp"
 
 struct AbstractUnit {
-    AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data,
-                 ResourceID flics, ResourceID portrait, ResourceID icon, ResourceID armory_portrait,
-                 ResourceID field_18, unsigned char cargo_type, unsigned char land_type, char new_gender,
-                 const char* singular_name, const char* plural_name, const char* description,
-                 const char* tutorial = "");
+    AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
+                 ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
+                 unsigned char cargo_type, unsigned char land_type, char new_gender, const char* singular_name,
+                 const char* plural_name, const char* description, const char* tutorial = "");
 
     unsigned int flags;
 
@@ -65,7 +64,7 @@ struct BaseUnit {
 
     unsigned int flags;
     ResourceID data;
-    char* data_buffer;
+    unsigned char* data_buffer;
     ResourceID flics;
     ResourceID portrait;
     ResourceID icon;
@@ -84,8 +83,6 @@ struct BaseUnit {
 };
 
 class TeamUnits {
-    unsigned short color_field_0;
-    unsigned short color_field_2;
     unsigned short gold;
     SmartPointer<UnitValues> base_values[UNIT_END];
     SmartPointer<UnitValues> current_values[UNIT_END];
@@ -121,6 +118,9 @@ public:
 
     UnitValues* GetCurrentUnitValues(unsigned short id);
     void SetCurrentUnitValues(unsigned short id, UnitValues& object);
+
+    unsigned short hash_team_id;
+    ColorIndex* color_index_table;
 };
 
 #endif /* TEAMUNITS_HPP */

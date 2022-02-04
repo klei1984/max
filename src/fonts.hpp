@@ -44,5 +44,6 @@ extern FontColor Fonts_DarkOrageColor;
 extern FontColor Fonts_DarkGrayColor;
 extern FontColor Fonts_BrightBrownColor;
 extern FontColor Fonts_BrightYellowColor;
+extern FontColor Fonts_BrightSilverColor;
 
 #endif /* FONTS_HPP */

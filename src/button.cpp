@@ -22,13 +22,9 @@
 #include "button.hpp"
 
 #include "enums.hpp"
+#include "sound_manager.hpp"
 #include "text.hpp"
-//#include "soundmgr.hpp"
-
-/// \todo Fix includes
-extern "C" {
-void gwin_load_image2(ResourceID id, int ulx, int uly, int has_transparency, WindowInfo *w);
-}
+#include "window_manager.hpp"
 
 void Button_PFunc(ButtonID bid, Button *b) {
     if (!b->rest_state) {
@@ -52,12 +48,12 @@ void Button_RFunc(ButtonID bid, Button *b) {
     }
 }
 
-Button::Button(short ulx, short uly, short lrx, short lry)
+Button::Button(int ulx, int uly, int width, int height)
     : bid(0),
       ulx(ulx),
       uly(uly),
-      lrx(lrx),
-      lry(lry),
+      width(width),
+      height(height),
       up(nullptr),
       down(nullptr),
       up_disabled(nullptr),
@@ -72,7 +68,7 @@ Button::Button(short ulx, short uly, short lrx, short lry)
       sfx(INVALID_ID),
       rest_state(false) {}
 
-Button::Button(ResourceID up, ResourceID down, short ulx, short uly)
+Button::Button(ResourceID up, ResourceID down, int ulx, int uly)
     : bid(0),
       up_disabled(nullptr),
       down_disabled(nullptr),
@@ -88,15 +84,15 @@ Button::Button(ResourceID up, ResourceID down, short ulx, short uly)
     this->up = new (std::nothrow) Image(up, ulx, uly);
     this->ulx = this->up->GetULX();
     this->uly = this->up->GetULY();
-    this->lrx = this->up->GetWidth();
-    this->lry = this->up->GetHeight();
+    this->width = this->up->GetWidth();
+    this->height = this->up->GetHeight();
     this->down = new (std::nothrow) Image(down, this->ulx, this->uly);
 }
 
 Button::~Button() {
     if (bid) {
         if (wid) {
-            Image image = Image(ulx, uly, lrx, lry);
+            Image image = Image(ulx, uly, width, height);
 
             WindowInfo window;
 
@@ -136,10 +132,10 @@ void Button::Allocate() {
     }
 }
 
-Rect Button::GetBounds() const { return {ulx, uly, lrx + ulx, lry + uly}; }
+Rect Button::GetBounds() const { return {ulx, uly, width + ulx, height + uly}; }
 
-char *Button::GetUpData() const {
-    char *buffer;
+unsigned char *Button::GetUpData() const {
+    unsigned char *buffer;
 
     if (up) {
         buffer = up->GetData();
@@ -150,8 +146,8 @@ char *Button::GetUpData() const {
     return buffer;
 }
 
-char *Button::GetDownData() const {
-    char *buffer;
+unsigned char *Button::GetDownData() const {
+    unsigned char *buffer;
 
     if (down) {
         buffer = down->GetData();
@@ -162,8 +158,8 @@ char *Button::GetDownData() const {
     return buffer;
 }
 
-char *Button::GetUpDisabledData() const {
-    char *buffer;
+unsigned char *Button::GetUpDisabledData() const {
+    unsigned char *buffer;
 
     if (up_disabled) {
         buffer = up_disabled->GetData();
@@ -174,8 +170,8 @@ char *Button::GetUpDisabledData() const {
     return buffer;
 }
 
-char *Button::GetDownDisabledData() const {
-    char *buffer;
+unsigned char *Button::GetDownDisabledData() const {
+    unsigned char *buffer;
 
     if (down_disabled) {
         buffer = down_disabled->GetData();
@@ -187,7 +183,7 @@ char *Button::GetDownDisabledData() const {
 }
 
 void Button::Copy(WinID wid) {
-    Image image = Image(ulx, uly, lrx, lry);
+    Image image = Image(ulx, uly, width, height);
 
     WindowInfo window;
 
@@ -198,7 +194,7 @@ void Button::Copy(WinID wid) {
     image.Copy(&window);
 
     if (up) {
-        Image *up_image = new (std::nothrow) Image(ulx, uly, lrx, lry);
+        Image *up_image = new (std::nothrow) Image(ulx, uly, width, height);
         up_image->Copy(image);
         up_image->Blend(*up);
         delete up;
@@ -206,7 +202,7 @@ void Button::Copy(WinID wid) {
     }
 
     if (down) {
-        Image *down_image = new (std::nothrow) Image(ulx, uly, lrx, lry);
+        Image *down_image = new (std::nothrow) Image(ulx, uly, width, height);
         down_image->Copy(image);
         down_image->Blend(*down);
         delete down;
@@ -214,7 +210,7 @@ void Button::Copy(WinID wid) {
     }
 
     if (up_disabled) {
-        Image *up_disabled_image = new (std::nothrow) Image(ulx, uly, lrx, lry);
+        Image *up_disabled_image = new (std::nothrow) Image(ulx, uly, width, height);
         up_disabled_image->Copy(image);
         up_disabled_image->Blend(*up_disabled);
         delete up_disabled;
@@ -222,7 +218,7 @@ void Button::Copy(WinID wid) {
     }
 
     if (down_disabled) {
-        Image *down_disabled_image = new (std::nothrow) Image(ulx, uly, lrx, lry);
+        Image *down_disabled_image = new (std::nothrow) Image(ulx, uly, width, height);
         down_disabled_image->Copy(image);
         down_disabled_image->Blend(*down_disabled);
         delete down_disabled;
@@ -235,25 +231,25 @@ void Button::Copy(ResourceID id, int ulx, int uly) {
 
     Allocate();
 
-    window.width = lrx;
+    window.width = width;
     window.window.ulx = 0;
     window.window.uly = 0;
-    window.window.lrx = lrx;
-    window.window.lry = lry;
+    window.window.lrx = width;
+    window.window.lry = height;
 
-    window.buffer = reinterpret_cast<unsigned char *>(up->GetData());
-    gwin_load_image2(id, ulx, uly, 1, &window);
+    window.buffer = up->GetData();
+    WindowManager_LoadImage2(id, ulx, uly, 1, &window);
 
-    window.buffer = reinterpret_cast<unsigned char *>(down->GetData());
-    gwin_load_image2(id, ulx, uly + 1, 1, &window);
+    window.buffer = down->GetData();
+    WindowManager_LoadImage2(id, ulx, uly + 1, 1, &window);
 }
 
 void Button::CopyDisabled(WindowInfo *w) {
     delete up_disabled;
     delete down_disabled;
 
-    up_disabled = new (std::nothrow) Image(ulx, uly, lrx, lry);
-    down_disabled = new (std::nothrow) Image(ulx, uly, lrx, lry);
+    up_disabled = new (std::nothrow) Image(ulx, uly, width, height);
+    down_disabled = new (std::nothrow) Image(ulx, uly, width, height);
 
     up_disabled->Copy(w);
     down_disabled->Copy(*up_disabled);
@@ -279,32 +275,28 @@ void Button::CopyDownDisabled(ResourceID id) {
     down_disabled = new (std::nothrow) Image(id, ulx, uly);
 }
 
-void Button::CopyUp(char *buffer) {
+void Button::CopyUp(unsigned char *buffer) {
     delete up;
-    up = new (std::nothrow) Image(ulx, uly, lrx, lry);
-    buf_to_buf(reinterpret_cast<unsigned char *>(buffer), lrx, lry, lrx,
-               reinterpret_cast<unsigned char *>(up->GetData()), lrx);
+    up = new (std::nothrow) Image(ulx, uly, width, height);
+    buf_to_buf(buffer, width, height, width, up->GetData(), width);
 }
 
-void Button::CopyDown(char *buffer) {
+void Button::CopyDown(unsigned char *buffer) {
     delete down;
-    down = new (std::nothrow) Image(ulx, uly, lrx, lry);
-    buf_to_buf(reinterpret_cast<unsigned char *>(buffer), lrx, lry, lrx,
-               reinterpret_cast<unsigned char *>(down->GetData()), lrx);
+    down = new (std::nothrow) Image(ulx, uly, width, height);
+    buf_to_buf(buffer, width, height, width, down->GetData(), width);
 }
 
-void Button::CopyUpDisabled(char *buffer) {
+void Button::CopyUpDisabled(unsigned char *buffer) {
     delete up_disabled;
-    up_disabled = new (std::nothrow) Image(ulx, uly, lrx, lry);
-    buf_to_buf(reinterpret_cast<unsigned char *>(buffer), lrx, lry, lrx,
-               reinterpret_cast<unsigned char *>(up_disabled->GetData()), lrx);
+    up_disabled = new (std::nothrow) Image(ulx, uly, width, height);
+    buf_to_buf(buffer, width, height, width, up_disabled->GetData(), width);
 }
 
-void Button::CopyDownDisabled(char *buffer) {
+void Button::CopyDownDisabled(unsigned char *buffer) {
     delete down_disabled;
-    down_disabled = new (std::nothrow) Image(ulx, uly, lrx, lry);
-    buf_to_buf(reinterpret_cast<unsigned char *>(buffer), lrx, lry, lrx,
-               reinterpret_cast<unsigned char *>(down_disabled->GetData()), lrx);
+    down_disabled = new (std::nothrow) Image(ulx, uly, width, height);
+    buf_to_buf(buffer, width, height, width, down_disabled->GetData(), width);
 }
 
 void Button::SetPFunc(ButtonFunc p_func, int p_value) {
@@ -318,13 +310,13 @@ void Button::SetRFunc(ButtonFunc r_func, int r_value) {
 }
 
 void Button::RegisterButton(WinID wid) {
-    char *up_data;
-    char *down_data;
+    unsigned char *up_data;
+    unsigned char *down_data;
     unsigned int flags;
     int r_value;
     int p_value;
 
-    if (down && ((down->GetWidth() != lrx) || (down->GetHeight() != lry))) {
+    if (down && ((down->GetWidth() != width) || (down->GetHeight() != height))) {
         Image *image;
         WindowInfo w;
 
@@ -332,7 +324,7 @@ void Button::RegisterButton(WinID wid) {
         w.buffer = win_get_buf(wid);
         w.width = win_width(wid);
 
-        image = new (std::nothrow) Image(ulx, uly, lrx, lry);
+        image = new (std::nothrow) Image(ulx, uly, width, height);
         image->Copy(&w);
         image->Copy(*down);
         delete down;
@@ -358,7 +350,7 @@ void Button::RegisterButton(WinID wid) {
         r_value = reinterpret_cast<int>(this);
     }
 
-    bid = win_register_button(wid, ulx, uly, lrx, lry, -1, -1, p_value, r_value, up_data, down_data, nullptr, flags);
+    bid = win_register_button(wid, ulx, uly, width, height, -1, -1, p_value, r_value, up_data, down_data, nullptr, flags);
 
     if (this->p_func || this->r_func) {
         win_register_button_func(bid, nullptr, nullptr, reinterpret_cast<ButtonFunc>(Button_PFunc),
@@ -401,10 +393,7 @@ void Button::SetRestState(bool rest_state) {
     }
 }
 
-void Button::PlaySound() const {
-    /// \todo Integrate with sound manager
-    //	soundmgr.PlaySfx(sfx);
-}
+void Button::PlaySound() const { soundmgr.PlaySfx(sfx); }
 
 void Button::SetSfx(ResourceID id) { sfx = id; }
 
@@ -418,7 +407,7 @@ void Button::SetFlags(unsigned int flags) { this->flags = flags; }
 
 void Button::SetCaption(const char *caption, short x, short y, FontColor color_up, FontColor color_down,
                         FontColor color_up_disabled, FontColor color_down_disabled) {
-    SetCaption(caption, {0, 0, lrx - x, lry - y}, color_up, color_down, color_up_disabled, color_down_disabled);
+    SetCaption(caption, {0, 0, width - x, height - y}, color_up, color_down, color_up_disabled, color_down_disabled);
 }
 
 void Button::SetCaption(const char *caption, Rect r, FontColor color_up, FontColor color_down,
@@ -433,22 +422,22 @@ void Button::SetCaption(const char *caption, Rect r, FontColor color_up, FontCol
     width = r.lrx - r.ulx;
     height = r.lry - r.uly;
 
-    window.buffer = reinterpret_cast<unsigned char *>(up->GetData());
+    window.buffer = up->GetData();
     window.width = up->GetWidth();
     uly_caption = ((height - text_height()) / 2) + r.uly, width;
     Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_up);
 
-    window.buffer = reinterpret_cast<unsigned char *>(down->GetData());
+    window.buffer = down->GetData();
     Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_down);
 
     if (up_disabled) {
-        window.buffer = reinterpret_cast<unsigned char *>(up_disabled->GetData());
+        window.buffer = up_disabled->GetData();
         window.width = up_disabled->GetWidth();
         Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_up_disabled);
     }
 
     if (down_disabled) {
-        window.buffer = reinterpret_cast<unsigned char *>(down_disabled->GetData());
+        window.buffer = down_disabled->GetData();
         window.width = down_disabled->GetWidth();
         Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_down_disabled);
     }

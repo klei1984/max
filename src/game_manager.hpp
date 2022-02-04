@@ -22,6 +22,14 @@
 #ifndef GAME_MANAGER_HPP
 #define GAME_MANAGER_HPP
 
+#include "UnitInfo.hpp"
+
 void GameManager_GameLoop(int game_state);
+
+extern Rect GameManager_GridPosition;
+extern SmartPointer<UnitInfo> GameManager_SelectedUnit;
+extern unsigned int GameManager_TurnCounter;
+extern int GameMamager_GameFileNumber;
+extern int GameManager_HumanPlayerCount;
 
 #endif /* GAME_MANAGER_HPP */

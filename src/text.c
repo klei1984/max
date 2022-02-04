@@ -49,9 +49,9 @@ typedef struct FontMgr_s {
 static int load_font(int n);
 static void GNW_text_font(int font_num);
 static int text_font_exists(int font_num, FontMgrPtr* mgr);
-static void GNW_text_to_buf(unsigned char* buf, char* str, int swidth, int fullw, int color);
+static void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw, int color);
 static int GNW_text_height(void);
-static int GNW_text_width(char* str);
+static int GNW_text_width(const char* str);
 static int GNW_text_char_width(char c);
 static int GNW_text_mono_width(char* str);
 static int GNW_text_spacing(void);
@@ -275,7 +275,7 @@ int text_font_exists(int font_num, FontMgrPtr* mgr) {
     return result;
 }
 
-void GNW_text_to_buf(unsigned char* buf, char* str, int swidth, int fullw, int color) {
+void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw, int color) {
     unsigned char* data;
     unsigned char* bstart;
     unsigned char* bnext;
@@ -294,8 +294,8 @@ void GNW_text_to_buf(unsigned char* buf, char* str, int swidth, int fullw, int c
     }
 
     while (*str) {
-        if ((unsigned char)*str < curr_font->num) {
-            width = curr_font->info[(unsigned char)*str].width;
+        if (*str < curr_font->num) {
+            width = curr_font->info[*str].width;
 
             if (color & GNW_TEXT_MONOSPACE) {
                 bnext = &buf[tmax];
@@ -308,7 +308,7 @@ void GNW_text_to_buf(unsigned char* buf, char* str, int swidth, int fullw, int c
                 break;
             }
 
-            data = &curr_font->data[curr_font->info[(unsigned char)*str].offset];
+            data = &curr_font->data[curr_font->info[*str].offset];
 
             for (int h = 0; h < curr_font->height; h++) {
                 unsigned char mask = 0x80;
@@ -346,14 +346,14 @@ void GNW_text_to_buf(unsigned char* buf, char* str, int swidth, int fullw, int c
 
 int GNW_text_height(void) { return curr_font->height; }
 
-int GNW_text_width(char* str) {
+int GNW_text_width(const char* str) {
     int len;
     int i;
 
     len = 0;
 
     while (*str) {
-        i = (unsigned char)*str;
+        i = *str;
         if (i < curr_font->num) {
             len += curr_font->spacing + curr_font->info[i].width;
         }
@@ -363,7 +363,7 @@ int GNW_text_width(char* str) {
     return len;
 }
 
-int GNW_text_char_width(char c) { return curr_font->info[(unsigned char)c].width; }
+int GNW_text_char_width(char c) { return curr_font->info[c].width; }
 
 int GNW_text_mono_width(char* str) { return strlen(str) * text_max(); }
 

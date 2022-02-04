@@ -24,6 +24,10 @@
 #include <new>
 
 #include "point.hpp"
+#include "sound_manager.hpp"
+
+unsigned int Text_TypeWriter_CharacterTimeMs = 50;
+unsigned int Text_TypeWriter_BeepTimeMs = 100;
 
 SmartString* Text_SplitText(const char* text, int max_row_count, int width, int* row_count) {
     SmartString string;
@@ -48,9 +52,8 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
             int string_character_count = string.GetLength();
             int string_pixel_count = text_width(string.GetCStr());
 
-            if (string_pixel_count > string_character_count && string_character_count >= 4 &&
-                *row_count < (max_row_count - 1)) {
-                int pixels_remaining = string_pixel_count;
+            if (string_pixel_count > width && string_character_count >= 4 && *row_count < (max_row_count - 1)) {
+                int pixels_remaining = width;
 
                 if (!flag) {
                     pixels_remaining -= text_width(string_array[*row_count].GetCStr()) + text_char_width(' ');
@@ -60,7 +63,7 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
                             text_char_width('-') + text_char_width(string[0]) + text_char_width(string[1]);
 
                         if (pixels_remaining < segment_pixels) {
-                            pixels_remaining = string_pixel_count;
+                            pixels_remaining = width;
                         }
                     }
                 }
@@ -111,7 +114,7 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
 
             if ((*row_count < max_row_count) && (flag || (text_width(string_array[*row_count - 1].GetCStr()) +
                                                               text_char_width(' ') + text_width(string.GetCStr()) >
-                                                          string_pixel_count))) {
+                                                          width))) {
                 SmartString* new_array = new (std::nothrow) SmartString[*row_count + 1];
 
                 for (int i = 0; i < *row_count; ++i) {
@@ -139,8 +142,8 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
     return string_array;
 }
 
-void Text_TextBox(char* buffer, unsigned short length, const char* text, int ulx, int uly, int width, int height,
-                  int color, bool horizontal_align, bool vertical_align) {
+void Text_TextBox(unsigned char* buffer, unsigned short length, const char* text, int ulx, int uly, int width,
+                  int height, int color, bool horizontal_align, bool vertical_align) {
     int font_height = text_height();
     int row_count;
     int max_row_count;
@@ -176,8 +179,7 @@ void Text_TextBox(char* buffer, unsigned short length, const char* text, int ulx
                 string_width = 0;
             }
 
-            text_to_buf(reinterpret_cast<unsigned char*>(
-                            &buffer[(row_count * font_height + uly) * length + ulx + string_width]),
+            text_to_buf(&buffer[(row_count * font_height + uly) * length + ulx + string_width],
                         string_array[row_count].GetCStr(), width, length, color);
         }
 
@@ -217,7 +219,7 @@ void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int w
     int font_height = text_height() + 1;
     int font_width = text_max() + 1;
     int buffer_size;
-    char* buffer;
+    Color* buffer;
     Point point;
 
     if (horizontal_align) {
@@ -229,21 +231,26 @@ void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int w
     }
 
     buffer_size = font_height * font_width;
-    buffer = new (std::nothrow) char[buffer_size];
+    buffer = new (std::nothrow) Color[buffer_size];
 
     for (int i = 0; text[i] && width > 0; ++i) {
-        char character = text[i];
-        int character_width = text_char_width(character);
+        char character[2];
+        int character_width;
+
+        character[0] = text[i];
+        character[1] = '\0';
+
+        character_width = text_char_width(character[0]);
 
         width -= character_width;
 
         if (width >= 0) {
             memset(buffer, 0, buffer_size);
-            text_to_buf(reinterpret_cast<unsigned char*>(buffer), &character, font_width, font_width, color.base);
+            text_to_buf(buffer, character, font_width, font_width, color.base);
 
             for (point.y = text_height() - 1; point.y >= 0; --point.y) {
-                char* address_1;
-                char* address_2;
+                Color* address_1;
+                Color* address_2;
 
                 address_1 = &buffer[font_width * point.y];
                 address_2 = &address_1[font_width + 1];
@@ -259,11 +266,97 @@ void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int w
                 }
             }
 
-            trans_buf_to_buf(reinterpret_cast<unsigned char*>(buffer), character_width + 1, font_height, font_width,
+            trans_buf_to_buf(buffer, character_width + 1, font_height, font_width,
                              &window->buffer[ulx + window->width * uly], window->width);
             ulx += character_width;
         }
     }
 
     delete[] buffer;
+}
+
+void Text_TypeWriter_TextBox(WindowInfo* window, char* text, int ulx, int uly, int width, int alignment) {
+    int width_text;
+    int text_position;
+    unsigned int initial_time_stamp;
+    unsigned int time_stamp;
+    char character[2];
+
+    width_text = text_width(text);
+
+    if (alignment == 1 && width_text < width) {
+        ulx += width - width_text;
+    } else if (alignment == 2 && width_text < width) {
+        ulx += (width - width_text) / 2;
+    }
+
+    text_position = 0;
+    character[1] = '\0';
+    initial_time_stamp = timer_get_stamp32();
+    time_stamp = timer_get_stamp32();
+
+    if (Text_TypeWriter_CharacterTimeMs > 0) {
+        soundmgr.PlaySfx(MBUTT0);
+    }
+
+    while (text[text_position] && width > 0) {
+        Rect bounds;
+        int character_width;
+
+        character[0] = text[text_position];
+        Text_TextLine(window, character, ulx, uly, width, false, Fonts_BrightSilverColor);
+
+        character_width = text_width(character);
+        width -= character_width;
+
+        bounds.ulx = ulx;
+        bounds.uly = uly;
+        bounds.lrx = ulx + character_width;
+        bounds.lry = uly + text_height();
+
+        ulx += character_width;
+        ++text_position;
+
+        win_draw_rect(window->id, &bounds);
+
+        if (Text_TypeWriter_CharacterTimeMs > 0) {
+            if (timer_elapsed_time_ms(time_stamp) >= Text_TypeWriter_BeepTimeMs) {
+                soundmgr.PlaySfx(MBUTT0);
+                time_stamp = timer_get_stamp32();
+            }
+
+            for (;;) {
+                if (timer_elapsed_time_ms(initial_time_stamp) >= (Text_TypeWriter_CharacterTimeMs * text_position)) {
+                    break;
+                }
+
+                if (get_input() != -1) {
+                    Text_TypeWriter_CharacterTimeMs = 0;
+                }
+            }
+        }
+    }
+}
+
+void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, char* text, int ulx, int uly, int width, int height,
+                                              int alignment) {
+    int font_height;
+    int max_row_count;
+    int row_count;
+    SmartString* strings;
+
+    font_height = text_height() + 1;
+    max_row_count = height / font_height;
+
+    if (max_row_count && text) {
+        strings = Text_SplitText(text, max_row_count, width, &row_count);
+
+        uly += (height + 1 - row_count * font_height) / 2;
+
+        for (int i = 0; i < row_count; ++i) {
+            Text_TypeWriter_TextBox(window, strings[i].GetCStr(), ulx, uly + i * font_height, width, alignment);
+        }
+
+        delete[] strings;
+    }
 }

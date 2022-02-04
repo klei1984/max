@@ -25,6 +25,10 @@
 #include <SDL.h>
 #include <SDL_surface.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "rect.h"
 
 SDL_Surface *svga_get_screen(void);
@@ -43,5 +47,10 @@ void get_start_mode(void);
 void reset_mode(void);
 void vesa_screen_blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX, unsigned int subY,
                       unsigned int subW, unsigned int subH, unsigned int dstX, unsigned int dstY);
+int svga_warp_mouse(int window_x, int window_y);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SVGA_H */

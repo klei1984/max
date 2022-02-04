@@ -24,7 +24,7 @@
 #include "gui.hpp"
 #include "hash.hpp"
 #include "registerarray.hpp"
-#include "soundmgr.hpp"
+#include "sound_manager.hpp"
 
 static unsigned short Paths_AirPath_TypeIndex;
 static MAXRegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);

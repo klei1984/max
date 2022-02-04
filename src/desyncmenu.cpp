@@ -23,10 +23,10 @@
 
 #include "cursor.hpp"
 #include "gui.hpp"
-#include "gwindow.hpp"
 #include "mouseevent.hpp"
 #include "remote.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
 DesyncMenu::DesyncMenu()
     : Window(HELPFRAM, GWINDOW_38), event_click_restart(false), event_click_quit(false), event_release(false) {
@@ -51,7 +51,7 @@ DesyncMenu::DesyncMenu()
     button_quit->SetSfx(NCANC0);
     button_quit->RegisterButton(window.id);
 
-    Text_TextBox(reinterpret_cast<char*>(window.buffer), window.width,
+    Text_TextBox(window.buffer, window.width,
                  "Unable to continue with next turn - remote players are no longer synchronized.\n\nPress Restart "
                  "to load from last auto-saved file.\nPress Quit to exit this game.",
                  20, 14, 265, 175, 0x100FF, false);

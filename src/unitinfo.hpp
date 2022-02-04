@@ -74,7 +74,7 @@ public:
     short grid_x;
     short grid_y;
     unsigned char field_30[4];
-    char* color_cycling_lut;
+    ColorIndex* color_cycling_lut;
     unsigned char team;
     unsigned char unit_id;
     unsigned char brightness;

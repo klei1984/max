@@ -23,12 +23,13 @@
 
 #include "cursor.hpp"
 #include "gui.hpp"
-#include "gwindow.hpp"
+#include "menu.hpp"
 #include "mouseevent.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
-#include "soundmgr.hpp"
+#include "sound_manager.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
 const char* help_menu_sections[] = {
     "NEW_GAME_SETUP",    "CLAN_SETUP",        "PLANET_SETUP",        "MULTI_PLAYER_SETUP",
@@ -245,7 +246,7 @@ int HelpMenu::ReadNextChunk() {
         }
 
         if (fgets(buffer, size, file)) {
-            file_size = strlen(buffer);
+            file_size -= strlen(buffer);
             result = true;
 
         } else {
@@ -474,7 +475,7 @@ bool HelpMenu::ProcessKey(int key) {
         } break;
 
         case GNW_KB_KEY_LALT_P: {
-            /// \todo PauseMenu_Menu();
+            PauseMenu_Menu();
         } break;
 
         case GNW_KB_KEY_RETURN:
@@ -588,30 +589,31 @@ bool HelpMenu_UnitReport(int mouse_x, int mouse_y) {
     UnitInfo* unit;
     bool result;
 
-    /** \todo Implement missing stuff
-    window = gwin_get_window(GWINDOW_38);
+    window = WindowManager_GetWindow(GWINDOW_38);
 
     if (mouse_x < window->window.ulx || mouse_x > window->window.lrx || mouse_y < window->window.uly ||
         mouse_y > window->window.lry) {
         result = false;
+
     } else {
-        mouse_x = (draw_bounds.ulx + ((dword_1738F4 * (mouse_x - window->window.ulx)) >> 16)) >> 6;
-        mouse_y = (draw_bounds.uly + ((dword_1738F4 * (mouse_y - window->window.uly)) >> 16)) >> 6;
+        /** \todo Implement missing stuff
+          mouse_x = (draw_bounds.ulx + ((dword_1738F4 * (mouse_x - window->window.ulx)) >> 16)) >> 6;
+          mouse_y = (draw_bounds.uly + ((dword_1738F4 * (mouse_y - window->window.uly)) >> 16)) >> 6;
 
-        unit = get_unit_based_on_grid_pos(mouse_x, mouse_y, GUI_PlayerTeamIndex, 0x400000);
+          unit = get_unit_based_on_grid_pos(mouse_x, mouse_y, GUI_PlayerTeamIndex, 0x400000);
 
-        if (!unit) {
-            unit = sub_1459A(GUI_PlayerTeamIndex, mouse_x, mouse_y, 0x400000);
-        }
+          if (!unit) {
+              unit = sub_1459A(GUI_PlayerTeamIndex, mouse_x, mouse_y, 0x400000);
+          }
 
-        if (!unit) {
-            result = false;
-        } else {
-            menu_draw_unit_stats_menu(unit);
-            result = true;
-        }
+          if (!unit) {
+              result = false;
+          } else {
+              menu_draw_unit_stats_menu(unit);
+              result = true;
+          }
+        */
     }
-    */
 
     return result;
 }

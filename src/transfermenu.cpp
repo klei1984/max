@@ -74,13 +74,13 @@ void TransferMenu::UpdateIndicators() {
     snprintf(target, sizeof(target), "%ld", labs(unit2_materials));
 
     xfer_amount->Write(&window);
-    Text_TextBox(reinterpret_cast<char *>(window.buffer), window.width, total, 141, 15, 29, 20, 0xFF, true);
+    Text_TextBox(window.buffer, window.width, total, 141, 15, 29, 20, 0xFF, true);
 
     source_cargo->Write(&window);
-    Text_TextBox(reinterpret_cast<char *>(window.buffer), window.width, source, 28, 28, 60, 16, 0xFF, true);
+    Text_TextBox(window.buffer, window.width, source, 28, 28, 60, 16, 0xFF, true);
 
     target_cargo->Write(&window);
-    Text_TextBox(reinterpret_cast<char *>(window.buffer), window.width, target, 223, 28, 60, 16, 0xFF, true);
+    Text_TextBox(window.buffer, window.width, target, 223, 28, 60, 16, 0xFF, true);
 
     button_arrow->Enable();
     button_arrow->SetRestState(total_materials_transferred >= 0);
@@ -238,13 +238,13 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, 38) {
     /// \todo Implement functions
     //    sub_CB6AF(window.buffer, width, source_unit->unit_type, GUI_PlayerTeamIndex, 104, 36);
 
-    Text_TextBox(reinterpret_cast<char *>(window.buffer), window.width,
-                 UnitsManager_BaseUnits[source_unit->unit_type].singular_name, 10, 52, 110, 30, 0, true);
+    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[source_unit->unit_type].singular_name, 10, 52, 110,
+                 30, 0, true);
 
     //    sub_CB6AF(window.buffer, width, unit2->unit_type, GUI_PlayerTeamIndex, 207, 36);
 
-    Text_TextBox(reinterpret_cast<char *>(window.buffer), window.width,
-                 UnitsManager_BaseUnits[target_unit->unit_type].singular_name, 191, 52, 110, 30, 0, true);
+    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[target_unit->unit_type].singular_name, 191, 52,
+                 110, 30, 0, true);
 
     UpdateIndicators();
 }

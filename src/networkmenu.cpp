@@ -25,12 +25,14 @@
 
 #include "gameconfigmenu.hpp"
 #include "gui.hpp"
-#include "gwindow.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "message_manager.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "text.hpp"
+#include "window_manager.hpp"
 
 struct NetworkMenuControlItem {
     Rect bounds;
@@ -207,7 +209,7 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
                         }
 
                         network_menu.key -= 1000;
-                        network_menu.menu_items[i].event_handler();
+                        (network_menu.*network_menu.menu_items[i].event_handler)();
                         break;
                     }
                 }
@@ -248,11 +250,11 @@ void NetworkMenu::ButtonInit(int index) {
         ResourceID clan_logo;
         ResourceID image_id;
 
-        clan_logo = CLN0LOGO + player_clan;
+        clan_logo = static_cast<ResourceID>(CLN0LOGO + player_clan);
         image_id = control->image_id;
 
         if (is_multi_scenario) {
-            ++image_id;
+            image_id = static_cast<ResourceID>(image_id + 1);
         }
 
         buttons[index] =
@@ -307,7 +309,7 @@ void NetworkMenu::ButtonInit(int index) {
 
 void NetworkMenu::Init() {
     dos_srand(time(nullptr));
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
 
     connection_state = false;
     client_state = false;
@@ -322,7 +324,7 @@ void NetworkMenu::Init() {
 
     SetClans(ini_get_setting(INI_PLAYER_CLAN));
     mouse_hide();
-    gwin_load_image(MULTGAME, window, window->width, false, false);
+    WindowManager_LoadImage(MULTGAME, window, window->width, false, false);
 
     text_font(1);
     Text_TextBox(window, "Messages:", 28, 403, 106, 25, true);
@@ -469,7 +471,7 @@ void NetworkMenu::EventLoadButton() {
 
     DeleteButtons();
 
-    save_slot = SaveLoadMenu_menu_loop(false, false);
+    save_slot = SaveLoadMenu_MenuLoop(false, false);
 
     if (save_slot) {
         multi_scenario_id = save_slot;
@@ -616,7 +618,7 @@ void NetworkMenu::DrawScreen() {
     }
 
     if (node && minimap_world_index != ini_world_index) {
-        char *buffer_position;
+        unsigned char *buffer_position;
 
         minimap_world_index = ini_world_index;
 
@@ -942,7 +944,7 @@ void NetworkMenu::DeleteButtons() {
 
 void NetworkMenu::Reinit(int palette_from_image) {
     mouse_hide();
-    gwin_load_image(MULTGAME, window, window->width, palette_from_image, false);
+    WindowManager_LoadImage(MULTGAME, window, window->width, palette_from_image, false);
     text_font(1);
     Text_TextBox(window, "Messages:", 28, 403, 106, 25, true);
     DrawScreen();

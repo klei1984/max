@@ -29,7 +29,7 @@ extern "C" {
 }
 
 class Image {
-    char *data;
+	unsigned char *data;
     short ulx;
     short uly;
     short width;
@@ -41,7 +41,7 @@ public:
     Image(ResourceID id, short ulx, short uly);
     ~Image();
 
-    char *GetData() const;
+    unsigned char *GetData() const;
     short GetULX() const;
     short GetULY() const;
     short GetWidth() const;
