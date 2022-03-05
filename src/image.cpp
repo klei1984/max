@@ -89,6 +89,8 @@ void Image::Allocate() {
 
         allocated = true;
     }
+
+    SDL_assert(allocated && data);
 }
 
 Rect Image::GetBounds() const { return {ulx, uly, width + ulx, height + uly}; }

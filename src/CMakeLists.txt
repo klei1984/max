@@ -71,7 +71,9 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/task_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/zone.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/networkmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/net_packet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transport.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/transport_udp_default.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/remote.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/menu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp

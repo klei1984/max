@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,36 +19,42 @@
  * SOFTWARE.
  */
 
-#ifndef TRANSPORT_HPP
-#define TRANSPORT_HPP
+#ifndef TRANSPORT_UDP_DEFAULT_HPP
+#define TRANSPORT_UDP_DEFAULT_HPP
 
-#include "net_packet.hpp"
+#include <SDL_net.h>
 
-#define TRANSPORT_MAX_TEAM_COUNT 4
-#define TRANSPORT_MAX_PACKET_SIZE 1440
+#include "transport.hpp"
 
-enum {
-    TRANSPORT_DEFAULT_UDP,
-};
+static_assert(sizeof(struct NetAddress) == sizeof(IPaddress));
 
-enum {
-    TRANSPORT_SERVER,
-    TRANSPORT_CLIENT,
-};
+class TransportUdpDefault : public Transport {
+    int NetState;
+    int network_role;
+    const char* LastError;
+    unsigned short SessionId;
+    int channels[TRANSPORT_MAX_TEAM_COUNT];
+    UDPsocket socket;
+    int channel;
+    UDPpacket* UdpPacket;
+    NetAddress BroadcastAddress;
 
-class Transport {
+    void SetError(const char* error);
+    bool SetupHost();
+    bool SetupClient();
+
 public:
-    virtual ~Transport(){};
-    virtual const char* GetError() const = 0;
-    virtual bool Init(int mode) = 0;
-    virtual bool Deinit() = 0;
-    virtual bool Connect() = 0;
-    virtual bool Disconnect() = 0;
-    virtual bool TransmitPacket(NetPacket& packet) = 0;
-    virtual bool ReceivePacket(NetPacket& packet) = 0;
-    virtual void SetSessionId(unsigned short session_id) = 0;
+    TransportUdpDefault();
+    ~TransportUdpDefault();
+
+    const char* GetError() const;
+    bool Init(int mode);
+    bool Deinit();
+    bool Connect();
+    bool Disconnect();
+    bool TransmitPacket(NetPacket& packet);
+    bool ReceivePacket(NetPacket& packet);
+    void SetSessionId(unsigned short session_id);
 };
 
-Transport* Transport_Create(int type);
-
-#endif /* TRANSPORT_HPP */
+#endif /* TRANSPORT_UDP_DEFAULT_HPP */

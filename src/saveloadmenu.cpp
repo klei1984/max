@@ -485,7 +485,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
 
     do {
         if (Remote_GameState == 1) {
-            Remote_sub_CAC94();
+            Remote_NetSync();
         }
 
         key = get_input();

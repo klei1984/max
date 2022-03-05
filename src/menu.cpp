@@ -1232,7 +1232,7 @@ int menu_clan_select_menu_loop(int team) {
 
     do {
         if (Remote_GameState) {
-            Remote_sub_CAC94();
+            Remote_NetSync();
         }
 
         if (Remote_GameState == 2) {
@@ -1293,7 +1293,7 @@ void DialogMenu_Menu(const char* label) {
         dialog_menu.RunMenu();
 
         if (Remote_IsNetworkGame) {
-            Remote_SendNetPacket_signal(40, GUI_PlayerTeamIndex, 0);
+            Remote_SendNetPacket_Signal(40, GUI_PlayerTeamIndex, 0);
         }
 
         Remote_PauseTimeStamp = timer_get_stamp32();
@@ -1302,7 +1302,7 @@ void DialogMenu_Menu(const char* label) {
 
 void PauseMenu_Menu() {
     if (Remote_IsNetworkGame) {
-        Remote_SendNetPacket_signal(39, GUI_PlayerTeamIndex, 0);
+        Remote_SendNetPacket_Signal(39, GUI_PlayerTeamIndex, 0);
     }
 
     DialogMenu_Menu("Game Paused.\nClick OK to continue.");
@@ -1318,7 +1318,7 @@ int menu_planet_select_menu_loop() {
 
     do {
         if (Remote_GameState == 1) {
-            Remote_sub_CAC94();
+            Remote_NetSync();
         }
 
         planet_select_menu.key = get_input();
@@ -1374,7 +1374,7 @@ int menu_options_menu_loop(int game_mode) {
 
     do {
         if (Remote_GameState == 1) {
-            Remote_sub_CAC94();
+            Remote_NetSync();
         }
 
         game_config_menu.key = get_input();
@@ -1531,7 +1531,7 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
 
         do {
             if (Remote_GameState == 1) {
-                Remote_sub_CAC94();
+                Remote_NetSync();
             }
 
             game_setup_menu.key = get_input();

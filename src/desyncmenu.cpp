@@ -84,7 +84,7 @@ bool DesyncMenu::Run() {
         }
 
         if (key == GNW_KB_KEY_RETURN) {
-            Remote_SendNetPacket_signal(51, GUI_PlayerTeamIndex, 0);
+            Remote_SendNetPacket_Signal(51, GUI_PlayerTeamIndex, 0);
             event_click_restart = true;
         } else if (key == GNW_KB_KEY_ESCAPE) {
             event_click_quit = true;

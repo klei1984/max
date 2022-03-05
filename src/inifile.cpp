@@ -176,6 +176,11 @@ static const IniKey ini_keys_table[] = {
     {"scale_quality", "1", INI_NUMERIC},
     {"window_width", "640", INI_NUMERIC},
     {"window_height", "480", INI_NUMERIC},
+
+    {"NETWORK_SETTINGS", nullptr, INI_SECTION},
+    {"transport", "udp_default", INI_STRING},
+    {"host_address", "192.168.0.1", INI_STRING},
+    {"host_port", "213", INI_NUMERIC},
 };
 
 static const int ini_keys_table_size = sizeof(ini_keys_table) / sizeof(struct IniKey);

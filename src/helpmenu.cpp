@@ -508,7 +508,7 @@ bool HelpMenu::Run(int mode) {
             } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
                 // sub_A0E32(0, 0);
             } else if (Remote_GameState) {
-                Remote_sub_CAC94();
+                Remote_NetSync();
 
                 if (Remote_GameState == 2) {
                     event_click_cancel = true;
@@ -565,7 +565,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
                 } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
                     // sub_A0E32(0, 0);
                 } else if (Remote_GameState) {
-                    Remote_sub_CAC94();
+                    Remote_NetSync();
                     if (Remote_GameState == 2) {
                         break;
                     }

@@ -19,34 +19,22 @@
  * SOFTWARE.
  */
 
-#include "transport.hpp"
+#include <new>
 
-#include <SDL_net.h>
+#include "transport_udp_default.hpp"
 
-Transport::Transport() : NetState(false), LastError("No error.\n") {}
+Transport* Transport_Create(int type) {
+    Transport* transport;
 
-Transport::~Transport() {}
+    switch (type) {
+        case TRANSPORT_DEFAULT_UDP: {
+            transport = new (std::nothrow) TransportUdpDefault();
+        } break;
 
-bool Transport::Init() {
-    bool result;
-
-    if (SDLNet_Init() == -1) {
-        SDL_Log("Unable to initialize SDL Net: %s\n", SDLNet_GetError());
-
-        SetError("Network not available.");
-
-        result = false;
+        default: {
+            transport = nullptr;
+        } break;
     }
 
-    return result;
+    return transport;
 }
-
-bool Transport::Deinit() {
-    SDLNet_Quit();
-
-    return true;
-}
-
-void Transport::SetError(const char* error) { LastError = error; }
-
-const char* Transport::GetError() { return LastError; }
