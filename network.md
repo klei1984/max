@@ -770,7 +770,7 @@ IPX multicast message sent by the host to each client right after *[Packet 13](#
 struct MAX_Packet_17
 {
   MAX_PacketHeader      Header;
-  uint8                 game_mode;
+  uint8                 game_state;
   uint8                 world;
   uint8                 game_file_number;
   uint8                 game_file_type;
@@ -1031,7 +1031,7 @@ IPX unicast message sent to client from host as response to *[Packet 29](#packet
 struct MAX_Packet_30
 {
   MAX_PacketHeader      Header;
-  uint16                host_node;
+  uint16                player_node;
   string(30)[4]         team_name;
   uint16[4]             node;
   string(30)            world_name;
@@ -1047,17 +1047,17 @@ struct MAX_Packet_30
   uint8                 ini_alien_derelicts;
   uint8                 ini_victory_type;
   uint16                ini_victory_limit;
-  uint8                 field_1310;
-  uint8                 field_1311;
-  string(30)[4]         field_1312;
-  uint8                 field_1432;
-  uint8[4]              field_1433;
+  uint8                 is_map_changed;
+  uint8                 is_multi_scenario;
+  string(30)[4]         default_team_name;
+  uint8                 multi_scenario_id;
+  uint32                rng_seed;
 }
 ~~~
 
 ***entity_id*** The client's new node address assigned by the host.
 
-***host_node*** Node address of the host. The client saves this node address to be able to address the host directly.
+***player_node*** Node address of the host. The client saves this node address to be able to address the host directly.
 
 ***team_name [4]*** Name of each known player. The field is always 4x 30 characters long.
 
@@ -1244,11 +1244,11 @@ struct MAX_Packet_37
   uint8                 ini_alien_derelicts;
   uint8                 ini_victory_type;
   uint16                ini_victory_limit;
-  uint8                 field_1310;
+  uint8                 is_map_changed;
   uint8                 is_multi_scenario;
   string(30)[4]         default_team_name;
   uint8                 multi_scenario_id;
-  uint8[4]              field_1433;
+  uint32                rng_seed;
 }
 ~~~
 

@@ -141,6 +141,22 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 53. If a multiplayer game desyncs on the beginning of the first round before a new autosave is made, thus no autosave exists for the given game session, the game still asks whether players, any of them, wants to reload the last save.
 
+54. The main menu setup and in-game preferences menu is implemented in one class. The game pause menu is not deactivated in the main menu by the setup window variant where it makes no sense to be active.
+
+55. The game pause menu is not deactivated in the popup help menus from within the main menu.
+
+56. Single player custom games test for at least two active players of any kind (computer and human) to be able to start a game. Hot seat games test for at least two human players to be selected. This means that it is possible to start a single player custom game without a human player. It is unclear whether this is a feature or a defect.
+
+57. The custom scenarios menu title is "Multiplayer Scenarios" even in single player mode.
+
+58. If a high-tech unit is captured, and then it gets upgraded in the depot, the unit would lose any of its superior unit values. For example if an enemy tank had 34 attack power and the player's own latest tank upgrades would only grant 20 attack power to an upgraded tank then the captured tank would lose the 34 attack power and would get the inferior 20 "as an upgrade". This behavior was considered to be a defect in M.A.X. 2 back in March, 1998.
+
+59. The SaveSlot class has two image resources, FILEx_UP and FILEx_DN. The SaveLoadMenu_Init() function allocates memory for the images' data. The buffer size is determined for both images, but the allocation uses the size of FILEx_UP data for both. As both images have the same dimensions this defect does not cause any issues.
+
+60. The function which builds network packet 13 (update RNG seed) forgets to set the packet header's *entity_id* field so the previously configured packet's field value is used.
+
+61. If an IPX client exits abnormally while it is in an IPX network lobby the host and its other peers will not be able to proceed with their game creation process. The only way to continue game creation is to exit the lobby by the host and start the connection process again from scratch. Adding a visual marker for ready state and adding the ability for the host to kick an unresponsive client could resolve the issue.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
