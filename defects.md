@@ -157,6 +157,8 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 61. If an IPX client exits abnormally while it is in an IPX network lobby the host and its other peers will not be able to proceed with their game creation process. The only way to continue game creation is to exit the lobby by the host and start the connection process again from scratch. Adding a visual marker for ready state and adding the ability for the host to kick an unresponsive client could resolve the issue.
 
+62. The ButtonManager class allocates ButtonID buffers with new[] but deletes the buffer with free which is undefined behavior. It worked under Watcom 10.x compiler.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
