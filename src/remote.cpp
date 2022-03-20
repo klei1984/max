@@ -215,7 +215,7 @@ static int Remote_SetupPlayers() { return 0; }
 void Remote_Init() {
     WindowInfo* window;
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     Remote_GameState = 0;
     Remote_RngSeed = 0;
@@ -363,7 +363,7 @@ int Remote_Lobby(bool is_host_mode) {
     char ini_transport[30];
     int transort_type;
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     Remote_IsHostMode = is_host_mode;
 
@@ -393,7 +393,7 @@ int Remote_Lobby(bool is_host_mode) {
             result = Remote_IsNetworkGame;
 
         } else {
-            WindowManager_LoadImage(MAINPIC, WindowManager_GetWindow(GWINDOW_MAIN_WINDOW), 640, false, true);
+            WindowManager_LoadImage(MAINPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, false, true);
             MessageManager_DrawMessage(Remote_Transport->GetError(), 2, 1);
 
             result = false;

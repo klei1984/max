@@ -42,6 +42,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/hash.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/image.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/button.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/buttonmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/fonts.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scrollbar.cpp
@@ -64,6 +65,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/gamesetupmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/optionsmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unittypeselector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/abstractupgrademenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp

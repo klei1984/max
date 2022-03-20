@@ -87,7 +87,7 @@ void ChoosePlayerMenu::Init() {
     const int num_buttons = 3;
     ButtonID button_list[num_buttons];
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     event_click_done = false;
     event_click_cancel = false;
 
@@ -156,7 +156,7 @@ void ChoosePlayerMenu::EventSelectClan() {
 void ChoosePlayerMenu::EventCancel() { event_click_cancel = true; }
 
 void ChoosePlayerMenu::EventHelp() {
-    HelpMenu_Menu(game_type == 0 ? HELPMENU_HOT_SEAT_SETUP : HELPMENU_NEW_GAME_SETUP, GWINDOW_MAIN_WINDOW);
+    HelpMenu_Menu(game_type == 0 ? HELPMENU_HOT_SEAT_SETUP : HELPMENU_NEW_GAME_SETUP, WINDOW_MAIN_WINDOW);
 }
 
 void ChoosePlayerMenu::ButtonInit(int index, int mode) {

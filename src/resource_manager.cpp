@@ -773,7 +773,7 @@ int get_attribs_param(const char *string, unsigned short *offset) {
     return number;
 }
 
-void realloc_game_resource(ResourceID id, unsigned char *buffer, int data_size) {
+void ResourceManager_Realloc(ResourceID id, unsigned char *buffer, int data_size) {
     if (ResourceManager_ResMetaTable[id].resource_buffer) {
         free(ResourceManager_ResMetaTable[id].resource_buffer);
         resource_buffer_size -=

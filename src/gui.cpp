@@ -52,8 +52,7 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
         /// \todo Implement function
         //        sub_A0E32(1, 1);
 
-        while (timer_get_stamp32() - time_Stamp < 24857) {
-            ;
+        while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(48)) {
         }
     }
 
@@ -102,7 +101,7 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
 }
 
 bool GUI_SelfDestructMenu() {
-    Window destruct_window(SELFDSTR, GWINDOW_38);
+    Window destruct_window(SELFDSTR, WINDOW_MAIN_MAP);
     WindowInfo window;
     Button* button_arm;
     Button* button_cancel;

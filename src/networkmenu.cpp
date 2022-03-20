@@ -309,7 +309,7 @@ void NetworkMenu::ButtonInit(int index) {
 
 void NetworkMenu::Init() {
     dos_srand(time(nullptr));
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     connection_state = false;
     client_state = false;
@@ -594,7 +594,7 @@ void NetworkMenu::EventCancel() {
     key = GNW_KB_KEY_ESCAPE;
 }
 
-void NetworkMenu::EventHelp() { HelpMenu_Menu(HELPMENU_MULTI_PLAYER_SETUP, GWINDOW_MAIN_WINDOW); }
+void NetworkMenu::EventHelp() { HelpMenu_Menu(HELPMENU_MULTI_PLAYER_SETUP, WINDOW_MAIN_WINDOW); }
 
 void NetworkMenu::EventReady() {
     client_state = 2;

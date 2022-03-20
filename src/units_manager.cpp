@@ -1954,3 +1954,7 @@ int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target
 
     return attacker_damage;
 }
+
+UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type) {
+    return team_info->team_units->GetCurrentUnitValues(unit_type);
+}

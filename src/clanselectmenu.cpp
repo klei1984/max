@@ -69,7 +69,7 @@ static struct ClanSelectMenuControlItem clan_select_menu_controls[] = {
 void ClanSelectMenu::Init(int team) {
     ButtonID button_list[8];
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     team_clan_ini_id = static_cast<IniParameter>(INI_RED_TEAM_CLAN + team);
     team_clan = ini_get_setting(team_clan_ini_id);
@@ -128,7 +128,7 @@ void ClanSelectMenu::EventRandom() {
 
 void ClanSelectMenu::EventCancel() { event_click_done_cancel_random = true; }
 
-void ClanSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_CLAN_SETUP, GWINDOW_MAIN_WINDOW); }
+void ClanSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_CLAN_SETUP, WINDOW_MAIN_WINDOW); }
 
 void ClanSelectMenu::ButtonInit(int index, int mode) {
     struct ClanSelectMenuControlItem* control = &clan_select_menu_controls[index];

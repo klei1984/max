@@ -27,7 +27,7 @@
 #include "window_manager.hpp"
 
 OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, mode ? GWINDOW_MAIN_WINDOW : GWINDOW_38),
+    : Window(HELPFRAM, mode ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
       event_click_ok(false),
       event_click_cancel(false),
       event_release(false) {

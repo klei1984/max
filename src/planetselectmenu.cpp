@@ -233,7 +233,7 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
             win_draw_rect(window->id, &bounds);
             process_bk();
 
-            while (timer_get_stamp32() - time_stamp < 49715) {
+            while (timer_get_stamp32() - time_stamp < TIMER_FPS_TO_TICKS(24)) {
             }
         }
 
@@ -246,7 +246,7 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
 }
 
 void PlanetSelectMenu::Init() {
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     event_click_done = 0;
     event_click_cancel = 0;
@@ -328,6 +328,6 @@ void PlanetSelectMenu::EventRandom() {
 
 void PlanetSelectMenu::EventCancel() { event_click_cancel = true; }
 
-void PlanetSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_PLANET_SETUP, GWINDOW_MAIN_WINDOW); }
+void PlanetSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_PLANET_SETUP, WINDOW_MAIN_WINDOW); }
 
 void PlanetSelectMenu::EventDone() { event_click_done = true; }

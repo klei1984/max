@@ -252,7 +252,7 @@ static void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[
 
     mouse_hide();
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     if (mode) {
         WindowManager_LoadImage(LOADPIC, window, 640, true, false);
@@ -608,7 +608,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
                         SaveLoadMenu_Save(slots[save_slot_index].file_name, slots[save_slot_index].save_name, true);
                         slots[save_slot_index].in_use = true;
                         slots[save_slot_index].DrawSaveSlot(slots[save_slot_index].game_file_type);
-                        win_draw(WindowManager_GetWindow(GWINDOW_MAIN_WINDOW)->id);
+                        win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
                         SaveLoadMenu_SaveSlot = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
                     }
 
@@ -622,9 +622,9 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
                 case 1021: {
                     SaveLoadMenu_PlaySfx(FHELP);
                     if (is_saving_allowed) {
-                        HelpMenu_Menu(HELPMENU_SAVELOAD_SETUP, GWINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
+                        HelpMenu_Menu(HELPMENU_SAVELOAD_SETUP, WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
                     } else {
-                        HelpMenu_Menu(HELPMENU_LOAD_SETUP, GWINDOW_MAIN_WINDOW);
+                        HelpMenu_Menu(HELPMENU_LOAD_SETUP, WINDOW_MAIN_WINDOW);
                     }
                 } break;
 
@@ -652,9 +652,9 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
 
                 case GNW_KB_KEY_SHIFT_DIVIDE: {
                     if (is_saving_allowed) {
-                        HelpMenu_Menu(HELPMENU_SAVELOAD_SETUP, GWINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
+                        HelpMenu_Menu(HELPMENU_SAVELOAD_SETUP, WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
                     } else {
-                        HelpMenu_Menu(HELPMENU_LOAD_SETUP, GWINDOW_MAIN_WINDOW);
+                        HelpMenu_Menu(HELPMENU_LOAD_SETUP, WINDOW_MAIN_WINDOW);
                     }
                 } break;
 

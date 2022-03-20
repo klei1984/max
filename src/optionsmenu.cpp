@@ -111,7 +111,7 @@ static const char *options_menu_opponent_strings[] = {"Clueless", "Apprentice", 
 static const char *options_menu_victory_type_strings[] = {"turns", "points"};
 
 OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
-    : Window(bg_image, bg_image == SETUPPIC ? GWINDOW_MAIN_WINDOW : GWINDOW_38),
+    : Window(bg_image, bg_image == SETUPPIC ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
       team(team),
       bg_image(bg_image),
       text_edit(nullptr),
@@ -537,9 +537,9 @@ int OptionsMenu::ProcessKeyPress(int key) {
             if (text_edit) {
                 text_edit->ProcessKeyPress(key);
             } else if (bg_image == SETUPPIC) {
-                HelpMenu_Menu(HELPMENU_SETUP_MENU_SETUP, GWINDOW_MAIN_WINDOW, false);
+                HelpMenu_Menu(HELPMENU_SETUP_MENU_SETUP, WINDOW_MAIN_WINDOW, false);
             } else {
-                HelpMenu_Menu(HELPMENU_PREFS_MENU_SETUP, GWINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
+                HelpMenu_Menu(HELPMENU_PREFS_MENU_SETUP, WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
             }
 
         } break;

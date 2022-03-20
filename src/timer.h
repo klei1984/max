@@ -22,6 +22,15 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+/* PIT clock rate is 105/88 = 1.19318 MHz
+ * 1 tick = 0.838095238095238 us
+ * 1 ms = 1193.18181818182 ticks = (ticks * 88)/105000
+ * SDL_Delay works on milliseconds basis
+ */
+#define TIMER_TICKS_TO_MS(ticks) ((unsigned int)(((unsigned long long)(ticks)*88uL) / 105000uL))
+#define TIMER_MS_TO_TICKS(ms) ((unsigned int)(((unsigned long long)(ms)*105000uL) / 88uL))
+#define TIMER_FPS_TO_TICKS(fps) ((unsigned int)((105000000uL) / (88uL * (fps))))
+
 int timer_init(void);
 int timer_close(void);
 void timer_wait(unsigned int ticks_to_wait);

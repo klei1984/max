@@ -36,65 +36,65 @@ static char *empty_string = (char *)"\0";
 Color *WindowManager_SystemPalette;
 Color *WindowManager_ColorPalette;
 
-static WindowInfo windows[GWINDOW_COUNT] = {WINDOW_ITEM(WINDOW_RECT(0, 0, 640, 480), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(-1, -1, -1, -1), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(-1, -1, -1, -1), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(390, 2, 461, 22), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(17, 4, 83, 21), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(86, 4, 152, 21), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(10, 29, 137, 156), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(146, 123, 164, 140), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(146, 143, 164, 161), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(10, 173, 162, 220), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(10, 173, 162, 184), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(10, 185, 162, 196), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(10, 197, 162, 208), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(10, 209, 162, 220), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(4, 227, 23, 249), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(32, 227, 51, 248), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(60, 228, 97, 249), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(99, 228, 124, 249), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(125, 228, 162, 249), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(21, 250, 45, 273), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(51, 252, 98, 270), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(102, 252, 149, 270), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(2, 275, 19, 288), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(20, 275, 149, 288), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(150, 275, 169, 288), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(20, 275, 149, 293), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(4, 298, 58, 313), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(4, 314, 58, 329), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(4, 330, 58, 347), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(59, 298, 113, 313), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(59, 314, 113, 329), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(59, 330, 113, 347), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(114, 298, 168, 313), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(114, 314, 168, 329), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(114, 330, 168, 347), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(15, 356, 126, 467), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(136, 387, 162, 412), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(136, 413, 162, 439), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(180, 18, 627, 465), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(50, 0, 590, 8), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(590, 0, 639, 8), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(632, 0, 639, 50), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(632, 50, 639, 430), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(632, 430, 639, 479), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(590, 472, 639, 479), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(50, 472, 590, 479), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(0, 472, 50, 479), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(0, 430, 8, 479), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(0, 50, 8, 430), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(0, 0, 8, 50), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(0, 0, 50, 8), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(242, 456, 331, 476), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(338, 456, 559, 476), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(468, 2, 528, 22), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(534, 2, 594, 22), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(384, 0, 639, 22), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(240, 456, 585, 479), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(0, 0, 178, 238), 640, 0, nullptr),
-                                            WINDOW_ITEM(WINDOW_RECT(0, 239, 178, 479), 640, 0, nullptr)};
+static WindowInfo windows[WINDOW_COUNT] = {WINDOW_ITEM(WINDOW_RECT(0, 0, 640, 480), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(-1, -1, -1, -1), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(-1, -1, -1, -1), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(390, 2, 461, 22), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(17, 4, 83, 21), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(86, 4, 152, 21), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(10, 29, 137, 156), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(146, 123, 164, 140), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(146, 143, 164, 161), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(10, 173, 162, 220), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(10, 173, 162, 184), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(10, 185, 162, 196), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(10, 197, 162, 208), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(10, 209, 162, 220), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(4, 227, 23, 249), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(32, 227, 51, 248), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(60, 228, 97, 249), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(99, 228, 124, 249), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(125, 228, 162, 249), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(21, 250, 45, 273), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(51, 252, 98, 270), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(102, 252, 149, 270), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(2, 275, 19, 288), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(20, 275, 149, 288), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(150, 275, 169, 288), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(20, 275, 149, 293), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(4, 298, 58, 313), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(4, 314, 58, 329), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(4, 330, 58, 347), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(59, 298, 113, 313), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(59, 314, 113, 329), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(59, 330, 113, 347), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(114, 298, 168, 313), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(114, 314, 168, 329), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(114, 330, 168, 347), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(15, 356, 126, 467), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(136, 387, 162, 412), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(136, 413, 162, 439), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(180, 18, 627, 465), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(50, 0, 590, 8), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(590, 0, 639, 8), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(632, 0, 639, 50), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(632, 50, 639, 430), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(632, 430, 639, 479), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(590, 472, 639, 479), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(50, 472, 590, 479), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(0, 472, 50, 479), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(0, 430, 8, 479), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(0, 50, 8, 430), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(0, 0, 8, 50), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(0, 0, 50, 8), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(242, 456, 331, 476), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(338, 456, 559, 476), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(468, 2, 528, 22), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(534, 2, 594, 22), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(384, 0, 639, 22), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(240, 456, 585, 479), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(0, 0, 178, 238), 640, 0, nullptr),
+                                           WINDOW_ITEM(WINDOW_RECT(0, 239, 178, 479), 640, 0, nullptr)};
 
 int WindowManager_Init() {
     unsigned char result;
@@ -109,14 +109,14 @@ int WindowManager_Init() {
     if (wid == -1) {
         result = EXIT_CODE_INSUFFICIENT_MEMORY;
     } else {
-        windows[GWINDOW_MAIN_WINDOW].id = wid;
-        windows[GWINDOW_MAIN_WINDOW].buffer = win_get_buf(wid);
+        windows[WINDOW_MAIN_WINDOW].id = wid;
+        windows[WINDOW_MAIN_WINDOW].buffer = win_get_buf(wid);
 
         if (windows[0].buffer) {
-            for (int i = 0; i < GWINDOW_COUNT; i++) {
+            for (int i = 0; i < WINDOW_COUNT; i++) {
                 windows[i].id = wid;
                 windows[i].buffer =
-                    &windows[GWINDOW_MAIN_WINDOW].buffer[640 * windows[i].window.uly + windows[i].window.ulx];
+                    &windows[WINDOW_MAIN_WINDOW].buffer[640 * windows[i].window.uly + windows[i].window.ulx];
             }
 
             WindowManager_SystemPalette = (unsigned char *)malloc(3 * PALETTE_SIZE);
@@ -134,7 +134,7 @@ int WindowManager_Init() {
 WindowInfo *WindowManager_GetWindow(unsigned char id) {
     WindowInfo *window;
 
-    if (id < GWINDOW_COUNT) {
+    if (id < WINDOW_COUNT) {
         window = &windows[id];
     } else {
         window = nullptr;
@@ -147,7 +147,7 @@ void WindowManager_ClearWindow() {
     WindowInfo *window;
 
     WindowManager_FadeOut(100);
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     setSystemPalette(WindowManager_SystemPalette);
     memset(window->buffer, 0, window->window.lry * window->window.lrx);
     win_draw(window->id);
@@ -272,7 +272,7 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
 
     if (image) {
         if (w == nullptr) {
-            w = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+            w = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
         }
 
         width = w->window.lrx - w->window.ulx + 1;

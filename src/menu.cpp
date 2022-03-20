@@ -507,7 +507,7 @@ void menu_draw_logo(ResourceID resource_id, int time_limit) {
     WindowInfo* window;
     unsigned int time_stamp;
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     if (WindowManager_LoadImage(resource_id, window, 640, true, false)) {
         Cursor_SetCursor(CURSOR_HIDDEN);
@@ -878,7 +878,7 @@ void draw_copyright_label(WindowInfo* window) {
 void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int special_button_id = 0) {
     WindowInfo* window;
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     menu_button_items = button_items;
     menu_button_items_count = button_count;
@@ -1010,7 +1010,7 @@ void tips_on_click_up(WindowInfo* window) {
             --menu_tips_current_row_index;
             menu_draw_tips_frame(window);
 
-            while ((timer_get_stamp32() - time_stamp) < 12428) {
+            while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
             }
         } while (menu_tips_current_row_index != page_offset);
     }
@@ -1028,7 +1028,7 @@ void tips_on_click_down(WindowInfo* window) {
             ++menu_tips_current_row_index;
             menu_draw_tips_frame(window);
 
-            while ((timer_get_stamp32() - time_stamp) < 12428) {
+            while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
             }
         } while (menu_tips_current_row_index != page_offset);
     }
@@ -1151,7 +1151,7 @@ void menu_credits_menu_loop() {
     unsigned char* window_buffer_position;
     unsigned int time_stamp;
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     Cursor_SetCursor(CURSOR_HIDDEN);
     WindowManager_LoadImage(CREDITS, window, 640, true, false);
     win_draw(window->id);
@@ -1698,7 +1698,7 @@ int menu_new_game_menu_loop() {
     bool event_release;
     bool is_tips_window_active;
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     key = 0;
 
     while (key != GNW_KB_KEY_CTRL_ESCAPE && key != 9000) {
@@ -1868,7 +1868,7 @@ int menu_multiplayer_menu_loop() {
     bool exit_loop;
     bool event_release;
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     palette_from_image = 0;
     key = 0;
 
@@ -2017,7 +2017,7 @@ void main_menu() {
     int last_mouse_x;
     int last_mouse_y;
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     palette_from_image = 1;
     save_slot = 1;
     mouse_set_position(320, 240);

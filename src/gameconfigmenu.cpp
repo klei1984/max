@@ -207,7 +207,7 @@ void GameConfigMenu::Init() {
     ini_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
     ini_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
 
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     event_click_done = false;
     event_click_cancel = false;
 
@@ -412,7 +412,7 @@ void GameConfigMenu::EventCancel() {
     event_click_cancel = true;
 }
 
-void GameConfigMenu::EventHelp() { HelpMenu_Menu(HELPMENU_OPTIONS_SETUP, GWINDOW_MAIN_WINDOW); }
+void GameConfigMenu::EventHelp() { HelpMenu_Menu(HELPMENU_OPTIONS_SETUP, WINDOW_MAIN_WINDOW); }
 
 void GameConfigMenu::ButtonInit(int index) {
     GameConfigMenuControlItem* control;

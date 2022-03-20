@@ -25,6 +25,9 @@
 #include "UnitInfo.hpp"
 
 void GameManager_GameLoop(int game_state);
+void GameManager_DrawUnitSelector(unsigned char *buffer, int width, int offsetx, int height, int offsety, int bottom,
+                                  int item_height, int top, int scaling_factor, int is_big_sprite,
+                                  bool double_marker = false);
 
 extern Rect GameManager_GridPosition;
 extern SmartPointer<UnitInfo> GameManager_SelectedUnit;

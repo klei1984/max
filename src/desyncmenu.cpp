@@ -29,7 +29,7 @@
 #include "window_manager.hpp"
 
 DesyncMenu::DesyncMenu()
-    : Window(HELPFRAM, GWINDOW_38), event_click_restart(false), event_click_quit(false), event_release(false) {
+    : Window(HELPFRAM, WINDOW_MAIN_MAP), event_click_restart(false), event_click_quit(false), event_release(false) {
     Cursor_SetCursor(CURSOR_HAND);
     text_font(5);
     SetFlags(0x10);

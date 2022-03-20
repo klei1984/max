@@ -179,7 +179,7 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             }
 
             text_font(5);
-            window_38 = WindowManager_GetWindow(GWINDOW_38);
+            window_38 = WindowManager_GetWindow(WINDOW_MAIN_MAP);
             width = window_38->window.lrx - window_38->window.ulx;
 
             MessageManager_MessageBox_Width = 0;
@@ -194,7 +194,7 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             offset_x = 0;
             offset_y = 10;
 
-            window_2 = WindowManager_GetWindow(GWINDOW_02);
+            window_2 = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
             window_2->window.ulx = window_38->window.ulx + offset_x;
             window_2->window.uly = window_38->window.uly + offset_y;
@@ -219,7 +219,7 @@ void MessageManager_DrawMessageBox() {
     int fullw;
     int row;
 
-    window = WindowManager_GetWindow(GWINDOW_02);
+    window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
     for (height = MessageManager_MessageBox_Height, fullw = 0; height > 0; --height, fullw += 640) {
         for (row = 0; row < MessageManager_MessageBox_Width; ++row) {
@@ -238,7 +238,7 @@ void MessageManager_ClearMessageBox() {
     //            sub_9A9FD(&bounds);
     //            drawmap_add_dirty_zone(&bounds);
 
-    window = WindowManager_GetWindow(GWINDOW_02);
+    window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
     window->window.ulx = -1;
     window->window.uly = -1;

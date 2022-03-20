@@ -27,22 +27,14 @@ int timer_init(void) { return 0; }
 
 int timer_close(void) { return 0; }
 
-/* PIT clock rate is 105/88 = 1.19318 MHz
- * 1 tick = 0.838095238095238 us
- * 1 ms = 1193.18181818182 ticks = (ticks * 88)/105000
- * SDL_Delay works on milliseconds basis
- */
-#define TIMER_CONVERT_TICKS_TO_MS(ticks) ((unsigned int)(((unsigned long long)(ticks)*88uL) / 105000uL))
-#define TIMER_CONVERT_MS_TO_TICKS(ms) ((unsigned int)(((unsigned long long)(ms)*105000uL) / 88uL))
-
-void timer_wait(unsigned int ticks_to_wait) { SDL_Delay(TIMER_CONVERT_TICKS_TO_MS(ticks_to_wait)); }
+void timer_wait(unsigned int ticks_to_wait) { SDL_Delay(TIMER_TICKS_TO_MS(ticks_to_wait)); }
 
 unsigned int timer_elapsed_time_ms(unsigned int time_stamp) {
     unsigned int result;
     unsigned int time_stamp_ms;
     unsigned int time_ms;
 
-    time_stamp_ms = TIMER_CONVERT_TICKS_TO_MS(time_stamp);
+    time_stamp_ms = TIMER_TICKS_TO_MS(time_stamp);
     time_ms = SDL_GetTicks();
 
     if (time_ms > time_stamp_ms) {
@@ -58,4 +50,4 @@ void timer_ch2_setup(void) {}
 
 void timer_set_rate(void) {}
 
-unsigned int timer_get_stamp32(void) { return TIMER_CONVERT_MS_TO_TICKS(SDL_GetTicks()); }
+unsigned int timer_get_stamp32(void) { return TIMER_MS_TO_TICKS(SDL_GetTicks()); }

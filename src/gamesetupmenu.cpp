@@ -119,7 +119,7 @@ void GameSetupMenu::ButtonInit(int index) {
 }
 
 void GameSetupMenu::Init(int palette_from_image) {
-    window = WindowManager_GetWindow(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     event_click_done = false;
     event_click_cancel = false;
@@ -230,7 +230,7 @@ void GameSetupMenu::EventBriefingButton() {
                 --string_row_index;
                 DrawDescriptionPanel();
 
-                while (timer_get_stamp32() - time_stamp < 12428) {
+                while (timer_get_stamp32() - time_stamp < TIMER_FPS_TO_TICKS(96)) {
                 }
 
             } while (string_row_index != row_index);
@@ -249,7 +249,7 @@ void GameSetupMenu::EventBriefingButton() {
                 ++string_row_index;
                 DrawDescriptionPanel();
 
-                while (timer_get_stamp32() - time_stamp < 12428) {
+                while (timer_get_stamp32() - time_stamp < TIMER_FPS_TO_TICKS(96)) {
                 }
 
             } while (string_row_index != row_index);
@@ -262,19 +262,19 @@ void GameSetupMenu::EventCancel() { event_click_cancel = true; }
 void GameSetupMenu::EventHelp() {
     switch (game_file_type) {
         case GAME_TYPE_TRAINING: {
-            HelpMenu_Menu(HELPMENU_TRAINING_MENU_SETUP, GWINDOW_MAIN_WINDOW);
+            HelpMenu_Menu(HELPMENU_TRAINING_MENU_SETUP, WINDOW_MAIN_WINDOW);
         } break;
 
         case GAME_TYPE_SCENARIO: {
-            HelpMenu_Menu(HELPMENU_STAND_ALONE_MENU_SETUP, GWINDOW_MAIN_WINDOW);
+            HelpMenu_Menu(HELPMENU_STAND_ALONE_MENU_SETUP, WINDOW_MAIN_WINDOW);
         } break;
 
         case GAME_TYPE_CAMPAIGN: {
-            HelpMenu_Menu(HELPMENU_CAMPAIGN_MENU, GWINDOW_MAIN_WINDOW);
+            HelpMenu_Menu(HELPMENU_CAMPAIGN_MENU, WINDOW_MAIN_WINDOW);
         } break;
 
         default: {
-            HelpMenu_Menu(HELPMENU_MULTI_SCENARIO_MENU, GWINDOW_MAIN_WINDOW);
+            HelpMenu_Menu(HELPMENU_MULTI_SCENARIO_MENU, WINDOW_MAIN_WINDOW);
         } break;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,26 +19,25 @@
  * SOFTWARE.
  */
 
-#ifndef UNITS_MANAGER_HPP
-#define UNITS_MANAGER_HPP
+#ifndef BUTTONMANAGER_HPP
+#define BUTTONMANAGER_HPP
 
-#include "ctinfo.hpp"
-#include "teamunits.hpp"
-#include "unitinfo.hpp"
+#include "gnw.h"
 
-extern SmartList<UnitInfo> UnitsManager_UnitList1;
-extern SmartList<UnitInfo> UnitsManager_UnitList2;
-extern SmartList<UnitInfo> UnitsManager_UnitList3;
-extern SmartList<UnitInfo> UnitsManager_UnitList4;
-extern SmartList<UnitInfo> UnitsManager_UnitList5;
-extern SmartList<UnitInfo> UnitsManager_UnitList6;
+class ButtonManager {
+    unsigned short slots;
+    unsigned short used;
+    ButtonID* buttons;
 
-extern AbstractUnit UnitsManager_AbstractUnits[UNIT_END];
-extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
+public:
+    ButtonManager();
+    ~ButtonManager();
 
-extern CTInfo UnitsManager_TeamInfo[5];
+    void Add(ButtonID button_id);
+    void Deinit();
+    void EnableAll();
+    void DisableAll();
+    void Group();
+};
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
-UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type);
-
-#endif /* UNITS_MANAGER_HPP */
+#endif /* BUTTONMANAGER_HPP */

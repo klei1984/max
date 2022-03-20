@@ -92,8 +92,7 @@ bool DialogMenu::ProcessKey(int key) {
                     --row_offset;
                     DrawText();
 
-                    while (timer_get_stamp32() - time_Stamp < 12428) {
-                        ;
+                    while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(96)) {
                     }
                 } while (num_rows != row_offset);
             }
@@ -117,8 +116,7 @@ bool DialogMenu::ProcessKey(int key) {
                     ++row_offset;
                     DrawText();
 
-                    while (timer_get_stamp32() - time_Stamp < 12428) {
-                        ;
+                    while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(96)) {
                     }
                 } while (num_rows != row_offset);
             }
@@ -141,7 +139,7 @@ bool DialogMenu::ProcessKey(int key) {
 }
 
 DialogMenu::DialogMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, GUI_GameState == GAME_STATE_3_MAIN_MENU ? GWINDOW_MAIN_WINDOW : GWINDOW_38),
+    : Window(HELPFRAM, GUI_GameState == GAME_STATE_3_MAIN_MENU ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
       field_62(GUI_GameState != GAME_STATE_3_MAIN_MENU),
       strings(nullptr),
       row_offset(0),

@@ -27,6 +27,8 @@
 #include "smartlist.hpp"
 #include "unitvalues.hpp"
 
+struct CTInfo;
+
 struct AbstractUnit {
     AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                  ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,

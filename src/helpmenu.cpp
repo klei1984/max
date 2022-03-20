@@ -415,8 +415,7 @@ bool HelpMenu::ProcessKey(int key) {
                     --string_row_index;
                     DrawText();
 
-                    while ((timer_get_stamp32() - time_stamp) < 12428) {
-                        ;
+                    while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
                     }
 
                 } while (string_row_index != row_index);
@@ -438,8 +437,7 @@ bool HelpMenu::ProcessKey(int key) {
                     ++string_row_index;
                     DrawText();
 
-                    while ((timer_get_stamp32() - time_stamp) < 12428) {
-                        ;
+                    while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
                     }
 
                 } while (string_row_index != row_index);
@@ -503,7 +501,7 @@ bool HelpMenu::Run(int mode) {
         ProcessKey(key);
 
         if (!mode) {
-            if (window_id == GWINDOW_38) {
+            if (window_id == WINDOW_MAIN_MAP) {
                 // sub_A0E32(1, 0);
             } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
                 // sub_A0E32(0, 0);
@@ -560,7 +558,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
 
             if (!mode) {
                 /// \todo Implement missing stuff
-                if (window_index == GWINDOW_38) {
+                if (window_index == WINDOW_MAIN_MAP) {
                     // sub_A0E32(1, 0);
                 } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
                     // sub_A0E32(0, 0);
@@ -589,7 +587,7 @@ bool HelpMenu_UnitReport(int mouse_x, int mouse_y) {
     UnitInfo* unit;
     bool result;
 
-    window = WindowManager_GetWindow(GWINDOW_38);
+    window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
     if (mouse_x < window->window.ulx || mouse_x > window->window.lrx || mouse_y < window->window.uly ||
         mouse_y > window->window.lry) {
