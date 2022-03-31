@@ -159,6 +159,20 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 62. The ButtonManager class allocates ButtonID buffers with new[] but deletes the buffer with free which is undefined behavior. It worked under Watcom 10.x compiler.
 
+63. The AI misbehaves when a hidden infiltrator steps aside, but doing so reveals its presence to the enemy.
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_63.mp4" type="video/mp4">
+    </video>
+    In this case the AI thinks that the infiltrator stands at the old grid cell position and offloads all shots onto the empty ground. Eventually the AI will "learn" the correct location too and may terminate the revealed infiltrator.
+
+64. Disabled alien attack planes placed as alien derelicts onto the maps do not set the map pass tables to unpassable.
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_64.mp4" type="video/mp4">
+    </video>
+    The path generator lets ground units pass these planes. This defect could be used as an exploit to give an edge against human players. If a unit's remaining moves in a turn are calculated well, then it is possible to stop exactly under the plane. The mini map will show the alien derelict's team color (team 5, yellow) instead of the player unit's color. If the grid cell gets attacked, the player unit is not damaged as the alien unit is targeted by the game.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
