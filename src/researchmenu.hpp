@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,9 +19,22 @@
  * SOFTWARE.
  */
 
-#include "drawmap.hpp"
+#ifndef RESEARCHMENU_HPP
+#define RESEARCHMENU_HPP
 
-#include "gnw.h"
-#include "smartobjectarray.hpp"
+#include "resource_manager.hpp"
 
-ObjectArray<Rect> DrawMap_DirtyRectangles;
+enum {
+    RESEARCH_TOPIC_ATTACK,
+    RESEARCH_TOPIC_SHOTS,
+    RESEARCH_TOPIC_RANGE,
+    RESEARCH_TOPIC_ARMOR,
+    RESEARCH_TOPIC_HITS,
+    RESEARCH_TOPIC_SPEED,
+    RESEARCH_TOPIC_SCAN,
+    RESEARCH_TOPIC_COST
+};
+
+int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type);
+
+#endif /* RESEARCHMENU_HPP */

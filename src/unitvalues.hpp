@@ -49,6 +49,7 @@ public:
 
     static TextFileObject* Allocate();
     int GetAttribute(char attribute);
+    unsigned short* GetAttributeAddress(char attribute);
     void SetAttribute(char attribute, int value);
     void UpdateVersion();
     void SetUnitsBuilt(unsigned char count);

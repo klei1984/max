@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,9 +19,6 @@
  * SOFTWARE.
  */
 
-#include "drawmap.hpp"
+#include "researchmenu.hpp"
 
-#include "gnw.h"
-#include "smartobjectarray.hpp"
-
-ObjectArray<Rect> DrawMap_DirtyRectangles;
+int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type) { return 0; }

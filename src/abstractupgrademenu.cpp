@@ -22,22 +22,8 @@
 #include "abstractupgrademenu.hpp"
 
 #include "cursor.hpp"
+#include "researchmenu.hpp"
 #include "units_manager.hpp"
-
-class UpgradeControl {
-    void *field_0;
-    unsigned short field_4;
-    Button *button_upgrade_right;
-    Button *button_upgrade_left;
-    unsigned char field_14;
-    unsigned short field_15;
-    unsigned short field_17;
-    unsigned short field_19;
-    unsigned int field_21;
-    unsigned short field_25;
-    unsigned int field_27;
-    unsigned char field_29[2];
-};
 
 AbstractUpgradeMenu::AbstractUpgradeMenu(unsigned short team, ResourceID resource_id)
     : Window(resource_id),
@@ -60,16 +46,16 @@ AbstractUpgradeMenu::AbstractUpgradeMenu(unsigned short team, ResourceID resourc
       button_combat(nullptr),
       button_description(nullptr),
       type_selector(nullptr),
-      field_77(0),
+      start_gold(0),
       team_gold(0),
-      field_89(-1),
-      field_85(I_RAW),
-      field_87(I_RAWE),
-      field_835(0),
-      field_836(0),
-      field_925(0),
-      field_926(0) {
-    for (int i = 0; i < ABSTRACT_UPGRADE_MENU_UPGRADE_CONTROL_ITEM_COUNT; ++i) {
+      unit_type(INVALID_ID),
+      interface_icon_full(I_RAW),
+      interface_icon_empty(I_RAWE),
+      event_click_done(0),
+      event_click_cancel(0),
+      buy_upgrade_toggle_state(0),
+      event_release(0) {
+    for (int i = 0; i < UPGRADE_CONTROL_COUNT; ++i) {
         upgrade_controls[i] = nullptr;
     }
 
@@ -167,7 +153,7 @@ void AbstractUpgradeMenu::Init() {
     button_description->SetSfx(KCARG0);
     button_description->RegisterButton(window1.id);
 
-    if (field_925) {
+    if (buy_upgrade_toggle_state) {
         button_ground->Disable(false);
         button_air->Disable(false);
         button_sea->Disable(false);
@@ -212,5 +198,52 @@ AbstractUpgradeMenu::~AbstractUpgradeMenu() {
     delete button_combat;
     delete button_description;
 }
+
+void AbstractUpgradeMenu::AddUpgrade(int id, int value1, int value2, unsigned short *attribute, int value) {
+    upgrade_controls[upgrade_control_count] =
+        new (std::nothrow) UpgradeControl(window1.id, cost_background->GetULX() - 38, upgrade_control_next_uly,
+                                          upgrade_control_count + 1015, upgrade_control_count + 1025, &team_gold);
+
+    upgrade_controls[upgrade_control_count]->Init(id, value1, value2, attribute, value);
+    ++upgrade_control_count;
+    upgrade_control_next_uly += 19;
+}
+
+void AbstractUpgradeMenu::AddUpgradeMilitary(ResourceID unit_type) {
+    SmartPointer<UnitValues> base_unitvalues(UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type));
+
+    if (base_unitvalues->GetAttribute(ATTRIB_ATTACK)) {
+        SmartPointer<UnitValues> base_attribs = unitvalues_base[unit_type];
+        SmartPointer<UnitValues> actual_attribs = unitvalues_actual[unit_type];
+
+        AddUpgrade(UPGRADE_CONTROL_1, base_unitvalues->GetAttribute(ATTRIB_ATTACK),
+                   base_attribs->GetAttribute(ATTRIB_ATTACK), actual_attribs->GetAttributeAddress(ATTRIB_ATTACK),
+                   ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_ATTACK, unit_type));
+    }
+}
+
+void AbstractUpgradeMenu::AdjustRowStorage(ResourceID unit_type) {}
+
+void AbstractUpgradeMenu::AdjustRowConsumptions(ResourceID unit_type) {}
+
+void AbstractUpgradeMenu::AddUpgradeGeneric(ResourceID unit_type) {}
+
+void AbstractUpgradeMenu::AddUpgradeMobile(ResourceID unit_type) {}
+
+bool AbstractUpgradeMenu::SelectUnit() {}
+
+void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {}
+
+void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) {}
+
+bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_selector, bool mode) {}
+
+void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc5() {}
+
+void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {}
+
+void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7() {}
+
+bool AbstractUpgradeMenu::ProcessKey(int key) {}
 
 bool AbstractUpgradeMenu::Run() { ; }

@@ -25,23 +25,20 @@
 #include "button.hpp"
 #include "unittypeselector.hpp"
 #include "unitvalues.hpp"
+#include "upgradecontrol.hpp"
 #include "window.hpp"
-
-#define ABSTRACT_UPGRADE_MENU_UPGRADE_CONTROL_ITEM_COUNT 10
-
-class UpgradeControl;
 
 class AbstractUpgradeMenu : public Window {
     WindowInfo window1;
     WindowInfo window2;
     unsigned short team;
-    unsigned short field_77;
+    unsigned short start_gold;
     unsigned short team_gold;
     unsigned short upgrade_control_count;
     unsigned short upgrade_control_next_uly;
-    unsigned short field_85;
-    unsigned short field_87;
-    unsigned short field_89;
+    unsigned short interface_icon_full;
+    unsigned short interface_icon_empty;
+    ResourceID unit_type;
     SmartPointer<UnitValues> unitvalues_base[UNIT_END];
     SmartPointer<UnitValues> unitvalues_actual[UNIT_END];
     UnitTypeSelector *type_selector;
@@ -56,11 +53,11 @@ class AbstractUpgradeMenu : public Window {
     Button *button_building;
     Button *button_combat;
     Button *button_description;
-    UpgradeControl *upgrade_controls[ABSTRACT_UPGRADE_MENU_UPGRADE_CONTROL_ITEM_COUNT];
-    unsigned char field_835;
-    unsigned char field_836;
-    unsigned char field_925;
-    unsigned char field_926;
+    UpgradeControl *upgrade_controls[UPGRADE_CONTROL_COUNT];
+    unsigned char event_click_done;
+    unsigned char event_click_cancel;
+    unsigned char buy_upgrade_toggle_state;
+    unsigned char event_release;
     Image *stats_background;
     Image *cost_background;
     Image *gold_background;
@@ -73,12 +70,28 @@ class AbstractUpgradeMenu : public Window {
     static bool button_combat_rest_state;
     static bool button_description_rest_state;
 
+    void AddUpgrade(int id, int value1, int value2, unsigned short *attribute, int value);
+    void AddUpgradeMilitary(ResourceID unit_type);
+    void AdjustRowStorage(ResourceID unit_type);
+    void AdjustRowConsumptions(ResourceID unit_type);
+    void AddUpgradeGeneric(ResourceID unit_type);
+    void AddUpgradeMobile(ResourceID unit_type);
+
 protected:
     void Init();
 
 public:
     AbstractUpgradeMenu(unsigned short team, ResourceID bg_image);
-    ~AbstractUpgradeMenu();
+    virtual ~AbstractUpgradeMenu();
+
+    virtual bool SelectUnit();
+    virtual void DrawUnitInfo(ResourceID unit_type);
+    virtual void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
+    virtual bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_selector, bool mode);
+    virtual void AbstractUpgradeMenu_vfunc5();
+    virtual void DrawUnitStats(ResourceID unit_type);
+    virtual void AbstractUpgradeMenu_vfunc7();
+    virtual bool ProcessKey(int key);
 
     bool Run();
 };

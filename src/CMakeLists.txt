@@ -53,6 +53,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/text.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/textedit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/drawmap.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/desyncmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transfermenu.cpp
@@ -66,6 +67,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/optionsmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unittypeselector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/upgradecontrol.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/researchmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/abstractupgrademenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
