@@ -22,6 +22,8 @@
 #ifndef CARGO_HPP
 #define CARGO_HPP
 
+#include "enums.hpp"
+
 class UnitInfo;
 
 struct Cargo {
@@ -41,5 +43,11 @@ struct Cargo {
 
     Cargo& operator+=(Cargo const& other);
 };
+
+int Cargo_GetRawConsumptionRate(ResourceID unit_type, int speed_multiplier);
+int Cargo_GetFuelConsumptionRate(ResourceID unit_type);
+int Cargo_GetPowerConsumptionRate(ResourceID unit_type);
+int Cargo_GetLifeConsumptionRate(ResourceID unit_type);
+int Cargo_GetGoldConsumptionRate(ResourceID unit_type);
 
 #endif /* CARGO_HPP */

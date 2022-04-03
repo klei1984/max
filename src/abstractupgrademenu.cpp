@@ -21,6 +21,7 @@
 
 #include "abstractupgrademenu.hpp"
 
+#include "cargo.hpp"
 #include "cursor.hpp"
 #include "researchmenu.hpp"
 #include "units_manager.hpp"
@@ -162,11 +163,11 @@ void AbstractUpgradeMenu::Init() {
     }
 
     button_ground->SetRestState(button_ground_rest_state);
-    button_air->SetRestState(button_ground_rest_state);
-    button_sea->SetRestState(button_ground_rest_state);
-    button_building->SetRestState(button_ground_rest_state);
-    button_combat->SetRestState(button_ground_rest_state);
-    button_description->SetRestState(button_ground_rest_state);
+    button_air->SetRestState(button_air_rest_state);
+    button_sea->SetRestState(button_sea_rest_state);
+    button_building->SetRestState(button_building_rest_state);
+    button_combat->SetRestState(button_combat_rest_state);
+    button_description->SetRestState(button_description_rest_state);
 
     stats_background->Copy(&window1);
     cost_background->Copy(&window1);
@@ -219,16 +220,104 @@ void AbstractUpgradeMenu::AddUpgradeMilitary(ResourceID unit_type) {
         AddUpgrade(UPGRADE_CONTROL_1, base_unitvalues->GetAttribute(ATTRIB_ATTACK),
                    base_attribs->GetAttribute(ATTRIB_ATTACK), actual_attribs->GetAttributeAddress(ATTRIB_ATTACK),
                    ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_ATTACK, unit_type));
+
+        if (base_unitvalues->GetAttribute(ATTRIB_ROUNDS)) {
+            AddUpgrade(UPGRADE_CONTROL_2, base_unitvalues->GetAttribute(ATTRIB_ROUNDS),
+                       base_attribs->GetAttribute(ATTRIB_ROUNDS), actual_attribs->GetAttributeAddress(ATTRIB_ROUNDS),
+                       ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_SHOTS, unit_type));
+        }
+
+        if (base_unitvalues->GetAttribute(ATTRIB_RANGE)) {
+            AddUpgrade(UPGRADE_CONTROL_3, base_unitvalues->GetAttribute(ATTRIB_RANGE),
+                       base_attribs->GetAttribute(ATTRIB_RANGE), actual_attribs->GetAttributeAddress(ATTRIB_RANGE),
+                       ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_RANGE, unit_type));
+        }
+
+        if (base_unitvalues->GetAttribute(ATTRIB_AMMO)) {
+            AddUpgrade(UPGRADE_CONTROL_4, base_unitvalues->GetAttribute(ATTRIB_RANGE),
+                       base_attribs->GetAttribute(ATTRIB_RANGE), actual_attribs->GetAttributeAddress(ATTRIB_RANGE), 0);
+        }
     }
 }
 
-void AbstractUpgradeMenu::AdjustRowStorage(ResourceID unit_type) {}
+void AbstractUpgradeMenu::AdjustRowStorage(ResourceID unit_type) {
+    if (unitvalues_actual[unit_type]->GetAttribute(ATTRIB_STORAGE)) {
+        switch (unit_type) {
+            case ADUMP:
+            case FDUMP:
+            case GOLDSM:
+            case ENGINEER:
+            case CONSTRCT:
+            case CARGOSHP:
+            case SPLYTRCK:
+            case FUELTRCK:
+            case GOLDTRCK: {
+                upgrade_control_next_uly += 19;
+            } break;
+        }
+    }
+}
 
-void AbstractUpgradeMenu::AdjustRowConsumptions(ResourceID unit_type) {}
+void AbstractUpgradeMenu::AdjustRowConsumptions(ResourceID unit_type) {
+    int raw_consumption;
+    int fuel_consumption;
+    int power_consumption;
+    int life_consumption;
 
-void AbstractUpgradeMenu::AddUpgradeGeneric(ResourceID unit_type) {}
+    raw_consumption = Cargo_GetRawConsumptionRate(unit_type, 1);
+    fuel_consumption = Cargo_GetFuelConsumptionRate(unit_type);
+    power_consumption = Cargo_GetPowerConsumptionRate(unit_type);
+    life_consumption = Cargo_GetLifeConsumptionRate(unit_type);
 
-void AbstractUpgradeMenu::AddUpgradeMobile(ResourceID unit_type) {}
+    if (power_consumption < 0) {
+        upgrade_control_next_uly += 19;
+    }
+
+    if (life_consumption < 0) {
+        upgrade_control_next_uly += 19;
+    }
+
+    if (raw_consumption > 0 || fuel_consumption > 0 || power_consumption > 0 || life_consumption > 0) {
+        upgrade_control_next_uly += 19;
+    }
+}
+
+void AbstractUpgradeMenu::AddUpgradeGeneric(ResourceID unit_type) {
+    SmartPointer<UnitValues> base_unitvalues(UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type));
+    SmartPointer<UnitValues> base_attribs = unitvalues_base[unit_type];
+    SmartPointer<UnitValues> actual_attribs = unitvalues_actual[unit_type];
+
+    if (base_unitvalues->GetAttribute(ATTRIB_ARMOR)) {
+        AddUpgrade(UPGRADE_CONTROL_5, base_unitvalues->GetAttribute(ATTRIB_ARMOR),
+                   base_attribs->GetAttribute(ATTRIB_ARMOR), actual_attribs->GetAttributeAddress(ATTRIB_ARMOR),
+                   ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_ARMOR, unit_type));
+    }
+
+    if (base_unitvalues->GetAttribute(ATTRIB_HITS)) {
+        AddUpgrade(UPGRADE_CONTROL_6, base_unitvalues->GetAttribute(ATTRIB_HITS),
+                   base_attribs->GetAttribute(ATTRIB_HITS), actual_attribs->GetAttributeAddress(ATTRIB_HITS),
+                   ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_HITS, unit_type));
+    }
+
+    if (base_unitvalues->GetAttribute(ATTRIB_SCAN)) {
+        AddUpgrade(UPGRADE_CONTROL_7, base_unitvalues->GetAttribute(ATTRIB_SCAN),
+                   base_attribs->GetAttribute(ATTRIB_SCAN), actual_attribs->GetAttributeAddress(ATTRIB_SCAN),
+                   ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_SCAN, unit_type));
+    }
+}
+
+void AbstractUpgradeMenu::AddUpgradeMobile(ResourceID unit_type) {
+    SmartPointer<UnitValues> base_unitvalues(UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type));
+
+    if (base_unitvalues->GetAttribute(ATTRIB_SPEED)) {
+        SmartPointer<UnitValues> base_attribs = unitvalues_base[unit_type];
+        SmartPointer<UnitValues> actual_attribs = unitvalues_actual[unit_type];
+
+        AddUpgrade(UPGRADE_CONTROL_8, base_unitvalues->GetAttribute(ATTRIB_SPEED),
+                   base_attribs->GetAttribute(ATTRIB_SPEED), actual_attribs->GetAttributeAddress(ATTRIB_SPEED),
+                   ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_SPEED, unit_type));
+    }
+}
 
 bool AbstractUpgradeMenu::SelectUnit() {}
 
@@ -236,7 +325,25 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {}
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) {}
 
-bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_selector, bool mode) {}
+bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_selector, bool mode) {
+    bool result;
+
+    if (this->type_selector == type_selector) {
+        ResourceID unit_type = type_selector->GetLast();
+
+        if (mode && this->unit_type == unit_type) {
+            AbstractUpgradeMenu_vfunc3(unit_type);
+        } else {
+            DrawUnitInfo(unit_type);
+        }
+
+        result = true;
+    } else {
+        result = false;
+    }
+
+    return result;
+}
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc5() {}
 
@@ -244,6 +351,169 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {}
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7() {}
 
-bool AbstractUpgradeMenu::ProcessKey(int key) {}
+bool AbstractUpgradeMenu::ProcessKey(int key) {
+    bool result;
 
-bool AbstractUpgradeMenu::Run() { ; }
+    if (key > 0 && key < GNW_INPUT_PRESS) {
+        event_release = false;
+    }
+
+    if (key >= 1015 && key < 1025) {
+        upgrade_controls[key - 1015]->Increase();
+        DrawUnitStats(unit_type);
+    } else if (key >= 1025 && key < 1035) {
+        upgrade_controls[key - 1025]->Decrease();
+        DrawUnitStats(unit_type);
+    } else {
+        switch (key) {
+            case 1002:
+            case GNW_KB_KEY_ESCAPE: {
+                event_click_cancel = true;
+                event_click_done = true;
+                result = true;
+            } break;
+
+            case 1000:
+            case GNW_KB_KEY_RETURN: {
+                AbstractUpgradeMenu_vfunc7();
+                event_click_done = true;
+                result = true;
+            } break;
+
+            case 1003: {
+                button_ground->PlaySound();
+                button_ground_rest_state = true;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1004: {
+                button_ground->PlaySound();
+                button_ground_rest_state = false;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1005: {
+                button_air->PlaySound();
+                button_air_rest_state = true;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1006: {
+                button_air->PlaySound();
+                button_air_rest_state = false;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1007: {
+                button_sea->PlaySound();
+                button_sea_rest_state = true;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1008: {
+                button_sea->PlaySound();
+                button_sea_rest_state = false;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1009: {
+                button_building->PlaySound();
+                button_building_rest_state = true;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1010: {
+                button_building->PlaySound();
+                button_building_rest_state = false;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1011: {
+                button_combat->PlaySound();
+                button_combat_rest_state = true;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1012: {
+                button_combat->PlaySound();
+                button_combat_rest_state = false;
+                AbstractUpgradeMenu_vfunc5();
+                result = true;
+            } break;
+
+            case 1013: {
+                button_description->PlaySound();
+                button_description_rest_state = true;
+                DrawUnitInfo(unit_type);
+                result = true;
+            } break;
+
+            case 1014: {
+                button_description->PlaySound();
+                button_description_rest_state = false;
+                DrawUnitInfo(unit_type);
+                result = true;
+            } break;
+
+            default: {
+                if (key < GNW_INPUT_PRESS) {
+                    result = type_selector->ProcessKeys(key);
+                } else {
+                    if (!event_release) {
+                        key -= GNW_INPUT_PRESS;
+                        switch (key) {
+                            case 1000: {
+                                button_done->PlaySound();
+                            } break;
+
+                            case 1001: {
+                                button_help->PlaySound();
+                            } break;
+
+                            case 1002: {
+                                button_cancel->PlaySound();
+                            } break;
+
+                            default: {
+                                type_selector->ProcessKeys(key + GNW_INPUT_PRESS);
+                            } break;
+                        }
+                    }
+
+                    event_release = true;
+                    result = true;
+                }
+            } break;
+        }
+    }
+
+    return result;
+}
+
+bool AbstractUpgradeMenu::Run() {
+    type_selector->Draw();
+    DrawUnitInfo(type_selector->GetLast());
+
+    while (!event_click_done) {
+        int key;
+
+        key = get_input();
+
+        if (key > 0) {
+            ProcessKey(key);
+        }
+
+        // GameManager_sub_A0E32(0);
+    }
+
+    return event_click_cancel == false;
+}

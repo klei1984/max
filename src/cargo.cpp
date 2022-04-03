@@ -86,3 +86,136 @@ Cargo& Cargo::operator+=(Cargo const& other) {
 
     return *this;
 }
+
+int Cargo_GetRawConsumptionRate(ResourceID unit_type, int speed_multiplier) {
+    int multiplier;
+    int result;
+
+    switch (speed_multiplier) {
+        case 2: {
+            multiplier = 4;
+        } break;
+
+        case 4: {
+            multiplier = 12;
+        } break;
+
+        default: {
+            multiplier = speed_multiplier;
+        } break;
+    }
+
+    switch (unit_type) {
+        case TRAINHAL: {
+            result = multiplier;
+        } break;
+
+        case ENGINEER:
+        case CONSTRCT: {
+            result = multiplier * 2;
+        } break;
+
+        case SHIPYARD:
+        case LANDPLT:
+        case AIRPLT:
+        case LIGHTPLT: {
+            result = multiplier * 3;
+        } break;
+
+        default: {
+            result = 0;
+        } break;
+    }
+
+    return result;
+}
+
+int Cargo_GetFuelConsumptionRate(ResourceID unit_type) {
+    int result;
+
+    switch (unit_type) {
+        case POWERSTN: {
+            result = 6;
+        } break;
+
+        case POWGEN: {
+            result = 2;
+        } break;
+
+        default: {
+            result = 0;
+        } break;
+    }
+
+    return result;
+}
+
+int Cargo_GetPowerConsumptionRate(ResourceID unit_type) {
+    int result;
+
+    switch (unit_type) {
+        case SHIPYARD:
+        case LANDPLT:
+        case AIRPLT:
+        case LIGHTPLT:
+        case TRAINHAL:
+        case GREENHSE:
+        case RESEARCH:
+        case COMMTWR:
+        case MININGST: {
+            result = 1;
+        } break;
+
+        case POWERSTN: {
+            result = -6;
+        } break;
+
+        case POWGEN: {
+            result = -1;
+        } break;
+
+        default: {
+            result = 0;
+        } break;
+    }
+
+    return result;
+}
+
+int Cargo_GetLifeConsumptionRate(ResourceID unit_type) {
+    int result;
+
+    switch (unit_type) {
+        case HABITAT: {
+            result = -3;
+        } break;
+
+        case TRAINHAL:
+        case GREENHSE:
+        case RESEARCH: {
+            result = 1;
+        } break;
+
+        default: {
+            result = 0;
+        } break;
+    }
+
+    return result;
+}
+
+int Cargo_GetGoldConsumptionRate(ResourceID unit_type) {
+    int result;
+
+    switch (unit_type) {
+        case COMMTWR: {
+            result = 5;
+        } break;
+
+        default: {
+            result = 0;
+        } break;
+    }
+
+    return result;
+}
