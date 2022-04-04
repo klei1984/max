@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,25 +19,9 @@
  * SOFTWARE.
  */
 
-#ifndef EVENTS_HPP
-#define EVENTS_HPP
+#include "unitstats.hpp"
 
-class Event {
-public:
-    virtual unsigned short GetEventId() const = 0;
-};
+void UnitStats_DrawImage(unsigned char* buffer, int window_width, struct ImageSimpleHeader* image) {}
 
-struct RegisterEvent {
-    static unsigned short IdRegistry;
-    RegisterEvent(unsigned short& id) { id = IdRegistry++; }
-};
-
-#define EVENTS_REGISTER_EVENT(event)        \
-    unsigned short RegisterEventId_##event; \
-    RegisterEvent RegisterEvent_##event(RegisterEventId_##event)
-
-#define EVENTS_GET_EVENT_ID(event) RegisterEventId_##event
-
-#define EVENTS_DECLARE_EVENT_ID(event) extern unsigned short RegisterEventId_##event
-
-#endif /* EVENTS_HPP */
+void UnitStats_DrawStats(unsigned char* buffer, int window_width, ResourceID unit_type, unsigned short team,
+                         UnitValues& unit_values, int image_width, ResourceID icon_full, ResourceID icon_empty) {}

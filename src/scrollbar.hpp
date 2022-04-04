@@ -34,8 +34,13 @@ class EventScrollbarChange : public Event {
 
 public:
     EventScrollbarChange(Scrollbar *scrollbar, short value);
-    unsigned short GetEventId();
+    unsigned short GetEventId() const;
 };
+
+EVENTS_DECLARE_EVENT_ID(ScrollbarEvent);
+
+void LoadHorizontalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
+void LoadVerticalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
 
 class Scrollbar {
 protected:

@@ -23,8 +23,15 @@
 
 #include "cargo.hpp"
 #include "cursor.hpp"
+#include "flicsmgr.hpp"
+#include "remote.hpp"
+#include "reportstats.hpp"
 #include "researchmenu.hpp"
+#include "scrollbar.hpp"
+#include "text.hpp"
 #include "units_manager.hpp"
+#include "unitstats.hpp"
+#include "window_manager.hpp"
 
 AbstractUpgradeMenu::AbstractUpgradeMenu(unsigned short team, ResourceID resource_id)
     : Window(resource_id),
@@ -319,9 +326,63 @@ void AbstractUpgradeMenu::AddUpgradeMobile(ResourceID unit_type) {
     }
 }
 
-bool AbstractUpgradeMenu::SelectUnit() {}
+bool AbstractUpgradeMenu::SelectUnit(Event *event) {
+    bool result;
 
-void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {}
+    if (event->GetEventId() == EVENTS_GET_EVENT_ID(UnitSelectEvent)) {
+        EventUnitSelect *select = dynamic_cast<EventUnitSelect *>(event);
+
+        result = AbstractUpgradeMenu_vfunc4(select->GetSelector(), select->GetValue());
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
+    BaseUnit *base_unit;
+
+    this->unit_type = unit_type;
+
+    if (unit_type != INVALID_ID) {
+        base_unit = &UnitsManager_BaseUnits[unit_type];
+    } else {
+        base_unit = nullptr;
+    }
+
+    if (!base_unit || !WindowManager_LoadImage(base_unit->portrait, &window2, window1.width, false, false)) {
+        buf_fill(window2.buffer, 300, 240, window1.width, 0);
+
+        if (base_unit) {
+            flicsmgr_construct(base_unit->flics, &window2, window1.width, 16, 17, false, false);
+        }
+    }
+
+    if (unit_type != INVALID_ID && button_description_rest_state) {
+        text_font(5);
+        Text_TextBox(window2.buffer, window1.width, base_unit->description, 16, 17, 280, 230, 0x100A2, false, false);
+    }
+
+    for (int i = 0; i < upgrade_control_count; ++i) {
+        delete upgrade_controls[i];
+        upgrade_controls[i] = nullptr;
+    }
+
+    upgrade_control_count = 0;
+    upgrade_control_next_uly = cost_background->GetULY();
+    button_background->Write(&window1);
+
+    if (unit_type != INVALID_ID /** \todo && is_unit_allowed_to_be_built2() */) {
+        AddUpgradeMilitary(unit_type);
+        AdjustRowStorage(unit_type);
+        AdjustRowConsumptions(unit_type);
+        AddUpgradeGeneric(unit_type);
+        AddUpgradeMobile(unit_type);
+    }
+
+    DrawUnitStats(unit_type);
+}
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) {}
 
@@ -347,9 +408,95 @@ bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_sele
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc5() {}
 
-void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {}
+void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
+    struct ImageSimpleHeader *image;
+    unsigned char *buffer_text;
+    unsigned char *buffer_icon;
 
-void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7() {}
+    stats_background->Write(&window1);
+
+    if (unit_type != INVALID_ID) {
+        UnitStats_DrawStats(&window1.buffer[stats_background->GetULY() * window1.width + stats_background->GetULX()],
+                            window1.width, unit_type, team, *unitvalues_actual[unit_type], stats_background->GetWidth(),
+                            interface_icon_full, interface_icon_empty);
+    }
+
+    text_font(5);
+
+    cost_background->Write(&window1);
+
+    image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(I_GOLD));
+
+    buffer_text = &window1.buffer[cost_background->GetULX() + window1.width * 5 + 24];
+    buffer_icon = &window1.buffer[cost_background->GetULX() + window1.width * 3 + 25];
+
+    for (int i = 0; i < upgrade_control_count; ++i) {
+        int cost;
+
+        upgrade_controls[i]->UpdateControlState();
+        cost = upgrade_controls[i]->GetCost();
+
+        if (cost > 0 && cost < UPGRADECONTROL_UPGRADE_COST_LIMIT) {
+            int offset;
+
+            offset = window1.width * upgrade_controls[i]->GetUly();
+
+            ReportStats_DrawNumber(&buffer_text[offset], cost, 24, window1.width, 5);
+            UnitStats_DrawImage(&buffer_icon[offset], window1.width, image);
+        }
+    }
+
+    {
+        int height;
+        unsigned char *buffer;
+
+        gold_background->Write(&window1);
+
+        if (start_gold) {
+            height = ((gold_background->GetHeight() - 25) * team_gold) / start_gold;
+        } else {
+            height = 0;
+        }
+
+        buffer = &window1.buffer[gold_background->GetULX() + (gold_background->GetULY() + 25) * window1.width +
+                                 (gold_background->GetHeight() - 25 - height) * window1.width];
+
+        LoadVerticalBar(buffer, window1.width, height, gold_background->GetWidth(), VERTGOLD);
+    }
+
+    {
+        char text[20];
+        unsigned char *buffer;
+        int length;
+
+        snprintf(text, sizeof(text), "%i", team_gold);
+
+        length = text_width(text);
+        buffer = &window1.buffer[window1.width * gold_background->GetULY() + gold_background->GetULX() +
+                                 (gold_background->GetWidth() - length) / 2];
+
+        text_to_buf(buffer, text, length, window1.width, 5);
+    }
+
+    win_draw(window1.id);
+}
+
+void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7() {
+    for (int i = 0; i < UNIT_END; ++i) {
+        if (*unitvalues_actual[i] != *unitvalues_base[i]) {
+            unitvalues_actual[i]->UpdateVersion();
+            unitvalues_actual[i]->SetUnitsBuilt(0);
+
+            UnitsManager_TeamInfo[team].team_units->SetCurrentUnitValues(i, *unitvalues_actual[i]);
+
+            if (Remote_IsNetworkGame) {
+                Remote_SendNetPacket_10(team, static_cast<ResourceID>(i));
+            }
+        }
+    }
+
+    UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades += start_gold - team_gold;
+}
 
 bool AbstractUpgradeMenu::ProcessKey(int key) {
     bool result;
@@ -512,7 +659,7 @@ bool AbstractUpgradeMenu::Run() {
             ProcessKey(key);
         }
 
-        // GameManager_sub_A0E32(0);
+        /// \todo GameManager_sub_A0E32(0);
     }
 
     return event_click_cancel == false;

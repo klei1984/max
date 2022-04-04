@@ -24,6 +24,8 @@
 
 #include "button.hpp"
 
+#define UPGRADECONTROL_UPGRADE_COST_LIMIT 800
+
 enum {
     UPGRADE_CONTROL_0,
     UPGRADE_CONTROL_1,

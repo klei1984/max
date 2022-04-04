@@ -21,24 +21,17 @@
 
 #include "unittypeselector.hpp"
 
-#include "events.hpp"
 #include "game_manager.hpp"
-#include "gui.hpp"
+#include "reportstats.hpp"
 #include "sound_manager.hpp"
-#include "text.hpp"
 #include "units_manager.hpp"
 
 EVENTS_REGISTER_EVENT(UnitSelectEvent);
 
-class EventUnitSelect : public Event {
-    UnitTypeSelector* selector;
-    unsigned char value;
-
-public:
-    EventUnitSelect(UnitTypeSelector* selector, short value) : selector(selector), value(value) {}
-
-    unsigned short GetEventId() { return EVENTS_GET_EVENT_ID(UnitSelectEvent); }
-};
+EventUnitSelect::EventUnitSelect(UnitTypeSelector* selector, short value) : selector(selector), value(value) {}
+unsigned short EventUnitSelect::GetEventId() const { return EVENTS_GET_EVENT_ID(UnitSelectEvent); }
+UnitTypeSelector* EventUnitSelect::GetSelector() const { return selector; }
+bool EventUnitSelect::GetValue() const { return value; }
 
 UnitTypeSelector::UnitTypeSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
                                    unsigned short team, int key_code, Button* button_scroll_up,
@@ -265,18 +258,6 @@ void UnitTypeSelector::Select(unsigned char value) {
 
 void UnitTypeSelector::PushBack(ResourceID unit_type) { Add(unit_type, unit_types.GetCount()); }
 
-void UnitList_DrawIcon(unsigned char* buffer, int width, ResourceID unit_type, unsigned short team, int ulx, int uly) {
-    if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
-        /// \todo Implement missing stuff
-    }
-}
-
-void UnitList_DrawItem(unsigned char* buffer, int width, ResourceID unit_type, int ulx, int uly, int full, int color) {
-    UnitList_DrawIcon(buffer, width, unit_type, GUI_PlayerTeamIndex, ulx + 16, uly + 16);
-    Text_TextBox(buffer, width, UnitsManager_BaseUnits[unit_type].singular_name, ulx + 35, uly, full - 35, 32, color,
-                 false);
-}
-
 void UnitTypeSelector::Draw() {
     int width;
 
@@ -286,8 +267,8 @@ void UnitTypeSelector::Draw() {
     text_font(5);
 
     for (int i = 0; i < max_item_count && i + page_min_index < unit_types.GetCount(); ++i) {
-        UnitList_DrawItem(window_info.buffer, window_info.width, *unit_types[page_min_index + i], 0, i * 32, width,
-                          0xA2);
+        ReportStats_DrawListItem(window_info.buffer, window_info.width, *unit_types[page_min_index + i], 0, i * 32,
+                                 width, 0xA2);
     }
 
     if ((page_max_index >= page_min_index) && (page_max_index < (page_min_index + max_item_count))) {

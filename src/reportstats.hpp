@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,25 +19,19 @@
  * SOFTWARE.
  */
 
-#ifndef EVENTS_HPP
-#define EVENTS_HPP
+#ifndef REPORTSTATS_HPP
+#define REPORTSTATS_HPP
 
-class Event {
-public:
-    virtual unsigned short GetEventId() const = 0;
-};
+#include "enums.hpp"
 
-struct RegisterEvent {
-    static unsigned short IdRegistry;
-    RegisterEvent(unsigned short& id) { id = IdRegistry++; }
-};
+void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID unit_type, unsigned short team, int ulx,
+                                  int uly);
 
-#define EVENTS_REGISTER_EVENT(event)        \
-    unsigned short RegisterEventId_##event; \
-    RegisterEvent RegisterEvent_##event(RegisterEventId_##event)
+void ReportStats_DrawListItem(unsigned char* buffer, int width, ResourceID unit_type, int ulx, int uly, int full,
+                              int color);
 
-#define EVENTS_GET_EVENT_ID(event) RegisterEventId_##event
+void ReportStats_DrawNumber(unsigned char* buffer, int number, int width, int full, int color);
 
-#define EVENTS_DECLARE_EVENT_ID(event) extern unsigned short RegisterEventId_##event
+void ReportStats_DrawText(unsigned char* buffer, char* text, int width, int full, int color);
 
-#endif /* EVENTS_HPP */
+#endif /* REPORTSTATS_HPP */

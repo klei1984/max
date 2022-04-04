@@ -25,7 +25,23 @@
 #include "Smartobjectarray.hpp"
 #include "button.hpp"
 #include "buttonmanager.hpp"
+#include "events.hpp"
 #include "window.hpp"
+
+class UnitTypeSelector;
+
+class EventUnitSelect : public Event {
+    UnitTypeSelector *selector;
+    unsigned char value;
+
+public:
+    EventUnitSelect(UnitTypeSelector *selector, short value);
+    unsigned short GetEventId() const;
+    UnitTypeSelector *GetSelector() const;
+    bool GetValue() const;
+};
+
+EVENTS_DECLARE_EVENT_ID(UnitSelectEvent);
 
 class UnitTypeSelector {
     Window *window;

@@ -31,7 +31,7 @@
 EVENTS_REGISTER_EVENT(ScrollbarEvent);
 
 EventScrollbarChange::EventScrollbarChange(Scrollbar* scrollbar, short value) : scrollbar(scrollbar), value(value) {}
-unsigned short EventScrollbarChange::GetEventId() { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
+unsigned short EventScrollbarChange::GetEventId() const { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
 
 void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
     struct ImageSimpleHeader* sprite;

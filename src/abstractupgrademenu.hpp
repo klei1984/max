@@ -36,8 +36,8 @@ class AbstractUpgradeMenu : public Window {
     unsigned short team_gold;
     unsigned short upgrade_control_count;
     unsigned short upgrade_control_next_uly;
-    unsigned short interface_icon_full;
-    unsigned short interface_icon_empty;
+    ResourceID interface_icon_full;
+    ResourceID interface_icon_empty;
     ResourceID unit_type;
     SmartPointer<UnitValues> unitvalues_base[UNIT_END];
     SmartPointer<UnitValues> unitvalues_actual[UNIT_END];
@@ -84,7 +84,7 @@ public:
     AbstractUpgradeMenu(unsigned short team, ResourceID bg_image);
     virtual ~AbstractUpgradeMenu();
 
-    virtual bool SelectUnit();
+    virtual bool SelectUnit(Event *event);
     virtual void DrawUnitInfo(ResourceID unit_type);
     virtual void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
     virtual bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_selector, bool mode);
