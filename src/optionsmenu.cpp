@@ -24,6 +24,7 @@
 #include <algorithm>
 
 #include "cursor.hpp"
+#include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -787,12 +788,11 @@ void OptionsMenu::Run() {
         }
 
         if (bg_image == PREFSPIC && Remote_IsNetworkGame) {
-            /// \todo Implement missing stuff
-            // if (byte_1737D2) {
-            //     key = 1001;
-            // }
-            //
-            // sub_A0E32(1);
+            if (GameManager_RequestMenuExit) {
+                key = 1001;
+            }
+
+            /// @todo sub_A0E32(1);
         }
 
         ProcessKeyPress(key);

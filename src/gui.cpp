@@ -24,6 +24,7 @@
 #include "cursor.hpp"
 #include "desyncmenu.hpp"
 #include "enums.hpp"
+#include "game_manager.hpp"
 #include "remote.hpp"
 #include "sound_manager.hpp"
 #include "transfermenu.hpp"
@@ -71,10 +72,9 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
     while (!event_click_destruct && !event_click_cancel) {
         int key = get_input();
 
-        /// \todo Implement missing stuff
-        //        if (byte_1737D2) {
-        //            key = GNW_KB_KEY_ESCAPE;
-        //        }
+        if (GameManager_RequestMenuExit) {
+            key = GNW_KB_KEY_ESCAPE;
+        }
 
         if (key == GNW_KB_KEY_RETURN) {
             event_click_destruct = true;
@@ -139,10 +139,9 @@ bool GUI_SelfDestructMenu() {
     while (!event_click_arm && !event_click_cancel) {
         int key = get_input();
 
-        /// \todo Implement missing stuff
-        //        if (byte_1737D2) {
-        //            key = GNW_KB_KEY_ESCAPE;
-        //        }
+        if (GameManager_RequestMenuExit) {
+            key = GNW_KB_KEY_ESCAPE;
+        }
 
         if (key == GNW_KB_KEY_RETURN) {
             button_arm->PlaySound();

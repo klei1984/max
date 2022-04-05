@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,21 +19,21 @@
  * SOFTWARE.
  */
 
-#ifndef GAME_MANAGER_HPP
-#define GAME_MANAGER_HPP
+#ifndef UPGRADEMENU_HPP
+#define UPGRADEMENU_HPP
 
-#include "UnitInfo.hpp"
+#include "abstractupgrademenu.hpp"
+#include "complex.hpp"
 
-void GameManager_GameLoop(int game_state);
-void GameManager_DrawUnitSelector(unsigned char *buffer, int width, int offsetx, int height, int offsety, int bottom,
-                                  int item_height, int top, int scaling_factor, int is_big_sprite,
-                                  bool double_marker = false);
+class UpgradeMenu : public AbstractUpgradeMenu {
+    SmartPointer<Complex> complex;
 
-extern Rect GameManager_GridPosition;
-extern SmartPointer<UnitInfo> GameManager_SelectedUnit;
-extern unsigned int GameManager_TurnCounter;
-extern int GameMamager_GameFileNumber;
-extern int GameManager_HumanPlayerCount;
-extern bool GameManager_RequestMenuExit;
+public:
+    UpgradeMenu(unsigned short team, Complex* complex);
+    ~UpgradeMenu();
 
-#endif /* GAME_MANAGER_HPP */
+    void AbstractUpgradeMenu_vfunc7();
+    bool ProcessKey(int key);
+};
+
+#endif /* UPGRADEMENU_HPP */

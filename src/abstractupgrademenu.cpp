@@ -21,6 +21,8 @@
 
 #include "abstractupgrademenu.hpp"
 
+#include <utility>
+
 #include "cargo.hpp"
 #include "cursor.hpp"
 #include "flicsmgr.hpp"
@@ -406,7 +408,28 @@ bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_sele
     return result;
 }
 
-void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc5() {}
+void AbstractUpgradeMenu::PopulateTeamUnitsList() {
+    SmartObjectArray<ResourceID> unit_types;
+
+    SDL_assert(type_selector);
+
+    for (int i = 0; i < UNIT_END; ++i) {
+        if (IsUnitFiltered(static_cast<ResourceID>(i))) {
+            ResourceID type = static_cast<ResourceID>(i);
+            unit_types.PushBack(&type);
+        }
+    }
+
+    for (int i = 0; i < unit_types.GetCount() - 1; ++i) {
+        for (int j = i + 1; unit_types.GetCount() > j; ++j) {
+            if (IsBetterUnit(*unit_types[i], *unit_types[j])) {
+                std::swap(*unit_types[i], *unit_types[j]);
+            }
+        }
+    }
+
+    type_selector->AddItems(unit_types);
+}
 
 void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
     struct ImageSimpleHeader *image;
@@ -530,70 +553,70 @@ bool AbstractUpgradeMenu::ProcessKey(int key) {
             case 1003: {
                 button_ground->PlaySound();
                 button_ground_rest_state = true;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1004: {
                 button_ground->PlaySound();
                 button_ground_rest_state = false;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1005: {
                 button_air->PlaySound();
                 button_air_rest_state = true;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1006: {
                 button_air->PlaySound();
                 button_air_rest_state = false;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1007: {
                 button_sea->PlaySound();
                 button_sea_rest_state = true;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1008: {
                 button_sea->PlaySound();
                 button_sea_rest_state = false;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1009: {
                 button_building->PlaySound();
                 button_building_rest_state = true;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1010: {
                 button_building->PlaySound();
                 button_building_rest_state = false;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1011: {
                 button_combat->PlaySound();
                 button_combat_rest_state = true;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
             case 1012: {
                 button_combat->PlaySound();
                 button_combat_rest_state = false;
-                AbstractUpgradeMenu_vfunc5();
+                PopulateTeamUnitsList();
                 result = true;
             } break;
 
@@ -640,6 +663,77 @@ bool AbstractUpgradeMenu::ProcessKey(int key) {
                     result = true;
                 }
             } break;
+        }
+    }
+
+    return result;
+}
+
+bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
+    bool result;
+    unsigned int flags;
+
+    flags = UnitsManager_BaseUnits[unit_type].flags;
+
+    if ((flags & UPGRADABLE) /** \todo && is_unit_allowed_to_be_built2() */) {
+        if (((flags & MOBILE_LAND_UNIT) && button_ground_rest_state) ||
+            ((flags & MOBILE_AIR_UNIT) && button_air_rest_state) ||
+            ((flags & MOBILE_SEA_UNIT) && button_sea_rest_state) ||
+            ((flags & STATIONARY) && button_building_rest_state)) {
+            if (!button_combat_rest_state ||
+                UnitsManager_TeamInfo[0].team_units->GetBaseUnitValues(unit_type)->GetAttribute(ATTRIB_ATTACK) > 0) {
+                result = true;
+            } else {
+                result = false;
+            }
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool AbstractUpgradeMenu::IsBetterUnit(ResourceID unit_type1, ResourceID unit_type2) {
+    bool result;
+    unsigned int flags1;
+    unsigned int flags2;
+
+    flags1 = UnitsManager_BaseUnits[unit_type1].flags;
+    flags2 = UnitsManager_BaseUnits[unit_type2].flags;
+
+    if ((flags1 & MOBILE_LAND_UNIT) != (flags2 & MOBILE_LAND_UNIT)) {
+        return !(flags1 & MOBILE_LAND_UNIT);
+    }
+
+    if ((flags1 & MOBILE_SEA_UNIT) != (flags2 & MOBILE_SEA_UNIT)) {
+        return !(flags1 & MOBILE_SEA_UNIT);
+    }
+
+    if ((flags1 & MOBILE_AIR_UNIT) != (flags2 & MOBILE_AIR_UNIT)) {
+        return !(flags1 & MOBILE_AIR_UNIT);
+    }
+
+    {
+        SmartPointer<UnitValues> values1(UnitsManager_TeamInfo[0].team_units->GetBaseUnitValues(unit_type1));
+        SmartPointer<UnitValues> values2(UnitsManager_TeamInfo[0].team_units->GetBaseUnitValues(unit_type2));
+
+        if (!values1->GetAttribute(ATTRIB_ATTACK) || values2->GetAttribute(ATTRIB_ATTACK)) {
+            if (values1->GetAttribute(ATTRIB_ATTACK) || !values2->GetAttribute(ATTRIB_ATTACK)) {
+                if (values1->GetAttribute(ATTRIB_TURNS) || !values2->GetAttribute(ATTRIB_TURNS)) {
+                    result = unit_type1 > unit_type2;
+                } else {
+                    result = values1->GetAttribute(ATTRIB_TURNS) > !values2->GetAttribute(ATTRIB_TURNS);
+                }
+            } else {
+                result = true;
+            }
+
+        } else {
+            result = false;
         }
     }
 

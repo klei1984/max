@@ -25,6 +25,8 @@
 
 #include "cargo.hpp"
 #include "cursor.hpp"
+#include "game_manager.hpp"
+#include "gui.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 
@@ -263,7 +265,7 @@ TransferMenu::~TransferMenu() {
     delete scrollbar;
 
     /// \todo Implement functions
-    //    enable_main_menu(*selected_unit);
+    //    enable_main_menu(*GameManager_SelectedUnit);
     //    sub_A0EFE(1);
 }
 
@@ -274,9 +276,10 @@ void TransferMenu::Run() {
         int key = get_input();
 
         /// \todo Implement missing stuff
-        if (/* byte_1737D2 || */ source_unit->orders == ORDER_DISABLED || target_unit->orders == ORDER_DISABLED
-            /* || source_unit->team != GUI_PlayerTeamIndex || target_unit->team != GUI_PlayerTeamIndex */) {
-            key = 0x1B;
+        if (GameManager_RequestMenuExit || source_unit->orders == ORDER_DISABLED ||
+            target_unit->orders == ORDER_DISABLED || source_unit->team != GUI_PlayerTeamIndex ||
+            target_unit->team != GUI_PlayerTeamIndex) {
+            key = GNW_KB_KEY_ESCAPE;
         }
 
         ProcessKey(key);

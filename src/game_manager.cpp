@@ -28,6 +28,7 @@ SmartPointer<UnitInfo> GameManager_SelectedUnit;
 unsigned int GameManager_TurnCounter;
 int GameMamager_GameFileNumber;
 int GameManager_HumanPlayerCount;
+bool GameManager_RequestMenuExit;
 unsigned char GameManager_MarkerColor = 0xFF;
 
 void GameManager_GameLoop(int game_state) {

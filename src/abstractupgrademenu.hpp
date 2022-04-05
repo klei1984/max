@@ -29,6 +29,7 @@
 #include "window.hpp"
 
 class AbstractUpgradeMenu : public Window {
+protected:
     WindowInfo window1;
     WindowInfo window2;
     unsigned short team;
@@ -76,6 +77,8 @@ class AbstractUpgradeMenu : public Window {
     void AdjustRowConsumptions(ResourceID unit_type);
     void AddUpgradeGeneric(ResourceID unit_type);
     void AddUpgradeMobile(ResourceID unit_type);
+    bool IsUnitFiltered(ResourceID unit_type);
+    bool IsBetterUnit(ResourceID unit_type1, ResourceID unit_type2);
 
 protected:
     void Init();
@@ -88,7 +91,7 @@ public:
     virtual void DrawUnitInfo(ResourceID unit_type);
     virtual void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
     virtual bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_selector, bool mode);
-    virtual void AbstractUpgradeMenu_vfunc5();
+    virtual void PopulateTeamUnitsList();
     virtual void DrawUnitStats(ResourceID unit_type);
     virtual void AbstractUpgradeMenu_vfunc7();
     virtual bool ProcessKey(int key);

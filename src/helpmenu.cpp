@@ -22,6 +22,7 @@
 #include "helpmenu.hpp"
 
 #include "cursor.hpp"
+#include "game_manager.hpp"
 #include "gui.hpp"
 #include "menu.hpp"
 #include "mouseevent.hpp"
@@ -493,16 +494,15 @@ bool HelpMenu::Run(int mode) {
     while (!event_click_cancel) {
         key = get_input();
 
-        /// \todo Implement missing stuff
-        // if (byte_1737D2) {
-        //   key = GNW_KB_KEY_RETURN;
-        // }
+        if (GameManager_RequestMenuExit) {
+            key = GNW_KB_KEY_RETURN;
+        }
 
         ProcessKey(key);
 
         if (!mode) {
             if (window_id == WINDOW_MAIN_MAP) {
-                // sub_A0E32(1, 0);
+                /// \todo sub_A0E32(1, 0);
             } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
                 // sub_A0E32(0, 0);
             } else if (Remote_GameState) {
