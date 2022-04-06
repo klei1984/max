@@ -73,6 +73,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/researchmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/abstractupgrademenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/upgrademenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/cargoselector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/cargomenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp

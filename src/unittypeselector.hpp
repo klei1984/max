@@ -44,6 +44,7 @@ public:
 EVENTS_DECLARE_EVENT_ID(UnitSelectEvent);
 
 class UnitTypeSelector {
+protected:
     Window *window;
     WindowInfo window_info;
     SmartObjectArray<ResourceID> unit_types;
