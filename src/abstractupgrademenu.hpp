@@ -90,7 +90,7 @@ public:
     virtual bool SelectUnit(Event *event);
     virtual void DrawUnitInfo(ResourceID unit_type);
     virtual void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
-    virtual bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_selector, bool mode);
+    virtual bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *selector, bool mode);
     virtual void PopulateTeamUnitsList();
     virtual void DrawUnitStats(ResourceID unit_type);
     virtual void AbstractUpgradeMenu_vfunc7();

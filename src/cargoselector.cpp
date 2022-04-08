@@ -30,9 +30,10 @@
 #include "units_manager.hpp"
 
 CargoSelector::CargoSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
-                             unsigned short team, int key_code, Button* button_scroll_up, Button* button_scroll_down)
+                             SmartObjectArray<unsigned short> cargos, unsigned short team, int key_code,
+                             Button* button_scroll_up, Button* button_scroll_down)
     : UnitTypeSelector(window, window_info, unit_types, team, key_code, button_scroll_up, button_scroll_down),
-      cargos(),
+      cargos(cargos),
       cargomenu(window) {}
 
 CargoSelector::~CargoSelector() {}

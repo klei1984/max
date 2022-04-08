@@ -23,13 +23,46 @@
 #define CARGOMENU_HPP
 
 #include "abstractupgrademenu.hpp"
+#include "cargoselector.hpp"
+#include "purchasetypeselector.hpp"
+#include "scrollbar.hpp"
 
 class CargoMenu : public AbstractUpgradeMenu {
+    SmartObjectArray<ResourceID> unit_types1;
+    SmartObjectArray<ResourceID> unit_types2;
+    SmartObjectArray<unsigned short> cargos;
+    CargoSelector *cargo_selector;
+    PurchaseTypeSelector *purchase_selector;
+    Button *button_purchase_list_up;
+    Button *button_purchase_list_down;
+    Button *button_cargo_up;
+    Button *button_cargo_down;
+    Button *button_buy_upgrade_toggle;
+    Button *button_delete;
+    Button *button_buy;
+    LimitedScrollbar *scrollbar;
+    unsigned short unit_count;
+
+    void Select(int index);
+    void BuyUnit();
+    void DeleteUnit();
+    void UpdateScrollbar();
+    void UpdateTeamGold(int factor);
+
 public:
     CargoMenu(unsigned short team);
     ~CargoMenu();
 
-    UnitValues* GetCurrentUnitValues(ResourceID unit_type);
+    bool SelectUnit(Event *event);
+    void DrawUnitInfo(ResourceID unit_type);
+    void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
+    bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *selector, bool mode);
+    void PopulateTeamUnitsList();
+    void DrawUnitStats(ResourceID unit_type);
+    void AbstractUpgradeMenu_vfunc7();
+    bool ProcessKey(int key);
+
+    UnitValues *GetCurrentUnitValues(ResourceID unit_type);
 };
 
 #endif /* CARGOMENU_HPP */

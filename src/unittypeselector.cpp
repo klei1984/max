@@ -296,3 +296,5 @@ void UnitTypeSelector::Draw() {
 
     win_draw_rect(window_info.id, &window_info.window);
 }
+
+int UnitTypeSelector::GetPageMaxIndex() const { return page_max_index; }

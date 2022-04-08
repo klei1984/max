@@ -350,7 +350,8 @@ void Button::RegisterButton(WinID wid) {
         r_value = reinterpret_cast<int>(this);
     }
 
-    bid = win_register_button(wid, ulx, uly, width, height, -1, -1, p_value, r_value, up_data, down_data, nullptr, flags);
+    bid =
+        win_register_button(wid, ulx, uly, width, height, -1, -1, p_value, r_value, up_data, down_data, nullptr, flags);
 
     if (this->p_func || this->r_func) {
         win_register_button_func(bid, nullptr, nullptr, reinterpret_cast<ButtonFunc>(Button_PFunc),
@@ -407,10 +408,12 @@ void Button::SetFlags(unsigned int flags) { this->flags = flags; }
 
 void Button::SetCaption(const char *caption, short x, short y, FontColor color_up, FontColor color_down,
                         FontColor color_up_disabled, FontColor color_down_disabled) {
-    SetCaption(caption, {0, 0, width - x, height - y}, color_up, color_down, color_up_disabled, color_down_disabled);
+    Rect bounds = {0, 0, width - x, height - y};
+
+    SetCaption(caption, &bounds, color_up, color_down, color_up_disabled, color_down_disabled);
 }
 
-void Button::SetCaption(const char *caption, Rect r, FontColor color_up, FontColor color_down,
+void Button::SetCaption(const char *caption, Rect *r, FontColor color_up, FontColor color_down,
                         FontColor color_up_disabled, FontColor color_down_disabled) {
     WindowInfo window;
     int width;
@@ -419,26 +422,26 @@ void Button::SetCaption(const char *caption, Rect r, FontColor color_up, FontCol
 
     Allocate();
 
-    width = r.lrx - r.ulx;
-    height = r.lry - r.uly;
+    width = r->lrx - r->ulx;
+    height = r->lry - r->uly;
 
     window.buffer = up->GetData();
     window.width = up->GetWidth();
-    uly_caption = ((height - text_height()) / 2) + r.uly, width;
-    Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_up);
+    uly_caption = ((height - text_height()) / 2) + r->uly, width;
+    Text_TextLine(&window, caption, r->ulx, uly_caption, width, true, color_up);
 
     window.buffer = down->GetData();
-    Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_down);
+    Text_TextLine(&window, caption, r->ulx, uly_caption, width, true, color_down);
 
     if (up_disabled) {
         window.buffer = up_disabled->GetData();
         window.width = up_disabled->GetWidth();
-        Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_up_disabled);
+        Text_TextLine(&window, caption, r->ulx, uly_caption, width, true, color_up_disabled);
     }
 
     if (down_disabled) {
         window.buffer = down_disabled->GetData();
         window.width = down_disabled->GetWidth();
-        Text_TextLine(&window, caption, r.ulx, uly_caption, width, true, color_down_disabled);
+        Text_TextLine(&window, caption, r->ulx, uly_caption, width, true, color_down_disabled);
     }
 }

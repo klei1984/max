@@ -19,24 +19,24 @@
  * SOFTWARE.
  */
 
-#ifndef CARGOSELECTOR_HPP
-#define CARGOSELECTOR_HPP
+#ifndef TEAMMISSIONSUPPLIES_HPP
+#define TEAMMISSIONSUPPLIES_HPP
 
-#include "unittypeselector.hpp"
+#include "point.hpp"
+#include "smartobjectarray.hpp"
 
-class CargoSelector : public UnitTypeSelector {
-    SmartObjectArray<unsigned short> cargos;
-    Window* cargomenu;
-
+class TeamMissionSupplies {
 public:
-    CargoSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
-                  SmartObjectArray<unsigned short> cargos, unsigned short team, int key_code, Button* button_scroll_up,
-                  Button* button_scroll_down);
-    ~CargoSelector();
+    SmartObjectArray<ResourceID> units;
+    SmartObjectArray<unsigned short> cargos;
 
-    void Add(ResourceID unit_type, int position);
-    void RemoveLast();
-    void Draw();
+    Point starting_position;
+    unsigned int field_12;
+    unsigned short team_gold;
+    unsigned char proximity_alert_ack;
+
+    TeamMissionSupplies();
+    ~TeamMissionSupplies();
 };
 
-#endif /* CARGOSELECTOR_HPP */
+#endif /* TEAMMISSIONSUPPLIES_HPP */

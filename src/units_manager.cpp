@@ -21,6 +21,7 @@
 
 #include "units_manager.hpp"
 
+#include "inifile.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
 #include "teamunits.hpp"
@@ -1933,6 +1934,8 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
 
 CTInfo UnitsManager_TeamInfo[5];
 
+TeamMissionSupplies UnitsManager_TeamMissionSupplies[5];
+
 int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential) {
     int target_armor = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);
     int attacker_damage = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
@@ -1957,4 +1960,75 @@ int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target
 
 UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type) {
     return team_info->team_units->GetCurrentUnitValues(unit_type);
+}
+
+void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<ResourceID> units) {
+    if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + team)) == TEAM_CLAN_AXIS_INC) {
+        int credits;
+        ResourceID unit_type;
+        unsigned short engineer_turns;
+        unsigned short constructor_turns;
+
+        credits = ((ini_get_setting(INI_START_GOLD) / 3) + 18) / 3;
+        engineer_turns =
+            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], ENGINEER)->GetAttribute(ATTRIB_TURNS);
+        constructor_turns =
+            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], CONSTRCT)->GetAttribute(ATTRIB_TURNS);
+
+        while (credits >= engineer_turns || credits >= constructor_turns) {
+            if (credits >= engineer_turns) {
+                unit_type = ENGINEER;
+                units.PushBack(&unit_type);
+                credits -= engineer_turns;
+            }
+
+            if (credits >= constructor_turns) {
+                unit_type = CONSTRCT;
+                units.PushBack(&unit_type);
+                credits -= constructor_turns;
+            }
+        }
+    }
+}
+
+int UnitsManager_AddDefaultMissionLoadout(unsigned short team) {
+    ResourceID unit_type;
+    unsigned short cargo;
+    int units_count;
+
+    UnitsManager_TeamMissionSupplies[team].team_gold = 0;
+    UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades = 0;
+
+    SmartObjectArray<ResourceID> units(UnitsManager_TeamMissionSupplies[team].units);
+    SmartObjectArray<unsigned short> cargos(UnitsManager_TeamMissionSupplies[team].cargos);
+
+    units.Clear();
+
+    unit_type = CONSTRCT;
+    units.PushBack(&unit_type);
+
+    unit_type = ENGINEER;
+    units.PushBack(&unit_type);
+
+    unit_type = SURVEYOR;
+    units.PushBack(&unit_type);
+
+    UnitsManager_AddAxisMissionLoadout(team, units);
+
+    units_count = units.GetCount();
+
+    cargos.Clear();
+
+    cargo = 40;
+    cargos.PushBack(&cargo);
+
+    cargo = 20;
+    cargos.PushBack(&cargo);
+
+    for (int i = 2; i < units_count; ++i) {
+        cargo = 0;
+        cargos.PushBack(&cargo);
+    }
+
+    return units_count;
 }

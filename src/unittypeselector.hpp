@@ -68,6 +68,7 @@ public:
     void AddItems(SmartObjectArray<ResourceID> unit_types);
     void Select(unsigned char value);
     void PushBack(ResourceID unit_type);
+    int GetPageMaxIndex() const;
 
     virtual void Add(ResourceID unit_type, int position);
     virtual void RemoveLast();

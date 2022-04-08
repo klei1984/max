@@ -35,6 +35,9 @@ class EventScrollbarChange : public Event {
 public:
     EventScrollbarChange(Scrollbar *scrollbar, short value);
     unsigned short GetEventId() const;
+
+    short GetValue() const;
+    short GetScrollbarValue() const;
 };
 
 EVENTS_DECLARE_EVENT_ID(ScrollbarEvent);

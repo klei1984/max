@@ -75,6 +75,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/upgrademenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cargoselector.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/purchasetypeselector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/teammissionsupplies.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cargomenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp

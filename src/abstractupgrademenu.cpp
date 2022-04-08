@@ -388,11 +388,11 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) {}
 
-bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector *type_selector, bool mode) {
+bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector *selector, bool mode) {
     bool result;
 
-    if (this->type_selector == type_selector) {
-        ResourceID unit_type = type_selector->GetLast();
+    if (type_selector == selector) {
+        ResourceID unit_type = selector->GetLast();
 
         if (mode && this->unit_type == unit_type) {
             AbstractUpgradeMenu_vfunc3(unit_type);

@@ -92,7 +92,7 @@ public:
     void SetCaption(const char *caption, short x = 0, short y = 0, FontColor color_up = Fonts_GoldColor,
                     FontColor color_down = Fonts_DarkOrageColor, FontColor color_up_disabled = Fonts_DarkGrayColor,
                     FontColor color_down_disabled = Fonts_DarkGrayColor);
-    void SetCaption(const char *caption, Rect r, FontColor color_up = Fonts_GoldColor,
+    void SetCaption(const char *caption, Rect *r, FontColor color_up = Fonts_GoldColor,
                     FontColor color_down = Fonts_DarkOrageColor, FontColor color_up_disabled = Fonts_DarkGrayColor,
                     FontColor color_down_disabled = Fonts_DarkGrayColor);
 };

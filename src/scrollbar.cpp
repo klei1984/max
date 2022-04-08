@@ -350,3 +350,7 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
 
     return result;
 }
+
+short EventScrollbarChange::GetValue() const { return value; }
+
+short EventScrollbarChange::GetScrollbarValue() const { return scrollbar->GetValue(); }
