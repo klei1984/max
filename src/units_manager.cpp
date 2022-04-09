@@ -27,11 +27,11 @@
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 
-SmartList<UnitInfo> UnitsManager_UnitList1;
-SmartList<UnitInfo> UnitsManager_UnitList2;
-SmartList<UnitInfo> UnitsManager_UnitList3;
-SmartList<UnitInfo> UnitsManager_UnitList4;
-SmartList<UnitInfo> UnitsManager_UnitList5;
+SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
+SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
+SmartList<UnitInfo> UnitsManager_ParticleUnits;
+SmartList<UnitInfo> UnitsManager_StationaryUnits;
+SmartList<UnitInfo> UnitsManager_MobileAirUnits;
 SmartList<UnitInfo> UnitsManager_UnitList6;
 
 BaseUnit UnitsManager_BaseUnits[UNIT_END];

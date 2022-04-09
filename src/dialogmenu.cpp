@@ -22,6 +22,7 @@
 #include "dialogmenu.hpp"
 
 #include "cursor.hpp"
+#include "game_manager.hpp"
 #include "gnw.h"
 #include "gui.hpp"
 #include "remote.hpp"
@@ -207,7 +208,7 @@ void DialogMenu::Run() {
             }
         } else {
             if (field_62) {
-                // sub_A0E32(1, 1);
+                GameManager_ProcessState(true);
             }
         }
     }

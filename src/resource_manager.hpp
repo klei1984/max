@@ -26,8 +26,12 @@
 
 #include "enums.hpp"
 #include "gnw.h"
+#include "point.hpp"
 
 extern "C" {
+
+#define RESOURCE_MANAGER_MAP_TILE_WIDTH 64
+#define RESOURCE_MANAGER_MAP_TILE_HEIGHT 64
 
 extern char ResourceManager_FilePathCd[PATH_MAX];
 extern char ResourceManager_FilePathGameInstall[PATH_MAX];
@@ -56,9 +60,16 @@ extern ColorIndex *dword_1770C8;
 extern ColorIndex *dword_1770CC;
 extern ColorIndex *dword_17945C;
 
-extern char *ResourceManager_MinimapFov;
-extern char *ResourceManager_Minimap;
-extern char *ResourceManager_Minimap2x;
+extern unsigned char *ResourceManager_MinimapFov;
+extern unsigned char *ResourceManager_Minimap;
+extern unsigned char *ResourceManager_Minimap2x;
+
+extern unsigned short *ResourceManager_MapTileIds;
+extern unsigned char *ResourceManager_MapTileBuffer;
+extern unsigned char *ResourceManager_MapSurfaceMap;
+extern unsigned short *ResourceManager_CargoMap;
+
+extern Point ResourceManager_MapSize;
 
 void ResourceManager_InitPaths(int argc, char *argv[]);
 void ResourceManager_InitResources();
@@ -71,8 +82,9 @@ int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer
 int ResourceManager_GetResourceFileID(ResourceID id);
 const char *ResourceManager_GetResourceID(ResourceID id);
 FILE *ResourceManager_GetFileHandle(ResourceID id);
-
+void ResourceManager_InitInGameAssets(int world);
 char *ResourceManager_ToUpperCase(char *cstr);
+void ResourceManager_FreeResources();
 }
 
 #endif /* RESOURCE_MANAGER_HPP */

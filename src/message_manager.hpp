@@ -56,4 +56,6 @@ public:
     void MessageLogEntry_sub_B780B();
 };
 
+extern bool MessageManager_MessageBox_IsActive;
+
 #endif /* MESSAGE_MANAGER_HPP */

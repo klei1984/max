@@ -120,7 +120,7 @@ void Complex::GetCargoInfo(Cargo& materials, Cargo& capacity) {
     materials.Init();
     capacity.Init();
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_UnitList4.Begin(); it != UnitsManager_UnitList4.End(); ++it) {
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
         materials += *Cargo_GetCargo(&*it, &cargo);
         capacity += *Cargo_GetCargoCapacity(&*it, &cargo);
     }

@@ -674,11 +674,11 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
         }
 
         if (Remote_IsNetworkGame) {
-            /// \todo Implement missing stuff
-            // sub_A0E32(0);
+            GameManager_ProcessState(false);
+
         } else if (GUI_GameState != GAME_STATE_3_MAIN_MENU && GUI_GameState != GAME_STATE_6 &&
                    GUI_GameState != GAME_STATE_10) {
-            // draw_turn_timer(menu_turn_timer_value, true);
+            /// \todo draw_turn_timer(menu_turn_timer_value, true);
         }
 
     } while (!exit_loop);

@@ -26,6 +26,7 @@
 #include "cargo.hpp"
 #include "cursor.hpp"
 #include "flicsmgr.hpp"
+#include "game_manager.hpp"
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "researchmenu.hpp"
@@ -753,7 +754,7 @@ bool AbstractUpgradeMenu::Run() {
             ProcessKey(key);
         }
 
-        /// \todo GameManager_sub_A0E32(0);
+        GameManager_ProcessState(false);
     }
 
     return event_click_cancel == false;

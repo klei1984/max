@@ -27,8 +27,12 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "gui.hpp"
+#include "helpmenu.hpp"
+#include "menu.hpp"
+#include "reportstats.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
+#include "window_manager.hpp"
 
 void TransferMenu_GetUnitCargoInfo(UnitInfo *source_unit, UnitInfo *destination_unit, short &materials,
                                    short &capacity) {
@@ -43,21 +47,24 @@ void TransferMenu_GetUnitCargoInfo(UnitInfo *source_unit, UnitInfo *destination_
         source_unit->GetComplex()->GetCargoInfo(complex_materials, complex_capacity);
 
         switch (UnitsManager_BaseUnits[source_unit->unit_type].cargo_type) {
-            case MATERIALS:
+            case MATERIALS: {
                 materials = complex_materials.raw;
                 capacity = complex_capacity.raw;
-                break;
-            case FUEL:
+            } break;
+
+            case FUEL: {
                 materials = complex_materials.fuel;
                 capacity = complex_capacity.fuel;
-                break;
-            case GOLD:
+            } break;
+
+            case GOLD: {
                 materials = complex_materials.gold;
                 capacity = complex_capacity.gold;
-                break;
-            default:
+            } break;
+
+            default: {
                 SDL_assert(0);
-                break;
+            } break;
         }
     } else {
         materials = source_unit->storage;
@@ -92,21 +99,20 @@ void TransferMenu::UpdateIndicators() {
 }
 
 bool TransferMenu::ProcessKey(int key) {
-    if (key > 0 && key < 0x7000) {
+    if (key > 0 && key < GNW_INPUT_PRESS) {
         event_release = false;
     }
 
-    if (key == 0x0D) {
+    if (key == GNW_KB_KEY_RETURN) {
         event_click_done = true;
-    } else if (key == 0x1B) {
+    } else if (key == GNW_KB_KEY_ESCAPE) {
         total_materials_transferred = 0;
         event_click_done = true;
-    } else if (key == 0x3F) {
-        /// \todo Implement functions
-        //            HelpMenu_Menu(15, 38);
-    } else if (key == 0x119) {
-        //            PauseMenu_Menu();
-    } else if (key < 0x7000) {
+    } else if (key == GNW_KB_KEY_SHIFT_DIVIDE) {
+        HelpMenu_Menu(HELPMENU_TRANSFER_SETUP, WINDOW_MAIN_MAP);
+    } else if (key == GNW_KB_KEY_LALT_P) {
+        PauseMenu_Menu();
+    } else if (key < GNW_INPUT_PRESS) {
         if (scrollbar->ProcessKey(key)) {
             int old_value = total_materials_transferred;
             total_materials_transferred = scrollbar->GetValue();
@@ -118,12 +124,13 @@ bool TransferMenu::ProcessKey(int key) {
         }
     } else if (!event_release) {
         event_release = true;
+        key -= GNW_INPUT_PRESS;
 
-        if (key == 0x700D) {
+        if (key == GNW_KB_KEY_RETURN) {
             button_done->PlaySound();
-        } else if (key == 0x701B) {
+        } else if (key == GNW_KB_KEY_ESCAPE) {
             button_cancel->PlaySound();
-        } else if (key == 0x703F) {
+        } else if (key == GNW_KB_KEY_SHIFT_DIVIDE) {
             button_help->PlaySound();
         }
     }
@@ -237,13 +244,12 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, 38) {
     scrollbar->SetMaterialBar(material_id);
     scrollbar->RefreshScreen();
 
-    /// \todo Implement functions
-    //    sub_CB6AF(window.buffer, width, source_unit->unit_type, GUI_PlayerTeamIndex, 104, 36);
+    ReportStats_DrawListItemIcon(window.buffer, window.width, source_unit->unit_type, GUI_PlayerTeamIndex, 104, 36);
 
     Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[source_unit->unit_type].singular_name, 10, 52, 110,
                  30, 0, true);
 
-    //    sub_CB6AF(window.buffer, width, unit2->unit_type, GUI_PlayerTeamIndex, 207, 36);
+    ReportStats_DrawListItemIcon(window.buffer, window.width, target_unit->unit_type, GUI_PlayerTeamIndex, 207, 36);
 
     Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[target_unit->unit_type].singular_name, 191, 52,
                  110, 30, 0, true);
@@ -266,7 +272,7 @@ TransferMenu::~TransferMenu() {
 
     /// \todo Implement functions
     //    enable_main_menu(*GameManager_SelectedUnit);
-    //    sub_A0EFE(1);
+    GameManager_ProcessTick(true);
 }
 
 void TransferMenu::Run() {
@@ -275,7 +281,6 @@ void TransferMenu::Run() {
     while (!event_click_done) {
         int key = get_input();
 
-        /// \todo Implement missing stuff
         if (GameManager_RequestMenuExit || source_unit->orders == ORDER_DISABLED ||
             target_unit->orders == ORDER_DISABLED || source_unit->team != GUI_PlayerTeamIndex ||
             target_unit->team != GUI_PlayerTeamIndex) {
@@ -283,7 +288,7 @@ void TransferMenu::Run() {
         }
 
         ProcessKey(key);
-        // sub_A0E32(1);
+        GameManager_ProcessState(true);
     }
 }
 

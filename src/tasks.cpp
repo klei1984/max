@@ -251,11 +251,11 @@ UnitInfo* TaskObtainUnits::TaskObtainUnits_sub_465F4(ResourceID unit_type, bool 
     bool is_unit_available = false;
 
     if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
-        list = &UnitsManager_UnitList4;
+        list = &UnitsManager_StationaryUnits;
     } else if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_AIR_UNIT) {
-        list = &UnitsManager_UnitList5;
+        list = &UnitsManager_MobileAirUnits;
     } else {
-        list = &UnitsManager_UnitList2;
+        list = &UnitsManager_MobileLandSeaUnits;
     }
 
     for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != nullptr; ++unit) {
@@ -481,7 +481,7 @@ UnitInfo* TaskGetResource::TaskGetResource_sub_46D29(Complex* complex) {
     int speed;
     int best_speed;
 
-    for (SmartList<UnitInfo>::Iterator unit = UnitsManager_UnitList4.Begin(); unit != nullptr; ++unit) {
+    for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin(); unit != nullptr; ++unit) {
         if ((*unit).GetComplex() == complex) {
             speed = TaskManager_sub_4601A(&(*unit), &*unit1);
 

@@ -48,10 +48,9 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
     for (unsigned short id = SLFDOPN1; id <= SLFDOPN6; ++id) {
         unsigned int time_Stamp = timer_get_stamp32();
 
-        // gwin_load_image2(static_cast<ResourceID>(id), 13, 11, 0, window);
+        WindowManager_LoadImage2(static_cast<ResourceID>(id), 13, 11, 0, window);
         win_draw(window->id);
-        /// \todo Implement function
-        //        sub_A0E32(1, 1);
+        GameManager_ProcessState(true);
 
         while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(48)) {
         }
@@ -84,15 +83,13 @@ bool GUI_SelfDestructActiveMenu(WindowInfo* window) {
             if (key == GNW_INPUT_PRESS + GNW_KB_KEY_RETURN) {
                 button_destruct->PlaySound();
             } else {
-                /// \todo integrate interface
                 soundmgr.PlaySfx(NCANC0);
             }
 
             event_release = true;
         }
 
-        /// \todo Implement function
-        //        sub_A0E32(1, 1);
+        GameManager_ProcessState(true);
     }
 
     delete button_destruct;
@@ -158,8 +155,7 @@ bool GUI_SelfDestructMenu() {
             event_release = true;
         }
 
-        /// \todo Implement function
-        //        sub_A0E32(1, 1);
+        GameManager_ProcessState(true);
     }
 
     delete button_arm;

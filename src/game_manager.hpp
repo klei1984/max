@@ -28,6 +28,8 @@ void GameManager_GameLoop(int game_state);
 void GameManager_DrawUnitSelector(unsigned char *buffer, int width, int offsetx, int height, int offsety, int bottom,
                                   int item_height, int top, int scaling_factor, int is_big_sprite,
                                   bool double_marker = false);
+void GameManager_ProcessTick(bool render_screen);
+void GameManager_ProcessState(bool process_tick, bool clear_mouse_events = true);
 
 extern Rect GameManager_GridPosition;
 extern SmartPointer<UnitInfo> GameManager_SelectedUnit;

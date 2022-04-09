@@ -502,9 +502,9 @@ bool HelpMenu::Run(int mode) {
 
         if (!mode) {
             if (window_id == WINDOW_MAIN_MAP) {
-                /// \todo sub_A0E32(1, 0);
+                GameManager_ProcessState(true, false);
             } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
-                // sub_A0E32(0, 0);
+                GameManager_ProcessState(false, false);
             } else if (Remote_GameState) {
                 Remote_NetSync();
 
@@ -514,7 +514,7 @@ bool HelpMenu::Run(int mode) {
 
             } else if (Remote_IsNetworkGame) {
                 if (Remote_sub_C8835()) {
-                    // sub_102CB8();
+                    /// \todo sub_102CB8();
                 }
             }
         }
@@ -557,11 +557,10 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
             }
 
             if (!mode) {
-                /// \todo Implement missing stuff
                 if (window_index == WINDOW_MAIN_MAP) {
-                    // sub_A0E32(1, 0);
+                    GameManager_ProcessState(true, false);
                 } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
-                    // sub_A0E32(0, 0);
+                    GameManager_ProcessState(false, false);
                 } else if (Remote_GameState) {
                     Remote_NetSync();
                     if (Remote_GameState == 2) {
@@ -570,7 +569,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
 
                 } else if (Remote_IsNetworkGame) {
                     if (Remote_sub_C8835()) {
-                        // sub_102CB8();
+                        /// \todo sub_102CB8();
                     }
                 }
             }

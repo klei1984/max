@@ -180,8 +180,7 @@ OptionsMenu::~OptionsMenu() {
     }
 
     if (bg_image == PREFSPIC) {
-        /// \todo Implement missing function
-        // sub_A0EFE(1);
+        GameManager_ProcessTick(true);
     }
 }
 
@@ -792,7 +791,7 @@ void OptionsMenu::Run() {
                 key = 1001;
             }
 
-            /// @todo sub_A0E32(1);
+            GameManager_ProcessState(true);
         }
 
         ProcessKeyPress(key);

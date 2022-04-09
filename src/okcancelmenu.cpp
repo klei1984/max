@@ -22,6 +22,7 @@
 #include "okcancelmenu.hpp"
 
 #include "cursor.hpp"
+#include "game_manager.hpp"
 #include "mouseevent.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
@@ -91,8 +92,7 @@ bool OKCancelMenu::Run() {
             event_release = true;
         }
 
-        /// \todo Implement function
-        //        sub_A0E32(1, 1);
+        GameManager_ProcessState(true);
     }
 
     return event_click_ok;

@@ -21,7 +21,14 @@
 
 #include "game_manager.hpp"
 
+#include "cargomenu.hpp"
+#include "gui.hpp"
+#include "inifile.hpp"
+#include "menu.hpp"
+#include "message_manager.hpp"
+#include "resource_manager.hpp"
 #include "sound_manager.hpp"
+#include "units_manager.hpp"
 
 Rect GameManager_GridPosition;
 SmartPointer<UnitInfo> GameManager_SelectedUnit;
@@ -29,7 +36,15 @@ unsigned int GameManager_TurnCounter;
 int GameMamager_GameFileNumber;
 int GameManager_HumanPlayerCount;
 bool GameManager_RequestMenuExit;
+bool GameManager_ActiveTurnTeamID;
+bool GameManager_UnknownFlag;
 unsigned char GameManager_MarkerColor = 0xFF;
+
+bool GameManager_PlayerMissionSetup(unsigned short team);
+void GameManager_DrawSelectSiteMessage(unsigned short team);
+bool GameManager_SelectSite(unsigned short team);
+void GameManager_InitMap();
+void GameManager_UpdateMainMapView(int mode, int grid_x_zoom_level_max, int grid_y_zoom_level_min, int flag);
 
 void GameManager_GameLoop(int game_state) {
     /// \todo Implement function
@@ -127,3 +142,96 @@ void GameManager_DrawUnitSelector(unsigned char *buffer, int width, int offsetx,
         color ^= 0xFF;
     }
 }
+
+bool GameManager_CargoSelection(unsigned short team) {
+    CargoMenu cargo_menu(team);
+    char message[200];
+
+    if (GameManager_HumanPlayerCount) {
+        sprintf(message, "%s:\nBegin cargo selection.", menu_team_names[team]);
+
+        MessageManager_DrawMessage(message, 0, 1, true);
+    }
+
+    return cargo_menu.Run();
+}
+
+bool GameManager_PlayerMissionSetup(unsigned short team) {
+    int team_gold;
+
+    GUI_GameState = GAME_STATE_7_SITE_SELECT;
+
+    mouse_show();
+
+    GameManager_UnknownFlag = 1;
+
+    GUI_PlayerTeamIndex = team;
+    GameManager_ActiveTurnTeamID = team;
+
+    ini_set_setting(INI_PLAYER_CLAN, UnitsManager_TeamInfo[team].team_clan);
+
+    if (ResourceManager_MapTileIds) {
+        GameManager_UpdateMainMapView(0, 4, 0, 0);
+        GameManager_ProcessTick(1);
+    }
+
+    do {
+        GUI_GameState = GAME_STATE_7_SITE_SELECT;
+
+        team_gold = ini_get_setting(INI_START_GOLD) + ini_clans.GetClanGold(UnitsManager_TeamInfo[team].team_clan);
+
+        if (team_gold) {
+            if (!GameManager_CargoSelection(team)) {
+                return false;
+            }
+        } else {
+            UnitsManager_AddDefaultMissionLoadout(team);
+        }
+
+        if (!ResourceManager_MapTileIds) {
+            GameManager_InitMap();
+        }
+
+        if (GameManager_HumanPlayerCount && !team_gold) {
+            GameManager_DrawSelectSiteMessage(team);
+        }
+
+        UnitsManager_TeamMissionSupplies[team].proximity_alert_ack = true;
+
+        if (GameManager_SelectSite(team)) {
+            MessageManager_MessageBox_IsActive = false;
+
+            return true;
+        }
+
+    } while (GUI_GameState != GAME_STATE_3_MAIN_MENU && GUI_GameState != GAME_STATE_15_FATAL_ERROR && team_gold);
+
+    return false;
+}
+
+void GameManager_DrawSelectSiteMessage(unsigned short team) {
+    SmartString string;
+
+    string = menu_team_names[team];
+    string += ":\n";
+    string += "Select starting location.";
+
+    MessageManager_DrawMessage(string.GetCStr(), 0, 1, true);
+}
+
+bool GameManager_SelectSite(unsigned short team) {}
+
+void GameManager_InitMap() {
+    mouse_hide();
+    ResourceManager_InitInGameAssets(ini_get_setting(INI_WORLD));
+    GameManager_UpdateMainMapView(0, 4, 0, 0);
+    GameManager_ProcessTick(1);
+    mouse_show();
+    GameManager_UnknownFlag = 1;
+}
+
+void GameManager_UpdateMainMapView(int mode, int grid_x_zoom_level_max, int grid_y_zoom_level_min, int flag) {}
+
+void GameManager_ProcessTick(bool render_screen) {}
+
+void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {}
