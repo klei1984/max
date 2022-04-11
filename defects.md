@@ -173,6 +173,8 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     The path generator lets ground units pass these planes. This defect could be used as an exploit to give an edge against human players. If a unit's remaining moves in a turn are calculated well, then it is possible to stop exactly under the plane. The mini map will show the alien derelict's team color (team 5, yellow) instead of the player unit's color. If the grid cell gets attacked, the player unit is not damaged as the alien unit is targeted by the game.
 
+65. The ResourceManager_InitTeamInfo() function at cseg01:000D6316 initializes 5 CTinfo structs. The last belongs to the alien derelicts team. The CTinfo structure's TeamType and ClanType fields are initialized from the MAX.INI file's red_team_player to gray_team_player and red_team_clan to gray_team_clan parameters. There is no alien_team_player nor alien_team_clan INI parameter so the alien CTinfo TeamType field is initialized from the red_team_clan INI parameter and the ClanType field is initialized from the DIGITAL INI group ID (returns 0 which corresponds to RANDOM clan). It is not yet clear what negative side effects these defects create.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
@@ -185,7 +187,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 30. The unitinfo common structure size is 20, while it has only 18 or 19? elements!
 
-31. no abstractrion for fclose in adaption layer in seg32:000DD5C0 file_open + fclose?
+31. no abstractrion for fclose in adaption layer in cseg01:000DD5C0 file_open + fclose?
 
 39. The play voice API is called with wrong voice range. PlayVoice(V_M229, V_F256, PRIO_0) is called when a unit is under attack and it does not gets destroyed. There are only four under attack type voice samples: V_F229 - V_F232 so the correct range would be PlayVoice(V_M229, V_F232, PRIO_0). It is not easy to test the failure scenario as a unit might be destroyed in a single shot and the API call could still randomly select a correct sample or a sample that does not exists so no incorrect sound would play.
 

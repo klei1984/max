@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-01-15.
+Last updated: 2022-04-11.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -129,7 +129,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-inwork">
   Replace the GUI manager classes (commo.cpp)
   </span>
-- <span class="legend-close">
+- <span class="legend-done">
   Replace the resource manager classes (resrcmgr.cpp)
   </span>
 - <span class="legend-done">
@@ -158,13 +158,17 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-inwork">
   Replace the unit info manager classes (unitinfo.cpp)
   </span>
-- Replace the game manager classes (gamemgr.cpp)
+- <span class="legend-inwork">
+  Replace the game manager classes (gamemgr.cpp)
+  </span>
 - Replace the map manager classes (drawmap.cpp)
 - <span class="legend-done">
   Replace the map hash classes (hash.cpp)
   </span>
 - Replace the access classes (access.cpp)
-- Replace the remote classes (remote.cpp)
+- <span class="legend-inwork">
+  Replace the remote classes (remote.cpp)
+  </span>
 - Replace the reports classes (reports.cpp)
 - <span class="legend-done">
   Replace the smart pointer classes (smartptr.cpp)
