@@ -2045,6 +2045,7 @@ enum : unsigned char {
     PLAYER_TEAM_BLUE = 0x2,
     PLAYER_TEAM_GRAY = 0x3,
     PLAYER_TEAM_ALIEN = 0x4,
+    PLAYER_TEAM_MAX = 0x5,
 };
 
 enum : unsigned char {

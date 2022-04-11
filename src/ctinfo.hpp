@@ -31,6 +31,11 @@ struct ResearchTopic {
     unsigned int allocation;
 };
 
+struct ScreenLocation {
+    signed char x;
+    signed char y;
+};
+
 struct CTInfo {
     char field_0[40];
     char team_type;
@@ -40,9 +45,7 @@ struct CTInfo {
     ResearchTopic research_topics[8];
     unsigned int team_points;
     unsigned short number_of_objects_created;
-    unsigned char camera_position_x_saved;
-    unsigned char camera_position_y_saved;
-    char field_240[10];
+    ScreenLocation screen_location[6];
     TeamUnits *team_units;
     SmartPointer<UnitInfo> selected_unit;
     unsigned short zoom_level;

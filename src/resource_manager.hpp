@@ -30,8 +30,7 @@
 
 extern "C" {
 
-#define RESOURCE_MANAGER_MAP_TILE_WIDTH 64
-#define RESOURCE_MANAGER_MAP_TILE_HEIGHT 64
+#define RESOURCE_MANAGER_MAP_TILE_SIZE 64
 
 extern char ResourceManager_FilePathCd[PATH_MAX];
 extern char ResourceManager_FilePathGameInstall[PATH_MAX];
@@ -51,14 +50,14 @@ extern ColorIndex *ResourceManager_TeamGreenColorIndexTable;
 extern ColorIndex *ResourceManager_TeamBlueColorIndexTable;
 extern ColorIndex *ResourceManager_TeamGrayColorIndexTable;
 extern ColorIndex *ResourceManager_TeamDerelictColorIndexTable;
-extern ColorIndex *dword_1770B4;
-extern ColorIndex *dword_1770B8;
-extern ColorIndex *dword_1770BC;
-extern ColorIndex *dword_1770C4;
-extern ColorIndex *dword_1770C0;
-extern ColorIndex *dword_1770C8;
-extern ColorIndex *dword_1770CC;
-extern ColorIndex *dword_17945C;
+extern ColorIndex *ResourceManager_ColorIndexTable06;
+extern ColorIndex *ResourceManager_ColorIndexTable07;
+extern ColorIndex *ResourceManager_ColorIndexTable08;
+extern ColorIndex *ResourceManager_ColorIndexTable09;
+extern ColorIndex *ResourceManager_ColorIndexTable10;
+extern ColorIndex *ResourceManager_ColorIndexTable11;
+extern ColorIndex *ResourceManager_ColorIndexTable12;
+extern ColorIndex *ResourceManager_ColorIndexTable13x8;
 
 extern unsigned char *ResourceManager_MinimapFov;
 extern unsigned char *ResourceManager_Minimap;
@@ -85,6 +84,9 @@ FILE *ResourceManager_GetFileHandle(ResourceID id);
 void ResourceManager_InitInGameAssets(int world);
 char *ResourceManager_ToUpperCase(char *cstr);
 void ResourceManager_FreeResources();
+void ResourceManager_InitClanUnitValues(unsigned short team);
+void ResourceManager_InitHeatMaps(unsigned short team);
+void ResourceManager_InitTeamInfo();
 }
 
 #endif /* RESOURCE_MANAGER_HPP */

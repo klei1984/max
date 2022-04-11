@@ -1932,9 +1932,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* tutorial description (optional) */
         )};
 
-CTInfo UnitsManager_TeamInfo[5];
+CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
-TeamMissionSupplies UnitsManager_TeamMissionSupplies[5];
+TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
 int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential) {
     int target_armor = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);

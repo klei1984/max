@@ -37,9 +37,9 @@ extern SmartList<UnitInfo> UnitsManager_UnitList6;
 extern AbstractUnit UnitsManager_AbstractUnits[UNIT_END];
 extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
-extern CTInfo UnitsManager_TeamInfo[5];
+extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
-extern TeamMissionSupplies UnitsManager_TeamMissionSupplies[5];
+extern TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
 int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
 UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type);

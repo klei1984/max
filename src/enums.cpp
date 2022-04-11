@@ -22,6 +22,7 @@
 #include "enums.hpp"
 
 SortedEnum Enums_UnitType;
+SortedEnum Enums_Team;
 SortedEnum Enums_ResearchTopic;
 SortedEnum Enums_Sound;
 SortedEnum Enums_Orders;

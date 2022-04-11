@@ -28,6 +28,7 @@
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "message_manager.hpp"
 #include "screendump.h"
 #include "sound_manager.hpp"
 #include "units_manager.hpp"
@@ -74,14 +75,14 @@ ColorIndex *ResourceManager_TeamGreenColorIndexTable;
 ColorIndex *ResourceManager_TeamBlueColorIndexTable;
 ColorIndex *ResourceManager_TeamGrayColorIndexTable;
 ColorIndex *ResourceManager_TeamDerelictColorIndexTable;
-ColorIndex *dword_1770B4;
-ColorIndex *dword_1770B8;
-ColorIndex *dword_1770BC;
-ColorIndex *dword_1770C4;
-ColorIndex *dword_1770C0;
-ColorIndex *dword_1770C8;
-ColorIndex *dword_1770CC;
-ColorIndex *dword_17945C;
+ColorIndex *ResourceManager_ColorIndexTable06;
+ColorIndex *ResourceManager_ColorIndexTable07;
+ColorIndex *ResourceManager_ColorIndexTable08;
+ColorIndex *ResourceManager_ColorIndexTable09;
+ColorIndex *ResourceManager_ColorIndexTable10;
+ColorIndex *ResourceManager_ColorIndexTable11;
+ColorIndex *ResourceManager_ColorIndexTable12;
+ColorIndex *ResourceManager_ColorIndexTable13x8;
 
 unsigned char *ResourceManager_MinimapFov;
 unsigned char *ResourceManager_Minimap;
@@ -91,6 +92,8 @@ unsigned short *ResourceManager_MapTileIds;
 unsigned char *ResourceManager_MapTileBuffer;
 unsigned char *ResourceManager_MapSurfaceMap;
 unsigned short *ResourceManager_CargoMap;
+unsigned short ResourceManager_MapTileCount;
+unsigned char ResourceManager_PassData[4] = {1, 2, 4, 8};
 
 Point ResourceManager_MapSize;
 
@@ -357,6 +360,10 @@ static void ResourceManager_TestMouse();
 static bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_error);
 static int ResourceManager_BuildResourceTable(const char *file_path);
 static int ResourceManager_BuildColorTables();
+static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
+static void ResourceManager_ManipulateColorMap(int red_level, int green_level, int blue_level, ColorIndex *table);
+static void ResourceManager_ManipulateColorMap2(int red_level, int green_level, int blue_level, ColorIndex *table);
+static void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues *unit_values);
 
 bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_error) {
     unsigned int total;
@@ -823,14 +830,14 @@ int ResourceManager_BuildColorTables() {
         ResourceManager_TeamBlueColorIndexTable = &color_animation_buffer[2 * 256];
         ResourceManager_TeamGrayColorIndexTable = &color_animation_buffer[3 * 256];
         ResourceManager_TeamDerelictColorIndexTable = &color_animation_buffer[4 * 256];
-        dword_1770B4 = &color_animation_buffer[5 * 256];
-        dword_1770B8 = &color_animation_buffer[6 * 256];
-        dword_1770BC = &color_animation_buffer[7 * 256];
-        dword_1770C4 = &color_animation_buffer[8 * 256];
-        dword_1770C0 = &color_animation_buffer[9 * 256];
-        dword_1770C8 = &color_animation_buffer[10 * 256];
-        dword_1770CC = &color_animation_buffer[11 * 256];
-        dword_17945C = &color_animation_buffer[12 * 256];
+        ResourceManager_ColorIndexTable06 = &color_animation_buffer[5 * 256];
+        ResourceManager_ColorIndexTable07 = &color_animation_buffer[6 * 256];
+        ResourceManager_ColorIndexTable08 = &color_animation_buffer[7 * 256];
+        ResourceManager_ColorIndexTable09 = &color_animation_buffer[8 * 256];
+        ResourceManager_ColorIndexTable10 = &color_animation_buffer[9 * 256];
+        ResourceManager_ColorIndexTable11 = &color_animation_buffer[10 * 256];
+        ResourceManager_ColorIndexTable12 = &color_animation_buffer[11 * 256];
+        ResourceManager_ColorIndexTable13x8 = &color_animation_buffer[12 * 256];
 
         {
             ColorIndex *buffer = &color_animation_buffer[19 * 256];
@@ -992,9 +999,6 @@ void ResourceManager_InitInGameAssets(int world) {
     int file_position;
     int file_offset;
     unsigned short map_tile_count;
-    unsigned char *palette;
-    int map_cell_count;
-    int data_offset;
 
     ini_set_setting(INI_WORLD, world);
 
@@ -1074,21 +1078,25 @@ void ResourceManager_InitInGameAssets(int world) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
-    palette = new (std::nothrow) unsigned char[3 * PALETTE_SIZE];
+    {
+        unsigned char *palette;
 
-    if (fseek(fp, RESOURCE_MANAGER_MAP_TILE_WIDTH * RESOURCE_MANAGER_MAP_TILE_HEIGHT * map_tile_count, SEEK_CUR) ||
-        3 * PALETTE_SIZE != fread(palette, sizeof(unsigned char), 3 * PALETTE_SIZE, fp)) {
-        ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
+        palette = new (std::nothrow) unsigned char[3 * PALETTE_SIZE];
+
+        if (fseek(fp, RESOURCE_MANAGER_MAP_TILE_SIZE * RESOURCE_MANAGER_MAP_TILE_SIZE * map_tile_count, SEEK_CUR) ||
+            3 * PALETTE_SIZE != fread(palette, sizeof(unsigned char), 3 * PALETTE_SIZE, fp)) {
+            ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
+        }
+
+        for (int i = 64 * 3; i < 160 * 3; ++i) {
+            WindowManager_ColorPalette[i] = palette[i] / 4;
+        }
+
+        setSystemPalette(WindowManager_ColorPalette);
+        setColorPalette(WindowManager_ColorPalette);
+
+        delete[] palette;
     }
-
-    for (int i = 64 * 3; i < 160 * 3; ++i) {
-        WindowManager_ColorPalette[i] = palette[i] / 4;
-    }
-
-    setSystemPalette(WindowManager_ColorPalette);
-    setColorPalette(WindowManager_ColorPalette);
-
-    delete[] palette;
 
     if (fseek(fp, file_position, SEEK_SET)) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
@@ -1097,7 +1105,7 @@ void ResourceManager_InitInGameAssets(int world) {
     file_offset = (map_layer_count - map_minimap_count) * map_dimensions;
 
     for (int i = map_minimap_count; --i;) {
-        file_offset += 2 * map_layer_dimensions[i].x * map_layer_dimensions[i].y;
+        file_offset += sizeof(unsigned short) * map_layer_dimensions[i].x * map_layer_dimensions[i].y;
     }
 
     if (fseek(fp, file_offset, SEEK_CUR)) {
@@ -1107,24 +1115,403 @@ void ResourceManager_InitInGameAssets(int world) {
     ResourceManager_MapSize.x = map_layer_dimensions[map_minimap_count - 1].x;
     ResourceManager_MapSize.y = map_layer_dimensions[map_minimap_count - 1].y;
 
-    map_cell_count = ResourceManager_MapSize.x * ResourceManager_MapSize.y;
+    map_dimensions = ResourceManager_MapSize.x * ResourceManager_MapSize.y;
 
-    ResourceManager_MapTileIds = new (std::nothrow) unsigned short[map_cell_count];
+    ResourceManager_MapTileIds = new (std::nothrow) unsigned short[map_dimensions];
 
     if (!ResourceManager_MapTileIds) {
         ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
     }
 
-    map_cell_count;
-    data_offset = map_cell_count / 4;
+    {
+        int data_chunk_size = map_dimensions / 4;
 
-    for (int i = 0; i < map_cell_count; i) {
-        data_offset = std::min(data_offset, map_cell_count - i);
-        if (fread(&ResourceManager_MapTileIds[i], 1, data_offset, fp) != data_offset) {
-            ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
+        for (int data_offset = 0; data_offset < map_dimensions; data_offset) {
+            data_chunk_size = std::min(data_chunk_size, map_dimensions - data_offset);
+            if (fread(&ResourceManager_MapTileIds[data_offset], sizeof(unsigned short), data_chunk_size, fp) !=
+                data_chunk_size) {
+                ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
+            }
+
+            data_offset += data_chunk_size;
+            load_bar.SetValue(20 * data_offset / map_dimensions);
+        }
+    }
+
+    for (int i = map_layer_count - map_minimap_count; --i > -1;) {
+        file_offset += sizeof(unsigned short) * map_layer_dimensions[map_minimap_count + i].x *
+                       map_layer_dimensions[map_minimap_count + i].y;
+    }
+
+    if (fseek(fp, file_offset, SEEK_CUR)) {
+        ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
+    }
+
+    if (1 != fread(&ResourceManager_MapTileCount, sizeof(ResourceManager_MapTileCount), 1, fp) ||
+        !ResourceManager_LoadMapTiles(fp, &load_bar)) {
+        ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
+    }
+
+    {
+        unsigned char *palette;
+
+        progress_bar_value = 70;
+
+        palette = new (std::nothrow) unsigned char[3 * PALETTE_SIZE];
+
+        if (3 * PALETTE_SIZE != fread(palette, sizeof(unsigned char), 3 * PALETTE_SIZE, fp)) {
+            ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
 
-        i += data_offset;
-        load_bar.SetValue(20 * i / map_cell_count);
+        for (int i = 64 * 3; i < 160 * 3; ++i) {
+            WindowManager_ColorPalette[i] = palette[i] / 4;
+        }
+
+        setSystemPalette(WindowManager_ColorPalette);
+        setColorPalette(WindowManager_ColorPalette);
+
+        progress_bar_value += 3;
+
+        load_bar.SetValue(progress_bar_value);
+
+        delete[] palette;
     }
+
+    {
+        unsigned char *pass_table;
+
+        pass_table = new (std::nothrow) unsigned char[ResourceManager_MapTileCount];
+
+        ResourceManager_MapSurfaceMap = new (std::nothrow) unsigned char[map_dimensions];
+
+        if (ResourceManager_MapTileCount !=
+            fread(pass_table, sizeof(unsigned char), ResourceManager_MapTileCount, fp)) {
+            ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
+        }
+
+        for (int i = 0; i < ResourceManager_MapTileCount; ++i) {
+            pass_table[i] = ResourceManager_PassData[pass_table[i]];
+        }
+
+        for (int i = 0; i < map_dimensions; ++i) {
+            ResourceManager_MapSurfaceMap[i] = pass_table[ResourceManager_MapTileIds[i]];
+        }
+
+        delete[] pass_table;
+    }
+
+    fclose(fp);
+
+    ResourceManager_CargoMap = new (std::nothrow) unsigned short[map_dimensions];
+
+    for (int i = 0; i < map_dimensions; ++i) {
+        ResourceManager_CargoMap[i] = 0;
+    }
+
+    progress_bar_value += 3;
+
+    load_bar.SetValue(progress_bar_value);
+
+    ResourceManager_ManipulateColorMap2(63, 0, 0, ResourceManager_ColorIndexTable06);
+    ResourceManager_ManipulateColorMap2(0, 63, 0, ResourceManager_ColorIndexTable07);
+    ResourceManager_ManipulateColorMap2(0, 0, 63, ResourceManager_ColorIndexTable08);
+
+    if (world >= CRATER_1 && world <= CRATER_6) {
+        ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
+        ResourceManager_ManipulateColorMap(0, 63, 0, ResourceManager_ColorIndexTable11);
+        ResourceManager_ManipulateColorMap(0, 63, 63, ResourceManager_ColorIndexTable09);
+
+    } else if (world >= GREEN_1 && world <= GREEN_6) {
+        ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
+        ResourceManager_ManipulateColorMap(0, 0, 31, ResourceManager_ColorIndexTable11);
+        ResourceManager_ManipulateColorMap(0, 63, 63, ResourceManager_ColorIndexTable09);
+
+    } else if (world >= DESERT_1 && world <= DESERT_6) {
+        ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
+        ResourceManager_ManipulateColorMap(0, 0, 31, ResourceManager_ColorIndexTable11);
+        ResourceManager_ManipulateColorMap(0, 63, 63, ResourceManager_ColorIndexTable09);
+
+    } else if (world >= SNOW_1 && world <= SNOW_6) {
+        ResourceManager_ManipulateColorMap(63, 0, 0, ResourceManager_ColorIndexTable10);
+        ResourceManager_ManipulateColorMap(0, 0, 63, ResourceManager_ColorIndexTable11);
+        ResourceManager_ManipulateColorMap(0, 63, 63, ResourceManager_ColorIndexTable09);
+    }
+
+    for (int i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+        int r;
+        int g;
+        int b;
+
+        int factor;
+
+        r = WindowManager_ColorPalette[i];
+        g = WindowManager_ColorPalette[i + 1];
+        b = WindowManager_ColorPalette[i + 2];
+
+        factor = 7;
+
+        r = (std::max(factor, r) * 31) / 63;
+        g = (std::max(factor, g) * 31) / 63;
+        b = (std::max(factor, b) * 31) / 63;
+
+        ResourceManager_ColorIndexTable12[j] = ResourceManager_FindClosestPaletteColor(r, g, b, false);
+    }
+
+    progress_bar_value += 3;
+
+    load_bar.SetValue(progress_bar_value);
+
+    for (int i = 0, l = 0; i < 224; i += 32, ++l) {
+        for (int j = 0, k = 0; j < 3 * PALETTE_SIZE; j += 3, ++k) {
+            if (j == 31 * 3) {
+                ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] = 31;
+            } else {
+                int r;
+                int g;
+                int b;
+
+                r = WindowManager_ColorPalette[j] * i / 224;
+                g = WindowManager_ColorPalette[j] * i / 224;
+                b = WindowManager_ColorPalette[j] * i / 224;
+
+                ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] =
+                    ResourceManager_FindClosestPaletteColor(r, g, b, false);
+            }
+        }
+    }
+}
+
+bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
+    int tile_size;
+    int reduced_tile_count;
+    int tile_index;
+    int data_size;
+    unsigned char *normal_tile_buffer;
+    unsigned char *reduced_tile_buffer;
+
+    tile_size = RESOURCE_MANAGER_MAP_TILE_SIZE;
+
+    reduced_tile_count = ResourceManager_MapTileCount / 8;
+
+    if (ResourceManager_DisableEnhancedGraphics) {
+        tile_size /= 2;
+        reduced_tile_buffer = new (std::nothrow) unsigned char[reduced_tile_count * RESOURCE_MANAGER_MAP_TILE_SIZE *
+                                                               RESOURCE_MANAGER_MAP_TILE_SIZE];
+    }
+
+    normal_tile_buffer = new (std::nothrow) unsigned char[ResourceManager_MapTileCount * tile_size * tile_size];
+    ResourceManager_MapTileBuffer = normal_tile_buffer;
+
+    for (int i = 0; i < ResourceManager_MapTileCount; i += reduced_tile_count) {
+        loadbar->SetValue(i * 50 / ResourceManager_MapTileCount + 20);
+
+        if (!ResourceManager_DisableEnhancedGraphics) {
+            reduced_tile_buffer =
+                &ResourceManager_MapTileBuffer[i * RESOURCE_MANAGER_MAP_TILE_SIZE * RESOURCE_MANAGER_MAP_TILE_SIZE];
+        }
+
+        tile_index = std::min(reduced_tile_count, ResourceManager_MapTileCount - i);
+        data_size = tile_index * RESOURCE_MANAGER_MAP_TILE_SIZE * RESOURCE_MANAGER_MAP_TILE_SIZE;
+
+        if (data_size != fread(reduced_tile_buffer, sizeof(unsigned char), data_size, fp)) {
+            return false;
+        }
+
+        if (ResourceManager_DisableEnhancedGraphics) {
+            unsigned char *address;
+            int offset;
+
+            address = reduced_tile_buffer;
+            normal_tile_buffer = &ResourceManager_MapTileBuffer[tile_size * tile_size * i];
+
+            for (int j = 0; j < tile_index; ++j) {
+                for (int k = 0; k < tile_size; ++k) {
+                    for (int l = 0; l < tile_size; ++l) {
+                        normal_tile_buffer[l + k * tile_size] = address[l * 2 + k * RESOURCE_MANAGER_MAP_TILE_SIZE];
+                    }
+                }
+            }
+        }
+    }
+
+    loadbar->SetValue(70);
+
+    if (ResourceManager_DisableEnhancedGraphics) {
+        delete[] reduced_tile_buffer;
+    }
+
+    return true;
+}
+
+void ResourceManager_ManipulateColorMap(int red_level, int green_level, int blue_level, ColorIndex *table) {
+    int max_level;
+    int max_color;
+    int red;
+    int green;
+    int blue;
+
+    if (!red_level && !green_level && !blue_level) {
+        red_level = 1;
+        green_level = 1;
+        blue_level = 1;
+    }
+
+    max_level = std::max(red_level, green_level);
+    max_level = std::max(max_level, blue_level);
+
+    for (int i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+        red = WindowManager_ColorPalette[i];
+        green = WindowManager_ColorPalette[i + 1];
+        blue = WindowManager_ColorPalette[i + 2];
+
+        max_color = std::max(red, green);
+        max_color = std::max(max_color, blue);
+
+        max_color = (max_color + max_level) / 2;
+
+        red = max_color * red_level / max_level;
+        green = max_color * green_level / max_level;
+        blue = max_color * blue_level / max_level;
+
+        table[j] = ResourceManager_FindClosestPaletteColor(red, green, blue, false);
+    }
+}
+
+void ResourceManager_ManipulateColorMap2(int red_level, int green_level, int blue_level, ColorIndex *table) {
+    int world;
+    int factor;
+    int red;
+    int green;
+    int blue;
+
+    world = ini_get_setting(INI_WORLD) + SNOW_1;
+
+    if (world >= SNOW_1 && world <= SNOW_6) {
+        factor = 63;
+    } else {
+        factor = 31;
+    }
+
+    for (int i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+        red = WindowManager_ColorPalette[i];
+        green = WindowManager_ColorPalette[i + 1];
+        blue = WindowManager_ColorPalette[i + 2];
+
+        red = (std::max(red, red_level / 4) * red_level) / factor;
+        green = (std::max(green, green_level / 4) * green_level) / factor;
+        blue = (std::max(blue, blue_level / 4) * blue_level) / factor;
+
+        table[j] = ResourceManager_FindClosestPaletteColor(red, green, blue, false);
+    }
+}
+
+void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues *unit_values) {
+    if (ini_clans.SeekUnit(clan, unit_type)) {
+        for (short attribute, value; ini_clans.GetNextUnitUpgrade(&attribute, &value);) {
+            unit_values->SetAttribute(attribute, value);
+        }
+    }
+}
+
+void ResourceManager_InitClanUnitValues(unsigned short team) {
+    SmartPointer<UnitValues> unit_values;
+    TeamUnits *team_units;
+    int team_clan;
+
+    switch (team) {
+        case PLAYER_TEAM_RED: {
+            team_units = &ResourceManager_TeamUnitsRed;
+            team_clan = ini_get_setting(INI_RED_TEAM_CLAN);
+        } break;
+
+        case PLAYER_TEAM_GREEN: {
+            team_units = &ResourceManager_TeamUnitsGreen;
+            team_clan = ini_get_setting(INI_GREEN_TEAM_CLAN);
+        } break;
+
+        case PLAYER_TEAM_BLUE: {
+            team_units = &ResourceManager_TeamUnitsBlue;
+            team_clan = ini_get_setting(INI_BLUE_TEAM_CLAN);
+        } break;
+
+        case PLAYER_TEAM_GRAY: {
+            team_units = &ResourceManager_TeamUnitsGray;
+            team_clan = ini_get_setting(INI_GRAY_TEAM_CLAN);
+        } break;
+
+        case PLAYER_TEAM_ALIEN: {
+            team_units = &ResourceManager_TeamUnitsDerelict;
+            team_clan = TEAM_CLAN_THE_CHOSEN;
+        } break;
+
+        default: {
+            SDL_assert(0);
+        } break;
+    }
+
+    if (team == TEAM_CLAN_RANDOM) {
+        team_clan = ((dos_rand() << 3) >> 15) + 1;
+        ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + team), team_clan);
+    }
+
+    UnitsManager_TeamInfo[team].team_clan = team_clan;
+    team_units->ClearComplexes();
+    team_units->Init();
+
+    for (int i = 0; i < UNIT_END; ++i) {
+        unit_values = new (std::nothrow) UnitValues(*team_units->GetBaseUnitValues(i));
+
+        ResourceManager_SetClanUpgrades(team_clan, static_cast<ResourceID>(i), &*unit_values);
+        team_units->SetBaseUnitValues(i, *unit_values);
+        team_units->SetCurrentUnitValues(i, *unit_values);
+    }
+}
+
+void ResourceManager_InitHeatMaps(unsigned short team) {
+    if (UnitsManager_TeamInfo[team].team_type) {
+        UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) char[112 * 112];
+        memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, 112 * 112);
+
+        UnitsManager_TeamInfo[team].heat_map_stealth_sea = new (std::nothrow) char[112 * 112];
+        memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, 112 * 112);
+
+        UnitsManager_TeamInfo[team].heat_map_stealth_land = new (std::nothrow) char[112 * 112];
+        memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, 112 * 112);
+
+    } else {
+        UnitsManager_TeamInfo[team].heat_map_complete = nullptr;
+        UnitsManager_TeamInfo[team].heat_map_stealth_sea = nullptr;
+        UnitsManager_TeamInfo[team].heat_map_stealth_land = nullptr;
+    }
+}
+
+void ResourceManager_InitTeamInfo() {
+    for (int i = 0; i < PLAYER_TEAM_MAX; ++i) {
+        UnitsManager_TeamMissionSupplies[i].units.Clear();
+        UnitsManager_TeamInfo[i].selected_unit = nullptr;
+
+        memset(&UnitsManager_TeamInfo[i], 0, sizeof(CTInfo));
+        memset(UnitsManager_TeamInfo[i].field_0, -1, sizeof(UnitsManager_TeamInfo[i].field_0));
+        memset(UnitsManager_TeamInfo[i].unit_counters, 1, sizeof(UnitsManager_TeamInfo[i].unit_counters));
+        memset(UnitsManager_TeamInfo[i].screen_location, -1, sizeof(UnitsManager_TeamInfo[i].screen_location));
+        memset(UnitsManager_TeamInfo[i].score_graph, 0, sizeof(UnitsManager_TeamInfo[i].score_graph));
+        memset(UnitsManager_TeamInfo[i].casulties, 0, sizeof(UnitsManager_TeamInfo[i].casulties));
+
+        UnitsManager_TeamInfo[i].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
+        UnitsManager_TeamInfo[i].team_clan = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i));
+    }
+
+    ResourceManager_TeamUnitsRed.ClearComplexes();
+    ResourceManager_TeamUnitsGreen.ClearComplexes();
+    ResourceManager_TeamUnitsBlue.ClearComplexes();
+    ResourceManager_TeamUnitsGray.ClearComplexes();
+    ResourceManager_TeamUnitsDerelict.ClearComplexes();
+
+    UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_units = &ResourceManager_TeamUnitsRed;
+    UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_units = &ResourceManager_TeamUnitsGreen;
+    UnitsManager_TeamInfo[PLAYER_TEAM_BLUE].team_units = &ResourceManager_TeamUnitsBlue;
+    UnitsManager_TeamInfo[PLAYER_TEAM_GRAY].team_units = &ResourceManager_TeamUnitsGray;
+    UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN].team_units = &ResourceManager_TeamUnitsDerelict;
+
+    MessageManager_ClearMessageLogs();
 }
