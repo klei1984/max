@@ -339,7 +339,7 @@ void Button::RegisterButton(WinID wid) {
     } else {
         up_data = GetUpDisabledData();
         down_data = GetDownDisabledData();
-        this->flags |= 8u;
+        this->flags |= 8;
     }
 
     p_value = this->p_value;

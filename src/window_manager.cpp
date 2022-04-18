@@ -286,10 +286,10 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
             height = 480;
         }
 
-        length = image->ulx;
+        length = image->width;
 
-        ulx -= image->width;
-        uly -= image->height;
+        ulx -= image->ulx;
+        uly -= image->uly;
 
         buffer = &w->buffer[ulx + uly * w->width];
         image_data = image->data;
@@ -300,11 +300,11 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
             length += ulx;
         }
 
-        if (image->ulx + ulx >= width) {
-            length -= image->ulx + ulx - width;
+        if (image->width + ulx >= width) {
+            length -= image->width + ulx - width;
         }
 
-        for (int i = 0; (i < image->uly) && (uly < height); i++) {
+        for (int i = 0; (i < image->height) && (uly < height); i++) {
             if (uly >= 0) {
                 if (has_transparency) {
                     for (int j = 0; j < length; j++) {
@@ -317,7 +317,7 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
                 }
             }
 
-            image_data += image->ulx;
+            image_data += image->width;
             buffer += w->width;
             uly++;
         }
@@ -327,4 +327,42 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
 void WindowManager_LoadImage2(ResourceID id, int ulx, int uly, int has_transparency, WindowInfo *w) {
     WindowManager_DecodeImage2(reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(id)), ulx, uly,
                                has_transparency, w);
+}
+
+struct ImageSimpleHeader *WindowManager_RescaleImage(struct ImageSimpleHeader *image, int scaling_factor) {
+    int width;
+    int height;
+    int scaled_width;
+    int scaled_height;
+    int scaling_factor_width;
+    int scaling_factor_height;
+    struct ImageSimpleHeader *scaled_image;
+    unsigned char *buffer;
+
+    width = image->width;
+    height = image->height;
+
+    scaled_width = (width << 16) / scaling_factor;
+    scaled_height = (height << 16) / scaling_factor;
+
+    scaled_image = reinterpret_cast<struct ImageSimpleHeader *>(
+        new (std::nothrow) unsigned char[scaled_width * scaled_height + sizeof(image->width) * 4]);
+
+    scaled_image->width = scaled_width;
+    scaled_image->height = scaled_height;
+    scaled_image->ulx = (image->ulx << 16) / scaling_factor;
+    scaled_image->uly = (image->uly << 16) / scaling_factor;
+
+    scaling_factor_width = ((width - 1) << 16) / (scaled_width - 1) + 8;
+    scaling_factor_height = ((height - 1) << 16) / (scaled_height - 1) + 8;
+
+    for (int i = 0; i < scaled_height; ++i) {
+        buffer = &image->data[((i * scaling_factor_height) >> 16) * width];
+
+        for (int j = 0; j < scaled_width; ++j) {
+            scaled_image->data[j + i * scaled_width] = buffer[(j * scaling_factor_width) >> 16];
+        }
+    }
+
+    return scaled_image;
 }

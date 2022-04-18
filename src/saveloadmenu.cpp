@@ -116,7 +116,7 @@ const char *SaveLoadMenu_MultiScenarioTitles[] = {
 };
 
 static int SaveLoadMenu_FirstSaveSlotOnPage = 1;
-static int SaveLoadMenu_SaveSlot;
+int SaveLoadMenu_SaveSlot;
 static char SaveLoadMenu_SaveSlotTextEditBuffer[30];
 
 static void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int save_slot, int game_file_type) {
@@ -179,20 +179,20 @@ static void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int uly, Res
 
     image_header = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_ReadResource(id));
 
-    buffer_position = image_header->height * uly + image_header->width;
+    buffer_position = image_header->uly * uly + image_header->ulx;
 
-    buf_to_buf(image_header->data, image_header->ulx, image_header->uly, image_header->ulx, &image[buffer_position],
-               uly);
+    buf_to_buf(image_header->data, image_header->width, image_header->height, image_header->width,
+               &image[buffer_position], uly);
 
-    buffer_position += ((image_header->uly - text_height()) / 2) * uly;
+    buffer_position += ((image_header->height - text_height()) / 2) * uly;
 
     if (font_num == 2) {
-        buffer_position += (image_header->ulx - text_width(title)) / 2;
+        buffer_position += (image_header->width - text_width(title)) / 2;
     } else {
         buffer_position += 5;
     }
 
-    text_to_buf(&image[buffer_position], title, image_header->ulx + uly + 2, uly, 0x2);
+    text_to_buf(&image[buffer_position], title, image_header->width + uly + 2, uly, 0x2);
 
     delete[] image_header;
 }
@@ -322,8 +322,8 @@ static void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[
         image_down =
             reinterpret_cast<ImageSimpleHeader *>(ResourceManager_ReadResource(static_cast<ResourceID>(FILE1_DN + i)));
 
-        image_up_size = image_up->ulx * image_up->uly;
-        image_down_size = image_down->ulx * image_down->uly;
+        image_up_size = image_up->width * image_up->height;
+        image_down_size = image_down->width * image_down->height;
 
         slots[i].image_up = new (std::nothrow) unsigned char[image_up_size];
         slots[i].image_down = new (std::nothrow) unsigned char[image_down_size];
@@ -336,24 +336,25 @@ static void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[
         snprintf(text_slot_index, sizeof(text_slot_index), "%d", first_slot_on_page + i);
 
         slot_window.buffer = slots[i].image_up;
-        slot_window.width = image_up->ulx;
+        slot_window.width = image_up->width;
         Text_TextBox(&slot_window, text_slot_index, 0, 0, 40, 70, true, true, FontColor(165, 177, 199));
 
         slot_window.buffer = slots[i].image_down;
-        slot_window.width = image_down->ulx;
+        slot_window.width = image_down->width;
         Text_TextBox(&slot_window, text_slot_index, 0, 0, 40, 70, true, true, FontColor(5, 58, 199));
 
         text_font(5);
 
         slots[i].ulx = 402 * (i / 5) + 16;
         slots[i].uly = 76 * (i % 5) + 44;
-        slots[i].width = image_up->ulx;
-        slots[i].height = image_up->uly;
+        slots[i].width = image_up->width;
+        slots[i].height = image_up->height;
 
         slots[i].DrawSaveSlot(slots[i].game_file_type);
 
-        slots[i].bid = win_register_button(window->id, slots[i].ulx, slots[i].uly, image_up->ulx, image_up->uly, -1, -1,
-                                           1001 + i, 1011 + i, slots[i].image_up, slots[i].image_down, nullptr, 0x1);
+        slots[i].bid =
+            win_register_button(window->id, slots[i].ulx, slots[i].uly, image_up->width, image_up->height, -1, -1,
+                                1001 + i, 1011 + i, slots[i].image_up, slots[i].image_down, nullptr, 0x1);
 
         delete[] image_up;
         delete[] image_down;
@@ -593,7 +594,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
                         if (save_file_type == GAME_TYPE_TRAINING || save_file_type == GAME_TYPE_SCENARIO ||
                             save_file_type == GAME_TYPE_CAMPAIGN || save_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
                             GameManager_TurnCounter = 1;
-                            GameMamager_GameFileNumber = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
+                            GameManager_GameFileNumber = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
 
                             if (save_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
                                 for (int i = 0; i < 4; ++i) {
@@ -712,6 +713,8 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
 }
 
 void SaveLoadMenu_Save(char *file_name, char *save_name, bool play_voice) {}
+
+bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {}
 
 SaveSlot::~SaveSlot() { Deinit(); }
 

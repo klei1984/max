@@ -23,8 +23,6 @@
 
 #include "registerarray.hpp"
 
-#define SMARTFILE_OBJECT_ARRAY_DEFAULT_CAPACITY 5
-
 FileObject::FileObject() : object_index(0) {}
 FileObject::FileObject(const FileObject& other) : object_index(other.object_index) {}
 FileObject::~FileObject() {}
@@ -33,10 +31,10 @@ TextFileObject::TextFileObject() {}
 TextFileObject::TextFileObject(const TextFileObject& other) {}
 TextFileObject::~TextFileObject() {}
 
-SmartFileReader::SmartFileReader() : file(nullptr), read_objects(SMARTFILE_OBJECT_ARRAY_DEFAULT_CAPACITY) {}
+SmartFileReader::SmartFileReader() : file(nullptr) {}
 
 SmartFileReader::SmartFileReader(const char* const path)
-    : file(nullptr), read_objects(SMARTFILE_OBJECT_ARRAY_DEFAULT_CAPACITY) {
+    : file(nullptr) {
     Open(path);
 }
 

@@ -1449,7 +1449,7 @@ void ResourceManager_InitClanUnitValues(unsigned short team) {
         } break;
     }
 
-    if (team == TEAM_CLAN_RANDOM) {
+    if (team_clan == TEAM_CLAN_RANDOM) {
         team_clan = ((dos_rand() << 3) >> 15) + 1;
         ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + team), team_clan);
     }
@@ -1486,7 +1486,7 @@ void ResourceManager_InitHeatMaps(unsigned short team) {
 }
 
 void ResourceManager_InitTeamInfo() {
-    for (int i = 0; i < PLAYER_TEAM_MAX; ++i) {
+    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
         UnitsManager_TeamMissionSupplies[i].units.Clear();
         UnitsManager_TeamInfo[i].selected_unit = nullptr;
 

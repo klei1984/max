@@ -23,6 +23,7 @@
 #define REPORTSTATS_HPP
 
 #include "enums.hpp"
+#include "gnw.h"
 
 void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID unit_type, unsigned short team, int ulx,
                                   int uly);
@@ -33,5 +34,8 @@ void ReportStats_DrawListItem(unsigned char* buffer, int width, ResourceID unit_
 void ReportStats_DrawNumber(unsigned char* buffer, int number, int width, int full, int color);
 
 void ReportStats_DrawText(unsigned char* buffer, char* text, int width, int full, int color);
+
+void ReportStats_DrawRow(char* text, WinID id, Rect* bounds, ResourceID icon_normal, ResourceID icon_empty,
+                         int current_value, int base_value, int value3, bool drawline);
 
 #endif /* REPORTSTATS_HPP */

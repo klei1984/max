@@ -74,7 +74,11 @@ int init_vesa_mode(int mode, int width, int height, int half) {
                                       SDL_WINDOWPOS_CENTERED, width, height, flags)) == NULL) {
         SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
     }
-    if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED)) == NULL) {
+
+    sdlRenderer = SDL_CreateSoftwareRenderer(SDL_GetWindowSurface(sdlWindow));
+
+    if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE)) ==
+        NULL) {
         SDL_Log("SDL_CreateRenderer failed: %s\n", SDL_GetError());
     }
 
@@ -102,7 +106,7 @@ int init_vesa_mode(int mode, int width, int height, int half) {
 
     SDL_RenderSetLogicalSize(sdlRenderer, width, height);
 
-    sdlWindowSurface = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    sdlWindowSurface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA8888);
     sdlPaletteSurface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
     sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
 
@@ -153,26 +157,14 @@ void vesa_screen_blit(unsigned char *srcBuf, unsigned int srcW, unsigned int src
 }
 
 void svga_render(void) {
-    void *pixels;
-    int pitch;
-
     /* Blit 8-bit palette surface onto the window surface that's closer to the texture's format */
     if (SDL_BlitSurface(sdlPaletteSurface, NULL, sdlWindowSurface, NULL) != 0) {
         SDL_Log("SDL_BlitSurface failed: %s\n", SDL_GetError());
     }
 
-    /* Modify the texture's pixels */
-    if (SDL_LockTexture(sdlTexture, NULL, &pixels, &pitch) == 0) {
-        if (SDL_ConvertPixels(sdlWindowSurface->w, sdlWindowSurface->h, sdlWindowSurface->format->format,
-                              sdlWindowSurface->pixels, sdlWindowSurface->pitch, SDL_PIXELFORMAT_RGBA8888, pixels,
-                              pitch) != 0) {
-            SDL_Log("SDL_ConvertPixels failed: %s\n", SDL_GetError());
-        }
-
-        SDL_UnlockTexture(sdlTexture);
+    if (SDL_UpdateTexture(sdlTexture, NULL, sdlWindowSurface->pixels, sdlWindowSurface->pitch) != 0) {
+        SDL_Log("SDL_UpdateTexture failed: %s\n", SDL_GetError());
     }
-
-    SDL_assert(sdlRenderer);
 
     /* Make the modified texture visible by rendering it */
     if (SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL) != 0) {

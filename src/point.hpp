@@ -22,6 +22,11 @@
 #ifndef POINT_HPP
 #define POINT_HPP
 
+struct PathStep {
+    signed char x;
+    signed char y;
+};
+
 struct Point {
     short x;
     short y;

@@ -45,5 +45,6 @@ int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target
 UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type);
 void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<ResourceID> units);
 int UnitsManager_AddDefaultMissionLoadout(unsigned short team);
+void UnitsManager_InitPopupMenus();
 
 #endif /* UNITS_MANAGER_HPP */

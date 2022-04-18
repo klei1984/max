@@ -297,7 +297,7 @@ void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
 }
 
 void MessageManager_ClearMessageLogs() {
-    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; + i) {
+    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; ++i) {
         MessageManager_TeamMessageLog[i].Clear();
     }
 }

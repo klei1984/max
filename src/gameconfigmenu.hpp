@@ -59,7 +59,7 @@ public:
     bool event_click_done;
     bool event_click_cancel;
     unsigned char game_mode;
-    unsigned int key;
+    int key;
     GameConfigMenuItem menu_item[GAME_CONFIG_MENU_ITEM_COUNT];
     Button *buttons[GAME_CONFIG_MENU_ITEM_COUNT];
     TextEdit *text_edit;

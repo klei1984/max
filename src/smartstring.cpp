@@ -31,8 +31,6 @@
 #define stricmp strcasecmp
 #endif
 
-#define SMARTSTRING_KEEP_CONTENT_ON_RESIZE true
-
 #include "SDL_assert.h"
 
 StringObject::StringObject(unsigned short size) : size(size), length(0), reference_count(1) {
@@ -177,7 +175,7 @@ SmartString &SmartString::operator+=(SmartString const &other) {
     length = object_pointer->GetLength() + other.object_pointer->GetLength();
 
     if (object_pointer->GetSize() < length) {
-        Resize(CalcOptimalCapacity(length), SMARTSTRING_KEEP_CONTENT_ON_RESIZE);
+        Resize(CalcOptimalCapacity(length));
     }
 
     strcpy(&GetCStr()[object_pointer->GetLength()], other.GetCStr());
@@ -193,7 +191,7 @@ SmartString &SmartString::operator+=(const char *cstring) {
     length = object_pointer->GetLength() + strlen(cstring);
 
     if (object_pointer->GetSize() < length) {
-        Resize(CalcOptimalCapacity(length), SMARTSTRING_KEEP_CONTENT_ON_RESIZE);
+        Resize(CalcOptimalCapacity(length));
     }
 
     strcpy(&GetCStr()[object_pointer->GetLength()], cstring);
@@ -209,7 +207,7 @@ SmartString &SmartString::operator+=(const char character) {
     length = object_pointer->GetLength() + sizeof(char);
 
     if (object_pointer->GetSize() < length) {
-        Resize(CalcOptimalCapacity(length), SMARTSTRING_KEEP_CONTENT_ON_RESIZE);
+        Resize(CalcOptimalCapacity(length));
     }
 
     GetCStr()[length - sizeof(char)] = character;

@@ -40,7 +40,7 @@ void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short
 
     sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
 
-    data = &sprite->data[sprite->width - height];
+    data = &sprite->data[sprite->ulx - height];
     transparent_color = sprite->data[0];
 
     for (int i = 0; i < capacity; ++i) {
@@ -51,7 +51,7 @@ void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short
         }
 
         buffer = &buffer[width];
-        data = &data[sprite->width];
+        data = &data[sprite->ulx];
     }
 }
 
@@ -64,23 +64,23 @@ void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short h
     if (capacity > 0) {
         sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
 
-        if (capacity > sprite->height) {
-            capacity = sprite->height;
+        if (capacity > sprite->uly) {
+            capacity = sprite->uly;
         }
 
         data = sprite->data;
-        buffer = &buffer[(sprite->width - height) / 2];
+        buffer = &buffer[(sprite->ulx - height) / 2];
         transparent_color = sprite->data[0];
 
         for (int i = 0; i < capacity; ++i) {
-            for (int j = 0; j < sprite->width; ++j) {
+            for (int j = 0; j < sprite->ulx; ++j) {
                 if (data[j] != transparent_color) {
                     buffer[j] = data[j];
                 }
             }
 
             buffer = &buffer[width];
-            data = &data[sprite->width];
+            data = &data[sprite->ulx];
         }
     }
 }

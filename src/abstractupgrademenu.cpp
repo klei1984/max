@@ -23,6 +23,7 @@
 
 #include <utility>
 
+#include "builder.hpp"
 #include "cargo.hpp"
 #include "cursor.hpp"
 #include "flicsmgr.hpp"
@@ -79,7 +80,7 @@ AbstractUpgradeMenu::AbstractUpgradeMenu(unsigned short team, ResourceID resourc
     Cursor_SetCursor(CURSOR_HAND);
     Add(true);
     FillWindowInfo(&window1);
-    window1 = window2;
+    window2 = window1;
 
     /// \todo disable_main_menu();
 }
@@ -376,7 +377,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
     upgrade_control_next_uly = cost_background->GetULY();
     button_background->Write(&window1);
 
-    if (unit_type != INVALID_ID /** \todo && is_unit_allowed_to_be_built2() */) {
+    if (unit_type != INVALID_ID && Builder_IsBuildable(unit_type)) {
         AddUpgradeMilitary(unit_type);
         AdjustRowStorage(unit_type);
         AdjustRowConsumptions(unit_type);
@@ -676,7 +677,7 @@ bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
 
     flags = UnitsManager_BaseUnits[unit_type].flags;
 
-    if ((flags & UPGRADABLE) /** \todo && is_unit_allowed_to_be_built2() */) {
+    if ((flags & UPGRADABLE) && Builder_IsBuildable(unit_type)) {
         if (((flags & MOBILE_LAND_UNIT) && button_ground_rest_state) ||
             ((flags & MOBILE_AIR_UNIT) && button_air_rest_state) ||
             ((flags & MOBILE_SEA_UNIT) && button_sea_rest_state) ||

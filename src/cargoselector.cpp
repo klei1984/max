@@ -68,7 +68,7 @@ void CargoSelector::Draw() {
 
     width = window_info.window.lrx - window_info.window.ulx;
 
-    buf_to_buf(image->data, image->ulx, image->uly, image->ulx, window_info.buffer, window_info.width);
+    buf_to_buf(image->data, image->width, image->height, image->width, window_info.buffer, window_info.width);
 
     for (int i = 0; i < max_item_count && (page_min_index + i) < unit_types.GetCount(); ++i) {
         ResourceID unit_type;
@@ -91,7 +91,7 @@ void CargoSelector::Draw() {
         {
             SmartString string;
 
-            strcat(text, string.Vsprintf(10, "%i", index).GetCStr());
+            strcat(text, string.Vsprintf(10, " %i", index).GetCStr());
         }
 
         storage = dynamic_cast<CargoMenu*>(window)->GetCurrentUnitValues(unit_type)->GetAttribute(ATTRIB_STORAGE);

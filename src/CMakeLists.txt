@@ -77,6 +77,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/purchasetypeselector.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/teammissionsupplies.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cargomenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp
@@ -89,6 +90,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/transport_udp_default.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/remote.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/menu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ai_player.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 

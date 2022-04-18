@@ -104,10 +104,10 @@ void Cursor_Init() {
         cursor->data = sprite->data;
 
         if (sprite) {
-            cursor->bounds.ulx = sprite->ulx;
-            cursor->bounds.uly = sprite->uly;
-            cursor->bounds.lrx = sprite->width;
-            cursor->bounds.lry = sprite->height;
+            cursor->bounds.ulx = sprite->width;
+            cursor->bounds.uly = sprite->height;
+            cursor->bounds.lrx = sprite->ulx;
+            cursor->bounds.lry = sprite->uly;
             cursor->frame_count = 1;
 
             if (cursor->bounds.ulx < cursor->bounds.uly) {

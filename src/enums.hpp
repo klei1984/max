@@ -2094,6 +2094,17 @@ enum {
     WINDOW_MODE_BORDERLESS,
 };
 
+enum {
+    VICTORY_TYPE_DURATION,
+    VICTORY_TYPE_SCORE,
+};
+
+enum {
+    PLAY_MODE_TURN_BASED,
+    PLAY_MODE_SIMULTANEOUS_MOVES,
+    PLAY_MODE_UNKNOWN,
+};
+
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;
 extern SortedEnum Enums_Sound;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,26 +19,12 @@
  * SOFTWARE.
  */
 
-#ifndef GAME_MANAGER_HPP
-#define GAME_MANAGER_HPP
+#include "ai_player.hpp"
 
-#include "UnitInfo.hpp"
+AiPlayer AiPlayer_Teams[4];
 
-void GameManager_GameLoop(int game_state);
-void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx, int height, int offsety, int bottom,
-                                  int item_height, int top, int scaling_factor, int is_big_sprite,
-                                  bool double_marker = false);
-void GameManager_ProcessTick(bool render_screen);
-void GameManager_ProcessState(bool process_tick, bool clear_mouse_events = true);
-void GameManager_GuiSwitchTeam(unsigned short team);
-void GameManager_EnableMainMenu(UnitInfo* unit);
-void GameManager_DisableMainMenu();
+/// \todo
 
-extern Rect GameManager_GridPosition;
-extern SmartPointer<UnitInfo> GameManager_SelectedUnit;
-extern unsigned int GameManager_TurnCounter;
-extern int GameManager_GameFileNumber;
-extern int GameManager_HumanPlayerCount;
-extern bool GameManager_RequestMenuExit;
+AiPlayer::AiPlayer() {}
 
-#endif /* GAME_MANAGER_HPP */
+AiPlayer::~AiPlayer() {}

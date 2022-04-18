@@ -43,19 +43,19 @@ Image::Image(ResourceID id, short ulx, short uly) {
     SDL_assert(sprite);
 
     if (ulx < 0) {
-        this->ulx = sprite->width;
+        this->ulx = sprite->ulx;
     } else {
         this->ulx = ulx;
     }
 
     if (uly < 0) {
-        this->uly = sprite->height;
+        this->uly = sprite->uly;
     } else {
         this->uly = uly;
     }
 
-    width = sprite->ulx;
-    height = sprite->uly;
+    width = sprite->width;
+    height = sprite->height;
 
     data = sprite->data;
 

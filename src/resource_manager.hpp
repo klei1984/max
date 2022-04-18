@@ -32,6 +32,23 @@ extern "C" {
 
 #define RESOURCE_MANAGER_MAP_TILE_SIZE 64
 
+struct ImageSimpleHeader {
+    unsigned short width;
+    unsigned short height;
+    unsigned short ulx;
+    unsigned short uly;
+    unsigned char data[];
+};
+
+struct ImageBigHeader {
+    unsigned short ulx;
+    unsigned short uly;
+    unsigned short width;
+    unsigned short height;
+    Color palette[3 * PALETTE_SIZE];
+    unsigned char data[];
+};
+
 extern char ResourceManager_FilePathCd[PATH_MAX];
 extern char ResourceManager_FilePathGameInstall[PATH_MAX];
 extern char ResourceManager_FilePathGameResFile[PATH_MAX];

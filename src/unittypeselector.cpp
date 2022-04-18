@@ -70,14 +70,14 @@ UnitTypeSelector::UnitTypeSelector(Window* window, WindowInfo* window_info, Smar
     }
 
     image = reinterpret_cast<struct ImageSimpleHeader*>(malloc(
-        width * height + sizeof(image->ulx) + sizeof(image->uly) + sizeof(image->width) + sizeof(image->height)));
+        width * height + sizeof(image->width) + sizeof(image->height) + sizeof(image->ulx) + sizeof(image->uly)));
 
-    image->ulx = width;
-    image->uly = height;
-    image->width = 0;
-    image->height = 0;
+    image->width = width;
+    image->height = height;
+    image->ulx = 0;
+    image->uly = 0;
 
-    buf_to_buf(this->window_info.buffer, width, height, this->window_info.width, image->data, image->ulx);
+    buf_to_buf(this->window_info.buffer, width, height, this->window_info.width, image->data, image->width);
 }
 
 UnitTypeSelector::~UnitTypeSelector() { free(image); }
@@ -263,7 +263,7 @@ void UnitTypeSelector::Draw() {
 
     width = window_info.window.lrx - window_info.window.ulx;
 
-    buf_to_buf(image->data, image->ulx, image->uly, image->ulx, window_info.buffer, window_info.width);
+    buf_to_buf(image->data, image->width, image->height, image->width, window_info.buffer, window_info.width);
     text_font(5);
 
     for (int i = 0; i < max_item_count && i + page_min_index < unit_types.GetCount(); ++i) {

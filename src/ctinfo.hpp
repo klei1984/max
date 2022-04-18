@@ -49,8 +49,7 @@ struct CTInfo {
     TeamUnits *team_units;
     SmartPointer<UnitInfo> selected_unit;
     unsigned short zoom_level;
-    unsigned short camera_position_x;
-    unsigned short camera_position_y;
+    Point camera_position;
     char display_button_range;
     char display_button_scan;
     char display_button_status;

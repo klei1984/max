@@ -74,7 +74,7 @@ static_assert(sizeof(struct GNW_buttondata) == 116, "The structure needs to be p
 
 ButtonID win_register_button(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value,
                              int p_value, int r_value, unsigned char* up, unsigned char* down, unsigned char* hover,
-                             int flags);
+                             unsigned int flags);
 ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int off_value, int p_value, int r_value,
                                   char* name, int flags);
 int win_register_button_disable(ButtonID bid, unsigned char* disabled_up, unsigned char* disabled_down,

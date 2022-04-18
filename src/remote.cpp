@@ -40,62 +40,6 @@ enum {
     REMOTE_RECEIVED_ADDRESS,
 };
 
-enum {
-    REMOTE_PACKET_00,
-    REMOTE_PACKET_01,
-    REMOTE_PACKET_02,
-    REMOTE_PACKET_03,
-    REMOTE_PACKET_04,
-    REMOTE_PACKET_05,
-    REMOTE_PACKET_06,
-    REMOTE_PACKET_07,
-    REMOTE_PACKET_08,
-    REMOTE_PACKET_09,
-    REMOTE_PACKET_10,
-    REMOTE_PACKET_11,
-    REMOTE_PACKET_12,
-    REMOTE_PACKET_13,
-    REMOTE_PACKET_14,
-    REMOTE_PACKET_15,
-    REMOTE_PACKET_16,
-    REMOTE_PACKET_17,
-    REMOTE_PACKET_18,
-    REMOTE_PACKET_19,
-    REMOTE_PACKET_20,
-    REMOTE_PACKET_21,
-    REMOTE_PACKET_22,
-    REMOTE_PACKET_23,
-    REMOTE_PACKET_24,
-    REMOTE_PACKET_25,
-    REMOTE_PACKET_26,
-    REMOTE_PACKET_27,
-    REMOTE_PACKET_28,
-    REMOTE_PACKET_29,
-    REMOTE_PACKET_30,
-    REMOTE_PACKET_31,
-    REMOTE_PACKET_32,
-    REMOTE_PACKET_33,
-    REMOTE_PACKET_34,
-    REMOTE_PACKET_35,
-    REMOTE_PACKET_36,
-    REMOTE_PACKET_37,
-    REMOTE_PACKET_38,
-    REMOTE_PACKET_39,
-    REMOTE_PACKET_40,
-    REMOTE_PACKET_41,
-    REMOTE_PACKET_42,
-    REMOTE_PACKET_43,
-    REMOTE_PACKET_44,
-    REMOTE_PACKET_45,
-    REMOTE_PACKET_46,
-    REMOTE_PACKET_47,
-    REMOTE_PACKET_48,
-    REMOTE_PACKET_49,
-    REMOTE_PACKET_50,
-    REMOTE_PACKET_51,
-    REMOTE_PACKET_52,
-};
-
 NetNodeArray Remote_Nodes;
 
 NetNodeArray Remote_Hosts;
@@ -104,6 +48,7 @@ NetNodeArray Remote_Clients;
 unsigned char Remote_GameState;
 bool Remote_IsHostMode;
 bool Remote_IsNetworkGame;
+bool Remote_UpdatePauseTimer;
 bool Remote_UnpauseGameEvent;
 unsigned int Remote_PauseTimeStamp;
 unsigned int Remote_TimeoutTimeStamp;
@@ -647,7 +592,13 @@ void Remote_ProcessNetPackets() {
     };
 }
 
-void Remote_sub_C9753() {}
+void Remote_sub_C9753() {
+    /// \todo
+}
+
+void Remote_AnalyzeDesync() {
+    /// \todo
+}
 
 int Remote_CheckUnpauseEvent() {
     Remote_UnpauseGameEvent = false;

@@ -98,9 +98,10 @@ void WindowManager_FadeOut(int steps);
 void WindowManager_FadeIn(int steps);
 void WindowManager_LoadPalette(ResourceID id);
 void WindowManager_DecodeImage(struct ImageBigHeader *image, unsigned char *buffer, int width, int height, int ulx);
-int WindowManager_LoadImage(ResourceID id, WindowInfo *window, short offx, int palette_from_image, int draw_to_screen,
-                            int width_from_image = -1, int height_from_image = -1);
+int WindowManager_LoadImage(ResourceID id, WindowInfo *window, short offx, int palette_from_image,
+                            int draw_to_screen = true, int width_from_image = -1, int height_from_image = -1);
 void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int uly, int has_transparency, WindowInfo *w);
 void WindowManager_LoadImage2(ResourceID id, int ulx, int uly, int has_transparency, WindowInfo *w);
+struct ImageSimpleHeader *WindowManager_RescaleImage(struct ImageSimpleHeader *image, int scaling_factor);
 
 #endif /* WINDOW_MANAGER_HPP */

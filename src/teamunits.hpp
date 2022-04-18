@@ -29,6 +29,20 @@
 
 struct CTInfo;
 
+struct BaseUnitDataFile {
+    char image_base;
+    char image_count;
+    char turret_image_base;
+    char turret_image_count;
+    char firing_image_base;
+    char firing_image_count;
+    char connector_image_base;
+    char connector_image_count;
+    PathStep angle_offsets[8];
+};
+
+static_assert(sizeof(struct BaseUnitDataFile) == 24, "The structure needs to be packed.");
+
 struct AbstractUnit {
     AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                  ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,

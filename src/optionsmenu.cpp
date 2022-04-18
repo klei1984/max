@@ -58,14 +58,6 @@ enum OptionsType {
     OPTIONS_TYPE_LABEL,
 };
 
-enum AudioType {
-    AUDIO_TYPE_SFX0,
-    AUDIO_TYPE_SFX1,
-    AUDIO_TYPE_SFX2,
-    AUDIO_TYPE_VOICE,
-    AUDIO_TYPE_MUSIC,
-};
-
 #define OPTIONS_BUTTON_DEF(type, caption, ini_param_index, ulx, range_min, range_max) \
     { (type), (caption), (ini_param_index), (ulx), (range_min), (range_max), nullptr, nullptr, nullptr, 0, 0 }
 
@@ -196,10 +188,10 @@ void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
 
     Text_TextBox(&window, options_menu_buttons[id].format, ulx, uly, 185, 20, false, true);
     slider_slit_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIT));
-    prfslit_ulx = slider_slit_image->ulx;
+    prfslit_ulx = slider_slit_image->width;
 
     prfslit_pos_x = text_width(options_menu_buttons[id].format) + ulx + 10;
-    prfslit_pos_y = uly + (20 - slider_slit_image->uly) / 2;
+    prfslit_pos_y = uly + (20 - slider_slit_image->height) / 2;
 
     WindowManager_LoadImage2(PRFSLIT, prfslit_pos_x, prfslit_pos_y, 1, &window);
 
@@ -260,8 +252,8 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
 
     resource_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(resource_id));
 
-    image_ulx = resource_image->ulx;
-    image_uly = resource_image->uly;
+    image_ulx = resource_image->width;
+    image_uly = resource_image->height;
 
     image_pos_x = text_width(options_menu_buttons[id].format) + ulx + 10;
     image_pos_y = uly + (20 - image_uly) / 2;
@@ -362,12 +354,12 @@ void OptionsMenu::DrawSlider(int id, int value) {
 
     slider_slit_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIT));
 
-    ulx += (value * slider_slit_image->ulx) / button->range_max;
+    ulx += (value * slider_slit_image->width) / button->range_max;
 
     slider_slide_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIDE));
 
-    ulx -= slider_slide_image->ulx / 2;
-    uly += (20 - slider_slide_image->uly) / 2;
+    ulx -= slider_slide_image->width / 2;
+    uly += (20 - slider_slide_image->height) / 2;
 
     WindowManager_LoadImage2(PRFSLIDE, ulx, uly, 1, &window);
 

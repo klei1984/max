@@ -48,7 +48,7 @@ class SmartString {
 
     void Increment() const;
     void Decrement();
-    void Resize(unsigned short size, bool keep);
+    void Resize(unsigned short size, bool keep = true);
     void Copy();
     bool IsLastReference();
     static unsigned short CalcOptimalCapacity(unsigned short needed_capacity);

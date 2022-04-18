@@ -2032,3 +2032,7 @@ int UnitsManager_AddDefaultMissionLoadout(unsigned short team) {
 
     return units_count;
 }
+
+void UnitsManager_InitPopupMenus() {
+    /// \todo
+}

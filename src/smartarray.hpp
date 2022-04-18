@@ -26,6 +26,8 @@
 
 #include "smartpointer.hpp"
 
+#define SMARTFILE_OBJECT_ARRAY_DEFAULT_CAPACITY 5
+
 template <class T>
 class SmartArray {
     unsigned short capacity;
@@ -34,7 +36,7 @@ class SmartArray {
     SmartPointer<T>* smartarray;
 
 public:
-    SmartArray(unsigned short growth_factor)
+    SmartArray(unsigned short growth_factor = SMARTFILE_OBJECT_ARRAY_DEFAULT_CAPACITY)
         : capacity(0), growth_factor(growth_factor), count(0), smartarray(nullptr) {}
     ~SmartArray() {
         Release();

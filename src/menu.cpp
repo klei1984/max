@@ -612,7 +612,7 @@ void menu_draw_campaign_mission_briefing_screen() {
 
     Text_TypeWriter_CharacterTimeMs = 10;
 
-    filename.Vsprintf(30, "intro%i.cam", GameMamager_GameFileNumber);
+    filename.Vsprintf(30, "intro%i.cam", GameManager_GameFileNumber);
     filepath += filename;
 
     fp = fopen(filepath.GetCStr(), "rt");
@@ -1592,9 +1592,9 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
             break;
         }
 
-        GameMamager_GameFileNumber = game_setup_menu.game_file_number;
+        GameManager_GameFileNumber = game_setup_menu.game_file_number;
 
-        ini_set_setting(INI_GAME_FILE_NUMBER, GameMamager_GameFileNumber);
+        ini_set_setting(INI_GAME_FILE_NUMBER, GameManager_GameFileNumber);
         ini_set_setting(INI_GAME_FILE_TYPE, game_setup_menu.game_file_type);
 
         if (game_setup_menu.game_file_type != GAME_TYPE_MULTI_PLAYER_SCENARIO || flag1) {
@@ -1603,12 +1603,12 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
                     menu_draw_campaign_mission_briefing_screen();
                 }
 
-                if (GameMamager_GameFileNumber == 1 && game_setup_menu.game_file_type == GAME_TYPE_CAMPAIGN) {
+                if (GameManager_GameFileNumber == 1 && game_setup_menu.game_file_type == GAME_TYPE_CAMPAIGN) {
                     Movie_Play(DEMO2FLC);
                 }
 
                 if (game_setup_menu.game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                    SaveLoadMenu_GetSavedGameInfo(GameMamager_GameFileNumber, ini_get_setting(INI_GAME_FILE_TYPE),
+                    SaveLoadMenu_GetSavedGameInfo(GameManager_GameFileNumber, ini_get_setting(INI_GAME_FILE_TYPE),
                                                   save_file_header, false);
 
                     ini_set_setting(INI_RED_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_RED]);
@@ -1670,7 +1670,7 @@ int menu_custom_game_menu(bool game_type) {
             enter_planet_select_menu = false;
         }
 
-        for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_ALIEN; ++i) {
+        for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
             ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i), ini_get_setting(INI_PLAYER_CLAN));
         }
 

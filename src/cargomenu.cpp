@@ -97,7 +97,8 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
     button_delete->SetCaption("Delete");
     button_buy->SetCaption("Buy");
 
-    button_buy_upgrade_toggle->SetCaption("Buy Units", rect_init(&bounds3, 20, 0, 80, 15));
+    button_buy_upgrade_toggle->SetCaption("Buy Units", rect_init(&bounds3, 20, 0, 80, 15), Fonts_DarkOrageColor,
+                                          Fonts_GoldColor);
     button_buy_upgrade_toggle->SetCaption("Upgrades", rect_init(&bounds4, 20, 15, 80, 31));
 
     button_scroll_up->CopyUpDisabled(BLDUP__X);
@@ -304,15 +305,15 @@ void CargoMenu::Select(int index) {
     if (unit == GOLDTRCK) {
         scrollbar->SetFreeCapacity(0);
     } else {
-        scrollbar->SetFreeCapacity(unitvalues_actual[unit_type]->GetAttribute(ATTRIB_STORAGE) / 5);
+        scrollbar->SetFreeCapacity(unitvalues_actual[unit]->GetAttribute(ATTRIB_STORAGE) / 5);
     }
 
     scrollbar->SetMaterialBar(vbar);
 
     scrollbar->SetValue((*cargos[index]) / 5);
 
-    AbstractUpgradeMenu::DrawUnitInfo(unit_type);
-    DrawUnitStats(unit_type);
+    AbstractUpgradeMenu::DrawUnitInfo(unit);
+    DrawUnitStats(unit);
 }
 
 bool CargoMenu::SelectUnit(Event* event) {
@@ -446,7 +447,7 @@ bool CargoMenu::ProcessKey(int key) {
         }
 
     } else if (key >= 1025 && key < 1035) {
-        if (upgrade_controls[key - 1015]->GetId() == 9) {
+        if (upgrade_controls[key - 1025]->GetId() == 9) {
             UpdateTeamGold(-1);
         }
     }

@@ -28,6 +28,14 @@
 
 #include "unitinfo.hpp"
 
+enum AudioType {
+    AUDIO_TYPE_SFX0,
+    AUDIO_TYPE_SFX1,
+    AUDIO_TYPE_SFX2,
+    AUDIO_TYPE_VOICE,
+    AUDIO_TYPE_MUSIC,
+};
+
 class SoundMgr {
 public:
     typedef enum {
