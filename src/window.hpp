@@ -47,7 +47,7 @@ public:
     void GetCursorPosition(int& x, int& y) const;
     void SetFlags(unsigned int flags);
     void SetPaletteMode(bool palette_from_image);
-    virtual bool EventHandler(Event& event);
+    virtual bool EventHandler(Event* event);
 };
 
 #endif /* WINDOW_HPP */

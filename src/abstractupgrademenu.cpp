@@ -330,7 +330,7 @@ void AbstractUpgradeMenu::AddUpgradeMobile(ResourceID unit_type) {
     }
 }
 
-bool AbstractUpgradeMenu::SelectUnit(Event *event) {
+bool AbstractUpgradeMenu::EventHandler(Event *event) {
     bool result;
 
     if (event->GetEventId() == EVENTS_GET_EVENT_ID(UnitSelectEvent)) {

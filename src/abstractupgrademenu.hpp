@@ -87,7 +87,7 @@ public:
     AbstractUpgradeMenu(unsigned short team, ResourceID bg_image);
     virtual ~AbstractUpgradeMenu();
 
-    virtual bool SelectUnit(Event *event);
+    bool EventHandler(Event *event);
     virtual void DrawUnitInfo(ResourceID unit_type);
     virtual void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
     virtual bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *selector, bool mode);

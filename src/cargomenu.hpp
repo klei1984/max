@@ -53,7 +53,7 @@ public:
     CargoMenu(unsigned short team);
     ~CargoMenu();
 
-    bool SelectUnit(Event *event);
+    bool EventHandler(Event *event);
     void DrawUnitInfo(ResourceID unit_type);
     void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
     bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *selector, bool mode);

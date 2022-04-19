@@ -253,7 +253,7 @@ bool UnitTypeSelector::ProcessKeys(int key_press) {
 void UnitTypeSelector::Select(unsigned char value) {
     EventUnitSelect event(this, value);
     soundmgr.PlaySfx(KCARG0);
-    window->EventHandler(event);
+    window->EventHandler(&event);
 }
 
 void UnitTypeSelector::PushBack(ResourceID unit_type) { Add(unit_type, unit_types.GetCount()); }

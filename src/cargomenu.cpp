@@ -21,6 +21,8 @@
 
 #include "cargomenu.hpp"
 
+#include <typeinfo>
+
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -316,7 +318,7 @@ void CargoMenu::Select(int index) {
     DrawUnitStats(unit);
 }
 
-bool CargoMenu::SelectUnit(Event* event) {
+bool CargoMenu::EventHandler(Event* event) {
     bool result;
 
     if (event->GetEventId() == EVENTS_GET_EVENT_ID(ScrollbarEvent)) {
@@ -330,7 +332,7 @@ bool CargoMenu::SelectUnit(Event* event) {
 
         result = true;
     } else {
-        result = AbstractUpgradeMenu::SelectUnit(event);
+        result = AbstractUpgradeMenu::EventHandler(event);
     }
 
     return result;
@@ -357,7 +359,9 @@ void CargoMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) { BuyUnit(); }
 bool CargoMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode) {
     bool result;
 
-    purchase_selector = dynamic_cast<PurchaseTypeSelector*>(selector);
+    if (typeid(*selector) == typeid(PurchaseTypeSelector)) {
+        purchase_selector = dynamic_cast<PurchaseTypeSelector*>(selector);
+    }
 
     if (cargo_selector == selector) {
         if (mode && cargo_selector->GetLast() == unit_type) {

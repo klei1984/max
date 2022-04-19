@@ -95,7 +95,7 @@ void Scrollbar::ProcessValueChange(short value) {
         soundmgr.PlaySfx(KCARG0);
         EventScrollbarChange event(this, old_value);
         RefreshScreen();
-        window->EventHandler(event);
+        window->EventHandler(&event);
     }
 }
 
