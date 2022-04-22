@@ -40,7 +40,7 @@ void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short
 
     sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
 
-    data = &sprite->data[sprite->ulx - height];
+    data = &sprite->data[sprite->width - height];
     transparent_color = sprite->data[0];
 
     for (int i = 0; i < capacity; ++i) {
@@ -51,7 +51,7 @@ void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short
         }
 
         buffer = &buffer[width];
-        data = &data[sprite->ulx];
+        data = &data[sprite->width];
     }
 }
 
@@ -64,23 +64,23 @@ void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short h
     if (capacity > 0) {
         sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
 
-        if (capacity > sprite->uly) {
-            capacity = sprite->uly;
+        if (capacity > sprite->height) {
+            capacity = sprite->height;
         }
 
         data = sprite->data;
-        buffer = &buffer[(sprite->ulx - height) / 2];
+        buffer = &buffer[(height - sprite->width) / 2];
         transparent_color = sprite->data[0];
 
         for (int i = 0; i < capacity; ++i) {
-            for (int j = 0; j < sprite->ulx; ++j) {
+            for (int j = 0; j < sprite->width; ++j) {
                 if (data[j] != transparent_color) {
                     buffer[j] = data[j];
                 }
             }
 
             buffer = &buffer[width];
-            data = &data[sprite->ulx];
+            data = &data[sprite->width];
         }
     }
 }
@@ -304,13 +304,13 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
 
     if (key_code == key_code_increase) {
         if (value >= xfer_give_max) {
-            result = true;
+            return true;
         }
     }
 
     if (key_code == key_code_decrease) {
         if (value <= xfer_take_max) {
-            result = true;
+            return true;
         }
     }
 
@@ -338,7 +338,7 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
             new_value = xfer_give_max;
         }
 
-        if (new_value > xfer_take_max) {
+        if (new_value < xfer_take_max) {
             new_value = xfer_take_max;
         }
 
