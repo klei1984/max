@@ -21,8 +21,6 @@
 
 #include "cargomenu.hpp"
 
-#include <typeinfo>
-
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -244,11 +242,11 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
     {
         SmartObjectArray<ResourceID> types;
 
-        purchase_selector = new (std::nothrow)
+        active_selector = new (std::nothrow)
             PurchaseTypeSelector(this, &wininfo1, types, team, 2000, button_scroll_up, button_scroll_down, 128, 15);
     }
 
-    type_selector = purchase_selector;
+    type_selector = active_selector;
 
     PopulateTeamUnitsList();
 
@@ -359,9 +357,7 @@ void CargoMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) { BuyUnit(); }
 bool CargoMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode) {
     bool result;
 
-    if (typeid(*selector) == typeid(PurchaseTypeSelector)) {
-        purchase_selector = dynamic_cast<PurchaseTypeSelector*>(selector);
-    }
+    active_selector = selector;
 
     if (cargo_selector == selector) {
         if (mode && cargo_selector->GetLast() == unit_type) {
@@ -501,7 +497,7 @@ bool CargoMenu::ProcessKey(int key) {
         } break;
 
         default: {
-            if (purchase_selector->ProcessKeys(key) || cargo_selector->ProcessKeys(key) || scrollbar->ProcessKey(key)) {
+            if (active_selector->ProcessKeys(key) || cargo_selector->ProcessKeys(key) || scrollbar->ProcessKey(key)) {
                 result = true;
 
             } else {

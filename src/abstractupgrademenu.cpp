@@ -725,11 +725,12 @@ bool AbstractUpgradeMenu::IsBetterUnit(ResourceID unit_type1, ResourceID unit_ty
 
         if (!values1->GetAttribute(ATTRIB_ATTACK) || values2->GetAttribute(ATTRIB_ATTACK)) {
             if (values1->GetAttribute(ATTRIB_ATTACK) || !values2->GetAttribute(ATTRIB_ATTACK)) {
-                if (values1->GetAttribute(ATTRIB_TURNS) || !values2->GetAttribute(ATTRIB_TURNS)) {
+                if (values1->GetAttribute(ATTRIB_TURNS) == values2->GetAttribute(ATTRIB_TURNS)) {
                     result = unit_type1 > unit_type2;
                 } else {
-                    result = values1->GetAttribute(ATTRIB_TURNS) > !values2->GetAttribute(ATTRIB_TURNS);
+                    result = values1->GetAttribute(ATTRIB_TURNS) > values2->GetAttribute(ATTRIB_TURNS);
                 }
+
             } else {
                 result = true;
             }

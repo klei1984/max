@@ -213,7 +213,7 @@ bool UnitTypeSelector::ProcessKeys(int key_press) {
             time_stamp = timer_get_stamp32();
             ++page_min_index;
 
-            if ((page_min_index + page_max_index) > unit_types.GetCount()) {
+            if ((page_min_index + max_item_count) > unit_types.GetCount()) {
                 --page_min_index;
                 break;
             }
@@ -271,7 +271,8 @@ void UnitTypeSelector::Draw() {
                                  width, 0xA2);
     }
 
-    if ((page_max_index >= page_min_index) && (page_max_index < (page_min_index + max_item_count))) {
+    if (unit_types.GetCount() && (page_max_index >= page_min_index) &&
+        (page_max_index < (page_min_index + max_item_count))) {
         int height;
         unsigned int flags;
 

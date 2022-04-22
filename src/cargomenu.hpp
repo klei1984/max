@@ -32,7 +32,7 @@ class CargoMenu : public AbstractUpgradeMenu {
     SmartObjectArray<ResourceID> unit_types2;
     SmartObjectArray<unsigned short> cargos;
     CargoSelector *cargo_selector;
-    PurchaseTypeSelector *purchase_selector;
+    UnitTypeSelector *active_selector;
     Button *button_purchase_list_up;
     Button *button_purchase_list_down;
     Button *button_cargo_up;
