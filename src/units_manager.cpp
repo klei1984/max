@@ -176,7 +176,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Storage Units",
         /* description */
         "Holds raw materials.  Mining stations produce raw materials every turn.  To save extra raw materials, a "
-        "mining station must be connected to a storage unit."
+        "mining station must be connected to a storage unit.",
         /* tutorial description (optional) */
         "Storage Units hold raw materials produced by any mining stations that are connected to them.  To fill an "
         "adjacent Engineer or Constructor, click the Xfer button and then click on the Engineer or Constructor."),
@@ -197,7 +197,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Fuel Tanks",
         /* description */
         "Holds fuel reserves.  Mining stations produce fuel every turn.  To save extra fuel, a mining station must be "
-        "connected to a fuel tank."
+        "connected to a fuel tank.",
         /* tutorial description (optional) */
         "Holds fuel reserves.  Mining stations produce fuel every turn.  To save extra fuel, a mining station must be "
         "connected to a fuel tank."),
@@ -218,7 +218,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Gold Vaults",
         /* description */
         "Holds unrefined gold ore.  Mining stations produce gold every turn, if they have gold ore underneath them.  "
-        "To store the ore, a mining station must be connected to a gold vault."
+        "To store the ore, a mining station must be connected to a gold vault.",
         /* tutorial description (optional) */
         "Holds unrefined gold ore.  Mining stations produce gold every turn, if they have gold ore underneath them.  "
         "To store the ore, a mining station must be connected to a gold vault."),
@@ -239,7 +239,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Depots",
         /* description */
         "A depot can repair damage, manufacture ammunition, and refit ground units with the newest technology.  All of "
-        "these operations require raw materials, so depots should be connected to stored materials."
+        "these operations require raw materials, so depots should be connected to stored materials.",
         /* tutorial description (optional) */
         "Depots perform repairs and supply ammunition. To drive a unit into the depot, click 'Load' and then click on "
         "the unit.  To look inside the depot, click 'Activate'."),
@@ -300,7 +300,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Connectors",
         /* description */
         "Buildings must be connected to share power, fuel, raw materials, and gold.  You can connect buildings by "
-        "placing them next to each other, or by building connectors from one building to the other."
+        "placing them next to each other, or by building connectors from one building to the other.",
         /* tutorial description (optional) */
         "Buildings must be connected to share power, fuel, raw materials, and gold.  You can connect buildings by "
         "placing them next to each other, or by building connectors from one building to the other."),
@@ -534,7 +534,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         "Builds light vehicles: engineers, trucks, mobile repair units, scouts, and mobile anti-aircraft units.  A "
         "light vehicle plant requires three raw materials a turn to operate, and power from a power generator or power "
-        "station."
+        "station.",
         /* tutorial description (optional) */
         "Click on the light vehicle plant to show the Build button.  Factories need to be connected to power and a "
         "source of raw materials (usually a mining station) to operate."),
@@ -557,7 +557,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         "Builds constructors, mobile scanners, and the heavy fighting units: tanks, assault guns, rocket launchers, "
         "and missile crawlers.  A heavy factory needs three raw materials a turn to operate, and power from a power "
-        "generator or power station."
+        "generator or power station.",
         /* tutorial description (optional) */
         "Click on the heavy vehicle plant to show the Build button.  Factories need to be connected to power and a "
         "source of raw materials (usually a mining station) to operate."),
@@ -744,7 +744,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Gun Turrets",
         /* description */
         "Heavily armored stationary gun turret.  Gun turrets have good firepower, heavy armor, and moderate range.  "
-        "Because they take little time to build, they are a good choice when you need defense in a hurry."
+        "Because they take little time to build, they are a good choice when you need defense in a hurry.",
         /* tutorial description (optional) */
         "Gun turrets fire automatically on enemy units.  Of course they can't fire on what they can't see, so it's "
         "important to have a scout, scanner, or radar nearby."),
@@ -867,7 +867,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         "Extracts raw materials, fuel, and gold from the ground every turn.  Buildings must be connected to a mine to "
         "use the resources a mine produces.  If there are no storage buildings, fuel tanks, or gold vaults to store "
-        "extra material, fuel, or gold, it will be lost."
+        "extra material, fuel, or gold, it will be lost.",
         /* tutorial description (optional) */
         "A mining station produces raw materials, fuel, and gold every turn.  Buildings must be connected to the mine "
         "to use the resources the mine produces."),
@@ -1043,7 +1043,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Constructors",
         /* description */
         "Large construction vehicle for creating large buildings, such as mines and factories.  A constructor consumes "
-        "two material per turn while operating."
+        "two material per turn while operating.",
         /* tutorial description (optional) */
         "Constructors build large buildings like factories.  Click once on the constructor to select it, click a "
         "second time to show the Build button."),
@@ -1065,7 +1065,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Scouts",
         /* description */
         "High speed scouting vehicle for exploration and spotting enemy units.  Can cross water without a bridge, but "
-        "is faster on land.\n\nVery fast and good scan range, but much weaker than most combat units."
+        "is faster on land.\n\nVery fast and good scan range, but much weaker than most combat units.",
         /* tutorial description (optional) */
         "A Scout can see a long way, and is very fast. It also has a small gun for harassing the enemy.  To move the "
         "Scout, click on it, and then click where you want to move.  To attack an enemy, move within 3 squares, and "
@@ -1088,7 +1088,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Tanks",
         /* description */
         "Heavily armored fighting vehicle.  Best used in the front line to prevent enemy units from reaching "
-        "lightly-armored support units such as assault guns and rocket launchers."
+        "lightly-armored support units such as assault guns and rocket launchers.",
         /* tutorial description (optional) */
         "Tanks are big and tough, but not as fast as scouts.  Like most units, tanks can either move or fire, but not "
         "always both.  If you don't move a tank, it can fire twice each turn.  If you move it a short way, it can fire "
@@ -1218,7 +1218,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* plural name     */ "Surveyors",
         /* description */
         "Light, amphibious vehicle with sophisticated sensors for detecting underground minerals and enemy mines.  "
-        "Unlike most amphibious units, surveyors are just as fast on water as on land."
+        "Unlike most amphibious units, surveyors are just as fast on water as on land.",
         /* tutorial description (optional) */
         "Surveyors spot minerals under the ground. To find a good spot for a mining station, move the surveyor around "
         "until you find a square with a white 'Raw Materials' symbol.  This may take several turns."),
@@ -1299,7 +1299,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* singular name   */ "Engineer",
         /* plural name     */ "Engineers",
         /* description */
-        "Small construction vehicle for creating small buildings and stationary weapons."
+        "Small construction vehicle for creating small buildings and stationary weapons.",
         /* tutorial description (optional) */
         "You have an engineer selected.  To show the build button, click again on the engineer.  Click on any other "
         "unit to select that unit."),

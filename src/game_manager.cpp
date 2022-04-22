@@ -25,6 +25,7 @@
 
 #include "ai.hpp"
 #include "cargomenu.hpp"
+#include "gfx.hpp"
 #include "gui.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -123,7 +124,6 @@ unsigned char GameManager_MarkerColor = 0xFF;
 unsigned char GameManager_PlayMode;
 unsigned char GameManager_FastMovement;
 unsigned short GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];
-unsigned int GameManager_MapBrightness;
 
 MenuLandingSequence GameManager_LandingSequence;
 
@@ -755,7 +755,7 @@ void GameManager_InitUnitsAndGameState() {
         dos_srand(Remote_RngSeed);
     }
 
-    GameManager_MapBrightness = 0xFF;
+    Gfx_MapBrightness = 0xFF;
     Remote_UpdatePauseTimer = 0;
 
     GameManager_DisableMapRendering = false;

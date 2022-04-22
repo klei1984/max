@@ -821,28 +821,31 @@ void ResourceManager_FreeResources() {
 
 int ResourceManager_BuildColorTables() {
     int result;
+    ColorIndex *aligned_buffer;
 
-    color_animation_buffer = new (std::nothrow) ColorIndex[20 * 256];
+    color_animation_buffer = new (std::nothrow) ColorIndex[20 * PALETTE_SIZE + PALETTE_SIZE];
+    aligned_buffer =
+        reinterpret_cast<ColorIndex *>(((reinterpret_cast<intptr_t>(color_animation_buffer) + PALETTE_SIZE) >> 8) << 8);
 
     if (color_animation_buffer) {
-        ResourceManager_TeamRedColorIndexTable = &color_animation_buffer[0 * 256];
-        ResourceManager_TeamGreenColorIndexTable = &color_animation_buffer[1 * 256];
-        ResourceManager_TeamBlueColorIndexTable = &color_animation_buffer[2 * 256];
-        ResourceManager_TeamGrayColorIndexTable = &color_animation_buffer[3 * 256];
-        ResourceManager_TeamDerelictColorIndexTable = &color_animation_buffer[4 * 256];
-        ResourceManager_ColorIndexTable06 = &color_animation_buffer[5 * 256];
-        ResourceManager_ColorIndexTable07 = &color_animation_buffer[6 * 256];
-        ResourceManager_ColorIndexTable08 = &color_animation_buffer[7 * 256];
-        ResourceManager_ColorIndexTable09 = &color_animation_buffer[8 * 256];
-        ResourceManager_ColorIndexTable10 = &color_animation_buffer[9 * 256];
-        ResourceManager_ColorIndexTable11 = &color_animation_buffer[10 * 256];
-        ResourceManager_ColorIndexTable12 = &color_animation_buffer[11 * 256];
-        ResourceManager_ColorIndexTable13x8 = &color_animation_buffer[12 * 256];
+        ResourceManager_TeamRedColorIndexTable = &aligned_buffer[0 * PALETTE_SIZE];
+        ResourceManager_TeamGreenColorIndexTable = &aligned_buffer[1 * PALETTE_SIZE];
+        ResourceManager_TeamBlueColorIndexTable = &aligned_buffer[2 * PALETTE_SIZE];
+        ResourceManager_TeamGrayColorIndexTable = &aligned_buffer[3 * PALETTE_SIZE];
+        ResourceManager_TeamDerelictColorIndexTable = &aligned_buffer[4 * PALETTE_SIZE];
+        ResourceManager_ColorIndexTable06 = &aligned_buffer[5 * PALETTE_SIZE];
+        ResourceManager_ColorIndexTable07 = &aligned_buffer[6 * PALETTE_SIZE];
+        ResourceManager_ColorIndexTable08 = &aligned_buffer[7 * PALETTE_SIZE];
+        ResourceManager_ColorIndexTable09 = &aligned_buffer[8 * PALETTE_SIZE];
+        ResourceManager_ColorIndexTable10 = &aligned_buffer[9 * PALETTE_SIZE];
+        ResourceManager_ColorIndexTable11 = &aligned_buffer[10 * PALETTE_SIZE];
+        ResourceManager_ColorIndexTable12 = &aligned_buffer[11 * PALETTE_SIZE];
+        ResourceManager_ColorIndexTable13x8 = &aligned_buffer[12 * PALETTE_SIZE];
 
         {
-            ColorIndex *buffer = &color_animation_buffer[19 * 256];
+            ColorIndex *buffer = &aligned_buffer[19 * PALETTE_SIZE];
 
-            for (int i = 0; i < 256; ++i) {
+            for (int i = 0; i < PALETTE_SIZE; ++i) {
                 ResourceManager_TeamDerelictColorIndexTable[i] = i;
                 ResourceManager_TeamGrayColorIndexTable[i] = i;
                 ResourceManager_TeamBlueColorIndexTable[i] = i;
@@ -1514,4 +1517,8 @@ void ResourceManager_InitTeamInfo() {
     UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN].team_units = &ResourceManager_TeamUnitsDerelict;
 
     MessageManager_ClearMessageLogs();
+}
+
+unsigned char *ResourceManager_GetBuffer(ResourceID id) {
+    return id == INVALID_ID ? nullptr : ResourceManager_ResMetaTable[id].resource_buffer;
 }

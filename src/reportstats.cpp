@@ -21,6 +21,8 @@
 
 #include "reportstats.hpp"
 
+#include "game_manager.hpp"
+#include "gfx.hpp"
 #include "gui.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
@@ -39,14 +41,60 @@ struct InterfaceMeta {
     unsigned short frame_index;
 };
 
-static void UnitList_RenderSprite(struct InterfaceMeta* data);
+static void ReportStats_RenderSprite(struct InterfaceMeta* data);
 static void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int value1,
                                   int value2);
 static void ReportStats_DrawRowEx(char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
                                   ResourceID icon_empty, int current_value, int base_value, int value3, bool drawline);
 
-void UnitList_RenderSprite(struct InterfaceMeta* data) {
-    /// \todo
+void ReportStats_RenderSprite(struct InterfaceMeta* data) {
+    unsigned int scaling_divisor_factor;
+    unsigned int data_size;
+    unsigned int map_scaling_factor;
+    unsigned char* image_frame;
+    int map_window_ulx;
+    int map_window_uly;
+
+    scaling_divisor_factor = 1 << data->divisor;
+
+    Gfx_ResourceBuffer = ResourceManager_GetBuffer(data->icon);
+
+    if (!Gfx_ResourceBuffer) {
+        Gfx_ResourceBuffer = ResourceManager_LoadResource(data->icon);
+
+        if (!Gfx_ResourceBuffer) {
+            return;
+        }
+
+        Gfx_ResourceBuffer = Gfx_RescaleSprite(Gfx_ResourceBuffer, &data_size, 0, scaling_divisor_factor);
+        ResourceManager_Realloc(data->icon, Gfx_ResourceBuffer, data_size);
+    }
+
+    image_frame = &Gfx_ResourceBuffer[reinterpret_cast<unsigned int*>(
+        &Gfx_ResourceBuffer[sizeof(unsigned short)])[data->frame_index]];
+
+    map_scaling_factor = Gfx_MapScalingFactor;
+    map_window_ulx = Gfx_MapWindowUlx;
+    map_window_uly = Gfx_MapWindowUly;
+    Gfx_MapScalingFactor = 0x10000;
+    Gfx_MapWindowUlx = 0;
+    Gfx_MapWindowUly = 0;
+    Gfx_MapWindowWidth = data->width;
+
+    if (Gfx_DecodeSpriteSetup(Point(data->ulx, data->uly), image_frame, 2, &data->bounds)) {
+        Gfx_SpriteRowAddresses = reinterpret_cast<unsigned int*>(&image_frame[sizeof(short) * 4]);
+        Gfx_TeamColorIndexBase = 0;
+        Gfx_ColorIndices = data->color_index_table;
+        Gfx_UnitBrightnessBase = data->brightness;
+        Gfx_MapWindowBuffer = data->buffer;
+
+        Gfx_DecodeSprite();
+    }
+
+    Gfx_MapScalingFactor = map_scaling_factor;
+    Gfx_MapWindowWidth = 640;
+    Gfx_MapWindowUlx = map_window_ulx;
+    Gfx_MapWindowUly = map_window_uly;
 }
 
 void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int value1, int value2) {
@@ -235,7 +283,7 @@ void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID u
     data.bounds.lrx = data.bounds.ulx + 32;
     data.bounds.lry = data.bounds.uly + 32;
 
-    UnitList_RenderSprite(&data);
+    ReportStats_RenderSprite(&data);
 
     if (UnitsManager_BaseUnits[unit_type].flags & (TURRET_SPRITE | SPINNING_TURRET)) {
         struct BaseUnitDataFile* data_file =
@@ -245,7 +293,7 @@ void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID u
         data.uly += data_file->angle_offsets[2].y >> data.divisor;
         ++data.frame_index;
 
-        UnitList_RenderSprite(&data);
+        ReportStats_RenderSprite(&data);
     }
 }
 
