@@ -45,7 +45,7 @@ ColorIndex* Gfx_ColorIndices;
 unsigned short Gfx_UnitBrightnessBase;
 unsigned int Gfx_MapBrightness;
 unsigned char* Gfx_MapWindowBuffer;
-unsigned int Gfx_MapScalingFactor;
+int Gfx_MapScalingFactor;
 int Gfx_MapWindowUlx;
 int Gfx_MapWindowUly;
 unsigned short Gfx_MapWindowWidth = 640;
