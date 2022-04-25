@@ -64,6 +64,9 @@ enum : unsigned char {
 };
 
 class UnitInfo : public TextFileObject {
+private:
+    static void CalcRomanDigit(char* text, int value, const char* digit1, const char* digit2, const char* digit3);
+
 public:
     ResourceID unit_type;
     void (*sound_function)();
@@ -189,6 +192,10 @@ public:
     bool UnitInfo_sub_430A2(short grid_x, short grid_y);
     SmartPointer<UnitInfo> MakeCopy();
     void OffsetDrawZones(int offset_x, int offset_y);
+    void GetName(char* text) const;
+    void GetDisplayName(char* text) const;
+    static void GetVersion(char* text, int version);
+    void Setname(char* text);
 };
 
 #endif /* UNITINFO_HPP */

@@ -430,7 +430,7 @@ char flicsmgr_load(char *flic_file, Flic *flc) {
 
 Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int uly, char animate,
                          char load_flic_palette) {
-    Flic *flc = new (std::nothrow) Flic();
+    Flic *flc = static_cast<struct Flic *>(malloc(sizeof(struct Flic)));
 
     flc->fp = nullptr;
 
@@ -449,7 +449,7 @@ Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int u
 
     if (flicsmgr_load(reinterpret_cast<char *>(ResourceManager_ReadResource(id)), flc)) {
         if (!flc->animate) {
-            delete flc;
+            free(flc);
             flc = nullptr;
         }
 
@@ -467,7 +467,7 @@ Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int u
             win_draw_rect(w->id, &bound);
         }
 
-        delete flc;
+        free(flc);
         flc = nullptr;
     }
 

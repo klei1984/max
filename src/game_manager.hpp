@@ -33,6 +33,10 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events = true)
 void GameManager_GuiSwitchTeam(unsigned short team);
 void GameManager_EnableMainMenu(UnitInfo* unit);
 void GameManager_DisableMainMenu();
+void GameManager_MenuDeleteFlic();
+void GameManager_MenuUnitSelect(UnitInfo* unit);
+void GameManager_FillOrRestoreWindow(unsigned char id, int color, bool redraw);
+void GameManager_DrawTurnTimer(int turn_time, bool mode = false);
 
 extern Rect GameManager_GridPosition;
 extern SmartPointer<UnitInfo> GameManager_SelectedUnit;

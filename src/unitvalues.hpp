@@ -52,6 +52,7 @@ public:
     unsigned short* GetAttributeAddress(char attribute);
     void SetAttribute(char attribute, int value);
     void UpdateVersion();
+    int GetVersion() const;
     void SetUnitsBuilt(unsigned char count);
 
     unsigned short GetTypeIndex() const;

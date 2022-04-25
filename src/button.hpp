@@ -86,7 +86,7 @@ public:
     void PlaySound() const;
     void SetSfx(ResourceID id);
     ButtonID GetId() const;
-    void SetPValue(int r_value);
+    void SetPValue(int p_value);
     void SetRValue(int r_value);
     void SetFlags(unsigned int flags);
     void SetCaption(const char *caption, short x = 0, short y = 0, FontColor color_up = Fonts_GoldColor,

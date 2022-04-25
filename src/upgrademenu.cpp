@@ -86,8 +86,7 @@ UpgradeMenu::UpgradeMenu(unsigned short team, Complex* complex) : AbstractUpgrad
 }
 
 UpgradeMenu::~UpgradeMenu() {
-    /// \todo Implement functions
-    //    enable_main_menu(*GameManager_SelectedUnit);
+    GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
     GameManager_ProcessTick(true);
 }
 

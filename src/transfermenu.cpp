@@ -181,8 +181,7 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, 38) {
 
     Add();
     FillWindowInfo(&window);
-    /// \todo Implement function
-    //    disable_main_menu();
+    GameManager_DisableMainMenu();
 
     xfer_amount = new (std::nothrow) Image(141, 15, 29, 20);
     xfer_amount->Copy(&window);
@@ -270,8 +269,7 @@ TransferMenu::~TransferMenu() {
 
     delete scrollbar;
 
-    /// \todo Implement functions
-    //    enable_main_menu(*GameManager_SelectedUnit);
+    GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
     GameManager_ProcessTick(true);
 }
 

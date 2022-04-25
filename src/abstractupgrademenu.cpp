@@ -82,7 +82,7 @@ AbstractUpgradeMenu::AbstractUpgradeMenu(unsigned short team, ResourceID resourc
     FillWindowInfo(&window1);
     window2 = window1;
 
-    /// \todo disable_main_menu();
+    GameManager_DisableMainMenu();
 }
 
 bool AbstractUpgradeMenu::button_ground_rest_state = true;

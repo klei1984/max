@@ -23,6 +23,7 @@
 
 #include "registerarray.hpp"
 #include "resource_manager.hpp"
+#include "units_manager.hpp"
 
 struct SoundTable UnitInfo_SfxDefaultUnit = {20,
                                              {{SFX_TYPE_IDLE, GEN_IDLE},
@@ -765,4 +766,69 @@ void UnitInfo::OffsetDrawZones(int offset_x, int offset_y) {
     sprite_bounds.lry += offset_y;
     sprite_bounds.uly += offset_y;
     sprite_bounds.lry += offset_y;
+}
+
+void UnitInfo::GetName(char* text) const {
+    if (name) {
+        strcpy(text, name);
+    } else {
+        sprintf(text, "%s %i", UnitsManager_BaseUnits[unit_type].singular_name, unit_id);
+    }
+}
+
+void UnitInfo::GetDisplayName(char* text) const {
+    char name[40];
+    char mark[20];
+
+    GetName(name);
+    GetVersion(mark, base_values->GetVersion());
+    strcpy(text, "Mk ");
+    strcat(text, mark);
+    strcat(text, " ");
+    strcat(text, name);
+}
+
+void UnitInfo::CalcRomanDigit(char* text, int value, const char* digit1, const char* digit2, const char* digit3) {
+    if (value == 9) {
+        strcat(text, digit1);
+        strcat(text, digit3);
+    } else {
+        if (value >= 5) {
+            strcat(text, digit2);
+            value -= 5;
+        }
+
+        if (value >= 4) {
+            strcat(text, digit1);
+            strcat(text, digit2);
+            value -= 4;
+        }
+
+        for (int i = 0; i < value; ++i) {
+            strcat(text, digit1);
+        }
+    }
+}
+
+void UnitInfo::GetVersion(char* text, int version) {
+    text[0] = '\0';
+
+    CalcRomanDigit(text, version / 100, "C", "D", "M");
+    version %= 100;
+
+    CalcRomanDigit(text, version / 10, "X", "L", "C");
+    version %= 10;
+
+    CalcRomanDigit(text, version / 100, "I", "V", "X");
+}
+
+void UnitInfo::Setname(char* text) {
+    delete[] name;
+
+    if (text && strlen(text)) {
+        name = new (std::nothrow) char[strlen(text) + 1];
+        strcpy(name, text);
+    } else {
+        name = nullptr;
+    }
 }

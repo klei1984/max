@@ -299,6 +299,8 @@ void UnitValues::UpdateVersion() {
     }
 }
 
+int UnitValues::GetVersion() const { return version; }
+
 void UnitValues::SetUnitsBuilt(unsigned char count) { units_built = count; }
 
 bool UnitValues::operator==(const UnitValues& other) const {

@@ -77,7 +77,7 @@ public:
     void UpdateAllSfxPositions();
     void HaltSfxPlayback(bool disable);
 
-    void PlayVoice(ResourceID id1, ResourceID id2, short priority);
+    void PlayVoice(ResourceID id1, ResourceID id2, short priority = 0);
     void HaltVoicePlayback(bool disable);
 
     void FreeAllSamples();
