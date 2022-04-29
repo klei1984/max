@@ -27,6 +27,8 @@
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 
+static void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y);
+
 SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
 SmartList<UnitInfo> UnitsManager_ParticleUnits;
@@ -2034,5 +2036,22 @@ int UnitsManager_AddDefaultMissionLoadout(unsigned short team) {
 }
 
 void UnitsManager_InitPopupMenus() {
+    /// \todo
+}
+
+SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
+                                            UnitInfo* parent) {
+    /// \todo
+}
+
+void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
+    if (unit->grid_x != grid_x || unit->grid_x != grid_x) {
+        unit->RefreshScreen();
+        UnitsManager_UpdateMapHash(unit, grid_x, grid_y);
+        unit->RefreshScreen();
+    }
+}
+
+void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y) {
     /// \todo
 }

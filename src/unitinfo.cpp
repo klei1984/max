@@ -832,3 +832,11 @@ void UnitInfo::Setname(char* text) {
         name = nullptr;
     }
 }
+
+unsigned short* UnitInfo::GetAttribute(char index) {
+    /// \todo
+}
+
+void UnitInfo::RefreshScreen() {
+    /// \todo
+}

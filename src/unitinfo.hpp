@@ -196,6 +196,7 @@ public:
     void GetDisplayName(char* text) const;
     static void GetVersion(char* text, int version);
     void Setname(char* text);
+    void RefreshScreen();
 };
 
 #endif /* UNITINFO_HPP */

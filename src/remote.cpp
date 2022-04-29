@@ -609,6 +609,10 @@ int Remote_CheckUnpauseEvent() {
     return Remote_UnpauseGameEvent;
 }
 
+int Remote_SiteSelectMenu() {
+    /// \todo
+}
+
 void Remote_SendNetPacket_Signal(int packet_type, int team, int parameter) {
     NetPacket packet;
 

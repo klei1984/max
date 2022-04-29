@@ -25,6 +25,7 @@
 
 #include "ai.hpp"
 #include "cargomenu.hpp"
+#include "cursor.hpp"
 #include "flicsmgr.hpp"
 #include "gfx.hpp"
 #include "gui.hpp"
@@ -220,7 +221,7 @@ static void GameManager_UpdateScoreGraph();
 static void GameManager_InitUnitsAndGameState();
 static bool GameManager_InitGame();
 static void GameManager_MenuDeletePanelButtons(MenuLandingSequence* control);
-static Color* GameManager_MenuFadeOut(int fade_steps);
+static Color* GameManager_MenuFadeOut(int fade_steps = 50);
 static void GameManager_MenuAnimateOpenControlPanelStep(MenuLandingSequence* control, int offset);
 static void GameManager_MenuAnimateOpenControlPanel(MenuLandingSequence* control);
 static void GameManager_UpdateHumanPlayerCount();
@@ -236,6 +237,8 @@ static void GameManager_MenuInitButtons(bool mode);
 static void GameManager_MenuDeinitButtons();
 static void GameManager_FlicButtonRFunction(ButtonID bid, int value);
 static void GameManager_MenuDeinitDisplayControls();
+static void GameManager_DrawProximityZones();
+static int GameManager_UpdateProximityState(unsigned short team);
 
 void GameManager_GameLoop(int game_state) {
     unsigned int turn_counter;
@@ -572,6 +575,148 @@ void GameManager_DrawSelectSiteMessage(unsigned short team) {
 }
 
 bool GameManager_SelectSite(unsigned short team) {
+    int proximity_alert_ack;
+    int range;
+    int scan;
+    SmartPointer<UnitValues> unit_values;
+    bool flag;
+    int starting_position_x;
+    int starting_position_y;
+    int grid_x_overlap;
+    int grid_y_overlap;
+    int proximity_state;
+
+    proximity_alert_ack = UnitsManager_TeamMissionSupplies[team].proximity_alert_ack;
+
+    if (proximity_alert_ack == 1) {
+        flag = true;
+
+        MessageManager_DrawMessage("Select starting location.", 0, 0);
+        soundmgr.PlayVoice(V_M278, V_F177);
+
+    } else {
+        flag = false;
+    }
+
+    while (proximity_alert_ack != 0 && proximity_alert_ack != 6) {
+        MouseEvent::Clear();
+        GUI_GameState = GAME_STATE_7_SITE_SELECT;
+
+        if (flag) {
+            while (GUI_GameState == GAME_STATE_7_SITE_SELECT) {
+                GameManager_ProgressTurn();
+            }
+        }
+
+        if (GUI_GameState == GAME_STATE_14 || GUI_GameState == GAME_STATE_3_MAIN_MENU ||
+            GUI_GameState == GAME_STATE_15_FATAL_ERROR) {
+            proximity_alert_ack = 6;
+            break;
+        }
+
+        GUI_GameState == GAME_STATE_7_SITE_SELECT;
+
+        Cursor_SetCursor(CURSOR_HAND);
+
+        starting_position_x = UnitsManager_TeamMissionSupplies[team].starting_position.x;
+        starting_position_y = UnitsManager_TeamMissionSupplies[team].starting_position.y;
+
+        if (GameManager_SelectedUnit == nullptr) {
+            GameManager_SelectedUnit =
+                UnitsManager_SpawnUnit(MASTER, team, starting_position_x, starting_position_y, nullptr);
+            GameManager_SelectedUnit->orders = ORDER_IDLE;
+
+            unit_values = GameManager_SelectedUnit->GetBaseValues();
+            range = unit_values->GetAttribute(ATTRIB_RANGE);
+            scan = unit_values->GetAttribute(ATTRIB_SCAN);
+
+            GameManager_DisplayButtonScan = true;
+            GameManager_DisplayButtonRange = true;
+        }
+
+        if (flag && proximity_alert_ack == 2) {
+            if (labs(starting_position_x - grid_x_overlap) <= 3 && labs(starting_position_y - grid_y_overlap) <= 3) {
+                UnitsManager_TeamMissionSupplies[team].starting_position.x = grid_x_overlap;
+                UnitsManager_TeamMissionSupplies[team].starting_position.y = grid_y_overlap;
+
+                proximity_alert_ack = 4;
+
+            } else {
+                proximity_alert_ack = 1;
+            }
+        }
+
+        if (proximity_alert_ack == 1 || proximity_alert_ack == 2 || proximity_alert_ack == 3) {
+            UnitsManager_MoveUnit(&*GameManager_SelectedUnit, starting_position_x, starting_position_y);
+            GameManager_DrawProximityZones();
+        }
+
+        UnitsManager_TeamMissionSupplies[team].proximity_alert_ack = proximity_alert_ack;
+
+        if (Remote_IsNetworkGame) {
+            Remote_SendNetPacket_12(team);
+            proximity_state = Remote_SiteSelectMenu();
+
+        } else if (flag) {
+            proximity_state = GameManager_UpdateProximityState(team);
+        } else {
+            proximity_state = proximity_alert_ack;
+        }
+
+        switch (proximity_state) {
+            case 0:
+            case 5:
+            case 6: {
+                flag = false;
+                proximity_alert_ack = proximity_state;
+            } break;
+
+            case 2: {
+                if (proximity_alert_ack == 4) {
+                    flag = false;
+
+                    if (!Remote_IsNetworkGame) {
+                        proximity_alert_ack = 0;
+                    }
+
+                } else {
+                    MessageManager_DrawMessage(
+                        "Notice: Proximity zones overlap! Select again or\nclick inside red circle to remain at "
+                        "current location.",
+                        0, 0);
+
+                    grid_x_overlap = starting_position_x;
+                    grid_y_overlap = starting_position_y;
+
+                    proximity_alert_ack = 2;
+                    flag = true;
+                }
+
+            } break;
+
+            case 3: {
+                MessageManager_DrawMessage("Warning: Exclusion zones overlap! Select again.", 2, 0);
+
+                proximity_alert_ack = 1;
+                flag = true;
+            } break;
+        }
+    }
+
+    if (GameManager_SelectedUnit != nullptr) {
+        unit_values->SetAttribute(ATTRIB_RANGE, range);
+        unit_values->SetAttribute(ATTRIB_SCAN, scan);
+
+        GameManager_DisplayButtonScan = false;
+        GameManager_DisplayButtonRange = false;
+
+        /// \todo UnitsManager_sub_FF2CC(&*GameManager_SelectedUnit);
+    }
+
+    return proximity_alert_ack != 0;
+}
+
+int GameManager_UpdateProximityState(unsigned short team) {
     /// \todo
 }
 
@@ -1457,4 +1602,8 @@ void GameManager_MenuDeinitDisplayControls() {
         GameManager_DisplayControlsInitialized = false;
         GameManager_MainMenuFreezeState = false;
     }
+}
+
+void GameManager_DrawProximityZones() {
+    /// \todo
 }

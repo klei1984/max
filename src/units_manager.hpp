@@ -46,5 +46,8 @@ UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit
 void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<ResourceID> units);
 int UnitsManager_AddDefaultMissionLoadout(unsigned short team);
 void UnitsManager_InitPopupMenus();
+SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
+                                            UnitInfo* parent);
+void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
 
 #endif /* UNITS_MANAGER_HPP */
