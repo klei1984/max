@@ -24,8 +24,10 @@
 #include <algorithm>
 
 #include "dialogmenu.hpp"
+#include "game_manager.hpp"
 #include "gnw.h"
 #include "gui.hpp"
+#include "resource_manager.hpp"
 #include "window_manager.hpp"
 
 static_assert(sizeof(Point) == 4, "It is expected that Point is exactly 2+2 bytes long.");
@@ -42,11 +44,11 @@ char MessageManager_TextBuffer[MESSAGE_MANAGER_TEXT_BUFFER_SIZE];
 short MessageManager_Buffer1_Length;
 short MessageManager_MessageBox_Width;
 short MessageManager_MessageBox_Height;
-char* MessageManager_MessageBox_BgColor;
+ColorIndex* MessageManager_MessageBox_BgColor;
 bool MessageManager_MessageBox_IsActive;
 
-/// \todo Implement correct LUT
-char** MessageManager_MessageBox_BgColorArray[] = {0, 0, 0};
+ColorIndex* MessageManager_MessageBox_BgColorArray[] = {
+    ResourceManager_ColorIndexTable12, ResourceManager_ColorIndexTable10, ResourceManager_ColorIndexTable06};
 
 SmartList<MessageLogEntry> MessageManager_TeamMessageLog[MESSAGE_MANAGER_TEAM_COUNT];
 
@@ -203,12 +205,11 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
 
             window_2->buffer = &window_38->buffer[offset_x + 640 * offset_y];
 
-            MessageManager_MessageBox_BgColor = *MessageManager_MessageBox_BgColorArray[type];
+            MessageManager_MessageBox_BgColor = MessageManager_MessageBox_BgColorArray[type];
             MessageManager_MessageBox_IsActive = true;
 
-            /// \todo Implement functions
-            //            sub_9A9FD(&bounds);
-            //            drawmap_add_dirty_zone(&bounds);
+            GameManager_GetScaledMessageBoxBounds(&bounds);
+            GameManager_AddDrawBounds(&bounds);
         }
     }
 }
@@ -234,9 +235,8 @@ void MessageManager_ClearMessageBox() {
     WindowInfo* window;
     Rect bounds;
 
-    /// \todo Implement functions
-    //            sub_9A9FD(&bounds);
-    //            drawmap_add_dirty_zone(&bounds);
+    GameManager_GetScaledMessageBoxBounds(&bounds);
+    GameManager_AddDrawBounds(&bounds);
 
     window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
@@ -310,14 +310,15 @@ MessageLogEntry::MessageLogEntry(SmartFileReader& file) {
     file.Read(text, length);
     unit = dynamic_cast<UnitInfo*>(file.ReadObject());
     file.Read(point);
-    file.Read(field_20);
+    file.Read(is_alert_message);
     file.Read(id);
 }
 
-MessageLogEntry::MessageLogEntry(const char* text, ResourceID id) : id(id), text(strdup(text)), field_20(false) {}
+MessageLogEntry::MessageLogEntry(const char* text, ResourceID id)
+    : id(id), text(strdup(text)), is_alert_message(false) {}
 
 MessageLogEntry::MessageLogEntry(const char* text, UnitInfo* unit, Point point)
-    : text(strdup(text)), unit(unit), point(point), field_20(true), id(INVALID_ID) {}
+    : text(strdup(text)), unit(unit), point(point), is_alert_message(true), id(INVALID_ID) {}
 
 MessageLogEntry::~MessageLogEntry() { delete text; }
 
@@ -328,21 +329,20 @@ void MessageLogEntry::FileSave(SmartFileWriter& file) {
     file.Write(text, length);
     file.WriteObject(&*unit);
     file.Write(point);
-    file.Write(field_20);
+    file.Write(is_alert_message);
     file.Write(id);
 }
 
 char* MessageLogEntry::GetCstr() const { return text; }
 
-void MessageLogEntry::MessageLogEntry_sub_B780B() {
+void MessageLogEntry::Select() {
     MessageManager_DrawMessage(text, 0, 0);
 
-    if (field_20) {
-        /// \todo Implement missing stuff
-        if (unit != nullptr && unit->hits && unit->IsVisibleToTeam(GUI_PlayerTeamIndex)) {
-            //            sub_9F637(*unit);
+    if (is_alert_message) {
+        if (unit != nullptr && unit->hits > 0 && unit->IsVisibleToTeam(GUI_PlayerTeamIndex)) {
+            GameManager_MenuUnitSelect(&*unit);
         } else {
-            //            sub_A1620(1, point.x, point, y);
+            GameManager_UpdateMainMapView(1, point.x, point.y);
         }
     }
 }

@@ -47,7 +47,7 @@ public:
     void TextLoad(TextStructure& object);
     void TextSave(SmartTextfileWriter& file);
 
-    UnitInfo* operator[](const Point& key);
+    SmartList<UnitInfo> operator[](const Point& key);
 };
 
 class UnitHash {

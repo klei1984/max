@@ -41,7 +41,7 @@ class MessageLogEntry : public SmartObject {
     char* text;
     SmartPointer<UnitInfo> unit;
     Point point;
-    bool field_20;
+    bool is_alert_message;
 
 public:
     MessageLogEntry(SmartFileReader& file);
@@ -53,7 +53,7 @@ public:
     void FileSave(SmartFileWriter& file);
 
     char* GetCstr() const;
-    void MessageLogEntry_sub_B780B();
+    void Select();
 };
 
 extern bool MessageManager_MessageBox_IsActive;

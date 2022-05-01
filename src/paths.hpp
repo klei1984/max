@@ -22,13 +22,11 @@
 #ifndef PATHS_HPP
 #define PATHS_HPP
 
+#include "gnw.h"
 #include "point.hpp"
 #include "textfileobject.hpp"
-#include "unitinfo.hpp"
 
-extern "C" {
-#include "gnw.h"
-}
+class UnitInfo;
 
 class UnitPath : public TextFileObject {
 protected:
@@ -84,7 +82,7 @@ public:
     AirPath(UnitInfo* unit, int distance_x, int distance_y, int euclidean_distance, int target_x, int target_y);
     ~AirPath();
 
-    static TextFileObject* Allocate() { return new (std::nothrow) AirPath(); }
+    static TextFileObject* Allocate();
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
@@ -100,5 +98,7 @@ public:
 };
 
 class BuilderPath : public UnitPath {};
+
+extern Point Paths_8DirPointsArray[8];
 
 #endif /* PATHS_HPP */

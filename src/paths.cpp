@@ -25,6 +25,7 @@
 #include "hash.hpp"
 #include "registerarray.hpp"
 #include "sound_manager.hpp"
+#include "unitinfo.hpp"
 
 static unsigned short Paths_AirPath_TypeIndex;
 static MAXRegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
@@ -36,6 +37,8 @@ static MAXRegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_Ty
 // static unsigned short Paths_BuilderPath_TypeIndex;
 // static MAXRegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
 //                                                        &BuilderPath::Allocate);
+
+Point Paths_8DirPointsArray[8] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
 
 UnitPath::UnitPath() : x_end(0), y_end(0), distance_x(0), distance_y(0), euclidean_distance(0) {}
 
@@ -71,7 +74,10 @@ short UnitPath::GetEndX() const { return x_end; }
 
 short UnitPath::GetEndY() const { return y_end; }
 
-void UnitPath::SetEndXY(int target_x, int target_y) : x_end(target_x), y_end(target_y) {}
+void UnitPath::SetEndXY(int target_x, int target_y) {
+    x_end = target_x;
+    y_end = target_y;
+}
 
 AirPath::AirPath()
     : length(0), angle(0), pixel_x_start(0), pixel_y_start(0), x_step(0), y_step(0), delta_x(0), delta_y(0) {}
@@ -87,7 +93,7 @@ AirPath::AirPath(UnitInfo* unit, int distance_x, int distance_y, int euclidean_d
       delta_y(distance_y << 22 / euclidean_distance) {
     if (unit->flags & MOBILE_AIR_UNIT) {
         /// \todo Implement missing stuff
-        // angle = sub_FC339(distance_x, distance_y);
+        // angle = UnitsManager_GetTargetAngle(distance_x, distance_y);
     } else {
         angle = unit->angle;
     }

@@ -349,10 +349,10 @@ void MapHash::TextSave(SmartTextfileWriter& file) {
     }
 }
 
-UnitInfo* MapHash::operator[](const Point& key) {
+SmartList<UnitInfo> MapHash::operator[](const Point& key) {
     SmartList<MapHashObject>* list = &entry[(key.y ^ (key.x << x_shift)) % hash_size];
     SmartList<MapHashObject>::Iterator object = list->Begin();
-    UnitInfo* result;
+    SmartList<UnitInfo> result;
 
     while (object != nullptr) {
         if (key.x == (*object).GetX() && key.y == (*object).GetY()) {
@@ -363,9 +363,7 @@ UnitInfo* MapHash::operator[](const Point& key) {
     }
 
     if (object != nullptr) {
-        result = &*(*object).GetList().Begin();
-    } else {
-        result = nullptr;
+        result = (*object).GetList();
     }
 
     return result;

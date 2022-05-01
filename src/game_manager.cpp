@@ -23,6 +23,7 @@
 
 #include <time.h>
 
+#include "access.hpp"
 #include "ai.hpp"
 #include "cargomenu.hpp"
 #include "cursor.hpp"
@@ -34,6 +35,7 @@
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "movie.hpp"
+#include "paths.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
@@ -53,6 +55,12 @@
 
 #define MENU_DISPLAY_CONTROL_CORNER_FLIC 4
 #define MENU_DISPLAY_CONTROL_STAT_WINDOW 5
+
+enum {
+    CARGO_FUEL = 0x20,
+    CARGO_GOLD = 0x40,
+    CARGO_MATERIALS = 0x80,
+};
 
 struct MenuLandingSequence {
     WindowInfo* panel_top;
@@ -97,7 +105,193 @@ struct PopupButtons {
     unsigned short height;
 };
 
+struct ResourceRange {
+    short min;
+    short max;
+
+    ResourceRange() {}
+    ResourceRange(const ResourceRange& other) : min(other.min), max(other.max) {}
+    ResourceRange(int min, int max) : min(min), max(max) {}
+
+    int GetValue() const {
+        return (((((max - min + 1) * dos_rand()) >> 15) + min) + ((((max - min + 1) * dos_rand()) >> 15) + min) + 1) /
+               2;
+    }
+};
+
+struct ResourceAllocator {
+    Point m_point;
+    unsigned short material_type;
+    ResourceRange normal;
+    ResourceRange concentrate;
+    short concentrate_seperation;
+    short field_16;
+    short concentrate_diffusion;
+    IniParameter ini_param;
+
+    ResourceAllocator(unsigned short material_type) : material_type(material_type) {
+        switch (material_type) {
+            case CARGO_MATERIALS: {
+                m_point.x = 0;
+                m_point.y = 0;
+                ini_param = INI_RAW_NORMAL_LOW;
+            } break;
+
+            case CARGO_GOLD: {
+                m_point.x = 1;
+                m_point.y = 0;
+                ini_param = INI_GOLD_NORMAL_LOW;
+            } break;
+
+            case CARGO_FUEL: {
+                m_point.x = 1;
+                m_point.y = 1;
+                ini_param = INI_FUEL_NORMAL_LOW;
+            } break;
+        }
+
+        normal = ResourceRange(GetParameter(INI_RAW_NORMAL_LOW), GetParameter(INI_RAW_NORMAL_HIGH));
+        concentrate = ResourceRange(GetParameter(INI_RAW_CONCENTRATE_LOW), GetParameter(INI_RAW_CONCENTRATE_HIGH));
+        concentrate_seperation = GetParameter(INI_RAW_CONCENTRATE_SEPERATION);
+        field_16 = concentrate_seperation / 5;
+        concentrate_diffusion = GetParameter(INI_RAW_CONCENTRATE_DIFFUSION);
+    }
+
+    int GetParameter(IniParameter param) const {
+        return ini_config.GetNumericValue(static_cast<IniParameter>(ini_param - INI_RAW_NORMAL_LOW + param));
+    }
+
+    static int GetZoneResoureLevel(int grid_x, int grid_y) {
+        int result;
+        Rect bounds;
+
+        result = 0;
+
+        rect_init(&bounds, grid_x, grid_y, grid_x + 2, grid_y + 2);
+
+        if (bounds.ulx < 0) {
+            bounds.ulx = 0;
+        }
+
+        if (bounds.uly < 0) {
+            bounds.uly = 0;
+        }
+
+        if (ResourceManager_MapSize.x < bounds.lrx) {
+            bounds.lrx = ResourceManager_MapSize.x;
+        }
+
+        if (ResourceManager_MapSize.y < bounds.lry) {
+            bounds.lry = ResourceManager_MapSize.y;
+        }
+
+        for (int i = bounds.ulx; i < bounds.lrx; ++i) {
+            for (int j = bounds.uly; j < bounds.lry; ++j) {
+                result += ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] & 0x1F;
+            }
+        }
+
+        return result;
+    }
+
+    static int OptimizeResources(int grid_x, int grid_y, int level_min, int level_max) {
+        int zone_resource_level;
+
+        zone_resource_level = GetZoneResoureLevel(grid_x, grid_y);
+
+        if ((zone_resource_level + level_min) > level_max) {
+            level_min = level_max - zone_resource_level;
+        }
+
+        if (level_min < 0) {
+            level_min = 0;
+        }
+
+        return level_min;
+    }
+
+    void sub_9C6F6(Point point, int resource_level, int resource_value) {
+        /// \todo
+    }
+
+    void PopulateCargoMap() const {
+        for (int i = m_point.x; i < ResourceManager_MapSize.x; i += 2) {
+            for (int j = m_point.y; j < ResourceManager_MapSize.y; j += 2) {
+                ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] = material_type + normal.GetValue();
+            }
+        }
+    }
+
+    void ConcentrateResources() {
+        int max_resources;
+        Point point1;
+        Point point2;
+        bool flag;
+
+        max_resources = ini_get_setting(INI_MAX_RESOURCES);
+
+        point1.x = (((concentrate_seperation * 4) / 5 + 1) * dos_rand()) >> 15;
+        point1.y = ((concentrate_seperation / 2 + 1) * dos_rand()) >> 15;
+
+        for (int i = point1.x; i < ResourceManager_MapSize.x; i += (concentrate_seperation * 4) / 5) {
+            for (int j = flag ? (concentrate_seperation / 2 + point1.y) : point1.y; j < ResourceManager_MapSize.y;
+                 j += concentrate_seperation) {
+                point2.x = (((field_16 * 2 + 1) * dos_rand()) >> 15) - field_16 + i;
+                point2.y = (((field_16 * 2 + 1) * dos_rand()) >> 15) - field_16 + j;
+
+                sub_9C6F6(point2, concentrate.GetValue(), max_resources);
+            }
+
+            flag = !flag;
+        }
+    }
+
+    static void SettleMinimumResourceLevels(int min_level) {
+        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
+            for (int j = 0; j < ResourceManager_MapSize.y; ++j) {
+                if (GetZoneResoureLevel(i - 1, j - 1) < min_level && GetZoneResoureLevel(i - 1, j) < min_level &&
+                    GetZoneResoureLevel(i, j - 1) < min_level && GetZoneResoureLevel(i, j) < min_level) {
+                    ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] = CARGO_MATERIALS;
+                }
+            }
+        }
+    }
+
+    void SeparateResources(ResourceAllocator* allocator) {
+        Point point1;
+        Point point2;
+        int max_resources;
+        int mixed_resource_seperation;
+        int mixed_resource_seperation_min;
+        bool flag;
+
+        max_resources = ini_get_setting(INI_MAX_RESOURCES);
+        mixed_resource_seperation = ini_get_setting(INI_MIXED_RESOURCE_SEPERATION);
+        mixed_resource_seperation_min = mixed_resource_seperation / 5;
+        flag = false;
+
+        point1.x = ((((mixed_resource_seperation * 4) / 5) + 1) * dos_rand()) >> 15;
+        point1.y = ((mixed_resource_seperation / 2 + 1) * dos_rand()) >> 15;
+
+        for (int i = point1.x; i < ResourceManager_MapSize.x; i += (mixed_resource_seperation * 4) / 5) {
+            for (int j = flag ? (mixed_resource_seperation / 2 + point1.y) : point1.y; j < ResourceManager_MapSize.y;
+                 j += mixed_resource_seperation) {
+                point2.x =
+                    (((mixed_resource_seperation_min * 2 + 1) * dos_rand()) >> 15) - mixed_resource_seperation_min + i;
+                point2.y =
+                    (((mixed_resource_seperation_min * 2 + 1) * dos_rand()) >> 15) - mixed_resource_seperation_min + j;
+
+                sub_9C6F6(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
+                sub_9C6F6(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
+            }
+
+            flag = !flag;
+        }
+    }
+};
+
 Rect GameManager_GridPosition;
+Rect GameManager_MapWindowDrawBounds;
 SmartPointer<UnitInfo> GameManager_SelectedUnit;
 Image* GameManager_TurnTimerImage;
 Point GameManager_GridCenter;
@@ -199,11 +393,10 @@ static bool GameManager_DisplayControlsInitialized;
 static TextEdit* GameManager_TextEditUnitName;
 static char GameManager_UnitName[30];
 
-bool GameManager_PlayerMissionSetup(unsigned short team);
-void GameManager_DrawSelectSiteMessage(unsigned short team);
-bool GameManager_SelectSite(unsigned short team);
-void GameManager_InitMap();
-void GameManager_UpdateMainMapView(int mode, int grid_x_zoom_level_max, int grid_y_zoom_level_min, bool flag = true);
+static bool GameManager_PlayerMissionSetup(unsigned short team);
+static void GameManager_DrawSelectSiteMessage(unsigned short team);
+static bool GameManager_SelectSite(unsigned short team);
+static void GameManager_InitMap();
 static void GameManager_GameSetup(int game_state);
 static void GameManager_GameLoopCleanup();
 static unsigned short GameManager_EvaluateWinner();
@@ -229,8 +422,10 @@ static void GameManager_MenuAnimateDisplayControls();
 static void GameManager_MenuInitDisplayControls();
 static void GameManager_DrawMouseCoordinates(int x, int y);
 static bool GameManager_HandleProximityOverlaps();
-static void GameManager_PopulatelMapWithResources();
-static void GameManager_PopulatelMapWithAlienUnits(int alien_seperation, int alien_unit_value);
+static bool GameManager_IsValidStartingPosition(int grid_x, int grid_y);
+static void GameManager_IsValidStartingRange(short* grid_x, short* grid_y);
+static void GameManager_PopulateMapWithResources();
+static void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_value);
 static void GameManager_ProcessTeamMissionSupplyUnits(unsigned short team);
 static void GameManager_MenuEndTurnButtonSetState(bool state);
 static void GameManager_MenuInitButtons(bool mode);
@@ -405,6 +600,14 @@ void GameManager_GameLoop(int game_state) {
     soundmgr.PlayMusic(MAIN_MSC, false);
 }
 
+void GameManager_UpdateDrawBounds() {
+    /// \todo
+}
+
+void GameManager_AddDrawBounds(Rect* bounds) {
+    /// \todo
+}
+
 void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx, int height, int offsety, int bottom,
                                   int item_height, int top, int scaling_factor, int is_big_sprite, bool double_marker) {
     unsigned char color;
@@ -496,6 +699,17 @@ void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx,
         --scaled_size1;
         color ^= 0xFF;
     }
+}
+
+void GameManager_GetScaledMessageBoxBounds(Rect* bounds) {
+    WindowInfo* window;
+
+    window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
+
+    bounds->ulx = GameManager_MapWindowDrawBounds.ulx;
+    bounds->uly = ((Gfx_MapScalingFactor * 10) >> 16) + GameManager_MapWindowDrawBounds.uly;
+    bounds->lrx = (((window->window.lrx - window->window.ulx + 1) * Gfx_MapScalingFactor) >> 16) + bounds->ulx;
+    bounds->lry = (((window->window.lry - window->window.uly + 1) * Gfx_MapScalingFactor) >> 16) + bounds->uly;
 }
 
 bool GameManager_CargoSelection(unsigned short team) {
@@ -717,7 +931,71 @@ bool GameManager_SelectSite(unsigned short team) {
 }
 
 int GameManager_UpdateProximityState(unsigned short team) {
-    /// \todo
+    int state;
+
+    state = 0;
+
+    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
+        if (i != team && UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_PLAYER) {
+            switch (GameManager_CheckLandingZones(team, i)) {
+                case 2: {
+                    if (state == 0) {
+                        state = 2;
+                    }
+
+                    if (UnitsManager_TeamMissionSupplies[i].proximity_alert_ack == 0 ||
+                        UnitsManager_TeamMissionSupplies[i].proximity_alert_ack == 1) {
+                        UnitsManager_TeamMissionSupplies[i].proximity_alert_ack = 2;
+                    }
+
+                } break;
+
+                case 3: {
+                    state = 3;
+                    UnitsManager_TeamMissionSupplies[i].proximity_alert_ack = 3;
+
+                } break;
+            }
+        }
+    }
+
+    return state;
+}
+
+int GameManager_CheckLandingZones(unsigned short team1, unsigned short team2) {
+    int status;
+    int proximity_range;
+    int exclude_range;
+    int distance_x;
+    int distance_y;
+
+    if (UnitsManager_TeamMissionSupplies[team2].units.GetCount()) {
+        proximity_range = ini_get_setting(INI_PROXIMITY_RANGE);
+        exclude_range = ini_get_setting(INI_EXCLUDE_RANGE);
+
+        distance_x = labs(UnitsManager_TeamMissionSupplies[team1].starting_position.x -
+                          UnitsManager_TeamMissionSupplies[team2].starting_position.x);
+
+        distance_y = labs(UnitsManager_TeamMissionSupplies[team1].starting_position.y -
+                          UnitsManager_TeamMissionSupplies[team2].starting_position.y);
+
+        if (distance_x <= exclude_range && distance_y <= exclude_range) {
+            status = 3;
+
+        } else if (distance_x > proximity_range || distance_y > proximity_range ||
+                   (UnitsManager_TeamMissionSupplies[team1].proximity_alert_ack == 4 &&
+                    UnitsManager_TeamMissionSupplies[team2].proximity_alert_ack == 4)) {
+            status = 0;
+
+        } else {
+            status = 2;
+        }
+
+    } else {
+        status = 0;
+    }
+
+    return status;
 }
 
 void GameManager_InitMap() {
@@ -1146,9 +1424,8 @@ bool GameManager_InitGame() {
         }
     }
 
-    GameManager_PopulatelMapWithResources();
-    GameManager_PopulatelMapWithAlienUnits(ini_get_setting(INI_ALIEN_SEPERATION),
-                                           ini_get_setting(INI_ALIEN_UNIT_VALUE));
+    GameManager_PopulateMapWithResources();
+    GameManager_PopulateMapWithAlienUnits(ini_get_setting(INI_ALIEN_SEPERATION), ini_get_setting(INI_ALIEN_UNIT_VALUE));
 
     for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_NONE) {
@@ -1352,14 +1629,107 @@ void GameManager_DrawMouseCoordinates(int x, int y) {
 }
 
 bool GameManager_HandleProximityOverlaps() {
-    /// \todo
+    bool flag;
+
+    do {
+        flag = false;
+
+        for (int team = PLAYER_TEAM_MAX - 1; team >= PLAYER_TEAM_RED; --team) {
+            if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER &&
+                (UnitsManager_TeamMissionSupplies[team].proximity_alert_ack == 2 ||
+                 UnitsManager_TeamMissionSupplies[team].proximity_alert_ack == 3)) {
+                flag = true;
+
+                GUI_PlayerTeamIndex = team;
+                GameManager_ActiveTurnTeam = team;
+
+                GameManager_UpdateMainMapView(0, 4, 0, false);
+                GameManager_ProcessTick(true);
+                GameManager_DrawSelectSiteMessage(team);
+
+                if (!GameManager_SelectSite(team)) {
+                    return false;
+                }
+            }
+        }
+    } while (flag);
+
+    return true;
 }
 
-void GameManager_PopulatelMapWithResources() {
-    /// \todo
+bool GameManager_IsValidStartingPosition(int grid_x, int grid_y) {
+    Point point;
+
+    if (grid_x < 1 || grid_y < 1 || (grid_x + 3) > ResourceManager_MapSize.x ||
+        (grid_y + 3) > ResourceManager_MapSize.y) {
+        return false;
+    }
+
+    for (point.x = grid_x - 1; point.x < grid_x + 3; ++point.x) {
+        for (point.y = grid_y - 1; point.y < grid_y + 3; ++point.y) {
+            if (Access_GetModifiedSurfaceType(point.x, point.y) != SURFACE_TYPE_LAND) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
-void GameManager_PopulatelMapWithAlienUnits(int alien_seperation, int alien_unit_value) {
+void GameManager_IsValidStartingRange(short* grid_x, short* grid_y) {
+    if (!GameManager_IsValidStartingPosition(*grid_x, *grid_y)) {
+        for (int i = 2;; i += 2) {
+            --*grid_x;
+            ++*grid_y;
+
+            for (int j = 0; j < 8; j += 2) {
+                for (int k = 0; k < i; ++k) {
+                    *grid_x += Paths_8DirPointsArray[j].x;
+                    *grid_y += Paths_8DirPointsArray[j].y;
+
+                    if (GameManager_IsValidStartingPosition(*grid_x, *grid_y)) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void GameManager_PopulateMapWithResources() {
+    ResourceAllocator allocator_materials(CARGO_MATERIALS);
+    ResourceAllocator allocator_fuel(CARGO_FUEL);
+    ResourceAllocator allocator_gold(CARGO_GOLD);
+    int max_resources;
+
+    max_resources = ini_get_setting(INI_MAX_RESOURCES);
+
+    dos_srand(Remote_RngSeed);
+
+    allocator_materials.PopulateCargoMap();
+    allocator_fuel.PopulateCargoMap();
+    allocator_gold.PopulateCargoMap();
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            Point starting_position(UnitsManager_TeamMissionSupplies[team].starting_position.x,
+                                    UnitsManager_TeamMissionSupplies[team].starting_position.y);
+            GameManager_IsValidStartingRange(&starting_position.x, &starting_position.y);
+            allocator_materials.sub_9C6F6(starting_position, (max_resources * 12 + 10) / 20, 100);
+            allocator_fuel.sub_9C6F6(starting_position, (max_resources * 8 + 10) / 20, 100);
+        }
+    }
+
+    allocator_materials.SeparateResources(&allocator_fuel);
+
+    allocator_materials.ConcentrateResources();
+    allocator_fuel.ConcentrateResources();
+    allocator_gold.ConcentrateResources();
+
+    ResourceAllocator::SettleMinimumResourceLevels(ini_get_setting(INI_MIN_RESOURCES));
+}
+
+void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_value) {
     /// \todo
 }
 
@@ -1367,7 +1737,7 @@ void GameManager_ProcessTeamMissionSupplyUnits(unsigned short team) {
     /// \todo
 }
 
-void GameManager_ProcessTick(bool render_screen) {
+bool GameManager_ProcessTick(bool render_screen) {
     /// \todo
 }
 
@@ -1605,5 +1975,40 @@ void GameManager_MenuDeinitDisplayControls() {
 }
 
 void GameManager_DrawProximityZones() {
-    /// \todo
+    WindowInfo* window;
+    int ini_proximity_range;
+    int ini_exclude_range;
+    int range;
+    Rect bounds;
+
+    window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+
+    SmartPointer<UnitValues> base_values = GameManager_SelectedUnit->GetBaseValues();
+
+    GameManager_UpdateDrawBounds();
+
+    range = 0;
+    base_values->SetAttribute(ATTRIB_RANGE, range);
+
+    ini_proximity_range = ini_get_setting(INI_PROXIMITY_RANGE);
+    ini_exclude_range = ini_get_setting(INI_EXCLUDE_RANGE);
+
+    for (int proximity_range = 1; proximity_range <= ini_proximity_range; ++proximity_range) {
+        base_values->SetAttribute(ATTRIB_SCAN, proximity_range);
+
+        if (range < ini_exclude_range) {
+            ++range;
+            base_values->SetAttribute(ATTRIB_RANGE, range);
+        }
+
+        bounds.ulx = GameManager_SelectedUnit->x - proximity_range << 6;
+        bounds.lrx = GameManager_SelectedUnit->x + proximity_range << 6;
+        bounds.uly = GameManager_SelectedUnit->y - proximity_range << 6;
+        bounds.lry = GameManager_SelectedUnit->y + proximity_range << 6;
+
+        GameManager_AddDrawBounds(&bounds);
+
+        while (!GameManager_ProcessTick(false)) {
+        }
+    }
 }

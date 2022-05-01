@@ -25,20 +25,26 @@
 #include "UnitInfo.hpp"
 
 void GameManager_GameLoop(int game_state);
+void GameManager_AddDrawBounds(Rect* bounds);
+void GameManager_UpdateDrawBounds();
 void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx, int height, int offsety, int bottom,
                                   int item_height, int top, int scaling_factor, int is_big_sprite,
                                   bool double_marker = false);
-void GameManager_ProcessTick(bool render_screen);
+bool GameManager_ProcessTick(bool render_screen);
 void GameManager_ProcessState(bool process_tick, bool clear_mouse_events = true);
 void GameManager_GuiSwitchTeam(unsigned short team);
 void GameManager_EnableMainMenu(UnitInfo* unit);
 void GameManager_DisableMainMenu();
 void GameManager_MenuDeleteFlic();
+void GameManager_GetScaledMessageBoxBounds(Rect* bounds);
 void GameManager_MenuUnitSelect(UnitInfo* unit);
 void GameManager_FillOrRestoreWindow(unsigned char id, int color, bool redraw);
+void GameManager_UpdateMainMapView(int mode, int grid_x_zoom_level_max, int grid_y_zoom_level_min, bool flag = true);
 void GameManager_DrawTurnTimer(int turn_time, bool mode = false);
+int GameManager_CheckLandingZones(unsigned short team1, unsigned short team2);
 
 extern Rect GameManager_GridPosition;
+extern Rect GameManager_MapWindowDrawBounds;
 extern SmartPointer<UnitInfo> GameManager_SelectedUnit;
 extern unsigned int GameManager_TurnCounter;
 extern int GameManager_GameFileNumber;
