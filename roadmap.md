@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-04-26.
+Last updated: 2022-05-08.
 
-Reimplementation status: 3037 / 5704 (53%) functions.
+Reimplementation status: 3204 / 5704 (56%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -143,7 +143,9 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-done">
   Replace the smart C string manager classes (strobj.cpp)
   </span>
-- Replace the message manager classes (mssgsmgr.cpp)
+- <span class="legend-done">
+  Replace the message manager classes (mssgsmgr.cpp)
+  </span>
 - Replace the path finding classes (paths.cpp)
 - <span class="legend-close">
   Replace the sound manager classes (soundmgr.cpp)
@@ -167,7 +169,9 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-done">
   Replace the map hash classes (hash.cpp)
   </span>
-- Replace the access classes (access.cpp)
+- <span class="legend-inwork">
+  Replace the access classes (access.cpp)
+  </span>
 - <span class="legend-inwork">
   Replace the remote classes (remote.cpp)
   </span>
@@ -190,3 +194,27 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 
 ### 0.7 - 1.0 and beyond
 To be defined
+
+{% comment %}
+- support OS specific line delimiters
+- support utf8 glyphs
+- support vector fonts
+- support keyboard locales
+- support custom key bindings
+- support multiple languages
+- support mouse wheel and middle mouse button
+- support higher resolutions and wide screens (1024x768, 1024x576, 1920x1080)
+- support long file system paths and utf8 file names
+- support OS specific save game locations
+- support arbitrary number of save game slots
+- support arbitrary number of missions (generalize and externalize mission win & loss conditions)
+- support arbitrary number of map tile sets
+- support arbitrary map sizes
+- add built-in pseudo random map generator
+- add built-in scenario and campaign editor
+- port back adaptive music from M.A.X. 2
+- port back colorized map accessibility indicators from M.A.X. 2
+- port back alliances feature from M.A.X. 2
+- port back 6 players feature from M.A.X. 2
+- port back line of sight feature from M.A.X. 2
+{% endcomment %}
