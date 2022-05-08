@@ -220,9 +220,9 @@ bool TaskObtainUnits::TaskObtainUnits_sub_464C6(UnitInfo* unit, bool mode) {
     if (team != unit->team || unit->hits == 0) {
         result = false;
     } else if (unit->orders == ORDER_AWAITING && unit->orders != ORDER_SENTRY &&
-               (unit->orders != ORDER_MOVING || unit->state != 1) &&
-               (unit->orders != ORDER_MOVING_27 || unit->state != 1) &&
-               (unit->orders != ORDER_ATTACKING || unit->state != 1)) {
+               (unit->orders != ORDER_MOVING || unit->state != ORDER_STATE_1) &&
+               (unit->orders != ORDER_MOVING_27 || unit->state != ORDER_STATE_1) &&
+               (unit->orders != ORDER_ATTACKING || unit->state != ORDER_STATE_1)) {
         result = false;
     } else {
         Task* task = unit->GetTask1ListFront();

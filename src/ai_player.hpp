@@ -22,10 +22,15 @@
 #ifndef AI_PLAYER_HPP
 #define AI_PLAYER_HPP
 
+#include "unitinfo.hpp"
+
 class AiPlayer {
 public:
     AiPlayer();
     ~AiPlayer();
+
+    void SetInfoMapPoint(Point point);
+    void UpdateMineMap(Point point);
 };
 
 extern AiPlayer AiPlayer_Teams[4];

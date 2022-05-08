@@ -221,7 +221,7 @@ void AirPath::Path_vfunc8(UnitInfo* unit) {
     }
 }
 
-int AirPath::Path_vfunc9(UnitInfo* unit) { return (length / unit->max_velocity) * 4; }
+int AirPath::GetMovementCost(UnitInfo* unit) { return (length / unit->max_velocity) * 4; }
 
 bool AirPath::Path_vfunc10(UnitInfo* unit) {
     bool team_visibility;

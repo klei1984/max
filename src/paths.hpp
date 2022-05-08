@@ -50,7 +50,7 @@ public:
     virtual Point GetPosition(UnitInfo* unit) const;
     virtual bool IsInPath(int grid_x, int grid_y) const;
     virtual void Path_vfunc8(UnitInfo* unit);
-    virtual int Path_vfunc9(UnitInfo* unit) = 0;
+    virtual int GetMovementCost(UnitInfo* unit) = 0;
     virtual bool Path_vfunc10(UnitInfo* unit) = 0;
     virtual void UpdateUnitAngle(UnitInfo* unit);
     virtual int Path_vfunc12(int unknown) = 0;
@@ -91,7 +91,7 @@ public:
     void TextSave(SmartTextfileWriter& file);
     Point GetPosition(UnitInfo* unit) const;
     void Path_vfunc8(UnitInfo* unit);
-    int Path_vfunc9(UnitInfo* unit);
+    int GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
     int Path_vfunc12(int unknown);
     bool Path_vfunc13(UnitInfo* unit, WindowInfo* window);

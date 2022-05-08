@@ -32,6 +32,7 @@
 #include "gui.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "menulandingsequence.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "movie.hpp"
@@ -40,6 +41,7 @@
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
 #include "sound_manager.hpp"
+#include "task_manager.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
@@ -60,16 +62,6 @@ enum {
     CARGO_FUEL = 0x20,
     CARGO_GOLD = 0x40,
     CARGO_MATERIALS = 0x80,
-};
-
-struct MenuLandingSequence {
-    WindowInfo* panel_top;
-    WindowInfo* panel_bottom;
-    Image* image_1;
-    Image* image_2;
-    Button* button_1;
-    Button* button_2;
-    unsigned int time_stamp;
 };
 
 struct MenuGuiItem {
@@ -210,8 +202,85 @@ struct ResourceAllocator {
         return level_min;
     }
 
-    void sub_9C6F6(Point point, int resource_level, int resource_value) {
-        /// \todo
+    void Optimize(Point point, int resource_level, int resource_value) {
+        Rect bounds;
+        int map_resource_amount;
+        int material_value;
+        int distance_factor;
+        int grid_x;
+        int grid_y;
+
+        point.x = ((((point.x + 1) - m_point.x) / 2) * 2) + m_point.x;
+        point.y = ((((point.y + 1) - m_point.y) / 2) * 2) + m_point.y;
+
+        bounds.lry = point.y - 4;
+
+        if (bounds.lry < 0) {
+            bounds.lry = 0;
+        }
+
+        bounds.lry = ((bounds.lry / 2) * 2) + m_point.y;
+
+        bounds.lrx = point.x - 4;
+
+        if (bounds.lrx < 0) {
+            bounds.lrx = 0;
+        }
+
+        bounds.lrx = ((bounds.lrx / 2) * 2) + m_point.x;
+
+        bounds.uly = point.y + 5;
+
+        if (bounds.uly > ResourceManager_MapSize.y) {
+            bounds.uly = ResourceManager_MapSize.y;
+        }
+
+        bounds.ulx = point.x + 5;
+
+        if (bounds.ulx > ResourceManager_MapSize.x) {
+            bounds.ulx = ResourceManager_MapSize.x;
+        }
+
+        map_resource_amount = ResourceManager_CargoMap[point.y * ResourceManager_MapSize.x + point.x] & 0x1F;
+
+        if (point.x > 0) {
+            if (point.y > 0) {
+                resource_level = ResourceAllocator::OptimizeResources(point.x - 1, point.y - 1, resource_level,
+                                                                      resource_value + map_resource_amount);
+            }
+
+            if (grid_y < ResourceManager_MapSize.y - 1) {
+                resource_level = ResourceAllocator::OptimizeResources(point.x - 1, point.y, resource_level,
+                                                                      resource_value + map_resource_amount);
+            }
+        }
+
+        if (point.x < ResourceManager_MapSize.x - 1) {
+            if (point.y > 0) {
+                resource_level = ResourceAllocator::OptimizeResources(point.x, point.y - 1, resource_level,
+                                                                      resource_value + map_resource_amount);
+            }
+
+            if (point.y < ResourceManager_MapSize.y - 1) {
+                resource_level = ResourceAllocator::OptimizeResources(point.x, point.y, resource_level,
+                                                                      resource_value + map_resource_amount);
+            }
+        }
+
+        resource_level *= 100;
+
+        for (grid_x = bounds.lrx; grid_x < bounds.ulx; grid_x += 2) {
+            for (grid_y = bounds.lry; grid_y < bounds.uly; grid_y += 2) {
+                distance_factor =
+                    ((Taskmanager_sub_45F65(point.x - grid_x, point.y - grid_y) * 10) / concentrate_diffusion) + 10;
+                material_value = resource_level / (distance_factor * distance_factor);
+
+                if (material_value > (ResourceManager_CargoMap[grid_y * ResourceManager_MapSize.x + grid_x] & 0x1F)) {
+                    ResourceManager_CargoMap[grid_y * ResourceManager_MapSize.x + grid_x] =
+                        material_type + material_value;
+                }
+            }
+        }
     }
 
     void PopulateCargoMap() const {
@@ -239,7 +308,7 @@ struct ResourceAllocator {
                 point2.x = (((field_16 * 2 + 1) * dos_rand()) >> 15) - field_16 + i;
                 point2.y = (((field_16 * 2 + 1) * dos_rand()) >> 15) - field_16 + j;
 
-                sub_9C6F6(point2, concentrate.GetValue(), max_resources);
+                Optimize(point2, concentrate.GetValue(), max_resources);
             }
 
             flag = !flag;
@@ -281,8 +350,8 @@ struct ResourceAllocator {
                 point2.y =
                     (((mixed_resource_seperation_min * 2 + 1) * dos_rand()) >> 15) - mixed_resource_seperation_min + j;
 
-                sub_9C6F6(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
-                sub_9C6F6(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
+                Optimize(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
+                Optimize(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
             }
 
             flag = !flag;
@@ -335,6 +404,9 @@ bool GameManager_UnknownFlag1;
 bool GameManager_MaxSurvey;
 bool GameManager_UnknownFlag3;
 bool GameManager_MainMenuFreezeState;
+bool GameManager_DisplayControlsInitialized;
+
+Button* Gamemanager_FlicButton;
 
 unsigned short GameManager_ActiveTurnTeam;
 unsigned char GameManager_MarkerColor = 0xFF;
@@ -387,9 +459,7 @@ static struct MenuDisplayControl GameManager_MenuDisplayControls[] = {
 
 struct PopupButtons GameManager_PopupButtons;
 
-static Button* Gamemanager_FlicButton;
 static struct Flic* GameManager_Flic;
-static bool GameManager_DisplayControlsInitialized;
 static TextEdit* GameManager_TextEditUnitName;
 static char GameManager_UnitName[30];
 
@@ -413,10 +483,7 @@ static void GameManager_AnnounceWinner(unsigned short team);
 static void GameManager_UpdateScoreGraph();
 static void GameManager_InitUnitsAndGameState();
 static bool GameManager_InitGame();
-static void GameManager_MenuDeletePanelButtons(MenuLandingSequence* control);
 static Color* GameManager_MenuFadeOut(int fade_steps = 50);
-static void GameManager_MenuAnimateOpenControlPanelStep(MenuLandingSequence* control, int offset);
-static void GameManager_MenuAnimateOpenControlPanel(MenuLandingSequence* control);
 static void GameManager_UpdateHumanPlayerCount();
 static void GameManager_MenuAnimateDisplayControls();
 static void GameManager_MenuInitDisplayControls();
@@ -425,11 +492,10 @@ static bool GameManager_HandleProximityOverlaps();
 static bool GameManager_IsValidStartingPosition(int grid_x, int grid_y);
 static void GameManager_IsValidStartingRange(short* grid_x, short* grid_y);
 static void GameManager_PopulateMapWithResources();
+static void GameManager_SpawnAlienDerelicts(Point point, int alien_unit_value);
 static void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_value);
 static void GameManager_ProcessTeamMissionSupplyUnits(unsigned short team);
 static void GameManager_MenuEndTurnButtonSetState(bool state);
-static void GameManager_MenuInitButtons(bool mode);
-static void GameManager_MenuDeinitButtons();
 static void GameManager_FlicButtonRFunction(ButtonID bid, int value);
 static void GameManager_MenuDeinitDisplayControls();
 static void GameManager_DrawProximityZones();
@@ -1044,7 +1110,7 @@ void GameManager_GameSetup(int game_state) {
         if (GameManager_PlayScenarioIntro && !ini_get_setting(INI_GAME_FILE_TYPE)) {
             Color* palette;
 
-            GameManager_MenuDeletePanelButtons(&GameManager_LandingSequence);
+            GameManager_LandingSequence.DeleteButtons();
             palette = GameManager_MenuFadeOut(150);
             Movie_Play(DEMO1FLC);
             memcpy(WindowManager_ColorPalette, palette, 3 * PALETTE_SIZE);
@@ -1059,7 +1125,7 @@ void GameManager_GameSetup(int game_state) {
         }
 
         GUI_GameState = GAME_STATE_11;
-        GameManager_MenuAnimateOpenControlPanel(&GameManager_LandingSequence);
+        GameManager_LandingSequence.OpenPanel();
 
         zoom_level = 4;
         max_zoom_level = 64;
@@ -1093,7 +1159,7 @@ void GameManager_GameSetup(int game_state) {
 
         GUI_GameState = GAME_STATE_11;
 
-        GameManager_MenuAnimateOpenControlPanel(&GameManager_LandingSequence);
+        GameManager_LandingSequence.OpenPanel();
         GameManager_UpdateHumanPlayerCount();
         GameManager_UpdateMainMapView(0, 4, 0, false);
 
@@ -1443,14 +1509,6 @@ bool GameManager_InitGame() {
     return true;
 }
 
-void GameManager_MenuDeletePanelButtons(MenuLandingSequence* control) {
-    delete control->button_1;
-    control->button_1 = nullptr;
-
-    delete control->button_2;
-    control->button_2 = nullptr;
-}
-
 Color* GameManager_MenuFadeOut(int fade_steps) {
     Color* palette;
 
@@ -1463,47 +1521,7 @@ Color* GameManager_MenuFadeOut(int fade_steps) {
     return palette;
 }
 
-void GameManager_MenuAnimateOpenControlPanelStep(MenuLandingSequence* control, int offset) {
-    WindowManager_LoadImage2(PANELTOP, control->panel_top->window.ulx, control->panel_top->window.uly - offset, true);
-    WindowManager_LoadImage2(PANELBTM, control->panel_bottom->window.ulx, control->panel_bottom->window.uly + offset,
-                             true);
-    win_draw_rect(control->panel_top->id, &control->panel_top->window);
-    win_draw_rect(control->panel_bottom->id, &control->panel_bottom->window);
-
-    process_bk();
-
-    while ((timer_get_stamp32() - control->time_stamp) < TIMER_FPS_TO_TICKS(24)) {
-    }
-}
-
-void GameManager_MenuAnimateOpenControlPanel(MenuLandingSequence* control) {
-    GameManager_MenuDeletePanelButtons(control);
-    soundmgr.PlaySfx(IOPEN0);
-
-    for (int i = 0; i < 11; ++i) {
-        control->time_stamp = timer_get_stamp32();
-        control->image_1->Write(control->panel_top);
-        control->image_2->Write(control->panel_bottom);
-
-        GameManager_MenuAnimateOpenControlPanelStep(control, i * 20);
-    }
-
-    if (control->image_1) {
-        control->image_1->Write(control->panel_top);
-        win_draw_rect(control->panel_top->id, &control->panel_top->window);
-
-        delete control->image_1;
-        control->image_1 = nullptr;
-    }
-
-    if (control->image_2) {
-        control->image_2->Write(control->panel_bottom);
-        win_draw_rect(control->panel_bottom->id, &control->panel_bottom->window);
-
-        delete control->image_2;
-        control->image_2 = nullptr;
-    }
-}
+void GameManager_InitLandingSequenceMenu(bool enable_controls) { GameManager_LandingSequence.Init(enable_controls); }
 
 void GameManager_UpdateHumanPlayerCount() {
     GameManager_HumanPlayerCount = 0;
@@ -1715,8 +1733,8 @@ void GameManager_PopulateMapWithResources() {
             Point starting_position(UnitsManager_TeamMissionSupplies[team].starting_position.x,
                                     UnitsManager_TeamMissionSupplies[team].starting_position.y);
             GameManager_IsValidStartingRange(&starting_position.x, &starting_position.y);
-            allocator_materials.sub_9C6F6(starting_position, (max_resources * 12 + 10) / 20, 100);
-            allocator_fuel.sub_9C6F6(starting_position, (max_resources * 8 + 10) / 20, 100);
+            allocator_materials.Optimize(starting_position, (max_resources * 12 + 10) / 20, 100);
+            allocator_fuel.Optimize(starting_position, (max_resources * 8 + 10) / 20, 100);
         }
     }
 
@@ -1729,8 +1747,33 @@ void GameManager_PopulateMapWithResources() {
     ResourceAllocator::SettleMinimumResourceLevels(ini_get_setting(INI_MIN_RESOURCES));
 }
 
-void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_value) {
+void GameManager_SpawnAlienDerelicts(Point point, int alien_unit_value) {
     /// \todo
+}
+
+void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_value) {
+    if (alien_unit_value > 0) {
+        Point point1;
+        Point point2;
+        bool flag;
+
+        point1.x = (((alien_seperation * 4) / 5 + 1) * dos_rand()) >> 15;
+        point1.y = ((alien_seperation / 2 + 1) * dos_rand()) >> 15;
+
+        for (int i = point1.x; i < ResourceManager_MapSize.x; i += (alien_seperation * 4) / 5) {
+            for (int j = flag ? (alien_seperation / 2 + point1.y) : point1.y; j < ResourceManager_MapSize.y;
+                 j += alien_seperation) {
+                point2.x = (((((alien_seperation / 5) - ((-alien_seperation) / 5)) + 1) * dos_rand()) >> 15) +
+                           ((-alien_seperation) / 5) + i;
+                point2.y = (((((alien_seperation / 5) - ((-alien_seperation) / 5)) + 1) * dos_rand()) >> 15) +
+                           ((-alien_seperation) / 5) + i;
+
+                GameManager_SpawnAlienDerelicts(point2, alien_unit_value);
+            }
+
+            flag = !flag;
+        }
+    }
 }
 
 void GameManager_ProcessTeamMissionSupplyUnits(unsigned short team) {

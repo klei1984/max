@@ -21,6 +21,7 @@
 
 #include "unitinfo.hpp"
 
+#include "game_manager.hpp"
 #include "registerarray.hpp"
 #include "resource_manager.hpp"
 #include "units_manager.hpp"
@@ -822,7 +823,7 @@ void UnitInfo::GetVersion(char* text, int version) {
     CalcRomanDigit(text, version / 100, "I", "V", "X");
 }
 
-void UnitInfo::Setname(char* text) {
+void UnitInfo::SetName(char* text) {
     delete[] name;
 
     if (text && strlen(text)) {
@@ -838,5 +839,37 @@ unsigned short* UnitInfo::GetAttribute(char index) {
 }
 
 void UnitInfo::RefreshScreen() {
+    /// \todo
+}
+
+void UnitInfo::InitStealthStatus() {
+    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
+        if (unit_type == LANDMINE || unit_type == SEAMINE || unit_type == COMMANDO || unit_type == SUBMARNE) {
+            visible_to_team[i] = 0;
+        } else {
+            visible_to_team[i] = GameManager_AllVisible;
+        }
+
+        spotted_by_team[i] = 0;
+    }
+
+    visible_to_team[team] = 1;
+}
+
+void UnitInfo::SpotByTeam(unsigned short team) {
+    /// \todo
+}
+
+void UnitInfo::Draw(unsigned short team) {
+    /// \todo
+}
+
+void UnitInfo::DrawStealth(unsigned short team) {
+    /// \todo
+}
+
+int UnitInfo::GetRawConsumptionRate() { return Cargo_GetRawConsumptionRate(unit_type, GetMaxAllowedBuildRate()); }
+
+int UnitInfo::GetMaxAllowedBuildRate() {
     /// \todo
 }

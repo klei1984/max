@@ -21,6 +21,7 @@
 
 #include "units_manager.hpp"
 
+#include "access.hpp"
 #include "inifile.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
@@ -2040,7 +2041,7 @@ void UnitsManager_InitPopupMenus() {
 }
 
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
-                                            UnitInfo* parent) {
+                                              UnitInfo* parent) {
     /// \todo
 }
 
@@ -2054,4 +2055,25 @@ void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
 
 void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y) {
     /// \todo
+}
+
+void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
+    /// \todo
+}
+
+bool UnitsManager_IsUnitUnderWater(UnitInfo* unit) {
+    bool result;
+
+    if (unit->unit_type == SUBMARNE) {
+        result = true;
+
+    } else if (unit->unit_type == CLNTRANS) {
+        if (Access_GetModifiedSurfaceType(unit->grid_x, unit->grid_y) == SURFACE_TYPE_WATER) {
+            result = true;
+        } else {
+            result = false;
+        }
+    }
+
+    return result;
 }

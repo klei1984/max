@@ -73,7 +73,7 @@ public:
     SmartString& Toupper();
     SmartString& Tolower();
     SmartString& Vsprintf(unsigned short size, const char* format, ...);
-    int Strcmp(const char* cstring, bool case_sensitive) const;
+    int Strcmp(const char* cstring, bool case_sensitive = true) const;
     SmartString& operator=(SmartString const& rhs);
     SmartString& operator=(char const* rhs);
 };

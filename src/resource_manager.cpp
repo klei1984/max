@@ -24,7 +24,7 @@
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
 #include "game_manager.hpp"
-#include "gnw.h"
+#include "gui.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -1032,7 +1032,7 @@ void ResourceManager_InitInGameAssets(int world) {
 
     WindowManager_LoadImage(FRAMEPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, true, false);
 
-    /// \todo menu_draw_landing_sequence_menu(GUI_GameState == GAME_STATE_7_SITE_SELECT);
+    GameManager_InitLandingSequenceMenu(GUI_GameState == GAME_STATE_7_SITE_SELECT);
 
     win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
 

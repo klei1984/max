@@ -23,13 +23,10 @@
 #define IMAGE_HPP
 
 #include "enums.hpp"
-
-extern "C" {
 #include "gnw.h"
-}
 
 class Image {
-	unsigned char *data;
+    unsigned char *data;
     short ulx;
     short uly;
     short width;

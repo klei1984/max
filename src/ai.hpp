@@ -22,6 +22,10 @@
 #ifndef AI_HPP
 #define AI_HPP
 
+#include "unitinfo.hpp"
+
 bool Ai_SetupStrategy(unsigned short team);
+void Ai_SetInfoMapPoint(Point point, unsigned short team);
+void Ai_UpdateMineMap(Point point, unsigned short team);
 
 #endif /* AI_HPP */

@@ -36,6 +36,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/enums.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/window_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/resource_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/menulandingsequence.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/game_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sound_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/maphashlist.cpp

@@ -23,6 +23,8 @@
 #define GAME_MANAGER_HPP
 
 #include "UnitInfo.hpp"
+#include "button.hpp"
+#include "flicsmgr.hpp"
 
 void GameManager_GameLoop(int game_state);
 void GameManager_AddDrawBounds(Rect* bounds);
@@ -42,14 +44,35 @@ void GameManager_FillOrRestoreWindow(unsigned char id, int color, bool redraw);
 void GameManager_UpdateMainMapView(int mode, int grid_x_zoom_level_max, int grid_y_zoom_level_min, bool flag = true);
 void GameManager_DrawTurnTimer(int turn_time, bool mode = false);
 int GameManager_CheckLandingZones(unsigned short team1, unsigned short team2);
+void GameManager_MenuInitButtons(bool mode);
+void GameManager_MenuDeinitButtons();
+void GameManager_InitLandingSequenceMenu(bool enable_controls);
 
 extern Rect GameManager_GridPosition;
 extern Rect GameManager_MapWindowDrawBounds;
 extern SmartPointer<UnitInfo> GameManager_SelectedUnit;
+extern SmartList<UnitInfo> GameManager_LockedUnits;
 extern unsigned int GameManager_TurnCounter;
 extern int GameManager_GameFileNumber;
 extern int GameManager_HumanPlayerCount;
+extern bool GameManager_AllVisible;
 extern bool GameManager_RequestMenuExit;
 extern unsigned short Gfx_MapWindowWidth;
+extern bool GameManager_DisplayControlsInitialized;
+extern bool GameManager_PlayFlic;
+extern Button* Gamemanager_FlicButton;
+
+extern bool GameManager_DisplayButtonLock;
+extern bool GameManager_DisplayButtonScan;
+extern bool GameManager_DisplayButtonRange;
+extern bool GameManager_DisplayButtonGrid;
+extern bool GameManager_DisplayButtonSurvey;
+extern bool GameManager_DisplayButtonStatus;
+extern bool GameManager_DisplayButtonColors;
+extern bool GameManager_DisplayButtonHits;
+extern bool GameManager_DisplayButtonAmmo;
+extern bool GameManager_DisplayButtonNames;
+extern bool GameManager_DisplayButtonMinimap2x;
+extern bool GameManager_DisplayButtonMinimapTnt;
 
 #endif /* GAME_MANAGER_HPP */

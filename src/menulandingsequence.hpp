@@ -19,16 +19,30 @@
  * SOFTWARE.
  */
 
-#include "ai_player.hpp"
+#ifndef MENULANDINGSEQUENCE_HPP
+#define MENULANDINGSEQUENCE_HPP
 
-AiPlayer AiPlayer_Teams[4];
+#include "button.hpp"
 
-/// \todo
+class MenuLandingSequence {
+    WindowInfo* panel_top;
+    WindowInfo* panel_bottom;
+    Image* image_1;
+    Image* image_2;
+    Button* button_1;
+    Button* button_2;
+    unsigned int time_stamp;
 
-AiPlayer::AiPlayer() {}
+public:
+    MenuLandingSequence();
+    ~MenuLandingSequence();
 
-AiPlayer::~AiPlayer() {}
+    void DeleteButtons();
+    void AnimateStep(int offset);
+    void OpenPanel();
+    void ClosePanel();
+    void Init(bool enable_controls);
+    void Deinit();
+};
 
-void AiPlayer::SetInfoMapPoint(Point point) {}
-
-void AiPlayer::UpdateMineMap(Point point) {}
+#endif /* MENULANDINGSEQUENCE_HPP */

@@ -83,19 +83,6 @@ class SmartList {
     SmartPointer<ListNode<T>> first;
     SmartPointer<ListNode<T>> last;
 
-    ListNode<T>* Find(T& object) {
-        ListNode<T>* result = nullptr;
-
-        for (Iterator it = Begin(); it != End(); ++it) {
-            if (&*it == &object) {
-                result = &it.GetNode();
-                break;
-            }
-        }
-
-        return result;
-    }
-
     void Erase(ListNode<T>& position) {
         if (position.prev == nullptr) {
             if (first != position) {
@@ -233,6 +220,19 @@ public:
                 last = it;
             }
         }
+    }
+
+    ListNode<T>* Find(T& object) {
+        ListNode<T>* result = nullptr;
+
+        for (Iterator it = Begin(); it != End(); ++it) {
+            if (&*it == &object) {
+                result = &it.GetNode();
+                break;
+            }
+        }
+
+        return result;
     }
 
     bool Remove(T& object) {

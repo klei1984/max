@@ -28,11 +28,6 @@
 class UnitInfo;
 
 class Complex : public TextFileObject {
-    short material;
-    short fuel;
-    short gold;
-    short power;
-    short workers;
     short buildings;
     short id;
 
@@ -57,6 +52,12 @@ public:
     void RemoveBuilding(UnitInfo& unit);
 
     void GetCargoInfo(Cargo& materials, Cargo& capacity);
+
+    short material;
+    short fuel;
+    short gold;
+    short power;
+    short workers;
 };
 
 #endif /* COMPLEX_HPP */

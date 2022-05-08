@@ -47,7 +47,9 @@ void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<Re
 int UnitsManager_AddDefaultMissionLoadout(unsigned short team);
 void UnitsManager_InitPopupMenus();
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
-                                            UnitInfo* parent);
+                                              UnitInfo* parent);
 void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
+void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state);
+bool UnitsManager_IsUnitUnderWater(UnitInfo* unit);
 
 #endif /* UNITS_MANAGER_HPP */

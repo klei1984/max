@@ -153,8 +153,8 @@ public:
     unsigned char field_165;
     unsigned char laying_state;
     char* name;
-    unsigned char visible_to_team[5];
-    unsigned char spotted_by_team[5];
+    unsigned char visible_to_team[PLAYER_TEAM_MAX];
+    unsigned char spotted_by_team[PLAYER_TEAM_MAX];
     Rect sprite_bounds;
     Rect shadow_bounds;
     unsigned short image_index;
@@ -195,8 +195,14 @@ public:
     void GetName(char* text) const;
     void GetDisplayName(char* text) const;
     static void GetVersion(char* text, int version);
-    void Setname(char* text);
+    void SetName(char* text);
     void RefreshScreen();
+    void InitStealthStatus();
+    void SpotByTeam(unsigned short team);
+    void Draw(unsigned short team);
+    void DrawStealth(unsigned short team);
+    int GetRawConsumptionRate();
+    int GetMaxAllowedBuildRate();
 };
 
 #endif /* UNITINFO_HPP */

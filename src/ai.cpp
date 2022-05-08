@@ -21,8 +21,23 @@
 
 #include "ai.hpp"
 
+#include "ai_player.hpp"
+#include "units_manager.hpp"
+
 bool Ai_SetupStrategy(unsigned short team) {
     /// \todo
 
     return false;
+}
+
+void Ai_SetInfoMapPoint(Point point, unsigned short team) {
+    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+        AiPlayer_Teams[team].SetInfoMapPoint(point);
+    }
+}
+
+void Ai_UpdateMineMap(Point point, unsigned short team) {
+    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+        AiPlayer_Teams[team].UpdateMineMap(point);
+    }
 }
