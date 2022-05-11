@@ -21,9 +21,11 @@
 
 #include "reportstats.hpp"
 
+#include "cargo.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "gui.hpp"
+#include "inifile.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"
@@ -44,8 +46,16 @@ struct InterfaceMeta {
 static void ReportStats_RenderSprite(struct InterfaceMeta* data);
 static void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int value1,
                                   int value2);
-static void ReportStats_DrawRowEx(char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
+static void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
                                   ResourceID icon_empty, int current_value, int base_value, int value3, bool drawline);
+static void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds);
+static void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds);
+static void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds);
+
+static ResourceID ReportStats_CargoIcons[] = {
+    INVALID_ID, INVALID_ID, SI_RAW,  EI_RAW, SI_FUEL, EI_FUEL, SI_GOLD,
+    EI_GOLD,    SI_LAND,    EI_LAND, SI_SEA, EI_SEA,  SI_AIR,  EI_AIR,
+};
 
 void ReportStats_RenderSprite(struct InterfaceMeta* data) {
     unsigned int scaling_divisor_factor;
@@ -171,7 +181,7 @@ void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceI
     }
 }
 
-void ReportStats_DrawRowEx(char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
+void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
                            ResourceID icon_empty, int current_value, int base_value, int value3, bool drawline) {
     Rect new_bounds;
     int height;
@@ -187,7 +197,7 @@ void ReportStats_DrawRowEx(char* text, WinID id, Rect* bounds, int row_id, Resou
     ReportStats_DrawRow(text, id, &new_bounds, icon_normal, icon_empty, current_value, base_value, value3, drawline);
 }
 
-void ReportStats_DrawRow(char* text, WinID id, Rect* bounds, ResourceID icon_normal, ResourceID icon_empty,
+void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID icon_normal, ResourceID icon_empty,
                          int current_value, int base_value, int value3, bool drawline) {
     WindowInfo window;
     int width;
@@ -321,4 +331,252 @@ void ReportStats_DrawText(unsigned char* buffer, char* text, int width, int full
     }
 
     text_to_buf(&buffer[-length], text, width, full, color);
+}
+
+void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
+    int power_consumption_base;
+    int power_consumption_current;
+
+    power_consumption_base = Cargo_GetPowerConsumptionRate(unit->unit_type);
+
+    if (power_consumption_base && GUI_PlayerTeamIndex == unit->team && !Cargo_GetLifeConsumptionRate(unit->unit_type)) {
+        int current_value;
+        int base_value;
+        Cargo cargo;
+
+        power_consumption_current = power_consumption_base;
+        current_value = 0;
+        base_value = 0;
+
+        Cargo_GetCargoDemand(unit, &cargo);
+        power_consumption_current = cargo.power;
+
+        if (power_consumption_base >= 0) {
+            ReportStats_DrawRowEx("Usage", id, bounds, 1, SI_POWER, EI_POWER, -power_consumption_current,
+                                  power_consumption_base, 1, false);
+        } else {
+            ReportStats_DrawRowEx("Power", id, bounds, 1, SI_POWER, EI_POWER, power_consumption_current,
+                                  -power_consumption_base, 1, false);
+        }
+
+        power_consumption_base = 0;
+        power_consumption_current = 0;
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).GetComplex() == unit->GetComplex()) {
+                cargo.power = Cargo_GetPowerConsumptionRate((*it).unit_type);
+
+                if (cargo.power >= 0) {
+                    base_value += cargo.power;
+                } else {
+                    power_consumption_base -= cargo.power;
+                }
+
+                Cargo_GetCargoDemand(&*it, &cargo);
+
+                if (cargo.power >= 0) {
+                    power_consumption_current += cargo.power;
+                } else {
+                    current_value -= cargo.power;
+                }
+            }
+
+            if (Cargo_GetPowerConsumptionRate(unit->unit_type) > 0) {
+                ReportStats_DrawRowEx("Total", id, bounds, 2, SI_POWER, EI_POWER, current_value, base_value, 1, false);
+            } else {
+                ReportStats_DrawRowEx("Total", id, bounds, 2, SI_POWER, EI_POWER, power_consumption_current,
+                                      power_consumption_base, 1, false);
+                ReportStats_DrawRowEx("Usage", id, bounds, 3, SI_POWER, EI_POWER, current_value, base_value, 1, false);
+            }
+        }
+    }
+}
+
+void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
+    int life_consumption_base;
+    int life_consumption_current;
+
+    life_consumption_base = Cargo_GetLifeConsumptionRate(unit->unit_type);
+
+    if (life_consumption_base && GUI_PlayerTeamIndex == unit->team) {
+        int current_value;
+        int base_value;
+        Cargo cargo;
+
+        life_consumption_current = life_consumption_base;
+        current_value = 0;
+        base_value = 0;
+
+        Cargo_GetCargoDemand(unit, &cargo);
+        life_consumption_current = cargo.life;
+
+        if (life_consumption_base >= 0) {
+            ReportStats_DrawRowEx("Usage", id, bounds, 1, SI_WORK, EI_WORK, -life_consumption_current,
+                                  life_consumption_base, 1, false);
+        } else {
+            ReportStats_DrawRowEx("Teams", id, bounds, 1, SI_WORK, EI_WORK, life_consumption_current,
+                                  -life_consumption_base, 1, false);
+        }
+
+        life_consumption_base = 0;
+        life_consumption_current = 0;
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).GetComplex() == unit->GetComplex()) {
+                cargo.life = Cargo_GetLifeConsumptionRate((*it).unit_type);
+
+                if (cargo.life >= 0) {
+                    base_value += cargo.life;
+                } else {
+                    life_consumption_base -= cargo.life;
+                }
+
+                Cargo_GetCargoDemand(&*it, &cargo);
+
+                if (cargo.life >= 0) {
+                    life_consumption_current += cargo.life;
+                } else {
+                    current_value -= cargo.life;
+                }
+            }
+
+            if (Cargo_GetLifeConsumptionRate(unit->unit_type) > 0) {
+                ReportStats_DrawRowEx("Usage", id, bounds, 2, SI_WORK, EI_WORK, current_value, base_value, 1, false);
+            } else {
+                ReportStats_DrawRowEx("Total", id, bounds, 2, SI_WORK, EI_WORK, life_consumption_current,
+                                      life_consumption_base, 1, false);
+                ReportStats_DrawRowEx("Usage", id, bounds, 3, SI_WORK, EI_WORK, current_value, base_value, 1, false);
+            }
+        }
+    }
+}
+
+void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds) {
+    unsigned int victory_limit;
+    unsigned int victory_limit_scaled;
+
+    if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
+        victory_limit = ini_setting_victory_limit;
+    } else {
+        victory_limit = 0;
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+                victory_limit = std::max(victory_limit, UnitsManager_TeamInfo[unit->team].team_points);
+            }
+        }
+    }
+
+    if (victory_limit < 1) {
+        victory_limit = 10;
+    }
+
+    victory_limit_scaled = (victory_limit + 14) / 15;
+
+    ReportStats_DrawRowEx("points", id, bounds, 1, SI_WORK, EI_WORK, unit->storage, unit->storage, victory_limit_scaled,
+                          false);
+    ReportStats_DrawRowEx("Total", id, bounds, 2, SI_WORK, EI_WORK, UnitsManager_TeamInfo[unit->team].team_points,
+                          victory_limit, victory_limit_scaled, false);
+}
+
+void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
+    if (unit->IsVisibleToTeam(GUI_PlayerTeamIndex)) {
+        SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
+
+        ReportStats_DrawRowEx("Hits", id, bounds, 0, SI_HITSB, EI_HITSB, unit->hits,
+                              unit_values->GetAttribute(ATTRIB_HITS), 4, true);
+
+        if (unit_values->GetAttribute(ATTRIB_ATTACK)) {
+            ReportStats_DrawRowEx("Ammo", id, bounds, 1, SI_AMMO, EI_AMMO, unit->ammo,
+                                  unit->team == GUI_PlayerTeamIndex ? unit_values->GetAttribute(ATTRIB_AMMO) : 0, 1,
+                                  true);
+        } else {
+            int cargo_type;
+            int cargo_value;
+
+            cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
+            cargo_value = 3;
+
+            if (unit_values->GetAttribute(ATTRIB_STORAGE) > 4) {
+                if (unit_values->GetAttribute(ATTRIB_STORAGE) <= 8) {
+                    cargo_value = 2;
+                }
+
+            } else {
+                cargo_value = 1;
+            }
+
+            if (cargo_type < CARGO_TYPE_LAND) {
+                cargo_value = 10;
+            }
+
+            if (unit->team != GUI_PlayerTeamIndex) {
+                cargo_value = 0;
+            }
+
+            ReportStats_DrawRowEx("Cargo", id, bounds, 1, ReportStats_CargoIcons[cargo_type * 2],
+                                  ReportStats_CargoIcons[cargo_type * 2 + 1], unit->storage,
+                                  unit_values->GetAttribute(ATTRIB_STORAGE), cargo_value, true);
+        }
+
+        ReportStats_DrawRowEx("Speed", id, bounds, 2, SI_SPEED, EI_SPEED, unit->speed,
+                              unit_values->GetAttribute(ATTRIB_SPEED), 1, true);
+        ReportStats_DrawRowEx("Shots", id, bounds, 3, SI_SHOTS, EI_SHOTS, unit->shots,
+                              unit_values->GetAttribute(ATTRIB_ROUNDS), 1, false);
+
+        if (!unit_values->GetAttribute(ATTRIB_STORAGE)) {
+            ReportStats_DrawCommonUnit(unit, id, bounds);
+        }
+
+        if (unit->unit_type == GREENHSE && unit->team == GUI_PlayerTeamIndex) {
+            ReportStats_DrawPointsUnit(unit, id, bounds);
+        } else {
+            ReportStats_DrawStorageUnit(unit, id, bounds);
+        }
+
+        if (unit->team == GUI_PlayerTeamIndex && unit_values->GetAttribute(ATTRIB_STORAGE) &&
+            (unit->flags & STATIONARY) && UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_RAW &&
+            UnitsManager_BaseUnits[unit->unit_type].cargo_type < CARGO_TYPE_LAND) {
+            Cargo materials;
+            Cargo capacity;
+            int cargo_type;
+            int cargo_value;
+            int current_value;
+            int base_value;
+
+            unit->GetComplex()->GetCargoInfo(materials, capacity);
+            cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
+
+            switch (cargo_type) {
+                case CARGO_TYPE_RAW: {
+                    current_value = materials.raw;
+                    base_value = capacity.raw;
+                } break;
+
+                case CARGO_TYPE_FUEL: {
+                    current_value = materials.fuel;
+                    base_value = capacity.fuel;
+                } break;
+
+                case CARGO_TYPE_GOLD: {
+                    current_value = materials.gold;
+                    base_value = capacity.gold;
+                } break;
+            }
+
+            cargo_value = 10;
+
+            if ((base_value / cargo_value) > 25) {
+                cargo_value = base_value / 25;
+            }
+
+            ReportStats_DrawRowEx("Total", id, bounds, 2,
+                                  ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2],
+                                  ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2 + 1],
+                                  current_value, base_value, cargo_value, false);
+        }
+    }
 }

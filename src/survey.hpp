@@ -19,31 +19,17 @@
  * SOFTWARE.
  */
 
-#include "ai.hpp"
+#ifndef SURVEY_HPP
+#define SURVEY_HPP
 
-#include "ai_player.hpp"
-#include "units_manager.hpp"
+#include "unitinfo.hpp"
 
-bool Ai_SetupStrategy(unsigned short team) {
-    /// \todo
+void Survey_RenderMarker(WindowInfo* window, int grid_x, int grid_y, unsigned short material_type);
+void Survey_SurveyArea(UnitInfo* unit, int radius);
+void Survey_RenderMarkers(unsigned short team, int grid_ulx, int grid_uly, int grid_lrx);
+void Survey_GetResourcesInArea(int grid_x, int grid_y, int radius, int resource_limit, short* raw, short* gold,
+                               short* fuel, bool mode, unsigned short team);
+void Survey_GetTotalResourcesInArea(int grid_x, int grid_y, int radius, short* raw, short* gold, short* fuel, bool mode,
+                                    unsigned short team);
 
-    return false;
-}
-
-void Ai_SetInfoMapPoint(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].SetInfoMapPoint(point);
-    }
-}
-
-void Ai_MarkMineMapPoint(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].MarkMineMapPoint(point);
-    }
-}
-
-void Ai_UpdateMineMap(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].UpdateMineMap(point);
-    }
-}
+#endif /* SURVEY_HPP */

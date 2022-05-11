@@ -84,6 +84,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unitevents.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/zone.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/networkmenu.cpp
@@ -93,6 +94,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/remote.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/menu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/access.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/survey.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai_player.cpp

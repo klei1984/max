@@ -31,6 +31,7 @@ public:
 
     void SetInfoMapPoint(Point point);
     void UpdateMineMap(Point point);
+    void MarkMineMapPoint(Point point);
 };
 
 extern AiPlayer AiPlayer_Teams[4];

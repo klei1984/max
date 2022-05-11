@@ -703,6 +703,12 @@ void UnitInfo::Init() {
 
 bool UnitInfo::IsVisibleToTeam(unsigned short team) const { return visible_to_team[team]; }
 
+void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
+
+UnitInfo* UnitInfo::GetEnemy() const { return &*enemy_unit; }
+
+UnitInfo* UnitInfo::GetParent() const { return &*parent_unit; }
+
 unsigned short UnitInfo::GetId() const { return id; }
 
 unsigned int UnitInfo::GetField221() const { return field_221; }
@@ -735,11 +741,9 @@ Task* UnitInfo::GetTask1ListFront() const {
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
 
-UnitInfo* UnitInfo::GetParent() const { return &*parent_unit; }
-
-void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
-
 UnitValues* UnitInfo::GetBaseValues() const { return &*base_values; }
+
+bool UnitInfo::IsDetectedByTeam(unsigned short team) const { return (spotted_by_team[team] || visible_to_team[team]); }
 
 Complex* UnitInfo::GetComplex() const { return &*complex; }
 
@@ -873,3 +877,13 @@ int UnitInfo::GetRawConsumptionRate() { return Cargo_GetRawConsumptionRate(unit_
 int UnitInfo::GetMaxAllowedBuildRate() {
     /// \todo
 }
+
+void UnitInfo::TakepathStep() {
+    if (orders == ORDER_MOVING && path != nullptr && (state == ORDER_STATE_5 || state == ORDER_STATE_6)) {
+        path->Path_vfunc8(this);
+    }
+}
+
+void UnitInfo::SetLayingState(int state) { laying_state = state; }
+
+void UnitInfo::ClearPins() { pin_count = 0; }

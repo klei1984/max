@@ -19,31 +19,20 @@
  * SOFTWARE.
  */
 
-#include "ai.hpp"
+#include "unitevents.hpp"
 
-#include "ai_player.hpp"
-#include "units_manager.hpp"
+SmartList<UnitEvent> UnitEvent_UnitEvents;
 
-bool Ai_SetupStrategy(unsigned short team) {
-    /// \todo
+UnitEvent::UnitEvent(UnitInfo* unit) : unit(unit) {}
 
-    return false;
-}
+UnitEvent::~UnitEvent() {}
 
-void Ai_SetInfoMapPoint(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].SetInfoMapPoint(point);
-    }
-}
+UnitEventEmergencyStop::UnitEventEmergencyStop(UnitInfo* unit) : UnitEvent(unit) {}
 
-void Ai_MarkMineMapPoint(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].MarkMineMapPoint(point);
-    }
-}
+UnitEventEmergencyStop::~UnitEventEmergencyStop() {}
 
-void Ai_UpdateMineMap(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].UpdateMineMap(point);
+void UnitEventEmergencyStop::Process() {
+    if (unit->hits) {
+        unit->TakepathStep();
     }
 }

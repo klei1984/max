@@ -149,7 +149,7 @@ public:
     SmartList<Task> task_list2;
     unsigned char field_158;
     Point field_159;
-    unsigned short field_163;
+    unsigned short pin_count;
     unsigned char field_165;
     unsigned char laying_state;
     char* name;
@@ -177,6 +177,9 @@ public:
 
     void Init();
     bool IsVisibleToTeam(unsigned short team) const;
+    void SetEnemy(UnitInfo* enemy);
+    UnitInfo* GetEnemy() const;
+    UnitInfo* GetParent() const;
     unsigned short GetId() const;
     unsigned int GetField221() const;
     unsigned short GetImageIndex() const;
@@ -185,9 +188,8 @@ public:
     void ClearTask1List();
     Task* GetTask1ListFront() const;
     void SetParent(UnitInfo* parent);
-    UnitInfo* GetParent() const;
-    void SetEnemy(UnitInfo* enemy);
     UnitValues* GetBaseValues() const;
+    bool IsDetectedByTeam(unsigned short team) const;
     Complex* GetComplex() const;
     bool UnitInfo_sub_430A2(short grid_x, short grid_y);
     SmartPointer<UnitInfo> MakeCopy();
@@ -203,6 +205,9 @@ public:
     void DrawStealth(unsigned short team);
     int GetRawConsumptionRate();
     int GetMaxAllowedBuildRate();
+    void TakepathStep();
+    void SetLayingState(int state);
+    void ClearPins();
 };
 
 #endif /* UNITINFO_HPP */

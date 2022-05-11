@@ -47,7 +47,7 @@ struct Cargo {
 
 Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo);
 Cargo* Cargo_GetCargoCapacity(UnitInfo* unit, Cargo* cargo);
-Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order);
+Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order = false);
 
 int Cargo_GetRawConsumptionRate(ResourceID unit_type, int speed_multiplier);
 int Cargo_GetFuelConsumptionRate(ResourceID unit_type);

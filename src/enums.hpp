@@ -2151,6 +2151,23 @@ enum {
     PLAY_MODE_UNKNOWN,
 };
 
+enum {
+    CARGO_FUEL = 0x20,
+    CARGO_GOLD = 0x40,
+    CARGO_MATERIALS = 0x80,
+    CARGO_MASK = 0x1F,
+};
+
+enum {
+    CARGO_TYPE_NONE,
+    CARGO_TYPE_RAW,
+    CARGO_TYPE_FUEL,
+    CARGO_TYPE_GOLD,
+    CARGO_TYPE_LAND,
+    CARGO_TYPE_SEA,
+    CARGO_TYPE_AIR,
+};
+
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;
 extern SortedEnum Enums_Sound;

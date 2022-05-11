@@ -58,12 +58,6 @@
 #define MENU_DISPLAY_CONTROL_CORNER_FLIC 4
 #define MENU_DISPLAY_CONTROL_STAT_WINDOW 5
 
-enum {
-    CARGO_FUEL = 0x20,
-    CARGO_GOLD = 0x40,
-    CARGO_MATERIALS = 0x80,
-};
-
 struct MenuGuiItem {
     unsigned char wid;
     ResourceID gfx;

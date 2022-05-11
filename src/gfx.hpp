@@ -36,6 +36,7 @@ extern ColorIndex* Gfx_ColorIndices;
 extern unsigned short Gfx_UnitBrightnessBase;
 extern unsigned int Gfx_MapBrightness;
 extern unsigned char* Gfx_MapWindowBuffer;
+extern unsigned int Gfx_ZoomLevel;
 extern int Gfx_MapScalingFactor;
 extern int Gfx_MapWindowUlx;
 extern int Gfx_MapWindowUly;

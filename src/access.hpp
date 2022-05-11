@@ -65,4 +65,6 @@ bool Access_IsWithinMovementRange(UnitInfo *unit);
 
 UnitInfo *Access_GetUnit3(int grid_x, int grid_y, unsigned int flags);
 
+UnitInfo *Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y);
+
 #endif /* ACCESS_HPP */

@@ -60,6 +60,7 @@ extern bool GameManager_RequestMenuExit;
 extern unsigned short Gfx_MapWindowWidth;
 extern bool GameManager_DisplayControlsInitialized;
 extern bool GameManager_PlayFlic;
+extern bool GameManager_MaxSurvey;
 extern Button* Gamemanager_FlicButton;
 
 extern bool GameManager_DisplayButtonLock;

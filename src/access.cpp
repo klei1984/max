@@ -603,3 +603,7 @@ bool Access_IsWithinMovementRange(UnitInfo* unit) {
 UnitInfo* Access_GetUnit3(int grid_x, int grid_y, unsigned int flags) {
     /// \todo
 }
+
+UnitInfo* Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y) {
+    /// \todo
+}

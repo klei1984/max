@@ -32,3 +32,5 @@ AiPlayer::~AiPlayer() {}
 void AiPlayer::SetInfoMapPoint(Point point) {}
 
 void AiPlayer::UpdateMineMap(Point point) {}
+
+void AiPlayer::MarkMineMapPoint(Point point) {}

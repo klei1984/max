@@ -19,31 +19,29 @@
  * SOFTWARE.
  */
 
-#include "ai.hpp"
+#ifndef UNITEVENTS_HPP
+#define UNITEVENTS_HPP
 
-#include "ai_player.hpp"
-#include "units_manager.hpp"
+#include "unitinfo.hpp"
 
-bool Ai_SetupStrategy(unsigned short team) {
-    /// \todo
+class UnitEvent : public SmartObject {
+    SmartPointer<UnitInfo> unit;
 
-    return false;
-}
+public:
+    UnitEvent(UnitInfo* unit);
+    virtual ~UnitEvent();
 
-void Ai_SetInfoMapPoint(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].SetInfoMapPoint(point);
-    }
-}
+    virtual void Process() = 0;
+};
 
-void Ai_MarkMineMapPoint(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].MarkMineMapPoint(point);
-    }
-}
+class UnitEventEmergencyStop : public UnitEvent {
+    SmartPointer<UnitInfo> unit;
 
-void Ai_UpdateMineMap(Point point, unsigned short team) {
-    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        AiPlayer_Teams[team].UpdateMineMap(point);
-    }
-}
+public:
+    UnitEventEmergencyStop(UnitInfo* unit);
+    ~UnitEventEmergencyStop();
+
+    void Process();
+};
+
+#endif /* UNITEVENTS_HPP */
