@@ -363,6 +363,7 @@ SmartList<UnitInfo> GameManager_LockedUnits;
 unsigned int GameManager_TurnCounter;
 unsigned int GameManager_ArrowKeyFlags;
 unsigned int GameManager_TurnTimerValue;
+bool GameManager_MaxSpy;
 int GameManager_GameFileNumber;
 int GameManager_HumanPlayerCount;
 bool GameManager_RequestMenuExit;
@@ -1065,6 +1066,10 @@ void GameManager_InitMap() {
     GameManager_ProcessTick(1);
     mouse_show();
     GameManager_UnknownFlag = 1;
+}
+
+void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
+    /// \todo
 }
 
 void GameManager_UpdateMainMapView(int mode, int grid_x_zoom_level_max, int grid_y_zoom_level_min, bool flag) {

@@ -51,6 +51,9 @@ public:
     void AddBuilding(UnitInfo& unit);
     void RemoveBuilding(UnitInfo& unit);
 
+    void Grow(UnitInfo& unit);
+    void Shrink(UnitInfo& unit);
+
     void GetCargoInfo(Cargo& materials, Cargo& capacity);
 
     short material;

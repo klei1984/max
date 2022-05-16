@@ -21,9 +21,18 @@
 
 #include "unitinfo.hpp"
 
+#include "access.hpp"
+#include "ai.hpp"
+#include "builder.hpp"
+#include "cursor.hpp"
 #include "game_manager.hpp"
+#include "gui.hpp"
+#include "hash.hpp"
+#include "message_manager.hpp"
 #include "registerarray.hpp"
+#include "remote.hpp"
 #include "resource_manager.hpp"
+#include "sound_manager.hpp"
 #include "units_manager.hpp"
 
 struct SoundTable UnitInfo_SfxDefaultUnit = {20,
@@ -465,11 +474,221 @@ struct SoundTable UnitInfo_SfxAlienAttackPlane = {8,
                                                    {SFX_TYPE_LAND, ALNPL19},
                                                    {SFX_TYPE_TAKE, ALNPL20}}};
 
-UnitInfo::UnitInfo() : build_list(0) {}
+const unsigned char UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESEARCH_TOPIC_SHOTS, RESEARCH_TOPIC_RANGE,
+                                                     RESEARCH_TOPIC_ARMOR, RESEARCH_TOPIC_HITS};
 
-UnitInfo::UnitInfo(const UnitInfo& other) {}
+UnitInfo::UnitInfo()
+    : unit_type(INVALID_ID),
+      sound_function(nullptr),
+      sound_table(nullptr),
+      field_158(false),
+      pin_count(0),
+      field_165(true),
+      unit_list(nullptr),
+      field_79(0),
+      name(nullptr),
+      build_rate(1),
+      field_221(0),
+      disabled_reaction_fire(false),
+      auto_survey(false) {}
 
-UnitInfo::~UnitInfo() {}
+UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id, unsigned char angle)
+    : orders(ORDER_AWAITING),
+      state(ORDER_STATE_1),
+      prior_orders(ORDER_AWAITING),
+      prior_state(ORDER_STATE_1),
+      laying_state(0),
+      target_grid_x(0),
+      target_grid_y(0),
+      total_mining(0),
+      raw_mining(0),
+      fuel_mining(0),
+      gold_mining(0),
+      raw_mining_max(0),
+      gold_mining_max(0),
+      fuel_mining_max(0),
+      sound_function(nullptr),
+      sound_table(nullptr),
+      field_158(0),
+      pin_count(0),
+      name(nullptr),
+      unit_type(unit_type),
+      team(team),
+      id(id),
+      disabled_reaction_fire(false),
+      cursor(CURSOR_HIDDEN),
+      base_values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)),
+      unit_id(0),
+      build_rate(1),
+      field_221(0),
+      energized(false),
+      build_time(0),
+      flags(UnitsManager_BaseUnits[unit_type].flags | UnitsManager_TeamInfo[team].team_units->hash_team_id),
+      color_cycling_lut(UnitsManager_TeamInfo[team].team_units->color_index_table),
+      brightness(0xFF),
+      delayed_reaction(0),
+      damaged_this_turn(0),
+      repeat_build(0),
+      field_165(1),
+      move_fraction(0),
+      connectors(0),
+      scaler_adjust(0),
+      research_topic(0),
+      velocity(0),
+      sound(0),
+      unit_list(nullptr),
+      field_79(0),
+      shadow_offset(0, 0),
+      auto_survey(false),
+      angle(angle) {
+    BaseUnit* unit;
+
+    Init();
+
+    unit = &UnitsManager_BaseUnits[unit_type];
+    total_images = reinterpret_cast<struct ImageMultiHeader*>(unit->sprite)->image_count;
+    image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->image_base;
+    turret_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->turret_image_base;
+    firing_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->firing_image_base;
+    connector_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->connector_image_base;
+
+    if (unit_type == MININGST) {
+        image_base = (UnitsManager_TeamInfo[team].team_clan - 1) * sizeof(unsigned short);
+    }
+
+    image_index = image_base + angle;
+    turret_image_index = turret_image_base + angle;
+
+    if (unit_type == COMMANDO) {
+        image_index_max = 103;
+    } else if (unit_type == INFANTRY) {
+        image_index_max = 103;
+    } else {
+        image_index_max = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->image_count + image_index - 1;
+    }
+
+    hits = base_values->GetAttribute(ATTRIB_HITS);
+    speed = base_values->GetAttribute(ATTRIB_SPEED);
+    shots = base_values->GetAttribute(ATTRIB_ROUNDS);
+    move_and_fire = base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE);
+    ammo = base_values->GetAttribute(ATTRIB_AMMO);
+    storage = base_values->GetAttribute(ATTRIB_STORAGE);
+    engine = 2;
+
+    if (base_values->GetAttribute(ATTRIB_ATTACK)) {
+        weapon = 2;
+    } else {
+        weapon = 0;
+    }
+
+    comm = 2;
+    moved = 0;
+    bobbed = 0;
+    shake_effect_state = 0;
+
+    InitStealthStatus();
+
+    if ((flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(flags & GROUND_COVER) && id != -1) {
+        AttachComplex(CreateComplex(team));
+    }
+}
+
+UnitInfo::UnitInfo(const UnitInfo& other)
+    : unit_type(other.unit_type),
+      sound_function(other.sound_function),
+      sound_table(other.sound_table),
+      flags(other.flags),
+      x(other.x),
+      y(other.y),
+      grid_x(other.grid_x),
+      grid_y(other.grid_y),
+      point(other.point),
+      color_cycling_lut(other.color_cycling_lut),
+      team(other.team),
+      unit_id(other.unit_id),
+      brightness(other.brightness),
+      angle(other.angle),
+      max_velocity(other.max_velocity),
+      velocity(other.velocity),
+      sound(other.sound),
+      scaler_adjust(other.scaler_adjust),
+      turret_angle(other.turret_angle),
+      turret_offset_x(other.turret_offset_x),
+      turret_offset_y(other.turret_offset_y),
+      total_images(other.total_images),
+      image_base(other.image_base),
+      turret_image_base(other.turret_image_base),
+      firing_image_base(other.firing_image_base),
+      connector_image_base(other.connector_image_base),
+      image_index_max(other.image_index_max),
+      orders(other.orders),
+      state(other.state),
+      prior_orders(other.prior_orders),
+      prior_state(other.prior_state),
+      target_grid_x(other.target_grid_x),
+      target_grid_y(other.target_grid_y),
+      build_time(other.build_time),
+      total_mining(other.total_mining),
+      raw_mining(other.raw_mining),
+      fuel_mining(other.fuel_mining),
+      gold_mining(other.gold_mining),
+      raw_mining_max(other.raw_mining_max),
+      gold_mining_max(other.gold_mining_max),
+      fuel_mining_max(other.fuel_mining_max),
+      hits(other.hits),
+      speed(other.speed),
+      field_79(other.field_79),
+      shots(other.shots),
+      move_and_fire(other.move_and_fire),
+      storage(other.storage),
+      ammo(other.ammo),
+      targeting_mode(other.targeting_mode),
+      enter_mode(other.enter_mode),
+      cursor(other.cursor),
+      recoil_delay(other.recoil_delay),
+      delayed_reaction(other.delayed_reaction),
+      damaged_this_turn(other.damaged_this_turn),
+      disabled_reaction_fire(other.disabled_reaction_fire),
+      auto_survey(other.auto_survey),
+      research_topic(other.research_topic),
+      moved(other.moved),
+      bobbed(other.bobbed),
+      engine(other.engine),
+      weapon(other.weapon),
+      comm(other.comm),
+      fuel_distance(other.fuel_distance),
+      move_fraction(other.move_fraction),
+      path(other.path),
+      connectors(other.connectors),
+      shake_effect_state(other.shake_effect_state),
+      base_values(other.base_values),
+      complex(other.complex),
+      build_list(other.build_list),
+      build_rate(other.build_rate),
+      repeat_build(other.repeat_build),
+      energized(other.energized),
+      id(other.id),
+      unit_list(other.unit_list),
+      parent_unit(other.parent_unit),
+      enemy_unit(other.enemy_unit),
+      task_list1(other.task_list1),
+      field_158(other.field_158),
+      unknown_point(other.unknown_point),
+      pin_count(other.pin_count),
+      field_165(other.field_165),
+      laying_state(other.laying_state),
+      name(nullptr),
+      sprite_bounds(other.sprite_bounds),
+      shadow_bounds(other.shadow_bounds),
+      image_index(other.image_index),
+      turret_image_index(other.turret_image_index),
+      shadow_offset(other.shadow_offset),
+      field_221(other.field_221) {
+    memcpy(visible_to_team, other.visible_to_team, sizeof(visible_to_team));
+    memcpy(spotted_by_team, other.spotted_by_team, sizeof(spotted_by_team));
+}
+
+UnitInfo::~UnitInfo() { delete[] name; }
 
 TextFileObject* UnitInfo::Allocate() { return new (std::nothrow) UnitInfo(); }
 
@@ -477,14 +696,6 @@ static unsigned short UnitInfo_TypeIndex;
 static MAXRegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &UnitInfo::Allocate);
 
 unsigned short UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
-
-void UnitInfo::FileLoad(SmartFileReader& file) {}
-
-void UnitInfo::FileSave(SmartFileWriter& file) {}
-
-void UnitInfo::TextLoad(TextStructure& object) {}
-
-void UnitInfo::TextSave(SmartTextfileWriter& file) {}
 
 void UnitInfo::Init() {
     switch (unit_type) {
@@ -711,15 +922,23 @@ UnitInfo* UnitInfo::GetParent() const { return &*parent_unit; }
 
 unsigned short UnitInfo::GetId() const { return id; }
 
+UnitInfo* UnitInfo::GetFirstFromUnitList() const {
+    UnitInfo* result;
+
+    if (unit_list != nullptr) {
+        result = &*(unit_list->Begin());
+    } else {
+        result = nullptr;
+    }
+
+    return result;
+}
+
+SmartList<UnitInfo>* UnitInfo::GetUnitList() const { return unit_list; }
+
 unsigned int UnitInfo::GetField221() const { return field_221; }
 
 unsigned short UnitInfo::GetImageIndex() const { return image_index; }
-
-void UnitInfo::ClearUnitList() {
-    if (unit_list) {
-        /// \todo Implement method
-    }
-}
 
 void UnitInfo::PushFrontTask1List(Task* task) { task_list1.PushFront(*task); }
 
@@ -773,6 +992,62 @@ void UnitInfo::OffsetDrawZones(int offset_x, int offset_y) {
     sprite_bounds.lry += offset_y;
 }
 
+void UnitInfo::UpdateUnitDrawZones() {
+    BaseUnit* base_unit;
+
+    base_unit = &UnitsManager_BaseUnits[unit_type];
+
+    if (base_unit->sprite) {
+        Point point;
+        int unit_size;
+
+        point.x = x;
+        point.y = y;
+
+        if (flags & BUILDING) {
+            unit_size = 64;
+        } else {
+            unit_size = 32;
+        }
+
+        sprite_bounds.ulx = point.x - unit_size;
+        sprite_bounds.uly = point.y - unit_size;
+        sprite_bounds.lrx = point.x + unit_size - 1;
+        sprite_bounds.lry = point.y + unit_size - 1;
+
+        UpdateSpriteFrameBounds(&sprite_bounds, point.x, point.y,
+                                reinterpret_cast<struct ImageMultiHeader*>(base_unit->sprite), image_index);
+
+        if (flags & (SPINNING_TURRET | TURRET_SPRITE)) {
+            UpdateSpriteFrameBounds(&sprite_bounds, point.x + turret_offset_x, point.y + turret_offset_y,
+                                    reinterpret_cast<struct ImageMultiHeader*>(base_unit->sprite), turret_image_index);
+        }
+
+        shadow_bounds.ulx = 32000;
+        shadow_bounds.uly = -32000;
+        shadow_bounds.lrx = 32000;
+        shadow_bounds.lry = -32000;
+
+        point -= shadow_offset;
+
+        UpdateSpriteFrameBounds(&shadow_bounds, point.x, point.y,
+                                reinterpret_cast<struct ImageMultiHeader*>(base_unit->shadows), image_index);
+
+        if (flags & (SPINNING_TURRET | TURRET_SPRITE)) {
+            UpdateSpriteFrameBounds(&sprite_bounds, point.x + turret_offset_x, point.y + turret_offset_y,
+                                    reinterpret_cast<struct ImageMultiHeader*>(base_unit->shadows), turret_image_index);
+        }
+
+        if (shadow_bounds.ulx > shadow_bounds.lrx || shadow_bounds.uly > shadow_bounds.lry ||
+            shadow_bounds.ulx - 16 < sprite_bounds.ulx || shadow_bounds.uly - 16 < sprite_bounds.uly) {
+            shadow_bounds.ulx = std::min(shadow_bounds.ulx, sprite_bounds.ulx);
+            shadow_bounds.uly = std::min(shadow_bounds.uly, sprite_bounds.uly);
+            shadow_bounds.lrx = std::min(shadow_bounds.lrx, sprite_bounds.lrx);
+            shadow_bounds.lry = std::min(shadow_bounds.lry, sprite_bounds.lry);
+        }
+    }
+}
+
 void UnitInfo::GetName(char* text) const {
     if (name) {
         strcpy(text, name);
@@ -815,6 +1090,90 @@ void UnitInfo::CalcRomanDigit(char* text, int value, const char* digit1, const c
     }
 }
 
+Complex* UnitInfo::CreateComplex(unsigned short team) {
+    return UnitsManager_TeamInfo[team].team_units->CreateComplex();
+}
+
+struct ImageMultiFrameHeader* UnitInfo::GetSpriteFrame(struct ImageMultiHeader* sprite, unsigned short image_index) {
+    SDL_assert(sprite);
+    SDL_assert(image_index >= 0 && image_index < sprite->image_count);
+
+    return sprite->frames[image_index];
+}
+
+void UnitInfo::UpdateSpriteFrameBounds(Rect* bounds, int x, int y, struct ImageMultiHeader* sprite,
+                                       unsigned short image_index) {
+    if (sprite) {
+        struct ImageMultiFrameHeader* frame;
+        int scaling_factor;
+        Rect frame_bounds;
+
+        frame = GetSpriteFrame(sprite, image_index);
+
+        if (frame->width > 0 && frame->height > 0) {
+            if (ResourceManager_DisableEnhancedGraphics) {
+                scaling_factor = 2;
+            } else {
+                scaling_factor = 1;
+            }
+        }
+
+        frame_bounds.ulx = x - (frame->hotx * scaling_factor);
+        frame_bounds.uly = y - (frame->hoty * scaling_factor);
+        frame_bounds.lrx = frame->width * scaling_factor + frame_bounds.ulx - 1;
+        frame_bounds.lry = frame->height * scaling_factor + frame_bounds.uly - 1;
+
+        bounds->ulx = std::min(bounds->ulx, frame_bounds.ulx);
+        bounds->uly = std::min(bounds->uly, frame_bounds.uly);
+        bounds->lrx = std::max(bounds->lrx, frame_bounds.lrx);
+        bounds->lry = std::max(bounds->lry, frame_bounds.lry);
+    }
+}
+
+void UnitInfo::UpdateSpriteFrame(unsigned short image_base, unsigned short image_index_max) {
+    this->image_base = image_base;
+    this->image_index_max = image_index_max;
+    DrawSpriteFrame(image_base + angle);
+}
+
+void UnitInfo::DrawSpriteFrame(unsigned short image_index) {
+    if (this->image_index != image_index) {
+        bool is_visible;
+
+        is_visible = IsVisibleToTeam(GUI_PlayerTeamIndex) || GameManager_MaxSpy;
+
+        if (is_visible) {
+            RefreshScreen();
+        }
+
+        this->image_index = image_index;
+        UpdateUnitDrawZones();
+
+        if (is_visible) {
+            RefreshScreen();
+        }
+    }
+}
+
+void UnitInfo::DrawSpriteTurretFrame(unsigned short turret_image_index) {
+    if (this->turret_image_index != turret_image_index) {
+        bool is_visible;
+
+        is_visible = IsVisibleToTeam(GUI_PlayerTeamIndex) || GameManager_MaxSpy;
+
+        if (is_visible) {
+            RefreshScreen();
+        }
+
+        this->turret_image_index = turret_image_index;
+        UpdateUnitDrawZones();
+
+        if (is_visible) {
+            RefreshScreen();
+        }
+    }
+}
+
 void UnitInfo::GetVersion(char* text, int version) {
     text[0] = '\0';
 
@@ -843,6 +1202,557 @@ unsigned short* UnitInfo::GetAttribute(char index) {
 }
 
 void UnitInfo::RefreshScreen() {
+    GameManager_AddDrawBounds(&shadow_bounds);
+    GameManager_AddDrawBounds(&sprite_bounds);
+}
+
+void UnitInfo::UpdateUnitAngle(unsigned short image_index) {
+    int image_diff;
+
+    image_diff = image_index - angle;
+
+    if (image_diff) {
+        bool is_visible;
+
+        is_visible = IsVisibleToTeam(GUI_PlayerTeamIndex) || GameManager_MaxSpy;
+
+        if (is_visible) {
+            RefreshScreen();
+        }
+
+        angle = image_index & 0x07;
+        this->image_index = (this->image_index & 0xF8) + angle;
+
+        if (flags & TURRET_SPRITE) {
+            UpdateTurretAngle((turret_angle + image_diff) & 0x07);
+            turret_image_index = turret_image_base + turret_angle;
+        }
+
+        UpdateUnitDrawZones();
+
+        if (is_visible) {
+            RefreshScreen();
+        }
+    }
+}
+
+int UnitInfo::GetDrawLayer(ResourceID unit_type) {
+    int result;
+
+    switch (unit_type) {
+        case TORPEDO:
+        case TRPBUBLE: {
+            result = 1;
+        } break;
+
+        case WTRPLTFM: {
+            result = 2;
+        } break;
+
+        case ROAD:
+        case BRIDGE:
+        case WALDO:
+        case LRGSLAB:
+        case SMLSLAB: {
+            result = 3;
+        } break;
+
+        case SMLRUBLE:
+        case LRGRUBLE: {
+            result = 4;
+        } break;
+
+        case LANDMINE:
+        case SEAMINE: {
+            result = 5;
+        } break;
+
+        default: {
+            result = 6;
+        } break;
+    }
+
+    return result;
+}
+
+void UnitInfo::AddToDrawList(unsigned int override_flags) {
+    unsigned int unit_flags;
+
+    if (override_flags) {
+        unit_flags = override_flags;
+    } else {
+        unit_flags = flags;
+    }
+
+    if (unit_flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+        UnitsManager_MobileLandSeaUnits.PushFront(*this);
+
+    } else if (unit_flags & STATIONARY) {
+        if (unit_flags & GROUND_COVER) {
+            int layer_index;
+            SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
+
+            layer_index = GetDrawLayer(unit_type);
+
+            for (; it != UnitsManager_GroundCoverUnits.End(); ++it) {
+                if (GetDrawLayer((*it).unit_type) >= layer_index) {
+                    break;
+                }
+            }
+
+            UnitsManager_GroundCoverUnits.InsertAfter(it, *this);
+
+        } else {
+            int reference_y;
+            SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+
+            reference_y = y;
+
+            for (; it != UnitsManager_StationaryUnits.End(); ++it) {
+                if ((*it).y >= reference_y) {
+                    break;
+                }
+            }
+
+            UnitsManager_StationaryUnits.InsertAfter(it, *this);
+        }
+
+    } else if (unit_flags & MOBILE_AIR_UNIT) {
+        SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
+
+        for (; it != UnitsManager_MobileAirUnits.End(); ++it) {
+            if ((*it).flags & HOVERING) {
+                break;
+            }
+        }
+
+        UnitsManager_MobileAirUnits.InsertAfter(it, *this);
+
+    } else if (unit_flags & MISSILE_UNIT) {
+        if (unit_flags & GROUND_COVER) {
+            UnitsManager_GroundCoverUnits.PushFront(*this);
+
+        } else {
+            SmartList<UnitInfo>::Iterator it = UnitsManager_ParticleUnits.Begin();
+
+            for (; it != UnitsManager_ParticleUnits.End(); ++it) {
+                if (((*it).flags & EXPLODING) && (*it).unit_type != RKTSMOKE) {
+                    break;
+                }
+            }
+
+            UnitsManager_ParticleUnits.InsertAfter(it, *this);
+        }
+    }
+}
+
+void UnitInfo::SetPosition(int grid_x, int grid_y, bool skip_map_status_update) {
+    x = grid_x * 64 + 32;
+    y = grid_y * 64 + 32;
+
+    this->grid_x = x / 64;
+    this->grid_y = y / 64;
+
+    if (flags & BUILDING) {
+        x += 31;
+        y += 31;
+    }
+
+    UpdateUnitDrawZones();
+    RefreshScreen();
+
+    Hash_MapHash.Add(this, flags & GROUND_COVER);
+
+    if (!skip_map_status_update && ((GetId() != 0xFFFF) || (flags & (EXPLODING | MISSILE_UNIT)))) {
+        Access_UpdateMapStatus(this, true);
+    }
+
+    AddToDrawList();
+}
+
+void UnitInfo::GainExperience(int experience) {
+    if (flags & REGENERATING_UNIT) {
+        storage += experience;
+
+        if (storage >= 15) {
+            int upgrade_topic;
+            int upgrade_cost;
+            bool is_upgraded;
+
+            SmartPointer<UnitValues> unit_values =
+                UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(unit_type);
+
+            is_upgraded = false;
+
+            UnitsManager_TeamInfo[team].team_units->SetCurrentUnitValues(unit_type, *base_values);
+
+            upgrade_topic = ExpResearchTopics[(dos_rand() * sizeof(ExpResearchTopics)) >> 15];
+            upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
+
+            while (upgrade_cost <= storage) {
+                storage -= upgrade_cost;
+
+                if (!is_upgraded) {
+                    base_values = new UnitValues(*base_values);
+                }
+
+                base_values->SetAttribute(upgrade_topic, TeamUnits_UpgradeOffsetFactor(team, unit_type, upgrade_topic));
+
+                upgrade_topic = ExpResearchTopics[(dos_rand() * sizeof(ExpResearchTopics)) >> 15];
+                upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
+                is_upgraded = true;
+            }
+
+            if (is_upgraded) {
+                if (team == GUI_PlayerTeamIndex) {
+                    SmartString string;
+
+                    string.Vsprintf(80, "%s at [%i,%i] has increased in experience.",
+                                    UnitsManager_BaseUnits[team].singular_name, grid_x + 1, grid_y + 1);
+                    MessageManager_DrawMessage(string.GetCStr(), 0, this, Point(grid_x, grid_y));
+                }
+
+                base_values->UpdateVersion();
+                base_values->SetUnitsBuilt(1);
+
+                if (Remote_IsNetworkGame) {
+                    Remote_SendNetPacket_20(this);
+                }
+
+                if (GameManager_SelectedUnit == this) {
+                    GameManager_MenuUnitSelect(this);
+                }
+            }
+
+            UnitsManager_TeamInfo[team].team_units->SetCurrentUnitValues(unit_type, *unit_values);
+        }
+    }
+}
+
+void UnitInfo::ProcessTaskList() {
+    for (SmartList<Task>::Iterator it = task_list2.Begin(); it != task_list2.End(); ++it) {
+        (*it).Task_vfunc21(*this);
+    }
+
+    task_list2.Clear();
+}
+
+void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) {
+    /// \todo
+}
+
+bool UnitInfo::ExpectAttack() {
+    bool result;
+
+    RefreshScreen();
+
+    if (pin_count) {
+        result = false;
+    } else {
+        if (path != nullptr) {
+            if ((flags & MOBILE_AIR_UNIT) && !(flags & HOVERING)) {
+                UnitsManager_SetNewOrderInt(this, ORDER_TAKING_OFF, ORDER_STATE_0);
+                Ai_SetTasksPendingFlag("plane takeoff");
+
+                result = false;
+
+            } else {
+                if (speed) {
+                    Ai_SetTasksPendingFlag("moving");
+                }
+
+                result = path->Path_vfunc10(this);
+            }
+
+        } else {
+            if (flags & MISSILE_UNIT) {
+                SmartPointer<UnitInfo> parent;
+
+                parent = GetParent();
+                parent->Attack(grid_x, grid_y);
+
+                UnitsManager_DestroyUnit(this);
+
+                result = false;
+
+            } else {
+                orders = ORDER_AWAITING;
+                state = ORDER_STATE_1;
+                result = false;
+            }
+        }
+    }
+
+    return result;
+}
+
+void UnitInfo::ClearBuildListAndPath() {
+    path = nullptr;
+
+    if (parent_unit != nullptr) {
+        orders = ORDER_BUILDING;
+        state = ORDER_STATE_UNIT_READY;
+    } else {
+        orders = ORDER_AWAITING;
+        state = ORDER_STATE_1;
+    }
+
+    build_list.Clear();
+}
+
+void UnitInfo::Build() {
+    ResourceID build_unit_type;
+
+    build_unit_type = *build_list[0];
+    orders = ORDER_BUILDING;
+
+    if (path != nullptr) {
+        if (Builder_IssueBuildOrder(this, &grid_x, &grid_y, build_unit_type)) {
+            target_grid_x = grid_x;
+            target_grid_y = grid_y;
+
+            build_time = UnitsManager_GetTurnsToBuild(build_unit_type, team);
+
+            StartBuilding();
+
+        } else {
+            parent_unit = nullptr;
+
+            ClearBuildListAndPath();
+            soundmgr.PlaySfx(this, SFX_TYPE_IDLE);
+        }
+
+    } else {
+        ClearBuildListAndPath();
+    }
+
+    if (GameManager_SelectedUnit == this) {
+        GameManager_UpdateInfoDisplay(this);
+        GameManager_UpdateDrawBounds();
+    }
+}
+
+void UnitInfo::Move() {
+    /// \todo
+}
+
+void UnitInfo::AllocateUnitList() { unit_list = new SmartList<UnitInfo>(); }
+
+void UnitInfo::AssignUnitList(UnitInfo* unit) {
+    unit_list = unit->GetUnitList();
+
+    if (!unit_list) {
+        unit->AllocateUnitList();
+        unit->AssignUnitList(unit);
+        unit_list = unit->GetUnitList();
+    }
+
+    unit_list->PushBack(*this);
+}
+
+void UnitInfo::ClearUnitList() {
+    if (unit_list && unit_list->Remove(*this)) {
+        if (unit_list->GetCount()) {
+            if (unit_list->GetCount() == 1) {
+                (*unit_list->Begin()).ClearUnitList();
+            } else {
+                Access_ProcessNewGroupOrder(this);
+            }
+
+        } else {
+            delete unit_list;
+        }
+
+        unit_list = nullptr;
+        field_79 = 0;
+    }
+}
+
+void UnitInfo::MoveToFrontInUnitList() {
+    unit_list->Remove(*this);
+    unit_list->PushFront(*this);
+}
+
+UnitInfo* UnitInfo::GetConnectedBuilding(unsigned int connector) {
+    int grid_size;
+    UnitInfo* result;
+
+    if (flags & BUILDING) {
+        grid_size = 2;
+    } else {
+        grid_size = 1;
+    }
+
+    switch (connector) {
+        case CONNECTOR_NORTH_LEFT: {
+            result = Access_GetTeamBuilding(team, grid_x, grid_y - 1);
+        } break;
+
+        case CONNECTOR_NORTH_RIGHT: {
+            result = Access_GetTeamBuilding(team, grid_x + 1, grid_y - 1);
+        } break;
+
+        case CONNECTOR_EAST_TOP: {
+            result = Access_GetTeamBuilding(team, grid_x + grid_size, grid_y);
+        } break;
+
+        case CONNECTOR_EAST_BOTTOM: {
+            result = Access_GetTeamBuilding(team, grid_x + grid_size, grid_y + 1);
+        } break;
+
+        case CONNECTOR_SOUTH_LEFT: {
+            result = Access_GetTeamBuilding(team, grid_x - 1, grid_y);
+        } break;
+
+        case CONNECTOR_SOUTH_RIGHT: {
+            result = Access_GetTeamBuilding(team, grid_x + 1, grid_y + grid_size);
+        } break;
+
+        case CONNECTOR_WEST_TOP: {
+            result = Access_GetTeamBuilding(team, grid_x - 1, grid_y);
+        } break;
+
+        case CONNECTOR_WEST_BOTTOM: {
+            result = Access_GetTeamBuilding(team, grid_x, grid_y + grid_size);
+        } break;
+    }
+
+    return result;
+}
+
+void UnitInfo::AttachComplex(Complex* complex) {
+    if (this->complex != complex) {
+        complex->Grow(*this);
+
+        if (this->complex != nullptr) {
+            this->complex->Shrink(*this);
+        }
+
+        this->complex = complex;
+
+        if (connectors & CONNECTOR_NORTH_LEFT) {
+            UnitInfo* unit;
+
+            unit = GetConnectedBuilding(CONNECTOR_NORTH_LEFT);
+
+            if (unit) {
+                unit->AttachComplex(complex);
+            }
+        }
+
+        if (connectors & CONNECTOR_NORTH_RIGHT) {
+            UnitInfo* unit;
+
+            unit = GetConnectedBuilding(CONNECTOR_NORTH_RIGHT);
+
+            if (unit) {
+                unit->AttachComplex(complex);
+            }
+        }
+
+        if (connectors & CONNECTOR_EAST_TOP) {
+            UnitInfo* unit;
+
+            unit = GetConnectedBuilding(CONNECTOR_EAST_TOP);
+
+            if (unit) {
+                unit->AttachComplex(complex);
+            }
+        }
+
+        if (connectors & CONNECTOR_EAST_BOTTOM) {
+            UnitInfo* unit;
+
+            unit = GetConnectedBuilding(CONNECTOR_EAST_BOTTOM);
+
+            if (unit) {
+                unit->AttachComplex(complex);
+            }
+        }
+
+        if (connectors & CONNECTOR_SOUTH_RIGHT) {
+            UnitInfo* unit;
+
+            unit = GetConnectedBuilding(CONNECTOR_SOUTH_RIGHT);
+
+            if (unit) {
+                unit->AttachComplex(complex);
+            }
+        }
+
+        if (connectors & CONNECTOR_SOUTH_LEFT) {
+            UnitInfo* unit;
+
+            unit = GetConnectedBuilding(CONNECTOR_SOUTH_LEFT);
+
+            if (unit) {
+                unit->AttachComplex(complex);
+            }
+        }
+
+        if (connectors & CONNECTOR_WEST_BOTTOM) {
+            UnitInfo* unit;
+
+            unit = GetConnectedBuilding(CONNECTOR_WEST_BOTTOM);
+
+            if (unit) {
+                unit->AttachComplex(complex);
+            }
+        }
+
+        if (connectors & CONNECTOR_WEST_TOP) {
+            UnitInfo* unit;
+
+            unit = GetConnectedBuilding(CONNECTOR_WEST_TOP);
+
+            if (unit) {
+                unit->AttachComplex(complex);
+            }
+        }
+    }
+}
+
+void UnitInfo::AttachToPrimaryComplex() {
+    /// \todo
+}
+
+void UnitInfo::TestConnections() {
+    /// \todo
+}
+
+UnitInfo* UnitInfo::GetFirstUntestedConnection() {
+    /// \todo
+}
+
+void UnitInfo::DetachComplex() {
+    /// \todo
+}
+
+void UnitInfo::FileLoad(SmartFileReader& file) {
+    /// \todo
+}
+
+void UnitInfo::FileSave(SmartFileWriter& file) {
+    /// \todo
+}
+
+void UnitInfo::TextLoad(TextStructure& object) {
+    /// \todo
+}
+
+void UnitInfo::TextSave(SmartTextfileWriter& file) {
+    /// \todo
+}
+
+void UnitInfo::UpdateTurretAngle(int turrent_angle, bool redraw) {
+    /// \todo
+}
+
+void UnitInfo::Attack(int grid_x, int grid_y) {
+    /// \todo
+}
+
+void UnitInfo::StartBuilding() {
     /// \todo
 }
 
@@ -878,7 +1788,7 @@ int UnitInfo::GetMaxAllowedBuildRate() {
     /// \todo
 }
 
-void UnitInfo::TakepathStep() {
+void UnitInfo::TakePathStep() {
     if (orders == ORDER_MOVING && path != nullptr && (state == ORDER_STATE_5 || state == ORDER_STATE_6)) {
         path->Path_vfunc8(this);
     }

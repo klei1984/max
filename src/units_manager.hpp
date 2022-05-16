@@ -51,5 +51,7 @@ SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned sho
 void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state);
 bool UnitsManager_IsUnitUnderWater(UnitInfo* unit);
+void UnitsManager_DestroyUnit(UnitInfo* unit);
+int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team);
 
 #endif /* UNITS_MANAGER_HPP */

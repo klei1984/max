@@ -34,3 +34,5 @@ void AiPlayer::SetInfoMapPoint(Point point) {}
 void AiPlayer::UpdateMineMap(Point point) {}
 
 void AiPlayer::MarkMineMapPoint(Point point) {}
+
+void AiPlayer::ChangeTasksPendingFlag(bool value) {}

@@ -48,7 +48,7 @@
 
 SoundMgr soundmgr;
 
-static const unsigned char soundmgr_sfx_type_flags[SoundMgr::SFX_TYPE_LIMIT] = {
+static const unsigned char soundmgr_sfx_type_flags[SFX_TYPE_LIMIT] = {
     SOUNDMGR_SFX_FLAG_INVALID,
     SOUNDMGR_SFX_FLAG_UNKNOWN_2 | SOUNDMGR_SFX_FLAG_INFINITE_LOOPING,
     SOUNDMGR_SFX_FLAG_UNKNOWN_2 | SOUNDMGR_SFX_FLAG_INFINITE_LOOPING,
@@ -339,9 +339,9 @@ void SoundMgr::PlaySfx(ResourceID id) {
     }
 }
 
-void SoundMgr::PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode) {
+void SoundMgr::PlaySfx(UnitInfo* unit, int sound, bool mode) {
     unsigned char flags;
-    SFX_TYPE previous_sound;
+    int previous_sound;
 
     SDL_assert(unit);
     SDL_assert(sound < SFX_TYPE_LIMIT);
@@ -353,7 +353,7 @@ void SoundMgr::PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode) {
     }
 
     if (!(flags & SOUNDMGR_SFX_FLAG_UNKNOWN_2) ||
-        (previous_sound = (SFX_TYPE)unit->sound, unit->sound = (unsigned char)sound, previous_sound != sound)) {
+        (previous_sound = unit->sound, unit->sound = sound, previous_sound != sound)) {
         if (SFX_TYPE_INVALID == sound) {
             FreeSfx(unit);
             return;
@@ -562,7 +562,7 @@ void SoundMgr::HaltSfxPlayback(bool disable) {
 
     } else if (GameManager_SelectedUnit != nullptr) {
         PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID, false);
-        PlaySfx(&*GameManager_SelectedUnit, static_cast<SFX_TYPE>(GameManager_SelectedUnit->sound), false);
+        PlaySfx(&*GameManager_SelectedUnit, GameManager_SelectedUnit->sound, false);
     }
 }
 

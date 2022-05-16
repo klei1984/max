@@ -22,9 +22,11 @@
 #ifndef BUILDER_HPP
 #define BUILDER_HPP
 
-#include "enums.hpp"
+#include "unitinfo.hpp"
 
 ResourceID Builder_GetBuilderType(ResourceID unit_type);
 bool Builder_IsBuildable(ResourceID unit_type);
+
+int Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, ResourceID unit_type);
 
 #endif /* BUILDER_HPP */

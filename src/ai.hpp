@@ -28,5 +28,6 @@ bool Ai_SetupStrategy(unsigned short team);
 void Ai_SetInfoMapPoint(Point point, unsigned short team);
 void Ai_MarkMineMapPoint(Point point, unsigned short team);
 void Ai_UpdateMineMap(Point point, unsigned short team);
+void Ai_SetTasksPendingFlag(const char* event);
 
 #endif /* AI_HPP */

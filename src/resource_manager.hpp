@@ -49,6 +49,19 @@ struct ImageBigHeader {
     unsigned char data[];
 };
 
+struct ImageMultiFrameHeader {
+    unsigned short width;
+    unsigned short height;
+    unsigned short hotx;
+    unsigned short hoty;
+    unsigned char *rows[];
+};
+
+struct ImageMultiHeader {
+    unsigned short image_count;
+    struct ImageMultiFrameHeader *frames[];
+};
+
 extern char ResourceManager_FilePathCd[PATH_MAX];
 extern char ResourceManager_FilePathGameInstall[PATH_MAX];
 extern char ResourceManager_FilePathGameResFile[PATH_MAX];

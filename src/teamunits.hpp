@@ -93,8 +93,8 @@ struct BaseUnit {
     const char* plural_name;
     const char* description;
     const char* tutorial;
-    char* sprite;
-    char* shadows;
+    unsigned char* sprite;
+    unsigned char* shadows;
     char* field_47;
 };
 
@@ -138,5 +138,8 @@ public:
     unsigned short hash_team_id;
     ColorIndex* color_index_table;
 };
+
+int TeamUnits_GetUpgradeCost(unsigned short team, ResourceID unit_type, int attribute);
+int TeamUnits_UpgradeOffsetFactor(unsigned short team, ResourceID unit_type, int attribute);
 
 #endif /* TEAMUNITS_HPP */

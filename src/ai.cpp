@@ -47,3 +47,11 @@ void Ai_UpdateMineMap(Point point, unsigned short team) {
         AiPlayer_Teams[team].UpdateMineMap(point);
     }
 }
+
+void Ai_SetTasksPendingFlag(const char* event) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+            AiPlayer_Teams[team].ChangeTasksPendingFlag(true);
+        }
+    }
+}

@@ -607,3 +607,11 @@ UnitInfo* Access_GetUnit3(int grid_x, int grid_y, unsigned int flags) {
 UnitInfo* Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y) {
     /// \todo
 }
+
+UnitInfo* Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y) {
+    /// \todo
+}
+
+bool Access_ProcessNewGroupOrder(UnitInfo* unit) {
+    /// \todo
+}

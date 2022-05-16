@@ -2077,3 +2077,11 @@ bool UnitsManager_IsUnitUnderWater(UnitInfo* unit) {
 
     return result;
 }
+
+void UnitsManager_DestroyUnit(UnitInfo* unit) {
+    /// \todo
+}
+
+int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team) {
+    /// \todo
+}

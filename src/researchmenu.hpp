@@ -24,17 +24,6 @@
 
 #include "resource_manager.hpp"
 
-enum {
-    RESEARCH_TOPIC_ATTACK,
-    RESEARCH_TOPIC_SHOTS,
-    RESEARCH_TOPIC_RANGE,
-    RESEARCH_TOPIC_ARMOR,
-    RESEARCH_TOPIC_HITS,
-    RESEARCH_TOPIC_SPEED,
-    RESEARCH_TOPIC_SCAN,
-    RESEARCH_TOPIC_COST
-};
-
 int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type);
 
 #endif /* RESEARCHMENU_HPP */

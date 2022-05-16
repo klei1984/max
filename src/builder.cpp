@@ -248,3 +248,7 @@ bool Builder_IsBuildable(ResourceID unit_type) {
 
     return result;
 }
+
+int Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, ResourceID unit_type) {
+    /// \todo
+}

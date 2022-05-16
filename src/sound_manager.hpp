@@ -38,29 +38,6 @@ enum AudioType {
 
 class SoundMgr {
 public:
-    typedef enum {
-        SFX_TYPE_INVALID,
-        SFX_TYPE_IDLE,
-        SFX_TYPE_WATER_IDLE,
-        SFX_TYPE_DRIVE,
-        SFX_TYPE_WATER_DRIVE,
-        SFX_TYPE_STOP,
-        SFX_TYPE_WATER_STOP,
-        SFX_TYPE_TRANSFORM,
-        SFX_TYPE_BUILDING,
-        SFX_TYPE_SHRINK,
-        SFX_TYPE_EXPAND,
-        SFX_TYPE_TURRET,
-        SFX_TYPE_FIRE,
-        SFX_TYPE_HIT,
-        SFX_TYPE_EXPLOAD,
-        SFX_TYPE_POWER_CONSUMPTION_START,
-        SFX_TYPE_POWER_CONSUMPTION_END,
-        SFX_TYPE_LAND,
-        SFX_TYPE_TAKE,
-        SFX_TYPE_LIMIT
-    } SFX_TYPE;
-
     SoundMgr();
     ~SoundMgr();
     void Init();
@@ -71,7 +48,7 @@ public:
     void FreeMusic();
 
     void PlaySfx(ResourceID id);
-    void PlaySfx(UnitInfo* unit, SFX_TYPE sound, bool mode = false);
+    void PlaySfx(UnitInfo* unit, int sound, bool mode = false);
     void UpdateSfxPosition();
     void UpdateSfxPosition(UnitInfo* unit);
     void UpdateAllSfxPositions();
@@ -103,7 +80,7 @@ private:
         short grid_x;
         short grid_y;
         short priority;
-        SFX_TYPE sound;
+        int sound;
         unsigned short unit_id;
     } SoundJob;
 

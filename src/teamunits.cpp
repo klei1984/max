@@ -27,6 +27,7 @@
 #include <cstdlib>
 
 #include "resource_manager.hpp"
+#include "units_manager.hpp"
 
 AbstractUnit::AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
@@ -337,8 +338,8 @@ Complex* TeamUnits::GetComplex(unsigned short complex_id) {
 void TeamUnits::sub_7F3DC(unsigned short team) {
     for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
         /// \todo Implement methods
-        //        (*it).Complex_sub_135AC();
-        //        sub_41EA3(team, (*it), 0, 0);
+        //        Access_UpdateResourcesTotal(*it);
+        //        ProductionManager_static_sub_41EA3(team, (*it), 0, 0);
     }
 }
 
@@ -353,3 +354,26 @@ void TeamUnits::SetBaseUnitValues(unsigned short id, UnitValues& object) { base_
 UnitValues* TeamUnits::GetCurrentUnitValues(unsigned short id) { return &*current_values[id]; }
 
 void TeamUnits::SetCurrentUnitValues(unsigned short id, UnitValues& object) { current_values[id] = object; }
+
+int TeamUnits_GetUpgradeCost(unsigned short team, ResourceID unit_type, int attribute) {
+    /// \todo
+}
+
+int TeamUnits_UpgradeOffsetFactor(unsigned short team, ResourceID unit_type, int attribute) {
+    int value;
+    int result;
+
+    value = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type)->GetAttribute(attribute);
+
+    if (value < 10) {
+        result = 1;
+    } else if (value < 25) {
+        result = 2;
+    } else if (value < 50) {
+        result = 5;
+    } else {
+        result = 10;
+    }
+
+    return result;
+}

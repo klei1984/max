@@ -120,8 +120,19 @@ void Complex::GetCargoInfo(Cargo& materials, Cargo& capacity) {
     materials.Init();
     capacity.Init();
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
         materials += *Cargo_GetCargo(&*it, &cargo);
         capacity += *Cargo_GetCargoCapacity(&*it, &cargo);
+    }
+}
+
+void Complex::Grow(UnitInfo& unit) { ++buildings; }
+
+void Complex::Shrink(UnitInfo& unit) {
+    --buildings;
+
+    if (!buildings) {
+        UnitsManager_TeamInfo[unit.team].team_units->RemoveComplex(*this);
     }
 }

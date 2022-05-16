@@ -32,6 +32,7 @@ public:
     void SetInfoMapPoint(Point point);
     void UpdateMineMap(Point point);
     void MarkMineMapPoint(Point point);
+    void ChangeTasksPendingFlag(bool value);
 };
 
 extern AiPlayer AiPlayer_Teams[4];
