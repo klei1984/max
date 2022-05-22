@@ -22,13 +22,19 @@
 #include "units_manager.hpp"
 
 #include "access.hpp"
+#include "builder.hpp"
+#include "hash.hpp"
 #include "inifile.hpp"
+#include "remote.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 
+static void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y);
 static void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y);
+
+unsigned short UnitsManager_Team;
 
 SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
@@ -1939,6 +1945,10 @@ CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
 TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
+void UnitsManager_PerformAction(UnitInfo* unit) {
+    /// \todo
+}
+
 int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential) {
     int target_armor = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);
     int attacker_damage = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
@@ -2053,12 +2063,77 @@ void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
     }
 }
 
+unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid_y) {
+    ResourceID unit_type;
+    SmartPointer<UnitInfo> parent;
+    unsigned int result;
+
+    unit_type = unit->unit_type;
+    parent = unit->GetParent();
+
+    Hash_MapHash.Remove(unit);
+
+    if (parent != nullptr) {
+        Hash_MapHash.Remove(&*parent);
+
+        unit_type = parent->GetConstructedUnitType();
+    }
+
+    if (UnitsManager_BaseUnits[unit->unit_type].flags & BUILDING) {
+        result = Builder_IsAccessible(unit->team, unit_type, grid_x, grid_y);
+
+    } else {
+        if (Access_GetModifiedSurfaceType(grid_x, grid_y) == SURFACE_TYPE_AIR) {
+            result = 0;
+
+        } else {
+            result = Access_IsAccessible(unit_type, unit->team, grid_x, grid_y, 0x2);
+        }
+    }
+
+    Hash_MapHash.Add(unit);
+
+    if (parent != nullptr) {
+        Hash_MapHash.Add(&*parent);
+    }
+
+    return result;
+}
+
+void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y) {
+    unit->grid_x = grid_x;
+    unit->grid_y = grid_y;
+
+    grid_x = grid_x * 64 + 32;
+    grid_y = grid_y * 64 + 32;
+
+    if (unit->flags & BUILDING) {
+        grid_x += 31;
+        grid_y += 31;
+    }
+
+    grid_x -= unit->x;
+    grid_y -= unit->y;
+
+    unit->OffsetDrawZones(grid_x, grid_y);
+}
+
 void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y) {
-    /// \todo
+    Hash_MapHash.Remove(unit);
+    UnitsManager_UpdateUnitPosition(unit, grid_x, grid_y);
+    Hash_MapHash.Add(unit);
 }
 
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
     /// \todo
+}
+
+void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state) {
+    UnitsManager_SetNewOrderInt(unit, order, state);
+
+    if (Remote_IsNetworkGame) {
+        Remote_SendNetPacket_08(unit);
+    }
 }
 
 bool UnitsManager_IsUnitUnderWater(UnitInfo* unit) {
@@ -2083,5 +2158,11 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
 }
 
 int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team) {
+    /// \todo
+}
+
+SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
+                                               int grid_y, unsigned char unit_angle, bool is_existing_unit,
+                                               bool skip_map_status_update) {
     /// \todo
 }

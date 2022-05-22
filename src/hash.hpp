@@ -73,4 +73,7 @@ public:
 extern UnitHash Hash_UnitHash;
 extern MapHash Hash_MapHash;
 
+void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& file);
+void SmartList_UnitInfo_FileSave(SmartList<UnitInfo>& list, SmartFileWriter& file);
+
 #endif /* HASH_HPP */

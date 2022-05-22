@@ -27,6 +27,8 @@
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 
+extern unsigned short UnitsManager_Team;
+
 extern SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 extern SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
 extern SmartList<UnitInfo> UnitsManager_ParticleUnits;
@@ -41,6 +43,7 @@ extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
 extern TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
+void UnitsManager_PerformAction(UnitInfo* unit);
 int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
 UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type);
 void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<ResourceID> units);
@@ -48,10 +51,15 @@ int UnitsManager_AddDefaultMissionLoadout(unsigned short team);
 void UnitsManager_InitPopupMenus();
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
                                               UnitInfo* parent);
-void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state);
+void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state);
+void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
+unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid_y);
 bool UnitsManager_IsUnitUnderWater(UnitInfo* unit);
 void UnitsManager_DestroyUnit(UnitInfo* unit);
 int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team);
+SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
+                                               int grid_y, unsigned char unit_angle, bool is_existing_unit = false,
+                                               bool skip_map_status_update = false);
 
 #endif /* UNITS_MANAGER_HPP */

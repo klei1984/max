@@ -430,3 +430,7 @@ void UnitStats_DrawCost(unsigned char* buffer, int screen_width, ResourceID unit
     UnitStats_DrawText(buffer, screen_width, "Cost", image_width, level2, false);
     UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, id_normal, id_empty, level2, level1);
 }
+
+void UnitStats_Menu(UnitInfo* unit) {
+    /// \todo
+}

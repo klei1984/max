@@ -1494,7 +1494,7 @@ void ResourceManager_InitTeamInfo() {
         UnitsManager_TeamInfo[i].selected_unit = nullptr;
 
         memset(&UnitsManager_TeamInfo[i], 0, sizeof(CTInfo));
-        memset(UnitsManager_TeamInfo[i].field_0, -1, sizeof(UnitsManager_TeamInfo[i].field_0));
+        memset(UnitsManager_TeamInfo[i].markers, -1, sizeof(UnitsManager_TeamInfo[i].markers));
         memset(UnitsManager_TeamInfo[i].unit_counters, 1, sizeof(UnitsManager_TeamInfo[i].unit_counters));
         memset(UnitsManager_TeamInfo[i].screen_location, -1, sizeof(UnitsManager_TeamInfo[i].screen_location));
         memset(UnitsManager_TeamInfo[i].score_graph, 0, sizeof(UnitsManager_TeamInfo[i].score_graph));

@@ -142,4 +142,9 @@ public:
 int TeamUnits_GetUpgradeCost(unsigned short team, ResourceID unit_type, int attribute);
 int TeamUnits_UpgradeOffsetFactor(unsigned short team, ResourceID unit_type, int attribute);
 
+extern TeamUnits ResourceManager_TeamUnitsRed;
+extern TeamUnits ResourceManager_TeamUnitsGreen;
+extern TeamUnits ResourceManager_TeamUnitsBlue;
+extern TeamUnits ResourceManager_TeamUnitsGray;
+
 #endif /* TEAMUNITS_HPP */

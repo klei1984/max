@@ -32,7 +32,7 @@ enum {
 };
 
 bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int target_grid_y, bool mode);
-unsigned int Access_sub_102B9(ResourceID unit_type, unsigned short team, int grid_x, int grid_y, unsigned int flags);
+unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int grid_x, int grid_y, unsigned int flags);
 /// \todo bool Access_sub_107ED(ResourceID unit_type, UnitInfo *unit, int *grid_x, int *grid_y, ...);
 void Access_InitUnitStealthStatus(SmartList<UnitInfo> &units);
 void Access_InitStealthMaps();
@@ -61,13 +61,19 @@ bool Access_IsTeamInUnitLists(unsigned short team);
 UnitInfo *Access_GetSelectableUnit(UnitInfo *unit, int grid_x, int grid_y);
 UnitInfo *Access_GetFirstMiningStation(unsigned short team);
 UnitInfo *Access_GetFirstActiveUnit(unsigned short team, SmartList<UnitInfo> &units);
+void Access_RenewAttackOrders(SmartList<UnitInfo> &units, unsigned short team);
 bool Access_IsWithinMovementRange(UnitInfo *unit);
 
-UnitInfo *Access_GetUnit3(int grid_x, int grid_y, unsigned int flags);
+UnitInfo *Access_GetUnit(int grid_x, int grid_y);
+UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned int flags);
+UnitInfo *Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned int flags);
+UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned int flags);
 
 UnitInfo *Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y);
 
 UnitInfo *Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y);
+
+void Access_MultiSelect(UnitInfo *unit, Rect *bounds);
 
 bool Access_ProcessNewGroupOrder(UnitInfo *unit);
 

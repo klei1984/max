@@ -22,11 +22,13 @@
 #ifndef UNITSTATS_HPP
 #define UNITSTATS_HPP
 
-#include "unitvalues.hpp"
+#include "unitinfo.hpp"
 
 void UnitStats_DrawImage(unsigned char* buffer, int window_width, struct ImageSimpleHeader* image);
 
 void UnitStats_DrawStats(unsigned char* buffer, int window_width, ResourceID unit_type, unsigned short team,
                          UnitValues& unit_values, int image_width, ResourceID icon_full, ResourceID icon_empty);
+
+void UnitStats_Menu(UnitInfo* unit);
 
 #endif /* UNITSTATS_HPP */

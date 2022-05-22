@@ -19,23 +19,8 @@
  * SOFTWARE.
  */
 
-#ifndef AI_PLAYER_HPP
-#define AI_PLAYER_HPP
+#include "reportmenu.hpp"
 
-#include "unitinfo.hpp"
+/// \todo
 
-class AiPlayer {
-public:
-    AiPlayer();
-    ~AiPlayer();
-
-    void SetInfoMapPoint(Point point);
-    void UpdateMineMap(Point point);
-    void MarkMineMapPoint(Point point);
-    void ChangeTasksPendingFlag(bool value);
-    bool SelectStrategy();
-};
-
-extern AiPlayer AiPlayer_Teams[4];
-
-#endif /* AI_PLAYER_HPP */
+void ReportMenu_Menu() {}

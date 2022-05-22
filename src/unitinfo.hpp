@@ -125,6 +125,7 @@ public:
     void Draw(unsigned short team);
     void DrawStealth(unsigned short team);
     int GetRawConsumptionRate();
+    ResourceID GetConstructedUnitType() const;
     int GetMaxAllowedBuildRate();
     void TakePathStep();
     void SetLayingState(int state);
@@ -173,7 +174,7 @@ public:
     unsigned char fuel_mining_max;
     unsigned char hits;
     unsigned char speed;
-    unsigned char field_79;
+    unsigned char group_speed;
     unsigned char shots;
     unsigned char move_and_fire;
     unsigned short storage;

@@ -22,4 +22,9 @@
 #ifndef DRAWMAP_HPP
 #define DRAWMAP_HPP
 
+#include "gnw.h"
+
+void Drawmap_UpdateDirtyZones(Rect* bounds);
+void DrawMap_ClearDirtyZones();
+
 #endif /* DRAWMAP_HPP */

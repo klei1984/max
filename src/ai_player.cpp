@@ -36,3 +36,5 @@ void AiPlayer::UpdateMineMap(Point point) {}
 void AiPlayer::MarkMineMapPoint(Point point) {}
 
 void AiPlayer::ChangeTasksPendingFlag(bool value) {}
+
+bool AiPlayer::SelectStrategy() {}

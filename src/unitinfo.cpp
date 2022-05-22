@@ -485,7 +485,7 @@ UnitInfo::UnitInfo()
       pin_count(0),
       field_165(true),
       unit_list(nullptr),
-      field_79(0),
+      group_speed(0),
       name(nullptr),
       build_rate(1),
       field_221(0),
@@ -537,7 +537,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id,
       velocity(0),
       sound(0),
       unit_list(nullptr),
-      field_79(0),
+      group_speed(0),
       shadow_offset(0, 0),
       auto_survey(false),
       angle(angle) {
@@ -637,7 +637,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       fuel_mining_max(other.fuel_mining_max),
       hits(other.hits),
       speed(other.speed),
-      field_79(other.field_79),
+      group_speed(other.group_speed),
       shots(other.shots),
       move_and_fire(other.move_and_fire),
       storage(other.storage),
@@ -1564,7 +1564,7 @@ void UnitInfo::ClearUnitList() {
         }
 
         unit_list = nullptr;
-        field_79 = 0;
+        group_speed = 0;
     }
 }
 
@@ -1783,6 +1783,12 @@ void UnitInfo::DrawStealth(unsigned short team) {
 }
 
 int UnitInfo::GetRawConsumptionRate() { return Cargo_GetRawConsumptionRate(unit_type, GetMaxAllowedBuildRate()); }
+
+ResourceID UnitInfo::GetConstructedUnitType() const {
+    SDL_assert(build_list.GetCount() > 0);
+
+    return *build_list[0];
+}
 
 int UnitInfo::GetMaxAllowedBuildRate() {
     /// \todo

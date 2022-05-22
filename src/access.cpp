@@ -83,7 +83,8 @@ bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int ta
     }
 }
 
-unsigned int Access_sub_102B9(ResourceID unit_type, unsigned short team, int grid_x, int grid_y, unsigned int flags) {
+unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
+                                 unsigned int flags) {
     /// \todo
 }
 
@@ -543,7 +544,7 @@ UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int grid_x, int grid_y) {
     Hash_MapHash.Remove(unit);
     Hash_MapHash.Add(unit, true);
 
-    unit2 = Access_GetUnit3(grid_x, grid_y, SELECTABLE);
+    unit2 = Access_GetUnit(grid_x, grid_y, SELECTABLE);
 
     if (unit2->orders == ORDER_IDLE || (unit2->flags & GROUND_COVER)) {
         unit2 = unit;
@@ -578,6 +579,10 @@ UnitInfo* Access_GetFirstActiveUnit(unsigned short team, SmartList<UnitInfo>& un
     return nullptr;
 }
 
+void Access_RenewAttackOrders(SmartList<UnitInfo>& units, unsigned short team) {
+    /// \todo
+}
+
 bool Access_IsWithinMovementRange(UnitInfo* unit) {
     bool result;
 
@@ -600,7 +605,19 @@ bool Access_IsWithinMovementRange(UnitInfo* unit) {
     return result;
 }
 
-UnitInfo* Access_GetUnit3(int grid_x, int grid_y, unsigned int flags) {
+UnitInfo* Access_GetUnit(int grid_x, int grid_y) {
+    /// \todo
+}
+
+UnitInfo* Access_GetUnit(int grid_x, int grid_y, unsigned int flags) {
+    /// \todo
+}
+
+UnitInfo* Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned int flags) {
+    /// \todo
+}
+
+UnitInfo* Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned int flags) {
     /// \todo
 }
 
@@ -609,6 +626,10 @@ UnitInfo* Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_
 }
 
 UnitInfo* Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y) {
+    /// \todo
+}
+
+void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
     /// \todo
 }
 

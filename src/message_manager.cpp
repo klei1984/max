@@ -346,3 +346,9 @@ void MessageLogEntry::Select() {
         }
     }
 }
+
+UnitInfo* MessageLogEntry::GetUnit() const { return &*unit; }
+
+Point MessageLogEntry::GetPosition() const { return point; }
+
+ResourceID MessageLogEntry::GetIcon() const { return id; }

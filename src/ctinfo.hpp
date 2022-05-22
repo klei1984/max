@@ -37,10 +37,10 @@ struct ScreenLocation {
 };
 
 struct CTInfo {
-    char field_0[40];
+    Point markers[10];
     char team_type;
     char field_41;
-    char unit_counters[93];
+    char unit_counters[UNIT_END];
     char team_clan;
     ResearchTopic research_topics[8];
     unsigned int team_points;
@@ -67,7 +67,7 @@ struct CTInfo {
     short stats_units_built;
     short stats_gold_spent_on_upgrades;
     short score_graph[50];
-    unsigned short casulties[93];
+    unsigned short casulties[UNIT_END];
     char *heat_map_complete;
     char *heat_map_stealth_sea;
     char *heat_map_stealth_land;

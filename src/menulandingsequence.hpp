@@ -29,8 +29,6 @@ class MenuLandingSequence {
     WindowInfo* panel_bottom;
     Image* image_1;
     Image* image_2;
-    Button* button_1;
-    Button* button_2;
     unsigned int time_stamp;
 
 public:
@@ -43,6 +41,9 @@ public:
     void ClosePanel();
     void Init(bool enable_controls);
     void Deinit();
+
+    Button* button_1;
+    Button* button_2;
 };
 
 #endif /* MENULANDINGSEQUENCE_HPP */

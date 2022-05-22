@@ -291,3 +291,11 @@ void TransferMenu::Run() {
 }
 
 short TransferMenu::GetCargoTransferred() const { return total_materials_transferred; }
+
+int TransferMenu_Menu(UnitInfo *unit) {
+    TransferMenu menu(unit);
+
+    menu.Run();
+
+    return menu.GetCargoTransferred();
+}

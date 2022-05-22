@@ -21,13 +21,70 @@
 
 #include "ai.hpp"
 
+#include "access.hpp"
 #include "ai_player.hpp"
+#include "inifile.hpp"
 #include "units_manager.hpp"
 
-bool Ai_SetupStrategy(unsigned short team) {
-    /// \todo
+#define AI_SAFE_ENEMY_DISTANCE 400
 
-    return false;
+bool Ai_IsValidStartingPosition(Rect* bounds);
+bool Ai_IsSafeStartingPosition(int grid_x, int grid_y, unsigned short team);
+
+bool Ai_IsValidStartingPosition(Rect* bounds) {
+    for (int x = bounds->ulx; x <= bounds->lrx; ++x) {
+        for (int y = bounds->uly; y <= bounds->lry; ++y) {
+            if (Access_GetModifiedSurfaceType(x, y) != SURFACE_TYPE_LAND) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool Ai_IsSafeStartingPosition(int grid_x, int grid_y, unsigned short team) {
+    Rect bounds;
+    Point point;
+
+    rect_init(&bounds, grid_x - 2, grid_y - 2, grid_x + 2, grid_y + 2);
+
+    if (Ai_IsValidStartingPosition(&bounds)) {
+        for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
+            if (team != i && UnitsManager_TeamMissionSupplies[i].units.GetCount()) {
+                point.x = grid_x - UnitsManager_TeamMissionSupplies[i].starting_position.x;
+                point.y = grid_y - UnitsManager_TeamMissionSupplies[i].starting_position.y;
+
+                if (point.x * point.x + point.y * point.y < AI_SAFE_ENEMY_DISTANCE) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+
+    } else {
+        return false;
+    }
+}
+
+void Ai_SelectStartingPosition(unsigned short team) {
+    int grid_x;
+    int grid_y;
+
+    do {
+        grid_x = (((ResourceManager_MapSize.x - 6) * dos_rand()) >> 15) + 3;
+        grid_y = (((ResourceManager_MapSize.y - 6) * dos_rand()) >> 15) + 3;
+    } while (!Ai_IsSafeStartingPosition(grid_x, grid_y, team));
+
+    UnitsManager_TeamMissionSupplies[team].starting_position.x = grid_x;
+    UnitsManager_TeamMissionSupplies[team].starting_position.y = grid_y;
+}
+
+bool Ai_SetupStrategy(unsigned short team) {
+    ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), "Computer");
+
+    return AiPlayer_Teams[team].SelectStrategy();
 }
 
 void Ai_SetInfoMapPoint(Point point, unsigned short team) {
@@ -54,4 +111,16 @@ void Ai_SetTasksPendingFlag(const char* event) {
             AiPlayer_Teams[team].ChangeTasksPendingFlag(true);
         }
     }
+}
+
+void Ai_Clear() {
+    /// \todo
+}
+
+void Ai_FileLoad(SmartFileReader& file) {
+    /// \todo
+}
+
+void Ai_FileSave(SmartFileWriter& file) {
+    /// \todo
 }

@@ -42,6 +42,7 @@ struct __attribute__((packed)) SaveFormatHeader {
 
 extern const char* SaveLoadMenu_SaveFileTypes[];
 extern int SaveLoadMenu_SaveSlot;
+extern unsigned char SaveLoadMenu_GameState;
 
 int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct SaveFormatHeader& save_file_header,
                                   bool load_ini_options = true);

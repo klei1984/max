@@ -43,6 +43,7 @@ public:
 EVENTS_DECLARE_EVENT_ID(ScrollbarEvent);
 
 void LoadHorizontalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
+void LoadHorizontalTape(unsigned char *buffer, short full2, short length, short width, ResourceID id);
 void LoadVerticalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
 
 class Scrollbar {

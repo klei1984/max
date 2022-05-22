@@ -63,4 +63,6 @@ public:
     short GetCargoTransferred() const;
 };
 
+int TransferMenu_Menu(UnitInfo *unit);
+
 #endif /* TRANSFERMENU_HPP */

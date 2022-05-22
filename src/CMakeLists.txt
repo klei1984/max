@@ -69,6 +69,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gfx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reportstats.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/reportmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitstats.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unittypeselector.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/upgradecontrol.cpp

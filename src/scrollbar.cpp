@@ -55,6 +55,16 @@ void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short
     }
 }
 
+void LoadHorizontalTape(unsigned char* buffer, short full2, short length, short width, ResourceID id) {
+    if (width > 0) {
+        struct ImageSimpleHeader* sprite;
+
+        sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
+
+        buf_to_buf(sprite->data, width, length, sprite->width, buffer, full2);
+    }
+}
+
 void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
     struct ImageSimpleHeader* sprite;
     char transparent_color;
@@ -210,7 +220,7 @@ void Scrollbar::RefreshScreen() {
             capacity = ((value - zero_offset) * xfer_slider->GetWidth()) / capacity;
         }
 
-        LoadHorizontalBar(buffer, win.width, capacity, xfer_slider->GetHeight(), material_bar);
+        LoadHorizontalBar(buffer, win.width, xfer_slider->GetHeight(), capacity, material_bar);
     }
 
     if (scaling_factor) {

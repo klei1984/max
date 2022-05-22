@@ -29,5 +29,9 @@ void Ai_SetInfoMapPoint(Point point, unsigned short team);
 void Ai_MarkMineMapPoint(Point point, unsigned short team);
 void Ai_UpdateMineMap(Point point, unsigned short team);
 void Ai_SetTasksPendingFlag(const char* event);
+void Ai_Clear();
+void Ai_FileLoad(SmartFileReader& file);
+void Ai_FileSave(SmartFileWriter& file);
+void Ai_SelectStartingPosition(unsigned short team);
 
 #endif /* AI_HPP */
