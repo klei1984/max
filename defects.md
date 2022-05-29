@@ -177,6 +177,24 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 66. If a unit is selected the primary selection marker starts to blink at a 1 second rate. If a multiselect rectangle is redrawn by clicking and dragging the mouse pointer the primary marker gets redrawn as well and its draw function toggles the marker state much faster. The primary marker should not start to blink like crazy in such events.
 
+67. When a supply truck tries to reload a unit and it's storage container is empty the following alert message is shown: "insufficient material in storage to reload unit.". The message should start with capital letter. Same goes for repairing a unit.
+
+68. The path generator erroneously cannot find path to a cell location in corner cases. Note: the audio can be unmuted on this video clip.
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_68.mp4" type="video/mp4">
+    <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_68.vtt" default>
+    </video>
+    In the above case an airplane is hovering above a bridge which confuses the path generator.
+
+69. The path generator inconsistently finds a path to a cell where it is questionable whether the given unit should be allowed to move at all. Note: the audio can be unmuted on this video clip.
+    <br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_69.mp4" type="video/mp4">
+    <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_69.vtt" default>
+    </video>
+    Is it intentional to allow ships to coast type cells in case there is a bridge at the same cell?
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).

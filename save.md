@@ -469,11 +469,11 @@ struct __attribute__((packed)) TeamInfo
   char gui_button_state_colors;
   char gui_button_state_hits;
   char gui_button_state_ammo;
-  char gui_button_state_survey;
-  char gui_button_state_names;
   char gui_button_state_minimap_2x;
   char gui_button_state_minimap_tnt;
   char gui_button_state_grid;
+  char gui_button_state_names;
+  char gui_button_state_survey;
   short stats_factories_built;
   short stats_mines_built;
   short stats_buildings_built;
