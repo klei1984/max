@@ -41,6 +41,10 @@ struct __attribute__((packed)) SaveFormatHeader {
 };
 
 extern const char* SaveLoadMenu_SaveFileTypes[];
+extern const char* SaveLoadMenu_TutorialTitles[];
+extern const char* SaveLoadMenu_ScenarioTitles[];
+extern const char* SaveLoadMenu_CampaignTitles[];
+
 extern int SaveLoadMenu_SaveSlot;
 extern unsigned char SaveLoadMenu_GameState;
 
@@ -50,5 +54,6 @@ int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct Save
 int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode);
 void SaveLoadMenu_Save(char* file_name, char* save_name, bool play_voice);
 bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode);
+int SaveLoadMenu_GetGameFileType();
 
 #endif /* SAVELOADMENU_HPP */

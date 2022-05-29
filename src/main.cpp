@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
         menu_draw_logo(ILOGO, 3000);
     }
 
-    soundmgr.PlayMusic(MAIN_MSC, false);
+    SoundManager.PlayMusic(MAIN_MSC, false);
     menu_draw_logo(MLOGO, 3000);
 
     main_menu();

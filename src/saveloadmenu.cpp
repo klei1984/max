@@ -28,7 +28,6 @@
 #include "button.hpp"
 #include "flicsmgr.hpp"
 #include "game_manager.hpp"
-#include "gui.hpp"
 #include "hash.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
@@ -139,7 +138,6 @@ static void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int *save_slot_inde
 static void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int save_slot_index, int is_saving_allowed);
 static void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int save_slot, int game_file_type);
 static void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, unsigned short team);
-static int SaveLoadMenu_GetGameFileType();
 
 void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int save_slot, int game_file_type) {
     const char *title;
@@ -262,7 +260,7 @@ int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct Save
     return result;
 }
 
-void SaveLoadMenu_PlaySfx(ResourceID id) { soundmgr.PlaySfx(id); }
+void SaveLoadMenu_PlaySfx(ResourceID id) { SoundManager.PlaySfx(id); }
 
 void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
                        bool is_text_mode, int save_file_type, int first_slot_on_page, bool mode) {
@@ -662,11 +660,11 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
                     if (is_saving_allowed && Remote_IsNetworkGame) {
                         int game_state;
 
-                        game_state = GUI_GameState;
-                        GUI_GameState = GAME_STATE_10;
+                        game_state = GameManager_GameState;
+                        GameManager_GameState = GAME_STATE_10;
                         MessageManager_DrawMessage("Unable to load a saved game while remote play in progress.", 2, 1,
                                                    true);
-                        GUI_GameState = game_state;
+                        GameManager_GameState = game_state;
                     } else if (save_slot_index != -1 && slots[save_slot_index].in_use) {
                         result = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
                         exit_loop = true;
@@ -675,7 +673,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
 
                 case 1024: {
                     SaveLoadMenu_PlaySfx(FQUIT);
-                    GUI_GameState = GAME_STATE_3_MAIN_MENU;
+                    GameManager_GameState = GAME_STATE_3_MAIN_MENU;
                     exit_loop = true;
                 } break;
 
@@ -705,8 +703,8 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
         if (Remote_IsNetworkGame) {
             GameManager_ProcessState(false);
 
-        } else if (GUI_GameState != GAME_STATE_3_MAIN_MENU && GUI_GameState != GAME_STATE_6 &&
-                   GUI_GameState != GAME_STATE_10) {
+        } else if (GameManager_GameState != GAME_STATE_3_MAIN_MENU && GameManager_GameState != GAME_STATE_6 &&
+                   GameManager_GameState != GAME_STATE_10) {
             GameManager_DrawTurnTimer(GameManager_TurnTimerValue, true);
         }
 
@@ -751,7 +749,7 @@ void SaveLoadMenu_Save(char *file_name, char *save_name, bool play_voice) {
     strcat(file_path, file_name);
 
     if (file.Open(file_path)) {
-        GameManager_GuiSwitchTeam(GUI_PlayerTeamIndex);
+        GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
     }
 
     for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
@@ -860,10 +858,10 @@ void SaveLoadMenu_Save(char *file_name, char *save_name, bool play_voice) {
     }
 
     file.Write(GameManager_ActiveTurnTeam);
-    file.Write(GUI_PlayerTeamIndex);
+    file.Write(GameManager_PlayerTeam);
     file.Write(GameManager_TurnCounter);
 
-    game_state = GUI_GameState;
+    game_state = GameManager_GameState;
     file.Write(game_state);
 
     file.Write(SaveLoadMenu_TurnTimer);
@@ -901,7 +899,7 @@ void SaveLoadMenu_Save(char *file_name, char *save_name, bool play_voice) {
     }
 
     if (play_voice) {
-        soundmgr.PlayVoice(V_M013, V_F013);
+        SoundManager.PlayVoice(V_M013, V_F013);
     }
 }
 
@@ -1025,7 +1023,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
             }
 
             file.Read(GameManager_ActiveTurnTeam);
-            file.Read(GUI_PlayerTeamIndex);
+            file.Read(GameManager_PlayerTeam);
             file.Read(GameManager_TurnCounter);
             file.Read(game_state);
 
@@ -1069,7 +1067,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
                         team_info->team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
 
                         if (team_info->team_type == TEAM_TYPE_PLAYER) {
-                            GUI_PlayerTeamIndex = team;
+                            GameManager_PlayerTeam = team;
                             ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name,
                                                       sizeof(team_name));
                             ini_config.SetStringValue(INI_PLAYER_NAME, team_name);
@@ -1079,7 +1077,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
                         team_info->team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
 
                         if (save_load_flag && team_info->team_type == TEAM_TYPE_PLAYER) {
-                            GUI_PlayerTeamIndex = team;
+                            GameManager_PlayerTeam = team;
                             save_load_flag = false;
                         }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,39 +19,19 @@
  * SOFTWARE.
  */
 
-#ifndef DRAWMAP_HPP
-#define DRAWMAP_HPP
+#ifndef PATHS_MANAGER_HPP
+#define PATHS_MANAGER_HPP
 
-#include "gnw.h"
-#include "unitinfogroup.hpp"
+#include "pathrequest.hpp"
+#include "unitinfo.hpp"
 
-class DrawMapBuffer {
-    unsigned char** buffer;
-    Rect bounds;
+int PathsManager_GetRequestCount(unsigned short team);
+void PathsManager_RemoveRequest(PathRequest* request);
+void PathsManager_RemoveRequest(UnitInfo* unit);
+void PathsManager_PushBack(PathRequest& object);
+void PathsManager_PushFront(PathRequest& object);
+void PathsManager_EvaluateTiles();
+void PathsManager_Clear();
+bool PathsManager_HasRequest(UnitInfo* unit);
 
-    void Deinit();
-
-public:
-    DrawMapBuffer();
-    ~DrawMapBuffer();
-
-    void Init(Rect* bounds);
-
-    unsigned char** GetBuffer() const;
-    int GetWidth() const;
-    int GetHeight() const;
-    Rect* GetBounds();
-};
-
-void Drawmap_UpdateDirtyZones(Rect* bounds);
-void DrawMap_RenderBuildMarker();
-void DrawMap_RenderAirShadow(UnitInfoGroup* group, UnitInfo* unit);
-void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode = true);
-void DrawMap_RenderUnits();
-void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid);
-void DrawMap_RenderSurveyDisplay(DrawMapBuffer* drawmap);
-void DrawMap_RedrawDirtyZones();
-
-void DrawMap_ClearDirtyZones();
-
-#endif /* DRAWMAP_HPP */
+#endif /* PATHS_MANAGER_HPP */

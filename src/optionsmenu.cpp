@@ -403,7 +403,7 @@ void OptionsMenu::UpdateSlider(int id) {
 }
 
 void OptionsMenu::SetVolume(int id, int audio_type, int value) {
-    soundmgr.SetVolume(audio_type, value);
+    SoundManager.SetVolume(audio_type, value);
     ini_set_setting(options_menu_buttons[id].ini_param_index, value);
 }
 
@@ -637,19 +637,19 @@ int OptionsMenu::ProcessKeyPress(int key) {
                         } break;
                         case INI_DISABLE_MUSIC: {
                             ini_set_setting(INI_DISABLE_MUSIC, last_value);
-                            soundmgr.HaltMusicPlayback(last_value);
+                            SoundManager.HaltMusicPlayback(last_value);
 
                         } break;
 
                         case INI_DISABLE_FX: {
                             ini_set_setting(INI_DISABLE_FX, last_value);
-                            soundmgr.HaltSfxPlayback(last_value);
+                            SoundManager.HaltSfxPlayback(last_value);
 
                         } break;
 
                         case INI_DISABLE_VOICE: {
                             ini_set_setting(INI_DISABLE_VOICE, last_value);
-                            soundmgr.HaltVoicePlayback(last_value);
+                            SoundManager.HaltVoicePlayback(last_value);
 
                         } break;
                     }
@@ -686,15 +686,15 @@ int OptionsMenu::ProcessKeyPress(int key) {
 
                             switch (ini_param_index) {
                                 case INI_DISABLE_MUSIC: {
-                                    soundmgr.HaltMusicPlayback(value);
+                                    SoundManager.HaltMusicPlayback(value);
                                 } break;
 
                                 case INI_DISABLE_FX: {
-                                    soundmgr.HaltSfxPlayback(value);
+                                    SoundManager.HaltSfxPlayback(value);
                                 } break;
 
                                 case INI_DISABLE_VOICE: {
-                                    soundmgr.HaltVoicePlayback(value);
+                                    SoundManager.HaltVoicePlayback(value);
                                 } break;
                             }
 

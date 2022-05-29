@@ -21,7 +21,6 @@
 
 #include "paths.hpp"
 
-#include "gui.hpp"
 #include "hash.hpp"
 #include "registerarray.hpp"
 #include "sound_manager.hpp"
@@ -30,10 +29,10 @@
 static unsigned short Paths_AirPath_TypeIndex;
 static MAXRegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
 
-// static unsigned short Paths_GroundPath_TypeIndex;
-// static MAXRegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex,
-//                                                       &GroundPath::Allocate);
-//
+static unsigned short Paths_GroundPath_TypeIndex;
+static MAXRegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex,
+                                                       &GroundPath::Allocate);
+
 // static unsigned short Paths_BuilderPath_TypeIndex;
 // static MAXRegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
 //                                                        &BuilderPath::Allocate);
@@ -348,3 +347,45 @@ int AirPath::Path_vfunc12(int unknown) {}
 bool AirPath::Path_vfunc13(UnitInfo* unit, WindowInfo* window) {
     /// \todo Implement method
 }
+
+GroundPath::GroundPath() : index(0) {}
+
+GroundPath::GroundPath(int target_x, int target_y) : UnitPath(target_x, target_y), index(0) {}
+
+GroundPath::~GroundPath() {}
+
+TextFileObject* GroundPath::Allocate() { return new (std::nothrow) GroundPath(); }
+
+unsigned short GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
+
+void GroundPath::FileLoad(SmartFileReader& file) {}
+
+void GroundPath::FileSave(SmartFileWriter& file) {}
+
+void GroundPath::TextLoad(TextStructure& object) {}
+
+void GroundPath::TextSave(SmartTextfileWriter& file) {}
+
+Point GroundPath::GetPosition(UnitInfo* unit) const {}
+
+bool GroundPath::IsInPath(int grid_x, int grid_y) const {}
+
+void GroundPath::Path_vfunc8(UnitInfo* unit) {}
+
+int GroundPath::GetMovementCost(UnitInfo* unit) {}
+
+bool GroundPath::Path_vfunc10(UnitInfo* unit) {}
+
+void GroundPath::UpdateUnitAngle(UnitInfo* unit) {}
+
+int GroundPath::Path_vfunc12(int unknown) {}
+
+bool GroundPath::Path_vfunc13(UnitInfo* unit, WindowInfo* window) {}
+
+bool GroundPath::IsEndStep() const {}
+
+int GroundPath::WritePacket(char* buffer) {}
+
+void GroundPath::Path_vfunc16(int unknown1, int unknown2) {}
+
+void GroundPath::Path_vfunc17(int unknown1, int unknown2) {}

@@ -19,8 +19,8 @@
  * SOFTWARE.
  */
 
-#ifndef SOUNDMGR_HPP
-#define SOUNDMGR_HPP
+#ifndef SOUND_MANAGER_HPP
+#define SOUND_MANAGER_HPP
 
 #include <SDL_mixer.h>
 
@@ -36,10 +36,10 @@ enum AudioType {
     AUDIO_TYPE_MUSIC,
 };
 
-class SoundMgr {
+class CSoundManager {
 public:
-    SoundMgr();
-    ~SoundMgr();
+    CSoundManager();
+    ~CSoundManager();
     void Init();
     void Deinit();
 
@@ -135,6 +135,6 @@ private:
     void LoadLoopPoints(FILE* fp, SoundSample& sample);
 };
 
-extern SoundMgr soundmgr;
+extern CSoundManager SoundManager;
 
-#endif /* SOUNDMGR_HPP */
+#endif /* SOUND_MANAGER_HPP */

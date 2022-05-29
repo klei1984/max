@@ -21,7 +21,7 @@
 
 #include "remote.hpp"
 
-#include "gui.hpp"
+#include "game_manager.hpp"
 #include "inifile.hpp"
 #include "message_manager.hpp"
 #include "networkmenu.hpp"
@@ -164,7 +164,7 @@ void Remote_Init() {
 
     Remote_GameState = 0;
     Remote_RngSeed = 0;
-    GUI_PlayerTeamIndex = 0;
+    GameManager_PlayerTeam = 0;
     //    Remote_FrameSyncCounter2 = 0;
     //    Remote_send_p1_sync_frame = 1;
     //    Remote_byte_1759C5 = 0;
@@ -770,7 +770,7 @@ void Remote_SendNetPacket_17() {
     packet << static_cast<unsigned char>(REMOTE_PACKET_17);
     packet << static_cast<unsigned short>(0);
 
-    packet << GUI_GameState;
+    packet << GameManager_GameState;
     packet << world;
     packet << game_file_number;
     packet << game_file_type;

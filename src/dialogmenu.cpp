@@ -24,7 +24,6 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "gnw.h"
-#include "gui.hpp"
 #include "remote.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
@@ -140,8 +139,8 @@ bool DialogMenu::ProcessKey(int key) {
 }
 
 DialogMenu::DialogMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, GUI_GameState == GAME_STATE_3_MAIN_MENU ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
-      field_62(GUI_GameState != GAME_STATE_3_MAIN_MENU),
+    : Window(HELPFRAM, GameManager_GameState == GAME_STATE_3_MAIN_MENU ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
+      field_62(GameManager_GameState != GAME_STATE_3_MAIN_MENU),
       strings(nullptr),
       row_offset(0),
       button_up(nullptr),

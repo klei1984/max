@@ -22,7 +22,6 @@
 #include "access.hpp"
 
 #include "ai.hpp"
-#include "gui.hpp"
 #include "hash.hpp"
 #include "resource_manager.hpp"
 #include "units_manager.hpp"
@@ -41,10 +40,9 @@ static SmartList<UnitInfo>* Access_UnitsLists[] = {&UnitsManager_MobileLandSeaUn
                                                    &UnitsManager_ParticleUnits};
 
 bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int target_grid_y, bool mode) {
-    SmartList<UnitInfo> units = Hash_MapHash[Point(grid_x, grid_y)];
     SmartPointer<UnitInfo> unit;
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
         if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
             if ((*it).orders == ORDER_IDLE) {
                 continue;
@@ -117,7 +115,7 @@ void Access_InitStealthMaps() {
 bool Access_IsSurveyorOverlayActive(UnitInfo* unit) {
     bool result;
 
-    if (unit->orders != ORDER_IDLE && unit->team == GUI_PlayerTeamIndex) {
+    if (unit->orders != ORDER_IDLE && unit->team == GameManager_PlayerTeam) {
         result = unit->unit_type == SURVEYOR;
     } else {
         result = false;
@@ -283,9 +281,7 @@ unsigned int Access_UpdateMapStatusAddUnit(UnitInfo* unit, int grid_x, int grid_
 
     if (unit->unit_type == CORVETTE) {
         if (++UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] == 1) {
-            SmartList<UnitInfo> units = Hash_MapHash[Point(grid_x, grid_y)];
-
-            for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+            for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
                 if (UnitsManager_IsUnitUnderWater(&*it)) {
                     (*it).SpotByTeam(team);
 
@@ -299,9 +295,7 @@ unsigned int Access_UpdateMapStatusAddUnit(UnitInfo* unit, int grid_x, int grid_
 
     if (unit->unit_type == COMMANDO || unit->unit_type == INFANTRY) {
         if (++UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset] == 1) {
-            SmartList<UnitInfo> units = Hash_MapHash[Point(grid_x, grid_y)];
-
-            for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+            for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
                 if ((*it).unit_type == COMMANDO) {
                     (*it).SpotByTeam(team);
 
@@ -316,13 +310,11 @@ unsigned int Access_UpdateMapStatusAddUnit(UnitInfo* unit, int grid_x, int grid_
     if (++UnitsManager_TeamInfo[team].heat_map_complete[map_offset] == 1) {
         Ai_SetInfoMapPoint(Point(grid_x, grid_y), team);
 
-        if (team == GUI_PlayerTeamIndex) {
+        if (team == GameManager_PlayerTeam) {
             ResourceManager_Minimap[map_offset] = ResourceManager_MinimapFov[map_offset];
         }
 
-        SmartList<UnitInfo> units = Hash_MapHash[Point(grid_x, grid_y)];
-
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
             if (!(*it).IsVisibleToTeam(team)) {
                 (*it).DrawStealth(team);
 
@@ -354,13 +346,12 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
     if (!--UnitsManager_TeamInfo[team].heat_map_complete[map_offset]) {
         Ai_UpdateMineMap(Point(grid_x, grid_y), team);
 
-        if (team == GUI_PlayerTeamIndex) {
+        if (team == GameManager_PlayerTeam) {
             ResourceManager_Minimap[map_offset] =
                 ResourceManager_ColorIndexTable12[ResourceManager_MinimapFov[map_offset]];
         }
 
-        SmartList<UnitInfo> units = Hash_MapHash[Point(grid_x, grid_y)];
-        SmartList<UnitInfo>::Iterator it = units.Begin();
+        SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (it != nullptr) {
             if ((GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
@@ -368,7 +359,7 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
                 GameManager_UpdateDrawBounds();
             }
 
-            for (; it != units.End(); ++it) {
+            for (; it != nullptr; ++it) {
                 (*it).Draw(team);
             }
         }
@@ -469,7 +460,7 @@ void Access_UpdateVisibilityStatus(bool all_visible) {
         Access_UpdateUnitVisibilityStatus(UnitsManager_ParticleUnits);
     }
 
-    Access_UpdateMinimapFogOfWar(GUI_PlayerTeamIndex, all_visible);
+    Access_UpdateMinimapFogOfWar(GameManager_PlayerTeam, all_visible);
     GameManager_UpdateDrawBounds();
 }
 
@@ -495,9 +486,7 @@ unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y) {
     surface_type = Access_GetSurfaceType(grid_x, grid_y);
 
     if (surface_type == SURFACE_TYPE_WATER || SURFACE_TYPE_COAST) {
-        SmartList<UnitInfo> units = Hash_MapHash[Point(grid_x, grid_y)];
-
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
             if ((*it).unit_type == WTRPLTFM || (*it).unit_type == BRIDGE) {
                 surface_type = SURFACE_TYPE_LAND;
             }
@@ -605,6 +594,10 @@ bool Access_IsWithinMovementRange(UnitInfo* unit) {
     return result;
 }
 
+UnitInfo* Access_SeekNextUnit(unsigned short team, UnitInfo* unit, bool seek_direction) {
+    /// \todo
+}
+
 UnitInfo* Access_GetUnit(int grid_x, int grid_y) {
     /// \todo
 }
@@ -618,6 +611,10 @@ UnitInfo* Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned 
 }
 
 UnitInfo* Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned int flags) {
+    /// \todo
+}
+
+UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int grid_x, int grid_y, bool mode) {
     /// \todo
 }
 

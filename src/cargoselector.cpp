@@ -23,7 +23,6 @@
 
 #include "cargomenu.hpp"
 #include "game_manager.hpp"
-#include "gui.hpp"
 #include "reportstats.hpp"
 #include "smartstring.hpp"
 #include "text.hpp"
@@ -75,7 +74,7 @@ void CargoSelector::Draw() {
 
         unit_type = *unit_types[page_min_index + i];
 
-        ReportStats_DrawListItemIcon(window_info.buffer, window_info.width, unit_type, GUI_PlayerTeamIndex, 16,
+        ReportStats_DrawListItemIcon(window_info.buffer, window_info.width, unit_type, GameManager_PlayerTeam, 16,
                                      32 * i + 16);
 
         strcpy(text, UnitsManager_BaseUnits[unit_type].singular_name);

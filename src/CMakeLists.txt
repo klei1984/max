@@ -29,6 +29,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/unitvalues.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/complex.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitinfo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unitinfogroup.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/registerarray.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/textfile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/units_manager.cpp
@@ -66,6 +67,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/chooseplayermenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gamesetupmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/optionsmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/chatmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gfx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reportstats.cpp
@@ -81,7 +83,6 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/teammissionsupplies.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cargomenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/builder.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
@@ -96,6 +97,9 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/menu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/access.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/survey.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/searcher.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/paths_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/pathrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai_player.cpp

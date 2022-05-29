@@ -32,7 +32,6 @@
 #include "game_manager.hpp"
 #include "gameconfigmenu.hpp"
 #include "gamesetupmenu.hpp"
-#include "gui.hpp"
 #include "inifile.hpp"
 #include "movie.hpp"
 #include "okcancelmenu.hpp"
@@ -1293,7 +1292,7 @@ void DialogMenu_Menu(const char* label) {
         dialog_menu.RunMenu();
 
         if (Remote_IsNetworkGame) {
-            Remote_SendNetPacket_Signal(40, GUI_PlayerTeamIndex, 0);
+            Remote_SendNetPacket_Signal(40, GameManager_PlayerTeam, 0);
         }
 
         Remote_PauseTimeStamp = timer_get_stamp32();
@@ -1302,7 +1301,7 @@ void DialogMenu_Menu(const char* label) {
 
 void PauseMenu_Menu() {
     if (Remote_IsNetworkGame) {
-        Remote_SendNetPacket_Signal(39, GUI_PlayerTeamIndex, 0);
+        Remote_SendNetPacket_Signal(39, GameManager_PlayerTeam, 0);
     }
 
     DialogMenu_Menu("Game Paused.\nClick OK to continue.");
@@ -1509,7 +1508,7 @@ int menu_choose_player_menu_loop(bool game_type) {
     return true;
 }
 
-int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
+int GameSetupMenu_Menu(int game_file_type, bool flag1, bool flag2) {
     GameSetupMenu game_setup_menu;
     SaveFormatHeader save_file_header;
     bool palette_from_image;
@@ -1725,7 +1724,7 @@ int menu_new_game_menu_loop() {
                 case GNW_KB_KEY_SHIFT_T: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_TRAINING)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_TRAINING)) {
                         key = 9000;
                     }
 
@@ -1736,7 +1735,7 @@ int menu_new_game_menu_loop() {
                 case GNW_KB_KEY_SHIFT_S: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_SCENARIO)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_SCENARIO)) {
                         key = 9000;
                     }
 
@@ -1758,7 +1757,7 @@ int menu_new_game_menu_loop() {
                 case GNW_KB_KEY_SHIFT_M: {
                     menu_delete_menu_buttons();
                     ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
                         key = 9000;
                     }
 
@@ -1768,7 +1767,7 @@ int menu_new_game_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_A: {
                     menu_delete_menu_buttons();
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_CAMPAIGN)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_CAMPAIGN)) {
                         key = 9000;
                     }
 
@@ -1853,7 +1852,7 @@ int menu_network_game_menu(bool is_host_mode) {
             Remote_SendNetPacket_17();
         }
 
-        GameManager_GameLoop(GUI_GameState);
+        GameManager_GameLoop(GameManager_GameState);
     }
 
     Remote_Deinit();
@@ -1916,7 +1915,7 @@ int menu_multiplayer_menu_loop() {
                 case GNW_KB_KEY_SHIFT_T: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_MULTI_PLAYER_SCENARIO, true, false)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO, true, false)) {
                         key = 9000;
                     }
 
@@ -1996,7 +1995,7 @@ void menu_draw_exit_logos() {
     menu_draw_logo(OEMTWO, 60000);
 }
 
-bool OKCancelMenu_menu_loop(const char* caption, bool mode) { return OKCancelMenu(caption, mode).Run(); }
+bool OKCancelMenu_Menu(const char* caption, bool mode) { return OKCancelMenu(caption, mode).Run(); }
 
 bool DesyncMenu_Menu() {
     DesyncMenu desync_menu;
@@ -2031,7 +2030,7 @@ void main_menu() {
         last_mouse_y = 0;
         event_release = false;
         time_stamp = timer_get_stamp32();
-        GUI_GameState = GAME_STATE_3_MAIN_MENU;
+        GameManager_GameState = GAME_STATE_3_MAIN_MENU;
         mouse_hide();
         WindowManager_LoadImage(MAINPIC, window, 640, palette_from_image, false);
         draw_menu_title(window, "Main Menu");
@@ -2039,7 +2038,7 @@ void main_menu() {
         draw_copyright_label(window);
         menu_draw_main_menu_buttons(main_menu_buttons, sizeof(main_menu_buttons) / sizeof(struct MenuButton));
         mouse_show();
-        soundmgr.PlayMusic(MAIN_MSC, false);
+        SoundManager.PlayMusic(MAIN_MSC, false);
         Cursor_SetCursor(CURSOR_HAND);
         mouse_show();
         palette_from_image = 0;

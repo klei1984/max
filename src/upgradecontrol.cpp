@@ -122,7 +122,7 @@ void UpgradeControl::Init(int id, int team_base_value, int control_base_value, u
 }
 
 void UpgradeControl::Increase() {
-    soundmgr.PlaySfx(KCARG0);
+    SoundManager.PlaySfx(KCARG0);
 
     if (id != UPGRADE_CONTROL_9) {
         *team_gold -= CalculateCost();
@@ -140,7 +140,7 @@ void UpgradeControl::Increase() {
 }
 
 void UpgradeControl::Decrease() {
-    soundmgr.PlaySfx(KCARG0);
+    SoundManager.PlaySfx(KCARG0);
 
     if (id == UPGRADE_CONTROL_9) {
         *team_gold -= CalculateCost();

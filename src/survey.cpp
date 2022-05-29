@@ -25,7 +25,6 @@
 #include "ai.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
-#include "gui.hpp"
 #include "resource_manager.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
@@ -109,8 +108,9 @@ void Survey_SurveyArea(UnitInfo* unit, int radius) {
                 }
 
                 if (unit->unit_type == SURVEYOR) {
-                    if (team == GUI_PlayerTeamIndex && !(ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] &
-                                                         team_info->team_units->hash_team_id)) {
+                    if (team == GameManager_PlayerTeam &&
+                        !(ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] &
+                          team_info->team_units->hash_team_id)) {
                         rect_init(&bounds, i * 64, j * 64, i * 64 + 63, j * 64 + 63);
                         GameManager_AddDrawBounds(&bounds);
                     }

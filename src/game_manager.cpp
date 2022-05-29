@@ -26,11 +26,12 @@
 #include "access.hpp"
 #include "ai.hpp"
 #include "cargomenu.hpp"
+#include "chatmenu.hpp"
 #include "cursor.hpp"
 #include "drawmap.hpp"
 #include "flicsmgr.hpp"
 #include "gfx.hpp"
-#include "gui.hpp"
+#include "hash.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -39,6 +40,7 @@
 #include "mouseevent.hpp"
 #include "movie.hpp"
 #include "paths.hpp"
+#include "paths_manager.hpp"
 #include "remote.hpp"
 #include "reportmenu.hpp"
 #include "resource_manager.hpp"
@@ -46,6 +48,7 @@
 #include "sound_manager.hpp"
 #include "task_manager.hpp"
 #include "text.hpp"
+#include "transfermenu.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"
 #include "window_manager.hpp"
@@ -55,6 +58,9 @@
 
 #define MENU_DISPLAY_CONTROL_DEF(wid, rid, u1, button, u2, u3, image) \
     { (wid), (rid), (u1), (button), (u2), (u3), (image) }
+
+#define COLOR_CYCLE_DATA(arg1, arg2, arg3, arg4, arg5) \
+    { (arg1), (arg2), (arg3), (arg4), (arg5) }
 
 #define MENU_GUI_ITEM_FILES_BUTTON 0
 #define MENU_GUI_ITEM_PREFS_BUTTON 1
@@ -109,7 +115,7 @@ struct PopupButtons {
     unsigned char key_code[10];
     char* caption[10];
     char state[10];
-    ButtonFunc* r_func[10];
+    ButtonFunc r_func[10];
     Button* buttons[10];
     unsigned short ulx;
     unsigned short uly;
@@ -121,7 +127,7 @@ struct ResourceRange {
     short min;
     short max;
 
-    ResourceRange() {}
+    ResourceRange() : min(0), max(0) {}
     ResourceRange(const ResourceRange& other) : min(other.min), max(other.max) {}
     ResourceRange(int min, int max) : min(min), max(max) {}
 
@@ -379,6 +385,11 @@ struct ResourceAllocator {
     }
 };
 
+const char* const GameManager_EventStrings_EnemySpotted[] = {"Enemy %s in radar range.", "Enemy %s in radar range.",
+                                                             "Enemy %s in radar range."};
+
+const char* const GameManager_CheatCodes[] = {"[MAXSPY]", "[MAXSURVEY]", "[MAXSTORAGE]", "[MAXAMMO]", "[MAXSUPER]"};
+
 unsigned char GameManager_MouseButtons;
 unsigned char GameManager_ActiveWindow;
 int GameManager_MouseX;
@@ -404,7 +415,7 @@ Point GameManager_SpottedEnemyPosition;
 SmartList<UnitInfo> GameManager_LockedUnits;
 unsigned int GameManager_TurnCounter;
 unsigned int GameManager_ArrowKeyFlags;
-unsigned int GameManager_TurnTimerValue;
+int GameManager_TurnTimerValue;
 bool GameManager_MaxSpy;
 int GameManager_GameFileNumber;
 int GameManager_HumanPlayerCount;
@@ -456,6 +467,8 @@ Button* Gamemanager_FlicButton;
 unsigned char GameManager_CheaterTeam;
 SmartString GameManager_TextInput;
 
+char GameManager_PlayerTeam;
+char GameManager_GameState;
 unsigned char GameManager_ActiveTurnTeam;
 unsigned char GameManager_MarkerColor = 0xFF;
 unsigned short GameManager_MainMapWidth;
@@ -470,6 +483,23 @@ int GameManager_GridStepLevel;
 int GameManager_GridStepOffset;
 
 MenuLandingSequence GameManager_LandingSequence;
+
+struct ColorCycleData {
+    unsigned short start_index;
+    unsigned short end_index;
+    unsigned char rotate_direction;
+    unsigned int time_limit;
+    unsigned int time_stamp;
+};
+
+static struct ColorCycleData GameManager_ColorCycleTable[] = {
+    COLOR_CYCLE_DATA(9, 12, 0, TIMER_FPS_TO_TICKS(9), 0),     COLOR_CYCLE_DATA(13, 16, 1, TIMER_FPS_TO_TICKS(6), 0),
+    COLOR_CYCLE_DATA(17, 20, 1, TIMER_FPS_TO_TICKS(9), 0),    COLOR_CYCLE_DATA(21, 24, 1, TIMER_FPS_TO_TICKS(6), 0),
+    COLOR_CYCLE_DATA(25, 30, 1, TIMER_FPS_TO_TICKS(2), 0),    COLOR_CYCLE_DATA(31, 31, 1, TIMER_FPS_TO_TICKS(6), 0),
+    COLOR_CYCLE_DATA(96, 102, 1, TIMER_FPS_TO_TICKS(8), 0),   COLOR_CYCLE_DATA(103, 109, 1, TIMER_FPS_TO_TICKS(8), 0),
+    COLOR_CYCLE_DATA(110, 116, 1, TIMER_FPS_TO_TICKS(10), 0), COLOR_CYCLE_DATA(117, 122, 1, TIMER_FPS_TO_TICKS(6), 0),
+    COLOR_CYCLE_DATA(123, 127, 1, TIMER_FPS_TO_TICKS(6), 0),
+};
 
 static struct MenuGuiItem GameManager_MenuItems[] = {
     MENU_GUI_ITEM_DEF(WINDOW_FILES_BUTTON, FILES_OF, "Files", nullptr, false, MENUOP),
@@ -514,9 +544,11 @@ static struct MenuDisplayControl GameManager_MenuDisplayControls[] = {
 
 struct PopupButtons GameManager_PopupButtons;
 
+static unsigned int GameManager_NotifyTimeout;
 static struct Flic* GameManager_Flic;
 static TextEdit* GameManager_TextEditUnitName;
 static char GameManager_UnitName[30];
+static unsigned char GameManager_ColorCycleStep;
 
 static bool GameManager_PlayerMissionSetup(unsigned short team);
 static void GameManager_DrawSelectSiteMessage(unsigned short team);
@@ -525,10 +557,14 @@ static void GameManager_InitMap();
 static void GameManager_GameSetup(int game_state);
 static void GameManager_GameLoopCleanup();
 static unsigned short GameManager_EvaluateWinner();
+static void GameManager_AnnounceWinner(unsigned short team);
 static void GameManager_DrawTurnCounter(int turn_count);
 static void GameManager_DrawTimer(char* text, int color);
+static void GameManager_ProcessCheatCodes();
 static bool GameManager_ProcessTextInput(int key);
 static void GameManager_ProcessKey();
+static bool GameManager_IsUnitNotInAir(UnitInfo* unit);
+static UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int cargo_type);
 static void GameManager_UnitSelectOther(UnitInfo* unit1, UnitInfo* unit2, int grid_x, int grid_y);
 static void GameManager_UnitSelect(UnitInfo* unit);
 static void GameManager_ClickUnit(UnitInfo* unit1, UnitInfo* unit2, int grid_x, int grid_y);
@@ -552,9 +588,10 @@ static Color* GameManager_MenuFadeOut(int fade_steps = 50);
 static void GameManager_UpdateHumanPlayerCount();
 static void GameManager_MenuAnimateDisplayControls();
 static void GameManager_ManagePlayerAction();
+static bool GameManager_InitPopupButtons(UnitInfo* unit);
 static void GameManager_DeinitPopupButtons(bool clear_mouse_events);
 static void GameManager_GetGridCenterOffset(bool minimap_zoom_state);
-
+static void GameManager_UpdatePanelButtons(unsigned short team);
 static void GameManager_MenuClickLockButton(bool rest_state);
 static void GameManager_MenuClickReportButton();
 static void GameManager_MenuClickStatusButton(bool rest_state);
@@ -581,7 +618,7 @@ static void GameManager_SaveLoadGame(bool save_load_mode);
 static void GameManager_MenuInitDisplayControls();
 static void GameManager_DrawMouseCoordinates(int x, int y);
 static bool GameManager_HandleProximityOverlaps();
-static void GameManager_SetUnitOrder(int order, int state, UnitInfo* unit, int offset_x, int offset_y);
+static void GameManager_SetUnitOrder(int order, int state, UnitInfo* unit, int grid_x, int grid_y);
 static bool GameManager_IsValidStartingPosition(int grid_x, int grid_y);
 static unsigned char GameManager_GetWindowCursor(int grid_x, int grid_y);
 static void GameManager_PathBuild(UnitInfo* unit);
@@ -596,10 +633,17 @@ static void GameManager_SpawnAlienDerelicts(Point point, int alien_unit_value);
 static void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_value);
 static void GameManager_ProcessTeamMissionSupplyUnits(unsigned short team);
 static void GameManager_FlicButtonRFunction(ButtonID bid, int value);
+static void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit);
+static void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit);
+static void GameManager_PlayUnitStatusVoice(UnitInfo* unit);
+static void GameManager_DrawUnitStatusMessage(UnitInfo* unit);
 static void GameManager_MenuDeinitDisplayControls();
 static void GameManager_DrawProximityZones();
 static int GameManager_UpdateProximityState(unsigned short team);
 static UnitInfo* GameManager_GetFirstRelevantUnit(unsigned short team);
+static void GameManager_ColorEffect(struct ColorCycleData* color_cycle_table);
+static bool GameManager_IsUnitNextToPosition(UnitInfo* unit, int grid_x, int grid_y);
+static bool GameManager_IsInteractable(UnitInfo* unit);
 
 void GameManager_GameLoop(int game_state) {
     unsigned int turn_counter;
@@ -617,7 +661,7 @@ void GameManager_GameLoop(int game_state) {
 
     turn_counter = GameManager_TurnCounter;
 
-    while (GUI_GameState == GAME_STATE_8_IN_GAME) {
+    while (GameManager_GameState == GAME_STATE_8_IN_GAME) {
         team_winner = GameManager_EvaluateWinner();
         GameManager_DrawTurnCounter(GameManager_TurnCounter);
 
@@ -632,7 +676,7 @@ void GameManager_GameLoop(int game_state) {
             }
 
             for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-                if (game_state != GAME_STATE_10 && GUI_PlayerTeamIndex != team &&
+                if (game_state != GAME_STATE_10 && GameManager_PlayerTeam != team &&
                     (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER ||
                      UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE)) {
                     GameManager_ActiveTurnTeam = team;
@@ -641,27 +685,27 @@ void GameManager_GameLoop(int game_state) {
             }
 
             for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-                if (team != GUI_PlayerTeamIndex && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+                if (team != GameManager_PlayerTeam && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
                     /// \todo Ai_sub_48A8D(team);
                 }
             }
 
-            GameManager_sub_9E750(GUI_PlayerTeamIndex, game_state, true);
+            GameManager_sub_9E750(GameManager_PlayerTeam, game_state, true);
             GameManager_EnableMainMenu(nullptr);
 
-            if (GUI_GameState == GAME_STATE_9 && !GameManager_AreTeamsFinishedTurn()) {
+            if (GameManager_GameState == GAME_STATE_9 && !GameManager_AreTeamsFinishedTurn()) {
                 if (Remote_IsNetworkGame) {
                     MessageManager_DrawMessage("Waiting for remote End Turn.", 0, 0);
                 } else {
                     MessageManager_DrawMessage("Waiting for computer to finish turn.", 0, 0);
                 }
 
-                while (GUI_GameState == GAME_STATE_9 && GameManager_AreTeamsFinishedTurn()) {
+                while (GameManager_GameState == GAME_STATE_9 && GameManager_AreTeamsFinishedTurn()) {
                     GameManager_ProgressTurn();
                 }
             }
 
-            if (GUI_GameState == GAME_STATE_9) {
+            if (GameManager_GameState == GAME_STATE_9) {
                 GameManager_PlayMode = PLAY_MODE_UNKNOWN;
                 GameManager_ResetRenderState();
 
@@ -673,12 +717,12 @@ void GameManager_GameLoop(int game_state) {
 
             GameManager_PlayMode = PLAY_MODE_SIMULTANEOUS_MOVES;
 
-            GameManager_GuiSwitchTeam(GUI_PlayerTeamIndex);
+            GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
 
-            if (GUI_GameState == GAME_STATE_10) {
+            if (GameManager_GameState == GAME_STATE_10) {
                 game_state = GAME_STATE_10;
-                GUI_GameState = GAME_STATE_8_IN_GAME;
-            } else if (GUI_GameState == GAME_STATE_9) {
+                GameManager_GameState = GAME_STATE_8_IN_GAME;
+            } else if (GameManager_GameState == GAME_STATE_9) {
                 for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                     if (UnitsManager_TeamInfo[team].field_41) {
                         /// \todo update_unit_orders_complexes_research();
@@ -705,31 +749,31 @@ void GameManager_GameLoop(int game_state) {
                     }
 
                     if (GameManager_DemoMode) {
-                        /// \todo update_minimap_fog_of_war(team, GameManager_AllVisible);
-                        GUI_PlayerTeamIndex = team;
+                        Access_UpdateMinimapFogOfWar(team, GameManager_AllVisible);
+                        GameManager_PlayerTeam = team;
                     }
 
                     UnitsManager_TeamInfo[team].field_41 = false;
                     GameManager_sub_9E750(team, game_state, enable_autosave);
 
-                    if (GUI_GameState == GAME_STATE_10) {
+                    if (GameManager_GameState == GAME_STATE_10) {
                         game_state = GAME_STATE_10;
-                        GUI_GameState = GAME_STATE_8_IN_GAME;
+                        GameManager_GameState = GAME_STATE_8_IN_GAME;
                         break;
                     }
 
-                    if (GUI_GameState != GAME_STATE_9) {
+                    if (GameManager_GameState != GAME_STATE_9) {
                         break;
                     }
 
                     GameManager_ResetRenderState();
 
                     /// \todo
-                    // while (are_task_events_pending()) {
+                    // while (Access_AreTaskEventsPending()) {
                     //    GameManager_ProgressTurn();
                     // }
 
-                    GameManager_GuiSwitchTeam(GUI_PlayerTeamIndex);
+                    GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
 
                     game_state = GAME_STATE_8_IN_GAME;
                     enable_autosave = false;
@@ -737,8 +781,8 @@ void GameManager_GameLoop(int game_state) {
             }
         }
 
-        if (GUI_GameState == GAME_STATE_9) {
-            GUI_GameState = GAME_STATE_8_IN_GAME;
+        if (GameManager_GameState == GAME_STATE_9) {
+            GameManager_GameState = GAME_STATE_8_IN_GAME;
             /// \todo
             // if (game_loop_check_end_game_conditions(GameManager_TurnCounter, turn_counter,
             // GameManager_DemoMode)) {
@@ -759,11 +803,11 @@ void GameManager_GameLoop(int game_state) {
 
     GameManager_GameLoopCleanup();
 
-    if (GUI_GameState == GAME_STATE_15_FATAL_ERROR) {
+    if (GameManager_GameState == GAME_STATE_15_FATAL_ERROR) {
         ResourceManager_ExitGame(EXIT_CODE_THANKS);
     }
 
-    soundmgr.PlayMusic(MAIN_MSC, false);
+    SoundManager.PlayMusic(MAIN_MSC, false);
 }
 
 void GameManager_UpdateDrawBounds() {
@@ -892,6 +936,34 @@ bool GameManager_RefreshOrders(unsigned short team, bool check_production) {
     /// \todo
 }
 
+void GameManager_HandleTurnTimer() {
+    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
+        int timer_setting;
+        bool flag;
+
+        timer_setting = ini_get_setting(INI_ENDTURN);
+        flag = false;
+
+        if (timer_setting < 15) {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER &&
+                    !UnitsManager_TeamInfo[team].field_41) {
+                    timer_setting = 15;
+                    flag = true;
+                }
+            }
+        }
+
+        if (timer_setting > 0 && !GameManager_RequestMenuExit) {
+            if (GameManager_TurnTimerValue && !flag) {
+                timer_setting = std::min(timer_setting, GameManager_TurnTimerValue);
+            }
+
+            GameManager_UpdateTurnTimer(true, timer_setting);
+        }
+    }
+}
+
 void GameManager_GetScaledMessageBoxBounds(Rect* bounds) {
     WindowInfo* window;
 
@@ -919,13 +991,13 @@ bool GameManager_CargoSelection(unsigned short team) {
 bool GameManager_PlayerMissionSetup(unsigned short team) {
     int team_gold;
 
-    GUI_GameState = GAME_STATE_7_SITE_SELECT;
+    GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 
     mouse_show();
 
     GameManager_UnknownFlag = 1;
 
-    GUI_PlayerTeamIndex = team;
+    GameManager_PlayerTeam = team;
     GameManager_ActiveTurnTeam = team;
 
     ini_set_setting(INI_PLAYER_CLAN, UnitsManager_TeamInfo[team].team_clan);
@@ -936,7 +1008,7 @@ bool GameManager_PlayerMissionSetup(unsigned short team) {
     }
 
     do {
-        GUI_GameState = GAME_STATE_7_SITE_SELECT;
+        GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 
         team_gold = ini_get_setting(INI_START_GOLD) + ini_clans.GetClanGold(UnitsManager_TeamInfo[team].team_clan);
 
@@ -964,7 +1036,8 @@ bool GameManager_PlayerMissionSetup(unsigned short team) {
             return true;
         }
 
-    } while (GUI_GameState != GAME_STATE_3_MAIN_MENU && GUI_GameState != GAME_STATE_15_FATAL_ERROR && team_gold);
+    } while (GameManager_GameState != GAME_STATE_3_MAIN_MENU && GameManager_GameState != GAME_STATE_15_FATAL_ERROR &&
+             team_gold);
 
     return false;
 }
@@ -997,7 +1070,7 @@ bool GameManager_SelectSite(unsigned short team) {
         flag = true;
 
         MessageManager_DrawMessage("Select starting location.", 0, 0);
-        soundmgr.PlayVoice(V_M278, V_F177);
+        SoundManager.PlayVoice(V_M278, V_F177);
 
     } else {
         flag = false;
@@ -1005,21 +1078,21 @@ bool GameManager_SelectSite(unsigned short team) {
 
     while (proximity_alert_ack != 0 && proximity_alert_ack != 6) {
         MouseEvent::Clear();
-        GUI_GameState = GAME_STATE_7_SITE_SELECT;
+        GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 
         if (flag) {
-            while (GUI_GameState == GAME_STATE_7_SITE_SELECT) {
+            while (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
                 GameManager_ProgressTurn();
             }
         }
 
-        if (GUI_GameState == GAME_STATE_14 || GUI_GameState == GAME_STATE_3_MAIN_MENU ||
-            GUI_GameState == GAME_STATE_15_FATAL_ERROR) {
+        if (GameManager_GameState == GAME_STATE_14 || GameManager_GameState == GAME_STATE_3_MAIN_MENU ||
+            GameManager_GameState == GAME_STATE_15_FATAL_ERROR) {
             proximity_alert_ack = 6;
             break;
         }
 
-        GUI_GameState == GAME_STATE_7_SITE_SELECT;
+        GameManager_GameState == GAME_STATE_7_SITE_SELECT;
 
         Cursor_SetCursor(CURSOR_HAND);
 
@@ -1203,7 +1276,27 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 }
 
 void GameManager_SelectNextUnit(int seek_direction) {
-    /// \todo
+    UnitInfo* unit;
+
+    GameManager_ManagePlayerAction();
+    GameManager_UpdateDrawBounds();
+
+    unit = Access_SeekNextUnit(GameManager_PlayerTeam, &*GameManager_SelectedUnit, seek_direction);
+
+    if (!unit) {
+        unit = GameManager_GetFirstRelevantUnit(GameManager_PlayerTeam);
+    }
+
+    if (unit) {
+        if (!GameManager_IsAtGridPosition(unit)) {
+            GameManager_UpdateMainMapView(1, unit->grid_x, unit->grid_y);
+        }
+
+        GameManager_MenuUnitSelect(unit);
+
+    } else {
+        GameManager_MenuUnitSelect(nullptr);
+    }
 }
 
 bool GameManager_UpdateMapDrawBounds(int ulx, int uly) {
@@ -1299,7 +1392,7 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
 
             Gfx_ZoomLevel = new_zoom_level;
 
-            if (GUI_GameState != GAME_STATE_7_SITE_SELECT) {
+            if (GameManager_GameState != GAME_STATE_7_SITE_SELECT) {
                 WindowInfo* window;
 
                 window = WindowManager_GetWindow(WINDOW_ZOOM_SLIDER_WINDOW);
@@ -1360,7 +1453,22 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
         GameManager_RenderEnable = true;
     }
 
-    soundmgr.UpdateSfxPosition();
+    SoundManager.UpdateSfxPosition();
+}
+
+void GameManager_AutoSelectNext(UnitInfo* unit) {
+    if (!ini_get_setting(INI_AUTO_SELECT) || GameManager_IsInteractable(unit)) {
+        GameManager_EnableMainMenu(unit);
+
+    } else {
+        if (unit->orders == ORDER_AWAITING) {
+            unit->state = ORDER_STATE_2;
+        }
+
+        GameManager_SelectNextUnit(1);
+        GameManager_EnableMainMenu(nullptr);
+        GameManager_MenuClickFindButton();
+    }
 }
 
 void GameManager_GameSetup(int game_state) {
@@ -1372,20 +1480,20 @@ void GameManager_GameSetup(int game_state) {
 
     if (Remote_IsNetworkGame) {
         if (game_state == GAME_STATE_6) {
-            Remote_SendNetPacket_Signal(REMOTE_PACKET_26, GUI_PlayerTeamIndex,
-                                        UnitsManager_TeamInfo[GUI_PlayerTeamIndex].team_clan);
-            ResourceManager_InitClanUnitValues(GUI_PlayerTeamIndex);
+            Remote_SendNetPacket_Signal(REMOTE_PACKET_26, GameManager_PlayerTeam,
+                                        UnitsManager_TeamInfo[GameManager_PlayerTeam].team_clan);
+            ResourceManager_InitClanUnitValues(GameManager_PlayerTeam);
         }
 
         dos_srand(Remote_RngSeed);
     }
 
-    /// \todo
-    // Ai_Clear();
-    // PathsManager_Clear_I();
+    Ai_Clear();
+
+    PathsManager_Clear();
 
     if (game_state == GAME_STATE_6) {
-        GUI_GameState = GAME_STATE_7_SITE_SELECT;
+        GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 
         if (!GameManager_InitGame()) {
             return;
@@ -1410,7 +1518,7 @@ void GameManager_GameSetup(int game_state) {
             GameManager_PlayScenarioIntro = false;
         }
 
-        GUI_GameState = GAME_STATE_11;
+        GameManager_GameState = GAME_STATE_11;
         GameManager_LandingSequence.OpenPanel();
 
         zoom_level = 4;
@@ -1435,31 +1543,31 @@ void GameManager_GameSetup(int game_state) {
     } else {
         UnitInfo* unit;
 
-        GUI_GameState = GAME_STATE_10;
+        GameManager_GameState = GAME_STATE_10;
 
         if (!SaveLoadMenu_Load(ini_get_setting(INI_GAME_FILE_NUMBER), ini_get_setting(INI_GAME_FILE_TYPE),
                                !Remote_IsNetworkGame)) {
-            GUI_GameState = GAME_STATE_3_MAIN_MENU;
+            GameManager_GameState = GAME_STATE_3_MAIN_MENU;
             return;
         }
 
-        GUI_GameState = GAME_STATE_11;
+        GameManager_GameState = GAME_STATE_11;
 
         GameManager_LandingSequence.OpenPanel();
         GameManager_UpdateHumanPlayerCount();
         GameManager_UpdateMainMapView(0, 4, 0, false);
 
-        unit = GameManager_GetFirstRelevantUnit(GUI_PlayerTeamIndex);
+        unit = GameManager_GetFirstRelevantUnit(GameManager_PlayerTeam);
 
         GameManager_UpdateMainMapView(1, unit->grid_x, unit->grid_y);
         GameManager_ProcessTick(true);
     }
 
-    GUI_GameState = GAME_STATE_8_IN_GAME;
+    GameManager_GameState = GAME_STATE_8_IN_GAME;
 
     /// \todo toggle_all_visible();
 
-    soundmgr.PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
+    SoundManager.PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
 
     GameManager_MenuAnimateDisplayControls();
     GameManager_MenuInitDisplayControls();
@@ -1499,6 +1607,25 @@ unsigned short GameManager_EvaluateWinner() {
     }
 
     return result;
+}
+
+void GameManager_AnnounceWinner(unsigned short team) {
+    unsigned short winner;
+
+    winner = GameManager_EvaluateWinner();
+
+    if (winner != team) {
+        ResourceID resource_id1;
+        ResourceID resource_id2;
+        int sample_count;
+
+        sample_count = 1;
+
+        resource_id1 = static_cast<ResourceID>(V_M118 + team * (sample_count + 1));
+        resource_id2 = static_cast<ResourceID>(resource_id1 + sample_count);
+
+        SoundManager.PlayVoice(resource_id1, resource_id2);
+    }
 }
 
 void GameManager_DrawTurnCounter(int turn_count) {
@@ -1547,12 +1674,12 @@ void GameManager_DrawTurnTimer(int turn_time, bool mode) {
     char text[10];
 
     if (turn_time <= 20) {
-        if (GameManager_IsTurnTimerActive && GUI_PlayerTeamIndex == GameManager_ActiveTurnTeam) {
+        if (GameManager_IsTurnTimerActive && GameManager_PlayerTeam == GameManager_ActiveTurnTeam) {
             if (turn_time == 20 && ini_get_setting(INI_TIMER) > 20) {
-                soundmgr.PlayVoice(V_M272, V_F273);
-            } else if (!UnitsManager_TeamInfo[GUI_PlayerTeamIndex].field_41 && ini_get_setting(INI_TIMER) > 20 &&
+                SoundManager.PlayVoice(V_M272, V_F273);
+            } else if (!UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41 && ini_get_setting(INI_TIMER) > 20 &&
                        Remote_UpdatePauseTimer) {
-                soundmgr.PlayVoice(V_M275, V_F275);
+                SoundManager.PlayVoice(V_M275, V_F275);
             }
 
             GameManager_IsTurnTimerActive = false;
@@ -1621,6 +1748,10 @@ bool GameManager_AreTeamsFinishedTurn() {
     /// \todo
 }
 
+bool GameManager_IsAtGridPosition(UnitInfo* unit) {
+    /// \todo
+}
+
 void GameManager_ProgressTurn() {
     do {
         GameManager_Progress2 = true;
@@ -1646,10 +1777,6 @@ bool GameManager_ProcessPopupMenuInput(int key) {
     /// \todo
 }
 
-void GameManager_AnnounceWinner(unsigned short team) {
-    /// \todo
-}
-
 void GameManager_UpdateScoreGraph() {
     /// \todo
 }
@@ -1657,7 +1784,7 @@ void GameManager_UpdateScoreGraph() {
 void GameManager_InitUnitsAndGameState() {
     GameManager_IsCheater = false;
 
-    soundmgr.SetVolume(AUDIO_TYPE_MUSIC, ini_get_setting(INI_MUSIC_LEVEL) / 3);
+    SoundManager.SetVolume(AUDIO_TYPE_MUSIC, ini_get_setting(INI_MUSIC_LEVEL) / 3);
 
     ResourceManager_FreeResources();
     WindowManager_LoadPalette(FRAMEPIC);
@@ -1765,7 +1892,7 @@ bool GameManager_InitGame() {
     ResourceManager_InitHeatMaps(PLAYER_TEAM_ALIEN);
     GameManager_UpdateHumanPlayerCount();
 
-    GUI_PlayerTeamIndex = PLAYER_TEAM_ALIEN;
+    GameManager_PlayerTeam = PLAYER_TEAM_ALIEN;
 
     for (int i = PLAYER_TEAM_MAX - 1; i >= PLAYER_TEAM_RED; --i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_PLAYER && !GameManager_PlayerMissionSetup(i)) {
@@ -1779,8 +1906,8 @@ bool GameManager_InitGame() {
 
     for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_COMPUTER) {
-            if (GUI_PlayerTeamIndex == PLAYER_TEAM_ALIEN) {
-                GUI_PlayerTeamIndex = i;
+            if (GameManager_PlayerTeam == PLAYER_TEAM_ALIEN) {
+                GameManager_PlayerTeam = i;
             }
 
             if (!ResourceManager_MapTileIds) {
@@ -1806,8 +1933,8 @@ bool GameManager_InitGame() {
         }
     }
 
-    GameManager_GridCenter = UnitsManager_TeamMissionSupplies[GUI_PlayerTeamIndex].starting_position;
-    UnitsManager_TeamInfo[GUI_PlayerTeamIndex].camera_position = GameManager_GridCenter;
+    GameManager_GridCenter = UnitsManager_TeamMissionSupplies[GameManager_PlayerTeam].starting_position;
+    UnitsManager_TeamInfo[GameManager_PlayerTeam].camera_position = GameManager_GridCenter;
 
     return true;
 }
@@ -1832,18 +1959,73 @@ UnitInfo* GameManager_GetFirstRelevantUnit(unsigned short team) {
     unit = Access_GetFirstMiningStation(team);
 
     if (!unit) {
-        unit = Access_GetFirstActiveUnit(GUI_PlayerTeamIndex, UnitsManager_MobileLandSeaUnits);
+        unit = Access_GetFirstActiveUnit(GameManager_PlayerTeam, UnitsManager_MobileLandSeaUnits);
     }
 
     if (!unit) {
-        unit = Access_GetFirstActiveUnit(GUI_PlayerTeamIndex, UnitsManager_MobileAirUnits);
+        unit = Access_GetFirstActiveUnit(GameManager_PlayerTeam, UnitsManager_MobileAirUnits);
     }
 
     if (!unit) {
-        unit = Access_GetFirstActiveUnit(GUI_PlayerTeamIndex, UnitsManager_StationaryUnits);
+        unit = Access_GetFirstActiveUnit(GameManager_PlayerTeam, UnitsManager_StationaryUnits);
     }
 
     return unit;
+}
+
+void GameManager_ColorEffect(struct ColorCycleData* color_cycle_table) {
+    int start_index;
+    int end_index;
+    int step_count;
+    Color* start_address;
+    Color* end_address;
+    Color rgb_color[3];
+
+    start_index = color_cycle_table->start_index;
+    end_index = color_cycle_table->end_index;
+
+    step_count = end_index - start_index;
+
+    start_address = &WindowManager_ColorPalette[start_index * 3];
+
+    if (step_count) {
+        if (color_cycle_table->rotate_direction) {
+            end_address = &WindowManager_ColorPalette[end_index * 3];
+
+            memcpy(rgb_color, end_address, 3);
+            memmove(&start_address[3], start_address, 3 * step_count);
+            memcpy(start_address, rgb_color, 3);
+
+        } else {
+            end_address = &WindowManager_ColorPalette[end_index * 3];
+
+            memcpy(rgb_color, start_address, 3);
+            memmove(start_address, &start_address[3], 3 * step_count);
+            memcpy(end_address, rgb_color, 3);
+        }
+
+    } else {
+        if (GameManager_ColorCycleStep <= 7) {
+            GameManager_ColorCycleStep = 63;
+
+        } else {
+            GameManager_ColorCycleStep /= 2;
+        }
+
+        start_address[1] = GameManager_ColorCycleStep;
+    }
+
+    for (int i = start_index; i <= end_index; ++i) {
+        setSystemPaletteEntry(i, start_address[i * 3 + 0], start_address[i * 3 + 1], start_address[i * 3 + 2]);
+    }
+}
+
+bool GameManager_IsUnitNextToPosition(UnitInfo* unit, int grid_x, int grid_y) {
+    /// \todo
+}
+
+bool GameManager_IsInteractable(UnitInfo* unit) {
+    /// \todo
 }
 
 void GameManager_UpdateHumanPlayerCount() {
@@ -1889,14 +2071,311 @@ void GameManager_MenuAnimateDisplayControls() {
     }
 }
 
+bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mode) {
+    bool load_successful;
+    int game_file_type;
+
+    WindowManager_FadeOut(0);
+    GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, 0x00, true);
+    memcpy(WindowManager_ColorPalette, palette_buffer, 3 * PALETTE_SIZE);
+    delete[] palette_buffer;
+
+    load_successful = false;
+
+    if (save_slot) {
+        if (GameManager_SelectedUnit != nullptr) {
+            SoundManager.PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
+        }
+
+        MessageManager_ClearMessageBox();
+
+        GameManager_PlayFlic = false;
+        GameManager_GameState = GAME_STATE_10;
+
+        game_file_type = SaveLoadMenu_GetGameFileType();
+
+        UnitsManager_GroundCoverUnits.Clear();
+        UnitsManager_MobileLandSeaUnits.Clear();
+        UnitsManager_ParticleUnits.Clear();
+        UnitsManager_StationaryUnits.Clear();
+        UnitsManager_MobileAirUnits.Clear();
+
+        Hash_UnitHash.Clear();
+        Hash_MapHash.Clear();
+
+        Ai_Clear();
+
+        PathsManager_Clear();
+
+        GameManager_LockedUnits.Clear();
+
+        load_successful = SaveLoadMenu_Load(save_slot, game_file_type, true);
+
+        if (load_successful) {
+            if (Remote_IsNetworkGame) {
+                Remote_sub_C9753();
+            }
+
+            GameManager_LandingSequence.OpenPanel();
+        }
+    }
+
+    if (!load_successful) {
+        WindowManager_LoadImage(FRAMEPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, false);
+        GameManager_MenuInitButtons(false);
+        GameManager_MenuDeinitButtons();
+        win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
+    }
+
+    if (load_successful) {
+        GameManager_UpdateMainMapView(0, 4, 0, true);
+
+    } else {
+        GameManager_UpdateMainMapView(0, Gfx_ZoomLevel, 0, true);
+    }
+
+    GameManager_ProcessTick(true);
+
+    WindowManager_FadeIn(0);
+
+    SoundManager.PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
+
+    GameManager_MenuAnimateDisplayControls();
+
+    GameManager_MenuInitDisplayControls();
+
+    if (load_successful) {
+        GameManager_UpdatePanelButtons(GameManager_PlayerTeam);
+    }
+
+    if (GameManager_SelectedUnit != nullptr) {
+        GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
+
+    } else {
+        GameManager_EnableMainMenu(nullptr);
+    }
+
+    GameManager_DrawTurnCounter(GameManager_TurnCounter);
+    GameManager_DrawTurnTimer(GameManager_TurnTimerValue);
+
+    return load_successful;
+}
+
+void GameManager_NotifyEvent(UnitInfo* unit, int event) {
+    ResourceID resource_id1;
+    ResourceID resource_id2;
+    char text[300];
+
+    resource_id1 = INVALID_ID;
+
+    GameManager_UnknownUnit3 = unit;
+
+    GameManager_SpottedEnemyPosition.x = unit->grid_x;
+    GameManager_SpottedEnemyPosition.y = unit->grid_y;
+
+    switch (event) {
+        case 0: {
+            sprintf(text, GameManager_EventStrings_EnemySpotted[UnitsManager_BaseUnits[unit->unit_type].gender],
+                    UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
+            if (!GameManager_IsAtGridPosition(unit) && timer_elapsed_time_ms(GameManager_NotifyTimeout) > 5000) {
+                resource_id1 = V_M070;
+                resource_id2 = V_F071;
+            }
+
+            GameManager_NotifyTimeout = timer_get_stamp32();
+
+        } break;
+
+        case 1: {
+            sprintf(text, unit->hits ? "%s under attack!" : "%s has been destroyed!",
+                    UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
+            if (unit->hits && !GameManager_IsAtGridPosition(unit)) {
+                resource_id1 = V_M229;
+                resource_id2 = V_F256;
+
+            } else if (!GameManager_IsAtGridPosition(unit)) {
+                GameManager_UnknownUnit3 = nullptr;
+
+                resource_id1 = V_M234;
+                resource_id2 = V_F236;
+            }
+        } break;
+
+        case 2: {
+            sprintf(text, "%s has been captured!", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
+            resource_id1 = V_M243;
+            resource_id2 = V_F243;
+        } break;
+
+        case 3: {
+            sprintf(text, "%s has been disabled!", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
+            resource_id1 = V_M249;
+            resource_id2 = V_F249;
+        } break;
+
+        case 4: {
+            sprintf(text, "Attempt to capture %s!", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
+            resource_id1 = V_M012;
+            resource_id2 = V_F012;
+        } break;
+
+        case 5: {
+            sprintf(text, "Attempt to disable %s!", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
+            resource_id1 = V_M012;
+            resource_id2 = V_F012;
+        } break;
+    }
+
+    if (GameManager_UnknownUnit3 != nullptr) {
+        strcat(text, " Press F1.");
+    }
+
+    MessageManager_DrawMessage(text, 1, unit, GameManager_SpottedEnemyPosition);
+
+    if (resource_id1 != INVALID_ID) {
+        SoundManager.PlayVoice(resource_id1, resource_id2);
+    }
+}
+
 void GameManager_SelectBuildSite(UnitInfo* unit) {
-    /// \todo
+    while (unit->state == ORDER_STATE_6) {
+        GameManager_ProcessTick(false);
+    }
+
+    MessageManager_ClearMessageBox();
+
+    if (unit->state == ORDER_STATE_25) {
+        SoundManager.PlayVoice(V_M049, V_F050, -1);
+
+        SDL_assert(GameManager_TempTape != nullptr);
+
+        UnitsManager_DestroyUnit(&*GameManager_TempTape);
+        GameManager_TempTape = nullptr;
+
+        unit->GetBuildList().Clear();
+        unit->orders = unit->prior_orders;
+        unit->state = unit->prior_state;
+
+    } else {
+        unit->target_grid_x = unit->grid_x;
+        unit->target_grid_y = unit->grid_y;
+
+        UnitsManager_SetNewOrder(unit, ORDER_BUILDING, ORDER_STATE_13);
+
+        if (GameManager_SelectedUnit == unit) {
+            SoundManager.PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_END);
+        }
+    }
+
+    GameManager_MenuUnitSelect(unit);
 }
 
 void GameManager_ManagePlayerAction() {
     if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit->state == ORDER_STATE_25) {
         GameManager_SelectBuildSite(&*GameManager_SelectedUnit);
     }
+}
+
+bool GameManager_InitPopupButtons(UnitInfo* unit) {
+    WindowInfo* main_map_window;
+    WindowInfo* unknown_map_window;
+    bool result;
+
+    main_map_window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+    unknown_map_window = WindowManager_GetWindow(WINDOW_UNKNOWN_01);
+
+    if (unit->orders != ORDER_DISABLED && GameManager_IsAtGridPosition(unit) &&
+        (!(unit->flags & MOBILE_LAND_UNIT) || unit->state != ORDER_STATE_UNIT_READY)) {
+        GameManager_PopupButtons.popup_count = 0;
+        unit->sound_function(unit, &GameManager_PopupButtons);
+
+        if (GameManager_PopupButtons.popup_count) {
+            struct ImageSimpleHeader* image;
+            int ulx;
+            int uly;
+
+            image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(UNTBTN_U));
+
+            GameManager_PopupButtons.width = image->width + 6;
+            GameManager_PopupButtons.height =
+                image->height * GameManager_PopupButtons.popup_count + (GameManager_PopupButtons.popup_count + 1) * 3;
+
+            ulx = (((unit->x + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx;
+            uly = (((unit->y + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly -
+                  (GameManager_PopupButtons.height / 2);
+
+            ulx += main_map_window->window.ulx;
+
+            if ((GameManager_PopupButtons.width + ulx) > main_map_window->window.lrx) {
+                ulx -= GameManager_PopupButtons.width + Gfx_ZoomLevel;
+            }
+
+            uly += main_map_window->window.uly;
+
+            if (uly < main_map_window->window.uly) {
+                uly = main_map_window->window.uly;
+
+            } else if ((GameManager_PopupButtons.height + uly) > main_map_window->window.lry) {
+                uly = main_map_window->window.lry - GameManager_PopupButtons.height;
+            }
+
+            unknown_map_window->window.ulx = ulx;
+            unknown_map_window->window.uly = uly;
+            unknown_map_window->window.lrx = unknown_map_window->window.ulx + GameManager_PopupButtons.width;
+            unknown_map_window->window.lry = unknown_map_window->window.uly + GameManager_PopupButtons.height;
+
+            GameManager_PopupButtons.ulx = ulx;
+            GameManager_PopupButtons.uly = uly;
+
+            ulx += 3;
+            uly += 3;
+
+            text_font(2);
+
+            for (int i = 0; i < GameManager_PopupButtons.popup_count; ++i) {
+                Button* button;
+                ResourceID image_up;
+                ResourceID image_down;
+
+                if (GameManager_PopupButtons.state[i]) {
+                    image_up = UNTBTN_D;
+                    image_down = UNTBTN_U;
+                } else {
+                    image_up = UNTBTN_U;
+                    image_down = UNTBTN_D;
+                }
+
+                button = new (std::nothrow) Button(image_up, image_down, ulx, uly);
+
+                button->SetFlags(0x20);
+                button->SetCaption(GameManager_PopupButtons.caption[i], -1, 2);
+                button->SetRFunc(GameManager_PopupButtons.r_func[i], reinterpret_cast<int>(unit));
+                button->RegisterButton(main_map_window->id);
+                button->Enable();
+
+                GameManager_PopupButtons.buttons[i] = button;
+                uly = image->height + 3;
+            }
+
+            win_draw_rect(main_map_window->id, &unknown_map_window->window);
+
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 void GameManager_DeinitPopupButtons(bool clear_mouse_events) {
@@ -1969,8 +2448,54 @@ void GameManager_GetGridCenterOffset(bool minimap_zoom_state) {
     GameManager_GridCenterOffset.y = std::min(56, std::max(0, static_cast<int>(GameManager_GridCenterOffset.y)));
 }
 
+void GameManager_UpdatePanelButtons(unsigned short team) {
+    CTInfo* team_info;
+
+    team_info = &UnitsManager_TeamInfo[team];
+
+    Gfx_ZoomLevel = team_info->zoom_level;
+
+    GameManager_UpdateMainMapView(0, Gfx_ZoomLevel, 0);
+    GameManager_UpdateMainMapView(1, team_info->camera_position.x, team_info->camera_position.y);
+
+    if (team_info->selected_unit != nullptr && team_info->selected_unit->hits) {
+        GameManager_MenuUnitSelect(&*team_info->selected_unit);
+
+    } else {
+        GameManager_SelectNextUnit(1);
+    }
+
+    GameManager_MenuClickSurveyButton(team_info->display_button_survey);
+    GameManager_MenuClickStatusButton(team_info->display_button_status);
+    GameManager_MenuClickColorsButton(team_info->display_button_colors);
+    GameManager_MenuClickHitsButton(team_info->display_button_hits);
+    GameManager_MenuClickAmmoButton(team_info->display_button_ammo);
+    GameManager_MenuClickNamesButton(team_info->display_button_names);
+    GameManager_MenuClickRangeButton(team_info->display_button_range);
+    GameManager_MenuClickScanButton(team_info->display_button_scan);
+    GameManager_MenuClickGridButton(team_info->display_button_grid);
+    GameManager_MenuClickMinimap2xButton(team_info->display_button_minimap_2x);
+    GameManager_MenuClickMinimapTntButton(team_info->display_button_minimap_tnt);
+    GameManager_MenuClickLockButton(GameManager_DisplayButtonLock);
+}
+
 void GameManager_MenuClickLockButton(bool rest_state) {
-    /// \todo
+    GameManager_DisplayButtonLock = rest_state;
+
+    GameManager_MenuItems[MENU_GUI_ITEM_LOCK_BUTTON].disabled = rest_state;
+    GameManager_MenuItems[MENU_GUI_ITEM_LOCK_BUTTON].button->SetRestState(rest_state);
+
+    if (rest_state && GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit->team != GameManager_PlayerTeam &&
+        !GameManager_LockedUnits.Find(*GameManager_SelectedUnit)) {
+        GameManager_LockedUnits.PushBack(*GameManager_SelectedUnit);
+    }
+
+    if (GameManager_DisplayButtonLock && !GameManager_DisplayButtonScan && !GameManager_DisplayButtonRange) {
+        GameManager_MenuClickScanButton(true);
+        GameManager_MenuClickRangeButton(true);
+    }
+
+    GameManager_UpdateDrawBounds();
 }
 
 void GameManager_MenuClickReportButton() {
@@ -2040,7 +2565,7 @@ void GameManager_MenuClickMinimapTntButton(bool rest_state) {
 void GameManager_MenuClickHelpButton() {
     GameManager_MenuItems[MENU_GUI_ITEM_HELP_BUTTON].button->SetRestState(false);
 
-    if (GUI_GameState == GAME_STATE_7_SITE_SELECT) {
+    if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
         HelpMenu_Menu(HELPMENU_SITE_SELECT_SETUP, WINDOW_MAIN_MAP);
     } else {
         HelpMenu_Menu(HELPMENU_GAME_SCREEN_SETUP, WINDOW_MAIN_MAP);
@@ -2079,15 +2604,108 @@ void GameManager_MenuClickScanButton(bool rest_state) {
 }
 
 void GameManager_MenuClickChatGoalButton() {
-    /// \todo
+    GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].button->SetRestState(false);
+
+    if (Remote_IsNetworkGame) {
+        GameManager_DisableMainMenu();
+        ChatMenu_Menu(GameManager_PlayerTeam);
+        GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
+
+    } else if (GameManager_GameFileNumber) {
+        int game_file_type;
+        char file_path[PATH_MAX];
+        FILE* fp;
+        int text_size;
+        const char* mission_title;
+        int mission_title_size;
+        char* text;
+
+        game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
+
+        sprintf(file_path, "%sdescr%i.%s", ResourceManager_FilePathText, GameManager_GameFileNumber,
+                SaveLoadMenu_SaveFileTypes[game_file_type]);
+
+        fp = fopen(file_path, "rt");
+
+        if (fp) {
+            fseek(fp, 0, SEEK_END);
+            text_size = ftell(fp);
+        }
+
+        if (game_file_type == GAME_TYPE_TRAINING) {
+            mission_title = SaveLoadMenu_TutorialTitles[GameManager_GameFileNumber - 1];
+
+        } else if (game_file_type == GAME_TYPE_SCENARIO) {
+            mission_title = SaveLoadMenu_ScenarioTitles[GameManager_GameFileNumber - 1];
+
+        } else {
+            mission_title = SaveLoadMenu_CampaignTitles[GameManager_GameFileNumber - 1];
+        }
+
+        mission_title_size = strlen(mission_title) + 2;
+
+        text = new (std::nothrow) char[text_size + mission_title_size + 5];
+
+        memset(text, '\0', text_size + mission_title_size + 5);
+
+        strcpy(text, mission_title);
+        strcat(text, "\n\n");
+
+        fseek(fp, 0, SEEK_SET);
+        fread(&text[mission_title_size], sizeof(char), text_size, fp);
+        fclose(fp);
+
+        MessageManager_DrawMessage(text, 0, 1);
+
+        delete[] text;
+    }
 }
 
 void GameManager_MenuClickPreferencesButton() {
-    /// \todo
+    GameManager_MenuItems[MENU_GUI_ITEM_PREFS_BUTTON].button->SetRestState(false);
+
+    GameManager_DisableMainMenu();
+
+    menu_preferences_window(GameManager_PlayerTeam);
+
+    GameManager_RealTime = ini_get_setting(INI_REAL_TIME);
+    GameManager_FastMovement = ini_get_setting(INI_FAST_MOVEMENT);
+    GameManager_QuickScroll = (ini_get_setting(INI_QUICK_SCROLL) * Gfx_MapScalingFactor) >> 16;
+
+    if (Remote_IsNetworkGame) {
+        GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
+
+        Remote_SendNetPacket_17();
+    }
+
+    if (GameManager_AllVisible != ini_get_setting(INI_ALL_VISIBLE)) {
+        Access_UpdateVisibilityStatus(ini_get_setting(INI_ALL_VISIBLE));
+    }
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        UnitsManager_TeamInfo[team].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
+    }
+
+    GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
 }
 
 void GameManager_MenuClickFileButton(bool is_saving_allowed, bool is_text_mode) {
-    /// \todo
+    Color* palette_buffer;
+    int save_slot;
+
+    if (GameManager_UnknownFlag3) {
+        UnitsManager_DestroyUnit(&*GameManager_UnknownUnit2);
+        GameManager_UnknownFlag3 = false;
+    }
+
+    GameManager_DeinitPopupButtons(false);
+    GameManager_ManagePlayerAction();
+
+    GameManager_MenuItems[MENU_GUI_ITEM_FILES_BUTTON].button->SetRestState(false);
+    palette_buffer = GameManager_MenuFadeOut();
+    Cursor_SetCursor(CURSOR_HAND);
+    save_slot = SaveLoadMenu_MenuLoop(is_saving_allowed, is_text_mode);
+    GameManager_LoadGame(save_slot, palette_buffer, is_text_mode);
 }
 
 void GameManager_MenuClickGridButton(bool rest_state) {
@@ -2114,8 +2732,8 @@ void GameManager_MenuClickSurveyButton(bool rest_state) {
 
 void GameManager_FlicButtonRFunction(ButtonID bid, int value) {
     if (!GameManager_TextEditUnitName && GameManager_SelectedUnit != nullptr &&
-        GameManager_SelectedUnit->team == GUI_PlayerTeamIndex &&
-        UnitsManager_TeamInfo[GUI_PlayerTeamIndex].team_type == TEAM_TYPE_PLAYER) {
+        GameManager_SelectedUnit->team == GameManager_PlayerTeam &&
+        UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) {
         WindowInfo* window;
         Rect bounds;
         char text[40];
@@ -2151,7 +2769,41 @@ void GameManager_FlicButtonRFunction(ButtonID bid, int value) {
 }
 
 void GameManager_SaveLoadGame(bool save_load_mode) {
-    /// \todo
+    if (SaveLoadMenu_SaveSlot != -1) {
+        struct SaveFormatHeader save_file_header;
+        char file_name[16];
+        int save_type;
+        SmartString string;
+
+        save_type = SaveLoadMenu_GetGameFileType();
+
+        sprintf(file_name, "save%i.%s", SaveLoadMenu_SaveSlot, SaveLoadMenu_SaveFileTypes[save_type]);
+
+        SaveLoadMenu_GetSavedGameInfo(SaveLoadMenu_SaveSlot, save_type, save_file_header, false);
+
+        string.Vsprintf(200, save_load_mode ? "OK to save file?\n%s\n\"%s\"" : "OK to load file?\n%s\n\"%s\"",
+                        file_name, save_file_header.save_name);
+
+        if (OKCancelMenu_Menu(string.GetCStr(), false)) {
+            if (save_load_mode) {
+                if (Remote_IsNetworkGame) {
+                    Remote_SendNetPacket_16(file_name, save_file_header.save_name);
+                }
+
+                SaveLoadMenu_Save(file_name, save_file_header.save_name, true);
+                MessageManager_DrawMessage("Game saved.", 1, 0);
+
+            } else {
+                Color* palette_buffer;
+
+                palette_buffer = GameManager_MenuFadeOut();
+                GameManager_LoadGame(SaveLoadMenu_SaveSlot, palette_buffer, false);
+            }
+        }
+
+    } else {
+        GameManager_MenuClickFileButton(save_load_mode, false);
+    }
 }
 
 void GameManager_MenuInitDisplayControls() {
@@ -2208,7 +2860,7 @@ bool GameManager_HandleProximityOverlaps() {
                  UnitsManager_TeamMissionSupplies[team].proximity_alert_ack == 3)) {
                 flag = true;
 
-                GUI_PlayerTeamIndex = team;
+                GameManager_PlayerTeam = team;
                 GameManager_ActiveTurnTeam = team;
 
                 GameManager_UpdateMainMapView(0, 4, 0, false);
@@ -2225,8 +2877,47 @@ bool GameManager_HandleProximityOverlaps() {
     return true;
 }
 
-void GameManager_SetUnitOrder(int order, int state, UnitInfo* unit, int offset_x, int offset_y) {
-    /// \todo
+void GameManager_SetUnitOrder(int order, int state, UnitInfo* unit, int grid_x, int grid_y) {
+    GameManager_DeinitPopupButtons(false);
+
+    if (order == ORDER_ATTACKING) {
+        UnitInfo* target = Access_GetAttackTarget(unit, grid_x, grid_y);
+
+        if (target) {
+            unit->SetEnemy(target);
+            unit->path = nullptr;
+
+        } else {
+            if (unit->shots) {
+                unit->target_grid_x = grid_x;
+                unit->target_grid_y = grid_y;
+
+                UnitsManager_SetNewOrder(unit, ORDER_FIRING, ORDER_STATE_0);
+            }
+
+            return;
+        }
+    }
+
+    unit->target_grid_x = grid_x;
+    unit->target_grid_y = grid_y;
+
+    if (unit->orders == ORDER_MOVING || unit->orders == ORDER_MOVING_27 || unit->orders == ORDER_ATTACKING) {
+        unit->orders = unit->prior_orders;
+        unit->state = unit->prior_state;
+    }
+
+    if (order == ORDER_MOVING_27) {
+        unit->ClearUnitList();
+    }
+
+    unit->auto_survey = false;
+    unit->ClearTask1List();
+    UnitsManager_SetNewOrder(unit, order, state);
+
+    if (GameManager_SelectedUnit == unit) {
+        GameManager_UpdateInfoDisplay(&*GameManager_SelectedUnit);
+    }
 }
 
 bool GameManager_IsValidStartingPosition(int grid_x, int grid_y) {
@@ -2253,27 +2944,150 @@ unsigned char GameManager_GetWindowCursor(int grid_x, int grid_y) {
 }
 
 void GameManager_PathBuild(UnitInfo* unit) {
-    /// \todo
+    SDL_assert(GameManager_TempTape != nullptr);
+
+    SoundManager.PlayVoice(V_M049, V_F050, -1);
+
+    unit->target_grid_x = GameManager_TempTape->grid_x;
+    unit->target_grid_y = GameManager_TempTape->grid_y;
+
+    UnitsManager_DestroyUnit(&*GameManager_TempTape);
+    GameManager_TempTape = nullptr;
+
+    unit->path = nullptr;
+
+    if (Remote_IsNetworkGame) {
+        Remote_SendNetPacket_38(unit);
+    }
+
+    if (unit->unit_type == ENGINEER && (unit->grid_x != unit->target_grid_x || unit->grid_y != unit->target_grid_y)) {
+        unit->path = new (std::nothrow) GroundPath(unit->target_grid_x, unit->target_grid_y);
+
+        unit->path->Path_vfunc17(unit->target_grid_x - unit->grid_x, unit->target_grid_y - unit->grid_y);
+
+        if (Remote_IsNetworkGame) {
+            Remote_SendNetPacket_38(unit);
+        }
+
+        GameManager_UpdateDrawBounds();
+    }
+
+    UnitsManager_StartBuild(unit);
+    GameManager_AutoSelectNext(unit);
 }
 
 void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2) {
-    /// \todo
+    if (unit2->orders == ORDER_DISABLED) {
+        SoundManager.PlaySfx(NCANC0);
+        MessageManager_DrawMessage("Unable to reload disabled units.", 1, 0);
+
+    } else if (unit1->storage) {
+        unit1->SetParent(unit2);
+        MessageManager_DrawMessage("Unit resupplied with ammunition.", 0, 0);
+        UnitsManager_SetNewOrder(unit1, ORDER_RELOADING, ORDER_STATE_0);
+        SoundManager.PlayVoice(V_M085, V_F085);
+
+    } else {
+        SoundManager.PlaySfx(NCANC0);
+        MessageManager_DrawMessage("Insufficient material in storage to reload unit.", 1, 0);
+    }
 }
 
 void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2) {
-    /// \todo
+    if (unit2->orders == ORDER_DISABLED) {
+        SoundManager.PlaySfx(NCANC0);
+        MessageManager_DrawMessage("Unable to repair disabled units.", 1, 0);
+
+    } else if (unit1->storage) {
+        unit1->SetParent(unit2);
+        MessageManager_DrawMessage("Unit repaired.", 0, 0);
+        UnitsManager_SetNewOrder(unit1, ORDER_REPAIRING, ORDER_STATE_0);
+        SoundManager.PlayVoice(V_M210, V_F210);
+
+    } else {
+        SoundManager.PlaySfx(NCANC0);
+        MessageManager_DrawMessage("Insufficient material in storage to repair unit.", 1, 0);
+    }
 }
 
 void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
-    /// \todo
+    if (unit2->orders == ORDER_DISABLED) {
+        SoundManager.PlaySfx(NCANC0);
+        MessageManager_DrawMessage("Unable to transfer to disabled units.", 1, 0);
+
+    } else if (UnitsManager_BaseUnits[unit1->unit_type].cargo_type ==
+                   UnitsManager_BaseUnits[unit2->unit_type].cargo_type ||
+               (unit2->GetComplex() && (unit2->flags & STATIONARY) &&
+                (unit2 = GameManager_GetUnitWithCargoType(
+                     unit2->GetComplex(), UnitsManager_BaseUnits[unit1->unit_type].field_18)) != nullptr)) {
+        int cargo_transferred;
+
+        unit1->SetParent(unit2);
+
+        cargo_transferred = TransferMenu_Menu(unit1);
+
+        if (cargo_transferred) {
+            char message[200];
+
+            unit1->target_grid_x = cargo_transferred;
+
+            UnitsManager_SetNewOrder(unit1, ORDER_TRANSFERRING, ORDER_STATE_0);
+
+            cargo_transferred = labs(cargo_transferred);
+
+            switch (UnitsManager_BaseUnits[unit1->unit_type].cargo_type) {
+                case CARGO_TYPE_RAW: {
+                    sprintf(message, "Total materials transferred: %i", cargo_transferred);
+                } break;
+
+                case CARGO_TYPE_FUEL: {
+                    sprintf(message, "Total fuel transferred: %i", cargo_transferred);
+                } break;
+
+                case CARGO_TYPE_GOLD: {
+                    sprintf(message, "Total gold transferred: %i", cargo_transferred);
+                } break;
+            }
+
+            MessageManager_DrawMessage(message, 0, 0);
+
+            SoundManager.PlayVoice(V_M224, V_F224);
+        }
+    }
 }
 
 void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2) {
-    /// \todo
+    unit2 = Access_GetAttackTarget(unit1, unit2->grid_x, unit2->grid_y);
+
+    if (unit2) {
+        if (unit1->shots) {
+            unit1->SetParent(unit2);
+            unit1->target_grid_x = (dos_rand() * 101) >> 15;
+
+            UnitsManager_SetNewOrder(unit1, ORDER_AWAITING_24, ORDER_STATE_0);
+
+        } else {
+            MessageManager_DrawMessage("Infiltrator has already used his action this turn.  Try again next turn.", 0,
+                                       0);
+        }
+    }
 }
 
 void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
-    /// \todo
+    unit2 = Access_GetAttackTarget(unit1, unit2->grid_x, unit2->grid_y);
+
+    if (unit2) {
+        if (unit1->shots) {
+            unit1->SetParent(unit2);
+            unit1->target_grid_x = (dos_rand() * 101) >> 15;
+
+            UnitsManager_SetNewOrder(unit1, ORDER_AWAITING_25, ORDER_STATE_0);
+
+        } else {
+            MessageManager_DrawMessage("Infiltrator has already used his action this turn.  Try again next turn.", 0,
+                                       0);
+        }
+    }
 }
 
 void GameManager_IsValidStartingRange(short* grid_x, short* grid_y) {
@@ -2402,13 +3216,13 @@ void GameManager_EnableMainMenu(UnitInfo* unit) {
         }
 
         if (GameManager_PlayMode) {
-            GameManager_MenuClickEndTurnButton(GUI_GameState == GAME_STATE_8_IN_GAME);
+            GameManager_MenuClickEndTurnButton(GameManager_GameState == GAME_STATE_8_IN_GAME);
         } else {
             GameManager_MenuClickEndTurnButton(UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type ==
                                                TEAM_TYPE_PLAYER);
         }
 
-        if (GUI_GameState != GAME_STATE_9 || GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (GameManager_GameState != GAME_STATE_9 || GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             bool flag = true;
 
             for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
@@ -2445,15 +3259,53 @@ void GameManager_DisableMainMenu() {
     }
 }
 
-bool GameManager_ProcessTextInput(int key) {
+void GameManager_ProcessCheatCodes() {
     /// \todo
+}
+
+bool GameManager_ProcessTextInput(int key) {
+    bool result;
+
+    if (GameManager_TextInput.GetLength() && key >= 0 && key <= 255) {
+        if (GameManager_TextInput.GetLength() < 30) {
+            switch (key) {
+                case GNW_KB_KEY_BACKSPACE: {
+                    GameManager_TextInput = GameManager_TextInput.Substr(0, GameManager_TextInput.GetLength() - 2);
+                } break;
+
+                case GNW_KB_KEY_RETURN: {
+                    MessageManager_ClearMessageBox();
+                    GameManager_ProcessCheatCodes();
+                    GameManager_TextInput = "";
+                } break;
+
+                default: {
+                    GameManager_TextInput += toupper(key);
+                } break;
+            }
+
+            MessageManager_DrawMessage(GameManager_TextInput.GetCStr(), 0, 0);
+
+            result = true;
+
+        } else {
+            GameManager_TextInput = "";
+
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 void GameManager_ProcessKey() {
     CTInfo* team_info;
     int key;
 
-    team_info = &UnitsManager_TeamInfo[GUI_PlayerTeamIndex];
+    team_info = &UnitsManager_TeamInfo[GameManager_PlayerTeam];
     key = get_input();
 
     if (GameManager_TextEditUnitName && GameManager_TextEditUnitName->ProcessKeyPress(key)) {
@@ -2479,7 +3331,7 @@ void GameManager_ProcessKey() {
     GameManager_IsCtrlKeyPressed = keys[GNW_KB_SCAN_LCTRL] | keys[GNW_KB_SCAN_RCTRL];
 
     if (GameManager_RequestMenuExit) {
-        if (UnitsManager_TeamInfo[GUI_PlayerTeamIndex].field_41) {
+        if (UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41) {
             for (int team = 0; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER &&
                     !UnitsManager_TeamInfo[team].field_41) {
@@ -2487,8 +3339,8 @@ void GameManager_ProcessKey() {
                 }
             }
 
-        } else if (UnitsManager_TeamInfo[GUI_PlayerTeamIndex].team_type == TEAM_TYPE_PLAYER ||
-                   UnitsManager_TeamInfo[GUI_PlayerTeamIndex].team_type == TEAM_TYPE_COMPUTER) {
+        } else if (UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER ||
+                   UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_COMPUTER) {
             GameManager_DisableMainMenu();
 
             if (MessageManager_MessageBox_IsActive) {
@@ -2506,7 +3358,7 @@ void GameManager_ProcessKey() {
 
     switch (key) {
         case GNW_KB_KEY_KP_ENTER: {
-            if (GUI_GameState == GAME_STATE_7_SITE_SELECT) {
+            if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
                 MessageManager_ClearMessageBox();
 
                 Ai_SelectStartingPosition(GameManager_ActiveTurnTeam);
@@ -2521,26 +3373,26 @@ void GameManager_ProcessKey() {
 
                 UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].zoom_level = 64;
 
-                GUI_GameState = ORDER_STATE_13;
+                GameManager_GameState = ORDER_STATE_13;
 
             } else if (GameManager_DemoMode) {
-                GUI_GameState = GAME_STATE_3_MAIN_MENU;
+                GameManager_GameState = GAME_STATE_3_MAIN_MENU;
                 return;
             }
 
-            if (GameManager_MainMenuFreezeState && !UnitsManager_TeamInfo[GUI_PlayerTeamIndex].field_41) {
-                soundmgr.PlaySfx(MBUTT0);
+            if (GameManager_MainMenuFreezeState && !UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41) {
+                SoundManager.PlaySfx(MBUTT0);
                 GameManager_ResetRenderState();
 
-                if (!GameManager_RefreshOrders(GUI_PlayerTeamIndex, GameManager_RequestMenuExit)) {
+                if (!GameManager_RefreshOrders(GameManager_PlayerTeam, GameManager_RequestMenuExit)) {
                     GameManager_MenuClickEndTurnButton(true);
                 }
             }
         } break;
 
         case GNW_KB_KEY_ESCAPE: {
-            if (GUI_GameState == GAME_STATE_7_SITE_SELECT) {
-                GUI_GameState = GAME_STATE_14;
+            if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
+                GameManager_GameState = GAME_STATE_14;
 
             } else if (GameManager_Progress1) {
                 GameManager_Progress1 = false;
@@ -2552,17 +3404,17 @@ void GameManager_ProcessKey() {
                 MessageManager_ClearMessageBox();
 
             } else if (GameManager_DemoMode) {
-                GUI_GameState = GAME_STATE_3_MAIN_MENU;
+                GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
-            } else if (OKCancelMenu_menu_loop("OK to exit game?", false)) {
-                GUI_GameState = ORDER_STATE_3;
+            } else if (OKCancelMenu_Menu("OK to exit game?", false)) {
+                GameManager_GameState = ORDER_STATE_3;
             }
 
         } break;
 
         case GNW_KB_KEY_SPACE: {
             if (GameManager_DemoMode) {
-                GUI_GameState = GAME_STATE_3_MAIN_MENU;
+                GameManager_GameState = GAME_STATE_3_MAIN_MENU;
             }
         } break;
 
@@ -2593,7 +3445,7 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_G:
         case GNW_KB_KEY_SHIFT_G:
         case 1033: {
-            soundmgr.PlaySfx(IGRID0);
+            SoundManager.PlaySfx(IGRID0);
             GameManager_MenuClickGridButton(!GameManager_DisplayButtonGrid);
         } break;
 
@@ -2631,22 +3483,22 @@ void GameManager_ProcessKey() {
         } break;
 
         case GNW_KB_KEY_LALT_X: {
-            if (OKCancelMenu_menu_loop("OK to exit game?", false)) {
-                GUI_GameState = ORDER_STATE_3;
+            if (OKCancelMenu_Menu("OK to exit game?", false)) {
+                GameManager_GameState = ORDER_STATE_3;
                 GameManager_DeinitPopupButtons(false);
             }
         } break;
 
         case GNW_KB_KEY_F1: {
             if ((GameManager_MainMenuFreezeState ||
-                 UnitsManager_TeamInfo[GUI_PlayerTeamIndex].team_type == TEAM_TYPE_PLAYER) &&
+                 UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) &&
                 GameManager_SpottedEnemyPosition.x != -1) {
                 GameManager_ManagePlayerAction();
                 GameManager_UpdateMainMapView(1, GameManager_SpottedEnemyPosition.x,
                                               GameManager_SpottedEnemyPosition.y);
 
                 if (GameManager_UnknownUnit3 != nullptr &&
-                    GameManager_UnknownUnit3->IsVisibleToTeam(GUI_PlayerTeamIndex)) {
+                    GameManager_UnknownUnit3->IsVisibleToTeam(GameManager_PlayerTeam)) {
                     MessageManager_ClearMessageBox();
                     GameManager_MenuUnitSelect(&*GameManager_UnknownUnit3);
                 } else {
@@ -2694,10 +3546,10 @@ void GameManager_ProcessKey() {
         } break;
 
         case 1003: {
-            soundmgr.PlaySfx(MBUTT0);
+            SoundManager.PlaySfx(MBUTT0);
             GameManager_ResetRenderState();
 
-            if (!GameManager_RefreshOrders(GUI_PlayerTeamIndex, GameManager_RequestMenuExit)) {
+            if (!GameManager_RefreshOrders(GameManager_PlayerTeam, GameManager_RequestMenuExit)) {
                 GameManager_MenuClickEndTurnButton(true);
             }
         } break;
@@ -2715,7 +3567,7 @@ void GameManager_ProcessKey() {
         } break;
 
         case 1015: {
-            soundmgr.PlaySfx(MBUTT0);
+            SoundManager.PlaySfx(MBUTT0);
             GameManager_MenuClickLockButton(!GameManager_DisplayButtonLock);
         } break;
 
@@ -2729,12 +3581,13 @@ void GameManager_ProcessKey() {
             GameManager_MenuItems[MENU_GUI_ITEM_DONE_BUTTON].button->SetRestState(false);
 
             if (GameManager_IsShiftKeyPressed &&
-                UnitsManager_TeamInfo[GUI_PlayerTeamIndex].team_type == TEAM_TYPE_PLAYER) {
-                Access_RenewAttackOrders(UnitsManager_MobileLandSeaUnits, GUI_PlayerTeamIndex);
-                Access_RenewAttackOrders(UnitsManager_MobileAirUnits, GUI_PlayerTeamIndex);
+                UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) {
+                Access_RenewAttackOrders(UnitsManager_MobileLandSeaUnits, GameManager_PlayerTeam);
+                Access_RenewAttackOrders(UnitsManager_MobileAirUnits, GameManager_PlayerTeam);
 
-            } else if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit->team == GUI_PlayerTeamIndex &&
-                       UnitsManager_TeamInfo[GUI_PlayerTeamIndex].team_type == TEAM_TYPE_PLAYER) {
+            } else if (GameManager_SelectedUnit != nullptr &&
+                       GameManager_SelectedUnit->team == GameManager_PlayerTeam &&
+                       UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) {
                 UnitsManager_PerformAction(&*GameManager_SelectedUnit);
 
             } else {
@@ -2760,59 +3613,59 @@ void GameManager_ProcessKey() {
         } break;
 
         case 1026: {
-            soundmgr.PlaySfx(ISURV0);
+            SoundManager.PlaySfx(ISURV0);
             GameManager_MenuClickSurveyButton(!GameManager_DisplayButtonSurvey);
         } break;
 
         case 1027: {
-            soundmgr.PlaySfx(ISTAT0);
+            SoundManager.PlaySfx(ISTAT0);
             GameManager_MenuClickStatusButton(!GameManager_DisplayButtonStatus);
         } break;
 
         case 1028: {
-            soundmgr.PlaySfx(ICOLO0);
+            SoundManager.PlaySfx(ICOLO0);
             GameManager_MenuClickColorsButton(!GameManager_DisplayButtonColors);
         } break;
 
         case 1029: {
-            soundmgr.PlaySfx(IHITS0);
+            SoundManager.PlaySfx(IHITS0);
             GameManager_MenuClickHitsButton(!GameManager_DisplayButtonHits);
         } break;
 
         case 1030: {
-            soundmgr.PlaySfx(IAMMO0);
+            SoundManager.PlaySfx(IAMMO0);
             GameManager_MenuClickAmmoButton(!GameManager_DisplayButtonAmmo);
         } break;
 
         case 1031: {
-            soundmgr.PlaySfx(IRANG0);
+            SoundManager.PlaySfx(IRANG0);
             GameManager_MenuClickRangeButton(!GameManager_DisplayButtonRange);
         } break;
 
         case 1032: {
-            soundmgr.PlaySfx(IVISI0);
+            SoundManager.PlaySfx(IVISI0);
             GameManager_MenuClickScanButton(!GameManager_DisplayButtonScan);
         } break;
 
         case 1034: {
-            soundmgr.PlaySfx(INAME0);
+            SoundManager.PlaySfx(INAME0);
             GameManager_MenuClickNamesButton(!GameManager_DisplayButtonNames);
         } break;
 
         case 1036: {
-            soundmgr.PlaySfx(IAMMO0);
+            SoundManager.PlaySfx(IAMMO0);
             GameManager_MenuClickMinimap2xButton(!GameManager_DisplayButtonMinimap2x);
         } break;
 
         case 1037: {
-            soundmgr.PlaySfx(IAMMO0);
+            SoundManager.PlaySfx(IAMMO0);
             GameManager_MenuClickMinimapTntButton(!GameManager_DisplayButtonMinimapTnt);
         } break;
 
         default: {
             if (!GameManager_ProcessPopupMenuInput(key) && key >= GNW_INPUT_PRESS &&
                 !GameManager_SiteSelectReleaseEvent) {
-                if (GUI_GameState == GAME_STATE_7_SITE_SELECT) {
+                if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
                     if (key == GNW_KB_KEY_SHIFT_DIVIDE && GameManager_LandingSequence.button_1) {
                         GameManager_LandingSequence.button_1->PlaySound();
 
@@ -2821,7 +3674,7 @@ void GameManager_ProcessKey() {
                     }
 
                 } else {
-                    soundmgr.PlaySfx(MBUTT0);
+                    SoundManager.PlaySfx(MBUTT0);
                 }
 
                 GameManager_SiteSelectReleaseEvent = true;
@@ -2830,16 +3683,79 @@ void GameManager_ProcessKey() {
     }
 }
 
+bool GameManager_IsUnitNotInAir(UnitInfo* unit) {
+    return !(unit->flags & MOBILE_AIR_UNIT) || !(unit->flags & HOVERING);
+}
+
+UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int cargo_type) {
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == complex && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == cargo_type) {
+            return &(*it);
+        }
+    }
+
+    return nullptr;
+}
+
 void GameManager_UnitSelectOther(UnitInfo* unit1, UnitInfo* unit2, int grid_x, int grid_y) {
-    /// \todo
+    if (unit1 != unit2) {
+        GameManager_DeinitPopupButtons(false);
+        GameManager_UpdateDrawBounds();
+        GameManager_MenuUnitSelect(unit2);
+
+    } else {
+        unit2 = Access_GetSelectableUnit(unit1, grid_x, grid_y);
+
+        if (unit2 && unit2->IsVisibleToTeam(GameManager_PlayerTeam)) {
+            GameManager_DeinitPopupButtons(false);
+            GameManager_UpdateDrawBounds();
+            GameManager_MenuUnitSelect(unit2);
+        }
+    }
 }
 
 void GameManager_UnitSelect(UnitInfo* unit) {
-    /// \todo
+    GameManager_DeinitPopupButtons(false);
+    GameManager_UpdateDrawBounds();
+    GameManager_MenuUnitSelect(unit);
+
+    if (unit->team == GameManager_ActiveTurnTeam &&
+        UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_PLAYER) {
+        if ((unit->flags & STATIONARY) &&
+            (GameManager_GameState != GAME_STATE_9 || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES)) {
+            GameManager_InitPopupButtons(unit);
+        }
+
+        GameManager_DrawUnitStatusMessage(unit);
+        GameManager_PlayUnitStatusVoice(unit);
+    }
 }
 
 void GameManager_ClickUnit(UnitInfo* unit1, UnitInfo* unit2, int grid_x, int grid_y) {
-    /// \todo
+    if (unit1 != unit2) {
+        unit2->ClearUnitList();
+        GameManager_UnitSelect(unit2);
+
+    } else {
+        unit1->ClearUnitList();
+        GameManager_DrawUnitStatusMessage(unit1);
+
+        if (GameManager_PopupButtons.popup_count) {
+            GameManager_DeinitPopupButtons(false);
+
+        } else if ((GameManager_GameState != GAME_STATE_9 || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
+                   GameManager_InitPopupButtons(unit1)) {
+            return;
+        }
+
+        unit2 = Access_GetSelectableUnit(unit1, grid_x, grid_y);
+
+        if (unit1 != unit2 && unit2 && unit2->IsVisibleToTeam(unit1->team)) {
+            unit2->ClearUnitList();
+            GameManager_UnitSelect(unit2);
+        }
+    }
 }
 
 bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int grid_x, int grid_y) {
@@ -2860,7 +3776,7 @@ void GameManager_ProcessInput() {
     unsigned char window_index;
     unsigned char window_cursor;
 
-    team_info = &UnitsManager_TeamInfo[GUI_PlayerTeamIndex];
+    team_info = &UnitsManager_TeamInfo[GameManager_PlayerTeam];
 
     GameManager_ProcessKey();
 
@@ -2930,7 +3846,7 @@ void GameManager_ProcessInput() {
         window_index == WINDOW_MAIN_MAP;
     }
 
-    if (GUI_GameState == GAME_STATE_7_SITE_SELECT && window_index != WINDOW_MAIN_MAP) {
+    if (GameManager_GameState == GAME_STATE_7_SITE_SELECT && window_index != WINDOW_MAIN_MAP) {
         window_index = WINDOW_MAIN_WINDOW;
     }
 
@@ -3158,29 +4074,29 @@ void GameManager_ProcessInput() {
 
             case WINDOW_MAIN_MAP: {
                 if (!(GameManager_MouseButtons & (MOUSE_PRESS_LEFT | MOUSE_PRESS_RIGHT))) {
-                    soundmgr.PlaySfx(KCARG0);
+                    SoundManager.PlaySfx(KCARG0);
 
                     if (MessageManager_MessageBox_IsActive) {
                         MessageManager_ClearMessageBox();
                     }
 
-                    if (GUI_GameState == ORDER_STATE_7) {
+                    if (GameManager_GameState == ORDER_STATE_7) {
                         UnitsManager_TeamMissionSupplies[GameManager_ActiveTurnTeam].starting_position =
                             GameManager_MousePosition;
                         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].camera_position = GameManager_MousePosition;
                         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].zoom_level = 64;
 
                         if (Cursor_GetCursor() == CURSOR_UNIT_GO) {
-                            GUI_GameState = GAME_STATE_13;
-                            soundmgr.PlaySfx(NDONE0);
+                            GameManager_GameState = GAME_STATE_13;
+                            SoundManager.PlaySfx(NDONE0);
 
                         } else {
-                            soundmgr.PlaySfx(NCANC0);
+                            SoundManager.PlaySfx(NCANC0);
                         }
 
                     } else {
                         UnitInfo* unit = Access_GetUnit(GameManager_MousePosition.x, GameManager_MousePosition.y,
-                                                        GUI_PlayerTeamIndex, SELECTABLE);
+                                                        GameManager_PlayerTeam, SELECTABLE);
 
                         if (GameManager_UnknownFlag3) {
                             if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
@@ -3197,18 +4113,18 @@ void GameManager_ProcessInput() {
                                                                    GameManager_MousePosition.x,
                                                                    GameManager_MousePosition.y)) {
                                     if (Remote_IsNetworkGame) {
-                                        Remote_SendNetPacket_14(GUI_PlayerTeamIndex, GameManager_UnitType,
+                                        Remote_SendNetPacket_14(GameManager_PlayerTeam, GameManager_UnitType,
                                                                 GameManager_MousePosition.x,
                                                                 GameManager_MousePosition.y);
                                     }
 
-                                    GameManager_DeployUnit(GUI_PlayerTeamIndex, GameManager_UnitType,
+                                    GameManager_DeployUnit(GameManager_PlayerTeam, GameManager_UnitType,
                                                            GameManager_MousePosition.x, GameManager_MousePosition.y);
                                 }
                             }
 
                         } else {
-                            UnitInfo* unit2 = Access_GetUnit6(GUI_PlayerTeamIndex, GameManager_MousePosition.x,
+                            UnitInfo* unit2 = Access_GetUnit6(GameManager_PlayerTeam, GameManager_MousePosition.x,
                                                               GameManager_MousePosition.y, SELECTABLE);
 
                             if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
@@ -3572,6 +4488,22 @@ void GameManager_MenuDeinitButtons() {
         delete GameManager_MenuItems[i].button;
         GameManager_MenuItems[i].button = nullptr;
     }
+}
+
+void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
+    /// \todo
+}
+
+void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit) {
+    /// \todo
+}
+
+void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
+    /// \todo
+}
+
+void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
+    /// \todo
 }
 
 void GameManager_MenuDeinitDisplayControls() {

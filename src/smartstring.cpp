@@ -90,9 +90,11 @@ char *StringObject::GetCStr() const { return buffer; }
 
 void StringObject::SetLength(unsigned short length) { this->length = length; }
 
-static SmartString empty_string((unsigned short)0);
-
-SmartString::SmartString() : object_pointer(empty_string.object_pointer) { Increment(); }
+SmartString::SmartString() {
+    static SmartString *empty_string = new (std::nothrow) SmartString(static_cast<unsigned short>(0));
+    object_pointer = empty_string->object_pointer;
+    Increment();
+}
 
 SmartString::SmartString(unsigned short size) { object_pointer = new (std::nothrow) StringObject(size); }
 
@@ -138,9 +140,10 @@ char *SmartString::GetCStr() const { return object_pointer->GetCStr(); }
 unsigned short SmartString::GetLength() const { return object_pointer->GetLength(); }
 
 /// \todo This API seems to handle length inconsistently
-SmartString &SmartString::Substr(SmartString *destination, unsigned short position, unsigned short length) {
+SmartString SmartString::Substr(unsigned short position, unsigned short length) {
     int size;
     int max_length;
+    SmartString result;
     static SmartString empty_string;
 
     max_length = length;
@@ -155,12 +158,13 @@ SmartString &SmartString::Substr(SmartString *destination, unsigned short positi
         strncpy(string.GetCStr(), &GetCStr()[position], size);
         string[size] = '\0';
         string.object_pointer->SetLength(size);
-        *destination = SmartString(string);
+        result = string;
+
     } else {
-        *destination = SmartString(empty_string);
+        result = empty_string;
     }
 
-    return *destination;
+    return result;
 }
 
 char &SmartString::operator[](unsigned short position) {
@@ -293,3 +297,5 @@ SmartString &SmartString::operator=(const char *rhs) {
 
     return *this;
 }
+
+bool SmartString::IsEqual(const char *cstring) { return !Strcmp(cstring); }

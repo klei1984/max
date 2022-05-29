@@ -40,6 +40,8 @@ struct __attribute__((packed)) SoundTable {
     struct SoundElement item[];
 };
 
+class UnitInfoGroup;
+
 class UnitInfo : public TextFileObject {
 private:
     static void CalcRomanDigit(char* text, int value, const char* digit1, const char* digit2, const char* digit3);
@@ -111,6 +113,7 @@ public:
     void ClearTask1List();
     Task* GetTask1ListFront() const;
     void SetParent(UnitInfo* parent);
+    void SetBaseValues(UnitValues* unit_values);
     UnitValues* GetBaseValues() const;
     bool IsDetectedByTeam(unsigned short team) const;
     Complex* GetComplex() const;
@@ -125,14 +128,19 @@ public:
     void Draw(unsigned short team);
     void DrawStealth(unsigned short team);
     int GetRawConsumptionRate();
+    SmartObjectArray<ResourceID> GetBuildList();
     ResourceID GetConstructedUnitType() const;
+    bool IsBridgeElevated() const;
+    bool IsInGroupZone(UnitInfoGroup* group);
+    void RenderShadow(Point point, int image_id, Rect* bounds);
+    void RenderAirShadow(Rect* bounds);
     int GetMaxAllowedBuildRate();
     void TakePathStep();
     void SetLayingState(int state);
     void ClearPins();
 
     ResourceID unit_type;
-    void (*sound_function)();
+    void (*sound_function)(UnitInfo* unit, struct PopupButtons* buttons);
     struct SoundTable* sound_table;
     unsigned int flags;
     unsigned short x;

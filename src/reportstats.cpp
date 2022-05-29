@@ -24,7 +24,6 @@
 #include "cargo.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
-#include "gui.hpp"
 #include "inifile.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
@@ -309,7 +308,7 @@ void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID u
 
 void ReportStats_DrawListItem(unsigned char* buffer, int width, ResourceID unit_type, int ulx, int uly, int full,
                               int color) {
-    ReportStats_DrawListItemIcon(buffer, width, unit_type, GUI_PlayerTeamIndex, ulx + 16, uly + 16);
+    ReportStats_DrawListItemIcon(buffer, width, unit_type, GameManager_PlayerTeam, ulx + 16, uly + 16);
     Text_TextBox(buffer, width, UnitsManager_BaseUnits[unit_type].singular_name, ulx + 35, uly, full - 35, 32, color,
                  false);
 }
@@ -339,7 +338,8 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
 
     power_consumption_base = Cargo_GetPowerConsumptionRate(unit->unit_type);
 
-    if (power_consumption_base && GUI_PlayerTeamIndex == unit->team && !Cargo_GetLifeConsumptionRate(unit->unit_type)) {
+    if (power_consumption_base && GameManager_PlayerTeam == unit->team &&
+        !Cargo_GetLifeConsumptionRate(unit->unit_type)) {
         int current_value;
         int base_value;
         Cargo cargo;
@@ -399,7 +399,7 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
 
     life_consumption_base = Cargo_GetLifeConsumptionRate(unit->unit_type);
 
-    if (life_consumption_base && GUI_PlayerTeamIndex == unit->team) {
+    if (life_consumption_base && GameManager_PlayerTeam == unit->team) {
         int current_value;
         int base_value;
         Cargo cargo;
@@ -483,7 +483,7 @@ void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds) {
 }
 
 void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
-    if (unit->IsVisibleToTeam(GUI_PlayerTeamIndex)) {
+    if (unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
         SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
 
         ReportStats_DrawRowEx("Hits", id, bounds, 0, SI_HITSB, EI_HITSB, unit->hits,
@@ -491,7 +491,7 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
 
         if (unit_values->GetAttribute(ATTRIB_ATTACK)) {
             ReportStats_DrawRowEx("Ammo", id, bounds, 1, SI_AMMO, EI_AMMO, unit->ammo,
-                                  unit->team == GUI_PlayerTeamIndex ? unit_values->GetAttribute(ATTRIB_AMMO) : 0, 1,
+                                  unit->team == GameManager_PlayerTeam ? unit_values->GetAttribute(ATTRIB_AMMO) : 0, 1,
                                   true);
         } else {
             int cargo_type;
@@ -513,7 +513,7 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
                 cargo_value = 10;
             }
 
-            if (unit->team != GUI_PlayerTeamIndex) {
+            if (unit->team != GameManager_PlayerTeam) {
                 cargo_value = 0;
             }
 
@@ -531,13 +531,13 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
             ReportStats_DrawCommonUnit(unit, id, bounds);
         }
 
-        if (unit->unit_type == GREENHSE && unit->team == GUI_PlayerTeamIndex) {
+        if (unit->unit_type == GREENHSE && unit->team == GameManager_PlayerTeam) {
             ReportStats_DrawPointsUnit(unit, id, bounds);
         } else {
             ReportStats_DrawStorageUnit(unit, id, bounds);
         }
 
-        if (unit->team == GUI_PlayerTeamIndex && unit_values->GetAttribute(ATTRIB_STORAGE) &&
+        if (unit->team == GameManager_PlayerTeam && unit_values->GetAttribute(ATTRIB_STORAGE) &&
             (unit->flags & STATIONARY) && UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_RAW &&
             UnitsManager_BaseUnits[unit->unit_type].cargo_type < CARGO_TYPE_LAND) {
             Cargo materials;

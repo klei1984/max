@@ -24,7 +24,7 @@
 
 #include "gnw.h"
 #include "point.hpp"
-#include "textfileobject.hpp"
+#include "smartobjectarray.hpp"
 
 class UnitInfo;
 
@@ -65,7 +65,35 @@ public:
     void SetEndXY(int target_x, int target_y);
 };
 
-class GroundPath : public UnitPath {};
+class GroundPath : public UnitPath {
+    unsigned short index;
+    SmartObjectArray<PathStep> steps;
+
+public:
+    GroundPath();
+    GroundPath(int target_x, int target_y);
+    ~GroundPath();
+
+    static TextFileObject* Allocate();
+
+    unsigned short GetTypeIndex() const;
+    void FileLoad(SmartFileReader& file);
+    void FileSave(SmartFileWriter& file);
+    void TextLoad(TextStructure& object);
+    void TextSave(SmartTextfileWriter& file);
+    Point GetPosition(UnitInfo* unit) const;
+    bool IsInPath(int grid_x, int grid_y) const;
+    void Path_vfunc8(UnitInfo* unit);
+    int GetMovementCost(UnitInfo* unit);
+    bool Path_vfunc10(UnitInfo* unit);
+    void UpdateUnitAngle(UnitInfo* unit);
+    int Path_vfunc12(int unknown);
+    bool Path_vfunc13(UnitInfo* unit, WindowInfo* window);
+    bool IsEndStep() const;
+    int WritePacket(char* buffer);
+    void Path_vfunc16(int unknown1, int unknown2);
+    void Path_vfunc17(int unknown1, int unknown2);
+};
 
 class AirPath : public UnitPath {
     short length;

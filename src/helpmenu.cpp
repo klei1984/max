@@ -23,7 +23,6 @@
 
 #include "cursor.hpp"
 #include "game_manager.hpp"
-#include "gui.hpp"
 #include "menu.hpp"
 #include "mouseevent.hpp"
 #include "remote.hpp"
@@ -503,7 +502,7 @@ bool HelpMenu::Run(int mode) {
         if (!mode) {
             if (window_id == WINDOW_MAIN_MAP) {
                 GameManager_ProcessState(true, false);
-            } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
+            } else if (GameManager_GameState == GAME_STATE_8_IN_GAME || GameManager_GameState == GAME_STATE_9) {
                 GameManager_ProcessState(false, false);
             } else if (Remote_GameState) {
                 Remote_NetSync();
@@ -538,7 +537,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
             }
 
             if (mouse_event.buttons & MOUSE_RELEASE_LEFT) {
-                soundmgr.PlaySfx(KCARG0);
+                SoundManager.PlaySfx(KCARG0);
 
                 if (section_id == HELPMENU_GAME_SCREEN_SETUP &&
                     HelpMenu_UnitReport(mouse_event.point.x, mouse_event.point.y)) {
@@ -559,7 +558,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
             if (!mode) {
                 if (window_index == WINDOW_MAIN_MAP) {
                     GameManager_ProcessState(true, false);
-                } else if (GUI_GameState == GAME_STATE_8_IN_GAME || GUI_GameState == GAME_STATE_9) {
+                } else if (GameManager_GameState == GAME_STATE_8_IN_GAME || GameManager_GameState == GAME_STATE_9) {
                     GameManager_ProcessState(false, false);
                 } else if (Remote_GameState) {
                     Remote_NetSync();

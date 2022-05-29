@@ -24,7 +24,6 @@
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
 #include "game_manager.hpp"
-#include "gui.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -378,7 +377,7 @@ bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_err
     dos_getdrive(&new_drive);
 
     while (new_drive != cdrom_drive || chdir(ResourceManager_FilePathCd)) {
-        if (!prompt_user || !OKCancelMenu_menu_loop("\nPlease insert the M.A.X. CD and try again.\n", true)) {
+        if (!prompt_user || !OKCancelMenu_Menu("\nPlease insert the M.A.X. CD and try again.\n", true)) {
             dos_setdrive(drive, &total);
 
             return false;
@@ -546,7 +545,7 @@ void ResourceManager_InitInternals() {
 
     ResourceManager_DisableEnhancedGraphics = get_dpmi_physical_memory() < 13312000L;
     ini_set_setting(INI_ENHANCED_GRAPHICS, !ResourceManager_DisableEnhancedGraphics);
-    soundmgr.Init();
+    SoundManager.Init();
     register_pause(-1, nullptr);
     register_screendump(GNW_KB_KEY_LALT_C, screendump_pcx);
 }
@@ -558,13 +557,13 @@ void ResourceManager_TestMouse() {
 }
 
 void ResourceManager_ExitGame(int error_code) {
-    soundmgr.FreeAllSamples();
+    SoundManager.FreeAllSamples();
 
     if ((error_code == EXIT_CODE_NO_ERROR) || (error_code == EXIT_CODE_THANKS)) {
         menu_draw_exit_logos();
     }
 
-    soundmgr.Deinit();
+    SoundManager.Deinit();
     win_exit();
     reset_mode();
     SDL_Log("%s", ResourceManager_ErrorCodes[error_code]);
@@ -1028,11 +1027,11 @@ void ResourceManager_InitInGameAssets(int world) {
     delete ResourceManager_CargoMap;
     ResourceManager_CargoMap = nullptr;
 
-    soundmgr.FreeMusic();
+    SoundManager.FreeMusic();
 
     WindowManager_LoadImage(FRAMEPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, true, false);
 
-    GameManager_InitLandingSequenceMenu(GUI_GameState == GAME_STATE_7_SITE_SELECT);
+    GameManager_InitLandingSequenceMenu(GameManager_GameState == GAME_STATE_7_SITE_SELECT);
 
     win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
 

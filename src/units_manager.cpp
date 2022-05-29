@@ -23,14 +23,20 @@
 
 #include "access.hpp"
 #include "builder.hpp"
+#include "cursor.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
+#include "sound_manager.hpp"
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
+#include "window.hpp"
+#include "window_manager.hpp"
 
+static bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window);
+static bool UnitsManager_SelfDestructMenu();
 static void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y);
 static void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y);
 
@@ -1945,6 +1951,135 @@ CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
 TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
+const char* const UnitsManager_BuildTimeEstimates[] = {"%s %i will be available in %i turns.",
+                                                       "%s %i will be available in %i turns.",
+                                                       "%s %i will be available in %i turns."};
+
+bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
+    Button* button_destruct;
+    bool event_click_destruct;
+    bool event_click_cancel;
+    bool event_release;
+
+    for (unsigned short id = SLFDOPN1; id <= SLFDOPN6; ++id) {
+        unsigned int time_Stamp = timer_get_stamp32();
+
+        WindowManager_LoadImage2(static_cast<ResourceID>(id), 13, 11, 0, window);
+        win_draw(window->id);
+        GameManager_ProcessState(true);
+
+        while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(48)) {
+        }
+    }
+
+    button_destruct = new (std::nothrow) Button(SLFDOK_U, SLFDOK_D, 13, 11);
+    button_destruct->SetRValue(GNW_KB_KEY_RETURN);
+    button_destruct->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
+    button_destruct->SetSfx(NDONE0);
+    button_destruct->RegisterButton(window->id);
+
+    win_draw(window->id);
+
+    event_click_destruct = false;
+    event_click_cancel = false;
+    event_release = false;
+
+    while (!event_click_destruct && !event_click_cancel) {
+        int key = get_input();
+
+        if (GameManager_RequestMenuExit) {
+            key = GNW_KB_KEY_ESCAPE;
+        }
+
+        if (key == GNW_KB_KEY_RETURN) {
+            event_click_destruct = true;
+        } else if (key == GNW_KB_KEY_ESCAPE) {
+            event_click_cancel = true;
+        } else if (key >= GNW_INPUT_PRESS && !event_release) {
+            if (key == GNW_INPUT_PRESS + GNW_KB_KEY_RETURN) {
+                button_destruct->PlaySound();
+            } else {
+                SoundManager.PlaySfx(NCANC0);
+            }
+
+            event_release = true;
+        }
+
+        GameManager_ProcessState(true);
+    }
+
+    delete button_destruct;
+
+    return event_click_destruct;
+}
+
+bool UnitsManager_SelfDestructMenu() {
+    Window destruct_window(SELFDSTR, WINDOW_MAIN_MAP);
+    WindowInfo window;
+    Button* button_arm;
+    Button* button_cancel;
+    bool event_click_arm;
+    bool event_click_cancel;
+    bool event_release;
+
+    Cursor_SetCursor(CURSOR_HAND);
+    text_font(5);
+    destruct_window.SetFlags(0x10);
+
+    destruct_window.Add();
+    destruct_window.FillWindowInfo(&window);
+
+    button_arm = new (std::nothrow) Button(SLFDAR_U, SLFDAR_D, 89, 14);
+    button_arm->SetCaption("Arm");
+    button_arm->SetFlags(0x05);
+    button_arm->SetPValue(GNW_KB_KEY_RETURN);
+    button_arm->SetSfx(MBUTT0);
+    button_arm->RegisterButton(window.id);
+
+    button_cancel = new (std::nothrow) Button(SLFDCN_U, SLFDCN_D, 89, 46);
+    button_cancel->SetCaption("Cancel");
+    button_cancel->SetRValue(GNW_KB_KEY_ESCAPE);
+    button_cancel->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
+    button_cancel->SetSfx(NCANC0);
+    button_cancel->RegisterButton(window.id);
+
+    win_draw(window.id);
+
+    event_click_arm = false;
+    event_click_cancel = false;
+    event_release = false;
+
+    while (!event_click_arm && !event_click_cancel) {
+        int key = get_input();
+
+        if (GameManager_RequestMenuExit) {
+            key = GNW_KB_KEY_ESCAPE;
+        }
+
+        if (key == GNW_KB_KEY_RETURN) {
+            button_arm->PlaySound();
+            button_arm->Disable();
+            if (UnitsManager_SelfDestructActiveMenu(&window)) {
+                event_click_arm = true;
+            } else {
+                event_click_cancel = true;
+            }
+        } else if (key == GNW_KB_KEY_ESCAPE) {
+            event_click_cancel = true;
+        } else if (key >= GNW_INPUT_PRESS && !event_release) {
+            button_cancel->PlaySound();
+            event_release = true;
+        }
+
+        GameManager_ProcessState(true);
+    }
+
+    delete button_arm;
+    delete button_cancel;
+
+    return event_click_arm;
+}
+
 void UnitsManager_PerformAction(UnitInfo* unit) {
     /// \todo
 }
@@ -2098,6 +2233,10 @@ unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid
     }
 
     return result;
+}
+
+void UnitsManager_StartBuild(UnitInfo* unit) {
+    /// \todo
 }
 
 void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y) {

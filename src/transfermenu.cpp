@@ -26,7 +26,6 @@
 #include "cargo.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
-#include "gui.hpp"
 #include "helpmenu.hpp"
 #include "menu.hpp"
 #include "reportstats.hpp"
@@ -243,12 +242,12 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, 38) {
     scrollbar->SetMaterialBar(material_id);
     scrollbar->RefreshScreen();
 
-    ReportStats_DrawListItemIcon(window.buffer, window.width, source_unit->unit_type, GUI_PlayerTeamIndex, 104, 36);
+    ReportStats_DrawListItemIcon(window.buffer, window.width, source_unit->unit_type, GameManager_PlayerTeam, 104, 36);
 
     Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[source_unit->unit_type].singular_name, 10, 52, 110,
                  30, 0, true);
 
-    ReportStats_DrawListItemIcon(window.buffer, window.width, target_unit->unit_type, GUI_PlayerTeamIndex, 207, 36);
+    ReportStats_DrawListItemIcon(window.buffer, window.width, target_unit->unit_type, GameManager_PlayerTeam, 207, 36);
 
     Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[target_unit->unit_type].singular_name, 191, 52,
                  110, 30, 0, true);
@@ -280,8 +279,8 @@ void TransferMenu::Run() {
         int key = get_input();
 
         if (GameManager_RequestMenuExit || source_unit->orders == ORDER_DISABLED ||
-            target_unit->orders == ORDER_DISABLED || source_unit->team != GUI_PlayerTeamIndex ||
-            target_unit->team != GUI_PlayerTeamIndex) {
+            target_unit->orders == ORDER_DISABLED || source_unit->team != GameManager_PlayerTeam ||
+            target_unit->team != GameManager_PlayerTeam) {
             key = GNW_KB_KEY_ESCAPE;
         }
 

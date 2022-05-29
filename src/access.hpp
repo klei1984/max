@@ -64,11 +64,14 @@ UnitInfo *Access_GetFirstActiveUnit(unsigned short team, SmartList<UnitInfo> &un
 void Access_RenewAttackOrders(SmartList<UnitInfo> &units, unsigned short team);
 bool Access_IsWithinMovementRange(UnitInfo *unit);
 
+UnitInfo *Access_SeekNextUnit(unsigned short team, UnitInfo *unit, bool seek_direction);
+
 UnitInfo *Access_GetUnit(int grid_x, int grid_y);
 UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned int flags);
 UnitInfo *Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned int flags);
 UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned int flags);
 
+UnitInfo *Access_GetAttackTarget(UnitInfo *unit, int grid_x, int grid_y, bool mode = false);
 UnitInfo *Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y);
 
 UnitInfo *Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y);

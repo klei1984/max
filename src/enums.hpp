@@ -2069,7 +2069,7 @@ enum : unsigned char {
     ORDER_STATE_39 = 0x27,
     ORDER_STATE_40 = 0x28,
     ORDER_STATE_41 = 0x29,
-    ORDER_STATE_42 = 0x2A
+    ORDER_STATE_NEW_ORDER = 0x2A
 };
 
 enum : unsigned char {
@@ -2212,6 +2212,25 @@ enum {
     CONNECTOR_WEST_TOP = 0x40,
     CONNECTOR_WEST_BOTTOM = 0x80,
     CONNECTION_BEING_TESTED = 0x400
+};
+
+enum : unsigned char {
+    GAME_STATE_0 = 0x0,
+    GAME_STATE_1 = 0x1,
+    GAME_STATE_2 = 0x2,
+    GAME_STATE_3_MAIN_MENU = 0x3,
+    GAME_STATE_4 = 0x4,
+    GAME_STATE_5 = 0x5,
+    GAME_STATE_6 = 0x6,
+    GAME_STATE_7_SITE_SELECT = 0x7,
+    GAME_STATE_8_IN_GAME = 0x8,
+    GAME_STATE_9 = 0x9,
+    GAME_STATE_10 = 0xA,
+    GAME_STATE_11 = 0xB,
+    GAME_STATE_12 = 0xC,
+    GAME_STATE_13 = 0xD,
+    GAME_STATE_14 = 0xE,
+    GAME_STATE_15_FATAL_ERROR = 0xF
 };
 
 extern SortedEnum Enums_UnitType;

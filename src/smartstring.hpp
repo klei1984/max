@@ -62,7 +62,7 @@ public:
 
     char* GetCStr() const;
     unsigned short GetLength() const;
-    SmartString& Substr(SmartString* destination, unsigned short position, unsigned short length);
+    SmartString Substr(unsigned short position, unsigned short length);
     char& operator[](unsigned short position);
     SmartString& operator+=(SmartString const& other);
     SmartString& operator+=(const char* cstring);
@@ -76,6 +76,7 @@ public:
     int Strcmp(const char* cstring, bool case_sensitive = true) const;
     SmartString& operator=(SmartString const& rhs);
     SmartString& operator=(char const* rhs);
+    bool IsEqual(const char* cstring);
 };
 
 #endif /* SMARTSTRING_HPP */

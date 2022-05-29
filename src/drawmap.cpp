@@ -23,6 +23,8 @@
 
 #include "game_manager.hpp"
 #include "gfx.hpp"
+#include "units_manager.hpp"
+#include "window_manager.hpp"
 
 enum {
     OVERLAP_2IN1,
@@ -31,10 +33,72 @@ enum {
     OVERLAP_1IN2,
 };
 
-ObjectArray<Rect> DrawMap_DirtyRectangles;
+static ObjectArray<Rect> DrawMap_DirtyRectangles;
+static struct ImageSimpleHeader* DrawMap_BuildMarkImage;
 
 static int DrawMap_GetSideOverlap(int lr1, int ul1, int lr2, int ul2);
 static void Drawmap_AddDirtyZone(Rect* bounds1, Rect* bounds2, int horizontal_side, int vertical_side);
+static void DrawMap_Callback1(int ulx, int uly);
+static void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly));
+static void DrawMap_Callback2(int ulx, int uly);
+static void DrawMap_RenderWaitBulb(UnitInfo* unit);
+static void DrawMap_RenderBarDisplay(int ulx, int uly, int width, int height, int color);
+static void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, int height);
+static void DrawMap_RenderColorsDisplay(int ulx, int uly, int width, int height, unsigned char buffer, int color);
+static void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit);
+static void DrawMap_RenderColorsDisplay(UnitInfo* unit);
+static void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int color);
+static void DrawMap_RenderNamesDisplay(UnitInfo* unit);
+static void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units);
+static void DrawMap_RenderMiniMap();
+static void DrawMap_RenderMapTile(int ulx, int uly);
+
+DrawMapBuffer::DrawMapBuffer() : buffer(nullptr), bounds({0, 0, 0, 0}) {}
+
+void DrawMapBuffer::Deinit() {
+    if (buffer) {
+        int width;
+
+        width = bounds.lrx - bounds.ulx;
+
+        for (int i = 0; i < width; ++i) {
+            delete[] buffer[i];
+        }
+
+        delete[] buffer;
+
+        buffer = nullptr;
+    }
+}
+
+DrawMapBuffer::~DrawMapBuffer() { Deinit(); }
+
+void DrawMapBuffer::Init(Rect* bounds) {
+    int width;
+    int height;
+
+    Deinit();
+
+    this->bounds = *bounds;
+
+    width = this->bounds.lrx - this->bounds.ulx;
+    height = this->bounds.lry - this->bounds.uly;
+
+    buffer = new (std::nothrow) unsigned char*[width];
+
+    for (int i = 0; i < width; ++i) {
+        buffer[i] = new (std::nothrow) unsigned char[height];
+        memset(buffer[i], 0, height);
+    }
+}
+
+unsigned char** DrawMapBuffer::GetBuffer() const { return buffer; }
+
+int DrawMapBuffer::GetWidth() const { return bounds.lrx - bounds.ulx; }
+
+int DrawMapBuffer::GetHeight() const { return bounds.lry - bounds.uly; }
+
+Rect* DrawMapBuffer::GetBounds() { return &bounds; }
 
 int DrawMap_GetSideOverlap(int lr1, int ul1, int lr2, int ul2) {
     int result;
@@ -204,6 +268,104 @@ void Drawmap_UpdateDirtyZones(Rect* bounds) {
             }
         }
     }
+}
+
+void DrawMap_Callback1(int ulx, int uly) {
+    Rect bounds;
+
+    rect_init(&bounds, ulx * 64, uly * 64, bounds.ulx + 63, bounds.uly + 63);
+
+    GameManager_AddDrawBounds(&bounds);
+}
+
+void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly)) {
+    /// \todo
+}
+
+void DrawMap_Callback2(int ulx, int uly) {
+    WindowInfo* window;
+
+    window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+
+    ulx = ulx * 64 + 32;
+    uly = uly * 64 + 32;
+
+    ulx = ((ulx << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx;
+    uly = ((uly << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly;
+
+    WindowManager_DecodeImage2(DrawMap_BuildMarkImage, ulx, uly, true, window);
+}
+
+void DrawMap_RenderBuildMarker() {
+    /// \todo
+}
+
+void DrawMap_RenderWaitBulb(UnitInfo* unit) {
+    /// \todo
+}
+
+void DrawMap_RenderBarDisplay(int ulx, int uly, int width, int height, int color) {
+    /// \todo
+}
+
+void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, int height) {
+    /// \todo
+}
+
+void DrawMap_RenderColorsDisplay(int ulx, int uly, int width, int height, unsigned char buffer, int color) {
+    /// \todo
+}
+
+void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
+    /// \todo
+}
+
+void DrawMap_RenderColorsDisplay(UnitInfo* unit) {
+    /// \todo
+}
+
+void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int color) {
+    /// \todo
+}
+
+void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
+    /// \todo
+}
+
+void DrawMap_RenderAirShadow(UnitInfoGroup* group, UnitInfo* unit) { unit->RenderAirShadow(group->GetBounds2()); }
+
+void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode) {
+    /// \todo
+}
+
+void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
+    /// \todo
+}
+
+void DrawMap_RenderMiniMap() {
+    DrawMap_RenderMiniMapUnitList(&UnitsManager_StationaryUnits);
+    DrawMap_RenderMiniMapUnitList(&UnitsManager_MobileLandSeaUnits);
+    DrawMap_RenderMiniMapUnitList(&UnitsManager_MobileAirUnits);
+}
+
+void DrawMap_RenderUnits() {
+    /// \todo
+}
+
+void DrawMap_RenderMapTile(int ulx, int uly) {
+    /// \todo
+}
+
+void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
+    /// \todo
+}
+
+void DrawMap_RenderSurveyDisplay(DrawMapBuffer* drawmap) {
+    /// \todo
+}
+
+void DrawMap_RedrawDirtyZones() {
+    /// \todo
 }
 
 void DrawMap_ClearDirtyZones() { DrawMap_DirtyRectangles.Clear(); }

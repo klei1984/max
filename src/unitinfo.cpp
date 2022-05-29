@@ -26,13 +26,13 @@
 #include "builder.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
-#include "gui.hpp"
 #include "hash.hpp"
 #include "message_manager.hpp"
 #include "registerarray.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "sound_manager.hpp"
+#include "unitinfogroup.hpp"
 #include "units_manager.hpp"
 
 struct SoundTable UnitInfo_SfxDefaultUnit = {20,
@@ -960,6 +960,8 @@ Task* UnitInfo::GetTask1ListFront() const {
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
 
+void UnitInfo::SetBaseValues(UnitValues* unit_values) { base_values = unit_values; }
+
 UnitValues* UnitInfo::GetBaseValues() const { return &*base_values; }
 
 bool UnitInfo::IsDetectedByTeam(unsigned short team) const { return (spotted_by_team[team] || visible_to_team[team]); }
@@ -1140,7 +1142,7 @@ void UnitInfo::DrawSpriteFrame(unsigned short image_index) {
     if (this->image_index != image_index) {
         bool is_visible;
 
-        is_visible = IsVisibleToTeam(GUI_PlayerTeamIndex) || GameManager_MaxSpy;
+        is_visible = IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy;
 
         if (is_visible) {
             RefreshScreen();
@@ -1159,7 +1161,7 @@ void UnitInfo::DrawSpriteTurretFrame(unsigned short turret_image_index) {
     if (this->turret_image_index != turret_image_index) {
         bool is_visible;
 
-        is_visible = IsVisibleToTeam(GUI_PlayerTeamIndex) || GameManager_MaxSpy;
+        is_visible = IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy;
 
         if (is_visible) {
             RefreshScreen();
@@ -1214,7 +1216,7 @@ void UnitInfo::UpdateUnitAngle(unsigned short image_index) {
     if (image_diff) {
         bool is_visible;
 
-        is_visible = IsVisibleToTeam(GUI_PlayerTeamIndex) || GameManager_MaxSpy;
+        is_visible = IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy;
 
         if (is_visible) {
             RefreshScreen();
@@ -1404,7 +1406,7 @@ void UnitInfo::GainExperience(int experience) {
             }
 
             if (is_upgraded) {
-                if (team == GUI_PlayerTeamIndex) {
+                if (team == GameManager_PlayerTeam) {
                     SmartString string;
 
                     string.Vsprintf(80, "%s at [%i,%i] has increased in experience.",
@@ -1519,7 +1521,7 @@ void UnitInfo::Build() {
             parent_unit = nullptr;
 
             ClearBuildListAndPath();
-            soundmgr.PlaySfx(this, SFX_TYPE_IDLE);
+            SoundManager.PlaySfx(this, SFX_TYPE_IDLE);
         }
 
     } else {
@@ -1790,6 +1792,32 @@ ResourceID UnitInfo::GetConstructedUnitType() const {
     return *build_list[0];
 }
 
+bool UnitInfo::IsBridgeElevated() const { return (unit_type == BRIDGE) && (image_index != image_base); }
+
+bool UnitInfo::IsInGroupZone(UnitInfoGroup* group) {
+    bool result;
+
+    if (shadow_bounds.ulx < group->GetBounds1()->lrx && shadow_bounds.lrx >= group->GetBounds1()->ulx &&
+        shadow_bounds.uly < group->GetBounds1()->lry && shadow_bounds.lry >= group->GetBounds1()->uly) {
+        result = true;
+
+    } else if (sprite_bounds.ulx < group->GetBounds1()->lrx && sprite_bounds.lrx >= group->GetBounds1()->ulx &&
+               sprite_bounds.uly < group->GetBounds1()->lry && sprite_bounds.lry >= group->GetBounds1()->uly) {
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+void UnitInfo::RenderShadow(Point point, int image_id, Rect* bounds) {
+    /// \todo
+}
+
+void UnitInfo::RenderAirShadow(Rect* bounds) { RenderShadow(Point(grid_x, grid_y), image_index, bounds); }
+
 int UnitInfo::GetMaxAllowedBuildRate() {
     /// \todo
 }
@@ -1803,3 +1831,5 @@ void UnitInfo::TakePathStep() {
 void UnitInfo::SetLayingState(int state) { laying_state = state; }
 
 void UnitInfo::ClearPins() { pin_count = 0; }
+
+SmartObjectArray<ResourceID> UnitInfo::GetBuildList() { return build_list; }

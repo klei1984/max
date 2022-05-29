@@ -34,9 +34,12 @@ void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx,
                                   int item_height, int top, int scaling_factor, int is_big_sprite,
                                   bool double_marker = false);
 bool GameManager_RefreshOrders(unsigned short team, bool check_production);
+void GameManager_HandleTurnTimer();
 bool GameManager_ProcessTick(bool render_screen);
 void GameManager_ProcessState(bool process_tick, bool clear_mouse_events = true);
 void GameManager_GuiSwitchTeam(unsigned short team);
+bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mode);
+void GameManager_NotifyEvent(UnitInfo* unit, int event);
 void GameManager_SelectBuildSite(UnitInfo* unit);
 void GameManager_EnableMainMenu(UnitInfo* unit);
 void GameManager_DisableMainMenu();
@@ -45,21 +48,24 @@ void GameManager_GetScaledMessageBoxBounds(Rect* bounds);
 void GameManager_MenuUnitSelect(UnitInfo* unit);
 void GameManager_FillOrRestoreWindow(unsigned char id, int color, bool redraw);
 void GameManager_UpdateInfoDisplay(UnitInfo* unit);
+bool GameManager_IsAtGridPosition(UnitInfo* unit);
 void GameManager_SelectNextUnit(int seek_direction);
 bool GameManager_UpdateMapDrawBounds(int ulx, int uly);
 void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag = true);
+void GameManager_AutoSelectNext(UnitInfo* unit);
 void GameManager_DrawTurnTimer(int turn_time, bool mode = false);
 int GameManager_CheckLandingZones(unsigned short team1, unsigned short team2);
 void GameManager_MenuInitButtons(bool mode);
 void GameManager_MenuDeinitButtons();
 void GameManager_InitLandingSequenceMenu(bool enable_controls);
 
+extern unsigned short GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];
 extern Rect GameManager_GridPosition;
 extern Rect GameManager_MapWindowDrawBounds;
 extern SmartPointer<UnitInfo> GameManager_SelectedUnit;
 extern SmartList<UnitInfo> GameManager_LockedUnits;
 extern unsigned int GameManager_TurnCounter;
-extern unsigned int GameManager_TurnTimerValue;
+extern int GameManager_TurnTimerValue;
 extern bool GameManager_MaxSpy;
 extern int GameManager_GameFileNumber;
 extern int GameManager_HumanPlayerCount;
@@ -72,6 +78,8 @@ extern bool GameManager_MaxSurvey;
 extern Button* Gamemanager_FlicButton;
 extern unsigned char GameManager_PlayMode;
 extern unsigned char GameManager_ActiveTurnTeam;
+extern char GameManager_PlayerTeam;
+extern char GameManager_GameState;
 
 extern bool GameManager_DisplayButtonLock;
 extern bool GameManager_DisplayButtonScan;

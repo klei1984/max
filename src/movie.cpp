@@ -102,7 +102,7 @@ int movie_run(ResourceID resource_id, int mode) {
     char* file_name;
     unsigned char* palette;
 
-    soundmgr.FreeMusic();
+    SoundManager.FreeMusic();
 
     WindowManager_ClearWindow();
 

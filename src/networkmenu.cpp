@@ -23,8 +23,8 @@
 
 #include <ctime>
 
+#include "game_manager.hpp"
 #include "gameconfigmenu.hpp"
-#include "gui.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -226,7 +226,7 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
             Remote_SendNetPacket_13(Remote_RngSeed);
 
         } else {
-            while (GUI_GameState == GAME_STATE_3_MAIN_MENU) {
+            while (GameManager_GameState == GAME_STATE_3_MAIN_MENU) {
                 Remote_ProcessNetPackets();
 
                 if (get_input() == GNW_KB_KEY_ESCAPE) {
@@ -502,7 +502,7 @@ void NetworkMenu::EventScenarioButton() {
 
     DeleteButtons();
 
-    if (GameSetupMenu_menu_loop(GAME_TYPE_MULTI_PLAYER_SCENARIO, false)) {
+    if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO, false)) {
     } else {
         Reinit(true);
 
@@ -579,8 +579,8 @@ void NetworkMenu::EventChat() {
 
 void NetworkMenu::EventOptions() {
     DeleteButtons();
-    menu_options_menu_loop(GUI_GameState == GAME_STATE_6 ? 3 : 4);
-    ReadIniSettings(GUI_GameState);
+    menu_options_menu_loop(GameManager_GameState == GAME_STATE_6 ? 3 : 4);
+    ReadIniSettings(GameManager_GameState);
     Remote_SendNetPacket_37();
     Reinit(false);
 }
@@ -590,7 +590,7 @@ void NetworkMenu::EventCancel() {
         Remote_SendNetPacket_31(player_node);
     }
 
-    GUI_GameState = GAME_STATE_3_MAIN_MENU;
+    GameManager_GameState = GAME_STATE_3_MAIN_MENU;
     key = GNW_KB_KEY_ESCAPE;
 }
 
@@ -673,7 +673,7 @@ void NetworkMenu::SetButtonState(int button_index, bool state) {
 }
 
 void NetworkMenu::ReadIniSettings(int game_state) {
-    GUI_GameState = game_state;
+    GameManager_GameState = game_state;
 
     ini_play_mode = ini_get_setting(INI_PLAY_MODE);
     ini_timer = ini_get_setting(INI_TIMER);
@@ -688,7 +688,7 @@ void NetworkMenu::ReadIniSettings(int game_state) {
     ini_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
     ini_world_index = ini_get_setting(INI_WORLD);
 
-    if (GUI_GameState == GAME_STATE_6) {
+    if (GameManager_GameState == GAME_STATE_6) {
         strcpy(world_name, menu_planet_names[ini_world_index]);
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,39 +19,29 @@
  * SOFTWARE.
  */
 
-#ifndef DRAWMAP_HPP
-#define DRAWMAP_HPP
+#ifndef SEARCHER_HPP
+#define SEARCHER_HPP
 
-#include "gnw.h"
-#include "unitinfogroup.hpp"
+#include "point.hpp"
+#include "smartobjectarray.hpp"
 
-class DrawMapBuffer {
-    unsigned char** buffer;
-    Rect bounds;
-
-    void Deinit();
-
-public:
-    DrawMapBuffer();
-    ~DrawMapBuffer();
-
-    void Init(Rect* bounds);
-
-    unsigned char** GetBuffer() const;
-    int GetWidth() const;
-    int GetHeight() const;
-    Rect* GetBounds();
+struct PathSquare {
+    Point point;
+    unsigned short weight;
 };
 
-void Drawmap_UpdateDirtyZones(Rect* bounds);
-void DrawMap_RenderBuildMarker();
-void DrawMap_RenderAirShadow(UnitInfoGroup* group, UnitInfo* unit);
-void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode = true);
-void DrawMap_RenderUnits();
-void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid);
-void DrawMap_RenderSurveyDisplay(DrawMapBuffer* drawmap);
-void DrawMap_RedrawDirtyZones();
+class Searcher {
+    unsigned short **matrix1;
+    unsigned char **matrix2;
+    unsigned short *array;
+    unsigned short field_12;
+    ObjectArray<PathSquare> squares;
+    Point point;
+    unsigned char mode;
 
-void DrawMap_ClearDirtyZones();
+public:
+    Searcher(Point point1, Point point2, unsigned char mode);
+    ~Searcher();
+};
 
-#endif /* DRAWMAP_HPP */
+#endif /* SEARCHER_HPP */

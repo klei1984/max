@@ -25,8 +25,6 @@
 
 #include "dialogmenu.hpp"
 #include "game_manager.hpp"
-#include "gnw.h"
-#include "gui.hpp"
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
 
@@ -130,23 +128,23 @@ void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int lef
 }
 
 void MessageManager_AddMessage(const char* text, ResourceID id) {
-    MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].PushBack(
+    MessageManager_TeamMessageLog[GameManager_PlayerTeam].PushBack(
         *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, id)));
 
-    if (MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
-        MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Remove(
-            *MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Begin());
+    if (MessageManager_TeamMessageLog[GameManager_PlayerTeam].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
+        MessageManager_TeamMessageLog[GameManager_PlayerTeam].Remove(
+            *MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin());
     }
 }
 
 void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Point point) {
     if (text[0] != '\0') {
-        MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].PushBack(
+        MessageManager_TeamMessageLog[GameManager_PlayerTeam].PushBack(
             *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, unit, point)));
 
-        if (MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
-            MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Remove(
-                *MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Begin());
+        if (MessageManager_TeamMessageLog[GameManager_PlayerTeam].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
+            MessageManager_TeamMessageLog[GameManager_PlayerTeam].Remove(
+                *MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin());
         }
 
         MessageManager_DrawMessage(text, type, 0);
@@ -171,12 +169,12 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             }
 
             if (save_to_log) {
-                MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].PushBack(
+                MessageManager_TeamMessageLog[GameManager_PlayerTeam].PushBack(
                     *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, I_CMPLX)));
 
-                if (MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
-                    MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Remove(
-                        *MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Begin());
+                if (MessageManager_TeamMessageLog[GameManager_PlayerTeam].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
+                    MessageManager_TeamMessageLog[GameManager_PlayerTeam].Remove(
+                        *MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin());
                 }
             }
 
@@ -339,7 +337,7 @@ void MessageLogEntry::Select() {
     MessageManager_DrawMessage(text, 0, 0);
 
     if (is_alert_message) {
-        if (unit != nullptr && unit->hits > 0 && unit->IsVisibleToTeam(GUI_PlayerTeamIndex)) {
+        if (unit != nullptr && unit->hits > 0 && unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
             GameManager_MenuUnitSelect(&*unit);
         } else {
             GameManager_UpdateMainMapView(1, point.x, point.y);

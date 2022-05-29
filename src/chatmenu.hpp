@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,35 +19,9 @@
  * SOFTWARE.
  */
 
-#ifndef GUI_HPP
-#define GUI_HPP
+#ifndef CHATMENU_HPP
+#define CHATMENU_HPP
 
-#include "unitinfo.hpp"
+void ChatMenu_Menu(unsigned short team);
 
-extern char GUI_PlayerTeamIndex;
-extern char GUI_GameState;
-
-enum : unsigned char {
-    GAME_STATE_0 = 0x0,
-    GAME_STATE_1 = 0x1,
-    GAME_STATE_2 = 0x2,
-    GAME_STATE_3_MAIN_MENU = 0x3,
-    GAME_STATE_4 = 0x4,
-    GAME_STATE_5 = 0x5,
-    GAME_STATE_6 = 0x6,
-    GAME_STATE_7_SITE_SELECT = 0x7,
-    GAME_STATE_8_IN_GAME = 0x8,
-    GAME_STATE_9 = 0x9,
-    GAME_STATE_10 = 0xA,
-    GAME_STATE_11 = 0xB,
-    GAME_STATE_12 = 0xC,
-    GAME_STATE_13 = 0xD,
-    GAME_STATE_14 = 0xE,
-    GAME_STATE_15_FATAL_ERROR = 0xF
-};
-
-bool GUI_DesyncMenu();
-bool GUI_SelfDestructMenu();
-unsigned short GUI_TransferMenu(UnitInfo* unit);
-
-#endif /* GUI_HPP */
+#endif /* CHATMENU_HPP */

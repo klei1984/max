@@ -46,7 +46,7 @@
 #define SOUNDMGR_SCALE_VOLUME(volume) (((volume)*MIX_MAX_VOLUME) / SOUNDMGR_MAX_VALUE)
 #define SOUNDMGR_SCALE_PANNING_RIGHT(panning) (((panning)*254u) / SOUNDMGR_PANNING_RIGHT)
 
-SoundMgr soundmgr;
+CSoundManager SoundManager;
 
 static const unsigned char soundmgr_sfx_type_flags[SFX_TYPE_LIMIT] = {
     SOUNDMGR_SFX_FLAG_INVALID,
@@ -79,9 +79,9 @@ static const short soundmgr_voice_priority[V_END - V_START + 1] = {
     0,  0,  10, 10, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 5,  5,  5,  5,  5,  5,  5,  5,
     5,  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 
-static void Soundmgr_bk_process(void) { soundmgr.BkProcess(); }
+static void Soundmgr_bk_process(void) { SoundManager.BkProcess(); }
 
-SoundMgr::SoundMgr() {
+CSoundManager::CSoundManager() {
     is_audio_enabled = false;
 
     mixer_channels_count = 0;
@@ -101,9 +101,9 @@ SoundMgr::SoundMgr() {
     sfx = nullptr;
 }
 
-SoundMgr::~SoundMgr() { Deinit(); }
+CSoundManager::~CSoundManager() { Deinit(); }
 
-void SoundMgr::Init() {
+void CSoundManager::Init() {
     if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, SOUNDMGR_CHUNK_SIZE) == -1) {
         SDL_Log("Unable to initialize SDL audio: %s\n", SDL_GetError());
         is_audio_enabled = false;
@@ -139,7 +139,7 @@ void SoundMgr::Init() {
     }
 }
 
-void SoundMgr::Deinit() {
+void CSoundManager::Deinit() {
     is_audio_enabled = false;
 
     samples.clear();
@@ -157,7 +157,7 @@ void SoundMgr::Deinit() {
     }
 }
 
-void SoundMgr::UpdateMusic() {
+void CSoundManager::UpdateMusic() {
     if (music && !Mix_PlayingMusic()) {
         if (shuffle_music) {
             ResourceID resource_id;
@@ -206,7 +206,7 @@ void SoundMgr::UpdateMusic() {
     }
 }
 
-void SoundMgr::FreeSfx(UnitInfo* unit) {
+void CSoundManager::FreeSfx(UnitInfo* unit) {
     unsigned short unit_id;
 
     if (sfx) {
@@ -226,7 +226,7 @@ void SoundMgr::FreeSfx(UnitInfo* unit) {
     }
 }
 
-void SoundMgr::FreeSample(SoundSample* sample) {
+void CSoundManager::FreeSample(SoundSample* sample) {
     if (is_audio_enabled) {
         SDL_assert(sample);
 
@@ -267,7 +267,7 @@ void SoundMgr::FreeSample(SoundSample* sample) {
     }
 }
 
-void SoundMgr::PlayMusic(ResourceID id, bool shuffle) {
+void CSoundManager::PlayMusic(ResourceID id, bool shuffle) {
     if ((id != INVALID_ID) && (id != current_music_played)) {
         if (ini_get_setting(INI_DISABLE_MUSIC)) {
             last_music_played = id;
@@ -301,7 +301,7 @@ void SoundMgr::PlayMusic(ResourceID id, bool shuffle) {
     }
 }
 
-void SoundMgr::HaltMusicPlayback(bool disable) {
+void CSoundManager::HaltMusicPlayback(bool disable) {
     if (disable) {
         last_music_played = current_music_played;
         FreeMusic();
@@ -311,14 +311,14 @@ void SoundMgr::HaltMusicPlayback(bool disable) {
     }
 }
 
-void SoundMgr::FreeMusic() {
+void CSoundManager::FreeMusic() {
     if (music) {
         FreeSample(music);
         music = nullptr;
     }
 }
 
-void SoundMgr::PlaySfx(ResourceID id) {
+void CSoundManager::PlaySfx(ResourceID id) {
     if (!ini_get_setting(INI_DISABLE_FX)) {
         SoundJob job;
 
@@ -339,7 +339,7 @@ void SoundMgr::PlaySfx(ResourceID id) {
     }
 }
 
-void SoundMgr::PlaySfx(UnitInfo* unit, int sound, bool mode) {
+void CSoundManager::PlaySfx(UnitInfo* unit, int sound, bool mode) {
     unsigned char flags;
     int previous_sound;
 
@@ -460,7 +460,7 @@ void SoundMgr::PlaySfx(UnitInfo* unit, int sound, bool mode) {
     }
 }
 
-void SoundMgr::UpdateSfxPosition() {
+void CSoundManager::UpdateSfxPosition() {
     int grid_center_x;
     int grid_center_y;
     int grid_offset_x;
@@ -502,7 +502,7 @@ void SoundMgr::UpdateSfxPosition() {
     }
 }
 
-void SoundMgr::UpdateSfxPosition(UnitInfo* unit) {
+void CSoundManager::UpdateSfxPosition(UnitInfo* unit) {
     int grid_center_x;
     int grid_center_y;
     int grid_offset_x;
@@ -547,9 +547,9 @@ void SoundMgr::UpdateSfxPosition(UnitInfo* unit) {
     }
 }
 
-void SoundMgr::UpdateAllSfxPositions() {}
+void CSoundManager::UpdateAllSfxPositions() {}
 
-void SoundMgr::HaltSfxPlayback(bool disable) {
+void CSoundManager::HaltSfxPlayback(bool disable) {
     if (disable) {
         for (auto it = samples.begin(); it != samples.end();) {
             if (it->mixer_channel != SOUNDMGR_INVALID_CHANNEL && it->type <= JOB_TYPE_SFX2) {
@@ -566,7 +566,7 @@ void SoundMgr::HaltSfxPlayback(bool disable) {
     }
 }
 
-void SoundMgr::PlayVoice(ResourceID id1, ResourceID id2, short priority) {
+void CSoundManager::PlayVoice(ResourceID id1, ResourceID id2, short priority) {
     if (priority >= 0) {
         if (!IsVoiceGroupScheduled(id1, id2) && !ini_get_setting(INI_DISABLE_VOICE)) {
             short priority_value;
@@ -613,7 +613,7 @@ void SoundMgr::PlayVoice(ResourceID id1, ResourceID id2, short priority) {
     }
 }
 
-void SoundMgr::HaltVoicePlayback(bool disable) {
+void CSoundManager::HaltVoicePlayback(bool disable) {
     if (disable) {
         if (voice) {
             FreeSample(voice);
@@ -622,7 +622,7 @@ void SoundMgr::HaltVoicePlayback(bool disable) {
     }
 }
 
-void SoundMgr::FreeAllSamples() {
+void CSoundManager::FreeAllSamples() {
     for (auto it = samples.begin(); it != samples.end();) {
         FreeSample(&(*it));
 
@@ -632,7 +632,7 @@ void SoundMgr::FreeAllSamples() {
     SDL_assert(samples.empty());
 }
 
-void SoundMgr::SetVolume(int type, int volume) {
+void CSoundManager::SetVolume(int type, int volume) {
     SDL_assert(type <= JOB_TYPE_MUSIC);
     SDL_assert(volume <= 100);
 
@@ -650,7 +650,7 @@ void SoundMgr::SetVolume(int type, int volume) {
     }
 }
 
-void SoundMgr::BkProcess() {
+void CSoundManager::BkProcess() {
     if (is_audio_enabled) {
         UpdateMusic();
 
@@ -690,7 +690,7 @@ void SoundMgr::BkProcess() {
     }
 }
 
-void SoundMgr::AddJob(SoundJob& job) {
+void CSoundManager::AddJob(SoundJob& job) {
     /* workaround for 16 bit word size enum */
     if (job.id == 0xFFFF) {
         job.id = INVALID_ID;
@@ -738,7 +738,7 @@ void SoundMgr::AddJob(SoundJob& job) {
     }
 }
 
-int SoundMgr::ProcessJob(SoundJob& job) {
+int CSoundManager::ProcessJob(SoundJob& job) {
     int result;
 
     if (job.type == JOB_TYPE_VOICE && voice && voice->mixer_channel != SOUNDMGR_INVALID_CHANNEL &&
@@ -852,7 +852,7 @@ int SoundMgr::ProcessJob(SoundJob& job) {
     return result;
 }
 
-void SoundMgr::FreeVoice(ResourceID id1, ResourceID id2) {
+void CSoundManager::FreeVoice(ResourceID id1, ResourceID id2) {
     if (voice && voice_played >= id1 && voice_played <= id2) {
         FreeSample(voice);
     }
@@ -866,7 +866,7 @@ void SoundMgr::FreeVoice(ResourceID id1, ResourceID id2) {
     }
 }
 
-bool SoundMgr::IsVoiceGroupScheduled(ResourceID id1, ResourceID id2) {
+bool CSoundManager::IsVoiceGroupScheduled(ResourceID id1, ResourceID id2) {
     if (voice_played >= id1 && voice_played <= id2 && voice && Mix_Playing(voice->mixer_channel)) {
         return true;
     }
@@ -880,7 +880,7 @@ bool SoundMgr::IsVoiceGroupScheduled(ResourceID id1, ResourceID id2) {
     return false;
 }
 
-int SoundMgr::GetPanning(int distance, bool reverse) {
+int CSoundManager::GetPanning(int distance, bool reverse) {
     int panning;
 
     if (distance > 28) {
@@ -900,7 +900,7 @@ int SoundMgr::GetPanning(int distance, bool reverse) {
     return panning;
 }
 
-bool SoundMgr::LoadMusic(ResourceID id) {
+bool CSoundManager::LoadMusic(ResourceID id) {
     Mix_Music* sample;
     char* file;
     char file_path[PATH_MAX];
@@ -929,7 +929,7 @@ bool SoundMgr::LoadMusic(ResourceID id) {
     return result;
 }
 
-int SoundMgr::LoadSound(SoundJob& job, SoundSample& sample) {
+int CSoundManager::LoadSound(SoundJob& job, SoundSample& sample) {
     char* file;
     char file_path[PATH_MAX];
     int result;
@@ -989,7 +989,7 @@ int SoundMgr::LoadSound(SoundJob& job, SoundSample& sample) {
     return result;
 }
 
-void SoundMgr::LoadLoopPoints(FILE* fp, SoundSample& sample) {
+void CSoundManager::LoadLoopPoints(FILE* fp, SoundSample& sample) {
     char chunk_id[4];
     unsigned int chunk_size;
 
