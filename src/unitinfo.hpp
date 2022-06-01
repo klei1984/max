@@ -134,6 +134,9 @@ public:
     bool IsInGroupZone(UnitInfoGroup* group);
     void RenderShadow(Point point, int image_id, Rect* bounds);
     void RenderAirShadow(Rect* bounds);
+    void RenderSprite(Point point, int image_base, Rect* bounds);
+    void Render(Rect* bounds);
+    void RenderWithConnectors(Rect* bounds);
     int GetMaxAllowedBuildRate();
     void TakePathStep();
     void SetLayingState(int state);

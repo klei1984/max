@@ -1818,6 +1818,18 @@ void UnitInfo::RenderShadow(Point point, int image_id, Rect* bounds) {
 
 void UnitInfo::RenderAirShadow(Rect* bounds) { RenderShadow(Point(grid_x, grid_y), image_index, bounds); }
 
+void UnitInfo::RenderSprite(Point point, int image_base, Rect* bounds) {
+    /// \todo
+}
+
+void UnitInfo::Render(Rect* bounds) {
+    /// \todo
+}
+
+void UnitInfo::RenderWithConnectors(Rect* bounds) {
+    /// \todo
+}
+
 int UnitInfo::GetMaxAllowedBuildRate() {
     /// \todo
 }

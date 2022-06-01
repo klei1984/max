@@ -51,7 +51,7 @@ void DrawMap_RenderUnits();
 void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid);
 void DrawMap_RenderSurveyDisplay(DrawMapBuffer* drawmap);
 void DrawMap_RedrawDirtyZones();
-
+bool DrawMap_IsInsideBounds(Rect* bounds);
 void DrawMap_ClearDirtyZones();
 
 #endif /* DRAWMAP_HPP */

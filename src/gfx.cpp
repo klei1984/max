@@ -44,6 +44,7 @@ unsigned char Gfx_TeamColorIndexBase;
 ColorIndex* Gfx_ColorIndices;
 unsigned short Gfx_UnitBrightnessBase;
 unsigned int Gfx_MapBrightness;
+unsigned int Gfx_MapBigmapIileIdBufferOffset;
 unsigned char* Gfx_MapWindowBuffer;
 unsigned int Gfx_ZoomLevel;
 int Gfx_MapScalingFactor;
@@ -120,6 +121,10 @@ bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect
     }
 
     return result;
+}
+
+void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quotient) {
+    /// \todo
 }
 
 void Gfx_DecodeSprite() {

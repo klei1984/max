@@ -26,6 +26,7 @@
 #include "point.hpp"
 
 bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect* bounds);
+void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quotient);
 void Gfx_DecodeSprite();
 unsigned char* Gfx_RescaleSprite(unsigned char* buffer, unsigned int* data_size, int mode, int scaling_factor);
 
@@ -35,6 +36,7 @@ extern unsigned char Gfx_TeamColorIndexBase;
 extern ColorIndex* Gfx_ColorIndices;
 extern unsigned short Gfx_UnitBrightnessBase;
 extern unsigned int Gfx_MapBrightness;
+extern unsigned int Gfx_MapBigmapIileIdBufferOffset;
 extern unsigned char* Gfx_MapWindowBuffer;
 extern unsigned int Gfx_ZoomLevel;
 extern int Gfx_MapScalingFactor;

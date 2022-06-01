@@ -21,4 +21,8 @@
 
 #include "researchmenu.hpp"
 
+const char* const ResearchMenu_TopicLabels[] = {"Attack", "Shots", "Range", "Armor", "Hits", "Speed", "Scan", "Cost"};
+
+const ResourceID ResearchMenu_TopicIcon[] = {I_HRDATK, I_SHOTS, I_RANGE, I_ARMOR, I_HITS, I_SPEED, I_SCAN, I_GOLD};
+
 int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type) { return 0; }

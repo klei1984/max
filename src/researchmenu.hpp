@@ -24,6 +24,9 @@
 
 #include "resource_manager.hpp"
 
+extern const char* const ResearchMenu_TopicLabels[];
+extern const ResourceID ResearchMenu_TopicIcon[];
+
 int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type);
 
 #endif /* RESEARCHMENU_HPP */

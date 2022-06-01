@@ -29,6 +29,9 @@
 unsigned int Text_TypeWriter_CharacterTimeMs = 50;
 unsigned int Text_TypeWriter_BeepTimeMs = 100;
 
+static bool Text_FitBounds(Rect* output, Rect* bounds1, Rect* bounds2);
+static bool Text_IsFitting(Rect* bounds1, Rect* bounds2);
+
 SmartString* Text_SplitText(const char* text, int max_row_count, int width, int* row_count) {
     SmartString string;
     SmartString* string_array;
@@ -358,5 +361,79 @@ void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, char* text, in
         }
 
         delete[] strings;
+    }
+}
+
+bool Text_FitBounds(Rect* output, Rect* bounds1, Rect* bounds2) {
+    if (bounds1->ulx <= bounds2->ulx) {
+        output->ulx = bounds2->ulx;
+
+    } else {
+        output->ulx = bounds1->ulx;
+    }
+    if (bounds1->uly <= bounds2->uly) {
+        output->uly = bounds2->uly;
+
+    } else {
+        output->uly = bounds1->uly;
+    }
+
+    if (bounds1->lrx >= bounds2->lrx) {
+        output->lrx = bounds2->lrx;
+
+    } else {
+        output->lrx = bounds1->lrx;
+    }
+
+    if (bounds1->lry >= bounds2->lry) {
+        output->lry = bounds2->lry;
+
+    } else {
+        output->lry = bounds1->lry;
+    }
+
+    return output->lrx > output->ulx && output->lry > output->uly;
+}
+
+bool Text_IsFitting(Rect* bounds1, Rect* bounds2) {
+    return bounds1->ulx <= bounds2->ulx && bounds1->lrx >= bounds2->lrx && bounds1->uly <= bounds2->uly &&
+           bounds1->lry >= bounds2->lry;
+}
+
+void Text_AutofitTextBox(unsigned char* buffer, unsigned short full_width, const char* text, Rect* text_area,
+                         Rect* draw_area, int color, bool horizontal_align) {
+    Rect render_area;
+
+    if (Text_FitBounds(&render_area, text_area, draw_area)) {
+        if (Text_IsFitting(&render_area, text_area)) {
+            Text_TextBox(buffer, full_width, text, text_area->ulx, text_area->uly, text_area->lrx - text_area->ulx,
+                         text_area->lry - text_area->uly, color, horizontal_align);
+
+        } else {
+            int render_width;
+            int render_height;
+            int text_width;
+            int text_height;
+            unsigned char* text_buffer;
+            unsigned char* target_buffer;
+
+            render_width = render_area.lrx - render_area.ulx;
+            render_height = render_area.lry - render_area.uly;
+            text_width = text_area->lrx - text_area->ulx;
+            text_height = text_area->lry - text_area->uly;
+
+            text_buffer = new (std::nothrow) unsigned char[text_width * text_height];
+            buffer = &buffer[full_width * render_area.uly + render_area.ulx];
+            target_buffer =
+                &text_buffer[(render_area.uly - text_area->uly) * text_width + (render_area.ulx - text_area->ulx)];
+
+            buf_to_buf(buffer, render_width, render_height, full_width, target_buffer, text_width);
+
+            Text_TextBox(text_buffer, text_width, text, 0, 0, text_width, text_height, color, horizontal_align);
+
+            buf_to_buf(target_buffer, render_width, render_height, text_width, buffer, full_width);
+
+            delete[] text_buffer;
+        }
     }
 }

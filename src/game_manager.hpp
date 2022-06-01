@@ -73,11 +73,14 @@ extern bool GameManager_AllVisible;
 extern bool GameManager_RequestMenuExit;
 extern unsigned short Gfx_MapWindowWidth;
 extern bool GameManager_DisplayControlsInitialized;
+extern bool GameManager_RenderMinimapDisplay;
 extern bool GameManager_PlayFlic;
 extern bool GameManager_MaxSurvey;
 extern Button* Gamemanager_FlicButton;
 extern unsigned char GameManager_PlayMode;
 extern unsigned char GameManager_ActiveTurnTeam;
+extern unsigned short GameManager_MainMapWidth;
+extern unsigned short GameManager_MainMapHeight;
 extern char GameManager_PlayerTeam;
 extern char GameManager_GameState;
 

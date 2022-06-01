@@ -45,4 +45,7 @@ void Text_TypeWriter_TextBox(WindowInfo* window, char* text, int ulx, int uly, i
 void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, char* text, int ulx, int uly, int width, int height,
                                               int alignment);
 
+void Text_AutofitTextBox(unsigned char* buffer, unsigned short full_width, const char* text, Rect* text_area,
+                         Rect* draw_area, int color, bool horizontal_align);
+
 #endif /* TEXT_HPP */
