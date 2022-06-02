@@ -56,6 +56,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/textedit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/drawmap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/color.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/desyncmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transfermenu.cpp
