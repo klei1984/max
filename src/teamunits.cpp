@@ -335,11 +335,11 @@ Complex* TeamUnits::GetComplex(unsigned short complex_id) {
     return result;
 }
 
-void TeamUnits::sub_7F3DC(unsigned short team) {
+void TeamUnits::OptimizeComplexes(unsigned short team) {
     for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
         /// \todo Implement methods
         //        Access_UpdateResourcesTotal(*it);
-        //        ProductionManager_static_sub_41EA3(team, (*it), 0, 0);
+        //        ProductionManager_static_OptimizeMining(team, (*it), 0, 0);
     }
 }
 

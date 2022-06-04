@@ -54,7 +54,7 @@ public:
     virtual bool Path_vfunc10(UnitInfo* unit) = 0;
     virtual void UpdateUnitAngle(UnitInfo* unit);
     virtual int Path_vfunc12(int unknown) = 0;
-    virtual bool Path_vfunc13(UnitInfo* unit, WindowInfo* window) = 0;
+    virtual bool Draw(UnitInfo* unit, WindowInfo* window) = 0;
     virtual bool IsEndStep() const;
     virtual int WritePacket(char* buffer);
     virtual void Path_vfunc16(int unknown1, int unknown2);
@@ -88,7 +88,7 @@ public:
     bool Path_vfunc10(UnitInfo* unit);
     void UpdateUnitAngle(UnitInfo* unit);
     int Path_vfunc12(int unknown);
-    bool Path_vfunc13(UnitInfo* unit, WindowInfo* window);
+    bool Draw(UnitInfo* unit, WindowInfo* window);
     bool IsEndStep() const;
     int WritePacket(char* buffer);
     void Path_vfunc16(int unknown1, int unknown2);
@@ -122,11 +122,14 @@ public:
     int GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
     int Path_vfunc12(int unknown);
-    bool Path_vfunc13(UnitInfo* unit, WindowInfo* window);
+    bool Draw(UnitInfo* unit, WindowInfo* window);
 };
 
 class BuilderPath : public UnitPath {};
 
 extern Point Paths_8DirPointsArray[8];
+extern unsigned int Paths_LastTimeStamp;
+extern bool Path_EnableTimeBenchmark;
+extern unsigned int Paths_TimeLimit;
 
 #endif /* PATHS_HPP */

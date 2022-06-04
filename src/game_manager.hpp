@@ -35,8 +35,8 @@ void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx,
                                   bool double_marker = false);
 bool GameManager_RefreshOrders(unsigned short team, bool check_production);
 void GameManager_HandleTurnTimer();
-bool GameManager_ProcessTick(bool render_screen);
 void GameManager_ProcessState(bool process_tick, bool clear_mouse_events = true);
+bool GameManager_ProcessTick(bool render_screen);
 void GameManager_GuiSwitchTeam(unsigned short team);
 bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mode);
 void GameManager_NotifyEvent(UnitInfo* unit, int event);

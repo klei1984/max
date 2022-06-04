@@ -1784,7 +1784,15 @@ void UnitInfo::DrawStealth(unsigned short team) {
     /// \todo
 }
 
+void UnitInfo::Resupply() {
+    /// \todo
+}
+
 int UnitInfo::GetRawConsumptionRate() { return Cargo_GetRawConsumptionRate(unit_type, GetMaxAllowedBuildRate()); }
+
+void UnitInfo::UpdateProduction() {
+    /// \todo
+}
 
 ResourceID UnitInfo::GetConstructedUnitType() const {
     SDL_assert(build_list.GetCount() > 0);

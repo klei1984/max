@@ -96,6 +96,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/transport_udp_default.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/remote.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/menu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/winloss.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/access.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/survey.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/searcher.cpp

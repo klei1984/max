@@ -19,15 +19,5 @@
  * SOFTWARE.
  */
 
-#ifndef RESEARCHMENU_HPP
-#define RESEARCHMENU_HPP
+#include "winloss.hpp"
 
-#include "resource_manager.hpp"
-
-extern const char* const ResearchMenu_TopicLabels[];
-extern const ResourceID ResearchMenu_TopicIcon[];
-
-void ResearchMenu_CalculateResearchCost(unsigned short team, int research_topic, int allocation);
-int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type);
-
-#endif /* RESEARCHMENU_HPP */

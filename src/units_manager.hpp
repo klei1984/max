@@ -39,6 +39,8 @@ extern SmartList<UnitInfo> UnitsManager_UnitList6;
 extern AbstractUnit UnitsManager_AbstractUnits[UNIT_END];
 extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
+extern bool UnitsManager_OrdersPending;
+
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
 extern TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
@@ -52,6 +54,7 @@ void UnitsManager_InitPopupMenus();
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
                                               UnitInfo* parent);
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state);
+void UnitsManager_UpdatePathsTimeLimit();
 void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state);
 void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
 unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid_y);

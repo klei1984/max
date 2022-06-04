@@ -39,6 +39,10 @@ static MAXRegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_Grou
 
 Point Paths_8DirPointsArray[8] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
 
+unsigned int Paths_LastTimeStamp;
+bool Path_EnableTimeBenchmark;
+unsigned int Paths_TimeLimit = 43750;
+
 UnitPath::UnitPath() : x_end(0), y_end(0), distance_x(0), distance_y(0), euclidean_distance(0) {}
 
 UnitPath::UnitPath(int target_x, int target_y)
@@ -344,7 +348,7 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
 
 int AirPath::Path_vfunc12(int unknown) {}
 
-bool AirPath::Path_vfunc13(UnitInfo* unit, WindowInfo* window) {
+bool AirPath::Draw(UnitInfo* unit, WindowInfo* window) {
     /// \todo Implement method
 }
 
@@ -380,7 +384,7 @@ void GroundPath::UpdateUnitAngle(UnitInfo* unit) {}
 
 int GroundPath::Path_vfunc12(int unknown) {}
 
-bool GroundPath::Path_vfunc13(UnitInfo* unit, WindowInfo* window) {}
+bool GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {}
 
 bool GroundPath::IsEndStep() const {}
 

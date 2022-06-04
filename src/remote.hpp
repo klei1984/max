@@ -95,6 +95,7 @@ void Remote_ProcessNetPackets();
 void Remote_sub_C9753();
 void Remote_AnalyzeDesync();
 int Remote_CheckUnpauseEvent();
+void Remote_ProcessTick(bool mode = false);
 int Remote_SiteSelectMenu();
 
 void Remote_SendNetPacket_Signal(int packet_type, int team, int parameter);

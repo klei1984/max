@@ -51,6 +51,8 @@ SmartList<UnitInfo> UnitsManager_UnitList6;
 
 BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
+bool UnitsManager_OrdersPending;
+
 AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
     AbstractUnit(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
@@ -2264,6 +2266,10 @@ void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y) {
 }
 
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
+    /// \todo
+}
+
+void UnitsManager_UpdatePathsTimeLimit() {
     /// \todo
 }
 

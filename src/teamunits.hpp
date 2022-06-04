@@ -125,7 +125,7 @@ public:
 
     Complex* CreateComplex();
     Complex* GetComplex(unsigned short complex_id);
-    void sub_7F3DC(unsigned short team);
+    void OptimizeComplexes(unsigned short team);
     void RemoveComplex(Complex& object);
     void ClearComplexes();
 

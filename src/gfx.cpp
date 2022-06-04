@@ -64,6 +64,32 @@ short Gfx_PixelCount;
 short Gfx_word_1686D6;
 short Gfx_word_1686D8;
 short Gfx_word_1686DA;
+unsigned int Gfx_DecodeMap_TileSize;
+Rect* Gfx_DecodeMap_Bounds;
+Rect Gfx_DecodeMap_BoundsLocal;
+int Gfx_DecodeMap_DiffUlxFactor;
+int Gfx_DecodeMap_DiffUlyFactor;
+int Gfx_DecodeMap_dword_1686FC;
+int Gfx_DecodeMap_dword_168700;
+unsigned char Gfx_DecodeMap_TileBufferQuotient;
+unsigned char Gfx_DecodeMap_TilesInViewX;
+unsigned char Gfx_DecodeMap_TilesInViewY;
+char Gfx_DecodeMap_DiffUlx;
+char Gfx_DecodeMap_DiffUly;
+char Gfx_DecodeMap_DiffLrx;
+char Gfx_DecodeMap_DiffLry;
+char Gfx_DecodeMap_byte_16870B;
+char Gfx_DecodeMap_byte_16870C;
+char Gfx_DecodeMap_TilesInViewY_Index;
+char Gfx_DecodeMap_TilesInViewX_Index;
+char Gfx_DecodeMap_byte_16870F;
+unsigned short* Gfx_DecodeMap_MapTileIds;
+unsigned char* Gfx_DecodeMap_MapTileBuffer;
+int Gfx_DecodeMap_dword_168720;
+unsigned char* Gfx_DecodeMap_dword_168724;
+unsigned char* Gfx_DecodeMap_MainMapWindowBuffer;
+unsigned char* Gfx_DecodeMap_dword_16872C;
+int Gfx_DecodeMap_MapTileZoomFactor;
 
 bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect* bounds) {
     bool result;
@@ -124,7 +150,135 @@ bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect
 }
 
 void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quotient) {
-    /// \todo
+    Gfx_DecodeMap_Bounds = bounds;
+    Gfx_DecodeMap_TileSize = tile_size;
+    Gfx_DecodeMap_TileBufferQuotient = quotient;
+
+    if (Gfx_DecodeMap_Bounds->lry > Gfx_DecodeMap_Bounds->uly &&
+        Gfx_DecodeMap_Bounds->lrx > Gfx_DecodeMap_Bounds->ulx) {
+        int difference;
+        int zoom_level;
+        int factor;
+        unsigned char* map_tile_buffer;
+        ColorIndex* color_map;
+        int tile_index;
+
+        tile_index = 0;
+
+        Gfx_DecodeMap_MainMapWindowBuffer = Gfx_MapWindowBuffer;
+
+        Gfx_DecodeMap_MapTileIds = &ResourceManager_MapTileIds[Gfx_MapBigmapIileIdBufferOffset];
+
+        Gfx_Decode_ColorMap = &ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & 0xE0) * 8];
+
+        Gfx_DecodeMap_MapTileZoomFactor = (((Gfx_DecodeMap_TileSize - 1) << 16) / (Gfx_ZoomLevel - 1)) + 8;
+
+        Gfx_DecodeMap_BoundsLocal.ulx = Gfx_DecodeMap_Bounds->ulx & 0xFFFFFFC0;
+        Gfx_DecodeMap_BoundsLocal.uly = Gfx_DecodeMap_Bounds->uly & 0xFFFFFFC0;
+        Gfx_DecodeMap_BoundsLocal.lrx = ((Gfx_DecodeMap_Bounds->lrx - 1) & 0xFFFFFFC0) + 63;
+        Gfx_DecodeMap_BoundsLocal.lry = ((Gfx_DecodeMap_Bounds->lry - 1) & 0xFFFFFFC0) + 63;
+
+        Gfx_DecodeMap_TilesInViewX = (Gfx_DecodeMap_BoundsLocal.lrx - Gfx_DecodeMap_BoundsLocal.ulx) / 64 + 1;
+        Gfx_DecodeMap_TilesInViewY = (Gfx_DecodeMap_BoundsLocal.lry - Gfx_DecodeMap_BoundsLocal.uly) / 64 + 1;
+
+        difference = (((Gfx_DecodeMap_Bounds->ulx) << 16) / Gfx_MapScalingFactor) -
+                     ((Gfx_DecodeMap_BoundsLocal.ulx << 16) / Gfx_MapScalingFactor);
+        Gfx_DecodeMap_DiffUlx = difference;
+        Gfx_DecodeMap_DiffUlxFactor = difference * Gfx_DecodeMap_MapTileZoomFactor;
+
+        difference = (((Gfx_DecodeMap_Bounds->uly) << 16) / Gfx_MapScalingFactor) -
+                     ((Gfx_DecodeMap_BoundsLocal.uly << 16) / Gfx_MapScalingFactor);
+        Gfx_DecodeMap_DiffUly = difference;
+        Gfx_DecodeMap_DiffUlyFactor = difference * Gfx_DecodeMap_MapTileZoomFactor;
+
+        Gfx_DecodeMap_DiffLrx = ((Gfx_DecodeMap_BoundsLocal.lrx << 16) / Gfx_MapScalingFactor) -
+                                ((Gfx_DecodeMap_Bounds->lrx - 1) << 16) / Gfx_MapScalingFactor;
+
+        Gfx_DecodeMap_DiffLry = ((Gfx_DecodeMap_BoundsLocal.lry << 16) / Gfx_MapScalingFactor) -
+                                ((Gfx_DecodeMap_Bounds->lry - 1) << 16) / Gfx_MapScalingFactor;
+
+        Gfx_DecodeMap_TilesInViewY_Index = Gfx_DecodeMap_TilesInViewY;
+
+        do {
+            Gfx_DecodeMap_TilesInViewX_Index = Gfx_DecodeMap_TilesInViewX;
+
+            zoom_level = Gfx_ZoomLevel;
+            factor = 0;
+
+            if (Gfx_DecodeMap_TilesInViewY_Index == Gfx_DecodeMap_TilesInViewY) {
+                zoom_level -= Gfx_DecodeMap_DiffUly;
+                factor = Gfx_DecodeMap_DiffUlyFactor;
+            }
+
+            if (Gfx_DecodeMap_TilesInViewY_Index == 1) {
+                zoom_level -= Gfx_DecodeMap_DiffLry;
+            }
+
+            Gfx_DecodeMap_byte_16870C = zoom_level;
+            Gfx_DecodeMap_dword_168700 = factor;
+            Gfx_DecodeMap_dword_168724 = Gfx_DecodeMap_MainMapWindowBuffer;
+
+            Gfx_DecodeMap_MainMapWindowBuffer = &Gfx_DecodeMap_MainMapWindowBuffer[Gfx_MapWindowWidth * zoom_level];
+
+            do {
+                Gfx_DecodeMap_MapTileBuffer = &ResourceManager_MapTileBuffer[Gfx_DecodeMap_MapTileIds[tile_index]
+                                                                             << Gfx_DecodeMap_TileBufferQuotient];
+                map_tile_buffer = Gfx_DecodeMap_MapTileBuffer;
+
+                Gfx_DecodeMap_dword_168720 = Gfx_DecodeMap_dword_168700;
+
+                map_tile_buffer =
+                    &map_tile_buffer[(Gfx_DecodeMap_dword_168700 >> 16) << (Gfx_DecodeMap_TileBufferQuotient >> 1)];
+
+                Gfx_DecodeMap_byte_16870F = Gfx_DecodeMap_byte_16870C;
+
+                zoom_level = Gfx_ZoomLevel;
+                factor = 0;
+
+                if (Gfx_DecodeMap_TilesInViewX_Index == Gfx_DecodeMap_TilesInViewX) {
+                    zoom_level -= Gfx_DecodeMap_DiffUlx;
+                    factor = Gfx_DecodeMap_DiffUlyFactor;
+                }
+
+                if (Gfx_DecodeMap_TilesInViewX_Index == 1) {
+                    zoom_level -= Gfx_DecodeMap_DiffLrx;
+                }
+
+                Gfx_DecodeMap_byte_16870B = zoom_level;
+                Gfx_DecodeMap_dword_1686FC = factor;
+                Gfx_DecodeMap_dword_16872C = Gfx_DecodeMap_dword_168724;
+
+                Gfx_DecodeMap_dword_168724 = &Gfx_DecodeMap_dword_168724[zoom_level];
+
+                color_map = Gfx_Decode_ColorMap;
+
+                do {
+                    factor = Gfx_DecodeMap_dword_1686FC;
+
+                    for (int i = 0; i < Gfx_DecodeMap_byte_16870B; ++i) {
+                        Gfx_DecodeMap_dword_16872C[i] = Gfx_Decode_ColorMap[map_tile_buffer[factor >> 16]];
+                        factor += Gfx_DecodeMap_MapTileZoomFactor;
+                    }
+
+                    Gfx_DecodeMap_dword_16872C = &Gfx_DecodeMap_dword_16872C[Gfx_MapWindowWidth];
+                    Gfx_DecodeMap_dword_168720 += Gfx_DecodeMap_MapTileZoomFactor;
+                    map_tile_buffer = &Gfx_DecodeMap_MapTileBuffer[(Gfx_DecodeMap_dword_168720 >> 16)
+                                                                   << (Gfx_DecodeMap_TileBufferQuotient >> 1)];
+
+                    --Gfx_DecodeMap_byte_16870F;
+
+                } while (Gfx_DecodeMap_byte_16870F);
+
+                ++tile_index;
+                --Gfx_DecodeMap_TilesInViewX_Index;
+
+            } while (Gfx_DecodeMap_TilesInViewX_Index);
+
+            tile_index += ResourceManager_MapSize.x - Gfx_DecodeMap_TilesInViewX;
+            --Gfx_DecodeMap_TilesInViewY_Index;
+
+        } while (Gfx_DecodeMap_TilesInViewY_Index);
+    }
 }
 
 void Gfx_DecodeSprite() {

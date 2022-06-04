@@ -127,7 +127,9 @@ public:
     void SpotByTeam(unsigned short team);
     void Draw(unsigned short team);
     void DrawStealth(unsigned short team);
+    void Resupply();
     int GetRawConsumptionRate();
+    void UpdateProduction();
     SmartObjectArray<ResourceID> GetBuildList();
     ResourceID GetConstructedUnitType() const;
     bool IsBridgeElevated() const;

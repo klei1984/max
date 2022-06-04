@@ -73,6 +73,8 @@ struct CreditsLine {
 #define CREDITS_TEXT(text) \
     { (0x04), (text) }
 
+static void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn, bool mode);
+
 static ResourceID menu_portrait_id;
 
 static struct MenuButton* menu_button_items;
@@ -491,6 +493,19 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
     if (draw_to_screen) {
         win_draw_rect(wininfo.id, &wininfo.window);
     }
+}
+
+void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int global_turn, bool mode) {
+    /// \todo
+}
+
+void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn, bool mode) {
+    /// \todo
+}
+
+bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_demo_mode) {
+    /// \todo
+    return true;
 }
 
 void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align,

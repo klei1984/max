@@ -614,6 +614,10 @@ UnitInfo* Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned i
     /// \todo
 }
 
+unsigned int Access_GetValidAttackTargetTypes(ResourceID unit_type) {
+    /// \todo
+}
+
 UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int grid_x, int grid_y, bool mode) {
     /// \todo
 }
@@ -628,6 +632,11 @@ UnitInfo* Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y) {
 
 void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
     /// \todo
+}
+
+bool Access_AreTaskEventsPending() {
+    /// \todo
+    return false;
 }
 
 bool Access_ProcessNewGroupOrder(UnitInfo* unit) {

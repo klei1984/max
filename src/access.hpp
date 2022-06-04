@@ -71,6 +71,8 @@ UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned int flags);
 UnitInfo *Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned int flags);
 UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned int flags);
 
+unsigned int Access_GetValidAttackTargetTypes(ResourceID unit_type);
+
 UnitInfo *Access_GetAttackTarget(UnitInfo *unit, int grid_x, int grid_y, bool mode = false);
 UnitInfo *Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y);
 
@@ -78,6 +80,7 @@ UnitInfo *Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y);
 
 void Access_MultiSelect(UnitInfo *unit, Rect *bounds);
 
+bool Access_AreTaskEventsPending();
 bool Access_ProcessNewGroupOrder(UnitInfo *unit);
 
 #endif /* ACCESS_HPP */

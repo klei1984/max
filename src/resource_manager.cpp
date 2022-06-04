@@ -1035,7 +1035,9 @@ void ResourceManager_InitInGameAssets(int world) {
 
     win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
 
-    world_file_name = ResourceManager_ReadResource(SNOW_1);
+    world = SNOW_1 + world;
+
+    world_file_name = ResourceManager_ReadResource(static_cast<ResourceID>(world));
 
     if (!world_file_name) {
         ResourceManager_ExitGame(EXIT_CODE_RES_FILE_NOT_FOUND);

@@ -609,6 +609,10 @@ int Remote_CheckUnpauseEvent() {
     return Remote_UnpauseGameEvent;
 }
 
+void Remote_ProcessTick(bool mode) {
+    /// \todo
+}
+
 int Remote_SiteSelectMenu() {
     /// \todo
 }
