@@ -22,4 +22,10 @@
 #ifndef WINLOSS_HPP
 #define WINLOSS_HPP
 
+enum { VICTORY_STATE_GENERIC = 0, VICTORY_STATE_PENDING = 1, VICTORY_STATE_WON = 2, VICTORY_STATE_LOST = 3 };
+
+bool WinLoss_CheckLossConditions(unsigned short team);
+int WinLoss_DetermineWinner(unsigned short team1, unsigned short team2);
+int WinLoss_CheckWinConditions(unsigned short team, int turn_counter);
+
 #endif /* WINLOSS_HPP */

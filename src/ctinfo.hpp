@@ -42,7 +42,7 @@ struct CTInfo {
     char field_41;
     char unit_counters[UNIT_END];
     char team_clan;
-    ResearchTopic research_topics[8];
+    ResearchTopic research_topics[RESEARCH_TOPIC_COUNT];
     unsigned int team_points;
     unsigned short number_of_objects_created;
     ScreenLocation screen_location[6];

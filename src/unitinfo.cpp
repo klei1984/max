@@ -1852,4 +1852,8 @@ void UnitInfo::SetLayingState(int state) { laying_state = state; }
 
 void UnitInfo::ClearPins() { pin_count = 0; }
 
+int UnitInfo::GetNormalRateBuildCost() const {
+    /// \todo
+}
+
 SmartObjectArray<ResourceID> UnitInfo::GetBuildList() { return build_list; }

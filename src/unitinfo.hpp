@@ -130,6 +130,7 @@ public:
     void Resupply();
     int GetRawConsumptionRate();
     void UpdateProduction();
+    int GetNormalRateBuildCost() const;
     SmartObjectArray<ResourceID> GetBuildList();
     ResourceID GetConstructedUnitType() const;
     bool IsBridgeElevated() const;

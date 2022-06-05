@@ -1881,7 +1881,7 @@ void GameManager_ManageEconomy(unsigned short team) {
     GameManager_ResupplyUnits(team, &UnitsManager_StationaryUnits);
     GameManager_ResupplyUnits(team, &UnitsManager_MobileAirUnits);
 
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
         ResearchTopic* topic = &UnitsManager_TeamInfo[team].research_topics[i];
 
         if (topic->allocation && topic->turns_to_complete == 0) {
