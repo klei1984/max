@@ -203,6 +203,8 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     This makes the text background brighter now, but more importantly more detail is visible. Maybe in the future the blue color temperature could be made darker to match the original aesthetic keeping the higher level of detail.
 
+71. There is a typo in the briefing text of stand alone mission 20 (DESCR20.SCE). "Can you affort to shut down" -> afford.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
