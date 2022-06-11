@@ -322,6 +322,8 @@ Complex* TeamUnits::CreateComplex() {
     return result;
 }
 
+SmartList<Complex>::Iterator TeamUnits::GetFrontComplex() { return complexes.Begin(); }
+
 Complex* TeamUnits::GetComplex(unsigned short complex_id) {
     Complex* result = nullptr;
 

@@ -40,10 +40,10 @@ void Text_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int wi
 void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int width, bool horizontal_align = false,
                    FontColor color = Fonts_GoldColor);
 
-void Text_TypeWriter_TextBox(WindowInfo* window, char* text, int ulx, int uly, int width, int alignment);
+void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int width, int alignment);
 
-void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, char* text, int ulx, int uly, int width, int height,
-                                              int alignment);
+void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int ulx, int uly, int width,
+                                              int height, int alignment);
 
 void Text_AutofitTextBox(unsigned char* buffer, unsigned short full_width, const char* text, Rect* text_area,
                          Rect* draw_area, int color, bool horizontal_align);

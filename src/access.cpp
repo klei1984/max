@@ -86,6 +86,11 @@ unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int 
     /// \todo
 }
 
+bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, short* grid_x, short* grid_y, int range_limit,
+                                 int mode, int direction) {
+    /// \todo
+}
+
 void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units) {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         (*it).InitStealthStatus();
@@ -205,6 +210,11 @@ bool Access_IsWithinAttackRange(UnitInfo* unit, int grid_x, int grid_y, int atta
     }
 
     return result;
+}
+
+bool Access_FindReachableSpot(ResourceID unit_type, UnitInfo* unit, short* grid_x, short* grid_y, int range,
+                              int exclusion_zone, int mode) {
+    /// \todo
 }
 
 unsigned int Access_GetAttackTargetGroup(UnitInfo* unit) {
@@ -476,6 +486,10 @@ void Access_UpdateMinimapFogOfWar(unsigned short team, bool all_visible, bool ig
     }
 }
 
+void Access_UpdateResourcesTotal(Complex* complex) {
+    /// \todo
+}
+
 unsigned char Access_GetSurfaceType(int grid_x, int grid_y) {
     return ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * grid_y + grid_x];
 }
@@ -618,11 +632,19 @@ unsigned int Access_GetValidAttackTargetTypes(ResourceID unit_type) {
     /// \todo
 }
 
+bool Access_IsValidAttackTarget2(UnitInfo* unit1, UnitInfo* unit2, Point point) {
+    /// \todo
+}
+
 UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int grid_x, int grid_y, bool mode) {
     /// \todo
 }
 
 UnitInfo* Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y) {
+    /// \todo
+}
+
+UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int grid_x, int grid_y) {
     /// \todo
 }
 
@@ -640,5 +662,13 @@ bool Access_AreTaskEventsPending() {
 }
 
 bool Access_ProcessNewGroupOrder(UnitInfo* unit) {
+    /// \todo
+}
+
+void Access_UpdateMultiSelection(UnitInfo* unit) {
+    /// \todo
+}
+
+bool Access_IsGroupOrderInterrupted(UnitInfo* unit) {
     /// \todo
 }

@@ -253,7 +253,7 @@ SmartString &SmartString::Tolower() {
     return *this;
 }
 
-SmartString &SmartString::Vsprintf(unsigned short size, const char *format, ...) {
+SmartString &SmartString::Sprintf(unsigned short size, const char *format, ...) {
     char *buffer;
     va_list args;
 

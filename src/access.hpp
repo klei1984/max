@@ -33,7 +33,8 @@ enum {
 
 bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int target_grid_y, bool mode);
 unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int grid_x, int grid_y, unsigned int flags);
-/// \todo bool Access_sub_107ED(ResourceID unit_type, UnitInfo *unit, int *grid_x, int *grid_y, ...);
+bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo *unit, short *grid_x, short *grid_y, int range_limit,
+                                 int mode, int direction);
 void Access_InitUnitStealthStatus(SmartList<UnitInfo> &units);
 void Access_InitStealthMaps();
 bool Access_IsSurveyorOverlayActive(UnitInfo *unit);
@@ -43,7 +44,8 @@ int Access_GetDistance(Point position1, Point position2);
 int Access_GetDistance(UnitInfo *unit, Point position);
 int Access_GetDistance(UnitInfo *unit1, UnitInfo *unit2);
 bool Access_IsWithinAttackRange(UnitInfo *unit, int grid_x, int grid_y, int attack_range);
-/// \todo bool Access_sub_10EFA(ResourceID unit_type, UnitInfo *unit, int *grid_x, int *grid_y, ...);
+bool Access_FindReachableSpot(ResourceID unit_type, UnitInfo *unit, short *grid_x, short *grid_y, int range,
+                              int exclusion_zone, int mode);
 unsigned int Access_GetAttackTargetGroup(UnitInfo *unit);
 unsigned int Access_UpdateMapStatusAddUnit(UnitInfo *unit, int grid_x, int grid_y);
 void Access_UpdateMapStatusRemoveUnit(UnitInfo *unit, int grid_x, int grid_y);
@@ -53,6 +55,7 @@ void Access_UpdateMapStatus(UnitInfo *unit, bool mode);
 void Access_UpdateUnitVisibilityStatus(SmartList<UnitInfo> &units);
 void Access_UpdateVisibilityStatus(bool all_visible);
 void Access_UpdateMinimapFogOfWar(unsigned short team, bool all_visible, bool ignore_team_scan_map = false);
+void Access_UpdateResourcesTotal(Complex *complex);
 unsigned char Access_GetSurfaceType(int grid_x, int grid_y);
 unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y);
 int Access_FindUnitInUnitList(UnitInfo *unit);
@@ -73,14 +76,20 @@ UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned i
 
 unsigned int Access_GetValidAttackTargetTypes(ResourceID unit_type);
 
+bool Access_IsValidAttackTarget2(UnitInfo *unit1, UnitInfo *unit2, Point point);
+
 UnitInfo *Access_GetAttackTarget(UnitInfo *unit, int grid_x, int grid_y, bool mode = false);
 UnitInfo *Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y);
 
+UnitInfo *Access_GetReceiverUnit(UnitInfo *unit, int grid_x, int grid_y);
 UnitInfo *Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y);
 
 void Access_MultiSelect(UnitInfo *unit, Rect *bounds);
 
 bool Access_AreTaskEventsPending();
 bool Access_ProcessNewGroupOrder(UnitInfo *unit);
+
+void Access_UpdateMultiSelection(UnitInfo *unit);
+bool Access_IsGroupOrderInterrupted(UnitInfo *unit);
 
 #endif /* ACCESS_HPP */

@@ -504,7 +504,7 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
                     } break;
 
                     case CAMPAIGN_MISSION_2: {
-                        if (UnitsManager_TeamInfo[team].casulties[RESEARCH] > 0) {
+                        if (UnitsManager_TeamInfo[team].casualties[RESEARCH] > 0) {
                             result = VICTORY_STATE_LOST;
 
                         } else if (turn_counter < ini_setting_victory_limit) {
@@ -544,7 +544,7 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
                     } break;
 
                     case CAMPAIGN_MISSION_8: {
-                        if (UnitsManager_TeamInfo[team].casulties[RESEARCH] > 0) {
+                        if (UnitsManager_TeamInfo[team].casualties[RESEARCH] > 0) {
                             result = VICTORY_STATE_LOST;
 
                         } else {
@@ -753,7 +753,7 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
 
                     case TRAINING_MISSION_12: {
                         if (WinLoss_CountReadyUnits(team, LANDMINE) > 0 &&
-                            UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].casulties[LANDMINE] > 0) {
+                            UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].casualties[LANDMINE] > 0) {
                             result = VICTORY_STATE_WON;
 
                         } else {
@@ -763,7 +763,7 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
 
                     case TRAINING_MISSION_13: {
                         if (WinLoss_CountReadyUnits(team, TANK) < 3 || WinLoss_CountDamangedUnits(team, TANK)) {
-                            if (UnitsManager_TeamInfo[team].casulties[TANK] <= 0) {
+                            if (UnitsManager_TeamInfo[team].casualties[TANK] <= 0) {
                                 result = VICTORY_STATE_PENDING;
 
                             } else {
@@ -777,7 +777,7 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
 
                     case TRAINING_MISSION_14: {
                         if (WinLoss_CountReadyUnits(team, TANK) < 3 || WinLoss_CountUnitsThatUsedAmmo(team, TANK)) {
-                            if (UnitsManager_TeamInfo[team].casulties[TANK] <= 0) {
+                            if (UnitsManager_TeamInfo[team].casualties[TANK] <= 0) {
                                 result = VICTORY_STATE_PENDING;
 
                             } else {

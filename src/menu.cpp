@@ -45,6 +45,7 @@
 #include "units_manager.hpp"
 #include "version.hpp"
 #include "window_manager.hpp"
+#include "winloss.hpp"
 
 struct MenuButton {
     Button* button;
@@ -73,6 +74,7 @@ struct CreditsLine {
 #define CREDITS_TEXT(text) \
     { (0x04), (text) }
 
+static void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int global_turn, bool mode);
 static void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn, bool mode);
 
 static ResourceID menu_portrait_id;
@@ -455,6 +457,8 @@ const char* menu_team_names[] = {"Red Team", "Green Team", "Blue Team", "Gray Te
 static const ResourceID menu_briefing_backgrounds[] = {ENDGAME1, ENDGAME2, ENDGAME3, ENDGAME4, ENDGAME5,
                                                        ENDGAME6, ENDGAME7, ENDGAME8, ENDGAME9};
 
+static const char* menu_game_over_screen_places[] = {"Eliminated", "1st place", "2nd place", "3rd place", "4th place"};
+
 void draw_menu_title(WindowInfo* window, const char* caption) {
     text_font(5);
     Text_TextBox(window->buffer, window->width, caption, 236, 145, 172, 15, 2, true, true);
@@ -496,16 +500,489 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
 }
 
 void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int global_turn, bool mode) {
-    /// \todo
+    int ulx;
+    int lrx;
+    unsigned short visible_team;
+    FontColor team_fonts[PLAYER_TEAM_MAX - 1] = {{165, 230, 199}, {165, 238, 199}, {165, 245, 199}, {165, 214, 199}};
+    int victory_status;
+
+    if (Remote_IsNetworkGame || mode) {
+        Text_TextLine(window, "Game Over", 100, 10, 440, true, Fonts_BrightSilverColor);
+    }
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            char team_name[40];
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TextLine(window, SmartString().Sprintf(3, "%i", visible_team).GetCStr(), ulx, 44, 90, true,
+                          team_fonts[team]);
+
+            ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name,
+                                      sizeof(team_name));
+
+            Text_TextBox(window, team_name, ulx, 61, lrx - ulx, 55, true, true, Fonts_BrightSilverColor);
+        }
+    }
+
+    win_draw(window->id);
+
+    Text_TypeWriter_TextBox(window, "Points", 0, 116, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            if (victory_status == VICTORY_STATE_GENERIC) {
+                Text_TypeWriter_TextBox(
+                    window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].team_points).GetCStr(), ulx,
+                    116, lrx - ulx, 2);
+
+                if (mode || teams[team] == 0) {
+                    Text_TypeWriter_TextBox(window, menu_game_over_screen_places[teams[team]], ulx, 132, lrx - ulx, 2);
+                }
+
+            } else if (team == PLAYER_TEAM_RED) {
+                Text_TypeWriter_TextBoxMultiLineWrapText(
+                    window, (victory_status == VICTORY_STATE_WON) ? "Mission Success" : "Mission Failed", ulx, 116,
+                    lrx - ulx, 34, 2);
+            }
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Factories Built", 0, 166, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_factories_built).GetCStr(),
+                ulx, 116, lrx - ulx, 2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Mines Built", 0, 198, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_mines_built).GetCStr(), ulx,
+                198, lrx - ulx, 2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Buildings Built", 0, 230, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_buildings_built).GetCStr(),
+                ulx, 230, lrx - ulx, 2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Lost", 0, 246, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            CTInfo* team_info;
+            int casualties;
+
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            team_info = &UnitsManager_TeamInfo[team];
+            casualties = 0;
+
+            for (int j = 0; j < UNIT_END; ++j) {
+                if (UnitsManager_BaseUnits[j].flags & BUILDING) {
+                    casualties += team_info->casualties[j];
+                }
+            }
+
+            Text_TypeWriter_TextBox(window, SmartString().Sprintf(12, "%i", casualties).GetCStr(), ulx, 246, lrx - ulx,
+                                    2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Units Built", 0, 278, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_units_built).GetCStr(), ulx,
+                278, lrx - ulx, 2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Lost", 0, 294, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            CTInfo* team_info;
+            int casualties;
+
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            team_info = &UnitsManager_TeamInfo[team];
+            casualties = 0;
+
+            for (int j = 0; j < UNIT_END; ++j) {
+                if (UnitsManager_BaseUnits[j].flags & SELECTABLE) {
+                    casualties += team_info->casualties[j];
+                }
+            }
+
+            Text_TypeWriter_TextBox(window, SmartString().Sprintf(12, "%i", casualties).GetCStr(), ulx, 294, lrx - ulx,
+                                    2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Upgrades", 0, 326, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window,
+                SmartString()
+                    .Sprintf(12, "%i %s", UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades, "Gold")
+                    .GetCStr(),
+                ulx, 326, lrx - ulx, 2);
+        }
+    }
+
+    {
+        struct ImageSimpleHeader* image;
+
+        image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_ReadResource(ENDARM));
+
+        WindowManager_DecodeImage2(image, 273, 480 - image->height, true, window);
+
+        delete[] image;
+    }
 }
 
 void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn, bool mode) {
-    /// \todo
+    int victory_status;
+    bool is_winner;
+    int bg_image_id;
+    Color* palette;
+    SmartString mission_briefing;
+
+    victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
+
+    if (victory_status == VICTORY_STATE_GENERIC) {
+        is_winner = teams[GameManager_PlayerTeam] == 1;
+
+    } else {
+        is_winner = victory_status == VICTORY_STATE_WON;
+    }
+
+    if (Remote_IsNetworkGame) {
+        Remote_sub_C9753();
+        Remote_LeaveGame(!mode);
+    }
+
+    bg_image_id = (dos_rand() * 9) >> 15;
+
+    Text_TypeWriter_CharacterTimeMs = 50;
+
+    palette = GameManager_MenuFadeOut();
+
+    if (is_winner && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CAMPAIGN) {
+        FILE* fp;
+        SmartString path(ResourceManager_FilePathText);
+        path += SmartString().Sprintf(30, "win%i.cam", GameManager_GameFileNumber);
+
+        fp = fopen(path.GetCStr(), "rt");
+
+        if (fp) {
+            int character;
+
+            for (;;) {
+                character = fgetc(fp);
+                if (character == EOF) {
+                    break;
+                }
+
+                mission_briefing += static_cast<char>(character);
+            }
+
+            fclose(fp);
+
+            Text_TypeWriter_CharacterTimeMs = 10;
+        }
+    }
+
+    {
+        Window window(menu_briefing_backgrounds[bg_image_id]);
+        WindowInfo window_info;
+        unsigned short team_places[PLAYER_TEAM_MAX - 1];
+        Button* button_end;
+        bool exit_loop;
+        int key;
+
+        GameManager_WrapUpGame = true;
+        GameManager_RequestMenuExit = false;
+
+        Remote_UpdatePauseTimer = false;
+
+        SoundManager.FreeAllSamples();
+
+        GameManager_DeinitPopupButtons(false);
+
+        window.SetFlags(0x10);
+
+        text_font(1);
+
+        Cursor_SetCursor(CURSOR_HAND);
+
+        window.SetPaletteMode(true);
+        window.Add();
+        window.FillWindowInfo(&window_info);
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            team_places[team] = 0;
+        }
+
+        for (int i = 0; i < teams_in_play - 1; ++i) {
+            for (int j = i + 1; j < teams_in_play; ++j) {
+                if (WinLoss_DetermineWinner(teams[i], teams[j]) < 0) {
+                    std::swap(teams[i], teams[j]);
+                }
+            }
+        }
+
+        for (int i = 0; i < teams_in_play; ++i) {
+            team_places[teams[i]] = i + 1;
+        }
+
+        if (is_winner) {
+            SoundManager.PlayVoice(V_M283, V_F283);
+            SoundManager.PlayMusic(WINR_MSC, false);
+
+        } else {
+            SoundManager.PlayMusic(LOSE_MSC, false);
+        }
+
+        if (mission_briefing.GetLength() > 0) {
+            win_draw(window_info.id);
+            Text_TypeWriter_TextBoxMultiLineWrapText(&window_info, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
+
+        } else {
+            menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
+        }
+
+        text_font(5);
+
+        button_end = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
+        button_end->SetCaption("OK");
+
+        text_font(1);
+
+        button_end->SetRValue(GNW_KB_KEY_ESCAPE);
+        button_end->RegisterButton(window_info.id);
+
+        win_draw(window_info.id);
+
+        exit_loop = false;
+
+        do {
+            key = get_input();
+
+            switch (key) {
+                case GNW_KB_KEY_ESCAPE:
+                case GNW_KB_KEY_RETURN: {
+                    exit_loop = true;
+                } break;
+
+                case GNW_KB_KEY_SPACE: {
+                    bg_image_id = (bg_image_id + 1) % 9;
+
+                    WindowManager_LoadImage(menu_briefing_backgrounds[bg_image_id], &window_info, window_info.width,
+                                            true, false);
+
+                    if (mission_briefing.GetLength() > 0) {
+                        win_draw(window_info.id);
+                        Text_TypeWriter_TextBoxMultiLineWrapText(&window_info, mission_briefing.GetCStr(), 20, 20, 600,
+                                                                 400, 0);
+
+                    } else {
+                        menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
+                    }
+                } break;
+            }
+
+            win_draw(window_info.id);
+
+        } while (!exit_loop);
+
+        delete button_end;
+    }
+
+    GameManager_LoadGame(0, palette, false);
+
+    GameManager_GameState = GAME_STATE_3_MAIN_MENU;
+
+    if (is_winner && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CAMPAIGN) {
+        ini_set_setting(INI_GAME_FILE_NUMBER, GameManager_GameFileNumber + 1);
+
+        if (ini_get_setting(INI_LAST_CAMPAIGN) < GameManager_GameFileNumber + 1) {
+            ini_set_setting(INI_LAST_CAMPAIGN, GameManager_GameFileNumber + 1);
+        }
+
+        ini_config.Save();
+    }
 }
 
 bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_demo_mode) {
-    /// \todo
-    return true;
+    int ini_victory_limit;
+    int team_count;
+    int teams_in_play;
+    int human_teams_in_play;
+    int non_computer_teams_count;
+    unsigned short team_places[PLAYER_TEAM_MAX - 1];
+    int victory_status;
+    bool result;
+    char game_state;
+    bool is_network_game;
+
+    ini_victory_limit = ini_setting_victory_limit;
+    team_count = 0;
+    teams_in_play = 0;
+    human_teams_in_play = 0;
+    non_computer_teams_count = 0;
+
+    if (is_demo_mode && (global_turn - local_turn >= 5)) {
+        GameManager_GameState = GAME_STATE_3_MAIN_MENU;
+        result = true;
+
+    } else {
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                ++team_count;
+
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+                    ++non_computer_teams_count;
+                }
+
+                if (WinLoss_CheckLossConditions(team) &&
+                    UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+                    if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
+                        ++human_teams_in_play;
+                    }
+
+                    team_places[teams_in_play] = team;
+                    ++teams_in_play;
+                }
+            }
+        }
+
+        victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
+
+        if (victory_status == VICTORY_STATE_WON || victory_status == VICTORY_STATE_LOST ||
+            (victory_status != VICTORY_STATE_PENDING || teams_in_play == 1 || team_count > 1) || teams_in_play == 0 ||
+            (human_teams_in_play == 0 && non_computer_teams_count > 0)) {
+            menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
+            result = true;
+
+        } else if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
+            if (global_turn == (ini_victory_limit - 10) && non_computer_teams_count > 0) {
+                DialogMenu_Menu("Notice: Game will end in 10 turns!");
+
+            } else if (ini_victory_limit <= global_turn) {
+                menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
+                return true;
+            }
+
+        } else {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                    UnitsManager_TeamInfo[team].team_points >= ini_victory_limit) {
+                    menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
+                    return true;
+                }
+            }
+        }
+
+        if (victory_status == VICTORY_STATE_GENERIC) {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER && !WinLoss_CheckLossConditions(team)) {
+                    game_state = GameManager_GameState;
+                    is_network_game = Remote_IsNetworkGame;
+
+                    menu_wrap_up_game(team_places, teams_in_play, global_turn, false);
+
+                    if (is_network_game) {
+                        return true;
+
+                    } else {
+                        GameManager_GameState = game_state;
+                        UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
+                    }
+                }
+            }
+        }
+
+        result = false;
+    }
+
+    return result;
 }
 
 void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align,
@@ -626,7 +1103,7 @@ void menu_draw_campaign_mission_briefing_screen() {
 
     Text_TypeWriter_CharacterTimeMs = 10;
 
-    filename.Vsprintf(30, "intro%i.cam", GameManager_GameFileNumber);
+    filename.Sprintf(30, "intro%i.cam", GameManager_GameFileNumber);
     filepath += filename;
 
     fp = fopen(filepath.GetCStr(), "rt");

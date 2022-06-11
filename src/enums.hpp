@@ -2234,6 +2234,15 @@ enum : unsigned char {
     GAME_STATE_15_FATAL_ERROR = 0xF
 };
 
+enum {
+    CHEAT_CODE_MAXSPY = 0,
+    CHEAT_CODE_MAXSURVEY = 1,
+    CHEAT_CODE_MAXSTORAGE = 2,
+    CHEAT_CODE_MAXAMMO = 3,
+    CHEAT_CODE_MAXSUPER = 4,
+    CHEAT_CODE_COUNT = 5
+};
+
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;
 extern SortedEnum Enums_Sound;

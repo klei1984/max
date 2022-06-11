@@ -2183,7 +2183,15 @@ int UnitsManager_AddDefaultMissionLoadout(unsigned short team) {
     return units_count;
 }
 
+bool UnitsManager_CanDeployMasterBuilder(UnitInfo* unit, int grid_x, int grid_y) {
+    /// \todo
+}
+
 void UnitsManager_InitPopupMenus() {
+    /// \todo
+}
+
+int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int order) {
     /// \todo
 }
 

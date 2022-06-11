@@ -28,6 +28,9 @@
 bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect* bounds);
 void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quotient);
 void Gfx_DecodeSprite();
+void Gfx_DecodeShadow();
+void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int height, int ulx, int uly, int radius,
+                      int color);
 unsigned char* Gfx_RescaleSprite(unsigned char* buffer, unsigned int* data_size, int mode, int scaling_factor);
 
 extern unsigned char* Gfx_ResourceBuffer;

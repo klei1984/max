@@ -36,6 +36,10 @@ void Task_RemindMoveFinished(UnitInfo* unit, bool priority) {
     }
 }
 
+bool Task_IsReadyToTakeOrders(UnitInfo* unit) {
+    /// \todo
+}
+
 Task::Task(unsigned short team, Task* parent, unsigned short flags)
     : id(++task_id), team(team), parent(parent), flags(flags), field_6(true), field_7(false), field_8(false) {
     ++task_count;

@@ -29,6 +29,10 @@ void ResearchMenu_CalculateResearchCost(unsigned short team, int research_topic,
     /// \todo
 }
 
+void ResearchMenu_NewTurn(unsigned short team) {
+    /// \todo
+}
+
 int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type) {
     /// \todo
     return 0;

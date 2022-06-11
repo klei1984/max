@@ -398,6 +398,101 @@ void Gfx_DecodeSprite() {
     }
 }
 
+void Gfx_DecodeShadow() {
+    const unsigned char row_delimiter = 0xFF;
+    unsigned char* buffer;
+    int offset;
+    int rescaled_pixel_count;
+    unsigned char shadow_count = 0;
+
+    for (Gfx_SpriteRowIndex = Gfx_ScalingFactorHeight * Gfx_ScaledOffset.y; Gfx_ScaledHeight;
+         Gfx_SpriteRowIndex += Gfx_ScalingFactorHeight) {
+        buffer = &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> 16]];
+        offset = Gfx_TargetScreenBufferOffset;
+        Gfx_PixelCount = 0;
+        Gfx_word_1686D6 = 0;
+        Gfx_word_1686D8 = Gfx_ScaledOffset.x;
+        Gfx_word_1686DA = Gfx_ScaledWidth;
+
+        for (;;) {
+            if (buffer[0] == 0xFF) {
+                break;
+            }
+
+            Gfx_PixelCount += buffer[0];
+            shadow_count = buffer[1];
+            buffer = &buffer[2];
+
+            if (Gfx_PixelCount) {
+                rescaled_pixel_count = (Gfx_PixelCount << 16) / Gfx_ScalingFactorWidth + 1 - Gfx_word_1686D6;
+                Gfx_word_1686D6 += rescaled_pixel_count;
+
+                if (Gfx_word_1686D8 != 0) {
+                    Gfx_word_1686D8 -= rescaled_pixel_count;
+
+                    if (Gfx_word_1686D8 < 0) {
+                        rescaled_pixel_count = -Gfx_word_1686D8;
+                        Gfx_word_1686D8 = 0;
+                        Gfx_word_1686DA -= rescaled_pixel_count;
+
+                        if (Gfx_word_1686DA <= 0) {
+                            break;
+                        }
+
+                        offset += rescaled_pixel_count;
+                    }
+
+                } else {
+                    Gfx_word_1686DA -= rescaled_pixel_count;
+
+                    if (Gfx_word_1686DA <= 0) {
+                        break;
+                    }
+
+                    offset += rescaled_pixel_count;
+                }
+            }
+
+            Gfx_PixelCount += shadow_count;
+
+            rescaled_pixel_count = (Gfx_PixelCount << 16) / Gfx_ScalingFactorWidth + 1 - Gfx_word_1686D6;
+            Gfx_word_1686D6 += rescaled_pixel_count;
+
+            if (Gfx_word_1686D8 != 0) {
+                Gfx_word_1686D8 -= rescaled_pixel_count;
+
+                if (Gfx_word_1686D8 >= 0) {
+                    continue;
+                }
+
+                rescaled_pixel_count = -Gfx_word_1686D8;
+                Gfx_word_1686D8 = 0;
+            }
+
+            Gfx_word_1686DA -= rescaled_pixel_count;
+
+            if (Gfx_word_1686DA < 0) {
+                rescaled_pixel_count += Gfx_word_1686DA;
+                Gfx_word_1686DA = 0;
+            }
+
+            {
+                ColorIndex* index_table = &ResourceManager_ColorIndexTable13x8[5 * PALETTE_SIZE];
+                unsigned char* window_buffer = &Gfx_MapWindowBuffer[offset];
+
+                for (int i = 0; i < rescaled_pixel_count; ++i) {
+                    window_buffer[i] = index_table[window_buffer[i]];
+                }
+
+                offset += rescaled_pixel_count;
+            }
+        }
+
+        Gfx_TargetScreenBufferOffset += Gfx_MapWindowWidth;
+        --Gfx_ScaledHeight;
+    }
+}
+
 unsigned char* Gfx_RescaleSprite(unsigned char* buffer, unsigned int* data_size, int mode, int scaling_factor) {
     unsigned short image_count;
     unsigned char* image_frame;
@@ -491,6 +586,11 @@ unsigned char* Gfx_RescaleSprite(unsigned char* buffer, unsigned int* data_size,
     SDL_assert((decoded_image_frame - decoded_image_buffer) == *data_size);
 
     return decoded_image_buffer;
+}
+
+void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int height, int ulx, int uly, int radius,
+                      int color) {
+    /// \todo
 }
 
 void Gfx_RescaleSpriteRow(unsigned char* row_data, struct RowMeta* meta, unsigned char* frame_buffer, int mode,

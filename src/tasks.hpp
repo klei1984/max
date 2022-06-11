@@ -23,6 +23,7 @@
 #define TASKS_HPP
 
 #include "enums.hpp"
+#include "gnw.h"
 #include "point.hpp"
 #include "smartobjectarray.hpp"
 #include "smartpointer.hpp"
@@ -80,11 +81,8 @@ enum : unsigned char {
 class Complex;
 class UnitInfo;
 
-extern "C" {
-#include "gnw.h"
-}
-
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
+bool Task_IsReadyToTakeOrders(UnitInfo* unit);
 
 class Task : public SmartObject {
     static unsigned short task_id;

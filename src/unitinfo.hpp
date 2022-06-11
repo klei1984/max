@@ -123,6 +123,16 @@ public:
     void GetDisplayName(char* text) const;
     static void GetVersion(char* text, int version);
     void SetName(char* text);
+    int GetRaw();
+    int GetRawFreeCapacity();
+    void TransferRaw(int amount);
+    int GetFuel();
+    int GetFuelFreeCapacity();
+    void TransferFuel(int amount);
+    int GetGold();
+    int GetGoldFreeCapacity();
+    void TransferGold(int amount);
+    int GetTurnsToRepair();
     void InitStealthStatus();
     void SpotByTeam(unsigned short team);
     void Draw(unsigned short team);
@@ -142,8 +152,13 @@ public:
     void RenderWithConnectors(Rect* bounds);
     int GetMaxAllowedBuildRate();
     void TakePathStep();
+    int GetLayingState() const;
     void SetLayingState(int state);
     void ClearPins();
+    int GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, int* turns_to_build);
+    int GetBuildRate() const;
+    void SpawnNewUnit();
+    void FollowUnit();
 
     ResourceID unit_type;
     void (*sound_function)(UnitInfo* unit, struct PopupButtons* buttons);
@@ -239,5 +254,7 @@ public:
     Point shadow_offset;
     unsigned int field_221;
 };
+
+void UnitInfo_Transfer(Complex* complex, int raw, int fuel, int gold);
 
 #endif /* UNITINFO_HPP */

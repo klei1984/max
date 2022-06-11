@@ -67,7 +67,7 @@ struct CTInfo {
     short stats_units_built;
     short stats_gold_spent_on_upgrades;
     short score_graph[50];
-    unsigned short casulties[UNIT_END];
+    unsigned short casualties[UNIT_END];
     char *heat_map_complete;
     char *heat_map_stealth_sea;
     char *heat_map_stealth_land;

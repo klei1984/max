@@ -53,7 +53,7 @@ SmartString BuildErrorMessage(const char* error_message, const char* error_log, 
                               unsigned short column) {
     SmartString log;
 
-    log.Vsprintf(80, "Error in line %li, column %i:\n", line, column);
+    log.Sprintf(80, "Error in line %li, column %i:\n", line, column);
     log += error_message;
     if (log[log.GetLength() - 1] != '\n') {
         log += '\n';
@@ -400,7 +400,7 @@ void SmartTextfileWriter::WriteInt(const char* field, int value) {
 
     WriteAlignment();
     fputs(field, file);
-    fputs(string.Vsprintf(15, " = %i\n", value).GetCStr(), file);
+    fputs(string.Sprintf(15, " = %i\n", value).GetCStr(), file);
 }
 
 void SmartTextfileWriter::WritePointer(const char* field, TextFileObject* object) {
@@ -589,7 +589,7 @@ void SmartTextfileReader::FatalError(const char* format, ...) {
     reset_mode();
 
     va_start(args, format);
-    string.Vsprintf(300, format, args);
+    string.Sprintf(300, format, args);
     va_end(args);
 
     SmartString message = BuildErrorMessage(string.GetCStr(), log.error_message.GetCStr(), log.line, log.column);
@@ -605,7 +605,7 @@ void SmartTextfileReader::DrawErrorMessage(const char* format, ...) {
     SDL_TriggerBreakpoint();
 
     va_start(args, format);
-    string.Vsprintf(300, format, args);
+    string.Sprintf(300, format, args);
     va_end(args);
 
     SmartString message = BuildErrorMessage(string.GetCStr(), log.error_message.GetCStr(), log.line, log.column);

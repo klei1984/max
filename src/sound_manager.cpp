@@ -623,6 +623,8 @@ void CSoundManager::HaltVoicePlayback(bool disable) {
 }
 
 void CSoundManager::FreeAllSamples() {
+    FreeMusic();
+
     for (auto it = samples.begin(); it != samples.end();) {
         FreeSample(&(*it));
 

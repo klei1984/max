@@ -1499,7 +1499,7 @@ void ResourceManager_InitTeamInfo() {
         memset(UnitsManager_TeamInfo[i].unit_counters, 1, sizeof(UnitsManager_TeamInfo[i].unit_counters));
         memset(UnitsManager_TeamInfo[i].screen_location, -1, sizeof(UnitsManager_TeamInfo[i].screen_location));
         memset(UnitsManager_TeamInfo[i].score_graph, 0, sizeof(UnitsManager_TeamInfo[i].score_graph));
-        memset(UnitsManager_TeamInfo[i].casulties, 0, sizeof(UnitsManager_TeamInfo[i].casulties));
+        memset(UnitsManager_TeamInfo[i].casualties, 0, sizeof(UnitsManager_TeamInfo[i].casualties));
 
         UnitsManager_TeamInfo[i].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
         UnitsManager_TeamInfo[i].team_clan = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i));

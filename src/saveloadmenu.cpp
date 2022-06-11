@@ -853,7 +853,7 @@ void SaveLoadMenu_Save(char *file_name, char *save_name, bool play_voice) {
         file.Write(team_info->stats_mines_built);
         file.Write(team_info->stats_buildings_built);
         file.Write(team_info->stats_units_built);
-        file.Write(team_info->casulties);
+        file.Write(team_info->casualties);
         file.Write(team_info->stats_gold_spent_on_upgrades);
     }
 
@@ -1018,7 +1018,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
                 file.Read(team_info->stats_mines_built);
                 file.Read(team_info->stats_buildings_built);
                 file.Read(team_info->stats_units_built);
-                file.Read(team_info->casulties);
+                file.Read(team_info->casualties);
                 file.Read(team_info->stats_gold_spent_on_upgrades);
             }
 

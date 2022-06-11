@@ -124,6 +124,7 @@ public:
     void SetGold(unsigned short value);
 
     Complex* CreateComplex();
+    SmartList<Complex>::Iterator GetFrontComplex();
     Complex* GetComplex(unsigned short complex_id);
     void OptimizeComplexes(unsigned short team);
     void RemoveComplex(Complex& object);

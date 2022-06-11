@@ -97,6 +97,7 @@ void Remote_AnalyzeDesync();
 int Remote_CheckUnpauseEvent();
 void Remote_ProcessTick(bool mode = false);
 int Remote_SiteSelectMenu();
+void Remote_LeaveGame(bool mode);
 
 void Remote_SendNetPacket_Signal(int packet_type, int team, int parameter);
 void Remote_SendNetPacket_05(unsigned short random_number, int team);

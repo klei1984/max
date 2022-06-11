@@ -477,6 +477,8 @@ struct SoundTable UnitInfo_SfxAlienAttackPlane = {8,
 const unsigned char UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESEARCH_TOPIC_SHOTS, RESEARCH_TOPIC_RANGE,
                                                      RESEARCH_TOPIC_ARMOR, RESEARCH_TOPIC_HITS};
 
+static void UnitInfo_TransferCargo(UnitInfo* unit, int* cargo);
+
 UnitInfo::UnitInfo()
     : unit_type(INVALID_ID),
       sound_function(nullptr),
@@ -1199,6 +1201,228 @@ void UnitInfo::SetName(char* text) {
     }
 }
 
+void UnitInfo_TransferCargo(UnitInfo* unit, int* cargo) {
+    /// \todo
+}
+
+void UnitInfo_Transfer(Complex* complex, int raw, int fuel, int gold) {
+    /// \todo
+}
+
+int UnitInfo::GetRaw() {
+    int result;
+
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
+        if (complex != nullptr) {
+            Cargo materials;
+            Cargo capacity;
+
+            complex->GetCargoInfo(materials, capacity);
+
+            result = materials.raw;
+
+        } else {
+            result = storage;
+        }
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+int UnitInfo::GetRawFreeCapacity() {
+    int result;
+
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
+        if (complex != nullptr) {
+            Cargo materials;
+            Cargo capacity;
+
+            complex->GetCargoInfo(materials, capacity);
+
+            result = capacity.raw - materials.raw;
+
+        } else {
+            result = GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - storage;
+        }
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+void UnitInfo::TransferRaw(int amount) {
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
+        storage += amount;
+
+        if (complex != nullptr) {
+            int storage_capacity;
+
+            storage_capacity = GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+
+            complex->material += amount;
+
+            if (storage > storage_capacity) {
+                amount = storage - storage_capacity;
+                storage = storage_capacity;
+                complex->material -= amount;
+
+                UnitInfo_Transfer(&*complex, amount, 0, 0);
+            }
+        }
+    }
+}
+
+int UnitInfo::GetFuel() {
+    int result;
+
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
+        if (complex != nullptr) {
+            Cargo materials;
+            Cargo capacity;
+
+            complex->GetCargoInfo(materials, capacity);
+
+            result = materials.fuel;
+
+        } else {
+            result = storage;
+        }
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+int UnitInfo::GetFuelFreeCapacity() {
+    int result;
+
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
+        if (complex != nullptr) {
+            Cargo materials;
+            Cargo capacity;
+
+            complex->GetCargoInfo(materials, capacity);
+
+            result = capacity.fuel - materials.fuel;
+
+        } else {
+            result = GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - storage;
+        }
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+void UnitInfo::TransferFuel(int amount) {
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
+        storage += amount;
+
+        if (complex != nullptr) {
+            int storage_capacity;
+
+            storage_capacity = GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+
+            complex->fuel += amount;
+
+            if (storage > storage_capacity) {
+                amount = storage - storage_capacity;
+                storage = storage_capacity;
+                complex->fuel -= amount;
+
+                UnitInfo_Transfer(&*complex, 0, amount, 0);
+            }
+        }
+    }
+}
+
+int UnitInfo::GetGold() {
+    int result;
+
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
+        if (complex != nullptr) {
+            Cargo materials;
+            Cargo capacity;
+
+            complex->GetCargoInfo(materials, capacity);
+
+            result = materials.gold;
+
+        } else {
+            result = storage;
+        }
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+int UnitInfo::GetGoldFreeCapacity() {
+    int result;
+
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
+        if (complex != nullptr) {
+            Cargo materials;
+            Cargo capacity;
+
+            complex->GetCargoInfo(materials, capacity);
+
+            result = capacity.gold - materials.gold;
+
+        } else {
+            result = GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - storage;
+        }
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+void UnitInfo::TransferGold(int amount) {
+    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
+        storage += amount;
+
+        if (complex != nullptr) {
+            int storage_capacity;
+
+            storage_capacity = GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+
+            complex->gold += amount;
+
+            if (storage > storage_capacity) {
+                amount = storage - storage_capacity;
+                storage = storage_capacity;
+                complex->gold -= amount;
+
+                UnitInfo_Transfer(&*complex, 0, 0, amount);
+            }
+        }
+    }
+}
+
+int UnitInfo::GetTurnsToRepair() {
+    int hits_damage;
+    int base_hits;
+
+    base_hits = base_values->GetAttribute(ATTRIB_HITS);
+    hits_damage = base_hits - hits;
+
+    return (base_hits * 4 + GetNormalRateBuildCost() * hits_damage - 1) / (base_hits * 4);
+}
+
 unsigned short* UnitInfo::GetAttribute(char index) {
     /// \todo
 }
@@ -1409,8 +1633,8 @@ void UnitInfo::GainExperience(int experience) {
                 if (team == GameManager_PlayerTeam) {
                     SmartString string;
 
-                    string.Vsprintf(80, "%s at [%i,%i] has increased in experience.",
-                                    UnitsManager_BaseUnits[team].singular_name, grid_x + 1, grid_y + 1);
+                    string.Sprintf(80, "%s at [%i,%i] has increased in experience.",
+                                   UnitsManager_BaseUnits[team].singular_name, grid_x + 1, grid_y + 1);
                     MessageManager_DrawMessage(string.GetCStr(), 0, this, Point(grid_x, grid_y));
                 }
 
@@ -1848,12 +2072,40 @@ void UnitInfo::TakePathStep() {
     }
 }
 
+int UnitInfo::GetLayingState() const { return laying_state; }
+
 void UnitInfo::SetLayingState(int state) { laying_state = state; }
 
 void UnitInfo::ClearPins() { pin_count = 0; }
 
-int UnitInfo::GetNormalRateBuildCost() const {
+int UnitInfo::GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, int* turns_to_build) {
     /// \todo
+}
+
+int UnitInfo::GetBuildRate() const { return build_rate; }
+
+void UnitInfo::SpawnNewUnit() {
+    /// \todo
+}
+
+void UnitInfo::FollowUnit() {
+    /// \todo
+}
+
+int UnitInfo::GetNormalRateBuildCost() const {
+    int result;
+
+    if (flags & STATIONARY) {
+        result = Cargo_GetRawConsumptionRate(CONSTRCT, 1) * GetBaseValues()->GetAttribute(ATTRIB_TURNS);
+
+    } else if (unit_type == COMMANDO || unit_type == INFANTRY) {
+        result = Cargo_GetRawConsumptionRate(TRAINHAL, 1) * GetBaseValues()->GetAttribute(ATTRIB_TURNS);
+
+    } else {
+        result = Cargo_GetRawConsumptionRate(LANDPLT, 1) * GetBaseValues()->GetAttribute(ATTRIB_TURNS);
+    }
+
+    return result;
 }
 
 SmartObjectArray<ResourceID> UnitInfo::GetBuildList() { return build_list; }

@@ -90,7 +90,7 @@ void CargoSelector::Draw() {
         {
             SmartString string;
 
-            strcat(text, string.Vsprintf(10, " %i", index).GetCStr());
+            strcat(text, string.Sprintf(10, " %i", index).GetCStr());
         }
 
         storage = dynamic_cast<CargoMenu*>(window)->GetCurrentUnitValues(unit_type)->GetAttribute(ATTRIB_STORAGE);

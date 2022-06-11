@@ -278,7 +278,7 @@ void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int w
     delete[] buffer;
 }
 
-void Text_TypeWriter_TextBox(WindowInfo* window, char* text, int ulx, int uly, int width, int alignment) {
+void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int width, int alignment) {
     int width_text;
     int text_position;
     unsigned int initial_time_stamp;
@@ -341,8 +341,8 @@ void Text_TypeWriter_TextBox(WindowInfo* window, char* text, int ulx, int uly, i
     }
 }
 
-void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, char* text, int ulx, int uly, int width, int height,
-                                              int alignment) {
+void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int ulx, int uly, int width,
+                                              int height, int alignment) {
     int font_height;
     int max_row_count;
     int row_count;
