@@ -1015,16 +1015,16 @@ void ResourceManager_InitInGameAssets(int world) {
 
     GameManager_SelectedUnit = nullptr;
 
-    delete ResourceManager_MapTileIds;
+    delete[] ResourceManager_MapTileIds;
     ResourceManager_MapTileIds = nullptr;
 
-    delete ResourceManager_MapTileBuffer;
+    delete[] ResourceManager_MapTileBuffer;
     ResourceManager_MapTileBuffer = nullptr;
 
-    delete ResourceManager_MapSurfaceMap;
+    delete[] ResourceManager_MapSurfaceMap;
     ResourceManager_MapSurfaceMap = nullptr;
 
-    delete ResourceManager_CargoMap;
+    delete[] ResourceManager_CargoMap;
     ResourceManager_CargoMap = nullptr;
 
     SoundManager.FreeMusic();

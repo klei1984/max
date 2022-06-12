@@ -272,9 +272,9 @@ void Drawmap_UpdateDirtyZones(Rect* bounds) {
 
                     return;
                 }
-
-                DrawMap_DirtyRectangles.Append(&local);
             }
+
+            DrawMap_DirtyRectangles.Append(&local);
         }
     }
 }

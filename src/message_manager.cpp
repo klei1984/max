@@ -45,8 +45,8 @@ short MessageManager_MessageBox_Height;
 ColorIndex* MessageManager_MessageBox_BgColor;
 bool MessageManager_MessageBox_IsActive;
 
-ColorIndex* MessageManager_MessageBox_BgColorArray[] = {
-    ResourceManager_ColorIndexTable12, ResourceManager_ColorIndexTable10, ResourceManager_ColorIndexTable06};
+ColorIndex** MessageManager_MessageBox_BgColorArray[] = {
+    &ResourceManager_ColorIndexTable12, &ResourceManager_ColorIndexTable10, &ResourceManager_ColorIndexTable06};
 
 SmartList<MessageLogEntry> MessageManager_TeamMessageLog[MESSAGE_MANAGER_TEAM_COUNT];
 
@@ -203,7 +203,7 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
 
             window_2->buffer = &window_38->buffer[offset_x + 640 * offset_y];
 
-            MessageManager_MessageBox_BgColor = MessageManager_MessageBox_BgColorArray[type];
+            MessageManager_MessageBox_BgColor = *MessageManager_MessageBox_BgColorArray[type];
             MessageManager_MessageBox_IsActive = true;
 
             GameManager_GetScaledMessageBoxBounds(&bounds);

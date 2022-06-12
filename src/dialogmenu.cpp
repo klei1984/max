@@ -26,6 +26,7 @@
 #include "gnw.h"
 #include "remote.hpp"
 #include "text.hpp"
+#include "units_manager.hpp"
 #include "window_manager.hpp"
 
 void DialogMenu::DrawText() {
@@ -200,10 +201,9 @@ void DialogMenu::Run() {
 
         ProcessKey(key);
 
-        /// \todo Implement missing stuff
         if (Remote_IsNetworkGame) {
-            if (Remote_sub_C8835()) {
-                // sub_102CB8();
+            if (Remote_ProcessFrame()) {
+                UnitsManager_ProcessRemoteOrders();
             }
         } else {
             if (field_62) {

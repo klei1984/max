@@ -735,7 +735,7 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
 
     if (Remote_IsNetworkGame) {
         Remote_sub_C9753();
-        Remote_LeaveGame(!mode);
+        Remote_LeaveGame(GameManager_PlayerTeam, !mode);
     }
 
     bg_image_id = (dos_rand() * 9) >> 15;

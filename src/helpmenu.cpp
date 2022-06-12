@@ -21,14 +21,18 @@
 
 #include "helpmenu.hpp"
 
+#include "access.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
+#include "gfx.hpp"
 #include "menu.hpp"
 #include "mouseevent.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "sound_manager.hpp"
 #include "text.hpp"
+#include "units_manager.hpp"
+#include "unitstats.hpp"
 #include "window_manager.hpp"
 
 const char* help_menu_sections[] = {
@@ -512,8 +516,8 @@ bool HelpMenu::Run(int mode) {
                 }
 
             } else if (Remote_IsNetworkGame) {
-                if (Remote_sub_C8835()) {
-                    /// \todo sub_102CB8();
+                if (Remote_ProcessFrame()) {
+                    UnitsManager_ProcessRemoteOrders();
                 }
             }
         }
@@ -567,8 +571,8 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
                     }
 
                 } else if (Remote_IsNetworkGame) {
-                    if (Remote_sub_C8835()) {
-                        /// \todo sub_102CB8();
+                    if (Remote_ProcessFrame()) {
+                        UnitsManager_ProcessRemoteOrders();
                     }
                 }
             }
@@ -592,23 +596,26 @@ bool HelpMenu_UnitReport(int mouse_x, int mouse_y) {
         result = false;
 
     } else {
-        /** \todo Implement missing stuff
-          mouse_x = (draw_bounds.ulx + ((dword_1738F4 * (mouse_x - window->window.ulx)) >> 16)) >> 6;
-          mouse_y = (draw_bounds.uly + ((dword_1738F4 * (mouse_y - window->window.uly)) >> 16)) >> 6;
+        mouse_x =
+            (GameManager_MapWindowDrawBounds.ulx + ((Gfx_MapScalingFactor * (mouse_x - window->window.ulx)) >> 16)) >>
+            6;
+        mouse_y =
+            (GameManager_MapWindowDrawBounds.uly + ((Gfx_MapScalingFactor * (mouse_y - window->window.uly)) >> 16)) >>
+            6;
 
-          unit = get_unit_based_on_grid_pos(mouse_x, mouse_y, GUI_PlayerTeamIndex, 0x400000);
+        unit = Access_GetUnit(mouse_x, mouse_y, GameManager_PlayerTeam, SELECTABLE);
 
-          if (!unit) {
-              unit = sub_1459A(GUI_PlayerTeamIndex, mouse_x, mouse_y, 0x400000);
-          }
+        if (!unit) {
+            unit = Access_GetUnit6(GameManager_PlayerTeam, mouse_x, mouse_y, SELECTABLE);
+        }
 
-          if (!unit) {
-              result = false;
-          } else {
-              menu_draw_unit_stats_menu(unit);
-              result = true;
-          }
-        */
+        if (!unit) {
+            result = false;
+
+        } else {
+            UnitStats_Menu(unit);
+            result = true;
+        }
     }
 
     return result;

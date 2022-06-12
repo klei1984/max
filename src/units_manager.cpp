@@ -2273,6 +2273,10 @@ void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y) {
     Hash_MapHash.Add(unit);
 }
 
+void UnitsManager_ProcessRemoteOrders() {
+    /// \todo
+}
+
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
     /// \todo
 }

@@ -88,7 +88,7 @@ void Remote_Deinit();
 void Remote_SetupConnection();
 int Remote_Lobby(bool is_host_mode);
 bool Remote_NetSync();
-bool Remote_sub_C8835(bool mode = false);
+bool Remote_ProcessFrame(bool mode = false);
 bool Remote_CheckRestartAfterDesyncEvent();
 void Remote_RegisterMenu(NetworkMenu* menu);
 void Remote_ProcessNetPackets();
@@ -97,7 +97,8 @@ void Remote_AnalyzeDesync();
 int Remote_CheckUnpauseEvent();
 void Remote_ProcessTick(bool mode = false);
 int Remote_SiteSelectMenu();
-void Remote_LeaveGame(bool mode);
+void Remote_LeaveGame(unsigned short team, bool mode);
+bool Remote_CheckDesync(unsigned short team, unsigned short crc_checksum);
 
 void Remote_SendNetPacket_Signal(int packet_type, int team, int parameter);
 void Remote_SendNetPacket_05(unsigned short random_number, int team);

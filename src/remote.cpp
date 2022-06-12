@@ -390,7 +390,7 @@ bool Remote_NetSync() {
     return Remote_NetworkMenu->is_gui_update_needed;
 }
 
-bool Remote_sub_C8835(bool mode) { return false; }
+bool Remote_ProcessFrame(bool mode) { return false; }
 
 bool Remote_CheckRestartAfterDesyncEvent() { return false; }
 
@@ -617,7 +617,11 @@ int Remote_SiteSelectMenu() {
     /// \todo
 }
 
-void Remote_LeaveGame(bool mode) {
+void Remote_LeaveGame(unsigned short team, bool mode) {
+    /// \todo
+}
+
+bool Remote_CheckDesync(unsigned short team, unsigned short crc_checksum) {
     /// \todo
 }
 

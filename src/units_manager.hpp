@@ -55,6 +55,7 @@ void UnitsManager_InitPopupMenus();
 int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int order);
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
                                               UnitInfo* parent);
+void UnitsManager_ProcessRemoteOrders();
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state);
 void UnitsManager_UpdatePathsTimeLimit();
 void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state);
