@@ -101,6 +101,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/survey.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/searcher.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/production_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pathrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp

@@ -41,12 +41,14 @@
 #include "movie.hpp"
 #include "paths.hpp"
 #include "paths_manager.hpp"
+#include "production_manager.hpp"
 #include "remote.hpp"
 #include "reportmenu.hpp"
 #include "researchmenu.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
 #include "sound_manager.hpp"
+#include "survey.hpp"
 #include "task_manager.hpp"
 #include "text.hpp"
 #include "transfermenu.hpp"
@@ -883,7 +885,39 @@ void GameManager_AddDrawBounds(Rect* bounds) {
 }
 
 void GameManager_DeployUnit(unsigned short team, ResourceID unit_type, int grid_x, int grid_y) {
-    /// \todo
+    CTInfo* team_info;
+    SmartPointer<UnitInfo> unit;
+    unsigned int flags;
+    ResourceID slab_type;
+
+    team_info = &UnitsManager_TeamInfo[team];
+
+    unit = UnitsManager_DeployUnit(unit_type, team, nullptr, grid_x, grid_y, 0);
+
+    flags = unit->flags;
+
+    if ((flags & REQUIRES_SLAB) && Access_IsAnyLandPresent(grid_x, grid_y, flags)) {
+        if (flags & BUILDING) {
+            slab_type = LRGSLAB;
+
+        } else {
+            slab_type = SMLSLAB;
+        }
+
+        UnitsManager_DeployUnit(
+            slab_type, team, nullptr, grid_x, grid_y,
+            (dos_rand() *
+             reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[slab_type].data_buffer)->image_count) >>
+                15);
+    }
+
+    if (unit_type == MININGST) {
+        UnitsManager_SetInitialMining(&*unit, grid_x, grid_y);
+    }
+
+    if (flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) {
+        UnitsManager_UpdateConnectors(&*unit);
+    }
 }
 
 void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx, int height, int offsety, int bottom,
@@ -980,7 +1014,50 @@ void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx,
 }
 
 bool GameManager_RefreshOrders(unsigned short team, bool check_production) {
-    /// \todo
+    CTInfo* team_info;
+    bool is_player;
+    char message[200];
+
+    team_info = &UnitsManager_TeamInfo[team];
+
+    is_player = team_info->team_type == TEAM_TYPE_PLAYER;
+
+    SDL_assert(team_info->team_type != TEAM_TYPE_REMOTE);
+
+    for (SmartList<Complex>::Iterator it = team_info->team_units->GetFrontComplex(); it != nullptr; ++it) {
+        Access_UpdateResourcesTotal(&(*it));
+
+        if (!GameManager_OptimizeProduction(team, &(*it), is_player, true) && !check_production) {
+            return false;
+        }
+
+        if (ProductionManager_OptimizeBuilding(team, &(*it)) && is_player) {
+            sprintf(message, "Factories in complex %i re-started.", (*it).GetId());
+
+            MessageManager_DrawMessage(message, 1, 0, false, true);
+        }
+    }
+
+    Access_RenewAttackOrders(UnitsManager_MobileLandSeaUnits, team);
+    Access_RenewAttackOrders(UnitsManager_MobileAirUnits, team);
+
+    UnitsManager_TeamInfo[team].field_41 = true;
+
+    GameManager_ProcessTick(false);
+
+    if (Remote_IsNetworkGame) {
+        Remote_SendNetPacket_Signal(REMOTE_PACKET_06, team, 0);
+    }
+
+    GameManager_HandleTurnTimer();
+
+    if (GameManager_PlayerTeam == team || !GameManager_PlayMode) {
+        GameManager_GameState = GAME_STATE_9;
+
+        GameManager_MenuClickEndTurnButton(false);
+    }
+
+    return true;
 }
 
 void GameManager_HandleTurnTimer() {
@@ -1492,7 +1569,7 @@ bool GameManager_SelectSite(unsigned short team) {
         GameManager_DisplayButtonScan = false;
         GameManager_DisplayButtonRange = false;
 
-        /// \todo UnitsManager_sub_FF2CC(&*GameManager_SelectedUnit);
+        UnitsManager_DestroyUnit(&*GameManager_SelectedUnit);
     }
 
     return proximity_alert_ack != 0;
@@ -1772,11 +1849,68 @@ void GameManager_AutoSelectNext(UnitInfo* unit) {
 }
 
 Point GameManager_GetStartPositionMiningStation(unsigned short team) {
-    /// \todo
+    TeamMissionSupplies* supplies;
+    Point point;
+    int max_resources;
+    int resource_limit_min;
+    int resource_limit_max;
+    short cargo_raw;
+    short cargo_fuel;
+    short cargo_gold;
+
+    supplies = &UnitsManager_TeamMissionSupplies[team];
+
+    max_resources = ini_get_setting(INI_MAX_RESOURCES);
+
+    resource_limit_min = (max_resources * 8 + 10) / 20;
+    resource_limit_max = (max_resources * 12 + 10) / 20;
+
+    point = supplies->starting_position;
+
+    Survey_GetTotalResourcesInArea(point.x, point.y, 1, &cargo_raw, &cargo_gold, &cargo_fuel, true, team);
+
+    if (!GameManager_IsValidStartingPosition(point.x, point.y) || cargo_raw < resource_limit_max ||
+        cargo_fuel < resource_limit_min) {
+        for (int range = 1; range < 10; ++range) {
+            point.x = supplies->starting_position.x - range;
+            point.y = supplies->starting_position.y + range;
+
+            for (int direction = 0; direction < 8; direction += 2) {
+                for (int i = 0; i < 2 * range; ++i) {
+                    point += Paths_8DirPointsArray[direction];
+
+                    if (GameManager_IsValidStartingPosition(point.x, point.y)) {
+                        Survey_GetTotalResourcesInArea(point.x, point.y, 1, &cargo_raw, &cargo_gold, &cargo_fuel, true,
+                                                       team);
+                        if (cargo_raw >= 12 && cargo_fuel >= 8) {
+                            return point;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return point;
 }
 
 Point GameManager_GetStartingPositionPowerGenerator(Point point, unsigned short team) {
-    /// \todo
+    point.x -= 1;
+    point.y += 2;
+
+    for (int direction = 0; direction < 8; direction += 2) {
+        for (int i = 0; i < 2; ++i) {
+            point += Paths_8DirPointsArray[direction];
+
+            if (Access_IsAccessible(POWGEN, team, point.x, point.y, 0x02)) {
+                return point;
+            }
+        }
+    }
+
+    point.y -= 1;
+
+    return point;
 }
 
 void GameManager_GameSetup(int game_state) {
@@ -2405,11 +2539,56 @@ bool GameManager_AreTeamsFinishedTurn() {
 }
 
 bool GameManager_IsAtGridPosition(UnitInfo* unit) {
-    /// \todo
+    bool result;
+
+    if (unit->flags & BUILDING) {
+        if (unit->grid_x <= GameManager_GridPosition.lrx && unit->grid_y <= GameManager_GridPosition.lry &&
+            unit->grid_x + 1 >= GameManager_GridPosition.ulx && unit->grid_y + 1 >= GameManager_GridPosition.uly) {
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else if (unit->grid_x <= GameManager_GridPosition.lrx && unit->grid_y <= GameManager_GridPosition.lry &&
+               unit->grid_x >= GameManager_GridPosition.ulx && unit->grid_y >= GameManager_GridPosition.uly) {
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 bool GameManager_OptimizeProduction(unsigned short team, Complex* complex, bool is_player_team, bool mode) {
-    /// \todo
+    bool result;
+
+    if (complex->material >= 0 && complex->fuel && complex->gold && complex->power && complex->workers) {
+        result = true;
+
+    } else {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_PLAYER) {
+            is_player_team = false;
+        }
+
+        if (mode) {
+            if (GameManager_SelectedUnit != nullptr && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER &&
+                GameManager_SelectedUnit->GetComplex() == complex) {
+                ProductionManager_OptimizeMining(team, complex, &*GameManager_SelectedUnit, is_player_team);
+
+            } else {
+                ProductionManager_OptimizeMining(team, complex, nullptr, is_player_team);
+            }
+
+            result = false;
+
+        } else {
+            result = false;
+        }
+    }
+
+    return result;
 }
 
 void GameManager_ProgressTurn() {
@@ -4524,7 +4703,75 @@ void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_
 }
 
 void GameManager_ProcessTeamMissionSupplyUnits(unsigned short team) {
-    /// \todo
+    TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
+    SmartObjectArray<ResourceID> units(supplies->units);
+    SmartObjectArray<unsigned short> cargos(supplies->cargos);
+    SmartPointer<UnitInfo> mining_station;
+    SmartPointer<UnitInfo> power_generator;
+    SmartPointer<UnitInfo> team_unit;
+    UnitInfo unit;
+    Point mining_station_location;
+    Point power_generator_location;
+    ResourceID unit_type;
+    short grid_x;
+    short grid_y;
+
+    GameManager_GameState = GAME_STATE_12;
+
+    UnitsManager_TeamInfo[team].team_units->SetGold(supplies->team_gold);
+    UnitsManager_TeamInfo[team].stats_units_built += units.GetCount();
+
+    mining_station_location = GameManager_GetStartPositionMiningStation(team);
+
+    mining_station =
+        UnitsManager_DeployUnit(MININGST, team, nullptr, mining_station_location.x, mining_station_location.y, 0);
+
+    mining_station->storage = 0;
+
+    ++UnitsManager_TeamInfo[team].stats_mines_built;
+    ++UnitsManager_TeamInfo[team].stats_buildings_built;
+
+    UnitsManager_DeployUnit(
+        LRGSLAB, team, nullptr, mining_station_location.x, mining_station_location.y,
+        (dos_rand() *
+         reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[LRGSLAB].data_buffer)->image_count) >>
+            15);
+
+    UnitsManager_SetInitialMining(&*mining_station, mining_station_location.x, mining_station_location.y);
+
+    power_generator_location = GameManager_GetStartingPositionPowerGenerator(mining_station_location, team);
+
+    power_generator = UnitsManager_DeployUnit(POWGEN, team, mining_station->GetComplex(), power_generator_location.x,
+                                              power_generator_location.y, 0);
+
+    power_generator->orders = ORDER_POWER_ON;
+    power_generator->state = ORDER_STATE_0;
+
+    UnitsManager_DeployUnit(
+        SMLSLAB, team, nullptr, power_generator_location.x, power_generator_location.y,
+        (dos_rand() *
+         reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count) >>
+            15);
+
+    UnitsManager_UpdateConnectors(&*power_generator);
+
+    for (int i = 0; i < units->GetCount(); ++i) {
+        unit_type = *units[i];
+
+        unit.team = team;
+        unit.unit_type = unit_type;
+
+        grid_x = mining_station_location.x;
+        grid_y = mining_station_location.y;
+
+        Access_FindReachableSpot(unit_type, &unit, &grid_x, &grid_y, ResourceManager_MapSize.x, 0, 0);
+
+        team_unit = UnitsManager_DeployUnit(unit_type, team, nullptr, grid_x, grid_y, 0);
+
+        team_unit->storage = *cargos[i];
+    }
+
+    GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 }
 
 bool GameManager_SyncTurnTimer() {
@@ -6497,11 +6744,127 @@ void GameManager_DrawInfoDisplayRow(const char* label, int window_id, ResourceID
 }
 
 void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
-    /// \todo
+    int power_need;
+
+    power_need = Cargo_GetPowerConsumptionRate(unit->unit_type);
+
+    if (power_need && GameManager_PlayerTeam == unit->team && !Cargo_GetLifeConsumptionRate(unit->unit_type)) {
+        int current_power_need;
+        int current_value;
+        int base_value;
+        Cargo cargo;
+
+        current_power_need = power_need;
+        current_value = 0;
+        base_value = 0;
+
+        Cargo_GetCargoDemand(unit, &cargo);
+
+        current_power_need = cargo.power;
+
+        if (power_need >= 0) {
+            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_2, SI_POWER, current_power_need, power_need, 1);
+
+        } else {
+            GameManager_DrawInfoDisplayRow("Power", WINDOW_STAT_ROW_2, SI_POWER, -current_power_need, -power_need, 1);
+        }
+
+        power_need = 0;
+        current_power_need = 0;
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).GetComplex() == unit->GetComplex()) {
+                cargo.power = Cargo_GetPowerConsumptionRate((*it).unit_type);
+
+                if (cargo.power >= 0) {
+                    base_value += cargo.power;
+
+                } else {
+                    power_need -= cargo.power;
+                }
+
+                Cargo_GetCargoDemand(&(*it), &cargo);
+
+                if (cargo.power >= 0) {
+                    current_power_need += cargo.power;
+
+                } else {
+                    current_value -= cargo.power;
+                }
+            }
+        }
+
+        if (Cargo_GetPowerConsumptionRate(unit->unit_type) > 0) {
+            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_POWER, current_value, base_value, 1);
+
+        } else {
+            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_POWER, current_power_need, power_need, 1);
+            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_4, SI_POWER, current_value, base_value, 1);
+        }
+    }
 }
 
 void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
-    /// \todo
+    int life_need;
+
+    life_need = Cargo_GetLifeConsumptionRate(unit->unit_type);
+
+    if (life_need && GameManager_PlayerTeam == unit->team) {
+        int current_life_need;
+        int current_value;
+        int base_value;
+        Cargo cargo;
+
+        current_life_need = life_need;
+        current_value = 0;
+        base_value = 0;
+
+        Cargo_GetCargoDemand(unit, &cargo);
+
+        current_life_need = cargo.life;
+
+        if (life_need >= 0) {
+            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_2, SI_WORK, current_life_need, life_need, 1);
+
+        } else {
+            GameManager_DrawInfoDisplayRow("Teams", WINDOW_STAT_ROW_2, SI_WORK, -current_life_need, -life_need, 1);
+        }
+
+        life_need = 0;
+        current_life_need = 0;
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).GetComplex() == unit->GetComplex()) {
+                cargo.life = Cargo_GetLifeConsumptionRate((*it).unit_type);
+
+                if (cargo.life >= 0) {
+                    base_value += cargo.life;
+
+                } else {
+                    life_need -= cargo.life;
+                }
+
+                Cargo_GetCargoDemand(&(*it), &cargo);
+
+                if (cargo.life >= 0) {
+                    current_life_need += cargo.life;
+
+                } else {
+                    current_value -= cargo.life;
+                }
+            }
+        }
+
+        if (Cargo_GetLifeConsumptionRate(unit->unit_type) > 0) {
+            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_WORK, current_value, base_value, 1);
+
+        } else {
+            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_WORK, current_life_need, life_need, 1);
+            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_4, SI_WORK, current_value, base_value, 1);
+        }
+    }
 }
 
 void GameManager_DrawInfoDisplayType3(UnitInfo* unit) {

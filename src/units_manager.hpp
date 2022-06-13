@@ -61,8 +61,10 @@ void UnitsManager_UpdatePathsTimeLimit();
 void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state);
 void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
 unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid_y);
+void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y);
 void UnitsManager_StartBuild(UnitInfo* unit);
 bool UnitsManager_IsUnitUnderWater(UnitInfo* unit);
+void UnitsManager_UpdateConnectors(UnitInfo* unit);
 void UnitsManager_DestroyUnit(UnitInfo* unit);
 int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team);
 SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,

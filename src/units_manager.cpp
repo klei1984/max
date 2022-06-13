@@ -2245,6 +2245,10 @@ unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid
     return result;
 }
 
+void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y) {
+    /// \todo
+}
+
 void UnitsManager_StartBuild(UnitInfo* unit) {
     /// \todo
 }
@@ -2308,6 +2312,10 @@ bool UnitsManager_IsUnitUnderWater(UnitInfo* unit) {
     }
 
     return result;
+}
+
+void UnitsManager_UpdateConnectors(UnitInfo* unit) {
+    /// \todo
 }
 
 void UnitsManager_DestroyUnit(UnitInfo* unit) {

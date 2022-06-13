@@ -510,6 +510,10 @@ unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y) {
     return surface_type;
 }
 
+bool Access_IsAnyLandPresent(int grid_x, int grid_y, unsigned int flags) {
+    /// \todo
+}
+
 int Access_FindUnitInUnitList(UnitInfo* unit) {
     int result;
 

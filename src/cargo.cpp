@@ -161,6 +161,17 @@ Cargo& Cargo::operator+=(Cargo const& other) {
     return *this;
 }
 
+Cargo& Cargo::operator-=(Cargo const& other) {
+    gold -= other.gold;
+    raw -= other.raw;
+    fuel -= other.fuel;
+    power -= other.power;
+    life -= other.life;
+    field_10 -= other.field_10;
+
+    return *this;
+}
+
 int Cargo_GetRawConsumptionRate(ResourceID unit_type, int speed_multiplier) {
     int multiplier;
     int result;

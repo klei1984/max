@@ -58,6 +58,9 @@ void Access_UpdateMinimapFogOfWar(unsigned short team, bool all_visible, bool ig
 void Access_UpdateResourcesTotal(Complex *complex);
 unsigned char Access_GetSurfaceType(int grid_x, int grid_y);
 unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y);
+
+bool Access_IsAnyLandPresent(int grid_x, int grid_y, unsigned int flags);
+
 int Access_FindUnitInUnitList(UnitInfo *unit);
 bool Access_IsTeamInUnitList(unsigned short team, SmartList<UnitInfo> &units);
 bool Access_IsTeamInUnitLists(unsigned short team);

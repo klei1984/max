@@ -43,6 +43,7 @@ struct Cargo {
     friend Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order);
 
     Cargo& operator+=(Cargo const& other);
+    Cargo& operator-=(Cargo const& other);
 };
 
 Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo);
