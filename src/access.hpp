@@ -95,4 +95,6 @@ bool Access_ProcessNewGroupOrder(UnitInfo *unit);
 void Access_UpdateMultiSelection(UnitInfo *unit);
 bool Access_IsGroupOrderInterrupted(UnitInfo *unit);
 
+bool Access_IsInsideBounds(Rect *bounds, Point *point);
+
 #endif /* ACCESS_HPP */

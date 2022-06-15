@@ -51,7 +51,7 @@ static void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds);
 static void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds);
 static void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds);
 
-static ResourceID ReportStats_CargoIcons[] = {
+const ResourceID ReportStats_CargoIcons[] = {
     INVALID_ID, INVALID_ID, SI_RAW,  EI_RAW, SI_FUEL, EI_FUEL, SI_GOLD,
     EI_GOLD,    SI_LAND,    EI_LAND, SI_SEA, EI_SEA,  SI_AIR,  EI_AIR,
 };

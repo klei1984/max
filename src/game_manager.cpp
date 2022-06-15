@@ -44,6 +44,7 @@
 #include "production_manager.hpp"
 #include "remote.hpp"
 #include "reportmenu.hpp"
+#include "reportstats.hpp"
 #include "researchmenu.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
@@ -389,6 +390,13 @@ struct ResourceAllocator {
     }
 };
 
+const char* const GameManager_OrderStatusMessages[] = {
+    "Awaiting",   "Transforming", "Moving",    "Firing",         "Building",  "Activate Order", "New Allocate Order",
+    "Power On",   "Power Off",    "Exploding", "Unloading",      "Clearing",  "Sentry",         "Landing",
+    "Taking Off", "Loading",      "Idle",      "Repairing",      "Refueling", "Reloading",      "Transferring",
+    "Awaiting",   "Awaiting",     "Awaiting",  "Awaiting",       "Awaiting",  "Disabled",       "Moving",
+    "Repairing",  "Transferring", "Attacking", "Building Halted"};
+
 const char* const GameManager_EventStrings_FinishedBuilding[] = {
     "Finished building %s.  To move the %s out of the factory, click on a square with a symbol in it.",
     "Finished building %s.  To move the %s out of the factory, click on a square with a symbol in it.",
@@ -408,6 +416,10 @@ const char* const GameManager_EventStrings_EnemySpotted[] = {"Enemy %s in radar 
 
 const char* const GameManager_CheatCodes[CHEAT_CODE_COUNT] = {"[MAXSPY]", "[MAXSURVEY]", "[MAXSTORAGE]", "[MAXAMMO]",
                                                               "[MAXSUPER]"};
+
+const ResourceID GameManager_AlienBuildings[] = {SHIELDGN, SUPRTPLT, RECCENTR};
+
+const ResourceID GameManager_AlienUnits[] = {ALNTANK, ALNASGUN, ALNPLANE};
 
 unsigned char GameManager_MouseButtons;
 unsigned char GameManager_ActiveWindow;
@@ -663,7 +675,7 @@ static void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2);
 static void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2);
 static void GameManager_IsValidStartingRange(short* grid_x, short* grid_y);
 static void GameManager_PopulateMapWithResources();
-static void GameManager_FindSpot(Point point);
+static void GameManager_FindSpot(Point* point);
 static void GameManager_SpawnAlienDerelicts(Point point, int alien_unit_value);
 static void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_value);
 static void GameManager_ProcessTeamMissionSupplyUnits(unsigned short team);
@@ -4669,12 +4681,184 @@ void GameManager_PopulateMapWithResources() {
     ResourceAllocator::SettleMinimumResourceLevels(ini_get_setting(INI_MIN_RESOURCES));
 }
 
-void GameManager_FindSpot(Point point) {
-    /// \todo
+void GameManager_FindSpot(Point* point) {
+    for (int range = 2;; range += 2) {
+        --point->x;
+        ++point->y;
+
+        for (int direction = 0; direction < 8; direction += 2) {
+            for (int i = 0; i < range; ++i) {
+                *point += Paths_8DirPointsArray[direction];
+
+                if (point->x >= 1 && point->y >= 1 && point->x + 3 < ResourceManager_MapSize.x &&
+                    point->y + 3 < ResourceManager_MapSize.y) {
+                    bool is_found;
+
+                    is_found = true;
+
+                    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                            if (Access_GetDistance(
+                                    UnitsManager_TeamMissionSupplies[team].starting_position.x - point->x,
+                                    UnitsManager_TeamMissionSupplies[team].starting_position.y - point->y) < 256) {
+                                is_found = false;
+                            }
+                        }
+                    }
+
+                    for (int grid_x = point->x; grid_x < point->x + 2 && is_found; ++grid_x) {
+                        for (int grid_y = point->y; grid_y < point->y + 2 && is_found; ++grid_y) {
+                            if (Access_GetModifiedSurfaceType(grid_x, grid_y) == SURFACE_TYPE_AIR) {
+                                is_found = false;
+                            }
+                        }
+                    }
+
+                    if (is_found) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void GameManager_SpawnAlienDerelicts(Point point, int alien_unit_value) {
-    /// \todo
+    SmartPointer<UnitInfo> unit;
+    Rect bounds;
+    Point position;
+    int surface_type;
+
+    rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
+
+    GameManager_FindSpot(&point);
+
+    unit = UnitsManager_DeployUnit(LRGSLAB, PLAYER_TEAM_ALIEN, nullptr, point.x, point.y, 0, false, true);
+
+    unit =
+        UnitsManager_DeployUnit(GameManager_AlienBuildings[(dos_rand() * std::size(GameManager_AlienBuildings)) >> 15],
+                                PLAYER_TEAM_ALIEN, nullptr, point.x, point.y, 0, false, true);
+
+    position.x = point.x - 1;
+    position.y = point.y + 2;
+
+    for (int direction = 0; direction < 8; direction += 2) {
+        for (int step_count = 0; step_count < 3; ++step_count) {
+            position += Paths_8DirPointsArray[direction];
+
+            if (Access_IsInsideBounds(&bounds, &position)) {
+                surface_type = Access_GetSurfaceType(position.x, position.y);
+
+                if (surface_type == SURFACE_TYPE_WATER || surface_type == SURFACE_TYPE_COAST) {
+                    unit = UnitsManager_DeployUnit(BRIDGE, PLAYER_TEAM_ALIEN, nullptr, position.x, position.y, 0, false,
+                                                   true);
+                }
+            }
+        }
+    }
+
+    {
+        ObjectArray<Point> land_tiles;
+        ObjectArray<Point> water_tiles;
+        int cost;
+        int value;
+        int index;
+
+        cost = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN], ALNTANK)
+                   ->GetAttribute(ATTRIB_TURNS);
+
+        for (int offset = 2; alien_unit_value >= cost && offset > 0; --offset) {
+            land_tiles.Clear();
+            water_tiles.Clear();
+
+            position.x = point.x - offset;
+            position.y = point.y + offset + 1;
+
+            for (int direction = 0; direction < 8; direction += 2) {
+                for (int step_count = 0; step_count < 2 * offset + 1; ++step_count) {
+                    position += Paths_8DirPointsArray[direction];
+
+                    if (Access_IsInsideBounds(&bounds, &position)) {
+                        surface_type = Access_GetModifiedSurfaceType(position.x, position.y);
+
+                        if (surface_type == SURFACE_TYPE_WATER) {
+                            water_tiles.Append(&position);
+
+                        } else if (surface_type == SURFACE_TYPE_LAND) {
+                            land_tiles.Append(&position);
+                        }
+                    }
+                }
+            }
+
+            if (alien_unit_value < UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN], JUGGRNT)
+                                       ->GetAttribute(ATTRIB_TURNS)) {
+                value = 1;
+
+            } else {
+                value = 0;
+            }
+
+            if (alien_unit_value < value) {
+                water_tiles.Clear();
+            }
+
+            while (alien_unit_value >= cost && (land_tiles.GetCount() + water_tiles.GetCount()) > 0) {
+                if (((dos_rand() * (land_tiles.GetCount() + water_tiles.GetCount())) >> 15) + 1 <=
+                    water_tiles.GetCount()) {
+                    SDL_assert(water_tiles.GetCount() > 0);
+
+                    index = (dos_rand() * water_tiles.GetCount()) >> 15;
+
+                    SDL_assert(index >= 0 && index < water_tiles.GetCount());
+
+                    position = *water_tiles[index];
+
+                    water_tiles.Remove(index);
+
+                    unit = UnitsManager_DeployUnit(JUGGRNT, PLAYER_TEAM_ALIEN, nullptr, position.x, position.y, 0,
+                                                   false, true);
+
+                } else {
+                    SDL_assert(land_tiles.GetCount() > 0);
+
+                    index = (dos_rand() * land_tiles.GetCount()) >> 15;
+
+                    SDL_assert(index >= 0 && index < land_tiles.GetCount());
+
+                    position = *land_tiles[index];
+
+                    land_tiles.Remove(index);
+
+                    do {
+                        ;
+                    } while (UnitsManager_GetCurrentUnitValues(
+                                 &UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN],
+                                 GameManager_AlienUnits[(dos_rand() * std::size(GameManager_AlienUnits)) >> 15])
+                                 ->GetAttribute(ATTRIB_TURNS) > alien_unit_value);
+
+                    unit = UnitsManager_DeployUnit(
+                        GameManager_AlienUnits[(dos_rand() * std::size(GameManager_AlienUnits)) >> 15],
+                        PLAYER_TEAM_ALIEN, nullptr, position.x, position.y, 0, false, true);
+                }
+
+                alien_unit_value -= unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS);
+
+                if (alien_unit_value <
+                    UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN], JUGGRNT)
+                        ->GetAttribute(ATTRIB_TURNS)) {
+                    value = 1;
+
+                } else {
+                    value = 0;
+                }
+
+                if (alien_unit_value < value) {
+                    water_tiles.Clear();
+                }
+            }
+        }
+    }
 }
 
 void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_value) {
@@ -6569,7 +6753,129 @@ void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int radius, int 
 }
 
 void GameManager_MenuUnitSelect(UnitInfo* unit) {
-    /// \todo
+    if (GameManager_DisplayControlsInitialized) {
+        if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit != unit) {
+            GameManager_SelectedUnit->RefreshScreen();
+            SoundManager.PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
+        }
+
+        Gamemanager_FlicButton->Enable(unit && unit->team == GameManager_PlayerTeam);
+
+        if (GameManager_TextEditUnitName) {
+            delete GameManager_TextEditUnitName;
+            GameManager_TextEditUnitName = nullptr;
+        }
+
+        if (unit) {
+            BaseUnit* base_unit;
+            WindowInfo* window;
+            int ulx;
+            int uly;
+            int sound;
+            char text[100];
+
+            base_unit = &UnitsManager_BaseUnits[unit->unit_type];
+
+            unit->targeting_mode = 0;
+            unit->enter_mode = 0;
+            unit->cursor = 0;
+
+            GameManager_IsSurveyorSelected = Access_IsSurveyorOverlayActive(unit);
+
+            if (GameManager_PlayMode) {
+                GameManager_MenuClickEndTurnButton(GameManager_GameState == GAME_STATE_8_IN_GAME);
+
+            } else {
+                GameManager_MenuClickEndTurnButton(UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type ==
+                                                   TEAM_TYPE_PLAYER);
+            }
+
+            GameManager_MenuDeleteFlic();
+
+            window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
+
+            ulx = window->window.ulx;
+            uly = window->window.uly;
+
+            window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+
+            GameManager_Flic = flicsmgr_construct(base_unit->flics, window, 640, ulx, uly, 2, 0);
+
+            unit->GetDisplayName(text);
+
+            window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
+
+            text_font(2);
+
+            win_print(window->id, text, 128, window->window.ulx, window->window.uly, 0x5000002);
+
+            if (unit->unit_type == COMMANDO) {
+                int experience;
+                char exp_text[10];
+
+                experience = unit->GetExperience();
+
+                if (experience > 0) {
+                    if (experience > 2) {
+                        if (experience > 5) {
+                            if (experience > 10) {
+                                strcpy(text, "Elite");
+
+                            } else {
+                                strcpy(text, "Crack");
+                            }
+
+                        } else {
+                            strcpy(text, "Veteran");
+                        }
+
+                    } else {
+                        strcpy(text, "Average");
+                    }
+
+                } else {
+                    strcpy(text, "Rookie");
+                }
+
+                if (experience > 0) {
+                    sprintf(exp_text, " (+%i)", experience);
+                    strcat(text, exp_text);
+                }
+
+                win_print(window->id, text, 128, window->window.ulx, window->window.uly + text_height(), 0x5000002);
+            }
+
+            GameManager_UpdateInfoDisplay(unit);
+            unit->RefreshScreen();
+
+            sound = SFX_TYPE_IDLE;
+
+            if (unit->orders == ORDER_BUILDING && (unit->state == ORDER_STATE_11 || unit->state == ORDER_STATE_1)) {
+                sound = SFX_TYPE_BUILDING;
+
+            } else if (unit->orders == ORDER_CLEARING && unit->state == ORDER_STATE_5) {
+                sound = SFX_TYPE_BUILDING;
+
+            } else if (unit->orders == ORDER_POWER_ON && unit->state == ORDER_STATE_1) {
+                sound = SFX_TYPE_BUILDING;
+            }
+
+            SoundManager.PlaySfx(unit, sound);
+
+            if (unit->GetUnitList()) {
+                unit->MoveToFrontInUnitList();
+            }
+
+            GameManager_SelectedUnit = unit;
+
+        } else {
+            GameManager_MenuDeleteFlic();
+            GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, 0x00, true);
+            GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, true);
+            GameManager_DeinitPopupButtons(false);
+            GameManager_SelectedUnit = nullptr;
+        }
+    }
 }
 
 void GameManager_FillOrRestoreWindow(unsigned char id, int color, bool redraw) {
@@ -6868,15 +7174,183 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
 }
 
 void GameManager_DrawInfoDisplayType3(UnitInfo* unit) {
-    /// \todo
+    unsigned int current_value;
+    unsigned int value_limit;
+
+    if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
+        current_value = ini_setting_victory_limit;
+
+    } else {
+        current_value = 0;
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+                current_value = std::max(UnitsManager_TeamInfo[team].team_points, current_value);
+            }
+        }
+    }
+
+    if (current_value < 1) {
+        current_value = 10;
+    }
+
+    value_limit = (current_value + 14) / 15;
+
+    GameManager_DrawInfoDisplayRow("points", WINDOW_STAT_ROW_2, SI_WORK, unit->storage, unit->storage, value_limit);
+    GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_WORK, UnitsManager_TeamInfo[unit->team].team_points,
+                                   current_value, value_limit);
 }
 
 SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
-    /// \todo
+    SmartString message;
+
+    if (unit->orders == ORDER_DISABLED && unit->team != PLAYER_TEAM_ALIEN) {
+        if (unit->recoil_delay == 1) {
+            message = "Disabled 1 turn.";
+
+        } else {
+            message.Sprintf(25, "Disabled %i turns.", unit->recoil_delay);
+        }
+
+    } else {
+        message = GameManager_OrderStatusMessages[unit->orders];
+
+        if ((unit->orders == ORDER_AWAITING || unit->orders == ORDER_MOVING) && unit->team == GameManager_PlayerTeam) {
+            if (unit->auto_survey) {
+                message = "Surveying";
+            }
+
+            if (unit->disabled_reaction_fire) {
+                message = "Reaction Fire Off";
+            }
+
+            if (unit->GetLayingState() == 2) {
+                message = "Placing mines";
+            }
+
+            if (unit->GetLayingState() == 1) {
+                message = "Removing mines";
+            }
+        }
+    }
+
+    return message;
 }
 
 void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
-    /// \todo
+    if (unit->IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) {
+        SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
+        WindowInfo* window;
+        unsigned char scaling_factor;
+
+        window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
+
+        text_font(2);
+
+        win_print(window->id, GameManager_GetUnitStatusMessage(unit).GetCStr(), 128, window->window.ulx,
+                  window->window.uly + text_height(), 0x50000A2);
+
+        GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, false);
+
+        GameManager_DrawInfoDisplayRow("Hits", WINDOW_STAT_ROW_1, SI_HITSB, unit->hits,
+                                       unit_values->GetAttribute(ATTRIB_HITS), 4);
+
+        if (unit_values->GetAttribute(ATTRIB_ATTACK)) {
+            int ammo;
+
+            if (unit->team == GameManager_PlayerTeam) {
+                ammo = unit_values->GetAttribute(ATTRIB_AMMO);
+
+            } else {
+                ammo = 0;
+            }
+
+            GameManager_DrawInfoDisplayRow("Ammo", WINDOW_STAT_ROW_2, SI_AMMO, unit->ammo, ammo, 1);
+
+        } else {
+            unsigned char cargo_type;
+            int storage_value;
+
+            cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
+            storage_value = unit_values->GetAttribute(ATTRIB_STORAGE);
+
+            if (storage_value <= 4) {
+                scaling_factor = 1;
+
+            } else if (storage_value <= 8) {
+                scaling_factor = 2;
+
+            } else {
+                scaling_factor = 3;
+            }
+
+            if (cargo_type < CARGO_TYPE_LAND) {
+                scaling_factor = 10;
+            }
+
+            if (unit->team != GameManager_PlayerTeam && !GameManager_MaxSpy) {
+                scaling_factor = 0;
+            }
+
+            GameManager_DrawInfoDisplayRow("Cargo", WINDOW_STAT_ROW_2, ReportStats_CargoIcons[cargo_type * 2],
+                                           unit->storage, storage_value, scaling_factor);
+        }
+
+        GameManager_DrawInfoDisplayRow("Speed", WINDOW_STAT_ROW_3, SI_SPEED, unit->speed,
+                                       unit_values->GetAttribute(ATTRIB_SPEED), 1);
+
+        GameManager_DrawInfoDisplayRow("Shots", WINDOW_STAT_ROW_4, SI_SHOTS, unit->shots,
+                                       unit_values->GetAttribute(ATTRIB_ROUNDS), 1);
+
+        if (unit_values->GetAttribute(ATTRIB_STORAGE) == 0) {
+            GameManager_DrawInfoDisplayType2(unit);
+        }
+
+        if (unit->unit_type == GREENHSE && unit->team == GameManager_PlayerTeam) {
+            GameManager_DrawInfoDisplayType3(unit);
+
+        } else {
+            GameManager_DrawInfoDisplayType1(unit);
+        }
+
+        if ((unit->team == GameManager_PlayerTeam || GameManager_MaxSpy) &&
+            unit_values->GetAttribute(ATTRIB_STORAGE) > 0 && (unit->flags & STATIONARY) &&
+            UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_RAW &&
+            UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_GOLD) {
+            Cargo materials;
+            Cargo capacity;
+            int value;
+            int value_limit;
+
+            unit->GetComplex()->GetCargoInfo(materials, capacity);
+
+            switch (UnitsManager_BaseUnits[unit->unit_type].cargo_type) {
+                case CARGO_TYPE_RAW: {
+                    value = materials.raw;
+                    value_limit = materials.raw;
+                } break;
+
+                case CARGO_TYPE_FUEL: {
+                    value = materials.fuel;
+                    value_limit = materials.fuel;
+                } break;
+
+                case CARGO_TYPE_GOLD: {
+                    value = materials.gold;
+                    value_limit = materials.gold;
+                } break;
+            }
+
+            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3,
+                                           ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type],
+                                           value, value_limit, scaling_factor);
+        }
+
+        window = WindowManager_GetWindow(WINDOW_STAT_WINDOW);
+
+        win_draw_rect(window->id, &window->window);
+    }
 }
 
 void GameManager_MenuInitButtons(bool mode) {

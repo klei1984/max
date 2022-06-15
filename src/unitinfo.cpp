@@ -2092,6 +2092,10 @@ void UnitInfo::FollowUnit() {
     /// \todo
 }
 
+int UnitInfo::GetExperience() {
+    /// \todo
+}
+
 int UnitInfo::GetNormalRateBuildCost() const {
     int result;
 

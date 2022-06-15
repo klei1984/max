@@ -25,6 +25,8 @@
 #include "gnw.h"
 #include "unitinfo.hpp"
 
+extern const ResourceID ReportStats_CargoIcons[];
+
 void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID unit_type, unsigned short team, int ulx,
                                   int uly);
 

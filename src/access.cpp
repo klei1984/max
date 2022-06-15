@@ -676,3 +676,7 @@ void Access_UpdateMultiSelection(UnitInfo* unit) {
 bool Access_IsGroupOrderInterrupted(UnitInfo* unit) {
     /// \todo
 }
+
+bool Access_IsInsideBounds(Rect* bounds, Point* point) {
+    return point->x >= bounds->ulx && point->x < bounds->lrx && point->y >= bounds->uly && point->y < bounds->lry;
+}

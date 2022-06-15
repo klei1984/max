@@ -159,6 +159,7 @@ public:
     int GetBuildRate() const;
     void SpawnNewUnit();
     void FollowUnit();
+    int GetExperience();
 
     ResourceID unit_type;
     void (*sound_function)(UnitInfo* unit, struct PopupButtons* buttons);
