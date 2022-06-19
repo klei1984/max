@@ -284,7 +284,7 @@ void MessageManager_LoadMessageLogs(SmartFileReader& file) {
 }
 
 void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
-    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; + i) {
+    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; ++i) {
         file.WriteObjectCount(MessageManager_TeamMessageLog[i].GetCount());
 
         for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[i].Begin();

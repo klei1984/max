@@ -31,7 +31,7 @@
 
 AbstractUnit::AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
-                           unsigned char cargo_type, unsigned char land_type, char new_gender,
+                           unsigned char land_type, unsigned char cargo_type, char new_gender,
                            const char* singular_name, const char* plural_name, const char* description,
                            const char* tutorial)
     : flags(flags),
@@ -307,17 +307,18 @@ unsigned short TeamUnits::GetGold() { return gold; }
 void TeamUnits::SetGold(unsigned short value) { gold = value; }
 
 Complex* TeamUnits::CreateComplex() {
-    unsigned short complex_id = 0;
+    unsigned short complex_id;
     Complex* result;
+    SmartList<Complex>::Iterator it;
 
-    for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
-        if ((*it).GetId() == complex_id) {
-            ++complex_id;
-        } else {
-            result = new (std::nothrow) Complex(complex_id);
-            complexes.InsertAfter(it, *result);
-        }
+    complex_id = 0;
+    it = complexes.Begin();
+
+    for (; it != complexes.End() && (*it).GetId() == complex_id; ++it, ++complex_id) {
     }
+
+    result = new (std::nothrow) Complex(complex_id);
+    complexes.InsertAfter(it, *result);
 
     return result;
 }

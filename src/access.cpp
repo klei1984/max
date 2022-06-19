@@ -613,18 +613,18 @@ void Access_DrawUnit(UnitInfo* unit) {
             if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] && UnitsManager_IsUnitUnderWater(unit)) {
                 unit->SpotByTeam(team);
             }
-        }
 
-        if (unit->unit_type == COMMANDO) {
-            if (UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset]) {
-                unit->SpotByTeam(team);
+            if (unit->unit_type == COMMANDO) {
+                if (UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset]) {
+                    unit->SpotByTeam(team);
+                }
             }
-        }
 
-        if (UnitsManager_TeamInfo[team].heat_map_complete[map_offset]) {
-            unit->DrawStealth(team);
-        } else {
-            unit->Draw(team);
+            if (UnitsManager_TeamInfo[team].heat_map_complete[map_offset]) {
+                unit->DrawStealth(team);
+            } else {
+                unit->Draw(team);
+            }
         }
     }
 }

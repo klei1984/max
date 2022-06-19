@@ -26,6 +26,7 @@
 #include "builder.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
+#include "gfx.hpp"
 #include "hash.hpp"
 #include "message_manager.hpp"
 #include "registerarray.hpp"
@@ -548,7 +549,14 @@ UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id,
     Init();
 
     unit = &UnitsManager_BaseUnits[unit_type];
-    total_images = reinterpret_cast<struct ImageMultiHeader*>(unit->sprite)->image_count;
+
+    if (unit->sprite) {
+        total_images = reinterpret_cast<struct ImageMultiHeader*>(unit->sprite)->image_count;
+
+    } else {
+        total_images = 0;
+    }
+
     image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->image_base;
     turret_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->turret_image_base;
     firing_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->firing_image_base;
@@ -590,7 +598,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id,
 
     InitStealthStatus();
 
-    if ((flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(flags & GROUND_COVER) && id != -1) {
+    if ((flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(flags & GROUND_COVER) && id != 0xFFFF) {
         AttachComplex(CreateComplex(team));
     }
 }
@@ -700,217 +708,439 @@ static MAXRegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, 
 unsigned short UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
 
 void UnitInfo::Init() {
+    BaseUnit* base_unit;
+    unsigned int data_size;
+
+    base_unit = &UnitsManager_BaseUnits[unit_type];
+
+    if (!base_unit->sprite) {
+        base_unit->sprite = ResourceManager_LoadResource(UnitsManager_AbstractUnits[unit_type].sprite);
+        base_unit->shadows = ResourceManager_LoadResource(UnitsManager_AbstractUnits[unit_type].shadows);
+
+        if (ResourceManager_DisableEnhancedGraphics) {
+            if (base_unit->sprite) {
+                base_unit->sprite = Gfx_RescaleSprite(base_unit->sprite, &data_size, 0, 2);
+
+                ResourceManager_Realloc(UnitsManager_AbstractUnits[unit_type].sprite, base_unit->sprite, data_size);
+            }
+
+            if (base_unit->shadows) {
+                base_unit->shadows = Gfx_RescaleSprite(base_unit->shadows, &data_size, 0, 2);
+
+                ResourceManager_Realloc(UnitsManager_AbstractUnits[unit_type].shadows, base_unit->shadows, data_size);
+            }
+        }
+    }
+
     switch (unit_type) {
-        case COMMTWR:
-            sound_table = &UnitInfo_SfxMonopoleMine;
-            break;
+        case COMMTWR: {
+            popup = &UnitsManager_PopupCallbacks[22];
+        } break;
+
         case POWERSTN:
-            sound_table = &UnitInfo_SfxPowerStation;
-            break;
-        case POWGEN:
-            sound_table = &UnitInfo_SfxPowerGenerator;
-            break;
+        case POWGEN: {
+            popup = &UnitsManager_PopupCallbacks[19];
+        } break;
+
         case BARRACKS:
-            sound_table = &UnitInfo_SfxBarracks;
-            break;
-        case SHIELDGN:
-            sound_table = &UnitInfo_SfxGoldRefinery;
-            break;
-        case RADAR:
-            sound_table = &UnitInfo_SfxRadar;
-            break;
-        case ADUMP:
-            sound_table = &UnitInfo_SfxMaterialStorage;
-            break;
-        case FDUMP:
-            sound_table = &UnitInfo_SfxFuelStorage;
-            break;
-        case GOLDSM:
-            sound_table = &UnitInfo_SfxGoldVault;
-            break;
         case DEPOT:
-            sound_table = &UnitInfo_SfxDepot;
-            break;
         case HANGAR:
-            sound_table = &UnitInfo_SfxHangar;
-            break;
-        case DOCK:
-            sound_table = &UnitInfo_SfxDock;
-            break;
-        case ROAD:
-            sound_table = &UnitInfo_SfxRoad;
-            break;
-        case LANDPAD:
-            sound_table = &UnitInfo_SfxLandingPad;
-            break;
+        case DOCK: {
+            popup = &UnitsManager_PopupCallbacks[12];
+        } break;
+
+        case ADUMP: {
+            popup = &UnitsManager_PopupCallbacks[9];
+        } break;
+
+        case FDUMP: {
+            popup = &UnitsManager_PopupCallbacks[10];
+        } break;
+
         case SHIPYARD:
-            sound_table = &UnitInfo_SfxShipyard;
-            break;
         case LIGHTPLT:
-            sound_table = &UnitInfo_SfxLightVehiclePlant;
-            break;
         case LANDPLT:
-            sound_table = &UnitInfo_SfxHeavyVehiclePlant;
-            break;
         case AIRPLT:
-            sound_table = &UnitInfo_SfxAirUnitsPlant;
-            break;
-        case HABITAT:
-            sound_table = &UnitInfo_SfxHabitat;
-            break;
-        case RESEARCH:
-            sound_table = &UnitInfo_SfxResearchCentre;
-            break;
-        case GREENHSE:
-            sound_table = &UnitInfo_SfxEcoSphere;
-            break;
-        case TRAINHAL:
-            sound_table = &UnitInfo_SfxTrainingHall;
-            break;
-        case WTRPLTFM:
-            sound_table = &UnitInfo_SfxWaterPlatform;
-            break;
+        case TRAINHAL: {
+            popup = &UnitsManager_PopupCallbacks[14];
+        } break;
+
+        case RESEARCH: {
+            popup = &UnitsManager_PopupCallbacks[18];
+        } break;
+
+        case GREENHSE: {
+            popup = &UnitsManager_PopupCallbacks[17];
+        } break;
+
+        case RECCENTR: {
+            popup = &UnitsManager_PopupCallbacks[15];
+        } break;
+
         case GUNTURRT:
-            sound_table = &UnitInfo_SfxGunTurret;
-            break;
         case ANTIAIR:
-            sound_table = &UnitInfo_SfxAntiAir;
-            break;
         case ARTYTRRT:
-            sound_table = &UnitInfo_SfxArtillery;
-            break;
         case ANTIMSSL:
-            sound_table = &UnitInfo_SfxMissileLauncher;
-            break;
-        case BLOCK:
-            sound_table = &UnitInfo_SfxConcreteBlock;
-            break;
-        case BRIDGE:
-            sound_table = &UnitInfo_SfxBridge;
-            break;
-        case MININGST:
-            sound_table = &UnitInfo_SfxMiningStation;
-            break;
-        case LANDMINE:
-            sound_table = &UnitInfo_SfxLandMine;
-            break;
-        case SEAMINE:
-            sound_table = &UnitInfo_SfxSeaMine;
-            break;
-        case HITEXPLD:
-            sound_table = &UnitInfo_SfxHitExplosion;
-            break;
-        case MASTER:
-            sound_table = &UnitInfo_SfxMasterBuilder;
-            break;
-        case CONSTRCT:
-            sound_table = &UnitInfo_SfxConstructor;
-            break;
         case SCOUT:
-            sound_table = &UnitInfo_SfxScout;
-            break;
         case TANK:
-            sound_table = &UnitInfo_SfxTank;
-            break;
         case ARTILLRY:
-            sound_table = &UnitInfo_SfxAssaultGun;
-            break;
         case ROCKTLCH:
-            sound_table = &UnitInfo_SfxRocketLauncher;
-            break;
         case MISSLLCH:
-            sound_table = &UnitInfo_SfxMissileCrawler;
-            break;
         case SP_FLAK:
-            sound_table = &MobileAntiAir;
-            break;
-        case MINELAYR:
-            sound_table = &UnitInfo_SfxMineLayer;
-            break;
-        case SURVEYOR:
-            sound_table = &UnitInfo_SfxSurveyor;
-            break;
-        case SCANNER:
-            sound_table = &UnitInfo_SfxScanner;
-            break;
-        case SPLYTRCK:
-            sound_table = &UnitInfo_SfxSupplyTruck;
-            break;
-        case GOLDTRCK:
-            sound_table = &UnitInfo_SfxGoldTruck;
-            break;
-        case ENGINEER:
-            sound_table = &UnitInfo_SfxEngineer;
-            break;
-        case BULLDOZR:
-            sound_table = &UnitInfo_SfxBulldozer;
-            break;
-        case REPAIR:
-            sound_table = &UnitInfo_SfxRepairUnit;
-            break;
-        case FUELTRCK:
-            sound_table = &UnitInfo_SfxFuelTruck;
-            break;
-        case CLNTRANS:
-            sound_table = &UnitInfo_SfxArmouredPersonnelCarrier;
-            break;
-        case COMMANDO:
-            sound_table = &UnitInfo_SfxInfiltrator;
-            break;
         case INFANTRY:
-            sound_table = &UnitInfo_SfxInfantry;
-            break;
         case FASTBOAT:
-            sound_table = &UnitInfo_SfxEscort;
-            break;
         case CORVETTE:
-            sound_table = &UnitInfo_SfxCorvette;
-            break;
         case BATTLSHP:
-            sound_table = &UnitInfo_SfxGunBoat;
-            break;
         case SUBMARNE:
-            sound_table = &UnitInfo_SfxSubmarine;
-            break;
-        case SEATRANS:
-            sound_table = &UnitInfo_SfxSeaTransport;
-            break;
         case MSSLBOAT:
-            sound_table = &UnitInfo_SfxMissileCruiser;
-            break;
-        case SEAMNLYR:
-            sound_table = &UnitInfo_SfxSeaMineLayer;
-            break;
-        case CARGOSHP:
-            sound_table = &UnitInfo_SfxCargoShip;
-            break;
         case FIGHTER:
-            sound_table = &UnitInfo_SfxFighter;
-            break;
         case BOMBER:
-            sound_table = &UnitInfo_SfxGroundAttackPlane;
-            break;
-        case AIRTRANS:
-            sound_table = &UnitInfo_SfxAirTransport;
-            break;
-        case AWAC:
-            sound_table = &UnitInfo_SfxAwac;
-            break;
         case JUGGRNT:
-            sound_table = &UnitInfo_SfxAlienGunBoat;
-            break;
         case ALNTANK:
-            sound_table = &UnitInfo_SfxAlienTank;
-            break;
         case ALNASGUN:
+        case ALNPLANE: {
+            popup = &UnitsManager_PopupCallbacks[3];
+        } break;
+
+        case MININGST: {
+            popup = &UnitsManager_PopupCallbacks[16];
+        } break;
+
+        case MASTER: {
+            popup = &UnitsManager_PopupCallbacks[21];
+        } break;
+
+        case CONSTRCT:
+        case ENGINEER: {
+            popup = &UnitsManager_PopupCallbacks[13];
+        } break;
+
+        case MINELAYR:
+        case SEAMNLYR: {
+            popup = &UnitsManager_PopupCallbacks[6];
+        } break;
+
+        case SURVEYOR: {
+            popup = &UnitsManager_PopupCallbacks[2];
+        } break;
+
+        case SCANNER:
+        case GOLDTRCK: {
+            popup = &UnitsManager_PopupCallbacks[1];
+        } break;
+
+        case SPLYTRCK:
+        case CARGOSHP: {
+            popup = &UnitsManager_PopupCallbacks[5];
+        } break;
+
+        case BULLDOZR: {
+            popup = &UnitsManager_PopupCallbacks[20];
+        } break;
+
+        case REPAIR: {
+            popup = &UnitsManager_PopupCallbacks[8];
+        } break;
+
+        case FUELTRCK: {
+            popup = &UnitsManager_PopupCallbacks[7];
+        } break;
+
+        case CLNTRANS:
+        case SEATRANS:
+        case AIRTRANS: {
+            popup = &UnitsManager_PopupCallbacks[11];
+        } break;
+
+        case COMMANDO: {
+            popup = &UnitsManager_PopupCallbacks[4];
+        } break;
+
+        default: {
+            popup = &UnitsManager_PopupCallbacks[0];
+        } break;
+    }
+
+    switch (unit_type) {
+        case COMMTWR: {
+            sound_table = &UnitInfo_SfxMonopoleMine;
+        } break;
+
+        case POWERSTN: {
+            sound_table = &UnitInfo_SfxPowerStation;
+        } break;
+
+        case POWGEN: {
+            sound_table = &UnitInfo_SfxPowerGenerator;
+        } break;
+
+        case BARRACKS: {
+            sound_table = &UnitInfo_SfxBarracks;
+        } break;
+
+        case SHIELDGN: {
+            sound_table = &UnitInfo_SfxGoldRefinery;
+        } break;
+
+        case RADAR: {
+            sound_table = &UnitInfo_SfxRadar;
+        } break;
+
+        case ADUMP: {
+            sound_table = &UnitInfo_SfxMaterialStorage;
+        } break;
+
+        case FDUMP: {
+            sound_table = &UnitInfo_SfxFuelStorage;
+        } break;
+
+        case GOLDSM: {
+            sound_table = &UnitInfo_SfxGoldVault;
+        } break;
+
+        case DEPOT: {
+            sound_table = &UnitInfo_SfxDepot;
+        } break;
+
+        case HANGAR: {
+            sound_table = &UnitInfo_SfxHangar;
+        } break;
+
+        case DOCK: {
+            sound_table = &UnitInfo_SfxDock;
+        } break;
+
+        case ROAD: {
+            sound_table = &UnitInfo_SfxRoad;
+        } break;
+
+        case LANDPAD: {
+            sound_table = &UnitInfo_SfxLandingPad;
+        } break;
+
+        case SHIPYARD: {
+            sound_table = &UnitInfo_SfxShipyard;
+        } break;
+
+        case LIGHTPLT: {
+            sound_table = &UnitInfo_SfxLightVehiclePlant;
+        } break;
+
+        case LANDPLT: {
+            sound_table = &UnitInfo_SfxHeavyVehiclePlant;
+        } break;
+
+        case AIRPLT: {
+            sound_table = &UnitInfo_SfxAirUnitsPlant;
+        } break;
+
+        case HABITAT: {
+            sound_table = &UnitInfo_SfxHabitat;
+        } break;
+
+        case RESEARCH: {
+            sound_table = &UnitInfo_SfxResearchCentre;
+        } break;
+
+        case GREENHSE: {
+            sound_table = &UnitInfo_SfxEcoSphere;
+        } break;
+
+        case TRAINHAL: {
+            sound_table = &UnitInfo_SfxTrainingHall;
+        } break;
+
+        case WTRPLTFM: {
+            sound_table = &UnitInfo_SfxWaterPlatform;
+        } break;
+
+        case GUNTURRT: {
+            sound_table = &UnitInfo_SfxGunTurret;
+        } break;
+
+        case ANTIAIR: {
+            sound_table = &UnitInfo_SfxAntiAir;
+        } break;
+
+        case ARTYTRRT: {
+            sound_table = &UnitInfo_SfxArtillery;
+        } break;
+
+        case ANTIMSSL: {
+            sound_table = &UnitInfo_SfxMissileLauncher;
+        } break;
+
+        case BLOCK: {
+            sound_table = &UnitInfo_SfxConcreteBlock;
+        } break;
+
+        case BRIDGE: {
+            sound_table = &UnitInfo_SfxBridge;
+        } break;
+
+        case MININGST: {
+            sound_table = &UnitInfo_SfxMiningStation;
+        } break;
+
+        case LANDMINE: {
+            sound_table = &UnitInfo_SfxLandMine;
+        } break;
+
+        case SEAMINE: {
+            sound_table = &UnitInfo_SfxSeaMine;
+        } break;
+
+        case HITEXPLD: {
+            sound_table = &UnitInfo_SfxHitExplosion;
+        } break;
+
+        case MASTER: {
+            sound_table = &UnitInfo_SfxMasterBuilder;
+        } break;
+
+        case CONSTRCT: {
+            sound_table = &UnitInfo_SfxConstructor;
+        } break;
+
+        case SCOUT: {
+            sound_table = &UnitInfo_SfxScout;
+        } break;
+
+        case TANK: {
+            sound_table = &UnitInfo_SfxTank;
+        } break;
+
+        case ARTILLRY: {
+            sound_table = &UnitInfo_SfxAssaultGun;
+        } break;
+
+        case ROCKTLCH: {
+            sound_table = &UnitInfo_SfxRocketLauncher;
+        } break;
+
+        case MISSLLCH: {
+            sound_table = &UnitInfo_SfxMissileCrawler;
+        } break;
+
+        case SP_FLAK: {
+            sound_table = &MobileAntiAir;
+        } break;
+
+        case MINELAYR: {
+            sound_table = &UnitInfo_SfxMineLayer;
+        } break;
+
+        case SURVEYOR: {
+            sound_table = &UnitInfo_SfxSurveyor;
+        } break;
+
+        case SCANNER: {
+            sound_table = &UnitInfo_SfxScanner;
+        } break;
+
+        case SPLYTRCK: {
+            sound_table = &UnitInfo_SfxSupplyTruck;
+        } break;
+
+        case GOLDTRCK: {
+            sound_table = &UnitInfo_SfxGoldTruck;
+        } break;
+
+        case ENGINEER: {
+            sound_table = &UnitInfo_SfxEngineer;
+        } break;
+
+        case BULLDOZR: {
+            sound_table = &UnitInfo_SfxBulldozer;
+        } break;
+
+        case REPAIR: {
+            sound_table = &UnitInfo_SfxRepairUnit;
+        } break;
+
+        case FUELTRCK: {
+            sound_table = &UnitInfo_SfxFuelTruck;
+        } break;
+
+        case CLNTRANS: {
+            sound_table = &UnitInfo_SfxArmouredPersonnelCarrier;
+        } break;
+
+        case COMMANDO: {
+            sound_table = &UnitInfo_SfxInfiltrator;
+        } break;
+
+        case INFANTRY: {
+            sound_table = &UnitInfo_SfxInfantry;
+        } break;
+
+        case FASTBOAT: {
+            sound_table = &UnitInfo_SfxEscort;
+        } break;
+
+        case CORVETTE: {
+            sound_table = &UnitInfo_SfxCorvette;
+        } break;
+
+        case BATTLSHP: {
+            sound_table = &UnitInfo_SfxGunBoat;
+        } break;
+
+        case SUBMARNE: {
+            sound_table = &UnitInfo_SfxSubmarine;
+        } break;
+
+        case SEATRANS: {
+            sound_table = &UnitInfo_SfxSeaTransport;
+        } break;
+
+        case MSSLBOAT: {
+            sound_table = &UnitInfo_SfxMissileCruiser;
+        } break;
+
+        case SEAMNLYR: {
+            sound_table = &UnitInfo_SfxSeaMineLayer;
+        } break;
+
+        case CARGOSHP: {
+            sound_table = &UnitInfo_SfxCargoShip;
+        } break;
+
+        case FIGHTER: {
+            sound_table = &UnitInfo_SfxFighter;
+        } break;
+
+        case BOMBER: {
+            sound_table = &UnitInfo_SfxGroundAttackPlane;
+        } break;
+
+        case AIRTRANS: {
+            sound_table = &UnitInfo_SfxAirTransport;
+        } break;
+
+        case AWAC: {
+            sound_table = &UnitInfo_SfxAwac;
+        } break;
+
+        case JUGGRNT: {
+            sound_table = &UnitInfo_SfxAlienGunBoat;
+        } break;
+
+        case ALNTANK: {
+            sound_table = &UnitInfo_SfxAlienTank;
+        } break;
+
+        case ALNASGUN: {
             sound_table = &UnitInfo_SfxAlienAssaultGun;
-            break;
-        case ALNPLANE:
+        } break;
+
+        case ALNPLANE: {
             sound_table = &UnitInfo_SfxAlienAttackPlane;
-            break;
-        default:
+        } break;
+
+        default: {
             sound_table = &UnitInfo_SfxDefaultUnit;
-            break;
+        } break;
     }
 }
 
@@ -1099,10 +1329,15 @@ Complex* UnitInfo::CreateComplex(unsigned short team) {
 }
 
 struct ImageMultiFrameHeader* UnitInfo::GetSpriteFrame(struct ImageMultiHeader* sprite, unsigned short image_index) {
+    uintptr_t offset;
+
     SDL_assert(sprite);
     SDL_assert(image_index >= 0 && image_index < sprite->image_count);
 
-    return sprite->frames[image_index];
+    offset =
+        reinterpret_cast<int*>(&(reinterpret_cast<unsigned char*>(sprite)[sizeof(sprite->image_count)]))[image_index];
+
+    return reinterpret_cast<ImageMultiFrameHeader*>(&(reinterpret_cast<unsigned char*>(sprite)[offset]));
 }
 
 void UnitInfo::UpdateSpriteFrameBounds(Rect* bounds, int x, int y, struct ImageMultiHeader* sprite,
@@ -1596,6 +1831,18 @@ void UnitInfo::SetPosition(int grid_x, int grid_y, bool skip_map_status_update) 
     AddToDrawList();
 }
 
+void UnitInfo::UpdatePinCount(int grid_x, int grid_y, int pin_units) {
+    /// \todo
+}
+
+void UnitInfo::ClearFromTaskLists() {
+    /// \todo
+}
+
+void UnitInfo::RemoveUnknown() {
+    /// \todo
+}
+
 void UnitInfo::GainExperience(int experience) {
     if (flags & REGENERATING_UNIT) {
         storage += experience;
@@ -1997,11 +2244,65 @@ void UnitInfo::InitStealthStatus() {
 }
 
 void UnitInfo::SpotByTeam(unsigned short team) {
-    /// \todo
+    if (this->team != team && orders != ORDER_IDLE && !visible_to_team[team]) {
+        visible_to_team[team] = true;
+        spotted_by_team[team] = true;
+
+        if (UnitsManager_TeamInfo[this->team].team_type == TEAM_TYPE_COMPUTER) {
+            Ai_AddUnitToTrackerList(this);
+        }
+
+        RefreshScreen();
+
+        if (unit_type == COMMANDO && orders == ORDER_AWAITING) {
+            UnitsManager_DrawBustedCommando(this);
+        }
+
+        if (unit_type == SUBMARNE || unit_type == CLNTRANS) {
+            image_base = 8;
+
+            DrawSpriteFrame(image_base + angle);
+        }
+
+        /// \todo Ai_sub_49060(this, team);
+
+        if (team == GameManager_PlayerTeam) {
+            RadarPing();
+
+        } else if (unit_type == SUBMARNE && this->team == GameManager_PlayerTeam) {
+            SoundManager.PlayVoice(V_M201, V_F201);
+        }
+    }
 }
 
 void UnitInfo::Draw(unsigned short team) {
-    /// \todo
+    if (this->team != team &&
+        (visible_to_team[team] ||
+         ((unit_type == COMMANDO || unit_type == SUBMARNE || unit_type == CLNTRANS) && image_base >= 8))) {
+        visible_to_team[team] = false;
+
+        if (unit_type == COMMANDO || unit_type == SUBMARNE || unit_type == CLNTRANS) {
+            for (team = PLAYER_TEAM_RED;
+                 (team < PLAYER_TEAM_MAX - 1) &&
+                 (this->team == team || UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_NONE ||
+                  !visible_to_team[team]);
+                 ++team) {
+            }
+        }
+
+        if (team == PLAYER_TEAM_ALIEN) {
+            if (UnitsManager_IsUnitUnderWater(this)) {
+                image_base = 0;
+
+                DrawSpriteFrame(image_base + angle);
+
+            } else if (unit_type == COMMANDO && orders == ORDER_AWAITING && image_base == 0) {
+                DrawSpriteFrame(angle);
+            }
+        }
+
+        RefreshScreen();
+    }
 }
 
 void UnitInfo::DrawStealth(unsigned short team) {
@@ -2097,6 +2398,10 @@ int UnitInfo::GetExperience() {
 }
 
 void UnitInfo::BlockedOnPathRequest(bool mode) {
+    /// \todo
+}
+
+void UnitInfo::RadarPing() {
     /// \todo
 }
 

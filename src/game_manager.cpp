@@ -244,6 +244,14 @@ struct ResourceAllocator {
         point.x = ((((point.x + 1) - m_point.x) / 2) * 2) + m_point.x;
         point.y = ((((point.y + 1) - m_point.y) / 2) * 2) + m_point.y;
 
+        if (point.x >= ResourceManager_MapSize.x) {
+            point.x = ResourceManager_MapSize.x - 1;
+        }
+
+        if (point.y >= ResourceManager_MapSize.y) {
+            point.y = ResourceManager_MapSize.y - 1;
+        }
+
         bounds.lry = point.y - 4;
 
         if (bounds.lry < 0) {
@@ -329,6 +337,8 @@ struct ResourceAllocator {
         bool flag;
 
         max_resources = ini_get_setting(INI_MAX_RESOURCES);
+
+        flag = false;
 
         point1.x = (((concentrate_seperation * 4) / 5 + 1) * dos_rand()) >> 15;
         point1.y = ((concentrate_seperation / 2 + 1) * dos_rand()) >> 15;
@@ -1421,7 +1431,7 @@ bool GameManager_PlayerMissionSetup(unsigned short team) {
             GameManager_DrawSelectSiteMessage(team);
         }
 
-        UnitsManager_TeamMissionSupplies[team].proximity_alert_ack = true;
+        UnitsManager_TeamMissionSupplies[team].proximity_alert_ack = 1;
 
         if (GameManager_SelectSite(team)) {
             MessageManager_MessageBox_IsActive = false;
@@ -1584,7 +1594,7 @@ bool GameManager_SelectSite(unsigned short team) {
         UnitsManager_DestroyUnit(&*GameManager_SelectedUnit);
     }
 
-    return proximity_alert_ack != 0;
+    return proximity_alert_ack == 0;
 }
 
 int GameManager_UpdateProximityState(unsigned short team) {
@@ -6456,7 +6466,7 @@ void GameManager_ProcessInput() {
 
                     } else {
                         UnitInfo* unit = Access_GetUnit4(GameManager_MousePosition.x, GameManager_MousePosition.y,
-                                                        GameManager_PlayerTeam, SELECTABLE);
+                                                         GameManager_PlayerTeam, SELECTABLE);
 
                         if (GameManager_UnknownFlag3) {
                             if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {

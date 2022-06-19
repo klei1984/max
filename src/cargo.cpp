@@ -41,18 +41,17 @@ Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo) {
     cargo->Init();
 
     switch (UnitsManager_BaseUnits[unit->unit_type].cargo_type) {
-        case MATERIALS:
+        case MATERIALS: {
             cargo->raw += unit->storage;
-            break;
-        case FUEL:
+        } break;
+
+        case FUEL: {
             cargo->fuel += unit->storage;
-            break;
-        case GOLD:
+        } break;
+
+        case GOLD: {
             cargo->gold += unit->storage;
-            break;
-        default:
-            SDL_assert(0);
-            break;
+        } break;
     }
 
     return cargo;
@@ -62,18 +61,17 @@ Cargo* Cargo_GetCargoCapacity(UnitInfo* unit, Cargo* cargo) {
     cargo->Init();
 
     switch (UnitsManager_BaseUnits[unit->unit_type].cargo_type) {
-        case MATERIALS:
+        case MATERIALS: {
             cargo->raw += unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
-            break;
-        case FUEL:
+        } break;
+
+        case FUEL: {
             cargo->fuel += unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
-            break;
-        case GOLD:
+        } break;
+
+        case GOLD: {
             cargo->gold += unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
-            break;
-        default:
-            SDL_assert(0);
-            break;
+        } break;
     }
 
     return cargo;

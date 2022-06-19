@@ -124,3 +124,7 @@ void Ai_FileLoad(SmartFileReader& file) {
 void Ai_FileSave(SmartFileWriter& file) {
     /// \todo
 }
+
+void Ai_AddUnitToTrackerList(UnitInfo* unit) {
+    /// \todo
+}

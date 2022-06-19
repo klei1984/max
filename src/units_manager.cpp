@@ -26,6 +26,7 @@
 #include "cursor.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
+#include "paths_manager.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
@@ -35,12 +36,17 @@
 #include "window.hpp"
 #include "window_manager.hpp"
 
+#define POPUP_MENU_TYPE_COUNT 23
+
 static bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window);
 static bool UnitsManager_SelfDestructMenu();
 static void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y);
 static void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y);
+static void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit);
 
 unsigned short UnitsManager_Team;
+
+unsigned int UnitsManager_UnknownCounter;
 
 SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
@@ -1955,6 +1961,8 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
 
 CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
+struct PopupFunctions UnitsManager_PopupCallbacks[POPUP_MENU_TYPE_COUNT];
+
 TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
 const char* const UnitsManager_BuildTimeEstimates[] = {"%s %i will be available in %i turns.",
@@ -2191,8 +2199,118 @@ bool UnitsManager_CanDeployMasterBuilder(UnitInfo* unit, int grid_x, int grid_y)
     /// \todo
 }
 
+/// \todo
+void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitSurveyor(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitRecreationCenter(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitEcoSphere(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitPowerGenerators(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitFuelSuppliers(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitFactories(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitMilitary(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitReloaders(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitMineLayers(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitRepair(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitRepairShops(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitMiningStation(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitGoldRefinery(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitResearch(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_InitInfiltrator(UnitInfo* unit, struct PopupButtons* buttons) {}
+
+bool UnitsManager_Popup_IsNever(UnitInfo* unit) { return false; }
+bool UnitsManager_Popup_IsReady(UnitInfo* unit) {}
+bool UnitsManager_Popup_IsUnitReady(UnitInfo* unit) {}
+
 void UnitsManager_InitPopupMenus() {
-    /// \todo
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        UnitsManager_DelayedAttackTargets[team].Clear();
+    }
+
+    UnitsManager_UnitList6.Clear();
+
+    UnitsManager_Team = PLAYER_TEAM_RED;
+
+    UnitsManager_UnknownCounter = 0;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+            UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+            UnitsManager_Team = team;
+            break;
+        }
+    }
+
+    UnitsManager_PopupCallbacks[0].init = &UnitsManager_Popup_InitCommons;
+    UnitsManager_PopupCallbacks[0].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[1].init = &UnitsManager_Popup_InitCommons;
+    UnitsManager_PopupCallbacks[1].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[2].init = &UnitsManager_Popup_InitSurveyor;
+    UnitsManager_PopupCallbacks[2].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[3].init = &UnitsManager_Popup_InitMilitary;
+    UnitsManager_PopupCallbacks[3].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[4].init = &UnitsManager_Popup_InitInfiltrator;
+    UnitsManager_PopupCallbacks[4].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[5].init = &UnitsManager_Popup_InitReloaders;
+    UnitsManager_PopupCallbacks[5].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[6].init = &UnitsManager_Popup_InitMineLayers;
+    UnitsManager_PopupCallbacks[6].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[7].init = &UnitsManager_Popup_InitFuelSuppliers;
+    UnitsManager_PopupCallbacks[7].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[8].init = &UnitsManager_Popup_InitRepair;
+    UnitsManager_PopupCallbacks[8].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[9].init = &UnitsManager_Popup_InitCommons;
+    UnitsManager_PopupCallbacks[9].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[10].init = &UnitsManager_Popup_InitFuelSuppliers;
+    UnitsManager_PopupCallbacks[10].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[11].init = &UnitsManager_Popup_InitRepairShops;
+    UnitsManager_PopupCallbacks[11].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[12].init = &UnitsManager_Popup_InitRepairShops;
+    UnitsManager_PopupCallbacks[12].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[13].init = &UnitsManager_Popup_InitBuilders;
+    UnitsManager_PopupCallbacks[13].test = &UnitsManager_Popup_IsUnitReady;
+
+    UnitsManager_PopupCallbacks[14].init = &UnitsManager_Popup_InitFactories;
+    UnitsManager_PopupCallbacks[14].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[15].init = &UnitsManager_Popup_InitRecreationCenter;
+    UnitsManager_PopupCallbacks[15].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[16].init = &UnitsManager_Popup_InitMiningStation;
+    UnitsManager_PopupCallbacks[16].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[17].init = &UnitsManager_Popup_InitEcoSphere;
+    UnitsManager_PopupCallbacks[17].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[18].init = &UnitsManager_Popup_InitResearch;
+    UnitsManager_PopupCallbacks[18].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[19].init = &UnitsManager_Popup_InitPowerGenerators;
+    UnitsManager_PopupCallbacks[19].test = &UnitsManager_Popup_IsNever;
+
+    UnitsManager_PopupCallbacks[20].init = &UnitsManager_Popup_InitRemove;
+    UnitsManager_PopupCallbacks[20].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[21].init = &UnitsManager_Popup_InitMaster;
+    UnitsManager_PopupCallbacks[21].test = &UnitsManager_Popup_IsReady;
+
+    UnitsManager_PopupCallbacks[22].init = &UnitsManager_Popup_InitGoldRefinery;
+    UnitsManager_PopupCallbacks[22].test = &UnitsManager_Popup_IsNever;
 }
 
 int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int order) {
@@ -2201,7 +2319,13 @@ int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, in
 
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
                                               UnitInfo* parent) {
-    /// \todo
+    SmartPointer<UnitInfo> unit;
+
+    unit = UnitsManager_DeployUnit(unit_type, team, nullptr, grid_x, grid_y, 0, true);
+    unit->SetParent(parent);
+    unit->SpotByTeam(team);
+
+    return unit;
 }
 
 void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
@@ -2285,6 +2409,8 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
     /// \todo
 }
 
+void UnitsManager_DrawBustedCommando(UnitInfo* unit) { unit->DrawSpriteFrame(unit->angle + 200); }
+
 void UnitsManager_ProcessRemoteOrders() {
     /// \todo
 }
@@ -2327,15 +2453,190 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
 }
 
 void UnitsManager_DestroyUnit(UnitInfo* unit) {
-    /// \todo
+    SmartPointer<UnitInfo> unit_to_destroy(unit);
+
+    PathsManager_RemoveRequest(unit);
+
+    if (unit_to_destroy == GameManager_SelectedUnit) {
+        SoundManager.PlaySfx(unit, SFX_TYPE_INVALID);
+        GameManager_SelectedUnit = nullptr;
+
+        if (GameManager_MainMenuFreezeState) {
+            GameManager_MenuDeleteFlic();
+            GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, 0x00, true);
+            GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, true);
+            GameManager_DeinitPopupButtons(false);
+            GameManager_UpdateDrawBounds();
+        }
+    }
+
+    if (unit->prior_orders == ORDER_FIRING && unit->prior_state != ORDER_STATE_0) {
+        unit->UpdatePinCount(unit->target_grid_x, unit->target_grid_y, -1);
+    }
+
+    if (GameManager_LockedUnits.Remove(*unit)) {
+        GameManager_UpdateDrawBounds();
+    }
+
+    UnitsManager_DelayedAttackTargets[unit->team].Remove(*unit);
+
+    unit_to_destroy->ClearUnitList();
+    unit_to_destroy->SetParent(nullptr);
+    unit_to_destroy->path = nullptr;
+
+    unit->ClearFromTaskLists();
+    unit->ProcessTaskList();
+
+    Hash_MapHash.Remove(unit);
+
+    unit->RemoveUnknown();
+
+    unit->RefreshScreen();
+
+    UnitsManager_RemoveUnitFromUnitLists(unit);
+
+    if (unit->GetId() != 0xFFFF || (unit->flags & (EXPLODING | MISSILE_UNIT))) {
+        Access_UpdateMapStatus(unit, false);
+    }
+
+    Hash_UnitHash.Remove(unit);
+
+    if (unit->GetId() != 0xFFFF && !(unit->flags & (EXPLODING | MISSILE_UNIT))) {
+        /// \todo Ai_sub_48E92(unit);
+    }
 }
 
 int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team) {
     /// \todo
 }
 
+void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit) {
+    /// \todo
+}
+
 SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
                                                int grid_y, unsigned char unit_angle, bool is_existing_unit,
                                                bool skip_map_status_update) {
-    /// \todo
+    unsigned short id;
+    UnitInfo* unit;
+    BaseUnit* base_unit;
+
+    id = 0xFFFF;
+
+    if (!is_existing_unit) {
+        ++UnitsManager_TeamInfo[team].number_of_objects_created;
+
+        if (UnitsManager_TeamInfo[team].number_of_objects_created >= 0x1FFF) {
+            UnitsManager_TeamInfo[team].number_of_objects_created = 1;
+        }
+
+        id = UnitsManager_TeamInfo[team].number_of_objects_created + (team << 13);
+    }
+
+    unit = new (std::nothrow) UnitInfo(unit_type, team, id, unit_angle);
+
+    if (!is_existing_unit) {
+        CTInfo* team_info;
+
+        unit->GetBaseValues()->SetUnitsBuilt(1);
+
+        team_info = &UnitsManager_TeamInfo[team];
+
+        unit->unit_id = team_info->unit_counters[unit_type];
+
+        ++team_info->unit_counters[unit_type];
+
+        if (team_info->unit_counters[unit_type] == 0) {
+            ++team_info->unit_counters[unit_type];
+        }
+    }
+
+    if (GameManager_GameState != GAME_STATE_12 && !GameManager_UnknownFlag3 && !is_existing_unit) {
+        unit->storage = 0;
+    }
+
+    if (unit->unit_type == COMMANDO) {
+        unit->storage = unit->GetBaseValues()->GetAttribute(ATTRIB_AGENT_ADJUST);
+    }
+
+    if (unit->flags & ANIMATED) {
+        unit->orders = ORDER_EXPLODING;
+        unit->state = GAME_STATE_14;
+    }
+
+    if (!is_existing_unit) {
+        switch (unit_type) {
+            case SEATRANS:
+            case AIRTRANS:
+            case CLNTRANS: {
+                unit->storage = 0;
+            } break;
+
+            case COMMTWR:
+            case HABITAT:
+            case MININGST: {
+                unit->orders = ORDER_POWER_ON;
+                unit->state = ORDER_STATE_0;
+            } break;
+
+            case LANDMINE:
+            case SEAMINE:
+            case GUNTURRT:
+            case ANTIAIR:
+            case ARTYTRRT:
+            case ANTIMSSL:
+            case RADAR: {
+                unit->orders = ORDER_SENTRY;
+                unit->state = ORDER_STATE_1;
+            } break;
+
+            case POWERSTN:
+            case POWGEN:
+            case RESEARCH: {
+                unit->orders = ORDER_POWER_OFF;
+                unit->state = ORDER_STATE_1;
+            } break;
+
+            case BARRACKS:
+            case DEPOT:
+            case HANGAR:
+            case DOCK: {
+                unit->storage = 0;
+            } break;
+        }
+    }
+
+    if (team == PLAYER_TEAM_ALIEN && (unit->flags & REGENERATING_UNIT)) {
+        unit->orders = ORDER_DISABLED;
+    }
+
+    base_unit = &UnitsManager_BaseUnits[unit_type];
+
+    if (unit->flags & (TURRET_SPRITE | SPINNING_TURRET)) {
+        unit->UpdateTurretAngle(unit->angle);
+
+        if (unit->flags & SPINNING_TURRET) {
+            unit->image_index_max =
+                unit->turret_image_base +
+                reinterpret_cast<struct BaseUnitDataFile*>(base_unit->data_buffer)->turret_image_count - 1;
+        }
+    }
+
+    if (unit_type == MININGST && !is_existing_unit) {
+        UnitsManager_SetInitialMining(unit, grid_x, grid_y);
+    }
+
+    if (!is_existing_unit) {
+        Hash_UnitHash.PushBack(unit);
+
+        if (unit_type == DEPOT || unit_type == DOCK || unit_type == HANGAR || unit_type == BARRACKS) {
+            unit->DrawSpriteFrame(unit->image_base + 1);
+        }
+
+        /// \todo Ai_sub_48D5F(unit);
+    }
+
+    unit->SetPosition(grid_x, grid_y, skip_map_status_update);
+
+    return SmartPointer<UnitInfo>(unit);
 }

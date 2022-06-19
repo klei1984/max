@@ -40,10 +40,7 @@ struct __attribute__((packed)) SoundTable {
     struct SoundElement item[];
 };
 
-struct PopupFunctions {
-    void (*init)(UnitInfo* unit, struct PopupButtons* buttons);
-    bool (*test)(UnitInfo* unit);
-};
+struct PopupFunctions;
 
 class UnitInfoGroup;
 
@@ -55,7 +52,6 @@ private:
     static void UpdateSpriteFrameBounds(Rect* bounds, int x, int y, struct ImageMultiHeader* sprite,
                                         unsigned short image_index);
     static int GetDrawLayer(ResourceID unit_type);
-    void SetPosition(int grid_x, int grid_y, bool skip_map_status_update);
     void GainExperience(int experience);
     void Build();
     UnitInfo* GetConnectedBuilding(unsigned int connector);
@@ -166,6 +162,11 @@ public:
     void FollowUnit();
     int GetExperience();
     void BlockedOnPathRequest(bool mode);
+    void RadarPing();
+    void SetPosition(int grid_x, int grid_y, bool skip_map_status_update);
+    void UpdatePinCount(int grid_x, int grid_y, int pin_units);
+    void ClearFromTaskLists();
+    void RemoveUnknown();
 
     ResourceID unit_type;
     struct PopupFunctions* popup;

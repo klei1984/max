@@ -27,6 +27,11 @@
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 
+struct PopupFunctions {
+    void (*init)(UnitInfo* unit, struct PopupButtons* buttons);
+    bool (*test)(UnitInfo* unit);
+};
+
 extern unsigned short UnitsManager_Team;
 
 extern SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
@@ -46,6 +51,8 @@ extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 extern bool UnitsManager_OrdersPending;
 
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
+
+extern struct PopupFunctions UnitsManager_PopupCallbacks[];
 
 extern TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
@@ -75,5 +82,6 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
                                                int grid_y, unsigned char unit_angle, bool is_existing_unit = false,
                                                bool skip_map_status_update = false);
 void UnitsManager_RemoveConnections(UnitInfo* unit);
+void UnitsManager_DrawBustedCommando(UnitInfo* unit);
 
 #endif /* UNITS_MANAGER_HPP */

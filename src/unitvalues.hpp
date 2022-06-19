@@ -53,6 +53,7 @@ public:
     void SetAttribute(char attribute, int value);
     void UpdateVersion();
     int GetVersion() const;
+    int GetAgentSkill() const;
     void SetUnitsBuilt(unsigned char count);
 
     unsigned short GetTypeIndex() const;
@@ -78,7 +79,8 @@ enum : char {
     ATTRIB_MOVE_AND_FIRE,
     ATTRIB_FUEL,
     ATTRIB_STORAGE,
-    ATTRIB_ATTACK_RADIUS
+    ATTRIB_ATTACK_RADIUS,
+    ATTRIB_AGENT_ADJUST
 };
 
 #endif /* UNITVALUES_HPP */

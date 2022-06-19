@@ -185,6 +185,9 @@ int UnitValues::GetAttribute(char attribute) {
         case ATTRIB_ATTACK_RADIUS:
             result = attack_radius;
             break;
+        case ATTRIB_AGENT_ADJUST:
+            result = agent_adjust;
+            break;
         default:
             SDL_Log("UnitValues::GetAttribute called with invalid index.");
             SDL_assert(0);
@@ -234,6 +237,9 @@ unsigned short* UnitValues::GetAttributeAddress(char attribute) {
             break;
         case ATTRIB_ATTACK_RADIUS:
             result = &attack_radius;
+            break;
+        case ATTRIB_AGENT_ADJUST:
+            result = &agent_adjust;
             break;
         default:
             SDL_Log("UnitValues::GetAttributeAddress called with invalid index.");
@@ -285,6 +291,9 @@ void UnitValues::SetAttribute(char attribute, int value) {
             break;
         case ATTRIB_ATTACK_RADIUS:
             attack_radius = value;
+            break;
+        case ATTRIB_AGENT_ADJUST:
+            agent_adjust = value;
             break;
         default:
             SDL_Log("UnitValues::SetAttribute called with invalid index.");
