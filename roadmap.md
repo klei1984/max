@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-06-15.
+Last updated: 2022-06-19.
 
-Reimplementation status: 3741 / 5704 (65%) functions.
+Reimplementation status: 3786 / 5704 (66%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the Github and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -173,7 +173,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-done">
   Replace the map hash classes (hash.cpp)
   </span>
-- <span class="legend-inwork">
+- <span class="legend-done">
   Replace the access classes (access.cpp)
   </span>
 - <span class="legend-inwork">
