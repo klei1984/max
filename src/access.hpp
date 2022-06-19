@@ -55,46 +55,50 @@ void Access_UpdateMapStatus(UnitInfo *unit, bool mode);
 void Access_UpdateUnitVisibilityStatus(SmartList<UnitInfo> &units);
 void Access_UpdateVisibilityStatus(bool all_visible);
 void Access_UpdateMinimapFogOfWar(unsigned short team, bool all_visible, bool ignore_team_scan_map = false);
-void Access_UpdateResourcesTotal(Complex *complex);
 unsigned char Access_GetSurfaceType(int grid_x, int grid_y);
 unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y);
-
 bool Access_IsAnyLandPresent(int grid_x, int grid_y, unsigned int flags);
-
+bool Access_IsFullyLandCovered(int grid_x, int grid_y, unsigned int flags);
+UnitInfo *Access_GetUnit8(unsigned short team, int grid_x, int grid_y);
 int Access_FindUnitInUnitList(UnitInfo *unit);
 bool Access_IsTeamInUnitList(unsigned short team, SmartList<UnitInfo> &units);
 bool Access_IsTeamInUnitLists(unsigned short team);
 UnitInfo *Access_GetSelectableUnit(UnitInfo *unit, int grid_x, int grid_y);
 UnitInfo *Access_GetFirstMiningStation(unsigned short team);
 UnitInfo *Access_GetFirstActiveUnit(unsigned short team, SmartList<UnitInfo> &units);
-void Access_RenewAttackOrders(SmartList<UnitInfo> &units, unsigned short team);
 bool Access_IsWithinMovementRange(UnitInfo *unit);
-
 UnitInfo *Access_SeekNextUnit(unsigned short team, UnitInfo *unit, bool seek_direction);
-
-UnitInfo *Access_GetUnit(int grid_x, int grid_y);
-UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned int flags);
+bool Access_IsChildOfUnitInList(UnitInfo *unit, SmartList<UnitInfo>::Iterator *it);
+void Access_RenewAttackOrders(SmartList<UnitInfo> &units, unsigned short team);
+void Access_GroupAttackOrder(UnitInfo *unit, bool mode);
+int Access_GetStoredUnitCount(UnitInfo *unit);
+void Access_UpdateResourcesTotal(Complex *complex);
+void Access_DestroyUtilities(int grid_x, int grid_y, bool remove_slabs, bool remove_rubble, bool remove_connectors,
+                             bool remove_road);
+void Access_DestroyGroundCovers(int grid_x, int grid_y);
+UnitInfo *Access_GetUnit5(int grid_x, int grid_y);
+UnitInfo *Access_GetUnit3(int grid_x, int grid_y, unsigned int flags);
+UnitInfo *Access_GetUnit1(int grid_x, int grid_y);
+UnitInfo *Access_GetUnit2(int grid_x, int grid_y, unsigned short team);
 UnitInfo *Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned int flags);
-UnitInfo *Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned int flags);
-
+UnitInfo *Access_GetUnit7(unsigned short team, int grid_x, int grid_y);
+UnitInfo *Access_GetUnit4(int grid_x, int grid_y, unsigned short team, unsigned int flags);
 unsigned int Access_GetValidAttackTargetTypes(ResourceID unit_type);
-
-bool Access_IsValidAttackTarget2(UnitInfo *unit1, UnitInfo *unit2, Point point);
-
+bool Access_IsValidAttackTargetType(ResourceID attacker, ResourceID target);
+bool Access_IsValidAttackTarget(ResourceID attacker, ResourceID target, Point point);
+bool Access_IsUnitBusyAtLocation(UnitInfo *unit);
+bool Access_IsValidAttackTarget(UnitInfo *attacker, UnitInfo *target, Point point);
+bool Access_IsValidAttackTarget(UnitInfo *attacker, UnitInfo *target);
 UnitInfo *Access_GetAttackTarget(UnitInfo *unit, int grid_x, int grid_y, bool mode = false);
 UnitInfo *Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y);
-
+UnitInfo *Access_GetAttackTarget2(UnitInfo *unit, int grid_x, int grid_y);
 UnitInfo *Access_GetReceiverUnit(UnitInfo *unit, int grid_x, int grid_y);
 UnitInfo *Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y);
-
 void Access_MultiSelect(UnitInfo *unit, Rect *bounds);
-
 bool Access_AreTaskEventsPending();
 bool Access_ProcessNewGroupOrder(UnitInfo *unit);
-
 void Access_UpdateMultiSelection(UnitInfo *unit);
 bool Access_IsGroupOrderInterrupted(UnitInfo *unit);
-
 bool Access_IsInsideBounds(Rect *bounds, Point *point);
 
 #endif /* ACCESS_HPP */

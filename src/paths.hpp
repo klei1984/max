@@ -127,6 +127,9 @@ public:
 
 class BuilderPath : public UnitPath {};
 
+bool Paths_RequestPath(UnitInfo* unit, int mode);
+AirPath* Paths_GetAirPath(UnitInfo* unit);
+
 extern Point Paths_8DirPointsArray[8];
 extern unsigned int Paths_LastTimeStamp;
 extern bool Path_EnableTimeBenchmark;

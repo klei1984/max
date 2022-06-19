@@ -481,7 +481,7 @@ static void UnitInfo_TransferCargo(UnitInfo* unit, int* cargo);
 
 UnitInfo::UnitInfo()
     : unit_type(INVALID_ID),
-      sound_function(nullptr),
+      popup(nullptr),
       sound_table(nullptr),
       field_158(false),
       pin_count(0),
@@ -509,7 +509,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id,
       raw_mining_max(0),
       gold_mining_max(0),
       fuel_mining_max(0),
-      sound_function(nullptr),
+      popup(nullptr),
       sound_table(nullptr),
       field_158(0),
       pin_count(0),
@@ -597,7 +597,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id,
 
 UnitInfo::UnitInfo(const UnitInfo& other)
     : unit_type(other.unit_type),
-      sound_function(other.sound_function),
+      popup(other.popup),
       sound_table(other.sound_table),
       flags(other.flags),
       x(other.x),
@@ -2093,6 +2093,10 @@ void UnitInfo::FollowUnit() {
 }
 
 int UnitInfo::GetExperience() {
+    /// \todo
+}
+
+void UnitInfo::BlockedOnPathRequest(bool mode) {
     /// \todo
 }
 

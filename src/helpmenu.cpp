@@ -603,7 +603,7 @@ bool HelpMenu_UnitReport(int mouse_x, int mouse_y) {
             (GameManager_MapWindowDrawBounds.uly + ((Gfx_MapScalingFactor * (mouse_y - window->window.uly)) >> 16)) >>
             6;
 
-        unit = Access_GetUnit(mouse_x, mouse_y, GameManager_PlayerTeam, SELECTABLE);
+        unit = Access_GetUnit4(mouse_x, mouse_y, GameManager_PlayerTeam, SELECTABLE);
 
         if (!unit) {
             unit = Access_GetUnit6(GameManager_PlayerTeam, mouse_x, mouse_y, SELECTABLE);

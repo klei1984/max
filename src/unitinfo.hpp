@@ -40,6 +40,11 @@ struct __attribute__((packed)) SoundTable {
     struct SoundElement item[];
 };
 
+struct PopupFunctions {
+    void (*init)(UnitInfo* unit, struct PopupButtons* buttons);
+    bool (*test)(UnitInfo* unit);
+};
+
 class UnitInfoGroup;
 
 class UnitInfo : public TextFileObject {
@@ -160,9 +165,10 @@ public:
     void SpawnNewUnit();
     void FollowUnit();
     int GetExperience();
+    void BlockedOnPathRequest(bool mode);
 
     ResourceID unit_type;
-    void (*sound_function)(UnitInfo* unit, struct PopupButtons* buttons);
+    struct PopupFunctions* popup;
     struct SoundTable* sound_table;
     unsigned int flags;
     unsigned short x;

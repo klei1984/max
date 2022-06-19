@@ -131,12 +131,11 @@ public:
     class Iterator : public SmartPointer<ListNode<T>> {
         friend class SmartList;
 
-        Iterator(ListNode<T>* object) : SmartPointer<ListNode<T>>(object) {}
-
         ListNode<T>& GetNode() const { return *this->object_pointer; }
 
     public:
         Iterator() : SmartPointer<ListNode<T>>(nullptr) {}
+        Iterator(ListNode<T>* object) : SmartPointer<ListNode<T>>(object) {}
 
         T& operator*() const { return *(this->object_pointer->GetObject()); }
 
@@ -162,6 +161,8 @@ public:
     ~SmartList() { Clear(); }
 
     Iterator Begin() const { return Iterator(&*first); }
+
+    Iterator Last() const { return Iterator(&*last); }
 
     Iterator End() const {
         ListNode<T>* end = &*last;

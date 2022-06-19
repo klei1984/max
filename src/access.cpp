@@ -21,9 +21,16 @@
 
 #include "access.hpp"
 
+#include <array>
+
 #include "ai.hpp"
 #include "hash.hpp"
+#include "inifile.hpp"
+#include "paths_manager.hpp"
+#include "remote.hpp"
 #include "resource_manager.hpp"
+#include "survey.hpp"
+#include "unitevents.hpp"
 #include "units_manager.hpp"
 
 enum {
@@ -38,6 +45,12 @@ enum {
 static SmartList<UnitInfo>* Access_UnitsLists[] = {&UnitsManager_MobileLandSeaUnits, &UnitsManager_MobileAirUnits,
                                                    &UnitsManager_StationaryUnits, &UnitsManager_GroundCoverUnits,
                                                    &UnitsManager_ParticleUnits};
+
+static bool Access_UpdateGroupSpeed(UnitInfo* unit);
+static bool Access_IsValidAttackTargetTypeEx(ResourceID attacker, ResourceID target, unsigned int target_flags);
+static bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, unsigned int target_flags,
+                                         Point point);
+static void Access_ProcessGroupAirPath(UnitInfo* unit);
 
 bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int target_grid_y, bool mode) {
     SmartPointer<UnitInfo> unit;
@@ -83,12 +96,206 @@ bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int ta
 
 unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
                                  unsigned int flags) {
-    /// \todo
+    unsigned int unit_flags;
+    unsigned int result;
+    bool debug_flag;
+
+    debug_flag = false;
+
+    unit_flags = UnitsManager_BaseUnits[unit_type].flags;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        result = 4;
+
+        if (!(flags & 0x20)) {
+            unsigned char surface_type;
+
+            surface_type = Access_GetModifiedSurfaceType(grid_x, grid_y);
+
+            if ((surface_type & SURFACE_TYPE_WATER) && (unit_flags & MOBILE_LAND_UNIT) && unit_type != SURVEYOR) {
+                result = 4 + 8;
+            }
+
+            for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+                if ((*it).IsVisibleToTeam(team) || (flags & BUILDING) ||
+                    ((*it).IsDetectedByTeam(team) && ((*it).flags & STATIONARY))) {
+                    if ((*it).orders != ORDER_IDLE || ((*it).flags & STATIONARY)) {
+                        if (unit_flags & MOBILE_AIR_UNIT) {
+                            if ((flags & 0x02) || ((flags & 0x01) && (*it).team != team)) {
+                                if ((*it).flags & MOBILE_AIR_UNIT) {
+                                    return 0;
+                                }
+                            }
+                        } else {
+                            if ((flags & 0x02) || ((flags & 0x01) && (*it).team != team)) {
+                                if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+                                    return 0;
+                                }
+                            }
+
+                            if ((unit_flags & STATIONARY) && unit_type != CNCT_4W &&
+                                (((*it).unit_type == BRIDGE) ||
+                                 ((*it).unit_type >= LRGRUBLE && (*it).unit_type <= SMLCONES) ||
+                                 (*it).unit_type == LANDMINE || (*it).unit_type == SEAMINE)) {
+                                return 0;
+                            }
+
+                            if ((*it).flags & STATIONARY) {
+                                switch ((*it).unit_type) {
+                                    case ROAD: {
+                                        if (unit_type == ROAD) {
+                                            return 0;
+
+                                        } else {
+                                            result = 2;
+                                        }
+                                    } break;
+
+                                    case BRIDGE: {
+                                        result = 4;
+
+                                        if (unit_flags & MOBILE_LAND_UNIT) {
+                                            result = 2;
+
+                                            if ((*it).IsBridgeElevated() && (flags & 0x8)) {
+                                                surface_type = SURFACE_TYPE_WATER;
+
+                                            } else {
+                                                surface_type = SURFACE_TYPE_LAND;
+                                            }
+
+                                        } else {
+                                            if (!(*it).IsBridgeElevated() && (flags & 0x08)) {
+                                                surface_type = SURFACE_TYPE_LAND;
+
+                                            } else {
+                                                surface_type = SURFACE_TYPE_WATER;
+                                            }
+                                        }
+                                    } break;
+
+                                    case LANDMINE:
+                                    case SEAMINE: {
+                                        if ((*it).team != team && (*it).IsDetectedByTeam(team)) {
+                                            return 0;
+                                        }
+                                    } break;
+
+                                    case LRGRUBLE:
+                                    case SMLRUBLE: {
+                                        surface_type = SURFACE_TYPE_LAND;
+                                    } break;
+
+                                    case LRGSLAB:
+                                    case SMLSLAB: {
+                                        if (unit_type == ROAD) {
+                                            return 0;
+
+                                        } else {
+                                            result = 2;
+                                        }
+                                    } break;
+
+                                    case CNCT_4W: {
+                                        if (unit_type == CNCT_4W) {
+                                            return 0;
+
+                                        } else if ((unit_flags & STATIONARY) && (*it).team != team &&
+                                                   unit_type != WTRPLTFM && unit_type != BRIDGE && unit_type != ROAD) {
+                                            return 0;
+                                        }
+
+                                    } break;
+
+                                    case WALDO: {
+                                    } break;
+
+                                    case WTRPLTFM: {
+                                        surface_type = SURFACE_TYPE_LAND;
+                                        result = 4;
+                                    } break;
+
+                                    default: {
+                                        return 0;
+                                    } break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (debug_flag) {
+                result = 8;
+            }
+
+            if (!(UnitsManager_BaseUnits[unit_type].land_type & surface_type)) {
+                result = 0;
+            }
+        }
+    } else {
+        result = 0;
+    }
+
+    return result;
 }
 
 bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, short* grid_x, short* grid_y, int range_limit,
                                  int mode, int direction) {
-    /// \todo
+    unsigned short team;
+    UnitValues* unit_values;
+    int offset_x;
+    int offset_y;
+
+    team = unit->team;
+    unit_values = unit->GetBaseValues();
+
+    switch (direction) {
+        case 0: {
+            offset_x = 1;
+            offset_y = 0;
+        } break;
+
+        case 1: {
+            offset_x = 0;
+            offset_y = 1;
+        } break;
+
+        case 2: {
+            offset_x = -1;
+            offset_y = 0;
+        } break;
+
+        case 3: {
+            offset_x = 0;
+            offset_y = -1;
+        } break;
+    }
+
+    for (int i = 0; i < range_limit; ++i) {
+        if (*grid_x >= 0 && *grid_x < ResourceManager_MapSize.x && *grid_y >= 0 &&
+            *grid_y < ResourceManager_MapSize.y) {
+            switch (mode) {
+                case 0: {
+                    if (Access_IsAccessible(unit_type, unit->team, *grid_x, *grid_y, 0x02)) {
+                        return true;
+                    }
+                } break;
+
+                case 1: {
+                    if (Access_GetAttackTarget(unit, *grid_x, *grid_y)) {
+                        return Access_IsWithinAttackRange(unit, *grid_x, *grid_y,
+                                                          unit_values->GetAttribute(ATTRIB_RANGE));
+                    }
+                } break;
+            }
+        }
+
+        *grid_x += offset_x;
+        *grid_y += offset_y;
+    }
+
+    return false;
 }
 
 void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units) {
@@ -214,7 +421,19 @@ bool Access_IsWithinAttackRange(UnitInfo* unit, int grid_x, int grid_y, int atta
 
 bool Access_FindReachableSpot(ResourceID unit_type, UnitInfo* unit, short* grid_x, short* grid_y, int range,
                               int exclusion_zone, int mode) {
-    /// \todo
+    for (int i = 1; i <= range; ++i) {
+        --*grid_x;
+        --*grid_y;
+
+        if (Access_FindReachableSpotInt(unit_type, unit, grid_x, grid_y, exclusion_zone + 2 * i, mode, 0) ||
+            Access_FindReachableSpotInt(unit_type, unit, grid_x, grid_y, exclusion_zone + 2 * i, mode, 1) ||
+            Access_FindReachableSpotInt(unit_type, unit, grid_x, grid_y, exclusion_zone + 2 * i, mode, 2) ||
+            Access_FindReachableSpotInt(unit_type, unit, grid_x, grid_y, exclusion_zone + 2 * i, mode, 3)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 unsigned int Access_GetAttackTargetGroup(UnitInfo* unit) {
@@ -449,7 +668,117 @@ unsigned int Access_GetVelocity(UnitInfo* unit) {
 }
 
 void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
-    /// \todo
+    if (unit->orders != ORDER_DISABLED) {
+        if ((unit->unit_type == SURVEYOR || unit->unit_type == MINELAYR || unit->unit_type == SEAMNLYR ||
+             unit->unit_type == COMMANDO) &&
+            mode) {
+            Survey_SurveyArea(unit, 1);
+        }
+
+        if (GameManager_AllVisible) {
+            for (unsigned short team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                    unit->SpotByTeam(team);
+                }
+            }
+
+        } else if (unit->orders != ORDER_IDLE) {
+            if (mode) {
+                Access_DrawUnit(unit);
+
+            } else {
+                for (unsigned short team = PLAYER_TEAM_GRAY; team >= PLAYER_TEAM_RED; --team) {
+                    unit->Draw(team);
+                }
+            }
+
+            if ((unit->flags & SELECTABLE) && UnitsManager_TeamInfo[unit->team].team_type != TEAM_TYPE_NONE) {
+                unsigned char target_group;
+                int scan;
+                Rect zone;
+
+                target_group = ATTACK_TARGET_GROUP_NONE;
+                scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
+
+                if (unit->orders == ORDER_DISABLED) {
+                    scan = 0;
+                }
+
+                rect_init(&zone, unit->grid_x - scan, unit->grid_x + scan, unit->grid_y - scan, unit->grid_y + scan);
+
+                if (zone.ulx < 0) {
+                    zone.ulx = 0;
+                }
+
+                if (zone.uly < 0) {
+                    zone.uly = 0;
+                }
+
+                if (zone.lrx > ResourceManager_MapSize.x - 1) {
+                    zone.lrx = ResourceManager_MapSize.x - 1;
+                }
+
+                if (zone.lry > ResourceManager_MapSize.y - 1) {
+                    zone.lry = ResourceManager_MapSize.y - 1;
+                }
+
+                for (int grid_y = zone.uly; grid_y <= zone.lry; ++grid_y) {
+                    for (int grid_x = zone.ulx; grid_x <= zone.lrx; ++grid_x) {
+                        if (Access_IsWithinScanRange(unit, grid_x, grid_y, scan)) {
+                            if (mode) {
+                                target_group |= Access_UpdateMapStatusAddUnit(unit, grid_x, grid_y);
+
+                            } else {
+                                Access_UpdateMapStatusRemoveUnit(unit, grid_x, grid_y);
+                            }
+                        }
+                    }
+                }
+
+                if (target_group != ATTACK_TARGET_GROUP_NONE &&
+                    (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER ||
+                     UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) &&
+                    unit->orders != ORDER_AWAITING && ini_get_setting(INI_ENEMY_HALT)) {
+                    unsigned int velocity_type;
+
+                    velocity_type = Access_GetVelocity(unit);
+
+                    for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
+                         it != unit->GetUnitList()->End(); ++it) {
+                        velocity_type |= Access_GetVelocity(&*it);
+                    }
+
+                    if (velocity_type & target_group) {
+                        if (unit->GetUnitList()) {
+                            for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
+                                 it != unit->GetUnitList()->End(); ++it) {
+                                UnitEventEmergencyStop* unit_event;
+
+                                unit_event = new (std::nothrow) UnitEventEmergencyStop(&*it);
+
+                                UnitEvent_UnitEvents.PushBack(*unit_event);
+
+                                if (Remote_IsNetworkGame) {
+                                    Remote_SendNetPacket_50(&*it);
+                                }
+                            }
+
+                        } else {
+                            UnitEventEmergencyStop* unit_event;
+
+                            unit_event = new (std::nothrow) UnitEventEmergencyStop(unit);
+
+                            UnitEvent_UnitEvents.PushBack(*unit_event);
+
+                            if (Remote_IsNetworkGame) {
+                                Remote_SendNetPacket_50(unit);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Access_UpdateUnitVisibilityStatus(SmartList<UnitInfo>& units) {
@@ -487,7 +816,28 @@ void Access_UpdateMinimapFogOfWar(unsigned short team, bool all_visible, bool ig
 }
 
 void Access_UpdateResourcesTotal(Complex* complex) {
-    /// \todo
+    Cargo total;
+    Cargo cargo;
+
+    complex->material = 0;
+    complex->fuel = 0;
+    complex->gold = 0;
+    complex->power = 0;
+    complex->workers = 0;
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == complex) {
+            Cargo_GetCargoDemand(&*it, &total);
+            total += *Cargo_GetCargo(&*it, &cargo);
+
+            complex->material += total.raw;
+            complex->fuel += total.fuel;
+            complex->gold += total.gold;
+            complex->power += total.power;
+            complex->workers += total.life;
+        }
+    }
 }
 
 unsigned char Access_GetSurfaceType(int grid_x, int grid_y) {
@@ -511,7 +861,67 @@ unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y) {
 }
 
 bool Access_IsAnyLandPresent(int grid_x, int grid_y, unsigned int flags) {
-    /// \todo
+    bool result;
+
+    if (((flags & BUILDING) && (Access_GetSurfaceType(grid_x + 1, grid_y) == SURFACE_TYPE_LAND ||
+                                Access_GetSurfaceType(grid_x, grid_y + 1) == SURFACE_TYPE_LAND ||
+                                Access_GetSurfaceType(grid_x + 1, grid_y + 1) == SURFACE_TYPE_LAND)) ||
+        Access_GetSurfaceType(grid_x, grid_y) == SURFACE_TYPE_LAND) {
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool Access_IsFullyLandCovered(int grid_x, int grid_y, unsigned int flags) {
+    bool result;
+
+    if (((flags & BUILDING) || (Access_GetSurfaceType(grid_x + 1, grid_y) == SURFACE_TYPE_LAND &&
+                                Access_GetSurfaceType(grid_x, grid_y + 1) == SURFACE_TYPE_LAND &&
+                                Access_GetSurfaceType(grid_x + 1, grid_y + 1) == SURFACE_TYPE_LAND)) &&
+        Access_GetSurfaceType(grid_x, grid_y) == SURFACE_TYPE_LAND) {
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+UnitInfo* Access_GetUnit8(unsigned short team, int grid_x, int grid_y) {
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).unit_type == SMLRUBLE) {
+                unit = &*it;
+                break;
+            }
+
+            if ((*it).unit_type == LRGRUBLE) {
+                for (int y = (*it).grid_y; y <= (*it).grid_y + 1; ++y) {
+                    for (int x = (*it).grid_x; x <= (*it).grid_x + 1; ++x) {
+                        if (x != grid_x || y != grid_y) {
+                            if (!Access_IsAccessible(BULLDOZR, team, grid_x, grid_y, 2)) {
+                                return nullptr;
+                            }
+                        }
+                    }
+                }
+
+                unit = &*it;
+                break;
+            }
+        }
+    }
+
+    return unit;
 }
 
 int Access_FindUnitInUnitList(UnitInfo* unit) {
@@ -551,7 +961,7 @@ UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int grid_x, int grid_y) {
     Hash_MapHash.Remove(unit);
     Hash_MapHash.Add(unit, true);
 
-    unit2 = Access_GetUnit(grid_x, grid_y, SELECTABLE);
+    unit2 = Access_GetUnit3(grid_x, grid_y, SELECTABLE);
 
     if (unit2->orders == ORDER_IDLE || (unit2->flags & GROUND_COVER)) {
         unit2 = unit;
@@ -587,7 +997,145 @@ UnitInfo* Access_GetFirstActiveUnit(unsigned short team, SmartList<UnitInfo>& un
 }
 
 void Access_RenewAttackOrders(SmartList<UnitInfo>& units, unsigned short team) {
-    /// \todo
+    UnitInfo* unit;
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        unit = (*it).GetFirstFromUnitList();
+
+        if (unit) {
+            if ((*it).team == team && (&(*it) == unit)) {
+                Access_GroupAttackOrder(unit, 0);
+            }
+
+        } else {
+            if (((*it).orders == ORDER_MOVING || (*it).orders == ORDER_MOVING_27 || (*it).orders == ORDER_ATTACKING) &&
+                (*it).state == ORDER_STATE_1) {
+                if ((*it).team == team && (*it).speed != 0 && (*it).engine == 2) {
+                    UnitsManager_SetNewOrder(&(*it), (*it).orders, ORDER_STATE_0);
+                }
+            }
+        }
+    }
+}
+
+bool Access_UpdateGroupSpeed(UnitInfo* unit) {
+    int max_speed;
+    SmartList<UnitInfo>* units;
+
+    units = unit->GetUnitList();
+
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        if (((*it).orders == ORDER_MOVING || (*it).orders == ORDER_ATTACKING) &&
+            ((*it).state == ORDER_STATE_5 || (*it).state == ORDER_STATE_6 || (*it).state == ORDER_STATE_NEW_ORDER)) {
+            return false;
+        }
+
+        if ((*it).speed < max_speed) {
+            max_speed = (*it).speed;
+        }
+    }
+
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        (*it).group_speed = max_speed + 1;
+    }
+
+    return true;
+}
+
+void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
+    if (Access_UpdateGroupSpeed(unit)) {
+        UnitInfo* enemy;
+        UnitInfo* friendly;
+        SmartList<UnitInfo>* units;
+
+        if (unit->orders == ORDER_ATTACKING) {
+            enemy = unit->GetEnemy();
+
+            SDL_assert(enemy != nullptr);
+
+        } else {
+            enemy = nullptr;
+        }
+
+        units = unit->GetUnitList();
+
+        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+            friendly = &*it;
+
+            if ((mode || (friendly->group_speed - 1) != 0) &&
+                (friendly->orders == ORDER_MOVING || friendly->orders == ORDER_ATTACKING ||
+                 friendly->orders == ORDER_AWAITING)) {
+                if (friendly->orders == ORDER_ATTACKING) {
+                    if (friendly->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) &&
+                        Access_IsValidAttackTarget(enemy, friendly)) {
+                        friendly->group_speed = 0;
+                        friendly->target_grid_x = unit->target_grid_x;
+                        friendly->target_grid_y = unit->target_grid_y;
+                        friendly->SetEnemy(enemy);
+                        UnitsManager_SetNewOrder(friendly, ORDER_ATTACKING, ORDER_STATE_NEW_ORDER);
+                        Paths_RequestPath(friendly, 2);
+                    }
+
+                } else {
+                    friendly->target_grid_x = friendly->point.x - unit->point.x + unit->target_grid_x;
+                    friendly->target_grid_y = friendly->point.y - unit->point.y + unit->target_grid_y;
+
+                    if (friendly->target_grid_x < 0) {
+                        friendly->target_grid_x = 0;
+
+                    } else if (friendly->target_grid_x >= ResourceManager_MapSize.x) {
+                        friendly->target_grid_x = ResourceManager_MapSize.x - 1;
+                    }
+
+                    if (friendly->target_grid_y < 0) {
+                        friendly->target_grid_y = 0;
+
+                    } else if (friendly->target_grid_y >= ResourceManager_MapSize.y) {
+                        friendly->target_grid_y = ResourceManager_MapSize.y - 1;
+                    }
+
+                    if (friendly->grid_x != friendly->target_grid_x || friendly->grid_y != friendly->target_grid_y) {
+                        friendly->path = nullptr;
+
+                        if (friendly->orders == ORDER_ATTACKING) {
+                            friendly->orders = ORDER_AWAITING;
+                            friendly->state = ORDER_STATE_1;
+                        }
+
+                        if (friendly->flags & MOBILE_AIR_UNIT) {
+                            UnitsManager_SetNewOrder(friendly, ORDER_MOVING, ORDER_STATE_NEW_ORDER);
+                            UnitsManager_Unit = friendly;
+
+                        } else if (Paths_RequestPath(friendly, 1)) {
+                            UnitsManager_SetNewOrder(friendly, ORDER_MOVING, ORDER_STATE_NEW_ORDER);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+int Access_GetStoredUnitCount(UnitInfo* unit) {
+    SmartList<UnitInfo>* units;
+    int result;
+
+    if (unit->unit_type == HANGAR) {
+        units = &UnitsManager_MobileAirUnits;
+
+    } else {
+        units = &UnitsManager_MobileLandSeaUnits;
+    }
+
+    result = 0;
+
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        if ((*it).orders == ORDER_IDLE && (*it).GetParent() == unit) {
+            ++result;
+        }
+    }
+
+    return result;
 }
 
 bool Access_IsWithinMovementRange(UnitInfo* unit) {
@@ -612,69 +1160,860 @@ bool Access_IsWithinMovementRange(UnitInfo* unit) {
     return result;
 }
 
+bool Access_IsValidNextUnit(UnitInfo* unit) {
+    SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
+    short grid_x = unit->grid_x;
+    short grid_y = unit->grid_y;
+    bool result;
+
+    if (unit->orders == ORDER_SENTRY || unit->orders == ORDER_IDLE || unit->orders == ORDER_DISABLED ||
+        unit->orders == ORDER_EXPLODING || unit->state == ORDER_STATE_14 || unit->state == ORDER_STATE_2 ||
+        (unit->orders == ORDER_BUILDING && unit->state != ORDER_STATE_UNIT_READY)) {
+        result = false;
+
+    } else if ((Access_IsWithinMovementRange(unit) || unit->shots) &&
+               Access_FindReachableSpot(unit->unit_type, unit, &grid_x, &grid_y,
+                                        unit_values->GetAttribute(ATTRIB_RANGE), 0, 1)) {
+        result = true;
+
+    } else {
+        result = unit->popup->test(unit);
+    }
+
+    return result;
+}
+
 UnitInfo* Access_SeekNextUnit(unsigned short team, UnitInfo* unit, bool seek_direction) {
-    /// \todo
+    int list_index;
+    int seek_index;
+    SmartList<UnitInfo>::Iterator it;
+    UnitInfo* result;
+
+    list_index = Access_FindUnitInUnitList(unit);
+
+    if (list_index >= 0) {
+        it = Access_UnitsLists[list_index]->Find(*unit);
+
+    } else if (seek_direction) {
+        list_index = 4;
+
+        it = Access_UnitsLists[list_index]->Last();
+
+    } else {
+        list_index = 0;
+
+        it = Access_UnitsLists[list_index]->Begin();
+    }
+
+    seek_index = list_index;
+
+    if (seek_direction) {
+        do {
+            if (it != nullptr) {
+                ++it;
+            }
+
+            do {
+                if (it == nullptr) {
+                    ++seek_index;
+
+                    if (seek_index > 4) {
+                        seek_index = 0;
+                    }
+
+                    it = Access_UnitsLists[seek_index]->Begin();
+                }
+            } while (seek_index != list_index && it == nullptr);
+        } while (it != nullptr && &*it != unit && ((*it).team != team || !Access_IsValidNextUnit(&*it)));
+
+    } else {
+        do {
+            if (it != nullptr) {
+                --it;
+            }
+
+            do {
+                if (it == nullptr) {
+                    --seek_index;
+
+                    if (seek_index < 0) {
+                        seek_index = 4;
+                    }
+
+                    it = Access_UnitsLists[seek_index]->Last();
+                }
+            } while (seek_index != list_index && it == nullptr);
+        } while (it != nullptr && &*it != unit && ((*it).team != team || !Access_IsValidNextUnit(&*it)));
+    }
+
+    if (it != nullptr && Access_IsValidNextUnit(&*it)) {
+        result = &*it;
+
+    } else {
+        result = nullptr;
+    }
+
+    return result;
 }
 
-UnitInfo* Access_GetUnit(int grid_x, int grid_y) {
-    /// \todo
+bool Access_IsChildOfUnitInList(UnitInfo* unit, SmartList<UnitInfo>::Iterator* it) {
+    for (; *it != nullptr; ++*it) {
+        if ((*(*it)).orders == ORDER_IDLE && (*(*it)).GetParent() == unit) {
+            break;
+        }
+    }
+
+    return *it != nullptr;
 }
 
-UnitInfo* Access_GetUnit(int grid_x, int grid_y, unsigned int flags) {
-    /// \todo
+UnitInfo* Access_GetUnit5(int grid_x, int grid_y) {
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if (((*it).flags & GROUND_COVER) || (*it).unit_type == HARVSTER) {
+                unit = &*it;
+                break;
+            }
+        }
+    }
+
+    return unit;
+}
+
+UnitInfo* Access_GetUnit3(int grid_x, int grid_y, unsigned int flags) {
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        UnitInfo* unit;
+
+        SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)];
+        unit = &*it;
+
+        for (;;) {
+            do {
+                if (it == nullptr) {
+                    return nullptr;
+                }
+
+                if (((*it).flags & flags) && !((*it).flags & GROUND_COVER) && (*it).orders != ORDER_IDLE) {
+                    return &*it;
+                }
+
+                Hash_MapHash.Remove(&*it);
+                Hash_MapHash.Add(&*it);
+
+                ++it;
+
+            } while (it != nullptr);
+
+            if (it != nullptr) {
+                if (&*it == unit) {
+                    if ((*it).flags & flags) {
+                        return &*it;
+
+                    } else {
+                        return nullptr;
+                    }
+
+                } else if (unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE) {
+                    unit = &*it;
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+UnitInfo* Access_GetUnit1(int grid_x, int grid_y) {
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).unit_type == BRIDGE) {
+                unit = &*it;
+                break;
+            }
+        }
+    }
+
+    return unit;
+}
+
+UnitInfo* Access_GetUnit2(int grid_x, int grid_y, unsigned short team) {
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).team == team && ((*it).flags & SELECTABLE) && !((*it).flags & (HOVERING | GROUND_COVER)) &&
+                (*it).unit_type != LANDPAD && (*it).orders != ORDER_IDLE && (*it).GetId() != 0xFFFF) {
+                unit = &*it;
+                break;
+            }
+        }
+
+        if (unit && (unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE)) {
+            unit = unit->GetParent();
+        }
+    }
+
+    return unit;
+}
+
+void Access_DestroyUtilities(int grid_x, int grid_y, bool remove_slabs, bool remove_rubble, bool remove_connectors,
+                             bool remove_road) {
+    for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+        switch ((*it).unit_type) {
+            case SMLTAPE:
+            case LRGTAPE:
+            case SMLCONES:
+            case LRGCONES: {
+                UnitsManager_DestroyUnit(&*it);
+            } break;
+
+            case ROAD: {
+                if (remove_road) {
+                    UnitsManager_DestroyUnit(&*it);
+                }
+            } break;
+
+            case SMLSLAB:
+            case LRGSLAB: {
+                if (remove_slabs) {
+                    UnitsManager_DestroyUnit(&*it);
+                }
+            } break;
+
+            case CNCT_4W: {
+                if (remove_connectors) {
+                    UnitsManager_RemoveConnections(&*it);
+                    UnitsManager_DestroyUnit(&*it);
+                }
+            } break;
+
+            case SMLRUBLE:
+            case LRGRUBLE: {
+                if (remove_rubble) {
+                    UnitsManager_DestroyUnit(&*it);
+                }
+            } break;
+        }
+    }
+}
+
+void Access_DestroyGroundCovers(int grid_x, int grid_y) {
+    for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+        switch ((*it).unit_type) {
+            case ROAD:
+            case LANDPAD:
+            case WTRPLTFM:
+            case BRIDGE: {
+                UnitsManager_DestroyUnit(&*it);
+            } break;
+        }
+    }
 }
 
 UnitInfo* Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned int flags) {
-    /// \todo
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).team != team && ((*it).IsVisibleToTeam(team) || GameManager_MaxSpy) &&
+                (*it).orders != ORDER_IDLE && ((*it).flags & flags) && (*it).orders != ORDER_EXPLODING &&
+                (*it).state != ORDER_STATE_14) {
+                unit = &*it;
+                break;
+            }
+        }
+
+        if (unit && (unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE)) {
+            unit = unit->GetParent();
+        }
+    }
+
+    return unit;
 }
 
-UnitInfo* Access_GetUnit(int grid_x, int grid_y, unsigned short team, unsigned int flags) {
-    /// \todo
+UnitInfo* Access_GetUnit7(unsigned short team, int grid_x, int grid_y) {
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).team == team && (*it).unit_type >= LRGTAPE && (*it).unit_type <= SMLCONES) {
+                unit = &*it;
+                break;
+            }
+        }
+    }
+
+    return unit;
+}
+
+UnitInfo* Access_GetUnit4(int grid_x, int grid_y, unsigned short team, unsigned int flags) {
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).team == team && ((*it).flags & flags) && (*it).orders != ORDER_IDLE && (*it).GetId() != 0xFFFF &&
+                (*it).unit_type != LRGTAPE && (*it).unit_type != SMLTAPE && !((*it).flags & GROUND_COVER)) {
+                unit = &*it;
+                break;
+            }
+        }
+
+        if (unit == nullptr) {
+            for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+                if ((*it).team == team && ((*it).flags & flags) && (*it).orders != ORDER_IDLE &&
+                    (*it).GetId() != 0xFFFF) {
+                    unit = &*it;
+                    break;
+                }
+            }
+        }
+
+        if (unit && (unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE)) {
+            unit = unit->GetParent();
+        }
+    }
+
+    return unit;
 }
 
 unsigned int Access_GetValidAttackTargetTypes(ResourceID unit_type) {
-    /// \todo
+    unsigned int target_types;
+
+    switch (unit_type) {
+        case SCOUT:
+        case COMMANDO:
+        case INFANTRY:
+        case CORVETTE:
+        case BATTLSHP:
+        case SUBMARNE:
+        case MSSLBOAT:
+        case BOMBER:
+        case JUGGRNT:
+        case ALNTANK:
+        case ALNASGUN:
+        case TANK:
+        case ARTILLRY:
+        case ROCKTLCH:
+        case MISSLLCH:
+        case GUNTURRT:
+        case ARTYTRRT:
+        case ANTIMSSL: {
+            target_types = MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | STATIONARY;
+        } break;
+
+        case FASTBOAT:
+        case FIGHTER:
+        case SP_FLAK:
+        case ANTIAIR: {
+            target_types = MOBILE_AIR_UNIT;
+        } break;
+
+        case ALNPLANE: {
+            target_types = MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | STATIONARY;
+        } break;
+
+        case LANDMINE:
+        case SEAMINE: {
+            target_types = MOBILE_SEA_UNIT | MOBILE_LAND_UNIT;
+        } break;
+
+        default: {
+            target_types = 0;
+        } break;
+    }
+
+    return target_types;
 }
 
-bool Access_IsValidAttackTarget2(UnitInfo* unit1, UnitInfo* unit2, Point point) {
-    /// \todo
+bool Access_IsValidAttackTargetTypeEx(ResourceID attacker, ResourceID target, unsigned int target_flags) {
+    switch (target) {
+        case BRIDGE:
+        case WTRPLTFM:
+        case SEAMINE: {
+            target_flags = MOBILE_LAND_UNIT;
+        } break;
+
+        case SUBMARNE: {
+            switch (attacker) {
+                case BOMBER:
+                case SUBMARNE:
+                case CORVETTE:
+                case ALNPLANE:
+                case SEAMINE: {
+                } break;
+
+                default: {
+                    return false;
+                } break;
+            }
+        } break;
+
+        case LRGTAPE:
+        case SMLTAPE: {
+            return false;
+        } break;
+    }
+
+    return (target_flags & Access_GetValidAttackTargetTypes(attacker)) != 0;
+}
+
+bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, unsigned int target_flags, Point point) {
+    unsigned char surface_type;
+    bool result;
+
+    surface_type = Access_GetSurfaceType(point.x, point.y);
+
+    if ((attacker == SUBMARNE || attacker == CORVETTE) && (surface_type != SURFACE_TYPE_WATER) &&
+        surface_type != SURFACE_TYPE_COAST) {
+        result = false;
+
+    } else {
+        result = Access_IsValidAttackTargetTypeEx(attacker, target, target_flags);
+    }
+
+    return result;
+}
+
+bool Access_IsValidAttackTargetType(ResourceID attacker, ResourceID target) {
+    return Access_IsValidAttackTargetTypeEx(attacker, target, UnitsManager_BaseUnits[target].flags);
+}
+
+bool Access_IsValidAttackTarget(ResourceID attacker, ResourceID target, Point point) {
+    return Access_IsValidAttackTargetEx(attacker, target, UnitsManager_BaseUnits[target].flags, point);
+}
+
+bool Access_IsUnitBusyAtLocation(UnitInfo* unit) {
+    bool result;
+
+    result = false;
+
+    for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(unit->grid_x, unit->grid_y)]; it != nullptr; ++it) {
+        if (((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | STATIONARY)) && !((*it).flags & GROUND_COVER) &&
+            (*it).orders != ORDER_IDLE) {
+            result = true;
+            break;
+        }
+    }
+
+    return result;
+}
+
+bool Access_IsValidAttackTarget(UnitInfo* attacker, UnitInfo* target, Point point) {
+    unsigned int target_flags;
+    ResourceID target_type;
+    bool result;
+
+    target_flags = target->flags;
+    target_type = target->unit_type;
+
+    if (!(attacker->flags & MOBILE_AIR_UNIT) || (attacker->flags & HOVERING)) {
+        if ((target_flags & MOBILE_AIR_UNIT) || !(attacker->flags & HOVERING)) {
+            target_flags &= ~MOBILE_AIR_UNIT;
+            target_flags |= MOBILE_LAND_UNIT;
+        }
+
+        if (target_type == LRGTAPE || target_type == SMLTAPE) {
+            target_type = target->GetParent()->unit_type;
+        }
+
+        result = Access_IsValidAttackTargetEx(attacker->unit_type, target_type, target_flags, point);
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool Access_IsValidAttackTarget(UnitInfo* attacker, UnitInfo* target) {
+    return Access_IsValidAttackTarget(attacker, target, Point(target->grid_x, target->grid_y));
 }
 
 UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int grid_x, int grid_y, bool mode) {
-    /// \todo
+    UnitInfo* result;
+    bool normal_unit;
+
+    result = nullptr;
+    normal_unit = false;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).team == unit->team) {
+                if (!(*it).flags & MISSILE_UNIT) {
+                    normal_unit = true;
+                }
+
+            } else if (((*it).flags & SELECTABLE) && (*it).orders != ORDER_EXPLODING && (*it).state != ORDER_STATE_14 &&
+                       (*it).orders != ORDER_IDLE && Access_IsValidAttackTarget(unit, &*it, Point(grid_x, grid_y))) {
+                if (mode) {
+                    (*it).SpotByTeam(unit->team);
+                }
+
+                if ((*it).IsVisibleToTeam(unit->team)) {
+                    result = &*it;
+                    break;
+                }
+            }
+        }
+
+        if (result) {
+            if ((result->unit_type == LRGTAPE || result->unit_type == SMLTAPE)) {
+                result = unit->GetParent();
+
+            } else if (normal_unit && (result->flags & GROUND_COVER)) {
+                result = nullptr;
+            }
+        }
+    }
+
+    return result;
 }
 
 UnitInfo* Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y) {
-    /// \todo
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if (((*it).unit_type == LANDMINE || (*it).unit_type == SEAMINE) && (*it).team != team &&
+                (*it).orders == ORDER_SENTRY) {
+                unit = &*it;
+                break;
+            }
+        }
+    }
+
+    return unit;
+}
+
+UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int grid_x, int grid_y) {
+    UnitInfo* result;
+
+    result = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
+                Access_IsValidAttackTarget(unit, &*it)) {
+                result = &*it;
+                break;
+            }
+        }
+    }
+
+    return unit;
 }
 
 UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int grid_x, int grid_y) {
-    /// \todo
+    UnitInfo* result;
+    unsigned short team;
+    unsigned int flags;
+
+    result = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        team = unit->team;
+        flags = unit->flags;
+
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).team == team && (*it).orders != ORDER_IDLE) {
+                if (flags & MOBILE_LAND_UNIT) {
+                    if (((*it).unit_type == BARRACKS || (*it).unit_type == CLNTRANS || (*it).unit_type == SEATRANS) &&
+                        (unit->unit_type == COMMANDO || unit->unit_type == INFANTRY)) {
+                        result = &*it;
+                        break;
+
+                    } else if (((*it).unit_type == DEPOT || (*it).unit_type == SEATRANS) &&
+                               (unit->unit_type != COMMANDO && unit->unit_type != INFANTRY)) {
+                        result = &*it;
+                        break;
+                    }
+                }
+
+                if ((flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == MOBILE_SEA_UNIT) {
+                    if ((*it).unit_type == DOCK) {
+                        result = &*it;
+                        break;
+                    }
+                }
+
+                if (flags & MOBILE_AIR_UNIT) {
+                    if ((*it).unit_type == LANDPAD || (*it).unit_type == HANGAR) {
+                        result = &*it;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 UnitInfo* Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y) {
-    /// \todo
+    UnitInfo* unit;
+
+    unit = nullptr;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+            if ((*it).team == team && (*it).orders != ORDER_IDLE && (*it).GetId() != 0xFFFF &&
+                ((*it).flags & (CONNECTOR_UNIT | STANDALONE)) &&
+                (((*it).flags) & (GROUND_COVER | BUILDING)) == BUILDING) {
+                unit = &*it;
+                break;
+            }
+        }
+    }
+
+    return unit;
 }
 
 void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
-    /// \todo
+    Rect selection;
+    UnitInfo* parent;
+    UnitInfo* unit2;
+    int unit_count;
+    bool limit_reached;
+
+    selection.ulx = (bounds->ulx + 16) / 64;
+    selection.uly = (bounds->uly + 16) / 64;
+    selection.lrx = (bounds->lrx - 16) / 64;
+    selection.lry = (bounds->lry - 16) / 64;
+
+    parent = nullptr;
+
+    if (unit) {
+        if (unit->team == GameManager_PlayerTeam &&
+            (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) && unit->state == ORDER_STATE_1 &&
+            unit->grid_x >= selection.ulx && unit->grid_x <= selection.lrx && unit->grid_y >= selection.uly &&
+            unit->grid_y <= selection.lry) {
+            parent = unit;
+            unit->ClearUnitList();
+            unit->AllocateUnitList();
+        }
+    }
+
+    if (parent) {
+        unit_count = 1;
+
+    } else {
+        unit_count = 0;
+    }
+
+    limit_reached = false;
+
+    for (int y = selection.uly; y <= selection.lry && !limit_reached; ++y) {
+        for (int x = selection.ulx; x <= selection.lrx && !limit_reached; ++x) {
+            unit2 = Access_GetUnit4(x, y, GameManager_PlayerTeam, MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
+
+            if (unit2 && (unit2->state == ORDER_STATE_1 || unit2->state == ORDER_STATE_2)) {
+                unit2->ClearUnitList();
+
+                if (!parent) {
+                    unit2->AllocateUnitList();
+                    parent = unit2;
+                    ++unit_count;
+                }
+
+                unit2->AssignUnitList(parent);
+
+                if (parent != unit2) {
+                    ++unit_count;
+                }
+
+                if (unit_count >= 10) {
+                    limit_reached = true;
+                }
+            }
+        }
+    }
+
+    if (unit_count) {
+        if (unit_count == 1) {
+            parent->ClearUnitList();
+
+        } else {
+            Access_UpdateMultiSelection(parent);
+        }
+
+        if (parent == unit2) {
+            GameManager_MenuUnitSelect(parent);
+        }
+    }
+}
+
+void Access_ProcessGroupAirPath(UnitInfo* unit) {
+    unit->path = Paths_GetAirPath(unit);
+
+    if (unit->path != nullptr) {
+        if (Remote_IsNetworkGame) {
+            Remote_SendNetPacket_38(unit);
+        }
+
+    } else {
+        unit->BlockedOnPathRequest(false);
+
+        if (Remote_IsNetworkGame) {
+            Remote_SendNetPacket_41(unit);
+        }
+
+        unit->ClearUnitList();
+    }
 }
 
 bool Access_AreTaskEventsPending() {
-    /// \todo
+    for (int i = std::size(Access_UnitsLists) - 1; i >= 0; --i) {
+        for (SmartList<UnitInfo>::Iterator it = Access_UnitsLists[i]->Begin(); it != Access_UnitsLists[i]->End();
+             ++it) {
+            if ((*it).orders == ORDER_FIRING || (*it).orders == ORDER_EXPLODING ||
+                (*it).orders == ORDER_ACTIVATE_ORDER || (*it).orders == ORDER_AWAITING_23 ||
+                (*it).orders == ORDER_AWAITING_25 || (*it).orders == ORDER_AWAITING_24 ||
+                (*it).orders == ORDER_AWAITING_22 || (*it).state == ORDER_STATE_14 ||
+                ((*it).orders == ORDER_MOVING && (*it).state != ORDER_STATE_1) ||
+                ((*it).orders == ORDER_MOVING_27 && (*it).state != ORDER_STATE_1) ||
+                ((*it).orders == ORDER_ATTACKING && (*it).state != ORDER_STATE_1) || (*it).state == ORDER_STATE_0) {
+                if ((*it).state == ORDER_STATE_NEW_ORDER && (*it).team == GameManager_PlayerTeam &&
+                    !PathsManager_HasRequest(&*it)) {
+                    if ((*it).path != nullptr) {
+                        if ((*it).GetFirstFromUnitList()) {
+                            Access_ProcessNewGroupOrder(&*it);
+
+                        } else {
+                            (*it).state = ORDER_STATE_7;
+
+                            if (Remote_IsNetworkGame) {
+                                Remote_SendNetPacket_08(&*it);
+                            }
+                        }
+
+                    } else if (((*it).flags & MOBILE_AIR_UNIT) && (*it).orders != ORDER_ATTACKING) {
+                        Access_ProcessGroupAirPath(&*it);
+
+                    } else {
+                        Paths_RequestPath(&*it, 2);
+                    }
+                }
+
+                return true;
+            }
+        }
+    }
+
+    for (int i = 0; i < std::size(UnitsManager_DelayedAttackTargets); ++i) {
+        if (UnitsManager_DelayedAttackTargets[i].GetCount()) {
+            return true;
+        }
+    }
+
+    if (Remote_IsNetworkGame) {
+        Remote_WaitEndTurnAcknowledge();
+    }
+
     return false;
 }
 
 bool Access_ProcessNewGroupOrder(UnitInfo* unit) {
-    /// \todo
+    bool result;
+
+    if (unit) {
+        SmartList<UnitInfo>* group;
+
+        group = unit->GetUnitList();
+
+        if (group) {
+            for (SmartList<UnitInfo>::Iterator it = group->Begin(); it != group->End(); ++it) {
+                if ((*it).state == ORDER_STATE_NEW_ORDER && (*it).path == nullptr) {
+                    if ((*it).hits > 0) {
+                        if (((*it).flags & MOBILE_AIR_UNIT) && (*it).orders != ORDER_ATTACKING) {
+                            Access_ProcessGroupAirPath(&*it);
+                        }
+
+                        return false;
+
+                    } else {
+                        (*it).ClearUnitList();
+                    }
+                }
+            }
+
+            for (SmartList<UnitInfo>::Iterator it = group->Begin(); it != group->End(); ++it) {
+                unit = &*it;
+
+                if (unit->state == ORDER_STATE_NEW_ORDER) {
+                    unit->state = ORDER_STATE_7;
+
+                    if (Remote_IsNetworkGame) {
+                        Remote_SendNetPacket_08(unit);
+                    }
+                }
+            }
+
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 void Access_UpdateMultiSelection(UnitInfo* unit) {
-    /// \todo
+    SmartList<UnitInfo>* units;
+
+    unit->MoveToFrontInUnitList();
+    units = unit->GetUnitList();
+
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        (*it).orders = ORDER_AWAITING;
+        (*it).target_grid_x = (*it).grid_x;
+        (*it).target_grid_y = (*it).grid_y;
+        (*it).point.x = (*it).grid_x;
+        (*it).point.y = (*it).grid_y;
+        (*it).path = nullptr;
+
+        if (Remote_IsNetworkGame) {
+            Remote_SendNetPacket_38(&*it);
+        }
+    }
 }
 
 bool Access_IsGroupOrderInterrupted(UnitInfo* unit) {
-    /// \todo
+    SmartList<UnitInfo>* units;
+
+    units = unit->GetUnitList();
+
+    if (units) {
+        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+            if (((*it).orders == ORDER_MOVING || (*it).orders == ORDER_ATTACKING) &&
+                ((*it).state == ORDER_STATE_5 || (*it).state == ORDER_STATE_6 ||
+                 (*it).state == ORDER_STATE_NEW_ORDER)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool Access_IsInsideBounds(Rect* bounds, Point* point) {

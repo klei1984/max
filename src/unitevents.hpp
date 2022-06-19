@@ -44,4 +44,6 @@ public:
     void Process();
 };
 
+extern SmartList<UnitEvent> UnitEvent_UnitEvents;
+
 #endif /* UNITEVENTS_HPP */

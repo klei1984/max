@@ -96,6 +96,7 @@ void Remote_sub_C9753();
 void Remote_AnalyzeDesync();
 int Remote_CheckUnpauseEvent();
 void Remote_ProcessTick(bool mode = false);
+void Remote_WaitEndTurnAcknowledge();
 int Remote_SiteSelectMenu();
 void Remote_LeaveGame(unsigned short team, bool mode);
 bool Remote_CheckDesync(unsigned short team, unsigned short crc_checksum);

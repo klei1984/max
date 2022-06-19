@@ -393,3 +393,12 @@ int GroundPath::WritePacket(char* buffer) {}
 void GroundPath::Path_vfunc16(int unknown1, int unknown2) {}
 
 void GroundPath::Path_vfunc17(int unknown1, int unknown2) {}
+
+bool Paths_RequestPath(UnitInfo* unit, int mode) {
+    /// \todo
+}
+
+AirPath* Paths_GetAirPath(UnitInfo* unit) {
+    /// \todo
+    return nullptr;
+}

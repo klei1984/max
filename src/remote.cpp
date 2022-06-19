@@ -613,6 +613,10 @@ void Remote_ProcessTick(bool mode) {
     /// \todo
 }
 
+void Remote_WaitEndTurnAcknowledge() {
+    /// \todo
+}
+
 int Remote_SiteSelectMenu() {
     /// \todo
 }

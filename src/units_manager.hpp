@@ -39,6 +39,10 @@ extern SmartList<UnitInfo> UnitsManager_UnitList6;
 extern AbstractUnit UnitsManager_AbstractUnits[UNIT_END];
 extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
+extern SmartPointer<UnitInfo> UnitsManager_Unit;
+
+extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
+
 extern bool UnitsManager_OrdersPending;
 
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
@@ -70,5 +74,6 @@ int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team);
 SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
                                                int grid_y, unsigned char unit_angle, bool is_existing_unit = false,
                                                bool skip_map_status_update = false);
+void UnitsManager_RemoveConnections(UnitInfo* unit);
 
 #endif /* UNITS_MANAGER_HPP */

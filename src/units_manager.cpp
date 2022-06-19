@@ -51,6 +51,10 @@ SmartList<UnitInfo> UnitsManager_UnitList6;
 
 BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
+SmartPointer<UnitInfo> UnitsManager_Unit;
+
+SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
+
 bool UnitsManager_OrdersPending;
 
 AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
@@ -2275,6 +2279,10 @@ void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y) {
     Hash_MapHash.Remove(unit);
     UnitsManager_UpdateUnitPosition(unit, grid_x, grid_y);
     Hash_MapHash.Add(unit);
+}
+
+void UnitsManager_RemoveConnections(UnitInfo* unit) {
+    /// \todo
 }
 
 void UnitsManager_ProcessRemoteOrders() {
