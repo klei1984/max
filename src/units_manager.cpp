@@ -26,11 +26,13 @@
 #include "cursor.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
+#include "message_manager.hpp"
 #include "paths_manager.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
 #include "sound_manager.hpp"
+#include "survey.hpp"
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 #include "window.hpp"
@@ -2374,11 +2376,68 @@ unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid
 }
 
 void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y) {
-    /// \todo
+    short raw;
+    short fuel;
+    short gold;
+    short free_capacity;
+
+    Survey_GetTotalResourcesInArea(grid_x, grid_y, 1, &raw, &fuel, &gold, true, unit->team);
+
+    unit->raw_mining_max = raw;
+    unit->fuel_mining_max = fuel;
+    unit->gold_mining_max = gold;
+
+    unit->fuel_mining = std::min(Cargo_GetFuelConsumptionRate(POWGEN), static_cast<int>(fuel));
+
+    free_capacity = 16 - unit->fuel_mining;
+
+    unit->raw_mining = std::min(raw, free_capacity);
+
+    free_capacity -= unit->raw_mining;
+
+    fuel = std::min(static_cast<short>(fuel - unit->fuel_mining), free_capacity);
+
+    unit->fuel_mining += fuel;
+
+    free_capacity -= fuel;
+
+    unit->gold_mining = std::min(gold, free_capacity);
+
+    unit->total_mining = unit->raw_mining + unit->fuel_mining + unit->gold_mining;
 }
 
 void UnitsManager_StartBuild(UnitInfo* unit) {
-    /// \todo
+    if (unit->unit_type == ENGINEER) {
+        unit->target_grid_x = unit->grid_x;
+        unit->target_grid_y = unit->grid_y;
+    }
+
+    unit->orders = unit->prior_orders;
+    unit->state = unit->prior_state;
+
+    unit->BuildOrder();
+
+    {
+        SmartString string;
+        SmartObjectArray<ResourceID> build_list;
+        ResourceID unit_type;
+        int build_speed_multiplier;
+        int turns_to_build_unit;
+
+        build_list = unit->GetBuildList();
+        unit_type = *build_list[0];
+        build_speed_multiplier = unit->GetBuildRate();
+
+        SDL_assert(build_list.GetCount() > 0);
+
+        unit->GetTurnsToBuild(unit_type, build_speed_multiplier, &turns_to_build_unit);
+
+        string.Sprintf(250, UnitsManager_BuildTimeEstimates[UnitsManager_BaseUnits[unit_type].gender],
+                       UnitsManager_BaseUnits[unit_type].singular_name,
+                       UnitsManager_TeamInfo[GameManager_PlayerTeam].unit_counters[unit_type], turns_to_build_unit);
+
+        MessageManager_DrawMessage(string.GetCStr(), 0, unit, Point(unit->grid_x, unit->grid_y));
+    }
 }
 
 void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y) {

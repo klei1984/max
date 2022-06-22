@@ -167,6 +167,7 @@ public:
     void UpdatePinCount(int grid_x, int grid_y, int pin_units);
     void ClearFromTaskLists();
     void RemoveUnknown();
+    void BuildOrder();
 
     ResourceID unit_type;
     struct PopupFunctions* popup;

@@ -571,8 +571,8 @@ static struct MenuGuiItem GameManager_MenuItems[] = {
 };
 
 static Point GameManager_MenuItemLabelOffsets[] = {
-    {0, 2}, {0, 2}, {0, 0}, {0, 0}, {0, 0}, {-10, 2}, {0, 3}, {1, 2}, {0, 0}, {0, 3}, {0, 3}, {2, 2},
-    {2, 2}, {2, 4}, {2, 2}, {2, 2}, {2, 4}, {2, 2},   {2, 2}, {2, 4}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
+    {0, 2}, {0, 2}, {0, 0}, {0, 0}, {0, 0}, {-10, 2}, {0, 3}, {10, 2}, {0, 0}, {0, 3}, {0, 3}, {2, 2},
+    {2, 2}, {2, 4}, {2, 2}, {2, 2}, {2, 4}, {2, 2},   {2, 2}, {2, 4},  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 };
 
 static struct MenuDisplayControl GameManager_MenuDisplayControls[] = {
@@ -1913,6 +1913,8 @@ Point GameManager_GetStartPositionMiningStation(unsigned short team) {
             }
         }
     }
+
+    SDL_assert(GameManager_IsValidStartingPosition(point.x, point.y));
 
     return point;
 }
@@ -7425,7 +7427,7 @@ void GameManager_MenuInitButtons(bool mode) {
                 } else {
                     GameManager_MenuItems[i].button->SetCaption(
                         GameManager_MenuItems[i].label, GameManager_MenuItemLabelOffsets[i].x,
-                        GameManager_MenuItemLabelOffsets[i].y, FontColor(0xA0, 0xA7, 0xE6),
+                        GameManager_MenuItemLabelOffsets[i].y, FontColor(0xA2, 0xA7, 0xE6),
                         FontColor(0xA2, 0xA3, 0x24));
                 }
             }

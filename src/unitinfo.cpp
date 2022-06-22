@@ -1422,7 +1422,7 @@ void UnitInfo::GetVersion(char* text, int version) {
     CalcRomanDigit(text, version / 10, "X", "L", "C");
     version %= 10;
 
-    CalcRomanDigit(text, version / 100, "I", "V", "X");
+    CalcRomanDigit(text, version, "I", "V", "X");
 }
 
 void UnitInfo::SetName(char* text) {
@@ -1841,6 +1841,17 @@ void UnitInfo::ClearFromTaskLists() {
 
 void UnitInfo::RemoveUnknown() {
     /// \todo
+}
+
+void UnitInfo::BuildOrder() {
+    if (orders != ORDER_AWAITING_21 && orders != ORDER_BUILDING_HALTED) {
+        build_time = UnitsManager_GetTurnsToBuild(GetConstructedUnitType(), team);
+    }
+
+    orders = ORDER_AWAITING;
+    state = ORDER_STATE_1;
+
+    UnitsManager_SetNewOrder(this, ORDER_BUILDING, ORDER_STATE_0);
 }
 
 void UnitInfo::GainExperience(int experience) {
