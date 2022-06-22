@@ -816,7 +816,7 @@ void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode) {
 void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
     WindowInfo* window;
 
-    window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+    window = WindowManager_GetWindow(WINDOW_MINIMAP);
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) &&

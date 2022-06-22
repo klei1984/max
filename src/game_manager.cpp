@@ -1360,11 +1360,12 @@ void GameManager_Render() {
 
                     for (int y = 0; y < (112 / 2); ++y) {
                         for (int x = 0; x < (112 / 2); ++x) {
-                            ResourceManager_Minimap2x[y * 112 + x] = buffer[y * 640 + x];
-                            ResourceManager_Minimap2x[y * 112 + x + 1] = buffer[y * 640 + x];
+                            ResourceManager_Minimap2x[(2 * y) * 112 + 2 * x] = buffer[y * 640 + x];
+                            ResourceManager_Minimap2x[(2 * y) * 112 + 2 * x + 1] = buffer[y * 640 + x];
                         }
 
-                        memcpy(&ResourceManager_Minimap2x[(y + 1) * 112], &ResourceManager_Minimap2x[y * 112], 112);
+                        memcpy(&ResourceManager_Minimap2x[(2 * y + 1) * 112], &ResourceManager_Minimap2x[(2 * y) * 112],
+                               112);
                     }
 
                     buf_to_buf(ResourceManager_Minimap2x, 112, 112, 112, window->buffer, 640);
@@ -2254,12 +2255,16 @@ void GameManager_DrawTurnTimer(int turn_time, bool mode) {
         }
 
         color = 0x1;
+
+    } else {
+        color = 0xA2;
     }
 
     sprintf(text, "%2.2i:%2.2i", turn_time / 60, turn_time % 60);
 
     if (mode) {
         GameManager_DrawTimer(text, color);
+
     } else {
         GameManager_DrawDisplayPanel(3, text, color);
     }
@@ -3781,11 +3786,11 @@ void GameManager_MenuClickMinimapTntButton(bool rest_state) {
 }
 
 void GameManager_MenuClickHelpButton() {
-    GameManager_MenuItems[MENU_GUI_ITEM_HELP_BUTTON].button->SetRestState(false);
-
     if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
         HelpMenu_Menu(HELPMENU_SITE_SELECT_SETUP, WINDOW_MAIN_MAP);
     } else {
+        GameManager_MenuItems[MENU_GUI_ITEM_HELP_BUTTON].button->SetRestState(false);
+
         HelpMenu_Menu(HELPMENU_GAME_SCREEN_SETUP, WINDOW_MAIN_MAP);
     }
 }
@@ -4048,8 +4053,9 @@ void GameManager_MenuInitDisplayControls() {
         if (GameManager_MenuDisplayControls[i].resource_id == INVALID_ID) {
             GameManager_MenuDisplayControls[i].button = nullptr;
         } else {
-            GameManager_MenuDisplayControls[i].button =
-                new (std::nothrow) Button(XYPOS, XYPOS, window->window.ulx, window->window.uly);
+            GameManager_MenuDisplayControls[i].button = new (std::nothrow)
+                Button(GameManager_MenuDisplayControls[i].resource_id, GameManager_MenuDisplayControls[i].resource_id,
+                       window->window.ulx, window->window.uly);
             GameManager_MenuDisplayControls[i].button->SetFlags(0x20);
             GameManager_MenuDisplayControls[i].button->RegisterButton(window->id);
             GameManager_MenuDisplayControls[i].button->Enable();

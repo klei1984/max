@@ -54,7 +54,7 @@ struct ImageMultiFrameHeader {
     unsigned short height;
     unsigned short hotx;
     unsigned short hoty;
-    unsigned char *rows[];
+    unsigned int *rows;
 };
 
 struct ImageMultiHeader {

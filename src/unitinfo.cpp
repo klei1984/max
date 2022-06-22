@@ -2346,21 +2346,159 @@ bool UnitInfo::IsInGroupZone(UnitInfoGroup* group) {
 }
 
 void UnitInfo::RenderShadow(Point point, int image_id, Rect* bounds) {
-    /// \todo
+    if (UnitsManager_BaseUnits[unit_type].shadows) {
+        unsigned int scaling_factor;
+        unsigned int zoom_level;
+        struct ImageMultiFrameHeader* frame;
+
+        scaling_factor = 1 << (scaler_adjust + 1);
+
+        zoom_level = (2 * Gfx_ZoomLevel) / scaling_factor;
+
+        if (zoom_level >= 8) {
+            Gfx_ResourceBuffer = UnitsManager_BaseUnits[unit_type].shadows;
+
+            frame = GetSpriteFrame(reinterpret_cast<struct ImageMultiHeader*>(Gfx_ResourceBuffer), image_id);
+
+            point -= shadow_offset;
+
+            if (ResourceManager_DisableEnhancedGraphics) {
+                scaling_factor /= 2;
+            }
+
+            if (Gfx_DecodeSpriteSetup(point, reinterpret_cast<unsigned char*>(frame), scaling_factor, bounds)) {
+                Gfx_SpriteRowAddresses = reinterpret_cast<unsigned int*>(&frame->rows);
+                Gfx_ColorIndices = color_cycling_lut;
+
+                Gfx_DecodeShadow();
+            }
+        }
+    }
 }
 
 void UnitInfo::RenderAirShadow(Rect* bounds) { RenderShadow(Point(grid_x, grid_y), image_index, bounds); }
 
 void UnitInfo::RenderSprite(Point point, int image_base, Rect* bounds) {
-    /// \todo
+    if (UnitsManager_BaseUnits[unit_type].sprite) {
+        unsigned int scaling_factor;
+        unsigned int zoom_level;
+        struct ImageMultiFrameHeader* frame;
+
+        scaling_factor = 1 << (scaler_adjust + 1);
+
+        zoom_level = (2 * Gfx_ZoomLevel) / scaling_factor;
+
+        if (zoom_level >= 4) {
+            Gfx_ResourceBuffer = UnitsManager_BaseUnits[unit_type].sprite;
+
+            frame = GetSpriteFrame(reinterpret_cast<struct ImageMultiHeader*>(Gfx_ResourceBuffer), image_base);
+
+            point -= shadow_offset;
+
+            if (ResourceManager_DisableEnhancedGraphics) {
+                scaling_factor /= 2;
+            }
+
+            if (Gfx_DecodeSpriteSetup(point, reinterpret_cast<unsigned char*>(frame), scaling_factor, bounds)) {
+                Gfx_SpriteRowAddresses = reinterpret_cast<unsigned int*>(&frame->rows);
+                Gfx_ColorIndices = color_cycling_lut;
+                Gfx_UnitBrightnessBase = brightness;
+
+                if (zoom_level < 8) {
+                    if (flags & HASH_TEAM_RED) {
+                        Gfx_TeamColorIndexBase = 0x01;
+
+                    } else if (flags & HASH_TEAM_GREEN) {
+                        Gfx_TeamColorIndexBase = 0x02;
+
+                    } else if (flags & HASH_TEAM_BLUE) {
+                        Gfx_TeamColorIndexBase = 0x03;
+
+                    } else if (flags & HASH_TEAM_GRAY) {
+                        Gfx_TeamColorIndexBase = 0xFF;
+
+                    } else {
+                        Gfx_TeamColorIndexBase = 0x04;
+                    }
+
+                } else {
+                    Gfx_TeamColorIndexBase = 0x00;
+                }
+
+                Gfx_DecodeSprite();
+            }
+        }
+    }
 }
 
 void UnitInfo::Render(Rect* bounds) {
-    /// \todo
+    Point point(grid_x, grid_y);
+
+    RenderSprite(point, image_index, bounds);
+
+    if (flags & (TURRET_SPRITE | SPINNING_TURRET)) {
+        point.x = turret_offset_x;
+        point.y = turret_offset_y;
+
+        RenderSprite(point, turret_image_index, bounds);
+    }
 }
 
 void UnitInfo::RenderWithConnectors(Rect* bounds) {
-    /// \todo
+    Point point(grid_x, grid_y);
+
+    RenderShadow(point, image_index, bounds);
+    RenderSprite(point, image_index, bounds);
+
+    if (connectors) {
+        if (connectors & CONNECTOR_NORTH_LEFT) {
+            RenderShadow(point, connector_image_base, bounds);
+            RenderSprite(point, connector_image_base, bounds);
+        }
+
+        if (connectors & CONNECTOR_NORTH_RIGHT) {
+            RenderShadow(point, connector_image_base + 4, bounds);
+            RenderSprite(point, connector_image_base + 4, bounds);
+        }
+
+        if (connectors & CONNECTOR_SOUTH_LEFT) {
+            RenderShadow(point, connector_image_base + 2, bounds);
+            RenderSprite(point, connector_image_base + 2, bounds);
+        }
+
+        if (connectors & CONNECTOR_SOUTH_RIGHT) {
+            RenderShadow(point, connector_image_base + 6, bounds);
+            RenderSprite(point, connector_image_base + 6, bounds);
+        }
+
+        if (connectors & CONNECTOR_EAST_TOP) {
+            RenderShadow(point, connector_image_base + 1, bounds);
+            RenderSprite(point, connector_image_base + 1, bounds);
+        }
+
+        if (connectors & CONNECTOR_EAST_BOTTOM) {
+            RenderShadow(point, connector_image_base + 5, bounds);
+            RenderSprite(point, connector_image_base + 5, bounds);
+        }
+
+        if (connectors & CONNECTOR_WEST_TOP) {
+            RenderShadow(point, connector_image_base + 3, bounds);
+            RenderSprite(point, connector_image_base + 3, bounds);
+        }
+
+        if (connectors & CONNECTOR_WEST_BOTTOM) {
+            RenderShadow(point, connector_image_base + 7, bounds);
+            RenderSprite(point, connector_image_base + 7, bounds);
+        }
+    }
+
+    if (flags & (TURRET_SPRITE | SPINNING_TURRET)) {
+        point.x = turret_offset_x;
+        point.y = turret_offset_y;
+
+        RenderShadow(point, turret_image_index, bounds);
+        RenderSprite(point, turret_image_index, bounds);
+    }
 }
 
 int UnitInfo::GetMaxAllowedBuildRate() {
