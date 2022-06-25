@@ -21,7 +21,7 @@ The game supports loading game resources from a secondary resource file called p
 
 4. **\*\*FIXED\*\*** M.A.X. allocates 5 player objects. The fifth player is used for alien derelicts - *citation needed*. Certain init routines initialize arrays holding structures related to player data. Some arrays have four elements while the others have five elements. The structures held in these mixed size arrays are indexed from 4 to 0 in a loop. This creates an out of bounds write access to a totally unrelated memory area for the array that only holds four structure instances. The given structure is 19 bytes long and who knows what gets corrupted by the out of bounds write accesses.
 
-5. **\*\*FIXED\*\*** M.A.X. has several units that were planned and never released for the final game or that were repurposed during game development. There is a mobile unit called the **Master Builder** which can be seen in one of the shorter movie clips of the game and has the following unit description text: *Specialized vehicle which transforms to become a new mining station.* The related game assets, like unit sprites, were removed from the game and all available demos. Never the less the unit is initialized by one of the C++ constructors and when mandatory game resources are not found a NULL pointer dereference occurs. Like in case of defect 3 the game does not crash with out of bounds access under DOS environment but utterfy fails on modern operating systems with a segmentation fault.
+5. **\*\*FIXED\*\*** M.A.X. has several units that were planned and never released for the final game or that were repurposed during game development. There is a mobile unit called the **Master Builder** which can be seen in one of the shorter movie clips of the game and has the following unit description text: *Specialized vehicle which transforms to become a new mining station.* The related game assets, like unit sprites, were removed from the game and all available demos. Never the less the unit is initialized by one of the UnitInfo class constructors (cseg01:000E9237) and when mandatory game resources are not found a NULL pointer dereference occurs. Like in case of defect 3 the game does not crash with out of bounds access under DOS environment but utterfy fails on modern operating systems with a segmentation fault.
 The following resources are missing from max.res or patches.res: A_MASTER, I_MASTER, P_MASTER, F_MASTER, S_MASTER, MASTER.
 
 6. **\*\*FIXED\*\*** The voice interface always accepts two resource indices. The reason for this is that in most cases several alternative voice samples are available for an event or action which improves immersion. So there is always a start marker, which is excluded, and a last included sample index. The game selects from the defined voice sample range in a pseudo random manner, but thanks to the implementation it is guaranteed that the start marker plus 1 is the smallest resource ID that could be chosen. There is a defect in one of the functions (cseg01:0008E881) where the play voice API is called without a valid range. Instead of a start marker and a valid resource ID the start marker is fed into the API function twice. E.g. play_voice(V_M283, V_M283). Probably the defect was not found by the original developers as in such a failure case the start marker plus 1 is played which coincidentally is the resource ID that is supposed to be played. Resource ID V_F283 corresponds to the "Mission Successful!" voice sample.
@@ -64,7 +64,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     
     <img src="{{ site.baseurl }}/assets/images/defect_15.jpg" alt="defect 14" width="740"> 
 
-16. Clicking the Landing Zone help button seamingly dereference NULL. The Landing Zone has a dedicated Cancel and Help button. This Help button is not the same as the one found on the normal in-game GUI control panel. While the Landing Zone Help button works without any issues there is a GUI on click event handler function which manages all the 24 normal in-game menu elements and this function incorrectly calls the rest state setter function for the wrong Help button. This issue, like many others, does not lead to a crash under DOS, but it causes segmentation fault on modern operating systems.
+16. Clicking the help button on the landing site selection screen tries to set the rest state for the button control before it is actually created. The GUI control buttons are initialized just before the M.A.X. control panels open up, after selecting the landing site. The on click event handler function (cseg01:00094A4C) does not check whether the help button is pressed in-game when the help button's rest state is tried to be set. This issue, like many others, does not lead to a crash under DOS, but it causes segmentation fault on modern operating systems.
 
 17. Unit gets stuck at map square that is occupied by constructor's construction tape. This issue was observed only once so far. As soon as it could be reproduced a video will be added for it. The issue happened with a computer player that moved two units at the "same" time. One unit moved to a certain location while another one, a big constructor, moved next to it and started a construction job.
 
@@ -210,6 +210,74 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 73. The order of initialization of global variables across translation units is unspecified behavior in standard C++. The original SmartString class has a default constructor (cseg01:000E1AE8) which uses a globally constructed SmartString object instantiated by an overloaded constructor. The idea behind is that if new SmartString objects are created with the default constructor the class just increments internally its reference counter to a default empty string object. The problem with this approach is that nothing guarantees that the SmartString module's internal global variable will be initialized first before another module's global SmartString variable in which case the object for which the reference counter would be incremented does not exist yet and the application crashes with a null pointer dereference related segmentation fault at some point. It seems that the original solution worked in the old Watcom C/C++ compiler while it fails with GCC.
 
 74. The function (cseg01:0009D3A7) that spawns all derelict alien units on the map uses rand() which generates pseudo random numbers. There is a code snippet that seeks a pseudo randomly selected alien unit that fits within a predetermined value budget. When such a unit is found the function deploys another pseudo randomly selected alien unit instead of reusing the unit type that was tested to actually fit into the budget. The code clearly wanted to select a unit within budget so spawning another one which may not fit must be a defect.
+
+75. The functions (cseg01:0009CAE7, cseg01:0009C6F6) responsible for resource distribution on maps do not check whether the calculated grid coordinates are within map boundaries. In corner cases this could lead to heap memory corruption under DOS or in worst case could cause segmentation faults on modern operating systems (ResourceManager_CargoMap[]).
+
+76. Dot is missing from end of sentence "%i %s upgraded to mark %s for %i raw material" in Upgrade All event handler function (cseg01:000F80FD). There are three possible messages: no upgrade, single unit upgrade, more then one unit upgrade. The messages are ended with dots for the first two, only the third one is inconsistent.
+
+77. One of the access module functions (cseg01:000136D8) reads already released heap memory which leads to random crashes or even worse, to memory corruption.
+```cpp
+    UnitInfo* unit;
+    SmartList<UnitInfo>::Iterator it;
+    
+    // the iterator is a smart pointer to a list node object which holds the list item and a reference to the next
+    // and previous list node. The next and prev members are smart pointers to list nodes
+    for (it = Hash_MapHash[Point(grid_x, grid_y)], unit = &*it; it != nullptr;) {
+        if (((*it).flags & flags) && !((*it).flags & GROUND_COVER) && (*it).orders != ORDER_IDLE) {
+            return &*it;
+        }
+        
+        // the following code snippet removes the list item, the list node, from the hash map which means that the
+        // last reference to the list item, which is held by the list node, is held by the iterator which is again
+        // a reference counted smart pointer
+        Hash_MapHash.Remove(&*it);
+        Hash_MapHash.Add(&*it);
+        
+        // this is where the issue occurs as the iterator is moved which means that the last reference to our
+        // list node is gone somewhere within the iterator's overloaded ++ operator
+        ++it;
+        
+        ...
+    }
+    
+    // this is how the iterator's ++ operator is implemented. The next member of the list node object
+    // is a smart pointer which means that the smart pointer class uses the overloaded = operator that
+    // takes another smart pointer by reference (by its address practically)
+    Iterator& operator++() {
+        SmartPointer<ListNode<T>>::operator=(this->object_pointer->next);
+        return *this;
+    }
+    
+    // this is how the = operator is implemented. The implementation takes into account the use case where the
+    // other object could be the same as the this object. But it does not take into account that the object
+    // that is held by the smart pointer might be a smart pointer like object.
+    SmartPointer<T>& operator=(const SmartPointer<T>& other) {
+        // the other object in this case is the list node's next member which has a reference count >= 1
+        other.object_pointer->Increment();
+        // the decrement operation decreases the current list node's reference count to zero so the held list node
+        // object gets deleted. But that list node object's next member, which is a smart pointer to the next list
+        // node also gets deleted! So the other argument, which is a reference, now points to released heap memory.
+        // The heap deallocator implementation may fill up the released memory with a test pattern like 0xFEEEFEEE or
+        // 0xDEADBEEF or similar. 
+        object_pointer->Decrement();
+        // So when the object_pointer is assigned to other.object_pointer potentially 0xFEEEFEEE offset by the object_pointer
+        // member gets dereferenced and the software segmentation faults or worse.
+        object_pointer = other.object_pointer;
+    
+        return *this;
+    }
+```
+The issue can be resolved if the iterator ++ and \-\- operators pass object T reference to the smart pointer instead of the smartpointer itself as follows.
+```cpp
+    // bad, passes next which is a smart pointer to the list node object
+    SmartPointer<ListNode<T>>::operator=(this->object_pointer->next);
+    
+    // good, passes the list node object (T) held by next so even if the list node is deleted and the next member of it gets destroyed the object T is still valid
+    SmartPointer<ListNode<T>>::operator=(&*this->object_pointer->next);
+```
+On modern operating systems the deallocated heap memory could be reallocated by another thread or process before the next list node gets assigned so memory corruption or crashes might still occur even if the heap deallocator does not fill the released memory with nasty bug trapping test patterns. On DOS this is highly unlikely so there this defect was assumably latent.
+
+78. The Engineer and Constructor specific popup context menu button list initializer function (cseg01:000F9304) tests whether the units are building `order = build and order_state != 13 and order_state != 46` and either adds the Stop or the Build button to the button list. The last test in the original code is `order != 46` which is always true of course as there is no such order ID. In case the order state would be 46, whatever that means, the wrong button would be presented to the user. Interestingly the button on click event handler is the same function so the test and the button label is defective, but the outcome of the event will be the same action.
 
 {% comment %}
 
