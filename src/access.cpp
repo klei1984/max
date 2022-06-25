@@ -1286,26 +1286,17 @@ UnitInfo* Access_GetUnit5(int grid_x, int grid_y) {
 UnitInfo* Access_GetUnit3(int grid_x, int grid_y, unsigned int flags) {
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         UnitInfo* unit;
+        SmartList<UnitInfo>::Iterator it;
 
-        SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)];
-        unit = &*it;
+        for (it = Hash_MapHash[Point(grid_x, grid_y)], unit = &*it; it != nullptr;) {
+            if (((*it).flags & flags) && !((*it).flags & GROUND_COVER) && (*it).orders != ORDER_IDLE) {
+                return &*it;
+            }
 
-        for (;;) {
-            do {
-                if (it == nullptr) {
-                    return nullptr;
-                }
+            Hash_MapHash.Remove(&*it);
+            Hash_MapHash.Add(&*it);
 
-                if (((*it).flags & flags) && !((*it).flags & GROUND_COVER) && (*it).orders != ORDER_IDLE) {
-                    return &*it;
-                }
-
-                Hash_MapHash.Remove(&*it);
-                Hash_MapHash.Add(&*it);
-
-                ++it;
-
-            } while (it != nullptr);
+            ++it;
 
             if (it != nullptr) {
                 if (&*it == unit) {

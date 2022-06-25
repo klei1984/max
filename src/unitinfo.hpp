@@ -22,6 +22,7 @@
 #ifndef UNITINFO_HPP
 #define UNITINFO_HPP
 
+#include "button.hpp"
 #include "complex.hpp"
 #include "paths.hpp"
 #include "point.hpp"
@@ -29,6 +30,8 @@
 #include "smartobjectarray.hpp"
 #include "tasks.hpp"
 #include "unitvalues.hpp"
+
+#define UNITINFO_MAX_POPUP_BUTTON_COUNT 10
 
 struct __attribute__((packed)) SoundElement {
     unsigned char type;
@@ -40,7 +43,19 @@ struct __attribute__((packed)) SoundTable {
     struct SoundElement item[];
 };
 
-struct PopupFunctions;
+struct PopupButtons {
+    unsigned char popup_count;
+    unsigned char position[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    unsigned char key_code[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    const char* caption[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    bool state[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    ButtonFunc r_func[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    Button* buttons[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    unsigned short ulx;
+    unsigned short uly;
+    unsigned short width;
+    unsigned short height;
+};
 
 class UnitInfoGroup;
 
@@ -168,6 +183,7 @@ public:
     void ClearFromTaskLists();
     void RemoveUnknown();
     void BuildOrder();
+    bool IsUpgradeAvailable();
 
     ResourceID unit_type;
     struct PopupFunctions* popup;

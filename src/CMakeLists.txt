@@ -72,6 +72,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gfx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reportstats.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/allocmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/repairshopmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reportmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitstats.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unittypeselector.cpp
@@ -83,6 +85,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/purchasetypeselector.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/teammissionsupplies.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cargomenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/buildmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp

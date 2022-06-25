@@ -114,20 +114,6 @@ struct MenuDisplayControl {
     Image* image;
 };
 
-struct PopupButtons {
-    unsigned char popup_count;
-    unsigned char position[10];
-    unsigned char key_code[10];
-    char* caption[10];
-    char state[10];
-    ButtonFunc r_func[10];
-    Button* buttons[10];
-    unsigned short ulx;
-    unsigned short uly;
-    unsigned short width;
-    unsigned short height;
-};
-
 struct ResourceRange {
     short min;
     short max;
@@ -3585,7 +3571,7 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
                 button->Enable();
 
                 GameManager_PopupButtons.buttons[i] = button;
-                uly = image->height + 3;
+                uly += image->height + 3;
             }
 
             win_draw_rect(main_map_window->id, &unknown_map_window->window);
@@ -5680,7 +5666,7 @@ int GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int grid_x, int grid_y, Un
         }
 
         if (unit1->unit_type == MASTER) {
-            if (UnitsManager_CanDeployMasterBuilder(unit1, target_grid_x, target_grid_y)) {
+            if (UnitsManager_IsMasterBuilderPlaceable(unit1, target_grid_x, target_grid_y)) {
                 UnitsManager_MoveUnit(&*GameManager_TempTape, target_grid_x, target_grid_y);
 
                 if (target_grid_x <= grid_x && target_grid_x + 1 >= grid_x && target_grid_y <= grid_y &&

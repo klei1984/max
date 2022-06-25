@@ -34,5 +34,6 @@ void Ai_FileLoad(SmartFileReader& file);
 void Ai_FileSave(SmartFileWriter& file);
 void Ai_SelectStartingPosition(unsigned short team);
 void Ai_AddUnitToTrackerList(UnitInfo* unit);
+void Ai_EnableAutoSurvey(UnitInfo* unit);
 
 #endif /* AI_HPP */

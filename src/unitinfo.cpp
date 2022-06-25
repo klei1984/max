@@ -1854,6 +1854,10 @@ void UnitInfo::BuildOrder() {
     UnitsManager_SetNewOrder(this, ORDER_BUILDING, ORDER_STATE_0);
 }
 
+bool UnitInfo::IsUpgradeAvailable() {
+    /// \todo
+}
+
 void UnitInfo::GainExperience(int experience) {
     if (flags & REGENERATING_UNIT) {
         storage += experience;

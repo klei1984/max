@@ -22,19 +22,25 @@
 #include "units_manager.hpp"
 
 #include "access.hpp"
+#include "ai.hpp"
+#include "allocmenu.hpp"
 #include "builder.hpp"
+#include "buildmenu.hpp"
 #include "cursor.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "message_manager.hpp"
 #include "paths_manager.hpp"
 #include "remote.hpp"
+#include "repairshopmenu.hpp"
+#include "researchmenu.hpp"
 #include "resource_manager.hpp"
 #include "smartlist.hpp"
 #include "sound_manager.hpp"
 #include "survey.hpp"
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
+#include "upgrademenu.hpp"
 #include "window.hpp"
 #include "window_manager.hpp"
 
@@ -45,6 +51,62 @@ static bool UnitsManager_SelfDestructMenu();
 static void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y);
 static void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y);
 static void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit);
+static void UnitsManager_RegisterButton(PopupButtons* buttons, bool state, const char* caption, char position,
+                                        void (*event_handler)(ButtonID bid, UnitInfo* unit));
+
+static void UnitsManager_Popup_OnClick_Done(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Sentry(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Upgrade(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Enter(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Remove(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Stop(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Transfer(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Manual(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_Auto(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitSurveyor(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_InitRecreationCenter(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_InitEcoSphere(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_InitPowerGenerators(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_InitFuelSuppliers(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_Build(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_PlaceNewUnit(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_StopBuild(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_StartBuild(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitFactories(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_TargetingMode(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitMilitary(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_Reload(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitReloaders(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_InitMineLayers(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_InitRepair(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_BuildStop(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons* buttons);
+static bool UnitsManager_Popup_IsUnitReady(UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons);
+static bool UnitsManager_IsPowerGeneratorPlaceable(unsigned short team, short* grid_x, short* grid_y);
+static void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_ActivateNonAirUnit(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_ActivateAirUnit(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Activate(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Load(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitRepairShops(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_PowerOnAllocate(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitMiningStation(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_BuyUpgrade(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitGoldRefinery(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_Research(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitResearch(UnitInfo* unit, struct PopupButtons* buttons);
+static void UnitsManager_Popup_OnClick_PowerOn(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Steal(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_OnClick_Disable(ButtonID bid, UnitInfo* unit);
+static void UnitsManager_Popup_InitInfiltrator(UnitInfo* unit, struct PopupButtons* buttons);
+static bool UnitsManager_Popup_IsNever(UnitInfo* unit);
+static bool UnitsManager_Popup_IsReady(UnitInfo* unit);
 
 unsigned short UnitsManager_Team;
 
@@ -2096,10 +2158,6 @@ bool UnitsManager_SelfDestructMenu() {
     return event_click_arm;
 }
 
-void UnitsManager_PerformAction(UnitInfo* unit) {
-    /// \todo
-}
-
 int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential) {
     int target_armor = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);
     int attacker_damage = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
@@ -2197,34 +2255,883 @@ int UnitsManager_AddDefaultMissionLoadout(unsigned short team) {
     return units_count;
 }
 
-bool UnitsManager_CanDeployMasterBuilder(UnitInfo* unit, int grid_x, int grid_y) {
-    /// \todo
+void UnitsManager_Popup_OnClick_Sentry(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    GameManager_UpdateDrawBounds();
+
+    unit->path = nullptr;
+    unit->disabled_reaction_fire = false;
+    unit->auto_survey = false;
+
+    if (Remote_IsNetworkGame) {
+        Remote_SendNetPacket_38(unit);
+    }
+
+    if (unit->orders == ORDER_SENTRY) {
+        UnitsManager_SetNewOrder(unit, ORDER_AWAITING, ORDER_STATE_1);
+        GameManager_UpdateInfoDisplay(unit);
+
+    } else {
+        UnitsManager_SetNewOrder(unit, ORDER_SENTRY, ORDER_STATE_1);
+        GameManager_UpdateInfoDisplay(unit);
+        GameManager_AutoSelectNext(unit);
+    }
 }
 
-/// \todo
-void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitSurveyor(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitRecreationCenter(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitEcoSphere(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitPowerGenerators(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitFuelSuppliers(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitFactories(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitMilitary(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitReloaders(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitMineLayers(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitRepair(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitRepairShops(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitMiningStation(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitGoldRefinery(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitResearch(UnitInfo* unit, struct PopupButtons* buttons) {}
-void UnitsManager_Popup_InitInfiltrator(UnitInfo* unit, struct PopupButtons* buttons) {}
+void UnitsManager_Popup_OnClick_Upgrade(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(false);
+    unit->SetParent(unit);
+    UnitsManager_SetNewOrder(unit, ORDER_REPAIRING_28, ORDER_STATE_0);
+}
+
+void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
+    int material_cost;
+    int cost;
+    int unit_count;
+    UnitInfo* upgraded_unit;
+    SmartArray<Complex> complexes;
+    ObjectArray<short> costs;
+    int index;
+    char mark_level[20];
+
+    GameManager_DeinitPopupButtons(true);
+
+    material_cost = 0;
+    unit_count = 0;
+    upgraded_unit = nullptr;
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if (unit->team == (*it).team && (*it).IsUpgradeAvailable() && (*it).state != ORDER_STATE_UNIT_READY) {
+            for (index = 0; index < complexes.GetCount(); ++index) {
+                if ((*it).GetComplex() == &complexes[index]) {
+                    break;
+                }
+            }
+
+            if (index == complexes.GetCount()) {
+                Cargo materials;
+                Cargo capacity;
+
+                (*it).GetComplex()->GetCargoInfo(materials, capacity);
+
+                complexes.Insert(*(*it).GetComplex());
+                costs.Append(&materials.raw);
+            }
+
+            cost = (*it).GetNormalRateBuildCost();
+
+            if (*costs[index] >= cost) {
+                (*it).SetParent(&*it);
+                UnitsManager_SetNewOrder(&*it, ORDER_REPAIRING_28, ORDER_STATE_1);
+
+                ++unit_count;
+                material_cost += cost;
+
+                upgraded_unit = &*it;
+
+                *costs[index] -= cost;
+            }
+        }
+    }
+
+    UnitInfo::GetVersion(
+        mark_level,
+        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit->team], unit->unit_type)->GetVersion());
+
+    if (unit_count <= 0) {
+        SmartString string;
+
+        MessageManager_DrawMessage(
+            string.Sprintf(80, "%i raw material needed to upgrade.", unit->GetNormalRateBuildCost() / 4).GetCStr(), 2,
+            0);
+
+    } else if (unit_count == 1) {
+        SmartString string;
+
+        MessageManager_DrawMessage(
+            string
+                .Sprintf(80, "%s upgraded to mark %s for %i raw material.",
+                         UnitsManager_BaseUnits[unit->unit_type].singular_name, mark_level, material_cost)
+                .GetCStr(),
+            0, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
+
+    } else {
+        SmartString string;
+
+        MessageManager_DrawMessage(
+            string
+                .Sprintf(80, "%i %s upgraded to mark %s for %i raw material.", unit_count,
+                         UnitsManager_BaseUnits[unit->unit_type].plural_name, mark_level, material_cost)
+                .GetCStr(),
+            0, 0);
+    }
+}
+
+void UnitsManager_Popup_OnClick_Enter(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    unit->enter_mode = !unit->enter_mode;
+    unit->cursor = 0;
+    unit->targeting_mode = 0;
+}
+
+void UnitsManager_Popup_OnClick_Remove(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    if (UnitsManager_SelfDestructMenu()) {
+        UnitsManager_SetNewOrder(unit, ORDER_EXPLODING, ORDER_STATE_27);
+    }
+}
+
+void UnitsManager_Popup_OnClick_Stop(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    UnitsManager_SetNewOrder(unit, ORDER_AWAITING, ORDER_STATE_CLEAR_PATH);
+}
+
+void UnitsManager_Popup_OnClick_Transfer(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->cursor == 3) {
+        unit->cursor = 0;
+
+    } else {
+        unit->cursor = 3;
+    }
+
+    unit->targeting_mode = false;
+    unit->enter_mode = false;
+}
+
+void UnitsManager_Popup_OnClick_Manual(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    unit->disabled_reaction_fire = !unit->disabled_reaction_fire;
+
+    if (unit->orders == ORDER_SENTRY) {
+        UnitsManager_SetNewOrder(unit, ORDER_AWAITING, ORDER_STATE_1);
+    }
+
+    GameManager_UpdateInfoDisplay(unit);
+}
+
+void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES && unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0 &&
+        unit->unit_type != COMMANDO) {
+        UnitsManager_RegisterButton(buttons, unit->disabled_reaction_fire, "Manual", '4',
+                                    &UnitsManager_Popup_OnClick_Manual);
+    }
+
+    if (UnitsManager_BaseUnits[unit->unit_type].cargo_type > CARGO_TYPE_NONE &&
+        UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD && unit->orders != ORDER_CLEARING &&
+        unit->orders != ORDER_BUILDING) {
+        UnitsManager_RegisterButton(buttons, unit->cursor == 3, "x-fer", '3', &UnitsManager_Popup_OnClick_Transfer);
+    }
+
+    if ((unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) && unit->orders != ORDER_CLEARING &&
+        unit->orders != ORDER_BUILDING) {
+        UnitsManager_RegisterButton(buttons, unit->enter_mode, "enter", '5', &UnitsManager_Popup_OnClick_Enter);
+    }
+
+    if (unit->path != nullptr && unit->orders != ORDER_CLEARING && unit->orders != ORDER_BUILDING) {
+        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_Stop);
+    }
+
+    if (unit->IsUpgradeAvailable()) {
+        UnitsManager_RegisterButton(buttons, false, "upgrade", '5', &UnitsManager_Popup_OnClick_Upgrade);
+        UnitsManager_RegisterButton(buttons, false, "Upg. All", '6', &UnitsManager_Popup_OnClick_UpgradeAll);
+    }
+
+    if (unit->flags & SENTRY_UNIT) {
+        if (unit->unit_type != COMMANDO) {
+            if (unit->orders == ORDER_SENTRY) {
+                UnitsManager_RegisterButton(buttons, true, "sentry", '8', &UnitsManager_Popup_OnClick_Sentry);
+
+            } else if (unit->orders == ORDER_AWAITING) {
+                UnitsManager_RegisterButton(buttons, false, "sentry", '8', &UnitsManager_Popup_OnClick_Sentry);
+            }
+        }
+
+        UnitsManager_RegisterButton(buttons, false, "Done", '9', &UnitsManager_Popup_OnClick_Done);
+    }
+
+    if (unit->flags & STATIONARY) {
+        UnitsManager_RegisterButton(buttons, false, "remove", '0', &UnitsManager_Popup_OnClick_Remove);
+    }
+}
+
+void UnitsManager_Popup_OnClick_Done(ButtonID bid, UnitInfo* unit) { UnitsManager_PerformAction(unit); }
+
+void UnitsManager_Popup_OnClick_Auto(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    unit->auto_survey = !unit->auto_survey;
+
+    if (unit->orders == ORDER_SENTRY) {
+        UnitsManager_SetNewOrder(unit, ORDER_AWAITING, ORDER_STATE_1);
+    }
+
+    if (unit->auto_survey) {
+        Ai_EnableAutoSurvey(unit);
+
+    } else {
+        unit->ClearFromTaskLists();
+    }
+
+    GameManager_UpdateInfoDisplay(unit);
+}
+
+void UnitsManager_Popup_InitSurveyor(UnitInfo* unit, struct PopupButtons* buttons) {
+    UnitsManager_RegisterButton(buttons, unit->auto_survey, "Auto", '1', &UnitsManager_Popup_OnClick_Auto);
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_InitFuelSuppliers(UnitInfo* unit, struct PopupButtons* buttons) {
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_TargetingMode(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    unit->targeting_mode = !unit->targeting_mode;
+    unit->enter_mode = 0;
+    unit->cursor = 0;
+}
+
+void UnitsManager_Popup_InitMilitary(UnitInfo* unit, struct PopupButtons* buttons) {
+    UnitsManager_RegisterButton(buttons, unit->targeting_mode, "attack", '3',
+                                &UnitsManager_Popup_OnClick_TargetingMode);
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_Reload(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->cursor == 6) {
+        unit->cursor = 0;
+
+    } else {
+        unit->cursor = 6;
+    }
+}
+
+void UnitsManager_Popup_InitReloaders(UnitInfo* unit, struct PopupButtons* buttons) {
+    UnitsManager_RegisterButton(buttons, unit->cursor == 6, "reload", '1', &UnitsManager_Popup_OnClick_Reload);
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_PlaceMine(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->GetLayingState() == 2) {
+        UnitsManager_SetNewOrder(unit, ORDER_TRANSFERRING_29, ORDER_STATE_43);
+
+    } else if (unit->storage > 0) {
+        UnitsManager_SetNewOrder(unit, ORDER_TRANSFERRING_29, ORDER_STATE_44);
+
+    } else {
+        MessageManager_DrawMessage("Minelayer is empty, fill it with materials from a supply truck or mining station.",
+                                   1, 0);
+    }
+}
+
+void UnitsManager_Popup_OnClick_RemoveMine(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->GetLayingState() == 1) {
+        UnitsManager_SetNewOrder(unit, ORDER_TRANSFERRING_29, ORDER_STATE_43);
+
+    } else if (unit->storage != unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
+        UnitsManager_SetNewOrder(unit, ORDER_TRANSFERRING_29, ORDER_STATE_45);
+
+    } else {
+        MessageManager_DrawMessage("Minelayer is full, cannot pick up more mines.", 1, 0);
+    }
+}
+
+void UnitsManager_Popup_InitMineLayers(UnitInfo* unit, struct PopupButtons* buttons) {
+    UnitsManager_RegisterButton(buttons, unit->GetLayingState() == 2, "place", '1',
+                                &UnitsManager_Popup_OnClick_PlaceMine);
+    UnitsManager_RegisterButton(buttons, unit->GetLayingState() == 1, "remove", '0',
+                                &UnitsManager_Popup_OnClick_RemoveMine);
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_Repair(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->cursor == 4) {
+        unit->cursor = 0;
+
+    } else {
+        unit->cursor = 4;
+    }
+}
+
+void UnitsManager_Popup_InitRepair(UnitInfo* unit, struct PopupButtons* buttons) {
+    UnitsManager_RegisterButton(buttons, unit->cursor == 4, "repair", '1', &UnitsManager_Popup_OnClick_Repair);
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_BuildStop(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->orders == ORDER_BUILDING) {
+        GameManager_SelectBuildSite(unit);
+        GameManager_EnableMainMenu(unit);
+
+    } else {
+        GameManager_DisableMainMenu();
+        if (BuildMenu_Menu(unit)) {
+            GameManager_AutoSelectNext(unit);
+
+        } else {
+            GameManager_EnableMainMenu(unit);
+        }
+    }
+}
+
+void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_BUILDING && unit->state != ORDER_STATE_13 && unit->state != ORDER_STATE_46) {
+        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_BuildStop);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "Build", '1', &UnitsManager_Popup_OnClick_BuildStop);
+    }
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
 
 bool UnitsManager_Popup_IsNever(UnitInfo* unit) { return false; }
-bool UnitsManager_Popup_IsReady(UnitInfo* unit) {}
-bool UnitsManager_Popup_IsUnitReady(UnitInfo* unit) {}
+
+bool UnitsManager_Popup_IsReady(UnitInfo* unit) {
+    return (unit->orders = ORDER_AWAITING && unit->state == ORDER_STATE_1) ||
+           (unit->orders = ORDER_IDLE && unit->state == ORDER_STATE_BUILDING_READY);
+}
+
+void UnitsManager_RegisterButton(PopupButtons* buttons, bool state, const char* caption, char position,
+                                 void (*event_handler)(ButtonID bid, UnitInfo* unit)) {
+    int count;
+    char key;
+
+    SDL_assert(buttons->popup_count < UNITINFO_MAX_POPUP_BUTTON_COUNT);
+
+    key = position;
+
+    if (position == '0') {
+        key = ':';
+    }
+
+    for (count = buttons->popup_count; count > 0 && buttons->key_code[count - 1] > key; --count) {
+    }
+
+    for (int i = buttons->popup_count - 1; i >= count; --i) {
+        buttons->caption[i + 1] = buttons->caption[i];
+        buttons->state[i + 1] = buttons->state[i];
+        buttons->r_func[i + 1] = buttons->r_func[i];
+        buttons->position[i + 1] = buttons->position[i];
+        buttons->key_code[i + 1] = buttons->key_code[i];
+    }
+
+    buttons->caption[count] = caption;
+    buttons->state[count] = state;
+    buttons->r_func[count] = reinterpret_cast<ButtonFunc>(event_handler);
+    buttons->position[count] = position;
+    buttons->key_code[count] = key;
+
+    ++buttons->popup_count;
+}
+
+void UnitsManager_PerformAction(UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(false);
+
+    if (unit->state == ORDER_STATE_25) {
+        GameManager_SelectBuildSite(unit);
+    }
+
+    if (unit->orders == ORDER_AWAITING && (unit->flags & STATIONARY)) {
+        unit->state = ORDER_STATE_2;
+    }
+
+    if (unit->path != nullptr && unit->speed > 0 && unit->orders != ORDER_CLEARING && unit->orders != ORDER_BUILDING &&
+        !unit->GetUnitList()) {
+        unsigned char order;
+
+        order = unit->orders;
+
+        unit->orders = unit->prior_orders;
+        unit->state = unit->prior_state;
+
+        if (order == ORDER_ATTACKING) {
+            UnitsManager_SetNewOrder(unit, ORDER_ATTACKING, ORDER_STATE_0);
+
+        } else {
+            UnitsManager_SetNewOrder(unit, ORDER_MOVING, ORDER_STATE_0);
+        }
+
+        GameManager_UpdateDrawBounds();
+    }
+
+    if (ini_get_setting(INI_AUTO_SELECT)) {
+        GameManager_SelectNextUnit(1);
+    }
+}
+
+bool UnitsManager_Popup_IsUnitReady(UnitInfo* unit) {
+    bool result;
+
+    if (unit->orders == ORDER_BUILDING && unit->state == ORDER_STATE_UNIT_READY) {
+        result = true;
+
+    } else {
+        result = UnitsManager_Popup_IsReady(unit);
+    }
+
+    return result;
+}
+
+void UnitsManager_Popup_OnClick_Build(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    GameManager_DisableMainMenu();
+
+    if (unit->orders == ORDER_BUILDING) {
+        GameManager_SelectBuildSite(unit);
+        GameManager_ProcessTick(false);
+    }
+
+    if (BuildMenu_Menu(unit)) {
+        GameManager_AutoSelectNext(unit);
+
+    } else {
+        GameManager_EnableMainMenu(unit);
+    }
+}
+
+void UnitsManager_Popup_PlaceNewUnit(ButtonID bid, UnitInfo* unit) {
+    UnitInfo* parent;
+    short grid_x;
+    short grid_y;
+
+    GameManager_DeinitPopupButtons(true);
+    GameManager_DisableMainMenu();
+
+    parent = unit->GetParent();
+
+    grid_x = unit->grid_x;
+    grid_y = unit->grid_y;
+
+    if (Access_FindReachableSpot(parent->unit_type, parent, &grid_x, &grid_y, 1, 1, 0)) {
+        parent->FollowUnit();
+        MessageManager_DrawMessage("Select an open square to place unit.", 0, 0);
+        GameManager_EnableMainMenu(parent);
+
+    } else {
+        MessageManager_DrawMessage("Unable to activate unit at this site.", 1, 0);
+        GameManager_EnableMainMenu(parent);
+    }
+}
+
+void UnitsManager_Popup_OnClick_StopBuild(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    GameManager_SelectBuildSite(unit);
+    GameManager_EnableMainMenu(unit);
+}
+
+void UnitsManager_Popup_OnClick_StartBuild(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    unit->BuildOrder();
+    GameManager_EnableMainMenu(unit);
+}
+
+void UnitsManager_Popup_InitFactories(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->state == ORDER_STATE_UNIT_READY) {
+        UnitsManager_Popup_PlaceNewUnit(0, unit);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "Build", '1', &UnitsManager_Popup_OnClick_Build);
+
+        if (unit->orders == ORDER_AWAITING_21 || unit->orders == ORDER_BUILDING_HALTED) {
+            UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_StartBuild);
+
+        } else if (unit->orders == ORDER_BUILDING && unit->state != ORDER_STATE_13 && unit->state != ORDER_STATE_46) {
+            UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_StopBuild);
+        }
+
+        UnitsManager_Popup_InitCommons(unit, buttons);
+    }
+}
+
+void UnitsManager_Popup_OnClick_PowerOn(ButtonID bid, UnitInfo* unit) {
+    char message[400];
+
+    GameManager_DeinitPopupButtons(true);
+    UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_0);
+
+    sprintf(message, "%s powered %s", UnitsManager_BaseUnits[unit->unit_type].singular_name, "on");
+
+    MessageManager_DrawMessage(message, 0, 0);
+}
+
+void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit) {
+    char message[400];
+
+    GameManager_DeinitPopupButtons(true);
+    UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_0);
+
+    sprintf(message, "%s powered %s", UnitsManager_BaseUnits[unit->unit_type].singular_name, "off");
+
+    MessageManager_DrawMessage(message, 0, 0);
+}
+
+void UnitsManager_Popup_OnClick_Steal(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->cursor == 8) {
+        unit->cursor = 0;
+
+    } else {
+        unit->cursor = 8;
+    }
+}
+
+void UnitsManager_Popup_OnClick_Disable(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->cursor == 9) {
+        unit->cursor = 0;
+
+    } else {
+        unit->cursor = 9;
+    }
+}
+
+void UnitsManager_Popup_InitInfiltrator(UnitInfo* unit, struct PopupButtons* buttons) {
+    UnitsManager_RegisterButton(buttons, unit->cursor == 9, "disable", '1', &UnitsManager_Popup_OnClick_Disable);
+    UnitsManager_RegisterButton(buttons, unit->cursor == 8, "steal", '2', &UnitsManager_Popup_OnClick_Steal);
+    UnitsManager_RegisterButton(buttons, unit->targeting_mode, "attack", '3',
+                                &UnitsManager_Popup_OnClick_TargetingMode);
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_Research(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    ResearchMenu_Menu(unit);
+}
+
+void UnitsManager_Popup_InitResearch(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_POWER_ON) {
+        UnitsManager_RegisterButton(buttons, false, "resrch", '1', &UnitsManager_Popup_OnClick_Research);
+        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+    }
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+void UnitsManager_Popup_OnClick_BuyUpgrade(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    UpgradeMenu(unit->team, unit->GetComplex()).Run();
+}
+
+void UnitsManager_Popup_InitGoldRefinery(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_POWER_ON) {
+        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+    }
+
+    UnitsManager_RegisterButton(buttons, false, "buy upg", '1', &UnitsManager_Popup_OnClick_BuyUpgrade);
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_InitRecreationCenter(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_POWER_OFF) {
+        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+    }
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_ActivateNonAirUnit(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    GameManager_DisableMainMenu();
+
+    RepairShopMenu(unit).Run();
+}
+
+void UnitsManager_Popup_OnClick_ActivateAirUnit(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+    GameManager_DisableMainMenu();
+
+    RepairShopMenu(unit).Run();
+}
+
+void UnitsManager_Popup_OnClick_Activate(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->orders == ORDER_POWER_OFF) {
+        UnitsManager_Popup_OnClick_PowerOn(0, unit);
+
+    } else if (unit->flags & MOBILE_AIR_UNIT) {
+        UnitsManager_Popup_OnClick_ActivateAirUnit(0, unit);
+
+    } else {
+        UnitsManager_Popup_OnClick_ActivateNonAirUnit(0, unit);
+    }
+}
+
+void UnitsManager_Popup_OnClick_Load(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->cursor == 7) {
+        unit->cursor = 0;
+
+    } else {
+        unit->cursor = 7;
+    }
+}
+
+void UnitsManager_Popup_InitRepairShops(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_POWER_OFF) {
+        UnitsManager_RegisterButton(buttons, false, "start", '1', &UnitsManager_Popup_OnClick_Activate);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "activate", '1', &UnitsManager_Popup_OnClick_Activate);
+    }
+
+    UnitsManager_RegisterButton(buttons, unit->cursor == 7, "load", '2', &UnitsManager_Popup_OnClick_Load);
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_PowerOnAllocate(ButtonID bid, UnitInfo* unit) {
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->orders == ORDER_POWER_OFF) {
+        UnitsManager_Popup_OnClick_PowerOn(0, unit);
+
+    } else {
+        GameManager_DisableMainMenu();
+        AllocMenu_Menu(unit);
+        GameManager_EnableMainMenu(unit);
+    }
+}
+
+void UnitsManager_Popup_InitMiningStation(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_POWER_OFF) {
+        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOnAllocate);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "allocate", '1', &UnitsManager_Popup_OnClick_PowerOnAllocate);
+        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+    }
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_InitEcoSphere(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_POWER_ON) {
+        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+    }
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_InitPowerGenerators(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_POWER_ON) {
+        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+    }
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
+    SmartPointer<UnitInfo> rubble;
+
+    GameManager_DeinitPopupButtons(true);
+
+    if (unit->orders == ORDER_CLEARING) {
+        GameManager_SelectBuildSite(unit);
+        GameManager_EnableMainMenu(unit);
+
+    } else {
+        rubble = Access_GetUnit8(unit->team, unit->grid_x, unit->grid_y);
+
+        if (rubble != nullptr) {
+            int clearing_time;
+            char message[400];
+
+            unit->SetParent(&*rubble);
+
+            if (rubble->flags & BUILDING) {
+                clearing_time = 4;
+
+            } else {
+                clearing_time = 1;
+            }
+
+            unit->build_time = clearing_time;
+
+            UnitsManager_SetNewOrder(unit, ORDER_CLEARING, ORDER_STATE_0);
+            GameManager_UpdateInfoDisplay(unit);
+            GameManager_AutoSelectNext(unit);
+
+            sprintf(message, "Number of turns to clear site: %i.", unit->build_time);
+
+            MessageManager_DrawMessage(message, 0, unit, Point(unit->grid_x, unit->grid_y));
+
+        } else {
+            MessageManager_DrawMessage("Unable to clear at current location.", 1, 0);
+        }
+    }
+}
+
+void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons) {
+    if (unit->orders == ORDER_CLEARING) {
+        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_StopRemove);
+
+    } else {
+        UnitsManager_RegisterButton(buttons, false, "remove", '0', &UnitsManager_Popup_OnClick_StopRemove);
+    }
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
+
+bool UnitsManager_IsPowerGeneratorPlaceable(unsigned short team, short* grid_x, short* grid_y) {
+    *grid_x -= 1;
+    *grid_y += 1;
+
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+        return true;
+    }
+
+    *grid_x += 3;
+
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+        return true;
+    }
+
+    *grid_x -= 3;
+    *grid_y -= 1;
+
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+        return true;
+    }
+
+    *grid_x += 3;
+
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+        return true;
+    }
+
+    *grid_x -= 2;
+    *grid_y -= 1;
+
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+        return true;
+    }
+
+    *grid_x += 1;
+
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+        return true;
+    }
+
+    *grid_x -= 1;
+    *grid_y += 3;
+
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+        return true;
+    }
+
+    *grid_x += 1;
+
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+        return true;
+    }
+
+    return false;
+}
+
+void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit) {
+    short grid_x;
+    short grid_y;
+
+    GameManager_DeinitPopupButtons(true);
+
+    grid_x = unit->target_grid_x;
+    grid_y = unit->target_grid_y;
+
+    if (UnitsManager_IsPowerGeneratorPlaceable(unit->team, &grid_x, &grid_y)) {
+        UnitsManager_SetNewOrderInt(unit, ORDER_BUILDING, ORDER_STATE_25);
+        GameManager_TempTape =
+            UnitsManager_SpawnUnit(LRGTAPE, GameManager_PlayerTeam, unit->target_grid_x, unit->target_grid_y, unit);
+
+    } else {
+        MessageManager_DrawMessage("Need a location to put the power generator.", 2, 0);
+    }
+
+    MessageManager_DrawMessage("Click inside tape to begin transformation.", 0, 0);
+}
+
+bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int grid_x, int grid_y) {
+    bool result;
+    short raw;
+    short fuel;
+    short gold;
+
+    result = false;
+
+    Survey_GetTotalResourcesInArea(grid_x, grid_y, 1, &raw, &gold, &fuel, true, unit->team);
+
+    if (raw && Cargo_GetFuelConsumptionRate(POWGEN) < fuel) {
+        Hash_MapHash.Remove(unit);
+
+        if (GameManager_TempTape != nullptr) {
+            Hash_MapHash.Remove(&*GameManager_TempTape);
+        }
+
+        result = Builder_IsAccessible(unit->team, MININGST, grid_x, grid_y);
+
+        if (GameManager_TempTape != nullptr) {
+            Hash_MapHash.Add(&*GameManager_TempTape);
+        }
+
+        Hash_MapHash.Add(&*GameManager_TempTape);
+    }
+
+    return result;
+}
+
+void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons) {
+    bool is_placeable;
+
+    is_placeable = false;
+
+    for (int grid_y = unit->grid_y; grid_y >= std::max(unit->grid_y - 1, 0) && !is_placeable; --grid_y) {
+        for (int grid_x = unit->grid_x; grid_x >= std::max(unit->grid_x - 1, 0) && !is_placeable; --grid_x) {
+            is_placeable = UnitsManager_IsMasterBuilderPlaceable(unit, grid_x, grid_y);
+
+            if (is_placeable) {
+                UnitsManager_RegisterButton(buttons, false, "start", '1',
+                                            &UnitsManager_Popup_OnClick_StartMasterBuilder);
+
+                unit->target_grid_x = grid_x;
+                unit->target_grid_y = grid_y;
+            }
+        }
+    }
+
+    UnitsManager_Popup_InitCommons(unit, buttons);
+}
 
 void UnitsManager_InitPopupMenus() {
     for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
@@ -2465,7 +3372,158 @@ void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y) {
 }
 
 void UnitsManager_RemoveConnections(UnitInfo* unit) {
-    /// \todo
+    unsigned short team;
+    SmartPointer<UnitInfo> building;
+
+    team = unit->team;
+
+    unit->RefreshScreen();
+
+    if ((unit->flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(unit->flags & GROUND_COVER)) {
+        int unit_size;
+        int grid_x;
+        int grid_y;
+
+        unit->DetachComplex();
+
+        if (unit->flags & BUILDING) {
+            unit_size = 2;
+
+        } else {
+            unit_size = 1;
+        }
+
+        grid_x = unit->grid_x;
+        grid_y = unit->grid_y;
+
+        if (unit->connectors & CONNECTOR_NORTH_LEFT) {
+            building = Access_GetTeamBuilding(team, grid_x, grid_y - 1);
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                unit->connectors &= ~CONNECTOR_SOUTH_LEFT;
+
+            } else if (building == Access_GetTeamBuilding(team, grid_x + 1, grid_y - 1)) {
+                unit->connectors &= ~CONNECTOR_SOUTH_LEFT;
+
+            } else {
+                unit->connectors &= ~CONNECTOR_SOUTH_RIGHT;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->connectors & CONNECTOR_NORTH_RIGHT) {
+            building = Access_GetTeamBuilding(team, grid_x - 1, grid_y + 1);
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                unit->connectors &= ~CONNECTOR_SOUTH_LEFT;
+
+            } else if (building == Access_GetTeamBuilding(team, grid_x, grid_y - 1)) {
+                unit->connectors &= ~CONNECTOR_SOUTH_RIGHT;
+
+            } else {
+                unit->connectors &= ~CONNECTOR_SOUTH_LEFT;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->connectors & CONNECTOR_EAST_TOP) {
+            building = Access_GetTeamBuilding(team, grid_x + unit_size, grid_y);
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                unit->connectors &= ~CONNECTOR_WEST_TOP;
+
+            } else if (building == Access_GetTeamBuilding(team, grid_x + unit_size, grid_y + 1)) {
+                unit->connectors &= ~CONNECTOR_WEST_TOP;
+
+            } else {
+                unit->connectors &= ~CONNECTOR_WEST_BOTTOM;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->connectors & CONNECTOR_EAST_BOTTOM) {
+            building = Access_GetTeamBuilding(team, grid_x + unit_size, grid_y + 1);
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                unit->connectors &= ~CONNECTOR_WEST_TOP;
+
+            } else if (building == Access_GetTeamBuilding(team, grid_x + unit_size, grid_y)) {
+                unit->connectors &= ~CONNECTOR_WEST_BOTTOM;
+
+            } else {
+                unit->connectors &= ~CONNECTOR_WEST_TOP;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->connectors & CONNECTOR_SOUTH_LEFT) {
+            building = Access_GetTeamBuilding(team, grid_x, grid_y + unit_size);
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                unit->connectors &= ~CONNECTOR_NORTH_LEFT;
+
+            } else if (building == Access_GetTeamBuilding(team, grid_x + 1, grid_y + unit_size)) {
+                unit->connectors &= ~CONNECTOR_NORTH_LEFT;
+
+            } else {
+                unit->connectors &= ~CONNECTOR_NORTH_RIGHT;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->connectors & CONNECTOR_SOUTH_RIGHT) {
+            building = Access_GetTeamBuilding(team, grid_x + 1, grid_y + unit_size);
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                unit->connectors &= ~CONNECTOR_NORTH_LEFT;
+
+            } else if (building == Access_GetTeamBuilding(team, grid_x, grid_y + unit_size)) {
+                unit->connectors &= ~CONNECTOR_NORTH_RIGHT;
+
+            } else {
+                unit->connectors &= ~CONNECTOR_NORTH_LEFT;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->connectors & CONNECTOR_WEST_TOP) {
+            building = Access_GetTeamBuilding(team, grid_x - 1, grid_y);
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                unit->connectors &= ~CONNECTOR_EAST_TOP;
+
+            } else if (building == Access_GetTeamBuilding(team, grid_x - 1, grid_y + 1)) {
+                unit->connectors &= ~CONNECTOR_EAST_TOP;
+
+            } else {
+                unit->connectors &= ~CONNECTOR_EAST_BOTTOM;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->connectors & CONNECTOR_WEST_BOTTOM) {
+            building = Access_GetTeamBuilding(team, grid_x - 1, grid_y + 1);
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                unit->connectors &= ~CONNECTOR_EAST_TOP;
+
+            } else if (building == Access_GetTeamBuilding(team, grid_x - 1, grid_y)) {
+                unit->connectors &= ~CONNECTOR_EAST_BOTTOM;
+
+            } else {
+                unit->connectors &= ~CONNECTOR_EAST_TOP;
+            }
+
+            building->RefreshScreen();
+        }
+    }
 }
 
 void UnitsManager_DrawBustedCommando(UnitInfo* unit) { unit->DrawSpriteFrame(unit->angle + 200); }

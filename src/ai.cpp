@@ -128,3 +128,7 @@ void Ai_FileSave(SmartFileWriter& file) {
 void Ai_AddUnitToTrackerList(UnitInfo* unit) {
     /// \todo
 }
+
+void Ai_EnableAutoSurvey(UnitInfo* unit) {
+    /// \todo
+}

@@ -19,18 +19,11 @@
  * SOFTWARE.
  */
 
-#ifndef RESEARCHMENU_HPP
-#define RESEARCHMENU_HPP
+#ifndef ALLOCMENU_HPP
+#define ALLOCMENU_HPP
 
-#include "resource_manager.hpp"
 #include "unitinfo.hpp"
 
-extern const char* const ResearchMenu_TopicLabels[];
-extern const ResourceID ResearchMenu_TopicIcon[];
+void AllocMenu_Menu(UnitInfo* unit);
 
-void ResearchMenu_Menu(UnitInfo* unit);
-void ResearchMenu_CalculateResearchCost(unsigned short team, int research_topic, int allocation);
-void ResearchMenu_NewTurn(unsigned short team);
-int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type);
-
-#endif /* RESEARCHMENU_HPP */
+#endif /* ALLOCMENU_HPP */

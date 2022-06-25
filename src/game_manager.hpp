@@ -67,6 +67,7 @@ extern unsigned short GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];
 extern Rect GameManager_GridPosition;
 extern Rect GameManager_MapWindowDrawBounds;
 extern SmartPointer<UnitInfo> GameManager_SelectedUnit;
+extern SmartPointer<UnitInfo> GameManager_TempTape;
 extern SmartList<UnitInfo> GameManager_LockedUnits;
 extern unsigned int GameManager_TurnCounter;
 extern int GameManager_TurnTimerValue;

@@ -2069,7 +2069,11 @@ enum : unsigned char {
     ORDER_STATE_39 = 0x27,
     ORDER_STATE_40 = 0x28,
     ORDER_STATE_41 = 0x29,
-    ORDER_STATE_NEW_ORDER = 0x2A
+    ORDER_STATE_NEW_ORDER = 0x2A,
+    ORDER_STATE_43 = 0x2B,
+    ORDER_STATE_44 = 0x2C,
+    ORDER_STATE_45 = 0x2D,
+    ORDER_STATE_46 = 0x2E,
 };
 
 enum : unsigned char {

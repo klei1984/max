@@ -140,12 +140,12 @@ public:
         T& operator*() const { return *(this->object_pointer->GetObject()); }
 
         Iterator& operator++() {
-            SmartPointer<ListNode<T>>::operator=(this->object_pointer->next);
+            SmartPointer<ListNode<T>>::operator=(&*this->object_pointer->next);
             return *this;
         }
 
         Iterator& operator--() {
-            SmartPointer<ListNode<T>>::operator=(this->object_pointer->prev);
+            SmartPointer<ListNode<T>>::operator=(&*this->object_pointer->prev);
             return *this;
         }
     };
