@@ -84,8 +84,8 @@ public:
 };
 
 class LimitedScrollbar : public Scrollbar {
-    unsigned short xfer_give_max;
-    unsigned short xfer_take_max;
+    short xfer_give_max;
+    short xfer_take_max;
 
 public:
     LimitedScrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id,
@@ -93,8 +93,8 @@ public:
                      bool vertical = false);
     ~LimitedScrollbar();
 
-    void SetXferGiveMax(unsigned short limit);
-    void SetXferTakeMax(unsigned short limit);
+    void SetXferGiveMax(short limit);
+    void SetXferTakeMax(short limit);
 
     bool ProcessKey(int key_code);
 };

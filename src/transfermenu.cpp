@@ -78,8 +78,8 @@ void TransferMenu::UpdateIndicators() {
 
     text_font(5);
     snprintf(total, sizeof(total), "%ld", labs(total_materials_transferred));
-    snprintf(source, sizeof(source), "%ld", labs(unit1_materials));
-    snprintf(target, sizeof(target), "%ld", labs(unit2_materials));
+    snprintf(source, sizeof(source), "%ld", labs(source_unit_materials));
+    snprintf(target, sizeof(target), "%ld", labs(target_unit_materials));
 
     xfer_amount->Write(&window);
     Text_TextBox(window.buffer, window.width, total, 141, 15, 29, 20, 0xFF, true);
@@ -104,13 +104,17 @@ bool TransferMenu::ProcessKey(int key) {
 
     if (key == GNW_KB_KEY_RETURN) {
         event_click_done = true;
+
     } else if (key == GNW_KB_KEY_ESCAPE) {
         total_materials_transferred = 0;
         event_click_done = true;
+
     } else if (key == GNW_KB_KEY_SHIFT_DIVIDE) {
         HelpMenu_Menu(HELPMENU_TRANSFER_SETUP, WINDOW_MAIN_MAP);
+
     } else if (key == GNW_KB_KEY_LALT_P) {
         PauseMenu_Menu();
+
     } else if (key < GNW_INPUT_PRESS) {
         if (scrollbar->ProcessKey(key)) {
             int old_value = total_materials_transferred;
@@ -121,14 +125,17 @@ bool TransferMenu::ProcessKey(int key) {
                 UpdateIndicators();
             }
         }
+
     } else if (!event_release) {
         event_release = true;
         key -= GNW_INPUT_PRESS;
 
         if (key == GNW_KB_KEY_RETURN) {
             button_done->PlaySound();
+
         } else if (key == GNW_KB_KEY_ESCAPE) {
             button_cancel->PlaySound();
+
         } else if (key == GNW_KB_KEY_SHIFT_DIVIDE) {
             button_help->PlaySound();
         }
@@ -137,7 +144,7 @@ bool TransferMenu::ProcessKey(int key) {
     return true;
 }
 
-TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, 38) {
+TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, WINDOW_MAIN_MAP) {
     short source_unit_capacity;
     short target_unit_capacity;
 
@@ -152,31 +159,34 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, 38) {
     Cursor_SetCursor(CURSOR_HAND);
     text_font(5);
 
-    TransferMenu_GetUnitCargoInfo(source_unit, target_unit, unit1_materials, source_unit_capacity);
-    TransferMenu_GetUnitCargoInfo(target_unit, source_unit, unit2_materials, target_unit_capacity);
+    TransferMenu_GetUnitCargoInfo(source_unit, target_unit, source_unit_materials, source_unit_capacity);
+    TransferMenu_GetUnitCargoInfo(target_unit, source_unit, target_unit_materials, target_unit_capacity);
 
-    total_materials_transferred = target_unit_capacity - unit2_materials;
-    total_materials_transferred = std::min(total_materials_transferred, unit1_materials);
+    total_materials_transferred = target_unit_capacity - target_unit_materials;
+    total_materials_transferred = std::min(total_materials_transferred, source_unit_materials);
 
-    unit1_free_capacity = source_unit_capacity - unit1_materials;
-    unit1_free_capacity = std::min(unit1_free_capacity, unit2_materials);
+    source_unit_free_capacity = source_unit_capacity - source_unit_materials;
+    source_unit_free_capacity = std::min(source_unit_free_capacity, target_unit_materials);
 
     switch (UnitsManager_BaseUnits[source_unit->unit_type].cargo_type) {
-        case MATERIALS:
+        case MATERIALS: {
             material_id = SMBRRAW;
-            break;
-        case FUEL:
+        } break;
+
+        case FUEL: {
             material_id = SMBRFUEL;
-            break;
-        case GOLD:
+        } break;
+
+        case GOLD: {
             material_id = SMBRGOLD;
-            break;
-        default:
+        } break;
+
+        default: {
             SDL_assert(0);
-            break;
+        } break;
     }
 
-    unit2_free_capacity = total_materials_transferred;
+    target_unit_free_capacity = total_materials_transferred;
 
     Add();
     FillWindowInfo(&window);
@@ -193,52 +203,50 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, 38) {
 
     Rect slider_bounds = {44, 89, 267, 105};
     Rect value_bounds = {141, 15, 170, 35};
-    scrollbar =
-        new (std::nothrow) LimitedScrollbar(this, &slider_bounds, &value_bounds, SMBRRAW, 0x3E8, 0x3E9, 0x3EA, 0);
+    scrollbar = new (std::nothrow) LimitedScrollbar(this, &slider_bounds, &value_bounds, SMBRRAW, 1000, 1001, 1002, 0);
 
     button_right = new (std::nothrow) Button(XFRRGT_U, XFRRGT_D, 278, 89);
-    button_right->SetPValue(0x3E8);
+    button_right->SetPValue(1000);
     button_right->SetSfx(KCARG0);
     button_right->RegisterButton(window.id);
 
     button_left = new (std::nothrow) Button(XFRLFT_U, XFRLFT_D, 17, 89);
-    button_left->SetPValue(0x3E9);
+    button_left->SetPValue(1001);
     button_left->SetSfx(KCARG0);
     button_left->RegisterButton(window.id);
 
     button_cancel = new (std::nothrow) Button(XFRCAN_U, XFRCAN_D, 82, 125);
     button_cancel->SetCaption("Cancel", 1, 2);
-    button_cancel->SetRValue(0x1B);
-    button_cancel->SetPValue(0x701B);
+    button_cancel->SetRValue(GNW_KB_KEY_CTRL_ESCAPE);
+    button_cancel->SetPValue(GNW_KB_KEY_CTRL_ESCAPE + GNW_INPUT_PRESS);
     button_cancel->SetSfx(NCANC0);
     button_cancel->RegisterButton(window.id);
 
     button_done = new (std::nothrow) Button(XFRDNE_U, XFRDNE_D, 174, 125);
     button_done->SetCaption("Done", 1, 2);
-    button_done->SetRValue(0x0D);
-    button_done->SetPValue(0x700D);
+    button_done->SetRValue(GNW_KB_KEY_KP_ENTER);
+    button_done->SetPValue(GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS);
     button_done->SetSfx(NDONE0);
     button_done->RegisterButton(window.id);
 
     button_help = new (std::nothrow) Button(XFRHLP_U, XFRHLP_D, 147, 125);
-    button_help->SetCaption("Done", 1, 2);
-    button_help->SetRValue(0x3F);
-    button_help->SetPValue(0x703F);
+    button_help->SetRValue(GNW_KB_KEY_SHIFT_DIVIDE);
+    button_help->SetPValue(GNW_KB_KEY_SHIFT_DIVIDE + GNW_INPUT_PRESS);
     button_help->SetSfx(NHELP0);
     button_help->RegisterButton(window.id);
 
     button_arrow = new (std::nothrow) Button(XFRLFARO, XFRRTARO, 141, 43);
-    button_help->SetFlags(0x01);
-    button_help->RegisterButton(window.id);
-    button_help->CopyUpDisabled(XFRLFARO);
-    button_help->CopyDownDisabled(XFRRTARO);
+    button_arrow->SetFlags(0x01);
+    button_arrow->RegisterButton(window.id);
+    button_arrow->CopyUpDisabled(XFRLFARO);
+    button_arrow->CopyDownDisabled(XFRRTARO);
 
     scrollbar->Register();
-    scrollbar->SetFreeCapacity(target_unit_capacity - unit2_materials);
-    scrollbar->SetZeroOffset(-unit2_materials);
-    scrollbar->SetXferGiveMax(unit2_free_capacity);
-    scrollbar->SetXferTakeMax(-unit1_free_capacity);
-    scrollbar->SetValue(unit2_free_capacity);
+    scrollbar->SetFreeCapacity(target_unit_capacity - target_unit_materials);
+    scrollbar->SetZeroOffset(-target_unit_materials);
+    scrollbar->SetXferGiveMax(target_unit_free_capacity);
+    scrollbar->SetXferTakeMax(-source_unit_free_capacity);
+    scrollbar->SetValue(target_unit_free_capacity);
     scrollbar->SetMaterialBar(material_id);
     scrollbar->RefreshScreen();
 

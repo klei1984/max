@@ -301,13 +301,13 @@ LimitedScrollbar::LimitedScrollbar(Window* window, Rect* xfer_slider_bounds, Rec
     : Scrollbar(window, xfer_slider_bounds, xfer_amount_bounds, id, key_code_increase, key_code_decrease,
                 key_code_click_slider, scaling_factor, vertical),
       xfer_give_max(0),
-      xfer_take_max(36864) {}
+      xfer_take_max(-28672) {}
 
 LimitedScrollbar::~LimitedScrollbar() {}
 
-void LimitedScrollbar::SetXferGiveMax(unsigned short limit) { xfer_give_max = limit; }
+void LimitedScrollbar::SetXferGiveMax(short limit) { xfer_give_max = limit; }
 
-void LimitedScrollbar::SetXferTakeMax(unsigned short limit) { xfer_take_max = limit; }
+void LimitedScrollbar::SetXferTakeMax(short limit) { xfer_take_max = limit; }
 
 bool LimitedScrollbar::ProcessKey(int key_code) {
     bool result;
@@ -336,8 +336,9 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
         if (scrollbar_type) {
             y = xfer_slider->GetULY() + xfer_slider->GetHeight() - y;
             new_value = (xfer_slider->GetHeight() / 2 + capacity * y) / xfer_slider->GetHeight() + zero_offset;
+
         } else {
-            x = x - xfer_slider->GetULX();
+            x -= xfer_slider->GetULX();
             new_value = (xfer_slider->GetWidth() / 2 + capacity * x) / xfer_slider->GetWidth() + zero_offset;
         }
 
@@ -354,6 +355,7 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
 
         ProcessValueChange(new_value);
         result = true;
+
     } else {
         result = Scrollbar::ProcessKey(key_code);
     }

@@ -355,7 +355,7 @@ void Button::RegisterButton(WinID wid) {
 
     if (this->p_func || this->r_func) {
         win_register_button_func(bid, nullptr, nullptr, reinterpret_cast<ButtonFunc>(Button_PFunc),
-                                 reinterpret_cast<ButtonFunc>(Button_PFunc));
+                                 reinterpret_cast<ButtonFunc>(Button_RFunc));
     }
 
     this->wid = wid;

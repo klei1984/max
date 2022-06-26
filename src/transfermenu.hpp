@@ -33,11 +33,11 @@ class TransferMenu : public Window {
     UnitInfo *target_unit;
     ResourceID material_id;
     WindowInfo window;
-    short unit1_free_capacity;
-    short unit2_free_capacity;
+    short source_unit_free_capacity;
+    short target_unit_free_capacity;
     unsigned short team;
-    short unit1_materials;
-    short unit2_materials;
+    short source_unit_materials;
+    short target_unit_materials;
     bool event_click_done;
     Button *button_cancel;
     Button *button_done;
