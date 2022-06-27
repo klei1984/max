@@ -805,12 +805,7 @@ void register_screendump(int new_screendump_key, ScreenDumpFunc new_screendump_f
     }
 }
 
-TOCKS get_time(void) {
-    /* PIT clock rate is 105/88 = 1.19318 MHz
-     * SDL_GetTicks works on milliseconds basis
-     */
-    return (SDL_GetTicks() * 105000uL) / 88uL;
-}
+TOCKS get_time(void) { return TIMER_MS_TO_TICKS(SDL_GetTicks()); }
 
 void pause_for_tocks(unsigned int tocks) {
     TOCKS past_time;

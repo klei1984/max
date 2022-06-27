@@ -376,16 +376,16 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons) {
     mouse_buttons = 0;
     last_buttons = buttons;
 
-    if (old & 5) {
-        if (!(buttons & GNW_MOUSE_BUTTON_LEFT)) {
-            mouse_buttons = MOUSE_RELEASE_LEFT;
-        } else {
+    if (old & (MOUSE_PRESS_LEFT | MOUSE_LONG_PRESS_LEFT)) {
+        if (buttons & GNW_MOUSE_BUTTON_LEFT) {
             mouse_buttons = MOUSE_LONG_PRESS_LEFT;
 
             if (elapsed_time(left_time) > 250) {
                 mouse_buttons |= MOUSE_PRESS_LEFT;
                 left_time = get_time();
             }
+        } else {
+            mouse_buttons = MOUSE_RELEASE_LEFT;
         }
     } else {
         if (buttons & GNW_MOUSE_BUTTON_LEFT) {
@@ -394,7 +394,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons) {
         }
     }
 
-    if (old & 10) {
+    if (old & (MOUSE_PRESS_RIGHT | MOUSE_LONG_PRESS_RIGHT)) {
         if (buttons & GNW_MOUSE_BUTTON_RIGHT) {
             mouse_buttons |= MOUSE_LONG_PRESS_RIGHT;
             if (elapsed_time(right_time) > 250) {

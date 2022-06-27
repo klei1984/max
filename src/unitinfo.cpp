@@ -2460,7 +2460,7 @@ void UnitInfo::Render(Rect* bounds) {
 }
 
 void UnitInfo::RenderWithConnectors(Rect* bounds) {
-    Point point(grid_x, grid_y);
+    Point point(x, y);
 
     RenderShadow(point, image_index, bounds);
     RenderSprite(point, image_index, bounds);

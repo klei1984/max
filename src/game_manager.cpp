@@ -1120,6 +1120,9 @@ void GameManager_Render() {
     if (GameManager_GridOffset.x || GameManager_GridOffset.y) {
         GameManager_UpdateMainMapView(2, GameManager_GridOffset.x, GameManager_GridOffset.y);
 
+        GameManager_GridOffset.x = 0;
+        GameManager_GridOffset.y = 0;
+
     } else {
         GameManager_GridStepLevel = GameManager_QuickScroll;
         GameManager_GridStepOffset = 0;

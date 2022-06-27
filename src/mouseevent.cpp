@@ -56,8 +56,8 @@ void MouseEvent::ProcessInput() {
 
         mouse_get_position(&mouse_x, &mouse_y);
 
-        if ((mouse_buttons & MOUSE_PRESS_LEFT)) {
-            if ((MouseEvent_PreviousButtons & MOUSE_PRESS_LEFT) == 0) {
+        if (mouse_buttons & MOUSE_PRESS_LEFT) {
+            if (!(MouseEvent_PreviousButtons & MOUSE_PRESS_LEFT)) {
                 mouse_event.buttons = MOUSE_PRESS_LEFT;
                 mouse_event.point.x = mouse_x;
                 mouse_event.point.y = mouse_y;
@@ -72,15 +72,15 @@ void MouseEvent::ProcessInput() {
             MouseEvent_MouseEvents.Append(&mouse_event);
         }
 
-        if ((mouse_buttons & MOUSE_PRESS_RIGHT) != 0) {
-            if ((MouseEvent_PreviousButtons & MOUSE_PRESS_RIGHT) == 0) {
+        if (mouse_buttons & MOUSE_PRESS_RIGHT) {
+            if (!(MouseEvent_PreviousButtons & MOUSE_PRESS_RIGHT)) {
                 mouse_event.buttons = MOUSE_PRESS_RIGHT;
                 mouse_event.point.x = mouse_x;
                 mouse_event.point.y = mouse_y;
 
                 MouseEvent_MouseEvents.Append(&mouse_event);
             }
-        } else if ((MouseEvent_PreviousButtons & MOUSE_PRESS_RIGHT) != 0) {
+        } else if (MouseEvent_PreviousButtons & MOUSE_PRESS_RIGHT) {
             mouse_event.buttons = MOUSE_RELEASE_RIGHT;
             mouse_event.point.x = mouse_x;
             mouse_event.point.y = mouse_y;
