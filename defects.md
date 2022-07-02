@@ -279,6 +279,8 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 78. The Engineer and Constructor specific popup context menu button list initializer function (cseg01:000F9304) tests whether the units are building `order = build and order_state != 13 and order_state != 46` and either adds the Stop or the Build button to the button list. The last test in the original code is `order != 46` which is always true of course as there is no such order ID. In case the order state would be 46, whatever that means, the wrong button would be presented to the user. Interestingly the button on click event handler is the same function so the test and the button label is defective, but the outcome of the event will be the same action.
 
+79. The function (cseg01:0009C6F6) responsible for resource distribution on maps uses an uninitialized variable by mistake. Fixing this issue potentially alters the original resource distribution probabilities.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
