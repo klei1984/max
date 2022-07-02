@@ -94,9 +94,9 @@ class AllocMenu {
     Cargo production;
     Cargo cargo_2;
     Cargo capacity;
-    Cargo cargo_4;
-    Cargo cargo_5;
-    Cargo cargo_6;
+    Cargo usage;
+    Cargo complex_materials;
+    Cargo complex_capacity;
 
     bool Init(UnitInfo *unit);
     void Deinit();
@@ -332,9 +332,9 @@ void AllocMenu::DrawCargoBars() {
     bar.cargo_1 = production.raw;
     bar.cargo_2 = cargo_2.raw;
     bar.cargo_3 = capacity.raw;
-    bar.cargo_4 = cargo_4.raw;
-    bar.cargo_5 = cargo_5.raw;
-    bar.cargo_6 = cargo_6.raw;
+    bar.cargo_4 = usage.raw;
+    bar.cargo_5 = complex_materials.raw;
+    bar.cargo_6 = complex_capacity.raw;
     bar.bar_id = BARRAW;
     bar.tape_id = BARTAPE;
     bar.color_index_map = color_index_map;
@@ -347,9 +347,9 @@ void AllocMenu::DrawCargoBars() {
     bar.cargo_1 = production.fuel;
     bar.cargo_2 = cargo_2.fuel;
     bar.cargo_3 = capacity.fuel;
-    bar.cargo_4 = cargo_4.fuel;
-    bar.cargo_5 = cargo_5.fuel;
-    bar.cargo_6 = cargo_6.fuel;
+    bar.cargo_4 = usage.fuel;
+    bar.cargo_5 = complex_materials.fuel;
+    bar.cargo_6 = complex_capacity.fuel;
     bar.bar_id = BARFUEL;
     bar.tape_id = BARTAPE;
 
@@ -361,9 +361,9 @@ void AllocMenu::DrawCargoBars() {
     bar.cargo_1 = production.gold;
     bar.cargo_2 = cargo_2.gold;
     bar.cargo_3 = capacity.gold;
-    bar.cargo_4 = cargo_4.gold;
-    bar.cargo_5 = cargo_5.gold;
-    bar.cargo_6 = cargo_6.gold;
+    bar.cargo_4 = usage.gold;
+    bar.cargo_5 = complex_materials.gold;
+    bar.cargo_6 = complex_capacity.gold;
     bar.bar_id = BARGOLD;
     bar.tape_id = BARTAPE;
 
@@ -589,8 +589,8 @@ bool AllocMenu::Init(UnitInfo *unit) {
         }
 
         complex->GetCargoMining(production, capacity);
-        complex->GetCargoMinable(cargo_4);
-        complex->GetCargoInfo(cargo_5, cargo_6);
+        complex->GetCargoMinable(usage);
+        complex->GetCargoInfo(complex_materials, complex_capacity);
 
         DrawCargoBars();
 
