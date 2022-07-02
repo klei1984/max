@@ -22,6 +22,7 @@
 #include "complex.hpp"
 
 #include "registerarray.hpp"
+#include "survey.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 
@@ -104,13 +105,54 @@ void Complex::ReadPacket(void* buffer) {
     id = ((short*)buffer)[6];
 }
 
-void Complex::AddBuilding(UnitInfo& unit) { ++buildings; }
+void Complex::GetCargoMinable(Cargo& capacity) {
+    capacity.Init();
 
-void Complex::RemoveBuilding(UnitInfo& unit) {
-    --buildings;
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == this && (*it).orders != ORDER_POWER_OFF && (*it).orders != ORDER_DISABLED &&
+            (*it).orders != ORDER_IDLE) {
+            Cargo cargo;
 
-    if (0 == buildings) {
-        /// \todo Remove complex from CTinfo)
+            Cargo_GetCargoDemand(&*it, &cargo);
+
+            if ((*it).unit_type == MININGST) {
+                cargo.gold -= (*it).gold_mining;
+                cargo.raw -= (*it).raw_mining;
+                cargo.fuel -= (*it).fuel_mining;
+            }
+
+            capacity.gold -= cargo.gold;
+            capacity.raw -= cargo.raw;
+            capacity.fuel -= cargo.fuel;
+        }
+    }
+}
+
+void Complex::GetCargoMining(Cargo& materials, Cargo& capacity) {
+    short cargo_raw;
+    short cargo_fuel;
+    short cargo_gold;
+
+    materials.Init();
+    capacity.Init();
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == this && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
+            (*it).orders != ORDER_DISABLED && (*it).orders != ORDER_IDLE) {
+            materials.gold += (*it).gold_mining;
+            materials.raw += (*it).raw_mining;
+            materials.fuel += (*it).fuel_mining;
+            materials.free_capacity += 16 - ((*it).gold_mining + (*it).raw_mining + (*it).fuel_mining);
+
+            Survey_GetResourcesInArea((*it).grid_x, (*it).grid_y, 1, 16, &cargo_raw, &cargo_gold, &cargo_fuel, true,
+                                      (*it).team);
+
+            capacity.raw += cargo_raw;
+            capacity.fuel += cargo_fuel;
+            capacity.gold += cargo_gold;
+        }
     }
 }
 

@@ -282,7 +282,10 @@ void Drawmap_UpdateDirtyZones(Rect* bounds) {
 void DrawMap_Callback1(int ulx, int uly) {
     Rect bounds;
 
-    rect_init(&bounds, ulx * 64, uly * 64, bounds.ulx + 63, bounds.uly + 63);
+    bounds.ulx = ulx * 64;
+    bounds.uly = uly * 64;
+    bounds.lrx = bounds.ulx + 63;
+    bounds.lry = bounds.uly + 63;
 
     GameManager_AddDrawBounds(&bounds);
 }

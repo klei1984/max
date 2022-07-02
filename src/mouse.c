@@ -34,9 +34,9 @@ static void mouse_colorize(void);
 static void mouse_clip(void);
 
 static double mouse_sensitivity = 1.0;
-static char or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
-                           1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
-                           15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
+static unsigned char or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
+                                    1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
+                                    15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
 static int last_buttons;
 static unsigned char *mouse_fptr;
 static unsigned char *mouse_shape;

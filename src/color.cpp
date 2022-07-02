@@ -43,6 +43,8 @@ void Color_ChangeColorTemperature(int factor_r, int factor_g, int factor_b, int 
 
     palette = getSystemPalette();
 
+    multiplier_factor_sum = multiplier_factor1 + multiplier_factor2;
+
     for (int i = 0; i < PALETTE_SIZE; ++i) {
         index = i;
 
@@ -50,18 +52,18 @@ void Color_ChangeColorTemperature(int factor_r, int factor_g, int factor_b, int 
         color[1] = (palette[i * 3 + 1] * multiplier_factor2 + factor_g * multiplier_factor1) / multiplier_factor_sum;
         color[2] = (palette[i * 3 + 2] * multiplier_factor2 + factor_b * multiplier_factor1) / multiplier_factor_sum;
 
-        distance1 = Color_GetColorDistance(&palette[index], color);
+        distance1 = Color_GetColorDistance(&palette[index * 3], color);
 
         for (int j = 0; j < PALETTE_SIZE && distance1 > 0; ++j) {
-            distance2 = Color_GetColorDistance(&palette[j], color);
+            distance2 = Color_GetColorDistance(&palette[j * 3], color);
 
             if (distance2 < distance1) {
                 distance1 = distance2;
                 index = j;
             }
-
-            color_map[i] = index;
         }
+
+        color_map[i] = index;
     }
 }
 

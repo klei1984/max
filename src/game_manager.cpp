@@ -274,7 +274,7 @@ struct ResourceAllocator {
                                                                       resource_value + map_resource_amount);
             }
 
-            if (grid_y < ResourceManager_MapSize.y - 1) {
+            if (point.y < ResourceManager_MapSize.y - 1) {
                 resource_level = ResourceAllocator::OptimizeResources(point.x - 1, point.y, resource_level,
                                                                       resource_value + map_resource_amount);
             }

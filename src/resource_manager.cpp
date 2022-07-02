@@ -50,7 +50,7 @@ struct res_header {
 static_assert(sizeof(struct res_header) == 12, "The structure needs to be packed.");
 
 struct GameResourceMeta {
-    short res_file_item_index;
+    ResourceID res_file_item_index;
     unsigned char *resource_buffer;
     unsigned char res_file_id;
 };
@@ -635,7 +635,7 @@ unsigned char *ResourceManager_ReadResource(ResourceID id) {
     } else {
         SDL_assert(id > MEM_END);
 
-        if (ResourceManager_ResMetaTable[id].res_file_item_index == -1) {
+        if (ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
             resource_buffer = nullptr;
         } else {
             FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
@@ -671,7 +671,7 @@ unsigned char *ResourceManager_LoadResource(ResourceID id) {
     } else {
         SDL_assert(id < MEM_END);
 
-        if (ResourceManager_ResMetaTable[id].res_file_item_index == -1) {
+        if (ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
             resource_buffer = nullptr;
         } else {
             if ((resource_buffer = ResourceManager_ResMetaTable[id].resource_buffer) == nullptr) {
@@ -704,7 +704,7 @@ unsigned char *ResourceManager_LoadResource(ResourceID id) {
 unsigned int ResourceManager_GetResourceSize(ResourceID id) {
     unsigned int data_size;
 
-    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == -1) {
+    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         data_size = 0;
     } else {
         data_size = ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_size;
@@ -718,7 +718,7 @@ int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer
 
     SDL_assert(ResourceManager_ResMetaTable);
 
-    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == -1) {
+    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         result = false;
     } else {
         FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
@@ -744,7 +744,7 @@ const char *ResourceManager_GetResourceID(ResourceID id) { return ResourceManage
 FILE *ResourceManager_GetFileHandle(ResourceID id) {
     FILE *fp;
 
-    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == -1) {
+    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         fp = nullptr;
     } else {
         fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
@@ -786,7 +786,7 @@ void ResourceManager_Realloc(ResourceID id, unsigned char *buffer, int data_size
 int ResourceManager_GetFileOffset(ResourceID id) {
     int data_offset;
 
-    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == -1) {
+    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         data_offset = 0;
     } else {
         data_offset = ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_offset;
@@ -905,7 +905,7 @@ int ResourceManager_BuildResourceTable(const char *file_path) {
 
     if (fp) {
         if (fread(&header, sizeof(header), 1, fp)) {
-            if (!strncmp("RES0", header.id, sizeof(((struct res_header){0}).id))) {
+            if (!strncmp("RES0", header.id, sizeof(res_header::id))) {
                 if (ResourceManager_ResItemTable) {
                     ResourceManager_ResItemTable = static_cast<struct res_index *>(
                         realloc(static_cast<void *>(ResourceManager_ResItemTable),
@@ -919,10 +919,11 @@ int ResourceManager_BuildResourceTable(const char *file_path) {
                     if (fread(&ResourceManager_ResItemTable[ResourceManager_ResItemCount], header.size, 1, fp)) {
                         short new_item_count = ResourceManager_ResItemCount + header.size / sizeof(struct res_index);
 
-                        for (short i = ResourceManager_ResItemCount; i < new_item_count; ++i) {
+                        for (int i = ResourceManager_ResItemCount; i < new_item_count; ++i) {
                             ResourceID id = ResourceManager_GetResourceID(i);
-                            if (id != INVALID_ID && ResourceManager_ResMetaTable[id].res_file_item_index == -1) {
-                                ResourceManager_ResMetaTable[id].res_file_item_index = i;
+                            if (id != INVALID_ID &&
+                                ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
+                                ResourceManager_ResMetaTable[id].res_file_item_index = static_cast<ResourceID>(i);
                                 ResourceManager_ResMetaTable[id].res_file_id = ResourceManager_ResFileCount;
                             }
                         }

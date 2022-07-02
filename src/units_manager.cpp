@@ -3288,7 +3288,7 @@ void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y) {
     short gold;
     short free_capacity;
 
-    Survey_GetTotalResourcesInArea(grid_x, grid_y, 1, &raw, &fuel, &gold, true, unit->team);
+    Survey_GetTotalResourcesInArea(grid_x, grid_y, 1, &raw, &gold, &fuel, true, unit->team);
 
     unit->raw_mining_max = raw;
     unit->fuel_mining_max = fuel;

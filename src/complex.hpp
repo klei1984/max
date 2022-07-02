@@ -48,12 +48,11 @@ public:
     int WritePacket(void* buffer);
     void ReadPacket(void* buffer);
 
-    void AddBuilding(UnitInfo& unit);
-    void RemoveBuilding(UnitInfo& unit);
-
     void Grow(UnitInfo& unit);
     void Shrink(UnitInfo& unit);
 
+    void GetCargoMinable(Cargo& capacity);
+    void GetCargoMining(Cargo& materials, Cargo& capacity);
     void GetCargoInfo(Cargo& materials, Cargo& capacity);
 
     short material;

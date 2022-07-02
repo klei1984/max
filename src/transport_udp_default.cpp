@@ -193,9 +193,11 @@ bool inline TransportUdpDefault_TransmitPacket(UDPsocket socket, UDPpacket& udp_
     if (SDLNet_UDP_Send(socket, udp_packet.channel, &udp_packet) == 0) {
         SDL_Log("Transport: Transmit failed. %s\n", SDLNet_GetError());
         result = false;
-    } else if (result && udp_packet.len != udp_packet.status) {
+
+    } else if (udp_packet.len != udp_packet.status) {
         SDL_Log("Transport: Packet size mismatch (%i/%i).\n", udp_packet.len, udp_packet.status);
         result = false;
+
     } else {
         result = true;
     }

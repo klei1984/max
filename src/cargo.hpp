@@ -34,7 +34,7 @@ struct Cargo {
     short fuel;
     short power;
     short life;
-    short field_10;
+    short free_capacity;
 
     void Init();
 

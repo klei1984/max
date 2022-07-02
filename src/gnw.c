@@ -1034,7 +1034,7 @@ void win_drag(WinID id) {
     }
 }
 
-void win_get_mouse_buf(char *buf) {
+void win_get_mouse_buf(unsigned char *buf) {
     Rect m;
 
     mouse_get_rect(&m);

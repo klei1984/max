@@ -34,7 +34,7 @@ void Cargo::Init() {
     fuel = 0;
     power = 0;
     life = 0;
-    field_10 = 0;
+    free_capacity = 0;
 }
 
 Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo) {
@@ -130,7 +130,7 @@ Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order) {
                 cargo->gold += (unit->gold_mining * difficulty_factor) / 4;
                 cargo->raw += (unit->raw_mining * difficulty_factor) / 4;
                 cargo->fuel += (unit->fuel_mining * difficulty_factor) / 4;
-                cargo->field_10 += 16 - unit->total_mining;
+                cargo->free_capacity += 16 - unit->total_mining;
 
                 Cargo_ApplyUnitConsumption(unit->unit_type, 1, cargo);
             }
@@ -154,7 +154,7 @@ Cargo& Cargo::operator+=(Cargo const& other) {
     fuel += other.fuel;
     power += other.power;
     life += other.life;
-    field_10 += other.field_10;
+    free_capacity += other.free_capacity;
 
     return *this;
 }
@@ -165,7 +165,7 @@ Cargo& Cargo::operator-=(Cargo const& other) {
     fuel -= other.fuel;
     power -= other.power;
     life -= other.life;
-    field_10 -= other.field_10;
+    free_capacity -= other.free_capacity;
 
     return *this;
 }
