@@ -2130,7 +2130,7 @@ void GameManager_ManageEconomy(unsigned short team) {
         ResearchTopic* topic = &UnitsManager_TeamInfo[team].research_topics[i];
 
         if (topic->allocation && topic->turns_to_complete == 0) {
-            ResearchMenu_CalculateResearchCost(team, i, 0);
+            ResearchMenu_UpdateResearchProgress(team, i, 0);
         }
     }
 }

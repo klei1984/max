@@ -29,7 +29,7 @@ extern const char* const ResearchMenu_TopicLabels[];
 extern const ResourceID ResearchMenu_TopicIcon[];
 
 void ResearchMenu_Menu(UnitInfo* unit);
-void ResearchMenu_CalculateResearchCost(unsigned short team, int research_topic, int allocation);
+void ResearchMenu_UpdateResearchProgress(unsigned short team, int research_topic, int allocation);
 void ResearchMenu_NewTurn(unsigned short team);
 int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type);
 

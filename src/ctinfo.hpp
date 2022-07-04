@@ -27,7 +27,7 @@
 
 struct ResearchTopic {
     unsigned int research_level;
-    unsigned int turns_to_complete;
+    int turns_to_complete;
     unsigned int allocation;
 };
 

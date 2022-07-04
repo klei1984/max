@@ -37,7 +37,7 @@ static double mouse_sensitivity = 1.0;
 static unsigned char or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
                                     1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
                                     15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
-static int last_buttons;
+static unsigned int last_buttons;
 static unsigned char *mouse_fptr;
 static unsigned char *mouse_shape;
 static int mouse_is_hidden;
@@ -348,9 +348,9 @@ void mouse_info(void) {
     }
 }
 
-void mouse_simulate_input(int delta_x, int delta_y, int buttons) {
-    static int right_time;
-    static int left_time;
+void mouse_simulate_input(int delta_x, int delta_y, unsigned int buttons) {
+    static unsigned int right_time;
+    static unsigned int left_time;
     static int old;
 
     if (!have_mouse || mouse_is_hidden) {
@@ -490,7 +490,7 @@ void mouse_clip(void) {
     }
 }
 
-int mouse_get_buttons(void) { return mouse_buttons; }
+unsigned int mouse_get_buttons(void) { return mouse_buttons; }
 
 int mouse_hidden(void) { return mouse_is_hidden; }
 

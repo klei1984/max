@@ -805,7 +805,7 @@ void register_screendump(int new_screendump_key, ScreenDumpFunc new_screendump_f
     }
 }
 
-TOCKS get_time(void) { return TIMER_MS_TO_TICKS(SDL_GetTicks()); }
+TOCKS get_time(void) { return SDL_GetTicks(); }
 
 void pause_for_tocks(unsigned int tocks) {
     TOCKS past_time;

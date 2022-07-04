@@ -36,7 +36,7 @@ void MouseEvent::Clear() {
 }
 
 void MouseEvent::ProcessInput() {
-    int mouse_buttons;
+    unsigned int mouse_buttons;
 
     process_bk();
     mouse_buttons = mouse_get_buttons();
