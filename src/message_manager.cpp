@@ -331,7 +331,7 @@ void MessageLogEntry::FileSave(SmartFileWriter& file) {
     file.Write(id);
 }
 
-char* MessageLogEntry::GetCstr() const { return text; }
+char* MessageLogEntry::GetCStr() const { return text; }
 
 void MessageLogEntry::Select() {
     MessageManager_DrawMessage(text, 0, 0);

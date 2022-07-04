@@ -22,8 +22,6 @@
 #ifndef REPORTMENU_HPP
 #define REPORTMENU_HPP
 
-/// \todo
-
 void ReportMenu_Menu();
 
 #endif /* REPORTMENU_HPP */

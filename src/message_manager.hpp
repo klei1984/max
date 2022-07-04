@@ -54,7 +54,7 @@ public:
 
     UnitInfo* GetUnit() const;
     Point GetPosition() const;
-    char* GetCstr() const;
+    char* GetCStr() const;
     ResourceID GetIcon() const;
     void Select();
 };
