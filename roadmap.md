@@ -179,7 +179,9 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-inwork">
   Replace the remote classes (remote.cpp)
   </span>
-- Replace the reports classes (reports.cpp)
+- <span class="legend-inwork">
+  Replace the reports classes (reports.cpp)
+  </span>
 - <span class="legend-done">
   Replace the smart pointer classes (smartptr.cpp)
   </span>

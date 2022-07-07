@@ -281,6 +281,26 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 79. The function (cseg01:0009C6F6) responsible for resource distribution on maps uses an uninitialized variable by mistake. Fixing this issue potentially alters the original resource distribution probabilities.
 
+80. Units that can pass land as well as water do not update the sprite base frame index after they are picked up from water by air transport and dropped down onto land.
+<br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_80.mp4" type="video/mp4">
+    </video>
+    The transporter's activate event should check the destination cell type.
+
+81. The algorithm (cseg01:00076144) that draws attack and scan ranges on screen misbehaves at extreme ranges combined with high level of zoom.
+<br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_81.mp4" type="video/mp4">
+    </video>
+
+82. Redraw order of the attack and scan range markers and the message area is indeterministic in case a hoovering unit overlaps with them.
+<br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_82.mp4" type="video/mp4">
+    </video>
+    This is not the only flickering behaviour.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
