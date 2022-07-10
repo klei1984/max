@@ -60,5 +60,6 @@ public:
 };
 
 extern bool MessageManager_MessageBox_IsActive;
+extern SmartList<MessageLogEntry> MessageManager_TeamMessageLog[PLAYER_TEAM_MAX - 1];
 
 #endif /* MESSAGE_MANAGER_HPP */

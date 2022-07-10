@@ -31,7 +31,6 @@
 static_assert(sizeof(Point) == 4, "It is expected that Point is exactly 2+2 bytes long.");
 static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte long.");
 
-#define MESSAGE_MANAGER_TEAM_COUNT 4
 #define MESSAGE_MANAGER_MAX_COUNT 50
 #define MESSAGE_MANAGER_MESSAGE_BUFFER_SIZE 800
 #define MESSAGE_MANAGER_TEXT_BUFFER_SIZE 300
@@ -48,7 +47,7 @@ bool MessageManager_MessageBox_IsActive;
 ColorIndex** MessageManager_MessageBox_BgColorArray[] = {
     &ResourceManager_ColorIndexTable12, &ResourceManager_ColorIndexTable10, &ResourceManager_ColorIndexTable06};
 
-SmartList<MessageLogEntry> MessageManager_TeamMessageLog[MESSAGE_MANAGER_TEAM_COUNT];
+SmartList<MessageLogEntry> MessageManager_TeamMessageLog[PLAYER_TEAM_MAX - 1];
 
 void MessageManager_WrapText(const char* text, short width) {
     int position = 0;
@@ -273,7 +272,7 @@ void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, i
 }
 
 void MessageManager_LoadMessageLogs(SmartFileReader& file) {
-    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; + i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; + i) {
         MessageManager_TeamMessageLog[i].Clear();
 
         for (int count = file.ReadObjectCount(); count > 0; --count) {
@@ -284,7 +283,7 @@ void MessageManager_LoadMessageLogs(SmartFileReader& file) {
 }
 
 void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
-    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; ++i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         file.WriteObjectCount(MessageManager_TeamMessageLog[i].GetCount());
 
         for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[i].Begin();
@@ -295,7 +294,7 @@ void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
 }
 
 void MessageManager_ClearMessageLogs() {
-    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; ++i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         MessageManager_TeamMessageLog[i].Clear();
     }
 }

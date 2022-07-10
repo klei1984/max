@@ -153,8 +153,9 @@ void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceI
 
                 if (var_48 > image->width) {
                     var_48 = image->width;
-                    var_30 = 0;
                 }
+
+                var_30 = 0;
             }
 
         } else {

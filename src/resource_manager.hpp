@@ -33,27 +33,27 @@ extern "C" {
 #define RESOURCE_MANAGER_MAP_TILE_SIZE 64
 
 struct ImageSimpleHeader {
-    unsigned short width;
-    unsigned short height;
-    unsigned short ulx;
-    unsigned short uly;
+    short width;
+    short height;
+    short ulx;
+    short uly;
     unsigned char data[];
 };
 
 struct ImageBigHeader {
-    unsigned short ulx;
-    unsigned short uly;
-    unsigned short width;
-    unsigned short height;
+    short ulx;
+    short uly;
+    short width;
+    short height;
     Color palette[3 * PALETTE_SIZE];
     unsigned char data[];
 };
 
 struct ImageMultiFrameHeader {
-    unsigned short width;
-    unsigned short height;
-    unsigned short hotx;
-    unsigned short hoty;
+    short width;
+    short height;
+    short hotx;
+    short hoty;
     unsigned int *rows;
 };
 
