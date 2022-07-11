@@ -480,6 +480,62 @@ const unsigned char UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESE
 
 static void UnitInfo_TransferCargo(UnitInfo* unit, int* cargo);
 
+static void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, SmartFileReader& file);
+static void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, SmartFileWriter& file);
+static void UnitInfo_BuildList_TextLoad(SmartObjectArray<ResourceID>* build_list, TextStructure& object);
+static void UnitInfo_BuildList_TextSave(SmartObjectArray<ResourceID>* build_list, SmartTextfileWriter& file);
+
+void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, SmartFileReader& file) {
+    ResourceID unit_type;
+
+    build_list->Clear();
+
+    for (int count = file.ReadObjectCount(); count > 0; --count) {
+        file.Read(unit_type);
+        build_list->PushBack(&unit_type);
+    }
+}
+
+void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, SmartFileWriter& file) {
+    ResourceID unit_type;
+    int count;
+
+    count = build_list->GetCount();
+
+    file.WriteObjectCount(count);
+
+    for (int i = 0; i < count; ++i) {
+        unit_type = *((*build_list)[i]);
+
+        file.Write(unit_type);
+    }
+}
+
+void UnitInfo_BuildList_TextLoad(SmartObjectArray<ResourceID>* build_list, TextStructure& object) {
+    unsigned short value;
+    ResourceID unit_type;
+
+    build_list->Clear();
+
+    while (object.GetField("unit", Enums_UnitType, &value)) {
+        unit_type = static_cast<ResourceID>(value);
+        build_list->PushBack(&unit_type);
+    }
+}
+
+void UnitInfo_BuildList_TextSave(SmartObjectArray<ResourceID>* build_list, SmartTextfileWriter& file) {
+    ResourceID unit_type;
+    int count;
+
+    count = build_list->GetCount();
+
+    for (int i = 0; i < count; ++i) {
+        unit_type = *((*build_list)[i]);
+
+        file.WriteEnum("unit", Enums_UnitType, unit_type);
+    }
+}
+
 UnitInfo::UnitInfo()
     : unit_type(INVALID_ID),
       popup(nullptr),

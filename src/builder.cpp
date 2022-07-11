@@ -21,9 +21,12 @@
 
 #include "builder.hpp"
 
+#include "access.hpp"
 #include "game_manager.hpp"
+#include "hash.hpp"
 #include "inifile.hpp"
 #include "resource_manager.hpp"
+#include "units_manager.hpp"
 
 unsigned short Builder_CapabilityListNormal[] = {
 
@@ -249,10 +252,75 @@ bool Builder_IsBuildable(ResourceID unit_type) {
     return result;
 }
 
-int Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, ResourceID unit_type) {
-    /// \todo
+bool Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, ResourceID unit_type) {
+    BaseUnit *base_unit;
+    bool result;
+    unsigned short team;
+
+    base_unit = &UnitsManager_BaseUnits[unit_type];
+    team = unit->team;
+
+    if (unit->flags & STATIONARY) {
+        result = true;
+
+    } else {
+        Hash_MapHash.Remove(unit);
+
+        if (base_unit->flags & BUILDING) {
+            result = Builder_IsAccessible(team, unit_type, *grid_x, *grid_y) ||
+                     Builder_IsAccessible(team, unit_type, *grid_x, *grid_y) ||
+                     Builder_IsAccessible(team, unit_type, *grid_x, *grid_y) ||
+                     Builder_IsAccessible(team, unit_type, *grid_x, *grid_y);
+
+        } else {
+            result = Access_IsAccessible(unit_type, team, *grid_x, *grid_y, 2);
+        }
+
+        Hash_MapHash.Add(unit);
+    }
+
+    return result;
 }
 
-unsigned int Builder_IsAccessible(unsigned short team, ResourceID unit_type, int grid_x, int grid_y) {
-    /// | todo
+bool Builder_IsAccessible(unsigned short team, ResourceID unit_type, int grid_x, int grid_y) {
+    bool result;
+
+    if (grid_x >= 0 && grid_y >= 0 && grid_x <= ResourceManager_MapSize.x - 2 &&
+        grid_y <= ResourceManager_MapSize.x - 2) {
+        result = Access_IsAccessible(unit_type, team, grid_x, grid_y, 2) &&
+                 Access_IsAccessible(unit_type, team, grid_x + 1, grid_y, 2) &&
+                 Access_IsAccessible(unit_type, team, grid_x, grid_y + 1, 2) &&
+                 Access_IsAccessible(unit_type, team, grid_x + 1, grid_y + 1, 2);
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+SmartObjectArray<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type) {
+    SmartObjectArray<ResourceID> units;
+    ResourceID builder_unit;
+    ResourceID buildable_unit;
+    unsigned short list_size;
+
+    for (int i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(unsigned short);) {
+        builder_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[i++]);
+        list_size = Builder_CapabilityListNormal[i++];
+
+        if (builder_unit != unit_type) {
+            i += list_size;
+
+        } else {
+            for (int j = 0; j < list_size; ++j) {
+                buildable_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[i++]);
+
+                units.PushBack(&buildable_unit);
+            }
+
+            break;
+        }
+    }
+
+    return units;
 }

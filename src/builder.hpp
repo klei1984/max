@@ -26,7 +26,10 @@
 
 ResourceID Builder_GetBuilderType(ResourceID unit_type);
 bool Builder_IsBuildable(ResourceID unit_type);
-int Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, ResourceID unit_type);
-unsigned int Builder_IsAccessible(unsigned short team, ResourceID unit_type, int grid_x, int grid_y);
+bool Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, ResourceID unit_type);
+bool Builder_IsAccessible(unsigned short team, ResourceID unit_type, int grid_x, int grid_y);
+SmartObjectArray<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type);
+
+extern unsigned short Builder_CapabilityListNormal[];
 
 #endif /* BUILDER_HPP */
