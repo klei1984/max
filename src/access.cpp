@@ -24,6 +24,7 @@
 #include <array>
 
 #include "ai.hpp"
+#include "buildmenu.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "paths_manager.hpp"

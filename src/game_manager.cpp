@@ -25,6 +25,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "buildmenu.hpp"
 #include "cargomenu.hpp"
 #include "chatmenu.hpp"
 #include "cursor.hpp"
@@ -7686,7 +7687,7 @@ void GameManager_ReportNewUnitsMessage(unsigned short* counts) {
 
     for (int unit_type = 92; unit_type >= 0; --unit_type) {
         if (counts[unit_type]) {
-            if (UnitsManager_GetTurnsToBuild(static_cast<ResourceID>(unit_type), GameManager_PlayerTeam) > 1) {
+            if (BuildMenu_GetTurnsToBuild(static_cast<ResourceID>(unit_type), GameManager_PlayerTeam) > 1) {
                 flag = true;
             }
 

@@ -24,6 +24,7 @@
 #include "access.hpp"
 #include "ai.hpp"
 #include "builder.hpp"
+#include "buildmenu.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
@@ -1901,7 +1902,7 @@ void UnitInfo::RemoveUnknown() {
 
 void UnitInfo::BuildOrder() {
     if (orders != ORDER_AWAITING_21 && orders != ORDER_BUILDING_HALTED) {
-        build_time = UnitsManager_GetTurnsToBuild(GetConstructedUnitType(), team);
+        build_time = BuildMenu_GetTurnsToBuild(GetConstructedUnitType(), team);
     }
 
     orders = ORDER_AWAITING;
@@ -2055,7 +2056,7 @@ void UnitInfo::Build() {
             target_grid_x = grid_x;
             target_grid_y = grid_y;
 
-            build_time = UnitsManager_GetTurnsToBuild(build_unit_type, team);
+            build_time = BuildMenu_GetTurnsToBuild(build_unit_type, team);
 
             StartBuilding();
 
@@ -2592,7 +2593,13 @@ int UnitInfo::GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, 
     /// \todo
 }
 
+void UnitInfo::SetBuildRate(int value) { build_rate = value; }
+
 int UnitInfo::GetBuildRate() const { return build_rate; }
+
+void UnitInfo::SetRepeatBuildState(bool value) { repeat_build = value; }
+
+bool UnitInfo::GetRepeatBuildState() const { return repeat_build; }
 
 void UnitInfo::SpawnNewUnit() {
     /// \todo

@@ -25,6 +25,7 @@
 #include "unitinfo.hpp"
 
 bool BuildMenu_Menu(UnitInfo* unit);
+int BuildMenu_GetTurnsToBuild(ResourceID unit_type, unsigned short team);
 int BuildMenu_GetMaxPossibleBuildRate(ResourceID unit_type, int build_time, int storage);
 
 #endif /* BUILDMENU_HPP */

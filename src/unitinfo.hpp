@@ -172,7 +172,10 @@ public:
     void SetLayingState(int state);
     void ClearPins();
     int GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, int* turns_to_build);
+    void SetBuildRate(int value);
     int GetBuildRate() const;
+    void SetRepeatBuildState(bool value);
+    bool GetRepeatBuildState() const;
     void SpawnNewUnit();
     void FollowUnit();
     int GetExperience();

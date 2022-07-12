@@ -77,7 +77,6 @@ void UnitsManager_StartBuild(UnitInfo* unit);
 bool UnitsManager_IsUnitUnderWater(UnitInfo* unit);
 void UnitsManager_UpdateConnectors(UnitInfo* unit);
 void UnitsManager_DestroyUnit(UnitInfo* unit);
-int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team);
 SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
                                                int grid_y, unsigned char unit_angle, bool is_existing_unit = false,
                                                bool skip_map_status_update = false);

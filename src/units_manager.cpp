@@ -3623,10 +3623,6 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     }
 }
 
-int UnitsManager_GetTurnsToBuild(ResourceID unit_type, unsigned short team) {
-    /// \todo
-}
-
 void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit) {
     /// \todo
 }
