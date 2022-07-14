@@ -489,7 +489,7 @@ void OptionsMenu::Init() {
                     } break;
                     case OPTIONS_TYPE_LABEL: {
                         InitLabelControl(i, ulx, uly);
-                        uly -= 20 - text_height() + 3;
+                        uly -= 20 - (text_height() + 3);
                     } break;
                 }
 

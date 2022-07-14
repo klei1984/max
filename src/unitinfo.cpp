@@ -1494,11 +1494,59 @@ void UnitInfo::SetName(char* text) {
 }
 
 void UnitInfo_TransferCargo(UnitInfo* unit, int* cargo) {
-    /// \todo
+    if (*cargo >= 0) {
+        int free_capacity;
+
+        free_capacity = unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - unit->storage;
+
+        if (*cargo <= free_capacity) {
+            unit->storage += *cargo;
+            *cargo = 0;
+
+        } else {
+            unit->storage += free_capacity;
+            *cargo -= free_capacity;
+        }
+
+        if (GameManager_SelectedUnit == unit) {
+            GameManager_UpdateInfoDisplay(unit);
+        }
+
+    } else if (-(*cargo) <= unit->storage) {
+        unit->storage += *cargo;
+        *cargo = 0;
+
+    } else {
+        *cargo += unit->storage;
+        unit->storage = 0;
+    }
 }
 
 void UnitInfo_Transfer(Complex* complex, int raw, int fuel, int gold) {
-    /// \todo
+    complex->gold += gold;
+    complex->fuel += fuel;
+    complex->material += raw;
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if (raw || fuel || gold) {
+            if ((*it).GetComplex() == complex) {
+                switch (UnitsManager_BaseUnits[(*it).unit_type].cargo_type) {
+                    case CARGO_TYPE_RAW: {
+                        UnitInfo_TransferCargo(&*it, &raw);
+                    } break;
+
+                    case CARGO_TYPE_FUEL: {
+                        UnitInfo_TransferCargo(&*it, &fuel);
+                    } break;
+
+                    case CARGO_TYPE_GOLD: {
+                        UnitInfo_TransferCargo(&*it, &gold);
+                    } break;
+                }
+            }
+        }
+    }
 }
 
 int UnitInfo::GetRaw() {

@@ -59,7 +59,7 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
                 int pixels_remaining = width;
 
                 if (!flag) {
-                    pixels_remaining -= text_width(string_array[*row_count].GetCStr()) + text_char_width(' ');
+                    pixels_remaining -= text_width(string_array[*row_count - 1].GetCStr()) + text_char_width(' ');
 
                     if (*row_count < (max_row_count - 1)) {
                         int segment_pixels =

@@ -222,3 +222,7 @@ Rect *rect_init(Rect *r, int ulx, int uly, int lrx, int lry) {
 
     return r;
 }
+
+int rect_get_width(Rect *r) { return r->lrx - r->ulx; }
+
+int rect_get_height(Rect *r) { return r->lry - r->uly; }

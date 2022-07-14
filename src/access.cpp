@@ -1646,7 +1646,7 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int grid_x, int grid_y, bool mo
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
             if ((*it).team == unit->team) {
-                if (!(*it).flags & MISSILE_UNIT) {
+                if (!((*it).flags & MISSILE_UNIT)) {
                     normal_unit = true;
                 }
 

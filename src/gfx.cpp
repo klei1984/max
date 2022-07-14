@@ -91,19 +91,24 @@ unsigned char* Gfx_DecodeMap_MainMapWindowBuffer;
 unsigned char* Gfx_DecodeMap_dword_16872C;
 int Gfx_DecodeMap_MapTileZoomFactor;
 
+const Rect Gfx_DirectionCorrections[8] = {
+    {1, 0, 0, 1},   {0, -1, -1, 0}, {0, 1, -1, 0}, {1, 0, 0, -1},
+    {-1, 0, 0, -1}, {0, 1, 1, 0},   {0, -1, 1, 0}, {-1, 0, 0, 1},
+};
+
 bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect* bounds) {
     bool result;
-    unsigned short width;
-    unsigned short height;
-    unsigned short hotx;
-    unsigned short hoty;
+    short width;
+    short height;
+    short hotx;
+    short hoty;
     Rect scaled_bounds;
     Rect target_bounds;
 
-    width = reinterpret_cast<unsigned short*>(buffer)[0];
-    height = reinterpret_cast<unsigned short*>(buffer)[1];
-    hotx = reinterpret_cast<unsigned short*>(buffer)[2];
-    hoty = reinterpret_cast<unsigned short*>(buffer)[3];
+    width = reinterpret_cast<short*>(buffer)[0];
+    height = reinterpret_cast<short*>(buffer)[1];
+    hotx = reinterpret_cast<short*>(buffer)[2];
+    hoty = reinterpret_cast<short*>(buffer)[3];
 
     scaled_bounds.ulx = point.x - ((hotx * 2) / divisor);
     scaled_bounds.uly = point.y - ((hoty * 2) / divisor);
@@ -138,8 +143,8 @@ bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect
         Gfx_ScalingFactorHeight = (((height - 1) << 16) / (Gfx_ScaledHeight - 1)) + 8;
         Gfx_ScaledOffset.x = target_bounds.ulx - scaled_bounds.ulx;
         Gfx_ScaledOffset.y = target_bounds.uly - scaled_bounds.uly;
-        Gfx_ScaledWidth = target_bounds.lrx - scaled_bounds.ulx;
-        Gfx_ScaledHeight = target_bounds.lry - scaled_bounds.uly;
+        Gfx_ScaledWidth = target_bounds.lrx - target_bounds.ulx;
+        Gfx_ScaledHeight = target_bounds.lry - target_bounds.uly;
 
         Gfx_TargetScreenBufferOffset = Gfx_MapWindowWidth * target_bounds.uly + target_bounds.ulx;
 
@@ -590,7 +595,195 @@ unsigned char* Gfx_RescaleSprite(unsigned char* buffer, unsigned int* data_size,
 
 void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int height, int ulx, int uly, int radius,
                       int color) {
-    /// \todo
+    int index1;
+    int index2;
+    int index3;
+    int radius_square;
+    int index4;
+    int radius_cubic;
+    int var_28;
+    int var_40;
+    int radius_0_7;
+    unsigned char* gfx_buffer;
+    unsigned char* address;
+    unsigned char* address2;
+    Rect bounds1;
+    Rect bounds2;
+    Rect bounds3;
+
+    index1 = 0;
+    index3 = 0;
+
+    radius_square = radius * radius;
+    index4 = 0;
+    radius_cubic = radius_square * 2 * radius;
+    var_28 = radius_square / 4 - radius * radius_square;
+    radius_0_7 = (radius * 46341) / 65536;
+
+    if (radius + ulx >= 0 && ulx - radius < width && radius + uly >= 0 && uly - radius < height && radius > 0) {
+        if (ulx - radius >= 0 || ulx + radius < width || uly - radius >= 0 || uly + radius < height) {
+            gfx_buffer = new (std::nothrow) unsigned char[radius];
+
+            if (gfx_buffer) {
+                address = gfx_buffer;
+
+                while (index4 < radius_cubic) {
+                    var_28 += index4 + radius_square;
+
+                    if (var_28 < 0) {
+                        *address++ = 0;
+                    } else {
+                        radius_cubic -= radius_square * 2;
+                        var_28 -= radius_cubic;
+                        *address++ = 1;
+                        ++index3;
+                    }
+
+                    index4 += radius_square * 2;
+                    ++index1;
+                }
+
+                for (int i = 0; i < 8; ++i) {
+                    index2 = index1;
+                    var_40 = 0;
+                    address2 = buffer;
+
+                    switch (i) {
+                        case 0: {
+                            bounds2.lry = ulx;
+                            bounds2.lrx = uly - radius;
+                            bounds2.uly = bounds2.lry;
+                            bounds2.ulx = bounds2.lrx;
+                            bounds1.lry = bounds2.uly + index1;
+                            bounds1.lrx = bounds2.ulx + index3;
+                            bounds1.uly = 1;
+                            bounds1.ulx = full_width;
+                        } break;
+
+                        case 1: {
+                            bounds2.lry = ulx + radius;
+                            bounds2.lrx = uly;
+                            bounds1.lry = bounds2.lry;
+                            bounds1.lrx = bounds2.lrx;
+                            bounds2.uly = bounds1.lry - index3;
+                            bounds2.ulx = bounds1.lrx - index1;
+                            bounds1.uly = -full_width;
+                            bounds1.ulx = -1;
+                        } break;
+
+                        case 2: {
+                            bounds2.lry = radius + ulx;
+                            bounds2.lrx = uly;
+                            bounds1.lry = bounds2.lry;
+                            bounds2.ulx = bounds2.lrx;
+                            bounds2.uly = bounds1.lry - index3;
+                            bounds1.lrx = bounds2.ulx + index1;
+                            bounds1.uly = full_width;
+                            bounds1.ulx = -1;
+                        } break;
+
+                        case 3: {
+                            bounds2.lry = ulx;
+                            bounds2.lrx = uly + radius;
+                            bounds2.uly = bounds2.lry;
+                            bounds1.lrx = bounds2.lrx;
+                            bounds1.lry = bounds2.uly + index1;
+                            bounds2.ulx = bounds1.lrx + index3;
+                            bounds1.uly = 1;
+                            bounds1.ulx = -full_width;
+                        } break;
+
+                        case 4: {
+                            bounds2.lry = ulx;
+                            bounds2.lrx = uly + radius;
+                            bounds1.lry = bounds2.lry;
+                            bounds1.lrx = bounds2.lrx;
+                            bounds2.uly = bounds1.lry - index1;
+                            bounds2.ulx = bounds1.lrx - index3;
+                            bounds1.uly = -1;
+                            bounds1.ulx = -full_width;
+                        } break;
+
+                        case 5: {
+                            bounds2.lry = ulx - radius;
+                            bounds2.lrx = uly;
+                            bounds2.uly = bounds2.lry;
+                            bounds2.ulx = bounds2.lrx;
+                            bounds1.lry = bounds2.uly + index3;
+                            bounds1.lrx = bounds2.ulx + index1;
+                            bounds1.uly = full_width;
+                            bounds1.ulx = 1;
+                        } break;
+
+                        case 6: {
+                            bounds2.lry = ulx - radius;
+                            bounds2.lrx = uly;
+                            bounds2.uly = bounds2.lry;
+                            bounds1.lrx = bounds2.lrx;
+                            bounds1.lry = bounds2.uly + index3;
+                            bounds2.ulx = bounds1.lrx - index1;
+                            bounds1.uly = -full_width;
+                            bounds1.ulx = 1;
+                        } break;
+
+                        case 7: {
+                            bounds2.lry = ulx;
+                            bounds2.lrx = uly - radius;
+                            bounds1.lry = bounds2.lry;
+                            bounds2.ulx = bounds2.lrx;
+                            bounds2.uly = bounds1.lry - index1;
+                            bounds1.lrx = bounds2.ulx + index3;
+                            bounds1.uly = -1;
+                            bounds1.ulx = full_width;
+                        } break;
+                    }
+
+                    if (bounds1.lry >= 0 && bounds2.uly < width && bounds1.lrx >= 0 && bounds2.ulx < height) {
+                        if (bounds2.uly < 0 || bounds1.lry >= width || bounds2.ulx < 0 || bounds1.lrx >= height) {
+                            bounds3.lry = Gfx_DirectionCorrections[i].ulx;
+                            bounds3.lrx = Gfx_DirectionCorrections[i].uly;
+                            bounds3.uly = Gfx_DirectionCorrections[i].lrx;
+                            bounds3.ulx = Gfx_DirectionCorrections[i].lry;
+
+                            var_40 = 1;
+                        }
+
+                        address2 += bounds2.lrx * full_width + bounds2.lry;
+                        address = gfx_buffer;
+
+                        for (int j = 0; j < index2; ++j) {
+                            if (var_40) {
+                                if (bounds2.lry >= 0 && bounds2.lry < width && bounds2.lrx >= 0 &&
+                                    bounds2.lrx < height) {
+                                    *address2 = color;
+                                    address2 += bounds1.uly;
+                                    bounds2.lry += bounds3.lry;
+                                    bounds2.lrx += bounds3.lrx;
+                                    ++address;
+
+                                    if (address[0]) {
+                                        address2 += bounds1.ulx;
+                                        bounds2.lry += bounds3.uly;
+                                        bounds2.lrx += bounds3.ulx;
+                                    }
+                                }
+                            } else {
+                                *address2 = color;
+                                address2 += bounds1.uly;
+                                ++address;
+
+                                if (address[0]) {
+                                    address2 += bounds1.ulx;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                delete[] gfx_buffer;
+            }
+        }
+    }
 }
 
 void Gfx_RescaleSpriteRow(unsigned char* row_data, struct RowMeta* meta, unsigned char* frame_buffer, int mode,

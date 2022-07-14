@@ -209,7 +209,7 @@ void UnitInfoGroup::RenderGroups() {
     }
 
     for (int i = air_units_on_ground.GetCount() - 1; i >= 0; --i) {
-        DrawMap_RenderUnit(this, &air_units_on_ground[i]);
+        DrawMap_RenderUnit(this, &air_units_on_ground[i], false);
     }
 
     for (int i = air_units_in_air.GetCount() - 1; i >= 0; --i) {
@@ -221,7 +221,7 @@ void UnitInfoGroup::RenderGroups() {
     }
 
     for (int i = air_units_in_air.GetCount() - 1; i >= 0; --i) {
-        DrawMap_RenderUnit(this, &air_units_in_air[i]);
+        DrawMap_RenderUnit(this, &air_units_in_air[i], false);
     }
 
     for (int i = air_particles_explosions.GetCount() - 1; i >= 0; --i) {

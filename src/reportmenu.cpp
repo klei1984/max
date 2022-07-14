@@ -1570,6 +1570,8 @@ void ReportMenu_OnClick_PDamagedUnits(ButtonID bid, intptr_t value) {
 
     ReportMenu_ButtonState_DamagedUnits = true;
 
+    menu->UpdateStatistics();
+
     if (menu->radio_button_index == REPORT_TYPE_UNITS) {
         menu->Draw(true);
     }
@@ -1581,6 +1583,8 @@ void ReportMenu_OnClick_RDamagedUnits(ButtonID bid, intptr_t value) {
     menu = reinterpret_cast<ReportMenu *>(value);
 
     ReportMenu_ButtonState_DamagedUnits = false;
+
+    menu->UpdateStatistics();
 
     if (menu->radio_button_index == REPORT_TYPE_UNITS) {
         menu->Draw(true);
@@ -1610,6 +1614,8 @@ void ReportMenu_OnClick_RStealthyUnits(ButtonID bid, intptr_t value) {
     menu = reinterpret_cast<ReportMenu *>(value);
 
     ReportMenu_ButtonState_StealthyUnits = false;
+
+    menu->UpdateStatistics();
 
     if (menu->radio_button_index == REPORT_TYPE_UNITS || menu->radio_button_index == REPORT_TYPE_CASUALTIES) {
         menu->Draw(true);

@@ -44,5 +44,7 @@ void rect_free(RectPtr ptr);
 void rect_min_bound(Rect* r1, Rect* r2, Rect* min_bound);
 int rect_inside_bound(Rect* r1, Rect* bound, Rect* r2);
 Rect* rect_init(Rect* r, int ulx, int uly, int lrx, int lry);
+int rect_get_width(Rect* r);
+int rect_get_height(Rect* r);
 
 #endif /* RECT_H */

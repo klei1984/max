@@ -1791,6 +1791,8 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
                 new_zoom_level = ((window->window.lrx - window->window.ulx - 28) * (64 - Gfx_ZoomLevel)) / 60 + 14;
 
                 WindowManager_LoadImage2(ZOOMPTR, new_zoom_level + window->window.ulx, window->window.uly + 1, true);
+
+                win_draw_rect(window->id, &window->window);
             }
 
             Gfx_MapScalingFactor = 0x400000 / Gfx_ZoomLevel;
@@ -3499,11 +3501,11 @@ void GameManager_ManagePlayerAction() {
 
 bool GameManager_InitPopupButtons(UnitInfo* unit) {
     WindowInfo* main_map_window;
-    WindowInfo* unknown_map_window;
+    WindowInfo* popups_window;
     bool result;
 
     main_map_window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
-    unknown_map_window = WindowManager_GetWindow(WINDOW_UNKNOWN_01);
+    popups_window = WindowManager_GetWindow(WINDOW_POPUP_BUTTONS);
 
     if (unit->orders != ORDER_DISABLED && GameManager_IsAtGridPosition(unit) &&
         (!(unit->flags & MOBILE_LAND_UNIT) || unit->state != ORDER_STATE_UNIT_READY)) {
@@ -3522,8 +3524,7 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
                 image->height * GameManager_PopupButtons.popup_count + (GameManager_PopupButtons.popup_count + 1) * 3;
 
             ulx = (((unit->x + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx;
-            uly = (((unit->y + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly -
-                  (GameManager_PopupButtons.height / 2);
+            uly = ((unit->y << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly - (GameManager_PopupButtons.height / 2);
 
             ulx += main_map_window->window.ulx;
 
@@ -3540,10 +3541,10 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
                 uly = main_map_window->window.lry - GameManager_PopupButtons.height;
             }
 
-            unknown_map_window->window.ulx = ulx;
-            unknown_map_window->window.uly = uly;
-            unknown_map_window->window.lrx = unknown_map_window->window.ulx + GameManager_PopupButtons.width;
-            unknown_map_window->window.lry = unknown_map_window->window.uly + GameManager_PopupButtons.height;
+            popups_window->window.ulx = ulx;
+            popups_window->window.uly = uly;
+            popups_window->window.lrx = popups_window->window.ulx + GameManager_PopupButtons.width;
+            popups_window->window.lry = popups_window->window.uly + GameManager_PopupButtons.height;
 
             GameManager_PopupButtons.ulx = ulx;
             GameManager_PopupButtons.uly = uly;
@@ -3578,7 +3579,7 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
                 uly += image->height + 3;
             }
 
-            win_draw_rect(main_map_window->id, &unknown_map_window->window);
+            win_draw_rect(main_map_window->id, &popups_window->window);
 
             result = true;
 
@@ -3614,7 +3615,7 @@ void GameManager_DeinitPopupButtons(bool clear_mouse_events) {
         delete image;
 
         window2 = WindowManager_GetWindow(WINDOW_MAIN_MAP);
-        window1 = WindowManager_GetWindow(WINDOW_UNKNOWN_01);
+        window1 = WindowManager_GetWindow(WINDOW_POPUP_BUTTONS);
 
         bounds.ulx = (((window1->window.ulx - window2->window.ulx) * Gfx_MapScalingFactor) >> 16) +
                      GameManager_MapWindowDrawBounds.ulx;
@@ -6201,7 +6202,7 @@ void GameManager_ProcessInput() {
         }
     }
 
-    for (window_index = WINDOW_UNKNOWN_01; window_index < WINDOW_COUNT; ++window_index) {
+    for (window_index = WINDOW_POPUP_BUTTONS; window_index < WINDOW_COUNT; ++window_index) {
         window = WindowManager_GetWindow(window_index);
 
         if (GameManager_MouseX >= window->window.ulx && GameManager_MouseY >= window->window.uly &&
@@ -6353,7 +6354,7 @@ void GameManager_ProcessInput() {
         window = WindowManager_GetWindow(window_index);
 
         switch (window_index) {
-            case WINDOW_UNKNOWN_01: {
+            case WINDOW_POPUP_BUTTONS: {
             } break;
 
             case WINDOW_MESSAGE_BOX: {
@@ -7801,10 +7802,10 @@ void GameManager_DrawProximityZones() {
             base_values->SetAttribute(ATTRIB_RANGE, range);
         }
 
-        bounds.ulx = GameManager_SelectedUnit->x - proximity_range << 6;
-        bounds.lrx = GameManager_SelectedUnit->x + proximity_range << 6;
-        bounds.uly = GameManager_SelectedUnit->y - proximity_range << 6;
-        bounds.lry = GameManager_SelectedUnit->y + proximity_range << 6;
+        bounds.ulx = GameManager_SelectedUnit->x - (proximity_range << 6);
+        bounds.lrx = GameManager_SelectedUnit->x + (proximity_range << 6);
+        bounds.uly = GameManager_SelectedUnit->y - (proximity_range << 6);
+        bounds.lry = GameManager_SelectedUnit->y + (proximity_range << 6);
 
         GameManager_AddDrawBounds(&bounds);
 

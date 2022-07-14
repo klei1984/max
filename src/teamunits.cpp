@@ -26,8 +26,13 @@
 #include <cctype>
 #include <cstdlib>
 
+#include "access.hpp"
+#include "inifile.hpp"
+#include "production_manager.hpp"
+#include "researchmenu.hpp"
 #include "resource_manager.hpp"
 #include "units_manager.hpp"
+#include "upgradecontrol.hpp"
 
 AbstractUnit::AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
@@ -340,9 +345,8 @@ Complex* TeamUnits::GetComplex(unsigned short complex_id) {
 
 void TeamUnits::OptimizeComplexes(unsigned short team) {
     for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
-        /// \todo Implement methods
-        //        Access_UpdateResourcesTotal(*it);
-        //        ProductionManager_static_OptimizeMining(team, (*it), 0, 0);
+        Access_UpdateResourcesTotal(&*it);
+        ProductionManager_OptimizeMining(team, &*it, nullptr, false);
     }
 }
 
@@ -359,7 +363,85 @@ UnitValues* TeamUnits::GetCurrentUnitValues(unsigned short id) { return &*curren
 void TeamUnits::SetCurrentUnitValues(unsigned short id, UnitValues& object) { current_values[id] = object; }
 
 int TeamUnits_GetUpgradeCost(unsigned short team, ResourceID unit_type, int attribute) {
-    /// \todo
+    SmartPointer<UnitValues> base_values(UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type));
+    SmartPointer<UnitValues> current_values(UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(unit_type));
+    int upgrade_offset_factor = TeamUnits_UpgradeOffsetFactor(team, unit_type, attribute);
+    int factor;
+    int base_value;
+    int current_value;
+    int upgrade_cost;
+
+    switch (attribute) {
+        case ATTRIB_ATTACK: {
+            factor = ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_ATTACK, unit_type);
+        } break;
+
+        case ATTRIB_ROUNDS: {
+            factor = ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_SHOTS, unit_type);
+        } break;
+
+        case ATTRIB_RANGE: {
+            factor = ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_RANGE, unit_type);
+        } break;
+
+        case ATTRIB_ARMOR: {
+            factor = ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_ARMOR, unit_type);
+        } break;
+
+        case ATTRIB_HITS: {
+            factor = ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_HITS, unit_type);
+        } break;
+
+        case ATTRIB_SPEED: {
+            factor = ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_SPEED, unit_type);
+        } break;
+
+        case ATTRIB_SCAN: {
+            factor = ResearchMenu_CalculateFactor(team, RESEARCH_TOPIC_SCAN, unit_type);
+        } break;
+
+        default: {
+            factor = 0;
+        } break;
+    }
+
+    base_value = base_values->GetAttribute(attribute);
+    current_value = current_values->GetAttribute(attribute);
+
+    upgrade_cost = UpgradeControl_CalculateCost(attribute, current_value, factor, base_value);
+
+    if (attribute == ATTRIB_TURNS) {
+        current_value -= upgrade_offset_factor;
+
+    } else {
+        current_value += upgrade_offset_factor;
+    }
+
+    upgrade_cost =
+        UpgradeControl_CalculateCost(attribute, current_value, factor, base_values->GetAttribute(attribute)) -
+        upgrade_cost;
+
+    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+        switch (ini_get_setting(INI_OPPONENT)) {
+            case OPPONENT_TYPE_MASTER: {
+                upgrade_cost = (upgrade_cost * 4) / 5;
+            } break;
+
+            case OPPONENT_TYPE_GOD: {
+                upgrade_cost = (upgrade_cost * 2) / 3;
+            } break;
+
+            case OPPONENT_TYPE_CLUELESS: {
+                upgrade_cost = (upgrade_cost * 5) / 4;
+            } break;
+        }
+    }
+
+    if (upgrade_cost < 1) {
+        upgrade_cost = 1;
+    }
+
+    return upgrade_cost;
 }
 
 int TeamUnits_UpgradeOffsetFactor(unsigned short team, ResourceID unit_type, int attribute) {
