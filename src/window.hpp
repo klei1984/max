@@ -48,6 +48,8 @@ public:
     void SetFlags(unsigned int flags);
     void SetPaletteMode(bool palette_from_image);
     virtual bool EventHandler(Event* event);
+    WinID GetId() const;
+    void ResetId();
 };
 
 #endif /* WINDOW_HPP */

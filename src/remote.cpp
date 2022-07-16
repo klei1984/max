@@ -390,7 +390,7 @@ bool Remote_NetSync() {
     return Remote_NetworkMenu->is_gui_update_needed;
 }
 
-bool Remote_ProcessFrame(bool mode) { return false; }
+bool Remote_ProcessFrame(bool mode) { return true; }
 
 bool Remote_CheckRestartAfterDesyncEvent() { return false; }
 

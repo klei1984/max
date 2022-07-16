@@ -2858,14 +2858,14 @@ void UnitsManager_Popup_OnClick_ActivateNonAirUnit(ButtonID bid, UnitInfo* unit)
     GameManager_DeinitPopupButtons(true);
     GameManager_DisableMainMenu();
 
-    RepairShopMenu(unit).Run();
+    RepairShopMenu_Menu(unit);
 }
 
 void UnitsManager_Popup_OnClick_ActivateAirUnit(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     GameManager_DisableMainMenu();
 
-    RepairShopMenu(unit).Run();
+    RepairShopMenu_Menu(unit);
 }
 
 void UnitsManager_Popup_OnClick_Activate(ButtonID bid, UnitInfo* unit) {

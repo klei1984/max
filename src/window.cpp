@@ -107,3 +107,7 @@ void Window::SetFlags(unsigned int flags) { this->flags = flags; }
 void Window::SetPaletteMode(bool palette_from_image) { this->palette_from_image = palette_from_image; }
 
 bool Window::EventHandler(Event* event) { return false; }
+
+WinID Window::GetId() const { return window_id; }
+
+void Window::ResetId() { window_id = 0; }

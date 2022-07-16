@@ -22,15 +22,8 @@
 #ifndef REPAIRSHOPMENU_HPP
 #define REPAIRSHOPMENU_HPP
 
-#include "unitinfo.hpp"
-#include "window.hpp"
+class UnitInfo;
 
-class RepairShopMenu : public Window {
-public:
-    RepairShopMenu(UnitInfo* unit);
-    ~RepairShopMenu();
-
-    void Run();
-};
+void RepairShopMenu_Menu(UnitInfo *unit);
 
 #endif /* REPAIRSHOPMENU_HPP */
