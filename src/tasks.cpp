@@ -168,11 +168,11 @@ void Task::Task_vfunc11(UnitInfo& unit) {}
 
 void Task::AddReminder() { RemindTurnStart(true); }
 
-void Task::Task_vfunc13() { Task_vfunc15(); }
+void Task::Task_vfunc13() { EndTurn(); }
 
 void Task::Task_vfunc14(Task* task) {}
 
-void Task::Task_vfunc15() {}
+void Task::EndTurn() {}
 
 bool Task::Task_vfunc16(UnitInfo& unit) { return false; }
 
@@ -187,7 +187,7 @@ bool Task::Task_vfunc19() { return false; }
 
 void Task::Task_vfunc20(int unknown) {}
 
-void Task::Task_vfunc21(UnitInfo& unit) {}
+void Task::Remove(UnitInfo& unit) {}
 
 void Task::Task_vfunc22(UnitInfo& unit) {}
 
@@ -373,10 +373,10 @@ void TaskObtainUnits::AddReminder() {
 
 void TaskObtainUnits::Task_vfunc13() {
     field_28 = true;
-    Task_vfunc15();
+    EndTurn();
 }
 
-void TaskObtainUnits::Task_vfunc15() {
+void TaskObtainUnits::EndTurn() {
     if (parent == nullptr || !parent->Task_vfunc9()) {
         units.Clear();
     }
@@ -476,7 +476,7 @@ void TaskGetResource::TaskGetResource_sub_471A4(int unknown, char mode) {
     if (mode == 2) {
         TaskGetResource_sub_471F8();
     } else if (mode == 0) {
-        Task_vfunc15();
+        EndTurn();
     }
 }
 
@@ -531,7 +531,7 @@ void TaskGetResource::AddReminder() {
     }
 }
 
-void TaskGetResource::Task_vfunc15() {
+void TaskGetResource::EndTurn() {
     if (unit1 != nullptr && unit1->GetTask1ListFront() == this) {
         if (unit3 == nullptr) {
             TaskGetResource_sub_46DF3();
@@ -569,7 +569,7 @@ void TaskGetResource::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskGetResource::Task_vfunc21(UnitInfo& unit) {
+void TaskGetResource::Remove(UnitInfo& unit) {
     if (&unit == &*unit1) {
         unit1 = nullptr;
         TaskGetResource_sub_471F8();
@@ -621,9 +621,9 @@ void TaskRendezvous::AddReminder() {
     Task_RemindMoveFinished(&*unit1);
 }
 
-void TaskRendezvous::Task_vfunc13() { Task_vfunc15(); }
+void TaskRendezvous::Task_vfunc13() { EndTurn(); }
 
-void TaskRendezvous::Task_vfunc15() {
+void TaskRendezvous::EndTurn() {
     if (unit1 != nullptr && unit2 != nullptr) {
         if (unit2->orders == ORDER_AWAITING && unit2->GetTask1ListFront() == this && unit2->speed) {
             Task_vfunc17(*unit2);
@@ -655,7 +655,7 @@ void TaskRendezvous::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskRendezvous::Task_vfunc21(UnitInfo& unit) {
+void TaskRendezvous::Remove(UnitInfo& unit) {
     if (unit1 == unit || unit2 == unit) {
         if (unit1 != unit) {
             /// \todo Implement missing stuff

@@ -24,16 +24,23 @@
 
 #include "unitinfo.hpp"
 
+enum {
+    CAUTION_LEVEL_NONE,
+    CAUTION_LEVEL_AVOID_REACTION_FIRE,
+    CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
+    CAUTION_LEVEL_AVOID_ALL_DAMAGE
+};
+
 class PathRequest : public SmartObject {
     SmartPointer<UnitInfo> unit1;
     SmartPointer<UnitInfo> unit2;
     Point point;
-    unsigned char field_14;
-    unsigned short field_15;
-    unsigned short field_17;
-    unsigned char field_19;
-    unsigned char field_20;
-    unsigned char field_21;
+    unsigned char flags;
+    unsigned short max_cost;
+    unsigned short minimum_distance;
+    unsigned char caution_level;
+    bool board_transport;
+    bool optimize;
 
     static void AssignGroundPath(UnitInfo* unit, GroundPath* path);
 
@@ -44,22 +51,22 @@ public:
     UnitInfo* GetUnit1() const;
     UnitInfo* GetUnit2() const;
     Point GetPoint() const;
-    unsigned char GetField14() const;
-    unsigned short GetField15() const;
-    unsigned char GetField19() const;
-    unsigned char GetField20() const;
+    unsigned char GetFlags() const;
+    unsigned short GetMaxCost() const;
+    unsigned char GetCautionLevel() const;
+    unsigned char GetBoardTransport() const;
 
-    void SetField15(int value);
-    void SetField17(int value);
-    void SetField19(int value);
-    void SetField20(int value);
-    void SetField21(int value);
+    void SetMaxCost(int value);
+    void SetMinimumDistance(int value);
+    void SetCautionLevel(int value);
+    void SetBoardTransport(bool value);
+    void SetOptimizeFlag(bool value);
 
     void CreateTransport(ResourceID unit_type);
 
     virtual int PathRequest_Vfunc1();
-    virtual void PathRequest_Vfunc2();
-    virtual void PathRequest_Vfunc3(GroundPath* path);
+    virtual void Cancel();
+    virtual void Finish(GroundPath* path);
 };
 
 #endif /* PATHREQUEST_HPP */

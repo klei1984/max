@@ -47,7 +47,7 @@ RemindTurnEnd::~RemindTurnEnd() {}
 
 void RemindTurnEnd::Reminder_vfunc1() {
     task->SetField8(false);
-    task->Task_vfunc15();
+    task->EndTurn();
 }
 
 int RemindTurnEnd::Reminder_vfunc2() { return 1; }

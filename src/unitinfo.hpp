@@ -98,7 +98,7 @@ public:
     void OffsetDrawZones(int offset_x, int offset_y);
     void UpdateUnitDrawZones();
     void RefreshScreen();
-    void UpdateUnitAngle(unsigned short image_index);
+    void UpdateAngle(unsigned short image_index);
     void AddToDrawList(unsigned int override_flags = 0);
     void ProcessTaskList();
     void AttackUnit(UnitInfo* enemy, int attack_potential, int direction);
@@ -179,7 +179,8 @@ public:
     void SpawnNewUnit();
     void FollowUnit();
     int GetExperience();
-    void BlockedOnPathRequest(bool mode);
+    void BlockedOnPathRequest(bool mode = true);
+    void MoveFinished(bool mode = true);
     void RadarPing();
     void SetPosition(int grid_x, int grid_y, bool skip_map_status_update);
     void UpdatePinCount(int grid_x, int grid_y, int pin_units);
@@ -187,6 +188,7 @@ public:
     void RemoveUnknown();
     void BuildOrder();
     bool IsUpgradeAvailable();
+    void Redraw();
 
     ResourceID unit_type;
     struct PopupFunctions* popup;

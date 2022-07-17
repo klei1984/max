@@ -130,13 +130,13 @@ void PathsManager::RemoveRequest(PathRequest *path_request) {
 
     requests.Remove(*path_request);
 
-    path_request->PathRequest_Vfunc2();
+    path_request->Cancel();
 }
 
 void PathsManager::RemoveRequest(UnitInfo *unit) {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
         if ((*it).GetUnit1() == unit) {
-            (*it).PathRequest_Vfunc2();
+            (*it).Cancel();
             requests.Remove(it);
         }
     }

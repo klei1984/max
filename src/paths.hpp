@@ -62,6 +62,9 @@ public:
 
     short GetEndX() const;
     short GetEndY() const;
+    int GetDistanceX() const;
+    int GetDistanceY() const;
+    short GetEuclideanDistance() const;
     void SetEndXY(int target_x, int target_y);
 };
 
@@ -93,6 +96,8 @@ public:
     int WritePacket(char* buffer);
     void Path_vfunc16(int unknown1, int unknown2);
     void Path_vfunc17(int unknown1, int unknown2);
+
+    void AddStep(int step_x, int step_y);
 };
 
 class AirPath : public UnitPath {
@@ -125,10 +130,32 @@ public:
     bool Draw(UnitInfo* unit, WindowInfo* window);
 };
 
-class BuilderPath : public UnitPath {};
+class BuilderPath : public UnitPath {
+    short x;
+    short y;
+
+public:
+    BuilderPath();
+    ~BuilderPath();
+
+    static TextFileObject* Allocate();
+
+    unsigned short GetTypeIndex() const;
+    void FileLoad(SmartFileReader& file);
+    void FileSave(SmartFileWriter& file);
+    void TextLoad(TextStructure& object);
+    void TextSave(SmartTextfileWriter& file);
+    int GetMovementCost(UnitInfo* unit);
+    bool Path_vfunc10(UnitInfo* unit);
+    int Path_vfunc12(int unknown);
+    bool Draw(UnitInfo* unit, WindowInfo* window);
+};
 
 bool Paths_RequestPath(UnitInfo* unit, int mode);
 AirPath* Paths_GetAirPath(UnitInfo* unit);
+bool Paths_UpdateAngle(UnitInfo* unit, int angle);
+void Paths_DrawMarker(WindowInfo* window, int angle, int grid_x, int grid_y, int color);
+void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots);
 
 extern Point Paths_8DirPointsArray[8];
 extern unsigned int Paths_LastTimeStamp;

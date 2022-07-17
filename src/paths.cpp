@@ -21,10 +21,22 @@
 
 #include "paths.hpp"
 
+#include "access.hpp"
+#include "game_manager.hpp"
 #include "hash.hpp"
+#include "inifile.hpp"
+#include "message_manager.hpp"
 #include "registerarray.hpp"
+#include "remote.hpp"
 #include "sound_manager.hpp"
 #include "unitinfo.hpp"
+#include "units_manager.hpp"
+
+static int Paths_GetAngle(int x, int y);
+static void Paths_DrawMissile(UnitInfo* unit, int position_x, int position_y);
+static bool Paths_LoadUnit(UnitInfo* unit);
+static void Paths_FinishMove(UnitInfo* unit);
+static void Paths_TakeStep(UnitInfo* unit, int cost, int param);
 
 static unsigned short Paths_AirPath_TypeIndex;
 static MAXRegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
@@ -33,11 +45,14 @@ static unsigned short Paths_GroundPath_TypeIndex;
 static MAXRegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex,
                                                        &GroundPath::Allocate);
 
-// static unsigned short Paths_BuilderPath_TypeIndex;
-// static MAXRegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
-//                                                        &BuilderPath::Allocate);
+static unsigned short Paths_BuilderPath_TypeIndex;
+static MAXRegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
+                                                        &BuilderPath::Allocate);
 
 Point Paths_8DirPointsArray[8] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+
+short Paths_8DirPointsArrayX[8] = {0, 1, 1, 1, 0, -1, -1, -1};
+short Paths_8DirPointsArrayY[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
 
 unsigned int Paths_LastTimeStamp;
 bool Path_EnableTimeBenchmark;
@@ -76,6 +91,12 @@ void UnitPath::Path_vfunc17(int unknown1, int unknown2) {}
 short UnitPath::GetEndX() const { return x_end; }
 
 short UnitPath::GetEndY() const { return y_end; }
+
+int UnitPath::GetDistanceX() const { return distance_x; }
+
+int UnitPath::GetDistanceY() const { return distance_y; }
+
+short UnitPath::GetEuclideanDistance() const { return euclidean_distance; }
 
 void UnitPath::SetEndXY(int target_x, int target_y) {
     x_end = target_x;
@@ -374,7 +395,16 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {}
 
 bool GroundPath::IsInPath(int grid_x, int grid_y) const {}
 
-void GroundPath::Path_vfunc8(UnitInfo* unit) {}
+void GroundPath::Path_vfunc8(UnitInfo* unit) {
+    if (unit->state == ORDER_STATE_5) {
+        unit->BlockedOnPathRequest();
+
+    } else {
+        index = 0;
+        steps.Clear();
+        AddStep(0, 0);
+    }
+}
 
 int GroundPath::GetMovementCost(UnitInfo* unit) {}
 
@@ -394,6 +424,15 @@ void GroundPath::Path_vfunc16(int unknown1, int unknown2) {}
 
 void GroundPath::Path_vfunc17(int unknown1, int unknown2) {}
 
+void GroundPath::AddStep(int step_x, int step_y) {
+    PathStep step;
+
+    step.x = step_x;
+    step.y = step_y;
+
+    steps.PushBack(&step);
+}
+
 bool Paths_RequestPath(UnitInfo* unit, int mode) {
     /// \todo
 }
@@ -402,3 +441,289 @@ AirPath* Paths_GetAirPath(UnitInfo* unit) {
     /// \todo
     return nullptr;
 }
+
+BuilderPath::BuilderPath() : UnitPath(0, 0), x(1), y(1) {}
+
+BuilderPath::~BuilderPath() {}
+
+TextFileObject* BuilderPath::Allocate() { return new (std::nothrow) BuilderPath(); }
+
+unsigned short BuilderPath::GetTypeIndex() const { return Paths_BuilderPath_TypeIndex; }
+
+void BuilderPath::FileLoad(SmartFileReader& file) {
+    file.Read(x);
+    file.Read(y);
+}
+
+void BuilderPath::FileSave(SmartFileWriter& file) {
+    file.Write(x);
+    file.Write(y);
+}
+
+void BuilderPath::TextLoad(TextStructure& object) {
+    x = object.ReadInt("x");
+    y = object.ReadInt("y");
+}
+
+void BuilderPath::TextSave(SmartTextfileWriter& file) {
+    file.WriteInt("x", x);
+    file.WriteInt("y", y);
+}
+
+int BuilderPath::GetMovementCost(UnitInfo* unit) { return SHRT_MAX; }
+
+bool BuilderPath::Path_vfunc10(UnitInfo* unit) {
+    bool result;
+    int direction;
+
+    if (ini_get_setting(INI_EFFECTS)) {
+        unit->RefreshScreen();
+    }
+
+    if (Remote_IsNetworkGame || unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
+        x = Paths_8DirPointsArrayX[(unit->angle + 2) & 7];
+        y = Paths_8DirPointsArrayY[(unit->angle + 2) & 7];
+
+        direction = Paths_GetAngle(x, y);
+
+        Paths_UpdateAngle(unit, direction);
+
+        /// \todo Is this a defect? Paths_UpdateAngle() returns the correct status
+        result = false;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+int BuilderPath::Path_vfunc12(int unknown) {}
+
+bool BuilderPath::Draw(UnitInfo* unit, WindowInfo* window) {}
+
+int Paths_GetAngle(int x, int y) {
+    int result;
+
+    if (x) {
+        if (x <= 0) {
+            if (y <= 0) {
+                if (y) {
+                    result = 7;
+
+                } else {
+                    result = 6;
+                }
+
+            } else {
+                result = 5;
+            }
+
+        } else if (y >= 0) {
+            if (y) {
+                result = 3;
+
+            } else {
+                result = 2;
+            }
+
+        } else {
+            result = 1;
+        }
+
+    } else if (y >= 0) {
+        result = 4;
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+bool Paths_UpdateAngle(UnitInfo* unit, int angle) {
+    bool result;
+
+    if (unit->angle != angle) {
+        int delta_a = angle - unit->angle;
+        int delta_b = unit->angle - angle;
+        int direction;
+
+        if (delta_a < 0) {
+            delta_a += 8;
+        }
+
+        if (delta_b < 0) {
+            delta_b += 8;
+        }
+
+        if (delta_a >= delta_b) {
+            direction = -1;
+
+        } else {
+            direction = 1;
+        }
+
+        unit->UpdateAngle((unit->angle + direction) & 7);
+
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+void Paths_DrawMissile(UnitInfo* unit, int position_x, int position_y) {
+    if (unit->unit_type == TORPEDO || unit->unit_type == ROCKET) {
+        int index;
+        int team;
+        int grid_x;
+        int grid_y;
+        int delta_x;
+        int delta_y;
+        int scaled_x;
+        int scaled_y;
+        int offset_x;
+        int offset_y;
+        ResourceID unit_type;
+
+        index = 3;
+        team = unit->team;
+        grid_x = unit->grid_x;
+        grid_y = unit->grid_y;
+        delta_x = 0;
+        delta_y = 0;
+        scaled_x = ((position_x - unit->x) << 16) / index;
+        scaled_y = ((position_y - unit->y) << 16) / index;
+
+        if (unit->unit_type == TORPEDO) {
+            unit_type = TRPBUBLE;
+
+        } else {
+            unit_type = RKTSMOKE;
+        }
+
+        for (int i = 0; i < index; ++i) {
+            SmartPointer<UnitInfo> particle =
+                UnitsManager_DeployUnit(unit_type, team, nullptr, grid_x, grid_y, 0, true);
+
+            offset_x = (unit->x + (delta_x >> 16)) - particle->x;
+            offset_y = (unit->y + (delta_y >> 16)) - particle->y;
+
+            particle->OffsetDrawZones(offset_x, offset_y);
+            particle->RefreshScreen();
+
+            delta_x += scaled_x;
+            delta_y += scaled_y;
+        }
+    }
+}
+
+bool Paths_LoadUnit(UnitInfo* unit) {
+    UnitInfo* shop;
+    bool result;
+
+    shop = Access_GetReceiverUnit(unit, unit->grid_x, unit->grid_y);
+
+    if (shop) {
+        if (shop->unit_type == LANDPAD && !Access_GetUnit2(unit->grid_x, unit->grid_y, unit->team)) {
+            unit->SetParent(nullptr);
+            unit->orders = ORDER_LANDING;
+            unit->state = ORDER_STATE_0;
+
+            result = true;
+
+        } else if (shop->unit_type == HANGAR && unit->orders == ORDER_MOVING_27) {
+            if (Access_GetStoredUnitCount(shop) == shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
+                unit->orders = ORDER_AWAITING;
+                unit->state = ORDER_STATE_1;
+
+                if (GameManager_SelectedUnit == unit) {
+                    MessageManager_DrawMessage("Unable to move unit into holding area.", 1, unit,
+                                               Point(unit->grid_x, unit->grid_y));
+                }
+
+            } else {
+                unit->SetParent(shop);
+                unit->orders = ORDER_LANDING;
+                unit->state = ORDER_STATE_0;
+
+                if (GameManager_SelectedUnit == unit) {
+                    GameManager_MenuUnitSelect(shop);
+                }
+            }
+
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+void Paths_FinishMove(UnitInfo* unit) {
+    int grid_x;
+    int grid_y;
+
+    GameManager_RenderMinimapDisplay = true;
+
+    grid_x = unit->grid_x;
+    grid_y = unit->grid_y;
+
+    if (unit->flags & MISSILE_UNIT) {
+        SmartPointer<UnitInfo> missile = unit->GetParent();
+
+        missile->Attack(grid_x, grid_y);
+
+        UnitsManager_DestroyUnit(unit);
+
+    } else {
+        unit->Redraw();
+
+        if (unit->path->GetEndX() == grid_x && unit->path->GetEndY() == grid_y) {
+            if (unit->path != nullptr) {
+                unit->path = nullptr;
+            }
+
+            if (!Paths_LoadUnit(unit)) {
+                if (unit->unit_type == AIRTRANS && unit->GetParent()) {
+                    if (unit->storage < unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
+                        if (unit->GetParent() == Access_GetUnit4(grid_x, grid_y, unit->team, MOBILE_LAND_UNIT)) {
+                            unit->orders = ORDER_LOADING;
+                            unit->state = ORDER_STATE_0;
+
+                            return;
+                        }
+
+                    } else {
+                        unit->SetParent(nullptr);
+                    }
+                }
+
+                unit->BlockedOnPathRequest();
+            }
+
+        } else {
+            unit->state = ORDER_STATE_1;
+
+            Paths_GetAirPath(unit);
+
+            unit->path = nullptr;
+
+            unit->MoveFinished();
+        }
+    }
+}
+
+void Paths_TakeStep(UnitInfo* unit, int cost, int param) {}
+
+void Paths_DrawMarker(WindowInfo* window, int angle, int grid_x, int grid_y, int color) {}
+
+void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots) {}

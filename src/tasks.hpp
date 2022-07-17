@@ -135,13 +135,13 @@ public:
     virtual void AddReminder();
     virtual void Task_vfunc13();
     virtual void Task_vfunc14(Task* task);
-    virtual void Task_vfunc15();
+    virtual void EndTurn();
     virtual bool Task_vfunc16(UnitInfo& unit);
     virtual bool Task_vfunc17(UnitInfo& unit);
     virtual void RemoveSelf();
     virtual bool Task_vfunc19();
     virtual void Task_vfunc20(int unknown);
-    virtual void Task_vfunc21(UnitInfo& unit);
+    virtual void Remove(UnitInfo& unit);
     virtual void Task_vfunc22(UnitInfo& unit);
     virtual void Task_vfunc23(UnitInfo& unit);
     virtual void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
@@ -173,7 +173,7 @@ public:
     void Task_vfunc11(UnitInfo& unit);
     void AddReminder();
     void Task_vfunc13();
-    void Task_vfunc15();
+    void EndTurn();
     void RemoveSelf();
 };
 
@@ -194,9 +194,9 @@ public:
     ~TaskGetResource();
 
     virtual void AddReminder();
-    virtual void Task_vfunc15();
+    virtual void EndTurn();
     virtual void RemoveSelf();
-    virtual void Task_vfunc21(UnitInfo& unit);
+    virtual void Remove(UnitInfo& unit);
 
     virtual void Task_vfunc28() = 0;
     virtual UnitInfo* Task_vfunc29() = 0;
@@ -220,10 +220,10 @@ public:
     unsigned char GetType() const;
     void AddReminder();
     void Task_vfunc13();
-    void Task_vfunc15();
+    void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
-    void Task_vfunc21(UnitInfo& unit);
+    void Remove(UnitInfo& unit);
 };
 
 class TaskClearZone : public Task {
@@ -245,10 +245,10 @@ public:
     bool Task_vfunc10();
     void AddReminder();
     void Task_vfunc13();
-    void Task_vfunc15();
+    void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
-    void Task_vfunc21(UnitInfo& unit);
+    void Remove(UnitInfo& unit);
 };
 
 #endif /* TASKS_HPP */

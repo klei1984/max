@@ -1772,7 +1772,7 @@ void UnitInfo::RefreshScreen() {
     GameManager_AddDrawBounds(&sprite_bounds);
 }
 
-void UnitInfo::UpdateUnitAngle(unsigned short image_index) {
+void UnitInfo::UpdateAngle(unsigned short image_index) {
     int image_diff;
 
     image_diff = image_index - angle;
@@ -1963,6 +1963,10 @@ bool UnitInfo::IsUpgradeAvailable() {
     /// \todo
 }
 
+void UnitInfo::Redraw() {
+    /// \todo
+}
+
 void UnitInfo::GainExperience(int experience) {
     if (flags & REGENERATING_UNIT) {
         storage += experience;
@@ -2024,7 +2028,7 @@ void UnitInfo::GainExperience(int experience) {
 
 void UnitInfo::ProcessTaskList() {
     for (SmartList<Task>::Iterator it = task_list2.Begin(); it != task_list2.End(); ++it) {
-        (*it).Task_vfunc21(*this);
+        (*it).Remove(*this);
     }
 
     task_list2.Clear();
@@ -2662,6 +2666,10 @@ int UnitInfo::GetExperience() {
 }
 
 void UnitInfo::BlockedOnPathRequest(bool mode) {
+    /// \todo
+}
+
+void UnitInfo::MoveFinished(bool mode) {
     /// \todo
 }
 

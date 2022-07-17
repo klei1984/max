@@ -24,12 +24,12 @@
 #include "access.hpp"
 #include "units_manager.hpp"
 
-PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : unit1(unit), point(point), field_14(mode) {
-    field_15 = 32767;
-    field_17 = 0;
-    field_19 = 0;
-    field_20 = 0;
-    field_21 = 1;
+PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : unit1(unit), point(point), flags(mode) {
+    max_cost = 32767;
+    minimum_distance = 0;
+    caution_level = 0;
+    board_transport = 0;
+    optimize = 1;
 }
 
 PathRequest::~PathRequest() {}
@@ -40,11 +40,11 @@ UnitInfo* PathRequest::GetUnit2() const { return &*unit2; }
 
 Point PathRequest::GetPoint() const { return point; }
 
-unsigned char PathRequest::GetField19() const { return field_19; }
+unsigned char PathRequest::GetCautionLevel() const { return caution_level; }
 
 int PathRequest::PathRequest_Vfunc1() { return 0; }
 
-void PathRequest::PathRequest_Vfunc2() {
+void PathRequest::Cancel() {
     if (unit1->hits &&
         (unit1->orders == ORDER_MOVING || unit1->orders == ORDER_MOVING_27 || unit1->orders == ORDER_ATTACKING) &&
         unit1->state == ORDER_STATE_NEW_ORDER) {
@@ -54,15 +54,15 @@ void PathRequest::PathRequest_Vfunc2() {
     Access_ProcessNewGroupOrder(&*unit1);
 }
 
-void PathRequest::SetField15(int value) { field_15 = value; }
+void PathRequest::SetMaxCost(int value) { max_cost = value; }
 
-void PathRequest::SetField17(int value) { field_17 = value; }
+void PathRequest::SetMinimumDistance(int value) { minimum_distance = value; }
 
-void PathRequest::SetField19(int value) { field_19 = value; }
+void PathRequest::SetCautionLevel(int value) { caution_level = value; }
 
-void PathRequest::SetField20(int value) { field_20 = value; }
+void PathRequest::SetBoardTransport(bool value) { board_transport = value; }
 
-void PathRequest::SetField21(int value) { field_21 = value; }
+void PathRequest::SetOptimizeFlag(bool value) { optimize = value; }
 
 void PathRequest::CreateTransport(ResourceID unit_type) {
     if (unit_type != INVALID_ID) {
@@ -73,16 +73,16 @@ void PathRequest::CreateTransport(ResourceID unit_type) {
     }
 }
 
-unsigned char PathRequest::GetField14() const { return field_14; }
+unsigned char PathRequest::GetFlags() const { return flags; }
 
-unsigned short PathRequest::GetField15() const { return field_15; }
+unsigned short PathRequest::GetMaxCost() const { return max_cost; }
 
-unsigned char PathRequest::GetField20() const { return field_20; }
+unsigned char PathRequest::GetBoardTransport() const { return board_transport; }
 
 void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
     /// \todo
 }
 
-void PathRequest::PathRequest_Vfunc3(GroundPath* path) {
+void PathRequest::Finish(GroundPath* path) {
     /// \todo
 }
