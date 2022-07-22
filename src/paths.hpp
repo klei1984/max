@@ -53,8 +53,8 @@ public:
     virtual int GetMovementCost(UnitInfo* unit) = 0;
     virtual bool Path_vfunc10(UnitInfo* unit) = 0;
     virtual void UpdateUnitAngle(UnitInfo* unit);
-    virtual int Path_vfunc12(int unknown) = 0;
-    virtual bool Draw(UnitInfo* unit, WindowInfo* window) = 0;
+    virtual void Path_vfunc12(int unknown) = 0;
+    virtual void Draw(UnitInfo* unit, WindowInfo* window) = 0;
     virtual bool IsEndStep() const;
     virtual int WritePacket(char* buffer);
     virtual void Path_vfunc16(int unknown1, int unknown2);
@@ -90,14 +90,15 @@ public:
     int GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
     void UpdateUnitAngle(UnitInfo* unit);
-    int Path_vfunc12(int unknown);
-    bool Draw(UnitInfo* unit, WindowInfo* window);
+    void Path_vfunc12(int unknown);
+    void Draw(UnitInfo* unit, WindowInfo* window);
     bool IsEndStep() const;
     int WritePacket(char* buffer);
     void Path_vfunc16(int unknown1, int unknown2);
     void Path_vfunc17(int unknown1, int unknown2);
 
     void AddStep(int step_x, int step_y);
+    SmartObjectArray<PathStep> GetSteps();
 };
 
 class AirPath : public UnitPath {
@@ -126,8 +127,8 @@ public:
     void Path_vfunc8(UnitInfo* unit);
     int GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
-    int Path_vfunc12(int unknown);
-    bool Draw(UnitInfo* unit, WindowInfo* window);
+    void Path_vfunc12(int unknown);
+    void Draw(UnitInfo* unit, WindowInfo* window);
 };
 
 class BuilderPath : public UnitPath {
@@ -147,8 +148,8 @@ public:
     void TextSave(SmartTextfileWriter& file);
     int GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
-    int Path_vfunc12(int unknown);
-    bool Draw(UnitInfo* unit, WindowInfo* window);
+    void Path_vfunc12(int unknown);
+    void Draw(UnitInfo* unit, WindowInfo* window);
 };
 
 bool Paths_RequestPath(UnitInfo* unit, int mode);
@@ -156,8 +157,9 @@ AirPath* Paths_GetAirPath(UnitInfo* unit);
 bool Paths_UpdateAngle(UnitInfo* unit, int angle);
 void Paths_DrawMarker(WindowInfo* window, int angle, int grid_x, int grid_y, int color);
 void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots);
+bool Paths_IsOccupied(int grid_x, int grid_y, int angle, int team);
 
-extern Point Paths_8DirPointsArray[8];
+extern const Point Paths_8DirPointsArray[8];
 extern unsigned int Paths_LastTimeStamp;
 extern bool Path_EnableTimeBenchmark;
 extern unsigned int Paths_TimeLimit;

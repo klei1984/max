@@ -171,6 +171,7 @@ public:
     int GetLayingState() const;
     void SetLayingState(int state);
     void ClearPins();
+    bool AttemptSideStep(int grid_x, int grid_y, int angle);
     int GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, int* turns_to_build);
     void SetBuildRate(int value);
     int GetBuildRate() const;
@@ -185,8 +186,9 @@ public:
     void SetPosition(int grid_x, int grid_y, bool skip_map_status_update);
     void UpdatePinCount(int grid_x, int grid_y, int pin_units);
     void ClearFromTaskLists();
-    void RemoveUnknown();
     void BuildOrder();
+    void ReaddUnknown(int grid_x, int grid_y);
+    void RemoveUnknown();
     bool IsUpgradeAvailable();
     void Redraw();
 

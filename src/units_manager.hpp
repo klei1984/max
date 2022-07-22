@@ -81,6 +81,8 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
                                                int grid_y, unsigned char unit_angle, bool is_existing_unit = false,
                                                bool skip_map_status_update = false);
 void UnitsManager_RemoveConnections(UnitInfo* unit);
+int UnitsManager_GetTargetAngle(int distance_x, int distance_y);
 void UnitsManager_DrawBustedCommando(UnitInfo* unit);
+void UnitsManager_ScaleUnit(UnitInfo* unit, int state);
 
 #endif /* UNITS_MANAGER_HPP */

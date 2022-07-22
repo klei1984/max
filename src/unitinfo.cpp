@@ -1944,6 +1944,10 @@ void UnitInfo::ClearFromTaskLists() {
     /// \todo
 }
 
+void UnitInfo::ReaddUnknown(int grid_x, int grid_y) {
+    /// \todo
+}
+
 void UnitInfo::RemoveUnknown() {
     /// \todo
 }
@@ -2640,6 +2644,10 @@ int UnitInfo::GetLayingState() const { return laying_state; }
 void UnitInfo::SetLayingState(int state) { laying_state = state; }
 
 void UnitInfo::ClearPins() { pin_count = 0; }
+
+bool UnitInfo::AttemptSideStep(int grid_x, int grid_y, int angle) {
+    /// \todo
+}
 
 int UnitInfo::GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, int* turns_to_build) {
     /// \todo

@@ -3526,7 +3526,16 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
     }
 }
 
+int UnitsManager_GetTargetAngle(int distance_x, int distance_y) {
+    /// \todo
+    return 0;
+}
+
 void UnitsManager_DrawBustedCommando(UnitInfo* unit) { unit->DrawSpriteFrame(unit->angle + 200); }
+
+void UnitsManager_ScaleUnit(UnitInfo* unit, int state) {
+    /// \todo
+}
 
 void UnitsManager_ProcessRemoteOrders() {
     /// \todo
