@@ -46,7 +46,7 @@ int PathRequest::PathRequest_Vfunc1() { return 0; }
 
 void PathRequest::Cancel() {
     if (unit1->hits &&
-        (unit1->orders == ORDER_MOVING || unit1->orders == ORDER_MOVING_27 || unit1->orders == ORDER_ATTACKING) &&
+        (unit1->orders == ORDER_MOVE || unit1->orders == ORDER_MOVE_TO_UNIT || unit1->orders == ORDER_MOVE_TO_ATTACK) &&
         unit1->state == ORDER_STATE_NEW_ORDER) {
         UnitsManager_SetNewOrder(&*unit1, unit1->orders, ORDER_STATE_12);
     }

@@ -179,13 +179,13 @@ void setBlackSystemPalette(void) {
     setSystemPalette(tmp);
 }
 
-void setSystemPalette(unsigned char* cmap) {
+void setSystemPalette(unsigned char* palette) {
     unsigned char npal[3 * PALETTE_SIZE];
     int i;
 
     for (i = 0; i < sizeof(npal); i++) {
-        npal[i] = currentGammaTable[cmap[i]];
-        systemCmap[i] = cmap[i];
+        npal[i] = currentGammaTable[palette[i]];
+        systemCmap[i] = palette[i];
     }
 
     for (i = 0; i < PALETTE_SIZE; i++) {

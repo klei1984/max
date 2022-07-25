@@ -1101,8 +1101,8 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
 
     width -= 40;
 
-    if (unit->orders == ORDER_BUILDING || unit->orders == ORDER_CLEARING || unit->orders == ORDER_AWAITING_21 ||
-        unit->orders == ORDER_BUILDING_HALTED) {
+    if (unit->orders == ORDER_BUILD || unit->orders == ORDER_CLEAR || unit->orders == ORDER_HALT_BUILDING ||
+        unit->orders == ORDER_HALT_BUILDING_2) {
         if (unit->unit_type == BULLDOZR) {
             string.Sprintf(80, "Number of turns to clear site: %i.", unit->build_time);
 
@@ -1114,7 +1114,7 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
 
             SDL_assert(build_list.GetCount() > 0);
 
-            if (unit->orders == ORDER_AWAITING_21 || unit->orders == ORDER_BUILDING_HALTED) {
+            if (unit->orders == ORDER_HALT_BUILDING || unit->orders == ORDER_HALT_BUILDING_2) {
                 string.Sprintf(200, "Was building %s, with %i turns to completion.",
                                UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
 
@@ -1186,7 +1186,7 @@ void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
 
     for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
         if ((*it).team == GameManager_PlayerTeam && active_units[(*it).unit_type] && (*it).orders != ORDER_IDLE &&
-            (*it).orders != ORDER_ATTACKING &&
+            (*it).orders != ORDER_MOVE_TO_ATTACK &&
             (!ReportMenu_ButtonState_DamagedUnits || (*it).hits < (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS))) {
             for (index = 0; index < units.GetCount(); ++index) {
                 if (units[index].unit_type > (*it).unit_type) {

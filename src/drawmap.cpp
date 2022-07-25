@@ -296,7 +296,7 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly)) {
 
         if (parent) {
             if ((unit->orders == ORDER_IDLE ||
-                 (unit->orders == ORDER_BUILDING && unit->state == ORDER_STATE_UNIT_READY &&
+                 (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY &&
                   (unit->flags & STATIONARY) == 0)) &&
                 parent->unit_type != AIRTRANS) {
                 Point point(parent->grid_x - 1, parent->grid_y + 1);
@@ -353,7 +353,7 @@ void DrawMap_RenderBuildMarker() {
         unit = &*GameManager_SelectedUnit;
 
         if (unit->team == GameManager_PlayerTeam &&
-            (unit->orders == ORDER_IDLE || (unit->orders == ORDER_BUILDING && unit->state == ORDER_STATE_UNIT_READY &&
+            (unit->orders == ORDER_IDLE || (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY &&
                                             !(unit->flags & STATIONARY)))) {
             struct ImageSimpleHeader* image;
 
@@ -444,7 +444,7 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, in
 
     window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
-    if (unit->orders == ORDER_DISABLED) {
+    if (unit->orders == ORDER_DISABLE) {
         struct ImageSimpleHeader* image;
 
         image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(IL_DSBLD));

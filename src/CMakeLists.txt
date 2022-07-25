@@ -105,6 +105,11 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/searcher.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/production_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/accessmap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/maxfloodfill.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/pathfill.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sitemarker.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/continentfiller.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pathrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp

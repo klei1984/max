@@ -662,7 +662,7 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
     if (unit->unit_type == AIRTRANS) {
         if (Access_IsAccessible(target_unit->unit_type, target_unit->team, unit->grid_x, unit->grid_y, 2)) {
             unit->SetParent(target_unit);
-            UnitsManager_SetNewOrder(&*unit, ORDER_UNLOADING, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(&*unit, ORDER_UNLOAD, ORDER_STATE_0);
             GameManager_EnableMainMenu(&*unit);
 
         } else {
@@ -690,10 +690,10 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
 void RepairShopMenu::Reload(UnitInfo *target_unit) {
     if (IsReloadViable(target_unit)) {
         unit->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*unit, ORDER_RELOADING, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*unit, ORDER_RELOAD, ORDER_STATE_0);
 
         if (Remote_IsNetworkGame) {
-            RepairShopMenu_ProcessOrders(&*unit, ORDER_RELOADING, false);
+            RepairShopMenu_ProcessOrders(&*unit, ORDER_RELOAD, false);
 
         } else {
             UnitsManager_ProcessRemoteOrders();
@@ -704,10 +704,10 @@ void RepairShopMenu::Reload(UnitInfo *target_unit) {
 void RepairShopMenu::Repair(UnitInfo *target_unit) {
     if (IsRepairViable(target_unit)) {
         unit->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*unit, ORDER_REPAIRING, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*unit, ORDER_REPAIR, ORDER_STATE_0);
 
         if (Remote_IsNetworkGame) {
-            RepairShopMenu_ProcessOrders(&*unit, ORDER_REPAIRING, false);
+            RepairShopMenu_ProcessOrders(&*unit, ORDER_REPAIR, false);
 
         } else {
             UnitsManager_ProcessRemoteOrders();
@@ -718,10 +718,10 @@ void RepairShopMenu::Repair(UnitInfo *target_unit) {
 void RepairShopMenu::Upgrade(UnitInfo *target_unit) {
     if (IsUpgradeViable(target_unit)) {
         unit->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*unit, ORDER_REPAIRING_28, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*unit, ORDER_UPGRADE, ORDER_STATE_0);
 
         if (Remote_IsNetworkGame) {
-            RepairShopMenu_ProcessOrders(&*unit, ORDER_REPAIRING_28, false);
+            RepairShopMenu_ProcessOrders(&*unit, ORDER_UPGRADE, false);
 
         } else {
             UnitsManager_ProcessRemoteOrders();
@@ -825,13 +825,13 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
                     unit->target_grid_x = point.x;
                     unit->target_grid_y = point.y;
 
-                    UnitsManager_SetNewOrder(&*unit, ORDER_ACTIVATE_ORDER, ORDER_STATE_1);
+                    UnitsManager_SetNewOrder(&*unit, ORDER_ACTIVATE, ORDER_STATE_1);
 
                     if (Remote_IsNetworkGame) {
-                        RepairShopMenu_ProcessOrders(&*unit, ORDER_ACTIVATE_ORDER, true);
+                        RepairShopMenu_ProcessOrders(&*unit, ORDER_ACTIVATE, true);
 
                     } else {
-                        while (unit->orders == ORDER_ACTIVATE_ORDER) {
+                        while (unit->orders == ORDER_ACTIVATE) {
                             UnitsManager_ProcessRemoteOrders();
                             GameManager_ProcessState(true);
                         }

@@ -19,29 +19,51 @@
  * SOFTWARE.
  */
 
-#ifndef SEARCHER_HPP
-#define SEARCHER_HPP
+#include "sitemarker.hpp"
 
-#include "point.hpp"
-#include "smartobjectarray.hpp"
+#include "resource_manager.hpp"
 
-struct PathSquare {
-    Point point;
-    unsigned short weight;
-};
+SiteMarker::SiteMarker(unsigned short** map)
+    : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, false), map(map), marker(0) {}
 
-class Searcher {
-    unsigned short **costs_map;
-    unsigned char **directions_map;
-    unsigned short *array;
-    unsigned short field_12;
-    ObjectArray<PathSquare> squares;
-    Point destination;
-    unsigned char mode;
+int SiteMarker::Vfunc0(Point point, int uly) {
+    for (; point.y > uly; --point.y) {
+        if (map[point.x][point.y - 1] != 9) {
+            break;
+        }
+    }
 
-public:
-    Searcher(Point point1, Point point2, unsigned char mode);
-    ~Searcher();
-};
+    return point.y;
+}
 
-#endif /* SEARCHER_HPP */
+int SiteMarker::Vfunc1(Point point, int lry) {
+    for (; point.y < lry; ++point.y) {
+        if (map[point.x][point.y] != 9) {
+            break;
+        }
+    }
+
+    return point.y;
+}
+
+int SiteMarker::Vfunc2(Point point, int lry) {
+    for (; point.y < lry; ++point.y) {
+        if (map[point.x][point.y] == 9) {
+            break;
+        }
+    }
+
+    return point.y;
+}
+
+void SiteMarker::Vfunc3(int ulx, int uly, int lry) {
+    for (; uly < lry; ++uly) {
+        map[ulx][uly] = marker;
+    }
+}
+
+int SiteMarker::Fill(Point point, int value) {
+    marker = value;
+
+    return MAXFloodFill::Fill(point);
+}

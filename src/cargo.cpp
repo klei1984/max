@@ -96,7 +96,7 @@ Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order) {
         case LANDPLT:
         case TRAINHAL:
         case AIRPLT: {
-            if (orders == ORDER_BUILDING && unit->state != ORDER_STATE_UNIT_READY) {
+            if (orders == ORDER_BUILD && unit->state != ORDER_STATE_UNIT_READY) {
                 Cargo_ApplyUnitConsumption(unit->unit_type, unit->GetMaxAllowedBuildRate(), cargo);
             }
         } break;
@@ -114,7 +114,7 @@ Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order) {
         } break;
 
         case MININGST: {
-            if (orders == ORDER_POWER_ON || orders == ORDER_NEW_ALLOCATE_ORDER) {
+            if (orders == ORDER_POWER_ON || orders == ORDER_NEW_ALLOCATE) {
                 difficulty_factor = 4;
 
                 if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {

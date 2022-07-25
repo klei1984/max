@@ -19,29 +19,22 @@
  * SOFTWARE.
  */
 
-#ifndef SEARCHER_HPP
-#define SEARCHER_HPP
+#ifndef CONTINENTFILLER_HPP
+#define CONTINENTFILLER_HPP
 
-#include "point.hpp"
-#include "smartobjectarray.hpp"
+#include "maxfloodfill.hpp"
 
-struct PathSquare {
-    Point point;
-    unsigned short weight;
-};
-
-class Searcher {
-    unsigned short **costs_map;
-    unsigned char **directions_map;
-    unsigned short *array;
-    unsigned short field_12;
-    ObjectArray<PathSquare> squares;
-    Point destination;
-    unsigned char mode;
+class ContinentFiller : public MAXFloodFill {
+    unsigned char** map;
+    unsigned char filler;
 
 public:
-    Searcher(Point point1, Point point2, unsigned char mode);
-    ~Searcher();
+    ContinentFiller(unsigned char** map, unsigned char filler);
+
+    int Vfunc0(Point point, int uly);
+    int Vfunc1(Point point, int lry);
+    int Vfunc2(Point point, int lry);
+    void Vfunc3(int ulx, int uly, int lry);
 };
 
-#endif /* SEARCHER_HPP */
+#endif /* CONTINENTFILLER_HPP */

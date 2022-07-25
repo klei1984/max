@@ -19,29 +19,19 @@
  * SOFTWARE.
  */
 
-#ifndef SEARCHER_HPP
-#define SEARCHER_HPP
+#ifndef ACCESSMAP_HPP
+#define ACCESSMAP_HPP
 
-#include "point.hpp"
-#include "smartobjectarray.hpp"
-
-struct PathSquare {
-    Point point;
-    unsigned short weight;
-};
-
-class Searcher {
-    unsigned short **costs_map;
-    unsigned char **directions_map;
-    unsigned short *array;
-    unsigned short field_12;
-    ObjectArray<PathSquare> squares;
-    Point destination;
-    unsigned char mode;
+class AccessMap {
+    unsigned char **map;
+    short size;
 
 public:
-    Searcher(Point point1, Point point2, unsigned char mode);
-    ~Searcher();
+    AccessMap();
+    ~AccessMap();
+
+    unsigned char **GetMap() const;
+    unsigned char *GetMapColumn(int index) const;
 };
 
-#endif /* SEARCHER_HPP */
+#endif /* ACCESSMAP_HPP */

@@ -150,7 +150,7 @@ bool UnitInfoGroup::Populate() {
                             }
 
                         } else if ((*it).flags & MOBILE_AIR_UNIT) {
-                            if (((*it).flags & HOVERING) || (*it).orders == ORDER_MOVING) {
+                            if (((*it).flags & HOVERING) || (*it).orders == ORDER_MOVE) {
                                 air_units_in_air.Insert((*it));
 
                             } else {

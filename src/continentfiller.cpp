@@ -19,29 +19,45 @@
  * SOFTWARE.
  */
 
-#ifndef SEARCHER_HPP
-#define SEARCHER_HPP
+#include "continentfiller.hpp"
 
-#include "point.hpp"
-#include "smartobjectarray.hpp"
+#include "resource_manager.hpp"
 
-struct PathSquare {
-    Point point;
-    unsigned short weight;
-};
+ContinentFiller::ContinentFiller(unsigned char** map, unsigned char filler)
+    : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, true), map(map), filler(filler) {}
 
-class Searcher {
-    unsigned short **costs_map;
-    unsigned char **directions_map;
-    unsigned short *array;
-    unsigned short field_12;
-    ObjectArray<PathSquare> squares;
-    Point destination;
-    unsigned char mode;
+int ContinentFiller::Vfunc0(Point point, int uly) {
+    for (; point.y > uly; --point.y) {
+        if (map[point.x][point.y - 1] != 2) {
+            break;
+        }
+    }
 
-public:
-    Searcher(Point point1, Point point2, unsigned char mode);
-    ~Searcher();
-};
+    return point.y;
+}
 
-#endif /* SEARCHER_HPP */
+int ContinentFiller::Vfunc1(Point point, int lry) {
+    for (; point.y < lry; ++point.y) {
+        if (map[point.x][point.y] != 2) {
+            break;
+        }
+    }
+
+    return point.y;
+}
+
+int ContinentFiller::Vfunc2(Point point, int lry) {
+    for (; point.y < lry; ++point.y) {
+        if (map[point.x][point.y] == 2) {
+            break;
+        }
+    }
+
+    return point.y;
+}
+
+void ContinentFiller::Vfunc3(int ulx, int uly, int lry) {
+    for (; uly < lry; ++uly) {
+        map[ulx][uly] = filler;
+    }
+}

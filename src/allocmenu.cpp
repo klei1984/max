@@ -412,7 +412,7 @@ int AllocMenu::Optimize(Complex *complex, int cargo_type1, int material, int car
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
-                (*it).orders != ORDER_DISABLED && (*it).orders != ORDER_IDLE) {
+                (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
                 Survey_GetResourcesInArea((*it).grid_x, (*it).grid_y, 1, 16, &raw, &gold, &fuel, true, (*it).team);
 
                 unsigned char *cargo;
@@ -481,7 +481,7 @@ void AllocMenu::AdjustForDemands(Complex *complex, int cargo_type, int material)
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
-            (*it).orders != ORDER_DISABLED && (*it).orders != ORDER_IDLE) {
+            (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
             unsigned char *cargo;
 
             switch (cargo_type) {
@@ -722,7 +722,7 @@ void AllocMenu::Run(UnitInfo *unit) {
                 event_release = false;
             }
 
-            if (GameManager_RequestMenuExit || unit->orders == ORDER_DISABLED) {
+            if (GameManager_RequestMenuExit || unit->orders == ORDER_DISABLE) {
                 key = GNW_KB_KEY_KP_ENTER;
             }
 

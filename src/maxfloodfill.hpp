@@ -19,29 +19,28 @@
  * SOFTWARE.
  */
 
-#ifndef SEARCHER_HPP
-#define SEARCHER_HPP
+#ifndef MAXFLOODFILL_HPP
+#define MAXFLOODFILL_HPP
 
+#include "gnw.h"
 #include "point.hpp"
-#include "smartobjectarray.hpp"
 
-struct PathSquare {
-    Point point;
-    unsigned short weight;
-};
-
-class Searcher {
-    unsigned short **costs_map;
-    unsigned char **directions_map;
-    unsigned short *array;
-    unsigned short field_12;
-    ObjectArray<PathSquare> squares;
-    Point destination;
-    unsigned char mode;
+class MAXFloodFill {
+    bool mode;
+    Rect bounds;
+    Rect target_bounds;
+    int cell_count;
 
 public:
-    Searcher(Point point1, Point point2, unsigned char mode);
-    ~Searcher();
+    MAXFloodFill(Rect bounds, bool mode);
+
+    virtual int Vfunc0(Point point, int uly) = 0;
+    virtual int Vfunc1(Point point, int lry) = 0;
+    virtual int Vfunc2(Point point, int lry) = 0;
+    virtual void Vfunc3(int ulx, int uly, int lry) = 0;
+
+    Rect* GetBounds();
+    int Fill(Point point);
 };
 
-#endif /* SEARCHER_HPP */
+#endif /* MAXFLOODFILL_HPP */

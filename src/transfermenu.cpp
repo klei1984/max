@@ -286,8 +286,8 @@ void TransferMenu::Run() {
     while (!event_click_done) {
         int key = get_input();
 
-        if (GameManager_RequestMenuExit || source_unit->orders == ORDER_DISABLED ||
-            target_unit->orders == ORDER_DISABLED || source_unit->team != GameManager_PlayerTeam ||
+        if (GameManager_RequestMenuExit || source_unit->orders == ORDER_DISABLE ||
+            target_unit->orders == ORDER_DISABLE || source_unit->team != GameManager_PlayerTeam ||
             target_unit->team != GameManager_PlayerTeam) {
             key = GNW_KB_KEY_ESCAPE;
         }

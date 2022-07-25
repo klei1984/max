@@ -541,7 +541,7 @@ UnitInfo::UnitInfo()
     : unit_type(INVALID_ID),
       popup(nullptr),
       sound_table(nullptr),
-      field_158(false),
+      in_transit(false),
       pin_count(0),
       field_165(true),
       unit_list(nullptr),
@@ -553,9 +553,9 @@ UnitInfo::UnitInfo()
       auto_survey(false) {}
 
 UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id, unsigned char angle)
-    : orders(ORDER_AWAITING),
+    : orders(ORDER_AWAIT),
       state(ORDER_STATE_1),
-      prior_orders(ORDER_AWAITING),
+      prior_orders(ORDER_AWAIT),
       prior_state(ORDER_STATE_1),
       laying_state(0),
       target_grid_x(0),
@@ -569,7 +569,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id,
       fuel_mining_max(0),
       popup(nullptr),
       sound_table(nullptr),
-      field_158(0),
+      in_transit(false),
       pin_count(0),
       name(nullptr),
       unit_type(unit_type),
@@ -739,8 +739,8 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       parent_unit(other.parent_unit),
       enemy_unit(other.enemy_unit),
       task_list1(other.task_list1),
-      field_158(other.field_158),
-      unknown_point(other.unknown_point),
+      in_transit(other.in_transit),
+      last_target(other.last_target),
       pin_count(other.pin_count),
       field_165(other.field_165),
       laying_state(other.laying_state),
@@ -1944,23 +1944,60 @@ void UnitInfo::ClearFromTaskLists() {
     /// \todo
 }
 
-void UnitInfo::ReaddUnknown(int grid_x, int grid_y) {
-    /// \todo
+void UnitInfo::MoveInTransitUnitInMapHash(int grid_x, int grid_y) {
+    RemoveInTransitUnitFromMapHash();
+
+    in_transit = true;
+
+    last_target.x = grid_x;
+    last_target.y = grid_y;
+
+    {
+        int backup_grid_x;
+        int backup_grid_y;
+
+        backup_grid_x = this->grid_x;
+        backup_grid_y = this->grid_y;
+
+        this->grid_x = grid_x;
+        this->grid_y = grid_x;
+
+        Hash_MapHash.Add(this);
+
+        this->grid_x = backup_grid_x;
+        this->grid_y = backup_grid_y;
+    }
 }
 
-void UnitInfo::RemoveUnknown() {
-    /// \todo
+void UnitInfo::RemoveInTransitUnitFromMapHash() {
+    if (in_transit) {
+        int backup_grid_x;
+        int backup_grid_y;
+
+        backup_grid_x = this->grid_x;
+        backup_grid_y = this->grid_y;
+
+        this->grid_x = last_target.x;
+        this->grid_y = last_target.y;
+
+        Hash_MapHash.Remove(this);
+
+        this->grid_x = backup_grid_x;
+        this->grid_y = backup_grid_y;
+
+        in_transit = false;
+    }
 }
 
 void UnitInfo::BuildOrder() {
-    if (orders != ORDER_AWAITING_21 && orders != ORDER_BUILDING_HALTED) {
+    if (orders != ORDER_HALT_BUILDING && orders != ORDER_HALT_BUILDING_2) {
         build_time = BuildMenu_GetTurnsToBuild(GetConstructedUnitType(), team);
     }
 
-    orders = ORDER_AWAITING;
+    orders = ORDER_AWAIT;
     state = ORDER_STATE_1;
 
-    UnitsManager_SetNewOrder(this, ORDER_BUILDING, ORDER_STATE_0);
+    UnitsManager_SetNewOrder(this, ORDER_BUILD, ORDER_STATE_0);
 }
 
 bool UnitInfo::IsUpgradeAvailable() {
@@ -2052,7 +2089,7 @@ bool UnitInfo::ExpectAttack() {
     } else {
         if (path != nullptr) {
             if ((flags & MOBILE_AIR_UNIT) && !(flags & HOVERING)) {
-                UnitsManager_SetNewOrderInt(this, ORDER_TAKING_OFF, ORDER_STATE_0);
+                UnitsManager_SetNewOrderInt(this, ORDER_TAKE_OFF, ORDER_STATE_0);
                 Ai_SetTasksPendingFlag("plane takeoff");
 
                 result = false;
@@ -2077,7 +2114,7 @@ bool UnitInfo::ExpectAttack() {
                 result = false;
 
             } else {
-                orders = ORDER_AWAITING;
+                orders = ORDER_AWAIT;
                 state = ORDER_STATE_1;
                 result = false;
             }
@@ -2091,10 +2128,10 @@ void UnitInfo::ClearBuildListAndPath() {
     path = nullptr;
 
     if (parent_unit != nullptr) {
-        orders = ORDER_BUILDING;
+        orders = ORDER_BUILD;
         state = ORDER_STATE_UNIT_READY;
     } else {
-        orders = ORDER_AWAITING;
+        orders = ORDER_AWAIT;
         state = ORDER_STATE_1;
     }
 
@@ -2105,7 +2142,7 @@ void UnitInfo::Build() {
     ResourceID build_unit_type;
 
     build_unit_type = *build_list[0];
-    orders = ORDER_BUILDING;
+    orders = ORDER_BUILD;
 
     if (path != nullptr) {
         if (Builder_IssueBuildOrder(this, &grid_x, &grid_y, build_unit_type)) {
@@ -2382,7 +2419,7 @@ void UnitInfo::SpotByTeam(unsigned short team) {
 
         RefreshScreen();
 
-        if (unit_type == COMMANDO && orders == ORDER_AWAITING) {
+        if (unit_type == COMMANDO && orders == ORDER_AWAIT) {
             UnitsManager_DrawBustedCommando(this);
         }
 
@@ -2424,7 +2461,7 @@ void UnitInfo::Draw(unsigned short team) {
 
                 DrawSpriteFrame(image_base + angle);
 
-            } else if (unit_type == COMMANDO && orders == ORDER_AWAITING && image_base == 0) {
+            } else if (unit_type == COMMANDO && orders == ORDER_AWAIT && image_base == 0) {
                 DrawSpriteFrame(angle);
             }
         }
@@ -2634,7 +2671,7 @@ int UnitInfo::GetMaxAllowedBuildRate() {
 }
 
 void UnitInfo::TakePathStep() {
-    if (orders == ORDER_MOVING && path != nullptr && (state == ORDER_STATE_5 || state == ORDER_STATE_6)) {
+    if (orders == ORDER_MOVE && path != nullptr && (state == ORDER_STATE_5 || state == ORDER_STATE_6)) {
         path->Path_vfunc8(this);
     }
 }

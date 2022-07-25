@@ -73,7 +73,7 @@ ProductionManager::ProductionManager(unsigned short team, Complex* complex) {
                 cargo_resource_reserves.life += cargo.life;
             }
 
-            if ((*it).unit_type == POWGEN && (*it).orders != ORDER_DISABLED) {
+            if ((*it).unit_type == POWGEN && (*it).orders != ORDER_DISABLE) {
                 if ((*it).orders == ORDER_POWER_ON) {
                     ++power_generator_active;
                 }
@@ -81,7 +81,7 @@ ProductionManager::ProductionManager(unsigned short team, Complex* complex) {
                 ++power_generator_count;
             }
 
-            if ((*it).unit_type == POWERSTN && (*it).orders != ORDER_DISABLED) {
+            if ((*it).unit_type == POWERSTN && (*it).orders != ORDER_DISABLE) {
                 if ((*it).orders == ORDER_POWER_ON) {
                     ++power_station_active;
                 }
@@ -90,7 +90,7 @@ ProductionManager::ProductionManager(unsigned short team, Complex* complex) {
             }
 
             if ((*it).unit_type == MININGST &&
-                ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_NEW_ALLOCATE_ORDER)) {
+                ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_NEW_ALLOCATE)) {
                 cargo_mining_capacity.raw = std::min(static_cast<int>((*it).raw_mining_max), 16);
                 cargo_mining_capacity.fuel = std::min(static_cast<int>((*it).fuel_mining_max), 16);
                 cargo_mining_capacity.gold = std::min(static_cast<int>((*it).gold_mining_max), 16);

@@ -58,7 +58,7 @@ public:
     virtual bool IsEndStep() const;
     virtual int WritePacket(char* buffer);
     virtual void Path_vfunc16(int unknown1, int unknown2);
-    virtual void Path_vfunc17(int unknown1, int unknown2);
+    virtual void Path_vfunc17(int distance_x, int distance_y);
 
     short GetEndX() const;
     short GetEndY() const;
@@ -95,7 +95,7 @@ public:
     bool IsEndStep() const;
     int WritePacket(char* buffer);
     void Path_vfunc16(int unknown1, int unknown2);
-    void Path_vfunc17(int unknown1, int unknown2);
+    void Path_vfunc17(int distance_x, int distance_y);
 
     void AddStep(int step_x, int step_y);
     SmartObjectArray<PathStep> GetSteps();

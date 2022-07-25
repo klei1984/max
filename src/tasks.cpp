@@ -223,10 +223,10 @@ bool TaskObtainUnits::TaskObtainUnits_sub_464C6(UnitInfo* unit, bool mode) {
 
     if (team != unit->team || unit->hits == 0) {
         result = false;
-    } else if (unit->orders == ORDER_AWAITING && unit->orders != ORDER_SENTRY &&
-               (unit->orders != ORDER_MOVING || unit->state != ORDER_STATE_1) &&
-               (unit->orders != ORDER_MOVING_27 || unit->state != ORDER_STATE_1) &&
-               (unit->orders != ORDER_ATTACKING || unit->state != ORDER_STATE_1)) {
+    } else if (unit->orders == ORDER_AWAIT && unit->orders != ORDER_SENTRY &&
+               (unit->orders != ORDER_MOVE || unit->state != ORDER_STATE_1) &&
+               (unit->orders != ORDER_MOVE_TO_UNIT || unit->state != ORDER_STATE_1) &&
+               (unit->orders != ORDER_MOVE_TO_ATTACK || unit->state != ORDER_STATE_1)) {
         result = false;
     } else {
         Task* task = unit->GetTask1ListFront();
@@ -394,7 +394,7 @@ void TaskObtainUnits::EndTurn() {
                 if (task) {
                     unit->ClearTask1List();
 
-                    if (unit->orders != ORDER_AWAITING) {
+                    if (unit->orders != ORDER_AWAIT) {
                         /// \todo Implement missing stuff
                         // sub_103053(unit, ORDER_AWAITING, 24);
                     }
@@ -625,9 +625,9 @@ void TaskRendezvous::Task_vfunc13() { EndTurn(); }
 
 void TaskRendezvous::EndTurn() {
     if (unit1 != nullptr && unit2 != nullptr) {
-        if (unit2->orders == ORDER_AWAITING && unit2->GetTask1ListFront() == this && unit2->speed) {
+        if (unit2->orders == ORDER_AWAIT && unit2->GetTask1ListFront() == this && unit2->speed) {
             Task_vfunc17(*unit2);
-        } else if (unit1->orders == ORDER_AWAITING && unit1->GetTask1ListFront() == this && unit1->speed) {
+        } else if (unit1->orders == ORDER_AWAIT && unit1->GetTask1ListFront() == this && unit1->speed) {
             Task_vfunc17(*unit1);
         }
     }

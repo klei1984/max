@@ -346,7 +346,7 @@ int WinLoss_GetTotalPowerConsumption(unsigned short team, ResourceID unit_type) 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team && (*it).unit_type == unit_type &&
-            ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_BUILDING)) {
+            ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_BUILD)) {
             ++result;
         }
     }
@@ -431,7 +431,7 @@ int WinLoss_GetTotalUnitsBeingConstructed(unsigned short team, ResourceID unit_t
     }
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).orders == ORDER_BUILDING && (*it).build_time != 0 &&
+        if ((*it).team == team && (*it).orders == ORDER_BUILD && (*it).build_time != 0 &&
             (*it).GetConstructedUnitType() == unit_type) {
             ++result;
         }

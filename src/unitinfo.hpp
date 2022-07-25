@@ -187,8 +187,8 @@ public:
     void UpdatePinCount(int grid_x, int grid_y, int pin_units);
     void ClearFromTaskLists();
     void BuildOrder();
-    void ReaddUnknown(int grid_x, int grid_y);
-    void RemoveUnknown();
+    void MoveInTransitUnitInMapHash(int grid_x, int grid_y);
+    void RemoveInTransitUnitFromMapHash();
     bool IsUpgradeAvailable();
     void Redraw();
 
@@ -271,8 +271,8 @@ public:
     SmartPointer<UnitInfo> enemy_unit;
     SmartList<Task> task_list1;
     SmartList<Task> task_list2;
-    bool field_158;
-    Point unknown_point;
+    bool in_transit;
+    Point last_target;
     unsigned short pin_count;
     bool field_165;
     unsigned char laying_state;

@@ -27,17 +27,17 @@ Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) 
     Point map_size;
     PathSquare square;
 
-    matrix1 = new (std::nothrow) unsigned short*[ResourceManager_MapSize.x];
-    matrix2 = new (std::nothrow) unsigned char*[ResourceManager_MapSize.x];
+    costs_map = new (std::nothrow) unsigned short*[ResourceManager_MapSize.x];
+    directions_map = new (std::nothrow) unsigned char*[ResourceManager_MapSize.x];
 
     for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-        matrix1[i] = new (std::nothrow) unsigned short[ResourceManager_MapSize.y];
-        matrix2[i] = new (std::nothrow) unsigned char[ResourceManager_MapSize.y];
+        costs_map[i] = new (std::nothrow) unsigned short[ResourceManager_MapSize.y];
+        directions_map[i] = new (std::nothrow) unsigned char[ResourceManager_MapSize.y];
 
-        memset(matrix2[i], 0xFF, ResourceManager_MapSize.y);
+        memset(directions_map[i], 0xFF, ResourceManager_MapSize.y);
 
         for (int j = 0; j < ResourceManager_MapSize.y; ++j) {
-            matrix1[i][j] = 0x3FFF;
+            costs_map[i][j] = 0x3FFF;
         }
     }
 
@@ -71,24 +71,24 @@ Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) 
         }
 
         array[0] = 0;
-        matrix1[point1.x][point1.y] = 0;
+        costs_map[point1.x][point1.y] = 0;
 
         square.point.x = point1.x;
         square.point.y = point1.y;
         square.weight = 0;
 
         squares.Append(&square);
-        point = point2;
+        destination = point2;
     }
 }
 
 Searcher::~Searcher() {
     for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-        delete[] matrix1[i];
-        delete[] matrix2[i];
+        delete[] costs_map[i];
+        delete[] directions_map[i];
     }
 
-    delete[] matrix1;
-    delete[] matrix2;
+    delete[] costs_map;
+    delete[] directions_map;
     delete[] array;
 }

@@ -801,7 +801,7 @@ bool AbstractBuildMenu::Run() {
     while (!event_click_cancel) {
         int key = get_input();
 
-        if (GameManager_RequestMenuExit || unit->orders == ORDER_DISABLED || unit->team != GameManager_PlayerTeam) {
+        if (GameManager_RequestMenuExit || unit->orders == ORDER_DISABLE || unit->team != GameManager_PlayerTeam) {
             key = GNW_KB_KEY_ESCAPE;
         }
 
@@ -912,7 +912,7 @@ void MobileBuildMenu::Build() {
                 }
 
                 if ((base_unit->flags & BUILDING) || event_click_path_build) {
-                    UnitsManager_SetNewOrderInt(unit, ORDER_BUILDING, ORDER_STATE_25);
+                    UnitsManager_SetNewOrderInt(unit, ORDER_BUILD, ORDER_STATE_25);
 
                     GameManager_TempTape = UnitsManager_SpawnUnit((base_unit->flags & BUILDING) ? LRGTAPE : SMLTAPE,
                                                                   GameManager_PlayerTeam, grid_x, grid_y, unit);
@@ -1194,7 +1194,7 @@ void FactoryBuildMenu::Build() {
         unit->BuildOrder();
 
     } else {
-        UnitsManager_SetNewOrder(unit, ORDER_AWAITING_21, ORDER_STATE_13);
+        UnitsManager_SetNewOrder(unit, ORDER_HALT_BUILDING, ORDER_STATE_13);
 
         event_click_cancel = true;
     }

@@ -54,7 +54,7 @@ ColorRGB Index2RGB(ColorIndex c);
 ColorRGB Color2RGB(Color c);
 void fadeSystemPalette(unsigned char* src, unsigned char* dest, int steps);
 void setBlackSystemPalette(void);
-void setSystemPalette(unsigned char* cmap);
+void setSystemPalette(unsigned char* palette);
 unsigned char* getSystemPalette(void);
 void setSystemPaletteEntries(unsigned char* pal, unsigned int start, unsigned int end);
 void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);

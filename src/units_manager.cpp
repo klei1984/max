@@ -2268,7 +2268,7 @@ void UnitsManager_Popup_OnClick_Sentry(ButtonID bid, UnitInfo* unit) {
     }
 
     if (unit->orders == ORDER_SENTRY) {
-        UnitsManager_SetNewOrder(unit, ORDER_AWAITING, ORDER_STATE_1);
+        UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_1);
         GameManager_UpdateInfoDisplay(unit);
 
     } else {
@@ -2281,7 +2281,7 @@ void UnitsManager_Popup_OnClick_Sentry(ButtonID bid, UnitInfo* unit) {
 void UnitsManager_Popup_OnClick_Upgrade(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(false);
     unit->SetParent(unit);
-    UnitsManager_SetNewOrder(unit, ORDER_REPAIRING_28, ORDER_STATE_0);
+    UnitsManager_SetNewOrder(unit, ORDER_UPGRADE, ORDER_STATE_0);
 }
 
 void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
@@ -2323,7 +2323,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
 
             if (*costs[index] >= cost) {
                 (*it).SetParent(&*it);
-                UnitsManager_SetNewOrder(&*it, ORDER_REPAIRING_28, ORDER_STATE_1);
+                UnitsManager_SetNewOrder(&*it, ORDER_UPGRADE, ORDER_STATE_1);
 
                 ++unit_count;
                 material_cost += cost;
@@ -2379,13 +2379,13 @@ void UnitsManager_Popup_OnClick_Enter(ButtonID bid, UnitInfo* unit) {
 void UnitsManager_Popup_OnClick_Remove(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     if (UnitsManager_SelfDestructMenu()) {
-        UnitsManager_SetNewOrder(unit, ORDER_EXPLODING, ORDER_STATE_27);
+        UnitsManager_SetNewOrder(unit, ORDER_EXPLODE, ORDER_STATE_27);
     }
 }
 
 void UnitsManager_Popup_OnClick_Stop(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
-    UnitsManager_SetNewOrder(unit, ORDER_AWAITING, ORDER_STATE_CLEAR_PATH);
+    UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_CLEAR_PATH);
 }
 
 void UnitsManager_Popup_OnClick_Transfer(ButtonID bid, UnitInfo* unit) {
@@ -2407,7 +2407,7 @@ void UnitsManager_Popup_OnClick_Manual(ButtonID bid, UnitInfo* unit) {
     unit->disabled_reaction_fire = !unit->disabled_reaction_fire;
 
     if (unit->orders == ORDER_SENTRY) {
-        UnitsManager_SetNewOrder(unit, ORDER_AWAITING, ORDER_STATE_1);
+        UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_1);
     }
 
     GameManager_UpdateInfoDisplay(unit);
@@ -2421,17 +2421,17 @@ void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons
     }
 
     if (UnitsManager_BaseUnits[unit->unit_type].cargo_type > CARGO_TYPE_NONE &&
-        UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD && unit->orders != ORDER_CLEARING &&
-        unit->orders != ORDER_BUILDING) {
+        UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD && unit->orders != ORDER_CLEAR &&
+        unit->orders != ORDER_BUILD) {
         UnitsManager_RegisterButton(buttons, unit->cursor == 3, "x-fer", '3', &UnitsManager_Popup_OnClick_Transfer);
     }
 
-    if ((unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) && unit->orders != ORDER_CLEARING &&
-        unit->orders != ORDER_BUILDING) {
+    if ((unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) && unit->orders != ORDER_CLEAR &&
+        unit->orders != ORDER_BUILD) {
         UnitsManager_RegisterButton(buttons, unit->enter_mode, "enter", '5', &UnitsManager_Popup_OnClick_Enter);
     }
 
-    if (unit->path != nullptr && unit->orders != ORDER_CLEARING && unit->orders != ORDER_BUILDING) {
+    if (unit->path != nullptr && unit->orders != ORDER_CLEAR && unit->orders != ORDER_BUILD) {
         UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_Stop);
     }
 
@@ -2445,7 +2445,7 @@ void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons
             if (unit->orders == ORDER_SENTRY) {
                 UnitsManager_RegisterButton(buttons, true, "sentry", '8', &UnitsManager_Popup_OnClick_Sentry);
 
-            } else if (unit->orders == ORDER_AWAITING) {
+            } else if (unit->orders == ORDER_AWAIT) {
                 UnitsManager_RegisterButton(buttons, false, "sentry", '8', &UnitsManager_Popup_OnClick_Sentry);
             }
         }
@@ -2465,7 +2465,7 @@ void UnitsManager_Popup_OnClick_Auto(ButtonID bid, UnitInfo* unit) {
     unit->auto_survey = !unit->auto_survey;
 
     if (unit->orders == ORDER_SENTRY) {
-        UnitsManager_SetNewOrder(unit, ORDER_AWAITING, ORDER_STATE_1);
+        UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_1);
     }
 
     if (unit->auto_survey) {
@@ -2521,10 +2521,10 @@ void UnitsManager_Popup_OnClick_PlaceMine(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
 
     if (unit->GetLayingState() == 2) {
-        UnitsManager_SetNewOrder(unit, ORDER_TRANSFERRING_29, ORDER_STATE_43);
+        UnitsManager_SetNewOrder(unit, ORDER_LAY_MINE, ORDER_STATE_INACTIVE);
 
     } else if (unit->storage > 0) {
-        UnitsManager_SetNewOrder(unit, ORDER_TRANSFERRING_29, ORDER_STATE_44);
+        UnitsManager_SetNewOrder(unit, ORDER_LAY_MINE, ORDER_STATE_PLACING_MINES);
 
     } else {
         MessageManager_DrawMessage("Minelayer is empty, fill it with materials from a supply truck or mining station.",
@@ -2536,10 +2536,10 @@ void UnitsManager_Popup_OnClick_RemoveMine(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
 
     if (unit->GetLayingState() == 1) {
-        UnitsManager_SetNewOrder(unit, ORDER_TRANSFERRING_29, ORDER_STATE_43);
+        UnitsManager_SetNewOrder(unit, ORDER_LAY_MINE, ORDER_STATE_INACTIVE);
 
     } else if (unit->storage != unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-        UnitsManager_SetNewOrder(unit, ORDER_TRANSFERRING_29, ORDER_STATE_45);
+        UnitsManager_SetNewOrder(unit, ORDER_LAY_MINE, ORDER_STATE_REMOVING_MINES);
 
     } else {
         MessageManager_DrawMessage("Minelayer is full, cannot pick up more mines.", 1, 0);
@@ -2573,7 +2573,7 @@ void UnitsManager_Popup_InitRepair(UnitInfo* unit, struct PopupButtons* buttons)
 void UnitsManager_Popup_OnClick_BuildStop(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
 
-    if (unit->orders == ORDER_BUILDING) {
+    if (unit->orders == ORDER_BUILD) {
         GameManager_SelectBuildSite(unit);
         GameManager_EnableMainMenu(unit);
 
@@ -2589,7 +2589,7 @@ void UnitsManager_Popup_OnClick_BuildStop(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons* buttons) {
-    if (unit->orders == ORDER_BUILDING && unit->state != ORDER_STATE_13 && unit->state != ORDER_STATE_46) {
+    if (unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_13 && unit->state != ORDER_STATE_46) {
         UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_BuildStop);
 
     } else {
@@ -2602,7 +2602,7 @@ void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons* button
 bool UnitsManager_Popup_IsNever(UnitInfo* unit) { return false; }
 
 bool UnitsManager_Popup_IsReady(UnitInfo* unit) {
-    return (unit->orders = ORDER_AWAITING && unit->state == ORDER_STATE_1) ||
+    return (unit->orders = ORDER_AWAIT && unit->state == ORDER_STATE_1) ||
            (unit->orders = ORDER_IDLE && unit->state == ORDER_STATE_BUILDING_READY);
 }
 
@@ -2646,11 +2646,11 @@ void UnitsManager_PerformAction(UnitInfo* unit) {
         GameManager_SelectBuildSite(unit);
     }
 
-    if (unit->orders == ORDER_AWAITING && (unit->flags & STATIONARY)) {
+    if (unit->orders == ORDER_AWAIT && (unit->flags & STATIONARY)) {
         unit->state = ORDER_STATE_2;
     }
 
-    if (unit->path != nullptr && unit->speed > 0 && unit->orders != ORDER_CLEARING && unit->orders != ORDER_BUILDING &&
+    if (unit->path != nullptr && unit->speed > 0 && unit->orders != ORDER_CLEAR && unit->orders != ORDER_BUILD &&
         !unit->GetUnitList()) {
         unsigned char order;
 
@@ -2659,11 +2659,11 @@ void UnitsManager_PerformAction(UnitInfo* unit) {
         unit->orders = unit->prior_orders;
         unit->state = unit->prior_state;
 
-        if (order == ORDER_ATTACKING) {
-            UnitsManager_SetNewOrder(unit, ORDER_ATTACKING, ORDER_STATE_0);
+        if (order == ORDER_MOVE_TO_ATTACK) {
+            UnitsManager_SetNewOrder(unit, ORDER_MOVE_TO_ATTACK, ORDER_STATE_0);
 
         } else {
-            UnitsManager_SetNewOrder(unit, ORDER_MOVING, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(unit, ORDER_MOVE, ORDER_STATE_0);
         }
 
         GameManager_UpdateDrawBounds();
@@ -2677,7 +2677,7 @@ void UnitsManager_PerformAction(UnitInfo* unit) {
 bool UnitsManager_Popup_IsUnitReady(UnitInfo* unit) {
     bool result;
 
-    if (unit->orders == ORDER_BUILDING && unit->state == ORDER_STATE_UNIT_READY) {
+    if (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY) {
         result = true;
 
     } else {
@@ -2691,7 +2691,7 @@ void UnitsManager_Popup_OnClick_Build(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     GameManager_DisableMainMenu();
 
-    if (unit->orders == ORDER_BUILDING) {
+    if (unit->orders == ORDER_BUILD) {
         GameManager_SelectBuildSite(unit);
         GameManager_ProcessTick(false);
     }
@@ -2747,10 +2747,10 @@ void UnitsManager_Popup_InitFactories(UnitInfo* unit, struct PopupButtons* butto
     } else {
         UnitsManager_RegisterButton(buttons, false, "Build", '1', &UnitsManager_Popup_OnClick_Build);
 
-        if (unit->orders == ORDER_AWAITING_21 || unit->orders == ORDER_BUILDING_HALTED) {
+        if (unit->orders == ORDER_HALT_BUILDING || unit->orders == ORDER_HALT_BUILDING_2) {
             UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_StartBuild);
 
-        } else if (unit->orders == ORDER_BUILDING && unit->state != ORDER_STATE_13 && unit->state != ORDER_STATE_46) {
+        } else if (unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_13 && unit->state != ORDER_STATE_46) {
             UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_StopBuild);
         }
 
@@ -2958,7 +2958,7 @@ void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
 
     GameManager_DeinitPopupButtons(true);
 
-    if (unit->orders == ORDER_CLEARING) {
+    if (unit->orders == ORDER_CLEAR) {
         GameManager_SelectBuildSite(unit);
         GameManager_EnableMainMenu(unit);
 
@@ -2980,7 +2980,7 @@ void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
 
             unit->build_time = clearing_time;
 
-            UnitsManager_SetNewOrder(unit, ORDER_CLEARING, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(unit, ORDER_CLEAR, ORDER_STATE_0);
             GameManager_UpdateInfoDisplay(unit);
             GameManager_AutoSelectNext(unit);
 
@@ -2995,7 +2995,7 @@ void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons) {
-    if (unit->orders == ORDER_CLEARING) {
+    if (unit->orders == ORDER_CLEAR) {
         UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_StopRemove);
 
     } else {
@@ -3071,7 +3071,7 @@ void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit)
     grid_y = unit->target_grid_y;
 
     if (UnitsManager_IsPowerGeneratorPlaceable(unit->team, &grid_x, &grid_y)) {
-        UnitsManager_SetNewOrderInt(unit, ORDER_BUILDING, ORDER_STATE_25);
+        UnitsManager_SetNewOrderInt(unit, ORDER_BUILD, ORDER_STATE_25);
         GameManager_TempTape =
             UnitsManager_SpawnUnit(LRGTAPE, GameManager_PlayerTeam, unit->target_grid_x, unit->target_grid_y, unit);
 
@@ -3596,7 +3596,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
         }
     }
 
-    if (unit->prior_orders == ORDER_FIRING && unit->prior_state != ORDER_STATE_0) {
+    if (unit->prior_orders == ORDER_FIRE && unit->prior_state != ORDER_STATE_0) {
         unit->UpdatePinCount(unit->target_grid_x, unit->target_grid_y, -1);
     }
 
@@ -3615,7 +3615,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
 
     Hash_MapHash.Remove(unit);
 
-    unit->RemoveUnknown();
+    unit->RemoveInTransitUnitFromMapHash();
 
     unit->RefreshScreen();
 
@@ -3682,7 +3682,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
     }
 
     if (unit->flags & ANIMATED) {
-        unit->orders = ORDER_EXPLODING;
+        unit->orders = ORDER_EXPLODE;
         unit->state = GAME_STATE_14;
     }
 
@@ -3729,7 +3729,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
     }
 
     if (team == PLAYER_TEAM_ALIEN && (unit->flags & REGENERATING_UNIT)) {
-        unit->orders = ORDER_DISABLED;
+        unit->orders = ORDER_DISABLE;
     }
 
     base_unit = &UnitsManager_BaseUnits[unit_type];

@@ -19,29 +19,30 @@
  * SOFTWARE.
  */
 
-#ifndef SEARCHER_HPP
-#define SEARCHER_HPP
+#include "accessmap.hpp"
 
-#include "point.hpp"
-#include "smartobjectarray.hpp"
+#include "resource_manager.hpp"
 
-struct PathSquare {
-    Point point;
-    unsigned short weight;
-};
+AccessMap::AccessMap() {
+    size = ResourceManager_MapSize.x;
 
-class Searcher {
-    unsigned short **costs_map;
-    unsigned char **directions_map;
-    unsigned short *array;
-    unsigned short field_12;
-    ObjectArray<PathSquare> squares;
-    Point destination;
-    unsigned char mode;
+    map = new (std::nothrow) unsigned char*[ResourceManager_MapSize.x];
 
-public:
-    Searcher(Point point1, Point point2, unsigned char mode);
-    ~Searcher();
-};
+    for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
+        map[i] = new (std::nothrow) unsigned char[ResourceManager_MapSize.y];
 
-#endif /* SEARCHER_HPP */
+        memset(map[i], 0, ResourceManager_MapSize.y);
+    }
+}
+
+AccessMap::~AccessMap() {
+    for (int i = 0; i < size; ++i) {
+        delete[] map[i];
+    }
+
+    delete[] map;
+}
+
+unsigned char** AccessMap::GetMap() const { return map; }
+
+unsigned char* AccessMap::GetMapColumn(int index) const { return map[index]; }

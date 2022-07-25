@@ -39,7 +39,7 @@ int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
 int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1, s2, len); }
 #endif
 
-static unsigned int next = 1;
+static unsigned int dos_rand_next = 1;
 
 long int filesize(FILE *fp) {
     long int save_pos, size_of_file;
@@ -114,7 +114,7 @@ void dos_getdrive(unsigned int *drive) { *drive = 4; }
 
 void dos_setdrive(unsigned int drive, unsigned int *total) {}
 
-static unsigned int *initrandnext() { return &next; }
+static unsigned int *initrandnext() { return &dos_rand_next; }
 
 int dos_rand(void) {
     unsigned int *next;

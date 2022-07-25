@@ -101,7 +101,7 @@ int UnitPath::WritePacket(char* buffer) { return 0; }
 
 void UnitPath::Path_vfunc16(int unknown1, int unknown2) {}
 
-void UnitPath::Path_vfunc17(int unknown1, int unknown2) {}
+void UnitPath::Path_vfunc17(int distance_x, int distance_y) {}
 
 short UnitPath::GetEndX() const { return x_end; }
 
@@ -529,7 +529,7 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {
     Point position(unit->grid_x, unit->grid_y);
     int speed = unit->speed;
 
-    if (unit->orders != ORDER_BUILDING && unit->state == ORDER_STATE_1 && speed > 0) {
+    if (unit->orders != ORDER_BUILD && unit->state == ORDER_STATE_1 && speed > 0) {
         int move_fraction;
         Point point;
         PathStep* step;
@@ -699,7 +699,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
     cost = 4;
 
-    if (unit->orders == ORDER_MOVING_27) {
+    if (unit->orders == ORDER_MOVE_TO_UNIT) {
         SmartPointer<UnitInfo> receiver(Access_GetReceiverUnit(unit, target_grid_x, target_grid_y));
 
         if (receiver != nullptr) {
@@ -800,7 +800,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
                 }
             }
 
-            unit->ReaddUnknown(target_grid_x, target_grid_y);
+            unit->MoveInTransitUnitInMapHash(target_grid_x, target_grid_y);
             unit->moved = 0;
             unit->state = ORDER_STATE_6;
 
@@ -822,7 +822,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
             /// \todo Check why this is needed.
             SmartPointer<UnitPath> path(this);
 
-            if (unit->orders == ORDER_BUILDING || UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_ELIMINATED ||
+            if (unit->orders == ORDER_BUILD || UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_ELIMINATED ||
                 (GameManager_GameState == GAME_STATE_9 && GameManager_TurnTimerValue == 0)) {
                 unit->BlockedOnPathRequest();
 
@@ -979,8 +979,41 @@ void GroundPath::Path_vfunc16(int unknown1, int unknown2) {
     /// \todo
 }
 
-void GroundPath::Path_vfunc17(int unknown1, int unknown2) {
-    /// \todo
+void GroundPath::Path_vfunc17(int distance_x, int distance_y) {
+    int step_x;
+    int step_y;
+    PathStep step;
+
+    while (distance_x || distance_y) {
+        if (distance_x > 0) {
+            step_x = 1;
+
+        } else if (distance_x == 0) {
+            step_x = 0;
+
+        } else {
+            step_x = -1;
+        }
+
+        step.x = step_x;
+
+        if (distance_y > 0) {
+            step_y = 1;
+
+        } else if (distance_y == 0) {
+            step_y = 0;
+
+        } else {
+            step_y = -1;
+        }
+
+        step.y = step_y;
+
+        steps.PushBack(&step);
+
+        distance_x -= step_x;
+        distance_y -= step_y;
+    }
 }
 
 void GroundPath::AddStep(int step_x, int step_y) {
@@ -997,7 +1030,7 @@ SmartObjectArray<PathStep> GroundPath::GetSteps() { return steps; }
 bool Paths_RequestPath(UnitInfo* unit, int mode) {
     bool result;
 
-    if (unit->orders == ORDER_ATTACKING) {
+    if (unit->orders == ORDER_MOVE_TO_ATTACK) {
         UnitInfo* enemy = unit->GetEnemy();
 
         if (enemy) {
@@ -1011,13 +1044,13 @@ bool Paths_RequestPath(UnitInfo* unit, int mode) {
         SmartPointer<PathRequest> request(new (std::nothrow)
                                               PathRequest(unit, mode, Point(unit->grid_x, unit->grid_y)));
 
-        request->SetBoardTransport(unit->orders == ORDER_MOVING_27);
+        request->SetBoardTransport(unit->orders == ORDER_MOVE_TO_UNIT);
 
         if (mode & 1) {
             request->SetMinimumDistance(3);
         }
 
-        if (unit->orders == ORDER_ATTACKING) {
+        if (unit->orders == ORDER_MOVE_TO_ATTACK) {
             int range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
             request->SetMinimumDistance(range * range);
@@ -1355,14 +1388,14 @@ bool Paths_LoadUnit(UnitInfo* unit) {
     if (shop) {
         if (shop->unit_type == LANDPAD && !Access_GetUnit2(unit->grid_x, unit->grid_y, unit->team)) {
             unit->SetParent(nullptr);
-            unit->orders = ORDER_LANDING;
+            unit->orders = ORDER_LAND;
             unit->state = ORDER_STATE_0;
 
             result = true;
 
-        } else if (shop->unit_type == HANGAR && unit->orders == ORDER_MOVING_27) {
+        } else if (shop->unit_type == HANGAR && unit->orders == ORDER_MOVE_TO_UNIT) {
             if (Access_GetStoredUnitCount(shop) == shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-                unit->orders = ORDER_AWAITING;
+                unit->orders = ORDER_AWAIT;
                 unit->state = ORDER_STATE_1;
 
                 if (GameManager_SelectedUnit == unit) {
@@ -1372,7 +1405,7 @@ bool Paths_LoadUnit(UnitInfo* unit) {
 
             } else {
                 unit->SetParent(shop);
-                unit->orders = ORDER_LANDING;
+                unit->orders = ORDER_LAND;
                 unit->state = ORDER_STATE_0;
 
                 if (GameManager_SelectedUnit == unit) {
@@ -1421,7 +1454,7 @@ void Paths_FinishMove(UnitInfo* unit) {
                 if (unit->unit_type == AIRTRANS && unit->GetParent()) {
                     if (unit->storage < unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
                         if (unit->GetParent() == Access_GetUnit4(grid_x, grid_y, unit->team, MOBILE_LAND_UNIT)) {
-                            unit->orders = ORDER_LOADING;
+                            unit->orders = ORDER_LOAD;
                             unit->state = ORDER_STATE_0;
 
                             return;
