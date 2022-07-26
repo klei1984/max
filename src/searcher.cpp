@@ -21,7 +21,71 @@
 
 #include "searcher.hpp"
 
+#include "game_manager.hpp"
+#include "gfx.hpp"
+#include "paths.hpp"
 #include "resource_manager.hpp"
+#include "window_manager.hpp"
+
+static void Searcher_DrawMarker(int angle, int grid_x, int grid_y, int color);
+static int Searcher_EvaluateCost(Point point1, Point point2, bool mode);
+
+void Searcher_DrawMarker(int angle, int grid_x, int grid_y, int color) {
+    WindowInfo* window;
+    int pixel_x;
+    int pixel_y;
+    Rect bounds;
+
+    window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+
+    pixel_x = grid_x * 64 + 32;
+    pixel_y = grid_y * 64 + 32;
+
+    if (pixel_x < GameManager_MapWindowDrawBounds.lrx && pixel_x > GameManager_MapWindowDrawBounds.ulx &&
+        pixel_y < GameManager_MapWindowDrawBounds.lry && pixel_y > GameManager_MapWindowDrawBounds.uly) {
+    }
+
+    grid_x = (pixel_x << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+    grid_y = (pixel_y << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+
+    Paths_DrawMarker(window, angle, grid_x, grid_y, color);
+
+    bounds.ulx = window->window.ulx + grid_x - (Gfx_ZoomLevel / 2);
+    bounds.uly = window->window.uly + grid_y - (Gfx_ZoomLevel / 2);
+    bounds.lrx = bounds.ulx + Gfx_ZoomLevel;
+    bounds.lry = bounds.uly + Gfx_ZoomLevel;
+
+    win_draw_rect(window->id, &bounds);
+}
+
+int Searcher_EvaluateCost(Point point1, Point point2, bool mode) {
+    unsigned char value1;
+    unsigned char value2;
+    int result;
+
+    value2 = PathsManager_AccessMap[point2.x][point2.y];
+
+    ++Paths_EvaluatorCallCount;
+
+    if (mode) {
+        value1 = PathsManager_AccessMap[point1.x][point1.y];
+
+        if ((value2 & 0x40) && (value1 & 0x80)) {
+            result = 0;
+
+        } else if ((value1 & 0x40) && (value2 & 0x80)) {
+            result = 0;
+
+        } else {
+            result = value2 & 0x1F;
+        }
+
+    } else {
+        result = value2 & 0x1F;
+    }
+
+    return result;
+}
 
 Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) {
     Point map_size;

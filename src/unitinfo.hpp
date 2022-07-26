@@ -223,8 +223,8 @@ public:
     unsigned char state;
     unsigned char prior_orders;
     unsigned char prior_state;
-    unsigned short target_grid_x;
-    unsigned short target_grid_y;
+    short target_grid_x;
+    short target_grid_y;
     unsigned char build_time;
     unsigned char total_mining;
     unsigned char raw_mining;

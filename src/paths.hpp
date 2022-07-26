@@ -160,8 +160,15 @@ void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots);
 bool Paths_IsOccupied(int grid_x, int grid_y, int angle, int team);
 
 extern const Point Paths_8DirPointsArray[8];
+extern unsigned char** PathsManager_AccessMap;
 extern unsigned int Paths_LastTimeStamp;
 extern bool Path_EnableTimeBenchmark;
 extern unsigned int Paths_TimeLimit;
+extern unsigned int Paths_EvaluatedTileCount;
+extern unsigned int Paths_EvaluatorCallCount;
+extern unsigned int Paths_SquareAdditionsCount;
+extern unsigned int Paths_SquareInsertionsCount;
+extern unsigned int Paths_EvaluatedSquareCount;
+extern unsigned int Paths_MaxDepth;
 
 #endif /* PATHS_HPP */

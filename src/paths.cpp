@@ -69,9 +69,20 @@ const Point Paths_8DirPointsArrayMarkerB[8] = {{246, 10}, {244, 0}, {246, 246}, 
 const Point Paths_8DirPointsArrayMarkerC[8] = {{10, 10},   {0, 12},  {246, 10}, {244, 0},
                                                {246, 246}, {0, 244}, {10, 246}, {12, 0}};
 
+unsigned char** PathsManager_AccessMap;
+
 unsigned int Paths_LastTimeStamp;
 bool Path_EnableTimeBenchmark;
 unsigned int Paths_TimeLimit = 43750;
+
+unsigned int Paths_DebugMode;
+
+unsigned int Paths_EvaluatedTileCount;
+unsigned int Paths_EvaluatorCallCount;
+unsigned int Paths_SquareAdditionsCount;
+unsigned int Paths_SquareInsertionsCount;
+unsigned int Paths_EvaluatedSquareCount;
+unsigned int Paths_MaxDepth;
 
 UnitPath::UnitPath() : x_end(0), y_end(0), distance_x(0), distance_y(0), euclidean_distance(0) {}
 

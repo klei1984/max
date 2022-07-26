@@ -62,7 +62,8 @@ bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int ta
                 continue;
             }
 
-            if (((*it).orders == ORDER_MOVE || (*it).orders == ORDER_MOVE_TO_UNIT || (*it).orders == ORDER_MOVE_TO_ATTACK) &&
+            if (((*it).orders == ORDER_MOVE || (*it).orders == ORDER_MOVE_TO_UNIT ||
+                 (*it).orders == ORDER_MOVE_TO_ATTACK) &&
                 (*it).state != ORDER_STATE_1 && (*it).path != nullptr && (*it).grid_x == target_grid_x &&
                 (*it).grid_y == target_grid_y &&
                 !(*it).path->IsInPath(grid_x - target_grid_x, grid_y - target_grid_y)) {
@@ -1009,7 +1010,8 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, unsigned short team) {
             }
 
         } else {
-            if (((*it).orders == ORDER_MOVE || (*it).orders == ORDER_MOVE_TO_UNIT || (*it).orders == ORDER_MOVE_TO_ATTACK) &&
+            if (((*it).orders == ORDER_MOVE || (*it).orders == ORDER_MOVE_TO_UNIT ||
+                 (*it).orders == ORDER_MOVE_TO_ATTACK) &&
                 (*it).state == ORDER_STATE_1) {
                 if ((*it).team == team && (*it).speed != 0 && (*it).engine == 2) {
                     UnitsManager_SetNewOrder(&(*it), (*it).orders, ORDER_STATE_0);
@@ -1874,13 +1876,13 @@ bool Access_AreTaskEventsPending() {
     for (int i = std::size(Access_UnitsLists) - 1; i >= 0; --i) {
         for (SmartList<UnitInfo>::Iterator it = Access_UnitsLists[i]->Begin(); it != Access_UnitsLists[i]->End();
              ++it) {
-            if ((*it).orders == ORDER_FIRE || (*it).orders == ORDER_EXPLODE ||
-                (*it).orders == ORDER_ACTIVATE || (*it).orders == ORDER_AWAIT_TAPE_POSITIONING ||
-                (*it).orders == ORDER_AWAIT_DISABLE_UNIT || (*it).orders == ORDER_AWAIT_STEAL_UNIT ||
-                (*it).orders == ORDER_AWAIT_SCALING || (*it).state == ORDER_STATE_14 ||
-                ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) ||
+            if ((*it).orders == ORDER_FIRE || (*it).orders == ORDER_EXPLODE || (*it).orders == ORDER_ACTIVATE ||
+                (*it).orders == ORDER_AWAIT_TAPE_POSITIONING || (*it).orders == ORDER_AWAIT_DISABLE_UNIT ||
+                (*it).orders == ORDER_AWAIT_STEAL_UNIT || (*it).orders == ORDER_AWAIT_SCALING ||
+                (*it).state == ORDER_STATE_14 || ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) ||
                 ((*it).orders == ORDER_MOVE_TO_UNIT && (*it).state != ORDER_STATE_1) ||
-                ((*it).orders == ORDER_MOVE_TO_ATTACK && (*it).state != ORDER_STATE_1) || (*it).state == ORDER_STATE_0) {
+                ((*it).orders == ORDER_MOVE_TO_ATTACK && (*it).state != ORDER_STATE_1) ||
+                (*it).state == ORDER_STATE_0) {
                 if ((*it).state == ORDER_STATE_NEW_ORDER && (*it).team == GameManager_PlayerTeam &&
                     !PathsManager_HasRequest(&*it)) {
                     if ((*it).path != nullptr) {
