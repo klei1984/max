@@ -755,23 +755,23 @@ void GameManager_GameLoop(int game_state) {
             GameManager_UpdateGui(GameManager_PlayerTeam, game_state, true);
             GameManager_EnableMainMenu(nullptr);
 
-            if (GameManager_GameState == GAME_STATE_9 && !GameManager_AreTeamsFinishedTurn()) {
+            if (GameManager_GameState == GAME_STATE_9_END_TURN && !GameManager_AreTeamsFinishedTurn()) {
                 if (Remote_IsNetworkGame) {
                     MessageManager_DrawMessage("Waiting for remote End Turn.", 0, 0);
                 } else {
                     MessageManager_DrawMessage("Waiting for computer to finish turn.", 0, 0);
                 }
 
-                while (GameManager_GameState == GAME_STATE_9 && GameManager_AreTeamsFinishedTurn()) {
+                while (GameManager_GameState == GAME_STATE_9_END_TURN && GameManager_AreTeamsFinishedTurn()) {
                     GameManager_ProgressTurn();
                 }
             }
 
-            if (GameManager_GameState == GAME_STATE_9) {
+            if (GameManager_GameState == GAME_STATE_9_END_TURN) {
                 GameManager_PlayMode = PLAY_MODE_UNKNOWN;
                 GameManager_ResetRenderState();
 
-                while (GameManager_GameState == GAME_STATE_9 && Access_AreTaskEventsPending()) {
+                while (GameManager_GameState == GAME_STATE_9_END_TURN && Access_AreTaskEventsPending()) {
                     GameManager_ProgressTurn();
                 }
             }
@@ -783,7 +783,7 @@ void GameManager_GameLoop(int game_state) {
             if (GameManager_GameState == GAME_STATE_10) {
                 game_state = GAME_STATE_10;
                 GameManager_GameState = GAME_STATE_8_IN_GAME;
-            } else if (GameManager_GameState == GAME_STATE_9) {
+            } else if (GameManager_GameState == GAME_STATE_9_END_TURN) {
                 for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                     if (UnitsManager_TeamInfo[team].field_41) {
                         GameManager_ManageEconomy(team);
@@ -823,7 +823,7 @@ void GameManager_GameLoop(int game_state) {
                         break;
                     }
 
-                    if (GameManager_GameState != GAME_STATE_9) {
+                    if (GameManager_GameState != GAME_STATE_9_END_TURN) {
                         break;
                     }
 
@@ -841,7 +841,7 @@ void GameManager_GameLoop(int game_state) {
             }
         }
 
-        if (GameManager_GameState == GAME_STATE_9) {
+        if (GameManager_GameState == GAME_STATE_9_END_TURN) {
             GameManager_GameState = GAME_STATE_8_IN_GAME;
             if (menu_check_end_game_conditions(GameManager_TurnCounter, turn_counter, GameManager_DemoMode)) {
                 break;
@@ -1061,7 +1061,7 @@ bool GameManager_RefreshOrders(unsigned short team, bool check_production) {
     GameManager_HandleTurnTimer();
 
     if (GameManager_PlayerTeam == team || !GameManager_PlayMode) {
-        GameManager_GameState = GAME_STATE_9;
+        GameManager_GameState = GAME_STATE_9_END_TURN;
 
         GameManager_MenuClickEndTurnButton(false);
     }
@@ -2462,7 +2462,7 @@ void GameManager_UpdateGui(unsigned short team, int game_state, bool enable_auto
     switch (UnitsManager_TeamInfo[team].team_type) {
         case TEAM_TYPE_ELIMINATED:
         case TEAM_TYPE_NONE: {
-            GameManager_GameState = GAME_STATE_9;
+            GameManager_GameState = GAME_STATE_9_END_TURN;
             return;
         } break;
 
@@ -2637,7 +2637,7 @@ bool GameManager_ProcessPopupMenuInput(int key) {
     if (key > 255 || key < 0 || GameManager_SelectedUnit == nullptr ||
         GameManager_SelectedUnit->team != GameManager_PlayerTeam ||
         UnitsManager_TeamInfo[GameManager_SelectedUnit->team].team_type != TEAM_TYPE_PLAYER ||
-        (GameManager_GameState == GAME_STATE_9 && GameManager_PlayMode != PLAY_MODE_SIMULTANEOUS_MOVES) ||
+        (GameManager_GameState == GAME_STATE_9_END_TURN && GameManager_PlayMode != PLAY_MODE_SIMULTANEOUS_MOVES) ||
         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type != TEAM_TYPE_PLAYER ||
         GameManager_GameState == GAME_STATE_7_SITE_SELECT || GameManager_UnknownFlag3) {
         return false;
@@ -4185,7 +4185,7 @@ unsigned char GameManager_GetWindowCursor(int grid_x, int grid_y) {
     GameManager_MousePosition.x = grid_x;
     GameManager_MousePosition.y = grid_y;
 
-    if ((GameManager_GameState == GAME_STATE_9 && GameManager_PlayMode != PLAY_MODE_SIMULTANEOUS_MOVES) ||
+    if ((GameManager_GameState == GAME_STATE_9_END_TURN && GameManager_PlayMode != PLAY_MODE_SIMULTANEOUS_MOVES) ||
         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type != TEAM_TYPE_PLAYER) {
         unsigned char result;
 
@@ -5159,7 +5159,7 @@ void GameManager_EnableMainMenu(UnitInfo* unit) {
                                                TEAM_TYPE_PLAYER);
         }
 
-        if (GameManager_GameState != GAME_STATE_9 || GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (GameManager_GameState != GAME_STATE_9_END_TURN || GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             bool flag = true;
 
             for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
@@ -6047,7 +6047,7 @@ void GameManager_UnitSelect(UnitInfo* unit) {
     if (unit->team == GameManager_ActiveTurnTeam &&
         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_PLAYER) {
         if ((unit->flags & STATIONARY) &&
-            (GameManager_GameState != GAME_STATE_9 || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES)) {
+            (GameManager_GameState != GAME_STATE_9_END_TURN || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES)) {
             GameManager_InitPopupButtons(unit);
         }
 
@@ -6068,7 +6068,7 @@ void GameManager_ClickUnit(UnitInfo* unit1, UnitInfo* unit2, int grid_x, int gri
         if (GameManager_PopupButtons.popup_count) {
             GameManager_DeinitPopupButtons(false);
 
-        } else if ((GameManager_GameState != GAME_STATE_9 || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
+        } else if ((GameManager_GameState != GAME_STATE_9_END_TURN || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
                    GameManager_InitPopupButtons(unit1)) {
             return;
         }
@@ -6090,7 +6090,7 @@ bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int grid_x, i
 
         result = false;
 
-    } else if ((GameManager_GameState != GAME_STATE_9 || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
+    } else if ((GameManager_GameState != GAME_STATE_9_END_TURN || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
                UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_PLAYER) {
         if (GameManager_IsShiftKeyPressed && unit1 && unit2) {
             if (unit2->team == GameManager_PlayerTeam) {

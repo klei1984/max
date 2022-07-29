@@ -2229,7 +2229,7 @@ enum : unsigned char {
     GAME_STATE_6 = 0x6,
     GAME_STATE_7_SITE_SELECT = 0x7,
     GAME_STATE_8_IN_GAME = 0x8,
-    GAME_STATE_9 = 0x9,
+    GAME_STATE_9_END_TURN = 0x9,
     GAME_STATE_10 = 0xA,
     GAME_STATE_11 = 0xB,
     GAME_STATE_12 = 0xC,

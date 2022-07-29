@@ -19,39 +19,27 @@
  * SOFTWARE.
  */
 
-#ifndef CONTINENT_HPP
-#define CONTINENT_HPP
+#ifndef UNITWEIGHT_HPP
+#define UNITWEIGHT_HPP
 
-#include "gnw.h"
-#include "point.hpp"
-#include "smartpointer.hpp"
+#include "enums.hpp"
+#include "smartobjectarray.hpp"
 
-class Continent : public SmartObject {
-    bool is_isolated;
-    unsigned short filler;
-    unsigned short continent_size;
-    Rect bounds;
-    Point point;
-    unsigned char **map;
-    unsigned char field_35;
+class UnitWeight;
 
-    bool IsDangerousProximity(int grid_x, int grid_y, unsigned short team, int proximity_range);
-    bool IsViableSite(bool test_proximity, unsigned short team, Point site);
+class WeightTable {
+    SmartObjectArray<UnitWeight> weight_table;
 
 public:
-    Continent(unsigned char **map, unsigned short filler, Point point, unsigned char value);
-    ~Continent();
+    WeightTable();
+    WeightTable(const WeightTable& other, bool deep_copy = false);
+    ~WeightTable();
 
-    Rect GetBounds() const;
-    Point GetCenter() const;
-    bool IsIsolated() const;
-    unsigned short GetContinentSize() const;
-    unsigned short GetFiller() const;
+    WeightTable& operator=(WeightTable& other);
+    WeightTable& operator+=(WeightTable& other);
 
-    bool IsCloseProximity() const;
-    bool IsViableContinent(bool test_proximity, unsigned short team);
-    void SelectLandingSite(unsigned short team, int strategy);
-    void TestIsolated();
+    ResourceID RollUnitType() const;
+    int GetWeight(ResourceID unit_type) const;
 };
 
-#endif /* CONTINENT_HPP */
+#endif /* UNITWEIGHT_HPP */

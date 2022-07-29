@@ -79,7 +79,7 @@ Continent::Continent(unsigned char **map, unsigned short filler, Point point, un
     this->filler = filler;
     continent_size = 0;
     this->map = map;
-    field_6 = false;
+    is_isolated = false;
 
     continent_size = continent_filler.Fill(point);
 
@@ -102,7 +102,7 @@ Rect Continent::GetBounds() const { return bounds; }
 
 Point Continent::GetCenter() const { return Point((bounds.lrx + bounds.ulx) / 2, (bounds.lry + bounds.uly) / 2); }
 
-bool Continent::GetField6() const { return field_6; }
+bool Continent::IsIsolated() const { return is_isolated; }
 
 unsigned short Continent::GetContinentSize() const { return continent_size; }
 
@@ -141,7 +141,7 @@ void Continent::SelectLandingSite(unsigned short team, int strategy) {
     UnitsManager_TeamMissionSupplies[team].starting_position = site;
 }
 
-void Continent::Continent_sub_683DD() {
+void Continent::TestIsolated() {
     if (IsCloseProximity()) {
         Rect zone;
         Point position;
@@ -212,7 +212,7 @@ void Continent::Continent_sub_683DD() {
                 }
             }
 
-            field_6 = true;
+            is_isolated = true;
         }
     }
 }

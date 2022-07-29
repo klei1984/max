@@ -834,7 +834,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
             SmartPointer<UnitPath> path(this);
 
             if (unit->orders == ORDER_BUILD || UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_ELIMINATED ||
-                (GameManager_GameState == GAME_STATE_9 && GameManager_TurnTimerValue == 0)) {
+                (GameManager_GameState == GAME_STATE_9_END_TURN && GameManager_TurnTimerValue == 0)) {
                 unit->BlockedOnPathRequest();
 
             } else if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_REMOTE || Paths_RequestPath(unit, 2)) {

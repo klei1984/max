@@ -506,7 +506,7 @@ bool HelpMenu::Run(int mode) {
         if (!mode) {
             if (window_id == WINDOW_MAIN_MAP) {
                 GameManager_ProcessState(true, false);
-            } else if (GameManager_GameState == GAME_STATE_8_IN_GAME || GameManager_GameState == GAME_STATE_9) {
+            } else if (GameManager_GameState == GAME_STATE_8_IN_GAME || GameManager_GameState == GAME_STATE_9_END_TURN) {
                 GameManager_ProcessState(false, false);
             } else if (Remote_GameState) {
                 Remote_NetSync();
@@ -562,7 +562,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
             if (!mode) {
                 if (window_index == WINDOW_MAIN_MAP) {
                     GameManager_ProcessState(true, false);
-                } else if (GameManager_GameState == GAME_STATE_8_IN_GAME || GameManager_GameState == GAME_STATE_9) {
+                } else if (GameManager_GameState == GAME_STATE_8_IN_GAME || GameManager_GameState == GAME_STATE_9_END_TURN) {
                     GameManager_ProcessState(false, false);
                 } else if (Remote_GameState) {
                     Remote_NetSync();
