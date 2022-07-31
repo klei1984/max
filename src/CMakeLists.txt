@@ -113,6 +113,9 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/continent.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/weighttable.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/spottedunit.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/circumferencewalker.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/zonewalker.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/threatmap.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/pathrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
