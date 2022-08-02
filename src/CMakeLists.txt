@@ -88,7 +88,14 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/buildmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/task.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontierassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskmineassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskobtainunits.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskrendesvous.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitevents.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task_manager.cpp
@@ -116,6 +123,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/circumferencewalker.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/zonewalker.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/threatmap.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/terrainmap.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/pathrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp

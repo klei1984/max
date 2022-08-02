@@ -1987,8 +1987,6 @@ enum {
     REGENERATING_UNIT = 0x10000000
 };
 
-enum : unsigned char { LAND = 0x1, WATER = 0x2 };
-
 enum : unsigned char { NO_CARGO = 0x0, MATERIALS = 0x1, FUEL = 0x2, GOLD = 0x3 };
 
 enum : unsigned char {

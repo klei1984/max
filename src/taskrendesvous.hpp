@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,31 +19,33 @@
  * SOFTWARE.
  */
 
-#include "zone.hpp"
+#ifndef TASKRENDESVOUS_HPP
+#define TASKRENDESVOUS_HPP
 
 #include "task.hpp"
-#include "unitinfo.hpp"
+#include "taskgetresource.hpp"
 
-Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), field_30(false) {}
+class TaskRendezvous : public Task {
+    SmartPointer<UnitInfo> unit1;
+    SmartPointer<UnitInfo> unit2;
+    void (TaskGetResource::*function)(int unknown, char mode);
 
-Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), field_30(false) { Add(bounds); }
+    void TaskRendezvous_sub_54D3B();
 
-Zone::~Zone() {}
+public:
+    TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task,
+                   void (TaskGetResource::*function)(int unknown, char mode));
+    ~TaskRendezvous();
 
-void Zone::Add(Point* point) { points.Append(point); }
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void AddReminder();
+    void Execute();
+    void EndTurn();
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void Remove(UnitInfo& unit);
+};
 
-void Zone::Add(Rect* bounds) {
-    Point point;
-
-    for (point.x = bounds->ulx; point.x < bounds->lrx; ++point.x) {
-        for (point.y = bounds->uly; point.y < bounds->lry; ++point.y) {
-            points.Append(&point);
-        }
-    }
-}
-
-void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
-
-bool Zone::GetField30() const { return field_30; }
-
-ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+#endif /* TASKRENDESVOUS_HPP */

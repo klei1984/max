@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,31 +19,29 @@
  * SOFTWARE.
  */
 
-#include "zone.hpp"
+#ifndef TERRAINMAP_HPP
+#define TERRAINMAP_HPP
 
-#include "task.hpp"
-#include "unitinfo.hpp"
+#include "point.hpp"
 
-Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), field_30(false) {}
+class TerrainMap {
+    short dimension_x;
+    unsigned short **land_map;
+    unsigned short **water_map;
 
-Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), field_30(false) { Add(bounds); }
+    int TerrainMap_sub_68EEF(unsigned short **map, Point location);
+    void TerrainMap_sub_6915E(unsigned short **map, Point location);
+    void TerrainMap_sub_69391(unsigned short **map, Point location);
 
-Zone::~Zone() {}
+public:
+    TerrainMap();
+    ~TerrainMap();
 
-void Zone::Add(Point* point) { points.Append(point); }
+    void Init();
+    void Deinit();
 
-void Zone::Add(Rect* bounds) {
-    Point point;
+    int TerrainMap_sub_690D6(Point location, int surface_type);
+    void TerrainMap_sub_695C4(Point location, int surface_type);
+};
 
-    for (point.x = bounds->ulx; point.x < bounds->lrx; ++point.x) {
-        for (point.y = bounds->uly; point.y < bounds->lry; ++point.y) {
-            points.Append(&point);
-        }
-    }
-}
-
-void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
-
-bool Zone::GetField30() const { return field_30; }
-
-ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+#endif /* TERRAINMAP_HPP */

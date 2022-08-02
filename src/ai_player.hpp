@@ -22,6 +22,8 @@
 #ifndef AI_PLAYER_HPP
 #define AI_PLAYER_HPP
 
+#include "terrainmap.hpp"
+#include "threatmap.hpp"
 #include "unitinfo.hpp"
 
 class AiPlayer {
@@ -34,8 +36,12 @@ public:
     void MarkMineMapPoint(Point point);
     void ChangeTasksPendingFlag(bool value);
     bool SelectStrategy();
+    void PlanMinefields();
+    void GuessEnemyAttackDirections();
 };
 
 extern AiPlayer AiPlayer_Teams[4];
+extern TerrainMap AiPlayer_TerrainMap;
+extern ThreatMap AiPlayer_ThreatMaps[10];
 
 #endif /* AI_PLAYER_HPP */

@@ -23,7 +23,7 @@
 #define MAPHASHLIST_HPP
 
 #include "point.hpp"
-#include "tasks.hpp"
+#include "task.hpp"
 #include "unitinfo.hpp"
 
 class MapHashList : public SmartObject {

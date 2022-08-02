@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,31 +19,28 @@
  * SOFTWARE.
  */
 
-#include "zone.hpp"
+#include "taskfrontierassistant.hpp"
 
-#include "task.hpp"
-#include "unitinfo.hpp"
+#include "ai_player.hpp"
+#include "task_manager.hpp"
 
-Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), field_30(false) {}
+TaskFrontierAssistant::TaskFrontierAssistant(unsigned short team) : Task(team, nullptr, 0x1A00) {}
 
-Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), field_30(false) { Add(bounds); }
+TaskFrontierAssistant::~TaskFrontierAssistant() {}
 
-Zone::~Zone() {}
+int TaskFrontierAssistant::GetMemoryUse() const { return 4; }
 
-void Zone::Add(Point* point) { points.Append(point); }
+char* TaskFrontierAssistant::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Frontier determining assistant");
 
-void Zone::Add(Rect* bounds) {
-    Point point;
-
-    for (point.x = bounds->ulx; point.x < bounds->lrx; ++point.x) {
-        for (point.y = bounds->uly; point.y < bounds->lry; ++point.y) {
-            points.Append(&point);
-        }
-    }
+    return buffer;
 }
 
-void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
+unsigned char TaskFrontierAssistant::GetType() const { return TaskType_TaskFrontierAssistant; }
 
-bool Zone::GetField30() const { return field_30; }
+void TaskFrontierAssistant::Execute() { AiPlayer_Teams[team].GuessEnemyAttackDirections(); }
 
-ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+void TaskFrontierAssistant::RemoveSelf() {
+    parent = nullptr;
+    TaskManager.RemoveTask(*this);
+}

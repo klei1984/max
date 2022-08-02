@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,31 +19,31 @@
  * SOFTWARE.
  */
 
-#include "zone.hpp"
+#include "taskclearzone.hpp"
 
-#include "task.hpp"
-#include "unitinfo.hpp"
+#include "task_manager.hpp"
+#include "units_manager.hpp"
 
-Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), field_30(false) {}
+TaskClearZone::TaskClearZone(unsigned short team, unsigned int flags) : Task(team, nullptr, 0) {}
 
-Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), field_30(false) { Add(bounds); }
+TaskClearZone::~TaskClearZone() {}
 
-Zone::~Zone() {}
+int TaskClearZone::GetMemoryUse() const {}
 
-void Zone::Add(Point* point) { points.Append(point); }
+char* TaskClearZone::WriteStatusLog(char* buffer) const {}
 
-void Zone::Add(Rect* bounds) {
-    Point point;
+unsigned char TaskClearZone::GetType() const {}
 
-    for (point.x = bounds->ulx; point.x < bounds->lrx; ++point.x) {
-        for (point.y = bounds->uly; point.y < bounds->lry; ++point.y) {
-            points.Append(&point);
-        }
-    }
-}
+bool TaskClearZone::Task_vfunc10() {}
 
-void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
+void TaskClearZone::AddReminder() {}
 
-bool Zone::GetField30() const { return field_30; }
+void TaskClearZone::Execute() {}
 
-ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+void TaskClearZone::EndTurn() {}
+
+bool TaskClearZone::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskClearZone::RemoveSelf() {}
+
+void TaskClearZone::Remove(UnitInfo& unit) {}

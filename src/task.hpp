@@ -124,7 +124,7 @@ public:
     virtual bool Task_vfunc1(UnitInfo& unit);
     virtual bool Task_vfunc2(UnitInfo& unit);
     virtual int Task_vfunc3(UnitInfo& unit);
-    virtual int Task_vfunc4() const = 0;
+    virtual int GetMemoryUse() const = 0;
     virtual unsigned short GetFlags() const;
     virtual char* WriteStatusLog(char* buffer) const = 0;
     virtual Rect* GetBounds(Rect* bounds);
@@ -133,7 +133,7 @@ public:
     virtual bool Task_vfunc10();
     virtual void Task_vfunc11(UnitInfo& unit);
     virtual void AddReminder();
-    virtual void Task_vfunc13();
+    virtual void Execute();
     virtual void Task_vfunc14(Task* task);
     virtual void EndTurn();
     virtual bool Task_vfunc16(UnitInfo& unit);
@@ -148,107 +148,6 @@ public:
     virtual void Task_vfunc25(int unknown);
     virtual void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
     virtual void Task_vfunc27(Zone* zone, char mode);
-};
-
-class TaskObtainUnits : public Task {
-    SmartObjectArray<ResourceID> units;
-    Point point;
-    bool field_27;
-    bool field_28;
-
-    bool TaskObtainUnits_sub_464C6(UnitInfo* unit, bool mode);
-
-public:
-    TaskObtainUnits(Task* task, Point point);
-    ~TaskObtainUnits();
-
-    unsigned short CountInstancesOfUnitType(ResourceID unit_type);
-    UnitInfo* TaskObtainUnits_sub_465F4(ResourceID unit_type, bool mode);
-
-    int Task_vfunc4() const;
-    unsigned short GetFlags() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    bool Task_vfunc9();
-    void Task_vfunc11(UnitInfo& unit);
-    void AddReminder();
-    void Task_vfunc13();
-    void EndTurn();
-    void RemoveSelf();
-};
-
-class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
-
-    void TaskGetResource_sub_46DF3();
-    void TaskGetResource_sub_471A4(int unknown, char mode);
-
-protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
-
-public:
-    TaskGetResource(Task* task, UnitInfo& unit);
-    ~TaskGetResource();
-
-    virtual void AddReminder();
-    virtual void EndTurn();
-    virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
-
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
-};
-
-class TaskRendezvous : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    void (TaskGetResource::*function)(int unknown, char mode);
-
-    void TaskRendezvous_sub_54D3B();
-
-public:
-    TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task,
-                   void (TaskGetResource::*function)(int unknown, char mode));
-    ~TaskRendezvous();
-
-    int Task_vfunc4() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    void AddReminder();
-    void Task_vfunc13();
-    void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
-    void RemoveSelf();
-    void Remove(UnitInfo& unit);
-};
-
-class TaskClearZone : public Task {
-    unsigned char state;
-    SmartArray<Zone> zones;
-    ObjectArray<ZoneSquare> zone_squares;
-    ObjectArray<Point> points1;
-    ObjectArray<Point> points2;
-    SmartPointer<UnitInfo> moving_unit;
-    unsigned int flags;
-
-public:
-    TaskClearZone(unsigned short team, unsigned int flags);
-    ~TaskClearZone();
-
-    int Task_vfunc4() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    bool Task_vfunc10();
-    void AddReminder();
-    void Task_vfunc13();
-    void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
-    void RemoveSelf();
-    void Remove(UnitInfo& unit);
 };
 
 #endif /* TASKS_HPP */

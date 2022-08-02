@@ -22,6 +22,8 @@
 #include "ai_player.hpp"
 
 AiPlayer AiPlayer_Teams[4];
+TerrainMap AiPlayer_TerrainMap;
+ThreatMap AiPlayer_ThreatMaps[10];
 
 /// \todo
 
@@ -38,3 +40,7 @@ void AiPlayer::MarkMineMapPoint(Point point) {}
 void AiPlayer::ChangeTasksPendingFlag(bool value) {}
 
 bool AiPlayer::SelectStrategy() {}
+
+void AiPlayer::PlanMinefields() {}
+
+void AiPlayer::GuessEnemyAttackDirections() {}

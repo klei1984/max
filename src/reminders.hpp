@@ -23,7 +23,7 @@
 #define REMINDERS_HPP
 
 #include "smartpointer.hpp"
-#include "tasks.hpp"
+#include "task.hpp"
 
 class Reminder : public SmartObject {
 public:

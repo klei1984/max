@@ -28,7 +28,7 @@
 #include "point.hpp"
 #include "smartlist.hpp"
 #include "smartobjectarray.hpp"
-#include "tasks.hpp"
+#include "task.hpp"
 #include "unitvalues.hpp"
 
 #define UNITINFO_MAX_POPUP_BUTTON_COUNT 10
@@ -189,6 +189,7 @@ public:
     void BuildOrder();
     void MoveInTransitUnitInMapHash(int grid_x, int grid_y);
     void RemoveInTransitUnitFromMapHash();
+    void GetBounds(Rect* bounds);
     bool IsUpgradeAvailable();
     void Redraw();
 

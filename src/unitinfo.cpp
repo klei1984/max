@@ -2000,6 +2000,18 @@ void UnitInfo::BuildOrder() {
     UnitsManager_SetNewOrder(this, ORDER_BUILD, ORDER_STATE_0);
 }
 
+void UnitInfo::GetBounds(Rect* bounds) {
+    bounds->ulx = x / 64;
+    bounds->uly = y / 64;
+    bounds->lrx = bounds->ulx + 1;
+    bounds->lry = bounds->uly + 1;
+
+    if (flags & BUILDING) {
+        ++bounds->lrx;
+        ++bounds->lry;
+    }
+}
+
 bool UnitInfo::IsUpgradeAvailable() {
     /// \todo
 }

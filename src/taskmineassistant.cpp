@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,31 +19,31 @@
  * SOFTWARE.
  */
 
-#include "zone.hpp"
+#include "taskmineassistant.hpp"
 
-#include "task.hpp"
-#include "unitinfo.hpp"
+#include "ai_player.hpp"
+#include "task_manager.hpp"
 
-Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), field_30(false) {}
+TaskMineAssistant::TaskMineAssistant(unsigned short team) : Task(team, nullptr, 0x1A00) {}
 
-Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), field_30(false) { Add(bounds); }
+TaskMineAssistant::~TaskMineAssistant() {}
 
-Zone::~Zone() {}
+int TaskMineAssistant::GetMemoryUse() const { return 4; }
 
-void Zone::Add(Point* point) { points.Append(point); }
+char* TaskMineAssistant::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Mine placing assistant");
 
-void Zone::Add(Rect* bounds) {
-    Point point;
-
-    for (point.x = bounds->ulx; point.x < bounds->lrx; ++point.x) {
-        for (point.y = bounds->uly; point.y < bounds->lry; ++point.y) {
-            points.Append(&point);
-        }
-    }
+    return buffer;
 }
 
-void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
+unsigned char TaskMineAssistant::GetType() const {
+    /// \todo Is this a defect? Could something be broken by fixing this?
+    return TaskType_TaskFrontierAssistant;
+}
 
-bool Zone::GetField30() const { return field_30; }
+void TaskMineAssistant::Execute() { AiPlayer_Teams[team].PlanMinefields(); }
 
-ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+void TaskMineAssistant::RemoveSelf() {
+    parent = nullptr;
+    TaskManager.RemoveTask(*this);
+}

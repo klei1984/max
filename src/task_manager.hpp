@@ -24,7 +24,8 @@
 
 #include "reminders.hpp"
 #include "smartlist.hpp"
-#include "tasks.hpp"
+#include "task.hpp"
+#include "taskobtainunits.hpp"
 #include "unitinfo.hpp"
 
 int Taskmanager_sub_45F65(int distance_x, int distance_y);
