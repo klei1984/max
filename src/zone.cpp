@@ -46,4 +46,8 @@ void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
 
 bool Zone::GetField30() const { return field_30; }
 
+void Zone::SetField30(bool value) { field_30 = value; }
+
 ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+
+ZoneSquare::ZoneSquare(const ZoneSquare& other) : point(other.point), unit(other.unit) {}

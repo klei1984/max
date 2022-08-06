@@ -22,7 +22,17 @@
 #ifndef TASKCLEARZONE_HPP
 #define TASKCLEARZONE_HPP
 
+#include "pathrequest.hpp"
+#include "paths.hpp"
 #include "task.hpp"
+
+enum {
+    CLEARZONE_STATE_WAITING,
+    CLEARZONE_STATE_EXAMINING_ZONES,
+    CLEARZONE_STATE_SEARCHING_MAP,
+    CLEARZONE_STATE_WAITING_FOR_PATH,
+    CLEARZONE_STATE_MOVING_UNIT,
+};
 
 class TaskClearZone : public Task {
     unsigned char state;
@@ -31,7 +41,10 @@ class TaskClearZone : public Task {
     ObjectArray<Point> points1;
     ObjectArray<Point> points2;
     SmartPointer<UnitInfo> moving_unit;
-    unsigned int flags;
+    unsigned int unit_flags;
+
+    static void PathFindResultCallback(Task* task, PathRequest* request, Point point, UnitPath* path);
+    static void PathFindCancelCallback(Task* task, PathRequest* request);
 
 public:
     TaskClearZone(unsigned short team, unsigned int flags);
@@ -47,6 +60,8 @@ public:
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
     void Remove(UnitInfo& unit);
+
+    void AddZone(Zone* zone);
 };
 
 #endif /* TASKCLEARZONE_HPP */

@@ -48,3 +48,7 @@ void AiPlayer::GuessEnemyAttackDirections() {}
 bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) {}
 
 bool AiPlayer::IsUpgradeNeeded(UnitInfo* unit) {}
+
+void AiPlayer::ClearZone(Zone* zone) {}
+
+unsigned char** AiPlayer::GetInfoMap() {}

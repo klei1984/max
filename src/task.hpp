@@ -108,7 +108,7 @@ public:
     Task(const Task& other);
     virtual ~Task();
 
-    void RemindTurnEnd(bool priority);
+    void RemindTurnEnd(bool priority = false);
 
     void RemindTurnStart(bool priority);
 

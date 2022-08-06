@@ -40,6 +40,8 @@ public:
     void GuessEnemyAttackDirections();
     bool CreateBuilding(ResourceID unit_type, Point position, Task* task);
     bool IsUpgradeNeeded(UnitInfo* unit);
+    void ClearZone(Zone* zone);
+    unsigned char** GetInfoMap();
 };
 
 extern AiPlayer AiPlayer_Teams[4];

@@ -21,29 +21,108 @@
 
 #include "taskclearzone.hpp"
 
+#include "ai_player.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 
-TaskClearZone::TaskClearZone(unsigned short team, unsigned int flags) : Task(team, nullptr, 0) {}
+void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Point point, UnitPath* path) {}
+
+void TaskClearZone::PathFindCancelCallback(Task* task, PathRequest* request) {}
+
+TaskClearZone::TaskClearZone(unsigned short team, unsigned int flags_)
+    : Task(team, nullptr, 0), unit_flags(flags_), state(CLEARZONE_STATE_WAITING) {}
 
 TaskClearZone::~TaskClearZone() {}
 
-int TaskClearZone::GetMemoryUse() const {}
+int TaskClearZone::GetMemoryUse() const {
+    return 4 + zones.GetCount() * (sizeof(Zone) + 4) + zone_squares.GetCount() * sizeof(ZoneSquare) +
+           (points1.GetCount() + points2.GetCount()) * sizeof(Point);
+}
 
-char* TaskClearZone::WriteStatusLog(char* buffer) const {}
+char* TaskClearZone::WriteStatusLog(char* buffer) const {
+    if (unit_flags == MOBILE_AIR_UNIT) {
+        strcpy(buffer, "Clear air zones: ");
 
-unsigned char TaskClearZone::GetType() const {}
+    } else {
+        strcpy(buffer, "Clear land / sea zones: ");
+    }
+
+    switch (state) {
+        case CLEARZONE_STATE_WAITING: {
+            strcat(buffer, "waiting");
+        } break;
+
+        case CLEARZONE_STATE_EXAMINING_ZONES: {
+            strcat(buffer, "examining zones");
+        } break;
+
+        case CLEARZONE_STATE_SEARCHING_MAP: {
+            strcat(buffer, "searching map");
+        } break;
+
+        case CLEARZONE_STATE_WAITING_FOR_PATH: {
+            strcat(buffer, "waiting for path");
+        } break;
+
+        case CLEARZONE_STATE_MOVING_UNIT: {
+            strcat(buffer, "moving ");
+            strcat(buffer, UnitsManager_BaseUnits[moving_unit->unit_type].singular_name);
+        } break;
+    }
+
+    return buffer;
+}
+
+unsigned char TaskClearZone::GetType() const { return TaskType_TaskClearZone; }
 
 bool TaskClearZone::Task_vfunc10() {}
 
-void TaskClearZone::AddReminder() {}
+void TaskClearZone::AddReminder() { RemindTurnEnd(); }
 
-void TaskClearZone::Execute() {}
+void TaskClearZone::Execute() { EndTurn(); }
 
 void TaskClearZone::EndTurn() {}
 
-bool TaskClearZone::Task_vfunc17(UnitInfo& unit) {}
+bool TaskClearZone::Task_vfunc17(UnitInfo& unit) {
+    if (moving_unit == unit) {
+        EndTurn();
+    }
 
-void TaskClearZone::RemoveSelf() {}
+    return true;
+}
 
-void TaskClearZone::Remove(UnitInfo& unit) {}
+void TaskClearZone::RemoveSelf() {
+    zones.Release();
+
+    if (moving_unit != nullptr) {
+        moving_unit->RemoveTask(this);
+        moving_unit = nullptr;
+    }
+
+    parent = nullptr;
+
+    TaskManager.RemoveTask(*this);
+}
+
+void TaskClearZone::Remove(UnitInfo& unit) {
+    if (moving_unit == unit) {
+        moving_unit = nullptr;
+        state = CLEARZONE_STATE_WAITING;
+    }
+}
+
+void TaskClearZone::AddZone(Zone* zone) {
+    unsigned char** map;
+
+    map = AiPlayer_Teams[team].GetInfoMap();
+
+    zones.Insert(*zone);
+
+    if (map) {
+        for (int i = 0; i < zone->points.GetCount(); ++i) {
+            map[zone->points[i]->x][zone->points[i]->y] |= 0x08;
+        }
+    }
+
+    RemindTurnEnd();
+}

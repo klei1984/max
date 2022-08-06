@@ -33,7 +33,6 @@ extern "C" {
 }
 
 class Zone : public SmartObject {
-    ObjectArray<Point> points;
     SmartPointer<UnitInfo> unit;
     SmartPointer<Task> task;
     bool field_30;
@@ -47,6 +46,9 @@ public:
     void Add(Rect* bounds);
     void CallTaskVfunc27(bool mode);
     bool GetField30() const;
+    void SetField30(bool value);
+
+    ObjectArray<Point> points;
 };
 
 struct ZoneSquare {
@@ -54,6 +56,7 @@ struct ZoneSquare {
     UnitInfo* unit;
 
     ZoneSquare(int grid_x, int grid_y, UnitInfo* unit);
+    ZoneSquare(const ZoneSquare& other);
 };
 
 #endif /* ZONE_HPP */
