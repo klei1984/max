@@ -103,6 +103,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrendesvous.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrepair.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskupgrade.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitevents.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task_manager.cpp

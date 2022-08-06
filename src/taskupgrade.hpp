@@ -19,31 +19,24 @@
  * SOFTWARE.
  */
 
-#ifndef AI_PLAYER_HPP
-#define AI_PLAYER_HPP
+#ifndef TASKUPGRADE_HPP
+#define TASKUPGRADE_HPP
 
-#include "terrainmap.hpp"
-#include "threatmap.hpp"
-#include "unitinfo.hpp"
+#include "taskrepair.hpp"
 
-class AiPlayer {
-public:
-    AiPlayer();
-    ~AiPlayer();
+class TaskUpgrade : public TaskRepair {
+    TaskUpgrade(UnitInfo* unit);
+    ~TaskUpgrade();
 
-    void SetInfoMapPoint(Point point);
-    void UpdateMineMap(Point point);
-    void MarkMineMapPoint(Point point);
-    void ChangeTasksPendingFlag(bool value);
-    bool SelectStrategy();
-    void PlanMinefields();
-    void GuessEnemyAttackDirections();
-    bool CreateBuilding(ResourceID unit_type, Point position, Task* task);
-    bool IsUpgradeNeeded(UnitInfo* unit);
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+
+    void SelectOperator();
+    int GetTurnsToComplete();
+    bool IsInPerfectCondition();
+    void CreateUnit();
+    void IssueOrder();
 };
 
-extern AiPlayer AiPlayer_Teams[4];
-extern TerrainMap AiPlayer_TerrainMap;
-extern ThreatMap AiPlayer_ThreatMaps[10];
-
-#endif /* AI_PLAYER_HPP */
+#endif /* TASKUPGRADE_HPP */
