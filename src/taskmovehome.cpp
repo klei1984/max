@@ -19,35 +19,33 @@
  * SOFTWARE.
  */
 
-#ifndef TASKGETRESOURCE_HPP
-#define TASKGETRESOURCE_HPP
+#include "taskmovehome.hpp"
 
-#include "task.hpp"
+#include "task_manager.hpp"
 
-class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
+TaskMoveHome::TaskMoveHome(UnitInfo* unit_, Task* task) : Task(unit->team, task, task->GetFlags()) { unit = unit_; }
 
-    void TaskGetResource_sub_46DF3();
-    static void RendesvousResultCallback(Task* task, int unknown, char mode);
+TaskMoveHome::~TaskMoveHome() {}
 
-protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
+int TaskMoveHome::GetMemoryUse() const { return 4; }
 
-public:
-    TaskGetResource(Task* task, UnitInfo& unit);
-    ~TaskGetResource();
+char* TaskMoveHome::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Move back to complex");
 
-    virtual void AddReminder();
-    virtual void EndTurn();
-    virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
+    return buffer;
+}
 
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
-};
+unsigned char TaskMoveHome::GetType() const { return TaskType_TaskMoveHome; }
 
-#endif /* TASKGETRESOURCE_HPP */
+void TaskMoveHome::AddReminder() {
+    unit->PushFrontTask1List(this);
+    Task_RemindMoveFinished(&*unit);
+}
+
+void TaskMoveHome::EndTurn() {}
+
+bool TaskMoveHome::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskMoveHome::RemoveSelf() {}
+
+void TaskMoveHome::Remove(UnitInfo& unit) {}

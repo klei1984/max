@@ -83,6 +83,10 @@ class UnitInfo;
 
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
 bool Task_IsReadyToTakeOrders(UnitInfo* unit);
+void Task_RemoveMovementTasks(UnitInfo* unit);
+
+bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level);
+bool Task_sub_43671(Task* task, UnitInfo* unit, int caution_level);
 
 class Task : public SmartObject {
     static unsigned short task_id;
@@ -118,6 +122,12 @@ public:
     void SetField8(bool value);
 
     unsigned short GetTeam() const;
+
+    Task* GetParent();
+    void SetParent(Task* task);
+
+    void SetFlags(unsigned short flags);
+
     short Task_sub_42BC4(unsigned short task_flags);
     Point Task_sub_42D3D();
 

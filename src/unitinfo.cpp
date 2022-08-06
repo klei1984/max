@@ -1257,7 +1257,7 @@ bool UnitInfo::IsDetectedByTeam(unsigned short team) const { return (spotted_by_
 
 Complex* UnitInfo::GetComplex() const { return &*complex; }
 
-bool UnitInfo::UnitInfo_sub_430A2(short grid_x, short grid_y) {
+bool UnitInfo::IsAdjacent(short grid_x, short grid_y) {
     /// \todo Implement method
     return false;
 }
@@ -2751,3 +2751,20 @@ int UnitInfo::GetNormalRateBuildCost() const {
 }
 
 SmartObjectArray<ResourceID> UnitInfo::GetBuildList() { return build_list; }
+
+void UnitInfo::RemoveTask(Task* task, bool mode) {
+    /// \todo
+}
+
+bool UnitInfo::IsReadyForOrders(Task* task) {
+    bool result;
+
+    if (Task_IsReadyToTakeOrders(this) && GetTask1ListFront() == task) {
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}

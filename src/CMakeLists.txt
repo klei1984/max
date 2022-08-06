@@ -89,12 +89,18 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskactivate.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskcreate.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskcreateunit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontierassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskgetmaterials.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmineassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskmovehome.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskobtainunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrendesvous.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskrepair.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitevents.cpp

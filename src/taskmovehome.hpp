@@ -19,35 +19,26 @@
  * SOFTWARE.
  */
 
-#ifndef TASKGETRESOURCE_HPP
-#define TASKGETRESOURCE_HPP
+#ifndef TASKMOVEHOME_HPP
+#define TASKMOVEHOME_HPP
 
 #include "task.hpp"
 
-class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
-
-    void TaskGetResource_sub_46DF3();
-    static void RendesvousResultCallback(Task* task, int unknown, char mode);
-
-protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
+class TaskMoveHome : public Task {
+    SmartPointer<UnitInfo> unit;
 
 public:
-    TaskGetResource(Task* task, UnitInfo& unit);
-    ~TaskGetResource();
+    TaskMoveHome(UnitInfo* unit, Task* task);
+    ~TaskMoveHome();
 
-    virtual void AddReminder();
-    virtual void EndTurn();
-    virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
-
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void AddReminder();
+    void EndTurn();
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void Remove(UnitInfo& unit);
 };
 
-#endif /* TASKGETRESOURCE_HPP */
+#endif /* TASKMOVEHOME_HPP */

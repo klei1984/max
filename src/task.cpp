@@ -40,6 +40,10 @@ bool Task_IsReadyToTakeOrders(UnitInfo* unit) {
     /// \todo
 }
 
+void Task_RemoveMovementTasks(UnitInfo* unit) {
+    /// \todo
+}
+
 Task::Task(unsigned short team, Task* parent, unsigned short flags)
     : id(++task_id), team(team), parent(parent), flags(flags), field_6(true), field_7(false), field_8(false) {
     ++task_count;
@@ -84,6 +88,12 @@ void Task::SetField8(bool value) { field_8 = value; }
 
 unsigned short Task::GetTeam() const { return team; }
 
+Task* Task::GetParent() { return &*parent; }
+
+void Task::SetParent(Task* task) { parent = task; }
+
+void Task::SetFlags(unsigned short flags_) { flags = flags_; }
+
 short Task::Task_sub_42BC4(unsigned short task_flags) {
     int result;
 
@@ -106,6 +116,23 @@ Point Task::Task_sub_42D3D() {
     GetBounds(&bounds);
 
     return Point(bounds.ulx, bounds.uly);
+}
+
+bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {}
+
+bool Task_sub_43671(Task* task, UnitInfo* unit, int caution_level) {
+    bool result;
+
+    if (task->GetField6() && Task_RetreatIfNecessary(task, unit, caution_level)) {
+        task->SetField6(false);
+
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 bool Task::Task_vfunc1(UnitInfo& unit) {

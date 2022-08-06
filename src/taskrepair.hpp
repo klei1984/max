@@ -19,35 +19,48 @@
  * SOFTWARE.
  */
 
-#ifndef TASKGETRESOURCE_HPP
-#define TASKGETRESOURCE_HPP
+#ifndef TASKREPAIR_HPP
+#define TASKREPAIR_HPP
 
 #include "task.hpp"
 
-class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
+class TaskRepair : public Task {
+    SmartPointer<UnitInfo> unit_to_repair;
+    SmartPointer<UnitInfo> repair_unit;
 
-    void TaskGetResource_sub_46DF3();
-    static void RendesvousResultCallback(Task* task, int unknown, char mode);
+    void ChooseUnitToRepair();
+    void DoRepairs();
+    UnitInfo* SelectRepairShop();
+    void RemoveMovementTasks();
+
+    static void RendesvousResultCallback(Task* task, int unknown, char result);
 
 protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
+    ResourceID GetRepairShopType();
+    void CreateUnit(ResourceID unit_type);
+    void TaskRepair_sub_6CD68();
 
 public:
-    TaskGetResource(Task* task, UnitInfo& unit);
-    ~TaskGetResource();
+    TaskRepair(UnitInfo* unit);
+    ~TaskRepair();
 
-    virtual void AddReminder();
-    virtual void EndTurn();
-    virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
+    bool Task_vfunc1(UnitInfo& unit);
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    Rect* GetBounds(Rect* bounds);
+    unsigned char GetType() const;
+    void AddReminder();
+    void Execute();
+    void EndTurn();
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void Remove(UnitInfo& unit);
 
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
+    virtual void SelectRepairUnit();
+    virtual int GetTurnsToRepair();
+    virtual bool IsInPerfectCondition();
+    virtual void TaskRepair_vfunc31();
+    virtual void IssueOrder();
 };
 
-#endif /* TASKGETRESOURCE_HPP */
+#endif /* TASKREPAIR_HPP */

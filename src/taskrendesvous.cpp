@@ -26,8 +26,8 @@
 #include "units_manager.hpp"
 
 TaskRendezvous::TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task,
-                               void (TaskGetResource::*function)(int unknown, char mode))
-    : Task(task->GetTeam(), task, task->GetFlags()), unit1(unit1), unit2(unit2), function(function) {}
+                               void (*callback_)(Task* task, int unknown, char mode))
+    : Task(task->GetTeam(), task, task->GetFlags()), unit1(unit1), unit2(unit2), callback(callback_) {}
 
 TaskRendezvous::~TaskRendezvous() {}
 

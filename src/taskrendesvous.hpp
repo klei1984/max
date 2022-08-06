@@ -23,18 +23,16 @@
 #define TASKRENDESVOUS_HPP
 
 #include "task.hpp"
-#include "taskgetresource.hpp"
 
 class TaskRendezvous : public Task {
     SmartPointer<UnitInfo> unit1;
     SmartPointer<UnitInfo> unit2;
-    void (TaskGetResource::*function)(int unknown, char mode);
+    void (*callback)(Task* task, int unknown, char mode);
 
     void TaskRendezvous_sub_54D3B();
 
 public:
-    TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task,
-                   void (TaskGetResource::*function)(int unknown, char mode));
+    TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task, void (*callback)(Task* task, int unknown, char mode));
     ~TaskRendezvous();
 
     int GetMemoryUse() const;

@@ -19,35 +19,32 @@
  * SOFTWARE.
  */
 
-#ifndef TASKGETRESOURCE_HPP
-#define TASKGETRESOURCE_HPP
+#ifndef TASKACTIVATE_HPP
+#define TASKACTIVATE_HPP
 
 #include "task.hpp"
 
-class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
-
-    void TaskGetResource_sub_46DF3();
-    static void RendesvousResultCallback(Task* task, int unknown, char mode);
-
-protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
+class TaskActivate : public Task {
+    SmartPointer<UnitInfo> unit;
+    SmartPointer<UnitInfo> parent;
+    SmartPointer<Zone> zone;
 
 public:
-    TaskGetResource(Task* task, UnitInfo& unit);
-    ~TaskGetResource();
+    TaskActivate(UnitInfo* unit, Task* task, UnitInfo* parent);
+    ~TaskActivate();
 
-    virtual void AddReminder();
-    virtual void EndTurn();
-    virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
-
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
+    bool Task_vfunc1(UnitInfo& unit);
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    Rect* GetBounds(Rect* bounds);
+    unsigned char GetType() const;
+    void Task_vfunc11(UnitInfo& unit);
+    void AddReminder();
+    void EndTurn();
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void Remove(UnitInfo& unit);
+    void Task_vfunc27(Zone* zone, char mode);
 };
 
-#endif /* TASKGETRESOURCE_HPP */
+#endif /* TASKACTIVATE_HPP */

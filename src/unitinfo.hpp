@@ -128,12 +128,13 @@ public:
     void PushFrontTask1List(Task* task);
     void ClearTask1List();
     Task* GetTask1ListFront() const;
+    bool IsReadyForOrders(Task* task);
     void SetParent(UnitInfo* parent);
     void SetBaseValues(UnitValues* unit_values);
     UnitValues* GetBaseValues() const;
     bool IsDetectedByTeam(unsigned short team) const;
     Complex* GetComplex() const;
-    bool UnitInfo_sub_430A2(short grid_x, short grid_y);
+    bool IsAdjacent(short grid_x, short grid_y);
     SmartPointer<UnitInfo> MakeCopy();
     void GetName(char* text) const;
     void GetDisplayName(char* text) const;
@@ -159,6 +160,7 @@ public:
     int GetNormalRateBuildCost() const;
     SmartObjectArray<ResourceID> GetBuildList();
     ResourceID GetConstructedUnitType() const;
+    void RemoveTask(Task* task, bool mode = true);
     bool IsBridgeElevated() const;
     bool IsInGroupZone(UnitInfoGroup* group);
     void RenderShadow(Point point, int image_id, Rect* bounds);

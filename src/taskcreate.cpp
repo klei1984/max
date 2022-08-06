@@ -19,35 +19,17 @@
  * SOFTWARE.
  */
 
-#ifndef TASKGETRESOURCE_HPP
-#define TASKGETRESOURCE_HPP
+#include "taskcreate.hpp"
 
-#include "task.hpp"
+#include "task_manager.hpp"
 
-class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
+TaskCreate::TaskCreate(Task* task, unsigned short flags, ResourceID unit_type_)
+    : Task(task->GetTeam(), task, flags), unit_type(unit_type_) {}
 
-    void TaskGetResource_sub_46DF3();
-    static void RendesvousResultCallback(Task* task, int unknown, char mode);
+TaskCreate::~TaskCreate() {}
 
-protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
+void TaskCreate::RemoveSelf() {
+    /// \todo
+}
 
-public:
-    TaskGetResource(Task* task, UnitInfo& unit);
-    ~TaskGetResource();
-
-    virtual void AddReminder();
-    virtual void EndTurn();
-    virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
-
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
-};
-
-#endif /* TASKGETRESOURCE_HPP */
+ResourceID TaskCreate::GetUnitType() const { return unit_type; }

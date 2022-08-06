@@ -58,11 +58,11 @@ void TaskGetResource::TaskGetResource_sub_46DF3() {
     }
 }
 
-void TaskGetResource::TaskGetResource_sub_471A4(int unknown, char mode) {
+void TaskGetResource::RendesvousResultCallback(Task* task, int unknown, char mode) {
     if (mode == 2) {
-        TaskGetResource_sub_471F8();
+        dynamic_cast<TaskGetResource*>(task)->TaskGetResource_sub_471F8();
     } else if (mode == 0) {
-        EndTurn();
+        dynamic_cast<TaskGetResource*>(task)->EndTurn();
     }
 }
 
@@ -124,7 +124,7 @@ void TaskGetResource::EndTurn() {
         }
 
         if (unit3 != nullptr && unit3->GetTask1ListFront() == this) {
-            if (unit2->UnitInfo_sub_430A2(unit1->grid_x, unit1->grid_y)) {
+            if (unit2->IsAdjacent(unit1->grid_x, unit1->grid_y)) {
                 /// \todo Implement missing stuff
                 //                if (ini_setting_play_mode || team == byte_1737C8_team) {
                 //                    if (ini_setting_play_mode != 2) {
@@ -133,7 +133,7 @@ void TaskGetResource::EndTurn() {
                 //                }
             } else {
                 SmartPointer<TaskRendezvous> task = new (std::nothrow)
-                    TaskRendezvous(&*unit1, &*unit2, this, &TaskGetResource::TaskGetResource_sub_471A4);
+                    TaskRendezvous(&*unit1, &*unit2, this, &TaskGetResource::RendesvousResultCallback);
 
                 TaskManager.AddTask(*task);
             }

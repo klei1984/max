@@ -32,7 +32,6 @@ int Taskmanager_sub_45F65(int distance_x, int distance_y);
 int TaskManager_sub_4601A(UnitInfo* unit1, UnitInfo* unit2);
 
 class TaskManager {
-    SmartList<Task> tasklist;
     SmartList<TaskObtainUnits> taskobtainunitslist;
     SmartList<Reminder> reminderlist_0;
     SmartList<Reminder> reminderlist_1;
@@ -51,6 +50,8 @@ public:
     void TaskManager_sub_449D0(ResourceID unit_type, unsigned short team, Point point, Task* task);
     void TaskManager_sub_44A73(ResourceID unit_type, unsigned short team, int requested_amount, Task* task,
                                Point point);
+
+    SmartList<Task> tasklist;
 };
 
 extern class TaskManager TaskManager;

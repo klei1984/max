@@ -19,35 +19,41 @@
  * SOFTWARE.
  */
 
-#ifndef TASKGETRESOURCE_HPP
-#define TASKGETRESOURCE_HPP
+#include "taskactivate.hpp"
 
-#include "task.hpp"
+#include "task_manager.hpp"
 
-class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
+TaskActivate::TaskActivate(UnitInfo* unit_, Task* task, UnitInfo* parent_) : Task(unit_->team, task, task->GetFlags()) {
+    unit = unit_;
+    parent = parent_;
+}
 
-    void TaskGetResource_sub_46DF3();
-    static void RendesvousResultCallback(Task* task, int unknown, char mode);
+TaskActivate::~TaskActivate() {}
 
-protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
+bool TaskActivate::Task_vfunc1(UnitInfo& unit_) { return unit != unit_; }
 
-public:
-    TaskGetResource(Task* task, UnitInfo& unit);
-    ~TaskGetResource();
+int TaskActivate::GetMemoryUse() const { return 4; }
 
-    virtual void AddReminder();
-    virtual void EndTurn();
-    virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
+char* TaskActivate::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Activate unit");
 
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
-};
+    return buffer;
+}
 
-#endif /* TASKGETRESOURCE_HPP */
+Rect* TaskActivate::GetBounds(Rect* bounds) {}
+
+unsigned char TaskActivate::GetType() const { return TaskType_TaskActivate; }
+
+void TaskActivate::Task_vfunc11(UnitInfo& unit) {}
+
+void TaskActivate::AddReminder() {}
+
+void TaskActivate::EndTurn() {}
+
+bool TaskActivate::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskActivate::RemoveSelf() {}
+
+void TaskActivate::Remove(UnitInfo& unit) {}
+
+void TaskActivate::Task_vfunc27(Zone* zone, char mode) {}

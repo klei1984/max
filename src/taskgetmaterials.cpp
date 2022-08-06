@@ -19,35 +19,29 @@
  * SOFTWARE.
  */
 
-#ifndef TASKGETRESOURCE_HPP
-#define TASKGETRESOURCE_HPP
+#include "taskgetmaterials.hpp"
 
-#include "task.hpp"
+TaskGetMaterials::TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short turns_to_complete_)
+    : TaskGetResource(task, *unit), turns_to_complete(turns_to_complete_) {}
 
-class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
+TaskGetMaterials::~TaskGetMaterials() {}
 
-    void TaskGetResource_sub_46DF3();
-    static void RendesvousResultCallback(Task* task, int unknown, char mode);
+int TaskGetMaterials::GetMemoryUse() const { return 4; }
 
-protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
+unsigned short TaskGetMaterials::GetFlags() const {}
 
-public:
-    TaskGetResource(Task* task, UnitInfo& unit);
-    ~TaskGetResource();
+char* TaskGetMaterials::WriteStatusLog(char* buffer) const {}
 
-    virtual void AddReminder();
-    virtual void EndTurn();
-    virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
+unsigned char TaskGetMaterials::GetType() const { return TaskType_TaskGetMaterials; }
 
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
-};
+void TaskGetMaterials::EndTurn() {}
 
-#endif /* TASKGETRESOURCE_HPP */
+void TaskGetMaterials::Remove(UnitInfo& unit) {}
+
+void TaskGetMaterials::Task_vfunc22(UnitInfo& unit) {}
+
+void TaskGetMaterials::Task_vfunc28() {}
+
+UnitInfo* TaskGetMaterials::Task_vfunc29() {}
+
+void TaskGetMaterials::Task_vfunc30() {}

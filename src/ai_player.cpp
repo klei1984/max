@@ -44,3 +44,5 @@ bool AiPlayer::SelectStrategy() {}
 void AiPlayer::PlanMinefields() {}
 
 void AiPlayer::GuessEnemyAttackDirections() {}
+
+bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) {}

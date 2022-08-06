@@ -38,6 +38,7 @@ public:
     bool SelectStrategy();
     void PlanMinefields();
     void GuessEnemyAttackDirections();
+    bool CreateBuilding(ResourceID unit_type, Point position, Task* task);
 };
 
 extern AiPlayer AiPlayer_Teams[4];
