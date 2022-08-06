@@ -39,60 +39,60 @@ void TaskRepair_RendesvousResultCallback() {}
 void TaskRepair::ChooseUnitToRepair() {
     SmartPointer<UnitInfo> unit;
 
-    if (unit_to_repair != nullptr) {
-        repair_unit = nullptr;
+    if (target_unit != nullptr) {
+        operator_unit = nullptr;
 
         unit = SelectRepairShop();
 
-        SelectRepairUnit();
+        SelectOperator();
 
         if (unit != nullptr) {
-            if (repair_unit != nullptr) {
+            if (operator_unit != nullptr) {
                 int distance1;
                 int distance2;
 
-                distance1 = TaskManager_sub_4601A(&*unit, &*unit_to_repair);
-                distance2 = TaskManager_sub_4601A(&*repair_unit, &*unit_to_repair);
+                distance1 = TaskManager_sub_4601A(&*unit, &*target_unit);
+                distance2 = TaskManager_sub_4601A(&*operator_unit, &*target_unit);
 
                 if (distance2 / 2 > distance1) {
-                    repair_unit = unit;
+                    operator_unit = unit;
                 }
 
             } else {
-                repair_unit = unit;
+                operator_unit = unit;
             }
         }
 
-        if (repair_unit != nullptr) {
-            repair_unit->PushFrontTask1List(this);
+        if (operator_unit != nullptr) {
+            operator_unit->PushFrontTask1List(this);
         }
     }
 }
 
 void TaskRepair::DoRepairs() {
-    if (unit_to_repair->GetTask1ListFront() == this ||
-        !(repair_unit->flags & (MOBILE_AIR_UNIT || MOBILE_SEA_UNIT || MOBILE_LAND_UNIT))) {
+    if (target_unit->GetTask1ListFront() == this ||
+        !(operator_unit->flags & (MOBILE_AIR_UNIT || MOBILE_SEA_UNIT || MOBILE_LAND_UNIT))) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
             (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
-            if (repair_unit->flags & STATIONARY) {
+            if (operator_unit->flags & STATIONARY) {
                 Cargo materials;
                 Cargo capacity;
 
-                repair_unit->GetComplex()->GetCargoInfo(materials, capacity);
+                operator_unit->GetComplex()->GetCargoInfo(materials, capacity);
 
                 if (materials.raw > 0) {
-                    if (Task_IsReadyToTakeOrders(&*repair_unit)) {
+                    if (Task_IsReadyToTakeOrders(&*operator_unit)) {
                         IssueOrder();
                     }
                 }
 
-            } else if (repair_unit->storage > 0) {
-                if (Task_IsReadyToTakeOrders(&*repair_unit)) {
+            } else if (operator_unit->storage > 0) {
+                if (Task_IsReadyToTakeOrders(&*operator_unit)) {
                     IssueOrder();
                 }
 
-            } else if (repair_unit->GetTask1ListFront() == this) {
-                SmartPointer<Task> task(new (std::nothrow) TaskGetMaterials(this, &*repair_unit, GetTurnsToRepair()));
+            } else if (operator_unit->GetTask1ListFront() == this) {
+                SmartPointer<Task> task(new (std::nothrow) TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
 
                 TaskManager.AddTask(*task);
             }
@@ -115,7 +115,7 @@ UnitInfo* TaskRepair::SelectRepairShop() {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).team == team && (*it).unit_type == repair_shop) {
-                distance = TaskManager_sub_4601A(&*it, &*unit_to_repair);
+                distance = TaskManager_sub_4601A(&*it, &*target_unit);
 
                 if (result == nullptr || distance < shortest_distance) {
                     result = &*it;
@@ -129,10 +129,10 @@ UnitInfo* TaskRepair::SelectRepairShop() {
 }
 
 void TaskRepair::RemoveMovementTasks() {
-    if (repair_unit != nullptr) {
-        repair_unit->RemoveTask(this);
-        Task_RemoveMovementTasks(&*repair_unit);
-        repair_unit = nullptr;
+    if (operator_unit != nullptr) {
+        operator_unit->RemoveTask(this);
+        Task_RemoveMovementTasks(&*operator_unit);
+        operator_unit = nullptr;
     }
 }
 
@@ -148,17 +148,17 @@ void TaskRepair::RendesvousResultCallback(Task* task, int unknown, char result) 
 ResourceID TaskRepair::GetRepairShopType() {
     ResourceID result;
 
-    if (unit_to_repair->unit_type == COMMANDO || unit_to_repair->unit_type == INFANTRY) {
+    if (target_unit->unit_type == COMMANDO || target_unit->unit_type == INFANTRY) {
         result = BARRACKS;
 
-    } else if (unit_to_repair->flags & MOBILE_LAND_UNIT) {
+    } else if (target_unit->flags & MOBILE_LAND_UNIT) {
         result = DEPOT;
     }
 
-    else if (unit_to_repair->flags & MOBILE_AIR_UNIT) {
+    else if (target_unit->flags & MOBILE_AIR_UNIT) {
         result = HANGAR;
 
-    } else if (unit_to_repair->flags & MOBILE_SEA_UNIT) {
+    } else if (target_unit->flags & MOBILE_SEA_UNIT) {
         result = DOCK;
 
     } else {
@@ -168,7 +168,7 @@ ResourceID TaskRepair::GetRepairShopType() {
     return result;
 }
 
-void TaskRepair::CreateUnit(ResourceID unit_type) {
+void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
     SmartList<UnitInfo>* unit_list;
 
     if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
@@ -194,28 +194,28 @@ void TaskRepair::CreateUnit(ResourceID unit_type) {
     }
 
     if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
-        AiPlayer_Teams[team].CreateBuilding(unit_type, Point(unit_to_repair->grid_x, unit_to_repair->grid_y), this);
+        AiPlayer_Teams[team].CreateBuilding(unit_type, Point(target_unit->grid_x, target_unit->grid_y), this);
 
     } else {
         SmartPointer<Task> task(
-            new (std::nothrow) TaskCreateUnit(unit_type, this, Point(unit_to_repair->grid_x, unit_to_repair->grid_y)));
+            new (std::nothrow) TaskCreateUnit(unit_type, this, Point(target_unit->grid_x, target_unit->grid_y)));
 
         TaskManager.AddTask(*task);
     }
 }
 
-TaskRepair::TaskRepair(UnitInfo* unit) : Task(unit->team, nullptr, 0x1100), unit_to_repair(unit) {}
+TaskRepair::TaskRepair(UnitInfo* unit) : Task(unit->team, nullptr, 0x1100), target_unit(unit) {}
 
 TaskRepair::~TaskRepair() {}
 
-bool TaskRepair::Task_vfunc1(UnitInfo& unit) { return unit_to_repair != unit; }
+bool TaskRepair::Task_vfunc1(UnitInfo& unit) { return target_unit != unit; }
 
 int TaskRepair::GetMemoryUse() const { return 4; }
 
 char* TaskRepair::WriteStatusLog(char* buffer) const {
-    if (unit_to_repair != nullptr) {
+    if (target_unit != nullptr) {
         strcpy(buffer, "Repair ");
-        strcat(buffer, UnitsManager_BaseUnits[unit_to_repair->unit_type].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[target_unit->unit_type].singular_name);
 
     } else {
         strcpy(buffer, "Finished repair task.");
@@ -225,7 +225,7 @@ char* TaskRepair::WriteStatusLog(char* buffer) const {
 }
 
 Rect* TaskRepair::GetBounds(Rect* bounds) {
-    unit_to_repair->GetBounds(bounds);
+    target_unit->GetBounds(bounds);
 
     return bounds;
 }
@@ -233,29 +233,29 @@ Rect* TaskRepair::GetBounds(Rect* bounds) {
 unsigned char TaskRepair::GetType() const { return TaskType_TaskRepair; }
 
 void TaskRepair::AddReminder() {
-    unit_to_repair->PushFrontTask1List(this);
-    TaskRepair_vfunc31();
+    target_unit->PushFrontTask1List(this);
+    CreateUnit();
     ChooseUnitToRepair();
-    Task_RemindMoveFinished(&*unit_to_repair);
+    Task_RemindMoveFinished(&*target_unit);
 }
 
 void TaskRepair::Execute() { EndTurn(); }
 
 void TaskRepair::EndTurn() {
-    if (unit_to_repair != nullptr && unit_to_repair->GetTask1ListFront() == this) {
-        Task_vfunc17(*unit_to_repair);
+    if (target_unit != nullptr && target_unit->GetTask1ListFront() == this) {
+        Task_vfunc17(*target_unit);
     }
 }
 
 bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
     bool result;
 
-    if (unit_to_repair == unit && unit_to_repair->GetTask1ListFront() == this) {
+    if (target_unit == unit && target_unit->GetTask1ListFront() == this) {
         if (IsInPerfectCondition()) {
             SmartPointer<Task> task;
 
-            if (unit_to_repair->state == ORDER_STATE_3) {
-                task = new (std::nothrow) TaskActivate(&*unit_to_repair, this, unit_to_repair->GetParent());
+            if (target_unit->state == ORDER_STATE_3) {
+                task = new (std::nothrow) TaskActivate(&*target_unit, this, target_unit->GetParent());
 
                 TaskManager.AddTask(*task);
 
@@ -264,8 +264,8 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
 
                 RemoveMovementTasks();
 
-                unit_to_repair->RemoveTask(this);
-                unit_to_repair = nullptr;
+                target_unit->RemoveTask(this);
+                target_unit = nullptr;
 
                 TaskManager.RemoveTask(*this);
             }
@@ -273,13 +273,13 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
             result = true;
 
         } else {
-            if (repair_unit == nullptr) {
+            if (operator_unit == nullptr) {
                 ChooseUnitToRepair();
             }
 
-            if (repair_unit == nullptr) {
-                if (unit_to_repair->speed > 0 && unit_to_repair->IsReadyForOrders(this)) {
-                    SmartPointer<Task> task(new (std::nothrow) TaskMoveHome(&*unit_to_repair, this));
+            if (operator_unit == nullptr) {
+                if (target_unit->speed > 0 && target_unit->IsReadyForOrders(this)) {
+                    SmartPointer<Task> task(new (std::nothrow) TaskMoveHome(&*target_unit, this));
 
                     TaskManager.AddTask(*task);
 
@@ -290,7 +290,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                 }
 
             } else {
-                if (unit_to_repair->state == ORDER_STATE_3) {
+                if (target_unit->state == ORDER_STATE_3) {
                     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam) {
                         DoRepairs();
                     }
@@ -298,21 +298,21 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                     result = true;
 
                 } else {
-                    if ((repair_unit->flags & STATIONARY) || repair_unit->storage > 0 ||
-                        repair_unit->GetTask1ListFront() != this) {
-                        if (repair_unit->IsAdjacent(unit_to_repair->grid_x, unit_to_repair->grid_y)) {
+                    if ((operator_unit->flags & STATIONARY) || operator_unit->storage > 0 ||
+                        operator_unit->GetTask1ListFront() != this) {
+                        if (operator_unit->IsAdjacent(target_unit->grid_x, target_unit->grid_y)) {
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
                                 (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
-                                if (repair_unit->flags & BUILDING) {
-                                    unit_to_repair->target_grid_x = repair_unit->grid_x;
-                                    unit_to_repair->target_grid_y = repair_unit->grid_y;
+                                if (operator_unit->flags & BUILDING) {
+                                    target_unit->target_grid_x = operator_unit->grid_x;
+                                    target_unit->target_grid_y = operator_unit->grid_y;
 
-                                    if (unit_to_repair->target_grid_x == unit_to_repair->grid_x &&
-                                        unit_to_repair->target_grid_y == unit_to_repair->grid_y) {
-                                        ++unit_to_repair->target_grid_x;
+                                    if (target_unit->target_grid_x == target_unit->grid_x &&
+                                        target_unit->target_grid_y == target_unit->grid_y) {
+                                        ++target_unit->target_grid_x;
                                     }
 
-                                    UnitsManager_SetNewOrder(&*unit_to_repair, ORDER_MOVE_TO_UNIT, ORDER_STATE_0);
+                                    UnitsManager_SetNewOrder(&*target_unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_0);
 
                                 } else {
                                     DoRepairs();
@@ -324,9 +324,9 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                                 result = false;
                             }
 
-                        } else if (!Task_sub_43671(this, &*unit_to_repair, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
+                        } else if (!Task_sub_43671(this, &*target_unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
                             SmartPointer<Task> task(new (std::nothrow) TaskRendezvous(
-                                &*unit_to_repair, &*repair_unit, this, &TaskRepair::RendesvousResultCallback));
+                                &*target_unit, &*operator_unit, this, &TaskRepair::RendesvousResultCallback));
 
                             TaskManager.AddTask(*task);
                         }
@@ -335,7 +335,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
 
                     } else {
                         SmartPointer<Task> task(new (std::nothrow)
-                                                    TaskGetMaterials(this, &*repair_unit, GetTurnsToRepair()));
+                                                    TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
 
                         TaskManager.AddTask(*task);
 
@@ -353,16 +353,16 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
 }
 
 void TaskRepair::RemoveSelf() {
-    if (unit_to_repair != nullptr) {
-        unit_to_repair->RemoveTask(this);
+    if (target_unit != nullptr) {
+        target_unit->RemoveTask(this);
     }
 
-    if (repair_unit != nullptr) {
-        repair_unit->RemoveTask(this);
+    if (operator_unit != nullptr) {
+        operator_unit->RemoveTask(this);
     }
 
-    unit_to_repair = nullptr;
-    repair_unit = nullptr;
+    target_unit = nullptr;
+    operator_unit = nullptr;
 
     parent = nullptr;
 
@@ -370,21 +370,21 @@ void TaskRepair::RemoveSelf() {
 }
 
 void TaskRepair::Remove(UnitInfo& unit) {
-    if (unit_to_repair == unit) {
+    if (target_unit == unit) {
         SmartPointer<Task> task(this);
 
         RemoveMovementTasks();
 
-        unit_to_repair = nullptr;
+        target_unit = nullptr;
 
         TaskManager.RemoveTask(*this);
 
-    } else if (repair_unit == unit) {
-        repair_unit = nullptr;
+    } else if (operator_unit == unit) {
+        operator_unit = nullptr;
     }
 }
 
-void TaskRepair::SelectRepairUnit() {
+void TaskRepair::SelectOperator() {
     if (GetRepairShopType() == DEPOT) {
         UnitInfo* unit;
         int distance;
@@ -394,9 +394,9 @@ void TaskRepair::SelectRepairUnit() {
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
             if ((*it).team == team && (*it).unit_type == REPAIR && (*it).hits > 0 &&
                 ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) &&
-                unit_to_repair != (*it)) {
+                target_unit != (*it)) {
                 if ((*it).GetTask1ListFront() == nullptr || (*it).GetTask1ListFront()->Task_sub_42BC4(flags) > 0) {
-                    distance = TaskManager_sub_4601A(&*it, &*unit_to_repair);
+                    distance = TaskManager_sub_4601A(&*it, &*target_unit);
 
                     if (unit == nullptr || distance < shortest_distance) {
                         unit = &*it;
@@ -406,15 +406,15 @@ void TaskRepair::SelectRepairUnit() {
             }
         }
 
-        repair_unit = unit;
+        operator_unit = unit;
     }
 }
 
-int TaskRepair::GetTurnsToRepair() {
+int TaskRepair::GetTurnsToComplete() {
     int result;
 
-    if (unit_to_repair->hits < unit_to_repair->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
-        result = unit_to_repair->GetTurnsToRepair();
+    if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
+        result = target_unit->GetTurnsToRepair();
     } else {
         result = 1;
     }
@@ -425,11 +425,11 @@ int TaskRepair::GetTurnsToRepair() {
 bool TaskRepair::IsInPerfectCondition() {
     bool result;
 
-    if (unit_to_repair->hits < unit_to_repair->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
+    if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
         result = false;
 
-    } else if (unit_to_repair->state != ORDER_STATE_3 ||
-               unit_to_repair->ammo >= unit_to_repair->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
+    } else if (target_unit->state != ORDER_STATE_3 ||
+               target_unit->ammo >= target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
         result = true;
 
     } else {
@@ -439,28 +439,28 @@ bool TaskRepair::IsInPerfectCondition() {
     return result;
 }
 
-void TaskRepair::TaskRepair_vfunc31() {
+void TaskRepair::CreateUnit() {
     ResourceID unit_type;
 
     unit_type = GetRepairShopType();
 
     if (unit_type != INVALID_ID) {
-        CreateUnit(unit_type);
+        CreateUnitIfNeeded(unit_type);
     }
 
     if (unit_type == DEPOT || unit_type == INVALID_ID) {
-        CreateUnit(REPAIR);
+        CreateUnitIfNeeded(REPAIR);
     }
 }
 
 void TaskRepair::IssueOrder() {
-    repair_unit->SetParent(&*unit_to_repair);
+    operator_unit->SetParent(&*target_unit);
 
-    if (unit_to_repair->hits < unit_to_repair->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
-        UnitsManager_SetNewOrder(&*repair_unit, ORDER_REPAIR, ORDER_STATE_0);
+    if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
+        UnitsManager_SetNewOrder(&*operator_unit, ORDER_REPAIR, ORDER_STATE_0);
 
-    } else if (unit_to_repair->ammo < unit_to_repair->GetBaseValues()->GetAttribute(ATTRIB_AMMO) &&
-               unit_to_repair->state == ORDER_STATE_3) {
-        UnitsManager_SetNewOrder(&*repair_unit, ORDER_RELOAD, ORDER_STATE_0);
+    } else if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) &&
+               target_unit->state == ORDER_STATE_3) {
+        UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_0);
     }
 }

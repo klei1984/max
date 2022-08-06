@@ -19,47 +19,24 @@
  * SOFTWARE.
  */
 
-#ifndef TASKREPAIR_HPP
-#define TASKREPAIR_HPP
+#ifndef TASKRELOAD_HPP
+#define TASKRELOAD_HPP
 
-#include "task.hpp"
+#include "taskrepair.hpp"
 
-class TaskRepair : public Task {
-    void ChooseUnitToRepair();
-    void DoRepairs();
-    UnitInfo* SelectRepairShop();
-    void RemoveMovementTasks();
+class TaskReload : public TaskRepair {
+    TaskReload(UnitInfo* unit);
+    ~TaskReload();
 
-    static void RendesvousResultCallback(Task* task, int unknown, char result);
-
-protected:
-    ResourceID GetRepairShopType();
-    void CreateUnitIfNeeded(ResourceID unit_type);
-
-    SmartPointer<UnitInfo> target_unit;
-    SmartPointer<UnitInfo> operator_unit;
-
-public:
-    TaskRepair(UnitInfo* unit);
-    ~TaskRepair();
-
-    bool Task_vfunc1(UnitInfo& unit);
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
-    Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;
-    void AddReminder();
-    void Execute();
-    void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
-    void RemoveSelf();
-    void Remove(UnitInfo& unit);
 
-    virtual void SelectOperator();
-    virtual int GetTurnsToComplete();
-    virtual bool IsInPerfectCondition();
-    virtual void CreateUnit();
-    virtual void IssueOrder();
+    void SelectOperator();
+    int GetTurnsToComplete();
+    bool IsInPerfectCondition();
+    void CreateUnit();
+    void IssueOrder();
 };
 
-#endif /* TASKREPAIR_HPP */
+#endif /* TASKRELOAD_HPP */
