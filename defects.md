@@ -312,6 +312,14 @@ On modern operating systems the deallocated heap memory could be reallocated by 
     </video>
     In my opinion land mines should also blow up just like connectors and roads built above water platforms and bridges do. Any non hybrid land unit should sink to the bottom of the sea too. If an aircraft is landed on a landing pad on a water platform and the landing pad gets demolished the aircraft should either take off into air, or should sink to the bottom of the sea.
 
+86. The maxsuper cheat code increases the scan and attack ranges. The game redraws the markers incorrectly until there is a movement of screen or unit.
+<br>
+    <video class="embed-video" autoplay loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_86.mp4" type="video/mp4">
+    </video>
+
+87. Both the TaskMineAssisstant and TaskFrontierAssistant classes have the same type id. It is not known yet whether this is a copy paste error or done on purpose in which case it would be an unnecessary design decision not a defect. These are the only tasks with equal type identifiers.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
