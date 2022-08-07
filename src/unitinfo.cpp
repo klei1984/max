@@ -2768,3 +2768,7 @@ bool UnitInfo::IsReadyForOrders(Task* task) {
 
     return result;
 }
+
+void UnitInfo::RestoreOrders() {
+    /// \todo
+}

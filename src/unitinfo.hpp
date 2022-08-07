@@ -150,6 +150,7 @@ public:
     int GetGoldFreeCapacity();
     void TransferGold(int amount);
     int GetTurnsToRepair();
+    void RestoreOrders();
     void InitStealthStatus();
     void SpotByTeam(unsigned short team);
     void Draw(unsigned short team);
