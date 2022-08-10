@@ -55,6 +55,7 @@ public:
     unsigned short GetMaxCost() const;
     unsigned char GetCautionLevel() const;
     unsigned char GetBoardTransport() const;
+    unsigned short GetMinimumDistance() const;
 
     void SetMaxCost(int value);
     void SetMinimumDistance(int value);

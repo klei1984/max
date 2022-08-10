@@ -52,3 +52,9 @@ bool AiPlayer::IsUpgradeNeeded(UnitInfo* unit) {}
 void AiPlayer::ClearZone(Zone* zone) {}
 
 unsigned char** AiPlayer::GetInfoMap() {}
+
+unsigned short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsigned char flags) {}
+
+unsigned short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags) {}
+
+unsigned short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, Point point, int caution_level, unsigned char flags) {}

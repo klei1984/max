@@ -42,6 +42,9 @@ public:
     bool IsUpgradeNeeded(UnitInfo* unit);
     void ClearZone(Zone* zone);
     unsigned char** GetInfoMap();
+    unsigned short** GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsigned char flags);
+    unsigned short** GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags);
+    unsigned short** GetDamagePotentialMap(UnitInfo* unit, Point point, int caution_level, unsigned char flags);
 };
 
 extern AiPlayer AiPlayer_Teams[4];

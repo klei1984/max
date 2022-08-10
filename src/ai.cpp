@@ -132,3 +132,7 @@ void Ai_AddUnitToTrackerList(UnitInfo* unit) {
 void Ai_EnableAutoSurvey(UnitInfo* unit) {
     /// \todo
 }
+
+bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, unsigned char flags) {
+    /// \todo
+}

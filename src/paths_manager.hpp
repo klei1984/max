@@ -33,5 +33,8 @@ void PathsManager_PushFront(PathRequest& object);
 void PathsManager_EvaluateTiles();
 void PathsManager_Clear();
 bool PathsManager_HasRequest(UnitInfo* unit);
+void PathsManager_ProcessGroundCover(UnitInfo* unit, unsigned char** map, unsigned char flags, int caution_level);
+void PathsManager_InitAccessMap(UnitInfo* unit, unsigned char** map, unsigned char flags, int caution_level);
+void PathsManager_ApplyCautionLevel(unsigned char** map, UnitInfo* unit, int caution_level);
 
 #endif /* PATHS_MANAGER_HPP */

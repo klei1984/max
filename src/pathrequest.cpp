@@ -81,6 +81,8 @@ unsigned short PathRequest::GetMaxCost() const { return max_cost; }
 
 unsigned char PathRequest::GetBoardTransport() const { return board_transport; }
 
+unsigned short PathRequest::GetMinimumDistance() const { return minimum_distance; }
+
 void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
     Point destination(unit->target_grid_x, unit->target_grid_y);
     SmartObjectArray<PathStep> steps = path->GetSteps();
