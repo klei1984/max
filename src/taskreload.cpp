@@ -104,7 +104,7 @@ void TaskReload::SelectOperator() {
                 ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
                 if ((*it).GetTask1ListFront() == nullptr || (*it).GetTask1ListFront()->Task_sub_42BC4(flags) > 0) {
-                    distance = TaskManager_sub_4601A(&*it, &*target_unit);
+                    distance = TaskManager_GetDistance(&*it, &*target_unit);
 
                     if (unit == nullptr || distance < shortest_distance) {
                         unit = &*it;

@@ -39,8 +39,8 @@ void TaskGetResource::TaskGetResource_sub_46DF3() {
             if (unit2 == nullptr) {
                 unit2 = unit;
             } else {
-                int speed1 = TaskManager_sub_4601A(&*unit, &*unit1);
-                int speed2 = TaskManager_sub_4601A(&*unit2, &*unit1);
+                int speed1 = TaskManager_GetDistance(&*unit, &*unit1);
+                int speed2 = TaskManager_GetDistance(&*unit2, &*unit1);
 
                 if (speed2 / 2 > speed1) {
                     unit2 = unit;
@@ -73,7 +73,7 @@ UnitInfo* TaskGetResource::TaskGetResource_sub_46D29(Complex* complex) {
 
     for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin(); unit != nullptr; ++unit) {
         if ((*unit).GetComplex() == complex) {
-            speed = TaskManager_sub_4601A(&(*unit), &*unit1);
+            speed = TaskManager_GetDistance(&(*unit), &*unit1);
 
             if (selected_unit == nullptr || (best_speed > speed)) {
                 selected_unit = &*unit;

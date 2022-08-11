@@ -298,7 +298,7 @@ struct ResourceAllocator {
         for (grid_x = bounds.lrx; grid_x < bounds.ulx; grid_x += 2) {
             for (grid_y = bounds.lry; grid_y < bounds.uly; grid_y += 2) {
                 distance_factor =
-                    ((Taskmanager_sub_45F65(point.x - grid_x, point.y - grid_y) * 10) / concentrate_diffusion) + 10;
+                    ((TaskManager_GetDistance(point.x - grid_x, point.y - grid_y) * 10) / concentrate_diffusion) + 10;
                 material_value = resource_level / (distance_factor * distance_factor);
 
                 if (material_value > (ResourceManager_CargoMap[grid_y * ResourceManager_MapSize.x + grid_x] & 0x1F)) {

@@ -25,9 +25,11 @@
 #include "task.hpp"
 
 class TaskActivate : public Task {
-    SmartPointer<UnitInfo> unit;
-    SmartPointer<UnitInfo> parent;
+    SmartPointer<UnitInfo> unit_to_activate;
+    SmartPointer<UnitInfo> unit_parent;
     SmartPointer<Zone> zone;
+
+    void Activate();
 
 public:
     TaskActivate(UnitInfo* unit, Task* task, UnitInfo* parent);

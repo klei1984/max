@@ -23,7 +23,7 @@
 
 class TaskManager TaskManager;
 
-int Taskmanager_sub_45F65(int distance_x, int distance_y) {
+int TaskManager_GetDistance(int distance_x, int distance_y) {
     int result;
 
     distance_x = labs(distance_x);
@@ -38,8 +38,12 @@ int Taskmanager_sub_45F65(int distance_x, int distance_y) {
     return result;
 }
 
-int TaskManager_sub_4601A(UnitInfo* unit1, UnitInfo* unit2) {
-    return Taskmanager_sub_45F65(unit1->grid_x - unit2->grid_x, unit1->grid_y - unit2->grid_y);
+int TaskManager_GetDistance(Point point1, Point point2) {
+    return TaskManager_GetDistance(point1.x - point2.x, point1.y - point2.y);
+}
+
+int TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
+    return TaskManager_GetDistance(unit1->grid_x - unit2->grid_x, unit1->grid_y - unit2->grid_y);
 }
 
 TaskManager::TaskManager() : field_44(0) {}
@@ -72,15 +76,19 @@ void TaskManager::RemoveTask(Task& task) {
     tasklist.Remove(task);
 }
 
-void TaskManager::TaskManager_sub_44954(ResourceID unit_type, unsigned short team, Point point, Task* task) {
-    /// \todo Implement method
+void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
+    /// \todo
 }
 
-void TaskManager::TaskManager_sub_449D0(ResourceID unit_type, unsigned short team, Point point, Task* task) {
-    /// \todo Implement method
+void TaskManager::CreateBuilding(ResourceID unit_type, unsigned short team, Point point, Task* task) {
+    /// \todo
 }
 
-void TaskManager::TaskManager_sub_44A73(ResourceID unit_type, unsigned short team, int requested_amount, Task* task,
-                                        Point point) {
-    /// \todo Implement method
+void TaskManager::CreateUnit(ResourceID unit_type, unsigned short team, Point point, Task* task) {
+    /// \todo
+}
+
+void TaskManager::ManufactureUnit(ResourceID unit_type, unsigned short team, int requested_amount, Task* task,
+                                  Point point) {
+    /// \todo
 }

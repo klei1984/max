@@ -28,8 +28,9 @@
 #include "taskobtainunits.hpp"
 #include "unitinfo.hpp"
 
-int Taskmanager_sub_45F65(int distance_x, int distance_y);
-int TaskManager_sub_4601A(UnitInfo* unit1, UnitInfo* unit2);
+int TaskManager_GetDistance(int distance_x, int distance_y);
+int TaskManager_GetDistance(Point point1, Point point2);
+int TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2);
 
 class TaskManager {
     SmartList<TaskObtainUnits> taskobtainunitslist;
@@ -45,11 +46,11 @@ public:
     void AddReminder(Reminder* reminder, bool priority = false);
     void AddTask(Task& task);
     void RemoveTask(Task& task);
+    void RemindAvailable(UnitInfo* unit, bool priority = false);
 
-    void TaskManager_sub_44954(ResourceID unit_type, unsigned short team, Point point, Task* task);
-    void TaskManager_sub_449D0(ResourceID unit_type, unsigned short team, Point point, Task* task);
-    void TaskManager_sub_44A73(ResourceID unit_type, unsigned short team, int requested_amount, Task* task,
-                               Point point);
+    void CreateBuilding(ResourceID unit_type, unsigned short team, Point point, Task* task);
+    void CreateUnit(ResourceID unit_type, unsigned short team, Point point, Task* task);
+    void ManufactureUnit(ResourceID unit_type, unsigned short team, int requested_amount, Task* task, Point point);
 
     SmartList<Task> tasklist;
 };

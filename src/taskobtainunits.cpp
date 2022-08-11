@@ -90,7 +90,7 @@ UnitInfo* TaskObtainUnits::TaskObtainUnits_sub_465F4(ResourceID unit_type, bool 
             if ((*unit).orders == ANIMATED &&
                 ((*unit).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {
                 speed = (*unit).build_time * (*unit).GetBaseValues()->GetAttribute(ATTRIB_SPEED) +
-                        Taskmanager_sub_45F65(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
+                        TaskManager_GetDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
 
                 if (selected_unit == nullptr || (best_speed > speed)) {
                     is_unit_available = false;
@@ -99,7 +99,7 @@ UnitInfo* TaskObtainUnits::TaskObtainUnits_sub_465F4(ResourceID unit_type, bool 
                 }
             } else {
                 if (TaskObtainUnits_sub_464C6(&*unit, mode)) {
-                    speed = Taskmanager_sub_45F65(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
+                    speed = TaskManager_GetDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
 
                     if (selected_unit == nullptr || (best_speed > speed)) {
                         is_unit_available = true;
@@ -233,13 +233,13 @@ void TaskObtainUnits::EndTurn() {
 
         for (int i = 0; i < units.GetCount(); ++i) {
             if (UnitsManager_BaseUnits[*units[i]].flags & STATIONARY) {
-                TaskManager.TaskManager_sub_44954(*units[i], team, point, this);
+                TaskManager.CreateBuilding(*units[i], team, point, this);
             } else if (*units[i] == CONSTRCT || *units[i] == ENGINEER) {
-                TaskManager.TaskManager_sub_449D0(*units[i], team, point, this);
+                TaskManager.CreateUnit(*units[i], team, point, this);
             } else if (!IsUnitTypeRequested[*units[i]]) {
                 IsUnitTypeRequested[*units[i]] = true;
 
-                TaskManager.TaskManager_sub_44A73(*units[i], team, CountInstancesOfUnitType(*units[i]), this, point);
+                TaskManager.ManufactureUnit(*units[i], team, CountInstancesOfUnitType(*units[i]), this, point);
             }
         }
 
