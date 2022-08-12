@@ -93,6 +93,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreate.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreateunit.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskfindpath.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontierassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetmaterials.cpp
@@ -136,6 +137,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/threatmap.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/terrainmap.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/pathrequest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskpathrequest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/adjustrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai_player.cpp

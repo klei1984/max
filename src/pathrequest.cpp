@@ -44,7 +44,7 @@ Point PathRequest::GetPoint() const { return point; }
 
 unsigned char PathRequest::GetCautionLevel() const { return caution_level; }
 
-int PathRequest::PathRequest_Vfunc1() { return 0; }
+bool PathRequest::PathRequest_Vfunc1() { return false; }
 
 void PathRequest::Cancel() {
     if (unit1->hits &&

@@ -19,44 +19,29 @@
  * SOFTWARE.
  */
 
-#include "ai_player.hpp"
+#include "taskfindpath.hpp"
 
-AiPlayer AiPlayer_Teams[4];
-TerrainMap AiPlayer_TerrainMap;
-ThreatMap AiPlayer_ThreatMaps[10];
+TaskFindPath::TaskFindPath(Task* parent, PathRequest* request, void* callback1, void* callback2)
+    : Task(parent->GetTeam(), parent, parent->GetFlags()) {}
 
-/// \todo
+TaskFindPath::~TaskFindPath() {}
 
-AiPlayer::AiPlayer() {}
+int TaskFindPath::GetMemoryUse() const {}
 
-AiPlayer::~AiPlayer() {}
+char* TaskFindPath::WriteStatusLog(char* buffer) const {}
 
-void AiPlayer::SetInfoMapPoint(Point point) {}
+unsigned char TaskFindPath::GetType() const {}
 
-void AiPlayer::UpdateMineMap(Point point) {}
+bool TaskFindPath::Task_vfunc10() {}
 
-void AiPlayer::MarkMineMapPoint(Point point) {}
+void TaskFindPath::AddReminder() {}
 
-void AiPlayer::ChangeTasksPendingFlag(bool value) {}
+void TaskFindPath::EndTurn() {}
 
-bool AiPlayer::SelectStrategy() {}
+void TaskFindPath::RemoveSelf() {}
 
-void AiPlayer::PlanMinefields() {}
+void TaskFindPath::Remove(UnitInfo& unit) {}
 
-void AiPlayer::GuessEnemyAttackDirections() {}
+void TaskFindPath::CancelRequest() {}
 
-bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) {}
-
-bool AiPlayer::IsUpgradeNeeded(UnitInfo* unit) {}
-
-bool AiPlayer::MatchPath(TaskPathRequest* request) {}
-
-void AiPlayer::ClearZone(Zone* zone) {}
-
-unsigned char** AiPlayer::GetInfoMap() {}
-
-unsigned short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsigned char flags) {}
-
-unsigned short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags) {}
-
-unsigned short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, Point point, int caution_level, unsigned char flags) {}
+void TaskFindPath::Finish(Point position, GroundPath* path, bool mode) {}

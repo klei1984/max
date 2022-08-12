@@ -19,44 +19,30 @@
  * SOFTWARE.
  */
 
-#include "ai_player.hpp"
+#ifndef TASKPATHREQUEST_HPP
+#define TASKPATHREQUEST_HPP
 
-AiPlayer AiPlayer_Teams[4];
-TerrainMap AiPlayer_TerrainMap;
-ThreatMap AiPlayer_ThreatMaps[10];
+#include "pathrequest.hpp"
 
-/// \todo
+class TaskFindPath;
 
-AiPlayer::AiPlayer() {}
+class TaskPathRequest : PathRequest {
+    SmartPointer<TaskFindPath> find_path;
+    bool field_30;
+    bool field_31;
 
-AiPlayer::~AiPlayer() {}
+public:
+    TaskPathRequest(UnitInfo* unit, int mode, Point point);
+    ~TaskPathRequest();
 
-void AiPlayer::SetInfoMapPoint(Point point) {}
+    bool PathRequest_Vfunc1();
+    void Cancel();
+    void Finish(GroundPath* path);
 
-void AiPlayer::UpdateMineMap(Point point) {}
+    void AssignPathFindTask(TaskFindPath* task);
+    void SetField31(bool value);
+    bool GetField31() const;
+    void Complete(Point position, GroundPath* path);
+};
 
-void AiPlayer::MarkMineMapPoint(Point point) {}
-
-void AiPlayer::ChangeTasksPendingFlag(bool value) {}
-
-bool AiPlayer::SelectStrategy() {}
-
-void AiPlayer::PlanMinefields() {}
-
-void AiPlayer::GuessEnemyAttackDirections() {}
-
-bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) {}
-
-bool AiPlayer::IsUpgradeNeeded(UnitInfo* unit) {}
-
-bool AiPlayer::MatchPath(TaskPathRequest* request) {}
-
-void AiPlayer::ClearZone(Zone* zone) {}
-
-unsigned char** AiPlayer::GetInfoMap() {}
-
-unsigned short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsigned char flags) {}
-
-unsigned short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags) {}
-
-unsigned short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, Point point, int caution_level, unsigned char flags) {}
+#endif /* TASKPATHREQUEST_HPP */

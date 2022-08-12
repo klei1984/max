@@ -25,7 +25,6 @@
 #include "unitinfo.hpp"
 
 class PathRequest : public SmartObject {
-    SmartPointer<UnitInfo> unit1;
     SmartPointer<UnitInfo> unit2;
     Point point;
     unsigned char flags;
@@ -36,6 +35,9 @@ class PathRequest : public SmartObject {
     bool optimize;
 
     static void AssignGroundPath(UnitInfo* unit, GroundPath* path);
+
+protected:
+    SmartPointer<UnitInfo> unit1;
 
 public:
     PathRequest(UnitInfo* unit, int mode, Point point);
@@ -58,7 +60,7 @@ public:
 
     void CreateTransport(ResourceID unit_type);
 
-    virtual int PathRequest_Vfunc1();
+    virtual bool PathRequest_Vfunc1();
     virtual void Cancel();
     virtual void Finish(GroundPath* path);
 };
