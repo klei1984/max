@@ -19,29 +19,37 @@
  * SOFTWARE.
  */
 
-#ifndef ZONEWALKER_HPP
-#define ZONEWALKER_HPP
+#ifndef TASKRETREAT_HPP
+#define TASKRETREAT_HPP
 
-#include "point.hpp"
+#include "task.hpp"
 
-class ZoneWalker {
-    Point start;
-    short range;
-    short distance;
-    Point current;
-    Point limit;
+class TaskRetreat : public Task {
+    SmartPointer<UnitInfo> unit_to_retreat;
+    short field_23;
+    Point position;
+    short direction;
+    short field_31;
+    char caution_level;
+    char field_34;
 
-    void InitXY();
-    void InitX();
+    void RemoveTask();
+    void Search();
+
+    static void TaskMoveResultCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    ZoneWalker(Point position, int range);
+    TaskRetreat(UnitInfo* unit, Task* task, unsigned short flags, int caution_level);
+    ~TaskRetreat();
 
-    int GetGridX() const;
-    int GetGridY() const;
-    Point* GetCurrentLocation();
-
-    bool FindNext();
+    bool Task_vfunc1(UnitInfo& unit);
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void AddReminder();
+    void EndTurn();
+    void RemoveSelf();
+    void Remove(UnitInfo& unit);
 };
 
-#endif /* ZONEWALKER_HPP */
+#endif /* TASKRETREAT_HPP */

@@ -19,29 +19,23 @@
  * SOFTWARE.
  */
 
-#ifndef ZONEWALKER_HPP
-#define ZONEWALKER_HPP
+#include "taskmove.hpp"
 
-#include "point.hpp"
+#include "task_manager.hpp"
 
-class ZoneWalker {
-    Point start;
-    short range;
-    short distance;
-    Point current;
-    Point limit;
+TaskMove::TaskMove(UnitInfo* unit, Task* task, unsigned short minimum_distance, unsigned char caution_level,
+                   Point destination, void (*callback)(Task* task, UnitInfo* unit, char result))
+    : Task(unit->team, task, task ? task->GetFlags() : 0x1000) {}
 
-    void InitXY();
-    void InitX();
+TaskMove::TaskMove(UnitInfo* unit, void (*callback)(Task* task, UnitInfo* unit, char result))
+    : Task(unit->team, nullptr, 0x2900) {}
 
-public:
-    ZoneWalker(Point position, int range);
+TaskMove::~TaskMove() {}
 
-    int GetGridX() const;
-    int GetGridY() const;
-    Point* GetCurrentLocation();
+int TaskMove::GetMemoryUse() const {}
 
-    bool FindNext();
-};
+char* TaskMove::WriteStatusLog(char* buffer) const {}
 
-#endif /* ZONEWALKER_HPP */
+unsigned char TaskMove::GetType() const { return TaskType_TaskMove; }
+
+void TaskMove::SetField68(bool value) {}

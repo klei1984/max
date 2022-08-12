@@ -147,20 +147,20 @@ bool Task::Task_vfunc1(UnitInfo& unit) {
 
 bool Task::Task_vfunc2(UnitInfo& unit) { return false; }
 
-int Task::Task_vfunc3(UnitInfo& unit) {
+int Task::GetCautionLevel(UnitInfo& unit) {
     int result;
 
     if (unit.base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
         ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
         if (unit.shots) {
-            result = 1;
+            result = CAUTION_LEVEL_AVOID_REACTION_FIRE;
         } else {
-            result = 3;
+            result = CAUTION_LEVEL_AVOID_ALL_DAMAGE;
         }
     } else if (unit.ammo) {
-        result = 2;
+        result = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
     } else {
-        result = 3;
+        result = CAUTION_LEVEL_AVOID_ALL_DAMAGE;
     }
 
     return result;

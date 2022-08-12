@@ -97,11 +97,13 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetmaterials.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmineassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskmove.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmovehome.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskobtainunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskreload.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrendesvous.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrepair.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskretreat.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupgrade.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
@@ -121,6 +123,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/paths_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/production_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/accessmap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/transportermap.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/maxfloodfill.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pathfill.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sitemarker.cpp

@@ -99,6 +99,7 @@ public:
 
     void AddStep(int step_x, int step_y);
     SmartObjectArray<PathStep> GetSteps();
+    unsigned short GetPathStepIndex() const;
 };
 
 class AirPath : public UnitPath {

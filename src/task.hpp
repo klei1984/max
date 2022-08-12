@@ -133,7 +133,7 @@ public:
 
     virtual bool Task_vfunc1(UnitInfo& unit);
     virtual bool Task_vfunc2(UnitInfo& unit);
-    virtual int Task_vfunc3(UnitInfo& unit);
+    virtual int GetCautionLevel(UnitInfo& unit);
     virtual int GetMemoryUse() const = 0;
     virtual unsigned short GetFlags() const;
     virtual char* WriteStatusLog(char* buffer) const = 0;

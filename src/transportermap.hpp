@@ -19,29 +19,29 @@
  * SOFTWARE.
  */
 
-#ifndef ZONEWALKER_HPP
-#define ZONEWALKER_HPP
+#ifndef TRANSPORTERMAP_HPP
+#define TRANSPORTERMAP_HPP
 
+#include "accessmap.hpp"
+#include "enums.hpp"
 #include "point.hpp"
 
-class ZoneWalker {
-    Point start;
-    short range;
-    short distance;
-    Point current;
-    Point limit;
+class UnitInfo;
 
-    void InitXY();
-    void InitX();
+class TransporterMap {
+    AccessMap map;
+    bool is_initialized;
+    SmartPointer<UnitInfo> unit;
+    unsigned char flags;
+    unsigned char caution_level;
+    ResourceID unit_type;
 
 public:
-    ZoneWalker(Point position, int range);
+    TransporterMap(UnitInfo* unit, unsigned char flags, unsigned char caution_level, ResourceID unit_type = INVALID_ID);
+    ~TransporterMap();
 
-    int GetGridX() const;
-    int GetGridY() const;
-    Point* GetCurrentLocation();
-
-    bool FindNext();
+    bool Search(Point site);
+    void UpdateSite(Point site, bool mode);
 };
 
-#endif /* ZONEWALKER_HPP */
+#endif /* TRANSPORTERMAP_HPP */

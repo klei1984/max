@@ -1227,6 +1227,15 @@ SmartList<UnitInfo>* UnitInfo::GetUnitList() const { return unit_list; }
 
 unsigned int UnitInfo::GetField221() const { return field_221; }
 
+void UnitInfo::ChangeField221(unsigned int flags, bool mode) {
+    if (mode) {
+        field_221 |= flags;
+
+    } else {
+        field_221 &= ~flags;
+    }
+}
+
 unsigned short UnitInfo::GetImageIndex() const { return image_index; }
 
 void UnitInfo::PushFrontTask1List(Task* task) { task_list1.PushFront(*task); }
@@ -1246,6 +1255,8 @@ Task* UnitInfo::GetTask1ListFront() const {
 
     return task;
 }
+
+SmartList<Task>::Iterator UnitInfo::GetTask1ListIterator() { return task_list1.Begin(); }
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
 

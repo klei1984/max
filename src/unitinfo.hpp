@@ -124,10 +124,12 @@ public:
     UnitInfo* GetFirstFromUnitList() const;
     SmartList<UnitInfo>* GetUnitList() const;
     unsigned int GetField221() const;
+    void ChangeField221(unsigned int flags, bool mode);
     unsigned short GetImageIndex() const;
     void PushFrontTask1List(Task* task);
     void ClearTask1List();
     Task* GetTask1ListFront() const;
+    SmartList<Task>::Iterator GetTask1ListIterator();
     bool IsReadyForOrders(Task* task);
     void SetParent(UnitInfo* parent);
     void SetBaseValues(UnitValues* unit_values);

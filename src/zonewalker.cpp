@@ -77,6 +77,8 @@ int ZoneWalker::GetGridX() const { return current.x; }
 
 int ZoneWalker::GetGridY() const { return current.y; }
 
+Point* ZoneWalker::GetCurrentLocation() { return &current; }
+
 bool ZoneWalker::FindNext() {
     bool result;
 

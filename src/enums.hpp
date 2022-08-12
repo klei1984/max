@@ -2245,6 +2245,13 @@ enum {
     CHEAT_CODE_COUNT = 5
 };
 
+enum {
+    CAUTION_LEVEL_NONE,
+    CAUTION_LEVEL_AVOID_REACTION_FIRE,
+    CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
+    CAUTION_LEVEL_AVOID_ALL_DAMAGE
+};
+
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;
 extern SortedEnum Enums_Sound;

@@ -24,13 +24,6 @@
 
 #include "unitinfo.hpp"
 
-enum {
-    CAUTION_LEVEL_NONE,
-    CAUTION_LEVEL_AVOID_REACTION_FIRE,
-    CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
-    CAUTION_LEVEL_AVOID_ALL_DAMAGE
-};
-
 class PathRequest : public SmartObject {
     SmartPointer<UnitInfo> unit1;
     SmartPointer<UnitInfo> unit2;

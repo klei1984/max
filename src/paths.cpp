@@ -1038,6 +1038,8 @@ void GroundPath::AddStep(int step_x, int step_y) {
 
 SmartObjectArray<PathStep> GroundPath::GetSteps() { return steps; }
 
+unsigned short GroundPath::GetPathStepIndex() const { return index; }
+
 bool Paths_RequestPath(UnitInfo* unit, int mode) {
     bool result;
 
