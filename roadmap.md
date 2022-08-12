@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-08-06.
+Last updated: 2022-08-12.
 
-Reimplementation status: 4411 / 5704 (77%) functions.
+Reimplementation status: 4482 / 5704 (78%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -127,7 +127,101 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 <br><br>
 
 ### 0.6 Reimplement original C++ classes
-- Replace the AI classes (task_manager.cpp, ai.cpp, ai_build.cpp, ai_main.cpp, ai_move.cpp, ai_playr.cpp, ai_explr.cpp, ai_attk.cpp)
+- Replace the AI movement classes (ai_move.cpp)
+  - <span class="legend-done">PathRequest</span>
+  - TaskFindPath
+  - TaskPathRequest
+  - AdjustRequest
+  - TaskMove
+  - TaskDump
+  - <span class="legend-done">TaskRetreat</span>
+  - <span class="legend-done">TaskActivate</span>
+  - <span class="legend-inwork">TaskRendezvous</span>
+  - <span class="legend-inwork">TaskMoveHome</span>
+  - TaskAssistMove
+  - TaskTransport
+<br>
+<br>
+- Replace the computer player classes (ai_player.cpp)
+  - <span class="legend-done">UnitValues
+  - TransportOrder
+  - <span class="legend-done">SpottedUnit</span>
+  - <span class="legend-done">TaskMineAssistant</span>
+  - <span class="legend-done">TaskFrontierAssistant</span>
+  - <span class="legend-done">TaskUpdateTerrain</span>
+  - <span class="legend-done">Continent</span>
+  - <span class="legend-done">ContinentFiller</span>
+  - <span class="legend-done">ThreatMap</span>
+  - <span class="legend-done">TerrainMap</span>
+  - AiPlayer
+<br>
+<br>
+- Replace the AI maintenance classes
+  - <span class="legend-done">TaskRepair</span>
+  - <span class="legend-done">TaskReload</span>
+  - <span class="legend-done">TaskUpgrade</span>
+<br>
+<br>
+- Replace the AI classes (ai_main.cpp, ai.cpp)
+  - <span class="legend-close">TaskObtainUnits</span>
+  - <span class="legend-done">RemindAvailable</span>
+  - <span class="legend-done">RemindMoveFinished</span>
+  - <span class="legend-done">RemindAttack</span>
+  - <span class="legend-done">Zone</span>
+  - <span class="legend-inwork">TaskClearZone</span>
+  - <span class="legend-done">RemindTurnEnd</span>
+  - <span class="legend-done">RemindTurnStart</span>
+  - ProductionManager
+  - TaskManager
+  - <span class="legend-done">TaskGetResource</span>
+  - <span class="legend-done">Reminder</span>
+  - <span class="legend-close">Task</span>
+<br>
+<br>
+- Replace the AI exploration classes (ai_explr.cpp)
+  - TaskSearchDestination
+  - TaskSurvey
+  - TaskFindMines
+  - TaskExplore
+  - TaskAutoSurvey
+  - TaskAbstractSearch
+<br>
+<br>
+- Replace the AI builder classes (ai_build.cpp)
+  - TaskGetMaterials
+  - TaskCreateBuilding
+  - TaskManageBuildings
+  - TaskCreateUnit
+  - TaskDefenseAssistant
+  - TaskRadarAssistant
+  - TaskPowerAssistant
+  - TaskHabitatAssistant
+  - TaskConnectionAssistant
+  - TaskRemoveRubble
+  - TaskRemoveMines
+  - TaskScavenge
+  - <span class="legend-done">SiteMarker</span>
+  - <span class="legend-done">FloodRun</span>
+  - <span class="legend-done">MAXFloodFill</span>
+  - TaskCreate
+<br>
+<br>
+- Replace the AI combat classes (ai_attk.cpp)
+  - TaskAttackReserve
+  - TaskKillUnit
+  - TaskCheckAssaults
+  - TaskDefenseReserve
+  - TaskWaitToAttack
+  - TaskFrontalAttack
+  - TaskPlaceMines
+  - TaskSupportAttack
+  - TaskAttack
+  - TaskEscort
+  - <span class="legend-done">AccessMap</span>
+  - <span class="legend-done">WeightTable</span>
+  - <span class="legend-done">TransporterMap</span>
+<br>
+<br>
 - <span class="legend-done">
   Replace the GUI manager classes (commo.cpp)
   </span>
@@ -146,7 +240,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-done">
   Replace the message manager classes (mssgsmgr.cpp)
   </span>
-- <span class="legend-inwork">
+- <span class="legend-done">
   Replace the path finding classes (paths.cpp)
   </span>
 - <span class="legend-close">
