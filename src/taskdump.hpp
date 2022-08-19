@@ -19,19 +19,39 @@
  * SOFTWARE.
  */
 
-#ifndef ADJUSTREQUEST_HPP
-#define ADJUSTREQUEST_HPP
+#ifndef TASKDUMP_HPP
+#define TASKDUMP_HPP
 
-#include "taskpathrequest.hpp"
+#include "pathrequest.hpp"
+#include "task_manager.hpp"
+#include "tasktransport.hpp"
 
-class AdjustRequest : public TaskPathRequest {
-    SmartPointer<GroundPath> ground_path;
+class TaskDump : public Task {
+    SmartPointer<TaskMove> task_move;
+    SmartPointer<UnitInfo> unit;
+    short field_27;
+    short direction;
+    short field_31;
+    Point destination;
+    char field_37;
+
+    static void TaskDump_PathResultCallback(Task* task, PathRequest* request, Point destination, GroundPath* path,
+                                            char result);
+    static void TaskDump_PathCancelCallback(Task* task, PathRequest* request);
+
+    void Search();
+    void RemoveTask();
 
 public:
-    AdjustRequest(UnitInfo* unit, int mode, Point position, GroundPath* path);
-    ~AdjustRequest();
+    TaskDump(TaskTransport* task_transport, TaskMove* task_move, UnitInfo* unit);
+    ~TaskDump();
 
-    GroundPath* GetPath();
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void AddReminder();
+    void RemoveSelf();
+    void Remove(UnitInfo& unit);
 };
 
-#endif /* ADJUSTREQUEST_HPP */
+#endif /* TASKDUMP_HPP */

@@ -21,7 +21,10 @@
 
 #include "taskfindpath.hpp"
 
-TaskFindPath::TaskFindPath(Task* parent, PathRequest* request, void* callback1, void* callback2)
+TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
+                           void (*result_callback)(Task* task, PathRequest* request, Point destination_,
+                                                   GroundPath* path, char result),
+                           void (*cancel_callback)(Task* task, PathRequest* request))
     : Task(parent->GetTeam(), parent, parent->GetFlags()) {}
 
 TaskFindPath::~TaskFindPath() {}

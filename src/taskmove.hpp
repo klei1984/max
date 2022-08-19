@@ -36,6 +36,8 @@ public:
     unsigned char GetType() const;
 
     void SetField68(bool value);
+    UnitInfo* GetPassenger();
+    void SetDestination(Point site);
 };
 
 #endif /* TASKMOVE_HPP */

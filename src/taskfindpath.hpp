@@ -27,7 +27,10 @@
 
 class TaskFindPath : public Task {
 public:
-    TaskFindPath(Task* parent, PathRequest* request, void* callback1, void* callback2);
+    TaskFindPath(Task* parent, PathRequest* request,
+                 void (*result_callback)(Task* task, PathRequest* request, Point destination_, GroundPath* path,
+                                         char result),
+                 void (*cancel_callback)(Task* task, PathRequest* request));
     ~TaskFindPath();
 
     int GetMemoryUse() const;

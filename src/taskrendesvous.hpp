@@ -29,7 +29,7 @@ class TaskRendezvous : public Task {
     SmartPointer<UnitInfo> unit2;
     void (*callback)(Task* task, int unknown, char mode);
 
-    void TaskRendezvous_sub_54D3B();
+    void RemoveTask();
 
 public:
     TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task, void (*callback)(Task* task, int unknown, char mode));

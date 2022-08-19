@@ -39,3 +39,7 @@ char* TaskMove::WriteStatusLog(char* buffer) const {}
 unsigned char TaskMove::GetType() const { return TaskType_TaskMove; }
 
 void TaskMove::SetField68(bool value) {}
+
+UnitInfo* TaskMove::GetPassenger() {}
+
+void TaskMove::SetDestination(Point site) {}

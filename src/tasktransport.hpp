@@ -19,19 +19,15 @@
  * SOFTWARE.
  */
 
-#ifndef ADJUSTREQUEST_HPP
-#define ADJUSTREQUEST_HPP
+#ifndef TASKTRANSPORT_HPP
+#define TASKTRANSPORT_HPP
 
-#include "taskpathrequest.hpp"
+#include "taskmove.hpp"
 
-class AdjustRequest : public TaskPathRequest {
-    SmartPointer<GroundPath> ground_path;
-
+class TaskTransport : public Task {
 public:
-    AdjustRequest(UnitInfo* unit, int mode, Point position, GroundPath* path);
-    ~AdjustRequest();
-
-    GroundPath* GetPath();
+    TaskTransport(TaskMove* task_move, ResourceID transporter);
+    ~TaskTransport();
 };
 
-#endif /* ADJUSTREQUEST_HPP */
+#endif /* TASKTRANSPORT_HPP */

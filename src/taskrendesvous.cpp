@@ -107,11 +107,11 @@ void TaskRendezvous::Remove(UnitInfo& unit) {
             // unit2->unitinfo_sub_F2962(this);
         }
 
-        TaskRendezvous_sub_54D3B();
+        RemoveTask();
     }
 }
 
-void TaskRendezvous::TaskRendezvous_sub_54D3B() {
+void TaskRendezvous::RemoveTask() {
     unit1 = nullptr;
     unit2 = nullptr;
     parent = nullptr;

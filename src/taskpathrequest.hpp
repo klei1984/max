@@ -26,7 +26,7 @@
 
 class TaskFindPath;
 
-class TaskPathRequest : PathRequest {
+class TaskPathRequest : public PathRequest {
     SmartPointer<TaskFindPath> find_path;
     bool field_30;
     bool field_31;

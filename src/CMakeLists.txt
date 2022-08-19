@@ -93,6 +93,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreate.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreateunit.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskdump.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfindpath.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontierassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
@@ -105,6 +106,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrendesvous.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrepair.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskretreat.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tasktransport.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupgrade.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
