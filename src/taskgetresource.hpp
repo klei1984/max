@@ -30,7 +30,7 @@ class TaskGetResource : public Task {
     SmartPointer<UnitInfo> unit3;
 
     void TaskGetResource_sub_46DF3();
-    static void RendesvousResultCallback(Task* task, int unknown, char mode);
+    static void RendesvousResultCallback(Task* task, UnitInfo* unit, char mode);
 
 protected:
     UnitInfo* TaskGetResource_sub_46D29(Complex* complex);

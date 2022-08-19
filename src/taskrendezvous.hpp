@@ -27,12 +27,17 @@
 class TaskRendezvous : public Task {
     SmartPointer<UnitInfo> unit1;
     SmartPointer<UnitInfo> unit2;
-    void (*callback)(Task* task, int unknown, char mode);
+    void (*result_callback)(Task* task, UnitInfo* unit, char mode);
 
     void RemoveTask();
+    void Finish(char result);
+
+    static void PrimaryMoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+    static void SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task, void (*callback)(Task* task, int unknown, char mode));
+    TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task,
+                   void (*result_callback)(Task* task, UnitInfo* unit, char result));
     ~TaskRendezvous();
 
     int GetMemoryUse() const;

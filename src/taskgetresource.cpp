@@ -22,7 +22,7 @@
 #include "taskgetresource.hpp"
 
 #include "task_manager.hpp"
-#include "taskrendesvous.hpp"
+#include "taskrendezvous.hpp"
 #include "units_manager.hpp"
 
 void TaskGetResource::TaskGetResource_sub_46DF3() {
@@ -58,7 +58,7 @@ void TaskGetResource::TaskGetResource_sub_46DF3() {
     }
 }
 
-void TaskGetResource::RendesvousResultCallback(Task* task, int unknown, char mode) {
+void TaskGetResource::RendesvousResultCallback(Task* task, UnitInfo* unit, char mode) {
     if (mode == 2) {
         dynamic_cast<TaskGetResource*>(task)->TaskGetResource_sub_471F8();
     } else if (mode == 0) {

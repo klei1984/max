@@ -29,7 +29,7 @@
 #include "taskcreateunit.hpp"
 #include "taskgetmaterials.hpp"
 #include "taskmovehome.hpp"
-#include "taskrendesvous.hpp"
+#include "taskrendezvous.hpp"
 #include "units_manager.hpp"
 
 static void TaskRepair_RendesvousResultCallback();
@@ -92,7 +92,8 @@ void TaskRepair::DoRepairs() {
                 }
 
             } else if (operator_unit->GetTask1ListFront() == this) {
-                SmartPointer<Task> task(new (std::nothrow) TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
+                SmartPointer<Task> task(new (std::nothrow)
+                                            TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
 
                 TaskManager.AddTask(*task);
             }
@@ -136,7 +137,7 @@ void TaskRepair::RemoveMovementTasks() {
     }
 }
 
-void TaskRepair::RendesvousResultCallback(Task* task, int unknown, char result) {
+void TaskRepair::RendesvousResultCallback(Task* task, UnitInfo* unit, char result) {
     if (result == 2) {
         dynamic_cast<TaskRepair*>(task)->RemoveMovementTasks();
 
@@ -197,8 +198,8 @@ void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
         AiPlayer_Teams[team].CreateBuilding(unit_type, Point(target_unit->grid_x, target_unit->grid_y), this);
 
     } else {
-        SmartPointer<Task> task(
-            new (std::nothrow) TaskCreateUnit(unit_type, this, Point(target_unit->grid_x, target_unit->grid_y)));
+        SmartPointer<Task> task(new (std::nothrow)
+                                    TaskCreateUnit(unit_type, this, Point(target_unit->grid_x, target_unit->grid_y)));
 
         TaskManager.AddTask(*task);
     }
