@@ -97,6 +97,8 @@ public:
     bool operator!=(const SmartPointer<T>& t) const { return object_pointer != t.object_pointer; }
 
     bool operator!=(const T* t) const { return object_pointer != t; }
+
+    operator bool() const { return object_pointer != nullptr; }
 };
 
 #endif /* SMARTPOINTER_HPP */

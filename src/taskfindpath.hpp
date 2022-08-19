@@ -26,11 +26,15 @@
 #include "task.hpp"
 
 class TaskFindPath : public Task {
+    SmartPointer<PathRequest> path_request;
+    void (*result_callback)(Task* task, PathRequest* path_request, Point destination_, GroundPath* path, char result);
+    void (*cancel_callback)(Task* task, PathRequest* path_request);
+
 public:
     TaskFindPath(Task* parent, PathRequest* request,
-                 void (*result_callback)(Task* task, PathRequest* request, Point destination_, GroundPath* path,
+                 void (*result_callback)(Task* task, PathRequest* path_request, Point destination_, GroundPath* path,
                                          char result),
-                 void (*cancel_callback)(Task* task, PathRequest* request));
+                 void (*cancel_callback)(Task* task, PathRequest* path_request));
     ~TaskFindPath();
 
     int GetMemoryUse() const;
@@ -43,7 +47,7 @@ public:
     void Remove(UnitInfo& unit);
 
     void CancelRequest();
-    void Finish(Point position, GroundPath* path, bool mode);
+    void Finish(Point position, GroundPath* path, bool result);
 };
 
 #endif /* TASKFINDPATH_HPP */

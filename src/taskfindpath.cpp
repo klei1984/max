@@ -21,30 +21,92 @@
 
 #include "taskfindpath.hpp"
 
+#include "paths_manager.hpp"
+#include "task_manager.hpp"
+#include "taskpathrequest.hpp"
+
 TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
-                           void (*result_callback)(Task* task, PathRequest* request, Point destination_,
-                                                   GroundPath* path, char result),
-                           void (*cancel_callback)(Task* task, PathRequest* request))
-    : Task(parent->GetTeam(), parent, parent->GetFlags()) {}
+                           void (*result_callback_)(Task* task, PathRequest* path_request, Point destination_,
+                                                    GroundPath* path, char result),
+                           void (*cancel_callback_)(Task* task, PathRequest* path_request))
+    : Task(parent->GetTeam(), parent, parent->GetFlags()) {
+    result_callback = result_callback_;
+    cancel_callback = cancel_callback_;
+
+    dynamic_cast<TaskPathRequest*>(request)->AssignPathFindTask(this);
+
+    path_request = request;
+}
 
 TaskFindPath::~TaskFindPath() {}
 
-int TaskFindPath::GetMemoryUse() const {}
+int TaskFindPath::GetMemoryUse() const { return 4; }
 
-char* TaskFindPath::WriteStatusLog(char* buffer) const {}
+char* TaskFindPath::WriteStatusLog(char* buffer) const {
+    if (path_request) {
+        Point destination(path_request->GetPoint());
+        char string[20];
 
-unsigned char TaskFindPath::GetType() const {}
+        strcpy(buffer, "Find Path to ");
+        sprintf(string, "[%i,%i]", destination.x + 1, destination.y + 1);
+        strcat(buffer, string);
 
-bool TaskFindPath::Task_vfunc10() {}
+    } else {
+        strcpy(buffer, "Find path (finished)");
+    }
 
-void TaskFindPath::AddReminder() {}
+    return buffer;
+}
+
+unsigned char TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
+
+bool TaskFindPath::Task_vfunc10() { return path_request; }
+
+void TaskFindPath::AddReminder() {
+    path_request->GetUnit1()->PushFrontTask1List(this);
+    PathsManager_RemoveRequest(path_request->GetUnit1());
+    PathsManager_PushBack(*path_request);
+}
 
 void TaskFindPath::EndTurn() {}
 
-void TaskFindPath::RemoveSelf() {}
+void TaskFindPath::RemoveSelf() {
+    if (path_request) {
+        PathsManager_RemoveRequest(&*path_request);
 
-void TaskFindPath::Remove(UnitInfo& unit) {}
+        path_request = nullptr;
+    }
 
-void TaskFindPath::CancelRequest() {}
+    parent = nullptr;
+    TaskManager.RemoveTask(*this);
+}
 
-void TaskFindPath::Finish(Point position, GroundPath* path, bool mode) {}
+void TaskFindPath::Remove(UnitInfo& unit) {
+    if (path_request) {
+        SDL_assert(path_request->GetUnit1() == &unit);
+
+        RemoveSelf();
+    }
+}
+
+void TaskFindPath::CancelRequest() {
+    if (path_request) {
+        path_request->GetUnit1()->RemoveTask(this, false);
+
+        cancel_callback(&*parent, &*path_request);
+
+        path_request = nullptr;
+        parent = nullptr;
+        TaskManager.RemoveTask(*this);
+    }
+}
+
+void TaskFindPath::Finish(Point position, GroundPath* path, bool result) {
+    path_request->GetUnit1()->RemoveTask(this, false);
+
+    result_callback(&*parent, &*path_request, position, path, result);
+
+    path_request = nullptr;
+    parent = nullptr;
+    TaskManager.RemoveTask(*this);
+}
