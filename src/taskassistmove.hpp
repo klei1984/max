@@ -19,40 +19,31 @@
  * SOFTWARE.
  */
 
-#ifndef TASKTRANSPORT_HPP
-#define TASKTRANSPORT_HPP
+#ifndef TASKASSISTMOVE_HPP
+#define TASKASSISTMOVE_HPP
 
-#include "taskmove.hpp"
-#include "taskobtainunits.hpp"
+#include "task.hpp"
 
-class TaskTransport : public Task {
-    ResourceID transporter_unit_type;
-    SmartPointer<UnitInfo> unit_transporter;
-    SmartList<TaskMove> move_tasks;
-    SmartPointer<TaskMove> task_move;
-    SmartPointer<TaskObtainUnits> task_obtain_units;
+class TaskAssistMove : public Task {
+    SmartList<UnitInfo> units;
 
 public:
-    TaskTransport(TaskMove* task_move, ResourceID transporter);
-    ~TaskTransport();
+    TaskAssistMove(unsigned short team);
+    ~TaskAssistMove();
 
     bool Task_vfunc1(UnitInfo& unit);
+    bool Task_vfunc2(UnitInfo& unit);
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
-    Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;
-    bool Task_vfunc9();
     void Task_vfunc11(UnitInfo& unit);
-    void AddReminder();
     void Execute();
-    void Task_vfunc14(Task* task);
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
     void Remove(UnitInfo& unit);
     void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
     void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
-    void Task_vfunc27(Zone* zone, char mode);
 };
 
-#endif /* TASKTRANSPORT_HPP */
+#endif /* TASKASSISTMOVE_HPP */

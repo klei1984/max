@@ -30,6 +30,8 @@
 unsigned short Task::task_id = 0;
 unsigned short Task::task_count = 0;
 
+static SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type);
+
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority) {
     if (unit && (unit->GetField221() & 0x100) == 0) {
         TaskManager.AddReminder(new (std::nothrow) RemindMoveFinished(*unit), priority);
@@ -133,6 +135,41 @@ bool Task_sub_43671(Task* task, UnitInfo* unit, int caution_level) {
     }
 
     return result;
+}
+
+SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type) {
+    unsigned int flags = UnitsManager_BaseUnits[unit_type].flags;
+    SmartList<UnitInfo>* list;
+
+    if (flags & STATIONARY) {
+        if (flags & GROUND_COVER) {
+            list = &UnitsManager_GroundCoverUnits;
+
+        } else {
+            list = &UnitsManager_StationaryUnits;
+        }
+
+    } else if (flags & MOBILE_AIR_UNIT) {
+        list = &UnitsManager_MobileAirUnits;
+
+    } else {
+        list = &UnitsManager_MobileLandSeaUnits;
+    }
+
+    return list;
+}
+
+int Task_GetReadyUnitsCount(unsigned short team, ResourceID unit_type) {
+    SmartList<UnitInfo>* units = Task_GetUnitList(unit_type);
+    int count = 0;
+
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        if ((*it).team == team && (*it).unit_type == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
+            ++count;
+        }
+    }
+
+    return count;
 }
 
 bool Task::Task_vfunc1(UnitInfo& unit) {

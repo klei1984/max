@@ -21,7 +21,48 @@
 
 #include "tasktransport.hpp"
 
-TaskTransport::TaskTransport(TaskMove* task_move, ResourceID transporter)
-    : Task(task_move->GetTeam(), nullptr, task_move->GetFlags()) {}
+#include "task_manager.hpp"
+
+TaskTransport::TaskTransport(TaskMove* task_move_, ResourceID transporter)
+    : Task(task_move->GetTeam(), nullptr, task_move->GetFlags()) {
+    transporter_unit_type = transporter;
+    task_move = task_move_;
+    move_tasks.PushBack(*task_move_);
+    task_move_->GetPassenger()->PushBackTask2List(this);
+}
 
 TaskTransport::~TaskTransport() {}
+
+bool TaskTransport::Task_vfunc1(UnitInfo& unit) { return unit_transporter != unit; }
+
+int TaskTransport::GetMemoryUse() const { return move_tasks.GetMemorySize() - 6; }
+
+char* TaskTransport::WriteStatusLog(char* buffer) const {}
+
+Rect* TaskTransport::GetBounds(Rect* bounds) {}
+
+unsigned char TaskTransport::GetType() const { return TaskType_TaskTransport; }
+
+bool TaskTransport::Task_vfunc9() {}
+
+void TaskTransport::Task_vfunc11(UnitInfo& unit) {}
+
+void TaskTransport::AddReminder() {}
+
+void TaskTransport::Execute() {}
+
+void TaskTransport::Task_vfunc14(Task* task) {}
+
+void TaskTransport::EndTurn() {}
+
+bool TaskTransport::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskTransport::RemoveSelf() {}
+
+void TaskTransport::Remove(UnitInfo& unit) {}
+
+void TaskTransport::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {}
+
+void TaskTransport::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {}
+
+void TaskTransport::Task_vfunc27(Zone* zone, char mode) {}

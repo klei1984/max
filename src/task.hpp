@@ -88,6 +88,8 @@ void Task_RemoveMovementTasks(UnitInfo* unit);
 bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level);
 bool Task_sub_43671(Task* task, UnitInfo* unit, int caution_level);
 
+int Task_GetReadyUnitsCount(unsigned short team, ResourceID unit_type);
+
 class Task : public SmartObject {
     static unsigned short task_id;
     static unsigned short task_count;

@@ -2783,3 +2783,5 @@ bool UnitInfo::IsReadyForOrders(Task* task) {
 void UnitInfo::RestoreOrders() {
     /// \todo
 }
+
+void UnitInfo::PushBackTask2List(Task* task) { task_list2.PushBack(*task); }
