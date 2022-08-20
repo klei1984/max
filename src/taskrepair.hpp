@@ -30,7 +30,7 @@ class TaskRepair : public Task {
     UnitInfo* SelectRepairShop();
     void RemoveMovementTasks();
 
-    static void RendesvousResultCallback(Task* task, UnitInfo* unit, char result);
+    static void RendezvousResultCallback(Task* task, UnitInfo* unit, char result);
 
 protected:
     ResourceID GetRepairShopType();

@@ -137,7 +137,7 @@ void TaskRepair::RemoveMovementTasks() {
     }
 }
 
-void TaskRepair::RendesvousResultCallback(Task* task, UnitInfo* unit, char result) {
+void TaskRepair::RendezvousResultCallback(Task* task, UnitInfo* unit, char result) {
     if (result == 2) {
         dynamic_cast<TaskRepair*>(task)->RemoveMovementTasks();
 
@@ -327,7 +327,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
 
                         } else if (!Task_sub_43671(this, &*target_unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
                             SmartPointer<Task> task(new (std::nothrow) TaskRendezvous(
-                                &*target_unit, &*operator_unit, this, &TaskRepair::RendesvousResultCallback));
+                                &*target_unit, &*operator_unit, this, &TaskRepair::RendezvousResultCallback));
 
                             TaskManager.AddTask(*task);
                         }

@@ -27,6 +27,12 @@
 class TaskMoveHome : public Task {
     SmartPointer<UnitInfo> unit;
 
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+
+    void PopulateTeamZones(unsigned char** map);
+    void PopulateDefenses(unsigned char** map, ResourceID unit_type);
+    void PopulateOccupiedSites(unsigned char** map, SmartList<UnitInfo>* units);
+
 public:
     TaskMoveHome(UnitInfo* unit, Task* task);
     ~TaskMoveHome();

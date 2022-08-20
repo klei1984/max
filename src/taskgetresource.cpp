@@ -58,7 +58,7 @@ void TaskGetResource::TaskGetResource_sub_46DF3() {
     }
 }
 
-void TaskGetResource::RendesvousResultCallback(Task* task, UnitInfo* unit, char mode) {
+void TaskGetResource::RendezvousResultCallback(Task* task, UnitInfo* unit, char mode) {
     if (mode == 2) {
         dynamic_cast<TaskGetResource*>(task)->TaskGetResource_sub_471F8();
     } else if (mode == 0) {
@@ -133,7 +133,7 @@ void TaskGetResource::EndTurn() {
                 //                }
             } else {
                 SmartPointer<TaskRendezvous> task = new (std::nothrow)
-                    TaskRendezvous(&*unit1, &*unit2, this, &TaskGetResource::RendesvousResultCallback);
+                    TaskRendezvous(&*unit1, &*unit2, this, &TaskGetResource::RendezvousResultCallback);
 
                 TaskManager.AddTask(*task);
             }
