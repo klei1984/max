@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-08-12.
+Last updated: 2022-08-20.
 
-Reimplementation status: 4482 / 5704 (78%) functions.
+Reimplementation status: 4564 / 5704 (80%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -129,21 +129,21 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 ### 0.6 Reimplement original C++ classes
 - Replace the AI movement classes (ai_move.cpp)
   - <span class="legend-done">PathRequest</span>
-  - TaskFindPath
-  - TaskPathRequest
-  - AdjustRequest
+  - <span class="legend-done">TaskFindPath</span>
+  - <span class="legend-done">TaskPathRequest</span>
+  - <span class="legend-done">AdjustRequest</span>
   - TaskMove
-  - TaskDump
+  - <span class="legend-done">TaskDump</span>
   - <span class="legend-done">TaskRetreat</span>
   - <span class="legend-done">TaskActivate</span>
-  - <span class="legend-inwork">TaskRendezvous</span>
-  - <span class="legend-inwork">TaskMoveHome</span>
-  - TaskAssistMove
+  - <span class="legend-done">TaskRendezvous</span>
+  - <span class="legend-done">TaskMoveHome</span>
+  - <span class="legend-inwork">TaskAssistMove</span>
   - TaskTransport
 <br>
 <br>
 - Replace the computer player classes (ai_player.cpp)
-  - <span class="legend-done">UnitValues
+  - <span class="legend-done">UnitValues</span>
   - TransportOrder
   - <span class="legend-done">SpottedUnit</span>
   - <span class="legend-done">TaskMineAssistant</span>
