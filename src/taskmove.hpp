@@ -37,7 +37,11 @@ public:
 
     void SetField68(bool value);
     UnitInfo* GetPassenger();
+    Point GetDestination();
     void SetDestination(Point site);
+
+    void TaskMove_sub_4C66B(bool mode);
+    bool TaskMove_sub_4D247();
 };
 
 #endif /* TASKMOVE_HPP */

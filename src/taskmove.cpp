@@ -43,3 +43,9 @@ void TaskMove::SetField68(bool value) {}
 UnitInfo* TaskMove::GetPassenger() {}
 
 void TaskMove::SetDestination(Point site) {}
+
+void TaskMove::TaskMove_sub_4C66B(bool mode) {}
+
+bool TaskMove::TaskMove_sub_4D247() {}
+
+Point TaskMove::GetDestination() {}

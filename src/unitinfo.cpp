@@ -1244,6 +1244,10 @@ void UnitInfo::ClearTask1List() {
     /// \todo Implement method
 }
 
+void UnitInfo::AddReminders(bool priority) {
+    /// \todo
+}
+
 Task* UnitInfo::GetTask1ListFront() const {
     Task* task;
 

@@ -24,6 +24,7 @@
 
 #include "taskmove.hpp"
 #include "taskobtainunits.hpp"
+#include "transportermap.hpp"
 
 class TaskTransport : public Task {
     ResourceID transporter_unit_type;
@@ -54,5 +55,8 @@ public:
     void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
     void Task_vfunc27(Zone* zone, char mode);
 };
+
+bool TaskTransport_static_sub_51BF2(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map);
+void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 #endif /* TASKTRANSPORT_HPP */

@@ -66,3 +66,7 @@ void TaskTransport::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {}
 void TaskTransport::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {}
 
 void TaskTransport::Task_vfunc27(Zone* zone, char mode) {}
+
+bool TaskTransport_static_sub_51BF2(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map) {}
+
+void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {}

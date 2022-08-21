@@ -27,6 +27,9 @@
 class TaskAssistMove : public Task {
     SmartList<UnitInfo> units;
 
+    void RequestTransport(UnitInfo* unit1, UnitInfo* unit2);
+    void CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site);
+
 public:
     TaskAssistMove(unsigned short team);
     ~TaskAssistMove();
