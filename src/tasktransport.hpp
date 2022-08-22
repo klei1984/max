@@ -33,6 +33,18 @@ class TaskTransport : public Task {
     SmartPointer<TaskMove> task_move;
     SmartPointer<TaskObtainUnits> task_obtain_units;
 
+    void AddClients(SmartList<TaskMove>* list);
+    bool WillTransportNewClient(TaskMove* task);
+    bool ChooseNewTask();
+    void AddMove(TaskMove* move);
+    void RemoveMove(TaskMove* move);
+
+    static void MoveFinishedCallback1(Task* task, UnitInfo* unit, char result);
+    static void MoveFinishedCallback2(Task* task, UnitInfo* unit, char result);
+
+    bool LoadUnit(UnitInfo* unit);
+    void UnloadUnit(UnitInfo* unit);
+
 public:
     TaskTransport(TaskMove* task_move, ResourceID transporter);
     ~TaskTransport();
@@ -54,9 +66,11 @@ public:
     void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
     void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
     void Task_vfunc27(Zone* zone, char mode);
+
+    ResourceID GetTransporterType() const;
 };
 
-bool TaskTransport_static_sub_51BF2(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map);
+bool TaskTransport_Search(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map);
 void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 #endif /* TASKTRANSPORT_HPP */

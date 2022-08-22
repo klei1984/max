@@ -132,6 +132,7 @@ public:
     Task* GetTask1ListFront() const;
     SmartList<Task>::Iterator GetTask1ListIterator();
     void PushBackTask2List(Task* task);
+    void RemoveFromTask2List(Task* task);
     bool IsReadyForOrders(Task* task);
     void SetParent(UnitInfo* parent);
     void SetBaseValues(UnitValues* unit_values);

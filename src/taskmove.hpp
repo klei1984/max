@@ -39,6 +39,9 @@ public:
     UnitInfo* GetPassenger();
     Point GetDestination();
     void SetDestination(Point site);
+    ResourceID GetTransporterType() const;
+
+    Point GetPoint2() const;
 
     void TaskMove_sub_4C66B(bool mode);
     bool TaskMove_sub_4D247();

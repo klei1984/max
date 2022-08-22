@@ -261,3 +261,5 @@ void TaskObtainUnits::RemoveSelf() {
     parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
+
+void TaskObtainUnits::AddUnit(ResourceID unit_type) { units.PushBack(&unit_type); }

@@ -68,7 +68,7 @@ void TaskAssistMove::RequestTransport(UnitInfo* unit1, UnitInfo* unit2) {
 
 void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site) {
     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
-        if (Access_GetUnit4(site.x, site.y, team, 0x180)) {
+        if (Access_GetUnit4(site.x, site.y, team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
             SmartPointer<Zone> zone = new (std::nothrow) Zone(unit2, this);
 
             zone->Add(&site);
@@ -236,7 +236,7 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
                             distance = Access_GetDistance(&*it, &unit);
 
                             if (UnitInfo_object2 == nullptr || distance < minimum_distance) {
-                                if (TaskTransport_static_sub_51BF2(&unit, &*it, map)) {
+                                if (TaskTransport_Search(&unit, &*it, map)) {
                                     UnitInfo_object2 = &*it;
                                     minimum_distance = distance;
                                     Point_object1.x = (*it).grid_x;
@@ -248,7 +248,8 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
                 }
             }
 
-            if (UnitInfo_object2 && Access_GetDistance(&unit, Point_object1) <= unit.unit_type == AIRTRANS ? 0 : 3) {
+            if (UnitInfo_object2 &&
+                Access_GetDistance(&unit, Point_object1) <= ((unit.unit_type == AIRTRANS) ? 0 : 3)) {
                 RequestTransport(&unit, UnitInfo_object2);
 
                 result = true;
@@ -283,7 +284,7 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
         }
 
         if (UnitInfo_object2) {
-            if (Access_GetDistance(&unit, Point_object1) <= unit.unit_type == AIRTRANS ? 0 : 3) {
+            if (Access_GetDistance(&unit, Point_object1) <= ((unit.unit_type == AIRTRANS) ? 0 : 3)) {
                 CompleteTransport(&unit, UnitInfo_object2, Point_object1);
 
             } else {

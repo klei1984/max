@@ -44,6 +44,10 @@ UnitInfo* TaskMove::GetPassenger() {}
 
 void TaskMove::SetDestination(Point site) {}
 
+ResourceID TaskMove::GetTransporterType() const {}
+
+Point TaskMove::GetPoint2() const {}
+
 void TaskMove::TaskMove_sub_4C66B(bool mode) {}
 
 bool TaskMove::TaskMove_sub_4D247() {}

@@ -2789,3 +2789,5 @@ void UnitInfo::RestoreOrders() {
 }
 
 void UnitInfo::PushBackTask2List(Task* task) { task_list2.PushBack(*task); }
+
+void UnitInfo::RemoveFromTask2List(Task* task) { task_list2.Remove(*task); }

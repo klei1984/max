@@ -49,6 +49,8 @@ public:
     void Execute();
     void EndTurn();
     void RemoveSelf();
+
+    void AddUnit(ResourceID unit_type);
 };
 
 #endif /* TASKOBTAINUNITS_HPP */
