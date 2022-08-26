@@ -22,7 +22,7 @@
 #include "taskmovehome.hpp"
 
 #include "accessmap.hpp"
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "paths_manager.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"

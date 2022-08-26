@@ -34,7 +34,7 @@ RemindTurnStart::~RemindTurnStart() {}
 
 void RemindTurnStart::Reminder_vfunc1() {
     task->SetField7(false);
-    task->Execute();
+    task->BeginTurn();
 }
 
 int RemindTurnStart::Reminder_vfunc2() { return 0; }

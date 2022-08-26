@@ -22,7 +22,7 @@
 #include "taskactivate.hpp"
 
 #include "access.hpp"
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 

@@ -19,21 +19,10 @@
  * SOFTWARE.
  */
 
-#ifndef TASKFRONTIERASSISTANT_HPP
-#define TASKFRONTIERASSISTANT_HPP
+#include "taskcreatebuilding.hpp"
 
-#include "task.hpp"
+TaskCreateBuilding::TaskCreateBuilding(Task* task, unsigned short flags, ResourceID unit_type, Point site,
+                                       TaskManageBuildings* manager)
+    : TaskCreate(task, flags, unit_type) {}
 
-class TaskFrontierAssistant : public Task {
-public:
-    TaskFrontierAssistant(unsigned short team);
-    ~TaskFrontierAssistant();
-
-    int GetMemoryUse() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    void BeginTurn();
-    void RemoveSelf();
-};
-
-#endif /* TASKFRONTIERASSISTANT_HPP */
+TaskCreateBuilding::~TaskCreateBuilding() {}

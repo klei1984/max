@@ -44,7 +44,7 @@ public:
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void AddReminder();
-    void Execute();
+    void BeginTurn();
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();

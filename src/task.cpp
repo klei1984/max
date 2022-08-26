@@ -46,6 +46,10 @@ void Task_RemoveMovementTasks(UnitInfo* unit) {
     /// \todo
 }
 
+bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
+    /// \todo
+}
+
 Task::Task(unsigned short team, Task* parent, unsigned short flags)
     : id(++task_id), team(team), parent(parent), flags(flags), field_6(true), field_7(false), field_8(false) {
     ++task_count;
@@ -232,7 +236,7 @@ void Task::Task_vfunc11(UnitInfo& unit) {}
 
 void Task::AddReminder() { RemindTurnStart(true); }
 
-void Task::Execute() { EndTurn(); }
+void Task::BeginTurn() { EndTurn(); }
 
 void Task::Task_vfunc14(Task* task) {}
 

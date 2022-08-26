@@ -19,7 +19,7 @@
  * SOFTWARE.
  */
 
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 
 AiPlayer AiPlayer_Teams[4];
 TerrainMap AiPlayer_TerrainMap;
@@ -59,4 +59,8 @@ unsigned short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_lev
 
 unsigned short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags) {}
 
-unsigned short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, Point point, int caution_level, unsigned char flags) {}
+int AiPlayer::GetDamagePotential(UnitInfo* unit, Point point, int caution_level, unsigned char flags) {}
+
+void AiPlayer::AddTransportOrder(TransportOrder* transport_order) {}
+
+Task* AiPlayer::FindManager(Point site) {}

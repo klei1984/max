@@ -32,7 +32,7 @@ public:
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
-    void Execute();
+    void BeginTurn();
     void RemoveSelf();
 };
 

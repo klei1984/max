@@ -93,12 +93,14 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskassistmove.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreate.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskcreatebuilding.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreateunit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskdump.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfindpath.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontierassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetmaterials.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskmanagebuildings.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmineassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmove.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmovehome.cpp
@@ -128,6 +130,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/production_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/accessmap.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transportermap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/transportorder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/maxfloodfill.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pathfill.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sitemarker.cpp
@@ -144,7 +147,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/adjustrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/ai_player.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/aiattack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/aiplayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 

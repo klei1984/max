@@ -22,7 +22,7 @@
 #include "ai.hpp"
 
 #include "access.hpp"
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "inifile.hpp"
 #include "units_manager.hpp"
 

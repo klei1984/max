@@ -19,21 +19,15 @@
  * SOFTWARE.
  */
 
-#ifndef TASKFRONTIERASSISTANT_HPP
-#define TASKFRONTIERASSISTANT_HPP
+#ifndef TRANSPORTORDER_HPP
+#define TRANSPORTORDER_HPP
 
-#include "task.hpp"
+#include "paths.hpp"
 
-class TaskFrontierAssistant : public Task {
+class TransportOrder : public SmartObject {
 public:
-    TaskFrontierAssistant(unsigned short team);
-    ~TaskFrontierAssistant();
-
-    int GetMemoryUse() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    void BeginTurn();
-    void RemoveSelf();
+    TransportOrder(UnitInfo* unit, ResourceID unit_type, GroundPath* path);
+    ~TransportOrder();
 };
 
-#endif /* TASKFRONTIERASSISTANT_HPP */
+#endif /* TRANSPORTORDER_HPP */

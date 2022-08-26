@@ -22,7 +22,7 @@
 #include "taskretreat.hpp"
 
 #include "access.hpp"
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
@@ -69,7 +69,7 @@ void TaskRetreat::EndTurn() {
     if (unit_to_retreat != nullptr && unit_to_retreat->IsReadyForOrders(this)) {
         Point site(unit_to_retreat->grid_x, unit_to_retreat->grid_y);
 
-        if (AiPlayer_Teams[team].GetDamagePotentialMap(&*unit_to_retreat, site, caution_level, 0x00)) {
+        if (AiPlayer_Teams[team].GetDamagePotential(&*unit_to_retreat, site, caution_level, 0x00)) {
             Search();
 
         } else {

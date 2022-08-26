@@ -19,38 +19,11 @@
  * SOFTWARE.
  */
 
-#ifndef AI_PLAYER_HPP
-#define AI_PLAYER_HPP
+#ifndef AIATTACK_HPP
+#define AIATTACK_HPP
 
-#include "taskpathrequest.hpp"
-#include "terrainmap.hpp"
-#include "threatmap.hpp"
 #include "unitinfo.hpp"
 
-class AiPlayer {
-public:
-    AiPlayer();
-    ~AiPlayer();
+bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode = true);
 
-    void SetInfoMapPoint(Point point);
-    void UpdateMineMap(Point point);
-    void MarkMineMapPoint(Point point);
-    void ChangeTasksPendingFlag(bool value);
-    bool SelectStrategy();
-    void PlanMinefields();
-    void GuessEnemyAttackDirections();
-    bool CreateBuilding(ResourceID unit_type, Point position, Task* task);
-    bool IsUpgradeNeeded(UnitInfo* unit);
-    bool MatchPath(TaskPathRequest* request);
-    void ClearZone(Zone* zone);
-    unsigned char** GetInfoMap();
-    unsigned short** GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsigned char flags);
-    unsigned short** GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags);
-    unsigned short** GetDamagePotentialMap(UnitInfo* unit, Point point, int caution_level, unsigned char flags);
-};
-
-extern AiPlayer AiPlayer_Teams[4];
-extern TerrainMap AiPlayer_TerrainMap;
-extern ThreatMap AiPlayer_ThreatMaps[10];
-
-#endif /* AI_PLAYER_HPP */
+#endif /* AIATTACK_HPP */

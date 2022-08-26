@@ -24,7 +24,7 @@
 #include "access.hpp"
 #include "accessmap.hpp"
 #include "ai.hpp"
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "pathfill.hpp"

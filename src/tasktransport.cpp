@@ -22,7 +22,7 @@
 #include "tasktransport.hpp"
 
 #include "access.hpp"
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "remote.hpp"
 #include "task_manager.hpp"
@@ -388,7 +388,7 @@ void TaskTransport::AddReminder() {
     }
 }
 
-void TaskTransport::Execute() { EndTurn(); }
+void TaskTransport::BeginTurn() { EndTurn(); }
 
 void TaskTransport::Task_vfunc14(Task* task) {
     if (task->GetType() == TaskType_TaskMove) {

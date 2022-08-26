@@ -22,7 +22,7 @@
 #include "taskassistmove.hpp"
 
 #include "access.hpp"
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "builder.hpp"
 #include "game_manager.hpp"
 #include "remote.hpp"
@@ -117,7 +117,7 @@ void TaskAssistMove::Task_vfunc11(UnitInfo& unit) {
     }
 }
 
-void TaskAssistMove::Execute() {
+void TaskAssistMove::BeginTurn() {
     SmartPointer<UnitInfo> local_unit;
     int unit_count_transport = 0;
     int unit_count_client = 0;

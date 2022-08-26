@@ -19,21 +19,6 @@
  * SOFTWARE.
  */
 
-#ifndef TASKFRONTIERASSISTANT_HPP
-#define TASKFRONTIERASSISTANT_HPP
+#include "aiattack.hpp"
 
-#include "task.hpp"
-
-class TaskFrontierAssistant : public Task {
-public:
-    TaskFrontierAssistant(unsigned short team);
-    ~TaskFrontierAssistant();
-
-    int GetMemoryUse() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    void BeginTurn();
-    void RemoveSelf();
-};
-
-#endif /* TASKFRONTIERASSISTANT_HPP */
+bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {}

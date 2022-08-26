@@ -21,7 +21,7 @@
 
 #include "taskrepair.hpp"
 
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "pathrequest.hpp"
 #include "task_manager.hpp"
@@ -240,7 +240,7 @@ void TaskRepair::AddReminder() {
     Task_RemindMoveFinished(&*target_unit);
 }
 
-void TaskRepair::Execute() { EndTurn(); }
+void TaskRepair::BeginTurn() { EndTurn(); }
 
 void TaskRepair::EndTurn() {
     if (target_unit != nullptr && target_unit->GetTask1ListFront() == this) {

@@ -84,6 +84,7 @@ class UnitInfo;
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
 bool Task_IsReadyToTakeOrders(UnitInfo* unit);
 void Task_RemoveMovementTasks(UnitInfo* unit);
+bool Task_ShouldReserveShot(UnitInfo* unit, Point site);
 
 bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level);
 bool Task_sub_43671(Task* task, UnitInfo* unit, int caution_level);
@@ -145,7 +146,7 @@ public:
     virtual bool Task_vfunc10();
     virtual void Task_vfunc11(UnitInfo& unit);
     virtual void AddReminder();
-    virtual void Execute();
+    virtual void BeginTurn();
     virtual void Task_vfunc14(Task* task);
     virtual void EndTurn();
     virtual bool Task_vfunc16(UnitInfo& unit);

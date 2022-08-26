@@ -21,7 +21,7 @@
 
 #include "taskclearzone.hpp"
 
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 
@@ -79,7 +79,7 @@ bool TaskClearZone::Task_vfunc10() {}
 
 void TaskClearZone::AddReminder() { RemindTurnEnd(); }
 
-void TaskClearZone::Execute() { EndTurn(); }
+void TaskClearZone::BeginTurn() { EndTurn(); }
 
 void TaskClearZone::EndTurn() {}
 

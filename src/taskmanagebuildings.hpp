@@ -19,21 +19,23 @@
  * SOFTWARE.
  */
 
-#ifndef TASKFRONTIERASSISTANT_HPP
-#define TASKFRONTIERASSISTANT_HPP
+#ifndef TASKMANAGEBUILDINGS_HPP
+#define TASKMANAGEBUILDINGS_HPP
 
-#include "task.hpp"
+#include "cargo.hpp"
+#include "taskcreatebuilding.hpp"
 
-class TaskFrontierAssistant : public Task {
+class TaskManageBuildings : Task {
+    Point site;
+    SmartList<UnitInfo> units;
+    SmartList<TaskCreateBuilding> tasks;
+    Cargo cargo;
+
 public:
-    TaskFrontierAssistant(unsigned short team);
-    ~TaskFrontierAssistant();
+    TaskManageBuildings(unsigned short team, Point site);
+    ~TaskManageBuildings();
 
-    int GetMemoryUse() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    void BeginTurn();
-    void RemoveSelf();
+    void BuildBridge(Point site, Task* task);
 };
 
-#endif /* TASKFRONTIERASSISTANT_HPP */
+#endif /* TASKMANAGEBUILDINGS_HPP */

@@ -22,7 +22,7 @@
 #include "taskupdateterrain.hpp"
 
 #include "access.hpp"
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "reminders.hpp"
 #include "resource_manager.hpp"
@@ -48,7 +48,7 @@ char* TaskUpdateTerrain::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskUpdateTerrain::GetType() const { return TaskType_TaskUpdateTerrain; }
 
-void TaskUpdateTerrain::Execute() {
+void TaskUpdateTerrain::BeginTurn() {
     while (location.x < ResourceManager_MapSize.x) {
         if ((timer_get_stamp32() - Paths_LastTimeStamp) <= Paths_TimeLimit) {
             AiPlayer_TerrainMap.TerrainMap_sub_690D6(location, SURFACE_TYPE_LAND);

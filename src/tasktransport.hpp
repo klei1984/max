@@ -34,9 +34,7 @@ class TaskTransport : public Task {
     SmartPointer<TaskObtainUnits> task_obtain_units;
 
     void AddClients(SmartList<TaskMove>* list);
-    bool WillTransportNewClient(TaskMove* task);
     bool ChooseNewTask();
-    void AddMove(TaskMove* move);
     void RemoveMove(TaskMove* move);
 
     static void MoveFinishedCallback1(Task* task, UnitInfo* unit, char result);
@@ -57,7 +55,7 @@ public:
     bool Task_vfunc9();
     void Task_vfunc11(UnitInfo& unit);
     void AddReminder();
-    void Execute();
+    void BeginTurn();
     void Task_vfunc14(Task* task);
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
@@ -68,6 +66,8 @@ public:
     void Task_vfunc27(Zone* zone, char mode);
 
     ResourceID GetTransporterType() const;
+    bool WillTransportNewClient(TaskMove* task);
+    void AddMove(TaskMove* move);
 };
 
 bool TaskTransport_Search(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map);

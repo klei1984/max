@@ -46,7 +46,7 @@ public:
     bool Task_vfunc9();
     void Task_vfunc11(UnitInfo& unit);
     void AddReminder();
-    void Execute();
+    void BeginTurn();
     void EndTurn();
     void RemoveSelf();
 

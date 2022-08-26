@@ -21,7 +21,7 @@
 
 #include "taskupgrade.hpp"
 
-#include "ai_player.hpp"
+#include "aiplayer.hpp"
 #include "units_manager.hpp"
 
 TaskUpgrade::TaskUpgrade(UnitInfo* unit) : TaskRepair(unit) {}

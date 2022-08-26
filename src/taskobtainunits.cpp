@@ -194,7 +194,7 @@ void TaskObtainUnits::AddReminder() {
     }
 }
 
-void TaskObtainUnits::Execute() {
+void TaskObtainUnits::BeginTurn() {
     field_28 = true;
     EndTurn();
 }

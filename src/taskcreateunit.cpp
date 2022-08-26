@@ -38,7 +38,7 @@ void TaskCreateUnit::Task_vfunc11(UnitInfo& unit) {}
 
 void TaskCreateUnit::AddReminder() {}
 
-void TaskCreateUnit::Execute() {}
+void TaskCreateUnit::BeginTurn() {}
 
 void TaskCreateUnit::EndTurn() {}
 

@@ -163,7 +163,7 @@ void TaskRendezvous::AddReminder() {
     Task_RemindMoveFinished(&*unit1);
 }
 
-void TaskRendezvous::Execute() { EndTurn(); }
+void TaskRendezvous::BeginTurn() { EndTurn(); }
 
 void TaskRendezvous::EndTurn() {
     if (unit1 != nullptr && unit2 != nullptr) {
