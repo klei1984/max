@@ -2409,8 +2409,19 @@ void UnitInfo::TextSave(SmartTextfileWriter& file) {
     /// \todo
 }
 
-void UnitInfo::UpdateTurretAngle(int turrent_angle, bool redraw) {
-    /// \todo
+void UnitInfo::UpdateTurretAngle(int turret_angle_, bool redraw) {
+    BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
+
+    turret_angle = turret_angle_;
+
+    PathStep offset = reinterpret_cast<struct BaseUnitDataFile*>(base_unit->data_buffer)->angle_offsets[angle];
+
+    turret_offset_x = offset.x;
+    turret_offset_y = offset.y;
+
+    if (redraw) {
+        DrawSpriteTurretFrame(turret_image_base + turret_angle_);
+    }
 }
 
 void UnitInfo::Attack(int grid_x, int grid_y) {
@@ -2694,7 +2705,17 @@ void UnitInfo::RenderWithConnectors(Rect* bounds) {
 }
 
 int UnitInfo::GetMaxAllowedBuildRate() {
-    /// \todo
+    int result;
+
+    if (flags & MOBILE_LAND_UNIT) {
+        result = build_rate;
+
+    } else {
+        result =
+            std::min(static_cast<int>(build_rate), BuildMenu_GetMaxPossibleBuildRate(unit_type, build_time, storage));
+    }
+
+    return result;
 }
 
 void UnitInfo::TakePathStep() {
@@ -2734,7 +2755,13 @@ void UnitInfo::FollowUnit() {
 }
 
 int UnitInfo::GetExperience() {
-    /// \todo
+    int result = sqrt(storage * 10) - 2.0;
+
+    if (result < 0) {
+        result = 0;
+    }
+
+    return result;
 }
 
 void UnitInfo::BlockedOnPathRequest(bool mode) {
@@ -2791,3 +2818,22 @@ void UnitInfo::RestoreOrders() {
 void UnitInfo::PushBackTask2List(Task* task) { task_list2.PushBack(*task); }
 
 void UnitInfo::RemoveFromTask2List(Task* task) { task_list2.Remove(*task); }
+
+bool UnitInfo::AreTherePins() { return pin_count > 0; }
+
+void UnitInfo::DeployConstructionSiteMarkers(ResourceID unit_type) {}
+
+bool UnitInfo::UnitInfo_sub_F410E() {}
+
+void UnitInfo::ClearInTransitFlag() { in_transit = false; }
+
+bool UnitInfo::UnitInfo_sub_F41DA() {}
+
+void UnitInfo::SpinningTurretAdvanceAnimation() {
+    if (turret_image_index + 1 > image_index_max) {
+        DrawSpriteTurretFrame(turret_image_base);
+
+    } else {
+        DrawSpriteTurretFrame(turret_image_index + 1);
+    }
+}

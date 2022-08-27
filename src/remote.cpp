@@ -146,7 +146,7 @@ static void ipx_packet_cb_11(UnitInfo& unit, NetPacket& packet) {
 }
 
 static void ipx_packet_cb_12(UnitInfo& unit, NetPacket& packet) {
-    //    sub_10186C(unit);
+    UnitsManager_NewOrderWhileScaling(&unit);
 
     packet >> unit.orders;
     packet >> unit.state;

@@ -113,7 +113,7 @@ public:
 
     void RemindTurnEnd(bool priority = false);
 
-    void RemindTurnStart(bool priority);
+    void RemindTurnStart(bool priority = false);
 
     bool GetField6() const;
     void SetField6(bool value);
@@ -125,6 +125,7 @@ public:
     void SetField8(bool value);
 
     unsigned short GetTeam() const;
+    unsigned short GetId() const;
 
     Task* GetParent();
     void SetParent(Task* task);

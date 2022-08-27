@@ -67,6 +67,8 @@ int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, in
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
                                               UnitInfo* parent);
 void UnitsManager_ProcessRemoteOrders();
+void UnitsManager_NewOrderWhileScaling(UnitInfo* unit);
+void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit);
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state);
 void UnitsManager_UpdatePathsTimeLimit();
 void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state);
@@ -82,7 +84,9 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
                                                bool skip_map_status_update = false);
 void UnitsManager_RemoveConnections(UnitInfo* unit);
 int UnitsManager_GetTargetAngle(int distance_x, int distance_y);
+void UnitsManager_AddToDelayedReactionList(UnitInfo* unit);
 void UnitsManager_DrawBustedCommando(UnitInfo* unit);
+void UnitsManager_TestBustedCommando(UnitInfo* unit);
 void UnitsManager_ScaleUnit(UnitInfo* unit, int state);
 
 #endif /* UNITS_MANAGER_HPP */

@@ -36,5 +36,6 @@ void Ai_SelectStartingPosition(unsigned short team);
 void Ai_AddUnitToTrackerList(UnitInfo* unit);
 void Ai_EnableAutoSurvey(UnitInfo* unit);
 bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, unsigned char flags);
+void Ai_UpdateTerrain(UnitInfo* unit);
 
 #endif /* AI_HPP */

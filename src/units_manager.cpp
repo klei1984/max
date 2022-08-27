@@ -108,6 +108,22 @@ static void UnitsManager_Popup_InitInfiltrator(UnitInfo* unit, struct PopupButto
 static bool UnitsManager_Popup_IsNever(UnitInfo* unit);
 static bool UnitsManager_Popup_IsReady(UnitInfo* unit);
 
+static void UnitsManager_ClearPins(SmartList<UnitInfo>* units);
+static void UnitsManager_ProcessOrder(UnitInfo* unit);
+static void UnitsManager_ProcessOrders(SmartList<UnitInfo>* units);
+static void UnitsManager_FinishUnitScaling(UnitInfo* unit);
+static void UnitsManager_ActivateEngineer(UnitInfo* unit);
+static void UnitsManager_DeployMasterBuilderInit(UnitInfo* unit);
+static bool UnitsManager_IsFactory(ResourceID unit_type);
+static void UnitsManager_ClearDelayedReaction(SmartList<UnitInfo>* units);
+static void UnitsManager_ClearDelayedReactions();
+static void UnitsManager_Landing(UnitInfo* unit);
+static void UnitsManager_Loading(UnitInfo* unit);
+static void UnitsManager_Unloading(UnitInfo* unit);
+static void UnitsManager_PerformAutoSurvey(UnitInfo* unit);
+static void UnitsManager_PowerUpUnit(UnitInfo* unit, int factor);
+static void UnitsManager_PowerDownUnit(UnitInfo* unit);
+
 unsigned short UnitsManager_Team;
 
 unsigned int UnitsManager_UnknownCounter;
@@ -126,6 +142,8 @@ SmartPointer<UnitInfo> UnitsManager_Unit;
 SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 
 bool UnitsManager_OrdersPending;
+
+static bool UnitsManager_byte_178170;
 
 AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
     AbstractUnit(
@@ -3223,7 +3241,19 @@ void UnitsManager_InitPopupMenus() {
 }
 
 int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int order) {
-    /// \todo
+    int unit_turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit2->team], unit2->unit_type)
+                         ->GetAttribute(ATTRIB_TURNS);
+    int chance = ((unit1->GetExperience() * 12) * 8 + 640) / unit_turns;
+
+    if (order == ORDER_AWAIT_STEAL_UNIT) {
+        chance /= 4;
+    }
+
+    if (chance > 90) {
+        chance = 90;
+    }
+
+    return chance;
 }
 
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
@@ -3533,8 +3563,24 @@ int UnitsManager_GetTargetAngle(int distance_x, int distance_y) {
 
 void UnitsManager_DrawBustedCommando(UnitInfo* unit) { unit->DrawSpriteFrame(unit->angle + 200); }
 
+void UnitsManager_TestBustedCommando(UnitInfo* unit) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (unit->team != team) {
+            if (unit->IsVisibleToTeam(team)) {
+                UnitsManager_DrawBustedCommando(unit);
+            }
+        }
+    }
+}
+
 void UnitsManager_ScaleUnit(UnitInfo* unit, int state) {
-    /// \todo
+    if (GameManager_PlayerTeam == unit->team) {
+        SoundManager.PlaySfx(unit, state == ORDER_STATE_EXPAND ? SFX_TYPE_EXPAND : SFX_TYPE_SHRINK);
+    }
+
+    UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT_SCALING, state);
+    unit->UpdateUnitDrawZones();
+    unit->RefreshScreen();
 }
 
 void UnitsManager_ProcessRemoteOrders() {
@@ -3542,7 +3588,34 @@ void UnitsManager_ProcessRemoteOrders() {
 }
 
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
-    /// \todo
+    bool delete_path = false;
+
+    if (unit->orders != ORDER_EXPLODE && unit->state != ORDER_STATE_14) {
+        if (unit->orders == ORDER_AWAIT_SCALING) {
+            UnitsManager_NewOrderWhileScaling(unit);
+        }
+
+        if (unit->state == ORDER_STATE_NEW_ORDER) {
+            unit->orders = ORDER_AWAIT;
+            unit->state = ORDER_STATE_1;
+
+            delete_path = true;
+        }
+
+        if (order == ORDER_EXPLODE || unit->orders != ORDER_FIRE) {
+            if (unit->orders != ORDER_NEW_ALLOCATE) {
+                unit->prior_orders = unit->orders;
+                unit->prior_state = unit->state;
+            }
+
+            unit->orders = order;
+            unit->state = state;
+        }
+
+        if (delete_path) {
+            PathsManager_RemoveRequest(unit);
+        }
+    }
 }
 
 void UnitsManager_UpdatePathsTimeLimit() {
@@ -3628,12 +3701,26 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     Hash_UnitHash.Remove(unit);
 
     if (unit->GetId() != 0xFFFF && !(unit->flags & (EXPLODING | MISSILE_UNIT))) {
-        /// \todo Ai_sub_48E92(unit);
+        /// \todo Ai_RemoveUnit(unit);
     }
 }
 
 void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit) {
-    /// \todo
+    if (unit->flags & GROUND_COVER) {
+        UnitsManager_GroundCoverUnits.Remove(*unit);
+
+    } else if (unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+        UnitsManager_MobileLandSeaUnits.Remove(*unit);
+
+    } else if (unit->flags & STATIONARY) {
+        UnitsManager_StationaryUnits.Remove(*unit);
+
+    } else if (unit->flags & MOBILE_AIR_UNIT) {
+        UnitsManager_MobileAirUnits.Remove(*unit);
+
+    } else if (unit->flags & MISSILE_UNIT) {
+        UnitsManager_ParticleUnits.Remove(*unit);
+    }
 }
 
 SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
@@ -3755,10 +3842,205 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
             unit->DrawSpriteFrame(unit->image_base + 1);
         }
 
-        /// \todo Ai_sub_48D5F(unit);
+        Ai_UpdateTerrain(unit);
     }
 
     unit->SetPosition(grid_x, grid_y, skip_map_status_update);
 
     return SmartPointer<UnitInfo>(unit);
+}
+
+void UnitsManager_FinishUnitScaling(UnitInfo* unit) {}
+
+void UnitsManager_NewOrderWhileScaling(UnitInfo* unit) {
+    if (unit->orders == ORDER_AWAIT_SCALING) {
+        if (unit->state == ORDER_STATE_EXPAND) {
+            unit->scaler_adjust = 0;
+            UnitsManager_UpdateConnectors(unit);
+
+        } else {
+            unit->scaler_adjust = 4;
+            UnitsManager_FinishUnitScaling(unit);
+        }
+    }
+}
+
+void UnitsManager_ClearPins(SmartList<UnitInfo>* units) {
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        (*it).ClearPins();
+    }
+}
+
+void UnitsManager_PerformAutoSurvey(UnitInfo* unit) {
+    if (unit->auto_survey && unit->speed && GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
+        (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == unit->team)) {
+        if (!Remote_IsNetworkGame || !UnitsManager_TeamInfo[unit->team].field_41) {
+            if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER ||
+                UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_REMOTE) {
+                unit->auto_survey = false;
+
+            } else {
+                if (!unit->GetTask1ListFront()) {
+                    Ai_EnableAutoSurvey(unit);
+                }
+
+                unit->AddReminders(false);
+            }
+        }
+    }
+}
+
+void UnitsManager_ProcessOrder(UnitInfo* unit) {
+    /// \todo
+}
+
+void UnitsManager_ProcessOrders(SmartList<UnitInfo>* units) {
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        UnitsManager_ProcessOrder(&*it);
+    }
+}
+
+void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit) {
+    if (unit->hits == 0) {
+        unit->engine = 0;
+        unit->weapon = 0;
+        unit->comm = 0;
+    }
+}
+
+void UnitsManager_ActivateEngineer(UnitInfo* unit) {
+    Access_DestroyUtilities(unit->grid_x, unit->grid_y, false, false, false, false);
+    unit->prior_orders = ORDER_AWAIT;
+    unit->prior_state = ORDER_STATE_1;
+    unit->orders = ORDER_MOVE;
+    unit->state = ORDER_STATE_0;
+    unit->GetParent()->SetParent(unit);
+    unit->SetParent(nullptr);
+}
+
+void UnitsManager_DeployMasterBuilderInit(UnitInfo* unit) {
+    if (GameManager_SelectedUnit == unit) {
+        GameManager_DisableMainMenu();
+    }
+
+    unit->DeployConstructionSiteMarkers(MININGST);
+    unit->state = ORDER_STATE_22;
+
+    UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_34);
+}
+
+bool UnitsManager_IsFactory(ResourceID unit_type) {
+    return unit_type == SHIPYARD || unit_type == LIGHTPLT || unit_type == LANDPLT || unit_type == AIRPLT;
+}
+
+void UnitsManager_AddToDelayedReactionList(UnitInfo* unit) {
+    if (!ini_get_setting(INI_DISABLE_FIRE)) {
+        UnitsManager_DelayedAttackTargets[unit->team].PushBack(*unit);
+        UnitsManager_byte_178170 = true;
+    }
+}
+
+void UnitsManager_ClearDelayedReaction(SmartList<UnitInfo>* units) {
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        if ((*it).delayed_reaction && (*it).hits > 0) {
+            (*it).delayed_reaction = 0;
+        }
+    }
+}
+
+void UnitsManager_ClearDelayedReactions() {
+    UnitsManager_byte_178170 = false;
+
+    UnitsManager_ClearDelayedReaction(&UnitsManager_MobileLandSeaUnits);
+    UnitsManager_ClearDelayedReaction(&UnitsManager_MobileAirUnits);
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        UnitsManager_DelayedAttackTargets[team].Clear();
+    }
+}
+
+void UnitsManager_Landing(UnitInfo* unit) {
+    if (unit->UnitInfo_sub_F410E()) {
+        if (unit->GetParent()) {
+            unit->orders = ORDER_IDLE;
+            unit->state = ORDER_STATE_3;
+
+            UnitsManager_ScaleUnit(unit, ORDER_STATE_SHRINK);
+
+        } else {
+            UnitsManager_RemoveUnitFromUnitLists(unit);
+            unit->AddToDrawList();
+
+            unit->orders = ORDER_AWAIT;
+            unit->state = ORDER_STATE_1;
+        }
+
+        if (unit->IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) {
+            unit->RefreshScreen();
+        }
+    }
+}
+
+void UnitsManager_Loading(UnitInfo* unit) {
+    if (unit->UnitInfo_sub_F41DA()) {
+        SmartPointer<UnitInfo> parent = unit->GetParent();
+        BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->unit_type];
+
+        unit->orders = ORDER_AWAIT;
+        unit->state = ORDER_STATE_1;
+        unit->SetParent(nullptr);
+
+        if (unit->GetTask1ListFront()) {
+            unit->GetTask1ListFront()->Task_vfunc24(*unit, *parent);
+        }
+
+        if (GameManager_SelectedUnit == unit) {
+            char message[400];
+
+            sprintf(message, "%s %i has been loaded\ninto air transport.", base_unit->singular_name, parent->unit_id);
+
+            MessageManager_DrawMessage(message, 0, 0);
+        }
+    }
+}
+
+void UnitsManager_Unloading(UnitInfo* unit) {
+    if (unit->UnitInfo_sub_F41DA()) {
+        SmartPointer<UnitInfo> parent = unit->GetParent();
+        BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->unit_type];
+
+        unit->orders = ORDER_AWAIT;
+        unit->state = ORDER_STATE_1;
+        unit->SetParent(nullptr);
+
+        if (unit->GetTask1ListFront()) {
+            unit->GetTask1ListFront()->Task_vfunc26(*unit, *parent);
+        }
+
+        if (GameManager_SelectedUnit == unit) {
+            char message[400];
+
+            sprintf(message, "%s %i has been unloaded\nfrom air transport.", base_unit->singular_name, parent->unit_id);
+
+            MessageManager_DrawMessage(message, 0, 0);
+        }
+    }
+}
+
+void UnitsManager_PowerUpUnit(UnitInfo* unit, int factor) {}
+
+void UnitsManager_PowerDownUnit(UnitInfo* unit) {
+    Ai_SetTasksPendingFlag("Power Down");
+
+    if (GameManager_SelectedUnit == unit) {
+        SoundManager.PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_END);
+    }
+
+    UnitsManager_PowerUpUnit(unit, 1);
+
+    unit->DrawSpriteFrame(unit->image_base);
+
+    if (unit->unit_type == RESEARCH) {
+        ResearchMenu_UpdateResearchProgress(unit->team, unit->research_topic, -1);
+    }
 }

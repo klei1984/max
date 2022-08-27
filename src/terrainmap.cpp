@@ -164,7 +164,7 @@ int TerrainMap::TerrainMap_sub_68EEF(unsigned short** map, Point location) {
     return result;
 }
 
-void TerrainMap::TerrainMap_sub_6915E(unsigned short** map, Point location) {
+void TerrainMap::SetTerrain(unsigned short** map, Point location) {
     Point position;
     bool flag;
     int distance;
@@ -213,7 +213,7 @@ void TerrainMap::TerrainMap_sub_6915E(unsigned short** map, Point location) {
     }
 }
 
-void TerrainMap::TerrainMap_sub_69391(unsigned short** map, Point location) {
+void TerrainMap::ClearTerrain(unsigned short** map, Point location) {
     Point position;
     bool flag;
     int distance;
@@ -278,20 +278,20 @@ int TerrainMap::TerrainMap_sub_690D6(Point location, int surface_type) {
     return result;
 }
 
-void TerrainMap::TerrainMap_sub_695C4(Point location, int surface_type) {
+void TerrainMap::UpdateTerrain(Point location, int surface_type) {
     if (water_map) {
         if (surface_type & SURFACE_TYPE_LAND) {
-            TerrainMap_sub_6915E(water_map, location);
+            SetTerrain(water_map, location);
 
         } else {
-            TerrainMap_sub_69391(water_map, location);
+            ClearTerrain(water_map, location);
         }
 
         if (surface_type & SURFACE_TYPE_WATER) {
-            TerrainMap_sub_6915E(land_map, location);
+            SetTerrain(land_map, location);
 
         } else {
-            TerrainMap_sub_69391(land_map, location);
+            ClearTerrain(land_map, location);
         }
     }
 }

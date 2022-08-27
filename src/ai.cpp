@@ -136,3 +136,5 @@ void Ai_EnableAutoSurvey(UnitInfo* unit) {
 bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, unsigned char flags) {
     /// \todo
 }
+
+void Ai_UpdateTerrain(UnitInfo* unit) {}

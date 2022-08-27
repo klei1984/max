@@ -39,7 +39,7 @@ class Continent : public SmartObject {
     bool IsViableSite(bool test_proximity, unsigned short team, Point site);
 
 public:
-    Continent(unsigned char **map, unsigned short filler, Point point, unsigned char value);
+    Continent(unsigned char **map, unsigned short filler, Point point, unsigned char value = 1);
     ~Continent();
 
     Rect GetBounds() const;

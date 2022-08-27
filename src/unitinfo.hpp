@@ -73,6 +73,7 @@ private:
     void AttachComplex(Complex* complex);
     void TestConnections();
     UnitInfo* GetFirstUntestedConnection();
+    void ClearInTransitFlag();
 
     static const unsigned char ExpResearchTopics[];
 
@@ -111,7 +112,7 @@ public:
     void MoveToFrontInUnitList();
     void AttachToPrimaryComplex();
     void DetachComplex();
-    void UpdateTurretAngle(int turrent_angle, bool redraw = false);
+    void UpdateTurretAngle(int turret_angle, bool redraw = false);
 
     void Attack(int grid_x, int grid_y);
     void StartBuilding();
@@ -199,7 +200,12 @@ public:
     void RemoveInTransitUnitFromMapHash();
     void GetBounds(Rect* bounds);
     bool IsUpgradeAvailable();
+    void SpinningTurretAdvanceAnimation();
     void Redraw();
+    bool AreTherePins();
+    void DeployConstructionSiteMarkers(ResourceID unit_type);
+    bool UnitInfo_sub_F410E();
+    bool UnitInfo_sub_F41DA();
 
     ResourceID unit_type;
     struct PopupFunctions* popup;

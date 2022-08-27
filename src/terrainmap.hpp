@@ -30,8 +30,8 @@ class TerrainMap {
     unsigned short **water_map;
 
     int TerrainMap_sub_68EEF(unsigned short **map, Point location);
-    void TerrainMap_sub_6915E(unsigned short **map, Point location);
-    void TerrainMap_sub_69391(unsigned short **map, Point location);
+    void SetTerrain(unsigned short **map, Point location);
+    void ClearTerrain(unsigned short **map, Point location);
 
 public:
     TerrainMap();
@@ -41,7 +41,7 @@ public:
     void Deinit();
 
     int TerrainMap_sub_690D6(Point location, int surface_type);
-    void TerrainMap_sub_695C4(Point location, int surface_type);
+    void UpdateTerrain(Point location, int surface_type);
 };
 
 #endif /* TERRAINMAP_HPP */

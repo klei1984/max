@@ -268,3 +268,5 @@ void Task::Task_vfunc25(int unknown) {}
 void Task::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {}
 
 void Task::Task_vfunc27(Zone* zone, char mode) {}
+
+unsigned short Task::GetId() const { return id; }
