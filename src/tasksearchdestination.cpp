@@ -19,34 +19,23 @@
  * SOFTWARE.
  */
 
-#ifndef TASKASSISTMOVE_HPP
-#define TASKASSISTMOVE_HPP
+#include "tasksearchdestination.hpp"
 
-#include "task.hpp"
+TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit, int radius)
+    : Task(task->GetTeam(), task, task->GetFlags()) {}
 
-class TaskAssistMove : public Task {
-    SmartList<UnitInfo> units;
+TaskSearchDestination::~TaskSearchDestination() {}
 
-    void RequestTransport(UnitInfo* unit1, UnitInfo* unit2);
-    void CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site);
+int TaskSearchDestination::GetMemoryUse() const {}
 
-public:
-    TaskAssistMove(unsigned short team);
-    ~TaskAssistMove();
+char* TaskSearchDestination::WriteStatusLog(char* buffer) const {}
 
-    bool Task_vfunc1(UnitInfo& unit);
-    bool IsUnitUsable(UnitInfo& unit);
-    int GetMemoryUse() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    void Task_vfunc11(UnitInfo& unit);
-    void BeginTurn();
-    void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
-    void RemoveSelf();
-    void Remove(UnitInfo& unit);
-    void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
-    void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
-};
+unsigned char TaskSearchDestination::GetType() const {}
 
-#endif /* TASKASSISTMOVE_HPP */
+void TaskSearchDestination::AddReminder() {}
+
+void TaskSearchDestination::EndTurn() {}
+
+void TaskSearchDestination::RemoveSelf() {}
+
+void TaskSearchDestination::Remove(UnitInfo& unit) {}

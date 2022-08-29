@@ -390,7 +390,7 @@ void TaskTransport::AddReminder() {
 
 void TaskTransport::BeginTurn() { EndTurn(); }
 
-void TaskTransport::Task_vfunc14(Task* task) {
+void TaskTransport::ChildComplete(Task* task) {
     if (task->GetType() == TaskType_TaskMove) {
         TaskMove* move = dynamic_cast<TaskMove*>(task);
 

@@ -186,7 +186,7 @@ bool Task::Task_vfunc1(UnitInfo& unit) {
     return result;
 }
 
-bool Task::Task_vfunc2(UnitInfo& unit) { return false; }
+bool Task::IsUnitUsable(UnitInfo& unit) { return false; }
 
 int Task::GetCautionLevel(UnitInfo& unit) {
     int result;
@@ -238,7 +238,7 @@ void Task::AddReminder() { RemindTurnStart(true); }
 
 void Task::BeginTurn() { EndTurn(); }
 
-void Task::Task_vfunc14(Task* task) {}
+void Task::ChildComplete(Task* task) {}
 
 void Task::EndTurn() {}
 

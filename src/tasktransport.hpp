@@ -56,7 +56,7 @@ public:
     void Task_vfunc11(UnitInfo& unit);
     void AddReminder();
     void BeginTurn();
-    void Task_vfunc14(Task* task);
+    void ChildComplete(Task* task);
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();

@@ -19,34 +19,23 @@
  * SOFTWARE.
  */
 
-#ifndef TASKASSISTMOVE_HPP
-#define TASKASSISTMOVE_HPP
+#ifndef TASKSEARCHDESTINATION_HPP
+#define TASKSEARCHDESTINATION_HPP
 
 #include "task.hpp"
 
-class TaskAssistMove : public Task {
-    SmartList<UnitInfo> units;
-
-    void RequestTransport(UnitInfo* unit1, UnitInfo* unit2);
-    void CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site);
-
+class TaskSearchDestination : public Task {
 public:
-    TaskAssistMove(unsigned short team);
-    ~TaskAssistMove();
+    TaskSearchDestination(Task* task, UnitInfo* unit, int radius);
+    ~TaskSearchDestination();
 
-    bool Task_vfunc1(UnitInfo& unit);
-    bool IsUnitUsable(UnitInfo& unit);
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
-    void Task_vfunc11(UnitInfo& unit);
-    void BeginTurn();
+    void AddReminder();
     void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
     void Remove(UnitInfo& unit);
-    void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
-    void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
 };
 
-#endif /* TASKASSISTMOVE_HPP */
+#endif /* TASKSEARCHDESTINATION_HPP */

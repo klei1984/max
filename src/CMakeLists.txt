@@ -89,6 +89,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskabstractsearch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskactivate.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskassistmove.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
@@ -109,6 +110,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrendezvous.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrepair.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskretreat.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tasksearchdestination.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasktransport.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupgrade.cpp

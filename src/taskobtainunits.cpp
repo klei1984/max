@@ -176,7 +176,7 @@ void TaskObtainUnits::Task_vfunc11(UnitInfo& unit) {
 
         if (units->GetCount() == 0) {
             if (parent != nullptr) {
-                parent->Task_vfunc14(this);
+                parent->ChildComplete(this);
             }
 
             parent = nullptr;
@@ -248,7 +248,7 @@ void TaskObtainUnits::EndTurn() {
 
     if (!units.GetCount()) {
         if (parent != nullptr) {
-            parent->Task_vfunc14(this);
+            parent->ChildComplete(this);
         }
 
         parent = nullptr;

@@ -95,7 +95,7 @@ void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point s
 
 bool TaskAssistMove::Task_vfunc1(UnitInfo& unit) { return unit.storage == 0; }
 
-bool TaskAssistMove::Task_vfunc2(UnitInfo& unit) {
+bool TaskAssistMove::IsUnitUsable(UnitInfo& unit) {
     return unit.unit_type == AIRTRANS || unit.unit_type == SEATRANS || unit.unit_type == CLNTRANS;
 }
 

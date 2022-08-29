@@ -95,11 +95,12 @@ class Task : public SmartObject {
     static unsigned short task_id;
     static unsigned short task_count;
 
-    bool field_6;
     bool field_7;
     bool field_8;
 
 protected:
+    bool field_6;
+
     unsigned short team;
     unsigned short id;
     unsigned short flags;
@@ -136,7 +137,7 @@ public:
     Point Task_sub_42D3D();
 
     virtual bool Task_vfunc1(UnitInfo& unit);
-    virtual bool Task_vfunc2(UnitInfo& unit);
+    virtual bool IsUnitUsable(UnitInfo& unit);
     virtual int GetCautionLevel(UnitInfo& unit);
     virtual int GetMemoryUse() const = 0;
     virtual unsigned short GetFlags() const;
@@ -148,7 +149,7 @@ public:
     virtual void Task_vfunc11(UnitInfo& unit);
     virtual void AddReminder();
     virtual void BeginTurn();
-    virtual void Task_vfunc14(Task* task);
+    virtual void ChildComplete(Task* task);
     virtual void EndTurn();
     virtual bool Task_vfunc16(UnitInfo& unit);
     virtual bool Task_vfunc17(UnitInfo& unit);

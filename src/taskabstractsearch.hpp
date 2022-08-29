@@ -19,34 +19,33 @@
  * SOFTWARE.
  */
 
-#ifndef TASKASSISTMOVE_HPP
-#define TASKASSISTMOVE_HPP
+#ifndef TASKABSTRACTSEARCH_HPP
+#define TASKABSTRACTSEARCH_HPP
 
 #include "task.hpp"
 
-class TaskAssistMove : public Task {
+class TaskAbstractSearch : public Task {
+    Point point;
     SmartList<UnitInfo> units;
+    short requestors;
 
-    void RequestTransport(UnitInfo* unit1, UnitInfo* unit2);
-    void CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site);
+protected:
+    void FindDestination(UnitInfo& unit, int radius);
 
 public:
-    TaskAssistMove(unsigned short team);
-    ~TaskAssistMove();
+    TaskAbstractSearch(unsigned short team, Task* task, unsigned short flags, Point point);
+    ~TaskAbstractSearch();
 
-    bool Task_vfunc1(UnitInfo& unit);
-    bool IsUnitUsable(UnitInfo& unit);
-    int GetMemoryUse() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
     void Task_vfunc11(UnitInfo& unit);
     void BeginTurn();
+    void ChildComplete(Task* task);
     void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
     void Remove(UnitInfo& unit);
-    void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
-    void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
+
+    virtual void TaskAbstractSearch_vfunc28(UnitInfo& unit);
+    virtual bool IsVisited(UnitInfo& unit, Point point) = 0;
+    virtual void ObtainUnit() = 0;
 };
 
-#endif /* TASKASSISTMOVE_HPP */
+#endif /* TASKABSTRACTSEARCH_HPP */
