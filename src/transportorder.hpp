@@ -23,11 +23,24 @@
 #define TRANSPORTORDER_HPP
 
 #include "paths.hpp"
+#include "taskpathrequest.hpp"
 
 class TransportOrder : public SmartObject {
+    unsigned char transport_category;
+    ResourceID unit_type;
+    SmartPointer<GroundPath> path;
+    Point position;
+
 public:
     TransportOrder(UnitInfo* unit, ResourceID unit_type, GroundPath* path);
     ~TransportOrder();
+
+    ResourceID GetUnitType() const;
+    unsigned char GetTransportCategory() const;
+    int DetermineCategory(ResourceID unit_type);
+    Point MatchClosestPosition(Point target, Point current);
+    Point MatchStartPosition(Point target);
+    void UsePrecalculatedPath(TaskPathRequest* request);
 };
 
 #endif /* TRANSPORTORDER_HPP */
