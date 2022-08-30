@@ -25,7 +25,8 @@
 #include "taskabstractsearch.hpp"
 
 class TaskExplore : public TaskAbstractSearch {
-    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+    bool obtain_requests[UNIT_END];
+    unsigned char field_80[5];
 
 public:
     TaskExplore(unsigned short team, Point point);
