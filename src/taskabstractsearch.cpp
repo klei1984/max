@@ -44,6 +44,8 @@ TaskAbstractSearch::TaskAbstractSearch(unsigned short team_, Task* task, unsigne
 
 TaskAbstractSearch::~TaskAbstractSearch() {}
 
+Point TaskAbstractSearch::GetPoint() const { return point; }
+
 void TaskAbstractSearch::Task_vfunc11(UnitInfo& unit) {
     units.PushBack(unit);
     unit.PushFrontTask1List(this);

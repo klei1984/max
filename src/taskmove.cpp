@@ -36,13 +36,6 @@
 #include "transportorder.hpp"
 #include "units_manager.hpp"
 
-enum {
-    TASKMOVE_RESULT_SUCCESS,
-    TASKMOVE_RESULT_ALREADY_IN_RANGE,
-    TASKMOVE_RESULT_BLOCKED,
-    TASKMOVE_RESULT_CANCELLED,
-};
-
 TaskMove::TaskMove(UnitInfo* unit, Task* task, unsigned short minimum_distance_, unsigned char caution_level_,
                    Point destination_, void (*result_callback_)(Task* task, UnitInfo* unit, char result))
     : Task(unit->team, task, task ? task->GetFlags() : 0x1000) {

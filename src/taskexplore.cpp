@@ -19,35 +19,30 @@
  * SOFTWARE.
  */
 
-#ifndef TASKABSTRACTSEARCH_HPP
-#define TASKABSTRACTSEARCH_HPP
+#include "taskexplore.hpp"
 
-#include "task.hpp"
+void TaskExplore::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {}
 
-class TaskAbstractSearch : public Task {
-protected:
-    Point point;
-    SmartList<UnitInfo> units;
-    short requestors;
+TaskExplore::TaskExplore(unsigned short team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x1B00, point_) {}
 
-    void FindDestination(UnitInfo& unit, int radius);
+TaskExplore::~TaskExplore() {}
 
-public:
-    TaskAbstractSearch(unsigned short team, Task* task, unsigned short flags, Point point);
-    ~TaskAbstractSearch();
+bool TaskExplore::IsUnitUsable(UnitInfo& unit) {}
 
-    Point GetPoint() const;
+int TaskExplore::GetMemoryUse() const { return units.GetMemorySize() - 6; }
 
-    void Task_vfunc11(UnitInfo& unit);
-    void BeginTurn();
-    void ChildComplete(Task* task);
-    void EndTurn();
-    void RemoveSelf();
-    void Remove(UnitInfo& unit);
+char* TaskExplore::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Explore map.");
 
-    virtual void TaskAbstractSearch_vfunc28(UnitInfo& unit);
-    virtual bool IsVisited(UnitInfo& unit, Point point) = 0;
-    virtual void ObtainUnit() = 0;
-};
+    return buffer;
+}
 
-#endif /* TASKABSTRACTSEARCH_HPP */
+unsigned char TaskExplore::GetType() const { return TaskType_TaskExplore; }
+
+bool TaskExplore::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskExplore::TaskAbstractSearch_vfunc28(UnitInfo& unit) {}
+
+bool TaskExplore::IsVisited(UnitInfo& unit, Point point) {}
+
+void TaskExplore::ObtainUnit() {}

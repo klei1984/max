@@ -26,6 +26,13 @@
 #include "paths.hpp"
 #include "task.hpp"
 
+enum {
+    TASKMOVE_RESULT_SUCCESS,
+    TASKMOVE_RESULT_ALREADY_IN_RANGE,
+    TASKMOVE_RESULT_BLOCKED,
+    TASKMOVE_RESULT_CANCELLED,
+};
+
 class TaskMove : public Task {
     SmartPointer<UnitInfo> passenger;
     unsigned short minimum_distance;
