@@ -50,6 +50,8 @@ public:
     int GetDamagePotential(UnitInfo* unit, Point point, int caution_level, unsigned char flags);
     void AddTransportOrder(TransportOrder* transport_order);
     Task* FindManager(Point site);
+    unsigned char** GetMineMap();
+    unsigned char GetMineMapEntry(Point site);
 };
 
 extern AiPlayer AiPlayer_Teams[4];

@@ -64,3 +64,7 @@ int AiPlayer::GetDamagePotential(UnitInfo* unit, Point point, int caution_level,
 void AiPlayer::AddTransportOrder(TransportOrder* transport_order) {}
 
 Task* AiPlayer::FindManager(Point site) {}
+
+unsigned char** AiPlayer::GetMineMap() {}
+
+unsigned char AiPlayer::GetMineMapEntry(Point site) {}
