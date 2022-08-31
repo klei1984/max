@@ -425,7 +425,7 @@ bool TaskTransport::Task_vfunc17(UnitInfo& unit) {
     bool result;
 
     if (unit_transporter == &unit && unit.IsReadyForOrders(this)) {
-        if (Task_sub_43671(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
+        if (Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
             result = true;
 
         } else if (ChooseNewTask()) {

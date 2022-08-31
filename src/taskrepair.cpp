@@ -325,7 +325,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                                 result = false;
                             }
 
-                        } else if (!Task_sub_43671(this, &*target_unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
+                        } else if (!Task_RetreatFromDanger(this, &*target_unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
                             SmartPointer<Task> task(new (std::nothrow) TaskRendezvous(
                                 &*target_unit, &*operator_unit, this, &TaskRepair::RendezvousResultCallback));
 

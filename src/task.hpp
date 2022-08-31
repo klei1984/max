@@ -85,9 +85,9 @@ void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
 bool Task_IsReadyToTakeOrders(UnitInfo* unit);
 void Task_RemoveMovementTasks(UnitInfo* unit);
 bool Task_ShouldReserveShot(UnitInfo* unit, Point site);
-
+bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level);
 bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level);
-bool Task_sub_43671(Task* task, UnitInfo* unit, int caution_level);
+bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level);
 
 int Task_GetReadyUnitsCount(unsigned short team, ResourceID unit_type);
 

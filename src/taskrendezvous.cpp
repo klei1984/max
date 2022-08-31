@@ -188,7 +188,7 @@ bool TaskRendezvous::Task_vfunc17(UnitInfo& unit) {
 
                 } else if (unit2->speed && unit2->IsReadyForOrders(this)) {
                     if (unit1->IsReadyForOrders(this) &&
-                        !Task_sub_43671(this, &*unit2, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
+                        !Task_RetreatFromDanger(this, &*unit2, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
                         Point destination;
 
                         if (TaskRendezvous_SearchLocation(&*unit2, &*unit1, &destination)) {

@@ -27,7 +27,7 @@
 #include "tasksearchdestination.hpp"
 
 void TaskAbstractSearch::FindDestination(UnitInfo& unit, int radius) {
-    if (!Task_sub_43671(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && field_6 && unit.speed) {
+    if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && field_6 && unit.speed) {
         field_6 = false;
 
         SmartPointer<Task> search_destination_task = new (std::nothrow) TaskSearchDestination(this, &unit, radius);

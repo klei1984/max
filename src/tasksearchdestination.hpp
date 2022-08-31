@@ -22,9 +22,40 @@
 #ifndef TASKSEARCHDESTINATION_HPP
 #define TASKSEARCHDESTINATION_HPP
 
-#include "task.hpp"
+#include "taskabstractsearch.hpp"
 
 class TaskSearchDestination : public Task {
+    SmartPointer<UnitInfo> unit;
+    Point point1;
+    TaskAbstractSearch* search_task;
+    unsigned short search_radius;
+    short index;
+    Point points[2];
+    short directions[2];
+    Point point2;
+    Point point3;
+
+    short radius;
+    short field_57;
+    short field_59;
+
+    bool field_61;
+    bool field_62;
+
+    short valid_sites;
+    short searched_sites;
+    short enterable_sites;
+
+    void FinishSearch();
+    void SearchNextCircle();
+    bool Search();
+    void SearchTrySite();
+    bool sub_3DFCF(UnitInfo* unit, Point point);
+    void ResumeSearch();
+
+    static void CloseMoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+    static void FarMoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+
 public:
     TaskSearchDestination(Task* task, UnitInfo* unit, int radius);
     ~TaskSearchDestination();

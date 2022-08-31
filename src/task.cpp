@@ -50,6 +50,10 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
     /// \todo
 }
 
+bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level) {
+    /// \todo
+}
+
 Task::Task(unsigned short team, Task* parent, unsigned short flags)
     : id(++task_id), team(team), parent(parent), flags(flags), field_6(true), field_7(false), field_8(false) {
     ++task_count;
@@ -126,7 +130,7 @@ Point Task::Task_sub_42D3D() {
 
 bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {}
 
-bool Task_sub_43671(Task* task, UnitInfo* unit, int caution_level) {
+bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level) {
     bool result;
 
     if (task->GetField6() && Task_RetreatIfNecessary(task, unit, caution_level)) {
