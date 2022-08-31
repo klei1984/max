@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-08-27.
+Last updated: 2022-08-31.
 
-Reimplementation status: 4795 / 5704 (84%) functions.
+Reimplementation status: 4868 / 5704 (85%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -144,7 +144,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 <br>
 - Replace the computer player classes (ai_player.cpp)
   - <span class="legend-done">UnitValues</span>
-  - TransportOrder
+  - <span class="legend-done">TransportOrder</span>
   - <span class="legend-done">SpottedUnit</span>
   - <span class="legend-done">TaskMineAssistant</span>
   - <span class="legend-done">TaskFrontierAssistant</span>
@@ -179,12 +179,12 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 <br>
 <br>
 - Replace the AI exploration classes (ai_explr.cpp)
-  - TaskSearchDestination
-  - TaskSurvey
-  - TaskFindMines
-  - TaskExplore
-  - TaskAutoSurvey
-  - TaskAbstractSearch
+  - <span class="legend-done">TaskSearchDestination</span>
+  - <span class="legend-done">TaskSurvey</span>
+  - <span class="legend-done">TaskFindMines</span>
+  - <span class="legend-done">TaskExplore</span>
+  - <span class="legend-done">TaskAutoSurvey</span>
+  - <span class="legend-done">TaskAbstractSearch</span>
 <br>
 <br>
 - Replace the AI builder classes (ai_build.cpp)
