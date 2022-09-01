@@ -30,6 +30,7 @@ class TaskCreate : public Task {
 
 public:
     TaskCreate(Task* task, unsigned short flags, ResourceID unit_type);
+    TaskCreate(Task* task, UnitInfo* unit);
     ~TaskCreate();
 
     void RemoveSelf();

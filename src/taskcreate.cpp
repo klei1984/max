@@ -26,10 +26,26 @@
 TaskCreate::TaskCreate(Task* task, unsigned short flags, ResourceID unit_type_)
     : Task(task->GetTeam(), task, flags), unit_type(unit_type_) {}
 
+TaskCreate::TaskCreate(Task* task, UnitInfo* unit_) : Task(unit_->team, task, task->GetFlags()), unit(unit_) {
+    if (unit->state == ORDER_STATE_UNIT_READY) {
+        unit_type = unit_->GetParent()->unit_type;
+
+    } else {
+        unit_type = unit_->GetConstructedUnitType();
+    }
+}
+
 TaskCreate::~TaskCreate() {}
 
 void TaskCreate::RemoveSelf() {
-    /// \todo
+    if (unit) {
+        TaskManager.RemindAvailable(&*unit);
+    }
+
+    unit = nullptr;
+    parent = nullptr;
+
+    TaskManager.RemoveTask(*this);
 }
 
 ResourceID TaskCreate::GetUnitType() const { return unit_type; }
