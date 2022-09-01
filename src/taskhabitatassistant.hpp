@@ -19,17 +19,17 @@
  * SOFTWARE.
  */
 
-#ifndef TASKCONNECTIONASSISTANT_HPP
-#define TASKCONNECTIONASSISTANT_HPP
+#ifndef TASKHABITATASSISTANT_HPP
+#define TASKHABITATASSISTANT_HPP
 
 #include "taskmanagebuildings.hpp"
 
-class TaskConnectionAssistant : public Task {
+class TaskHabitatAssistant : public Task {
     SmartPointer<TaskManageBuildings> manager;
 
 public:
-    TaskConnectionAssistant(TaskManageBuildings* manager);
-    ~TaskConnectionAssistant();
+    TaskHabitatAssistant(TaskManageBuildings* manager);
+    ~TaskHabitatAssistant();
 
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
@@ -38,4 +38,4 @@ public:
     void RemoveSelf();
 };
 
-#endif /* TASKCONNECTIONASSISTANT_HPP */
+#endif /* TASKHABITATASSISTANT_HPP */

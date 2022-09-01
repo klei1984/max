@@ -28,3 +28,5 @@ TaskManageBuildings::~TaskManageBuildings() {}
 void TaskManageBuildings::BuildBridge(Point site, Task* task) {}
 
 bool TaskManageBuildings::ReconnectBuildings() {}
+
+void TaskManageBuildings::CheckWorkers() {}

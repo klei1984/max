@@ -104,6 +104,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfindpath.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontierassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskhabitatassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetmaterials.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmanagebuildings.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmineassistant.cpp

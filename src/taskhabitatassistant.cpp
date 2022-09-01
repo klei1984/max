@@ -19,23 +19,32 @@
  * SOFTWARE.
  */
 
-#ifndef TASKCONNECTIONASSISTANT_HPP
-#define TASKCONNECTIONASSISTANT_HPP
+#include "taskhabitatassistant.hpp"
 
-#include "taskmanagebuildings.hpp"
+#include "task_manager.hpp"
 
-class TaskConnectionAssistant : public Task {
-    SmartPointer<TaskManageBuildings> manager;
+TaskHabitatAssistant::TaskHabitatAssistant(TaskManageBuildings* manager_)
+    : Task(manager_->GetTeam(), this, manager_->GetFlags()) {
+    manager = manager_;
+}
 
-public:
-    TaskConnectionAssistant(TaskManageBuildings* manager);
-    ~TaskConnectionAssistant();
+TaskHabitatAssistant::~TaskHabitatAssistant() {}
 
-    int GetMemoryUse() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
-    void BeginTurn();
-    void RemoveSelf();
-};
+int TaskHabitatAssistant::GetMemoryUse() const { return 4; }
 
-#endif /* TASKCONNECTIONASSISTANT_HPP */
+char* TaskHabitatAssistant::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Habitat assistant");
+
+    return buffer;
+}
+
+unsigned char TaskHabitatAssistant::GetType() const { return TaskType_TaskHabitatAssistant; }
+
+void TaskHabitatAssistant::BeginTurn() { manager->CheckWorkers(); }
+
+void TaskHabitatAssistant::RemoveSelf() {
+    parent = nullptr;
+    manager = nullptr;
+
+    TaskManager.RemoveTask(*this);
+}
