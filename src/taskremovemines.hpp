@@ -19,38 +19,21 @@
  * SOFTWARE.
  */
 
-#ifndef TASKREMOVERUBBLE_HPP
-#define TASKREMOVERUBBLE_HPP
+#ifndef TASKREMOVEMINES_HPP
+#define TASKREMOVEMINES_HPP
 
-#include "task.hpp"
+#include "taskremoverubble.hpp"
 
-class TaskRemoveRubble : public Task {
-protected:
-    SmartPointer<UnitInfo> unit;
-    SmartPointer<UnitInfo> target;
-
-    void RemoveTask();
-    bool DumpMaterials(UnitInfo* unit);
-
-    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
-
+class TaskRemoveMines : public TaskRemoveRubble {
 public:
-    TaskRemoveRubble(Task* task, UnitInfo* unit, unsigned short flags);
-    ~TaskRemoveRubble();
+    TaskRemoveMines(Task* task, UnitInfo* unit);
+    ~TaskRemoveMines();
 
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
-    Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;
-    bool Task_vfunc9();
-    void Task_vfunc11(UnitInfo& unit);
-    void AddReminder();
-    void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
-    void RemoveSelf();
-    void RemoveUnit(UnitInfo& unit);
-
-    virtual void ObtainUnit();
+    void ObtainUnit();
 };
 
-#endif /* TASKREMOVERUBBLE_HPP */
+#endif /* TASKREMOVEMINES_HPP */

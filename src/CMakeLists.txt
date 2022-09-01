@@ -110,6 +110,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmovehome.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskobtainunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskreload.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskremovemines.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskremoverubble.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrendezvous.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskrepair.cpp
