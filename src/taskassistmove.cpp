@@ -320,7 +320,7 @@ void TaskAssistMove::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskAssistMove::Remove(UnitInfo& unit) { units.Remove(unit); }
+void TaskAssistMove::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 
 void TaskAssistMove::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) { Task_RemindMoveFinished(&unit1); }
 

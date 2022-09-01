@@ -49,7 +49,7 @@ public:
     void AddReminder();
     void EndTurn();
     void RemoveSelf();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
 };
 
 #endif /* TASKRETREAT_HPP */

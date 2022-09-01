@@ -189,4 +189,4 @@ void TaskRetreat::TaskMoveResultCallback(Task* task, UnitInfo* unit, char result
     }
 }
 
-void TaskRetreat::Remove(UnitInfo& unit) { RemoveTask(); }
+void TaskRetreat::RemoveUnit(UnitInfo& unit) { RemoveTask(); }

@@ -46,7 +46,7 @@ bool TaskCreateUnit::Task_vfunc17(UnitInfo& unit) {}
 
 void TaskCreateUnit::RemoveSelf() {}
 
-void TaskCreateUnit::Remove(UnitInfo& unit) {}
+void TaskCreateUnit::RemoveUnit(UnitInfo& unit) {}
 
 void TaskCreateUnit::Task_vfunc27(Zone* zone, char mode) {}
 

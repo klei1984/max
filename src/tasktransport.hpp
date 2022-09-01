@@ -60,7 +60,7 @@ public:
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
     void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
     void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
     void Task_vfunc27(Zone* zone, char mode);

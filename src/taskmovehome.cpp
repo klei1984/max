@@ -215,7 +215,7 @@ void TaskMoveHome::RemoveSelf() {
     }
 }
 
-void TaskMoveHome::Remove(UnitInfo& unit_) {
+void TaskMoveHome::RemoveUnit(UnitInfo& unit_) {
     if (unit == unit_) {
         unit = nullptr;
         TaskManager.RemoveTask(*this);

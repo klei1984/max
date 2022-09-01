@@ -232,7 +232,7 @@ void TaskRendezvous::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskRendezvous::Remove(UnitInfo& unit) {
+void TaskRendezvous::RemoveUnit(UnitInfo& unit) {
     if (unit1 == unit || unit2 == unit) {
         if (unit1 != unit) {
             unit1->RemoveTask(this);

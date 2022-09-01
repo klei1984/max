@@ -2096,7 +2096,7 @@ void UnitInfo::GainExperience(int experience) {
 
 void UnitInfo::ProcessTaskList() {
     for (SmartList<Task>::Iterator it = task_list2.Begin(); it != task_list2.End(); ++it) {
-        (*it).Remove(*this);
+        (*it).RemoveUnit(*this);
     }
 
     task_list2.Clear();

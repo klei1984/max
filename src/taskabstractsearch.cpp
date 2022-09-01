@@ -105,7 +105,7 @@ void TaskAbstractSearch::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskAbstractSearch::Remove(UnitInfo& unit) { units.Remove(unit); }
+void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 
 void TaskAbstractSearch::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
     if (units.GetCount() > 0 || requestors > 0) {

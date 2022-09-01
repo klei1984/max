@@ -25,12 +25,22 @@
 #include "task.hpp"
 
 class TaskRemoveRubble : public Task {
+    SmartPointer<UnitInfo> unit;
+    SmartPointer<UnitInfo> target;
+
+    void RemoveTask();
+    bool DumpMaterials(UnitInfo* unit);
+
+protected:
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+
 public:
     TaskRemoveRubble(Task* task, UnitInfo* unit, unsigned short flags);
     ~TaskRemoveRubble();
 
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
+    Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;
     bool Task_vfunc9();
     void Task_vfunc11(UnitInfo& unit);
@@ -38,7 +48,7 @@ public:
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
 
     virtual void ObtainUnit();
 };

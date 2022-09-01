@@ -36,7 +36,7 @@ unsigned char TaskGetMaterials::GetType() const { return TaskType_TaskGetMateria
 
 void TaskGetMaterials::EndTurn() {}
 
-void TaskGetMaterials::Remove(UnitInfo& unit) {}
+void TaskGetMaterials::RemoveUnit(UnitInfo& unit) {}
 
 void TaskGetMaterials::Task_vfunc22(UnitInfo& unit) {}
 

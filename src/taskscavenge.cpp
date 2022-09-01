@@ -146,4 +146,4 @@ void TaskScavenge::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskScavenge::Remove(UnitInfo& unit) { units.Remove(unit); }
+void TaskScavenge::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }

@@ -96,7 +96,7 @@ public:
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
     void Task_vfunc27(Zone* zone, char mode);
 
     void SetField68(bool value);

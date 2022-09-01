@@ -36,7 +36,7 @@ public:
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void EndTurn();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
     void Task_vfunc22(UnitInfo& unit);
 
     void Task_vfunc28();

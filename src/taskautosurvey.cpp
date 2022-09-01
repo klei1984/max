@@ -233,7 +233,7 @@ void TaskAutoSurvey::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskAutoSurvey::Remove(UnitInfo& unit_) {
+void TaskAutoSurvey::RemoveUnit(UnitInfo& unit_) {
     if (unit == unit_) {
         unit = nullptr;
 

@@ -43,7 +43,7 @@ public:
     void ChildComplete(Task* task);
     void EndTurn();
     void RemoveSelf();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
 
     virtual void TaskAbstractSearch_vfunc28(UnitInfo& unit);
     virtual bool IsVisited(UnitInfo& unit, Point point) = 0;

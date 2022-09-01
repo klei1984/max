@@ -48,7 +48,7 @@ public:
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
 };
 
 #endif /* TASKRENDESVOUS_HPP */

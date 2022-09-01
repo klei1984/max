@@ -370,7 +370,7 @@ void TaskRepair::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskRepair::Remove(UnitInfo& unit) {
+void TaskRepair::RemoveUnit(UnitInfo& unit) {
     if (target_unit == unit) {
         SmartPointer<Task> task(this);
 

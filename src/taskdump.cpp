@@ -164,7 +164,7 @@ void TaskDump::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskDump::Remove(UnitInfo& unit_) {
+void TaskDump::RemoveUnit(UnitInfo& unit_) {
     if (unit == &unit_ || task_move->GetPassenger() == &unit_) {
         RemoveTask();
     }

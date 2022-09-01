@@ -43,7 +43,7 @@ public:
     virtual void AddReminder();
     virtual void EndTurn();
     virtual void RemoveSelf();
-    virtual void Remove(UnitInfo& unit);
+    virtual void RemoveUnit(UnitInfo& unit);
 
     virtual void Task_vfunc28() = 0;
     virtual UnitInfo* Task_vfunc29() = 0;

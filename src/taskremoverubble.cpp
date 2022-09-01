@@ -21,29 +21,235 @@
 
 #include "taskremoverubble.hpp"
 
-TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit, unsigned short flags_)
-    : Task(task->GetTeam(), task, flags_) {}
+#include "access.hpp"
+#include "ai.hpp"
+#include "task_manager.hpp"
+#include "taskmove.hpp"
+#include "taskrendezvous.hpp"
+#include "units_manager.hpp"
+
+TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, unsigned short flags_)
+    : Task(task->GetTeam(), task, flags_) {
+    target = unit_;
+}
 
 TaskRemoveRubble::~TaskRemoveRubble() {}
 
-int TaskRemoveRubble::GetMemoryUse() const {}
+int TaskRemoveRubble::GetMemoryUse() const { return 4; }
 
-char* TaskRemoveRubble::WriteStatusLog(char* buffer) const {}
+char* TaskRemoveRubble::WriteStatusLog(char* buffer) const {
+    if (!target) {
+        strcpy(buffer, "Completed rubble removal");
 
-unsigned char TaskRemoveRubble::GetType() const {}
+    } else {
+        sprintf(buffer, "Remove rubble from [%i,%i]", target->grid_x + 1, target->grid_y + 1);
+    }
 
-bool TaskRemoveRubble::Task_vfunc9() {}
+    return buffer;
+}
 
-void TaskRemoveRubble::Task_vfunc11(UnitInfo& unit) {}
+Rect* TaskRemoveRubble::GetBounds(Rect* bounds) {
+    if (!target) {
+        bounds = Task::GetBounds(bounds);
 
-void TaskRemoveRubble::AddReminder() {}
+    } else {
+        bounds->ulx = target->grid_x;
+        bounds->uly = target->grid_y;
+        bounds->lrx = bounds->ulx + 1;
+        bounds->lry = bounds->uly + 1;
+    }
 
-void TaskRemoveRubble::EndTurn() {}
+    return bounds;
+}
 
-bool TaskRemoveRubble::Task_vfunc17(UnitInfo& unit) {}
+unsigned char TaskRemoveRubble::GetType() const { return TaskType_TaskRemoveRubble; }
 
-void TaskRemoveRubble::RemoveSelf() {}
+bool TaskRemoveRubble::Task_vfunc9() { return !unit; }
 
-void TaskRemoveRubble::Remove(UnitInfo& unit) {}
+void TaskRemoveRubble::Task_vfunc11(UnitInfo& unit_) {
+    if (!unit) {
+        unit = unit_;
+        unit_.PushFrontTask1List(this);
+        Task_RemindMoveFinished(&unit_);
+    }
+}
 
-void TaskRemoveRubble::ObtainUnit() {}
+void TaskRemoveRubble::AddReminder() {
+    if (!unit) {
+        ObtainUnit();
+    }
+}
+
+void TaskRemoveRubble::EndTurn() {
+    if (target && unit) {
+        Task_vfunc17(*unit);
+    }
+}
+
+bool TaskRemoveRubble::Task_vfunc17(UnitInfo& unit_) {
+    bool result;
+
+    if (unit_.IsReadyForOrders(this)) {
+        if (target) {
+            target = Access_GetUnit8(unit_.team, target->grid_x, target->grid_y);
+        }
+
+        if (target &&
+            !Ai_IsDangerousLocation(&unit_, Point(target->grid_x, target->grid_y), CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1)) {
+            if (unit_.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) != unit_.storage) {
+                if (unit_.grid_x == target->grid_x && unit_.grid_y == target->grid_y) {
+                    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+                        unit_.SetParent(&*target);
+
+                        unit_.build_time = (target->flags & BUILDING) ? 4 : 1;
+
+                        UnitsManager_SetNewOrder(&unit_, ORDER_CLEAR, ORDER_STATE_0);
+                    }
+
+                    result = true;
+
+                } else if (unit_.speed) {
+                    if (Task_RetreatFromDanger(this, &unit_, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
+                        result = true;
+
+                    } else {
+                        SmartPointer<TaskMove> move_task(
+                            new (std::nothrow) TaskMove(&unit_, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
+                                                        Point(target->grid_x, target->grid_y), &MoveFinishedCallback));
+
+                        TaskManager.AddTask(*move_task);
+
+                        result = true;
+                    }
+
+                } else {
+                    result = false;
+                }
+
+            } else {
+                result = DumpMaterials(&unit_);
+            }
+
+        } else {
+            RemoveTask();
+
+            result = true;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+void TaskRemoveRubble::RemoveSelf() {
+    parent = nullptr;
+
+    RemoveTask();
+}
+
+void TaskRemoveRubble::RemoveUnit(UnitInfo& unit_) {
+    if (unit == unit_) {
+        unit = nullptr;
+
+        if (target) {
+            ObtainUnit();
+        }
+    }
+}
+
+void TaskRemoveRubble::RemoveTask() {
+    SmartPointer<Task> task(this);
+
+    if (unit) {
+        TaskManager.RemindAvailable(&*unit);
+        unit = nullptr;
+    }
+
+    if (parent) {
+        parent->ChildComplete(this);
+    }
+
+    target = nullptr;
+    parent = nullptr;
+
+    TaskManager.RemoveTask(*this);
+}
+
+void TaskRemoveRubble::MoveFinishedCallback(Task* task, UnitInfo* unit_, char result) {
+    if (result == TASKMOVE_RESULT_SUCCESS) {
+        Task_RemindMoveFinished(unit_);
+    }
+}
+
+bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
+    bool result;
+
+    if (unit_->speed) {
+        UnitInfo* best_unit = nullptr;
+        int distance;
+        int minimum_distance;
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).team == team && (*it).storage < (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) &&
+                (*it).hits > 0 && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == CARGO_TYPE_RAW) {
+                Complex* complex = (*it).GetComplex();
+
+                for (SmartList<UnitInfo>::Iterator building = UnitsManager_StationaryUnits.Begin();
+                     building != UnitsManager_StationaryUnits.End(); ++building) {
+                    if ((*building).GetComplex() == complex) {
+                        if ((*building).IsAdjacent(unit_->grid_x, unit_->grid_y)) {
+                            if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+                                unit_->target_grid_x =
+                                    std::min(static_cast<int>(unit_->storage),
+                                             (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - (*it).storage);
+                                unit_->SetParent(&*it);
+
+                                UnitsManager_SetNewOrder(unit_, ORDER_TRANSFER, ORDER_STATE_0);
+                            }
+
+                            result = true;
+
+                            return result;
+
+                        } else {
+                            distance = TaskManager_GetDistance(&*building, unit_);
+
+                            if (!best_unit || distance < minimum_distance) {
+                                minimum_distance = distance;
+
+                                best_unit = &*it;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (best_unit) {
+            SmartPointer<Task> rendezvous_task(new (std::nothrow)
+                                                   TaskRendezvous(unit_, best_unit, this, &MoveFinishedCallback));
+
+            TaskManager.AddTask(*rendezvous_task);
+
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+void TaskRemoveRubble::ObtainUnit() {
+    SmartPointer<TaskObtainUnits> obtain_task(new (std::nothrow) TaskObtainUnits(this, DeterminePosition()));
+    obtain_task->AddUnit(BULLDOZR);
+
+    TaskManager.AddTask(*obtain_task);
+}

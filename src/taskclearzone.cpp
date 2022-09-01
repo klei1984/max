@@ -104,7 +104,7 @@ void TaskClearZone::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskClearZone::Remove(UnitInfo& unit) {
+void TaskClearZone::RemoveUnit(UnitInfo& unit) {
     if (moving_unit == unit) {
         moving_unit = nullptr;
         state = CLEARZONE_STATE_WAITING;

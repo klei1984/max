@@ -134,7 +134,7 @@ public:
     void SetFlags(unsigned short flags);
 
     short Task_sub_42BC4(unsigned short task_flags);
-    Point Task_sub_42D3D();
+    Point DeterminePosition();
 
     virtual bool Task_vfunc1(UnitInfo& unit);
     virtual bool IsUnitUsable(UnitInfo& unit);
@@ -156,7 +156,7 @@ public:
     virtual void RemoveSelf();
     virtual bool Task_vfunc19();
     virtual void Task_vfunc20(int unknown);
-    virtual void Remove(UnitInfo& unit);
+    virtual void RemoveUnit(UnitInfo& unit);
     virtual void Task_vfunc22(UnitInfo& unit);
     virtual void Task_vfunc23(UnitInfo& unit);
     virtual void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);

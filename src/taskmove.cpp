@@ -313,7 +313,7 @@ void TaskMove::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskMove::Remove(UnitInfo& unit) {
+void TaskMove::RemoveUnit(UnitInfo& unit) {
     if (passenger == &unit) {
         Finished(TASKMOVE_RESULT_CANCELLED);
     }
@@ -1206,7 +1206,7 @@ void TaskMove::FindTransport(ResourceID unit_type) {
             TaskTransport* task = dynamic_cast<TaskTransport*>(&*it);
 
             if (task->GetTransporterType() == unit_type) {
-                distance = TaskManager_GetDistance(task->Task_sub_42D3D(), Point(passenger->grid_x, passenger->grid_y));
+                distance = TaskManager_GetDistance(task->DeterminePosition(), Point(passenger->grid_x, passenger->grid_y));
 
                 if (!transport || distance < minimum_distance) {
                     if (task->WillTransportNewClient(this)) {

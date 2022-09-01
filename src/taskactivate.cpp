@@ -239,7 +239,7 @@ void TaskActivate::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskActivate::Remove(UnitInfo& unit) {
+void TaskActivate::RemoveUnit(UnitInfo& unit) {
     if (unit_to_activate == unit) {
         unit_to_activate = nullptr;
         zone = nullptr;

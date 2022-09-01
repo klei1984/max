@@ -120,7 +120,7 @@ short Task::Task_sub_42BC4(unsigned short task_flags) {
     return result;
 }
 
-Point Task::Task_sub_42D3D() {
+Point Task::DeterminePosition() {
     Rect bounds;
 
     GetBounds(&bounds);
@@ -259,7 +259,7 @@ bool Task::Task_vfunc19() { return false; }
 
 void Task::Task_vfunc20(int unknown) {}
 
-void Task::Remove(UnitInfo& unit) {}
+void Task::RemoveUnit(UnitInfo& unit) {}
 
 void Task::Task_vfunc22(UnitInfo& unit) {}
 

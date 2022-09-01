@@ -44,7 +44,7 @@ public:
     void AddReminder();
     void EndTurn();
     void RemoveSelf();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
 
     void CancelRequest();
     void Finish(Point position, GroundPath* path, bool result);

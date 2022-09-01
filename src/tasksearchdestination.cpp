@@ -364,7 +364,7 @@ void TaskSearchDestination::FarMoveFinishedCallback(Task* task, UnitInfo* unit, 
     }
 }
 
-void TaskSearchDestination::Remove(UnitInfo& unit_) {
+void TaskSearchDestination::RemoveUnit(UnitInfo& unit_) {
     if (unit == unit_) {
         FinishSearch();
     }

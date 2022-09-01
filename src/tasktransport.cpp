@@ -540,7 +540,7 @@ void TaskTransport::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskTransport::Remove(UnitInfo& unit) {
+void TaskTransport::RemoveUnit(UnitInfo& unit) {
     if (unit_transporter == &unit) {
         for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
             RemoveMove(&*it);

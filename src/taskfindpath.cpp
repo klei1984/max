@@ -81,7 +81,7 @@ void TaskFindPath::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskFindPath::Remove(UnitInfo& unit) {
+void TaskFindPath::RemoveUnit(UnitInfo& unit) {
     if (path_request) {
         SDL_assert(path_request->GetUnit1() == &unit);
 

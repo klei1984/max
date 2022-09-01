@@ -51,7 +51,7 @@ public:
     unsigned char GetType() const;
     void AddReminder();
     void RemoveSelf();
-    void Remove(UnitInfo& unit);
+    void RemoveUnit(UnitInfo& unit);
 };
 
 #endif /* TASKDUMP_HPP */

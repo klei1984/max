@@ -155,7 +155,7 @@ void TaskGetResource::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskGetResource::Remove(UnitInfo& unit) {
+void TaskGetResource::RemoveUnit(UnitInfo& unit) {
     if (&unit == &*unit1) {
         unit1 = nullptr;
         TaskGetResource_sub_471F8();
