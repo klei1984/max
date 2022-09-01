@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-08-31.
+Last updated: 2022-09-01.
 
-Reimplementation status: 4868 / 5704 (85%) functions.
+Reimplementation status: 4931 / 5704 (86%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -194,16 +194,16 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
   - TaskCreateUnit
   - TaskDefenseAssistant
   - TaskRadarAssistant
-  - TaskPowerAssistant
-  - TaskHabitatAssistant
-  - TaskConnectionAssistant
-  - TaskRemoveRubble
-  - TaskRemoveMines
-  - TaskScavenge
+  - <span class="legend-done">TaskPowerAssistant</span>
+  - <span class="legend-done">TaskHabitatAssistant</span>
+  - <span class="legend-done">TaskConnectionAssistant</span>
+  - <span class="legend-done">TaskRemoveRubble</span>
+  - <span class="legend-done">TaskRemoveMines</span>
+  - <span class="legend-done">TaskScavenge</span>
   - <span class="legend-done">SiteMarker</span>
   - <span class="legend-done">FloodRun</span>
   - <span class="legend-done">MAXFloodFill</span>
-  - TaskCreate
+  - <span class="legend-done">TaskCreate</span>
 <br>
 <br>
 - Replace the AI combat classes (ai_attk.cpp)

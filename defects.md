@@ -318,7 +318,11 @@ On modern operating systems the deallocated heap memory could be reallocated by 
     <source src="{{ site.baseurl }}/assets/clips/defect_86.mp4" type="video/mp4">
     </video>
 
-87. Both the TaskMineAssisstant and TaskFrontierAssistant classes have the same type id. It is not known yet whether this is a copy paste error or done on purpose in which case it would be an unnecessary design decision not a defect. These are the only tasks with equal type identifiers.
+87. Both the TaskMineAssisstant and TaskFrontierAssistant classes have the same type id. It is not known yet whether this is a copy paste error or done on purpose in which case it would be an unnecessary design decision not a defect. There are other tasks with equal type identifiers too.
+
+88. The TaskRemoveRubble task implements a function (cseg01:0003A57F) to dump cargo to the closest complex. This task is used by computer players. The algorithm first searches for a building A that could store some of the raw materials that the bulldozer or mine layer or similar holds, then searches for the closest building B within the same complex of the previously found building A and orders the bulldozer to move to **building A** instead of the closest building within the complex which would be building B. It is another topic why Supply Trucks with free capacity are not even considered by the AI or that it is not even checked how much raw materials can be stored within the selected complex.
+
+89. Both the TaskConnectionAssistant and TaskPowerAssistant classes have the same type id. It is not known yet whether this is a copy paste error or done on purpose in which case it would be an unnecessary design decision not a defect. There are other tasks with equal type identifiers too.
 
 {% comment %}
 
