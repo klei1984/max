@@ -38,6 +38,7 @@ public:
     void BuildBridge(Point site, Task* task);
     bool ReconnectBuildings();
     void CheckWorkers();
+    bool CheckPower();
 };
 
 #endif /* TASKMANAGEBUILDINGS_HPP */

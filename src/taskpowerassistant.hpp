@@ -19,16 +19,23 @@
  * SOFTWARE.
  */
 
+#ifndef TASKPOWERASSISTANT_HPP
+#define TASKPOWERASSISTANT_HPP
+
 #include "taskmanagebuildings.hpp"
 
-TaskManageBuildings::TaskManageBuildings(unsigned short team, Point site) : Task(team, nullptr, 0x1D00) {}
+class TaskPowerAssistant : public Task {
+    SmartPointer<TaskManageBuildings> manager;
 
-TaskManageBuildings::~TaskManageBuildings() {}
+public:
+    TaskPowerAssistant(TaskManageBuildings* manager);
+    ~TaskPowerAssistant();
 
-void TaskManageBuildings::BuildBridge(Point site, Task* task) {}
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void BeginTurn();
+    void RemoveSelf();
+};
 
-bool TaskManageBuildings::ReconnectBuildings() {}
-
-void TaskManageBuildings::CheckWorkers() {}
-
-bool TaskManageBuildings::CheckPower() {}
+#endif /* TASKPOWERASSISTANT_HPP */

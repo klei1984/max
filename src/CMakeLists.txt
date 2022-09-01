@@ -111,6 +111,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmove.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmovehome.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskobtainunits.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskpowerassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskreload.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskremovemines.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskremoverubble.cpp

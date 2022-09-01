@@ -19,16 +19,36 @@
  * SOFTWARE.
  */
 
-#include "taskmanagebuildings.hpp"
+#include "taskpowerassistant.hpp"
 
-TaskManageBuildings::TaskManageBuildings(unsigned short team, Point site) : Task(team, nullptr, 0x1D00) {}
+#include "task_manager.hpp"
 
-TaskManageBuildings::~TaskManageBuildings() {}
+TaskPowerAssistant::TaskPowerAssistant(TaskManageBuildings* manager_)
+    : Task(manager_->GetTeam(), this, manager_->GetFlags()) {
+    manager = manager_;
+}
 
-void TaskManageBuildings::BuildBridge(Point site, Task* task) {}
+TaskPowerAssistant::~TaskPowerAssistant() {}
 
-bool TaskManageBuildings::ReconnectBuildings() {}
+int TaskPowerAssistant::GetMemoryUse() const { return 4; }
 
-void TaskManageBuildings::CheckWorkers() {}
+char* TaskPowerAssistant::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Power assistant");
 
-bool TaskManageBuildings::CheckPower() {}
+    return buffer;
+}
+
+unsigned char TaskPowerAssistant::GetType() const { return TaskType_TaskConnectionAssistant; }
+
+void TaskPowerAssistant::BeginTurn() {
+    if (manager->CheckPower()) {
+        RemindTurnStart(true);
+    }
+}
+
+void TaskPowerAssistant::RemoveSelf() {
+    manager = nullptr;
+    parent = nullptr;
+
+    TaskManager.RemoveTask(*this);
+}
