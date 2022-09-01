@@ -19,24 +19,24 @@
  * SOFTWARE.
  */
 
-#ifndef TASKMANAGEBUILDINGS_HPP
-#define TASKMANAGEBUILDINGS_HPP
+#ifndef TASKCONNECTIONASSISTANT_HPP
+#define TASKCONNECTIONASSISTANT_HPP
 
-#include "cargo.hpp"
-#include "taskcreatebuilding.hpp"
+#include "task.hpp"
+#include "taskmanagebuildings.hpp"
 
-class TaskManageBuildings : public Task {
-    Point site;
-    SmartList<UnitInfo> units;
-    SmartList<TaskCreateBuilding> tasks;
-    Cargo cargo;
+class TaskConnectionAssistant : public Task {
+    SmartPointer<TaskManageBuildings> manager;
 
 public:
-    TaskManageBuildings(unsigned short team, Point site);
-    ~TaskManageBuildings();
+    TaskConnectionAssistant(TaskManageBuildings* manager);
+    ~TaskConnectionAssistant();
 
-    void BuildBridge(Point site, Task* task);
-    bool ReconnectBuildings();
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void BeginTurn();
+    void RemoveSelf();
 };
 
-#endif /* TASKMANAGEBUILDINGS_HPP */
+#endif /* TASKCONNECTIONASSISTANT_HPP */

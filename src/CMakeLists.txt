@@ -94,6 +94,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskautosurvey.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskassistmove.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskconnectionassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreate.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreatebuilding.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreateunit.cpp

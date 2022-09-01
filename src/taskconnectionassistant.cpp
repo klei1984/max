@@ -19,24 +19,32 @@
  * SOFTWARE.
  */
 
-#ifndef TASKMANAGEBUILDINGS_HPP
-#define TASKMANAGEBUILDINGS_HPP
+#include "taskconnectionassistant.hpp"
 
-#include "cargo.hpp"
-#include "taskcreatebuilding.hpp"
+#include "task_manager.hpp"
 
-class TaskManageBuildings : public Task {
-    Point site;
-    SmartList<UnitInfo> units;
-    SmartList<TaskCreateBuilding> tasks;
-    Cargo cargo;
+TaskConnectionAssistant::TaskConnectionAssistant(TaskManageBuildings* manager_)
+    : Task(manager_->GetTeam(), this, manager_->GetFlags()) {
+    manager = manager_;
+}
 
-public:
-    TaskManageBuildings(unsigned short team, Point site);
-    ~TaskManageBuildings();
+TaskConnectionAssistant::~TaskConnectionAssistant() {}
 
-    void BuildBridge(Point site, Task* task);
-    bool ReconnectBuildings();
-};
+int TaskConnectionAssistant::GetMemoryUse() const { return 4; }
 
-#endif /* TASKMANAGEBUILDINGS_HPP */
+char* TaskConnectionAssistant::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Connection assistant");
+
+    return buffer;
+}
+
+unsigned char TaskConnectionAssistant::GetType() const { return TaskType_TaskConnectionAssistant; }
+
+void TaskConnectionAssistant::BeginTurn() { manager->ReconnectBuildings(); }
+
+void TaskConnectionAssistant::RemoveSelf() {
+    manager = nullptr;
+    parent = nullptr;
+
+    TaskManager.RemoveTask(*this);
+}

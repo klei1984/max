@@ -26,3 +26,5 @@ TaskManageBuildings::TaskManageBuildings(unsigned short team, Point site) : Task
 TaskManageBuildings::~TaskManageBuildings() {}
 
 void TaskManageBuildings::BuildBridge(Point site, Task* task) {}
+
+bool TaskManageBuildings::ReconnectBuildings() {}
