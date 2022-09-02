@@ -21,81 +21,84 @@
 
 #include "taskgetresource.hpp"
 
+#include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "taskrendezvous.hpp"
 #include "units_manager.hpp"
 
-void TaskGetResource::TaskGetResource_sub_46DF3() {
+void TaskGetResource::ChooseSource() {
     SmartPointer<UnitInfo> unit;
 
-    if (unit1 != nullptr) {
-        unit2 = nullptr;
-        unit3 = nullptr;
+    if (requestor) {
+        building = nullptr;
+        source = nullptr;
 
-        unit = Task_vfunc29();
-        Task_vfunc30();
+        unit = FindBuilding();
+        FindTruck();
 
-        if (unit != nullptr) {
-            if (unit2 == nullptr) {
-                unit2 = unit;
+        if (unit) {
+            if (!building) {
+                building = unit;
+
             } else {
-                int speed1 = TaskManager_GetDistance(&*unit, &*unit1);
-                int speed2 = TaskManager_GetDistance(&*unit2, &*unit1);
+                int distance1 = TaskManager_GetDistance(&*unit, &*requestor);
+                int distance2 = TaskManager_GetDistance(&*building, &*requestor);
 
-                if (speed2 / 2 > speed1) {
-                    unit2 = unit;
+                if (distance2 / 2 > distance1) {
+                    building = unit;
                 }
             }
         }
 
-        if (unit2 != unit) {
-            unit3 = unit2;
+        if (building != unit) {
+            source = building;
         }
 
-        if (unit3 != nullptr) {
-            unit3->PushFrontTask1List(this);
+        if (source) {
+            source->PushFrontTask1List(this);
         }
     }
 }
 
 void TaskGetResource::RendezvousResultCallback(Task* task, UnitInfo* unit, char mode) {
     if (mode == 2) {
-        dynamic_cast<TaskGetResource*>(task)->TaskGetResource_sub_471F8();
+        dynamic_cast<TaskGetResource*>(task)->ReleaseSource();
+
     } else if (mode == 0) {
         dynamic_cast<TaskGetResource*>(task)->EndTurn();
     }
 }
 
-UnitInfo* TaskGetResource::TaskGetResource_sub_46D29(Complex* complex) {
-    UnitInfo* selected_unit = nullptr;
-    int speed;
-    int best_speed;
+UnitInfo* TaskGetResource::FindClosestBuilding(Complex* complex) {
+    UnitInfo* best_building = nullptr;
+    int distance;
+    int minimum_distance;
 
     for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin(); unit != nullptr; ++unit) {
         if ((*unit).GetComplex() == complex) {
-            speed = TaskManager_GetDistance(&(*unit), &*unit1);
+            distance = TaskManager_GetDistance(&(*unit), &*requestor);
 
-            if (selected_unit == nullptr || (best_speed > speed)) {
-                selected_unit = &*unit;
-                best_speed = speed;
+            if (best_building == nullptr || (minimum_distance > distance)) {
+                best_building = &*unit;
+                minimum_distance = distance;
             }
         }
     }
 
-    return selected_unit;
+    return best_building;
 }
 
-void TaskGetResource::TaskGetResource_sub_471F8() {
-    SmartPointer<UnitInfo> unit(unit3);
+void TaskGetResource::ReleaseSource() {
+    SmartPointer<UnitInfo> unit(source);
 
-    unit2 = nullptr;
-    unit3 = nullptr;
+    building = nullptr;
+    source = nullptr;
 
-    if (unit != nullptr) {
-        /// \todo Implement missing stuff
-        // unit->unitinfo_sub_F2962(this);
+    if (unit) {
+        unit->RemoveTask(this);
+
         if (!unit->GetTask1ListFront()) {
-            // TaskManager.TaskManager_sub_453AC(&*unit);
+            TaskManager.RemindAvailable(&*unit);
         }
     }
 }
@@ -105,35 +108,36 @@ TaskGetResource::TaskGetResource(Task* task, UnitInfo& unit) : Task(unit.team, t
         flags = task->GetFlags();
     }
 
-    unit1 = unit;
+    requestor = unit;
 }
 
 TaskGetResource::~TaskGetResource() {}
 
-void TaskGetResource::AddReminder() {
-    unit1->PushFrontTask1List(this);
+void TaskGetResource::Begin() {
+    requestor->PushFrontTask1List(this);
+
     if (!GetField7()) {
         TaskManager.AddReminder(new (std::nothrow) class RemindTurnStart(*this));
     }
 }
 
 void TaskGetResource::EndTurn() {
-    if (unit1 != nullptr && unit1->GetTask1ListFront() == this) {
-        if (unit3 == nullptr) {
-            TaskGetResource_sub_46DF3();
+    if (requestor && requestor->GetTask1ListFront() == this) {
+        if (!source) {
+            ChooseSource();
         }
 
-        if (unit3 != nullptr && unit3->GetTask1ListFront() == this) {
-            if (unit2->IsAdjacent(unit1->grid_x, unit1->grid_y)) {
-                /// \todo Implement missing stuff
-                //                if (ini_setting_play_mode || team == byte_1737C8_team) {
-                //                    if (ini_setting_play_mode != 2) {
-                //                        Task_vfunc28();
-                //                    }
-                //                }
+        if (source && source->GetTask1ListFront() == this) {
+            if (building->IsAdjacent(requestor->grid_x, requestor->grid_y)) {
+                if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+                    if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+                        DoTransfer();
+                    }
+                }
+
             } else {
                 SmartPointer<TaskRendezvous> task = new (std::nothrow)
-                    TaskRendezvous(&*unit1, &*unit2, this, &TaskGetResource::RendezvousResultCallback);
+                    TaskRendezvous(&*requestor, &*building, this, &TaskGetResource::RendezvousResultCallback);
 
                 TaskManager.AddTask(*task);
             }
@@ -144,29 +148,31 @@ void TaskGetResource::EndTurn() {
 void TaskGetResource::RemoveSelf() {
     parent = nullptr;
 
-    TaskGetResource_sub_471F8();
+    ReleaseSource();
 
-    if (unit1 != nullptr) {
-        /// \todo Implement missing function
-        // unit1->unitinfo_sub_F2962(this);
+    if (requestor) {
+        requestor->RemoveTask(this);
     }
 
-    unit1 = nullptr;
+    requestor = nullptr;
+
     TaskManager.RemoveTask(*this);
 }
 
 void TaskGetResource::RemoveUnit(UnitInfo& unit) {
-    if (&unit == &*unit1) {
-        unit1 = nullptr;
-        TaskGetResource_sub_471F8();
+    if (&unit == &*requestor) {
+        requestor = nullptr;
+        ReleaseSource();
 
-        if (unit1 == nullptr && unit2 == nullptr) {
+        if (!requestor && !building) {
             TaskManager.RemoveTask(*this);
         }
-    } else if (&unit == &*unit3) {
-        unit2 = nullptr;
-        unit3 = nullptr;
-    } else if (&unit == &*unit2) {
-        TaskGetResource_sub_471F8();
+
+    } else if (&unit == &*source) {
+        building = nullptr;
+        source = nullptr;
+
+    } else if (&unit == &*building) {
+        ReleaseSource();
     }
 }

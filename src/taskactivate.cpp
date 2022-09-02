@@ -166,7 +166,7 @@ void TaskActivate::Task_vfunc11(UnitInfo& unit) {
     }
 }
 
-void TaskActivate::AddReminder() {
+void TaskActivate::Begin() {
     unit_to_activate->PushFrontTask1List(this);
     Activate();
 }

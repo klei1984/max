@@ -25,10 +25,10 @@
 #include "taskgetresource.hpp"
 
 class TaskGetMaterials : public TaskGetResource {
-    unsigned short turns_to_complete;
+    unsigned short materials_needed;
 
 public:
-    TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short turns_to_complete);
+    TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short materials_needed);
     ~TaskGetMaterials();
 
     int GetMemoryUse() const;
@@ -39,9 +39,9 @@ public:
     void RemoveUnit(UnitInfo& unit);
     void Task_vfunc22(UnitInfo& unit);
 
-    void Task_vfunc28();
-    UnitInfo* Task_vfunc29();
-    void Task_vfunc30();
+    void DoTransfer();
+    UnitInfo* FindBuilding();
+    void FindTruck();
 };
 
 #endif /* TASKGETMATERIALS_HPP */

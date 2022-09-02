@@ -65,7 +65,7 @@ void TaskManager::AddTask(Task& task) {
         taskobtainunitslist.PushBack(*dynamic_cast<TaskObtainUnits*>(&task));
     }
 
-    task.AddReminder();
+    task.Begin();
 }
 
 void TaskManager::RemoveTask(Task& task) {

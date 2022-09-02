@@ -19,28 +19,23 @@
  * SOFTWARE.
  */
 
-#ifndef TASKMANAGEBUILDINGS_HPP
-#define TASKMANAGEBUILDINGS_HPP
+#ifndef TASKRADARASSISTANT_HPP
+#define TASKRADARASSISTANT_HPP
 
-#include "cargo.hpp"
-#include "taskcreatebuilding.hpp"
+#include "taskmanagebuildings.hpp"
 
-class TaskManageBuildings : public Task {
-    Point site;
-    SmartList<UnitInfo> units;
-    SmartList<TaskCreateBuilding> tasks;
-    Cargo cargo;
+class TaskRadarAssistant : public Task {
+    SmartPointer<TaskManageBuildings> manager;
 
 public:
-    TaskManageBuildings(unsigned short team, Point site);
-    ~TaskManageBuildings();
+    TaskRadarAssistant(TaskManageBuildings* manager);
+    ~TaskRadarAssistant();
 
-    void BuildBridge(Point site, Task* task);
-    bool ReconnectBuildings();
-    void CheckWorkers();
-    bool CheckPower();
-    bool FindSiteForRadar(TaskCreateBuilding* task, Point& site);
-    void AddCreateOrder(TaskCreateBuilding* task);
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void BeginTurn();
+    void RemoveSelf();
 };
 
-#endif /* TASKMANAGEBUILDINGS_HPP */
+#endif /* TASKRADARASSISTANT_HPP */

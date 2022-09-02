@@ -26,3 +26,37 @@ TaskCreateBuilding::TaskCreateBuilding(Task* task, unsigned short flags, Resourc
     : TaskCreate(task, flags, unit_type) {}
 
 TaskCreateBuilding::~TaskCreateBuilding() {}
+
+int TaskCreateBuilding::GetMemoryUse() const {}
+
+char* TaskCreateBuilding::WriteStatusLog(char* buffer) const {}
+
+Rect* TaskCreateBuilding::GetBounds(Rect* bounds) {}
+
+unsigned char TaskCreateBuilding::GetType() const {}
+
+bool TaskCreateBuilding::Task_vfunc9() {}
+
+void TaskCreateBuilding::Task_vfunc11(UnitInfo& unit) {}
+
+void TaskCreateBuilding::Begin() {}
+
+void TaskCreateBuilding::BeginTurn() {}
+
+void TaskCreateBuilding::ChildComplete(Task* task) {}
+
+void TaskCreateBuilding::EndTurn() {}
+
+bool TaskCreateBuilding::Task_vfunc16(UnitInfo& unit) {}
+
+bool TaskCreateBuilding::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskCreateBuilding::RemoveSelf() {}
+
+void TaskCreateBuilding::RemoveUnit(UnitInfo& unit) {}
+
+void TaskCreateBuilding::Task_vfunc27(Zone* zone, char mode) {}
+
+bool TaskCreateBuilding::Task_vfunc28() {}
+
+bool TaskCreateBuilding::IsBuilding() {}

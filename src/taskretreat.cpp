@@ -45,7 +45,7 @@ char* TaskRetreat::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskRetreat::GetType() const { return TaskType_TaskRetreat; }
 
-void TaskRetreat::AddReminder() {
+void TaskRetreat::Begin() {
     field_23 = 0;
     position.x = unit_to_retreat->grid_x;
     position.y = unit_to_retreat->grid_y;

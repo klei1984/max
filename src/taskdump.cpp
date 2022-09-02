@@ -139,7 +139,7 @@ char* TaskDump::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskDump::GetType() const { return TaskType_TaskDump; }
 
-void TaskDump::AddReminder() {
+void TaskDump::Begin() {
     unit->PushFrontTask1List(this);
     field_27 = 2;
     direction = 0;

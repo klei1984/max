@@ -21,8 +21,8 @@
 
 #include "taskgetmaterials.hpp"
 
-TaskGetMaterials::TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short turns_to_complete_)
-    : TaskGetResource(task, *unit), turns_to_complete(turns_to_complete_) {}
+TaskGetMaterials::TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short materials_needed_)
+    : TaskGetResource(task, *unit), materials_needed(materials_needed_) {}
 
 TaskGetMaterials::~TaskGetMaterials() {}
 
@@ -40,8 +40,8 @@ void TaskGetMaterials::RemoveUnit(UnitInfo& unit) {}
 
 void TaskGetMaterials::Task_vfunc22(UnitInfo& unit) {}
 
-void TaskGetMaterials::Task_vfunc28() {}
+void TaskGetMaterials::DoTransfer() {}
 
-UnitInfo* TaskGetMaterials::Task_vfunc29() {}
+UnitInfo* TaskGetMaterials::FindBuilding() {}
 
-void TaskGetMaterials::Task_vfunc30() {}
+void TaskGetMaterials::FindTruck() {}

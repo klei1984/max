@@ -54,7 +54,7 @@ char* TaskAutoSurvey::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskAutoSurvey::GetType() const { return TaskType_TaskAutoSurvey; }
 
-void TaskAutoSurvey::AddReminder() { unit->PushFrontTask1List(this); }
+void TaskAutoSurvey::Begin() { unit->PushFrontTask1List(this); }
 
 bool TaskAutoSurvey::Task_vfunc17(UnitInfo& unit_) {
     bool result;

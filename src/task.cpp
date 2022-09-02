@@ -238,7 +238,7 @@ bool Task::Task_vfunc10() { return false; }
 
 void Task::Task_vfunc11(UnitInfo& unit) {}
 
-void Task::AddReminder() { RemindTurnStart(true); }
+void Task::Begin() { RemindTurnStart(true); }
 
 void Task::BeginTurn() { EndTurn(); }
 
@@ -274,3 +274,5 @@ void Task::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {}
 void Task::Task_vfunc27(Zone* zone, char mode) {}
 
 unsigned short Task::GetId() const { return id; }
+
+int Task_EstimateTurnsTillMissionEnd() {}

@@ -44,7 +44,7 @@ public:
     unsigned char GetType() const;
     bool Task_vfunc9();
     void Task_vfunc11(UnitInfo& unit);
-    void AddReminder();
+    void Begin();
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();

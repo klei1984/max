@@ -32,3 +32,7 @@ bool TaskManageBuildings::ReconnectBuildings() {}
 void TaskManageBuildings::CheckWorkers() {}
 
 bool TaskManageBuildings::CheckPower() {}
+
+bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site) {}
+
+void TaskManageBuildings::AddCreateOrder(TaskCreateBuilding* task) {}

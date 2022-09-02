@@ -62,7 +62,7 @@ unsigned char TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
 
 bool TaskFindPath::Task_vfunc10() { return path_request; }
 
-void TaskFindPath::AddReminder() {
+void TaskFindPath::Begin() {
     path_request->GetUnit1()->PushFrontTask1List(this);
     PathsManager_RemoveRequest(path_request->GetUnit1());
     PathsManager_PushBack(*path_request);

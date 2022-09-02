@@ -88,6 +88,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site);
 bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level);
 bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level);
 bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level);
+int Task_EstimateTurnsTillMissionEnd();
 
 int Task_GetReadyUnitsCount(unsigned short team, ResourceID unit_type);
 
@@ -147,7 +148,7 @@ public:
     virtual bool Task_vfunc9();
     virtual bool Task_vfunc10();
     virtual void Task_vfunc11(UnitInfo& unit);
-    virtual void AddReminder();
+    virtual void Begin();
     virtual void BeginTurn();
     virtual void ChildComplete(Task* task);
     virtual void EndTurn();

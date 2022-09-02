@@ -38,7 +38,7 @@ public:
     unsigned char GetType() const;
 
     void Task_vfunc11(UnitInfo& unit);
-    void AddReminder();
+    void Begin();
     void BeginTurn();
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);
@@ -47,7 +47,7 @@ public:
     void Task_vfunc27(Zone* zone, char mode);
 
     bool Task_vfunc28();
-    bool Task_vfunc29();
+    bool IsBuilding();
 };
 
 #endif /* TASKCREATEUNIT_HPP */

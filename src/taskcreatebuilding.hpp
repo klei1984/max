@@ -31,6 +31,24 @@ public:
     TaskCreateBuilding(Task* task, unsigned short flags, ResourceID unit_type, Point site,
                        TaskManageBuildings* manager);
     ~TaskCreateBuilding();
+
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    Rect* GetBounds(Rect* bounds);
+    unsigned char GetType() const;
+    bool Task_vfunc9();
+    void Task_vfunc11(UnitInfo& unit);
+    void Begin();
+    void BeginTurn();
+    void ChildComplete(Task* task);
+    void EndTurn();
+    bool Task_vfunc16(UnitInfo& unit);
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void RemoveUnit(UnitInfo& unit);
+    void Task_vfunc27(Zone* zone, char mode);
+    bool Task_vfunc28();
+    bool IsBuilding();
 };
 
 #endif /* TASKCREATEBUILDING_HPP */

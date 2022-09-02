@@ -77,7 +77,7 @@ unsigned char TaskClearZone::GetType() const { return TaskType_TaskClearZone; }
 
 bool TaskClearZone::Task_vfunc10() {}
 
-void TaskClearZone::AddReminder() { RemindTurnEnd(); }
+void TaskClearZone::Begin() { RemindTurnEnd(); }
 
 void TaskClearZone::BeginTurn() { EndTurn(); }
 

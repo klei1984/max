@@ -74,7 +74,7 @@ void TaskRemoveRubble::Task_vfunc11(UnitInfo& unit_) {
     }
 }
 
-void TaskRemoveRubble::AddReminder() {
+void TaskRemoveRubble::Begin() {
     if (!unit) {
         ObtainUnit();
     }

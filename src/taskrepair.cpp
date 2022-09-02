@@ -233,7 +233,7 @@ Rect* TaskRepair::GetBounds(Rect* bounds) {
 
 unsigned char TaskRepair::GetType() const { return TaskType_TaskRepair; }
 
-void TaskRepair::AddReminder() {
+void TaskRepair::Begin() {
     target_unit->PushFrontTask1List(this);
     CreateUnit();
     ChooseUnitToRepair();

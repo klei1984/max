@@ -154,7 +154,7 @@ void TaskMove::Task_vfunc11(UnitInfo& unit) {
     }
 }
 
-void TaskMove::AddReminder() {
+void TaskMove::Begin() {
     Task_RemoveMovementTasks(&*passenger);
     passenger->PushFrontTask1List(this);
 

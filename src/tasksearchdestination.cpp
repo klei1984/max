@@ -55,7 +55,7 @@ char* TaskSearchDestination::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskSearchDestination::GetType() const { return TaskType_TaskSearchDestination; }
 
-void TaskSearchDestination::AddReminder() {
+void TaskSearchDestination::Begin() {
     Point position;
 
     unit->PushFrontTask1List(this);

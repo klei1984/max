@@ -25,29 +25,29 @@
 #include "task.hpp"
 
 class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> unit1;
-    SmartPointer<UnitInfo> unit2;
-    SmartPointer<UnitInfo> unit3;
+    SmartPointer<UnitInfo> requestor;
+    SmartPointer<UnitInfo> building;
+    SmartPointer<UnitInfo> source;
 
-    void TaskGetResource_sub_46DF3();
+    void ChooseSource();
     static void RendezvousResultCallback(Task* task, UnitInfo* unit, char mode);
 
 protected:
-    UnitInfo* TaskGetResource_sub_46D29(Complex* complex);
-    void TaskGetResource_sub_471F8();
+    UnitInfo* FindClosestBuilding(Complex* complex);
+    void ReleaseSource();
 
 public:
     TaskGetResource(Task* task, UnitInfo& unit);
     ~TaskGetResource();
 
-    virtual void AddReminder();
+    virtual void Begin();
     virtual void EndTurn();
     virtual void RemoveSelf();
     virtual void RemoveUnit(UnitInfo& unit);
 
-    virtual void Task_vfunc28() = 0;
-    virtual UnitInfo* Task_vfunc29() = 0;
-    virtual void Task_vfunc30() = 0;
+    virtual void DoTransfer() = 0;
+    virtual UnitInfo* FindBuilding() = 0;
+    virtual void FindTruck() = 0;
 };
 
 #endif /* TASKGETRESOURCE_HPP */

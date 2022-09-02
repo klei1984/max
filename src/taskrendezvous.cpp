@@ -151,7 +151,7 @@ char* TaskRendezvous::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskRendezvous::GetType() const { return TaskType_TaskRendezvous; }
 
-void TaskRendezvous::AddReminder() {
+void TaskRendezvous::Begin() {
     if (unit1->GetBaseValues()->GetAttribute(ATTRIB_SPEED) > 0) {
         unit1->PushFrontTask1List(this);
     }

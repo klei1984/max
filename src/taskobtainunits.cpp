@@ -185,7 +185,7 @@ void TaskObtainUnits::Task_vfunc11(UnitInfo& unit) {
     }
 }
 
-void TaskObtainUnits::AddReminder() {
+void TaskObtainUnits::Begin() {
     if (field_28) {
         RemindTurnEnd(true);
 

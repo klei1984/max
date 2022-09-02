@@ -375,7 +375,7 @@ void TaskTransport::Task_vfunc11(UnitInfo& unit) {
     }
 }
 
-void TaskTransport::AddReminder() {
+void TaskTransport::Begin() {
     if (unit_transporter) {
         unit_transporter->PushFrontTask1List(this);
 

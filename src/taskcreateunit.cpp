@@ -36,7 +36,7 @@ unsigned char TaskCreateUnit::GetType() const {}
 
 void TaskCreateUnit::Task_vfunc11(UnitInfo& unit) {}
 
-void TaskCreateUnit::AddReminder() {}
+void TaskCreateUnit::Begin() {}
 
 void TaskCreateUnit::BeginTurn() {}
 
@@ -52,4 +52,4 @@ void TaskCreateUnit::Task_vfunc27(Zone* zone, char mode) {}
 
 bool TaskCreateUnit::Task_vfunc28() {}
 
-bool TaskCreateUnit::Task_vfunc29() {}
+bool TaskCreateUnit::IsBuilding() {}
