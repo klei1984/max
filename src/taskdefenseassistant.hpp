@@ -19,22 +19,24 @@
  * SOFTWARE.
  */
 
+#ifndef TASKDEFENSEASSISTANT_HPP
+#define TASKDEFENSEASSISTANT_HPP
+
 #include "taskmanagebuildings.hpp"
 
-TaskManageBuildings::TaskManageBuildings(unsigned short team, Point site) : Task(team, nullptr, 0x1D00) {}
+class TaskDefenseAssistant : public Task {
+    SmartPointer<TaskManageBuildings> manager;
+    ResourceID unit_type;
 
-TaskManageBuildings::~TaskManageBuildings() {}
+public:
+    TaskDefenseAssistant(TaskManageBuildings* manager, ResourceID unit_type);
+    ~TaskDefenseAssistant();
 
-void TaskManageBuildings::BuildBridge(Point site, Task* task) {}
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void BeginTurn();
+    void RemoveSelf();
+};
 
-bool TaskManageBuildings::ReconnectBuildings() {}
-
-void TaskManageBuildings::CheckWorkers() {}
-
-bool TaskManageBuildings::CheckPower() {}
-
-bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site) {}
-
-void TaskManageBuildings::AddCreateOrder(TaskCreateBuilding* task) {}
-
-bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site) {}
+#endif /* TASKDEFENSEASSISTANT_HPP */
