@@ -30,28 +30,28 @@ void TaskGetResource::ChooseSource() {
     SmartPointer<UnitInfo> unit;
 
     if (requestor) {
-        building = nullptr;
+        supplier = nullptr;
         source = nullptr;
 
         unit = FindBuilding();
         FindTruck();
 
         if (unit) {
-            if (!building) {
-                building = unit;
+            if (!supplier) {
+                supplier = unit;
 
             } else {
                 int distance1 = TaskManager_GetDistance(&*unit, &*requestor);
-                int distance2 = TaskManager_GetDistance(&*building, &*requestor);
+                int distance2 = TaskManager_GetDistance(&*supplier, &*requestor);
 
                 if (distance2 / 2 > distance1) {
-                    building = unit;
+                    supplier = unit;
                 }
             }
         }
 
-        if (building != unit) {
-            source = building;
+        if (supplier != unit) {
+            source = supplier;
         }
 
         if (source) {
@@ -91,7 +91,7 @@ UnitInfo* TaskGetResource::FindClosestBuilding(Complex* complex) {
 void TaskGetResource::ReleaseSource() {
     SmartPointer<UnitInfo> unit(source);
 
-    building = nullptr;
+    supplier = nullptr;
     source = nullptr;
 
     if (unit) {
@@ -128,7 +128,7 @@ void TaskGetResource::EndTurn() {
         }
 
         if (source && source->GetTask1ListFront() == this) {
-            if (building->IsAdjacent(requestor->grid_x, requestor->grid_y)) {
+            if (supplier->IsAdjacent(requestor->grid_x, requestor->grid_y)) {
                 if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
                     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
                         DoTransfer();
@@ -137,7 +137,7 @@ void TaskGetResource::EndTurn() {
 
             } else {
                 SmartPointer<TaskRendezvous> task = new (std::nothrow)
-                    TaskRendezvous(&*requestor, &*building, this, &TaskGetResource::RendezvousResultCallback);
+                    TaskRendezvous(&*requestor, &*supplier, this, &TaskGetResource::RendezvousResultCallback);
 
                 TaskManager.AddTask(*task);
             }
@@ -164,15 +164,15 @@ void TaskGetResource::RemoveUnit(UnitInfo& unit) {
         requestor = nullptr;
         ReleaseSource();
 
-        if (!requestor && !building) {
+        if (!requestor && !supplier) {
             TaskManager.RemoveTask(*this);
         }
 
     } else if (&unit == &*source) {
-        building = nullptr;
+        supplier = nullptr;
         source = nullptr;
 
-    } else if (&unit == &*building) {
+    } else if (&unit == &*supplier) {
         ReleaseSource();
     }
 }

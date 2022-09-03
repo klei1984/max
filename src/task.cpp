@@ -104,7 +104,7 @@ void Task::SetParent(Task* task) { parent = task; }
 
 void Task::SetFlags(unsigned short flags_) { flags = flags_; }
 
-short Task::Task_sub_42BC4(unsigned short task_flags) {
+short Task::DeterminePriority(unsigned short task_flags) {
     int result;
 
     if (flags + 0xFF >= task_flags) {

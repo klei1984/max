@@ -263,7 +263,7 @@ void TaskSearchDestination::SearchTrySite() {
             bool flag = false;
 
             if ((*it).GetTask1ListFront()) {
-                if ((*it).GetTask1ListFront()->Task_sub_42BC4(flags) > 0) {
+                if ((*it).GetTask1ListFront()->DeterminePriority(flags) > 0) {
                     flag = unit->GetTask1ListFront()->Task_vfunc1(*it);
                 }
 

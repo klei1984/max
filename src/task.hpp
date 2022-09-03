@@ -134,7 +134,7 @@ public:
 
     void SetFlags(unsigned short flags);
 
-    short Task_sub_42BC4(unsigned short task_flags);
+    short DeterminePriority(unsigned short task_flags);
     Point DeterminePosition();
 
     virtual bool Task_vfunc1(UnitInfo& unit);

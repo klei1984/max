@@ -25,14 +25,14 @@
 #include "task.hpp"
 
 class TaskGetResource : public Task {
-    SmartPointer<UnitInfo> requestor;
-    SmartPointer<UnitInfo> building;
-    SmartPointer<UnitInfo> source;
-
     void ChooseSource();
     static void RendezvousResultCallback(Task* task, UnitInfo* unit, char mode);
 
 protected:
+    SmartPointer<UnitInfo> requestor;
+    SmartPointer<UnitInfo> supplier;
+    SmartPointer<UnitInfo> source;
+
     UnitInfo* FindClosestBuilding(Complex* complex);
     void ReleaseSource();
 

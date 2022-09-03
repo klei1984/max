@@ -103,7 +103,7 @@ void TaskReload::SelectOperator() {
             if ((*it).team == team && (*it).unit_type == REPAIR && (*it).hits > 0 &&
                 ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
-                if ((*it).GetTask1ListFront() == nullptr || (*it).GetTask1ListFront()->Task_sub_42BC4(flags) > 0) {
+                if ((*it).GetTask1ListFront() == nullptr || (*it).GetTask1ListFront()->DeterminePriority(flags) > 0) {
                     distance = TaskManager_GetDistance(&*it, &*target_unit);
 
                     if (unit == nullptr || distance < shortest_distance) {

@@ -60,7 +60,7 @@ bool TaskObtainUnits::TaskObtainUnits_sub_464C6(UnitInfo* unit, bool mode) {
             } else if (!task->Task_vfunc1(*unit)) {
                 result = false;
             } else {
-                result = task->Task_sub_42BC4(GetFlags()) > 0;
+                result = task->DeterminePriority(GetFlags()) > 0;
             }
         } else {
             result = true;
