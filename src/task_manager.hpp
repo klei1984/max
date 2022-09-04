@@ -32,6 +32,8 @@ int TaskManager_GetDistance(int distance_x, int distance_y);
 int TaskManager_GetDistance(Point point1, Point point2);
 int TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2);
 
+bool TaskManager_NeedToReserveRawMaterials(unsigned short team);
+
 class TaskManager {
     SmartList<TaskObtainUnits> taskobtainunitslist;
     SmartList<Reminder> reminderlist_0;

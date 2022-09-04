@@ -21,19 +21,58 @@
 
 #include "taskcreatebuilding.hpp"
 
-TaskCreateBuilding::TaskCreateBuilding(Task* task, unsigned short flags, ResourceID unit_type, Point site,
-                                       TaskManageBuildings* manager)
-    : TaskCreate(task, flags, unit_type) {}
+#include "resource_manager.hpp"
+#include "task_manager.hpp"
+#include "taskmanagebuildings.hpp"
+
+enum {
+    CREATE_BUILDING_STATE_INITIALIZING,
+    CREATE_BUILDING_STATE_WAITING_FOR_PLATFORM,
+    CREATE_BUILDING_STATE_REMOVING_MINE,
+    CREATE_BUILDING_STATE_GETTING_BUILDER,
+    CREATE_BUILDING_STATE_GETTING_MATERIALS,
+    CREATE_BUILDING_STATE_EVALUTING_SITE,
+    CREATE_BUILDING_STATE_SITE_BLOCKED,
+    CREATE_BUILDING_STATE_MOVING_TO_SITE,
+    CREATE_BUILDING_STATE_CLEARING_SITE,
+    CREATE_BUILDING_STATE_BUILDING,
+    CREATE_BUILDING_STATE_MOVING_OFF_SITE,
+    CREATE_BUILDING_STATE_FINISHED,
+};
+
+TaskCreateBuilding::TaskCreateBuilding(Task* task, unsigned short flags_, ResourceID unit_type_, Point site_,
+                                       TaskManageBuildings* manager_)
+    : TaskCreate(task, flags_, unit_type_) {
+    site = site_;
+    manager = manager_;
+    field_42 = false;
+    op_state = CREATE_BUILDING_STATE_INITIALIZING;
+
+    SDL_assert(site.x >= 0 && site.x < ResourceManager_MapSize.x && site.y >= 0 && site.y < ResourceManager_MapSize.y);
+}
+
+TaskCreateBuilding::TaskCreateBuilding(UnitInfo* unit_, TaskManageBuildings* manager_)
+    : TaskCreate(manager_, unit_), site(unit_->grid_x, unit_->grid_y) {
+    if (unit_->state == ORDER_STATE_UNIT_READY) {
+        op_state = CREATE_BUILDING_STATE_MOVING_OFF_SITE;
+
+    } else {
+        op_state = CREATE_BUILDING_STATE_BUILDING;
+    }
+
+    field_42 = false;
+    manager = manager_;
+}
 
 TaskCreateBuilding::~TaskCreateBuilding() {}
 
-int TaskCreateBuilding::GetMemoryUse() const {}
+int TaskCreateBuilding::GetMemoryUse() const { return 4; }
 
 char* TaskCreateBuilding::WriteStatusLog(char* buffer) const {}
 
 Rect* TaskCreateBuilding::GetBounds(Rect* bounds) {}
 
-unsigned char TaskCreateBuilding::GetType() const {}
+unsigned char TaskCreateBuilding::GetType() const { return TaskType_TaskCreateBuilding; }
 
 bool TaskCreateBuilding::Task_vfunc9() {}
 
@@ -59,4 +98,4 @@ void TaskCreateBuilding::Task_vfunc27(Zone* zone, char mode) {}
 
 bool TaskCreateBuilding::Task_vfunc28() {}
 
-bool TaskCreateBuilding::IsBuilding() {}
+bool TaskCreateBuilding::Task_vfunc29() {}

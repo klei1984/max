@@ -19,45 +19,26 @@
  * SOFTWARE.
  */
 
-#ifndef TASKCREATEBUILDING_HPP
-#define TASKCREATEBUILDING_HPP
+#ifndef TASKESCORT_HPP
+#define TASKESCORT_HPP
 
-#include "taskcreate.hpp"
+#include "task.hpp"
 
-class TaskManageBuildings;
-
-class TaskCreateBuilding : public TaskCreate {
-    SmartPointer<UnitInfo> unit;
-    SmartPointer<TaskManageBuildings> manager;
-    Point site;
-    unsigned char op_state;
-    SmartPointer<Zone> zone;
-    bool field_42;
-    SmartList<Task> tasks;
-
+class TaskEscort : public Task {
 public:
-    TaskCreateBuilding(Task* task, unsigned short flags, ResourceID unit_type, Point site,
-                       TaskManageBuildings* manager);
-    TaskCreateBuilding(UnitInfo* unit, TaskManageBuildings* manager);
-    ~TaskCreateBuilding();
+    TaskEscort(UnitInfo* unit, ResourceID unit_type);
+    ~TaskEscort();
 
+    bool Task_vfunc1(UnitInfo& unit);
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
-    Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;
-    bool Task_vfunc9();
     void Task_vfunc11(UnitInfo& unit);
     void Begin();
-    void BeginTurn();
-    void ChildComplete(Task* task);
     void EndTurn();
-    bool Task_vfunc16(UnitInfo& unit);
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc27(Zone* zone, char mode);
-    bool Task_vfunc28();
-    bool Task_vfunc29();
 };
 
-#endif /* TASKCREATEBUILDING_HPP */
+#endif /* TASKESCORT_HPP */

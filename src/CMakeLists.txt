@@ -100,6 +100,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreateunit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskdefenseassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskdump.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskescort.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskexplore.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfindmines.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfindpath.cpp

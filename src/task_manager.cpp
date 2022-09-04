@@ -46,6 +46,10 @@ int TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
     return TaskManager_GetDistance(unit1->grid_x - unit2->grid_x, unit1->grid_y - unit2->grid_y);
 }
 
+bool TaskManager_NeedToReserveRawMaterials(unsigned short team) {
+    /// \todo
+}
+
 TaskManager::TaskManager() : field_44(0) {}
 
 TaskManager::~TaskManager() {}

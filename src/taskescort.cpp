@@ -19,38 +19,30 @@
  * SOFTWARE.
  */
 
-#ifndef TASKCREATEUNIT_HPP
-#define TASKCREATEUNIT_HPP
+#include "taskescort.hpp"
 
-#include "taskcreate.hpp"
+#include "task_manager.hpp"
 
-class TaskCreateUnit : public TaskCreate {
-    Point site;
-    unsigned char op_state;
+TaskEscort::TaskEscort(UnitInfo* unit, ResourceID unit_type) : Task(unit->team, nullptr, 0x0F00) {}
 
-    void WaitForMaterials();
-    bool IsUnitStillNeeded();
+TaskEscort::~TaskEscort() {}
 
-public:
-    TaskCreateUnit(ResourceID unit_type, Task* task, Point site);
-    TaskCreateUnit(UnitInfo* unit, Task* task);
-    ~TaskCreateUnit();
+bool TaskEscort::Task_vfunc1(UnitInfo& unit) {}
 
-    int GetMemoryUse() const;
-    unsigned short GetFlags() const;
-    char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+int TaskEscort::GetMemoryUse() const {}
 
-    void Task_vfunc11(UnitInfo& unit);
-    void Begin();
-    void BeginTurn();
-    void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
-    void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc27(Zone* zone, char mode);
+char* TaskEscort::WriteStatusLog(char* buffer) const {}
 
-    bool Task_vfunc28();
-    bool Task_vfunc29();
-};
+unsigned char TaskEscort::GetType() const {}
 
-#endif /* TASKCREATEUNIT_HPP */
+void TaskEscort::Task_vfunc11(UnitInfo& unit) {}
+
+void TaskEscort::Begin() {}
+
+void TaskEscort::EndTurn() {}
+
+bool TaskEscort::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskEscort::RemoveSelf() {}
+
+void TaskEscort::RemoveUnit(UnitInfo& unit) {}

@@ -25,6 +25,7 @@
 #include "task.hpp"
 
 class TaskCreate : public Task {
+protected:
     ResourceID unit_type;
     SmartPointer<UnitInfo> unit;
 
@@ -36,7 +37,7 @@ public:
     void RemoveSelf();
 
     virtual bool Task_vfunc28() = 0;
-    virtual bool IsBuilding() = 0;
+    virtual bool Task_vfunc29() = 0;
 
     ResourceID GetUnitType() const;
 };
