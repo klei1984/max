@@ -324,6 +324,8 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 89. Both the TaskConnectionAssistant and TaskPowerAssistant classes have the same type id. It is not known yet whether this is a copy paste error or done on purpose in which case it would be an unnecessary design decision not a defect. There are other tasks with equal type identifiers too.
 
+90. The TaskCreateUnit task implements a function (cseg01:00038CC9) that tries to optimize resource consumption so that demanded units could be created (faster). If necessary the algorithm tries to increase fuel reserves by shutting down inessential infrastructure, namely Eco-Spheres and Gold Refineries. There is a copy paste error when counting the inessential building types so Eco-Spheres are tested twice, counted once, and Gold Refineries do not add to the count. Due to this defect basically Gold Refineries are not considered at all by the algorithm.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
