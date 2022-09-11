@@ -130,7 +130,7 @@ public:
     void PushFrontTask1List(Task* task);
     void ClearTask1List();
     void AddReminders(bool priority);
-    Task* GetTask1ListFront() const;
+    Task* GetTask() const;
     SmartList<Task>::Iterator GetTask1ListIterator();
     void PushBackTask2List(Task* task);
     void RemoveFromTask2List(Task* task);

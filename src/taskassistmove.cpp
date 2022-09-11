@@ -147,7 +147,8 @@ void TaskAssistMove::BeginTurn() {
                 }
             }
 
-            for (SmartList<Task>::Iterator it = TaskManager.tasklist.Begin(); it != TaskManager.tasklist.End(); ++it) {
+            for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin();
+                 it != TaskManager.GetTaskList().End(); ++it) {
                 if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskCreateUnit &&
                     dynamic_cast<TaskCreate*>(&*it)->GetUnitType() == AIRTRANS) {
                     ++unit_count_transport;
@@ -187,7 +188,8 @@ void TaskAssistMove::BeginTurn() {
                 }
             }
 
-            for (SmartList<Task>::Iterator it = TaskManager.tasklist.Begin(); it != TaskManager.tasklist.End(); ++it) {
+            for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin();
+                 it != TaskManager.GetTaskList().End(); ++it) {
                 if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskCreateUnit &&
                     dynamic_cast<TaskCreate*>(&*it)->GetUnitType() == CLNTRANS) {
                     ++unit_count_transport;
@@ -229,9 +231,9 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                 if ((*it).team == team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).unit_type != SURVEYOR) {
-                    if ((*it).GetTask1ListFront() && (*it).GetTask1ListFront()->GetType() == TaskType_TaskMove &&
+                    if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
                         Task_IsReadyToTakeOrders(&*it)) {
-                        if (dynamic_cast<TaskMove*>((*it).GetTask1ListFront())->TaskMove_sub_4D247() ||
+                        if (dynamic_cast<TaskMove*>((*it).GetTask())->TaskMove_sub_4D247() ||
                             unit.speed == 0) {
                             distance = Access_GetDistance(&*it, &unit);
 
@@ -262,15 +264,15 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                 if ((*it).orders == ORDER_IDLE && (*it).GetParent() == &unit && (*it).team == team) {
-                    if (!(*it).GetTask1ListFront() || (*it).GetTask1ListFront()->GetType() != TaskType_TaskMove) {
+                    if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
                         TaskMove* task_move = new (std::nothrow) TaskMove(&*it, &TaskTransport_MoveFinishedCallback);
 
                         TaskManager.AddTask(*task_move);
                     }
 
-                    SDL_assert((*it).GetTask1ListFront()->GetType() == TaskType_TaskMove);
+                    SDL_assert((*it).GetTask()->GetType() == TaskType_TaskMove);
 
-                    Point_object2 = dynamic_cast<TaskMove*>((*it).GetTask1ListFront())->GetDestination();
+                    Point_object2 = dynamic_cast<TaskMove*>((*it).GetTask())->GetDestination();
 
                     distance = Access_GetDistance(&unit, Point_object2);
 
@@ -325,8 +327,8 @@ void TaskAssistMove::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 void TaskAssistMove::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) { Task_RemindMoveFinished(&unit1); }
 
 void TaskAssistMove::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
-    if (unit2.GetTask1ListFront() && unit2.GetTask1ListFront()->GetType() == TaskType_TaskMove) {
-        dynamic_cast<TaskMove*>(unit2.GetTask1ListFront())->TaskMove_sub_4C66B(true);
+    if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
+        dynamic_cast<TaskMove*>(unit2.GetTask())->TaskMove_sub_4C66B(true);
     }
 
     Task_RemindMoveFinished(&unit1);

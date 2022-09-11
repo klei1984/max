@@ -21,6 +21,30 @@
 
 #include "taskmanagebuildings.hpp"
 
+#include "resource_manager.hpp"
+#include "units_manager.hpp"
+
+static bool TaskManageBuildings_IsSiteValuable(Point site, unsigned short team);
+static bool TaskManageBuildings_IsUnitAvailable(unsigned short team, SmartList<UnitInfo>* units, ResourceID unit_type);
+
+bool TaskManageBuildings_IsSiteValuable(Point site, unsigned short team) {
+    unsigned short cargo_site;
+    bool result;
+
+    cargo_site = ResourceManager_CargoMap[ResourceManager_MapSize.x * site.y + site.x];
+
+    if ((cargo_site & UnitsManager_TeamInfo[team].team_units->hash_team_id) && (cargo_site & 0x1F) >= 8) {
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool TaskManageBuildings_IsUnitAvailable(unsigned short team, SmartList<UnitInfo>* units, ResourceID unit_type) {}
+
 TaskManageBuildings::TaskManageBuildings(unsigned short team, Point site) : Task(team, nullptr, 0x1D00) {}
 
 TaskManageBuildings::~TaskManageBuildings() {}
@@ -38,3 +62,5 @@ bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site
 void TaskManageBuildings::AddCreateOrder(TaskCreateBuilding* task) {}
 
 bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site) {}
+
+bool TaskManageBuildings::ChangeSite(TaskCreateBuilding* task, Point& site) {}

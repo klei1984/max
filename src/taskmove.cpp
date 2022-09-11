@@ -149,7 +149,7 @@ void TaskMove::TaskMove_sub_4C66B(bool mode) {
 }
 
 void TaskMove::Task_vfunc11(UnitInfo& unit) {
-    if (passenger == &unit && unit.GetTask1ListFront() == this) {
+    if (passenger == &unit && unit.GetTask() == this) {
         Task_RemindMoveFinished(&*passenger, true);
     }
 }
@@ -545,7 +545,7 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
     SmartPointer<TaskMove> move = dynamic_cast<TaskMove*>(task);
     SmartPointer<Task> find_path;
 
-    if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask1ListFront())) {
+    if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask())) {
         if (path) {
             if (move->caution_level > CAUTION_LEVEL_NONE && (move->passenger->flags & MOBILE_AIR_UNIT)) {
                 AdjustRequest* request = new (std::nothrow) AdjustRequest(&*move->passenger, 2, move->point1, path);
@@ -577,7 +577,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
                                          char result) {
     SmartPointer<TaskMove> move = dynamic_cast<TaskMove*>(task);
 
-    if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask1ListFront())) {
+    if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask())) {
         if (path) {
             SmartPointer<UnitInfo> unit;
             SmartObjectArray<PathStep> steps = path->GetSteps();
@@ -639,7 +639,7 @@ void TaskMove::ActualPathResultCallback(Task* task, PathRequest* path_request, P
     SmartPointer<TaskMove> move = dynamic_cast<TaskMove*>(task);
     AdjustRequest* request = dynamic_cast<AdjustRequest*>(path_request);
 
-    if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask1ListFront())) {
+    if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask())) {
         if (path) {
             SmartObjectArray<PathStep> adjusted_steps = request->GetPath()->GetSteps();
             SmartObjectArray<PathStep> steps = path->GetSteps();
@@ -1201,12 +1201,14 @@ void TaskMove::FindTransport(ResourceID unit_type) {
 
     transporter_unit_type = unit_type;
 
-    for (SmartList<Task>::Iterator it = TaskManager.tasklist.Begin(); it != TaskManager.tasklist.End(); ++it) {
+    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+         ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskTransport) {
             TaskTransport* task = dynamic_cast<TaskTransport*>(&*it);
 
             if (task->GetTransporterType() == unit_type) {
-                distance = TaskManager_GetDistance(task->DeterminePosition(), Point(passenger->grid_x, passenger->grid_y));
+                distance =
+                    TaskManager_GetDistance(task->DeterminePosition(), Point(passenger->grid_x, passenger->grid_y));
 
                 if (!transport || distance < minimum_distance) {
                     if (task->WillTransportNewClient(this)) {

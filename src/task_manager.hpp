@@ -35,6 +35,7 @@ int TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2);
 bool TaskManager_NeedToReserveRawMaterials(unsigned short team);
 
 class TaskManager {
+    SmartList<Task> tasklist;
     SmartList<TaskObtainUnits> taskobtainunitslist;
     SmartList<Reminder> reminderlist_0;
     SmartList<Reminder> reminderlist_1;
@@ -54,7 +55,7 @@ public:
     void CreateUnit(ResourceID unit_type, unsigned short team, Point point, Task* task);
     void ManufactureUnit(ResourceID unit_type, unsigned short team, int requested_amount, Task* task, Point point);
 
-    SmartList<Task> tasklist;
+    SmartList<Task>& GetTaskList();
 };
 
 extern class TaskManager TaskManager;

@@ -27,13 +27,35 @@
 class TaskManageBuildings;
 
 class TaskCreateBuilding : public TaskCreate {
-    SmartPointer<UnitInfo> unit;
+    SmartPointer<UnitInfo> unit2;
     SmartPointer<TaskManageBuildings> manager;
     Point site;
     unsigned char op_state;
     SmartPointer<Zone> zone;
     bool field_42;
     SmartList<Task> tasks;
+
+    int EstimateBuildTime();
+    void ObtainUnit();
+    void MoveToSite();
+    bool BuildRoad();
+    void BeginBuilding();
+    void Abort();
+    void Finish();
+    bool RequestMineRemoval();
+    bool RequestRubbleRemoval();
+    bool RequestWaterPlatform();
+    void Activate();
+    void FindBuildSite();
+    bool CheckMaterials();
+    void BuildBoardwalks();
+    void BuildBridges();
+    void MarkBridgeAreas(unsigned char** map);
+    void PopulateMap(unsigned char** map);
+    bool FindBridgePath(unsigned char** map, int value);
+
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+    static bool SearchPathStep(unsigned char** map, Point position, int* direction, unsigned short* flags, int value);
 
 public:
     TaskCreateBuilding(Task* task, unsigned short flags, ResourceID unit_type, Point site,

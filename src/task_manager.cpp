@@ -96,3 +96,5 @@ void TaskManager::ManufactureUnit(ResourceID unit_type, unsigned short team, int
                                   Point point) {
     /// \todo
 }
+
+SmartList<Task>& TaskManager::GetTaskList() { return tasklist; }

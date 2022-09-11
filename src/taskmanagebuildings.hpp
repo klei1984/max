@@ -42,6 +42,7 @@ public:
     bool FindSiteForRadar(TaskCreateBuilding* task, Point& site);
     void AddCreateOrder(TaskCreateBuilding* task);
     bool FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site);
+    bool ChangeSite(TaskCreateBuilding* task, Point& site);
 };
 
 #endif /* TASKMANAGEBUILDINGS_HPP */

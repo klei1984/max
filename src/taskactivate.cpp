@@ -37,7 +37,7 @@ void TaskActivate::Activate() {
     if (unit_to_activate != nullptr) {
         if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-                if (unit_to_activate->GetTask1ListFront() == this && zone == nullptr) {
+                if (unit_to_activate->GetTask() == this && zone == nullptr) {
                     if (unit_to_activate->orders == ORDER_IDLE || unit_to_activate->orders == ORDER_BUILD ||
                         unit_to_activate->orders == ORDER_AWAIT) {
                         if (unit_parent != nullptr) {
@@ -200,7 +200,7 @@ bool TaskActivate::Task_vfunc17(UnitInfo& unit) {
                     parent->Task_vfunc11(*unit_to_activate);
                 }
 
-                if (!unit_to_activate->GetTask1ListFront()) {
+                if (!unit_to_activate->GetTask()) {
                     TaskManager.RemindAvailable(&*unit_to_activate);
                 }
 

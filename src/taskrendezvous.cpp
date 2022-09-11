@@ -106,9 +106,9 @@ void TaskRendezvous::SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, c
             if (local_unit1->speed && local_unit1->IsReadyForOrders(task_rendezvous)) {
                 if (local_unit2->speed == 0 ||
                     (Task_IsReadyToTakeOrders(&*local_unit2) &&
-                     (local_unit2->GetTask1ListFront() == task_rendezvous ||
-                      local_unit2->GetTask1ListFront() == nullptr ||
-                      local_unit2->GetTask1ListFront()->GetType() == TaskType_TaskMove) &&
+                     (local_unit2->GetTask() == task_rendezvous ||
+                      local_unit2->GetTask() == nullptr ||
+                      local_unit2->GetTask()->GetType() == TaskType_TaskMove) &&
                      !Task_RetreatIfNecessary(task_rendezvous, &*local_unit1, CAUTION_LEVEL_AVOID_ALL_DAMAGE))) {
                     Point destination;
 
@@ -167,9 +167,9 @@ void TaskRendezvous::BeginTurn() { EndTurn(); }
 
 void TaskRendezvous::EndTurn() {
     if (unit1 != nullptr && unit2 != nullptr) {
-        if (unit2->orders == ORDER_AWAIT && unit2->GetTask1ListFront() == this && unit2->speed) {
+        if (unit2->orders == ORDER_AWAIT && unit2->GetTask() == this && unit2->speed) {
             Task_vfunc17(*unit2);
-        } else if (unit1->orders == ORDER_AWAIT && unit1->GetTask1ListFront() == this && unit1->speed) {
+        } else if (unit1->orders == ORDER_AWAIT && unit1->GetTask() == this && unit1->speed) {
             Task_vfunc17(*unit1);
         }
     }
@@ -181,8 +181,8 @@ bool TaskRendezvous::Task_vfunc17(UnitInfo& unit) {
     if ((GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) &&
         GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (unit1 && unit2 && (unit1 == unit || unit2 == unit)) {
-            if (unit1->GetTask1ListFront() == this || unit1->GetTask1ListFront() == nullptr ||
-                unit1->GetTask1ListFront()->GetType() == TaskType_TaskMove) {
+            if (unit1->GetTask() == this || unit1->GetTask() == nullptr ||
+                unit1->GetTask()->GetType() == TaskType_TaskMove) {
                 if (unit2->IsAdjacent(unit1->grid_x, unit1->grid_y)) {
                     Finish(0);
 

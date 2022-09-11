@@ -3880,7 +3880,7 @@ void UnitsManager_PerformAutoSurvey(UnitInfo* unit) {
                 unit->auto_survey = false;
 
             } else {
-                if (!unit->GetTask1ListFront()) {
+                if (!unit->GetTask()) {
                     Ai_EnableAutoSurvey(unit);
                 }
 
@@ -3990,8 +3990,8 @@ void UnitsManager_Loading(UnitInfo* unit) {
         unit->state = ORDER_STATE_1;
         unit->SetParent(nullptr);
 
-        if (unit->GetTask1ListFront()) {
-            unit->GetTask1ListFront()->Task_vfunc24(*unit, *parent);
+        if (unit->GetTask()) {
+            unit->GetTask()->Task_vfunc24(*unit, *parent);
         }
 
         if (GameManager_SelectedUnit == unit) {
@@ -4013,8 +4013,8 @@ void UnitsManager_Unloading(UnitInfo* unit) {
         unit->state = ORDER_STATE_1;
         unit->SetParent(nullptr);
 
-        if (unit->GetTask1ListFront()) {
-            unit->GetTask1ListFront()->Task_vfunc26(*unit, *parent);
+        if (unit->GetTask()) {
+            unit->GetTask()->Task_vfunc26(*unit, *parent);
         }
 
         if (GameManager_SelectedUnit == unit) {

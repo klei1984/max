@@ -86,7 +86,7 @@ unsigned char TaskGetMaterials::GetType() const { return TaskType_TaskGetMateria
 void TaskGetMaterials::EndTurn() {
     if (requestor) {
         if (materials_needed > requestor->storage) {
-            if (source && requestor->GetTask1ListFront() == this && source->storage == 0) {
+            if (source && requestor->GetTask() == this && source->storage == 0) {
                 ReleaseSource();
             }
 
@@ -197,11 +197,11 @@ void TaskGetMaterials::FindTruck() {
             ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && !(*it).speed)) && requestor != *it) {
             bool candidate_found;
 
-            if ((*it).GetTask1ListFront()) {
-                if ((*it).GetTask1ListFront()->DeterminePriority(flags) <= 0) {
-                    if ((*it).GetTask1ListFront()->DeterminePriority(flags) == 0 &&
-                        (*it).GetTask1ListFront()->GetType() == TaskType_TaskGetMaterials &&
-                        (*it).GetTask1ListFront()->GetId() > this->id) {
+            if ((*it).GetTask()) {
+                if ((*it).GetTask()->DeterminePriority(flags) <= 0) {
+                    if ((*it).GetTask()->DeterminePriority(flags) == 0 &&
+                        (*it).GetTask()->GetType() == TaskType_TaskGetMaterials &&
+                        (*it).GetTask()->GetId() > this->id) {
                         candidate_found = true;
 
                     } else {

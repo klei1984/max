@@ -97,7 +97,7 @@ void TaskGetResource::ReleaseSource() {
     if (unit) {
         unit->RemoveTask(this);
 
-        if (!unit->GetTask1ListFront()) {
+        if (!unit->GetTask()) {
             TaskManager.RemindAvailable(&*unit);
         }
     }
@@ -122,12 +122,12 @@ void TaskGetResource::Begin() {
 }
 
 void TaskGetResource::EndTurn() {
-    if (requestor && requestor->GetTask1ListFront() == this) {
+    if (requestor && requestor->GetTask() == this) {
         if (!source) {
             ChooseSource();
         }
 
-        if (source && source->GetTask1ListFront() == this) {
+        if (source && source->GetTask() == this) {
             if (supplier->IsAdjacent(requestor->grid_x, requestor->grid_y)) {
                 if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
                     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {

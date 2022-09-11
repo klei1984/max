@@ -70,7 +70,7 @@ void TaskRepair::ChooseUnitToRepair() {
 }
 
 void TaskRepair::DoRepairs() {
-    if (target_unit->GetTask1ListFront() == this ||
+    if (target_unit->GetTask() == this ||
         !(operator_unit->flags & (MOBILE_AIR_UNIT || MOBILE_SEA_UNIT || MOBILE_LAND_UNIT))) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
             (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
@@ -91,7 +91,7 @@ void TaskRepair::DoRepairs() {
                     IssueOrder();
                 }
 
-            } else if (operator_unit->GetTask1ListFront() == this) {
+            } else if (operator_unit->GetTask() == this) {
                 SmartPointer<Task> task(new (std::nothrow)
                                             TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
 
@@ -185,7 +185,8 @@ void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
         }
     }
 
-    for (SmartList<Task>::Iterator it = TaskManager.tasklist.Begin(); it != TaskManager.tasklist.End(); ++it) {
+    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+         ++it) {
         if ((*it).GetTeam() == team &&
             ((*it).GetType() == TaskType_TaskCreateBuilding || (*it).GetType() == TaskType_TaskCreateUnit)) {
             if (dynamic_cast<TaskCreate*>(&*it)->GetUnitType() == unit_type) {
@@ -243,7 +244,7 @@ void TaskRepair::Begin() {
 void TaskRepair::BeginTurn() { EndTurn(); }
 
 void TaskRepair::EndTurn() {
-    if (target_unit != nullptr && target_unit->GetTask1ListFront() == this) {
+    if (target_unit != nullptr && target_unit->GetTask() == this) {
         Task_vfunc17(*target_unit);
     }
 }
@@ -251,7 +252,7 @@ void TaskRepair::EndTurn() {
 bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
     bool result;
 
-    if (target_unit == unit && target_unit->GetTask1ListFront() == this) {
+    if (target_unit == unit && target_unit->GetTask() == this) {
         if (IsInPerfectCondition()) {
             SmartPointer<Task> task;
 
@@ -300,7 +301,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
 
                 } else {
                     if ((operator_unit->flags & STATIONARY) || operator_unit->storage > 0 ||
-                        operator_unit->GetTask1ListFront() != this) {
+                        operator_unit->GetTask() != this) {
                         if (operator_unit->IsAdjacent(target_unit->grid_x, target_unit->grid_y)) {
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
                                 (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
@@ -396,7 +397,7 @@ void TaskRepair::SelectOperator() {
             if ((*it).team == team && (*it).unit_type == REPAIR && (*it).hits > 0 &&
                 ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
-                if ((*it).GetTask1ListFront() == nullptr || (*it).GetTask1ListFront()->DeterminePriority(flags) > 0) {
+                if ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) {
                     distance = TaskManager_GetDistance(&*it, &*target_unit);
 
                     if (unit == nullptr || distance < shortest_distance) {

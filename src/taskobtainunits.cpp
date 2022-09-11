@@ -52,7 +52,7 @@ bool TaskObtainUnits::TaskObtainUnits_sub_464C6(UnitInfo* unit, bool mode) {
                (unit->orders != ORDER_MOVE_TO_ATTACK || unit->state != ORDER_STATE_1)) {
         result = false;
     } else {
-        Task* task = unit->GetTask1ListFront();
+        Task* task = unit->GetTask();
 
         if (task) {
             if (mode) {
@@ -212,7 +212,7 @@ void TaskObtainUnits::EndTurn() {
                 Task* task;
 
                 units.Remove(i);
-                task = unit->GetTask1ListFront();
+                task = unit->GetTask();
 
                 if (task) {
                     unit->ClearTask1List();

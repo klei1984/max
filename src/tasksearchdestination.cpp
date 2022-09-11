@@ -76,7 +76,7 @@ void TaskSearchDestination::Begin() {
 }
 
 void TaskSearchDestination::EndTurn() {
-    if (unit && unit->GetTask1ListFront() == this) {
+    if (unit && unit->GetTask() == this) {
         ResumeSearch();
     }
 }
@@ -262,9 +262,9 @@ void TaskSearchDestination::SearchTrySite() {
             Access_GetDistance(&*unit, best_site) > Access_GetDistance(&*it, best_site)) {
             bool flag = false;
 
-            if ((*it).GetTask1ListFront()) {
-                if ((*it).GetTask1ListFront()->DeterminePriority(flags) > 0) {
-                    flag = unit->GetTask1ListFront()->Task_vfunc1(*it);
+            if ((*it).GetTask()) {
+                if ((*it).GetTask()->DeterminePriority(flags) > 0) {
+                    flag = unit->GetTask()->Task_vfunc1(*it);
                 }
 
             } else {

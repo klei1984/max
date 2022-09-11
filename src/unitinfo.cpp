@@ -1248,7 +1248,7 @@ void UnitInfo::AddReminders(bool priority) {
     /// \todo
 }
 
-Task* UnitInfo::GetTask1ListFront() const {
+Task* UnitInfo::GetTask() const {
     Task* task;
 
     if (task_list1.GetCount()) {
@@ -2801,7 +2801,7 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
 bool UnitInfo::IsReadyForOrders(Task* task) {
     bool result;
 
-    if (Task_IsReadyToTakeOrders(this) && GetTask1ListFront() == task) {
+    if (Task_IsReadyToTakeOrders(this) && GetTask() == task) {
         result = true;
 
     } else {
