@@ -160,7 +160,7 @@ void TaskRetreat::Search() {
                                 &*unit_to_retreat, this, 0, CAUTION_LEVEL_NONE, position, &TaskMoveResultCallback));
                             task_move->SetField68(true);
 
-                            TaskManager.AddTask(*task_move);
+                            TaskManager.AppendTask(*task_move);
 
                             return;
                         }

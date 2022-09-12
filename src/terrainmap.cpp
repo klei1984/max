@@ -175,7 +175,7 @@ void TerrainMap::SetTerrain(unsigned short** map, Point location) {
     if (!(map[location.x][location.y] & TERRAINMAP_PATH_PROCESSED)) {
         for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-                TaskManager.AddTask(*new (std::nothrow) TaskUpdateTerrain(team));
+                TaskManager.AppendTask(*new (std::nothrow) TaskUpdateTerrain(team));
 
                 map[location.x][location.y] = TERRAINMAP_PATH_BLOCKED;
 
@@ -224,7 +224,7 @@ void TerrainMap::ClearTerrain(unsigned short** map, Point location) {
     if (map[location.x][location.y] & TERRAINMAP_PATH_PROCESSED) {
         for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-                TaskManager.AddTask(*new (std::nothrow) TaskUpdateTerrain(team));
+                TaskManager.AppendTask(*new (std::nothrow) TaskUpdateTerrain(team));
 
                 map[location.x][location.y] = TERRAINMAP_PATH_MAX_DISTANCE;
 

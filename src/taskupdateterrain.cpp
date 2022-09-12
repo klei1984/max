@@ -63,7 +63,7 @@ void TaskUpdateTerrain::BeginTurn() {
 
         } else {
             if (!UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41 && !GetField7()) {
-                TaskManager.AddReminder(new (std::nothrow) class RemindTurnStart(*this));
+                TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
                 return;
             }
         }

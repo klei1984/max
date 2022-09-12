@@ -21,6 +21,8 @@
 
 #include "reminders.hpp"
 
+#include "aiattack.hpp"
+#include "task_manager.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 
@@ -32,79 +34,74 @@ RemindTurnStart::RemindTurnStart(Task& task) : task(task) { this->task->SetField
 
 RemindTurnStart::~RemindTurnStart() {}
 
-void RemindTurnStart::Reminder_vfunc1() {
+void RemindTurnStart::Execute() {
     task->SetField7(false);
     task->BeginTurn();
 }
 
-int RemindTurnStart::Reminder_vfunc2() { return 0; }
+int RemindTurnStart::GetType() { return 0; }
 
-int RemindTurnStart::Reminder_vfunc3() { return 4; }
+int RemindTurnStart::GetMemoryUse() const { return 4; }
 
 RemindTurnEnd::RemindTurnEnd(Task& task) : task(task) { this->task->SetField8(true); }
 
 RemindTurnEnd::~RemindTurnEnd() {}
 
-void RemindTurnEnd::Reminder_vfunc1() {
+void RemindTurnEnd::Execute() {
     task->SetField8(false);
     task->EndTurn();
 }
 
-int RemindTurnEnd::Reminder_vfunc2() { return 1; }
+int RemindTurnEnd::GetType() { return 1; }
 
-int RemindTurnEnd::Reminder_vfunc3() { return 4; }
+int RemindTurnEnd::GetMemoryUse() const { return 4; }
 
 RemindAvailable::RemindAvailable(UnitInfo& unit) : unit(unit) {}
 
 RemindAvailable::~RemindAvailable() {}
 
-void RemindAvailable::Reminder_vfunc1() {
-    /// \todo Implement missing stuff
-    //    Task* task = unit->GetList1FrontTask();
-    //    if (!task) {
-    //        TaskManager.TaskManager_sub_45466(&*unit);
-    //    }
+void RemindAvailable::Execute() {
+    if (unit->GetTask()) {
+        TaskManager.FindTaskForUnit(&*unit);
+    }
 }
 
-int RemindAvailable::Reminder_vfunc2() { return 2; }
+int RemindAvailable::GetType() { return 2; }
 
-int RemindAvailable::Reminder_vfunc3() { return 4; }
+int RemindAvailable::GetMemoryUse() const { return 4; }
 
-RemindMoveFinished::RemindMoveFinished(UnitInfo& new_unit) : new_unit(new_unit) {
-    /// \todo Implement missing stuff
-    //    new_unit->unitinfo_ChangeField221(0x100, 1);
+RemindMoveFinished::RemindMoveFinished(UnitInfo& new_unit_) : new_unit(new_unit_) {
+    new_unit->ChangeField221(0x100, true);
 }
 
 RemindMoveFinished::~RemindMoveFinished() {}
 
-void RemindMoveFinished::Reminder_vfunc1() {
-    /// \todo Implement missing stuff
+void RemindMoveFinished::Execute() {
+    if (new_unit) {
+        new_unit->ChangeField221(0x100, false);
+    }
 
-    //    if (new_unit != nullptr) {
-    //        new_unit->unitinfo_ChangeField221(0x100, 0);
-    //    }
-    //
-    //    Task* task = new_unit->GetList1FrontTask();
-    //    if (task && new_unit->hits) {
-    //        task->Task_sub_42E21(*new_unit);
-    //    }
+    Task* task = new_unit->GetTask();
+
+    if (task && new_unit->hits > 0) {
+        task->Task_vfunc17(*new_unit);
+    }
 }
 
-int RemindMoveFinished::Reminder_vfunc2() { return 3; }
+int RemindMoveFinished::GetType() { return 3; }
 
-int RemindMoveFinished::Reminder_vfunc3() { return 4; }
+int RemindMoveFinished::GetMemoryUse() const { return 4; }
 
 RemindAttack::RemindAttack(UnitInfo& unit) : unit(unit) {}
 
 RemindAttack::~RemindAttack() {}
 
-void RemindAttack::Reminder_vfunc1() {
-    /// \todo Implement missing stuff
+void RemindAttack::Execute() {
     if (unit->hits && unit->shots && UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
-        //        sub_18840(&*unit);
+        AiAttack_EvaluateAttack(&*unit);
     }
 }
 
-int RemindAttack::Reminder_vfunc2() { return 4; }
+int RemindAttack::GetType() { return 4; }
 
-int RemindAttack::Reminder_vfunc3() { return 4; }
+int RemindAttack::GetMemoryUse() const { return 4; }

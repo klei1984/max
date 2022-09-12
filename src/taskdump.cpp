@@ -103,7 +103,7 @@ void TaskDump::Search() {
                     SmartPointer<Task> find_path(new (std::nothrow) TaskFindPath(
                         this, request, &TaskDump_PathResultCallback, &TaskDump_PathCancelCallback));
 
-                    TaskManager.AddTask(*find_path);
+                    TaskManager.AppendTask(*find_path);
 
                     return;
                 }

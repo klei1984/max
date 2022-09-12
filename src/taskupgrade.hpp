@@ -25,6 +25,7 @@
 #include "taskrepair.hpp"
 
 class TaskUpgrade : public TaskRepair {
+public:
     TaskUpgrade(UnitInfo* unit);
     ~TaskUpgrade();
 

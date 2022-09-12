@@ -117,7 +117,7 @@ bool TaskRemoveRubble::Task_vfunc17(UnitInfo& unit_) {
                             new (std::nothrow) TaskMove(&unit_, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                                         Point(target->grid_x, target->grid_y), &MoveFinishedCallback));
 
-                        TaskManager.AddTask(*move_task);
+                        TaskManager.AppendTask(*move_task);
 
                         result = true;
                     }
@@ -232,7 +232,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
             SmartPointer<Task> rendezvous_task(new (std::nothrow)
                                                    TaskRendezvous(unit_, best_unit, this, &MoveFinishedCallback));
 
-            TaskManager.AddTask(*rendezvous_task);
+            TaskManager.AppendTask(*rendezvous_task);
 
             result = true;
 
@@ -251,5 +251,5 @@ void TaskRemoveRubble::ObtainUnit() {
     SmartPointer<TaskObtainUnits> obtain_task(new (std::nothrow) TaskObtainUnits(this, DeterminePosition()));
     obtain_task->AddUnit(BULLDOZR);
 
-    TaskManager.AddTask(*obtain_task);
+    TaskManager.AppendTask(*obtain_task);
 }

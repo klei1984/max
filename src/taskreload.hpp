@@ -25,6 +25,7 @@
 #include "taskrepair.hpp"
 
 class TaskReload : public TaskRepair {
+public:
     TaskReload(UnitInfo* unit);
     ~TaskReload();
 

@@ -161,7 +161,7 @@ public:
     virtual void Task_vfunc22(UnitInfo& unit);
     virtual void Task_vfunc23(UnitInfo& unit);
     virtual void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
-    virtual void Task_vfunc25(int unknown);
+    virtual void Task_vfunc25(UnitInfo& unit);
     virtual void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
     virtual void Task_vfunc27(Zone* zone, char mode);
 };

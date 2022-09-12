@@ -107,7 +107,7 @@ bool TaskSurvey::Task_vfunc17(UnitInfo& unit) {
             SmartPointer<Task> move_task = new (std::nothrow)
                 TaskMove(&unit, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE, best_site, &MoveFinishedCallback);
 
-            TaskManager.AddTask(*move_task);
+            TaskManager.AppendTask(*move_task);
 
         } else {
             FindDestination(unit, 1);
@@ -131,5 +131,5 @@ void TaskSurvey::ObtainUnit() {
     SmartPointer<TaskObtainUnits> obtain_units_task = new (std::nothrow) TaskObtainUnits(this, point);
     obtain_units_task->AddUnit(SURVEYOR);
 
-    TaskManager.AddTask(*obtain_units_task);
+    TaskManager.AppendTask(*obtain_units_task);
 }

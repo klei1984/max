@@ -92,5 +92,5 @@ void TaskFindMines::ObtainUnit() {
 
     obtain_units_task->AddUnit(SURVEYOR);
 
-    TaskManager.AddTask(*obtain_units_task);
+    TaskManager.AppendTask(*obtain_units_task);
 }

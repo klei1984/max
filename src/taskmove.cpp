@@ -255,7 +255,7 @@ bool TaskMove::Task_vfunc17(UnitInfo& unit) {
                                     SmartPointer<Task> find_path(new (std::nothrow) TaskFindPath(
                                         this, request, &DirectPathResultCallback, &PathCancelCallback));
 
-                                    TaskManager.AddTask(*find_path);
+                                    TaskManager.AppendTask(*find_path);
 
                                     result = true;
                                 }
@@ -379,7 +379,7 @@ void TaskMove::AttemptTransportType(ResourceID unit_type) {
     SmartPointer<Task> find_path(new (std::nothrow)
                                      TaskFindPath(this, request, &PathResultCallback, &PathCancelCallback));
 
-    TaskManager.AddTask(*find_path);
+    TaskManager.AppendTask(*find_path);
 }
 
 void TaskMove::TaskMove_sub_4C6BA() {
@@ -446,7 +446,7 @@ void TaskMove::Search(bool mode) {
         SmartPointer<Task> find_path(new (std::nothrow)
                                          TaskFindPath(this, &request, &FullPathResultCallback, &PathCancelCallback));
 
-        TaskManager.AddTask(*find_path);
+        TaskManager.AppendTask(*find_path);
 
     } else {
         Finished(TASKMOVE_RESULT_ALREADY_IN_RANGE);
@@ -532,7 +532,7 @@ void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Poi
 
         find_path = new (std::nothrow) TaskFindPath(&*move, request, &FullPathResultCallback, &PathCancelCallback);
 
-        TaskManager.AddTask(*find_path);
+        TaskManager.AppendTask(*find_path);
 
     } else {
         if (move->transporter_unit_type == INVALID_ID) {
@@ -553,7 +553,7 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
                 SmartPointer<Task> find_path(
                     new (std::nothrow) TaskFindPath(&*move, request, &ActualPathResultCallback, &PathCancelCallback));
 
-                TaskManager.AddTask(*find_path);
+                TaskManager.AppendTask(*find_path);
 
             } else {
                 move->MoveUnit(path);
@@ -568,7 +568,7 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
             SmartPointer<Task> find_path(
                 new (std::nothrow) TaskFindPath(&*move, request, &BlockedPathResultCallback, &PathCancelCallback));
 
-            TaskManager.AddTask(*find_path);
+            TaskManager.AppendTask(*find_path);
         }
     }
 }
@@ -903,7 +903,7 @@ void TaskMove::MoveAirUnit() {
                             if ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) {
                                 class RemindTurnEnd* reminder = new (std::nothrow) class RemindTurnEnd(*this);
 
-                                TaskManager.AddReminder(reminder);
+                                TaskManager.AppendReminder(reminder);
 
                                 return;
 
@@ -1226,7 +1226,7 @@ void TaskMove::FindTransport(ResourceID unit_type) {
     } else {
         TaskTransport* task = new (std::nothrow) TaskTransport(this, transporter_unit_type);
 
-        TaskManager.AddTask(*task);
+        TaskManager.AppendTask(*task);
     }
 }
 

@@ -215,7 +215,7 @@ bool TaskSearchDestination::Search() {
 
         } else {
             if (!GetField8()) {
-                TaskManager.AddReminder(new (std::nothrow) class RemindTurnEnd(*this));
+                TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
             }
 
             return true;
@@ -288,7 +288,7 @@ void TaskSearchDestination::SearchTrySite() {
         new (std::nothrow) TaskMove(&*unit, this, 0, field_62 ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                     best_site, &CloseMoveFinishedCallback);
 
-    TaskManager.AddTask(*move_task);
+    TaskManager.AppendTask(*move_task);
 }
 
 bool TaskSearchDestination::sub_3DFCF(UnitInfo* unit_, Point point) {
@@ -346,7 +346,7 @@ void TaskSearchDestination::CloseMoveFinishedCallback(Task* task, UnitInfo* unit
             TaskMove(unit, search_task, search_task->search_radius * search_task->search_radius,
                      CAUTION_LEVEL_AVOID_ALL_DAMAGE, search_task->points[search_task->index], &FarMoveFinishedCallback);
 
-        TaskManager.AddTask(*move_task);
+        TaskManager.AppendTask(*move_task);
 
     } else {
         search_task->FinishSearch();

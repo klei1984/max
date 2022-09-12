@@ -135,5 +135,5 @@ void TaskExplore::ObtainUnit() {
         obtain_units_task->AddUnit(COMMANDO);
     }
 
-    TaskManager.AddTask(*obtain_units_task);
+    TaskManager.AppendTask(*obtain_units_task);
 }

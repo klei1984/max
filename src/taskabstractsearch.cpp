@@ -32,7 +32,7 @@ void TaskAbstractSearch::FindDestination(UnitInfo& unit, int radius) {
 
         SmartPointer<Task> search_destination_task = new (std::nothrow) TaskSearchDestination(this, &unit, radius);
 
-        TaskManager.AddTask(*search_destination_task);
+        TaskManager.AppendTask(*search_destination_task);
     }
 }
 
@@ -74,7 +74,7 @@ void TaskAbstractSearch::EndTurn() {
 
                     SmartPointer<Task> repair_task = new (std::nothrow) TaskRepair(&*it);
 
-                    TaskManager.AddTask(*repair_task);
+                    TaskManager.AppendTask(*repair_task);
 
                 } else {
                     Task_RemindMoveFinished(&*it);

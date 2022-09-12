@@ -95,7 +95,7 @@ void TaskRepair::DoRepairs() {
                 SmartPointer<Task> task(new (std::nothrow)
                                             TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
 
-                TaskManager.AddTask(*task);
+                TaskManager.AppendTask(*task);
             }
         }
     }
@@ -202,7 +202,7 @@ void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
         SmartPointer<Task> task(new (std::nothrow)
                                     TaskCreateUnit(unit_type, this, Point(target_unit->grid_x, target_unit->grid_y)));
 
-        TaskManager.AddTask(*task);
+        TaskManager.AppendTask(*task);
     }
 }
 
@@ -259,7 +259,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
             if (target_unit->state == ORDER_STATE_3) {
                 task = new (std::nothrow) TaskActivate(&*target_unit, this, target_unit->GetParent());
 
-                TaskManager.AddTask(*task);
+                TaskManager.AppendTask(*task);
 
             } else {
                 task = this;
@@ -283,7 +283,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                 if (target_unit->speed > 0 && target_unit->IsReadyForOrders(this)) {
                     SmartPointer<Task> task(new (std::nothrow) TaskMoveHome(&*target_unit, this));
 
-                    TaskManager.AddTask(*task);
+                    TaskManager.AppendTask(*task);
 
                     result = true;
 
@@ -330,7 +330,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                             SmartPointer<Task> task(new (std::nothrow) TaskRendezvous(
                                 &*target_unit, &*operator_unit, this, &TaskRepair::RendezvousResultCallback));
 
-                            TaskManager.AddTask(*task);
+                            TaskManager.AppendTask(*task);
                         }
 
                         result = true;
@@ -339,7 +339,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                         SmartPointer<Task> task(new (std::nothrow)
                                                     TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
 
-                        TaskManager.AddTask(*task);
+                        TaskManager.AppendTask(*task);
 
                         result = true;
                     }

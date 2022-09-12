@@ -117,7 +117,7 @@ void TaskGetResource::Begin() {
     requestor->PushFrontTask1List(this);
 
     if (!GetField7()) {
-        TaskManager.AddReminder(new (std::nothrow) class RemindTurnStart(*this));
+        TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
     }
 }
 
@@ -139,7 +139,7 @@ void TaskGetResource::EndTurn() {
                 SmartPointer<TaskRendezvous> task = new (std::nothrow)
                     TaskRendezvous(&*requestor, &*supplier, this, &TaskGetResource::RendezvousResultCallback);
 
-                TaskManager.AddTask(*task);
+                TaskManager.AppendTask(*task);
             }
         }
     }

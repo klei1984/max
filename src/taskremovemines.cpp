@@ -76,7 +76,7 @@ bool TaskRemoveMines::Task_vfunc17(UnitInfo& unit_) {
                             new (std::nothrow) TaskMove(&unit_, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                                         Point(target->grid_x, target->grid_y), &MoveFinishedCallback));
 
-                        TaskManager.AddTask(*move_task);
+                        TaskManager.AppendTask(*move_task);
 
                         result = true;
                     }
@@ -109,5 +109,5 @@ void TaskRemoveMines::ObtainUnit() {
         obtain_task->AddUnit(SEAMNLYR);
     }
 
-    TaskManager.AddTask(*obtain_task);
+    TaskManager.AppendTask(*obtain_task);
 }

@@ -159,7 +159,7 @@ void TaskAssistMove::BeginTurn() {
                 TaskCreateUnit* create_unit_task = new (std::nothrow)
                     TaskCreateUnit(AIRTRANS, this, Point(ResourceManager_MapSize.x / 2, ResourceManager_MapSize.y / 2));
 
-                TaskManager.AddTask(*create_unit_task);
+                TaskManager.AppendTask(*create_unit_task);
             }
         }
     }
@@ -200,7 +200,7 @@ void TaskAssistMove::BeginTurn() {
                 TaskCreateUnit* create_unit_task = new (std::nothrow)
                     TaskCreateUnit(CLNTRANS, this, Point(ResourceManager_MapSize.x / 2, ResourceManager_MapSize.y / 2));
 
-                TaskManager.AddTask(*create_unit_task);
+                TaskManager.AppendTask(*create_unit_task);
             }
         }
     }
@@ -267,7 +267,7 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
                     if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
                         TaskMove* task_move = new (std::nothrow) TaskMove(&*it, &TaskTransport_MoveFinishedCallback);
 
-                        TaskManager.AddTask(*task_move);
+                        TaskManager.AppendTask(*task_move);
                     }
 
                     SDL_assert((*it).GetTask()->GetType() == TaskType_TaskMove);
@@ -295,7 +295,7 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
                     unit.unit_type == CLNTRANS ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                     Point_object1, &TaskTransport_MoveFinishedCallback);
 
-                TaskManager.AddTask(*task_move);
+                TaskManager.AppendTask(*task_move);
             }
 
             result = true;

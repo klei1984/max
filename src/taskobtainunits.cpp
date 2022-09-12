@@ -239,7 +239,7 @@ void TaskObtainUnits::EndTurn() {
             } else if (!IsUnitTypeRequested[*units[i]]) {
                 IsUnitTypeRequested[*units[i]] = true;
 
-                TaskManager.ManufactureUnit(*units[i], team, CountInstancesOfUnitType(*units[i]), this, point);
+                TaskManager.ManufactureUnits(*units[i], team, CountInstancesOfUnitType(*units[i]), this, point);
             }
         }
 

@@ -119,7 +119,7 @@ void TaskRendezvous::SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, c
 
                         move_task->SetField68(!(local_unit2->flags & STATIONARY));
 
-                        TaskManager.AddTask(*move_task);
+                        TaskManager.AppendTask(*move_task);
 
                     } else {
                         PrimaryMoveFinishedCallback(task_rendezvous, &*local_unit1, 2);
@@ -198,7 +198,7 @@ bool TaskRendezvous::Task_vfunc17(UnitInfo& unit) {
 
                             move_task->SetField68(!(unit1->flags & STATIONARY));
 
-                            TaskManager.AddTask(*move_task);
+                            TaskManager.AppendTask(*move_task);
 
                         } else {
                             SecondaryMoveFinishedCallback(this, &*unit2, 2);

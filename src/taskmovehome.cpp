@@ -189,7 +189,7 @@ bool TaskMoveHome::Task_vfunc17(UnitInfo& unit_) {
                 SmartPointer<Task> move_task = new (std::nothrow)
                     TaskMove(&*unit, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE, destination, &MoveFinishedCallback);
 
-                TaskManager.AddTask(*move_task);
+                TaskManager.AppendTask(*move_task);
 
                 result = true;
 

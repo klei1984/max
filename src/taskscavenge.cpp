@@ -65,7 +65,7 @@ void TaskScavenge::BeginTurn() {
                 obtain_task->AddUnit(BULLDOZR);
                 wait_for_unit = true;
 
-                TaskManager.AddTask(*obtain_task);
+                TaskManager.AppendTask(*obtain_task);
 
                 return;
             }
@@ -73,7 +73,7 @@ void TaskScavenge::BeginTurn() {
     }
 
     if (!GetField8()) {
-        TaskManager.AddReminder(new (std::nothrow) class RemindTurnEnd(*this));
+        TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
     }
 }
 
@@ -120,7 +120,7 @@ bool TaskScavenge::Task_vfunc17(UnitInfo& unit) {
 
             remove_rubble_task->Task_vfunc11(unit);
 
-            TaskManager.AddTask(*remove_rubble_task);
+            TaskManager.AppendTask(*remove_rubble_task);
 
             result = true;
 

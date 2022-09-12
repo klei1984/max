@@ -34,7 +34,7 @@ static SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type);
 
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority) {
     if (unit && (unit->GetField221() & 0x100) == 0) {
-        TaskManager.AddReminder(new (std::nothrow) RemindMoveFinished(*unit), priority);
+        TaskManager.AppendReminder(new (std::nothrow) RemindMoveFinished(*unit), priority);
     }
 }
 
@@ -74,13 +74,13 @@ Task::~Task() { --task_count; }
 
 void Task::RemindTurnEnd(bool priority) {
     if (!GetField8()) {
-        TaskManager.AddReminder(new (std::nothrow) class RemindTurnEnd(*this), priority);
+        TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this), priority);
     }
 }
 
 void Task::RemindTurnStart(bool priority) {
     if (!GetField7()) {
-        TaskManager.AddReminder(new (std::nothrow) class RemindTurnStart(*this), priority);
+        TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this), priority);
     }
 }
 
@@ -267,7 +267,7 @@ void Task::Task_vfunc23(UnitInfo& unit) {}
 
 void Task::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {}
 
-void Task::Task_vfunc25(int unknown) {}
+void Task::Task_vfunc25(UnitInfo& unit) {}
 
 void Task::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {}
 

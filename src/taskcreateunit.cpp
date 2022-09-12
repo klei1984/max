@@ -94,10 +94,10 @@ void TaskCreateUnit::Task_vfunc11(UnitInfo& unit_) {
             case MISSLLCH:
             case SCANNER: {
                 SmartPointer<Task> tank_escort(new (std::nothrow) TaskEscort(&unit_, TANK));
-                TaskManager.AddTask(*tank_escort);
+                TaskManager.AppendTask(*tank_escort);
 
                 SmartPointer<Task> aa_escort(new (std::nothrow) TaskEscort(&unit_, SP_FLAK));
-                TaskManager.AddTask(*aa_escort);
+                TaskManager.AppendTask(*aa_escort);
             } break;
 
             case BOMBER:
@@ -105,7 +105,7 @@ void TaskCreateUnit::Task_vfunc11(UnitInfo& unit_) {
             case FASTBOAT:
             case SP_FLAK: {
                 SmartPointer<Task> fighter_escort(new (std::nothrow) TaskEscort(&unit_, FIGHTER));
-                TaskManager.AddTask(*fighter_escort);
+                TaskManager.AppendTask(*fighter_escort);
             } break;
         }
 
@@ -141,7 +141,7 @@ void TaskCreateUnit::BeginTurn() {
 
         SmartPointer<Task> activate_task(new (std::nothrow) TaskActivate(unit->GetParent(), this, &*unit));
 
-        TaskManager.AddTask(*activate_task);
+        TaskManager.AppendTask(*activate_task);
     }
 
     EndTurn();
@@ -154,7 +154,7 @@ void TaskCreateUnit::EndTurn() {
 
         task_obtain_units->AddUnit(Builder_GetBuilderType(unit_type));
 
-        TaskManager.AddTask(*task_obtain_units);
+        TaskManager.AppendTask(*task_obtain_units);
     }
 
     if (op_state != CREATE_UNIT_STATE_5) {

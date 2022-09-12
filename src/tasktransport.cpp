@@ -47,7 +47,7 @@ void TaskTransport::AddClients(SmartList<TaskMove>* list) {
                 if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
                     TaskMove* task = new (std::nothrow) TaskMove(&*it, &TaskTransport_MoveFinishedCallback);
 
-                    TaskManager.AddTask(*task);
+                    TaskManager.AppendTask(*task);
                 }
 
                 SDL_assert((*it).GetTask()->GetType() == TaskType_TaskMove);
@@ -302,7 +302,7 @@ void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char resul
         SmartPointer<Task> dump =
             new (std::nothrow) TaskDump(transport, &*transport->task_move, &*transport->unit_transporter);
 
-        TaskManager.AddTask(*dump);
+        TaskManager.AppendTask(*dump);
     }
 }
 
@@ -384,7 +384,7 @@ void TaskTransport::Begin() {
 
         task_obtain_units->AddUnit(transporter_unit_type);
 
-        TaskManager.AddTask(*task_obtain_units);
+        TaskManager.AppendTask(*task_obtain_units);
     }
 }
 
@@ -449,7 +449,7 @@ bool TaskTransport::Task_vfunc17(UnitInfo& unit) {
                                 TaskMove(&*unit_transporter, this, distance, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                          task_move->GetDestination(), &MoveFinishedCallback2);
 
-                            TaskManager.AddTask(*move);
+                            TaskManager.AppendTask(*move);
 
                         } else {
                             UnloadUnit(task_move->GetPassenger());
@@ -484,7 +484,7 @@ bool TaskTransport::Task_vfunc17(UnitInfo& unit) {
                                     TaskMove(&*unit_transporter, this, distance, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                              position, &MoveFinishedCallback1);
 
-                                TaskManager.AddTask(*move);
+                                TaskManager.AppendTask(*move);
 
                                 result = true;
 

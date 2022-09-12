@@ -107,7 +107,7 @@ void TaskCreateBuilding::ObtainUnit() {
 
     obtain_units_task->AddUnit(Builder_GetBuilderType(unit_type));
 
-    TaskManager.AddTask(*obtain_units_task);
+    TaskManager.AppendTask(*obtain_units_task);
 }
 
 void TaskCreateBuilding::MoveToSite() {
@@ -316,7 +316,7 @@ bool TaskCreateBuilding::RequestMineRemoval() {
                     SmartPointer<Task> remove_mines_task(new (std::nothrow) TaskRemoveMines(this, &*unit));
 
                     tasks.PushBack(*remove_mines_task);
-                    TaskManager.AddTask(*remove_mines_task);
+                    TaskManager.AppendTask(*remove_mines_task);
                 }
             }
         }
@@ -349,7 +349,7 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
                     SmartPointer<Task> remove_rubble_task(new (std::nothrow) TaskRemoveRubble(this, &*unit, 0x200));
 
                     tasks.PushBack(*remove_rubble_task);
-                    TaskManager.AddTask(*remove_rubble_task);
+                    TaskManager.AppendTask(*remove_rubble_task);
 
                     return true;
                 }
@@ -682,7 +682,7 @@ bool TaskCreateBuilding::Task_vfunc17(UnitInfo& unit_) {
                                     &*unit, this, minimum_distance, CAUTION_LEVEL_AVOID_ALL_DAMAGE, site,
                                     &MoveFinishedCallback));
 
-                                TaskManager.AddTask(*move_task);
+                                TaskManager.AppendTask(*move_task);
 
                                 result = true;
 
@@ -765,7 +765,7 @@ void TaskCreateBuilding::Task_vfunc27(Zone* zone_, char mode) {
                     SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(
                         &*unit, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE, site, &MoveFinishedCallback));
 
-                    TaskManager.AddTask(*move_task);
+                    TaskManager.AppendTask(*move_task);
                 }
 
             } else {
@@ -790,7 +790,7 @@ void TaskCreateBuilding::Activate() {
 
     SmartPointer<TaskActivate> activate_task(new (std::nothrow) TaskActivate(&*unit, this, &*unit2));
 
-    TaskManager.AddTask(*activate_task);
+    TaskManager.AppendTask(*activate_task);
 }
 
 void TaskCreateBuilding::FindBuildSite() {
@@ -811,7 +811,7 @@ void TaskCreateBuilding::FindBuildSite() {
 
                 if (unit && !RequestWaterPlatform() && !RequestMineRemoval() && !RequestRubbleRemoval() &&
                     !GetField8()) {
-                    TaskManager.AddReminder(new (std::nothrow) class RemindTurnEnd(*this));
+                    TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
                 }
 
             } else {
@@ -859,7 +859,7 @@ bool TaskCreateBuilding::RequestWaterPlatform() {
 
                     tasks.PushBack(*create_building_task);
 
-                    TaskManager.AddTask(*create_building_task);
+                    TaskManager.AppendTask(*create_building_task);
                 }
             }
         }
@@ -917,7 +917,7 @@ bool TaskCreateBuilding::CheckMaterials() {
                 SmartPointer<TaskGetMaterials> get_materials_task(new (std::nothrow)
                                                                       TaskGetMaterials(this, &*unit, resource_demand));
 
-                TaskManager.AddTask(*get_materials_task);
+                TaskManager.AppendTask(*get_materials_task);
 
                 result = false;
             }
@@ -984,7 +984,7 @@ void TaskCreateBuilding::BuildBoardwalks() {
                             manager->AddCreateOrder(&*create_building_task);
 
                         } else {
-                            TaskManager.AddTask(*create_building_task);
+                            TaskManager.AppendTask(*create_building_task);
                         }
                     }
                 }
@@ -1202,7 +1202,7 @@ bool TaskCreateBuilding::FindBridgePath(unsigned char** map, int value) {
                     manager->AddCreateOrder(&*create_building_task);
 
                 } else {
-                    TaskManager.AddTask(*create_building_task);
+                    TaskManager.AppendTask(*create_building_task);
                 }
             }
 
