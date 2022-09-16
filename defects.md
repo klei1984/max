@@ -326,6 +326,8 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 90. The TaskCreateUnit task implements a function (cseg01:00038CC9) that tries to optimize resource consumption so that demanded units could be created (faster). If necessary the algorithm tries to increase fuel reserves by shutting down inessential infrastructure, namely Eco-Spheres and Gold Refineries. There is a copy paste error when counting the inessential building types so Eco-Spheres are tested twice, counted once, and Gold Refineries do not add to the count. Due to this defect basically Gold Refineries are not considered at all by the algorithm.
 
+91. The TaskManager implements a method (cseg01:00043F3F) to estimate the total heap memory usage by the AI. The game introduced a priority list for reminders in one of the post release patches and instead of considering the dynamic memory usage of the priority reminders list it considers the count of reminders stored by the list by calling the wrong smart list function. Due to this and other similar defects the overall memory usage was probably underestimated by the developers. The game places huge buffers on the stack as well which makes stack usage hard to estimate. GNW supported custom C memory allocators that could measure dynamic memory usage, but as M.A.X. is mostly implemented in C++ this GNW feature was somewhat useless.
+
 {% comment %}
 
 19. Reports screens dereference NULL (mostly at game startup as long as some of the data is not filled in yet).
