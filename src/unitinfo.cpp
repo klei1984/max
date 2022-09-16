@@ -1227,6 +1227,8 @@ SmartList<UnitInfo>* UnitInfo::GetUnitList() const { return unit_list; }
 
 unsigned int UnitInfo::GetField221() const { return field_221; }
 
+void UnitInfo::SetField221(unsigned int value) { field_221 = value; }
+
 void UnitInfo::ChangeField221(unsigned int flags, bool mode) {
     if (mode) {
         field_221 |= flags;

@@ -31,6 +31,8 @@ void ProductionManager_OptimizeMining(unsigned short team, Complex* complex, Uni
     /// \todo
 }
 
+int ProductionManager_GetNormalRateBuildCost(ResourceID unit_type, unsigned short team) {}
+
 ProductionManager::ProductionManager(unsigned short team, Complex* complex) {
     this->team = team;
     this->complex = complex;
@@ -89,8 +91,7 @@ ProductionManager::ProductionManager(unsigned short team, Complex* complex) {
                 ++power_station_count;
             }
 
-            if ((*it).unit_type == MININGST &&
-                ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_NEW_ALLOCATE)) {
+            if ((*it).unit_type == MININGST && ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_NEW_ALLOCATE)) {
                 cargo_mining_capacity.raw = std::min(static_cast<int>((*it).raw_mining_max), 16);
                 cargo_mining_capacity.fuel = std::min(static_cast<int>((*it).fuel_mining_max), 16);
                 cargo_mining_capacity.gold = std::min(static_cast<int>((*it).gold_mining_max), 16);

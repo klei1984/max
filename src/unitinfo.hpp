@@ -125,6 +125,7 @@ public:
     UnitInfo* GetFirstFromUnitList() const;
     SmartList<UnitInfo>* GetUnitList() const;
     unsigned int GetField221() const;
+    void SetField221(unsigned int value);
     void ChangeField221(unsigned int flags, bool mode);
     unsigned short GetImageIndex() const;
     void PushFrontTask1List(Task* task);

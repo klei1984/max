@@ -25,7 +25,14 @@
 #include "enums.hpp"
 #include "smartobjectarray.hpp"
 
-class UnitWeight;
+class UnitWeight {
+public:
+    UnitWeight();
+    UnitWeight(ResourceID unit_type, unsigned short weight);
+
+    ResourceID unit_type;
+    unsigned short weight;
+};
 
 class WeightTable {
     SmartObjectArray<UnitWeight> weight_table;
@@ -36,8 +43,10 @@ public:
     ~WeightTable();
 
     WeightTable& operator=(WeightTable& other);
-    WeightTable& operator+=(WeightTable& other);
+    WeightTable& operator+=(WeightTable const& other);
+    UnitWeight& operator[](unsigned short position);
 
+    int GetCount() const;
     ResourceID RollUnitType() const;
     int GetWeight(ResourceID unit_type) const;
 };

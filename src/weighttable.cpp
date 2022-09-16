@@ -24,15 +24,6 @@
 #include "builder.hpp"
 #include "gnw.h"
 
-class UnitWeight {
-public:
-    UnitWeight();
-    UnitWeight(ResourceID unit_type, unsigned short weight);
-
-    ResourceID unit_type;
-    unsigned short weight;
-};
-
 UnitWeight::UnitWeight() : unit_type(INVALID_ID), weight(0) {}
 
 UnitWeight::UnitWeight(ResourceID unit_type_, unsigned short weight_) {
@@ -48,6 +39,8 @@ UnitWeight::UnitWeight(ResourceID unit_type_, unsigned short weight_) {
 
 WeightTable::WeightTable() {}
 
+WeightTable::~WeightTable() {}
+
 WeightTable::WeightTable(const WeightTable& other, bool deep_copy) : weight_table(other.weight_table, deep_copy) {}
 
 WeightTable& WeightTable::operator=(WeightTable& other) {
@@ -55,7 +48,7 @@ WeightTable& WeightTable::operator=(WeightTable& other) {
     return *this;
 }
 
-WeightTable& WeightTable::operator+=(WeightTable& other) {
+WeightTable& WeightTable::operator+=(WeightTable const& other) {
     ResourceID unit_type;
     int index;
 
@@ -77,6 +70,10 @@ WeightTable& WeightTable::operator+=(WeightTable& other) {
 
     return *this;
 }
+
+UnitWeight& WeightTable::operator[](unsigned short position) { return *weight_table[position]; }
+
+int WeightTable::GetCount() const { return weight_table.GetCount(); }
 
 ResourceID WeightTable::RollUnitType() const {
     int weight = 0;

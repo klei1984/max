@@ -27,6 +27,7 @@
 #include "threatmap.hpp"
 #include "transportorder.hpp"
 #include "unitinfo.hpp"
+#include "weighttable.hpp"
 
 class AiPlayer {
 public:
@@ -52,6 +53,7 @@ public:
     Task* FindManager(Point site);
     unsigned char** GetMineMap();
     unsigned char GetMineMapEntry(Point site);
+    WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned char flags);
 };
 
 extern AiPlayer AiPlayer_Teams[4];

@@ -19,36 +19,33 @@
  * SOFTWARE.
  */
 
-#ifndef PRODUCTION_MANAGER_HPP
-#define PRODUCTION_MANAGER_HPP
+#ifndef TASKATTACKRESERVE_HPP
+#define TASKATTACKRESERVE_HPP
 
-#include "unitinfo.hpp"
+#include "task.hpp"
 
-bool ProductionManager_OptimizeBuilding(unsigned short team, Complex* complex);
-void ProductionManager_OptimizeMining(unsigned short team, Complex* complex, UnitInfo* unit, bool is_player_team);
-int ProductionManager_GetNormalRateBuildCost(ResourceID unit_type, unsigned short team);
+class TaskAttackReserve : public Task {
+    SmartList<UnitInfo> units;
+    Point site;
+    int total_worth;
 
-class ProductionManager {
-    unsigned short team;
-    SmartPointer<Complex> complex;
-    Cargo cargo1;
-    Cargo cargo2;
-    Cargo cargo_resource_reserves;
-    Cargo cargo4;
-    Cargo cargo_mining_capacity;
-    unsigned short total_resource_mining_capacity;
-    SmartPointer<UnitInfo> unit;
-    SmartObjectArray<UnitInfo> units;
-    bool mode;
-    char buffer[800];
-    unsigned short power_station_count;
-    unsigned short power_generator_count;
-    unsigned short power_station_active;
-    unsigned short power_generator_active;
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+    bool ChaseAttacker(UnitInfo* unit);
 
 public:
-    ProductionManager(unsigned short team, Complex* complex);
-    ~ProductionManager();
+    TaskAttackReserve(unsigned short team, Point site);
+    ~TaskAttackReserve();
+
+    bool IsUnitUsable(UnitInfo& unit);
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void Task_vfunc11(UnitInfo& unit);
+    void ChildComplete(Task* task);
+    void EndTurn();
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void RemoveUnit(UnitInfo& unit);
 };
 
-#endif /* PRODUCTION_MANAGER_HPP */
+#endif /* TASKATTACKRESERVE_HPP */

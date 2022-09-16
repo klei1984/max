@@ -88,5 +88,6 @@ void UnitsManager_AddToDelayedReactionList(UnitInfo* unit);
 void UnitsManager_DrawBustedCommando(UnitInfo* unit);
 void UnitsManager_TestBustedCommando(UnitInfo* unit);
 void UnitsManager_ScaleUnit(UnitInfo* unit, int state);
+int UnitsManager_GetAttackDamage(UnitInfo* unit1, UnitInfo* unit2, int attack_potential);
 
 #endif /* UNITS_MANAGER_HPP */

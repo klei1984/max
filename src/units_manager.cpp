@@ -4044,3 +4044,5 @@ void UnitsManager_PowerDownUnit(UnitInfo* unit) {
         ResearchMenu_UpdateResearchProgress(unit->team, unit->research_topic, -1);
     }
 }
+
+int UnitsManager_GetAttackDamage(UnitInfo* unit1, UnitInfo* unit2, int attack_potential) {}

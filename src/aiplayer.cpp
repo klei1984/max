@@ -68,3 +68,5 @@ Task* AiPlayer::FindManager(Point site) {}
 unsigned char** AiPlayer::GetMineMap() {}
 
 unsigned char AiPlayer::GetMineMapEntry(Point site) {}
+
+WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, unsigned char flags) {}
