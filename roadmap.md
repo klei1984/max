@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-09-16.
+Last updated: 2022-09-30.
 
-Reimplementation status: 5077 / 5704 (89%) functions.
+Reimplementation status: 5136 / 5704 (90%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -207,11 +207,12 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 <br>
 <br>
 - Replace the AI combat classes (ai_attk.cpp)
+  - <span class="legend-done">DefenseManager</span>
   - <span class="legend-done">TaskAttackReserve</span>
-  - TaskKillUnit
-  - TaskCheckAssaults
-  - TaskDefenseReserve
-  - TaskWaitToAttack
+  - <span class="legend-inwork">TaskKillUnit</span>
+  - <span class="legend-done">TaskCheckAssaults</span>
+  - <span class="legend-inwork">TaskDefenseReserve</span>
+  - <span class="legend-done">TaskWaitToAttack</span>
   - TaskFrontalAttack
   - TaskPlaceMines
   - TaskSupportAttack
