@@ -19,38 +19,34 @@
  * SOFTWARE.
  */
 
-#ifndef UNITWEIGHT_HPP
-#define UNITWEIGHT_HPP
+#ifndef TASKATTACK_HPP
+#define TASKATTACK_HPP
 
-#include "enums.hpp"
-#include "smartobjectarray.hpp"
+#include "spottedunit.hpp"
+#include "task.hpp"
 
-class UnitWeight {
+class TaskAttack : public Task {
 public:
-    UnitWeight();
-    UnitWeight(ResourceID unit_type, unsigned short weight);
+    TaskAttack(SpottedUnit* spotted_unit, unsigned short flags);
+    ~TaskAttack();
 
-    ResourceID unit_type;
-    unsigned short weight;
+    bool IsUnitUsable(UnitInfo& unit);
+    int GetCautionLevel(UnitInfo& unit);
+    int GetMemoryUse() const;
+    unsigned short GetFlags() const;
+    char* WriteStatusLog(char* buffer) const;
+    Rect* GetBounds(Rect* bounds);
+    unsigned char GetType() const;
+    bool Task_vfunc9();
+    void Task_vfunc11(UnitInfo& unit);
+    void Begin();
+    void BeginTurn();
+    void ChildComplete(Task* task);
+    void EndTurn();
+    bool Task_vfunc16(UnitInfo& unit);
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void RemoveUnit(UnitInfo& unit);
 };
 
-class WeightTable {
-    SmartObjectArray<UnitWeight> weight_table;
-
-public:
-    WeightTable();
-    WeightTable(const WeightTable& other, bool deep_copy = false);
-    ~WeightTable();
-
-    WeightTable& operator=(WeightTable& other);
-    WeightTable& operator+=(WeightTable const& other);
-    UnitWeight& operator[](unsigned short position);
-
-    void PushBack(UnitWeight& object);
-
-    int GetCount() const;
-    ResourceID RollUnitType() const;
-    int GetWeight(ResourceID unit_type) const;
-};
-
-#endif /* UNITWEIGHT_HPP */
+#endif /* TASKATTACK_HPP */

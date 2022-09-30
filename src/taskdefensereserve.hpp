@@ -19,38 +19,35 @@
  * SOFTWARE.
  */
 
-#ifndef UNITWEIGHT_HPP
-#define UNITWEIGHT_HPP
+#ifndef TASKDEFENSERESERVE_HPP
+#define TASKDEFENSERESERVE_HPP
 
-#include "enums.hpp"
-#include "smartobjectarray.hpp"
+#include "defense_manager.hpp"
 
-class UnitWeight {
-public:
-    UnitWeight();
-    UnitWeight(ResourceID unit_type, unsigned short weight);
+class TaskDefenseReserve : public Task {
+    SmartList<UnitInfo> units;
+    Point site;
+    DefenseManager managers[8];
 
-    ResourceID unit_type;
-    unsigned short weight;
-};
+    static bool sub_1E344(UnitInfo* unit);
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
-class WeightTable {
-    SmartObjectArray<UnitWeight> weight_table;
+    bool SupportAttacker(UnitInfo* unit);
 
 public:
-    WeightTable();
-    WeightTable(const WeightTable& other, bool deep_copy = false);
-    ~WeightTable();
+    TaskDefenseReserve(unsigned short team, Point site);
+    ~TaskDefenseReserve();
 
-    WeightTable& operator=(WeightTable& other);
-    WeightTable& operator+=(WeightTable const& other);
-    UnitWeight& operator[](unsigned short position);
-
-    void PushBack(UnitWeight& object);
-
-    int GetCount() const;
-    ResourceID RollUnitType() const;
-    int GetWeight(ResourceID unit_type) const;
+    bool IsUnitUsable(UnitInfo& unit);
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void Task_vfunc11(UnitInfo& unit);
+    void BeginTurn();
+    void EndTurn();
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void RemoveUnit(UnitInfo& unit);
 };
 
-#endif /* UNITWEIGHT_HPP */
+#endif /* TASKDEFENSERESERVE_HPP */

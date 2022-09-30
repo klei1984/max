@@ -19,38 +19,27 @@
  * SOFTWARE.
  */
 
-#ifndef UNITWEIGHT_HPP
-#define UNITWEIGHT_HPP
+#ifndef TASKWAITTOATTACK_HPP
+#define TASKWAITTOATTACK_HPP
 
-#include "enums.hpp"
-#include "smartobjectarray.hpp"
+#include "task.hpp"
 
-class UnitWeight {
-public:
-    UnitWeight();
-    UnitWeight(ResourceID unit_type, unsigned short weight);
-
-    ResourceID unit_type;
-    unsigned short weight;
-};
-
-class WeightTable {
-    SmartObjectArray<UnitWeight> weight_table;
+class TaskWaitToAttack : public Task {
+    SmartPointer<UnitInfo> attacker;
 
 public:
-    WeightTable();
-    WeightTable(const WeightTable& other, bool deep_copy = false);
-    ~WeightTable();
+    TaskWaitToAttack(UnitInfo* unit);
+    ~TaskWaitToAttack();
 
-    WeightTable& operator=(WeightTable& other);
-    WeightTable& operator+=(WeightTable const& other);
-    UnitWeight& operator[](unsigned short position);
-
-    void PushBack(UnitWeight& object);
-
-    int GetCount() const;
-    ResourceID RollUnitType() const;
-    int GetWeight(ResourceID unit_type) const;
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    bool Task_vfunc10();
+    void Begin();
+    void EndTurn();
+    void RemoveSelf();
+    bool Task_vfunc19();
+    void RemoveUnit(UnitInfo& unit);
 };
 
-#endif /* UNITWEIGHT_HPP */
+#endif /* TASKWAITTOATTACK_HPP */

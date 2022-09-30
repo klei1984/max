@@ -2261,4 +2261,7 @@ extern SortedEnum Enums_LayingState;
 extern SortedEnum Enums_Cursor;
 extern SortedEnum Enums_EngineWeaponComm;
 
+inline ResourceID operator--(const ResourceID& id) { return static_cast<ResourceID>(static_cast<int>(id) - 1); }
+inline ResourceID operator++(const ResourceID& id) { return static_cast<ResourceID>(static_cast<int>(id) + 1); }
+
 #endif /* ENUMS_HPP */

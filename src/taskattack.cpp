@@ -19,38 +19,45 @@
  * SOFTWARE.
  */
 
-#ifndef UNITWEIGHT_HPP
-#define UNITWEIGHT_HPP
+#include "taskattack.hpp"
 
-#include "enums.hpp"
-#include "smartobjectarray.hpp"
+#include "task_manager.hpp"
 
-class UnitWeight {
-public:
-    UnitWeight();
-    UnitWeight(ResourceID unit_type, unsigned short weight);
+TaskAttack::TaskAttack(SpottedUnit* spotted_unit, unsigned short flags_)
+    : Task(spotted_unit->GetTeam(), nullptr, flags_) {}
 
-    ResourceID unit_type;
-    unsigned short weight;
-};
+TaskAttack::~TaskAttack() {}
 
-class WeightTable {
-    SmartObjectArray<UnitWeight> weight_table;
+bool TaskAttack::IsUnitUsable(UnitInfo& unit) {}
 
-public:
-    WeightTable();
-    WeightTable(const WeightTable& other, bool deep_copy = false);
-    ~WeightTable();
+int TaskAttack::GetCautionLevel(UnitInfo& unit) {}
 
-    WeightTable& operator=(WeightTable& other);
-    WeightTable& operator+=(WeightTable const& other);
-    UnitWeight& operator[](unsigned short position);
+int TaskAttack::GetMemoryUse() const {}
 
-    void PushBack(UnitWeight& object);
+unsigned short TaskAttack::GetFlags() const {}
 
-    int GetCount() const;
-    ResourceID RollUnitType() const;
-    int GetWeight(ResourceID unit_type) const;
-};
+char* TaskAttack::WriteStatusLog(char* buffer) const {}
 
-#endif /* UNITWEIGHT_HPP */
+Rect* TaskAttack::GetBounds(Rect* bounds) {}
+
+unsigned char TaskAttack::GetType() const {}
+
+bool TaskAttack::Task_vfunc9() {}
+
+void TaskAttack::Task_vfunc11(UnitInfo& unit) {}
+
+void TaskAttack::Begin() {}
+
+void TaskAttack::BeginTurn() {}
+
+void TaskAttack::ChildComplete(Task* task) {}
+
+void TaskAttack::EndTurn() {}
+
+bool TaskAttack::Task_vfunc16(UnitInfo& unit) {}
+
+bool TaskAttack::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskAttack::RemoveSelf() {}
+
+void TaskAttack::RemoveUnit(UnitInfo& unit) {}

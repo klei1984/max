@@ -19,38 +19,32 @@
  * SOFTWARE.
  */
 
-#ifndef UNITWEIGHT_HPP
-#define UNITWEIGHT_HPP
+#ifndef TASKCHECKASSAULTS_HPP
+#define TASKCHECKASSAULTS_HPP
 
-#include "enums.hpp"
-#include "smartobjectarray.hpp"
+#include "task.hpp"
 
-class UnitWeight {
-public:
-    UnitWeight();
-    UnitWeight(ResourceID unit_type, unsigned short weight);
+class TaskCheckAssaults : public Task {
+    SmartList<UnitInfo>::Iterator unit_iterator;
 
-    ResourceID unit_type;
-    unsigned short weight;
-};
+    void CheckAssaults();
+    void SelectNext();
+    bool EvaluateAssaults();
 
-class WeightTable {
-    SmartObjectArray<UnitWeight> weight_table;
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    WeightTable();
-    WeightTable(const WeightTable& other, bool deep_copy = false);
-    ~WeightTable();
+    TaskCheckAssaults(unsigned short team);
+    ~TaskCheckAssaults();
 
-    WeightTable& operator=(WeightTable& other);
-    WeightTable& operator+=(WeightTable const& other);
-    UnitWeight& operator[](unsigned short position);
-
-    void PushBack(UnitWeight& object);
-
-    int GetCount() const;
-    ResourceID RollUnitType() const;
-    int GetWeight(ResourceID unit_type) const;
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    bool Task_vfunc10();
+    void BeginTurn();
+    void EndTurn();
+    void RemoveSelf();
+    void RemoveUnit(UnitInfo& unit);
 };
 
-#endif /* UNITWEIGHT_HPP */
+#endif /* TASKCHECKASSAULTS_HPP */

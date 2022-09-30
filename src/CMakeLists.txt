@@ -88,11 +88,14 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/buildmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/defense_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskabstractsearch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskactivate.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskautosurvey.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskcheckassaults.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskassistmove.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskattack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskattackreserve.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskconnectionassistant.cpp
@@ -100,6 +103,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreatebuilding.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskcreateunit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskdefenseassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskdefensereserve.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskdump.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskescort.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskexplore.cpp
@@ -108,6 +112,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontierassistant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskhabitatassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskkillunit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskgetmaterials.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmanagebuildings.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskmineassistant.cpp
@@ -128,6 +133,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/tasktransport.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupgrade.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskwaittoattack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitevents.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task_manager.cpp

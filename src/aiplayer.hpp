@@ -54,7 +54,11 @@ public:
     unsigned char** GetMineMap();
     unsigned char GetMineMapEntry(Point site);
     WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned char flags);
+    int GetPredictedAttack(UnitInfo* unit, int caution_level);
+    unsigned short GetTargetTeam() const;
 };
+
+extern int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level);
 
 extern AiPlayer AiPlayer_Teams[4];
 extern TerrainMap AiPlayer_TerrainMap;

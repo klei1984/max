@@ -26,15 +26,15 @@
 #include "unitinfo.hpp"
 
 int AiAttack_GetTargetValue(UnitInfo* unit);
-bool AiAttack_DecideDesperationAttack(UnitInfo* unit1, UnitInfo* unit2);
+bool AiAttack_DecideDesperationAttack(UnitInfo* attacker, UnitInfo* target);
 bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site, int* projected_damage,
                                    int caution_level);
-bool AiAttack_ChooseSiteToAttack(UnitInfo* unit, Point target, Point site, int* projected_damage, int caution_level,
-                                 int range, bool mode = false);
-bool AiAttack_sub_176F3(UnitInfo* unit, unsigned short team, bool* relevant_teams);
+bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int* projected_damage, int caution_level,
+                                    int range, bool mode = false);
+bool AiAttack_IsWithinReach(UnitInfo* unit, unsigned short team, bool* relevant_teams);
 bool AiAttack_IsValidSabotageTarget(UnitInfo* unit, UnitInfo* target);
-bool AiAttack_ProcessAttack(UnitInfo* unit1, UnitInfo* unit2);
-bool AiAttack_CanAttack(UnitInfo* unit1, UnitInfo* unit2);
+bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target);
+bool AiAttack_CanAttack(UnitInfo* attacker, UnitInfo* target);
 bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, unsigned short team, int caution_level);
 int AiAttack_EstimateAttackValue(UnitInfo* unit, int predicted_damage);
 bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int damage_to_friendly,

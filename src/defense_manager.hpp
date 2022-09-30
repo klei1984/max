@@ -19,38 +19,32 @@
  * SOFTWARE.
  */
 
-#ifndef UNITWEIGHT_HPP
-#define UNITWEIGHT_HPP
+#ifndef DEFENSE_MANAGER_HPP
+#define DEFENSE_MANAGER_HPP
 
-#include "enums.hpp"
-#include "smartobjectarray.hpp"
+#include "taskobtainunits.hpp"
+#include "weighttable.hpp"
 
-class UnitWeight {
-public:
-    UnitWeight();
-    UnitWeight(ResourceID unit_type, unsigned short weight);
-
-    ResourceID unit_type;
-    unsigned short weight;
-};
-
-class WeightTable {
-    SmartObjectArray<UnitWeight> weight_table;
+class DefenseManager {
+    SmartList<UnitInfo> units;
+    WeightTable weight_table;
+    SmartObjectArray<ResourceID> unit_types;
+    int asset_value;
+    int asset_value_goal;
 
 public:
-    WeightTable();
-    WeightTable(const WeightTable& other, bool deep_copy = false);
-    ~WeightTable();
+    DefenseManager();
+    ~DefenseManager();
 
-    WeightTable& operator=(WeightTable& other);
-    WeightTable& operator+=(WeightTable const& other);
-    UnitWeight& operator[](unsigned short position);
-
-    void PushBack(UnitWeight& object);
-
-    int GetCount() const;
-    ResourceID RollUnitType() const;
-    int GetWeight(ResourceID unit_type) const;
+    void ClearUnitsList();
+    bool IsUnitUsable(UnitInfo* unit);
+    bool AddUnit(UnitInfo* unit);
+    bool RemoveUnit(UnitInfo* unit);
+    void AddRule(ResourceID unit_type, int weight);
+    void MaintainDefences(Task* task);
+    void EvaluateNeeds(ResourceID* unit_types);
+    void PlanDefenses(int asset_value_goal, TaskObtainUnits* task, int* unit_counts);
+    int GetMemoryUse();
 };
 
-#endif /* UNITWEIGHT_HPP */
+#endif /* DEFENSE_MANAGER_HPP */

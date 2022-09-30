@@ -27,6 +27,8 @@ ThreatMap AiPlayer_ThreatMaps[10];
 
 /// \todo
 
+int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level) {}
+
 AiPlayer::AiPlayer() {}
 
 AiPlayer::~AiPlayer() {}
@@ -70,3 +72,7 @@ unsigned char** AiPlayer::GetMineMap() {}
 unsigned char AiPlayer::GetMineMapEntry(Point site) {}
 
 WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, unsigned char flags) {}
+
+int AiPlayer::GetPredictedAttack(UnitInfo* unit, int caution_level) {}
+
+unsigned short AiPlayer::GetTargetTeam() const {}

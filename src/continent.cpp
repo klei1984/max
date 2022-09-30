@@ -134,8 +134,8 @@ void Continent::SelectLandingSite(unsigned short team, int strategy) {
     Point site;
 
     do {
-        site.x = bounds.ulx + (((bounds.lrx - bounds.ulx - 4 + 1) * rand()) >> 15);
-        site.y = bounds.uly + (((bounds.lry - bounds.uly - 4 + 1) * rand()) >> 15);
+        site.x = bounds.ulx + (((bounds.lrx - bounds.ulx - 4 + 1) * dos_rand()) >> 15);
+        site.y = bounds.uly + (((bounds.lry - bounds.uly - 4 + 1) * dos_rand()) >> 15);
     } while (!IsViableSite(true, team, site));
 
     UnitsManager_TeamMissionSupplies[team].starting_position = site;
