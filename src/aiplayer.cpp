@@ -29,6 +29,8 @@ ThreatMap AiPlayer_ThreatMaps[10];
 
 int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level) {}
 
+int AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level) {}
+
 AiPlayer::AiPlayer() {}
 
 AiPlayer::~AiPlayer() {}

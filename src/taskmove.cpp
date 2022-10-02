@@ -40,7 +40,7 @@ TaskMove::TaskMove(UnitInfo* unit, Task* task, unsigned short minimum_distance_,
                    Point destination_, void (*result_callback_)(Task* task, UnitInfo* unit, char result))
     : Task(unit->team, task, task ? task->GetFlags() : 0x1000) {
     field_72 = 0;
-    field_69 = 0;
+    field_69 = false;
     passenger = unit;
     minimum_distance = minimum_distance_;
 
@@ -66,14 +66,14 @@ TaskMove::TaskMove(UnitInfo* unit, Task* task, unsigned short minimum_distance_,
 
     result_callback = result_callback_;
 
-    field_68 = 0;
+    field_68 = false;
     field_70 = 0;
 }
 
 TaskMove::TaskMove(UnitInfo* unit, void (*result_callback_)(Task* task, UnitInfo* unit, char result))
     : Task(unit->team, nullptr, 0x2900) {
     passenger = unit;
-    field_69 = 0;
+    field_69 = false;
     field_71 = 0;
     minimum_distance = 0;
     caution_level = CAUTION_LEVEL_AVOID_ALL_DAMAGE;
@@ -89,7 +89,7 @@ TaskMove::TaskMove(UnitInfo* unit, void (*result_callback_)(Task* task, UnitInfo
 
     result_callback = result_callback_;
 
-    field_68 = 0;
+    field_68 = false;
     field_70 = 0;
 }
 
@@ -129,7 +129,9 @@ char* TaskMove::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskMove::GetType() const { return TaskType_TaskMove; }
 
-void TaskMove::SetField68(bool value) {}
+void TaskMove::SetField68(bool value) { field_68 = value; }
+
+void TaskMove::SetField69(bool value) { field_69 = value; }
 
 UnitInfo* TaskMove::GetPassenger() { return &*passenger; }
 

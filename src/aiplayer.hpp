@@ -60,6 +60,7 @@ public:
 };
 
 extern int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level);
+extern int AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level);
 
 extern AiPlayer AiPlayer_Teams[4];
 extern TerrainMap AiPlayer_TerrainMap;

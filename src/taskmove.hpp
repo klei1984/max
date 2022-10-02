@@ -45,8 +45,8 @@ class TaskMove : public Task {
     ObjectArray<Point> planned_path;
     SmartPointer<Zone> zone;
     void (*result_callback)(Task* task, UnitInfo* unit, char result);
-    unsigned char field_68;
-    unsigned char field_69;
+    bool field_68;
+    bool field_69;
     unsigned char field_70;
     unsigned char field_71;
     unsigned char field_72;
@@ -100,6 +100,7 @@ public:
     void Task_vfunc27(Zone* zone, char mode);
 
     void SetField68(bool value);
+    void SetField69(bool value);
     UnitInfo* GetPassenger();
     Point GetDestination();
     void SetDestination(Point site);

@@ -26,7 +26,7 @@
 #include "task.hpp"
 
 class TaskFrontalAttack : public Task {
-    unsigned char field_19;
+    bool field_19;
     SmartPointer<SpottedUnit> spotted_unit;
     SmartList<UnitInfo> units1;
     SmartList<UnitInfo> units2;
@@ -34,6 +34,7 @@ class TaskFrontalAttack : public Task {
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
     void Finish();
+    void IssueOrders();
 
 public:
     TaskFrontalAttack(unsigned short team, SpottedUnit* spotted_unit, int caution_level);
