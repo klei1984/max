@@ -19,32 +19,34 @@
  * SOFTWARE.
  */
 
-#ifndef DEFENSE_MANAGER_HPP
-#define DEFENSE_MANAGER_HPP
+#include "taskplacemines.hpp"
 
-#include "taskobtainunits.hpp"
-#include "weighttable.hpp"
+void TaskPlaceMines::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {}
 
-class DefenseManager {
-    SmartList<UnitInfo> units;
-    WeightTable weight_table;
-    SmartObjectArray<ResourceID> unit_types;
-    int asset_value;
-    int asset_value_goal;
+TaskPlaceMines::TaskPlaceMines(unsigned short team_) : Task(team, nullptr, 0x1A00) {}
 
-public:
-    DefenseManager();
-    ~DefenseManager();
+TaskPlaceMines::~TaskPlaceMines() {}
 
-    void ClearUnitsList();
-    bool IsUnitUsable(UnitInfo* unit);
-    bool AddUnit(UnitInfo* unit);
-    bool RemoveUnit(UnitInfo* unit);
-    void AddRule(ResourceID unit_type, int weight);
-    void MaintainDefences(Task* task);
-    void EvaluateNeeds(int* unit_counts);
-    void PlanDefenses(int asset_value_goal, TaskObtainUnits* task, int* unit_counts);
-    int GetMemoryUse() const;
-};
+bool TaskPlaceMines::IsUnitUsable(UnitInfo& unit) {}
 
-#endif /* DEFENSE_MANAGER_HPP */
+int TaskPlaceMines::GetMemoryUse() const {}
+
+char* TaskPlaceMines::WriteStatusLog(char* buffer) const {}
+
+Rect* TaskPlaceMines::GetBounds(Rect* bounds) {}
+
+unsigned char TaskPlaceMines::GetType() const {}
+
+bool TaskPlaceMines::Task_vfunc9() {}
+
+void TaskPlaceMines::Task_vfunc11(UnitInfo& unit) {}
+
+void TaskPlaceMines::BeginTurn() {}
+
+void TaskPlaceMines::EndTurn() {}
+
+bool TaskPlaceMines::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskPlaceMines::RemoveSelf() {}
+
+void TaskPlaceMines::RemoveUnit(UnitInfo& unit) {}

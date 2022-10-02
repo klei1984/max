@@ -19,32 +19,34 @@
  * SOFTWARE.
  */
 
-#ifndef DEFENSE_MANAGER_HPP
-#define DEFENSE_MANAGER_HPP
+#ifndef TASKPLACEMINES_HPP
+#define TASKPLACEMINES_HPP
 
-#include "taskobtainunits.hpp"
-#include "weighttable.hpp"
+#include "task.hpp"
 
-class DefenseManager {
+class TaskPlaceMines : public Task {
     SmartList<UnitInfo> units;
-    WeightTable weight_table;
-    SmartObjectArray<ResourceID> unit_types;
-    int asset_value;
-    int asset_value_goal;
+    unsigned short field_29;
+    unsigned short field_31;
+
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    DefenseManager();
-    ~DefenseManager();
+    TaskPlaceMines(unsigned short team);
+    ~TaskPlaceMines();
 
-    void ClearUnitsList();
-    bool IsUnitUsable(UnitInfo* unit);
-    bool AddUnit(UnitInfo* unit);
-    bool RemoveUnit(UnitInfo* unit);
-    void AddRule(ResourceID unit_type, int weight);
-    void MaintainDefences(Task* task);
-    void EvaluateNeeds(int* unit_counts);
-    void PlanDefenses(int asset_value_goal, TaskObtainUnits* task, int* unit_counts);
+    bool IsUnitUsable(UnitInfo& unit);
     int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    Rect* GetBounds(Rect* bounds);
+    unsigned char GetType() const;
+    bool Task_vfunc9();
+    void Task_vfunc11(UnitInfo& unit);
+    void BeginTurn();
+    void EndTurn();
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void RemoveUnit(UnitInfo& unit);
 };
 
-#endif /* DEFENSE_MANAGER_HPP */
+#endif /* TASKPLACEMINES_HPP */

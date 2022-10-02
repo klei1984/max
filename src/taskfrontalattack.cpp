@@ -19,32 +19,37 @@
  * SOFTWARE.
  */
 
-#ifndef DEFENSE_MANAGER_HPP
-#define DEFENSE_MANAGER_HPP
+#include "taskfrontalattack.hpp"
 
-#include "taskobtainunits.hpp"
-#include "weighttable.hpp"
+void TaskFrontalAttack::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {}
 
-class DefenseManager {
-    SmartList<UnitInfo> units;
-    WeightTable weight_table;
-    SmartObjectArray<ResourceID> unit_types;
-    int asset_value;
-    int asset_value_goal;
+void TaskFrontalAttack::Finish() {}
 
-public:
-    DefenseManager();
-    ~DefenseManager();
+TaskFrontalAttack::TaskFrontalAttack(unsigned short team_, SpottedUnit* spotted_unit_, int caution_level_)
+    : Task(team_, nullptr, 0x400) {}
 
-    void ClearUnitsList();
-    bool IsUnitUsable(UnitInfo* unit);
-    bool AddUnit(UnitInfo* unit);
-    bool RemoveUnit(UnitInfo* unit);
-    void AddRule(ResourceID unit_type, int weight);
-    void MaintainDefences(Task* task);
-    void EvaluateNeeds(int* unit_counts);
-    void PlanDefenses(int asset_value_goal, TaskObtainUnits* task, int* unit_counts);
-    int GetMemoryUse() const;
-};
+TaskFrontalAttack::~TaskFrontalAttack() {}
 
-#endif /* DEFENSE_MANAGER_HPP */
+int TaskFrontalAttack::GetCautionLevel(UnitInfo& unit) {}
+
+int TaskFrontalAttack::GetMemoryUse() const {}
+
+char* TaskFrontalAttack::WriteStatusLog(char* buffer) const {}
+
+unsigned char TaskFrontalAttack::GetType() const {}
+
+void TaskFrontalAttack::Task_vfunc11(UnitInfo& unit) {}
+
+void TaskFrontalAttack::Begin() {}
+
+void TaskFrontalAttack::BeginTurn() {}
+
+void TaskFrontalAttack::EndTurn() {}
+
+bool TaskFrontalAttack::Task_vfunc17(UnitInfo& unit) {}
+
+void TaskFrontalAttack::RemoveSelf() {}
+
+void TaskFrontalAttack::RemoveUnit(UnitInfo& unit) {}
+
+void TaskFrontalAttack::Task_vfunc23(UnitInfo& unit) {}

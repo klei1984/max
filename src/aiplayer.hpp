@@ -56,6 +56,7 @@ public:
     WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned char flags);
     int GetPredictedAttack(UnitInfo* unit, int caution_level);
     unsigned short GetTargetTeam() const;
+    int GetStrategy() const;
 };
 
 extern int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level);

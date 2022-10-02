@@ -49,6 +49,6 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode = true);
 bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                               void (*result_callback)(Task* task, UnitInfo* unit, char result));
 Task* AiAttack_GetPrimaryTask(UnitInfo* unit);
-bool AiAttack_ChaseAttacker(Task* task, UnitInfo* unit, unsigned short task_flags);
+bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_flags);
 
 #endif /* AIATTACK_HPP */

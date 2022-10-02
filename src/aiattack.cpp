@@ -588,4 +588,4 @@ Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
     return task;
 }
 
-bool AiAttack_ChaseAttacker(Task* task, UnitInfo* unit, unsigned short task_flags) {}
+bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_flags) {}

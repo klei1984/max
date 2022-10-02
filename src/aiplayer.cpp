@@ -76,3 +76,5 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, unsigned char
 int AiPlayer::GetPredictedAttack(UnitInfo* unit, int caution_level) {}
 
 unsigned short AiPlayer::GetTargetTeam() const {}
+
+int AiPlayer::GetStrategy() const {}

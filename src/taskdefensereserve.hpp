@@ -24,12 +24,14 @@
 
 #include "defense_manager.hpp"
 
+#define TASK_DEFENSE_MANAGER_COUNT 8
+
 class TaskDefenseReserve : public Task {
     SmartList<UnitInfo> units;
     Point site;
-    DefenseManager managers[8];
+    DefenseManager managers[TASK_DEFENSE_MANAGER_COUNT];
 
-    static bool sub_1E344(UnitInfo* unit);
+    static bool IsAdjacentToWater(UnitInfo* unit);
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
     bool SupportAttacker(UnitInfo* unit);

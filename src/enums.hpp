@@ -2252,6 +2252,19 @@ enum {
     CAUTION_LEVEL_AVOID_ALL_DAMAGE
 };
 
+enum {
+    AI_STRATEGY_RANDOM,
+    AI_STRATEGY_DEFENSIVE,
+    AI_STRATEGY_MISSILES,
+    AI_STRATEGY_AIR,
+    AI_STRATEGY_SEA,
+    AI_STRATEGY_SCOUT_HORDE,
+    AI_STRATEGY_TANK_HORDE,
+    AI_STRATEGY_FAST_ATTACK,
+    AI_STRATEGY_COMBINED_ARMS,
+    AI_STRATEGY_ESPIONAGE
+};
+
 extern SortedEnum Enums_UnitType;
 extern SortedEnum Enums_ResearchTopic;
 extern SortedEnum Enums_Sound;
@@ -2260,8 +2273,5 @@ extern SortedEnum Enums_States;
 extern SortedEnum Enums_LayingState;
 extern SortedEnum Enums_Cursor;
 extern SortedEnum Enums_EngineWeaponComm;
-
-inline ResourceID operator--(const ResourceID& id) { return static_cast<ResourceID>(static_cast<int>(id) - 1); }
-inline ResourceID operator++(const ResourceID& id) { return static_cast<ResourceID>(static_cast<int>(id) + 1); }
 
 #endif /* ENUMS_HPP */

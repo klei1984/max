@@ -19,32 +19,38 @@
  * SOFTWARE.
  */
 
-#ifndef DEFENSE_MANAGER_HPP
-#define DEFENSE_MANAGER_HPP
+#ifndef TASKFRONTALATTACK_HPP
+#define TASKFRONTALATTACK_HPP
 
-#include "taskobtainunits.hpp"
-#include "weighttable.hpp"
+#include "spottedunit.hpp"
+#include "task.hpp"
 
-class DefenseManager {
-    SmartList<UnitInfo> units;
-    WeightTable weight_table;
-    SmartObjectArray<ResourceID> unit_types;
-    int asset_value;
-    int asset_value_goal;
+class TaskFrontalAttack : public Task {
+    unsigned char field_19;
+    SmartPointer<SpottedUnit> spotted_unit;
+    SmartList<UnitInfo> units1;
+    SmartList<UnitInfo> units2;
+    int caution_level;
+
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+    void Finish();
 
 public:
-    DefenseManager();
-    ~DefenseManager();
+    TaskFrontalAttack(unsigned short team, SpottedUnit* spotted_unit, int caution_level);
+    ~TaskFrontalAttack();
 
-    void ClearUnitsList();
-    bool IsUnitUsable(UnitInfo* unit);
-    bool AddUnit(UnitInfo* unit);
-    bool RemoveUnit(UnitInfo* unit);
-    void AddRule(ResourceID unit_type, int weight);
-    void MaintainDefences(Task* task);
-    void EvaluateNeeds(int* unit_counts);
-    void PlanDefenses(int asset_value_goal, TaskObtainUnits* task, int* unit_counts);
+    int GetCautionLevel(UnitInfo& unit);
     int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    void Task_vfunc11(UnitInfo& unit);
+    void Begin();
+    void BeginTurn();
+    void EndTurn();
+    bool Task_vfunc17(UnitInfo& unit);
+    void RemoveSelf();
+    void RemoveUnit(UnitInfo& unit);
+    void Task_vfunc23(UnitInfo& unit);
 };
 
-#endif /* DEFENSE_MANAGER_HPP */
+#endif /* TASKFRONTALATTACK_HPP */

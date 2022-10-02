@@ -133,12 +133,12 @@ void DefenseManager::MaintainDefences(Task* task) {
     }
 }
 
-void DefenseManager::EvaluateNeeds(ResourceID* unit_types_) {
+void DefenseManager::EvaluateNeeds(int* unit_counts) {
     for (int i = 0; i < unit_types.GetCount(); ++i) {
         ResourceID unit_type = Builder_GetBuilderType(*unit_types[i]);
 
-        if (unit_types_[unit_type] > 0) {
-            --unit_types_[unit_type];
+        if (unit_counts[unit_type] > 0) {
+            --unit_counts[unit_type];
         }
     }
 }
@@ -195,7 +195,7 @@ void DefenseManager::PlanDefenses(int asset_value_goal_, TaskObtainUnits* task, 
     }
 }
 
-int DefenseManager::GetMemoryUse() {
+int DefenseManager::GetMemoryUse() const {
     return units.GetMemorySize() - 6 + weight_table.GetCount() * sizeof(UnitWeight) +
            unit_types.GetCount() * sizeof(ResourceID);
 }

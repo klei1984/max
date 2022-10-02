@@ -55,7 +55,7 @@ void TaskAttackReserve::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
 bool TaskAttackReserve::ChaseAttacker(UnitInfo* unit) {
     bool result;
 
-    if (AiAttack_ChaseAttacker(this, unit, 0x2000)) {
+    if (AiAttack_FollowAttacker(this, unit, 0x2000)) {
         result = true;
 
     } else {
