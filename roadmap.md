@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-09-30.
+Last updated: 2022-10-03.
 
-Reimplementation status: 5136 / 5704 (90%) functions.
+Reimplementation status: 5205 / 5704 (91%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -211,13 +211,13 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
   - <span class="legend-done">TaskAttackReserve</span>
   - <span class="legend-inwork">TaskKillUnit</span>
   - <span class="legend-done">TaskCheckAssaults</span>
-  - <span class="legend-inwork">TaskDefenseReserve</span>
+  - <span class="legend-done">TaskDefenseReserve</span>
   - <span class="legend-done">TaskWaitToAttack</span>
-  - TaskFrontalAttack
-  - TaskPlaceMines
-  - TaskSupportAttack
+  - <span class="legend-done">TaskFrontalAttack</span>
+  - <span class="legend-done">TaskPlaceMines</span>
+  - <span class="legend-inwork">TaskSupportAttack</span>
   - TaskAttack
-  - TaskEscort
+  - <span class="legend-inwork">TaskEscort</span>
   - <span class="legend-done">AccessMap</span>
   - <span class="legend-done">WeightTable</span>
   - <span class="legend-done">TransporterMap</span>
