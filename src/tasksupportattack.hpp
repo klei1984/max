@@ -19,21 +19,25 @@
  * SOFTWARE.
  */
 
-#ifndef TASKPLACEMINES_HPP
-#define TASKPLACEMINES_HPP
+#ifndef TASKSUPPORTATTACK_HPP
+#define TASKSUPPORTATTACK_HPP
 
 #include "task.hpp"
 
-class TaskPlaceMines : public Task {
+class TaskSupportAttack : public Task {
     SmartList<UnitInfo> units;
-    unsigned short mine_layer_count;
-    unsigned short sea_mine_layer_count;
+    signed short field_29;
+    signed short field_31;
+    unsigned int field_33;
+
+    void GetUnits(unsigned int value);
+    bool IssueOrders(UnitInfo* unit);
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskPlaceMines(unsigned short team);
-    ~TaskPlaceMines();
+    TaskSupportAttack(Task* task);
+    ~TaskSupportAttack();
 
     bool IsUnitUsable(UnitInfo& unit);
     int GetMemoryUse() const;
@@ -47,6 +51,9 @@ public:
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
+
+    bool AddReminders();
+    SmartList<UnitInfo>::Iterator GetUnitsListIterator();
 };
 
-#endif /* TASKPLACEMINES_HPP */
+#endif /* TASKSUPPORTATTACK_HPP */

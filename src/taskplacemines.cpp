@@ -38,8 +38,8 @@ void TaskPlaceMines::MoveFinishedCallback(Task* task, UnitInfo* unit, char resul
 }
 
 TaskPlaceMines::TaskPlaceMines(unsigned short team_) : Task(team_, nullptr, 0x1A00) {
-    field_29 = 0;
-    field_31 = 0;
+    mine_layer_count = 0;
+    sea_mine_layer_count = 0;
 }
 
 TaskPlaceMines::~TaskPlaceMines() {}
@@ -98,18 +98,18 @@ void TaskPlaceMines::Task_vfunc11(UnitInfo& unit) {
     unit.PushFrontTask1List(this);
 
     if (unit.unit_type == MINELAYR) {
-        field_29 = 0;
+        mine_layer_count = 0;
 
     } else {
-        field_31 = 0;
+        sea_mine_layer_count = 0;
     }
 
     Task_RemindMoveFinished(&unit);
 }
 
 void TaskPlaceMines::BeginTurn() {
-    bool has_mine_layer = field_29 > 0;
-    bool has_sea_mine_layer = field_31 > 0;
+    bool has_mine_layer = mine_layer_count > 0;
+    bool has_sea_mine_layer = sea_mine_layer_count > 0;
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).unit_type == MINELAYR) {
@@ -125,12 +125,12 @@ void TaskPlaceMines::BeginTurn() {
 
         if (!has_mine_layer) {
             obtain_unit_task->AddUnit(MINELAYR);
-            ++field_29;
+            ++mine_layer_count;
         }
 
         if (!has_sea_mine_layer) {
             obtain_unit_task->AddUnit(SEAMNLYR);
-            ++field_31;
+            ++sea_mine_layer_count;
         }
 
         TaskManager.AppendTask(*obtain_unit_task);

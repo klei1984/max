@@ -47,6 +47,8 @@ public:
     bool Task_vfunc17(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
+
+    unsigned int GetField58() const;
 };
 
 #endif /* TASKATTACK_HPP */

@@ -25,6 +25,15 @@
 #include "task.hpp"
 
 class TaskEscort : public Task {
+    SmartPointer<UnitInfo> target;
+    SmartPointer<UnitInfo> escort;
+    ResourceID unit_type;
+    unsigned char field_29;
+
+    bool IssueOrders(UnitInfo* unit);
+
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+
 public:
     TaskEscort(UnitInfo* unit, ResourceID unit_type);
     ~TaskEscort();

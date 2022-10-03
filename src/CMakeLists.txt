@@ -131,6 +131,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskretreat.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskscavenge.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasksearchdestination.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tasksupportattack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasksurvey.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tasktransport.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp

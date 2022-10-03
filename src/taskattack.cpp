@@ -61,3 +61,5 @@ bool TaskAttack::Task_vfunc17(UnitInfo& unit) {}
 void TaskAttack::RemoveSelf() {}
 
 void TaskAttack::RemoveUnit(UnitInfo& unit) {}
+
+unsigned int TaskAttack::GetField58() const {}

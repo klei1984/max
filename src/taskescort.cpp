@@ -21,28 +21,84 @@
 
 #include "taskescort.hpp"
 
+#include "aiattack.hpp"
 #include "task_manager.hpp"
+#include "taskmove.hpp"
+#include "units_manager.hpp"
 
-TaskEscort::TaskEscort(UnitInfo* unit, ResourceID unit_type) : Task(unit->team, nullptr, 0x0F00) {}
+bool TaskEscort::IssueOrders(UnitInfo* unit) {}
+
+void TaskEscort::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
+    if (result != TASKMOVE_RESULT_SUCCESS || !AiAttack_EvaluateAssault(unit, task, &MoveFinishedCallback)) {
+        if (unit->IsReadyForOrders(task)) {
+            dynamic_cast<TaskEscort*>(task)->IssueOrders(unit);
+        }
+    }
+}
+
+TaskEscort::TaskEscort(UnitInfo* unit, ResourceID unit_type_) : Task(unit->team, nullptr, 0x0F00) {
+    target = unit;
+    unit_type = unit_type_;
+    field_29 = 0;
+}
 
 TaskEscort::~TaskEscort() {}
 
-bool TaskEscort::Task_vfunc1(UnitInfo& unit) {}
+bool TaskEscort::Task_vfunc1(UnitInfo& unit) { return (!target || target->hits == 0 || escort != unit); }
 
-int TaskEscort::GetMemoryUse() const {}
+int TaskEscort::GetMemoryUse() const { return 4; }
 
-char* TaskEscort::WriteStatusLog(char* buffer) const {}
+char* TaskEscort::WriteStatusLog(char* buffer) const {
+    if (target) {
+        sprintf(buffer, "Escort %s at [%i,%i]", UnitsManager_BaseUnits[target->unit_type].singular_name,
+                target->grid_x + 1, target->grid_y + 1);
 
-unsigned char TaskEscort::GetType() const {}
+    } else {
+        strcpy(buffer, "Completed escort task");
+    }
 
-void TaskEscort::Task_vfunc11(UnitInfo& unit) {}
+    return buffer;
+}
 
-void TaskEscort::Begin() {}
+unsigned char TaskEscort::GetType() const { return TaskType_TaskEscort; }
+
+void TaskEscort::Task_vfunc11(UnitInfo& unit) {
+    if (!escort && unit_type == unit.unit_type && target) {
+        escort = unit;
+        escort->PushFrontTask1List(this);
+        escort->AddReminders(true);
+        field_29 = 0;
+    }
+}
+
+void TaskEscort::Begin() {
+    target->PushBackTask2List(this);
+    RemindTurnStart(true);
+}
 
 void TaskEscort::EndTurn() {}
 
 bool TaskEscort::Task_vfunc17(UnitInfo& unit) {}
 
-void TaskEscort::RemoveSelf() {}
+void TaskEscort::RemoveSelf() {
+    if (escort) {
+        escort->RemoveTask(this, false);
 
-void TaskEscort::RemoveUnit(UnitInfo& unit) {}
+        Task_RemoveMovementTasks(&*escort);
+    }
+
+    if (target) {
+        target->RemoveFromTask2List(this);
+    }
+
+    target = nullptr;
+    escort = nullptr;
+
+    TaskManager.RemoveTask(*this);
+}
+
+void TaskEscort::RemoveUnit(UnitInfo& unit) {
+    if (escort == unit) {
+        escort = nullptr;
+    }
+}
