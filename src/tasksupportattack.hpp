@@ -26,11 +26,11 @@
 
 class TaskSupportAttack : public Task {
     SmartList<UnitInfo> units;
-    signed short field_29;
-    signed short field_31;
-    unsigned int field_33;
+    ResourceID unit_type1;
+    ResourceID unit_type2;
+    unsigned int unit_flags;
 
-    void GetUnits(unsigned int value);
+    void GetUnits(unsigned int unit_flags);
     bool IssueOrders(UnitInfo* unit);
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);

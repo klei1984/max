@@ -24,11 +24,104 @@
 #include "aiattack.hpp"
 #include "task_manager.hpp"
 #include "taskattack.hpp"
+#include "taskgetmaterials.hpp"
 #include "taskmove.hpp"
+#include "taskrepair.hpp"
 
-void TaskSupportAttack::GetUnits(unsigned int value) {}
+void TaskSupportAttack::GetUnits(unsigned int unit_flags_) {
+    bool needs_supply_unit = true;
+    bool needs_repair_unit = true;
+    int highest_scan;
 
-bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {}
+    unit_flags = unit_flags_;
+
+    if (unit_flags & MOBILE_LAND_UNIT) {
+        needs_supply_unit = false;
+        needs_repair_unit = false;
+    }
+
+    if (unit_flags & MOBILE_SEA_UNIT) {
+        needs_supply_unit = false;
+    }
+
+    highest_scan = dynamic_cast<TaskAttack*>(&*parent)->GetHighestScan();
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if (((*it).flags & unit_flags) && AiAttack_GetTargetValue(&*it) <= highest_scan) {
+            if ((*it).unit_type == CARGOSHP || (*it).unit_type == SPLYTRCK || (*it).unit_type == REPAIR) {
+                if ((*it).IsReadyForOrders(this) && (*it).storage < 5) {
+                    SmartPointer<Task> get_materials_task(new (std::nothrow) TaskGetMaterials(this, &*it, 5));
+
+                    TaskManager.AppendTask(*get_materials_task);
+                }
+
+                if ((*it).unit_type == REPAIR) {
+                    needs_repair_unit = true;
+
+                } else {
+                    needs_supply_unit = true;
+                }
+            }
+
+        } else {
+            TaskManager.RemindAvailable(&*it);
+        }
+    }
+
+    if ((!needs_supply_unit && unit_type1 == INVALID_ID) || (!needs_repair_unit && unit_type2 == INVALID_ID)) {
+        SmartPointer<TaskObtainUnits> obtain_units_task(new (std::nothrow) TaskObtainUnits(this, DeterminePosition()));
+
+        if (!needs_supply_unit && unit_type1 == INVALID_ID) {
+            if (unit_flags & MOBILE_SEA_UNIT) {
+                unit_type1 = CARGOSHP;
+
+            } else {
+                unit_type1 = SPLYTRCK;
+            }
+
+            obtain_units_task->AddUnit(unit_type1);
+        }
+
+        if (!needs_repair_unit && unit_type2 == INVALID_ID && (unit_flags & MOBILE_LAND_UNIT)) {
+            unit_type2 = REPAIR;
+
+            obtain_units_task->AddUnit(unit_type2);
+        }
+
+        TaskManager.AppendTask(*obtain_units_task);
+    }
+}
+
+bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
+    bool result;
+
+    if (unit->IsReadyForOrders(this) && parent && unit->speed > 0) {
+        if (unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
+            if (unit->hits < unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
+                unit->ClearFromTaskLists();
+
+                SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(unit));
+
+                TaskManager.AppendTask(*repair_task);
+
+                result = true;
+
+            } else {
+                result = dynamic_cast<TaskAttack*>(&*parent)->MoveCombatUnit(this, unit);
+            }
+
+        } else {
+            TaskManager.RemindAvailable(unit);
+
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
 
 void TaskSupportAttack::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     if (result != TASKMOVE_RESULT_SUCCESS || !AiAttack_EvaluateAssault(unit, task, &MoveFinishedCallback)) {
@@ -37,9 +130,9 @@ void TaskSupportAttack::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
 }
 
 TaskSupportAttack::TaskSupportAttack(Task* task) : Task(task->GetTeam(), task, 0x2500) {
-    field_33 = 0;
-    field_29 = -1;
-    field_31 = -1;
+    unit_flags = 0;
+    unit_type1 = INVALID_ID;
+    unit_type2 = INVALID_ID;
 }
 
 TaskSupportAttack::~TaskSupportAttack() {}
@@ -71,7 +164,32 @@ unsigned char TaskSupportAttack::GetType() const { return TaskType_TaskSupportAt
 
 bool TaskSupportAttack::Task_vfunc9() { return parent; }
 
-void TaskSupportAttack::Task_vfunc11(UnitInfo& unit) {}
+void TaskSupportAttack::Task_vfunc11(UnitInfo& unit) {
+    if (parent) {
+        unit.PushFrontTask1List(this);
+        units.PushBack(unit);
+        unit.point.x = 0;
+        unit.point.y = 0;
+
+        if (unit.unit_type == CARGOSHP || unit.unit_type == SPLYTRCK) {
+            unit_type1 = INVALID_ID;
+        }
+
+        if (unit.unit_type == REPAIR) {
+            unit_type2 = INVALID_ID;
+        }
+
+        if ((unit.unit_type == CARGOSHP || unit.unit_type == SPLYTRCK || unit.unit_type == REPAIR) &&
+            unit.storage < 5) {
+            SmartPointer<Task> get_materials_task(new (std::nothrow) TaskGetMaterials(this, &unit, 5));
+
+            TaskManager.AppendTask(*get_materials_task);
+        }
+
+    } else {
+        TaskManager.RemindAvailable(&unit);
+    }
+}
 
 void TaskSupportAttack::BeginTurn() {
     if (parent) {
@@ -85,7 +203,36 @@ void TaskSupportAttack::BeginTurn() {
 
 void TaskSupportAttack::EndTurn() { AddReminders(); }
 
-bool TaskSupportAttack::Task_vfunc17(UnitInfo& unit) {}
+bool TaskSupportAttack::Task_vfunc17(UnitInfo& unit) {
+    bool result;
+
+    if (parent) {
+        if (unit.IsReadyForOrders(this)) {
+            if (AiAttack_EvaluateAssault(&unit, this, &MoveFinishedCallback)) {
+                if (AiAttack_EvaluateAttack(&unit)) {
+                    result = true;
+
+                } else {
+                    result = true;
+                }
+
+            } else {
+                result = IssueOrders(&unit);
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        RemoveUnit(unit);
+        unit.RemoveTask(this);
+
+        result = false;
+    }
+
+    return result;
+}
 
 void TaskSupportAttack::RemoveSelf() {
     parent = nullptr;
@@ -101,6 +248,19 @@ void TaskSupportAttack::RemoveSelf() {
 
 void TaskSupportAttack::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 
-bool TaskSupportAttack::AddReminders() {}
+bool TaskSupportAttack::AddReminders() {
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if (AiAttack_IsReadyToMove(&*it)) {
+            return true;
+
+        } else {
+            if ((*it).IsReadyForOrders(this) && (*it).speed > 0) {
+                Task_RemindMoveFinished(&*it);
+            }
+        }
+    }
+
+    return false;
+}
 
 SmartList<UnitInfo>::Iterator TaskSupportAttack::GetUnitsListIterator() { return units.Begin(); }

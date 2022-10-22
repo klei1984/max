@@ -49,6 +49,8 @@ public:
     void RemoveUnit(UnitInfo& unit);
 
     unsigned int GetField58() const;
+    int GetHighestScan();
+    bool MoveCombatUnit(Task* task, UnitInfo* unit);
 };
 
 #endif /* TASKATTACK_HPP */

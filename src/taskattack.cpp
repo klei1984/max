@@ -63,3 +63,7 @@ void TaskAttack::RemoveSelf() {}
 void TaskAttack::RemoveUnit(UnitInfo& unit) {}
 
 unsigned int TaskAttack::GetField58() const {}
+
+int TaskAttack::GetHighestScan() {}
+
+bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {}
