@@ -28,7 +28,7 @@ class TaskEscort : public Task {
     SmartPointer<UnitInfo> target;
     SmartPointer<UnitInfo> escort;
     ResourceID unit_type;
-    unsigned char field_29;
+    bool is_escort_requested;
 
     bool IssueOrders(UnitInfo* unit);
 
