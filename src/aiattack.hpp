@@ -51,5 +51,6 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
 Task* AiAttack_GetPrimaryTask(UnitInfo* unit);
 bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_flags);
 bool AiAttack_IsReadyToMove(UnitInfo* unit);
+unsigned int AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, unsigned short team);
 
 #endif /* AIATTACK_HPP */

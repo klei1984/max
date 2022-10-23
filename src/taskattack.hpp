@@ -51,6 +51,8 @@ public:
     unsigned int GetField58() const;
     int GetHighestScan();
     bool MoveCombatUnit(Task* task, UnitInfo* unit);
+    bool IsAtLocation(UnitInfo* unit);
+    UnitInfo* DetermineLeader();
 };
 
 #endif /* TASKATTACK_HPP */

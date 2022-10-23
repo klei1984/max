@@ -75,6 +75,8 @@ unsigned char AiPlayer::GetMineMapEntry(Point site) {}
 
 WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, unsigned char flags) {}
 
+WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, unsigned char flags) {}
+
 int AiPlayer::GetPredictedAttack(UnitInfo* unit, int caution_level) {}
 
 unsigned short AiPlayer::GetTargetTeam() const {}

@@ -23,20 +23,27 @@
 #define TASKKILLUNIT_HPP
 
 #include "taskattack.hpp"
+#include "transportermap.hpp"
 #include "weighttable.hpp"
 
 class TaskKillUnit : public Task {
-    unsigned short field_19;
+    unsigned short unit_requests;
     SmartPointer<SpottedUnit> spotted_unit;
     SmartList<UnitInfo> units;
     unsigned short required_damage;
     unsigned short projected_damage;
     unsigned short hits;
-    SmartPointer<UnitInfo> unit;
+    SmartPointer<UnitInfo> managed_unit;
     WeightTable weight_table;
-    char field_49;
+    bool seek_target;
 
     static int GetProjectedDamage(UnitInfo* unit, UnitInfo* threat);
+    static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+
+    void FindVaildTypes();
+    bool GetNewUnits();
+    UnitInfo* FindClosestCombatUnit(SmartList<UnitInfo>* units, UnitInfo* unit, int* distance, TransporterMap* map);
+    bool GiveOrdersToUnit(UnitInfo* unit);
 
 public:
     TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit, unsigned short flags);
@@ -59,6 +66,14 @@ public:
     void RemoveUnit(UnitInfo& unit);
     void Task_vfunc23(UnitInfo& unit);
     void Task_vfunc25(UnitInfo& unit);
+
+    int GetTotalProjectedDamage();
+    bool MoveUnits();
+    SpottedUnit* GetSpottedUnit() const;
+    UnitInfo* GetUnitSpotted() const;
+    SmartList<UnitInfo>::Iterator GetUnitsListIterator();
+    unsigned short GetRequiredDamage() const;
+    unsigned short GetProjectedDamage() const;
 };
 
 #endif /* TASKKILLUNIT_HPP */

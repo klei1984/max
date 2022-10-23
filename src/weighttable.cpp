@@ -43,7 +43,7 @@ WeightTable::~WeightTable() {}
 
 WeightTable::WeightTable(const WeightTable& other, bool deep_copy) : weight_table(other.weight_table, deep_copy) {}
 
-WeightTable& WeightTable::operator=(WeightTable& other) {
+WeightTable& WeightTable::operator=(WeightTable const& other) {
     weight_table = other.weight_table;
     return *this;
 }

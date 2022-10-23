@@ -42,7 +42,7 @@ public:
     WeightTable(const WeightTable& other, bool deep_copy = false);
     ~WeightTable();
 
-    WeightTable& operator=(WeightTable& other);
+    WeightTable& operator=(WeightTable const& other);
     WeightTable& operator+=(WeightTable const& other);
     UnitWeight& operator[](unsigned short position);
 

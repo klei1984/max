@@ -54,6 +54,7 @@ public:
     unsigned char** GetMineMap();
     unsigned char GetMineMapEntry(Point site);
     WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned char flags);
+    WeightTable GetExtendedWeightTable(UnitInfo* target, unsigned char flags);
     int GetPredictedAttack(UnitInfo* unit, int caution_level);
     unsigned short GetTargetTeam() const;
     int GetStrategy() const;

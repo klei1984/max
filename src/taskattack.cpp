@@ -67,3 +67,7 @@ unsigned int TaskAttack::GetField58() const {}
 int TaskAttack::GetHighestScan() {}
 
 bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {}
+
+bool TaskAttack::IsAtLocation(UnitInfo* unit) {}
+
+UnitInfo* TaskAttack::DetermineLeader() {}

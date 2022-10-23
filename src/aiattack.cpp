@@ -591,3 +591,5 @@ Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
 bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_flags) {}
 
 bool AiAttack_IsReadyToMove(UnitInfo* unit) { return unit->orders == ORDER_MOVE && unit->state != ORDER_STATE_1; }
+
+unsigned int AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, unsigned short team) {}
