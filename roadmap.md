@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-10-03.
+Last updated: 2022-10-24.
 
-Reimplementation status: 5205 / 5704 (91%) functions.
+Reimplementation status: 5248 / 5704 (92%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -122,8 +122,9 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - <span class="legend-inwork">
   Document findings in an article
   </span>
-- Discover, analyse and document original class hierarchies
-- Develop tools to automate the binding of original C++ method calls to reimplemented C++ class members.
+- <span class="legend-close">
+  Discover and analyse original class hierarchies
+  </span>
 <br><br>
 
 ### 0.6 Reimplement original C++ classes
@@ -209,15 +210,15 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - Replace the AI combat classes (ai_attk.cpp)
   - <span class="legend-done">DefenseManager</span>
   - <span class="legend-done">TaskAttackReserve</span>
-  - <span class="legend-inwork">TaskKillUnit</span>
+  - <span class="legend-done">TaskKillUnit</span>
   - <span class="legend-done">TaskCheckAssaults</span>
   - <span class="legend-done">TaskDefenseReserve</span>
   - <span class="legend-done">TaskWaitToAttack</span>
   - <span class="legend-done">TaskFrontalAttack</span>
   - <span class="legend-done">TaskPlaceMines</span>
-  - <span class="legend-inwork">TaskSupportAttack</span>
-  - TaskAttack
-  - <span class="legend-inwork">TaskEscort</span>
+  - <span class="legend-done">TaskSupportAttack</span>
+  - <span class="legend-inwork">TaskAttack</span>
+  - <span class="legend-done">TaskEscort</span>
   - <span class="legend-done">AccessMap</span>
   - <span class="legend-done">WeightTable</span>
   - <span class="legend-done">TransporterMap</span>
