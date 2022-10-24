@@ -207,6 +207,7 @@ public:
     void DeployConstructionSiteMarkers(ResourceID unit_type);
     bool UnitInfo_sub_F410E();
     bool UnitInfo_sub_F41DA();
+    int GetAttackRange();
 
     ResourceID unit_type;
     struct PopupFunctions* popup;

@@ -22,9 +22,14 @@
 #include "aiattack.hpp"
 
 #include "access.hpp"
+#include "ai.hpp"
 #include "aiplayer.hpp"
 #include "inifile.hpp"
 #include "task_manager.hpp"
+#include "taskattack.hpp"
+#include "taskfrontalattack.hpp"
+#include "taskmove.hpp"
+#include "tasktransport.hpp"
 #include "taskwaittoattack.hpp"
 #include "transportermap.hpp"
 #include "units_manager.hpp"
@@ -542,7 +547,133 @@ void AiAttack_GetTargetTeams(unsigned short team, bool* teams) {
     }
 }
 
-SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, int caution_level, bool mode) {}
+SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, int caution_level, bool mode) {
+    SpottedUnit* spotted_unit = nullptr;
+    UnitValues* base_values = unit->GetBaseValues();
+    int minimum_score = 0;
+    unsigned short unit_team = unit->team;
+    unsigned short** damage_potential_map = nullptr;
+    int minimum_damage = 32000;
+    int unit_scan = base_values->GetAttribute(ATTRIB_SCAN);
+    int unit_range = base_values->GetAttribute(ATTRIB_RANGE);
+    unsigned char surface_type = UnitsManager_BaseUnits[unit->unit_type].land_type;
+    Point unit_position;
+    bool teams[PLAYER_TEAM_MAX];
+    int distance;
+
+    AiAttack_GetTargetTeams(unit_team, teams);
+
+    unit_scan = std::min(unit_scan, unit_range);
+    unit_scan = unit_scan * unit_scan;
+    unit_range = unit_range * unit_range;
+
+    range = range * range;
+    scan = scan * scan;
+
+    for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnitIterator(); it != nullptr;
+         ++it) {
+        UnitInfo* target_unit = (*it).GetUnit();
+
+        if (teams[target_unit->team] && target_unit->orders != ORDER_IDLE && target_unit->state != ORDER_STATE_14 &&
+            target_unit->hits > 0 && target_unit->orders != ORDER_EXPLODE) {
+            unit_position = (*it).GetLastPosition();
+            distance = Access_GetDistance(unit, unit_position);
+
+            if (distance <= range) {
+                if (target_unit->IsVisibleToTeam(unit->team) || distance <= scan) {
+                    if (unit->unit_type == COMMANDO && !unit->IsVisibleToTeam(target_unit->team)) {
+                        if (!AiAttack_IsValidSabotageTarget(unit, target_unit) ||
+                            UnitsManager_GetStealthChancePercentage(unit, target_unit, ORDER_AWAIT_DISABLE_UNIT) <=
+                                85) {
+                            continue;
+                        }
+
+                    } else if (!Access_IsValidAttackTarget(unit, target_unit)) {
+                        continue;
+                    }
+
+                    if ((target_unit->IsVisibleToTeam(unit_team) ||
+                         ((target_unit->unit_type != COMMANDO || unit->unit_type == INFANTRY ||
+                           unit->unit_type == COMMANDO) &&
+                          (!UnitsManager_IsUnitUnderWater(target_unit) || unit->unit_type == CORVETTE))) &&
+                        (target_unit->orders != ORDER_DISABLE || (target_unit->flags & STATIONARY) ||
+                         unit->unit_type == COMMANDO || ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT)) {
+                        if (!target_unit->IsVisibleToTeam(unit_team) &&
+                            UnitsManager_TeamInfo[unit_team]
+                                .heat_map_complete[ResourceManager_MapSize.x * unit_position.y + unit_position.x]) {
+                            (*it).UpdatePosition();
+                            unit_position = (*it).GetLastPosition();
+                        }
+
+                        if ((target_unit->unit_type != LANDMINE && target_unit->unit_type != SEAMINE) ||
+                            base_values->GetAttribute(ATTRIB_ATTACK_RADIUS) > 0 ||
+                            base_values->GetAttribute(ATTRIB_TURNS) < 6) {
+                            if (target_unit->IsVisibleToTeam(unit_team) ||
+                                AiPlayer_TerrainMap.TerrainMap_sub_690D6(unit_position, surface_type) <= unit_scan) {
+                                if (AiPlayer_TerrainMap.TerrainMap_sub_690D6(unit_position, surface_type) <=
+                                    unit_range) {
+                                    int score;
+                                    int damage_potential;
+
+                                    if (mode) {
+                                        unsigned int unit_flags = target_unit->GetField221();
+
+                                        score = unit_flags & 0xFE;
+
+                                        if (score) {
+                                            unit_flags &= 0xFFFFFF01;
+
+                                            if (score > 2) {
+                                                unit_flags |= score - 2;
+                                            }
+
+                                            target_unit->SetField221(unit_flags);
+
+                                            score <<= 7;
+                                        }
+
+                                    } else {
+                                        score = 0;
+                                    }
+
+                                    score |= AiAttack_GetTargetFlags(unit, target_unit, unit_team);
+
+                                    if (caution_level > CAUTION_LEVEL_NONE && !damage_potential_map) {
+                                        damage_potential_map =
+                                            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, 0x01);
+                                    }
+
+                                    if (damage_potential_map) {
+                                        damage_potential = damage_potential_map[unit_position.x][unit_position.y];
+
+                                        if (damage_potential < unit->hits) {
+                                            damage_potential = 0;
+                                        }
+
+                                    } else {
+                                        damage_potential = 0;
+                                    }
+
+                                    if (!spotted_unit || (score <= minimum_score &&
+                                                          (score != minimum_score ||
+                                                           (damage_potential <= minimum_damage &&
+                                                            (damage_potential != minimum_damage ||
+                                                             spotted_unit->GetUnit()->hits >= target_unit->hits))))) {
+                                        spotted_unit = &*it;
+                                        minimum_score = score;
+                                        minimum_damage = damage_potential;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return spotted_unit;
+}
 
 int AiAttack_GetAttackPotential(UnitInfo* unit1, UnitInfo* unit2) {
     int result;
@@ -557,12 +688,370 @@ int AiAttack_GetAttackPotential(UnitInfo* unit1, UnitInfo* unit2) {
     return result;
 }
 
-void AiAttack_sub_187FF(UnitInfo* unit) { unit->SetField221(unit->GetField221() | 0xFE); }
+void AiAttack_UpdateTargetFlags(UnitInfo* unit) { unit->SetField221(unit->GetField221() | 0xFE); }
 
-bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {}
+bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
+    bool result;
+
+    if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (unit->ammo || (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == unit->team)) {
+            if (unit->shots || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                if (unit->delayed_reaction || TaskManager_word_1731C0 == 2) {
+                    SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
+
+                    TaskManager.AppendTask(*wait_to_attack_task);
+
+                    result = TaskManager_word_1731C0 == 2;
+
+                } else {
+                    if (unit->orders == ORDER_MOVE_TO_ATTACK &&
+                        !Access_GetAttackTarget(unit, unit->target_grid_x, unit->target_grid_y)) {
+                        UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_1);
+                    }
+
+                    if (Task_IsReadyToTakeOrders(unit)) {
+                        SmartPointer<SpottedUnit> spotted_unit;
+                        int attack_radius;
+
+                        if (unit->shots) {
+                            attack_radius = unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS) / 2;
+
+                        } else {
+                            attack_radius = 0;
+
+                            if ((dos_rand() * 2) >> 15) {
+                                mode = true;
+
+                            } else {
+                                mode = false;
+                            }
+
+                            spotted_unit = AiAttack_SelectTargetToAttack(
+                                unit, unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) + attack_radius,
+                                unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN), CAUTION_LEVEL_NONE, mode);
+
+                            if (spotted_unit) {
+                                UnitInfo* target = spotted_unit->GetUnit();
+
+                                if (unit->unit_type == COMMANDO && AiAttack_IsValidSabotageTarget(unit, target) &&
+                                    !target->IsAdjacent(unit->grid_x, unit->grid_y)) {
+                                    result = false;
+
+                                } else if (target->AreTherePins()) {
+                                    SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
+
+                                    TaskManager.AppendTask(*wait_to_attack_task);
+
+                                    result = true;
+
+                                } else {
+                                    if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_APPRENTICE) {
+                                        mode = false;
+                                    }
+
+                                    if (mode && unit->speed > 0 &&
+                                        (!unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
+                                         ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) &&
+                                        (target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) <
+                                             unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS) ||
+                                         unit->shots * UnitsManager_GetAttackDamage(unit, target, 0) < target->hits)) {
+                                        int damage_potential = AiPlayer_Teams[unit->team].GetDamagePotential(
+                                            unit, Point(unit->grid_x, unit->grid_y),
+                                            CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01);
+
+                                        if (damage_potential >= unit->hits) {
+                                            if (AiAttack_FindAttackSupport(target, &UnitsManager_MobileAirUnits,
+                                                                           unit->team,
+                                                                           CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) ||
+                                                AiAttack_FindAttackSupport(target, &UnitsManager_MobileLandSeaUnits,
+                                                                           unit->team,
+                                                                           CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
+                                                return true;
+                                            }
+
+                                            if (!AiAttack_IsAttackProfitable(unit, target, damage_potential,
+                                                                             CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
+                                                                             false) &&
+                                                !AiAttack_DecideDesperationAttack(unit, target)) {
+                                                if (Task_RetreatIfNecessary(nullptr, unit,
+                                                                            Ai_DetermineCautionLevel(unit))) {
+                                                    if (mode) {
+                                                        AiAttack_UpdateTargetFlags(target);
+                                                    }
+
+                                                    return false;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    AiAttack_ProcessAttack(unit, target);
+
+                                    result = true;
+                                }
+
+                            } else {
+                                result = false;
+                            }
+                        }
+
+                    } else {
+                        result = false;
+                    }
+                }
+
+            } else {
+                result = false;
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
 
 bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
-                              void (*result_callback)(Task* task, UnitInfo* unit, char result)) {}
+                              void (*result_callback)(Task* task, UnitInfo* unit, char result)) {
+    bool result;
+
+    if (unit && unit->shots > 0 && unit->speed > 0 && unit->hits > 0) {
+        if (Task_IsReadyToTakeOrders(unit)) {
+            SmartPointer<SpottedUnit> spotted_unit;
+            unsigned short unit_team = unit->team;
+            int caution_level = CAUTION_LEVEL_AVOID_REACTION_FIRE;
+            UnitValues* unit_values = unit->GetBaseValues();
+            int unit_range;
+            int unit_speed;
+
+            if (unit->unit_type == COMMANDO) {
+                unit_range = 1;
+
+            } else {
+                unit_range = unit_values->GetAttribute(ATTRIB_RANGE);
+            }
+
+            unit_speed = unit->speed;
+
+            if (unit_speed >= 1) {
+                if (!unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
+                    ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) {
+                    caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
+                }
+
+                spotted_unit = AiAttack_SelectTargetToAttack(unit, unit_range + unit_speed,
+                                                             unit_values->GetAttribute(ATTRIB_SCAN) + unit_speed,
+                                                             caution_level, true);
+
+                if (spotted_unit) {
+                    UnitInfo* target = spotted_unit->GetUnit();
+                    int distance = Access_GetDistance(unit, target);
+
+                    if (target->IsVisibleToTeam(unit->team)) {
+                        unit_range = std::min(unit_range, unit_values->GetAttribute(ATTRIB_SCAN));
+                    }
+
+                    if (distance <= unit_range * unit_range ||
+                        (unit->unit_type == COMMANDO && AiAttack_CanAttack(unit, target))) {
+                        result = AiAttack_EvaluateAttack(unit);
+
+                    } else if ((target->orders != ORDER_DISABLE ||
+                                ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT) &&
+                               (AiAttack_FindAttackSupport(target, &UnitsManager_MobileAirUnits, unit_team,
+                                                           CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) ||
+                                AiAttack_FindAttackSupport(target, &UnitsManager_MobileLandSeaUnits, unit_team,
+                                                           CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE))) {
+                        result = true;
+
+                    } else {
+                        if (!unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                            int target_range = target->GetAttackRange() + unit_speed;
+
+                            target_range = target_range * target_range;
+
+                            if (target_range <= distance && unit->shots > 0 &&
+                                Access_IsValidAttackTargetType(target->unit_type, unit->unit_type) &&
+                                !AiAttack_DecideDesperationAttack(unit, target)) {
+                                unit_speed = unit->speed - (unit_values->GetAttribute(ATTRIB_SPEED) /
+                                                            unit_values->GetAttribute(ATTRIB_ROUNDS));
+
+                                if (unit_speed < 1) {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        Point site;
+                        int unit_shots = unit->shots;
+                        int projected_damage;
+                        int attack_potential;
+                        int damage_potential;
+                        int damage_total;
+                        bool is_site_found;
+
+                        if (!unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                            unit->shots = 0;
+                        }
+
+                        if (AiAttack_IsValidSabotageTarget(unit, target)) {
+                            is_site_found =
+                                AiAttack_ChooseSiteToSabotage(unit, target, &site, &projected_damage, caution_level);
+
+                        } else {
+                            is_site_found =
+                                AiAttack_ChooseSiteForAttacker(unit, spotted_unit->GetLastPosition(), &site,
+                                                               &projected_damage, caution_level, unit_range, true);
+                        }
+
+                        unit->shots = unit_shots;
+
+                        if (is_site_found) {
+                            distance = (TaskManager_GetDistance(unit->grid_x - site.x, unit->grid_y - site.y) + 1) / 2;
+
+                            if (distance > 0 && caution_level < CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) {
+                                caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
+
+                                projected_damage = AiPlayer_Teams[unit_team].GetDamagePotential(
+                                    unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01);
+                            }
+
+                            attack_potential = AiAttack_GetAttackPotential(unit, target);
+
+                            if (projected_damage < unit->hits || caution_level == CAUTION_LEVEL_AVOID_REACTION_FIRE) {
+                                damage_potential = projected_damage;
+
+                            } else {
+                                damage_potential = AiPlayer_Teams[unit_team].GetDamagePotential(
+                                    unit, site, CAUTION_LEVEL_AVOID_REACTION_FIRE, 0x01);
+                            }
+
+                            damage_total = 0;
+                            unit_shots = 0;
+
+                            if (unit->hits < damage_potential) {
+                                if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                                    unit_shots = unit->shots;
+
+                                } else {
+                                    unit_shots = ((unit->speed - distance) * unit_values->GetAttribute(ATTRIB_ROUNDS)) /
+                                                 unit_values->GetAttribute(ATTRIB_SPEED);
+                                }
+
+                                if (unit_shots > unit->shots) {
+                                    unit_shots = unit->shots;
+                                }
+                            }
+
+                            damage_total = unit_shots * attack_potential;
+
+                            if (projected_damage < unit->hits && caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
+                                unit_shots =
+                                    std::min(unit_values->GetAttribute(ATTRIB_ROUNDS), (unit->ammo - unit_shots));
+                            }
+
+                            attack_potential = attack_potential * unit_shots;
+
+                            if (projected_damage > attack_potential || projected_damage >= unit->hits) {
+                                if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_APPRENTICE) {
+                                    AiAttack_UpdateTargetFlags(target);
+
+                                    result = Task_RetreatIfNecessary(task, unit, Ai_DetermineCautionLevel(unit));
+
+                                    return result;
+                                }
+
+                                if ((target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) <
+                                         unit_values->GetAttribute(ATTRIB_TURNS) ||
+                                     attack_potential < target->hits) &&
+                                    !AiAttack_DecideDesperationAttack(unit, target) &&
+                                    !AiAttack_IsAttackProfitable(unit, target, projected_damage, caution_level,
+                                                                 false)) {
+                                    bool is_profitable = false;
+
+                                    if (caution_level == CAUTION_LEVEL_AVOID_REACTION_FIRE) {
+                                        caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
+
+                                        projected_damage = AiPlayer_Teams[unit_team].GetDamagePotential(
+                                            unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01);
+
+                                        if (AiAttack_IsAttackProfitable(unit, target, projected_damage,
+                                                                        CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x00)) {
+                                            is_profitable = true;
+                                        }
+                                    }
+
+                                    if (!is_profitable) {
+                                        AiAttack_UpdateTargetFlags(target);
+
+                                        result = Task_RetreatIfNecessary(task, unit, Ai_DetermineCautionLevel(unit));
+
+                                        return result;
+                                    }
+                                }
+
+                                if (projected_damage >= unit->hits) {
+                                    if (AiAttack_FindAttackSupport(target, &UnitsManager_MobileAirUnits, unit_team,
+                                                                   CAUTION_LEVEL_NONE) ||
+                                        AiAttack_FindAttackSupport(target, &UnitsManager_MobileLandSeaUnits, unit_team,
+                                                                   CAUTION_LEVEL_NONE)) {
+                                        return true;
+                                    }
+
+                                    if (attack_potential < target->hits) {
+                                        SmartPointer<Task> frontal_attack_task(new (std::nothrow) TaskFrontalAttack(
+                                            unit_team, &*spotted_unit, caution_level));
+
+                                        TaskManager.AppendTask(*frontal_attack_task);
+
+                                        return true;
+                                    }
+
+                                    caution_level = CAUTION_LEVEL_NONE;
+                                }
+                            }
+
+                            if (unit->GetTask() != task) {
+                                unit->PushFrontTask1List(task);
+                            }
+
+                            SmartPointer<Task> move_task(
+                                new (std::nothrow) TaskMove(unit, task, 0, caution_level, site, result_callback));
+
+                            unit->point = site;
+
+                            TaskManager.AppendTask(*move_task);
+
+                            result = true;
+
+                        } else {
+                            AiAttack_UpdateTargetFlags(target);
+
+                            result = false;
+                        }
+                    }
+
+                } else {
+                    result = false;
+                }
+
+            } else {
+                result = false;
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
 
 Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
     Task* task = unit->GetTask();
@@ -588,8 +1077,202 @@ Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
     return task;
 }
 
-bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_flags) {}
+bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_flags) {
+    SmartPointer<UnitInfo> leader;
+    bool is_execution_phase = false;
+    TaskAttack* attack_task = nullptr;
+    int distance;
+    int minimum_distance;
+    bool result;
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+        if ((*it).team == unit->team) {
+            attack_task = dynamic_cast<TaskAttack*>(AiAttack_GetPrimaryTask(&*it));
+
+            if (attack_task) {
+                if (!is_execution_phase || attack_task->IsExecutionPhase()) {
+                    if (attack_task->DeterminePriority(task_flags) <= 0) {
+                        distance = Access_GetDistance(unit, &*it);
+
+                        if (!leader || distance < minimum_distance ||
+                            (!is_execution_phase && attack_task->IsExecutionPhase())) {
+                            minimum_distance = distance;
+                            leader = *it;
+                            is_execution_phase = attack_task->IsExecutionPhase();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
+         it != UnitsManager_MobileAirUnits.End(); ++it) {
+        if ((*it).team == unit->team) {
+            attack_task = dynamic_cast<TaskAttack*>(AiAttack_GetPrimaryTask(&*it));
+
+            if (attack_task) {
+                if (!is_execution_phase || attack_task->IsExecutionPhase()) {
+                    if (attack_task->DeterminePriority(task_flags) <= 0) {
+                        distance = Access_GetDistance(unit, &*it);
+
+                        if (!leader || distance < minimum_distance ||
+                            (!is_execution_phase && attack_task->IsExecutionPhase())) {
+                            minimum_distance = distance;
+                            leader = *it;
+                            is_execution_phase = attack_task->IsExecutionPhase();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (leader) {
+        Point target_location;
+        unsigned char** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
+        Point unit_position(unit->grid_x, unit->grid_y);
+        ResourceID transporter_type = INVALID_ID;
+
+        if (unit->flags & MOBILE_LAND_UNIT) {
+            if (Task_GetReadyUnitsCount(unit->team, AIRTRANS) > 0) {
+                transporter_type = AIRTRANS;
+
+            } else if (Task_GetReadyUnitsCount(unit->team, SEATRANS) > 0) {
+                transporter_type = SEATRANS;
+            }
+        }
+
+        TransporterMap map(unit, 0x02, CAUTION_LEVEL_NONE, transporter_type);
+        unsigned short** damage_potential_map =
+            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01);
+        int range = TaskManager_GetDistance(&*leader, unit) / 2;
+
+        target_location = unit_position;
+
+        for (int i = 1; i < range; ++i) {
+            --unit_position.x;
+            ++unit_position.y;
+
+            for (int direction = 0; direction < 8; direction += 2) {
+                for (int j = 0; j < i; ++j) {
+                    unit_position += Paths_8DirPointsArray[direction];
+
+                    if (unit_position.x >= 0 && unit_position.x < ResourceManager_MapSize.x && unit_position.y >= 0 &&
+                        unit_position.y < ResourceManager_MapSize.y) {
+                        if (!damage_potential_map ||
+                            damage_potential_map[unit_position.x][unit_position.y] < unit->hits) {
+                            distance = TaskManager_GetDistance(unit_position.x - leader->grid_x,
+                                                               unit_position.y - leader->grid_y) /
+                                       2;
+
+                            if (distance < range && (!info_map || !(info_map[unit_position.x][unit_position.y] & 8))) {
+                                if (map.Search(unit_position) &&
+                                    Access_IsAccessible(unit->unit_type, unit->team, unit_position.x, unit_position.y,
+                                                        0x02)) {
+                                    target_location = unit_position;
+                                    range = distance;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (target_location.x != unit->grid_x || target_location.y != unit->grid_y) {
+            SmartPointer<TaskMove> move_task(new (std::nothrow)
+                                                 TaskMove(unit, task, 0, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
+                                                          target_location, &TaskTransport_MoveFinishedCallback));
+
+            move_task->SetField68(true);
+
+            TaskManager.AppendTask(*move_task);
+        }
+
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
 
 bool AiAttack_IsReadyToMove(UnitInfo* unit) { return unit->orders == ORDER_MOVE && unit->state != ORDER_STATE_1; }
 
-unsigned int AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, unsigned short team) {}
+unsigned int AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, unsigned short team) {
+    unsigned int result = 0;
+
+    if (target->ammo > 0 && target->orders != ORDER_DISABLE) {
+        if (target->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 35) {
+            result += 0x38;
+
+        } else {
+            result = (target->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) / 8) * 8;
+        }
+    }
+
+    if (target->IsVisibleToTeam(team)) {
+        result += 0x80;
+    }
+
+    if (target->team == PLAYER_TEAM_ALIEN) {
+        result += 0x08;
+    }
+
+    if (attacker) {
+        if (AiAttack_IsValidSabotageTarget(attacker, target)) {
+            result += UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_DISABLE_UNIT) / 13;
+
+            if (target->flags & STATIONARY) {
+                result += 0x40;
+            }
+
+        } else {
+            result += AiAttack_GetTargetWorth(attacker, target);
+
+            if (attacker->shots * UnitsManager_GetAttackDamage(attacker, target, 0) >= target->hits) {
+                result += 0x40;
+
+                if (target->unit_type == REPAIR || target->unit_type == MININGST || target->unit_type == SCANNER ||
+                    target->unit_type == RADAR || target->unit_type == GREENHSE) {
+                    result += 0x38;
+                }
+            }
+        }
+    }
+
+    result = 0xFF - result;
+
+    return result;
+}
+
+unsigned int AiAttack_GetTargetWorth(UnitInfo* attacker, UnitInfo* target) {
+    unsigned int result;
+
+    if (Access_IsValidAttackTarget(attacker, target) && target->hits > 0) {
+        int value = (attacker->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) *
+                     UnitsManager_GetAttackDamage(attacker, target, 0) *
+                     target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) * 7) /
+                    (target->hits * 12);
+
+        if (value >= 1) {
+            if (value <= 7) {
+                result = value;
+
+            } else {
+                result = 7;
+            }
+
+        } else {
+            result = 1;
+        }
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}

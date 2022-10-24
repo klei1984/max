@@ -69,6 +69,8 @@ void AiPlayer::AddTransportOrder(TransportOrder* transport_order) {}
 
 Task* AiPlayer::FindManager(Point site) {}
 
+SmartList<SpottedUnit>::Iterator AiPlayer::GetSpottedUnitIterator() {}
+
 unsigned char** AiPlayer::GetMineMap() {}
 
 unsigned char AiPlayer::GetMineMapEntry(Point site) {}

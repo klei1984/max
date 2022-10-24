@@ -44,7 +44,7 @@ bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, 
 void AiAttack_GetTargetTeams(unsigned short team, bool* teams);
 SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, int caution_level, bool mode);
 int AiAttack_GetAttackPotential(UnitInfo* unit1, UnitInfo* unit2);
-void AiAttack_sub_187FF(UnitInfo* unit);
+void AiAttack_UpdateTargetFlags(UnitInfo* unit);
 bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode = true);
 bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                               void (*result_callback)(Task* task, UnitInfo* unit, char result));
@@ -52,5 +52,6 @@ Task* AiAttack_GetPrimaryTask(UnitInfo* unit);
 bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_flags);
 bool AiAttack_IsReadyToMove(UnitInfo* unit);
 unsigned int AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, unsigned short team);
+unsigned int AiAttack_GetTargetWorth(UnitInfo* attacker, UnitInfo* target);
 
 #endif /* AIATTACK_HPP */

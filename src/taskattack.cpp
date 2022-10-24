@@ -71,3 +71,5 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {}
 bool TaskAttack::IsAtLocation(UnitInfo* unit) {}
 
 UnitInfo* TaskAttack::DetermineLeader() {}
+
+bool TaskAttack::IsExecutionPhase() {}

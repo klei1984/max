@@ -53,6 +53,7 @@ public:
     bool MoveCombatUnit(Task* task, UnitInfo* unit);
     bool IsAtLocation(UnitInfo* unit);
     UnitInfo* DetermineLeader();
+    bool IsExecutionPhase();
 };
 
 #endif /* TASKATTACK_HPP */

@@ -2839,3 +2839,5 @@ void UnitInfo::SpinningTurretAdvanceAnimation() {
         DrawSpriteTurretFrame(turret_image_index + 1);
     }
 }
+
+int UnitInfo::GetAttackRange() {}

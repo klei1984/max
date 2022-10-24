@@ -22,6 +22,7 @@
 #ifndef AI_PLAYER_HPP
 #define AI_PLAYER_HPP
 
+#include "spottedunit.hpp"
 #include "taskpathrequest.hpp"
 #include "terrainmap.hpp"
 #include "threatmap.hpp"
@@ -51,6 +52,7 @@ public:
     int GetDamagePotential(UnitInfo* unit, Point point, int caution_level, unsigned char flags);
     void AddTransportOrder(TransportOrder* transport_order);
     Task* FindManager(Point site);
+    SmartList<SpottedUnit>::Iterator GetSpottedUnitIterator();
     unsigned char** GetMineMap();
     unsigned char GetMineMapEntry(Point site);
     WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned char flags);
