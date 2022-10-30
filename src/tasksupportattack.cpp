@@ -193,7 +193,7 @@ void TaskSupportAttack::Task_vfunc11(UnitInfo& unit) {
 
 void TaskSupportAttack::BeginTurn() {
     if (parent) {
-        GetUnits(dynamic_cast<TaskAttack*>(&*parent)->GetField58());
+        GetUnits(dynamic_cast<TaskAttack*>(&*parent)->GetAccessFlags());
 
         if (!GetField8()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));

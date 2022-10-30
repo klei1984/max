@@ -25,6 +25,7 @@
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
 #include "task_manager.hpp"
+#include "taskattack.hpp"
 #include "taskmove.hpp"
 #include "taskrepair.hpp"
 #include "units_manager.hpp"
@@ -76,7 +77,7 @@ void TaskKillUnit::MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
 void TaskKillUnit::FindVaildTypes() {
     TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*parent);
     unsigned int unit_flags = 0;
-    unsigned int unit_flags2 = attack_task->GetField58();
+    unsigned int unit_flags2 = attack_task->GetAccessFlags();
 
     if (spotted_unit) {
         weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(spotted_unit->GetUnit(), 0x01);
@@ -559,7 +560,7 @@ int TaskKillUnit::GetTotalProjectedDamage() {
     TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*parent);
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if (attack_task->IsAtLocation(&*it)) {
+        if (attack_task->IsDestinationReached(&*it)) {
             result += GetProjectedDamage(&*it, spotted_unit->GetUnit());
         }
     }

@@ -23,11 +23,64 @@
 #define TASKATTACK_HPP
 
 #include "spottedunit.hpp"
-#include "task.hpp"
+#include "taskkillunit.hpp"
+#include "tasksupportattack.hpp"
+
+enum {
+    ATTACK_STATE_INIT = 0x0,
+    ATTACK_STATE_WAIT = 0x1,
+    ATTACK_STATE_GATHER_FORCES = 0x2,
+    ATTACK_STATE_ADVANCE = 0x3,
+    ATTACK_STATE_ADVANCE_USING_TRANSPORT = 0x4,
+    ATTACK_STATE_NORMAL_SEARCH = 0x5,
+    ATTACK_STATE_BOLD_SEARCH = 0x6,
+    ATTACK_STATE_ATTACK = 0x7,
+};
 
 class TaskAttack : public Task {
+    unsigned short target_team;
+    unsigned char op_state;
+    SmartList<TaskKillUnit> primary_targets;
+    SmartList<TaskKillUnit> secondary_targets;
+    SmartPointer<TaskKillUnit> kill_unit_task;
+    SmartPointer<TaskSupportAttack> support_attack_task;
+    SmartPointer<UnitInfo> leader;
+    SmartPointer<Task> backup_task;
+    unsigned int access_flags;
+    SmartPointer<UnitInfo> recon_unit;
+    SmartObjectArray<ResourceID> managed_unit_types;
+    bool attack_zone_reached;
+
+    bool EvaluateLandAttack();
+    void Finish();
+    bool RequestReconUnit(ResourceID unit_type, int safe_distance);
+    bool FindReconUnit(ResourceID unit_type, int safe_distance);
+    bool IsReconUnitUsable(UnitInfo* unit);
+    bool IsWithinAttackRange(Point unit_position);
+    void GetSafeDistances(int* safe_distance_air, int* safe_distance_ground);
+    void UpdateReconUnit();
+    void ChooseFirstTarget();
+    void CopyTargets(TaskAttack* other);
+    bool IsTargetGroupInSight();
+    bool IsThereTimeToPrepare();
+    bool MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_level);
+    Point FindClosestDirectRoute(UnitInfo* unit, int caution_level);
+    bool MoveReconUnit(int caution_level);
+    bool IsAttackUnderControl();
+    bool PlanMoveForReconUnit();
+    bool IsViableLeader(UnitInfo* unit);
+    Point GetLeaderDestination();
+    void FindNewSiteForUnit(UnitInfo* unit);
+    bool MoveUnits();
+    bool IsAnyTargetInRange();
+    bool IsReconUnitAvailable();
+    void EvaluateAttackReadiness();
+    bool IsDefenderDangerous(SpottedUnit* spotted_unit);
+    void RemoveTask(TaskKillUnit* task);
+    void AssessEnemyUnits();
+
 public:
-    TaskAttack(SpottedUnit* spotted_unit, unsigned short flags);
+    TaskAttack(SpottedUnit* spotted_unit, unsigned short task_flags);
     ~TaskAttack();
 
     bool IsUnitUsable(UnitInfo& unit);
@@ -48,11 +101,11 @@ public:
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
 
-    unsigned int GetField58() const;
-    int GetHighestScan();
-    bool MoveCombatUnit(Task* task, UnitInfo* unit);
-    bool IsAtLocation(UnitInfo* unit);
     UnitInfo* DetermineLeader();
+    bool MoveCombatUnit(Task* task, UnitInfo* unit);
+    int GetHighestScan();
+    bool IsDestinationReached(UnitInfo* unit);
+    unsigned int GetAccessFlags() const;
     bool IsExecutionPhase();
 };
 

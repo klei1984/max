@@ -22,9 +22,12 @@
 #ifndef TASKKILLUNIT_HPP
 #define TASKKILLUNIT_HPP
 
-#include "taskattack.hpp"
+#include "spottedunit.hpp"
+#include "task.hpp"
 #include "transportermap.hpp"
 #include "weighttable.hpp"
+
+class TaskAttack;
 
 class TaskKillUnit : public Task {
     unsigned short unit_requests;
