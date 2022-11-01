@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-10-24.
+Last updated: 2022-11-01.
 
-Reimplementation status: 5248 / 5704 (92%) functions.
+Reimplementation status: 5280 / 5704 (92%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -298,25 +298,54 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 To be defined
 
 {% comment %}
-- support OS specific line delimiters
+Code cleanup
+- setup workflows to improve code quality
+- fix original game defects (retain backwards compatibility with save game format version 70)
+- implement missing text mode class serializers and enumerator constants or remove these incomplete features as-is (preferred)
+- implement AI debug and log modules or remove these incomplete features as-is (preferred)
+- make smart containers reentrant, thread safe and improve ISO C++ compliance
+- create or use an audio library that supports loop points (SFX) and streaming (MVE) for digital samples
+- refactor MVE player to eliminate self modifying code from it
+- make GNW, MVE player and ACM decoder standalone libraries
+
+Internationalization
 - support utf8 glyphs
 - support vector fonts
 - support keyboard locales
 - support custom key bindings
 - support multiple languages
-- support mouse wheel and middle mouse button
-- support higher resolutions and wide screens (1024x768, 1024x576, 1920x1080)
+- support subtitles in MVE video clips
+- develop translation tools
+
+Cross-platform
+- support OS specific line delimiters
 - support long file system paths and utf8 file names
 - support OS specific save game locations
+- support both 32 and 64 bit builds
+
+Scenario and campaign editor
 - support arbitrary number of save game slots
 - support arbitrary number of missions (generalize and externalize mission win & loss conditions)
 - support arbitrary number of map tile sets
 - support arbitrary map sizes
 - add built-in pseudo random map generator
 - add built-in scenario and campaign editor
+
+Quality of life improvements
+- support mouse wheel and middle mouse button
+- support higher resolutions and wide screens (1024x768, 1024x576, 1920x1080)
+- support bigger, easier to read UI on higher resolutions
+
+New features
+- improve computer players
+- support multiplayer (remote) games against computer players
 - port back adaptive music from M.A.X. 2
+- port back game mode specific UI variations from M.A.X. 2
 - port back colorized map accessibility indicators from M.A.X. 2
 - port back alliances feature from M.A.X. 2
 - port back 6 players feature from M.A.X. 2
 - port back line of sight feature from M.A.X. 2
+- port back real-time mode with interrupt (pause) feature from M.A.X. 2
+- port back waypoints feature from M.A.X. 2
+- port back advanced group movement feature from M.A.X. 2
 {% endcomment %}
