@@ -167,12 +167,12 @@ bool TaskObtainUnits::Task_vfunc9() {
     return result;
 }
 
-void TaskObtainUnits::Task_vfunc11(UnitInfo& unit) {
+void TaskObtainUnits::AddUnit(UnitInfo& unit) {
     int index = units->Find(&unit.unit_type);
 
     if (CountInstancesOfUnitType(unit.unit_type)) {
         units->Remove(index);
-        parent->Task_vfunc11(unit);
+        parent->AddUnit(unit);
 
         if (units->GetCount() == 0) {
             if (parent != nullptr) {
@@ -223,7 +223,7 @@ void TaskObtainUnits::EndTurn() {
                     }
                 }
 
-                parent->Task_vfunc11(*unit);
+                parent->AddUnit(*unit);
             }
         }
 

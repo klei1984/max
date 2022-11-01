@@ -71,7 +71,7 @@ bool Continent::IsViableSite(bool test_proximity, unsigned short team, Point sit
     return result;
 }
 
-Continent::Continent(unsigned char **map, unsigned short filler, Point point, unsigned char value) {
+Continent::Continent(unsigned char** map, unsigned short filler, Point point, unsigned char value) {
     ContinentFiller continent_filler(map, filler);
 
     this->point = point;
@@ -98,7 +98,7 @@ Continent::~Continent() {
     }
 }
 
-Rect Continent::GetBounds() const { return bounds; }
+void Continent::GetBounds(Rect& bounds_) const { bounds_ = bounds; }
 
 Point Continent::GetCenter() const { return Point((bounds.lrx + bounds.ulx) / 2, (bounds.lry + bounds.uly) / 2); }
 

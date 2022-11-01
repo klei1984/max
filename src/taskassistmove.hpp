@@ -39,7 +39,7 @@ public:
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
-    void Task_vfunc11(UnitInfo& unit);
+    void AddUnit(UnitInfo& unit);
     void BeginTurn();
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);

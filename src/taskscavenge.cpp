@@ -45,7 +45,7 @@ unsigned char TaskScavenge::GetType() const { return TaskType_TaskScavenge; }
 
 bool TaskScavenge::Task_vfunc9() { return units.GetCount() == 0; }
 
-void TaskScavenge::Task_vfunc11(UnitInfo& unit) {
+void TaskScavenge::AddUnit(UnitInfo& unit) {
     units.PushBack(unit);
     unit.PushFrontTask1List(this);
     Task_RemindMoveFinished(&unit);
@@ -118,7 +118,7 @@ bool TaskScavenge::Task_vfunc17(UnitInfo& unit) {
         if (target) {
             SmartPointer<Task> remove_rubble_task(new (std::nothrow) TaskRemoveRubble(this, target, 0x2100));
 
-            remove_rubble_task->Task_vfunc11(unit);
+            remove_rubble_task->AddUnit(unit);
 
             TaskManager.AppendTask(*remove_rubble_task);
 

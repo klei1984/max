@@ -41,7 +41,7 @@ public:
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
 
-    void Task_vfunc11(UnitInfo& unit);
+    void AddUnit(UnitInfo& unit);
     void Begin();
     void BeginTurn();
     void EndTurn();

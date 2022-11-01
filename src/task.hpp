@@ -147,7 +147,7 @@ public:
     virtual unsigned char GetType() const = 0;
     virtual bool Task_vfunc9();
     virtual bool Task_vfunc10();
-    virtual void Task_vfunc11(UnitInfo& unit);
+    virtual void AddUnit(UnitInfo& unit);
     virtual void Begin();
     virtual void BeginTurn();
     virtual void ChildComplete(Task* task);

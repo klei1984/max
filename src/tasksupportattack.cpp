@@ -164,7 +164,7 @@ unsigned char TaskSupportAttack::GetType() const { return TaskType_TaskSupportAt
 
 bool TaskSupportAttack::Task_vfunc9() { return parent; }
 
-void TaskSupportAttack::Task_vfunc11(UnitInfo& unit) {
+void TaskSupportAttack::AddUnit(UnitInfo& unit) {
     if (parent) {
         unit.PushFrontTask1List(this);
         units.PushBack(unit);

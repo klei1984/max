@@ -515,7 +515,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 }
 
                 if (obtain_units_task) {
-                    obtain_units_task->Task_vfunc11(*unit);
+                    obtain_units_task->AddUnit(*unit);
 
                     return;
                 }
@@ -552,7 +552,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 }
 
                 if (best_task) {
-                    best_task->Task_vfunc11(*unit);
+                    best_task->AddUnit(*unit);
                 }
             }
         }

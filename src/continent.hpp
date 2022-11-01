@@ -42,7 +42,7 @@ public:
     Continent(unsigned char **map, unsigned short filler, Point point, unsigned char value = 1);
     ~Continent();
 
-    Rect GetBounds() const;
+    void GetBounds(Rect &bounds) const;
     Point GetCenter() const;
     bool IsIsolated() const;
     unsigned short GetContinentSize() const;

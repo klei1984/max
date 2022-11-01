@@ -184,7 +184,7 @@ bool TaskKillUnit::GetNewUnits() {
 
                     if (unit1) {
                         unit1->ClearFromTaskLists();
-                        Task_vfunc11(*unit1);
+                        AddUnit(*unit1);
 
                         if (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit) {
                             if (!unit2 && parent) {
@@ -416,7 +416,7 @@ bool TaskKillUnit::Task_vfunc9() {
     return hits > projected_damage && spotted_unit && spotted_unit->GetUnit()->hits > 0;
 }
 
-void TaskKillUnit::Task_vfunc11(UnitInfo& unit) {
+void TaskKillUnit::AddUnit(UnitInfo& unit) {
     if (spotted_unit) {
         projected_damage += GetProjectedDamage(&unit, spotted_unit->GetUnit());
 

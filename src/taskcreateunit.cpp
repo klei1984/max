@@ -74,7 +74,7 @@ char* TaskCreateUnit::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
 
-void TaskCreateUnit::Task_vfunc11(UnitInfo& unit_) {
+void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
     if (op_state == CREATE_UNIT_STATE_1 && (unit_.flags & STATIONARY)) {
         op_state = CREATE_UNIT_STATE_WAITING_FOR_MATERIALS;
         unit = unit_;
@@ -164,7 +164,7 @@ void TaskCreateUnit::EndTurn() {
 
 bool TaskCreateUnit::Task_vfunc17(UnitInfo& unit_) {
     if (op_state != CREATE_UNIT_STATE_5 && unit_.unit_type == unit_type) {
-        Task_vfunc11(unit_);
+        AddUnit(unit_);
     }
 
     if (op_state != CREATE_UNIT_STATE_5 && unit == unit_) {

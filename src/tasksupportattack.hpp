@@ -45,7 +45,7 @@ public:
     Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;
     bool Task_vfunc9();
-    void Task_vfunc11(UnitInfo& unit);
+    void AddUnit(UnitInfo& unit);
     void BeginTurn();
     void EndTurn();
     bool Task_vfunc17(UnitInfo& unit);

@@ -56,7 +56,7 @@ class TaskAttack : public Task {
     bool RequestReconUnit(ResourceID unit_type, int safe_distance);
     bool FindReconUnit(ResourceID unit_type, int safe_distance);
     bool IsReconUnitUsable(UnitInfo* unit);
-    bool IsWithinAttackRange(Point unit_position);
+    bool IsWithinAttackRange(UnitInfo* unit, Point unit_position);
     void GetSafeDistances(int* safe_distance_air, int* safe_distance_ground);
     void UpdateReconUnit();
     void ChooseFirstTarget();
@@ -91,7 +91,7 @@ public:
     Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;
     bool Task_vfunc9();
-    void Task_vfunc11(UnitInfo& unit);
+    void AddUnit(UnitInfo& unit);
     void Begin();
     void BeginTurn();
     void ChildComplete(Task* task);

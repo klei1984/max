@@ -197,7 +197,7 @@ char* TaskDefenseReserve::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskDefenseReserve::GetType() const { return TaskType_TaskDefenseReserve; }
 
-void TaskDefenseReserve::Task_vfunc11(UnitInfo& unit) {
+void TaskDefenseReserve::AddUnit(UnitInfo& unit) {
     for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         if (managers[i].AddUnit(&unit)) {
             unit.PushFrontTask1List(this);

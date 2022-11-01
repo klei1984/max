@@ -275,7 +275,7 @@ void TaskSearchDestination::SearchTrySite() {
                 SmartPointer<UnitInfo> backup = unit;
                 unit = &*it;
                 unit->ClearFromTaskLists();
-                search_task->Task_vfunc11(*unit);
+                search_task->AddUnit(*unit);
                 unit->PushFrontTask1List(this);
                 backup->RemoveTask(this, false);
 

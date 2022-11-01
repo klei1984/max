@@ -270,7 +270,7 @@ void TaskCreateBuilding::Abort() {
 
 void TaskCreateBuilding::Finish() {
     if (unit2 && unit2->orders != ORDER_IDLE && unit2->orders != ORDER_AWAIT_SCALING) {
-        Task_vfunc11(*unit2);
+        AddUnit(*unit2);
     }
 
     if (unit) {
@@ -450,7 +450,7 @@ bool TaskCreateBuilding::Task_vfunc9() {
     return op_state < CREATE_BUILDING_STATE_BUILDING && (!parent || parent->Task_vfunc9());
 }
 
-void TaskCreateBuilding::Task_vfunc11(UnitInfo& unit_) {
+void TaskCreateBuilding::AddUnit(UnitInfo& unit_) {
     if (unit_.unit_type == unit_type && unit_.grid_x == site.x && unit_.grid_y == site.y &&
         unit_.orders != ORDER_IDLE) {
         SmartPointer<Task> create_building_task(this);
@@ -461,12 +461,12 @@ void TaskCreateBuilding::Task_vfunc11(UnitInfo& unit_) {
 
         if (manager) {
             manager->ChildComplete(this);
-            manager->Task_vfunc11(unit_);
+            manager->AddUnit(unit_);
         }
 
         if (unit_type == WTRPLTFM || unit_type == BRIDGE) {
             if (manager != parent) {
-                parent->Task_vfunc11(unit_);
+                parent->AddUnit(unit_);
             }
 
         } else {
@@ -487,7 +487,7 @@ void TaskCreateBuilding::Task_vfunc11(UnitInfo& unit_) {
 
                 backup->ClearFromTaskLists();
 
-                dynamic_cast<TaskCreateBuilding*>(&*parent)->Task_vfunc11(*backup);
+                dynamic_cast<TaskCreateBuilding*>(&*parent)->AddUnit(*backup);
             }
         }
 
@@ -599,7 +599,7 @@ bool TaskCreateBuilding::Task_vfunc16(UnitInfo& unit_) {
                 TaskManager.RemindAvailable(&*unit);
 
                 if (!unit) {
-                    Task_vfunc11(unit_);
+                    AddUnit(unit_);
                 }
 
                 result = true;

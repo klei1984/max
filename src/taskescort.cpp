@@ -160,7 +160,7 @@ char* TaskEscort::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskEscort::GetType() const { return TaskType_TaskEscort; }
 
-void TaskEscort::Task_vfunc11(UnitInfo& unit) {
+void TaskEscort::AddUnit(UnitInfo& unit) {
     if (!escort && unit_type == unit.unit_type && target) {
         escort = unit;
         escort->PushFrontTask1List(this);

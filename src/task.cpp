@@ -236,7 +236,7 @@ bool Task::Task_vfunc9() {
 
 bool Task::Task_vfunc10() { return false; }
 
-void Task::Task_vfunc11(UnitInfo& unit) {}
+void Task::AddUnit(UnitInfo& unit) {}
 
 void Task::Begin() { RemindTurnStart(true); }
 

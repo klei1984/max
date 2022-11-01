@@ -320,7 +320,7 @@ char* TaskFrontalAttack::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskFrontalAttack::GetType() const { return TaskType_TaskFrontalAttack; }
 
-void TaskFrontalAttack::Task_vfunc11(UnitInfo& unit) {
+void TaskFrontalAttack::AddUnit(UnitInfo& unit) {
     unit.PushFrontTask1List(this);
     units1.PushBack(unit);
 }
@@ -332,7 +332,7 @@ void TaskFrontalAttack::Begin() {
          it != UnitsManager_MobileAirUnits.End(); ++it) {
         if ((*it).team == team && ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) &&
             AiPlayer_GetProjectedDamage(&*it, target, caution_level) > 0) {
-            Task_vfunc11(*it);
+            AddUnit(*it);
         }
     }
 
@@ -340,7 +340,7 @@ void TaskFrontalAttack::Begin() {
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).team == team && ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) &&
             AiPlayer_GetProjectedDamage(&*it, target, caution_level) > 0) {
-            Task_vfunc11(*it);
+            AddUnit(*it);
         }
     }
 

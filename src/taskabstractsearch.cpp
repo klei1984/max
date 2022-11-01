@@ -46,7 +46,7 @@ TaskAbstractSearch::~TaskAbstractSearch() {}
 
 Point TaskAbstractSearch::GetPoint() const { return point; }
 
-void TaskAbstractSearch::Task_vfunc11(UnitInfo& unit) {
+void TaskAbstractSearch::AddUnit(UnitInfo& unit) {
     units.PushBack(unit);
     unit.PushFrontTask1List(this);
     Task_RemindMoveFinished(&unit);

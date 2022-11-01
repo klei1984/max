@@ -99,7 +99,7 @@ char* TaskAttackReserve::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskAttackReserve::GetType() const { return TaskType_TaskAttackReserve; }
 
-void TaskAttackReserve::Task_vfunc11(UnitInfo& unit) {
+void TaskAttackReserve::AddUnit(UnitInfo& unit) {
     if (unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
         if (unit.speed > 0) {
             SmartPointer<Task> best_task;
@@ -130,7 +130,7 @@ void TaskAttackReserve::Task_vfunc11(UnitInfo& unit) {
             if (best_task) {
                 unit.ClearFromTaskLists();
 
-                best_task->Task_vfunc11(unit);
+                best_task->AddUnit(unit);
             }
 
         } else {

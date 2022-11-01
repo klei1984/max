@@ -38,7 +38,7 @@ public:
 
     Point GetPoint() const;
 
-    void Task_vfunc11(UnitInfo& unit);
+    void AddUnit(UnitInfo& unit);
     void BeginTurn();
     void ChildComplete(Task* task);
     void EndTurn();

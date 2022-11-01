@@ -93,7 +93,7 @@ bool TaskPlaceMines::Task_vfunc9() {
     return !has_mine_layer || !has_sea_mine_layer;
 }
 
-void TaskPlaceMines::Task_vfunc11(UnitInfo& unit) {
+void TaskPlaceMines::AddUnit(UnitInfo& unit) {
     units.PushBack(unit);
     unit.PushFrontTask1List(this);
 

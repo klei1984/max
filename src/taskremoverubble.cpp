@@ -66,7 +66,7 @@ unsigned char TaskRemoveRubble::GetType() const { return TaskType_TaskRemoveRubb
 
 bool TaskRemoveRubble::Task_vfunc9() { return !unit; }
 
-void TaskRemoveRubble::Task_vfunc11(UnitInfo& unit_) {
+void TaskRemoveRubble::AddUnit(UnitInfo& unit_) {
     if (!unit) {
         unit = unit_;
         unit_.PushFrontTask1List(this);

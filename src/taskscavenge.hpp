@@ -37,7 +37,7 @@ public:
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     bool Task_vfunc9();
-    void Task_vfunc11(UnitInfo& unit);
+    void AddUnit(UnitInfo& unit);
     void BeginTurn();
     void ChildComplete(Task* task);
     void EndTurn();

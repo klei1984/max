@@ -160,7 +160,7 @@ Rect* TaskActivate::GetBounds(Rect* bounds) {
 
 unsigned char TaskActivate::GetType() const { return TaskType_TaskActivate; }
 
-void TaskActivate::Task_vfunc11(UnitInfo& unit) {
+void TaskActivate::AddUnit(UnitInfo& unit) {
     if (&*unit_to_activate == &unit) {
         Task_RemindMoveFinished(&*unit_to_activate, true);
     }
@@ -197,7 +197,7 @@ bool TaskActivate::Task_vfunc17(UnitInfo& unit) {
                 unit_to_activate->RemoveTask(this);
 
                 if (parent->GetType() == TaskType_TaskCreateUnit) {
-                    parent->Task_vfunc11(*unit_to_activate);
+                    parent->AddUnit(*unit_to_activate);
                 }
 
                 if (!unit_to_activate->GetTask()) {

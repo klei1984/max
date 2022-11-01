@@ -150,7 +150,7 @@ void TaskMove::TaskMove_sub_4C66B(bool mode) {
     }
 }
 
-void TaskMove::Task_vfunc11(UnitInfo& unit) {
+void TaskMove::AddUnit(UnitInfo& unit) {
     if (passenger == &unit && unit.GetTask() == this) {
         Task_RemindMoveFinished(&*passenger, true);
     }
