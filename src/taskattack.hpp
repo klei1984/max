@@ -45,7 +45,7 @@ class TaskAttack : public Task {
     SmartPointer<TaskKillUnit> kill_unit_task;
     SmartPointer<TaskSupportAttack> support_attack_task;
     SmartPointer<UnitInfo> leader;
-    SmartPointer<Task> backup_task;
+    SmartPointer<Task> leader_task;
     unsigned int access_flags;
     SmartPointer<UnitInfo> recon_unit;
     SmartObjectArray<ResourceID> managed_unit_types;
