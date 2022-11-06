@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-11-01.
+Last updated: 2022-11-06.
 
-Reimplementation status: 5280 / 5704 (92%) functions.
+Reimplementation status: 5308 / 5704 (93%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -191,7 +191,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - Replace the AI builder classes (ai_build.cpp)
   - <span class="legend-done">TaskGetMaterials</span>
   - <span class="legend-done">TaskCreateBuilding</span>
-  - TaskManageBuildings
+  - <span class="legend-inwork">TaskManageBuildings</span>
   - <span class="legend-done">TaskCreateUnit</span>
   - <span class="legend-done">TaskDefenseAssistant</span>
   - <span class="legend-done">TaskRadarAssistant</span>
@@ -217,7 +217,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
   - <span class="legend-done">TaskFrontalAttack</span>
   - <span class="legend-done">TaskPlaceMines</span>
   - <span class="legend-done">TaskSupportAttack</span>
-  - <span class="legend-inwork">TaskAttack</span>
+  - <span class="legend-done">TaskAttack</span>
   - <span class="legend-done">TaskEscort</span>
   - <span class="legend-done">AccessMap</span>
   - <span class="legend-done">WeightTable</span>
