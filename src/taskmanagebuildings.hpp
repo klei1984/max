@@ -29,20 +29,85 @@ class TaskManageBuildings : public Task {
     Point site;
     SmartList<UnitInfo> units;
     SmartList<TaskCreateBuilding> tasks;
-    Cargo cargo;
+    Cargo cargo_demand;
+
+    struct Block {
+        signed char d1;
+        signed char d2;
+        signed char d3;
+        signed char d4;
+    };
+
+    void FillMap(unsigned short** construction_map, int ulx, int uly, int lrx, int lry, int fill_value);
+    unsigned short** CreateMap();
+    void DeleteMap(unsigned short** construction_map);
+    void MarkMiningAreas(unsigned short** construction_map);
+    void MarkBuildingAreas(unsigned short** construction_map, int area_expanse, int area_offset);
+    void ClearBuildingAreas(unsigned short** construction_map, TaskCreateBuilding* task);
+    void ClearPathways(unsigned short** construction_map);
+    void ClearPlannedBuildings(unsigned short** construction_map, TaskCreateBuilding* task, ResourceID unit_type,
+                               unsigned short task_flags);
+    static bool FillBlockMap(int ul1, int lr1, int ul2, int lr2, signed char* address_a, signed char* address_b);
+    void ClearBlocks(unsigned short** construction_map, struct Block** block_map, Rect bounds, int area_marker,
+                     int unit_size);
+    void LimitBlockSize(unsigned short** construction_map, int unit_size);
+    int EvaluateSiteValue(unsigned short** construction_map, Point site, ResourceID unit_type);
+    bool IsFavorableMiningSite(Point site);
+    bool IsViableMiningSite(unsigned short** construction_map, int ulx, int uly, int lrx, int lry);
+    bool IsSafeSite(unsigned short** construction_map, Point site, ResourceID unit_type);
+    bool EvaluateSite(unsigned short** construction_map, ResourceID unit_type, Point site);
+    bool FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point site, unsigned short task_flags);
+    int GetUnitCount(ResourceID unit_type, unsigned short task_flags);
+    bool IsSupremeTeam(unsigned short team);
+    int GetHighestGreenHouseCount(unsigned short team);
+    bool CreateBuildings(int building_demand, ResourceID unit_type, unsigned short task_flags);
+    bool PlanNextBuildJob();
+    static void UpdateCargoDemand(int* limit, short* material, int max_mining);
+    void MakeConnectors(int ulx, int uly, int lrx, int lry, Task* task);
+    bool CheckNeeds();
+    void ClearAreasNearBuildings(unsigned char** access_map, int area_expanse, TaskCreateBuilding* task);
+    void EvaluateDangers(unsigned char** access_map);
+    void MarkDefenseSites(unsigned short** construction_map, unsigned char** access_map, TaskCreateBuilding* task,
+                          int value);
+    void ClearDefenseSites(unsigned char** access_map, ResourceID unit_type, TaskCreateBuilding* task,
+                           unsigned short task_flags);
+    bool IsSiteWithinRadarRange(Point site, int unit_range, TaskCreateBuilding* task);
+    void UpdateAccessMap(unsigned char** access_map, TaskCreateBuilding* task);
+    bool EvaluateNeedForRadar(unsigned char** access_map, TaskCreateBuilding* task);
+    bool MarkBuildings(unsigned char** access_map, Point site);
+    void MarkConnections(unsigned char** access_map, Point site, int value);
+    void UpdateConnectors(unsigned char** access_map, int ulx, int uly, int lrx, int lry);
+    int GetConnectionDistance(unsigned char** access_map, Point site1, Point site2, unsigned short team, int value);
+    bool ConnectBuilding(unsigned char** access_map, Point site, int value);
+    static bool FindMarkedSite(unsigned char** access_map, Rect* bounds);
 
 public:
     TaskManageBuildings(unsigned short team, Point site);
     ~TaskManageBuildings();
 
-    void BuildBridge(Point site, Task* task);
-    bool ReconnectBuildings();
-    void CheckWorkers();
-    bool CheckPower();
-    bool FindSiteForRadar(TaskCreateBuilding* task, Point& site);
+    int GetMemoryUse() const;
+    char* WriteStatusLog(char* buffer) const;
+    unsigned char GetType() const;
+    bool Task_vfunc9();
+    void AddUnit(UnitInfo& unit);
+    void Begin();
+    void BeginTurn();
+    void ChildComplete(Task* task);
+    void EndTurn();
+    void RemoveSelf();
+    void RemoveUnit(UnitInfo& unit);
+    void Task_vfunc23(UnitInfo& unit);
+
     void AddCreateOrder(TaskCreateBuilding* task);
+    bool CheckPower();
+    void CheckWorkers();
     bool FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site);
+    bool FindSiteForRadar(TaskCreateBuilding* task, Point& site);
     bool ChangeSite(TaskCreateBuilding* task, Point& site);
+    void BuildBridge(Point site, Task* task);
+    bool CreateBuilding(ResourceID unit_type, Task* task, unsigned short task_flags);
+
+    bool ReconnectBuildings();
 };
 
 #endif /* TASKMANAGEBUILDINGS_HPP */
