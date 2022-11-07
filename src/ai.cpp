@@ -22,14 +22,20 @@
 #include "ai.hpp"
 
 #include "access.hpp"
+#include "aiattack.hpp"
 #include "aiplayer.hpp"
+#include "hash.hpp"
 #include "inifile.hpp"
+#include "task_manager.hpp"
+#include "taskautosurvey.hpp"
 #include "units_manager.hpp"
 
 #define AI_SAFE_ENEMY_DISTANCE 400
 
-bool Ai_IsValidStartingPosition(Rect* bounds);
-bool Ai_IsSafeStartingPosition(int grid_x, int grid_y, unsigned short team);
+static bool Ai_IsValidStartingPosition(Rect* bounds);
+static bool Ai_IsSafeStartingPosition(int grid_x, int grid_y, unsigned short team);
+static bool Ai_AreThereParticles();
+static bool Ai_AreThereMovingUnits();
 
 bool Ai_IsValidStartingPosition(Rect* bounds) {
     for (int x = bounds->ulx; x <= bounds->lrx; ++x) {
@@ -113,30 +119,289 @@ void Ai_SetTasksPendingFlag(const char* event) {
     }
 }
 
-void Ai_Clear() {
-    /// \todo
+void Ai_BeginTurn(unsigned short team) {
+    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+        AiPlayer_Teams[team].BeginTurn();
+    }
+}
+
+void Ai_Init() {
+    TaskManager.Clear();
+    AiPlayer_TerrainMap.Deinit();
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        AiPlayer_Teams[team].Init(team);
+    }
 }
 
 void Ai_FileLoad(SmartFileReader& file) {
-    /// \todo
+    Ai_Init();
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+            AiPlayer_Teams[team].FileLoad(file);
+        }
+    }
 }
 
 void Ai_FileSave(SmartFileWriter& file) {
-    /// \todo
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+            AiPlayer_Teams[team].FileSave(file);
+        }
+    }
 }
 
-void Ai_AddUnitToTrackerList(UnitInfo* unit) {
-    /// \todo
-}
+void Ai_AddUnitToTrackerList(UnitInfo* unit) { TaskManager.AppendUnit(*unit); }
 
 void Ai_EnableAutoSurvey(UnitInfo* unit) {
-    /// \todo
+    SmartPointer<Task> task(new (std::nothrow) TaskAutoSurvey(unit));
+
+    TaskManager.AppendTask(*task);
 }
 
 bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, unsigned char flags) {
-    /// \todo
+    bool result;
+
+    if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER && caution_level != CAUTION_LEVEL_NONE) {
+        unsigned short** damage_potential_map =
+            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, flags);
+        int unit_hits = unit->hits;
+
+        if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
+            unit_hits = 1;
+        }
+
+        if (damage_potential_map && damage_potential_map[destination.x][destination.y] >= unit_hits) {
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
-void Ai_UpdateTerrain(UnitInfo* unit) {}
+void Ai_UpdateTerrain(UnitInfo* unit) {
+    if (unit->flags & STATIONARY) {
+        if (unit->unit_type == BRIDGE) {
+            AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y),
+                                              SURFACE_TYPE_LAND | SURFACE_TYPE_WATER);
+        }
 
-int Ai_DetermineCautionLevel(UnitInfo* unit) {}
+        if (unit->unit_type == CNCT_4W) {
+            AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_LAND);
+        }
+
+        if (unit->unit_type != CNCT_4W && !(unit->flags & GROUND_COVER)) {
+            AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_NONE);
+        }
+    }
+
+    if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER &&
+        unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
+        AiPlayer_Teams[unit->team].AddThreat(unit);
+    }
+}
+
+void Ai_CheckEndTurn() {
+    if (GameManager_PlayMode == PLAY_MODE_TURN_BASED) {
+        if (GameManager_GameState == GAME_STATE_8_IN_GAME) {
+            if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
+                if (!UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].field_41) {
+                    AiPlayer_Teams[GameManager_ActiveTurnTeam].CheckEndTurn();
+                }
+            }
+        }
+
+    } else {
+        if (GameManager_GameState == GAME_STATE_9_END_TURN || GameManager_GameState == GAME_STATE_8_IN_GAME) {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+                    if (!UnitsManager_TeamInfo[team].field_41) {
+                        if (AiPlayer_Teams[GameManager_ActiveTurnTeam].CheckEndTurn()) {
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (GameManager_GameState == GAME_STATE_8_IN_GAME) {
+                if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
+                    if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].field_41) {
+                        GameManager_GameState = GAME_STATE_9_END_TURN;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Ai_ClearTasksPendingFlags() {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        AiPlayer_Teams[team].ChangeTasksPendingFlag(false);
+    }
+}
+
+int Ai_DetermineCautionLevel(UnitInfo* unit) {
+    int result;
+
+    if (unit->GetField221() & 1) {
+        result = CAUTION_LEVEL_NONE;
+
+    } else if (unit->GetTask()) {
+        result = unit->GetTask()->GetCautionLevel(*unit);
+
+    } else {
+        result = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
+    }
+
+    return result;
+}
+
+void Ai_RemoveUnit(UnitInfo* unit) {
+    Point site;
+
+    if (unit->flags & STATIONARY) {
+        Rect bounds;
+        int surface_type;
+
+        unit->GetBounds(&bounds);
+
+        for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
+            for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
+                surface_type = ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x];
+
+                for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(site.x, site.y)]; it != nullptr; ++it) {
+                    if ((*it).unit_type == BRIDGE) {
+                        surface_type |= SURFACE_TYPE_LAND;
+                    }
+
+                    if ((*it).unit_type == WTRPLTFM) {
+                        surface_type = SURFACE_TYPE_LAND;
+                    }
+
+                    if ((*it).unit_type != CNCT_4W && (((*it).flags & (GROUND_COVER | STATIONARY)) == STATIONARY)) {
+                        surface_type = SURFACE_TYPE_NONE;
+                        break;
+                    }
+                }
+
+                AiPlayer_TerrainMap.UpdateTerrain(site, surface_type);
+            }
+        }
+    }
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+            AiPlayer_Teams[team].RemoveUnit(unit);
+        }
+    }
+
+    TaskManager.ProcessTasks1(unit);
+}
+
+void Ai_ProcessUnitTasks(UnitInfo* unit, unsigned short team) {
+    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER && (unit->flags & SELECTABLE)) {
+        AiPlayer_Teams[team].UnitSpotted(unit);
+    }
+
+    TaskManager.ProcessTasks2(unit);
+}
+
+bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target) {
+    bool teams[PLAYER_TEAM_MAX];
+
+    AiAttack_GetTargetTeams(unit->team, teams);
+
+    return teams[target->team];
+}
+
+void Ai_EvaluateAttackTargets(UnitInfo* unit) { TaskManager.EnumeratePotentialAttackTargets(unit); }
+
+int Ai_GetMemoryUsage() {
+    int result;
+
+    result = TaskManager.CalcMemoryUsage();
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+            result += AiPlayer_Teams[team].GetMemoryUsage();
+        }
+    }
+
+    return result;
+}
+
+void Ai_CheckComputerReactions() { TaskManager.CheckComputerReactions(); }
+
+void Ai_CheckMines(UnitInfo* unit) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        if (unit->team != team && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER &&
+            unit->IsVisibleToTeam(team)) {
+            AiPlayer_Teams[team].FindMines(unit);
+        }
+    }
+}
+
+bool Ai_AreThereParticles() {
+    bool result;
+
+    if (UnitsManager_ParticleUnits.GetCount() > 0 || UnitsManager_UnitList6.GetCount() > 0) {
+        result = true;
+
+    } else {
+        result = UnitsManager_byte_179448;
+    }
+
+    return result;
+}
+
+bool Ai_AreThereMovingUnits() {
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+        if ((*it).orders == ORDER_MOVE && ((*it).state == ORDER_STATE_5 || (*it).state == ORDER_STATE_6)) {
+            return true;
+        }
+    }
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
+         it != UnitsManager_MobileAirUnits.End(); ++it) {
+        if ((*it).orders == ORDER_MOVE && ((*it).state == ORDER_STATE_5 || (*it).state == ORDER_STATE_6)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Ai_CheckReactions() {
+    if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (Ai_AreThereParticles()) {
+            TaskManager_word_1731C0 = 2;
+
+        } else if (TaskManager_word_1731C0 == 2) {
+            TaskManager_word_1731C0 = 1;
+
+            TaskManager.CheckComputerReactions();
+
+        } else {
+            if (Ai_AreThereMovingUnits()) {
+                TaskManager_word_1731C0 = 1;
+
+            } else if (TaskManager_word_1731C0 != 0) {
+                TaskManager_word_1731C0 = 0;
+
+                TaskManager.CheckComputerReactions();
+
+                return;
+            }
+
+            TaskManager.ExecuteReminders();
+        }
+    }
+}

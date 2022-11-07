@@ -84,3 +84,23 @@ int AiPlayer::GetPredictedAttack(UnitInfo* unit, int caution_level) {}
 unsigned short AiPlayer::GetTargetTeam() const {}
 
 int AiPlayer::GetStrategy() const {}
+
+void AiPlayer::Init(unsigned short team) {}
+
+void AiPlayer::BeginTurn() {}
+
+bool AiPlayer::CheckEndTurn() {}
+
+void AiPlayer::AddThreat(UnitInfo* unit) {}
+
+void AiPlayer::UnitSpotted(UnitInfo* unit) {}
+
+int AiPlayer::GetMemoryUsage() {}
+
+void AiPlayer::FileLoad(SmartFileReader& file) {}
+
+void AiPlayer::FileSave(SmartFileWriter& file) {}
+
+void AiPlayer::RemoveUnit(UnitInfo* unit) {}
+
+void AiPlayer::FindMines(UnitInfo* unit) {}

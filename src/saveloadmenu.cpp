@@ -1142,7 +1142,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
             MessageManager_LoadMessageLogs(file);
 
             if (game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                Ai_Clear();
+                Ai_Init();
 
             } else {
                 Ai_FileLoad(file);

@@ -748,7 +748,7 @@ void GameManager_GameLoop(int game_state) {
 
             for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (team != GameManager_PlayerTeam && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-                    /// \todo Ai_sub_48A8D(team);
+                    Ai_BeginTurn(team);
                 }
             }
 
@@ -1947,7 +1947,7 @@ void GameManager_GameSetup(int game_state) {
         dos_srand(Remote_RngSeed);
     }
 
-    Ai_Clear();
+    Ai_Init();
 
     PathsManager_Clear();
 
@@ -2502,7 +2502,7 @@ void GameManager_UpdateGui(unsigned short team, int game_state, bool enable_auto
                 }
             }
 
-            /// \todo Ai_sub_48A8D(team);
+            Ai_BeginTurn(team);
 
             GameManager_MenuClickEndTurnButton(0);
         } break;
@@ -3320,7 +3320,7 @@ bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mod
         Hash_UnitHash.Clear();
         Hash_MapHash.Clear();
 
-        Ai_Clear();
+        Ai_Init();
 
         PathsManager_Clear();
 
@@ -4244,7 +4244,8 @@ unsigned char GameManager_GetWindowCursor(int grid_x, int grid_y) {
     if (GameManager_SelectedUnit == nullptr ||
         (GameManager_SelectedUnit->orders == ORDER_MOVE && GameManager_SelectedUnit->state != ORDER_STATE_1) ||
         (GameManager_SelectedUnit->orders == ORDER_MOVE_TO_UNIT && GameManager_SelectedUnit->state != ORDER_STATE_1) ||
-        (GameManager_SelectedUnit->orders == ORDER_MOVE_TO_ATTACK && GameManager_SelectedUnit->state != ORDER_STATE_1) ||
+        (GameManager_SelectedUnit->orders == ORDER_MOVE_TO_ATTACK &&
+         GameManager_SelectedUnit->state != ORDER_STATE_1) ||
         GameManager_SelectedUnit->orders == ORDER_FIRE || GameManager_SelectedUnit->orders == ORDER_EXPLODE ||
         GameManager_SelectedUnit->state == ORDER_STATE_14 || GameManager_SelectedUnit->orders == ORDER_DISABLE ||
         GameManager_SelectedUnit->orders == ORDER_AWAIT_DISABLE_UNIT ||
@@ -4287,7 +4288,8 @@ unsigned char GameManager_GetWindowCursor(int grid_x, int grid_y) {
         return result;
     }
 
-    if ((GameManager_SelectedUnit->orders == ORDER_BUILD || GameManager_SelectedUnit->orders == ORDER_AWAIT_TAPE_POSITIONING) &&
+    if ((GameManager_SelectedUnit->orders == ORDER_BUILD ||
+         GameManager_SelectedUnit->orders == ORDER_AWAIT_TAPE_POSITIONING) &&
         (GameManager_SelectedUnit->flags & MOBILE_LAND_UNIT)) {
         return GameManager_GetBuilderUnitCursor(&*GameManager_SelectedUnit, grid_x, grid_y, unit1);
     }
@@ -5019,7 +5021,7 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
 
         UnitsManager_UpdatePathsTimeLimit();
         PathsManager_EvaluateTiles();
-        /// \todo Ai_sub_49502();
+        Ai_CheckReactions();
 
     } else {
         GameManager_ProcessTick(false);
@@ -5094,14 +5096,14 @@ bool GameManager_ProcessTick(bool render_screen) {
             UnitsManager_UpdatePathsTimeLimit();
 
             if (GameManager_UpdateFlag) {
-                // Ai_sub_49502();
+                Ai_CheckReactions();
             }
 
             GameManager_UpdateFlag = !GameManager_UpdateFlag;
 
             PathsManager_EvaluateTiles();
-            // Ai_sub_49502();
-            // Ai_sub_48BBD();
+            Ai_CheckReactions();
+            Ai_CheckEndTurn();
         }
 
         result = true;
@@ -5914,8 +5916,8 @@ bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
         result = false;
 
     } else {
-        Cursor_DrawStealthActionChanceCursor(UnitsManager_GetStealthChancePercentage(unit1, unit2, ORDER_AWAIT_STEAL_UNIT),
-                                             CURSOR_STEAL);
+        Cursor_DrawStealthActionChanceCursor(
+            UnitsManager_GetStealthChancePercentage(unit1, unit2, ORDER_AWAIT_STEAL_UNIT), CURSOR_STEAL);
 
         result = true;
     }
@@ -5931,8 +5933,8 @@ bool GameManager_IsValidDisableTarget(UnitInfo* unit1, UnitInfo* unit2) {
         result = false;
 
     } else {
-        Cursor_DrawStealthActionChanceCursor(UnitsManager_GetStealthChancePercentage(unit1, unit2, ORDER_AWAIT_DISABLE_UNIT),
-                                             CURSOR_DISABLE);
+        Cursor_DrawStealthActionChanceCursor(
+            UnitsManager_GetStealthChancePercentage(unit1, unit2, ORDER_AWAIT_DISABLE_UNIT), CURSOR_DISABLE);
 
         result = true;
     }
@@ -6068,7 +6070,8 @@ void GameManager_ClickUnit(UnitInfo* unit1, UnitInfo* unit2, int grid_x, int gri
         if (GameManager_PopupButtons.popup_count) {
             GameManager_DeinitPopupButtons(false);
 
-        } else if ((GameManager_GameState != GAME_STATE_9_END_TURN || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
+        } else if ((GameManager_GameState != GAME_STATE_9_END_TURN ||
+                    GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
                    GameManager_InitPopupButtons(unit1)) {
             return;
         }
@@ -6090,7 +6093,8 @@ bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int grid_x, i
 
         result = false;
 
-    } else if ((GameManager_GameState != GAME_STATE_9_END_TURN || GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
+    } else if ((GameManager_GameState != GAME_STATE_9_END_TURN ||
+                GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
                UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_PLAYER) {
         if (GameManager_IsShiftKeyPressed && unit1 && unit2) {
             if (unit2->team == GameManager_PlayerTeam) {
@@ -6632,8 +6636,8 @@ void GameManager_ProcessInput() {
                                                 GameManager_SelectedUnit->target_grid_x = GameManager_MousePosition.x;
                                                 GameManager_SelectedUnit->target_grid_y = GameManager_MousePosition.y;
 
-                                                UnitsManager_SetNewOrder(&*GameManager_SelectedUnit,
-                                                                         ORDER_ACTIVATE, ORDER_STATE_6);
+                                                UnitsManager_SetNewOrder(&*GameManager_SelectedUnit, ORDER_ACTIVATE,
+                                                                         ORDER_STATE_6);
 
                                             } else {
                                                 GameManager_SetUnitOrder(

@@ -25,6 +25,7 @@
 #include "game_manager.hpp"
 
 enum {
+    SURFACE_TYPE_NONE = 0x0,
     SURFACE_TYPE_LAND = 0x1,
     SURFACE_TYPE_WATER = 0x2,
     SURFACE_TYPE_COAST = 0x4,

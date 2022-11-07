@@ -29,7 +29,10 @@ void Ai_SetInfoMapPoint(Point point, unsigned short team);
 void Ai_MarkMineMapPoint(Point point, unsigned short team);
 void Ai_UpdateMineMap(Point point, unsigned short team);
 void Ai_SetTasksPendingFlag(const char* event);
-void Ai_Clear();
+void Ai_BeginTurn(unsigned short team);
+void Ai_Init();
+void Ai_CheckEndTurn();
+void Ai_ClearTasksPendingFlags();
 void Ai_FileLoad(SmartFileReader& file);
 void Ai_FileSave(SmartFileWriter& file);
 void Ai_SelectStartingPosition(unsigned short team);
@@ -38,5 +41,13 @@ void Ai_EnableAutoSurvey(UnitInfo* unit);
 bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, unsigned char flags);
 void Ai_UpdateTerrain(UnitInfo* unit);
 int Ai_DetermineCautionLevel(UnitInfo* unit);
+void Ai_RemoveUnit(UnitInfo* unit);
+void Ai_ProcessUnitTasks(UnitInfo* unit, unsigned short team);
+bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target);
+void Ai_EvaluateAttackTargets(UnitInfo* unit);
+int Ai_GetMemoryUsage();
+void Ai_CheckComputerReactions();
+void Ai_CheckMines(UnitInfo* unit);
+void Ai_CheckReactions();
 
 #endif /* AI_HPP */

@@ -49,6 +49,7 @@ extern SmartPointer<UnitInfo> UnitsManager_Unit;
 extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 
 extern bool UnitsManager_OrdersPending;
+extern bool UnitsManager_byte_179448;
 
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 

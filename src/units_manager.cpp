@@ -142,6 +142,7 @@ SmartPointer<UnitInfo> UnitsManager_Unit;
 SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 
 bool UnitsManager_OrdersPending;
+bool UnitsManager_byte_179448;
 
 static bool UnitsManager_byte_178170;
 

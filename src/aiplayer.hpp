@@ -35,6 +35,7 @@ public:
     AiPlayer();
     ~AiPlayer();
 
+    void Init(unsigned short team);
     void SetInfoMapPoint(Point point);
     void UpdateMineMap(Point point);
     void MarkMineMapPoint(Point point);
@@ -46,6 +47,7 @@ public:
     bool IsUpgradeNeeded(UnitInfo* unit);
     bool MatchPath(TaskPathRequest* request);
     void ClearZone(Zone* zone);
+    void BeginTurn();
     unsigned char** GetInfoMap();
     unsigned short** GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsigned char flags);
     unsigned short** GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags);
@@ -60,6 +62,14 @@ public:
     int GetPredictedAttack(UnitInfo* unit, int caution_level);
     unsigned short GetTargetTeam() const;
     int GetStrategy() const;
+    bool CheckEndTurn();
+    void AddThreat(UnitInfo* unit);
+    void UnitSpotted(UnitInfo* unit);
+    int GetMemoryUsage();
+    void FileLoad(SmartFileReader& file);
+    void FileSave(SmartFileWriter& file);
+    void RemoveUnit(UnitInfo* unit);
+    void FindMines(UnitInfo* unit);
 };
 
 extern int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level);
