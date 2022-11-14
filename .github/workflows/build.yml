@@ -33,11 +33,6 @@ jobs:
         sudo apt-get update -y -qq
         sudo apt-get install -y -qq build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-image-dev:i386 libsdl2-ttf-dev:i386 libsdl2-net-dev:i386
 
-    - name: Setup Python
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.x'
-
     - name: Checkout
       uses: actions/checkout@v2
 
@@ -79,12 +74,8 @@ jobs:
 
     - name: Setup Dependencies
       run: |
-        pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_image mingw32/mingw-w64-i686-SDL2_ttf mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-cmake make 
+        pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_image mingw32/mingw-w64-i686-SDL2_ttf mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-cmake make
 
-    - name: Setup Python
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.x'
 
     - name: Checkout
       uses: actions/checkout@v2
