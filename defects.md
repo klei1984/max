@@ -345,3 +345,26 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 92. The DefenseManager class tracks the unit types it needs in a SmartObjectArray\<ResourceID\> object and the units it already manages in a SmartList\<UnitInfo\> object. If a new unit is added to the manager the given unit type is removed from the array of needed unit types and the unit is added to the list of managed units. The method (cseg01:0001D2C8) responsible for this operation calls the SmartObjectArray\<ResourceID\>::Remove() method which attempts to remove an array element by index or position while the manager method passes the unit type which is obviously not equal to the array position where the unit type was originally stored. No memory corruption occurs as the SmartObjectArray is intelligent enough not to remove elements from beyond the allocated size of the array. But the algorithm is totally broken that relies on the unit type array contents. The root cause of the defect is probably a misunderstood interface as while the SmartList\<UnitInfo\>::Remove() API searches for the passed element instance and if found it is removed from the linked list the SmartObjectArray\<ResourceID\>::Remove() behaves totally different.
 
 93. There is a function to evaluate assaults (cseg01:00018D4A) which first reads the team member from a UnitInfo object pointer and afterwards tests whether the pointer was null.
+
+94. The TaskManageBuildings class implements a method (cseg01:00030C63) which processes a two dimensional matrix. The matrix dimensions are supposed to be the same as the game map grid dimensions. Instead of the X and Y axes the Y axis is used twice in a loop. As the game only implements fixed 112 x 112 grid maps the defect is latent.
+
+95. The TaskManageBuildings class implements a method (cseg01:0003177D) which marks path ways around buildings. The function also attempts to mark the path ways around buildings that are scheduled to be built, but the tasks list iterator variable is used in two loops and the second loop does not reinitialize the iterator to the beginning of the list effectively skipping the entire list of planned buildings.
+
+96. The TaskManageBuildings class implements a method (cseg01:0003285C) which determines whether a site is reasonably safe for construction purposes. The algorithm uses a code pattern which is very similar to the pattern that is used all over the place to find the shortest distance from something or the best value of some important aspect like smallest risk for getting destroyed.
+
+```cpp
+int marker_index = 0;
+int markers[12];
+int marker;
+   
+...
+   
+if (!marker_index || markers[marker_index] != marker) {
+  markers[marker_index] = marker;
+  ++marker_index;
+}
+```
+
+One minor risk is that `++marker_index` might lead to out of bounds access that could smash the stack and depending on the calling convention of the ABI this could lead to code runaway. A bigger problem is that the markers array is allocated on the stack thus at the time of allocation the array contains random values. The algorithm first unconditionally stores the value of `marker` into `markers[0]` and increments the array index variable. Next the array index is not 0 anymore thus the algorithm tests `markers[marker_index] != marker` which actually compares `markers[1]` with `marker` while `markers[1]` still holds a random value as noted before. Therefore in a somewhat random manner, mostly depending on the call site, a marker may not be considered by the algorithm erroneously.
+
+97. The TaskManageBuildings class implements a method (cseg01:00033E27) to get the amount of units of a particular type a team has and plans to build. The method returns the count on 8 bits. Over long game sessions it is possible to have more than 255 units of the same type in which case the result gets truncated that could lead to unintended AI behaviors in corner cases.
