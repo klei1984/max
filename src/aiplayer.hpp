@@ -70,6 +70,7 @@ public:
     void FileSave(SmartFileWriter& file);
     void RemoveUnit(UnitInfo* unit);
     void FindMines(UnitInfo* unit);
+    unsigned short GetField5() const;
 };
 
 extern int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level);

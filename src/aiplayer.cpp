@@ -104,3 +104,5 @@ void AiPlayer::FileSave(SmartFileWriter& file) {}
 void AiPlayer::RemoveUnit(UnitInfo* unit) {}
 
 void AiPlayer::FindMines(UnitInfo* unit) {}
+
+unsigned short AiPlayer::GetField5() const {}

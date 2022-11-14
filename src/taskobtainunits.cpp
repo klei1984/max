@@ -218,8 +218,7 @@ void TaskObtainUnits::EndTurn() {
                     unit->ClearTask1List();
 
                     if (unit->orders != ORDER_AWAIT) {
-                        /// \todo Implement missing stuff
-                        // sub_103053(unit, ORDER_AWAITING, 24);
+                        UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_CLEAR_PATH);
                     }
                 }
 

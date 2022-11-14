@@ -26,7 +26,7 @@
 #include "taskcreatebuilding.hpp"
 
 class TaskManageBuildings : public Task {
-    Point site;
+    Point building_site;
     SmartList<UnitInfo> units;
     SmartList<TaskCreateBuilding> tasks;
     Cargo cargo_demand;
@@ -44,7 +44,7 @@ class TaskManageBuildings : public Task {
     void MarkMiningAreas(unsigned short** construction_map);
     void MarkBuildingAreas(unsigned short** construction_map, int area_expanse, int area_offset);
     void ClearBuildingAreas(unsigned short** construction_map, TaskCreateBuilding* task);
-    void ClearPathways(unsigned short** construction_map);
+    void ClearPathways(unsigned short** construction_map, Rect bounds, int unit_size);
     void ClearPlannedBuildings(unsigned short** construction_map, TaskCreateBuilding* task, ResourceID unit_type,
                                unsigned short task_flags);
     static bool FillBlockMap(int ul1, int lr1, int ul2, int lr2, signed char* address_a, signed char* address_b);
@@ -62,7 +62,8 @@ class TaskManageBuildings : public Task {
     int GetHighestGreenHouseCount(unsigned short team);
     bool CreateBuildings(int building_demand, ResourceID unit_type, unsigned short task_flags);
     bool PlanNextBuildJob();
-    static void UpdateCargoDemand(int* limit, short* material, int max_mining);
+    static void UpdateCargoDemand(short* limit, short* material, int max_mining);
+    void UpdateMiningNeeds();
     void MakeConnectors(int ulx, int uly, int lrx, int lry, Task* task);
     bool CheckNeeds();
     void ClearAreasNearBuildings(unsigned char** access_map, int area_expanse, TaskCreateBuilding* task);

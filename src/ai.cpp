@@ -129,7 +129,7 @@ void Ai_Init() {
     TaskManager.Clear();
     AiPlayer_TerrainMap.Deinit();
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         AiPlayer_Teams[team].Init(team);
     }
 }
@@ -137,7 +137,7 @@ void Ai_Init() {
 void Ai_FileLoad(SmartFileReader& file) {
     Ai_Init();
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].FileLoad(file);
         }
@@ -145,7 +145,7 @@ void Ai_FileLoad(SmartFileReader& file) {
 }
 
 void Ai_FileSave(SmartFileWriter& file) {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].FileSave(file);
         }
@@ -220,7 +220,7 @@ void Ai_CheckEndTurn() {
 
     } else {
         if (GameManager_GameState == GAME_STATE_9_END_TURN || GameManager_GameState == GAME_STATE_8_IN_GAME) {
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
                     if (!UnitsManager_TeamInfo[team].field_41) {
                         if (AiPlayer_Teams[GameManager_ActiveTurnTeam].CheckEndTurn()) {
@@ -242,7 +242,7 @@ void Ai_CheckEndTurn() {
 }
 
 void Ai_ClearTasksPendingFlags() {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         AiPlayer_Teams[team].ChangeTasksPendingFlag(false);
     }
 }
@@ -296,7 +296,7 @@ void Ai_RemoveUnit(UnitInfo* unit) {
         }
     }
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].RemoveUnit(unit);
         }
@@ -328,7 +328,7 @@ int Ai_GetMemoryUsage() {
 
     result = TaskManager.CalcMemoryUsage();
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             result += AiPlayer_Teams[team].GetMemoryUsage();
         }
@@ -340,7 +340,7 @@ int Ai_GetMemoryUsage() {
 void Ai_CheckComputerReactions() { TaskManager.CheckComputerReactions(); }
 
 void Ai_CheckMines(UnitInfo* unit) {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (unit->team != team && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER &&
             unit->IsVisibleToTeam(team)) {
             AiPlayer_Teams[team].FindMines(unit);

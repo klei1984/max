@@ -35,7 +35,6 @@ class TaskCreateBuilding : public TaskCreate {
     bool field_42;
     SmartList<Task> tasks;
 
-    int EstimateBuildTime();
     void ObtainUnit();
     void MoveToSite();
     bool BuildRoad();
@@ -80,6 +79,8 @@ public:
     void Task_vfunc27(Zone* zone, char mode);
     bool Task_vfunc28();
     bool Task_vfunc29();
+
+    int EstimateBuildTime();
 };
 
 #endif /* TASKCREATEBUILDING_HPP */
