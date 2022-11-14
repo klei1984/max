@@ -306,7 +306,7 @@ Code cleanup
 - make smart containers reentrant, thread safe and improve ISO C++ compliance
 - create or use an audio library that supports loop points (SFX) and streaming (MVE) for digital samples
 - refactor MVE player to eliminate self modifying code from it
-- make GNW, MVE player and ACM decoder standalone libraries
+- make GNW and MVE player standalone libraries
 
 Internationalization
 - support utf8 glyphs
@@ -322,6 +322,7 @@ Cross-platform
 - support long file system paths and utf8 file names
 - support OS specific save game locations
 - support both 32 and 64 bit builds
+- support game install from original CD-ROMs (reimplement the MS-DOS installer)
 
 Scenario and campaign editor
 - support arbitrary number of save game slots
@@ -330,6 +331,13 @@ Scenario and campaign editor
 - support arbitrary map sizes
 - add built-in pseudo random map generator
 - add built-in scenario and campaign editor
+
+Asset development
+- support a high fidelity, lossless audio format that supports loop points (e.g. FLAC with RIFF chunks)
+- complete the GIMP plugin
+- create a res file encoder and decoder
+- create tools to generate the user manual
+- create tools to generate map tile sets (including water caustics)
 
 Quality of life improvements
 - support mouse wheel and middle mouse button
