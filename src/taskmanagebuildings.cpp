@@ -22,6 +22,7 @@
 #include "taskmanagebuildings.hpp"
 
 #include "access.hpp"
+#include "accessmap.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
 #include "buildmenu.hpp"
@@ -39,6 +40,7 @@
 #include "taskpowerassistant.hpp"
 #include "taskradarassistant.hpp"
 #include "units_manager.hpp"
+#include "zonewalker.hpp"
 
 enum AreaMapMarkers {
     AREA_BLOCKED = 0x0,
@@ -88,7 +90,24 @@ TaskManageBuildings::TaskManageBuildings(unsigned short team, Point site) : Task
 
 TaskManageBuildings::~TaskManageBuildings() {}
 
-void TaskManageBuildings::BuildBridge(Point site, Task* task) {}
+void TaskManageBuildings::BuildBridge(Point site, Task* task) {
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        Rect bounds;
+
+        (*it).GetBounds(&bounds);
+
+        if (Access_IsInsideBounds(&bounds, &site)) {
+            return;
+        }
+    }
+
+    SmartPointer<TaskCreateBuilding> create_building_task(
+        new (std::nothrow) TaskCreateBuilding(task, task->GetFlags(), BRIDGE, site, this));
+
+    tasks.PushBack(*create_building_task);
+
+    TaskManager.AppendTask(*create_building_task);
+}
 
 void TaskManageBuildings::FillMap(unsigned short** construction_map, int ulx, int uly, int lrx, int lry,
                                   int fill_value) {
@@ -1218,39 +1237,774 @@ void TaskManageBuildings::UpdateMiningNeeds() {
     }
 }
 
-void TaskManageBuildings::MakeConnectors(int ulx, int uly, int lrx, int lry, Task* task) {}
+void TaskManageBuildings::MakeConnectors(int ulx, int uly, int lrx, int lry, Task* task) {
+    Point site;
 
-bool TaskManageBuildings::CheckNeeds() {}
+    if (ulx < 1) {
+        ulx = 1;
+    }
+
+    if (lrx >= ResourceManager_MapSize.x - 1) {
+        lrx = ResourceManager_MapSize.x - 1;
+    }
+
+    if (uly < 1) {
+        uly = 1;
+    }
+
+    if (lry >= ResourceManager_MapSize.y - 1) {
+        lry = ResourceManager_MapSize.y - 1;
+    }
+
+    for (site.x = ulx; site.x < lrx; ++site.x) {
+        for (site.y = uly; site.y < lry; ++site.y) {
+            SmartPointer<TaskCreateBuilding> create_building_task(
+                new (std::nothrow) TaskCreateBuilding(task, 0x800, CNCT_4W, site, this));
+
+            tasks.PushBack(*create_building_task);
+
+            TaskManager.AppendTask(*create_building_task);
+        }
+    }
+}
+
+bool TaskManageBuildings::CheckNeeds() {
+    bool result;
+    bool build_order = false;
+
+    if (PlanNextBuildJob()) {
+        TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
+
+        result = true;
+
+    } else {
+        if (cargo_demand.raw < 0 || cargo_demand.fuel < 0 || cargo_demand.gold < 0) {
+            SmartList<UnitInfo>::Iterator it;
+            unsigned short task_flags;
+
+            for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
+                if ((*it).team == team && (*it).unit_type == MININGST) {
+                    break;
+                }
+            }
+
+            if (it) {
+                task_flags = 0xE00;
+
+            } else {
+                task_flags = 0x500;
+            }
+
+            if (CreateBuilding(MININGST, this, task_flags)) {
+                build_order = true;
+            }
+        }
+
+        result = build_order;
+    }
+
+    return result;
+}
 
 void TaskManageBuildings::ClearAreasNearBuildings(unsigned char** access_map, int area_expanse,
-                                                  TaskCreateBuilding* task) {}
+                                                  TaskCreateBuilding* task) {
+    Rect bounds;
+    Point site;
+    int unit_size;
 
-void TaskManageBuildings::EvaluateDangers(unsigned char** access_map) {}
+    rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).unit_type != CNCT_4W && (*it).unit_type != WTRPLTFM && (*it).unit_type != BRIDGE) {
+            Rect limits;
+
+            unit_size = ((*it).flags & BUILDING) ? area_expanse : 1;
+
+            (*it).GetBounds(&limits);
+
+            limits.ulx -= unit_size;
+            limits.lrx += unit_size;
+            limits.uly -= unit_size;
+            limits.lry += unit_size;
+
+            for (site.x = limits.ulx; site.x < limits.lrx; ++site.x) {
+                for (site.y = limits.uly; site.y < limits.lry; ++site.y) {
+                    if (Access_IsInsideBounds(&bounds, &site)) {
+                        access_map[site.x][site.y] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        if ((&*it) != task && (*it).Task_vfunc29()) {
+            ResourceID unit_type = (*it).GetUnitType();
+
+            if (unit_type != CNCT_4W && unit_type != WTRPLTFM && unit_type != BRIDGE) {
+                Rect limits;
+
+                unit_size = (UnitsManager_BaseUnits[unit_type].flags & BUILDING) ? area_expanse : 1;
+
+                (*it).GetBounds(&limits);
+
+                limits.ulx -= unit_size;
+                limits.lrx += unit_size;
+                limits.uly -= unit_size;
+                limits.lry += unit_size;
+
+                for (site.x = limits.ulx; site.x < limits.lrx; ++site.x) {
+                    for (site.y = limits.uly; site.y < limits.lry; ++site.y) {
+                        if (Access_IsInsideBounds(&bounds, &site)) {
+                            access_map[site.x][site.y] = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TaskManageBuildings::EvaluateDangers(unsigned char** access_map) {
+    unsigned short** damage_potential_map =
+        AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 0x01);
+
+    if (damage_potential_map) {
+        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+            for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                if (damage_potential_map[x][y] > 0) {
+                    access_map[x][y] = 0;
+                }
+            }
+        }
+    }
+}
 
 void TaskManageBuildings::MarkDefenseSites(unsigned short** construction_map, unsigned char** access_map,
-                                           TaskCreateBuilding* task, int value) {}
+                                           TaskCreateBuilding* task, int value) {
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if (((*it).flags & BUILDING) || (*it).unit_type == RADAR) {
+            Rect bounds;
+            Point site;
+            int accessmap_value;
+
+            (*it).GetBounds(&bounds);
+
+            FillMap(construction_map, bounds.ulx - 2, bounds.uly - 2, bounds.lrx + 2, bounds.lry + 2, 0x01);
+            FillMap(construction_map, bounds.ulx - 1, bounds.uly - 1, bounds.lrx + 1, bounds.lry + 1, 0x00);
+
+            bounds.ulx = std::max(bounds.ulx - 2, 0);
+            bounds.uly = std::max(bounds.uly - 2, 0);
+            bounds.lrx = std::min(bounds.lrx + 2, static_cast<int>(ResourceManager_MapSize.x));
+            bounds.lry = std::min(bounds.lry + 2, static_cast<int>(ResourceManager_MapSize.y));
+
+            accessmap_value = ((*it).unit_type == RADAR) ? value + 1 : value;
+
+            for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
+                for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
+                    access_map[site.x][site.y] = accessmap_value;
+                }
+            }
+        }
+    }
+
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        if ((&*it) != task && (*it).Task_vfunc28()) {
+            if ((UnitsManager_BaseUnits[(*it).GetUnitType()].flags & BUILDING) || (*it).GetUnitType() == RADAR) {
+                Rect bounds;
+                Point site;
+                int accessmap_value;
+
+                (*it).GetBounds(&bounds);
+
+                FillMap(construction_map, bounds.ulx - 1, bounds.uly - 1, bounds.lrx + 1, bounds.lry + 1, 0x00);
+
+                bounds.ulx = std::max(bounds.ulx - 1, 0);
+                bounds.uly = std::max(bounds.uly - 1, 0);
+                bounds.lrx = std::min(bounds.lrx + 1, static_cast<int>(ResourceManager_MapSize.x));
+                bounds.lry = std::min(bounds.lry + 1, static_cast<int>(ResourceManager_MapSize.y));
+
+                accessmap_value = ((*it).GetUnitType() == RADAR) ? value + 1 : value;
+
+                for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
+                    for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
+                        access_map[site.x][site.y] = accessmap_value;
+                    }
+                }
+            }
+        }
+    }
+}
 
 void TaskManageBuildings::ClearDefenseSites(unsigned char** access_map, ResourceID unit_type, TaskCreateBuilding* task,
-                                            unsigned short task_flags) {}
+                                            unsigned short task_flags) {
+    Point position;
 
-bool TaskManageBuildings::IsSiteWithinRadarRange(Point site, int unit_range, TaskCreateBuilding* task) {}
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).unit_type == unit_type) {
+            int unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
-void TaskManageBuildings::UpdateAccessMap(unsigned char** access_map, TaskCreateBuilding* task) {}
+            position.x = (*it).grid_x;
+            position.y = (*it).grid_y;
 
-bool TaskManageBuildings::EvaluateNeedForRadar(unsigned char** access_map, TaskCreateBuilding* task) {}
+            ZoneWalker walker(position, unit_range);
 
-bool TaskManageBuildings::MarkBuildings(unsigned char** access_map, Point site) {}
+            do {
+                if (access_map[walker.GetGridX()][walker.GetGridY()] > 0) {
+                    --access_map[walker.GetGridX()][walker.GetGridY()];
+                }
+            } while (walker.FindNext());
+        }
+    }
 
-void TaskManageBuildings::MarkConnections(unsigned char** access_map, Point site, int value) {}
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        if ((*it).GetUnitType() == unit_type && (&*it) != task && (*it).DeterminePriority(task_flags) <= 0) {
+            int unit_range =
+                UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(unit_type)->GetAttribute(ATTRIB_RANGE);
 
-void TaskManageBuildings::UpdateConnectors(unsigned char** access_map, int ulx, int uly, int lrx, int lry) {}
+            position = (*it).DeterminePosition();
+
+            ZoneWalker walker(position, unit_range);
+
+            do {
+                if (access_map[walker.GetGridX()][walker.GetGridY()] > 0) {
+                    --access_map[walker.GetGridX()][walker.GetGridY()];
+                }
+            } while (walker.FindNext());
+        }
+    }
+}
+
+bool TaskManageBuildings::IsSiteWithinRadarRange(Point site, int unit_range, TaskCreateBuilding* task) {
+    Point position;
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).unit_type == RADAR) {
+            int distance = (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) - unit_range;
+
+            position.x = site.x - (*it).grid_x;
+            position.y = site.y - (*it).grid_y;
+
+            if (position.x * position.x + position.y * position.y <= distance * distance) {
+                return true;
+            }
+        }
+    }
+
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        if ((*it).GetUnitType() == RADAR && (&*it) != task) {
+            int distance =
+                UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN) -
+                unit_range;
+
+            position = (*it).DeterminePosition();
+
+            position -= site;
+
+            if (position.x * position.x + position.y * position.y <= distance * distance) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+void TaskManageBuildings::UpdateAccessMap(unsigned char** access_map, TaskCreateBuilding* task) {
+    int unit_scan = UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN);
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).unit_type == RADAR) {
+            ZoneWalker walker(Point((*it).grid_x, (*it).grid_y), (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) / 2);
+
+            do {
+                access_map[walker.GetGridX()][walker.GetGridY()] = 0;
+
+            } while (walker.FindNext());
+        }
+    }
+
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        if ((*it).GetUnitType() == RADAR && (&*it) != task) {
+            ZoneWalker walker((*it).DeterminePosition(), unit_scan / 2);
+
+            do {
+                access_map[walker.GetGridX()][walker.GetGridY()] = 0;
+
+            } while (walker.FindNext());
+        }
+    }
+}
+
+bool TaskManageBuildings::EvaluateNeedForRadar(unsigned char** access_map, TaskCreateBuilding* task) {
+    int unit_scan = UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN);
+    bool is_radar_needed = false;
+    bool result;
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+            Point position((*it).grid_x, (*it).grid_y);
+
+            if (!IsSiteWithinRadarRange(position, (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE), task)) {
+                ZoneWalker walker(position, unit_scan - (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE));
+
+                is_radar_needed = true;
+
+                do {
+                    if (!TaskManageBuildings_IsSiteValuable(*walker.GetCurrentLocation(), team) &&
+                        Access_GetModifiedSurfaceType(walker.GetGridX(), walker.GetGridY()) != SURFACE_TYPE_AIR) {
+                        ++access_map[walker.GetGridX()][walker.GetGridY()];
+                    }
+
+                } while (walker.FindNext());
+            }
+        }
+    }
+
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        if ((*it).Task_vfunc28()) {
+            Point position((*it).DeterminePosition());
+            SmartPointer<UnitValues> unit_values(
+                UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues((*it).GetUnitType()));
+
+            if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0 &&
+                !IsSiteWithinRadarRange(position, unit_values->GetAttribute(ATTRIB_RANGE), task)) {
+                ZoneWalker walker(position, unit_scan - unit_values->GetAttribute(ATTRIB_RANGE));
+
+                is_radar_needed = true;
+
+                do {
+                    if (!TaskManageBuildings_IsSiteValuable(*walker.GetCurrentLocation(), team) &&
+                        Access_GetModifiedSurfaceType(walker.GetGridX(), walker.GetGridY()) != SURFACE_TYPE_AIR) {
+                        ++access_map[walker.GetGridX()][walker.GetGridY()];
+                    }
+
+                } while (walker.FindNext());
+            }
+        }
+    }
+
+    if (is_radar_needed) {
+        ClearAreasNearBuildings(access_map, 2, task);
+        EvaluateDangers(access_map);
+        UpdateAccessMap(access_map, task);
+
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool TaskManageBuildings::MarkBuildings(unsigned char** access_map, Point& site) {
+    ResourceID unit_type2 = INVALID_ID;
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).unit_type != WTRPLTFM && (*it).unit_type != BRIDGE && (*it).unit_type != CNCT_4W) {
+            Rect bounds;
+
+            (*it).GetBounds(&bounds);
+
+            if ((*it).unit_type == MININGST && unit_type2 != MININGST) {
+                unit_type2 = INVALID_ID;
+            }
+
+            if (unit_type2 == INVALID_ID) {
+                unit_type2 = (*it).unit_type;
+                site.x = bounds.ulx;
+                site.y = bounds.uly;
+            }
+
+            for (int x = bounds.ulx; x < bounds.lrx; ++x) {
+                for (int y = bounds.uly; y < bounds.lry; ++y) {
+                    access_map[x][y] = 2;
+                }
+            }
+        }
+    }
+
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        ResourceID unit_type = (*it).GetUnitType();
+
+        if (unit_type != WTRPLTFM && unit_type != BRIDGE && unit_type != CNCT_4W && (*it).Task_vfunc28()) {
+            Rect bounds;
+
+            (*it).GetBounds(&bounds);
+
+            if (unit_type == MININGST && unit_type2 != MININGST) {
+                unit_type2 = INVALID_ID;
+            }
+
+            if (unit_type2 == INVALID_ID) {
+                unit_type2 = unit_type;
+                site.x = bounds.ulx;
+                site.y = bounds.uly;
+            }
+
+            for (int x = bounds.ulx; x < bounds.lrx; ++x) {
+                for (int y = bounds.uly; y < bounds.lry; ++y) {
+                    access_map[x][y] = 4;
+                }
+            }
+        }
+    }
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).unit_type == CNCT_4W) {
+            access_map[(*it).grid_x][(*it).grid_y] = 2;
+        }
+    }
+
+    for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        if ((*it).GetUnitType() == CNCT_4W) {
+            Rect bounds;
+
+            (*it).GetBounds(&bounds);
+
+            access_map[bounds.ulx][bounds.uly] = 2;
+        }
+    }
+
+    return unit_type2 != INVALID_ID;
+}
+
+void TaskManageBuildings::MarkConnections(unsigned char** access_map, Point site, int value) {
+    Point site2;
+    Point site3;
+    bool flag1;
+    bool flag2;
+    bool flag3;
+    bool flag4;
+
+    do {
+        while (site.x > 0 && (access_map[site.x][site.y] == value || access_map[site.x][site.y] == 2)) {
+            --site.x;
+        }
+
+        ++site.x;
+
+        if (site.x >= ResourceManager_MapSize.x ||
+            (access_map[site.x][site.y] != value && access_map[site.x][site.y] != 2)) {
+            return;
+        }
+
+        flag1 = false;
+        flag2 = false;
+        flag3 = false;
+        flag4 = false;
+
+        while (site.x < ResourceManager_MapSize.x &&
+               (access_map[site.x][site.y] == value || access_map[site.x][site.y] == 2)) {
+            if (value == 2) {
+                access_map[site.x][site.y] = 3;
+
+            } else {
+                access_map[site.x][site.y] = 5;
+            }
+
+            if (site.y > 0 && (access_map[site.x][site.y - 1] == value || access_map[site.x][site.y - 1] == 2)) {
+                if (flag2) {
+                    MarkConnections(access_map, site2, value);
+
+                    flag2 = false;
+                    flag1 = false;
+                }
+
+                if (!flag1) {
+                    site2.x = site.x;
+                    site2.y = site.y - 1;
+
+                    flag1 = true;
+                }
+
+            } else {
+                if (flag1) {
+                    flag2 = true;
+                }
+            }
+
+            if (site.y < ResourceManager_MapSize.y - 1 &&
+                (access_map[site.x][site.y + 1] == value || access_map[site.x][site.y + 1] == 2)) {
+                if (flag4) {
+                    MarkConnections(access_map, site3, value);
+
+                    flag4 = false;
+                    flag3 = false;
+                }
+
+                if (!flag3) {
+                    site3.x = site.x;
+                    site3.y = site.y + 1;
+
+                    flag3 = true;
+                }
+
+            } else {
+                if (flag3) {
+                    flag4 = true;
+                }
+            }
+
+            ++site.x;
+        }
+
+        if (flag1) {
+            if (flag3) {
+                MarkConnections(access_map, site2, value);
+
+            } else {
+                flag3 = true;
+                site3 = site2;
+            }
+        }
+
+        site = site3;
+
+    } while (flag3);
+}
+
+void TaskManageBuildings::UpdateConnectors(unsigned char** access_map, int ulx, int uly, int lrx, int lry) {
+    for (int x = ulx; x < lrx; ++x) {
+        for (int y = uly; y < lry; ++y) {
+            access_map[x][y] = 2;
+        }
+    }
+
+    MakeConnectors(ulx, uly, lrx, lry, this);
+}
 
 int TaskManageBuildings::GetConnectionDistance(unsigned char** access_map, Point site1, Point site2,
-                                               unsigned short team, int value) {}
+                                               unsigned short team_, int value) {
+    Point site3;
+    Point site4;
+    Rect bounds;
 
-bool TaskManageBuildings::ConnectBuilding(unsigned char** access_map, Point site, int value) {}
+    rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-bool TaskManageBuildings::FindMarkedSite(unsigned char** access_map, Rect* bounds) {}
+    do {
+        site1 += site2;
+
+        if (!Access_IsInsideBounds(&bounds, &site1)) {
+            return 1000;
+        }
+
+    } while (access_map[site1.x][site1.y] == value || access_map[site1.x][site1.y] == 2);
+
+    site3 = site1;
+
+    for (;;) {
+        if (access_map[site3.x][site3.y] > 0 || TaskManageBuildings_IsSiteValuable(site3, team_) ||
+            Access_GetModifiedSurfaceType(site3.x, site3.y) == SURFACE_TYPE_AIR) {
+            if (access_map[site3.x][site3.y] == 3) {
+                return TaskManager_GetDistance(site3, site1);
+
+            } else if (access_map[site3.x][site3.y] == 5 && value == 4) {
+                return TaskManager_GetDistance(site3, site1);
+
+            } else {
+                return 1000;
+            }
+        }
+
+        site3 += site2;
+
+        if (!Access_IsInsideBounds(&bounds, &site3)) {
+            return 1000;
+        }
+
+        site4.x = site3.x + labs(site2.y);
+        site4.y = site3.y + labs(site2.x);
+
+        if (Access_IsInsideBounds(&bounds, &site4) &&
+            (access_map[site4.x][site4.y] == 3 || (access_map[site4.x][site4.y] == 5 && value == 4))) {
+            return TaskManager_GetDistance(site3, site1) + 2;
+        }
+
+        site4.x = site3.x - labs(site2.y);
+        site4.y = site3.y - labs(site2.x);
+
+        if (Access_IsInsideBounds(&bounds, &site4) &&
+            (access_map[site4.x][site4.y] == 3 || (access_map[site4.x][site4.y] == 5 && value == 4))) {
+            return TaskManager_GetDistance(site3, site1) + 2;
+        }
+    }
+}
+
+bool TaskManageBuildings::ConnectBuilding(unsigned char** access_map, Point site, int value) {
+    Point site1;
+    Point site2;
+    Point site3;
+    Point site4;
+    int distance1;
+    int distance2;
+    int distance3;
+    int distance4;
+    int minimum_distance;
+    bool is_site_found;
+    bool result = false;
+
+    do {
+        site1 = site;
+        distance1 = GetConnectionDistance(access_map, site1, Point(-1, 0), team, value);
+
+        site2 = site;
+        distance2 = GetConnectionDistance(access_map, site2, Point(1, 0), team, value);
+
+        site3 = site;
+        distance3 = GetConnectionDistance(access_map, site3, Point(0, -1), team, value);
+
+        site4 = site;
+        distance4 = GetConnectionDistance(access_map, site4, Point(0, 1), team, value);
+
+        minimum_distance = ResourceManager_MapSize.x;
+
+        if (minimum_distance > distance1) {
+            minimum_distance = distance1;
+        }
+
+        if (minimum_distance > distance2) {
+            minimum_distance = distance2;
+        }
+
+        if (minimum_distance > distance3) {
+            minimum_distance = distance3;
+        }
+
+        if (minimum_distance > distance4) {
+            minimum_distance = distance4;
+        }
+
+        is_site_found = false;
+
+        if (minimum_distance == 0) {
+            MarkConnections(access_map, site, 2);
+
+        } else {
+            if (minimum_distance == distance1) {
+                site = site1;
+                is_site_found = true;
+
+            } else if (minimum_distance == distance2) {
+                site = site2;
+                is_site_found = true;
+
+            } else if (minimum_distance == distance3) {
+                site = site3;
+                is_site_found = true;
+
+            } else if (minimum_distance == distance4) {
+                site = site4;
+                is_site_found = true;
+            }
+
+            if (is_site_found) {
+                UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
+
+                result = true;
+            }
+        }
+
+    } while (is_site_found);
+
+    return result;
+}
+
+bool TaskManageBuildings::ReconnectBuilding(unsigned char** access_map, Rect* bounds, int value) {
+    Point site;
+
+    if (value == 4) {
+        if (access_map[bounds->ulx][bounds->uly] != 4) {
+            return false;
+        }
+
+    } else if (access_map[bounds->ulx][bounds->uly] == 3) {
+        return false;
+    }
+
+    for (site.x = bounds->ulx; site.x < bounds->lrx; ++site.x) {
+        for (site.y = bounds->uly; site.y < bounds->lry; ++site.y) {
+            if (ConnectBuilding(access_map, site, value)) {
+                return true;
+            }
+        }
+    }
+
+    for (site.x = bounds->ulx; site.x < bounds->lrx; ++site.x) {
+        site.y = bounds->uly - 1;
+
+        if (access_map[site.x][site.y] == 0) {
+            if (ConnectBuilding(access_map, site, value)) {
+                UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
+
+                return true;
+            }
+        }
+
+        site.y = bounds->lry;
+
+        if (access_map[site.x][site.y] == 0) {
+            if (ConnectBuilding(access_map, site, value)) {
+                UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
+
+                return true;
+            }
+        }
+    }
+
+    for (site.y = bounds->uly; site.y < bounds->lry; ++site.y) {
+        site.x = bounds->ulx - 1;
+
+        if (access_map[site.x][site.y] == 0) {
+            if (ConnectBuilding(access_map, site, value)) {
+                UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
+
+                return true;
+            }
+        }
+
+        site.x = bounds->lrx;
+
+        if (access_map[site.x][site.y] == 0) {
+            if (ConnectBuilding(access_map, site, value)) {
+                UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool TaskManageBuildings::FindMarkedSite(unsigned char** access_map, Rect* bounds) {
+    Rect limits;
+    Point site;
+
+    limits.ulx = std::max(0, bounds->ulx - 1);
+    limits.uly = std::max(0, bounds->uly - 1);
+    limits.lrx = std::min(ResourceManager_MapSize.x - 1, bounds->lrx + 1);
+    limits.lry = std::min(ResourceManager_MapSize.y - 1, bounds->lry + 1);
+
+    for (site.x = limits.ulx; site.x < limits.lrx; ++site.x) {
+        for (site.y = bounds->uly; site.y < bounds->lry; ++site.y) {
+            if (access_map[site.x][site.y] == 3) {
+                return true;
+            }
+        }
+    }
+
+    for (site.x = bounds->ulx; site.x < bounds->lrx; ++site.x) {
+        for (site.y = limits.uly; site.y < limits.lry; ++site.y) {
+            if (access_map[site.x][site.y] == 3) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
 
 int TaskManageBuildings::GetMemoryUse() const { return units.GetMemorySize() - 6 + tasks.GetMemorySize() - 10; }
 
@@ -1441,9 +2195,154 @@ void TaskManageBuildings::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 
 void TaskManageBuildings::Task_vfunc23(UnitInfo& unit) { units.Remove(unit); }
 
-bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, unsigned short task_flags) {}
+bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, unsigned short task_flags) {
+    Point site;
+    bool result;
 
-bool TaskManageBuildings::ReconnectBuildings() {}
+    if (Builder_IsBuildable(unit_type)) {
+        if (Task_EstimateTurnsTillMissionEnd() >=
+            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
+            unsigned short unit_counters[UNIT_END];
+
+            memset(&unit_counters, 0, sizeof(unit_counters));
+
+            for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+                if ((*it).DeterminePriority(task_flags + 0xAF) <= 0) {
+                    ++unit_counters[(*it).GetUnitType()];
+                }
+            }
+
+            ResourceID builder_type = Builder_GetBuilderType(unit_type);
+            int builder_count = 0;
+            int unit_count = 0;
+            SmartObjectArray<ResourceID> buildable_units = Builder_GetBuildableUnits(builder_type);
+
+            for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+                 it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+                if ((*it).team == team && (*it).unit_type == builder_type) {
+                    ++builder_count;
+                }
+            }
+
+            for (int i = 0; i < buildable_units.GetCount(); ++i) {
+                unit_count += unit_counters[*buildable_units[i]];
+            }
+
+            if (builder_count * 2 + 1 > unit_count) {
+                bool is_site_found;
+
+                if (unit_type == RADAR) {
+                    is_site_found = FindSiteForRadar(nullptr, site);
+
+                } else if (unit_type == GUNTURRT || unit_type == ANTIMSSL || unit_type == ARTYTRRT ||
+                           unit_type == ANTIAIR) {
+                    is_site_found = FindDefenseSite(unit_type, nullptr, site, 5, task_flags);
+
+                } else {
+                    is_site_found = FindSite(unit_type, nullptr, site, task_flags);
+                }
+
+                if (is_site_found) {
+                    SmartPointer<TaskCreateBuilding> create_building_task(
+                        new (std::nothrow) TaskCreateBuilding(task, task_flags, unit_type, site, this));
+
+                    tasks.PushBack(*create_building_task);
+
+                    TaskManager.AppendTask(*create_building_task);
+
+                    result = true;
+
+                } else {
+                    result = false;
+                }
+
+            } else {
+                result = false;
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool TaskManageBuildings::ReconnectBuildings() {
+    bool result;
+
+    if (units.GetCount() > 0 || tasks.GetCount() > 0) {
+        AccessMap access_map;
+        Point site;
+
+        if (MarkBuildings(access_map.GetMap(), site)) {
+            MarkConnections(access_map.GetMap(), site, 2);
+
+            for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+                ResourceID unit_type = (*it).GetUnitType();
+
+                if ((*it).Task_vfunc28() && unit_type != CNCT_4W && unit_type != WTRPLTFM && unit_type != BRIDGE) {
+                    Rect bounds;
+
+                    (*it).GetBounds(&bounds);
+
+                    if (FindMarkedSite(access_map.GetMap(), &bounds)) {
+                        for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
+                            for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
+                                if (access_map.GetMapColumn(site.x)[site.y] == 4) {
+                                    MarkConnections(access_map.GetMap(), site, 4);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            result = false;
+
+            for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+                if ((*it).unit_type != CNCT_4W && (*it).unit_type != WTRPLTFM && (*it).unit_type != BRIDGE &&
+                    (*it).unit_type != GUNTURRT && (*it).unit_type != ARTYTRRT && (*it).unit_type != ANTIMSSL &&
+                    (*it).unit_type != ANTIAIR && (*it).unit_type != RADAR) {
+                    Rect bounds;
+
+                    (*it).GetBounds(&bounds);
+
+                    if (ReconnectBuilding(access_map.GetMap(), &bounds, 2)) {
+                        result = true;
+                    }
+                }
+            }
+
+            for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+                ResourceID unit_type = (*it).GetUnitType();
+
+                if ((*it).Task_vfunc28() && unit_type != CNCT_4W && unit_type != WTRPLTFM && unit_type != BRIDGE &&
+                    unit_type != GUNTURRT && unit_type != ARTYTRRT && unit_type != ANTIMSSL && unit_type != ANTIAIR &&
+                    unit_type != RADAR) {
+                    Rect bounds;
+
+                    (*it).GetBounds(&bounds);
+
+                    if (ReconnectBuilding(access_map.GetMap(), &bounds, 4)) {
+                        result = true;
+                    }
+                }
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
 
 void TaskManageBuildings::CheckWorkers() {
     int total_consumption = 0;
@@ -1547,13 +2446,139 @@ bool TaskManageBuildings::CheckPower() {
     }
 }
 
-bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site) {}
+bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site) {
+    AccessMap access_map;
+    bool is_found;
+    bool result;
+
+    if (EvaluateNeedForRadar(access_map.GetMap(), task)) {
+        Point location;
+        int access_map_value;
+        int best_access_map_value;
+
+        MouseEvent::ProcessInput();
+
+        is_found = false;
+
+        for (location.x = 1; location.x < ResourceManager_MapSize.x - 1; ++location.x) {
+            for (location.y = 1; location.y < ResourceManager_MapSize.y - 1; ++location.y) {
+                if (access_map.GetMapColumn(location.x)[location.y]) {
+                    access_map_value = 255 - access_map.GetMapColumn(location.x)[location.y];
+
+                    access_map_value = (access_map_value << 16) + TaskManager_GetDistance(location, building_site);
+
+                    if (!is_found || access_map_value < best_access_map_value) {
+                        is_found = true;
+                        site = location;
+                        best_access_map_value = access_map_value;
+                    }
+                }
+            }
+        }
+
+        result = is_found;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
 
 void TaskManageBuildings::AddCreateOrder(TaskCreateBuilding* task) {
     tasks.PushBack(*task);
     TaskManager.AppendTask(*task);
 }
 
-bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site) {}
+bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, int value,
+                                          unsigned short task_flags) {
+    bool result;
 
-bool TaskManageBuildings::ChangeSite(TaskCreateBuilding* task, Point& site) {}
+    if (ResourceManager_MapSize.x > 0 && ResourceManager_MapSize.y > 0) {
+        unsigned short** construction_map = CreateMap();
+        bool is_site_found = false;
+        Point location;
+        AccessMap access_map;
+        Point target_location = AiPlayer_Teams[team].GetTargetLocation();
+        int access_map_value;
+        int best_access_map_value = 1;
+        int distance;
+        int minimum_distance;
+
+        MouseEvent::ProcessInput();
+
+        MarkDefenseSites(construction_map, access_map.GetMap(), task, value);
+        ClearBuildingAreas(construction_map, task);
+        ClearPlannedBuildings(construction_map, task, unit_type, task_flags);
+        LimitBlockSize(construction_map, 1);
+
+        MouseEvent::ProcessInput();
+
+        ClearDefenseSites(access_map.GetMap(), unit_type, task, task_flags);
+
+        if (unit_type == GUNTURRT || unit_type == ARTYTRRT) {
+            ClearDefenseSites(access_map.GetMap(), ANTIMSSL, task, task_flags);
+        }
+
+        for (location.x = 1; location.x < ResourceManager_MapSize.x - 1; ++location.x) {
+            for (location.y = 1; location.y < ResourceManager_MapSize.y - 1; ++location.y) {
+                access_map_value = access_map.GetMapColumn(location.x)[location.y];
+
+                if (access_map_value >= best_access_map_value && construction_map[location.x][location.y] < AREA_FREE) {
+                    distance = TaskManager_GetDistance(location, target_location);
+
+                    if (!is_site_found || access_map_value > best_access_map_value || distance < minimum_distance) {
+                        if (IsSafeSite(construction_map, location, unit_type)) {
+                            is_site_found = true;
+                            site = location;
+                            minimum_distance = distance;
+                            best_access_map_value = access_map_value;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (is_site_found) {
+            Rect bounds;
+
+            rect_init(&bounds, site.x, site.y, site.x + 1, site.y + 1);
+
+            for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+                if ((*it).GetUnitType() == BRIDGE && !(*it).Task_vfunc28()) {
+                    Point position = (*it).DeterminePosition();
+
+                    if (Access_IsInsideBounds(&bounds, &position)) {
+                        (*it).RemoveSelf();
+                    }
+                }
+            }
+        }
+
+        DeleteMap(construction_map);
+
+        result = is_site_found;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool TaskManageBuildings::ChangeSite(TaskCreateBuilding* task, Point& site) {
+    ResourceID unit_type = task->GetUnitType();
+    bool is_site_found;
+
+    if (unit_type == RADAR) {
+        is_site_found = FindSiteForRadar(task, site);
+
+    } else if (unit_type == GUNTURRT || unit_type == ANTIMSSL || unit_type == ARTYTRRT || unit_type == ANTIAIR) {
+        is_site_found = FindDefenseSite(unit_type, task, site, 5, task->GetFlags());
+
+    } else {
+        is_site_found = FindSite(unit_type, task, site, task->GetFlags());
+    }
+
+    return is_site_found;
+}

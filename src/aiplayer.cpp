@@ -106,3 +106,5 @@ void AiPlayer::RemoveUnit(UnitInfo* unit) {}
 void AiPlayer::FindMines(UnitInfo* unit) {}
 
 unsigned short AiPlayer::GetField5() const {}
+
+Point AiPlayer::GetTargetLocation() const {}

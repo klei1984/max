@@ -48,7 +48,7 @@ void TaskDefenseAssistant::BeginTurn() {
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
         Point site;
 
-        if (manager->FindDefenseSite(unit_type, nullptr, site)) {
+        if (manager->FindDefenseSite(unit_type, nullptr, site, 1, 0x1200)) {
             SmartPointer<TaskCreateBuilding> create_building_task(
                 new (std::nothrow) TaskCreateBuilding(this, 0x1200, unit_type, site, &*manager));
 

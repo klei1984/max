@@ -75,11 +75,12 @@ class TaskManageBuildings : public Task {
     bool IsSiteWithinRadarRange(Point site, int unit_range, TaskCreateBuilding* task);
     void UpdateAccessMap(unsigned char** access_map, TaskCreateBuilding* task);
     bool EvaluateNeedForRadar(unsigned char** access_map, TaskCreateBuilding* task);
-    bool MarkBuildings(unsigned char** access_map, Point site);
+    bool MarkBuildings(unsigned char** access_map, Point& site);
     void MarkConnections(unsigned char** access_map, Point site, int value);
     void UpdateConnectors(unsigned char** access_map, int ulx, int uly, int lrx, int lry);
     int GetConnectionDistance(unsigned char** access_map, Point site1, Point site2, unsigned short team, int value);
     bool ConnectBuilding(unsigned char** access_map, Point site, int value);
+    bool ReconnectBuilding(unsigned char** access_map, Rect* bounds, int value);
     static bool FindMarkedSite(unsigned char** access_map, Rect* bounds);
 
 public:
@@ -102,7 +103,8 @@ public:
     void AddCreateOrder(TaskCreateBuilding* task);
     bool CheckPower();
     void CheckWorkers();
-    bool FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site);
+    bool FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, int value,
+                         unsigned short task_flags);
     bool FindSiteForRadar(TaskCreateBuilding* task, Point& site);
     bool ChangeSite(TaskCreateBuilding* task, Point& site);
     void BuildBridge(Point site, Task* task);
