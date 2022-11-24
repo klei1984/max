@@ -54,6 +54,13 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level) {
     /// \todo
 }
 
+bool Task_IsAdjacent(UnitInfo* unit, short grid_x, short grid_y) {
+    /// \todo Implement method
+    return false;
+}
+
+int Task_EstimateTurnsTillMissionEnd() {}
+
 Task::Task(unsigned short team, Task* parent, unsigned short flags)
     : id(++task_id), team(team), parent(parent), flags(flags), field_6(true), field_7(false), field_8(false) {
     ++task_count;
@@ -274,5 +281,3 @@ void Task::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {}
 void Task::Task_vfunc27(Zone* zone, char mode) {}
 
 unsigned short Task::GetId() const { return id; }
-
-int Task_EstimateTurnsTillMissionEnd() {}

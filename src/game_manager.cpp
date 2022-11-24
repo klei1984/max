@@ -1040,7 +1040,7 @@ bool GameManager_RefreshOrders(unsigned short team, bool check_production) {
             return false;
         }
 
-        if (ProductionManager_OptimizeBuilding(team, &(*it)) && is_player) {
+        if (ProductionManager_ManageFactories(team, &(*it)) && is_player) {
             sprintf(message, "Factories in complex %i re-started.", (*it).GetId());
 
             MessageManager_DrawMessage(message, 1, 0, false, true);
@@ -2596,10 +2596,10 @@ bool GameManager_OptimizeProduction(unsigned short team, Complex* complex, bool 
         if (mode) {
             if (GameManager_SelectedUnit != nullptr && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER &&
                 GameManager_SelectedUnit->GetComplex() == complex) {
-                ProductionManager_OptimizeMining(team, complex, &*GameManager_SelectedUnit, is_player_team);
+                ProductionManager_ManageMining(team, complex, &*GameManager_SelectedUnit, is_player_team);
 
             } else {
-                ProductionManager_OptimizeMining(team, complex, nullptr, is_player_team);
+                ProductionManager_ManageMining(team, complex, nullptr, is_player_team);
             }
 
             result = false;

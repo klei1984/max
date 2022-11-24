@@ -128,7 +128,7 @@ void TaskGetResource::EndTurn() {
         }
 
         if (source && source->GetTask() == this) {
-            if (supplier->IsAdjacent(requestor->grid_x, requestor->grid_y)) {
+            if (Task_IsAdjacent(&*supplier, requestor->grid_x, requestor->grid_y)) {
                 if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
                     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
                         DoTransfer();

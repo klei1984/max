@@ -106,8 +106,7 @@ void TaskRendezvous::SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, c
             if (local_unit1->speed && local_unit1->IsReadyForOrders(task_rendezvous)) {
                 if (local_unit2->speed == 0 ||
                     (Task_IsReadyToTakeOrders(&*local_unit2) &&
-                     (local_unit2->GetTask() == task_rendezvous ||
-                      local_unit2->GetTask() == nullptr ||
+                     (local_unit2->GetTask() == task_rendezvous || local_unit2->GetTask() == nullptr ||
                       local_unit2->GetTask()->GetType() == TaskType_TaskMove) &&
                      !Task_RetreatIfNecessary(task_rendezvous, &*local_unit1, CAUTION_LEVEL_AVOID_ALL_DAMAGE))) {
                     Point destination;
@@ -183,7 +182,7 @@ bool TaskRendezvous::Task_vfunc17(UnitInfo& unit) {
         if (unit1 && unit2 && (unit1 == unit || unit2 == unit)) {
             if (unit1->GetTask() == this || unit1->GetTask() == nullptr ||
                 unit1->GetTask()->GetType() == TaskType_TaskMove) {
-                if (unit2->IsAdjacent(unit1->grid_x, unit1->grid_y)) {
+                if (Task_IsAdjacent(&*unit2, unit1->grid_x, unit1->grid_y)) {
                     Finish(0);
 
                 } else if (unit2->speed && unit2->IsReadyForOrders(this)) {

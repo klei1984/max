@@ -24,10 +24,6 @@
 
 #include "unitinfo.hpp"
 
-bool ProductionManager_OptimizeBuilding(unsigned short team, Complex* complex);
-void ProductionManager_OptimizeMining(unsigned short team, Complex* complex, UnitInfo* unit, bool is_player_team);
-int ProductionManager_GetNormalRateBuildCost(ResourceID unit_type, unsigned short team);
-
 class ProductionManager {
     unsigned short team;
     SmartPointer<Complex> complex;
@@ -37,18 +33,49 @@ class ProductionManager {
     Cargo cargo4;
     Cargo cargo_mining_capacity;
     unsigned short total_resource_mining_capacity;
-    SmartPointer<UnitInfo> unit;
-    SmartObjectArray<UnitInfo> units;
-    bool mode;
+    SmartPointer<UnitInfo> selected_unit;
+    SmartObjectArray<ResourceID> units;
+    bool is_player_team;
     char buffer[800];
     unsigned short power_station_count;
     unsigned short power_generator_count;
     unsigned short power_station_active;
     unsigned short power_generator_active;
 
+    void UpdateUnitPowerConsumption(UnitInfo* unit, unsigned short* generator_count, unsigned short* generator_active);
+    void UpdatePowerConsumption(UnitInfo* unit);
+    void AddCargo(int type, int amount);
+    int SatisfyCargoDemand(int type, int amount);
+    int BalanceMining(int type1, int type2, int amount);
+    void ComposeIndustryMessage(UnitInfo* unit, const char* format1, const char* format2, const char* material);
+    bool PowerOn(ResourceID unit_type);
+    void SatisfyPowerDemand(int amount);
+    void UpdateUnitWorkerConsumption(UnitInfo* unit);
+    bool SatisfyIndustryPower(UnitInfo* unit, bool mode);
+    static void ComposeResourceMessage(char* buffer, int new_value, int old_value, const char* format1,
+                                       const char* format2);
+
+    friend bool ProductionManager_ManageFactories(unsigned short team, Complex* complex);
+    friend void ProductionManager_ManageMining(unsigned short team, Complex* complex, UnitInfo* unit,
+                                               bool is_player_team);
+
 public:
     ProductionManager(unsigned short team, Complex* complex);
     ~ProductionManager();
+
+    void CheckGenerators();
+    void ManagePower();
+    int CheckCargoNeed(int type, int amount, bool mode);
+    bool CheckPowerNeed(int amount);
+    void UpdateLifeConsumption();
+    bool CheckIndustry(UnitInfo* unit, bool mode);
+    bool OptimizeIndustry(bool mode);
+    bool OptimizeMiningIndustry();
+    bool OptimizeAuxilaryIndustry(ResourceID unit_type, bool mode);
+    void DrawResourceMessage();
 };
+
+bool ProductionManager_ManageFactories(unsigned short team, Complex* complex);
+void ProductionManager_ManageMining(unsigned short team, Complex* complex, UnitInfo* unit, bool is_player_team);
 
 #endif /* PRODUCTION_MANAGER_HPP */

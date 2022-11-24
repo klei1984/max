@@ -312,3 +312,27 @@ void Cargo_UpdateResourceLevels(UnitInfo* unit, int factor) {
     complex->workers += Cargo_GetLifeConsumptionRate(unit->unit_type) * factor;
     complex->gold += Cargo_GetGoldConsumptionRate(unit->unit_type) * factor;
 }
+
+int Cargo::Get(int type) const {
+    int result;
+
+    switch (type) {
+        case CARGO_MATERIALS: {
+            result = raw;
+        } break;
+
+        case CARGO_FUEL: {
+            result = fuel;
+        } break;
+
+        case CARGO_GOLD: {
+            result = gold;
+        } break;
+
+        default: {
+            result = 0;
+        } break;
+    }
+
+    return result;
+}

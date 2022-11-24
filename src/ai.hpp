@@ -24,6 +24,7 @@
 
 #include "unitinfo.hpp"
 
+int Ai_GetNormalRateBuildCost(ResourceID unit_type, unsigned short team);
 bool Ai_SetupStrategy(unsigned short team);
 void Ai_SetInfoMapPoint(Point point, unsigned short team);
 void Ai_MarkMineMapPoint(Point point, unsigned short team);

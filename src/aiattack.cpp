@@ -108,7 +108,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
 
     *projected_damage = INT_MAX;
 
-    if (unit2->IsAdjacent(unit1->grid_x, unit1->grid_y)) {
+    if (Task_IsAdjacent(unit2, unit1->grid_x, unit1->grid_y)) {
         site->x = unit1->grid_x;
         site->y = unit1->grid_y;
 
@@ -331,7 +331,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
 
             if (AiAttack_IsValidSabotageTarget(attacker, target)) {
                 attack_range = 1;
-                is_valid = target->IsAdjacent(attacker->grid_x, attacker->grid_y);
+                is_valid = Task_IsAdjacent(target, attacker->grid_x, attacker->grid_y);
 
             } else {
                 is_valid = Access_IsWithinAttackRange(attacker, target->grid_x, target->grid_y, attack_range);
@@ -426,7 +426,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
 bool AiAttack_CanAttack(UnitInfo* attacker, UnitInfo* target) {
     if (attacker->unit_type == COMMANDO) {
         if (AiAttack_IsValidSabotageTarget(attacker, target) &&
-            target->IsAdjacent(attacker->grid_x, attacker->grid_y) &&
+            Task_IsAdjacent(target, attacker->grid_x, attacker->grid_y) &&
             UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_DISABLE_UNIT) > 85) {
             return true;
         }
@@ -734,7 +734,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                 UnitInfo* target = spotted_unit->GetUnit();
 
                                 if (unit->unit_type == COMMANDO && AiAttack_IsValidSabotageTarget(unit, target) &&
-                                    !target->IsAdjacent(unit->grid_x, unit->grid_y)) {
+                                    !Task_IsAdjacent(target, unit->grid_x, unit->grid_y)) {
                                     result = false;
 
                                 } else if (target->AreTherePins()) {

@@ -21,11 +21,11 @@
 
 #include "taskattackreserve.hpp"
 
+#include "ai.hpp"
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
 #include "inifile.hpp"
-#include "production_manager.hpp"
 #include "task_manager.hpp"
 #include "taskmovehome.hpp"
 #include "taskobtainunits.hpp"
@@ -159,7 +159,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 
                     obtain_units_task->AddUnit(unit_type);
 
-                    total_worth += ProductionManager_GetNormalRateBuildCost(unit_type, team);
+                    total_worth += Ai_GetNormalRateBuildCost(unit_type, team);
 
                     TaskManager.AppendTask(*obtain_units_task);
                 }

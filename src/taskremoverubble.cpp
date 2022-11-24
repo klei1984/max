@@ -200,7 +200,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                 for (SmartList<UnitInfo>::Iterator building = UnitsManager_StationaryUnits.Begin();
                      building != UnitsManager_StationaryUnits.End(); ++building) {
                     if ((*building).GetComplex() == complex) {
-                        if ((*building).IsAdjacent(unit_->grid_x, unit_->grid_y)) {
+                        if (Task_IsAdjacent(&*building, unit_->grid_x, unit_->grid_y)) {
                             if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
                                 unit_->target_grid_x =
                                     std::min(static_cast<int>(unit_->storage),

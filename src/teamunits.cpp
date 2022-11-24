@@ -346,7 +346,7 @@ Complex* TeamUnits::GetComplex(unsigned short complex_id) {
 void TeamUnits::OptimizeComplexes(unsigned short team) {
     for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
         Access_UpdateResourcesTotal(&*it);
-        ProductionManager_OptimizeMining(team, &*it, nullptr, false);
+        ProductionManager_ManageMining(team, &*it, nullptr, false);
     }
 }
 

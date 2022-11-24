@@ -1274,11 +1274,6 @@ bool UnitInfo::IsDetectedByTeam(unsigned short team) const { return (spotted_by_
 
 Complex* UnitInfo::GetComplex() const { return &*complex; }
 
-bool UnitInfo::IsAdjacent(short grid_x, short grid_y) {
-    /// \todo Implement method
-    return false;
-}
-
 SmartPointer<UnitInfo> UnitInfo::MakeCopy() {
     SmartPointer<UnitInfo> copy = new (std::nothrow) UnitInfo(*this);
     copy->path = nullptr;

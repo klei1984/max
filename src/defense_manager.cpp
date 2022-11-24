@@ -21,10 +21,10 @@
 
 #include "defense_manager.hpp"
 
+#include "ai.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
 #include "inifile.hpp"
-#include "production_manager.hpp"
 #include "task_manager.hpp"
 #include "taskreload.hpp"
 #include "taskrepair.hpp"
@@ -153,7 +153,7 @@ void DefenseManager::PlanDefenses(int asset_value_goal_, TaskObtainUnits* task, 
         asset_value_goal = asset_value_goal_;
 
         for (int i = 0; i < unit_types.GetCount(); ++i) {
-            build_costs += ProductionManager_GetNormalRateBuildCost(*unit_types[i], task->GetTeam());
+            build_costs += Ai_GetNormalRateBuildCost(*unit_types[i], task->GetTeam());
         }
 
         for (int i = 0; i < weight_table.GetCount(); ++i) {
@@ -183,7 +183,7 @@ void DefenseManager::PlanDefenses(int asset_value_goal_, TaskObtainUnits* task, 
                     }
                 }
 
-                build_costs += ProductionManager_GetNormalRateBuildCost(unit_type, task->GetTeam());
+                build_costs += Ai_GetNormalRateBuildCost(unit_type, task->GetTeam());
                 unit_types.PushBack(&unit_type);
 
                 task->AddUnit(unit_type);

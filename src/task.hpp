@@ -88,6 +88,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site);
 bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level);
 bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level);
 bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level);
+bool Task_IsAdjacent(UnitInfo* unit, short grid_x, short grid_y);
 int Task_EstimateTurnsTillMissionEnd();
 
 int Task_GetReadyUnitsCount(unsigned short team, ResourceID unit_type);

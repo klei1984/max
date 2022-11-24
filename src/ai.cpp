@@ -24,8 +24,10 @@
 #include "access.hpp"
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
+#include "buildmenu.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
+#include "production_manager.hpp"
 #include "task_manager.hpp"
 #include "taskautosurvey.hpp"
 #include "units_manager.hpp"
@@ -36,6 +38,20 @@ static bool Ai_IsValidStartingPosition(Rect* bounds);
 static bool Ai_IsSafeStartingPosition(int grid_x, int grid_y, unsigned short team);
 static bool Ai_AreThereParticles();
 static bool Ai_AreThereMovingUnits();
+
+int Ai_GetNormalRateBuildCost(ResourceID unit_type, unsigned short team) {
+    int turns = BuildMenu_GetTurnsToBuild(unit_type, team);
+    int result;
+
+    if (UnitsManager_BaseUnits[unit_type].flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+        result = turns * Cargo_GetRawConsumptionRate(LANDPLT, 1);
+
+    } else {
+        result = turns * Cargo_GetRawConsumptionRate(CONSTRCT, 1);
+    }
+
+    return result;
+}
 
 bool Ai_IsValidStartingPosition(Rect* bounds) {
     for (int x = bounds->ulx; x <= bounds->lrx; ++x) {

@@ -44,6 +44,8 @@ struct Cargo {
 
     Cargo& operator+=(Cargo const& other);
     Cargo& operator-=(Cargo const& other);
+
+    int Get(int type) const;
 };
 
 Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo);

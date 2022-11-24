@@ -302,7 +302,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                 } else {
                     if ((operator_unit->flags & STATIONARY) || operator_unit->storage > 0 ||
                         operator_unit->GetTask() != this) {
-                        if (operator_unit->IsAdjacent(target_unit->grid_x, target_unit->grid_y)) {
+                        if (Task_IsAdjacent(&*operator_unit, target_unit->grid_x, target_unit->grid_y)) {
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
                                 (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
                                 if (operator_unit->flags & BUILDING) {

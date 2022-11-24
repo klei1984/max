@@ -141,7 +141,6 @@ public:
     UnitValues* GetBaseValues() const;
     bool IsDetectedByTeam(unsigned short team) const;
     Complex* GetComplex() const;
-    bool IsAdjacent(short grid_x, short grid_y);
     SmartPointer<UnitInfo> MakeCopy();
     void GetName(char* text) const;
     void GetDisplayName(char* text) const;

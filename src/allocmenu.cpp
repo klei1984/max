@@ -103,7 +103,6 @@ class AllocMenu {
     void InitButton(int index);
     void DrawCargoBars();
     static int Balance(Complex *complex, int cargo_type, int material1, int material2);
-    static void AdjustForDemands(Complex *complex, int cargo_type, int material);
     int GetHorizontalBarClickValue(WinID wid, int material);
     void UpdateRawAllocation(int material);
     void UpdateFuelAllocation(int material);
@@ -115,8 +114,6 @@ class AllocMenu {
 public:
     AllocMenu();
     ~AllocMenu();
-
-    static int Optimize(Complex *complex, int cargo_type1, int material, int cargo_type2);
 
     void Run(UnitInfo *unit);
 };
@@ -384,7 +381,7 @@ bool Allocator::Optimize(int cargo_type, unsigned char *cargo1, short cargo_valu
             demand = *cargo2;
         }
 
-        demand = AllocMenu::Optimize(&*complex, cargo_type, demand, cargo_material_type);
+        demand = AllocMenu_Optimize(&*complex, cargo_type, demand, cargo_material_type);
 
         *cargo2 -= demand;
         *cargo1 += demand;
@@ -395,7 +392,7 @@ bool Allocator::Optimize(int cargo_type, unsigned char *cargo1, short cargo_valu
     return cargo_demand == 0;
 }
 
-int AllocMenu::Optimize(Complex *complex, int cargo_type1, int material, int cargo_type2) {
+int AllocMenu_Optimize(Complex *complex, int cargo_type1, int material, int cargo_type2) {
     int result;
 
     if (material) {
@@ -477,7 +474,7 @@ int AllocMenu::Optimize(Complex *complex, int cargo_type1, int material, int car
     return result;
 }
 
-void AllocMenu::AdjustForDemands(Complex *complex, int cargo_type, int material) {
+void AllocMenu_AdjustForDemands(Complex *complex, int cargo_type, int material) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
@@ -522,9 +519,9 @@ int AllocMenu::Balance(Complex *complex, int cargo_type, int material1, int mate
         result = material2;
 
     } else {
-        result = Optimize(complex, cargo_type, material2 - material1, cargo_type);
+        result = AllocMenu_Optimize(complex, cargo_type, material2 - material1, cargo_type);
 
-        AdjustForDemands(complex, cargo_type, result);
+        AllocMenu_AdjustForDemands(complex, cargo_type, result);
 
         result += material1;
     }
@@ -663,11 +660,11 @@ void AllocMenu::OnClickRawBar() {
     }
 
     if (materials < 0) {
-        AdjustForDemands(&*complex, CARGO_MATERIALS, -materials);
+        AllocMenu_AdjustForDemands(&*complex, CARGO_MATERIALS, -materials);
         UpdateRawAllocation(materials);
 
     } else if (materials > 0) {
-        UpdateRawAllocation(Optimize(&*complex, CARGO_MATERIALS, materials, CARGO_MATERIALS));
+        UpdateRawAllocation(AllocMenu_Optimize(&*complex, CARGO_MATERIALS, materials, CARGO_MATERIALS));
     }
 }
 
@@ -681,11 +678,11 @@ void AllocMenu::OnClickFuelBar() {
     }
 
     if (materials < 0) {
-        AdjustForDemands(&*complex, CARGO_FUEL, -materials);
+        AllocMenu_AdjustForDemands(&*complex, CARGO_FUEL, -materials);
         UpdateFuelAllocation(materials);
 
     } else if (materials > 0) {
-        UpdateFuelAllocation(Optimize(&*complex, CARGO_FUEL, materials, CARGO_FUEL));
+        UpdateFuelAllocation(AllocMenu_Optimize(&*complex, CARGO_FUEL, materials, CARGO_FUEL));
     }
 }
 
@@ -699,11 +696,11 @@ void AllocMenu::OnClickGoldBar() {
     }
 
     if (materials < 0) {
-        AdjustForDemands(&*complex, CARGO_GOLD, -materials);
+        AllocMenu_AdjustForDemands(&*complex, CARGO_GOLD, -materials);
         UpdateGoldAllocation(materials);
 
     } else if (materials > 0) {
-        UpdateGoldAllocation(Optimize(&*complex, CARGO_GOLD, materials, CARGO_GOLD));
+        UpdateGoldAllocation(AllocMenu_Optimize(&*complex, CARGO_GOLD, materials, CARGO_GOLD));
     }
 }
 
@@ -743,13 +740,13 @@ void AllocMenu::Run(UnitInfo *unit) {
 
                 case 1001: {
                     if (production.free_capacity && production.raw < cargo_2.raw) {
-                        UpdateRawAllocation(Optimize(&*complex, CARGO_MATERIALS, 1, CARGO_MATERIALS));
+                        UpdateRawAllocation(AllocMenu_Optimize(&*complex, CARGO_MATERIALS, 1, CARGO_MATERIALS));
                     }
                 } break;
 
                 case 1002: {
                     if (production.raw) {
-                        AdjustForDemands(&*complex, CARGO_MATERIALS, 1);
+                        AllocMenu_AdjustForDemands(&*complex, CARGO_MATERIALS, 1);
                         UpdateRawAllocation(-1);
                     }
                 } break;
@@ -760,13 +757,13 @@ void AllocMenu::Run(UnitInfo *unit) {
 
                 case 1004: {
                     if (production.free_capacity && production.fuel < cargo_2.fuel) {
-                        UpdateFuelAllocation(Optimize(&*complex, CARGO_FUEL, 1, CARGO_FUEL));
+                        UpdateFuelAllocation(AllocMenu_Optimize(&*complex, CARGO_FUEL, 1, CARGO_FUEL));
                     }
                 } break;
 
                 case 1005: {
                     if (production.fuel) {
-                        AdjustForDemands(&*complex, CARGO_FUEL, 1);
+                        AllocMenu_AdjustForDemands(&*complex, CARGO_FUEL, 1);
                         UpdateFuelAllocation(-1);
                     }
                 } break;
@@ -777,13 +774,13 @@ void AllocMenu::Run(UnitInfo *unit) {
 
                 case 1007: {
                     if (production.free_capacity && production.gold < cargo_2.gold) {
-                        UpdateGoldAllocation(Optimize(&*complex, CARGO_GOLD, 1, CARGO_GOLD));
+                        UpdateGoldAllocation(AllocMenu_Optimize(&*complex, CARGO_GOLD, 1, CARGO_GOLD));
                     }
                 } break;
 
                 case 1008: {
                     if (production.gold) {
-                        AdjustForDemands(&*complex, CARGO_GOLD, 1);
+                        AllocMenu_AdjustForDemands(&*complex, CARGO_GOLD, 1);
                         UpdateGoldAllocation(-1);
                     }
                 } break;
