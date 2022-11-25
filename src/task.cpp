@@ -21,11 +21,17 @@
 
 #include "task.hpp"
 
+#include "access.hpp"
+#include "ai.hpp"
+#include "aiplayer.hpp"
+#include "game_manager.hpp"
 #include "inifile.hpp"
 #include "reminders.hpp"
 #include "task_manager.hpp"
+#include "taskretreat.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
+#include "zonewalker.hpp"
 
 unsigned short Task::task_id = 0;
 unsigned short Task::task_count = 0;
@@ -39,27 +45,237 @@ void Task_RemindMoveFinished(UnitInfo* unit, bool priority) {
 }
 
 bool Task_IsReadyToTakeOrders(UnitInfo* unit) {
-    /// \todo
+    bool result;
+
+    if (unit->hits > 0 && GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (unit->orders == ORDER_AWAIT || unit->orders == ORDER_SENTRY ||
+            (unit->orders == ORDER_MOVE && unit->state == ORDER_STATE_1) ||
+            (unit->orders == ORDER_MOVE_TO_UNIT && unit->state == ORDER_STATE_1)) {
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 void Task_RemoveMovementTasks(UnitInfo* unit) {
-    /// \todo
+    if (unit->orders != ORDER_IDLE || unit->hits <= 0) {
+        for (SmartList<Task>::Iterator it = unit->GetTask1ListIterator(); it; ++it) {
+            if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
+                unit->RemoveTask(&*it, false);
+                (*it).RemoveUnit(*unit);
+            }
+        }
+    }
 }
 
 bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
-    /// \todo
+    bool result;
+
+    if (unit->shots && !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+        int unit_range = 0;
+        bool relevant_teams[PLAYER_TEAM_MAX - 1];
+        int team;
+
+        for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                if ((unit->unit_type == SUBMARNE || unit->unit_type == CLNTRANS) &&
+                    Access_GetModifiedSurfaceType(site.x, site.y) == SURFACE_TYPE_WATER &&
+                    !unit->IsDetectedByTeam(team)) {
+                    if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[ResourceManager_MapSize.x * site.y + site.x]) {
+                        relevant_teams[team] = true;
+
+                    } else {
+                        relevant_teams[team] = false;
+                    }
+
+                } else if (unit->unit_type == COMMANDO && !unit->IsDetectedByTeam(team)) {
+                    if (UnitsManager_TeamInfo[team]
+                            .heat_map_stealth_land[ResourceManager_MapSize.x * site.y + site.x]) {
+                        relevant_teams[team] = true;
+
+                    } else {
+                        relevant_teams[team] = false;
+                    }
+
+                } else {
+                    if (UnitsManager_TeamInfo[team].heat_map_complete[ResourceManager_MapSize.x * site.y + site.x]) {
+                        relevant_teams[team] = true;
+
+                    } else {
+                        relevant_teams[team] = false;
+                    }
+                }
+
+            } else {
+                relevant_teams[team] = false;
+            }
+        }
+
+        for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (relevant_teams[team] && team != unit->team) {
+                break;
+            }
+        }
+
+        if (team != PLAYER_TEAM_MAX - 1 &&
+            Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01)) {
+            for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnitIterator(); it; ++it) {
+                UnitInfo* spotted_unit = (*it).GetUnit();
+                int spotted_unit_range = spotted_unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+
+                if (spotted_unit->ammo > 0 && relevant_teams[spotted_unit->team] && spotted_unit_range > unit_range &&
+                    Access_IsValidAttackTarget(spotted_unit->unit_type, unit->unit_type, site)) {
+                    UnitValues* unit_values = spotted_unit->GetBaseValues();
+                    int unit_distance = Access_GetDistance(unit, (*it).GetLastPosition());
+                    int attack_distance = unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+
+                    if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                        attack_distance += unit_values->GetAttribute(ATTRIB_SPEED) / 2;
+
+                    } else {
+                        attack_distance += ((unit_values->GetAttribute(ATTRIB_ROUNDS) - 1) *
+                                            (unit_values->GetAttribute(ATTRIB_SPEED) + 1)) /
+                                           unit_values->GetAttribute(ATTRIB_ROUNDS);
+                    }
+
+                    if (unit_distance <= attack_distance * attack_distance) {
+                        if (spotted_unit_range <= unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
+                            if (Access_IsValidAttackTargetType(unit->unit_type, spotted_unit->unit_type)) {
+                                unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+
+                            } else {
+                                return false;
+                            }
+
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            if (unit_range) {
+                result = true;
+
+            } else {
+                result = false;
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level) {
-    /// \todo
+    AiPlayer* ai_player = &AiPlayer_Teams[unit->team];
+    Point position(unit->grid_x, unit->grid_y);
+    int unit_hits = unit->hits;
+    bool result;
+
+    if (unit->GetField221() & 1) {
+        result = true;
+
+    } else {
+        if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
+            unit_hits = 1;
+        }
+
+        if (ai_player->GetDamagePotential(unit, position, caution_level, 0x01) < unit_hits) {
+            result = false;
+
+        } else if (unit->speed > 0) {
+            unsigned short** damage_potential_map = ai_player->GetDamagePotentialMap(unit, caution_level, 0x01);
+
+            if (damage_potential_map) {
+                ZoneWalker walker(position, unit->speed);
+
+                do {
+                    if (damage_potential_map[walker.GetGridX()][walker.GetGridY()] < unit_hits &&
+                        Access_IsAccessible(unit->unit_type, unit->team, walker.GetGridX(), walker.GetGridY(), 0x02)) {
+                        return false;
+                    }
+                } while (walker.FindNext());
+
+                unit->ChangeField221(0x01, true);
+
+                result = true;
+
+            } else {
+                result = false;
+            }
+
+        } else {
+            result = true;
+        }
+    }
+
+    return result;
 }
 
 bool Task_IsAdjacent(UnitInfo* unit, short grid_x, short grid_y) {
-    /// \todo Implement method
-    return false;
+    int unit_size;
+
+    if (unit->flags & BUILDING) {
+        unit_size = 2;
+
+    } else {
+        unit_size = 1;
+    }
+
+    return unit->grid_x - 1 <= grid_x && unit->grid_x + unit_size >= grid_x && unit->grid_y - 1 <= grid_y &&
+           unit->grid_y + unit_size >= grid_y;
 }
 
-int Task_EstimateTurnsTillMissionEnd() {}
+int Task_EstimateTurnsTillMissionEnd() {
+    int victory_limit = ini_setting_victory_limit;
+    int result;
+
+    if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
+        int remaining_turns = 1000;
+        int turns;
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                int count = 0;
+
+                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                    if ((*it).team == team && (*it).unit_type == GREENHSE && (*it).orders == ORDER_POWER_ON) {
+                        ++count;
+                    }
+                }
+
+                if (count > 0) {
+                    turns = (victory_limit - UnitsManager_TeamInfo[team].team_points) / count;
+
+                    if (turns < remaining_turns) {
+                        remaining_turns = turns;
+                    }
+                }
+            }
+        }
+
+        result = remaining_turns;
+
+    } else {
+        result = victory_limit - GameManager_TurnCounter;
+    }
+
+    return result;
+}
 
 Task::Task(unsigned short team, Task* parent, unsigned short flags)
     : id(++task_id), team(team), parent(parent), flags(flags), field_6(true), field_7(false), field_8(false) {
@@ -135,7 +351,56 @@ Point Task::DeterminePosition() {
     return Point(bounds.ulx, bounds.uly);
 }
 
-bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {}
+bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {
+    bool result;
+
+    if (caution_level == CAUTION_LEVEL_NONE || (unit->GetField221() & 1)) {
+        result = false;
+
+    } else if (unit->speed > 0) {
+        if (unit->ammo == 0 && unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
+            caution_level = CAUTION_LEVEL_AVOID_ALL_DAMAGE;
+        }
+
+        if (unit->shots == 0 && unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
+            ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+            caution_level = CAUTION_LEVEL_AVOID_ALL_DAMAGE;
+        }
+
+        Point position(unit->grid_x, unit->grid_y);
+        int unit_hits = unit->hits;
+
+        if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
+            unit_hits = 1;
+        }
+
+        if (AiPlayer_Teams[unit->team].GetDamagePotential(unit, position, caution_level, 0x00) >= unit_hits) {
+            if (unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
+                (unit->shots > 0 || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
+                 ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) &&
+                Task_IsUnitDoomedToDestruction(unit, caution_level)) {
+                unit->ChangeField221(0x01, true);
+
+                result = false;
+
+            } else {
+                SmartPointer<TaskRetreat> retreat_task(new (std::nothrow) TaskRetreat(unit, task, 0x00, caution_level));
+
+                TaskManager.AppendTask(*retreat_task);
+
+                result = true;
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
 
 bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level) {
     bool result;
