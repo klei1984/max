@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-11-14.
+Last updated: 2022-11-25.
 
-Reimplementation status: 5362 / 5704 (94%) functions.
+Reimplementation status: 5425 / 5704 (95%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -154,7 +154,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
   - <span class="legend-done">ContinentFiller</span>
   - <span class="legend-done">ThreatMap</span>
   - <span class="legend-done">TerrainMap</span>
-  - AiPlayer
+  - <span class="legend-inwork">AiPlayer</span>
 <br>
 <br>
 - Replace the AI maintenance classes
@@ -164,19 +164,19 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 <br>
 <br>
 - Replace the AI classes (ai_main.cpp, ai.cpp)
-  - <span class="legend-close">TaskObtainUnits</span>
+  - <span class="legend-done">TaskObtainUnits</span>
   - <span class="legend-done">RemindAvailable</span>
   - <span class="legend-done">RemindMoveFinished</span>
   - <span class="legend-done">RemindAttack</span>
   - <span class="legend-done">Zone</span>
-  - <span class="legend-inwork">TaskClearZone</span>
+  - <span class="legend-done">TaskClearZone</span>
   - <span class="legend-done">RemindTurnEnd</span>
   - <span class="legend-done">RemindTurnStart</span>
-  - ProductionManager
+  - <span class="legend-done">ProductionManager</span>
   - <span class="legend-done">TaskManager</span>
   - <span class="legend-done">TaskGetResource</span>
   - <span class="legend-done">Reminder</span>
-  - <span class="legend-close">Task</span>
+  - <span class="legend-done">Task</span>
 <br>
 <br>
 - Replace the AI exploration classes (ai_explr.cpp)
@@ -191,7 +191,7 @@ Most of the game itself was implemented in C++. Even though the Watcom C/C++ com
 - Replace the AI builder classes (ai_build.cpp)
   - <span class="legend-done">TaskGetMaterials</span>
   - <span class="legend-done">TaskCreateBuilding</span>
-  - <span class="legend-inwork">TaskManageBuildings</span>
+  - <span class="legend-done">TaskManageBuildings</span>
   - <span class="legend-done">TaskCreateUnit</span>
   - <span class="legend-done">TaskDefenseAssistant</span>
   - <span class="legend-done">TaskRadarAssistant</span>
@@ -343,6 +343,7 @@ Quality of life improvements
 - support mouse wheel and middle mouse button
 - support higher resolutions and wide screens (1024x768, 1024x576, 1920x1080)
 - support bigger, easier to read UI on higher resolutions
+- calibrate monitor brightness
 
 New features
 - support various CRT shaders
