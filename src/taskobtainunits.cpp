@@ -41,7 +41,7 @@ unsigned short TaskObtainUnits::CountInstancesOfUnitType(ResourceID unit_type) {
     return count;
 }
 
-bool TaskObtainUnits::TaskObtainUnits_sub_464C6(UnitInfo* unit, bool mode) {
+bool TaskObtainUnits::IsValidCandidate(UnitInfo* unit, bool mode) {
     bool result;
 
     if (team != unit->team || unit->hits == 0) {
@@ -70,7 +70,7 @@ bool TaskObtainUnits::TaskObtainUnits_sub_464C6(UnitInfo* unit, bool mode) {
     return result;
 }
 
-UnitInfo* TaskObtainUnits::TaskObtainUnits_sub_465F4(ResourceID unit_type, bool mode) {
+UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     SmartList<UnitInfo>* list;
     int speed = 0;
     int best_speed;
@@ -98,7 +98,7 @@ UnitInfo* TaskObtainUnits::TaskObtainUnits_sub_465F4(ResourceID unit_type, bool 
                     best_speed = speed;
                 }
             } else {
-                if (TaskObtainUnits_sub_464C6(&*unit, mode)) {
+                if (IsValidCandidate(&*unit, mode)) {
                     speed = TaskManager_GetDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
 
                     if (selected_unit == nullptr || (best_speed > speed)) {
@@ -206,7 +206,7 @@ void TaskObtainUnits::EndTurn() {
 
     if (field_27) {
         for (int i = units.GetCount() - 1; i >= 0; --i) {
-            UnitInfo* unit = TaskObtainUnits_sub_465F4(*units[i], false);
+            UnitInfo* unit = FindUnit(*units[i], false);
 
             if (unit) {
                 Task* task;

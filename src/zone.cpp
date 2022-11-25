@@ -48,6 +48,8 @@ bool Zone::GetField30() const { return field_30; }
 
 void Zone::SetField30(bool value) { field_30 = value; }
 
+ZoneSquare::ZoneSquare() : point(0, 0), unit(nullptr) {}
+
 ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
 
 ZoneSquare::ZoneSquare(const ZoneSquare& other) : point(other.point), unit(other.unit) {}

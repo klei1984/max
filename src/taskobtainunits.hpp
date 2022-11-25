@@ -30,14 +30,14 @@ class TaskObtainUnits : public Task {
     bool field_27;
     bool field_28;
 
-    bool TaskObtainUnits_sub_464C6(UnitInfo* unit, bool mode);
+    bool IsValidCandidate(UnitInfo* unit, bool mode);
 
 public:
     TaskObtainUnits(Task* task, Point point);
     ~TaskObtainUnits();
 
     unsigned short CountInstancesOfUnitType(ResourceID unit_type);
-    UnitInfo* TaskObtainUnits_sub_465F4(ResourceID unit_type, bool mode);
+    UnitInfo* FindUnit(ResourceID unit_type, bool mode);
 
     int GetMemoryUse() const;
     unsigned short GetFlags() const;
