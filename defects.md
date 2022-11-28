@@ -12,7 +12,7 @@ The article maintains a comprehensive list of game defects that is present in th
 <br>
 The game supports loading game resources from a secondary resource file called patches.res. The file does not exist in v1.04, but when created the contents of it are processed as expected. ILOGO is taken from the interactive demo of M.A.X. where the resource exists.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_2.mp4" type="video/mp4">
     <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_2.vtt" default>
     </video>
@@ -36,7 +36,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 11. AI endlessly loads units into a depot and then unloads them to load another.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_11.mp4" type="video/mp4">
     </video>
     The depot contains 12 units which is the maximum it can hold. Moving a unit into and out from a depot does not cost movement points for the unit if it stands next to the depot. The AI is able to perform other tasks parallel which indicates that the issue is not related to code runaway. The game UI is partly unoperational though. For example clicking on the Preferences button pops up the GUI element, but afterwards clicking on the Files button crashes the game. The AI loop does not end even when the end turn timer counts down to zero.
@@ -44,14 +44,14 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 12. Construction tape remains or is misplaced when AI constructor builds a building.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_12.mp4" type="video/mp4">
     </video>
     It is not allowed to instruct a unit to move to the coordinates found within the tape as the mouse hoover shows that the enemy constructor is found within those cells, but when a pathway is planned with shift + left mouse click the planned path crosses over the affected cells. When the constructor finishes the building the tape and the error remains. The tape and the unit referenced by the area remains even after the offending constructor is destroyed. Mouse hover also detects the constructor at cell 69-100. After finishing the building the unit might have left the construction area in that direction. This would indicate that the tape is not misplaced, but the process to remove the tape on finishing the building and moving the constructor out of the construction zone is bogus.
 
 13. Infiltrator could stuck and game could hang if mine is on a bridge that the unit wants to pass.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_13.mp4" type="video/mp4">
     </video>
     In case of water platforms the game correctly finds that there is no path to the destination. In case of bridges this is bogus. The infiltrator cannot take the path as there is a mine in the way, but the path finding algorith tells there is a valid path. When the issue occurs the game does not accept the end turn action, the affected infiltrator cannot be moved any more and it cannot be loaded by personnel carriers. The affected bridge at the same time is redrawn as if there would be a ship under the bridge. Interestingly it is possible to load back a game in this state and if done so the queued action to end the turn from the previous game activates. This also implies that command or event queues are not cleared on loading games.
@@ -98,7 +98,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 32. The default mouse action for an infiltrator (and probably any other unit) is to attack a neutral bridge if an enemy flying entity is located in the cell.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_32.mp4" type="video/mp4">
     </video>
     The video clip demonstrates that the cell below the enemy air transport is free to unload a land unit, but moving a stealth unit back to the free cell is not possible as the default action for the cell is to attack instead of move. For a cell where a neutral bridge is present only the default action is to allow movement there. As an infiltrator cannot attack a flying target and the bridge is a neutral entity the default action for such a cell should be to allow movment there, but the game incorrectly interprets the situation that the default action should be the attack.
@@ -132,7 +132,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 44. When initial upgrades are made during mission loadout and the player proceeds to the landing zone selection screen then goes back to the purchase menu by pushing the cancel button the upgrades can be cancelled to get back the upgrade costs, but the game keeps the upgrades still. This can be used as an exploit in both single and multiplayer games where the purchase menu is available.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_44.mp4" type="video/mp4">
     </video>
     In multiplayer the purchased unit count must remain below 134 otherwise buffer overflows or other wicked stuff could happen.
@@ -175,14 +175,14 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 63. The AI misbehaves when a hidden infiltrator steps aside, but doing so reveals its presence to the enemy.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_63.mp4" type="video/mp4">
     </video>
     In this case the AI thinks that the infiltrator stands at the old grid cell position and offloads all shots onto the empty ground. Eventually the AI will "learn" the correct location too and may terminate the revealed infiltrator.
 
 64. Disabled alien attack planes placed as alien derelicts onto the maps do not set the map pass tables to unpassable.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_64.mp4" type="video/mp4">
     </video>
     The path generator lets ground units pass these planes. This defect could be used as an exploit to give an edge against human players. If a unit's remaining moves in a turn are calculated well, then it is possible to stop exactly under the plane. The mini map will show the alien derelict's team color (team 5, yellow) instead of the player unit's color. If the grid cell gets attacked, the player unit is not damaged as the alien unit is targeted by the game.
@@ -195,7 +195,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 68. The path generator erroneously cannot find path to a cell location in corner cases. Note: the audio can be unmuted on this video clip.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_68.mp4" type="video/mp4">
     <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_68.vtt" default>
     </video>
@@ -203,7 +203,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 69. The path generator inconsistently finds a path to a cell where it is questionable whether the given unit should be allowed to move at all. Note: the audio can be unmuted on this video clip.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_69.mp4" type="video/mp4">
     <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_69.vtt" default>
     </video>
@@ -211,7 +211,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 70. The allocation menu uses a function (cseg01:0008A5FB) to change color temperature of highlighted text background. When the algorithm finds a better color match in the system color palette based on color distance the worse distance is saved instead of the better one.
     <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_70.mp4" type="video/mp4">
     <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_70.vtt" default>
     </video>
@@ -297,20 +297,20 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 80. Units that can pass land as well as water do not update the sprite base frame index after they are picked up from water by air transport and dropped down onto land.
 <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_80.mp4" type="video/mp4">
     </video>
     The transporter's activate event should check the destination cell type.
 
 81. The algorithm (cseg01:00076144) that draws attack and scan ranges on screen misbehaves at extreme ranges combined with high level of zoom.
 <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_81.mp4" type="video/mp4">
     </video>
 
 82. Redraw order of the attack and scan range markers and the message area is indeterministic in case a hoovering unit overlaps with them.
 <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_82.mp4" type="video/mp4">
     </video>
     This is not the only flickering behaviour.
@@ -321,14 +321,14 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 85. Enemy land units do not sink or get destroyed after a water platform or similar is demolished beneath them. The units can also move from a water cell back to a land cell if it is next to them. Land mines do not get destroyed if the structure below them gets demolished. Sea mine layers can detect floating land mines too. Building a landing pad above a road above a water platform makes the road disappear. Further investigation is required whether the road unit gets "properly" destroyed or is it leaking memory. Destoying a landing pad above a water platform while an aircraft is landed there leaves the aircraft on the ground in awaiting state. The aircraft is targetable in this state by land units. The aircraft can take off into air from the water mass.
 <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_85.mp4" type="video/mp4">
     </video>
     In my opinion land mines should also blow up just like connectors and roads built above water platforms and bridges do. Any non hybrid land unit should sink to the bottom of the sea too. If an aircraft is landed on a landing pad on a water platform and the landing pad gets demolished the aircraft should either take off into air, or should sink to the bottom of the sea.
 
 86. The maxsuper cheat code increases the scan and attack ranges. The game redraws the markers incorrectly until there is a movement of screen or unit.
 <br>
-    <video class="embed-video" autoplay loop muted playsinline>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_86.mp4" type="video/mp4">
     </video>
 
@@ -366,3 +366,30 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 One minor risk is that `++marker_index` might lead to out of bounds access that could smash the stack and depending on the calling convention of the ABI this could lead to code runaway. A bigger problem is that the markers array is allocated on the stack thus at the time of allocation the array contains random values. The algorithm first unconditionally stores the value of `marker` into `markers[0]` and increments the array index variable. Next the array index is not 0 anymore thus the algorithm tests `markers[marker_index] != marker` which actually compares `markers[1]` with `marker` while `markers[1]` still holds a random value as noted before. Therefore in a somewhat random manner, mostly depending on the call site, a marker may not be considered by the algorithm erroneously.
 
 97. The TaskManageBuildings class implements a method (cseg01:00033E27) to get the amount of units of a particular type a team has and plans to build. The method returns the count on 8 bits. Over long game sessions it is possible to have more than 255 units of the same type in which case the result gets truncated that could lead to unintended AI behaviors in corner cases.
+
+98. Depending on the zoom level the draw order of shadows could become incorrect in corner cases.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_98.mp4" type="video/mp4">
+    </video>
+
+99. The unit status displayed in the top left corner of the screen shows transferring state when a mine layer laying state is changed to place or remove until an actual lay mine or remove mine action is executed. Similar issues can be observed with the exploding status on hit.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_99.mp4" type="video/mp4">
+    </video>
+
+100. It is possible to take control over non friendly mobile units or reactivate friendly disabled units and exploit this in various ways. Thanks for Sal from the M.A.X. Reloaded community for reporting this issue.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_100.mp4" type="video/mp4">
+    </video>
+<br>
+The defect is closely related to the group command. Steps to reproduce the issue: left click an enemy mobile unit that has unspent movement points and is not building. Press down the shift key and left click a friendly mobile unit with unspent movement points. This creates a new unit group which places the enemy and the friendly units into the same player controlled group. Left click once more on the friendly unit to make it the actively selected unit instead of the enemy. Now the shift key can be released. Order the friendly unit to move somewhere and the enemy unit will follow the movement direction and distance as long as this is possible.
+- If the enemy unit is a bulldozer that is clearing a site the game will let the bulldozer unit leave the work zone corrupting the game and unit states affecting game save files too.
+- If the enemy unit is a mine layer that is laying or removing mines, the enemy unit will continue to lay or remove mines.
+- If the enemy unit is actually a disabled alien derelict unit, it could be reactivated this way and computer players will consider them as threats typically destroying their own potential assets.
+- If the enemy unit reserves shots as a defensive measure, we can deplete their reserves unless the unit has the Move & Fire attribute.
+- The enemy unit can be deliberately moved over a mine to get it blown to pieces.
+- The enemy unit can be moved to a location where it is not anymore protected by defensive structures like missile launchers or stationary anti-aircraft turrets or units that could detect infiltrators.
+- A disabled friendly mobile unit could be immediately reactivated this way.
