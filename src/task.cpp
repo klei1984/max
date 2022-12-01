@@ -197,7 +197,7 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level) {
             result = false;
 
         } else if (unit->speed > 0) {
-            unsigned short** damage_potential_map = ai_player->GetDamagePotentialMap(unit, caution_level, 0x01);
+            short** damage_potential_map = ai_player->GetDamagePotentialMap(unit, caution_level, 0x01);
 
             if (damage_potential_map) {
                 ZoneWalker walker(position, unit->speed);

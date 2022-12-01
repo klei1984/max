@@ -1041,7 +1041,7 @@ void TaskCreateBuilding::BuildBridges() {
 }
 
 void TaskCreateBuilding::MarkBridgeAreas(unsigned char** map) {
-    unsigned short** threat_map;
+    short** damage_potential_map;
 
     for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
         for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -1077,11 +1077,11 @@ void TaskCreateBuilding::MarkBridgeAreas(unsigned char** map) {
         }
     }
 
-    threat_map = AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1);
+    damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1);
 
     for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
         for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
-            if (threat_map[x][y] > 0) {
+            if (damage_potential_map[x][y] > 0) {
                 map[x][y] = 0;
             }
         }

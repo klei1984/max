@@ -43,7 +43,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
         Point unit_location(unit->grid_x, unit->grid_y);
         Point position;
         unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
-        unsigned short** damage_potential_map =
+        short** damage_potential_map =
             AiPlayer_Teams[team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x00);
         Rect bounds;
         ResourceID escort_type = INVALID_ID;

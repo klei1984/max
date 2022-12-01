@@ -43,9 +43,9 @@ void TaskFindMines::BeginTurn() {
     SmartList<UnitInfo>::Iterator unit = units.Begin();
 
     if (unit && requestors == 0) {
-        unsigned short** damage_potential_map =
+        short** damage_potential_map =
             AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1);
-        unsigned char** mine_map = AiPlayer_Teams[team].GetMineMap();
+        signed char** mine_map = AiPlayer_Teams[team].GetMineMap();
         int valuable_sites = 0;
 
         if (damage_potential_map && mine_map) {

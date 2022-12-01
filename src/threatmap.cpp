@@ -135,6 +135,8 @@ unsigned short ThreatMap::GetRiskLevel(UnitInfo* unit) {
     return result;
 }
 
+void ThreatMap::SetRiskLevel(unsigned char risk_level_) { risk_level = risk_level_; }
+
 void ThreatMap::Update(int armor_) {
     if (armor != armor_) {
         int difference = armor - armor_;

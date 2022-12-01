@@ -60,7 +60,7 @@ bool TaskSurvey::Task_vfunc17(UnitInfo& unit) {
         Point best_site;
         Point site;
         unsigned short hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
-        unsigned short** damage_potential_map = nullptr;
+        short** damage_potential_map = nullptr;
         unsigned short cargo_at_site;
         Rect bounds;
         int distance;

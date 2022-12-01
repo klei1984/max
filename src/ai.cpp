@@ -180,8 +180,7 @@ bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level
     bool result;
 
     if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER && caution_level != CAUTION_LEVEL_NONE) {
-        unsigned short** damage_potential_map =
-            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, flags);
+        short** damage_potential_map = AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, flags);
         int unit_hits = unit->hits;
 
         if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {

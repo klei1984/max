@@ -99,8 +99,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
     unsigned char** info_map = AiPlayer_Teams[unit1->team].GetInfoMap();
     Point position;
     bool result = false;
-    unsigned short** damage_potential_map =
-        AiPlayer_Teams[unit1->team].GetDamagePotentialMap(unit1, caution_level, 0x01);
+    short** damage_potential_map = AiPlayer_Teams[unit1->team].GetDamagePotentialMap(unit1, caution_level, 0x01);
     int distance;
     int minimum_distance = INT_MAX;
     int damage_potential = 0;
@@ -169,7 +168,7 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
                                     int range, bool mode) {
     ZoneWalker walker(target, range);
     unsigned char** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
-    unsigned short** damage_potential_map;
+    short** damage_potential_map;
     bool result = false;
     int distance1 = range;
     int distance2;
@@ -552,7 +551,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, 
     UnitValues* base_values = unit->GetBaseValues();
     int minimum_score = 0;
     unsigned short unit_team = unit->team;
-    unsigned short** damage_potential_map = nullptr;
+    short** damage_potential_map = nullptr;
     int minimum_damage = 32000;
     int unit_scan = base_values->GetAttribute(ATTRIB_SCAN);
     int unit_range = base_values->GetAttribute(ATTRIB_RANGE);
@@ -1145,7 +1144,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_fla
         }
 
         TransporterMap map(unit, 0x02, CAUTION_LEVEL_NONE, transporter_type);
-        unsigned short** damage_potential_map =
+        short** damage_potential_map =
             AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01);
         int range = TaskManager_GetDistance(&*leader, unit) / 2;
 

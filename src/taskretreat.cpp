@@ -99,12 +99,12 @@ void TaskRetreat::RemoveTask() {
 }
 
 void TaskRetreat::Search() {
-    unsigned short** danger_map;
+    short** damage_potential_map;
     Rect bounds;
     int unit_hits;
     int index;
 
-    danger_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit_to_retreat, caution_level, 0x00);
+    damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit_to_retreat, caution_level, 0x00);
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
@@ -118,7 +118,7 @@ void TaskRetreat::Search() {
         unit_hits = 1;
     }
 
-    if (danger_map) {
+    if (damage_potential_map) {
         while (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit || index < 20) {
             ++field_31;
 
@@ -153,7 +153,7 @@ void TaskRetreat::Search() {
             if (Access_IsInsideBounds(&bounds, &position)) {
                 field_34 = 1;
 
-                if (danger_map[position.x][position.y] < unit_hits) {
+                if (damage_potential_map[position.x][position.y] < unit_hits) {
                     if (Access_IsAccessible(unit_to_retreat->unit_type, team, position.x, position.y, 0x02)) {
                         if (transporter_map.Search(position)) {
                             SmartPointer<TaskMove> task_move(new (std::nothrow) TaskMove(

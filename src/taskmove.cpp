@@ -836,8 +836,7 @@ bool TaskMove::CheckAirPath() {
         result = true;
 
     } else {
-        unsigned short** damage_potential_map =
-            AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, 0x01);
+        short** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, 0x01);
 
         if (damage_potential_map) {
             int line_distance_x = point1.x - passenger->grid_x;
@@ -1015,7 +1014,7 @@ void TaskMove::FindCurrentLocation() {
     if (planned_path.GetCount()) {
         Point position(passenger->grid_x, passenger->grid_y);
         Point path_step;
-        unsigned short** damage_potential_map = nullptr;
+        short** damage_potential_map = nullptr;
         int distance;
         int minimum_distance;
         int step_index;
@@ -1067,7 +1066,7 @@ bool TaskMove::FindWaypoint() {
     int unit_speed = 0;
     int step_cost;
     int unit_hits = passenger->hits;
-    unsigned short** damage_potential_map = nullptr;
+    short** damage_potential_map = nullptr;
 
     if (caution_level >= CAUTION_LEVEL_NONE) {
         damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, 1);

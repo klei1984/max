@@ -27,10 +27,7 @@
 class ThreatMap {
     short team;
     short id;
-    short **damage_potential_map;
-    short **shots_map;
     Point dimension;
-    short armor;
     unsigned char risk_level;
     unsigned char caution_level;
     unsigned char field_18;
@@ -43,10 +40,15 @@ public:
 
     void Init();
 
-    unsigned short GetRiskLevel(ResourceID unit_type);
-    unsigned short GetRiskLevel(UnitInfo *unit);
+    static unsigned short GetRiskLevel(ResourceID unit_type);
+    static unsigned short GetRiskLevel(UnitInfo *unit);
+    void SetRiskLevel(unsigned char risk_level);
 
     void Update(int armor);
+
+    short armor;
+    short **damage_potential_map;
+    short **shots_map;
 };
 
 #endif /* THREATMAP_HPP */

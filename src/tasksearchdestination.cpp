@@ -155,7 +155,7 @@ bool TaskSearchDestination::Search() {
     Rect bounds;
     int loop_count = 0;
     ResourceID unit_type = INVALID_ID;
-    unsigned short** damage_potential_map = nullptr;
+    short** damage_potential_map = nullptr;
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
     TransporterMap map(&*unit, 1, field_62 ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,

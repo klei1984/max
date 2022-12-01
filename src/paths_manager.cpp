@@ -688,7 +688,7 @@ void PathsManager_ApplyCautionLevel(unsigned char **map, UnitInfo *unit, int cau
 
         if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
             int unit_hits = unit->hits;
-            unsigned short **damage_potential_map;
+            short **damage_potential_map;
 
             if (unit->GetId() == 0xFFFF) {
                 damage_potential_map =
