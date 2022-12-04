@@ -101,6 +101,8 @@ ResourceID WeightTable::RollUnitType() const {
 
 void WeightTable::PushBack(UnitWeight& object) { weight_table.PushBack(&object); }
 
+void WeightTable::Clear() { weight_table.Clear(); }
+
 int WeightTable::GetWeight(ResourceID unit_type) const {
     int weight = 0;
 

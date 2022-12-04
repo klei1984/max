@@ -48,8 +48,8 @@ class AiPlayer {
     signed short field_5;
     signed short field_7;
     BuildOrder build_order;
-    unsigned short field_12;
-    unsigned char need_init;
+    signed short upgrade_cost;
+    bool need_init;
     bool tasks_pending;
     unsigned char field_16;
 
@@ -82,26 +82,26 @@ class AiPlayer {
     SmartList<TransportOrder> transport_orders;
 
     Point target_location;
-    unsigned short target_team;
+    signed short target_team;
 
-    WeightTable weight_table_1;
-    WeightTable weight_table_2;
-    WeightTable weight_table_3;
-    WeightTable weight_table_4;
-    WeightTable weight_table_milliselauncher;
-    WeightTable weight_table_6;
-    WeightTable weight_table_fighter_alienplane_air_transport_awac;
-    WeightTable weight_table_8;
+    WeightTable weight_table_ground_defense;
+    WeightTable weight_table_scout;
+    WeightTable weight_table_tanks;
+    WeightTable weight_table_assault_guns;
+    WeightTable weight_table_missile_launcher;
+    WeightTable weight_table_air_defense;
+    WeightTable weight_table_aircrafts;
+    WeightTable weight_table_bomber;
     WeightTable weight_table_9;
     WeightTable weight_table_fastboat;
     WeightTable weight_table_corvette;
     WeightTable weight_table_submarine;
-    WeightTable weight_table_battleship;
+    WeightTable weight_table_battleships;
     WeightTable weight_table_missileboat;
-    WeightTable weight_table_seatransport_cargoshop;
-    WeightTable weight_table_16;
-    WeightTable weight_table_17;
-    WeightTable weight_table_18;
+    WeightTable weight_table_support_ships;
+    WeightTable weight_table_commando;
+    WeightTable weight_table_infantry;
+    WeightTable weight_table_generic;
 
     void AddBuilding(UnitInfo* unit);
     void RebuildWeightTable(WeightTable table, ResourceID unit_type, int factor);
@@ -122,7 +122,6 @@ class AiPlayer {
     bool AreActionsPending();
     bool IsDemoMode();
     void RegisterIdleUnits();
-    static int GetProjectedDamage(UnitInfo* friendly, UnitInfo* enemy, int caution_level);
     static int GetTotalProjectedDamage(UnitInfo* unit, int caution_level, unsigned short team,
                                        SmartList<UnitInfo>* units);
     static void UpdateMap(short** map, Point position, int range, int damage_potential, bool normalize);
@@ -142,12 +141,12 @@ class AiPlayer {
     void RollField3();
     void RollField5();
     void RollField7();
-    bool AddUnitToTeamMissionSupplies(ResourceID unit_type, int supplies);
+    bool AddUnitToTeamMissionSupplies(ResourceID unit_type, unsigned short supplies);
     static int GetVictoryConditionsFactor();
     void RollTeamMissionSupplies(int clan);
     static void AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, int attribute);
     static void CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type,
-                                         unsigned short team, unsigned short target_team, bool mode);
+                                         unsigned short team, unsigned short enemy_team, bool mode);
     SmartObjectArray<BuildOrder> ChooseStrategicBuildOrders(bool mode);
     void ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders);
     SmartObjectArray<BuildOrder> ChooseGenericBuildOrders();
@@ -181,7 +180,7 @@ public:
     short** GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags);
     int GetDamagePotential(UnitInfo* unit, Point site, int caution_level, unsigned char flags);
     void ClearZone(Zone* zone);
-    WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned char flags);
+    WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned short flags);
     void SetInfoMapPoint(Point site);
     void UpdateMineMap(Point site);
     void MarkMineMapPoint(Point site);

@@ -47,6 +47,7 @@ public:
     UnitWeight& operator[](unsigned short position);
 
     void PushBack(UnitWeight& object);
+    void Clear();
 
     int GetCount() const;
     ResourceID RollUnitType() const;
