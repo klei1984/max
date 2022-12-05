@@ -126,7 +126,8 @@ class AiPlayer {
                                        SmartList<UnitInfo>* units);
     static void UpdateMap(short** map, Point position, int range, int damage_potential, bool normalize);
     static void UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int range, int attack,
-                                 int shots, int* ammo, bool normalize);
+                                 int shots, int& ammo, bool normalize);
+    static void UpdateDamagePotentialMap(SmartList<UnitInfo>* units, short** map);
     static void DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams, ThreatMap* threat_map1,
                                  ThreatMap* threat_map2);
     static void SumUpMaps(short** map1, short** map2);
@@ -187,7 +188,7 @@ public:
     signed char GetMineMapEntry(Point site);
     void FindMines(UnitInfo* unit);
     WeightTable GetExtendedWeightTable(UnitInfo* target, unsigned char flags);
-    bool IsUpgradeNeeded(UnitInfo* unit);
+    bool ShouldUpgradeUnit(UnitInfo* unit);
     void RemoveUnit(UnitInfo* unit);
     void UnitSpotted(UnitInfo* unit);
     bool MatchPath(TaskPathRequest* request);

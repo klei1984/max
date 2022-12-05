@@ -477,7 +477,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
                     if (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                         if (!(unit->flags & REGENERATING_UNIT)) {
-                            if (AiPlayer_Teams[unit->team].IsUpgradeNeeded(unit)) {
+                            if (AiPlayer_Teams[unit->team].ShouldUpgradeUnit(unit)) {
                                 SmartPointer<Task> upgrade_task(new (std::nothrow) TaskUpgrade(unit));
 
                                 AppendTask(*upgrade_task);

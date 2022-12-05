@@ -122,7 +122,7 @@ void DefenseManager::MaintainDefences(Task* task) {
                 maintenance_task = new (std::nothrow) TaskReload(&*it);
 
             } else if (((*it).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
-                       !((*it).flags & REGENERATING_UNIT) && AiPlayer_Teams[(*it).team].IsUpgradeNeeded(&*it)) {
+                       !((*it).flags & REGENERATING_UNIT) && AiPlayer_Teams[(*it).team].ShouldUpgradeUnit(&*it)) {
                 maintenance_task = new (std::nothrow) TaskUpgrade(&*it);
             }
 

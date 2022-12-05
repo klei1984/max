@@ -238,7 +238,7 @@ void TaskAttackReserve::EndTurn() {
 
             } else if (((*it).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
                        !((*it).flags & REGENERATING_UNIT) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT &&
-                       AiPlayer_Teams[(*it).team].IsUpgradeNeeded(&*it)) {
+                       AiPlayer_Teams[(*it).team].ShouldUpgradeUnit(&*it)) {
                 SmartPointer<Task> upgrade_task(new (std::nothrow) TaskUpgrade(&*it));
 
                 TaskManager.AppendTask(*upgrade_task);

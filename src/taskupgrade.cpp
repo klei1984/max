@@ -43,7 +43,7 @@ void TaskUpgrade::SelectOperator() {}
 int TaskUpgrade::GetTurnsToComplete() {
     int result;
 
-    if (AiPlayer_Teams[team].IsUpgradeNeeded(&*target_unit)) {
+    if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {
         result = target_unit->GetNormalRateBuildCost() / 4;
 
     } else {
@@ -56,7 +56,7 @@ int TaskUpgrade::GetTurnsToComplete() {
 bool TaskUpgrade::IsInPerfectCondition() {
     bool result;
 
-    if (AiPlayer_Teams[team].IsUpgradeNeeded(&*target_unit)) {
+    if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {
         result = false;
 
     } else {
@@ -84,7 +84,7 @@ void TaskUpgrade::CreateUnit() {
 void TaskUpgrade::IssueOrder() {
     operator_unit->SetParent(&*target_unit);
 
-    if (AiPlayer_Teams[team].IsUpgradeNeeded(&*target_unit)) {
+    if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {
         UnitsManager_SetNewOrder(&*operator_unit, ORDER_UPGRADE, ORDER_STATE_0);
 
     } else if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {

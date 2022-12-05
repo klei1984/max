@@ -192,7 +192,7 @@ void TaskEscort::EndTurn() {
 
                     } else if (!(escort->flags & REGENERATING_UNIT) &&
                                ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT &&
-                               AiPlayer_Teams[escort->team].IsUpgradeNeeded(&*escort)) {
+                               AiPlayer_Teams[escort->team].ShouldUpgradeUnit(&*escort)) {
                         SmartPointer<Task> upgrade_task(new (std::nothrow) TaskUpgrade(&*escort));
 
                         TaskManager.AppendTask(*upgrade_task);

@@ -381,10 +381,98 @@ int AiPlayer::GetTotalProjectedDamage(UnitInfo* unit, int caution_level, unsigne
     return result;
 }
 
-void AiPlayer::UpdateMap(short** map, Point position, int range, int damage_potential, bool normalize) {}
+void AiPlayer::UpdateMap(short** map, Point position, int range, int damage_potential, bool normalize) {
+    Point site;
+    Point limit;
+    int distance = range * range;
+    int map_offset;
+    short* map_address;
+
+    site.x = std::max(position.x - range, 0) - 1;
+    site.y = 0;
+
+    limit.x = std::min(position.x + range, ResourceManager_MapSize.x - 1);
+    limit.y = 0;
+
+    for (;;) {
+        ++site.y;
+
+        if (site.y > limit.y) {
+            ++site.x;
+
+            if (site.x > limit.x) {
+                return;
+            }
+
+            map_offset = (site.x - position.x) * (site.x - position.x);
+
+            site.y = range;
+
+            while (site.y >= 0 && (site.y * site.y + map_offset) > distance) {
+                --site.y;
+            }
+
+            limit.y = std::min(site.y + position.y, ResourceManager_MapSize.x - 1);
+            site.y = std::max(position.y - site.y, 0);
+
+            map_address = &map[site.x][site.y];
+        }
+
+        if (normalize && *map_address < 0) {
+            *map_address = 0;
+        }
+
+        *map_address += damage_potential;
+        ++map_address;
+    }
+}
 
 void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int range, int attack, int shots,
-                                int* ammo, bool normalize) {}
+                                int& ammo, bool normalize) {
+    if (shots > ammo) {
+        shots = ammo;
+    }
+
+    ammo -= shots;
+
+    int damage_potential = attack * shots;
+
+    if (damage_potential > 0) {
+        if (unit->unit_type == SUBMARNE || unit->unit_type == CORVETTE) {
+            ZoneWalker walker(position, range);
+
+            do {
+                if (ResourceManager_MapSurfaceMap[walker.GetGridY() * ResourceManager_MapSize.x + walker.GetGridX()] &
+                    (SURFACE_TYPE_WATER | SURFACE_TYPE_COAST)) {
+                    threat_map->damage_potential_map[walker.GetGridX()][walker.GetGridY()] += damage_potential;
+                    threat_map->shots_map[walker.GetGridX()][walker.GetGridY()] += shots;
+                }
+            } while (walker.FindNext());
+
+        } else {
+            UpdateMap(threat_map->damage_potential_map, position, range, damage_potential, normalize);
+            UpdateMap(threat_map->shots_map, position, range, shots, false);
+        }
+    }
+}
+
+void AiPlayer::UpdateDamagePotentialMap(SmartList<UnitInfo>* units, short** map) {
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        if ((*it).shots > 0 && (*it).orders != ORDER_IDLE && (*it).orders != ORDER_DISABLE) {
+            int unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+
+            if (!(*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                unit_range -= 3;
+            }
+
+            if (unit_range > 0) {
+                int attack_power = (-(*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK)) * (*it).shots;
+
+                UpdateMap(map, Point((*it).grid_x, (*it).grid_y), unit_range, attack_power, false);
+            }
+        }
+    }
+}
 
 void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams, ThreatMap* threat_map1,
                                 ThreatMap* threat_map2) {}
@@ -1745,7 +1833,74 @@ void AiPlayer::PlanMinefields() {}
 
 void AiPlayer::ChangeTasksPendingFlag(bool value) { tasks_pending = value; }
 
-bool AiPlayer::CheckEndTurn() {}
+bool AiPlayer::CheckEndTurn() {
+    bool result;
+
+    if (!need_init) {
+        if (!tasks_pending) {
+            if (!field_16) {
+                TaskManager.ChangeFlagsSet(player_team);
+            }
+
+            ++field_16;
+
+            if (field_16 >= 10) {
+                if (field_16 != 10 || AreActionsPending()) {
+                    if (field_16 != 20) {
+                        if (field_16 != 30) {
+                            if (field_16 != 60) {
+                                if (field_16 > 120) {
+                                    if (GameManager_PlayMode == PLAY_MODE_TURN_BASED ||
+                                        GameManager_GameState == GAME_STATE_9_END_TURN || IsDemoMode()) {
+                                        GameManager_RefreshOrders(player_team, true);
+                                    }
+                                }
+
+                                result = false;
+
+                            } else {
+                                TaskManager.EndTurn(player_team);
+
+                                result = true;
+                            }
+
+                        } else {
+                            RegisterReadyAndAbleUnits(&UnitsManager_MobileLandSeaUnits);
+                            RegisterReadyAndAbleUnits(&UnitsManager_MobileAirUnits);
+
+                            result = true;
+                        }
+
+                    } else {
+                        CheckAttacks();
+
+                        result = true;
+                    }
+
+                } else {
+                    TaskManager.EndTurn(player_team);
+
+                    result = true;
+                }
+
+            } else {
+                result = false;
+            }
+
+        } else {
+            field_16 = 0;
+
+            result = false;
+        }
+
+    } else {
+        BeginTurn();
+
+        result = true;
+    }
+
+    return result;
+}
 
 bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) {
     return dynamic_cast<TaskManageBuildings*>(FindManager(position))->CreateBuilding(unit_type, task, task->GetFlags());
@@ -2627,9 +2782,92 @@ void AiPlayer::FindMines(UnitInfo* unit) {
 
 WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, unsigned char flags) {}
 
-bool AiPlayer::IsUpgradeNeeded(UnitInfo* unit) {}
+bool AiPlayer::ShouldUpgradeUnit(UnitInfo* unit) {
+    bool result;
+    UnitValues* base_values = unit->GetBaseValues();
+    UnitValues* current_values =
+        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], unit->unit_type);
 
-void AiPlayer::RemoveUnit(UnitInfo* unit) {}
+    if (base_values != current_values) {
+        if (build_order.unit_type != unit->unit_type) {
+            if (!(unit->flags & REGENERATING_UNIT)) {
+                if (unit->unit_type != CONSTRCT && unit->unit_type != ENGINEER && unit->unit_type != BULLDOZR &&
+                    unit->unit_type != MINELAYR) {
+                    if (base_values->GetAttribute(ATTRIB_RANGE) < current_values->GetAttribute(ATTRIB_RANGE)) {
+                        result = true;
+
+                    } else {
+                        if (base_values->GetAttribute(ATTRIB_HITS) * 13 <
+                            current_values->GetAttribute(ATTRIB_HITS) * 10) {
+                            result = true;
+
+                        } else {
+                            if (base_values->GetAttribute(ATTRIB_ARMOR) * 12 <
+                                current_values->GetAttribute(ATTRIB_ARMOR) * 10) {
+                                result = true;
+
+                            } else {
+                                if (base_values->GetAttribute(ATTRIB_ATTACK) * 13 <
+                                    current_values->GetAttribute(ATTRIB_ATTACK) * 10) {
+                                    result = true;
+
+                                } else {
+                                    if (base_values->GetAttribute(ATTRIB_SPEED) * 13 <
+                                        current_values->GetAttribute(ATTRIB_SPEED) * 10) {
+                                        result = true;
+
+                                    } else {
+                                        if (base_values->GetAttribute(ATTRIB_ROUNDS) <
+                                            current_values->GetAttribute(ATTRIB_ROUNDS)) {
+                                            result = true;
+
+                                        } else {
+                                            if (base_values->GetAttribute(ATTRIB_SCAN) * 12 <
+                                                current_values->GetAttribute(ATTRIB_SCAN) * 10) {
+                                                result = true;
+
+                                            } else {
+                                                result = false;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+                    result = false;
+                }
+
+            } else {
+                result = false;
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+void AiPlayer::RemoveUnit(UnitInfo* unit) {
+    if (player_team == unit->team) {
+        unitinfo_list1.Remove(*unit);
+        unitinfo_list2.Remove(*unit);
+
+    } else {
+        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+            if (unit == (*it).GetUnit()) {
+                spotted_units.Remove(*it);
+            }
+        }
+    }
+}
 
 void AiPlayer::UnitSpotted(UnitInfo* unit) {}
 
@@ -2762,7 +3000,64 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
     }
 }
 
-int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level) {}
+int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level) {
+    UnitValues* unit_values = friendly_unit->GetBaseValues();
+    int range = unit_values->GetAttribute(ATTRIB_RANGE);
+    int distance;
+    int shots;
+    int result;
+
+    if (!enemy_unit->IsVisibleToTeam(friendly_unit->team)) {
+        range = std::min(range, unit_values->GetAttribute(ATTRIB_SCAN));
+    }
+
+    distance = Access_GetDistance(friendly_unit, enemy_unit);
+    shots = 0;
+
+    if (AiPlayer_TerrainMap.TerrainMap_sub_690D6(Point(enemy_unit->grid_x, enemy_unit->grid_y),
+                                                 UnitsManager_BaseUnits[friendly_unit->unit_type].land_type) <=
+        range * range) {
+        if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+            int distance2 = ((friendly_unit->speed / 2) + range);
+
+            if (distance <= distance2 * distance2) {
+                shots = friendly_unit->shots;
+            }
+
+        } else {
+            int base_rounds = unit_values->GetAttribute(ATTRIB_ROUNDS);
+            int base_speed = unit_values->GetAttribute(ATTRIB_SPEED);
+
+            for (shots = friendly_unit->shots; shots > 0; --shots) {
+                int distance2 = friendly_unit->speed - ((base_speed * shots) / base_rounds) + range;
+
+                if (distance <= distance2 * distance2) {
+                    break;
+                }
+            }
+        }
+
+        if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
+            range += friendly_unit->speed;
+        }
+
+        if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE && distance <= range * range) {
+            shots = std::min(unit_values->GetAttribute(ATTRIB_ROUNDS), friendly_unit->ammo - shots);
+        }
+
+        if (shots > 0) {
+            result = shots * UnitsManager_GetAttackDamage(friendly_unit, enemy_unit, 0);
+
+        } else {
+            result = 0;
+        }
+
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
 
 int AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level) {
     int result;
