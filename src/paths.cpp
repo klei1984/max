@@ -29,6 +29,7 @@
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "message_manager.hpp"
+#include "net_packet.hpp"
 #include "paths_manager.hpp"
 #include "registerarray.hpp"
 #include "remote.hpp"
@@ -108,9 +109,9 @@ void UnitPath::UpdateUnitAngle(UnitInfo* unit) {}
 
 bool UnitPath::IsEndStep() const { return false; }
 
-int UnitPath::WritePacket(char* buffer) { return 0; }
+void UnitPath::WritePacket(NetPacket& packet) {}
 
-void UnitPath::Path_vfunc16(int unknown1, int unknown2) {}
+void UnitPath::ReadPacket(NetPacket& packet) {}
 
 void UnitPath::Path_vfunc17(int distance_x, int distance_y) {}
 
@@ -981,25 +982,38 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
 bool GroundPath::IsEndStep() const { return index + 1 == steps.GetCount(); }
 
-int GroundPath::WritePacket(char* buffer) {
-    /// \todo
-    return 0;
+void GroundPath::WritePacket(NetPacket& packet) {
+    unsigned short steps_count = steps.GetCount();
+
+    packet << steps_count;
+
+    for (int i = 0; i < steps_count; ++i) {
+        packet << *steps[i];
+    }
 }
 
-void GroundPath::Path_vfunc16(int unknown1, int unknown2) {
-    /// \todo
+void GroundPath::ReadPacket(NetPacket& packet) {
+    unsigned short steps_count;
+    PathStep step;
+
+    packet >> steps_count;
+
+    for (int i = 0; i < steps_count; ++i) {
+        packet >> step;
+        steps.PushBack(&step);
+    }
 }
 
-void GroundPath::Path_vfunc17(int distance_x, int distance_y) {
+void GroundPath::Path_vfunc17(int distance_x_, int distance_y_) {
     int step_x;
     int step_y;
     PathStep step;
 
-    while (distance_x || distance_y) {
-        if (distance_x > 0) {
+    while (distance_x_ || distance_y_) {
+        if (distance_x_ > 0) {
             step_x = 1;
 
-        } else if (distance_x == 0) {
+        } else if (distance_x_ == 0) {
             step_x = 0;
 
         } else {
@@ -1008,10 +1022,10 @@ void GroundPath::Path_vfunc17(int distance_x, int distance_y) {
 
         step.x = step_x;
 
-        if (distance_y > 0) {
+        if (distance_y_ > 0) {
             step_y = 1;
 
-        } else if (distance_y == 0) {
+        } else if (distance_y_ == 0) {
             step_y = 0;
 
         } else {
@@ -1022,8 +1036,8 @@ void GroundPath::Path_vfunc17(int distance_x, int distance_y) {
 
         steps.PushBack(&step);
 
-        distance_x -= step_x;
-        distance_y -= step_y;
+        distance_x_ -= step_x;
+        distance_y_ -= step_y;
     }
 }
 

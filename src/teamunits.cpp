@@ -28,6 +28,7 @@
 
 #include "access.hpp"
 #include "inifile.hpp"
+#include "net_packet.hpp"
 #include "production_manager.hpp"
 #include "researchmenu.hpp"
 #include "resource_manager.hpp"
@@ -284,27 +285,18 @@ void TeamUnits::TextSave(SmartTextfileWriter& file) {
     file.WriteDelimiter();
 }
 
-int TeamUnits::WriteComplexPacket(unsigned short complex_id, void* buffer) {
-    /// \todo Clean up network packet code
-    struct __attribute__((packed)) packet {
-        unsigned short complex_id;
-        void* complex;
-    }* packet = (struct packet*)buffer;
+void TeamUnits::WriteComplexPacket(unsigned short complex_id, NetPacket& packet) {
+    packet << complex_id;
 
-    packet->complex_id = complex_id;
-    int packet_size = GetComplex(complex_id)->WritePacket(&packet->complex) + 2;
-
-    return packet_size;
+    GetComplex(complex_id)->WritePacket(packet);
 }
 
-void TeamUnits::ReadComplexPacket(void* buffer) {
-    /// \todo Clean up network packet code
-    struct __attribute__((packed)) packet {
-        unsigned short complex_id;
-        void* complex;
-    }* packet = (struct packet*)buffer;
+void TeamUnits::ReadComplexPacket(NetPacket& packet) {
+    unsigned short complex_id;
 
-    GetComplex(packet->complex_id)->ReadPacket(&packet->complex);
+    packet >> complex_id;
+
+    GetComplex(complex_id)->ReadPacket(packet);
 }
 
 unsigned short TeamUnits::GetGold() { return gold; }

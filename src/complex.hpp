@@ -26,6 +26,7 @@
 #include "textfile.hpp"
 
 class UnitInfo;
+class NetPacket;
 
 class Complex : public TextFileObject {
     short buildings;
@@ -45,8 +46,8 @@ public:
     void TextLoad(TextStructure& object);
     void TextSave(SmartTextfileWriter& file);
 
-    int WritePacket(void* buffer);
-    void ReadPacket(void* buffer);
+    void WritePacket(NetPacket& packet);
+    void ReadPacket(NetPacket& packet);
 
     void Grow(UnitInfo& unit);
     void Shrink(UnitInfo& unit);

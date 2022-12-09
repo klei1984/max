@@ -22,6 +22,7 @@
 #include "remote.hpp"
 
 #include "game_manager.hpp"
+#include "hash.hpp"
 #include "inifile.hpp"
 #include "message_manager.hpp"
 #include "networkmenu.hpp"
@@ -40,6 +41,11 @@ enum {
     REMOTE_RECEIVED_ADDRESS,
 };
 
+struct OrderProcessor {
+    void (*WritePacket)(UnitInfo* unit, NetPacket& packet);
+    void (*ReadPacket)(UnitInfo* unit, NetPacket& packet);
+};
+
 NetNodeArray Remote_Nodes;
 
 NetNodeArray Remote_Hosts;
@@ -56,6 +62,27 @@ unsigned int Remote_RngSeed;
 Transport* Remote_Transport;
 NetworkMenu* Remote_NetworkMenu;
 
+OrderProcessor Remote_OrderProcessors[32];
+
+static unsigned short Remote_GenerateEntityId();
+static void Remote_UpdateEntityId(NetAddress& address, unsigned short entity_id);
+
+static void Remote_WriteGameSettings(NetPacket& packet);
+static void Remote_ReadGameSettings(NetPacket& packet);
+
+static void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor4_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor5_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet);
+
+static int Remote_SetupPlayers();
+
 static void Remote_ReceiveNetPacket_28(NetPacket& packet);
 static void Remote_ReceiveNetPacket_29(NetPacket& packet);
 static void Remote_ReceiveNetPacket_30(NetPacket& packet);
@@ -66,7 +93,7 @@ static void Remote_ReceiveNetPacket_36(NetPacket& packet);
 static void Remote_ReceiveNetPacket_37(NetPacket& packet);
 static void Remote_ReceiveNetPacket_44(NetPacket& packet);
 
-static unsigned short Remote_GenerateEntityId() {
+unsigned short Remote_GenerateEntityId() {
     unsigned short new_entity_id;
 
     for (;;) {
@@ -80,7 +107,7 @@ static unsigned short Remote_GenerateEntityId() {
     return new_entity_id;
 }
 
-static void Remote_UpdateEntityId(NetAddress& address, unsigned short entity_id) {
+void Remote_UpdateEntityId(NetAddress& address, unsigned short entity_id) {
     for (int i = 0; i < Remote_Nodes.GetCount(); ++i) {
         if (Remote_Nodes[i]->address == address) {
             Remote_Nodes[i]->entity_id = entity_id;
@@ -88,7 +115,7 @@ static void Remote_UpdateEntityId(NetAddress& address, unsigned short entity_id)
     }
 }
 
-static void Remote_WriteGameSettings(NetPacket& packet) {
+void Remote_WriteGameSettings(NetPacket& packet) {
     packet << Remote_NetworkMenu->world_name;
     packet << Remote_NetworkMenu->ini_world_index;
     packet << Remote_NetworkMenu->ini_play_mode;
@@ -109,7 +136,7 @@ static void Remote_WriteGameSettings(NetPacket& packet) {
     packet << Remote_NetworkMenu->rng_seed;
 }
 
-static void Remote_ReadGameSettings(NetPacket& packet) {
+void Remote_ReadGameSettings(NetPacket& packet) {
     packet >> Remote_NetworkMenu->world_name;
     packet >> Remote_NetworkMenu->ini_world_index;
     packet >> Remote_NetworkMenu->ini_play_mode;
@@ -130,32 +157,142 @@ static void Remote_ReadGameSettings(NetPacket& packet) {
     packet >> Remote_NetworkMenu->rng_seed;
 }
 
-struct packetcb {
-    void* read;
-    void* write;
-};
-
-packetcb ipx_packet_cb_array[32];
-
-static void ipx_packet_cb_11(UnitInfo& unit, NetPacket& packet) {
-    packet << unit.orders;
-    packet << unit.state;
-    packet << unit.prior_orders;
-    packet << unit.prior_state;
-    packet << unit.disabled_reaction_fire;
+void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet) {
+    packet << unit->orders;
+    packet << unit->state;
+    packet << unit->prior_orders;
+    packet << unit->prior_state;
+    packet << unit->disabled_reaction_fire;
 }
 
-static void ipx_packet_cb_12(UnitInfo& unit, NetPacket& packet) {
-    UnitsManager_NewOrderWhileScaling(&unit);
+void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet) {
+    UnitsManager_NewOrderWhileScaling(unit);
 
-    packet >> unit.orders;
-    packet >> unit.state;
-    packet >> unit.prior_orders;
-    packet >> unit.prior_state;
-    packet >> unit.disabled_reaction_fire;
+    packet >> unit->orders;
+    packet >> unit->state;
+    packet >> unit->prior_orders;
+    packet >> unit->prior_state;
+    packet >> unit->disabled_reaction_fire;
 }
 
-static int Remote_SetupPlayers() { return 0; }
+void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor1_Write(unit, packet);
+
+    if (unit->GetParent()) {
+        packet << unit->GetParent()->GetId();
+
+    } else {
+        packet << static_cast<unsigned short>(0);
+    }
+}
+
+void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor1_Read(unit, packet);
+
+    unsigned short unit_id;
+
+    packet >> unit_id;
+
+    if (unit_id) {
+        unit->SetParent(Hash_UnitHash[unit_id]);
+
+    } else {
+        unit->SetParent(nullptr);
+    }
+}
+
+void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor2_Write(unit, packet);
+
+    packet << unit->target_grid_x;
+    packet << unit->target_grid_y;
+
+    if (unit->GetEnemy()) {
+        packet << unit->GetEnemy()->GetId();
+
+    } else {
+        packet << static_cast<unsigned short>(0);
+    }
+}
+
+void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor2_Read(unit, packet);
+
+    packet >> unit->target_grid_x;
+    packet >> unit->target_grid_y;
+    unsigned short unit_id;
+
+    packet >> unit_id;
+
+    if (unit_id) {
+        unit->SetEnemy(Hash_UnitHash[unit_id]);
+
+    } else {
+        unit->SetEnemy(nullptr);
+    }
+}
+
+void Remote_OrderProcessor4_Write(UnitInfo* unit, NetPacket& packet) {
+    SmartObjectArray<ResourceID> build_queue = unit->GetBuildList();
+
+    Remote_OrderProcessor3_Write(unit, packet);
+
+    packet << unit->GetRepeatBuildState();
+    packet << unit->build_time;
+    packet << static_cast<unsigned short>(unit->GetBuildRate());
+
+    unsigned short unit_count = build_queue.GetCount();
+
+    packet << unit_count;
+
+    for (int i = 0; i < unit_count; ++i) {
+        packet << *build_queue[i];
+    }
+}
+
+void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet) {
+    SmartObjectArray<ResourceID> build_queue = unit->GetBuildList();
+    bool repeat_build;
+    unsigned short build_rate;
+    unsigned short unit_count;
+    ResourceID unit_type;
+
+    Remote_OrderProcessor3_Read(unit, packet);
+
+    packet >> repeat_build;
+    unit->SetRepeatBuildState(repeat_build);
+    packet >> unit->build_time;
+    packet >> build_rate;
+    unit->SetBuildRate(build_rate);
+    packet >> unit_count;
+
+    build_queue.Clear();
+
+    for (int i = 0; i < unit_count; ++i) {
+        packet >> unit_type;
+        build_queue.PushBack(&unit_type);
+    }
+}
+
+void Remote_OrderProcessor5_Write(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor3_Write(unit, packet);
+
+    packet << unit->total_mining;
+    packet << unit->raw_mining;
+    packet << unit->fuel_mining;
+    packet << unit->gold_mining;
+}
+
+void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor3_Read(unit, packet);
+
+    packet >> unit->total_mining;
+    packet >> unit->raw_mining;
+    packet >> unit->fuel_mining;
+    packet >> unit->gold_mining;
+}
+
+int Remote_SetupPlayers() { return 0; }
 
 void Remote_Init() {
     WindowInfo* window;
@@ -183,61 +320,61 @@ void Remote_Init() {
     Remote_Nodes.Clear();
     Remote_Hosts.Clear();
 
-    //    for (int i = 0; i < 32; ++i) {
-    //        switch (i) {
-    //            case 0:
-    //            case 7:
-    //            case 8:
-    //            case 9:
-    //            case 12:
-    //            case 13:
-    //            case 14:
-    //            case 15:
-    //            case 16:
-    //            case 21:
-    //            case 22:
-    //            case 23:
-    //            case 29:
-    //            case 31: {
-    //                ipx_packet_cb_array[i].read = ipx_packet_cb_11;
-    //                ipx_packet_cb_array[i].write = ipx_packet_cb_12;
-    //            } break;
-    //
-    //            case 1:
-    //            case 4:
-    //            case 11:
-    //            case 26: {
-    //                ipx_packet_cb_array[i].read = ipx_packet_cb_41;
-    //                ipx_packet_cb_array[i].write = ipx_packet_cb_42;
-    //            } break;
-    //
-    //            case 2:
-    //            case 3:
-    //            case 5:
-    //            case 20:
-    //            case 24:
-    //            case 25:
-    //            case 27:
-    //            case 30: {
-    //                ipx_packet_cb_array[i].read = ipx_packet_cb_31;
-    //                ipx_packet_cb_array[i].write = ipx_packet_cb_32;
-    //            } break;
-    //
-    //            case 6: {
-    //                ipx_packet_cb_array[i].read = ipx_packet_cb_51;
-    //                ipx_packet_cb_array[i].write = ipx_packet_cb_52;
-    //            } break;
-    //
-    //            case 10:
-    //            case 17:
-    //            case 18:
-    //            case 19:
-    //            case 28: {
-    //                ipx_packet_cb_array[i].read = ipx_packet_cb_21;
-    //                ipx_packet_cb_array[i].write = ipx_packet_cb_22;
-    //            } break;
-    //        }
-    //    }
+    for (int i = 0; i < 32; ++i) {
+        switch (i) {
+            case ORDER_AWAIT:
+            case ORDER_POWER_ON:
+            case ORDER_POWER_OFF:
+            case ORDER_EXPLODE:
+            case ORDER_SENTRY:
+            case ORDER_LAND:
+            case ORDER_TAKE_OFF:
+            case ORDER_LOAD:
+            case ORDER_IDLE:
+            case ORDER_HALT_BUILDING:
+            case ORDER_AWAIT_SCALING:
+            case ORDER_AWAIT_TAPE_POSITIONING:
+            case ORDER_LAY_MINE:
+            case ORDER_HALT_BUILDING_2: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor1_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor1_Read;
+            } break;
+
+            case ORDER_TRANSFORM:
+            case ORDER_BUILD:
+            case ORDER_CLEAR:
+            case ORDER_DISABLE: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor4_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor4_Read;
+            } break;
+
+            case ORDER_MOVE:
+            case ORDER_FIRE:
+            case ORDER_ACTIVATE:
+            case ORDER_TRANSFER:
+            case ORDER_AWAIT_STEAL_UNIT:
+            case ORDER_AWAIT_DISABLE_UNIT:
+            case ORDER_MOVE_TO_UNIT:
+            case ORDER_MOVE_TO_ATTACK: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor3_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor3_Read;
+            } break;
+
+            case ORDER_NEW_ALLOCATE: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor5_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor5_Read;
+            } break;
+
+            case ORDER_UNLOAD:
+            case ORDER_REPAIR:
+            case ORDER_REFUEL:
+            case ORDER_RELOAD:
+            case ORDER_UPGRADE: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor2_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor2_Read;
+            } break;
+        }
+    }
 }
 
 static bool Remote_ReceivePacket(NetPacket& packet) {
@@ -654,15 +791,62 @@ void Remote_SendNetPacket_05(unsigned short random_number, int transmit_mode) {
     Remote_TransmitPacket(packet, transmit_mode);
 }
 
-void Remote_SendNetPacket_08(UnitInfo* unit) {}
+void Remote_SendNetPacket_08(UnitInfo* unit) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_08);
+    packet << static_cast<unsigned short>(unit->GetId());
+
+    Remote_OrderProcessors[unit->orders].WritePacket(unit, packet);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
 
 void Remote_SendNetPacket_09(int team) {}
 
 void Remote_SendNetPacket_10(int team, ResourceID unit_type) {}
 
-void Remote_SendNetPacket_11(int team, Complex* complex) {}
+void Remote_SendNetPacket_11(int team, Complex* complex) {
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
+            (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
+            UnitsManager_SetNewOrder(&*it, ORDER_NEW_ALLOCATE, ORDER_STATE_0);
+        }
+    }
 
-void Remote_SendNetPacket_12(int team) {}
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_11);
+    packet << static_cast<unsigned short>(team);
+
+    UnitsManager_TeamInfo[team].team_units->WriteComplexPacket(complex->GetId(), packet);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_SendNetPacket_12(int team) {
+    TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
+    NetPacket packet;
+    unsigned short unit_count = supplies->units.GetCount();
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_12);
+    packet << static_cast<unsigned short>(team);
+
+    packet << supplies->field_12;
+    packet << supplies->team_gold;
+    packet << unit_count;
+    packet << UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
+    packet << supplies->starting_position;
+    packet << supplies->proximity_alert_ack;
+
+    for (int i = 0; i < unit_count; ++i) {
+        packet << static_cast<unsigned char>(*supplies->units[i]);
+        packet << static_cast<unsigned short>(*supplies->cargos[i]);
+    }
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
 
 void Remote_SendNetPacket_13(unsigned int rng_seed) {
     NetPacket packet;

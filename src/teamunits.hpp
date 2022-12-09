@@ -28,6 +28,7 @@
 #include "unitvalues.hpp"
 
 struct CTInfo;
+class NetPacket;
 
 struct BaseUnitDataFile {
     char image_base;
@@ -117,8 +118,8 @@ public:
     void TextLoad(TextStructure& object);
     void TextSave(SmartTextfileWriter& file);
 
-    int WriteComplexPacket(unsigned short complex_id, void* buffer);
-    void ReadComplexPacket(void* buffer);
+    void WriteComplexPacket(unsigned short complex_id, NetPacket& packet);
+    void ReadComplexPacket(NetPacket& packet);
 
     unsigned short GetGold();
     void SetGold(unsigned short value);

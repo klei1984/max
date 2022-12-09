@@ -27,6 +27,7 @@
 #include "smartobjectarray.hpp"
 
 class UnitInfo;
+class NetPacket;
 
 class UnitPath : public TextFileObject {
 protected:
@@ -56,8 +57,8 @@ public:
     virtual void Path_vfunc12(int unknown) = 0;
     virtual void Draw(UnitInfo* unit, WindowInfo* window) = 0;
     virtual bool IsEndStep() const;
-    virtual int WritePacket(char* buffer);
-    virtual void Path_vfunc16(int unknown1, int unknown2);
+    virtual void WritePacket(NetPacket& packet);
+    virtual void ReadPacket(NetPacket& packet);
     virtual void Path_vfunc17(int distance_x, int distance_y);
 
     short GetEndX() const;
@@ -93,8 +94,8 @@ public:
     void Path_vfunc12(int unknown);
     void Draw(UnitInfo* unit, WindowInfo* window);
     bool IsEndStep() const;
-    int WritePacket(char* buffer);
-    void Path_vfunc16(int unknown1, int unknown2);
+    void WritePacket(NetPacket& packet);
+    void ReadPacket(NetPacket& packet);
     void Path_vfunc17(int distance_x, int distance_y);
 
     void AddStep(int step_x, int step_y);

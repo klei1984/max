@@ -21,6 +21,7 @@
 
 #include "complex.hpp"
 
+#include "net_packet.hpp"
 #include "registerarray.hpp"
 #include "survey.hpp"
 #include "unitinfo.hpp"
@@ -79,30 +80,26 @@ void Complex::TextSave(SmartTextfileWriter& file) {
     file.WriteInt("id", id);
 }
 
-int Complex::WritePacket(void* buffer) {
-    /// \todo Fill network packet with complex data
-
-    ((short*)buffer)[0] = material;
-    ((short*)buffer)[1] = fuel;
-    ((short*)buffer)[2] = gold;
-    ((short*)buffer)[3] = power;
-    ((short*)buffer)[4] = workers;
-    ((short*)buffer)[5] = buildings;
-    ((short*)buffer)[6] = id;
-
-    return 12;
+void Complex::WritePacket(NetPacket& packet) {
+    packet << material;
+    packet << fuel;
+    packet << gold;
+    packet << power;
+    packet << workers;
+    packet << buildings;
 }
 
-void Complex::ReadPacket(void* buffer) {
-    /// \todo Update complex from network packet
+void Complex::ReadPacket(NetPacket& packet) {
+    short packet_buildings;
 
-    material = ((short*)buffer)[0];
-    fuel = ((short*)buffer)[1];
-    gold = ((short*)buffer)[2];
-    power = ((short*)buffer)[3];
-    workers = ((short*)buffer)[4];
-    buildings = ((short*)buffer)[5];
-    id = ((short*)buffer)[6];
+    packet >> material;
+    packet >> fuel;
+    packet >> gold;
+    packet >> power;
+    packet >> workers;
+    packet >> packet_buildings;
+
+    SDL_assert(buildings == packet_buildings);
 }
 
 void Complex::GetCargoMinable(Cargo& capacity) {
