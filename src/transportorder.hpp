@@ -37,7 +37,7 @@ public:
 
     ResourceID GetUnitType() const;
     unsigned char GetTransportCategory() const;
-    int DetermineCategory(ResourceID unit_type);
+    static int DetermineCategory(ResourceID unit_type);
     Point MatchClosestPosition(Point target, Point current);
     Point MatchStartPosition(Point target);
     void UsePrecalculatedPath(TaskPathRequest* request);

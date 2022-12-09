@@ -25,6 +25,8 @@
 #include "ai.hpp"
 #include "aiattack.hpp"
 #include "builder.hpp"
+#include "circumferencewalker.hpp"
+#include "continent.hpp"
 #include "inifile.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
@@ -41,6 +43,7 @@
 #include "taskmanagebuildings.hpp"
 #include "taskmineassistant.hpp"
 #include "taskmove.hpp"
+#include "taskplacemines.hpp"
 #include "taskscavenge.hpp"
 #include "tasksurvey.hpp"
 #include "taskupdateterrain.hpp"
@@ -342,9 +345,95 @@ bool AiPlayer::IsPotentialSpotter(unsigned short team, UnitInfo* unit) {
     return false;
 }
 
-void AiPlayer::UpdateAccessMap(Point point1, Point point2, unsigned char** access_map) {}
+void AiPlayer::UpdateAccessMap(Point point1, Point point2, unsigned char** access_map) {
+    Point site(point1);
+    Point distance;
+    int surface_type = Access_GetSurfaceType(point1.x, point1.y);
+    int step;
 
-bool AiPlayer::CheckAttacks() {}
+    distance.x = labs(point2.x - point1.x);
+    distance.y = labs(point2.y - point1.y);
+
+    if (distance.x > distance.y) {
+        step = point2.y < point1.y ? -1 : 1;
+
+        if (point2.x < point1.x) {
+            site = point2;
+            step = -step;
+        }
+
+        for (int x = 0, y = distance.y / 2; x < distance.x; ++x) {
+            ++site.x;
+            y += distance.y;
+
+            if (y >= distance.x) {
+                site.y += step;
+                y -= distance.x;
+            }
+
+            if (!access_map[site.x][site.y]) {
+                surface_type = Access_GetSurfaceType(site.x, site.y);
+            }
+
+            if (surface_type == Access_GetSurfaceType(site.x, site.y)) {
+                info_map[site.x][site.y] |= 0x04;
+            }
+        }
+
+    } else {
+        step = point2.x < point1.x ? -1 : 1;
+
+        if (point2.x < point1.x) {
+            site = point2;
+            step = -step;
+        }
+
+        for (int y = 0, x = distance.x / 2; y < distance.y; ++y) {
+            ++site.y;
+            x += distance.x;
+
+            if (x >= distance.y) {
+                site.x += step;
+                x -= distance.y;
+            }
+
+            if (!access_map[site.x][site.y]) {
+                surface_type = Access_GetSurfaceType(site.x, site.y);
+            }
+
+            if (surface_type == Access_GetSurfaceType(site.x, site.y)) {
+                info_map[site.x][site.y] |= 0x04;
+            }
+        }
+    }
+}
+
+bool AiPlayer::CheckAttacks() {
+    if (TaskManager_word_1731C0 != 2) {
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).team == player_team && AiAttack_EvaluateAttack(&*it)) {
+                return true;
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+             it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            if ((*it).team == player_team && AiAttack_EvaluateAttack(&*it)) {
+                return true;
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
+             it != UnitsManager_MobileAirUnits.End(); ++it) {
+            if ((*it).team == player_team && AiAttack_EvaluateAttack(&*it)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
 
 void AiPlayer::RegisterReadyAndAbleUnits(SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
@@ -366,7 +455,31 @@ bool AiPlayer::IsDemoMode() {
     return true;
 }
 
-void AiPlayer::RegisterIdleUnits() {}
+void AiPlayer::RegisterIdleUnits() {
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).team == player_team && !(*it).GetTask()) {
+            if ((*it).ammo > 0 || (*it).unit_type == LIGHTPLT || (*it).unit_type == LANDPLT ||
+                (*it).unit_type == SHIPYARD || (*it).unit_type == AIRPLT || (*it).unit_type == TRAINHAL) {
+                TaskManager.RemindAvailable(&*it);
+            }
+        }
+    }
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+        if ((*it).team == player_team && !(*it).GetTask()) {
+            TaskManager.RemindAvailable(&*it);
+        }
+    }
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
+         it != UnitsManager_MobileAirUnits.End(); ++it) {
+        if ((*it).team == player_team && !(*it).GetTask()) {
+            TaskManager.RemindAvailable(&*it);
+        }
+    }
+}
 
 int AiPlayer::GetTotalProjectedDamage(UnitInfo* unit, int caution_level, unsigned short team,
                                       SmartList<UnitInfo>* units) {
@@ -475,7 +588,83 @@ void AiPlayer::UpdateDamagePotentialMap(SmartList<UnitInfo>* units, short** map)
 }
 
 void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams, ThreatMap* threat_map1,
-                                ThreatMap* threat_map2) {}
+                                ThreatMap* threat_map2) {
+    if ((unit->flags & MOBILE_AIR_UNIT) && threat_map1->shots_map) {
+        threat_map2 = threat_map1;
+    }
+
+    if (!unit->speed || teams[unit->team]) {
+        UnitValues* base_values = unit->GetBaseValues();
+        int unit_range = base_values->GetAttribute(ATTRIB_RANGE);
+        int attack_range = unit_range + base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+        int unit_attack = base_values->GetAttribute(ATTRIB_ATTACK);
+        int unit_shots = base_values->GetAttribute(ATTRIB_ROUNDS);
+        int unit_ammo = unit->ammo;
+        int unit_speed = base_values->GetAttribute(ATTRIB_SPEED);
+
+        switch (caution_level) {
+            case CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE: {
+                if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                    UpdateThreatMaps(threat_map2, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
+                                     true);
+
+                    if (teams[unit->team]) {
+                        UpdateThreatMaps(threat_map2, unit, position, attack_range + unit_speed / 2, unit_attack,
+                                         unit_shots, unit_ammo, false);
+
+                    } else {
+                        UpdateThreatMaps(threat_map2, unit, position, attack_range, unit_attack, unit_shots, unit_ammo,
+                                         false);
+                    }
+
+                } else {
+                    UpdateThreatMaps(threat_map2, unit, position, unit_range, unit_attack, unit->shots + 1, unit_ammo,
+                                     true);
+
+                    if (teams[unit->team]) {
+                        for (;;) {
+                            --unit_shots;
+
+                            if (unit_shots <= 0) {
+                                break;
+                            }
+
+                            UpdateThreatMaps(threat_map2, unit, position,
+                                             ((unit_speed + 1) * unit_shots) / (unit_shots + 1) + attack_range,
+                                             unit_attack, 1, unit_ammo, false);
+                        }
+                    }
+                }
+            } break;
+
+            case CAUTION_LEVEL_AVOID_ALL_DAMAGE: {
+                int range = 0;
+
+                if (teams[unit->team]) {
+                    if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                        range = unit_speed / 2;
+
+                    } else {
+                        range = ((unit_speed + 1) * (unit_shots - 1)) / (unit_shots);
+
+                        if (GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
+                            range = std::max(range, unit_speed);
+                        }
+                    }
+                }
+
+                if (range > 0) {
+                    UpdateThreatMaps(threat_map2, unit, position, range + attack_range, unit_attack, unit_shots,
+                                     unit_ammo, false);
+                }
+            } break;
+
+            case CAUTION_LEVEL_AVOID_REACTION_FIRE: {
+                UpdateThreatMaps(threat_map2, unit, position, unit_range, unit_attack, unit->shots, unit_ammo, false);
+            } break;
+        }
+    }
+}
 
 void AiPlayer::SumUpMaps(short** map1, short** map2) {
     for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -520,7 +709,241 @@ bool AiPlayer::IsAbleToAttack(UnitInfo* unit, ResourceID unit_type, unsigned sho
     return result;
 }
 
-ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned char flags) {}
+ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned char flags) {
+    ThreatMap* result;
+
+    if (ResourceManager_MapSize.x > 0) {
+        if (need_init) {
+            BeginTurn();
+        }
+
+        if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT) {
+            flags = 0x00;
+        }
+
+        for (int i = 0; i < 10; ++i) {
+            if (AiPlayer_ThreatMaps[i].risk_level == risk_level &&
+                AiPlayer_ThreatMaps[i].caution_level == caution_level && AiPlayer_ThreatMaps[i].flags == flags &&
+                AiPlayer_ThreatMaps[i].team == player_team) {
+                AiPlayer_ThreatMaps[i].id = 0;
+
+                result = &AiPlayer_ThreatMaps[i];
+
+                for (; i < 10; ++i) {
+                    ++AiPlayer_ThreatMaps[i].id;
+                }
+            }
+        }
+
+        int index = 0;
+
+        for (int i = 1; i < 10; ++i) {
+            if (AiPlayer_ThreatMaps[index].id < AiPlayer_ThreatMaps[i].id) {
+                index = i;
+            }
+        }
+
+        AiPlayer_ThreatMaps[index].Init();
+
+        AiPlayer_ThreatMaps[index].risk_level = risk_level;
+        AiPlayer_ThreatMaps[index].armor = 0;
+        AiPlayer_ThreatMaps[index].caution_level = caution_level;
+        AiPlayer_ThreatMaps[index].flags = flags;
+        AiPlayer_ThreatMaps[index].team = player_team;
+        AiPlayer_ThreatMaps[index].id = 0;
+
+        for (int i = 0; i < 10; ++i) {
+            ++AiPlayer_ThreatMaps[i].id;
+        }
+
+        ThreatMap threat_map;
+        const ResourceID risk_group[] = {INVALID_ID, TANK, SURVEYOR, FIGHTER, COMMANDO, COMMANDO, SUBMARNE, CLNTRANS};
+        ResourceID risk_group_unit = risk_group[risk_level];
+        bool teams[PLAYER_TEAM_MAX];
+
+        AiAttack_GetTargetTeams(player_team, teams);
+
+        if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
+            threat_map.Init();
+        }
+
+        if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
+            UpdateDamagePotentialMap(&unitinfo_list1, threat_map.damage_potential_map);
+            UpdateDamagePotentialMap(&unitinfo_list2, AiPlayer_ThreatMaps[index].damage_potential_map);
+        }
+
+        int counter = 0;
+
+        if (flags) {
+            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_MASTER) {
+                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                    if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
+                        ++counter;
+
+                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams, &threat_map,
+                                         &AiPlayer_ThreatMaps[index]);
+                    }
+                }
+
+                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+                     it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+                    if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
+                        ++counter;
+
+                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams, &threat_map,
+                                         &AiPlayer_ThreatMaps[index]);
+                    }
+                }
+
+                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
+                     it != UnitsManager_MobileAirUnits.End(); ++it) {
+                    if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
+                        ++counter;
+
+                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams, &threat_map,
+                                         &AiPlayer_ThreatMaps[index]);
+                    }
+                }
+
+            } else {
+                for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+                    if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
+                        ++counter;
+
+                        DetermineThreats((*it).GetUnit(), Point((*it).GetUnit()->grid_x, (*it).GetUnit()->grid_y),
+                                         caution_level, teams, &threat_map, &AiPlayer_ThreatMaps[index]);
+                    }
+                }
+            }
+
+        } else {
+            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+                if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
+                    ++counter;
+
+                    DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, teams, &threat_map,
+                                     &AiPlayer_ThreatMaps[index]);
+                }
+            }
+        }
+
+        if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
+            NormalizeThreatMap(&AiPlayer_ThreatMaps[index]);
+            NormalizeThreatMap(&threat_map);
+            SumUpMaps(AiPlayer_ThreatMaps[index].damage_potential_map, threat_map.damage_potential_map);
+            SumUpMaps(AiPlayer_ThreatMaps[index].shots_map, threat_map.shots_map);
+        }
+
+        int team_count = 0;
+        char* heat_maps_stealth_sea[PLAYER_TEAM_MAX];
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+            if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                teams[team_count] = team;
+                ++team_count;
+            }
+        }
+
+        if (risk_level == 7) {
+            for (int team = 0; team < team_count; ++team) {
+                heat_maps_stealth_sea[team] = UnitsManager_TeamInfo[teams[team]].heat_map_stealth_sea;
+            }
+
+            for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                    if (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x] == SURFACE_TYPE_WATER) {
+                        bool is_found = false;
+
+                        for (int team = 0; team < team_count; ++team) {
+                            if (heat_maps_stealth_sea[team][y * ResourceManager_MapSize.x + x]) {
+                                is_found = true;
+                                break;
+                            }
+                        }
+
+                        if (!is_found) {
+                            AiPlayer_ThreatMaps[index].damage_potential_map[x][y] = 0x00;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int team = 0; team < team_count; ++team) {
+            char* active_heat_map = UnitsManager_TeamInfo[teams[team]].heat_map_complete;
+
+            if (risk_level == 6) {
+                active_heat_map = UnitsManager_TeamInfo[teams[team]].heat_map_stealth_sea;
+
+            } else if (risk_level == 5 || risk_level == 4) {
+                active_heat_map = UnitsManager_TeamInfo[teams[team]].heat_map_stealth_land;
+            }
+
+            for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                    if (active_heat_map[y * ResourceManager_MapSize.x + x]) {
+                        AiPlayer_ThreatMaps[index].damage_potential_map[x][y] |= 0x8000;
+                    }
+                }
+            }
+        }
+
+        if (risk_level == 4) {
+            short** active_damage_potential_map = AiPlayer_ThreatMaps[index].damage_potential_map;
+
+            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+                if ((*it).GetUnit()->orders == ORDER_DISABLE) {
+                    ZoneWalker walker((*it).GetLastPosition(), 4);
+
+                    do {
+                        active_damage_potential_map[walker.GetGridX()][walker.GetGridY()] |= 0x8000;
+
+                    } while (walker.FindNext());
+                }
+            }
+        }
+
+        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+            for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                if (AiPlayer_ThreatMaps[index].damage_potential_map[x][y] & 0x8000) {
+                    AiPlayer_ThreatMaps[index].damage_potential_map[x][y] &= 0x7FFF;
+
+                } else {
+                    AiPlayer_ThreatMaps[index].damage_potential_map[x][y] = 0x00;
+                }
+            }
+        }
+
+        if (risk_level != 3 && risk_level != 2 && mine_map) {
+            for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                    AiPlayer_ThreatMaps[index].damage_potential_map[x][y] += mine_map[x][y];
+                    ++AiPlayer_ThreatMaps[index].shots_map[x][y];
+                }
+            }
+        }
+
+        if (risk_level != 3) {
+            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+                UnitInfo* unit = (*it).GetUnit();
+
+                if (unit->unit_type == LANDMINE || unit->unit_type == SEAMINE) {
+                    AiPlayer_ThreatMaps[index].damage_potential_map[unit->grid_x][unit->grid_y] +=
+                        unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
+                    ++AiPlayer_ThreatMaps[index].shots_map[unit->grid_x][unit->grid_y];
+                }
+            }
+        }
+
+        result = &AiPlayer_ThreatMaps[index];
+
+    } else {
+        result = nullptr;
+    }
+
+    return result;
+}
 
 WeightTable AiPlayer::GetWeightTable(ResourceID unit_type) {
     WeightTable result;
@@ -883,7 +1306,354 @@ int AiPlayer::GetVictoryConditionsFactor() {
     return result;
 }
 
-void AiPlayer::RollTeamMissionSupplies(int clan) {}
+void AiPlayer::RollTeamMissionSupplies(int clan) {
+    TeamMissionSupplies* mission_supplies = &UnitsManager_TeamMissionSupplies[player_team];
+    ResourceID unit_type;
+    unsigned short cargo;
+
+    mission_supplies->team_gold =
+        ini_clans.GetClanGold(UnitsManager_TeamInfo[player_team].team_clan) + ini_get_setting(INI_START_GOLD);
+
+    mission_supplies->units.Clear();
+
+    unit_type = CONSTRCT;
+    mission_supplies->units.PushBack(&unit_type);
+
+    unit_type = ENGINEER;
+    mission_supplies->units.PushBack(&unit_type);
+
+    unit_type = SURVEYOR;
+    mission_supplies->units.PushBack(&unit_type);
+
+    UnitsManager_AddAxisMissionLoadout(player_team, mission_supplies->units);
+
+    mission_supplies->cargos.Clear();
+
+    cargo = 40;
+    mission_supplies->cargos.PushBack(&cargo);
+
+    cargo = 20;
+    mission_supplies->cargos.PushBack(&cargo);
+
+    for (int i = 2; i < mission_supplies->units.GetCount(); ++i) {
+        cargo = 0;
+        mission_supplies->cargos.PushBack(&cargo);
+    }
+
+    switch (strategy) {
+        case AI_STRATEGY_DEFENSIVE: {
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            AddUnitToTeamMissionSupplies(SCANNER, 0);
+            AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            AddUnitToTeamMissionSupplies(TANK, 0);
+
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(CONSTRCT, 8);
+            }
+
+            ChooseInitialUpgrades(((((dos_rand() * 5) >> 15) + 4) * mission_supplies->team_gold) / 16);
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(SURVEYOR, 0);
+            }
+
+            AddUnitToTeamMissionSupplies(MINELAYR, 16);
+
+            if (GetVictoryConditionsFactor() > 1) {
+                while (AddUnitToTeamMissionSupplies(ENGINEER, 8)) {
+                    AddUnitToTeamMissionSupplies(ENGINEER, 24);
+                    AddUnitToTeamMissionSupplies(CONSTRCT, 20);
+                }
+
+            } else {
+                AddUnitToTeamMissionSupplies(SCOUT, 0);
+                ChooseInitialUpgrades(mission_supplies->team_gold / 2);
+
+                if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+                    while (AddUnitToTeamMissionSupplies(TANK, 0)) {
+                    }
+
+                } else {
+                    while (AddUnitToTeamMissionSupplies(TANK, 0)) {
+                        AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+                    }
+                }
+            }
+        } break;
+
+        case AI_STRATEGY_MISSILES: {
+            AddUnitToTeamMissionSupplies(SCANNER, 0);
+            AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+            AddUnitToTeamMissionSupplies(TANK, 0);
+
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(CONSTRCT, 0);
+            }
+
+            ChooseInitialUpgrades(((((dos_rand() * 5) >> 15) + 4) * mission_supplies->team_gold) / 16);
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(SURVEYOR, 0);
+            }
+
+            while (AddUnitToTeamMissionSupplies(TANK, 0)) {
+                if (GetVictoryConditionsFactor() > 1) {
+                    AddUnitToTeamMissionSupplies(CONSTRCT, 20);
+                    AddUnitToTeamMissionSupplies(ENGINEER, 8);
+                }
+
+                AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+            }
+        } break;
+
+        case AI_STRATEGY_AIR: {
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+            AddUnitToTeamMissionSupplies(SCANNER, 0);
+            AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(CONSTRCT, 4);
+            }
+
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 8);
+            }
+
+            ChooseInitialUpgrades(((((dos_rand() * 4) >> 15) + 1) * mission_supplies->team_gold) / 16);
+
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(SURVEYOR, 0);
+
+                if (clan != TEAM_CLAN_AXIS_INC) {
+                    AddUnitToTeamMissionSupplies(CONSTRCT, 20);
+                    AddUnitToTeamMissionSupplies(ENGINEER, 8);
+                }
+            }
+
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+
+            if (GetVictoryConditionsFactor() > 1) {
+                while (AddUnitToTeamMissionSupplies(CONSTRCT, 40)) {
+                }
+
+            } else {
+                ChooseInitialUpgrades(mission_supplies->team_gold / 2);
+
+                while (AddUnitToTeamMissionSupplies(MISSLLCH, 0)) {
+                }
+            }
+        } break;
+
+        case AI_STRATEGY_SEA: {
+            AddUnitToTeamMissionSupplies(SCANNER, 0);
+            AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(CONSTRCT, 0);
+            }
+
+            ChooseInitialUpgrades(((((dos_rand() * 4) >> 15) + 1) * mission_supplies->team_gold) / 16);
+
+            AddUnitToTeamMissionSupplies(SP_FLAK, 0);
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(SURVEYOR, 0);
+                AddUnitToTeamMissionSupplies(CONSTRCT, 40);
+            }
+
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 8);
+            }
+
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+
+            if (GetVictoryConditionsFactor() > 1) {
+                while (AddUnitToTeamMissionSupplies(CONSTRCT, 40)) {
+                }
+
+            } else {
+                ChooseInitialUpgrades(mission_supplies->team_gold / 2);
+
+                while (AddUnitToTeamMissionSupplies(SCOUT, 0)) {
+                }
+            }
+        } break;
+
+        case AI_STRATEGY_SCOUT_HORDE: {
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            ChooseInitialUpgrades(((((dos_rand() * 4) >> 15) + 2) * mission_supplies->team_gold) / 8);
+
+            while (AddUnitToTeamMissionSupplies(SCOUT, 0)) {
+            }
+        } break;
+
+        case AI_STRATEGY_TANK_HORDE: {
+            AddUnitToTeamMissionSupplies(SCANNER, 0);
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+            AddUnitToTeamMissionSupplies(TANK, 0);
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+            AddUnitToTeamMissionSupplies(TANK, 0);
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+            AddUnitToTeamMissionSupplies(TANK, 0);
+            AddUnitToTeamMissionSupplies(REPAIR, 0);
+
+            ChooseInitialUpgrades(((((dos_rand() * 6) >> 15) + 1) * mission_supplies->team_gold) / 8);
+
+            AddUnitToTeamMissionSupplies(TANK, 0);
+            AddUnitToTeamMissionSupplies(TANK, 0);
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            while (AddUnitToTeamMissionSupplies(TANK, 0)) {
+            }
+        } break;
+
+        case AI_STRATEGY_FAST_ATTACK: {
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+            AddUnitToTeamMissionSupplies(ARTILLRY, 0);
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+            AddUnitToTeamMissionSupplies(ARTILLRY, 0);
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(CONSTRCT, 0);
+            }
+
+            ChooseInitialUpgrades(((((dos_rand() * 5) >> 15) + 3) * mission_supplies->team_gold) / 12);
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(SURVEYOR, 0);
+            }
+
+            while (AddUnitToTeamMissionSupplies(SCOUT, 0)) {
+                AddUnitToTeamMissionSupplies(ARTILLRY, 0);
+                AddUnitToTeamMissionSupplies(SCOUT, 0);
+                AddUnitToTeamMissionSupplies(ARTILLRY, 0);
+
+                if (GetVictoryConditionsFactor() > 1) {
+                    AddUnitToTeamMissionSupplies(CONSTRCT, 20);
+                    AddUnitToTeamMissionSupplies(ENGINEER, 8);
+                }
+            }
+
+        } break;
+
+        case AI_STRATEGY_COMBINED_ARMS: {
+            AddUnitToTeamMissionSupplies(SCANNER, 0);
+            AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+            AddUnitToTeamMissionSupplies(TANK, 0);
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(CONSTRCT, 0);
+            }
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(SURVEYOR, 0);
+            }
+
+            AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+            AddUnitToTeamMissionSupplies(TANK, 0);
+
+            ChooseInitialUpgrades(((((dos_rand() * 10) >> 15) + 3) * mission_supplies->team_gold) / 16);
+
+            while (AddUnitToTeamMissionSupplies(SCOUT, 0)) {
+                if (GetVictoryConditionsFactor() > 1) {
+                    AddUnitToTeamMissionSupplies(CONSTRCT, 20);
+                    AddUnitToTeamMissionSupplies(ENGINEER, 8);
+                }
+
+                AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+                AddUnitToTeamMissionSupplies(TANK, 0);
+            }
+        } break;
+
+        case AI_STRATEGY_ESPIONAGE: {
+            if (clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            AddUnitToTeamMissionSupplies(SCANNER, 0);
+            AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+            AddUnitToTeamMissionSupplies(SCOUT, 0);
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(CONSTRCT, 0);
+            }
+
+            ChooseInitialUpgrades(((((dos_rand() * 10) >> 11) + 2) * mission_supplies->team_gold) / 16);
+
+            if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
+                AddUnitToTeamMissionSupplies(ENGINEER, 0);
+            }
+
+            if (GetVictoryConditionsFactor() > 1) {
+                AddUnitToTeamMissionSupplies(SURVEYOR, 0);
+            }
+
+            if (GetVictoryConditionsFactor() > 1) {
+                while (AddUnitToTeamMissionSupplies(CONSTRCT, 20)) {
+                }
+
+            } else {
+                while (AddUnitToTeamMissionSupplies(TANK, 0)) {
+                    AddUnitToTeamMissionSupplies(MISSLLCH, 0);
+                }
+            }
+        } break;
+    }
+
+    ChooseInitialUpgrades(mission_supplies->team_gold);
+}
 
 void AiPlayer::AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, int attribute) {
     if (Builder_IsBuildable(unit_type)) {
@@ -1827,9 +2597,251 @@ void AiPlayer::BeginTurn() {
     }
 }
 
-void AiPlayer::GuessEnemyAttackDirections() {}
+void AiPlayer::GuessEnemyAttackDirections() {
+    if (info_map) {
+        AccessMap access_map;
+        SmartList<UnitInfo> units;
+        Point site;
 
-void AiPlayer::PlanMinefields() {}
+        for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
+            for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
+                info_map[site.x][site.y] &= 0xFB;
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).team == player_team) {
+                units.PushBack(*it);
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+             it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            if ((*it).team == player_team && IsPotentialSpotter(player_team, &*it)) {
+                units.PushBack(*it);
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
+             it != UnitsManager_MobileAirUnits.End(); ++it) {
+            if ((*it).team == player_team && IsPotentialSpotter(player_team, &*it)) {
+                units.PushBack(*it);
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+            ZoneWalker walker(Point((*it).grid_x, (*it).grid_y), (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) + 8);
+
+            do {
+                access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()] = 0x01;
+            } while (walker.FindNext());
+        }
+
+        for (int team = PLAYER_TEAM_MAX; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
+                    for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
+                        if (UnitsManager_TeamInfo[team]
+                                .heat_map_complete[site.y * ResourceManager_MapSize.x + site.x]) {
+                            access_map.GetMapColumn(site.x)[site.y] = 0x00;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+            CircumferenceWalker walker(Point((*it).grid_x, (*it).grid_y),
+                                       (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) + 10);
+
+            do {
+                if (!access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()]) {
+                    UpdateAccessMap(*walker.GetGridXY(), Point((*it).grid_x, (*it).grid_y), access_map.GetMap());
+                }
+            } while (walker.FindNext());
+        }
+    }
+}
+
+void AiPlayer::PlanMinefields() {
+    if (info_map && field_7 > 0) {
+        AccessMap access_map;
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).team == player_team) {
+                if ((*it).unit_type == GUNTURRT || (*it).unit_type == ANTIMSSL || (*it).unit_type == ARTYTRRT) {
+                    ZoneWalker walker(Point((*it).grid_x, (*it).grid_y),
+                                      (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE));
+                    int surface_type = Access_GetSurfaceType((*it).grid_x, (*it).grid_y);
+
+                    do {
+                        if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
+                            access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()] = 0x01;
+                        }
+
+                    } while (walker.FindNext());
+
+                } else if ((*it).flags & BUILDING) {
+                    ZoneWalker walker(Point((*it).grid_x, (*it).grid_y), 8);
+                    int surface_type = Access_GetSurfaceType((*it).grid_x, (*it).grid_y);
+
+                    do {
+                        if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
+                            access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()] = 0x01;
+                        }
+
+                    } while (walker.FindNext());
+                }
+            }
+        }
+
+        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it; ++it) {
+            if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
+                TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
+
+                if (create_building->Task_vfunc28()) {
+                    if (UnitsManager_BaseUnits[create_building->GetUnitType()].flags & BUILDING) {
+                        Point position = create_building->DeterminePosition();
+                        ZoneWalker walker(position, 8);
+                        int surface_type = Access_GetSurfaceType(position.x, position.y);
+
+                        do {
+                            if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
+                                access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()] = 0x01;
+                            }
+
+                        } while (walker.FindNext());
+                    }
+                }
+            }
+        }
+
+        /// \todo The entire block is dead code due to the inner for loops.
+        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it; ++it) {
+            if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
+                TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
+
+                if (create_building->Task_vfunc28()) {
+                    Rect bounds;
+
+                    create_building->GetBounds(&bounds);
+
+                    if (UnitsManager_BaseUnits[create_building->GetUnitType()].flags & BUILDING) {
+                        bounds.ulx = std::max(0, bounds.ulx - 2);
+                        bounds.uly = std::max(0, bounds.uly - 2);
+                        bounds.lrx = std::min(static_cast<int>(ResourceManager_MapSize.x), bounds.lrx + 2);
+                        bounds.lry = std::min(static_cast<int>(ResourceManager_MapSize.y), bounds.lry + 2);
+
+                        for (int x = bounds.ulx; x < 0; ++x) {
+                            for (int y = bounds.uly; y < 0; ++y) {
+                                access_map.GetMapColumn(x)[y] = 0x00;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// \todo The entire block is dead code due to the inner for loops.
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            Rect bounds;
+
+            (*it).GetBounds(&bounds);
+
+            if (UnitsManager_BaseUnits[(*it).unit_type].flags & BUILDING) {
+                bounds.ulx = std::max(0, bounds.ulx - 2);
+                bounds.uly = std::max(0, bounds.uly - 2);
+                bounds.lrx = std::min(static_cast<int>(ResourceManager_MapSize.x), bounds.lrx + 2);
+                bounds.lry = std::min(static_cast<int>(ResourceManager_MapSize.y), bounds.lry + 2);
+
+                for (int x = bounds.ulx; x < 0; ++x) {
+                    for (int y = bounds.uly; y < 0; ++y) {
+                        access_map.GetMapColumn(x)[y] = 0x00;
+                    }
+                }
+            }
+        }
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (team != player_team) {
+                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                    for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+                        for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                            if (UnitsManager_TeamInfo[team].heat_map_complete[y * ResourceManager_MapSize.x + x]) {
+                                access_map.GetMapColumn(x)[y] = 0x00;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        int counter1 = 0;
+        int counter2 = 0;
+        int counter3 = 0;
+
+        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+            for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                int surface_type = Access_GetSurfaceType(x, y);
+
+                if (access_map.GetMapColumn(x)[y]) {
+                    ++counter1;
+
+                    if (info_map[x][y] & 0x02) {
+                        ++counter2;
+
+                        access_map.GetMapColumn(x)[y] = 0x00;
+                    }
+
+                } else {
+                }
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
+             it != UnitsManager_GroundCoverUnits.End(); ++it) {
+            if ((*it).team == player_team && ((*it).unit_type == LANDMINE || (*it).unit_type == SEAMINE)) {
+                if (access_map.GetMapColumn((*it).grid_x)[(*it).grid_y]) {
+                    ++counter3;
+
+                    info_map[(*it).grid_x][(*it).grid_y] &= 0xFD;
+                    access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] = 0x00;
+                }
+            }
+        }
+
+        int probability = ((field_7 * counter1) / 100) - counter2 - counter3;
+
+        if (probability >= 32 - counter2) {
+            probability = 32 - counter2;
+        }
+
+        counter1 -= counter2 + counter3;
+
+        if (probability > 0) {
+            for (int x = 0; x < ResourceManager_MapSize.x && probability; ++x) {
+                for (int y = 0; y < ResourceManager_MapSize.y && probability; ++y) {
+                    if (access_map.GetMapColumn(x)[y]) {
+                        if (((dos_rand() * counter1) >> 15) + 1 <= probability) {
+                            info_map[x][y] |= 0x02;
+                            --probability;
+                        }
+
+                        --counter1;
+                    }
+                }
+            }
+
+            if (!task_4) {
+                task_4 = (new (std::nothrow) TaskPlaceMines(player_team));
+                TaskManager.AppendTask(*task_4);
+            }
+        }
+    }
+}
 
 void AiPlayer::ChangeTasksPendingFlag(bool value) { tasks_pending = value; }
 
@@ -2780,7 +3792,66 @@ void AiPlayer::FindMines(UnitInfo* unit) {
     }
 }
 
-WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, unsigned char flags) {}
+WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, unsigned char flags) {
+    WeightTable table = GetFilteredWeightTable(target->unit_type, flags);
+    TeamUnits* team_units = UnitsManager_TeamInfo[player_team].team_units;
+    Point position(target->grid_x, target->grid_y);
+
+    if (target->team == PLAYER_TEAM_ALIEN && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
+        table.Clear();
+
+        UnitWeight unit_weight(COMMANDO, 1);
+
+        table.PushBack(unit_weight);
+
+    } else {
+        if (target->team == PLAYER_TEAM_ALIEN) {
+            table = GetFilteredWeightTable(ADUMP, flags);
+        }
+
+        if (target->flags & STATIONARY) {
+            bool is_water_present = false;
+            Rect bounds;
+
+            target->GetBounds(&bounds);
+
+            for (int x = bounds.ulx; x < bounds.lrx; ++x) {
+                for (int y = bounds.uly; y < bounds.lry; ++y) {
+                    if (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x] == SURFACE_TYPE_WATER) {
+                        is_water_present = true;
+                    }
+                }
+            }
+
+            if (is_water_present) {
+                UnitWeight unit_weight(CORVETTE, 1);
+
+                table.PushBack(unit_weight);
+            }
+
+            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+                UnitWeight unit_weight(SUBMARNE, 1);
+
+                table.PushBack(unit_weight);
+            }
+        }
+
+        for (int i = 0; i < table.GetCount(); ++i) {
+            int surface_type = UnitsManager_BaseUnits[table[i].unit_type].land_type;
+            int unit_range = team_units->GetCurrentUnitValues(table[i].unit_type)->GetAttribute(ATTRIB_RANGE);
+
+            if (surface_type == SURFACE_TYPE_LAND && !IsSurfaceTypePresent(position, unit_range, SURFACE_TYPE_LAND)) {
+                table[i].weight = 0;
+            }
+
+            if (surface_type == SURFACE_TYPE_WATER && !IsSurfaceTypePresent(position, unit_range, SURFACE_TYPE_WATER)) {
+                table[i].weight = 0;
+            }
+        }
+    }
+
+    return table;
+}
 
 bool AiPlayer::ShouldUpgradeUnit(UnitInfo* unit) {
     bool result;
@@ -2869,11 +3940,512 @@ void AiPlayer::RemoveUnit(UnitInfo* unit) {
     }
 }
 
-void AiPlayer::UnitSpotted(UnitInfo* unit) {}
+void AiPlayer::UnitSpotted(UnitInfo* unit) {
+    if (unit->team != player_team &&
+        (!(unit->flags & GROUND_COVER) || unit->unit_type == LANDMINE || unit->unit_type == SEAMINE)) {
+        SmartList<SpottedUnit>::Iterator spotted_unit;
 
-bool AiPlayer::MatchPath(TaskPathRequest* request) {}
+        for (spotted_unit = spotted_units.Begin(); spotted_unit; ++spotted_unit) {
+            if ((*spotted_unit).GetUnit() == unit) {
+                break;
+            }
+        }
 
-bool AiPlayer::SelectStrategy() {}
+        if (spotted_unit) {
+            (*spotted_unit).UpdatePosition();
+
+        } else {
+            SmartPointer<SpottedUnit> spotted_unit2(new (std::nothrow) SpottedUnit(unit, player_team));
+
+            spotted_units.PushBack(*spotted_unit2);
+
+            if (unit->unit_type == LANDMINE || unit->unit_type == SEAMINE) {
+                MineSpotted(unit);
+            }
+
+            bool is_key_facility = false;
+
+            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+                if (IsKeyFacility((*it).GetUnit()->unit_type)) {
+                    is_key_facility = true;
+                    break;
+                }
+            }
+
+            if ((IsKeyFacility(unit->unit_type) || (!is_key_facility && unit->unit_type == CONSTRCT)) &&
+                unit->team == target_team) {
+                DetermineAttack(&*spotted_unit2, 0x1F00);
+
+            } else if (!is_key_facility && unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0) {
+                if (unit->team == target_team) {
+                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+                         it != UnitsManager_StationaryUnits.End(); ++it) {
+                        if ((*it).team == unit->team && IsKeyFacility((*it).unit_type) &&
+                            TaskManager_GetDistance(unit, &*it) < 30) {
+                            spotted_unit2 = new (std::nothrow) SpottedUnit(&*it, player_team);
+
+                            spotted_unit2->SetPosition(Point(unit->grid_x, unit->grid_y));
+
+                            spotted_units.PushBack(*spotted_unit2);
+
+                            DetermineAttack(&*spotted_unit2, 0x1F00);
+
+                            return;
+                        }
+                    }
+
+                    for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+                        if ((*it).GetUnit()->unit_type == CONSTRCT) {
+                            return;
+                        }
+                    }
+
+                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+                         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+                        if ((*it).team == unit->team && (*it).unit_type == CONSTRCT &&
+                            TaskManager_GetDistance(unit, &*it) < 30) {
+                            spotted_unit2 = new (std::nothrow) SpottedUnit(&*it, player_team);
+
+                            spotted_unit2->SetPosition(Point(unit->grid_x, unit->grid_y));
+
+                            spotted_units.PushBack(*spotted_unit2);
+
+                            DetermineAttack(&*spotted_unit2, 0x1F00);
+
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool AiPlayer::MatchPath(TaskPathRequest* request) {
+    UnitInfo* unit = request->GetUnit1();
+    Point position(unit->grid_x, unit->grid_y);
+    int minimum_distance = request->GetMinimumDistance();
+    Point site = request->GetPoint();
+    int distance = TaskManager_GetDistance(position, site) / 2;
+    bool result;
+
+    distance -= minimum_distance;
+
+    if (distance >= unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
+        int transport_category = TransportOrder::DetermineCategory(unit->unit_type);
+        bool flag = request->GetField31();
+        TransportOrder* transport_order = nullptr;
+        Point source;
+        Point destination;
+        int minimum_distance2;
+
+        for (SmartList<TransportOrder>::Iterator it = transport_orders.Begin(); it != transport_orders.End(); ++it) {
+            if ((*it).GetTransportCategory() == transport_category) {
+                int distance1;
+                int distance2;
+
+                source = (*it).MatchStartPosition(position);
+                distance1 = TaskManager_GetDistance(position, source) / 2;
+                destination = (*it).MatchStartPosition(site);
+                distance2 = TaskManager_GetDistance(site, destination) / 2;
+                distance2 -= minimum_distance;
+
+                if (distance2 < 0) {
+                    distance2 = 0;
+                }
+
+                if (distance2 < distance / 3 && distance1 < distance / 3 &&
+                    (flag || (*it).GetUnitType() == INVALID_ID)) {
+                    if (!transport_order || distance1 + distance2 < minimum_distance2) {
+                        transport_order = &*it;
+                        minimum_distance2 = distance1 + distance2;
+                    }
+                }
+            }
+        }
+
+        if (transport_order) {
+            transport_order->UsePrecalculatedPath(request);
+
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool AiPlayer::SelectStrategy() {
+    SmartArray<Continent> continents;
+    AccessMap access_map;
+    Point site;
+    int continent_size = 0;
+    unsigned short strategy_scores[AI_STRATEGY_MAX];
+
+    for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
+        for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
+            switch (Access_GetSurfaceType(site.x, site.y)) {
+                case SURFACE_TYPE_LAND: {
+                    access_map.GetMapColumn(site.x)[site.y] = 0x02;
+                } break;
+
+                case SURFACE_TYPE_WATER:
+                case SURFACE_TYPE_COAST: {
+                    access_map.GetMapColumn(site.x)[site.y] = 0x01;
+                } break;
+
+                default: {
+                    access_map.GetMapColumn(site.x)[site.y] = 0x00;
+                } break;
+            }
+        }
+    }
+
+    for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
+        for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
+            if (access_map.GetMapColumn(site.x)[site.y] == 0x02) {
+                SmartPointer<Continent> continent(new (std::nothrow)
+                                                      Continent(access_map.GetMap(), continents.GetCount() + 3, site));
+
+                if (continent->IsViableContinent(false, player_team)) {
+                    continents.Insert(*continent);
+                }
+            }
+        }
+    }
+
+    int opponent_class = ini_get_setting(INI_OPPONENT);
+
+    for (int i = 0; i < AI_STRATEGY_MAX; ++i) {
+        strategy_scores[i] = 0;
+    }
+
+    if (opponent_class >= OPPONENT_TYPE_AVERAGE) {
+        int continent_score = 0;
+        continent_size = 0;
+
+        for (int i = 0; i < continents.GetCount(); ++i) {
+            if (continents[i].GetContinentSize() > continent_size) {
+                continent_size = continents[i].GetContinentSize();
+            }
+        }
+
+        for (int i = 0; i < continents.GetCount(); ++i) {
+            if (continent_size <= 80 || continents[i].GetContinentSize() >= 80) {
+                if (continents[i].IsViableContinent(true, player_team)) {
+                    ++continent_score;
+
+                } else {
+                    continent_score = 100;
+                }
+            }
+        }
+
+        if (continent_score == 1) {
+            switch (opponent_class) {
+                case OPPONENT_TYPE_AVERAGE: {
+                    strategy_scores[AI_STRATEGY_TANK_HORDE] = 1;
+                } break;
+
+                case OPPONENT_TYPE_EXPERT: {
+                    strategy_scores[AI_STRATEGY_TANK_HORDE] = 6;
+                } break;
+
+                case OPPONENT_TYPE_MASTER: {
+                    strategy_scores[AI_STRATEGY_TANK_HORDE] = 12;
+                } break;
+
+                case OPPONENT_TYPE_GOD: {
+                    strategy_scores[AI_STRATEGY_TANK_HORDE] = 24;
+                } break;
+            }
+        }
+    }
+
+    continent_size = 0;
+
+    for (int i = 0; i < continents.GetCount(); ++i) {
+        continents[i].TestIsolated();
+    }
+
+    for (int i = continents.GetCount() - 1; i >= 0; --i) {
+        if (continents[i].IsViableContinent(true, player_team)) {
+            if (continents[i].GetContinentSize() > continent_size) {
+                continent_size = continents[i].GetContinentSize();
+            }
+
+        } else {
+            continents.Erase(i);
+        }
+    }
+
+    if (continent_size > 80) {
+        for (int i = continents.GetCount() - 1; i >= 0; --i) {
+            if (continents[i].GetContinentSize() < 80) {
+                continents.Erase(i);
+            }
+        }
+    }
+
+    int isolated_continents = 0;
+    int continents_in_close_proximity = 0;
+
+    for (int i = 0; i < continents.GetCount(); ++i) {
+        if (continents[i].IsIsolated()) {
+            ++isolated_continents;
+        }
+
+        if (continents[i].IsCloseProximity()) {
+            ++continents_in_close_proximity;
+        }
+    }
+
+    strategy_scores[AI_STRATEGY_MISSILES] = continents.GetCount();
+
+    if (opponent_class >= OPPONENT_TYPE_APPRENTICE) {
+        strategy_scores[AI_STRATEGY_DEFENSIVE] = continents.GetCount();
+    }
+
+    if (opponent_class >= OPPONENT_TYPE_AVERAGE && strategy_scores[AI_STRATEGY_TANK_HORDE] == 0) {
+        strategy_scores[AI_STRATEGY_DEFENSIVE] = continents.GetCount();
+
+        if (isolated_continents > 0) {
+            strategy_scores[AI_STRATEGY_SCOUT_HORDE] = 1;
+
+        } else {
+            strategy_scores[AI_STRATEGY_SCOUT_HORDE] = continents.GetCount();
+        }
+
+        if (opponent_class >= OPPONENT_TYPE_MASTER) {
+            strategy_scores[AI_STRATEGY_SCOUT_HORDE] *= 2;
+        }
+
+        if (opponent_class >= OPPONENT_TYPE_GOD) {
+            strategy_scores[AI_STRATEGY_SCOUT_HORDE] *= 2;
+        }
+    }
+
+    strategy_scores[AI_STRATEGY_AIR] = continents_in_close_proximity * 2;
+
+    if (opponent_class >= OPPONENT_TYPE_EXPERT) {
+        strategy_scores[AI_STRATEGY_TANK_HORDE] = continents.GetCount();
+    }
+
+    strategy_scores[AI_STRATEGY_SEA] = isolated_continents * 2;
+
+    strategy_scores[AI_STRATEGY_FAST_ATTACK] = continents.GetCount() - continents_in_close_proximity;
+
+    strategy_scores[AI_STRATEGY_COMBINED_ARMS] = (continents.GetCount() + continents_in_close_proximity) * 2;
+
+    strategy = AI_STRATEGY_RANDOM;
+
+    {
+        char strategy_string[80];
+        const char* strategy_strings[AI_STRATEGY_MAX] = {"random",        "defensive",   "missiles",   "air",
+                                                         "sea",           "scout horde", "tank horde", "fast attack",
+                                                         "combined arms", "espionage"};
+
+        if (ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_STRATEGY + player_team), strategy_string,
+                                      sizeof(strategy_string))) {
+            for (int i = 0; i < AI_STRATEGY_MAX; ++i) {
+                if (!stricmp(strategy_string, strategy_strings[i])) {
+                    if (strategy_scores[i] == 0) {
+                        strategy = AI_STRATEGY_RANDOM;
+
+                    } else {
+                        strategy = i;
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    if (strategy == AI_STRATEGY_RANDOM) {
+        int total_score = 0;
+        int potential_strategies = 0;
+
+        for (int i = 0; i < AI_STRATEGY_MAX; ++i) {
+            if (strategy_scores[i] > 0) {
+                ++potential_strategies;
+            }
+        }
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER && team != player_team &&
+                AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_RANDOM) {
+                --potential_strategies;
+            }
+        }
+
+        if (potential_strategies > 0) {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER && team != player_team &&
+                    AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_RANDOM) {
+                    strategy_scores[AiPlayer_Teams[team].GetStrategy()] = 0;
+                }
+            }
+        }
+
+        for (int i = 0; i < AI_STRATEGY_MAX; ++i) {
+            total_score += strategy_scores[i];
+
+            if (strategy_scores[i] > 0) {
+                ++potential_strategies;
+            }
+        }
+
+        total_score = ((dos_rand() * total_score) >> 15) + 1;
+
+        int index = -1;
+
+        do {
+            ++index;
+            total_score -= strategy_scores[index];
+        } while (total_score > 0);
+
+        strategy = index;
+    }
+
+    switch (strategy) {
+        case AI_STRATEGY_SEA: {
+            for (int i = continents.GetCount() - 1; i >= 0; --i) {
+                if (!continents[i].IsIsolated()) {
+                    continents.Erase(i);
+                }
+            }
+        } break;
+
+        case AI_STRATEGY_FAST_ATTACK:
+        case AI_STRATEGY_COMBINED_ARMS: {
+            for (int i = continents.GetCount() - 1; i >= 0; --i) {
+                if (continents[i].IsCloseProximity()) {
+                    continents.Erase(i);
+                }
+            }
+        } break;
+
+        case AI_STRATEGY_AIR: {
+            for (int i = continents.GetCount() - 1; i >= 0; --i) {
+                if (!continents[i].IsCloseProximity()) {
+                    continents.Erase(i);
+                }
+            }
+        } break;
+    }
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (continents.GetCount() > 1 && team != player_team &&
+            UnitsManager_TeamMissionSupplies[team].units.GetCount() > 0 &&
+            UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+            unsigned char filler = access_map.GetMapColumn(
+                UnitsManager_TeamMissionSupplies[team]
+                    .starting_position.x)[UnitsManager_TeamMissionSupplies[team].starting_position.y];
+
+            for (int i = continents.GetCount() - 1; i >= 0 && continents.GetCount() > 1; --i) {
+                if (continents[i].GetFiller() == filler) {
+                    continents.Erase(i);
+                }
+            }
+        }
+    }
+
+    Point map_center(ResourceManager_MapSize.x / 2, ResourceManager_MapSize.y / 2);
+
+    if (strategy == AI_STRATEGY_DEFENSIVE || strategy == AI_STRATEGY_AIR || strategy == AI_STRATEGY_SEA ||
+        strategy == AI_STRATEGY_ESPIONAGE) {
+        int maximum_distance = 0;
+        int distance;
+
+        for (int i = 0; i < continents.GetCount(); ++i) {
+            Point continent_center = continents[i].GetCenter();
+
+            distance = TaskManager_GetDistance(map_center, continent_center);
+
+            if (distance > maximum_distance) {
+                maximum_distance = distance;
+            }
+        }
+
+        for (int i = continents.GetCount() - 1; i >= 0; --i) {
+            Point continent_center = continents[i].GetCenter();
+
+            distance = TaskManager_GetDistance(map_center, continent_center);
+
+            if (distance < maximum_distance / 2) {
+                continents.Erase(i);
+            }
+        }
+    }
+
+    if (strategy == AI_STRATEGY_SCOUT_HORDE) {
+        int minimum_distance = ResourceManager_MapSize.x + ResourceManager_MapSize.y;
+        int distance;
+
+        for (int i = 0; i < continents.GetCount(); ++i) {
+            Point continent_center = continents[i].GetCenter();
+
+            distance = TaskManager_GetDistance(map_center, continent_center);
+
+            if (distance < minimum_distance) {
+                minimum_distance = distance;
+            }
+        }
+
+        for (int i = continents.GetCount() - 1; i >= 0; --i) {
+            Point continent_center = continents[i].GetCenter();
+
+            distance = TaskManager_GetDistance(map_center, continent_center);
+
+            if (distance > minimum_distance * 2) {
+                continents.Erase(i);
+            }
+        }
+    }
+
+    int total_continent_size = 0;
+    bool result;
+
+    for (int i = 0; i < continents.GetCount(); ++i) {
+        total_continent_size += continents[i].GetContinentSize();
+    }
+
+    if (total_continent_size) {
+        total_continent_size = ((dos_rand() * total_continent_size) >> 15) + 1;
+
+        int index = -1;
+
+        do {
+            ++index;
+
+            total_continent_size -= continents[index].GetContinentSize();
+        } while (total_continent_size > 0);
+
+        continents[index].SelectLandingSite(player_team, strategy);
+
+        continents.Release();
+
+        RollTeamMissionSupplies(SelectTeamClan());
+        RollField3();
+        RollField5();
+        RollField7();
+
+        result = true;
+
+    } else {
+        UnitsManager_TeamInfo[player_team].team_type = TEAM_TYPE_NONE;
+
+        result = false;
+    }
+
+    return result;
+}
 
 void AiPlayer::FileSave(SmartFileWriter& file) {
     unsigned short item_count;

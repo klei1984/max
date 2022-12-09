@@ -25,12 +25,7 @@
 #include "unitinfo.hpp"
 
 class ThreatMap {
-    short team;
-    short id;
     Point dimension;
-    unsigned char risk_level;
-    unsigned char caution_level;
-    unsigned char field_18;
 
     void Deinit();
 
@@ -46,6 +41,11 @@ public:
 
     void Update(int armor);
 
+    short team;
+    short id;
+    unsigned char risk_level;
+    unsigned char caution_level;
+    unsigned char flags;
     short armor;
     short **damage_potential_map;
     short **shots_map;
