@@ -1242,10 +1242,6 @@ unsigned short UnitInfo::GetImageIndex() const { return image_index; }
 
 void UnitInfo::PushFrontTask1List(Task* task) { task_list1.PushFront(*task); }
 
-void UnitInfo::ClearTask1List() {
-    /// \todo Implement method
-}
-
 void UnitInfo::AddReminders(bool priority) {
     /// \todo
 }
@@ -1773,10 +1769,6 @@ int UnitInfo::GetTurnsToRepair() {
     hits_damage = base_hits - hits;
 
     return (base_hits * 4 + GetNormalRateBuildCost() * hits_damage - 1) / (base_hits * 4);
-}
-
-unsigned short* UnitInfo::GetAttribute(char index) {
-    /// \todo
 }
 
 void UnitInfo::RefreshScreen() {
@@ -2824,11 +2816,11 @@ bool UnitInfo::AreTherePins() { return pin_count > 0; }
 
 void UnitInfo::DeployConstructionSiteMarkers(ResourceID unit_type) {}
 
-bool UnitInfo::UnitInfo_sub_F410E() {}
+bool UnitInfo::Land() {}
 
 void UnitInfo::ClearInTransitFlag() { in_transit = false; }
 
-bool UnitInfo::UnitInfo_sub_F41DA() {}
+bool UnitInfo::Take() {}
 
 void UnitInfo::SpinningTurretAdvanceAnimation() {
     if (turret_image_index + 1 > image_index_max) {
@@ -2840,3 +2832,49 @@ void UnitInfo::SpinningTurretAdvanceAnimation() {
 }
 
 int UnitInfo::GetAttackRange() {}
+
+void UnitInfo::UpdatePinsFromLists(int grid_x, int grid_y, SmartList<UnitInfo>* units, int pin_units) {}
+
+void UnitInfo::FindTarget(int grid_x, int grid_y, SmartList<UnitInfo>* units) {}
+
+void UnitInfo::UpgradeInt() {}
+
+void UnitInfo::Regenerate() {}
+
+void UnitInfo::StepMoveUnit(Point position) {}
+
+void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {}
+
+int UnitInfo::GetTargetUnitAngle() {}
+
+void UnitInfo::UpdateInfoDisplay() {}
+
+int UnitInfo::Repair(int materials) {}
+
+void UnitInfo::CancelBuilding() {}
+
+void UnitInfo::Refuel(UnitInfo* parent) {}
+
+void UnitInfo::Reload(UnitInfo* parent) {}
+
+void UnitInfo::Upgrade(UnitInfo* parent) {}
+
+void UnitInfo::BusyWaitOrder() {}
+
+void UnitInfo::PositionInTape() {}
+
+void UnitInfo::PlaceMine() {}
+
+void UnitInfo::PickUpMine() {}
+
+bool UnitInfo::ShakeWater() {}
+
+bool UnitInfo::ShakeAir() {}
+
+void UnitInfo::ShakeSabotage() {}
+
+void UnitInfo::PrepareFire() {}
+
+void UnitInfo::ProgressFire() {}
+
+void UnitInfo::ChangeTeam(unsigned short target_team) {}

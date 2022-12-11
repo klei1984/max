@@ -215,7 +215,7 @@ void TaskObtainUnits::EndTurn() {
                 task = unit->GetTask();
 
                 if (task) {
-                    unit->ClearTask1List();
+                    unit->ClearFromTaskLists();
 
                     if (unit->orders != ORDER_AWAIT) {
                         UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_CLEAR_PATH);

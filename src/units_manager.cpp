@@ -3960,7 +3960,7 @@ void UnitsManager_ClearDelayedReactions() {
 }
 
 void UnitsManager_Landing(UnitInfo* unit) {
-    if (unit->UnitInfo_sub_F410E()) {
+    if (unit->Land()) {
         if (unit->GetParent()) {
             unit->orders = ORDER_IDLE;
             unit->state = ORDER_STATE_3;
@@ -3982,7 +3982,7 @@ void UnitsManager_Landing(UnitInfo* unit) {
 }
 
 void UnitsManager_Loading(UnitInfo* unit) {
-    if (unit->UnitInfo_sub_F41DA()) {
+    if (unit->Take()) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
         BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->unit_type];
 
@@ -4005,7 +4005,7 @@ void UnitsManager_Loading(UnitInfo* unit) {
 }
 
 void UnitsManager_Unloading(UnitInfo* unit) {
-    if (unit->UnitInfo_sub_F41DA()) {
+    if (unit->Take()) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
         BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->unit_type];
 

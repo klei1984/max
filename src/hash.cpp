@@ -65,7 +65,7 @@ void SmartList_UnitInfo_Clear(SmartList<UnitInfo>& list) {
     for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != nullptr; ++unit) {
         unit->GetObject()->SetParent(nullptr);
         unit->GetObject()->SetEnemy(nullptr);
-        unit->GetObject()->ClearTask1List();
+        unit->GetObject()->ClearFromTaskLists();
     }
 
     list.Clear();
