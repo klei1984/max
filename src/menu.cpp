@@ -734,7 +734,7 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
     }
 
     if (Remote_IsNetworkGame) {
-        Remote_sub_C9753();
+        Remote_WaitBeginTurnAcknowledge();
         Remote_LeaveGame(GameManager_PlayerTeam, !mode);
     }
 
@@ -2492,7 +2492,7 @@ bool OKCancelMenu_Menu(const char* caption, bool mode) { return OKCancelMenu(cap
 bool DesyncMenu_Menu() {
     DesyncMenu desync_menu;
 
-    Remote_sub_C9753();
+    Remote_WaitBeginTurnAcknowledge();
 
     return desync_menu.Run();
 }

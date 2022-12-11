@@ -734,7 +734,7 @@ void GameManager_GameLoop(int game_state) {
                     Remote_AnalyzeDesync();
                 }
 
-                Remote_sub_C9753();
+                Remote_WaitBeginTurnAcknowledge();
             }
 
             for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
@@ -3330,7 +3330,7 @@ bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mod
 
         if (load_successful) {
             if (Remote_IsNetworkGame) {
-                Remote_sub_C9753();
+                Remote_WaitBeginTurnAcknowledge();
             }
 
             GameManager_LandingSequence.OpenPanel();

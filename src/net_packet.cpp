@@ -129,3 +129,10 @@ NetPacket& operator>>(NetPacket& packet, SmartString& string) {
     delete[] text_buffer;
     return packet;
 }
+
+bool operator==(NetPacket& left, NetPacket& right) {
+    return left.GetDataSize() == right.GetDataSize() &&
+           !memcmp(left.GetBuffer(), right.GetBuffer(), left.GetDataSize());
+}
+
+bool operator!=(NetPacket& left, NetPacket& right) { return !(left == right); }

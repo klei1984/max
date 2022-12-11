@@ -54,6 +54,9 @@ public:
     friend NetPacket& operator<<(NetPacket& packet, SmartString& string);
     friend NetPacket& operator>>(NetPacket& packet, SmartString& string);
 
+    friend bool operator==(NetPacket& left, NetPacket& right);
+    friend bool operator!=(NetPacket& left, NetPacket& right);
+
     template <typename T>
     friend NetPacket& operator<<(NetPacket& packet, const T& data) {
         packet.Write(&data, sizeof(T));

@@ -28,7 +28,7 @@
 #include "networkmenu.hpp"
 #include "unitinfo.hpp"
 
-enum {
+enum : unsigned char {
     REMOTE_PACKET_00,
     REMOTE_PACKET_01,
     REMOTE_PACKET_02,
@@ -92,10 +92,10 @@ bool Remote_ProcessFrame(bool mode = false);
 bool Remote_CheckRestartAfterDesyncEvent();
 void Remote_RegisterMenu(NetworkMenu* menu);
 void Remote_ProcessNetPackets();
-void Remote_sub_C9753();
 void Remote_AnalyzeDesync();
 int Remote_CheckUnpauseEvent();
 void Remote_ProcessTick(bool mode = false);
+void Remote_WaitBeginTurnAcknowledge();
 void Remote_WaitEndTurnAcknowledge();
 int Remote_SiteSelectMenu();
 void Remote_LeaveGame(unsigned short team, bool mode);
@@ -128,6 +128,7 @@ void Remote_SendNetPacket_38(UnitInfo* unit);
 void Remote_SendNetPacket_41(UnitInfo* unit);
 void Remote_SendNetPacket_43(UnitInfo* unit, const char* name);
 void Remote_SendNetPacket_44(NetAddress& address);
+void Remote_SendNetPacket_46(unsigned short team, bool state, unsigned int counter);
 void Remote_SendNetPacket_50(UnitInfo* unit);
 
 extern unsigned char Remote_GameState;

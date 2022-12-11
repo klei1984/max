@@ -738,7 +738,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
     return result;
 }
 
-void SaveLoadMenu_Save(char *file_name, char *save_name, bool play_voice) {
+void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_voice) {
     SmartFileWriter file;
     char file_path[PATH_MAX];
     char team_types[PLAYER_TEAM_MAX - 1];

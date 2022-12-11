@@ -111,7 +111,7 @@ bool UnitPath::IsEndStep() const { return false; }
 
 void UnitPath::WritePacket(NetPacket& packet) {}
 
-void UnitPath::ReadPacket(NetPacket& packet) {}
+void UnitPath::ReadPacket(NetPacket& packet, int steps_count) {}
 
 void UnitPath::Path_vfunc17(int distance_x, int distance_y) {}
 
@@ -992,11 +992,8 @@ void GroundPath::WritePacket(NetPacket& packet) {
     }
 }
 
-void GroundPath::ReadPacket(NetPacket& packet) {
-    unsigned short steps_count;
+void GroundPath::ReadPacket(NetPacket& packet, int steps_count) {
     PathStep step;
-
-    packet >> steps_count;
 
     for (int i = 0; i < steps_count; ++i) {
         packet >> step;

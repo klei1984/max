@@ -850,12 +850,6 @@ int NetworkMenu::IsAllowedToStartGame() {
 }
 
 void NetworkMenu::LeaveGame(unsigned short team_node) {
-    if (host_node == team_node) {
-        host_node = 0;
-        client_state = 0;
-        player_team = -1;
-    }
-
     Remote_Hosts.Remove(team_node);
 
     for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {

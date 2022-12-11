@@ -2406,6 +2406,10 @@ void UnitInfo::TextSave(SmartTextfileWriter& file) {
     /// \todo
 }
 
+void UnitInfo::WritePacket(NetPacket& packet) {}
+
+void UnitInfo::ReadPacket(NetPacket& packet) {}
+
 void UnitInfo::UpdateTurretAngle(int turret_angle_, bool redraw) {
     BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
 

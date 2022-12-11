@@ -58,7 +58,7 @@ public:
     virtual void Draw(UnitInfo* unit, WindowInfo* window) = 0;
     virtual bool IsEndStep() const;
     virtual void WritePacket(NetPacket& packet);
-    virtual void ReadPacket(NetPacket& packet);
+    virtual void ReadPacket(NetPacket& packet, int steps_count);
     virtual void Path_vfunc17(int distance_x, int distance_y);
 
     short GetEndX() const;
@@ -95,7 +95,7 @@ public:
     void Draw(UnitInfo* unit, WindowInfo* window);
     bool IsEndStep() const;
     void WritePacket(NetPacket& packet);
-    void ReadPacket(NetPacket& packet);
+    void ReadPacket(NetPacket& packet, int steps_count);
     void Path_vfunc17(int distance_x, int distance_y);
 
     void AddStep(int step_x, int step_y);

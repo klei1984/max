@@ -34,6 +34,8 @@ struct PopupFunctions {
 
 extern unsigned short UnitsManager_Team;
 
+extern unsigned int UnitsManager_UnknownCounter;
+
 extern SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 extern SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
 extern SmartList<UnitInfo> UnitsManager_ParticleUnits;
@@ -50,6 +52,7 @@ extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 
 extern bool UnitsManager_OrdersPending;
 extern bool UnitsManager_byte_179448;
+extern bool UnitsManager_byte_178170;
 
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 

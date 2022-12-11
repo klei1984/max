@@ -33,6 +33,8 @@
 
 #define UNITINFO_MAX_POPUP_BUTTON_COUNT 10
 
+class NetPacket;
+
 struct __attribute__((packed)) SoundElement {
     unsigned char type;
     unsigned short resource_id;
@@ -91,6 +93,9 @@ public:
     void FileSave(SmartFileWriter& file);
     void TextLoad(TextStructure& object);
     void TextSave(SmartTextfileWriter& file);
+
+    void WritePacket(NetPacket& packet);
+    void ReadPacket(NetPacket& packet);
 
     void Init();
     void UpdateSpriteFrame(unsigned short image_base, unsigned short image_index_max);
