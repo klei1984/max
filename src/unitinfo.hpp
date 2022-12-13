@@ -312,7 +312,7 @@ public:
     SmartList<Task> task_list2;
     bool in_transit;
     Point last_target;
-    unsigned short pin_count;
+    short pin_count;
     bool field_165;
     unsigned char laying_state;
     char* name;

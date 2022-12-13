@@ -29,11 +29,13 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "hash.hpp"
+#include "inifile.hpp"
 #include "message_manager.hpp"
 #include "registerarray.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "sound_manager.hpp"
+#include "task_manager.hpp"
 #include "unitinfogroup.hpp"
 #include "units_manager.hpp"
 
@@ -1941,7 +1943,18 @@ void UnitInfo::SetPosition(int grid_x, int grid_y, bool skip_map_status_update) 
 }
 
 void UnitInfo::UpdatePinCount(int grid_x, int grid_y, int pin_units) {
-    /// \todo
+    if (base_values->GetAttribute(ATTRIB_ATTACK_RADIUS)) {
+        UpdatePinsFromLists(grid_x, grid_y, &UnitsManager_GroundCoverUnits, pin_units);
+        UpdatePinsFromLists(grid_x, grid_y, &UnitsManager_StationaryUnits, pin_units);
+        UpdatePinsFromLists(grid_x, grid_y, &UnitsManager_MobileLandSeaUnits, pin_units);
+
+    } else {
+        SmartPointer<UnitInfo> target(Access_GetAttackTarget(this, grid_x, grid_y));
+
+        if (target) {
+            target->pin_count += pin_units;
+        }
+    }
 }
 
 void UnitInfo::ClearFromTaskLists() {
@@ -2092,7 +2105,90 @@ void UnitInfo::ProcessTaskList() {
 }
 
 void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) {
-    /// \todo
+    int attack_damage = UnitsManager_GetAttackDamage(enemy, this, attack_potential);
+
+    if (hits > 0) {
+        damaged_this_turn = true;
+
+        if (!enemy->IsVisibleToTeam(team)) {
+            Ai_ProcessUnitTasks(enemy, team);
+        }
+
+        --pin_count;
+
+        if (pin_count < 0) {
+            pin_count = 0;
+        }
+
+        if (attack_damage > hits) {
+            attack_damage = hits;
+        }
+
+        hits -= attack_damage;
+
+        if (hits > 0) {
+            AddReminders(true);
+
+            if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+                Ai_AddUnitToTrackerList(this);
+            }
+        }
+
+        if (hits == 0) {
+            if (flags & SELECTABLE) {
+                ++UnitsManager_TeamInfo[team].casualties[unit_type];
+            }
+
+            UnitsManager_DelayedAttackTargets[team].Remove(*this);
+            UnitsManager_UnitList6.Remove(*this);
+
+            ClearFromTaskLists();
+            ProcessTaskList();
+
+            Ai_RemoveUnit(this);
+
+            if (unit_type == INFANTRY || unit_type == COMMANDO) {
+                angle = (direction + 5) & 0x07;
+            }
+        }
+
+        if (team == GameManager_PlayerTeam) {
+            if (enemy->team != team) {
+                GameManager_NotifyEvent(this, true);
+            }
+
+        } else if (IsVisibleToTeam(GameManager_PlayerTeam) && hits == 0) {
+            const char* formats[] = {"Enemy %s at [%i,%i] destroyed.", "Enemy %s at [%i,%i] destroyed.",
+                                     "Enemy %s at [%i,%i] destroyed."};
+
+            BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
+            Point position(grid_x, grid_y);
+            SmartString message;
+
+            message.Sprintf(80, formats[base_unit->gender], base_unit->singular_name, grid_x + 1, grid_y + 1);
+
+            MessageManager_DrawMessage(message.GetCStr(), 0, this, position);
+        }
+
+        UnitsManager_CheckIfUnitDestroyed(this);
+
+        if (hits == 0 || (orders != ORDER_EXPLODE && state != ORDER_STATE_14)) {
+            UnitsManager_SetNewOrderInt(this, ORDER_EXPLODE, ORDER_STATE_0);
+        }
+
+        FollowUnit();
+
+        if (UnitsManager_TeamInfo[enemy->team].team_type != TEAM_TYPE_REMOTE &&
+            UnitsManager_TeamInfo[enemy->team].team_type != TEAM_TYPE_ELIMINATED) {
+            enemy->GainExperience(
+                (GetBaseValues()->GetAttribute(ATTRIB_TURNS) * attack_damage * 5) /
+                (enemy->GetBaseValues()->GetAttribute(ATTRIB_TURNS) * GetBaseValues()->GetAttribute(ATTRIB_HITS)));
+        }
+
+        if (GameManager_SelectedUnit == this && hits > 0) {
+            GameManager_UpdateInfoDisplay(this);
+        }
+    }
 }
 
 bool UnitInfo::ExpectAttack() {
@@ -2187,7 +2283,165 @@ void UnitInfo::Build() {
 }
 
 void UnitInfo::Move() {
-    /// \todo
+    SmartPointer<UnitInfo> unit;
+    bool team_visibility;
+
+    do {
+        if (pin_count > 0) {
+            return;
+        }
+
+        RefreshScreen();
+
+        if (velocity < max_velocity) {
+            velocity += GameManager_FastMovement ? 2 : 1;
+        }
+
+        if (velocity > max_velocity) {
+            velocity = max_velocity;
+        }
+
+        if (GameManager_SelectedUnit == this) {
+            if (speed > 0 && !path->IsEndStep()) {
+                if (sound != SFX_TYPE_DRIVE && sound != SFX_TYPE_STOP) {
+                    SoundManager.PlaySfx(this, SFX_TYPE_DRIVE);
+                }
+
+            } else {
+                SoundManager.PlaySfx(this, SFX_TYPE_STOP);
+            }
+        }
+
+        int unit_velocity = velocity;
+
+        if (unit_velocity + moved >= 64 - (unit_velocity / 2)) {
+            unit_velocity = 64 - moved;
+
+            if (unit_type != COMMANDO && unit_type != INFANTRY) {
+                if (speed == 0 || path->IsEndStep()) {
+                    unit_velocity /= 2;
+
+                    if (unit_velocity == 0) {
+                        unit_velocity = 1;
+                    }
+
+                    velocity = unit_velocity;
+                    max_velocity = unit_velocity;
+                }
+            }
+        }
+
+        moved += unit_velocity;
+
+        int step_x = Paths_8DirPointsArrayX[angle];
+        int step_y = Paths_8DirPointsArrayY[angle];
+
+        int distance_x = step_x * unit_velocity;
+        int distance_y = step_y * unit_velocity;
+
+        int offset_x = ((x + distance_x - step_x) / 64) - grid_x;
+        int offset_y = ((y + distance_y - step_y) / 64) - grid_y;
+
+        if (offset_x || offset_y) {
+            unit = MakeCopy();
+
+            Hash_MapHash.Remove(this);
+            ClearInTransitFlag();
+        }
+
+        team_visibility = visible_to_team[GameManager_PlayerTeam];
+
+        OffsetDrawZones(distance_x, distance_y);
+
+        if (offset_x || offset_y) {
+            grid_x = x / 64;
+            grid_y = y / 64;
+
+            if (path) {
+                GroundPath* ground_path = dynamic_cast<GroundPath*>(&*path);
+                SmartObjectArray<PathStep> path_steps = ground_path->GetSteps();
+                int path_step_index = ground_path->GetPathStepIndex();
+
+                path_steps[path_step_index]->x -= offset_x;
+                path_steps[path_step_index]->y -= offset_y;
+            }
+
+            Access_UpdateMapStatus(this, true);
+            Access_UpdateMapStatus(&*unit, false);
+        }
+
+        team_visibility = visible_to_team[GameManager_PlayerTeam];
+
+        if (team_visibility || GameManager_MaxSpy) {
+            RefreshScreen();
+        }
+
+        if (unit_type == COMMANDO && unit_type == INFANTRY) {
+            if (image_index + 8 > image_index_max) {
+                DrawSpriteFrame(image_base + angle);
+
+            } else {
+                DrawSpriteFrame(image_index + 8);
+            }
+        }
+
+        if (moved == 64) {
+            path->UpdateUnitAngle(this);
+
+            if (orders == ORDER_BUILD && build_list.GetCount() > 0 &&
+                Access_IsAccessible(*build_list[0], team, grid_x, grid_y, 0x01)) {
+                Build();
+
+            } else {
+                state = ORDER_STATE_5;
+            }
+
+            if (orders == ORDER_MOVE || orders == ORDER_MOVE_TO_UNIT || orders == ORDER_MOVE_TO_ATTACK) {
+                FollowUnit();
+            }
+
+            if (GameManager_SelectedUnit == this) {
+                SoundManager.UpdateSfxPosition(this);
+            }
+
+            Ai_MarkMineMapPoint(Point(grid_x, grid_y), team);
+
+            SmartPointer<UnitInfo> mine(Access_GetEnemyMineOnSentry(team, grid_x, grid_y));
+
+            if (mine) {
+                mine->orders = ORDER_EXPLODE;
+                mine->state = ORDER_STATE_27;
+                mine->visible_to_team[team] = true;
+
+                Ai_ProcessUnitTasks(&*mine, team);
+
+                if (orders == ORDER_MOVE_TO_ATTACK) {
+                    orders = ORDER_AWAIT;
+                }
+
+                BlockedOnPathRequest();
+
+                return;
+            }
+
+            if (laying_state == 2) {
+                PlaceMine();
+            }
+
+            if (laying_state == 1) {
+                PickUpMine();
+            }
+        }
+
+        if (Remote_IsNetworkGame) {
+            return;
+        }
+
+        if (state == ORDER_STATE_5 && !team_visibility) {
+            ExpectAttack();
+        }
+
+    } while (state == ORDER_STATE_6 && !team_visibility);
 }
 
 void UnitInfo::AllocateUnitList() { unit_list = new SmartList<UnitInfo>(); }
@@ -2367,35 +2621,487 @@ void UnitInfo::AttachComplex(Complex* complex) {
 }
 
 void UnitInfo::AttachToPrimaryComplex() {
-    /// \todo
+    SmartPointer<Complex> unit_complex;
+
+    if (complex) {
+        complex->Shrink(*this);
+        complex = nullptr;
+    }
+
+    if (connectors & CONNECTOR_NORTH_LEFT) {
+        UnitInfo* building = GetConnectedBuilding(CONNECTOR_NORTH_LEFT);
+
+        if (!unit_complex || building->complex->GetId() < unit_complex->GetId()) {
+            unit_complex = building->complex;
+        }
+    }
+
+    if (connectors & CONNECTOR_NORTH_RIGHT) {
+        UnitInfo* building = GetConnectedBuilding(CONNECTOR_NORTH_RIGHT);
+
+        if (!unit_complex || building->complex->GetId() < unit_complex->GetId()) {
+            unit_complex = building->complex;
+        }
+    }
+
+    if (connectors & CONNECTOR_EAST_TOP) {
+        UnitInfo* building = GetConnectedBuilding(CONNECTOR_EAST_TOP);
+
+        if (!unit_complex || building->complex->GetId() < unit_complex->GetId()) {
+            unit_complex = building->complex;
+        }
+    }
+
+    if (connectors & CONNECTOR_EAST_BOTTOM) {
+        UnitInfo* building = GetConnectedBuilding(CONNECTOR_EAST_BOTTOM);
+
+        if (!unit_complex || building->complex->GetId() < unit_complex->GetId()) {
+            unit_complex = building->complex;
+        }
+    }
+
+    if (connectors & CONNECTOR_SOUTH_RIGHT) {
+        UnitInfo* building = GetConnectedBuilding(CONNECTOR_SOUTH_RIGHT);
+
+        if (!unit_complex || building->complex->GetId() < unit_complex->GetId()) {
+            unit_complex = building->complex;
+        }
+    }
+
+    if (connectors & CONNECTOR_SOUTH_LEFT) {
+        UnitInfo* building = GetConnectedBuilding(CONNECTOR_SOUTH_LEFT);
+
+        if (!unit_complex || building->complex->GetId() < unit_complex->GetId()) {
+            unit_complex = building->complex;
+        }
+    }
+
+    if (connectors & CONNECTOR_WEST_BOTTOM) {
+        UnitInfo* building = GetConnectedBuilding(CONNECTOR_WEST_BOTTOM);
+
+        if (!unit_complex || building->complex->GetId() < unit_complex->GetId()) {
+            unit_complex = building->complex;
+        }
+    }
+
+    if (connectors & CONNECTOR_WEST_TOP) {
+        UnitInfo* building = GetConnectedBuilding(CONNECTOR_WEST_TOP);
+
+        if (!unit_complex || building->complex->GetId() < unit_complex->GetId()) {
+            unit_complex = building->complex;
+        }
+    }
+
+    if (!unit_complex) {
+        unit_complex = CreateComplex(team);
+    }
+
+    AttachComplex(&*unit_complex);
 }
 
 void UnitInfo::TestConnections() {
-    /// \todo
+    if (!(connectors & CONNECTION_BEING_TESTED)) {
+        UnitInfo* building = nullptr;
+
+        connectors |= CONNECTION_BEING_TESTED;
+
+        if (connectors & CONNECTOR_NORTH_LEFT) {
+            building = GetConnectedBuilding(CONNECTOR_NORTH_LEFT);
+
+            if (building) {
+                building->TestConnections();
+            }
+        }
+
+        if (connectors & CONNECTOR_NORTH_RIGHT) {
+            building = GetConnectedBuilding(CONNECTOR_NORTH_RIGHT);
+
+            if (building) {
+                building->TestConnections();
+            }
+        }
+
+        if (connectors & CONNECTOR_EAST_TOP) {
+            building = GetConnectedBuilding(CONNECTOR_EAST_TOP);
+
+            if (building) {
+                building->TestConnections();
+            }
+        }
+
+        if (connectors & CONNECTOR_EAST_BOTTOM) {
+            building = GetConnectedBuilding(CONNECTOR_EAST_BOTTOM);
+
+            if (building) {
+                building->TestConnections();
+            }
+        }
+
+        if (connectors & CONNECTOR_SOUTH_RIGHT) {
+            building = GetConnectedBuilding(CONNECTOR_SOUTH_RIGHT);
+
+            if (building) {
+                building->TestConnections();
+            }
+        }
+
+        if (connectors & CONNECTOR_SOUTH_LEFT) {
+            building = GetConnectedBuilding(CONNECTOR_SOUTH_LEFT);
+
+            if (building) {
+                building->TestConnections();
+            }
+        }
+
+        if (connectors & CONNECTOR_WEST_BOTTOM) {
+            building = GetConnectedBuilding(CONNECTOR_WEST_BOTTOM);
+
+            if (building) {
+                building->TestConnections();
+            }
+        }
+
+        if (connectors & CONNECTOR_WEST_TOP) {
+            building = GetConnectedBuilding(CONNECTOR_WEST_TOP);
+
+            if (building) {
+                building->TestConnections();
+            }
+        }
+    }
 }
 
 UnitInfo* UnitInfo::GetFirstUntestedConnection() {
-    /// \todo
+    UnitInfo* building;
+
+    if (connectors & CONNECTOR_NORTH_LEFT) {
+        building = GetConnectedBuilding(CONNECTOR_NORTH_LEFT);
+
+        if (building && !(building->connectors & CONNECTION_BEING_TESTED)) {
+            return building;
+        }
+    }
+
+    if (connectors & CONNECTOR_NORTH_RIGHT) {
+        building = GetConnectedBuilding(CONNECTOR_NORTH_RIGHT);
+
+        if (building && !(building->connectors & CONNECTION_BEING_TESTED)) {
+            return building;
+        }
+    }
+
+    if (connectors & CONNECTOR_EAST_TOP) {
+        building = GetConnectedBuilding(CONNECTOR_EAST_TOP);
+
+        if (building && !(building->connectors & CONNECTION_BEING_TESTED)) {
+            return building;
+        }
+    }
+
+    if (connectors & CONNECTOR_EAST_BOTTOM) {
+        building = GetConnectedBuilding(CONNECTOR_EAST_BOTTOM);
+
+        if (building && !(building->connectors & CONNECTION_BEING_TESTED)) {
+            return building;
+        }
+    }
+
+    if (connectors & CONNECTOR_SOUTH_RIGHT) {
+        building = GetConnectedBuilding(CONNECTOR_SOUTH_RIGHT);
+
+        if (building && !(building->connectors & CONNECTION_BEING_TESTED)) {
+            return building;
+        }
+    }
+
+    if (connectors & CONNECTOR_SOUTH_LEFT) {
+        building = GetConnectedBuilding(CONNECTOR_SOUTH_LEFT);
+
+        if (building && !(building->connectors & CONNECTION_BEING_TESTED)) {
+            return building;
+        }
+    }
+
+    if (connectors & CONNECTOR_WEST_BOTTOM) {
+        building = GetConnectedBuilding(CONNECTOR_WEST_BOTTOM);
+
+        if (building && !(building->connectors & CONNECTION_BEING_TESTED)) {
+            return building;
+        }
+    }
+
+    if (connectors & CONNECTOR_WEST_TOP) {
+        building = GetConnectedBuilding(CONNECTOR_WEST_TOP);
+
+        if (building && !(building->connectors & CONNECTION_BEING_TESTED)) {
+            return building;
+        }
+    }
+
+    return nullptr;
 }
 
 void UnitInfo::DetachComplex() {
-    /// \todo
+    complex->Shrink(*this);
+    complex = nullptr;
+
+    UnitInfo* building = GetFirstUntestedConnection();
+
+    connectors |= CONNECTION_BEING_TESTED;
+
+    if (building) {
+        SmartPointer<Complex> building_complex(building->GetComplex());
+
+        building->TestConnections();
+
+        do {
+            building = GetFirstUntestedConnection();
+
+            if (building) {
+                SmartPointer<Complex> new_complex(CreateComplex(team));
+
+                complex = new_complex;
+
+                building->TestConnections();
+                building->AttachComplex(&*new_complex);
+
+                Access_UpdateResourcesTotal(&*new_complex);
+
+                complex = nullptr;
+            }
+
+        } while (building);
+
+        Access_UpdateResourcesTotal(&*building_complex);
+    }
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        connectors &= ~CONNECTION_BEING_TESTED;
+    }
 }
 
 void UnitInfo::FileLoad(SmartFileReader& file) {
-    /// \todo
+    file.Read(unit_type);
+    file.Read(id);
+    file.Read(flags);
+    file.Read(x);
+    file.Read(y);
+    file.Read(grid_x);
+    file.Read(grid_y);
+
+    delete[] name;
+
+    unsigned short name_length;
+
+    file.Read(name_length);
+
+    if (name_length) {
+        name = new (std::nothrow) char[name_length + 1];
+
+        file.Read(name, name_length);
+
+        name[name_length] = '\0';
+
+    } else {
+        name = nullptr;
+    }
+
+    file.Read(shadow_offset);
+    file.Read(team);
+    file.Read(unit_id);
+    file.Read(brightness);
+    file.Read(angle);
+    file.Read(visible_to_team);
+    file.Read(spotted_by_team);
+    file.Read(max_velocity);
+    file.Read(velocity);
+    file.Read(sound);
+    file.Read(scaler_adjust);
+    file.Read(sprite_bounds);
+    file.Read(shadow_bounds);
+    file.Read(turret_angle);
+    file.Read(turret_offset_x);
+    file.Read(turret_offset_y);
+    file.Read(total_images);
+    file.Read(image_base);
+    file.Read(turret_image_base);
+    file.Read(firing_image_base);
+    file.Read(connector_image_base);
+    file.Read(image_index);
+    file.Read(turret_image_index);
+    file.Read(image_index_max);
+    file.Read(orders);
+    file.Read(state);
+    file.Read(prior_orders);
+    file.Read(prior_state);
+    file.Read(laying_state);
+    file.Read(target_grid_x);
+    file.Read(target_grid_y);
+    file.Read(build_time);
+    file.Read(total_mining);
+    file.Read(raw_mining);
+    file.Read(fuel_mining);
+    file.Read(gold_mining);
+    file.Read(raw_mining_max);
+    file.Read(gold_mining_max);
+    file.Read(fuel_mining_max);
+    file.Read(hits);
+    file.Read(speed);
+    file.Read(shots);
+    file.Read(move_and_fire);
+    file.Read(storage);
+    file.Read(ammo);
+    file.Read(targeting_mode);
+    file.Read(enter_mode);
+    file.Read(cursor);
+    file.Read(recoil_delay);
+    file.Read(delayed_reaction);
+    file.Read(damaged_this_turn);
+    file.Read(research_topic);
+    file.Read(moved);
+    file.Read(bobbed);
+    file.Read(shake_effect_state);
+    file.Read(engine);
+    file.Read(weapon);
+    file.Read(comm);
+    file.Read(fuel_distance);
+    file.Read(move_fraction);
+    file.Read(energized);
+    file.Read(repeat_build);
+    file.Read(build_rate);
+    file.Read(disabled_reaction_fire);
+    file.Read(auto_survey);
+    file.Read(field_221);
+
+    field_221 &= ~0x100;
+
+    if (build_rate == 0) {
+        build_rate = 1;
+    }
+
+    path = dynamic_cast<UnitPath*>(file.ReadObject());
+    file.Read(connectors);
+    base_values = dynamic_cast<UnitValues*>(file.ReadObject());
+    complex = dynamic_cast<Complex*>(file.ReadObject());
+    parent_unit = dynamic_cast<UnitInfo*>(file.ReadObject());
+    enemy_unit = dynamic_cast<UnitInfo*>(file.ReadObject());
+
+    UnitInfo_BuildList_FileLoad(&build_list, file);
+
+    if (orders == ORDER_STATE_NEW_ORDER || orders == ORDER_STATE_29 || orders == ORDER_STATE_7 ||
+        orders == ORDER_STATE_6 || orders == ORDER_STATE_5) {
+        orders = ORDER_STATE_1;
+    }
+
+    Init();
+
+    UpdateUnitDrawZones();
 }
 
 void UnitInfo::FileSave(SmartFileWriter& file) {
-    /// \todo
+    file.Write(unit_type);
+    file.Write(id);
+    file.Write(flags);
+    file.Write(x);
+    file.Write(y);
+    file.Write(grid_x);
+    file.Write(grid_y);
+
+    if (name) {
+        unsigned short name_length = strlen(name);
+
+        file.Write(name_length);
+        file.Write(name, name_length);
+
+    } else {
+        unsigned short name_length = 0;
+
+        file.Write(name_length);
+    }
+
+    file.Write(shadow_offset);
+    file.Write(team);
+    file.Write(unit_id);
+    file.Write(brightness);
+    file.Write(angle);
+    file.Write(visible_to_team);
+    file.Write(spotted_by_team);
+    file.Write(max_velocity);
+    file.Write(velocity);
+    file.Write(sound);
+    file.Write(scaler_adjust);
+    file.Write(sprite_bounds);
+    file.Write(shadow_bounds);
+    file.Write(turret_angle);
+    file.Write(turret_offset_x);
+    file.Write(turret_offset_y);
+    file.Write(total_images);
+    file.Write(image_base);
+    file.Write(turret_image_base);
+    file.Write(firing_image_base);
+    file.Write(connector_image_base);
+    file.Write(image_index);
+    file.Write(turret_image_index);
+    file.Write(image_index_max);
+    file.Write(orders);
+    file.Write(state);
+    file.Write(prior_orders);
+    file.Write(prior_state);
+    file.Write(laying_state);
+    file.Write(target_grid_x);
+    file.Write(target_grid_y);
+    file.Write(build_time);
+    file.Write(total_mining);
+    file.Write(raw_mining);
+    file.Write(fuel_mining);
+    file.Write(gold_mining);
+    file.Write(raw_mining_max);
+    file.Write(gold_mining_max);
+    file.Write(fuel_mining_max);
+    file.Write(hits);
+    file.Write(speed);
+    file.Write(shots);
+    file.Write(move_and_fire);
+    file.Write(storage);
+    file.Write(ammo);
+    file.Write(targeting_mode);
+    file.Write(enter_mode);
+    file.Write(cursor);
+    file.Write(recoil_delay);
+    file.Write(delayed_reaction);
+    file.Write(damaged_this_turn);
+    file.Write(research_topic);
+    file.Write(moved);
+    file.Write(bobbed);
+    file.Write(shake_effect_state);
+    file.Write(engine);
+    file.Write(weapon);
+    file.Write(comm);
+    file.Write(fuel_distance);
+    file.Write(move_fraction);
+    file.Write(energized);
+    file.Write(repeat_build);
+    file.Write(build_rate);
+    file.Write(disabled_reaction_fire);
+    file.Write(auto_survey);
+    file.Write(field_221);
+    file.WriteObject(&*path);
+    file.Write(connectors);
+    file.WriteObject(&*base_values);
+    file.WriteObject(&*complex);
+    file.WriteObject(&*parent_unit);
+    file.WriteObject(&*enemy_unit);
+
+    UnitInfo_BuildList_FileSave(&build_list, file);
 }
 
 void UnitInfo::TextLoad(TextStructure& object) {
-    /// \todo
+    /// \todo Implement later
 }
 
 void UnitInfo::TextSave(SmartTextfileWriter& file) {
-    /// \todo
+    /// \todo Implement later
 }
 
 void UnitInfo::WritePacket(NetPacket& packet) {}
@@ -2418,7 +3124,56 @@ void UnitInfo::UpdateTurretAngle(int turret_angle_, bool redraw) {
 }
 
 void UnitInfo::Attack(int grid_x, int grid_y) {
-    /// \todo
+    SmartPointer<UnitInfo> target(Access_GetAttackTarget(this, grid_x, grid_y));
+    UnitInfo* enemy = nullptr;
+
+    if (!target) {
+        target = Access_GetAttackTarget(this, grid_x, grid_y);
+
+        if (target) {
+            target->visible_to_team[team] = true;
+
+        } else {
+            enemy = Access_GetUnit4(grid_x, grid_y, team, SELECTABLE);
+
+            if (!enemy && unit_type != ANTIAIR && unit_type != SP_FLAK && unit_type != FASTBOAT) {
+                SmartPointer<UnitInfo> explosion =
+                    UnitsManager_DeployUnit(HITEXPLD, team, nullptr, grid_x, grid_y, 0, true);
+
+                if (Access_GetModifiedSurfaceType(grid_x, grid_y) == SURFACE_TYPE_LAND) {
+                    SoundManager.PlaySfx(&*explosion, SFX_TYPE_HIT);
+
+                } else {
+                    SoundManager.PlaySfx(&*explosion, SFX_TYPE_EXPLOAD);
+                }
+            }
+        }
+    }
+
+    int target_angle;
+
+    if (flags & MISSILE_UNIT) {
+        target_angle = angle / 2;
+
+    } else {
+        target_angle = UnitsManager_GetTargetAngle(grid_x - this->grid_x, grid_y - this->grid_y);
+    }
+
+    if (GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS)) {
+        FindTarget(grid_x, grid_y, &UnitsManager_GroundCoverUnits);
+        FindTarget(grid_x, grid_y, &UnitsManager_StationaryUnits);
+        FindTarget(grid_x, grid_y, &UnitsManager_MobileLandSeaUnits);
+
+    } else if (target) {
+        target->AttackUnit(this, 0, target_angle);
+
+    } else if (enemy && Access_IsValidAttackTarget(this, enemy, Point(grid_x, grid_y))) {
+        enemy->AttackUnit(this, 0, target_angle);
+    }
+
+    if (!shots) {
+        targeting_mode = 0;
+    }
 }
 
 void UnitInfo::StartBuilding() {
@@ -2502,7 +3257,16 @@ void UnitInfo::Draw(unsigned short team) {
 }
 
 void UnitInfo::DrawStealth(unsigned short team) {
-    /// \todo
+    if (spotted_by_team[team] || (!UnitsManager_IsUnitUnderWater(this) && unit_type != COMMANDO &&
+                                  unit_type != LANDMINE && unit_type != SEAMINE)) {
+        SpotByTeam(team);
+
+    } else if ((UnitsManager_IsUnitUnderWater(this) &&
+                !UnitsManager_TeamInfo[team].heat_map_stealth_sea[grid_y * ResourceManager_MapSize.x + grid_x]) ||
+               (unit_type == COMMANDO &&
+                !UnitsManager_TeamInfo[team].heat_map_stealth_land[grid_y * ResourceManager_MapSize.x + grid_x])) {
+        Draw(team);
+    }
 }
 
 void UnitInfo::Resupply() {
@@ -2744,7 +3508,14 @@ void UnitInfo::SpawnNewUnit() {
 }
 
 void UnitInfo::FollowUnit() {
-    /// \todo
+    if (ini_get_setting(INI_FOLLOW_UNIT) && GameManager_SelectedUnit == this) {
+        if (GameManager_PlayMode == PLAY_MODE_TURN_BASED || GameManager_PlayerTeam == team ||
+            UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41) {
+            if (visible_to_team[GameManager_PlayerTeam] && !GameManager_IsAtGridPosition(this)) {
+                GameManager_UpdateMainMapView(1, grid_x, grid_y);
+            }
+        }
+    }
 }
 
 int UnitInfo::GetExperience() {
@@ -2758,15 +3529,73 @@ int UnitInfo::GetExperience() {
 }
 
 void UnitInfo::BlockedOnPathRequest(bool mode) {
-    /// \todo
+    path = nullptr;
+
+    if (orders != ORDER_MOVE_TO_ATTACK || state == ORDER_STATE_NEW_ORDER) {
+        orders = ORDER_AWAIT;
+    }
+
+    state = ORDER_STATE_1;
+
+    if (!ini_get_setting(INI_DISABLE_FIRE)) {
+        delayed_reaction = true;
+    }
+
+    MoveFinished(mode);
 }
 
 void UnitInfo::MoveFinished(bool mode) {
-    /// \todo
+    if (GameManager_SelectedUnit == this) {
+        GameManager_UpdateInfoDisplay(this);
+        GameManager_AutoSelectNext(this);
+        SoundManager.PlaySfx(this, SFX_TYPE_IDLE);
+    }
+
+    velocity = 0;
+    moved = 0;
+
+    AddReminders(true);
+
+    if (unit_type == INFANTRY) {
+        UpdateSpriteFrame(0, image_index_max);
+
+    } else if (unit_type == COMMANDO) {
+        UpdateSpriteFrame(0, image_index_max);
+        UnitsManager_TestBustedCommando(this);
+    }
+
+    if (IsVisibleToTeam(GameManager_PlayerTeam)) {
+        if (GameManager_SelectedUnit == this || GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) {
+            GameManager_UpdateDrawBounds();
+        }
+
+        GameManager_RenderMinimapDisplay = true;
+    }
+
+    RemoveInTransitUnitFromMapHash();
+    Redraw();
+
+    if (unit_type == MINELAYR || unit_type == SEAMNLYR) {
+        Ai_CheckMines(this);
+    }
+
+    if (mode && !ini_get_setting(INI_DISABLE_FIRE)) {
+        delayed_reaction = true;
+
+        UnitsManager_AddToDelayedReactionList(this);
+
+        if (ammo > 0) {
+            Ai_EvaluateAttackTargets(this);
+        }
+    }
 }
 
 void UnitInfo::RadarPing() {
-    /// \todo
+    if (orders != ORDER_BUILD && orders != ORDER_CLEAR &&
+        (!(flags & STATIONARY) || unit_type == LANDMINE || unit_type == SEAMINE) && (flags & SELECTABLE)) {
+        SoundManager.PlaySfx(RADRPING);
+        GameManager_NotifyEvent(this, 0);
+    }
 }
 
 int UnitInfo::GetNormalRateBuildCost() const {
@@ -2805,7 +3634,14 @@ bool UnitInfo::IsReadyForOrders(Task* task) {
 }
 
 void UnitInfo::RestoreOrders() {
-    /// \todo
+    if (prior_orders == orders && unit_type != COMMTWR && unit_type != MININGST && unit_type != HABITAT &&
+        unit_type != POWGEN && unit_type != POWERSTN && unit_type != RESEARCH) {
+        prior_orders = ORDER_AWAIT;
+        prior_state = ORDER_STATE_1;
+    }
+
+    orders = prior_orders;
+    state = prior_state;
 }
 
 void UnitInfo::PushBackTask2List(Task* task) { task_list2.PushBack(*task); }
@@ -2833,11 +3669,45 @@ void UnitInfo::SpinningTurretAdvanceAnimation() {
 
 int UnitInfo::GetAttackRange() {}
 
-void UnitInfo::UpdatePinsFromLists(int grid_x, int grid_y, SmartList<UnitInfo>* units, int pin_units) {}
+void UnitInfo::UpdatePinsFromLists(int grid_x, int grid_y, SmartList<UnitInfo>* units, int pin_units) {
+    int attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
-void UnitInfo::FindTarget(int grid_x, int grid_y, SmartList<UnitInfo>* units) {}
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(&*it, grid_x, grid_y, attack_radius) &&
+            Access_IsValidAttackTarget(this, &*it, Point(grid_x, grid_y))) {
+            (*it).pin_count += pin_units;
+        }
+    }
+}
 
-void UnitInfo::UpgradeInt() {}
+void UnitInfo::FindTarget(int grid_x, int grid_y, SmartList<UnitInfo>* units) {
+    int attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(&*it, grid_x, grid_y, attack_radius) &&
+            Access_IsValidAttackTarget(this, &*it, Point(grid_x, grid_y))) {
+            if (((*it).unit_type != BRIDGE && (*it).unit_type != WTRPLTFM) || !Access_IsUnitBusyAtLocation(&*it)) {
+                (*it).AttackUnit(this, TaskManager_GetDistance((*it).grid_x - grid_x, (*it).grid_y - grid_y),
+                                 UnitsManager_GetTargetAngle((*it).grid_x - grid_x, (*it).grid_y - grid_y));
+            }
+        }
+    }
+}
+
+void UnitInfo::UpgradeInt() {
+    SmartPointer<UnitValues> values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type));
+    SmartPointer<UnitInfo> copy = MakeCopy();
+
+    hits = values->GetAttribute(ATTRIB_HITS) - base_values->GetAttribute(ATTRIB_HITS);
+
+    UnitsManager_CheckIfUnitDestroyed(this);
+
+    base_values = values;
+    base_values->SetUnitsBuilt(1);
+
+    Access_UpdateMapStatus(this, true);
+    Access_UpdateMapStatus(&*copy, false);
+}
 
 void UnitInfo::Regenerate() {}
 
@@ -2849,7 +3719,23 @@ int UnitInfo::GetTargetUnitAngle() {}
 
 void UnitInfo::UpdateInfoDisplay() {}
 
-int UnitInfo::Repair(int materials) {}
+int UnitInfo::Repair(int materials) {
+    int hits_damage_level = base_values->GetAttribute(ATTRIB_HITS) - hits;
+    int turns_to_repair = GetTurnsToRepair();
+
+    if (turns_to_repair > materials) {
+        hits_damage_level = (base_values->GetAttribute(ATTRIB_HITS) * 4 * materials) / GetNormalRateBuildCost();
+        turns_to_repair =
+            (base_values->GetAttribute(ATTRIB_HITS) * 4 + GetNormalRateBuildCost() * hits_damage_level - 1) /
+            (base_values->GetAttribute(ATTRIB_HITS) * 4);
+    }
+
+    hits += hits_damage_level;
+
+    UnitsManager_CheckIfUnitDestroyed(this);
+
+    return turns_to_repair;
+}
 
 void UnitInfo::CancelBuilding() {}
 
