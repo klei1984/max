@@ -157,7 +157,7 @@ public:
     virtual bool Task_vfunc17(UnitInfo& unit);
     virtual void RemoveSelf();
     virtual bool Task_vfunc19();
-    virtual void Task_vfunc20(int unknown);
+    virtual void Task_vfunc20(UnitInfo& unit);
     virtual void RemoveUnit(UnitInfo& unit);
     virtual void Task_vfunc22(UnitInfo& unit);
     virtual void Task_vfunc23(UnitInfo& unit);

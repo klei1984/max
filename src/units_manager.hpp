@@ -54,6 +54,9 @@ extern bool UnitsManager_OrdersPending;
 extern bool UnitsManager_byte_179448;
 extern bool UnitsManager_byte_178170;
 
+extern signed char UnitsManager_byte_17947C;
+extern signed char UnitsManager_byte_17947D;
+
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
 extern struct PopupFunctions UnitsManager_PopupCallbacks[];
@@ -88,6 +91,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
                                                bool skip_map_status_update = false);
 void UnitsManager_RemoveConnections(UnitInfo* unit);
 int UnitsManager_GetTargetAngle(int distance_x, int distance_y);
+int UnitsManager_GetFiringAngle(int distance_x, int distance_y);
 void UnitsManager_AddToDelayedReactionList(UnitInfo* unit);
 void UnitsManager_DrawBustedCommando(UnitInfo* unit);
 void UnitsManager_TestBustedCommando(UnitInfo* unit);

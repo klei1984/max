@@ -529,7 +529,7 @@ void Task::RemoveSelf() {
 
 bool Task::Task_vfunc19() { return false; }
 
-void Task::Task_vfunc20(int unknown) {}
+void Task::Task_vfunc20(UnitInfo& unit) {}
 
 void Task::RemoveUnit(UnitInfo& unit) {}
 

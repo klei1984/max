@@ -119,7 +119,7 @@ unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int 
             }
 
             for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
-                if ((*it).IsVisibleToTeam(team) || (flags & BUILDING) ||
+                if ((*it).IsVisibleToTeam(team) || (flags & 0x10) ||
                     ((*it).IsDetectedByTeam(team) && ((*it).flags & STATIONARY))) {
                     if ((*it).orders != ORDER_IDLE || ((*it).flags & STATIONARY)) {
                         if (unit_flags & MOBILE_AIR_UNIT) {

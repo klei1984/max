@@ -273,7 +273,7 @@ public:
     unsigned char gold_mining_max;
     unsigned char fuel_mining_max;
     unsigned char hits;
-    unsigned char speed;
+    signed char speed;
     unsigned char group_speed;
     unsigned char shots;
     unsigned char move_and_fire;
@@ -282,14 +282,14 @@ public:
     unsigned char targeting_mode;
     unsigned char enter_mode;
     unsigned char cursor;
-    unsigned char recoil_delay;
+    signed char recoil_delay;
     unsigned char delayed_reaction;
-    unsigned char damaged_this_turn;
+    bool damaged_this_turn;
     bool disabled_reaction_fire;
     bool auto_survey;
     unsigned char research_topic;
     unsigned char moved;
-    unsigned char bobbed;
+    bool bobbed;
     unsigned char engine;
     unsigned char weapon;
     unsigned char comm;

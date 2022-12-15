@@ -145,6 +145,9 @@ bool UnitsManager_OrdersPending;
 bool UnitsManager_byte_179448;
 bool UnitsManager_byte_178170;
 
+signed char UnitsManager_byte_17947C;
+signed char UnitsManager_byte_17947D;
+
 AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
     AbstractUnit(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
@@ -3557,6 +3560,11 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
 }
 
 int UnitsManager_GetTargetAngle(int distance_x, int distance_y) {
+    /// \todo
+    return 0;
+}
+
+int UnitsManager_GetFiringAngle(int distance_x, int distance_y) {
     /// \todo
     return 0;
 }
