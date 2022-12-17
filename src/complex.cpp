@@ -21,6 +21,7 @@
 
 #include "complex.hpp"
 
+#include "game_manager.hpp"
 #include "net_packet.hpp"
 #include "registerarray.hpp"
 #include "survey.hpp"
@@ -164,6 +165,62 @@ void Complex::GetCargoInfo(Cargo& materials, Cargo& capacity) {
         if ((*it).GetComplex() == this) {
             materials += *Cargo_GetCargo(&*it, &cargo);
             capacity += *Cargo_GetCargoCapacity(&*it, &cargo);
+        }
+    }
+}
+
+void Complex::TransferCargo(UnitInfo* unit, int* cargo) {
+    if (*cargo >= 0) {
+        int free_capacity;
+
+        free_capacity = unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - unit->storage;
+
+        if (*cargo <= free_capacity) {
+            unit->storage += *cargo;
+            *cargo = 0;
+
+        } else {
+            unit->storage += free_capacity;
+            *cargo -= free_capacity;
+        }
+
+        if (GameManager_SelectedUnit == unit) {
+            GameManager_UpdateInfoDisplay(unit);
+        }
+
+    } else if (-(*cargo) <= unit->storage) {
+        unit->storage += *cargo;
+        *cargo = 0;
+
+    } else {
+        *cargo += unit->storage;
+        unit->storage = 0;
+    }
+}
+
+void Complex::Transfer(int raw, int fuel, int gold) {
+    this->gold += gold;
+    this->fuel += fuel;
+    this->material += raw;
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if (raw || fuel || gold) {
+            if ((*it).GetComplex() == this) {
+                switch (UnitsManager_BaseUnits[(*it).unit_type].cargo_type) {
+                    case CARGO_TYPE_RAW: {
+                        TransferCargo(&*it, &raw);
+                    } break;
+
+                    case CARGO_TYPE_FUEL: {
+                        TransferCargo(&*it, &fuel);
+                    } break;
+
+                    case CARGO_TYPE_GOLD: {
+                        TransferCargo(&*it, &gold);
+                    } break;
+                }
+            }
         }
     }
 }

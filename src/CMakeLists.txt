@@ -26,8 +26,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/movie.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartstring.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartfile.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/unitvalues.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/complex.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unitvalues.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitinfo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitinfogroup.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/registerarray.cpp

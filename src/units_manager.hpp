@@ -54,7 +54,7 @@ extern bool UnitsManager_OrdersPending;
 extern bool UnitsManager_byte_179448;
 extern bool UnitsManager_byte_178170;
 
-extern signed char UnitsManager_byte_17947C;
+extern signed char UnitsManager_EffectCounter;
 extern signed char UnitsManager_byte_17947D;
 
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
@@ -96,6 +96,6 @@ void UnitsManager_AddToDelayedReactionList(UnitInfo* unit);
 void UnitsManager_DrawBustedCommando(UnitInfo* unit);
 void UnitsManager_TestBustedCommando(UnitInfo* unit);
 void UnitsManager_ScaleUnit(UnitInfo* unit, int state);
-int UnitsManager_GetAttackDamage(UnitInfo* unit1, UnitInfo* unit2, int attack_potential);
+int UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int attack_potential);
 
 #endif /* UNITS_MANAGER_HPP */

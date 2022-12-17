@@ -272,7 +272,7 @@ void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, i
 }
 
 void MessageManager_LoadMessageLogs(SmartFileReader& file) {
-    for (int i = 0; i < PLAYER_TEAM_MAX - 1; + i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         MessageManager_TeamMessageLog[i].Clear();
 
         for (int count = file.ReadObjectCount(); count > 0; --count) {

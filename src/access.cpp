@@ -745,9 +745,11 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
 
                     velocity_type = Access_GetVelocity(unit);
 
-                    for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
-                         it != unit->GetUnitList()->End(); ++it) {
-                        velocity_type |= Access_GetVelocity(&*it);
+                    if (unit->GetUnitList()) {
+                        for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
+                             it != unit->GetUnitList()->End(); ++it) {
+                            velocity_type |= Access_GetVelocity(&*it);
+                        }
                     }
 
                     if (velocity_type & target_group) {

@@ -32,6 +32,8 @@ class Complex : public TextFileObject {
     short buildings;
     short id;
 
+    static void TransferCargo(UnitInfo* unit, int* cargo);
+
 public:
     Complex(short id);
     ~Complex();
@@ -55,6 +57,8 @@ public:
     void GetCargoMinable(Cargo& capacity);
     void GetCargoMining(Cargo& materials, Cargo& capacity);
     void GetCargoInfo(Cargo& materials, Cargo& capacity);
+
+    void Transfer(int raw, int fuel, int gold);
 
     short material;
     short fuel;

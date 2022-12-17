@@ -326,6 +326,4 @@ public:
     unsigned int field_221;
 };
 
-void UnitInfo_Transfer(Complex* complex, int raw, int fuel, int gold);
-
 #endif /* UNITINFO_HPP */

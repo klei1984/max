@@ -31,7 +31,7 @@
 #include "units_manager.hpp"
 
 TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, unsigned short flags_)
-    : Task(spotted_unit->GetTeam(), task_attack, flags_) {
+    : Task(spotted_unit_->GetTeam(), task_attack, flags_) {
     UnitInfo* target = spotted_unit_->GetUnit();
     spotted_unit = spotted_unit_;
     unit_requests = 0;

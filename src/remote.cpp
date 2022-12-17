@@ -2219,7 +2219,7 @@ void Remote_ReceiveNetPacket_21(NetPacket& packet) {
     packet >> fuel;
     packet >> gold;
 
-    UnitInfo_Transfer(UnitsManager_TeamInfo[entity_id].team_units->GetComplex(complex_id), material, fuel, gold);
+    UnitsManager_TeamInfo[entity_id].team_units->GetComplex(complex_id)->Transfer(material, fuel, gold);
 }
 
 void Remote_ReceiveNetPacket_22(NetPacket& packet) {

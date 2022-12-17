@@ -2580,11 +2580,12 @@ void main_menu() {
 
                         if (game_file_number) {
                             ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
+
+                            GameManager_GameLoop(GAME_STATE_10);
+
+                            menu_portrait_id = INVALID_ID;
                         }
 
-                        GameManager_GameLoop(GAME_STATE_10);
-
-                        menu_portrait_id = INVALID_ID;
                         palette_from_image = 1;
                         exit_loop = true;
 
@@ -2599,11 +2600,12 @@ void main_menu() {
                         if (game_file_number) {
                             ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_TEXT);
                             ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
+
+                            GameManager_GameLoop(GAME_STATE_10);
+
+                            menu_portrait_id = INVALID_ID;
                         }
 
-                        GameManager_GameLoop(GAME_STATE_10);
-
-                        menu_portrait_id = INVALID_ID;
                         palette_from_image = 1;
                         exit_loop = true;
                     } break;

@@ -193,7 +193,9 @@ void TeamUnits::FileLoad(SmartFileReader& file) {
 
     complexes.Clear();
 
-    for (int complex_count = file.ReadObjectCount(); complex_count > 0; --complex_count) {
+    int complex_count = file.ReadObjectCount();
+
+    for (int i = 0; i < complex_count; ++i) {
         complexes.PushBack(*dynamic_cast<Complex*>(file.ReadObject()));
     }
 }

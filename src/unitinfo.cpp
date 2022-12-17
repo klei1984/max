@@ -483,8 +483,6 @@ struct SoundTable UnitInfo_SfxAlienAttackPlane = {8,
 const unsigned char UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESEARCH_TOPIC_SHOTS, RESEARCH_TOPIC_RANGE,
                                                      RESEARCH_TOPIC_ARMOR, RESEARCH_TOPIC_HITS};
 
-static void UnitInfo_TransferCargo(UnitInfo* unit, int* cargo);
-
 static void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, SmartFileReader& file);
 static void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, SmartFileWriter& file);
 static void UnitInfo_BuildList_TextLoad(SmartObjectArray<ResourceID>* build_list, TextStructure& object);
@@ -1513,62 +1511,6 @@ void UnitInfo::SetName(char* text) {
     }
 }
 
-void UnitInfo_TransferCargo(UnitInfo* unit, int* cargo) {
-    if (*cargo >= 0) {
-        int free_capacity;
-
-        free_capacity = unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - unit->storage;
-
-        if (*cargo <= free_capacity) {
-            unit->storage += *cargo;
-            *cargo = 0;
-
-        } else {
-            unit->storage += free_capacity;
-            *cargo -= free_capacity;
-        }
-
-        if (GameManager_SelectedUnit == unit) {
-            GameManager_UpdateInfoDisplay(unit);
-        }
-
-    } else if (-(*cargo) <= unit->storage) {
-        unit->storage += *cargo;
-        *cargo = 0;
-
-    } else {
-        *cargo += unit->storage;
-        unit->storage = 0;
-    }
-}
-
-void UnitInfo_Transfer(Complex* complex, int raw, int fuel, int gold) {
-    complex->gold += gold;
-    complex->fuel += fuel;
-    complex->material += raw;
-
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
-        if (raw || fuel || gold) {
-            if ((*it).GetComplex() == complex) {
-                switch (UnitsManager_BaseUnits[(*it).unit_type].cargo_type) {
-                    case CARGO_TYPE_RAW: {
-                        UnitInfo_TransferCargo(&*it, &raw);
-                    } break;
-
-                    case CARGO_TYPE_FUEL: {
-                        UnitInfo_TransferCargo(&*it, &fuel);
-                    } break;
-
-                    case CARGO_TYPE_GOLD: {
-                        UnitInfo_TransferCargo(&*it, &gold);
-                    } break;
-                }
-            }
-        }
-    }
-}
-
 int UnitInfo::GetRaw() {
     int result;
 
@@ -1631,7 +1573,7 @@ void UnitInfo::TransferRaw(int amount) {
                 storage = storage_capacity;
                 complex->material -= amount;
 
-                UnitInfo_Transfer(&*complex, amount, 0, 0);
+                complex->Transfer(amount, 0, 0);
             }
         }
     }
@@ -1699,7 +1641,7 @@ void UnitInfo::TransferFuel(int amount) {
                 storage = storage_capacity;
                 complex->fuel -= amount;
 
-                UnitInfo_Transfer(&*complex, 0, amount, 0);
+                complex->Transfer(0, amount, 0);
             }
         }
     }
@@ -1767,7 +1709,7 @@ void UnitInfo::TransferGold(int amount) {
                 storage = storage_capacity;
                 complex->gold -= amount;
 
-                UnitInfo_Transfer(&*complex, 0, 0, amount);
+                complex->Transfer(0, 0, amount);
             }
         }
     }
@@ -3418,7 +3360,7 @@ void UnitInfo::Resupply() {
 
         if (materials.raw > 0) {
             ammo = base_values->GetAttribute(ATTRIB_AMMO);
-            UnitInfo_Transfer(&*complex, -1, 0, 0);
+            complex->Transfer(-1, 0, 0);
         }
     }
 
@@ -4359,7 +4301,7 @@ void UnitInfo::Regenerate() {
 
         int turns_to_repair = Repair(materials.raw);
 
-        UnitInfo_Transfer(&*complex, -turns_to_repair, 0, 0);
+        complex->Transfer(-turns_to_repair, 0, 0);
     }
 
     if ((flags & REGENERATING_UNIT) && base_values->GetAttribute(ATTRIB_HITS) != hits) {
@@ -4511,20 +4453,19 @@ void UnitInfo::UpdateInfoDisplay() {
 
 int UnitInfo::Repair(int materials) {
     int hits_damage_level = base_values->GetAttribute(ATTRIB_HITS) - hits;
-    int turns_to_repair = GetTurnsToRepair();
+    int repair_cost = GetTurnsToRepair();
 
-    if (turns_to_repair > materials) {
+    if (repair_cost > materials) {
         hits_damage_level = (base_values->GetAttribute(ATTRIB_HITS) * 4 * materials) / GetNormalRateBuildCost();
-        turns_to_repair =
-            (base_values->GetAttribute(ATTRIB_HITS) * 4 + GetNormalRateBuildCost() * hits_damage_level - 1) /
-            (base_values->GetAttribute(ATTRIB_HITS) * 4);
+        repair_cost = (base_values->GetAttribute(ATTRIB_HITS) * 4 + GetNormalRateBuildCost() * hits_damage_level - 1) /
+                      (base_values->GetAttribute(ATTRIB_HITS) * 4);
     }
 
     hits += hits_damage_level;
 
     UnitsManager_CheckIfUnitDestroyed(this);
 
-    return turns_to_repair;
+    return repair_cost;
 }
 
 void UnitInfo::CancelBuilding() {
@@ -4622,7 +4563,7 @@ void UnitInfo::Reload(UnitInfo* parent) {
         if (materials.raw > 0) {
             need_action = true;
 
-            UnitInfo_Transfer(&*complex, -1, 0, 0);
+            complex->Transfer(-1, 0, 0);
         }
 
     } else {
@@ -4661,7 +4602,7 @@ void UnitInfo::Upgrade(UnitInfo* parent) {
         if (materials.raw >= materials_cost) {
             parent->UpgradeInt();
 
-            UnitInfo_Transfer(&*complex, -materials_cost, 0, 0);
+            complex->Transfer(-materials_cost, 0, 0);
 
             if (GameManager_PlayerTeam == team && state != ORDER_STATE_1) {
                 char unit_mark[10];
@@ -4870,7 +4811,7 @@ bool UnitInfo::ShakeWater() {
     }
 
     if (offset_x || offset_y) {
-        if (bobbed || !UnitsManager_byte_17947C) {
+        if (bobbed || !UnitsManager_EffectCounter) {
             return false;
         }
 
@@ -4914,7 +4855,7 @@ bool UnitInfo::ShakeAir() {
     }
 
     if (offset_x || offset_y) {
-        if (bobbed || !UnitsManager_byte_17947C) {
+        if (bobbed || !UnitsManager_EffectCounter) {
             return false;
         }
 
