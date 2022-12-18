@@ -167,7 +167,7 @@ extern const short Paths_8DirPointsArrayY[8];
 extern unsigned char** PathsManager_AccessMap;
 extern unsigned int Paths_LastTimeStamp;
 extern unsigned int Paths_DebugMode;
-extern bool Path_EnableTimeBenchmark;
+extern bool Paths_TimeBenchmarkDisable;
 extern unsigned int Paths_TimeLimit;
 extern unsigned int Paths_EvaluatedTileCount;
 extern unsigned int Paths_EvaluatorCallCount;

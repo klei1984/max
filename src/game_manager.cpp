@@ -5016,7 +5016,7 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
 
         } else {
             Paths_LastTimeStamp = timer_get_stamp32();
-            Path_EnableTimeBenchmark = false;
+            Paths_TimeBenchmarkDisable = false;
         }
 
         UnitsManager_UpdatePathsTimeLimit();
@@ -5084,7 +5084,7 @@ bool GameManager_ProcessTick(bool render_screen) {
         }
 
         Paths_LastTimeStamp = time_stamp;
-        Path_EnableTimeBenchmark = false;
+        Paths_TimeBenchmarkDisable = false;
 
         if (GameManager_GameState != GAME_STATE_11) {
             UnitsManager_ProcessRemoteOrders();

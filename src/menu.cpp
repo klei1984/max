@@ -2031,7 +2031,7 @@ int GameSetupMenu_Menu(int game_file_type, bool flag1, bool flag2) {
                 event_release = false;
             }
 
-            switch (key) {
+            switch (game_setup_menu.key) {
                 case GNW_KB_KEY_PAGEUP: {
                     game_setup_menu.key = 12;
                     game_setup_menu.EventScrollButton();

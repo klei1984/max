@@ -911,6 +911,8 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
     bool result;
     bool save_load_flag;
 
+    file_path[0] = '\0';
+
     sprintf(file_name, "save%i.%s", save_slot, SaveLoadMenu_SaveFileTypes[game_file_type]);
 
     if (game_file_type != GAME_TYPE_TRAINING && game_file_type != GAME_TYPE_CAMPAIGN &&

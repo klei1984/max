@@ -73,8 +73,8 @@ const Point Paths_8DirPointsArrayMarkerC[8] = {{10, 10},   {0, 12},  {246, 10}, 
 unsigned char** PathsManager_AccessMap;
 
 unsigned int Paths_LastTimeStamp;
-bool Path_EnableTimeBenchmark;
-unsigned int Paths_TimeLimit = 43750;
+bool Paths_TimeBenchmarkDisable;
+unsigned int Paths_TimeLimit = TIMER_FPS_TO_TICKS(30 / 1.1);
 
 unsigned int Paths_DebugMode;
 
