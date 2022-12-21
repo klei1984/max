@@ -316,13 +316,13 @@ int MVE_rmUnprotect(void) {
 
     if (!is_unprotected) {
 #if defined(__unix__)
-        size_t page_size = sysconf(_SC_PAGESIZE);
-
-        uintptr_t page_start = (uintptr_t)mveliba_start & -page_size;
-        if (mprotect((void *)page_start, (uintptr_t)mveliba_end - page_start, PROT_READ | PROT_WRITE | PROT_EXEC)) {
-            SDL_Log("VirtualProtect failed: %i\n", errno);
-            return -1;
-        }
+//        size_t page_size = sysconf(_SC_PAGESIZE);
+//
+//        uintptr_t page_start = (uintptr_t)mveliba_start & -page_size;
+//        if (mprotect((void *)page_start, (uintptr_t)mveliba_end - page_start, PROT_READ | PROT_WRITE | PROT_EXEC)) {
+//            SDL_Log("VirtualProtect failed: %i\n", errno);
+//            return -1;
+//        }
 #elif defined(_WIN32)
 //        if (!VirtualProtect(mveliba_start, mveliba_end - mveliba_start, PAGE_EXECUTE_READWRITE, &flOldProtect)) {
 //            SDL_Log("VirtualProtect failed: %i\n", GetLastError());

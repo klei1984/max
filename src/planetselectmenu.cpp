@@ -44,19 +44,19 @@ static struct MenuTitleItem planet_select_menu_planet_name = {{16, 61, 165, 80},
 static struct MenuTitleItem planet_select_menu_planet_description = {{41, 350, 600, 409}, nullptr};
 
 static struct PlanetSelectMenuControlItem planet_select_menu_controls[] = {
-    MENU_CONTROL_DEF(192, 51, 303, 162, INVALID_ID, nullptr, 0, PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(330, 51, 441, 162, INVALID_ID, nullptr, 0, PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(469, 51, 580, 162, INVALID_ID, nullptr, 0, PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(192, 189, 303, 300, INVALID_ID, nullptr, 0, PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(330, 189, 441, 300, INVALID_ID, nullptr, 0, PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(469, 189, 580, 300, INVALID_ID, nullptr, 0, PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(60, 248, 0, 0, MNULAROU, nullptr, 0, PlanetSelectMenu::EventWorld, PSELW0),
-    MENU_CONTROL_DEF(92, 248, 0, 0, MNURAROU, nullptr, 0, PlanetSelectMenu::EventWorld, PSELW0),
-    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN4U, "Random", 0, PlanetSelectMenu::EventRandom, PDONE0),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, PlanetSelectMenu::EventCancel,
+    MENU_CONTROL_DEF(192, 51, 303, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+    MENU_CONTROL_DEF(330, 51, 441, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+    MENU_CONTROL_DEF(469, 51, 580, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+    MENU_CONTROL_DEF(192, 189, 303, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+    MENU_CONTROL_DEF(330, 189, 441, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+    MENU_CONTROL_DEF(469, 189, 580, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+    MENU_CONTROL_DEF(60, 248, 0, 0, MNULAROU, nullptr, 0, &PlanetSelectMenu::EventWorld, PSELW0),
+    MENU_CONTROL_DEF(92, 248, 0, 0, MNURAROU, nullptr, 0, &PlanetSelectMenu::EventWorld, PSELW0),
+    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN4U, "Random", 0, &PlanetSelectMenu::EventRandom, PDONE0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, &PlanetSelectMenu::EventCancel,
                      PCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, PlanetSelectMenu::EventHelp, PHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, PlanetSelectMenu::EventDone, PDONE0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &PlanetSelectMenu::EventHelp, PHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, &PlanetSelectMenu::EventDone, PDONE0),
 };
 
 static_assert(PLANET_SELECT_MENU_ITEM_COUNT ==

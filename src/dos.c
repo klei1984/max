@@ -33,6 +33,9 @@
 #include "gnw.h"
 
 #ifdef __unix__
+static char* dos_strupr(char *s);
+static char* dos_strlwr(char *s);
+
 char *strupr(char *s) { return dos_strupr(s); }
 char *strlwr(char *s) { return dos_strlwr(s); }
 int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
@@ -40,6 +43,28 @@ int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1
 #endif
 
 static unsigned int dos_rand_next = 1;
+
+#ifdef __unix__
+char* dos_strupr(char *s) {
+	char *p = s;
+	while (*p) {
+		*p = toupper(*p);
+		++p;
+	}
+	return s;
+}
+#endif
+
+#ifdef __unix__
+char* dos_strlwr(char *s) {
+	char *p = s;
+	while (*p) {
+		*p = tolower(*p);
+		++p;
+	}
+	return s;
+}
+#endif
 
 long int filesize(FILE *fp) {
     long int save_pos, size_of_file;

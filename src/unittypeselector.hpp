@@ -22,10 +22,10 @@
 #ifndef UNITTYPESELECTOR_HPP
 #define UNITTYPESELECTOR_HPP
 
-#include "Smartobjectarray.hpp"
 #include "button.hpp"
 #include "buttonmanager.hpp"
 #include "events.hpp"
+#include "smartobjectarray.hpp"
 #include "window.hpp"
 
 class UnitTypeSelector;

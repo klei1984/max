@@ -22,9 +22,9 @@
 #ifndef GAME_MANAGER_HPP
 #define GAME_MANAGER_HPP
 
-#include "UnitInfo.hpp"
 #include "button.hpp"
 #include "flicsmgr.hpp"
+#include "unitinfo.hpp"
 
 void GameManager_GameLoop(int game_state);
 void GameManager_AddDrawBounds(Rect* bounds);

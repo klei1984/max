@@ -20,7 +20,7 @@ on:
 
 jobs:
    Linux-i386:
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-18.04
 
       env:
          BUILD_DIR: build
@@ -31,17 +31,17 @@ jobs:
          run: |
             sudo dpkg --add-architecture i386
             sudo apt-get update -y -qq
-            sudo apt-get install -y -qq build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386
+            sudo apt-get install -y -qq build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386 ninja-build:i386
 
       -  name: Checkout
-         uses: actions/checkout@v2
+         uses: actions/checkout@v3
 
       -  name: Build
          run: |-
             mkdir $BUILD_DIR
             cd $BUILD_DIR
-            cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=/usr/local -DSDL2_DIR=/usr/lib/i386-linux-gnu/cmake/SDL2 ..
-            cmake --build .
+            cmake -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=/usr/local ..
+            cmake --build . --parallel
 
       -  name: Package
          run: |
@@ -77,11 +77,23 @@ jobs:
             pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-cmake mingw-w64-x86_64-ninja make
 
       -  name: Checkout
-         uses: actions/checkout@v2
+         uses: actions/checkout@v3
 
-      -  name: Build & Package
+      -  name: Build
+         run: |-
+            export PATH=$PATH:/mingw32/bin
+            mkdir $BUILD_DIR
+            cd $BUILD_DIR
+            cmake -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX="C:/Program Files (x86)/max" ..
+            cmake --build . --parallel
+
+
+      -  name: Package
          run: |
-            cmake/mingw32-i686-build.sh
+            cd $BUILD_DIR
+            cpack
+            mkdir Artifacts
+            cp *-win32.exe Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3

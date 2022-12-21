@@ -52,18 +52,18 @@ static struct MenuTitleItem clan_select_menu_clan_icons[] = {
 };
 
 static struct ClanSelectMenuControlItem clan_select_menu_controls[] = {
-    MENU_CONTROL_DEF(46, 44, 0, 0, CH_CN1_U, nullptr, 0, ClanSelectMenu::ClanSelection, CCHOS0),
-    MENU_CONTROL_DEF(201, 44, 0, 0, CH_CN2_U, nullptr, 0, ClanSelectMenu::ClanSelection, CCRIM0),
-    MENU_CONTROL_DEF(355, 44, 0, 0, CH_CN3_U, nullptr, 0, ClanSelectMenu::ClanSelection, CVONG0),
-    MENU_CONTROL_DEF(510, 44, 0, 0, CH_CN4_U, nullptr, 0, ClanSelectMenu::ClanSelection, CAYER0),
-    MENU_CONTROL_DEF(46, 194, 0, 0, CH_CN5_U, nullptr, 0, ClanSelectMenu::ClanSelection, CMUSA0),
-    MENU_CONTROL_DEF(201, 194, 0, 0, CH_CN6_U, nullptr, 0, ClanSelectMenu::ClanSelection, CSACR0),
-    MENU_CONTROL_DEF(355, 194, 0, 0, CH_CN7_U, nullptr, 0, ClanSelectMenu::ClanSelection, CKNIG0),
-    MENU_CONTROL_DEF(510, 194, 0, 0, CH_CN8_U, nullptr, 0, ClanSelectMenu::ClanSelection, CAXIS0),
-    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, "Random", 0, ClanSelectMenu::EventRandom, CRAND0),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, ClanSelectMenu::EventCancel, CCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, ClanSelectMenu::EventHelp, CHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, ClanSelectMenu::EventDone, CDONE0),
+    MENU_CONTROL_DEF(46, 44, 0, 0, CH_CN1_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CCHOS0),
+    MENU_CONTROL_DEF(201, 44, 0, 0, CH_CN2_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CCRIM0),
+    MENU_CONTROL_DEF(355, 44, 0, 0, CH_CN3_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CVONG0),
+    MENU_CONTROL_DEF(510, 44, 0, 0, CH_CN4_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CAYER0),
+    MENU_CONTROL_DEF(46, 194, 0, 0, CH_CN5_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CMUSA0),
+    MENU_CONTROL_DEF(201, 194, 0, 0, CH_CN6_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CSACR0),
+    MENU_CONTROL_DEF(355, 194, 0, 0, CH_CN7_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CKNIG0),
+    MENU_CONTROL_DEF(510, 194, 0, 0, CH_CN8_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CAXIS0),
+    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, "Random", 0, &ClanSelectMenu::EventRandom, CRAND0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, &ClanSelectMenu::EventCancel, CCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &ClanSelectMenu::EventHelp, CHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, &ClanSelectMenu::EventDone, CDONE0),
 };
 
 void ClanSelectMenu::Init(int team) {
