@@ -22,16 +22,14 @@
 #ifndef FLICSMGR_HPP
 #define FLICSMGR_HPP
 
-extern "C" {
-#include "interface.h"
-#include "resrcmgr.h"
+#include "enums.hpp"
+#include "gnw.h"
 
-typedef struct Flic_s Flic;
+struct Flic;
 
-Flic *flicsmgr_construct(GAME_RESOURCE id, WindowInfo *w, int width, int ulx, int uly, char animate,
+Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int uly, char animate,
                          char load_flic_palette);
 char flicsmgr_advance_animation(Flic *flc);
 void flicsmgr_delete(Flic *flc);
-}
 
 #endif /* FLICSMGR_HPP */

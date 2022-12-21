@@ -23,20 +23,79 @@
 #define UNITS_MANAGER_HPP
 
 #include "ctinfo.hpp"
+#include "teammissionsupplies.hpp"
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 
-extern SmartList<UnitInfo> UnitsManager_UnitList1;
-extern SmartList<UnitInfo> UnitsManager_UnitList2;
-extern SmartList<UnitInfo> UnitsManager_UnitList3;
-extern SmartList<UnitInfo> UnitsManager_UnitList4;
-extern SmartList<UnitInfo> UnitsManager_UnitList5;
+struct PopupFunctions {
+    void (*init)(UnitInfo* unit, struct PopupButtons* buttons);
+    bool (*test)(UnitInfo* unit);
+};
+
+extern unsigned short UnitsManager_Team;
+
+extern unsigned int UnitsManager_UnknownCounter;
+
+extern SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
+extern SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
+extern SmartList<UnitInfo> UnitsManager_ParticleUnits;
+extern SmartList<UnitInfo> UnitsManager_StationaryUnits;
+extern SmartList<UnitInfo> UnitsManager_MobileAirUnits;
 extern SmartList<UnitInfo> UnitsManager_UnitList6;
 
+extern AbstractUnit UnitsManager_AbstractUnits[UNIT_END];
 extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
-extern CTInfo UnitsManager_TeamInfo[5];
+extern SmartPointer<UnitInfo> UnitsManager_Unit;
 
+extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
+
+extern bool UnitsManager_OrdersPending;
+extern bool UnitsManager_byte_179448;
+extern bool UnitsManager_byte_178170;
+
+extern signed char UnitsManager_EffectCounter;
+extern signed char UnitsManager_byte_17947D;
+
+extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
+
+extern struct PopupFunctions UnitsManager_PopupCallbacks[];
+
+extern TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
+
+void UnitsManager_PerformAction(UnitInfo* unit);
 int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type);
+void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<ResourceID> units);
+int UnitsManager_AddDefaultMissionLoadout(unsigned short team);
+bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int grid_x, int grid_y);
+void UnitsManager_InitPopupMenus();
+int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int order);
+SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
+                                              UnitInfo* parent);
+void UnitsManager_ProcessRemoteOrders();
+void UnitsManager_NewOrderWhileScaling(UnitInfo* unit);
+void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit);
+void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state);
+void UnitsManager_UpdatePathsTimeLimit();
+void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state);
+void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
+unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid_y);
+void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y);
+void UnitsManager_StartBuild(UnitInfo* unit);
+bool UnitsManager_IsUnitUnderWater(UnitInfo* unit);
+void UnitsManager_UpdateConnectors(UnitInfo* unit);
+void UnitsManager_DestroyUnit(UnitInfo* unit);
+SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
+                                               int grid_y, unsigned char unit_angle, bool is_existing_unit = false,
+                                               bool skip_map_status_update = false);
+void UnitsManager_RemoveConnections(UnitInfo* unit);
+int UnitsManager_GetTargetAngle(int distance_x, int distance_y);
+int UnitsManager_GetFiringAngle(int distance_x, int distance_y);
+void UnitsManager_AddToDelayedReactionList(UnitInfo* unit);
+void UnitsManager_DrawBustedCommando(UnitInfo* unit);
+void UnitsManager_TestBustedCommando(UnitInfo* unit);
+void UnitsManager_ScaleUnit(UnitInfo* unit, int state);
+int UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int attack_potential);
 
 #endif /* UNITS_MANAGER_HPP */

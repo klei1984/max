@@ -26,6 +26,8 @@
 
 #include "smartpointer.hpp"
 
+#define SMARTARRAY_DEFAULT_GROWTH_FACTOR 5
+
 template <class T>
 class SmartArray {
     unsigned short capacity;
@@ -34,14 +36,12 @@ class SmartArray {
     SmartPointer<T>* smartarray;
 
 public:
-    SmartArray(unsigned short growth_factor)
+    SmartArray(unsigned short growth_factor = SMARTARRAY_DEFAULT_GROWTH_FACTOR)
         : capacity(0), growth_factor(growth_factor), count(0), smartarray(nullptr) {}
     ~SmartArray() {
         Release();
 
-        if (smartarray) {
-            delete[] smartarray;
-        }
+        delete[] smartarray;
     }
 
     void Insert(T& object, unsigned short index = SHRT_MAX) {
@@ -50,13 +50,11 @@ public:
         if (count == capacity) {
             array = new (std::nothrow) SmartPointer<T>[growth_factor + capacity + 1];
 
-            for (int i = 0; index < count; ++i) {
+            for (int i = 0; i < count; ++i) {
                 array[i] = smartarray[i];
             }
 
-            if (smartarray) {
-                delete[] smartarray;
-            }
+            delete[] smartarray;
 
             smartarray = array;
             capacity += growth_factor;
@@ -66,11 +64,11 @@ public:
             index = count;
         }
 
-        for (int i = count; i > index; --index) {
+        for (int i = count; i > index; --i) {
             smartarray[i] = smartarray[i - 1];
         }
 
-        smartarray[count] = object;
+        smartarray[index] = object;
         ++count;
     }
 

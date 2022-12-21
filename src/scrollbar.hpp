@@ -34,8 +34,17 @@ class EventScrollbarChange : public Event {
 
 public:
     EventScrollbarChange(Scrollbar *scrollbar, short value);
-    unsigned short GetEventId();
+    unsigned short GetEventId() const;
+
+    short GetValue() const;
+    short GetScrollbarValue() const;
 };
+
+EVENTS_DECLARE_EVENT_ID(ScrollbarEvent);
+
+void LoadHorizontalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
+void LoadHorizontalTape(unsigned char *buffer, short full2, short length, short width, ResourceID id);
+void LoadVerticalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
 
 class Scrollbar {
 protected:
@@ -53,8 +62,8 @@ protected:
     unsigned short scaling_factor;
     bool scrollbar_type;
 
-    friend void LoadHorizontalBar(char *buffer, short width, short capacity, short height, ResourceID id);
-    friend void LoadVerticalBar(char *buffer, short width, short capacity, short height, ResourceID id);
+    friend void LoadHorizontalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
+    friend void LoadVerticalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
     void ProcessValueChange(short value);
 
 public:
@@ -75,8 +84,8 @@ public:
 };
 
 class LimitedScrollbar : public Scrollbar {
-    unsigned short xfer_give_max;
-    unsigned short xfer_take_max;
+    short xfer_give_max;
+    short xfer_take_max;
 
 public:
     LimitedScrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id,
@@ -84,8 +93,8 @@ public:
                      bool vertical = false);
     ~LimitedScrollbar();
 
-    void SetXferGiveMax(unsigned short limit);
-    void SetXferTakeMax(unsigned short limit);
+    void SetXferGiveMax(short limit);
+    void SetXferTakeMax(short limit);
 
     bool ProcessKey(int key_code);
 };

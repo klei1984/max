@@ -27,12 +27,28 @@
 #include "smartlist.hpp"
 #include "unitvalues.hpp"
 
+struct CTInfo;
+class NetPacket;
+
+struct BaseUnitDataFile {
+    char image_base;
+    char image_count;
+    char turret_image_base;
+    char turret_image_count;
+    char firing_image_base;
+    char firing_image_count;
+    char connector_image_base;
+    char connector_image_count;
+    PathStep angle_offsets[8];
+};
+
+static_assert(sizeof(struct BaseUnitDataFile) == 24, "The structure needs to be packed.");
+
 struct AbstractUnit {
-    AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data,
-                 ResourceID flics, ResourceID portrait, ResourceID icon, ResourceID armory_portrait,
-                 ResourceID field_18, unsigned char cargo_type, unsigned char land_type, char new_gender,
-                 const char* singular_name, const char* plural_name, const char* description,
-                 const char* tutorial = "");
+    AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
+                 ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
+                 unsigned char cargo_type, unsigned char land_type, char new_gender, const char* singular_name,
+                 const char* plural_name, const char* description, const char* tutorial = "");
 
     unsigned int flags;
 
@@ -65,7 +81,7 @@ struct BaseUnit {
 
     unsigned int flags;
     ResourceID data;
-    char* data_buffer;
+    unsigned char* data_buffer;
     ResourceID flics;
     ResourceID portrait;
     ResourceID icon;
@@ -78,14 +94,12 @@ struct BaseUnit {
     const char* plural_name;
     const char* description;
     const char* tutorial;
-    char* sprite;
-    char* shadows;
+    unsigned char* sprite;
+    unsigned char* shadows;
     char* field_47;
 };
 
 class TeamUnits {
-    unsigned short color_field_0;
-    unsigned short color_field_2;
     unsigned short gold;
     SmartPointer<UnitValues> base_values[UNIT_END];
     SmartPointer<UnitValues> current_values[UNIT_END];
@@ -104,15 +118,16 @@ public:
     void TextLoad(TextStructure& object);
     void TextSave(SmartTextfileWriter& file);
 
-    int WriteComplexPacket(unsigned short complex_id, void* buffer);
-    void ReadComplexPacket(void* buffer);
+    void WriteComplexPacket(unsigned short complex_id, NetPacket& packet);
+    void ReadComplexPacket(NetPacket& packet);
 
     unsigned short GetGold();
     void SetGold(unsigned short value);
 
     Complex* CreateComplex();
+    SmartList<Complex>::Iterator GetFrontComplex();
     Complex* GetComplex(unsigned short complex_id);
-    void sub_7F3DC(unsigned short team);
+    void OptimizeComplexes(unsigned short team);
     void RemoveComplex(Complex& object);
     void ClearComplexes();
 
@@ -121,6 +136,17 @@ public:
 
     UnitValues* GetCurrentUnitValues(unsigned short id);
     void SetCurrentUnitValues(unsigned short id, UnitValues& object);
+
+    unsigned short hash_team_id;
+    ColorIndex* color_index_table;
 };
+
+int TeamUnits_GetUpgradeCost(unsigned short team, ResourceID unit_type, int attribute);
+int TeamUnits_UpgradeOffsetFactor(unsigned short team, ResourceID unit_type, int attribute);
+
+extern TeamUnits ResourceManager_TeamUnitsRed;
+extern TeamUnits ResourceManager_TeamUnitsGreen;
+extern TeamUnits ResourceManager_TeamUnitsBlue;
+extern TeamUnits ResourceManager_TeamUnitsGray;
 
 #endif /* TEAMUNITS_HPP */

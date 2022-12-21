@@ -32,22 +32,39 @@
 
 #include "gnw.h"
 
-/// \todo Fix includes and dependencies
-typedef unsigned short GAME_RESOURCE;
-typedef void GameResourceMeta;
-#include "mvelib32.h"
-#include "unitinfo.h"
-#include "units.h"
-#include "wrappers.h"
-
 #ifdef __unix__
+static char* dos_strupr(char *s);
+static char* dos_strlwr(char *s);
+
 char *strupr(char *s) { return dos_strupr(s); }
 char *strlwr(char *s) { return dos_strlwr(s); }
 int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
 int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1, s2, len); }
 #endif
 
-static unsigned int next = 1;
+static unsigned int dos_rand_next = 1;
+
+#ifdef __unix__
+char* dos_strupr(char *s) {
+	char *p = s;
+	while (*p) {
+		*p = toupper(*p);
+		++p;
+	}
+	return s;
+}
+#endif
+
+#ifdef __unix__
+char* dos_strlwr(char *s) {
+	char *p = s;
+	while (*p) {
+		*p = tolower(*p);
+		++p;
+	}
+	return s;
+}
+#endif
 
 long int filesize(FILE *fp) {
     long int save_pos, size_of_file;
@@ -122,7 +139,7 @@ void dos_getdrive(unsigned int *drive) { *drive = 4; }
 
 void dos_setdrive(unsigned int drive, unsigned int *total) {}
 
-static unsigned int *initrandnext() { return &next; }
+static unsigned int *initrandnext() { return &dos_rand_next; }
 
 int dos_rand(void) {
     unsigned int *next;
@@ -130,7 +147,7 @@ int dos_rand(void) {
 
     next = initrandnext();
     if (next) {
-        *next = (*next) * 1103515245UL  + 12345UL;
+        *next = (*next) * 1103515245UL + 12345UL;
         result = ((*next) >> 16) & 0x7FFF;
     } else {
         result = 0;

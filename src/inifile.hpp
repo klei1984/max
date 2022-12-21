@@ -23,10 +23,8 @@
 #define INIFILE_HPP
 
 #include "enums.hpp"
-
-extern "C" {
-#include "ini.h"
-}
+#include "ini.hpp"
+#include "smartfile.hpp"
 
 enum : unsigned char {
     OPPONENT_TYPE_CLUELESS,
@@ -43,16 +41,16 @@ public:
     ~IniSettings();
     void Init();
     void Save();
-    int SetNumericValue(GAME_INI param, int value);
-    int GetNumericValue(GAME_INI param);
-    int SetStringValue(GAME_INI param, char *buffer);
-    int GetStringValue(GAME_INI param, char *buffer, int buffer_size);
-    void SaveSection(void *smartfile_handle, GAME_INI section);
-    void LoadSection(void *smartfile_handle, GAME_INI section, char mode);
+    int SetNumericValue(IniParameter param, int value);
+    int GetNumericValue(IniParameter param);
+    int SetStringValue(IniParameter param, const char *buffer);
+    int GetStringValue(IniParameter param, char *buffer, int buffer_size);
+    void SaveSection(SmartFileWriter &file, IniParameter section);
+    void LoadSection(SmartFileReader &file, IniParameter section, char mode);
 
 private:
     void Destroy();
-    static const char *SeekToSection(GAME_INI param);
+    static const char *SeekToSection(IniParameter param);
 
     Ini_descriptor ini;
     unsigned int item[118];
@@ -87,5 +85,8 @@ public:
 
 extern IniSettings ini_config;
 extern IniClans ini_clans;
+
+extern int ini_setting_victory_type;
+extern int ini_setting_victory_limit;
 
 #endif /* INIFILE_HPP */

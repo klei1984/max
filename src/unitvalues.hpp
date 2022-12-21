@@ -49,8 +49,11 @@ public:
 
     static TextFileObject* Allocate();
     int GetAttribute(char attribute);
+    unsigned short* GetAttributeAddress(char attribute);
     void SetAttribute(char attribute, int value);
     void UpdateVersion();
+    int GetVersion() const;
+    int GetAgentSkill() const;
     void SetUnitsBuilt(unsigned char count);
 
     unsigned short GetTypeIndex() const;
@@ -64,19 +67,20 @@ public:
 };
 
 enum : char {
-    ATTRIB_TURNS,
-    ATTRIB_HITS,
-    ATTRIB_ARMOR,
-    ATTRIB_ATTACK,
-    ATTRIB_MOVE_AND_FIRE,
-    ATTRIB_SPEED,
-    ATTRIB_FUEL,
-    ATTRIB_RANGE,
-    ATTRIB_ROUNDS,
-    ATTRIB_SCAN,
-    ATTRIB_STORAGE,
+    ATTRIB_ATTACK = RESEARCH_TOPIC_ATTACK,
+    ATTRIB_ROUNDS = RESEARCH_TOPIC_SHOTS,
+    ATTRIB_RANGE = RESEARCH_TOPIC_RANGE,
+    ATTRIB_ARMOR = RESEARCH_TOPIC_ARMOR,
+    ATTRIB_HITS = RESEARCH_TOPIC_HITS,
+    ATTRIB_SPEED = RESEARCH_TOPIC_SPEED,
+    ATTRIB_SCAN = RESEARCH_TOPIC_SCAN,
+    ATTRIB_TURNS = RESEARCH_TOPIC_COST,
     ATTRIB_AMMO,
-    ATTRIB_ATTACK_RADIUS
+    ATTRIB_MOVE_AND_FIRE,
+    ATTRIB_FUEL,
+    ATTRIB_STORAGE,
+    ATTRIB_ATTACK_RADIUS,
+    ATTRIB_AGENT_ADJUST
 };
 
 #endif /* UNITVALUES_HPP */

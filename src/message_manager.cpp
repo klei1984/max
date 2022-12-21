@@ -24,21 +24,13 @@
 #include <algorithm>
 
 #include "dialogmenu.hpp"
-#include "gui.hpp"
-
-extern "C" {
-#include "gnw.h"
-}
-
-/// \todo Fix gwin includes
-extern "C" {
-WindowInfo* gwin_get_window(unsigned char id);
-}
+#include "game_manager.hpp"
+#include "resource_manager.hpp"
+#include "window_manager.hpp"
 
 static_assert(sizeof(Point) == 4, "It is expected that Point is exactly 2+2 bytes long.");
 static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte long.");
 
-#define MESSAGE_MANAGER_TEAM_COUNT 4
 #define MESSAGE_MANAGER_MAX_COUNT 50
 #define MESSAGE_MANAGER_MESSAGE_BUFFER_SIZE 800
 #define MESSAGE_MANAGER_TEXT_BUFFER_SIZE 300
@@ -49,13 +41,13 @@ char MessageManager_TextBuffer[MESSAGE_MANAGER_TEXT_BUFFER_SIZE];
 short MessageManager_Buffer1_Length;
 short MessageManager_MessageBox_Width;
 short MessageManager_MessageBox_Height;
-char* MessageManager_MessageBox_BgColor;
+ColorIndex* MessageManager_MessageBox_BgColor;
 bool MessageManager_MessageBox_IsActive;
 
-/// \todo Implement correct LUT
-char** MessageManager_MessageBox_BgColorArray[] = {0, 0, 0};
+ColorIndex** MessageManager_MessageBox_BgColorArray[] = {
+    &ResourceManager_ColorIndexTable12, &ResourceManager_ColorIndexTable10, &ResourceManager_ColorIndexTable06};
 
-SmartList<MessageLogEntry> MessageManager_TeamMessageLog[MESSAGE_MANAGER_TEAM_COUNT];
+SmartList<MessageLogEntry> MessageManager_TeamMessageLog[PLAYER_TEAM_MAX - 1];
 
 void MessageManager_WrapText(const char* text, short width) {
     int position = 0;
@@ -135,23 +127,23 @@ void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int lef
 }
 
 void MessageManager_AddMessage(const char* text, ResourceID id) {
-    MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].PushBack(
+    MessageManager_TeamMessageLog[GameManager_PlayerTeam].PushBack(
         *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, id)));
 
-    if (MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
-        MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Remove(
-            *MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Begin());
+    if (MessageManager_TeamMessageLog[GameManager_PlayerTeam].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
+        MessageManager_TeamMessageLog[GameManager_PlayerTeam].Remove(
+            *MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin());
     }
 }
 
 void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Point point) {
     if (text[0] != '\0') {
-        MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].PushBack(
+        MessageManager_TeamMessageLog[GameManager_PlayerTeam].PushBack(
             *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, unit, point)));
 
-        if (MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
-            MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Remove(
-                *MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Begin());
+        if (MessageManager_TeamMessageLog[GameManager_PlayerTeam].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
+            MessageManager_TeamMessageLog[GameManager_PlayerTeam].Remove(
+                *MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin());
         }
 
         MessageManager_DrawMessage(text, type, 0);
@@ -176,17 +168,17 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             }
 
             if (save_to_log) {
-                MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].PushBack(
+                MessageManager_TeamMessageLog[GameManager_PlayerTeam].PushBack(
                     *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, I_CMPLX)));
 
-                if (MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
-                    MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Remove(
-                        *MessageManager_TeamMessageLog[GUI_PlayerTeamIndex].Begin());
+                if (MessageManager_TeamMessageLog[GameManager_PlayerTeam].GetCount() > MESSAGE_MANAGER_MAX_COUNT) {
+                    MessageManager_TeamMessageLog[GameManager_PlayerTeam].Remove(
+                        *MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin());
                 }
             }
 
             text_font(5);
-            window_38 = gwin_get_window(38);
+            window_38 = WindowManager_GetWindow(WINDOW_MAIN_MAP);
             width = window_38->window.lrx - window_38->window.ulx;
 
             MessageManager_MessageBox_Width = 0;
@@ -201,7 +193,7 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             offset_x = 0;
             offset_y = 10;
 
-            window_2 = gwin_get_window(2);
+            window_2 = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
             window_2->window.ulx = window_38->window.ulx + offset_x;
             window_2->window.uly = window_38->window.uly + offset_y;
@@ -213,9 +205,8 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             MessageManager_MessageBox_BgColor = *MessageManager_MessageBox_BgColorArray[type];
             MessageManager_MessageBox_IsActive = true;
 
-            /// \todo Implement functions
-            //            sub_9A9FD(&bounds);
-            //            drawmap_add_dirty_zone(&bounds);
+            GameManager_GetScaledMessageBoxBounds(&bounds);
+            GameManager_AddDrawBounds(&bounds);
         }
     }
 }
@@ -226,7 +217,7 @@ void MessageManager_DrawMessageBox() {
     int fullw;
     int row;
 
-    window = gwin_get_window(2);
+    window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
     for (height = MessageManager_MessageBox_Height, fullw = 0; height > 0; --height, fullw += 640) {
         for (row = 0; row < MessageManager_MessageBox_Width; ++row) {
@@ -241,11 +232,10 @@ void MessageManager_ClearMessageBox() {
     WindowInfo* window;
     Rect bounds;
 
-    /// \todo Implement functions
-    //            sub_9A9FD(&bounds);
-    //            drawmap_add_dirty_zone(&bounds);
+    GameManager_GetScaledMessageBoxBounds(&bounds);
+    GameManager_AddDrawBounds(&bounds);
 
-    window = gwin_get_window(2);
+    window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
     window->window.ulx = -1;
     window->window.uly = -1;
@@ -282,7 +272,7 @@ void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, i
 }
 
 void MessageManager_LoadMessageLogs(SmartFileReader& file) {
-    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; + i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         MessageManager_TeamMessageLog[i].Clear();
 
         for (int count = file.ReadObjectCount(); count > 0; --count) {
@@ -293,7 +283,7 @@ void MessageManager_LoadMessageLogs(SmartFileReader& file) {
 }
 
 void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
-    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; + i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         file.WriteObjectCount(MessageManager_TeamMessageLog[i].GetCount());
 
         for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[i].Begin();
@@ -304,7 +294,7 @@ void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
 }
 
 void MessageManager_ClearMessageLogs() {
-    for (int i = 0; i < MESSAGE_MANAGER_TEAM_COUNT; + i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         MessageManager_TeamMessageLog[i].Clear();
     }
 }
@@ -317,14 +307,15 @@ MessageLogEntry::MessageLogEntry(SmartFileReader& file) {
     file.Read(text, length);
     unit = dynamic_cast<UnitInfo*>(file.ReadObject());
     file.Read(point);
-    file.Read(field_20);
+    file.Read(is_alert_message);
     file.Read(id);
 }
 
-MessageLogEntry::MessageLogEntry(const char* text, ResourceID id) : id(id), text(strdup(text)), field_20(false) {}
+MessageLogEntry::MessageLogEntry(const char* text, ResourceID id)
+    : id(id), text(strdup(text)), is_alert_message(false) {}
 
 MessageLogEntry::MessageLogEntry(const char* text, UnitInfo* unit, Point point)
-    : text(strdup(text)), unit(unit), point(point), field_20(true), id(INVALID_ID) {}
+    : text(strdup(text)), unit(unit), point(point), is_alert_message(true), id(INVALID_ID) {}
 
 MessageLogEntry::~MessageLogEntry() { delete text; }
 
@@ -335,21 +326,26 @@ void MessageLogEntry::FileSave(SmartFileWriter& file) {
     file.Write(text, length);
     file.WriteObject(&*unit);
     file.Write(point);
-    file.Write(field_20);
+    file.Write(is_alert_message);
     file.Write(id);
 }
 
-char* MessageLogEntry::GetCstr() const { return text; }
+char* MessageLogEntry::GetCStr() const { return text; }
 
-void MessageLogEntry::MessageLogEntry_sub_B780B() {
+void MessageLogEntry::Select() {
     MessageManager_DrawMessage(text, 0, 0);
 
-    if (field_20) {
-        /// \todo Implement missing stuff
-        if (unit != nullptr && unit->hits && unit->IsVisibleToTeam(GUI_PlayerTeamIndex)) {
-            //            sub_9F637(*unit);
+    if (is_alert_message) {
+        if (unit != nullptr && unit->hits > 0 && unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
+            GameManager_MenuUnitSelect(&*unit);
         } else {
-            //            sub_A1620(1, point.x, point, y);
+            GameManager_UpdateMainMapView(1, point.x, point.y);
         }
     }
 }
+
+UnitInfo* MessageLogEntry::GetUnit() const { return &*unit; }
+
+Point MessageLogEntry::GetPosition() const { return point; }
+
+ResourceID MessageLogEntry::GetIcon() const { return id; }

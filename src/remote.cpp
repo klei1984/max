@@ -21,22 +21,559 @@
 
 #include "remote.hpp"
 
-#include "gwindow.hpp"
+#include "access.hpp"
+#include "cursor.hpp"
+#include "game_manager.hpp"
+#include "hash.hpp"
+#include "helpmenu.hpp"
+#include "inifile.hpp"
+#include "menu.hpp"
 #include "message_manager.hpp"
+#include "mouseevent.hpp"
 #include "networkmenu.hpp"
+#include "sound_manager.hpp"
 #include "transport.hpp"
+#include "units_manager.hpp"
+#include "version.hpp"
+#include "window_manager.hpp"
+
+#define REMOTE_RESPONSE_TIMEOUT 30000
+#define REMOTE_PING_TIME_PERIOD 3000
+
+enum {
+    REMOTE_UNICAST,
+    REMOTE_MULTICAST,
+    REMOTE_BROADCAST,
+};
+
+enum {
+    REMOTE_RECEIVED_ADDRESS,
+};
+
+struct OrderProcessor {
+    void (*WritePacket)(UnitInfo* unit, NetPacket& packet);
+    void (*ReadPacket)(UnitInfo* unit, NetPacket& packet);
+};
+
+NetNodeArray Remote_Nodes;
+
+NetNodeArray Remote_Hosts;
+NetNodeArray Remote_Clients;
 
 unsigned char Remote_GameState;
+unsigned char Remote_RemotePlayerCount;
 bool Remote_IsHostMode;
 bool Remote_IsNetworkGame;
+bool Remote_UpdatePauseTimer;
+bool Remote_UnpauseGameEvent;
+bool Remote_SendP1SyncFrame;
 unsigned int Remote_PauseTimeStamp;
+unsigned int Remote_TimeoutTimeStamp;
 unsigned int Remote_RngSeed;
-
 Transport* Remote_Transport;
-
 NetworkMenu* Remote_NetworkMenu;
 
-void Remote_Init() {}
+static unsigned char Remote_FrameSyncCounter2;
+static unsigned char Remote_FrameSyncCounter[TRANSPORT_MAX_TEAM_COUNT];
+static unsigned char Remote_FrameSyncCounter2values[TRANSPORT_MAX_TEAM_COUNT];
+static unsigned char Remote_LeaveGameRequestId[TRANSPORT_MAX_TEAM_COUNT];
+static unsigned char Remote_TurnIndices[TRANSPORT_MAX_TEAM_COUNT];
+static unsigned char Remote_NextTurnIndices[TRANSPORT_MAX_TEAM_COUNT];
+static unsigned short Remote_TeamDataCrc16[TRANSPORT_MAX_TEAM_COUNT];
+static unsigned short Remote_P23_UnitId;
+static NetPacket Remote_P23_Packet;
+static bool Remote_P24_Signals[TRANSPORT_MAX_TEAM_COUNT];
+static bool Remote_P49_Signal;
+static bool Remote_P51_Signal;
+
+static OrderProcessor Remote_OrderProcessors[32];
+
+static unsigned short Remote_GenerateEntityId();
+static void Remote_UpdateEntityId(NetAddress& address, unsigned short entity_id);
+
+static void Remote_WriteGameSettings(NetPacket& packet);
+static void Remote_ReadGameSettings(NetPacket& packet);
+
+static void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor4_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor5_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet);
+
+static int Remote_SetupPlayers();
+static void Remote_ResponseTimeout(unsigned short team, bool mode);
+static bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units);
+static void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet);
+static void Remote_NetErrorUnknownUnit(unsigned short unit_id);
+static void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet);
+
+static void Remote_SendNetPacket_07(unsigned short team, bool mode);
+static void Remote_SendNetPacket_23(UnitInfo* unit);
+static void Remote_SendNetPacket_45(unsigned short team, unsigned char next_turn_index, unsigned short crc_checksum);
+
+static void Remote_ReceiveNetPacket_00(NetPacket& packet);
+static void Remote_ReceiveNetPacket_01(NetPacket& packet);
+static void Remote_ReceiveNetPacket_05(NetPacket& packet);
+static void Remote_ReceiveNetPacket_06(NetPacket& packet);
+static void Remote_ReceiveNetPacket_07(NetPacket& packet);
+static void Remote_ReceiveNetPacket_08(NetPacket& packet);
+static void Remote_ReceiveNetPacket_09(NetPacket& packet);
+static void Remote_ReceiveNetPacket_10(NetPacket& packet);
+static void Remote_ReceiveNetPacket_11(NetPacket& packet);
+static void Remote_ReceiveNetPacket_12(NetPacket& packet);
+static void Remote_ReceiveNetPacket_13(NetPacket& packet);
+static void Remote_ReceiveNetPacket_14(NetPacket& packet);
+static void Remote_ReceiveNetPacket_16(NetPacket& packet);
+static void Remote_ReceiveNetPacket_17(NetPacket& packet);
+static void Remote_ReceiveNetPacket_18(NetPacket& packet);
+static void Remote_ReceiveNetPacket_20(NetPacket& packet);
+static void Remote_ReceiveNetPacket_21(NetPacket& packet);
+static void Remote_ReceiveNetPacket_22(NetPacket& packet);
+static void Remote_ReceiveNetPacket_23(NetPacket& packet);
+static void Remote_ReceiveNetPacket_24(NetPacket& packet);
+static void Remote_ReceiveNetPacket_26(NetPacket& packet);
+static void Remote_ReceiveNetPacket_28(NetPacket& packet);
+static void Remote_ReceiveNetPacket_29(NetPacket& packet);
+static void Remote_ReceiveNetPacket_30(NetPacket& packet);
+static void Remote_ReceiveNetPacket_31(NetPacket& packet);
+static void Remote_ReceiveNetPacket_32(NetPacket& packet);
+static void Remote_ReceiveNetPacket_33(NetPacket& packet);
+static void Remote_ReceiveNetPacket_34(NetPacket& packet);
+static void Remote_ReceiveNetPacket_35(NetPacket& packet);
+static void Remote_ReceiveNetPacket_36(NetPacket& packet);
+static void Remote_ReceiveNetPacket_37(NetPacket& packet);
+static void Remote_ReceiveNetPacket_38(NetPacket& packet);
+static void Remote_ReceiveNetPacket_39(NetPacket& packet);
+static void Remote_ReceiveNetPacket_40(NetPacket& packet);
+static void Remote_ReceiveNetPacket_41(NetPacket& packet);
+static void Remote_ReceiveNetPacket_42(NetPacket& packet);
+static void Remote_ReceiveNetPacket_43(NetPacket& packet);
+static void Remote_ReceiveNetPacket_44(NetPacket& packet);
+static void Remote_ReceiveNetPacket_45(NetPacket& packet);
+static void Remote_ReceiveNetPacket_46(NetPacket& packet);
+static void Remote_ReceiveNetPacket_48(NetPacket& packet);
+static void Remote_ReceiveNetPacket_49(NetPacket& packet);
+static void Remote_ReceiveNetPacket_50(NetPacket& packet);
+static void Remote_ReceiveNetPacket_51(NetPacket& packet);
+static void Remote_ReceiveNetPacket_52(NetPacket& packet);
+
+unsigned short Remote_GenerateEntityId() {
+    unsigned short new_entity_id;
+
+    for (;;) {
+        new_entity_id = ((dos_rand() * 31991) >> 15) + 10;
+
+        if (!Remote_Nodes.Find(new_entity_id)) {
+            break;
+        }
+    }
+
+    return new_entity_id;
+}
+
+void Remote_UpdateEntityId(NetAddress& address, unsigned short entity_id) {
+    for (int i = 0; i < Remote_Nodes.GetCount(); ++i) {
+        if (Remote_Nodes[i]->address == address) {
+            Remote_Nodes[i]->entity_id = entity_id;
+        }
+    }
+}
+
+void Remote_WriteGameSettings(NetPacket& packet) {
+    packet << Remote_NetworkMenu->world_name;
+    packet << Remote_NetworkMenu->ini_world_index;
+    packet << Remote_NetworkMenu->ini_play_mode;
+    packet << Remote_NetworkMenu->ini_timer;
+    packet << Remote_NetworkMenu->ini_endturn;
+    packet << Remote_NetworkMenu->ini_opponent;
+    packet << Remote_NetworkMenu->ini_start_gold;
+    packet << Remote_NetworkMenu->ini_raw_resource;
+    packet << Remote_NetworkMenu->ini_fuel_resource;
+    packet << Remote_NetworkMenu->ini_gold_resource;
+    packet << Remote_NetworkMenu->ini_alien_derelicts;
+    packet << Remote_NetworkMenu->ini_victory_type;
+    packet << Remote_NetworkMenu->ini_victory_limit;
+    packet << Remote_NetworkMenu->is_map_changed;
+    packet << Remote_NetworkMenu->is_multi_scenario;
+    packet << Remote_NetworkMenu->default_team_names;
+    packet << Remote_NetworkMenu->multi_scenario_id;
+    packet << Remote_NetworkMenu->rng_seed;
+}
+
+void Remote_ReadGameSettings(NetPacket& packet) {
+    packet >> Remote_NetworkMenu->world_name;
+    packet >> Remote_NetworkMenu->ini_world_index;
+    packet >> Remote_NetworkMenu->ini_play_mode;
+    packet >> Remote_NetworkMenu->ini_timer;
+    packet >> Remote_NetworkMenu->ini_endturn;
+    packet >> Remote_NetworkMenu->ini_opponent;
+    packet >> Remote_NetworkMenu->ini_start_gold;
+    packet >> Remote_NetworkMenu->ini_raw_resource;
+    packet >> Remote_NetworkMenu->ini_fuel_resource;
+    packet >> Remote_NetworkMenu->ini_gold_resource;
+    packet >> Remote_NetworkMenu->ini_alien_derelicts;
+    packet >> Remote_NetworkMenu->ini_victory_type;
+    packet >> Remote_NetworkMenu->ini_victory_limit;
+    packet >> Remote_NetworkMenu->is_map_changed;
+    packet >> Remote_NetworkMenu->is_multi_scenario;
+    packet >> Remote_NetworkMenu->default_team_names;
+    packet >> Remote_NetworkMenu->multi_scenario_id;
+    packet >> Remote_NetworkMenu->rng_seed;
+}
+
+void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet) {
+    packet << unit->orders;
+    packet << unit->state;
+    packet << unit->prior_orders;
+    packet << unit->prior_state;
+    packet << unit->disabled_reaction_fire;
+}
+
+void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet) {
+    UnitsManager_NewOrderWhileScaling(unit);
+
+    packet >> unit->orders;
+    packet >> unit->state;
+    packet >> unit->prior_orders;
+    packet >> unit->prior_state;
+    packet >> unit->disabled_reaction_fire;
+}
+
+void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor1_Write(unit, packet);
+
+    if (unit->GetParent()) {
+        packet << unit->GetParent()->GetId();
+
+    } else {
+        packet << static_cast<unsigned short>(0);
+    }
+}
+
+void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor1_Read(unit, packet);
+
+    unsigned short unit_id;
+
+    packet >> unit_id;
+
+    if (unit_id) {
+        unit->SetParent(Hash_UnitHash[unit_id]);
+
+    } else {
+        unit->SetParent(nullptr);
+    }
+}
+
+void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor2_Write(unit, packet);
+
+    packet << unit->target_grid_x;
+    packet << unit->target_grid_y;
+
+    if (unit->GetEnemy()) {
+        packet << unit->GetEnemy()->GetId();
+
+    } else {
+        packet << static_cast<unsigned short>(0);
+    }
+}
+
+void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor2_Read(unit, packet);
+
+    packet >> unit->target_grid_x;
+    packet >> unit->target_grid_y;
+    unsigned short unit_id;
+
+    packet >> unit_id;
+
+    if (unit_id) {
+        unit->SetEnemy(Hash_UnitHash[unit_id]);
+
+    } else {
+        unit->SetEnemy(nullptr);
+    }
+}
+
+void Remote_OrderProcessor4_Write(UnitInfo* unit, NetPacket& packet) {
+    SmartObjectArray<ResourceID> build_queue = unit->GetBuildList();
+
+    Remote_OrderProcessor3_Write(unit, packet);
+
+    packet << unit->GetRepeatBuildState();
+    packet << unit->build_time;
+    packet << static_cast<unsigned short>(unit->GetBuildRate());
+
+    unsigned short unit_count = build_queue.GetCount();
+
+    packet << unit_count;
+
+    for (int i = 0; i < unit_count; ++i) {
+        packet << *build_queue[i];
+    }
+}
+
+void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet) {
+    SmartObjectArray<ResourceID> build_queue = unit->GetBuildList();
+    bool repeat_build;
+    unsigned short build_rate;
+    unsigned short unit_count;
+    ResourceID unit_type;
+
+    Remote_OrderProcessor3_Read(unit, packet);
+
+    packet >> repeat_build;
+    unit->SetRepeatBuildState(repeat_build);
+    packet >> unit->build_time;
+    packet >> build_rate;
+    unit->SetBuildRate(build_rate);
+    packet >> unit_count;
+
+    build_queue.Clear();
+
+    for (int i = 0; i < unit_count; ++i) {
+        packet >> unit_type;
+        build_queue.PushBack(&unit_type);
+    }
+}
+
+void Remote_OrderProcessor5_Write(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor3_Write(unit, packet);
+
+    packet << unit->total_mining;
+    packet << unit->raw_mining;
+    packet << unit->fuel_mining;
+    packet << unit->gold_mining;
+}
+
+void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor3_Read(unit, packet);
+
+    packet >> unit->total_mining;
+    packet >> unit->raw_mining;
+    packet >> unit->fuel_mining;
+    packet >> unit->gold_mining;
+}
+
+int Remote_SetupPlayers() {
+    GameManager_PlayerTeam = Remote_NetworkMenu->player_team;
+
+    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + GameManager_PlayerTeam), TEAM_TYPE_PLAYER);
+
+    UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type = TEAM_TYPE_PLAYER;
+
+    ini_config.SetStringValue(INI_PLAYER_NAME, Remote_NetworkMenu->player_name);
+
+    /// \todo Copy player address from TP layer?
+
+    int player_clan = ini_get_setting(INI_PLAYER_CLAN);
+
+    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + GameManager_PlayerTeam), player_clan);
+
+    UnitsManager_TeamInfo[GameManager_PlayerTeam].team_clan = player_clan;
+
+    int remote_player_count = 0;
+
+    for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+        if (Remote_NetworkMenu->team_nodes[team] > 4) {
+            ini_config.SetStringValue(INI_RED_TEAM_NAME, Remote_NetworkMenu->team_names[team]);
+
+            if (Remote_NetworkMenu->team_nodes[team] != Remote_NetworkMenu->player_node) {
+                ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_REMOTE);
+                UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_REMOTE;
+
+                ++remote_player_count;
+            }
+
+        } else {
+            ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + GameManager_PlayerTeam), TEAM_TYPE_NONE);
+        }
+    }
+
+    /// \todo Reset TP layer packet counters
+
+    Remote_RemotePlayerCount = remote_player_count;
+
+    return remote_player_count;
+}
+
+void Remote_ResponseTimeout(unsigned short team, bool mode) {
+    char message[100];
+
+    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_ELIMINATED);
+
+    UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
+
+    if (mode) {
+        sprintf(message, "%s does not respond. Terminating Connection.", menu_team_names[team]);
+
+    } else {
+        if (GameManager_WrapUpGame) {
+            return;
+        }
+
+        sprintf(message, "%s has left the game.", menu_team_names[team]);
+
+        SoundManager.PlayVoice(static_cast<ResourceID>(V_M025 + team * 4), static_cast<ResourceID>(V_F026 + team * 4));
+    }
+
+    if (GameManager_GameState != GAME_STATE_3_MAIN_MENU) {
+        MessageManager_DrawMessage(message, 1, 1, true);
+    }
+
+    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
+            ++Remote_RngSeed;
+
+            return;
+        }
+    }
+
+    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
+
+    Remote_IsNetworkGame = false;
+}
+
+void Remote_Init() {
+    WindowInfo* window;
+
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+
+    Remote_GameState = 0;
+    Remote_RngSeed = 0;
+    GameManager_PlayerTeam = 0;
+    Remote_FrameSyncCounter2 = 0;
+    Remote_SendP1SyncFrame = true;
+    //    Remote_byte_1759C5 = 0;
+    Remote_RemotePlayerCount = 0;
+    Remote_P51_Signal = false;
+
+    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        Remote_FrameSyncCounter2values[i] = 0;
+        Remote_FrameSyncCounter[i] = 0;
+        Remote_NextTurnIndices[i] = 0;
+        Remote_LeaveGameRequestId[i] = 0;
+        Remote_TurnIndices[i] = 0;
+        Remote_P24_Signals[i] = false;
+    }
+
+    Remote_Nodes.Clear();
+    Remote_Hosts.Clear();
+
+    for (int i = 0; i < 32; ++i) {
+        switch (i) {
+            case ORDER_AWAIT:
+            case ORDER_POWER_ON:
+            case ORDER_POWER_OFF:
+            case ORDER_EXPLODE:
+            case ORDER_SENTRY:
+            case ORDER_LAND:
+            case ORDER_TAKE_OFF:
+            case ORDER_LOAD:
+            case ORDER_IDLE:
+            case ORDER_HALT_BUILDING:
+            case ORDER_AWAIT_SCALING:
+            case ORDER_AWAIT_TAPE_POSITIONING:
+            case ORDER_LAY_MINE:
+            case ORDER_HALT_BUILDING_2: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor1_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor1_Read;
+            } break;
+
+            case ORDER_TRANSFORM:
+            case ORDER_BUILD:
+            case ORDER_CLEAR:
+            case ORDER_DISABLE: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor4_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor4_Read;
+            } break;
+
+            case ORDER_MOVE:
+            case ORDER_FIRE:
+            case ORDER_ACTIVATE:
+            case ORDER_TRANSFER:
+            case ORDER_AWAIT_STEAL_UNIT:
+            case ORDER_AWAIT_DISABLE_UNIT:
+            case ORDER_MOVE_TO_UNIT:
+            case ORDER_MOVE_TO_ATTACK: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor3_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor3_Read;
+            } break;
+
+            case ORDER_NEW_ALLOCATE: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor5_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor5_Read;
+            } break;
+
+            case ORDER_UNLOAD:
+            case ORDER_REPAIR:
+            case ORDER_REFUEL:
+            case ORDER_RELOAD:
+            case ORDER_UPGRADE: {
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor2_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor2_Read;
+            } break;
+        }
+    }
+}
+
+static bool Remote_ReceivePacket(NetPacket& packet) {
+    bool result;
+
+    if (Remote_Transport->ReceivePacket(packet)) {
+        if (packet.GetDataSize() < 3) {
+            SDL_Log("Remote: Dropped malformed packet (size: %i).\n", packet.GetDataSize());
+            result = false;
+
+        } else {
+            result = true;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+static void Remote_TransmitPacket(NetPacket& packet, int transmit_mode) {
+    switch (transmit_mode) {
+        case REMOTE_UNICAST: {
+            SDL_assert(packet.GetAddressCount() == 1);
+        } break;
+
+        case REMOTE_MULTICAST: {
+            for (int i = 0; i < Remote_Nodes.GetCount(); ++i) {
+                if (Remote_NetworkMenu->player_node != Remote_Nodes[i]->entity_id) {
+                    packet.AddAddress(Remote_Nodes[i]->address);
+                }
+            }
+
+            if (packet.GetAddressCount() == 0) {
+                return;
+            }
+        } break;
+
+        case REMOTE_BROADCAST: {
+            packet.ClearAddressTable();
+        } break;
+    }
+
+    if (!Remote_Transport->TransmitPacket(packet)) {
+        /// \todo Handle transport layer errors
+        Remote_Transport->GetError();
+    } else {
+        unsigned char packet_type;
+        packet.Peek(0, &packet_type, sizeof(packet_type));
+        SDL_Log("Remote: Transmit packet (%i).\n", packet_type);
+    }
+}
 
 void Remote_Deinit() {
     if (Remote_Transport) {
@@ -50,11 +587,48 @@ void Remote_Deinit() {
     Remote_IsNetworkGame = false;
 }
 
+bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).unit_type != MININGST) {
+            for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+                Remote_P24_Signals[i] = false;
+            }
+
+            Remote_SendNetPacket_23(&*it);
+
+            bool stay_in_loop = true;
+
+            while (stay_in_loop && Remote_IsNetworkGame) {
+                Remote_ProcessNetPackets();
+                GameManager_ProcessTick(false);
+
+                stay_in_loop = false;
+
+                for (int i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
+                    if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
+                        if (!Remote_P24_Signals[i]) {
+                            stay_in_loop = true;
+                        }
+                    }
+                }
+
+                if (get_input() == GNW_KB_KEY_ESCAPE) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 int Remote_Lobby(bool is_host_mode) {
     WindowInfo* window;
     int result;
+    char ini_transport[30];
+    int transort_type;
 
-    // window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     Remote_IsHostMode = is_host_mode;
 
@@ -62,92 +636,2370 @@ int Remote_Lobby(bool is_host_mode) {
     // CTInfo_Init();
     Remote_Init();
 
+    if (ini_config.GetStringValue(INI_NETWORK_TRANSPORT, ini_transport, sizeof(ini_transport))) {
+        if (!strcmp(ini_transport, "udp_default")) {
+            transort_type = TRANSPORT_DEFAULT_UDP;
+        } else {
+            SDL_Log("Remote: Unknown transport type (%s).\n", ini_transport);
+            transort_type = TRANSPORT_DEFAULT_UDP;
+        }
+
+    } else {
+        transort_type = TRANSPORT_DEFAULT_UDP;
+    }
+
     SDL_assert(Remote_Transport == nullptr);
-    Remote_Transport = new (std::nothrow) Transport();
+    Remote_Transport = Transport_Create(transort_type);
 
     if (Remote_Transport) {
-        if (Remote_Transport->Init()) {
-            // Remote_IsNetworkGame = NetworkMenu_MenuLoop(Remote_IsHostMode);
+        if (Remote_Transport->Init(Remote_IsHostMode ? TRANSPORT_SERVER : TRANSPORT_CLIENT)) {
+            Remote_IsNetworkGame = NetworkMenu_MenuLoop(Remote_IsHostMode);
 
             result = Remote_IsNetworkGame;
 
         } else {
-            // gwin_load_image(MAINPIC, gwin_get_window(GWINDOW_MAIN_WINDOW), 640, false, true);
+            WindowManager_LoadImage(MAINPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, false, true);
             MessageManager_DrawMessage(Remote_Transport->GetError(), 2, 1);
 
             result = false;
         }
 
     } else {
-        SDL_Log("Unable to initialize network transport layer.\n");
+        SDL_Log("Remote: Unable to initialize network transport layer.\n");
         result = false;
     }
 
     return result;
 }
 
-void Remote_SetupConnection() {}
+void Remote_SetupConnection() {
+    unsigned int rng_number;
+    int remote_player_count;
 
-bool Remote_sub_CAC94() {}
+    rng_number = dos_rand();
+    remote_player_count = Remote_SetupPlayers();
 
-bool Remote_sub_C8835(bool mode) {}
+    Remote_GameState = 2;
+    Remote_NetworkMenu->remote_player_count = 0;
 
-bool Remote_CheckRestartAfterDesyncEvent() {}
+    Remote_SendNetPacket_32(rng_number, REMOTE_BROADCAST);
 
-void Remote_RegisterMenu(NetworkMenu* menu) {}
+    Remote_Transport->SetSessionId(rng_number);
 
-void Remote_ProcessNetPackets() {}
+    while (Remote_NetworkMenu->remote_player_count != remote_player_count) {
+        Remote_ProcessNetPackets();
+        if (get_input() == GNW_KB_KEY_ESCAPE) {
+            return;
+        }
+    }
 
-void Remote_sub_C9753() {}
+    Remote_SendNetPacket_34();
 
-void Remote_SendNetPacket_signal(int packet_type, int team, int parameter) {}
+    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
+            //            ipx_rx_packetnum[i] = 1;
+        }
+    }
 
-void Remote_SendNetPacket_08(UnitInfo* unit) {}
+    Remote_NetworkMenu->connection_state = 1;
+}
 
-void Remote_SendNetPacket_09(int team) {}
+bool Remote_NetSync() {
+    Remote_ProcessNetPackets();
 
-void Remote_SendNetPacket_10(int team, ResourceID unit_type) {}
+    return Remote_NetworkMenu->is_gui_update_needed;
+}
 
-void Remote_SendNetPacket_11(int team, Complex* complex) {}
+bool Remote_ProcessFrame(bool mode) {
+    bool result;
 
-void Remote_SendNetPacket_12(int team) {}
+    Remote_ProcessNetPackets();
 
-void Remote_SendNetPacket_13(unsigned int rng_seed) {}
+    if (timer_get_stamp32() - Paths_LastTimeStamp >= TIMER_FPS_TO_TICKS(24)) {
+        Remote_ProcessTick(mode);
 
-void Remote_SendNetPacket_14(int team, ResourceID unit_type, int grid_x, int grid_y) {}
+        Paths_LastTimeStamp = timer_get_stamp32();
 
-void Remote_SendNetPacket_16(const char* file_name, const char* file_title) {}
+        result = true;
 
-void Remote_SendNetPacket_17() {}
+    } else {
+        result = false;
+    }
 
-void Remote_SendNetPacket_18(int sender_team, int addresse_team) {}
+    return result;
+}
 
-void Remote_SendNetPacket_20(UnitInfo* unit) {}
+bool Remote_CheckRestartAfterDesyncEvent() {
+    Remote_ProcessNetPackets();
 
-void Remote_SendNetPacket_22(UnitInfo* unit) {}
+    return Remote_P51_Signal;
+}
 
-void Remote_SendNetPacket_28(int node) {}
+void Remote_RegisterMenu(NetworkMenu* menu) {
+    Remote_NetworkMenu = menu;
+    Remote_GameState = 1;
 
-void Remote_SendNetPacket_29(int node) {}
+    if (!Remote_NetworkMenu->is_host_mode) {
+        Remote_SendNetPacket_28(0);
+    }
+}
 
-void Remote_SendNetPacket_31(int node) {}
+void Remote_ProcessNetPackets() {
+    for (;;) {
+        NetPacket packet;
+        unsigned char packet_type;
 
-void Remote_SendNetPacket_33() {}
+        if (Remote_ReceivePacket(packet)) {
+            packet >> packet_type;
 
-void Remote_SendNetPacket_34() {}
+            SDL_Log("Remote: Received packet (%i).\n", packet_type);
 
-void Remote_SendNetPacket_35() {}
+            switch (packet_type) {
+                case REMOTE_PACKET_00: {
+                    Remote_ReceiveNetPacket_00(packet);
+                } break;
 
-void Remote_SendNetPacket_36() {}
+                case REMOTE_PACKET_01: {
+                    Remote_ReceiveNetPacket_01(packet);
+                } break;
 
-void Remote_SendNetPacket_37() {}
+                case REMOTE_PACKET_05: {
+                    Remote_ReceiveNetPacket_05(packet);
+                } break;
 
-void Remote_SendNetPacket_38(UnitInfo* unit) {}
+                case REMOTE_PACKET_06: {
+                    Remote_ReceiveNetPacket_06(packet);
+                } break;
 
-void Remote_SendNetPacket_41(UnitInfo* unit) {}
+                case REMOTE_PACKET_07: {
+                    Remote_ReceiveNetPacket_07(packet);
+                } break;
 
-void Remote_SendNetPacket_43(UnitInfo* unit, const char* name) {}
+                case REMOTE_PACKET_08: {
+                    Remote_ReceiveNetPacket_08(packet);
+                } break;
 
-void Remote_SendNetPacket_44() {}
+                case REMOTE_PACKET_09: {
+                    Remote_ReceiveNetPacket_09(packet);
+                } break;
 
-void Remote_SendNetPacket_50(UnitInfo* unit) {}
+                case REMOTE_PACKET_10: {
+                    Remote_ReceiveNetPacket_10(packet);
+                } break;
+
+                case REMOTE_PACKET_11: {
+                    Remote_ReceiveNetPacket_11(packet);
+                } break;
+
+                case REMOTE_PACKET_12: {
+                    Remote_ReceiveNetPacket_12(packet);
+                } break;
+
+                case REMOTE_PACKET_13: {
+                    Remote_ReceiveNetPacket_13(packet);
+                } break;
+
+                case REMOTE_PACKET_14: {
+                    Remote_ReceiveNetPacket_14(packet);
+                } break;
+
+                case REMOTE_PACKET_16: {
+                    Remote_ReceiveNetPacket_16(packet);
+                } break;
+
+                case REMOTE_PACKET_17: {
+                    Remote_ReceiveNetPacket_17(packet);
+                } break;
+
+                case REMOTE_PACKET_18: {
+                    Remote_ReceiveNetPacket_18(packet);
+                } break;
+
+                case REMOTE_PACKET_20: {
+                    Remote_ReceiveNetPacket_20(packet);
+                } break;
+
+                case REMOTE_PACKET_21: {
+                    Remote_ReceiveNetPacket_21(packet);
+                } break;
+
+                case REMOTE_PACKET_22: {
+                    Remote_ReceiveNetPacket_22(packet);
+                } break;
+
+                case REMOTE_PACKET_23: {
+                    Remote_ReceiveNetPacket_23(packet);
+                } break;
+
+                case REMOTE_PACKET_24: {
+                    Remote_ReceiveNetPacket_24(packet);
+                } break;
+
+                case REMOTE_PACKET_26: {
+                    Remote_ReceiveNetPacket_26(packet);
+                } break;
+
+                case REMOTE_PACKET_28: {
+                    Remote_ReceiveNetPacket_28(packet);
+                } break;
+
+                case REMOTE_PACKET_29: {
+                    Remote_ReceiveNetPacket_29(packet);
+                } break;
+
+                case REMOTE_PACKET_30: {
+                    Remote_ReceiveNetPacket_30(packet);
+                } break;
+
+                case REMOTE_PACKET_31: {
+                    Remote_ReceiveNetPacket_31(packet);
+                } break;
+
+                case REMOTE_PACKET_32: {
+                    Remote_ReceiveNetPacket_32(packet);
+                } break;
+
+                case REMOTE_PACKET_33: {
+                    Remote_ReceiveNetPacket_33(packet);
+                } break;
+
+                case REMOTE_PACKET_34: {
+                    Remote_ReceiveNetPacket_34(packet);
+                } break;
+
+                case REMOTE_PACKET_35: {
+                    Remote_ReceiveNetPacket_35(packet);
+                } break;
+
+                case REMOTE_PACKET_36: {
+                    Remote_ReceiveNetPacket_36(packet);
+                } break;
+
+                case REMOTE_PACKET_37: {
+                    Remote_ReceiveNetPacket_37(packet);
+                } break;
+
+                case REMOTE_PACKET_38: {
+                    Remote_ReceiveNetPacket_38(packet);
+                } break;
+
+                case REMOTE_PACKET_39: {
+                    Remote_ReceiveNetPacket_39(packet);
+                } break;
+
+                case REMOTE_PACKET_40: {
+                    Remote_ReceiveNetPacket_40(packet);
+                } break;
+
+                case REMOTE_PACKET_41: {
+                    Remote_ReceiveNetPacket_41(packet);
+                } break;
+
+                case REMOTE_PACKET_42: {
+                    Remote_ReceiveNetPacket_42(packet);
+                } break;
+
+                case REMOTE_PACKET_43: {
+                    Remote_ReceiveNetPacket_43(packet);
+                } break;
+
+                case REMOTE_PACKET_44: {
+                    Remote_ReceiveNetPacket_44(packet);
+                } break;
+
+                case REMOTE_PACKET_45: {
+                    Remote_ReceiveNetPacket_45(packet);
+                } break;
+
+                case REMOTE_PACKET_46: {
+                    Remote_ReceiveNetPacket_46(packet);
+                } break;
+
+                case REMOTE_PACKET_48: {
+                    Remote_ReceiveNetPacket_48(packet);
+                } break;
+
+                case REMOTE_PACKET_49: {
+                    Remote_ReceiveNetPacket_49(packet);
+                } break;
+
+                case REMOTE_PACKET_50: {
+                    Remote_ReceiveNetPacket_50(packet);
+                } break;
+
+                case REMOTE_PACKET_51: {
+                    Remote_ReceiveNetPacket_51(packet);
+                } break;
+
+                case REMOTE_PACKET_52: {
+                    Remote_ReceiveNetPacket_52(packet);
+                } break;
+
+                default: {
+                    SDL_Log("Remote: Received unknown packet (%i).\n", packet_type);
+                } break;
+            }
+        } else {
+            break;
+        }
+    };
+}
+
+void Remote_NetErrorUnknownUnit(unsigned short unit_id) {
+    char message[100];
+
+    sprintf(message, "Unknown unit, id %i, referenced in remote packet.", unit_id);
+
+    MessageManager_DrawMessage(message, 2, 1, false, true);
+}
+
+void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
+    char message[100];
+
+    sprintf(message, "Unit, id %i, is in different state in remote packet.", unit->GetId());
+
+    MessageManager_DrawMessage(message, 2, 1, false, true);
+}
+
+void Remote_AnalyzeDesync() {
+    Remote_UpdatePauseTimer = false;
+
+    if (Remote_IsHostMode) {
+        if (Remote_AnalyzeDesyncHost(UnitsManager_MobileLandSeaUnits) &&
+            Remote_AnalyzeDesyncHost(UnitsManager_MobileAirUnits) &&
+            Remote_AnalyzeDesyncHost(UnitsManager_StationaryUnits) &&
+            Remote_AnalyzeDesyncHost(UnitsManager_GroundCoverUnits)) {
+            Remote_AnalyzeDesyncHost(UnitsManager_ParticleUnits);
+        }
+
+        Remote_SendNetPacket_Signal(REMOTE_PACKET_49, PLAYER_TEAM_RED, 1);
+
+    } else {
+        Remote_P49_Signal = false;
+
+        while (!Remote_P49_Signal) {
+            Remote_ProcessNetPackets();
+            GameManager_ProcessTick(false);
+
+            if (Remote_P23_UnitId != 0) {
+                UnitInfo* unit = Hash_UnitHash[Remote_P23_UnitId];
+
+                if (unit) {
+                    NetPacket packet;
+
+                    packet << static_cast<unsigned char>(REMOTE_PACKET_23);
+                    packet << unit->GetId();
+
+                    Remote_CreateNetPacket_23(unit, packet);
+
+                    if (Remote_P23_Packet != packet) {
+                        Remote_NetErrorUnitInfoOutOfSync(unit, Remote_P23_Packet);
+                    }
+
+                } else {
+                    Remote_NetErrorUnknownUnit(Remote_P23_UnitId);
+                }
+
+                Remote_P23_UnitId = 0;
+
+                Remote_SendNetPacket_Signal(REMOTE_PACKET_42, GameManager_PlayerTeam, 1);
+            }
+
+            if (get_input() == GNW_KB_KEY_ESCAPE) {
+                break;
+            }
+        }
+    }
+
+    SaveLoadMenu_Save("save.dbg", "debug save", false);
+
+    if (ini_get_setting(INI_TIMER)) {
+        Remote_UpdatePauseTimer = true;
+    }
+}
+
+int Remote_CheckUnpauseEvent() {
+    Remote_UnpauseGameEvent = false;
+
+    Remote_ProcessNetPackets();
+    Remote_TimeoutTimeStamp = timer_get_stamp32();
+
+    return Remote_UnpauseGameEvent;
+}
+
+void Remote_ProcessTick(bool mode) {
+    Remote_ProcessNetPackets();
+
+    if (GameManager_GameState == GAME_STATE_3_MAIN_MENU || GameManager_GameState == GAME_STATE_7_SITE_SELECT ||
+        GameManager_GameState == GAME_STATE_10 || GameManager_GameState == GAME_STATE_12 ||
+        GameManager_GameState == GAME_STATE_13) {
+        Remote_TimeoutTimeStamp = timer_get_stamp32();
+        Remote_SendP1SyncFrame = true;
+
+    } else {
+        unsigned int time_stamp = timer_get_stamp32();
+        bool stay_in_loop = true;
+
+        while (stay_in_loop && Remote_IsNetworkGame) {
+            Remote_ProcessNetPackets();
+            MouseEvent::ProcessInput();
+
+            if (Remote_SendP1SyncFrame || timer_elapsed_time_ms(time_stamp) > 500) {
+                Remote_SendNetPacket_Signal(REMOTE_PACKET_01, GameManager_PlayerTeam, Remote_FrameSyncCounter2);
+            }
+
+            stay_in_loop = false;
+
+            for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+                UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_REMOTE;
+
+                if (((Remote_FrameSyncCounter2 - 1) & 0x3F) == Remote_FrameSyncCounter2values[team]) {
+                    if (timer_elapsed_time_ms(Remote_TimeoutTimeStamp) > REMOTE_RESPONSE_TIMEOUT) {
+                        Remote_ResponseTimeout(team, true);
+                        break;
+
+                    } else {
+                        stay_in_loop = true;
+                    }
+                }
+            }
+
+            if (stay_in_loop && mode) {
+                Remote_TimeoutTimeStamp = timer_get_stamp32();
+
+                return;
+            }
+        }
+
+        Remote_FrameSyncCounter2 = (Remote_FrameSyncCounter2 + 1) & 0x3F;
+        Remote_TimeoutTimeStamp = timer_get_stamp32();
+        Remote_SendP1SyncFrame = true;
+    }
+}
+
+void Remote_WaitBeginTurnAcknowledge() {
+    Cursor_SetCursor(CURSOR_UNIT_NO_GO);
+
+    Remote_P51_Signal = false;
+
+    ++Remote_FrameSyncCounter[GameManager_PlayerTeam];
+
+    Remote_SendNetPacket_Signal(REMOTE_PACKET_00, GameManager_PlayerTeam,
+                                Remote_FrameSyncCounter[GameManager_PlayerTeam]);
+
+    unsigned int time_stamp_timeout = timer_get_stamp32();
+    unsigned int time_stamp_ping = timer_get_stamp32();
+
+    bool stay_in_loop = true;
+
+    while (stay_in_loop && Remote_IsNetworkGame) {
+        Remote_ProcessFrame(true);
+
+        if (timer_elapsed_time_ms(time_stamp_ping) > REMOTE_PING_TIME_PERIOD) {
+            Remote_SendNetPacket_Signal(REMOTE_PACKET_00, GameManager_PlayerTeam,
+                                        Remote_FrameSyncCounter[GameManager_PlayerTeam]);
+
+            time_stamp_ping = timer_get_stamp32();
+        }
+
+        stay_in_loop = false;
+
+        for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
+                if (Remote_FrameSyncCounter[team] != Remote_FrameSyncCounter[GameManager_PlayerTeam]) {
+                    stay_in_loop = true;
+
+                    if (timer_elapsed_time_ms(time_stamp_timeout) > REMOTE_RESPONSE_TIMEOUT) {
+                        Remote_ResponseTimeout(team, true);
+                    }
+                }
+            }
+        }
+
+        if (get_input() == GNW_KB_KEY_ESCAPE) {
+            stay_in_loop = false;
+        }
+    }
+}
+
+void Remote_WaitEndTurnAcknowledge() {
+    Cursor_SetCursor(CURSOR_UNIT_NO_GO);
+
+    Remote_P51_Signal = false;
+
+    ++Remote_TurnIndices[GameManager_PlayerTeam];
+
+    Remote_SendNetPacket_Signal(REMOTE_PACKET_52, GameManager_PlayerTeam, Remote_TurnIndices[GameManager_PlayerTeam]);
+
+    unsigned int time_stamp_timeout = timer_get_stamp32();
+    unsigned int time_stamp_ping = timer_get_stamp32();
+
+    bool stay_in_loop = true;
+
+    while (stay_in_loop && Remote_IsNetworkGame) {
+        Remote_ProcessFrame(true);
+
+        if (timer_elapsed_time_ms(time_stamp_ping) > REMOTE_PING_TIME_PERIOD) {
+            Remote_SendNetPacket_Signal(REMOTE_PACKET_52, GameManager_PlayerTeam,
+                                        Remote_TurnIndices[GameManager_PlayerTeam]);
+
+            time_stamp_ping = timer_get_stamp32();
+        }
+
+        stay_in_loop = false;
+
+        for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
+                if (Remote_TurnIndices[team] != Remote_TurnIndices[GameManager_PlayerTeam]) {
+                    stay_in_loop = true;
+
+                    if (timer_elapsed_time_ms(time_stamp_timeout) > REMOTE_RESPONSE_TIMEOUT) {
+                        Remote_ResponseTimeout(team, true);
+                    }
+                }
+            }
+        }
+
+        if (get_input() == GNW_KB_KEY_ESCAPE) {
+            stay_in_loop = false;
+        }
+    }
+}
+
+int Remote_SiteSelectMenu() {
+    bool stay_in_loop = false;
+
+    Remote_ProcessNetPackets();
+
+    for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
+            if (!UnitsManager_TeamMissionSupplies[team].units.GetCount()) {
+                stay_in_loop = true;
+            }
+        }
+    }
+
+    if (stay_in_loop && Remote_IsNetworkGame) {
+        MessageManager_DrawMessage("Waiting for remote player\nto select starting location...", 0, 0);
+
+        Cursor_SetCursor(CURSOR_HAND);
+
+        while (stay_in_loop && Remote_IsNetworkGame) {
+            Remote_ProcessNetPackets();
+            GameManager_ProcessTick(false);
+            MouseEvent::ProcessInput();
+
+            stay_in_loop = false;
+
+            for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
+                    if (!UnitsManager_TeamMissionSupplies[team].units.GetCount()) {
+                        stay_in_loop = true;
+                    }
+                }
+            }
+
+            int key_press = get_input();
+
+            switch (key_press) {
+                case GNW_KB_KEY_ESCAPE: {
+                    GameManager_GameState = GAME_STATE_14;
+
+                    Remote_SendNetPacket_Signal(REMOTE_PACKET_42, GameManager_PlayerTeam, false);
+
+                    return 6;
+
+                } break;
+
+                case GNW_KB_KEY_LALT_X: {
+                    GameManager_GameState = GAME_STATE_3_MAIN_MENU;
+
+                    Remote_SendNetPacket_Signal(REMOTE_PACKET_42, GameManager_PlayerTeam, false);
+
+                    return 6;
+
+                } break;
+
+                case GNW_KB_KEY_F10: {
+                    GameManager_GameState, GAME_STATE_15_FATAL_ERROR;
+
+                    Remote_SendNetPacket_Signal(REMOTE_PACKET_42, GameManager_PlayerTeam, false);
+
+                    return 6;
+
+                } break;
+
+                case GNW_KB_KEY_SHIFT_DIVIDE: {
+                    HelpMenu_Menu(HELPMENU_SITE_SELECT_SETUP, WINDOW_MAIN_MAP);
+                } break;
+            }
+        }
+
+        MessageManager_ClearMessageBox();
+    }
+
+    for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
+            int proximity_state = GameManager_CheckLandingZones(GameManager_PlayerTeam, team);
+
+            if (proximity_state != 0) {
+                UnitsManager_TeamMissionSupplies[team].units.Clear();
+
+                return proximity_state;
+            }
+        }
+    }
+
+    for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
+            for (int team2 = 0; team2 < TRANSPORT_MAX_TEAM_COUNT; ++team2) {
+                if (team != team2) {
+                    if (UnitsManager_TeamInfo[team2].team_type == TEAM_TYPE_REMOTE) {
+                        if (GameManager_CheckLandingZones(team, team2)) {
+                            UnitsManager_TeamMissionSupplies[team].units.Clear();
+                            UnitsManager_TeamMissionSupplies[team2].units.Clear();
+
+                            return 5;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    dos_srand(Remote_RngSeed);
+
+    return 0;
+}
+
+void Remote_LeaveGame(unsigned short team, bool mode) {
+    if (UnitsManager_TeamInfo[UnitsManager_Team].team_type != TEAM_TYPE_REMOTE) {
+        unsigned short source_team = UnitsManager_Team;
+
+        do {
+            UnitsManager_Team = (UnitsManager_Team + 1) % TRANSPORT_MAX_TEAM_COUNT;
+
+        } while (UnitsManager_Team != source_team &&
+                 UnitsManager_TeamInfo[UnitsManager_Team].team_type != TEAM_TYPE_REMOTE);
+
+        if (UnitsManager_Team != source_team) {
+            ++UnitsManager_UnknownCounter;
+
+            Remote_SendNetPacket_46(UnitsManager_Team, false, UnitsManager_UnknownCounter);
+        }
+    }
+
+    ++Remote_LeaveGameRequestId[team];
+
+    Remote_SendNetPacket_07(team, mode);
+
+    unsigned int time_stamp = timer_get_stamp32();
+    bool stay_in_loop = true;
+
+    while (stay_in_loop && Remote_IsNetworkGame) {
+        Remote_ProcessNetPackets();
+        MouseEvent::ProcessInput();
+
+        stay_in_loop = false;
+
+        for (int team2 = 0; team2 < TRANSPORT_MAX_TEAM_COUNT; ++team2) {
+            if (UnitsManager_TeamInfo[team2].team_type == TEAM_TYPE_REMOTE) {
+                if (Remote_LeaveGameRequestId[team2] < Remote_LeaveGameRequestId[team]) {
+                    if (timer_elapsed_time_ms(time_stamp) < 5000) {
+                        stay_in_loop = true;
+                    }
+                }
+            }
+        }
+
+        if (get_input() == GNW_KB_KEY_ESCAPE) {
+            stay_in_loop = false;
+        }
+    }
+
+    Remote_GameState = 0;
+    Remote_IsNetworkGame = false;
+}
+
+bool Remote_CheckDesync(unsigned short team, unsigned short crc_checksum) {
+    ++Remote_NextTurnIndices[team];
+
+    Remote_SendNetPacket_45(team, Remote_NextTurnIndices[team], crc_checksum);
+
+    unsigned int time_stamp_timeout = timer_get_stamp32();
+    unsigned int time_stamp_ping = timer_get_stamp32();
+
+    bool stay_in_loop = true;
+
+    while (stay_in_loop && Remote_IsNetworkGame) {
+        Remote_ProcessFrame(true);
+
+        if (timer_elapsed_time_ms(time_stamp_ping) > REMOTE_PING_TIME_PERIOD) {
+            Remote_SendNetPacket_45(team, Remote_NextTurnIndices[team], crc_checksum);
+            time_stamp_ping = timer_get_stamp32();
+        }
+
+        stay_in_loop = false;
+
+        for (int i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
+            if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
+                if (Remote_NextTurnIndices[i] != Remote_NextTurnIndices[team]) {
+                    stay_in_loop = true;
+
+                    if (timer_elapsed_time_ms(time_stamp_timeout) > REMOTE_RESPONSE_TIMEOUT) {
+                        Remote_ResponseTimeout(i, true);
+                    }
+                }
+            }
+        }
+
+        if (get_input() == GNW_KB_KEY_ESCAPE) {
+            stay_in_loop = false;
+        }
+    }
+
+    for (int i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
+        if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
+            if (Remote_TeamDataCrc16[i] != crc_checksum && Remote_IsNetworkGame) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void Remote_SendNetPacket_Signal(int packet_type, int team, int parameter) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(packet_type);
+    packet << static_cast<unsigned short>(team);
+
+    packet << parameter;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_00(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+    packet >> Remote_FrameSyncCounter[entity_id];
+}
+
+void Remote_ReceiveNetPacket_01(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+    packet >> Remote_FrameSyncCounter2values[entity_id];
+}
+
+void Remote_SendNetPacket_05(unsigned short random_number, int transmit_mode) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_05);
+    packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+
+    packet << Remote_NetworkMenu->player_team;
+    packet << random_number;
+
+    /// \todo Copy player address from TP layer?
+
+    Remote_TransmitPacket(packet, transmit_mode);
+}
+
+void Remote_ReceiveNetPacket_05(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    /// \todo Copy player address from TP layer?
+
+    ++Remote_NetworkMenu->remote_player_count;
+}
+
+void Remote_ReceiveNetPacket_06(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    UnitsManager_TeamInfo[entity_id].field_41 = 1;
+
+    if (GameManager_PlayMode == PLAY_MODE_TURN_BASED) {
+        GameManager_GameState = GAME_STATE_9_END_TURN;
+
+    } else {
+        bool is_found = false;
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED &&
+                !UnitsManager_TeamInfo[team].field_41) {
+                is_found = true;
+            }
+        }
+
+        GameManager_HandleTurnTimer();
+
+        if (is_found) {
+            char message[100];
+
+            sprintf(message, "%s has ended turn.", menu_team_names[entity_id]);
+
+            MessageManager_DrawMessage(message, 1, 0);
+
+            SoundManager.PlayVoice(static_cast<ResourceID>(V_M279 + entity_id * 2),
+                                   static_cast<ResourceID>(V_F279 + entity_id * 2));
+        }
+    }
+}
+
+void Remote_SendNetPacket_07(unsigned short team, bool mode) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_07);
+    packet << static_cast<unsigned short>(team);
+
+    packet << Remote_LeaveGameRequestId[team];
+    packet << mode;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_07(NetPacket& packet) {
+    unsigned short entity_id;
+    unsigned char request_id;
+    bool request_mode;
+
+    packet >> entity_id;
+
+    packet >> request_id;
+    packet >> request_mode;
+
+    ++Remote_LeaveGameRequestId[GameManager_PlayerTeam];
+
+    Remote_SendNetPacket_Signal(REMOTE_PACKET_48, GameManager_PlayerTeam,
+                                Remote_LeaveGameRequestId[GameManager_PlayerTeam]);
+
+    if (request_mode) {
+        Remote_ResponseTimeout(entity_id, false);
+    }
+}
+
+void Remote_SendNetPacket_08(UnitInfo* unit) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_08);
+    packet << static_cast<unsigned short>(unit->GetId());
+
+    Remote_OrderProcessors[unit->orders].WritePacket(unit, packet);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_08(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    UnitInfo* unit = Hash_UnitHash[entity_id];
+
+    if (unit) {
+        packet.Peek(0, &unit->orders, sizeof(unit->orders));
+
+        Remote_OrderProcessors[unit->orders].ReadPacket(unit, packet);
+
+    } else {
+        Remote_NetErrorUnknownUnit(entity_id);
+    }
+}
+
+void Remote_SendNetPacket_09(int team) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_09);
+    packet << static_cast<unsigned short>(team);
+
+    packet << UnitsManager_TeamInfo[team].team_units->GetGold();
+    packet << UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
+
+    packet << UnitsManager_TeamInfo[team].markers;
+    packet << UnitsManager_TeamInfo[team].research_topics;
+
+    char team_name[30];
+
+    if (!ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name, sizeof(team_name))) {
+        SDL_assert(0);
+    }
+
+    packet << SmartString(team_name);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_09(NetPacket& packet) {
+    unsigned short entity_id;
+    unsigned short gold;
+    SmartString team_name;
+
+    packet >> entity_id;
+
+    packet >> gold;
+    UnitsManager_TeamInfo[entity_id].team_units->SetGold(gold);
+
+    packet >> UnitsManager_TeamInfo[entity_id].stats_gold_spent_on_upgrades;
+    packet >> UnitsManager_TeamInfo[entity_id].markers;
+    packet >> UnitsManager_TeamInfo[entity_id].research_topics;
+
+    packet >> team_name;
+
+    ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + entity_id), team_name.GetCStr());
+}
+
+void Remote_SendNetPacket_10(int team, ResourceID unit_type) {
+    NetPacket packet;
+    SmartPointer<UnitValues> unit_values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type));
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_10);
+    packet << static_cast<unsigned short>(team);
+
+    packet << unit_type;
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_TURNS));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_HITS));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ARMOR));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ATTACK));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_SPEED));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_RANGE));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ROUNDS));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_SCAN));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_STORAGE));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_AMMO));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_AGENT_ADJUST));
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_10(NetPacket& packet) {
+    unsigned short entity_id;
+    ResourceID unit_type;
+    unsigned short value;
+
+    packet >> entity_id;
+
+    packet >> unit_type;
+
+    SmartPointer<UnitValues> unit_values(new (std::nothrow) UnitValues(
+        *UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[entity_id], unit_type)));
+
+    unit_values->UpdateVersion();
+    unit_values->SetUnitsBuilt(0);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_TURNS, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_HITS, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_ARMOR, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_ATTACK, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_SPEED, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_RANGE, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_ROUNDS, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_MOVE_AND_FIRE, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_SCAN, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_STORAGE, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_AMMO, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_ATTACK_RADIUS, value);
+
+    packet >> value;
+    unit_values->SetAttribute(ATTRIB_AGENT_ADJUST, value);
+
+    UnitsManager_TeamInfo[entity_id].team_units->SetCurrentUnitValues(unit_type, *unit_values);
+}
+
+void Remote_SendNetPacket_11(int team, Complex* complex) {
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
+            (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
+            UnitsManager_SetNewOrder(&*it, ORDER_NEW_ALLOCATE, ORDER_STATE_0);
+        }
+    }
+
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_11);
+    packet << static_cast<unsigned short>(team);
+
+    UnitsManager_TeamInfo[team].team_units->WriteComplexPacket(complex->GetId(), packet);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_11(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    UnitsManager_TeamInfo[entity_id].team_units->ReadComplexPacket(packet);
+}
+
+void Remote_SendNetPacket_12(int team) {
+    TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
+    NetPacket packet;
+    unsigned short unit_count = supplies->units.GetCount();
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_12);
+    packet << static_cast<unsigned short>(team);
+
+    packet << supplies->field_12;
+    packet << supplies->team_gold;
+    packet << unit_count;
+    packet << UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
+    packet << supplies->starting_position;
+    packet << supplies->proximity_alert_ack;
+
+    for (int i = 0; i < unit_count; ++i) {
+        packet << *supplies->units[i];
+        packet << *supplies->cargos[i];
+    }
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_12(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[entity_id];
+
+    supplies->units.Clear();
+    supplies->cargos.Clear();
+
+    unsigned short unit_count;
+
+    packet >> supplies->field_12;
+    packet >> supplies->team_gold;
+    packet >> unit_count;
+    packet >> UnitsManager_TeamInfo[entity_id].stats_gold_spent_on_upgrades;
+    packet >> supplies->starting_position;
+    packet >> supplies->proximity_alert_ack;
+
+    for (int i = 0; i < unit_count; ++i) {
+        ResourceID unit_type;
+        unsigned short cargo;
+
+        packet >> unit_type;
+        supplies->units.PushBack(&unit_type);
+
+        packet >> cargo;
+        supplies->cargos.PushBack(&cargo);
+    }
+}
+
+void Remote_SendNetPacket_13(unsigned int rng_seed) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_13);
+    packet << static_cast<unsigned short>(0);
+
+    packet << rng_seed;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_13(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    packet >> Remote_RngSeed;
+}
+
+void Remote_SendNetPacket_14(int team, ResourceID unit_type, int grid_x, int grid_y) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_14);
+    packet << static_cast<unsigned short>(team);
+
+    packet << unit_type;
+    packet << grid_x;
+    packet << grid_y;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_14(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    ResourceID unit_type;
+    int grid_x;
+    int grid_y;
+
+    packet >> unit_type;
+    packet >> grid_x;
+    packet >> grid_y;
+
+    bool state_backup = GameManager_UnknownFlag3;
+
+    GameManager_UnknownFlag3 = true;
+
+    GameManager_DeployUnit(entity_id, unit_type, grid_x, grid_y);
+
+    GameManager_UnknownFlag3 = state_backup;
+}
+
+void Remote_SendNetPacket_16(const char* file_name, const char* file_title) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_16);
+    packet << static_cast<unsigned short>(0);
+
+    packet << SmartString(file_name);
+    packet << SmartString(file_title);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_16(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    SmartString file_name;
+    SmartString file_title;
+
+    packet >> file_name;
+    packet >> file_title;
+
+    SaveLoadMenu_Save(file_name.GetCStr(), file_title.GetCStr(), true);
+
+    MessageManager_DrawMessage("Game saved.", 1, 0);
+}
+
+void Remote_SendNetPacket_17() {
+    NetPacket packet;
+
+    int world;
+    int game_file_number;
+    int game_file_type;
+    int play_mode;
+    int all_visible;
+    int quick_build;
+    int real_time;
+    int log_file_debug;
+    int disable_fire;
+    int fast_movement;
+    int timer;
+    int endturn;
+    int start_gold;
+    int auto_save;
+    int victory_type;
+    int victory_limit;
+    int raw_normal_low;
+    int raw_normal_high;
+    int raw_concentrate_low;
+    int raw_concentrate_high;
+    int raw_concentrate_seperation;
+    int raw_concentrate_diffusion;
+    int fuel_normal_low;
+    int fuel_normal_high;
+    int fuel_concentrate_low;
+    int fuel_concentrate_high;
+    int fuel_concentrate_seperation;
+    int fuel_concentrate_diffusion;
+    int gold_normal_low;
+    int gold_normal_high;
+    int gold_concentrate_low;
+    int gold_concentrate_high;
+    int gold_concentrate_seperation;
+    int gold_concentrate_diffusion;
+    int mixed_resource_seperation;
+    int min_resources;
+    int max_resources;
+    int alien_seperation;
+    int alien_unit_value;
+
+    world = ini_get_setting(INI_WORLD);
+    game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
+    game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
+    play_mode = ini_get_setting(INI_PLAY_MODE);
+    all_visible = ini_get_setting(INI_ALL_VISIBLE);
+    quick_build = ini_get_setting(INI_QUICK_BUILD);
+    real_time = ini_get_setting(INI_REAL_TIME);
+    log_file_debug = ini_get_setting(INI_LOG_FILE_DEBUG);
+    disable_fire = ini_get_setting(INI_DISABLE_FIRE);
+    fast_movement = ini_get_setting(INI_FAST_MOVEMENT);
+    timer = ini_get_setting(INI_TIMER);
+    endturn = ini_get_setting(INI_ENDTURN);
+    start_gold = ini_get_setting(INI_START_GOLD);
+    auto_save = ini_get_setting(INI_AUTO_SAVE);
+    victory_type = ini_get_setting(INI_VICTORY_TYPE);
+    victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+    raw_normal_low = ini_get_setting(INI_RAW_NORMAL_LOW);
+    raw_normal_high = ini_get_setting(INI_RAW_NORMAL_HIGH);
+    raw_concentrate_low = ini_get_setting(INI_RAW_CONCENTRATE_LOW);
+    raw_concentrate_high = ini_get_setting(INI_RAW_CONCENTRATE_HIGH);
+    raw_concentrate_seperation = ini_get_setting(INI_RAW_CONCENTRATE_SEPERATION);
+    raw_concentrate_diffusion = ini_get_setting(INI_RAW_CONCENTRATE_DIFFUSION);
+    fuel_normal_low = ini_get_setting(INI_FUEL_NORMAL_LOW);
+    fuel_normal_high = ini_get_setting(INI_FUEL_NORMAL_HIGH);
+    fuel_concentrate_low = ini_get_setting(INI_FUEL_CONCENTRATE_LOW);
+    fuel_concentrate_high = ini_get_setting(INI_FUEL_CONCENTRATE_HIGH);
+    fuel_concentrate_seperation = ini_get_setting(INI_FUEL_CONCENTRATE_SEPERATION);
+    fuel_concentrate_diffusion = ini_get_setting(INI_FUEL_CONCENTRATE_DIFFUSION);
+    gold_normal_low = ini_get_setting(INI_GOLD_NORMAL_LOW);
+    gold_normal_high = ini_get_setting(INI_GOLD_NORMAL_HIGH);
+    gold_concentrate_low = ini_get_setting(INI_GOLD_CONCENTRATE_LOW);
+    gold_concentrate_high = ini_get_setting(INI_GOLD_CONCENTRATE_HIGH);
+    gold_concentrate_seperation = ini_get_setting(INI_GOLD_CONCENTRATE_SEPERATION);
+    gold_concentrate_diffusion = ini_get_setting(INI_GOLD_CONCENTRATE_DIFFUSION);
+    mixed_resource_seperation = ini_get_setting(INI_MIXED_RESOURCE_SEPERATION);
+    min_resources = ini_get_setting(INI_MIN_RESOURCES);
+    max_resources = ini_get_setting(INI_MAX_RESOURCES);
+    alien_seperation = ini_get_setting(INI_ALIEN_SEPERATION);
+    alien_unit_value = ini_get_setting(INI_ALIEN_UNIT_VALUE);
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_17);
+    packet << static_cast<unsigned short>(0);
+
+    packet << GameManager_GameState;
+    packet << world;
+    packet << game_file_number;
+    packet << game_file_type;
+    packet << play_mode;
+    packet << all_visible;
+    packet << quick_build;
+    packet << real_time;
+    packet << log_file_debug;
+    packet << disable_fire;
+    packet << fast_movement;
+    packet << timer;
+    packet << endturn;
+    packet << start_gold;
+    packet << auto_save;
+    packet << victory_type;
+    packet << victory_limit;
+    packet << raw_normal_low;
+    packet << raw_normal_high;
+    packet << raw_concentrate_low;
+    packet << raw_concentrate_high;
+    packet << raw_concentrate_seperation;
+    packet << raw_concentrate_diffusion;
+    packet << fuel_normal_low;
+    packet << fuel_normal_high;
+    packet << fuel_concentrate_low;
+    packet << fuel_concentrate_high;
+    packet << fuel_concentrate_seperation;
+    packet << fuel_concentrate_diffusion;
+    packet << gold_normal_low;
+    packet << gold_normal_high;
+    packet << gold_concentrate_low;
+    packet << gold_concentrate_high;
+    packet << gold_concentrate_seperation;
+    packet << gold_concentrate_diffusion;
+    packet << mixed_resource_seperation;
+    packet << min_resources;
+    packet << max_resources;
+    packet << alien_seperation;
+    packet << alien_unit_value;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_17(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    char game_state;
+    int world;
+    int game_file_number;
+    int game_file_type;
+    int play_mode;
+    int all_visible;
+    int quick_build;
+    int real_time;
+    int log_file_debug;
+    int disable_fire;
+    int fast_movement;
+    int timer;
+    int endturn;
+    int backup_timer;
+    int backup_endturn;
+    int start_gold;
+    int auto_save;
+    int victory_type;
+    int victory_limit;
+    int raw_normal_low;
+    int raw_normal_high;
+    int raw_concentrate_low;
+    int raw_concentrate_high;
+    int raw_concentrate_seperation;
+    int raw_concentrate_diffusion;
+    int fuel_normal_low;
+    int fuel_normal_high;
+    int fuel_concentrate_low;
+    int fuel_concentrate_high;
+    int fuel_concentrate_seperation;
+    int fuel_concentrate_diffusion;
+    int gold_normal_low;
+    int gold_normal_high;
+    int gold_concentrate_low;
+    int gold_concentrate_high;
+    int gold_concentrate_seperation;
+    int gold_concentrate_diffusion;
+    int mixed_resource_seperation;
+    int min_resources;
+    int max_resources;
+    int alien_seperation;
+    int alien_unit_value;
+
+    backup_timer = ini_get_setting(INI_TIMER);
+    backup_endturn = ini_get_setting(INI_ENDTURN);
+
+    packet >> game_state;
+    packet >> world;
+    packet >> game_file_number;
+    packet >> game_file_type;
+    packet >> play_mode;
+    packet >> all_visible;
+    packet >> quick_build;
+    packet >> real_time;
+    packet >> log_file_debug;
+    packet >> disable_fire;
+    packet >> fast_movement;
+    packet >> timer;
+    packet >> endturn;
+    packet >> start_gold;
+    packet >> auto_save;
+    packet >> victory_type;
+    packet >> victory_limit;
+    packet >> raw_normal_low;
+    packet >> raw_normal_high;
+    packet >> raw_concentrate_low;
+    packet >> raw_concentrate_high;
+    packet >> raw_concentrate_seperation;
+    packet >> raw_concentrate_diffusion;
+    packet >> fuel_normal_low;
+    packet >> fuel_normal_high;
+    packet >> fuel_concentrate_low;
+    packet >> fuel_concentrate_high;
+    packet >> fuel_concentrate_seperation;
+    packet >> fuel_concentrate_diffusion;
+    packet >> gold_normal_low;
+    packet >> gold_normal_high;
+    packet >> gold_concentrate_low;
+    packet >> gold_concentrate_high;
+    packet >> gold_concentrate_seperation;
+    packet >> gold_concentrate_diffusion;
+    packet >> mixed_resource_seperation;
+    packet >> min_resources;
+    packet >> max_resources;
+    packet >> alien_seperation;
+    packet >> alien_unit_value;
+
+    GameManager_PlayMode = play_mode;
+    GameManager_RealTime = real_time;
+    GameManager_FastMovement = fast_movement;
+
+    ini_setting_victory_type = victory_type;
+    ini_setting_victory_limit = victory_limit;
+
+    ini_set_setting(INI_PLAY_MODE, play_mode);
+    ini_set_setting(INI_ALL_VISIBLE, all_visible);
+    ini_set_setting(INI_QUICK_BUILD, quick_build);
+    ini_set_setting(INI_REAL_TIME, real_time);
+    ini_set_setting(INI_LOG_FILE_DEBUG, log_file_debug);
+    ini_set_setting(INI_DISABLE_FIRE, disable_fire);
+    ini_set_setting(INI_FAST_MOVEMENT, fast_movement);
+    ini_set_setting(INI_TIMER, timer);
+    ini_set_setting(INI_ENDTURN, endturn);
+    ini_set_setting(INI_START_GOLD, start_gold);
+    ini_set_setting(INI_AUTO_SAVE, auto_save);
+    ini_set_setting(INI_RAW_NORMAL_LOW, raw_normal_low);
+    ini_set_setting(INI_RAW_NORMAL_HIGH, raw_normal_high);
+    ini_set_setting(INI_RAW_CONCENTRATE_LOW, raw_concentrate_low);
+    ini_set_setting(INI_RAW_CONCENTRATE_HIGH, raw_concentrate_high);
+    ini_set_setting(INI_RAW_CONCENTRATE_SEPERATION, raw_concentrate_seperation);
+    ini_set_setting(INI_RAW_CONCENTRATE_DIFFUSION, raw_concentrate_diffusion);
+    ini_set_setting(INI_FUEL_NORMAL_LOW, fuel_normal_low);
+    ini_set_setting(INI_FUEL_NORMAL_HIGH, fuel_normal_high);
+    ini_set_setting(INI_FUEL_CONCENTRATE_LOW, fuel_concentrate_low);
+    ini_set_setting(INI_FUEL_CONCENTRATE_HIGH, fuel_concentrate_high);
+    ini_set_setting(INI_FUEL_CONCENTRATE_SEPERATION, fuel_concentrate_seperation);
+    ini_set_setting(INI_FUEL_CONCENTRATE_DIFFUSION, fuel_concentrate_diffusion);
+    ini_set_setting(INI_GOLD_NORMAL_LOW, gold_normal_low);
+    ini_set_setting(INI_GOLD_NORMAL_HIGH, gold_normal_high);
+    ini_set_setting(INI_GOLD_CONCENTRATE_LOW, gold_concentrate_low);
+    ini_set_setting(INI_GOLD_CONCENTRATE_HIGH, gold_concentrate_high);
+    ini_set_setting(INI_GOLD_CONCENTRATE_SEPERATION, gold_concentrate_seperation);
+    ini_set_setting(INI_GOLD_CONCENTRATE_DIFFUSION, gold_concentrate_diffusion);
+    ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, mixed_resource_seperation);
+    ini_set_setting(INI_MIN_RESOURCES, min_resources);
+    ini_set_setting(INI_MAX_RESOURCES, max_resources);
+    ini_set_setting(INI_ALIEN_SEPERATION, alien_seperation);
+    ini_set_setting(INI_ALIEN_UNIT_VALUE, alien_unit_value);
+
+    if (GameManager_GameState == GAME_STATE_3_MAIN_MENU) {
+        GameManager_GameState = game_state;
+
+        ini_set_setting(INI_WORLD, world);
+        ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
+        ini_set_setting(INI_GAME_FILE_TYPE, game_file_type);
+
+    } else {
+        if (GameManager_AllVisible != all_visible) {
+            Access_UpdateVisibilityStatus(all_visible);
+        }
+
+        if (backup_timer != timer || backup_endturn != endturn) {
+            MessageManager_DrawMessage("NOTICE: Turn timers have been changed.", 1, 0);
+        }
+    }
+}
+
+void Remote_SendNetPacket_18(int sender_team, int addresse_team, const char* message) {
+    int message_length;
+
+    message_length = strlen(message);
+
+    if (message_length && Remote_IsNetworkGame) {
+        NetPacket packet;
+
+        packet << static_cast<unsigned char>(REMOTE_PACKET_18);
+        packet << static_cast<unsigned short>(sender_team);
+
+        packet << SmartString(message);
+
+        Remote_TransmitPacket(packet, addresse_team);
+    }
+}
+
+void Remote_ReceiveNetPacket_18(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    char team_name[30];
+
+    ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + entity_id), team_name, sizeof(team_name));
+
+    SmartString message_text;
+    SmartString message(team_name);
+
+    packet >> message;
+
+    message += ": ";
+    message += message_text;
+
+    MessageManager_DrawMessage(message.GetCStr(), 1, 0, true, false);
+    MessageManager_AddMessage(message.GetCStr(), LIPS);
+}
+
+void Remote_SendNetPacket_20(UnitInfo* unit) {
+    NetPacket packet;
+    SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_20);
+    packet << static_cast<unsigned short>(unit->GetId());
+
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_TURNS));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_HITS));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ARMOR));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ATTACK));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_SPEED));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_RANGE));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ROUNDS));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_SCAN));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_STORAGE));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_AMMO));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS));
+    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_AGENT_ADJUST));
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_20(NetPacket& packet) {
+    unsigned short entity_id;
+    unsigned short value;
+
+    packet >> entity_id;
+
+    SmartPointer<UnitInfo> unit(Hash_UnitHash[entity_id]);
+
+    if (unit) {
+        SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
+
+        unit_values->UpdateVersion();
+        unit_values->SetUnitsBuilt(1);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_TURNS, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_HITS, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_ARMOR, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_ATTACK, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_SPEED, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_RANGE, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_ROUNDS, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_MOVE_AND_FIRE, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_SCAN, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_STORAGE, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_AMMO, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_ATTACK_RADIUS, value);
+
+        packet >> value;
+        unit_values->SetAttribute(ATTRIB_AGENT_ADJUST, value);
+
+        unit->SetBaseValues(&*unit_values);
+
+    } else {
+        Remote_NetErrorUnknownUnit(entity_id);
+    }
+}
+
+void Remote_ReceiveNetPacket_21(NetPacket& packet) {
+    unsigned short entity_id;
+    unsigned short complex_id;
+    unsigned short material;
+    unsigned short fuel;
+    unsigned short gold;
+
+    packet >> entity_id;
+
+    packet >> complex_id;
+    packet >> material;
+    packet >> fuel;
+    packet >> gold;
+
+    UnitsManager_TeamInfo[entity_id].team_units->GetComplex(complex_id)->Transfer(material, fuel, gold);
+}
+
+void Remote_ReceiveNetPacket_22(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    UnitInfo* unit = Hash_UnitHash[entity_id];
+
+    if (unit) {
+        unit->ReadPacket(packet);
+
+    } else {
+        Remote_NetErrorUnknownUnit(entity_id);
+    }
+}
+
+void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet) {
+    Remote_OrderProcessor5_Write(unit, packet);
+
+    packet << unit->build_time;
+    packet << unit->build_rate;
+    packet << unit->unit_type;
+    packet << unit->unit_id;
+    packet << unit->grid_x;
+    packet << unit->grid_y;
+    packet << unit->team;
+    packet << unit->hits;
+    packet << unit->speed;
+    packet << unit->shots;
+    packet << unit->storage;
+    packet << unit->ammo;
+}
+
+void Remote_SendNetPacket_23(UnitInfo* unit) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_23);
+    packet << unit->GetId();
+
+    Remote_CreateNetPacket_23(unit, packet);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_23(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    Remote_P23_UnitId = entity_id;
+
+    Remote_P23_Packet.Reset();
+
+    Remote_P23_Packet << static_cast<unsigned char>(REMOTE_PACKET_23);
+    Remote_P23_Packet << static_cast<unsigned short>(entity_id);
+
+    Remote_P23_Packet.Write(packet.GetBuffer(), packet.GetDataSize());
+}
+
+void Remote_ReceiveNetPacket_24(NetPacket& packet) {
+    unsigned short entity_id;
+    bool status;
+
+    packet >> entity_id;
+
+    packet >> status;
+
+    Remote_P24_Signals[entity_id] = status;
+}
+
+void Remote_ReceiveNetPacket_26(NetPacket& packet) {
+    unsigned short entity_id;
+    unsigned char team_clan;
+
+    packet >> entity_id;
+
+    packet >> team_clan;
+
+    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + entity_id), team_clan);
+
+    ResourceManager_InitClanUnitValues(entity_id);
+}
+
+void Remote_SendNetPacket_28(int node) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_28);
+    packet << static_cast<unsigned short>(node);
+
+    Remote_TransmitPacket(packet, REMOTE_BROADCAST);
+}
+
+void Remote_ReceiveNetPacket_28(NetPacket& packet) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu->is_host_mode) {
+        NetNode client_node;
+        client_node.address = packet.GetAddress(REMOTE_RECEIVED_ADDRESS);
+        client_node.entity_id = 0;
+        client_node.name[0] = '\0';
+        client_node.is_host = false;
+
+        Remote_Clients.Add(client_node);
+
+        Remote_SendNetPacket_44(packet.GetAddress(REMOTE_RECEIVED_ADDRESS));
+    }
+}
+
+void Remote_SendNetPacket_29(int node) {
+    NetPacket packet;
+    NetNode* host_node;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_29);
+    packet << static_cast<unsigned short>(node);
+
+    host_node = Remote_Hosts.Find(node);
+    if (host_node) {
+        Remote_Nodes.Add(*host_node);
+
+        packet.AddAddress(host_node->address);
+
+        Remote_TransmitPacket(packet, REMOTE_UNICAST);
+    } else {
+        SDL_Log("Remote: Attempted to register to host that does not exist.\n");
+    }
+}
+
+void Remote_ReceiveNetPacket_29(NetPacket& packet) {
+    unsigned short host_node;
+
+    packet >> host_node;
+
+    if (Remote_GameState == 1 && Remote_NetworkMenu->player_node == host_node) {
+        NetNode client_node;
+
+        client_node.address = packet.GetAddress(REMOTE_RECEIVED_ADDRESS);
+        client_node.entity_id = Remote_GenerateEntityId();
+        client_node.is_host = false;
+        client_node.name[0] = '\0';
+
+        Remote_Nodes.Add(client_node);
+        Remote_SendNetPacket_30(packet.GetAddress(REMOTE_RECEIVED_ADDRESS));
+    }
+}
+
+void Remote_SendNetPacket_30(NetAddress& address) {
+    NetPacket packet;
+    NetNode* node;
+
+    node = Remote_Nodes.Find(address);
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_30);
+    packet << node->entity_id;
+
+    packet << Remote_NetworkMenu->player_node;
+    packet << Remote_NetworkMenu->team_nodes;
+    packet << Remote_NetworkMenu->team_names;
+
+    packet << Remote_Nodes.GetCount();
+
+    for (int i = 0; i < Remote_Nodes.GetCount(); ++i) {
+        packet << *Remote_Nodes[i];
+    }
+
+    Remote_WriteGameSettings(packet);
+
+    packet.AddAddress(address);
+
+    Remote_TransmitPacket(packet, REMOTE_UNICAST);
+}
+
+void Remote_ReceiveNetPacket_30(NetPacket& packet) {
+    if (Remote_GameState == 1) {
+        unsigned short player_node;
+        unsigned short host_node;
+        unsigned short node_count;
+
+        packet >> player_node;
+        Remote_NetworkMenu->player_node = player_node;
+
+        packet >> host_node;
+        Remote_NetworkMenu->host_node = host_node;
+
+        packet >> Remote_NetworkMenu->team_nodes;
+        packet >> Remote_NetworkMenu->team_names;
+
+        packet >> node_count;
+
+        for (int i = 0; i < node_count; ++i) {
+            NetNode peer_node;
+
+            packet >> peer_node;
+            Remote_Nodes.Add(peer_node);
+        }
+
+        SDL_assert(Remote_Nodes.Find(player_node) && Remote_Nodes.Find(host_node));
+
+        Remote_ReadGameSettings(packet);
+
+        Remote_NetworkMenu->is_gui_update_needed = true;
+    }
+}
+
+void Remote_SendNetPacket_31(int node) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_31);
+    packet << static_cast<unsigned short>(node);
+
+    if (Remote_NetworkMenu->is_host_mode) {
+        for (int i = 0; i < Remote_Clients.GetCount(); ++i) {
+            packet.AddAddress(Remote_Clients[i]->address);
+        }
+
+        Remote_Clients.Clear();
+    }
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_31(NetPacket& packet) {
+    if (Remote_GameState == 1) {
+        unsigned short entity_id;
+
+        packet >> entity_id;
+
+        if (Remote_NetworkMenu->host_node == entity_id) {
+            Remote_NetworkMenu->host_node = 0;
+            Remote_NetworkMenu->client_state = 0;
+            Remote_NetworkMenu->player_team = -1;
+        }
+
+        Remote_NetworkMenu->LeaveGame(entity_id);
+    }
+}
+
+void Remote_SendNetPacket_32(unsigned short random_number, int transmit_mode) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_32);
+    packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+
+    packet << Remote_NetworkMenu->player_team;
+    packet << random_number;
+
+    /// \todo Copy player address from TP layer?
+
+    Remote_TransmitPacket(packet, transmit_mode);
+}
+
+void Remote_ReceiveNetPacket_32(NetPacket& packet) {
+    if (Remote_GameState == 1) {
+        unsigned short entity_id;
+
+        packet >> entity_id;
+
+        if (Remote_NetworkMenu->host_node == entity_id) {
+            if (Remote_NetworkMenu->player_team == -1) {
+                Remote_NetworkMenu->host_node = 0;
+                Remote_NetworkMenu->client_state = 0;
+                Remote_NetworkMenu->player_team = -1;
+
+                Remote_NetworkMenu->LeaveGame(entity_id);
+
+            } else {
+                char team;
+                unsigned short random_number;
+
+                Remote_SetupPlayers();
+
+                Remote_GameState = 2;
+
+                /// \todo Copy player address from TP layer?
+
+                packet >> team;
+                packet >> random_number;
+
+                Remote_Transport->SetSessionId(random_number);
+
+                Remote_SendNetPacket_05(0, REMOTE_UNICAST);
+            }
+        } else {
+            Remote_NetworkMenu->LeaveGame(entity_id);
+        }
+    }
+}
+
+void Remote_SendNetPacket_33() {
+    if (strlen(Remote_NetworkMenu->chat_input_buffer)) {
+        NetPacket packet;
+
+        packet << static_cast<unsigned char>(REMOTE_PACKET_33);
+        packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+
+        SmartString string(Remote_NetworkMenu->player_name);
+        string += ": ";
+        string += Remote_NetworkMenu->chat_input_buffer;
+
+        packet << string;
+
+        Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+    }
+}
+
+void Remote_ReceiveNetPacket_33(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
+        SmartString string;
+
+        packet >> string;
+
+        strncpy(Remote_NetworkMenu->chat_message_buffer, string.GetCStr(),
+                sizeof(Remote_NetworkMenu->chat_message_buffer));
+
+        Remote_NetworkMenu->is_gui_update_needed = true;
+    }
+}
+
+void Remote_SendNetPacket_34() {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_34);
+    packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+
+    /// \todo Copy address table from TP layer?
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_34(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    /// \todo Copy address table from TP layer?
+
+    Remote_NetworkMenu->connection_state = true;
+}
+
+void Remote_SendNetPacket_35() {
+    if (Remote_Nodes.GetCount()) {
+        NetPacket packet;
+
+        packet << static_cast<unsigned char>(REMOTE_PACKET_35);
+        packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+
+        packet << Remote_NetworkMenu->player_node;
+        packet << Remote_NetworkMenu->player_team;
+        packet << (Remote_NetworkMenu->client_state == 2);
+        packet << SmartString(Remote_NetworkMenu->player_name);
+
+        Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+    }
+}
+
+void Remote_ReceiveNetPacket_35(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
+        unsigned short source_node;
+        char team_slot;
+        bool ready_state;
+        SmartString team_name;
+
+        packet >> source_node;
+
+        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            if (Remote_NetworkMenu->team_nodes[i] == source_node) {
+                Remote_NetworkMenu->ResetJar(i);
+                --Remote_NetworkMenu->remote_player_count;
+            }
+        }
+
+        packet >> team_slot;
+        packet >> ready_state;
+
+        Remote_NetworkMenu->team_nodes[team_slot] = source_node;
+        Remote_NetworkMenu->team_jar_in_use[team_slot] = ready_state;
+
+        packet >> team_name;
+
+        strcpy(Remote_NetworkMenu->team_names[team_slot], team_name.GetCStr());
+        ++Remote_NetworkMenu->remote_player_count;
+
+        Remote_NetworkMenu->is_gui_update_needed = true;
+    }
+}
+
+void Remote_SendNetPacket_36() {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_36);
+    packet << static_cast<unsigned short>(Remote_NetworkMenu->player_node);
+
+    packet << Remote_NetworkMenu->player_name;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_36(NetPacket& packet) {
+    if (Remote_GameState == 1) {
+        unsigned short entity_id;
+        char player_name[30];
+        NetNode* host_node;
+
+        packet >> entity_id;
+        packet >> player_name;
+
+        host_node = Remote_Hosts.Find(entity_id);
+        if (host_node) {
+            strcpy(host_node->name, player_name);
+
+            Remote_NetworkMenu->is_gui_update_needed = true;
+        }
+
+        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            if (Remote_NetworkMenu->team_nodes[i] == entity_id) {
+                strcpy(Remote_NetworkMenu->team_names[i], player_name);
+
+                Remote_NetworkMenu->is_gui_update_needed = true;
+            }
+        }
+    }
+}
+
+void Remote_SendNetPacket_37() {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_37);
+    packet << static_cast<unsigned short>(Remote_NetworkMenu->player_node);
+
+    Remote_WriteGameSettings(packet);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_37(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
+        Remote_ReadGameSettings(packet);
+
+        Remote_NetworkMenu->is_gui_update_needed = true;
+    }
+}
+
+void Remote_SendNetPacket_38(UnitInfo* unit) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_38);
+    packet << static_cast<unsigned short>(unit->GetId());
+
+    packet << unit->orders;
+    packet << unit->state;
+    packet << unit->target_grid_x;
+    packet << unit->target_grid_y;
+    packet << unit->group_speed;
+
+    unsigned short steps_count;
+
+    if (unit->path) {
+        if (unit->flags & MOBILE_AIR_UNIT) {
+            steps_count = 1;
+
+            packet << steps_count;
+
+            packet << unit->path->GetEndX();
+            packet << unit->path->GetEndY();
+            packet << unit->path->GetDistanceX();
+            packet << unit->path->GetDistanceY();
+            packet << unit->path->GetEuclideanDistance();
+
+            packet << unit->speed;
+            packet << unit->move_fraction;
+            packet << unit->max_velocity;
+
+        } else {
+            unit->path->WritePacket(packet);
+        }
+    } else {
+        steps_count = 0;
+
+        packet << steps_count;
+    }
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_38(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    UnitInfo* unit = Hash_UnitHash[entity_id];
+
+    if (unit) {
+        unsigned short steps_count;
+
+        if (unit->path) {
+            unit->path = nullptr;
+        }
+
+        UnitsManager_NewOrderWhileScaling(unit);
+
+        packet >> unit->orders;
+        packet >> unit->state;
+        packet >> unit->target_grid_x;
+        packet >> unit->target_grid_y;
+        packet >> unit->group_speed;
+
+        packet >> steps_count;
+
+        if (steps_count) {
+            if (unit->flags & MOBILE_AIR_UNIT) {
+                short end_x;
+                short end_y;
+                int distance_x;
+                int distance_y;
+                short euclidean_distance;
+
+                packet >> end_x;
+                packet >> end_y;
+                packet >> distance_x;
+                packet >> distance_y;
+                packet >> euclidean_distance;
+
+                unit->Redraw();
+
+                unit->path = new (std::nothrow) AirPath(unit, distance_x, distance_y, euclidean_distance, end_x, end_y);
+
+                packet >> unit->speed;
+                packet >> unit->move_fraction;
+                packet >> unit->max_velocity;
+
+            } else {
+                unit->path = new (std::nothrow) GroundPath(unit->target_grid_x, unit->target_grid_y);
+
+                unit->path->ReadPacket(packet, steps_count);
+            }
+        }
+
+        unit->Redraw();
+
+    } else {
+        Remote_NetErrorUnknownUnit(entity_id);
+    }
+}
+
+void Remote_ReceiveNetPacket_39(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    DialogMenu_Menu("Game Paused.\nClick OK to continue.");
+}
+
+void Remote_ReceiveNetPacket_40(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    Remote_UnpauseGameEvent = true;
+}
+
+void Remote_SendNetPacket_41(UnitInfo* unit) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_41);
+    packet << static_cast<unsigned short>(unit->GetId());
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_41(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    UnitInfo* unit = Hash_UnitHash[entity_id];
+
+    if (unit) {
+        unit->BlockedOnPathRequest(false);
+
+    } else {
+        Remote_NetErrorUnknownUnit(entity_id);
+    }
+}
+
+void Remote_ReceiveNetPacket_42(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[entity_id];
+
+    supplies->units.Clear();
+    supplies->cargos.Clear();
+}
+
+void Remote_SendNetPacket_43(UnitInfo* unit, const char* name) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_43);
+    packet << static_cast<unsigned short>(unit->GetId());
+
+    packet << SmartString(name);
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_43(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    UnitInfo* unit = Hash_UnitHash[entity_id];
+
+    if (unit) {
+        SmartString unit_name;
+
+        packet >> unit_name;
+
+        unit->SetName(unit_name.GetCStr());
+
+    } else {
+        Remote_NetErrorUnknownUnit(entity_id);
+    }
+}
+
+void Remote_SendNetPacket_44(NetAddress& address) {
+    NetPacket packet;
+
+    packet.AddAddress(address);
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_44);
+    packet << static_cast<unsigned short>(Remote_NetworkMenu->player_node);
+    packet << SmartString(GAME_VERSION);
+    packet << SmartString(Remote_NetworkMenu->player_name);
+
+    Remote_TransmitPacket(packet, REMOTE_UNICAST);
+}
+
+void Remote_ReceiveNetPacket_44(NetPacket& packet) {
+    if (Remote_GameState == 1) {
+        unsigned short entity_id;
+
+        packet >> entity_id;
+
+        if (!Remote_Hosts.Find(entity_id)) {
+            SmartString game_version;
+
+            packet >> game_version;
+            if (!strcmp(GAME_VERSION, game_version.GetCStr())) {
+                NetNode host_node;
+                SmartString host_name;
+
+                packet >> host_name;
+                host_node.address = packet.GetAddress(REMOTE_RECEIVED_ADDRESS);
+                host_node.entity_id = entity_id;
+                strcpy(host_node.name, host_name.GetCStr());
+                host_node.is_host = true;
+
+                Remote_Hosts.Add(host_node);
+
+                Remote_NetworkMenu->is_gui_update_needed = true;
+            }
+        }
+    }
+}
+
+void Remote_SendNetPacket_45(unsigned short team, unsigned char next_turn_index, unsigned short crc_checksum) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_45);
+    packet << static_cast<unsigned short>(team);
+
+    packet << next_turn_index;
+    packet << crc_checksum;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_45(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    packet >> Remote_NextTurnIndices[entity_id];
+    packet >> Remote_TeamDataCrc16[entity_id];
+}
+
+void Remote_SendNetPacket_46(unsigned short team, bool state, unsigned int counter) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_46);
+    packet << static_cast<unsigned short>(team);
+
+    packet << state;
+    packet << counter;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_46(NetPacket& packet) {
+    unsigned short entity_id;
+    bool state;
+    unsigned int counter;
+
+    packet >> entity_id;
+    packet >> state;
+    packet >> counter;
+
+    if (state) {
+        UnitsManager_byte_178170 = true;
+    }
+
+    if (counter > UnitsManager_UnknownCounter) {
+        UnitsManager_Team = entity_id;
+        UnitsManager_UnknownCounter = counter;
+    }
+}
+
+void Remote_ReceiveNetPacket_48(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    packet >> Remote_LeaveGameRequestId[entity_id];
+}
+
+void Remote_ReceiveNetPacket_49(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    Remote_P49_Signal = true;
+}
+
+void Remote_SendNetPacket_50(UnitInfo* unit) {
+    NetPacket packet;
+
+    packet << static_cast<unsigned char>(REMOTE_PACKET_50);
+    packet << static_cast<unsigned short>(unit->GetId());
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_50(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    UnitInfo* unit = Hash_UnitHash[entity_id];
+
+    if (unit) {
+        unit->TakePathStep();
+
+    } else {
+        Remote_NetErrorUnknownUnit(entity_id);
+    }
+}
+
+void Remote_ReceiveNetPacket_51(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    Remote_P51_Signal = true;
+}
+
+void Remote_ReceiveNetPacket_52(NetPacket& packet) {
+    unsigned short entity_id;
+
+    packet >> entity_id;
+
+    packet >> Remote_TurnIndices[entity_id];
+}

@@ -21,6 +21,8 @@
 
 #include "hash.hpp"
 
+#include "resource_manager.hpp"
+
 #define HASH_HASH_SIZE 512
 
 UnitHash Hash_UnitHash(HASH_HASH_SIZE);
@@ -34,17 +36,16 @@ void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& fil
 
         list.PushBack(*unit);
 
-        if (unit->flags & HASH_4) {
-            /// \todo Integrate with color init
-            //            unit->color_cycling_lut = dword_1770A0;
-        } else if (unit->flags & HASH_3) {
-            //            unit->color_cycling_lut = dword_1770A4;
-        } else if (unit->flags & HASH_2) {
-            //            unit->color_cycling_lut = dword_1770A8;
-        } else if (unit->flags & HASH_1) {
-            //            unit->color_cycling_lut = dword_1770AC;
+        if (unit->flags & HASH_TEAM_RED) {
+            unit->color_cycling_lut = ResourceManager_TeamRedColorIndexTable;
+        } else if (unit->flags & HASH_TEAM_GREEN) {
+            unit->color_cycling_lut = ResourceManager_TeamGreenColorIndexTable;
+        } else if (unit->flags & HASH_TEAM_BLUE) {
+            unit->color_cycling_lut = ResourceManager_TeamBlueColorIndexTable;
+        } else if (unit->flags & HASH_TEAM_GRAY) {
+            unit->color_cycling_lut = ResourceManager_TeamGrayColorIndexTable;
         } else {
-            //            unit->color_cycling_lut = dword_1770B0;
+            unit->color_cycling_lut = ResourceManager_TeamDerelictColorIndexTable;
         }
 
         unit->sound = SFX_TYPE_INVALID;
@@ -64,7 +65,7 @@ void SmartList_UnitInfo_Clear(SmartList<UnitInfo>& list) {
     for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != nullptr; ++unit) {
         unit->GetObject()->SetParent(nullptr);
         unit->GetObject()->SetEnemy(nullptr);
-        unit->GetObject()->ClearTask1List();
+        unit->GetObject()->ClearFromTaskLists();
     }
 
     list.Clear();
@@ -76,17 +77,16 @@ void SmartList_UnitInfo_TextLoad(SmartList<UnitInfo>& list, TextStructure& objec
     for (UnitInfo* unit; (unit = dynamic_cast<UnitInfo*>(&*object.ReadPointer("unit"))), unit != nullptr;) {
         list.PushBack(*unit);
 
-        if (unit->flags & HASH_4) {
-            /// \todo Integrate with color init
-            //            unit->color_cycling_lut = dword_1770A0;
-        } else if (unit->flags & HASH_3) {
-            //            unit->color_cycling_lut = dword_1770A4;
-        } else if (unit->flags & HASH_2) {
-            //            unit->color_cycling_lut = dword_1770A8;
-        } else if (unit->flags & HASH_1) {
-            //            unit->color_cycling_lut = dword_1770AC;
+        if (unit->flags & HASH_TEAM_RED) {
+            unit->color_cycling_lut = ResourceManager_TeamRedColorIndexTable;
+        } else if (unit->flags & HASH_TEAM_GREEN) {
+            unit->color_cycling_lut = ResourceManager_TeamGreenColorIndexTable;
+        } else if (unit->flags & HASH_TEAM_BLUE) {
+            unit->color_cycling_lut = ResourceManager_TeamBlueColorIndexTable;
+        } else if (unit->flags & HASH_TEAM_GRAY) {
+            unit->color_cycling_lut = ResourceManager_TeamGrayColorIndexTable;
         } else {
-            //            unit->color_cycling_lut = dword_1770B0;
+            unit->color_cycling_lut = ResourceManager_TeamDerelictColorIndexTable;
         }
 
         unit->sound = SFX_TYPE_INVALID;
@@ -349,10 +349,10 @@ void MapHash::TextSave(SmartTextfileWriter& file) {
     }
 }
 
-UnitInfo* MapHash::operator[](const Point& key) {
+SmartList<UnitInfo>::Iterator MapHash::operator[](const Point& key) {
     SmartList<MapHashObject>* list = &entry[(key.y ^ (key.x << x_shift)) % hash_size];
     SmartList<MapHashObject>::Iterator object = list->Begin();
-    UnitInfo* result;
+    SmartList<UnitInfo>::Iterator result;
 
     while (object != nullptr) {
         if (key.x == (*object).GetX() && key.y == (*object).GetY()) {
@@ -363,9 +363,7 @@ UnitInfo* MapHash::operator[](const Point& key) {
     }
 
     if (object != nullptr) {
-        result = &*(*object).GetList().Begin();
-    } else {
-        result = nullptr;
+        result = (*object).GetList().Begin();
     }
 
     return result;

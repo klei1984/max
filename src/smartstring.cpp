@@ -31,8 +31,6 @@
 #define stricmp strcasecmp
 #endif
 
-#define SMARTSTRING_KEEP_CONTENT_ON_RESIZE true
-
 #include "SDL_assert.h"
 
 StringObject::StringObject(unsigned short size) : size(size), length(0), reference_count(1) {
@@ -92,9 +90,11 @@ char *StringObject::GetCStr() const { return buffer; }
 
 void StringObject::SetLength(unsigned short length) { this->length = length; }
 
-static SmartString empty_string((unsigned short)0);
-
-SmartString::SmartString() : object_pointer(empty_string.object_pointer) { Increment(); }
+SmartString::SmartString() {
+    static SmartString *empty_string = new (std::nothrow) SmartString(static_cast<unsigned short>(0));
+    object_pointer = empty_string->object_pointer;
+    Increment();
+}
 
 SmartString::SmartString(unsigned short size) { object_pointer = new (std::nothrow) StringObject(size); }
 
@@ -140,9 +140,10 @@ char *SmartString::GetCStr() const { return object_pointer->GetCStr(); }
 unsigned short SmartString::GetLength() const { return object_pointer->GetLength(); }
 
 /// \todo This API seems to handle length inconsistently
-SmartString &SmartString::Substr(SmartString *destination, unsigned short position, unsigned short length) {
+SmartString SmartString::Substr(unsigned short position, unsigned short length) {
     int size;
     int max_length;
+    SmartString result;
     static SmartString empty_string;
 
     max_length = length;
@@ -157,12 +158,13 @@ SmartString &SmartString::Substr(SmartString *destination, unsigned short positi
         strncpy(string.GetCStr(), &GetCStr()[position], size);
         string[size] = '\0';
         string.object_pointer->SetLength(size);
-        *destination = SmartString(string);
+        result = string;
+
     } else {
-        *destination = SmartString(empty_string);
+        result = empty_string;
     }
 
-    return *destination;
+    return result;
 }
 
 char &SmartString::operator[](unsigned short position) {
@@ -177,7 +179,7 @@ SmartString &SmartString::operator+=(SmartString const &other) {
     length = object_pointer->GetLength() + other.object_pointer->GetLength();
 
     if (object_pointer->GetSize() < length) {
-        Resize(CalcOptimalCapacity(length), SMARTSTRING_KEEP_CONTENT_ON_RESIZE);
+        Resize(CalcOptimalCapacity(length));
     }
 
     strcpy(&GetCStr()[object_pointer->GetLength()], other.GetCStr());
@@ -193,7 +195,7 @@ SmartString &SmartString::operator+=(const char *cstring) {
     length = object_pointer->GetLength() + strlen(cstring);
 
     if (object_pointer->GetSize() < length) {
-        Resize(CalcOptimalCapacity(length), SMARTSTRING_KEEP_CONTENT_ON_RESIZE);
+        Resize(CalcOptimalCapacity(length));
     }
 
     strcpy(&GetCStr()[object_pointer->GetLength()], cstring);
@@ -209,7 +211,7 @@ SmartString &SmartString::operator+=(const char character) {
     length = object_pointer->GetLength() + sizeof(char);
 
     if (object_pointer->GetSize() < length) {
-        Resize(CalcOptimalCapacity(length), SMARTSTRING_KEEP_CONTENT_ON_RESIZE);
+        Resize(CalcOptimalCapacity(length));
     }
 
     GetCStr()[length - sizeof(char)] = character;
@@ -251,7 +253,7 @@ SmartString &SmartString::Tolower() {
     return *this;
 }
 
-SmartString &SmartString::Vsprintf(unsigned short size, const char *format, ...) {
+SmartString &SmartString::Sprintf(unsigned short size, const char *format, ...) {
     char *buffer;
     va_list args;
 
@@ -295,3 +297,5 @@ SmartString &SmartString::operator=(const char *rhs) {
 
     return *this;
 }
+
+bool SmartString::IsEqual(const char *cstring) { return !Strcmp(cstring); }

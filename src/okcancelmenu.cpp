@@ -22,12 +22,13 @@
 #include "okcancelmenu.hpp"
 
 #include "cursor.hpp"
-#include "gwindow.hpp"
+#include "game_manager.hpp"
 #include "mouseevent.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
 OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, mode ? GWINDOW_MAIN_WINDOW : GWINDOW_38),
+    : Window(HELPFRAM, mode ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
       event_click_ok(false),
       event_click_cancel(false),
       event_release(false) {
@@ -52,7 +53,7 @@ OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
     button_cancel->SetSfx(NCANC0);
     button_cancel->RegisterButton(window.id);
 
-    Text_TextBox(reinterpret_cast<char*>(window.buffer), window.width, caption, 20, 14, 265, 175, 0x100FF, true);
+    Text_TextBox(window.buffer, window.width, caption, 20, 14, 265, 175, 0x100FF, true);
     win_draw_rect(window.id, &window.window);
 }
 
@@ -91,8 +92,7 @@ bool OKCancelMenu::Run() {
             event_release = true;
         }
 
-        /// \todo Implement function
-        //        sub_A0E32(1, 1);
+        GameManager_ProcessState(true);
     }
 
     return event_click_ok;

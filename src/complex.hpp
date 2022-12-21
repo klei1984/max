@@ -26,15 +26,13 @@
 #include "textfile.hpp"
 
 class UnitInfo;
+class NetPacket;
 
 class Complex : public TextFileObject {
-    short material;
-    short fuel;
-    short gold;
-    short power;
-    short workers;
     short buildings;
     short id;
+
+    static void TransferCargo(UnitInfo* unit, int* cargo);
 
 public:
     Complex(short id);
@@ -50,13 +48,23 @@ public:
     void TextLoad(TextStructure& object);
     void TextSave(SmartTextfileWriter& file);
 
-    int WritePacket(void* buffer);
-    void ReadPacket(void* buffer);
+    void WritePacket(NetPacket& packet);
+    void ReadPacket(NetPacket& packet);
 
-    void AddBuilding(UnitInfo& unit);
-    void RemoveBuilding(UnitInfo& unit);
+    void Grow(UnitInfo& unit);
+    void Shrink(UnitInfo& unit);
 
+    void GetCargoMinable(Cargo& capacity);
+    void GetCargoMining(Cargo& materials, Cargo& capacity);
     void GetCargoInfo(Cargo& materials, Cargo& capacity);
+
+    void Transfer(int raw, int fuel, int gold);
+
+    short material;
+    short fuel;
+    short gold;
+    short power;
+    short workers;
 };
 
 #endif /* COMPLEX_HPP */

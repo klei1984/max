@@ -23,6 +23,7 @@
 #define CLANSELECTMENU_HPP
 
 #include "button.hpp"
+#include "inifile.hpp"
 
 #define CLAN_SELECT_MENU_ITEM_COUNT 12
 
@@ -43,7 +44,7 @@ public:
     WindowInfo *window;
 
     bool event_click_done_cancel_random;
-    int team_clan_ini_id;
+    IniParameter team_clan_ini_id;
     int team_clan;
     int team_clan_selection;
     int key;

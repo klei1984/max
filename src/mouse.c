@@ -34,10 +34,10 @@ static void mouse_colorize(void);
 static void mouse_clip(void);
 
 static double mouse_sensitivity = 1.0;
-static char or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
-                           1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
-                           15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
-static int last_buttons;
+static unsigned char or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
+                                    1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
+                                    15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
+static unsigned int last_buttons;
 static unsigned char *mouse_fptr;
 static unsigned char *mouse_shape;
 static int mouse_is_hidden;
@@ -74,7 +74,7 @@ int GNW_mouse_init(void) {
 
     if (result != -1) {
         SDL_ShowCursor(SDL_DISABLE);
-        if (SDL_SetRelativeMouseMode(SDL_FALSE) != 0) {
+        if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0) {
             SDL_Log("SDL_SetRelativeMouseMode failed: %s\n", SDL_GetError());
             result = -1;
         }
@@ -348,9 +348,9 @@ void mouse_info(void) {
     }
 }
 
-void mouse_simulate_input(int delta_x, int delta_y, int buttons) {
-    static int right_time;
-    static int left_time;
+void mouse_simulate_input(int delta_x, int delta_y, unsigned int buttons) {
+    static unsigned int right_time;
+    static unsigned int left_time;
     static int old;
 
     if (!have_mouse || mouse_is_hidden) {
@@ -376,16 +376,16 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons) {
     mouse_buttons = 0;
     last_buttons = buttons;
 
-    if (old & 5) {
-        if (!(buttons & GNW_MOUSE_BUTTON_LEFT)) {
-            mouse_buttons = MOUSE_RELEASE_LEFT;
-        } else {
+    if (old & (MOUSE_PRESS_LEFT | MOUSE_LONG_PRESS_LEFT)) {
+        if (buttons & GNW_MOUSE_BUTTON_LEFT) {
             mouse_buttons = MOUSE_LONG_PRESS_LEFT;
 
             if (elapsed_time(left_time) > 250) {
                 mouse_buttons |= MOUSE_PRESS_LEFT;
                 left_time = get_time();
             }
+        } else {
+            mouse_buttons = MOUSE_RELEASE_LEFT;
         }
     } else {
         if (buttons & GNW_MOUSE_BUTTON_LEFT) {
@@ -394,7 +394,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons) {
         }
     }
 
-    if (old & 10) {
+    if (old & (MOUSE_PRESS_RIGHT | MOUSE_LONG_PRESS_RIGHT)) {
         if (buttons & GNW_MOUSE_BUTTON_RIGHT) {
             mouse_buttons |= MOUSE_LONG_PRESS_RIGHT;
             if (elapsed_time(right_time) > 250) {
@@ -469,6 +469,8 @@ void mouse_set_position(int x, int y) {
     mouse_y = y - mouse_hoty;
 
     mouse_clip();
+
+    svga_warp_mouse(mouse_x, mouse_y);
 }
 
 void mouse_clip(void) {
@@ -488,7 +490,7 @@ void mouse_clip(void) {
     }
 }
 
-int mouse_get_buttons(void) { return mouse_buttons; }
+unsigned int mouse_get_buttons(void) { return mouse_buttons; }
 
 int mouse_hidden(void) { return mouse_is_hidden; }
 
@@ -506,6 +508,8 @@ void mouse_set_hotspot(int hotx, int hoty) {
     mouse_y += mouse_hoty - hoty;
     mouse_hotx = hotx;
     mouse_hoty = hoty;
+
+    svga_warp_mouse(mouse_x, mouse_y);
 
     if (!mouse_is_hidden) {
         mouse_show();

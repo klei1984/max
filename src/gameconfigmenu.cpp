@@ -21,11 +21,11 @@
 
 #include "gameconfigmenu.hpp"
 
-#include "gwindow.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
 struct GameConfigMenuControlItem {
     Rect bounds;
@@ -114,57 +114,57 @@ struct MenuTitleItem game_config_menu_items[] = {
 };
 
 static struct GameConfigMenuControlItem game_config_menu_controls[] = {
-    MENU_CONTROL_DEF(56, 85, 156, 100, INVALID_ID, nullptr, 0, GameConfigMenu::EventComputerOpponent, KCARG0),
-    MENU_CONTROL_DEF(56, 100, 156, 115, INVALID_ID, nullptr, 0, GameConfigMenu::EventComputerOpponent, KCARG0),
-    MENU_CONTROL_DEF(56, 115, 156, 130, INVALID_ID, nullptr, 0, GameConfigMenu::EventComputerOpponent, KCARG0),
-    MENU_CONTROL_DEF(56, 130, 156, 145, INVALID_ID, nullptr, 0, GameConfigMenu::EventComputerOpponent, KCARG0),
-    MENU_CONTROL_DEF(56, 145, 156, 160, INVALID_ID, nullptr, 0, GameConfigMenu::EventComputerOpponent, KCARG0),
-    MENU_CONTROL_DEF(56, 160, 156, 175, INVALID_ID, nullptr, 0, GameConfigMenu::EventComputerOpponent, KCARG0),
-    MENU_CONTROL_DEF(227, 105, 307, 120, INVALID_ID, nullptr, 0, GameConfigMenu::EventTurnTimer, KCARG0),
-    MENU_CONTROL_DEF(227, 120, 307, 135, INVALID_ID, nullptr, 0, GameConfigMenu::EventTurnTimer, KCARG0),
-    MENU_CONTROL_DEF(227, 135, 307, 150, INVALID_ID, nullptr, 0, GameConfigMenu::EventTurnTimer, KCARG0),
-    MENU_CONTROL_DEF(227, 150, 307, 165, INVALID_ID, nullptr, 0, GameConfigMenu::EventTurnTimer, KCARG0),
-    MENU_CONTROL_DEF(227, 165, 307, 180, INVALID_ID, nullptr, 0, GameConfigMenu::EventTurnTimer, KCARG0),
-    MENU_CONTROL_DEF(227, 180, 307, 195, INVALID_ID, nullptr, 0, GameConfigMenu::EventTurnTimer, KCARG0),
-    MENU_CONTROL_DEF(227, 195, 307, 210, INVALID_ID, nullptr, 0, GameConfigMenu::EventTurnTimer, KCARG0),
-    MENU_CONTROL_DEF(331, 105, 411, 120, INVALID_ID, nullptr, 0, GameConfigMenu::EventEndturn, KCARG0),
-    MENU_CONTROL_DEF(331, 120, 411, 135, INVALID_ID, nullptr, 0, GameConfigMenu::EventEndturn, KCARG0),
-    MENU_CONTROL_DEF(331, 135, 411, 150, INVALID_ID, nullptr, 0, GameConfigMenu::EventEndturn, KCARG0),
-    MENU_CONTROL_DEF(331, 150, 411, 165, INVALID_ID, nullptr, 0, GameConfigMenu::EventEndturn, KCARG0),
-    MENU_CONTROL_DEF(331, 165, 411, 180, INVALID_ID, nullptr, 0, GameConfigMenu::EventEndturn, KCARG0),
-    MENU_CONTROL_DEF(331, 180, 411, 195, INVALID_ID, nullptr, 0, GameConfigMenu::EventEndturn, KCARG0),
-    MENU_CONTROL_DEF(331, 195, 411, 210, INVALID_ID, nullptr, 0, GameConfigMenu::EventEndturn, KCARG0),
-    MENU_CONTROL_DEF(480, 90, 580, 110, INVALID_ID, nullptr, 0, GameConfigMenu::EventPlayMode, KCARG0),
-    MENU_CONTROL_DEF(480, 115, 580, 145, INVALID_ID, nullptr, 0, GameConfigMenu::EventPlayMode, KCARG0),
-    MENU_CONTROL_DEF(144, 285, 194, 300, INVALID_ID, nullptr, 0, GameConfigMenu::EventStartingCredit, KCARG0),
-    MENU_CONTROL_DEF(144, 305, 194, 320, INVALID_ID, nullptr, 0, GameConfigMenu::EventStartingCredit, KCARG0),
-    MENU_CONTROL_DEF(144, 325, 194, 340, INVALID_ID, nullptr, 0, GameConfigMenu::EventStartingCredit, KCARG0),
-    MENU_CONTROL_DEF(144, 345, 194, 360, INVALID_ID, nullptr, 0, GameConfigMenu::EventStartingCredit, KCARG0),
-    MENU_CONTROL_DEF(144, 365, 194, 380, INVALID_ID, nullptr, 0, GameConfigMenu::EventStartingCredit, KCARG0),
-    MENU_CONTROL_DEF(144, 385, 194, 400, INVALID_ID, nullptr, 0, GameConfigMenu::EventStartingCredit, KCARG0),
-    MENU_CONTROL_DEF(225, 292, 287, 304, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsRaw, KCARG0),
-    MENU_CONTROL_DEF(288, 292, 351, 304, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsRaw, KCARG0),
-    MENU_CONTROL_DEF(351, 292, 413, 304, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsRaw, KCARG0),
-    MENU_CONTROL_DEF(225, 327, 287, 339, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsFuel, KCARG0),
-    MENU_CONTROL_DEF(288, 327, 351, 339, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsFuel, KCARG0),
-    MENU_CONTROL_DEF(351, 327, 413, 339, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsFuel, KCARG0),
-    MENU_CONTROL_DEF(225, 362, 287, 374, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsGold, KCARG0),
-    MENU_CONTROL_DEF(288, 362, 351, 374, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsGold, KCARG0),
-    MENU_CONTROL_DEF(351, 362, 413, 374, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsGold, KCARG0),
-    MENU_CONTROL_DEF(225, 397, 287, 409, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsAlien, KCARG0),
-    MENU_CONTROL_DEF(288, 397, 351, 409, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsAlien, KCARG0),
-    MENU_CONTROL_DEF(351, 397, 413, 409, INVALID_ID, nullptr, 0, GameConfigMenu::EventResourceLevelsAlien, KCARG0),
-    MENU_CONTROL_DEF(447, 305, 507, 320, INVALID_ID, nullptr, 0, GameConfigMenu::EventVictoryCondition, KCARG0),
-    MENU_CONTROL_DEF(447, 325, 507, 340, INVALID_ID, nullptr, 0, GameConfigMenu::EventVictoryCondition, KCARG0),
-    MENU_CONTROL_DEF(447, 345, 507, 360, INVALID_ID, nullptr, 0, GameConfigMenu::EventVictoryCondition, KCARG0),
-    MENU_CONTROL_DEF(551, 305, 611, 320, INVALID_ID, nullptr, 0, GameConfigMenu::EventVictoryCondition, KCARG0),
-    MENU_CONTROL_DEF(551, 325, 611, 340, INVALID_ID, nullptr, 0, GameConfigMenu::EventVictoryCondition, KCARG0),
-    MENU_CONTROL_DEF(551, 345, 611, 360, INVALID_ID, nullptr, 0, GameConfigMenu::EventVictoryCondition, KCARG0),
-    MENU_CONTROL_DEF(447, 370, 507, 390, PREFEDIT, nullptr, 0, GameConfigMenu::EventVictoryConditionPrefs, KCARG0),
-    MENU_CONTROL_DEF(551, 370, 611, 390, PREFEDIT, nullptr, 0, GameConfigMenu::EventVictoryConditionPrefs, KCARG0),
-    MENU_CONTROL_DEF(354, 438, nullptr, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, GameConfigMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(465, 438, nullptr, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, GameConfigMenu::EventHelp, NHELP0),
-    MENU_CONTROL_DEF(514, 438, nullptr, 0, MNUBTN6U, "Done", GNW_KB_KEY_RETURN, GameConfigMenu::EventDone, NDONE0),
+    MENU_CONTROL_DEF(56, 85, 156, 100, INVALID_ID, nullptr, 0, &GameConfigMenu::EventComputerOpponent, KCARG0),
+    MENU_CONTROL_DEF(56, 100, 156, 115, INVALID_ID, nullptr, 0, &GameConfigMenu::EventComputerOpponent, KCARG0),
+    MENU_CONTROL_DEF(56, 115, 156, 130, INVALID_ID, nullptr, 0, &GameConfigMenu::EventComputerOpponent, KCARG0),
+    MENU_CONTROL_DEF(56, 130, 156, 145, INVALID_ID, nullptr, 0, &GameConfigMenu::EventComputerOpponent, KCARG0),
+    MENU_CONTROL_DEF(56, 145, 156, 160, INVALID_ID, nullptr, 0, &GameConfigMenu::EventComputerOpponent, KCARG0),
+    MENU_CONTROL_DEF(56, 160, 156, 175, INVALID_ID, nullptr, 0, &GameConfigMenu::EventComputerOpponent, KCARG0),
+    MENU_CONTROL_DEF(227, 105, 307, 120, INVALID_ID, nullptr, 0, &GameConfigMenu::EventTurnTimer, KCARG0),
+    MENU_CONTROL_DEF(227, 120, 307, 135, INVALID_ID, nullptr, 0, &GameConfigMenu::EventTurnTimer, KCARG0),
+    MENU_CONTROL_DEF(227, 135, 307, 150, INVALID_ID, nullptr, 0, &GameConfigMenu::EventTurnTimer, KCARG0),
+    MENU_CONTROL_DEF(227, 150, 307, 165, INVALID_ID, nullptr, 0, &GameConfigMenu::EventTurnTimer, KCARG0),
+    MENU_CONTROL_DEF(227, 165, 307, 180, INVALID_ID, nullptr, 0, &GameConfigMenu::EventTurnTimer, KCARG0),
+    MENU_CONTROL_DEF(227, 180, 307, 195, INVALID_ID, nullptr, 0, &GameConfigMenu::EventTurnTimer, KCARG0),
+    MENU_CONTROL_DEF(227, 195, 307, 210, INVALID_ID, nullptr, 0, &GameConfigMenu::EventTurnTimer, KCARG0),
+    MENU_CONTROL_DEF(331, 105, 411, 120, INVALID_ID, nullptr, 0, &GameConfigMenu::EventEndturn, KCARG0),
+    MENU_CONTROL_DEF(331, 120, 411, 135, INVALID_ID, nullptr, 0, &GameConfigMenu::EventEndturn, KCARG0),
+    MENU_CONTROL_DEF(331, 135, 411, 150, INVALID_ID, nullptr, 0, &GameConfigMenu::EventEndturn, KCARG0),
+    MENU_CONTROL_DEF(331, 150, 411, 165, INVALID_ID, nullptr, 0, &GameConfigMenu::EventEndturn, KCARG0),
+    MENU_CONTROL_DEF(331, 165, 411, 180, INVALID_ID, nullptr, 0, &GameConfigMenu::EventEndturn, KCARG0),
+    MENU_CONTROL_DEF(331, 180, 411, 195, INVALID_ID, nullptr, 0, &GameConfigMenu::EventEndturn, KCARG0),
+    MENU_CONTROL_DEF(331, 195, 411, 210, INVALID_ID, nullptr, 0, &GameConfigMenu::EventEndturn, KCARG0),
+    MENU_CONTROL_DEF(480, 90, 580, 110, INVALID_ID, nullptr, 0, &GameConfigMenu::EventPlayMode, KCARG0),
+    MENU_CONTROL_DEF(480, 115, 580, 145, INVALID_ID, nullptr, 0, &GameConfigMenu::EventPlayMode, KCARG0),
+    MENU_CONTROL_DEF(144, 285, 194, 300, INVALID_ID, nullptr, 0, &GameConfigMenu::EventStartingCredit, KCARG0),
+    MENU_CONTROL_DEF(144, 305, 194, 320, INVALID_ID, nullptr, 0, &GameConfigMenu::EventStartingCredit, KCARG0),
+    MENU_CONTROL_DEF(144, 325, 194, 340, INVALID_ID, nullptr, 0, &GameConfigMenu::EventStartingCredit, KCARG0),
+    MENU_CONTROL_DEF(144, 345, 194, 360, INVALID_ID, nullptr, 0, &GameConfigMenu::EventStartingCredit, KCARG0),
+    MENU_CONTROL_DEF(144, 365, 194, 380, INVALID_ID, nullptr, 0, &GameConfigMenu::EventStartingCredit, KCARG0),
+    MENU_CONTROL_DEF(144, 385, 194, 400, INVALID_ID, nullptr, 0, &GameConfigMenu::EventStartingCredit, KCARG0),
+    MENU_CONTROL_DEF(225, 292, 287, 304, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsRaw, KCARG0),
+    MENU_CONTROL_DEF(288, 292, 351, 304, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsRaw, KCARG0),
+    MENU_CONTROL_DEF(351, 292, 413, 304, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsRaw, KCARG0),
+    MENU_CONTROL_DEF(225, 327, 287, 339, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsFuel, KCARG0),
+    MENU_CONTROL_DEF(288, 327, 351, 339, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsFuel, KCARG0),
+    MENU_CONTROL_DEF(351, 327, 413, 339, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsFuel, KCARG0),
+    MENU_CONTROL_DEF(225, 362, 287, 374, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsGold, KCARG0),
+    MENU_CONTROL_DEF(288, 362, 351, 374, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsGold, KCARG0),
+    MENU_CONTROL_DEF(351, 362, 413, 374, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsGold, KCARG0),
+    MENU_CONTROL_DEF(225, 397, 287, 409, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsAlien, KCARG0),
+    MENU_CONTROL_DEF(288, 397, 351, 409, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsAlien, KCARG0),
+    MENU_CONTROL_DEF(351, 397, 413, 409, INVALID_ID, nullptr, 0, &GameConfigMenu::EventResourceLevelsAlien, KCARG0),
+    MENU_CONTROL_DEF(447, 305, 507, 320, INVALID_ID, nullptr, 0, &GameConfigMenu::EventVictoryCondition, KCARG0),
+    MENU_CONTROL_DEF(447, 325, 507, 340, INVALID_ID, nullptr, 0, &GameConfigMenu::EventVictoryCondition, KCARG0),
+    MENU_CONTROL_DEF(447, 345, 507, 360, INVALID_ID, nullptr, 0, &GameConfigMenu::EventVictoryCondition, KCARG0),
+    MENU_CONTROL_DEF(551, 305, 611, 320, INVALID_ID, nullptr, 0, &GameConfigMenu::EventVictoryCondition, KCARG0),
+    MENU_CONTROL_DEF(551, 325, 611, 340, INVALID_ID, nullptr, 0, &GameConfigMenu::EventVictoryCondition, KCARG0),
+    MENU_CONTROL_DEF(551, 345, 611, 360, INVALID_ID, nullptr, 0, &GameConfigMenu::EventVictoryCondition, KCARG0),
+    MENU_CONTROL_DEF(447, 370, 507, 390, PREFEDIT, nullptr, 0, &GameConfigMenu::EventVictoryConditionPrefs, KCARG0),
+    MENU_CONTROL_DEF(551, 370, 611, 390, PREFEDIT, nullptr, 0, &GameConfigMenu::EventVictoryConditionPrefs, KCARG0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, &GameConfigMenu::EventCancel, NCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &GameConfigMenu::EventHelp, NHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_RETURN, &GameConfigMenu::EventDone, NDONE0),
 };
 
 static const char* game_config_menu_difficulty_descriptions[] = {
@@ -207,7 +207,7 @@ void GameConfigMenu::Init() {
     ini_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
     ini_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     event_click_done = false;
     event_click_cancel = false;
 
@@ -216,7 +216,7 @@ void GameConfigMenu::Init() {
     field_867 = 0;
 
     mouse_hide();
-    gwin_load_image(OPTNFRM, window, window->width, false, false);
+    WindowManager_LoadImage(OPTNFRM, window, window->width, false, false);
 
     for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
@@ -227,6 +227,8 @@ void GameConfigMenu::Init() {
             ButtonInit(i);
         }
     }
+
+    text_font(5);
 
     bg_panels[0] = new (std::nothrow) Image(6, 38, 200, 190);
     bg_panels[1] = new (std::nothrow) Image(216, 38, 200, 190);
@@ -410,18 +412,18 @@ void GameConfigMenu::EventCancel() {
     event_click_cancel = true;
 }
 
-void GameConfigMenu::EventHelp() { HelpMenu_Menu(HELPMENU_OPTIONS_SETUP, GWINDOW_MAIN_WINDOW); }
+void GameConfigMenu::EventHelp() { HelpMenu_Menu(HELPMENU_OPTIONS_SETUP, WINDOW_MAIN_WINDOW); }
 
 void GameConfigMenu::ButtonInit(int index) {
     GameConfigMenuControlItem* control;
 
     control = &game_config_menu_controls[index];
 
-    text_font((index < 48) ? 1 : 5);
+    text_font((index < 48) ? 5 : 1);
 
     if (control->image_id != INVALID_ID && control->label) {
-        buttons[index] = new (std::nothrow)
-            Button(control->image_id, control->image_id + 1, control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   control->bounds.ulx, control->bounds.uly);
         buttons[index]->SetCaption(control->label);
     } else {
         buttons[index] = new (std::nothrow)
@@ -429,7 +431,7 @@ void GameConfigMenu::ButtonInit(int index) {
                    control->bounds.lry - control->bounds.uly);
 
         if (control->image_id != INVALID_ID) {
-            gwin_load_image2(control->image_id, control->bounds.ulx, control->bounds.uly, true, window);
+            WindowManager_LoadImage2(control->image_id, control->bounds.ulx, control->bounds.uly, true, window);
         }
     }
 
@@ -487,16 +489,22 @@ void GameConfigMenu::DrawPanelTurnTimers() {
 
     timer_setting = ini_get_setting(INI_TIMER);
 
-    for (timer_index = 6, timer_value = timer_setting + 1; timer_index >= 0 && timer_setting < timer_value;
-         ++timer_index) {
+    for (timer_index = 6; timer_index > 0; --timer_index) {
         timer_value = strtol(game_config_menu_items[timer_index + 15].title, nullptr, 10);
+
+        if (timer_setting >= timer_value) {
+            break;
+        }
     }
 
-    endturn_setting = ini_get_setting(INI_TIMER);
+    endturn_setting = ini_get_setting(INI_ENDTURN);
 
-    for (endturn_index = 6, endturn_value = endturn_setting + 1; endturn_index >= 0 && endturn_setting < endturn_value;
-         ++endturn_index) {
+    for (endturn_index = 6; endturn_index > 0; --endturn_index) {
         endturn_value = strtol(game_config_menu_items[endturn_index + 22].title, nullptr, 10);
+
+        if (endturn_setting >= endturn_value) {
+            break;
+        }
     }
 
     DrawRadioButtons(7, 15, timer_index);
@@ -521,8 +529,12 @@ void GameConfigMenu::DrawPanelStartingCredit() {
 
     starting_credits = ini_get_setting(INI_START_GOLD);
 
-    for (index = 5, credits = starting_credits + 1; index >= 0 && starting_credits < credits; ++index) {
+    for (index = 5; index > 0; --index) {
         credits = strtol(game_config_menu_items[index + 37].title, nullptr, 10);
+
+        if (starting_credits >= credits) {
+            break;
+        }
     }
 
     DrawRadioButtons(6, 37, index);
@@ -605,7 +617,7 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
 }
 
 void GameConfigMenu::DrawBgPanel(int group_index) {
-    bg_panels[group_index]->Write(window);
+    bg_panels[group_index - 1]->Write(window);
     menu_draw_menu_title(window, &game_config_menu_items[group_index], 0x10002, true);
 }
 

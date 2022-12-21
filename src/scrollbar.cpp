@@ -26,21 +26,21 @@
 #include <new>
 
 #include "resource_manager.hpp"
-#include "soundmgr.hpp"
+#include "sound_manager.hpp"
 
 EVENTS_REGISTER_EVENT(ScrollbarEvent);
 
 EventScrollbarChange::EventScrollbarChange(Scrollbar* scrollbar, short value) : scrollbar(scrollbar), value(value) {}
-unsigned short EventScrollbarChange::GetEventId() { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
+unsigned short EventScrollbarChange::GetEventId() const { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
 
-void LoadHorizontalBar(char* buffer, short width, short capacity, short height, ResourceID id) {
-    struct SpriteHeader* sprite;
+void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
+    struct ImageSimpleHeader* sprite;
     char transparent_color;
-    char* data;
+    unsigned char* data;
 
-    sprite = reinterpret_cast<SpriteHeader*>(ResourceManager_LoadResource(id));
+    sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
 
-    data = reinterpret_cast<char*>(&sprite->data[sprite->width - height]);
+    data = &sprite->data[sprite->width - height];
     transparent_color = sprite->data[0];
 
     for (int i = 0; i < capacity; ++i) {
@@ -55,21 +55,31 @@ void LoadHorizontalBar(char* buffer, short width, short capacity, short height, 
     }
 }
 
-void LoadVerticalBar(char* buffer, short width, short capacity, short height, ResourceID id) {
-    struct SpriteHeader* sprite;
+void LoadHorizontalTape(unsigned char* buffer, short full2, short length, short width, ResourceID id) {
+    if (width > 0) {
+        struct ImageSimpleHeader* sprite;
+
+        sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
+
+        buf_to_buf(sprite->data, width, length, sprite->width, buffer, full2);
+    }
+}
+
+void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
+    struct ImageSimpleHeader* sprite;
     char transparent_color;
-    char* data;
+    unsigned char* data;
     int offset;
 
     if (capacity > 0) {
-        sprite = reinterpret_cast<SpriteHeader*>(ResourceManager_LoadResource(id));
+        sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
 
         if (capacity > sprite->height) {
             capacity = sprite->height;
         }
 
-        data = reinterpret_cast<char*>(sprite->data);
-        buffer = &buffer[(sprite->width - height) / 2];
+        data = sprite->data;
+        buffer = &buffer[(height - sprite->width) / 2];
         transparent_color = sprite->data[0];
 
         for (int i = 0; i < capacity; ++i) {
@@ -92,10 +102,10 @@ void Scrollbar::ProcessValueChange(short value) {
     this->value = value;
 
     if (old_value != value) {
-        soundmgr.PlaySfx(KCARG0);
+        SoundManager.PlaySfx(KCARG0);
         EventScrollbarChange event(this, old_value);
         RefreshScreen();
-        window->EventHandler(event);
+        window->EventHandler(&event);
     }
 }
 
@@ -184,7 +194,7 @@ void Scrollbar::Register() {
 void Scrollbar::RefreshScreen() {
     WindowInfo win;
     int capacity;
-    char* buffer;
+    unsigned char* buffer;
 
     window->FillWindowInfo(&win);
 
@@ -196,7 +206,7 @@ void Scrollbar::RefreshScreen() {
 
     capacity = free_capacity - zero_offset;
 
-    buffer = reinterpret_cast<char*>(&win.buffer[xfer_slider->GetULX() + xfer_slider->GetULY() * win.width]);
+    buffer = &win.buffer[xfer_slider->GetULX() + xfer_slider->GetULY() * win.width];
 
     if (scrollbar_type) {
         if (capacity) {
@@ -210,7 +220,7 @@ void Scrollbar::RefreshScreen() {
             capacity = ((value - zero_offset) * xfer_slider->GetWidth()) / capacity;
         }
 
-        LoadHorizontalBar(buffer, win.width, capacity, xfer_slider->GetHeight(), material_bar);
+        LoadHorizontalBar(buffer, win.width, xfer_slider->GetHeight(), capacity, material_bar);
     }
 
     if (scaling_factor) {
@@ -219,12 +229,11 @@ void Scrollbar::RefreshScreen() {
 
         sprintf(text, "%i", scaling_factor * value);
 
-        buffer = reinterpret_cast<char*>(
-            &win.buffer[xfer_amount_background->GetULX() + xfer_amount_background->GetULY() * win.width]);
+        buffer = &win.buffer[xfer_amount_background->GetULX() + xfer_amount_background->GetULY() * win.width];
 
         buffer = &buffer[((xfer_amount_background->GetHeight() - text_height()) / 2) * win.width];
         buffer = &buffer[(xfer_amount_background->GetWidth() - text_width(text)) / 2];
-        text_to_buf(reinterpret_cast<unsigned char*>(buffer), text, text_width(text), win.width, 255);
+        text_to_buf(buffer, text, text_width(text), win.width, 255);
 
         r.ulx = xfer_slider->GetULX();
         r.uly = xfer_slider->GetULY();
@@ -292,26 +301,26 @@ LimitedScrollbar::LimitedScrollbar(Window* window, Rect* xfer_slider_bounds, Rec
     : Scrollbar(window, xfer_slider_bounds, xfer_amount_bounds, id, key_code_increase, key_code_decrease,
                 key_code_click_slider, scaling_factor, vertical),
       xfer_give_max(0),
-      xfer_take_max(36864) {}
+      xfer_take_max(-28672) {}
 
 LimitedScrollbar::~LimitedScrollbar() {}
 
-void LimitedScrollbar::SetXferGiveMax(unsigned short limit) { xfer_give_max = limit; }
+void LimitedScrollbar::SetXferGiveMax(short limit) { xfer_give_max = limit; }
 
-void LimitedScrollbar::SetXferTakeMax(unsigned short limit) { xfer_take_max = limit; }
+void LimitedScrollbar::SetXferTakeMax(short limit) { xfer_take_max = limit; }
 
 bool LimitedScrollbar::ProcessKey(int key_code) {
     bool result;
 
     if (key_code == key_code_increase) {
         if (value >= xfer_give_max) {
-            result = true;
+            return true;
         }
     }
 
     if (key_code == key_code_decrease) {
         if (value <= xfer_take_max) {
-            result = true;
+            return true;
         }
     }
 
@@ -327,8 +336,9 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
         if (scrollbar_type) {
             y = xfer_slider->GetULY() + xfer_slider->GetHeight() - y;
             new_value = (xfer_slider->GetHeight() / 2 + capacity * y) / xfer_slider->GetHeight() + zero_offset;
+
         } else {
-            x = x - xfer_slider->GetULX();
+            x -= xfer_slider->GetULX();
             new_value = (xfer_slider->GetWidth() / 2 + capacity * x) / xfer_slider->GetWidth() + zero_offset;
         }
 
@@ -339,15 +349,20 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
             new_value = xfer_give_max;
         }
 
-        if (new_value > xfer_take_max) {
+        if (new_value < xfer_take_max) {
             new_value = xfer_take_max;
         }
 
         ProcessValueChange(new_value);
         result = true;
+
     } else {
         result = Scrollbar::ProcessKey(key_code);
     }
 
     return result;
 }
+
+short EventScrollbarChange::GetValue() const { return value; }
+
+short EventScrollbarChange::GetScrollbarValue() const { return scrollbar->GetValue(); }

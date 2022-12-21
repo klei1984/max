@@ -25,9 +25,11 @@
 #include "button.hpp"
 #include "saveloadmenu.hpp"
 #include "textedit.hpp"
+#include "transport.hpp"
 
 #define NETWORK_MENU_ITEM_COUNT 24
 #define NETWORK_MENU_IMAGE_COUNT 14
+#define NETWORK_MAX_HOSTS_PER_PAGE 8
 
 class NetworkMenu;
 
@@ -63,30 +65,25 @@ public:
     char is_host_mode;
     char connection_state;
     char client_state;
-    short node;
+    unsigned short host_node;
     char is_gui_update_needed;
     char remote_player_count;
-    char hosts_online;
     char player_team;
     char player_clan;
     char is_incompatible_save_file;
-    short player_node;
+    unsigned short player_node;
     Button *buttons[NETWORK_MENU_ITEM_COUNT];
     NetworkMenuItem menu_items[NETWORK_MENU_ITEM_COUNT];
+    Image *images[NETWORK_MENU_IMAGE_COUNT];
     TextEdit *text_edit1;
     TextEdit *text_edit2;
     TextEdit *text_edit3;
-    char text_buffer[120];
-    char player_name[30];
-    char host_names[8][30];
-    short host_node_ids[8];
-    char team_names[4][30];
-    char chat_input_buffer[150];
-    char chat_message_buffer[150];
-    short team_nodes[4];
-    short team_clans[4];
-    char team_jar_in_use[4];
-    char world_name[30];
+    unsigned short team_nodes[TRANSPORT_MAX_TEAM_COUNT];
+    short team_clans[TRANSPORT_MAX_TEAM_COUNT];
+    char team_jar_in_use[TRANSPORT_MAX_TEAM_COUNT];
+    char multi_scenario_id;
+    unsigned int rng_seed;
+    short minimap_world_index;
     char ini_world_index;
     char ini_play_mode;
     short ini_timer;
@@ -101,16 +98,19 @@ public:
     short ini_victory_limit;
     char is_map_changed;
     char is_multi_scenario;
-    char default_team_names[4][30];
-    char multi_scenario_id;
-    unsigned int rng_seed;
-    Image *images[NETWORK_MENU_IMAGE_COUNT];
-    short minimap_world_index;
+    char player_name[30];
+    char world_name[30];
+    char default_team_names[TRANSPORT_MAX_TEAM_COUNT][30];
+    char team_names[TRANSPORT_MAX_TEAM_COUNT][30];
+    char text_buffer[120];
+    char chat_input_buffer[150];
+    char chat_message_buffer[150];
 
     void Init();
     void Deinit();
     void DrawScreen();
     int SetupScenario(int mode);
+    void LeaveGame(unsigned short team_node);
     void EventEditPlayerName();
     void EventSelectClan();
     void EventTextWindow();

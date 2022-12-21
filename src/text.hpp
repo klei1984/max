@@ -23,21 +23,29 @@
 #define TEXT_HPP
 
 #include "fonts.hpp"
+#include "gnw.h"
 #include "smartstring.hpp"
 
-extern "C" {
-#include "gnw.h"
-}
+extern unsigned int Text_TypeWriter_CharacterTimeMs;
+extern unsigned int Text_TypeWriter_BeepTimeMs;
 
 SmartString* Text_SplitText(const char* text, int max_row_count, int width, int* row_count);
 
-void Text_TextBox(char* buffer, unsigned short length, const char* text, int ulx, int uly, int width, int height,
-                  int color, bool horizontal_align = false, bool vertical_align = true);
+void Text_TextBox(unsigned char* buffer, unsigned short length, const char* text, int ulx, int uly, int width,
+                  int height, int color, bool horizontal_align = false, bool vertical_align = true);
 
 void Text_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int width, int height,
                   bool horizontal_align = false, bool vertical_align = true, FontColor color = Fonts_GoldColor);
 
 void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int width, bool horizontal_align = false,
                    FontColor color = Fonts_GoldColor);
+
+void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int width, int alignment);
+
+void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int ulx, int uly, int width,
+                                              int height, int alignment);
+
+void Text_AutofitTextBox(unsigned char* buffer, unsigned short full_width, const char* text, Rect* text_area,
+                         Rect* draw_area, int color, bool horizontal_align);
 
 #endif /* TEXT_HPP */

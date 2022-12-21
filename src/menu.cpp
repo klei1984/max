@@ -27,23 +27,25 @@
 #include "chooseplayermenu.hpp"
 #include "clanselectmenu.hpp"
 #include "cursor.hpp"
+#include "desyncmenu.hpp"
+#include "dialogmenu.hpp"
 #include "game_manager.hpp"
 #include "gameconfigmenu.hpp"
 #include "gamesetupmenu.hpp"
-#include "ginit.h"
-#include "gui.hpp"
-#include "gwindow.hpp"
 #include "inifile.hpp"
-#include "movie.h"
+#include "movie.hpp"
+#include "okcancelmenu.hpp"
 #include "optionsmenu.hpp"
 #include "planetselectmenu.hpp"
 #include "remote.hpp"
 #include "saveloadmenu.hpp"
 #include "smartstring.hpp"
-#include "soundmgr.hpp"
+#include "sound_manager.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "version.hpp"
+#include "window_manager.hpp"
+#include "winloss.hpp"
 
 struct MenuButton {
     Button* button;
@@ -72,12 +74,14 @@ struct CreditsLine {
 #define CREDITS_TEXT(text) \
     { (0x04), (text) }
 
+static void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int global_turn, bool mode);
+static void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn, bool mode);
+
 static ResourceID menu_portrait_id;
 
 static struct MenuButton* menu_button_items;
 static int menu_button_items_count;
-
-static int menu_game_file_number;
+unsigned int menu_turn_timer_value;
 
 static struct MenuButton main_menu_buttons[] = {
     MENU_BUTTON_DEF(true, 385, 175, "New Game", GNW_KB_KEY_SHIFT_N, MBUTT0),
@@ -448,7 +452,12 @@ const char* menu_planet_names[] = {"Snowcrab",     "Frigia",       "Ice Berg",  
 
 static const char* save_file_extensions[] = {"dmo", "dbg", "txt", "sce", "mps"};
 
-static const char* menu_team_names[] = {"Red Team", "Green Team", "Blue Team", "Gray Team"};
+const char* menu_team_names[] = {"Red Team", "Green Team", "Blue Team", "Gray Team"};
+
+static const ResourceID menu_briefing_backgrounds[] = {ENDGAME1, ENDGAME2, ENDGAME3, ENDGAME4, ENDGAME5,
+                                                       ENDGAME6, ENDGAME7, ENDGAME8, ENDGAME9};
+
+static const char* menu_game_over_screen_places[] = {"Eliminated", "1st place", "2nd place", "3rd place", "4th place"};
 
 void draw_menu_title(WindowInfo* window, const char* caption) {
     text_font(5);
@@ -456,8 +465,8 @@ void draw_menu_title(WindowInfo* window, const char* caption) {
 }
 
 void menu_draw_menu_portrait_frame(WindowInfo* window) {
-    gwin_load_image2(BGRSCRNL, 6, 173, 0, window);
-    gwin_load_image2(BGRSCRNR, 166, 173, 0, window);
+    WindowManager_LoadImage2(BGRSCRNL, 6, 173, 0, window);
+    WindowManager_LoadImage2(BGRSCRNR, 166, 173, 0, window);
 }
 
 void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_to_screen) {
@@ -483,15 +492,501 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
     wininfo.window.lrx = 316;
     wininfo.window.lry = 422;
 
-    gwin_load_image(menu_portrait_id, &wininfo, wininfo.width, false, false);
+    WindowManager_LoadImage(menu_portrait_id, &wininfo, wininfo.width, false, false);
 
     if (draw_to_screen) {
         win_draw_rect(wininfo.id, &wininfo.window);
     }
 }
 
-void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align = false,
-                          bool vertical_align = true) {
+void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int global_turn, bool mode) {
+    int ulx;
+    int lrx;
+    unsigned short visible_team;
+    FontColor team_fonts[PLAYER_TEAM_MAX - 1] = {{165, 230, 199}, {165, 238, 199}, {165, 245, 199}, {165, 214, 199}};
+    int victory_status;
+
+    if (Remote_IsNetworkGame || mode) {
+        Text_TextLine(window, "Game Over", 100, 10, 440, true, Fonts_BrightSilverColor);
+    }
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            char team_name[40];
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TextLine(window, SmartString().Sprintf(3, "%i", visible_team).GetCStr(), ulx, 44, 90, true,
+                          team_fonts[team]);
+
+            ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name,
+                                      sizeof(team_name));
+
+            Text_TextBox(window, team_name, ulx, 61, lrx - ulx, 55, true, true, Fonts_BrightSilverColor);
+        }
+    }
+
+    win_draw(window->id);
+
+    Text_TypeWriter_TextBox(window, "Points", 0, 116, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            if (victory_status == VICTORY_STATE_GENERIC) {
+                Text_TypeWriter_TextBox(
+                    window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].team_points).GetCStr(), ulx,
+                    116, lrx - ulx, 2);
+
+                if (mode || teams[team] == 0) {
+                    Text_TypeWriter_TextBox(window, menu_game_over_screen_places[teams[team]], ulx, 132, lrx - ulx, 2);
+                }
+
+            } else if (team == PLAYER_TEAM_RED) {
+                Text_TypeWriter_TextBoxMultiLineWrapText(
+                    window, (victory_status == VICTORY_STATE_WON) ? "Mission Success" : "Mission Failed", ulx, 116,
+                    lrx - ulx, 34, 2);
+            }
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Factories Built", 0, 166, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_factories_built).GetCStr(),
+                ulx, 116, lrx - ulx, 2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Mines Built", 0, 198, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_mines_built).GetCStr(), ulx,
+                198, lrx - ulx, 2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Buildings Built", 0, 230, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_buildings_built).GetCStr(),
+                ulx, 230, lrx - ulx, 2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Lost", 0, 246, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            CTInfo* team_info;
+            int casualties;
+
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            team_info = &UnitsManager_TeamInfo[team];
+            casualties = 0;
+
+            for (int j = 0; j < UNIT_END; ++j) {
+                if (UnitsManager_BaseUnits[j].flags & BUILDING) {
+                    casualties += team_info->casualties[j];
+                }
+            }
+
+            Text_TypeWriter_TextBox(window, SmartString().Sprintf(12, "%i", casualties).GetCStr(), ulx, 246, lrx - ulx,
+                                    2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Units Built", 0, 278, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_units_built).GetCStr(), ulx,
+                278, lrx - ulx, 2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Lost", 0, 294, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            CTInfo* team_info;
+            int casualties;
+
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            team_info = &UnitsManager_TeamInfo[team];
+            casualties = 0;
+
+            for (int j = 0; j < UNIT_END; ++j) {
+                if (UnitsManager_BaseUnits[j].flags & SELECTABLE) {
+                    casualties += team_info->casualties[j];
+                }
+            }
+
+            Text_TypeWriter_TextBox(window, SmartString().Sprintf(12, "%i", casualties).GetCStr(), ulx, 294, lrx - ulx,
+                                    2);
+        }
+    }
+
+    Text_TypeWriter_TextBox(window, "Upgrades", 0, 326, 172, 1);
+
+    ulx = 80;
+    visible_team = PLAYER_TEAM_RED;
+
+    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ulx += 110;
+            ++visible_team;
+            lrx = ulx + 90;
+
+            Text_TypeWriter_TextBox(
+                window,
+                SmartString()
+                    .Sprintf(12, "%i %s", UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades, "Gold")
+                    .GetCStr(),
+                ulx, 326, lrx - ulx, 2);
+        }
+    }
+
+    {
+        struct ImageSimpleHeader* image;
+
+        image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_ReadResource(ENDARM));
+
+        WindowManager_DecodeImage2(image, 273, 480 - image->height, true, window);
+
+        delete[] image;
+    }
+}
+
+void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn, bool mode) {
+    int victory_status;
+    bool is_winner;
+    int bg_image_id;
+    Color* palette;
+    SmartString mission_briefing;
+
+    victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
+
+    if (victory_status == VICTORY_STATE_GENERIC) {
+        is_winner = teams[GameManager_PlayerTeam] == 1;
+
+    } else {
+        is_winner = victory_status == VICTORY_STATE_WON;
+    }
+
+    if (Remote_IsNetworkGame) {
+        Remote_WaitBeginTurnAcknowledge();
+        Remote_LeaveGame(GameManager_PlayerTeam, !mode);
+    }
+
+    bg_image_id = (dos_rand() * 9) >> 15;
+
+    Text_TypeWriter_CharacterTimeMs = 50;
+
+    palette = GameManager_MenuFadeOut();
+
+    if (is_winner && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CAMPAIGN) {
+        FILE* fp;
+        SmartString path(ResourceManager_FilePathText);
+        path += SmartString().Sprintf(30, "win%i.cam", GameManager_GameFileNumber);
+
+        fp = fopen(path.GetCStr(), "rt");
+
+        if (fp) {
+            int character;
+
+            for (;;) {
+                character = fgetc(fp);
+                if (character == EOF) {
+                    break;
+                }
+
+                mission_briefing += static_cast<char>(character);
+            }
+
+            fclose(fp);
+
+            Text_TypeWriter_CharacterTimeMs = 10;
+        }
+    }
+
+    {
+        Window window(menu_briefing_backgrounds[bg_image_id]);
+        WindowInfo window_info;
+        unsigned short team_places[PLAYER_TEAM_MAX - 1];
+        Button* button_end;
+        bool exit_loop;
+        int key;
+
+        GameManager_WrapUpGame = true;
+        GameManager_RequestMenuExit = false;
+
+        Remote_UpdatePauseTimer = false;
+
+        SoundManager.FreeAllSamples();
+
+        GameManager_DeinitPopupButtons(false);
+
+        window.SetFlags(0x10);
+
+        text_font(1);
+
+        Cursor_SetCursor(CURSOR_HAND);
+
+        window.SetPaletteMode(true);
+        window.Add();
+        window.FillWindowInfo(&window_info);
+
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            team_places[team] = 0;
+        }
+
+        for (int i = 0; i < teams_in_play - 1; ++i) {
+            for (int j = i + 1; j < teams_in_play; ++j) {
+                if (WinLoss_DetermineWinner(teams[i], teams[j]) < 0) {
+                    std::swap(teams[i], teams[j]);
+                }
+            }
+        }
+
+        for (int i = 0; i < teams_in_play; ++i) {
+            team_places[teams[i]] = i + 1;
+        }
+
+        if (is_winner) {
+            SoundManager.PlayVoice(V_M283, V_F283);
+            SoundManager.PlayMusic(WINR_MSC, false);
+
+        } else {
+            SoundManager.PlayMusic(LOSE_MSC, false);
+        }
+
+        if (mission_briefing.GetLength() > 0) {
+            win_draw(window_info.id);
+            Text_TypeWriter_TextBoxMultiLineWrapText(&window_info, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
+
+        } else {
+            menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
+        }
+
+        text_font(5);
+
+        button_end = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
+        button_end->SetCaption("OK");
+
+        text_font(1);
+
+        button_end->SetRValue(GNW_KB_KEY_ESCAPE);
+        button_end->RegisterButton(window_info.id);
+
+        win_draw(window_info.id);
+
+        exit_loop = false;
+
+        do {
+            key = get_input();
+
+            switch (key) {
+                case GNW_KB_KEY_ESCAPE:
+                case GNW_KB_KEY_RETURN: {
+                    exit_loop = true;
+                } break;
+
+                case GNW_KB_KEY_SPACE: {
+                    bg_image_id = (bg_image_id + 1) % 9;
+
+                    WindowManager_LoadImage(menu_briefing_backgrounds[bg_image_id], &window_info, window_info.width,
+                                            true, false);
+
+                    if (mission_briefing.GetLength() > 0) {
+                        win_draw(window_info.id);
+                        Text_TypeWriter_TextBoxMultiLineWrapText(&window_info, mission_briefing.GetCStr(), 20, 20, 600,
+                                                                 400, 0);
+
+                    } else {
+                        menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
+                    }
+                } break;
+            }
+
+            win_draw(window_info.id);
+
+        } while (!exit_loop);
+
+        delete button_end;
+    }
+
+    GameManager_LoadGame(0, palette, false);
+
+    GameManager_GameState = GAME_STATE_3_MAIN_MENU;
+
+    if (is_winner && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CAMPAIGN) {
+        ini_set_setting(INI_GAME_FILE_NUMBER, GameManager_GameFileNumber + 1);
+
+        if (ini_get_setting(INI_LAST_CAMPAIGN) < GameManager_GameFileNumber + 1) {
+            ini_set_setting(INI_LAST_CAMPAIGN, GameManager_GameFileNumber + 1);
+        }
+
+        ini_config.Save();
+    }
+}
+
+bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_demo_mode) {
+    int ini_victory_limit;
+    int team_count;
+    int teams_in_play;
+    int human_teams_in_play;
+    int non_computer_teams_count;
+    unsigned short team_places[PLAYER_TEAM_MAX - 1];
+    int victory_status;
+    bool result;
+    char game_state;
+    bool is_network_game;
+
+    ini_victory_limit = ini_setting_victory_limit;
+    team_count = 0;
+    teams_in_play = 0;
+    human_teams_in_play = 0;
+    non_computer_teams_count = 0;
+
+    if (is_demo_mode && (global_turn - local_turn >= 5)) {
+        GameManager_GameState = GAME_STATE_3_MAIN_MENU;
+        result = true;
+
+    } else {
+        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                ++team_count;
+
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+                    ++non_computer_teams_count;
+                }
+
+                if (WinLoss_CheckLossConditions(team) &&
+                    UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+                    if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
+                        ++human_teams_in_play;
+                    }
+
+                    team_places[teams_in_play] = team;
+                    ++teams_in_play;
+                }
+            }
+        }
+
+        victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
+
+        if (victory_status == VICTORY_STATE_WON || victory_status == VICTORY_STATE_LOST ||
+            (victory_status != VICTORY_STATE_PENDING || teams_in_play == 1 || team_count > 1) || teams_in_play == 0 ||
+            (human_teams_in_play == 0 && non_computer_teams_count > 0)) {
+            menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
+            result = true;
+
+        } else if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
+            if (global_turn == (ini_victory_limit - 10) && non_computer_teams_count > 0) {
+                DialogMenu_Menu("Notice: Game will end in 10 turns!");
+
+            } else if (ini_victory_limit <= global_turn) {
+                menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
+                return true;
+            }
+
+        } else {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                    UnitsManager_TeamInfo[team].team_points >= ini_victory_limit) {
+                    menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
+                    return true;
+                }
+            }
+        }
+
+        if (victory_status == VICTORY_STATE_GENERIC) {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER && !WinLoss_CheckLossConditions(team)) {
+                    game_state = GameManager_GameState;
+                    is_network_game = Remote_IsNetworkGame;
+
+                    menu_wrap_up_game(team_places, teams_in_play, global_turn, false);
+
+                    if (is_network_game) {
+                        return true;
+
+                    } else {
+                        GameManager_GameState = game_state;
+                        UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
+                    }
+                }
+            }
+        }
+
+        result = false;
+    }
+
+    return result;
+}
+
+void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align,
+                          bool vertical_align) {
     if (menu_item->title && strlen(menu_item->title)) {
         Text_TextBox(window->buffer, window->width, menu_item->title, menu_item->bounds.ulx, menu_item->bounds.uly,
                      menu_item->bounds.lrx - menu_item->bounds.ulx, menu_item->bounds.lry - menu_item->bounds.uly,
@@ -503,55 +998,54 @@ void menu_draw_logo(ResourceID resource_id, int time_limit) {
     WindowInfo* window;
     unsigned int time_stamp;
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
-    if (gwin_load_image(resource_id, window, 640, true, false)) {
+    if (WindowManager_LoadImage(resource_id, window, 640, true, false)) {
         Cursor_SetCursor(CURSOR_HIDDEN);
         mouse_show();
-        setSystemPalette(system_palette_ptr);
+        setSystemPalette(WindowManager_SystemPalette);
         win_draw(window->id);
-        gwin_fade_out(500);
+        WindowManager_FadeIn(500);
 
         time_stamp = timer_get_stamp32();
-        while (timer_elapsed_time_ms(time_stamp) < time_limit && get_input() != -1) {
+        while (timer_elapsed_time_ms(time_stamp) < time_limit && get_input() == -1) {
         }
 
-        gwin_clear_window();
+        WindowManager_ClearWindow();
     }
 }
 
 template <typename T>
 void ReadFile(FILE* fp, T& buffer) {
     if (fread(&buffer, sizeof(char), sizeof(T), fp) != (sizeof(T))) {
-        gexit(7);
+        ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 }
 
 template <typename T>
 void ReadFile(FILE* fp, T* buffer, int size) {
     if (fread(buffer, sizeof(char), size, fp) != size) {
-        gexit(7);
+        ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 }
 
-int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width) {
+int Menu_LoadPlanetMinimap(int planet_index, unsigned char* buffer, int width) {
     char* filename;
     int result;
 
-    filename = ResourceManager_LoadResource(static_cast<ResourceID>(SNOW_1 + planet_index));
+    filename = reinterpret_cast<char*>(ResourceManager_ReadResource(static_cast<ResourceID>(SNOW_1 + planet_index)));
 
     if (filename) {
         FILE* fp;
 
         fp = fopen(filename, "rb");
-        free(filename);
+        delete[] filename;
 
         if (fp) {
             char map_type[5];
             Point map_dimensions;
             short map_tile_count;
-            char palette[256 * 3];
-            int offset;
+            Color palette[3 * PALETTE_SIZE];
 
             ReadFile(fp, map_type);
             ReadFile(fp, map_dimensions);
@@ -571,18 +1065,17 @@ int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width) {
                 palette[i] /= 4;
             }
 
-            color_palette = cmap;
+            WindowManager_ColorPalette = getColorPalette();
 
-            for (int i = 0; i < sizeof(palette); i + 3) {
-                palette[i / 3] = Resrcmgr_sub_D3A88(palette[i], palette[i + 1], palette[i + 2], 1);
+            for (int i = 0; i < sizeof(palette); i += 3) {
+                palette[i / 3] =
+                    ResourceManager_FindClosestPaletteColor(palette[i], palette[i + 1], palette[i + 2], true);
             }
 
-            for (int i = 0, offset = 0; i < map_dimensions.x; ++i) {
+            for (int i = 0; i < map_dimensions.x; ++i) {
                 for (int j = 0; j < map_dimensions.y; ++j) {
-                    buffer[i][j + offset] = palette[buffer[i][j + offset]];
+                    buffer[i * width + j] = palette[buffer[i * width + j]];
                 }
-
-                offset += width - map_dimensions.x;
             }
 
             fclose(fp);
@@ -596,6 +1089,93 @@ int Menu_LoadPlanetMinimap(int planet_index, char* buffer, int width) {
     }
 
     return result;
+}
+
+void menu_draw_campaign_mission_briefing_screen() {
+    int image_index;
+    FILE* fp;
+    SmartString filepath(ResourceManager_FilePathText);
+    SmartString filename;
+    SmartString text;
+    WindowInfo window;
+
+    image_index = (dos_rand() * 9) >> 15;
+
+    Text_TypeWriter_CharacterTimeMs = 10;
+
+    filename.Sprintf(30, "intro%i.cam", GameManager_GameFileNumber);
+    filepath += filename;
+
+    fp = fopen(filepath.GetCStr(), "rt");
+
+    if (fp) {
+        for (;;) {
+            int character = fgetc(fp);
+
+            if (character == EOF) {
+                break;
+            }
+
+            text += character;
+        }
+
+        fclose(fp);
+
+        Window briefing_window(menu_briefing_backgrounds[image_index]);
+        Button* button_end_ok;
+        bool exit_loop;
+
+        briefing_window.SetFlags(0x10);
+        Cursor_SetCursor(CURSOR_HAND);
+        briefing_window.SetPaletteMode(true);
+        briefing_window.Add();
+        briefing_window.FillWindowInfo(&window);
+
+        win_draw(window.id);
+        text_font(1);
+
+        Text_TypeWriter_TextBoxMultiLineWrapText(&window, text.GetCStr(), 20, 20, 600, 400, 0);
+        Text_TypeWriter_CharacterTimeMs = 0;
+
+        text_font(5);
+        button_end_ok = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
+        button_end_ok->SetCaption("OK");
+
+        text_font(1);
+        button_end_ok->SetRValue(GNW_KB_KEY_ESCAPE);
+        button_end_ok->RegisterButton(window.id);
+
+        win_draw(window.id);
+
+        exit_loop = false;
+
+        do {
+            int key;
+
+            key = get_input();
+
+            switch (key) {
+                case GNW_KB_KEY_RETURN:
+                case GNW_KB_KEY_ESCAPE: {
+                    exit_loop = true;
+                } break;
+
+                case GNW_KB_KEY_SPACE: {
+                    image_index = (image_index + 1) % 9;
+
+                    WindowManager_LoadImage(menu_briefing_backgrounds[image_index], &window, window.width, true, false);
+
+                    text_font(1);
+
+                    Text_TypeWriter_TextBoxMultiLineWrapText(&window, text.GetCStr(), 20, 20, 600, 400, 0);
+                    win_draw(window.id);
+                } break;
+            }
+
+        } while (!exit_loop);
+
+        delete button_end_ok;
+    }
 }
 
 void menu_update_resource_levels() {
@@ -789,7 +1369,7 @@ void draw_copyright_label(WindowInfo* window) {
 void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int special_button_id = 0) {
     WindowInfo* window;
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     menu_button_items = button_items;
     menu_button_items_count = button_count;
@@ -837,7 +1417,7 @@ void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int
 void menu_draw_tips_frame(WindowInfo* window) {
     if (menu_tips_strings) {
         Rect bounds;
-        char* buffer_position;
+        unsigned char* buffer_position;
         int row_index_limit;
 
         menu_draw_menu_portrait_frame(window);
@@ -847,7 +1427,7 @@ void menu_draw_tips_frame(WindowInfo* window) {
         bounds.lrx = 315;
         bounds.lry = 421;
 
-        buffer_position = window->buffer[window->width * bounds.uly + bounds.ulx];
+        buffer_position = &window->buffer[window->width * bounds.uly + bounds.ulx];
         row_index_limit = menu_tips_current_row_index + menu_tips_max_row_count_per_page;
 
         if (row_index_limit > menu_tips_row_count) {
@@ -867,7 +1447,7 @@ void menu_draw_tips_frame(WindowInfo* window) {
 
 void menu_draw_tips(WindowInfo* window) {
     text_font(5);
-    menu_tips_data = ResourceManager_LoadResource(TIPS);
+    menu_tips_data = reinterpret_cast<char*>(ResourceManager_ReadResource(TIPS));
 
     menu_tips_max_row_count_per_page = 236 / text_height();
 
@@ -921,7 +1501,7 @@ void tips_on_click_up(WindowInfo* window) {
             --menu_tips_current_row_index;
             menu_draw_tips_frame(window);
 
-            while ((timer_get_stamp32() - time_stamp) < 12428) {
+            while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
             }
         } while (menu_tips_current_row_index != page_offset);
     }
@@ -939,7 +1519,7 @@ void tips_on_click_down(WindowInfo* window) {
             ++menu_tips_current_row_index;
             menu_draw_tips_frame(window);
 
-            while ((timer_get_stamp32() - time_stamp) < 12428) {
+            while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
             }
         } while (menu_tips_current_row_index != page_offset);
     }
@@ -1058,13 +1638,13 @@ void menu_credits_menu_loop() {
     bool play;
     int height_offset;
     int line_index;
-    char* image_buffer_position;
-    char* window_buffer_position;
+    unsigned char* image_buffer_position;
+    unsigned char* window_buffer_position;
     unsigned int time_stamp;
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     Cursor_SetCursor(CURSOR_HIDDEN);
-    gwin_load_image(CREDITS, window, 640, true, false);
+    WindowManager_LoadImage(CREDITS, window, 640, true, false);
     win_draw(window->id);
 
     window_width = 450;
@@ -1079,7 +1659,7 @@ void menu_credits_menu_loop() {
     image2 = new (std::nothrow) Image(bounds.ulx, bounds.uly, window_width, window_height + 18);
 
     image1->Copy(window);
-    memset(image2->GetData(), 0x80, (window_height + 18) * window_width);
+    memset(image2->GetData(), -128, (window_height + 18) * window_width);
 
     text_font(1);
 
@@ -1091,6 +1671,8 @@ void menu_credits_menu_loop() {
         image1->Write(window);
         memmove(image2->GetData(), &image2->GetData()[window_width], (window_height + 17) * window_width);
         memset(&image2->GetData()[(window_height + 17) * window_width], 0x80, window_width);
+
+        --height_offset;
 
         if (line_index < (sizeof(menu_credits_lines) / sizeof(struct CreditsLine)) && height_offset <= bounds.lry) {
             Text_TextBox(image2->GetData(), window_width, menu_credits_lines[line_index].text, 0, window_height,
@@ -1141,7 +1723,7 @@ int menu_clan_select_menu_loop(int team) {
 
     do {
         if (Remote_GameState) {
-            Remote_sub_CAC94();
+            Remote_NetSync();
         }
 
         if (Remote_GameState == 2) {
@@ -1175,7 +1757,7 @@ int menu_clan_select_menu_loop(int team) {
                     }
 
                     clan_select_menu.key -= 1000;
-                    clan_select_menu.menu_item[i].event_handler();
+                    (clan_select_menu.*clan_select_menu.menu_item[i].event_handler)();
                     break;
                 }
             }
@@ -1185,10 +1767,36 @@ int menu_clan_select_menu_loop(int team) {
 
     clan_select_menu.Deinit();
 
+    ini_set_setting(clan_select_menu.team_clan_ini_id, clan_select_menu.team_clan);
+
     UnitsManager_TeamInfo[team].team_clan = clan_select_menu.team_clan;
     result = clan_select_menu.team_clan;
 
     return result;
+}
+
+void DialogMenu_Menu(const char* label) {
+    menu_turn_timer_value -= (timer_get_stamp32() - Remote_PauseTimeStamp) / 1193180;
+
+    {
+        DialogMenu dialog_menu(label, true);
+
+        dialog_menu.RunMenu();
+
+        if (Remote_IsNetworkGame) {
+            Remote_SendNetPacket_Signal(40, GameManager_PlayerTeam, 0);
+        }
+
+        Remote_PauseTimeStamp = timer_get_stamp32();
+    }
+}
+
+void PauseMenu_Menu() {
+    if (Remote_IsNetworkGame) {
+        Remote_SendNetPacket_Signal(39, GameManager_PlayerTeam, 0);
+    }
+
+    DialogMenu_Menu("Game Paused.\nClick OK to continue.");
 }
 
 int menu_planet_select_menu_loop() {
@@ -1201,7 +1809,7 @@ int menu_planet_select_menu_loop() {
 
     do {
         if (Remote_GameState == 1) {
-            Remote_sub_CAC94();
+            Remote_NetSync();
         }
 
         planet_select_menu.key = get_input();
@@ -1227,7 +1835,7 @@ int menu_planet_select_menu_loop() {
 
                 if (planet_select_menu.key == planet_select_menu.menu_item[i].r_value) {
                     planet_select_menu.key -= 1000;
-                    planet_select_menu.menu_item[i].event_handler();
+                    (planet_select_menu.*planet_select_menu.menu_item[i].event_handler)();
                     break;
                 }
             }
@@ -1257,7 +1865,7 @@ int menu_options_menu_loop(int game_mode) {
 
     do {
         if (Remote_GameState == 1) {
-            Remote_sub_CAC94();
+            Remote_NetSync();
         }
 
         game_config_menu.key = get_input();
@@ -1295,7 +1903,7 @@ int menu_options_menu_loop(int game_mode) {
 
                     event_release = true;
                     game_config_menu.key -= 1000;
-                    game_config_menu.menu_item[i].event_handler();
+                    (game_config_menu.*game_config_menu.menu_item[i].event_handler)();
                     break;
                 }
             }
@@ -1358,7 +1966,7 @@ int menu_choose_player_menu_loop(bool game_type) {
                     }
 
                     choose_player_menu.key_press -= 1000;
-                    choose_player_menu.menu_item[i].event_handler();
+                    (choose_player_menu.*choose_player_menu.menu_item[i].event_handler)();
                     break;
                 }
             }
@@ -1378,21 +1986,21 @@ int menu_choose_player_menu_loop(bool game_type) {
         int team_type;
         char buffer[30];
 
-        team_type = ini_get_setting(INI_RED_TEAM_PLAYER + i);
+        team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
 
         if (game_type && team_type == TEAM_TYPE_PLAYER) {
             ini_config.GetStringValue(INI_PLAYER_NAME, buffer, sizeof(buffer));
-            ini_config.SetStringValue(INI_RED_TEAM_NAME + i, buffer);
+            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i), buffer);
             game_type = 0;
         } else {
-            ini_config.SetStringValue(INI_RED_TEAM_NAME + i, menu_team_names[i]);
+            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i), menu_team_names[i]);
         }
     }
 
     return true;
 }
 
-int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
+int GameSetupMenu_Menu(int game_file_type, bool flag1, bool flag2) {
     GameSetupMenu game_setup_menu;
     SaveFormatHeader save_file_header;
     bool palette_from_image;
@@ -1414,7 +2022,7 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
 
         do {
             if (Remote_GameState == 1) {
-                Remote_sub_CAC94();
+                Remote_NetSync();
             }
 
             game_setup_menu.key = get_input();
@@ -1423,7 +2031,7 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
                 event_release = false;
             }
 
-            switch (key) {
+            switch (game_setup_menu.key) {
                 case GNW_KB_KEY_PAGEUP: {
                     game_setup_menu.key = 12;
                     game_setup_menu.EventScrollButton();
@@ -1457,7 +2065,7 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
 
                             if (game_setup_menu.key == game_setup_menu.menu_item[i].r_value) {
                                 game_setup_menu.key -= 1000;
-                                game_setup_menu.menu_item[i].event_handler();
+                                (game_setup_menu.*game_setup_menu.menu_item[i].event_handler)();
                                 break;
                             }
                         }
@@ -1475,9 +2083,9 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
             break;
         }
 
-        menu_game_file_number = game_setup_menu.game_file_number;
+        GameManager_GameFileNumber = game_setup_menu.game_file_number;
 
-        ini_set_setting(INI_GAME_FILE_NUMBER, menu_game_file_number);
+        ini_set_setting(INI_GAME_FILE_NUMBER, GameManager_GameFileNumber);
         ini_set_setting(INI_GAME_FILE_TYPE, game_setup_menu.game_file_type);
 
         if (game_setup_menu.game_file_type != GAME_TYPE_MULTI_PLAYER_SCENARIO || flag1) {
@@ -1486,12 +2094,12 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
                     menu_draw_campaign_mission_briefing_screen();
                 }
 
-                if (menu_game_file_number == 1 && game_setup_menu.game_file_type == GAME_TYPE_CAMPAIGN) {
-                    movie_play(DEMO2FLC);
+                if (GameManager_GameFileNumber == 1 && game_setup_menu.game_file_type == GAME_TYPE_CAMPAIGN) {
+                    Movie_Play(DEMO2FLC);
                 }
 
                 if (game_setup_menu.game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                    SaveLoadMenu_GetSavedGameInfo(menu_game_file_number, ini_get_setting(INI_GAME_FILE_TYPE),
+                    SaveLoadMenu_GetSavedGameInfo(GameManager_GameFileNumber, ini_get_setting(INI_GAME_FILE_TYPE),
                                                   save_file_header, false);
 
                     ini_set_setting(INI_RED_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_RED]);
@@ -1500,14 +2108,14 @@ int GameSetupMenu_menu_loop(int game_file_type, bool flag1, bool flag2) {
                     ini_set_setting(INI_GRAY_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_GRAY]);
 
                     if (menu_choose_player_menu_loop(flag2)) {
-                        game_loop(GAME_STATE_10);
+                        GameManager_GameLoop(GAME_STATE_10);
                         palette_from_image = true;
                     } else {
                         palette_from_image = false;
                     }
 
                 } else {
-                    game_loop(GAME_STATE_10);
+                    GameManager_GameLoop(GAME_STATE_10);
                     palette_from_image = true;
                 }
 
@@ -1553,7 +2161,7 @@ int menu_custom_game_menu(bool game_type) {
             enter_planet_select_menu = false;
         }
 
-        for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_ALIEN; ++i) {
+        for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
             ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i), ini_get_setting(INI_PLAYER_CLAN));
         }
 
@@ -1566,7 +2174,7 @@ int menu_custom_game_menu(bool game_type) {
     } while (!player_menu_passed);
 
     mouse_hide();
-    gwin_clear_window();
+    WindowManager_ClearWindow();
     mouse_show();
 
     GameManager_GameLoop(GAME_STATE_6);
@@ -1581,14 +2189,14 @@ int menu_new_game_menu_loop() {
     bool event_release;
     bool is_tips_window_active;
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     key = 0;
 
     while (key != GNW_KB_KEY_CTRL_ESCAPE && key != 9000) {
         event_release = false;
 
         mouse_hide();
-        gwin_load_image(MAINPIC, window, 640, false);
+        WindowManager_LoadImage(MAINPIC, window, 640, false, false);
         draw_menu_title(window, "New Game Menu");
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(new_game_menu_buttons, sizeof(new_game_menu_buttons) / sizeof(MenuButton), 5);
@@ -1608,7 +2216,7 @@ int menu_new_game_menu_loop() {
                 case GNW_KB_KEY_SHIFT_T: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_TRAINING)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_TRAINING)) {
                         key = 9000;
                     }
 
@@ -1619,7 +2227,7 @@ int menu_new_game_menu_loop() {
                 case GNW_KB_KEY_SHIFT_S: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_SCENARIO)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_SCENARIO)) {
                         key = 9000;
                     }
 
@@ -1641,7 +2249,7 @@ int menu_new_game_menu_loop() {
                 case GNW_KB_KEY_SHIFT_M: {
                     menu_delete_menu_buttons();
                     ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
                         key = 9000;
                     }
 
@@ -1651,7 +2259,7 @@ int menu_new_game_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_A: {
                     menu_delete_menu_buttons();
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_CAMPAIGN)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_CAMPAIGN)) {
                         key = 9000;
                     }
 
@@ -1718,15 +2326,15 @@ int menu_new_game_menu_loop() {
 }
 
 void menu_preferences_window(unsigned short team) {
-    OptionsMenu* options_menu = new (std::nothrow) OptionsMenu(team, PREFSPIC);
+    OptionsMenu options_menu = OptionsMenu(team, PREFSPIC);
 
-    options_menu->Run();
+    options_menu.Run();
 }
 
 void menu_setup_window() {
-    OptionsMenu* options_menu = new (std::nothrow) OptionsMenu(PLAYER_TEAM_RED, SETUPPIC);
+    OptionsMenu options_menu = OptionsMenu(PLAYER_TEAM_RED, SETUPPIC);
 
-    options_menu->Run();
+    options_menu.Run();
 }
 
 int menu_network_game_menu(bool is_host_mode) {
@@ -1736,7 +2344,7 @@ int menu_network_game_menu(bool is_host_mode) {
             Remote_SendNetPacket_17();
         }
 
-        GameManager_GameLoop(GUI_GameState);
+        GameManager_GameLoop(GameManager_GameState);
     }
 
     Remote_Deinit();
@@ -1751,7 +2359,7 @@ int menu_multiplayer_menu_loop() {
     bool exit_loop;
     bool event_release;
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     palette_from_image = 0;
     key = 0;
 
@@ -1759,7 +2367,7 @@ int menu_multiplayer_menu_loop() {
         event_release = false;
 
         mouse_hide();
-        gwin_load_image(MAINPIC, window, 640, palette_from_image, false);
+        WindowManager_LoadImage(MAINPIC, window, 640, palette_from_image, false);
         draw_menu_title(window, "Multiplayer Menu");
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(network_game_menu_buttons,
@@ -1782,7 +2390,7 @@ int menu_multiplayer_menu_loop() {
                     int game_file_number;
                     menu_delete_menu_buttons();
                     ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_HOT_SEAT);
-                    game_file_number = SaveLoadMenu_menu_loop(false, false);
+                    game_file_number = SaveLoadMenu_MenuLoop(false, false);
 
                     if (game_file_number) {
                         ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
@@ -1799,7 +2407,7 @@ int menu_multiplayer_menu_loop() {
                 case GNW_KB_KEY_SHIFT_T: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_menu_loop(GAME_TYPE_MULTI_PLAYER_SCENARIO, true, false)) {
+                    if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO, true, false)) {
                         key = 9000;
                     }
 
@@ -1873,6 +2481,22 @@ int menu_multiplayer_menu_loop() {
     return key == 9000;
 }
 
+void menu_draw_exit_logos() {
+    mouse_hide();
+    menu_draw_logo(OEMONE, 60000);
+    menu_draw_logo(OEMTWO, 60000);
+}
+
+bool OKCancelMenu_Menu(const char* caption, bool mode) { return OKCancelMenu(caption, mode).Run(); }
+
+bool DesyncMenu_Menu() {
+    DesyncMenu desync_menu;
+
+    Remote_WaitBeginTurnAcknowledge();
+
+    return desync_menu.Run();
+}
+
 void main_menu() {
     WindowInfo* window;
     unsigned int time_stamp;
@@ -1881,8 +2505,10 @@ void main_menu() {
     bool event_release;
     int save_slot;
     int old_save_slot;
+    int last_mouse_x;
+    int last_mouse_y;
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     palette_from_image = 1;
     save_slot = 1;
     mouse_set_position(320, 240);
@@ -1892,17 +2518,19 @@ void main_menu() {
     ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
 
     for (;;) {
+        last_mouse_x = 0;
+        last_mouse_y = 0;
         event_release = false;
         time_stamp = timer_get_stamp32();
-        GUI_GameState = GAME_STATE_3_MAIN_MENU;
+        GameManager_GameState = GAME_STATE_3_MAIN_MENU;
         mouse_hide();
-        gwin_load_image(MAINPIC, window, 640, palette_from_image, false);
+        WindowManager_LoadImage(MAINPIC, window, 640, palette_from_image, false);
         draw_menu_title(window, "Main Menu");
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         draw_copyright_label(window);
         menu_draw_main_menu_buttons(main_menu_buttons, sizeof(main_menu_buttons) / sizeof(struct MenuButton));
         mouse_show();
-        soundmgr.PlayMusic(MAIN_MSC, false);
+        SoundManager.PlayMusic(MAIN_MSC, false);
         Cursor_SetCursor(CURSOR_HAND);
         mouse_show();
         palette_from_image = 0;
@@ -1927,13 +2555,11 @@ void main_menu() {
                 int key;
                 int mouse_x;
                 int mouse_y;
-                int last_mouse_x;
-                int last_mouse_y;
 
                 key = get_input();
                 mouse_get_position(&mouse_x, &mouse_y);
 
-                if (key != -1 || mouse_x != 0 || mouse_y != 0) {
+                if (key != -1 || mouse_x != last_mouse_x || mouse_y != last_mouse_y) {
                     time_stamp = timer_get_stamp32();
                     last_mouse_x = mouse_x;
                     last_mouse_y = mouse_y;
@@ -1950,15 +2576,16 @@ void main_menu() {
                         int game_file_number;
 
                         menu_delete_menu_buttons();
-                        game_file_number = SaveLoadMenu_menu_loop(false, false);
+                        game_file_number = SaveLoadMenu_MenuLoop(false, false);
 
                         if (game_file_number) {
                             ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
+
+                            GameManager_GameLoop(GAME_STATE_10);
+
+                            menu_portrait_id = INVALID_ID;
                         }
 
-                        GameManager_GameLoop(GAME_STATE_10);
-
-                        menu_portrait_id = INVALID_ID;
                         palette_from_image = 1;
                         exit_loop = true;
 
@@ -1968,16 +2595,17 @@ void main_menu() {
                         int game_file_number;
 
                         menu_delete_menu_buttons();
-                        game_file_number = SaveLoadMenu_menu_loop(false, true);
+                        game_file_number = SaveLoadMenu_MenuLoop(false, true);
 
                         if (game_file_number) {
                             ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_TEXT);
                             ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
+
+                            GameManager_GameLoop(GAME_STATE_10);
+
+                            menu_portrait_id = INVALID_ID;
                         }
 
-                        GameManager_GameLoop(GAME_STATE_10);
-
-                        menu_portrait_id = INVALID_ID;
                         palette_from_image = 1;
                         exit_loop = true;
                     } break;
@@ -2019,7 +2647,7 @@ void main_menu() {
 
                     case GNW_KB_KEY_SHIFT_E: {
                         menu_delete_menu_buttons();
-                        gexit(1);
+                        ResourceManager_ExitGame(EXIT_CODE_THANKS);
 
                     } break;
 
@@ -2027,7 +2655,7 @@ void main_menu() {
                         mouse_hide();
                         menu_delete_menu_buttons();
 
-                        movie_play_intro();
+                        Movie_PlayIntro();
 
                         palette_from_image = 1;
                         exit_loop = true;

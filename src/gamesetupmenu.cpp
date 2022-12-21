@@ -21,12 +21,13 @@
 
 #include "gamesetupmenu.hpp"
 
-#include "gwindow.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
 struct GameSetupMenuControlItem {
     Rect bounds;
@@ -42,41 +43,42 @@ struct GameSetupMenuControlItem {
 
 #define GAME_SETUP_MENU_MISSION_COUNT 12
 
-static struct MenuTitleItem choose_player_menu_titles[] = {
+static struct MenuTitleItem game_setup_menu_titles[] = {
     MENU_TITLE_ITEM_DEF(400, 174, 580, 195, nullptr),
     MENU_TITLE_ITEM_DEF(354, 215, 620, 416, nullptr),
 };
 
 static struct GameSetupMenuControlItem game_setup_menu_controls[] = {
-    MENU_CONTROL_DEF(18, 204, 312, 223, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 224, 312, 243, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 244, 312, 263, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 264, 312, 283, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 284, 312, 303, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 304, 312, 323, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 324, 312, 343, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 344, 312, 363, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 364, 312, 383, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 384, 312, 403, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 404, 312, 423, INVALID_ID, nullptr, 0, GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(16, 438, 0, 0, MNUUAROU, nullptr, 0, GameSetupMenu::EventScrollButton, MBUTT0),
-    MENU_CONTROL_DEF(48, 438, 0, 0, MNUDAROU, nullptr, 0, GameSetupMenu::EventScrollButton, MBUTT0),
-    MENU_CONTROL_DEF(563, 438, 0, 0, MNUUAROU, nullptr, 0, GameSetupMenu::EventBriefingButton, MBUTT0),
-    MENU_CONTROL_DEF(596, 438, 0, 0, MNUDAROU, nullptr, 0, GameSetupMenu::EventBriefingButton, MBUTT0),
-    MENU_CONTROL_DEF(200, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, GameSetupMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(312, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, GameSetupMenu::EventHelp, NHELP0),
-    MENU_CONTROL_DEF(361, 438, 0, 0, MNUBTN6U, "Start", GNW_KB_KEY_RETURN, GameSetupMenu::EventStart, NDONE0),
+    MENU_CONTROL_DEF(18, 184, 312, 203, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 204, 312, 223, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 224, 312, 243, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 244, 312, 263, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 264, 312, 283, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 284, 312, 303, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 304, 312, 323, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 324, 312, 343, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 344, 312, 363, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 364, 312, 383, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 384, 312, 403, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(18, 404, 312, 423, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
+    MENU_CONTROL_DEF(16, 438, 0, 0, MNUUAROU, nullptr, 0, &GameSetupMenu::EventScrollButton, MBUTT0),
+    MENU_CONTROL_DEF(48, 438, 0, 0, MNUDAROU, nullptr, 0, &GameSetupMenu::EventScrollButton, MBUTT0),
+    MENU_CONTROL_DEF(563, 438, 0, 0, MNUUAROU, nullptr, 0, &GameSetupMenu::EventBriefingButton, MBUTT0),
+    MENU_CONTROL_DEF(596, 438, 0, 0, MNUDAROU, nullptr, 0, &GameSetupMenu::EventBriefingButton, MBUTT0),
+    MENU_CONTROL_DEF(200, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, &GameSetupMenu::EventCancel, NCANC0),
+    MENU_CONTROL_DEF(312, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &GameSetupMenu::EventHelp, NHELP0),
+    MENU_CONTROL_DEF(361, 438, 0, 0, MNUBTN6U, "Start", GNW_KB_KEY_RETURN, &GameSetupMenu::EventStart, NDONE0),
 };
 
 static char* menu_setup_menu_mission_titles[GAME_SETUP_MENU_MISSION_COUNT];
 
 static void GameSetupMenu_LoadSubtitleControl(WindowInfo* window) {
-    gwin_load_image2(SUBTITLE, 400, 174, false, window);
+    WindowManager_LoadImage2(SUBTITLE, 400, 174, false, window);
 }
 
 static void GameSetupMenu_DrawBigInfoPanel(WindowInfo* window) {
-    gwin_load_image2(BIGSCRNL, 342, 202, false, window);
-    gwin_load_image2(BIGSCRNR, 482, 174, false, window);
+    WindowManager_LoadImage2(BIGSCRNL, 342, 202, false, window);
+    WindowManager_LoadImage2(BIGSCRNR, 482, 202, false, window);
 }
 
 void GameSetupMenu::ButtonInit(int index) {
@@ -97,8 +99,8 @@ void GameSetupMenu::ButtonInit(int index) {
             Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
                    control->bounds.lry - control->bounds.uly);
     } else {
-        buttons[index] = new (std::nothrow)
-            Button(control->image_id, control->image_id + 1, control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   control->bounds.ulx, control->bounds.uly);
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);
@@ -117,7 +119,7 @@ void GameSetupMenu::ButtonInit(int index) {
 }
 
 void GameSetupMenu::Init(int palette_from_image) {
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     event_click_done = false;
     event_click_cancel = false;
@@ -129,7 +131,7 @@ void GameSetupMenu::Init(int palette_from_image) {
     string_row_index = 0;
 
     mouse_hide();
-    gwin_load_image(MAINPIC, window, window->width, palette_from_image, false);
+    WindowManager_LoadImage(MAINPIC, window, window->width, palette_from_image, false);
 
     switch (game_file_type) {
         case GAME_TYPE_TRAINING:
@@ -149,10 +151,12 @@ void GameSetupMenu::Init(int palette_from_image) {
             break;
     }
 
-    for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
+    for (int i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
         ButtonInit(i);
     }
+
+    text_font(5);
 
     DrawMissionList();
     LoadMissionDescription();
@@ -162,7 +166,7 @@ void GameSetupMenu::Init(int palette_from_image) {
 }
 
 void GameSetupMenu::Deinit() {
-    for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
+    for (int i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
     }
 
@@ -226,7 +230,7 @@ void GameSetupMenu::EventBriefingButton() {
                 --string_row_index;
                 DrawDescriptionPanel();
 
-                while (timer_get_stamp32() - time_stamp < 12428) {
+                while (timer_get_stamp32() - time_stamp < TIMER_FPS_TO_TICKS(96)) {
                 }
 
             } while (string_row_index != row_index);
@@ -245,7 +249,7 @@ void GameSetupMenu::EventBriefingButton() {
                 ++string_row_index;
                 DrawDescriptionPanel();
 
-                while (timer_get_stamp32() - time_stamp < 12428) {
+                while (timer_get_stamp32() - time_stamp < TIMER_FPS_TO_TICKS(96)) {
                 }
 
             } while (string_row_index != row_index);
@@ -258,19 +262,19 @@ void GameSetupMenu::EventCancel() { event_click_cancel = true; }
 void GameSetupMenu::EventHelp() {
     switch (game_file_type) {
         case GAME_TYPE_TRAINING: {
-            HelpMenu_Menu(HELPMENU_TRAINING_MENU_SETUP, GWINDOW_MAIN_WINDOW);
+            HelpMenu_Menu(HELPMENU_TRAINING_MENU_SETUP, WINDOW_MAIN_WINDOW);
         } break;
 
         case GAME_TYPE_SCENARIO: {
-            HelpMenu_Menu(HELPMENU_STAND_ALONE_MENU_SETUP, GWINDOW_MAIN_WINDOW);
+            HelpMenu_Menu(HELPMENU_STAND_ALONE_MENU_SETUP, WINDOW_MAIN_WINDOW);
         } break;
 
         case GAME_TYPE_CAMPAIGN: {
-            HelpMenu_Menu(HELPMENU_CAMPAIGN_MENU, GWINDOW_MAIN_WINDOW);
+            HelpMenu_Menu(HELPMENU_CAMPAIGN_MENU, WINDOW_MAIN_WINDOW);
         } break;
 
         default: {
-            HelpMenu_Menu(HELPMENU_MULTI_SCENARIO_MENU, GWINDOW_MAIN_WINDOW);
+            HelpMenu_Menu(HELPMENU_MULTI_SCENARIO_MENU, WINDOW_MAIN_WINDOW);
         } break;
     }
 }
@@ -335,7 +339,8 @@ void GameSetupMenu::LoadMissionDescription() {
         }
     }
 
-    sprintf(file_name, "%sdescr%i.%s", file_path_text, game_file_number, save_file_tpyes[game_file_type]);
+    sprintf(file_name, "%sdescr%i.%s", ResourceManager_FilePathText, game_file_number,
+            SaveLoadMenu_SaveFileTypes[game_file_type]);
     fp = fopen(file_name, "rt");
 
     if (fp) {
@@ -349,6 +354,9 @@ void GameSetupMenu::LoadMissionDescription() {
     }
 
     text_font(5);
+
+    width = game_setup_menu_titles[1].bounds.lrx - game_setup_menu_titles[1].bounds.ulx;
+    height = game_setup_menu_titles[1].bounds.lry - game_setup_menu_titles[1].bounds.uly;
 
     rows_per_page = height / text_height();
 
@@ -375,8 +383,8 @@ void GameSetupMenu::DrawMissionDescription() {
         }
 
         text_font(5);
-        choose_player_menu_titles[0].title = text;
-        menu_draw_menu_title(window, &choose_player_menu_titles[0], 0x2, true, true);
+        game_setup_menu_titles[0].title = text;
+        menu_draw_menu_title(window, &game_setup_menu_titles[0], 0x2, true, true);
         DrawDescriptionPanel();
     }
 
@@ -399,12 +407,12 @@ void GameSetupMenu::DrawSaveFileTitle(int game_slot, int color) {
 void GameSetupMenu::DrawDescriptionPanel() {
     MenuTitleItem* menu_item;
     int width;
-    char* buffer_position;
+    unsigned char* buffer_position;
     int row_index_max;
 
     GameSetupMenu_DrawBigInfoPanel(window);
 
-    menu_item = &choose_player_menu_titles[1];
+    menu_item = &game_setup_menu_titles[1];
     width = menu_item->bounds.lrx - menu_item->bounds.ulx;
     buffer_position = &window->buffer[menu_item->bounds.ulx + menu_item->bounds.uly * window->width];
 
@@ -432,14 +440,14 @@ int GameSetupMenu::FindNextValidFile(int game_slot) {
     } else {
         SaveFormatHeader save_file_header;
 
+        result = false;
+
         for (int i = game_slot; i < game_slot + GAME_SETUP_MENU_MISSION_COUNT; ++i) {
             if (SaveLoadMenu_GetSavedGameInfo(i, game_file_type, save_file_header, false)) {
                 result = true;
                 break;
             }
         }
-
-        result = false;
     }
 
     return result;

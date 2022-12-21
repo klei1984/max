@@ -24,34 +24,54 @@
 
 #include "reminders.hpp"
 #include "smartlist.hpp"
-#include "tasks.hpp"
+#include "task.hpp"
+#include "taskobtainunits.hpp"
 #include "unitinfo.hpp"
 
-int Taskmanager_sub_45F65(int distance_x, int distance_y);
-int TaskManager_sub_4601A(UnitInfo* unit1, UnitInfo* unit2);
+int TaskManager_GetDistance(int distance_x, int distance_y);
+int TaskManager_GetDistance(Point point1, Point point2);
+int TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2);
+
+bool TaskManager_NeedToReserveRawMaterials(unsigned short team);
 
 class TaskManager {
-    SmartList<Task> tasklist;
-    SmartList<TaskObtainUnits> taskobtainunitslist;
-    SmartList<Reminder> reminderlist_0;
-    SmartList<Reminder> reminderlist_1;
-    SmartList<UnitInfo> unitinfolist;
-    unsigned short field_44;
+    SmartList<Task> tasks;
+    SmartList<TaskObtainUnits> unit_requests;
+    SmartList<Reminder> normal_reminders;
+    SmartList<Reminder> priority_reminders;
+    SmartList<UnitInfo> units;
+    unsigned short reminder_counter;
+
+    bool IsUnitNeeded(ResourceID unit_type, unsigned short team, unsigned short flags);
 
 public:
     TaskManager();
     ~TaskManager();
 
-    void AddReminder(Reminder* reminder, bool priority = false);
-    void AddTask(Task& task);
+    unsigned int CalcMemoryUsage();
+    void CheckComputerReactions();
+    void EnumeratePotentialAttackTargets(UnitInfo* unit);
+    void AppendUnit(UnitInfo& unit);
+    void CreateBuilding(ResourceID unit_type, unsigned short team, Point site, Task* task);
+    void CreateUnit(ResourceID unit_type, unsigned short team, Point site, Task* task);
+    void ManufactureUnits(ResourceID unit_type, unsigned short team, int requested_amount, Task* task, Point site);
+    void AppendTask(Task& task);
+    void AppendReminder(Reminder* reminder, bool priority = false);
+    bool ExecuteReminders();
+    void BeginTurn(unsigned short team);
+    void EndTurn(unsigned short team);
+    void ChangeFlagsSet(unsigned short team);
+    void Clear();
+    void RemindAvailable(UnitInfo* unit, bool priority = false);
+    void FindTaskForUnit(UnitInfo* unit);
     void RemoveTask(Task& task);
-
-    void TaskManager_sub_44954(ResourceID unit_type, unsigned short team, Point point, Task* task);
-    void TaskManager_sub_449D0(ResourceID unit_type, unsigned short team, Point point, Task* task);
-    void TaskManager_sub_44A73(ResourceID unit_type, unsigned short team, int requested_amount, Task* task,
-                               Point point);
+    void ProcessTasks1(UnitInfo* unit);
+    void ProcessTasks2(UnitInfo* unit);
+    int GetRemindersCount() const;
+    SmartList<Task>& GetTaskList();
 };
 
 extern class TaskManager TaskManager;
+extern unsigned short TaskManager_word_1731C0;
 
 #endif /* TASK_MANAGER_HPP */

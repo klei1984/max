@@ -25,7 +25,7 @@
 #include "button.hpp"
 #include "smartstring.hpp"
 
-#define GAME_CONFIG_MENU_ITEM_COUNT 19
+#define GAME_SETUP_MENU_ITEM_COUNT 19
 
 class GameSetupMenu;
 
@@ -49,8 +49,8 @@ public:
     bool event_click_done;
     bool event_click_cancel;
     int key;
-    Button *buttons[GAME_CONFIG_MENU_ITEM_COUNT];
-    GameSetupMenuItem menu_item[GAME_CONFIG_MENU_ITEM_COUNT];
+    Button *buttons[GAME_SETUP_MENU_ITEM_COUNT];
+    GameSetupMenuItem menu_item[GAME_SETUP_MENU_ITEM_COUNT];
     int game_index_first_on_page;
     int game_count;
     int game_file_number;

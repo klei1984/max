@@ -22,19 +22,33 @@
 #ifndef TRANSPORT_HPP
 #define TRANSPORT_HPP
 
-class Transport {
-    bool NetState;
-    const char* LastError;
-    void SetError(const char* error);
+#include "net_packet.hpp"
 
-public:
-    Transport();
-    ~Transport();
+#define TRANSPORT_MAX_TEAM_COUNT 4
+#define TRANSPORT_MAX_PACKET_SIZE 1440
 
-    const char* GetError();
-
-    bool Init();
-    bool Deinit();
+enum {
+    TRANSPORT_DEFAULT_UDP,
 };
+
+enum {
+    TRANSPORT_SERVER,
+    TRANSPORT_CLIENT,
+};
+
+class Transport {
+public:
+    virtual ~Transport(){};
+    virtual const char* GetError() const = 0;
+    virtual bool Init(int mode) = 0;
+    virtual bool Deinit() = 0;
+    virtual bool Connect() = 0;
+    virtual bool Disconnect() = 0;
+    virtual bool TransmitPacket(NetPacket& packet) = 0;
+    virtual bool ReceivePacket(NetPacket& packet) = 0;
+    virtual void SetSessionId(unsigned short session_id) = 0;
+};
+
+Transport* Transport_Create(int type);
 
 #endif /* TRANSPORT_HPP */

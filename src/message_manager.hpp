@@ -30,9 +30,8 @@ void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Poi
 void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag1 = false, bool save_to_log = false);
 void MessageManager_DrawMessageBox();
 void MessageManager_ClearMessageBox();
-/// \todo Fix WindowInfo includes
-// void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, int width, int left_margin,
-//                                    int top_margin, char* text, int color, bool screen_refresh);
+void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, int width, int left_margin,
+                                    int top_margin, char* text, int color, bool screen_refresh);
 void MessageManager_LoadMessageLogs(SmartFileReader& file);
 void MessageManager_SaveMessageLogs(SmartFileWriter& file);
 void MessageManager_ClearMessageLogs();
@@ -42,7 +41,7 @@ class MessageLogEntry : public SmartObject {
     char* text;
     SmartPointer<UnitInfo> unit;
     Point point;
-    bool field_20;
+    bool is_alert_message;
 
 public:
     MessageLogEntry(SmartFileReader& file);
@@ -53,8 +52,14 @@ public:
 
     void FileSave(SmartFileWriter& file);
 
-    char* GetCstr() const;
-    void MessageLogEntry_sub_B780B();
+    UnitInfo* GetUnit() const;
+    Point GetPosition() const;
+    char* GetCStr() const;
+    ResourceID GetIcon() const;
+    void Select();
 };
+
+extern bool MessageManager_MessageBox_IsActive;
+extern SmartList<MessageLogEntry> MessageManager_TeamMessageLog[PLAYER_TEAM_MAX - 1];
 
 #endif /* MESSAGE_MANAGER_HPP */

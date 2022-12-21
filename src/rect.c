@@ -213,3 +213,16 @@ int rect_inside_bound(Rect *r1, Rect *bound, Rect *r2) {
 
     return result;
 }
+
+Rect *rect_init(Rect *r, int ulx, int uly, int lrx, int lry) {
+    r->ulx = ulx;
+    r->uly = uly;
+    r->lrx = lrx;
+    r->lry = lry;
+
+    return r;
+}
+
+int rect_get_width(Rect *r) { return r->lrx - r->ulx; }
+
+int rect_get_height(Rect *r) { return r->lry - r->uly; }

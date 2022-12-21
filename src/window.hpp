@@ -24,10 +24,7 @@
 
 #include "enums.hpp"
 #include "events.hpp"
-
-extern "C" {
 #include "gnw.h"
-}
 
 class Window {
     WinID window_id;
@@ -36,7 +33,7 @@ class Window {
     short width;
     short height;
     unsigned int flags;
-    unsigned short resource_id;
+    ResourceID resource_id;
     bool palette_from_image;
 
 public:
@@ -50,7 +47,9 @@ public:
     void GetCursorPosition(int& x, int& y) const;
     void SetFlags(unsigned int flags);
     void SetPaletteMode(bool palette_from_image);
-    virtual bool EventHandler(Event& event);
+    virtual bool EventHandler(Event* event);
+    WinID GetId() const;
+    void ResetId();
 };
 
 #endif /* WINDOW_HPP */

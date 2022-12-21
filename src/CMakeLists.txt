@@ -1,15 +1,11 @@
 file(GLOB LOCAL_GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 set(LOCAL_GAME_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/game.c
     ${CMAKE_CURRENT_SOURCE_DIR}/color.c
     ${CMAKE_CURRENT_SOURCE_DIR}/kb.c
     ${CMAKE_CURRENT_SOURCE_DIR}/mouse.c
     ${CMAKE_CURRENT_SOURCE_DIR}/button.c
     ${CMAKE_CURRENT_SOURCE_DIR}/timer.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sound.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/svga.c
     ${CMAKE_CURRENT_SOURCE_DIR}/dos.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/resrcmgr.c
     ${CMAKE_CURRENT_SOURCE_DIR}/rect.c
 	${CMAKE_CURRENT_SOURCE_DIR}/text.c
 	${CMAKE_CURRENT_SOURCE_DIR}/vcr.c
@@ -21,33 +17,34 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/db.c
 	${CMAKE_CURRENT_SOURCE_DIR}/gnw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/mvelib32.c
-	${CMAKE_CURRENT_SOURCE_DIR}/movie.c
-	${CMAKE_CURRENT_SOURCE_DIR}/ipx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/crc16.c
-	${CMAKE_CURRENT_SOURCE_DIR}/ini.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/svga.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/screendump.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ini.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/inifile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/flicsmgr.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/ginit.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/gwindow.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/screendump.c
-	${CMAKE_CURRENT_SOURCE_DIR}/gimage.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/gbutton.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/soundmgr.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/movie.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartstring.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartfile.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/unitvalues.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/complex.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unitvalues.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitinfo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unitinfogroup.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/registerarray.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/textfile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/units_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/teamunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/enums.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/window_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/resource_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/menulandingsequence.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/game_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sound_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/maphashlist.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/hash.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/image.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/button.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/buttonmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/fonts.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scrollbar.cpp
@@ -56,20 +53,127 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/cursor.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/cargo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/text.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/textedit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/drawmap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/color.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/desyncmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transfermenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/dialogmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/helpmenu.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/gui.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gameconfigmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/clanselectmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/planetselectmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/chooseplayermenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gamesetupmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/optionsmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/chatmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gfx.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/reportstats.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/allocmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/repairshopmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/reportmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unitstats.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unittypeselector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/upgradecontrol.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/researchmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/abstractupgrademenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/upgrademenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/cargoselector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/purchasetypeselector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/teammissionsupplies.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/cargomenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/buildmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/message_manager.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/tasks.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/defense_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/task.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskabstractsearch.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskactivate.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskautosurvey.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskcheckassaults.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskassistmove.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskattack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskattackreserve.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskclearzone.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskconnectionassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskcreate.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskcreatebuilding.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskcreateunit.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskdefenseassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskdefensereserve.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskdump.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskescort.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskexplore.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskfindmines.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskfindpath.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontalattack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskfrontierassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskgetresource.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskhabitatassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskkillunit.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskgetmaterials.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskmanagebuildings.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskmineassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskmove.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskmovehome.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskobtainunits.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskplacemines.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskpowerassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskradarassistant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskreload.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskremovemines.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskremoverubble.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskrendezvous.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskrepair.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskretreat.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskscavenge.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tasksearchdestination.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tasksupportattack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tasksurvey.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tasktransport.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskupdateterrain.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskupgrade.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskwaittoattack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unitevents.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/task_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/zone.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/networkmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/net_packet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transport.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/transport_udp_default.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/remote.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/menu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/winloss.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/access.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/survey.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/searcher.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/paths_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/production_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/accessmap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/transportermap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/transportorder.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/maxfloodfill.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/pathfill.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sitemarker.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/continentfiller.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/continent.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/weighttable.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/spottedunit.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/circumferencewalker.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/zonewalker.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/threatmap.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/terrainmap.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/pathrequest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/taskpathrequest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/adjustrequest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/aiattack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/aiplayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 

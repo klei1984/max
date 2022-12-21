@@ -27,27 +27,29 @@
 
 struct ResearchTopic {
     unsigned int research_level;
-    unsigned int turns_to_complete;
+    int turns_to_complete;
     unsigned int allocation;
 };
 
+struct ScreenLocation {
+    signed char x;
+    signed char y;
+};
+
 struct CTInfo {
-    char field_0[40];
+    Point markers[10];
     char team_type;
     char field_41;
-    char unit_counters[93];
+    char unit_counters[UNIT_END];
     char team_clan;
-    ResearchTopic research_topics[8];
+    ResearchTopic research_topics[RESEARCH_TOPIC_COUNT];
     unsigned int team_points;
     unsigned short number_of_objects_created;
-    unsigned char camera_position_x_saved;
-    unsigned char camera_position_y_saved;
-    char field_240[10];
+    ScreenLocation screen_location[6];
     TeamUnits *team_units;
     SmartPointer<UnitInfo> selected_unit;
     unsigned short zoom_level;
-    unsigned short camera_position_x;
-    unsigned short camera_position_y;
+    Point camera_position;
     char display_button_range;
     char display_button_scan;
     char display_button_status;
@@ -65,7 +67,7 @@ struct CTInfo {
     short stats_units_built;
     short stats_gold_spent_on_upgrades;
     short score_graph[50];
-    unsigned short casulties[93];
+    unsigned short casualties[UNIT_END];
     char *heat_map_complete;
     char *heat_map_stealth_sea;
     char *heat_map_stealth_land;

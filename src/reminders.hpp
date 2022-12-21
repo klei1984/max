@@ -23,16 +23,16 @@
 #define REMINDERS_HPP
 
 #include "smartpointer.hpp"
-#include "tasks.hpp"
+#include "task.hpp"
 
 class Reminder : public SmartObject {
 public:
     Reminder();
     virtual ~Reminder();
 
-    virtual void Reminder_vfunc1() = 0;
-    virtual int Reminder_vfunc2() = 0;
-    virtual int Reminder_vfunc3() = 0;
+    virtual void Execute() = 0;
+    virtual int GetType() = 0;
+    virtual int GetMemoryUse() const = 0;
 };
 
 class RemindTurnStart : public Reminder {
@@ -42,9 +42,9 @@ public:
     RemindTurnStart(Task& task);
     ~RemindTurnStart();
 
-    void Reminder_vfunc1();
-    int Reminder_vfunc2();
-    int Reminder_vfunc3();
+    void Execute();
+    int GetType();
+    int GetMemoryUse() const;
 };
 
 class RemindTurnEnd : public Reminder {
@@ -54,9 +54,9 @@ public:
     RemindTurnEnd(Task& task);
     ~RemindTurnEnd();
 
-    void Reminder_vfunc1();
-    int Reminder_vfunc2();
-    int Reminder_vfunc3();
+    void Execute();
+    int GetType();
+    int GetMemoryUse() const;
 };
 
 class RemindAvailable : public Reminder {
@@ -66,9 +66,9 @@ public:
     RemindAvailable(UnitInfo& unit);
     ~RemindAvailable();
 
-    void Reminder_vfunc1();
-    int Reminder_vfunc2();
-    int Reminder_vfunc3();
+    void Execute();
+    int GetType();
+    int GetMemoryUse() const;
 };
 
 class RemindMoveFinished : public Reminder {
@@ -78,9 +78,9 @@ public:
     RemindMoveFinished(UnitInfo& new_unit);
     ~RemindMoveFinished();
 
-    void Reminder_vfunc1();
-    int Reminder_vfunc2();
-    int Reminder_vfunc3();
+    void Execute();
+    int GetType();
+    int GetMemoryUse() const;
 };
 
 class RemindAttack : public Reminder {
@@ -90,9 +90,9 @@ public:
     RemindAttack(UnitInfo& unit);
     ~RemindAttack();
 
-    void Reminder_vfunc1();
-    int Reminder_vfunc2();
-    int Reminder_vfunc3();
+    void Execute();
+    int GetType();
+    int GetMemoryUse() const;
 };
 
 #endif /* REMINDERS_HPP */

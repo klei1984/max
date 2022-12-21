@@ -22,24 +22,22 @@
 #include "dialogmenu.hpp"
 
 #include "cursor.hpp"
-#include "gui.hpp"
-#include "gwindow.hpp"
+#include "game_manager.hpp"
+#include "gnw.h"
 #include "remote.hpp"
 #include "text.hpp"
-
-extern "C" {
-#include "gnw.h"
-}
+#include "units_manager.hpp"
+#include "window_manager.hpp"
 
 void DialogMenu::DrawText() {
-    char* buffer;
+    unsigned char* buffer;
     int height;
     int num_rows;
     int row_width;
 
     canvas->Write(&window);
 
-    buffer = reinterpret_cast<char*>(&window.buffer[window.width * 14 + 20]);
+    buffer = &window.buffer[window.width * 14 + 20];
     height = text_height() * row_count;
 
     if (height < 175) {
@@ -65,9 +63,8 @@ void DialogMenu::DrawText() {
             row_width = (265 - row_width) / 2;
         }
 
-        text_to_buf(
-            reinterpret_cast<unsigned char*>(&buffer[row_width + ((i - row_offset) * text_height()) * window.width]),
-            strings[i].GetCStr(), 265, window.width, 0x100FF);
+        text_to_buf(&buffer[row_width + ((i - row_offset) * text_height()) * window.width], strings[i].GetCStr(), 265,
+                    window.width, 0x100FF);
     }
 
     win_draw_rect(window.id, &window.window);
@@ -96,8 +93,7 @@ bool DialogMenu::ProcessKey(int key) {
                     --row_offset;
                     DrawText();
 
-                    while (timer_get_stamp32() - time_Stamp < 12428) {
-                        ;
+                    while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(96)) {
                     }
                 } while (num_rows != row_offset);
             }
@@ -121,8 +117,7 @@ bool DialogMenu::ProcessKey(int key) {
                     ++row_offset;
                     DrawText();
 
-                    while (timer_get_stamp32() - time_Stamp < 12428) {
-                        ;
+                    while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(96)) {
                     }
                 } while (num_rows != row_offset);
             }
@@ -145,8 +140,8 @@ bool DialogMenu::ProcessKey(int key) {
 }
 
 DialogMenu::DialogMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, GUI_GameState == GAME_STATE_3_MAIN_MENU ? GWINDOW_MAIN_WINDOW : GWINDOW_38),
-      field_62(GUI_GameState != GAME_STATE_3_MAIN_MENU),
+    : Window(HELPFRAM, GameManager_GameState == GAME_STATE_3_MAIN_MENU ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
+      field_62(GameManager_GameState != GAME_STATE_3_MAIN_MENU),
       strings(nullptr),
       row_offset(0),
       button_up(nullptr),
@@ -206,15 +201,30 @@ void DialogMenu::Run() {
 
         ProcessKey(key);
 
-        /// \todo Implement missing stuff
         if (Remote_IsNetworkGame) {
-            if (Remote_sub_C8835()) {
-                // sub_102CB8();
+            if (Remote_ProcessFrame()) {
+                UnitsManager_ProcessRemoteOrders();
             }
         } else {
             if (field_62) {
-                // sub_A0E32(1, 1);
+                GameManager_ProcessState(true);
             }
         }
+    }
+}
+
+void DialogMenu::RunMenu() {
+    event_click_ok = false;
+
+    while (!event_click_ok) {
+        int key = get_input();
+
+        if (Remote_IsNetworkGame) {
+            if (Remote_CheckUnpauseEvent()) {
+                key = GNW_KB_KEY_ESCAPE;
+            }
+        }
+
+        ProcessKey(key);
     }
 }

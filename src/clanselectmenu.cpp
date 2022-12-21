@@ -21,10 +21,10 @@
 
 #include "clanselectmenu.hpp"
 
-#include "gwindow.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "window_manager.hpp"
 
 struct ClanSelectMenuControlItem {
     Rect bounds;
@@ -52,33 +52,33 @@ static struct MenuTitleItem clan_select_menu_clan_icons[] = {
 };
 
 static struct ClanSelectMenuControlItem clan_select_menu_controls[] = {
-    MENU_CONTROL_DEF(46, 44, 0, 0, CH_CN1_U, nullptr, 0, ClanSelectMenu::ClanSelection, CCHOS0),
-    MENU_CONTROL_DEF(201, 44, 0, 0, CH_CN2_U, nullptr, 0, ClanSelectMenu::ClanSelection, CCRIM0),
-    MENU_CONTROL_DEF(355, 44, 0, 0, CH_CN3_U, nullptr, 0, ClanSelectMenu::ClanSelection, CVONG0),
-    MENU_CONTROL_DEF(510, 44, 0, 0, CH_CN4_U, nullptr, 0, ClanSelectMenu::ClanSelection, CAYER0),
-    MENU_CONTROL_DEF(46, 44, 0, 0, CH_CN5_U, nullptr, 0, ClanSelectMenu::ClanSelection, CMUSA0),
-    MENU_CONTROL_DEF(201, 44, 0, 0, CH_CN6_U, nullptr, 0, ClanSelectMenu::ClanSelection, CSACR0),
-    MENU_CONTROL_DEF(355, 44, 0, 0, CH_CN7_U, nullptr, 0, ClanSelectMenu::ClanSelection, CKNIG0),
-    MENU_CONTROL_DEF(510, 44, 0, 0, CH_CN8_U, nullptr, 0, ClanSelectMenu::ClanSelection, CAXIS0),
-    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, "Random", 0, ClanSelectMenu::EventRandom, CRAND0),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, ClanSelectMenu::EventCancel, CCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, ClanSelectMenu::EventHelp, CHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, ClanSelectMenu::EventDone, CDONE0),
+    MENU_CONTROL_DEF(46, 44, 0, 0, CH_CN1_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CCHOS0),
+    MENU_CONTROL_DEF(201, 44, 0, 0, CH_CN2_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CCRIM0),
+    MENU_CONTROL_DEF(355, 44, 0, 0, CH_CN3_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CVONG0),
+    MENU_CONTROL_DEF(510, 44, 0, 0, CH_CN4_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CAYER0),
+    MENU_CONTROL_DEF(46, 194, 0, 0, CH_CN5_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CMUSA0),
+    MENU_CONTROL_DEF(201, 194, 0, 0, CH_CN6_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CSACR0),
+    MENU_CONTROL_DEF(355, 194, 0, 0, CH_CN7_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CKNIG0),
+    MENU_CONTROL_DEF(510, 194, 0, 0, CH_CN8_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CAXIS0),
+    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, "Random", 0, &ClanSelectMenu::EventRandom, CRAND0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, &ClanSelectMenu::EventCancel, CCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &ClanSelectMenu::EventHelp, CHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, &ClanSelectMenu::EventDone, CDONE0),
 };
 
 void ClanSelectMenu::Init(int team) {
     ButtonID button_list[8];
 
-    window = gwin_get_window(GWINDOW_MAIN_WINDOW);
+    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
-    team_clan_ini_id = INI_RED_TEAM_CLAN + team;
+    team_clan_ini_id = static_cast<IniParameter>(INI_RED_TEAM_CLAN + team);
     team_clan = ini_get_setting(team_clan_ini_id);
     team_clan_selection = team_clan;
     image = nullptr;
     event_click_done_cancel_random = false;
 
     mouse_hide();
-    gwin_load_image(CLANSEL, window, window->width, false, false);
+    WindowManager_LoadImage(CLANSEL, window, window->width, false, false);
 
     for (int i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
         ButtonInit(i, i <= 7);
@@ -128,24 +128,24 @@ void ClanSelectMenu::EventRandom() {
 
 void ClanSelectMenu::EventCancel() { event_click_done_cancel_random = true; }
 
-void ClanSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_CLAN_SETUP, GWINDOW_MAIN_WINDOW); }
+void ClanSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_CLAN_SETUP, WINDOW_MAIN_WINDOW); }
 
 void ClanSelectMenu::ButtonInit(int index, int mode) {
-    struct ClanSelectMenuControlItem* control = clan_select_menu_controls[index];
+    struct ClanSelectMenuControlItem* control = &clan_select_menu_controls[index];
 
     text_font(1);
 
     if (index >= 0 && index <= 7) {
-        buttons[index] = new (std::nothrow)
-            Button(control->image_id, control->image_id + 1, control->bounds.ulx, control->bounds.uly);
-        buttons[index]->Copy(CLN1LOGO + index, 41, 40);
+        buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   control->bounds.ulx, control->bounds.uly);
+        buttons[index]->Copy(static_cast<ResourceID>(CLN1LOGO + index), 41, 40);
     } else if (control->image_id == INVALID_ID) {
         buttons[index] = new (std::nothrow)
             Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
                    control->bounds.lry - control->bounds.uly);
     } else {
-        buttons[index] = new (std::nothrow)
-            Button(control->image_id, control->image_id + 1, control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   control->bounds.ulx, control->bounds.uly);
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);

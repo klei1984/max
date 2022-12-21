@@ -25,30 +25,100 @@
 #include <cstdio>
 
 #include "enums.hpp"
+#include "gnw.h"
+#include "point.hpp"
 
-struct SpriteHeader {
+extern "C" {
+
+#define RESOURCE_MANAGER_MAP_TILE_SIZE 64
+
+struct ImageSimpleHeader {
+    short width;
+    short height;
+    short ulx;
+    short uly;
+    unsigned char data[];
+};
+
+struct ImageBigHeader {
     short ulx;
     short uly;
     short width;
     short height;
-    char data[];
+    Color palette[3 * PALETTE_SIZE];
+    unsigned char data[];
 };
 
-struct SpriteMeta {
-    short ulx;
-    short uly;
+struct ImageMultiFrameHeader {
     short width;
     short height;
-    unsigned char palette[768];
-    char data[];
+    short hotx;
+    short hoty;
+    unsigned int *rows;
 };
 
-unsigned char ResourceManager_Init();
-char *ResourceManager_LoadResource(ResourceID id);
+struct ImageMultiHeader {
+    unsigned short image_count;
+    struct ImageMultiFrameHeader *frames[];
+};
+
+extern char ResourceManager_FilePathCd[PATH_MAX];
+extern char ResourceManager_FilePathGameInstall[PATH_MAX];
+extern char ResourceManager_FilePathGameResFile[PATH_MAX];
+extern char ResourceManager_FilePathMovie[PATH_MAX];
+extern char ResourceManager_FilePathText[PATH_MAX];
+extern char ResourceManager_FilePathFlc[PATH_MAX];
+extern char ResourceManager_FilePathVoiceSpw[PATH_MAX];
+extern char ResourceManager_FilePathSfxSpw[PATH_MAX];
+extern char ResourceManager_FilePathMsc[PATH_MAX];
+
+extern bool ResourceManager_IsMaxDdInUse;
+extern bool ResourceManager_DisableEnhancedGraphics;
+
+extern ColorIndex *ResourceManager_TeamRedColorIndexTable;
+extern ColorIndex *ResourceManager_TeamGreenColorIndexTable;
+extern ColorIndex *ResourceManager_TeamBlueColorIndexTable;
+extern ColorIndex *ResourceManager_TeamGrayColorIndexTable;
+extern ColorIndex *ResourceManager_TeamDerelictColorIndexTable;
+extern ColorIndex *ResourceManager_ColorIndexTable06;
+extern ColorIndex *ResourceManager_ColorIndexTable07;
+extern ColorIndex *ResourceManager_ColorIndexTable08;
+extern ColorIndex *ResourceManager_ColorIndexTable09;
+extern ColorIndex *ResourceManager_ColorIndexTable10;
+extern ColorIndex *ResourceManager_ColorIndexTable11;
+extern ColorIndex *ResourceManager_ColorIndexTable12;
+extern ColorIndex *ResourceManager_ColorIndexTable13x8;
+
+extern unsigned char *ResourceManager_MinimapFov;
+extern unsigned char *ResourceManager_Minimap;
+extern unsigned char *ResourceManager_Minimap2x;
+
+extern unsigned short *ResourceManager_MapTileIds;
+extern unsigned char *ResourceManager_MapTileBuffer;
+extern unsigned char *ResourceManager_MapSurfaceMap;
+extern unsigned short *ResourceManager_CargoMap;
+
+extern Point ResourceManager_MapSize;
+
+void ResourceManager_InitPaths(int argc, char *argv[]);
+void ResourceManager_InitResources();
+void ResourceManager_ExitGame(int error_code);
+ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bool full_scan);
+unsigned char *ResourceManager_ReadResource(ResourceID id);
+unsigned char *ResourceManager_LoadResource(ResourceID id);
 unsigned int ResourceManager_GetResourceSize(ResourceID id);
-int ResourceManager_ReadImageHeader(ResourceID id, struct SpriteMeta *buffer);
+int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer);
 int ResourceManager_GetResourceFileID(ResourceID id);
 const char *ResourceManager_GetResourceID(ResourceID id);
+void ResourceManager_Realloc(ResourceID id, unsigned char *buffer, int data_size);
 FILE *ResourceManager_GetFileHandle(ResourceID id);
+void ResourceManager_InitInGameAssets(int world);
+char *ResourceManager_ToUpperCase(char *cstr);
+void ResourceManager_FreeResources();
+void ResourceManager_InitClanUnitValues(unsigned short team);
+void ResourceManager_InitHeatMaps(unsigned short team);
+void ResourceManager_InitTeamInfo();
+unsigned char *ResourceManager_GetBuffer(ResourceID id);
+}
 
 #endif /* RESOURCE_MANAGER_HPP */

@@ -21,11 +21,9 @@
 
 #include "textfile.hpp"
 
-#include "registerarray.hpp"
-
-extern "C" {
 #include "gnw.h"
-}
+#include "message_manager.hpp"
+#include "registerarray.hpp"
 
 #ifdef __unix__
 #define stricmp strcasecmp
@@ -55,7 +53,7 @@ SmartString BuildErrorMessage(const char* error_message, const char* error_log, 
                               unsigned short column) {
     SmartString log;
 
-    log.Vsprintf(80, "Error in line %li, column %i:\n", line, column);
+    log.Sprintf(80, "Error in line %li, column %i:\n", line, column);
     log += error_message;
     if (log[log.GetLength() - 1] != '\n') {
         log += '\n';
@@ -75,7 +73,7 @@ void TextItem::DrawErrorMessage(const char* error_message) {
     SDL_TriggerBreakpoint();
 
     SmartString string = BuildErrorMessage(error_message, error.error_message.GetCStr(), error.line, error.column);
-    /// \todo    draw_message(string.GetCStr(), 2, 1);
+    MessageManager_DrawMessage(string.GetCStr(), 2, 1);
 }
 
 TextItem::TextItem(SmartString& text, ErrorLogEntry& error) : text(text), error(error) {}
@@ -402,7 +400,7 @@ void SmartTextfileWriter::WriteInt(const char* field, int value) {
 
     WriteAlignment();
     fputs(field, file);
-    fputs(string.Vsprintf(15, " = %i\n", value).GetCStr(), file);
+    fputs(string.Sprintf(15, " = %i\n", value).GetCStr(), file);
 }
 
 void SmartTextfileWriter::WritePointer(const char* field, TextFileObject* object) {
@@ -553,7 +551,7 @@ bool SmartTextfileReader::Seek() {
     return current_character != -1;
 }
 
-char SmartTextfileReader::GetCurrentCharacter() { return '0'; }
+char SmartTextfileReader::GetCurrentCharacter() { return current_character; }
 
 SmartPointer<TextItem> SmartTextfileReader::ReadNext() {
     SmartString string;
@@ -591,7 +589,7 @@ void SmartTextfileReader::FatalError(const char* format, ...) {
     reset_mode();
 
     va_start(args, format);
-    string.Vsprintf(300, format, args);
+    string.Sprintf(300, format, args);
     va_end(args);
 
     SmartString message = BuildErrorMessage(string.GetCStr(), log.error_message.GetCStr(), log.line, log.column);
@@ -607,11 +605,11 @@ void SmartTextfileReader::DrawErrorMessage(const char* format, ...) {
     SDL_TriggerBreakpoint();
 
     va_start(args, format);
-    string.Vsprintf(300, format, args);
+    string.Sprintf(300, format, args);
     va_end(args);
 
     SmartString message = BuildErrorMessage(string.GetCStr(), log.error_message.GetCStr(), log.line, log.column);
-    /// \todo    draw_message(message.GetCStr(), 2, 1);
+    MessageManager_DrawMessage(message.GetCStr(), 2, 1);
 }
 
 bool SmartTextfileReader::ReadIdentifier(SmartString& string) {
@@ -678,7 +676,8 @@ SmartPointer<TextItem> SmartTextfileReader::ReadField(SmartString& field) {
                 ReadNextCharacter();
             }
 
-            return SmartPointer<TextItem>(new (std::nothrow) TextInteger(field, error_log, strtol(string.GetCStr(), nullptr, 10)));
+            return SmartPointer<TextItem>(new (std::nothrow)
+                                              TextInteger(field, error_log, strtol(string.GetCStr(), nullptr, 10)));
         }
     }
 

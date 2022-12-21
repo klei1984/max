@@ -22,6 +22,8 @@
 #ifndef CARGO_HPP
 #define CARGO_HPP
 
+#include "enums.hpp"
+
 class UnitInfo;
 
 struct Cargo {
@@ -32,14 +34,29 @@ struct Cargo {
     short fuel;
     short power;
     short life;
-    short field_10;
+    short free_capacity;
 
     void Init();
 
     friend Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo);
     friend Cargo* Cargo_GetCargoCapacity(UnitInfo* unit, Cargo* cargo);
+    friend Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order);
 
     Cargo& operator+=(Cargo const& other);
+    Cargo& operator-=(Cargo const& other);
+
+    int Get(int type) const;
 };
+
+Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo);
+Cargo* Cargo_GetCargoCapacity(UnitInfo* unit, Cargo* cargo);
+Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order = false);
+
+int Cargo_GetRawConsumptionRate(ResourceID unit_type, int speed_multiplier);
+int Cargo_GetFuelConsumptionRate(ResourceID unit_type);
+int Cargo_GetPowerConsumptionRate(ResourceID unit_type);
+int Cargo_GetLifeConsumptionRate(ResourceID unit_type);
+int Cargo_GetGoldConsumptionRate(ResourceID unit_type);
+void Cargo_UpdateResourceLevels(UnitInfo* unit, int factor);
 
 #endif /* CARGO_HPP */

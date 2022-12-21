@@ -83,19 +83,6 @@ class SmartList {
     SmartPointer<ListNode<T>> first;
     SmartPointer<ListNode<T>> last;
 
-    ListNode<T>* Find(T& object) {
-        ListNode<T>* result = nullptr;
-
-        for (Iterator it = Begin(); it != End(); ++it) {
-            if (&*it == &object) {
-                result = &it.GetNode();
-                break;
-            }
-        }
-
-        return result;
-    }
-
     void Erase(ListNode<T>& position) {
         if (position.prev == nullptr) {
             if (first != position) {
@@ -144,21 +131,21 @@ public:
     class Iterator : public SmartPointer<ListNode<T>> {
         friend class SmartList;
 
-        Iterator(ListNode<T>* object) : SmartPointer<ListNode<T>>(object) {}
-        Iterator() : SmartPointer<ListNode<T>>(nullptr) {}
-
         ListNode<T>& GetNode() const { return *this->object_pointer; }
 
     public:
+        Iterator() : SmartPointer<ListNode<T>>(nullptr) {}
+        Iterator(ListNode<T>* object) : SmartPointer<ListNode<T>>(object) {}
+
         T& operator*() const { return *(this->object_pointer->GetObject()); }
 
         Iterator& operator++() {
-            SmartPointer<ListNode<T>>::operator=(this->object_pointer->next);
+            SmartPointer<ListNode<T>>::operator=(&*this->object_pointer->next);
             return *this;
         }
 
         Iterator& operator--() {
-            SmartPointer<ListNode<T>>::operator=(this->object_pointer->prev);
+            SmartPointer<ListNode<T>>::operator=(&*this->object_pointer->prev);
             return *this;
         }
     };
@@ -174,6 +161,8 @@ public:
     ~SmartList() { Clear(); }
 
     Iterator Begin() const { return Iterator(&*first); }
+
+    Iterator Last() const { return Iterator(&*last); }
 
     Iterator End() const {
         ListNode<T>* end = &*last;
@@ -233,6 +222,19 @@ public:
                 last = it;
             }
         }
+    }
+
+    ListNode<T>* Find(T& object) {
+        ListNode<T>* result = nullptr;
+
+        for (Iterator it = Begin(); it != End(); ++it) {
+            if (&*it == &object) {
+                result = &it.GetNode();
+                break;
+            }
+        }
+
+        return result;
     }
 
     bool Remove(T& object) {

@@ -33,13 +33,13 @@ Image::Image(short ulx, short uly, short width, short height)
       uly(uly),
       width(width),
       height(height),
-      data(new (std::nothrow) char[width * height]),
+      data(new (std::nothrow) unsigned char[width * height]),
       allocated(true) {}
 
 Image::Image(ResourceID id, short ulx, short uly) {
-    struct SpriteHeader *sprite;
+    struct ImageSimpleHeader *sprite;
 
-    sprite = reinterpret_cast<SpriteHeader *>(ResourceManager_LoadResource(id));
+    sprite = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(id));
     SDL_assert(sprite);
 
     if (ulx < 0) {
@@ -68,7 +68,7 @@ Image::~Image() {
     }
 }
 
-char *Image::GetData() const { return data; }
+unsigned char *Image::GetData() const { return data; }
 
 short Image::GetULX() const { return ulx; }
 
@@ -79,35 +79,35 @@ short Image::GetWidth() const { return width; }
 short Image::GetHeight() const { return height; }
 
 void Image::Allocate() {
-    char *buffer;
+    unsigned char *buffer;
 
     if (!allocated) {
-        buffer = new (std::nothrow) char[width * height];
+        buffer = new (std::nothrow) unsigned char[width * height];
 
         memcpy(buffer, data, width * height);
         data = buffer;
 
         allocated = true;
     }
+
+    SDL_assert(allocated && data);
 }
 
 Rect Image::GetBounds() const { return {ulx, uly, width + ulx, height + uly}; }
 
 void Image::Copy(WindowInfo *w) {
     Allocate();
-    buf_to_buf(&w->buffer[ulx + w->width * uly], width, height, w->width, reinterpret_cast<unsigned char *>(data),
-               width);
+    buf_to_buf(&w->buffer[ulx + w->width * uly], width, height, w->width, data, width);
 }
 
 void Image::Copy(const Image &other) {
     Allocate();
-    buf_to_buf(reinterpret_cast<unsigned char *>(other.GetData()), std::min(width, other.width),
-               std::min(height, other.height), other.width, reinterpret_cast<unsigned char *>(data), width);
+    buf_to_buf(other.GetData(), std::min(width, other.width), std::min(height, other.height), other.width, data, width);
 }
 
 void Image::Blend(const Image &other) {
-    char *source_buffer;
-    char *destination_buffer;
+    unsigned char *source_buffer;
+    unsigned char *destination_buffer;
     short min_width;
     short width_offset;
     short height_offset;
@@ -139,18 +139,16 @@ void Image::Blend(const Image &other) {
 }
 
 void Image::Write(WindowInfo *w) const {
-    buf_to_buf(reinterpret_cast<unsigned char *>(data), width, height, width, &w->buffer[ulx + w->width * uly],
-               w->width);
+    buf_to_buf(data, width, height, width, &w->buffer[ulx + w->width * uly], w->width);
 }
 
 void Image::Write(WindowInfo *w, Rect *r) const {
-    buf_to_buf(reinterpret_cast<unsigned char *>(&data[r->ulx + r->uly * width]), r->lrx - r->ulx, r->lry - r->uly,
-               width, &w->buffer[ulx + r->ulx + w->width * (r->uly + uly)], w->width);
+    buf_to_buf(&data[r->ulx + r->uly * width], r->lrx - r->ulx, r->lry - r->uly, width,
+               &w->buffer[ulx + r->ulx + w->width * (r->uly + uly)], w->width);
 }
 
 void Image::Write(WindowInfo *w, int ulx, int uly) const {
-    buf_to_buf(reinterpret_cast<unsigned char *>(data), width, height, width, &w->buffer[ulx + w->width * uly],
-               w->width);
+    buf_to_buf(data, width, height, width, &w->buffer[ulx + w->width * uly], w->width);
 }
 
 void Image::Draw(WinID wid) const {

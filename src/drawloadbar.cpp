@@ -22,6 +22,7 @@
 #include "drawloadbar.hpp"
 
 #include "enums.hpp"
+#include "resource_manager.hpp"
 #include "text.hpp"
 
 DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, 38) {
@@ -54,8 +55,7 @@ void DrawLoadBar::SetValue(short value) {
         length = 112;
     }
 
-    /// \todo Implement minimap
-    //    buf_to_buf(minimap, 112, length, 112, &window.buffer[window.width * 21 + 37], window.width);
+    buf_to_buf(ResourceManager_Minimap, 112, length, 112, &window.buffer[window.width * 21 + 37], window.width);
     win_draw_rect(window.id, &window.window);
     process_bk();
 }

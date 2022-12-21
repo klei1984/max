@@ -32,7 +32,7 @@ static const short TextEdit_KeyToAsciiMap[] = {
     149,  162,  147,  211,  148,  246,  237,  151,  163,  150,  129,  212,  '\0', '\0',
 };
 
-static_assert(sizeof(TextEdit_KeyToAsciiMap) == 128);
+static_assert(sizeof(TextEdit_KeyToAsciiMap) == 128 * sizeof(const short));
 
 TextEdit::TextEdit(WindowInfo *window, char *text, int buffer_size, int ulx, int uly, int width, int height,
                    unsigned short color, int font_num)
@@ -107,8 +107,8 @@ void TextEdit::LeaveTextEditField() {
 }
 
 void TextEdit::UpdateWindow(WindowInfo *window) {
-    this->window.buffer = window->buffer[this->window.window.ulx - window->window.ulx +
-                                         (this->window.window.uly - window->window.uly) * window->width];
+    this->window.buffer = &window->buffer[this->window.window.ulx - window->window.ulx +
+                                          (this->window.window.uly - window->window.uly) * window->width];
     this->window.width = window->width;
 }
 

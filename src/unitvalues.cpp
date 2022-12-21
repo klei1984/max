@@ -185,10 +185,66 @@ int UnitValues::GetAttribute(char attribute) {
         case ATTRIB_ATTACK_RADIUS:
             result = attack_radius;
             break;
+        case ATTRIB_AGENT_ADJUST:
+            result = agent_adjust;
+            break;
         default:
             SDL_Log("UnitValues::GetAttribute called with invalid index.");
             SDL_assert(0);
             result = 0;
+            break;
+    }
+
+    return result;
+}
+
+unsigned short* UnitValues::GetAttributeAddress(char attribute) {
+    unsigned short* result;
+
+    switch (attribute) {
+        case ATTRIB_TURNS:
+            result = &turns;
+            break;
+        case ATTRIB_HITS:
+            result = &hits;
+            break;
+        case ATTRIB_ARMOR:
+            result = &armor;
+            break;
+        case ATTRIB_ATTACK:
+            result = &attack;
+            break;
+        case ATTRIB_SPEED:
+            result = &speed;
+            break;
+        case ATTRIB_FUEL:
+            result = &fuel;
+            break;
+        case ATTRIB_RANGE:
+            result = &range;
+            break;
+        case ATTRIB_ROUNDS:
+            result = &rounds;
+            break;
+        case ATTRIB_SCAN:
+            result = &scan;
+            break;
+        case ATTRIB_STORAGE:
+            result = &storage;
+            break;
+        case ATTRIB_AMMO:
+            result = &ammo;
+            break;
+        case ATTRIB_ATTACK_RADIUS:
+            result = &attack_radius;
+            break;
+        case ATTRIB_AGENT_ADJUST:
+            result = &agent_adjust;
+            break;
+        default:
+            SDL_Log("UnitValues::GetAttributeAddress called with invalid index.");
+            SDL_assert(0);
+            result = nullptr;
             break;
     }
 
@@ -236,6 +292,9 @@ void UnitValues::SetAttribute(char attribute, int value) {
         case ATTRIB_ATTACK_RADIUS:
             attack_radius = value;
             break;
+        case ATTRIB_AGENT_ADJUST:
+            agent_adjust = value;
+            break;
         default:
             SDL_Log("UnitValues::SetAttribute called with invalid index.");
             SDL_assert(0);
@@ -248,6 +307,8 @@ void UnitValues::UpdateVersion() {
         ++version;
     }
 }
+
+int UnitValues::GetVersion() const { return version; }
 
 void UnitValues::SetUnitsBuilt(unsigned char count) { units_built = count; }
 

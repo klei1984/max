@@ -24,7 +24,7 @@
 
 class Event {
 public:
-    virtual unsigned short GetEventId() = 0;
+    virtual unsigned short GetEventId() const = 0;
 };
 
 struct RegisterEvent {
@@ -37,5 +37,7 @@ struct RegisterEvent {
     RegisterEvent RegisterEvent_##event(RegisterEventId_##event)
 
 #define EVENTS_GET_EVENT_ID(event) RegisterEventId_##event
+
+#define EVENTS_DECLARE_EVENT_ID(event) extern unsigned short RegisterEventId_##event
 
 #endif /* EVENTS_HPP */

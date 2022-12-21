@@ -24,7 +24,8 @@
 #include "gnw.h"
 
 static GNW_ButtonPtr button_create(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value,
-                                   int p_value, int r_value, int flags, char* up, char* down, char* hover);
+                                   int p_value, int r_value, unsigned int flags, unsigned char* up, unsigned char* down,
+                                   unsigned char* hover);
 static int button_under_mouse(GNW_ButtonPtr b, Rect* r);
 static int button_check_group(GNW_ButtonPtr b);
 static void button_draw(GNW_ButtonPtr b, GNW_Window* w, char* image, int draw, Rect* bound);
@@ -33,13 +34,14 @@ static WinID last_button_winID = -1;
 static GNW_ButtonGroup btn_grp[64];
 
 ButtonID win_register_button(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value,
-                             int p_value, int r_value, char* up, char* down, char* hover, int flags) {
+                             int p_value, int r_value, unsigned char* up, unsigned char* down, unsigned char* hover,
+                             unsigned int flags) {
     ButtonID result;
     GNW_Window* w;
 
     w = GNW_find(id);
 
-    flags = flags | 0x10000;
+    flags |= 0x10000;
 
     if (GNW_win_init_flag && w) {
         if (!up && (down || hover)) {
@@ -144,7 +146,8 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
     return result;
 }
 
-int win_register_button_disable(ButtonID bid, char* disabled_up, char* disabled_down, char* disabled_hover) {
+int win_register_button_disable(ButtonID bid, unsigned char* disabled_up, unsigned char* disabled_down,
+                                unsigned char* disabled_hover) {
     int result;
     GNW_ButtonPtr b;
 
@@ -167,7 +170,7 @@ int win_register_button_disable(ButtonID bid, char* disabled_up, char* disabled_
     return result;
 }
 
-int win_register_button_image(ButtonID bid, char* up, char* down, char* hover, int draw) {
+int win_register_button_image(ButtonID bid, unsigned char* up, unsigned char* down, unsigned char* hover, int draw) {
     int result;
     GNW_ButtonPtr b;
     GNW_Window* w;
@@ -285,7 +288,8 @@ int win_register_button_mask(ButtonID bid, char* mask) {
 }
 
 GNW_ButtonPtr button_create(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value, int p_value,
-                            int r_value, int flags, char* up, char* down, char* hover) {
+                            int r_value, unsigned int flags, unsigned char* up, unsigned char* down,
+                            unsigned char* hover) {
     GNW_ButtonPtr result;
     GNW_ButtonPtr b;
     GNW_Window* w;

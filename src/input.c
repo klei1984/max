@@ -112,18 +112,48 @@ void GNW_input_exit(void) {
 }
 
 void GNW_process_message(void) {
-    if (!kb_is_disabled()) {
-        const size_t max_events = 1;
-        size_t event;
-        SDL_Event ev;
+    const size_t max_events = 1;
+    size_t event;
+    SDL_Event ev;
 
-        for (event = 0; (event < max_events) && SDL_PollEvent(&ev); event++) {
-            switch (ev.type) {
-                case SDL_KEYUP:
-                case SDL_KEYDOWN:
+    for (event = 0; (event < max_events) && SDL_PollEvent(&ev); event++) {
+        switch (ev.type) {
+            case SDL_KEYUP:
+            case SDL_KEYDOWN: {
+                if (!kb_is_disabled()) {
                     GNW_process_key(&(ev.key));
-                    break;
-            }
+                }
+            } break;
+            case SDL_WINDOWEVENT: {
+                if (!SDL_GetRelativeMouseMode()) {
+                    switch (ev.window.event) {
+                        case SDL_WINDOWEVENT_FOCUS_GAINED:
+                            SDL_ShowCursor(SDL_DISABLE);
+                            break;
+                        case SDL_WINDOWEVENT_FOCUS_LOST:
+                            SDL_ShowCursor(SDL_ENABLE);
+                            break;
+                        case SDL_WINDOWEVENT_ENTER: {
+                            int mouse_x;
+                            int mouse_y;
+                            int mouse_state;
+
+                            SDL_GetMouseState(&mouse_x, &mouse_y);
+
+                            mouse_state = mouse_hidden();
+                            if (!mouse_state) {
+                                mouse_hide();
+                            }
+                            mouse_set_position(mouse_x, mouse_y);
+                            if (!mouse_state) {
+                                mouse_show();
+                            }
+                        } break;
+                        case SDL_WINDOWEVENT_LEAVE:
+                            break;
+                    }
+                }
+            } break;
         }
     }
 }
@@ -397,68 +427,15 @@ void GNW_process_key(SDL_KeyboardEvent *key_data) {
     } else {
         switch (key_data->type) {
             case SDL_KEYDOWN:
-                if (key_data->keysym.mod & KMOD_LCTRL) {
-                    kb_simulate_key(GNW_KB_SCAN_LCTRL);
-                }
-                if (key_data->keysym.mod & KMOD_RCTRL) {
-                    kb_simulate_key(GNW_KB_SCAN_RCTRL);
-                }
-                if (key_data->keysym.mod & KMOD_LSHIFT) {
-                    kb_simulate_key(GNW_KB_SCAN_LSHIFT);
-                }
-                if (key_data->keysym.mod & KMOD_RSHIFT) {
-                    kb_simulate_key(GNW_KB_SCAN_RSHIFT);
-                }
-                if (key_data->keysym.mod & KMOD_LALT) {
-                    kb_simulate_key(GNW_KB_SCAN_LALT);
-                }
-                if (key_data->keysym.mod & KMOD_RALT) {
-                    kb_simulate_key(GNW_KB_SCAN_RALT);
-                }
-                if (key_data->keysym.mod & KMOD_CAPS) {
-                    kb_simulate_key(GNW_KB_SCAN_CAPSLOCK);
-                }
-                if (key_data->keysym.mod & KMOD_NUM) {
-                    kb_simulate_key(GNW_KB_SCAN_NUMLOCK);
-                }
-                if (key_data->keysym.mod & KMOD_NONE) {
-                    kb_simulate_key(GNW_KB_SCAN_SCROLLLOCK);
-                }
-
                 if (key_data->keysym.scancode < 256) {
                     kb_simulate_key(input_scancode_map[key_data->keysym.scancode]);
                 }
                 break;
+
             case SDL_KEYUP:
-                if (key_data->keysym.mod & KMOD_LCTRL) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_LCTRL);
+                if (key_data->keysym.scancode < 256) {
+                    kb_simulate_key(0x80 | input_scancode_map[key_data->keysym.scancode]);
                 }
-                if (key_data->keysym.mod & KMOD_RCTRL) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_RCTRL);
-                }
-                if (key_data->keysym.mod & KMOD_LSHIFT) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_LSHIFT);
-                }
-                if (key_data->keysym.mod & KMOD_RSHIFT) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_RSHIFT);
-                }
-                if (key_data->keysym.mod & KMOD_LALT) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_LALT);
-                }
-                if (key_data->keysym.mod & KMOD_RALT) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_RALT);
-                }
-                if (key_data->keysym.mod & KMOD_CAPS) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_CAPSLOCK);
-                }
-                if (key_data->keysym.mod & KMOD_NUM) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_NUMLOCK);
-                }
-                if (key_data->keysym.mod & KMOD_NONE) {
-                    kb_simulate_key(0x80 + GNW_KB_SCAN_SCROLLLOCK);
-                }
-                break;
-            default:
                 break;
         }
     }
@@ -472,7 +449,8 @@ int get_input(void) {
 
     process_bk();
     i = get_input_buffer();
-    if ((i == -1) && (mouse_get_buttons() & 0x33)) {
+    if ((i == -1) &&
+        (mouse_get_buttons() & (MOUSE_PRESS_LEFT | MOUSE_PRESS_RIGHT | MOUSE_RELEASE_LEFT | MOUSE_RELEASE_RIGHT))) {
         mouse_get_position(&input_mx, &input_my);
         result = -2;
     } else {
@@ -625,7 +603,7 @@ void pause_game(void) {
         game_paused = 1;
 
         id = pause_win_func();
-        while (get_input() != 27) {
+        while (get_input() != GNW_KB_KEY_CTRL_ESCAPE) {
             ;
         }
 
@@ -827,12 +805,7 @@ void register_screendump(int new_screendump_key, ScreenDumpFunc new_screendump_f
     }
 }
 
-TOCKS get_time(void) {
-    /* PIT clock rate is 105/88 = 1.19318 MHz
-     * SDL_GetTicks works on milliseconds basis
-     */
-    return (SDL_GetTicks() * 105000uL) / 88uL;
-}
+TOCKS get_time(void) { return SDL_GetTicks(); }
 
 void pause_for_tocks(unsigned int tocks) {
     TOCKS past_time;

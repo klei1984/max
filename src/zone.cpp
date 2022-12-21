@@ -21,7 +21,7 @@
 
 #include "zone.hpp"
 
-#include "tasks.hpp"
+#include "task.hpp"
 #include "unitinfo.hpp"
 
 Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), field_30(false) {}
@@ -46,4 +46,10 @@ void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
 
 bool Zone::GetField30() const { return field_30; }
 
+void Zone::SetField30(bool value) { field_30 = value; }
+
+ZoneSquare::ZoneSquare() : point(0, 0), unit(nullptr) {}
+
 ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+
+ZoneSquare::ZoneSquare(const ZoneSquare& other) : point(other.point), unit(other.unit) {}

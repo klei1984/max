@@ -22,13 +22,7 @@
 #include "window.hpp"
 
 #include "resource_manager.hpp"
-
-/// \todo Fix gwin includes
-extern "C" {
-extern WindowInfo* gwin_get_window(unsigned char id);
-extern int gwin_load_image(unsigned short id, WindowInfo* wid, short offx, short palette_from_image, int draw_to_screen,
-                           int width_from_image = -1, int height_from_image = -1);
-}
+#include "window_manager.hpp"
 
 Window::Window(short ulx, short uly, short width, short height)
     : window_id(0),
@@ -41,7 +35,7 @@ Window::Window(short ulx, short uly, short width, short height)
       palette_from_image(false) {}
 
 Window::Window(ResourceID id) : window_id(0), flags(0), resource_id(id), palette_from_image(false) {
-    struct SpriteMeta image_header;
+    struct ImageBigHeader image_header;
     int result;
 
     result = ResourceManager_ReadImageHeader(id, &image_header);
@@ -55,11 +49,11 @@ Window::Window(ResourceID id) : window_id(0), flags(0), resource_id(id), palette
 
 Window::Window(ResourceID id, unsigned char win_id)
     : window_id(0), flags(0), resource_id(id), palette_from_image(false) {
-    struct SpriteMeta image_header;
+    struct ImageBigHeader image_header;
     WindowInfo* window;
     int result;
 
-    window = gwin_get_window(win_id);
+    window = WindowManager_GetWindow(win_id);
     result = ResourceManager_ReadImageHeader(id, &image_header);
     SDL_assert(result == 1);
 
@@ -69,6 +63,7 @@ Window::Window(ResourceID id, unsigned char win_id)
     ulx = ((window->window.lrx - window->window.ulx - width) / 2) + window->window.ulx;
     uly = ((window->window.lry - window->window.uly - height) / 2) + window->window.uly;
 }
+
 Window::~Window() {
     if (window_id) {
         win_delete(window_id);
@@ -94,7 +89,7 @@ void Window::Add(bool draw_to_screen) {
         WindowInfo window;
 
         FillWindowInfo(&window);
-        gwin_load_image(resource_id, &window, width, palette_from_image, draw_to_screen);
+        WindowManager_LoadImage(resource_id, &window, width, palette_from_image, draw_to_screen);
     }
 }
 
@@ -111,4 +106,8 @@ void Window::SetFlags(unsigned int flags) { this->flags = flags; }
 
 void Window::SetPaletteMode(bool palette_from_image) { this->palette_from_image = palette_from_image; }
 
-bool Window::EventHandler(Event& event) { return false; }
+bool Window::EventHandler(Event* event) { return false; }
+
+WinID Window::GetId() const { return window_id; }
+
+void Window::ResetId() { window_id = 0; }

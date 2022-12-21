@@ -22,4 +22,36 @@
 #ifndef DRAWMAP_HPP
 #define DRAWMAP_HPP
 
+#include "gnw.h"
+#include "unitinfogroup.hpp"
+
+class DrawMapBuffer {
+    unsigned char** buffer;
+    Rect bounds;
+
+    void Deinit();
+
+public:
+    DrawMapBuffer();
+    ~DrawMapBuffer();
+
+    void Init(Rect* bounds);
+
+    unsigned char** GetBuffer() const;
+    int GetWidth() const;
+    int GetHeight() const;
+    Rect* GetBounds();
+};
+
+void Drawmap_UpdateDirtyZones(Rect* bounds);
+void DrawMap_RenderBuildMarker();
+void DrawMap_RenderAirShadow(UnitInfoGroup* group, UnitInfo* unit);
+void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode = true);
+void DrawMap_RenderUnits();
+void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid);
+void DrawMap_RenderSurveyDisplay(DrawMapBuffer* drawmap);
+void DrawMap_RedrawDirtyZones();
+bool DrawMap_IsInsideBounds(Rect* bounds);
+void DrawMap_ClearDirtyZones();
+
 #endif /* DRAWMAP_HPP */

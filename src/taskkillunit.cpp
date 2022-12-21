@@ -1,0 +1,600 @@
+/* Copyright (c) 2022 M.A.X. Port Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#include "taskkillunit.hpp"
+
+#include "access.hpp"
+#include "aiattack.hpp"
+#include "aiplayer.hpp"
+#include "task_manager.hpp"
+#include "taskattack.hpp"
+#include "taskmove.hpp"
+#include "taskrepair.hpp"
+#include "units_manager.hpp"
+
+TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, unsigned short flags_)
+    : Task(spotted_unit_->GetTeam(), task_attack, flags_) {
+    UnitInfo* target = spotted_unit_->GetUnit();
+    spotted_unit = spotted_unit_;
+    unit_requests = 0;
+    seek_target = true;
+    hits = target->hits;
+
+    if (target->GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0 && target->team != PLAYER_TEAM_ALIEN) {
+        required_damage = hits;
+        hits *= 2;
+
+    } else {
+        required_damage = 1;
+    }
+
+    projected_damage = 0;
+}
+
+TaskKillUnit::~TaskKillUnit() {}
+
+int TaskKillUnit::GetProjectedDamage(UnitInfo* unit, UnitInfo* threat) {
+    int damage_potential =
+        AiAttack_GetAttackPotential(unit, threat) * unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
+
+    if (threat->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+        if ((threat->GetBaseValues()->GetAttribute(ATTRIB_SPEED) == 0 &&
+             unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) > threat->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) ||
+            !Access_IsValidAttackTargetType(threat->unit_type, unit->unit_type)) {
+            damage_potential += threat->hits - 1;
+        }
+    }
+
+    return damage_potential;
+}
+
+void TaskKillUnit::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
+    TaskKillUnit* unit_kill_task = dynamic_cast<TaskKillUnit*>(task);
+
+    if (result != TASKMOVE_RESULT_SUCCESS || !AiAttack_EvaluateAssault(unit, task, &MoveFinishedCallback)) {
+        unit_kill_task->GiveOrdersToUnit(unit);
+    }
+}
+
+void TaskKillUnit::FindVaildTypes() {
+    TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*parent);
+    unsigned int unit_flags = 0;
+    unsigned int unit_flags2 = attack_task->GetAccessFlags();
+
+    if (spotted_unit) {
+        weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(spotted_unit->GetUnit(), 0x01);
+
+        for (int i = 0; i < weight_table.GetCount(); ++i) {
+            if (weight_table[i].weight > 0) {
+                if (weight_table[i].unit_type == SCOUT &&
+                    AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
+                    unit_flags |= MOBILE_LAND_UNIT;
+
+                } else {
+                    unit_flags |= UnitsManager_BaseUnits[weight_table[i].unit_type].flags &
+                                  (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
+                }
+            }
+        }
+
+        if (spotted_unit->GetUnit()->flags & MOBILE_AIR_UNIT) {
+            unit_flags2 |= MOBILE_AIR_UNIT;
+        }
+
+        if (unit_flags & unit_flags2) {
+            unit_flags &= unit_flags2;
+
+        } else if (unit_flags & MOBILE_AIR_UNIT) {
+            unit_flags = MOBILE_AIR_UNIT;
+
+        } else {
+            unit_flags = 0;
+        }
+
+        for (int i = 0; i < weight_table.GetCount(); ++i) {
+            if (weight_table[i].unit_type != COMMANDO) {
+                if (unit_flags & UnitsManager_BaseUnits[weight_table[i].unit_type].flags) {
+                    if (weight_table[i].unit_type == SCOUT && !(unit_flags & MOBILE_LAND_UNIT) &&
+                        AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
+                        weight_table[i].weight = 0;
+                    }
+
+                } else {
+                    weight_table[i].weight = 0;
+                }
+            }
+        }
+    }
+}
+
+bool TaskKillUnit::GetNewUnits() {
+    TransporterMap* map;
+    bool is_found;
+    bool result;
+
+    if (spotted_unit) {
+        if (!weight_table.GetCount()) {
+            FindVaildTypes();
+
+            is_found = true;
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+            if (!weight_table.GetWeight((*it).unit_type)) {
+                TaskManager.RemindAvailable(&*it);
+            }
+        }
+
+        if (hits > projected_damage) {
+            if (seek_target) {
+                SmartPointer<UnitInfo> unit1;
+                SmartPointer<UnitInfo> unit2;
+                int distance;
+
+                if (!is_found) {
+                    FindVaildTypes();
+                    is_found = true;
+                }
+
+                if (parent) {
+                    unit2 = dynamic_cast<TaskAttack*>(&*parent)->DetermineLeader();
+
+                } else {
+                    unit2 = nullptr;
+                }
+
+                if (unit2 && !(unit2->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT)) && unit2->unit_type != COMMANDO) {
+                    ResourceID unit_type = INVALID_ID;
+
+                    if (Task_GetReadyUnitsCount(team, AIRTRANS) > 0) {
+                        unit_type = AIRTRANS;
+
+                    } else if (Task_GetReadyUnitsCount(team, SEATRANS) > 0) {
+                        unit_type = SEATRANS;
+                    }
+
+                    map = new (std::nothrow)
+                        TransporterMap(&*unit2, 0x01, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, unit_type);
+
+                } else {
+                    map = nullptr;
+                }
+
+                do {
+                    unit1 = FindClosestCombatUnit(&UnitsManager_MobileLandSeaUnits, nullptr, &distance, map);
+                    unit1 = FindClosestCombatUnit(&UnitsManager_MobileAirUnits, &*unit1, &distance, nullptr);
+
+                    if (unit1) {
+                        unit1->ClearFromTaskLists();
+                        AddUnit(*unit1);
+
+                        if (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit) {
+                            if (!unit2 && parent) {
+                                unit2 = dynamic_cast<TaskAttack*>(&*parent)->DetermineLeader();
+                            }
+
+                        } else {
+                            if (!GetField7()) {
+                                TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
+                            }
+
+                            delete map;
+
+                            return true;
+                        }
+                    }
+
+                } while (unit1 && hits > projected_damage);
+
+                delete map;
+
+                seek_target = false;
+            }
+
+            if (hits > projected_damage) {
+                if (!unit_requests) {
+                    if (!is_found) {
+                        FindVaildTypes();
+
+                        is_found = true;
+                    }
+
+                    SmartPointer<TaskObtainUnits> obtain_units_task;
+                    SmartPointer<UnitInfo> unit;
+                    WeightTable table(weight_table, true);
+                    int turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
+                    int remaining_hits;
+                    ResourceID unit_type;
+
+                    for (int i = 0; i < table.GetCount(); ++i) {
+                        if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
+                                    ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
+                            (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT)) {
+                            table[i].weight = 0;
+                        }
+                    }
+
+                    remaining_hits = hits - projected_damage;
+
+                    do {
+                        unit_type = table.RollUnitType();
+
+                        if (unit_type != INVALID_ID) {
+                            unit = new (std::nothrow) UnitInfo(unit_type, team, 0xFFFF);
+
+                            remaining_hits -= GetProjectedDamage(&*unit, spotted_unit->GetUnit());
+
+                            obtain_units_task =
+                                new (std::nothrow) TaskObtainUnits(this, spotted_unit->GetLastPosition());
+
+                            ++unit_requests;
+
+                            obtain_units_task->AddUnit(unit_type);
+
+                            TaskManager.AppendTask(*obtain_units_task);
+
+                        } else {
+                            remaining_hits = 0;
+                        }
+
+                    } while (remaining_hits > 0);
+
+                    result = true;
+
+                } else {
+                    result = false;
+                }
+
+            } else {
+                result = false;
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitInfo* unit, int* distance,
+                                              TransporterMap* map) {
+    unsigned int task_flags = GetFlags();
+    bool is_found;
+
+    for (SmartList<UnitInfo>::Iterator it = units_->Begin(); it != units_->End(); ++it) {
+        if ((*it).team == team && (*it).hits > 0 && (*it).ammo > 0) {
+            if ((*it).orders == ORDER_AWAIT || (*it).orders == ORDER_SENTRY || (*it).orders == ORDER_MOVE ||
+                (*it).orders == ORDER_MOVE_TO_UNIT) {
+                is_found = false;
+
+                if ((*it).GetTask()) {
+                    if ((*it).GetTask()->DeterminePriority(task_flags) > 0) {
+                        is_found = (*it).GetTask()->Task_vfunc1(*it);
+                    }
+
+                } else {
+                    is_found = true;
+                }
+
+                if (is_found) {
+                    if (IsUnitUsable(*it)) {
+                        if (!map && map->Search(Point((*it).grid_x, (*it).grid_y))) {
+                            int distance_ = Access_GetDistance(&*it, spotted_unit->GetLastPosition());
+
+                            if (!unit || *distance > distance_) {
+                                unit = &*it;
+                                *distance = distance_;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return unit;
+}
+
+bool TaskKillUnit::GiveOrdersToUnit(UnitInfo* unit) {
+    bool result;
+
+    if (unit->IsReadyForOrders(this) && parent && unit->speed > 0) {
+        if (spotted_unit && unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
+            result = dynamic_cast<TaskAttack*>(&*parent)->MoveCombatUnit(this, unit);
+
+        } else {
+            managed_unit = unit;
+            TaskManager.RemindAvailable(unit);
+
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
+    bool result;
+
+    if (spotted_unit && unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
+        unit.ammo >= unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) && managed_unit != unit) {
+        if (weight_table.GetWeight(unit.unit_type)) {
+            result = hits > projected_damage;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+int TaskKillUnit::GetMemoryUse() const { return weight_table.GetCount() * 4 + 4; }
+
+unsigned short TaskKillUnit::GetFlags() const {
+    unsigned short result;
+
+    if (spotted_unit) {
+        result = flags + AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), team);
+
+    } else {
+        result = flags + 0xFF;
+    }
+
+    return result;
+}
+
+char* TaskKillUnit::WriteStatusLog(char* buffer) const {
+    if (spotted_unit && spotted_unit->GetUnit()) {
+        char unit_name[50];
+
+        spotted_unit->GetUnit()->GetDisplayName(unit_name);
+
+        sprintf(buffer, "Kill %s at [%i,%i]", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name,
+                spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
+
+        if (required_damage > projected_damage) {
+            strcat(buffer,
+                   SmartString().Sprintf(40, " (%i points needed)", required_damage - projected_damage).GetCStr());
+
+        } else {
+            strcat(buffer, " (ready)");
+        }
+
+    } else {
+        strcpy(buffer, "Completed Kill Unit task.");
+    }
+
+    return buffer;
+}
+
+Rect* TaskKillUnit::GetBounds(Rect* bounds) {
+    if (spotted_unit) {
+        bounds->ulx = spotted_unit->GetLastPositionX();
+        bounds->uly = spotted_unit->GetLastPositionY();
+        bounds->lrx = bounds->ulx + 1;
+        bounds->lry = bounds->uly + 1;
+
+    } else {
+        Task::GetBounds(bounds);
+    }
+
+    return bounds;
+}
+
+unsigned char TaskKillUnit::GetType() const { return TaskType_TaskKillUnit; }
+
+bool TaskKillUnit::Task_vfunc9() {
+    return hits > projected_damage && spotted_unit && spotted_unit->GetUnit()->hits > 0;
+}
+
+void TaskKillUnit::AddUnit(UnitInfo& unit) {
+    if (spotted_unit) {
+        projected_damage += GetProjectedDamage(&unit, spotted_unit->GetUnit());
+
+        unit.PushFrontTask1List(this);
+        units.PushBack(unit);
+
+        unit.point.x = 0;
+        unit.point.y = 0;
+
+        if (parent && !parent->GetField8()) {
+            TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*parent));
+        }
+
+    } else {
+        TaskManager.RemindAvailable(&unit);
+    }
+}
+
+void TaskKillUnit::BeginTurn() {
+    if (spotted_unit) {
+        Point position;
+
+        managed_unit = nullptr;
+
+        position = spotted_unit->GetLastPosition();
+
+        GetNewUnits();
+        MoveUnits();
+    }
+}
+
+void TaskKillUnit::ChildComplete(Task* task) {
+    if (spotted_unit) {
+        if (task->GetType() == TaskType_TaskObtainUnits) {
+            --unit_requests;
+            GetNewUnits();
+        }
+    }
+}
+
+void TaskKillUnit::EndTurn() {
+    if (spotted_unit) {
+        MoveUnits();
+    }
+}
+
+bool TaskKillUnit::Task_vfunc17(UnitInfo& unit) {
+    bool result;
+
+    if (spotted_unit) {
+        if (unit.IsReadyForOrders(this) && unit.speed > 0) {
+            if (unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
+                unit.ClearFromTaskLists();
+
+                SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(&unit));
+
+                TaskManager.AppendTask(*repair_task);
+
+                result = true;
+
+            } else {
+                if (AiAttack_EvaluateAssault(&unit, this, &MoveFinishedCallback)) {
+                    result = true;
+
+                } else {
+                    result = GiveOrdersToUnit(&unit);
+                }
+            }
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        RemoveUnit(unit);
+        unit.RemoveTask(this);
+
+        result = false;
+    }
+
+    return result;
+}
+
+void TaskKillUnit::RemoveSelf() {
+    if (spotted_unit) {
+        spotted_unit = nullptr;
+
+        if (parent) {
+            parent->ChildComplete(this);
+
+            parent = nullptr;
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+            TaskManager.RemindAvailable(&*it);
+        }
+
+        managed_unit = nullptr;
+        units.Clear();
+
+        TaskManager.RemoveTask(*this);
+    }
+}
+
+bool TaskKillUnit::Task_vfunc19() { return false; }
+
+void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
+    SmartPointer<Task> task(this);
+
+    units.Remove(unit);
+
+    if (spotted_unit) {
+        projected_damage -= GetProjectedDamage(&unit, spotted_unit->GetUnit());
+    }
+
+    if (parent) {
+        parent->RemoveUnit(unit);
+    }
+
+    if (!GetField7()) {
+        TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
+    }
+}
+
+void TaskKillUnit::Task_vfunc23(UnitInfo& unit) {
+    if (GetUnitSpotted() == &unit) {
+        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+            TaskManager.RemindAvailable(&*it, true);
+        }
+
+        units.Clear();
+
+        RemoveSelf();
+    }
+}
+
+void TaskKillUnit::Task_vfunc25(UnitInfo& unit) {}
+
+int TaskKillUnit::GetTotalProjectedDamage() {
+    int result = 0;
+    TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*parent);
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if (attack_task->IsDestinationReached(&*it)) {
+            result += GetProjectedDamage(&*it, spotted_unit->GetUnit());
+        }
+    }
+
+    return result;
+}
+
+bool TaskKillUnit::MoveUnits() {
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        if ((*it).speed > 0 && (*it).IsReadyForOrders(this)) {
+            Task_RemindMoveFinished(&*it, false);
+        }
+    }
+
+    return false;
+}
+
+SpottedUnit* TaskKillUnit::GetSpottedUnit() const { return &*spotted_unit; }
+
+UnitInfo* TaskKillUnit::GetUnitSpotted() const {
+    UnitInfo* result;
+
+    if (spotted_unit) {
+        result = spotted_unit->GetUnit();
+
+    } else {
+        result = nullptr;
+    }
+
+    return result;
+}
+
+SmartList<UnitInfo>::Iterator TaskKillUnit::GetUnitsListIterator() { return units.Begin(); }
+
+unsigned short TaskKillUnit::GetRequiredDamage() const { return required_damage; }
+
+unsigned short TaskKillUnit::GetProjectedDamage() const { return projected_damage; }

@@ -28,10 +28,10 @@
 
 class Button {
     ButtonID bid;
-    short ulx;
-    short uly;
-    short lrx;
-    short lry;
+    int ulx;
+    int uly;
+    int width;
+    int height;
     Image *up;
     Image *down;
     Image *up_disabled;
@@ -39,28 +39,28 @@ class Button {
     int p_value;
     int r_value;
     unsigned int flags;
-    bool enable;
     ButtonFunc p_func;
     ButtonFunc r_func;
     WinID wid;
     ResourceID sfx;
+    bool enable;
     bool rest_state;
 
     friend void Button_PFunc(ButtonID bid, Button *b);
     friend void Button_RFunc(ButtonID bid, Button *b);
 
 public:
-    Button(short ulx, short uly, short lrx, short lry);
-    Button(ResourceID up, ResourceID down, short ulx, short uly);
+    Button(int ulx, int uly, int width, int height);
+    Button(ResourceID up, ResourceID down, int ulx, int uly);
     ~Button();
 
     void Allocate();
     Rect GetBounds() const;
 
-    char *GetUpData() const;
-    char *GetDownData() const;
-    char *GetUpDisabledData() const;
-    char *GetDownDisabledData() const;
+    unsigned char *GetUpData() const;
+    unsigned char *GetDownData() const;
+    unsigned char *GetUpDisabledData() const;
+    unsigned char *GetDownDisabledData() const;
 
     void Copy(WinID wid);
     void Copy(ResourceID id, int ulx, int uly);
@@ -69,10 +69,10 @@ public:
     void CopyDown(ResourceID id);
     void CopyUpDisabled(ResourceID id);
     void CopyDownDisabled(ResourceID id);
-    void CopyUp(char *data);
-    void CopyDown(char *data);
-    void CopyUpDisabled(char *data);
-    void CopyDownDisabled(char *data);
+    void CopyUp(unsigned char *data);
+    void CopyDown(unsigned char *data);
+    void CopyUpDisabled(unsigned char *data);
+    void CopyDownDisabled(unsigned char *data);
 
     void SetPFunc(ButtonFunc p_func, int p_value);
     void SetRFunc(ButtonFunc r_func, int r_value);
@@ -86,13 +86,13 @@ public:
     void PlaySound() const;
     void SetSfx(ResourceID id);
     ButtonID GetId() const;
-    void SetPValue(int r_value);
+    void SetPValue(int p_value);
     void SetRValue(int r_value);
     void SetFlags(unsigned int flags);
     void SetCaption(const char *caption, short x = 0, short y = 0, FontColor color_up = Fonts_GoldColor,
                     FontColor color_down = Fonts_DarkOrageColor, FontColor color_up_disabled = Fonts_DarkGrayColor,
                     FontColor color_down_disabled = Fonts_DarkGrayColor);
-    void SetCaption(const char *caption, Rect r, FontColor color_up = Fonts_GoldColor,
+    void SetCaption(const char *caption, Rect *r, FontColor color_up = Fonts_GoldColor,
                     FontColor color_down = Fonts_DarkOrageColor, FontColor color_up_disabled = Fonts_DarkGrayColor,
                     FontColor color_down_disabled = Fonts_DarkGrayColor);
 };

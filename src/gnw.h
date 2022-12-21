@@ -22,11 +22,11 @@
 #ifndef GNW_H
 #define GNW_H
 
+#include <assert.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <assert.h>
 
 #include "assoc.h"
 #include "button.h"
@@ -112,7 +112,7 @@ void win_draw_rect(WinID id, Rect* bound);
 void GNW_win_refresh(GNW_Window* w, Rect* bound, char* scr_buf);
 void win_refresh_all(Rect* bound);
 void win_drag(WinID id);
-void win_get_mouse_buf(char* buf);
+void win_get_mouse_buf(unsigned char* buf);
 GNW_Window* GNW_find(WinID id);
 unsigned char* win_get_buf(WinID id);
 WinID win_get_top_win(int x, int y);

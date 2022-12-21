@@ -21,7 +21,10 @@
 
 #include "complex.hpp"
 
+#include "game_manager.hpp"
+#include "net_packet.hpp"
 #include "registerarray.hpp"
+#include "survey.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 
@@ -78,39 +81,76 @@ void Complex::TextSave(SmartTextfileWriter& file) {
     file.WriteInt("id", id);
 }
 
-int Complex::WritePacket(void* buffer) {
-    /// \todo Fill network packet with complex data
-
-    ((short*)buffer)[0] = material;
-    ((short*)buffer)[1] = fuel;
-    ((short*)buffer)[2] = gold;
-    ((short*)buffer)[3] = power;
-    ((short*)buffer)[4] = workers;
-    ((short*)buffer)[5] = buildings;
-    ((short*)buffer)[6] = id;
-
-    return 12;
+void Complex::WritePacket(NetPacket& packet) {
+    packet << material;
+    packet << fuel;
+    packet << gold;
+    packet << power;
+    packet << workers;
+    packet << buildings;
 }
 
-void Complex::ReadPacket(void* buffer) {
-    /// \todo Update complex from network packet
+void Complex::ReadPacket(NetPacket& packet) {
+    short packet_buildings;
 
-    material = ((short*)buffer)[0];
-    fuel = ((short*)buffer)[1];
-    gold = ((short*)buffer)[2];
-    power = ((short*)buffer)[3];
-    workers = ((short*)buffer)[4];
-    buildings = ((short*)buffer)[5];
-    id = ((short*)buffer)[6];
+    packet >> material;
+    packet >> fuel;
+    packet >> gold;
+    packet >> power;
+    packet >> workers;
+    packet >> packet_buildings;
+
+    SDL_assert(buildings == packet_buildings);
 }
 
-void Complex::AddBuilding(UnitInfo& unit) { ++buildings; }
+void Complex::GetCargoMinable(Cargo& capacity) {
+    capacity.Init();
 
-void Complex::RemoveBuilding(UnitInfo& unit) {
-    --buildings;
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == this && (*it).orders != ORDER_POWER_OFF && (*it).orders != ORDER_DISABLE &&
+            (*it).orders != ORDER_IDLE) {
+            Cargo cargo;
 
-    if (0 == buildings) {
-        /// \todo Remove complex from CTinfo)
+            Cargo_GetCargoDemand(&*it, &cargo);
+
+            if ((*it).unit_type == MININGST) {
+                cargo.gold -= (*it).gold_mining;
+                cargo.raw -= (*it).raw_mining;
+                cargo.fuel -= (*it).fuel_mining;
+            }
+
+            capacity.gold -= cargo.gold;
+            capacity.raw -= cargo.raw;
+            capacity.fuel -= cargo.fuel;
+        }
+    }
+}
+
+void Complex::GetCargoMining(Cargo& materials, Cargo& capacity) {
+    short cargo_raw;
+    short cargo_fuel;
+    short cargo_gold;
+
+    materials.Init();
+    capacity.Init();
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == this && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
+            (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
+            materials.gold += (*it).gold_mining;
+            materials.raw += (*it).raw_mining;
+            materials.fuel += (*it).fuel_mining;
+            materials.free_capacity += 16 - ((*it).gold_mining + (*it).raw_mining + (*it).fuel_mining);
+
+            Survey_GetResourcesInArea((*it).grid_x, (*it).grid_y, 1, 16, &cargo_raw, &cargo_gold, &cargo_fuel, true,
+                                      (*it).team);
+
+            capacity.raw += cargo_raw;
+            capacity.fuel += cargo_fuel;
+            capacity.gold += cargo_gold;
+        }
     }
 }
 
@@ -120,8 +160,77 @@ void Complex::GetCargoInfo(Cargo& materials, Cargo& capacity) {
     materials.Init();
     capacity.Init();
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_UnitList4.Begin(); it != UnitsManager_UnitList4.End(); ++it) {
-        materials += *Cargo_GetCargo(&*it, &cargo);
-        capacity += *Cargo_GetCargoCapacity(&*it, &cargo);
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).GetComplex() == this) {
+            materials += *Cargo_GetCargo(&*it, &cargo);
+            capacity += *Cargo_GetCargoCapacity(&*it, &cargo);
+        }
+    }
+}
+
+void Complex::TransferCargo(UnitInfo* unit, int* cargo) {
+    if (*cargo >= 0) {
+        int free_capacity;
+
+        free_capacity = unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - unit->storage;
+
+        if (*cargo <= free_capacity) {
+            unit->storage += *cargo;
+            *cargo = 0;
+
+        } else {
+            unit->storage += free_capacity;
+            *cargo -= free_capacity;
+        }
+
+        if (GameManager_SelectedUnit == unit) {
+            GameManager_UpdateInfoDisplay(unit);
+        }
+
+    } else if (-(*cargo) <= unit->storage) {
+        unit->storage += *cargo;
+        *cargo = 0;
+
+    } else {
+        *cargo += unit->storage;
+        unit->storage = 0;
+    }
+}
+
+void Complex::Transfer(int raw, int fuel, int gold) {
+    this->gold += gold;
+    this->fuel += fuel;
+    this->material += raw;
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if (raw || fuel || gold) {
+            if ((*it).GetComplex() == this) {
+                switch (UnitsManager_BaseUnits[(*it).unit_type].cargo_type) {
+                    case CARGO_TYPE_RAW: {
+                        TransferCargo(&*it, &raw);
+                    } break;
+
+                    case CARGO_TYPE_FUEL: {
+                        TransferCargo(&*it, &fuel);
+                    } break;
+
+                    case CARGO_TYPE_GOLD: {
+                        TransferCargo(&*it, &gold);
+                    } break;
+                }
+            }
+        }
+    }
+}
+
+void Complex::Grow(UnitInfo& unit) { ++buildings; }
+
+void Complex::Shrink(UnitInfo& unit) {
+    --buildings;
+
+    if (!buildings) {
+        UnitsManager_TeamInfo[unit.team].team_units->RemoveComplex(*this);
     }
 }

@@ -28,6 +28,10 @@
 #define GNW_KB_KEY_MAP_ITEM(key, keys, shift, left_alt, right_alt, ctrl) \
     ascii_table[key] = (key_ansi_t) { keys, shift, left_alt, right_alt, ctrl }
 
+#define KB_EVENT_RELEASE 0
+#define KB_EVENT_SHORT_PRESS 1
+#define KB_EVENT_LONG_PRESS 2
+
 typedef struct key_ansi_s {
     short key;
     short shift;
@@ -191,24 +195,24 @@ void kb_simulate_key(unsigned short scan_code) {
         extended_code = 0x80;
     } else {
         if (scan_code & 0x80) {
-            press_code = 0;
+            press_code = KB_EVENT_RELEASE;
             scan_code &= 0x7Fu;
         } else {
-            press_code = 1;
+            press_code = KB_EVENT_SHORT_PRESS;
         }
 
         scan_code += extended_code;
 
         if (press_code && keys[scan_code]) {
-            press_code = 2;
+            press_code = KB_EVENT_LONG_PRESS;
         }
 
         if (keys[scan_code] != press_code) {
             keys[scan_code] = press_code;
 
-            if (press_code == 1) {
+            if (press_code == KB_EVENT_SHORT_PRESS) {
                 ++keynumpress;
-            } else if (!press_code) {
+            } else if (press_code == KB_EVENT_RELEASE) {
                 --keynumpress;
             }
         }

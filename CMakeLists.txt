@@ -54,19 +54,13 @@ endif()
 
 message(STATUS "Set build version to v${GAME_VERSION}")
 
-enable_language(C ASM)
+enable_language(C CXX)
 
 set(GAME_INCLUDES "")
 set(GAME_SOURCES "")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/")
 
-find_package(PythonInterp)
-
-set(CODEGEN_TOOL "${CMAKE_CURRENT_SOURCE_DIR}/util/codegen.py")
-set(CODEGEN_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/conf/codegen.json")
-
 if (MINGW)
-    set(CODEGEN_OPTIONS "--underscore")
     add_definitions(-DSDL_MAIN_HANDLED)
     add_compile_options(-mno-ms-bitfields)
     add_link_options(-mconsole)
@@ -75,24 +69,6 @@ endif (MINGW)
 if (UNIX)
     set(ENV{PKG_CONFIG_PATH} "/usr/lib/i386-linux-gnu/pkgconfig")
 endif (UNIX)
-
-set(GAME_SOURCES
-    ${GAME_SOURCES}
-    ${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
-)
-
-set_source_files_properties(
-    ${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.S
-    PROPERTIES
-    OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${GAME_BINARY}.h;${CMAKE_CURRENT_SOURCE_DIR}/src/user.h"
-)
-
-add_custom_command(
-    COMMAND ${PYTHON_EXECUTABLE} ${CODEGEN_TOOL} ${CODEGEN_OPTIONS} --input=${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in --output=${CMAKE_CURRENT_BINARY_DIR} ${CODEGEN_CONFIG_FILE}
-    DEPENDS ${CODEGEN_TOOL} ${CODEGEN_CONFIG_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/res/${GAME_BINARY}.in
-    OUTPUT ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h
-    COMMENT "Generating ${GAME_BINARY}.S ${GAME_BINARY}.h wrappers.h."
-)
 
 INCLUDE(FindPkgConfig)
 
@@ -125,7 +101,10 @@ include_directories(
 )
 
 add_executable(${GAME_BINARY} ${GAME_SOURCES})
-set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-m32 -O0 -fno-eliminate-unused-debug-types -no-pie -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\"" LINK_FLAGS "-m32 -O0 -no-pie")
+set_target_properties(${GAME_BINARY} PROPERTIES
+	CXX_STANDARD "17"
+	COMPILE_FLAGS "-Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -fno-eliminate-unused-debug-types -m32 -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
+	LINK_FLAGS "-m32")
 target_link_libraries(${GAME_BINARY} SDL2::SDL2 SDL2::NET SDL2::MIXER m)
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})
@@ -137,7 +116,7 @@ set(CPACK_PACKAGE_NAME "max-port")
 set(CPACK_PACKAGE_CONTACT "M.A.X. Port Team")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION}")
-set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.")
+set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.")
 
 install(FILES "LICENSE" DESTINATION .)
 
@@ -147,7 +126,7 @@ if(UNIX)
     set(CPACK_DEBIAN_PACKAGE_SECTION "games")
     set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://klei1984.github.io/max/")
     set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
-
+    
     install(TARGETS ${GAME_BINARY}
         CONFIGURATIONS ${CMAKE_BUILD_TYPE}
         RUNTIME DESTINATION .
@@ -156,6 +135,7 @@ endif()
 
 if(MINGW)
     set(CPACK_GENERATOR "NSIS")
+    set(CPACK_STRIP_FILES "TRUE")
     set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
     set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${GAME_BINARY}")
     set(CPACK_NSIS_DISPLAY_NAME "M.A.X. Port")

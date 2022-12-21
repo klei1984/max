@@ -1,4 +1,4 @@
-/* Copyright (c) 2020 M.A.X. Port Team
+/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,22 +19,10 @@
  * SOFTWARE.
  */
 
-#include <SDL.h>
-
-#include "enums.hpp"
-extern "C" {
-#define RESRCMGR_H
-#define UnitInfo UnitInfo_ss
-#define SoundElement SoundElement_s
-#define SoundTable SoundTable_s
-typedef void GameResourceMeta;
-#include "game.h"
-#undef UnitInfo
-#undef SoundElement
-#undef SoundTable
-}
-
-#include "soundmgr.hpp"
+#include "menu.hpp"
+#include "movie.hpp"
+#include "resource_manager.hpp"
+#include "sound_manager.hpp"
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
@@ -44,24 +32,17 @@ int main(int argc, char* argv[]) {
 
     atexit(SDL_Quit);
 
-    /* run all initializer routines */
-    __InitRtns(0xFF);
+    ResourceManager_InitPaths(argc, argv);
+    ResourceManager_InitResources();
 
-    init_callbacks();
-
-    ginit_init_paths(argc, argv);
-    ginit_init_resources();
-
-    if (movie_play_intro()) {
-        menu_display_logo(ILOGO, 3000);
+    if (Movie_PlayIntro()) {
+        menu_draw_logo(ILOGO, 3000);
     }
 
-    soundmgr.PlayMusic(MAIN_MSC, false);
+    SoundManager.PlayMusic(MAIN_MSC, false);
+    menu_draw_logo(MLOGO, 3000);
 
-    menu_display_logo(MLOGO, 3000);
-
-    /* never returns */
-    game_main();
+    main_menu();
 
     return 0;
 }

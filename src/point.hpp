@@ -22,6 +22,11 @@
 #ifndef POINT_HPP
 #define POINT_HPP
 
+struct PathStep {
+    signed char x;
+    signed char y;
+};
+
 struct Point {
     short x;
     short y;
@@ -55,5 +60,7 @@ struct Point {
 inline bool operator==(const Point& point1, const Point& point2) {
     return point1.x == point2.x && point1.y == point2.y;
 }
+
+inline bool operator!=(const Point& point1, const Point& point2) { return !(point1 == point2); }
 
 #endif /* POINT_HPP */

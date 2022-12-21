@@ -22,13 +22,18 @@
 #ifndef UNITINFO_HPP
 #define UNITINFO_HPP
 
+#include "button.hpp"
 #include "complex.hpp"
 #include "paths.hpp"
 #include "point.hpp"
 #include "smartlist.hpp"
 #include "smartobjectarray.hpp"
-#include "tasks.hpp"
+#include "task.hpp"
 #include "unitvalues.hpp"
+
+#define UNITINFO_MAX_POPUP_BUTTON_COUNT 10
+
+class NetPacket;
 
 struct __attribute__((packed)) SoundElement {
     unsigned char type;
@@ -40,41 +45,202 @@ struct __attribute__((packed)) SoundTable {
     struct SoundElement item[];
 };
 
-enum : unsigned char {
-    SFX_TYPE_INVALID,
-    SFX_TYPE_IDLE,
-    SFX_TYPE_WATER_IDLE,
-    SFX_TYPE_DRIVE,
-    SFX_TYPE_WATER_DRIVE,
-    SFX_TYPE_STOP,
-    SFX_TYPE_WATER_STOP,
-    SFX_TYPE_TRANSFORM,
-    SFX_TYPE_BUILDING,
-    SFX_TYPE_SHRINK,
-    SFX_TYPE_EXPAND,
-    SFX_TYPE_TURRET,
-    SFX_TYPE_FIRE,
-    SFX_TYPE_HIT,
-    SFX_TYPE_EXPLOAD,
-    SFX_TYPE_POWER_CONSUMPTION_START,
-    SFX_TYPE_POWER_CONSUMPTION_END,
-    SFX_TYPE_LAND,
-    SFX_TYPE_TAKE,
-    SFX_TYPE_LIMIT
+struct PopupButtons {
+    unsigned char popup_count;
+    unsigned char position[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    unsigned char key_code[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    const char* caption[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    bool state[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    ButtonFunc r_func[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    Button* buttons[UNITINFO_MAX_POPUP_BUTTON_COUNT];
+    unsigned short ulx;
+    unsigned short uly;
+    unsigned short width;
+    unsigned short height;
 };
 
+class UnitInfoGroup;
+
 class UnitInfo : public TextFileObject {
+private:
+    Complex* CreateComplex(unsigned short team);
+    static struct ImageMultiFrameHeader* GetSpriteFrame(struct ImageMultiHeader* sprite, unsigned short image_index);
+    static void UpdateSpriteFrameBounds(Rect* bounds, int x, int y, struct ImageMultiHeader* sprite,
+                                        unsigned short image_index);
+    void DrawSpriteTurretFrame(unsigned short turret_image_index);
+    static int GetDrawLayer(ResourceID unit_type);
+    void GainExperience(int experience);
+    void Build();
+    UnitInfo* GetConnectedBuilding(unsigned int connector);
+    void AttachComplex(Complex* complex);
+    void TestConnections();
+    UnitInfo* GetFirstUntestedConnection();
+    void UpdatePinsFromLists(int grid_x, int grid_y, SmartList<UnitInfo>* units, int pin_units);
+    void FindTarget(int grid_x, int grid_y, SmartList<UnitInfo>* units);
+    void RadarPing();
+    void UpgradeInt();
+    static void CalcRomanDigit(char* text, int value, const char* digit1, const char* digit2, const char* digit3);
+    void Regenerate();
+    void StepMoveUnit(Point position);
+    void PrepareConstructionSite(ResourceID unit_type);
+    void RenderShadow(Point point, int image_id, Rect* bounds);
+    void RenderSprite(Point point, int image_base, Rect* bounds);
+    int GetTargetUnitAngle();
+    void UpdateInfoDisplay();
+    void ClearInTransitFlag();
+
+    static const unsigned char ExpResearchTopics[];
+
 public:
+    UnitInfo();
+    UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id, unsigned char angle = 0);
+    UnitInfo(const UnitInfo& other);
+    ~UnitInfo();
+
+    static TextFileObject* Allocate();
+
+    unsigned short GetTypeIndex() const;
+    void FileLoad(SmartFileReader& file);
+    void FileSave(SmartFileWriter& file);
+    void TextLoad(TextStructure& object);
+    void TextSave(SmartTextfileWriter& file);
+
+    bool IsVisibleToTeam(unsigned short team) const;
+    void SetEnemy(UnitInfo* enemy);
+    UnitInfo* GetEnemy() const;
+    UnitInfo* GetParent() const;
+    unsigned short GetId() const;
+    UnitInfo* GetFirstFromUnitList() const;
+    SmartList<UnitInfo>* GetUnitList() const;
+    unsigned int GetField221() const;
+    void SetField221(unsigned int value);
+    void ChangeField221(unsigned int flags, bool mode);
+    unsigned short GetImageIndex() const;
+    void SetParent(UnitInfo* parent);
+    void SetBaseValues(UnitValues* unit_values);
+    UnitValues* GetBaseValues() const;
+    bool IsDetectedByTeam(unsigned short team) const;
+    Complex* GetComplex() const;
+    int GetLayingState() const;
+    void SetLayingState(int state);
+    void ClearPins();
+    void SetBuildRate(int value);
+    int GetBuildRate() const;
+    void SetRepeatBuildState(bool value);
+    bool GetRepeatBuildState() const;
+    bool AreTherePins();
+    void UpdateSpriteFrame(unsigned short image_base, unsigned short image_index_max);
+    void DrawSpriteFrame(unsigned short image_index);
+    void OffsetDrawZones(int offset_x, int offset_y);
+    void UpdateUnitDrawZones();
+    void RefreshScreen();
+    void UpdateAngle(unsigned short image_index);
+    void AddToDrawList(unsigned int override_flags = 0);
+    void SetPosition(int grid_x, int grid_y, bool skip_map_status_update);
+    void ProcessTaskList();
+    void AttackUnit(UnitInfo* enemy, int attack_potential, int direction);
+    bool ExpectAttack();
+    void ClearBuildListAndPath();
+    void Move();
+    void AllocateUnitList();
+    void AssignUnitList(UnitInfo* unit);
+    void ClearUnitList();
+    void MoveToFrontInUnitList();
+    void AttachToPrimaryComplex();
+    void DetachComplex();
+    void UpdateTurretAngle(int turret_angle, bool redraw = false);
+    void UpdatePinCount(int grid_x, int grid_y, int pin_units);
+    void Attack(int grid_x, int grid_y);
+    SmartPointer<UnitInfo> MakeCopy();
+    void MoveFinished(bool mode = true);
+    void BlockedOnPathRequest(bool mode = true);
+    void RestoreOrders();
+    void FollowUnit();
+    void InitStealthStatus();
+    void Draw(unsigned short team);
+    void DrawStealth(unsigned short team);
+    void TakePathStep();
+    void SpotByTeam(unsigned short team);
+    static void GetVersion(char* text, int version);
+    void GetName(char* text) const;
+    void GetDisplayName(char* text) const;
+    void SetName(char* text);
+    int GetRaw();
+    int GetRawFreeCapacity();
+    void TransferRaw(int amount);
+    int GetFuel();
+    int GetFuelFreeCapacity();
+    void TransferFuel(int amount);
+    int GetGold();
+    int GetGoldFreeCapacity();
+    void TransferGold(int amount);
+    int GetTurnsToRepair();
+    int Repair(int materials);
+    void Resupply();
+    int GetExperience();
+    int GetRawConsumptionRate();
+    void UpdateProduction();
+    int GetNormalRateBuildCost() const;
+    SmartObjectArray<ResourceID> GetBuildList();
+    ResourceID GetConstructedUnitType() const;
+    void CancelBuilding();
+    bool IsUpgradeAvailable();
+    void DeployConstructionSiteMarkers(ResourceID unit_type);
+    int GetMaxAllowedBuildRate();
+    void StartBuilding();
+    void SpawnNewUnit();
+    void ReadPacket(NetPacket& packet);
+    void WritePacket(NetPacket& packet);
+    void Refuel(UnitInfo* parent);
+    void Reload(UnitInfo* parent);
+    void Upgrade(UnitInfo* parent);
+    void BuildOrder();
+    void MoveInTransitUnitInMapHash(int grid_x, int grid_y);
+    void RemoveInTransitUnitFromMapHash();
+    void GetBounds(Rect* bounds);
+    void BusyWaitOrder();
+    void AddReminders(bool priority);
+    Task* GetTask() const;
+    SmartList<Task>::Iterator GetTask1ListIterator();
+    void PushBackTask2List(Task* task);
+    void RemoveFromTask2List(Task* task);
+    void PushFrontTask1List(Task* task);
+    void ClearFromTaskLists();
+    void RemoveTask(Task* task, bool mode = true);
+    bool IsReadyForOrders(Task* task);
+    int GetAttackRange();
+    bool IsBridgeElevated() const;
+    bool IsInGroupZone(UnitInfoGroup* group);
+    void RenderAirShadow(Rect* bounds);
+    void Render(Rect* bounds);
+    void RenderWithConnectors(Rect* bounds);
+    void PositionInTape();
+    void PlaceMine();
+    void PickUpMine();
+    bool ShakeWater();
+    bool ShakeAir();
+    void ShakeSabotage();
+    bool Land();
+    bool Take();
+    void PrepareFire();
+    void ProgressFire();
+    void SpinningTurretAdvanceAnimation();
+    void Redraw();
+    void ChangeTeam(unsigned short target_team);
+    bool AttemptSideStep(int grid_x, int grid_y, int angle);
+    int GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, int* turns_to_build);
+    void Init();
+
     ResourceID unit_type;
-    void (*sound_function)();
+    struct PopupFunctions* popup;
     struct SoundTable* sound_table;
     unsigned int flags;
     unsigned short x;
     unsigned short y;
     short grid_x;
     short grid_y;
-    unsigned char field_30[4];
-    char* color_cycling_lut;
+    Point point;
+    ColorIndex* color_cycling_lut;
     unsigned char team;
     unsigned char unit_id;
     unsigned char brightness;
@@ -96,8 +262,8 @@ public:
     unsigned char state;
     unsigned char prior_orders;
     unsigned char prior_state;
-    unsigned short target_grid_x;
-    unsigned short target_grid_y;
+    short target_grid_x;
+    short target_grid_y;
     unsigned char build_time;
     unsigned char total_mining;
     unsigned char raw_mining;
@@ -107,8 +273,8 @@ public:
     unsigned char gold_mining_max;
     unsigned char fuel_mining_max;
     unsigned char hits;
-    unsigned char speed;
-    unsigned char field_79;
+    signed char speed;
+    unsigned char group_speed;
     unsigned char shots;
     unsigned char move_and_fire;
     unsigned short storage;
@@ -116,14 +282,14 @@ public:
     unsigned char targeting_mode;
     unsigned char enter_mode;
     unsigned char cursor;
-    unsigned char recoil_delay;
+    signed char recoil_delay;
     unsigned char delayed_reaction;
-    unsigned char damaged_this_turn;
-    unsigned char disabled_reaction_fire;
-    unsigned char auto_survey;
+    bool damaged_this_turn;
+    bool disabled_reaction_fire;
+    bool auto_survey;
     unsigned char research_topic;
     unsigned char moved;
-    unsigned char bobbed;
+    bool bobbed;
     unsigned char engine;
     unsigned char weapon;
     unsigned char comm;
@@ -131,64 +297,33 @@ public:
     unsigned char move_fraction;
     SmartPointer<UnitPath> path;
     unsigned short connectors;
-    unsigned char field_107;
+    unsigned char shake_effect_state;
     SmartPointer<UnitValues> base_values;
     SmartPointer<Complex> complex;
-    SmartObjectArray<unsigned short> build_list;
+    SmartObjectArray<ResourceID> build_list;
     unsigned short build_rate;
     unsigned char repeat_build;
-    unsigned char energized;
+    bool energized;
     unsigned short id;
     SmartList<UnitInfo>* unit_list;
     SmartPointer<UnitInfo> parent_unit;
     SmartPointer<UnitInfo> enemy_unit;
     SmartList<Task> task_list1;
     SmartList<Task> task_list2;
-    unsigned char field_158;
-    Point field_159;
-    unsigned short field_163;
-    unsigned char field_165;
+    bool in_transit;
+    Point last_target;
+    short pin_count;
+    bool field_165;
     unsigned char laying_state;
     char* name;
-    unsigned char visible_to_team[5];
-    unsigned char spotted_by_team[5];
+    unsigned char visible_to_team[PLAYER_TEAM_MAX];
+    unsigned char spotted_by_team[PLAYER_TEAM_MAX];
     Rect sprite_bounds;
     Rect shadow_bounds;
     unsigned short image_index;
     unsigned short turret_image_index;
     Point shadow_offset;
     unsigned int field_221;
-
-    UnitInfo();
-    UnitInfo(const UnitInfo& other);
-    ~UnitInfo();
-
-    static TextFileObject* Allocate();
-    unsigned short* GetAttribute(char index);
-
-    unsigned short GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
-
-    void Init();
-    bool IsVisibleToTeam(unsigned short team) const;
-    unsigned short GetId() const;
-    unsigned int GetField221() const;
-    unsigned short GetImageIndex() const;
-    void ClearUnitList();
-    void PushFrontTask1List(Task* task);
-    void ClearTask1List();
-    Task* GetTask1ListFront() const;
-    void SetParent(UnitInfo* parent);
-    UnitInfo* GetParent() const;
-    void SetEnemy(UnitInfo* enemy);
-    UnitValues* GetBaseValues() const;
-    Complex* GetComplex() const;
-    bool UnitInfo_sub_430A2(short grid_x, short grid_y);
-    SmartPointer<UnitInfo> MakeCopy();
-    void OffsetDrawZones(int offset_x, int offset_y);
 };
 
 #endif /* UNITINFO_HPP */

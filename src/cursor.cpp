@@ -34,7 +34,7 @@ extern "C" {
 struct Cursor_Descriptor {
     Rect bounds;
     unsigned short frame_count;
-    char* data;
+    unsigned char* data;
 };
 
 static ResourceID Cursor_ResourceLut[CURSOR_CURSOR_COUNT] = {
@@ -63,7 +63,7 @@ static void Cursor_DrawAttackPowerCursorHelper(int target_current_hits, int atta
     Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
     int lrx = cursor->bounds.lrx - 18;
     int lry = cursor->bounds.lry + 15;
-    char* data = &cursor->data[lrx + cursor->bounds.ulx * lry];
+    unsigned char* data = &cursor->data[lrx + cursor->bounds.ulx * lry];
 
     if (target_base_hits) {
         if (attacker_damage > target_current_hits) {
@@ -76,41 +76,38 @@ static void Cursor_DrawAttackPowerCursorHelper(int target_current_hits, int atta
         target_current_hits = target_current_hits * 35 / target_base_hits;
         attacker_damage -= target_current_hits;
 
-        draw_box(reinterpret_cast<unsigned char*>(data), cursor->bounds.ulx, 0, 0, 36, 4, 0);
+        draw_box(data, cursor->bounds.ulx, 0, 0, 36, 4, 0);
 
         if (target_current_hits) {
-            buf_fill(reinterpret_cast<unsigned char*>(&data[cursor->bounds.ulx + 1]), target_current_hits, 3,
-                     cursor->bounds.ulx, 2);
+            buf_fill(&data[cursor->bounds.ulx + 1], target_current_hits, 3, cursor->bounds.ulx, 2);
         }
 
         if (attacker_damage) {
-            buf_fill(reinterpret_cast<unsigned char*>(&data[cursor->bounds.ulx + 1 + target_current_hits]),
-                     attacker_damage, 3, cursor->bounds.ulx, 1);
+            buf_fill(&data[cursor->bounds.ulx + 1 + target_current_hits], attacker_damage, 3, cursor->bounds.ulx, 1);
         }
 
         if ((attacker_damage + target_current_hits) < 35) {
-            buf_fill(
-                reinterpret_cast<unsigned char*>(&data[cursor->bounds.ulx + 1 + target_current_hits + attacker_damage]),
-                35 - target_current_hits - attacker_damage, 3, cursor->bounds.ulx, data[0]);
+            buf_fill(&data[cursor->bounds.ulx + 1 + target_current_hits + attacker_damage],
+                     35 - target_current_hits - attacker_damage, 3, cursor->bounds.ulx, data[0]);
         }
     } else {
-        buf_fill(reinterpret_cast<unsigned char*>(data), 37, 5, cursor->bounds.ulx, data[0]);
+        buf_fill(data, 37, 5, cursor->bounds.ulx, data[0]);
     }
 }
 
 void Cursor_Init() {
     for (int cursor_index = 0; cursor_index < CURSOR_CURSOR_COUNT; ++cursor_index) {
-        struct SpriteHeader* sprite =
-            reinterpret_cast<SpriteHeader*>(ResourceManager_LoadResource(Cursor_ResourceLut[cursor_index]));
+        struct ImageSimpleHeader* sprite =
+            reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(Cursor_ResourceLut[cursor_index]));
         Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
 
         cursor->data = sprite->data;
 
         if (sprite) {
-            cursor->bounds.ulx = sprite->ulx;
-            cursor->bounds.uly = sprite->uly;
-            cursor->bounds.lrx = sprite->width;
-            cursor->bounds.lry = sprite->height;
+            cursor->bounds.ulx = sprite->width;
+            cursor->bounds.uly = sprite->height;
+            cursor->bounds.lrx = sprite->ulx;
+            cursor->bounds.lry = sprite->uly;
             cursor->frame_count = 1;
 
             if (cursor->bounds.ulx < cursor->bounds.uly) {
@@ -119,6 +116,8 @@ void Cursor_Init() {
             }
         }
     }
+
+    Cursor_ActiveCursorIndex = CURSOR_CURSOR_COUNT;
 }
 
 unsigned char Cursor_GetCursor() { return Cursor_ActiveCursorIndex; }
@@ -160,18 +159,17 @@ void Cursor_DrawStealthActionChanceCursor(int experience_level, unsigned char cu
     Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
     int lrx = cursor->bounds.lrx - 18;
     int lry = cursor->bounds.lry + 15;
-    char* data = &cursor->data[lrx + cursor->bounds.ulx * lry];
+    unsigned char* data = &cursor->data[lrx + cursor->bounds.ulx * lry];
     int chance = experience_level * 35 / 100;
     int reminder = 35 - experience_level * 35 / 100;
 
-    draw_box(reinterpret_cast<unsigned char*>(data), cursor->bounds.ulx, 0, 0, 36, 4, 0);
+    draw_box(data, cursor->bounds.ulx, 0, 0, 36, 4, 0);
 
     if (chance) {
-        buf_fill(reinterpret_cast<unsigned char*>(&data[cursor->bounds.ulx + 1]), chance, 3, cursor->bounds.ulx, 1);
+        buf_fill(&data[cursor->bounds.ulx + 1], chance, 3, cursor->bounds.ulx, 1);
     }
 
     if (reminder) {
-        buf_fill(reinterpret_cast<unsigned char*>(&data[cursor->bounds.ulx + 1 + chance]), reminder, 3,
-                 cursor->bounds.ulx, data[0]);
+        buf_fill(&data[cursor->bounds.ulx + 1 + chance], reminder, 3, cursor->bounds.ulx, data[0]);
     }
 }

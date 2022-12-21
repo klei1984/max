@@ -51,11 +51,9 @@ Color intensityColorTable[256][PALETTE_SIZE];
 Color colorMixMulTable[256][PALETTE_SIZE];
 ColorIndex colorTable[128 * PALETTE_SIZE];
 
-static int tos;
 static int crinc;
 static int cbinc;
 static int cginc;
-static unsigned int* rdp;
 static unsigned long* cdp;
 static int cindex;
 static unsigned char* crgbp;
@@ -64,12 +62,9 @@ static int x;
 static int bcenter;
 static int colormax;
 static int xsqr;
-static unsigned int* gdp;
 static unsigned int cdist;
 static int rcenter;
 static unsigned int rdist;
-static unsigned char* rrgbp;
-static unsigned char* grgbp;
 static unsigned int gdist;
 static int gstride;
 static int rstride;
@@ -184,13 +179,13 @@ void setBlackSystemPalette(void) {
     setSystemPalette(tmp);
 }
 
-void setSystemPalette(unsigned char* cmap) {
+void setSystemPalette(unsigned char* palette) {
     unsigned char npal[3 * PALETTE_SIZE];
     int i;
 
     for (i = 0; i < sizeof(npal); i++) {
-        npal[i] = currentGammaTable[cmap[i]];
-        systemCmap[i] = cmap[i];
+        npal[i] = currentGammaTable[palette[i]];
+        systemCmap[i] = palette[i];
     }
 
     for (i = 0; i < PALETTE_SIZE; i++) {
@@ -212,6 +207,7 @@ void setSystemPaletteEntries(unsigned char* pal, unsigned int start, unsigned in
     int i;
 
     endCount = 3 * (end - start + 1);
+    baseIndex = 3 * start;
 
     for (i = 0; i < endCount; i += 3) {
         npal[i] = currentGammaTable[pal[i]];
