@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-12-17.
+Last updated: 2022-12-21.
 
-Reimplementation status: 5647 / 5704 (99%) functions.
+Reimplementation status: 5666 / 5704 (99%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -59,239 +59,157 @@ Items in the list are color-coded using the following interpretation:
 - <span class="legend-done">
   Mock up timer services using SDL2
   </span>
-- <span class="legend-done">
-  Remove all replaced functions from maxrun.in
-  </span>
 
 ### 0.3 Reimplement original platform library modules
-The original platform library was implemented in pure C. The workflow within this package includes steps to
- reenginer the original GNW and related modules based on available information into ISO C99 source code,
- replace references to the original API calls within maxrun.in by the reimplemented versions,
- and finally remove the replaced old assembler code from maxrun.in.
+The original platform libraries were implemented in pure C. The workflow within this package includes steps to reenginer the original GNW and other platform modules into ISO C99 compliant source code.
+The netcode of M.A.X. relied on MS-DOS DPMI services and the IPX protocol for LAN play. These have to be fully replaced by an IP based netcode that should facilitate Internat play.
 
 - <span class="legend-done">
-  Replace the human machine interface related modules (kb, mouse, vcr, input)
+  Reimplement the human machine interface related modules (kb, mouse, vcr, input)
   </span>
 - <span class="legend-done">
-  Replace the color management module (color)
+  Reimplement the color management module (color)
   </span>
 - <span class="legend-done">
-  Replace the GUI controls related modules (gnw, rect, grbuf, interface, button)
+  Reimplement the GUI controls related modules (gnw, rect, grbuf, interface, button)
   </span>
 - <span class="legend-done">
-  Replace the memory management module (memory)
+  Reimplement the memory management module (memory)
   </span>
 - <span class="legend-done">
-  Replace the debug services module (debug)
+  Reimplement the debug services module (debug)
   </span>
 - <span class="legend-done">
-  Replace the database management module (db, assoc)
+  Reimplement the database management module (db, assoc)
   </span>
 - <span class="legend-inwork">
   Replace the IPX driver and related dpmi modules (ipx, dpmi)
   </span>
-- <span class="legend-close">
-  Remove all replaced functions from maxrun.in
-  </span>
 
 ### 0.4 Reimplement original MVE library modules
-The original MVE library was implmeneted in C and Assembly. The MVE library uses its own version of MS-DOS svga and sound drivers.
-The workflow within this package is similar to the one in package 0.3 except for the OS dependent drivers layer.
+The original MVE library was implemented in C and Assembly languages using the Watcom C/C++ compiler. The library uses its own version of MS-DOS video and audio drivers. The library also relies on self modifying code which means that the assembly subroutines are modified on the fly by themselves. This makes the original library very difficult to port to different compiler or processor architectures. The audio data streams are interleaved with the video data streams and the audio frame rate is synchronized with the video frame rate. On low end computers this allows video frames to be skipped to be able to keep up with the audio. A choppy video stream is considered less annoying than a skipping audio stream. The library supported further performance optimization techniques like decreasing the resolution of the rendered video stream or interlacing the output effectively skipping every second horizontal line of the video data. The library itself would support closed captions too, but M.A.X. did not utilize this feature. The workflow within this package is similar to the one in package 0.3 except for the OS dependent drivers layer and the assembler subroutines.
 
 - <span class="legend-inwork">
   Replace the low level OS dependent drivers (sos, vbe, ...)
   </span>
 - <span class="legend-inwork">
-  Replace the MVE library modules (mvelib32, mveliba)
+  Reimplement the MVE library modules (mvelib32, mveliba)
   </span>
 - Implement feature to scale videos to match screen resolution
 - Implement feature to render captions (subtitles)
-- <span class="legend-none">
-  Remove all replaced functions from maxrun.in
-  </span>
 
 ### 0.5 Study Watcom C++, analyse original C++ classes and develop necessary tools
 Most of the game itself was implemented in C++. Even though the Watcom C/C++ compiler became open source it is still very difficult to fully understand how the original compiler organizes constructor, destructor, operator overload and such behind the scenes C++ runtime specific data. Clear understanding of the Watcom C++ runtime library and related data that the compiler emits into executables is a prerequisit to be able to identify and understand the C++ class hierarchies from the game.
 
-- <span class="legend-close">
+- <span class="legend-done">
   Study Watcom V11.0b and Open Watcom V1.1.0 source code and set up test environment
   </span>
-- <span class="legend-inwork">
+- <span class="legend-done">
   Build reference classes with Watcom V10.5 and/or Open Watcom V1.1.0 with debug information to learn how C++ library specific meta data are emitted by the compiler and used by the C++ runtime library (plib3r.lib).
+  </span>
+- <span class="legend-done">
+  Discover and analyse original class hierarchies
   </span>
 - <span class="legend-inwork">
   Document findings in an article
   </span>
-- <span class="legend-close">
-  Discover and analyse original class hierarchies
-  </span>
-<br><br>
 
 ### 0.6 Reimplement original C++ classes
-- Replace the AI movement classes (ai_move.cpp)
-  - <span class="legend-done">PathRequest</span>
-  - <span class="legend-done">TaskFindPath</span>
-  - <span class="legend-done">TaskPathRequest</span>
-  - <span class="legend-done">AdjustRequest</span>
-  - <span class="legend-done">TaskMove</span>
-  - <span class="legend-done">TaskDump</span>
-  - <span class="legend-done">TaskRetreat</span>
-  - <span class="legend-done">TaskActivate</span>
-  - <span class="legend-done">TaskRendezvous</span>
-  - <span class="legend-done">TaskMoveHome</span>
-  - <span class="legend-done">TaskAssistMove</span>
-  - <span class="legend-done">TaskTransport</span>
-<br>
-<br>
-- Replace the computer player classes (ai_player.cpp)
-  - <span class="legend-done">UnitValues</span>
-  - <span class="legend-done">TransportOrder</span>
-  - <span class="legend-done">SpottedUnit</span>
-  - <span class="legend-done">TaskMineAssistant</span>
-  - <span class="legend-done">TaskFrontierAssistant</span>
-  - <span class="legend-done">TaskUpdateTerrain</span>
-  - <span class="legend-done">Continent</span>
-  - <span class="legend-done">ContinentFiller</span>
-  - <span class="legend-done">ThreatMap</span>
-  - <span class="legend-done">TerrainMap</span>
-  - <span class="legend-done">AiPlayer</span>
-<br>
-<br>
-- Replace the AI maintenance classes
-  - <span class="legend-done">TaskRepair</span>
-  - <span class="legend-done">TaskReload</span>
-  - <span class="legend-done">TaskUpgrade</span>
-<br>
-<br>
-- Replace the AI classes (ai_main.cpp, ai.cpp)
-  - <span class="legend-done">TaskObtainUnits</span>
-  - <span class="legend-done">RemindAvailable</span>
-  - <span class="legend-done">RemindMoveFinished</span>
-  - <span class="legend-done">RemindAttack</span>
-  - <span class="legend-done">Zone</span>
-  - <span class="legend-done">TaskClearZone</span>
-  - <span class="legend-done">RemindTurnEnd</span>
-  - <span class="legend-done">RemindTurnStart</span>
-  - <span class="legend-done">ProductionManager</span>
-  - <span class="legend-done">TaskManager</span>
-  - <span class="legend-done">TaskGetResource</span>
-  - <span class="legend-done">Reminder</span>
-  - <span class="legend-done">Task</span>
-<br>
-<br>
-- Replace the AI exploration classes (ai_explr.cpp)
-  - <span class="legend-done">TaskSearchDestination</span>
-  - <span class="legend-done">TaskSurvey</span>
-  - <span class="legend-done">TaskFindMines</span>
-  - <span class="legend-done">TaskExplore</span>
-  - <span class="legend-done">TaskAutoSurvey</span>
-  - <span class="legend-done">TaskAbstractSearch</span>
-<br>
-<br>
-- Replace the AI builder classes (ai_build.cpp)
-  - <span class="legend-done">TaskGetMaterials</span>
-  - <span class="legend-done">TaskCreateBuilding</span>
-  - <span class="legend-done">TaskManageBuildings</span>
-  - <span class="legend-done">TaskCreateUnit</span>
-  - <span class="legend-done">TaskDefenseAssistant</span>
-  - <span class="legend-done">TaskRadarAssistant</span>
-  - <span class="legend-done">TaskPowerAssistant</span>
-  - <span class="legend-done">TaskHabitatAssistant</span>
-  - <span class="legend-done">TaskConnectionAssistant</span>
-  - <span class="legend-done">TaskRemoveRubble</span>
-  - <span class="legend-done">TaskRemoveMines</span>
-  - <span class="legend-done">TaskScavenge</span>
-  - <span class="legend-done">SiteMarker</span>
-  - <span class="legend-done">FloodRun</span>
-  - <span class="legend-done">MAXFloodFill</span>
-  - <span class="legend-done">TaskCreate</span>
-<br>
-<br>
-- Replace the AI combat classes (ai_attk.cpp)
-  - <span class="legend-done">DefenseManager</span>
-  - <span class="legend-done">TaskAttackReserve</span>
-  - <span class="legend-done">TaskKillUnit</span>
-  - <span class="legend-done">TaskCheckAssaults</span>
-  - <span class="legend-done">TaskDefenseReserve</span>
-  - <span class="legend-done">TaskWaitToAttack</span>
-  - <span class="legend-done">TaskFrontalAttack</span>
-  - <span class="legend-done">TaskPlaceMines</span>
-  - <span class="legend-done">TaskSupportAttack</span>
-  - <span class="legend-done">TaskAttack</span>
-  - <span class="legend-done">TaskEscort</span>
-  - <span class="legend-done">AccessMap</span>
-  - <span class="legend-done">WeightTable</span>
-  - <span class="legend-done">TransporterMap</span>
-<br>
-<br>
+The first ISO C++ standard was released only in 1998. Standardization took many years and compiler vendors usually lagged behind to follow up the latest published draft papers. Based on various Dr. Dobb’s Journal articles smart pointers appeared as a concept in C++ around 1995. Even though the favored programming language was ISO C at Interplay Entertainment at the time, M.A.X. developers took the risks and realized most of the game specific functionality using C++. Most of the game objects are stored in custom made smart containers like smart lists or smart arrays that were templates. Serialization of such smart objects is handled by smart file managers. Exception handling was not fully supported by compilers at the time either. Failing freestore memory allocations simply returned a null pointer which required specific error handling that does not work together with exceptions. Run-Time Type Information (RTTI) was also just a draft and was not fully supported by compilers.
+
+The massive amount of polymorphism that is involved with all the custom object containers and classes that encapsulate such polymorphic containers basically make it impossible to follow an incremental reimplementation approach that facilitates testing. All this means that reimplementation of the C++ part of the game follows the big bang approach. After finishing with all the reimplementation work a long testing period starts that attempts to verify that the original and the reimplemented functions behave comparably.
+
 - <span class="legend-done">
-  Replace the GUI manager classes (commo.cpp)
+  Reimplement the AI movement classes (ai_move.cpp)
   </span>
 - <span class="legend-done">
-  Replace the resource manager classes (resrcmgr.cpp)
+  Reimplement the computer player classes (ai_player.cpp)
   </span>
 - <span class="legend-done">
-  Replace the FLIC manager classes (flicsmgr.cpp)
+  Reimplement the AI generic classes (ai_main.cpp, ai.cpp)
   </span>
 - <span class="legend-done">
-  Replace the ini file manager classes (inifile.cpp)
+  Reimplement the AI exploration classes (ai_explr.cpp)
   </span>
 - <span class="legend-done">
-  Replace the smart C string manager classes (strobj.cpp)
+  Reimplement the AI builder classes (ai_build.cpp)
   </span>
 - <span class="legend-done">
-  Replace the message manager classes (mssgsmgr.cpp)
+  Reimplement the AI combat classes (ai_attk.cpp)
   </span>
 - <span class="legend-done">
-  Replace the path finding classes (paths.cpp)
+  Reimplement the GUI manager classes (commo.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the resource manager classes (resrcmgr.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the FLIC manager classes (flicsmgr.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the ini file manager classes (inifile.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the smart C string manager classes (strobj.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the message manager classes (mssgsmgr.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the path finding classes (paths.cpp)
   </span>
 - <span class="legend-close">
-  Replace the sound manager classes (soundmgr.cpp)
+  Reimplement the sound manager classes (soundmgr.cpp)
   </span>
 - <span class="legend-done">
-  Replace the unit values (attribs) classes (unitvalues.cpp)
+  Reimplement the unit values (attribs) classes (unitvalues.cpp)
   </span>
 - <span class="legend-done">
-  Replace the complex (building complexes) classes (complex.cpp)
+  Reimplement the complex (building complexes) classes (complex.cpp)
   </span>
+- <span class="legend-done">
+  Reimplement the units manager classes (unitsmgr.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the unit info manager classes (unitinfo.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the game manager classes (gamemgr.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the map manager classes (drawmap.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the map hash classes (hash.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the access classes (access.cpp)
+  </span>
+- <span class="legend-close">
+  Reimplement the remote classes (remote.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the reports classes (reports.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the smart pointer classes (smartptr.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the smart array classes (smrtarry.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the smart file classes (smrtfile.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the smart list classes (smartlst.cpp)
+  </span>
+- <span class="legend-done">
+  Reimplement the textfile classes (textfile.cpp)
+  </span>
+<br>
+<br>
 - <span class="legend-inwork">
-  Replace the units manager classes (unitsmgr.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the unit info manager classes (unitinfo.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the game manager classes (gamemgr.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the map manager classes (drawmap.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the map hash classes (hash.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the access classes (access.cpp)
-  </span>
-- <span class="legend-close">
-  Replace the remote classes (remote.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the reports classes (reports.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the smart pointer classes (smartptr.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the smart array classes (smrtarry.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the smart file classes (smrtfile.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the smart list classes (smartlst.cpp)
-  </span>
-- <span class="legend-done">
-  Replace the textfile classes (textfile.cpp)
+  Verify the correctness of the reimplemented C++ modules (fix reimplementation issues).
   </span>
 
 ### 0.7 - 1.0 and beyond
