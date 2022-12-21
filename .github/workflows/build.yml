@@ -1,91 +1,90 @@
 name: Build Workflow
 on:
-  push:
-    branches:
-    - master
-    paths-ignore:
-    - '**.md'
-    - '**.yml'
-    - '**/doc'
+   push:
+      branches:
+      - master
+      paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**/doc'
 
-  pull_request:
-    types:
-    - opened
-    - synchronize
-    - reopened
-    paths-ignore:
-    - '**.md'
-    - '**.yml'
-    - '**/doc'
+   pull_request:
+      types:
+      - opened
+      - synchronize
+      - reopened
+      paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**/doc'
 
 jobs:
-  Linux-i386:
-    runs-on: ubuntu-18.04
+   Linux-i386:
+      runs-on: ubuntu-20.04
 
-    env:
-      BUILD_DIR: build
-      BUILD_TYPE: Debug
+      env:
+         BUILD_DIR: build
+         BUILD_TYPE: Debug
 
-    steps:
-    - name: Setup Dependencies
-      run: |
-        sudo dpkg --add-architecture i386
-        sudo apt-get update -y -qq
-        sudo apt-get install -y -qq build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-image-dev:i386 libsdl2-ttf-dev:i386 libsdl2-net-dev:i386
+      steps:
+      -  name: Setup Dependencies
+         run: |
+            sudo dpkg --add-architecture i386
+            sudo apt-get update -y -qq
+            sudo apt-get install -y -qq build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386
 
-    - name: Checkout
-      uses: actions/checkout@v2
+      -  name: Checkout
+         uses: actions/checkout@v2
 
-    - name: Build
-      run: |-
-        mkdir $BUILD_DIR
-        cd $BUILD_DIR
-        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=/usr/local -DSDL2_DIR=/usr/lib/i386-linux-gnu/cmake/SDL2 ..
-        cmake --build .
+      -  name: Build
+         run: |-
+            mkdir $BUILD_DIR
+            cd $BUILD_DIR
+            cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=/usr/local -DSDL2_DIR=/usr/lib/i386-linux-gnu/cmake/SDL2 ..
+            cmake --build .
 
-    - name: Package
-      run: |
-        cd $BUILD_DIR
-        cpack
-        mkdir Artifacts
-        cp *.deb Artifacts/
+      -  name: Package
+         run: |
+            cd $BUILD_DIR
+            cpack
+            mkdir Artifacts
+            cp *.deb Artifacts/
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: build artifacts
-        path: ${{env.BUILD_DIR}}/Artifacts
+      -  name: Upload Artifacts
+         uses: actions/upload-artifact@v3
+         with:
+            name: build artifacts
+            path: ${{env.BUILD_DIR}}/Artifacts
 
-  Windows-i386:
-    runs-on: windows-2019
-    env:
-      BUILD_DIR: build
-      BUILD_TYPE: Debug
+   Windows-i386:
+      runs-on: windows-2019
+      env:
+         BUILD_DIR: build
+         BUILD_TYPE: Debug
 
-    defaults:
-      run:
-        shell: msys2 {0}
+      defaults:
+         run:
+            shell: msys2 {0}
 
-    steps:
-    - name: Install MSYS2
-      uses: msys2/setup-msys2@v2
-      with:
-        msystem: MINGW32
+      steps:
+      -  name: Install MSYS2
+         uses: msys2/setup-msys2@v2
+         with:
+            msystem: MINGW32
 
-    - name: Setup Dependencies
-      run: |
-        pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_image mingw32/mingw-w64-i686-SDL2_ttf mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-cmake make
+      -  name: Setup Dependencies
+         run: |
+            pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-cmake mingw-w64-x86_64-ninja make
 
+      -  name: Checkout
+         uses: actions/checkout@v2
 
-    - name: Checkout
-      uses: actions/checkout@v2
+      -  name: Build & Package
+         run: |
+            cmake/mingw32-i686-build.sh
 
-    - name: Build & Package
-      run: |
-        cmake/mingw32-i686-build.sh
-
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: build artifacts
-        path: ${{env.BUILD_DIR}}/Artifacts
+      -  name: Upload Artifacts
+         uses: actions/upload-artifact@v3
+         with:
+            name: build artifacts
+            path: ${{env.BUILD_DIR}}/Artifacts
