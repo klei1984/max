@@ -911,9 +911,11 @@ bool CSoundManager::LoadMusic(ResourceID id) {
     file = reinterpret_cast<char*>(ResourceManager_ReadResource(id));
 
     if (file) {
-        strncpy(file_path, ResourceManager_FilePathMsc, PATH_MAX);
-        strncat(file_path, file, PATH_MAX);
+        strncpy(file_path, ResourceManager_FilePathMsc, PATH_MAX - 1);
+        strncat(file_path, file, (PATH_MAX - 1) - strlen(file_path));
         delete[] file;
+
+        file_path[PATH_MAX - 1] = '\0';
 
         sample = Mix_LoadMUS(file_path);
         if (sample) {
@@ -939,20 +941,20 @@ int CSoundManager::LoadSound(SoundJob& job, SoundSample& sample) {
     file = reinterpret_cast<char*>(ResourceManager_ReadResource(job.id));
 
     if (file) {
-        file_path[0] = '\0';
-
         if (JOB_TYPE_VOICE == job.type) {
-            strncpy(file_path, ResourceManager_FilePathVoiceSpw, PATH_MAX);
+            strncpy(file_path, ResourceManager_FilePathVoiceSpw, PATH_MAX - 1);
         } else if (JOB_TYPE_MUSIC == job.type) {
-            strncpy(file_path, ResourceManager_FilePathMsc, PATH_MAX);
+            strncpy(file_path, ResourceManager_FilePathMsc, PATH_MAX - 1);
         } else {
-            strncpy(file_path, ResourceManager_FilePathSfxSpw, PATH_MAX);
+            strncpy(file_path, ResourceManager_FilePathSfxSpw, PATH_MAX - 1);
         }
 
         ResourceManager_ToUpperCase(file);
 
-        strncat(file_path, file, PATH_MAX);
+        strncat(file_path, file, (PATH_MAX - 1) - strlen(file_path));
         delete[] file;
+
+        file_path[PATH_MAX - 1] = '\0';
 
         FILE* fp = fopen(file_path, "rb");
 

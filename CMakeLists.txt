@@ -101,7 +101,7 @@ include_directories(
 )
 
 add_executable(${GAME_BINARY} ${GAME_SOURCES})
-set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -m32 -O0 -fno-eliminate-unused-debug-types -no-pie -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\"" LINK_FLAGS "-m32 -O0 -no-pie")
+set_target_properties(${GAME_BINARY} PROPERTIES COMPILE_FLAGS "-Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -m32 -O0 -fno-eliminate-unused-debug-types -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\"" LINK_FLAGS "-m32 -O0")
 target_link_libraries(${GAME_BINARY} SDL2::SDL2 SDL2::NET SDL2::MIXER m)
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})
@@ -132,6 +132,7 @@ endif()
 
 if(MINGW)
     set(CPACK_GENERATOR "NSIS")
+    set(CPACK_STRIP_FILES "TRUE")
     set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
     set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${GAME_BINARY}")
     set(CPACK_NSIS_DISPLAY_NAME "M.A.X. Port")
