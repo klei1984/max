@@ -174,14 +174,14 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
 
         Gfx_DecodeMap_MapTileIds = &ResourceManager_MapTileIds[Gfx_MapBigmapIileIdBufferOffset];
 
-        Gfx_Decode_ColorMap = &ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & 0xE0) * 8];
+        Gfx_Decode_ColorMap = &ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & 0xFFE0) * 8];
 
         Gfx_DecodeMap_MapTileZoomFactor = (((Gfx_DecodeMap_TileSize - 1) << 16) / (Gfx_ZoomLevel - 1)) + 8;
 
-        Gfx_DecodeMap_BoundsLocal.ulx = Gfx_DecodeMap_Bounds->ulx & 0xFFFFFFC0;
-        Gfx_DecodeMap_BoundsLocal.uly = Gfx_DecodeMap_Bounds->uly & 0xFFFFFFC0;
-        Gfx_DecodeMap_BoundsLocal.lrx = ((Gfx_DecodeMap_Bounds->lrx - 1) & 0xFFFFFFC0) + 63;
-        Gfx_DecodeMap_BoundsLocal.lry = ((Gfx_DecodeMap_Bounds->lry - 1) & 0xFFFFFFC0) + 63;
+        Gfx_DecodeMap_BoundsLocal.ulx = Gfx_DecodeMap_Bounds->ulx & (0xFFFFFFFF << 6);
+        Gfx_DecodeMap_BoundsLocal.uly = Gfx_DecodeMap_Bounds->uly & (0xFFFFFFFF << 6);
+        Gfx_DecodeMap_BoundsLocal.lrx = ((Gfx_DecodeMap_Bounds->lrx - 1) & (0xFFFFFFFF << 6)) + 63;
+        Gfx_DecodeMap_BoundsLocal.lry = ((Gfx_DecodeMap_Bounds->lry - 1) & (0xFFFFFFFF << 6)) + 63;
 
         Gfx_DecodeMap_TilesInViewX = (Gfx_DecodeMap_BoundsLocal.lrx - Gfx_DecodeMap_BoundsLocal.ulx) / 64 + 1;
         Gfx_DecodeMap_TilesInViewY = (Gfx_DecodeMap_BoundsLocal.lry - Gfx_DecodeMap_BoundsLocal.uly) / 64 + 1;

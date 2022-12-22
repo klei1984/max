@@ -5039,7 +5039,7 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
 }
 
 bool GameManager_ProcessTick(bool render_screen) {
-    int time_stamp;
+    unsigned int time_stamp;
     bool result;
 
     if (render_screen) {

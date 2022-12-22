@@ -2048,7 +2048,7 @@ int GameSetupMenu_Menu(int game_file_type, bool flag1, bool flag2) {
                 } break;
 
                 default: {
-                    for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
+                    for (int i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
                         if (game_setup_menu.buttons[i]) {
                             if (game_setup_menu.key == GNW_INPUT_PRESS + i) {
                                 if (!event_release) {

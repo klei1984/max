@@ -295,9 +295,8 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly)) {
         UnitInfo* parent = unit->GetParent();
 
         if (parent) {
-            if ((unit->orders == ORDER_IDLE ||
-                 (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY &&
-                  (unit->flags & STATIONARY) == 0)) &&
+            if ((unit->orders == ORDER_IDLE || (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY &&
+                                                (unit->flags & STATIONARY) == 0)) &&
                 parent->unit_type != AIRTRANS) {
                 Point point(parent->grid_x - 1, parent->grid_y + 1);
                 int limit;
@@ -353,8 +352,8 @@ void DrawMap_RenderBuildMarker() {
         unit = &*GameManager_SelectedUnit;
 
         if (unit->team == GameManager_PlayerTeam &&
-            (unit->orders == ORDER_IDLE || (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY &&
-                                            !(unit->flags & STATIONARY)))) {
+            (unit->orders == ORDER_IDLE ||
+             (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY && !(unit->flags & STATIONARY)))) {
             struct ImageSimpleHeader* image;
 
             --DrawMap_BuildMMarkDelayCounter;
@@ -916,7 +915,7 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
 
     index = DrawMap_DirtyRectangles.GetCount();
 
-    if (index) {
+    if (index > 0) {
         WindowInfo* window;
         Rect dirty;
         Rect bounds;
