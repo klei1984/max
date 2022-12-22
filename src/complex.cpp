@@ -28,7 +28,7 @@
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 
-Complex::Complex(short id) : material(0), fuel(0), gold(0), power(0), workers(0), buildings(0), id(id) {}
+Complex::Complex(short id) : buildings(0), id(id), material(0), fuel(0), gold(0), power(0), workers(0) {}
 
 Complex::~Complex() {}
 

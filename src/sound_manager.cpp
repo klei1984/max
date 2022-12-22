@@ -693,11 +693,6 @@ void CSoundManager::BkProcess() {
 }
 
 void CSoundManager::AddJob(SoundJob& job) {
-    /* workaround for 16 bit word size enum */
-    if (job.id == 0xFFFF) {
-        job.id = INVALID_ID;
-    }
-
     if ((is_audio_enabled) && (job.id != INVALID_ID) && (jobs.size() < SOUNDMGR_MAX_SAMPLES)) {
         if (job.type <= JOB_TYPE_SFX2) {
             for (auto it = jobs.begin(); it != jobs.end(); it++) {
@@ -803,8 +798,8 @@ int CSoundManager::ProcessJob(SoundJob& job) {
                 if (JOB_TYPE_MUSIC == sample.type) {
                     sample.mixer_channel = 0;
                     Mix_VolumeMusic(SOUNDMGR_SCALE_VOLUME(sample.volume_1 * sound_level / 100));
-                    int result = Mix_PlayMusic(sample.music, sample.loop_count);
-                    SDL_assert(result != -1);
+                    int local_result = Mix_PlayMusic(sample.music, sample.loop_count);
+                    SDL_assert(local_result != -1);
                 } else {
                     int pan_right = SOUNDMGR_SCALE_PANNING_RIGHT(job.panning);
                     int pan_left = 254 - pan_right;

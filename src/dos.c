@@ -33,8 +33,8 @@
 #include "gnw.h"
 
 #ifdef __unix__
-static char* dos_strupr(char *s);
-static char* dos_strlwr(char *s);
+static char *dos_strupr(char *s);
+static char *dos_strlwr(char *s);
 
 char *strupr(char *s) { return dos_strupr(s); }
 char *strlwr(char *s) { return dos_strlwr(s); }
@@ -45,24 +45,24 @@ int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1
 static unsigned int dos_rand_next = 1;
 
 #ifdef __unix__
-char* dos_strupr(char *s) {
-	char *p = s;
-	while (*p) {
-		*p = toupper(*p);
-		++p;
-	}
-	return s;
+char *dos_strupr(char *s) {
+    char *p = s;
+    while (*p) {
+        *p = toupper(*p);
+        ++p;
+    }
+    return s;
 }
 #endif
 
 #ifdef __unix__
-char* dos_strlwr(char *s) {
-	char *p = s;
-	while (*p) {
-		*p = tolower(*p);
-		++p;
-	}
-	return s;
+char *dos_strlwr(char *s) {
+    char *p = s;
+    while (*p) {
+        *p = tolower(*p);
+        ++p;
+    }
+    return s;
 }
 #endif
 
@@ -77,63 +77,7 @@ long int filesize(FILE *fp) {
     return (size_of_file);
 }
 
-static void __attribute__((noreturn)) print_interrupt_info_and_abort(int num, DOS_Registers *regs, void *caller) {
-    fprintf(stderr,
-            "DOS Interrupt via int386/int386x ()\n"
-            "  Called from: %p\n"
-            "  int %02x\n"
-            "  eax: %08x  ebx: %08x  ecx: %08x  edx: %08x\n"
-            "  esi: %08x  edi: %08x  eflags: %08x\n",
-            caller, num, regs->r32.eax, regs->r32.ebx, regs->r32.ecx, regs->r32.edx, regs->r32.esi, regs->r32.edi,
-            regs->r32.eflags);
-    fflush(stderr);
-    abort();
-}
-
-int dos_int386(int num, DOS_Registers *regs, DOS_Registers *out_regs) {
-    void *eip_caller = *(&eip_caller + 8);
-    print_interrupt_info_and_abort(num, regs, eip_caller);
-}
-
-void dos_delay_init() { return; }
-
-void dos_init_argv() { return; }
-
-void dos_setenvp() { return; }
-
 unsigned int get_dpmi_physical_memory(void) { return 64000000uLL; }
-
-FILE *dos_fopen(const char *filename, const char *mode) {
-    int length;
-    char *path_ptr;
-    FILE *handle;
-
-    if ((length = strlen(filename)) != 0) {
-        path_ptr = malloc(length + 1);
-        if (path_ptr) {
-            path_ptr = strncpy(path_ptr, filename, length + 1);
-            path_ptr = strupr(path_ptr);
-
-            handle = fopen(path_ptr, mode);
-
-            free(path_ptr);
-
-            return handle;
-        }
-    }
-
-    SDL_Log("fopen failed: %s\n", filename);
-
-    return NULL;
-}
-
-void dos_assert(int expr, char *str_expr, char *str_file, int line) {
-    fprintf(stderr, "Assertion failed: %s, file %s, line %i\n", str_expr, str_file, line);
-    fflush(stderr);
-    abort();
-}
-
-int dos_vsprintf(char *buf, const char *format, va_list *va_arg) { return vsprintf(buf, format, *va_arg); }
 
 void dos_getdrive(unsigned int *drive) { *drive = 4; }
 

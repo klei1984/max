@@ -146,7 +146,7 @@ void vesa_screen_blit(unsigned char *srcBuf, unsigned int srcW, unsigned int src
             &((unsigned char *)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->w * dstY];
         unsigned char *source_pixels = &srcBuf[subX + srcW * subY];
 
-        for (int h = 0; h < subH; ++h) {
+        for (unsigned int h = 0; h < subH; ++h) {
             memcpy(target_pixels, source_pixels, subW);
             source_pixels += srcW;
             target_pixels += sdlPaletteSurface->w;

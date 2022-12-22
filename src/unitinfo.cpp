@@ -3296,7 +3296,7 @@ void UnitInfo::SpotByTeam(unsigned short team) {
             DrawSpriteFrame(image_base + angle);
         }
 
-        /// \todo Ai_sub_49060(this, team);
+        Ai_ProcessUnitTasks(this, team);
 
         if (team == GameManager_PlayerTeam) {
             RadarPing();
@@ -3410,7 +3410,7 @@ void UnitInfo::UpdateProduction() {
         if (base_values->GetAttribute(ATTRIB_ROUNDS) > ammo) {
             shots = ammo;
 
-            if (GameManager_PlayerTeam == team && GameManager_PlayerTeam == team) {
+            if (GameManager_SelectedUnit == this && GameManager_PlayerTeam == team) {
                 SoundManager.PlayVoice(V_M270, V_F271);
             }
 
@@ -4143,7 +4143,6 @@ void UnitInfo::DeployConstructionSiteMarkers(ResourceID unit_type) {
         ++unit_angle;
 
     } else {
-        /// \todo Is this cone destructed on return?
         UnitsManager_DeployUnit(unit_type2, team, nullptr, target_grid_x, target_grid_y, 0);
     }
 

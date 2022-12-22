@@ -139,8 +139,8 @@ void draw_circle(unsigned char* buf, int full, int x, int y, int r, int color) {
 }
 
 void cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, int nw, int nl, int full2) {
-    char* src_addr;
-    char* dst_addr;
+    unsigned char* src_addr;
+    unsigned char* dst_addr;
 
     unsigned int sx_preshift;
     unsigned int ex_preshift;
@@ -182,8 +182,8 @@ void cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, in
 }
 
 void trans_cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, int nw, int nl, int full2) {
-    char* src_addr;
-    char* dst_addr;
+    unsigned char* src_addr;
+    unsigned char* dst_addr;
 
     unsigned int sx_preshift;
     unsigned int ex_preshift;
@@ -307,7 +307,7 @@ void buf_texture(unsigned char* buf, int width, int length, int full, unsigned c
     int x;
     int y;
     int oldtx;
-    char* tex;
+    unsigned char* tex;
     short ysize;
     short xsize;
 

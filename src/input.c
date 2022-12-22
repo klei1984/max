@@ -61,7 +61,7 @@ static int using_msec_timer;
 static int pause_key;
 static ScreenDumpFunc screendump_func;
 static int input_get;
-static char *screendump_buf;
+static unsigned char *screendump_buf;
 static PauseWinFunc pause_win_func;
 static int input_put;
 static int bk_disabled;
@@ -667,7 +667,7 @@ void dump_screen(void) {
     width = scr_size.lrx - scr_size.ulx + 1;
     length = scr_size.lry - scr_size.uly + 1;
 
-    screendump_buf = (char *)malloc(length * width);
+    screendump_buf = (unsigned char *)malloc(length * width);
 
     if (screendump_buf) {
         old_scr_blit = scr_blit;

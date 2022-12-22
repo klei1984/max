@@ -828,7 +828,6 @@ bool TaskCreateBuilding::RequestWaterPlatform() {
     bool result;
 
     if (!tasks.GetCount() && TaskCreateBuilding_DetermineMapSurfaceRequirements(unit_type, site) == 2) {
-        SmartPointer<TaskCreateBuilding> create_building_task;
         Rect bounds;
         Point position;
 
@@ -954,7 +953,6 @@ void TaskCreateBuilding::BuildBoardwalks() {
         AccessMap map;
         SmartPointer<TaskCreateBuilding> create_building_task;
         Rect bounds;
-        int range;
         int range_limit;
 
         MarkBridgeAreas(map.GetMap());
@@ -1149,7 +1147,6 @@ bool TaskCreateBuilding::FindBridgePath(unsigned char** map, int value) {
     unsigned short flags1;
     unsigned short flags2;
     Rect bounds;
-    int range;
     int range_limit;
     int direction2;
 

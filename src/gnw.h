@@ -83,7 +83,7 @@ typedef struct GNW_Window_s {
     Trans_b2b trans_b2b;
 } GNW_Window;
 
-extern char* GNW_texture;
+extern unsigned char* GNW_texture;
 extern int GNW_win_init_flag;
 extern ColorRGB GNW_wcolor[6];
 
@@ -109,7 +109,7 @@ void win_hide(WinID id);
 void win_move(WinID id, int ulx, int uly);
 void win_draw(WinID id);
 void win_draw_rect(WinID id, Rect* bound);
-void GNW_win_refresh(GNW_Window* w, Rect* bound, char* scr_buf);
+void GNW_win_refresh(GNW_Window* w, Rect* bound, unsigned char* scr_buf);
 void win_refresh_all(Rect* bound);
 void win_drag(WinID id);
 void win_get_mouse_buf(unsigned char* buf);

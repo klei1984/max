@@ -488,7 +488,12 @@ void GNW_intr_exit(void) {
     }
 }
 
-int win_timed_msg(char* msg, int color) {}
+int win_timed_msg(char* msg, int color) {
+    /* not implemented yet as M.A.X. does not use it */
+    SDL_assert(0);
+
+    return -1;
+}
 
 void tm_watch_msgs(void) {
     if (!tm_watch_active) {

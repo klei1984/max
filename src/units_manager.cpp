@@ -3344,7 +3344,7 @@ SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned sho
 }
 
 void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
-    if (unit->grid_x != grid_x || unit->grid_x != grid_x) {
+    if (unit->grid_x != grid_x || unit->grid_y != grid_y) {
         unit->RefreshScreen();
         UnitsManager_UpdateMapHash(unit, grid_x, grid_y);
         unit->RefreshScreen();

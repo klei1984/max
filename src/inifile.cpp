@@ -221,7 +221,7 @@ void IniSettings::Destroy() { inifile_save_to_file_and_free_buffer(&ini); }
 void IniSettings::Init() {
     int v1;
     int value;
-    char s1[50];
+    char format_string[50];
     char filename[PATH_MAX];
     FILE *fp;
     int index;
@@ -242,21 +242,21 @@ void IniSettings::Init() {
         for (index = 0; index < ini_keys_table_size; ++index) {
             if (ini_keys_table[index].type & INI_SECTION) {
                 if (index) {
-                    strcpy(s1, "\n[");
+                    strcpy(format_string, "\n[");
                 } else {
-                    strcpy(s1, "[");
+                    strcpy(format_string, "[");
                 }
 
-                strcat(s1, ini_keys_table[index].name);
-                strcat(s1, "]");
+                strcat(format_string, ini_keys_table[index].name);
+                strcat(format_string, "]");
             } else {
-                strcpy(s1, ini_keys_table[index].name);
-                strcat(s1, "=");
-                strcat(s1, ini_keys_table[index].value);
+                strcpy(format_string, ini_keys_table[index].name);
+                strcat(format_string, "=");
+                strcat(format_string, ini_keys_table[index].value);
             }
 
-            strcat(s1, "\n");
-            fprintf(fp, s1, value);
+            strcat(format_string, "\n");
+            fprintf(fp, format_string, value);
         }
     }
 

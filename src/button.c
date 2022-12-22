@@ -28,7 +28,7 @@ static GNW_ButtonPtr button_create(WinID id, int ulx, int uly, int width, int le
                                    unsigned char* hover);
 static int button_under_mouse(GNW_ButtonPtr b, Rect* r);
 static int button_check_group(GNW_ButtonPtr b);
-static void button_draw(GNW_ButtonPtr b, GNW_Window* w, char* image, int draw, Rect* bound);
+static void button_draw(GNW_ButtonPtr b, GNW_Window* w, unsigned char* image, int draw, Rect* bound);
 
 static WinID last_button_winID = -1;
 static GNW_ButtonGroup btn_grp[64];
@@ -73,8 +73,8 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
     int width;
     int length;
     GNW_Window* w;
-    char* up;
-    char* down;
+    unsigned char* up;
+    unsigned char* down;
     GNW_ButtonPtr b;
 
     w = GNW_find(id);
@@ -83,10 +83,10 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
         width = text_width(name) + 16;
         length = text_height() + 6;
 
-        up = (char*)malloc(length * width);
+        up = (unsigned char*)malloc(length * width);
 
         if (up) {
-            down = (char*)malloc(length * width);
+            down = (unsigned char*)malloc(length * width);
 
             if (down) {
                 if (w->color == 0x100 && GNW_texture) {
@@ -1190,7 +1190,7 @@ int button_check_group(GNW_ButtonPtr b) {
     return -1;
 }
 
-void button_draw(GNW_ButtonPtr b, GNW_Window* w, char* image, int draw, Rect* bound) {
+void button_draw(GNW_ButtonPtr b, GNW_Window* w, unsigned char* image, int draw, Rect* bound) {
     Rect s;
     Rect r;
     int bwidth;
@@ -1241,13 +1241,11 @@ void button_draw(GNW_ButtonPtr b, GNW_Window* w, char* image, int draw, Rect* bo
                 bwidth = b->b.lrx - b->b.ulx + 1;
 
                 if (b->flags & 0x20) {
-                    trans_buf_to_buf((unsigned char*)&image[bwidth * (r.uly - b->b.uly) + r.ulx - b->b.ulx],
-                                     r.lrx - r.ulx + 1, r.lry - r.uly + 1, bwidth, &w->buf[r.ulx + w->width * r.uly],
-                                     w->width);
+                    trans_buf_to_buf(&image[bwidth * (r.uly - b->b.uly) + r.ulx - b->b.ulx], r.lrx - r.ulx + 1,
+                                     r.lry - r.uly + 1, bwidth, &w->buf[r.ulx + w->width * r.uly], w->width);
                 } else {
-                    buf_to_buf((unsigned char*)&image[bwidth * (r.uly - b->b.uly) + r.ulx - b->b.ulx],
-                               r.lrx - r.ulx + 1, r.lry - r.uly + 1, bwidth, &w->buf[r.ulx + w->width * r.uly],
-                               w->width);
+                    buf_to_buf(&image[bwidth * (r.uly - b->b.uly) + r.ulx - b->b.ulx], r.lrx - r.ulx + 1,
+                               r.lry - r.uly + 1, bwidth, &w->buf[r.ulx + w->width * r.uly], w->width);
                 }
             }
 

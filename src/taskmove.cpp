@@ -545,7 +545,6 @@ void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Poi
 void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
                                         char result) {
     SmartPointer<TaskMove> move = dynamic_cast<TaskMove*>(task);
-    SmartPointer<Task> find_path;
 
     if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask())) {
         if (path) {

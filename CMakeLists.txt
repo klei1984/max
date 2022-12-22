@@ -103,7 +103,7 @@ include_directories(
 add_executable(${GAME_BINARY} ${GAME_SOURCES})
 set_target_properties(${GAME_BINARY} PROPERTIES
 	CXX_STANDARD "17"
-	COMPILE_FLAGS "-Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -fno-eliminate-unused-debug-types -m32 -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
+	COMPILE_FLAGS "-Wcomments -Wignored-qualifiers -Wshadow=local -Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -Wformat-overflow -Wformat-truncation -Wlogical-op -Wlogical-not-parentheses -fno-eliminate-unused-debug-types -m32 -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
 	LINK_FLAGS "-m32")
 target_link_libraries(${GAME_BINARY} SDL2::SDL2 SDL2::NET SDL2::MIXER m)
 

@@ -285,7 +285,7 @@ void TaskManageBuildings::ClearBuildingAreas(unsigned short** construction_map, 
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && !(*it).unit_type == CNCT_4W) {
+        if ((*it).team == team && (*it).unit_type != CNCT_4W) {
             Rect bounds;
 
             (*it).GetBounds(&bounds);

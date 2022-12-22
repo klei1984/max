@@ -24,8 +24,8 @@
 #include <SDL.h>
 
 static void win_free(WinID id);
-static void win_clip(GNW_Window *w, RectPtr *L, char *buf);
-static void refresh_all(Rect *bound, char *buf);
+static void win_clip(GNW_Window *w, RectPtr *L, unsigned char *buf);
+static void refresh_all(Rect *bound, unsigned char *buf);
 static char *load_texture(char *filename);
 static unsigned long colorOpen(char *file, int mode);
 static unsigned long colorClose(unsigned long handle);
@@ -42,7 +42,7 @@ static unsigned char *screen_buffer;
 static unsigned int window_flags;
 static int num_windows;
 
-char *GNW_texture;
+unsigned char *GNW_texture;
 int GNW_win_init_flag;
 ColorRGB GNW_wcolor[6];
 
@@ -753,7 +753,7 @@ void win_draw_rect(WinID id, Rect *bound) {
     }
 }
 
-void GNW_win_refresh(GNW_Window *w, Rect *bound, char *scr_buf) {
+void GNW_win_refresh(GNW_Window *w, Rect *bound, unsigned char *scr_buf) {
     Rect m;
     unsigned char *buf;
     Rect *r;
@@ -925,7 +925,7 @@ void win_refresh_all(Rect *bound) {
     }
 }
 
-void win_clip(GNW_Window *w, RectPtr *L, char *buf) {
+void win_clip(GNW_Window *w, RectPtr *L, unsigned char *buf) {
     for (int i = window_index[w->id] + 1; (i < num_windows) && *L; i++) {
         if (window[i]->flags & 8) {
             continue;
@@ -942,7 +942,7 @@ void win_clip(GNW_Window *w, RectPtr *L, char *buf) {
         rect_clip_list(L, &window[i]->w);
     }
 
-    if (((unsigned char *)buf == screen_buffer || !buf) && !mouse_hidden()) {
+    if ((buf == screen_buffer || !buf) && !mouse_hidden()) {
         Rect m;
 
         mouse_get_rect(&m);
@@ -1041,7 +1041,7 @@ void win_get_mouse_buf(unsigned char *buf) {
     refresh_all(&m, buf);
 }
 
-void refresh_all(Rect *bound, char *buf) {
+void refresh_all(Rect *bound, unsigned char *buf) {
     doing_refresh_all = 1;
 
     for (int ulx = 0; ulx < num_windows; ulx++) {
@@ -1074,7 +1074,7 @@ GNW_Window *GNW_find(WinID id) {
 }
 
 unsigned char *win_get_buf(WinID id) {
-    char *buf;
+    unsigned char *buf;
     GNW_Window *w;
 
     w = GNW_find(id);
