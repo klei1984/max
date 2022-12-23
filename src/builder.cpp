@@ -234,8 +234,7 @@ bool Builder_IsBuildable(ResourceID unit_type) {
 
             for (int i = 0; unit_list[i] != INVALID_ID; ++i) {
                 if (unit_list[i] == unit_type) {
-                    result = true;
-                    break;
+                    return true;
                 }
             }
 

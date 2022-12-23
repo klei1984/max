@@ -1770,8 +1770,8 @@ UnitInfo* Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y) {
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
             if ((*it).team == team && (*it).orders != ORDER_IDLE && (*it).GetId() != 0xFFFF &&
-                ((*it).flags & (CONNECTOR_UNIT | STANDALONE)) &&
-                (((*it).flags) & (GROUND_COVER | BUILDING)) == BUILDING) {
+                (((*it).flags & (CONNECTOR_UNIT | STANDALONE)) ||
+                 (((*it).flags) & (GROUND_COVER | BUILDING)) == BUILDING)) {
                 unit = &*it;
                 break;
             }

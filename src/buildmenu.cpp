@@ -220,7 +220,7 @@ AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit) : W
     ResourceID builder_unit;
     ResourceID buildable_unit;
     int list_size;
-    int index;
+    int index = 0;
 
     event_success = false;
     event_click_cancel = false;
@@ -251,10 +251,17 @@ AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit) : W
 
     build_rate = unit->GetBuildRate();
 
-    for (index = 0; builder_unit != unit->unit_type;) {
+    for (;;) {
         builder_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[index++]);
-        list_size = Builder_CapabilityListNormal[index++];
+
+        if (builder_unit == unit->unit_type) {
+            break;
+        }
+
+        index += Builder_CapabilityListNormal[index] + 1;
     }
+
+    list_size = Builder_CapabilityListNormal[index++];
 
     for (int j = 0; j < list_size; ++j) {
         buildable_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[index++]);
@@ -550,7 +557,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
         flicsmgr_construct(base_unit->flics, &local_window, window.width, 16, 17, false, false);
     }
 
-    stats_background->Write(&local_window);
+    stats_background->Write(&window);
 
     UnitStats_DrawStats(&window.buffer[stats_background->GetULX() + window.width * stats_background->GetULY()],
                         window.width, unit_type, unit->team,

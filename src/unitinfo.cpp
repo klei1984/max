@@ -3814,15 +3814,15 @@ int UnitInfo::GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, 
     result = 0;
 
     while (turns > 0) {
-        int build_speed_limit = BuildMenu_GetMaxPossibleBuildRate(unit_type, turns, local_storage);
+        int build_speed_limit = BuildMenu_GetMaxPossibleBuildRate(this->unit_type, turns, local_storage);
 
         build_speed_multiplier = std::min(build_speed_multiplier, build_speed_limit);
 
-        result += Cargo_GetRawConsumptionRate(unit_type, build_speed_multiplier);
+        result += Cargo_GetRawConsumptionRate(this->unit_type, build_speed_multiplier);
 
         ++*turns_to_build;
 
-        local_storage -= Cargo_GetRawConsumptionRate(unit_type, build_speed_multiplier);
+        local_storage -= Cargo_GetRawConsumptionRate(this->unit_type, build_speed_multiplier);
 
         turns -= build_speed_multiplier;
     }

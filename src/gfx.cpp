@@ -159,8 +159,8 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
     Gfx_DecodeMap_TileSize = tile_size;
     Gfx_DecodeMap_TileBufferQuotient = quotient;
 
-    if (Gfx_DecodeMap_Bounds->lry > Gfx_DecodeMap_Bounds->uly &&
-        Gfx_DecodeMap_Bounds->lrx > Gfx_DecodeMap_Bounds->ulx) {
+    if (Gfx_DecodeMap_Bounds->lry - 1 > Gfx_DecodeMap_Bounds->uly &&
+        Gfx_DecodeMap_Bounds->lrx - 1 > Gfx_DecodeMap_Bounds->ulx) {
         int difference;
         int zoom_level;
         int factor;
@@ -174,7 +174,7 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
 
         Gfx_DecodeMap_MapTileIds = &ResourceManager_MapTileIds[Gfx_MapBigmapIileIdBufferOffset];
 
-        Gfx_Decode_ColorMap = &ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & 0xFFE0) * 8];
+        Gfx_Decode_ColorMap = &ResourceManager_ColorIndexTable13x8[(Gfx_MapBrightness & 0xFFFFFFE0) * 8];
 
         Gfx_DecodeMap_MapTileZoomFactor = (((Gfx_DecodeMap_TileSize - 1) << 16) / (Gfx_ZoomLevel - 1)) + 8;
 
@@ -197,10 +197,10 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
         Gfx_DecodeMap_DiffUlyFactor = difference * Gfx_DecodeMap_MapTileZoomFactor;
 
         Gfx_DecodeMap_DiffLrx = ((Gfx_DecodeMap_BoundsLocal.lrx << 16) / Gfx_MapScalingFactor) -
-                                ((Gfx_DecodeMap_Bounds->lrx - 1) << 16) / Gfx_MapScalingFactor;
+                                (((Gfx_DecodeMap_Bounds->lrx - 1) << 16) / Gfx_MapScalingFactor);
 
         Gfx_DecodeMap_DiffLry = ((Gfx_DecodeMap_BoundsLocal.lry << 16) / Gfx_MapScalingFactor) -
-                                ((Gfx_DecodeMap_Bounds->lry - 1) << 16) / Gfx_MapScalingFactor;
+                                (((Gfx_DecodeMap_Bounds->lry - 1) << 16) / Gfx_MapScalingFactor);
 
         Gfx_DecodeMap_TilesInViewY_Index = Gfx_DecodeMap_TilesInViewY;
 
@@ -688,7 +688,7 @@ void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int heig
                             bounds2.uly = bounds2.lry;
                             bounds1.lrx = bounds2.lrx;
                             bounds1.lry = bounds2.uly + index1;
-                            bounds2.ulx = bounds1.lrx + index3;
+                            bounds2.ulx = bounds1.lrx - index3;
                             bounds1.uly = 1;
                             bounds1.ulx = -full_width;
                         } break;
@@ -756,17 +756,19 @@ void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int heig
                                 if (bounds2.lry >= 0 && bounds2.lry < width && bounds2.lrx >= 0 &&
                                     bounds2.lrx < height) {
                                     *address2 = color;
-                                    address2 += bounds1.uly;
-                                    bounds2.lry += bounds3.lry;
-                                    bounds2.lrx += bounds3.lrx;
-                                    ++address;
-
-                                    if (address[0]) {
-                                        address2 += bounds1.ulx;
-                                        bounds2.lry += bounds3.uly;
-                                        bounds2.lrx += bounds3.ulx;
-                                    }
                                 }
+
+                                address2 += bounds1.uly;
+                                bounds2.lry += bounds3.lry;
+                                bounds2.lrx += bounds3.lrx;
+                                ++address;
+
+                                if (address[0]) {
+                                    address2 += bounds1.ulx;
+                                    bounds2.lry += bounds3.uly;
+                                    bounds2.lrx += bounds3.ulx;
+                                }
+
                             } else {
                                 *address2 = color;
                                 address2 += bounds1.uly;
