@@ -196,11 +196,22 @@ ResourceID Builder_CapabilityListTraining15[] = {
 };
 
 ResourceID *Builder_CapabilityListTrainingList[] = {
-    Builder_CapabilityListTraining1,  Builder_CapabilityListTraining2,  Builder_CapabilityListTraining3,
-    Builder_CapabilityListTraining4,  Builder_CapabilityListTraining5,  Builder_CapabilityListTraining6,
-    Builder_CapabilityListTraining7,  Builder_CapabilityListTraining8,  Builder_CapabilityListTraining9,
-    Builder_CapabilityListTraining10, Builder_CapabilityListTraining11, Builder_CapabilityListTraining12,
-    Builder_CapabilityListTraining13, Builder_CapabilityListTraining14, Builder_CapabilityListTraining15,
+    nullptr,
+    Builder_CapabilityListTraining1,
+    Builder_CapabilityListTraining2,
+    Builder_CapabilityListTraining3,
+    Builder_CapabilityListTraining4,
+    Builder_CapabilityListTraining5,
+    Builder_CapabilityListTraining6,
+    Builder_CapabilityListTraining7,
+    Builder_CapabilityListTraining8,
+    Builder_CapabilityListTraining9,
+    Builder_CapabilityListTraining10,
+    Builder_CapabilityListTraining11,
+    Builder_CapabilityListTraining12,
+    Builder_CapabilityListTraining13,
+    Builder_CapabilityListTraining14,
+    Builder_CapabilityListTraining15,
 };
 
 ResourceID Builder_GetBuilderType(ResourceID unit_type) {

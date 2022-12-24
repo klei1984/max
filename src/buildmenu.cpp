@@ -507,6 +507,8 @@ void AbstractBuildMenu::InitControls() {
     turns_background_x4->Copy(&window);
     cost_background_x4->Copy(&window);
 
+    selector->Draw();
+
     Draw(selector->GetLast());
 }
 
