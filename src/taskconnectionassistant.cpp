@@ -24,7 +24,7 @@
 #include "task_manager.hpp"
 
 TaskConnectionAssistant::TaskConnectionAssistant(TaskManageBuildings* manager_)
-    : Task(manager_->GetTeam(), this, manager_->GetFlags()) {
+    : Task(manager_->GetTeam(), manager_, manager_->GetFlags()) {
     manager = manager_;
 }
 

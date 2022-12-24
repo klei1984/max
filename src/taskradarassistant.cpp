@@ -25,7 +25,7 @@
 #include "units_manager.hpp"
 
 TaskRadarAssistant::TaskRadarAssistant(TaskManageBuildings* manager_)
-    : Task(manager_->GetTeam(), this, manager_->GetFlags()) {
+    : Task(manager_->GetTeam(), manager_, manager_->GetFlags()) {
     manager = manager_;
 }
 

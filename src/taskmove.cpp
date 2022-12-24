@@ -425,28 +425,28 @@ void TaskMove::Search(bool mode) {
     Point line_distance(point3.x - passenger->grid_x, point3.y - passenger->grid_y);
 
     if (line_distance.x * line_distance.x + line_distance.y * line_distance.y > minimum_distance) {
-        TaskPathRequest request(&*passenger, 1, point3);
+        TaskPathRequest* request = new (std::nothrow) TaskPathRequest(&*passenger, 1, point3);
         int distance;
 
         field_71 = 0;
 
         distance = TaskManager_GetDistance(line_distance.x, line_distance.y) / 2;
 
-        request.SetMinimumDistance(minimum_distance);
+        request->SetMinimumDistance(minimum_distance);
 
         if (distance >= passenger->GetBaseValues()->GetAttribute(ATTRIB_SPEED) && transporter_unit_type == INVALID_ID) {
-            request.SetCautionLevel(CAUTION_LEVEL_AVOID_ALL_DAMAGE);
+            request->SetCautionLevel(CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
         } else {
-            request.SetCautionLevel(caution_level);
+            request->SetCautionLevel(caution_level);
         }
 
         if (mode) {
-            request.SetField31(transporter_unit_type == INVALID_ID);
+            request->SetField31(transporter_unit_type == INVALID_ID);
         }
 
         SmartPointer<Task> find_path(new (std::nothrow)
-                                         TaskFindPath(this, &request, &FullPathResultCallback, &PathCancelCallback));
+                                         TaskFindPath(this, request, &FullPathResultCallback, &PathCancelCallback));
 
         TaskManager.AppendTask(*find_path);
 

@@ -141,6 +141,9 @@ int PathsManager::GetRequestCount(unsigned short team) const {
 }
 
 void PathsManager::RemoveRequest(PathRequest *path_request) {
+    /// the smart pointer is required to avoid premature destruction of the held object
+    SmartPointer<PathRequest> protect_request(path_request);
+
     if (request == path_request) {
         delete forward_searcher;
         forward_searcher = nullptr;

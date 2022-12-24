@@ -225,10 +225,12 @@ bool TaskKillUnit::GetNewUnits() {
                     ResourceID unit_type;
 
                     for (int i = 0; i < table.GetCount(); ++i) {
-                        if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
-                                    ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
-                            (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT)) {
-                            table[i].weight = 0;
+                        if (table[i].unit_type != INVALID_ID) {
+                            if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
+                                        ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
+                                (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT)) {
+                                table[i].weight = 0;
+                            }
                         }
                     }
 
@@ -300,7 +302,7 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
 
                 if (is_found) {
                     if (IsUnitUsable(*it)) {
-                        if (!map && map->Search(Point((*it).grid_x, (*it).grid_y))) {
+                        if (!map || map->Search(Point((*it).grid_x, (*it).grid_y))) {
                             int distance_ = Access_GetDistance(&*it, spotted_unit->GetLastPosition());
 
                             if (!unit || *distance > distance_) {

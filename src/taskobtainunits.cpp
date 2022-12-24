@@ -25,7 +25,7 @@
 #include "units_manager.hpp"
 
 TaskObtainUnits::TaskObtainUnits(Task* task, Point point)
-    : Task(task->GetTeam(), this, task->GetFlags()), point(point), field_27(true), field_28(true) {}
+    : Task(task->GetTeam(), task, task->GetFlags()), point(point), field_27(true), field_28(true) {}
 
 TaskObtainUnits::~TaskObtainUnits() {}
 
@@ -158,7 +158,7 @@ unsigned char TaskObtainUnits::GetType() const { return TaskType_TaskObtainUnits
 bool TaskObtainUnits::Task_vfunc9() {
     bool result;
 
-    if (units->GetCount() && parent != nullptr) {
+    if (units->GetCount() > 0 && parent != nullptr) {
         result = parent->Task_vfunc9();
     } else {
         result = false;

@@ -25,7 +25,7 @@
 #include "units_manager.hpp"
 
 TaskDefenseAssistant::TaskDefenseAssistant(TaskManageBuildings* manager_, ResourceID unit_type_)
-    : Task(manager_->GetTeam(), this, manager_->GetFlags()) {
+    : Task(manager_->GetTeam(), manager_, manager_->GetFlags()) {
     manager = manager_;
     unit_type = unit_type_;
 }

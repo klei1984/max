@@ -3727,7 +3727,7 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, unsigned shor
 
     if (flags & 0x01) {
         for (int i = 0; i < table.GetCount(); ++i) {
-            if (UnitsManager_BaseUnits[table[i].unit_type].flags & STATIONARY) {
+            if (table[i].unit_type != INVALID_ID && (UnitsManager_BaseUnits[table[i].unit_type].flags & STATIONARY)) {
                 table[i].weight = 0;
             }
         }
@@ -3735,7 +3735,8 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, unsigned shor
 
     if (flags & 0x02) {
         for (int i = 0; i < table.GetCount(); ++i) {
-            if (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT) {
+            if (table[i].unit_type != INVALID_ID &&
+                (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT)) {
                 table[i].weight = 0;
             }
         }
@@ -3837,15 +3838,19 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, unsigned char fla
         }
 
         for (int i = 0; i < table.GetCount(); ++i) {
-            int surface_type = UnitsManager_BaseUnits[table[i].unit_type].land_type;
-            int unit_range = team_units->GetCurrentUnitValues(table[i].unit_type)->GetAttribute(ATTRIB_RANGE);
+            if (table[i].unit_type != INVALID_ID) {
+                int surface_type = UnitsManager_BaseUnits[table[i].unit_type].land_type;
+                int unit_range = team_units->GetCurrentUnitValues(table[i].unit_type)->GetAttribute(ATTRIB_RANGE);
 
-            if (surface_type == SURFACE_TYPE_LAND && !IsSurfaceTypePresent(position, unit_range, SURFACE_TYPE_LAND)) {
-                table[i].weight = 0;
-            }
+                if (surface_type == SURFACE_TYPE_LAND &&
+                    !IsSurfaceTypePresent(position, unit_range, SURFACE_TYPE_LAND)) {
+                    table[i].weight = 0;
+                }
 
-            if (surface_type == SURFACE_TYPE_WATER && !IsSurfaceTypePresent(position, unit_range, SURFACE_TYPE_WATER)) {
-                table[i].weight = 0;
+                if (surface_type == SURFACE_TYPE_WATER &&
+                    !IsSurfaceTypePresent(position, unit_range, SURFACE_TYPE_WATER)) {
+                    table[i].weight = 0;
+                }
             }
         }
     }
