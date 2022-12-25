@@ -53,6 +53,9 @@ void MessageManager_WrapText(const char* text, short width) {
     int position = 0;
     short row_width = 0;
     char* buffer = MessageManager_MessageBuffer;
+    char local_text[2];
+
+    local_text[1] = '\0';
 
     do {
         if (text[position] == '\n') {
@@ -69,7 +72,9 @@ void MessageManager_WrapText(const char* text, short width) {
             buffer = &MessageManager_MessageBuffer[MessageManager_Buffer1_Length];
 
         } else {
-            short char_width = text_char_width(text[position]);
+            local_text[0] = text[position];
+
+            short char_width = text_width(local_text);
 
             if ((row_width + char_width) > width) {
                 char* line_buffer = &MessageManager_MessageBuffer[MessageManager_Buffer1_Length];
@@ -156,8 +161,8 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             DialogMenu dialog(text, flag1);
             dialog.Run();
         } else {
-            WindowInfo* window_2;
-            WindowInfo* window_38;
+            WindowInfo* window_message_box;
+            WindowInfo* window_main_map;
             int width;
             int offset_x;
             int offset_y;
@@ -178,8 +183,8 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             }
 
             text_font(5);
-            window_38 = WindowManager_GetWindow(WINDOW_MAIN_MAP);
-            width = window_38->window.lrx - window_38->window.ulx;
+            window_main_map = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+            width = window_main_map->window.lrx - window_main_map->window.ulx;
 
             MessageManager_MessageBox_Width = 0;
             MessageManager_Buffer1_Length = 0;
@@ -193,14 +198,14 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             offset_x = 0;
             offset_y = 10;
 
-            window_2 = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
+            window_message_box = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
-            window_2->window.ulx = window_38->window.ulx + offset_x;
-            window_2->window.uly = window_38->window.uly + offset_y;
-            window_2->window.lrx = window_2->window.ulx + MessageManager_MessageBox_Width;
-            window_2->window.lry = window_2->window.uly + MessageManager_MessageBox_Height;
+            window_message_box->window.ulx = window_main_map->window.ulx + offset_x;
+            window_message_box->window.uly = window_main_map->window.uly + offset_y;
+            window_message_box->window.lrx = window_message_box->window.ulx + MessageManager_MessageBox_Width;
+            window_message_box->window.lry = window_message_box->window.uly + MessageManager_MessageBox_Height;
 
-            window_2->buffer = &window_38->buffer[offset_x + 640 * offset_y];
+            window_message_box->buffer = &window_main_map->buffer[offset_x + 640 * offset_y];
 
             MessageManager_MessageBox_BgColor = *MessageManager_MessageBox_BgColorArray[type];
             MessageManager_MessageBox_IsActive = true;

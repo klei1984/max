@@ -841,9 +841,12 @@ MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, u
     build_rate_x1 = new (std::nothrow) Button(BLDBLD_U, BLDBLD_D, 292, 345);
     build_rate_x2 = new (std::nothrow) Button(BLD2X_U, BLD2X_D, 292, 369);
     build_rate_x4 = new (std::nothrow) Button(BLD4X_U, BLD4X_D, 292, 394);
-    button_path_build = new (std::nothrow) Button(BLDPTH_U, BLDPTH_D, 347, 427);
 
-    button_path_build->SetCaption("path");
+    if (unit->unit_type == ENGINEER) {
+        button_path_build = new (std::nothrow) Button(BLDPTH_U, BLDPTH_D, 347, 427);
+
+        button_path_build->SetCaption("path");
+    }
 
     window_info = window;
 
@@ -1149,7 +1152,7 @@ void FactoryBuildMenu::InitControls() {
 
     cargo_selector->Draw();
 
-    InitControls();
+    AbstractBuildMenu::InitControls();
 
     if (build_queue->GetCount() > 0) {
         Draw(cargo_selector->GetLast());

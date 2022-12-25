@@ -1098,14 +1098,18 @@ void GameManager_HandleTurnTimer() {
 }
 
 void GameManager_GetScaledMessageBoxBounds(Rect* bounds) {
-    WindowInfo* window;
+    WindowInfo* window_message_box;
 
-    window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
+    window_message_box = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
     bounds->ulx = GameManager_MapWindowDrawBounds.ulx;
     bounds->uly = ((Gfx_MapScalingFactor * 10) >> 16) + GameManager_MapWindowDrawBounds.uly;
-    bounds->lrx = (((window->window.lrx - window->window.ulx + 1) * Gfx_MapScalingFactor) >> 16) + bounds->ulx;
-    bounds->lry = (((window->window.lry - window->window.uly + 1) * Gfx_MapScalingFactor) >> 16) + bounds->uly;
+    bounds->lrx =
+        (((window_message_box->window.lrx - window_message_box->window.ulx + 1) * Gfx_MapScalingFactor) >> 16) +
+        bounds->ulx;
+    bounds->lry =
+        (((window_message_box->window.lry - window_message_box->window.uly + 1) * Gfx_MapScalingFactor) >> 16) +
+        bounds->uly;
 }
 
 void GameManager_Render() {

@@ -552,7 +552,10 @@ UnitInfo::UnitInfo()
       build_rate(1),
       field_221(0),
       disabled_reaction_fire(false),
-      auto_survey(false) {}
+      auto_survey(false) {
+    rect_init(&sprite_bounds, 0, 0, 0, 0);
+    rect_init(&shadow_bounds, 0, 0, 0, 0);
+}
 
 UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id, unsigned char angle)
     : orders(ORDER_AWAIT),
@@ -604,6 +607,9 @@ UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id,
       auto_survey(false),
       angle(angle) {
     BaseUnit* unit;
+
+    rect_init(&sprite_bounds, 0, 0, 0, 0);
+    rect_init(&shadow_bounds, 0, 0, 0, 0);
 
     Init();
 
@@ -1333,8 +1339,8 @@ void UnitInfo::UpdateUnitDrawZones() {
         }
 
         shadow_bounds.ulx = 32000;
-        shadow_bounds.uly = -32000;
-        shadow_bounds.lrx = 32000;
+        shadow_bounds.uly = 32000;
+        shadow_bounds.lrx = -32000;
         shadow_bounds.lry = -32000;
 
         point -= shadow_offset;
