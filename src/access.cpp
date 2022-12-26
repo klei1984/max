@@ -1176,9 +1176,9 @@ bool Access_IsValidNextUnit(UnitInfo* unit) {
         (unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_UNIT_READY)) {
         result = false;
 
-    } else if ((Access_IsWithinMovementRange(unit) || unit->shots) &&
-               Access_FindReachableSpot(unit->unit_type, unit, &grid_x, &grid_y,
-                                        unit_values->GetAttribute(ATTRIB_RANGE), 0, 1)) {
+    } else if (Access_IsWithinMovementRange(unit) ||
+               (unit->shots && Access_FindReachableSpot(unit->unit_type, unit, &grid_x, &grid_y,
+                                                        unit_values->GetAttribute(ATTRIB_RANGE), 0, 1))) {
         result = true;
 
     } else {

@@ -1294,13 +1294,13 @@ SmartPointer<UnitInfo> UnitInfo::MakeCopy() {
 }
 
 void UnitInfo::OffsetDrawZones(int offset_x, int offset_y) {
-    x = offset_x;
+    x += offset_x;
     sprite_bounds.ulx += offset_x;
     sprite_bounds.lrx += offset_x;
     shadow_bounds.ulx += offset_x;
     shadow_bounds.lrx += offset_x;
 
-    x = offset_y;
+    y += offset_y;
     sprite_bounds.uly += offset_y;
     sprite_bounds.lry += offset_y;
     sprite_bounds.uly += offset_y;
@@ -1349,7 +1349,7 @@ void UnitInfo::UpdateUnitDrawZones() {
                                 reinterpret_cast<struct ImageMultiHeader*>(base_unit->shadows), image_index);
 
         if (flags & (SPINNING_TURRET | TURRET_SPRITE)) {
-            UpdateSpriteFrameBounds(&sprite_bounds, point.x + turret_offset_x, point.y + turret_offset_y,
+            UpdateSpriteFrameBounds(&shadow_bounds, point.x + turret_offset_x, point.y + turret_offset_y,
                                     reinterpret_cast<struct ImageMultiHeader*>(base_unit->shadows), turret_image_index);
         }
 
@@ -1357,8 +1357,8 @@ void UnitInfo::UpdateUnitDrawZones() {
             shadow_bounds.ulx - 16 < sprite_bounds.ulx || shadow_bounds.uly - 16 < sprite_bounds.uly) {
             shadow_bounds.ulx = std::min(shadow_bounds.ulx, sprite_bounds.ulx);
             shadow_bounds.uly = std::min(shadow_bounds.uly, sprite_bounds.uly);
-            shadow_bounds.lrx = std::min(shadow_bounds.lrx, sprite_bounds.lrx);
-            shadow_bounds.lry = std::min(shadow_bounds.lry, sprite_bounds.lry);
+            shadow_bounds.lrx = std::max(shadow_bounds.lrx, sprite_bounds.lrx);
+            shadow_bounds.lry = std::max(shadow_bounds.lry, sprite_bounds.lry);
         }
     }
 }
@@ -3542,7 +3542,7 @@ void UnitInfo::RenderShadow(Point point, int image_id, Rect* bounds) {
     }
 }
 
-void UnitInfo::RenderAirShadow(Rect* bounds) { RenderShadow(Point(grid_x, grid_y), image_index, bounds); }
+void UnitInfo::RenderAirShadow(Rect* bounds) { RenderShadow(Point(x, y), image_index, bounds); }
 
 void UnitInfo::RenderSprite(Point point, int image_base, Rect* bounds) {
     if (UnitsManager_BaseUnits[unit_type].sprite) {
@@ -3598,72 +3598,72 @@ void UnitInfo::RenderSprite(Point point, int image_base, Rect* bounds) {
 }
 
 void UnitInfo::Render(Rect* bounds) {
-    Point point(grid_x, grid_y);
+    Point position(x, y);
 
-    RenderSprite(point, image_index, bounds);
+    RenderSprite(position, image_index, bounds);
 
     if (flags & (TURRET_SPRITE | SPINNING_TURRET)) {
-        point.x = turret_offset_x;
-        point.y = turret_offset_y;
+        position.x += turret_offset_x;
+        position.y += turret_offset_y;
 
-        RenderSprite(point, turret_image_index, bounds);
+        RenderSprite(position, turret_image_index, bounds);
     }
 }
 
 void UnitInfo::RenderWithConnectors(Rect* bounds) {
-    Point point(x, y);
+    Point position(x, y);
 
-    RenderShadow(point, image_index, bounds);
-    RenderSprite(point, image_index, bounds);
+    RenderShadow(position, image_index, bounds);
+    RenderSprite(position, image_index, bounds);
 
     if (connectors) {
         if (connectors & CONNECTOR_NORTH_LEFT) {
-            RenderShadow(point, connector_image_base, bounds);
-            RenderSprite(point, connector_image_base, bounds);
+            RenderShadow(position, connector_image_base, bounds);
+            RenderSprite(position, connector_image_base, bounds);
         }
 
         if (connectors & CONNECTOR_NORTH_RIGHT) {
-            RenderShadow(point, connector_image_base + 4, bounds);
-            RenderSprite(point, connector_image_base + 4, bounds);
+            RenderShadow(position, connector_image_base + 4, bounds);
+            RenderSprite(position, connector_image_base + 4, bounds);
         }
 
         if (connectors & CONNECTOR_SOUTH_LEFT) {
-            RenderShadow(point, connector_image_base + 2, bounds);
-            RenderSprite(point, connector_image_base + 2, bounds);
+            RenderShadow(position, connector_image_base + 2, bounds);
+            RenderSprite(position, connector_image_base + 2, bounds);
         }
 
         if (connectors & CONNECTOR_SOUTH_RIGHT) {
-            RenderShadow(point, connector_image_base + 6, bounds);
-            RenderSprite(point, connector_image_base + 6, bounds);
+            RenderShadow(position, connector_image_base + 6, bounds);
+            RenderSprite(position, connector_image_base + 6, bounds);
         }
 
         if (connectors & CONNECTOR_EAST_TOP) {
-            RenderShadow(point, connector_image_base + 1, bounds);
-            RenderSprite(point, connector_image_base + 1, bounds);
+            RenderShadow(position, connector_image_base + 1, bounds);
+            RenderSprite(position, connector_image_base + 1, bounds);
         }
 
         if (connectors & CONNECTOR_EAST_BOTTOM) {
-            RenderShadow(point, connector_image_base + 5, bounds);
-            RenderSprite(point, connector_image_base + 5, bounds);
+            RenderShadow(position, connector_image_base + 5, bounds);
+            RenderSprite(position, connector_image_base + 5, bounds);
         }
 
         if (connectors & CONNECTOR_WEST_TOP) {
-            RenderShadow(point, connector_image_base + 3, bounds);
-            RenderSprite(point, connector_image_base + 3, bounds);
+            RenderShadow(position, connector_image_base + 3, bounds);
+            RenderSprite(position, connector_image_base + 3, bounds);
         }
 
         if (connectors & CONNECTOR_WEST_BOTTOM) {
-            RenderShadow(point, connector_image_base + 7, bounds);
-            RenderSprite(point, connector_image_base + 7, bounds);
+            RenderShadow(position, connector_image_base + 7, bounds);
+            RenderSprite(position, connector_image_base + 7, bounds);
         }
     }
 
     if (flags & (TURRET_SPRITE | SPINNING_TURRET)) {
-        point.x = turret_offset_x;
-        point.y = turret_offset_y;
+        position.x = turret_offset_x;
+        position.y = turret_offset_y;
 
-        RenderShadow(point, turret_image_index, bounds);
-        RenderSprite(point, turret_image_index, bounds);
+        RenderShadow(position, turret_image_index, bounds);
+        RenderSprite(position, turret_image_index, bounds);
     }
 }
 

@@ -4880,7 +4880,7 @@ void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_
     if (alien_unit_value > 0) {
         Point point1;
         Point point2;
-        bool flag;
+        bool flag = false;
 
         point1.x = (((alien_seperation * 4) / 5 + 1) * dos_rand()) >> 15;
         point1.y = ((alien_seperation / 2 + 1) * dos_rand()) >> 15;
@@ -4891,7 +4891,7 @@ void GameManager_PopulateMapWithAlienUnits(int alien_seperation, int alien_unit_
                 point2.x = (((((alien_seperation / 5) - ((-alien_seperation) / 5)) + 1) * dos_rand()) >> 15) +
                            ((-alien_seperation) / 5) + i;
                 point2.y = (((((alien_seperation / 5) - ((-alien_seperation) / 5)) + 1) * dos_rand()) >> 15) +
-                           ((-alien_seperation) / 5) + i;
+                           ((-alien_seperation) / 5) + j;
 
                 GameManager_SpawnAlienDerelicts(point2, alien_unit_value);
             }

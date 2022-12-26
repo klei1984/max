@@ -3506,29 +3506,29 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
             building = Access_GetTeamBuilding(team, grid_x, grid_y - 1);
 
             if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                unit->connectors &= ~CONNECTOR_SOUTH_LEFT;
+                building->connectors &= ~CONNECTOR_SOUTH_LEFT;
 
             } else if (building == Access_GetTeamBuilding(team, grid_x + 1, grid_y - 1)) {
-                unit->connectors &= ~CONNECTOR_SOUTH_LEFT;
+                building->connectors &= ~CONNECTOR_SOUTH_LEFT;
 
             } else {
-                unit->connectors &= ~CONNECTOR_SOUTH_RIGHT;
+                building->connectors &= ~CONNECTOR_SOUTH_RIGHT;
             }
 
             building->RefreshScreen();
         }
 
         if (unit->connectors & CONNECTOR_NORTH_RIGHT) {
-            building = Access_GetTeamBuilding(team, grid_x - 1, grid_y + 1);
+            building = Access_GetTeamBuilding(team, grid_x + 1, grid_y - 1);
 
             if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                unit->connectors &= ~CONNECTOR_SOUTH_LEFT;
+                building->connectors &= ~CONNECTOR_SOUTH_LEFT;
 
             } else if (building == Access_GetTeamBuilding(team, grid_x, grid_y - 1)) {
-                unit->connectors &= ~CONNECTOR_SOUTH_RIGHT;
+                building->connectors &= ~CONNECTOR_SOUTH_RIGHT;
 
             } else {
-                unit->connectors &= ~CONNECTOR_SOUTH_LEFT;
+                building->connectors &= ~CONNECTOR_SOUTH_LEFT;
             }
 
             building->RefreshScreen();
@@ -3538,13 +3538,13 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
             building = Access_GetTeamBuilding(team, grid_x + unit_size, grid_y);
 
             if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                unit->connectors &= ~CONNECTOR_WEST_TOP;
+                building->connectors &= ~CONNECTOR_WEST_TOP;
 
             } else if (building == Access_GetTeamBuilding(team, grid_x + unit_size, grid_y + 1)) {
-                unit->connectors &= ~CONNECTOR_WEST_TOP;
+                building->connectors &= ~CONNECTOR_WEST_TOP;
 
             } else {
-                unit->connectors &= ~CONNECTOR_WEST_BOTTOM;
+                building->connectors &= ~CONNECTOR_WEST_BOTTOM;
             }
 
             building->RefreshScreen();
@@ -3554,13 +3554,13 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
             building = Access_GetTeamBuilding(team, grid_x + unit_size, grid_y + 1);
 
             if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                unit->connectors &= ~CONNECTOR_WEST_TOP;
+                building->connectors &= ~CONNECTOR_WEST_TOP;
 
             } else if (building == Access_GetTeamBuilding(team, grid_x + unit_size, grid_y)) {
-                unit->connectors &= ~CONNECTOR_WEST_BOTTOM;
+                building->connectors &= ~CONNECTOR_WEST_BOTTOM;
 
             } else {
-                unit->connectors &= ~CONNECTOR_WEST_TOP;
+                building->connectors &= ~CONNECTOR_WEST_TOP;
             }
 
             building->RefreshScreen();
@@ -3570,13 +3570,13 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
             building = Access_GetTeamBuilding(team, grid_x, grid_y + unit_size);
 
             if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                unit->connectors &= ~CONNECTOR_NORTH_LEFT;
+                building->connectors &= ~CONNECTOR_NORTH_LEFT;
 
             } else if (building == Access_GetTeamBuilding(team, grid_x + 1, grid_y + unit_size)) {
-                unit->connectors &= ~CONNECTOR_NORTH_LEFT;
+                building->connectors &= ~CONNECTOR_NORTH_LEFT;
 
             } else {
-                unit->connectors &= ~CONNECTOR_NORTH_RIGHT;
+                building->connectors &= ~CONNECTOR_NORTH_RIGHT;
             }
 
             building->RefreshScreen();
@@ -3586,13 +3586,13 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
             building = Access_GetTeamBuilding(team, grid_x + 1, grid_y + unit_size);
 
             if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                unit->connectors &= ~CONNECTOR_NORTH_LEFT;
+                building->connectors &= ~CONNECTOR_NORTH_LEFT;
 
             } else if (building == Access_GetTeamBuilding(team, grid_x, grid_y + unit_size)) {
-                unit->connectors &= ~CONNECTOR_NORTH_RIGHT;
+                building->connectors &= ~CONNECTOR_NORTH_RIGHT;
 
             } else {
-                unit->connectors &= ~CONNECTOR_NORTH_LEFT;
+                building->connectors &= ~CONNECTOR_NORTH_LEFT;
             }
 
             building->RefreshScreen();
@@ -3602,13 +3602,13 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
             building = Access_GetTeamBuilding(team, grid_x - 1, grid_y);
 
             if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                unit->connectors &= ~CONNECTOR_EAST_TOP;
+                building->connectors &= ~CONNECTOR_EAST_TOP;
 
             } else if (building == Access_GetTeamBuilding(team, grid_x - 1, grid_y + 1)) {
-                unit->connectors &= ~CONNECTOR_EAST_TOP;
+                building->connectors &= ~CONNECTOR_EAST_TOP;
 
             } else {
-                unit->connectors &= ~CONNECTOR_EAST_BOTTOM;
+                building->connectors &= ~CONNECTOR_EAST_BOTTOM;
             }
 
             building->RefreshScreen();
@@ -3618,13 +3618,13 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
             building = Access_GetTeamBuilding(team, grid_x - 1, grid_y + 1);
 
             if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                unit->connectors &= ~CONNECTOR_EAST_TOP;
+                building->connectors &= ~CONNECTOR_EAST_TOP;
 
             } else if (building == Access_GetTeamBuilding(team, grid_x - 1, grid_y)) {
-                unit->connectors &= ~CONNECTOR_EAST_BOTTOM;
+                building->connectors &= ~CONNECTOR_EAST_BOTTOM;
 
             } else {
-                unit->connectors &= ~CONNECTOR_EAST_TOP;
+                building->connectors &= ~CONNECTOR_EAST_TOP;
             }
 
             building->RefreshScreen();
