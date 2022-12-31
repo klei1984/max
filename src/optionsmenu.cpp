@@ -114,7 +114,7 @@ OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
     int uly = bg_image == SETUPPIC ? 141 : 383;
 
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Add();
     FillWindowInfo(&window);
@@ -711,7 +711,7 @@ int OptionsMenu::ProcessKeyPress(int key) {
                                                             options_menu_buttons[key].image->GetULX() + 5,
                                                             options_menu_buttons[key].image->GetULY(),
                                                             options_menu_buttons[key].image->GetWidth() - 5,
-                                                            options_menu_buttons[key].image->GetHeight() + 1, 0xA2, 5);
+                                                            options_menu_buttons[key].image->GetHeight() + 1, 0xA2, GNW_TEXT_FONT_5);
 
                             switch (options_menu_buttons[key].type) {
                                 case OPTIONS_TYPE_EDIT_INT: {

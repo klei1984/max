@@ -30,9 +30,8 @@
 
 #include "enums.hpp"
 
-extern "C" {
-
 enum IniParameter {
+    /// DEBUG SECTION
     INI_INVALID_ID,
     INI_DEBUG,
     INI_ALL_VISIBLE,
@@ -70,7 +69,7 @@ enum IniParameter {
     INI_HITS_FACTOR,
     INI_SPEED_FACTOR,
     INI_SCAN_FACTOR,
-	INI_COST_FACTOR,
+    INI_COST_FACTOR,
     INI_STEAL_PERCENT,
     INI_DISABLE_PERCENT,
     INI_MAX_PERCENT,
@@ -82,6 +81,8 @@ enum IniParameter {
     INI_GREEN_STRATEGY,
     INI_BLUE_STRATEGY,
     INI_GRAY_STRATEGY,
+
+    /// SETUP SECTION
     INI_SETUP,
     INI_PLAYER_NAME,
     INI_PLAYER_CLAN,
@@ -101,6 +102,9 @@ enum IniParameter {
     INI_LAST_CAMPAIGN,
     INI_MOVIE_PLAY,
     INI_ALT_MOVIE_RES,
+    INI_LANGUAGE,
+
+    /// OPTIONS SECTION
     INI_OPTIONS,
     INI_WORLD,
     INI_TIMER,
@@ -114,6 +118,8 @@ enum IniParameter {
     INI_FUEL_RESOURCE,
     INI_GOLD_RESOURCE,
     INI_ALIEN_DERELICTS,
+
+    /// PREFERENCES SECTION
     INI_PREFERENCES,
     INI_EFFECTS,
     INI_CLICK_SCROLL,
@@ -122,15 +128,8 @@ enum IniParameter {
     INI_FOLLOW_UNIT,
     INI_AUTO_SELECT,
     INI_ENEMY_HALT,
-    INI_MODEM,
-    INI_MODEM_PORT,
-    INI_MODEM_BAUD,
-    INI_MODEM_IRQ,
-    INI_MODEM_INIT,
-    INI_MODEM_ANSWER,
-    INI_MODEM_CALL,
-    INI_MODEM_HANGUP,
-    INI_MODEM_PHONE,
+
+    /// TEAMS SECTION
     INI_TEAMS,
     INI_RED_TEAM_NAME,
     INI_GREEN_TEAM_NAME,
@@ -144,22 +143,26 @@ enum IniParameter {
     INI_GREEN_TEAM_CLAN,
     INI_BLUE_TEAM_CLAN,
     INI_GRAY_TEAM_CLAN,
-    INI_DIGITAL,
-    INI_DEVICE_NAME,
-    INI_DEVICE_IRQ,
-    INI_DEVICE_DMA,
-    INI_DEVICE_PORT,
-    INI_DEVICE_ID,
+
+    /// AUDIO SETTINGS SECTION
+    INI_AUDIO_SETTINGS,
+    INI_AUDIO_DEVICE_NAME,
+    INI_AUDIO_DEVICE_ID,
     INI_CHANNELS_REVERSED,
+
+    /// GRAPHICS SETTINGS SECTION
     INI_GRAPHICS_SETTINGS,
     INI_SCREEN_MODE,
     INI_SCALE_QUALITY,
     INI_WINDOW_WIDTH,
     INI_WINDOW_HEIGHT,
+
+    /// NETWORK SETTINGS SECTION
     INI_NETWORK_SETTINGS,
     INI_NETWORK_TRANSPORT,
     INI_NETWORK_HOST_ADDRESS,
     INI_NETWORK_HOST_PORT,
+
     INI_END_DELIMITER
 };
 
@@ -179,7 +182,7 @@ struct Ini_descriptor {
     char *param_start_address;
 };
 
-int inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini);
+int inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini, bool free_only = false);
 int inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const char *const inifile_path);
 unsigned int inifile_hex_to_dec(const char *const hex);
 int inifile_ini_seek_section(Ini_descriptor *const pini, const char *const ini_section_name);
@@ -195,7 +198,5 @@ int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buf
 
 int ini_get_setting(IniParameter index);
 int ini_set_setting(IniParameter index, int value);
-
-} /* extern "C" */
 
 #endif /* INI_HPP */

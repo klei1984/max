@@ -96,7 +96,7 @@ void ClanSelectMenu::Init(int team) {
               clan_select_menu_screen_text[0].bounds.lry - clan_select_menu_screen_text[0].bounds.uly);
     image->Copy(window);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     menu_draw_menu_title(window, &clan_select_menu_screen_title, 0x02, true);
     SelectMenuItems();
@@ -133,7 +133,7 @@ void ClanSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_CLAN_SETUP, WINDOW_MAI
 void ClanSelectMenu::ButtonInit(int index, int mode) {
     struct ClanSelectMenuControlItem* control = &clan_select_menu_controls[index];
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
 
     if (index >= 0 && index <= 7) {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),

@@ -33,7 +33,7 @@ OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
       event_click_cancel(false),
       event_release(false) {
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     SetFlags(0x10);
 
     Add();

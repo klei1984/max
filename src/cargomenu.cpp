@@ -92,7 +92,7 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
     button_delete = new (std::nothrow) Button(CRGDEL_U, CRGDEL_D, 412, 240);
     button_buy = new (std::nothrow) Button(CRGBUY_U, CRGBUY_D, 590, 386);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     button_delete->SetCaption("Delete");
     button_buy->SetCaption("Buy");
@@ -223,13 +223,13 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
     cargo_selector = new (std::nothrow) CargoSelector(this, &wininfo2, unit_types2, cargos, team, 3000,
                                                       button_purchase_list_up, button_purchase_list_down);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(window1.buffer, window1.width, "Purchased", 337, 22, 118, 10, 0xA2, true);
 
     draw_line(window1.buffer, window1.width, 337, 34, 455, 34, 0x5);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(window1.buffer, window1.width, "Purchase Menu", 473, 7, 158, 18, 0x2, true);
     Text_TextBox(&window1, "Description", 209, 264, 80, 17, true, true);
@@ -337,7 +337,7 @@ bool CargoMenu::EventHandler(Event* event) {
 }
 
 void CargoMenu::DrawUnitInfo(ResourceID unit_type) {
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     if (unit_type != INVALID_ID) {
         if ((unit_types1->Find(&unit_type) != -1) &&

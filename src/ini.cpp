@@ -111,15 +111,19 @@ int inifile_save_to_file(Ini_descriptor *const pini) {
     return 1;
 }
 
-int inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini) {
-    if (!inifile_save_to_file(pini)) {
-        return 0;
+int inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini, bool free_only) {
+    int result = 1;
+
+    if (!free_only) {
+        if (!inifile_save_to_file(pini)) {
+            result = 0;
+        }
     }
 
     delete[] pini->buffer;
     pini->buffer = nullptr;
 
-    return 1;
+    return result;
 }
 
 int inifile_ini_seek_section(Ini_descriptor *const pini, const char *const ini_section_name) {

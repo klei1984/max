@@ -105,6 +105,7 @@ void dos_srand(unsigned int seed) {
 
     next = initrandnext();
     if (next) {
-        *next = seed;
+        /// DEBUG
+        *next = 0x4000;  // seed;
     }
 }

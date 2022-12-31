@@ -65,7 +65,7 @@ static_assert(PLANET_SELECT_MENU_ITEM_COUNT ==
 void PlanetSelectMenu::ButtonInit(int index) {
     struct PlanetSelectMenuControlItem* control = &planet_select_menu_controls[index];
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
 
     if (control->image_id == INVALID_ID) {
         buttons[index] = new (std::nothrow)
@@ -130,7 +130,7 @@ void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
 void PlanetSelectMenu::DrawTexts() {
     Rect* bounds;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     menu_draw_menu_title(window, &planet_select_menu_screen_title, 0x02, true);
 

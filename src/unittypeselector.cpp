@@ -264,7 +264,7 @@ void UnitTypeSelector::Draw() {
     width = window_info.window.lrx - window_info.window.ulx;
 
     buf_to_buf(image->data, image->width, image->height, image->width, window_info.buffer, window_info.width);
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     for (int i = 0; i < max_item_count && i + page_min_index < unit_types.GetCount(); ++i) {
         ReportStats_DrawListItem(window_info.buffer, window_info.width, *unit_types[page_min_index + i], 0, i * 32,

@@ -244,7 +244,7 @@ void NetworkMenu::ButtonInit(int index) {
 
     control = &network_menu_controls[index];
 
-    text_font((index < MENU_CONTROL_OPTIONS_BUTTON) ? 5 : 1);
+    text_font((index < MENU_CONTROL_OPTIONS_BUTTON) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
 
     if (index == MENU_CONTROL_CLAN_BUTTON) {
         ResourceID clan_logo;
@@ -304,7 +304,7 @@ void NetworkMenu::ButtonInit(int index) {
     menu_items[index].event_code = control->event_code;
     menu_items[index].event_handler = control->event_handler;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 }
 
 void NetworkMenu::Init() {
@@ -325,10 +325,10 @@ void NetworkMenu::Init() {
     mouse_hide();
     WindowManager_LoadImage(MULTGAME, window, window->width, false, false);
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
     Text_TextBox(window, "Messages:", 28, 403, 106, 25, true);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     for (int i = 0; i < NETWORK_MENU_IMAGE_COUNT; ++i) {
         MenuTitleItem *menu_item = &network_menu_titles[i];
@@ -604,7 +604,7 @@ void NetworkMenu::EventReady() {
 }
 
 void NetworkMenu::DrawScreen() {
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     InitPlayerPanel();
 
     if (is_host_mode || host_node) {
@@ -963,7 +963,7 @@ void NetworkMenu::DeleteButtons() {
 void NetworkMenu::Reinit(int palette_from_image) {
     mouse_hide();
     WindowManager_LoadImage(MULTGAME, window, window->width, palette_from_image, false);
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
     Text_TextBox(window, "Messages:", 28, 403, 106, 25, true);
     DrawScreen();
     mouse_show();
@@ -978,7 +978,7 @@ TextEdit *NetworkMenu::CreateTextEdit(int index) {
     text_buffer[0] = '\0';
     text_edit = new (std::nothrow)
         TextEdit(window, text_buffer, index == 18 ? 120 : 30, control->bounds.ulx, control->bounds.uly,
-                 control->bounds.lrx - control->bounds.ulx + 1, control->bounds.lry - control->bounds.uly + 1, 0xA2, 5);
+                 control->bounds.lrx - control->bounds.ulx + 1, control->bounds.lry - control->bounds.uly + 1, 0xA2, GNW_TEXT_FONT_5);
     text_edit->LoadBgImage();
 
     return text_edit;

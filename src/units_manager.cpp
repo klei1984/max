@@ -2195,7 +2195,7 @@ bool UnitsManager_SelfDestructMenu() {
     bool event_release;
 
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     destruct_window.SetFlags(0x10);
 
     destruct_window.Add();

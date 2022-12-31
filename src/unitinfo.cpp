@@ -790,7 +790,7 @@ void UnitInfo::Init() {
             }
 
             if (base_unit->shadows) {
-                base_unit->shadows = Gfx_RescaleSprite(base_unit->shadows, &data_size, 0, 2);
+                base_unit->shadows = Gfx_RescaleSprite(base_unit->shadows, &data_size, 1, 2);
 
                 ResourceManager_Realloc(UnitsManager_AbstractUnits[unit_type].shadows, base_unit->shadows, data_size);
             }

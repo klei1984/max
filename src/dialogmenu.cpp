@@ -148,7 +148,7 @@ DialogMenu::DialogMenu(const char* caption, bool mode)
       button_down(nullptr),
       field_64(mode) {
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     SetFlags(0x10);
     Add();
     FillWindowInfo(&window);

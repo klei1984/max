@@ -22,7 +22,25 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-typedef struct FontMgr_s* FontMgrPtr;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+enum {
+    GNW_TEXT_FONT_0,
+    GNW_TEXT_FONT_1,
+    GNW_TEXT_FONT_2,
+    GNW_TEXT_FONT_3,
+    GNW_TEXT_FONT_4,
+    GNW_TEXT_FONT_5,
+    GNW_TEXT_FONT_6,
+    GNW_TEXT_FONT_7,
+    GNW_TEXT_FONT_8,
+    GNW_TEXT_FONT_9,
+    GNW_TEXT_FONT_COUNT
+};
+
+typedef struct FontMgr* FontMgrPtr;
 
 typedef void (*text_to_buf_func)(unsigned char*, const char*, int, int, int);
 typedef int (*text_height_func)(void);
@@ -48,5 +66,9 @@ int text_add_manager(FontMgrPtr mgr);
 int text_remove_manager(int font_num);
 int text_curr(void);
 void text_font(int font_num);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TEXT_H */

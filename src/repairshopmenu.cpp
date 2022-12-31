@@ -251,7 +251,7 @@ void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
 
         unit->GetDisplayName(text);
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         Text_TextBox(local_window.buffer, local_window.width, text, 10, 3, bg_image_area->GetWidth() - 20,
                      bg_image_area->GetHeight() - 6, 0x100A2, false, false);
@@ -430,7 +430,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit) : Window(unit->unit_type == HANGA
 
         unit_slot_index = 0;
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         if (unit->unit_type == AIRTRANS) {
             button_activate_all = nullptr;
@@ -498,7 +498,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit) : Window(unit->unit_type == HANGA
             raw_material_value_area = new (std::nothrow) Image(529, 76, 54, 12);
             raw_material_value_area->Copy(&window);
 
-            text_font(5);
+            text_font(GNW_TEXT_FONT_5);
 
             Text_TextBox(window.buffer, window.width, "Material in Complex", 520, 53, 72, 20, 0xA2, true);
 
@@ -1084,7 +1084,7 @@ void RepairShopMenu::DrawCargoBar(bool draw_to_screen) {
 
     LoadVerticalBar(buffer, window.width, height, raw_material_bar->GetWidth(), VERTRAW);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     sprintf(text, "%i", materials.raw);
 

@@ -204,7 +204,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME), units(10) {
     report_screen_image = new (std::nothrow) Image(20, 17, 459, 448);
     report_screen_image->Copy(&window);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     row_counts[0] = report_screen_image->GetHeight() / 50;
     row_counts[1] = (report_screen_image->GetHeight() - 20) / 40;
@@ -626,7 +626,7 @@ void ReportMenu::InitMessages() {
 
     message_lines.Release();
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin();
          it != MessageManager_TeamMessageLog[GameManager_PlayerTeam].End(); ++it) {
@@ -689,7 +689,7 @@ void ReportMenu::DrawUnits() {
 
         units[i].GetDisplayName(text);
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         Text_TextBox(window.buffer, window.width, text, window_ulx + 35, window_uly, 80, 50, 0xA2, false);
 
@@ -700,7 +700,7 @@ void ReportMenu::DrawUnits() {
 
         ReportStats_Draw(&units[i], window.id, &bounds);
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         Text_TextBox(window.buffer, window.width,
                      SmartString().Sprintf(10, "%i,%i", units[i].grid_x, units[i].grid_y).GetCStr(), window_ulx + 265,
@@ -738,7 +738,7 @@ void ReportMenu::DrawCasualties() {
 
     FillWindowInfo(&window);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     window_ulx += 145;
 
@@ -805,7 +805,7 @@ void ReportMenu::DrawScores() {
     x2 = report_screen_image->GetULX() + report_screen_image->GetWidth();
     y2 = report_screen_image->GetULY() + report_screen_image->GetHeight() - 22;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     window_ulx = report_screen_image->GetULX();
     window_uly = report_screen_image->GetULY();
@@ -981,7 +981,7 @@ void ReportMenu::DrawMessages() {
     MessageLogEntry *message2;
     ColorIndex color;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     window_ulx = report_screen_image->GetULX() + 5;
     window_uly = report_screen_image->GetULY() + 6;
@@ -1097,7 +1097,7 @@ int ReportMenu::GetWorkingEcoSphereCount(unsigned short team) {
 void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int ulx, int uly, int width, int height) {
     SmartString string;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     width -= 40;
 
@@ -1278,7 +1278,7 @@ void ReportMenu::SelectMessage(MessageLogEntry *message) {
 void ReportMenu::SelectMessage(Point point) {
     int index;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     index = (point.y - report_screen_image->GetULY() - 6) / text_height();
 

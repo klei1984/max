@@ -376,7 +376,7 @@ void ResearchControl::Init(ResearchMenu *menu, unsigned char research_topic_inde
     image_labs_slider_bg = new (std::nothrow) Image(91, uly_slider, 48, 17);
     image_labs_slider_bg->Copy(&window);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(&window, ResearchMenu_TopicLabels[topic_index], 185, uly_slider, 49, 15, false, true);
 
@@ -402,7 +402,7 @@ void ResearchControl::RefreshScreen(bool redraw) {
 
     topic = &UnitsManager_TeamInfo[research_menu->GetTeam()].research_topics[topic_index];
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     research_menu->FillWindowInfo(&window);
 
@@ -557,17 +557,17 @@ ResearchMenu::ResearchMenu(unsigned short team) : Window(RSRCHPIC, WINDOW_MAIN_M
     Add();
     FillWindowInfo(&window);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(window.buffer, window.width, "Research Topics", 95, 19, 170, 13, 0x02, true);
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
 
     Text_TextLine(&window, "Labs", 23, 52, 125, true);
     Text_TextLine(&window, "Topics", 184, 52, 90, true);
     Text_TextLine(&window, "Turns", 282, 52, 60, true);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     button_cancel = new (std::nothrow) Button(DPTBAYUP, DPTBAYDN, 92, 294);
     button_cancel->Copy(window.id);

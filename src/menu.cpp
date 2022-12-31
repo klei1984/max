@@ -33,6 +33,7 @@
 #include "gameconfigmenu.hpp"
 #include "gamesetupmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "movie.hpp"
 #include "okcancelmenu.hpp"
 #include "optionsmenu.hpp"
@@ -84,34 +85,34 @@ static int menu_button_items_count;
 unsigned int menu_turn_timer_value;
 
 static struct MenuButton main_menu_buttons[] = {
-    MENU_BUTTON_DEF(true, 385, 175, "New Game", GNW_KB_KEY_SHIFT_N, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 210, "Load Game", GNW_KB_KEY_SHIFT_L, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 245, "Multiplayer Game", GNW_KB_KEY_SHIFT_M, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 280, "Setup", GNW_KB_KEY_SHIFT_S, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 315, "Introduction", GNW_KB_KEY_SHIFT_I, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 350, "Credits", GNW_KB_KEY_SHIFT_C, MBUTT0),
-    MENU_BUTTON_DEF(false, 435, 420, "Exit", GNW_KB_KEY_SHIFT_E, NDONE0),
+    MENU_BUTTON_DEF(true, 385, 175, _(28f9), GNW_KB_KEY_SHIFT_N, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 210, _(dc41), GNW_KB_KEY_SHIFT_L, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 245, _(8339), GNW_KB_KEY_SHIFT_M, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 280, _(7013), GNW_KB_KEY_SHIFT_S, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 315, _(b605), GNW_KB_KEY_SHIFT_I, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 350, _(2a6b), GNW_KB_KEY_SHIFT_C, MBUTT0),
+    MENU_BUTTON_DEF(false, 435, 420, _(d17d), GNW_KB_KEY_SHIFT_E, NDONE0),
     MENU_BUTTON_DEF(false, 16, 182, nullptr, GNW_KB_KEY_UP, KCARG0),
 };
 
 static struct MenuButton new_game_menu_buttons[] = {
-    MENU_BUTTON_DEF(true, 385, 175, "Training Missions", GNW_KB_KEY_SHIFT_T, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 210, "Stand Alone Missions", GNW_KB_KEY_SHIFT_S, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 245, "Custom Game", GNW_KB_KEY_SHIFT_U, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 280, "Custom Scenarios", GNW_KB_KEY_SHIFT_M, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 315, "Campaign Game", GNW_KB_KEY_SHIFT_A, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 350, "Tips", GNW_KB_KEY_SHIFT_I, MBUTT0),
-    MENU_BUTTON_DEF(false, 435, 420, "Cancel", GNW_KB_KEY_SHIFT_C, NCANC0),
+    MENU_BUTTON_DEF(true, 385, 175, _(9b46), GNW_KB_KEY_SHIFT_T, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 210, _(5d49), GNW_KB_KEY_SHIFT_S, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 245, _(3d29), GNW_KB_KEY_SHIFT_U, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 280, _(884f), GNW_KB_KEY_SHIFT_M, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 315, _(385b), GNW_KB_KEY_SHIFT_A, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 350, _(3838), GNW_KB_KEY_SHIFT_I, MBUTT0),
+    MENU_BUTTON_DEF(false, 435, 420, _(1976), GNW_KB_KEY_SHIFT_C, NCANC0),
     MENU_BUTTON_DEF(false, 16, 182, nullptr, GNW_KB_KEY_UP, KCARG0),
 };
 
 static struct MenuButton network_game_menu_buttons[] = {
-    MENU_BUTTON_DEF(true, 385, 175, "Host Network Game", GNW_KB_KEY_SHIFT_H, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 210, "Join Network Game", GNW_KB_KEY_SHIFT_J, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 280, "Hot Seat Game", GNW_KB_KEY_SHIFT_O, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 315, "Hot Seat Scenarios", GNW_KB_KEY_SHIFT_T, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 350, "Load Hot Seat Game", GNW_KB_KEY_SHIFT_L, MBUTT0),
-    MENU_BUTTON_DEF(false, 435, 420, "Cancel", GNW_KB_KEY_SHIFT_C, NCANC0),
+    MENU_BUTTON_DEF(true, 385, 175, _(c7a9), GNW_KB_KEY_SHIFT_H, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 210, _(7064), GNW_KB_KEY_SHIFT_J, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 280, _(f731), GNW_KB_KEY_SHIFT_O, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 315, _(bf00), GNW_KB_KEY_SHIFT_T, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 350, _(847e), GNW_KB_KEY_SHIFT_L, MBUTT0),
+    MENU_BUTTON_DEF(false, 435, 420, _(0de3), GNW_KB_KEY_SHIFT_C, NCANC0),
     MENU_BUTTON_DEF(false, 16, 182, nullptr, GNW_KB_KEY_UP, KCARG0),
 };
 
@@ -123,86 +124,86 @@ static int menu_tips_max_row_count_per_page;
 static int menu_tips_row_count;
 static int menu_tips_current_row_index;
 
-static struct CreditsLine menu_credits_lines[] = {
-    CREDITS_TITLE("Project Manager:"),
+static const struct CreditsLine menu_credits_lines[] = {
+    CREDITS_TITLE(_(aabe)),
     CREDITS_TEXT("Ali Atabek"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Producers:"),
+    CREDITS_TITLE(_(84ee)),
     CREDITS_TEXT("Ali Atabek"),
     CREDITS_TEXT("Paul Kellner"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Game Design:"),
+    CREDITS_TITLE(_(8984)),
     CREDITS_TEXT("Ali Atabek"),
     CREDITS_TEXT("Paul Kellner"),
     CREDITS_TEXT("Gus Smedstad"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Lead Programmer:"),
+    CREDITS_TITLE(_(aa55)),
     CREDITS_TEXT("Dave Boulanger"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Artificial Intelligence:"),
-    CREDITS_TITLE("Design & Programming:"),
+    CREDITS_TITLE(_(3c7e)),
+    CREDITS_TITLE(_(24ef)),
     CREDITS_TEXT("Gus Smedstad"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Network & Modem Programming:"),
+    CREDITS_TITLE(_(5fe6)),
     CREDITS_TEXT("Dave Boulanger"),
     CREDITS_TEXT("Bernie Weir"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("DOS and Windows Install Programmer:"),
+    CREDITS_TITLE(_(3215)),
     CREDITS_TEXT("Darren Monahan"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("2D Artists:"),
+    CREDITS_TITLE(_(38c1)),
     CREDITS_TEXT("Tony Postma"),
     CREDITS_TEXT("Arlene C. Somers"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("3D Artists:"),
+    CREDITS_TITLE(_(363f)),
     CREDITS_TEXT("Chris Regalado"),
     CREDITS_TEXT("Mark Bergo"),
     CREDITS_TEXT("Arlene C. Somers"),
     CREDITS_TEXT("Mike Dean"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Visual Concept & Storyboards:"),
+    CREDITS_TITLE(_(477a)),
     CREDITS_TEXT("Tony Postma"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Original World Design:"),
+    CREDITS_TITLE(_(fff7)),
     CREDITS_TEXT("Cheryl Austin"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("World Creation:"),
+    CREDITS_TITLE(_(47c6)),
     CREDITS_TEXT("Arlene C. Somers"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Map Design:"),
+    CREDITS_TITLE(_(9a25)),
     CREDITS_TEXT("Ali Atabek"),
     CREDITS_TEXT("Paul Kellner"),
     CREDITS_TEXT("Steve Perrin"),
     CREDITS_TEXT("Gus Smedstad"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Audio Director:"),
+    CREDITS_TITLE(_(7ed6)),
     CREDITS_TEXT("Charles Deenen"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Head Writer:"),
+    CREDITS_TITLE(_(0822)),
     CREDITS_TEXT("Steve Perrin"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Writers:"),
+    CREDITS_TITLE(_(c0bb)),
     CREDITS_TEXT("Paul Kellner"),
     CREDITS_TEXT("Tony Postma"),
     CREDITS_TEXT("Amy Mitchell"),
     CREDITS_TEXT("Laura Mitchell"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Editor:"),
+    CREDITS_TITLE(_(4a00)),
     CREDITS_TEXT("Kelly Newcomb"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Box Cover Design:"),
+    CREDITS_TITLE(_(d200)),
     CREDITS_TEXT("Tony Postma"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Director Of Quality Assurance:"),
+    CREDITS_TITLE(_(88c0)),
     CREDITS_TEXT("Chad Allison"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Assistant Director Of Quality Assurance:"),
+    CREDITS_TITLE(_(f823)),
     CREDITS_TEXT("Colin Totman"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Lead Tester:"),
+    CREDITS_TITLE(_(796e)),
     CREDITS_TEXT("Cory Nelson"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Testers:"),
+    CREDITS_TITLE(_(bf4a)),
     CREDITS_TEXT("Amy Mitchell"),
     CREDITS_TEXT("Chris Peak"),
     CREDITS_TEXT("Quinn Summers"),
@@ -226,14 +227,14 @@ static struct CreditsLine menu_credits_lines[] = {
     CREDITS_TEXT("Jon Atabek"),
     CREDITS_TEXT("Robert Wood"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("I.S. Technicians:"),
+    CREDITS_TITLE(_(79e5)),
     CREDITS_TEXT("Bill Delk"),
     CREDITS_TEXT("Aaron J. Meyers"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Director Of Compatibility:"),
+    CREDITS_TITLE(_(e3e3)),
     CREDITS_TEXT("John Werner"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Compatibility Technicians:"),
+    CREDITS_TITLE(_(8433)),
     CREDITS_TEXT("Dan Forsyth"),
     CREDITS_TEXT("John Parker"),
     CREDITS_TEXT("Aaron Olaiz"),
@@ -241,100 +242,100 @@ static struct CreditsLine menu_credits_lines[] = {
     CREDITS_TEXT("Phuong Nguyen"),
     CREDITS_TEXT("Marc Duran"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Video Compression and Playback Technology:"),
+    CREDITS_TITLE(_(d5e4)),
     CREDITS_TEXT("Paul Edelstein"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Video Compression:"),
+    CREDITS_TITLE(_(25b0)),
     CREDITS_TEXT("Bill Stoudt"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Marketing Manager:"),
+    CREDITS_TITLE(_(1d8d)),
     CREDITS_TEXT("Jim Veevaert"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Associate Marketing Manager:"),
+    CREDITS_TITLE(_(11dd)),
     CREDITS_TEXT("Dean Schulte"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("PR Manager:"),
+    CREDITS_TITLE(_(3a89)),
     CREDITS_TEXT("Julie Roether"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Voices:"),
+    CREDITS_TITLE(_(e13c)),
     CREDITS_TEXT("Nicole Pelerine"),
     CREDITS_TEXT("Brian Cummings"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("VO Director:"),
+    CREDITS_TITLE(_(f7fe)),
     CREDITS_TEXT("Charles Deenen"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("VO Supervision:"),
+    CREDITS_TITLE(_(b3c3)),
     CREDITS_TEXT("Chris Borders"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("VO Mastering:"),
+    CREDITS_TITLE(_(65d0)),
     CREDITS_TEXT("Craig Duman"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("VO Editing:"),
+    CREDITS_TITLE(_(85e2)),
     CREDITS_TEXT("Sergio Bustamante"),
     CREDITS_TEXT("Chris Borders"),
     CREDITS_TEXT("Craig Duman"),
     CREDITS_TEXT("Doug Rappaport"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Gameplay Music:"),
+    CREDITS_TITLE(_(3c03)),
     CREDITS_TEXT("Brian Luzietti"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Additional Gameplay Music:"),
+    CREDITS_TITLE(_(afad)),
     CREDITS_TEXT("Rick Jackson"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Music Mastering:"),
+    CREDITS_TITLE(_(181c)),
     CREDITS_TEXT("Digital Brothers"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Game Soundeffects:"),
+    CREDITS_TITLE(_(02ff)),
     CREDITS_TEXT("Gregory G. Allen"),
     CREDITS_TEXT("Larry Peacock"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Soundeffects Mastering:"),
+    CREDITS_TITLE(_(5dab)),
     CREDITS_TEXT("Craig Duman"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Intro Movie:"),
+    CREDITS_TITLE(_(bec3)),
     CREDITS_TEXT("James Doyle"),
     CREDITS_TEXT("Apple's Animation"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Cinematics Music:"),
-    CREDITS_TEXT("Albert Olsen for Four Bars Intertainment"),
+    CREDITS_TITLE(_(e725)),
+    CREDITS_TEXT("Albert LIoyd Olson for Four Bars Entertainment"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Cinematics Sound Design:"),
+    CREDITS_TITLE(_(5c49)),
     CREDITS_TEXT("David Farmer"),
     CREDITS_TEXT("Harry Cohen"),
     CREDITS_TEXT("Jeffrey R. Whitcher"),
     CREDITS_TEXT("Elisabeth Flaum"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Cinematics Mixers:"),
+    CREDITS_TITLE(_(6a6b)),
     CREDITS_TEXT("Ken Teaney"),
     CREDITS_TEXT("Mashall Garlington"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Cinematics Sound Supervision:"),
+    CREDITS_TITLE(_(9b23)),
     CREDITS_TEXT("Charles Deenen"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Cinematics Ambient Voices:"),
+    CREDITS_TITLE(_(f7ea)),
     CREDITS_TEXT("Doug Rappaport"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Cinematics Voice Processing:"),
+    CREDITS_TITLE(_(3a41)),
     CREDITS_TEXT("Doug Rappaport"),
     CREDITS_TEXT("Sergio Bustamante"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Mixed in Dolby Surround at"),
-    CREDITS_TITLE("EFX Systems, Burbank"),
-    CREDITS_TITLE("Dolby and the double-D are trademarks of"),
-    CREDITS_TITLE("Dolby Laboratories Licensing Corporation."),
+    CREDITS_TITLE(_(f813)),
+    CREDITS_TITLE(_(11ae)),
+    CREDITS_TITLE(_(06d1)),
+    CREDITS_TITLE(_(b2a8)),
     CREDITS_SEPARATOR,
     CREDITS_SEPARATOR,
     CREDITS_SEPARATOR,
     CREDITS_SEPARATOR,
-    CREDITS_TITLE("Thanks to Tim Cain and Chris Jones for GNW,"),
-    CREDITS_TITLE("Jay Patel and Paul Edelstein"),
-    CREDITS_TITLE("for Technical Assistance,"),
-    CREDITS_TITLE("Sanjay Bala-Krishnan for all his support,"),
-    CREDITS_TITLE("James Thomas for Story Elements"),
-    CREDITS_TITLE("and assorted inspirations,"),
-    CREDITS_TITLE("Newtek, Inc. for Lightwave 3D,"),
-    CREDITS_TITLE("and Parallax Software for the use of"),
-    CREDITS_TITLE("their Installation and Setup Programs."),
+    CREDITS_TITLE(_(7a22)),
+    CREDITS_TITLE(_(efb3)),
+    CREDITS_TITLE(_(fda7)),
+    CREDITS_TITLE(_(ab0a)),
+    CREDITS_TITLE(_(163c)),
+    CREDITS_TITLE(_(3ce2)),
+    CREDITS_TITLE(_(d126)),
+    CREDITS_TITLE(_(00a5)),
+    CREDITS_TITLE(_(7bd6)),
     CREDITS_SEPARATOR,
     CREDITS_SEPARATOR,
     CREDITS_SEPARATOR,
@@ -460,7 +461,7 @@ static const ResourceID menu_briefing_backgrounds[] = {ENDGAME1, ENDGAME2, ENDGA
 static const char* menu_game_over_screen_places[] = {"Eliminated", "1st place", "2nd place", "3rd place", "4th place"};
 
 void draw_menu_title(WindowInfo* window, const char* caption) {
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     Text_TextBox(window->buffer, window->width, caption, 236, 145, 172, 15, 2, true, true);
 }
 
@@ -788,7 +789,7 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
 
         window.SetFlags(0x10);
 
-        text_font(1);
+        text_font(GNW_TEXT_FONT_1);
 
         Cursor_SetCursor(CURSOR_HAND);
 
@@ -828,12 +829,12 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
             menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
         }
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         button_end = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
         button_end->SetCaption("OK");
 
-        text_font(1);
+        text_font(GNW_TEXT_FONT_1);
 
         button_end->SetRValue(GNW_KB_KEY_ESCAPE);
         button_end->RegisterButton(window_info.id);
@@ -1132,16 +1133,16 @@ void menu_draw_campaign_mission_briefing_screen() {
         briefing_window.FillWindowInfo(&window);
 
         win_draw(window.id);
-        text_font(1);
+        text_font(GNW_TEXT_FONT_1);
 
         Text_TypeWriter_TextBoxMultiLineWrapText(&window, text.GetCStr(), 20, 20, 600, 400, 0);
         Text_TypeWriter_CharacterTimeMs = 0;
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
         button_end_ok = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
         button_end_ok->SetCaption("OK");
 
-        text_font(1);
+        text_font(GNW_TEXT_FONT_1);
         button_end_ok->SetRValue(GNW_KB_KEY_ESCAPE);
         button_end_ok->RegisterButton(window.id);
 
@@ -1165,7 +1166,7 @@ void menu_draw_campaign_mission_briefing_screen() {
 
                     WindowManager_LoadImage(menu_briefing_backgrounds[image_index], &window, window.width, true, false);
 
-                    text_font(1);
+                    text_font(GNW_TEXT_FONT_1);
 
                     Text_TypeWriter_TextBoxMultiLineWrapText(&window, text.GetCStr(), 20, 20, 600, 400, 0);
                     win_draw(window.id);
@@ -1359,7 +1360,7 @@ void draw_copyright_label(WindowInfo* window) {
     bounds.lrx = 630;
     bounds.lry = 479;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     Text_TextBox(window->buffer, window->width,
                  "Copyright 1996 Interplay Productions. v1.04"
                  "  (M.A.X. Port " GAME_VERSION ")",
@@ -1374,7 +1375,7 @@ void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int
     menu_button_items = button_items;
     menu_button_items_count = button_count;
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
 
     for (int i = 0; i < button_count; ++i) {
         ResourceID up;
@@ -1434,7 +1435,7 @@ void menu_draw_tips_frame(WindowInfo* window) {
             row_index_limit = menu_tips_row_count;
         }
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         for (int i = menu_tips_current_row_index; i < row_index_limit; ++i) {
             text_to_buf(&buffer_position[(i - menu_tips_current_row_index) * text_height() * window->width],
@@ -1446,7 +1447,7 @@ void menu_draw_tips_frame(WindowInfo* window) {
 }
 
 void menu_draw_tips(WindowInfo* window) {
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     menu_tips_data = reinterpret_cast<char*>(ResourceManager_ReadResource(TIPS));
 
     menu_tips_max_row_count_per_page = 236 / text_height();
@@ -1661,7 +1662,7 @@ void menu_credits_menu_loop() {
     image1->Copy(window);
     memset(image2->GetData(), -128, (window_height + 18) * window_width);
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
 
     play = true;
     line_index = 0;
@@ -2525,7 +2526,7 @@ void main_menu() {
         GameManager_GameState = GAME_STATE_3_MAIN_MENU;
         mouse_hide();
         WindowManager_LoadImage(MAINPIC, window, 640, palette_from_image, false);
-        draw_menu_title(window, "Main Menu");
+        draw_menu_title(window, _(35f9));
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         draw_copyright_label(window);
         menu_draw_main_menu_buttons(main_menu_buttons, sizeof(main_menu_buttons) / sizeof(struct MenuButton));

@@ -243,7 +243,7 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
             color = 0x1;
         }
 
-        text_font(2);
+        text_font(GNW_TEXT_FONT_2);
         sprintf(string, "%i/%i", current_value, base_value);
 
         if (icon_normal == SI_FUEL || icon_normal == SI_GOLD) {

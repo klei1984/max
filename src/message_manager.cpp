@@ -113,7 +113,7 @@ void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int lef
     int offset;
 
     offset = 0;
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     top_margin *= width;
 
@@ -182,7 +182,7 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
                 }
             }
 
-            text_font(5);
+            text_font(GNW_TEXT_FONT_5);
             window_main_map = WindowManager_GetWindow(WINDOW_MAIN_MAP);
             width = window_main_map->window.lrx - window_main_map->window.ulx;
 

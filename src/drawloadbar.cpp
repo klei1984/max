@@ -26,7 +26,7 @@
 #include "text.hpp"
 
 DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, 38) {
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     Add();
     FillWindowInfo(&window);
     Text_TextBox(&window, text, 0, 140, window.width, 30, true);

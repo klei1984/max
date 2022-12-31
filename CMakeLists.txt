@@ -75,6 +75,7 @@ INCLUDE(FindPkgConfig)
 PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2 )
 PKG_SEARCH_MODULE(SDL2_MIXER REQUIRED SDL2_mixer)
 PKG_SEARCH_MODULE(SDL2_NET REQUIRED SDL2_net>=2.0.0)
+PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
 
 if(NOT TARGET SDL2::SDL2)
     add_library(SDL2::SDL2 INTERFACE IMPORTED)
@@ -94,6 +95,12 @@ if(NOT TARGET SDL2::MIXER)
     set_property(TARGET SDL2::MIXER PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_MIXER_INCLUDE_DIRS})
 endif()
 
+if(NOT TARGET SDL2::TTF)
+    add_library(SDL2::TTF INTERFACE IMPORTED)
+    set_property(TARGET SDL2::TTF APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${SDL2_TTF_LIBRARIES})
+    set_property(TARGET SDL2::TTF PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_TTF_INCLUDE_DIRS})
+endif()
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_BINARY_DIR}
@@ -102,10 +109,10 @@ include_directories(
 
 add_executable(${GAME_BINARY} ${GAME_SOURCES})
 set_target_properties(${GAME_BINARY} PROPERTIES
-	CXX_STANDARD "17"
+	CXX_STANDARD "20"
 	COMPILE_FLAGS "-Wcomments -Wignored-qualifiers -Wshadow=local -Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -Wformat-overflow -Wformat-truncation -Wlogical-op -Wlogical-not-parentheses -fno-eliminate-unused-debug-types -m32 -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
 	LINK_FLAGS "-m32")
-target_link_libraries(${GAME_BINARY} SDL2::SDL2 SDL2::NET SDL2::MIXER m)
+target_link_libraries(${GAME_BINARY} SDL2::SDL2 SDL2::NET SDL2::MIXER SDL2::TTF m)
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${GAME_VERSION_MINOR})
@@ -119,6 +126,8 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.")
 
 install(FILES "LICENSE" DESTINATION .)
+install(FILES "assets/max.ini" DESTINATION .)
+install(FILES "assets/lang_english.ini" DESTINATION .)
 
 if(UNIX)
     set(CPACK_GENERATOR "DEB")

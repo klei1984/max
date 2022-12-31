@@ -118,7 +118,7 @@ void CargoSelector::Draw() {
             }
         }
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         Text_TextBox(window_info.buffer, window_info.width, text, 32, 32 * i, width - 32, 32, 0xA2, false);
     }

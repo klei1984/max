@@ -25,7 +25,7 @@
 
 typedef void (*text_font_func)(int);
 
-typedef struct FontMgr_s {
+typedef struct FontMgr {
     int low_font_num;
     int high_font_num;
     text_font_func text_font;
@@ -38,10 +38,6 @@ typedef struct FontMgr_s {
     text_size_func text_size;
     text_max_func text_max;
 } FontMgr, *FontMgrPtr;
-
-#define GNW_TEXT_FONT_COUNT 10
-#define GNW_TEXT_FONT_MIN 0
-#define GNW_TEXT_FONT_MAX 9
 
 #define GNW_TEXT_MONOSPACE 0x40000
 #define GNW_TEXT_UNDERLINE 0x20000
@@ -87,13 +83,13 @@ text_size_func text_size;
 text_max_func text_max;
 
 int GNW_text_init(void) {
-    FontMgr GNW_font_mgr = {GNW_TEXT_FONT_MIN, GNW_TEXT_FONT_MAX, GNW_text_font,       GNW_text_to_buf,
-                            GNW_text_height,   GNW_text_width,    GNW_text_char_width, GNW_text_mono_width,
-                            GNW_text_spacing,  GNW_text_size,     GNW_text_max};
+    FontMgr GNW_font_mgr = {GNW_TEXT_FONT_0,  GNW_TEXT_FONT_9, GNW_text_font,       GNW_text_to_buf,
+                            GNW_text_height,  GNW_text_width,  GNW_text_char_width, GNW_text_mono_width,
+                            GNW_text_spacing, GNW_text_size,   GNW_text_max};
     int first_font = -1;
     int result;
 
-    for (int i = 0; i < GNW_TEXT_FONT_COUNT; i++) {
+    for (int i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; i++) {
         if (load_font(i) == -1) {
             font[i].num = 0;
         } else if (first_font == -1) {

@@ -115,6 +115,7 @@ static const IniKey ini_keys_table[] = {
     {"last_campaign", "1", INI_NUMERIC},
     {"movie_play", "0", INI_NUMERIC},
     {"alt_movie_res", "0", INI_NUMERIC},
+    {"language", "english", INI_STRING},
 
     {"OPTIONS", nullptr, INI_SECTION},
     {"world", "0", INI_NUMERIC},
@@ -139,16 +140,6 @@ static const IniKey ini_keys_table[] = {
     {"auto_select", "0", INI_NUMERIC},
     {"enemy_halt", "1", INI_NUMERIC},
 
-    {"MODEM", nullptr, INI_SECTION},
-    {"modem_port", "3f8 (Com1)", INI_STRING},
-    {"modem_baud", "9600", INI_NUMERIC},
-    {"modem_irq", "4", INI_NUMERIC},
-    {"modem_init", "ATZ", INI_STRING},
-    {"modem_answer", "ATS0=1", INI_STRING},
-    {"modem_call", "ATDT", INI_STRING},
-    {"modem_hangup", "~~~+++~~~ATH0", INI_STRING},
-    {"modem_phone", "", INI_STRING},
-
     {"TEAMS", nullptr, INI_SECTION},
     {"red_team_name", "Player 1", INI_STRING},
     {"green_team_name", "Player 2", INI_STRING},
@@ -163,12 +154,9 @@ static const IniKey ini_keys_table[] = {
     {"blue_team_clan", "0", INI_NUMERIC},
     {"gray_team_clan", "0", INI_NUMERIC},
 
-    {"DIGITAL", nullptr, INI_SECTION},
-    {"Device_Name", "None", INI_STRING},
-    {"Device_IRQ", "5", INI_NUMERIC},
-    {"Device_DMA", "1", INI_NUMERIC},
-    {"Device_Port", "0x220", INI_NUMERIC},
-    {"Device_ID", "-1", INI_NUMERIC},
+    {"AUDIO_SETTINGS", nullptr, INI_SECTION},
+    {"Audio_Device_Name", "None", INI_STRING},
+    {"Audio_Device_ID", "-1", INI_NUMERIC},
     {"Channels_Reversed", "0", INI_NUMERIC},
 
     {"GRAPHICS_SETTINGS", nullptr, INI_SECTION},
@@ -209,12 +197,16 @@ IniClans ini_clans;
 IniSettings::IniSettings() {
     ini.buffer = nullptr;
 
-    for (int ini_index = 0; ini_index < ini_keys_table_size; ++ini_index) {
-        item[ini_index] = 0;
-    }
+    items = new (std::nothrow) unsigned int[ini_keys_table_size];
+
+    memset(items, 0, sizeof(int) * ini_keys_table_size);
 }
 
-IniSettings::~IniSettings() { Destroy(); }
+IniSettings::~IniSettings() {
+    Destroy();
+
+    delete[] items;
+}
 
 void IniSettings::Destroy() { inifile_save_to_file_and_free_buffer(&ini); }
 
@@ -227,11 +219,11 @@ void IniSettings::Init() {
     int index;
 
     strcpy(filename, ResourceManager_FilePathGameInstall);
-    strcat(filename, "MAX.INI");
+    strcat(filename, "max.ini");
     fp = fopen(filename, "rt");
 
     if (!fp) {
-        SDL_Log("\nMAX.INI File not found..  Using Defaults...\n");
+        SDL_Log("\nMAX INI File not found..  Using Defaults...\n");
         fp = fopen(filename, "wt");
 
         if (!fp) {
@@ -308,8 +300,8 @@ int IniSettings::SetNumericValue(IniParameter param, int value) {
         return 0;
     }
 
-    old_value = item[param];
-    item[param] = value;
+    old_value = items[param];
+    items[param] = value;
 
     if (inifile_ini_seek_section(&ini, IniSettings::SeekToSection(param)) &&
         inifile_ini_seek_param(&ini, ini_keys_table[param].name)) {
@@ -325,7 +317,7 @@ int IniSettings::GetNumericValue(IniParameter param) {
     if (param >= ini_keys_table_size) {
         value = 0;
     } else {
-        value = item[param];
+        value = items[param];
     }
 
     return value;

@@ -86,7 +86,7 @@ void GameSetupMenu::ButtonInit(int index) {
 
     control = &game_setup_menu_controls[index];
 
-    text_font((index < 16) ? 5 : 1);
+    text_font((index < 16) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
 
     if (control->image_id == INVALID_ID) {
         if (index >= GAME_SETUP_MENU_MISSION_COUNT) {
@@ -156,7 +156,7 @@ void GameSetupMenu::Init(int palette_from_image) {
         ButtonInit(i);
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     DrawMissionList();
     LoadMissionDescription();
@@ -353,7 +353,7 @@ void GameSetupMenu::LoadMissionDescription() {
         fclose(fp);
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     width = game_setup_menu_titles[1].bounds.lrx - game_setup_menu_titles[1].bounds.ulx;
     height = game_setup_menu_titles[1].bounds.lry - game_setup_menu_titles[1].bounds.uly;
@@ -382,7 +382,7 @@ void GameSetupMenu::DrawMissionDescription() {
             strcpy(text, menu_setup_menu_mission_titles[game_slot]);
         }
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
         game_setup_menu_titles[0].title = text;
         menu_draw_menu_title(window, &game_setup_menu_titles[0], 0x2, true, true);
         DrawDescriptionPanel();

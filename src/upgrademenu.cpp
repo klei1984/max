@@ -69,7 +69,7 @@ UpgradeMenu::UpgradeMenu(unsigned short team, Complex* complex) : AbstractUpgrad
         wininfo.window.lry = 370;
         wininfo.buffer = &window1.buffer[window1.width * wininfo.window.uly + wininfo.window.ulx];
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         Text_TextBox(window1.buffer, window1.width, "Upgrades Menu", 327, 7, 158, 18, 0x02, true);
         Text_TextBox(&window1, "Description", 209, 264, 80, 17, true, true);

@@ -213,7 +213,7 @@ void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int uly, ResourceID
 
     buffer_position += ((image_header->height - text_height()) / 2) * uly;
 
-    if (font_num == 2) {
+    if (font_num == GNW_TEXT_FONT_2) {
         buffer_position += (image_header->width - text_width(title)) / 2;
     } else {
         buffer_position += 5;
@@ -285,7 +285,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         WindowManager_LoadImage(LOADPIC, window, 640, true, false);
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(window->buffer, window->width, is_saving_allowed ? "Save/Load Menu" : "Load Menu", 229, 5, 181, 21,
                  0x2, true);
@@ -358,7 +358,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         memcpy(slots[i].image_up, image_up->data, image_up_size);
         memcpy(slots[i].image_down, image_down->data, image_down_size);
 
-        text_font(1);
+        text_font(GNW_TEXT_FONT_1);
 
         snprintf(text_slot_index, sizeof(text_slot_index), "%d", first_slot_on_page + i);
 
@@ -370,7 +370,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         slot_window.width = image_down->width;
         Text_TextBox(&slot_window, text_slot_index, 0, 0, 40, 70, true, true, FontColor(5, 58, 199));
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         slots[i].ulx = 402 * (i / 5) + 16;
         slots[i].uly = 76 * (i % 5) + 44;
@@ -395,7 +395,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
     buttons[0] = SaveLoadMenu_CreateButton(window->id, MNUUAROU, MNUUAROD, 33, 438, nullptr, 329);
     buttons[1] = SaveLoadMenu_CreateButton(window->id, MNUDAROU, MNUDAROD, 63, 438, nullptr, 337);
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
     buttons[2] = SaveLoadMenu_CreateButton(window->id, MNUBTN6U, MNUBTN6D, 514, 438, "Load", 1023);
     buttons[3] = SaveLoadMenu_CreateButton(window->id, MNUBTN5U, MNUBTN5D, 465, 438, "?", 1021);
     buttons[4] = SaveLoadMenu_CreateButton(window->id, MNUBTN4U, MNUBTN4D, 354, 438,
@@ -1219,7 +1219,7 @@ void SaveSlot::InitTextEdit(WinID wid) {
     window.window.lrx = ulx + width;
     window.window.lry = uly + height;
 
-    text_edit = new (std::nothrow) TextEdit(&window, save_name, sizeof(save_name), 45, 39, 143, 17, 0x01, 5);
+    text_edit = new (std::nothrow) TextEdit(&window, save_name, sizeof(save_name), 45, 39, 143, 17, 0x01, GNW_TEXT_FONT_5);
     text_edit->LoadBgImage();
     text_edit->DrawFullText(false);
 }

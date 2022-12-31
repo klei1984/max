@@ -228,7 +228,7 @@ void GameConfigMenu::Init() {
         }
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     bg_panels[0] = new (std::nothrow) Image(6, 38, 200, 190);
     bg_panels[1] = new (std::nothrow) Image(216, 38, 200, 190);
@@ -383,7 +383,7 @@ void GameConfigMenu::EventVictoryConditionPrefs() {
 
     text_edit = new (std::nothrow)
         TextEdit(window, victory_limit_text, 5, control->bounds.ulx + 10, control->bounds.uly,
-                 control->bounds.lrx - control->bounds.ulx - 20, control->bounds.lry - control->bounds.uly, 0xA2, 5);
+                 control->bounds.lrx - control->bounds.ulx - 20, control->bounds.lry - control->bounds.uly, 0xA2, GNW_TEXT_FONT_5);
 
     text_edit->SetMode(1);
     text_edit->LoadBgImage();
@@ -419,7 +419,7 @@ void GameConfigMenu::ButtonInit(int index) {
 
     control = &game_config_menu_controls[index];
 
-    text_font((index < 48) ? 5 : 1);
+    text_font((index < 48) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
 
     if (control->image_id != INVALID_ID && control->label) {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),

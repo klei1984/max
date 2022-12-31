@@ -189,7 +189,7 @@ void BuildUnitTypeSelector::Draw() {
 
     buf_to_buf(image->data, image->width, image->height, image->width, &window_info.buffer[115], window_info.width);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     consumption_rate = Cargo_GetRawConsumptionRate(unit->unit_type, 1);
 
@@ -567,7 +567,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
                         stats_background->GetWidth(), I_RAW, I_RAWE);
 
     if (button_description_rest_state) {
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         Text_TextBox(window.buffer, window.width, base_unit->description, 16, 17, 290, 230, 0x100A2, false, false);
     }
@@ -830,7 +830,7 @@ bool AbstractBuildMenu::Run() {
 MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, unit) {
     WindowInfo window_info;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     button_up_arrow = new (std::nothrow) Button(BLDUP__U, BLDUP__D, 471, 441);
     button_down_arrow = new (std::nothrow) Button(BLDDWN_U, BLDDWN_D, 491, 441);
@@ -869,7 +869,7 @@ MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, u
 
     Text_TextBox(window.buffer, window.width, "Construction Menu", 327, 7, 158, 18, 0x02, true);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(&window, "Description", 209, 264, 80, 17, true, true);
     Text_TextBox(&window, "Turns", 368, 330, 41, 13, true, true);
@@ -1002,7 +1002,7 @@ FactoryBuildMenu::FactoryBuildMenu(UnitInfo *unit)
     button_build_queue_repeat = new (std::nothrow) Button(BLDREP_U, BLDREP_D, 447, 322);
     button_build_queue_build = new (std::nothrow) Button(BLDBLD_U, BLDBLD_D, 548, 441);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     button_build_queue_delete->SetCaption("Delete");
     button_build_queue_build->SetCaption("Build");
@@ -1039,7 +1039,7 @@ FactoryBuildMenu::FactoryBuildMenu(UnitInfo *unit)
     turns_background_x4 = new (std::nothrow) Image(378, 426, 20, 11);
     cost_background_x4 = new (std::nothrow) Image(414, 426, 30, 11);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(window.buffer, window.width, "Factory Menu", 327, 7, 158, 18, 0x02, true);
     Text_TextBox(&window, "Description", 209, 264, 80, 17, true, true);

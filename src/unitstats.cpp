@@ -109,7 +109,7 @@ void UnitStats_DrawText(unsigned char* buffer, int screen_width, const char* lab
                         bool drawline) {
     unsigned char* address;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     address = &buffer[((19 - text_height()) / 2) * screen_width + 24];
 
     if (resource_count) {
@@ -467,7 +467,7 @@ void UnitStats_Menu(UnitInfo* unit) {
         if (WindowManager_LoadImage(STATS, &window, window.width, false)) {
             GameManager_DisableMainMenu();
 
-            text_font(5);
+            text_font(GNW_TEXT_FONT_5);
 
             button_done = new (std::nothrow) Button(BLDONE_U, BLDONE_D, 484, 452);
             button_done->SetCaption("Done");
@@ -499,14 +499,14 @@ void UnitStats_Menu(UnitInfo* unit) {
             UnitStats_DrawStats(&window.buffer[11 + window.width * 293], window.width, unit->unit_type, unit->team,
                                 *unit->GetBaseValues(), 245, I_RAW, I_RAWE);
 
-            text_font(5);
+            text_font(GNW_TEXT_FONT_5);
 
             unit->GetDisplayName(text);
 
             Text_TextBox(window.buffer, window.width, text, 336, 60, 287, 11, 0xA2, true);
             Text_TextBox(window.buffer, window.width, base_unit->description, 345, 90, 270, 117, 0xA2, false);
 
-            text_font(5);
+            text_font(GNW_TEXT_FONT_5);
             Text_TextBox(window.buffer, window.width, "Unit Status Screen", 327, 7, 158, 18, 0x02, true);
 
             win_draw(window.id);

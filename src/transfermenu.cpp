@@ -76,7 +76,7 @@ void TransferMenu::UpdateIndicators() {
     char source[8];
     char target[8];
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     snprintf(total, sizeof(total), "%ld", labs(total_materials_transferred));
     snprintf(source, sizeof(source), "%ld", labs(source_unit_materials));
     snprintf(target, sizeof(target), "%ld", labs(target_unit_materials));
@@ -157,7 +157,7 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, WINDOW_MAIN_MAP) {
     event_release = false;
 
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     TransferMenu_GetUnitCargoInfo(source_unit, target_unit, source_unit_materials, source_unit_capacity);
     TransferMenu_GetUnitCargoInfo(target_unit, source_unit, target_unit_materials, target_unit_capacity);

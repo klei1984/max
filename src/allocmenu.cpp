@@ -161,7 +161,7 @@ void AllocMenu::InitButton(int index) {
 
     control = &allocation_menu_controls[index];
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
 
     if (control->image_id == INVALID_ID) {
         buttons[index] = new (std::nothrow)
@@ -234,7 +234,7 @@ void CargoBarData::Draw() {
 
     LoadHorizontalTape(&address[rect_width - offset_x], width, rect_height, offset_x, tape_id);
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
 
     str_width = text_width(caption);
 
@@ -541,7 +541,7 @@ void AllocMenu::Deinit() {
 bool AllocMenu::Init(UnitInfo *unit) {
     bool result;
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Cursor_SetCursor(CURSOR_HAND);
 

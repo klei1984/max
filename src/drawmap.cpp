@@ -720,13 +720,13 @@ void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int color) {
             ((GameManager_MapWindowDrawBounds.lry - GameManager_MapWindowDrawBounds.uly) << 16) / Gfx_MapScalingFactor;
 
         if (zoom_level >= 42) {
-            text_font(1);
+            text_font(GNW_TEXT_FONT_1);
 
         } else if (zoom_level >= 24) {
-            text_font(5);
+            text_font(GNW_TEXT_FONT_5);
 
         } else {
-            text_font(2);
+            text_font(GNW_TEXT_FONT_2);
         }
 
         Text_AutofitTextBox(window->buffer, 640, text, &text_area, &draw_area, color, true);

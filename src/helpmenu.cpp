@@ -157,7 +157,7 @@ HelpMenu::HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window
 
     if (entry_loaded) {
         Cursor_SetCursor(CURSOR_HAND);
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
         Add();
         FillWindowInfo(&window);
 
@@ -334,7 +334,7 @@ void HelpMenu::ProcessText(const char* text) {
         delete[] strings;
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     rows_per_page = 160 / text_height();
 
@@ -385,7 +385,7 @@ void HelpMenu::DrawText() {
         row_index_max = string_row_count;
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     for (int row_index = string_row_index; row_index < row_index_max; ++row_index) {
         text_to_buf(&buffer_position[window.width * (row_index - string_row_index) * text_height()],

@@ -44,7 +44,7 @@ void PurchaseTypeSelector::Draw() {
 
     image->Write(&window_info);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     for (int i = 0; i < max_item_count && i < unit_types->GetCount(); ++i) {
         turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *unit_types[page_min_index + i])

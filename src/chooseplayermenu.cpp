@@ -164,7 +164,7 @@ void ChoosePlayerMenu::ButtonInit(int index, int mode) {
 
     control = &choose_player_menu_controls[index];
 
-    text_font(1);
+    text_font(GNW_TEXT_FONT_1);
 
     if (index >= 12 && index < 16) {
         ResourceID image_id;
@@ -227,7 +227,7 @@ void ChoosePlayerMenu::UpdateButtons() {
         ButtonInit(i, false);
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     if (game_type) {
         strcpy(buffer, "Custom Game Menu");

@@ -53,7 +53,7 @@ private:
     static const char *SeekToSection(IniParameter param);
 
     Ini_descriptor ini;
-    unsigned int item[118];
+    unsigned int *items;
 };
 
 class IniClans {

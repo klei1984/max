@@ -77,7 +77,7 @@ void MenuLandingSequence::Init(bool enable_controls) {
         button_1->RegisterButton(panel_bottom->id);
         button_1->Enable();
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         button_2 = new (std::nothrow) Button(PNLCAN_U, PNLCAN_D, 40, 252);
         button_2->SetRValue(GNW_KB_KEY_ESCAPE);

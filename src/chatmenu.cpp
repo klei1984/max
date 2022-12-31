@@ -59,7 +59,7 @@ public:
 
 ChatMenu::ChatMenu(unsigned short team) : Window(CHATWNDO, WINDOW_MAIN_MAP) {
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     this->team = team;
     event_release = false;
@@ -106,7 +106,7 @@ ChatMenu::ChatMenu(unsigned short team) : Window(CHATWNDO, WINDOW_MAIN_MAP) {
     }
 
     text[0] = '\0';
-    text_edit = new (std::nothrow) TextEdit(&window, text, sizeof(text), 25, 87, 380, 25, 0xA2, 5);
+    text_edit = new (std::nothrow) TextEdit(&window, text, sizeof(text), 25, 87, 380, 25, 0xA2, GNW_TEXT_FONT_5);
     text_edit->SetMode(0);
     text_edit->LoadBgImage();
     text_edit->SetEditedText(text);

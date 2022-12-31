@@ -2228,7 +2228,7 @@ void GameManager_DrawTimer(char* text, int color) {
 
     GameManager_TurnTimerImage->Write(&window);
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(window.buffer, window.width, text, bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx,
                  bounds.lry - bounds.uly, color, true);
@@ -2294,7 +2294,7 @@ void GameManager_DrawDisplayPanel(int control_id, char* text, int color, int ulx
         buf_to_buf(image->data, image->width, image->height, image->width,
                    GameManager_MenuDisplayControls[control_id].image->GetData(), image->width);
 
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
 
         Text_TextBox(GameManager_MenuDisplayControls[control_id].image->GetData(), image->width, text, ulx, 0,
                      image->width - ulx, image->height, color, true);
@@ -3556,7 +3556,7 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
             ulx += 3;
             uly += 3;
 
-            text_font(2);
+            text_font(GNW_TEXT_FONT_2);
 
             for (int i = 0; i < GameManager_PopupButtons.popup_count; ++i) {
                 Button* button;
@@ -3722,7 +3722,7 @@ void GameManager_MenuClickReportButton() {
     GameManager_MenuItems[MENU_GUI_ITEM_REPORTS_BUTTON].button->SetRestState(false);
     GameManager_DisableMainMenu();
     ReportMenu_Menu();
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
     GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
 }
 
@@ -3962,7 +3962,7 @@ void GameManager_FlicButtonRFunction(ButtonID bid, int value) {
         GameManager_SelectedUnit->GetName(GameManager_UnitName);
         GameManager_SelectedUnit->GetDisplayName(text);
 
-        text_font(2);
+        text_font(GNW_TEXT_FONT_2);
 
         bounds.ulx = text_width(text) - text_width(GameManager_UnitName);
         bounds.uly = 0;
@@ -3971,7 +3971,7 @@ void GameManager_FlicButtonRFunction(ButtonID bid, int value) {
 
         GameManager_MenuDisplayControls[MENU_DISPLAY_CONTROL_CORNER_FLIC].image->Write(window, &bounds);
         GameManager_TextEditUnitName = new (std::nothrow)
-            TextEdit(window, GameManager_UnitName, 30, bounds.ulx, 0, bounds.lrx - bounds.ulx, text_height(), 2, 2);
+            TextEdit(window, GameManager_UnitName, 30, bounds.ulx, 0, bounds.lrx - bounds.ulx, text_height(), 2, GNW_TEXT_FONT_2);
 
         GameManager_TextEditUnitName->LoadBgImage();
 
@@ -6822,7 +6822,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
             window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
 
-            text_font(2);
+            text_font(GNW_TEXT_FONT_2);
 
             win_print(window->id, text, 128, window->window.ulx, window->window.uly, 0x5000002);
 
@@ -7038,7 +7038,7 @@ void GameManager_DrawInfoDisplayRow(const char* label, int window_id, ResourceID
             color = 0x02;
         }
 
-        text_font(2);
+        text_font(GNW_TEXT_FONT_2);
 
         size = 25;
 
@@ -7263,7 +7263,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 
         window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
 
-        text_font(2);
+        text_font(GNW_TEXT_FONT_2);
 
         win_print(window->id, GameManager_GetUnitStatusMessage(unit).GetCStr(), 128, window->window.ulx,
                   window->window.uly + text_height(), 0x50000A2);
@@ -7400,11 +7400,11 @@ void GameManager_MenuInitButtons(bool mode) {
             p_value = r_value;
 
             flags = 0x20;
-            text_font(2);
+            text_font(GNW_TEXT_FONT_2);
 
             if (i == MENU_GUI_ITEM_ENDTURN_BUTTON) {
                 flags |= 0x4;
-                text_font(5);
+                text_font(GNW_TEXT_FONT_5);
             }
 
             if (i <= MENU_GUI_ITEM_CHAT_BUTTON) {
@@ -7441,7 +7441,7 @@ void GameManager_MenuInitButtons(bool mode) {
         }
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         struct ImageSimpleHeader* image;

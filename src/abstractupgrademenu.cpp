@@ -364,7 +364,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
     }
 
     if (unit_type != INVALID_ID && button_description_rest_state) {
-        text_font(5);
+        text_font(GNW_TEXT_FONT_5);
         Text_TextBox(window2.buffer, window1.width, base_unit->description, 16, 17, 280, 230, 0x100A2, false, false);
     }
 
@@ -446,7 +446,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
                             interface_icon_full, interface_icon_empty);
     }
 
-    text_font(5);
+    text_font(GNW_TEXT_FONT_5);
 
     cost_background->Write(&window1);
 
