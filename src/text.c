@@ -39,9 +39,6 @@ typedef struct FontMgr {
     text_max_func text_max;
 } FontMgr, *FontMgrPtr;
 
-#define GNW_TEXT_MONOSPACE 0x40000
-#define GNW_TEXT_UNDERLINE 0x20000
-
 static int load_font(int n);
 static void GNW_text_font(int font_num);
 static int text_font_exists(int font_num, FontMgrPtr* mgr);
@@ -280,9 +277,10 @@ void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw,
 
     bstart = buf;
 
-    if (color & 0x10000) {
-        color &= 0xFFFEFFFF;
-        text_to_buf(&buf[fullw + 1], str, swidth, fullw, (color & 0xFFFEFF00) | colorTable[0]);
+    if (color & GNW_TEXT_UNKNOWN_1) {
+        color &= ~GNW_TEXT_UNKNOWN_1;
+        text_to_buf(&buf[fullw + 1], str, swidth, fullw,
+                    (color & (~(GNW_TEXT_UNKNOWN_1 | GNW_TEXT_COLOR_MASK))) | colorTable[0]);
     }
 
     if (color & GNW_TEXT_MONOSPACE) {

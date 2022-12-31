@@ -739,7 +739,7 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
     if (unit->unit_type == RESEARCH && unit->orders == ORDER_POWER_ON &&
         UnitsManager_TeamInfo[unit->team].research_topics[unit->research_topic].turns_to_complete == 0) {
         sprintf(text, "%s research completed", ResearchMenu_TopicLabels[unit->research_topic]);
-        DrawMap_RenderTextBox(unit, text, 0x1001F);
+        DrawMap_RenderTextBox(unit, text, GNW_TEXT_UNKNOWN_1 | 0x1F);
 
     } else if (unit->state == ORDER_STATE_UNIT_READY) {
         UnitInfo* parent;
@@ -753,12 +753,12 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
             unit = parent;
         }
 
-        DrawMap_RenderTextBox(unit, text, 0x1001F);
+        DrawMap_RenderTextBox(unit, text, GNW_TEXT_UNKNOWN_1 | 0x1F);
 
     } else if (GameManager_DisplayButtonNames && (unit->flags & SELECTABLE) && unit->unit_type != LRGTAPE &&
                unit->unit_type != SMLTAPE) {
         unit->GetDisplayName(text);
-        DrawMap_RenderTextBox(unit, text, 0x10004);
+        DrawMap_RenderTextBox(unit, text, GNW_TEXT_UNKNOWN_1 | COLOR_YELLOW);
     }
 }
 

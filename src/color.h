@@ -27,6 +27,16 @@
 
 #define PALETTE_SIZE 256
 
+#define COLOR_BLACK 0x00
+#define COLOR_RED 0x01
+#define COLOR_GREEN 0x02
+#define COLOR_BLUE 0x03
+#define COLOR_YELLOW 0x04
+#define COLOR_CHROME_YELLOW 0x05
+#define COLOR_ROMAN_SILVER 0x06
+#define COLOR_RED_ORANGE 0x07
+#define COLOR_PASTEL_YELLOW 0x08
+
 typedef unsigned char ColorIndex;
 typedef long ColorRGB;
 typedef unsigned char Color;

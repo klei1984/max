@@ -241,7 +241,7 @@ void GameConfigMenu::Init() {
         bg_panels[i]->Copy(window);
     }
 
-    menu_draw_menu_title(window, &game_config_menu_items[0], 0x10002, true);
+    menu_draw_menu_title(window, &game_config_menu_items[0], GNW_TEXT_UNKNOWN_1 | COLOR_GREEN, true);
     DrawPanels();
     mouse_show();
 }
@@ -381,9 +381,9 @@ void GameConfigMenu::EventVictoryConditionPrefs() {
 
     control = &game_config_menu_controls[field_867];
 
-    text_edit = new (std::nothrow)
-        TextEdit(window, victory_limit_text, 5, control->bounds.ulx + 10, control->bounds.uly,
-                 control->bounds.lrx - control->bounds.ulx - 20, control->bounds.lry - control->bounds.uly, 0xA2, GNW_TEXT_FONT_5);
+    text_edit = new (std::nothrow) TextEdit(window, victory_limit_text, 5, control->bounds.ulx + 10,
+                                            control->bounds.uly, control->bounds.lrx - control->bounds.ulx - 20,
+                                            control->bounds.lry - control->bounds.uly, 0xA2, GNW_TEXT_FONT_5);
 
     text_edit->SetMode(1);
     text_edit->LoadBgImage();
@@ -472,7 +472,7 @@ void GameConfigMenu::DrawPanelComputerOpponent() {
     opponent = ini_get_setting(INI_OPPONENT);
     DrawRadioButtons(6, 7, opponent);
     text = game_config_menu_difficulty_descriptions[opponent];
-    Text_TextBox(window->buffer, window->width, text, 19, 170, 180, 60, 0x10004, false);
+    Text_TextBox(window->buffer, window->width, text, 19, 170, 180, 60, GNW_TEXT_UNKNOWN_1 | COLOR_YELLOW, false);
 }
 
 void GameConfigMenu::DrawPanelTurnTimers() {

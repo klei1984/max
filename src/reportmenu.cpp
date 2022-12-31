@@ -77,7 +77,7 @@ static bool ReportMenu_ButtonState_StealthyUnits = false;
 
 static const char *ReportMenu_TeamNames[PLAYER_TEAM_MAX] = {"Red Team", "Green Team", "Blue Team", "Gray Team", ""};
 
-static const ColorIndex ReportMenu_TeamColors[PLAYER_TEAM_MAX] = {0x01, 0x02, 0x03, 0xA9, 0xFF};
+static const ColorIndex ReportMenu_TeamColors[PLAYER_TEAM_MAX] = {COLOR_RED, COLOR_GREEN, COLOR_BLUE, 0xA9, 0xFF};
 
 class MessageLine : public SmartObject {
     SmartPointer<MessageLogEntry> message;

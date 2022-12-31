@@ -71,7 +71,7 @@ UpgradeMenu::UpgradeMenu(unsigned short team, Complex* complex) : AbstractUpgrad
 
         text_font(GNW_TEXT_FONT_5);
 
-        Text_TextBox(window1.buffer, window1.width, "Upgrades Menu", 327, 7, 158, 18, 0x02, true);
+        Text_TextBox(window1.buffer, window1.width, "Upgrades Menu", 327, 7, 158, 18, COLOR_GREEN, true);
         Text_TextBox(&window1, "Description", 209, 264, 80, 17, true, true);
         Text_TextBox(&window1, "Cost", 320, 283, 48, 16, true, true);
         Text_TextBox(&window1, "Credit", 358, 284, 48, 17, true, true);

@@ -569,7 +569,8 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
     if (button_description_rest_state) {
         text_font(GNW_TEXT_FONT_5);
 
-        Text_TextBox(window.buffer, window.width, base_unit->description, 16, 17, 290, 230, 0x100A2, false, false);
+        Text_TextBox(window.buffer, window.width, base_unit->description, 16, 17, 290, 230, GNW_TEXT_UNKNOWN_1 | 0xA2,
+                     false, false);
     }
 
     turns = GetTurnsToBuild(unit_type);
@@ -867,7 +868,7 @@ MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, u
     turns_background_x4 = new (std::nothrow) Image(378, 399, 20, 11);
     cost_background_x4 = new (std::nothrow) Image(414, 399, 30, 11);
 
-    Text_TextBox(window.buffer, window.width, "Construction Menu", 327, 7, 158, 18, 0x02, true);
+    Text_TextBox(window.buffer, window.width, "Construction Menu", 327, 7, 158, 18, COLOR_GREEN, true);
 
     text_font(GNW_TEXT_FONT_5);
 
@@ -1041,7 +1042,7 @@ FactoryBuildMenu::FactoryBuildMenu(UnitInfo *unit)
 
     text_font(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window.buffer, window.width, "Factory Menu", 327, 7, 158, 18, 0x02, true);
+    Text_TextBox(window.buffer, window.width, "Factory Menu", 327, 7, 158, 18, COLOR_GREEN, true);
     Text_TextBox(&window, "Description", 209, 264, 80, 17, true, true);
     Text_TextBox(&window, "Turns", 368, 357, 41, 13, true, true);
     Text_TextBox(&window, "Cost", 409, 357, 41, 13, true, true);

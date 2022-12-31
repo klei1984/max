@@ -389,7 +389,7 @@ void HelpMenu::DrawText() {
 
     for (int row_index = string_row_index; row_index < row_index_max; ++row_index) {
         text_to_buf(&buffer_position[window.width * (row_index - string_row_index) * text_height()],
-                    strings[row_index].GetCStr(), 265, window.width, 0x100FF);
+                    strings[row_index].GetCStr(), 265, window.width, GNW_TEXT_UNKNOWN_1 | 0xFF);
     }
 
     win_draw_rect(window.id, &window.window);
@@ -506,7 +506,8 @@ bool HelpMenu::Run(int mode) {
         if (!mode) {
             if (window_id == WINDOW_MAIN_MAP) {
                 GameManager_ProcessState(true, false);
-            } else if (GameManager_GameState == GAME_STATE_8_IN_GAME || GameManager_GameState == GAME_STATE_9_END_TURN) {
+            } else if (GameManager_GameState == GAME_STATE_8_IN_GAME ||
+                       GameManager_GameState == GAME_STATE_9_END_TURN) {
                 GameManager_ProcessState(false, false);
             } else if (Remote_GameState) {
                 Remote_NetSync();
@@ -562,7 +563,8 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
             if (!mode) {
                 if (window_index == WINDOW_MAIN_MAP) {
                     GameManager_ProcessState(true, false);
-                } else if (GameManager_GameState == GAME_STATE_8_IN_GAME || GameManager_GameState == GAME_STATE_9_END_TURN) {
+                } else if (GameManager_GameState == GAME_STATE_8_IN_GAME ||
+                           GameManager_GameState == GAME_STATE_9_END_TURN) {
                     GameManager_ProcessState(false, false);
                 } else if (Remote_GameState) {
                     Remote_NetSync();

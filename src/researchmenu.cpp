@@ -559,7 +559,7 @@ ResearchMenu::ResearchMenu(unsigned short team) : Window(RSRCHPIC, WINDOW_MAIN_M
 
     text_font(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window.buffer, window.width, "Research Topics", 95, 19, 170, 13, 0x02, true);
+    Text_TextBox(window.buffer, window.width, "Research Topics", 95, 19, 170, 13, COLOR_GREEN, true);
 
     text_font(GNW_TEXT_FONT_1);
 

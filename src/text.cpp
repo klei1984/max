@@ -152,7 +152,7 @@ void Text_TextBox(unsigned char* buffer, unsigned short length, const char* text
     int max_row_count;
     SmartString* string_array;
 
-    if (color & 0x10000) {
+    if (color & GNW_TEXT_UNKNOWN_1) {
         ++font_height;
     }
 

@@ -235,7 +235,7 @@ void ChatMenu::DrawMessage() {
             }
 
             Text_TextBox(window.buffer, window.width, buffer, team_ulx, team_uly, 130, 10,
-                         win_button_down(button_team[i]->GetId()) ? 0xFF : 0x01, true);
+                         win_button_down(button_team[i]->GetId()) ? 0xFF : COLOR_RED, true);
         }
     }
 

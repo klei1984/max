@@ -54,7 +54,7 @@ DesyncMenu::DesyncMenu()
     Text_TextBox(window.buffer, window.width,
                  "Unable to continue with next turn - remote players are no longer synchronized.\n\nPress Restart "
                  "to load from last auto-saved file.\nPress Quit to exit this game.",
-                 20, 14, 265, 175, 0x100FF, false);
+                 20, 14, 265, 175, GNW_TEXT_UNKNOWN_1 | 0xFF, false);
     win_draw_rect(window.id, &window.window);
 }
 

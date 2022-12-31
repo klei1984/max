@@ -233,7 +233,7 @@ void Scrollbar::RefreshScreen() {
 
         buffer = &buffer[((xfer_amount_background->GetHeight() - text_height()) / 2) * win.width];
         buffer = &buffer[(xfer_amount_background->GetWidth() - text_width(text)) / 2];
-        text_to_buf(buffer, text, text_width(text), win.width, 255);
+        text_to_buf(buffer, text, text_width(text), win.width, 0xFF);
 
         r.ulx = xfer_slider->GetULX();
         r.uly = xfer_slider->GetULY();

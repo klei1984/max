@@ -140,7 +140,7 @@ OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
     button_help->RegisterButton(window.id);
 
     if (bg_image == PREFSPIC) {
-        Text_TextBox(window.buffer, window.width, "Preferences", 108, 12, 184, 17, 0x02, true, true);
+        Text_TextBox(window.buffer, window.width, "Preferences", 108, 12, 184, 17, COLOR_GREEN, true, true);
     }
 
     Init();
@@ -706,12 +706,12 @@ int OptionsMenu::ProcessKeyPress(int key) {
                         } else {
                             control_id = key;
                             options_menu_buttons[key].image->Write(&window);
-                            text_edit =
-                                new (std::nothrow) TextEdit(&window, options_menu_buttons[key].ini_string_value, 30,
-                                                            options_menu_buttons[key].image->GetULX() + 5,
-                                                            options_menu_buttons[key].image->GetULY(),
-                                                            options_menu_buttons[key].image->GetWidth() - 5,
-                                                            options_menu_buttons[key].image->GetHeight() + 1, 0xA2, GNW_TEXT_FONT_5);
+                            text_edit = new (std::nothrow)
+                                TextEdit(&window, options_menu_buttons[key].ini_string_value, 30,
+                                         options_menu_buttons[key].image->GetULX() + 5,
+                                         options_menu_buttons[key].image->GetULY(),
+                                         options_menu_buttons[key].image->GetWidth() - 5,
+                                         options_menu_buttons[key].image->GetHeight() + 1, 0xA2, GNW_TEXT_FONT_5);
 
                             switch (options_menu_buttons[key].type) {
                                 case OPTIONS_TYPE_EDIT_INT: {

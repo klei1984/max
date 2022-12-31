@@ -3970,12 +3970,14 @@ void GameManager_FlicButtonRFunction(ButtonID bid, int value) {
         bounds.lry = text_height();
 
         GameManager_MenuDisplayControls[MENU_DISPLAY_CONTROL_CORNER_FLIC].image->Write(window, &bounds);
-        GameManager_TextEditUnitName = new (std::nothrow)
-            TextEdit(window, GameManager_UnitName, 30, bounds.ulx, 0, bounds.lrx - bounds.ulx, text_height(), 2, GNW_TEXT_FONT_2);
+        GameManager_TextEditUnitName =
+            new (std::nothrow) TextEdit(window, GameManager_UnitName, 30, bounds.ulx, 0, bounds.lrx - bounds.ulx,
+                                        text_height(), 2, GNW_TEXT_FONT_2);
 
         GameManager_TextEditUnitName->LoadBgImage();
 
-        text_to_buf(&window->buffer[bounds.ulx], GameManager_UnitName, bounds.lrx - bounds.ulx, window->width, 2);
+        text_to_buf(&window->buffer[bounds.ulx], GameManager_UnitName, bounds.lrx - bounds.ulx, window->width,
+                    COLOR_GREEN);
 
         GameManager_TextEditUnitName->EnterTextEditField();
 
@@ -6824,7 +6826,8 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
             text_font(GNW_TEXT_FONT_2);
 
-            win_print(window->id, text, 128, window->window.ulx, window->window.uly, 0x5000002);
+            win_print(window->id, text, 128, window->window.ulx, window->window.uly,
+                      GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | COLOR_GREEN);
 
             if (unit->unit_type == COMMANDO) {
                 int experience;
@@ -6859,7 +6862,8 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
                     strcat(text, exp_text);
                 }
 
-                win_print(window->id, text, 128, window->window.ulx, window->window.uly + text_height(), 0x5000002);
+                win_print(window->id, text, 128, window->window.ulx, window->window.uly + text_height(),
+                          GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | COLOR_GREEN);
             }
 
             GameManager_UpdateInfoDisplay(unit);
@@ -7266,7 +7270,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
         text_font(GNW_TEXT_FONT_2);
 
         win_print(window->id, GameManager_GetUnitStatusMessage(unit).GetCStr(), 128, window->window.ulx,
-                  window->window.uly + text_height(), 0x50000A2);
+                  window->window.uly + text_height(), GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | 0xA2);
 
         GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, false);
 

@@ -365,7 +365,8 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
 
     if (unit_type != INVALID_ID && button_description_rest_state) {
         text_font(GNW_TEXT_FONT_5);
-        Text_TextBox(window2.buffer, window1.width, base_unit->description, 16, 17, 280, 230, 0x100A2, false, false);
+        Text_TextBox(window2.buffer, window1.width, base_unit->description, 16, 17, 280, 230, GNW_TEXT_UNKNOWN_1 | 0xA2,
+                     false, false);
     }
 
     for (int i = 0; i < upgrade_control_count; ++i) {
@@ -500,7 +501,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
         buffer = &window1.buffer[window1.width * gold_background->GetULY() + gold_background->GetULX() +
                                  (gold_background->GetWidth() - length) / 2];
 
-        text_to_buf(buffer, text, length, window1.width, 5);
+        text_to_buf(buffer, text, length, window1.width, COLOR_CHROME_YELLOW);
     }
 
     win_draw(window1.id);

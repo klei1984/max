@@ -132,7 +132,7 @@ void PlanetSelectMenu::DrawTexts() {
 
     text_font(GNW_TEXT_FONT_5);
 
-    menu_draw_menu_title(window, &planet_select_menu_screen_title, 0x02, true);
+    menu_draw_menu_title(window, &planet_select_menu_screen_title, COLOR_GREEN, true);
 
     if (!image1) {
         image1 = new (std::nothrow)
@@ -144,11 +144,11 @@ void PlanetSelectMenu::DrawTexts() {
 
     image1->Write(window);
     planet_select_menu_planet_name.title = menu_planet_names[world];
-    menu_draw_menu_title(window, &planet_select_menu_planet_name, 0x02, true);
+    menu_draw_menu_title(window, &planet_select_menu_planet_name, COLOR_GREEN, true);
 
     image3->Write(window);
     planet_select_menu_planet_description.title = menu_planet_descriptions[world];
-    menu_draw_menu_title(window, &planet_select_menu_planet_description, 0x02);
+    menu_draw_menu_title(window, &planet_select_menu_planet_description, COLOR_GREEN);
 
     for (int i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
         buttons[i]->Enable();

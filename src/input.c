@@ -633,7 +633,7 @@ WinID default_pause_window(void) {
 
         buf = win_get_buf(id);
 
-        text_to_buf(&buf[8 * width + 16], "Paused", width, width, colorTable[31744]);
+        text_to_buf(&buf[8 * width + 16], "Paused", width, width, colorTable[124 * PALETTE_SIZE]);
 
         win_register_text_button(id, (width - text_width("Done") - 16) / 2, length - 8 - text_height() - 6, -1, -1, -1,
                                  27, "Done", 0);

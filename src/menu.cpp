@@ -462,7 +462,7 @@ static const char* menu_game_over_screen_places[] = {"Eliminated", "1st place", 
 
 void draw_menu_title(WindowInfo* window, const char* caption) {
     text_font(GNW_TEXT_FONT_5);
-    Text_TextBox(window->buffer, window->width, caption, 236, 145, 172, 15, 2, true, true);
+    Text_TextBox(window->buffer, window->width, caption, 236, 145, 172, 15, COLOR_GREEN, true, true);
 }
 
 void menu_draw_menu_portrait_frame(WindowInfo* window) {
@@ -1364,7 +1364,7 @@ void draw_copyright_label(WindowInfo* window) {
     Text_TextBox(window->buffer, window->width,
                  "Copyright 1996 Interplay Productions. v1.04"
                  "  (M.A.X. Port " GAME_VERSION ")",
-                 bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx, bounds.lry - bounds.uly, 0, true, false);
+                 bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx, bounds.lry - bounds.uly, COLOR_BLACK, true, false);
 }
 
 void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int special_button_id = 0) {
@@ -1439,7 +1439,7 @@ void menu_draw_tips_frame(WindowInfo* window) {
 
         for (int i = menu_tips_current_row_index; i < row_index_limit; ++i) {
             text_to_buf(&buffer_position[(i - menu_tips_current_row_index) * text_height() * window->width],
-                        menu_tips_strings[i].GetCStr(), 296, window->width, 162);
+                        menu_tips_strings[i].GetCStr(), 296, window->width, 0xA2);
         }
 
         win_draw_rect(window->id, &bounds);
@@ -1677,7 +1677,7 @@ void menu_credits_menu_loop() {
 
         if (line_index < (sizeof(menu_credits_lines) / sizeof(struct CreditsLine)) && height_offset <= bounds.lry) {
             Text_TextBox(image2->GetData(), window_width, menu_credits_lines[line_index].text, 0, window_height,
-                         window_width, 0x12, menu_credits_lines[line_index].color | 0x10000, true, true);
+                         window_width, 0x12, menu_credits_lines[line_index].color | GNW_TEXT_UNKNOWN_1, true, true);
             ++line_index;
             height_offset = bounds.lry + 20;
         }

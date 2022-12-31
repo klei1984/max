@@ -113,13 +113,13 @@ void UnitStats_DrawText(unsigned char* buffer, int screen_width, const char* lab
     address = &buffer[((19 - text_height()) / 2) * screen_width + 24];
 
     if (resource_count) {
-        ReportStats_DrawNumber(address, resource_count, 24, screen_width, 0x4);
+        ReportStats_DrawNumber(address, resource_count, 24, screen_width, COLOR_YELLOW);
     }
 
     text_to_buf(&address[4], label, 49, screen_width, 0xA2);
 
     if (drawline) {
-        draw_line(buffer, screen_width, 2, 18, line_length - 2, 18, 0x1);
+        draw_line(buffer, screen_width, 2, 18, line_length - 2, 18, COLOR_RED);
     }
 }
 
@@ -507,7 +507,7 @@ void UnitStats_Menu(UnitInfo* unit) {
             Text_TextBox(window.buffer, window.width, base_unit->description, 345, 90, 270, 117, 0xA2, false);
 
             text_font(GNW_TEXT_FONT_5);
-            Text_TextBox(window.buffer, window.width, "Unit Status Screen", 327, 7, 158, 18, 0x02, true);
+            Text_TextBox(window.buffer, window.width, "Unit Status Screen", 327, 7, 158, 18, COLOR_GREEN, true);
 
             win_draw(window.id);
 

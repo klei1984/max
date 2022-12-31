@@ -277,7 +277,7 @@ int win_register_menu_pulldown(WinID wid, int offx, char* name, int value, int n
         if (win_register_button(wid, x, y, text_width(name), text_height(), -1, -1, value, -1, 0, 0, 0, 0) == -1) {
             result = -1;
         } else {
-            win_print(wid, name, 0, x, y, w->menu->fcolor | 0x2000000);
+            win_print(wid, name, 0, x, y, w->menu->fcolor | GNW_TEXT_UNKNOWN_2);
 
             w->menu->pd[i].r.ulx = x;
             w->menu->pd[i].r.uly = y;

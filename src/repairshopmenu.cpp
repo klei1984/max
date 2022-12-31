@@ -254,7 +254,7 @@ void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
         text_font(GNW_TEXT_FONT_5);
 
         Text_TextBox(local_window.buffer, local_window.width, text, 10, 3, bg_image_area->GetWidth() - 20,
-                     bg_image_area->GetHeight() - 6, 0x100A2, false, false);
+                     bg_image_area->GetHeight() - 6, GNW_TEXT_UNKNOWN_1 | 0xA2, false, false);
 
         DrawStats(draw_to_screen);
 

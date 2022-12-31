@@ -59,7 +59,7 @@ void PurchaseTypeSelector::Draw() {
         ReportStats_DrawNumber(
             &window_info
                  .buffer[(i * 32 + 16 - text_height() / 2) * window_info.width + image->GetULX() + image->GetWidth()],
-            cost, image->GetWidth(), window_info.width, 0x4);
+            cost, image->GetWidth(), window_info.width, COLOR_YELLOW);
     }
 
     bounds.ulx = window_info.window.ulx + image->GetULX();

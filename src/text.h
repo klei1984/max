@@ -40,6 +40,15 @@ enum {
     GNW_TEXT_FONT_COUNT
 };
 
+#define GNW_TEXT_UNKNOWN_0 0x100
+#define GNW_TEXT_UNKNOWN_1 0x10000
+#define GNW_TEXT_UNDERLINE 0x20000
+#define GNW_TEXT_MONOSPACE 0x40000
+#define GNW_TEXT_REFRESH_WINDOW 0x1000000
+#define GNW_TEXT_UNKNOWN_2 0x2000000
+#define GNW_TEXT_UNKNOWN_3 0x4000000
+#define GNW_TEXT_COLOR_MASK 0xFF
+
 typedef struct FontMgr* FontMgrPtr;
 
 typedef void (*text_to_buf_func)(unsigned char*, const char*, int, int, int);

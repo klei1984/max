@@ -384,7 +384,7 @@ void GameSetupMenu::DrawMissionDescription() {
 
         text_font(GNW_TEXT_FONT_5);
         game_setup_menu_titles[0].title = text;
-        menu_draw_menu_title(window, &game_setup_menu_titles[0], 0x2, true, true);
+        menu_draw_menu_title(window, &game_setup_menu_titles[0], COLOR_GREEN, true, true);
         DrawDescriptionPanel();
     }
 

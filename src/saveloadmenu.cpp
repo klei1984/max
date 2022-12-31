@@ -219,7 +219,7 @@ void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int uly, ResourceID
         buffer_position += 5;
     }
 
-    text_to_buf(&image[buffer_position], title, image_header->width + uly + 2, uly, 0x2);
+    text_to_buf(&image[buffer_position], title, image_header->width + uly + 2, uly, COLOR_GREEN);
 
     delete[] image_header;
 }
@@ -288,7 +288,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
     text_font(GNW_TEXT_FONT_5);
 
     Text_TextBox(window->buffer, window->width, is_saving_allowed ? "Save/Load Menu" : "Load Menu", 229, 5, 181, 21,
-                 0x2, true);
+                 COLOR_GREEN, true);
 
     for (int i = 0; i < num_buttons; ++i) {
         if (is_text_mode) {
@@ -1219,7 +1219,8 @@ void SaveSlot::InitTextEdit(WinID wid) {
     window.window.lrx = ulx + width;
     window.window.lry = uly + height;
 
-    text_edit = new (std::nothrow) TextEdit(&window, save_name, sizeof(save_name), 45, 39, 143, 17, 0x01, GNW_TEXT_FONT_5);
+    text_edit =
+        new (std::nothrow) TextEdit(&window, save_name, sizeof(save_name), 45, 39, 143, 17, 0x01, GNW_TEXT_FONT_5);
     text_edit->LoadBgImage();
     text_edit->DrawFullText(false);
 }
@@ -1261,9 +1262,10 @@ void SaveSlot::DrawSaveSlot(int game_file_type) {
         filetype = "";
     }
 
-    SaveLoadMenu_DrawSaveSlotResource(image_up, width, FNAME_UP, filename, 5);
-    SaveLoadMenu_DrawSaveSlotResource(image_up, width, FTYPE_UP, filetype, 2);
+    SaveLoadMenu_DrawSaveSlotResource(image_up, width, FNAME_UP, filename, GNW_TEXT_FONT_5);
+    SaveLoadMenu_DrawSaveSlotResource(image_up, width, FTYPE_UP, filetype, GNW_TEXT_FONT_2);
 
-    SaveLoadMenu_DrawSaveSlotResource(image_down, width, FNAME_DN, file_name, 5);
-    SaveLoadMenu_DrawSaveSlotResource(image_down, width, FTYPE_DN, SaveLoadMenu_SaveTypeTitles[game_file_type], 2);
+    SaveLoadMenu_DrawSaveSlotResource(image_down, width, FNAME_DN, file_name, GNW_TEXT_FONT_5);
+    SaveLoadMenu_DrawSaveSlotResource(image_down, width, FTYPE_DN, SaveLoadMenu_SaveTypeTitles[game_file_type],
+                                      GNW_TEXT_FONT_2);
 }

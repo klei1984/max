@@ -255,7 +255,7 @@ void CargoBarData::Draw() {
     offset *= width;
 
     text_to_buf(&window->buffer[((rect_width - str_width) / 2) + rect.ulx + offset], caption, rect_width, width,
-                0x100FF);
+                GNW_TEXT_UNKNOWN_1 | 0xFF);
 
     win_draw_rect(window->id, &rect);
 }
@@ -578,7 +578,8 @@ bool AllocMenu::Init(UnitInfo *unit) {
             Text_TextBox(window.buffer, full_width, allocation_menu_titles[i].title,
                          allocation_menu_titles[i].bounds.ulx, allocation_menu_titles[i].bounds.uly,
                          allocation_menu_titles[i].bounds.lrx - allocation_menu_titles[i].bounds.ulx,
-                         allocation_menu_titles[i].bounds.lry - allocation_menu_titles[i].bounds.uly, 0x02, true, true);
+                         allocation_menu_titles[i].bounds.lry - allocation_menu_titles[i].bounds.uly, COLOR_GREEN, true,
+                         true);
         }
 
         for (int i = 0; i < std::size(allocation_menu_controls); ++i) {

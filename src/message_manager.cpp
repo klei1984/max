@@ -118,12 +118,12 @@ void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int lef
     top_margin *= width;
 
     if (monospace) {
-        flags = 0x40000;
+        flags = GNW_TEXT_MONOSPACE;
     } else {
         flags = 0;
     }
 
-    color += flags + 0x10000;
+    color += flags + GNW_TEXT_UNKNOWN_1;
     do {
         text_to_buf(&buffer[left_margin + top_margin], &text[offset], width, width, color);
         top_margin += 10 * width;

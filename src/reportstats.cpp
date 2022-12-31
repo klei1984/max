@@ -223,7 +223,7 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
 
         if (current_value > base_value / 4) {
             if (current_value > base_value / 2) {
-                color = 0x2;
+                color = COLOR_GREEN;
 
             } else {
                 if (icon_normal != SI_HITSB) {
@@ -231,7 +231,7 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
                     icon_empty = EI_HITSY;
                 }
 
-                color = 0x4;
+                color = COLOR_YELLOW;
             }
 
         } else {
@@ -240,7 +240,7 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
                 icon_empty = EI_HITSR;
             }
 
-            color = 0x1;
+            color = COLOR_RED;
         }
 
         text_font(GNW_TEXT_FONT_2);

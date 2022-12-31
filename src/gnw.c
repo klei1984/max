@@ -470,7 +470,7 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
 
     if (GNW_win_init_flag && w) {
         if (!field_width) {
-            if (color & 0x40000) {
+            if (color & GNW_TEXT_MONOSPACE) {
                 field_width = text_mono_width(str);
             } else {
                 field_width = text_width(str);
@@ -478,7 +478,7 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
         }
 
         if (field_width + x > w->width) {
-            if (!(color & 0x4000000)) {
+            if (!(color & GNW_TEXT_UNKNOWN_3)) {
                 return;
             }
 
@@ -488,8 +488,8 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
         buf = &w->buf[x + w->width * y];
 
         if ((text_height() + y) <= w->length) {
-            if (!(color & 0x2000000)) {
-                if (w->color == 256 && GNW_texture) {
+            if (!(color & GNW_TEXT_UNKNOWN_2)) {
+                if (w->color == 0x100 && GNW_texture) {
                     buf_texture(buf, field_width, text_height(), w->width, GNW_texture, w->tx + x, w->ty + y);
                 } else {
                     buf_fill(buf, field_width, text_height(), w->width, w->color);
@@ -502,7 +502,7 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
 
             text_to_buf(buf, str, field_width, w->width, color);
 
-            if (color & 0x1000000) {
+            if (color & GNW_TEXT_REFRESH_WINDOW) {
                 Rect r;
 
                 r.ulx = w->w.ulx + x;

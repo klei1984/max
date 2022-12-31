@@ -703,7 +703,7 @@ void NetworkMenu::DrawTextLine(int line_index, char *text, int height, bool hori
     uly = line_index * height + menu_item->bounds.uly;
     width = menu_item->bounds.lrx - ulx;
 
-    Text_TextBox(window->buffer, window->width, text, ulx, uly, width, height, 0x2, horizontal_align);
+    Text_TextBox(window->buffer, window->width, text, ulx, uly, width, height, COLOR_GREEN, horizontal_align);
 }
 
 void NetworkMenu::ResetJar(int team) {
@@ -976,9 +976,9 @@ TextEdit *NetworkMenu::CreateTextEdit(int index) {
     control = &network_menu_controls[index];
 
     text_buffer[0] = '\0';
-    text_edit = new (std::nothrow)
-        TextEdit(window, text_buffer, index == 18 ? 120 : 30, control->bounds.ulx, control->bounds.uly,
-                 control->bounds.lrx - control->bounds.ulx + 1, control->bounds.lry - control->bounds.uly + 1, 0xA2, GNW_TEXT_FONT_5);
+    text_edit = new (std::nothrow) TextEdit(window, text_buffer, index == 18 ? 120 : 30, control->bounds.ulx,
+                                            control->bounds.uly, control->bounds.lrx - control->bounds.ulx + 1,
+                                            control->bounds.lry - control->bounds.uly + 1, 0xA2, GNW_TEXT_FONT_5);
     text_edit->LoadBgImage();
 
     return text_edit;
