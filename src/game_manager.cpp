@@ -1754,13 +1754,9 @@ bool GameManager_UpdateMapDrawBounds(int ulx, int uly) {
 }
 
 void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
-    int grid_ulx;
-    int grid_uly;
-    unsigned int new_zoom_level;
-
     if (mode == 2) {
-        grid_ulx = GameManager_GridPosition.ulx;
-        grid_uly = GameManager_GridPosition.uly;
+        int grid_ulx = GameManager_GridPosition.ulx;
+        int grid_uly = GameManager_GridPosition.uly;
 
         ulx = ulx * GameManager_GridStepLevel + GameManager_MapWindowDrawBounds.ulx;
 
@@ -1769,8 +1765,8 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
         GameManager_GridStepOffset += GameManager_GridStepLevel;
 
         if (GameManager_UpdateMapDrawBounds(ulx, uly)) {
-            GameManager_GridCenter.x += GameManager_GridPosition.ulx - grid_uly;
-            GameManager_GridCenter.y += GameManager_GridPosition.uly - grid_ulx;
+            GameManager_GridCenter.x += GameManager_GridPosition.ulx - grid_ulx;
+            GameManager_GridCenter.y += GameManager_GridPosition.uly - grid_uly;
 
         } else {
             return;
@@ -1778,7 +1774,7 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
 
     } else if (mode == 0 || mode == 1) {
         if (mode == 0) {
-            new_zoom_level = std::min(64, std::max(4, ulx));
+            unsigned int new_zoom_level = std::min(64, std::max(4, ulx));
 
             if (Gfx_ZoomLevel == new_zoom_level && !flag) {
                 return;

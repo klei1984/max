@@ -706,7 +706,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                     scan = 0;
                 }
 
-                rect_init(&zone, unit->grid_x - scan, unit->grid_x + scan, unit->grid_y - scan, unit->grid_y + scan);
+                rect_init(&zone, unit->grid_x - scan, unit->grid_y - scan, unit->grid_x + scan, unit->grid_y + scan);
 
                 if (zone.ulx < 0) {
                     zone.ulx = 0;
