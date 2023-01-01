@@ -678,7 +678,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
         }
 
         if (GameManager_AllVisible) {
-            for (unsigned short team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                     unit->SpotByTeam(team);
                 }
@@ -689,7 +689,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                 Access_DrawUnit(unit);
 
             } else {
-                for (unsigned short team = PLAYER_TEAM_GRAY; team >= PLAYER_TEAM_RED; --team) {
+                for (int team = PLAYER_TEAM_GRAY; team >= PLAYER_TEAM_RED; --team) {
                     unit->Draw(team);
                 }
             }

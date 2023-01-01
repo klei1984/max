@@ -31,7 +31,7 @@ MapHash Hash_MapHash(HASH_HASH_SIZE);
 void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& file) {
     list.Clear();
 
-    for (unsigned short count = file.ReadObjectCount(); count; --count) {
+    for (int count = file.ReadObjectCount(); count; --count) {
         UnitInfo* unit = dynamic_cast<UnitInfo*>(file.ReadObject());
 
         list.PushBack(*unit);
@@ -162,7 +162,7 @@ void MapHashObject::PushBack(UnitInfo* unit) { list.PushBack(*unit); }
 void MapHashObject::Remove(UnitInfo* unit) { list.Remove(*unit); }
 
 MapHash::MapHash(unsigned short hash_size)
-    : hash_size(hash_size), x_shift(0), entry(new (std::nothrow) SmartList<MapHashObject>[hash_size]) {
+    : hash_size(hash_size), x_shift(0), entry(new(std::nothrow) SmartList<MapHashObject>[hash_size]) {
     while (hash_size > 128) {
         ++x_shift;
         hash_size >>= 1;
@@ -268,7 +268,7 @@ void MapHash::FileLoad(SmartFileReader& file) {
     entry = new (std::nothrow) SmartList<MapHashObject>[hash_size];
 
     for (int index = 0; index < hash_size; ++index) {
-        for (unsigned short count = file.ReadObjectCount(); count; --count) {
+        for (int count = file.ReadObjectCount(); count; --count) {
             MapHashObject* object = new (std::nothrow) MapHashObject(0, 0);
 
             object->FileLoad(file);
@@ -370,7 +370,7 @@ SmartList<UnitInfo>::Iterator MapHash::operator[](const Point& key) {
 }
 
 UnitHash::UnitHash(unsigned short hash_size)
-    : hash_size(hash_size), list(new (std::nothrow) SmartList<UnitInfo>[hash_size]) {}
+    : hash_size(hash_size), list(new(std::nothrow) SmartList<UnitInfo>[hash_size]) {}
 UnitHash::~UnitHash() { delete[] list; }
 
 void UnitHash::PushBack(UnitInfo* unit) {

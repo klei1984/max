@@ -576,7 +576,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
 
             Text_TypeWriter_TextBox(
                 window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].stats_factories_built).GetCStr(),
-                ulx, 116, lrx - ulx, 2);
+                ulx, 166, lrx - ulx, 2);
         }
     }
 
