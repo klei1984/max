@@ -25,6 +25,7 @@
 #include "unitinfo.hpp"
 
 class UnitEvent : public SmartObject {
+protected:
     SmartPointer<UnitInfo> unit;
 
 public:
@@ -35,8 +36,6 @@ public:
 };
 
 class UnitEventEmergencyStop : public UnitEvent {
-    SmartPointer<UnitInfo> unit;
-
 public:
     UnitEventEmergencyStop(UnitInfo* unit);
     ~UnitEventEmergencyStop();
