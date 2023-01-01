@@ -55,7 +55,7 @@ public:
     void Insert(MAXRegisterClass& object) {
         for (unsigned short position = SortedArray<MAXRegisterClass>::Insert(object); position < GetCount();
              ++position) {
-            MAXRegisterClass::SetTypeIndex(operator[](position).GetTypeIndexPointer(), position);
+            MAXRegisterClass::SetTypeIndex(operator[](position).GetTypeIndexPointer(), position + 1);
         }
     }
 

@@ -117,6 +117,7 @@ static const IniKey ini_keys_table[] = {
     {"alt_movie_res", "0", INI_NUMERIC},
     {"language", "english", INI_STRING},
 
+    /// Keep original layout for v1.04 save game compatibility
     {"OPTIONS", nullptr, INI_SECTION},
     {"world", "0", INI_NUMERIC},
     {"timer", "180", INI_NUMERIC},
@@ -131,6 +132,7 @@ static const IniKey ini_keys_table[] = {
     {"gold_resource", "1", INI_NUMERIC},
     {"alien_derelicts", "0", INI_NUMERIC},
 
+    /// Keep original layout for v1.04 save game compatibility
     {"PREFERENCES", nullptr, INI_SECTION},
     {"effects", "1", INI_NUMERIC},
     {"click_scroll", "1", INI_NUMERIC},
