@@ -69,7 +69,7 @@ extern Rect GameManager_MapWindowDrawBounds;
 extern SmartPointer<UnitInfo> GameManager_SelectedUnit;
 extern SmartPointer<UnitInfo> GameManager_TempTape;
 extern SmartList<UnitInfo> GameManager_LockedUnits;
-extern unsigned int GameManager_TurnCounter;
+extern int GameManager_TurnCounter;
 extern int GameManager_TurnTimerValue;
 extern bool GameManager_MaxSpy;
 extern int GameManager_GameFileNumber;

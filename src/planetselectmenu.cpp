@@ -167,8 +167,9 @@ void PlanetSelectMenu::DrawTexts() {
         Image(bounds->ulx, bounds->uly, bounds->lrx - bounds->ulx + 1, bounds->lry - bounds->uly + 1);
     image2->Copy(window);
 
-    draw_box(window->buffer, window->width, bounds->ulx, bounds->uly, bounds->lrx, bounds->lry, 1);
-    draw_box(window->buffer, window->width, bounds->ulx + 1, bounds->uly + 1, bounds->lrx - 1, bounds->lry - 1, 1);
+    draw_box(window->buffer, window->width, bounds->ulx, bounds->uly, bounds->lrx, bounds->lry, COLOR_RED);
+    draw_box(window->buffer, window->width, bounds->ulx + 1, bounds->uly + 1, bounds->lrx - 1, bounds->lry - 1,
+             COLOR_RED);
     win_draw(window->id);
 }
 

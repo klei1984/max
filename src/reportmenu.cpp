@@ -851,8 +851,8 @@ void ReportMenu::DrawScores() {
 
     max_score = ((max_score + 9) / 10) * 10;
 
-    draw_line(window.buffer, window.width, x1 - 2, y1, x1 - 2, y2 + 2, 0x04);
-    draw_line(window.buffer, window.width, x1 - 2, y2 + 2, x2 - 1, y2 + 2, 0x04);
+    draw_line(window.buffer, window.width, x1 - 2, y1, x1 - 2, y2 + 2, COLOR_YELLOW);
+    draw_line(window.buffer, window.width, x1 - 2, y2 + 2, x2 - 1, y2 + 2, COLOR_YELLOW);
 
     width = x2 - x1;
     height = y2 - y1;

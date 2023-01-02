@@ -3559,8 +3559,6 @@ void UnitInfo::RenderSprite(Point point, int image_base, Rect* bounds) {
 
             frame = GetSpriteFrame(reinterpret_cast<struct ImageMultiHeader*>(Gfx_ResourceBuffer), image_base);
 
-            point -= shadow_offset;
-
             if (ResourceManager_DisableEnhancedGraphics) {
                 scaling_factor /= 2;
             }
@@ -3572,23 +3570,23 @@ void UnitInfo::RenderSprite(Point point, int image_base, Rect* bounds) {
 
                 if (zoom_level < 8) {
                     if (flags & HASH_TEAM_RED) {
-                        Gfx_TeamColorIndexBase = 0x01;
+                        Gfx_TeamColorIndexBase = COLOR_RED;
 
                     } else if (flags & HASH_TEAM_GREEN) {
-                        Gfx_TeamColorIndexBase = 0x02;
+                        Gfx_TeamColorIndexBase = COLOR_GREEN;
 
                     } else if (flags & HASH_TEAM_BLUE) {
-                        Gfx_TeamColorIndexBase = 0x03;
+                        Gfx_TeamColorIndexBase = COLOR_BLUE;
 
                     } else if (flags & HASH_TEAM_GRAY) {
                         Gfx_TeamColorIndexBase = 0xFF;
 
                     } else {
-                        Gfx_TeamColorIndexBase = 0x04;
+                        Gfx_TeamColorIndexBase = COLOR_YELLOW;
                     }
 
                 } else {
-                    Gfx_TeamColorIndexBase = 0x00;
+                    Gfx_TeamColorIndexBase = COLOR_BLACK;
                 }
 
                 Gfx_DecodeSprite();
@@ -3659,8 +3657,8 @@ void UnitInfo::RenderWithConnectors(Rect* bounds) {
     }
 
     if (flags & (TURRET_SPRITE | SPINNING_TURRET)) {
-        position.x = turret_offset_x;
-        position.y = turret_offset_y;
+        position.x += turret_offset_x;
+        position.y += turret_offset_y;
 
         RenderShadow(position, turret_image_index, bounds);
         RenderSprite(position, turret_image_index, bounds);

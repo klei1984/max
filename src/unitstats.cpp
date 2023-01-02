@@ -226,7 +226,7 @@ int UnitStats_DrawIcons(unsigned char* buffer, int screen_width, int max_width, 
         var_24 = UnitStats_DrawIcon(address, screen_width, image_normal, current, var_34, width, height);
 
         if (original) {
-            draw_line(&buffer[var_24 + 2], screen_width, 0, 2, 0, 16, 0x1);
+            draw_line(&buffer[var_24 + 2], screen_width, 0, 2, 0, 16, COLOR_RED);
 
             var_24 += 5;
 

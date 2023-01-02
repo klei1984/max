@@ -292,7 +292,7 @@ void GameSetupMenu::DrawMissionList() {
 
         if (i < GAME_SETUP_MENU_MISSION_COUNT - 1) {
             draw_line(window->buffer, 640, control->bounds.ulx, control->bounds.lry, control->bounds.lrx,
-                      control->bounds.lry, 0x2);
+                      control->bounds.lry, COLOR_GREEN);
         }
 
         if (menu_setup_menu_mission_titles[i]) {
@@ -311,7 +311,7 @@ void GameSetupMenu::DrawMissionList() {
             menu_setup_menu_mission_titles[i] = new (std::nothrow) char[30];
             strcpy(menu_setup_menu_mission_titles[i], save_file_header.save_name);
 
-            DrawSaveFileTitle(i, 0x2);
+            DrawSaveFileTitle(i, COLOR_GREEN);
             buttons[i]->Enable();
 
             process_bk();

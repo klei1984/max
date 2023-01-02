@@ -441,7 +441,7 @@ Point GameManager_GridCenter;
 Point GameManager_GridCenterOffset;
 Point GameManager_SpottedEnemyPosition;
 SmartList<UnitInfo> GameManager_LockedUnits;
-unsigned int GameManager_TurnCounter;
+int GameManager_TurnCounter;
 unsigned int GameManager_ArrowKeyFlags;
 int GameManager_TurnTimerValue;
 unsigned int GameManager_FlicFrameTimeStamp;
@@ -1316,22 +1316,22 @@ void GameManager_Render() {
 
                     if (GameManager_RenderArea.uly >= GameManager_MapWindowDrawBounds.uly &&
                         GameManager_RenderArea.uly <= GameManager_MapWindowDrawBounds.lry) {
-                        draw_line(window->buffer, 640, map_ulx2, map_uly, map_lrx2, map_uly, 0x04);
+                        draw_line(window->buffer, 640, map_ulx2, map_uly, map_lrx2, map_uly, COLOR_YELLOW);
                     }
 
                     if (GameManager_RenderArea.lrx >= GameManager_MapWindowDrawBounds.ulx &&
                         GameManager_RenderArea.lrx <= GameManager_MapWindowDrawBounds.lrx) {
-                        draw_line(window->buffer, 640, map_lrx, map_uly2, map_lrx, map_lry2, 0x04);
+                        draw_line(window->buffer, 640, map_lrx, map_uly2, map_lrx, map_lry2, COLOR_YELLOW);
                     }
 
                     if (GameManager_RenderArea.lry >= GameManager_MapWindowDrawBounds.uly &&
                         GameManager_RenderArea.lry <= GameManager_MapWindowDrawBounds.lry) {
-                        draw_line(window->buffer, 640, map_ulx2, map_lry, map_lrx2, map_lry, 0x04);
+                        draw_line(window->buffer, 640, map_ulx2, map_lry, map_lrx2, map_lry, COLOR_YELLOW);
                     }
 
                     if (GameManager_RenderArea.ulx >= GameManager_MapWindowDrawBounds.ulx &&
                         GameManager_RenderArea.ulx <= GameManager_MapWindowDrawBounds.lrx) {
-                        draw_line(window->buffer, 640, map_ulx, map_uly2, map_ulx, map_lry2, 0x04);
+                        draw_line(window->buffer, 640, map_ulx, map_uly2, map_ulx, map_lry2, COLOR_YELLOW);
                     }
                 }
             }
@@ -1345,7 +1345,7 @@ void GameManager_Render() {
                 window = WindowManager_GetWindow(WINDOW_MINIMAP);
 
                 draw_box(window->buffer, 640, GameManager_GridPosition.ulx, GameManager_GridPosition.uly,
-                         GameManager_GridPosition.lrx, GameManager_GridPosition.lry, 0x01);
+                         GameManager_GridPosition.lrx, GameManager_GridPosition.lry, COLOR_RED);
 
                 if (GameManager_DisplayButtonMinimap2x) {
                     unsigned char* buffer;

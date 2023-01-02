@@ -250,8 +250,8 @@ public:
     unsigned char sound;
     unsigned char scaler_adjust;
     unsigned char turret_angle;
-    unsigned char turret_offset_x;
-    unsigned char turret_offset_y;
+    char turret_offset_x;
+    char turret_offset_y;
     unsigned short total_images;
     unsigned short image_base;
     unsigned short turret_image_base;

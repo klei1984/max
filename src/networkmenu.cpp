@@ -1149,7 +1149,7 @@ void NetworkMenu::DrawJoinScreen() {
             if (i) {
                 draw_line(window->buffer, 640, network_menu_controls[index].bounds.ulx,
                           network_menu_controls[index].bounds.uly, network_menu_controls[index].bounds.lrx,
-                          network_menu_controls[index].bounds.uly, 0x2);
+                          network_menu_controls[index].bounds.uly, COLOR_GREEN);
             }
         }
 

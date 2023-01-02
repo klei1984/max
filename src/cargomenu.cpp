@@ -209,7 +209,7 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
     Text_TextBox(window1.buffer, window1.width, "Cost", 625 - text_width("Cost"), 57, text_width("Cost"), 10,
                  COLOR_YELLOW, false);
 
-    draw_line(window1.buffer, window1.width, 482, 69, 625, 69, 0x5);
+    draw_line(window1.buffer, window1.width, 482, 69, 625, 69, COLOR_CHROME_YELLOW);
 
     wininfo2 = window1;
 
@@ -227,7 +227,7 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
 
     Text_TextBox(window1.buffer, window1.width, "Purchased", 337, 22, 118, 10, 0xA2, true);
 
-    draw_line(window1.buffer, window1.width, 337, 34, 455, 34, 0x5);
+    draw_line(window1.buffer, window1.width, 337, 34, 455, 34, COLOR_CHROME_YELLOW);
 
     text_font(GNW_TEXT_FONT_5);
 

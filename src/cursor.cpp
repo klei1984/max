@@ -76,7 +76,7 @@ static void Cursor_DrawAttackPowerCursorHelper(int target_current_hits, int atta
         target_current_hits = target_current_hits * 35 / target_base_hits;
         attacker_damage -= target_current_hits;
 
-        draw_box(data, cursor->bounds.ulx, 0, 0, 36, 4, 0);
+        draw_box(data, cursor->bounds.ulx, 0, 0, 36, 4, COLOR_BLACK);
 
         if (target_current_hits) {
             buf_fill(&data[cursor->bounds.ulx + 1], target_current_hits, 3, cursor->bounds.ulx, 2);
@@ -163,7 +163,7 @@ void Cursor_DrawStealthActionChanceCursor(int experience_level, unsigned char cu
     int chance = experience_level * 35 / 100;
     int reminder = 35 - experience_level * 35 / 100;
 
-    draw_box(data, cursor->bounds.ulx, 0, 0, 36, 4, 0);
+    draw_box(data, cursor->bounds.ulx, 0, 0, 36, 4, COLOR_BLACK);
 
     if (chance) {
         buf_fill(&data[cursor->bounds.ulx + 1], chance, 3, cursor->bounds.ulx, 1);
