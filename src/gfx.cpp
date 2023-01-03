@@ -165,7 +165,6 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
         int zoom_level;
         int factor;
         unsigned char* map_tile_buffer;
-        ColorIndex* color_map;
         int tile_index;
 
         tile_index = 0;
@@ -254,8 +253,6 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
                 Gfx_DecodeMap_dword_16872C = Gfx_DecodeMap_dword_168724;
 
                 Gfx_DecodeMap_dword_168724 = &Gfx_DecodeMap_dword_168724[zoom_level];
-
-                color_map = Gfx_Decode_ColorMap;
 
                 do {
                     factor = Gfx_DecodeMap_dword_1686FC;

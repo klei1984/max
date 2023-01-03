@@ -63,11 +63,11 @@ int ResourceManager_ResItemCount;
 int resource_buffer_size;
 ColorIndex *color_animation_buffer;
 
-const unsigned char byte_16B4F0[8] = {56, 57, 58, 59, 60, 61, 62, 63};
-const unsigned char byte_16B4F8[8] = {32, 33, 34, 35, 36, 37, 38, 39};
-const unsigned char byte_16B500[8] = {48, 49, 50, 51, 52, 53, 54, 55};
-const unsigned char byte_16B508[8] = {255, 161, 172, 169, 216, 213, 212, 207};
-const unsigned char byte_16B510[8] = {216, 215, 214, 213, 212, 211, 210, 209};
+const unsigned char ResourceManager_TeamRedColorIndices[8] = {56, 57, 58, 59, 60, 61, 62, 63};
+const unsigned char ResourceManager_TeamGreenColorIndices[8] = {32, 33, 34, 35, 36, 37, 38, 39};
+const unsigned char ResourceManager_TeamBlueColorIndices[8] = {48, 49, 50, 51, 52, 53, 54, 55};
+const unsigned char ResourceManager_TeamGrayColorIndices[8] = {255, 161, 172, 169, 216, 213, 212, 207};
+const unsigned char ResourceManager_TeamDerelictColorIndices[8] = {216, 215, 214, 213, 212, 211, 210, 209};
 
 ColorIndex *ResourceManager_TeamRedColorIndexTable;
 ColorIndex *ResourceManager_TeamGreenColorIndexTable;
@@ -862,11 +862,11 @@ int ResourceManager_BuildColorTables() {
                 if (j == 8) {
                     k += 8;
                 }
-                ResourceManager_TeamRedColorIndexTable[k] = byte_16B4F0[j & 7];
-                ResourceManager_TeamGreenColorIndexTable[k] = byte_16B4F8[j & 7];
-                ResourceManager_TeamBlueColorIndexTable[k] = byte_16B500[j & 7];
-                ResourceManager_TeamGrayColorIndexTable[k] = byte_16B508[j & 7];
-                ResourceManager_TeamDerelictColorIndexTable[k] = byte_16B510[j & 7];
+                ResourceManager_TeamRedColorIndexTable[k] = ResourceManager_TeamRedColorIndices[j & 7];
+                ResourceManager_TeamGreenColorIndexTable[k] = ResourceManager_TeamGreenColorIndices[j & 7];
+                ResourceManager_TeamBlueColorIndexTable[k] = ResourceManager_TeamBlueColorIndices[j & 7];
+                ResourceManager_TeamGrayColorIndexTable[k] = ResourceManager_TeamGrayColorIndices[j & 7];
+                ResourceManager_TeamDerelictColorIndexTable[k] = ResourceManager_TeamDerelictColorIndices[j & 7];
                 k++;
                 j++;
             }
@@ -1292,33 +1292,35 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     int tile_index;
     int data_size;
     unsigned char *normal_tile_buffer;
-    unsigned char *reduced_tile_buffer;
+    unsigned char *full_tile_buffer;
 
     tile_size = RESOURCE_MANAGER_MAP_TILE_SIZE;
 
-    reduced_tile_count = ResourceManager_MapTileCount / 8;
+    reduced_tile_count = (ResourceManager_MapTileCount + 7) / 8;
 
     if (ResourceManager_DisableEnhancedGraphics) {
         tile_size /= 2;
-        reduced_tile_buffer = new (std::nothrow) unsigned char[reduced_tile_count * RESOURCE_MANAGER_MAP_TILE_SIZE *
-                                                               RESOURCE_MANAGER_MAP_TILE_SIZE];
+        full_tile_buffer = new (std::nothrow) unsigned char[reduced_tile_count * RESOURCE_MANAGER_MAP_TILE_SIZE *
+                                                            RESOURCE_MANAGER_MAP_TILE_SIZE];
     }
 
-    normal_tile_buffer = new (std::nothrow) unsigned char[ResourceManager_MapTileCount * tile_size * tile_size];
-    ResourceManager_MapTileBuffer = normal_tile_buffer;
+    ResourceManager_MapTileBuffer =
+        new (std::nothrow) unsigned char[ResourceManager_MapTileCount * tile_size * tile_size];
+
+    normal_tile_buffer = ResourceManager_MapTileBuffer;
 
     for (int i = 0; i < ResourceManager_MapTileCount; i += reduced_tile_count) {
         loadbar->SetValue(i * 50 / ResourceManager_MapTileCount + 20);
 
         if (!ResourceManager_DisableEnhancedGraphics) {
-            reduced_tile_buffer =
+            full_tile_buffer =
                 &ResourceManager_MapTileBuffer[i * RESOURCE_MANAGER_MAP_TILE_SIZE * RESOURCE_MANAGER_MAP_TILE_SIZE];
         }
 
         tile_index = std::min(reduced_tile_count, ResourceManager_MapTileCount - i);
         data_size = tile_index * RESOURCE_MANAGER_MAP_TILE_SIZE * RESOURCE_MANAGER_MAP_TILE_SIZE;
 
-        if (data_size != fread(reduced_tile_buffer, sizeof(unsigned char), data_size, fp)) {
+        if (data_size != fread(full_tile_buffer, sizeof(unsigned char), data_size, fp)) {
             return false;
         }
 
@@ -1326,14 +1328,18 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
             unsigned char *address;
             int offset;
 
-            address = reduced_tile_buffer;
+            address = full_tile_buffer;
             normal_tile_buffer = &ResourceManager_MapTileBuffer[tile_size * tile_size * i];
 
             for (int j = 0; j < tile_index; ++j) {
                 for (int k = 0; k < tile_size; ++k) {
                     for (int l = 0; l < tile_size; ++l) {
-                        normal_tile_buffer[l + k * tile_size] = address[l * 2 + k * RESOURCE_MANAGER_MAP_TILE_SIZE];
+                        *normal_tile_buffer = *address;
+                        normal_tile_buffer += 1;
+                        address += 2;
                     }
+
+                    address += 64;
                 }
             }
         }
@@ -1342,7 +1348,7 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     loadbar->SetValue(70);
 
     if (ResourceManager_DisableEnhancedGraphics) {
-        delete[] reduced_tile_buffer;
+        delete[] full_tile_buffer;
     }
 
     return true;
