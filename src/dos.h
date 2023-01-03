@@ -39,8 +39,6 @@ int strnicmp(const char *s1, const char *s2, size_t len);
 
 long int filesize(FILE *fp);
 
-unsigned int get_dpmi_physical_memory(void);
-
 void dos_getdrive(unsigned int *drive);
 
 void dos_setdrive(unsigned int drive, unsigned int *total);

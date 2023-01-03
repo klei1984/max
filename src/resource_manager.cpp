@@ -21,6 +21,8 @@
 
 #include "resource_manager.hpp"
 
+#include <filesystem>
+
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
 #include "game_manager.hpp"
@@ -487,44 +489,28 @@ void ResourceManager_TestMemory() {
 
     memory = SDL_GetSystemRAM();
     if (memory < 6L) {
-        SDL_Log("\nNot enough memory available to run M.A.X.\nAmount Needed: %i MB, Amount found: %i MB\n\n", 6,
+        SDL_Log("\nNot enough memory available to run M.A.X.\nAmount Needed: %i MiB, Amount found: %i MiB\n\n", 6,
                 memory);
         exit(1);
     }
 }
 
 void ResourceManager_TestDiskSpace() {
-    /// \todo    unsigned long long available_disk_space;
-    //    int pressed_key;
-    //
-    //    char *pref_path = nullptr;
-    //    char *base_path = nullptr;
-    //
-    //    pref_path = SDL_GetPrefPath("Interplay", "MAX");
-    //    base_path = SDL_GetBasePath();
-    //
-    //    if (!base_path) {
-    //        SDL_Log("SDL_GetBasePath failed: %s\n", SDL_GetError());
-    //    }
-    //
-    //    available_disk_space = 0;
-    //    \todo Portable way to determine free space in user profile specific directory
-    //
-    //        if (available_disk_space < 250000ULL) {
-    //        printf("\n\n");
-    //        printf("The Drive %c has only %llu bytes available.  You may have trouble saving games...\n", drive,
-    //               available_disk_space);
-    //        printf("\nPress ESC to exit, any other key to continue...");
-    //        printf("\n\n");
-    //
-    //        do {
-    //            pressed_key = getch();
-    //        } while (pressed_key <= 0);
-    //
-    //        if (pressed_key == GNW_KB_KEY_ESCAPE) {
-    //            exit(1);
-    //        }
-    //    }
+    /// char *pref_path = SDL_GetPrefPath("Interplay", "MAX");
+    char *base_path = SDL_GetBasePath();
+
+    if (base_path) {
+        const auto info = std::filesystem::space(base_path);
+
+        SDL_free(base_path);
+
+        if (static_cast<std::intmax_t>(info.available) < 256000) {
+            SDL_Log("The Drive has less than 250 KiB available space.  You may have trouble saving games...\n");
+        }
+
+    } else {
+        SDL_Log("SDL_GetBasePath failed: %s\n", SDL_GetError());
+    }
 }
 
 void ResourceManager_InitInternals() {
@@ -543,8 +529,12 @@ void ResourceManager_InitInternals() {
         ResourceManager_ExitGame(EXIT_CODE_SCREEN_INIT_FAILED);
     }
 
-    ResourceManager_DisableEnhancedGraphics = get_dpmi_physical_memory() < 13312000L;
-    ini_set_setting(INI_ENHANCED_GRAPHICS, !ResourceManager_DisableEnhancedGraphics);
+    if (SDL_GetSystemRAM() < 13) {
+        ini_set_setting(INI_ENHANCED_GRAPHICS, false);
+    }
+
+    ResourceManager_DisableEnhancedGraphics = !ini_get_setting(INI_ENHANCED_GRAPHICS);
+
     SoundManager.Init();
     register_pause(-1, nullptr);
     register_screendump(GNW_KB_KEY_LALT_C, screendump_pcx);

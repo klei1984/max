@@ -77,8 +77,6 @@ long int filesize(FILE *fp) {
     return (size_of_file);
 }
 
-unsigned int get_dpmi_physical_memory(void) { return 64000000uLL; }
-
 void dos_getdrive(unsigned int *drive) { *drive = 4; }
 
 void dos_setdrive(unsigned int drive, unsigned int *total) {}
