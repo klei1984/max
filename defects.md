@@ -411,3 +411,7 @@ The defect is closely related to the group command. Steps to reproduce the issue
 107. The main menu setup and in-game preferences windows do not exit active edit menus when the user presses the help button. Pressing most buttons emit keyboard key or scan codes. In case of the help button a question mark is emitted which is fed into the active edit control instead of switching to active help mode in the given context menu. Pressing the help button shall exit the edit control just like enter and escape and similar buttons do.
 
 108. The in-game credits spells incorrectly `Albert LIoyd Olson for Four Bars Entertainment` as `Albert Olsen for Four Bars Intertainment`. The game manual (MC-ICD-082-GEN) is correct.
+
+109. There is a function (cseg01:000CEB0D) to enumerate team units to be considered for the reports menu. Only such units are added to the list that fulfill certain conditions. There is a condition that says if the unit order is IDLE then the unit can be added to the list if the unit order is not MOVE_TO_ATTACK which is always true. There are many tests that check IDLE order and BUILDING_READY state in combination. The MOVE_TO_ATTACK order code and the BUILDING_READY state code are the same.
+
+110. The units report window in the reports menu renders (cseg01:000CC088) unit statistics for the RESEARCH unit tpye incorrectly. The unit statistics shown should be Hits, Usage, Total while Hits, Usage, Usage is shown.

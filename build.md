@@ -7,8 +7,7 @@ permalink: /build/
 ## How to build M.A.X. Port
 
 ### Dependencies
-- **SDL, SDL_mixer and SDL_net** There is no exact version requirement or it was not determined yet. Latest officially released versions are preferred over latest in development revisions. Avoid SDL `2.0.6` which is known to cause segmentation faults when playing sounds.
-- **Python** The code generator scripts are developed using Python `3.7.x`, but anything should work above `3.6`.
+- **SDL, SDL_mixer, SDL_net and SDL_ttf** There is no exact version requirement or it was not determined yet. Latest officially released versions are preferred over latest in development revisions. Avoid SDL `2.0.6` which is known to cause segmentation faults when playing sounds.
 - **CMake** Minimum requirement is currently `3.10`.
 
 ### Optional dependencies
@@ -17,7 +16,7 @@ permalink: /build/
 
 ### General Notes
 
-The M.A.X. Port source code is only *compatible* with the 32 bit x86 architecture. 64 bit builds cannot be created and in general x86_64 bit compilers cannot be used. The code generator scripts heavily rely on GCC extensions so compilers that are not GCC compatible will not work either. Only Windows and Linux operating systems are targeted currently, but potentially an x86 architecture based macOS build would be possible to do if self modifying code is supported by the platform. It is assumed that the OS is built for a 64 bit platform.
+The M.A.X. Port source code is only *compatible* with the 32 bit x86 architecture. 64 bit builds cannot be created and in general x86_64 bit compilers cannot be used. Only Windows and Linux operating systems are targeted currently, but potentially an x86 architecture based macOS build would be possible to do if self modifying code is supported by the platform. It is assumed that the OS is built for a 64 bit platform.
 
 ### Build options
 
@@ -40,7 +39,7 @@ sudo apt-get update
 Next install all dependencies and required tools. The list includes gcc i386, SDL packages and the CMake build system.
 
 ```
-sudo apt-get install cmake build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386
+sudo apt-get install cmake build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386 libsdl2-ttf-dev:i386
 ```
 
 Now grab the M.A.X. Port source code from either a release baseline or from the latest master branch.
@@ -63,7 +62,7 @@ This way the master branch will be checked out initially which we can test with 
 
 At this stage we should be standing inside the source code's root folder. Here we should create a build folder where all the output and temporary files will be placed by the build environment. E.g. `mkdir build && cd build`.
 
-After entering the newly created build folder configure cmake to create a Debug build. Note that as long as the project is under heavy development and is full of assembler tricks it is best to keep to Debug builds with no compiler and link time optimizations of any kind.
+After entering the newly created build folder configure cmake to create a Debug build. Note that as long as the project is under heavy development it is best to keep to Debug builds with no compiler and link time optimizations of any kind.
 
 ```
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local ..
@@ -72,12 +71,12 @@ cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local ..
 and finally we can build our game executable
 
 ```
-cmake --build .
+cmake --build . --parallel
 ```
 
 If everything went well then the built executable will be found right inside the build folder called `maxrun`.
 
-The new executable should be placed into the location where the original maxrun.exe file is found within the game's install folder.
+The new executable and any new game assets should be placed into the location where the original maxrun.exe file is found within the game's install folder.
 
 ### Build on Windows using MSYS2
 
@@ -94,10 +93,8 @@ pacman -Syu
 Next install all dependencies and required tools. The list includes gcc i386, SDL packages and the CMake build system.
 
 ```
-pacman -S mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-cmake make
+pacman -S mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-SDL2_ttf mingw32/mingw-w64-i686-cmake make
 ```
-
-Python 3.7 or later is required for some build scripts. It can be installed from [here](https://www.python.org/downloads/) or it could be installed from within msys2. If a standalone installer is used, make sure that the python executable is found on the system path. The command to install python via msys2 is as follows `pacman -S mingw-w64-i686-python`.
 
 Now grab the M.A.X. Port source code from either a release baseline or from the latest master branch.
 
@@ -119,20 +116,20 @@ This way the master branch will be checked out initially which we can test with 
 
 At this stage we should be standing inside the source code's root folder. Here we should create a build folder where all the output and temporary files will be placed by the build environment. E.g. `mkdir build && cd build`.
 
-After entering the newly created build folder configure cmake to create a Debug build. Note that as long as the project is under heavy development and is full of assembler tricks it is best to keep to Debug builds with no compiler and link time optimizations of any kind.
+After entering the newly created build folder configure cmake to create a Debug build. Note that as long as the project is under heavy development it is best to keep to Debug builds with no compiler and link time optimizations of any kind.
 
 ```
-cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX="C:/Program Files (x86)/max" -DSDL2_DIR=/mingw32/lib/cmake/SDL2 ..
+cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX="C:/Program Files (x86)/max" ..
 ```
 
 and finally we can build our game executable
 
 ```
-cmake --build .
+cmake --build . --parallel
 ```
 
 If everything went well then the built executable will be found right inside the build folder called `maxrun.exe`.
 
-The new executable should be placed into the location where the original maxrun.exe file is found within the game's install folder replacing the old one. It is recommended to create a backup copy of the old executable.
+The new executable and any new game assets should be placed into the location where the original maxrun.exe file is found within the game's install folder replacing the old one. It is recommended to create a backup copy of the old executable.
 
 ## References
