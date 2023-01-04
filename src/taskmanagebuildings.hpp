@@ -78,7 +78,7 @@ class TaskManageBuildings : public Task {
     bool MarkBuildings(unsigned char** access_map, Point& site);
     void MarkConnections(unsigned char** access_map, Point site, int value);
     void UpdateConnectors(unsigned char** access_map, int ulx, int uly, int lrx, int lry);
-    int GetConnectionDistance(unsigned char** access_map, Point site1, Point site2, unsigned short team, int value);
+    int GetConnectionDistance(unsigned char** access_map, Point& site1, Point site2, unsigned short team, int value);
     bool ConnectBuilding(unsigned char** access_map, Point site, int value);
     bool ReconnectBuilding(unsigned char** access_map, Rect* bounds, int value);
     static bool FindMarkedSite(unsigned char** access_map, Rect* bounds);

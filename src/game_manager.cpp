@@ -6927,7 +6927,7 @@ void GameManager_DrawInfoDisplayRowIcons(unsigned char* buffer, int full_width, 
     int height_offset;
     int buffer_offset;
     int buffer_position;
-    int base_balue_scaled;
+    int base_value_scaled;
     int base_value_diff;
     int factor;
     int offset;
@@ -6946,19 +6946,20 @@ void GameManager_DrawInfoDisplayRowIcons(unsigned char* buffer, int full_width, 
     if (image) {
         if (base_value > 5) {
             height_offset = ((height - 1) - image->height) / 4;
+
         } else {
             height_offset = 0;
         }
 
         buffer_offset = ((((height - 1) - (height_offset * 4)) - image->height) / 2) * full_width;
 
-        base_balue_scaled = (base_value + 4) / 5;
+        base_value_scaled = (base_value + 4) / 5;
 
-        base_value_diff = base_value - ((base_balue_scaled - 1) * 5);
+        base_value_diff = base_value - ((base_value_scaled - 1) * 5);
 
-        width -= image->width * base_balue_scaled;
+        width -= image->width * base_value_scaled;
 
-        width_offset = (base_balue_scaled * 4) - (5 - base_value_diff);
+        width_offset = (base_value_scaled * 4) - (5 - base_value_diff);
 
         if (width_offset) {
             if (width >= width_offset) {
@@ -6972,7 +6973,7 @@ void GameManager_DrawInfoDisplayRowIcons(unsigned char* buffer, int full_width, 
 
             } else {
                 factor = 1;
-                offset = (base_balue_scaled + (width_offset - width) - 2) / (base_balue_scaled - 1);
+                offset = (base_value_scaled + (width_offset - width) - 2) / (base_value_scaled - 1);
             }
 
         } else {
@@ -7040,10 +7041,10 @@ void GameManager_DrawInfoDisplayRow(const char* label, int window_id, ResourceID
 
         text_font(GNW_TEXT_FONT_2);
 
-        size = 25;
-
         if (icon == SI_FUEL || icon == SI_GOLD) {
             size = 20;
+        } else {
+            size = 25;
         }
 
         if (((factor + base_value - 1) / factor) > size) {
@@ -7334,7 +7335,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
         if ((unit->team == GameManager_PlayerTeam || GameManager_MaxSpy) &&
             unit_values->GetAttribute(ATTRIB_STORAGE) > 0 && (unit->flags & STATIONARY) &&
             UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_RAW &&
-            UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_GOLD) {
+            UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD) {
             Cargo materials;
             Cargo capacity;
             int value;

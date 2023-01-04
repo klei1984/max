@@ -1775,7 +1775,7 @@ void TaskManageBuildings::UpdateConnectors(unsigned char** access_map, int ulx, 
     MakeConnectors(ulx, uly, lrx, lry, this);
 }
 
-int TaskManageBuildings::GetConnectionDistance(unsigned char** access_map, Point site1, Point site2,
+int TaskManageBuildings::GetConnectionDistance(unsigned char** access_map, Point& site1, Point site2,
                                                unsigned short team_, int value) {
     Point site3;
     Point site4;

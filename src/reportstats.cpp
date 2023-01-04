@@ -43,10 +43,10 @@ struct InterfaceMeta {
 };
 
 static void ReportStats_RenderSprite(struct InterfaceMeta* data);
-static void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int value1,
-                                  int value2);
+static void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int current_value,
+                                  int base_value);
 static void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
-                                  ResourceID icon_empty, int current_value, int base_value, int value3, bool drawline);
+                                  ResourceID icon_empty, int current_value, int base_value, int factor, bool drawline);
 static void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds);
 static void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds);
 static void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds);
@@ -106,75 +106,83 @@ void ReportStats_RenderSprite(struct InterfaceMeta* data) {
     Gfx_MapWindowUly = map_window_uly;
 }
 
-void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int value1, int value2) {
+void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int current_value,
+                           int base_value) {
     struct ImageSimpleHeader* image;
     int width;
     int height;
-    int scaled_height;
-    int rounded_value2;
-    int reminder_value2;
-    int offset_value2;
-    int var_48;
-    int var_30;
-    int var_4C;
-    int var_18;
-    int var_24;
+    int width_offset;
+    int height_offset;
     unsigned char* buffer;
+    int buffer_position;
+    int base_value_scaled;
+    int base_value_diff;
+    int factor;
     int offset;
+    int ulx;
+    int uly;
+    int icon_index;
 
     width = window->window.lrx - window->window.ulx;
     height = window->window.lry - window->window.uly;
 
-    if (value1) {
+    if (current_value) {
         image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(icon_normal));
+
     } else {
         image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(icon_empty));
     }
 
     if (image) {
-        if (value2 >= 6) {
-            scaled_height = (height - 1 - image->height) / 4;
+        if (base_value > 5) {
+            height_offset = (height - 1 - image->height) / 4;
+
         } else {
-            scaled_height = 0;
+            height_offset = 0;
         }
 
-        buffer = &window->buffer[(((height - 1 - scaled_height * 4) - image->height) / 2) * window->width];
-        rounded_value2 = (value2 + 4) / 5;
-        reminder_value2 = value2 - (rounded_value2 - 1) * 5;
-        width -= rounded_value2 * image->width;
-        offset_value2 = rounded_value2 * 4 - (5 - reminder_value2);
+        buffer = &window->buffer[((((height - 1) - (height_offset * 4)) - image->height) / 2) * window->width];
 
-        if (offset_value2) {
-            if (width < offset_value2) {
-                var_48 = 1;
-                var_30 = (rounded_value2 + (offset_value2 - width) - 2) / (rounded_value2 - 1);
-            } else {
-                var_48 = width / offset_value2;
+        base_value_scaled = (base_value + 4) / 5;
 
-                if (var_48 > image->width) {
-                    var_48 = image->width;
+        base_value_diff = base_value - ((base_value_scaled - 1) * 5);
+
+        width -= image->width * base_value_scaled;
+
+        width_offset = base_value_scaled * 4 - (5 - base_value_diff);
+
+        if (width_offset) {
+            if (width >= width_offset) {
+                factor = width / width_offset;
+
+                if (factor > image->width) {
+                    factor = image->width;
                 }
 
-                var_30 = 0;
+                offset = 0;
+
+            } else {
+                factor = 1;
+                offset = (base_value_scaled + (width_offset - width) - 2) / (base_value_scaled - 1);
             }
 
         } else {
-            var_48 = image->width;
-            var_30 = 0;
+            factor = image->width;
+            offset = 0;
         }
 
-        var_4C = (var_48 * 4 + image->width) - var_30;
-        offset = 0;
+        ulx = (factor * 4 + image->width) - offset;
+        buffer_position = 0;
 
-        for (int i = 0; i < value2; ++i) {
-            var_18 = i % 5;
-            offset = (i / 5) * var_4C + var_18 * var_48;
-            var_24 = var_18 * scaled_height;
+        for (int i = 0; i < base_value; ++i) {
+            icon_index = i % 5;
+            buffer_position = ulx * (i / 5) + (factor * icon_index);
+            uly = icon_index * height_offset;
 
-            UnitStats_DrawImage(&buffer[offset + var_24 * window->width], window->width, image);
-            --value1;
+            UnitStats_DrawImage(&buffer[buffer_position + uly * window->width], window->width, image);
+            --current_value;
 
-            if (!value1) {
+            if (current_value == 0) {
                 image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(icon_empty));
             }
         }
@@ -182,7 +190,7 @@ void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceI
 }
 
 void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
-                           ResourceID icon_empty, int current_value, int base_value, int value3, bool drawline) {
+                           ResourceID icon_empty, int current_value, int base_value, int factor, bool drawline) {
     Rect new_bounds;
     int height;
 
@@ -194,16 +202,16 @@ void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int row_id,
     new_bounds.uly = ((height * row_id) / 4) + bounds->uly + 1;
     new_bounds.lry = ((height * (row_id + 1)) / 4) + bounds->uly - 1;
 
-    ReportStats_DrawRow(text, id, &new_bounds, icon_normal, icon_empty, current_value, base_value, value3, drawline);
+    ReportStats_DrawRow(text, id, &new_bounds, icon_normal, icon_empty, current_value, base_value, factor, drawline);
 }
 
 void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID icon_normal, ResourceID icon_empty,
-                         int current_value, int base_value, int value3, bool drawline) {
+                         int current_value, int base_value, int factor, bool drawline) {
     WindowInfo window;
     int width;
     int height;
     int color;
-    int scaling_factor;
+    int size;
     char string[10];
 
     width = bounds->lrx - bounds->ulx;
@@ -226,7 +234,7 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
                 color = COLOR_GREEN;
 
             } else {
-                if (icon_normal != SI_HITSB) {
+                if (icon_normal == SI_HITSB) {
                     icon_normal = SI_HITSY;
                     icon_empty = EI_HITSY;
                 }
@@ -235,7 +243,7 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
             }
 
         } else {
-            if (icon_normal != SI_HITSB) {
+            if (icon_normal == SI_HITSB) {
                 icon_normal = SI_HITSR;
                 icon_empty = EI_HITSR;
             }
@@ -247,18 +255,19 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
         sprintf(string, "%i/%i", current_value, base_value);
 
         if (icon_normal == SI_FUEL || icon_normal == SI_GOLD) {
-            scaling_factor = 20;
+            size = 20;
         } else {
-            scaling_factor = 25;
+            size = 25;
         }
 
-        if (((base_value + value3 - 1) / value3) > scaling_factor) {
-            value3 = (base_value + scaling_factor - 1) / value3;
+        if (((base_value + factor - 1) / factor) > size) {
+            factor = (base_value + size - 1) / size;
         }
 
         Text_TextBox(window.buffer, window.width, string, 0, 0, 45, height, color, true);
 
-        base_value = (base_value + value3 - 1) / value3;
+        current_value = (current_value + factor - 1) / factor;
+        base_value = (base_value + factor - 1) / factor;
 
         Text_TextBox(window.buffer, window.width, text, 45, 0, 30, height, 0xA2);
 
@@ -382,46 +391,45 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
                     current_value -= cargo.power;
                 }
             }
+        }
 
-            if (Cargo_GetPowerConsumptionRate(unit->unit_type) > 0) {
-                ReportStats_DrawRowEx("Total", id, bounds, 2, SI_POWER, EI_POWER, current_value, base_value, 1, false);
-            } else {
-                ReportStats_DrawRowEx("Total", id, bounds, 2, SI_POWER, EI_POWER, power_consumption_current,
-                                      power_consumption_base, 1, false);
-                ReportStats_DrawRowEx("Usage", id, bounds, 3, SI_POWER, EI_POWER, current_value, base_value, 1, false);
-            }
+        if (Cargo_GetPowerConsumptionRate(unit->unit_type) > 0) {
+            ReportStats_DrawRowEx("Total", id, bounds, 2, SI_POWER, EI_POWER, current_value, base_value, 1, false);
+        } else {
+            ReportStats_DrawRowEx("Total", id, bounds, 2, SI_POWER, EI_POWER, power_consumption_current,
+                                  power_consumption_base, 1, false);
+            ReportStats_DrawRowEx("Usage", id, bounds, 3, SI_POWER, EI_POWER, current_value, base_value, 1, false);
         }
     }
 }
 
 void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
-    int life_consumption_base;
-    int life_consumption_current;
+    int life_need;
 
-    life_consumption_base = Cargo_GetLifeConsumptionRate(unit->unit_type);
+    life_need = Cargo_GetLifeConsumptionRate(unit->unit_type);
 
-    if (life_consumption_base && GameManager_PlayerTeam == unit->team) {
+    if (life_need && GameManager_PlayerTeam == unit->team) {
+        int current_life_need;
         int current_value;
         int base_value;
         Cargo cargo;
 
-        life_consumption_current = life_consumption_base;
+        current_life_need = life_need;
         current_value = 0;
         base_value = 0;
 
         Cargo_GetCargoDemand(unit, &cargo);
-        life_consumption_current = cargo.life;
 
-        if (life_consumption_base >= 0) {
-            ReportStats_DrawRowEx("Usage", id, bounds, 1, SI_WORK, EI_WORK, -life_consumption_current,
-                                  life_consumption_base, 1, false);
+        current_life_need = cargo.life;
+
+        if (life_need >= 0) {
+            ReportStats_DrawRowEx("Usage", id, bounds, 1, SI_WORK, EI_WORK, -current_life_need, life_need, 1, false);
         } else {
-            ReportStats_DrawRowEx("Teams", id, bounds, 1, SI_WORK, EI_WORK, life_consumption_current,
-                                  -life_consumption_base, 1, false);
+            ReportStats_DrawRowEx("Teams", id, bounds, 1, SI_WORK, EI_WORK, current_life_need, -life_need, 1, false);
         }
 
-        life_consumption_base = 0;
-        life_consumption_current = 0;
+        life_need = 0;
+        current_life_need = 0;
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -430,26 +438,27 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
 
                 if (cargo.life >= 0) {
                     base_value += cargo.life;
+
                 } else {
-                    life_consumption_base -= cargo.life;
+                    life_need -= cargo.life;
                 }
 
                 Cargo_GetCargoDemand(&*it, &cargo);
 
                 if (cargo.life >= 0) {
-                    life_consumption_current += cargo.life;
+                    current_life_need += cargo.life;
+
                 } else {
                     current_value -= cargo.life;
                 }
             }
+        }
 
-            if (Cargo_GetLifeConsumptionRate(unit->unit_type) > 0) {
-                ReportStats_DrawRowEx("Usage", id, bounds, 2, SI_WORK, EI_WORK, current_value, base_value, 1, false);
-            } else {
-                ReportStats_DrawRowEx("Total", id, bounds, 2, SI_WORK, EI_WORK, life_consumption_current,
-                                      life_consumption_base, 1, false);
-                ReportStats_DrawRowEx("Usage", id, bounds, 3, SI_WORK, EI_WORK, current_value, base_value, 1, false);
-            }
+        if (Cargo_GetLifeConsumptionRate(unit->unit_type) > 0) {
+            ReportStats_DrawRowEx("Total", id, bounds, 2, SI_WORK, EI_WORK, current_value, base_value, 1, false);
+        } else {
+            ReportStats_DrawRowEx("Total", id, bounds, 2, SI_WORK, EI_WORK, current_life_need, life_need, 1, false);
+            ReportStats_DrawRowEx("Usage", id, bounds, 3, SI_WORK, EI_WORK, current_value, base_value, 1, false);
         }
     }
 }
@@ -540,7 +549,7 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
 
         if (unit->team == GameManager_PlayerTeam && unit_values->GetAttribute(ATTRIB_STORAGE) &&
             (unit->flags & STATIONARY) && UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_RAW &&
-            UnitsManager_BaseUnits[unit->unit_type].cargo_type < CARGO_TYPE_LAND) {
+            UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD) {
             Cargo materials;
             Cargo capacity;
             int cargo_type;

@@ -98,7 +98,7 @@ class ReportMenu : public Window {
     SmartObjectArray<ResourceID> unit_types;
     SmartArray<MessageLine> message_lines;
 
-    SmartPointer<MessageLogEntry> message_entry;
+    SmartPointer<MessageLogEntry> selected_message;
 
     int row_counts[3];
     int row_indices[3];
@@ -487,8 +487,8 @@ void ReportMenu::Run() {
         }
     }
 
-    if (radio_button_index == REPORT_TYPE_MESSAGES && message_entry != nullptr) {
-        message_entry->Select();
+    if (radio_button_index == REPORT_TYPE_MESSAGES && selected_message != nullptr) {
+        selected_message->Select();
     }
 
     if (selected_unit != GameManager_SelectedUnit) {
@@ -583,8 +583,8 @@ void ReportMenu::UpdateStatistics() {
 
     row_indices[0] = GetSelectedUnitIndex();
 
-    if (row_indices[0] > unit_types.GetCount() - row_counts[0]) {
-        row_indices[0] = unit_types.GetCount() - row_counts[0];
+    if (row_indices[0] > units.GetCount() - row_counts[0]) {
+        row_indices[0] = units.GetCount() - row_counts[0];
     }
 
     if (row_indices[0] < 0) {
@@ -630,7 +630,7 @@ void ReportMenu::InitMessages() {
 
     for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin();
          it != MessageManager_TeamMessageLog[GameManager_PlayerTeam].End(); ++it) {
-        rows = Text_SplitText((*it).GetCStr(), 100, 95, &row_count);
+        rows = Text_SplitText((*it).GetCStr(), 100, report_screen_image->GetWidth() - 95, &row_count);
 
         if (rows) {
             if (!skip_new_paragraph) {
@@ -661,7 +661,7 @@ void ReportMenu::InitMessages() {
         row_indices[2] = 0;
     }
 
-    message_entry = nullptr;
+    selected_message = nullptr;
 }
 
 void ReportMenu::DrawUnits() {
@@ -719,7 +719,7 @@ void ReportMenu::DrawUnits() {
     }
 
     button_up->Enable(row_indices[0] > 0);
-    button_down->Enable(row_indices[0] + row_counts[0] < unit_types.GetCount());
+    button_down->Enable(row_indices[0] + row_counts[0] < units.GetCount());
 }
 
 void ReportMenu::DrawCasualties() {
@@ -986,7 +986,7 @@ void ReportMenu::DrawMessages() {
     window_ulx = report_screen_image->GetULX() + 5;
     window_uly = report_screen_image->GetULY() + 6;
 
-    item_max = std::min(static_cast<int>(message_lines.GetCount()), row_counts[2] + row_indices[2]);
+    item_max = std::min<int>(message_lines.GetCount(), row_counts[2] + row_indices[2]);
 
     FillWindowInfo(&window);
 
@@ -1000,8 +1000,8 @@ void ReportMenu::DrawMessages() {
     for (int i = row_indices[2]; i < item_max; ++i) {
         message2 = message_lines[i].GetMessage();
 
-        if (message_entry == message2) {
-            color = 0x02;
+        if (selected_message == message2) {
+            color = COLOR_GREEN;
 
         } else {
             color = 0xA2;
@@ -1013,11 +1013,11 @@ void ReportMenu::DrawMessages() {
         if (message2 && message2 != message1 &&
             (report_screen_image->GetULY() + report_screen_image->GetHeight() - window_uly) >= 38) {
             if (message2->GetUnit()) {
-                Point point = message2->GetPosition();
+                Point position = message2->GetPosition();
                 UnitInfo *unit = message2->GetUnit();
                 SmartString string;
 
-                string.Sprintf(10, "%i,%i", point.x + 1, point.y + 1);
+                string.Sprintf(10, "%i,%i", position.x + 1, position.y + 1);
 
                 Text_TextBox(window.buffer, window.width, string.GetCStr(), window_ulx + 40, window_uly, 40, 32,
                              ReportMenu_TeamColors[unit->team], true);
@@ -1026,9 +1026,7 @@ void ReportMenu::DrawMessages() {
                                              window_uly + 16);
 
             } else if (message2->GetIcon() != INVALID_ID) {
-                struct ImageSimpleHeader *sprite;
-
-                sprite =
+                struct ImageSimpleHeader *sprite =
                     reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(message2->GetIcon()));
 
                 WindowManager_DecodeImage2(sprite, window_ulx, window_uly + 16 - (sprite->height / 2), true, &window);
@@ -1040,36 +1038,36 @@ void ReportMenu::DrawMessages() {
         window_uly += text_height();
     }
 
-    if (message_entry != nullptr) {
+    if (selected_message != nullptr) {
         int start_index;
         int end_index;
-        int uly;
-        int lry;
+        int image_uly;
+        int image_lry;
         int x1;
         int x2;
         int y1;
         int y2;
 
-        start_index = GetMessageIndex(&*message_entry) - row_indices[2];
-        end_index = GetNextMessageIndex(&*message_entry) - row_indices[2];
+        start_index = GetMessageIndex(&*selected_message) - row_indices[2];
+        end_index = GetNextMessageIndex(&*selected_message) - row_indices[2];
 
-        uly = report_screen_image->GetULY();
-        lry = report_screen_image->GetULY() + report_screen_image->GetHeight();
+        image_uly = report_screen_image->GetULY();
+        image_lry = report_screen_image->GetULY() + report_screen_image->GetHeight();
 
         x1 = report_screen_image->GetULX();
-        y1 = text_height() * start_index + uly + 3;
+        y1 = text_height() * start_index + image_uly + 3;
         x2 = report_screen_image->GetWidth() + x1 - 1;
-        y2 = text_height() * end_index + uly + 8;
+        y2 = text_height() * end_index + image_uly + 8;
 
-        if (uly <= y1 && lry > y1) {
+        if (image_uly <= y1 && image_lry > y1) {
             draw_line(window.buffer, window.width, x1, y1, x2, y1, 0xA2);
         }
 
-        if (uly <= y2 && lry > y1) {
+        if (image_uly <= y2 && image_lry > y1) {
             draw_line(window.buffer, window.width, x1, y2, x2, y2, 0xA2);
 
-            draw_line(window.buffer, window.width, x1, std::max(y1, uly), x1, std::min(y2, lry), 0xA2);
-            draw_line(window.buffer, window.width, x2, std::max(y1, uly), x2, std::min(y2, lry), 0xA2);
+            draw_line(window.buffer, window.width, x1, std::max(y1, image_uly), x1, std::min(y2, image_lry), 0xA2);
+            draw_line(window.buffer, window.width, x2, std::max(y1, image_uly), x2, std::min(y2, image_lry), 0xA2);
         }
     }
 
@@ -1161,15 +1159,15 @@ void ReportMenu::SelectUnit(int index) {
 
 void ReportMenu::SelectUnit(Point point) {
     int index;
-    int uly;
+    int image_uly;
     int offset;
 
     offset = report_screen_image->GetHeight() / row_counts[0];
 
-    uly = ((offset - 50) / 2) + report_screen_image->GetULY();
+    image_uly = ((offset - 50) / 2) + report_screen_image->GetULY();
 
-    if (point.y >= uly) {
-        index = (point.y - uly) / offset;
+    if (point.y >= image_uly) {
+        index = (point.y - image_uly) / offset;
 
         if (index < row_counts[0]) {
             index += row_indices[0];
@@ -1185,8 +1183,8 @@ void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
     int index;
 
     for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
-        if ((*it).team == GameManager_PlayerTeam && active_units[(*it).unit_type] && (*it).orders != ORDER_IDLE &&
-            (*it).orders != ORDER_MOVE_TO_ATTACK &&
+        if ((*it).team == GameManager_PlayerTeam && active_units[(*it).unit_type] &&
+            ((*it).orders != ORDER_IDLE || (*it).state != ORDER_STATE_BUILDING_READY) &&
             (!ReportMenu_ButtonState_DamagedUnits || (*it).hits < (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS))) {
             for (index = 0; index < units.GetCount(); ++index) {
                 if (units[index].unit_type > (*it).unit_type) {
@@ -1241,16 +1239,15 @@ void ReportMenu::SelectMessage(MessageLogEntry *message) {
     int message_index;
     int index;
 
-    if (message_entry == message) {
+    if (selected_message == message) {
         exit_loop = true;
-
-    } else {
-        message_entry = message;
     }
+
+    selected_message = message;
 
     message_index = GetMessageIndex(message);
 
-    for (index = 0; index < message_lines.GetCount(); ++index) {
+    for (index = message_index; index < message_lines.GetCount(); ++index) {
         if (message_lines[index].GetMessage() != message) {
             break;
         }
@@ -1276,11 +1273,9 @@ void ReportMenu::SelectMessage(MessageLogEntry *message) {
 }
 
 void ReportMenu::SelectMessage(Point point) {
-    int index;
-
     text_font(GNW_TEXT_FONT_5);
 
-    index = (point.y - report_screen_image->GetULY() - 6) / text_height();
+    int index = ((point.y - report_screen_image->GetULY() - 6) / text_height()) + row_indices[2];
 
     if (message_lines.GetCount() > index) {
         if (message_lines[index].GetMessage()) {
@@ -1293,8 +1288,25 @@ void ReportMenu::MessageUp() {
     if (message_lines.GetCount()) {
         int index;
 
-        if (message_entry != nullptr) {
-            index = GetMessageIndex(&*message_entry);
+        if (selected_message != nullptr) {
+            index = GetMessageIndex(&*selected_message);
+
+        } else {
+            index = message_lines.GetCount() + 1;
+        }
+
+        if (index >= 2) {
+            SelectMessage(message_lines[index - 2].GetMessage());
+        }
+    }
+}
+
+void ReportMenu::MessageDown() {
+    if (message_lines.GetCount()) {
+        int index;
+
+        if (selected_message != nullptr) {
+            index = GetNextMessageIndex(&*selected_message);
 
         } else {
             index = message_lines.GetCount() - 2;
@@ -1305,8 +1317,6 @@ void ReportMenu::MessageUp() {
         }
     }
 }
-
-void ReportMenu::MessageDown() {}
 
 void ReportMenu::Draw(bool draw_to_screen) {
     WindowInfo window;
@@ -1672,8 +1682,8 @@ void ReportMenu_OnClick_Down(ButtonID bid, intptr_t value) {
         case REPORT_TYPE_UNITS: {
             menu->row_indices[0] += menu->row_counts[0];
 
-            if (menu->row_indices[0] > menu->unit_types.GetCount() - menu->row_counts[0]) {
-                menu->row_indices[0] = menu->unit_types.GetCount() - menu->row_counts[0];
+            if (menu->row_indices[0] > menu->units.GetCount() - menu->row_counts[0]) {
+                menu->row_indices[0] = menu->units.GetCount() - menu->row_counts[0];
             }
 
             if (menu->row_indices[0] < 0) {
@@ -1703,8 +1713,8 @@ void ReportMenu_OnClick_Down(ButtonID bid, intptr_t value) {
         case REPORT_TYPE_MESSAGES: {
             menu->row_indices[2] += menu->row_counts[2];
 
-            if (menu->row_indices[2] > menu->unit_types.GetCount() - menu->row_counts[2]) {
-                menu->row_indices[2] = menu->unit_types.GetCount() - menu->row_counts[2];
+            if (menu->row_indices[2] > menu->message_lines.GetCount() - menu->row_counts[2]) {
+                menu->row_indices[2] = menu->message_lines.GetCount() - menu->row_counts[2];
             }
 
             if (menu->row_indices[2] < 0) {

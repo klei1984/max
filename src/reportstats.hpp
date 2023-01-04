@@ -38,7 +38,7 @@ void ReportStats_DrawNumber(unsigned char* buffer, int number, int width, int fu
 void ReportStats_DrawText(unsigned char* buffer, char* text, int width, int full, int color);
 
 void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID icon_normal, ResourceID icon_empty,
-                         int current_value, int base_value, int value3, bool drawline);
+                         int current_value, int base_value, int factor, bool drawline);
 
 void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds);
 
