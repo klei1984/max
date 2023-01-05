@@ -241,7 +241,7 @@ void GameConfigMenu::Init() {
         bg_panels[i]->Copy(window);
     }
 
-    menu_draw_menu_title(window, &game_config_menu_items[0], GNW_TEXT_UNKNOWN_1 | COLOR_GREEN, true);
+    menu_draw_menu_title(window, &game_config_menu_items[0], GNW_TEXT_OUTLINE | COLOR_GREEN, true);
     DrawPanels();
     mouse_show();
 }
@@ -472,7 +472,7 @@ void GameConfigMenu::DrawPanelComputerOpponent() {
     opponent = ini_get_setting(INI_OPPONENT);
     DrawRadioButtons(6, 7, opponent);
     text = game_config_menu_difficulty_descriptions[opponent];
-    Text_TextBox(window->buffer, window->width, text, 19, 170, 180, 60, GNW_TEXT_UNKNOWN_1 | COLOR_YELLOW, false);
+    Text_TextBox(window->buffer, window->width, text, 19, 170, 180, 60, GNW_TEXT_OUTLINE | COLOR_YELLOW, false);
 }
 
 void GameConfigMenu::DrawPanelTurnTimers() {
@@ -609,8 +609,8 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
     menu_index -= 40;
 
     DrawRadioButtons(8, 61, menu_index);
-    menu_draw_menu_title(window, &game_config_menu_items[67], 0x100FF, true);
-    menu_draw_menu_title(window, &game_config_menu_items[68], 0x100FF, true);
+    menu_draw_menu_title(window, &game_config_menu_items[67], GNW_TEXT_OUTLINE | 0xFF, true);
+    menu_draw_menu_title(window, &game_config_menu_items[68], GNW_TEXT_OUTLINE | 0xFF, true);
 
     DrawCaption(window, &game_config_menu_items[69], Fonts_BrightYellowColor, true);
     DrawCaption(window, &game_config_menu_items[70], Fonts_BrightYellowColor, true);
@@ -618,7 +618,7 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
 
 void GameConfigMenu::DrawBgPanel(int group_index) {
     bg_panels[group_index - 1]->Write(window);
-    menu_draw_menu_title(window, &game_config_menu_items[group_index], 0x10002, true);
+    menu_draw_menu_title(window, &game_config_menu_items[group_index], GNW_TEXT_OUTLINE | COLOR_GREEN, true);
 }
 
 void GameConfigMenu::DrawRadioButtons(int element_count, int start_index, int selection_index) {

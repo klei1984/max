@@ -1205,13 +1205,13 @@ void NetworkMenu::LeaveEditField() {
             }
 
             images[1]->Write(window);
-            menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_NAME_FIELD], 0x0A2, true);
+            menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_NAME_FIELD], 0xA2, true);
             ini_config.SetStringValue(INI_PLAYER_NAME, player_name);
 
             if (player_team != -1) {
                 images[3 + player_team]->Write(window);
                 strcpy(team_names[player_team], player_name);
-                menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_TEXT_WINDOW + player_team], 0x0A2, false);
+                menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_TEXT_WINDOW + player_team], 0xA2, false);
 
                 Remote_SendNetPacket_36();
             }
@@ -1223,7 +1223,7 @@ void NetworkMenu::LeaveEditField() {
 
             images[7]->Write(window);
             strcpy(chat_input_buffer, text_buffer);
-            menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_CHAT_BAR_ONE], 0x0A2, true);
+            menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_CHAT_BAR_ONE], 0xA2, true);
 
             Remote_SendNetPacket_33();
 

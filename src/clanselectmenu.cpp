@@ -98,7 +98,7 @@ void ClanSelectMenu::Init(int team) {
 
     text_font(GNW_TEXT_FONT_5);
 
-    menu_draw_menu_title(window, &clan_select_menu_screen_title, 0x02, true);
+    menu_draw_menu_title(window, &clan_select_menu_screen_title, COLOR_GREEN, true);
     SelectMenuItems();
 
     if (team_clan_selection) {
@@ -179,9 +179,9 @@ void ClanSelectMenu::SelectMenuItems() {
     for (int i = 0; i < 8; ++i) {
         ini_clans.GetClanName(i + 1, buffer, 100);
         clan_select_menu_clan_icons[i].title = buffer;
-        color = ((i + 1) == team_clan_selection) ? 0x02 : 0xA2;
+        color = ((i + 1) == team_clan_selection) ? COLOR_GREEN : 0xA2;
 
-        menu_draw_menu_title(window, &clan_select_menu_clan_icons[i], color | 0x10000, true);
+        menu_draw_menu_title(window, &clan_select_menu_clan_icons[i], color | GNW_TEXT_OUTLINE, true);
     }
 
     image->Write(window, clan_select_menu_screen_text[0].bounds.ulx, clan_select_menu_screen_text[0].bounds.uly);
@@ -189,7 +189,7 @@ void ClanSelectMenu::SelectMenuItems() {
 
     index = 0;
 
-    DrawClanUpgrades(buffer, index++, 0x2);
+    DrawClanUpgrades(buffer, index++, COLOR_GREEN);
 
     while (team_clan_selection) {
         ini_clans.GetStringValue(buffer2, 100);
@@ -236,7 +236,7 @@ void ClanSelectMenu::DrawClanUpgrades(const char* text, int index, int color) {
     }
 
     clan_select_menu_screen_text[position].title = buffer;
-    menu_draw_menu_title(window, &clan_select_menu_screen_text[position], color | 0x10000, false);
+    menu_draw_menu_title(window, &clan_select_menu_screen_text[position], color | GNW_TEXT_OUTLINE, false);
 }
 
 void ClanSelectMenu::EventDone() {

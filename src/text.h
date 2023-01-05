@@ -22,10 +22,6 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 enum {
     GNW_TEXT_FONT_0,
     GNW_TEXT_FONT_1,
@@ -41,7 +37,7 @@ enum {
 };
 
 #define GNW_TEXT_UNKNOWN_0 0x100
-#define GNW_TEXT_UNKNOWN_1 0x10000
+#define GNW_TEXT_OUTLINE 0x10000
 #define GNW_TEXT_UNDERLINE 0x20000
 #define GNW_TEXT_MONOSPACE 0x40000
 #define GNW_TEXT_REFRESH_WINDOW 0x1000000
@@ -75,9 +71,5 @@ int text_add_manager(FontMgrPtr mgr);
 int text_remove_manager(int font_num);
 int text_curr(void);
 void text_font(int font_num);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* TEXT_H */

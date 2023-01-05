@@ -569,7 +569,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
     if (button_description_rest_state) {
         text_font(GNW_TEXT_FONT_5);
 
-        Text_TextBox(window.buffer, window.width, base_unit->description, 16, 17, 290, 230, GNW_TEXT_UNKNOWN_1 | 0xA2,
+        Text_TextBox(window.buffer, window.width, base_unit->description, 16, 17, 290, 230, GNW_TEXT_OUTLINE | 0xA2,
                      false, false);
     }
 

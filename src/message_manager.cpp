@@ -123,7 +123,7 @@ void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int lef
         flags = 0;
     }
 
-    color += flags + GNW_TEXT_UNKNOWN_1;
+    color += flags + GNW_TEXT_OUTLINE;
     do {
         text_to_buf(&buffer[left_margin + top_margin], &text[offset], width, width, color);
         top_margin += 10 * width;

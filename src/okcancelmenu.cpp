@@ -53,7 +53,7 @@ OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
     button_cancel->SetSfx(NCANC0);
     button_cancel->RegisterButton(window.id);
 
-    Text_TextBox(window.buffer, window.width, caption, 20, 14, 265, 175, GNW_TEXT_UNKNOWN_1 | 0xFF, true);
+    Text_TextBox(window.buffer, window.width, caption, 20, 14, 265, 175, GNW_TEXT_OUTLINE | 0xFF, true);
     win_draw_rect(window.id, &window.window);
 }
 

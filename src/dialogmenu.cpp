@@ -64,7 +64,7 @@ void DialogMenu::DrawText() {
         }
 
         text_to_buf(&buffer[row_width + ((i - row_offset) * text_height()) * window.width], strings[i].GetCStr(), 265,
-                    window.width, GNW_TEXT_UNKNOWN_1 | 0xFF);
+                    window.width, GNW_TEXT_OUTLINE | 0xFF);
     }
 
     win_draw_rect(window.id, &window.window);

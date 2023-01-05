@@ -255,7 +255,7 @@ void CargoBarData::Draw() {
     offset *= width;
 
     text_to_buf(&window->buffer[((rect_width - str_width) / 2) + rect.ulx + offset], caption, rect_width, width,
-                GNW_TEXT_UNKNOWN_1 | 0xFF);
+                GNW_TEXT_OUTLINE | 0xFF);
 
     win_draw_rect(window->id, &rect);
 }

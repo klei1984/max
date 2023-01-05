@@ -238,7 +238,7 @@ void ChoosePlayerMenu::UpdateButtons() {
     choose_player_menu_titles[0].title = buffer;
 
     for (int i = 0; i < 6; ++i) {
-        menu_draw_menu_title(window, &choose_player_menu_titles[i], 0x02, true);
+        menu_draw_menu_title(window, &choose_player_menu_titles[i], COLOR_GREEN, true);
     }
 
     for (int i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {

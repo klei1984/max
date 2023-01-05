@@ -23,6 +23,8 @@
 
 #include "gnw.h"
 
+#define TEXT_FONT_MANAGER_COUNT 10
+
 typedef void (*text_font_func)(int);
 
 typedef struct FontMgr {
@@ -65,7 +67,7 @@ typedef struct Font_s {
 } Font;
 
 static Font font[GNW_TEXT_FONT_COUNT];
-static FontMgr font_managers[GNW_TEXT_FONT_COUNT + 1];
+static FontMgr font_managers[TEXT_FONT_MANAGER_COUNT];
 static int total_managers;
 static Font* curr_font;
 static int curr_font_num = -1;
@@ -106,7 +108,7 @@ int GNW_text_init(void) {
 }
 
 void GNW_text_exit(void) {
-    for (int i = 0; i < GNW_TEXT_FONT_COUNT; i++) {
+    for (int i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; i++) {
         if (font[i].num) {
             free(font[i].info);
             free(font[i].data);
@@ -178,7 +180,7 @@ int text_add_manager(FontMgrPtr mgr) {
     result = -1;
 
     if (mgr) {
-        if (total_managers < GNW_TEXT_FONT_COUNT) {
+        if (total_managers < TEXT_FONT_MANAGER_COUNT) {
             if (mgr->low_font_num < mgr->high_font_num) {
                 int k = mgr->low_font_num;
 
@@ -277,10 +279,9 @@ void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw,
 
     bstart = buf;
 
-    if (color & GNW_TEXT_UNKNOWN_1) {
-        color &= ~GNW_TEXT_UNKNOWN_1;
-        text_to_buf(&buf[fullw + 1], str, swidth, fullw,
-                    (color & (~(GNW_TEXT_UNKNOWN_1 | GNW_TEXT_COLOR_MASK))) | colorTable[0]);
+    if (color & GNW_TEXT_OUTLINE) {
+        color &= ~GNW_TEXT_OUTLINE;
+        text_to_buf(&buf[fullw + 1], str, swidth, fullw, (color & (~GNW_TEXT_COLOR_MASK)) | colorTable[0]);
     }
 
     if (color & GNW_TEXT_MONOSPACE) {

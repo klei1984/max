@@ -1677,7 +1677,7 @@ void menu_credits_menu_loop() {
 
         if (line_index < (sizeof(menu_credits_lines) / sizeof(struct CreditsLine)) && height_offset <= bounds.lry) {
             Text_TextBox(image2->GetData(), window_width, menu_credits_lines[line_index].text, 0, window_height,
-                         window_width, 0x12, menu_credits_lines[line_index].color | GNW_TEXT_UNKNOWN_1, true, true);
+                         window_width, 0x12, menu_credits_lines[line_index].color | GNW_TEXT_OUTLINE, true, true);
             ++line_index;
             height_offset = bounds.lry + 20;
         }

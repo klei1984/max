@@ -99,7 +99,7 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
 
                 lighten_buf(up, width, length, width);
 
-                text_to_buf(&up[3 * width + 8], name, width, width, colorTable[GNW_wcolor[3]] | GNW_TEXT_UNKNOWN_1);
+                text_to_buf(&up[3 * width + 8], name, width, width, colorTable[GNW_wcolor[3]] | GNW_TEXT_OUTLINE);
 
                 draw_shaded_box(up, width, 2, 2, width - 3, length - 3, colorTable[GNW_wcolor[1]],
                                 colorTable[GNW_wcolor[2]]);
@@ -109,7 +109,7 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
 
                 draw_box(up, width, 0, 0, width - 1, length - 1, colorTable[0]);
 
-                text_to_buf(&down[4 * width + 9], name, width, width, colorTable[GNW_wcolor[3]] | GNW_TEXT_UNKNOWN_1);
+                text_to_buf(&down[4 * width + 9], name, width, width, colorTable[GNW_wcolor[3]] | GNW_TEXT_OUTLINE);
 
                 draw_shaded_box(down, width, 2, 2, width - 3, length - 3, colorTable[GNW_wcolor[2]],
                                 colorTable[GNW_wcolor[1]]);

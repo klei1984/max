@@ -389,7 +389,7 @@ void HelpMenu::DrawText() {
 
     for (int row_index = string_row_index; row_index < row_index_max; ++row_index) {
         text_to_buf(&buffer_position[window.width * (row_index - string_row_index) * text_height()],
-                    strings[row_index].GetCStr(), 265, window.width, GNW_TEXT_UNKNOWN_1 | 0xFF);
+                    strings[row_index].GetCStr(), 265, window.width, GNW_TEXT_OUTLINE | 0xFF);
     }
 
     win_draw_rect(window.id, &window.window);
