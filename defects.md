@@ -147,7 +147,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 49. The resource levels panel of the game options menu allows to configure the amount of alien derelicts. The built-in help entry for the panel does not explain the meaning of alien derelicts indicating that the English help is older than the concept of alien derelicts. Additionally the "Alien Derelicts" caption is the only one without a colon within the panel.
 
-50. The built-in help menu's pop-up window supports rendering multiple pages of text. If more than one page is needed to display the help entry arrow buttons are added to the window. The up arrow registers an sfx, the down arrow does not. Interestingly neither is played by the game for some reason.
+50. The built-in help menu's popup window supports rendering multiple pages of text. If more than one page is needed to display the help entry arrow buttons are added to the window. The up arrow registers an sfx, the down arrow does not. Interestingly neither is played by the game for some reason.
 
 51. The game setup menu allocates char buffers to hold mission titles using new char[], but deletes the buffers using the delete operator instead of the delete[] operator which is undefined behavior.
 
@@ -415,3 +415,5 @@ The defect is closely related to the group command. Steps to reproduce the issue
 109. There is a function (cseg01:000CEB0D) to enumerate team units to be considered for the reports menu. Only such units are added to the list that fulfill certain conditions. There is a condition that says if the unit order is IDLE then the unit can be added to the list if the unit order is not MOVE_TO_ATTACK which is always true. There are many tests that check IDLE order and BUILDING_READY state in combination. The MOVE_TO_ATTACK order code and the BUILDING_READY state code are the same.
 
 110. The units report window in the reports menu renders (cseg01:000CC088) unit statistics for the RESEARCH unit tpye incorrectly. The unit statistics shown should be Hits, Usage, Total while Hits, Usage, Usage is shown.
+
+111. There is a function (cseg01:000FAA72) to initialize in-game popup context menu event handlers and some other possibly related resources that have something to do with delayed reactions. The team specific UnitsManager_TeamInfo structures are tested for their unit_type members even though the objects are initialized only at a later stage. Thus a delayed reactions related globally allocated static variable, UnitsManager_Team, is left to its default value which is PLAYER_TEAM_RED or set to a stale value from a previous game session.
