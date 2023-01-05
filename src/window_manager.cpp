@@ -104,7 +104,7 @@ int WindowManager_Init() {
 
     win_init(init_mode_640_480, reset_mode, 0);
 
-    wid = win_add(0, 0, 640, 480, 0, 2);
+    wid = win_add(0, 0, 640, 480, COLOR_BLACK, 2);
 
     if (wid == -1) {
         result = EXIT_CODE_INSUFFICIENT_MEMORY;

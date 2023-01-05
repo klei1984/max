@@ -49,7 +49,7 @@ unsigned char mappedColor[PALETTE_SIZE];
 Color colorMixAddTable[256][PALETTE_SIZE];
 Color intensityColorTable[256][PALETTE_SIZE];
 Color colorMixMulTable[256][PALETTE_SIZE];
-ColorIndex colorTable[128 * PALETTE_SIZE];
+ColorIndex colorTable[32 * 32 * 32];
 
 static int crinc;
 static int cbinc;
@@ -422,7 +422,7 @@ int loadColorTable(char* table) {
         }
 
         if (readFunc) {
-            readFunc(in, colorTable, 128 * PALETTE_SIZE);
+            readFunc(in, colorTable, sizeof(colorTable));
         }
 
         tag = 0;

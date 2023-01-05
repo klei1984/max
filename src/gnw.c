@@ -46,6 +46,21 @@ unsigned char *GNW_texture;
 int GNW_win_init_flag;
 ColorRGB GNW_wcolor[6];
 
+static inline int GetRGBColor(int r, int g, int b) {
+    return ((r & 0x1F) << 10) | ((g & 0x1F) << 5) | ((b & 0x1F) << 0);
+}
+
+static inline int GNW_IsRGBColor(int color) { return (color & (GNW_TEXT_RGB_MASK & (~GNW_TEXT_COLOR_MASK))); }
+
+static inline int GNW_WinRGB2Color(int color) {
+    if (GNW_IsRGBColor(color)) {
+        return (color & GNW_TEXT_CONTROL_MASK) | colorTable[GNW_wcolor[(color & GNW_TEXT_RGB_MASK) >> 8]];
+
+    } else {
+        return color;
+    }
+}
+
 int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
     unsigned char *pal;
     int result;
@@ -142,12 +157,12 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
         window_index[0] = 0;
         num_windows = 1;
 
-        GNW_wcolor[0] = 10570;
-        GNW_wcolor[1] = 15855;
-        GNW_wcolor[2] = 8456;
-        GNW_wcolor[3] = 21140;
-        GNW_wcolor[4] = 32747;
-        GNW_wcolor[5] = 31744;
+        GNW_wcolor[0] = GetRGBColor(10, 10, 10);
+        GNW_wcolor[1] = GetRGBColor(15, 15, 15);
+        GNW_wcolor[2] = GetRGBColor(8, 8, 8);
+        GNW_wcolor[3] = GetRGBColor(20, 20, 20);
+        GNW_wcolor[4] = GetRGBColor(31, 31, 11);
+        GNW_wcolor[5] = GetRGBColor(31, 0, 0);
 
         bk_color = 0;
 
@@ -310,8 +325,8 @@ WinID win_add(int ulx, int uly, int width, int length, int color, int flags) {
                     if (!GNW_texture) {
                         color = colorTable[GNW_wcolor[0]];
                     }
-                } else if (color & 0xFF00) {
-                    color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
+                } else {
+                    color = GNW_WinRGB2Color(color);
                 }
 
                 w->color = color;
@@ -496,9 +511,7 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
                 }
             }
 
-            if (color & 0xFF00) {
-                color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
-            }
+            color = GNW_WinRGB2Color(color);
 
             text_to_buf(buf, str, field_width, w->width, color);
 
@@ -553,9 +566,7 @@ void win_line(WinID id, int x1, int y1, int x2, int y2, int color) {
     w = GNW_find(id);
 
     if (GNW_win_init_flag && w) {
-        if (color & 0xFF00) {
-            color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
-        }
+        color = GNW_WinRGB2Color(color);
 
         draw_line(w->buf, w->width, x1, y1, x2, y2, color);
     }
@@ -574,9 +585,7 @@ void win_box(WinID id, int ulx, int uly, int lrx, int lry, int color) {
     w = GNW_find(id);
 
     if (GNW_win_init_flag && w) {
-        if (color & 0xFF00) {
-            color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
-        }
+        color = GNW_WinRGB2Color(color);
 
         if (lrx < ulx) {
             v7 = ulx ^ lrx;
@@ -600,13 +609,8 @@ void win_shaded_box(WinID id, int ulx, int uly, int lrx, int lry, int color1, in
     w = GNW_find(id);
 
     if (GNW_win_init_flag && w) {
-        if (color1 & 0xFF00) {
-            color1 = (color1 & 0xFFFF0000) | colorTable[GNW_wcolor[(color1 & 0xFFFF) >> 8]];
-        }
-
-        if (color2 & 0xFF00) {
-            color2 = (color2 & 0xFFFF0000) | colorTable[GNW_wcolor[(color2 & 0xFFFF) >> 8]];
-        }
+        color1 = GNW_WinRGB2Color(color1);
+        color2 = GNW_WinRGB2Color(color2);
 
         draw_shaded_box(w->buf, w->width, ulx, uly, lrx, lry, color1, color2);
     }
@@ -625,8 +629,8 @@ void win_fill(WinID id, int ulx, int uly, int width, int length, int color) {
             } else {
                 color = colorTable[GNW_wcolor[0]];
             }
-        } else if (color & 0xFF00) {
-            color = (color & 0xFFFF0000) | colorTable[GNW_wcolor[(color & 0xFFFF) >> 8]];
+        } else {
+            color = GNW_WinRGB2Color(color);
         }
 
         if (color < 0x100) {
@@ -644,8 +648,8 @@ void win_show(WinID id) {
     i = window_index[w->id];
 
     if (GNW_win_init_flag && w) {
-        if (w->flags & 8) {
-            w->flags &= 0xFFFFFFF7;
+        if (w->flags & 0x08) {
+            w->flags &= ~0x08;
 
             if ((num_windows - 1) == i) {
                 GNW_win_refresh(w, &w->w, NULL);

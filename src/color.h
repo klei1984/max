@@ -48,7 +48,7 @@ typedef unsigned long (*ColorReadFunc)(unsigned long handle, void* buf, unsigned
 typedef unsigned long (*ColorCloseFunc)(unsigned long handle);
 typedef char* (*ColorNameMangleFunc)(char* table);
 
-extern ColorIndex colorTable[128 * PALETTE_SIZE];
+extern ColorIndex colorTable[32 * 32 * 32];
 extern Color intensityColorTable[256][PALETTE_SIZE];
 
 void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c);
