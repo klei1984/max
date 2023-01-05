@@ -175,12 +175,6 @@ static const IniKey ini_keys_table[] = {
 
 static const int ini_keys_table_size = sizeof(ini_keys_table) / sizeof(struct IniKey);
 
-static const char *const clan_ini_attrib_name_lut[] = {"turns", "hits",  "armor",  "attack", "reload",
-                                                       "speed", "range", "rounds", "scan",   "storage",
-                                                       "ammo",  "area",  "disable"};
-
-static const int ini_attribs_table_size = sizeof(clan_ini_attrib_name_lut) / sizeof(char *);
-
 static const char *const clan_ini_section_name_lut[] = {"Clan ?", "Clan A", "Clan B", "Clan C", "Clan D",
                                                         "Clan E", "Clan F", "Clan G", "Clan H"};
 
@@ -188,8 +182,6 @@ static const int ini_clans_table_size = sizeof(clan_ini_section_name_lut) / size
 
 static_assert(ini_keys_table_size == INI_END_DELIMITER,
               "INI enumerator list and configuration ini parameters table size do not match");
-
-static_assert(ini_attribs_table_size == 13, "M.A.X. v1.04 has 13 clan attributes");
 
 static_assert(ini_clans_table_size == 9, "M.A.X. v1.04 has 9 clans");
 
@@ -445,17 +437,78 @@ int IniClans::GetNextUnitUpgrade(short *attrib_id, short *value) {
     *value = strtol(cstr, nullptr, 10);
 
     while (*cstr != ' ') {
-        cstr++;
+        ++cstr;
     }
 
-    cstr++;
+    ++cstr;
 
-    for (*attrib_id = 0; *attrib_id != ini_attribs_table_size && stricmp(clan_ini_attrib_name_lut[*attrib_id], cstr);
-         (*attrib_id)++) {
-        ;
+    for (*attrib_id = 0; *attrib_id < ATTRIB_COUNT; ++(*attrib_id)) {
+        int result;
+
+        switch (*attrib_id) {
+            case ATTRIB_ATTACK: {
+                result = stricmp("attack", cstr);
+            } break;
+
+            case ATTRIB_ROUNDS: {
+                result = stricmp("rounds", cstr);
+            } break;
+
+            case ATTRIB_RANGE: {
+                result = stricmp("range", cstr);
+            } break;
+
+            case ATTRIB_ARMOR: {
+                result = stricmp("armor", cstr);
+            } break;
+
+            case ATTRIB_HITS: {
+                result = stricmp("hits", cstr);
+            } break;
+
+            case ATTRIB_SPEED: {
+                result = stricmp("speed", cstr);
+            } break;
+
+            case ATTRIB_SCAN: {
+                result = stricmp("scan", cstr);
+            } break;
+
+            case ATTRIB_TURNS: {
+                result = stricmp("turns", cstr);
+            } break;
+
+            case ATTRIB_AMMO: {
+                result = stricmp("ammo", cstr);
+            } break;
+
+            case ATTRIB_MOVE_AND_FIRE: {
+                result = stricmp("reload", cstr);
+            } break;
+
+            case ATTRIB_FUEL: {
+                result = stricmp("fuel", cstr);
+            } break;
+
+            case ATTRIB_STORAGE: {
+                result = stricmp("storage", cstr);
+            } break;
+
+            case ATTRIB_ATTACK_RADIUS: {
+                result = stricmp("area", cstr);
+            } break;
+
+            case ATTRIB_AGENT_ADJUST: {
+                result = stricmp("disable", cstr);
+            } break;
+        }
+
+        if (!result) {
+            break;
+        }
     }
 
-    SDL_assert(*attrib_id < ini_attribs_table_size);
+    SDL_assert(*attrib_id < ATTRIB_COUNT);
 
     return 1;
 }

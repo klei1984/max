@@ -2966,7 +2966,7 @@ void GameManager_InitUnitsAndGameState() {
     }
 
     for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
-        GameManager_MultiChatTargets[i];
+        GameManager_MultiChatTargets[i] = 1;
     }
 
     for (int i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
