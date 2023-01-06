@@ -24,8 +24,9 @@
 #include "enums.hpp"
 #include "resource_manager.hpp"
 #include "text.hpp"
+#include "window_manager.hpp"
 
-DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, 38) {
+DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, WINDOW_MAIN_WINDOW) {
     text_font(GNW_TEXT_FONT_5);
     Add();
     FillWindowInfo(&window);

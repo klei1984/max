@@ -23,6 +23,7 @@
 
 #include <filesystem>
 
+#include "access.hpp"
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
 #include "game_manager.hpp"
@@ -94,7 +95,9 @@ unsigned char *ResourceManager_MapTileBuffer;
 unsigned char *ResourceManager_MapSurfaceMap;
 unsigned short *ResourceManager_CargoMap;
 unsigned short ResourceManager_MapTileCount;
-unsigned char ResourceManager_PassData[4] = {1, 2, 4, 8};
+
+unsigned char ResourceManager_PassData[4] = {SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST,
+                                             SURFACE_TYPE_AIR};
 
 Point ResourceManager_MapSize;
 
@@ -959,7 +962,7 @@ ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bo
     color_distance_minimum = INT_MAX;
 
     for (int i = 0; i < 3 * PALETTE_SIZE; i += 3) {
-        if (full_scan || ((i < 27 || i > 93) && (i < 288 || i > 381))) {
+        if (full_scan || ((i < 9 * 3 || i > 31 * 3) && (i < 96 * 3 || i > 127 * 3))) {
             red = WindowManager_ColorPalette[i] - r;
             green = WindowManager_ColorPalette[i + 1] - g;
             blue = WindowManager_ColorPalette[i + 2] - b;
@@ -1214,22 +1217,22 @@ void ResourceManager_InitInGameAssets(int world) {
     if (world >= CRATER_1 && world <= CRATER_6) {
         ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
         ResourceManager_ManipulateColorMap(0, 63, 0, ResourceManager_ColorIndexTable11);
-        ResourceManager_ManipulateColorMap(0, 63, 63, ResourceManager_ColorIndexTable09);
+        ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
 
     } else if (world >= GREEN_1 && world <= GREEN_6) {
         ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
         ResourceManager_ManipulateColorMap(0, 0, 31, ResourceManager_ColorIndexTable11);
-        ResourceManager_ManipulateColorMap(0, 63, 63, ResourceManager_ColorIndexTable09);
+        ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
 
     } else if (world >= DESERT_1 && world <= DESERT_6) {
         ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
         ResourceManager_ManipulateColorMap(0, 0, 31, ResourceManager_ColorIndexTable11);
-        ResourceManager_ManipulateColorMap(0, 63, 63, ResourceManager_ColorIndexTable09);
+        ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
 
     } else if (world >= SNOW_1 && world <= SNOW_6) {
         ResourceManager_ManipulateColorMap(63, 0, 0, ResourceManager_ColorIndexTable10);
         ResourceManager_ManipulateColorMap(0, 0, 63, ResourceManager_ColorIndexTable11);
-        ResourceManager_ManipulateColorMap(0, 63, 63, ResourceManager_ColorIndexTable09);
+        ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
     }
 
     for (int i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
@@ -1256,23 +1259,28 @@ void ResourceManager_InitInGameAssets(int world) {
 
     load_bar.SetValue(progress_bar_value);
 
-    for (int i = 0, l = 0; i < 224; i += 32, ++l) {
+    for (int i = 0, l = 0; i < 7 * 32; i += 32, ++l) {
         for (int j = 0, k = 0; j < 3 * PALETTE_SIZE; j += 3, ++k) {
-            if (j == 31 * 3) {
+            if (j == 3 * 31) {
                 ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] = 31;
+
             } else {
                 int r;
                 int g;
                 int b;
 
-                r = WindowManager_ColorPalette[j] * i / 224;
-                g = WindowManager_ColorPalette[j] * i / 224;
-                b = WindowManager_ColorPalette[j] * i / 224;
+                r = (WindowManager_ColorPalette[j] * i) / (7 * 32);
+                g = (WindowManager_ColorPalette[j + 1] * i) / (7 * 32);
+                b = (WindowManager_ColorPalette[j + 2] * i) / (7 * 32);
 
                 ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] =
                     ResourceManager_FindClosestPaletteColor(r, g, b, false);
             }
         }
+
+        progress_bar_value += 3;
+
+        load_bar.SetValue(progress_bar_value);
     }
 }
 
@@ -1370,9 +1378,9 @@ void ResourceManager_ManipulateColorMap(int red_level, int green_level, int blue
 
         max_color = (max_color + max_level) / 2;
 
-        red = max_color * red_level / max_level;
-        green = max_color * green_level / max_level;
-        blue = max_color * blue_level / max_level;
+        red = (max_color * red_level) / max_level;
+        green = (max_color * green_level) / max_level;
+        blue = (max_color * blue_level) / max_level;
 
         table[j] = ResourceManager_FindClosestPaletteColor(red, green, blue, false);
     }
