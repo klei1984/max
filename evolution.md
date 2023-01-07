@@ -359,10 +359,11 @@ Amazing M.A.X. 2 trailer
 | 1996-11-20        | Internal Test Build | V1.56            |
 | 1996-12-08        | Retail (CD)         | V1.00 (Serial CD-ICD-082-EU) |
 | 1996-12-10        | Retail (CD)         | V1.01 (Serial CD-ICD-082-G) |
-| 1996-12-12        | Retail (CD)         | V1.02            |
+| 1996-12-13        | Retail (CD)         | V1.02 (Serial CD-ICD-082-0) |
 | 1997-01-08        | Retail (patch)      | V1.03            |
 | 1997-01-16        | Interactive Demo    | V1.03a Demo      |
 | 1997-03-26        | Retail (patch)      | V1.04            |
+| 1998-01-28        | Retail (CD)         | V1.04 (Serial CD-ICD-082-1) |
 
 \* The publication date is based on file system date and time stamps. Date format used is YYYY-MM-DD.
 <br>
