@@ -187,7 +187,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     The path generator lets ground units pass these planes. This defect could be used as an exploit to give an edge against human players. If a unit's remaining moves in a turn are calculated well, then it is possible to stop exactly under the plane. The mini map will show the alien derelict's team color (team 5, yellow) instead of the player unit's color. If the grid cell gets attacked, the player unit is not damaged as the alien unit is targeted by the game.
 
-65. The ResourceManager_InitTeamInfo() function at cseg01:000D6316 initializes 5 CTinfo structs. The last belongs to the alien derelicts team. The CTinfo structure's TeamType and ClanType fields are initialized from the MAX.INI file's red_team_player to gray_team_player and red_team_clan to gray_team_clan parameters. There is no alien_team_player nor alien_team_clan INI parameter so the alien CTinfo TeamType field is initialized from the red_team_clan INI parameter and the ClanType field is initialized from the DIGITAL INI group ID (returns 0 which corresponds to RANDOM clan). It is not yet clear what negative side effects these defects create.
+65. The ResourceManager_InitTeamInfo() function (cseg01:000D6316) initializes 5 CTinfo structs. The last belongs to the alien derelicts team. The CTinfo structure's TeamType and ClanType fields are initialized from the MAX.INI file's red_team_player to gray_team_player and red_team_clan to gray_team_clan parameters. There is no alien_team_player nor alien_team_clan INI parameter so the alien CTinfo TeamType field is initialized from the red_team_clan INI parameter and the ClanType field is initialized from the DIGITAL INI group ID (returns 0 which corresponds to RANDOM clan). It is not yet clear what negative side effects these defects create.
 
 66. If a unit is selected the primary selection marker starts to blink at a 1 second rate. If a multiselect rectangle is redrawn by clicking and dragging the mouse pointer the primary marker gets redrawn as well and its draw function toggles the marker state much faster. The primary marker should not start to blink like crazy in such events.
 
@@ -417,3 +417,19 @@ The defect is closely related to the group command. Steps to reproduce the issue
 110. The units report window in the reports menu renders (cseg01:000CC088) unit statistics for the RESEARCH unit tpye incorrectly. The unit statistics shown should be Hits, Usage, Total while Hits, Usage, Usage is shown.
 
 111. There is a function (cseg01:000FAA72) to initialize in-game popup context menu event handlers and some other possibly related resources that have something to do with delayed reactions. The team specific UnitsManager_TeamInfo structures are tested for their unit_type members even though the objects are initialized only at a later stage. Thus a delayed reactions related globally allocated static variable, UnitsManager_Team, is left to its default value which is PLAYER_TEAM_RED or set to a stale value from a previous game session.
+
+112. Certain crater inland tiles use coastline color animation color palette indices which is assumed to be unintentional based on the visual look of the affected landscape elements.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_112.mp4" type="video/mp4">
+    </video>
+<br>
+
+113. There is a function to load saved games (cseg01:000D8EB6) that reads the saved game file header which redundantly contains the team name, type and clan specifications. Only the team name is used from the saved game file header. The function calls a resource manager function (cseg01:000D6316) to initialize TeamInfo objects which initializes TeamInfo objects with stale ini configuration settings for team type and clan specifications instead of using the specifications from the already read saved game file header. The init function is called from three different call sites implementing different game setup scenarios, thus to eliminate the use of stale data in case of loading a previously saved game the ini configuration settings needs to be updated based on the file header before the call to the TeamInfo initialization function. Defect 65 is also relevant for this issue.
+
+114. The game logic does not consider whether a stealth unit would be revealed at a target location after stepping aside from an enemy unit. The sole purpose of stepping aside is to remain hidden. In the demonstrated scenario the enemy unit would have had sufficient movement or speed points to move to the west instead of east. Movement to the east is favored due to the cheaper movement costs even if that reveals the stealth unit.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_114.mp4" type="video/mp4">
+    </video>
+<br>
