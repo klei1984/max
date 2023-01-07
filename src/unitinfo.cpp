@@ -3000,9 +3000,9 @@ void UnitInfo::FileLoad(SmartFileReader& file) {
 
     UnitInfo_BuildList_FileLoad(&build_list, file);
 
-    if (orders == ORDER_STATE_NEW_ORDER || orders == ORDER_STATE_29 || orders == ORDER_STATE_7 ||
-        orders == ORDER_STATE_6 || orders == ORDER_STATE_5) {
-        orders = ORDER_STATE_1;
+    if (state == ORDER_STATE_NEW_ORDER || state == ORDER_STATE_29 || state == ORDER_STATE_7 || state == ORDER_STATE_6 ||
+        state == ORDER_STATE_5) {
+        state = ORDER_STATE_1;
     }
 
     Init();
