@@ -164,7 +164,6 @@ bool Paths_IsOccupied(int grid_x, int grid_y, int angle, int team);
 extern const Point Paths_8DirPointsArray[8];
 extern const short Paths_8DirPointsArrayX[8];
 extern const short Paths_8DirPointsArrayY[8];
-extern unsigned char** PathsManager_AccessMap;
 extern unsigned int Paths_LastTimeStamp;
 extern unsigned int Paths_DebugMode;
 extern bool Paths_TimeBenchmarkDisable;

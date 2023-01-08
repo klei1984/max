@@ -23,7 +23,7 @@
 
 #include "game_manager.hpp"
 #include "gfx.hpp"
-#include "paths.hpp"
+#include "paths_manager.hpp"
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
 
@@ -65,12 +65,12 @@ int Searcher_EvaluateCost(Point point1, Point point2, bool mode) {
     unsigned char value2;
     int result;
 
-    value2 = PathsManager_AccessMap[point2.x][point2.y];
+    value2 = PathsManager_GetAccessMap()[point2.x][point2.y];
 
     ++Paths_EvaluatorCallCount;
 
     if (mode) {
-        value1 = PathsManager_AccessMap[point1.x][point1.y];
+        value1 = PathsManager_GetAccessMap()[point1.x][point1.y];
 
         if ((value2 & 0x40) && (value1 & 0x80)) {
             result = 0;
@@ -518,7 +518,7 @@ SmartPointer<GroundPath> Searcher::DeterminePath(Point point, int max_cost) {
                     destination_x += points[steps_count]->x;
                     destination_y += points[steps_count]->y;
 
-                    accessmap_cost = PathsManager_AccessMap[destination_x][destination_y] & 0x1F;
+                    accessmap_cost = PathsManager_GetAccessMap()[destination_x][destination_y] & 0x1F;
 
                     if (destination_x && destination_y) {
                         accessmap_cost = (accessmap_cost * 3) / 2;

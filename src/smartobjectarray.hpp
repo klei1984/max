@@ -51,11 +51,7 @@ public:
         }
     }
 
-    virtual ~ObjectArray() {
-        if (object_array) {
-            delete[] object_array;
-        }
-    }
+    virtual ~ObjectArray() { delete[] object_array; }
 
     void Insert(T* object, unsigned short position) {
         if (position > count) {
@@ -135,11 +131,11 @@ class SmartObjectArray : public SmartPointer<ObjectSmartArrayData<T>> {
 
 public:
     SmartObjectArray(unsigned short growth_factor = SMARTOBJECTARRAY_DEFAULT_GROWTH_FACTOR)
-        : SmartPointer<ObjectSmartArrayData<T>>(*new (std::nothrow) ObjectSmartArrayData<T>(growth_factor)) {}
+        : SmartPointer<ObjectSmartArrayData<T>>(*new(std::nothrow) ObjectSmartArrayData<T>(growth_factor)) {}
 
     SmartObjectArray(const SmartObjectArray& other, bool deep_copy = false)
         : SmartPointer<ObjectSmartArrayData<T>>(
-              deep_copy ? (*new (std::nothrow) ObjectSmartArrayData<T>(*other.object_pointer))
+              deep_copy ? (*new(std::nothrow) ObjectSmartArrayData<T>(*other.object_pointer))
                         : (*other.object_pointer)) {}
 
     void Clear() { GetArray()->Clear(); }

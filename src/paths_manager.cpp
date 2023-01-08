@@ -45,6 +45,8 @@ class PathsManager {
 
     void CompleteRequest(GroundPath *path);
 
+    friend unsigned char **PathsManager_GetAccessMap();
+
 public:
     PathsManager();
     ~PathsManager();
@@ -184,77 +186,77 @@ void PathsManager::EvaluateTiles() {
             requests.PushFront(*request);
             request = nullptr;
         }
+    }
 
-        if ((timer_get_stamp32() - Paths_LastTimeStamp <= Paths_TimeLimit) ||
-            (request == nullptr && requests.GetCount() == 0)) {
-            while (request == nullptr) {
-                if (requests.GetCount()) {
-                    ProcessRequest();
+    if ((timer_get_stamp32() - Paths_LastTimeStamp <= Paths_TimeLimit) ||
+        (request == nullptr && requests.GetCount() == 0)) {
+        while (request == nullptr) {
+            if (requests.GetCount()) {
+                ProcessRequest();
 
-                    if ((timer_get_stamp32() - Paths_LastTimeStamp > Paths_TimeLimit)) {
-                        elapsed_time = timer_get_stamp32() - elapsed_time;
-                        return;
-                    }
-
-                } else {
+                if ((timer_get_stamp32() - Paths_LastTimeStamp > Paths_TimeLimit)) {
+                    elapsed_time = timer_get_stamp32() - elapsed_time;
                     return;
                 }
+
+            } else {
+                return;
             }
+        }
 
-            unit = request->GetUnit1();
-            path_request = request;
+        unit = request->GetUnit1();
+        path_request = request;
 
-            for (int index = 5;;) {
-                MouseEvent::ProcessInput();
-                --index;
+        for (int index = 5;;) {
+            MouseEvent::ProcessInput();
+            --index;
 
-                if (index > 0) {
-                    if (path_request != request) {
-                        break;
+            if (index > 0) {
+                if (path_request != request) {
+                    break;
+                }
+
+                SDL_assert(backward_searcher != nullptr);
+
+                backward_searcher->BackwardSearch(forward_searcher);
+
+                if (!forward_searcher->ForwardSearch(backward_searcher)) {
+                    if (Paths_DebugMode >= 1) {
+                        char message[100];
+
+                        sprintf(message, "Debug: path generator evaluated %i tiles in %i msecs, max depth = %i",
+                                Paths_EvaluatedTileCount, timer_elapsed_time_ms(time_stamp), Paths_MaxDepth);
+
+                        MessageManager_DrawMessage(message, 0, 0);
                     }
 
-                    SDL_assert(backward_searcher != nullptr);
+                    ground_path =
+                        forward_searcher->DeterminePath(Point(unit->grid_x, unit->grid_y), path_request->GetMaxCost());
 
-                    backward_searcher->BackwardSearch(forward_searcher);
+                    delete forward_searcher;
+                    forward_searcher = nullptr;
 
-                    if (!forward_searcher->ForwardSearch(backward_searcher)) {
-                        if (Paths_DebugMode >= 1) {
-                            char message[100];
+                    delete backward_searcher;
+                    backward_searcher = nullptr;
 
-                            sprintf(message, "Debug: path generator evaluated %i tiles in %i msecs, max depth = %i",
-                                    Paths_EvaluatedTileCount, timer_elapsed_time_ms(time_stamp), Paths_MaxDepth);
+                    CompleteRequest(&*ground_path);
 
-                            MessageManager_DrawMessage(message, 0, 0);
-                        }
+                    return;
+                }
 
-                        ground_path = forward_searcher->DeterminePath(Point(unit->grid_x, unit->grid_y),
-                                                                      path_request->GetMaxCost());
+            } else {
+                index = 5;
 
-                        delete forward_searcher;
-                        forward_searcher = nullptr;
-
-                        delete backward_searcher;
-                        backward_searcher = nullptr;
-
-                        CompleteRequest(&*ground_path);
-
-                        return;
-                    }
-
-                } else {
-                    index = 5;
-
-                    if (timer_get_stamp32() - Paths_LastTimeStamp > Paths_TimeLimit) {
-                        break;
-                    }
+                if (timer_get_stamp32() - Paths_LastTimeStamp > Paths_TimeLimit) {
+                    break;
                 }
             }
-
-            elapsed_time = timer_get_stamp32() - elapsed_time;
-
-        } else {
-            elapsed_time = timer_get_stamp32() - elapsed_time;
         }
+
+        elapsed_time = timer_get_stamp32() - elapsed_time;
+
+    } else {
+        elapsed_time = timer_get_stamp32() - elapsed_time;
     }
 }
 
@@ -466,7 +468,7 @@ void PathsManager::ProcessRequest() {
             Paths_SquareInsertionsCount = 0;
             Paths_MaxDepth = 0;
 
-            if (destination == destination) {
+            if (position == destination) {
                 CompleteRequest(nullptr);
 
             } else {
@@ -683,6 +685,8 @@ void PathsManager_InitAccessMap(UnitInfo *unit, unsigned char **map, unsigned ch
     }
 }
 
+unsigned char **PathsManager_GetAccessMap() { return PathsManager::PathsManager_AccessMap; }
+
 void PathsManager_ApplyCautionLevel(unsigned char **map, UnitInfo *unit, int caution_level) {
     if (caution_level > 0) {
         if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER) {
@@ -722,7 +726,7 @@ bool PathsManager_IsProcessed(int grid_x, int grid_y) {
     bool result;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
-        unsigned char value = PathsManager_AccessMap[grid_x][grid_y];
+        unsigned char value = PathsManager_GetAccessMap()[grid_x][grid_y];
 
         if (value && !(value & 0x80)) {
             result = true;

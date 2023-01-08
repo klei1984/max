@@ -70,8 +70,6 @@ const Point Paths_8DirPointsArrayMarkerB[8] = {{246, 10}, {244, 0}, {246, 246}, 
 const Point Paths_8DirPointsArrayMarkerC[8] = {{10, 10},   {0, 12},  {246, 10}, {244, 0},
                                                {246, 246}, {0, 244}, {10, 246}, {12, 0}};
 
-unsigned char** PathsManager_AccessMap;
-
 unsigned int Paths_LastTimeStamp;
 bool Paths_TimeBenchmarkDisable;
 unsigned int Paths_TimeLimit = TIMER_FPS_TO_TICKS(30 / 1.1);
@@ -1066,7 +1064,7 @@ bool Paths_RequestPath(UnitInfo* unit, int mode) {
     if (unit->target_grid_x >= 0 && unit->target_grid_x < ResourceManager_MapSize.x && unit->target_grid_y >= 0 &&
         unit->target_grid_y < ResourceManager_MapSize.y) {
         SmartPointer<PathRequest> request(new (std::nothrow)
-                                              PathRequest(unit, mode, Point(unit->grid_x, unit->grid_y)));
+                                              PathRequest(unit, mode, Point(unit->target_grid_x, unit->target_grid_y)));
 
         request->SetBoardTransport(unit->orders == ORDER_MOVE_TO_UNIT);
 
