@@ -241,7 +241,7 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
 
                 if (Gfx_DecodeMap_TilesInViewX_Index == Gfx_DecodeMap_TilesInViewX) {
                     zoom_level -= Gfx_DecodeMap_DiffUlx;
-                    factor = Gfx_DecodeMap_DiffUlyFactor;
+                    factor = Gfx_DecodeMap_DiffUlxFactor;
                 }
 
                 if (Gfx_DecodeMap_TilesInViewX_Index == 1) {

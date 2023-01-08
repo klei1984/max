@@ -933,7 +933,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
             int backup_fuel_resource;
             int backup_gold_resource;
             int backup_alien_derelicts;
-            ResourceID selected_units[PLAYER_TEAM_MAX - 1];
+            unsigned short selected_unit_ids[PLAYER_TEAM_MAX - 1];
             unsigned short game_state;
 
             if (!Remote_IsNetworkGame) {
@@ -1001,7 +1001,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
                 file.Read(team_info->unit_counters);
                 file.Read(team_info->screen_location);
                 file.Read(team_info->score_graph, sizeof(team_info->score_graph));
-                file.Read(selected_units[team]);
+                file.Read(selected_unit_ids[team]);
                 file.Read(team_info->zoom_level);
                 file.Read(team_info->camera_position.x);
                 file.Read(team_info->camera_position.y);
@@ -1157,8 +1157,8 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
             GameManager_SelectedUnit = nullptr;
 
             for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-                if (selected_units[team] != 0xFFFF) {
-                    UnitsManager_TeamInfo[team].selected_unit = Hash_UnitHash[selected_units[team]];
+                if (selected_unit_ids[team] != 0xFFFF) {
+                    UnitsManager_TeamInfo[team].selected_unit = Hash_UnitHash[selected_unit_ids[team]];
 
                 } else {
                     UnitsManager_TeamInfo[team].selected_unit = nullptr;

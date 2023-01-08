@@ -49,7 +49,6 @@ jobs:
             cpack
             mkdir Artifacts
             cp *.deb Artifacts/
-            cp ../assets/*.* Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3
@@ -95,7 +94,6 @@ jobs:
             cpack
             mkdir Artifacts
             cp *-win32.exe Artifacts/
-            cp ../assets/*.* Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3

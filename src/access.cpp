@@ -339,11 +339,10 @@ bool Access_IsSurveyorOverlayActive(UnitInfo* unit) {
 }
 
 bool Access_IsWithinScanRange(UnitInfo* unit, int grid_x, int grid_y, int scan_range) {
-    int scan_area;
-    int grid_area;
-
-    scan_area = (scan_range * 64) * (scan_range * 64);
-    grid_area = ((grid_x - unit->grid_x) * 64) * ((grid_y - unit->grid_y) * 64);
+    int scan_area = (scan_range * 64) * (scan_range * 64);
+    int radius_x = ((grid_x - unit->grid_x) * 64);
+    int radius_y = ((grid_y - unit->grid_y) * 64);
+    int grid_area = radius_x * radius_x + radius_y * radius_y;
 
     return grid_area <= scan_area;
 }

@@ -1313,11 +1313,11 @@ void UnitInfo::UpdateUnitDrawZones() {
     base_unit = &UnitsManager_BaseUnits[unit_type];
 
     if (base_unit->sprite) {
-        Point point;
+        Point position;
         int unit_size;
 
-        point.x = x;
-        point.y = y;
+        position.x = x;
+        position.y = y;
 
         if (flags & BUILDING) {
             unit_size = 64;
@@ -1325,16 +1325,16 @@ void UnitInfo::UpdateUnitDrawZones() {
             unit_size = 32;
         }
 
-        sprite_bounds.ulx = point.x - unit_size;
-        sprite_bounds.uly = point.y - unit_size;
-        sprite_bounds.lrx = point.x + unit_size - 1;
-        sprite_bounds.lry = point.y + unit_size - 1;
+        sprite_bounds.ulx = position.x - unit_size;
+        sprite_bounds.uly = position.y - unit_size;
+        sprite_bounds.lrx = position.x + unit_size - 1;
+        sprite_bounds.lry = position.y + unit_size - 1;
 
-        UpdateSpriteFrameBounds(&sprite_bounds, point.x, point.y,
+        UpdateSpriteFrameBounds(&sprite_bounds, position.x, position.y,
                                 reinterpret_cast<struct ImageMultiHeader*>(base_unit->sprite), image_index);
 
         if (flags & (SPINNING_TURRET | TURRET_SPRITE)) {
-            UpdateSpriteFrameBounds(&sprite_bounds, point.x + turret_offset_x, point.y + turret_offset_y,
+            UpdateSpriteFrameBounds(&sprite_bounds, position.x + turret_offset_x, position.y + turret_offset_y,
                                     reinterpret_cast<struct ImageMultiHeader*>(base_unit->sprite), turret_image_index);
         }
 
@@ -1343,13 +1343,13 @@ void UnitInfo::UpdateUnitDrawZones() {
         shadow_bounds.lrx = -32000;
         shadow_bounds.lry = -32000;
 
-        point -= shadow_offset;
+        position -= shadow_offset;
 
-        UpdateSpriteFrameBounds(&shadow_bounds, point.x, point.y,
+        UpdateSpriteFrameBounds(&shadow_bounds, position.x, position.y,
                                 reinterpret_cast<struct ImageMultiHeader*>(base_unit->shadows), image_index);
 
         if (flags & (SPINNING_TURRET | TURRET_SPRITE)) {
-            UpdateSpriteFrameBounds(&shadow_bounds, point.x + turret_offset_x, point.y + turret_offset_y,
+            UpdateSpriteFrameBounds(&shadow_bounds, position.x + turret_offset_x, position.y + turret_offset_y,
                                     reinterpret_cast<struct ImageMultiHeader*>(base_unit->shadows), turret_image_index);
         }
 
