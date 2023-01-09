@@ -31,7 +31,6 @@
 
 template <class T>
 class ObjectArray {
-    unsigned short item_size;
     unsigned short count;
     unsigned short capacity;
     unsigned short growth_factor;
@@ -39,13 +38,13 @@ class ObjectArray {
 
 public:
     ObjectArray(unsigned short growth_factor = OBJECTARRAY_DEFAULT_GROWTH_FACTOR)
-        : growth_factor(growth_factor), item_size(sizeof(T)), count(0), capacity(0), object_array(nullptr) {}
+        : growth_factor(growth_factor), count(0), capacity(0), object_array(nullptr) {}
 
     ObjectArray(const ObjectArray<T>& other)
-        : growth_factor(other.growth_factor), item_size(other.item_size), count(other.count), capacity(other.count) {
+        : growth_factor(other.growth_factor), count(other.count), capacity(other.count) {
         if (capacity) {
             object_array = new (std::nothrow) T[capacity];
-            memcpy(object_array, other.object_array, capacity * item_size);
+            memcpy(object_array, other.object_array, capacity * sizeof(T));
         } else {
             object_array = nullptr;
         }
@@ -63,24 +62,21 @@ public:
             T* new_object_array = new (std::nothrow) T[capacity];
 
             if (position > 0) {
-                memcpy(new_object_array, object_array, position * item_size);
+                memcpy(new_object_array, object_array, position * sizeof(T));
             }
 
             if (position < count) {
-                memcpy(&new_object_array[(position + 1) * item_size], &object_array[position],
-                       (count - position) * item_size);
+                memcpy(&new_object_array[position + 1], &object_array[position], (count - position) * sizeof(T));
             }
 
-            if (object_array) {
-                delete[] object_array;
-            }
+            delete[] object_array;
 
             object_array = new_object_array;
         } else if (position < count) {
-            memmove(&object_array[position + 1], &object_array[position], (count - position) * item_size);
+            memmove(&object_array[position + 1], &object_array[position], (count - position) * sizeof(T));
         }
 
-        memcpy(&object_array[position], object, item_size);
+        memcpy(&object_array[position], object, sizeof(T));
         ++count;
     }
 
@@ -89,7 +85,7 @@ public:
     void Remove(unsigned short position) {
         if (position < count) {
             if (position < (count - 1)) {
-                memcpy(&object_array[position], &object_array[position + 1], (count - position - 1) * item_size);
+                memcpy(&object_array[position], &object_array[position + 1], (count - position - 1) * sizeof(T));
             }
         }
         --count;
@@ -97,7 +93,7 @@ public:
 
     int Find(T* object) const {
         for (unsigned short index = 0; index < count; ++index) {
-            if (!memcmp(&object_array[index], object, item_size)) {
+            if (!memcmp(&object_array[index], object, sizeof(T))) {
                 return index;
             }
         }

@@ -574,13 +574,13 @@ void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
 
         if (GameManager_DisplayButtonColors && !(unit->flags & STATIONARY)) {
             if (unit->flags & HASH_TEAM_RED) {
-                color = 0x01;
+                color = COLOR_RED;
 
             } else if (unit->flags & HASH_TEAM_GREEN) {
-                color = 0x02;
+                color = COLOR_GREEN;
 
             } else if (unit->flags & HASH_TEAM_BLUE) {
-                color = 0x03;
+                color = COLOR_BLUE;
 
             } else if (unit->flags & HASH_TEAM_GRAY) {
                 color = 0xFF;
@@ -637,21 +637,21 @@ void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
                 if (value_max) {
                     int width;
 
-                    DrawMap_RenderBarDisplay(window, ulx, uly, lrx, lry, 0x00);
+                    DrawMap_RenderBarDisplay(window, ulx, uly, lrx, lry, COLOR_BLACK);
 
                     width = ((unit_size - 2) * value_actual) / value_max;
 
                     if (width > 0) {
                         if (value_actual > (value_max / 4)) {
                             if (value_actual > (value_max / 2)) {
-                                color = 0x02;
+                                color = COLOR_GREEN;
 
                             } else {
-                                color = 0x04;
+                                color = COLOR_YELLOW;
                             }
 
                         } else {
-                            color = 0x01;
+                            color = COLOR_RED;
                         }
 
                         DrawMap_RenderBarDisplay(window, ulx + 1, uly + 1, ulx + width, lry - 1, color);
@@ -830,19 +830,19 @@ void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
             int grid_y;
 
             if ((*it).flags & HASH_TEAM_RED) {
-                color = 0x01;
+                color = COLOR_RED;
 
             } else if ((*it).flags & HASH_TEAM_GREEN) {
-                color = 0x02;
+                color = COLOR_GREEN;
 
             } else if ((*it).flags & HASH_TEAM_BLUE) {
-                color = 0x03;
+                color = COLOR_BLUE;
 
             } else if ((*it).flags & HASH_TEAM_GRAY) {
                 color = 0xFF;
 
             } else {
-                color = 0x04;
+                color = COLOR_YELLOW;
             }
 
             grid_x = (*it).grid_x;

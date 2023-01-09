@@ -570,8 +570,8 @@ void PathsManager_ProcessMobileUnits(unsigned char **map, SmartList<UnitInfo> *u
 }
 
 void PathsManager_ProcessMapSurface(unsigned char **map, int surface_type, unsigned char value) {
-    for (int index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
-        for (int index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
+    for (int index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
+        for (int index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
             if (ResourceManager_MapSurfaceMap[index_y * ResourceManager_MapSize.x + index_x] == surface_type) {
                 map[index_x][index_y] = value;
             }
@@ -611,17 +611,19 @@ void PathsManager_ProcessGroundCover(unsigned char **map, UnitInfo *unit, int su
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-         it != UnitsManager_GroundCoverUnits.End(); ++it) {
-        if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-            if ((*it).unit_type == ROAD || (*it).unit_type == SMLSLAB || (*it).unit_type == LRGSLAB ||
-                (*it).unit_type == BRIDGE) {
-                map[(*it).grid_x][(*it).grid_y] = 2;
+    if ((surface_type & SURFACE_TYPE_LAND) && unit->GetLayingState() != 2 && unit->GetLayingState() != 1) {
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
+             it != UnitsManager_GroundCoverUnits.End(); ++it) {
+            if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
+                if ((*it).unit_type == ROAD || (*it).unit_type == SMLSLAB || (*it).unit_type == LRGSLAB ||
+                    (*it).unit_type == BRIDGE) {
+                    map[(*it).grid_x][(*it).grid_y] = 2;
 
-                if ((*it).flags & BUILDING) {
-                    map[(*it).grid_x + 1][(*it).grid_y] = 2;
-                    map[(*it).grid_x][(*it).grid_y + 1] = 2;
-                    map[(*it).grid_x + 1][(*it).grid_y + 1] = 2;
+                    if ((*it).flags & BUILDING) {
+                        map[(*it).grid_x + 1][(*it).grid_y] = 2;
+                        map[(*it).grid_x][(*it).grid_y + 1] = 2;
+                        map[(*it).grid_x + 1][(*it).grid_y + 1] = 2;
+                    }
                 }
             }
         }
@@ -645,6 +647,13 @@ void PathsManager_ProcessGroundCover(unsigned char **map, UnitInfo *unit, int su
 
 void PathsManager_InitAccessMap(UnitInfo *unit, unsigned char **map, unsigned char flags, int caution_level) {
     if (unit->flags & MOBILE_AIR_UNIT) {
+        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
+            memset(map[i], 4, ResourceManager_MapSize.y);
+        }
+
+        PathsManager_ProcessMobileUnits(map, &UnitsManager_MobileAirUnits, unit, flags);
+
+    } else {
         int surface_types = UnitsManager_BaseUnits[unit->unit_type].land_type;
 
         for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
@@ -671,13 +680,6 @@ void PathsManager_InitAccessMap(UnitInfo *unit, unsigned char **map, unsigned ch
         PathsManager_ProcessGroundCover(map, unit, surface_types);
         PathsManager_ProcessMobileUnits(map, &UnitsManager_MobileLandSeaUnits, unit, flags);
         PathsManager_ProcessStationaryUnits(map, unit);
-
-    } else {
-        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-            memset(map[i], 4, ResourceManager_MapSize.y);
-        }
-
-        PathsManager_ProcessMobileUnits(map, &UnitsManager_MobileAirUnits, unit, flags);
     }
 
     if (caution_level > 0) {

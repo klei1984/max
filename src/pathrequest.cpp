@@ -27,7 +27,7 @@
 #include "units_manager.hpp"
 
 PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : unit1(unit), point(point), flags(mode) {
-    max_cost = 32767;
+    max_cost = INT16_MAX;
     minimum_distance = 0;
     caution_level = 0;
     board_transport = 0;

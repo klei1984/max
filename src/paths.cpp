@@ -61,14 +61,14 @@ const Point Paths_8DirPointsArray[8] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}
 const short Paths_8DirPointsArrayX[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 const short Paths_8DirPointsArrayY[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
 
-const Point Paths_8DirPointsArrayMarkerA[8] = {{0, 246}, {8, 248}, {10, 0},  {8, 8},
-                                               {0, 10},  {248, 8}, {246, 0}, {248, 248}};
+const Point Paths_8DirPointsArrayMarkerA[8] = {{0, -10}, {8, -8}, {10, 0},  {8, 8},
+                                               {0, 10},  {-8, 8}, {-10, 0}, {-8, -8}};
 
-const Point Paths_8DirPointsArrayMarkerB[8] = {{246, 10}, {244, 0}, {246, 246}, {0, 244},
-                                               {10, 246}, {12, 0},  {10, 10},   {0, 12}};
+const Point Paths_8DirPointsArrayMarkerB[8] = {{-10, 10}, {-12, 0}, {-10, -10}, {0, -12},
+                                               {10, -10}, {12, 0},  {10, 10},   {0, 12}};
 
-const Point Paths_8DirPointsArrayMarkerC[8] = {{10, 10},   {0, 12},  {246, 10}, {244, 0},
-                                               {246, 246}, {0, 244}, {10, 246}, {12, 0}};
+const Point Paths_8DirPointsArrayMarkerC[8] = {{10, 10},   {0, 12},  {-10, 10}, {-12, 0},
+                                               {-10, -10}, {0, -12}, {10, -10}, {12, 0}};
 
 unsigned int Paths_LastTimeStamp;
 bool Paths_TimeBenchmarkDisable;
@@ -436,10 +436,10 @@ void AirPath::Draw(UnitInfo* unit, WindowInfo* window) {
             scaled_grid_y = (grid_y << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
 
             if (max_speed) {
-                color = 3;
+                color = COLOR_BLUE;
 
             } else {
-                color = 2;
+                color = COLOR_GREEN;
             }
 
             Paths_DrawMarker(window, angle, scaled_grid_x, scaled_grid_y, color);
@@ -947,10 +947,10 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
                 }
 
                 if (limited_speed < 0) {
-                    color = 0x02;
+                    color = COLOR_GREEN;
 
                 } else {
-                    color = 0x03;
+                    color = COLOR_BLUE;
                 }
 
                 Paths_DrawMarker(window, angle, scaled_grid_x, scaled_grid_y, color);

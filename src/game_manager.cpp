@@ -6738,7 +6738,7 @@ void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int radius, int 
         radius <<= 6;
         scaled_radius = (radius << 16) / Gfx_MapScalingFactor;
 
-        if (color == 0x04) {
+        if (color == COLOR_YELLOW) {
             ++scaled_radius;
         }
 
@@ -7022,21 +7022,21 @@ void GameManager_DrawInfoDisplayRow(const char* label, int window_id, ResourceID
         current_value = std::min(current_value, base_value);
 
         if (current_value <= base_value / 4) {
-            color = 0x01;
+            color = COLOR_RED;
 
             if (icon == SI_HITSB) {
                 icon = SI_HITSR;
             }
 
         } else if (current_value <= base_value / 2) {
-            color = 0x04;
+            color = COLOR_YELLOW;
 
             if (icon == SI_HITSB) {
                 icon = SI_HITSY;
             }
 
         } else {
-            color = 0x02;
+            color = COLOR_GREEN;
         }
 
         text_font(GNW_TEXT_FONT_2);

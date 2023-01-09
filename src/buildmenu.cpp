@@ -201,7 +201,7 @@ void BuildUnitTypeSelector::Draw() {
             color = 0xA2;
 
         } else {
-            color = 0x01;
+            color = COLOR_RED;
         }
 
         ReportStats_DrawNumber(&window_info.buffer[(i * 32 + 16 - text_height() / 2) * window_info.width + 135], turns,
@@ -606,7 +606,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
     }
 
     if (build_rate == 1) {
-        color = 0x2;
+        color = COLOR_GREEN;
 
     } else {
         color = 0xA2;
@@ -617,7 +617,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
                            turns, turns_background_x1->GetWidth(), window.width, color);
 
     if (build_rate == 1) {
-        color = 0x2;
+        color = COLOR_GREEN;
 
     } else {
         color = 0xA2;
@@ -638,7 +638,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
             consumption_rate = unit->GetTurnsToBuild(unit_type, 2, &turns);
 
             if (build_rate == 2) {
-                color = 0x2;
+                color = COLOR_GREEN;
 
             } else {
                 color = 0xA2;
@@ -649,7 +649,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
                                    turns, turns_background_x1->GetWidth(), window.width, color);
 
             if (build_rate == 2) {
-                color = 0x2;
+                color = COLOR_GREEN;
 
             } else {
                 color = 0xA2;
@@ -668,7 +668,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
             consumption_rate = unit->GetTurnsToBuild(unit_type, 4, &turns);
 
             if (build_rate == 4) {
-                color = 0x2;
+                color = COLOR_GREEN;
 
             } else {
                 color = 0xA2;
@@ -679,7 +679,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
                                    turns, turns_background_x1->GetWidth(), window.width, color);
 
             if (build_rate == 4) {
-                color = 0x2;
+                color = COLOR_GREEN;
 
             } else {
                 color = 0xA2;
