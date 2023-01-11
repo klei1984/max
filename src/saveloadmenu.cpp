@@ -1094,7 +1094,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
                             } break;
 
                             case TEAM_TYPE_COMPUTER: {
-                                ini_config.SetStringValue(static_cast<IniParameter>(INI_PLAYER_NAME + team),
+                                ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team),
                                                           menu_team_names[team]);
                             } break;
 

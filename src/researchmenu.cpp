@@ -619,7 +619,7 @@ unsigned short ResearchMenu::GetFreeCapacity() const { return free_capacity; }
 
 unsigned short ResearchMenu::GetTeam() const { return team; }
 
-unsigned short ResearchMenu::GetActiveResearchersCount() const { return team; }
+unsigned short ResearchMenu::GetActiveResearchersCount() const { return active_research_centers; }
 
 void ResearchMenu::UpdateTopics(int difference) {
     free_capacity += difference;
