@@ -368,7 +368,7 @@ void AllocMenu::DrawCargoBars() {
 }
 
 bool Allocator::Optimize(int cargo_type, unsigned char *cargo1, short cargo_value, unsigned char *cargo2) {
-    if ((cargo_material_type & cargo_type) && *cargo2) {
+    if (!(cargo_material_type & cargo_type) && *cargo2) {
         int demand;
 
         demand = cargo_demand;
@@ -444,22 +444,22 @@ int AllocMenu_Optimize(Complex *complex, int cargo_type1, int material, int carg
 
                         if (cargo_value - *cargo < remaining_capacity) {
                             remaining_capacity = cargo_value - *cargo;
-
-                            *cargo += remaining_capacity;
-                            (*it).total_mining += remaining_capacity;
-                            alloc.material_mining += remaining_capacity;
-                            alloc.cargo_demand -= remaining_capacity;
-
-                            if (alloc.cargo_demand == 0) {
-                                break;
-                            }
                         }
 
-                        if (alloc.Optimize(CARGO_MATERIALS, cargo, cargo_value, &(*it).raw_mining) ||
-                            alloc.Optimize(CARGO_FUEL, cargo, cargo_value, &(*it).fuel_mining) ||
-                            alloc.Optimize(CARGO_GOLD, cargo, cargo_value, &(*it).gold_mining)) {
+                        *cargo += remaining_capacity;
+                        (*it).total_mining += remaining_capacity;
+                        alloc.material_mining += remaining_capacity;
+                        alloc.cargo_demand -= remaining_capacity;
+
+                        if (alloc.cargo_demand == 0) {
                             break;
                         }
+                    }
+
+                    if (alloc.Optimize(CARGO_MATERIALS, cargo, cargo_value, &(*it).raw_mining) ||
+                        alloc.Optimize(CARGO_FUEL, cargo, cargo_value, &(*it).fuel_mining) ||
+                        alloc.Optimize(CARGO_GOLD, cargo, cargo_value, &(*it).gold_mining)) {
+                        break;
                     }
                 }
             }
