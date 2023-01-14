@@ -892,9 +892,9 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
     steps_count = steps->GetCount();
 
     for (int i = index; i <= steps_count; ++i) {
-        if (index != steps_count) {
-            path_x = steps[index]->x;
-            path_y = steps[index]->y;
+        if (i != steps_count) {
+            path_x = steps[i]->x;
+            path_y = steps[i]->y;
 
             if (limited_speed < 0) {
                 limited_speed += base_speed;
@@ -973,8 +973,8 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
         unit_speed -= cost;
 
-        pixel_grid_x = path_x * 64;
-        pixel_grid_y = path_y * 64;
+        pixel_grid_x += path_x * 64;
+        pixel_grid_y += path_y * 64;
     }
 }
 

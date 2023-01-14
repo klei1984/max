@@ -774,7 +774,7 @@ void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode) {
 
     if ((unit->flags & SELECTABLE) && GameManager_IsAtGridPosition(unit)) {
         if (unit->team == GameManager_PlayerTeam &&
-            (unit->state == ORDER_STATE_NEW_ORDER || unit->state == ORDER_STATE_29) && unit->path != nullptr) {
+            (unit->state == ORDER_STATE_NEW_ORDER || unit->state == ORDER_STATE_29) && unit->path == nullptr) {
             DrawMap_RenderWaitBulb(unit);
         }
 
