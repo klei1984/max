@@ -22,6 +22,7 @@
 #ifndef SMARTOBJECTARRAY_HPP
 #define SMARTOBJECTARRAY_HPP
 
+#include <cstdint>
 #include <cstring>
 
 #include "textfile.hpp"
