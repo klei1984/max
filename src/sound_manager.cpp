@@ -373,12 +373,12 @@ void CSoundManager::PlaySfx(UnitInfo* unit, int sound, bool mode) {
             int resource_id;
 
             for (sound_index = 0;
-                 sound_index != unit->sound_table->count && unit->sound_table->item[sound_index].type != sound;
-                 sound_index++) {
+                 sound_index < unit->sound_table->size() && (*unit->sound_table)[sound_index].type != sound;
+                 ++sound_index) {
                 ;
             }
 
-            if (sound_index == unit->sound_table->count) {
+            if (sound_index == unit->sound_table->size()) {
                 if (soundmgr_sfx_type_flags[sound] != SOUNDMGR_SFX_FLAG_UNKNOWN_1) {
                     FreeSfx(unit);
                     return;
@@ -386,7 +386,7 @@ void CSoundManager::PlaySfx(UnitInfo* unit, int sound, bool mode) {
 
                 resource_id = sound + FXS_STRT;
             } else {
-                resource_id = unit->sound_table->item[sound_index].resource_id;
+                resource_id = (*unit->sound_table)[sound_index].resource_id;
             }
 
             if (sound >= SFX_TYPE_IDLE && sound <= SFX_TYPE_STOP &&

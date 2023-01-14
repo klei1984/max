@@ -22,6 +22,8 @@
 #ifndef UNITINFO_HPP
 #define UNITINFO_HPP
 
+#include <vector>
+
 #include "button.hpp"
 #include "complex.hpp"
 #include "paths.hpp"
@@ -233,7 +235,7 @@ public:
 
     ResourceID unit_type;
     struct PopupFunctions* popup;
-    struct SoundTable* sound_table;
+    const std::vector<SoundElement>* sound_table;
     unsigned int flags;
     unsigned short x;
     unsigned short y;
