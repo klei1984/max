@@ -73,7 +73,6 @@ static void PathsManager_ProcessMobileUnits(unsigned char **map, SmartList<UnitI
 static void PathsManager_ProcessMapSurface(unsigned char **map, int surface_type, unsigned char value);
 static void PathsManager_ProcessGroundCover(unsigned char **map, UnitInfo *unit, int surface_type);
 static bool PathsManager_IsProcessed(int grid_x, int grid_y);
-static void PathsManager_PrintPathDebugMode();
 static void PathsManager_ProcessDangers(unsigned char **map, UnitInfo *unit);
 static void PathsManager_ProcessSurface(unsigned char **map, UnitInfo *unit);
 
@@ -211,9 +210,9 @@ void PathsManager::EvaluateTiles() {
             MouseEvent::ProcessInput();
             --index;
 
-            if (index > 0) {
+            if (index >= 0) {
                 if (path_request != request) {
-                    break;
+                    return;
                 }
 
                 SDL_assert(backward_searcher != nullptr);

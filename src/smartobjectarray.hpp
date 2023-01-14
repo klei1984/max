@@ -58,6 +58,8 @@ public:
         }
 
         if (count >= capacity) {
+            SDL_assert(capacity + growth_factor <= UINT16_MAX);
+
             capacity += growth_factor;
             T* new_object_array = new (std::nothrow) T[capacity];
 
@@ -87,8 +89,11 @@ public:
             if (position < (count - 1)) {
                 memcpy(&object_array[position], &object_array[position + 1], (count - position - 1) * sizeof(T));
             }
+
+            SDL_assert(count != 0);
+
+            --count;
         }
-        --count;
     }
 
     int Find(T* object) const {

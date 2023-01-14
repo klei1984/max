@@ -5444,6 +5444,20 @@ void GameManager_ProcessKey() {
             }
         } break;
 
+        case GNW_KB_KEY_LALT_F1: {
+#if !defined(NDEBUG)
+            PathsManager_PrintPathDebugMode();
+#endif /* !defined(NDEBUG) */
+        } break;
+
+        case GNW_KB_KEY_LALT_F2: {
+            /// Debug logs
+        } break;
+
+        case GNW_KB_KEY_LALT_F3: {
+            /// Task logs
+        } break;
+
         case GNW_KB_KEY_F5:
         case GNW_KB_KEY_F6:
         case GNW_KB_KEY_F7:

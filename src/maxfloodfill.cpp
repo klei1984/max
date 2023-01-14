@@ -35,11 +35,10 @@ Rect* MAXFloodFill::GetBounds() { return &bounds; }
 
 int MAXFloodFill::Fill(Point point) {
     FloodRun run;
-
+    ObjectArray<FloodRun> runs;
     int runs_count;
     int max_runs;
 
-    ObjectArray<FloodRun> runs;
     max_runs = 0;
 
     cell_count = 0;
@@ -115,7 +114,7 @@ int MAXFloodFill::Fill(Point point) {
                 }
             }
 
-            if (target_bounds.lrx - 1 < run.grid_x) {
+            if (run.grid_x < target_bounds.lrx - 1) {
                 point.x = run.grid_x + 1;
                 point.y = run.uly;
 

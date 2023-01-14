@@ -181,11 +181,11 @@ void Searcher::EvaluateSquare(Point point, int cost, int direction, Searcher* se
             line_distance = distance.y * 2 + distance.x;
         }
 
-        if (line_distance > field_12) {
-            array_value = array[field_12] + ((line_distance - field_12) & (~1));
+        if (line_distance > searcher->field_12) {
+            array_value = searcher->array[searcher->field_12] + ((line_distance - searcher->field_12) & (~1));
 
         } else {
-            array_value = array[line_distance];
+            array_value = searcher->array[line_distance];
         }
 
         if (cost + array_value <= costs_map[destination.x][destination.y]) {
@@ -199,8 +199,8 @@ void Searcher::EvaluateSquare(Point point, int cost, int direction, Searcher* se
                 Paths_MaxDepth = square_count + 1;
             }
 
-            if (costs_map[point.x][point.y] + cost < costs_map[destination.x][destination.y]) {
-                costs_map[destination.x][destination.y] = costs_map[point.x][point.y] + cost;
+            if (searcher->costs_map[point.x][point.y] + cost < costs_map[destination.x][destination.y]) {
+                costs_map[destination.x][destination.y] = searcher->costs_map[point.x][point.y] + cost;
             }
 
             ++Paths_SquareAdditionsCount;
@@ -279,8 +279,8 @@ void Searcher::Process(Point point, bool mode_flag) {
     Point point5;
     PathSquare path_square;
     int min_distance;
-    int angle1;
-    int angle2;
+    int direction;
+    int angle;
     int step_cost;
 
     distance.x = destination.x - point.x;
@@ -311,10 +311,10 @@ void Searcher::Process(Point point, bool mode_flag) {
             distance.x = 1;
         }
 
-        angle1 = point3.y * 2 + 2;
+        direction = point3.y * 2 + 2;
 
         if (point3.x == point3.y) {
-            if (angle1) {
+            if (direction) {
                 point4.x = -1;
 
             } else {
@@ -336,7 +336,7 @@ void Searcher::Process(Point point, bool mode_flag) {
             distance.y = 1;
         }
 
-        angle1 = 4 - point3.x * 2;
+        direction = 4 - point3.x * 2;
 
         if (point3.x == point3.y) {
             point4.y = 1;
@@ -356,22 +356,22 @@ void Searcher::Process(Point point, bool mode_flag) {
 
     while (path_square.point != destination) {
         point5.x += min_distance;
-        angle2 = angle1;
+        angle = direction;
 
         if (point5.x >= distance.y) {
-            angle2 += point4.x;
+            angle += point4.x;
             point5.x -= distance.y;
         }
 
         point5.y += min_distance;
 
         if (point5.y >= distance.x) {
-            angle2 += point4.y;
+            angle += point4.y;
             point5.y -= distance.x;
         }
 
         point1 = point;
-        point1 += Paths_8DirPointsArray[angle2];
+        point1 += Paths_8DirPointsArray[angle];
 
         step_cost = Searcher_EvaluateCost(point, point1, mode);
 
@@ -383,7 +383,7 @@ void Searcher::Process(Point point, bool mode_flag) {
             step_cost = Searcher_EvaluateCost(point1, point, mode);
         }
 
-        if (angle2 & 1) {
+        if (angle & 1) {
             step_cost = (step_cost * 3) / 2;
         }
 
@@ -393,7 +393,7 @@ void Searcher::Process(Point point, bool mode_flag) {
         path_square.cost += step_cost;
 
         costs_map[point1.x][point1.y] = path_square.cost;
-        directions_map[point1.x][point1.y] = angle2;
+        directions_map[point1.x][point1.y] = angle;
 
         squares.Insert(&path_square, 0);
     }
