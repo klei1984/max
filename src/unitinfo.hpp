@@ -37,14 +37,9 @@
 
 class NetPacket;
 
-struct __attribute__((packed)) SoundElement {
+struct SoundElement {
     unsigned char type;
     unsigned short resource_id;
-};
-
-struct __attribute__((packed)) SoundTable {
-    unsigned char count;
-    struct SoundElement item[];
 };
 
 struct PopupButtons {

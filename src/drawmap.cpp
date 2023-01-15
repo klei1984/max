@@ -530,7 +530,7 @@ void DrawMap_RenderColorsDisplay(int ulx, int uly, int width, int height, unsign
     }
 
     if (ulx >= 0 && ulx < GameManager_MainMapWidth) {
-        draw_line(buffer, 640, ulx, ulx_max, ulx, height_min, color);
+        draw_line(buffer, 640, ulx, uly_max, ulx, height_min, color);
     }
 }
 

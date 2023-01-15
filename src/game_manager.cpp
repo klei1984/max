@@ -1312,7 +1312,7 @@ void GameManager_Render() {
                     map_ulx2 = std::max(map_ulx, 0);
                     map_uly2 = std::max(map_uly, 0);
                     map_lrx2 = std::min(map_lrx, GameManager_MainMapWidth - 1);
-                    map_lry2 = std::min(map_lrx, GameManager_MainMapHeight - 1);
+                    map_lry2 = std::min(map_lry, GameManager_MainMapHeight - 1);
 
                     if (GameManager_RenderArea.uly >= GameManager_MapWindowDrawBounds.uly &&
                         GameManager_RenderArea.uly <= GameManager_MapWindowDrawBounds.lry) {
