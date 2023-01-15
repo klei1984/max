@@ -503,7 +503,7 @@ unsigned char GameManager_MarkerColor = 0xFF;
 unsigned short GameManager_MainMapWidth = 448;
 unsigned short GameManager_MainMapHeight = 448;
 unsigned char GameManager_PlayMode;
-unsigned char GameManager_FastMovement;
+bool GameManager_FastMovement;
 unsigned short GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];
 
 Point GameManager_GridOffset;

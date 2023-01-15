@@ -1261,8 +1261,8 @@ void UnitInfo::OffsetDrawZones(int offset_x, int offset_y) {
     y += offset_y;
     sprite_bounds.uly += offset_y;
     sprite_bounds.lry += offset_y;
-    sprite_bounds.uly += offset_y;
-    sprite_bounds.lry += offset_y;
+    shadow_bounds.uly += offset_y;
+    shadow_bounds.lry += offset_y;
 }
 
 void UnitInfo::UpdateUnitDrawZones() {

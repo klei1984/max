@@ -87,7 +87,7 @@ extern bool GameManager_MainMenuFreezeState;
 extern bool GameManager_WrapUpGame;
 extern Button* Gamemanager_FlicButton;
 extern unsigned char GameManager_PlayMode;
-extern unsigned char GameManager_FastMovement;
+extern bool GameManager_FastMovement;
 extern unsigned char GameManager_ActiveTurnTeam;
 extern unsigned short GameManager_MainMapWidth;
 extern unsigned short GameManager_MainMapHeight;
