@@ -937,7 +937,7 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
         victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
 
         if (victory_status == VICTORY_STATE_WON || victory_status == VICTORY_STATE_LOST ||
-            (victory_status != VICTORY_STATE_PENDING || teams_in_play == 1 || team_count > 1) || teams_in_play == 0 ||
+            (victory_status != VICTORY_STATE_PENDING && teams_in_play == 1 && team_count > 1) || teams_in_play == 0 ||
             (human_teams_in_play == 0 && non_computer_teams_count > 0)) {
             menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
             result = true;

@@ -2585,7 +2585,8 @@ bool GameManager_IsAtGridPosition(UnitInfo* unit) {
 bool GameManager_OptimizeProduction(unsigned short team, Complex* complex, bool is_player_team, bool mode) {
     bool result;
 
-    if (complex->material >= 0 && complex->fuel && complex->gold && complex->power && complex->workers) {
+    if (complex->material >= 0 && complex->fuel >= 0 && complex->gold >= 0 && complex->power >= 0 &&
+        complex->workers >= 0) {
         result = true;
 
     } else {

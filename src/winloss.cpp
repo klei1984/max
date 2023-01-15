@@ -304,7 +304,7 @@ int WinLoss_CountReadyUnits(unsigned short team, ResourceID unit_type) {
     result = 0;
 
     for (SmartList<UnitInfo>::Iterator it = WinLoss_GetRelevantUnitListIterator(unit_type); it != nullptr; ++it) {
-        if ((*it).team == team && (*it).unit_type == unit_type && (*it).state == ORDER_STATE_BUILDING_READY) {
+        if ((*it).team == team && (*it).unit_type == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
             ++result;
         }
     }

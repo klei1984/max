@@ -1899,7 +1899,7 @@ void UnitInfo::MoveInTransitUnitInMapHash(int grid_x, int grid_y) {
         backup_grid_y = this->grid_y;
 
         this->grid_x = grid_x;
-        this->grid_y = grid_x;
+        this->grid_y = grid_y;
 
         Hash_MapHash.Add(this);
 
