@@ -433,3 +433,15 @@ The defect is closely related to the group command. Steps to reproduce the issue
     <source src="{{ site.baseurl }}/assets/clips/defect_114.mp4" type="video/mp4">
     </video>
 <br>
+
+115. Redraw order of the hits, names and survey markers are indeterministic in case of context menu redraws.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_115.mp4" type="video/mp4">
+    </video>
+
+116. The scan and range markers of selected unit is not cleared if another unit is selected via the reports menu without moving the main map window in the process.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_116.mp4" type="video/mp4">
+    </video>
