@@ -370,27 +370,23 @@ static void ResourceManager_ManipulateColorMap2(int red_level, int green_level, 
 static void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues *unit_values);
 
 bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_error) {
-    unsigned int total;
-    unsigned int drive;
-    unsigned int cdrom_drive;
-    unsigned int new_drive;
+    std::error_code ec;
+    const std::filesystem::path game_path(std::filesystem::current_path(ec));
 
-    cdrom_drive = ResourceManager_FilePathCd[0] - '@';
+    if (ec) {
+        return false;
+    }
 
-    dos_getdrive(&drive);
-    dos_setdrive(cdrom_drive, &total);
-    dos_getdrive(&new_drive);
+    const std::filesystem::path cdrom_path(ResourceManager_FilePathCd);
 
-    while (new_drive != cdrom_drive || chdir(ResourceManager_FilePathCd)) {
+    while (std::filesystem::current_path(cdrom_path, ec), ec) {
         if (!prompt_user || !OKCancelMenu_Menu("\nPlease insert the M.A.X. CD and try again.\n", true)) {
-            dos_setdrive(drive, &total);
-
             return false;
         }
     }
 
     if (restore_drive_on_error) {
-        dos_setdrive(drive, &total);
+        std::filesystem::current_path(game_path, ec);
     }
 
     return true;
@@ -503,7 +499,8 @@ void ResourceManager_TestDiskSpace() {
     char *base_path = SDL_GetBasePath();
 
     if (base_path) {
-        const auto info = std::filesystem::space(base_path);
+        std::error_code ec;
+        const auto info = std::filesystem::space(base_path, ec);
 
         SDL_free(base_path);
 

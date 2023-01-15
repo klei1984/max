@@ -23,6 +23,11 @@
 #define GNW_H
 
 #include <assert.h>
+#include <limits.h>
+
+#ifdef __unix__
+#include <linux/limits.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

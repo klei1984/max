@@ -24,24 +24,14 @@
 
 #include <stdio.h>
 
-#ifdef __unix__
-#include <linux/limits.h>
-#include <sys/io.h>
-#include <unistd.h>
-
+#if defined(__unix__)
 char *strupr(char *s);
 char *strlwr(char *s);
 int stricmp(const char *s1, const char *s2);
 int strnicmp(const char *s1, const char *s2, size_t len);
-#else
-#include <io.h>
 #endif
 
 long int filesize(FILE *fp);
-
-void dos_getdrive(unsigned int *drive);
-
-void dos_setdrive(unsigned int drive, unsigned int *total);
 
 int dos_rand(void);
 

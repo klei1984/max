@@ -21,18 +21,10 @@
 
 #include "dos.h"
 
-#include <SDL.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
+#if defined(__unix__)
+#include <ctype.h>
+#include <strings.h>
 
-#ifdef __unix__
-#include <linux/limits.h>
-#endif
-
-#include "gnw.h"
-
-#ifdef __unix__
 static char *dos_strupr(char *s);
 static char *dos_strlwr(char *s);
 
@@ -40,11 +32,11 @@ char *strupr(char *s) { return dos_strupr(s); }
 char *strlwr(char *s) { return dos_strlwr(s); }
 int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
 int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1, s2, len); }
-#endif
+#endif /* defined(__unix__) */
 
 static unsigned int dos_rand_next = 1;
 
-#ifdef __unix__
+#if defined(__unix__)
 char *dos_strupr(char *s) {
     char *p = s;
     while (*p) {
@@ -53,9 +45,9 @@ char *dos_strupr(char *s) {
     }
     return s;
 }
-#endif
+#endif /* defined(__unix__) */
 
-#ifdef __unix__
+#if defined(__unix__)
 char *dos_strlwr(char *s) {
     char *p = s;
     while (*p) {
@@ -64,7 +56,7 @@ char *dos_strlwr(char *s) {
     }
     return s;
 }
-#endif
+#endif /* defined(__unix__) */
 
 long int filesize(FILE *fp) {
     long int save_pos, size_of_file;
@@ -76,10 +68,6 @@ long int filesize(FILE *fp) {
 
     return (size_of_file);
 }
-
-void dos_getdrive(unsigned int *drive) { *drive = 4; }
-
-void dos_setdrive(unsigned int drive, unsigned int *total) {}
 
 static unsigned int *initrandnext() { return &dos_rand_next; }
 

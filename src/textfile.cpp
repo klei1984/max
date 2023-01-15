@@ -25,10 +25,6 @@
 #include "message_manager.hpp"
 #include "registerarray.hpp"
 
-#ifdef __unix__
-#define stricmp strcasecmp
-#endif
-
 static SmartString BuildErrorMessage(const char* error_message, const char* error_log, unsigned int line,
                                      unsigned short column);
 
