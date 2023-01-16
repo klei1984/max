@@ -4639,14 +4639,13 @@ void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
 
         case ORDER_STATE_9: {
             UnitsManager_OrdersPending = true;
-            unit->PrepareFire();
+            unit->ProgressFire();
         } break;
 
         case ORDER_STATE_40: {
         } break;
 
         case ORDER_STATE_41: {
-            /// \todo Could this be a defect?
             unit->state = ORDER_STATE_5;
 
             if (GameManager_SelectedUnit == unit) {
