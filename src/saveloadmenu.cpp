@@ -864,7 +864,8 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     game_state = GameManager_GameState;
     file.Write(game_state);
 
-    file.Write(SaveLoadMenu_TurnTimer);
+    unsigned short timer_value = GameManager_TurnTimerValue;
+    file.Write(timer_value);
 
     ini_config.SaveSection(file, INI_PREFERENCES);
 

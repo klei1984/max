@@ -325,7 +325,7 @@ MessageLogEntry::MessageLogEntry(const char* text, UnitInfo* unit, Point point)
 MessageLogEntry::~MessageLogEntry() { delete text; }
 
 void MessageLogEntry::FileSave(SmartFileWriter& file) {
-    unsigned short length = strlen(text);
+    unsigned short length = strlen(text) + 1;
 
     file.Write(length);
     file.Write(text, length);
