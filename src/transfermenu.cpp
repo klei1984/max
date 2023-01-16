@@ -78,8 +78,8 @@ void TransferMenu::UpdateIndicators() {
 
     text_font(GNW_TEXT_FONT_5);
     snprintf(total, sizeof(total), "%ld", labs(total_materials_transferred));
-    snprintf(source, sizeof(source), "%ld", labs(source_unit_materials));
-    snprintf(target, sizeof(target), "%ld", labs(target_unit_materials));
+    snprintf(source, sizeof(source), "%ld", labs(source_unit_materials - total_materials_transferred));
+    snprintf(target, sizeof(target), "%ld", labs(target_unit_materials + total_materials_transferred));
 
     xfer_amount->Write(&window);
     Text_TextBox(window.buffer, window.width, total, 141, 15, 29, 20, 0xFF, true);

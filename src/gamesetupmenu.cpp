@@ -303,7 +303,8 @@ void GameSetupMenu::DrawMissionList() {
         if (game_file_type == GAME_TYPE_CAMPAIGN &&
             ini_get_setting(INI_LAST_CAMPAIGN) < (game_index_first_on_page + i)) {
             buttons[i]->Disable();
-        } else if (!SaveLoadMenu_GetSavedGameInfo(game_index_first_on_page + i, game_file_type, save_file_header)) {
+        } else if (!SaveLoadMenu_GetSavedGameInfo(game_index_first_on_page + i, game_file_type, save_file_header,
+                                                  false)) {
             buttons[i]->Disable();
         } else {
             ++game_count;

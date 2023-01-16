@@ -1264,9 +1264,9 @@ void GameManager_Render() {
                                             int color;
 
                                             if (Access_GetValidAttackTargetTypes((*it).unit_type) & MOBILE_AIR_UNIT) {
-                                                color = 0x05;
+                                                color = COLOR_CHROME_YELLOW;
                                             } else {
-                                                color = 0x01;
+                                                color = COLOR_RED;
                                             }
 
                                             GameManager_DrawCircle(&*it, window,
@@ -4458,7 +4458,7 @@ unsigned char GameManager_GetWindowCursor(int grid_x, int grid_y) {
                     GameManager_Unit = Access_GetUnit2(grid_x, grid_y, GameManager_PlayerTeam);
 
                     if (GameManager_Unit &&
-                        GameManager_IsValidTransferTarget(&*GameManager_SelectedUnit, GameManager_Unit)) {
+                        GameManager_IsValidTransferTarget(GameManager_Unit, &*GameManager_SelectedUnit)) {
                         switch (GameManager_SelectedUnit->cursor) {
                             case CURSOR_ARROW_NE: {
                                 if (UnitsManager_BaseUnits[GameManager_SelectedUnit->unit_type].cargo_type ==
@@ -4571,7 +4571,7 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
                    UnitsManager_BaseUnits[unit2->unit_type].cargo_type ||
                (unit2->GetComplex() && (unit2->flags & STATIONARY) &&
                 (unit2 = GameManager_GetUnitWithCargoType(
-                     unit2->GetComplex(), UnitsManager_BaseUnits[unit1->unit_type].field_18)) != nullptr)) {
+                     unit2->GetComplex(), UnitsManager_BaseUnits[unit1->unit_type].cargo_type)) != nullptr)) {
         int cargo_transferred;
 
         unit1->SetParent(unit2);
@@ -7710,7 +7710,7 @@ void GameManager_ReportNewUnitsMessage(unsigned short* counts) {
     message[0] = '\0';
     flag = false;
 
-    for (int unit_type = 92; unit_type >= 0; --unit_type) {
+    for (int unit_type = UNIT_END - 1; unit_type >= 0; --unit_type) {
         if (counts[unit_type]) {
             if (BuildMenu_GetTurnsToBuild(static_cast<ResourceID>(unit_type), GameManager_PlayerTeam) > 1) {
                 flag = true;
@@ -7725,7 +7725,7 @@ void GameManager_ReportNewUnitsMessage(unsigned short* counts) {
 
             } else {
                 sprintf(chunk, GameManager_EventStrings_NewSingular[UnitsManager_BaseUnits[unit_type].gender],
-                        counts[unit_type], UnitsManager_BaseUnits[unit_type].singular_name);
+                        UnitsManager_BaseUnits[unit_type].singular_name);
             }
 
             if (different_type_count == 1) {

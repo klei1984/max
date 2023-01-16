@@ -42,7 +42,7 @@ unsigned char* Gfx_ResourceBuffer;
 unsigned int* Gfx_SpriteRowAddresses;
 unsigned char Gfx_TeamColorIndexBase;
 ColorIndex* Gfx_ColorIndices;
-unsigned short Gfx_UnitBrightnessBase;
+unsigned char Gfx_UnitBrightnessBase;
 unsigned int Gfx_MapBrightness;
 unsigned int Gfx_MapBigmapIileIdBufferOffset;
 unsigned char* Gfx_MapWindowBuffer;
@@ -292,9 +292,9 @@ void Gfx_DecodeSprite() {
     unsigned char* row_address;
 
     Gfx_Decode_ColorMap = &ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & 0xE0) * 8];
-    Gfx_SpriteRowIndex = Gfx_ScaledOffset.y * Gfx_ScalingFactorHeight;
 
-    for (;;) {
+    for (Gfx_SpriteRowIndex = Gfx_ScaledOffset.y * Gfx_ScalingFactorHeight;;
+         Gfx_SpriteRowIndex += Gfx_ScalingFactorHeight) {
         Gfx_SpriteRowAddress = &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> 16]];
 
         offset = Gfx_TargetScreenBufferOffset;
@@ -311,7 +311,6 @@ void Gfx_DecodeSprite() {
                     return;
                 }
 
-                Gfx_SpriteRowIndex = Gfx_SpriteRowIndex + Gfx_ScalingFactorHeight;
                 break;
 
             } else {
@@ -334,14 +333,37 @@ void Gfx_DecodeSprite() {
                         if (Gfx_word_1686D8 < 0) {
                             temp = -Gfx_word_1686D8;
                             Gfx_word_1686D8 = 0;
+
+                            Gfx_word_1686DA -= temp;
+
+                            if (Gfx_word_1686DA > 0) {
+                                offset += temp;
+
+                            } else {
+                                Gfx_TargetScreenBufferOffset += Gfx_MapWindowWidth;
+
+                                if (!--Gfx_ScaledHeight) {
+                                    return;
+                                }
+
+                                break;
+                            }
                         }
+
                     } else {
                         Gfx_word_1686DA -= temp;
 
                         if (Gfx_word_1686DA > 0) {
                             offset += temp;
+
                         } else {
-                            continue;
+                            Gfx_TargetScreenBufferOffset += Gfx_MapWindowWidth;
+
+                            if (!--Gfx_ScaledHeight) {
+                                return;
+                            }
+
+                            break;
                         }
                     }
                 }
@@ -357,6 +379,7 @@ void Gfx_DecodeSprite() {
 
                     if (Gfx_word_1686D8 >= 0) {
                         continue;
+
                     } else {
                         ebp += Gfx_word_1686D8 + temp;
                         temp = -Gfx_word_1686D8;

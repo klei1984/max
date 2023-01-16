@@ -37,7 +37,7 @@ extern unsigned char* Gfx_ResourceBuffer;
 extern unsigned int* Gfx_SpriteRowAddresses;
 extern unsigned char Gfx_TeamColorIndexBase;
 extern ColorIndex* Gfx_ColorIndices;
-extern unsigned short Gfx_UnitBrightnessBase;
+extern unsigned char Gfx_UnitBrightnessBase;
 extern unsigned int Gfx_MapBrightness;
 extern unsigned int Gfx_MapBigmapIileIdBufferOffset;
 extern unsigned char* Gfx_MapWindowBuffer;

@@ -2478,7 +2478,7 @@ UnitInfo* UnitInfo::GetConnectedBuilding(unsigned int connector) {
         } break;
 
         case CONNECTOR_SOUTH_LEFT: {
-            result = Access_GetTeamBuilding(team, grid_x - 1, grid_y);
+            result = Access_GetTeamBuilding(team, grid_x, grid_y + grid_size);
         } break;
 
         case CONNECTOR_SOUTH_RIGHT: {
@@ -2490,7 +2490,7 @@ UnitInfo* UnitInfo::GetConnectedBuilding(unsigned int connector) {
         } break;
 
         case CONNECTOR_WEST_BOTTOM: {
-            result = Access_GetTeamBuilding(team, grid_x, grid_y + grid_size);
+            result = Access_GetTeamBuilding(team, grid_x - 1, grid_y + 1);
         } break;
     }
 
