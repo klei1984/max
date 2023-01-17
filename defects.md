@@ -445,3 +445,5 @@ The defect is closely related to the group command. Steps to reproduce the issue
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_116.mp4" type="video/mp4">
     </video>
+
+117. Generic mission loss conditions do not consider the case when no mining stations remain, but we have at least one constructor unit and materials left to build a new one, although the constructor is not allowed to build mining stations in the given mission.
