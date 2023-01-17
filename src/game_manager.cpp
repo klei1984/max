@@ -805,7 +805,7 @@ void GameManager_GameLoop(int game_state) {
             for (; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                     UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
-                    if (game_state == GAME_STATE_10) {
+                    if (game_state != GAME_STATE_10) {
                         GameManager_ManageEconomy(team);
                     }
 
@@ -7361,23 +7361,24 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
             switch (UnitsManager_BaseUnits[unit->unit_type].cargo_type) {
                 case CARGO_TYPE_RAW: {
                     value = materials.raw;
-                    value_limit = materials.raw;
+                    value_limit = capacity.raw;
                 } break;
 
                 case CARGO_TYPE_FUEL: {
                     value = materials.fuel;
-                    value_limit = materials.fuel;
+                    value_limit = capacity.fuel;
                 } break;
 
                 case CARGO_TYPE_GOLD: {
                     value = materials.gold;
-                    value_limit = materials.gold;
+                    value_limit = capacity.gold;
                 } break;
             }
 
-            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3,
-                                           ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type],
-                                           value, value_limit, scaling_factor);
+            GameManager_DrawInfoDisplayRow(
+                "Total", WINDOW_STAT_ROW_3,
+                ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2], value, value_limit,
+                scaling_factor);
         }
 
         window = WindowManager_GetWindow(WINDOW_STAT_WINDOW);

@@ -88,10 +88,10 @@ static void Cursor_DrawAttackPowerCursorHelper(int target_current_hits, int atta
 
         if ((attacker_damage + target_current_hits) < 35) {
             buf_fill(&data[cursor->bounds.ulx + 1 + target_current_hits + attacker_damage],
-                     35 - target_current_hits - attacker_damage, 3, cursor->bounds.ulx, data[0]);
+                     35 - target_current_hits - attacker_damage, 3, cursor->bounds.ulx, cursor->data[0]);
         }
     } else {
-        buf_fill(data, 37, 5, cursor->bounds.ulx, data[0]);
+        buf_fill(data, 37, 5, cursor->bounds.ulx, cursor->data[0]);
     }
 }
 
@@ -148,7 +148,7 @@ void Cursor_SetCursor(unsigned char cursor_index) {
 void Cursor_DrawAttackPowerCursor(UnitInfo* selected_unit, UnitInfo* target_unit, unsigned char cursor_index) {
     if (target_unit) {
         Cursor_DrawAttackPowerCursorHelper(target_unit->hits,
-                                           UnitsManager_CalculateAttackDamage(selected_unit, target_unit, 0),
+                                           UnitsManager_GetAttackDamage(selected_unit, target_unit, 0),
                                            target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS), cursor_index);
     } else {
         Cursor_DrawAttackPowerCursorHelper(0, 0, 0, cursor_index);

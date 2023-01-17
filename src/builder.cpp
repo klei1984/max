@@ -278,9 +278,9 @@ bool Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, Resou
 
         if (base_unit->flags & BUILDING) {
             result = Builder_IsAccessible(team, unit_type, *grid_x, *grid_y) ||
-                     Builder_IsAccessible(team, unit_type, *grid_x, *grid_y) ||
-                     Builder_IsAccessible(team, unit_type, *grid_x, *grid_y) ||
-                     Builder_IsAccessible(team, unit_type, *grid_x, *grid_y);
+                     Builder_IsAccessible(team, unit_type, *grid_x, --*grid_y) ||
+                     Builder_IsAccessible(team, unit_type, --*grid_x, *grid_y) ||
+                     Builder_IsAccessible(team, unit_type, *grid_x, ++*grid_y);
 
         } else {
             result = Access_IsAccessible(unit_type, team, *grid_x, *grid_y, 2);

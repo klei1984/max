@@ -4335,6 +4335,8 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
         UnitsManager_SetInitialMining(unit, grid_x, grid_y);
     }
 
+    unit->SetPosition(grid_x, grid_y, skip_map_status_update);
+
     if (!is_existing_unit) {
         Hash_UnitHash.PushBack(unit);
 
@@ -4344,8 +4346,6 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned sh
 
         Ai_UpdateTerrain(unit);
     }
-
-    unit->SetPosition(grid_x, grid_y, skip_map_status_update);
 
     return SmartPointer<UnitInfo>(unit);
 }
