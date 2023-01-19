@@ -1,4 +1,4 @@
-/* Copyright (c) 2022 M.A.X. Port Team
+/* Copyright (c) 2023 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,24 +19,41 @@
  * SOFTWARE.
  */
 
-#ifndef PATHS_MANAGER_HPP
-#define PATHS_MANAGER_HPP
+#ifndef TASKDEBUGGER_HPP
+#define TASKDEBUGGER_HPP
 
-#include "pathrequest.hpp"
-#include "unitinfo.hpp"
+#include "button.hpp"
+#include "buttonmanager.hpp"
+#include "task.hpp"
 
-int PathsManager_GetRequestCount(unsigned short team);
-void PathsManager_RemoveRequest(PathRequest* request);
-void PathsManager_RemoveRequest(UnitInfo* unit);
-void PathsManager_PushBack(PathRequest& object);
-void PathsManager_PushFront(PathRequest& object);
-void PathsManager_EvaluateTiles();
-void PathsManager_Clear();
-bool PathsManager_HasRequest(UnitInfo* unit);
-void PathsManager_ProcessGroundCover(UnitInfo* unit, unsigned char** map, unsigned char flags, int caution_level);
-void PathsManager_InitAccessMap(UnitInfo* unit, unsigned char** map, unsigned char flags, int caution_level);
-unsigned char** PathsManager_GetAccessMap();
-void PathsManager_ApplyCautionLevel(unsigned char** map, UnitInfo* unit, int caution_level);
-void PathsManager_SetPathDebugMode();
+class TaskDebugger {
+    WindowInfo window;
+    unsigned short team;
+    SmartArray<Task> tasks;
+    short row_index;
+    short task_count;
+    short row_count;
+    Image *image;
+    Button *button_up;
+    Button *button_down;
+    unsigned short first_row_p_value;
+    unsigned short button_up_p_value;
+    unsigned short button_down_p_value;
+    ButtonManager button_manager;
 
-#endif /* PATHS_MANAGER_HPP */
+    void InitTaskList(Task *task);
+    void DrawRow(int uly, const char *caption, Task *task, int color);
+    void SetLimits(int limit);
+
+public:
+    TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int button_down_value, int first_row_value);
+    ~TaskDebugger();
+
+    bool ProcessKeyPress(int key);
+    void DrawRows();
+};
+
+int TaskDebugger_GetDebugMode();
+void TaskDebugger_SetDebugMode();
+
+#endif /* TASKDEBUGGER_HPP */

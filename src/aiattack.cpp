@@ -717,81 +717,79 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
 
                         } else {
                             attack_radius = 0;
+                        }
 
-                            if ((dos_rand() * 2) >> 15) {
-                                mode = true;
+                        if ((dos_rand() * 2) >> 15) {
+                            mode = true;
+
+                        } else {
+                            mode = false;
+                        }
+
+                        spotted_unit = AiAttack_SelectTargetToAttack(
+                            unit, unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) + attack_radius,
+                            unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN), CAUTION_LEVEL_NONE, mode);
+
+                        if (spotted_unit) {
+                            UnitInfo* target = spotted_unit->GetUnit();
+
+                            if (unit->unit_type == COMMANDO && AiAttack_IsValidSabotageTarget(unit, target) &&
+                                !Task_IsAdjacent(target, unit->grid_x, unit->grid_y)) {
+                                result = false;
+
+                            } else if (target->AreTherePins()) {
+                                SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
+
+                                TaskManager.AppendTask(*wait_to_attack_task);
+
+                                result = true;
 
                             } else {
-                                mode = false;
-                            }
+                                if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_APPRENTICE) {
+                                    mode = false;
+                                }
 
-                            spotted_unit = AiAttack_SelectTargetToAttack(
-                                unit, unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) + attack_radius,
-                                unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN), CAUTION_LEVEL_NONE, mode);
+                                if (mode && unit->speed > 0 &&
+                                    (!unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
+                                     ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) &&
+                                    (target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) <
+                                         unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS) ||
+                                     unit->shots * UnitsManager_GetAttackDamage(unit, target, 0) < target->hits)) {
+                                    int damage_potential = AiPlayer_Teams[unit->team].GetDamagePotential(
+                                        unit, Point(unit->grid_x, unit->grid_y), CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
+                                        0x01);
 
-                            if (spotted_unit) {
-                                UnitInfo* target = spotted_unit->GetUnit();
+                                    if (damage_potential >= unit->hits) {
+                                        if (AiAttack_FindAttackSupport(target, &UnitsManager_MobileAirUnits, unit->team,
+                                                                       CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) ||
+                                            AiAttack_FindAttackSupport(target, &UnitsManager_MobileLandSeaUnits,
+                                                                       unit->team,
+                                                                       CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
+                                            return true;
+                                        }
 
-                                if (unit->unit_type == COMMANDO && AiAttack_IsValidSabotageTarget(unit, target) &&
-                                    !Task_IsAdjacent(target, unit->grid_x, unit->grid_y)) {
-                                    result = false;
-
-                                } else if (target->AreTherePins()) {
-                                    SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
-
-                                    TaskManager.AppendTask(*wait_to_attack_task);
-
-                                    result = true;
-
-                                } else {
-                                    if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_APPRENTICE) {
-                                        mode = false;
-                                    }
-
-                                    if (mode && unit->speed > 0 &&
-                                        (!unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
-                                         ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) &&
-                                        (target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) <
-                                             unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS) ||
-                                         unit->shots * UnitsManager_GetAttackDamage(unit, target, 0) < target->hits)) {
-                                        int damage_potential = AiPlayer_Teams[unit->team].GetDamagePotential(
-                                            unit, Point(unit->grid_x, unit->grid_y),
-                                            CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01);
-
-                                        if (damage_potential >= unit->hits) {
-                                            if (AiAttack_FindAttackSupport(target, &UnitsManager_MobileAirUnits,
-                                                                           unit->team,
-                                                                           CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) ||
-                                                AiAttack_FindAttackSupport(target, &UnitsManager_MobileLandSeaUnits,
-                                                                           unit->team,
-                                                                           CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
-                                                return true;
-                                            }
-
-                                            if (!AiAttack_IsAttackProfitable(unit, target, damage_potential,
-                                                                             CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
-                                                                             false) &&
-                                                !AiAttack_DecideDesperationAttack(unit, target)) {
-                                                if (Task_RetreatIfNecessary(nullptr, unit,
-                                                                            Ai_DetermineCautionLevel(unit))) {
-                                                    if (mode) {
-                                                        AiAttack_UpdateTargetFlags(target);
-                                                    }
-
-                                                    return false;
+                                        if (!AiAttack_IsAttackProfitable(unit, target, damage_potential,
+                                                                         CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false) &&
+                                            !AiAttack_DecideDesperationAttack(unit, target)) {
+                                            if (Task_RetreatIfNecessary(nullptr, unit,
+                                                                        Ai_DetermineCautionLevel(unit))) {
+                                                if (mode) {
+                                                    AiAttack_UpdateTargetFlags(target);
                                                 }
+
+                                                return false;
                                             }
                                         }
                                     }
-
-                                    AiAttack_ProcessAttack(unit, target);
-
-                                    result = true;
                                 }
 
-                            } else {
-                                result = false;
+                                AiAttack_ProcessAttack(unit, target);
+
+                                result = true;
                             }
+
+                        } else {
+                            result = false;
                         }
 
                     } else {

@@ -743,7 +743,7 @@ bool PathsManager_IsProcessed(int grid_x, int grid_y) {
     return result;
 }
 
-void PathsManager_PrintPathDebugMode() {
+void PathsManager_SetPathDebugMode() {
     Paths_DebugMode = (Paths_DebugMode + 1) % 3;
 
     switch (Paths_DebugMode) {

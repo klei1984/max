@@ -25,6 +25,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "buildmenu.hpp"
 #include "cargomenu.hpp"
 #include "chatmenu.hpp"
@@ -52,6 +53,7 @@
 #include "sound_manager.hpp"
 #include "survey.hpp"
 #include "task_manager.hpp"
+#include "taskdebugger.hpp"
 #include "text.hpp"
 #include "transfermenu.hpp"
 #include "units_manager.hpp"
@@ -5447,7 +5449,7 @@ void GameManager_ProcessKey() {
 
         case GNW_KB_KEY_LALT_F1: {
 #if !defined(NDEBUG)
-            PathsManager_PrintPathDebugMode();
+            PathsManager_SetPathDebugMode();
 #endif /* !defined(NDEBUG) */
         } break;
 
@@ -5456,7 +5458,9 @@ void GameManager_ProcessKey() {
         } break;
 
         case GNW_KB_KEY_LALT_F3: {
-            /// Task logs
+#if !defined(NDEBUG)
+            TaskDebugger_SetDebugMode();
+#endif /* !defined(NDEBUG) */
         } break;
 
         case GNW_KB_KEY_F5:

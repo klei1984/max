@@ -991,7 +991,7 @@ bool TaskMove::IsPathClear() {
                 path->AddStep(planned_path[0]->x - passenger->grid_x, planned_path[0]->y - passenger->grid_y);
             }
 
-            for (int i = 0; i <= step_index; ++i) {
+            for (int i = 1; i <= step_index; ++i) {
                 path->AddStep(planned_path[i]->x - planned_path[i - 1]->y, planned_path[i]->y - planned_path[i - 1]->y);
             }
 

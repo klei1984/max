@@ -29,6 +29,7 @@
 #include "menu.hpp"
 #include "reportstats.hpp"
 #include "resource_manager.hpp"
+#include "taskdebugger.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
@@ -449,6 +450,7 @@ void UnitStats_Menu(UnitInfo* unit) {
     int uly;
     int key;
     bool event_release;
+    TaskDebugger* task_debugger = nullptr;
 
     Cursor_SetCursor(CURSOR_HAND);
 
@@ -492,8 +494,13 @@ void UnitStats_Menu(UnitInfo* unit) {
             window2.window.lrx = 311;
             window2.window.lry = 253;
 
-            if (!WindowManager_LoadImage(base_unit->portrait, &window2, window.width, false)) {
-                flicsmgr_construct(base_unit->flics, &window, window.width, 100, 74, false, false);
+            if (TaskDebugger_GetDebugMode() && unit->GetTask()) {
+                task_debugger = new (std::nothrow) TaskDebugger(&window2, unit->GetTask(), 2000, 2001, 2002);
+
+            } else {
+                if (!WindowManager_LoadImage(base_unit->portrait, &window2, window.width, false)) {
+                    flicsmgr_construct(base_unit->flics, &window, window.width, 100, 74, false, false);
+                }
             }
 
             UnitStats_DrawStats(&window.buffer[11 + window.width * 293], window.width, unit->unit_type, unit->team,
@@ -504,10 +511,14 @@ void UnitStats_Menu(UnitInfo* unit) {
             unit->GetDisplayName(text);
 
             Text_TextBox(window.buffer, window.width, text, 336, 60, 287, 11, 0xA2, true);
-            Text_TextBox(window.buffer, window.width, base_unit->description, 345, 90, 270, 117, 0xA2, false);
+            Text_TextBox(window.buffer, window.width, base_unit->description, 345, 90, 270, 117, 0xA2, false, false);
 
             text_font(GNW_TEXT_FONT_5);
             Text_TextBox(window.buffer, window.width, "Unit Status Screen", 327, 7, 158, 18, COLOR_GREEN, true);
+
+            if (task_debugger) {
+                task_debugger->DrawRows();
+            }
 
             win_draw(window.id);
 
@@ -530,6 +541,10 @@ void UnitStats_Menu(UnitInfo* unit) {
                         HelpMenu_Menu(HELPMENU_STATS_SETUP, WINDOW_MAIN_WINDOW);
                     }
 
+                    if (task_debugger && key >= 0) {
+                        task_debugger->ProcessKeyPress(key);
+                    }
+
                     if (GameManager_RequestMenuExit) {
                         key = GNW_KB_KEY_KP_ENTER;
                     }
@@ -548,6 +563,7 @@ void UnitStats_Menu(UnitInfo* unit) {
                 }
             }
 
+            delete task_debugger;
             delete button_done;
             delete button_help;
 

@@ -254,19 +254,11 @@ SmartString &SmartString::Tolower() {
 }
 
 SmartString &SmartString::Sprintf(unsigned short size, const char *format, ...) {
-    char *buffer;
     va_list args;
 
-    buffer = new (std::nothrow) char[size + 1];
-
     va_start(args, format);
-    vsprintf(buffer, format, args);
+    VSprintf(size, format, args);
     va_end(args);
-
-    Decrement();
-
-    object_pointer = new (std::nothrow) StringObject(buffer);
-    delete[] buffer;
 
     return *this;
 }
@@ -299,3 +291,18 @@ SmartString &SmartString::operator=(const char *rhs) {
 }
 
 bool SmartString::IsEqual(const char *cstring) { return !Strcmp(cstring); }
+
+SmartString &SmartString::VSprintf(unsigned short size, const char *format, va_list args) {
+    char *buffer;
+
+    buffer = new (std::nothrow) char[size + 1];
+
+    vsprintf(buffer, format, args);
+
+    Decrement();
+
+    object_pointer = new (std::nothrow) StringObject(buffer);
+    delete[] buffer;
+
+    return *this;
+}

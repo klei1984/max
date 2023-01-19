@@ -4234,7 +4234,7 @@ void UnitInfo::UpgradeInt() {
     SmartPointer<UnitValues> values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type));
     SmartPointer<UnitInfo> copy = MakeCopy();
 
-    hits = values->GetAttribute(ATTRIB_HITS) - base_values->GetAttribute(ATTRIB_HITS);
+    hits += values->GetAttribute(ATTRIB_HITS) - base_values->GetAttribute(ATTRIB_HITS);
 
     UnitsManager_CheckIfUnitDestroyed(this);
 

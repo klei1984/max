@@ -1,4 +1,4 @@
-/* Copyright (c) 2022 M.A.X. Port Team
+/* Copyright (c) 2023 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,24 +19,31 @@
  * SOFTWARE.
  */
 
-#ifndef PATHS_MANAGER_HPP
-#define PATHS_MANAGER_HPP
+#ifndef AILOG_HPP
+#define AILOG_HPP
 
-#include "pathrequest.hpp"
-#include "unitinfo.hpp"
+#include <fstream>
 
-int PathsManager_GetRequestCount(unsigned short team);
-void PathsManager_RemoveRequest(PathRequest* request);
-void PathsManager_RemoveRequest(UnitInfo* unit);
-void PathsManager_PushBack(PathRequest& object);
-void PathsManager_PushFront(PathRequest& object);
-void PathsManager_EvaluateTiles();
-void PathsManager_Clear();
-bool PathsManager_HasRequest(UnitInfo* unit);
-void PathsManager_ProcessGroundCover(UnitInfo* unit, unsigned char** map, unsigned char flags, int caution_level);
-void PathsManager_InitAccessMap(UnitInfo* unit, unsigned char** map, unsigned char flags, int caution_level);
-unsigned char** PathsManager_GetAccessMap();
-void PathsManager_ApplyCautionLevel(unsigned char** map, UnitInfo* unit, int caution_level);
-void PathsManager_SetPathDebugMode();
+class AiLog {
+    static std::ofstream AiLog_File;
+    static int AiLog_SectionCount;
+    static int AiLog_EntryCount;
 
-#endif /* PATHS_MANAGER_HPP */
+    unsigned int time_stamp;
+
+    void VSprintf(const char *format, va_list args);
+
+    friend void AiLog_Open();
+    friend void AiLog_Close();
+
+public:
+    AiLog(const char *format, ...);
+    ~AiLog();
+
+    void Log(const char *format, ...);
+};
+
+void AiLog_Open();
+void AiLog_Close();
+
+#endif /* AILOG_HPP */

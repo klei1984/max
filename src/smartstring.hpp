@@ -22,6 +22,8 @@
 #ifndef SMARTSTRING_HPP
 #define SMARTSTRING_HPP
 
+#include <cstdarg>
+
 class StringObject {
     friend class SmartString;
 
@@ -73,6 +75,7 @@ public:
     SmartString& Toupper();
     SmartString& Tolower();
     SmartString& Sprintf(unsigned short size, const char* format, ...);
+    SmartString& VSprintf(unsigned short size, const char* format, va_list args);
     int Strcmp(const char* cstring, bool case_sensitive = true) const;
     SmartString& operator=(SmartString const& rhs);
     SmartString& operator=(char const* rhs);
