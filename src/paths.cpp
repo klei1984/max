@@ -1042,6 +1042,8 @@ void GroundPath::AddStep(int step_x, int step_y) {
     step.x = step_x;
     step.y = step_y;
 
+    SDL_assert(step.x >= -1 && step.x <= 1 && step.y >= -1 && step.y <= 1);
+
     steps.PushBack(&step);
 }
 
@@ -1553,15 +1555,15 @@ bool Paths_CalculateStep(UnitInfo* unit, int cost, int param, bool is_diagonal_s
     unit->max_velocity = max_velocity;
 
     if (unit->unit_type == COMMANDO || unit->unit_type == INFANTRY) {
-        unit->max_velocity = 1;
-        unit->velocity = 1;
+        unit->max_velocity >>= 1;
+        unit->velocity = unit->max_velocity;
     }
 
     if (cost > 4) {
-        unit->max_velocity *= 2;
+        unit->max_velocity /= 2;
 
     } else if (cost < 4) {
-        unit->max_velocity /= 2;
+        unit->max_velocity *= 2;
     }
 
     if (is_diagonal_step) {

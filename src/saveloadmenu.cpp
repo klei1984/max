@@ -428,17 +428,7 @@ int SaveLoadMenu_GetGameFileType() {
             result = 0; /* dta */
         } break;
 
-        case GAME_TYPE_CUSTOM:
-        case GAME_TYPE_HOT_SEAT:
-        case GAME_TYPE_MULTI:
-        case GAME_TYPE_DEMO:
-        case GAME_TYPE_DEBUG:
-        case GAME_TYPE_TEXT:
         case GAME_TYPE_MULTI_PLAYER_SCENARIO: {
-            result = game_file_type;
-        } break;
-
-        default: {
             if (Remote_IsNetworkGame) {
                 result = 4; /* mlt */
             } else if (GameManager_HumanPlayerCount) {
@@ -446,6 +436,10 @@ int SaveLoadMenu_GetGameFileType() {
             } else {
                 result = 0; /* dta */
             }
+        } break;
+
+        default: {
+            result = game_file_type;
         } break;
     }
 

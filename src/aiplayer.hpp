@@ -159,7 +159,7 @@ public:
     ~AiPlayer();
 
     int GetStrategy() const;
-    unsigned short GetTargetTeam() const;
+    signed short GetTargetTeam() const;
     unsigned char** GetInfoMap();
     Point GetTargetLocation() const;
     unsigned short GetField5() const;

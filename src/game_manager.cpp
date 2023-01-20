@@ -7106,10 +7106,10 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
         current_power_need = cargo.power;
 
         if (power_need >= 0) {
-            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_2, SI_POWER, current_power_need, power_need, 1);
+            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_2, SI_POWER, -current_power_need, power_need, 1);
 
         } else {
-            GameManager_DrawInfoDisplayRow("Power", WINDOW_STAT_ROW_2, SI_POWER, -current_power_need, -power_need, 1);
+            GameManager_DrawInfoDisplayRow("Power", WINDOW_STAT_ROW_2, SI_POWER, current_power_need, -power_need, 1);
         }
 
         power_need = 0;
@@ -7168,10 +7168,10 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
         current_life_need = cargo.life;
 
         if (life_need >= 0) {
-            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_2, SI_WORK, current_life_need, life_need, 1);
+            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_2, SI_WORK, -current_life_need, life_need, 1);
 
         } else {
-            GameManager_DrawInfoDisplayRow("Teams", WINDOW_STAT_ROW_2, SI_WORK, -current_life_need, -life_need, 1);
+            GameManager_DrawInfoDisplayRow("Teams", WINDOW_STAT_ROW_2, SI_WORK, current_life_need, -life_need, 1);
         }
 
         life_need = 0;

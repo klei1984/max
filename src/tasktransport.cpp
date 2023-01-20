@@ -30,7 +30,7 @@
 #include "units_manager.hpp"
 
 TaskTransport::TaskTransport(TaskMove* task_move_, ResourceID transporter)
-    : Task(task_move->GetTeam(), nullptr, task_move->GetFlags()) {
+    : Task(task_move_->GetTeam(), nullptr, task_move_->GetFlags()) {
     transporter_unit_type = transporter;
     task_move = task_move_;
     move_tasks.PushBack(*task_move_);

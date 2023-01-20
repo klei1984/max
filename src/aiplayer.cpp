@@ -2116,7 +2116,7 @@ AiPlayer::~AiPlayer() {
 
 int AiPlayer::GetStrategy() const { return strategy; }
 
-unsigned short AiPlayer::GetTargetTeam() const { return target_team; }
+signed short AiPlayer::GetTargetTeam() const { return target_team; }
 
 unsigned char** AiPlayer::GetInfoMap() { return info_map; }
 

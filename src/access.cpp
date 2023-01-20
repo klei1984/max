@@ -1023,7 +1023,7 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, unsigned short team) {
 }
 
 bool Access_UpdateGroupSpeed(UnitInfo* unit) {
-    int max_speed;
+    int max_speed = INT32_MAX;
     SmartList<UnitInfo>* units;
 
     units = unit->GetUnitList();
@@ -1617,7 +1617,7 @@ bool Access_IsValidAttackTarget(UnitInfo* attacker, UnitInfo* target, Point poin
     target_type = target->unit_type;
 
     if (!(attacker->flags & MOBILE_AIR_UNIT) || (attacker->flags & HOVERING)) {
-        if ((target_flags & MOBILE_AIR_UNIT) || !(attacker->flags & HOVERING)) {
+        if ((target_flags & MOBILE_AIR_UNIT) && !(target_flags & HOVERING)) {
             target_flags &= ~MOBILE_AIR_UNIT;
             target_flags |= MOBILE_LAND_UNIT;
         }
@@ -1848,7 +1848,7 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
             Access_UpdateMultiSelection(parent);
         }
 
-        if (parent == unit2) {
+        if (parent != unit2) {
             GameManager_MenuUnitSelect(parent);
         }
     }

@@ -350,6 +350,8 @@ void MapHash::TextSave(SmartTextfileWriter& file) {
 }
 
 SmartList<UnitInfo>::Iterator MapHash::operator[](const Point& key) {
+    SDL_assert(key.x >= 0 && key.y >= 0);
+
     SmartList<MapHashObject>* list = &entry[(key.y ^ (key.x << x_shift)) % hash_size];
     SmartList<MapHashObject>::Iterator object = list->Begin();
     SmartList<UnitInfo>::Iterator result;

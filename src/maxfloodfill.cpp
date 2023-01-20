@@ -113,29 +113,29 @@ int MAXFloodFill::Fill(Point point) {
                     runs.Append(&inner_run);
                 }
             }
+        }
 
-            if (run.grid_x < target_bounds.lrx - 1) {
-                point.x = run.grid_x + 1;
-                point.y = run.uly;
+        if (run.grid_x < target_bounds.lrx - 1) {
+            point.x = run.grid_x + 1;
+            point.y = run.uly;
 
-                while (point.y < run.lry) {
-                    point.y = Vfunc2(point, run.lry);
+            while (point.y < run.lry) {
+                point.y = Vfunc2(point, run.lry);
 
-                    if (point.y < run.lry) {
-                        FloodRun inner_run;
+                if (point.y < run.lry) {
+                    FloodRun inner_run;
 
-                        inner_run.grid_x = point.x;
+                    inner_run.grid_x = point.x;
 
-                        inner_run.uly = Vfunc0(point, target_bounds.uly);
-                        inner_run.lry = Vfunc1(point, target_bounds.lry);
-                        point.y = inner_run.lry;
+                    inner_run.uly = Vfunc0(point, target_bounds.uly);
+                    inner_run.lry = Vfunc1(point, target_bounds.lry);
+                    point.y = inner_run.lry;
 
-                        cell_count += inner_run.lry - inner_run.uly;
+                    cell_count += inner_run.lry - inner_run.uly;
 
-                        Vfunc3(inner_run.grid_x, inner_run.uly, inner_run.lry);
+                    Vfunc3(inner_run.grid_x, inner_run.uly, inner_run.lry);
 
-                        runs.Append(&inner_run);
-                    }
+                    runs.Append(&inner_run);
                 }
             }
         }

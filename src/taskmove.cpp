@@ -992,7 +992,7 @@ bool TaskMove::IsPathClear() {
             }
 
             for (int i = 1; i <= step_index; ++i) {
-                path->AddStep(planned_path[i]->x - planned_path[i - 1]->y, planned_path[i]->y - planned_path[i - 1]->y);
+                path->AddStep(planned_path[i]->x - planned_path[i - 1]->x, planned_path[i]->y - planned_path[i - 1]->y);
             }
 
             destination = point3;

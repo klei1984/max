@@ -518,7 +518,7 @@ bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, 
 
 void AiAttack_GetTargetTeams(unsigned short team, bool* teams) {
     if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
-        unsigned short target_team;
+        signed short target_team;
 
         memset(teams, 0, PLAYER_TEAM_MAX * sizeof(bool));
 

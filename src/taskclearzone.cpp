@@ -358,7 +358,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
             }
 
             if (is_found) {
-                ZoneSquare local(site.x, site.y, unit);
+                ZoneSquare local(site.x, site.y, zone_square->unit);
 
                 zone_squares.Append(&local);
 
