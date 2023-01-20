@@ -6067,6 +6067,8 @@ void GameManager_UnitSelect(UnitInfo* unit) {
     GameManager_UpdateDrawBounds();
     GameManager_MenuUnitSelect(unit);
 
+    SDL_assert(unit != nullptr);
+
     if (unit->team == GameManager_ActiveTurnTeam &&
         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_PLAYER) {
         if ((unit->flags & STATIONARY) &&

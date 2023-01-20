@@ -707,14 +707,11 @@ void AllocMenu::OnClickGoldBar() {
 
 void AllocMenu::Run(UnitInfo *unit) {
     if (Init(unit)) {
-        bool exit_loop;
-        bool event_release;
-        int key;
-
-        exit_loop = false;
+        bool exit_loop = false;
+        bool event_release = false;
 
         while (!exit_loop) {
-            key = get_input();
+            int key = get_input();
 
             if (key > 0 && key < GNW_INPUT_PRESS) {
                 event_release = false;

@@ -349,6 +349,10 @@ void GameConfigMenu::EventVictoryCondition() {
             victory_type = 1;
             victory_limit = 800;
         } break;
+
+        default: {
+            SDL_assert(0);
+        } break;
     }
 
     ini_set_setting(INI_VICTORY_TYPE, victory_type);

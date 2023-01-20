@@ -248,6 +248,10 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
             resource_id = PREFNAME;
 
         } break;
+
+        default: {
+            SDL_assert(0);
+        } break;
     }
 
     resource_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(resource_id));

@@ -242,7 +242,7 @@ void IniSettings::Init() {
             }
 
             strcat(format_string, "\n");
-            fprintf(fp, format_string, value);
+            fprintf(fp, format_string);
         }
     }
 

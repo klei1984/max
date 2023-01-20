@@ -388,7 +388,7 @@ void TaskRepair::RemoveUnit(UnitInfo& unit) {
 
 void TaskRepair::SelectOperator() {
     if (GetRepairShopType() == DEPOT) {
-        UnitInfo* unit;
+        UnitInfo* unit = nullptr;
         int distance;
         int shortest_distance;
 

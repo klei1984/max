@@ -426,7 +426,7 @@ int inifile_ini_set_numeric_value(Ini_descriptor *const pini, const int value) {
 
     buffer[offset] = '\0';
 
-    if (buffer[1] == 'x') {
+    if (offset > 1 && buffer[1] == 'x') {
         snprintf(buffer, sizeof(buffer), "%#x", value);
     } else {
         snprintf(buffer, sizeof(buffer), "%d", value);
@@ -804,6 +804,8 @@ unsigned int inifile_hex_to_dec(const char *const hex) {
     offset = 0;
 
     length = strlen(hex);
+
+    SDL_assert(length > 0);
 
     do {
         sum += hex_to_dec_lut2[length] * inifile_hex_to_dec_digit(hex[offset]);

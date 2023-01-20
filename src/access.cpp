@@ -1050,18 +1050,14 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
     if (Access_UpdateGroupSpeed(unit)) {
         UnitInfo* enemy;
         UnitInfo* friendly;
-        SmartList<UnitInfo>* units;
 
         if (unit->orders == ORDER_MOVE_TO_ATTACK) {
             enemy = unit->GetEnemy();
 
             SDL_assert(enemy != nullptr);
-
-        } else {
-            enemy = nullptr;
         }
 
-        units = unit->GetUnitList();
+        SmartList<UnitInfo>* units = unit->GetUnitList();
 
         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
             friendly = &*it;
@@ -1069,9 +1065,9 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
             if ((mode || (friendly->group_speed - 1) != 0) &&
                 (friendly->orders == ORDER_MOVE || friendly->orders == ORDER_MOVE_TO_ATTACK ||
                  friendly->orders == ORDER_AWAIT)) {
-                if (friendly->orders == ORDER_MOVE_TO_ATTACK) {
+                if (unit->orders == ORDER_MOVE_TO_ATTACK) {
                     if (friendly->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) &&
-                        Access_IsValidAttackTarget(enemy, friendly)) {
+                        Access_IsValidAttackTarget(friendly, enemy)) {
                         friendly->group_speed = 0;
                         friendly->target_grid_x = unit->target_grid_x;
                         friendly->target_grid_y = unit->target_grid_y;

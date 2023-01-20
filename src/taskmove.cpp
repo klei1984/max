@@ -842,7 +842,7 @@ bool TaskMove::CheckAirPath() {
             int line_distance_y = point1.y - passenger->grid_y;
             Point site;
             int distance = line_distance_x * line_distance_x + line_distance_y * line_distance_y;
-            int range_limit = distance = sqrt(distance) * 4.0 + 0.5;
+            int range_limit = sqrt(distance) * 4.0 + 0.5;
             int unit_hits = passenger->hits;
 
             if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {

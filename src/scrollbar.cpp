@@ -229,6 +229,8 @@ void Scrollbar::RefreshScreen() {
 
         sprintf(text, "%i", scaling_factor * value);
 
+        SDL_assert(xfer_amount_background != nullptr);
+
         buffer = &win.buffer[xfer_amount_background->GetULX() + xfer_amount_background->GetULY() * win.width];
 
         buffer = &buffer[((xfer_amount_background->GetHeight() - text_height()) / 2) * win.width];
@@ -259,13 +261,17 @@ bool Scrollbar::ProcessKey(int key_code) {
     if (key_code == key_code_increase) {
         if (value < free_capacity) {
             ProcessValueChange(value + 1);
-            result = true;
         }
+
+        result = true;
+
     } else if (key_code == key_code_decrease) {
         if (value > zero_offset) {
             ProcessValueChange(value - 1);
-            result = true;
         }
+
+        result = true;
+
     } else if (key_code == button_p_value) {
         int x;
         int y;
@@ -287,7 +293,9 @@ bool Scrollbar::ProcessKey(int key_code) {
         new_value = std::min(new_value, free_capacity);
 
         ProcessValueChange(new_value);
+
         result = true;
+
     } else {
         result = false;
     }

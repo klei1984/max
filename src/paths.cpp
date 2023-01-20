@@ -864,9 +864,9 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
     int pixel_grid_x;
     int pixel_grid_y;
     int steps_count;
-    int path_x;
-    int path_y;
-    int cost;
+    int path_x = 0;
+    int path_y = 0;
+    int cost = 0;
     int angle;
     int color;
     int shots;
