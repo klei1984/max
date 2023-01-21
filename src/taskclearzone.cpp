@@ -468,7 +468,7 @@ void TaskClearZone::AddZone(Zone* zone) {
 
     map = AiPlayer_Teams[team].GetInfoMap();
 
-    zones.Insert(*zone);
+    zones.Insert(zone);
 
     if (map) {
         for (int i = 0; i < zone->points.GetCount(); ++i) {

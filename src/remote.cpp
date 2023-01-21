@@ -1221,7 +1221,7 @@ int Remote_SiteSelectMenu() {
                 } break;
 
                 case GNW_KB_KEY_F10: {
-                    GameManager_GameState, GAME_STATE_15_FATAL_ERROR;
+                    GameManager_GameState = GAME_STATE_15_FATAL_ERROR;
 
                     Remote_SendNetPacket_Signal(REMOTE_PACKET_42, GameManager_PlayerTeam, false);
 

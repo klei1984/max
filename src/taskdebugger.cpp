@@ -76,20 +76,19 @@ TaskDebugger::~TaskDebugger() {
 void TaskDebugger::InitTaskList(Task *task) {
     tasks.Release();
 
-    Task *dummy = nullptr;
-    tasks.Insert(*dummy);
+    tasks.Insert(nullptr);
 
     if (task) {
         SmartPointer<Task> parent(task->GetParent());
 
         while (parent) {
-            tasks.Insert(*parent, 1);
+            tasks.Insert(&*parent, 1);
             parent = parent->GetParent();
         }
 
         task_count = tasks.GetCount();
 
-        tasks.Insert(*task);
+        tasks.Insert(task);
 
     } else {
         task_count = 0;
@@ -98,7 +97,7 @@ void TaskDebugger::InitTaskList(Task *task) {
     for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
          ++it) {
         if ((*it).GetTeam() == team && (*it).GetParent() == task) {
-            tasks.Insert(*it);
+            tasks.Insert(&*it);
         }
     }
 

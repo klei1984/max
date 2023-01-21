@@ -1492,7 +1492,7 @@ bool GameManager_SelectSite(unsigned short team) {
             break;
         }
 
-        GameManager_GameState == GAME_STATE_7_SITE_SELECT;
+        GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 
         Cursor_SetCursor(CURSOR_HAND);
 
@@ -3834,10 +3834,6 @@ void GameManager_MenuClickChatGoalButton() {
         int game_file_type;
         char file_path[PATH_MAX];
         FILE* fp;
-        int text_size;
-        const char* mission_title;
-        int mission_title_size;
-        char* text;
 
         game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
 
@@ -3847,36 +3843,41 @@ void GameManager_MenuClickChatGoalButton() {
         fp = fopen(file_path, "rt");
 
         if (fp) {
+            int text_size;
+            const char* mission_title;
+            int mission_title_size;
+            char* text;
+
             fseek(fp, 0, SEEK_END);
             text_size = ftell(fp);
+
+            if (game_file_type == GAME_TYPE_TRAINING) {
+                mission_title = SaveLoadMenu_TutorialTitles[GameManager_GameFileNumber - 1];
+
+            } else if (game_file_type == GAME_TYPE_SCENARIO) {
+                mission_title = SaveLoadMenu_ScenarioTitles[GameManager_GameFileNumber - 1];
+
+            } else {
+                mission_title = SaveLoadMenu_CampaignTitles[GameManager_GameFileNumber - 1];
+            }
+
+            mission_title_size = strlen(mission_title) + 2;
+
+            text = new (std::nothrow) char[text_size + mission_title_size + 5];
+
+            memset(text, '\0', text_size + mission_title_size + 5);
+
+            strcpy(text, mission_title);
+            strcat(text, "\n\n");
+
+            fseek(fp, 0, SEEK_SET);
+            fread(&text[mission_title_size], sizeof(char), text_size, fp);
+            fclose(fp);
+
+            MessageManager_DrawMessage(text, 0, 1);
+
+            delete[] text;
         }
-
-        if (game_file_type == GAME_TYPE_TRAINING) {
-            mission_title = SaveLoadMenu_TutorialTitles[GameManager_GameFileNumber - 1];
-
-        } else if (game_file_type == GAME_TYPE_SCENARIO) {
-            mission_title = SaveLoadMenu_ScenarioTitles[GameManager_GameFileNumber - 1];
-
-        } else {
-            mission_title = SaveLoadMenu_CampaignTitles[GameManager_GameFileNumber - 1];
-        }
-
-        mission_title_size = strlen(mission_title) + 2;
-
-        text = new (std::nothrow) char[text_size + mission_title_size + 5];
-
-        memset(text, '\0', text_size + mission_title_size + 5);
-
-        strcpy(text, mission_title);
-        strcat(text, "\n\n");
-
-        fseek(fp, 0, SEEK_SET);
-        fread(&text[mission_title_size], sizeof(char), text_size, fp);
-        fclose(fp);
-
-        MessageManager_DrawMessage(text, 0, 1);
-
-        delete[] text;
     }
 }
 
@@ -6167,12 +6168,9 @@ void GameManager_SetGridOffset(int grid_x_offset, int grid_y_offset) {
 }
 
 void GameManager_ProcessInput() {
-    CTInfo* team_info;
     WindowInfo* window;
     unsigned char window_index;
     unsigned char window_cursor;
-
-    team_info = &UnitsManager_TeamInfo[GameManager_PlayerTeam];
 
     GameManager_ProcessKey();
 
@@ -6239,7 +6237,7 @@ void GameManager_ProcessInput() {
     }
 
     if (window_index == WINDOW_MESSAGE_BOX) {
-        window_index == WINDOW_MAIN_MAP;
+        window_index = WINDOW_MAIN_MAP;
     }
 
     if (GameManager_GameState == GAME_STATE_7_SITE_SELECT && window_index != WINDOW_MAIN_MAP) {

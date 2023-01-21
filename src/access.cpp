@@ -932,7 +932,7 @@ int Access_FindUnitInUnitList(UnitInfo* unit) {
 
     result = -1;
 
-    for (int i = 0; i < sizeof(Access_UnitsLists) / sizeof(SmartList<UnitInfo>); ++i) {
+    for (int i = 0; i < sizeof(Access_UnitsLists) / sizeof(SmartList<UnitInfo>*); ++i) {
         if (Access_UnitsLists[i]->Find(*unit) != nullptr) {
             result = i;
             break;

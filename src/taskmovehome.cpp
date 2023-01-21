@@ -29,7 +29,7 @@
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
-TaskMoveHome::TaskMoveHome(UnitInfo* unit_, Task* task) : Task(unit->team, task, task->GetFlags()) { unit = unit_; }
+TaskMoveHome::TaskMoveHome(UnitInfo* unit_, Task* task) : Task(unit_->team, task, task->GetFlags()) { unit = unit_; }
 
 TaskMoveHome::~TaskMoveHome() {}
 

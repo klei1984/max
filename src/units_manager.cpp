@@ -2409,7 +2409,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
 
                 (*it).GetComplex()->GetCargoInfo(materials, capacity);
 
-                complexes.Insert(*(*it).GetComplex());
+                complexes.Insert((*it).GetComplex());
                 costs.Append(&materials.raw);
             }
 

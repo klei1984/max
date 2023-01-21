@@ -171,7 +171,7 @@ void TaskManageBuildings::MarkMiningAreas(unsigned short** construction_map) {
                     FillMap(construction_map, x - 1, y - 1, x + 1, y + 1, AREA_RESERVED);
 
                 } else {
-                    construction_map[x][y] == AREA_FREE;
+                    construction_map[x][y] = AREA_FREE;
                 }
             }
         }

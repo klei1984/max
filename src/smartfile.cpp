@@ -33,10 +33,7 @@ TextFileObject::~TextFileObject() {}
 
 SmartFileReader::SmartFileReader() : file(nullptr) {}
 
-SmartFileReader::SmartFileReader(const char* const path)
-    : file(nullptr) {
-    Open(path);
-}
+SmartFileReader::SmartFileReader(const char* const path) : file(nullptr) { Open(path); }
 
 SmartFileReader::~SmartFileReader() { Close(); }
 
@@ -65,7 +62,7 @@ void SmartFileReader::Read(void* buffer, int size) {
 }
 
 void SmartFileReader::LoadObject(TextFileObject& object) {
-    read_objects.Insert(object);
+    read_objects.Insert(&object);
 
     object.FileLoad(*this);
 }

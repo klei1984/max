@@ -44,7 +44,7 @@ public:
         delete[] smartarray;
     }
 
-    void Insert(T& object, unsigned short index = SHRT_MAX) {
+    void Insert(T* object, unsigned short index = SHRT_MAX) {
         SmartPointer<T>* array;
 
         if (count == capacity) {

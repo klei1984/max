@@ -97,7 +97,7 @@ public:
         unsigned short position;
 
         position = Find(GetSortKey(object), false);
-        SmartArray<T>::Insert(object, position);
+        SmartArray<T>::Insert(&object, position);
 
         return position;
     }

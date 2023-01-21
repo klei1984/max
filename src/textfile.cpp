@@ -702,7 +702,7 @@ SmartPointer<TextItem> SmartTextfileReader::ReadPointer(SmartString& field) {
                 SmartPointer<TextStructure> class_object = item->ReadStructure("Object");
                 if (class_object != nullptr) {
                     file_object = class_type.Allocate();
-                    read_objects.Insert(*file_object);
+                    read_objects.Insert(&*file_object);
                     file_object->TextLoad(*class_object);
                 } else {
                     FatalError("No Object structure");

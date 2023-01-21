@@ -127,7 +127,7 @@ void TaskKillUnit::FindVaildTypes() {
 
 bool TaskKillUnit::GetNewUnits() {
     TransporterMap* map;
-    bool is_found;
+    bool is_found = false;
     bool result;
 
     if (spotted_unit) {

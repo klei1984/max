@@ -4118,7 +4118,7 @@ bool AiPlayer::SelectStrategy() {
                                                       Continent(access_map.GetMap(), continents.GetCount() + 3, site));
 
                 if (continent->IsViableContinent(false, player_team)) {
-                    continents.Insert(*continent);
+                    continents.Insert(&*continent);
                 }
             }
         }

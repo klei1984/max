@@ -575,6 +575,10 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
                     current_value = materials.gold;
                     base_value = capacity.gold;
                 } break;
+
+                default: {
+                    SDL_assert(0);
+                } break;
             }
 
             cargo_value = 10;

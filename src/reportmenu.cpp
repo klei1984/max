@@ -634,21 +634,21 @@ void ReportMenu::InitMessages() {
 
         if (rows) {
             if (!skip_new_paragraph) {
-                message_lines.Insert(*new (std::nothrow) MessageLine(nullptr, SmartString()));
+                message_lines.Insert(new (std::nothrow) MessageLine(nullptr, SmartString()));
             }
 
             skip_new_paragraph = false;
 
             for (int i = 0; i < (row_limit - row_count) / 2; ++i) {
-                message_lines.Insert(*new (std::nothrow) MessageLine(&*it, SmartString()));
+                message_lines.Insert(new (std::nothrow) MessageLine(&*it, SmartString()));
             }
 
             for (int i = 0; i < row_count; ++i) {
-                message_lines.Insert(*new (std::nothrow) MessageLine(&*it, rows[i]));
+                message_lines.Insert(new (std::nothrow) MessageLine(&*it, rows[i]));
             }
 
             for (int i = ((row_limit - row_count) / 2) + row_count; i < row_limit; ++i) {
-                message_lines.Insert(*new (std::nothrow) MessageLine(&*it, SmartString()));
+                message_lines.Insert(new (std::nothrow) MessageLine(&*it, SmartString()));
             }
 
             delete[] rows;
@@ -1196,7 +1196,7 @@ void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
                 }
             }
 
-            units.Insert(*it, index);
+            units.Insert(&*it, index);
         }
     }
 }

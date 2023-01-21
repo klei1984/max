@@ -1063,7 +1063,7 @@ void TaskMove::FindCurrentLocation() {
 bool TaskMove::FindWaypoint() {
     bool result;
     int unit_speed = 0;
-    int step_cost;
+    int step_cost = 0;
     int unit_hits = passenger->hits;
     short** damage_potential_map = nullptr;
 

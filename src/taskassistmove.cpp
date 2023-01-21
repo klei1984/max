@@ -215,7 +215,7 @@ void TaskAssistMove::EndTurn() {
 }
 
 bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
-    UnitInfo* UnitInfo_object2;
+    UnitInfo* UnitInfo_object2 = nullptr;
     Point Point_object1;
     Point Point_object2;
     int distance;
@@ -233,8 +233,7 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
                 if ((*it).team == team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).unit_type != SURVEYOR) {
                     if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
                         Task_IsReadyToTakeOrders(&*it)) {
-                        if (dynamic_cast<TaskMove*>((*it).GetTask())->TaskMove_sub_4D247() ||
-                            unit.speed == 0) {
+                        if (dynamic_cast<TaskMove*>((*it).GetTask())->TaskMove_sub_4D247() || unit.speed == 0) {
                             distance = Access_GetDistance(&*it, &unit);
 
                             if (UnitInfo_object2 == nullptr || distance < minimum_distance) {

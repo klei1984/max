@@ -206,8 +206,12 @@ int UnitStats_DrawIcons(unsigned char* buffer, int screen_width, int max_width, 
                     --full_scaled;
                 }
 
+                SDL_assert(full_scaled != 1);
+
                 var_28 = (full_scaled + (var_2C - max_width) - 2) / (full_scaled - 1);
             } else {
+                SDL_assert(var_2C != 0);
+
                 var_34 = max_width / var_2C;
 
                 if (var_34 > image_normal->width) {

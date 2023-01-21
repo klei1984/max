@@ -38,7 +38,7 @@ void UnitInfoArray::Insert(UnitInfo& unit) {
         }
     }
 
-    array.Insert(unit, array.GetCount());
+    array.Insert(&unit, array.GetCount());
 }
 
 int UnitInfoArray::GetCount() const { return array.GetCount(); }

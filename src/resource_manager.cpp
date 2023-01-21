@@ -985,13 +985,13 @@ void ResourceManager_InitInGameAssets(int world) {
     unsigned char *world_file_name;
     FILE *fp;
     int progress_bar_value;
-    unsigned short map_layer_count;
+    unsigned short map_layer_count = 0;
     Point map_layer_dimensions[12];
     int map_minimap_count;
     int map_dimensions;
     int file_position;
     int file_offset;
-    unsigned short map_tile_count;
+    unsigned short map_tile_count = 0;
 
     ini_set_setting(INI_WORLD, world);
 
@@ -1121,7 +1121,7 @@ void ResourceManager_InitInGameAssets(int world) {
     {
         int data_chunk_size = map_dimensions / 4;
 
-        for (int data_offset = 0; data_offset < map_dimensions; data_offset) {
+        for (int data_offset = 0; data_offset < map_dimensions;) {
             data_chunk_size = std::min(data_chunk_size, map_dimensions - data_offset);
             if (fread(&ResourceManager_MapTileIds[data_offset], sizeof(unsigned short), data_chunk_size, fp) !=
                 data_chunk_size) {
