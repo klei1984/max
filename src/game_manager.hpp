@@ -83,7 +83,7 @@ extern bool GameManager_RenderMinimapDisplay;
 extern bool GameManager_PlayFlic;
 extern bool GameManager_MaxSurvey;
 extern bool GameManager_UnknownFlag3;
-extern bool GameManager_MainMenuFreezeState;
+extern bool GameManager_IsMainMenuEnabled;
 extern bool GameManager_WrapUpGame;
 extern Button* Gamemanager_FlicButton;
 extern unsigned char GameManager_PlayMode;

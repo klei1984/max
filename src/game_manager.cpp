@@ -483,7 +483,7 @@ bool GameManager_Progress1;
 bool GameManager_Progress2;
 bool GameManager_MaxSurvey;
 bool GameManager_UnknownFlag3;
-bool GameManager_MainMenuFreezeState;
+bool GameManager_IsMainMenuEnabled;
 bool GameManager_IsCtrlKeyPressed;
 bool GameManager_IsShiftKeyPressed;
 bool GameManager_DisplayControlsInitialized;
@@ -5152,7 +5152,7 @@ void GameManager_GuiSwitchTeam(unsigned short team) {
 }
 
 void GameManager_EnableMainMenu(UnitInfo* unit) {
-    if (!GameManager_MainMenuFreezeState && GameManager_DisplayControlsInitialized) {
+    if (!GameManager_IsMainMenuEnabled && GameManager_DisplayControlsInitialized) {
         Gamemanager_FlicButton->Enable();
 
         for (int i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
@@ -5177,19 +5177,19 @@ void GameManager_EnableMainMenu(UnitInfo* unit) {
                 }
             }
 
-            if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_PLAYER || flag) {
-                if (unit) {
+            if (UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER || flag) {
+                if (unit && unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
                     GameManager_MenuUnitSelect(unit);
                 }
-
-                GameManager_MainMenuFreezeState = true;
             }
         }
+
+        GameManager_IsMainMenuEnabled = true;
     }
 }
 
 void GameManager_DisableMainMenu() {
-    if (GameManager_MainMenuFreezeState) {
+    if (GameManager_IsMainMenuEnabled) {
         GameManager_MenuDeleteFlic();
 
         Gamemanager_FlicButton->Disable();
@@ -5200,7 +5200,7 @@ void GameManager_DisableMainMenu() {
             }
         }
 
-        GameManager_MainMenuFreezeState = false;
+        GameManager_IsMainMenuEnabled = false;
     }
 }
 
@@ -5321,7 +5321,7 @@ void GameManager_ProcessKey() {
                 return;
             }
 
-            if (GameManager_MainMenuFreezeState && !UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41) {
+            if (GameManager_IsMainMenuEnabled && !UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41) {
                 SoundManager.PlaySfx(MBUTT0);
                 GameManager_ResetRenderState();
 
@@ -5361,13 +5361,13 @@ void GameManager_ProcessKey() {
 
         case GNW_KB_KEY_KP_PLUS:
         case GNW_KB_KEY_EQUALS: {
-            if (GameManager_MainMenuFreezeState) {
+            if (GameManager_IsMainMenuEnabled) {
                 GameManager_UpdateMainMapView(0, Gfx_ZoomLevel + 1, 0, false);
             }
         } break;
 
         case GNW_KB_KEY_KP_MINUS: {
-            if (GameManager_MainMenuFreezeState) {
+            if (GameManager_IsMainMenuEnabled) {
                 GameManager_UpdateMainMapView(0, Gfx_ZoomLevel - 1, 0, false);
             }
         } break;
@@ -5396,13 +5396,13 @@ void GameManager_ProcessKey() {
 
         case GNW_KB_KEY_LALT_F:
         case 1004: {
-            if (GameManager_MainMenuFreezeState) {
+            if (GameManager_IsMainMenuEnabled) {
                 GameManager_MenuClickFileButton(true, false);
             }
         } break;
 
         case GNW_KB_KEY_LALT_L: {
-            if (GameManager_MainMenuFreezeState) {
+            if (GameManager_IsMainMenuEnabled) {
                 if (Remote_IsNetworkGame) {
                     MessageManager_DrawMessage("Unable to load a saved game while remote play in progress.", 2, 1,
                                                true);
@@ -5418,7 +5418,7 @@ void GameManager_ProcessKey() {
         } break;
 
         case GNW_KB_KEY_LALT_S: {
-            if (GameManager_MainMenuFreezeState) {
+            if (GameManager_IsMainMenuEnabled) {
                 GameManager_SaveLoadGame(true);
             }
         } break;
@@ -5431,7 +5431,7 @@ void GameManager_ProcessKey() {
         } break;
 
         case GNW_KB_KEY_F1: {
-            if ((GameManager_MainMenuFreezeState ||
+            if ((GameManager_IsMainMenuEnabled ||
                  UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) &&
                 GameManager_SpottedEnemyPosition.x != -1) {
                 GameManager_ManagePlayerAction();
@@ -5468,7 +5468,7 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_F6:
         case GNW_KB_KEY_F7:
         case GNW_KB_KEY_F8: {
-            if (GameManager_MainMenuFreezeState) {
+            if (GameManager_IsMainMenuEnabled) {
                 if (team_info->screen_location[key - GNW_KB_KEY_F5].x != -1) {
                     GameManager_UpdateMainMapView(1, team_info->screen_location[key - GNW_KB_KEY_F5].x,
                                                   team_info->screen_location[key - GNW_KB_KEY_F5].y);
@@ -7672,7 +7672,7 @@ void GameManager_MenuDeinitDisplayControls() {
         }
 
         GameManager_DisplayControlsInitialized = false;
-        GameManager_MainMenuFreezeState = false;
+        GameManager_IsMainMenuEnabled = false;
     }
 }
 

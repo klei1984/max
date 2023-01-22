@@ -4160,7 +4160,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
         SoundManager.PlaySfx(unit, SFX_TYPE_INVALID);
         GameManager_SelectedUnit = nullptr;
 
-        if (GameManager_MainMenuFreezeState) {
+        if (GameManager_IsMainMenuEnabled) {
             GameManager_MenuDeleteFlic();
             GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, 0x00, true);
             GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, true);

@@ -540,12 +540,14 @@ int OptionsMenu::ProcessKeyPress(int key) {
 
         } break;
 
-        case GNW_KB_KEY_RETURN: {
-            if (ProcessTextEditKeyPress(key)) {
-                break;
-            }
-        } /* intentional fall through */
+        case GNW_KB_KEY_RETURN:
         case 1000: {
+            if (key == GNW_KB_KEY_RETURN) {
+                if (ProcessTextEditKeyPress(key)) {
+                    break;
+                }
+            }
+
             ProcessTextEditKeyPress(GNW_KB_KEY_RETURN);
 
             for (int i = 0; i < button_count; ++i) {
@@ -610,12 +612,14 @@ int OptionsMenu::ProcessKeyPress(int key) {
 
         } break;
 
-        case GNW_KB_KEY_ESCAPE: {
-            if (ProcessTextEditKeyPress(key)) {
-                break;
-            }
-        } /* intentional fall through */
+        case GNW_KB_KEY_ESCAPE:
         case 1001: {
+            if (key == GNW_KB_KEY_ESCAPE) {
+                if (ProcessTextEditKeyPress(key)) {
+                    break;
+                }
+            }
+
             ProcessTextEditKeyPress(GNW_KB_KEY_ESCAPE);
 
             for (int i = 0; i < button_count; ++i) {
@@ -758,6 +762,9 @@ int OptionsMenu::ProcessKeyPress(int key) {
                     } break;
 
                     default: {
+                        SDL_assert(key - 1002 >= 0 &&
+                                   key - 1002 < sizeof(options_menu_buttons) / sizeof(struct OptionsButton));
+
                         options_menu_buttons[key - 1002].button->PlaySound();
                         event_release = false;
 

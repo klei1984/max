@@ -997,6 +997,8 @@ bool TaskMove::IsPathClear() {
 
             destination = point3;
 
+            SDL_assert(path->GetSteps()->GetCount() > 0);
+
             MoveUnit(&*path);
 
             result = true;
