@@ -837,19 +837,19 @@ bool TaskManageBuildings::EvaluateSite(unsigned short** construction_map, Resour
         if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {
             ++bounds.lrx;
             ++bounds.lry;
+        }
 
-            for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-                if ((*it).GetUnitType() == BRIDGE && !(*it).Task_vfunc28()) {
-                    Point point = (*it).DeterminePosition();
+        for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+            if ((*it).GetUnitType() == BRIDGE && !(*it).Task_vfunc28()) {
+                Point point = (*it).DeterminePosition();
 
-                    if (Access_IsInsideBounds(&bounds, &point)) {
-                        (*it).RemoveSelf();
-                    }
+                if (Access_IsInsideBounds(&bounds, &point)) {
+                    (*it).RemoveSelf();
                 }
             }
-
-            result = true;
         }
+
+        result = true;
 
     } else {
         result = false;

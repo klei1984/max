@@ -1394,17 +1394,17 @@ void UnitInfo::UpdateSpriteFrameBounds(Rect* bounds, int x, int y, struct ImageM
             } else {
                 scaling_factor = 1;
             }
+
+            frame_bounds.ulx = x - (frame->hotx * scaling_factor);
+            frame_bounds.uly = y - (frame->hoty * scaling_factor);
+            frame_bounds.lrx = frame->width * scaling_factor + frame_bounds.ulx - 1;
+            frame_bounds.lry = frame->height * scaling_factor + frame_bounds.uly - 1;
+
+            bounds->ulx = std::min(bounds->ulx, frame_bounds.ulx);
+            bounds->uly = std::min(bounds->uly, frame_bounds.uly);
+            bounds->lrx = std::max(bounds->lrx, frame_bounds.lrx);
+            bounds->lry = std::max(bounds->lry, frame_bounds.lry);
         }
-
-        frame_bounds.ulx = x - (frame->hotx * scaling_factor);
-        frame_bounds.uly = y - (frame->hoty * scaling_factor);
-        frame_bounds.lrx = frame->width * scaling_factor + frame_bounds.ulx - 1;
-        frame_bounds.lry = frame->height * scaling_factor + frame_bounds.uly - 1;
-
-        bounds->ulx = std::min(bounds->ulx, frame_bounds.ulx);
-        bounds->uly = std::min(bounds->uly, frame_bounds.uly);
-        bounds->lrx = std::max(bounds->lrx, frame_bounds.lrx);
-        bounds->lry = std::max(bounds->lry, frame_bounds.lry);
     }
 }
 

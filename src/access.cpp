@@ -1778,8 +1778,7 @@ UnitInfo* Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y) {
 
 void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
     Rect selection;
-    UnitInfo* parent;
-    UnitInfo* unit2;
+    UnitInfo* parent = nullptr;
     int unit_count;
     bool limit_reached;
 
@@ -1787,8 +1786,6 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
     selection.uly = (bounds->uly + 16) / 64;
     selection.lrx = (bounds->lrx - 16) / 64;
     selection.lry = (bounds->lry - 16) / 64;
-
-    parent = nullptr;
 
     if (unit) {
         if (unit->team == GameManager_PlayerTeam &&
@@ -1812,7 +1809,8 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
 
     for (int y = selection.uly; y <= selection.lry && !limit_reached; ++y) {
         for (int x = selection.ulx; x <= selection.lrx && !limit_reached; ++x) {
-            unit2 = Access_GetUnit4(x, y, GameManager_PlayerTeam, MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
+            UnitInfo* unit2 =
+                Access_GetUnit4(x, y, GameManager_PlayerTeam, MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
 
             if (unit2 && (unit2->state == ORDER_STATE_1 || unit2->state == ORDER_STATE_2)) {
                 unit2->ClearUnitList();
@@ -1844,7 +1842,7 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
             Access_UpdateMultiSelection(parent);
         }
 
-        if (parent != unit2) {
+        if (parent != unit) {
             GameManager_MenuUnitSelect(parent);
         }
     }

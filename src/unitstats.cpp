@@ -126,20 +126,16 @@ void UnitStats_DrawText(unsigned char* buffer, int screen_width, const char* lab
 
 int UnitStats_DrawIcon(unsigned char* buffer, int screen_width, struct ImageSimpleHeader* image, int original,
                        int current, int width, int height) {
-    int result;
-    int offset;
-    int reminder;
+    int offset = 0;
 
     for (int i = 0; i < original; ++i) {
-        reminder = i % 5;
+        int reminder = i % 5;
         offset = width * (i / 5) + current * reminder;
 
         UnitStats_DrawImage(&buffer[offset + screen_width * reminder * height], screen_width, image);
     }
 
-    result = image->width + offset;
-
-    return result;
+    return image->width + offset;
 }
 
 int UnitStats_DrawIcons(unsigned char* buffer, int screen_width, int max_width, ResourceID id_normal,

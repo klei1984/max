@@ -206,7 +206,7 @@ bool inline TransportUdpDefault_TransmitPacket(UDPsocket socket, UDPpacket& udp_
 }
 
 bool TransportUdpDefault::TransmitPacket(NetPacket& packet) {
-    bool result;
+    bool result = true;
     UDPpacket udp_packet;
 
     if (!packet.GetAddressCount()) {

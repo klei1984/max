@@ -534,9 +534,13 @@ bool AbstractUpgradeMenu::ProcessKey(int key) {
     if (key >= 1015 && key < 1025) {
         upgrade_controls[key - 1015]->Increase();
         DrawUnitStats(unit_type);
+        result = true;
+
     } else if (key >= 1025 && key < 1035) {
         upgrade_controls[key - 1025]->Decrease();
         DrawUnitStats(unit_type);
+        result = true;
+
     } else {
         switch (key) {
             case 1002:

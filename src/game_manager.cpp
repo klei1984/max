@@ -2152,11 +2152,12 @@ void GameManager_UpdateScoreGraph() {
 }
 
 unsigned short GameManager_EvaluateWinner() {
-    unsigned short highest_team_points_team;
-    int highest_team_points;
     int result;
 
     if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
+        unsigned short highest_team_points_team = 0;
+        int highest_team_points = 0;
+
         for (unsigned short i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
             if (UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_NONE &&
                 UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_ELIMINATED &&

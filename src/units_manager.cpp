@@ -3965,9 +3965,13 @@ bool UnitsManager_IsUnitUnderWater(UnitInfo* unit) {
     } else if (unit->unit_type == CLNTRANS) {
         if (Access_GetModifiedSurfaceType(unit->grid_x, unit->grid_y) == SURFACE_TYPE_WATER) {
             result = true;
+
         } else {
             result = false;
         }
+
+    } else {
+        result = false;
     }
 
     return result;
@@ -5674,7 +5678,6 @@ bool UnitsManager_BeginFire(UnitInfo* unit) {
 
 void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     ResourceID unit_type = unit->unit_type;
-    BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
     unsigned short unit_team = unit->team;
     unsigned int unit_flags = unit->flags;
     int unit_grid_x = unit->grid_x;

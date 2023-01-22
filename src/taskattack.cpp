@@ -545,7 +545,6 @@ UnitInfo* TaskAttack::DetermineLeader() {
 
     } else {
         Point position;
-        bool is_visible_to_team = false;
         SmartPointer<UnitInfo> candidate(leader);
         int distance;
         int minimum_distance;
@@ -554,7 +553,6 @@ UnitInfo* TaskAttack::DetermineLeader() {
 
         if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
             position = kill_unit_task->DeterminePosition();
-            is_visible_to_team = kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team);
 
         } else {
             position.x = 0;
