@@ -6907,7 +6907,7 @@ bool UnitsManager_CheckDelayedReactions(unsigned short team) {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_DelayedAttackTargets[i].Begin();
                          it != UnitsManager_DelayedAttackTargets[i].End(); ++it) {
                         if ((*it).IsVisibleToTeam(team) &&
-                            UnitsManager_IsReactionPending(&UnitsManager_DelayedAttackTargets[i], &*it)) {
+                            UnitsManager_IsReactionPending(&UnitsManager_DelayedAttackTargets[team], &*it)) {
                             return true;
                         }
                     }

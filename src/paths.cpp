@@ -755,37 +755,33 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
         if (Paths_CalculateStep(unit, cost, 2, is_diagonal_step)) {
             if ((unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
-                int surface_type;
                 int image_index;
-                int team;
 
-                surface_type = Access_GetModifiedSurfaceType(target_grid_x, target_grid_y);
+                int surface_type = Access_GetModifiedSurfaceType(target_grid_x, target_grid_y);
 
                 if (unit->unit_type == CLNTRANS) {
                     image_index = 0;
 
                     if (surface_type == SURFACE_TYPE_WATER) {
-                        for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                                 if (UnitsManager_TeamInfo[team]
                                         .heat_map_stealth_sea[target_grid_y * ResourceManager_MapSize.x +
                                                               target_grid_x]) {
+                                    image_index = 8;
                                     break;
 
                                 } else if (unit->IsDetectedByTeam(team) &&
                                            UnitsManager_TeamInfo[team]
                                                .heat_map_complete[target_grid_y * ResourceManager_MapSize.x +
                                                                   target_grid_x]) {
+                                    image_index = 8;
                                     break;
                                 }
                             }
                         }
 
                     } else {
-                        image_index = 8;
-                    }
-
-                    if (team < PLAYER_TEAM_MAX - 1) {
                         image_index = 8;
                     }
 
@@ -829,7 +825,6 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
     } else {
         if (!Access_SetUnitDestination(unit->grid_x, unit->grid_y, target_grid_x, target_grid_y, false)) {
-            /// \todo Check why this is needed.
             SmartPointer<UnitPath> path(this);
 
             if (unit->orders == ORDER_BUILD || UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_ELIMINATED ||
