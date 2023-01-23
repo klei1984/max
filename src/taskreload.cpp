@@ -41,14 +41,11 @@ unsigned char TaskReload::GetType() const { return TaskType_TaskReload; }
 
 void TaskReload::SelectOperator() {
     if (!(target_unit->flags & MOBILE_AIR_UNIT)) {
-        ResourceID unit_type;
+        ResourceID unit_type = INVALID_ID;
         ResourceID repair_shop_type;
-        UnitInfo* unit;
+        UnitInfo* unit = nullptr;
         int distance;
         int shortest_distance;
-
-        unit_type = INVALID_ID;
-        unit = nullptr;
 
         repair_shop_type = GetRepairShopType();
 
@@ -100,7 +97,7 @@ void TaskReload::SelectOperator() {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).team == team && (*it).unit_type == REPAIR && (*it).hits > 0 &&
+            if ((*it).team == team && (*it).unit_type == unit_type && (*it).hits > 0 &&
                 ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
                 if ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) {

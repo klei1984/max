@@ -305,7 +305,7 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                         if (Task_IsAdjacent(&*operator_unit, target_unit->grid_x, target_unit->grid_y)) {
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
                                 (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
-                                if (operator_unit->flags & BUILDING) {
+                                if (operator_unit->flags & STATIONARY) {
                                     target_unit->target_grid_x = operator_unit->grid_x;
                                     target_unit->target_grid_y = operator_unit->grid_y;
 
@@ -326,14 +326,16 @@ bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
                                 result = false;
                             }
 
-                        } else if (!Task_RetreatFromDanger(this, &*target_unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
-                            SmartPointer<Task> task(new (std::nothrow) TaskRendezvous(
-                                &*target_unit, &*operator_unit, this, &TaskRepair::RendezvousResultCallback));
+                        } else {
+                            if (!Task_RetreatFromDanger(this, &*target_unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
+                                SmartPointer<Task> task(new (std::nothrow) TaskRendezvous(
+                                    &*target_unit, &*operator_unit, this, &TaskRepair::RendezvousResultCallback));
 
-                            TaskManager.AppendTask(*task);
+                                TaskManager.AppendTask(*task);
+                            }
+
+                            result = true;
                         }
-
-                        result = true;
 
                     } else {
                         SmartPointer<Task> task(new (std::nothrow)

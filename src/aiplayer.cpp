@@ -732,6 +732,8 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
                 for (; i < 10; ++i) {
                     ++AiPlayer_ThreatMaps[i].id;
                 }
+
+                return result;
             }
         }
 
@@ -2785,8 +2787,6 @@ void AiPlayer::PlanMinefields() {
 
         for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
             for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
-                int surface_type = Access_GetSurfaceType(x, y);
-
                 if (access_map.GetMapColumn(x)[y]) {
                     ++counter1;
 

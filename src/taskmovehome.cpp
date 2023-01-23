@@ -158,7 +158,6 @@ bool TaskMoveHome::Task_vfunc17(UnitInfo& unit_) {
         {
             Point destination(unit->grid_x, unit->grid_y);
             Point site;
-            int surface_type = UnitsManager_BaseUnits[unit->unit_type].land_type;
             unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
             int safety;
             int maximum_safety = map1.GetMapColumn(unit->grid_x)[unit->grid_y];

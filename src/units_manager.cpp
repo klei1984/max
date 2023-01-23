@@ -5455,7 +5455,6 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
 
     int mining_station_grid_x = unit->target_grid_x;
     int mining_station_grid_y = unit->target_grid_y;
-    int unit_storage = unit->storage;
 
     UnitsManager_DestroyUnit(unit);
 
@@ -6647,7 +6646,6 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
 
                 } else if (unit2->shots > 0 && !unit1->disabled_reaction_fire) {
                     unsigned short unit1_team = unit1->team;
-                    unsigned short unit2_team = unit2->team;
                     int unit2_distance = unit2->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                     unit2_distance = unit2_distance * unit2_distance;

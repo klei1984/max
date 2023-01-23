@@ -738,7 +738,6 @@ FILE *ResourceManager_GetFileHandle(ResourceID id) {
         fp = nullptr;
     } else {
         fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
-        int data_size = ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_size;
         int data_offset =
             ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_offset;
 
@@ -1301,8 +1300,6 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
 
     ResourceManager_MapTileBuffer =
         new (std::nothrow) unsigned char[ResourceManager_MapTileCount * tile_size * tile_size];
-
-    normal_tile_buffer = ResourceManager_MapTileBuffer;
 
     for (int i = 0; i < ResourceManager_MapTileCount; i += reduced_tile_count) {
         loadbar->SetValue(i * 50 / ResourceManager_MapTileCount + 20);

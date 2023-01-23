@@ -2339,7 +2339,9 @@ void UnitInfo::Move() {
             Access_UpdateMapStatus(&*unit, false);
         }
 
-        team_visibility = visible_to_team[GameManager_PlayerTeam];
+        if (visible_to_team[GameManager_PlayerTeam]) {
+            team_visibility = true;
+        }
 
         if (team_visibility || GameManager_MaxSpy) {
             RefreshScreen();

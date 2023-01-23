@@ -244,12 +244,10 @@ unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int 
 
 bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, short* grid_x, short* grid_y, int range_limit,
                                  int mode, int direction) {
-    unsigned short team;
     UnitValues* unit_values;
     int offset_x;
     int offset_y;
 
-    team = unit->team;
     unit_values = unit->GetBaseValues();
 
     switch (direction) {
@@ -647,6 +645,12 @@ unsigned int Access_GetVelocity(UnitInfo* unit) {
             }
         }
 
+        if (unit->unit_type == COMMANDO) {
+            result = 1;
+        } else {
+            result = 2;
+        }
+
     } else {
         if (unit->flags & MOBILE_AIR_UNIT) {
             result = 16;
@@ -657,12 +661,6 @@ unsigned int Access_GetVelocity(UnitInfo* unit) {
         } else {
             result = 4;
         }
-    }
-
-    if (unit->unit_type == COMMANDO) {
-        result = 1;
-    } else {
-        result = 2;
     }
 
     return result;
@@ -1708,7 +1706,7 @@ UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int grid_x, int grid_y) {
         }
     }
 
-    return unit;
+    return result;
 }
 
 UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int grid_x, int grid_y) {

@@ -887,7 +887,6 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                         int projected_damage;
                         int attack_potential;
                         int damage_potential;
-                        int damage_total;
                         bool is_site_found;
 
                         if (!unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
@@ -926,7 +925,6 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                                     unit, site, CAUTION_LEVEL_AVOID_REACTION_FIRE, 0x01);
                             }
 
-                            damage_total = 0;
                             unit_shots = 0;
 
                             if (unit->hits < damage_potential) {
@@ -942,8 +940,6 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                                     unit_shots = unit->shots;
                                 }
                             }
-
-                            damage_total = unit_shots * attack_potential;
 
                             if (projected_damage < unit->hits && caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
                                 unit_shots =

@@ -224,7 +224,7 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
 
     if (unit.IsReadyForOrders(this)) {
         if (unit.storage < unit.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) && unit.speed > 0) {
-            TransporterMap* map = new (std::nothrow) TransporterMap(
+            TransporterMap map(
                 &unit, 1,
                 unit.unit_type == CLNTRANS ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
@@ -237,7 +237,7 @@ bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
                             distance = Access_GetDistance(&*it, &unit);
 
                             if (UnitInfo_object2 == nullptr || distance < minimum_distance) {
-                                if (TaskTransport_Search(&unit, &*it, map)) {
+                                if (TaskTransport_Search(&unit, &*it, &map)) {
                                     UnitInfo_object2 = &*it;
                                     minimum_distance = distance;
                                     Point_object1.x = (*it).grid_x;

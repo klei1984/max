@@ -475,22 +475,22 @@ bool TaskTransport::Task_vfunc17(UnitInfo& unit) {
                         if (unit_transporter->unit_type == AIRTRANS || unit_transporter->unit_type == CLNTRANS) {
                             position.x = passenger->grid_x;
                             position.y = passenger->grid_y;
+                        }
 
-                            line_distance.x = position.x - unit_transporter->grid_x;
-                            line_distance.y = position.y - unit_transporter->grid_y;
+                        line_distance.x = position.x - unit_transporter->grid_x;
+                        line_distance.y = position.y - unit_transporter->grid_y;
 
-                            if (line_distance.x * line_distance.x + line_distance.y * line_distance.y > distance) {
-                                SmartPointer<Task> move = new (std::nothrow)
-                                    TaskMove(&*unit_transporter, this, distance, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
-                                             position, &MoveFinishedCallback1);
+                        if (line_distance.x * line_distance.x + line_distance.y * line_distance.y > distance) {
+                            SmartPointer<Task> move = new (std::nothrow)
+                                TaskMove(&*unit_transporter, this, distance, CAUTION_LEVEL_AVOID_ALL_DAMAGE, position,
+                                         &MoveFinishedCallback1);
 
-                                TaskManager.AppendTask(*move);
+                            TaskManager.AppendTask(*move);
 
-                                result = true;
+                            result = true;
 
-                            } else {
-                                result = false;
-                            }
+                        } else {
+                            result = false;
                         }
 
                     } else {

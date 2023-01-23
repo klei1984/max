@@ -119,7 +119,7 @@ bool TaskSurvey::Task_vfunc17(UnitInfo& unit) {
         result = false;
     }
 
-    return false;
+    return result;
 }
 
 bool TaskSurvey::IsVisited(UnitInfo& unit, Point point) {

@@ -1319,7 +1319,6 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
 bool TaskAttack::MoveReconUnit(int caution_level) {
     Point position = kill_unit_task->DeterminePosition();
     Point site;
-    int map_size_x = ResourceManager_MapSize.x;
     bool is_visible_to_team = kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team);
     bool result;
 

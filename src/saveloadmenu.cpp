@@ -160,8 +160,6 @@ void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int 
         } break;
 
         case GAME_TYPE_MULTI_PLAYER_SCENARIO: {
-            title = SaveLoadMenu_MultiScenarioTitles[save_slot];
-
             sprintf(buffer, "%s #%i", "Scenario", save_slot + 1);
             title = buffer;
         } break;

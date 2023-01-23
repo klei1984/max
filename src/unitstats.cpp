@@ -372,8 +372,8 @@ unsigned char* UnitStats_DrawUsage(unsigned char* buffer, int screen_width, Reso
         }
 
         if (gold_usage > 0) {
-            offset += UnitStats_DrawIcons(&buffer[offset], screen_width, image_width - offset, I_GOLD, I_GOLD,
-                                          gold_usage, gold_usage);
+            UnitStats_DrawIcons(&buffer[offset], screen_width, image_width - offset, I_GOLD, I_GOLD, gold_usage,
+                                gold_usage);
         }
 
         buffer = &buffer[screen_width * 19];

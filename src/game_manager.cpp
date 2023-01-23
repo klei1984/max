@@ -896,12 +896,9 @@ void GameManager_AddDrawBounds(Rect* bounds) {
 }
 
 void GameManager_DeployUnit(unsigned short team, ResourceID unit_type, int grid_x, int grid_y) {
-    CTInfo* team_info;
     SmartPointer<UnitInfo> unit;
     unsigned int flags;
     ResourceID slab_type;
-
-    team_info = &UnitsManager_TeamInfo[team];
 
     unit = UnitsManager_DeployUnit(unit_type, team, nullptr, grid_x, grid_y, 0);
 
@@ -1115,14 +1112,11 @@ void GameManager_GetScaledMessageBoxBounds(Rect* bounds) {
 }
 
 void GameManager_Render() {
-    int time_stamp;
     bool is_message_box_active;
 
     if (ResourceManager_MapTileIds == nullptr || GameManager_DisableMapRendering) {
         return;
     }
-
-    time_stamp = timer_get_stamp32();
 
     if (GameManager_GridOffset.x || GameManager_GridOffset.y) {
         GameManager_UpdateMainMapView(2, GameManager_GridOffset.x, GameManager_GridOffset.y);
@@ -6946,7 +6940,6 @@ void GameManager_DrawInfoDisplayRowIcons(unsigned char* buffer, int full_width, 
     int width_offset;
     int height_offset;
     int buffer_offset;
-    int buffer_position;
     int base_value_scaled;
     int base_value_diff;
     int factor;
@@ -7002,9 +6995,10 @@ void GameManager_DrawInfoDisplayRowIcons(unsigned char* buffer, int full_width, 
         }
 
         ulx = (image->width + factor * 4) - offset;
-        buffer_position = 0;
 
         for (int i = 0; i < base_value; ++i) {
+            int buffer_position;
+
             icon_index = i % 5;
             buffer_position = ulx * (i / 5) + (factor * icon_index);
             uly = icon_index * height_offset;
@@ -7098,7 +7092,6 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
         int base_value;
         Cargo cargo;
 
-        current_power_need = power_need;
         current_value = 0;
         base_value = 0;
 
@@ -7160,7 +7153,6 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
         int base_value;
         Cargo cargo;
 
-        current_life_need = life_need;
         current_value = 0;
         base_value = 0;
 
@@ -7806,13 +7798,10 @@ void GameManager_ProgressBuildState(unsigned short team) {
 }
 
 void GameManager_DrawProximityZones() {
-    WindowInfo* window;
     int ini_proximity_range;
     int ini_exclude_range;
     int range;
     Rect bounds;
-
-    window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
     SmartPointer<UnitValues> base_values = GameManager_SelectedUnit->GetBaseValues();
 

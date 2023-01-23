@@ -401,15 +401,6 @@ void DrawMap_RenderWaitBulb(UnitInfo* unit) {
         ulx = ((unit->x << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx + 1 - unit_size;
         uly = ((unit->y << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly + 1 - unit_size;
 
-        if (unit->flags & BUILDING) {
-            unit_size2 = 128;
-
-        } else {
-            unit_size2 = 64;
-        }
-
-        unit_size2 = (unit_size2 << 16) / Gfx_MapScalingFactor - 2;
-
         image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(BULB));
 
         if (Gfx_ZoomLevel != 64) {
@@ -920,8 +911,6 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
         Rect dirty;
         Rect bounds;
         Rect bounds2;
-        int width;
-        int height;
         Point point;
         unsigned char** buffer;
 
@@ -946,9 +935,6 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
 
         drawmap->Init(&dirty);
 
-        width = dirty.lrx - dirty.ulx;
-        height = dirty.lry - dirty.uly;
-
         buffer = drawmap->GetBuffer();
 
         for (int i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
@@ -972,8 +958,8 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
                 bounds2.lrx = ((bounds2.lrx - 1) << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
                 bounds2.lry = ((bounds2.lry - 1) << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
 
-                width = bounds.lrx - bounds.ulx;
-                height = bounds.lry - bounds.uly;
+                int width = bounds.lrx - bounds.ulx;
+                int height = bounds.lry - bounds.uly;
 
                 bounds.ulx = ((bounds.ulx * 64) << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
                 bounds.uly = ((bounds.uly * 64) << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;

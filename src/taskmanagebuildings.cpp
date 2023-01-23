@@ -657,14 +657,11 @@ bool TaskManageBuildings::IsFavorableMiningSite(Point site) {
 bool TaskManageBuildings::IsViableMiningSite(unsigned short** construction_map, int ulx, int uly, int lrx, int lry) {
     Point site1;
     Point site2;
-    unsigned short hash_team_id;
 
     ulx = std::max(1, ulx);
     uly = std::max(1, uly);
     lrx = std::min(lrx, ResourceManager_MapSize.x - 1);
     lry = std::min(lry, ResourceManager_MapSize.y - 1);
-
-    hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
 
     for (site1.x = ulx; site1.x < lrx; ++site1.x) {
         for (site1.y = uly; site1.y < lry; ++site1.y) {

@@ -342,8 +342,6 @@ void OptionsMenu::DrawSlider(int id, int value) {
     short max;
     int ulx;
     int uly;
-    int width;
-    int height;
 
     button = &options_menu_buttons[id];
     button->image->Write(&window);
@@ -353,8 +351,6 @@ void OptionsMenu::DrawSlider(int id, int value) {
 
     ulx = button->image->GetULX() + 10;
     uly = button->image->GetULY();
-    width = button->image->GetWidth() - 20;
-    height = button->image->GetHeight();
 
     slider_slit_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIT));
 

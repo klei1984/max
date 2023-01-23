@@ -641,7 +641,7 @@ void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int heig
     radius_0_7 = (radius * 46341) / 65536;
 
     if (radius + ulx >= 0 && ulx - radius < width && radius + uly >= 0 && uly - radius < height && radius > 0) {
-        if (ulx - radius >= 0 || ulx + radius < width || uly - radius >= 0 || uly + radius < height) {
+        if (ulx - radius_0_7 >= 0 || ulx + radius_0_7 < width || uly - radius_0_7 >= 0 || uly + radius_0_7 < height) {
             gfx_buffer = new (std::nothrow) unsigned char[radius];
 
             if (gfx_buffer) {

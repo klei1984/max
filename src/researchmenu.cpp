@@ -191,6 +191,12 @@ void ResearchMenu_ApplyUpgrades(unsigned short team, unsigned char research_topi
         }
 
         if (research_topic == RESEARCH_TOPIC_COST) {
+            old_value = (((research_level + 9) / 2) + value1 * 10) / (research_level + 9);
+            new_value = (((research_level + 10) / 2) + value1 * 10) / (research_level + 10);
+
+            old_value = std::max(old_value, 1);
+            new_value = std::max(new_value, 1);
+
         } else {
             old_value = ((research_level - 1) * value1) / 10;
             new_value = (research_level * value1) / 10;

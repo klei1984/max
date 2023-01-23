@@ -114,7 +114,6 @@ void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceI
     int width_offset;
     int height_offset;
     unsigned char* buffer;
-    int buffer_position;
     int base_value_scaled;
     int base_value_diff;
     int factor;
@@ -172,9 +171,10 @@ void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceI
         }
 
         ulx = (factor * 4 + image->width) - offset;
-        buffer_position = 0;
 
         for (int i = 0; i < base_value; ++i) {
+            int buffer_position;
+
             icon_index = i % 5;
             buffer_position = ulx * (i / 5) + (factor * icon_index);
             uly = icon_index * height_offset;
@@ -354,7 +354,6 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         int base_value;
         Cargo cargo;
 
-        power_consumption_current = power_consumption_base;
         current_value = 0;
         base_value = 0;
 
@@ -414,7 +413,6 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         int base_value;
         Cargo cargo;
 
-        current_life_need = life_need;
         current_value = 0;
         base_value = 0;
 

@@ -31,24 +31,20 @@
 
 void Survey_RenderMarker(WindowInfo* window, int grid_x, int grid_y, unsigned short material_type) {
     int resource_value;
-    ColorIndex* color_table;
     ResourceID marker_big;
     ResourceID marker_small;
     struct ImageSimpleHeader* buffer;
-    bool flag;
+    bool flag = false;
 
     resource_value = std::min(material_type & CARGO_MASK, 16);
 
     if (material_type & CARGO_GOLD) {
-        color_table = ResourceManager_ColorIndexTable09;
         marker_big = GOLDMK0;
         marker_small = SMGDMK1;
     } else if (material_type & CARGO_FUEL) {
-        color_table = ResourceManager_ColorIndexTable11;
         marker_big = FUELMK0;
         marker_small = SMFLMK1;
     } else {
-        color_table = ResourceManager_ColorIndexTable10;
         marker_big = RAWMSK0;
         marker_small = SMRWMK1;
     }

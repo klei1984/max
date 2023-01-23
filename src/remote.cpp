@@ -441,16 +441,12 @@ void Remote_ResponseTimeout(unsigned short team, bool mode) {
 }
 
 void Remote_Init() {
-    WindowInfo* window;
-
-    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-
     Remote_GameState = 0;
     Remote_RngSeed = 0;
     GameManager_PlayerTeam = 0;
     Remote_FrameSyncCounter2 = 0;
     Remote_SendP1SyncFrame = true;
-    //    Remote_byte_1759C5 = 0;
+    /// \todo    Remote_byte_1759C5 = 0;
     Remote_RemotePlayerCount = 0;
     Remote_P51_Signal = false;
 
@@ -623,17 +619,13 @@ bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
 }
 
 int Remote_Lobby(bool is_host_mode) {
-    WindowInfo* window;
     int result;
     char ini_transport[30];
     int transort_type;
 
-    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-
     Remote_IsHostMode = is_host_mode;
 
-    /// \todo Implement missing stuff
-    // CTInfo_Init();
+    ResourceManager_InitTeamInfo();
     Remote_Init();
 
     if (ini_config.GetStringValue(INI_NETWORK_TRANSPORT, ini_transport, sizeof(ini_transport))) {

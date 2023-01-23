@@ -940,7 +940,7 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
             (victory_status != VICTORY_STATE_PENDING && teams_in_play == 1 && team_count > 1) || teams_in_play == 0 ||
             (human_teams_in_play == 0 && non_computer_teams_count > 0)) {
             menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
-            result = true;
+            return true;
 
         } else if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
             if (global_turn == (ini_victory_limit - 10) && non_computer_teams_count > 0) {
