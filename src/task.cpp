@@ -506,7 +506,7 @@ bool Task::Task_vfunc9() {
     return result;
 }
 
-bool Task::Task_vfunc10() { return false; }
+bool Task::IsThinking() { return false; }
 
 void Task::AddUnit(UnitInfo& unit) {}
 

@@ -120,7 +120,7 @@ char* TaskMoveHome::WriteStatusLog(char* buffer) const {
 unsigned char TaskMoveHome::GetType() const { return TaskType_TaskMoveHome; }
 
 void TaskMoveHome::Begin() {
-    unit->PushFrontTask1List(this);
+    unit->AddTask(this);
     Task_RemindMoveFinished(&*unit);
 }
 

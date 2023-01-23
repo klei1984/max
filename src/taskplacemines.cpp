@@ -95,7 +95,7 @@ bool TaskPlaceMines::Task_vfunc9() {
 
 void TaskPlaceMines::AddUnit(UnitInfo& unit) {
     units.PushBack(unit);
-    unit.PushFrontTask1List(this);
+    unit.AddTask(this);
 
     if (unit.unit_type == MINELAYR) {
         mine_layer_count = 0;

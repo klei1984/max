@@ -201,7 +201,7 @@ public:
     SmartList<Task>::Iterator GetTask1ListIterator();
     void PushBackTask2List(Task* task);
     void RemoveFromTask2List(Task* task);
-    void PushFrontTask1List(Task* task);
+    void AddTask(Task* task);
     void ClearFromTaskLists();
     void RemoveTask(Task* task, bool mode = true);
     bool IsReadyForOrders(Task* task);

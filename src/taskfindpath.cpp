@@ -60,10 +60,10 @@ char* TaskFindPath::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
 
-bool TaskFindPath::Task_vfunc10() { return path_request; }
+bool TaskFindPath::IsThinking() { return path_request; }
 
 void TaskFindPath::Begin() {
-    path_request->GetUnit1()->PushFrontTask1List(this);
+    path_request->GetUnit1()->AddTask(this);
     PathsManager_RemoveRequest(path_request->GetUnit1());
     PathsManager_PushBack(*path_request);
 }

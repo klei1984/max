@@ -65,31 +65,26 @@ AiLog::~AiLog() {
 }
 
 void AiLog::VSprintf(const char* format, va_list args) {
-    SmartString text;
-
-    text.Sprintf(200, "\n%3i: ", AiLog_SectionCount + 1);
-
-    AiLog_File << text.GetCStr();
+    AiLog_File << SmartString().Sprintf(200, "\n%3i: ", AiLog_SectionCount + 1).GetCStr();
 
     if (AiLog_SectionCount > 0) {
-        text.Sprintf(200, "%*s", AiLog_SectionCount);
-        AiLog_File << text.GetCStr();
+        AiLog_File << SmartString().Sprintf(200, "%*s", AiLog_SectionCount, "").GetCStr();
     }
 
-    text.VSprintf(200, format, args);
-
-    AiLog_File << text.GetCStr();
+    AiLog_File << SmartString().VSprintf(200, format, args).GetCStr();
     AiLog_File.flush();
 
     ++AiLog_EntryCount;
 }
 
 void AiLog::Log(const char* format, ...) {
-    va_list args;
+    if (AiLog_File.is_open()) {
+        va_list args;
 
-    va_start(args, format);
-    VSprintf(format, args);
-    va_end(args);
+        va_start(args, format);
+        VSprintf(format, args);
+        va_end(args);
+    }
 }
 
 void AiLog_Open() {

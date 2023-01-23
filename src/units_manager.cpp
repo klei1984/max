@@ -5491,7 +5491,7 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
     UnitsManager_ScaleUnit(&*power_generator, ORDER_STATE_EXPAND);
 
     if (unit_task) {
-        mining_station->PushFrontTask1List(&*unit_task);
+        mining_station->AddTask(&*unit_task);
         unit_task->AddUnit(*power_generator);
     }
 }

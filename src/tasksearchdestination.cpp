@@ -58,7 +58,7 @@ unsigned char TaskSearchDestination::GetType() const { return TaskType_TaskSearc
 void TaskSearchDestination::Begin() {
     Point position;
 
-    unit->PushFrontTask1List(this);
+    unit->AddTask(this);
     point3 = search_task->GetPoint();
     position.x = unit->grid_x;
     position.y = unit->grid_y;
@@ -276,7 +276,7 @@ void TaskSearchDestination::SearchTrySite() {
                 unit = &*it;
                 unit->ClearFromTaskLists();
                 search_task->AddUnit(*unit);
-                unit->PushFrontTask1List(this);
+                unit->AddTask(this);
                 backup->RemoveTask(this, false);
 
                 TaskManager.RemindAvailable(&*backup);

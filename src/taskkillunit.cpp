@@ -422,7 +422,7 @@ void TaskKillUnit::AddUnit(UnitInfo& unit) {
     if (spotted_unit) {
         projected_damage += GetProjectedDamage(&unit, spotted_unit->GetUnit());
 
-        unit.PushFrontTask1List(this);
+        unit.AddTask(this);
         units.PushBack(unit);
 
         unit.point.x = 0;

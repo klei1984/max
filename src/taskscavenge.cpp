@@ -47,7 +47,7 @@ bool TaskScavenge::Task_vfunc9() { return units.GetCount() == 0; }
 
 void TaskScavenge::AddUnit(UnitInfo& unit) {
     units.PushBack(unit);
-    unit.PushFrontTask1List(this);
+    unit.AddTask(this);
     Task_RemindMoveFinished(&unit);
 }
 

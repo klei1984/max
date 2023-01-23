@@ -158,7 +158,7 @@ void TaskMove::AddUnit(UnitInfo& unit) {
 
 void TaskMove::Begin() {
     Task_RemoveMovementTasks(&*passenger);
-    passenger->PushFrontTask1List(this);
+    passenger->AddTask(this);
 
     if (passenger->orders == ORDER_IDLE) {
         RemindTurnStart(true);

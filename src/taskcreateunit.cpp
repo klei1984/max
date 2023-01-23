@@ -80,7 +80,7 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
         unit = unit_;
 
         if (IsUnitStillNeeded()) {
-            unit->PushFrontTask1List(this);
+            unit->AddTask(this);
             WaitForMaterials();
         }
 
@@ -123,7 +123,7 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
 
 void TaskCreateUnit::Begin() {
     if (unit) {
-        unit->PushFrontTask1List(this);
+        unit->AddTask(this);
     }
 
     RemindTurnStart(true);
@@ -137,7 +137,7 @@ void TaskCreateUnit::BeginTurn() {
     if (op_state == CREATE_UNIT_STATE_3 && unit->state == ORDER_STATE_UNIT_READY) {
         op_state = CREATE_UNIT_STATE_4;
 
-        unit->GetParent()->PushFrontTask1List(this);
+        unit->GetParent()->AddTask(this);
 
         SmartPointer<Task> activate_task(new (std::nothrow) TaskActivate(unit->GetParent(), this, &*unit));
 

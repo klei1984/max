@@ -34,7 +34,7 @@ public:
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
-    bool Task_vfunc10();
+    bool IsThinking();
     void Begin();
     void EndTurn();
     void RemoveSelf();

@@ -107,7 +107,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
             int minimum_distance;
 
             units.PushBack(unit);
-            unit.PushFrontTask1List(this);
+            unit.AddTask(this);
 
             for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin();
                  it != TaskManager.GetTaskList().End(); ++it) {

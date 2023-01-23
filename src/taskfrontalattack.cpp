@@ -321,7 +321,7 @@ char* TaskFrontalAttack::WriteStatusLog(char* buffer) const {
 unsigned char TaskFrontalAttack::GetType() const { return TaskType_TaskFrontalAttack; }
 
 void TaskFrontalAttack::AddUnit(UnitInfo& unit) {
-    unit.PushFrontTask1List(this);
+    unit.AddTask(this);
     units1.PushBack(unit);
 }
 

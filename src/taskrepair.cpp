@@ -64,7 +64,7 @@ void TaskRepair::ChooseUnitToRepair() {
         }
 
         if (operator_unit != nullptr) {
-            operator_unit->PushFrontTask1List(this);
+            operator_unit->AddTask(this);
         }
     }
 }
@@ -235,7 +235,7 @@ Rect* TaskRepair::GetBounds(Rect* bounds) {
 unsigned char TaskRepair::GetType() const { return TaskType_TaskRepair; }
 
 void TaskRepair::Begin() {
-    target_unit->PushFrontTask1List(this);
+    target_unit->AddTask(this);
     CreateUnit();
     ChooseUnitToRepair();
     Task_RemindMoveFinished(&*target_unit);

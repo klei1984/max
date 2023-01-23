@@ -55,7 +55,7 @@ void TaskGetResource::ChooseSource() {
         }
 
         if (source) {
-            source->PushFrontTask1List(this);
+            source->AddTask(this);
         }
     }
 }
@@ -114,7 +114,7 @@ TaskGetResource::TaskGetResource(Task* task, UnitInfo& unit) : Task(unit.team, t
 TaskGetResource::~TaskGetResource() {}
 
 void TaskGetResource::Begin() {
-    requestor->PushFrontTask1List(this);
+    requestor->AddTask(this);
 
     if (!GetField7()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));

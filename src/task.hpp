@@ -147,7 +147,7 @@ public:
     virtual Rect* GetBounds(Rect* bounds);
     virtual unsigned char GetType() const = 0;
     virtual bool Task_vfunc9();
-    virtual bool Task_vfunc10();
+    virtual bool IsThinking();
     virtual void AddUnit(UnitInfo& unit);
     virtual void Begin();
     virtual void BeginTurn();

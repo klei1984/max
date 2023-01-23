@@ -189,7 +189,7 @@ void TaskAttack::AddUnit(UnitInfo& unit) {
 
     if (!recon_unit && IsReconUnitUsable(&unit)) {
         recon_unit = unit;
-        unit.PushFrontTask1List(this);
+        unit.AddTask(this);
 
         if (!GetField7()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
@@ -303,7 +303,7 @@ bool TaskAttack::Task_vfunc16(UnitInfo& unit) {
 
             recon_unit = unit;
 
-            unit.PushFrontTask1List(this);
+            unit.AddTask(this);
 
             unit.point.x = 0;
             unit.point.y = 0;
@@ -835,7 +835,7 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int safe_distance) {
             }
 
             new_recon_unit->ClearFromTaskLists();
-            new_recon_unit->PushFrontTask1List(this);
+            new_recon_unit->AddTask(this);
             recon_unit = new_recon_unit;
 
             recon_unit->point.x = 0;

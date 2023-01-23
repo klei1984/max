@@ -69,7 +69,7 @@ bool TaskRemoveRubble::Task_vfunc9() { return !unit; }
 void TaskRemoveRubble::AddUnit(UnitInfo& unit_) {
     if (!unit) {
         unit = unit_;
-        unit_.PushFrontTask1List(this);
+        unit_.AddTask(this);
         Task_RemindMoveFinished(&unit_);
     }
 }

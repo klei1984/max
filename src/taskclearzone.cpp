@@ -136,7 +136,7 @@ char* TaskClearZone::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskClearZone::GetType() const { return TaskType_TaskClearZone; }
 
-bool TaskClearZone::Task_vfunc10() { return state != CLEARZONE_STATE_WAITING && state != CLEARZONE_STATE_MOVING_UNIT; }
+bool TaskClearZone::IsThinking() { return state != CLEARZONE_STATE_WAITING && state != CLEARZONE_STATE_MOVING_UNIT; }
 
 void TaskClearZone::Begin() { RemindTurnEnd(); }
 
@@ -379,7 +379,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                     moving_unit->target_grid_x = site.x;
                     moving_unit->target_grid_y = site.y;
 
-                    moving_unit->PushFrontTask1List(this);
+                    moving_unit->AddTask(this);
 
                     Point position(site.x - moving_unit->grid_x, site.y - moving_unit->grid_y);
 

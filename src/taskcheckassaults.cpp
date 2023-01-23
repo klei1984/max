@@ -103,7 +103,7 @@ char* TaskCheckAssaults::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskCheckAssaults::GetType() const { return TaskType_TaskCheckAssaults; }
 
-bool TaskCheckAssaults::Task_vfunc10() { return false; }
+bool TaskCheckAssaults::IsThinking() { return false; }
 
 void TaskCheckAssaults::BeginTurn() { CheckAssaults(); }
 

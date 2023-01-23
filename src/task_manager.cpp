@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
 #include "inifile.hpp"
@@ -102,6 +103,9 @@ TaskManager::~TaskManager() {}
 
 bool TaskManager::IsUnitNeeded(ResourceID unit_type, unsigned short team, unsigned short flags) {
     bool result;
+
+    AiLog log("Task: should build %s?", UnitsManager_BaseUnits[unit_type].singular_name);
+
     int available_count = 0;
     int requested_count = 0;
     int turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
@@ -147,9 +151,18 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, unsigned short team, unsign
                 }
             }
 
-            if (requested_count >= available_count &&
-                (available_count <= 0 || !TaskManager_NeedToReserveRawMaterials(team))) {
-                result = true;
+            if (requested_count >= available_count) {
+                if (available_count <= 0) {
+                    result = true;
+
+                } else if (TaskManager_NeedToReserveRawMaterials(team)) {
+                    log.Log("No, existing %s have a materials shortage", UnitsManager_BaseUnits[unit_type].plural_name);
+
+                    result = false;
+
+                } else {
+                    result = true;
+                }
 
             } else {
                 result = false;
@@ -187,10 +200,26 @@ unsigned int TaskManager::CalcMemoryUsage() {
     return used_memory;
 }
 
+bool TaskManager::CheckTasksThinking(unsigned short team) {
+    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        if ((*it).GetTeam() == team && (*it).IsThinking()) {
+            char text[200];
+
+            AiLog("Task thinking: %s", (*it).WriteStatusLog(text));
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void TaskManager::CheckComputerReactions() {
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (GameManager_PlayMode != PLAY_MODE_TURN_BASED ||
             UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
+            AiLog("Checking computer reactions");
+
             for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
                 if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == (*it).GetTeam()) {
                     if ((*it).Task_vfunc19()) {
@@ -273,11 +302,10 @@ void TaskManager::CreateUnit(ResourceID unit_type, unsigned short team, Point si
 
 void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, int requested_amount, Task* task,
                                    Point site) {
-    unsigned short task_flags;
-    unsigned short task_team;
+    unsigned short task_flags = task->GetFlags();
+    unsigned short task_team = task->GetTeam();
 
-    task_flags = task->GetFlags();
-    task_team = task->GetTeam();
+    AiLog("Task: Request %s.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (Task_EstimateTurnsTillMissionEnd() >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
@@ -328,6 +356,8 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, in
 }
 
 void TaskManager::AppendTask(Task& task) {
+    AiLog("Task Manager: append task.");
+
     tasks.PushBack(task);
 
     if (task.GetType() == TaskType_TaskObtainUnits) {
@@ -350,8 +380,11 @@ bool TaskManager::ExecuteReminders() {
     bool result;
 
     if (normal_reminders.GetCount() + priority_reminders.GetCount() > 0) {
+        AiLog log("Execute reminders");
+
         if (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit) {
             SmartPointer<Reminder> reminder;
+            int reminders_executed = 0;
 
             while (normal_reminders.GetCount() + priority_reminders.GetCount() > 0) {
                 if (normal_reminders.GetCount() == 0) {
@@ -373,12 +406,18 @@ bool TaskManager::ExecuteReminders() {
                     ++reminder_counter;
                 }
 
+                ++reminders_executed;
+
                 reminder->Execute();
 
                 if (timer_get_stamp32() - Paths_LastTimeStamp >= Paths_TimeLimit) {
+                    log.Log("%i reminders executed", reminders_executed);
                     break;
                 }
             }
+
+        } else {
+            log.Log("No reminders executed, %i msecs since frame update", timer_elapsed_time_ms(Paths_LastTimeStamp));
         }
 
         result = true;
@@ -391,6 +430,8 @@ bool TaskManager::ExecuteReminders() {
 }
 
 void TaskManager::BeginTurn(unsigned short team) {
+    AiLog("Task Manager: begin turn.");
+
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() != TaskType_TaskTransport) {
             (*it).SetField6(true);
@@ -411,6 +452,8 @@ void TaskManager::BeginTurn(unsigned short team) {
 }
 
 void TaskManager::EndTurn(unsigned short team) {
+    AiLog("Task Manager: end turn.");
+
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team) {
             (*it).RemindTurnEnd();
@@ -419,6 +462,8 @@ void TaskManager::EndTurn(unsigned short team) {
 }
 
 void TaskManager::ChangeFlagsSet(unsigned short team) {
+    AiLog("Task Manager: change flags set");
+
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team) {
             (*it).SetField6(true);
@@ -439,6 +484,12 @@ void TaskManager::Clear() {
 }
 
 void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
+    char unit_name[200];
+
+    unit->GetDisplayName(unit_name);
+
+    AiLog("Task manager: make %s available.", unit_name);
+
     unit->ClearFromTaskLists();
     unit->ChangeField221(0x100, false);
 

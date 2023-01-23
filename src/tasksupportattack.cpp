@@ -166,7 +166,7 @@ bool TaskSupportAttack::Task_vfunc9() { return parent; }
 
 void TaskSupportAttack::AddUnit(UnitInfo& unit) {
     if (parent) {
-        unit.PushFrontTask1List(this);
+        unit.AddTask(this);
         units.PushBack(unit);
         unit.point.x = 0;
         unit.point.y = 0;

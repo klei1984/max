@@ -368,7 +368,7 @@ bool TaskTransport::Task_vfunc9() { return !unit_transporter && move_tasks.GetCo
 void TaskTransport::AddUnit(UnitInfo& unit) {
     if (!unit_transporter && unit.unit_type == transporter_unit_type) {
         unit_transporter = unit;
-        unit_transporter->PushFrontTask1List(this);
+        unit_transporter->AddTask(this);
         if (ChooseNewTask()) {
             Task_RemindMoveFinished(&unit, true);
         }
@@ -377,7 +377,7 @@ void TaskTransport::AddUnit(UnitInfo& unit) {
 
 void TaskTransport::Begin() {
     if (unit_transporter) {
-        unit_transporter->PushFrontTask1List(this);
+        unit_transporter->AddTask(this);
 
     } else {
         task_obtain_units = new (std::nothrow) TaskObtainUnits(this, task_move->GetPoint2());

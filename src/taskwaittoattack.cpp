@@ -40,7 +40,7 @@ char* TaskWaitToAttack::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskWaitToAttack::GetType() const { return TaskType_TaskWaitToAttack; }
 
-bool TaskWaitToAttack::Task_vfunc10() { return false; }
+bool TaskWaitToAttack::IsThinking() { return false; }
 
 void TaskWaitToAttack::Begin() {
     SmartList<Task>::Iterator it;
@@ -54,7 +54,7 @@ void TaskWaitToAttack::Begin() {
         TaskManager.RemoveTask(*this);
 
     } else {
-        attacker->PushFrontTask1List(this);
+        attacker->AddTask(this);
     }
 }
 

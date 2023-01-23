@@ -60,7 +60,7 @@ void TaskRetreat::Begin() {
         }
     }
 
-    unit_to_retreat->PushFrontTask1List(this);
+    unit_to_retreat->AddTask(this);
 
     RemindTurnEnd(true);
 }

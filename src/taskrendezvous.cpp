@@ -152,11 +152,11 @@ unsigned char TaskRendezvous::GetType() const { return TaskType_TaskRendezvous; 
 
 void TaskRendezvous::Begin() {
     if (unit1->GetBaseValues()->GetAttribute(ATTRIB_SPEED) > 0) {
-        unit1->PushFrontTask1List(this);
+        unit1->AddTask(this);
     }
 
     if (unit2->GetBaseValues()->GetAttribute(ATTRIB_SPEED) > 0) {
-        unit2->PushFrontTask1List(this);
+        unit2->AddTask(this);
     }
 
     Task_RemindMoveFinished(&*unit1);

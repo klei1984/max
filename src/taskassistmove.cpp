@@ -112,7 +112,7 @@ unsigned char TaskAssistMove::GetType() const { return TaskType_TaskAssistMove; 
 void TaskAssistMove::AddUnit(UnitInfo& unit) {
     if (unit.unit_type == AIRTRANS || unit.unit_type == SEATRANS || unit.unit_type == CLNTRANS) {
         units.PushBack(unit);
-        unit.PushFrontTask1List(this);
+        unit.AddTask(this);
         Task_RemindMoveFinished(&unit);
     }
 }

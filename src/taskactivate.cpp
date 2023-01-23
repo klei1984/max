@@ -167,7 +167,7 @@ void TaskActivate::AddUnit(UnitInfo& unit) {
 }
 
 void TaskActivate::Begin() {
-    unit_to_activate->PushFrontTask1List(this);
+    unit_to_activate->AddTask(this);
     Activate();
 }
 

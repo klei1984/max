@@ -163,7 +163,7 @@ unsigned char TaskEscort::GetType() const { return TaskType_TaskEscort; }
 void TaskEscort::AddUnit(UnitInfo& unit) {
     if (!escort && unit_type == unit.unit_type && target) {
         escort = unit;
-        escort->PushFrontTask1List(this);
+        escort->AddTask(this);
         escort->AddReminders(true);
         is_escort_requested = 0;
     }

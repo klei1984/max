@@ -503,14 +503,14 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit_) {
                op_state < CREATE_BUILDING_STATE_BUILDING) {
         op_state = CREATE_BUILDING_STATE_GETTING_MATERIALS;
         unit = unit_;
-        unit->PushFrontTask1List(this);
+        unit->AddTask(this);
         Task_RemindMoveFinished(&*unit);
     }
 }
 
 void TaskCreateBuilding::Begin() {
     if (unit) {
-        unit->PushFrontTask1List(this);
+        unit->AddTask(this);
         if (unit->state == ORDER_STATE_UNIT_READY) {
             Activate();
         }
@@ -782,7 +782,7 @@ void TaskCreateBuilding::Activate() {
         unit2 = unit->GetParent();
 
         if (unit2->GetTask() != this) {
-            unit2->PushFrontTask1List(this);
+            unit2->AddTask(this);
         }
     }
 

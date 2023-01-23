@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "builder.hpp"
 #include "buildmenu.hpp"
 #include "cursor.hpp"
@@ -1206,7 +1207,18 @@ void UnitInfo::ChangeField221(unsigned int flags, bool mode) {
 
 unsigned short UnitInfo::GetImageIndex() const { return image_index; }
 
-void UnitInfo::PushFrontTask1List(Task* task) { task_list1.PushFront(*task); }
+void UnitInfo::AddTask(Task* task) {
+    SmartPointer<Task> old_task(GetTask());
+    char text[100];
+
+    AiLog log("Adding task to %s: %s", UnitsManager_BaseUnits[unit_type].singular_name, task->WriteStatusLog(text));
+
+    task_list1.PushFront(*task);
+
+    if (old_task) {
+        log.Log("Old topmost task: %s", old_task->WriteStatusLog(text));
+    }
+}
 
 void UnitInfo::AddReminders(bool priority) {
     if (field_165) {
@@ -1330,15 +1342,15 @@ void UnitInfo::GetName(char* text) const {
 }
 
 void UnitInfo::GetDisplayName(char* text) const {
-    char name[40];
-    char mark[20];
+    char unit_name[40];
+    char unit_mark[20];
 
-    GetName(name);
-    GetVersion(mark, base_values->GetVersion());
+    GetName(unit_name);
+    GetVersion(unit_mark, base_values->GetVersion());
     strcpy(text, "Mk ");
-    strcat(text, mark);
+    strcat(text, unit_mark);
     strcat(text, " ");
-    strcat(text, name);
+    strcat(text, unit_name);
 }
 
 void UnitInfo::CalcRomanDigit(char* text, int value, const char* digit1, const char* digit2, const char* digit3) {
@@ -3927,7 +3939,7 @@ void UnitInfo::SpawnNewUnit() {
                 state = ORDER_STATE_UNIT_READY;
 
                 if (GetTask()) {
-                    new_unit->PushFrontTask1List(GetTask());
+                    new_unit->AddTask(GetTask());
                 }
             }
         }
@@ -4045,6 +4057,9 @@ SmartObjectArray<ResourceID> UnitInfo::GetBuildList() { return build_list; }
 
 void UnitInfo::RemoveTask(Task* task, bool mode) {
     SmartPointer<Task> unit_task(GetTask());
+    char text[100];
+
+    AiLog log("Removing task from %s: %s", UnitsManager_BaseUnits[unit_type].singular_name, task->WriteStatusLog(text));
 
     if (unit_task) {
         SmartPointer<Task> reference_task;
@@ -4053,9 +4068,19 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
 
         reference_task = GetTask();
 
-        if (unit_task != reference_task && task_list1.GetCount() > 0 && mode && Task_IsReadyToTakeOrders(this)) {
-            Task_RemindMoveFinished(this);
+        if (unit_task == reference_task) {
+            log.Log("No change in top task (%s)", unit_task->WriteStatusLog(text));
+
+        } else if (task_list1.GetCount() > 0) {
+            log.Log("New topmost task: %s", reference_task->WriteStatusLog(text));
+
+            if (mode && Task_IsReadyToTakeOrders(this)) {
+                Task_RemindMoveFinished(this);
+            }
         }
+
+    } else {
+        log.Log("Unit has no tasks!");
     }
 }
 

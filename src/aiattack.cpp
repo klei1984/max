@@ -1008,7 +1008,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                             }
 
                             if (unit->GetTask() != task) {
-                                unit->PushFrontTask1List(task);
+                                unit->AddTask(task);
                             }
 
                             SmartPointer<Task> move_task(

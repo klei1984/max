@@ -200,7 +200,7 @@ unsigned char TaskDefenseReserve::GetType() const { return TaskType_TaskDefenseR
 void TaskDefenseReserve::AddUnit(UnitInfo& unit) {
     for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         if (managers[i].AddUnit(&unit)) {
-            unit.PushFrontTask1List(this);
+            unit.AddTask(this);
             unit.AddReminders(false);
 
             return;
