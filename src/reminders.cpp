@@ -61,7 +61,7 @@ RemindAvailable::RemindAvailable(UnitInfo& unit) : unit(unit) {}
 RemindAvailable::~RemindAvailable() {}
 
 void RemindAvailable::Execute() {
-    if (unit->GetTask()) {
+    if (!unit->GetTask()) {
         TaskManager.FindTaskForUnit(&*unit);
     }
 }

@@ -38,6 +38,56 @@ class TaskManager TaskManager;
 
 unsigned short TaskManager_word_1731C0;
 
+static const char* const TaskManager_TaskNames[] = {"Activate",
+                                                    "AssistMove",
+                                                    "Attack",
+                                                    "AttackReserve",
+                                                    "AutoSurvey",
+                                                    "Unknown",
+                                                    "CheckAssaults",
+                                                    "ClearZone",
+                                                    "CreateUnit",
+                                                    "CreateBuilding",
+                                                    "Escort",
+                                                    "Explore",
+                                                    "DefenseAssistant",
+                                                    "DefenseReserve",
+                                                    "Dump",
+                                                    "FindMines",
+                                                    "FindPath",
+                                                    "FrontalAttack",
+                                                    "GetMaterials",
+                                                    "HabitatAssistant",
+                                                    "KillUnit",
+                                                    "ManageBuildings",
+                                                    "FrontierAssistant",
+                                                    "Move",
+                                                    "MoveHome",
+                                                    "ObtainUnits",
+                                                    "PlaceMines",
+                                                    "ConnectionAssistant",
+                                                    "RadarAssistant",
+                                                    "Unknown",
+                                                    "Unknown",
+                                                    "Unknown",
+                                                    "Unknown",
+                                                    "Reload",
+                                                    "RemoveMines",
+                                                    "RemoveRubble",
+                                                    "Rendezvous",
+                                                    "Repair",
+                                                    "Retreat",
+                                                    "SearchDestination",
+                                                    "Scavenge",
+                                                    "Unknown",
+                                                    "SupportAttack",
+                                                    "Survey",
+                                                    "Unknown",
+                                                    "Transport",
+                                                    "UpdateTerrain",
+                                                    "Upgrade",
+                                                    "WaitToAttack"};
+
 int TaskManager_GetDistance(int distance_x, int distance_y) {
     int result;
 
@@ -356,7 +406,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, in
 }
 
 void TaskManager::AppendTask(Task& task) {
-    AiLog("Task Manager: append task.");
+    AiLog("Task Manager: append task '%s'.", TaskManager_TaskNames[task.GetType()]);
 
     tasks.PushBack(task);
 

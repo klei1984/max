@@ -30,7 +30,7 @@
 #include "taskobtainunits.hpp"
 
 TaskExplore::TaskExplore(unsigned short team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x1B00, point_) {
-    memset(obtain_requests, 0, sizeof(units));
+    memset(obtain_requests, 0, sizeof(obtain_requests));
 
     obtain_requests[SCOUT] = 1;
     obtain_requests[AWAC] = Builder_IsBuildable(AWAC);

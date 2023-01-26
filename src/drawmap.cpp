@@ -813,7 +813,7 @@ void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) &&
-            (Gfx_ZoomLevel > 4 || ((*it).flags & GROUND_COVER)) && (*it).orders != ORDER_IDLE &&
+            (Gfx_ZoomLevel > 4 || !((*it).flags & GROUND_COVER)) && (*it).orders != ORDER_IDLE &&
             ((*it).flags & SELECTABLE) &&
             (!GameManager_DisplayButtonMinimapTnt || ((*it).flags & (HAS_FIRING_SPRITE | FIRES_MISSILES)))) {
             int color;

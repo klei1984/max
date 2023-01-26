@@ -337,6 +337,10 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
             }
 
             if (is_valid) {
+                attacker->target_grid_x = target->grid_x;
+                attacker->target_grid_y = target->grid_y;
+
+            } else {
                 int attack_radius = attacker->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
                 if (attack_radius >= 1 && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE &&
@@ -373,10 +377,6 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                 } else {
                     return false;
                 }
-
-            } else {
-                attacker->target_grid_x = target->grid_x;
-                attacker->target_grid_y = target->grid_y;
             }
 
             if (attacker->shots > 0 || attacker->unit_type != COMMANDO) {

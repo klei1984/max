@@ -31,10 +31,15 @@
 
 TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int radius_)
     : Task(task->GetTeam(), task, task->GetFlags()) {
+    index = 0;
+    radius = 0;
+    field_57 = 0;
+    field_59 = 0;
+    field_61 = 0;
     field_62 = 0;
     unit = unit_;
-    point1.x = unit->grid_x;
-    point1.y = unit->grid_y;
+    point1.x = unit_->grid_x;
+    point1.y = unit_->grid_y;
     search_task = dynamic_cast<TaskAbstractSearch*>(task);
     search_radius = radius_;
 
@@ -134,7 +139,7 @@ void TaskSearchDestination::SearchNextCircle() {
 
             index = 0;
             field_59 = 1;
-            field_61 = true;
+            field_61 = false;
 
             if (Search()) {
                 return;
@@ -197,7 +202,7 @@ bool TaskSearchDestination::Search() {
         if (Access_IsInsideBounds(&bounds, &points[index])) {
             field_61 = true;
 
-            if (!damage_potential_map || damage_potential_map[points[index].x][points[index].y] == 0) {
+            if (!damage_potential_map || damage_potential_map[points[index].x][points[index].y] < 1) {
                 if (sub_3DFCF(&*unit, points[index])) {
                     if (map.Search(points[index])) {
                         SearchTrySite();
