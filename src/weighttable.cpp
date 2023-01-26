@@ -55,7 +55,7 @@ WeightTable& WeightTable::operator+=(WeightTable const& other) {
     for (int i = 0; i < other.weight_table.GetCount(); ++i) {
         unit_type = other.weight_table[i]->unit_type;
 
-        for (index = 0; index < weight_table.GetCount() && unit_type != weight_table[i]->unit_type; ++index) {
+        for (index = 0; index < weight_table.GetCount() && unit_type != weight_table[index]->unit_type; ++index) {
             ;
         }
 
