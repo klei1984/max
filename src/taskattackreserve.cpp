@@ -189,6 +189,12 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 table += AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 2);
 
                 for (int i = 0; i < table.GetCount(); ++i) {
+                    if (table[i].unit_type == INVALID_ID) {
+                        table[i].weight = 0;
+
+                        continue;
+                    }
+
                     unit_type = Builder_GetBuilderType(table[i].unit_type);
 
                     if (unit_type != unit.unit_type && Builder_GetBuilderType(unit_type) != unit.unit_type) {
