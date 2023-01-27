@@ -273,6 +273,7 @@ TransferMenu::~TransferMenu() {
     delete button_cancel;
     delete button_done;
     delete button_help;
+    delete button_arrow;
 
     delete scrollbar;
 
