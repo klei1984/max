@@ -2054,15 +2054,11 @@ void GameManager_GameLoopCleanup() {
 
     GameManager_LandingSequence.ClosePanel();
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            delete[] UnitsManager_TeamInfo[team].heat_map_complete;
-            delete[] UnitsManager_TeamInfo[team].heat_map_stealth_sea;
-            delete[] UnitsManager_TeamInfo[team].heat_map_stealth_land;
-        }
-    }
-
     for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        delete[] UnitsManager_TeamInfo[team].heat_map_complete;
+        delete[] UnitsManager_TeamInfo[team].heat_map_stealth_sea;
+        delete[] UnitsManager_TeamInfo[team].heat_map_stealth_land;
+
         UnitsManager_TeamInfo[team].heat_map_complete = nullptr;
         UnitsManager_TeamInfo[team].heat_map_stealth_sea = nullptr;
         UnitsManager_TeamInfo[team].heat_map_stealth_land = nullptr;
