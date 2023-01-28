@@ -75,8 +75,6 @@ int init_vesa_mode(int mode, int width, int height, int half) {
         SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
     }
 
-    sdlRenderer = SDL_CreateSoftwareRenderer(SDL_GetWindowSurface(sdlWindow));
-
     if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE)) ==
         NULL) {
         SDL_Log("SDL_CreateRenderer failed: %s\n", SDL_GetError());

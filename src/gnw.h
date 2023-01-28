@@ -69,8 +69,6 @@ typedef struct GNW_Menu_s {
     int bcolor;
 } GNW_Menu;
 
-static_assert(sizeof(struct GNW_Menu_s) == 572, "The structure needs to be packed.");
-
 typedef struct GNW_Window_s {
     WinID id;
     unsigned int flags;

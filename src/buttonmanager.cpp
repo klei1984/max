@@ -36,7 +36,7 @@ void ButtonManager::Add(ButtonID button_id) {
         buffer = new (std::nothrow) ButtonID[slots];
 
         if (used) {
-            memcpy(buffer, buttons, used);
+            memcpy(buffer, buttons, used * sizeof(ButtonID));
             delete[] buttons;
         }
 

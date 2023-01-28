@@ -164,7 +164,7 @@ unsigned char *Button::GetUpDisabledData() const {
     if (up_disabled) {
         buffer = up_disabled->GetData();
     } else {
-        buffer = nullptr;
+        buffer = GetUpData();
     }
 
     return buffer;
@@ -176,7 +176,7 @@ unsigned char *Button::GetDownDisabledData() const {
     if (down_disabled) {
         buffer = down_disabled->GetData();
     } else {
-        buffer = nullptr;
+        buffer = GetDownData();
     }
 
     return buffer;
@@ -371,7 +371,7 @@ void Button::Enable(bool enable, bool redraw) {
             this->enable = true;
         }
     } else {
-        Disable(true);
+        Disable();
     }
 }
 

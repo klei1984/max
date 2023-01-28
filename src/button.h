@@ -39,8 +39,6 @@ typedef struct GNW_ButtonGroup_s {
     GNW_ButtonPtr list[64];
 } GNW_ButtonGroup;
 
-static_assert(sizeof(struct GNW_ButtonGroup_s) == 272, "The structure needs to be packed.");
-
 struct GNW_buttondata {
     ButtonID id;
     unsigned int flags;
@@ -69,8 +67,6 @@ struct GNW_buttondata {
     GNW_ButtonPtr prev;
     GNW_ButtonPtr next;
 };
-
-static_assert(sizeof(struct GNW_buttondata) == 116, "The structure needs to be packed.");
 
 ButtonID win_register_button(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value,
                              int p_value, int r_value, unsigned char* up, unsigned char* down, unsigned char* hover,

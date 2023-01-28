@@ -303,11 +303,11 @@ GNW_ButtonPtr button_create(WinID id, int ulx, int uly, int width, int length, i
             if (b) {
                 if (!(flags & 0x01)) {
                     if (flags & 0x02) {
-                        flags &= 0xFFFFFFFD;
+                        flags &= ~0x02;
                     }
 
                     if (flags & 0x04) {
-                        flags &= 0xFFFFFFFB;
+                        flags &= ~0x04;
                     }
                 }
 
@@ -965,7 +965,7 @@ int win_enable_button(ButtonID bid) {
 
         if (b) {
             if (b->flags & 0x08) {
-                b->flags &= 0xFFFFFFF7;
+                b->flags &= ~0x08;
                 button_draw(b, w, b->last_image, 1, NULL);
             }
 
@@ -1027,7 +1027,7 @@ int win_set_button_rest_state(ButtonID bid, int rest_down, int flags) {
             if (b->flags & 0x01) {
                 if (b->flags & 0x020000) {
                     if (!rest_down) {
-                        b->flags &= 0xFFFDFFFF;
+                        b->flags &= ~0x020000;
 
                         if (!(flags & 0x02)) {
                             button_draw(b, w, b->up, 1, NULL);

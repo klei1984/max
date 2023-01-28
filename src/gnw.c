@@ -1048,8 +1048,8 @@ void win_get_mouse_buf(unsigned char *buf) {
 void refresh_all(Rect *bound, unsigned char *buf) {
     doing_refresh_all = 1;
 
-    for (int ulx = 0; ulx < num_windows; ulx++) {
-        GNW_win_refresh(window[ulx], bound, buf);
+    for (int i = 0; i < num_windows; i++) {
+        GNW_win_refresh(window[i], bound, buf);
     }
 
     doing_refresh_all = 0;
