@@ -230,6 +230,9 @@ void TaskFrontalAttack::IssueOrders() {
                             }
 
                             return;
+
+                        } else {
+                            break;
                         }
 
                     } else {

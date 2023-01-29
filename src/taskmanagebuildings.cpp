@@ -804,7 +804,7 @@ bool TaskManageBuildings::IsSafeSite(unsigned short** construction_map, Point si
     return result;
 }
 
-bool TaskManageBuildings::EvaluateSite(unsigned short** construction_map, ResourceID unit_type, Point site) {
+bool TaskManageBuildings::EvaluateSite(unsigned short** construction_map, ResourceID unit_type, Point& site) {
     Point position;
     int site_value;
     int best_site_value;
@@ -855,7 +855,7 @@ bool TaskManageBuildings::EvaluateSite(unsigned short** construction_map, Resour
     return result;
 }
 
-bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point site,
+bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site,
                                    unsigned short task_flags) {
     unsigned short** construction_map = CreateMap();
     int unit_size = UnitsManager_BaseUnits[unit_type].flags & BUILDING ? 2 : 1;
@@ -873,7 +873,7 @@ bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* tas
     ClearBuildingAreas(construction_map, task);
     ClearPlannedBuildings(construction_map, task, unit_type, task_flags);
     LimitBlockSize(construction_map, unit_size);
-    result = EvaluateSiteValue(construction_map, site, unit_type);
+    result = EvaluateSite(construction_map, unit_type, site);
     DeleteMap(construction_map);
 
     return result;

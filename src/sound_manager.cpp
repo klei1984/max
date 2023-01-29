@@ -247,7 +247,7 @@ void CSoundManager::FreeSample(SoundSample* sample) {
                 sample->mixer_channel = SOUNDMGR_INVALID_CHANNEL;
 
             } else {
-                SDL_assert(Mix_GetChunk(sample->mixer_channel) == sample->chunk);
+                /// \todo SDL_assert(Mix_GetChunk(sample->mixer_channel) == sample->chunk);
 
                 if (sfx && sfx->chunk == sample->chunk) {
                     sfx = nullptr;

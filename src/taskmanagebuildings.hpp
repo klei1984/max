@@ -55,8 +55,8 @@ class TaskManageBuildings : public Task {
     bool IsFavorableMiningSite(Point site);
     bool IsViableMiningSite(unsigned short** construction_map, int ulx, int uly, int lrx, int lry);
     bool IsSafeSite(unsigned short** construction_map, Point site, ResourceID unit_type);
-    bool EvaluateSite(unsigned short** construction_map, ResourceID unit_type, Point site);
-    bool FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point site, unsigned short task_flags);
+    bool EvaluateSite(unsigned short** construction_map, ResourceID unit_type, Point& site);
+    bool FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, unsigned short task_flags);
     int GetUnitCount(ResourceID unit_type, unsigned short task_flags);
     bool IsSupremeTeam(unsigned short team);
     int GetHighestGreenHouseCount(unsigned short team);
