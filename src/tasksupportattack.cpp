@@ -203,7 +203,7 @@ void TaskSupportAttack::BeginTurn() {
 
 void TaskSupportAttack::EndTurn() { AddReminders(); }
 
-bool TaskSupportAttack::Task_vfunc17(UnitInfo& unit) {
+bool TaskSupportAttack::Execute(UnitInfo& unit) {
     bool result;
 
     if (parent) {

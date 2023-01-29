@@ -417,11 +417,11 @@ void TaskTransport::ChildComplete(Task* task) {
 
 void TaskTransport::EndTurn() {
     if (unit_transporter && unit_transporter->IsReadyForOrders(this)) {
-        Task_vfunc17(*unit_transporter);
+        Execute(*unit_transporter);
     }
 }
 
-bool TaskTransport::Task_vfunc17(UnitInfo& unit) {
+bool TaskTransport::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit_transporter == &unit && unit.IsReadyForOrders(this)) {

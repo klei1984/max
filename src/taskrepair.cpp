@@ -245,11 +245,11 @@ void TaskRepair::BeginTurn() { EndTurn(); }
 
 void TaskRepair::EndTurn() {
     if (target_unit != nullptr && target_unit->GetTask() == this) {
-        Task_vfunc17(*target_unit);
+        Execute(*target_unit);
     }
 }
 
-bool TaskRepair::Task_vfunc17(UnitInfo& unit) {
+bool TaskRepair::Execute(UnitInfo& unit) {
     bool result;
 
     if (target_unit == unit && target_unit->GetTask() == this) {

@@ -44,7 +44,7 @@ public:
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void Begin();
-    bool Task_vfunc17(UnitInfo& unit);
+    bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
 };

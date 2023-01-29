@@ -248,7 +248,7 @@ void TaskEscort::EndTurn() {
     }
 }
 
-bool TaskEscort::Task_vfunc17(UnitInfo& unit) {
+bool TaskEscort::Execute(UnitInfo& unit) {
     bool result;
 
     if (target) {

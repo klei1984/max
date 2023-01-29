@@ -36,7 +36,7 @@ public:
     int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
-    bool Task_vfunc17(UnitInfo& unit);
+    bool Execute(UnitInfo& unit);
     void TaskAbstractSearch_vfunc28(UnitInfo& unit);
     bool IsVisited(UnitInfo& unit, Point point);
     void ObtainUnit();

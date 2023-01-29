@@ -22,6 +22,7 @@
 #include "taskautosurvey.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "transportermap.hpp"
@@ -32,6 +33,14 @@ TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, 0x2
     central_site.x = unit_->grid_x;
     central_site.y = unit_->grid_y;
     radius = 0;
+
+    direction = 0;
+    direction2 = 0;
+
+    continue_search = false;
+    location_found = false;
+
+    current_radius = 0;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -56,11 +65,14 @@ unsigned char TaskAutoSurvey::GetType() const { return TaskType_TaskAutoSurvey; 
 
 void TaskAutoSurvey::Begin() { unit->AddTask(this); }
 
-bool TaskAutoSurvey::Task_vfunc17(UnitInfo& unit_) {
+bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit == unit_ && unit->IsReadyForOrders(this) &&
         (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) && unit->speed > 0) {
+        AiLog log("Auto survey: Move %s at [%i,%i]", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+                  unit->grid_x + 1, unit->grid_y + 1);
+
         unsigned short hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
         TransporterMap map(&*unit, 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
@@ -73,7 +85,6 @@ bool TaskAutoSurvey::Task_vfunc17(UnitInfo& unit_) {
             while (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit || loop_count < 20) {
                 ++loop_count;
 
-                /// \todo Check whether position is really uninitialized here.
                 position += Paths_8DirPointsArray[direction];
                 ++current_radius;
 
@@ -153,6 +164,8 @@ bool TaskAutoSurvey::Task_vfunc17(UnitInfo& unit_) {
                     }
                 }
             }
+
+            log.Log("Search paused, %i msecs since frame update", Paths_LastTimeStamp);
 
             result = false;
 

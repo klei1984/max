@@ -45,7 +45,7 @@ public:
     void Begin();
     void BeginTurn();
     void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
+    bool Execute(UnitInfo& unit);
     void RemoveUnit(UnitInfo& unit);
     void Task_vfunc27(Zone* zone, char mode);
 

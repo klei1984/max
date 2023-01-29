@@ -325,7 +325,7 @@ bool TaskAttack::Task_vfunc16(UnitInfo& unit) {
     return result;
 }
 
-bool TaskAttack::Task_vfunc17(UnitInfo& unit) {
+bool TaskAttack::Execute(UnitInfo& unit) {
     bool result;
 
     if (secondary_targets.GetCount() > 0) {

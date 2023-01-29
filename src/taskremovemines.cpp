@@ -45,7 +45,7 @@ char* TaskRemoveMines::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskRemoveMines::GetType() const { return TaskType_TaskRemoveMines; }
 
-bool TaskRemoveMines::Task_vfunc17(UnitInfo& unit_) {
+bool TaskRemoveMines::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit_.IsReadyForOrders(this)) {

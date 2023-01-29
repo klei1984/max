@@ -48,7 +48,7 @@ public:
     void Begin();
     void BeginTurn();
     void EndTurn();
-    bool Task_vfunc17(UnitInfo& unit);
+    bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
     void Task_vfunc23(UnitInfo& unit);

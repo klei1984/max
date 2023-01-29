@@ -173,11 +173,11 @@ void TaskActivate::Begin() {
 
 void TaskActivate::EndTurn() {
     if (unit_to_activate != nullptr) {
-        Task_vfunc17(*unit_to_activate);
+        Execute(*unit_to_activate);
     }
 }
 
-bool TaskActivate::Task_vfunc17(UnitInfo& unit) {
+bool TaskActivate::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit_to_activate != nullptr && unit_to_activate == unit) {

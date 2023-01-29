@@ -70,7 +70,7 @@ void TaskFindMines::BeginTurn() {
     TaskAbstractSearch::BeginTurn();
 }
 
-bool TaskFindMines::Task_vfunc17(UnitInfo& unit) {
+bool TaskFindMines::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.IsReadyForOrders(this) && unit.speed) {

@@ -367,7 +367,7 @@ void TaskFrontalAttack::EndTurn() {
     }
 }
 
-bool TaskFrontalAttack::Task_vfunc17(UnitInfo& unit) {
+bool TaskFrontalAttack::Execute(UnitInfo& unit) {
     IssueOrders();
 
     return true;

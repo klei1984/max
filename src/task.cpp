@@ -520,7 +520,7 @@ void Task::EndTurn() {}
 
 bool Task::Task_vfunc16(UnitInfo& unit) { return false; }
 
-bool Task::Task_vfunc17(UnitInfo& unit) { return false; }
+bool Task::Execute(UnitInfo& unit) { return false; }
 
 void Task::RemoveSelf() {
     parent = nullptr;

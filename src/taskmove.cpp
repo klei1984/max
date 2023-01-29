@@ -203,12 +203,12 @@ void TaskMove::EndTurn() {
             Finished(TASKMOVE_RESULT_SUCCESS);
 
         } else if (passenger->speed && !zone) {
-            Task_vfunc17(*passenger);
+            Execute(*passenger);
         }
     }
 }
 
-bool TaskMove::Task_vfunc17(UnitInfo& unit) {
+bool TaskMove::Execute(UnitInfo& unit) {
     bool result;
 
     if (passenger == &unit) {
@@ -816,7 +816,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
             FindTransport(transporter_unit_type);
 
             if (site == point2) {
-                Task_vfunc17(*passenger);
+                Execute(*passenger);
 
             } else {
                 ProcessPath(site, path);

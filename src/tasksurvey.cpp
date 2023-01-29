@@ -22,6 +22,7 @@
 #include "tasksurvey.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
@@ -52,47 +53,51 @@ char* TaskSurvey::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskSurvey::GetType() const { return TaskType_TaskSurvey; }
 
-bool TaskSurvey::Task_vfunc17(UnitInfo& unit) {
+bool TaskSurvey::Execute(UnitInfo& unit) {
     bool result;
 
-    if (unit.IsReadyForOrders(this) && unit.speed) {
-        bool location_found = false;
-        Point best_site;
-        Point site;
-        unsigned short hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
-        short** damage_potential_map = nullptr;
-        unsigned short cargo_at_site;
-        Rect bounds;
-        int distance;
-        int minimum_distance;
+    AiLog log("survey: move finished.");
 
-        bounds.ulx = std::max(1, unit.grid_x - 5);
-        bounds.lrx = std::min(ResourceManager_MapSize.x - 1, unit.grid_x + 6);
-        bounds.uly = std::max(1, unit.grid_y - 5);
-        bounds.lry = std::min(ResourceManager_MapSize.y - 1, unit.grid_y + 6);
+    if (unit.IsReadyForOrders(this)) {
+        if (unit.speed) {
+            bool location_found = false;
+            Point best_site;
+            Point site;
+            unsigned short hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
+            short** damage_potential_map = nullptr;
+            unsigned short cargo_at_site;
+            Rect bounds;
+            int distance;
+            int minimum_distance;
 
-        damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1);
+            bounds.ulx = std::max(1, unit.grid_x - 5);
+            bounds.lrx = std::min(ResourceManager_MapSize.x - 1, unit.grid_x + 6);
+            bounds.uly = std::max(1, unit.grid_y - 5);
+            bounds.lry = std::min(ResourceManager_MapSize.y - 1, unit.grid_y + 6);
 
-        for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
-            for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
-                cargo_at_site = ResourceManager_CargoMap[ResourceManager_MapSize.x * site.y + site.x];
+            damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1);
 
-                if ((cargo_at_site & hash_team_id) && (cargo_at_site & 0x1F)) {
-                    distance = Access_GetDistance(&unit, site);
+            for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
+                for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
+                    cargo_at_site = ResourceManager_CargoMap[ResourceManager_MapSize.x * site.y + site.x];
 
-                    if (!location_found || distance < minimum_distance) {
-                        if (damage_potential_map[site.x][site.y] == 0) {
-                            if (Access_IsAccessible(SURVEYOR, team, site.x, site.y, 1)) {
-                                for (int index_x = site.x - 1; index_x <= site.x + 1; ++index_x) {
-                                    for (int index_y = site.y - 1; index_y <= site.y + 1; ++index_y) {
-                                        cargo_at_site =
-                                            ResourceManager_CargoMap[ResourceManager_MapSize.x * index_y + index_x];
+                    if ((cargo_at_site & hash_team_id) && (cargo_at_site & 0x1F)) {
+                        distance = Access_GetDistance(&unit, site);
 
-                                        if (!(cargo_at_site & hash_team_id) &&
-                                            Access_GetSurfaceType(index_x, index_y) != SURFACE_TYPE_AIR) {
-                                            location_found = true;
-                                            best_site = site;
-                                            minimum_distance = distance;
+                        if (!location_found || distance < minimum_distance) {
+                            if (damage_potential_map[site.x][site.y] == 0) {
+                                if (Access_IsAccessible(SURVEYOR, team, site.x, site.y, 1)) {
+                                    for (int index_x = site.x - 1; index_x <= site.x + 1; ++index_x) {
+                                        for (int index_y = site.y - 1; index_y <= site.y + 1; ++index_y) {
+                                            cargo_at_site =
+                                                ResourceManager_CargoMap[ResourceManager_MapSize.x * index_y + index_x];
+
+                                            if (!(cargo_at_site & hash_team_id) &&
+                                                Access_GetSurfaceType(index_x, index_y) != SURFACE_TYPE_AIR) {
+                                                location_found = true;
+                                                best_site = site;
+                                                minimum_distance = distance;
+                                            }
                                         }
                                     }
                                 }
@@ -101,21 +106,26 @@ bool TaskSurvey::Task_vfunc17(UnitInfo& unit) {
                     }
                 }
             }
-        }
 
-        if (location_found) {
-            SmartPointer<Task> move_task = new (std::nothrow)
-                TaskMove(&unit, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE, best_site, &MoveFinishedCallback);
+            if (location_found) {
+                SmartPointer<Task> move_task = new (std::nothrow)
+                    TaskMove(&unit, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE, best_site, &MoveFinishedCallback);
 
-            TaskManager.AppendTask(*move_task);
+                TaskManager.AppendTask(*move_task);
+
+            } else {
+                FindDestination(unit, 1);
+            }
+
+            result = true;
 
         } else {
-            FindDestination(unit, 1);
+            result = false;
         }
 
-        result = true;
-
     } else {
+        log.Log("not ready for orders.");
+
         result = false;
     }
 

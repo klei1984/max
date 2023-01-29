@@ -84,7 +84,7 @@ void RemindMoveFinished::Execute() {
     Task* task = new_unit->GetTask();
 
     if (task && new_unit->hits > 0) {
-        task->Task_vfunc17(*new_unit);
+        task->Execute(*new_unit);
     }
 }
 

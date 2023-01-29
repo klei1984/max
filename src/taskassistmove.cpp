@@ -208,13 +208,13 @@ void TaskAssistMove::BeginTurn() {
 
 void TaskAssistMove::EndTurn() {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if (Task_vfunc17((*it))) {
+        if (Execute((*it))) {
             return;
         }
     }
 }
 
-bool TaskAssistMove::Task_vfunc17(UnitInfo& unit) {
+bool TaskAssistMove::Execute(UnitInfo& unit) {
     UnitInfo* UnitInfo_object2 = nullptr;
     Point Point_object1;
     Point Point_object2;

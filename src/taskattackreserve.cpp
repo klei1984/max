@@ -259,7 +259,7 @@ void TaskAttackReserve::EndTurn() {
     }
 }
 
-bool TaskAttackReserve::Task_vfunc17(UnitInfo& unit) {
+bool TaskAttackReserve::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.speed > 0 && unit.IsReadyForOrders(this)) {

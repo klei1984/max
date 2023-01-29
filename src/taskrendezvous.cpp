@@ -167,14 +167,14 @@ void TaskRendezvous::BeginTurn() { EndTurn(); }
 void TaskRendezvous::EndTurn() {
     if (unit1 != nullptr && unit2 != nullptr) {
         if (unit2->orders == ORDER_AWAIT && unit2->GetTask() == this && unit2->speed) {
-            Task_vfunc17(*unit2);
+            Execute(*unit2);
         } else if (unit1->orders == ORDER_AWAIT && unit1->GetTask() == this && unit1->speed) {
-            Task_vfunc17(*unit1);
+            Execute(*unit1);
         }
     }
 }
 
-bool TaskRendezvous::Task_vfunc17(UnitInfo& unit) {
+bool TaskRendezvous::Execute(UnitInfo& unit) {
     bool result = false;
 
     if ((GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) &&

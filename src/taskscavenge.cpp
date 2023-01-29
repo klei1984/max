@@ -85,13 +85,13 @@ void TaskScavenge::ChildComplete(Task* task) {
 
 void TaskScavenge::EndTurn() {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if (Task_vfunc17(*it)) {
+        if (Execute(*it)) {
             break;
         }
     }
 }
 
-bool TaskScavenge::Task_vfunc17(UnitInfo& unit) {
+bool TaskScavenge::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.IsReadyForOrders(this)) {

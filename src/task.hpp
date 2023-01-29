@@ -154,7 +154,7 @@ public:
     virtual void ChildComplete(Task* task);
     virtual void EndTurn();
     virtual bool Task_vfunc16(UnitInfo& unit);
-    virtual bool Task_vfunc17(UnitInfo& unit);
+    virtual bool Execute(UnitInfo& unit);
     virtual void RemoveSelf();
     virtual bool Task_vfunc19();
     virtual void Task_vfunc20(UnitInfo& unit);

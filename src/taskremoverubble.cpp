@@ -82,11 +82,11 @@ void TaskRemoveRubble::Begin() {
 
 void TaskRemoveRubble::EndTurn() {
     if (target && unit) {
-        Task_vfunc17(*unit);
+        Execute(*unit);
     }
 }
 
-bool TaskRemoveRubble::Task_vfunc17(UnitInfo& unit_) {
+bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit_.IsReadyForOrders(this)) {

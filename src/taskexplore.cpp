@@ -22,12 +22,14 @@
 #include "taskexplore.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
 #include "inifile.hpp"
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
 #include "taskobtainunits.hpp"
+#include "units_manager.hpp"
 
 TaskExplore::TaskExplore(unsigned short team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x1B00, point_) {
     memset(obtain_requests, 0, sizeof(obtain_requests));
@@ -46,11 +48,15 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
     if (obtain_requests[unit.unit_type]) {
         int unit_count = 0;
 
+        AiLog log("Can explore task use %s?", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             if ((*it).unit_type == unit.unit_type) {
                 ++unit_count;
             }
         }
+
+        log.Log("Task has %i %s", unit_count, UnitsManager_BaseUnits[unit.unit_type].plural_name);
 
         if (unit.unit_type == SCOUT || unit.unit_type == FASTBOAT) {
             result = unit_count < 3;
@@ -76,10 +82,12 @@ char* TaskExplore::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskExplore::GetType() const { return TaskType_TaskExplore; }
 
-bool TaskExplore::Task_vfunc17(UnitInfo& unit) {
+bool TaskExplore::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.IsReadyForOrders(this) && unit.speed) {
+        AiLog("Exlore: Move Finished");
+
         FindDestination(unit, unit.GetBaseValues()->GetAttribute(ATTRIB_SCAN));
 
         result = true;

@@ -141,13 +141,13 @@ void TaskPlaceMines::BeginTurn() {
 
 void TaskPlaceMines::EndTurn() {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if (Task_vfunc17(*it)) {
+        if (Execute(*it)) {
             return;
         }
     }
 }
 
-bool TaskPlaceMines::Task_vfunc17(UnitInfo& unit) {
+bool TaskPlaceMines::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.speed > 0 && unit.IsReadyForOrders(this)) {

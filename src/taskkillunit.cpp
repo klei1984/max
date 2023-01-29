@@ -465,7 +465,7 @@ void TaskKillUnit::EndTurn() {
     }
 }
 
-bool TaskKillUnit::Task_vfunc17(UnitInfo& unit) {
+bool TaskKillUnit::Execute(UnitInfo& unit) {
     bool result;
 
     if (spotted_unit) {

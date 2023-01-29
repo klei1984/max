@@ -178,7 +178,7 @@ void TaskClearZone::EndTurn() {
     }
 }
 
-bool TaskClearZone::Task_vfunc17(UnitInfo& unit) {
+bool TaskClearZone::Execute(UnitInfo& unit) {
     if (moving_unit == unit) {
         EndTurn();
     }

@@ -132,7 +132,7 @@ void TaskMoveHome::EndTurn() {
     }
 }
 
-bool TaskMoveHome::Task_vfunc17(UnitInfo& unit_) {
+bool TaskMoveHome::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit == unit_ && unit->IsReadyForOrders(this) && unit->speed > 0) {

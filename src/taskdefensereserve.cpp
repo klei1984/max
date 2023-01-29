@@ -316,7 +316,7 @@ void TaskDefenseReserve::EndTurn() {
     TaskManager.AppendTask(*obtain_units_task);
 }
 
-bool TaskDefenseReserve::Task_vfunc17(UnitInfo& unit) {
+bool TaskDefenseReserve::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.speed > 0 && unit.IsReadyForOrders(this)) {

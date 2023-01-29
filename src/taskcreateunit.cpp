@@ -162,7 +162,7 @@ void TaskCreateUnit::EndTurn() {
     }
 }
 
-bool TaskCreateUnit::Task_vfunc17(UnitInfo& unit_) {
+bool TaskCreateUnit::Execute(UnitInfo& unit_) {
     if (op_state != CREATE_UNIT_STATE_5 && unit_.unit_type == unit_type) {
         AddUnit(unit_);
     }

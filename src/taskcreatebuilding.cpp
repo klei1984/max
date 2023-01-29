@@ -552,7 +552,7 @@ void TaskCreateBuilding::EndTurn() {
 
             case CREATE_BUILDING_STATE_MOVING_TO_SITE: {
                 if (!BuildRoad() && unit->orders == ORDER_AWAIT && unit->GetTask() == this) {
-                    Task_vfunc17(*unit);
+                    Execute(*unit);
                 }
             } break;
 
@@ -580,7 +580,7 @@ void TaskCreateBuilding::EndTurn() {
             } break;
 
             default: {
-                Task_vfunc17(*unit);
+                Execute(*unit);
             } break;
         }
 
@@ -619,7 +619,7 @@ bool TaskCreateBuilding::Task_vfunc16(UnitInfo& unit_) {
     return result;
 }
 
-bool TaskCreateBuilding::Task_vfunc17(UnitInfo& unit_) {
+bool TaskCreateBuilding::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit == unit_ && unit_.IsReadyForOrders(this)) {
@@ -709,7 +709,7 @@ bool TaskCreateBuilding::Task_vfunc17(UnitInfo& unit_) {
                         } else {
                             op_state = CREATE_BUILDING_STATE_MOVING_TO_SITE;
 
-                            Task_vfunc17(unit_);
+                            Execute(unit_);
 
                             result = true;
                         }

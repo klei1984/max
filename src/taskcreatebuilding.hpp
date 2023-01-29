@@ -73,7 +73,7 @@ public:
     void ChildComplete(Task* task);
     void EndTurn();
     bool Task_vfunc16(UnitInfo& unit);
-    bool Task_vfunc17(UnitInfo& unit);
+    bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
     void Task_vfunc27(Zone* zone, char mode);
