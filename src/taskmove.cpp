@@ -250,7 +250,7 @@ bool TaskMove::Task_vfunc17(UnitInfo& unit) {
                                 } else {
                                     PathRequest* request = new (std::nothrow) TaskPathRequest(&*passenger, 2, point1);
 
-                                    request->SetMaxCost(passenger->speed * 4);
+                                    request->SetMaxCost(passenger->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 4);
                                     request->SetCautionLevel(caution_level);
                                     request->SetOptimizeFlag(caution_level > CAUTION_LEVEL_NONE);
 
@@ -563,7 +563,7 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
         } else {
             PathRequest* request = new (std::nothrow) TaskPathRequest(&*move->passenger, 1, move->point1);
 
-            request->SetMaxCost(move->passenger->speed * 4);
+            request->SetMaxCost(move->passenger->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 4);
             request->SetCautionLevel(move->caution_level);
 
             SmartPointer<Task> find_path(

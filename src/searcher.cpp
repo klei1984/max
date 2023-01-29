@@ -529,6 +529,10 @@ SmartPointer<GroundPath> Searcher::DeterminePath(Point point, int max_cost) {
                     ground_path->AddStep(points[steps_count]->x, points[steps_count]->y);
                 }
 
+                if (ground_path->GetSteps()->GetCount()) {
+                    ground_path = nullptr;
+                }
+
                 return ground_path;
 
             } else {
