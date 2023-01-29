@@ -764,7 +764,7 @@ void GameManager_GameLoop(int game_state) {
                     MessageManager_DrawMessage("Waiting for computer to finish turn.", 0, 0);
                 }
 
-                while (GameManager_GameState == GAME_STATE_9_END_TURN && GameManager_AreTeamsFinishedTurn()) {
+                while (GameManager_GameState == GAME_STATE_9_END_TURN && !GameManager_AreTeamsFinishedTurn()) {
                     GameManager_ProgressTurn();
                 }
             }
