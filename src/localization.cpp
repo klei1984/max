@@ -22,6 +22,7 @@
 #include "localization.hpp"
 
 #include <filesystem>
+#include <iostream>
 #include <memory>
 
 #include "ini.hpp"
@@ -261,6 +262,8 @@ const char* Localization::GetText(const char* key) {
         Localization_Locale = std::make_unique<Localization>(Localization());
 
         if (!Localization_Locale->Load()) {
+            std::ios_base::Init init;  /// required to initialize standard streams in time
+            std::cerr << "\nThe localization file configured in max.ini is not found!\n\n";
             std::exit(1);
         }
     }
