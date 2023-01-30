@@ -179,6 +179,8 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
             bounds.uly = std::max(1, unit->grid_y - 5);
             bounds.lry = std::min(ResourceManager_MapSize.y - 1, unit->grid_y + 6);
 
+            location_found = false;
+
             for (position.x = bounds.ulx; position.x < bounds.lrx; ++position.x) {
                 for (position.y = bounds.uly; position.y < bounds.lry; ++position.y) {
                     unsigned short cargo_at_site =

@@ -14,6 +14,12 @@ body:
       - MacOS
   validations:
     required: true
+- type: checkboxes
+  attributes:
+    label: Source of bug?
+    options:
+    - label: Original M.A.X. v1.04
+    - label: M.A.X. Port
 - type: input
   attributes:
     label: M.A.X. Port Version
@@ -22,25 +28,30 @@ body:
     placeholder: M.A.X. Port vx.y.z Revision ...
   validations:
     required: true
-- type: checkboxes
+- type: input
   attributes:
-    label: Source of bug?
-    options:
-    - label: Original M.A.X. v1.04
-    - label: M.A.X. Port
+    label: M.A.X. and DOS or DOSBox Versions
+    description: |
+      The version of M.A.X. and the DOS system or emulator environment in case the issue is related to original M.A.X. v1.04.
+    placeholder: M.A.X. v1.04 DOS/32A (German). DOSBox 0.74-3-4: amd64 ...
 - type: textarea
   attributes:
     label: What is the issue you encountered?
     description: |
       Describe the issue in detail. If possible include a step by step guide to recreate your issue. If it is not obvious please also tell us, what did you expect to happen?
+    placeholder: |
+      - Start the executable.
+      - Select New Game / Custom Game
+      - Game Options: Simultaneous game, aliens enabled, score limit 1000.
+      - ...
   validations:
     required: true
 - type: textarea
   attributes:
     label: Anything to add?
     description: |
-      Additional information about your environment, log files, crash reports from the OS, etc.
+      Additional information about your environment, log files, crash reports from the OS, saved game file, etc.
       
-      Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+      Tip: You can attach images, log or saved game files by clicking this area to highlight it and then dragging files in.
   validations:
     required: false
