@@ -92,17 +92,20 @@ Button::Button(ResourceID up, ResourceID down, int ulx, int uly)
 Button::~Button() {
     if (bid) {
         if (wid) {
-            Image image = Image(ulx, uly, width, height);
+            if (GNW_win_init_flag) {
+                Image image = Image(ulx, uly, width, height);
 
-            WindowInfo window;
+                WindowInfo window;
 
-            window.id = wid;
-            window.buffer = win_get_buf(wid);
-            window.width = win_width(wid);
+                window.id = wid;
+                window.buffer = win_get_buf(wid);
+                window.width = win_width(wid);
 
-            image.Copy(&window);
-            win_delete_button(bid);
-            image.Write(&window);
+                image.Copy(&window);
+                win_delete_button(bid);
+                image.Write(&window);
+            }
+
         } else {
             win_delete_button(bid);
         }
