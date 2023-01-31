@@ -266,6 +266,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
     WindowInfo *window;
     unsigned char game_file_type;
     char filepath[PATH_MAX];
+    char file_name[20];
     FILE *fp;
     unsigned short version;
     ImageSimpleHeader *image_up;
@@ -297,9 +298,12 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
                     SaveLoadMenu_SaveFileTypes[save_file_type]);
         }
 
+        strcpy(file_name, slots[i].file_name);
+        ResourceManager_ToUpperCase(file_name);
+
         game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
         strcpy(filepath, ResourceManager_FilePathGameInstall);
-        strcat(filepath, slots[i].file_name);
+        strcat(filepath, file_name);
         fp = fopen(filepath, "rb");
 
         if (fp) {
