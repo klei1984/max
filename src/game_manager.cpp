@@ -3991,6 +3991,7 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
         save_type = SaveLoadMenu_GetGameFileType();
 
         sprintf(file_name, "save%i.%s", SaveLoadMenu_SaveSlot, SaveLoadMenu_SaveFileTypes[save_type]);
+        ResourceManager_ToUpperCase(file_name);
 
         SaveLoadMenu_GetSavedGameInfo(SaveLoadMenu_SaveSlot, save_type, save_file_header, false);
 

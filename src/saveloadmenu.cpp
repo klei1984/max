@@ -230,6 +230,7 @@ int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct Save
     bool result;
 
     sprintf(filename, "save%i.%s", save_slot, SaveLoadMenu_SaveFileTypes[game_file_type]);
+    ResourceManager_ToUpperCase(filename);
     filepath[0] = '\0';
 
     if (game_file_type == GAME_TYPE_CUSTOM || game_file_type == GAME_TYPE_HOT_SEAT ||
@@ -738,6 +739,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     unsigned short game_state;
 
     strcpy(file_path, ResourceManager_FilePathGameInstall);
+    ResourceManager_ToUpperCase(const_cast<char *>(file_name));
     strcat(file_path, file_name);
 
     if (file.Open(file_path)) {
@@ -907,6 +909,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
     file_path[0] = '\0';
 
     sprintf(file_name, "save%i.%s", save_slot, SaveLoadMenu_SaveFileTypes[game_file_type]);
+    ResourceManager_ToUpperCase(file_name);
 
     if (game_file_type != GAME_TYPE_TRAINING && game_file_type != GAME_TYPE_CAMPAIGN &&
         game_file_type != GAME_TYPE_SCENARIO && game_file_type != GAME_TYPE_MULTI_PLAYER_SCENARIO &&

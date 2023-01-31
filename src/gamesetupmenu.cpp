@@ -21,6 +21,8 @@
 
 #include "gamesetupmenu.hpp"
 
+#include <filesystem>
+
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -321,9 +323,8 @@ void GameSetupMenu::DrawMissionList() {
 }
 
 void GameSetupMenu::LoadMissionDescription() {
-    char file_name[100];
-    FILE* fp;
     SmartString string;
+    FILE* fp;
     int width;
     int height;
 
@@ -340,9 +341,14 @@ void GameSetupMenu::LoadMissionDescription() {
         }
     }
 
-    sprintf(file_name, "%sdescr%i.%s", ResourceManager_FilePathText, game_file_number,
-            SaveLoadMenu_SaveFileTypes[game_file_type]);
-    fp = fopen(file_name, "rt");
+    std::string file_name =
+        "descr" + std::to_string(game_file_number) + "." + SaveLoadMenu_SaveFileTypes[game_file_type];
+
+    ResourceManager_ToUpperCase(file_name);
+
+    auto filepath = std::filesystem::path(ResourceManager_FilePathText) / file_name;
+
+    fp = fopen(file_name.c_str(), "rt");
 
     if (fp) {
         char character;

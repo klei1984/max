@@ -1546,6 +1546,9 @@ int play_attract_demo(int save_slot) {
     int result;
 
     sprintf(filename, "save%i.%s", save_slot, save_file_extensions[0]);
+
+    ResourceManager_ToUpperCase(filename);
+
     fp = fopen(filename, "rb");
 
     if (fp) {

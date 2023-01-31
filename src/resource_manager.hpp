@@ -23,12 +23,11 @@
 #define RESOURCE_MANAGER_HPP
 
 #include <cstdio>
+#include <string>
 
 #include "enums.hpp"
 #include "gnw.h"
 #include "point.hpp"
-
-extern "C" {
 
 #define RESOURCE_MANAGER_MAP_TILE_SIZE 64
 
@@ -117,12 +116,12 @@ const char *ResourceManager_GetResourceID(ResourceID id);
 void ResourceManager_Realloc(ResourceID id, unsigned char *buffer, int data_size);
 FILE *ResourceManager_GetFileHandle(ResourceID id);
 void ResourceManager_InitInGameAssets(int world);
-char *ResourceManager_ToUpperCase(char *cstr);
+const char *ResourceManager_ToUpperCase(char *cstr);
+const char *ResourceManager_ToUpperCase(std::string &string);
 void ResourceManager_FreeResources();
 void ResourceManager_InitClanUnitValues(unsigned short team);
 void ResourceManager_InitHeatMaps(unsigned short team);
 void ResourceManager_InitTeamInfo();
 unsigned char *ResourceManager_GetBuffer(ResourceID id);
-}
 
 #endif /* RESOURCE_MANAGER_HPP */

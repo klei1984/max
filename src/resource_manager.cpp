@@ -939,12 +939,18 @@ int ResourceManager_BuildResourceTable(const char *file_path) {
     return result;
 }
 
-char *ResourceManager_ToUpperCase(char *cstr) {
+const char *ResourceManager_ToUpperCase(char *cstr) {
     for (char *cstring = cstr; *cstring; ++cstring) {
         *cstring = toupper(*cstring);
     }
 
     return cstr;
+}
+
+const char *ResourceManager_ToUpperCase(std::string &string) {
+    for (auto &c : string) c = toupper(c);
+
+    return string.c_str();
 }
 
 ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bool full_scan) {
@@ -1028,6 +1034,8 @@ void ResourceManager_InitInGameAssets(int world) {
     world = SNOW_1 + world;
 
     world_file_name = ResourceManager_ReadResource(static_cast<ResourceID>(world));
+
+    ResourceManager_ToUpperCase(reinterpret_cast<char *>(world_file_name));
 
     if (!world_file_name) {
         ResourceManager_ExitGame(EXIT_CODE_RES_FILE_NOT_FOUND);
