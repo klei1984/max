@@ -717,7 +717,7 @@ int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer
 
         fseek(fp, data_offset, SEEK_SET);
 
-        if (!fread(buffer, 777, 1, fp)) {
+        if (!fread(buffer, sizeof(struct ImageBigHeader), 1, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
 

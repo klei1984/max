@@ -101,7 +101,7 @@ void Cursor_Init() {
             reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(Cursor_ResourceLut[cursor_index]));
         Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
 
-        cursor->data = sprite->data;
+        cursor->data = &sprite->transparent_color;
 
         if (sprite) {
             cursor->bounds.ulx = sprite->width;

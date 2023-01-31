@@ -33,7 +33,7 @@ Image::Image(short ulx, short uly, short width, short height)
       uly(uly),
       width(width),
       height(height),
-      data(new (std::nothrow) unsigned char[width * height]),
+      data(new(std::nothrow) unsigned char[width * height]),
       allocated(true) {}
 
 Image::Image(ResourceID id, short ulx, short uly) {
@@ -57,7 +57,7 @@ Image::Image(ResourceID id, short ulx, short uly) {
     width = sprite->width;
     height = sprite->height;
 
-    data = sprite->data;
+    data = &sprite->transparent_color;
 
     allocated = false;
 }

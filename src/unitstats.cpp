@@ -62,16 +62,14 @@ static void UnitStats_DrawCost(unsigned char* buffer, int screen_width, Resource
                                ResourceID id_normal, ResourceID id_empty, int image_width);
 
 void UnitStats_DrawImage(unsigned char* buffer, int window_width, struct ImageSimpleHeader* image) {
-    unsigned char transparent_pixel;
-    int offset;
-
-    transparent_pixel = image->data[0];
-    offset = 0;
+    const unsigned char transparent_pixel = image->transparent_color;
+    unsigned char* image_data = &image->transparent_color;
+    int offset = 0;
 
     for (int i = 0; i < image->height; ++i) {
         for (int j = 0; j < image->width; ++j) {
-            if (transparent_pixel != image->data[j + i * image->width]) {
-                buffer[offset + j + i * image->width] = image->data[j + i * image->width];
+            if (transparent_pixel != image_data[j + i * image->width]) {
+                buffer[offset + j + i * image->width] = image_data[j + i * image->width];
             }
         }
 

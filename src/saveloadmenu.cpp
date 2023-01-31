@@ -206,7 +206,7 @@ void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int uly, ResourceID
 
     buffer_position = image_header->uly * uly + image_header->ulx;
 
-    buf_to_buf(image_header->data, image_header->width, image_header->height, image_header->width,
+    buf_to_buf(&image_header->transparent_color, image_header->width, image_header->height, image_header->width,
                &image[buffer_position], uly);
 
     buffer_position += ((image_header->height - text_height()) / 2) * uly;
@@ -353,8 +353,8 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         slots[i].image_up = new (std::nothrow) unsigned char[image_up_size];
         slots[i].image_down = new (std::nothrow) unsigned char[image_down_size];
 
-        memcpy(slots[i].image_up, image_up->data, image_up_size);
-        memcpy(slots[i].image_down, image_down->data, image_down_size);
+        memcpy(slots[i].image_up, &image_up->transparent_color, image_up_size);
+        memcpy(slots[i].image_down, &image_down->transparent_color, image_down_size);
 
         text_font(GNW_TEXT_FONT_1);
 

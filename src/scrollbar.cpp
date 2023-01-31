@@ -34,14 +34,10 @@ EventScrollbarChange::EventScrollbarChange(Scrollbar* scrollbar, short value) : 
 unsigned short EventScrollbarChange::GetEventId() const { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
 
 void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
-    struct ImageSimpleHeader* sprite;
-    char transparent_color;
-    unsigned char* data;
-
-    sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
-
-    data = &sprite->data[sprite->width - height];
-    transparent_color = sprite->data[0];
+    struct ImageSimpleHeader* sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
+    unsigned char* sprite_data = &sprite->transparent_color;
+    unsigned char* data = &sprite_data[sprite->width - height];
+    const unsigned char transparent_color = sprite->transparent_color;
 
     for (int i = 0; i < capacity; ++i) {
         for (int j = 0; j < height; ++j) {
@@ -57,40 +53,36 @@ void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short
 
 void LoadHorizontalTape(unsigned char* buffer, short full2, short length, short width, ResourceID id) {
     if (width > 0) {
-        struct ImageSimpleHeader* sprite;
+        struct ImageSimpleHeader* sprite =
+            reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
+        unsigned char* sprite_data = &sprite->transparent_color;
 
-        sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
-
-        buf_to_buf(sprite->data, width, length, sprite->width, buffer, full2);
+        buf_to_buf(sprite_data, width, length, sprite->width, buffer, full2);
     }
 }
 
 void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
-    struct ImageSimpleHeader* sprite;
-    char transparent_color;
-    unsigned char* data;
-    int offset;
-
     if (capacity > 0) {
-        sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
+        struct ImageSimpleHeader* sprite =
+            reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
+        unsigned char* sprite_data = &sprite->transparent_color;
+        const unsigned char transparent_color = sprite->transparent_color;
+
+        buffer = &buffer[(height - sprite->width) / 2];
 
         if (capacity > sprite->height) {
             capacity = sprite->height;
         }
 
-        data = sprite->data;
-        buffer = &buffer[(height - sprite->width) / 2];
-        transparent_color = sprite->data[0];
-
         for (int i = 0; i < capacity; ++i) {
             for (int j = 0; j < sprite->width; ++j) {
-                if (data[j] != transparent_color) {
-                    buffer[j] = data[j];
+                if (sprite_data[j] != transparent_color) {
+                    buffer[j] = sprite_data[j];
                 }
             }
 
             buffer = &buffer[width];
-            data = &data[sprite->width];
+            sprite_data = &sprite_data[sprite->width];
         }
     }
 }

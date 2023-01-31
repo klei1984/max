@@ -77,7 +77,8 @@ UnitTypeSelector::UnitTypeSelector(Window* window, WindowInfo* window_info, Smar
     image->ulx = 0;
     image->uly = 0;
 
-    buf_to_buf(this->window_info.buffer, width, height, this->window_info.width, image->data, image->width);
+    buf_to_buf(this->window_info.buffer, width, height, this->window_info.width, &image->transparent_color,
+               image->width);
 }
 
 UnitTypeSelector::~UnitTypeSelector() { free(image); }
@@ -263,7 +264,8 @@ void UnitTypeSelector::Draw() {
 
     width = window_info.window.lrx - window_info.window.ulx;
 
-    buf_to_buf(image->data, image->width, image->height, image->width, window_info.buffer, window_info.width);
+    buf_to_buf(&image->transparent_color, image->width, image->height, image->width, window_info.buffer,
+               window_info.width);
     text_font(GNW_TEXT_FONT_5);
 
     for (int i = 0; i < max_item_count && i + page_min_index < unit_types.GetCount(); ++i) {

@@ -171,7 +171,7 @@ BuildUnitTypeSelector::BuildUnitTypeSelector(Window *window, WindowInfo *window_
     image->width = width;
     image->height = width;
 
-    buf_to_buf(window_info->buffer, width, height, window_info->width, image->data, width);
+    buf_to_buf(window_info->buffer, width, height, window_info->width, &image->transparent_color, width);
 }
 
 BuildUnitTypeSelector::~BuildUnitTypeSelector() { delete[] sprite; }
@@ -187,7 +187,8 @@ void BuildUnitTypeSelector::Draw() {
 
     UnitTypeSelector::Draw();
 
-    buf_to_buf(image->data, image->width, image->height, image->width, &window_info.buffer[115], window_info.width);
+    buf_to_buf(&image->transparent_color, image->width, image->height, image->width, &window_info.buffer[115],
+               window_info.width);
 
     text_font(GNW_TEXT_FONT_5);
 

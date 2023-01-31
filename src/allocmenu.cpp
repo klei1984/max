@@ -207,7 +207,9 @@ void CargoBarData::Draw() {
     rect_width = rect.lrx - rect.ulx;
     rect_height = rect.lry - rect.uly;
 
-    buf_to_buf(&image->data[image->width * (rect.uly - 70)], rect_width, rect_height, image->width, address, width);
+    unsigned char *image_data = &image->transparent_color;
+
+    buf_to_buf(&image_data[image->width * (rect.uly - 70)], rect_width, rect_height, image->width, address, width);
 
     if (cargo_3) {
         offset_y = (cargo_1 * rect_width) / cargo_3;
@@ -571,8 +573,8 @@ bool AllocMenu::Init(UnitInfo *unit) {
         image->ulx = 0;
         image->uly = 0;
 
-        buf_to_buf(&window.buffer[full_width * 70 + 174], image->width, image->height, full_width, image->data,
-                   image->width);
+        buf_to_buf(&window.buffer[full_width * 70 + 174], image->width, image->height, full_width,
+                   &image->transparent_color, image->width);
 
         for (int i = 0; i < std::size(allocation_menu_titles); ++i) {
             Text_TextBox(window.buffer, full_width, allocation_menu_titles[i].title,

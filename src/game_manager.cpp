@@ -2280,7 +2280,7 @@ void GameManager_DrawDisplayPanel(int control_id, char* text, int color, int ulx
         image = reinterpret_cast<struct ImageSimpleHeader*>(
             ResourceManager_LoadResource(GameManager_MenuDisplayControls[control_id].resource_id));
 
-        buf_to_buf(image->data, image->width, image->height, image->width,
+        buf_to_buf(&image->transparent_color, image->width, image->height, image->width,
                    GameManager_MenuDisplayControls[control_id].image->GetData(), image->width);
 
         text_font(GNW_TEXT_FONT_5);
@@ -7462,7 +7462,7 @@ void GameManager_MenuInitButtons(bool mode) {
             ResourceManager_LoadResource(static_cast<ResourceID>(R_ENDT_D + i)));
 
         wininfo.id = window->id;
-        wininfo.buffer = image->data;
+        wininfo.buffer = &image->transparent_color;
         wininfo.window.ulx = 0;
         wininfo.window.uly = 0;
         wininfo.window.lrx = image->width;

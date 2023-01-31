@@ -32,22 +32,26 @@ extern "C" {
 
 #define RESOURCE_MANAGER_MAP_TILE_SIZE 64
 
-struct ImageSimpleHeader {
+struct __attribute__((packed)) ImageSimpleHeader {
     short width;
     short height;
     short ulx;
     short uly;
-    unsigned char data[];
+    unsigned char transparent_color;
 };
 
-struct ImageBigHeader {
+static_assert(sizeof(struct ImageSimpleHeader) == 9, "The structure needs to be packed.");
+
+struct __attribute__((packed)) ImageBigHeader {
     short ulx;
     short uly;
     short width;
     short height;
     Color palette[3 * PALETTE_SIZE];
-    unsigned char data[];
+    unsigned char transparent_color;
 };
+
+static_assert(sizeof(struct ImageBigHeader) == 777, "The structure needs to be packed.");
 
 struct ImageMultiFrameHeader {
     short width;

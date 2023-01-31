@@ -628,15 +628,15 @@ int OptionsMenu::ProcessKeyPress(int key) {
                 if (last_value != options_menu_buttons[i].rest_state) {
                     switch (ini_param_index) {
                         case INI_MUSIC_LEVEL: {
-                            SetVolume(AUDIO_TYPE_MUSIC, last_value, i);
+                            SetVolume(i, AUDIO_TYPE_MUSIC, last_value);
                         } break;
 
                         case INI_FX_SOUND_LEVEL: {
-                            SetVolume(AUDIO_TYPE_SFX2, last_value, i);
+                            SetVolume(i, AUDIO_TYPE_SFX2, last_value);
                         } break;
 
                         case INI_VOICE_LEVEL: {
-                            SetVolume(AUDIO_TYPE_VOICE, last_value, i);
+                            SetVolume(i, AUDIO_TYPE_VOICE, last_value);
 
                         } break;
                         case INI_DISABLE_MUSIC: {

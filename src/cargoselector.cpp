@@ -67,7 +67,8 @@ void CargoSelector::Draw() {
 
     width = window_info.window.lrx - window_info.window.ulx;
 
-    buf_to_buf(image->data, image->width, image->height, image->width, window_info.buffer, window_info.width);
+    buf_to_buf(&image->transparent_color, image->width, image->height, image->width, window_info.buffer,
+               window_info.width);
 
     for (int i = 0; i < max_item_count && (page_min_index + i) < unit_types.GetCount(); ++i) {
         ResourceID unit_type;

@@ -195,7 +195,7 @@ void WindowManager_DecodeImage(struct ImageBigHeader *image, unsigned char *buff
     image_height = image->height;
 
     buffer_position = width + ulx * height;
-    image_data = image->data;
+    image_data = &image->transparent_color;
 
     process_bk();
 
@@ -292,7 +292,7 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
         uly -= image->uly;
 
         buffer = &w->buffer[ulx + uly * w->width];
-        image_data = image->data;
+        image_data = &image->transparent_color;
 
         if (ulx < 0) {
             image_data -= ulx;
@@ -308,7 +308,7 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
             if (uly >= 0) {
                 if (has_transparency) {
                     for (int j = 0; j < length; j++) {
-                        if (image_data[j] != image->data[0]) {
+                        if (image_data[j] != image->transparent_color) {
                             buffer[j] = image_data[j];
                         }
                     }
@@ -338,6 +338,8 @@ struct ImageSimpleHeader *WindowManager_RescaleImage(struct ImageSimpleHeader *i
     int scaling_factor_height;
     struct ImageSimpleHeader *scaled_image;
     unsigned char *buffer;
+    unsigned char *image_data;
+    unsigned char *scaled_image_data;
 
     width = image->width;
     height = image->height;
@@ -356,11 +358,14 @@ struct ImageSimpleHeader *WindowManager_RescaleImage(struct ImageSimpleHeader *i
     scaling_factor_width = ((width - 1) << 16) / (scaled_width - 1) + 8;
     scaling_factor_height = ((height - 1) << 16) / (scaled_height - 1) + 8;
 
+    image_data = &image->transparent_color;
+    scaled_image_data = &scaled_image->transparent_color;
+
     for (int i = 0; i < scaled_height; ++i) {
-        buffer = &image->data[((i * scaling_factor_height) >> 16) * width];
+        buffer = &image_data[((i * scaling_factor_height) >> 16) * width];
 
         for (int j = 0; j < scaled_width; ++j) {
-            scaled_image->data[j + i * scaled_width] = buffer[(j * scaling_factor_width) >> 16];
+            scaled_image_data[j + i * scaled_width] = buffer[(j * scaling_factor_width) >> 16];
         }
     }
 
