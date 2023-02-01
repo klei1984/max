@@ -201,11 +201,15 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                         table[i].weight = 0;
                     }
 
-                    if (builders_needed &&
-                        (UnitsManager_BaseUnits[table[i].unit_type].flags &
-                         (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
-                        unit_types[Builder_GetBuilderType(table[i].unit_type)] > 0) {
-                        table[i].weight = 0;
+                    if (builders_needed) {
+                        ResourceID builder = Builder_GetBuilderType(table[i].unit_type);
+
+                        if (builder != INVALID_ID &&
+                            (UnitsManager_BaseUnits[table[i].unit_type].flags &
+                             (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
+                            unit_types[builder] > 0) {
+                            table[i].weight = 0;
+                        }
                     }
                 }
 
