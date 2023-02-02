@@ -60,4 +60,17 @@ class PrinterSmartString:
 
     def to_string(self):
         return self.val['object_pointer'].dereference()
+
+class PlotMatrix:
+    """example: py PlotMatrix("this.map", (112,112)).plot()"""
+    def __init__(self, name, dimensions):
+        self.val = gdb.parse_and_eval(name)
+        self.dim = dimensions
+
+    def plot(self):
+        with open("map.txt", "wt") as f:
+            for y in range(self.dim[0]):
+                for x in range(self.dim[1]):
+                    f.write(f"{int(self.val[x][y])}")
+                f.write("\n")
 end

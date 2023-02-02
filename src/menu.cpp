@@ -1036,6 +1036,8 @@ int Menu_LoadPlanetMinimap(int planet_index, unsigned char* buffer, int width) {
 
     filename = reinterpret_cast<char*>(ResourceManager_ReadResource(static_cast<ResourceID>(SNOW_1 + planet_index)));
 
+    ResourceManager_ToUpperCase(filename);
+
     if (filename) {
         FILE* fp;
 
@@ -1105,6 +1107,9 @@ void menu_draw_campaign_mission_briefing_screen() {
     Text_TypeWriter_CharacterTimeMs = 10;
 
     filename.Sprintf(30, "intro%i.cam", GameManager_GameFileNumber);
+
+    filename.Toupper();
+
     filepath += filename;
 
     fp = fopen(filepath.GetCStr(), "rt");
@@ -1986,7 +1991,7 @@ int menu_choose_player_menu_loop(bool game_type) {
 
     choose_player_menu.Deinit();
 
-    for (int i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         int team_type;
         char buffer[30];
 

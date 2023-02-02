@@ -40,7 +40,7 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
 
     start_gold = ini_get_setting(INI_START_GOLD) + ini_clans.GetClanGold(UnitsManager_TeamInfo[team].team_clan);
 
-    UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades = 0;
+    UnitsManager_TeamInfo[this->team].stats_gold_spent_on_upgrades = 0;
     interface_icon_full = I_GOLD;
     interface_icon_empty = I_GOLDE;
 
@@ -242,8 +242,8 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
     {
         SmartObjectArray<ResourceID> types;
 
-        active_selector = new (std::nothrow)
-            PurchaseTypeSelector(this, &wininfo1, types, team, 2000, button_scroll_up, button_scroll_down, 128, 15);
+        active_selector = new (std::nothrow) PurchaseTypeSelector(this, &wininfo1, types, this->team, 2000,
+                                                                  button_scroll_up, button_scroll_down, 128, 15);
     }
 
     type_selector = active_selector;

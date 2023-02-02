@@ -54,8 +54,8 @@ bool Continent::IsViableSite(bool test_proximity, unsigned short team, Point sit
             }
         }
 
-        for (int i = point.x; i < point.x + 4; ++i) {
-            for (int j = point.y; j < point.y + 4; ++j) {
+        for (int i = site.x; i < site.x + 4; ++i) {
+            for (int j = site.y; j < site.y + 4; ++j) {
                 if (map[i][j] != filler) {
                     return false;
                 }

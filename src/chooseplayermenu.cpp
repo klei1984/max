@@ -261,7 +261,7 @@ void ChoosePlayerMenu::EventDone() {
     human_player_count = 0;
     computer_player_count = 0;
 
-    for (int i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
+    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         int team_type;
 
         team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
