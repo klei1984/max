@@ -1508,8 +1508,14 @@ void ResourceManager_InitTeamInfo() {
         memset(UnitsManager_TeamInfo[i].score_graph, 0, sizeof(UnitsManager_TeamInfo[i].score_graph));
         memset(UnitsManager_TeamInfo[i].casualties, 0, sizeof(UnitsManager_TeamInfo[i].casualties));
 
-        UnitsManager_TeamInfo[i].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
-        UnitsManager_TeamInfo[i].team_clan = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i));
+        if (i < PLAYER_TEAM_MAX - 1) {
+            UnitsManager_TeamInfo[i].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
+            UnitsManager_TeamInfo[i].team_clan = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i));
+
+        } else {
+            UnitsManager_TeamInfo[i].team_type = TEAM_TYPE_NONE;
+            UnitsManager_TeamInfo[i].team_clan = TEAM_CLAN_RANDOM;
+        }
     }
 
     ResourceManager_TeamUnitsRed.ClearComplexes();
