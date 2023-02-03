@@ -86,9 +86,9 @@ ProductionManager::ProductionManager(unsigned short team, Complex* complex) {
             }
 
             if ((*it).unit_type == MININGST && ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_NEW_ALLOCATE)) {
-                cargo_mining_capacity.raw = std::min(static_cast<int>((*it).raw_mining_max), 16);
-                cargo_mining_capacity.fuel = std::min(static_cast<int>((*it).fuel_mining_max), 16);
-                cargo_mining_capacity.gold = std::min(static_cast<int>((*it).gold_mining_max), 16);
+                cargo_mining_capacity.raw += std::min(static_cast<int>((*it).raw_mining_max), 16);
+                cargo_mining_capacity.fuel += std::min(static_cast<int>((*it).fuel_mining_max), 16);
+                cargo_mining_capacity.gold += std::min(static_cast<int>((*it).gold_mining_max), 16);
 
                 total_resource_mining_capacity = std::min(
                     static_cast<int>((*it).raw_mining_max + (*it).fuel_mining_max + (*it).gold_mining_max), 16);
@@ -260,7 +260,7 @@ void ProductionManager::ComposeIndustryMessage(UnitInfo* unit, const char* forma
                 strcpy(buffer, "Adjustments made:\n");
             }
 
-            sprintf(text, format2, UnitsManager_BaseUnits[unit->unit_type].singular_name, material);
+            sprintf(text, format2, material, UnitsManager_BaseUnits[unit->unit_type].singular_name);
         }
 
         strcat(buffer, text);

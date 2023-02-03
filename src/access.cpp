@@ -1662,7 +1662,7 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int grid_x, int grid_y, bool mo
 
         if (result) {
             if ((result->unit_type == LRGTAPE || result->unit_type == SMLTAPE)) {
-                result = unit->GetParent();
+                result = result->GetParent();
 
             } else if (normal_unit && (result->flags & GROUND_COVER)) {
                 result = nullptr;

@@ -424,10 +424,10 @@ int WinLoss_GetTotalUnitsBeingConstructed(unsigned short team, ResourceID unit_t
     result = 0;
 
     if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
-        units = &UnitsManager_StationaryUnits;
+        units = &UnitsManager_MobileLandSeaUnits;
 
     } else {
-        units = &UnitsManager_MobileLandSeaUnits;
+        units = &UnitsManager_StationaryUnits;
     }
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
