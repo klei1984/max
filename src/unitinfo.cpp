@@ -2359,7 +2359,7 @@ void UnitInfo::Move() {
             RefreshScreen();
         }
 
-        if (unit_type == COMMANDO && unit_type == INFANTRY) {
+        if (unit_type == COMMANDO || unit_type == INFANTRY) {
             if (image_index + 8 > image_index_max) {
                 DrawSpriteFrame(image_base + angle);
 
@@ -4869,7 +4869,7 @@ void UnitInfo::ShakeSabotage() {
 
     shake_effect_state &= 0x0F;
 
-    if (flags & BUILDING) {
+    if (!(flags & BUILDING)) {
         int offset_x = Paths_8DirPointsArrayX[shake_effect_state / 2];
         int offset_y = Paths_8DirPointsArrayY[shake_effect_state / 2];
 

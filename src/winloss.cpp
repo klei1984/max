@@ -232,8 +232,8 @@ bool WinLoss_CheckLossConditions(unsigned short team) {
 
     } else if (WinLoss_HasAttackPower(team, &UnitsManager_MobileLandSeaUnits) ||
                WinLoss_HasAttackPower(team, &UnitsManager_MobileAirUnits) ||
-               WinLoss_HasAttackPower(team, &UnitsManager_StationaryUnits) ||
-               WinLoss_CanRebuildComplex(team || WinLoss_CanRebuildBuilders(team))) {
+               WinLoss_HasAttackPower(team, &UnitsManager_StationaryUnits) || WinLoss_CanRebuildComplex(team) ||
+               WinLoss_CanRebuildBuilders(team)) {
         result = true;
 
     } else {

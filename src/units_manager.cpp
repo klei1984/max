@@ -6434,7 +6434,7 @@ void UnitsManager_CaptureUnit(UnitInfo* unit) {
 
 void UnitsManager_DisableUnit(UnitInfo* unit) {
     SmartPointer<UnitInfo> parent(unit->GetParent());
-    unsigned short unit_team = parent->team;
+    unsigned short unit_team = unit->team;
     bool is_found = false;
     int turns_disabled;
 
