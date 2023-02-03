@@ -1139,7 +1139,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_le
 
                                 if (Access_IsInsideBounds(&bounds, &position) &&
                                     damage_potential_map[position.x][position.y] < unit_hits &&
-                                    (!is_there_time_to_prepare ||
+                                    (!is_there_time_to_prepare || !heat_map ||
                                      heat_map[ResourceManager_MapSize.x * position.y + position.x] == 0)) {
                                     distance =
                                         (TaskManager_GetDistance(position, site) / 2) +
