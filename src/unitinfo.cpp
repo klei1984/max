@@ -3668,7 +3668,7 @@ bool UnitInfo::AttemptSideStep(int grid_x, int grid_y, int angle) {
 
     if (orders == ORDER_AWAIT || orders == ORDER_SENTRY || orders == ORDER_MOVE) {
         if (speed > 0 || UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-            if (this->grid_x == grid_x && this->grid_y == grid_y) {
+            if (this->grid_x != grid_x || this->grid_y != grid_y) {
                 int backup_grid_x = this->grid_x;
                 int backup_grid_y = this->grid_y;
 
@@ -3714,8 +3714,8 @@ bool UnitInfo::AttemptSideStep(int grid_x, int grid_y, int angle) {
                             }
 
                             if (step_cost) {
-                                if ((step_cost > speed * 4 + move_fraction) &&
-                                    UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+                                if ((step_cost <= speed * 4 + move_fraction) ||
+                                    UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
                                     best_angle = unit_angle;
                                     best_cost = step_cost;
                                     best_site = position;
@@ -3742,7 +3742,7 @@ bool UnitInfo::AttemptSideStep(int grid_x, int grid_y, int angle) {
 
                     SmartPointer<GroundPath> ground_path(new (std::nothrow) GroundPath(best_site.x, best_site.y));
 
-                    ground_path->AddStep(best_site.x - grid_x, best_site.y - grid_y);
+                    ground_path->AddStep(best_site.x - this->grid_x, best_site.y - this->grid_y);
 
                     path = &*ground_path;
 

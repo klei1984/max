@@ -245,8 +245,8 @@ void AbstractUpgradeMenu::AddUpgradeMilitary(ResourceID unit_type) {
         }
 
         if (base_unitvalues->GetAttribute(ATTRIB_AMMO)) {
-            AddUpgrade(UPGRADE_CONTROL_4, base_unitvalues->GetAttribute(ATTRIB_RANGE),
-                       base_attribs->GetAttribute(ATTRIB_RANGE), actual_attribs->GetAttributeAddress(ATTRIB_RANGE), 0);
+            AddUpgrade(UPGRADE_CONTROL_4, base_unitvalues->GetAttribute(ATTRIB_AMMO),
+                       base_attribs->GetAttribute(ATTRIB_AMMO), actual_attribs->GetAttributeAddress(ATTRIB_AMMO), 0);
         }
     }
 }

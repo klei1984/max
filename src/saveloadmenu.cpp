@@ -737,16 +737,16 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
 
 void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_voice) {
     SmartFileWriter file;
-    char file_path[PATH_MAX];
+    SmartString filepath;
+    SmartString filename(file_name);
     char team_types[PLAYER_TEAM_MAX - 1];
     struct SaveFormatHeader file_header;
     unsigned short game_state;
 
-    strcpy(file_path, ResourceManager_FilePathGameInstall);
-    ResourceManager_ToUpperCase(const_cast<char *>(file_name));
-    strcat(file_path, file_name);
+    filepath = ResourceManager_FilePathGameInstall;
+    filepath += filename.Toupper();
 
-    if (file.Open(file_path)) {
+    if (file.Open(filepath.GetCStr())) {
         GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
     }
 

@@ -23,7 +23,7 @@
 
 #include "sound_manager.hpp"
 
-int UpgradeControl_Factors[UPGRADE_CONTROL_COUNT] = {0, 4, 4, 8, 2, 2, 2, 8, 4, 16};
+int UpgradeControl_Factors[UPGRADE_CONTROL_COUNT] = {4, 4, 8, 2, 2, 2, 8, 4, 16};
 
 UpgradeControl::UpgradeControl(WinID window_id, int ulx, int uly, int button_right_r_value, int button_left_r_value,
                                unsigned short *team_gold)
