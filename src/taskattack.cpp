@@ -1827,8 +1827,10 @@ bool TaskAttack::IsDefenderDangerous(SpottedUnit* spotted_unit) {
         unit_range = unit_range * unit_range;
 
         for (SmartList<TaskKillUnit>::Iterator it = primary_targets.Begin(); it != primary_targets.End(); ++it) {
-            if (Access_GetDistance((*it).GetUnitSpotted(), position) <= unit_range) {
-                return true;
+            if ((*it).GetUnitSpotted()) {
+                if (Access_GetDistance((*it).GetUnitSpotted(), position) <= unit_range) {
+                    return true;
+                }
             }
         }
 
