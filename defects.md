@@ -476,3 +476,5 @@ The proposed defect fix will not instantiate a ground path if the determinted pa
 130. In multiplayer games cheaters are supposed to be punished by the game. But enabled cheats are not reset between game sessions. If a cheater starts the game, loads a single player mission, enables a cheat code to see enemy armies, then quits the single player mission and enters a multiplayer game the cheat code is still active without receiving any punishment for the ill gotten advantages. This can be used as an exploit in multiplayer games.
 
 131. The UnitInfo class member `image_index_max` of MK I Infiltrator 6 in training mission 12 (MD5 hash: bfca7a73ad7d2c927b4110f16803d417 \*SAVE12.TRA) is initialized to 0xFFFF or -1 at file offset 0xFD7B. Due to this the walk animation of the infiltrator unit does not work.
+
+132. **[Fixed]** There is a typo in the description of the Mine Layer land unit. "They cannot remove enemy minefields - those most be exploded with gunfire and rockets." -> must be.
