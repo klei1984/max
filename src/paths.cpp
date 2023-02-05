@@ -239,10 +239,10 @@ void AirPath::Path_vfunc8(UnitInfo* unit) {
             }
 
             if (delta_y > 0) {
-                y_end = (unit->x + 32) / 64;
+                y_end = (unit->y + 32) / 64;
 
             } else {
-                y_end = (unit->x) / 64;
+                y_end = (unit->y) / 64;
             }
 
             pixel_x_start = unit->x;

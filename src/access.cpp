@@ -738,9 +738,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                     (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER ||
                      UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) &&
                     unit->orders != ORDER_AWAIT && ini_get_setting(INI_ENEMY_HALT)) {
-                    unsigned int velocity_type;
-
-                    velocity_type = Access_GetVelocity(unit);
+                    unsigned int velocity_type = Access_GetVelocity(unit);
 
                     if (unit->GetUnitList()) {
                         for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
@@ -753,9 +751,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                         if (unit->GetUnitList()) {
                             for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
                                  it != unit->GetUnitList()->End(); ++it) {
-                                UnitEventEmergencyStop* unit_event;
-
-                                unit_event = new (std::nothrow) UnitEventEmergencyStop(&*it);
+                                UnitEventEmergencyStop* unit_event = new (std::nothrow) UnitEventEmergencyStop(&*it);
 
                                 UnitEvent_UnitEvents.PushBack(*unit_event);
 
@@ -765,9 +761,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                             }
 
                         } else {
-                            UnitEventEmergencyStop* unit_event;
-
-                            unit_event = new (std::nothrow) UnitEventEmergencyStop(unit);
+                            UnitEventEmergencyStop* unit_event = new (std::nothrow) UnitEventEmergencyStop(unit);
 
                             UnitEvent_UnitEvents.PushBack(*unit_event);
 

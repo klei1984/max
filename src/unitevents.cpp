@@ -32,7 +32,7 @@ UnitEventEmergencyStop::UnitEventEmergencyStop(UnitInfo* unit) : UnitEvent(unit)
 UnitEventEmergencyStop::~UnitEventEmergencyStop() {}
 
 void UnitEventEmergencyStop::Process() {
-    if (unit->hits) {
+    if (unit->hits > 0) {
         unit->TakePathStep();
     }
 }
