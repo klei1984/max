@@ -449,6 +449,7 @@ bool AiPlayer::IsDemoMode() {
     for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER ||
             UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
+            return false;
         }
     }
 

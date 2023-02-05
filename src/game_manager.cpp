@@ -2233,8 +2233,8 @@ void GameManager_DrawTurnTimer(int turn_time, bool mode) {
         if (GameManager_IsTurnTimerActive && GameManager_PlayerTeam == GameManager_ActiveTurnTeam) {
             if (turn_time == 20 && ini_get_setting(INI_TIMER) > 20) {
                 SoundManager.PlayVoice(V_M272, V_F273);
-            } else if (!UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn && ini_get_setting(INI_TIMER) > 20 &&
-                       Remote_UpdatePauseTimer) {
+            } else if (!UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn &&
+                       ini_get_setting(INI_TIMER) > 20 && Remote_UpdatePauseTimer) {
                 SoundManager.PlayVoice(V_M275, V_F275);
             }
 
@@ -2544,7 +2544,8 @@ void GameManager_UpdateGui(unsigned short team, int game_state, bool enable_auto
 bool GameManager_AreTeamsFinishedTurn() {
     for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
-            UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED && !UnitsManager_TeamInfo[team].finished_turn) {
+            UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED &&
+            !UnitsManager_TeamInfo[team].finished_turn) {
             return false;
         }
     }
@@ -7636,7 +7637,7 @@ void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
         GameManager_DrawDisabledUnitStatusMessage(unit);
     }
 
-    if (ini_get_setting(INI_GAME_FILE_TYPE)) {
+    if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING) {
         MessageManager_DrawMessage(UnitsManager_BaseUnits[unit->unit_type].tutorial, 0, 0);
     }
 
