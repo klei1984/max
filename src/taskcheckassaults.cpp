@@ -32,12 +32,12 @@ TaskCheckAssaults::TaskCheckAssaults(unsigned short team) : Task(team, nullptr, 
 TaskCheckAssaults::~TaskCheckAssaults() {}
 
 void TaskCheckAssaults::CheckAssaults() {
-    if (unit_iterator != nullptr && field_6) {
+    if (unit_iterator == nullptr && field_6) {
         field_6 = false;
 
         unit_iterator = UnitsManager_MobileLandSeaUnits.Begin();
 
-        if (unit_iterator != nullptr) {
+        if (unit_iterator == nullptr) {
             unit_iterator = UnitsManager_MobileAirUnits.Begin();
         }
 

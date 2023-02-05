@@ -787,7 +787,7 @@ void GameManager_GameLoop(int game_state) {
                 GameManager_GameState = GAME_STATE_8_IN_GAME;
             } else if (GameManager_GameState == GAME_STATE_9_END_TURN) {
                 for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-                    if (UnitsManager_TeamInfo[team].field_41) {
+                    if (UnitsManager_TeamInfo[team].finished_turn) {
                         GameManager_ManageEconomy(team);
                     }
                 }
@@ -816,7 +816,7 @@ void GameManager_GameLoop(int game_state) {
                         GameManager_PlayerTeam = team;
                     }
 
-                    UnitsManager_TeamInfo[team].field_41 = false;
+                    UnitsManager_TeamInfo[team].finished_turn = false;
                     GameManager_UpdateGui(team, game_state, enable_autosave);
 
                     if (GameManager_GameState == GAME_STATE_10) {
@@ -850,7 +850,7 @@ void GameManager_GameLoop(int game_state) {
             }
 
             for (team = 0; team < PLAYER_TEAM_MAX - 1; ++team) {
-                UnitsManager_TeamInfo[team].field_41 = false;
+                UnitsManager_TeamInfo[team].finished_turn = false;
             }
 
             GameManager_UpdateScoreGraph();
@@ -1049,7 +1049,7 @@ bool GameManager_RefreshOrders(unsigned short team, bool check_production) {
     Access_RenewAttackOrders(UnitsManager_MobileLandSeaUnits, team);
     Access_RenewAttackOrders(UnitsManager_MobileAirUnits, team);
 
-    UnitsManager_TeamInfo[team].field_41 = true;
+    UnitsManager_TeamInfo[team].finished_turn = true;
 
     GameManager_ProcessTick(false);
 
@@ -1079,7 +1079,7 @@ void GameManager_HandleTurnTimer() {
         if (timer_setting < 15) {
             for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER &&
-                    !UnitsManager_TeamInfo[team].field_41) {
+                    !UnitsManager_TeamInfo[team].finished_turn) {
                     timer_setting = 15;
                     flag = true;
                 }
@@ -2233,7 +2233,7 @@ void GameManager_DrawTurnTimer(int turn_time, bool mode) {
         if (GameManager_IsTurnTimerActive && GameManager_PlayerTeam == GameManager_ActiveTurnTeam) {
             if (turn_time == 20 && ini_get_setting(INI_TIMER) > 20) {
                 SoundManager.PlayVoice(V_M272, V_F273);
-            } else if (!UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41 && ini_get_setting(INI_TIMER) > 20 &&
+            } else if (!UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn && ini_get_setting(INI_TIMER) > 20 &&
                        Remote_UpdatePauseTimer) {
                 SoundManager.PlayVoice(V_M275, V_F275);
             }
@@ -2544,7 +2544,7 @@ void GameManager_UpdateGui(unsigned short team, int game_state, bool enable_auto
 bool GameManager_AreTeamsFinishedTurn() {
     for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
-            UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED && !UnitsManager_TeamInfo[team].field_41) {
+            UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED && !UnitsManager_TeamInfo[team].finished_turn) {
             return false;
         }
     }
@@ -5264,10 +5264,10 @@ void GameManager_ProcessKey() {
     GameManager_IsCtrlKeyPressed = keys[GNW_KB_SCAN_LCTRL] | keys[GNW_KB_SCAN_RCTRL];
 
     if (GameManager_RequestMenuExit) {
-        if (UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41) {
+        if (UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn) {
             for (int team = 0; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER &&
-                    !UnitsManager_TeamInfo[team].field_41) {
+                    !UnitsManager_TeamInfo[team].finished_turn) {
                     GameManager_RefreshOrders(team, true);
                 }
             }
@@ -5313,7 +5313,7 @@ void GameManager_ProcessKey() {
                 return;
             }
 
-            if (GameManager_IsMainMenuEnabled && !UnitsManager_TeamInfo[GameManager_PlayerTeam].field_41) {
+            if (GameManager_IsMainMenuEnabled && !UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn) {
                 SoundManager.PlaySfx(MBUTT0);
                 GameManager_ResetRenderState();
 

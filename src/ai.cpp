@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "aiattack.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "buildmenu.hpp"
 #include "hash.hpp"
@@ -227,7 +228,7 @@ void Ai_CheckEndTurn() {
     if (GameManager_PlayMode == PLAY_MODE_TURN_BASED) {
         if (GameManager_GameState == GAME_STATE_8_IN_GAME) {
             if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
-                if (!UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].field_41) {
+                if (!UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].finished_turn) {
                     AiPlayer_Teams[GameManager_ActiveTurnTeam].CheckEndTurn();
                 }
             }
@@ -237,8 +238,8 @@ void Ai_CheckEndTurn() {
         if (GameManager_GameState == GAME_STATE_9_END_TURN || GameManager_GameState == GAME_STATE_8_IN_GAME) {
             for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-                    if (!UnitsManager_TeamInfo[team].field_41) {
-                        if (AiPlayer_Teams[GameManager_ActiveTurnTeam].CheckEndTurn()) {
+                    if (!UnitsManager_TeamInfo[team].finished_turn) {
+                        if (AiPlayer_Teams[team].CheckEndTurn()) {
                             return;
                         }
                     }
@@ -247,7 +248,8 @@ void Ai_CheckEndTurn() {
 
             if (GameManager_GameState == GAME_STATE_8_IN_GAME) {
                 if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
-                    if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].field_41) {
+                    if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].finished_turn) {
+                        AiLog("Error- had to force ENDTURN!");
                         GameManager_GameState = GAME_STATE_9_END_TURN;
                     }
                 }

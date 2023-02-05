@@ -39,7 +39,7 @@ struct ScreenLocation {
 struct CTInfo {
     Point markers[10];
     char team_type;
-    char field_41;
+    bool finished_turn;
     char unit_counters[UNIT_END];
     char team_clan;
     ResearchTopic research_topics[RESEARCH_TOPIC_COUNT];

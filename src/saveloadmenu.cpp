@@ -816,7 +816,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
 
         file.Write(team_info->markers);
         file.Write(team_info->team_type);
-        file.Write(team_info->field_41);
+        file.Write(team_info->finished_turn);
         file.Write(team_info->team_clan);
         file.Write(team_info->research_topics);
         file.Write(team_info->team_points);
@@ -993,7 +993,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
 
                 file.Read(team_info->markers);
                 file.Read(team_info->team_type);
-                file.Read(team_info->field_41);
+                file.Read(team_info->finished_turn);
                 file.Read(team_info->team_clan);
                 file.Read(team_info->research_topics);
                 file.Read(team_info->team_points);

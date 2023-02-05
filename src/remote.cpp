@@ -1415,7 +1415,7 @@ void Remote_ReceiveNetPacket_06(NetPacket& packet) {
 
     packet >> entity_id;
 
-    UnitsManager_TeamInfo[entity_id].field_41 = 1;
+    UnitsManager_TeamInfo[entity_id].finished_turn = 1;
 
     if (GameManager_PlayMode == PLAY_MODE_TURN_BASED) {
         GameManager_GameState = GAME_STATE_9_END_TURN;
@@ -1426,7 +1426,7 @@ void Remote_ReceiveNetPacket_06(NetPacket& packet) {
         for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED &&
-                !UnitsManager_TeamInfo[team].field_41) {
+                !UnitsManager_TeamInfo[team].finished_turn) {
                 is_found = true;
             }
         }

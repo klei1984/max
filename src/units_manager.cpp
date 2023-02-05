@@ -4428,7 +4428,7 @@ void UnitsManager_ClearPins(SmartList<UnitInfo>* units) {
 void UnitsManager_PerformAutoSurvey(UnitInfo* unit) {
     if (unit->auto_survey && unit->speed && GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
         (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == unit->team)) {
-        if (!Remote_IsNetworkGame || !UnitsManager_TeamInfo[unit->team].field_41) {
+        if (!Remote_IsNetworkGame || !UnitsManager_TeamInfo[unit->team].finished_turn) {
             if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER ||
                 UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_REMOTE) {
                 unit->auto_survey = false;
@@ -6641,7 +6641,7 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
                 if (GameManager_PlayMode == PLAY_MODE_TURN_BASED || unit1->orders == ORDER_SENTRY) {
                     result = true;
 
-                } else if (UnitsManager_TeamInfo[unit1->team].field_41 && GameManager_PlayMode == PLAY_MODE_UNKNOWN) {
+                } else if (UnitsManager_TeamInfo[unit1->team].finished_turn && GameManager_PlayMode == PLAY_MODE_UNKNOWN) {
                     result = true;
 
                 } else if (unit2->shots > 0 && !unit1->disabled_reaction_fire) {

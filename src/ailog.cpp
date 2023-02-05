@@ -24,7 +24,7 @@
 #include "gnw.h"
 #include "smartstring.hpp"
 
-#define AILOG_FILE_LIMIT 65000uL
+#define AILOG_FILE_LIMIT INT32_MAX
 
 std::ofstream AiLog::AiLog_File;
 int AiLog::AiLog_SectionCount;
