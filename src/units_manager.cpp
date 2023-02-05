@@ -1378,7 +1378,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         "Minelayers are specialized construction vehicles which place, detect, and remove mines.  Minelayers convert "
         "onboard raw materials into mines.  They can also remove those mines later and convert them back into "
-        "materials.  They cannot remove enemy minefields - those most be exploded with gunfire and rockets."
+        "materials.  They cannot remove enemy minefields - those must be exploded with gunfire and rockets."
         /* tutorial description (optional) */
         ),
     AbstractUnit(
