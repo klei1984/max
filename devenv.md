@@ -60,7 +60,7 @@ Used for network analysis. E.g. it is used to debug the IPX/SPX tunneling over U
 
 Used for debugging and research.
 
-### wxHexEditor
+### ImHex
 
 Used for research.
 

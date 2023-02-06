@@ -42,7 +42,7 @@ The format specification is described as a set of strongly typed basic fields, m
 
 The format contains conditional sections, subsections. The signedness of fields and properties are not 100% accurate yet.
 
-ImHex pattern language ([profile]({{ site.baseurl }}/assets/files/max_v104_saveformat.7z)) for M.A.X. save file format v70. Tested with ImHex v1.12.1.
+ImHex pattern language ([profile]({{ site.baseurl }}/assets/files/max_v104_saveformat.7z)) for M.A.X. save file format v70. Tested with ImHex v1.26.2.
 
 ### Serialized Class Objects
 
