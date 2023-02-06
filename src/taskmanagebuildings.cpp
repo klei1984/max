@@ -744,19 +744,21 @@ bool TaskManageBuildings::IsSafeSite(unsigned short** construction_map, Point si
                         return false;
                     }
 
-                    if (!marker_index || markers[marker_index] != marker) {
+                    if (!marker_index || markers[marker_index - 1] != marker) {
                         markers[marker_index] = marker;
                         ++marker_index;
                     }
                 }
             }
 
+            SDL_assert(marker_index < 12);
+
             if (marker_index > 1 && markers[0] == markers[marker_index - 1]) {
                 --marker_index;
             }
 
             for (int i = 0; i < marker_index - 1; ++i) {
-                if (markers[i + 1] >= 10) {
+                if (markers[i] >= 10) {
                     for (int j = i + 1; j < marker_index; ++j) {
                         if (markers[i] == markers[j]) {
                             return false;
@@ -858,16 +860,16 @@ bool TaskManageBuildings::EvaluateSite(unsigned short** construction_map, Resour
 bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site,
                                    unsigned short task_flags) {
     unsigned short** construction_map = CreateMap();
-    int unit_size = UnitsManager_BaseUnits[unit_type].flags & BUILDING ? 2 : 1;
+    int unit_size = (UnitsManager_BaseUnits[unit_type].flags & BUILDING) ? 2 : 1;
     bool result;
 
     if (unit_type == MININGST) {
         MarkMiningAreas(construction_map);
 
     } else {
-        int area_offset = unit_type == SHIPYARD ? 10 : 4;
+        int area_expanse = (unit_type == SHIPYARD) ? 10 : 4;
 
-        MarkBuildingAreas(construction_map, unit_size, area_offset);
+        MarkBuildingAreas(construction_map, area_expanse, unit_size);
     }
 
     ClearBuildingAreas(construction_map, task);

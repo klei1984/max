@@ -136,9 +136,7 @@ int TerrainMap::TerrainMap_sub_68EEF(unsigned short** map, Point location) {
                         if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                             position.y < ResourceManager_MapSize.y) {
                             if (map[position.x][position.y] & TERRAINMAP_PATH_PROCESSED) {
-                                int distance;
-
-                                distance = Access_GetDistance(position, location);
+                                int distance = Access_GetDistance(position, location);
 
                                 if (distance < shortest_distance) {
                                     shortest_distance = distance;

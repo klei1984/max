@@ -363,7 +363,7 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
 int TaskCreateBuilding::GetMemoryUse() const { return 4; }
 
 char* TaskCreateBuilding::WriteStatusLog(char* buffer) const {
-    sprintf(buffer, "Create a %s at [%i,%i]", UnitsManager_BaseUnits[unit_type].singular_name, site.x, site.y);
+    sprintf(buffer, "Create a %s at [%i,%i]", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
 
     switch (op_state) {
         case CREATE_BUILDING_STATE_INITIALIZING: {
