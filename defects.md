@@ -350,20 +350,7 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 95. **[Fixed]** The TaskManageBuildings class implements a method (cseg01:0003177D) which marks path ways around buildings. The function also attempts to mark the path ways around buildings that are scheduled to be built, but the tasks list iterator variable is used in two loops and the second loop does not reinitialize the iterator to the beginning of the list effectively skipping the entire list of planned buildings.
 
-96. The TaskManageBuildings class implements a method (cseg01:0003285C) which determines whether a site is reasonably safe for construction purposes. The algorithm uses a code pattern which is very similar to the pattern that is used all over the place to find the shortest distance from something or the best value of some important aspect like smallest risk for getting destroyed.
-```cpp
-    int marker_index = 0;
-    int markers[12];
-    int marker;
-    
-    ...
-    
-    if (!marker_index || markers[marker_index] != marker) {
-      markers[marker_index] = marker;
-      ++marker_index;
-    }
-```
-One minor risk is that `++marker_index` might lead to out of bounds access that could smash the stack and depending on the calling convention of the ABI this could lead to code runaway. A bigger problem is that the markers array is allocated on the stack thus at the time of allocation the array contains random values. The algorithm first unconditionally stores the value of `marker` into `markers[0]` and increments the array index variable. Next the array index is not 0 anymore thus the algorithm tests `markers[marker_index] != marker` which actually compares `markers[1]` with `marker` while `markers[1]` still holds a random value as noted before. Therefore in a somewhat random manner, mostly depending on the call site, a marker may not be considered by the algorithm erroneously.
+96. The TaskManageBuildings class implements a method (cseg01:0003285C) which determines whether a site is reasonably safe for construction purposes. There is a minor risk that `++marker_index` might lead to out of bounds access that could smash the stack and depending on the calling convention of the ABI this could lead to code runaway.
 
 97. **[Fixed]** The TaskManageBuildings class implements a method (cseg01:00033E27) to get the amount of units of a particular type a team has and plans to build. The method returns the count on 8 bits. Over long game sessions it is possible to have more than 255 units of the same type in which case the result gets truncated that could lead to unintended AI behaviors in corner cases.
 
@@ -478,3 +465,7 @@ The proposed defect fix will not instantiate a ground path if the determinted pa
 131. The UnitInfo class member `image_index_max` of MK I Infiltrator 6 in training mission 12 (MD5 hash: bfca7a73ad7d2c927b4110f16803d417 \*SAVE12.TRA) is initialized to 0xFFFF or -1 at file offset 0xFD7B. Due to this the walk animation of the infiltrator unit does not work.
 
 132. **[Fixed]** There is a typo in the description of the Mine Layer land unit. "They cannot remove enemy minefields - those most be exploded with gunfire and rockets." -> must be.
+
+133. Land and sea mines do not blow up if enemy units are deployed or activated upon them.
+
+134. **[Fixed]** The TaskCheckAssaults task implements the RemoveUnit (cseg01:0001CB93) interface. The implementation checks whether the passed unit instance is held by a member variable of the task. This task is unique in that it holds a SmartList<UnitInfo> iterator. The RemoveUnit implementation assumes that the iterator is always pointing to a valid ListNode object which seems not to be true. The method dereferences null which leads to segmentation faults on modern operating systems. This happens most of the time when the player reloads a previously saved game in which case the ongoing game is first cleaned up including the task manager. It is unclear whether the list iterator should never be null by design, thus the proposed defect fix is to simply check whether the iterator is null.
