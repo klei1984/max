@@ -112,11 +112,9 @@ void GNW_input_exit(void) {
 }
 
 void GNW_process_message(void) {
-    const size_t max_events = 1;
-    size_t event;
     SDL_Event ev;
 
-    for (event = 0; (event < max_events) && SDL_PollEvent(&ev); event++) {
+    while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
             case SDL_KEYUP:
             case SDL_KEYDOWN: {
