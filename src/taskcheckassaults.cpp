@@ -117,7 +117,7 @@ void TaskCheckAssaults::RemoveSelf() {
 }
 
 void TaskCheckAssaults::RemoveUnit(UnitInfo& unit) {
-    if (&*unit_iterator == &unit) {
+    if ((unit_iterator != nullptr) && (&*unit_iterator == &unit)) {
         SelectNext();
     }
 }
