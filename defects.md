@@ -469,3 +469,17 @@ The proposed defect fix will not instantiate a ground path if the determinted pa
 133. Land and sea mines do not blow up if enemy units are deployed or activated upon them.
 
 134. **[Fixed]** The TaskCheckAssaults task implements the RemoveUnit (cseg01:0001CB93) interface. The implementation checks whether the passed unit instance is held by a member variable of the task. This task is unique in that it holds a SmartList<UnitInfo> iterator. The RemoveUnit implementation assumes that the iterator is always pointing to a valid ListNode object which seems not to be true. The method dereferences null which leads to segmentation faults on modern operating systems. This happens most of the time when the player reloads a previously saved game in which case the ongoing game is first cleaned up including the task manager. It is unclear whether the list iterator should never be null by design, thus the proposed defect fix is to simply check whether the iterator is null.
+
+135. Adding a unit to a group by mouse pointer selection or shift + left click prefers ground units in case air and ground units are both present at a grid cell which is counterintuitive.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_135.mp4" type="video/mp4">
+    </video>
+
+136. It is possible to obtain quasy infinite speed points for air units moving in groups which could be used as an exploit.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_136.mp4" type="video/mp4">
+    </video>
+<br>
+The defect is closely related to the group command and to partial speed points stored for later use to compensate for earlier non-integer movement costs. Even though the unit statistics screen indicates that there are always maximum speed points left after the issue occurs, in reality the speed or group_speed member of the UnitInfo object underflows to -1 which is stored as 0xFF in the `unsigned char` containers. So in fact the player that exploits the issue gains additional 255+ speed points to move the affected units around. The issue is potentially reproducible using ground and sea units as well but there it is much more difficult due to the more sophisticated movement cost calculations.
