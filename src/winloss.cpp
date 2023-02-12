@@ -521,7 +521,7 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
                             2) {
                             result = VICTORY_STATE_LOST;
 
-                        } else if (WinLoss_CountReadyUnits(team, SPLYTRCK) > 2) {
+                        } else if (WinLoss_CountReadyUnits(team, SPLYTRCK) >= 2) {
                             result = VICTORY_STATE_WON;
 
                         } else if (WinLoss_CountReadyUnits(team, COMMANDO)) {

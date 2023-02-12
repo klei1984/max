@@ -6870,7 +6870,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
                     strcat(text, exp_text);
                 }
 
-                win_print(window->id, text, 128, window->window.ulx, window->window.uly + text_height(),
+                win_print(window->id, text, 128, window->window.ulx, window->window.uly + text_height() * 2,
                           GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | COLOR_GREEN);
             }
 
