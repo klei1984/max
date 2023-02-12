@@ -5731,7 +5731,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
             Access_GetUnit6(unit_team, unit_grid_x, unit_grid_y, (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)));
 
         if (!target_unit) {
-            target_unit = Access_GetAttackTarget(unit, unit_grid_x, unit_grid_y);
+            target_unit = Access_GetAttackTarget2(unit, unit_grid_x, unit_grid_y);
         }
 
         if (target_unit) {

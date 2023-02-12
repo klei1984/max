@@ -3148,7 +3148,7 @@ void UnitInfo::Attack(int grid_x, int grid_y) {
     UnitInfo* enemy = nullptr;
 
     if (!target) {
-        target = Access_GetAttackTarget(this, grid_x, grid_y);
+        target = Access_GetAttackTarget2(this, grid_x, grid_y);
 
         if (target) {
             target->visible_to_team[team] = true;
@@ -4427,12 +4427,15 @@ int UnitInfo::GetTargetUnitAngle() {
 void UnitInfo::UpdateInfoDisplay() {
     int base_speed = GetBaseValues()->GetAttribute(ATTRIB_SPEED);
     int base_rounds = GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
+    int local_speed = speed;
 
-    speed -= (((shots + 1) * base_speed) / base_rounds) - ((shots * base_speed) / base_rounds);
+    local_speed -= (((shots + 1) * base_speed) / base_rounds) - ((shots * base_speed) / base_rounds);
 
-    if (speed < 0) {
-        speed = 0;
+    if (local_speed < 0) {
+        local_speed = 0;
     }
+
+    speed = local_speed;
 
     if (GameManager_SelectedUnit == this) {
         GameManager_UpdateInfoDisplay(this);

@@ -1692,7 +1692,7 @@ UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int grid_x, int grid_y) {
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
-            if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
+            if ((*it).team != unit->team && !(*it).IsVisibleToTeam(unit->team) &&
                 Access_IsValidAttackTarget(unit, &*it)) {
                 result = &*it;
                 break;
