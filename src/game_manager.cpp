@@ -6123,7 +6123,7 @@ bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int grid_x, i
                            unit1->state == ORDER_STATE_1 && unit2->state == ORDER_STATE_1) {
                     SmartList<UnitInfo>* units = unit1->GetUnitList();
 
-                    if (units && units->GetCount() < 10) {
+                    if (!units || units->GetCount() < 10) {
                         unit2->ClearUnitList();
                         unit2->AssignUnitList(unit1);
 
