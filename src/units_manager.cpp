@@ -4449,7 +4449,7 @@ void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
         switch (unit->state) {
             case ORDER_STATE_1: {
                 if (unit->unit_type == BRIDGE && unit->IsBridgeElevated() &&
-                    !Access_GetUnit3(unit->grid_x, unit->grid_x, MOBILE_SEA_UNIT)) {
+                    !Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
                     UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_39);
                 }
 
@@ -4472,7 +4472,7 @@ void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
                 }
 
                 if (unit->unit_type == BRIDGE && unit->IsBridgeElevated() &&
-                    !Access_GetUnit3(unit->grid_x, unit->grid_x, MOBILE_SEA_UNIT)) {
+                    !Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
                     UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_39);
                 }
 
@@ -4575,7 +4575,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
             } else {
                 if (!unit->IsBridgeElevated()) {
                     UnitsManager_GroundCoverUnits.Remove(*unit);
-                    unit->AddToDrawList(STATIONARY || UPGRADABLE || SELECTABLE);
+                    unit->AddToDrawList(STATIONARY | UPGRADABLE | SELECTABLE);
                 }
 
                 unit->DrawSpriteFrame(unit->GetImageIndex() + 1);
@@ -6641,7 +6641,8 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
                 if (GameManager_PlayMode == PLAY_MODE_TURN_BASED || unit1->orders == ORDER_SENTRY) {
                     result = true;
 
-                } else if (UnitsManager_TeamInfo[unit1->team].finished_turn && GameManager_PlayMode == PLAY_MODE_UNKNOWN) {
+                } else if (UnitsManager_TeamInfo[unit1->team].finished_turn &&
+                           GameManager_PlayMode == PLAY_MODE_UNKNOWN) {
                     result = true;
 
                 } else if (unit2->shots > 0 && !unit1->disabled_reaction_fire) {

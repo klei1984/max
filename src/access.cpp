@@ -56,7 +56,7 @@ static void Access_ProcessGroupAirPath(UnitInfo* unit);
 bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int target_grid_y, bool mode) {
     SmartPointer<UnitInfo> unit;
 
-    for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
+    for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(target_grid_x, target_grid_y)]; it != nullptr; ++it) {
         if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
             if ((*it).orders == ORDER_IDLE) {
                 continue;
