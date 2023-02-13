@@ -347,10 +347,13 @@ void TaskMove::AttemptTransport() {
             int team_id;
 
             for (team_id = PLAYER_TEAM_RED; team_id < PLAYER_TEAM_MAX - 1; ++team_id) {
-                if (team_id != team) {
-                    if (UnitsManager_TeamInfo[team_id]
-                            .heat_map_complete[ResourceManager_MapSize.x * passenger->grid_y + passenger->grid_x] > 0) {
-                        break;
+                if (UnitsManager_TeamInfo[team_id].team_type != TEAM_TYPE_NONE) {
+                    if (team_id != team) {
+                        if (UnitsManager_TeamInfo[team_id]
+                                .heat_map_complete[ResourceManager_MapSize.x * passenger->grid_y + passenger->grid_x] >
+                            0) {
+                            break;
+                        }
                     }
                 }
             }
