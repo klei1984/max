@@ -958,13 +958,15 @@ UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int grid_x, int grid_y) {
 
     unit2 = Access_GetUnit3(grid_x, grid_y, SELECTABLE);
 
-    if (unit2->orders == ORDER_IDLE || (unit2->flags & GROUND_COVER)) {
-        unit2 = unit;
-    }
+    if (unit2) {
+        if (unit2->orders == ORDER_IDLE || (unit2->flags & GROUND_COVER)) {
+            unit2 = unit;
+        }
 
-    if (unit == unit2) {
-        Hash_MapHash.Remove(unit);
-        Hash_MapHash.Add(unit);
+        if (unit == unit2) {
+            Hash_MapHash.Remove(unit);
+            Hash_MapHash.Add(unit);
+        }
     }
 
     return unit2;
