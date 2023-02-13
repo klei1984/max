@@ -1143,7 +1143,7 @@ void TaskCreateBuilding::PopulateMap(unsigned char** map) {
 bool TaskCreateBuilding::FindBridgePath(unsigned char** map, int value) {
     Point position1;
     Point position2;
-    bool flag;
+    bool flag = false;
     unsigned short flags1;
     unsigned short flags2;
     Rect bounds;

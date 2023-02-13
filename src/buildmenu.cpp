@@ -158,7 +158,7 @@ BuildUnitTypeSelector::BuildUnitTypeSelector(Window *window, WindowInfo *window_
                                              Button *button_scroll_up, Button *button_scroll_down)
     : UnitTypeSelector(window, window_info, unit_types, unit->team, key_code, button_scroll_up, button_scroll_down),
       unit(unit) {
-    struct ImageSimpleHeader *image;
+    struct ImageSimpleHeader *local_image;
     int width;
     int height;
 
@@ -166,29 +166,29 @@ BuildUnitTypeSelector::BuildUnitTypeSelector(Window *window, WindowInfo *window_
     height = max_item_count * 32;
 
     sprite = new (std::nothrow) unsigned char[4 * sizeof(unsigned short) + width * height];
-    image = reinterpret_cast<struct ImageSimpleHeader *>(sprite);
+    local_image = reinterpret_cast<struct ImageSimpleHeader *>(sprite);
 
-    image->width = width;
-    image->height = width;
+    local_image->width = width;
+    local_image->height = height;
 
-    buf_to_buf(window_info->buffer, width, height, window_info->width, &image->transparent_color, width);
+    buf_to_buf(window_info->buffer, width, height, window_info->width, &local_image->transparent_color, width);
 }
 
 BuildUnitTypeSelector::~BuildUnitTypeSelector() { delete[] sprite; }
 
 void BuildUnitTypeSelector::Draw() {
-    struct ImageSimpleHeader *image;
+    struct ImageSimpleHeader *local_image;
     int consumption_rate;
     Rect bounds;
     int turns;
     ColorIndex color;
 
-    image = reinterpret_cast<struct ImageSimpleHeader *>(sprite);
+    local_image = reinterpret_cast<struct ImageSimpleHeader *>(sprite);
 
     UnitTypeSelector::Draw();
 
-    buf_to_buf(&image->transparent_color, image->width, image->height, image->width, &window_info.buffer[115],
-               window_info.width);
+    buf_to_buf(&local_image->transparent_color, local_image->width, local_image->height, local_image->width,
+               &window_info.buffer[115], window_info.width);
 
     text_font(GNW_TEXT_FONT_5);
 
@@ -212,7 +212,7 @@ void BuildUnitTypeSelector::Draw() {
     bounds.ulx = window_info.window.ulx + 115;
     bounds.uly = window_info.window.uly;
     bounds.lrx = bounds.ulx + 20;
-    bounds.lry = bounds.uly + image->height;
+    bounds.lry = bounds.uly + local_image->height;
 
     win_draw_rect(window_info.id, &bounds);
 }
