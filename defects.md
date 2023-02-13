@@ -489,3 +489,13 @@ The defect is closely related to the group command and to partial speed points s
 138. **[Fixed]** Heat maps are only allocated for teams that are in play (aliens never have heat maps). Unallocated heat maps are set to null. The TaskMove class has a method (cseg01:0004D6E4) that tries to speed up movement of infantry and infiltrator units by using an armoured personnel carrier unless enemy heat maps indicate that the unit to be transported is in danger in which case air transport is attempted. The method checks all enemy heat maps even if they are null which leads to segmentation faults on modern operating systems.
 
 139. **[Fixed]** The chat / goal button label is wrongly set to chat on loading any game type that has a set goal if this is the first started game in the game session. Steps to reproduce: start a campaign or training game which creates an autosave in save slot 10. Fully exit the game. Start the game again and load save slot 10. The goal button will print chat until redraw due to mouse hover over or similar event. The root cause is that the saved game loader first initializes the in-game GUI buttons and sets the mission index from the saved file to non zero which would normally set the label of the button to be goal.
+
+140. There is a typo in the campaign mission 5 description. "You land in in an out-of-the-way island." -> You land on an...
+
+141. The hover member of the UnitInfo class member's `flags` bitfield of most air units in campaign mission 5 (09376d9fbd57a1637cb22d09676d61e0 \*SAVE5.CAM) is initialized to 0 which means that the air unit is landed.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_141.mp4" type="video/mp4">
+    </video>
+<br>
+By normal means air units cannot land on plain ground. It is assumed that it was not intentional to allow the player to destroy the enemy's only two AWACs right at the beginning of the mission in case of turn based game mode. In simultaneous moves mode the computer has a chance to move the AWACs away before the player could react.
