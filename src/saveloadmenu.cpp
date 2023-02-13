@@ -943,11 +943,11 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
                 }
             }
 
+            GameManager_GameFileNumber = file_header.mission_index;
+
             ResourceManager_InitInGameAssets(file_header.world);
 
             ini_set_setting(INI_GAME_FILE_TYPE, file_header.save_game_type);
-
-            GameManager_GameFileNumber = file_header.mission_index;
 
             file_header.opponent = ini_get_setting(INI_OPPONENT);
             file_header.turn_timer_time = ini_get_setting(INI_TIMER);
