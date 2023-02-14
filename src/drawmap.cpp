@@ -733,18 +733,18 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
         DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | 0x1F);
 
     } else if (unit->state == ORDER_STATE_UNIT_READY) {
-        UnitInfo* parent;
+        UnitInfo* parent = unit->GetParent();
 
-        parent = unit->GetParent();
+        if (parent) {
+            sprintf(text, DrawMap_UnitCompletionLabels[UnitsManager_BaseUnits[parent->unit_type].gender],
+                    UnitsManager_BaseUnits[parent->unit_type].singular_name);
 
-        sprintf(text, DrawMap_UnitCompletionLabels[UnitsManager_BaseUnits[parent->unit_type].gender],
-                UnitsManager_BaseUnits[parent->unit_type].singular_name);
+            if (parent->flags & STATIONARY) {
+                unit = parent;
+            }
 
-        if (parent->flags & STATIONARY) {
-            unit = parent;
+            DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | 0x1F);
         }
-
-        DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | 0x1F);
 
     } else if (GameManager_DisplayButtonNames && (unit->flags & SELECTABLE) && unit->unit_type != LRGTAPE &&
                unit->unit_type != SMLTAPE) {
