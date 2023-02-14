@@ -4052,7 +4052,7 @@ bool AiPlayer::MatchPath(TaskPathRequest* request) {
 
                 source = (*it).MatchStartPosition(position);
                 distance1 = TaskManager_GetDistance(position, source) / 2;
-                destination = (*it).MatchStartPosition(site);
+                destination = (*it).MatchClosestPosition(site, source);
                 distance2 = TaskManager_GetDistance(site, destination) / 2;
                 distance2 -= minimum_distance;
 
