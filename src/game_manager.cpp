@@ -5637,7 +5637,7 @@ int GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int grid_x, int grid_y, Un
     int result;
 
     if (unit1->state == ORDER_STATE_UNIT_READY) {
-        if (GameManager_IsUnitNextToPosition(unit1->GetParent(), grid_x, grid_y) &&
+        if (unit1->GetParent() && GameManager_IsUnitNextToPosition(unit1->GetParent(), grid_x, grid_y) &&
             Access_IsAccessible(unit1->unit_type, GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
             result = CURSOR_UNIT_GO;
 
