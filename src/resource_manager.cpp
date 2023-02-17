@@ -555,7 +555,7 @@ void ResourceManager_ExitGame(int error_code) {
 
     SoundManager.Deinit();
     win_exit();
-    reset_mode();
+    Svga_Deinit();
     SDL_Log("%s", ResourceManager_ErrorCodes[error_code]);
     exit(0);
 }

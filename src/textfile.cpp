@@ -38,7 +38,7 @@ ErrorLogEntry::~ErrorLogEntry() {}
 void TextItem::FatalError(const char* error_message) {
     SDL_TriggerBreakpoint();
     win_exit();
-    reset_mode();
+    Svga_Deinit();
 
     SmartString string = BuildErrorMessage(error_message, error.error_message.GetCStr(), error.line, error.column);
     SDL_Log(string.GetCStr());
@@ -582,7 +582,7 @@ void SmartTextfileReader::FatalError(const char* format, ...) {
 
     SDL_TriggerBreakpoint();
     win_exit();
-    reset_mode();
+    Svga_Deinit();
 
     va_start(args, format);
     string.Sprintf(300, format, args);

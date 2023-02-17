@@ -40,7 +40,6 @@ static void movie_init_palette(void);
 static int movie_run(ResourceID resource_id, int mode);
 
 static unsigned int movie_music_level;
-static SDL_Palette* movie_palette;
 
 void* mve_cb_alloc(size_t size) { return malloc(size); }
 
@@ -64,35 +63,21 @@ int mve_cb_ctl(void) {
 }
 
 void movie_cb_show_frame(unsigned char* buffer, int bufw, int bufh, int sx, int sy, int w, int h, int dstx, int dsty) {
-    update_system_palette(movie_palette, 0);
-    vesa_screen_blit(buffer, bufw, bufh, sx, sy, w, h, dstx, dsty);
+    Svga_Blit(buffer, bufw, bufh, sx, sy, w, h, dstx, dsty);
 }
 
 void movie_cb_set_palette(unsigned char* p, int start, int count) {
-    SDL_assert(movie_palette);
-
-    for (int n = start; n < (start + count); n++) {
-        movie_palette->colors[n].r = p[3 * n + 0] * 4;
-        movie_palette->colors[n].g = p[3 * n + 1] * 4;
-        movie_palette->colors[n].b = p[3 * n + 2] * 4;
-        movie_palette->colors[n].a = 0;
+    for (int i = start; i < (start + count); i++) {
+        Svga_SetPaletteColor(i, p[3 * i + 0] * 4, p[3 * i + 1] * 4, p[3 * i + 2] * 4);
     }
 }
 
 static void movie_init_palette(void) {
-    if (NULL == movie_palette) {
-        movie_palette = SDL_AllocPalette(PALETTE_SIZE);
-        SDL_assert(movie_palette);
+    for (int i = 0; i < PALETTE_SIZE; i++) {
+        Svga_SetPaletteColor(i, 0, 0, 0);
     }
 
-    SDL_Color default_color = {0, 0, 0, 0};
-    SDL_Color subtitle_color = {50, 50, 50, 0};
-
-    for (int n = 0; n < PALETTE_SIZE; n++) {
-        movie_palette->colors[n] = default_color;
-    }
-
-    movie_palette->colors[PALETTE_SIZE - 1] = subtitle_color;
+    Svga_SetPaletteColor(PALETTE_SIZE - 1, 50, 50, 50);
 }
 
 int movie_run(ResourceID resource_id, int mode) {
@@ -176,7 +161,7 @@ int movie_run(ResourceID resource_id, int mode) {
         }
 
         if (!result || result == 3) {
-            win_reinit(init_mode_640_480);
+            win_reinit(Svga_Init);
             WindowManager_ClearWindow();
 
             result = 0;

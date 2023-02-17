@@ -87,6 +87,4 @@ int initColors(void);
 void colorsClose(void);
 unsigned char* getColorPalette(void);
 
-void update_system_palette(SDL_Palette* palette, int render);
-
 #endif /* COLOR_H */

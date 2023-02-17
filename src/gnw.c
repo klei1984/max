@@ -81,8 +81,6 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
         return 3;
     }
 
-    get_start_mode();
-
     reset_mode_ptr = reset;
     set_mode_ptr = set;
 
@@ -99,7 +97,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
             if (reset_mode_ptr) {
                 reset_mode_ptr();
             } else {
-                reset_mode();
+                Svga_Deinit();
             }
 
             return 2;
@@ -112,13 +110,13 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
     colorInitIO(colorOpen, colorRead, colorClose);
 
     if (!initColors()) {
-        pal = (unsigned char *)malloc(768);
+        pal = (unsigned char *)malloc(3 * PALETTE_SIZE);
 
         if (!pal) {
             if (reset_mode_ptr) {
                 reset_mode_ptr();
             } else {
-                reset_mode();
+                Svga_Deinit();
             }
             if (screen_buffer) {
                 free(screen_buffer);
@@ -127,7 +125,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
             return 2;
         }
 
-        buf_fill(pal, 768, 1, 768, 0);
+        buf_fill(pal, 3 * PALETTE_SIZE, 1, 3 * PALETTE_SIZE, 0);
         colorBuildColorTable(getSystemPalette(), pal);
         free(pal);
     }
@@ -178,7 +176,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
         if (reset_mode_ptr)
             reset_mode_ptr();
         else
-            reset_mode();
+            Svga_Deinit();
         if (screen_buffer) {
             free(screen_buffer);
         }

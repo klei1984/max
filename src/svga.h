@@ -31,9 +31,6 @@ extern "C" {
 
 #include "rect.h"
 
-SDL_Surface *svga_get_screen(void);
-void svga_render(void);
-
 typedef void (*ScreenBlitFunc)(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX,
                                unsigned int subY, unsigned int subW, unsigned int subH, unsigned int dstX,
                                unsigned int dstY);
@@ -41,13 +38,14 @@ typedef void (*ScreenBlitFunc)(unsigned char *srcBuf, unsigned int srcW, unsigne
 extern Rect scr_size;
 extern ScreenBlitFunc scr_blit;
 
-int init_mode_640_480(void);
-int init_vesa_mode(int mode, int width, int height, int half);
-void get_start_mode(void);
-void reset_mode(void);
-void vesa_screen_blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX, unsigned int subY,
-                      unsigned int subW, unsigned int subH, unsigned int dstX, unsigned int dstY);
-int svga_warp_mouse(int window_x, int window_y);
+int Svga_Init(void);
+void Svga_Deinit(void);
+void Svga_Blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX, unsigned int subY,
+               unsigned int subW, unsigned int subH, unsigned int dstX, unsigned int dstY);
+int Svga_WarpMouse(int window_x, int window_y);
+void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char b);
+int Svga_GetScreenWidth(void);
+int Svga_GetScreenHeight(void);
 
 #ifdef __cplusplus
 }

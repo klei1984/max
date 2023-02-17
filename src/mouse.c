@@ -470,7 +470,7 @@ void mouse_set_position(int x, int y) {
 
     mouse_clip();
 
-    svga_warp_mouse(mouse_x, mouse_y);
+    Svga_WarpMouse(mouse_x, mouse_y);
 }
 
 void mouse_clip(void) {
@@ -509,7 +509,7 @@ void mouse_set_hotspot(int hotx, int hoty) {
     mouse_hotx = hotx;
     mouse_hoty = hoty;
 
-    svga_warp_mouse(mouse_x, mouse_y);
+    Svga_WarpMouse(mouse_x, mouse_y);
 
     if (!mouse_is_hidden) {
         mouse_show();
