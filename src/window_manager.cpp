@@ -107,54 +107,93 @@ static WindowInfo windows[WINDOW_COUNT] = {
     WINDOW_ITEM(WINDOW_RECT(0, 0, 178, 238), WINDOW_WIDTH, 0, nullptr, WINDOW_INTERFACE_PANEL_TOP),
     WINDOW_ITEM(WINDOW_RECT(0, 239, 178, 479), WINDOW_WIDTH, 0, nullptr, WINDOW_INTERFACE_PANEL_BOTTOM)};
 
-void WindowManager_ScaleWindows(int id) {
+void WindowManager_ScaleWindows() {
     WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
-    WindowInfo *const window = &windows[id];
+    int screen_width = WindowManager_GetWidth(screen);
+    int screen_height = WindowManager_GetHeight(screen);
+    double scale;
+    Rect map_frame;
 
-    switch (id) {
-        case WINDOW_MAIN_MAP: {
-            int screen_width = WindowManager_GetWidth(screen);
-            int screen_height = WindowManager_GetHeight(screen);
+    if (screen_width >= screen_height) {
+        scale = static_cast<double>(screen_height) / WINDOW_HEIGHT;
 
-            int window_left = window->window.ulx;
-            int window_tile_count_x = (WINDOW_WIDTH - window_left) / GFX_MAP_TILE_SIZE;
-            int window_right = WINDOW_WIDTH - window_left - window_tile_count_x * GFX_MAP_TILE_SIZE;
-            int window_top = window->window.uly;
-            int window_tile_count_y = (WINDOW_HEIGHT - window_top) / GFX_MAP_TILE_SIZE;
-            int window_bottom = WINDOW_HEIGHT - window_top - window_tile_count_y * GFX_MAP_TILE_SIZE;
-
-            double scale;
-
-            if (screen_width >= screen_height) {
-                scale = static_cast<double>(screen_height) / WINDOW_HEIGHT;
-
-            } else {
-                scale = static_cast<double>(screen_width) / WINDOW_WIDTH;
-            }
-
-            int frame_left = window_left * scale;
-            int frame_tile_count_x = (screen_width - frame_left) / GFX_MAP_TILE_SIZE;
-            int frame_right = screen_width - frame_left - frame_tile_count_x * GFX_MAP_TILE_SIZE;
-            int frame_tile_count_y =
-                (screen_height - static_cast<int>((window_top + window_bottom) * scale)) / GFX_MAP_TILE_SIZE;
-            int frame_top = (screen_height - frame_tile_count_y * GFX_MAP_TILE_SIZE) / 2;
-            int frame_bottom = screen_height - frame_top - frame_tile_count_y * GFX_MAP_TILE_SIZE;
-
-            window->window.ulx = frame_left;
-            window->window.uly = frame_top;
-            window->window.lrx = frame_left + frame_tile_count_x * GFX_MAP_TILE_SIZE - 1;
-            window->window.lry = frame_top + frame_tile_count_y * GFX_MAP_TILE_SIZE - 1;
-            window->buffer = &screen->buffer[screen->width * frame_top + frame_left];
-
-            WindowManager_MapWidth = frame_tile_count_x * GFX_MAP_TILE_SIZE;
-            WindowManager_MapHeight = frame_tile_count_y * GFX_MAP_TILE_SIZE;
-
-            SDL_assert(WindowManager_MapWidth + frame_left + frame_right == screen_width);
-            SDL_assert(WindowManager_MapHeight + frame_top + frame_bottom == screen_height);
-        } break;
+    } else {
+        scale = static_cast<double>(screen_width) / WINDOW_WIDTH;
     }
 
-    windows[id].width = screen->width;
+    {
+        WindowInfo *const window = &windows[WINDOW_MAIN_MAP];
+
+        int window_left = window->window.ulx;
+        int window_tile_count_x = (WINDOW_WIDTH - window_left) / GFX_MAP_TILE_SIZE;
+        int window_right = WINDOW_WIDTH - window_left - window_tile_count_x * GFX_MAP_TILE_SIZE;
+        int window_top = window->window.uly;
+        int window_tile_count_y = (WINDOW_HEIGHT - window_top) / GFX_MAP_TILE_SIZE;
+        int window_bottom = WINDOW_HEIGHT - window_top - window_tile_count_y * GFX_MAP_TILE_SIZE;
+
+        int frame_left = window_left * scale;
+        int frame_tile_count_x = (screen_width - frame_left) / GFX_MAP_TILE_SIZE;
+        int frame_right = screen_width - frame_left - frame_tile_count_x * GFX_MAP_TILE_SIZE;
+        int frame_tile_count_y =
+            (screen_height - static_cast<int>((window_top + window_bottom) * scale)) / GFX_MAP_TILE_SIZE;
+        int frame_top = (screen_height - frame_tile_count_y * GFX_MAP_TILE_SIZE) / 2;
+        int frame_bottom = screen_height - frame_top - frame_tile_count_y * GFX_MAP_TILE_SIZE;
+
+        window->window.ulx = frame_left;
+        window->window.uly = frame_top;
+        window->window.lrx = frame_left + frame_tile_count_x * GFX_MAP_TILE_SIZE - 1;
+        window->window.lry = frame_top + frame_tile_count_y * GFX_MAP_TILE_SIZE - 1;
+        window->buffer = &screen->buffer[screen->width * frame_top + frame_left];
+
+        WindowManager_MapWidth = frame_tile_count_x * GFX_MAP_TILE_SIZE;
+        WindowManager_MapHeight = frame_tile_count_y * GFX_MAP_TILE_SIZE;
+
+        SDL_assert(WindowManager_MapWidth + frame_left + frame_right == screen_width);
+        SDL_assert(WindowManager_MapHeight + frame_top + frame_bottom == screen_height);
+
+        map_frame = window->window;
+    }
+
+    {
+        WindowInfo *const wu = &windows[WINDOW_SCROLL_UP_WINDOW];
+        WindowInfo *const wur = &windows[WINDOW_SCROLL_UP_RIGHT_WINDOW];
+        WindowInfo *const wru = &windows[WINDOW_SCROLL_RIGHT_UP_WINDOW];
+        WindowInfo *const wr = &windows[WINDOW_SCROLL_RIGHT_WINDOW];
+        WindowInfo *const wrd = &windows[WINDOW_SCROLL_RIGHT_DOWN_WINDOW];
+        WindowInfo *const wdr = &windows[WINDOW_SCROLL_DOWN_RIGHT_WINDOW];
+        WindowInfo *const wd = &windows[WINDOW_SCROLL_DOWN_WINDOW];
+        WindowInfo *const wdl = &windows[WINDOW_SCROLL_DOWN_LEFT_WINDOW];
+        WindowInfo *const wld = &windows[WINDOW_SCROLL_LEFT_DOWN_WINDOW];
+        WindowInfo *const wl = &windows[WINDOW_SCROLL_LEFT_WINDOW];
+        WindowInfo *const wlu = &windows[WINDOW_SCROLL_LEFT_UP_WINDOW];
+        WindowInfo *const wul = &windows[WINDOW_SCROLL_UP_LEFT_WINDOW];
+
+        int corner_size = wu->window.ulx * scale;
+        int corner_width = wu->window.lry * scale;
+
+        int x0 = 0;
+        int x1 = corner_size;
+        int x2 = screen_width - corner_size;
+        int x3 = screen_width - 1;
+
+        int y0 = 0;
+        int y1 = corner_size;
+        int y2 = screen_height - corner_size;
+        int y3 = screen_height - 1;
+
+        wu->window = {x1, y0, x2, corner_width};
+        wur->window = {x2, y0, x3, corner_width};
+        wru->window = {x3 - corner_width + 1, y0, x3, y1};
+        wr->window = {x3 - corner_width + 1, y1, x3, y2};
+        wrd->window = {x3 - corner_width + 1, y2, x3, y3};
+        wdr->window = {x2, y3 - corner_width + 1, x3, y3};
+        wd->window = {x1, y3 - corner_width + 1, x2, y3};
+        wdl->window = {x0, y3 - corner_width + 1, y1, y3};
+        wld->window = {x0, y2, corner_width, y3};
+        wl->window = {x0, y1, corner_width, y2};
+        wlu->window = {x0, y0, corner_width, y1};
+        wul->window = {x0, y0, y1, corner_width};
+    }
 }
 
 int WindowManager_Init() {
@@ -187,9 +226,10 @@ int WindowManager_Init() {
                 windows[i].buffer =
                     &windows[WINDOW_MAIN_WINDOW]
                          .buffer[windows[WINDOW_MAIN_WINDOW].width * windows[i].window.uly + windows[i].window.ulx];
-
-                WindowManager_ScaleWindows(i);
+                windows[i].width = windows[WINDOW_MAIN_WINDOW].width;
             }
+
+            WindowManager_ScaleWindows();
 
             WindowManager_SystemPalette = new (std::nothrow) unsigned char[3 * PALETTE_SIZE];
             memset(WindowManager_SystemPalette, 0, 3 * PALETTE_SIZE);
