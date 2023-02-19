@@ -84,11 +84,11 @@ struct CargoBarData {
     void Draw();
 };
 
-class AllocMenu {
+class AllocMenu : public Window {
     WindowInfo window;
-    int full_width;
     unsigned char *cargo_bars_buffer;
     Button *buttons[ALLOCATION_MENU_CONTROL_ITEM_COUNT];
+    SmartPointer<UnitInfo> unit;
     SmartPointer<Complex> complex;
     unsigned char color_index_map[256];
     Cargo production;
@@ -98,7 +98,6 @@ class AllocMenu {
     Cargo complex_materials;
     Cargo complex_capacity;
 
-    bool Init(UnitInfo *unit);
     void Deinit();
     void InitButton(int index);
     void DrawCargoBars();
@@ -112,10 +111,10 @@ class AllocMenu {
     void OnClickGoldBar();
 
 public:
-    AllocMenu();
+    AllocMenu(UnitInfo *unit);
     ~AllocMenu();
 
-    void Run(UnitInfo *unit);
+    void Run();
 };
 
 struct AllocMenuControlItem {
@@ -152,7 +151,50 @@ static const struct MenuTitleItem allocation_menu_titles[] = {
     MENU_TITLE_ITEM_DEF(42, 353, 120, 370, "Usage"),         MENU_TITLE_ITEM_DEF(42, 389, 120, 407, "Reserve"),
 };
 
-AllocMenu::AllocMenu() {}
+AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, WINDOW_MAIN_MAP), unit(unit) {
+    Add();
+    FillWindowInfo(&window);
+
+    text_font(GNW_TEXT_FONT_5);
+
+    Cursor_SetCursor(CURSOR_HAND);
+
+    complex = unit->GetComplex();
+
+    Color_ChangeColorTemperature(0, 0, 63, 1, 2, color_index_map);
+
+    cargo_bars_buffer = new (std::nothrow) unsigned char[4 * sizeof(unsigned short) + 240 * 344];
+
+    struct ImageSimpleHeader *image = reinterpret_cast<struct ImageSimpleHeader *>(cargo_bars_buffer);
+
+    image->width = 240;
+    image->height = 344;
+    image->ulx = 0;
+    image->uly = 0;
+
+    buf_to_buf(&window.buffer[window.width * 70 + 174], image->width, image->height, window.width,
+               &image->transparent_color, image->width);
+
+    for (int i = 0; i < std::size(allocation_menu_titles); ++i) {
+        Text_TextBox(window.buffer, window.width, allocation_menu_titles[i].title, allocation_menu_titles[i].bounds.ulx,
+                     allocation_menu_titles[i].bounds.uly,
+                     allocation_menu_titles[i].bounds.lrx - allocation_menu_titles[i].bounds.ulx,
+                     allocation_menu_titles[i].bounds.lry - allocation_menu_titles[i].bounds.uly, COLOR_GREEN, true,
+                     true);
+    }
+
+    for (int i = 0; i < std::size(allocation_menu_controls); ++i) {
+        InitButton(i);
+    }
+
+    complex->GetCargoMining(production, capacity);
+    complex->GetCargoMinable(usage);
+    complex->GetCargoInfo(complex_materials, complex_capacity);
+
+    DrawCargoBars();
+
+    win_draw(window.id);
+}
 
 AllocMenu::~AllocMenu() {}
 
@@ -325,7 +367,7 @@ void AllocMenu::DrawCargoBars() {
     cargo_2.gold = Balance(&*complex, CARGO_GOLD, production.gold, capacity.gold);
 
     bar.window = &window;
-    bar.width = full_width;
+    bar.width = window.width;
     bar.buffer = cargo_bars_buffer;
     bar.uly = 70;
     bar.cargo_1 = production.raw;
@@ -341,7 +383,7 @@ void AllocMenu::DrawCargoBars() {
     bar.Draw();
 
     bar.window = &window;
-    bar.width = full_width;
+    bar.width = window.width;
     bar.uly = 190;
     bar.cargo_1 = production.fuel;
     bar.cargo_2 = cargo_2.fuel;
@@ -355,7 +397,7 @@ void AllocMenu::DrawCargoBars() {
     bar.Draw();
 
     bar.window = &window;
-    bar.width = full_width;
+    bar.width = window.width;
     bar.uly = 310;
     bar.cargo_1 = production.gold;
     bar.cargo_2 = cargo_2.gold;
@@ -536,74 +578,7 @@ void AllocMenu::Deinit() {
         delete buttons[i];
     }
 
-    win_delete(window.id);
     delete[] cargo_bars_buffer;
-}
-
-bool AllocMenu::Init(UnitInfo *unit) {
-    bool result;
-
-    text_font(GNW_TEXT_FONT_5);
-
-    Cursor_SetCursor(CURSOR_HAND);
-
-    complex = unit->GetComplex();
-
-    full_width = 640;
-
-    window.window.ulx = 0;
-    window.window.uly = 0;
-    window.window.lrx = 639;
-    window.window.lry = 479;
-
-    window.id = win_add(0, 0, 640, 480, 0x00, 0);
-
-    window.buffer = win_get_buf(window.id);
-
-    if (WindowManager_LoadImage(ALLOCFRM, &window, full_width, false, false)) {
-        struct ImageSimpleHeader *image;
-
-        Color_ChangeColorTemperature(0, 0, 63, 1, 2, color_index_map);
-
-        cargo_bars_buffer = new (std::nothrow) unsigned char[4 * sizeof(unsigned short) + 240 * 344];
-        image = reinterpret_cast<struct ImageSimpleHeader *>(cargo_bars_buffer);
-
-        image->width = 240;
-        image->height = 344;
-        image->ulx = 0;
-        image->uly = 0;
-
-        buf_to_buf(&window.buffer[full_width * 70 + 174], image->width, image->height, full_width,
-                   &image->transparent_color, image->width);
-
-        for (int i = 0; i < std::size(allocation_menu_titles); ++i) {
-            Text_TextBox(window.buffer, full_width, allocation_menu_titles[i].title,
-                         allocation_menu_titles[i].bounds.ulx, allocation_menu_titles[i].bounds.uly,
-                         allocation_menu_titles[i].bounds.lrx - allocation_menu_titles[i].bounds.ulx,
-                         allocation_menu_titles[i].bounds.lry - allocation_menu_titles[i].bounds.uly, COLOR_GREEN, true,
-                         true);
-        }
-
-        for (int i = 0; i < std::size(allocation_menu_controls); ++i) {
-            InitButton(i);
-        }
-
-        complex->GetCargoMining(production, capacity);
-        complex->GetCargoMinable(usage);
-        complex->GetCargoInfo(complex_materials, complex_capacity);
-
-        DrawCargoBars();
-
-        win_draw(window.id);
-
-        result = true;
-
-    } else {
-        win_delete(window.id);
-        result = false;
-    }
-
-    return result;
 }
 
 int AllocMenu::GetHorizontalBarClickValue(WinID wid, int material) {
@@ -707,111 +682,109 @@ void AllocMenu::OnClickGoldBar() {
     }
 }
 
-void AllocMenu::Run(UnitInfo *unit) {
-    if (Init(unit)) {
-        bool exit_loop = false;
-        bool event_release = false;
+void AllocMenu::Run() {
+    bool exit_loop = false;
+    bool event_release = false;
 
-        while (!exit_loop) {
-            int key = get_input();
+    while (!exit_loop) {
+        int key = get_input();
 
-            if (key > 0 && key < GNW_INPUT_PRESS) {
-                event_release = false;
-            }
-
-            if (GameManager_RequestMenuExit || unit->orders == ORDER_DISABLE) {
-                key = GNW_KB_KEY_KP_ENTER;
-            }
-
-            switch (key) {
-                case GNW_KB_KEY_ESCAPE:
-                case GNW_KB_KEY_KP_ENTER: {
-                    exit_loop = true;
-                } break;
-
-                case GNW_KB_KEY_LALT_P: {
-                    PauseMenu_Menu();
-                } break;
-
-                case GNW_KB_KEY_SHIFT_DIVIDE:
-                case 1000: {
-                    HelpMenu_Menu(HELPMENU_ALLOCATE_SETUP, WINDOW_MAIN_WINDOW);
-                } break;
-
-                case 1001: {
-                    if (production.free_capacity && production.raw < cargo_2.raw) {
-                        UpdateRawAllocation(AllocMenu_Optimize(&*complex, CARGO_MATERIALS, 1, CARGO_MATERIALS));
-                    }
-                } break;
-
-                case 1002: {
-                    if (production.raw) {
-                        AllocMenu_AdjustForDemands(&*complex, CARGO_MATERIALS, 1);
-                        UpdateRawAllocation(-1);
-                    }
-                } break;
-
-                case 1003: {
-                    OnClickRawBar();
-                } break;
-
-                case 1004: {
-                    if (production.free_capacity && production.fuel < cargo_2.fuel) {
-                        UpdateFuelAllocation(AllocMenu_Optimize(&*complex, CARGO_FUEL, 1, CARGO_FUEL));
-                    }
-                } break;
-
-                case 1005: {
-                    if (production.fuel) {
-                        AllocMenu_AdjustForDemands(&*complex, CARGO_FUEL, 1);
-                        UpdateFuelAllocation(-1);
-                    }
-                } break;
-
-                case 1006: {
-                    OnClickFuelBar();
-                } break;
-
-                case 1007: {
-                    if (production.free_capacity && production.gold < cargo_2.gold) {
-                        UpdateGoldAllocation(AllocMenu_Optimize(&*complex, CARGO_GOLD, 1, CARGO_GOLD));
-                    }
-                } break;
-
-                case 1008: {
-                    if (production.gold) {
-                        AllocMenu_AdjustForDemands(&*complex, CARGO_GOLD, 1);
-                        UpdateGoldAllocation(-1);
-                    }
-                } break;
-
-                case 1009: {
-                    OnClickGoldBar();
-                } break;
-
-                default: {
-                    if (key >= GNW_INPUT_PRESS) {
-                        if (!event_release) {
-                            buttons[key - GNW_INPUT_PRESS]->PlaySound();
-                        }
-
-                        event_release = true;
-                    }
-                } break;
-            }
-
-            GameManager_ProcessState(false);
+        if (key > 0 && key < GNW_INPUT_PRESS) {
+            event_release = false;
         }
 
-        Deinit();
-
-        if (Remote_IsNetworkGame) {
-            Remote_SendNetPacket_11(unit->team, unit->GetComplex());
+        if (GameManager_RequestMenuExit || unit->orders == ORDER_DISABLE) {
+            key = GNW_KB_KEY_KP_ENTER;
         }
 
-        GameManager_EnableMainMenu(unit);
-        GameManager_ProcessTick(true);
+        switch (key) {
+            case GNW_KB_KEY_ESCAPE:
+            case GNW_KB_KEY_KP_ENTER: {
+                exit_loop = true;
+            } break;
+
+            case GNW_KB_KEY_LALT_P: {
+                PauseMenu_Menu();
+            } break;
+
+            case GNW_KB_KEY_SHIFT_DIVIDE:
+            case 1000: {
+                HelpMenu_Menu(HELPMENU_ALLOCATE_SETUP, WINDOW_MAIN_WINDOW);
+            } break;
+
+            case 1001: {
+                if (production.free_capacity && production.raw < cargo_2.raw) {
+                    UpdateRawAllocation(AllocMenu_Optimize(&*complex, CARGO_MATERIALS, 1, CARGO_MATERIALS));
+                }
+            } break;
+
+            case 1002: {
+                if (production.raw) {
+                    AllocMenu_AdjustForDemands(&*complex, CARGO_MATERIALS, 1);
+                    UpdateRawAllocation(-1);
+                }
+            } break;
+
+            case 1003: {
+                OnClickRawBar();
+            } break;
+
+            case 1004: {
+                if (production.free_capacity && production.fuel < cargo_2.fuel) {
+                    UpdateFuelAllocation(AllocMenu_Optimize(&*complex, CARGO_FUEL, 1, CARGO_FUEL));
+                }
+            } break;
+
+            case 1005: {
+                if (production.fuel) {
+                    AllocMenu_AdjustForDemands(&*complex, CARGO_FUEL, 1);
+                    UpdateFuelAllocation(-1);
+                }
+            } break;
+
+            case 1006: {
+                OnClickFuelBar();
+            } break;
+
+            case 1007: {
+                if (production.free_capacity && production.gold < cargo_2.gold) {
+                    UpdateGoldAllocation(AllocMenu_Optimize(&*complex, CARGO_GOLD, 1, CARGO_GOLD));
+                }
+            } break;
+
+            case 1008: {
+                if (production.gold) {
+                    AllocMenu_AdjustForDemands(&*complex, CARGO_GOLD, 1);
+                    UpdateGoldAllocation(-1);
+                }
+            } break;
+
+            case 1009: {
+                OnClickGoldBar();
+            } break;
+
+            default: {
+                if (key >= GNW_INPUT_PRESS) {
+                    if (!event_release) {
+                        buttons[key - GNW_INPUT_PRESS]->PlaySound();
+                    }
+
+                    event_release = true;
+                }
+            } break;
+        }
+
+        GameManager_ProcessState(false);
     }
+
+    Deinit();
+
+    if (Remote_IsNetworkGame) {
+        Remote_SendNetPacket_11(unit->team, unit->GetComplex());
+    }
+
+    GameManager_EnableMainMenu(&*unit);
+    GameManager_ProcessTick(true);
 }
 
-void AllocMenu_Menu(UnitInfo *unit) { AllocMenu().Run(unit); }
+void AllocMenu_Menu(UnitInfo *unit) { AllocMenu(unit).Run(); }
