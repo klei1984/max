@@ -55,6 +55,14 @@ int Svga_Init(void) {
     Svga_ScreenMode = ini_get_setting(INI_SCREEN_MODE);
     Svga_ScaleQuality = ini_get_setting(INI_SCALE_QUALITY);
 
+    if (Svga_ScreenWidth < 640) {
+        Svga_ScreenWidth = 640;
+    }
+
+    if (Svga_ScreenHeight < 480) {
+        Svga_ScreenHeight = 480;
+    }
+
     switch (Svga_ScreenMode) {
         case WINDOW_MODE_WINDOWED: {
             flags |= 0;

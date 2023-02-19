@@ -27,6 +27,7 @@
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
 #include "game_manager.hpp"
+#include "gfx.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
@@ -586,9 +587,9 @@ int ResourceManager_InitResManager() {
             result = ResourceManager_BuildResourceTable(file_path);
 
             if (result == EXIT_CODE_NO_ERROR) {
-                ResourceManager_MinimapFov = new (std::nothrow) unsigned char[112 * 112];
-                ResourceManager_Minimap = new (std::nothrow) unsigned char[112 * 112];
-                ResourceManager_Minimap2x = new (std::nothrow) unsigned char[112 * 112];
+                ResourceManager_MinimapFov = new (std::nothrow) unsigned char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+                ResourceManager_Minimap = new (std::nothrow) unsigned char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+                ResourceManager_Minimap2x = new (std::nothrow) unsigned char[GFX_MAP_SIZE * GFX_MAP_SIZE];
 
                 if (ResourceManager_MinimapFov && ResourceManager_Minimap && ResourceManager_Minimap2x) {
                     if (ResourceManager_BuildColorTables()) {
@@ -987,6 +988,7 @@ ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bo
 }
 
 void ResourceManager_InitInGameAssets(int world) {
+    WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     unsigned char *world_file_name;
     FILE *fp;
     int progress_bar_value;
@@ -1025,11 +1027,11 @@ void ResourceManager_InitInGameAssets(int world) {
 
     SoundManager.FreeMusic();
 
-    WindowManager_LoadImage(FRAMEPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, true, false);
+    WindowManager_LoadImage(FRAMEPIC, window, window->width, true, false, 0, 0);
 
     GameManager_InitLandingSequenceMenu(GameManager_GameState == GAME_STATE_7_SITE_SELECT);
 
-    win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
+    win_draw(window->id);
 
     world = SNOW_1 + world;
 
@@ -1085,7 +1087,7 @@ void ResourceManager_InitInGameAssets(int world) {
 
         palette = new (std::nothrow) unsigned char[3 * PALETTE_SIZE];
 
-        if (fseek(fp, RESOURCE_MANAGER_MAP_TILE_SIZE * RESOURCE_MANAGER_MAP_TILE_SIZE * map_tile_count, SEEK_CUR) ||
+        if (fseek(fp, GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE * map_tile_count, SEEK_CUR) ||
             3 * PALETTE_SIZE != fread(palette, sizeof(unsigned char), 3 * PALETTE_SIZE, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
@@ -1269,13 +1271,9 @@ void ResourceManager_InitInGameAssets(int world) {
                 ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] = 31;
 
             } else {
-                int r;
-                int g;
-                int b;
-
-                r = (WindowManager_ColorPalette[j] * i) / (7 * 32);
-                g = (WindowManager_ColorPalette[j + 1] * i) / (7 * 32);
-                b = (WindowManager_ColorPalette[j + 2] * i) / (7 * 32);
+                int r = (WindowManager_ColorPalette[j] * i) / (7 * 32);
+                int g = (WindowManager_ColorPalette[j + 1] * i) / (7 * 32);
+                int b = (WindowManager_ColorPalette[j + 2] * i) / (7 * 32);
 
                 ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] =
                     ResourceManager_FindClosestPaletteColor(r, g, b, false);
@@ -1296,14 +1294,13 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     unsigned char *normal_tile_buffer;
     unsigned char *full_tile_buffer;
 
-    tile_size = RESOURCE_MANAGER_MAP_TILE_SIZE;
+    tile_size = GFX_MAP_TILE_SIZE;
 
     reduced_tile_count = (ResourceManager_MapTileCount + 7) / 8;
 
     if (ResourceManager_DisableEnhancedGraphics) {
         tile_size /= 2;
-        full_tile_buffer = new (std::nothrow) unsigned char[reduced_tile_count * RESOURCE_MANAGER_MAP_TILE_SIZE *
-                                                            RESOURCE_MANAGER_MAP_TILE_SIZE];
+        full_tile_buffer = new (std::nothrow) unsigned char[reduced_tile_count * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
     }
 
     ResourceManager_MapTileBuffer =
@@ -1313,12 +1310,11 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
         loadbar->SetValue(i * 50 / ResourceManager_MapTileCount + 20);
 
         if (!ResourceManager_DisableEnhancedGraphics) {
-            full_tile_buffer =
-                &ResourceManager_MapTileBuffer[i * RESOURCE_MANAGER_MAP_TILE_SIZE * RESOURCE_MANAGER_MAP_TILE_SIZE];
+            full_tile_buffer = &ResourceManager_MapTileBuffer[i * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
         }
 
         tile_index = std::min(reduced_tile_count, ResourceManager_MapTileCount - i);
-        data_size = tile_index * RESOURCE_MANAGER_MAP_TILE_SIZE * RESOURCE_MANAGER_MAP_TILE_SIZE;
+        data_size = tile_index * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE;
 
         if (data_size != fread(full_tile_buffer, sizeof(unsigned char), data_size, fp)) {
             return false;
@@ -1480,14 +1476,14 @@ void ResourceManager_InitClanUnitValues(unsigned short team) {
 
 void ResourceManager_InitHeatMaps(unsigned short team) {
     if (UnitsManager_TeamInfo[team].team_type) {
-        UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) char[112 * 112];
-        memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, 112 * 112);
+        UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+        memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
 
-        UnitsManager_TeamInfo[team].heat_map_stealth_sea = new (std::nothrow) char[112 * 112];
-        memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, 112 * 112);
+        UnitsManager_TeamInfo[team].heat_map_stealth_sea = new (std::nothrow) char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+        memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
 
-        UnitsManager_TeamInfo[team].heat_map_stealth_land = new (std::nothrow) char[112 * 112];
-        memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, 112 * 112);
+        UnitsManager_TeamInfo[team].heat_map_stealth_land = new (std::nothrow) char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+        memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
 
     } else {
         UnitsManager_TeamInfo[team].heat_map_complete = nullptr;

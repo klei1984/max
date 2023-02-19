@@ -91,17 +91,29 @@ enum {
 extern Color *WindowManager_SystemPalette;
 extern Color *WindowManager_ColorPalette;
 
+extern int WindowManager_WindowWidth;
+extern int WindowManager_WindowHeight;
+extern int WindowManager_MapWidth;
+extern int WindowManager_MapHeight;
+
 int WindowManager_Init();
 WindowInfo *WindowManager_GetWindow(unsigned char id);
 void WindowManager_ClearWindow();
 void WindowManager_FadeOut(int steps);
 void WindowManager_FadeIn(int steps);
 void WindowManager_LoadPalette(ResourceID id);
-void WindowManager_DecodeImage(struct ImageBigHeader *image, unsigned char *buffer, int width, int height, int ulx);
-int WindowManager_LoadImage(ResourceID id, WindowInfo *window, short offx, int palette_from_image,
-                            int draw_to_screen = true, int width_from_image = -1, int height_from_image = -1);
+void WindowManager_DecodeImage(struct ImageBigHeader *image, unsigned char *buffer, int ulx, int uly, int pitch);
+int WindowManager_LoadImage(ResourceID id, WindowInfo *window, short pitch, int palette_from_image,
+                            int draw_to_screen = true, int ulx = -1, int uly = -1);
 void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int uly, int has_transparency, WindowInfo *w);
 void WindowManager_LoadImage2(ResourceID id, int ulx, int uly, int has_transparency, WindowInfo *w = nullptr);
 struct ImageSimpleHeader *WindowManager_RescaleImage(struct ImageSimpleHeader *image, int scaling_factor);
+int WindowManager_GetWidth(WindowInfo *w);
+int WindowManager_GetHeight(WindowInfo *w);
+int WindowManager_ScaleUlx(WindowInfo *w, int ulx);
+int WindowManager_ScaleUly(WindowInfo *w, int uly);
+int WindowManager_ScaleLrx(WindowInfo *w, int ulx, int lrx);
+int WindowManager_ScaleLry(WindowInfo *w, int uly, int lry);
+int WindowManager_ScaleOffset(WindowInfo *w, int ulx, int uly);
 
 #endif /* WINDOW_MANAGER_HPP */

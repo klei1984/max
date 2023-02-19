@@ -29,8 +29,6 @@
 #include "gnw.h"
 #include "point.hpp"
 
-#define RESOURCE_MANAGER_MAP_TILE_SIZE 64
-
 struct __attribute__((packed)) ImageSimpleHeader {
     short width;
     short height;

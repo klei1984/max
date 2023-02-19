@@ -400,13 +400,13 @@ bool Text_IsFitting(Rect* bounds1, Rect* bounds2) {
            bounds1->lry >= bounds2->lry;
 }
 
-void Text_AutofitTextBox(unsigned char* buffer, unsigned short full_width, const char* text, Rect* text_area,
+void Text_AutofitTextBox(unsigned char* buffer, unsigned short pitch, const char* text, Rect* text_area,
                          Rect* draw_area, int color, bool horizontal_align) {
     Rect render_area;
 
     if (Text_FitBounds(&render_area, text_area, draw_area)) {
         if (Text_IsFitting(&render_area, text_area)) {
-            Text_TextBox(buffer, full_width, text, text_area->ulx, text_area->uly, text_area->lrx - text_area->ulx,
+            Text_TextBox(buffer, pitch, text, text_area->ulx, text_area->uly, text_area->lrx - text_area->ulx,
                          text_area->lry - text_area->uly, color, horizontal_align);
 
         } else {
@@ -423,15 +423,15 @@ void Text_AutofitTextBox(unsigned char* buffer, unsigned short full_width, const
             text_height = text_area->lry - text_area->uly;
 
             text_buffer = new (std::nothrow) unsigned char[text_width * text_height];
-            buffer = &buffer[full_width * render_area.uly + render_area.ulx];
+            buffer = &buffer[pitch * render_area.uly + render_area.ulx];
             target_buffer =
                 &text_buffer[(render_area.uly - text_area->uly) * text_width + (render_area.ulx - text_area->ulx)];
 
-            buf_to_buf(buffer, render_width, render_height, full_width, target_buffer, text_width);
+            buf_to_buf(buffer, render_width, render_height, pitch, target_buffer, text_width);
 
             Text_TextBox(text_buffer, text_width, text, 0, 0, text_width, text_height, color, horizontal_align);
 
-            buf_to_buf(target_buffer, render_width, render_height, text_width, buffer, full_width);
+            buf_to_buf(target_buffer, render_width, render_height, text_width, buffer, pitch);
 
             delete[] text_buffer;
         }

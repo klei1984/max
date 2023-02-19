@@ -30,7 +30,7 @@ void GameManager_GameLoop(int game_state);
 void GameManager_AddDrawBounds(Rect* bounds);
 void GameManager_UpdateDrawBounds();
 void GameManager_DeployUnit(unsigned short team, ResourceID unit_type, int grid_x, int grid_y);
-void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx, int height, int offsety, int bottom,
+void GameManager_DrawUnitSelector(unsigned char* buffer, int pitch, int offsetx, int height, int offsety, int bottom,
                                   int item_height, int top, int scaling_factor, int is_big_sprite,
                                   bool double_marker = false);
 bool GameManager_RefreshOrders(unsigned short team, bool check_production);
@@ -77,7 +77,6 @@ extern int GameManager_HumanPlayerCount;
 extern bool GameManager_AllVisible;
 extern bool GameManager_RealTime;
 extern bool GameManager_RequestMenuExit;
-extern unsigned short Gfx_MapWindowWidth;
 extern bool GameManager_DisplayControlsInitialized;
 extern bool GameManager_RenderMinimapDisplay;
 extern bool GameManager_PlayFlic;
@@ -89,8 +88,6 @@ extern Button* Gamemanager_FlicButton;
 extern unsigned char GameManager_PlayMode;
 extern bool GameManager_FastMovement;
 extern unsigned char GameManager_ActiveTurnTeam;
-extern unsigned short GameManager_MainMapWidth;
-extern unsigned short GameManager_MainMapHeight;
 extern char GameManager_PlayerTeam;
 extern char GameManager_GameState;
 

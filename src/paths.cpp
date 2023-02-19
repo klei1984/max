@@ -1612,12 +1612,12 @@ void Paths_DrawMarker(WindowInfo* window, int angle, int grid_x, int grid_y, int
     c_x = (Paths_8DirPointsArrayMarkerC[angle].x << 16) / Gfx_MapScalingFactor + grid_x;
     c_y = (Paths_8DirPointsArrayMarkerC[angle].y << 16) / Gfx_MapScalingFactor + grid_y;
 
-    a_x = std::min(std::max(0, a_x), GameManager_MainMapWidth - 1);
-    a_y = std::min(std::max(0, a_y), GameManager_MainMapHeight - 1);
-    b_x = std::min(std::max(0, b_x), GameManager_MainMapWidth - 1);
-    b_y = std::min(std::max(0, b_y), GameManager_MainMapHeight - 1);
-    c_x = std::min(std::max(0, c_x), GameManager_MainMapWidth - 1);
-    c_y = std::min(std::max(0, c_y), GameManager_MainMapHeight - 1);
+    a_x = std::min(std::max(0, a_x), WindowManager_MapWidth - 1);
+    a_y = std::min(std::max(0, a_y), WindowManager_MapHeight - 1);
+    b_x = std::min(std::max(0, b_x), WindowManager_MapWidth - 1);
+    b_y = std::min(std::max(0, b_y), WindowManager_MapHeight - 1);
+    c_x = std::min(std::max(0, c_x), WindowManager_MapWidth - 1);
+    c_y = std::min(std::max(0, c_y), WindowManager_MapHeight - 1);
 
     draw_line(window->buffer, window->width, a_x, a_y, b_x, b_y, color);
     draw_line(window->buffer, window->width, b_x, b_y, c_x, c_y, color);
@@ -1642,11 +1642,11 @@ void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots) {
                     grid_y += (size / 2) - image->height;
 
                     if (grid_y >= 0) {
-                        if (image->width + grid_y < GameManager_MainMapHeight) {
+                        if (image->width + grid_y < WindowManager_MapHeight) {
                             grid_x += (size / 2) - (image->width * shots);
 
                             for (int i = 0; i < shots; ++i) {
-                                if (grid_x >= 0 && (image->width + grid_x) < GameManager_MainMapWidth) {
+                                if (grid_x >= 0 && (image->width + grid_x) < WindowManager_MapWidth) {
                                     WindowManager_DecodeImage2(image, grid_x, grid_y, true, window);
                                 }
 

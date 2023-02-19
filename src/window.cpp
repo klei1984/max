@@ -41,8 +41,8 @@ Window::Window(ResourceID id) : window_id(0), flags(0), resource_id(id), palette
     result = ResourceManager_ReadImageHeader(id, &image_header);
     SDL_assert(result == 1);
 
-    ulx = (640 - image_header.width) / 2;
-    uly = (480 - image_header.height) / 2;
+    ulx = (WindowManager_WindowWidth - image_header.width) / 2;
+    uly = (WindowManager_WindowHeight - image_header.height) / 2;
     width = image_header.width;
     height = image_header.height;
 }

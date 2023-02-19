@@ -22,6 +22,7 @@
 #include "gfx.hpp"
 
 #include "resource_manager.hpp"
+#include "window_manager.hpp"
 
 struct RowMeta {
     unsigned char* buffer;
@@ -50,7 +51,6 @@ unsigned int Gfx_ZoomLevel;
 int Gfx_MapScalingFactor;
 int Gfx_MapWindowUlx;
 int Gfx_MapWindowUly;
-unsigned short Gfx_MapWindowWidth = 640;
 Point Gfx_ScaledOffset;
 unsigned short Gfx_ScaledWidth;
 unsigned short Gfx_ScaledHeight;
@@ -80,8 +80,8 @@ char Gfx_DecodeMap_DiffLrx;
 char Gfx_DecodeMap_DiffLry;
 char Gfx_DecodeMap_byte_16870B;
 char Gfx_DecodeMap_byte_16870C;
-char Gfx_DecodeMap_TilesInViewY_Index;
-char Gfx_DecodeMap_TilesInViewX_Index;
+short Gfx_DecodeMap_TilesInViewY_Index;
+short Gfx_DecodeMap_TilesInViewX_Index;
 char Gfx_DecodeMap_byte_16870F;
 unsigned short* Gfx_DecodeMap_MapTileIds;
 unsigned char* Gfx_DecodeMap_MapTileBuffer;
@@ -146,7 +146,7 @@ bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect
         Gfx_ScaledWidth = target_bounds.lrx - target_bounds.ulx;
         Gfx_ScaledHeight = target_bounds.lry - target_bounds.uly;
 
-        Gfx_TargetScreenBufferOffset = Gfx_MapWindowWidth * target_bounds.uly + target_bounds.ulx;
+        Gfx_TargetScreenBufferOffset = WindowManager_WindowWidth * target_bounds.uly + target_bounds.ulx;
 
         result = true;
     }
@@ -222,7 +222,8 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
             Gfx_DecodeMap_dword_168700 = factor;
             Gfx_DecodeMap_dword_168724 = Gfx_DecodeMap_MainMapWindowBuffer;
 
-            Gfx_DecodeMap_MainMapWindowBuffer = &Gfx_DecodeMap_MainMapWindowBuffer[Gfx_MapWindowWidth * zoom_level];
+            Gfx_DecodeMap_MainMapWindowBuffer =
+                &Gfx_DecodeMap_MainMapWindowBuffer[WindowManager_WindowWidth * zoom_level];
 
             do {
                 Gfx_DecodeMap_MapTileBuffer = &ResourceManager_MapTileBuffer[Gfx_DecodeMap_MapTileIds[tile_index]
@@ -262,7 +263,7 @@ void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quoti
                         factor += Gfx_DecodeMap_MapTileZoomFactor;
                     }
 
-                    Gfx_DecodeMap_dword_16872C = &Gfx_DecodeMap_dword_16872C[Gfx_MapWindowWidth];
+                    Gfx_DecodeMap_dword_16872C = &Gfx_DecodeMap_dword_16872C[WindowManager_WindowWidth];
                     Gfx_DecodeMap_dword_168720 += Gfx_DecodeMap_MapTileZoomFactor;
                     map_tile_buffer = &Gfx_DecodeMap_MapTileBuffer[(Gfx_DecodeMap_dword_168720 >> 16)
                                                                    << (Gfx_DecodeMap_TileBufferQuotient >> 1)];
@@ -305,7 +306,7 @@ void Gfx_DecodeSprite() {
 
         for (;;) {
             if (*Gfx_SpriteRowAddress == row_delimiter) {
-                Gfx_TargetScreenBufferOffset += Gfx_MapWindowWidth;
+                Gfx_TargetScreenBufferOffset += WindowManager_WindowWidth;
 
                 if (!--Gfx_ScaledHeight) {
                     return;
@@ -340,7 +341,7 @@ void Gfx_DecodeSprite() {
                                 offset += temp;
 
                             } else {
-                                Gfx_TargetScreenBufferOffset += Gfx_MapWindowWidth;
+                                Gfx_TargetScreenBufferOffset += WindowManager_WindowWidth;
 
                                 if (!--Gfx_ScaledHeight) {
                                     return;
@@ -357,7 +358,7 @@ void Gfx_DecodeSprite() {
                             offset += temp;
 
                         } else {
-                            Gfx_TargetScreenBufferOffset += Gfx_MapWindowWidth;
+                            Gfx_TargetScreenBufferOffset += WindowManager_WindowWidth;
 
                             if (!--Gfx_ScaledHeight) {
                                 return;
@@ -513,7 +514,7 @@ void Gfx_DecodeShadow() {
             }
         }
 
-        Gfx_TargetScreenBufferOffset += Gfx_MapWindowWidth;
+        Gfx_TargetScreenBufferOffset += WindowManager_WindowWidth;
         --Gfx_ScaledHeight;
     }
 }

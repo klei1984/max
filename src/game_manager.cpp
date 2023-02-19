@@ -502,8 +502,6 @@ char GameManager_PlayerTeam;
 char GameManager_GameState;
 unsigned char GameManager_ActiveTurnTeam;
 unsigned char GameManager_MarkerColor = 0xFF;
-unsigned short GameManager_MainMapWidth = 448;
-unsigned short GameManager_MainMapHeight = 448;
 unsigned char GameManager_PlayMode;
 bool GameManager_FastMovement;
 unsigned short GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];
@@ -708,6 +706,7 @@ static void GameManager_ResupplyUnits(unsigned short team, SmartList<UnitInfo>* 
 static void GameManager_ManageEconomy(unsigned short team);
 static Point GameManager_GetStartPositionMiningStation(unsigned short team);
 static Point GameManager_GetStartingPositionPowerGenerator(Point point, unsigned short team);
+static int GameManager_DetermineZoomLimit();
 
 void GameManager_GameLoop(int game_state) {
     unsigned int turn_counter;
@@ -928,7 +927,7 @@ void GameManager_DeployUnit(unsigned short team, ResourceID unit_type, int grid_
     }
 }
 
-void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx, int height, int offsety, int bottom,
+void GameManager_DrawUnitSelector(unsigned char* buffer, int pitch, int offsetx, int height, int offsety, int bottom,
                                   int item_height, int top, int scaling_factor, int is_big_sprite, bool double_marker) {
     unsigned char color;
     int loop_count;
@@ -943,7 +942,7 @@ void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx,
         size1 = 16;
     }
 
-    scaled_size1 = (size1 << 16) / scaling_factor;
+    scaled_size1 = (size1 * GFX_SCALE_DENOMINATOR) / scaling_factor;
 
     if (is_big_sprite) {
         size2 = 128;
@@ -951,7 +950,7 @@ void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx,
         size2 = 64;
     }
 
-    scaled_size2 = (size2 << 16) / scaling_factor - 2;
+    scaled_size2 = (size2 * GFX_SCALE_DENOMINATOR) / scaling_factor - 2;
 
     if (double_marker) {
         loop_count = 3;
@@ -967,48 +966,48 @@ void GameManager_DrawUnitSelector(unsigned char* buffer, int width, int offsetx,
 
     for (int i = 0; i < loop_count; ++i) {
         if (height >= bottom && height <= top && scaled_size1 + offsetx >= offsety && offsetx <= item_height) {
-            draw_line(buffer, width, std::max(offsetx, offsety), height, std::min(scaled_size1 + offsetx, item_height),
+            draw_line(buffer, pitch, std::max(offsetx, offsety), height, std::min(scaled_size1 + offsetx, item_height),
                       height, color);
         }
 
         if (offsetx >= offsety && offsetx <= item_height && scaled_size1 + height >= bottom && height <= top) {
-            draw_line(buffer, width, offsetx, std::max(height, bottom), offsetx, std::min(scaled_size1 + height, top),
+            draw_line(buffer, pitch, offsetx, std::max(height, bottom), offsetx, std::min(scaled_size1 + height, top),
                       color);
         }
 
         offsetx += scaled_size2;
 
         if (height >= bottom && height <= top && offsetx >= offsety && offsetx - scaled_size1 <= item_height) {
-            draw_line(buffer, width, std::max(offsetx - scaled_size1, offsety), height, std::min(offsetx, item_height),
+            draw_line(buffer, pitch, std::max(offsetx - scaled_size1, offsety), height, std::min(offsetx, item_height),
                       height, color);
         }
 
         if (offsetx >= offsety && offsetx <= item_height && scaled_size1 + height >= bottom && height <= top) {
-            draw_line(buffer, width, offsetx, std::max(height, bottom), offsetx, std::min(scaled_size1 + height, top),
+            draw_line(buffer, pitch, offsetx, std::max(height, bottom), offsetx, std::min(scaled_size1 + height, top),
                       color);
         }
 
         height += scaled_size2;
 
         if (height >= bottom && height <= top && offsetx >= offsety && offsetx - scaled_size1 <= item_height) {
-            draw_line(buffer, width, std::max(offsetx - scaled_size1, offsety), height, std::min(offsetx, item_height),
+            draw_line(buffer, pitch, std::max(offsetx - scaled_size1, offsety), height, std::min(offsetx, item_height),
                       height, color);
         }
 
         if (offsetx >= offsety && offsetx <= item_height && height >= bottom && height - scaled_size1 <= top) {
-            draw_line(buffer, width, offsetx, std::min(height, top), offsetx, std::max(height - scaled_size1, bottom),
+            draw_line(buffer, pitch, offsetx, std::min(height, top), offsetx, std::max(height - scaled_size1, bottom),
                       color);
         }
 
         offsetx -= scaled_size2;
 
         if (height >= bottom && height <= top && scaled_size1 + offsetx >= offsety && offsetx <= item_height) {
-            draw_line(buffer, width, std::max(offsetx, offsety), height, std::min(scaled_size1 + offsetx, item_height),
+            draw_line(buffer, pitch, std::max(offsetx, offsety), height, std::min(scaled_size1 + offsetx, item_height),
                       height, color);
         }
 
         if (offsetx >= offsety && offsetx <= item_height && height >= bottom && height - scaled_size1 <= top) {
-            draw_line(buffer, width, offsetx, std::min(height, top), offsetx, std::max(height - scaled_size1, bottom),
+            draw_line(buffer, pitch, offsetx, std::min(height, top), offsetx, std::max(height - scaled_size1, bottom),
                       color);
         }
 
@@ -1102,13 +1101,13 @@ void GameManager_GetScaledMessageBoxBounds(Rect* bounds) {
     window_message_box = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
     bounds->ulx = GameManager_MapWindowDrawBounds.ulx;
-    bounds->uly = ((Gfx_MapScalingFactor * 10) >> 16) + GameManager_MapWindowDrawBounds.uly;
-    bounds->lrx =
-        (((window_message_box->window.lrx - window_message_box->window.ulx + 1) * Gfx_MapScalingFactor) >> 16) +
-        bounds->ulx;
-    bounds->lry =
-        (((window_message_box->window.lry - window_message_box->window.uly + 1) * Gfx_MapScalingFactor) >> 16) +
-        bounds->uly;
+    bounds->uly = ((Gfx_MapScalingFactor * 10) / GFX_SCALE_DENOMINATOR) + GameManager_MapWindowDrawBounds.uly;
+    bounds->lrx = (((window_message_box->window.lrx - window_message_box->window.ulx + 1) * Gfx_MapScalingFactor) /
+                   GFX_SCALE_DENOMINATOR) +
+                  bounds->ulx;
+    bounds->lry = (((window_message_box->window.lry - window_message_box->window.uly + 1) * Gfx_MapScalingFactor) /
+                   GFX_SCALE_DENOMINATOR) +
+                  bounds->uly;
 }
 
 void GameManager_Render() {
@@ -1138,24 +1137,24 @@ void GameManager_Render() {
                 GameManager_RenderMinimapDisplay = false;
 
             } else {
-                buf_to_buf(ResourceManager_Minimap, 112, 112, 112, WindowManager_GetWindow(WINDOW_MINIMAP)->buffer,
-                           640);
+                WindowInfo* window = WindowManager_GetWindow(WINDOW_MINIMAP);
+
+                buf_to_buf(ResourceManager_Minimap, 112, 112, 112, window->buffer, window->width);
             }
         }
 
         if (GameManager_RenderEnable) {
-            Rect bounds;
-            WindowInfo* window;
+            Rect bounds = GameManager_RenderArea;
+            WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
             int width;
             int height;
 
-            bounds = GameManager_RenderArea;
-            window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
-
-            width = (((GameManager_MousePosition2.x - window->window.ulx) * Gfx_MapScalingFactor) >> 16) +
-                    GameManager_MapWindowDrawBounds.ulx;
-            height = (((GameManager_MousePosition2.y - window->window.uly) * Gfx_MapScalingFactor) >> 16) +
-                     GameManager_MapWindowDrawBounds.uly;
+            width =
+                (((GameManager_MousePosition2.x - window->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
+                GameManager_MapWindowDrawBounds.ulx;
+            height =
+                (((GameManager_MousePosition2.y - window->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
+                GameManager_MapWindowDrawBounds.uly;
 
             GameManager_RenderArea.ulx = std::min(static_cast<int>(GameManager_ScaledMousePosition.x), width);
             GameManager_RenderArea.uly = std::min(static_cast<int>(GameManager_ScaledMousePosition.y), height);
@@ -1190,9 +1189,7 @@ void GameManager_Render() {
 
         DrawMap_RenderMapTiles(&drawmap, GameManager_DisplayButtonGrid);
 
-        WindowInfo* window;
-
-        window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+        WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
         if (GameManager_HumanPlayerCount && GameManager_GameState == GAME_STATE_11 &&
             GameManager_ActiveTurnTeam != GameManager_PlayerTeam) {
@@ -1243,7 +1240,7 @@ void GameManager_Render() {
                         }
 
                         if (GameManager_DisplayButtonScan) {
-                            GameManager_DrawCircle(unit, window, unit_values->GetAttribute(ATTRIB_SCAN), 0x04);
+                            GameManager_DrawCircle(unit, window, unit_values->GetAttribute(ATTRIB_SCAN), COLOR_YELLOW);
                         }
 
                         if (GameManager_DisplayButtonLock &&
@@ -1271,7 +1268,7 @@ void GameManager_Render() {
 
                                         if (GameManager_DisplayButtonScan) {
                                             GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_SCAN),
-                                                                   0x04);
+                                                                   COLOR_YELLOW);
                                         }
                                     }
                                 }
@@ -1291,10 +1288,14 @@ void GameManager_Render() {
                 int map_lrx;
                 int map_lry;
 
-                map_ulx = (GameManager_RenderArea.ulx << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-                map_uly = (GameManager_RenderArea.uly << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
-                map_lrx = (GameManager_RenderArea.lrx << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-                map_lry = (GameManager_RenderArea.lry << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+                map_ulx =
+                    (GameManager_RenderArea.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+                map_uly =
+                    (GameManager_RenderArea.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+                map_lrx =
+                    (GameManager_RenderArea.lrx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+                map_lry =
+                    (GameManager_RenderArea.lry * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
 
                 if (GameManager_RenderArea.ulx <= GameManager_MapWindowDrawBounds.lrx &&
                     GameManager_RenderArea.lrx >= GameManager_MapWindowDrawBounds.ulx &&
@@ -1307,27 +1308,27 @@ void GameManager_Render() {
 
                     map_ulx2 = std::max(map_ulx, 0);
                     map_uly2 = std::max(map_uly, 0);
-                    map_lrx2 = std::min(map_lrx, GameManager_MainMapWidth - 1);
-                    map_lry2 = std::min(map_lry, GameManager_MainMapHeight - 1);
+                    map_lrx2 = std::min(map_lrx, WindowManager_MapWidth - 1);
+                    map_lry2 = std::min(map_lry, WindowManager_MapHeight - 1);
 
                     if (GameManager_RenderArea.uly >= GameManager_MapWindowDrawBounds.uly &&
                         GameManager_RenderArea.uly <= GameManager_MapWindowDrawBounds.lry) {
-                        draw_line(window->buffer, 640, map_ulx2, map_uly, map_lrx2, map_uly, COLOR_YELLOW);
+                        draw_line(window->buffer, window->width, map_ulx2, map_uly, map_lrx2, map_uly, COLOR_YELLOW);
                     }
 
                     if (GameManager_RenderArea.lrx >= GameManager_MapWindowDrawBounds.ulx &&
                         GameManager_RenderArea.lrx <= GameManager_MapWindowDrawBounds.lrx) {
-                        draw_line(window->buffer, 640, map_lrx, map_uly2, map_lrx, map_lry2, COLOR_YELLOW);
+                        draw_line(window->buffer, window->width, map_lrx, map_uly2, map_lrx, map_lry2, COLOR_YELLOW);
                     }
 
                     if (GameManager_RenderArea.lry >= GameManager_MapWindowDrawBounds.uly &&
                         GameManager_RenderArea.lry <= GameManager_MapWindowDrawBounds.lry) {
-                        draw_line(window->buffer, 640, map_ulx2, map_lry, map_lrx2, map_lry, COLOR_YELLOW);
+                        draw_line(window->buffer, window->width, map_ulx2, map_lry, map_lrx2, map_lry, COLOR_YELLOW);
                     }
 
                     if (GameManager_RenderArea.ulx >= GameManager_MapWindowDrawBounds.ulx &&
                         GameManager_RenderArea.ulx <= GameManager_MapWindowDrawBounds.lrx) {
-                        draw_line(window->buffer, 640, map_ulx, map_uly2, map_ulx, map_lry2, COLOR_YELLOW);
+                        draw_line(window->buffer, window->width, map_ulx, map_uly2, map_ulx, map_lry2, COLOR_YELLOW);
                     }
                 }
             }
@@ -1340,25 +1341,27 @@ void GameManager_Render() {
             if (GameManager_RenderMinimapDisplay) {
                 window = WindowManager_GetWindow(WINDOW_MINIMAP);
 
-                draw_box(window->buffer, 640, GameManager_GridPosition.ulx, GameManager_GridPosition.uly,
+                draw_box(window->buffer, window->width, GameManager_GridPosition.ulx, GameManager_GridPosition.uly,
                          GameManager_GridPosition.lrx, GameManager_GridPosition.lry, COLOR_RED);
 
                 if (GameManager_DisplayButtonMinimap2x) {
                     unsigned char* buffer;
 
-                    buffer = &window->buffer[GameManager_GridCenterOffset.y * 640 + GameManager_GridCenterOffset.x];
+                    buffer =
+                        &window
+                             ->buffer[GameManager_GridCenterOffset.y * window->width + GameManager_GridCenterOffset.x];
 
                     for (int y = 0; y < (112 / 2); ++y) {
                         for (int x = 0; x < (112 / 2); ++x) {
-                            ResourceManager_Minimap2x[(2 * y) * 112 + 2 * x] = buffer[y * 640 + x];
-                            ResourceManager_Minimap2x[(2 * y) * 112 + 2 * x + 1] = buffer[y * 640 + x];
+                            ResourceManager_Minimap2x[(2 * y) * 112 + 2 * x] = buffer[y * window->width + x];
+                            ResourceManager_Minimap2x[(2 * y) * 112 + 2 * x + 1] = buffer[y * window->width + x];
                         }
 
                         memcpy(&ResourceManager_Minimap2x[(2 * y + 1) * 112], &ResourceManager_Minimap2x[(2 * y) * 112],
                                112);
                     }
 
-                    buf_to_buf(ResourceManager_Minimap2x, 112, 112, 112, window->buffer, 640);
+                    buf_to_buf(ResourceManager_Minimap2x, 112, 112, 112, window->buffer, window->width);
                 }
 
                 win_draw_rect(window->id, &window->window);
@@ -1699,8 +1702,8 @@ bool GameManager_UpdateMapDrawBounds(int ulx, int uly) {
     width = GameManager_MapWindowDrawBounds.lrx - GameManager_MapWindowDrawBounds.ulx + 1;
     height = GameManager_MapWindowDrawBounds.lry - GameManager_MapWindowDrawBounds.uly + 1;
 
-    width_pixels = (GameManager_MainMapWidth * Gfx_MapScalingFactor) >> 16;
-    height_pixels = (GameManager_MainMapHeight * Gfx_MapScalingFactor) >> 16;
+    width_pixels = (WindowManager_MapWidth * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR;
+    height_pixels = (WindowManager_MapHeight * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR;
 
     if (ulx < 0) {
         ulx = 0;
@@ -1710,20 +1713,20 @@ bool GameManager_UpdateMapDrawBounds(int ulx, int uly) {
         uly = 0;
     }
 
-    while (((width_pixels << 16) / Gfx_MapScalingFactor) < GameManager_MainMapWidth) {
+    while (((width_pixels * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor) < WindowManager_MapWidth) {
         ++width_pixels;
     }
 
-    while (((height_pixels << 16) / Gfx_MapScalingFactor) < GameManager_MainMapHeight) {
+    while (((height_pixels * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor) < WindowManager_MapHeight) {
         ++height_pixels;
     }
 
-    if (ulx + width_pixels >= 112 * 64) {
-        ulx = 112 * 64 - width_pixels;
+    if (ulx + width_pixels >= GFX_MAP_SIZE * GFX_MAP_TILE_SIZE) {
+        ulx = GFX_MAP_SIZE * GFX_MAP_TILE_SIZE - width_pixels;
     }
 
-    if (uly + height_pixels >= 112 * 64) {
-        uly = 112 * 64 - height_pixels;
+    if (uly + height_pixels >= GFX_MAP_SIZE * GFX_MAP_TILE_SIZE) {
+        uly = GFX_MAP_SIZE * GFX_MAP_TILE_SIZE - height_pixels;
     }
 
     if (ulx == GameManager_MapWindowDrawBounds.ulx && uly == GameManager_MapWindowDrawBounds.uly &&
@@ -1735,18 +1738,25 @@ bool GameManager_UpdateMapDrawBounds(int ulx, int uly) {
         GameManager_MapWindowDrawBounds.lrx = ulx + width_pixels - 1;
         GameManager_MapWindowDrawBounds.lry = uly + height_pixels - 1;
 
-        Gfx_MapWindowUlx = (GameManager_MapWindowDrawBounds.ulx << 16) / Gfx_MapScalingFactor;
-        Gfx_MapWindowUly = (GameManager_MapWindowDrawBounds.uly << 16) / Gfx_MapScalingFactor;
+        Gfx_MapWindowUlx = (GameManager_MapWindowDrawBounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor;
+        Gfx_MapWindowUly = (GameManager_MapWindowDrawBounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor;
 
-        GameManager_GridPosition.ulx = GameManager_MapWindowDrawBounds.ulx / 64;
-        GameManager_GridPosition.uly = GameManager_MapWindowDrawBounds.uly / 64;
-        GameManager_GridPosition.lrx = GameManager_MapWindowDrawBounds.lrx / 64;
-        GameManager_GridPosition.lry = GameManager_MapWindowDrawBounds.lry / 64;
+        GameManager_GridPosition.ulx = GameManager_MapWindowDrawBounds.ulx / GFX_MAP_TILE_SIZE;
+        GameManager_GridPosition.uly = GameManager_MapWindowDrawBounds.uly / GFX_MAP_TILE_SIZE;
+        GameManager_GridPosition.lrx = GameManager_MapWindowDrawBounds.lrx / GFX_MAP_TILE_SIZE;
+        GameManager_GridPosition.lry = GameManager_MapWindowDrawBounds.lry / GFX_MAP_TILE_SIZE;
 
         result = true;
     }
 
     return result;
+}
+
+int GameManager_DetermineZoomLimit() {
+    int count = std::max(WindowManager_MapWidth, WindowManager_MapHeight);
+    int limit = (count + GFX_MAP_SIZE - 1) / GFX_MAP_SIZE;
+
+    return limit;
 }
 
 void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
@@ -1770,7 +1780,7 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
 
     } else if (mode == 0 || mode == 1) {
         if (mode == 0) {
-            unsigned int new_zoom_level = std::min(64, std::max(4, ulx));
+            unsigned int new_zoom_level = std::min(64, std::max(GameManager_DetermineZoomLimit(), ulx));
 
             if (Gfx_ZoomLevel == new_zoom_level && !flag) {
                 return;
@@ -1791,7 +1801,7 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
                 win_draw_rect(window->id, &window->window);
             }
 
-            Gfx_MapScalingFactor = 0x400000 / Gfx_ZoomLevel;
+            Gfx_MapScalingFactor = GFX_SCALE_NUMERATOR / Gfx_ZoomLevel;
 
             GameManager_QuickScroll = ini_get_setting(INI_QUICK_SCROLL);
 
@@ -1800,7 +1810,7 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
                 ini_set_setting(INI_QUICK_SCROLL, GameManager_QuickScroll);
             }
 
-            GameManager_QuickScroll = (Gfx_MapScalingFactor * GameManager_QuickScroll) >> 16;
+            GameManager_QuickScroll = (Gfx_MapScalingFactor * GameManager_QuickScroll) / GFX_SCALE_DENOMINATOR;
 
             GameManager_GridStepLevel = GameManager_QuickScroll;
             GameManager_GridStepOffset = 0;
@@ -1812,8 +1822,8 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
             GameManager_GridCenter.y = 0;
         }
 
-        ulx = std::min(ResourceManager_MapSize.x - 4, std::max(ulx, 3));
-        uly = std::min(ResourceManager_MapSize.y - 4, std::max(uly, 3));
+        ulx = std::min(ResourceManager_MapSize.x - 4, std::max(ulx, (WindowManager_MapWidth / GFX_MAP_TILE_SIZE) / 2));
+        uly = std::min(ResourceManager_MapSize.y - 4, std::max(uly, (WindowManager_MapHeight / GFX_MAP_TILE_SIZE) / 2));
 
         if (GameManager_GridCenter.x == ulx && GameManager_GridCenter.y == uly) {
             return;
@@ -1822,11 +1832,11 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
         GameManager_GridCenter.x = ulx;
         GameManager_GridCenter.y = uly;
 
-        ulx = (GameManager_GridCenter.x << 6) + 32;
-        uly = (GameManager_GridCenter.y << 6) + 32;
+        ulx = (GameManager_GridCenter.x * GFX_MAP_TILE_SIZE) + GFX_MAP_TILE_SIZE / 2;
+        uly = (GameManager_GridCenter.y * GFX_MAP_TILE_SIZE) + GFX_MAP_TILE_SIZE / 2;
 
-        ulx -= (((GameManager_MainMapWidth * Gfx_MapScalingFactor) >> 16) / 2);
-        uly -= (((GameManager_MainMapHeight * Gfx_MapScalingFactor) >> 16) / 2);
+        ulx -= (((WindowManager_MapWidth * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) / 2);
+        uly -= (((WindowManager_MapHeight * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) / 2);
 
         if (!GameManager_UpdateMapDrawBounds(ulx, uly)) {
             return;
@@ -1927,6 +1937,7 @@ Point GameManager_GetStartingPositionPowerGenerator(Point point, unsigned short 
 }
 
 void GameManager_GameSetup(int game_state) {
+    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     int zoom_level;
     int max_zoom_level;
     unsigned int timestamp;
@@ -1966,7 +1977,7 @@ void GameManager_GameSetup(int game_state) {
 
             delete[] palette;
 
-            WindowManager_LoadImage(FRAMEPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, false);
+            WindowManager_LoadImage(FRAMEPIC, window, window->width, false, true, 0, 0);
             GameManager_ProcessTick(true);
             WindowManager_FadeIn(50);
 
@@ -2031,7 +2042,7 @@ void GameManager_GameSetup(int game_state) {
     GameManager_DrawMouseCoordinates(0, 0);
 
     mouse_hide();
-    mouse_set_position(320, 240);
+    mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     mouse_show();
 
     GameManager_UnknownFlag = true;
@@ -2241,7 +2252,7 @@ void GameManager_DrawTurnTimer(int turn_time, bool mode) {
             GameManager_IsTurnTimerActive = false;
         }
 
-        color = 0x1;
+        color = COLOR_RED;
 
     } else {
         color = 0xA2;
@@ -2325,7 +2336,7 @@ void GameManager_UpdateGuiControl(unsigned short team) {
 
     window = WindowManager_GetWindow(WINDOW_MINIMAP);
 
-    buf_to_buf(ResourceManager_Minimap, 112, 112, 112, window->buffer, 640);
+    buf_to_buf(ResourceManager_Minimap, 112, 112, 112, window->buffer, window->width);
     win_draw_rect(window->id, &window->window);
 
     sprintf(message, "%s:\nBegin turn.", menu_team_names[team]);
@@ -3284,11 +3295,12 @@ void GameManager_MenuAnimateDisplayControls() {
 }
 
 bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mode) {
+    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     bool load_successful;
     int game_file_type;
 
     WindowManager_FadeOut(0);
-    GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, 0x00, true);
+    GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, COLOR_BLACK, true);
     memcpy(WindowManager_ColorPalette, palette_buffer, 3 * PALETTE_SIZE);
     delete[] palette_buffer;
 
@@ -3333,10 +3345,10 @@ bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mod
     }
 
     if (!load_successful) {
-        WindowManager_LoadImage(FRAMEPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, false);
+        WindowManager_LoadImage(FRAMEPIC, window, window->width, false, true, 0, 0);
         GameManager_MenuInitButtons(false);
         GameManager_MenuDeinitButtons();
-        win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
+        win_draw(window->id);
     }
 
     if (load_successful) {
@@ -3518,8 +3530,9 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
             GameManager_PopupButtons.height =
                 image->height * GameManager_PopupButtons.popup_count + (GameManager_PopupButtons.popup_count + 1) * 3;
 
-            ulx = (((unit->x + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx;
-            uly = ((unit->y << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly - (GameManager_PopupButtons.height / 2);
+            ulx = (((unit->x + 32) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx;
+            uly = ((unit->y * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor) - Gfx_MapWindowUly -
+                  (GameManager_PopupButtons.height / 2);
 
             ulx += main_map_window->window.ulx;
 
@@ -3612,12 +3625,14 @@ void GameManager_DeinitPopupButtons(bool clear_mouse_events) {
         window2 = WindowManager_GetWindow(WINDOW_MAIN_MAP);
         window1 = WindowManager_GetWindow(WINDOW_POPUP_BUTTONS);
 
-        bounds.ulx = (((window1->window.ulx - window2->window.ulx) * Gfx_MapScalingFactor) >> 16) +
+        bounds.ulx = (((window1->window.ulx - window2->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                      GameManager_MapWindowDrawBounds.ulx;
-        bounds.uly = (((window1->window.uly - window2->window.uly) * Gfx_MapScalingFactor) >> 16) +
+        bounds.uly = (((window1->window.uly - window2->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                      GameManager_MapWindowDrawBounds.uly;
-        bounds.lrx = (((window1->window.lrx - window2->window.ulx) * Gfx_MapScalingFactor) >> 16) + bounds.ulx;
-        bounds.lry = (((window1->window.lry - window2->window.uly) * Gfx_MapScalingFactor) >> 16) + bounds.uly;
+        bounds.lrx =
+            (((window1->window.lrx - window2->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) + bounds.ulx;
+        bounds.lry =
+            (((window1->window.lry - window2->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) + bounds.uly;
 
         GameManager_AddDrawBounds(&bounds);
 
@@ -3882,7 +3897,7 @@ void GameManager_MenuClickPreferencesButton() {
 
     GameManager_RealTime = ini_get_setting(INI_REAL_TIME);
     GameManager_FastMovement = ini_get_setting(INI_FAST_MOVEMENT);
-    GameManager_QuickScroll = (ini_get_setting(INI_QUICK_SCROLL) * Gfx_MapScalingFactor) >> 16;
+    GameManager_QuickScroll = (ini_get_setting(INI_QUICK_SCROLL) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR;
 
     if (Remote_IsNetworkGame) {
         GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
@@ -6245,13 +6260,13 @@ void GameManager_ProcessInput() {
 
         window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
-        grid_x = ((((GameManager_MouseX - window->window.ulx) * Gfx_MapScalingFactor) >> 16) +
+        grid_x = ((((GameManager_MouseX - window->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                   GameManager_MapWindowDrawBounds.ulx) /
-                 64;
+                 GFX_MAP_TILE_SIZE;
 
-        grid_y = ((((GameManager_MouseY - window->window.uly) * Gfx_MapScalingFactor) >> 16) +
+        grid_y = ((((GameManager_MouseY - window->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                   GameManager_MapWindowDrawBounds.uly) /
-                 64;
+                 GFX_MAP_TILE_SIZE;
 
         window_cursor = GameManager_GetWindowCursor(grid_x, grid_y);
     }
@@ -6268,11 +6283,11 @@ void GameManager_ProcessInput() {
             GameManager_MousePosition2.y = GameManager_MouseY;
 
             GameManager_ScaledMousePosition.x =
-                (((GameManager_MouseX - window->window.ulx) * Gfx_MapScalingFactor) >> 16) +
+                (((GameManager_MouseX - window->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                 GameManager_MapWindowDrawBounds.ulx;
 
             GameManager_ScaledMousePosition.y =
-                (((GameManager_MouseY - window->window.uly) * Gfx_MapScalingFactor) >> 16) +
+                (((GameManager_MouseY - window->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                 GameManager_MapWindowDrawBounds.uly;
 
             GameManager_RenderArea.ulx = GameManager_ScaledMousePosition.x;
@@ -6748,27 +6763,28 @@ void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int radius, int 
         int unit_size;
 
         radius <<= 6;
-        scaled_radius = (radius << 16) / Gfx_MapScalingFactor;
+        scaled_radius = (radius * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor;
 
         if (color == COLOR_YELLOW) {
             ++scaled_radius;
         }
 
         if (unit->flags & BUILDING) {
-            unit_size = 64;
+            unit_size = GFX_MAP_TILE_SIZE;
 
         } else {
-            unit_size = 32;
+            unit_size = GFX_MAP_TILE_SIZE / 2;
         }
 
-        bounds.ulx = (unit->grid_x * 64) + unit_size;
-        bounds.uly = (unit->grid_y * 64) + unit_size;
+        bounds.ulx = (unit->grid_x * GFX_MAP_TILE_SIZE) + unit_size;
+        bounds.uly = (unit->grid_y * GFX_MAP_TILE_SIZE) + unit_size;
 
-        Gfx_RenderCircle(window->buffer, 640, GameManager_MainMapWidth, GameManager_MainMapHeight,
-                         (bounds.ulx << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx,
-                         (bounds.uly << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly, scaled_radius, color);
+        Gfx_RenderCircle(window->buffer, WindowManager_WindowWidth, WindowManager_MapWidth, WindowManager_MapHeight,
+                         (bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx,
+                         (bounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly, scaled_radius,
+                         color);
 
-        radius = (scaled_radius * Gfx_MapScalingFactor) >> 16;
+        radius = (scaled_radius * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR;
 
         bounds.lrx = bounds.ulx + radius;
         bounds.lry = bounds.uly + radius;
@@ -6826,7 +6842,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
             window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
-            GameManager_Flic = flicsmgr_construct(base_unit->flics, window, 640, ulx, uly, 2, 0);
+            GameManager_Flic = flicsmgr_construct(base_unit->flics, window, window->width, ulx, uly, 2, 0);
 
             unit->GetDisplayName(text);
 
@@ -6899,8 +6915,8 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
         } else {
             GameManager_MenuDeleteFlic();
-            GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, 0x00, true);
-            GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, true);
+            GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, COLOR_BLACK, true);
+            GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, COLOR_BLACK, true);
             GameManager_DeinitPopupButtons(false);
             GameManager_SelectedUnit = nullptr;
         }

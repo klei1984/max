@@ -263,7 +263,7 @@ void SaveLoadMenu_PlaySfx(ResourceID id) { SoundManager.PlaySfx(id); }
 
 void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
                        bool is_text_mode, int save_file_type, int first_slot_on_page, bool mode) {
-    WindowInfo *window;
+    WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     unsigned char game_file_type;
     char filepath[PATH_MAX];
     char file_name[20];
@@ -279,16 +279,14 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
 
     mouse_hide();
 
-    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-
     if (mode) {
-        WindowManager_LoadImage(LOADPIC, window, 640, true, false);
+        WindowManager_LoadImage(LOADPIC, window, window->width, true, false);
     }
 
     text_font(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window->buffer, window->width, is_saving_allowed ? "Save/Load Menu" : "Load Menu", 229, 5, 181, 21,
-                 COLOR_GREEN, true);
+    Text_TextBox(window->buffer, window->width, is_saving_allowed ? "Save/Load Menu" : "Load Menu",
+                 WindowManager_ScaleUlx(window, 229), WindowManager_ScaleUly(window, 5), 181, 21, COLOR_GREEN, true);
 
     for (int i = 0; i < num_buttons; ++i) {
         if (is_text_mode) {
@@ -375,8 +373,8 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
 
         text_font(GNW_TEXT_FONT_5);
 
-        slots[i].ulx = 402 * (i / 5) + 16;
-        slots[i].uly = 76 * (i % 5) + 44;
+        slots[i].ulx = WindowManager_ScaleUlx(window, 402 * (i / 5) + 16);
+        slots[i].uly = WindowManager_ScaleUly(window, 76 * (i % 5) + 44);
         slots[i].width = image_up->width;
         slots[i].height = image_up->height;
 
@@ -395,24 +393,32 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
 
     win_group_radio_buttons(num_buttons, button_list);
 
-    buttons[0] = SaveLoadMenu_CreateButton(window->id, MNUUAROU, MNUUAROD, 33, 438, nullptr, 329);
-    buttons[1] = SaveLoadMenu_CreateButton(window->id, MNUDAROU, MNUDAROD, 63, 438, nullptr, 337);
+    buttons[0] = SaveLoadMenu_CreateButton(window->id, MNUUAROU, MNUUAROD, WindowManager_ScaleUlx(window, 33),
+                                           WindowManager_ScaleUly(window, 438), nullptr, 329);
+    buttons[1] = SaveLoadMenu_CreateButton(window->id, MNUDAROU, MNUDAROD, WindowManager_ScaleUlx(window, 63),
+                                           WindowManager_ScaleUly(window, 438), nullptr, 337);
 
     text_font(GNW_TEXT_FONT_1);
-    buttons[2] = SaveLoadMenu_CreateButton(window->id, MNUBTN6U, MNUBTN6D, 514, 438, "Load", 1023);
-    buttons[3] = SaveLoadMenu_CreateButton(window->id, MNUBTN5U, MNUBTN5D, 465, 438, "?", 1021);
-    buttons[4] = SaveLoadMenu_CreateButton(window->id, MNUBTN4U, MNUBTN4D, 354, 438,
-                                           is_saving_allowed ? "Return" : "Cancel", 1000);
+    buttons[2] = SaveLoadMenu_CreateButton(window->id, MNUBTN6U, MNUBTN6D, WindowManager_ScaleUlx(window, 514),
+                                           WindowManager_ScaleUly(window, 438), "Load", 1023);
+    buttons[3] = SaveLoadMenu_CreateButton(window->id, MNUBTN5U, MNUBTN5D, WindowManager_ScaleUlx(window, 465),
+                                           WindowManager_ScaleUly(window, 438), "?", 1021);
+    buttons[4] =
+        SaveLoadMenu_CreateButton(window->id, MNUBTN4U, MNUBTN4D, WindowManager_ScaleUlx(window, 354),
+                                  WindowManager_ScaleUly(window, 438), is_saving_allowed ? "Return" : "Cancel", 1000);
 
     if (is_saving_allowed) {
-        buttons[5] = SaveLoadMenu_CreateButton(window->id, MNUBTN3U, MNUBTN3D, 243, 438, "Quit", 1024);
-        buttons[6] = SaveLoadMenu_CreateButton(window->id, MNUBTN2U, MNUBTN2D, 132, 438, "Save", 1022);
+        buttons[5] = SaveLoadMenu_CreateButton(window->id, MNUBTN3U, MNUBTN3D, WindowManager_ScaleUlx(window, 243),
+                                               WindowManager_ScaleUly(window, 438), "Quit", 1024);
+        buttons[6] = SaveLoadMenu_CreateButton(window->id, MNUBTN2U, MNUBTN2D, WindowManager_ScaleUlx(window, 132),
+                                               WindowManager_ScaleUly(window, 438), "Save", 1022);
     }
 
     win_draw(window->id);
 
     if (mode) {
-        *flc = flicsmgr_construct(FILESFLC, window, 640, 256, 104, 2, false);
+        *flc = flicsmgr_construct(FILESFLC, window, window->width, WindowManager_ScaleUlx(window, 256),
+                                  WindowManager_ScaleUly(window, 104), 2, false);
     }
 
     mouse_show();

@@ -28,6 +28,7 @@
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"
+#include "window_manager.hpp"
 
 struct InterfaceMeta {
     unsigned short divisor;
@@ -63,6 +64,7 @@ void ReportStats_RenderSprite(struct InterfaceMeta* data) {
     unsigned char* image_frame;
     int map_window_ulx;
     int map_window_uly;
+    int window_width_backup;
 
     scaling_divisor_factor = 1 << data->divisor;
 
@@ -88,7 +90,8 @@ void ReportStats_RenderSprite(struct InterfaceMeta* data) {
     Gfx_MapScalingFactor = 0x10000;
     Gfx_MapWindowUlx = 0;
     Gfx_MapWindowUly = 0;
-    Gfx_MapWindowWidth = data->width;
+    window_width_backup = WindowManager_WindowWidth;
+    WindowManager_WindowWidth = data->width;
 
     if (Gfx_DecodeSpriteSetup(Point(data->ulx, data->uly), image_frame, 2, &data->bounds)) {
         Gfx_SpriteRowAddresses = reinterpret_cast<unsigned int*>(&image_frame[sizeof(short) * 4]);
@@ -101,7 +104,7 @@ void ReportStats_RenderSprite(struct InterfaceMeta* data) {
     }
 
     Gfx_MapScalingFactor = map_scaling_factor;
-    Gfx_MapWindowWidth = 640;
+    WindowManager_WindowWidth = window_width_backup;
     Gfx_MapWindowUlx = map_window_ulx;
     Gfx_MapWindowUly = map_window_uly;
 }

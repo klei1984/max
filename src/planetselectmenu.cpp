@@ -116,7 +116,7 @@ void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
         }
     }
 
-    WindowManager_LoadImage(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false);
+    WindowManager_LoadImage(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false, 26, 98);
 
     if (!image3) {
         image3 = new (std::nothrow)

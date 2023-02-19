@@ -184,17 +184,19 @@ void ChoosePlayerMenu::ButtonInit(int index, int mode) {
             }
         }
 
-        buttons[index] = new (std::nothrow)
-            Button(image_id, static_cast<ResourceID>(control->image_id + 1), control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
 
         buttons[index]->Copy(clan_logo_id, 41, 40);
     } else if (control->image_id == INVALID_ID) {
-        buttons[index] = new (std::nothrow)
-            Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
-                   control->bounds.lry - control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(
+            WindowManager_ScaleUlx(window, control->bounds.ulx), WindowManager_ScaleUly(window, control->bounds.uly),
+            control->bounds.lrx - control->bounds.ulx, control->bounds.lry - control->bounds.uly);
     } else {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
-                                                   control->bounds.ulx, control->bounds.uly);
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);

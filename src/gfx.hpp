@@ -25,6 +25,14 @@
 #include "gnw.h"
 #include "point.hpp"
 
+#define GFX_MAP_TILE_SIZE (64)
+
+#define GFX_MAP_SIZE (112)
+
+#define GFX_SCALE_BASE (16)
+#define GFX_SCALE_DENOMINATOR (1 << GFX_SCALE_BASE)
+#define GFX_SCALE_NUMERATOR (GFX_MAP_TILE_SIZE * GFX_SCALE_DENOMINATOR)
+
 bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect* bounds);
 void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quotient);
 void Gfx_DecodeSprite();
@@ -45,6 +53,5 @@ extern unsigned int Gfx_ZoomLevel;
 extern int Gfx_MapScalingFactor;
 extern int Gfx_MapWindowUlx;
 extern int Gfx_MapWindowUly;
-extern unsigned short Gfx_MapWindowWidth;
 
 #endif /* GFX_HPP */

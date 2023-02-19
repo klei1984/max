@@ -75,12 +75,15 @@ static struct GameSetupMenuControlItem game_setup_menu_controls[] = {
 static char* menu_setup_menu_mission_titles[GAME_SETUP_MENU_MISSION_COUNT];
 
 static void GameSetupMenu_LoadSubtitleControl(WindowInfo* window) {
-    WindowManager_LoadImage2(SUBTITLE, 400, 174, false, window);
+    WindowManager_LoadImage2(SUBTITLE, WindowManager_ScaleUlx(window, 400), WindowManager_ScaleUly(window, 174), false,
+                             window);
 }
 
 static void GameSetupMenu_DrawBigInfoPanel(WindowInfo* window) {
-    WindowManager_LoadImage2(BIGSCRNL, 342, 202, false, window);
-    WindowManager_LoadImage2(BIGSCRNR, 482, 202, false, window);
+    WindowManager_LoadImage2(BIGSCRNL, WindowManager_ScaleUlx(window, 342), WindowManager_ScaleUly(window, 202), false,
+                             window);
+    WindowManager_LoadImage2(BIGSCRNR, WindowManager_ScaleUlx(window, 482), WindowManager_ScaleUly(window, 202), false,
+                             window);
 }
 
 void GameSetupMenu::ButtonInit(int index) {
@@ -293,8 +296,10 @@ void GameSetupMenu::DrawMissionList() {
         control = &game_setup_menu_controls[i];
 
         if (i < GAME_SETUP_MENU_MISSION_COUNT - 1) {
-            draw_line(window->buffer, 640, control->bounds.ulx, control->bounds.lry, control->bounds.lrx,
-                      control->bounds.lry, COLOR_GREEN);
+            draw_line(window->buffer, window->width, WindowManager_ScaleUlx(window, control->bounds.ulx),
+                      WindowManager_ScaleUly(window, control->bounds.lry),
+                      WindowManager_ScaleLrx(window, control->bounds.ulx, control->bounds.lrx),
+                      WindowManager_ScaleLry(window, control->bounds.uly, control->bounds.lry), COLOR_GREEN);
         }
 
         if (menu_setup_menu_mission_titles[i]) {
@@ -406,9 +411,9 @@ void GameSetupMenu::DrawSaveFileTitle(int game_slot, int color) {
 
     sprintf(text, "%i. %s", game_index_first_on_page + game_slot, menu_setup_menu_mission_titles[game_slot]);
 
-    Text_TextBox(window->buffer, window->width, text, control->bounds.ulx, control->bounds.uly,
-                 control->bounds.lrx - control->bounds.ulx, control->bounds.lry - control->bounds.uly, color, false,
-                 true);
+    Text_TextBox(window->buffer, window->width, text, WindowManager_ScaleUlx(window, control->bounds.ulx),
+                 WindowManager_ScaleUly(window, control->bounds.uly), control->bounds.lrx - control->bounds.ulx,
+                 control->bounds.lry - control->bounds.uly, color, false, true);
 }
 
 void GameSetupMenu::DrawDescriptionPanel() {
@@ -421,7 +426,7 @@ void GameSetupMenu::DrawDescriptionPanel() {
 
     menu_item = &game_setup_menu_titles[1];
     width = menu_item->bounds.lrx - menu_item->bounds.ulx;
-    buffer_position = &window->buffer[menu_item->bounds.ulx + menu_item->bounds.uly * window->width];
+    buffer_position = &window->buffer[WindowManager_ScaleOffset(window, menu_item->bounds.ulx, menu_item->bounds.uly)];
 
     row_index_max = string_row_index + rows_per_page;
 

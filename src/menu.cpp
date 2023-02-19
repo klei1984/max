@@ -462,12 +462,16 @@ static const char* menu_game_over_screen_places[] = {"Eliminated", "1st place", 
 
 void draw_menu_title(WindowInfo* window, const char* caption) {
     text_font(GNW_TEXT_FONT_5);
-    Text_TextBox(window->buffer, window->width, caption, 236, 145, 172, 15, COLOR_GREEN, true, true);
+
+    Text_TextBox(window->buffer, window->width, caption, WindowManager_ScaleUlx(window, 236),
+                 WindowManager_ScaleUly(window, 145), 172, 15, COLOR_GREEN, true, true);
 }
 
 void menu_draw_menu_portrait_frame(WindowInfo* window) {
-    WindowManager_LoadImage2(BGRSCRNL, 6, 173, 0, window);
-    WindowManager_LoadImage2(BGRSCRNR, 166, 173, 0, window);
+    WindowManager_LoadImage2(BGRSCRNL, WindowManager_ScaleUlx(window, 6), WindowManager_ScaleUly(window, 173), false,
+                             window);
+    WindowManager_LoadImage2(BGRSCRNR, WindowManager_ScaleUlx(window, 166), WindowManager_ScaleUly(window, 173), false,
+                             window);
 }
 
 void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_to_screen) {
@@ -485,13 +489,13 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
 
     WindowInfo wininfo;
 
-    wininfo.buffer = &window->buffer[window->width * 182 + 16];
+    wininfo.buffer = &window->buffer[WindowManager_ScaleOffset(window, 16, 182)];
     wininfo.width = window->width;
     wininfo.id = window->id;
-    wininfo.window.ulx = 16;
-    wininfo.window.uly = 182;
-    wininfo.window.lrx = 316;
-    wininfo.window.lry = 422;
+    wininfo.window.ulx = WindowManager_ScaleUlx(window, 16);
+    wininfo.window.uly = WindowManager_ScaleUly(window, 182);
+    wininfo.window.lrx = wininfo.window.ulx + 300;
+    wininfo.window.lry = wininfo.window.uly + 240;
 
     WindowManager_LoadImage(menu_portrait_id, &wininfo, wininfo.width, false, false);
 
@@ -989,19 +993,18 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
 void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align,
                           bool vertical_align) {
     if (menu_item->title && strlen(menu_item->title)) {
-        Text_TextBox(window->buffer, window->width, menu_item->title, menu_item->bounds.ulx, menu_item->bounds.uly,
-                     menu_item->bounds.lrx - menu_item->bounds.ulx, menu_item->bounds.lry - menu_item->bounds.uly,
-                     color, horizontal_align, vertical_align);
+        Text_TextBox(
+            window->buffer, window->width, menu_item->title, WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
+            WindowManager_ScaleUly(window, menu_item->bounds.uly), menu_item->bounds.lrx - menu_item->bounds.ulx,
+            menu_item->bounds.lry - menu_item->bounds.uly, color, horizontal_align, vertical_align);
     }
 }
 
 void menu_draw_logo(ResourceID resource_id, int time_limit) {
-    WindowInfo* window;
+    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     unsigned int time_stamp;
 
-    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-
-    if (WindowManager_LoadImage(resource_id, window, 640, true, false)) {
+    if (WindowManager_LoadImage(resource_id, window, window->width, true, false)) {
         Cursor_SetCursor(CURSOR_HIDDEN);
         mouse_show();
         setSystemPalette(WindowManager_SystemPalette);
@@ -1360,12 +1363,13 @@ void menu_update_resource_levels() {
 void draw_copyright_label(WindowInfo* window) {
     Rect bounds;
 
-    bounds.ulx = 10;
-    bounds.uly = 469;
-    bounds.lrx = 630;
-    bounds.lry = 479;
+    bounds.ulx = WindowManager_ScaleUlx(window, 10);
+    bounds.uly = WindowManager_ScaleUly(window, 469);
+    bounds.lrx = bounds.ulx + 620;
+    bounds.lry = bounds.uly + 10;
 
     text_font(GNW_TEXT_FONT_5);
+
     Text_TextBox(window->buffer, window->width,
                  "Copyright 1996 Interplay Productions. v1.04"
                  "  (M.A.X. Port " GAME_VERSION ")",
@@ -1373,9 +1377,7 @@ void draw_copyright_label(WindowInfo* window) {
 }
 
 void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int special_button_id = 0) {
-    WindowInfo* window;
-
-    window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     menu_button_items = button_items;
     menu_button_items_count = button_count;
@@ -1389,16 +1391,22 @@ void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int
         if (button_items[i].big_size) {
             up = BLANK_UP;
             down = BLANK_DN;
+
         } else {
             up = SBLNK_UP;
             down = SBLNK_DN;
         }
 
         if (button_items[i].label) {
-            button_items[i].button = new (std::nothrow) Button(up, down, button_items[i].ulx, button_items[i].uly);
+            button_items[i].button =
+                new (std::nothrow) Button(up, down, WindowManager_ScaleUlx(window, button_items[i].ulx),
+                                          WindowManager_ScaleUly(window, button_items[i].uly));
             button_items[i].button->SetCaption(button_items[i].label);
+
         } else {
-            button_items[i].button = new (std::nothrow) Button(button_items[i].ulx, button_items[i].uly, 300, 240);
+            button_items[i].button =
+                new (std::nothrow) Button(WindowManager_ScaleUlx(window, button_items[i].ulx),
+                                          WindowManager_ScaleUly(window, button_items[i].uly), 300, 240);
         }
 
         button_items[i].button->SetRValue(button_items[i].r_value);
@@ -1653,14 +1661,14 @@ void menu_credits_menu_loop() {
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     Cursor_SetCursor(CURSOR_HIDDEN);
-    WindowManager_LoadImage(CREDITS, window, 640, true, false);
+    WindowManager_LoadImage(CREDITS, window, window->width, true, false);
     win_draw(window->id);
 
     window_width = 450;
     window_height = 230;
 
-    bounds.ulx = (640 - window_width) / 2;
-    bounds.uly = (480 - window_height) / 2;
+    bounds.ulx = (WindowManager_GetWidth(window) - window_width) / 2;
+    bounds.uly = (WindowManager_GetHeight(window) - window_height) / 2;
     bounds.lrx = bounds.ulx + window_width;
     bounds.lry = bounds.uly + window_height;
 
@@ -2205,7 +2213,7 @@ int menu_new_game_menu_loop() {
         event_release = false;
 
         mouse_hide();
-        WindowManager_LoadImage(MAINPIC, window, 640, false, false);
+        WindowManager_LoadImage(MAINPIC, window, window->width, false, false);
         draw_menu_title(window, "New Game Menu");
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(new_game_menu_buttons, sizeof(new_game_menu_buttons) / sizeof(MenuButton), 5);
@@ -2376,7 +2384,7 @@ int menu_multiplayer_menu_loop() {
         event_release = false;
 
         mouse_hide();
-        WindowManager_LoadImage(MAINPIC, window, 640, palette_from_image, false);
+        WindowManager_LoadImage(MAINPIC, window, window->width, palette_from_image, false);
         draw_menu_title(window, "Multiplayer Menu");
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(network_game_menu_buttons,
@@ -2520,7 +2528,7 @@ void main_menu() {
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     palette_from_image = 1;
     save_slot = 1;
-    mouse_set_position(320, 240);
+    mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     menu_portrait_id = INVALID_ID;
     dos_srand(time(nullptr));
     ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
@@ -2533,7 +2541,7 @@ void main_menu() {
         time_stamp = timer_get_stamp32();
         GameManager_GameState = GAME_STATE_3_MAIN_MENU;
         mouse_hide();
-        WindowManager_LoadImage(MAINPIC, window, 640, palette_from_image, false);
+        WindowManager_LoadImage(MAINPIC, window, window->width, palette_from_image, false);
         draw_menu_title(window, _(35f9));
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         draw_copyright_label(window);
@@ -2559,7 +2567,9 @@ void main_menu() {
                         save_slot = 1;
                     }
                 } while (!palette_from_image && old_save_slot != save_slot);
+
                 break;
+
             } else {
                 int key;
                 int mouse_x;
