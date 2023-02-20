@@ -468,10 +468,10 @@ void draw_menu_title(WindowInfo* window, const char* caption) {
 }
 
 void menu_draw_menu_portrait_frame(WindowInfo* window) {
-    WindowManager_LoadImage2(BGRSCRNL, WindowManager_ScaleUlx(window, 6), WindowManager_ScaleUly(window, 173), false,
-                             window);
-    WindowManager_LoadImage2(BGRSCRNR, WindowManager_ScaleUlx(window, 166), WindowManager_ScaleUly(window, 173), false,
-                             window);
+    WindowManager_LoadSimpleImage(BGRSCRNL, WindowManager_ScaleUlx(window, 6), WindowManager_ScaleUly(window, 173),
+                                  false, window);
+    WindowManager_LoadSimpleImage(BGRSCRNR, WindowManager_ScaleUlx(window, 166), WindowManager_ScaleUly(window, 173),
+                                  false, window);
 }
 
 void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_to_screen) {
@@ -497,7 +497,7 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
     wininfo.window.lrx = wininfo.window.ulx + 300;
     wininfo.window.lry = wininfo.window.uly + 240;
 
-    WindowManager_LoadImage(menu_portrait_id, &wininfo, wininfo.width, false, false);
+    WindowManager_LoadBigImage(menu_portrait_id, &wininfo, wininfo.width, false, false);
 
     if (draw_to_screen) {
         win_draw_rect(wininfo.id, &wininfo.window);
@@ -716,7 +716,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
 
         image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_ReadResource(ENDARM));
 
-        WindowManager_DecodeImage2(image, 273, 480 - image->height, true, window);
+        WindowManager_DecodeSimpleImage(image, 273, 480 - image->height, true, window);
 
         delete[] image;
     }
@@ -859,8 +859,8 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
                 case GNW_KB_KEY_SPACE: {
                     bg_image_id = (bg_image_id + 1) % 9;
 
-                    WindowManager_LoadImage(menu_briefing_backgrounds[bg_image_id], &window_info, window_info.width,
-                                            true, false);
+                    WindowManager_LoadBigImage(menu_briefing_backgrounds[bg_image_id], &window_info, window_info.width,
+                                               true, false, -1, -1, true);
 
                     if (mission_briefing.GetLength() > 0) {
                         win_draw(window_info.id);
@@ -1004,7 +1004,7 @@ void menu_draw_logo(ResourceID resource_id, int time_limit) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     unsigned int time_stamp;
 
-    if (WindowManager_LoadImage(resource_id, window, window->width, true, false)) {
+    if (WindowManager_LoadBigImage(resource_id, window, window->width, true, false, -1, -1, true, true)) {
         Cursor_SetCursor(CURSOR_HIDDEN);
         mouse_show();
         setSystemPalette(WindowManager_SystemPalette);
@@ -1172,7 +1172,8 @@ void menu_draw_campaign_mission_briefing_screen() {
                 case GNW_KB_KEY_SPACE: {
                     image_index = (image_index + 1) % 9;
 
-                    WindowManager_LoadImage(menu_briefing_backgrounds[image_index], &window, window.width, true, false);
+                    WindowManager_LoadBigImage(menu_briefing_backgrounds[image_index], &window, window.width, true,
+                                               false, -1, -1, true);
 
                     text_font(GNW_TEXT_FONT_1);
 
@@ -1661,11 +1662,11 @@ void menu_credits_menu_loop() {
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     Cursor_SetCursor(CURSOR_HIDDEN);
-    WindowManager_LoadImage(CREDITS, window, window->width, true, false);
+    WindowManager_LoadBigImage(CREDITS, window, window->width, true, false, -1, -1, true, true);
     win_draw(window->id);
 
-    window_width = 450;
-    window_height = 230;
+    window_width = WindowManager_ScaleUlx(window, 450);
+    window_height = WindowManager_ScaleUly(window, 230);
 
     bounds.ulx = (WindowManager_GetWidth(window) - window_width) / 2;
     bounds.uly = (WindowManager_GetHeight(window) - window_height) / 2;
@@ -2213,7 +2214,7 @@ int menu_new_game_menu_loop() {
         event_release = false;
 
         mouse_hide();
-        WindowManager_LoadImage(MAINPIC, window, window->width, false, false);
+        WindowManager_LoadBigImage(MAINPIC, window, window->width, false, false, -1, -1, true);
         draw_menu_title(window, "New Game Menu");
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(new_game_menu_buttons, sizeof(new_game_menu_buttons) / sizeof(MenuButton), 5);
@@ -2384,7 +2385,7 @@ int menu_multiplayer_menu_loop() {
         event_release = false;
 
         mouse_hide();
-        WindowManager_LoadImage(MAINPIC, window, window->width, palette_from_image, false);
+        WindowManager_LoadBigImage(MAINPIC, window, window->width, palette_from_image, false, -1, -1, true);
         draw_menu_title(window, "Multiplayer Menu");
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(network_game_menu_buttons,
@@ -2541,7 +2542,7 @@ void main_menu() {
         time_stamp = timer_get_stamp32();
         GameManager_GameState = GAME_STATE_3_MAIN_MENU;
         mouse_hide();
-        WindowManager_LoadImage(MAINPIC, window, window->width, palette_from_image, false);
+        WindowManager_LoadBigImage(MAINPIC, window, window->width, palette_from_image, false, -1, -1, true);
         draw_menu_title(window, _(35f9));
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         draw_copyright_label(window);

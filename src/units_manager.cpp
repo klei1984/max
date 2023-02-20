@@ -2136,7 +2136,7 @@ bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
     for (unsigned short id = SLFDOPN1; id <= SLFDOPN6; ++id) {
         unsigned int time_Stamp = timer_get_stamp32();
 
-        WindowManager_LoadImage2(static_cast<ResourceID>(id), 13, 11, 0, window);
+        WindowManager_LoadSimpleImage(static_cast<ResourceID>(id), 13, 11, false, window);
         win_draw(window->id);
         GameManager_ProcessState(true);
 

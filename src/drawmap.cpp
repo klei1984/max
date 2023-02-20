@@ -337,7 +337,7 @@ void DrawMap_Callback2(int ulx, int uly) {
     ulx = ((ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx;
     uly = ((uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor) - Gfx_MapWindowUly;
 
-    WindowManager_DecodeImage2(DrawMap_BuildMarkImage, ulx, uly, true, window);
+    WindowManager_DecodeSimpleImage(DrawMap_BuildMarkImage, ulx, uly, true, window);
 }
 
 void DrawMap_RenderBuildMarker() {
@@ -371,7 +371,7 @@ void DrawMap_RenderBuildMarker() {
             image = reinterpret_cast<struct ImageSimpleHeader*>(
                 ResourceManager_LoadResource(DrawMap_BuildMarkImages[DrawMap_BuildMarkImageIndex]));
 
-            DrawMap_BuildMarkImage = WindowManager_RescaleImage(image, Gfx_MapScalingFactor);
+            DrawMap_BuildMarkImage = WindowManager_RescaleSimpleImage(image, Gfx_MapScalingFactor);
 
             DrawMap_RedrawUnit(unit, &DrawMap_Callback1);
         }
@@ -404,10 +404,10 @@ void DrawMap_RenderWaitBulb(UnitInfo* unit) {
         image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(BULB));
 
         if (Gfx_ZoomLevel != 64) {
-            image = WindowManager_RescaleImage(image, Gfx_MapScalingFactor);
+            image = WindowManager_RescaleSimpleImage(image, Gfx_MapScalingFactor);
         }
 
-        WindowManager_DecodeImage2(image, ulx + unit_size, uly + unit_size, true, window);
+        WindowManager_DecodeSimpleImage(image, ulx + unit_size, uly + unit_size, true, window);
 
         if (Gfx_ZoomLevel != 64) {
             delete[] image;
@@ -438,7 +438,7 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, in
         image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(IL_DSBLD));
 
         if (image->width <= width - ulx && image->height <= height - uly) {
-            WindowManager_DecodeImage2(image, (width + ulx - image->width) / 2, (height + uly - image->height) / 2,
+            WindowManager_DecodeSimpleImage(image, (width + ulx - image->width) / 2, (height + uly - image->height) / 2,
                                        true, window);
         }
 
@@ -482,13 +482,13 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, in
             }
 
             if (unit->speed) {
-                WindowManager_DecodeImage2(image_speed, width + ulx, height - image_speed->height - 1, true, window);
+                WindowManager_DecodeSimpleImage(image_speed, width + ulx, height - image_speed->height - 1, true, window);
 
                 width = width * 2 + image_speed->width;
             }
 
             if (unit->shots) {
-                WindowManager_DecodeImage2(image_shots, width + ulx, height - image_shots->height - 1, true, window);
+                WindowManager_DecodeSimpleImage(image_shots, width + ulx, height - image_shots->height - 1, true, window);
             }
         }
     }

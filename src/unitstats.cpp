@@ -296,7 +296,7 @@ unsigned char* UnitStats_DrawCargo(unsigned char* buffer, int screen_width, Reso
 
         case GOLDSM:
         case GOLDTRCK: {
-            icon = I_FUEL;
+            icon = I_GOLD;
         } break;
 
         default: {
@@ -464,7 +464,7 @@ void UnitStats_Menu(UnitInfo* unit) {
         window.id = win_add(ulx, uly, image_header.width, image_header.height, 0x00, 0);
         window.buffer = win_get_buf(window.id);
 
-        if (WindowManager_LoadImage(STATS, &window, window.width, false)) {
+        if (WindowManager_LoadBigImage(STATS, &window, window.width, false, false, -1, -1, true)) {
             GameManager_DisableMainMenu();
 
             text_font(GNW_TEXT_FONT_5);
@@ -496,7 +496,7 @@ void UnitStats_Menu(UnitInfo* unit) {
                 task_debugger = new (std::nothrow) TaskDebugger(&window2, unit->GetTask(), 2000, 2001, 2002);
 
             } else {
-                if (!WindowManager_LoadImage(base_unit->portrait, &window2, window.width, false)) {
+                if (!WindowManager_LoadBigImage(base_unit->portrait, &window2, window.width, false)) {
                     flicsmgr_construct(base_unit->flics, &window, window.width, 100, 74, false, false);
                 }
             }

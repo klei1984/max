@@ -66,8 +66,8 @@ void MenuLandingSequence::Init(bool enable_controls) {
                                        panel_bottom->window.lry - panel_bottom->window.uly + 1);
     image_2->Copy(panel_bottom);
 
-    WindowManager_LoadImage2(PANELTOP, panel_top->window.ulx, panel_top->window.uly, true);
-    WindowManager_LoadImage2(PANELBTM, panel_bottom->window.ulx, panel_bottom->window.uly, true);
+    WindowManager_LoadSimpleImage(PANELTOP, panel_top->window.ulx, panel_top->window.uly, true);
+    WindowManager_LoadSimpleImage(PANELBTM, panel_bottom->window.ulx, panel_bottom->window.uly, true);
 
     if (enable_controls) {
         button_1 = new (std::nothrow) Button(PNLHLP_U, PNLHLP_D, 103, 252);
@@ -90,8 +90,8 @@ void MenuLandingSequence::Init(bool enable_controls) {
 }
 
 void MenuLandingSequence::AnimateStep(int offset) {
-    WindowManager_LoadImage2(PANELTOP, panel_top->window.ulx, panel_top->window.uly - offset, true);
-    WindowManager_LoadImage2(PANELBTM, panel_bottom->window.ulx, panel_bottom->window.uly + offset, true);
+    WindowManager_LoadSimpleImage(PANELTOP, panel_top->window.ulx, panel_top->window.uly - offset, true);
+    WindowManager_LoadSimpleImage(PANELBTM, panel_bottom->window.ulx, panel_bottom->window.uly + offset, true);
     win_draw_rect(panel_top->id, &panel_top->window);
     win_draw_rect(panel_bottom->id, &panel_bottom->window);
 

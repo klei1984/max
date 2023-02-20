@@ -1029,7 +1029,7 @@ void ReportMenu::DrawMessages() {
                 struct ImageSimpleHeader *sprite =
                     reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(message2->GetIcon()));
 
-                WindowManager_DecodeImage2(sprite, window_ulx, window_uly + 16 - (sprite->height / 2), true, &window);
+                WindowManager_DecodeSimpleImage(sprite, window_ulx, window_uly + 16 - (sprite->height / 2), true, &window);
             }
         }
 

@@ -1647,7 +1647,7 @@ void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots) {
 
                             for (int i = 0; i < shots; ++i) {
                                 if (grid_x >= 0 && (image->width + grid_x) < WindowManager_MapWidth) {
-                                    WindowManager_DecodeImage2(image, grid_x, grid_y, true, window);
+                                    WindowManager_DecodeSimpleImage(image, grid_x, grid_y, true, window);
                                 }
 
                                 grid_x += image->width;

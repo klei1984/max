@@ -323,7 +323,7 @@ void NetworkMenu::Init() {
 
     SetClans(ini_get_setting(INI_PLAYER_CLAN));
     mouse_hide();
-    WindowManager_LoadImage(MULTGAME, window, window->width, false, false);
+    WindowManager_LoadBigImage(MULTGAME, window, window->width, false, false, -1, -1, true);
 
     text_font(GNW_TEXT_FONT_1);
     Text_TextBox(window, "Messages:", 28, 403, 106, 25, true);
@@ -962,7 +962,7 @@ void NetworkMenu::DeleteButtons() {
 
 void NetworkMenu::Reinit(int palette_from_image) {
     mouse_hide();
-    WindowManager_LoadImage(MULTGAME, window, window->width, palette_from_image, false);
+    WindowManager_LoadBigImage(MULTGAME, window, window->width, palette_from_image, false, -1, -1, true);
     text_font(GNW_TEXT_FONT_1);
     Text_TextBox(window, "Messages:", 28, 403, 106, 25, true);
     DrawScreen();

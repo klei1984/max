@@ -240,8 +240,8 @@ void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
             &local_window.buffer[bg_image_area->GetULY() * local_window.width + bg_image_area->GetULX()];
 
         if (base_unit->armory_portrait != INVALID_ID) {
-            WindowManager_LoadImage(base_unit->armory_portrait, &local_window, local_window.width, false,
-                                    draw_to_screen);
+            WindowManager_LoadBigImage(base_unit->armory_portrait, &local_window, local_window.width, false,
+                                       draw_to_screen);
 
         } else {
             bg_image_area->Write(&window);
@@ -406,7 +406,8 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit) : Window(unit->unit_type == HANGA
             slot_window_uly = (index / 3) * 235 + 9;
 
             if (unit->unit_type == DOCK) {
-                WindowManager_LoadImage(E_DOCK, &window, window.width, false, false, slot_window_ulx, slot_window_uly);
+                WindowManager_LoadBigImage(E_DOCK, &window, window.width, false, false, slot_window_ulx,
+                                           slot_window_uly, true);
             }
 
             repair_slots[index] = new (std::nothrow)

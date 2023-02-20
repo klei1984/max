@@ -216,7 +216,7 @@ void GameConfigMenu::Init() {
     field_867 = 0;
 
     mouse_hide();
-    WindowManager_LoadImage(OPTNFRM, window, window->width, false, false);
+    WindowManager_LoadBigImage(OPTNFRM, window, window->width, false, false);
 
     for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
@@ -435,7 +435,7 @@ void GameConfigMenu::ButtonInit(int index) {
                    control->bounds.lry - control->bounds.uly);
 
         if (control->image_id != INVALID_ID) {
-            WindowManager_LoadImage2(control->image_id, control->bounds.ulx, control->bounds.uly, true, window);
+            WindowManager_LoadSimpleImage(control->image_id, control->bounds.ulx, control->bounds.uly, true, window);
         }
     }
 

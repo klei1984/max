@@ -241,10 +241,10 @@ void Button::Copy(ResourceID id, int ulx, int uly) {
     window.window.lry = height;
 
     window.buffer = up->GetData();
-    WindowManager_LoadImage2(id, ulx, uly, 1, &window);
+    WindowManager_LoadSimpleImage(id, ulx, uly, 1, &window);
 
     window.buffer = down->GetData();
-    WindowManager_LoadImage2(id, ulx, uly + 1, 1, &window);
+    WindowManager_LoadSimpleImage(id, ulx, uly + 1, 1, &window);
 }
 
 void Button::CopyDisabled(WindowInfo *w) {

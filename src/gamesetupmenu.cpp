@@ -75,15 +75,15 @@ static struct GameSetupMenuControlItem game_setup_menu_controls[] = {
 static char* menu_setup_menu_mission_titles[GAME_SETUP_MENU_MISSION_COUNT];
 
 static void GameSetupMenu_LoadSubtitleControl(WindowInfo* window) {
-    WindowManager_LoadImage2(SUBTITLE, WindowManager_ScaleUlx(window, 400), WindowManager_ScaleUly(window, 174), false,
-                             window);
+    WindowManager_LoadSimpleImage(SUBTITLE, WindowManager_ScaleUlx(window, 400), WindowManager_ScaleUly(window, 174),
+                                  false, window);
 }
 
 static void GameSetupMenu_DrawBigInfoPanel(WindowInfo* window) {
-    WindowManager_LoadImage2(BIGSCRNL, WindowManager_ScaleUlx(window, 342), WindowManager_ScaleUly(window, 202), false,
-                             window);
-    WindowManager_LoadImage2(BIGSCRNR, WindowManager_ScaleUlx(window, 482), WindowManager_ScaleUly(window, 202), false,
-                             window);
+    WindowManager_LoadSimpleImage(BIGSCRNL, WindowManager_ScaleUlx(window, 342), WindowManager_ScaleUly(window, 202),
+                                  false, window);
+    WindowManager_LoadSimpleImage(BIGSCRNR, WindowManager_ScaleUlx(window, 482), WindowManager_ScaleUly(window, 202),
+                                  false, window);
 }
 
 void GameSetupMenu::ButtonInit(int index) {
@@ -136,7 +136,7 @@ void GameSetupMenu::Init(int palette_from_image) {
     string_row_index = 0;
 
     mouse_hide();
-    WindowManager_LoadImage(MAINPIC, window, window->width, palette_from_image, false);
+    WindowManager_LoadBigImage(MAINPIC, window, window->width, palette_from_image, false, -1, -1, true);
 
     switch (game_file_type) {
         case GAME_TYPE_TRAINING:

@@ -89,7 +89,7 @@ void Window::Add(bool draw_to_screen) {
         WindowInfo window;
 
         FillWindowInfo(&window);
-        WindowManager_LoadImage(resource_id, &window, width, palette_from_image, draw_to_screen);
+        WindowManager_LoadBigImage(resource_id, &window, width, palette_from_image, draw_to_screen);
     }
 }
 

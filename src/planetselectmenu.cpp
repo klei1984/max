@@ -116,7 +116,8 @@ void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
         }
     }
 
-    WindowManager_LoadImage(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false, 26, 98);
+    WindowManager_LoadBigImage(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false, -1,
+                               -1, false);
 
     if (!image3) {
         image3 = new (std::nothrow)
@@ -205,13 +206,13 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
         window_buffer = new (std::nothrow) unsigned char[width * height * 3];
 
         if (direction) {
-            WindowManager_DecodeImage(image1_header, window_buffer, false, false, width * 3);
-            WindowManager_DecodeImage(image3_header, &window_buffer[width], false, false, width * 3);
-            WindowManager_DecodeImage(image2_header, &window_buffer[width * 2], false, false, width * 3);
+            WindowManager_DecodeBigImage(image1_header, window_buffer, false, false, width * 3);
+            WindowManager_DecodeBigImage(image3_header, &window_buffer[width], false, false, width * 3);
+            WindowManager_DecodeBigImage(image2_header, &window_buffer[width * 2], false, false, width * 3);
         } else {
-            WindowManager_DecodeImage(image1_header, &window_buffer[width * 2], false, false, width * 3);
-            WindowManager_DecodeImage(image3_header, &window_buffer[width], false, false, width * 3);
-            WindowManager_DecodeImage(image2_header, window_buffer, false, false, width * 3);
+            WindowManager_DecodeBigImage(image1_header, &window_buffer[width * 2], false, false, width * 3);
+            WindowManager_DecodeBigImage(image3_header, &window_buffer[width], false, false, width * 3);
+            WindowManager_DecodeBigImage(image2_header, window_buffer, false, false, width * 3);
         }
 
         bounds.ulx = image1_header->ulx;
@@ -262,7 +263,7 @@ void PlanetSelectMenu::Init() {
         ButtonInit(i);
     }
 
-    WindowManager_LoadImage(PLANETSE, window, window->width, false, false);
+    WindowManager_LoadBigImage(PLANETSE, window, window->width, false, false, -1, -1, true);
 
     DrawMaps(false);
     DrawTexts();

@@ -355,7 +355,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
         base_unit = nullptr;
     }
 
-    if (!base_unit || !WindowManager_LoadImage(base_unit->portrait, &window2, window1.width, false, false)) {
+    if (!base_unit || !WindowManager_LoadBigImage(base_unit->portrait, &window2, window1.width, false, false)) {
         buf_fill(window2.buffer, 300, 240, window1.width, 0);
 
         if (base_unit) {

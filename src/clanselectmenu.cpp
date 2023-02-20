@@ -78,7 +78,7 @@ void ClanSelectMenu::Init(int team) {
     event_click_done_cancel_random = false;
 
     mouse_hide();
-    WindowManager_LoadImage(CLANSEL, window, window->width, false, false);
+    WindowManager_LoadBigImage(CLANSEL, window, window->width, false, false, -1, -1, true);
 
     for (int i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
         ButtonInit(i, i <= 7);

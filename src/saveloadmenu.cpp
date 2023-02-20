@@ -280,7 +280,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
     mouse_hide();
 
     if (mode) {
-        WindowManager_LoadImage(LOADPIC, window, window->width, true, false);
+        WindowManager_LoadBigImage(LOADPIC, window, window->width, true, false, -1, -1, true);
     }
 
     text_font(GNW_TEXT_FONT_5);

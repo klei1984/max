@@ -193,7 +193,7 @@ void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
     prfslit_pos_x = text_width(options_menu_buttons[id].format) + ulx + 10;
     prfslit_pos_y = uly + (20 - slider_slit_image->height) / 2;
 
-    WindowManager_LoadImage2(PRFSLIT, prfslit_pos_x, prfslit_pos_y, 1, &window);
+    WindowManager_LoadSimpleImage(PRFSLIT, prfslit_pos_x, prfslit_pos_y, 1, &window);
 
     prfslit_pos_x -= 10;
     prfslit_ulx += 20;
@@ -262,7 +262,7 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
     image_pos_x = text_width(options_menu_buttons[id].format) + ulx + 10;
     image_pos_y = uly + (20 - image_uly) / 2;
 
-    WindowManager_LoadImage2(resource_id, image_pos_x, image_pos_y, 1, &window);
+    WindowManager_LoadSimpleImage(resource_id, image_pos_x, image_pos_y, 1, &window);
 
     options_menu_buttons[id].image = new (std::nothrow) Image(image_pos_x, uly, image_ulx, 20);
     options_menu_buttons[id].image->Copy(&window);
@@ -361,7 +361,7 @@ void OptionsMenu::DrawSlider(int id, int value) {
     ulx -= slider_slide_image->width / 2;
     uly += (20 - slider_slide_image->height) / 2;
 
-    WindowManager_LoadImage2(PRFSLIDE, ulx, uly, 1, &window);
+    WindowManager_LoadSimpleImage(PRFSLIDE, ulx, uly, 1, &window);
 
     button->rest_state = value;
 }

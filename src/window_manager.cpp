@@ -34,7 +34,7 @@
 #define WINDOW_HEIGHT 480
 
 static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
-static void WindowManager_ScaleWindows(int id);
+static void WindowManager_ScaleWindows();
 
 static char *empty_string = (char *)"\0";
 
@@ -301,7 +301,7 @@ void WindowManager_LoadPalette(ResourceID id) {
     delete[] resource;
 }
 
-void WindowManager_DecodeImage(struct ImageBigHeader *image, unsigned char *buffer, int ulx, int uly, int pitch) {
+void WindowManager_DecodeBigImage(struct ImageBigHeader *image, unsigned char *buffer, int ulx, int uly, int pitch) {
     int image_height;
     int image_width;
     unsigned char *image_data;
@@ -344,10 +344,12 @@ void WindowManager_DecodeImage(struct ImageBigHeader *image, unsigned char *buff
     }
 }
 
-int WindowManager_LoadImage(ResourceID id, WindowInfo *window, short pitch, int palette_from_image, int draw_to_screen,
-                            int ulx, int uly) {
+int WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, short pitch, bool palette_from_image,
+                               bool draw_to_screen, int ulx, int uly, bool center_align, bool rescale) {
     unsigned char *resource;
     ImageBigHeader *image;
+    int width = WindowManager_GetWidth(window);
+    int height = WindowManager_GetHeight(window);
 
     process_bk();
 
@@ -363,22 +365,69 @@ int WindowManager_LoadImage(ResourceID id, WindowInfo *window, short pitch, int 
     }
 
     if (ulx == -1) {
-        ulx = (window->window.lrx - window->window.ulx - (image->ulx + image->width)) / 2;
-
-        if (ulx < 0) {
-            ulx = 0;
-        }
+        ulx = image->ulx;
     }
 
     if (uly == -1) {
-        uly = (window->window.lry - window->window.uly - (image->uly + image->height)) / 2;
-
-        if (uly < 0) {
-            uly = 0;
-        }
+        uly = image->uly;
     }
 
-    WindowManager_DecodeImage(image, window->buffer, ulx, uly, pitch);
+    if (rescale && (width != image->width || height != image->height)) {
+        WindowInfo w = *window;
+        double scale;
+
+        w.buffer = new (std::nothrow) unsigned char[image->width * image->height];
+        w.width = image->width;
+
+        WindowManager_DecodeBigImage(image, w.buffer, 0, 0, w.width);
+
+        if (width >= height) {
+            if (image->width + ulx >= image->height + uly) {
+                scale = static_cast<double>(height) / (image->height + uly);
+
+            } else {
+                scale = static_cast<double>(height) / (image->width + ulx);
+            }
+
+        } else {
+            if (image->width + ulx >= image->height + uly) {
+                scale = static_cast<double>(width) / (image->height + uly);
+
+            } else {
+                scale = static_cast<double>(width) / (image->width + ulx);
+            }
+        }
+
+        width = image->width * scale;
+        height = image->height * scale;
+
+        if (center_align) {
+            ulx = (WindowManager_GetWidth(window) - width) / 2;
+            uly = (WindowManager_GetHeight(window) - height) / 2;
+        }
+
+        cscale(w.buffer, image->width, image->height, w.width, &window->buffer[pitch * uly + ulx], width, height,
+               pitch);
+
+        delete[] w.buffer;
+
+    } else {
+        if (center_align) {
+            ulx = (window->window.lrx - window->window.ulx - (image->ulx + image->width)) / 2;
+
+            if (ulx < 0) {
+                ulx = 0;
+            }
+
+            uly = (window->window.lry - window->window.uly - (image->uly + image->height)) / 2;
+
+            if (uly < 0) {
+                uly = 0;
+            }
+        }
+
+        WindowManager_DecodeBigImage(image, window->buffer, ulx, uly, pitch);
+    }
 
     if (draw_to_screen) {
         win_draw(window->id);
@@ -389,8 +438,8 @@ int WindowManager_LoadImage(ResourceID id, WindowInfo *window, short pitch, int 
     return 1;
 }
 
-void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int uly, int has_transparency,
-                                WindowInfo *w) {
+void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int ulx, int uly, bool has_transparency,
+                                     WindowInfo *w) {
     int height;
     int width;
     unsigned char *buffer;
@@ -443,7 +492,7 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
                         }
                     }
                 } else {
-                    memcpy(buffer, image_data, length);
+                    SDL_memcpy(buffer, image_data, length);
                 }
             }
 
@@ -454,12 +503,12 @@ void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int ul
     }
 }
 
-void WindowManager_LoadImage2(ResourceID id, int ulx, int uly, int has_transparency, WindowInfo *w) {
-    WindowManager_DecodeImage2(reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(id)), ulx, uly,
-                               has_transparency, w);
+void WindowManager_LoadSimpleImage(ResourceID id, int ulx, int uly, bool has_transparency, WindowInfo *w) {
+    WindowManager_DecodeSimpleImage(reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(id)), ulx,
+                                    uly, has_transparency, w);
 }
 
-struct ImageSimpleHeader *WindowManager_RescaleImage(struct ImageSimpleHeader *image, int scaling_factor) {
+struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHeader *image, int scaling_factor) {
     int width;
     int height;
     int scaled_width;
@@ -474,28 +523,28 @@ struct ImageSimpleHeader *WindowManager_RescaleImage(struct ImageSimpleHeader *i
     width = image->width;
     height = image->height;
 
-    scaled_width = (width << 16) / scaling_factor;
-    scaled_height = (height << 16) / scaling_factor;
+    scaled_width = (width * GFX_SCALE_DENOMINATOR) / scaling_factor;
+    scaled_height = (height * GFX_SCALE_DENOMINATOR) / scaling_factor;
 
     scaled_image = reinterpret_cast<struct ImageSimpleHeader *>(
         new (std::nothrow) unsigned char[scaled_width * scaled_height + sizeof(image->width) * 4]);
 
     scaled_image->width = scaled_width;
     scaled_image->height = scaled_height;
-    scaled_image->ulx = (image->ulx << 16) / scaling_factor;
-    scaled_image->uly = (image->uly << 16) / scaling_factor;
+    scaled_image->ulx = (image->ulx * GFX_SCALE_DENOMINATOR) / scaling_factor;
+    scaled_image->uly = (image->uly * GFX_SCALE_DENOMINATOR) / scaling_factor;
 
-    scaling_factor_width = ((width - 1) << 16) / (scaled_width - 1) + 8;
-    scaling_factor_height = ((height - 1) << 16) / (scaled_height - 1) + 8;
+    scaling_factor_width = ((width - 1) * GFX_SCALE_DENOMINATOR) / (scaled_width - 1) + 8;
+    scaling_factor_height = ((height - 1) * GFX_SCALE_DENOMINATOR) / (scaled_height - 1) + 8;
 
     image_data = &image->transparent_color;
     scaled_image_data = &scaled_image->transparent_color;
 
     for (int i = 0; i < scaled_height; ++i) {
-        buffer = &image_data[((i * scaling_factor_height) >> 16) * width];
+        buffer = &image_data[((i * scaling_factor_height) / GFX_SCALE_DENOMINATOR) * width];
 
         for (int j = 0; j < scaled_width; ++j) {
-            scaled_image_data[j + i * scaled_width] = buffer[(j * scaling_factor_width) >> 16];
+            scaled_image_data[j + i * scaled_width] = buffer[(j * scaling_factor_width) / GFX_SCALE_DENOMINATOR];
         }
     }
 

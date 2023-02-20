@@ -1792,11 +1792,12 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
                 WindowInfo* window;
 
                 window = WindowManager_GetWindow(WINDOW_ZOOM_SLIDER_WINDOW);
-                WindowManager_LoadImage2(ZOOMPNL1, window->window.ulx, window->window.uly, false);
+                WindowManager_LoadSimpleImage(ZOOMPNL1, window->window.ulx, window->window.uly, false);
 
                 new_zoom_level = ((window->window.lrx - window->window.ulx - 28) * (64 - Gfx_ZoomLevel)) / 60 + 14;
 
-                WindowManager_LoadImage2(ZOOMPTR, new_zoom_level + window->window.ulx, window->window.uly + 1, true);
+                WindowManager_LoadSimpleImage(ZOOMPTR, new_zoom_level + window->window.ulx, window->window.uly + 1,
+                                              true);
 
                 win_draw_rect(window->id, &window->window);
             }
@@ -1977,7 +1978,7 @@ void GameManager_GameSetup(int game_state) {
 
             delete[] palette;
 
-            WindowManager_LoadImage(FRAMEPIC, window, window->width, false, true, 0, 0);
+            WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, true);
             GameManager_ProcessTick(true);
             WindowManager_FadeIn(50);
 
@@ -3277,13 +3278,13 @@ void GameManager_MenuAnimateDisplayControls() {
 
     for (int i = 0; i < 5; ++i) {
         time_stamp = timer_get_stamp32();
-        WindowManager_LoadImage2(static_cast<ResourceID>(PNLSEQ_1 + i), top_window->window.ulx, top_window->window.uly,
-                                 true);
+        WindowManager_LoadSimpleImage(static_cast<ResourceID>(PNLSEQ_1 + i), top_window->window.ulx,
+                                      top_window->window.uly, true);
         win_draw_rect(top_window->id, &top_window->window);
 
         if (static_cast<ResourceID>(BPNLSQ_1 + i) <= BPNLSQ_4) {
-            WindowManager_LoadImage2(static_cast<ResourceID>(BPNLSQ_1 + i), bottom_window->window.ulx,
-                                     bottom_window->window.uly, true);
+            WindowManager_LoadSimpleImage(static_cast<ResourceID>(BPNLSQ_1 + i), bottom_window->window.ulx,
+                                          bottom_window->window.uly, true);
             win_draw_rect(bottom_window->id, &bottom_window->window);
         }
 
@@ -3345,7 +3346,7 @@ bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mod
     }
 
     if (!load_successful) {
-        WindowManager_LoadImage(FRAMEPIC, window, window->width, false, true, 0, 0);
+        WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, true);
         GameManager_MenuInitButtons(false);
         GameManager_MenuDeinitButtons();
         win_draw(window->id);

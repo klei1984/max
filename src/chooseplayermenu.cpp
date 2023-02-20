@@ -92,7 +92,7 @@ void ChoosePlayerMenu::Init() {
     event_click_cancel = false;
 
     mouse_hide();
-    WindowManager_LoadImage(CHOSPLYR, window, window->width, false, false);
+    WindowManager_LoadBigImage(CHOSPLYR, window, window->width, false, false, -1, -1, true);
 
     for (int i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;

@@ -555,7 +555,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
 
     local_window.buffer = &window.buffer[11 + window.width * 13];
 
-    if (!WindowManager_LoadImage(base_unit->portrait, &local_window, window.width, false, true, 0, 0)) {
+    if (!WindowManager_LoadBigImage(base_unit->portrait, &local_window, window.width, false, true, -1, -1, false)) {
         buf_fill(local_window.buffer, 300, 240, window.width, COLOR_BLACK);
         flicsmgr_construct(base_unit->flics, &local_window, window.width, 16, 17, false, false);
     }

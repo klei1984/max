@@ -650,7 +650,8 @@ int Remote_Lobby(bool is_host_mode) {
             result = Remote_IsNetworkGame;
 
         } else {
-            WindowManager_LoadImage(MAINPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW), 640, false, true);
+            WindowManager_LoadBigImage(MAINPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW),
+                                       WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->width, false, true, -1, -1, true);
             MessageManager_DrawMessage(Remote_Transport->GetError(), 2, 1);
 
             result = false;

@@ -54,7 +54,7 @@ void Survey_RenderMarker(WindowInfo* window, int grid_x, int grid_y, unsigned sh
             ResourceManager_LoadResource(static_cast<ResourceID>(marker_big + resource_value)));
 
         if (Gfx_ZoomLevel != 64) {
-            buffer = WindowManager_RescaleImage(buffer, Gfx_MapScalingFactor);
+            buffer = WindowManager_RescaleSimpleImage(buffer, Gfx_MapScalingFactor);
             flag = true;
         }
 
@@ -67,12 +67,12 @@ void Survey_RenderMarker(WindowInfo* window, int grid_x, int grid_y, unsigned sh
             ResourceManager_LoadResource(static_cast<ResourceID>(marker_small + resource_value - 1)));
 
         if (Gfx_ZoomLevel != 16) {
-            buffer = WindowManager_RescaleImage(buffer, Gfx_MapScalingFactor / 4);
+            buffer = WindowManager_RescaleSimpleImage(buffer, Gfx_MapScalingFactor / 4);
             flag = true;
         }
     }
 
-    WindowManager_DecodeImage2(buffer, (((grid_x * 64 + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx,
+    WindowManager_DecodeSimpleImage(buffer, (((grid_x * 64 + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx,
                                (((grid_y * 64 + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly, true, window);
 
     if (flag) {

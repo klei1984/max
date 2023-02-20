@@ -102,12 +102,14 @@ void WindowManager_ClearWindow();
 void WindowManager_FadeOut(int steps);
 void WindowManager_FadeIn(int steps);
 void WindowManager_LoadPalette(ResourceID id);
-void WindowManager_DecodeImage(struct ImageBigHeader *image, unsigned char *buffer, int ulx, int uly, int pitch);
-int WindowManager_LoadImage(ResourceID id, WindowInfo *window, short pitch, int palette_from_image,
-                            int draw_to_screen = true, int ulx = -1, int uly = -1);
-void WindowManager_DecodeImage2(struct ImageSimpleHeader *image, int ulx, int uly, int has_transparency, WindowInfo *w);
-void WindowManager_LoadImage2(ResourceID id, int ulx, int uly, int has_transparency, WindowInfo *w = nullptr);
-struct ImageSimpleHeader *WindowManager_RescaleImage(struct ImageSimpleHeader *image, int scaling_factor);
+void WindowManager_DecodeBigImage(struct ImageBigHeader *image, unsigned char *buffer, int ulx, int uly, int pitch);
+int WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, short pitch, bool palette_from_image,
+                               bool draw_to_screen = true, int ulx = -1, int uly = -1, bool center_align = false,
+                               bool rescale = false);
+void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int ulx, int uly, bool has_transparency,
+                                     WindowInfo *w);
+void WindowManager_LoadSimpleImage(ResourceID id, int ulx, int uly, bool has_transparency, WindowInfo *w = nullptr);
+struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHeader *image, int scaling_factor);
 int WindowManager_GetWidth(WindowInfo *w);
 int WindowManager_GetHeight(WindowInfo *w);
 int WindowManager_ScaleUlx(WindowInfo *w, int ulx);
