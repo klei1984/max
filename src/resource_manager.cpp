@@ -1027,7 +1027,7 @@ void ResourceManager_InitInGameAssets(int world) {
 
     SoundManager.FreeMusic();
 
-    WindowManager_LoadBigImage(FRAMEPIC, window, window->width, true, false, -1, -1, false);
+    WindowManager_LoadBigImage(FRAMEPIC, window, window->width, true, false, -1, -1, false, true);
 
     GameManager_InitLandingSequenceMenu(GameManager_GameState == GAME_STATE_7_SITE_SELECT);
 

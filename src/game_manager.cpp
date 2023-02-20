@@ -1978,7 +1978,7 @@ void GameManager_GameSetup(int game_state) {
 
             delete[] palette;
 
-            WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, true);
+            WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, false, true);
             GameManager_ProcessTick(true);
             WindowManager_FadeIn(50);
 
@@ -3346,7 +3346,7 @@ bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mod
     }
 
     if (!load_successful) {
-        WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, true);
+        WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, false, true);
         GameManager_MenuInitButtons(false);
         GameManager_MenuDeinitButtons();
         win_draw(window->id);

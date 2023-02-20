@@ -35,6 +35,8 @@
 
 static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
 static void WindowManager_ScaleWindows();
+static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, short pitch,
+                                             int ulx, int uly);
 
 static char *empty_string = (char *)"\0";
 
@@ -152,6 +154,12 @@ void WindowManager_ScaleWindows() {
         SDL_assert(WindowManager_MapHeight + frame_top + frame_bottom == screen_height);
 
         map_frame = window->window;
+
+        WindowInfo *const wpt = &windows[WINDOW_INTERFACE_PANEL_TOP];
+        WindowInfo *const wpb = &windows[WINDOW_INTERFACE_PANEL_BOTTOM];
+
+        wpt->window = {0, 0, window->window.ulx - 2, screen->window.lry / 2};
+        wpb->window = {0, (screen->window.lry / 2) + 1, window->window.ulx - 2, screen->window.lry};
     }
 
     {
@@ -194,6 +202,52 @@ void WindowManager_ScaleWindows() {
         wlu->window = {x0, y0, corner_width, y1};
         wul->window = {x0, y0, y1, corner_width};
     }
+}
+
+bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, short pitch, int ulx,
+                                      int uly) {
+    bool result = false;
+
+    /// \todo Support ULX, ULY offsets
+
+    switch (id) {
+        case FRAMEPIC: {
+            WindowInfo *const w = &windows[WINDOW_MAIN_MAP];
+
+            const int left = 180;
+            const int right = 18;
+
+            const Rect old0 = {0, 0, left - 1, WINDOW_HEIGHT - 1};
+            const Rect old1 = {old0.lrx + 1, old0.uly, WINDOW_WIDTH - right - 1, old0.lry};
+            const Rect old2 = {old1.lrx + 1, old0.uly, WINDOW_WIDTH - 1, old0.lry};
+
+            const Rect new0 = {0, 0, w->window.ulx - 1, window->window.lry};
+            const Rect new1 = {new0.lrx + 1, new0.uly, w->window.lrx, new0.lry};
+            const Rect new2 = {new1.lrx + 1, new0.uly, window->window.lrx, new0.lry};
+
+            unsigned char *buffer = new (std::nothrow) unsigned char[image->width * image->height];
+
+            WindowManager_DecodeBigImage(image, buffer, 0, 0, image->width);
+
+            cscale(&buffer[image->width * old0.uly + old0.ulx], old0.lrx + 1 - old0.ulx, old0.lry - old0.uly + 1,
+                   image->width, &window->buffer[window->width * new0.uly + new0.ulx], new0.lrx + 2 - new0.ulx,
+                   new0.lry - new0.uly + 1, window->width);
+
+            cscale(&buffer[image->width * old1.uly + old1.ulx], old1.lrx + 1 - old1.ulx, old1.lry - old1.uly + 1,
+                   image->width, &window->buffer[window->width * new1.uly + new1.ulx], new1.lrx + 2 - new1.ulx,
+                   new1.lry - new1.uly + 1, window->width);
+
+            cscale(&buffer[image->width * old2.uly + old2.ulx], old2.lrx + 1 - old2.ulx, old2.lry - old2.uly + 1,
+                   image->width, &window->buffer[window->width * new2.uly + new2.ulx], new2.lrx + 2 - new2.ulx,
+                   new2.lry - new2.uly + 1, window->width);
+
+            delete[] buffer;
+
+            result = true;
+        } break;
+    }
+
+    return result;
 }
 
 int WindowManager_Init() {
@@ -373,43 +427,45 @@ int WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, short pitch, b
     }
 
     if (rescale && (width != image->width || height != image->height)) {
-        WindowInfo w = *window;
-        double scale;
+        if (!WindowManager_CustomSpriteScaler(id, image, window, pitch, ulx, uly)) {
+            WindowInfo w = *window;
+            double scale;
 
-        w.buffer = new (std::nothrow) unsigned char[image->width * image->height];
-        w.width = image->width;
+            w.buffer = new (std::nothrow) unsigned char[image->width * image->height];
+            w.width = image->width;
 
-        WindowManager_DecodeBigImage(image, w.buffer, 0, 0, w.width);
+            WindowManager_DecodeBigImage(image, w.buffer, 0, 0, w.width);
 
-        if (width >= height) {
-            if (image->width + ulx >= image->height + uly) {
-                scale = static_cast<double>(height) / (image->height + uly);
+            if (width >= height) {
+                if (image->width + ulx >= image->height + uly) {
+                    scale = static_cast<double>(height) / (image->height + uly);
 
-            } else {
-                scale = static_cast<double>(height) / (image->width + ulx);
-            }
-
-        } else {
-            if (image->width + ulx >= image->height + uly) {
-                scale = static_cast<double>(width) / (image->height + uly);
+                } else {
+                    scale = static_cast<double>(height) / (image->width + ulx);
+                }
 
             } else {
-                scale = static_cast<double>(width) / (image->width + ulx);
+                if (image->width + ulx >= image->height + uly) {
+                    scale = static_cast<double>(width) / (image->height + uly);
+
+                } else {
+                    scale = static_cast<double>(width) / (image->width + ulx);
+                }
             }
+
+            width = image->width * scale;
+            height = image->height * scale;
+
+            if (center_align) {
+                ulx = (WindowManager_GetWidth(window) - width) / 2;
+                uly = (WindowManager_GetHeight(window) - height) / 2;
+            }
+
+            cscale(w.buffer, image->width, image->height, w.width, &window->buffer[pitch * uly + ulx], width, height,
+                   pitch);
+
+            delete[] w.buffer;
         }
-
-        width = image->width * scale;
-        height = image->height * scale;
-
-        if (center_align) {
-            ulx = (WindowManager_GetWidth(window) - width) / 2;
-            uly = (WindowManager_GetHeight(window) - height) / 2;
-        }
-
-        cscale(w.buffer, image->width, image->height, w.width, &window->buffer[pitch * uly + ulx], width, height,
-               pitch);
-
-        delete[] w.buffer;
 
     } else {
         if (center_align) {

@@ -205,7 +205,7 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
             window_message_box->window.lrx = window_message_box->window.ulx + MessageManager_MessageBox_Width;
             window_message_box->window.lry = window_message_box->window.uly + MessageManager_MessageBox_Height;
 
-            window_message_box->buffer = &window_main_map->buffer[offset_x + 640 * offset_y];
+            window_message_box->buffer = &window_main_map->buffer[offset_x + window_message_box->width * offset_y];
 
             MessageManager_MessageBox_BgColor = *MessageManager_MessageBox_BgColorArray[type];
             MessageManager_MessageBox_IsActive = true;
@@ -224,13 +224,13 @@ void MessageManager_DrawMessageBox() {
 
     window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
-    for (height = MessageManager_MessageBox_Height, fullw = 0; height > 0; --height, fullw += 640) {
+    for (height = MessageManager_MessageBox_Height, fullw = 0; height > 0; --height, fullw += window->width) {
         for (row = 0; row < MessageManager_MessageBox_Width; ++row) {
             window->buffer[row + fullw] = MessageManager_MessageBox_BgColor[window->buffer[row + fullw]];
         }
     }
 
-    MessageManager_DrawMessageBoxText(window->buffer, 640, 10, 10, MessageManager_MessageBuffer, 0xFF, false);
+    MessageManager_DrawMessageBoxText(window->buffer, window->width, 10, 10, MessageManager_MessageBuffer, 0xFF, false);
 }
 
 void MessageManager_ClearMessageBox() {
