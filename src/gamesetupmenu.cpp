@@ -100,12 +100,13 @@ void GameSetupMenu::ButtonInit(int index) {
 
         menu_setup_menu_mission_titles[index] = nullptr;
 
-        buttons[index] = new (std::nothrow)
-            Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
-                   control->bounds.lry - control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(
+            WindowManager_ScaleUlx(window, control->bounds.ulx), WindowManager_ScaleUly(window, control->bounds.uly),
+            control->bounds.lrx - control->bounds.ulx, control->bounds.lry - control->bounds.uly);
     } else {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
-                                                   control->bounds.ulx, control->bounds.uly);
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);

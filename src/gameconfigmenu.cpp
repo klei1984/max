@@ -179,15 +179,18 @@ static const char* game_config_menu_difficulty_descriptions[] = {
 static void DrawCaption(WindowInfo* window, MenuTitleItem* menu_item, FontColor color = Fonts_BrightYellowColor,
                         bool horizontal_align = false) {
     if (menu_item->title && menu_item->title[0] != '\0') {
-        Text_TextBox(window, menu_item->title, menu_item->bounds.ulx, menu_item->bounds.uly,
+        Text_TextBox(window, menu_item->title, WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
+                     WindowManager_ScaleUly(window, menu_item->bounds.uly),
                      menu_item->bounds.lrx - menu_item->bounds.ulx, menu_item->bounds.lry - menu_item->bounds.uly,
                      horizontal_align, true, color);
     }
 }
 
 static void DrawSelector(WindowInfo* window, MenuTitleItem* menu_item, int color) {
-    draw_box(window->buffer, window->width, menu_item->bounds.ulx, menu_item->bounds.uly, menu_item->bounds.lrx,
-             menu_item->bounds.lry, color);
+    draw_box(window->buffer, window->width, WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
+             WindowManager_ScaleUly(window, menu_item->bounds.uly),
+             WindowManager_ScaleUlx(window, menu_item->bounds.lrx),
+             WindowManager_ScaleUly(window, menu_item->bounds.lry), color);
 }
 
 void GameConfigMenu::Init() {
@@ -216,7 +219,7 @@ void GameConfigMenu::Init() {
     field_867 = 0;
 
     mouse_hide();
-    WindowManager_LoadBigImage(OPTNFRM, window, window->width, false, false);
+    WindowManager_LoadBigImage(OPTNFRM, window, window->width, false, false, -1, -1, true);
 
     for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
@@ -230,12 +233,18 @@ void GameConfigMenu::Init() {
 
     text_font(GNW_TEXT_FONT_5);
 
-    bg_panels[0] = new (std::nothrow) Image(6, 38, 200, 190);
-    bg_panels[1] = new (std::nothrow) Image(216, 38, 200, 190);
-    bg_panels[2] = new (std::nothrow) Image(426, 38, 200, 190);
-    bg_panels[3] = new (std::nothrow) Image(6, 233, 200, 190);
-    bg_panels[4] = new (std::nothrow) Image(216, 233, 200, 190);
-    bg_panels[5] = new (std::nothrow) Image(426, 233, 200, 190);
+    bg_panels[0] =
+        new (std::nothrow) Image(WindowManager_ScaleUlx(window, 6), WindowManager_ScaleUly(window, 38), 200, 190);
+    bg_panels[1] =
+        new (std::nothrow) Image(WindowManager_ScaleUlx(window, 216), WindowManager_ScaleUly(window, 38), 200, 190);
+    bg_panels[2] =
+        new (std::nothrow) Image(WindowManager_ScaleUlx(window, 426), WindowManager_ScaleUly(window, 38), 200, 190);
+    bg_panels[3] =
+        new (std::nothrow) Image(WindowManager_ScaleUlx(window, 6), WindowManager_ScaleUly(window, 233), 200, 190);
+    bg_panels[4] =
+        new (std::nothrow) Image(WindowManager_ScaleUlx(window, 216), WindowManager_ScaleUly(window, 233), 200, 190);
+    bg_panels[5] =
+        new (std::nothrow) Image(WindowManager_ScaleUlx(window, 426), WindowManager_ScaleUly(window, 233), 200, 190);
 
     for (int i = 0; i < 6; ++i) {
         bg_panels[i]->Copy(window);
@@ -385,9 +394,10 @@ void GameConfigMenu::EventVictoryConditionPrefs() {
 
     control = &game_config_menu_controls[field_867];
 
-    text_edit = new (std::nothrow) TextEdit(window, victory_limit_text, 5, control->bounds.ulx + 10,
-                                            control->bounds.uly, control->bounds.lrx - control->bounds.ulx - 20,
-                                            control->bounds.lry - control->bounds.uly, 0xA2, GNW_TEXT_FONT_5);
+    text_edit = new (std::nothrow)
+        TextEdit(window, victory_limit_text, 5, WindowManager_ScaleUlx(window, control->bounds.ulx + 10),
+                 WindowManager_ScaleUly(window, control->bounds.uly), control->bounds.lrx - control->bounds.ulx - 20,
+                 control->bounds.lry - control->bounds.uly, 0xA2, GNW_TEXT_FONT_5);
 
     text_edit->SetMode(1);
     text_edit->LoadBgImage();
@@ -427,15 +437,17 @@ void GameConfigMenu::ButtonInit(int index) {
 
     if (control->image_id != INVALID_ID && control->label) {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
-                                                   control->bounds.ulx, control->bounds.uly);
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
         buttons[index]->SetCaption(control->label);
     } else {
-        buttons[index] = new (std::nothrow)
-            Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
-                   control->bounds.lry - control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(
+            WindowManager_ScaleUlx(window, control->bounds.ulx), WindowManager_ScaleUly(window, control->bounds.uly),
+            control->bounds.lrx - control->bounds.ulx, control->bounds.lry - control->bounds.uly);
 
         if (control->image_id != INVALID_ID) {
-            WindowManager_LoadSimpleImage(control->image_id, control->bounds.ulx, control->bounds.uly, true, window);
+            WindowManager_LoadSimpleImage(control->image_id, WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                          WindowManager_ScaleUly(window, control->bounds.uly), true, window);
         }
     }
 
@@ -476,7 +488,8 @@ void GameConfigMenu::DrawPanelComputerOpponent() {
     opponent = ini_get_setting(INI_OPPONENT);
     DrawRadioButtons(6, 7, opponent);
     text = game_config_menu_difficulty_descriptions[opponent];
-    Text_TextBox(window->buffer, window->width, text, 19, 170, 180, 60, GNW_TEXT_OUTLINE | COLOR_YELLOW, false);
+    Text_TextBox(window->buffer, window->width, text, WindowManager_ScaleUlx(window, 19),
+                 WindowManager_ScaleUly(window, 170), 180, 60, GNW_TEXT_OUTLINE | COLOR_YELLOW, false);
 }
 
 void GameConfigMenu::DrawPanelTurnTimers() {

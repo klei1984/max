@@ -1437,10 +1437,10 @@ void menu_draw_tips_frame(WindowInfo* window) {
 
         menu_draw_menu_portrait_frame(window);
 
-        bounds.ulx = 19;
-        bounds.uly = 185;
-        bounds.lrx = 315;
-        bounds.lry = 421;
+        bounds.ulx = WindowManager_ScaleUlx(window, 19);
+        bounds.uly = WindowManager_ScaleUly(window, 185);
+        bounds.lrx = WindowManager_ScaleLrx(window, bounds.ulx, 315);
+        bounds.lry = WindowManager_ScaleLry(window, bounds.uly, 421);
 
         buffer_position = &window->buffer[window->width * bounds.uly + bounds.ulx];
         row_index_limit = menu_tips_current_row_index + menu_tips_max_row_count_per_page;
@@ -1453,7 +1453,9 @@ void menu_draw_tips_frame(WindowInfo* window) {
 
         for (int i = menu_tips_current_row_index; i < row_index_limit; ++i) {
             text_to_buf(&buffer_position[(i - menu_tips_current_row_index) * text_height() * window->width],
-                        menu_tips_strings[i].GetCStr(), 296, window->width, 0xA2);
+                        menu_tips_strings[i].GetCStr(),
+                        WindowManager_ScaleLrx(window, bounds.lrx, 315) - WindowManager_ScaleUlx(window, 19),
+                        window->width, 0xA2);
         }
 
         win_draw_rect(window->id, &bounds);
@@ -1471,13 +1473,15 @@ void menu_draw_tips(WindowInfo* window) {
 
     menu_tips_current_row_index = 0;
 
-    menu_tips_button_up = new (std::nothrow) Button(MNUUAROU, MNUUAROD, 16, 438);
+    menu_tips_button_up = new (std::nothrow)
+        Button(MNUUAROU, MNUUAROD, WindowManager_ScaleUlx(window, 16), WindowManager_ScaleUly(window, 438));
     menu_tips_button_up->SetRValue(1000);
     menu_tips_button_up->SetPValue(GNW_INPUT_PRESS + 1000);
     menu_tips_button_up->SetSfx(KCARG0);
     menu_tips_button_up->RegisterButton(window->id);
 
-    menu_tips_button_down = new (std::nothrow) Button(MNUDAROU, MNUDAROD, 48, 438);
+    menu_tips_button_down = new (std::nothrow)
+        Button(MNUDAROU, MNUDAROD, WindowManager_ScaleUlx(window, 48), WindowManager_ScaleUly(window, 438));
     menu_tips_button_down->SetRValue(1001);
     menu_tips_button_down->SetPValue(GNW_INPUT_PRESS + 1001);
     menu_tips_button_down->RegisterButton(window->id);

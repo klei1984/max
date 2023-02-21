@@ -68,12 +68,13 @@ void PlanetSelectMenu::ButtonInit(int index) {
     text_font(GNW_TEXT_FONT_1);
 
     if (control->image_id == INVALID_ID) {
-        buttons[index] = new (std::nothrow)
-            Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
-                   control->bounds.lry - control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(
+            WindowManager_ScaleUlx(window, control->bounds.ulx), WindowManager_ScaleUly(window, control->bounds.uly),
+            control->bounds.lrx - control->bounds.ulx, control->bounds.lry - control->bounds.uly);
     } else {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
-                                                   control->bounds.ulx, control->bounds.uly);
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);
@@ -104,8 +105,9 @@ void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
     for (int i = world_first; i < world_last; ++i) {
         process_bk();
 
-        buffer_position = &window->buffer[planet_select_menu_controls[menu_item_index].bounds.uly * window->width +
-                                          planet_select_menu_controls[menu_item_index].bounds.ulx];
+        buffer_position =
+            &window->buffer[WindowManager_ScaleOffset(window, planet_select_menu_controls[menu_item_index].bounds.ulx,
+                                                      planet_select_menu_controls[menu_item_index].bounds.uly)];
 
         if (Menu_LoadPlanetMinimap(i, buffer_position, window->width)) {
             ++menu_item_index;
@@ -116,12 +118,19 @@ void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
         }
     }
 
-    WindowManager_LoadBigImage(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false, -1,
-                               -1, false);
+    unsigned char* world_resource = ResourceManager_ReadResource(static_cast<ResourceID>(SNOW_PIC + world / 6));
+    struct ImageBigHeader* world_image = reinterpret_cast<struct ImageBigHeader*>(world_resource);
+    int ulx = world_image->ulx;
+    int uly = world_image->uly;
+    delete[] world_resource;
+
+    WindowManager_LoadBigImage(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false,
+                               WindowManager_ScaleUlx(window, ulx), WindowManager_ScaleUly(window, uly), false);
 
     if (!image3) {
         image3 = new (std::nothrow)
-            Image(planet_select_menu_planet_description.bounds.ulx, planet_select_menu_planet_description.bounds.uly,
+            Image(WindowManager_ScaleUlx(window, planet_select_menu_planet_description.bounds.ulx),
+                  WindowManager_ScaleUly(window, planet_select_menu_planet_description.bounds.uly),
                   planet_select_menu_planet_description.bounds.lrx - planet_select_menu_planet_description.bounds.ulx,
                   planet_select_menu_planet_description.bounds.lry - planet_select_menu_planet_description.bounds.uly);
         image3->Copy(window);
@@ -137,7 +146,8 @@ void PlanetSelectMenu::DrawTexts() {
 
     if (!image1) {
         image1 = new (std::nothrow)
-            Image(planet_select_menu_planet_name.bounds.ulx, planet_select_menu_planet_name.bounds.uly,
+            Image(WindowManager_ScaleUlx(window, planet_select_menu_planet_name.bounds.ulx),
+                  WindowManager_ScaleUly(window, planet_select_menu_planet_name.bounds.uly),
                   planet_select_menu_planet_name.bounds.lrx - planet_select_menu_planet_name.bounds.ulx + 1,
                   planet_select_menu_planet_name.bounds.lry - planet_select_menu_planet_name.bounds.uly + 1);
         image1->Copy(window);
@@ -165,12 +175,16 @@ void PlanetSelectMenu::DrawTexts() {
     bounds = &planet_select_menu_controls[world % 6].bounds;
 
     image2 = new (std::nothrow)
-        Image(bounds->ulx, bounds->uly, bounds->lrx - bounds->ulx + 1, bounds->lry - bounds->uly + 1);
+        Image(WindowManager_ScaleUlx(window, bounds->ulx), WindowManager_ScaleUly(window, bounds->uly),
+              bounds->lrx - bounds->ulx + 1, bounds->lry - bounds->uly + 1);
     image2->Copy(window);
 
-    draw_box(window->buffer, window->width, bounds->ulx, bounds->uly, bounds->lrx, bounds->lry, COLOR_RED);
-    draw_box(window->buffer, window->width, bounds->ulx + 1, bounds->uly + 1, bounds->lrx - 1, bounds->lry - 1,
-             COLOR_RED);
+    draw_box(window->buffer, window->width, WindowManager_ScaleUlx(window, bounds->ulx),
+             WindowManager_ScaleUly(window, bounds->uly), WindowManager_ScaleUlx(window, bounds->lrx),
+             WindowManager_ScaleUly(window, bounds->lry), COLOR_RED);
+    draw_box(window->buffer, window->width, WindowManager_ScaleUlx(window, bounds->ulx + 1),
+             WindowManager_ScaleUly(window, bounds->uly + 1), WindowManager_ScaleUlx(window, bounds->lrx - 1),
+             WindowManager_ScaleUly(window, bounds->lry - 1), COLOR_RED);
     win_draw(window->id);
 }
 
@@ -209,16 +223,17 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
             WindowManager_DecodeBigImage(image1_header, window_buffer, false, false, width * 3);
             WindowManager_DecodeBigImage(image3_header, &window_buffer[width], false, false, width * 3);
             WindowManager_DecodeBigImage(image2_header, &window_buffer[width * 2], false, false, width * 3);
+
         } else {
             WindowManager_DecodeBigImage(image1_header, &window_buffer[width * 2], false, false, width * 3);
             WindowManager_DecodeBigImage(image3_header, &window_buffer[width], false, false, width * 3);
             WindowManager_DecodeBigImage(image2_header, window_buffer, false, false, width * 3);
         }
 
-        bounds.ulx = image1_header->ulx;
-        bounds.uly = image1_header->uly;
-        bounds.lrx = image1_header->ulx + image1_header->width;
-        bounds.lry = image1_header->uly + image1_header->height;
+        bounds.ulx = WindowManager_ScaleUlx(window, image1_header->ulx);
+        bounds.uly = WindowManager_ScaleUly(window, image1_header->uly);
+        bounds.lrx = WindowManager_ScaleLrx(window, image1_header->ulx, image1_header->ulx + image1_header->width);
+        bounds.lry = WindowManager_ScaleLry(window, image1_header->uly, image1_header->uly + image1_header->height);
 
         buffer_position = &window->buffer[bounds.uly * window->width + bounds.ulx];
 
@@ -227,6 +242,7 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
 
             if (direction) {
                 offset = (width / 8) * i;
+
             } else {
                 offset = (width / 8) * (16 - i);
             }
