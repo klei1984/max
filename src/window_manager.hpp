@@ -110,6 +110,7 @@ void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int ulx, i
                                      WindowInfo *w);
 void WindowManager_LoadSimpleImage(ResourceID id, int ulx, int uly, bool has_transparency, WindowInfo *w = nullptr);
 struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHeader *image, int scaling_factor);
+void WindowManager_ScaleResources();
 int WindowManager_GetWidth(WindowInfo *w);
 int WindowManager_GetHeight(WindowInfo *w);
 int WindowManager_ScaleUlx(WindowInfo *w, int ulx);

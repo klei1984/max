@@ -30,6 +30,7 @@ class MenuLandingSequence {
     Image* image_1;
     Image* image_2;
     unsigned int time_stamp;
+    int step_size;
 
 public:
     MenuLandingSequence();

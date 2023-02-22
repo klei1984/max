@@ -32,7 +32,8 @@ MenuLandingSequence::MenuLandingSequence()
       image_2(nullptr),
       button_1(nullptr),
       button_2(nullptr),
-      time_stamp(0) {}
+      time_stamp(0),
+      step_size(20) {}
 
 MenuLandingSequence::~MenuLandingSequence() { Deinit(); }
 
@@ -65,6 +66,8 @@ void MenuLandingSequence::Init(bool enable_controls) {
     image_2 = new (std::nothrow) Image(0, 0, panel_bottom->window.lrx - panel_bottom->window.ulx + 1,
                                        panel_bottom->window.lry - panel_bottom->window.uly + 1);
     image_2->Copy(panel_bottom);
+
+    step_size = image_1->GetHeight() / 11;
 
     WindowManager_LoadSimpleImage(PANELTOP, panel_top->window.ulx, panel_top->window.uly, true);
     WindowManager_LoadSimpleImage(PANELBTM, panel_bottom->window.ulx, panel_bottom->window.uly, true);
@@ -110,7 +113,7 @@ void MenuLandingSequence::OpenPanel() {
         image_1->Write(panel_top);
         image_2->Write(panel_bottom);
 
-        AnimateStep(i * 20);
+        AnimateStep(i * step_size);
     }
 
     if (image_1) {
@@ -141,7 +144,7 @@ void MenuLandingSequence::ClosePanel() {
 
         for (int i = 11; i >= 0; --i) {
             time_stamp = timer_get_stamp32();
-            AnimateStep(i * 20);
+            AnimateStep(i * step_size);
         }
     }
 

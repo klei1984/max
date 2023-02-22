@@ -37,6 +37,7 @@ static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
 static void WindowManager_ScaleWindows();
 static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, short pitch,
                                              int ulx, int uly);
+static void WindowManager_ResizeSimpleImage(ResourceID id, int width, int height);
 
 static char *empty_string = (char *)"\0";
 
@@ -108,6 +109,33 @@ static WindowInfo windows[WINDOW_COUNT] = {
     WINDOW_ITEM(WINDOW_RECT(240, 456, 585, 479), WINDOW_WIDTH, 0, nullptr, WINDOW_BOTTOM_INSTRUMENTS_WINDOW),
     WINDOW_ITEM(WINDOW_RECT(0, 0, 178, 238), WINDOW_WIDTH, 0, nullptr, WINDOW_INTERFACE_PANEL_TOP),
     WINDOW_ITEM(WINDOW_RECT(0, 239, 178, 479), WINDOW_WIDTH, 0, nullptr, WINDOW_INTERFACE_PANEL_BOTTOM)};
+
+void WindowManager_ResizeSimpleImage(ResourceID id, int width, int height) {
+    unsigned char *resource = ResourceManager_LoadResource(id);
+    ImageSimpleHeader *image = reinterpret_cast<ImageSimpleHeader *>(resource);
+    int scaling_factor;
+    int data_size;
+    Rect map_frame;
+
+    if (width >= height) {
+        scaling_factor = (image->height * GFX_SCALE_DENOMINATOR) / height;
+
+    } else {
+        scaling_factor = (image->width * GFX_SCALE_DENOMINATOR) / width;
+    }
+
+    image = WindowManager_RescaleSimpleImage(image, scaling_factor);
+    data_size = image->width * image->height + sizeof(image->width) * 4;
+    ResourceManager_Realloc(id, reinterpret_cast<unsigned char *>(image), data_size);
+}
+
+void WindowManager_ScaleResources() {
+    WindowInfo *const wpt = &windows[WINDOW_INTERFACE_PANEL_TOP];
+    WindowInfo *const wpb = &windows[WINDOW_INTERFACE_PANEL_BOTTOM];
+
+    WindowManager_ResizeSimpleImage(PANELTOP, wpt->window.lrx - wpt->window.ulx, wpt->window.lry - wpt->window.uly);
+    WindowManager_ResizeSimpleImage(PANELBTM, wpb->window.lrx - wpb->window.ulx, wpb->window.lry - wpb->window.uly);
+}
 
 void WindowManager_ScaleWindows() {
     WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];

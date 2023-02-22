@@ -764,7 +764,7 @@ ResourceID ResourceManager_GetResourceID(int index) {
 
 void ResourceManager_Realloc(ResourceID id, unsigned char *buffer, int data_size) {
     if (ResourceManager_ResMetaTable[id].resource_buffer) {
-        free(ResourceManager_ResMetaTable[id].resource_buffer);
+        delete[] ResourceManager_ResMetaTable[id].resource_buffer;
         resource_buffer_size -=
             ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_size;
     }

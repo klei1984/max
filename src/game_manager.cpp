@@ -2959,6 +2959,7 @@ void GameManager_InitUnitsAndGameState() {
     SoundManager.SetVolume(AUDIO_TYPE_MUSIC, ini_get_setting(INI_MUSIC_LEVEL) / 3);
 
     ResourceManager_FreeResources();
+    WindowManager_ScaleResources();
     WindowManager_LoadPalette(FRAMEPIC);
 
     UnitsManager_InitPopupMenus();
