@@ -34,6 +34,21 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
+class UnitStatsMenu : public Window {
+    WindowInfo window;
+    TaskDebugger* task_debugger = nullptr;
+    Button* button_done;
+    Button* button_help;
+    SmartPointer<UnitInfo> unit;
+    bool event_release;
+
+public:
+    UnitStatsMenu(UnitInfo* unit);
+    ~UnitStatsMenu();
+
+    void Run();
+};
+
 static void UnitStats_DrawText(unsigned char* buffer, int screen_width, const char* label, int line_length,
                                int resource_count, bool drawline);
 
@@ -437,141 +452,124 @@ void UnitStats_DrawCost(unsigned char* buffer, int screen_width, ResourceID unit
 }
 
 void UnitStats_Menu(UnitInfo* unit) {
-    WindowInfo window;
-    WindowInfo window2;
-    Button* button_done;
-    Button* button_help;
+    UnitStatsMenu menu(unit);
+
+    menu.Run();
+}
+
+UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_) : Window(STATS, WINDOW_MAIN_MAP), unit(unit_), event_release(false) {
+    WindowInfo debug_window;
     BaseUnit* base_unit;
-    struct ImageBigHeader image_header;
     char text[40];
-    int ulx;
-    int uly;
-    int key;
-    bool event_release;
-    TaskDebugger* task_debugger = nullptr;
+
+    Add();
+    FillWindowInfo(&window);
 
     Cursor_SetCursor(CURSOR_HAND);
 
-    if (ResourceManager_ReadImageHeader(STATS, &image_header)) {
-        ulx = (640 - image_header.width) / 2;
-        uly = (480 - image_header.height) / 2;
+    GameManager_DisableMainMenu();
 
-        window.window.ulx = 0;
-        window.window.uly = 0;
-        window.window.lrx = image_header.width;
-        window.window.lry = image_header.height;
-        window.width = image_header.width;
-        window.id = win_add(ulx, uly, image_header.width, image_header.height, 0x00, 0);
-        window.buffer = win_get_buf(window.id);
+    text_font(GNW_TEXT_FONT_5);
 
-        if (WindowManager_LoadBigImage(STATS, &window, window.width, false, false, -1, -1, true)) {
-            GameManager_DisableMainMenu();
+    button_done = new (std::nothrow) Button(BLDONE_U, BLDONE_D, 484, 452);
+    button_done->SetCaption("Done");
+    button_done->SetRValue(GNW_KB_KEY_KP_ENTER);
+    button_done->SetPValue(GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS);
+    button_done->SetSfx(NDONE0);
+    button_done->RegisterButton(window.id);
 
-            text_font(GNW_TEXT_FONT_5);
+    button_help = new (std::nothrow) Button(BLDHLP_U, BLDHLP_D, 457, 452);
+    button_help->SetRValue(1000);
+    button_help->SetPValue(1000 + GNW_INPUT_PRESS);
+    button_help->SetSfx(NHELP0);
+    button_help->RegisterButton(window.id);
 
-            button_done = new (std::nothrow) Button(BLDONE_U, BLDONE_D, 484, 452);
-            button_done->SetCaption("Done");
-            button_done->SetRValue(GNW_KB_KEY_KP_ENTER);
-            button_done->SetPValue(GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS);
-            button_done->SetSfx(NDONE0);
-            button_done->RegisterButton(window.id);
+    base_unit = &UnitsManager_BaseUnits[unit->unit_type];
 
-            button_help = new (std::nothrow) Button(BLDHLP_U, BLDHLP_D, 457, 452);
-            button_help->SetRValue(1000);
-            button_help->SetPValue(1000 + GNW_INPUT_PRESS);
-            button_help->SetSfx(NHELP0);
-            button_help->RegisterButton(window.id);
+    debug_window = window;
 
-            base_unit = &UnitsManager_BaseUnits[unit->unit_type];
+    debug_window.buffer = &window.buffer[11 + window.width * 13];
+    debug_window.window.ulx = 11;
+    debug_window.window.uly = 13;
+    debug_window.window.lrx = 311;
+    debug_window.window.lry = 253;
 
-            window2 = window;
+    if (TaskDebugger_GetDebugMode() && unit->GetTask()) {
+        task_debugger = new (std::nothrow) TaskDebugger(&debug_window, unit->GetTask(), 2000, 2001, 2002);
 
-            window2.buffer = &window.buffer[11 + window.width * 13];
-            window2.window.ulx = 11;
-            window2.window.uly = 13;
-            window2.window.lrx = 311;
-            window2.window.lry = 253;
+    } else {
+        if (!WindowManager_LoadBigImage(base_unit->portrait, &debug_window, window.width, false)) {
+            flicsmgr_construct(base_unit->flics, &window, window.width, 100, 74, false, false);
+        }
+    }
 
-            if (TaskDebugger_GetDebugMode() && unit->GetTask()) {
-                task_debugger = new (std::nothrow) TaskDebugger(&window2, unit->GetTask(), 2000, 2001, 2002);
+    UnitStats_DrawStats(&window.buffer[11 + window.width * 293], window.width, unit->unit_type, unit->team,
+                        *unit->GetBaseValues(), 245, I_RAW, I_RAWE);
+
+    text_font(GNW_TEXT_FONT_5);
+
+    unit->GetDisplayName(text);
+
+    Text_TextBox(window.buffer, window.width, text, 336, 60, 287, 11, 0xA2, true);
+    Text_TextBox(window.buffer, window.width, base_unit->description, 345, 90, 270, 117, 0xA2, false, false);
+
+    text_font(GNW_TEXT_FONT_5);
+    Text_TextBox(window.buffer, window.width, "Unit Status Screen", 327, 7, 158, 18, COLOR_GREEN, true);
+
+    if (task_debugger) {
+        task_debugger->DrawRows();
+    }
+
+    win_draw(window.id);
+}
+
+UnitStatsMenu::~UnitStatsMenu() {
+    delete task_debugger;
+    delete button_done;
+    delete button_help;
+
+    GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
+    GameManager_ProcessTick(true);
+}
+
+void UnitStatsMenu::Run() {
+    int key = 0;
+
+    while (key != GNW_KB_KEY_ESCAPE && key != GNW_KB_KEY_KP_ENTER) {
+        key = get_input();
+
+        if (key > 0 && key < GNW_INPUT_PRESS) {
+            event_release = false;
+        }
+
+        if (key < GNW_INPUT_PRESS) {
+            if (key == GNW_KB_KEY_LALT_P) {
+                PauseMenu_Menu();
+            }
+
+            if (key == 1000 || key == '?') {
+                HelpMenu_Menu(HELPMENU_STATS_SETUP, WINDOW_MAIN_WINDOW);
+            }
+
+            if (task_debugger && key >= 0) {
+                task_debugger->ProcessKeyPress(key);
+            }
+
+            if (GameManager_RequestMenuExit) {
+                key = GNW_KB_KEY_KP_ENTER;
+            }
+
+            GameManager_ProcessState(false);
+
+        } else if (!event_release) {
+            if (GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS) {
+                button_done->PlaySound();
 
             } else {
-                if (!WindowManager_LoadBigImage(base_unit->portrait, &window2, window.width, false)) {
-                    flicsmgr_construct(base_unit->flics, &window, window.width, 100, 74, false, false);
-                }
+                button_help->PlaySound();
             }
 
-            UnitStats_DrawStats(&window.buffer[11 + window.width * 293], window.width, unit->unit_type, unit->team,
-                                *unit->GetBaseValues(), 245, I_RAW, I_RAWE);
-
-            text_font(GNW_TEXT_FONT_5);
-
-            unit->GetDisplayName(text);
-
-            Text_TextBox(window.buffer, window.width, text, 336, 60, 287, 11, 0xA2, true);
-            Text_TextBox(window.buffer, window.width, base_unit->description, 345, 90, 270, 117, 0xA2, false, false);
-
-            text_font(GNW_TEXT_FONT_5);
-            Text_TextBox(window.buffer, window.width, "Unit Status Screen", 327, 7, 158, 18, COLOR_GREEN, true);
-
-            if (task_debugger) {
-                task_debugger->DrawRows();
-            }
-
-            win_draw(window.id);
-
-            key = 0;
-            event_release = false;
-
-            while (key != GNW_KB_KEY_ESCAPE && key != GNW_KB_KEY_KP_ENTER) {
-                key = get_input();
-
-                if (key > 0 && key < GNW_INPUT_PRESS) {
-                    event_release = false;
-                }
-
-                if (key < GNW_INPUT_PRESS) {
-                    if (key == GNW_KB_KEY_LALT_P) {
-                        PauseMenu_Menu();
-                    }
-
-                    if (key == 1000 || key == '?') {
-                        HelpMenu_Menu(HELPMENU_STATS_SETUP, WINDOW_MAIN_WINDOW);
-                    }
-
-                    if (task_debugger && key >= 0) {
-                        task_debugger->ProcessKeyPress(key);
-                    }
-
-                    if (GameManager_RequestMenuExit) {
-                        key = GNW_KB_KEY_KP_ENTER;
-                    }
-
-                    GameManager_ProcessState(false);
-
-                } else if (!event_release) {
-                    if (GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS) {
-                        button_done->PlaySound();
-
-                    } else {
-                        button_help->PlaySound();
-                    }
-
-                    event_release = true;
-                }
-            }
-
-            delete task_debugger;
-            delete button_done;
-            delete button_help;
-
-            win_delete(window.id);
-
-            GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
-            GameManager_ProcessTick(true);
-
-        } else {
-            win_delete(window.id);
+            event_release = true;
         }
     }
 }
