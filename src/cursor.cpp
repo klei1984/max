@@ -32,7 +32,10 @@ extern "C" {
 #define CURSOR_CURSOR_COUNT 30
 
 struct Cursor_Descriptor {
-    Rect bounds;
+    short width;
+    short height;
+    short ulx;
+    short uly;
     unsigned short frame_count;
     unsigned char* data;
 };
@@ -61,9 +64,9 @@ static unsigned char Cursor_ActiveCursorIndex = CURSOR_HIDDEN;
 static void Cursor_DrawAttackPowerCursorHelper(int target_current_hits, int attacker_damage, int target_base_hits,
                                                unsigned char cursor_index) {
     Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
-    int lrx = cursor->bounds.lrx - 18;
-    int lry = cursor->bounds.lry + 15;
-    unsigned char* data = &cursor->data[lrx + cursor->bounds.ulx * lry];
+    int lrx = cursor->ulx - 18;
+    int lry = cursor->uly + 15;
+    unsigned char* data = &cursor->data[lrx + cursor->width * lry];
 
     if (target_base_hits) {
         if (attacker_damage > target_current_hits) {
@@ -76,22 +79,22 @@ static void Cursor_DrawAttackPowerCursorHelper(int target_current_hits, int atta
         target_current_hits = target_current_hits * 35 / target_base_hits;
         attacker_damage -= target_current_hits;
 
-        draw_box(data, cursor->bounds.ulx, 0, 0, 36, 4, COLOR_BLACK);
+        draw_box(data, cursor->width, 0, 0, 36, 4, COLOR_BLACK);
 
         if (target_current_hits) {
-            buf_fill(&data[cursor->bounds.ulx + 1], target_current_hits, 3, cursor->bounds.ulx, 2);
+            buf_fill(&data[cursor->width + 1], target_current_hits, 3, cursor->width, 2);
         }
 
         if (attacker_damage) {
-            buf_fill(&data[cursor->bounds.ulx + 1 + target_current_hits], attacker_damage, 3, cursor->bounds.ulx, 1);
+            buf_fill(&data[cursor->width + 1 + target_current_hits], attacker_damage, 3, cursor->width, 1);
         }
 
         if ((attacker_damage + target_current_hits) < 35) {
-            buf_fill(&data[cursor->bounds.ulx + 1 + target_current_hits + attacker_damage],
-                     35 - target_current_hits - attacker_damage, 3, cursor->bounds.ulx, cursor->data[0]);
+            buf_fill(&data[cursor->width + 1 + target_current_hits + attacker_damage],
+                     35 - target_current_hits - attacker_damage, 3, cursor->width, cursor->data[0]);
         }
     } else {
-        buf_fill(data, 37, 5, cursor->bounds.ulx, cursor->data[0]);
+        buf_fill(data, 37, 5, cursor->width, cursor->data[0]);
     }
 }
 
@@ -104,15 +107,15 @@ void Cursor_Init() {
         cursor->data = &sprite->transparent_color;
 
         if (sprite) {
-            cursor->bounds.ulx = sprite->width;
-            cursor->bounds.uly = sprite->height;
-            cursor->bounds.lrx = sprite->ulx;
-            cursor->bounds.lry = sprite->uly;
+            cursor->width = sprite->width;
+            cursor->height = sprite->height;
+            cursor->ulx = sprite->ulx;
+            cursor->uly = sprite->uly;
             cursor->frame_count = 1;
 
-            if (cursor->bounds.ulx < cursor->bounds.uly) {
-                cursor->frame_count = cursor->bounds.uly / cursor->bounds.ulx;
-                cursor->bounds.uly = cursor->bounds.uly / cursor->frame_count;
+            if (cursor->width < cursor->height) {
+                cursor->frame_count = cursor->height / cursor->width;
+                cursor->height = cursor->height / cursor->frame_count;
             }
         }
     }
@@ -132,12 +135,11 @@ void Cursor_SetCursor(unsigned char cursor_index) {
 
         if (cursor->data) {
             if (cursor->frame_count <= 1) {
-                mouse_set_shape(reinterpret_cast<unsigned char*>(cursor->data), cursor->bounds.ulx, cursor->bounds.uly,
-                                cursor->bounds.ulx, cursor->bounds.lrx, cursor->bounds.lry, cursor->data[0]);
+                mouse_set_shape(cursor->data, cursor->width, cursor->height, cursor->width, cursor->ulx, cursor->uly,
+                                cursor->data[0]);
             } else {
-                mouse_set_anim_frames(reinterpret_cast<unsigned char*>(cursor->data), cursor->frame_count, 0,
-                                      cursor->bounds.uly, cursor->bounds.ulx, cursor->bounds.lrx, cursor->bounds.lry,
-                                      cursor->data[0], 200);
+                mouse_set_anim_frames(cursor->data, cursor->frame_count, 0, cursor->height, cursor->width, cursor->ulx,
+                                      cursor->uly, cursor->data[0], 200);
             }
         }
 
@@ -157,19 +159,19 @@ void Cursor_DrawAttackPowerCursor(UnitInfo* selected_unit, UnitInfo* target_unit
 
 void Cursor_DrawStealthActionChanceCursor(int experience_level, unsigned char cursor_index) {
     Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
-    int lrx = cursor->bounds.lrx - 18;
-    int lry = cursor->bounds.lry + 15;
-    unsigned char* data = &cursor->data[lrx + cursor->bounds.ulx * lry];
+    int lrx = cursor->ulx - 18;
+    int lry = cursor->uly + 15;
+    unsigned char* data = &cursor->data[lrx + cursor->width * lry];
     int chance = experience_level * 35 / 100;
     int reminder = 35 - experience_level * 35 / 100;
 
-    draw_box(data, cursor->bounds.ulx, 0, 0, 36, 4, COLOR_BLACK);
+    draw_box(data, cursor->width, 0, 0, 36, 4, COLOR_BLACK);
 
     if (chance) {
-        buf_fill(&data[cursor->bounds.ulx + 1], chance, 3, cursor->bounds.ulx, 1);
+        buf_fill(&data[cursor->width + 1], chance, 3, cursor->width, 1);
     }
 
     if (reminder) {
-        buf_fill(&data[cursor->bounds.ulx + 1 + chance], reminder, 3, cursor->bounds.ulx, data[0]);
+        buf_fill(&data[cursor->width + 1 + chance], reminder, 3, cursor->width, data[0]);
     }
 }
