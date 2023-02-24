@@ -73,4 +73,16 @@ class PlotMatrix:
                 for x in range(self.dim[1]):
                     f.write(f"{int(self.val[x][y])}")
                 f.write("\n")
+
+class PlotIndexedImage:
+    """example: py PlotIndexedImage("image.buffer", (640,480)).plot()"""
+    def __init__(self, name, dimensions):
+        self.val = gdb.parse_and_eval(name)
+        self.dim = dimensions
+
+    def plot(self):
+        with open("image.data", "wb") as f:
+            for y in range(self.dim[1]):
+                for x in range(self.dim[0]):
+                    f.write(bytes([int(self.val[x + y * self.dim[0]])]))
 end
