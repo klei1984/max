@@ -94,7 +94,10 @@
 #define MENU_GUI_ITEM_TNT_MINIMAP_BUTTON 22
 #define MENU_GUI_ITEM_ENDTURN_BUTTON 23
 
-#define MENU_DISPLAY_CONTROL_UNIT_DESCRIPTION_DISPLAY 1
+#define MENU_DISPLAY_CONTROL_COORDINATES 0
+#define MENU_DISPLAY_CONTROL_UNIT_DESCRIPTION 1
+#define MENU_DISPLAY_CONTROL_TURN_COUNTER 2
+#define MENU_DISPLAY_CONTROL_TURN_TIMER 3
 #define MENU_DISPLAY_CONTROL_CORNER_FLIC 4
 #define MENU_DISPLAY_CONTROL_STAT_WINDOW 5
 
@@ -563,12 +566,12 @@ static Point GameManager_MenuItemLabelOffsets[] = {
 };
 
 static struct MenuDisplayControl GameManager_MenuDisplayControls[] = {
-    MENU_DISPLAY_CONTROL_DEF(WINDOW_COORDINATES_DISPLAY, XYPOS, 0, 0, 0, INVALID_ID, 0),
-    MENU_DISPLAY_CONTROL_DEF(WINDOW_UNIT_DESCRIPTION_DISPLAY, UNITNAME, 0, 0, 0, INVALID_ID, 0),
-    MENU_DISPLAY_CONTROL_DEF(WINDOW_TURN_COUNTER_DISPLAY, TURNS, 0, 0, 0, INVALID_ID, 0),
-    MENU_DISPLAY_CONTROL_DEF(WINDOW_TURN_TIMER_DISPLAY, TIMER, 0, 0, 0, INVALID_ID, 0),
-    MENU_DISPLAY_CONTROL_DEF(WINDOW_CORNER_FLIC, INVALID_ID, 0, 0, 0, INVALID_ID, 0),
-    MENU_DISPLAY_CONTROL_DEF(WINDOW_STAT_WINDOW, INVALID_ID, 0, 0, 0, INVALID_ID, 0),
+    MENU_DISPLAY_CONTROL_DEF(WINDOW_COORDINATES_DISPLAY, XYPOS, 0, 0, 0, INVALID_ID, nullptr),
+    MENU_DISPLAY_CONTROL_DEF(WINDOW_UNIT_DESCRIPTION_DISPLAY, UNITNAME, 0, 0, 0, INVALID_ID, nullptr),
+    MENU_DISPLAY_CONTROL_DEF(WINDOW_TURN_COUNTER_DISPLAY, TURNS, 0, 0, 0, INVALID_ID, nullptr),
+    MENU_DISPLAY_CONTROL_DEF(WINDOW_TURN_TIMER_DISPLAY, TIMER, 0, 0, 0, INVALID_ID, nullptr),
+    MENU_DISPLAY_CONTROL_DEF(WINDOW_CORNER_FLIC, INVALID_ID, 0, 0, 0, INVALID_ID, nullptr),
+    MENU_DISPLAY_CONTROL_DEF(WINDOW_STAT_WINDOW, INVALID_ID, 0, 0, 0, INVALID_ID, nullptr),
 };
 
 struct PopupButtons GameManager_PopupButtons;
@@ -2201,7 +2204,7 @@ void GameManager_DrawTurnCounter(int turn_count) {
 
     sprintf(text, "%i", turn_count);
 
-    GameManager_DrawDisplayPanel(2, text, 0xA2);
+    GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_TURN_COUNTER, text, 0xA2);
 }
 
 void GameManager_DrawTimer(char* text, int color) {
@@ -2265,7 +2268,7 @@ void GameManager_DrawTurnTimer(int turn_time, bool mode) {
         GameManager_DrawTimer(text, color);
 
     } else {
-        GameManager_DrawDisplayPanel(3, text, color);
+        GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_TURN_TIMER, text, color);
     }
 }
 
@@ -2286,25 +2289,23 @@ void GameManager_UpdateTurnTimer(bool mode, int turn_time) {
 }
 
 void GameManager_DrawDisplayPanel(int control_id, char* text, int color, int ulx) {
-    struct ImageSimpleHeader* image;
-
     if (GameManager_DisplayControlsInitialized) {
-        image = reinterpret_cast<struct ImageSimpleHeader*>(
-            ResourceManager_LoadResource(GameManager_MenuDisplayControls[control_id].resource_id));
+        struct MenuDisplayControl* control = &GameManager_MenuDisplayControls[control_id];
+        struct ImageSimpleHeader* image =
+            reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(control->resource_id));
 
-        buf_to_buf(&image->transparent_color, image->width, image->height, image->width,
-                   GameManager_MenuDisplayControls[control_id].image->GetData(), image->width);
+        buf_to_buf(&image->transparent_color, image->width, image->height, image->width, control->image->GetData(),
+                   image->width);
 
         text_font(GNW_TEXT_FONT_5);
 
-        Text_TextBox(GameManager_MenuDisplayControls[control_id].image->GetData(), image->width, text, ulx, 0,
-                     image->width - ulx, image->height, color, true);
+        Text_TextBox(control->image->GetData(), image->width, text, ulx, 0, image->width - ulx, image->height, color,
+                     true);
 
-        GameManager_MenuDisplayControls[control_id].button->CopyUp(
-            GameManager_MenuDisplayControls[control_id].image->GetData());
+        control->button->CopyUp(control->image->GetData());
 
-        GameManager_MenuDisplayControls[control_id].button->Disable();
-        GameManager_MenuDisplayControls[control_id].button->Enable();
+        control->button->Disable();
+        control->button->Enable();
     }
 }
 
@@ -4052,22 +4053,21 @@ void GameManager_MenuInitDisplayControls() {
     Gamemanager_FlicButton->RegisterButton(window->id);
     GameManager_MenuInitButtons(true);
 
-    for (int i = 0; i < sizeof(GameManager_MenuDisplayControls) / sizeof(struct MenuDisplayControl); ++i) {
-        window = WindowManager_GetWindow(GameManager_MenuDisplayControls[i].window_id);
+    for (auto& control : GameManager_MenuDisplayControls) {
+        window = WindowManager_GetWindow(control.window_id);
         width = window->window.lrx - window->window.ulx + 1;
         height = window->window.lry - window->window.uly + 1;
-        GameManager_MenuDisplayControls[i].image = new (std::nothrow) Image(0, 0, width, height);
-        GameManager_MenuDisplayControls[i].image->Copy(window);
+        control.image = new (std::nothrow) Image(0, 0, width, height);
+        control.image->Copy(window);
 
-        if (GameManager_MenuDisplayControls[i].resource_id == INVALID_ID) {
-            GameManager_MenuDisplayControls[i].button = nullptr;
+        if (control.resource_id == INVALID_ID) {
+            control.button = nullptr;
         } else {
-            GameManager_MenuDisplayControls[i].button = new (std::nothrow)
-                Button(GameManager_MenuDisplayControls[i].resource_id, GameManager_MenuDisplayControls[i].resource_id,
-                       window->window.ulx, window->window.uly);
-            GameManager_MenuDisplayControls[i].button->SetFlags(0x20);
-            GameManager_MenuDisplayControls[i].button->RegisterButton(window->id);
-            GameManager_MenuDisplayControls[i].button->Enable();
+            control.button = new (std::nothrow)
+                Button(control.resource_id, control.resource_id, window->window.ulx, window->window.uly);
+            control.button->SetFlags(0x20);
+            control.button->RegisterButton(window->id);
+            control.button->Enable();
         }
     }
 
@@ -4078,7 +4078,7 @@ void GameManager_DrawMouseCoordinates(int x, int y) {
     char text[10];
 
     sprintf(text, "%3.3i-%3.3i", x, y);
-    GameManager_DrawDisplayPanel(0, text, 0xA2, 21);
+    GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_COORDINATES, text, 0xA2, 21);
 }
 
 bool GameManager_HandleProximityOverlaps() {
@@ -4193,7 +4193,7 @@ unsigned char GameManager_GetWindowCursor(int grid_x, int grid_y) {
             unit2->GetDisplayName(text);
         }
 
-        GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_UNIT_DESCRIPTION_DISPLAY, text, 0xA2);
+        GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_UNIT_DESCRIPTION, text, 0xA2);
 
         GameManager_UnknownUnit4 = unit2;
     }

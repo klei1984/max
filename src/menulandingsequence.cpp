@@ -25,6 +25,8 @@
 #include "sound_manager.hpp"
 #include "window_manager.hpp"
 
+#define PANEL_STEP_COUNT 12
+
 MenuLandingSequence::MenuLandingSequence()
     : panel_top(WindowManager_GetWindow(WINDOW_INTERFACE_PANEL_TOP)),
       panel_bottom(WindowManager_GetWindow(WINDOW_INTERFACE_PANEL_BOTTOM)),
@@ -67,7 +69,7 @@ void MenuLandingSequence::Init(bool enable_controls) {
                                        panel_bottom->window.lry - panel_bottom->window.uly + 1);
     image_2->Copy(panel_bottom);
 
-    step_size = image_1->GetHeight() / 11;
+    step_size = image_1->GetHeight() / PANEL_STEP_COUNT;
 
     WindowManager_LoadSimpleImage(PANELTOP, panel_top->window.ulx, panel_top->window.uly, true);
     WindowManager_LoadSimpleImage(PANELBTM, panel_bottom->window.ulx, panel_bottom->window.uly, true);
@@ -108,7 +110,7 @@ void MenuLandingSequence::OpenPanel() {
     DeleteButtons();
     SoundManager.PlaySfx(IOPEN0);
 
-    for (int i = 0; i < 11; ++i) {
+    for (int i = 0; i < PANEL_STEP_COUNT; ++i) {
         time_stamp = timer_get_stamp32();
         image_1->Write(panel_top);
         image_2->Write(panel_bottom);
@@ -142,9 +144,9 @@ void MenuLandingSequence::ClosePanel() {
 
         SoundManager.PlaySfx(ICLOS0);
 
-        for (int i = 11; i >= 0; --i) {
+        for (int i = 0; i < PANEL_STEP_COUNT; ++i) {
             time_stamp = timer_get_stamp32();
-            AnimateStep(i * step_size);
+            AnimateStep((PANEL_STEP_COUNT - 1 - i) * step_size);
         }
     }
 

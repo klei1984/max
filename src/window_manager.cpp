@@ -37,6 +37,7 @@ static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
 static void WindowManager_ScaleWindows();
 static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, short pitch,
                                              int ulx, int uly);
+double WindowManager_GetScale();
 static void WindowManager_ResizeSimpleImage(ResourceID id, int width, int height);
 
 static char *empty_string = (char *)"\0";
@@ -110,21 +111,13 @@ static WindowInfo windows[WINDOW_COUNT] = {
     WINDOW_ITEM(WINDOW_RECT(0, 0, 178, 238), WINDOW_WIDTH, 0, nullptr, WINDOW_INTERFACE_PANEL_TOP),
     WINDOW_ITEM(WINDOW_RECT(0, 239, 178, 479), WINDOW_WIDTH, 0, nullptr, WINDOW_INTERFACE_PANEL_BOTTOM)};
 
-void WindowManager_ResizeSimpleImage(ResourceID id, int width, int height) {
+void WindowManager_ResizeSimpleImage(ResourceID id, double scale) {
     unsigned char *resource = ResourceManager_LoadResource(id);
     ImageSimpleHeader *image = reinterpret_cast<ImageSimpleHeader *>(resource);
-    int scaling_factor;
     int data_size;
     Rect map_frame;
 
-    if (width >= height) {
-        scaling_factor = (image->height * GFX_SCALE_DENOMINATOR) / height;
-
-    } else {
-        scaling_factor = (image->width * GFX_SCALE_DENOMINATOR) / width;
-    }
-
-    image = WindowManager_RescaleSimpleImage(image, scaling_factor);
+    image = WindowManager_RescaleSimpleImage(image, GFX_SCALE_DENOMINATOR / scale);
     data_size = image->width * image->height + sizeof(image->width) * 4;
     ResourceManager_Realloc(id, reinterpret_cast<unsigned char *>(image), data_size);
 }
@@ -132,62 +125,70 @@ void WindowManager_ResizeSimpleImage(ResourceID id, int width, int height) {
 void WindowManager_ScaleResources() {
     WindowInfo *const wpt = &windows[WINDOW_INTERFACE_PANEL_TOP];
     WindowInfo *const wpb = &windows[WINDOW_INTERFACE_PANEL_BOTTOM];
+    WindowInfo *const wti = &windows[WINDOW_TOP_INSTRUMENTS_WINDOW];
+    WindowInfo *const wbi = &windows[WINDOW_BOTTOM_INSTRUMENTS_WINDOW];
+    double scale = WindowManager_GetScale();
 
-    WindowManager_ResizeSimpleImage(PANELTOP, wpt->window.lrx - wpt->window.ulx, wpt->window.lry - wpt->window.uly);
-    WindowManager_ResizeSimpleImage(PANELBTM, wpb->window.lrx - wpb->window.ulx, wpb->window.lry - wpb->window.uly);
+    WindowManager_ResizeSimpleImage(PANELTOP, scale);
+    WindowManager_ResizeSimpleImage(PANELBTM, scale);
+
+    for (int i = PNLSEQ_1; i <= PNLSEQ_5; ++i) {
+        WindowManager_ResizeSimpleImage(static_cast<ResourceID>(i), scale);
+    }
+
+    for (int i = BPNLSQ_1; i <= BPNLSQ_4; ++i) {
+        WindowManager_ResizeSimpleImage(static_cast<ResourceID>(i), scale);
+    }
+
+    WindowManager_ResizeSimpleImage(XYPOS, scale);
+    WindowManager_ResizeSimpleImage(UNITNAME, scale);
 }
 
 void WindowManager_ScaleWindows() {
     WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
     int screen_width = WindowManager_GetWidth(screen);
     int screen_height = WindowManager_GetHeight(screen);
-    double scale;
-    Rect map_frame;
-
-    if (screen_width >= screen_height) {
-        scale = static_cast<double>(screen_height) / WINDOW_HEIGHT;
-
-    } else {
-        scale = static_cast<double>(screen_width) / WINDOW_WIDTH;
-    }
+    double scale = WindowManager_GetScale();
 
     {
-        WindowInfo *const window = &windows[WINDOW_MAIN_MAP];
+        WindowInfo *const wmap = &windows[WINDOW_MAIN_MAP];
 
-        int window_left = window->window.ulx;
-        int window_tile_count_x = (WINDOW_WIDTH - window_left) / GFX_MAP_TILE_SIZE;
-        int window_right = WINDOW_WIDTH - window_left - window_tile_count_x * GFX_MAP_TILE_SIZE;
-        int window_top = window->window.uly;
-        int window_tile_count_y = (WINDOW_HEIGHT - window_top) / GFX_MAP_TILE_SIZE;
-        int window_bottom = WINDOW_HEIGHT - window_top - window_tile_count_y * GFX_MAP_TILE_SIZE;
+        const int window_left = wmap->window.ulx;
+        const int window_tile_count_x = (WINDOW_WIDTH - window_left) / GFX_MAP_TILE_SIZE;
+        const int window_right = WINDOW_WIDTH - window_left - window_tile_count_x * GFX_MAP_TILE_SIZE;
+        const int window_top = wmap->window.uly;
+        const int window_tile_count_y = (WINDOW_HEIGHT - window_top) / GFX_MAP_TILE_SIZE;
+        const int window_bottom = WINDOW_HEIGHT - window_top - window_tile_count_y * GFX_MAP_TILE_SIZE;
 
-        int frame_left = window_left * scale;
-        int frame_tile_count_x = (screen_width - frame_left) / GFX_MAP_TILE_SIZE;
-        int frame_right = screen_width - frame_left - frame_tile_count_x * GFX_MAP_TILE_SIZE;
-        int frame_tile_count_y =
-            (screen_height - static_cast<int>((window_top + window_bottom) * scale)) / GFX_MAP_TILE_SIZE;
-        int frame_top = (screen_height - frame_tile_count_y * GFX_MAP_TILE_SIZE) / 2;
-        int frame_bottom = screen_height - frame_top - frame_tile_count_y * GFX_MAP_TILE_SIZE;
+        const int map_left = window_left * scale;
+        const int map_right = window_right * scale;
+        const int map_top = window_top * scale;
+        const int map_bottom = window_bottom * scale;
+        const int map_width = screen_width - map_left - map_right;
+        const int map_tile_count_x = map_width / GFX_MAP_TILE_SIZE;
+        const int map_height = screen_height - map_top - map_bottom;
+        const int map_tile_count_y = map_height / GFX_MAP_TILE_SIZE;
 
-        window->window.ulx = frame_left;
-        window->window.uly = frame_top;
-        window->window.lrx = frame_left + frame_tile_count_x * GFX_MAP_TILE_SIZE - 1;
-        window->window.lry = frame_top + frame_tile_count_y * GFX_MAP_TILE_SIZE - 1;
-        window->buffer = &screen->buffer[screen->width * frame_top + frame_left];
+        wmap->window.ulx = (map_width - map_tile_count_x * GFX_MAP_TILE_SIZE) / 2 + map_left;
+        wmap->window.uly = (map_height - map_tile_count_y * GFX_MAP_TILE_SIZE) / 2 + map_top;
+        wmap->window.lrx = wmap->window.ulx + GFX_MAP_TILE_SIZE * map_tile_count_x - 1;
+        wmap->window.lry = wmap->window.uly + GFX_MAP_TILE_SIZE * map_tile_count_y - 1;
+        wmap->buffer = &screen->buffer[screen->width * wmap->window.uly + wmap->window.ulx];
 
-        WindowManager_MapWidth = frame_tile_count_x * GFX_MAP_TILE_SIZE;
-        WindowManager_MapHeight = frame_tile_count_y * GFX_MAP_TILE_SIZE;
-
-        SDL_assert(WindowManager_MapWidth + frame_left + frame_right == screen_width);
-        SDL_assert(WindowManager_MapHeight + frame_top + frame_bottom == screen_height);
-
-        map_frame = window->window;
+        WindowManager_MapWidth = map_tile_count_x * GFX_MAP_TILE_SIZE;
+        WindowManager_MapHeight = map_tile_count_y * GFX_MAP_TILE_SIZE;
 
         WindowInfo *const wpt = &windows[WINDOW_INTERFACE_PANEL_TOP];
         WindowInfo *const wpb = &windows[WINDOW_INTERFACE_PANEL_BOTTOM];
 
-        wpt->window = {0, 0, window->window.ulx - 2, screen->window.lry / 2};
-        wpb->window = {0, (screen->window.lry / 2) + 1, window->window.ulx - 2, screen->window.lry};
+        const int wpt_width = (wpt->window.lrx - wpt->window.ulx) * scale;
+        const int wpt_height = (wpt->window.lry - wpt->window.uly) * scale;
+
+        wpt->window = {0, 0, wpt_width, wpt_height};
+        wpb->window = {0, wpt_height + 1, wpt_width, screen->window.lry};
+
+        wpt->buffer = &screen->buffer[wpt->window.uly * wpt->width + wpt->window.ulx];
+        wpb->buffer = &screen->buffer[wpb->window.uly * wpb->width + wpb->window.ulx];
     }
 
     {
@@ -204,18 +205,18 @@ void WindowManager_ScaleWindows() {
         WindowInfo *const wlu = &windows[WINDOW_SCROLL_LEFT_UP_WINDOW];
         WindowInfo *const wul = &windows[WINDOW_SCROLL_UP_LEFT_WINDOW];
 
-        int corner_size = wu->window.ulx * scale;
-        int corner_width = wu->window.lry * scale;
+        const int corner_size = wu->window.ulx * scale;
+        const int corner_width = wu->window.lry * scale;
 
-        int x0 = 0;
-        int x1 = corner_size;
-        int x2 = screen_width - corner_size;
-        int x3 = screen_width - 1;
+        const int x0 = 0;
+        const int x1 = corner_size;
+        const int x2 = screen_width - corner_size;
+        const int x3 = screen_width - 1;
 
-        int y0 = 0;
-        int y1 = corner_size;
-        int y2 = screen_height - corner_size;
-        int y3 = screen_height - 1;
+        const int y0 = 0;
+        const int y1 = corner_size;
+        const int y2 = screen_height - corner_size;
+        const int y3 = screen_height - 1;
 
         wu->window = {x1, y0, x2, corner_width};
         wur->window = {x2, y0, x3, corner_width};
@@ -229,6 +230,70 @@ void WindowManager_ScaleWindows() {
         wl->window = {x0, y1, corner_width, y2};
         wlu->window = {x0, y0, corner_width, y1};
         wul->window = {x0, y0, y1, corner_width};
+
+        wu->buffer = &screen->buffer[wu->window.uly * wu->width + wu->window.ulx];
+        wur->buffer = &screen->buffer[wur->window.uly * wur->width + wur->window.ulx];
+        wru->buffer = &screen->buffer[wru->window.uly * wru->width + wru->window.ulx];
+        wr->buffer = &screen->buffer[wr->window.uly * wr->width + wr->window.ulx];
+        wrd->buffer = &screen->buffer[wrd->window.uly * wrd->width + wrd->window.ulx];
+        wdr->buffer = &screen->buffer[wdr->window.uly * wdr->width + wdr->window.ulx];
+        wd->buffer = &screen->buffer[wd->window.uly * wd->width + wd->window.ulx];
+        wdl->buffer = &screen->buffer[wdl->window.uly * wdl->width + wdl->window.ulx];
+        wld->buffer = &screen->buffer[wld->window.uly * wld->width + wld->window.ulx];
+        wl->buffer = &screen->buffer[wl->window.uly * wl->width + wl->window.ulx];
+        wlu->buffer = &screen->buffer[wlu->window.uly * wlu->width + wlu->window.ulx];
+        wul->buffer = &screen->buffer[wul->window.uly * wul->width + wul->window.ulx];
+    }
+
+    {
+        WindowInfo *const wti = &windows[WINDOW_TOP_INSTRUMENTS_WINDOW];
+        WindowInfo *const wbi = &windows[WINDOW_BOTTOM_INSTRUMENTS_WINDOW];
+        WindowInfo *const wcd = &windows[WINDOW_COORDINATES_DISPLAY];
+        WindowInfo *const wud = &windows[WINDOW_UNIT_DESCRIPTION_DISPLAY];
+        WindowInfo *const wmap = &windows[WINDOW_MAIN_MAP];
+
+        const int bottom_instrument_width = 327 * scale;
+
+        const int wti_width = (wti->window.lrx - wti->window.ulx + 1) * scale;
+        const int wti_height = (wti->window.lry - wti->window.uly + 1) * scale;
+
+        const int wbi_width = (wbi->window.lrx - wbi->window.ulx + 1) * scale;
+        const int wbi_height = (wbi->window.lry - wbi->window.uly + 1) * scale;
+
+        const int wcd_offset = wcd->window.ulx - wbi->window.ulx;
+        const int wcd_width = (wcd->window.lrx - wcd->window.ulx + 1) * scale;
+        const int wcd_height = (wcd->window.lry - wcd->window.uly + 1) * scale;
+
+        const int wud_offset = wud->window.ulx - wbi->window.ulx;
+        const int wud_width = (wud->window.lrx - wud->window.ulx + 1) * scale;
+        const int wud_height = (wud->window.lry - wud->window.uly + 1) * scale;
+
+        const int wmap_width = wmap->window.lrx - wmap->window.ulx + 1;
+
+        wti->window.ulx = screen_width - 1 - wti_width;
+        wti->window.uly = wti->window.uly * scale;
+        wti->window.lrx = screen_width - 1;
+        wti->window.lry = wti->window.lry * scale;
+
+        wbi->window.ulx = (wmap_width - bottom_instrument_width) / 2 + wmap->window.ulx;
+        wbi->window.lrx = wbi->window.ulx + wbi_width;
+        wbi->window.uly = screen->window.lry - wbi_height;
+        wbi->window.lry = screen->window.lry;
+
+        wcd->window.ulx = wbi->window.ulx + wcd_offset * scale;
+        wcd->window.lrx = wcd->window.ulx + wcd_width;
+        wcd->window.uly = wbi->window.uly;
+        wcd->window.lry = wcd->window.uly + wcd_height;
+
+        wud->window.ulx = wbi->window.ulx + wud_offset * scale;
+        wud->window.lrx = wud->window.ulx + wud_width;
+        wud->window.uly = wbi->window.uly;
+        wud->window.lry = wud->window.uly + wud_height;
+
+        wti->buffer = &screen->buffer[wti->window.uly * wti->width + wti->window.ulx];
+        wbi->buffer = &screen->buffer[wbi->window.uly * wbi->width + wbi->window.ulx];
+        wcd->buffer = &screen->buffer[wcd->window.uly * wcd->width + wcd->window.ulx];
+        wud->buffer = &screen->buffer[wud->window.uly * wud->width + wud->window.ulx];
     }
 }
 
@@ -240,34 +305,37 @@ bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, Wind
 
     switch (id) {
         case FRAMEPIC: {
-            WindowInfo *const w = &windows[WINDOW_MAIN_MAP];
+            const double scale = WindowManager_GetScale();
+            WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
 
             const int left = 180;
             const int right = 18;
+            const int scaled_left = 180 * scale;
+            const int scaled_right = 18 * scale;
 
-            const Rect old0 = {0, 0, left - 1, WINDOW_HEIGHT - 1};
-            const Rect old1 = {old0.lrx + 1, old0.uly, WINDOW_WIDTH - right - 1, old0.lry};
-            const Rect old2 = {old1.lrx + 1, old0.uly, WINDOW_WIDTH - 1, old0.lry};
+            const Rect old_l = {0, 0, left - 1, WINDOW_HEIGHT - 1};
+            const Rect old_r = {WINDOW_WIDTH - 1 - right, old_l.uly, WINDOW_WIDTH - 1, old_l.lry};
+            const Rect old_m = {old_l.lrx + 1, old_l.uly, old_r.ulx - 1, old_l.lry};
 
-            const Rect new0 = {0, 0, w->window.ulx - 1, window->window.lry};
-            const Rect new1 = {new0.lrx + 1, new0.uly, w->window.lrx, new0.lry};
-            const Rect new2 = {new1.lrx + 1, new0.uly, window->window.lrx, new0.lry};
+            const Rect new_l = {0, 0, scaled_left - 1, screen->window.lry};
+            const Rect new_r = {window->window.lrx - scaled_right, new_l.uly, window->window.lrx, new_l.lry};
+            const Rect new_m = {new_l.lrx + 1, new_l.uly, new_r.ulx - 1, new_l.lry};
 
             unsigned char *buffer = new (std::nothrow) unsigned char[image->width * image->height];
 
             WindowManager_DecodeBigImage(image, buffer, 0, 0, image->width);
 
-            cscale(&buffer[image->width * old0.uly + old0.ulx], old0.lrx + 1 - old0.ulx, old0.lry - old0.uly + 1,
-                   image->width, &window->buffer[window->width * new0.uly + new0.ulx], new0.lrx + 2 - new0.ulx,
-                   new0.lry - new0.uly + 1, window->width);
+            cscale(&buffer[image->width * old_l.uly + old_l.ulx], old_l.lrx + 1 - old_l.ulx, old_l.lry - old_l.uly + 1,
+                   image->width, &window->buffer[window->width * new_l.uly + new_l.ulx], new_l.lrx + 2 - new_l.ulx,
+                   new_l.lry - new_l.uly + 1, window->width);
 
-            cscale(&buffer[image->width * old1.uly + old1.ulx], old1.lrx + 1 - old1.ulx, old1.lry - old1.uly + 1,
-                   image->width, &window->buffer[window->width * new1.uly + new1.ulx], new1.lrx + 2 - new1.ulx,
-                   new1.lry - new1.uly + 1, window->width);
+            cscale(&buffer[image->width * old_m.uly + old_m.ulx], old_m.lrx + 1 - old_m.ulx, old_m.lry - old_m.uly + 1,
+                   image->width, &window->buffer[window->width * new_m.uly + new_m.ulx], new_m.lrx + 2 - new_m.ulx,
+                   new_m.lry - new_m.uly + 1, window->width);
 
-            cscale(&buffer[image->width * old2.uly + old2.ulx], old2.lrx + 1 - old2.ulx, old2.lry - old2.uly + 1,
-                   image->width, &window->buffer[window->width * new2.uly + new2.ulx], new2.lrx + 2 - new2.ulx,
-                   new2.lry - new2.uly + 1, window->width);
+            cscale(&buffer[image->width * old_r.uly + old_r.ulx], old_r.lrx + 1 - old_r.ulx, old_r.lry - old_r.uly + 1,
+                   image->width, &window->buffer[window->width * new_r.uly + new_r.ulx], new_r.lrx + 2 - new_r.ulx,
+                   new_r.lry - new_r.uly + 1, window->width);
 
             delete[] buffer;
 
@@ -638,6 +706,22 @@ struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHea
 int WindowManager_GetWidth(WindowInfo *w) { return win_width(w->id); }
 
 int WindowManager_GetHeight(WindowInfo *w) { return win_height(w->id); }
+
+double WindowManager_GetScale() {
+    WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
+    int screen_width = WindowManager_GetWidth(screen);
+    int screen_height = WindowManager_GetHeight(screen);
+    double scale;
+
+    if (screen_width >= screen_height) {
+        scale = static_cast<double>(screen_height) / WINDOW_HEIGHT;
+
+    } else {
+        scale = static_cast<double>(screen_width) / WINDOW_WIDTH;
+    }
+
+    return scale;
+}
 
 int WindowManager_ScaleUlx(WindowInfo *w, int ulx) {
     return (WindowManager_GetWidth(&windows[WINDOW_MAIN_WINDOW]) - WINDOW_WIDTH) / 2 + ulx;
