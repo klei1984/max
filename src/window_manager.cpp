@@ -37,8 +37,9 @@ static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
 static void WindowManager_ScaleWindows();
 static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, short pitch,
                                              int ulx, int uly);
-double WindowManager_GetScale();
+static double WindowManager_GetScale();
 static void WindowManager_ResizeSimpleImage(ResourceID id, double scale);
+static void WindowManager_ScaleButton(int wid, ResourceID id, double scale);
 
 static char *empty_string = (char *)"\0";
 
@@ -122,6 +123,21 @@ void WindowManager_ResizeSimpleImage(ResourceID id, double scale) {
     ResourceManager_Realloc(id, reinterpret_cast<unsigned char *>(image), data_size);
 }
 
+void WindowManager_ScaleButton(int wid, ResourceID id, double scale) {
+    WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
+    WindowInfo *const window = &windows[wid];
+
+    window->window.ulx *= scale;
+    window->window.uly *= scale;
+    window->window.lrx *= scale;
+    window->window.lry *= scale;
+    window->width = screen->width;
+    window->buffer = &screen->buffer[window->window.uly * window->width + window->window.ulx];
+
+    WindowManager_ResizeSimpleImage(id, scale);
+    WindowManager_ResizeSimpleImage(static_cast<ResourceID>(id + 1), scale);
+}
+
 void WindowManager_ScaleResources() {
     WindowInfo *const wpt = &windows[WINDOW_INTERFACE_PANEL_TOP];
     WindowInfo *const wpb = &windows[WINDOW_INTERFACE_PANEL_BOTTOM];
@@ -149,6 +165,30 @@ void WindowManager_ScaleResources() {
     WindowManager_ResizeSimpleImage(G_ENDT_D, scale);
     WindowManager_ResizeSimpleImage(B_ENDT_D, scale);
     WindowManager_ResizeSimpleImage(W_ENDT_D, scale);
+
+    WindowManager_ScaleButton(WINDOW_FILES_BUTTON, FILES_OF, scale);
+    WindowManager_ScaleButton(WINDOW_PREFS_BUTTON, PREF_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_PLAY_BUTTON, PLAY_OF, scale);
+    WindowManager_ScaleButton(WINDOW_PAUSE_BUTTON, PAUSE_OF, scale);
+    WindowManager_ScaleButton(WINDOW_CENTER_BUTTON, FIND_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_PRE_BUTTON, PREV_OF, scale);
+    WindowManager_ScaleButton(WINDOW_DONE_BUTTON, UDONE_OF, scale);
+    WindowManager_ScaleButton(WINDOW_NXT_BUTTON, NEXT_OF, scale);
+    WindowManager_ScaleButton(WINDOW_HELP_BUTTON, HELP_OF, scale);
+    WindowManager_ScaleButton(WINDOW_REPORTS_BUTTON, REPT_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_CHAT_BUTTON, CHAT_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_SURVEY_BUTTON, SURV_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_STATUS_BUTTON, STAT_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_COLORS_BUTTON, COLOR_OF, scale);
+    WindowManager_ScaleButton(WINDOW_HITS_BUTTON, HITS_OF, scale);
+    WindowManager_ScaleButton(WINDOW_AMMO_BUTTON, AMMO_OF, scale);
+    WindowManager_ScaleButton(WINDOW_RANGE_BUTTON, RANG_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_SCAN_BUTTON, VISN_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_GRID_BUTTON, GRID_OFF, scale);
+    WindowManager_ScaleButton(WINDOW_NAME_BUTTON, NAMES_UP, scale);
+    WindowManager_ScaleButton(WINDOW_LOCK_BUTTON, LOCK_OF, scale);
+    WindowManager_ScaleButton(WINDOW_2X_MINIMAP, MIN2X_OF, scale);
+    WindowManager_ScaleButton(WINDOW_TNT_MINIMAP, MINFL_OF, scale);
 }
 
 void WindowManager_ScaleWindows() {
