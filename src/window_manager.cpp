@@ -38,7 +38,7 @@ static void WindowManager_ScaleWindows();
 static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, short pitch,
                                              int ulx, int uly);
 double WindowManager_GetScale();
-static void WindowManager_ResizeSimpleImage(ResourceID id, int width, int height);
+static void WindowManager_ResizeSimpleImage(ResourceID id, double scale);
 
 static char *empty_string = (char *)"\0";
 
@@ -142,6 +142,13 @@ void WindowManager_ScaleResources() {
 
     WindowManager_ResizeSimpleImage(XYPOS, scale);
     WindowManager_ResizeSimpleImage(UNITNAME, scale);
+    WindowManager_ResizeSimpleImage(TURNS, scale);
+    WindowManager_ResizeSimpleImage(TIMER, scale);
+    WindowManager_ResizeSimpleImage(ENDTRN_U, scale);
+    WindowManager_ResizeSimpleImage(R_ENDT_D, scale);
+    WindowManager_ResizeSimpleImage(G_ENDT_D, scale);
+    WindowManager_ResizeSimpleImage(B_ENDT_D, scale);
+    WindowManager_ResizeSimpleImage(W_ENDT_D, scale);
 }
 
 void WindowManager_ScaleWindows() {
@@ -250,6 +257,9 @@ void WindowManager_ScaleWindows() {
         WindowInfo *const wbi = &windows[WINDOW_BOTTOM_INSTRUMENTS_WINDOW];
         WindowInfo *const wcd = &windows[WINDOW_COORDINATES_DISPLAY];
         WindowInfo *const wud = &windows[WINDOW_UNIT_DESCRIPTION_DISPLAY];
+        WindowInfo *const wtc = &windows[WINDOW_TURN_COUNTER_DISPLAY];
+        WindowInfo *const wtt = &windows[WINDOW_TURN_TIMER_DISPLAY];
+        WindowInfo *const wet = &windows[WINDOW_ENDTURN_BUTTON];
         WindowInfo *const wmap = &windows[WINDOW_MAIN_MAP];
 
         const int bottom_instrument_width = 327 * scale;
@@ -260,40 +270,70 @@ void WindowManager_ScaleWindows() {
         const int wbi_width = (wbi->window.lrx - wbi->window.ulx + 1) * scale;
         const int wbi_height = (wbi->window.lry - wbi->window.uly + 1) * scale;
 
-        const int wcd_offset = wcd->window.ulx - wbi->window.ulx;
+        const int wcd_offset = (wcd->window.ulx - wbi->window.ulx) * scale;
         const int wcd_width = (wcd->window.lrx - wcd->window.ulx + 1) * scale;
         const int wcd_height = (wcd->window.lry - wcd->window.uly + 1) * scale;
 
-        const int wud_offset = wud->window.ulx - wbi->window.ulx;
+        const int wud_offset = (wud->window.ulx - wbi->window.ulx) * scale;
         const int wud_width = (wud->window.lrx - wud->window.ulx + 1) * scale;
         const int wud_height = (wud->window.lry - wud->window.uly + 1) * scale;
 
+        const int wet_offset = (wet->window.ulx - wti->window.ulx) * scale;
+        const int wet_width = (wet->window.lrx - wet->window.ulx + 1) * scale;
+        const int wet_height = (wet->window.lry - wet->window.uly + 1) * scale;
+
+        const int wtc_offset = (wtc->window.ulx - wti->window.ulx) * scale;
+        const int wtc_width = (wtc->window.lrx - wtc->window.ulx + 1) * scale;
+        const int wtc_height = (wtc->window.lry - wtc->window.uly + 1) * scale;
+
+        const int wtt_offset = (wtt->window.ulx - wti->window.ulx) * scale;
+        const int wtt_width = (wtt->window.lrx - wtt->window.ulx + 1) * scale;
+        const int wtt_height = (wtt->window.lry - wtt->window.uly + 1) * scale;
+
         const int wmap_width = wmap->window.lrx - wmap->window.ulx + 1;
 
-        wti->window.ulx = screen_width - 1 - wti_width;
+        wti->window.ulx = screen_width - wti_width;
         wti->window.uly = wti->window.uly * scale;
         wti->window.lrx = screen_width - 1;
         wti->window.lry = wti->window.lry * scale;
 
         wbi->window.ulx = (wmap_width - bottom_instrument_width) / 2 + wmap->window.ulx;
         wbi->window.lrx = wbi->window.ulx + wbi_width;
-        wbi->window.uly = screen->window.lry - wbi_height;
+        wbi->window.uly = screen->window.lry - (wbi_height - 1);
         wbi->window.lry = screen->window.lry;
 
-        wcd->window.ulx = wbi->window.ulx + wcd_offset * scale;
+        wcd->window.ulx = wbi->window.ulx + wcd_offset;
         wcd->window.lrx = wcd->window.ulx + wcd_width;
         wcd->window.uly = wbi->window.uly;
         wcd->window.lry = wcd->window.uly + wcd_height;
 
-        wud->window.ulx = wbi->window.ulx + wud_offset * scale;
+        wud->window.ulx = wbi->window.ulx + wud_offset;
         wud->window.lrx = wud->window.ulx + wud_width;
         wud->window.uly = wbi->window.uly;
         wud->window.lry = wud->window.uly + wud_height;
+
+        wet->window.ulx = wti->window.ulx + wet_offset;
+        wet->window.lrx = wet->window.ulx + wet_width - 1;
+        wet->window.uly = wet->window.uly * scale;
+        wet->window.lry = wet->window.uly + wet_height - 1;
+
+        wtc->window.ulx = wti->window.ulx + wtc_offset;
+        wtc->window.lrx = wtc->window.ulx + wtc_width - 1;
+        wtc->window.uly = wtc->window.uly * scale;
+        wtc->window.lry = wtc->window.uly + wtc_height - 1;
+
+        wtt->window.ulx = wti->window.ulx + wtt_offset;
+        wtt->window.lrx = wtt->window.ulx + wtt_width - 1;
+        wtt->window.uly = wtt->window.uly * scale;
+        wtt->window.lry = wtt->window.uly + wtt_height - 1;
 
         wti->buffer = &screen->buffer[wti->window.uly * wti->width + wti->window.ulx];
         wbi->buffer = &screen->buffer[wbi->window.uly * wbi->width + wbi->window.ulx];
         wcd->buffer = &screen->buffer[wcd->window.uly * wcd->width + wcd->window.ulx];
         wud->buffer = &screen->buffer[wud->window.uly * wud->width + wud->window.ulx];
+        wet->buffer = &screen->buffer[wet->window.uly * wet->width + wet->window.ulx];
+        wtc->buffer = &screen->buffer[wtc->window.uly * wtc->width + wtc->window.ulx];
+        wtt->buffer = &screen->buffer[wtt->window.uly * wtt->width + wtc->window.ulx];
     }
 }
 

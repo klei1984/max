@@ -2211,18 +2211,26 @@ void GameManager_DrawTimer(char* text, int color) {
     Rect bounds;
     WindowInfo window;
 
-    bounds.ulx = 524;
-    bounds.uly = 10;
-    bounds.lrx = bounds.ulx + 62;
-    bounds.lry = bounds.uly + 24;
-
-    window.id = win_get_top_win(bounds.ulx, bounds.uly);
+    window.id = win_get_top_win(WindowManager_WindowWidth / 2, WindowManager_WindowHeight / 2);
     window.buffer = win_get_buf(window.id);
     window.window.ulx = 0;
     window.window.uly = 0;
-    window.window.lrx = 640;
-    window.window.lry = 480;
-    window.width = 640;
+    window.window.lrx = win_width(window.id) - 1;
+    window.window.lry = win_height(window.id) - 1;
+    window.width = win_width(window.id);
+
+    if (window.width == 640) {
+        bounds.ulx = 524;
+        bounds.uly = 10;
+        bounds.lrx = bounds.ulx + 62;
+        bounds.lry = bounds.uly + 24;
+
+    } else {
+        bounds.ulx = WindowManager_ScaleUlx(&window, 524);
+        bounds.uly = WindowManager_ScaleUly(&window, 10);
+        bounds.lrx = bounds.ulx + 62;
+        bounds.lry = bounds.uly + 24;
+    }
 
     if (!GameManager_TurnTimerImage) {
         GameManager_TurnTimerImage =
