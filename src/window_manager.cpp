@@ -37,7 +37,6 @@ static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
 static void WindowManager_ScaleWindows();
 static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, short pitch,
                                              int ulx, int uly);
-static double WindowManager_GetScale();
 static void WindowManager_ResizeSimpleImage(ResourceID id, double scale);
 static void WindowManager_ScaleButton(int wid, ResourceID id, double scale);
 
@@ -189,6 +188,12 @@ void WindowManager_ScaleResources() {
     WindowManager_ScaleButton(WINDOW_LOCK_BUTTON, LOCK_OF, scale);
     WindowManager_ScaleButton(WINDOW_2X_MINIMAP, MIN2X_OF, scale);
     WindowManager_ScaleButton(WINDOW_TNT_MINIMAP, MINFL_OF, scale);
+
+    WindowManager_ResizeSimpleImage(PNLHLP_U, scale);
+    WindowManager_ResizeSimpleImage(PNLHLP_D, scale);
+
+    WindowManager_ResizeSimpleImage(PNLCAN_U, scale);
+    WindowManager_ResizeSimpleImage(PNLCAN_D, scale);
 }
 
 void WindowManager_ScaleWindows() {
@@ -803,13 +808,9 @@ double WindowManager_GetScale() {
     return scale;
 }
 
-int WindowManager_ScaleUlx(WindowInfo *w, int ulx) {
-    return (WindowManager_GetWidth(&windows[WINDOW_MAIN_WINDOW]) - WINDOW_WIDTH) / 2 + ulx;
-}
+int WindowManager_ScaleUlx(WindowInfo *w, int ulx) { return (WindowManager_GetWidth(w) - WINDOW_WIDTH) / 2 + ulx; }
 
-int WindowManager_ScaleUly(WindowInfo *w, int uly) {
-    return (WindowManager_GetHeight(&windows[WINDOW_MAIN_WINDOW]) - WINDOW_HEIGHT) / 2 + uly;
-}
+int WindowManager_ScaleUly(WindowInfo *w, int uly) { return (WindowManager_GetHeight(w) - WINDOW_HEIGHT) / 2 + uly; }
 
 int WindowManager_ScaleLrx(WindowInfo *w, int ulx, int lrx) {
     int width = lrx - ulx;

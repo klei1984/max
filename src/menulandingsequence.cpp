@@ -75,7 +75,9 @@ void MenuLandingSequence::Init(bool enable_controls) {
     WindowManager_LoadSimpleImage(PANELBTM, panel_bottom->window.ulx, panel_bottom->window.uly, true);
 
     if (enable_controls) {
-        button_1 = new (std::nothrow) Button(PNLHLP_U, PNLHLP_D, 103, 252);
+        double scale = WindowManager_GetScale();
+
+        button_1 = new (std::nothrow) Button(PNLHLP_U, PNLHLP_D, 103 * scale, 252 * scale);
         button_1->SetRValue(GNW_KB_KEY_SHIFT_DIVIDE);
         button_1->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_SHIFT_DIVIDE);
         button_1->SetSfx(NHELP0);
@@ -84,7 +86,7 @@ void MenuLandingSequence::Init(bool enable_controls) {
 
         text_font(GNW_TEXT_FONT_5);
 
-        button_2 = new (std::nothrow) Button(PNLCAN_U, PNLCAN_D, 40, 252);
+        button_2 = new (std::nothrow) Button(PNLCAN_U, PNLCAN_D, 40 * scale, 252 * scale);
         button_2->SetRValue(GNW_KB_KEY_ESCAPE);
         button_2->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
         button_2->SetSfx(NCANC0);
