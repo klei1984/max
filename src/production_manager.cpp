@@ -428,7 +428,7 @@ void ProductionManager::CheckGenerators() {
             power_generator_fuel_consumption_rate;
 
     power_station_active =
-        (power + power_station_power_consumption_rate - count) / power_station_power_consumption_rate;
+        (power + power_station_power_consumption_rate - count) % power_station_power_consumption_rate;
 
     if (power_station_active > power_station_count) {
         power_station_active = power_station_count;
