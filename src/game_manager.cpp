@@ -1813,10 +1813,12 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
                 window = WindowManager_GetWindow(WINDOW_ZOOM_SLIDER_WINDOW);
                 WindowManager_LoadSimpleImage(ZOOMPNL1, window->window.ulx, window->window.uly, false);
 
-                new_zoom_level = ((window->window.lrx - window->window.ulx - 28) * (64 - Gfx_ZoomLevel)) / 60 + 14;
+                const double scale = WindowManager_GetScale();
+                const int width = (25 + 3) * scale;
+                const int offset =
+                    ((window->window.lrx - window->window.ulx - width) * (64 - Gfx_ZoomLevel)) / 60 + width / 2;
 
-                WindowManager_LoadSimpleImage(ZOOMPTR, new_zoom_level + window->window.ulx, window->window.uly + 1,
-                                              true);
+                WindowManager_LoadSimpleImage(ZOOMPTR, offset + window->window.ulx, window->window.uly + 1, true);
 
                 win_draw_rect(window->id, &window->window);
             }

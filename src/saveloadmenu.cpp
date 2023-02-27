@@ -1207,8 +1207,8 @@ void SaveSlot::Deinit() {
     image->Write(&window);
 
     delete image;
-    delete image_up;
-    delete image_down;
+    delete[] image_up;
+    delete[] image_down;
     delete text_edit;
 }
 

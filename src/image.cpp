@@ -28,13 +28,10 @@
 
 #include "resource_manager.hpp"
 
-Image::Image(short ulx, short uly, short width, short height)
-    : ulx(ulx),
-      uly(uly),
-      width(width),
-      height(height),
-      data(new(std::nothrow) unsigned char[width * height]),
-      allocated(true) {}
+Image::Image(short ulx, short uly, short width, short height) : ulx(ulx), uly(uly), width(width), height(height) {
+    data = new (std::nothrow) unsigned char[width * height];
+    allocated = true;
+}
 
 Image::Image(ResourceID id, short ulx, short uly) {
     struct ImageSimpleHeader *sprite;
