@@ -516,3 +516,5 @@ By normal means air units cannot land on plain ground. It is assumed that it was
 <br>
     <img src="{{ site.baseurl }}/assets/images/defect_148.jpg" alt="defect 148" width="740"> 
 <br>
+
+149. Campaign mission 6 does not end even if the player's victory is obvious. Mission 6 & 7 do not have defined rules to win contrary to most other campaign missions. There is a function (cseg01:0008EFA5) that checks end game conditions. First the loss conditions are tested (cseg01:0008C1BD) which evaluates the enemy to have lost the game already. Then win conditions (cseg01:0008CD4D) are tested and as there are no explicit rules defined the function returns state pending. State pending instead of state generic means that generic rules do not apply thus the algorithm concludes that if the win conditions are pending then the fact that the enemy is utterly destroyed does not matter. After the turns limit ends at 100 turns the game makes a final conclusion that the player has won the game.
