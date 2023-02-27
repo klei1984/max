@@ -176,6 +176,8 @@ void WindowManager_ScaleResources() {
     WindowManager_ScaleButton(WINDOW_HELP_BUTTON, HELP_OF, scale);
     WindowManager_ScaleButton(WINDOW_REPORTS_BUTTON, REPT_OFF, scale);
     WindowManager_ScaleButton(WINDOW_CHAT_BUTTON, CHAT_OFF, scale);
+    WindowManager_ResizeSimpleImage(GOAL_OFF, scale);
+    WindowManager_ResizeSimpleImage(GOAL_ON, scale);
     WindowManager_ScaleButton(WINDOW_SURVEY_BUTTON, SURV_OFF, scale);
     WindowManager_ScaleButton(WINDOW_STATUS_BUTTON, STAT_OFF, scale);
     WindowManager_ScaleButton(WINDOW_COLORS_BUTTON, COLOR_OF, scale);
@@ -379,6 +381,21 @@ void WindowManager_ScaleWindows() {
         wet->buffer = &screen->buffer[wet->window.uly * wet->width + wet->window.ulx];
         wtc->buffer = &screen->buffer[wtc->window.uly * wtc->width + wtc->window.ulx];
         wtt->buffer = &screen->buffer[wtt->window.uly * wtt->width + wtc->window.ulx];
+    }
+
+    {
+        WindowInfo *const wmm = &windows[WINDOW_MINIMAP];
+
+        const int wmm_width = (wmm->window.lrx - wmm->window.ulx + 1) * scale;
+        const int wmm_height = (wmm->window.lry - wmm->window.uly + 1) * scale;
+
+        wmm->window.ulx = wmm->window.ulx * scale;
+        wmm->window.lrx = wmm->window.ulx + wmm_width - 1;
+        wmm->window.uly = wmm->window.uly * scale;
+        wmm->window.lry = wmm->window.uly + wmm_height - 1;
+
+        wmm->width = screen->width;
+        wmm->buffer = &screen->buffer[wmm->window.uly * wmm->width + wmm->window.ulx];
     }
 }
 

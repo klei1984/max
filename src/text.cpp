@@ -222,7 +222,7 @@ void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int w
     int font_height = text_height() + 1;
     int font_width = text_max() + 1;
     int buffer_size;
-    Color* buffer;
+    unsigned char* buffer;
     Point point;
 
     if (horizontal_align) {
@@ -234,7 +234,7 @@ void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int w
     }
 
     buffer_size = font_height * font_width;
-    buffer = new (std::nothrow) Color[buffer_size];
+    buffer = new (std::nothrow) unsigned char[buffer_size];
 
     for (int i = 0; text[i] && width > 0; ++i) {
         char character[2];

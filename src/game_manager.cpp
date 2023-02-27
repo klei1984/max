@@ -1142,7 +1142,8 @@ void GameManager_Render() {
             } else {
                 WindowInfo* window = WindowManager_GetWindow(WINDOW_MINIMAP);
 
-                buf_to_buf(ResourceManager_Minimap, 112, 112, 112, window->buffer, window->width);
+                buf_to_buf(ResourceManager_Minimap, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer,
+                           window->width);
             }
         }
 
@@ -1343,6 +1344,8 @@ void GameManager_Render() {
 
             if (GameManager_RenderMinimapDisplay) {
                 window = WindowManager_GetWindow(WINDOW_MINIMAP);
+                const int window_width = (window->window.lrx - window->window.ulx + 1);
+                const int window_height = (window->window.lry - window->window.uly + 1);
 
                 draw_box(window->buffer, window->width, GameManager_GridPosition.ulx, GameManager_GridPosition.uly,
                          GameManager_GridPosition.lrx, GameManager_GridPosition.lry, COLOR_RED);
@@ -1354,17 +1357,30 @@ void GameManager_Render() {
                         &window
                              ->buffer[GameManager_GridCenterOffset.y * window->width + GameManager_GridCenterOffset.x];
 
-                    for (int y = 0; y < (112 / 2); ++y) {
-                        for (int x = 0; x < (112 / 2); ++x) {
-                            ResourceManager_Minimap2x[(2 * y) * 112 + 2 * x] = buffer[y * window->width + x];
-                            ResourceManager_Minimap2x[(2 * y) * 112 + 2 * x + 1] = buffer[y * window->width + x];
+                    for (int y = 0; y < (GFX_MAP_SIZE / 2); ++y) {
+                        for (int x = 0; x < (GFX_MAP_SIZE / 2); ++x) {
+                            ResourceManager_Minimap2x[(2 * y) * GFX_MAP_SIZE + 2 * x] = buffer[y * window->width + x];
+                            ResourceManager_Minimap2x[(2 * y) * GFX_MAP_SIZE + 2 * x + 1] =
+                                buffer[y * window->width + x];
                         }
 
-                        memcpy(&ResourceManager_Minimap2x[(2 * y + 1) * 112], &ResourceManager_Minimap2x[(2 * y) * 112],
-                               112);
+                        memcpy(&ResourceManager_Minimap2x[(2 * y + 1) * GFX_MAP_SIZE],
+                               &ResourceManager_Minimap2x[(2 * y) * GFX_MAP_SIZE], GFX_MAP_SIZE);
                     }
 
-                    buf_to_buf(ResourceManager_Minimap2x, 112, 112, 112, window->buffer, window->width);
+                    buf_to_buf(ResourceManager_Minimap2x, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer,
+                               window->width);
+                }
+
+                if (window_width != GFX_MAP_SIZE || window_height != GFX_MAP_SIZE) {
+                    unsigned char* buffer = new (std::nothrow) unsigned char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+
+                    buf_to_buf(window->buffer, GFX_MAP_SIZE, GFX_MAP_SIZE, window->width, buffer, GFX_MAP_SIZE);
+
+                    cscale(buffer, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer, window_width,
+                           window_height, window->width);
+
+                    delete[] buffer;
                 }
 
                 win_draw_rect(window->id, &window->window);
@@ -2333,8 +2349,8 @@ void GameManager_UpdateGuiControl(unsigned short team) {
     GameManager_MenuClickMinimap2xButton(false);
     GameManager_MenuClickMinimapTntButton(false);
     GameManager_MenuDeleteFlic();
-    GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, 0x00, true);
-    GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, true);
+    GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, COLOR_BLACK, true);
+    GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, COLOR_BLACK, true);
 
     if (GameManager_SelectedUnit != nullptr) {
         SoundManager.PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
@@ -2346,7 +2362,7 @@ void GameManager_UpdateGuiControl(unsigned short team) {
 
     window = WindowManager_GetWindow(WINDOW_MINIMAP);
 
-    buf_to_buf(ResourceManager_Minimap, 112, 112, 112, window->buffer, window->width);
+    buf_to_buf(ResourceManager_Minimap, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer, window->width);
     win_draw_rect(window->id, &window->window);
 
     sprintf(message, "%s:\nBegin turn.", menu_team_names[team]);
@@ -3128,7 +3144,7 @@ Color* GameManager_MenuFadeOut(int fade_steps) {
     memcpy(palette, WindowManager_ColorPalette, 3 * PALETTE_SIZE);
     GameManager_MenuDeinitDisplayControls();
     WindowManager_FadeOut(fade_steps);
-    GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, 0x00, true);
+    GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, COLOR_BLACK, true);
 
     return palette;
 }
@@ -6451,11 +6467,9 @@ void GameManager_ProcessInput() {
             } break;
 
             case WINDOW_MINIMAP: {
-                int offset_x;
-                int offset_y;
-
-                offset_x = GameManager_MouseX - window->window.ulx;
-                offset_y = GameManager_MouseY - window->window.uly;
+                const double scale = WindowManager_GetScale();
+                int offset_x = (GameManager_MouseX - window->window.ulx) / scale;
+                int offset_y = (GameManager_MouseY - window->window.uly) / scale;
 
                 offset_x = std::min(ResourceManager_MapSize.x - 1, std::max(0, offset_x));
                 offset_y = std::min(ResourceManager_MapSize.y - 1, std::max(0, offset_y));
@@ -7305,7 +7319,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
         win_print(window->id, GameManager_GetUnitStatusMessage(unit).GetCStr(), 128, window->window.ulx,
                   window->window.uly + text_height(), GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | 0xA2);
 
-        GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, false);
+        GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, COLOR_BLACK, false);
 
         GameManager_DrawInfoDisplayRow("Hits", WINDOW_STAT_ROW_1, SI_HITSB, unit->hits,
                                        unit_values->GetAttribute(ATTRIB_HITS), 4);

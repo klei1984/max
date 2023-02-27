@@ -4166,8 +4166,8 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
 
         if (GameManager_IsMainMenuEnabled) {
             GameManager_MenuDeleteFlic();
-            GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, 0x00, true);
-            GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, 0x00, true);
+            GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, COLOR_BLACK, true);
+            GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, COLOR_BLACK, true);
             GameManager_DeinitPopupButtons(false);
             GameManager_UpdateDrawBounds();
         }
