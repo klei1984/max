@@ -57,11 +57,11 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     In case of water platforms the game correctly finds that there is no path to the destination. In case of bridges this is bogus. The infiltrator cannot take the path as there is a mine in the way, but the path finding algorith tells there is a valid path. When the issue occurs the game does not accept the end turn action, the affected infiltrator cannot be moved any more and it cannot be loaded by personnel carriers. The affected bridge at the same time is redrawn as if there would be a ship under the bridge. Interestingly it is possible to load back a game in this state and if done so the queued action to end the turn from the previous game activates. This also implies that command or event queues are not cleared on loading games.
 
 14. AI does not consider to leave a free square for engineer to leave the construction site making it stuck.
-    
+<br>
     <img src="{{ site.baseurl }}/assets/images/defect_14.jpg" alt="defect 14" width="740"> 
 
 15. The in-game help mouse spot for the map coordinate display holder arm is at the old top left location. The arm was on top in the old v1.00 interactive demo and was moved to the bottom later. The developers forgot to move the hot spot with the art to its new location.
-    
+<br>
     <img src="{{ site.baseurl }}/assets/images/defect_15.jpg" alt="defect 14" width="740"> 
 
 16. **[Fixed]** Clicking the help button on the landing site selection screen tries to set the rest state for the button control before it is actually created. The GUI control buttons are initialized just before the M.A.X. control panels open up, after selecting the landing site. The on click event handler function (cseg01:00094A4C) does not check whether the help button is pressed in-game when the help button's rest state is tried to be set. This issue, like many others, does not lead to a crash under DOS, but it causes segmentation fault on modern operating systems.
@@ -505,3 +505,14 @@ By normal means air units cannot land on plain ground. It is assumed that it was
 143. **[Fixed]** There is a function (cseg01:00087004) to draw a glowing green text box above units on the tactical map in case a research topic or a construction is ready. In case of construction jobs the function receives the builder unit, like an engineer, as function parameter and the parent of the builder unit is set to the newly constructed unit. When an engineer finishes building a connector unit it is automatically deployed by the game without waiting for the player to issue the deployment. Due to this the engineer automatically releases the new unit from being its parent and as such this function dereferences null which leads to segmentation faults on modern operating systems.
 
 144. **[Fixed]** There is a function (cseg01:000970AE) to determine the mouse cursor sprite. When a builder unit is the actively selected unit and the unit just finished construction of another unit and the mouse cursor is next to this another unit the cursor is supposed to be set to a certain type. In case the engineer is building connectors in path build mode the builder unit’s parent is set to null in which case the function dereferences null which leads to segmentation faults on modern operating systems.
+
+145. The bottom and right sides of the tactical map have a 1 pixel wide line of corrupted pixels that are not updaing correctly when the screen moves.
+
+146. There is a function to set a new mouse cursor shape (cseg01:000C0D94). The function conditionally calls the mouse_hide() and mouse_show() GNW API functions. The GNW API functions copy pixels from the active window surface into the bounds of the newly selected cursor shape to handle transparent cursor pixels. In case the cursor is changed while a new window is being rendered into the window back buffer the monitor screen may still show the old window contents to the player while the game already redrawn part of the contents in the back buffer for the new window. In such corner cases the GNW API functions copy the new unfinished window's already rendered pixels and blits the new cursor with the wrong window background around it to the monitor screen which creates visual glitches until the new window gets fully rendered and blitted to the monitor screen.
+
+147. **[Fixed]** The top right instrument image (`PNLSEQ_5`) is 24 pixels high while all other images in the sequence were 17 pixels only. The respective Window Manager window boundaries are defined to be `{.ulx=384, .uly=0, .lrx=639, .lry=22}`. The bottom pixel row is cropped which effectively cuts the transition part between the shaded and bright window frame area.
+
+148. The scan range of a working constructor is not centered on the unit sprite.
+<br>
+    <img src="{{ site.baseurl }}/assets/images/defect_148.jpg" alt="defect 148" width="740"> 
+<br>
