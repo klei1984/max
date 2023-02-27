@@ -158,6 +158,8 @@ RepairShopSlot::RepairShopSlot(RepairShopMenu *repairshop, Rect *unit_bg_image_b
 
     rect_init(&unit_slot_button_area, 0, 0, 70, 21);
 
+    text_font(GNW_TEXT_FONT_5);
+
     button_activate =
         new (std::nothrow) Button(DPTBAYUP, DPTBAYDN, unit_stats_bounds->ulx - 12, unit_stats_bounds->uly + 42);
     button_activate->CopyUpDisabled(DPTBAYDN);
@@ -493,7 +495,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit) : Window(unit->unit_type == HANGA
             button_upgrade_all->SetRFunc(&RepairShopMenu_OnClick_UpgradeAll, reinterpret_cast<intptr_t>(this));
             button_upgrade_all->SetSfx(MBUTT0);
 
-            raw_material_bar = new (std::nothrow) Image(546, 106, 10, 115);
+            raw_material_bar = new (std::nothrow) Image(546, 106, 20, 115);
             raw_material_bar->Copy(&window);
 
             raw_material_value_area = new (std::nothrow) Image(529, 76, 54, 12);
@@ -1063,7 +1065,7 @@ void RepairShopMenu::DrawCargoBar(bool draw_to_screen) {
     Cargo materials;
     Cargo capacity;
     WindowInfo window;
-    int height;
+    int bar_height;
     unsigned char *buffer;
     char text[50];
 
@@ -1074,16 +1076,16 @@ void RepairShopMenu::DrawCargoBar(bool draw_to_screen) {
     raw_material_value_area->Write(&window);
 
     if (raw_material_in_complex) {
-        height = (materials.raw * raw_material_bar->GetHeight()) / raw_material_in_complex;
+        bar_height = (materials.raw * raw_material_bar->GetHeight()) / raw_material_in_complex;
 
     } else {
-        height = 0;
+        bar_height = 0;
     }
 
     buffer = &window.buffer[raw_material_bar->GetULY() * window.width + raw_material_bar->GetULX()];
-    buffer = &buffer[(raw_material_bar->GetHeight() - height) * window.width];
+    buffer = &buffer[(raw_material_bar->GetHeight() - bar_height) * window.width];
 
-    LoadVerticalBar(buffer, window.width, height, raw_material_bar->GetWidth(), VERTRAW);
+    LoadVerticalBar(buffer, window.width, bar_height, raw_material_bar->GetWidth(), VERTRAW);
 
     text_font(GNW_TEXT_FONT_5);
 
