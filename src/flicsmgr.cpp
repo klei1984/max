@@ -458,10 +458,10 @@ Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int u
 
         bound.ulx = ulx;
         bound.uly = uly;
-        bound.lrx = ulx + 128;
-        bound.lry = uly + 128;
+        bound.lrx = ulx + FLICSMGR_FLIC_SIZE;
+        bound.lry = uly + FLICSMGR_FLIC_SIZE;
 
-        buf_fill(&w->buffer[ulx + uly * width], 128, 128, width, 0);
+        buf_fill(&w->buffer[ulx + uly * width], FLICSMGR_FLIC_SIZE, FLICSMGR_FLIC_SIZE, width, 0);
 
         if (w->id) {
             win_draw_rect(w->id, &bound);

@@ -524,6 +524,13 @@ struct ColorCycleData {
     unsigned int time_stamp;
 };
 
+struct MenuFlic {
+    WindowInfo sw;
+    WindowInfo dw;
+    Flic* flc;
+    int text_height;
+};
+
 static struct ColorCycleData GameManager_ColorCycleTable[] = {
     COLOR_CYCLE_DATA(9, 12, 0, TIMER_FPS_TO_TICKS(9), 0),     COLOR_CYCLE_DATA(13, 16, 1, TIMER_FPS_TO_TICKS(6), 0),
     COLOR_CYCLE_DATA(17, 20, 1, TIMER_FPS_TO_TICKS(9), 0),    COLOR_CYCLE_DATA(21, 24, 1, TIMER_FPS_TO_TICKS(6), 0),
@@ -577,7 +584,7 @@ static struct MenuDisplayControl GameManager_MenuDisplayControls[] = {
 struct PopupButtons GameManager_PopupButtons;
 
 static unsigned int GameManager_NotifyTimeout;
-static struct Flic* GameManager_Flic;
+static struct MenuFlic GameManager_Flic;
 static TextEdit* GameManager_TextEditUnitName;
 static char GameManager_UnitName[30];
 static unsigned char GameManager_ColorCycleStep;
@@ -702,6 +709,9 @@ static void GameManager_DrawInfoDisplayType2(UnitInfo* unit);
 static void GameManager_DrawInfoDisplayType1(UnitInfo* unit);
 static void GameManager_DrawInfoDisplayType3(UnitInfo* unit);
 static bool GameManager_SyncTurnTimer();
+static void GameManager_MenuCreateFlic(ResourceID unit_type, int ulx, int uly);
+static void GameManager_DrawFlic(Rect* bounds);
+static void GameManager_AdvanceFlic();
 static void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int radius, int color);
 static void GameManager_Render();
 static void GameManager_UpdateProductions(unsigned short team, SmartList<UnitInfo>* units);
@@ -5092,14 +5102,7 @@ bool GameManager_ProcessTick(bool render_screen) {
         GameManager_DrawTurnTimer(GameManager_TurnTimerValue);
     }
 
-    if (GameManager_Flic && GameManager_PlayFlic && ini_get_setting(INI_EFFECTS)) {
-        time_stamp = timer_get_stamp32();
-
-        if ((time_stamp - GameManager_FlicFrameTimeStamp) >= TIMER_FPS_TO_TICKS(15)) {
-            GameManager_FlicFrameTimeStamp = time_stamp;
-            GameManager_PlayFlic = flicsmgr_advance_animation(GameManager_Flic);
-        }
-    }
+    GameManager_AdvanceFlic();
 
     time_stamp = timer_get_stamp32();
 
@@ -6775,10 +6778,87 @@ void GameManager_ProcessInput() {
 }
 
 void GameManager_MenuDeleteFlic() {
-    if (GameManager_Flic) {
-        flicsmgr_delete(GameManager_Flic);
-        free(GameManager_Flic);
-        GameManager_Flic = nullptr;
+    if (GameManager_Flic.flc) {
+        flicsmgr_delete(GameManager_Flic.flc);
+        free(GameManager_Flic.flc);
+        GameManager_Flic.flc = nullptr;
+    }
+
+    delete[] GameManager_Flic.sw.buffer;
+
+    GameManager_Flic.sw.id = -1;
+    GameManager_Flic.sw.buffer = nullptr;
+
+    GameManager_Flic.dw.id = -1;
+    GameManager_Flic.dw.buffer = nullptr;
+}
+
+void GameManager_MenuCreateFlic(ResourceID unit_type, int ulx, int uly) {
+    WindowInfo* main_window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+    WindowInfo* flic_window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
+    BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
+
+    GameManager_MenuDeleteFlic();
+
+    GameManager_Flic.sw.id = -1;
+    GameManager_Flic.sw.width = FLICSMGR_FLIC_SIZE;
+    GameManager_Flic.sw.buffer = new (std::nothrow) unsigned char[FLICSMGR_FLIC_SIZE * FLICSMGR_FLIC_SIZE];
+    GameManager_Flic.sw.window.ulx = 0;
+    GameManager_Flic.sw.window.uly = 0;
+    GameManager_Flic.sw.window.lrx = FLICSMGR_FLIC_SIZE - 1;
+    GameManager_Flic.sw.window.lry = FLICSMGR_FLIC_SIZE - 1;
+
+    GameManager_Flic.dw.id = main_window->id;
+    GameManager_Flic.dw.width = main_window->width;
+    GameManager_Flic.dw.buffer = main_window->buffer;
+    GameManager_Flic.dw.window = flic_window->window;
+
+    GameManager_Flic.flc =
+        flicsmgr_construct(base_unit->flics, &GameManager_Flic.sw, GameManager_Flic.sw.width, 0, 0, 2, 0);
+
+    const int font_id = text_curr();
+    text_font(GNW_TEXT_FONT_2);
+
+    GameManager_Flic.text_height = text_height() * 2 + 1;
+
+    text_font(font_id);
+
+    GameManager_DrawFlic(&GameManager_Flic.dw.window);
+}
+
+void GameManager_DrawFlic(Rect* bounds) {
+    const int local_width = GameManager_Flic.dw.window.lrx - GameManager_Flic.dw.window.ulx + 1;
+    const int local_height = GameManager_Flic.dw.window.lry - GameManager_Flic.dw.window.uly + 1;
+    const int local_offset_y = bounds->uly - GameManager_Flic.dw.window.uly;
+    unsigned char* const local_buffer = new (std::nothrow) unsigned char[local_width * local_height];
+
+    cscale(GameManager_Flic.sw.buffer, FLICSMGR_FLIC_SIZE, FLICSMGR_FLIC_SIZE, FLICSMGR_FLIC_SIZE, local_buffer,
+           local_width, local_height, local_width);
+
+    buf_to_buf(&local_buffer[local_width * local_offset_y], local_width, local_height - local_offset_y, local_width,
+               &GameManager_Flic.dw.buffer[GameManager_Flic.dw.width * bounds->uly + bounds->ulx],
+               GameManager_Flic.dw.width);
+
+    delete[] local_buffer;
+
+    win_draw_rect(GameManager_Flic.dw.id, bounds);
+}
+
+void GameManager_AdvanceFlic() {
+    if (GameManager_Flic.flc && GameManager_PlayFlic && ini_get_setting(INI_EFFECTS)) {
+        unsigned int time_stamp = timer_get_stamp32();
+
+        if ((time_stamp - GameManager_FlicFrameTimeStamp) >= TIMER_FPS_TO_TICKS(15)) {
+            GameManager_FlicFrameTimeStamp = time_stamp;
+
+            // the original design assumes that animated FLICs do not redraw the top text rows
+            GameManager_PlayFlic = flicsmgr_advance_animation(GameManager_Flic.flc);
+
+            Rect bounds = GameManager_Flic.dw.window;
+            bounds.uly += GameManager_Flic.text_height;
+
+            GameManager_DrawFlic(&bounds);
+        }
     }
 }
 
@@ -6836,14 +6916,9 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
         }
 
         if (unit) {
-            BaseUnit* base_unit;
             WindowInfo* window;
-            int ulx;
-            int uly;
             int sound;
             char text[100];
-
-            base_unit = &UnitsManager_BaseUnits[unit->unit_type];
 
             unit->targeting_mode = 0;
             unit->enter_mode = 0;
@@ -6859,24 +6934,15 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
                                                    TEAM_TYPE_PLAYER);
             }
 
-            GameManager_MenuDeleteFlic();
-
             window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
 
-            ulx = window->window.ulx;
-            uly = window->window.uly;
-
-            window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-
-            GameManager_Flic = flicsmgr_construct(base_unit->flics, window, window->width, ulx, uly, 2, 0);
+            GameManager_MenuCreateFlic(unit->unit_type, window->window.ulx, window->window.uly);
 
             unit->GetDisplayName(text);
 
-            window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
-
             text_font(GNW_TEXT_FONT_2);
 
-            win_print(window->id, text, 128, window->window.ulx, window->window.uly,
+            win_print(window->id, text, FLICSMGR_FLIC_SIZE, window->window.ulx, window->window.uly,
                       GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | COLOR_GREEN);
 
             if (unit->unit_type == COMMANDO) {

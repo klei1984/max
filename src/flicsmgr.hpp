@@ -25,6 +25,8 @@
 #include "enums.hpp"
 #include "gnw.h"
 
+#define FLICSMGR_FLIC_SIZE (128)
+
 struct Flic;
 
 Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int uly, char animate,
