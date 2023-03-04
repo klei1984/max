@@ -151,7 +151,7 @@ static const struct MenuTitleItem allocation_menu_titles[] = {
     MENU_TITLE_ITEM_DEF(42, 353, 120, 370, "Usage"),         MENU_TITLE_ITEM_DEF(42, 389, 120, 407, "Reserve"),
 };
 
-AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, WINDOW_MAIN_MAP), unit(unit) {
+AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWindowCenterMode()), unit(unit) {
     Add();
     FillWindowInfo(&window);
 

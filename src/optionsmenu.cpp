@@ -104,7 +104,7 @@ static const char *options_menu_opponent_strings[] = {"Clueless", "Apprentice", 
 static const char *options_menu_victory_type_strings[] = {"turns", "points"};
 
 OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
-    : Window(bg_image, bg_image == SETUPPIC ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
+    : Window(bg_image, GameManager_GetDialogWindowCenterMode()),
       team(team),
       bg_image(bg_image),
       text_edit(nullptr),

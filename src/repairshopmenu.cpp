@@ -360,7 +360,8 @@ void RepairShopSlot::UpdateButtons() {
     }
 }
 
-RepairShopMenu::RepairShopMenu(UnitInfo *unit) : Window(unit->unit_type == HANGAR ? HANGRFRM : DEPOTFRM), unit(unit) {
+RepairShopMenu::RepairShopMenu(UnitInfo *unit)
+    : Window(unit->unit_type == HANGAR ? HANGRFRM : DEPOTFRM, GameManager_GetDialogWindowCenterMode()), unit(unit) {
     WindowInfo window;
     int slot_window_ulx;
     int slot_window_uly;

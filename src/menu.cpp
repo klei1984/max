@@ -2509,7 +2509,7 @@ void menu_draw_exit_logos() {
     menu_draw_logo(OEMTWO, 60000);
 }
 
-bool OKCancelMenu_Menu(const char* caption, bool mode) { return OKCancelMenu(caption, mode).Run(); }
+bool OKCancelMenu_Menu(const char* caption) { return OKCancelMenu(caption).Run(); }
 
 bool DesyncMenu_Menu() {
     DesyncMenu desync_menu;

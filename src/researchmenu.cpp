@@ -389,7 +389,8 @@ void ResearchControl::Init(ResearchMenu *menu, unsigned char research_topic_inde
     icon = ResourceManager_LoadResource(ResearchMenu_TopicIcons[topic_index]);
     image = reinterpret_cast<struct ImageSimpleHeader *>(icon);
 
-    WindowManager_DecodeSimpleImage(image, 170 - (image->width / 2), (uly_slider + 7) - (image->height / 2), true, &window);
+    WindowManager_DecodeSimpleImage(image, 170 - (image->width / 2), (uly_slider + 7) - (image->height / 2), true,
+                                    &window);
 
     string.Sprintf(10, "+%i%%",
                    UnitsManager_TeamInfo[research_menu->GetTeam()].research_topics[topic_index].research_level * 10);
@@ -446,8 +447,8 @@ void ResearchControl::RefreshScreen(bool redraw) {
         offset = 0;
     }
 
-    WindowManager_DecodeSimpleImage(sprite, image_labs_slider_bg->GetULX() + offset, image_labs_slider_bg->GetULY(), true,
-                               &window);
+    WindowManager_DecodeSimpleImage(sprite, image_labs_slider_bg->GetULX() + offset, image_labs_slider_bg->GetULY(),
+                                    true, &window);
 
     if (redraw) {
         image_labs_count_bg->Draw(window.id);
@@ -552,7 +553,8 @@ void ResearchMenu_OnClick_Cancel(ButtonID bid, intptr_t value) {
     control->exit_loop = true;
 }
 
-ResearchMenu::ResearchMenu(unsigned short team) : Window(RSRCHPIC, WINDOW_MAIN_MAP), team(team) {
+ResearchMenu::ResearchMenu(unsigned short team)
+    : Window(RSRCHPIC, GameManager_GetDialogWindowCenterMode()), team(team) {
     WindowInfo window;
     unsigned short research_topics[RESEARCH_TOPIC_COUNT];
 

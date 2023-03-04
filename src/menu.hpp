@@ -58,7 +58,7 @@ void draw_menu_title(WindowInfo* window, const char* caption);
 int menu_options_menu_loop(int game_mode);
 void menu_preferences_window(unsigned short team);
 int GameSetupMenu_Menu(int game_file_type, bool flag1 = true, bool flag2 = true);
-bool OKCancelMenu_Menu(const char* caption, bool mode);
+bool OKCancelMenu_Menu(const char* caption);
 void DialogMenu_Menu(const char* label);
 bool DesyncMenu_Menu();
 void PauseMenu_Menu();

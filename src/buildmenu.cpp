@@ -217,7 +217,8 @@ void BuildUnitTypeSelector::Draw() {
     win_draw_rect(window_info.id, &bounds);
 }
 
-AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit) : Window(resource_id), unit(unit) {
+AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit)
+    : Window(resource_id, GameManager_GetDialogWindowCenterMode()), unit(unit) {
     ResourceID builder_unit;
     ResourceID buildable_unit;
     int list_size;

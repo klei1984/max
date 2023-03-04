@@ -457,7 +457,8 @@ void UnitStats_Menu(UnitInfo* unit) {
     menu.Run();
 }
 
-UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_) : Window(STATS, WINDOW_MAIN_MAP), unit(unit_), event_release(false) {
+UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
+    : Window(STATS, GameManager_GetDialogWindowCenterMode()), unit(unit_), event_release(false) {
     WindowInfo debug_window;
     BaseUnit* base_unit;
     char text[40];

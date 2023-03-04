@@ -27,8 +27,8 @@
 #include "text.hpp"
 #include "window_manager.hpp"
 
-OKCancelMenu::OKCancelMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, mode ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
+OKCancelMenu::OKCancelMenu(const char* caption)
+    : Window(HELPFRAM, GameManager_GetDialogWindowCenterMode()),
       event_click_ok(false),
       event_click_cancel(false),
       event_release(false) {

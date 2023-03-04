@@ -144,7 +144,7 @@ bool TransferMenu::ProcessKey(int key) {
     return true;
 }
 
-TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, WINDOW_MAIN_MAP) {
+TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, GameManager_GetDialogWindowCenterMode()) {
     short source_unit_capacity;
     short target_unit_capacity;
 

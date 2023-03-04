@@ -4053,7 +4053,7 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
         string.Sprintf(200, save_load_mode ? "OK to save file?\n%s\n\"%s\"" : "OK to load file?\n%s\n\"%s\"", file_name,
                        save_file_header.save_name);
 
-        if (OKCancelMenu_Menu(string.GetCStr(), false)) {
+        if (OKCancelMenu_Menu(string.GetCStr())) {
             if (save_load_mode) {
                 if (Remote_IsNetworkGame) {
                     Remote_SendNetPacket_16(file_name, save_file_header.save_name);
@@ -5386,7 +5386,7 @@ void GameManager_ProcessKey() {
             } else if (GameManager_DemoMode) {
                 GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
-            } else if (OKCancelMenu_Menu("OK to exit game?", false)) {
+            } else if (OKCancelMenu_Menu("OK to exit game?")) {
                 GameManager_GameState = ORDER_STATE_3;
             }
 
@@ -5463,7 +5463,7 @@ void GameManager_ProcessKey() {
         } break;
 
         case GNW_KB_KEY_LALT_X: {
-            if (OKCancelMenu_Menu("OK to exit game?", false)) {
+            if (OKCancelMenu_Menu("OK to exit game?")) {
                 GameManager_GameState = ORDER_STATE_3;
                 GameManager_DeinitPopupButtons(false);
             }
@@ -7372,6 +7372,22 @@ SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
     }
 
     return message;
+}
+
+int GameManager_GetDialogWindowCenterMode() {
+    int result;
+
+    if (GameManager_GameState <= GAME_STATE_3_MAIN_MENU) {
+        result = WINDOW_MAIN_WINDOW;
+
+    } else if (ini_get_setting(INI_DIALOG_CENTER_MODE)) {
+        result = WINDOW_MAIN_WINDOW;
+
+    } else {
+        result = WINDOW_MAIN_MAP;
+    }
+
+    return result;
 }
 
 void GameManager_UpdateInfoDisplay(UnitInfo* unit) {

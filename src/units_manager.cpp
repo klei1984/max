@@ -2186,7 +2186,7 @@ bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
 }
 
 bool UnitsManager_SelfDestructMenu() {
-    Window destruct_window(SELFDSTR, WINDOW_MAIN_MAP);
+    Window destruct_window(SELFDSTR, GameManager_GetDialogWindowCenterMode());
     WindowInfo window;
     Button* button_arm;
     Button* button_cancel;

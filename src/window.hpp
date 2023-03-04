@@ -27,6 +27,7 @@
 #include "gnw.h"
 
 class Window {
+protected:
     WinID window_id;
     short ulx;
     short uly;

@@ -34,7 +34,7 @@ class OKCancelMenu : public Window {
     bool event_release;
 
 public:
-    OKCancelMenu(const char *caption, bool mode);
+    OKCancelMenu(const char *caption);
     ~OKCancelMenu();
 
     bool Run();

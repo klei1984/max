@@ -38,7 +38,7 @@
 #include "window_manager.hpp"
 
 AbstractUpgradeMenu::AbstractUpgradeMenu(unsigned short team, ResourceID resource_id)
-    : Window(resource_id),
+    : Window(resource_id, GameManager_GetDialogWindowCenterMode()),
       team(team),
       upgrade_control_count(0),
       upgrade_control_next_uly(0),

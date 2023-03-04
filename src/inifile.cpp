@@ -166,6 +166,7 @@ static const IniKey ini_keys_table[] = {
     {"scale_quality", "1", INI_NUMERIC},
     {"window_width", "640", INI_NUMERIC},
     {"window_height", "480", INI_NUMERIC},
+    {"dialog_center_mode", "0", INI_NUMERIC},
 
     {"NETWORK_SETTINGS", nullptr, INI_SECTION},
     {"transport", "udp_default", INI_STRING},

@@ -140,7 +140,7 @@ bool DialogMenu::ProcessKey(int key) {
 }
 
 DialogMenu::DialogMenu(const char* caption, bool mode)
-    : Window(HELPFRAM, GameManager_GameState == GAME_STATE_3_MAIN_MENU ? WINDOW_MAIN_WINDOW : WINDOW_MAIN_MAP),
+    : Window(HELPFRAM, GameManager_GetDialogWindowCenterMode()),
       field_62(GameManager_GameState != GAME_STATE_3_MAIN_MENU),
       strings(nullptr),
       row_offset(0),

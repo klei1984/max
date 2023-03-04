@@ -381,7 +381,7 @@ bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_err
     const std::filesystem::path cdrom_path(ResourceManager_FilePathCd);
 
     while (std::filesystem::current_path(cdrom_path, ec), ec) {
-        if (!prompt_user || !OKCancelMenu_Menu("\nPlease insert the M.A.X. CD and try again.\n", true)) {
+        if (!prompt_user || !OKCancelMenu_Menu("\nPlease insert the M.A.X. CD and try again.\n")) {
             return false;
         }
     }

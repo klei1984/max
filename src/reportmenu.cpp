@@ -189,7 +189,7 @@ MessageLogEntry *MessageLine::GetMessage() const { return &*message; }
 
 void ReportMenu_Menu() { ReportMenu().Run(); }
 
-ReportMenu::ReportMenu() : Window(REP_FRME), units(10) {
+ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMode()), units(10) {
     Rect bounds;
     WindowInfo window;
     ButtonID button_list[4];
@@ -421,19 +421,23 @@ void ReportMenu::Run() {
     while (!exit_loop) {
         key = get_input();
 
-        if (MouseEvent::PopFront(mouse_event) && mouse_event.buttons == MOUSE_PRESS_LEFT &&
-            mouse_event.point.x >= report_screen_image->GetULX() &&
-            mouse_event.point.x <= report_screen_image->GetULX() + report_screen_image->GetWidth() &&
-            mouse_event.point.y >= report_screen_image->GetULY() &&
-            mouse_event.point.y <= report_screen_image->GetULY() + report_screen_image->GetHeight()) {
-            switch (radio_button_index) {
-                case REPORT_TYPE_UNITS: {
-                    SelectUnit(mouse_event.point);
-                } break;
+        if (MouseEvent::PopFront(mouse_event) && mouse_event.buttons == MOUSE_PRESS_LEFT) {
+            mouse_event.point.x -= ulx;
+            mouse_event.point.y -= uly;
 
-                case REPORT_TYPE_MESSAGES: {
-                    SelectMessage(mouse_event.point);
-                } break;
+            if (mouse_event.point.x >= report_screen_image->GetULX() &&
+                mouse_event.point.x <= report_screen_image->GetULX() + report_screen_image->GetWidth() &&
+                mouse_event.point.y >= report_screen_image->GetULY() &&
+                mouse_event.point.y <= report_screen_image->GetULY() + report_screen_image->GetHeight()) {
+                switch (radio_button_index) {
+                    case REPORT_TYPE_UNITS: {
+                        SelectUnit(mouse_event.point);
+                    } break;
+
+                    case REPORT_TYPE_MESSAGES: {
+                        SelectMessage(mouse_event.point);
+                    } break;
+                }
             }
         }
 
@@ -1029,7 +1033,8 @@ void ReportMenu::DrawMessages() {
                 struct ImageSimpleHeader *sprite =
                     reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(message2->GetIcon()));
 
-                WindowManager_DecodeSimpleImage(sprite, window_ulx, window_uly + 16 - (sprite->height / 2), true, &window);
+                WindowManager_DecodeSimpleImage(sprite, window_ulx, window_uly + 16 - (sprite->height / 2), true,
+                                                &window);
             }
         }
 

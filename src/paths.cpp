@@ -686,7 +686,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
     if (speed == 0 || unit->engine == 0) {
         if (unit->engine) {
-            unit->state = GAME_STATE_1;
+            unit->state = ORDER_STATE_1;
             unit->MoveFinished();
 
         } else {
