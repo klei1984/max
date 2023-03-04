@@ -574,7 +574,7 @@ void ReportMenu::UpdateStatistics() {
     for (int unit_type = 0; unit_type < UNIT_END; ++unit_type) {
         unit_flags = UnitsManager_BaseUnits[unit_type].flags;
 
-        if ((unit_flags & SELECTABLE) && !(unit_flags & GROUND_COVER) && !(unit_flags & unit_flags_mask)) {
+        if (!(unit_flags & SELECTABLE) || (unit_flags & GROUND_COVER) || !(unit_flags & unit_flags_mask)) {
             active_units[unit_type] = false;
         }
     }
