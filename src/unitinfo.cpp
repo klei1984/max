@@ -2860,7 +2860,7 @@ void UnitInfo::DetachComplex() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        connectors &= ~CONNECTION_BEING_TESTED;
+        (*it).connectors &= ~CONNECTION_BEING_TESTED;
     }
 }
 

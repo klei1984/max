@@ -2175,7 +2175,7 @@ void GameManager_ManageEconomy(unsigned short team) {
 
 void GameManager_UpdateScoreGraph() {
     for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        memmove(UnitsManager_TeamInfo[team].score_graph, &UnitsManager_TeamInfo[team].score_graph[sizeof(short)],
+        memmove(&UnitsManager_TeamInfo[team].score_graph[0], &UnitsManager_TeamInfo[team].score_graph[1],
                 sizeof(UnitsManager_TeamInfo[team].score_graph) - sizeof(short));
 
         UnitsManager_TeamInfo[team]
