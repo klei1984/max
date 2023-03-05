@@ -7322,7 +7322,7 @@ void GameManager_DrawInfoDisplayType3(UnitInfo* unit) {
         for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
-                current_value = std::max(UnitsManager_TeamInfo[team].team_points, current_value);
+                current_value = std::max(UnitsManager_TeamInfo[unit->team].team_points, current_value);
             }
         }
     }

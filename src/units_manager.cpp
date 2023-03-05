@@ -2396,7 +2396,8 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if (unit->team == (*it).team && (*it).IsUpgradeAvailable() && (*it).state != ORDER_STATE_UNIT_READY) {
+        if (unit->team == (*it).team && unit->unit_type == (*it).unit_type && (*it).IsUpgradeAvailable() &&
+            (*it).state != ORDER_STATE_UNIT_READY) {
             for (index = 0; index < complexes.GetCount(); ++index) {
                 if ((*it).GetComplex() == &complexes[index]) {
                     break;
@@ -2413,7 +2414,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
                 costs.Append(&materials.raw);
             }
 
-            cost = (*it).GetNormalRateBuildCost();
+            cost = (*it).GetNormalRateBuildCost() / 4;
 
             if (*costs[index] >= cost) {
                 (*it).SetParent(&*it);
