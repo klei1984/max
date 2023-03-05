@@ -145,6 +145,8 @@ HelpMenu::HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window
     file = ResourceManager_GetFileHandle(HELP_ENG);
 
     if (file) {
+        WindowManager_ScaleCursor(section, window_id, cursor_x, cursor_y);
+
         if (SeekSection() && SeekEntry(cursor_x, cursor_y)) {
             if (!ReadEntry()) {
                 event_click_cancel = true;
@@ -532,7 +534,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
     WinID window_id;
 
     Cursor_SetCursor(CURSOR_HELP);
-    window_id = win_add(0, 0, 1, 1, 0x0, 0x10);
+    window_id = win_add(0, 0, 1, 1, COLOR_BLACK, 0x10);
     MouseEvent::Clear();
 
     while (get_input() != GNW_KB_KEY_CTRL_ESCAPE) {

@@ -119,5 +119,6 @@ int WindowManager_ScaleLrx(WindowInfo *w, int ulx, int lrx);
 int WindowManager_ScaleLry(WindowInfo *w, int uly, int lry);
 int WindowManager_ScaleOffset(WindowInfo *w, int ulx, int uly);
 double WindowManager_GetScale();
+void WindowManager_ScaleCursor(int help_id, int window_id, int &cursor_x, int &cursor_y);
 
 #endif /* WINDOW_MANAGER_HPP */

@@ -21,7 +21,9 @@
 
 #include "window_manager.hpp"
 
+#include "game_manager.hpp"
 #include "gfx.hpp"
+#include "helpmenu.hpp"
 #include "resource_manager.hpp"
 
 #define WINDOW_RECT(ulx, uly, lrx, lry) \
@@ -902,4 +904,22 @@ int WindowManager_ScaleLry(WindowInfo *w, int uly, int lry) {
 
 int WindowManager_ScaleOffset(WindowInfo *w, int ulx, int uly) {
     return w->width * WindowManager_ScaleUly(w, uly) + WindowManager_ScaleUlx(w, ulx);
+}
+
+void WindowManager_ScaleCursor(int help_id, int window_id, int &cursor_x, int &cursor_y) {
+    if (window_id == WINDOW_MAIN_WINDOW || (window_id == WINDOW_MAIN_MAP && (help_id == HELPMENU_REPORTS_SETUP))) {
+        WindowInfo *const window = WindowManager_GetWindow(GameManager_GetDialogWindowCenterMode());
+
+        cursor_x -= ((window->window.lrx + window->window.ulx + 1) - WINDOW_WIDTH) / 2;
+        cursor_y -= ((window->window.lry + window->window.uly + 1) - WINDOW_HEIGHT) / 2;
+
+    } else if (window_id == WINDOW_MAIN_MAP) {
+        const double scale = WindowManager_GetScale();
+
+        cursor_x /= scale;
+        cursor_y /= scale;
+
+    } else {
+        SDL_assert(0);
+    }
 }
