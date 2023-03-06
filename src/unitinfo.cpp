@@ -2044,7 +2044,8 @@ void UnitInfo::GainExperience(int experience) {
                     base_values = new UnitValues(*base_values);
                 }
 
-                base_values->SetAttribute(upgrade_topic, TeamUnits_UpgradeOffsetFactor(team, unit_type, upgrade_topic));
+                *base_values->GetAttributeAddress(upgrade_topic) +=
+                    TeamUnits_UpgradeOffsetFactor(team, unit_type, upgrade_topic);
 
                 upgrade_topic = ExpResearchTopics[(dos_rand() * sizeof(ExpResearchTopics)) >> 15];
                 upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
