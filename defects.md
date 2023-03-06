@@ -524,3 +524,5 @@ By normal means air units cannot land on plain ground. It is assumed that it was
 151. Two connectors at grid positions 45,70 and 45,71 overlap a depot in campaign mission 8 (MD5 hash: 97379ca828ca8017ea00f728b3b86941 \*SAVE8.CAM) which creates visual glitches. Normally connectors are removed by the game when a building is built over them.
 
 152. Air units are not allowed to move to a grid cell where an enemy mine is detected by the mouse cursor selection algorithm. This is counter intuitive and creates a tactical disadvantage if the enemy creates a huge minefield along its borders as in such cases the player's air units are simply unable to go near the enemy base.
+
+153. Campaign missions 2, 5, 9, multiplayer scenario 6, single player scenario 1, 2, 4, 11, 12, 14, 16, 17, 21, 22, 23 and 24 contain message log entires that should have been removed by the authors. For example in campaign mission 9 red player (MD5 hash: 30a8de876d55f3cabb4bc96f8cb31aab \*SAVE9.CAM) has three logged messages: 1) `Begin turn 1.` 2) `Begin turn 2.` and 3) `Begin turn 2.` yet again. Probably the mission was edited at least twice.
