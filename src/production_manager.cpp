@@ -428,7 +428,7 @@ void ProductionManager::CheckGenerators() {
             power_generator_fuel_consumption_rate;
 
     power_station_active =
-        (power + power_station_power_consumption_rate - count) % power_station_power_consumption_rate;
+        (power + power_station_power_consumption_rate - count) / power_station_power_consumption_rate;
 
     if (power_station_active > power_station_count) {
         power_station_active = power_station_count;
@@ -609,9 +609,9 @@ void ProductionManager::UpdateLifeConsumption() {
 bool ProductionManager::CheckIndustry(UnitInfo* unit, bool mode) {
     bool result;
 
-    if (complex == unit->GetComplex() && unit->orders == ORDER_BUILD && unit->orders != ORDER_STATE_13 &&
-        unit->orders != ORDER_STATE_46 && Cargo_GetRawConsumptionRate(unit->unit_type, 1) > 0 &&
-        (mode || cargo4.raw < 0)) {
+    if (complex == unit->GetComplex() && unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_13 &&
+        unit->state != ORDER_STATE_46 && unit->state != ORDER_STATE_UNIT_READY &&
+        Cargo_GetRawConsumptionRate(unit->unit_type, 1) > 0 && (mode || cargo4.raw < 0)) {
         Cargo cargo;
 
         Cargo_GetCargoDemand(unit, &cargo, true);
