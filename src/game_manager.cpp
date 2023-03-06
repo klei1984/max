@@ -441,7 +441,8 @@ SmartPointer<UnitInfo> GameManager_TempTape;
 SmartPointer<UnitInfo> GameManager_UnknownUnit2;
 SmartPointer<UnitInfo> GameManager_UnknownUnit3;
 SmartPointer<UnitInfo> GameManager_UnknownUnit4;
-Image* GameManager_TurnTimerImage;
+Image* GameManager_TurnTimerImageNormal;
+Image* GameManager_TurnTimerImageScaled;
 Point GameManager_GridCenter;
 Point GameManager_GridCenterOffset;
 Point GameManager_SpottedEnemyPosition;
@@ -2130,8 +2131,11 @@ void GameManager_GameLoopCleanup() {
     delete[] ResourceManager_CargoMap;
     ResourceManager_CargoMap = nullptr;
 
-    delete GameManager_TurnTimerImage;
-    GameManager_TurnTimerImage = nullptr;
+    delete GameManager_TurnTimerImageNormal;
+    GameManager_TurnTimerImageNormal = nullptr;
+
+    delete GameManager_TurnTimerImageScaled;
+    GameManager_TurnTimerImageScaled = nullptr;
 
     GameManager_MenuDeinitDisplayControls();
     ResourceManager_FreeResources();
@@ -2238,6 +2242,7 @@ void GameManager_DrawTurnCounter(int turn_count) {
 void GameManager_DrawTimer(char* text, int color) {
     Rect bounds;
     WindowInfo window;
+    Image* turn_timer_image;
 
     window.id = win_get_top_win(WindowManager_WindowWidth / 2, WindowManager_WindowHeight / 2);
     window.buffer = win_get_buf(window.id);
@@ -2253,20 +2258,30 @@ void GameManager_DrawTimer(char* text, int color) {
         bounds.lrx = bounds.ulx + 62;
         bounds.lry = bounds.uly + 24;
 
+        if (!GameManager_TurnTimerImageNormal) {
+            GameManager_TurnTimerImageNormal =
+                new (std::nothrow) Image(bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx, bounds.lry - bounds.uly);
+            GameManager_TurnTimerImageNormal->Copy(&window);
+        }
+
+        turn_timer_image = GameManager_TurnTimerImageNormal;
+
     } else {
         bounds.ulx = WindowManager_ScaleUlx(&window, 524);
         bounds.uly = WindowManager_ScaleUly(&window, 10);
         bounds.lrx = bounds.ulx + 62;
         bounds.lry = bounds.uly + 24;
+
+        if (!GameManager_TurnTimerImageScaled) {
+            GameManager_TurnTimerImageScaled =
+                new (std::nothrow) Image(bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx, bounds.lry - bounds.uly);
+            GameManager_TurnTimerImageScaled->Copy(&window);
+        }
+
+        turn_timer_image = GameManager_TurnTimerImageScaled;
     }
 
-    if (!GameManager_TurnTimerImage) {
-        GameManager_TurnTimerImage =
-            new (std::nothrow) Image(bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx, bounds.lry - bounds.uly);
-        GameManager_TurnTimerImage->Copy(&window);
-    }
-
-    GameManager_TurnTimerImage->Write(&window);
+    turn_timer_image->Write(&window);
 
     text_font(GNW_TEXT_FONT_5);
 
@@ -3074,7 +3089,8 @@ void GameManager_InitUnitsAndGameState() {
 
     GameManager_PopupButtons.popup_count = 0;
 
-    GameManager_TurnTimerImage = nullptr;
+    GameManager_TurnTimerImageNormal = nullptr;
+    GameManager_TurnTimerImageScaled = nullptr;
     GameManager_TurnTimerValue = 0;
 
     GameManager_SpottedEnemyPosition.x = -1;
@@ -6819,7 +6835,7 @@ void GameManager_MenuCreateFlic(ResourceID unit_type, int ulx, int uly) {
     const int font_id = text_curr();
     text_font(GNW_TEXT_FONT_2);
 
-    GameManager_Flic.text_height = text_height() * 2 + 1;
+    GameManager_Flic.text_height = text_height() * 3 + 1;
 
     text_font(font_id);
 
