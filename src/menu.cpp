@@ -922,7 +922,7 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 ++team_count;
 
-                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
                     ++non_computer_teams_count;
                 }
 
