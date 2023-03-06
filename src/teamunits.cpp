@@ -310,7 +310,7 @@ Complex* TeamUnits::CreateComplex() {
     Complex* result;
     SmartList<Complex>::Iterator it;
 
-    complex_id = 0;
+    complex_id = 1;
     it = complexes.Begin();
 
     for (; it != complexes.End() && (*it).GetId() == complex_id; ++it, ++complex_id) {

@@ -2522,9 +2522,7 @@ void UnitInfo::AttachComplex(Complex* complex) {
         this->complex = complex;
 
         if (connectors & CONNECTOR_NORTH_LEFT) {
-            UnitInfo* unit;
-
-            unit = GetConnectedBuilding(CONNECTOR_NORTH_LEFT);
+            UnitInfo* unit = GetConnectedBuilding(CONNECTOR_NORTH_LEFT);
 
             if (unit) {
                 unit->AttachComplex(complex);
@@ -2532,9 +2530,7 @@ void UnitInfo::AttachComplex(Complex* complex) {
         }
 
         if (connectors & CONNECTOR_NORTH_RIGHT) {
-            UnitInfo* unit;
-
-            unit = GetConnectedBuilding(CONNECTOR_NORTH_RIGHT);
+            UnitInfo* unit = GetConnectedBuilding(CONNECTOR_NORTH_RIGHT);
 
             if (unit) {
                 unit->AttachComplex(complex);
@@ -2542,9 +2538,7 @@ void UnitInfo::AttachComplex(Complex* complex) {
         }
 
         if (connectors & CONNECTOR_EAST_TOP) {
-            UnitInfo* unit;
-
-            unit = GetConnectedBuilding(CONNECTOR_EAST_TOP);
+            UnitInfo* unit = GetConnectedBuilding(CONNECTOR_EAST_TOP);
 
             if (unit) {
                 unit->AttachComplex(complex);
@@ -2552,9 +2546,7 @@ void UnitInfo::AttachComplex(Complex* complex) {
         }
 
         if (connectors & CONNECTOR_EAST_BOTTOM) {
-            UnitInfo* unit;
-
-            unit = GetConnectedBuilding(CONNECTOR_EAST_BOTTOM);
+            UnitInfo* unit = GetConnectedBuilding(CONNECTOR_EAST_BOTTOM);
 
             if (unit) {
                 unit->AttachComplex(complex);
@@ -2562,9 +2554,7 @@ void UnitInfo::AttachComplex(Complex* complex) {
         }
 
         if (connectors & CONNECTOR_SOUTH_RIGHT) {
-            UnitInfo* unit;
-
-            unit = GetConnectedBuilding(CONNECTOR_SOUTH_RIGHT);
+            UnitInfo* unit = GetConnectedBuilding(CONNECTOR_SOUTH_RIGHT);
 
             if (unit) {
                 unit->AttachComplex(complex);
@@ -2572,9 +2562,7 @@ void UnitInfo::AttachComplex(Complex* complex) {
         }
 
         if (connectors & CONNECTOR_SOUTH_LEFT) {
-            UnitInfo* unit;
-
-            unit = GetConnectedBuilding(CONNECTOR_SOUTH_LEFT);
+            UnitInfo* unit = GetConnectedBuilding(CONNECTOR_SOUTH_LEFT);
 
             if (unit) {
                 unit->AttachComplex(complex);
@@ -2582,9 +2570,7 @@ void UnitInfo::AttachComplex(Complex* complex) {
         }
 
         if (connectors & CONNECTOR_WEST_BOTTOM) {
-            UnitInfo* unit;
-
-            unit = GetConnectedBuilding(CONNECTOR_WEST_BOTTOM);
+            UnitInfo* unit = GetConnectedBuilding(CONNECTOR_WEST_BOTTOM);
 
             if (unit) {
                 unit->AttachComplex(complex);
@@ -2592,9 +2578,7 @@ void UnitInfo::AttachComplex(Complex* complex) {
         }
 
         if (connectors & CONNECTOR_WEST_TOP) {
-            UnitInfo* unit;
-
-            unit = GetConnectedBuilding(CONNECTOR_WEST_TOP);
+            UnitInfo* unit = GetConnectedBuilding(CONNECTOR_WEST_TOP);
 
             if (unit) {
                 unit->AttachComplex(complex);
