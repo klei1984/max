@@ -51,6 +51,7 @@ public:
     int GetAttribute(char attribute);
     unsigned short* GetAttributeAddress(char attribute);
     void SetAttribute(char attribute, int value);
+    void AddAttribute(char attribute, int value);
     void UpdateVersion();
     int GetVersion() const;
     int GetAgentSkill() const;

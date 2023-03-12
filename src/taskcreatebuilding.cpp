@@ -899,12 +899,12 @@ bool TaskCreateBuilding::CheckMaterials() {
 
         } else {
             int resource_demand =
-                BuildMenu_GetTurnsToBuild(unit_type, team) * Cargo_GetRawConsumptionRate(unit_type, 1);
+                BuildMenu_GetTurnsToBuild(unit_type, team) * Cargo_GetRawConsumptionRate(unit->unit_type, 1);
 
             if (TaskCreateBuilding_DetermineMapSurfaceRequirements(unit_type, site) == 2 &&
                 Builder_GetBuilderType(WTRPLTFM) == unit->unit_type) {
                 resource_demand +=
-                    BuildMenu_GetTurnsToBuild(WTRPLTFM, team) * Cargo_GetRawConsumptionRate(unit_type, 1);
+                    BuildMenu_GetTurnsToBuild(WTRPLTFM, team) * Cargo_GetRawConsumptionRate(unit->unit_type, 1);
             }
 
             if (unit->storage >= resource_demand) {

@@ -301,6 +301,56 @@ void UnitValues::SetAttribute(char attribute, int value) {
             break;
     }
 }
+void UnitValues::AddAttribute(char attribute, int value) {
+    switch (attribute) {
+        case ATTRIB_TURNS:
+            turns += value;
+            break;
+        case ATTRIB_HITS:
+            hits += value;
+            break;
+        case ATTRIB_ARMOR:
+            armor += value;
+            break;
+        case ATTRIB_ATTACK:
+            attack += value;
+            break;
+        case ATTRIB_MOVE_AND_FIRE:
+            move_and_fire += value;
+            break;
+        case ATTRIB_SPEED:
+            speed += value;
+            break;
+        case ATTRIB_FUEL:
+            fuel += value;
+            break;
+        case ATTRIB_RANGE:
+            range += value;
+            break;
+        case ATTRIB_ROUNDS:
+            rounds += value;
+            break;
+        case ATTRIB_SCAN:
+            scan += value;
+            break;
+        case ATTRIB_STORAGE:
+            storage += value;
+            break;
+        case ATTRIB_AMMO:
+            ammo += value;
+            break;
+        case ATTRIB_ATTACK_RADIUS:
+            attack_radius += value;
+            break;
+        case ATTRIB_AGENT_ADJUST:
+            agent_adjust += value;
+            break;
+        default:
+            SDL_Log("UnitValues::AddAttribute called with invalid index.");
+            SDL_assert(0);
+            break;
+    }
+}
 
 void UnitValues::UpdateVersion() {
     if (units_built) {

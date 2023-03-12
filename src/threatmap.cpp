@@ -50,8 +50,8 @@ void ThreatMap::Init() {
             damage_potential_map[i] = new (std::nothrow) short[dimension.y];
             shots_map[i] = new (std::nothrow) short[dimension.y];
 
-            memset(damage_potential_map[i], 0, dimension.y);
-            memset(shots_map[i], 0, dimension.y);
+            memset(damage_potential_map[i], 0, dimension.y * sizeof(short));
+            memset(shots_map[i], 0, dimension.y * sizeof(short));
         }
     }
 }

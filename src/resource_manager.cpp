@@ -1415,7 +1415,7 @@ void ResourceManager_ManipulateColorMap2(int red_level, int green_level, int blu
 void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues *unit_values) {
     if (ini_clans.SeekUnit(clan, unit_type)) {
         for (short attribute, value; ini_clans.GetNextUnitUpgrade(&attribute, &value);) {
-            unit_values->SetAttribute(attribute, value);
+            unit_values->AddAttribute(attribute, value);
         }
     }
 }

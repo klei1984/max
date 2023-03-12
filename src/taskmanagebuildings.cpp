@@ -1277,6 +1277,8 @@ bool TaskManageBuildings::CheckNeeds() {
         result = true;
 
     } else {
+        UpdateMiningNeeds();
+
         if (cargo_demand.raw < 0 || cargo_demand.fuel < 0 || cargo_demand.gold < 0) {
             SmartList<UnitInfo>::Iterator it;
             unsigned short task_flags;

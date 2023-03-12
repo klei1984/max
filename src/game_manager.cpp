@@ -5233,7 +5233,7 @@ void GameManager_EnableMainMenu(UnitInfo* unit) {
             }
 
             if (UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER || flag) {
-                if (unit && unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
+                if (unit) {
                     GameManager_MenuUnitSelect(unit);
                 }
             }
@@ -5369,7 +5369,7 @@ void GameManager_ProcessKey() {
 
                 UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].zoom_level = 64;
 
-                GameManager_GameState = ORDER_STATE_13;
+                GameManager_GameState = GAME_STATE_13;
 
             } else if (GameManager_DemoMode) {
                 GameManager_GameState = GAME_STATE_3_MAIN_MENU;
@@ -5403,7 +5403,7 @@ void GameManager_ProcessKey() {
                 GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
             } else if (OKCancelMenu_Menu("OK to exit game?")) {
-                GameManager_GameState = ORDER_STATE_3;
+                GameManager_GameState = GAME_STATE_3_MAIN_MENU;
             }
 
         } break;
@@ -5480,7 +5480,7 @@ void GameManager_ProcessKey() {
 
         case GNW_KB_KEY_LALT_X: {
             if (OKCancelMenu_Menu("OK to exit game?")) {
-                GameManager_GameState = ORDER_STATE_3;
+                GameManager_GameState = GAME_STATE_3_MAIN_MENU;
                 GameManager_DeinitPopupButtons(false);
             }
         } break;

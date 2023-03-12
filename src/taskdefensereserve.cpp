@@ -121,6 +121,10 @@ TaskDefenseReserve::TaskDefenseReserve(unsigned short team_, Point site_) : Task
 
     managers[2].AddRule(ANTIAIR, 1);
 
+    if (ai_strategy != AI_STRATEGY_FAST_ATTACK) {
+        managers[2].AddRule(FIGHTER, 12);
+    }
+
     if (ai_strategy != AI_STRATEGY_AIR) {
         managers[2].AddRule(SP_FLAK, 6);
     }

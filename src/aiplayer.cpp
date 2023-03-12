@@ -526,7 +526,7 @@ void AiPlayer::UpdateMap(short** map, Point position, int range, int damage_pote
                 --site.y;
             }
 
-            limit.y = std::min(site.y + position.y, ResourceManager_MapSize.x - 1);
+            limit.y = std::min(site.y + position.y, ResourceManager_MapSize.y - 1);
             site.y = std::max(position.y - site.y, 0);
 
             map_address = &map[site.x][site.y];
@@ -730,8 +730,8 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
 
                 result = &AiPlayer_ThreatMaps[i];
 
-                for (; i < 10; ++i) {
-                    ++AiPlayer_ThreatMaps[i].id;
+                for (int j = 0; j < 10; ++j) {
+                    ++AiPlayer_ThreatMaps[j].id;
                 }
 
                 return result;
@@ -839,18 +839,19 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
         }
 
         int team_count = 0;
+        signed short enemies[PLAYER_TEAM_MAX];
         char* heat_maps_stealth_sea[PLAYER_TEAM_MAX];
 
         for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
             if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                teams[team_count] = team;
+                enemies[team_count] = team;
                 ++team_count;
             }
         }
 
         if (risk_level == 7) {
             for (int team = 0; team < team_count; ++team) {
-                heat_maps_stealth_sea[team] = UnitsManager_TeamInfo[teams[team]].heat_map_stealth_sea;
+                heat_maps_stealth_sea[team] = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_sea;
             }
 
             for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -874,13 +875,13 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
         }
 
         for (int team = 0; team < team_count; ++team) {
-            char* active_heat_map = UnitsManager_TeamInfo[teams[team]].heat_map_complete;
+            char* active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_complete;
 
             if (risk_level == 6) {
-                active_heat_map = UnitsManager_TeamInfo[teams[team]].heat_map_stealth_sea;
+                active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_sea;
 
             } else if (risk_level == 5 || risk_level == 4) {
-                active_heat_map = UnitsManager_TeamInfo[teams[team]].heat_map_stealth_land;
+                active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_land;
             }
 
             for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
