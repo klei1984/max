@@ -538,3 +538,13 @@ By normal means air units cannot land on plain ground. It is assumed that it was
     }
 ```
 The pseudo code does not use pointer arithmetic for better clarity. Obviously this means that friendly units of the same class with huge armor rating differences will think that they are either quasi invincible or insufferably vulnerable in the topmost cell row of the tactical map.
+
+156. **[Fixed]** There is a function (cseg01:00023EAC) to determine the nearest destination for an attacker that does not require support from a transporter unit. The function attempts to use heat maps to select safe destinations. The alien derelict player does not have heat maps in which case the game dereferences null which leads to segmentation faults on modern operating systems.
+
+157. **[Fixed]** There is a function (cseg01:000F49C5) to change the team of a unit. The source team loses sight of its stolen unit depending on the team specific heat maps. When an alien derelict unit is stolen by an infiltrator the source team has no heat maps in which case the game dereferences null which leads to segmentation faults on modern operating systems.
+
+158. Smarter computer players do not destroy alien derelict units instead always attempt to steal them. There is no dedicated task manager task type to infiltrate enemy bases or steal enemy units. The game creates a `TaskKillUnit` type task and assigns an infiltrator as the leader. The below screenshot depicts a corner case where infiltrators are close enough to the target enemy unit, an alien ship, so transporter units cannot be asked for help, and other friendly units participating in the kill unit task as supporters are actually not allowed to attack the alien derelict unit by the “smart” AI, but gather around the kill unit task target regardless. The infiltrator cannot access the grid cell to steal the alien derelict, the supporter units do not know that they are in the way, air transporters are not allowed to move the infiltrator from the near vicinity to the right spot for doing its infiltration business.
+<br>
+    <img src="{{ site.baseurl }}/assets/images/defect_158.jpg" alt="defect 158" width="740"> 
+<br>
+This is a good example for a complex soft lock situation.
