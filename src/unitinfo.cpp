@@ -5042,7 +5042,14 @@ void UnitInfo::ChangeTeam(unsigned short target_team) {
     Ai_RemoveUnit(this);
     Access_UpdateMapStatus(this, true);
 
-    visible_to_team[team] = UnitsManager_TeamInfo[team].heat_map_complete[grid_y * ResourceManager_MapSize.x + grid_x];
+    if (UnitsManager_TeamInfo[team].heat_map_complete) {
+        visible_to_team[team] =
+            UnitsManager_TeamInfo[team].heat_map_complete[grid_y * ResourceManager_MapSize.x + grid_x];
+
+    } else {
+        visible_to_team[team] = false;
+    }
+
     flags &= ~UnitsManager_TeamInfo[team].team_units->hash_team_id;
     team = target_team;
     auto_survey = false;
