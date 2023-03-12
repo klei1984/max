@@ -1259,7 +1259,8 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
     for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
         for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
             if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x] == surface_type) {
-                if (!is_there_time_to_prepare || heat_map[ResourceManager_MapSize.x * site.y + site.x] == 0) {
+                if (!is_there_time_to_prepare || !heat_map ||
+                    heat_map[ResourceManager_MapSize.x * site.y + site.x] == 0) {
                     map.GetMapColumn(site.x)[site.y] = 2;
                 }
             }
@@ -1270,7 +1271,8 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
         for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
             for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
                 if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x] == SURFACE_TYPE_WATER) {
-                    if (!is_there_time_to_prepare || heat_map[ResourceManager_MapSize.x * site.y + site.x] == 0) {
+                    if (!is_there_time_to_prepare || !heat_map ||
+                        heat_map[ResourceManager_MapSize.x * site.y + site.x] == 0) {
                         map.GetMapColumn(site.x)[site.y] = 2;
                     }
                 }
