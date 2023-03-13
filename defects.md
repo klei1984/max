@@ -476,7 +476,7 @@ The proposed defect fix will not instantiate a ground path if the determinted pa
     <source src="{{ site.baseurl }}/assets/clips/defect_135.mp4" type="video/mp4">
     </video>
 
-136. It is possible to obtain quasy infinite speed points for air units moving in groups which could be used as an exploit.
+136. It is possible to obtain near infinite speed points for air units moving in groups which could be used as an exploit.
 <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_136.mp4" type="video/mp4">
@@ -537,7 +537,7 @@ By normal means air units cannot land on plain ground. It is assumed that it was
             }
     }
 ```
-The pseudo code does not use pointer arithmetic for better clarity. Obviously this means that friendly units of the same class with huge armor rating differences will think that they are either quasi invincible or insufferably vulnerable in the topmost cell row of the tactical map.
+The pseudo code does not use pointer arithmetic for better clarity. Obviously this means that friendly units of the same class with huge armor rating differences will think that they are either near invincible or insufferably vulnerable in the topmost cell row of the tactical map.
 
 156. **[Fixed]** There is a function (cseg01:00023EAC) to determine the nearest destination for an attacker that does not require support from a transporter unit. The function attempts to use heat maps to select safe destinations. The alien derelict player does not have heat maps in which case the game dereferences null which leads to segmentation faults on modern operating systems.
 
