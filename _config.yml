@@ -36,6 +36,7 @@ header_pages:
   "Roadmap": roadmap.md
   "Articles":
     - "Build Instructions": build.md
+    - "Patching Up MS-DOS Versions": fixdos.md
     - "Development Environments": devenv.md
     - "Documentation": documentation.md
     - "Save File Format": save.md
