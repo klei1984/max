@@ -548,3 +548,7 @@ The pseudo code does not use pointer arithmetic for better clarity. Obviously th
     <img src="{{ site.baseurl }}/assets/images/defect_158.jpg" alt="defect 158" width="740"> 
 <br>
 This is a good example for a complex soft lock situation.
+
+159. The English in-game help entry for TOPICS_ICONS within the RESEARCH_SETUP group contains a typo. "appropreiate" -> appropriate.
+
+160. The English in-game help entries UPGRADE_1 to UPGRADE_4 within the HANGAR_SETUP group are copy pasted from the repair help menu entries.
