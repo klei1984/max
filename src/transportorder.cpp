@@ -26,7 +26,7 @@
 #include "units_manager.hpp"
 
 TransportOrder::TransportOrder(UnitInfo* unit, ResourceID unit_type_, GroundPath* path_) {
-    transport_category = DetermineCategory(unit_type_);
+    transport_category = DetermineCategory(unit->unit_type);
     position.x = unit->grid_x;
     position.y = unit->grid_y;
     path = path_;
