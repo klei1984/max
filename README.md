@@ -1,7 +1,7 @@
 # M.A.X. Port
 
 ![Build Workflow](https://github.com/klei1984/max/workflows/Build%20Workflow/badge.svg)
-[![Discord](https://img.shields.io/discord/1085572457466974248)](https://discord.gg/TCn8DpeBaY)
+[![Discord](https://img.shields.io/discord/1085572457466974248?label=&logo=discord&logoColor=ffffff)](https://discord.gg/TCn8DpeBaY)
 [![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCDnKVYEpcgZZz8okGIC4vkA)](https://www.youtube.com/channel/UCDnKVYEpcgZZz8okGIC4vkA)
 
 ![max](https://user-images.githubusercontent.com/53688147/218547807-5738f04f-e64f-4d59-9790-b3e248faed9b.jpg)
