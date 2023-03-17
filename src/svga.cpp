@@ -184,20 +184,21 @@ void Svga_Blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsi
 
     if (SVGA_NO_TEXTURE_UPDATE) {
         Uint32 *source_pixels = &((Uint32 *)sdlWindowSurface->pixels)[bounds.x + sdlWindowSurface->w * bounds.y];
-        void *target_pixels;
+        void *target_pixels = nullptr;
         int target_pitch = 0;
 
         if (SDL_LockTexture(sdlTexture, &bounds, &target_pixels, &target_pitch)) {
             SDL_Log("SDL_LockTexture failed: %s\n", SDL_GetError());
-        }
 
-        for (unsigned int h = 0; h < bounds.h; ++h) {
-            SDL_memcpy(target_pixels, source_pixels, bounds.w * sizeof(Uint32));
-            source_pixels += sdlWindowSurface->w;
-            target_pixels = &(static_cast<Uint32 *>(target_pixels)[target_pitch / sizeof(Uint32)]);
-        }
+        } else {
+            for (unsigned int h = 0; h < bounds.h; ++h) {
+                SDL_memcpy(target_pixels, source_pixels, bounds.w * sizeof(Uint32));
+                source_pixels += sdlWindowSurface->w;
+                target_pixels = &(static_cast<Uint32 *>(target_pixels)[target_pitch / sizeof(Uint32)]);
+            }
 
-        SDL_UnlockTexture(sdlTexture);
+            SDL_UnlockTexture(sdlTexture);
+        }
 
     } else {
         if (SDL_UpdateTexture(sdlTexture, &bounds,
