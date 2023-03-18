@@ -534,6 +534,7 @@ void TaskManager::Clear() {
 }
 
 void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
+    SmartPointer<UnitInfo> backup(unit);
     char unit_name[200];
 
     unit->GetDisplayName(unit_name);
