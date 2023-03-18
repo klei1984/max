@@ -44,14 +44,14 @@ void TaskFindMines::BeginTurn() {
 
     if (unit && requestors == 0) {
         short** damage_potential_map =
-            AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1);
+            AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 0);
         signed char** mine_map = AiPlayer_Teams[team].GetMineMap();
         int valuable_sites = 0;
 
         if (damage_potential_map && mine_map) {
             for (int index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
                 for (int index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
-                    if (mine_map[index_x][index_y] > 0 && damage_potential_map[index_x][index_y] == 0) {
+                    if (mine_map[index_x][index_y] > 0 && damage_potential_map[index_x][index_y] <= 0) {
                         ++valuable_sites;
                     }
                 }
@@ -85,7 +85,7 @@ bool TaskFindMines::Execute(UnitInfo& unit) {
     return result;
 }
 
-bool TaskFindMines::IsVisited(UnitInfo& unit, Point site) { return AiPlayer_Teams[team].GetMineMapEntry(site) == 0; }
+bool TaskFindMines::IsVisited(UnitInfo& unit, Point site) { return AiPlayer_Teams[team].GetMineMapEntry(site) <= 0; }
 
 void TaskFindMines::ObtainUnit() {
     SmartPointer<TaskObtainUnits> obtain_units_task = new (std::nothrow) TaskObtainUnits(this, point);

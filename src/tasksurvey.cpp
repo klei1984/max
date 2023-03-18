@@ -85,7 +85,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
                         distance = Access_GetDistance(&unit, site);
 
                         if (!location_found || distance < minimum_distance) {
-                            if (damage_potential_map[site.x][site.y] == 0) {
+                            if (damage_potential_map[site.x][site.y] <= 0) {
                                 if (Access_IsAccessible(SURVEYOR, team, site.x, site.y, 1)) {
                                     for (int index_x = site.x - 1; index_x <= site.x + 1; ++index_x) {
                                         for (int index_y = site.y - 1; index_y <= site.y + 1; ++index_y) {

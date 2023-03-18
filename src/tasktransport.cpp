@@ -723,15 +723,15 @@ void TaskTransport::UnloadUnit(UnitInfo* unit) {
                 unit_transporter->target_grid_y = destination.y;
 
                 unit_transporter->SetParent(unit);
-            }
 
-            SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
+                SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
-            if (unit_transporter->unit_type == AIRTRANS) {
-                UnitsManager_SetNewOrder(&*unit_transporter, ORDER_UNLOAD, ORDER_STATE_0);
+                if (unit_transporter->unit_type == AIRTRANS) {
+                    UnitsManager_SetNewOrder(&*unit_transporter, ORDER_UNLOAD, ORDER_STATE_0);
 
-            } else {
-                UnitsManager_SetNewOrder(&*unit_transporter, ORDER_ACTIVATE, ORDER_STATE_1);
+                } else {
+                    UnitsManager_SetNewOrder(&*unit_transporter, ORDER_ACTIVATE, ORDER_STATE_1);
+                }
             }
         }
     }
