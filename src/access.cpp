@@ -836,7 +836,15 @@ void Access_UpdateResourcesTotal(Complex* complex) {
 }
 
 unsigned char Access_GetSurfaceType(int grid_x, int grid_y) {
-    return ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * grid_y + grid_x];
+    unsigned char result;
+
+    if (ResourceManager_MapSurfaceMap) {
+        result = ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * grid_y + grid_x];
+    } else {
+        result = SURFACE_TYPE_NONE;
+    }
+
+    return result;
 }
 
 unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y) {
