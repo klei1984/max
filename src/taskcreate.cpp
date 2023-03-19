@@ -26,8 +26,8 @@
 TaskCreate::TaskCreate(Task* task, unsigned short flags, ResourceID unit_type_)
     : Task(task->GetTeam(), task, flags), unit_type(unit_type_) {}
 
-TaskCreate::TaskCreate(Task* task, UnitInfo* unit_) : Task(unit_->team, task, task->GetFlags()), unit(unit_) {
-    if (unit->state == ORDER_STATE_UNIT_READY) {
+TaskCreate::TaskCreate(Task* task, UnitInfo* unit_) : Task(unit_->team, task, task->GetFlags()), builder(unit_) {
+    if (builder->state == ORDER_STATE_UNIT_READY) {
         unit_type = unit_->GetParent()->unit_type;
 
     } else {
@@ -38,11 +38,11 @@ TaskCreate::TaskCreate(Task* task, UnitInfo* unit_) : Task(unit_->team, task, ta
 TaskCreate::~TaskCreate() {}
 
 void TaskCreate::RemoveSelf() {
-    if (unit) {
-        TaskManager.RemindAvailable(&*unit);
+    if (builder) {
+        TaskManager.RemindAvailable(&*builder);
     }
 
-    unit = nullptr;
+    builder = nullptr;
     parent = nullptr;
 
     TaskManager.RemoveTask(*this);

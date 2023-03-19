@@ -27,7 +27,7 @@
 class TaskManageBuildings;
 
 class TaskCreateBuilding : public TaskCreate {
-    SmartPointer<UnitInfo> unit2;
+    SmartPointer<UnitInfo> building;
     SmartPointer<TaskManageBuildings> manager;
     Point site;
     unsigned char op_state;

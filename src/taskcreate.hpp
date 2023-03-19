@@ -27,7 +27,7 @@
 class TaskCreate : public Task {
 protected:
     ResourceID unit_type;
-    SmartPointer<UnitInfo> unit;
+    SmartPointer<UnitInfo> builder;
 
 public:
     TaskCreate(Task* task, unsigned short flags, ResourceID unit_type);

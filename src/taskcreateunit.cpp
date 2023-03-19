@@ -65,7 +65,7 @@ unsigned short TaskCreateUnit::GetFlags() const {
 char* TaskCreateUnit::WriteStatusLog(char* buffer) const {
     sprintf(buffer, "Create a %s", UnitsManager_BaseUnits[unit_type].singular_name);
 
-    if (unit && unit->GetBuildRate() > 1) {
+    if (builder && builder->GetBuildRate() > 1) {
         strcat(buffer, " at x2 rate");
     }
 
@@ -77,10 +77,10 @@ unsigned char TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; 
 void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
     if (op_state == CREATE_UNIT_STATE_1 && (unit_.flags & STATIONARY)) {
         op_state = CREATE_UNIT_STATE_WAITING_FOR_MATERIALS;
-        unit = unit_;
+        builder = unit_;
 
         if (IsUnitStillNeeded()) {
-            unit->AddTask(this);
+            builder->AddTask(this);
             WaitForMaterials();
         }
 
@@ -111,8 +111,8 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
 
         TaskManager.RemindAvailable(&unit_);
 
-        if (unit) {
-            TaskManager.RemindAvailable(&*unit);
+        if (builder) {
+            TaskManager.RemindAvailable(&*builder);
         }
 
         parent = nullptr;
@@ -122,8 +122,8 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
 }
 
 void TaskCreateUnit::Begin() {
-    if (unit) {
-        unit->AddTask(this);
+    if (builder) {
+        builder->AddTask(this);
     }
 
     RemindTurnStart(true);
@@ -134,12 +134,12 @@ void TaskCreateUnit::BeginTurn() {
         WaitForMaterials();
     }
 
-    if (op_state == CREATE_UNIT_STATE_3 && unit->state == ORDER_STATE_UNIT_READY) {
+    if (op_state == CREATE_UNIT_STATE_3 && builder->state == ORDER_STATE_UNIT_READY) {
         op_state = CREATE_UNIT_STATE_4;
 
-        unit->GetParent()->AddTask(this);
+        builder->GetParent()->AddTask(this);
 
-        SmartPointer<Task> activate_task(new (std::nothrow) TaskActivate(unit->GetParent(), this, &*unit));
+        SmartPointer<Task> activate_task(new (std::nothrow) TaskActivate(builder->GetParent(), this, &*builder));
 
         TaskManager.AppendTask(*activate_task);
     }
@@ -167,7 +167,7 @@ bool TaskCreateUnit::Execute(UnitInfo& unit_) {
         AddUnit(unit_);
     }
 
-    if (op_state != CREATE_UNIT_STATE_5 && unit == unit_) {
+    if (op_state != CREATE_UNIT_STATE_5 && builder == unit_) {
         BeginTurn();
     }
 
@@ -175,12 +175,12 @@ bool TaskCreateUnit::Execute(UnitInfo& unit_) {
 }
 
 void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
-    if (unit == unit_) {
+    if (builder == unit_) {
         if (op_state <= CREATE_UNIT_STATE_3) {
             op_state = CREATE_UNIT_STATE_0;
         }
 
-        unit = nullptr;
+        builder = nullptr;
     }
 }
 
@@ -195,7 +195,7 @@ void TaskCreateUnit::WaitForMaterials() {
         Cargo materials;
         Cargo capacity;
 
-        unit->GetComplex()->GetCargoInfo(materials, capacity);
+        builder->GetComplex()->GetCargoInfo(materials, capacity);
 
         if (materials.raw >= 10) {
             if ((unit_type == ENGINEER || unit_type == CONSTRCT) && Task_GetReadyUnitsCount(team, unit_type) > 0 &&
@@ -279,24 +279,24 @@ void TaskCreateUnit::WaitForMaterials() {
             }
 
             {
-                SmartObjectArray<ResourceID> build_list = unit->GetBuildList();
+                SmartObjectArray<ResourceID> build_list = builder->GetBuildList();
 
                 op_state = CREATE_UNIT_STATE_3;
 
                 if (materials.raw > 100 && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
-                    unit->SetBuildRate(2);
+                    builder->SetBuildRate(2);
 
                 } else {
-                    unit->SetBuildRate(1);
+                    builder->SetBuildRate(1);
                 }
 
                 build_list.Clear();
                 build_list.PushBack(&unit_type);
 
-                unit->target_grid_x = 0;
-                unit->target_grid_y = 0;
+                builder->target_grid_x = 0;
+                builder->target_grid_y = 0;
 
-                unit->BuildOrder();
+                builder->BuildOrder();
             }
         }
     }
@@ -313,23 +313,23 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 parent && parent->Task_vfunc9()) {
                 result = true;
 
-            } else if (unit && op_state == CREATE_UNIT_STATE_3 &&
-                       (unit->state != ORDER_STATE_1 ||
-                        unit->build_time != BuildMenu_GetTurnsToBuild(unit_type, team))) {
+            } else if (builder && op_state == CREATE_UNIT_STATE_3 &&
+                       (builder->state != ORDER_STATE_1 ||
+                        builder->build_time != BuildMenu_GetTurnsToBuild(unit_type, team))) {
                 result = true;
 
             } else {
-                if (op_state == CREATE_UNIT_STATE_3 && unit) {
-                    UnitsManager_SetNewOrder(&*unit, ORDER_HALT_BUILDING, ORDER_STATE_13);
+                if (op_state == CREATE_UNIT_STATE_3 && builder) {
+                    UnitsManager_SetNewOrder(&*builder, ORDER_HALT_BUILDING, ORDER_STATE_13);
                 }
 
                 op_state = CREATE_UNIT_STATE_5;
 
-                if (unit) {
-                    TaskManager.RemindAvailable(&*unit);
+                if (builder) {
+                    TaskManager.RemindAvailable(&*builder);
                 }
 
-                unit = nullptr;
+                builder = nullptr;
                 parent = nullptr;
 
                 TaskManager.RemoveTask(*this);
