@@ -124,7 +124,7 @@ int TerrainMap::TerrainMap_sub_68EEF(unsigned short** map, Point location) {
         position = location;
         shortest_distance = TERRAINMAP_PATH_MAX_DISTANCE;
 
-        if (((timer_get_stamp32() - Paths_LastTimeStamp) <= Paths_TimeLimit)) {
+        if (Paths_HaveTimeToThink()) {
             for (int i = 1; i * i < shortest_distance; ++i) {
                 --position.x;
                 ++position.y;

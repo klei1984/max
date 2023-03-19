@@ -160,6 +160,7 @@ bool Paths_UpdateAngle(UnitInfo* unit, int angle);
 void Paths_DrawMarker(WindowInfo* window, int angle, int grid_x, int grid_y, int color);
 void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots);
 bool Paths_IsOccupied(int grid_x, int grid_y, int angle, int team);
+bool Paths_HaveTimeToThink();
 
 extern const Point Paths_8DirPointsArray[8];
 extern const short Paths_8DirPointsArrayX[8];

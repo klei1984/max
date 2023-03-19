@@ -186,7 +186,7 @@ bool TaskKillUnit::GetNewUnits() {
                         unit1->ClearFromTaskLists();
                         AddUnit(*unit1);
 
-                        if (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit) {
+                        if (Paths_HaveTimeToThink()) {
                             if (!unit2 && parent) {
                                 unit2 = dynamic_cast<TaskAttack*>(&*parent)->DetermineLeader();
                             }

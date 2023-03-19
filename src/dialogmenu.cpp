@@ -88,12 +88,12 @@ bool DialogMenu::ProcessKey(int key) {
                 }
 
                 do {
-                    unsigned int time_Stamp = timer_get_stamp32();
+                    unsigned int time_Stamp = timer_get();
 
                     --row_offset;
                     DrawText();
 
-                    while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(96)) {
+                    while (timer_get() - time_Stamp < TIMER_FPS_TO_MS(96)) {
                     }
                 } while (num_rows != row_offset);
             }
@@ -112,12 +112,12 @@ bool DialogMenu::ProcessKey(int key) {
                 num_rows = row_offset + max_row_count;
 
                 do {
-                    unsigned int time_Stamp = timer_get_stamp32();
+                    unsigned int time_Stamp = timer_get();
 
                     ++row_offset;
                     DrawText();
 
-                    while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(96)) {
+                    while (timer_get() - time_Stamp < TIMER_FPS_TO_MS(96)) {
                     }
                 } while (num_rows != row_offset);
             }

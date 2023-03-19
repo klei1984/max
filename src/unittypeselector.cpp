@@ -211,7 +211,7 @@ bool UnitTypeSelector::ProcessKeys(int key_press) {
         int time_stamp;
 
         for (int i = 0; i < max_item_count; ++i) {
-            time_stamp = timer_get_stamp32();
+            time_stamp = timer_get();
             ++page_min_index;
 
             if ((page_min_index + max_item_count) > unit_types.GetCount()) {
@@ -221,7 +221,7 @@ bool UnitTypeSelector::ProcessKeys(int key_press) {
 
             Draw();
 
-            while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(48)) {
+            while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(48)) {
             }
         }
 
@@ -230,12 +230,12 @@ bool UnitTypeSelector::ProcessKeys(int key_press) {
         int time_stamp;
 
         for (int i = 0; i < max_item_count && page_min_index > 0; ++i) {
-            time_stamp = timer_get_stamp32();
+            time_stamp = timer_get();
             --page_min_index;
 
             Draw();
 
-            while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(48)) {
+            while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(48)) {
             }
         }
 

@@ -162,7 +162,7 @@ void TaskClearZone::EndTurn() {
 
                 if (state == CLEARZONE_STATE_WAITING) {
                     while (!ExamineZones()) {
-                        if (timer_get_stamp32() - Paths_LastTimeStamp > Paths_TimeLimit) {
+                        if (Paths_HaveTimeToThink()) {
                             state = CLEARZONE_STATE_WAITING;
 
                             RemindTurnEnd(true);
@@ -432,8 +432,7 @@ void TaskClearZone::SearchMap() {
 
     state = CLEARZONE_STATE_SEARCHING_MAP;
 
-    while (zone_squares.GetCount() > 0 && state == CLEARZONE_STATE_SEARCHING_MAP &&
-           timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit) {
+    while (zone_squares.GetCount() > 0 && state == CLEARZONE_STATE_SEARCHING_MAP && Paths_HaveTimeToThink()) {
         ZoneSquare zone_square(*zone_squares[0]);
 
         zone_squares.Remove(0);

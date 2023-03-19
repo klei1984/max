@@ -47,7 +47,7 @@ void TaskCheckAssaults::CheckAssaults() {
     }
 
     for (; unit_iterator != nullptr; SelectNext()) {
-        if (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit) {
+        if (Paths_HaveTimeToThink()) {
             if (EvaluateAssaults()) {
                 return;
             }

@@ -213,7 +213,7 @@ bool TaskSearchDestination::Search() {
             }
         }
 
-        if (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit || loop_count <= 20) {
+        if (Paths_HaveTimeToThink() || loop_count <= 20) {
             if (points[index] == point2 || points[0] == points[1]) {
                 return false;
             }

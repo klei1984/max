@@ -510,7 +510,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
     SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, is_text_mode, save_file_type,
                       SaveLoadMenu_FirstSaveSlotOnPage, true);
 
-    time_stamp = timer_get_stamp32();
+    time_stamp = timer_get();
     exit_loop = false;
 
     do {
@@ -698,8 +698,8 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
             }
         }
 
-        if (flc && timer_elapsed_time_ms(time_stamp) >= 80) {
-            time_stamp = timer_get_stamp32();
+        if (flc && timer_elapsed_time(time_stamp) >= TIMER_FPS_TO_MS(12.5)) {
+            time_stamp = timer_get();
             flicsmgr_advance_animation(flc);
         }
 
@@ -735,7 +735,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
     MouseEvent::Clear();
 
     if (!Remote_IsNetworkGame) {
-        Remote_PauseTimeStamp = timer_get_stamp32();
+        Remote_PauseTimeStamp = timer_get();
     }
 
     return result;

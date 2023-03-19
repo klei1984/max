@@ -295,8 +295,8 @@ void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int 
 
     text_position = 0;
     character[1] = '\0';
-    initial_time_stamp = timer_get_stamp32();
-    time_stamp = timer_get_stamp32();
+    initial_time_stamp = timer_get();
+    time_stamp = timer_get();
 
     if (Text_TypeWriter_CharacterTimeMs > 0) {
         SoundManager.PlaySfx(MBUTT0);
@@ -323,13 +323,13 @@ void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int 
         win_draw_rect(window->id, &bounds);
 
         if (Text_TypeWriter_CharacterTimeMs > 0) {
-            if (timer_elapsed_time_ms(time_stamp) >= Text_TypeWriter_BeepTimeMs) {
+            if (timer_elapsed_time(time_stamp) >= Text_TypeWriter_BeepTimeMs) {
                 SoundManager.PlaySfx(MBUTT0);
-                time_stamp = timer_get_stamp32();
+                time_stamp = timer_get();
             }
 
             for (;;) {
-                if (timer_elapsed_time_ms(initial_time_stamp) >= (Text_TypeWriter_CharacterTimeMs * text_position)) {
+                if (timer_elapsed_time(initial_time_stamp) >= (Text_TypeWriter_CharacterTimeMs * text_position)) {
                     break;
                 }
 

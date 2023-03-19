@@ -79,7 +79,7 @@ void TextEdit::LoadBgImage() { bg_image->Copy(&window); }
 
 void TextEdit::EnterTextEditField() {
     if (!is_being_edited) {
-        time_stamp = timer_get_stamp32();
+        time_stamp = timer_get();
 
         is_being_edited = true;
     }
@@ -262,10 +262,10 @@ int TextEdit::ProcessKeyPress(int key) {
     int result;
 
     if (is_being_edited) {
-        if (timer_elapsed_time_ms(time_stamp) >= 500) {
+        if (timer_elapsed_time(time_stamp) >= 500) {
             cursor_blink = !cursor_blink;
             DrawTillCursor();
-            time_stamp = timer_get_stamp32();
+            time_stamp = timer_get();
         }
 
         switch (key) {

@@ -292,7 +292,7 @@ void TaskManager::CheckComputerReactions() {
 
                         units.Remove(*it);
 
-                        if (timer_get_stamp32() - Paths_LastTimeStamp > Paths_TimeLimit) {
+                        if (!Paths_HaveTimeToThink()) {
                             TaskManager_word_1731C0 = 1;
 
                             return;
@@ -432,7 +432,7 @@ bool TaskManager::ExecuteReminders() {
     if (normal_reminders.GetCount() + priority_reminders.GetCount() > 0) {
         AiLog log("Execute reminders");
 
-        if (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit) {
+        if (Paths_HaveTimeToThink()) {
             SmartPointer<Reminder> reminder;
             int reminders_executed = 0;
 
@@ -460,14 +460,14 @@ bool TaskManager::ExecuteReminders() {
 
                 reminder->Execute();
 
-                if (timer_get_stamp32() - Paths_LastTimeStamp >= Paths_TimeLimit) {
+                if (!Paths_HaveTimeToThink()) {
                     log.Log("%i reminders executed", reminders_executed);
                     break;
                 }
             }
 
         } else {
-            log.Log("No reminders executed, %i msecs since frame update", timer_elapsed_time_ms(Paths_LastTimeStamp));
+            log.Log("No reminders executed, %i msecs since frame update", timer_elapsed_time(Paths_LastTimeStamp));
         }
 
         result = true;

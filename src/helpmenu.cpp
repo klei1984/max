@@ -416,12 +416,12 @@ bool HelpMenu::ProcessKey(int key) {
                 }
 
                 do {
-                    time_stamp = timer_get_stamp32();
+                    time_stamp = timer_get();
 
                     --string_row_index;
                     DrawText();
 
-                    while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
+                    while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(96)) {
                     }
 
                 } while (string_row_index != row_index);
@@ -438,12 +438,12 @@ bool HelpMenu::ProcessKey(int key) {
                 row_index = string_row_index + rows_per_page;
 
                 do {
-                    time_stamp = timer_get_stamp32();
+                    time_stamp = timer_get();
 
                     ++string_row_index;
                     DrawText();
 
-                    while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
+                    while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(96)) {
                     }
 
                 } while (string_row_index != row_index);

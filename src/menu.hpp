@@ -36,7 +36,6 @@ struct MenuTitleItem {
 extern const char* menu_planet_descriptions[];
 extern const char* menu_planet_names[];
 extern const char* menu_team_names[];
-extern unsigned int menu_turn_timer_value;
 
 bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_demo_mode);
 

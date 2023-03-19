@@ -179,7 +179,7 @@ void PathsManager::EvaluateTiles() {
     SmartPointer<PathRequest> path_request;
 
     if (request != nullptr) {
-        elapsed_time = timer_get_stamp32() - elapsed_time;
+        elapsed_time = timer_get() - elapsed_time;
 
         if (backward_searcher == nullptr) {
             requests.PushFront(*request);
@@ -187,14 +187,13 @@ void PathsManager::EvaluateTiles() {
         }
     }
 
-    if ((timer_get_stamp32() - Paths_LastTimeStamp <= Paths_TimeLimit) ||
-        (request == nullptr && requests.GetCount() == 0)) {
+    if (Paths_HaveTimeToThink() || (request == nullptr && requests.GetCount() == 0)) {
         while (request == nullptr) {
             if (requests.GetCount()) {
                 ProcessRequest();
 
-                if ((timer_get_stamp32() - Paths_LastTimeStamp > Paths_TimeLimit)) {
-                    elapsed_time = timer_get_stamp32() - elapsed_time;
+                if (!Paths_HaveTimeToThink()) {
+                    elapsed_time = timer_get() - elapsed_time;
                     return;
                 }
 
@@ -224,7 +223,7 @@ void PathsManager::EvaluateTiles() {
                         char message[100];
 
                         sprintf(message, "Debug: path generator evaluated %i tiles in %i msecs, max depth = %i",
-                                Paths_EvaluatedTileCount, timer_elapsed_time_ms(time_stamp), Paths_MaxDepth);
+                                Paths_EvaluatedTileCount, timer_elapsed_time(time_stamp), Paths_MaxDepth);
 
                         MessageManager_DrawMessage(message, 0, 0);
                     }
@@ -246,16 +245,16 @@ void PathsManager::EvaluateTiles() {
             } else {
                 index = 5;
 
-                if (timer_get_stamp32() - Paths_LastTimeStamp > Paths_TimeLimit) {
+                if (!Paths_HaveTimeToThink()) {
                     break;
                 }
             }
         }
 
-        elapsed_time = timer_get_stamp32() - elapsed_time;
+        elapsed_time = timer_get() - elapsed_time;
 
     } else {
-        elapsed_time = timer_get_stamp32() - elapsed_time;
+        elapsed_time = timer_get() - elapsed_time;
     }
 }
 
@@ -457,7 +456,7 @@ void PathsManager::ProcessRequest() {
             request = nullptr;
 
         } else {
-            time_stamp = timer_get_stamp32();
+            time_stamp = timer_get();
             elapsed_time = time_stamp;
 
             Paths_EvaluatedTileCount = 0;

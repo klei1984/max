@@ -57,7 +57,6 @@ static int input_my;
 static FuncPtr bk_list;
 static int game_paused;
 static int screendump_key;
-static int using_msec_timer;
 static int pause_key;
 static ScreenDumpFunc screendump_func;
 static int input_get;
@@ -66,7 +65,7 @@ static PauseWinFunc pause_win_func;
 static int input_put;
 static int bk_disabled;
 
-int GNW_input_init(int use_msec_timer) {
+int GNW_input_init(void) {
     int result;
 
     bk_list = NULL;
@@ -87,11 +86,6 @@ int GNW_input_init(int use_msec_timer) {
 
     screendump_key = 302;
     screendump_func = default_screendump;
-
-    using_msec_timer = use_msec_timer;
-    if (use_msec_timer) {
-        timer_set_rate();
-    }
 
     return result;
 }

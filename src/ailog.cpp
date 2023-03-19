@@ -32,7 +32,7 @@ int AiLog::AiLog_EntryCount;
 
 AiLog::AiLog(const char* format, ...) {
     if (AiLog_File.is_open()) {
-        time_stamp = timer_get_stamp32();
+        time_stamp = timer_get();
 
         va_list args;
 
@@ -48,9 +48,9 @@ AiLog::~AiLog() {
     --AiLog_SectionCount;
 
     if (AiLog_File.is_open()) {
-        unsigned int elapsed_time = timer_elapsed_time_ms(time_stamp);
+        unsigned int elapsed_time = timer_elapsed_time(time_stamp);
 
-        if (elapsed_time >= 20) {
+        if (elapsed_time >= TIMER_FPS_TO_MS(50)) {
             Log("log section complete, %li msecs elapsed", elapsed_time);
 
         } else {

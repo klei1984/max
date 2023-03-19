@@ -58,6 +58,8 @@ struct MenuButton {
     ResourceID sfx;
 };
 
+#define ATTRACT_MODE_TIMEOUT (60000)
+
 #define MENU_BUTTON_DEF(is_big, ulx, uly, label, r_value, sfx) \
     { nullptr, (is_big), (ulx), (uly), (label), (r_value), (sfx) }
 
@@ -1011,8 +1013,8 @@ void menu_draw_logo(ResourceID resource_id, int time_limit) {
         win_draw(window->id);
         WindowManager_FadeIn(500);
 
-        time_stamp = timer_get_stamp32();
-        while (timer_elapsed_time_ms(time_stamp) < time_limit && get_input() == -1) {
+        time_stamp = timer_get();
+        while (timer_elapsed_time(time_stamp) < time_limit && get_input() == -1) {
         }
 
         WindowManager_ClearWindow();
@@ -1516,11 +1518,11 @@ void tips_on_click_up(WindowInfo* window) {
         }
 
         do {
-            time_stamp = timer_get_stamp32();
+            time_stamp = timer_get();
             --menu_tips_current_row_index;
             menu_draw_tips_frame(window);
 
-            while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
+            while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(96)) {
             }
         } while (menu_tips_current_row_index != page_offset);
     }
@@ -1534,11 +1536,11 @@ void tips_on_click_down(WindowInfo* window) {
 
     if (page_offset < menu_tips_row_count) {
         do {
-            time_stamp = timer_get_stamp32();
+            time_stamp = timer_get();
             ++menu_tips_current_row_index;
             menu_draw_tips_frame(window);
 
-            while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(96)) {
+            while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(96)) {
             }
         } while (menu_tips_current_row_index != page_offset);
     }
@@ -1719,8 +1721,8 @@ void menu_credits_menu_loop() {
 
         win_draw_rect(window->id, &bounds);
 
-        time_stamp = timer_get_stamp32();
-        while (timer_elapsed_time_ms(time_stamp) < 10) {
+        time_stamp = timer_get();
+        while (timer_elapsed_time(time_stamp) < TIMER_FPS_TO_MS(100)) {
             if (get_input() != -1) {
                 play = 0;
             }
@@ -1798,7 +1800,7 @@ int menu_clan_select_menu_loop(int team) {
 }
 
 void DialogMenu_Menu(const char* label) {
-    menu_turn_timer_value -= (timer_get_stamp32() - Remote_PauseTimeStamp) / 1193180;
+    menu_turn_timer_value -= timer_get() - Remote_PauseTimeStamp;
 
     {
         DialogMenu dialog_menu(label, true);
@@ -1809,7 +1811,7 @@ void DialogMenu_Menu(const char* label) {
             Remote_SendNetPacket_Signal(40, GameManager_PlayerTeam, 0);
         }
 
-        Remote_PauseTimeStamp = timer_get_stamp32();
+        Remote_PauseTimeStamp = timer_get();
     }
 }
 
@@ -2543,7 +2545,7 @@ void main_menu() {
         last_mouse_x = 0;
         last_mouse_y = 0;
         event_release = false;
-        time_stamp = timer_get_stamp32();
+        time_stamp = timer_get();
         GameManager_GameState = GAME_STATE_3_MAIN_MENU;
         mouse_hide();
         WindowManager_LoadBigImage(MAINPIC, window, window->width, palette_from_image, false, -1, -1, true);
@@ -2561,7 +2563,7 @@ void main_menu() {
         exit_loop = false;
 
         while (!exit_loop) {
-            if (timer_elapsed_time_ms(time_stamp) > 60000) {
+            if (timer_elapsed_time(time_stamp) > ATTRACT_MODE_TIMEOUT) {
                 old_save_slot = save_slot;
                 menu_delete_menu_buttons();
 
@@ -2584,7 +2586,7 @@ void main_menu() {
                 mouse_get_position(&mouse_x, &mouse_y);
 
                 if (key != -1 || mouse_x != last_mouse_x || mouse_y != last_mouse_y) {
-                    time_stamp = timer_get_stamp32();
+                    time_stamp = timer_get();
                     last_mouse_x = mouse_x;
                     last_mouse_y = mouse_y;
                 }
@@ -2650,7 +2652,7 @@ void main_menu() {
                         menu_disable_menu_buttons();
                         menu_setup_window();
                         menu_enable_menu_buttons();
-                        time_stamp = timer_get_stamp32();
+                        time_stamp = timer_get();
                     } break;
 
                     case GNW_KB_KEY_UP: {

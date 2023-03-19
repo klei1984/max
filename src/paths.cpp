@@ -72,7 +72,7 @@ const Point Paths_8DirPointsArrayMarkerC[8] = {{10, 10},   {0, 12},  {-10, 10}, 
 
 unsigned int Paths_LastTimeStamp;
 bool Paths_TimeBenchmarkDisable;
-unsigned int Paths_TimeLimit = TIMER_FPS_TO_TICKS(30 / 1.1);
+unsigned int Paths_TimeLimit = TIMER_FPS_TO_MS(30 / 1.1);
 
 unsigned int Paths_DebugMode;
 
@@ -1673,3 +1673,5 @@ bool Paths_IsOccupied(int grid_x, int grid_y, int angle, int team) {
 
     return false;
 }
+
+bool Paths_HaveTimeToThink() { return (timer_get() - Paths_LastTimeStamp) <= Paths_TimeLimit; }

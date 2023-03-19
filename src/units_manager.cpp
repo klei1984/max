@@ -2134,13 +2134,13 @@ bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
     bool event_release;
 
     for (unsigned short id = SLFDOPN1; id <= SLFDOPN6; ++id) {
-        unsigned int time_Stamp = timer_get_stamp32();
+        unsigned int time_Stamp = timer_get();
 
         WindowManager_LoadSimpleImage(static_cast<ResourceID>(id), 13, 11, false, window);
         win_draw(window->id);
         GameManager_ProcessState(true);
 
-        while (timer_get_stamp32() - time_Stamp < TIMER_FPS_TO_TICKS(48)) {
+        while (timer_get() - time_Stamp < TIMER_FPS_TO_MS(48)) {
         }
     }
 
@@ -3891,7 +3891,7 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
 void UnitsManager_UpdatePathsTimeLimit() {
     if (!UnitsManager_TimeBenchmarkInit) {
         for (int i = 0; i < 20; ++i) {
-            UnitsManager_TimeBenchmarkValues[i] = TIMER_FPS_TO_TICKS(30 / 1.1);
+            UnitsManager_TimeBenchmarkValues[i] = TIMER_FPS_TO_MS(30 / 1.1);
             UnitsManager_TimeBenchmarkIndices[i] = i;
 
             Paths_TimeBenchmarkDisable = false;
@@ -3906,10 +3906,10 @@ void UnitsManager_UpdatePathsTimeLimit() {
             memmove(&UnitsManager_TimeBenchmarkIndices[index], &UnitsManager_TimeBenchmarkIndices[index + 1],
                     sizeof(UnitsManager_TimeBenchmarkIndices[0]) * (19 - index));
 
-            unsigned int elapsed_time = timer_get_stamp32() - Paths_LastTimeStamp;
+            unsigned int elapsed_time = timer_get() - Paths_LastTimeStamp;
 
-            if (elapsed_time > TIMER_FPS_TO_TICKS(1)) {
-                elapsed_time = TIMER_FPS_TO_TICKS(1);
+            if (elapsed_time > TIMER_FPS_TO_MS(1)) {
+                elapsed_time = TIMER_FPS_TO_MS(1);
             }
 
             UnitsManager_TimeBenchmarkValues[UnitsManager_TimeBenchmarkNextIndex] = elapsed_time;
@@ -3931,20 +3931,20 @@ void UnitsManager_UpdatePathsTimeLimit() {
 
             unsigned int time_budget = (elapsed_time * 3) / 2;
 
-            time_budget = std::max(time_budget, TIMER_FPS_TO_TICKS(50));
-            time_budget = std::min(time_budget, TIMER_FPS_TO_TICKS(30));
+            time_budget = std::max(time_budget, TIMER_FPS_TO_MS(50));
+            time_budget = std::min(time_budget, TIMER_FPS_TO_MS(30));
 
             Paths_TimeLimit = time_budget + UnitsManager_TimeBenchmarkValues[UnitsManager_TimeBenchmarkIndices[10]];
 
-            if (elapsed_time >= TIMER_FPS_TO_TICKS(30)) {
+            if (elapsed_time >= TIMER_FPS_TO_MS(30)) {
                 elapsed_time *= 2;
 
             } else {
-                elapsed_time += TIMER_FPS_TO_TICKS(30);
+                elapsed_time += TIMER_FPS_TO_MS(30);
             }
 
             Paths_TimeLimit = std::min(Paths_TimeLimit, elapsed_time);
-            Paths_TimeLimit = std::min(Paths_TimeLimit, TIMER_FPS_TO_TICKS(30 / 1.1));
+            Paths_TimeLimit = std::min(Paths_TimeLimit, TIMER_FPS_TO_MS(30 / 1.1));
         }
     }
 }

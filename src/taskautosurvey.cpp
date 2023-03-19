@@ -82,7 +82,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
             int target_direction =
                 UnitsManager_GetTargetAngle(unit->grid_x - central_site.x, unit->grid_y - central_site.y);
 
-            while (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit || loop_count < 20) {
+            while (Paths_HaveTimeToThink() || loop_count < 20) {
                 ++loop_count;
 
                 position += Paths_8DirPointsArray[direction];

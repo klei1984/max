@@ -130,7 +130,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
         free(pal);
     }
 
-    GNW_input_init((flags & 2) == 0);
+    GNW_input_init();
     GNW_intr_init();
 
     window[0] = (GNW_Window *)malloc(sizeof(GNW_Window));

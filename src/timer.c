@@ -27,18 +27,15 @@ int timer_init(void) { return 0; }
 
 int timer_close(void) { return 0; }
 
-void timer_wait(unsigned int ticks_to_wait) { SDL_Delay(TIMER_TICKS_TO_MS(ticks_to_wait)); }
+void timer_wait(unsigned int ms) { SDL_Delay(ms); }
 
-unsigned int timer_elapsed_time_ms(unsigned int time_stamp) {
+unsigned int timer_elapsed_time(unsigned int ms) {
     unsigned int result;
-    unsigned int time_stamp_ms;
-    unsigned int time_ms;
+    unsigned int time_stamp = SDL_GetTicks();
 
-    time_stamp_ms = TIMER_TICKS_TO_MS(time_stamp);
-    time_ms = SDL_GetTicks();
+    if (time_stamp > ms) {
+        result = time_stamp - ms;
 
-    if (time_ms > time_stamp_ms) {
-        result = time_ms - time_stamp_ms;
     } else {
         result = 0uL;
     }
@@ -46,8 +43,4 @@ unsigned int timer_elapsed_time_ms(unsigned int time_stamp) {
     return result;
 }
 
-void timer_ch2_setup(void) {}
-
-void timer_set_rate(void) {}
-
-unsigned int timer_get_stamp32(void) { return TIMER_MS_TO_TICKS(SDL_GetTicks()); }
+unsigned int timer_get(void) { return SDL_GetTicks(); }

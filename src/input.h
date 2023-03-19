@@ -30,7 +30,7 @@ typedef int (*ScreenDumpFunc)(int width, int length, unsigned char* buf, unsigne
 
 #define GNW_INPUT_PRESS 0x7000
 
-int GNW_input_init(int use_msec_timer);
+int GNW_input_init(void);
 void GNW_input_exit(void);
 int get_input(void);
 void get_input_position(int* x, int* y);

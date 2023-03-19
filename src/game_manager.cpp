@@ -533,12 +533,12 @@ struct MenuFlic {
 };
 
 static struct ColorCycleData GameManager_ColorCycleTable[] = {
-    COLOR_CYCLE_DATA(9, 12, 0, TIMER_FPS_TO_TICKS(9), 0),     COLOR_CYCLE_DATA(13, 16, 1, TIMER_FPS_TO_TICKS(6), 0),
-    COLOR_CYCLE_DATA(17, 20, 1, TIMER_FPS_TO_TICKS(9), 0),    COLOR_CYCLE_DATA(21, 24, 1, TIMER_FPS_TO_TICKS(6), 0),
-    COLOR_CYCLE_DATA(25, 30, 1, TIMER_FPS_TO_TICKS(2), 0),    COLOR_CYCLE_DATA(31, 31, 1, TIMER_FPS_TO_TICKS(6), 0),
-    COLOR_CYCLE_DATA(96, 102, 1, TIMER_FPS_TO_TICKS(8), 0),   COLOR_CYCLE_DATA(103, 109, 1, TIMER_FPS_TO_TICKS(8), 0),
-    COLOR_CYCLE_DATA(110, 116, 1, TIMER_FPS_TO_TICKS(10), 0), COLOR_CYCLE_DATA(117, 122, 1, TIMER_FPS_TO_TICKS(6), 0),
-    COLOR_CYCLE_DATA(123, 127, 1, TIMER_FPS_TO_TICKS(6), 0),
+    COLOR_CYCLE_DATA(9, 12, 0, TIMER_FPS_TO_MS(9), 0),     COLOR_CYCLE_DATA(13, 16, 1, TIMER_FPS_TO_MS(6), 0),
+    COLOR_CYCLE_DATA(17, 20, 1, TIMER_FPS_TO_MS(9), 0),    COLOR_CYCLE_DATA(21, 24, 1, TIMER_FPS_TO_MS(6), 0),
+    COLOR_CYCLE_DATA(25, 30, 1, TIMER_FPS_TO_MS(2), 0),    COLOR_CYCLE_DATA(31, 31, 1, TIMER_FPS_TO_MS(6), 0),
+    COLOR_CYCLE_DATA(96, 102, 1, TIMER_FPS_TO_MS(8), 0),   COLOR_CYCLE_DATA(103, 109, 1, TIMER_FPS_TO_MS(8), 0),
+    COLOR_CYCLE_DATA(110, 116, 1, TIMER_FPS_TO_MS(10), 0), COLOR_CYCLE_DATA(117, 122, 1, TIMER_FPS_TO_MS(6), 0),
+    COLOR_CYCLE_DATA(123, 127, 1, TIMER_FPS_TO_MS(6), 0),
 };
 
 static struct MenuGuiItem GameManager_MenuItems[] = {
@@ -2028,12 +2028,12 @@ void GameManager_GameSetup(int game_state) {
         }
 
         while (zoom_level <= max_zoom_level) {
-            timestamp = timer_get_stamp32();
+            timestamp = timer_get();
 
             GameManager_UpdateMainMapView(0, zoom_level, 0, false);
             GameManager_ProcessTick(false);
 
-            while ((timer_get_stamp32() - timestamp) < TIMER_FPS_TO_TICKS(48)) {
+            while ((timer_get() - timestamp) < TIMER_FPS_TO_MS(48)) {
             }
 
             zoom_level *= 2;
@@ -2329,7 +2329,7 @@ void GameManager_UpdateTurnTimer(bool mode, int turn_time) {
         Remote_UpdatePauseTimer = mode;
 
         if (Remote_UpdatePauseTimer) {
-            Remote_PauseTimeStamp = timer_get_stamp32();
+            Remote_PauseTimeStamp = timer_get();
         }
     } else {
         Remote_UpdatePauseTimer = false;
@@ -3331,7 +3331,7 @@ void GameManager_MenuAnimateDisplayControls() {
     bottom_window = WindowManager_GetWindow(WINDOW_BOTTOM_INSTRUMENTS_WINDOW);
 
     for (int i = 0; i < 5; ++i) {
-        time_stamp = timer_get_stamp32();
+        time_stamp = timer_get();
         WindowManager_LoadSimpleImage(static_cast<ResourceID>(PNLSEQ_1 + i), top_window->window.ulx,
                                       top_window->window.uly, true);
         win_draw_rect(top_window->id, &top_window->window);
@@ -3344,7 +3344,7 @@ void GameManager_MenuAnimateDisplayControls() {
 
         process_bk();
 
-        while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(24)) {
+        while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
         }
     }
 }
@@ -3457,12 +3457,12 @@ void GameManager_NotifyEvent(UnitInfo* unit, int event) {
             sprintf(text, GameManager_EventStrings_EnemySpotted[UnitsManager_BaseUnits[unit->unit_type].gender],
                     UnitsManager_BaseUnits[unit->unit_type].singular_name);
 
-            if (!GameManager_IsAtGridPosition(unit) && timer_elapsed_time_ms(GameManager_NotifyTimeout) > 5000) {
+            if (!GameManager_IsAtGridPosition(unit) && timer_elapsed_time(GameManager_NotifyTimeout) > 5000) {
                 resource_id1 = V_M070;
                 resource_id2 = V_F071;
             }
 
-            GameManager_NotifyTimeout = timer_get_stamp32();
+            GameManager_NotifyTimeout = timer_get();
 
         } break;
 
@@ -5044,9 +5044,9 @@ bool GameManager_SyncTurnTimer() {
         unsigned int time_stamp;
         unsigned int seconds_elapsed;
 
-        time_stamp = timer_get_stamp32();
+        time_stamp = timer_get();
 
-        seconds_elapsed = (time_stamp - Remote_PauseTimeStamp) / (TIMER_FPS_TO_TICKS(1) - 1);
+        seconds_elapsed = (time_stamp - Remote_PauseTimeStamp) / (TIMER_FPS_TO_MS(1) - 1);
 
         if (seconds_elapsed) {
             Remote_PauseTimeStamp = time_stamp;
@@ -5083,7 +5083,7 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
             }
 
         } else {
-            Paths_LastTimeStamp = timer_get_stamp32();
+            Paths_LastTimeStamp = timer_get();
             Paths_TimeBenchmarkDisable = false;
         }
 
@@ -5120,7 +5120,7 @@ bool GameManager_ProcessTick(bool render_screen) {
 
     GameManager_AdvanceFlic();
 
-    time_stamp = timer_get_stamp32();
+    time_stamp = timer_get();
 
     for (int i = sizeof(GameManager_ColorCycleTable) / sizeof(struct ColorCycleData) - 1; i >= 0; --i) {
         ColorCycleData* data;
@@ -5133,9 +5133,9 @@ bool GameManager_ProcessTick(bool render_screen) {
         }
     }
 
-    time_stamp = timer_get_stamp32();
+    time_stamp = timer_get();
 
-    if ((time_stamp - Paths_LastTimeStamp) >= TIMER_FPS_TO_TICKS(24)) {
+    if ((time_stamp - Paths_LastTimeStamp) >= TIMER_FPS_TO_MS(24)) {
         if (GameManager_IsCheater && GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             GameManager_PunishCheater();
         }
@@ -6862,9 +6862,9 @@ void GameManager_DrawFlic(Rect* bounds) {
 
 void GameManager_AdvanceFlic() {
     if (GameManager_Flic.flc && GameManager_PlayFlic && ini_get_setting(INI_EFFECTS)) {
-        unsigned int time_stamp = timer_get_stamp32();
+        unsigned int time_stamp = timer_get();
 
-        if ((time_stamp - GameManager_FlicFrameTimeStamp) >= TIMER_FPS_TO_TICKS(15)) {
+        if ((time_stamp - GameManager_FlicFrameTimeStamp) >= TIMER_FPS_TO_MS(15)) {
             GameManager_FlicFrameTimeStamp = time_stamp;
 
             // the original design assumes that animated FLICs do not redraw the top text rows

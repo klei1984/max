@@ -210,7 +210,7 @@ void CSoundManager::FreeSfx(UnitInfo* unit) {
     unsigned short unit_id;
 
     if (sfx) {
-        sfx->time_stamp = timer_get_stamp32();
+        sfx->time_stamp = timer_get();
     }
 
     sfx = nullptr;
@@ -667,7 +667,7 @@ void CSoundManager::BkProcess() {
         for (auto it = samples.begin(); it != samples.end();) {
             if (it->type <= JOB_TYPE_SFX2) {
                 if (it->mixer_channel != SOUNDMGR_INVALID_CHANNEL && it->time_stamp &&
-                    timer_elapsed_time_ms(it->time_stamp) > 125) {
+                    timer_elapsed_time(it->time_stamp) > 125) {
                     it->volume_2 /= 2;
 
                     if (it->volume_2) {
@@ -678,7 +678,7 @@ void CSoundManager::BkProcess() {
 
                         Mix_Volume(it->mixer_channel, SOUNDMGR_SCALE_VOLUME(sfx_volume * it->volume_1 / 100));
 
-                        it->time_stamp = timer_get_stamp32();
+                        it->time_stamp = timer_get();
                     } else {
                         FreeSample(&(*it));
                         it = samples.erase(it);
@@ -829,7 +829,7 @@ int CSoundManager::ProcessJob(SoundJob& job) {
                 if (job.type <= JOB_TYPE_SFX2) {
                     if (job.type == JOB_TYPE_SFX1) {
                         if (sfx && sfx->chunk != sample.chunk) {
-                            sfx->time_stamp = timer_get_stamp32();
+                            sfx->time_stamp = timer_get();
                         }
                         sfx = &samples.back();
                     }

@@ -238,7 +238,7 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
         buffer_position = &window->buffer[bounds.uly * window->width + bounds.ulx];
 
         for (int i = 1; i <= 16; ++i) {
-            time_stamp = timer_get_stamp32();
+            time_stamp = timer_get();
 
             if (direction) {
                 offset = (width / 8) * i;
@@ -251,7 +251,7 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
             win_draw_rect(window->id, &bounds);
             process_bk();
 
-            while (timer_get_stamp32() - time_stamp < TIMER_FPS_TO_TICKS(24)) {
+            while (timer_get() - time_stamp < TIMER_FPS_TO_MS(24)) {
             }
         }
 

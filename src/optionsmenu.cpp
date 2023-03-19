@@ -797,6 +797,6 @@ void OptionsMenu::Run() {
     }
 
     if (!Remote_IsNetworkGame) {
-        Remote_PauseTimeStamp = timer_get_stamp32();
+        Remote_PauseTimeStamp = timer_get();
     }
 }

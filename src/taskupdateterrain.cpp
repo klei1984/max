@@ -50,7 +50,7 @@ unsigned char TaskUpdateTerrain::GetType() const { return TaskType_TaskUpdateTer
 
 void TaskUpdateTerrain::BeginTurn() {
     while (location.x < ResourceManager_MapSize.x) {
-        if ((timer_get_stamp32() - Paths_LastTimeStamp) <= Paths_TimeLimit) {
+        if (Paths_HaveTimeToThink()) {
             AiPlayer_TerrainMap.TerrainMap_sub_690D6(location, SURFACE_TYPE_LAND);
             AiPlayer_TerrainMap.TerrainMap_sub_690D6(location, SURFACE_TYPE_WATER);
 

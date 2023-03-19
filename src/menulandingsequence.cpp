@@ -104,7 +104,7 @@ void MenuLandingSequence::AnimateStep(int offset) {
 
     process_bk();
 
-    while ((timer_get_stamp32() - time_stamp) < TIMER_FPS_TO_TICKS(24)) {
+    while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
     }
 }
 
@@ -113,7 +113,7 @@ void MenuLandingSequence::OpenPanel() {
     SoundManager.PlaySfx(IOPEN0);
 
     for (int i = 0; i < PANEL_STEP_COUNT; ++i) {
-        time_stamp = timer_get_stamp32();
+        time_stamp = timer_get();
         image_1->Write(panel_top);
         image_2->Write(panel_bottom);
 
@@ -147,7 +147,7 @@ void MenuLandingSequence::ClosePanel() {
         SoundManager.PlaySfx(ICLOS0);
 
         for (int i = 0; i < PANEL_STEP_COUNT; ++i) {
-            time_stamp = timer_get_stamp32();
+            time_stamp = timer_get();
             AnimateStep((PANEL_STEP_COUNT - 1 - i) * step_size);
         }
     }

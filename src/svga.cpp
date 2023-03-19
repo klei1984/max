@@ -244,9 +244,8 @@ void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char
 
     Svga_PaletteChanged = true;
 
-    if ((i == PALETTE_SIZE - 1) ||
-        (timer_elapsed_time_ms(Svga_RenderTimer) > TIMER_TICKS_TO_MS(TIMER_FPS_TO_TICKS(60)))) {
-        Svga_RenderTimer = timer_get_stamp32();
+    if ((i == PALETTE_SIZE - 1) || (timer_elapsed_time(Svga_RenderTimer) > TIMER_FPS_TO_MS(60))) {
+        Svga_RenderTimer = timer_get();
 
         unsigned char srcBuf;
 

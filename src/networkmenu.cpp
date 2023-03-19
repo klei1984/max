@@ -122,16 +122,16 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
     bool event_release;
 
     event_release = false;
-    time_stamp = timer_get_stamp32();
+    time_stamp = timer_get();
 
     network_menu.is_host_mode = is_host_mode;
     network_menu.Init();
 
     do {
         if (!network_menu.is_host_mode) {
-            if (timer_elapsed_time_ms(time_stamp) > 3000) {
+            if (timer_elapsed_time(time_stamp) > 3000) {
                 Remote_SendNetPacket_28(0);
-                time_stamp = timer_get_stamp32();
+                time_stamp = timer_get();
             }
         }
 

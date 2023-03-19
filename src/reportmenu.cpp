@@ -507,7 +507,7 @@ void ReportMenu::Run() {
         GameManager_ProcessState(false);
 
     } else {
-        Remote_PauseTimeStamp = timer_get_stamp32();
+        Remote_PauseTimeStamp = timer_get();
     }
 }
 

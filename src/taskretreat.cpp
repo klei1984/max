@@ -119,7 +119,7 @@ void TaskRetreat::Search() {
     }
 
     if (damage_potential_map) {
-        while (timer_get_stamp32() - Paths_LastTimeStamp < Paths_TimeLimit || index < 20) {
+        while (Paths_HaveTimeToThink() || index < 20) {
             ++field_31;
 
             if (field_31 >= field_23) {
