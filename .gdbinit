@@ -85,4 +85,42 @@ class PlotIndexedImage:
             for y in range(self.dim[1]):
                 for x in range(self.dim[0]):
                     f.write(bytes([int(self.val[x + y * self.dim[0]])]))
+
+class FunctionEnterBreakpoint(gdb.Breakpoint):
+    def __init__(self, spec):
+        self._function_name = spec
+        super(FunctionEnterBreakpoint, self).__init__(spec, internal=True)
+
+    def stop(self):
+        max_depth = 3
+        frame = gdb.newest_frame()
+
+        gdb.write("\n", gdb.STDLOG)
+
+        if "SetParent" in frame.function().name:
+            gdb.write(f"Parent: {frame.read_var('parent')} ", gdb.STDLOG)
+
+        if "GetParent" in frame.function().name:
+            gdb.write(f"Parent: {gdb.parse_and_eval('this.parent_unit')} ", gdb.STDLOG)
+
+        while frame and max_depth > 0:
+            gdb.write(f"{'  ' * (3 - max_depth)}{frame.function().name} {frame.find_sal()}\n", gdb.STDLOG)
+            frame = frame.older()
+            max_depth -= 1
+
+        return False
+
+class TraceFunctionCommand(gdb.Command):
+    """example: trace-function "UnitInfo::SetParent" """
+    def __init__(self):
+        super(TraceFunctionCommand, self).__init__(
+            'trace-function',
+            gdb.COMMAND_SUPPORT,
+            gdb.COMPLETE_NONE,
+            True)
+
+    def invoke(self, symbol_name, from_tty):
+            FunctionEnterBreakpoint(symbol_name)
+
+TraceFunctionCommand()
 end
