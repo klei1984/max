@@ -91,7 +91,8 @@ void ClanSelectMenu::Init(int team) {
     win_group_radio_buttons(8, button_list);
 
     image = new (std::nothrow)
-        Image(clan_select_menu_screen_text[0].bounds.ulx, clan_select_menu_screen_text[0].bounds.uly,
+        Image(WindowManager_ScaleUlx(window, clan_select_menu_screen_text[0].bounds.ulx),
+              WindowManager_ScaleUly(window, clan_select_menu_screen_text[0].bounds.uly),
               clan_select_menu_screen_text[0].bounds.lrx - clan_select_menu_screen_text[0].bounds.ulx,
               clan_select_menu_screen_text[0].bounds.lry - clan_select_menu_screen_text[0].bounds.uly);
     image->Copy(window);
@@ -137,15 +138,17 @@ void ClanSelectMenu::ButtonInit(int index, int mode) {
 
     if (index >= 0 && index <= 7) {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
-                                                   control->bounds.ulx, control->bounds.uly);
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
         buttons[index]->Copy(static_cast<ResourceID>(CLN1LOGO + index), 41, 40);
     } else if (control->image_id == INVALID_ID) {
-        buttons[index] = new (std::nothrow)
-            Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
-                   control->bounds.lry - control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(
+            WindowManager_ScaleUlx(window, control->bounds.ulx), WindowManager_ScaleUly(window, control->bounds.uly),
+            control->bounds.lrx - control->bounds.ulx, control->bounds.lry - control->bounds.uly);
     } else {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
-                                                   control->bounds.ulx, control->bounds.uly);
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);
@@ -184,7 +187,8 @@ void ClanSelectMenu::SelectMenuItems() {
         menu_draw_menu_title(window, &clan_select_menu_clan_icons[i], color | GNW_TEXT_OUTLINE, true);
     }
 
-    image->Write(window, clan_select_menu_screen_text[0].bounds.ulx, clan_select_menu_screen_text[0].bounds.uly);
+    image->Write(window, WindowManager_ScaleUlx(window, clan_select_menu_screen_text[0].bounds.ulx),
+                 WindowManager_ScaleUly(window, clan_select_menu_screen_text[0].bounds.uly));
     ini_clans.GetClanText(team_clan_selection, buffer, 100);
 
     index = 0;
