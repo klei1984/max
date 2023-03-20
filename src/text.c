@@ -212,7 +212,7 @@ int text_remove_manager(int font_num) {
             i++;
         }
 
-        if (i < total_managers) {
+        if (i < total_managers - 1) {
             memmove(&font_managers[i], &font_managers[i + 1], sizeof(FontMgr) * (total_managers - i) - sizeof(FontMgr));
             total_managers--;
             result = 0;
