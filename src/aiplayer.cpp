@@ -50,7 +50,7 @@
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
-AiPlayer AiPlayer_Teams[4];
+AiPlayer AiPlayer_Teams[PLAYER_TEAM_MAX - 1];
 TerrainMap AiPlayer_TerrainMap;
 ThreatMap AiPlayer_ThreatMaps[10];
 
