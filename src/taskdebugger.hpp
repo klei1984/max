@@ -36,9 +36,9 @@ class TaskDebugger {
     Image *image;
     Button *button_up;
     Button *button_down;
-    unsigned short first_row_p_value;
-    unsigned short button_up_p_value;
-    unsigned short button_down_p_value;
+    unsigned short first_row_r_value;
+    unsigned short button_up_r_value;
+    unsigned short button_down_r_value;
     ButtonManager button_manager;
 
     void InitTaskList(Task *task);

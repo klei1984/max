@@ -34,9 +34,9 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int
 
     window = *win;
 
-    button_up_p_value = button_up_value;
-    button_down_p_value = button_down_value;
-    first_row_p_value = first_row_value;
+    button_up_r_value = button_up_value;
+    button_down_r_value = button_down_value;
+    first_row_r_value = first_row_value;
 
     team = task->GetTeam();
 
@@ -50,12 +50,14 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int
 
     button_up = new (std::nothrow) Button(BLDUP__U, BLDUP__D, 336, 21);
     button_up->CopyUpDisabled(BLDUP__X);
-    button_up->SetPValue(button_up_p_value);
+    button_up->SetRValue(button_up_r_value);
+    button_up->SetPValue(GNW_INPUT_PRESS);
     button_up->RegisterButton(window.id);
 
     button_down = new (std::nothrow) Button(BLDDWN_U, BLDDWN_D, 336, 233);
     button_down->CopyUpDisabled(BLDDWN_X);
-    button_down->SetPValue(button_down_p_value);
+    button_down->SetRValue(button_down_r_value);
+    button_down->SetPValue(GNW_INPUT_PRESS + 1);
     button_down->RegisterButton(window.id);
 
     for (int i = 0; i < row_count; ++i) {
@@ -207,8 +209,8 @@ void TaskDebugger_SetDebugMode() {
 bool TaskDebugger::ProcessKeyPress(int key) {
     bool result;
 
-    if (first_row_p_value <= key && first_row_p_value + row_count > key) {
-        int index = key + row_index - first_row_p_value;
+    if (first_row_r_value <= key && first_row_r_value + row_count > key) {
+        int index = key + row_index - first_row_r_value;
 
         if (tasks.GetCount() > index) {
             if (index == task_count) {
@@ -224,7 +226,7 @@ bool TaskDebugger::ProcessKeyPress(int key) {
 
         result = true;
 
-    } else if (button_down_p_value == key) {
+    } else if (button_down_r_value == key) {
         row_index += row_count - 1;
 
         if (row_index + row_count > tasks.GetCount()) {
@@ -239,7 +241,7 @@ bool TaskDebugger::ProcessKeyPress(int key) {
 
         result = true;
 
-    } else if (key == button_up_p_value) {
+    } else if (key == button_up_r_value) {
         row_index -= row_count - 1;
 
         if (row_index < 0) {
