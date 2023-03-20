@@ -162,7 +162,9 @@ static const IniKey ini_keys_table[] = {
     {"Channels_Reversed", "0", INI_NUMERIC},
 
     {"GRAPHICS_SETTINGS", nullptr, INI_SECTION},
+    {"display_index", "0", INI_NUMERIC},
     {"screen_mode", "2", INI_NUMERIC},
+    {"disable_ar_correction", "0", INI_NUMERIC},
     {"scale_quality", "1", INI_NUMERIC},
     {"window_width", "640", INI_NUMERIC},
     {"window_height", "480", INI_NUMERIC},

@@ -24,7 +24,14 @@
 #include "color.hpp"
 #include "ini.hpp"
 
-const bool SVGA_NO_TEXTURE_UPDATE = true;
+#define SVGA_DEFAULT_WIDTH (640)
+#define SVGA_DEFAULT_HEIGHT (480)
+#define SVGA_DEFAULT_REFRESH_RATE (60)
+
+static Uint32 Svga_SetupDisplayMode();
+static void Svga_CorrectAspectRatio(SDL_DisplayMode *display_mode);
+
+static const bool SVGA_NO_TEXTURE_UPDATE = true;
 
 static SDL_Window *sdlWindow;
 static SDL_Renderer *sdlRenderer;
@@ -39,33 +46,42 @@ static int Svga_ScreenWidth;
 static int Svga_ScreenHeight;
 static int Svga_ScreenMode;
 static int Svga_ScaleQuality;
+static int Svga_DisplayIndex;
+static int Svga_DisplayRefreshRate;
+static Uint32 Svga_DisplayPixelFormat;
 
 Rect scr_size;
 ScreenBlitFunc scr_blit;
 
-int Svga_Init(void) {
-    Uint32 flags = 0;
+Uint32 Svga_SetupDisplayMode() {
+    Uint32 flags = 0uL;
+    SDL_DisplayMode display_mode;
 
-    if (sdl_win_init_flag) {
-        return 0;
+    Svga_DisplayIndex = ini_get_setting(INI_DISPLAY_INDEX);
+
+    if (SDL_GetCurrentDisplayMode(Svga_DisplayIndex, &display_mode)) {
+        SDL_Log("SDL_GetCurrentDisplayMode failed: %s\n", SDL_GetError());
+
+        display_mode.refresh_rate = SVGA_DEFAULT_REFRESH_RATE;
+        display_mode.format = SDL_PIXELFORMAT_RGB888;
+        display_mode.w = SVGA_DEFAULT_WIDTH;
+        display_mode.h = SVGA_DEFAULT_HEIGHT;
     }
 
-    Svga_ScreenWidth = ini_get_setting(INI_WINDOW_WIDTH);
-    Svga_ScreenHeight = ini_get_setting(INI_WINDOW_HEIGHT);
+    Svga_DisplayRefreshRate = display_mode.refresh_rate;
+    Svga_DisplayPixelFormat = display_mode.format;
+
     Svga_ScreenMode = ini_get_setting(INI_SCREEN_MODE);
     Svga_ScaleQuality = ini_get_setting(INI_SCALE_QUALITY);
+    Svga_ScreenWidth = ini_get_setting(INI_WINDOW_WIDTH);
+    Svga_ScreenHeight = ini_get_setting(INI_WINDOW_HEIGHT);
 
-    if (Svga_ScreenWidth < 640) {
-        Svga_ScreenWidth = 640;
-    }
-
-    if (Svga_ScreenHeight < 480) {
-        Svga_ScreenHeight = 480;
-    }
+    Svga_CorrectAspectRatio(&display_mode);
 
     switch (Svga_ScreenMode) {
         case WINDOW_MODE_WINDOWED: {
             flags |= 0;
+
         } break;
 
         case WINDOW_MODE_FULLSCREEN: {
@@ -82,8 +98,45 @@ int Svga_Init(void) {
         } break;
     }
 
-    if ((sdlWindow = SDL_CreateWindow("M.A.X.: Mechanized Assault & Exploration", SDL_WINDOWPOS_CENTERED,
-                                      SDL_WINDOWPOS_CENTERED, Svga_ScreenWidth, Svga_ScreenHeight, flags)) == NULL) {
+    return flags;
+}
+
+void Svga_CorrectAspectRatio(SDL_DisplayMode *display_mode) {
+    const double minimum_aspect_ratio = static_cast<double>(SVGA_DEFAULT_WIDTH) / SVGA_DEFAULT_HEIGHT;
+    const double display_aspect_ratio = static_cast<double>(display_mode->w) / display_mode->h;
+    double user_aspect_ratio = static_cast<double>(Svga_ScreenWidth) / Svga_ScreenHeight;
+
+    if (Svga_ScreenHeight < SVGA_DEFAULT_HEIGHT) {
+        Svga_ScreenHeight = SVGA_DEFAULT_HEIGHT;
+    }
+
+    if (user_aspect_ratio < minimum_aspect_ratio) {
+        user_aspect_ratio = minimum_aspect_ratio;
+    }
+
+    if (!ini_get_setting(INI_DISABLE_AR_CORRECTION)) {
+        user_aspect_ratio = display_aspect_ratio;
+    }
+
+    Svga_ScreenWidth = static_cast<double>(Svga_ScreenHeight) * user_aspect_ratio + .9;
+}
+
+int Svga_Init(void) {
+    if (sdl_win_init_flag) {
+        return 0;
+    }
+
+    Uint32 flags = Svga_SetupDisplayMode();
+    SDL_Rect screen_bounds;
+
+    if (SDL_GetDisplayBounds(Svga_DisplayIndex, &screen_bounds)) {
+        SDL_Log("SDL_GetDisplayBounds failed: %s\n", SDL_GetError());
+        screen_bounds = {0, 0, Svga_ScreenWidth, Svga_ScreenHeight};
+    }
+
+    if ((sdlWindow = SDL_CreateWindow(
+             "M.A.X.: Mechanized Assault & Exploration", SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex),
+             SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex), screen_bounds.w, screen_bounds.h, flags)) == NULL) {
         SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
     }
 
@@ -115,10 +168,10 @@ int Svga_Init(void) {
     SDL_RenderSetLogicalSize(sdlRenderer, Svga_ScreenWidth, Svga_ScreenHeight);
 
     sdlWindowSurface =
-        SDL_CreateRGBSurfaceWithFormat(0, Svga_ScreenWidth, Svga_ScreenHeight, 32, SDL_PIXELFORMAT_ARGB8888);
+        SDL_CreateRGBSurfaceWithFormat(0, Svga_ScreenWidth, Svga_ScreenHeight, 32, Svga_DisplayPixelFormat);
     sdlPaletteSurface =
         SDL_CreateRGBSurfaceWithFormat(0, Svga_ScreenWidth, Svga_ScreenHeight, 8, SDL_PIXELFORMAT_INDEX8);
-    sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, Svga_ScreenWidth,
+    sdlTexture = SDL_CreateTexture(sdlRenderer, Svga_DisplayPixelFormat, SDL_TEXTUREACCESS_STREAMING, Svga_ScreenWidth,
                                    Svga_ScreenHeight);
 
     scr_blit = &Svga_Blit;
@@ -244,7 +297,7 @@ void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char
 
     Svga_PaletteChanged = true;
 
-    if ((i == PALETTE_SIZE - 1) || (timer_elapsed_time(Svga_RenderTimer) > TIMER_FPS_TO_MS(60))) {
+    if ((i == PALETTE_SIZE - 1) || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(60))) {
         Svga_RenderTimer = timer_get();
 
         unsigned char srcBuf;
