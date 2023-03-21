@@ -64,6 +64,7 @@ public:
     char game_file_type;
     TextEdit *text_edit;
 
+    SaveSlot();
     ~SaveSlot();
 
     void Deinit();
@@ -1190,6 +1191,22 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
     return result;
 }
 
+SaveSlot::SaveSlot() {
+    wid = -1;
+    ulx = -1;
+    uly = -1;
+    width = -1;
+    height = -1;
+    image_up = nullptr;
+    image_down = nullptr;
+    bid = -1;
+    file_name[0] = '\0';
+    save_name[0] = '\0';
+    in_use = false;
+    game_file_type = 0;
+    text_edit = nullptr;
+}
+
 SaveSlot::~SaveSlot() { Deinit(); }
 
 void SaveSlot::Deinit() {
@@ -1206,10 +1223,10 @@ void SaveSlot::Deinit() {
 
     image->Write(&window);
 
+    delete text_edit;
     delete image;
     delete[] image_up;
     delete[] image_down;
-    delete text_edit;
 }
 
 void SaveSlot::InitTextEdit(WinID wid) {
