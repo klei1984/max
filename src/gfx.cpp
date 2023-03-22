@@ -614,198 +614,43 @@ unsigned char* Gfx_RescaleSprite(unsigned char* buffer, unsigned int* data_size,
     return decoded_image_buffer;
 }
 
-void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int height, int ulx, int uly, int radius,
+void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int height, int xc, int yc, int radius,
                       int color) {
-    int index1;
-    int index2;
-    int index3;
-    int radius_square;
-    int index4;
-    int radius_cubic;
-    int var_28;
-    int var_40;
-    int radius_0_7;
-    unsigned char* gfx_buffer;
-    unsigned char* address;
-    unsigned char* address2;
-    Rect bounds1;
-    Rect bounds2;
-    Rect bounds3;
+#define Gfx_RenderCirclePoint(x, y) \
+    if ((x) < width && (y) < height && (x) >= 0 && (y) >= 0) buffer[(y)*full_width + (x)] = color
 
-    index1 = 0;
-    index3 = 0;
+    int x = 0;
+    int y = radius;
+    int d = 3 + radius * -2;
 
-    radius_square = radius * radius;
-    index4 = 0;
-    radius_cubic = radius_square * 2 * radius;
-    var_28 = radius_square / 4 - radius * radius_square;
-    radius_0_7 = (radius * 46341) / 65536;
+    Gfx_RenderCirclePoint(x + xc, y + yc);
+    Gfx_RenderCirclePoint(x + xc, -y + yc);
+    Gfx_RenderCirclePoint(-x + xc, -y + yc);
+    Gfx_RenderCirclePoint(-x + xc, y + yc);
+    Gfx_RenderCirclePoint(y + xc, x + yc);
+    Gfx_RenderCirclePoint(y + xc, -x + yc);
+    Gfx_RenderCirclePoint(-y + xc, -x + yc);
+    Gfx_RenderCirclePoint(-y + xc, x + yc);
 
-    if (radius + ulx >= 0 && ulx - radius < width && radius + uly >= 0 && uly - radius < height && radius > 0) {
-        if (ulx - radius_0_7 >= 0 || ulx + radius_0_7 < width || uly - radius_0_7 >= 0 || uly + radius_0_7 < height) {
-            gfx_buffer = new (std::nothrow) unsigned char[radius];
+    while (x <= y) {
+        if (d <= 0) {
+            d += 4 * x + 6;
 
-            if (gfx_buffer) {
-                address = gfx_buffer;
-
-                while (index4 < radius_cubic) {
-                    var_28 += index4 + radius_square;
-
-                    if (var_28 < 0) {
-                        *address++ = 0;
-                    } else {
-                        radius_cubic -= radius_square * 2;
-                        var_28 -= radius_cubic;
-                        *address++ = 1;
-                        ++index3;
-                    }
-
-                    index4 += radius_square * 2;
-                    ++index1;
-                }
-
-                for (int i = 0; i < 8; ++i) {
-                    index2 = index1;
-                    var_40 = 0;
-                    address2 = buffer;
-
-                    switch (i) {
-                        case 0: {
-                            bounds2.lry = ulx;
-                            bounds2.lrx = uly - radius;
-                            bounds2.uly = bounds2.lry;
-                            bounds2.ulx = bounds2.lrx;
-                            bounds1.lry = bounds2.uly + index1;
-                            bounds1.lrx = bounds2.ulx + index3;
-                            bounds1.uly = 1;
-                            bounds1.ulx = full_width;
-                        } break;
-
-                        case 1: {
-                            bounds2.lry = ulx + radius;
-                            bounds2.lrx = uly;
-                            bounds1.lry = bounds2.lry;
-                            bounds1.lrx = bounds2.lrx;
-                            bounds2.uly = bounds1.lry - index3;
-                            bounds2.ulx = bounds1.lrx - index1;
-                            bounds1.uly = -full_width;
-                            bounds1.ulx = -1;
-                        } break;
-
-                        case 2: {
-                            bounds2.lry = radius + ulx;
-                            bounds2.lrx = uly;
-                            bounds1.lry = bounds2.lry;
-                            bounds2.ulx = bounds2.lrx;
-                            bounds2.uly = bounds1.lry - index3;
-                            bounds1.lrx = bounds2.ulx + index1;
-                            bounds1.uly = full_width;
-                            bounds1.ulx = -1;
-                        } break;
-
-                        case 3: {
-                            bounds2.lry = ulx;
-                            bounds2.lrx = uly + radius;
-                            bounds2.uly = bounds2.lry;
-                            bounds1.lrx = bounds2.lrx;
-                            bounds1.lry = bounds2.uly + index1;
-                            bounds2.ulx = bounds1.lrx - index3;
-                            bounds1.uly = 1;
-                            bounds1.ulx = -full_width;
-                        } break;
-
-                        case 4: {
-                            bounds2.lry = ulx;
-                            bounds2.lrx = uly + radius;
-                            bounds1.lry = bounds2.lry;
-                            bounds1.lrx = bounds2.lrx;
-                            bounds2.uly = bounds1.lry - index1;
-                            bounds2.ulx = bounds1.lrx - index3;
-                            bounds1.uly = -1;
-                            bounds1.ulx = -full_width;
-                        } break;
-
-                        case 5: {
-                            bounds2.lry = ulx - radius;
-                            bounds2.lrx = uly;
-                            bounds2.uly = bounds2.lry;
-                            bounds2.ulx = bounds2.lrx;
-                            bounds1.lry = bounds2.uly + index3;
-                            bounds1.lrx = bounds2.ulx + index1;
-                            bounds1.uly = full_width;
-                            bounds1.ulx = 1;
-                        } break;
-
-                        case 6: {
-                            bounds2.lry = ulx - radius;
-                            bounds2.lrx = uly;
-                            bounds2.uly = bounds2.lry;
-                            bounds1.lrx = bounds2.lrx;
-                            bounds1.lry = bounds2.uly + index3;
-                            bounds2.ulx = bounds1.lrx - index1;
-                            bounds1.uly = -full_width;
-                            bounds1.ulx = 1;
-                        } break;
-
-                        case 7: {
-                            bounds2.lry = ulx;
-                            bounds2.lrx = uly - radius;
-                            bounds1.lry = bounds2.lry;
-                            bounds2.ulx = bounds2.lrx;
-                            bounds2.uly = bounds1.lry - index1;
-                            bounds1.lrx = bounds2.ulx + index3;
-                            bounds1.uly = -1;
-                            bounds1.ulx = full_width;
-                        } break;
-                    }
-
-                    if (bounds1.lry >= 0 && bounds2.uly < width && bounds1.lrx >= 0 && bounds2.ulx < height) {
-                        if (bounds2.uly < 0 || bounds1.lry >= width || bounds2.ulx < 0 || bounds1.lrx >= height) {
-                            bounds3.lry = Gfx_DirectionCorrections[i].ulx;
-                            bounds3.lrx = Gfx_DirectionCorrections[i].uly;
-                            bounds3.uly = Gfx_DirectionCorrections[i].lrx;
-                            bounds3.ulx = Gfx_DirectionCorrections[i].lry;
-
-                            var_40 = 1;
-                        }
-
-                        address2 += bounds2.lrx * full_width + bounds2.lry;
-                        address = gfx_buffer;
-
-                        for (int j = 0; j < index2; ++j) {
-                            if (var_40) {
-                                if (bounds2.lry >= 0 && bounds2.lry < width && bounds2.lrx >= 0 &&
-                                    bounds2.lrx < height) {
-                                    *address2 = color;
-                                }
-
-                                address2 += bounds1.uly;
-                                bounds2.lry += bounds3.lry;
-                                bounds2.lrx += bounds3.lrx;
-                                ++address;
-
-                                if (address[0]) {
-                                    address2 += bounds1.ulx;
-                                    bounds2.lry += bounds3.uly;
-                                    bounds2.lrx += bounds3.ulx;
-                                }
-
-                            } else {
-                                *address2 = color;
-                                address2 += bounds1.uly;
-                                ++address;
-
-                                if (address[0]) {
-                                    address2 += bounds1.ulx;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                delete[] gfx_buffer;
-            }
+        } else {
+            d += 4 * (x - y) + 10;
+            --y;
         }
+
+        ++x;
+
+        Gfx_RenderCirclePoint(x + xc, y + yc);
+        Gfx_RenderCirclePoint(x + xc, -y + yc);
+        Gfx_RenderCirclePoint(-x + xc, -y + yc);
+        Gfx_RenderCirclePoint(-x + xc, y + yc);
+        Gfx_RenderCirclePoint(y + xc, x + yc);
+        Gfx_RenderCirclePoint(y + xc, -x + yc);
+        Gfx_RenderCirclePoint(-y + xc, -x + yc);
+        Gfx_RenderCirclePoint(-y + xc, x + yc);
     }
 }
 
