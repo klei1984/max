@@ -589,7 +589,7 @@ int GNW_check_buttons(GNW_Window* w, int* press) {
                                         func = b->rr_func;
                                     }
 
-                                    b->flags &= 0xFFFDFFFF;
+                                    b->flags &= ~0x020000;
                                 }
                             } else {
                                 if (button_check_group(b) == -1) {
@@ -684,7 +684,7 @@ int GNW_check_buttons(GNW_Window* w, int* press) {
                                     func = b->rr_func;
                                 }
 
-                                b->flags &= 0xFFFDFFFF;
+                                b->flags &= ~0x020000;
                             }
                         } else {
                             if (button_check_group(b) == -1) {
@@ -744,8 +744,12 @@ int GNW_check_buttons(GNW_Window* w, int* press) {
 
                 if (b) {
                     if (func) {
-                        func(b->id, *press);
+                        // exchanged the call to the event handler and the conditional test as the event handler
+                        // potentially deletes the button instance
+                        int local_press = *press;
+
                         if (!(b->flags & 0x40)) *press = -1;
+                        func(b->id, local_press);
                     }
                 }
 
@@ -1156,7 +1160,7 @@ int button_check_group(GNW_ButtonPtr b) {
                 b = b->group->list[i];
 
                 if (b->flags & 0x020000) {
-                    b->flags &= 0xFFFDFFFF;
+                    b->flags &= ~0x020000;
 
                     GNW_find_button(b->id, &w);
                     button_draw(b, w, b->up, 1, NULL);
