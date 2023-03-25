@@ -1246,9 +1246,9 @@ void GameManager_Render() {
                             int color;
 
                             if (Access_GetValidAttackTargetTypes(unit->unit_type) & MOBILE_AIR_UNIT) {
-                                color = 0x05;
+                                color = COLOR_CHROME_YELLOW;
                             } else {
-                                color = 0x01;
+                                color = COLOR_RED;
                             }
 
                             GameManager_DrawCircle(unit, window, unit_values->GetAttribute(ATTRIB_RANGE), color);
@@ -2998,6 +2998,32 @@ void GameManager_ProcessCheatCodes() {
                         GameManager_RenderMinimapDisplay = true;
 
                         GameManager_MenuUnitSelect(&*GameManager_SelectedUnit);
+
+                        if (unit_values->GetAttribute(ATTRIB_SCAN) != new_unit_values->GetAttribute(ATTRIB_SCAN) ||
+                            unit_values->GetAttribute(ATTRIB_RANGE) != new_unit_values->GetAttribute(ATTRIB_RANGE)) {
+                            int radius = std::max(new_unit_values->GetAttribute(ATTRIB_SCAN),
+                                                  new_unit_values->GetAttribute(ATTRIB_RANGE)) *
+                                         GFX_MAP_TILE_SIZE;
+                            Rect bounds;
+                            int unit_size;
+
+                            if (GameManager_SelectedUnit->flags & BUILDING) {
+                                unit_size = GFX_MAP_TILE_SIZE;
+
+                            } else {
+                                unit_size = GFX_MAP_TILE_SIZE / 2;
+                            }
+
+                            bounds.ulx = (GameManager_SelectedUnit->grid_x * GFX_MAP_TILE_SIZE) + unit_size;
+                            bounds.uly = (GameManager_SelectedUnit->grid_y * GFX_MAP_TILE_SIZE) + unit_size;
+
+                            bounds.lrx = bounds.ulx + radius + 1;
+                            bounds.lry = bounds.uly + radius + 1;
+                            bounds.ulx -= radius + 1;
+                            bounds.uly -= radius + 1;
+
+                            GameManager_AddDrawBounds(&bounds);
+                        }
                     }
                 }
             } break;
@@ -6884,7 +6910,7 @@ void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int radius, int 
         int scaled_radius;
         int unit_size;
 
-        radius <<= 6;
+        radius *= GFX_MAP_TILE_SIZE;
         scaled_radius = (radius * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor;
 
         if (color == COLOR_YELLOW) {
@@ -6908,10 +6934,10 @@ void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int radius, int 
 
         radius = (scaled_radius * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR;
 
-        bounds.lrx = bounds.ulx + radius;
-        bounds.lry = bounds.uly + radius;
-        bounds.ulx -= radius;
-        bounds.uly -= radius;
+        bounds.lrx = bounds.ulx + radius + 1;
+        bounds.lry = bounds.uly + radius + 1;
+        bounds.ulx -= radius + 1;
+        bounds.uly -= radius + 1;
 
         GameManager_AddDrawBounds(&bounds);
     }
