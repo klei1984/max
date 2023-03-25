@@ -98,9 +98,9 @@ int screendump_pcx(int width, int length, unsigned char *buf, unsigned char *pal
 
         scan_line_pos = 0;
         do {
-            for (repeat_count = 1; (buf[scan_line_pos + repeat_count - 1] == buf[repeat_count + scan_line_pos]) &&
-                                   ((scan_line_pos + repeat_count) < width) && (repeat_count < 63);
-                 repeat_count++) {
+            for (repeat_count = 1; ((scan_line_pos + repeat_count) < width) && (repeat_count < 63) &&
+                                   (buf[scan_line_pos + repeat_count - 1] == buf[repeat_count + scan_line_pos]);
+                 ++repeat_count) {
                 ;
             }
 
@@ -113,7 +113,7 @@ int screendump_pcx(int width, int length, unsigned char *buf, unsigned char *pal
         } while (scan_line_pos < width);
 
         buf += width;
-        length--;
+        --length;
     }
 
     fputc(0x0C, fp);
