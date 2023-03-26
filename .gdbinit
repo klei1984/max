@@ -123,4 +123,21 @@ class TraceFunctionCommand(gdb.Command):
             FunctionEnterBreakpoint(symbol_name)
 
 TraceFunctionCommand()
+
+class DumpSmartList:
+    """example: py DumpSmartList("UnitsManager_StationaryUnits", "unit_type").dump() """
+    def __init__(self, name, symbol):
+        self.name = name
+        self.symbol = symbol
+
+    def dump(self):
+        it = gdb.parse_and_eval(self.name + ".Begin()")
+
+        with open(f"list_{self.name}.txt", "wt") as f:
+            while(str(it["object_pointer"]) != "0x0"):
+                node = it["object_pointer"]
+                object = node["object"]["object_pointer"]
+                if str(object) != "0x0":
+                    f.write(f"{object[self.symbol]}\n")
+                it = node["next"]
 end
