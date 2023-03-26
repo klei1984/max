@@ -73,7 +73,8 @@ void Survey_RenderMarker(WindowInfo* window, int grid_x, int grid_y, unsigned sh
     }
 
     WindowManager_DecodeSimpleImage(buffer, (((grid_x * 64 + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx,
-                               (((grid_y * 64 + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly, true, window);
+                                    (((grid_y * 64 + 32) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly, true,
+                                    window);
 
     if (flag) {
         delete[] buffer;
@@ -143,7 +144,7 @@ void Survey_RenderMarkers(unsigned short team, int grid_ulx, int grid_uly, int g
     for (int i = std::max(GameManager_GridPosition.ulx, grid_ulx);
          i < std::min(GameManager_GridPosition.lrx + 1, grid_lrx); ++i) {
         for (int j = std::max(GameManager_GridPosition.uly, grid_uly);
-             j <= std::min(GameManager_GridPosition.lry + 1, grid_lry); ++j) {
+             j < std::min(GameManager_GridPosition.lry + 1, grid_lry); ++j) {
             if (Access_GetModifiedSurfaceType(i, j) != SURFACE_TYPE_AIR &&
                 (ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] & mask)) {
                 Survey_RenderMarker(window, i, j, ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i]);

@@ -316,7 +316,7 @@ bool TaskCreateBuilding::RequestMineRemoval() {
                 }
 
                 if (it) {
-                    SmartPointer<Task> remove_mines_task(new (std::nothrow) TaskRemoveMines(this, &*builder));
+                    SmartPointer<Task> remove_mines_task(new (std::nothrow) TaskRemoveMines(this, &*it));
 
                     tasks.PushBack(*remove_mines_task);
                     TaskManager.AppendTask(*remove_mines_task);
@@ -953,7 +953,6 @@ void TaskCreateBuilding::BuildBoardwalks() {
         unit_type != DOCK && (UnitsManager_BaseUnits[unit_type].flags & BUILDING)) {
         Point position;
         AccessMap map;
-        SmartPointer<TaskCreateBuilding> create_building_task;
         Rect bounds;
         int range_limit;
 
@@ -975,10 +974,8 @@ void TaskCreateBuilding::BuildBoardwalks() {
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                     position.y < ResourceManager_MapSize.y) {
                     if (map.GetMapColumn(position.x)[position.y] == 1) {
-                        create_building_task =
+                        SmartPointer<TaskCreateBuilding> create_building_task =
                             new (std::nothrow) TaskCreateBuilding(this, 0x1C80, BRIDGE, position, &*manager);
-
-                        tasks.PushBack(*create_building_task);
 
                         if (manager) {
                             manager->AddCreateOrder(&*create_building_task);
