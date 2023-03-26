@@ -22,14 +22,18 @@
 #include "taskdebugger.hpp"
 
 #include "ailog.hpp"
+#include "game_manager.hpp"
 #include "message_manager.hpp"
 #include "task_manager.hpp"
 #include "text.hpp"
 
 static int TaskDebugger_DebugMode;
+static int TaskDebugger_DebugTask;
 
 TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int button_down_value,
                            int first_row_value) {
+    TaskDebugger_DebugTask = -1;
+
     text_font(GNW_TEXT_FONT_5);
 
     window = *win;
@@ -206,6 +210,13 @@ void TaskDebugger_SetDebugMode() {
     }
 }
 
+void TaskDebugger_DebugBreak(int task_id) {
+    if (task_id == TaskDebugger_DebugTask) {
+        TaskDebugger_DebugTask = -1;
+        SDL_TriggerBreakpoint();
+    }
+}
+
 bool TaskDebugger::ProcessKeyPress(int key) {
     bool result;
 
@@ -214,7 +225,8 @@ bool TaskDebugger::ProcessKeyPress(int key) {
 
         if (tasks.GetCount() > index) {
             if (index == task_count) {
-                SDL_TriggerBreakpoint();
+                GameManager_RequestMenuExit = true;
+                TaskDebugger_DebugTask = tasks[task_count].GetId();
 
             } else {
                 task_count = index;

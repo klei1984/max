@@ -23,6 +23,7 @@
 
 #include "aiattack.hpp"
 #include "task_manager.hpp"
+#include "taskdebugger.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 
@@ -36,6 +37,7 @@ RemindTurnStart::~RemindTurnStart() {}
 
 void RemindTurnStart::Execute() {
     task->SetField7(false);
+    TaskDebugger_DebugBreak(task->GetId());
     task->BeginTurn();
 }
 
@@ -49,6 +51,7 @@ RemindTurnEnd::~RemindTurnEnd() {}
 
 void RemindTurnEnd::Execute() {
     task->SetField8(false);
+    TaskDebugger_DebugBreak(task->GetId());
     task->EndTurn();
 }
 
