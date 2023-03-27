@@ -1199,7 +1199,7 @@ void db_preload_buffer(DB_FILE stream) {
         if (size & 0x8000) {
             size_t bytes_read;
 
-            size &= 0x7FFF;
+            size &= ~0x8000;
 
             bytes_read = fread((void*)stream->buffer_position, 1, size, stream->db->datafile_handle);
             SDL_assert(bytes_read == size);

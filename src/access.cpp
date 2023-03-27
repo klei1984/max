@@ -1436,9 +1436,7 @@ UnitInfo* Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned 
 }
 
 UnitInfo* Access_GetUnit7(unsigned short team, int grid_x, int grid_y) {
-    UnitInfo* unit;
-
-    unit = nullptr;
+    UnitInfo* unit = nullptr;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {

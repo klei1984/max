@@ -225,7 +225,7 @@ bool TaskClearZone::ExamineZones() {
             for (int j = 0; j < zone->points.GetCount(); ++j) {
                 site = *zone->points[j];
 
-                info_map[site.x][site.y] &= 0xF7;
+                info_map[site.x][site.y] &= ~0x08;
             }
         }
     }

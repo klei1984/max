@@ -43,7 +43,7 @@ void inifile_load_from_resource(Ini_descriptor *const pini, ResourceID resource_
         pini->next_value_address = nullptr;
         pini->key_start_address = nullptr;
         pini->param_start_address = nullptr;
-        pini->flags &= 0x7Fu;
+        pini->flags &= ~0x80u;
     }
 }
 
@@ -74,7 +74,7 @@ int inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const char
             pini->next_value_address = 0;
             pini->key_start_address = 0;
             pini->param_start_address = 0;
-            pini->flags &= 0x7Fu;
+            pini->flags &= ~0x80u;
             result = 1;
         } else {
             fclose(fp);

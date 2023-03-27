@@ -2177,10 +2177,10 @@ bool UnitInfo::ExpectAttack() {
 
     RefreshScreen();
 
-    if (pin_count) {
+    if (pin_count > 0) {
         result = false;
     } else {
-        if (path != nullptr) {
+        if (path) {
             if ((flags & MOBILE_AIR_UNIT) && !(flags & HOVERING)) {
                 UnitsManager_SetNewOrderInt(this, ORDER_TAKE_OFF, ORDER_STATE_0);
                 Ai_SetTasksPendingFlag("plane takeoff");
@@ -3861,7 +3861,7 @@ void UnitInfo::SpawnNewUnit() {
             AddReminders(true);
 
         } else {
-            if (GameManager_SelectedUnit == true) {
+            if (GameManager_SelectedUnit) {
                 SoundManager.PlaySfx(this, SFX_TYPE_IDLE);
             }
 

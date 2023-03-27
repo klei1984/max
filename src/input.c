@@ -556,7 +556,7 @@ void add_bk_process(BackgroundProcess f) {
     for (fp = bk_list; fp; fp = fp->next) {
         if ((BackgroundProcess)fp->f == f) {
             if (fp->flags & 1) {
-                fp->flags &= 0xFFFFFFFEuL;
+                fp->flags &= ~1;
             }
 
             return;

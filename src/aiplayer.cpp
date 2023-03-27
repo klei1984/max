@@ -2809,7 +2809,7 @@ void AiPlayer::PlanMinefields() {
                 if (access_map.GetMapColumn((*it).grid_x)[(*it).grid_y]) {
                     ++counter3;
 
-                    info_map[(*it).grid_x][(*it).grid_y] &= 0xFD;
+                    info_map[(*it).grid_x][(*it).grid_y] &= ~0x02;
                     access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] = 0x00;
                 }
             }

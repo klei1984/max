@@ -710,7 +710,7 @@ void win_move(WinID id, int ulx, int uly) {
         }
 
         if (w->flags & 0x01) {
-            ulx &= 0xFFFFFFFC;
+            ulx &= ~0x03;
         }
 
         w->w.ulx = ulx;

@@ -167,7 +167,7 @@ void DefenseManager::PlanDefenses(int asset_value_goal_, TaskObtainUnits* task, 
             }
         }
 
-        while (asset_value < asset_value_goal) {
+        while (asset_value + build_costs < asset_value_goal) {
             ResourceID unit_type = table.RollUnitType();
 
             if (unit_type != INVALID_ID) {
