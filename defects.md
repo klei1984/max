@@ -302,7 +302,7 @@ On modern operating systems the deallocated heap memory could be reallocated by 
     </video>
     The transporter's activate event should check the destination cell type.
 
-81. The algorithm (cseg01:00076144) that draws attack and scan ranges on screen misbehaves at extreme ranges combined with high level of zoom.
+81. **[Fixed]** The algorithm (cseg01:00076144) that draws attack and scan ranges on screen misbehaves at extreme ranges combined with high level of zoom.
 <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_81.mp4" type="video/mp4">
@@ -315,7 +315,7 @@ On modern operating systems the deallocated heap memory could be reallocated by 
     </video>
     This is not the only flickering behaviour.
 
-83. The function (cseg01:000CE775) responsible for the reports menu's mouse left click event handling tests against incorrect window boundaries. The active draw area is 459 x 448 pixels. The on click event handler checks for 459 x 459 pixels by calling Image::GetWidth() for both x and y axis dimensions. this must be a simple copy paste error.
+83. **[Fixed]** The function (cseg01:000CE775) responsible for the reports menu's mouse left click event handling tests against incorrect window boundaries. The active draw area is 459 x 448 pixels. The on click event handler checks for 459 x 459 pixels by calling Image::GetWidth() for both x and y axis dimensions. this must be a simple copy paste error.
 
 84. The reports menu constructor (cseg01:000CC8D0) calls GNW win_draw() twice right after each other. First a call is enabled by the class specific draw function via function parameter, then right after the draw function there is another call.
 
@@ -326,7 +326,7 @@ On modern operating systems the deallocated heap memory could be reallocated by 
     </video>
     In my opinion land mines should also blow up just like connectors and roads built above water platforms and bridges do. Any non hybrid land unit should sink to the bottom of the sea too. If an aircraft is landed on a landing pad on a water platform and the landing pad gets demolished the aircraft should either take off into air, or should sink to the bottom of the sea.
 
-86. The maxsuper cheat code increases the scan and attack ranges. The game redraws the markers incorrectly until there is a movement of screen or unit.
+86. **[Fixed]** The maxsuper cheat code increases the scan and attack ranges. The game redraws the markers incorrectly until there is a movement of screen or unit.
 <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_86.mp4" type="video/mp4">
@@ -562,3 +562,13 @@ This is a good example for a complex soft lock situation.
 164. **[Fixed]** The TaskCreateBuilding class implements a method (cseg01:0002E07B) to finish build jobs. In corner cases the last SmartPointer reference to the task object itself gets removed and the object is prematurely deleted during the execution of another class virtual method (cseg01:0002CF2C). When the earlier method gets back control and tries to use object specific member variables that hold UnitInfo object references there is a chance that the already freed up heap memory is already reallocated for something else and a new corrupted activation order is issued based on garbage data. In other cases invalid memory addresses could be dereferenced which leads to segmentation faults on modern systems. This defect may be related to defect 12.
 
 165. **[Fixed]** The task debugger class implements a scrollable list window. The scroll up and down buttons do not update the button disabled state sprites correctly on reaching list boundaries as the buttons do not register mouse press release event handlers in the class constructor (cseg01:000E02BC).
+
+166. **[Fixed]** The save / load menu implements save slot panels as class objects that instantiate local pixel buffers where an image, and a text edit control writes data. The save slot object destructor deletes the image control first, than the local pixel buffers and finally the text edit control. The problem with this call sequence is that image and text edit controls restore original background data buffered by the controls to their earlier target buffer areas. As the local pixel buffer is already deleted when the text edit control tries to copy its cached data there memory corruption or segmentation fault occurs. The two pixel buffers must be deleted after the image and text edit control object by the applicable class member function (cseg01:000D6AD6).
+
+167. **[Fixed]** Each popup context menu button registers an event handler function. Each event handler calls a function (cseg01:0009448C) to destruct the popup buttons that invoked them. This is wrong as the button control object calls the event handler function that deletes the button control object and after the event handler function returns to the button control object manager function () it dereferences and writes to already released heap memory which could lead to segmentation faults on modern operating systems.
+
+168. **[Fixed]** The game registers a screenshot saver function (cseg01:00091AB9) which produces images in indexed PCX format. The format uses RLE encoding of maximum 63 pixels long strides. The original implementation compares two consecutive pixels in the buffer for equality and tests whether the stride is longer than the buffer limits after. This leads to out of bounds read access and in corner cases this leads to segmentation faults on modern operating systems. The conditional tests shall be reordered so that the buffer limits are tested first and consecutive pixel equality only after.
+
+169. The TaskManageBuildings task periodically evaluates whether to build a storage unit. If the stored cargo in the relevant complex is more than 75% of the capacity available and planned in the complex, then a new storage unit is ordered. The algorithm considers planned mining stations in the capacity figure. A planned mining station could be waiting for constructors to become available, the available constructor could be waiting for water platforms to be built at the planned location, a water platform to be built could be waiting for an engineer to arrive at the target location, and finally an engineer could be waiting for raw materials to become available. This could lead to situations where computer players are losing all of their raw material production for dozens of turns.
+
+170. The TaskCreateBuilding task evaluates whether boardwalks are required to be built around newly ordered buildings. The relevant algorithm (cseg01:0002ED2B) first generates an access map for land units, then evaluates the map and decides where to request the construction of new bridges. The map excludes all non desired grid cells like dangerous locations, locations with existing or planned non passable buildings, and locations with abundant resources. The map also identifies all locations where bridges are already present or their construction is planned. Finally if grid cells are identified around the newly ordered building where bridges could be built, they are ordered. The only problem is that water platforms are passable buildings that cannot be replaced by bridges by engineers and this is not considered by the algorithm. So the algorithm could order the construction of new bridges at locations where water platforms or even roads or land mines are already present or where water platform are already planned to be built.
