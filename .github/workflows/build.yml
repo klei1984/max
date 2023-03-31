@@ -46,9 +46,11 @@ jobs:
       -  name: Package
          run: |
             cd $BUILD_DIR
-            cpack
+            cpack --config CPackConfig.cmake
+            cpack --config CPackSourceConfig.cmake
             mkdir Artifacts
             cp *.deb Artifacts/
+            cp *.tar.gz Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3
@@ -91,9 +93,11 @@ jobs:
       -  name: Package
          run: |
             cd $BUILD_DIR
-            cpack
+            cpack --config CPackConfig.cmake
+            cpack --config CPackSourceConfig.cmake
             mkdir Artifacts
             cp *-win32.exe Artifacts/
+            cp *-Source.7z Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3
