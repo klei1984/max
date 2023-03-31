@@ -7,7 +7,7 @@ find_package(Git)
 
 if(Git_FOUND)
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} describe --always
+        COMMAND ${GIT_EXECUTABLE} describe --always --tags
         RESULT_VARIABLE GIT_RESULT
         OUTPUT_VARIABLE GIT_OUTPUT
         ERROR_QUIET
