@@ -68,15 +68,13 @@ After entering the newly created build folder configure cmake to create a Debug 
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local ..
 ```
 
-and finally we can build our game executable
+And finally we can generate our easy to use binary distribution package.
 
 ```
-cmake --build . --parallel
+cmake --build . --parallel --target package
 ```
 
-If everything went well then the built executable will be found right inside the build folder called `maxrun`.
-
-The new executable and any new game assets should be placed into the location where the original maxrun.exe file is found within the game's install folder.
+If everything went well then a Linux DEB package is created with a name similar to `max-port-x.y.z-Linux.deb`.
 
 ### Build on Windows using MSYS2
 
@@ -122,14 +120,12 @@ After entering the newly created build folder configure cmake to create a Debug 
 cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX="C:/Program Files (x86)/max" ..
 ```
 
-and finally we can build our game executable
+And finally we can generate our easy to use binary distribution packages.
 
 ```
-cmake --build . --parallel
+cmake --build . --parallel --target package
 ```
 
-If everything went well then the built executable will be found right inside the build folder called `maxrun.exe`.
-
-The new executable and any new game assets should be placed into the location where the original maxrun.exe file is found within the game's install folder replacing the old one. It is recommended to create a backup copy of the old executable.
+If everything went well then an executable installer and a 7-Zip compressed archive is created with names similar to `max-port-x.y.z-win32.exe` and `max-port-x.y.z-win32.7z`. Either run the installer and follow the on screen instructions or unpack the archive. M.A.X. Port is an update for the original M.A.X. game which means that the update needs to be installed or copied into the root folder of an existing M.A.X. installation folder where the `maxrun.exe` game executable is found. Some examples: `c:\Program Files (x86)\GOG Galaxy\Games\MAX`, `c:\Program Files (x86)\Steam\steamapps\common\M.A.X. Mechanized Assault & Exploration\max`, `C:\INTRPLAY\MAX`.
 
 ## References

@@ -97,8 +97,13 @@ input:checked ~ .dropdown-trigger {
   text-decoration: underline;
 }
 
-.nav-item>.nav-link {
+.nav-item > .nav-link {
   color: $text-color;
+}
+
+li.nav-item:last-child > a {
+  color: #9d1e1c;
+  font-weight:600;
 }
 
 .dropdown-trigger {
