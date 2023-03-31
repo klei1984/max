@@ -97,6 +97,7 @@ jobs:
             cpack --config CPackSourceConfig.cmake
             mkdir Artifacts
             cp *-win32.exe Artifacts/
+            cp *-win32.7z Artifacts/
             cp *-Source.7z Artifacts/
 
       -  name: Upload Artifacts
