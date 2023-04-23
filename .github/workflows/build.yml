@@ -53,7 +53,8 @@ jobs:
             mkdir Artifacts
             cp *.deb Artifacts/
             cp *.tar.gz Artifacts/
-            cp max.debug Artifacts/
+            7z a -mx9 -bd max-port-linux-symbols.7z max.debug
+            cp max-port-linux-symbols.7z Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3
@@ -102,7 +103,8 @@ jobs:
             cp *-win32.exe Artifacts/
             cp *-win32.7z Artifacts/
             cp *-Source.7z Artifacts/
-            cp max.debug Artifacts/
+            7z a -mx9 -bd max-port-win32-symbols.7z max.debug
+            cp max-port-win32-symbols.7z Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3
