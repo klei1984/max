@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2022-12-21.
+Last updated: 2023-04-23.
 
 Reimplementation status: 5666 / 5704 (99%) functions.
 
@@ -214,17 +214,25 @@ The massive amount of polymorphism that is involved with all the custom object c
 
 ### 7 Localization
 M.A.X. utilizes GNW's raster font manager and implements six fonts, but uses only three of them. The raster fonts' em size is optimized for 640 x 480 screen resolution. The fonts are encoded according to code page 437. Half of the glyphs are not implemented from the code page while others are not recognizable. The fonts themselves are monochromatic and support no opacity contrary to some of the fonts that Fallout used.
-To support as many languages as possible and eventually high DPI displays and much higher resolutions the SDL_ttf library will be used for text rendering. Three new TrueType fonts will be created and the font manager will be redesigned to work with SDL_ttf and TrueType fonts while keeping the ability to draw multi color shaded glyphs via GNW’s Text API to keep that old genuine look and feel. To be able to support multiple languages a locale manager needs to be realized and language dependent text needs to be externalized as they are all hard coded currently within the source code.
+To support as many languages as possible and eventually high DPI displays and much higher resolutions the FreeType library is used for text rendering. Three new TrueType fonts are created and the font manager is redesigned to work with unicode vector fonts while keeping the ability to draw multi color shaded glyphs via GNW’s Text API to keep that old genuine look and feel. To be able to support multiple languages a locale manager is realized and language dependent texts are externalized as they are all hard coded within the source code.
 In-game hints, in-game help and some other text, like mission briefings or planet descriptions, are handled by the game on a per use case basis. For example all missions and planets are hard coded. It is not possible to just add new planets that the game would recognize. Scenarios are just saved games that store chat and other system messages using the locale that was active at the time of creation. Solving these problems and supporting multiple voice overs are out of the scope of this work package.
 
-- support TrueType fonts
-- support utf-8 encoded glyphs
-- support keyboard locales
-- support custom key bindings
-- support multiple languages
-- support subtitles in MVE video clips
-- externalize hard coded language dependent text
-- develop translation tools
+- <span class="legend-done">
+  Support TrueType fonts
+  </span>
+- <span class="legend-done">
+  Support utf-8 encoded glyphs
+  </span>
+- Support keyboard locales
+- Support custom key bindings
+- <span class="legend-done">
+  Support multiple languages
+  </span>
+- Support subtitles in MVE video clips
+- <span class="legend-done">
+  Externalize hard coded language dependent text
+  </span>
+- Develop translation tools
 
 ### 8 - and beyond
 To be defined

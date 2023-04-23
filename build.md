@@ -36,10 +36,10 @@ Now update the package lists.
 sudo apt-get update
 ```
 
-Next install all dependencies and required tools. The list includes gcc i386, SDL packages and the CMake build system.
+Next install all dependencies and required tools. The list includes gcc i386, SDL packages and the CMake build system. `libiconv` does not exist on Ubuntu, it is integrated into `libc6-dev` which is installed as a dependency of other packages.
 
 ```
-sudo apt-get install cmake build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386 libsdl2-ttf-dev:i386
+sudo apt-get install cmake build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386 libfreetype-dev:i386
 ```
 
 Now grab the M.A.X. Port source code from either a release baseline or from the latest master branch.
@@ -88,10 +88,10 @@ Next open a mingw32 terminal window `c:\msys64\mingw32.exe` and update the msys2
 pacman -Syu
 ```
 
-Next install all dependencies and required tools. The list includes gcc i386, SDL packages and the CMake build system.
+Next install all dependencies and required tools. The list includes gcc i386, SDL packages, NSIS and the CMake build system.
 
 ```
-pacman -S mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-SDL2_ttf mingw32/mingw-w64-i686-cmake make
+pacman -S mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-libiconv mingw32/mingw-w64-i686-freetype mingw-w64-i686-nsis mingw32/mingw-w64-i686-cmake make
 ```
 
 Now grab the M.A.X. Port source code from either a release baseline or from the latest master branch.

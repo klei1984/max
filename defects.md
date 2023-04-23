@@ -572,3 +572,19 @@ This is a good example for a complex soft lock situation.
 169. The TaskManageBuildings task periodically evaluates whether to build a storage unit. If the stored cargo in the relevant complex is more than 75% of the capacity available and planned in the complex, then a new storage unit is ordered. The algorithm considers planned mining stations in the capacity figure. A planned mining station could be waiting for constructors to become available, the available constructor could be waiting for water platforms to be built at the planned location, a water platform to be built could be waiting for an engineer to arrive at the target location, and finally an engineer could be waiting for raw materials to become available. This could lead to situations where computer players are losing all of their raw material production for dozens of turns.
 
 170. The TaskCreateBuilding task evaluates whether boardwalks are required to be built around newly ordered buildings. The relevant algorithm (cseg01:0002ED2B) first generates an access map for land units, then evaluates the map and decides where to request the construction of new bridges. The map excludes all non desired grid cells like dangerous locations, locations with existing or planned non passable buildings, and locations with abundant resources. The map also identifies all locations where bridges are already present or their construction is planned. Finally if grid cells are identified around the newly ordered building where bridges could be built, they are ordered. The only problem is that water platforms are passable buildings that cannot be replaced by bridges by engineers and this is not considered by the algorithm. So the algorithm could order the construction of new bridges at locations where water platforms or even roads or land mines are already present or where water platform are already planned to be built.
+
+171. **[Fixed]** There is a typo in the German translation: `OK, Datei zu speichern \n%s\"5s\"` > `OK, Datei zu speichern \n%s\"%s\"`.
+
+172. **[Fixed]** There is a typo in the French translation: `\n(%i Mat.` > `\n(%i Mat.)`.
+
+173. **[Fixed]** There is a typo in the French translation. Original English: `Reaction Fire Off`. Translation: `Auto-Tirer` > `En repos`.
+
+174. **[Fixed]** The German translation did not translate two multiplayer relevant messages: `Cheater!` and `Cheater! Prepare to pay the price.`.
+
+175. **[Fixed]** There is a typo in the Italian translation: `Materie Prime: %s: ` > `Materie Prime: %s`.
+
+176. **[Fixed]** Most translations forgot to update the game executable name to the retail one: `\nTo play M.A.X. type MC\n\n` > `\nTo play M.A.X. type MAX\n\n`.
+
+177. **[Fixed]** There is a function to draw text on the save / load menu into save slots (cseg01:000D7754). The function center aligns strings horizontally and vertically. The horizontal alignment part does not consider that long strings would result in a negative or below minimum positive horizontal position offset shifting strings to the left, while the long strings themselves are truncated by GNW's text blitter (cseg01:0010A320). The issue is most apparent in the Italian translation.
+
+178. The planet selection menu can render maximum 5 rows of text to describe planets. Some of the translations, e.g. the Italian translation for Planet Frigia, does not fit into the available text box area and description is truncated.
