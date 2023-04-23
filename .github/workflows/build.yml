@@ -80,7 +80,7 @@ jobs:
 
       -  name: Setup Dependencies
          run: |
-            pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-libiconv mingw32/mingw-w64-i686-freetype mingw32/p7zip mingw32/mingw-w64-i686-cmake mingw-w64-x86_64-ninja make
+            pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-libiconv mingw32/mingw-w64-i686-freetype p7zip mingw32/mingw-w64-i686-cmake mingw-w64-x86_64-ninja make
 
       -  name: Checkout
          uses: actions/checkout@v3
