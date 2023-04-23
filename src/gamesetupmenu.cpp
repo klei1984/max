@@ -25,6 +25,7 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
@@ -67,9 +68,9 @@ static struct GameSetupMenuControlItem game_setup_menu_controls[] = {
     MENU_CONTROL_DEF(48, 438, 0, 0, MNUDAROU, nullptr, 0, &GameSetupMenu::EventScrollButton, MBUTT0),
     MENU_CONTROL_DEF(563, 438, 0, 0, MNUUAROU, nullptr, 0, &GameSetupMenu::EventBriefingButton, MBUTT0),
     MENU_CONTROL_DEF(596, 438, 0, 0, MNUDAROU, nullptr, 0, &GameSetupMenu::EventBriefingButton, MBUTT0),
-    MENU_CONTROL_DEF(200, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, &GameSetupMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(312, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &GameSetupMenu::EventHelp, NHELP0),
-    MENU_CONTROL_DEF(361, 438, 0, 0, MNUBTN6U, "Start", GNW_KB_KEY_RETURN, &GameSetupMenu::EventStart, NDONE0),
+    MENU_CONTROL_DEF(200, 438, 0, 0, MNUBTN4U, _(639d), GNW_KB_KEY_ESCAPE, &GameSetupMenu::EventCancel, NCANC0),
+    MENU_CONTROL_DEF(312, 438, 0, 0, MNUBTN5U, _(da8e), GNW_KB_KEY_SHIFT_DIVIDE, &GameSetupMenu::EventHelp, NHELP0),
+    MENU_CONTROL_DEF(361, 438, 0, 0, MNUBTN6U, _(f0a3), GNW_KB_KEY_RETURN, &GameSetupMenu::EventStart, NDONE0),
 };
 
 static char* menu_setup_menu_mission_titles[GAME_SETUP_MENU_MISSION_COUNT];
@@ -91,7 +92,7 @@ void GameSetupMenu::ButtonInit(int index) {
 
     control = &game_setup_menu_controls[index];
 
-    text_font((index < 16) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
+    Text_SetFont((index < 16) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
 
     if (control->image_id == INVALID_ID) {
         if (index >= GAME_SETUP_MENU_MISSION_COUNT) {
@@ -141,19 +142,19 @@ void GameSetupMenu::Init(int palette_from_image) {
 
     switch (game_file_type) {
         case GAME_TYPE_TRAINING:
-            draw_menu_title(window, "Training Missions");
+            draw_menu_title(window, _(9b46));
             break;
 
         case GAME_TYPE_SCENARIO:
-            draw_menu_title(window, "Stand Alone Missions");
+            draw_menu_title(window, _(5d49));
             break;
 
         case GAME_TYPE_CAMPAIGN:
-            draw_menu_title(window, "Campaign Game");
+            draw_menu_title(window, _(385b));
             break;
 
         default:
-            draw_menu_title(window, "Multiplayer Scenarios");
+            draw_menu_title(window, _(f27a));
             break;
     }
 
@@ -162,7 +163,7 @@ void GameSetupMenu::Init(int palette_from_image) {
         ButtonInit(i);
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     DrawMissionList();
     LoadMissionDescription();
@@ -366,12 +367,12 @@ void GameSetupMenu::LoadMissionDescription() {
         fclose(fp);
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     width = game_setup_menu_titles[1].bounds.lrx - game_setup_menu_titles[1].bounds.ulx;
     height = game_setup_menu_titles[1].bounds.lry - game_setup_menu_titles[1].bounds.uly;
 
-    rows_per_page = height / text_height();
+    rows_per_page = height / Text_GetHeight();
 
     if (string.GetLength()) {
         strings = Text_SplitText(string.GetCStr(), rows_per_page * 3, width, &string_row_count);
@@ -395,7 +396,7 @@ void GameSetupMenu::DrawMissionDescription() {
             strcpy(text, menu_setup_menu_mission_titles[game_slot]);
         }
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
         game_setup_menu_titles[0].title = text;
         menu_draw_menu_title(window, &game_setup_menu_titles[0], COLOR_GREEN, true, true);
         DrawDescriptionPanel();
@@ -437,8 +438,8 @@ void GameSetupMenu::DrawDescriptionPanel() {
 
     if (strings) {
         for (int row_index = string_row_index; row_index < row_index_max; ++row_index) {
-            text_to_buf(&buffer_position[window->width * (row_index - string_row_index) * text_height()],
-                        strings[row_index].GetCStr(), width, window->width, 0xA2);
+            Text_Blit(&buffer_position[window->width * (row_index - string_row_index) * Text_GetHeight()],
+                      strings[row_index].GetCStr(), width, window->width, 0xA2);
         }
     }
 

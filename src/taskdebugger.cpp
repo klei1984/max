@@ -34,7 +34,7 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int
                            int first_row_value) {
     TaskDebugger_DebugTask = -1;
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     window = *win;
 
@@ -44,10 +44,10 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int
 
     team = task->GetTeam();
 
-    row_count = (window.window.lry - window.window.uly) / (text_height() * 2);
+    row_count = (window.window.lry - window.window.uly) / (Text_GetHeight() * 2);
 
     int width = window.window.lrx - window.window.ulx;
-    int height = text_height() * row_count * 2;
+    int height = Text_GetHeight() * row_count * 2;
 
     image = new (std::nothrow) Image(0, 0, width, height);
     image->Copy(&window);
@@ -65,8 +65,8 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int
     button_down->RegisterButton(window.id);
 
     for (int i = 0; i < row_count; ++i) {
-        button_manager.Add(win_register_button(window.id, window.window.ulx, window.window.uly + text_height() * i * 2,
-                                               width, text_height() * 2, -1, -1, -1, first_row_value + i, nullptr,
+        button_manager.Add(win_register_button(window.id, window.window.ulx, window.window.uly + Text_GetHeight() * i * 2,
+                                               width, Text_GetHeight() * 2, -1, -1, -1, first_row_value + i, nullptr,
                                                nullptr, nullptr, 0x00));
     }
 
@@ -112,9 +112,9 @@ void TaskDebugger::InitTaskList(Task *task) {
 
 void TaskDebugger::DrawRow(int uly, const char *caption, Task *task, int color) {
     char text[100];
-    int full_width = text_width(caption);
+    int full_width = Text_GetWidth(caption);
 
-    text_to_buf(&window.buffer[window.width * (text_height() / 2 + uly)], caption, image->GetWidth(), window.width,
+    Text_Blit(&window.buffer[window.width * (Text_GetHeight() / 2 + uly)], caption, image->GetWidth(), window.width,
                 color);
 
     if (task) {
@@ -124,12 +124,12 @@ void TaskDebugger::DrawRow(int uly, const char *caption, Task *task, int color) 
         sprintf(text, "Task Manager (%i reminders queued)", TaskManager.GetRemindersCount());
     }
 
-    Text_TextBox(window.buffer, window.width, text, full_width, uly, image->GetWidth() - full_width, text_height() * 2,
+    Text_TextBox(window.buffer, window.width, text, full_width, uly, image->GetWidth() - full_width, Text_GetHeight() * 2,
                  color, false);
 }
 
 void TaskDebugger::DrawRows() {
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     image->Write(&window);
 
@@ -164,7 +164,7 @@ void TaskDebugger::DrawRows() {
             DrawRow(uly, "Child: ", &tasks[i], COLOR_YELLOW);
         }
 
-        uly += text_height() * 2;
+        uly += Text_GetHeight() * 2;
     }
 
     win_draw(window.id);

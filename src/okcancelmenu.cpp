@@ -23,6 +23,7 @@
 
 #include "cursor.hpp"
 #include "game_manager.hpp"
+#include "localization.hpp"
 #include "mouseevent.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
@@ -33,21 +34,21 @@ OKCancelMenu::OKCancelMenu(const char* caption)
       event_click_cancel(false),
       event_release(false) {
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
     SetFlags(0x10);
 
     Add();
     FillWindowInfo(&window);
 
     button_ok = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 155, 193);
-    button_ok->SetCaption("OK", 2, 2);
+    button_ok->SetCaption(_(755f), 2, 2);
     button_ok->SetRValue(GNW_KB_KEY_RETURN);
     button_ok->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
     button_ok->SetSfx(NDONE0);
     button_ok->RegisterButton(window.id);
 
     button_cancel = new (std::nothrow) Button(XFRCAN_U, XFRCAN_D, 85, 193);
-    button_cancel->SetCaption("Cancel", 2, 2);
+    button_cancel->SetCaption(_(2879), 2, 2);
     button_cancel->SetRValue(GNW_KB_KEY_ESCAPE);
     button_cancel->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
     button_cancel->SetSfx(NCANC0);

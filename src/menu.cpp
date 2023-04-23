@@ -98,13 +98,13 @@ static struct MenuButton main_menu_buttons[] = {
 };
 
 static struct MenuButton new_game_menu_buttons[] = {
-    MENU_BUTTON_DEF(true, 385, 175, _(9b46), GNW_KB_KEY_SHIFT_T, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 210, _(5d49), GNW_KB_KEY_SHIFT_S, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 175, _(182b), GNW_KB_KEY_SHIFT_T, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 210, _(02c9), GNW_KB_KEY_SHIFT_S, MBUTT0),
     MENU_BUTTON_DEF(true, 385, 245, _(3d29), GNW_KB_KEY_SHIFT_U, MBUTT0),
     MENU_BUTTON_DEF(true, 385, 280, _(884f), GNW_KB_KEY_SHIFT_M, MBUTT0),
-    MENU_BUTTON_DEF(true, 385, 315, _(385b), GNW_KB_KEY_SHIFT_A, MBUTT0),
+    MENU_BUTTON_DEF(true, 385, 315, _(878a), GNW_KB_KEY_SHIFT_A, MBUTT0),
     MENU_BUTTON_DEF(true, 385, 350, _(3838), GNW_KB_KEY_SHIFT_I, MBUTT0),
-    MENU_BUTTON_DEF(false, 435, 420, _(1976), GNW_KB_KEY_SHIFT_C, NCANC0),
+    MENU_BUTTON_DEF(false, 435, 420, _(7eec), GNW_KB_KEY_SHIFT_C, NCANC0),
     MENU_BUTTON_DEF(false, 16, 182, nullptr, GNW_KB_KEY_UP, KCARG0),
 };
 
@@ -114,7 +114,7 @@ static struct MenuButton network_game_menu_buttons[] = {
     MENU_BUTTON_DEF(true, 385, 280, _(f731), GNW_KB_KEY_SHIFT_O, MBUTT0),
     MENU_BUTTON_DEF(true, 385, 315, _(bf00), GNW_KB_KEY_SHIFT_T, MBUTT0),
     MENU_BUTTON_DEF(true, 385, 350, _(847e), GNW_KB_KEY_SHIFT_L, MBUTT0),
-    MENU_BUTTON_DEF(false, 435, 420, _(0de3), GNW_KB_KEY_SHIFT_C, NCANC0),
+    MENU_BUTTON_DEF(false, 435, 420, _(e13e), GNW_KB_KEY_SHIFT_C, NCANC0),
     MENU_BUTTON_DEF(false, 16, 182, nullptr, GNW_KB_KEY_UP, KCARG0),
 };
 
@@ -127,85 +127,85 @@ static int menu_tips_row_count;
 static int menu_tips_current_row_index;
 
 static const struct CreditsLine menu_credits_lines[] = {
-    CREDITS_TITLE(_(aabe)),
+    CREDITS_TITLE(_(0a6f)),
     CREDITS_TEXT("Ali Atabek"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(84ee)),
+    CREDITS_TITLE(_(a980)),
     CREDITS_TEXT("Ali Atabek"),
     CREDITS_TEXT("Paul Kellner"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(8984)),
+    CREDITS_TITLE(_(095f)),
     CREDITS_TEXT("Ali Atabek"),
     CREDITS_TEXT("Paul Kellner"),
     CREDITS_TEXT("Gus Smedstad"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(aa55)),
+    CREDITS_TITLE(_(f482)),
     CREDITS_TEXT("Dave Boulanger"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(3c7e)),
-    CREDITS_TITLE(_(24ef)),
+    CREDITS_TITLE(_(80f9)),
+    CREDITS_TITLE(_(8bc0)),
     CREDITS_TEXT("Gus Smedstad"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(5fe6)),
+    CREDITS_TITLE(_(c663)),
     CREDITS_TEXT("Dave Boulanger"),
     CREDITS_TEXT("Bernie Weir"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(3215)),
+    CREDITS_TITLE(_(befb)),
     CREDITS_TEXT("Darren Monahan"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(38c1)),
+    CREDITS_TITLE(_(662e)),
     CREDITS_TEXT("Tony Postma"),
     CREDITS_TEXT("Arlene C. Somers"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(363f)),
+    CREDITS_TITLE(_(41cd)),
     CREDITS_TEXT("Chris Regalado"),
     CREDITS_TEXT("Mark Bergo"),
     CREDITS_TEXT("Arlene C. Somers"),
     CREDITS_TEXT("Mike Dean"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(477a)),
+    CREDITS_TITLE(_(7891)),
     CREDITS_TEXT("Tony Postma"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(fff7)),
+    CREDITS_TITLE(_(c82a)),
     CREDITS_TEXT("Cheryl Austin"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(47c6)),
+    CREDITS_TITLE(_(68e0)),
     CREDITS_TEXT("Arlene C. Somers"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(9a25)),
+    CREDITS_TITLE(_(2519)),
     CREDITS_TEXT("Ali Atabek"),
     CREDITS_TEXT("Paul Kellner"),
     CREDITS_TEXT("Steve Perrin"),
     CREDITS_TEXT("Gus Smedstad"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(7ed6)),
+    CREDITS_TITLE(_(9ad1)),
     CREDITS_TEXT("Charles Deenen"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(0822)),
+    CREDITS_TITLE(_(0fd1)),
     CREDITS_TEXT("Steve Perrin"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(c0bb)),
+    CREDITS_TITLE(_(fe3d)),
     CREDITS_TEXT("Paul Kellner"),
     CREDITS_TEXT("Tony Postma"),
     CREDITS_TEXT("Amy Mitchell"),
     CREDITS_TEXT("Laura Mitchell"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(4a00)),
+    CREDITS_TITLE(_(936a)),
     CREDITS_TEXT("Kelly Newcomb"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(d200)),
+    CREDITS_TITLE(_(1331)),
     CREDITS_TEXT("Tony Postma"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(88c0)),
+    CREDITS_TITLE(_(e06f)),
     CREDITS_TEXT("Chad Allison"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(f823)),
+    CREDITS_TITLE(_(919b)),
     CREDITS_TEXT("Colin Totman"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(796e)),
+    CREDITS_TITLE(_(c35a)),
     CREDITS_TEXT("Cory Nelson"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(bf4a)),
+    CREDITS_TITLE(_(0674)),
     CREDITS_TEXT("Amy Mitchell"),
     CREDITS_TEXT("Chris Peak"),
     CREDITS_TEXT("Quinn Summers"),
@@ -229,11 +229,22 @@ static const struct CreditsLine menu_credits_lines[] = {
     CREDITS_TEXT("Jon Atabek"),
     CREDITS_TEXT("Robert Wood"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(79e5)),
+    CREDITS_TITLE(_(498a)),
+    CREDITS_TEXT("Julian Ridley"),
+    CREDITS_SEPARATOR,
+    CREDITS_TITLE(_(6fbd)),
+    CREDITS_TEXT("JBI, Los Angeles"),
+    CREDITS_SEPARATOR,
+    CREDITS_TITLE(_(364b)),
+    CREDITS_TEXT("Gary Burke"),
+    CREDITS_TEXT("Sylvie Nguyen"),
+    CREDITS_TEXT("Ed Robales"),
+    CREDITS_SEPARATOR,
+    CREDITS_TITLE(_(a8a5)),
     CREDITS_TEXT("Bill Delk"),
     CREDITS_TEXT("Aaron J. Meyers"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(e3e3)),
+    CREDITS_TITLE(_(0853)),
     CREDITS_TEXT("John Werner"),
     CREDITS_SEPARATOR,
     CREDITS_TITLE(_(8433)),
@@ -244,80 +255,80 @@ static const struct CreditsLine menu_credits_lines[] = {
     CREDITS_TEXT("Phuong Nguyen"),
     CREDITS_TEXT("Marc Duran"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(d5e4)),
+    CREDITS_TITLE(_(51c9)),
     CREDITS_TEXT("Paul Edelstein"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(25b0)),
+    CREDITS_TITLE(_(9dc7)),
     CREDITS_TEXT("Bill Stoudt"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(1d8d)),
+    CREDITS_TITLE(_(f6a7)),
     CREDITS_TEXT("Jim Veevaert"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(11dd)),
+    CREDITS_TITLE(_(abc4)),
     CREDITS_TEXT("Dean Schulte"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(3a89)),
+    CREDITS_TITLE(_(0ae1)),
     CREDITS_TEXT("Julie Roether"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(e13c)),
+    CREDITS_TITLE(_(8ead)),
     CREDITS_TEXT("Nicole Pelerine"),
     CREDITS_TEXT("Brian Cummings"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(f7fe)),
+    CREDITS_TITLE(_(fab6)),
     CREDITS_TEXT("Charles Deenen"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(b3c3)),
+    CREDITS_TITLE(_(1795)),
     CREDITS_TEXT("Chris Borders"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(65d0)),
+    CREDITS_TITLE(_(b291)),
     CREDITS_TEXT("Craig Duman"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(85e2)),
+    CREDITS_TITLE(_(31f7)),
     CREDITS_TEXT("Sergio Bustamante"),
     CREDITS_TEXT("Chris Borders"),
     CREDITS_TEXT("Craig Duman"),
     CREDITS_TEXT("Doug Rappaport"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(3c03)),
+    CREDITS_TITLE(_(b23a)),
     CREDITS_TEXT("Brian Luzietti"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(afad)),
+    CREDITS_TITLE(_(f0f9)),
     CREDITS_TEXT("Rick Jackson"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(181c)),
+    CREDITS_TITLE(_(d040)),
     CREDITS_TEXT("Digital Brothers"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(02ff)),
+    CREDITS_TITLE(_(9964)),
     CREDITS_TEXT("Gregory G. Allen"),
     CREDITS_TEXT("Larry Peacock"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(5dab)),
+    CREDITS_TITLE(_(177b)),
     CREDITS_TEXT("Craig Duman"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(bec3)),
+    CREDITS_TITLE(_(67e6)),
     CREDITS_TEXT("James Doyle"),
     CREDITS_TEXT("Apple's Animation"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(e725)),
+    CREDITS_TITLE(_(c5af)),
     CREDITS_TEXT("Albert LIoyd Olson for Four Bars Entertainment"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(5c49)),
+    CREDITS_TITLE(_(9376)),
     CREDITS_TEXT("David Farmer"),
     CREDITS_TEXT("Harry Cohen"),
     CREDITS_TEXT("Jeffrey R. Whitcher"),
     CREDITS_TEXT("Elisabeth Flaum"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(6a6b)),
+    CREDITS_TITLE(_(387d)),
     CREDITS_TEXT("Ken Teaney"),
     CREDITS_TEXT("Mashall Garlington"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(9b23)),
+    CREDITS_TITLE(_(99e0)),
     CREDITS_TEXT("Charles Deenen"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(f7ea)),
+    CREDITS_TITLE(_(12f1)),
     CREDITS_TEXT("Doug Rappaport"),
     CREDITS_SEPARATOR,
-    CREDITS_TITLE(_(3a41)),
+    CREDITS_TITLE(_(85c8)),
     CREDITS_TEXT("Doug Rappaport"),
     CREDITS_TEXT("Sergio Bustamante"),
     CREDITS_SEPARATOR,
@@ -343,127 +354,25 @@ static const struct CreditsLine menu_credits_lines[] = {
     CREDITS_SEPARATOR,
 };
 
-const char* menu_planet_descriptions[] = {
-    "This world is named for the shape of its only landmass. If participants on this world are placed too close "
-    "together, a production strategy is unlikely to work.\nNumber of Participants: Two to three participants is "
-    "preferable.\nGame Time: Games on this land mass can be very short unless the combatants are well separated.",
+const char* menu_planet_descriptions[] = {_(1471), _(c336), _(f40f), _(6c6c), _(8d9a), _(cb1d), _(5195), _(012c),
+                                          _(323e), _(2385), _(6f14), _(708f), _(6903), _(4d80), _(ae4e), _(d0a4),
+                                          _(fdd7), _(0ac0), _(5f4b), _(8475), _(cffe), _(7842), _(da7e), _(6517)};
 
-    "This area is likely to need a full deployment of land, sea, and air forces. A force starting on the same land "
-    "mass as another might abandon their base camp and striking out for another land mass to start over.\nNumber of "
-    "Participants: two to four can be easily accommodated.\nGame Time: Games in this area are likely to be long.",
-
-    "These chunks of ice poking up out of the frozen sea are widely enough separated that participants should have "
-    "plenty of time to build up naval and air forces to pursue their goals.\nNumber of Participants: two to four can "
-    "be easily accommodated.\nGame Time: Games in this area are likely to be long.",
-
-    "This single land mass with surrounding islands is so small that two participants starting on the mass makes "
-    "immediate contact with the enemy very likely. Start on one of the outlying islands to gain plenty of time for "
-    "force increase.\nNumber of Participants: Two to three participants is preferable.\nGame Time: Games in this area "
-    "can be very short.",
-
-    "Participants who land on one of the smaller land masses should have plenty of time to build production before "
-    "encountering an opponent. Landing two on the same land mass will cause instant combat.\nNumber of Participants: "
-    "two to four can be easily accommodated.\nGame Time: Games in this area are likely to be long.",
-
-    "The nature of this land mass makes construction of water platforms mandatory for a successful colonization. The "
-    "chance of a preemptive strike by an opponent is high, though not as high as from other single-land areas.\nNumber "
-    "of Participants: Two to three participants is preferable.\nGame Time: Games in this area should be of medium to "
-    "long length.",
-
-    "A starting position on one of the outlying islands almost ensures a long time for buildup before contact is made "
-    "with an enemy.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: A long game unless "
-    "the participants are all started in close proximity on the main continent.",
-
-    "This archipelago of closely placed islands could be the scene of an entirely land and bridge based campaign, "
-    "though sea and air assets would be useful.\nNumber of Participants: two to four can be easily accommodated.\nGame "
-    "Time: Likely to be long unless there are only two participants and they both land on the same island.",
-
-    "Only these few islands peak up from the omnipresent muddy seas of this world. The islands are sufficiently "
-    "scattered that sea and air elements are necessary for any successful endeavor.\nNumber of Participants: two to "
-    "four can be easily accommodated.\nGame Time: This is likely to be a long campaign.",
-
-    "Named for the heart-shaped great lake in the center of the land mass, this world can be won by land and air "
-    "forces alone, but the use of sea forces in the central lake could be crucial.\nNumber of Participants: Two to "
-    "four can be easily accommodated.\nGame Time: This is likely to be a long campaign.",
-
-    "The name of this world refers to the three lakes encompassed by the otherwise solid land mass of the world. There "
-    "is a chance that a production-first strategy can run afoul of a preemptory strike by another participant.\nNumber "
-    "of Participants: Two to three participants is preferable.\nGame Time: Probably short.",
-
-    "This world has a lot of space and virtually every land mass has plenty of room for large armies. Depending on "
-    "initial placements, the islands might see no activity at all. If every place is populated, expect intense "
-    "seaborne combats.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Most games in this "
-    "location will be long.",
-
-    "This archipelago is tightly grouped in the middle of the planetary sea. There are opportunities for extensive air "
-    "and sea resources, though an entirely land-and-air-based campaign could be successful.\nNumber of Participants: "
-    "Two to three participants is preferable.\nGame Time: varies greatly depending on the landing points of the "
-    "participants.",
-
-    "The useful parts of this world are split apart by a central sea. Control of the central sea with seaborne assets "
-    "will be essential unless the participants all land on the same continent.\nNumber of Participants: two to four "
-    "can be easily accommodated.\nGame Time: will be long unless two participants land close together.",
-
-    "This world is generally resourceless except for the region around the impact crater from a major asteroid strike. "
-    "A combatant can win using just land and air forces. However, control of the inner sea could be important.\nNumber "
-    "of Participants: two to four can be easily accommodated.\nGame Time: the game can be very long.",
-
-    "This archipelago with a slice of mainland is suited to a balanced combined arm force with extensive resource "
-    "building. Taking sanctuary from the incessant naval action on the slice of mainland is a legitimate tactic, of "
-    "course.\nNumber of Participants: Two to three participants is preferable.\nGame Time: The game will probably be "
-    "long.",
-
-    "This archipelago is best suited to a concentration on sea borne forces. Extensive engineering will be necessary "
-    "to create areas for proper exploitation of the planetary resources.\nNumber of Participants: two to four can be "
-    "easily accommodated.\nGame Time: The necessary construction makes this a long game.",
-
-    "The extensive land area on this planet makes it ideal for extensive land-based warfare. Sea borne assets may play "
-    "a necessary but secondary role, depending on initial placement.\nNumber of Participants: two to four can be "
-    "easily accommodated.\nGame Time: this is likely to be a long game.",
-
-    "This planet gets its name from its appearance when seen from space. The mountains jutting out of the desert give "
-    "it a decidedly freckled appearance. There might be extensive use of naval assets, or none.\nNumber of "
-    "Participants: two to four can be easily accommodated.\nGame Time: Most games in this location will be long games.",
-
-    "Very few lumps of sand poke out of the ocean on this planet. Its situation demands heavy use of water platforms "
-    "and naval assets. Two participants are very unlikely to end up on the same land mass.\nNumber of Participants: "
-    "Two to three participants is preferable.\nGame Time: Most games in this location will be long games.",
-
-    "Like any other world where all the land is connected, this can be very risky for a high-production strategy. "
-    "However, its size does give some protection against a preemptive strike by another participant.\nNumber of "
-    "Participants: two to four can be easily accommodated.\nGame Time: medium to long unless participants' landing "
-    "points are close.",
-
-    "The sea passage that separates the two main land masses makes naval action likely here. Those who wish to follow "
-    "a production strategy might land on the island to the north east.\nNumber of Participants: two to four can be "
-    "easily accommodated.\nGame Time: this is likely to be a long game.",
-
-    "The central island of this planet makes a natural battleground for all participants, whether they start there or "
-    "not. Start on one of the corner lands t gain a reasonable amount of time for a strategic buildup.\nNumber of "
-    "Participants: two to four can be easily accommodated.\nGame Time: Games on this world are likely to be very long.",
-
-    "This world gets its name from the land bottleneck controllable by sea forces and the sea bottleneck controllable "
-    "by land forces. Both are in the center of the map. Extensive use of all forces is likely in this "
-    "location.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Most games on this world "
-    "are likely to be very long."};
-
-const char* menu_planet_names[] = {"Snowcrab",     "Frigia",       "Ice Berg",      "The Cooler", "Ultima Thule",
-                                   "Long Floes",   "Iron Cross",   "Splatterscape", "Peak-a-boo", "Valentine's Planet",
-                                   "Three Rings",  "Great divide", "New Luzon",     "Middle Sea", "High Impact",
-                                   "Sanctuary",    "Islandia",     "Hammerhead",    "Freckles",   "Sandspit",
-                                   "Great Circle", "Long Passage", "Flash Point",   "Bottleneck"};
+const char* menu_planet_names[] = {_(e43b), _(f588), _(c78b), _(895d), _(5f5f), _(e7b2), _(f3fe), _(8524),
+                                   _(4bb8), _(f408), _(0935), _(7303), _(94ef), _(c46c), _(48ac), _(275a),
+                                   _(ea47), _(fcf0), _(6426), _(7ea8), _(386d), _(41e5), _(bbcb), _(ba99)};
 
 static const char* save_file_extensions[] = {"dmo", "dbg", "txt", "sce", "mps"};
 
-const char* menu_team_names[] = {"Red Team", "Green Team", "Blue Team", "Gray Team"};
+const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d)};
 
 static const ResourceID menu_briefing_backgrounds[] = {ENDGAME1, ENDGAME2, ENDGAME3, ENDGAME4, ENDGAME5,
                                                        ENDGAME6, ENDGAME7, ENDGAME8, ENDGAME9};
 
-static const char* menu_game_over_screen_places[] = {"Eliminated", "1st place", "2nd place", "3rd place", "4th place"};
+static const char* menu_game_over_screen_places[] = {_(153d), _(6b25), _(aaea), _(bb8a), _(cdd0)};
 
 void draw_menu_title(WindowInfo* window, const char* caption) {
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     Text_TextBox(window->buffer, window->width, caption, WindowManager_ScaleUlx(window, 236),
                  WindowManager_ScaleUly(window, 145), 172, 15, COLOR_GREEN, true, true);
@@ -514,7 +423,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     int victory_status;
 
     if (Remote_IsNetworkGame || mode) {
-        Text_TextLine(window, "Game Over", 100, 10, 440, true, Fonts_BrightSilverColor);
+        Text_TextLine(window, _(71f1), 100, 10, 440, true, Fonts_BrightSilverColor);
     }
 
     ulx = 80;
@@ -539,7 +448,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
 
     win_draw(window->id);
 
-    Text_TypeWriter_TextBox(window, "Points", 0, 116, 172, 1);
+    Text_TypeWriter_TextBox(window, _(77de), 0, 116, 172, 1);
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
@@ -563,13 +472,12 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
 
             } else if (team == PLAYER_TEAM_RED) {
                 Text_TypeWriter_TextBoxMultiLineWrapText(
-                    window, (victory_status == VICTORY_STATE_WON) ? "Mission Success" : "Mission Failed", ulx, 116,
-                    lrx - ulx, 34, 2);
+                    window, (victory_status == VICTORY_STATE_WON) ? _(bb4a) : _(fc74), ulx, 116, lrx - ulx, 34, 2);
             }
         }
     }
 
-    Text_TypeWriter_TextBox(window, "Factories Built", 0, 166, 172, 1);
+    Text_TypeWriter_TextBox(window, _(7564), 0, 166, 172, 1);
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
@@ -586,7 +494,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
         }
     }
 
-    Text_TypeWriter_TextBox(window, "Mines Built", 0, 198, 172, 1);
+    Text_TypeWriter_TextBox(window, _(c9c5), 0, 198, 172, 1);
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
@@ -603,7 +511,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
         }
     }
 
-    Text_TypeWriter_TextBox(window, "Buildings Built", 0, 230, 172, 1);
+    Text_TypeWriter_TextBox(window, _(7b17), 0, 230, 172, 1);
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
@@ -620,7 +528,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
         }
     }
 
-    Text_TypeWriter_TextBox(window, "Lost", 0, 246, 172, 1);
+    Text_TypeWriter_TextBox(window, _(51e1), 0, 246, 172, 1);
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
@@ -648,7 +556,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
         }
     }
 
-    Text_TypeWriter_TextBox(window, "Units Built", 0, 278, 172, 1);
+    Text_TypeWriter_TextBox(window, _(3d2c), 0, 278, 172, 1);
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
@@ -665,7 +573,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
         }
     }
 
-    Text_TypeWriter_TextBox(window, "Lost", 0, 294, 172, 1);
+    Text_TypeWriter_TextBox(window, _(5c73), 0, 294, 172, 1);
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
@@ -693,7 +601,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
         }
     }
 
-    Text_TypeWriter_TextBox(window, "Upgrades", 0, 326, 172, 1);
+    Text_TypeWriter_TextBox(window, _(1b9b), 0, 326, 172, 1);
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
@@ -707,7 +615,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
             Text_TypeWriter_TextBox(
                 window,
                 SmartString()
-                    .Sprintf(12, "%i %s", UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades, "Gold")
+                    .Sprintf(12, "%i %s", UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades, _(6249))
                     .GetCStr(),
                 ulx, 326, lrx - ulx, 2);
         }
@@ -795,7 +703,7 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
 
         window.SetFlags(0x10);
 
-        text_font(GNW_TEXT_FONT_1);
+        Text_SetFont(GNW_TEXT_FONT_1);
 
         Cursor_SetCursor(CURSOR_HAND);
 
@@ -835,12 +743,12 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
             menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
         }
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         button_end = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
-        button_end->SetCaption("OK");
+        button_end->SetCaption(_(5653));
 
-        text_font(GNW_TEXT_FONT_1);
+        Text_SetFont(GNW_TEXT_FONT_1);
 
         button_end->SetRValue(GNW_KB_KEY_ESCAPE);
         button_end->RegisterButton(window_info.id);
@@ -950,7 +858,7 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
 
         } else if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
             if (global_turn == (ini_victory_limit - 10) && non_computer_teams_count > 0) {
-                DialogMenu_Menu("Notice: Game will end in 10 turns!");
+                DialogMenu_Menu(_(4556));
 
             } else if (ini_victory_limit <= global_turn) {
                 menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
@@ -1143,16 +1051,16 @@ void menu_draw_campaign_mission_briefing_screen() {
         briefing_window.FillWindowInfo(&window);
 
         win_draw(window.id);
-        text_font(GNW_TEXT_FONT_1);
+        Text_SetFont(GNW_TEXT_FONT_1);
 
         Text_TypeWriter_TextBoxMultiLineWrapText(&window, text.GetCStr(), 20, 20, 600, 400, 0);
         Text_TypeWriter_CharacterTimeMs = 0;
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
         button_end_ok = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
-        button_end_ok->SetCaption("OK");
+        button_end_ok->SetCaption(_(ccca));
 
-        text_font(GNW_TEXT_FONT_1);
+        Text_SetFont(GNW_TEXT_FONT_1);
         button_end_ok->SetRValue(GNW_KB_KEY_ESCAPE);
         button_end_ok->RegisterButton(window.id);
 
@@ -1177,7 +1085,7 @@ void menu_draw_campaign_mission_briefing_screen() {
                     WindowManager_LoadBigImage(menu_briefing_backgrounds[image_index], &window, window.width, true,
                                                false, -1, -1, true);
 
-                    text_font(GNW_TEXT_FONT_1);
+                    Text_SetFont(GNW_TEXT_FONT_1);
 
                     Text_TypeWriter_TextBoxMultiLineWrapText(&window, text.GetCStr(), 20, 20, 600, 400, 0);
                     win_draw(window.id);
@@ -1371,7 +1279,7 @@ void draw_copyright_label(WindowInfo* window) {
     bounds.lrx = bounds.ulx + 620;
     bounds.lry = bounds.uly + 10;
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     Text_TextBox(window->buffer, window->width,
                  "Copyright 1996 Interplay Productions. v1.04"
@@ -1385,7 +1293,7 @@ void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int
     menu_button_items = button_items;
     menu_button_items_count = button_count;
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
 
     for (int i = 0; i < button_count; ++i) {
         ResourceID up;
@@ -1451,13 +1359,13 @@ void menu_draw_tips_frame(WindowInfo* window) {
             row_index_limit = menu_tips_row_count;
         }
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         for (int i = menu_tips_current_row_index; i < row_index_limit; ++i) {
-            text_to_buf(&buffer_position[(i - menu_tips_current_row_index) * text_height() * window->width],
-                        menu_tips_strings[i].GetCStr(),
-                        WindowManager_ScaleLrx(window, bounds.lrx, 315) - WindowManager_ScaleUlx(window, 19),
-                        window->width, 0xA2);
+            Text_Blit(&buffer_position[(i - menu_tips_current_row_index) * Text_GetHeight() * window->width],
+                      menu_tips_strings[i].GetCStr(),
+                      WindowManager_ScaleLrx(window, bounds.lrx, 315) - WindowManager_ScaleUlx(window, 19),
+                      window->width, 0xA2);
         }
 
         win_draw_rect(window->id, &bounds);
@@ -1465,10 +1373,10 @@ void menu_draw_tips_frame(WindowInfo* window) {
 }
 
 void menu_draw_tips(WindowInfo* window) {
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
     menu_tips_data = reinterpret_cast<char*>(ResourceManager_ReadResource(TIPS));
 
-    menu_tips_max_row_count_per_page = 236 / text_height();
+    menu_tips_max_row_count_per_page = 236 / Text_GetHeight();
 
     menu_tips_strings =
         Text_SplitText(menu_tips_data, menu_tips_max_row_count_per_page * 100, 296, &menu_tips_row_count);
@@ -1685,7 +1593,7 @@ void menu_credits_menu_loop() {
     image1->Copy(window);
     memset(image2->GetData(), -128, (window_height + 18) * window_width);
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
 
     play = true;
     line_index = 0;
@@ -1820,7 +1728,7 @@ void PauseMenu_Menu() {
         Remote_SendNetPacket_Signal(39, GameManager_PlayerTeam, 0);
     }
 
-    DialogMenu_Menu("Game Paused.\nClick OK to continue.");
+    DialogMenu_Menu(_(f9bb));
 }
 
 int menu_planet_select_menu_loop() {
@@ -2221,7 +2129,7 @@ int menu_new_game_menu_loop() {
 
         mouse_hide();
         WindowManager_LoadBigImage(MAINPIC, window, window->width, false, false, -1, -1, true);
-        draw_menu_title(window, "New Game Menu");
+        draw_menu_title(window, _(04b5));
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(new_game_menu_buttons, sizeof(new_game_menu_buttons) / sizeof(MenuButton), 5);
         mouse_show();
@@ -2392,7 +2300,7 @@ int menu_multiplayer_menu_loop() {
 
         mouse_hide();
         WindowManager_LoadBigImage(MAINPIC, window, window->width, palette_from_image, false, -1, -1, true);
-        draw_menu_title(window, "Multiplayer Menu");
+        draw_menu_title(window, _(f2b3));
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(network_game_menu_buttons,
                                     sizeof(network_game_menu_buttons) / sizeof(struct MenuButton));

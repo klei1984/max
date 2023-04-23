@@ -28,6 +28,7 @@
 #include "cursor.hpp"
 #include "flicsmgr.hpp"
 #include "game_manager.hpp"
+#include "localization.hpp"
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "researchmenu.hpp"
@@ -112,13 +113,13 @@ void AbstractUpgradeMenu::Init() {
     button_scroll_up->CopyUpDisabled(BLDUP__X);
     button_scroll_down->CopyUpDisabled(BLDDWN_X);
 
-    button_done->SetCaption("Done");
+    button_done->SetCaption(_(bd89));
     button_done->SetRValue(1000);
     button_done->SetPValue(GNW_INPUT_PRESS + 1000);
     button_done->SetSfx(NDONE0);
     button_done->RegisterButton(window1.id);
 
-    button_cancel->SetCaption("Cancel");
+    button_cancel->SetCaption(_(c6aa));
     button_cancel->SetRValue(1002);
     button_cancel->SetPValue(GNW_INPUT_PRESS + 1002);
     button_cancel->SetSfx(NCANC0);
@@ -364,7 +365,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
     }
 
     if (unit_type != INVALID_ID && button_description_rest_state) {
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
         Text_TextBox(window2.buffer, window1.width, base_unit->description, 16, 17, 280, 230, GNW_TEXT_OUTLINE | 0xA2,
                      false, false);
     }
@@ -447,7 +448,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
                             interface_icon_full, interface_icon_empty);
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     cost_background->Write(&window1);
 
@@ -497,11 +498,11 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
 
         snprintf(text, sizeof(text), "%i", team_gold);
 
-        length = text_width(text);
+        length = Text_GetWidth(text);
         buffer = &window1.buffer[window1.width * gold_background->GetULY() + gold_background->GetULX() +
                                  (gold_background->GetWidth() - length) / 2];
 
-        text_to_buf(buffer, text, length, window1.width, COLOR_CHROME_YELLOW);
+        Text_Blit(buffer, text, length, window1.width, COLOR_CHROME_YELLOW);
     }
 
     win_draw(window1.id);

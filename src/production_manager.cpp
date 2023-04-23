@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "allocmenu.hpp"
+#include "localization.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
 #include "units_manager.hpp"
@@ -109,15 +110,13 @@ void ProductionManager::UpdateUnitPowerConsumption(UnitInfo* unit, unsigned shor
                 --*generator_active;
 
             } else {
-                ComposeIndustryMessage(unit, "Cannot turn %s on, %s needed.\n", "More %s needed, %s turned off.\n",
-                                       "fuel");
+                ComposeIndustryMessage(unit, _(cdcc), _(b9d9), _(acbe));
                 UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_0);
             }
 
         } else {
             if (*generator_active == *generator_count) {
-                ComposeIndustryMessage(unit, "Cannot turn %s off, other buildings need %s.\n",
-                                       "More %s needed, %s turned on.\n", "power");
+                ComposeIndustryMessage(unit, _(cfb8), _(d25b), _(07d7));
                 UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_0);
                 --*generator_active;
             }
@@ -257,7 +256,7 @@ void ProductionManager::ComposeIndustryMessage(UnitInfo* unit, const char* forma
 
         } else {
             if (buffer[0] == '\0') {
-                strcpy(buffer, "Adjustments made:\n");
+                strcpy(buffer, _(b441));
             }
 
             sprintf(text, format2, material, UnitsManager_BaseUnits[unit->unit_type].singular_name);
@@ -276,7 +275,7 @@ bool ProductionManager::PowerOn(ResourceID unit_type) {
 
             units.PushBack(&unit_type);
 
-            sprintf(text, "Cannot turn %s on, %s needed.\n", UnitsManager_BaseUnits[unit_type].singular_name, "fuel");
+            sprintf(text, _(0aea), UnitsManager_BaseUnits[unit_type].singular_name, _(ff10));
             strcat(buffer, text);
         }
 
@@ -310,8 +309,7 @@ void ProductionManager::UpdateUnitWorkerConsumption(UnitInfo* unit) {
         cargo4.life -= life_consumption_rate;
         cargo_resource_reserves.life -= life_consumption_rate;
 
-        ComposeIndustryMessage(unit, "Cannot turn %s off, other buildings need %s.\n",
-                               "More %s needed, %s turned on.\n", "workers");
+        ComposeIndustryMessage(unit, _(5fd6), _(0a4b), _(ed57));
 
         UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_0);
     }
@@ -333,40 +331,39 @@ bool ProductionManager::SatisfyIndustryPower(UnitInfo* unit, bool mode) {
                 const char* material;
 
                 if (demand.raw < 0 && cargo4.raw < 0) {
-                    material = "raw material";
+                    material = _(9c91);
 
                 } else if (demand.fuel < 0 && cargo4.fuel < 0) {
-                    material = "fuel";
+                    material = _(2162);
 
                 } else if (demand.gold < 0 && cargo4.gold < 0) {
-                    material = "gold";
+                    material = _(24d7);
 
                 } else if (demand.power < 0 && (cargo4.power < 0 || cargo4.fuel < 0)) {
-                    material = "power";
+                    material = _(f814);
                     power_needed = true;
 
                 } else if (demand.life < 0 && cargo4.life < 0) {
-                    material = "workers";
+                    material = _(73f7);
 
                 } else if (demand.raw < 0) {
-                    material = "raw material";
+                    material = _(2acf);
 
                 } else if (demand.fuel < 0) {
-                    material = "fuel";
+                    material = _(19b2);
 
                 } else if (demand.gold < 0) {
-                    material = "gold";
+                    material = _(f260);
 
                 } else if (demand.power < 0) {
-                    material = "power";
+                    material = _(7a37);
                     power_needed = true;
 
                 } else {
                     material = "debugging :P";
                 }
 
-                ComposeIndustryMessage(unit, "Cannot turn %s on, %s needed.\n", "More %s needed, %s turned off.\n",
-                                       material);
+                ComposeIndustryMessage(unit, _(961d), _(b215), material);
 
                 cargo4 -= demand;
 
@@ -617,16 +614,13 @@ bool ProductionManager::CheckIndustry(UnitInfo* unit, bool mode) {
         Cargo_GetCargoDemand(unit, &cargo, true);
 
         if (cargo.life < 0 && cargo4.life < 0) {
-            ComposeIndustryMessage(unit, "Cannot turn %s on, %s needed.\n", "More %s needed, %s turned off.\n",
-                                   "workers");
+            ComposeIndustryMessage(unit, _(d139), _(7516), _(0579));
 
         } else if (mode) {
-            ComposeIndustryMessage(unit, "Cannot turn %s on, %s needed.\n", "More %s needed, %s turned off.\n",
-                                   "power");
+            ComposeIndustryMessage(unit, _(87e8), _(9665), _(57f8));
 
         } else {
-            ComposeIndustryMessage(unit, "Cannot turn %s on, %s needed.\n", "More %s needed, %s turned off.\n",
-                                   "raw material");
+            ComposeIndustryMessage(unit, _(5f9a), _(ac9d), _(61e6));
         }
 
         cargo4 -= cargo;
@@ -698,7 +692,7 @@ bool ProductionManager::OptimizeMiningIndustry() {
 
         UnitsManager_SetNewOrder(&*mine, ORDER_POWER_OFF, ORDER_STATE_0);
 
-        ComposeIndustryMessage(&*mine, "Cannot turn %s on, %s needed.\n", "More %s needed, %s turned off.\n", "power");
+        ComposeIndustryMessage(&*mine, _(2ff7), _(b8fe), _(5f24));
 
         result = true;
 
@@ -726,17 +720,14 @@ bool ProductionManager::OptimizeAuxilaryIndustry(ResourceID unit_type, bool mode
 
 void ProductionManager::DrawResourceMessage() {
     if (buffer[0] == '\0') {
-        strcpy(buffer, "Adjustments made:\n");
+        strcpy(buffer, _(3226));
     }
 
-    ComposeResourceMessage(buffer, cargo_resource_reserves.raw, cargo1.raw, "Raw material mining reduced to %i.\n",
-                           "Raw material mining increased to %i.\n");
+    ComposeResourceMessage(buffer, cargo_resource_reserves.raw, cargo1.raw, _(3d58), _(61fa));
 
-    ComposeResourceMessage(buffer, cargo_resource_reserves.fuel, cargo1.fuel, "Fuel mining reduced to %i.\n",
-                           "Fuel mining increased to %i.\n");
+    ComposeResourceMessage(buffer, cargo_resource_reserves.fuel, cargo1.fuel, _(f957), _(1dfe));
 
-    ComposeResourceMessage(buffer, cargo_resource_reserves.gold, cargo1.gold, "Gold mining reduced to %i.\n",
-                           "Gold mining increased to %i.\n");
+    ComposeResourceMessage(buffer, cargo_resource_reserves.gold, cargo1.gold, _(1226), _(17c7));
 
     MessageManager_DrawMessage(buffer, 1, 0, false, true);
 }

@@ -28,6 +28,7 @@
 #include "gfx.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "message_manager.hpp"
 #include "net_packet.hpp"
 #include "paths_manager.hpp"
@@ -1418,8 +1419,7 @@ bool Paths_LoadUnit(UnitInfo* unit) {
                 unit->state = ORDER_STATE_1;
 
                 if (GameManager_SelectedUnit == unit) {
-                    MessageManager_DrawMessage("Unable to move unit into holding area.", 1, unit,
-                                               Point(unit->grid_x, unit->grid_y));
+                    MessageManager_DrawMessage(_(7c8d), 1, unit, Point(unit->grid_x, unit->grid_y));
                 }
 
             } else {

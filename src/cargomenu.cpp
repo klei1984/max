@@ -23,6 +23,7 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
@@ -92,14 +93,14 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
     button_delete = new (std::nothrow) Button(CRGDEL_U, CRGDEL_D, 412, 240);
     button_buy = new (std::nothrow) Button(CRGBUY_U, CRGBUY_D, 590, 386);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    button_delete->SetCaption("Delete");
-    button_buy->SetCaption("Buy");
+    button_delete->SetCaption(_(4d73));
+    button_buy->SetCaption(_(64e3));
 
-    button_buy_upgrade_toggle->SetCaption("Buy Units", rect_init(&bounds3, 20, 0, 80, 15), Fonts_DarkOrageColor,
+    button_buy_upgrade_toggle->SetCaption(_(834a), rect_init(&bounds3, 20, 0, 80, 15), Fonts_DarkOrageColor,
                                           Fonts_GoldColor);
-    button_buy_upgrade_toggle->SetCaption("Upgrades", rect_init(&bounds4, 20, 15, 80, 31));
+    button_buy_upgrade_toggle->SetCaption(_(e02a), rect_init(&bounds4, 20, 15, 80, 31));
 
     button_scroll_up->CopyUpDisabled(BLDUP__X);
     button_scroll_down->CopyUpDisabled(BLDDWN_X);
@@ -204,9 +205,9 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
 
     wininfo1.buffer = &window1.buffer[window1.width * wininfo1.window.uly + wininfo1.window.ulx];
 
-    Text_TextBox(window1.buffer, window1.width, "Available", 482, 57, 143, 10, 0xA2, false);
+    Text_TextBox(window1.buffer, window1.width, _(e674), 482, 57, 143, 10, 0xA2, false);
 
-    Text_TextBox(window1.buffer, window1.width, "Cost", 625 - text_width("Cost"), 57, text_width("Cost"), 10,
+    Text_TextBox(window1.buffer, window1.width, _(056f), 625 - Text_GetWidth(_(056f)), 57, Text_GetWidth(_(056f)), 10,
                  COLOR_YELLOW, false);
 
     draw_line(window1.buffer, window1.width, 482, 69, 625, 69, COLOR_CHROME_YELLOW);
@@ -223,19 +224,19 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
     cargo_selector = new (std::nothrow) CargoSelector(this, &wininfo2, unit_types2, cargos, team, 3000,
                                                       button_purchase_list_up, button_purchase_list_down);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window1.buffer, window1.width, "Purchased", 337, 22, 118, 10, 0xA2, true);
+    Text_TextBox(window1.buffer, window1.width, _(5fa1), 337, 22, 118, 10, 0xA2, true);
 
     draw_line(window1.buffer, window1.width, 337, 34, 455, 34, COLOR_CHROME_YELLOW);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window1.buffer, window1.width, "Purchase Menu", 473, 7, 158, 18, COLOR_GREEN, true);
-    Text_TextBox(&window1, "Description", 209, 264, 80, 17, true, true);
-    Text_TextBox(&window1, "Cost", 320, 283, 48, 16, true, true);
-    Text_TextBox(&window1, "Credit", 358, 283, 48, 16, true, true);
-    Text_TextBox(&window1, "Cargo", 409, 283, 48, 16, true, true);
+    Text_TextBox(window1.buffer, window1.width, _(eb71), 473, 7, 158, 18, COLOR_GREEN, true);
+    Text_TextBox(&window1, _(57a6), 209, 264, 80, 17, true, true);
+    Text_TextBox(&window1, _(ab7e), 320, 283, 48, 16, true, true);
+    Text_TextBox(&window1, _(3201), 358, 283, 48, 16, true, true);
+    Text_TextBox(&window1, _(fc09), 409, 283, 48, 16, true, true);
 
     Init();
 
@@ -337,7 +338,7 @@ bool CargoMenu::EventHandler(Event* event) {
 }
 
 void CargoMenu::DrawUnitInfo(ResourceID unit_type) {
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     if (unit_type != INVALID_ID) {
         if ((unit_types1->Find(&unit_type) != -1) &&

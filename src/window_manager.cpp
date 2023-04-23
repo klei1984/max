@@ -515,7 +515,9 @@ int WindowManager_Init() {
 
     db_init(nullptr, nullptr, empty_string);
 
-    win_init(Svga_Init, Svga_Deinit, 0);
+    if (win_init(Svga_Init, Svga_Deinit, 0)) {
+        return EXIT_CODE_SCREEN_INIT_FAILED;
+    }
 
     WindowManager_WindowWidth = Svga_GetScreenWidth();
     WindowManager_WindowHeight = Svga_GetScreenHeight();

@@ -33,7 +33,7 @@ jobs:
          run: |
             sudo dpkg --add-architecture i386
             sudo apt-get update -y -qq
-            sudo apt-get install -y -qq build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386 libsdl2-ttf-dev:i386 ninja-build:i386
+            sudo apt-get install -y -qq build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386 libfreetype-dev:i386 ninja-build:i386
 
       -  name: Checkout
          uses: actions/checkout@v3
@@ -53,6 +53,7 @@ jobs:
             mkdir Artifacts
             cp *.deb Artifacts/
             cp *.tar.gz Artifacts/
+            cp max.debug Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3
@@ -78,7 +79,7 @@ jobs:
 
       -  name: Setup Dependencies
          run: |
-            pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-SDL2_ttf mingw32/mingw-w64-i686-cmake mingw-w64-x86_64-ninja make
+            pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-libiconv mingw32/mingw-w64-i686-freetype mingw32/mingw-w64-i686-cmake mingw-w64-x86_64-ninja make
 
       -  name: Checkout
          uses: actions/checkout@v3
@@ -101,6 +102,7 @@ jobs:
             cp *-win32.exe Artifacts/
             cp *-win32.7z Artifacts/
             cp *-Source.7z Artifacts/
+            cp max.debug Artifacts/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3

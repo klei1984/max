@@ -485,12 +485,12 @@ void buildBlendTable(ColorBlendTable* table, ColorIndex c) {
     bg = (Color2RGB(mixcolor) & 0x3E0) >> 5;
     bb = Color2RGB(mixcolor) & 0x1F;
 
-    for (k = 0; k < 256; k++) {
+    for (k = 0; k < 256; ++k) {
         (*table)[0][k] = k;
     }
 
-    for (j = 1; j < 8; j++) {
-        for (k = 0; k < 256; k++) {
+    for (j = 1; j < 8; ++j) {
+        for (k = 0; k < 256; ++k) {
             backcolor = Index2Color(k);
 
             r = (Color2RGB(backcolor) & 0x7C00) >> 10;
@@ -501,13 +501,13 @@ void buildBlendTable(ColorBlendTable* table, ColorIndex c) {
             ng = ((g * (7 - j) + bg * j) / 7) << 5;
             nb = (b * (7 - j) + bb * j) / 7;
 
-            (*table)[16 * j][k] = Color2Index(Index2Color(colorTable[nr | ng | nb]));
+            (*table)[j][k] = Color2Index(Index2Color(colorTable[nr | ng | nb]));
         }
     }
 
-    for (j = 8; j < 16; j++) {
-        for (k = 0; k < 256; k++) {
-            (*table)[16 * j][k] = Color2Index(calculateColor(((j - 8) << 16) / 7 + 0xFFFF, mixcolor));
+    for (j = 8; j < 16; ++j) {
+        for (k = 0; k < 256; ++k) {
+            (*table)[j][k] = Color2Index(calculateColor(((j - 8) << 16) / 7 + 0xFFFF, mixcolor));
         }
     }
 }

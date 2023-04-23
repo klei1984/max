@@ -27,6 +27,7 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "reportstats.hpp"
 #include "text.hpp"
@@ -76,7 +77,7 @@ void TransferMenu::UpdateIndicators() {
     char source[8];
     char target[8];
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
     snprintf(total, sizeof(total), "%ld", labs(total_materials_transferred));
     snprintf(source, sizeof(source), "%ld", labs(source_unit_materials - total_materials_transferred));
     snprintf(target, sizeof(target), "%ld", labs(target_unit_materials + total_materials_transferred));
@@ -157,7 +158,7 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, GameManager_GetDial
     event_release = false;
 
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     TransferMenu_GetUnitCargoInfo(source_unit, target_unit, source_unit_materials, source_unit_capacity);
     TransferMenu_GetUnitCargoInfo(target_unit, source_unit, target_unit_materials, target_unit_capacity);
@@ -216,14 +217,14 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, GameManager_GetDial
     button_left->RegisterButton(window.id);
 
     button_cancel = new (std::nothrow) Button(XFRCAN_U, XFRCAN_D, 82, 125);
-    button_cancel->SetCaption("Cancel", 1, 2);
+    button_cancel->SetCaption(_(36f9), 1, 2);
     button_cancel->SetRValue(GNW_KB_KEY_CTRL_ESCAPE);
     button_cancel->SetPValue(GNW_KB_KEY_CTRL_ESCAPE + GNW_INPUT_PRESS);
     button_cancel->SetSfx(NCANC0);
     button_cancel->RegisterButton(window.id);
 
     button_done = new (std::nothrow) Button(XFRDNE_U, XFRDNE_D, 174, 125);
-    button_done->SetCaption("Done", 1, 2);
+    button_done->SetCaption(_(c366), 1, 2);
     button_done->SetRValue(GNW_KB_KEY_KP_ENTER);
     button_done->SetPValue(GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS);
     button_done->SetSfx(NDONE0);

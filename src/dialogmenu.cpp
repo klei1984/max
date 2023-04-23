@@ -24,6 +24,7 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "gnw.h"
+#include "localization.hpp"
 #include "remote.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
@@ -38,7 +39,7 @@ void DialogMenu::DrawText() {
     canvas->Write(&window);
 
     buffer = &window.buffer[window.width * 14 + 20];
-    height = text_height() * row_count;
+    height = Text_GetHeight() * row_count;
 
     if (height < 175) {
         buffer += window.width * ((175 - height) / 2);
@@ -54,7 +55,7 @@ void DialogMenu::DrawText() {
 
     for (int i = row_offset; i < num_rows; ++i) {
         if (field_64) {
-            row_width = text_width(strings[i].GetCStr());
+            row_width = Text_GetWidth(strings[i].GetCStr());
 
             if (row_width > 265) {
                 row_width = 265;
@@ -63,8 +64,8 @@ void DialogMenu::DrawText() {
             row_width = (265 - row_width) / 2;
         }
 
-        text_to_buf(&buffer[row_width + ((i - row_offset) * text_height()) * window.width], strings[i].GetCStr(), 265,
-                    window.width, GNW_TEXT_OUTLINE | 0xFF);
+        Text_Blit(&buffer[row_width + ((i - row_offset) * Text_GetHeight()) * window.width], strings[i].GetCStr(), 265,
+                  window.width, GNW_TEXT_OUTLINE | 0xFF);
     }
 
     win_draw_rect(window.id, &window.window);
@@ -148,7 +149,7 @@ DialogMenu::DialogMenu(const char* caption, bool mode)
       button_down(nullptr),
       field_64(mode) {
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
     SetFlags(0x10);
     Add();
     FillWindowInfo(&window);
@@ -157,13 +158,13 @@ DialogMenu::DialogMenu(const char* caption, bool mode)
     canvas->Copy(&window);
 
     button_ok = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 120, 193);
-    button_ok->SetCaption("OK", 2, 2);
+    button_ok->SetCaption(_(ae0b), 2, 2);
     button_ok->SetRValue(GNW_KB_KEY_RETURN);
     button_ok->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
     button_ok->SetSfx(NDONE0);
     button_ok->RegisterButton(window.id);
 
-    max_row_count = 175 / text_height();
+    max_row_count = 175 / Text_GetHeight();
 
     strings = Text_SplitText(caption, max_row_count * 3, 265, &row_count);
 

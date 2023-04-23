@@ -101,7 +101,11 @@ int GNW_text_init(void) {
         if (result != -1) {
             text_font(first_font);
             result = 0;
+        } else {
+            result = -1;
         }
+    } else {
+        result = -1;
     }
 
     return result;

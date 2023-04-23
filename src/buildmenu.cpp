@@ -27,6 +27,7 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
@@ -138,18 +139,11 @@ public:
     bool Select(UnitTypeSelector *type_selector, bool mode);
 };
 
-const char *const BuildMenu_EventStrings_InvalidSquare[] = {
-    "The %s is in an invalid square to build the selected unit.",
-    "The %s is in an invalid square to build the selected unit.",
-    "The %s is in an invalid square to build the selected unit."};
+const char *const BuildMenu_EventStrings_InvalidSquare[] = {_(1031), _(05fa), _(ff73)};
 
-const char *const BuildMenu_EventStrings_Available1[] = {"%s %i will be available in %i turns.",
-                                                         "%s %i will be available in %i turns.",
-                                                         "%s %i will be available in %i turns."};
+const char *const BuildMenu_EventStrings_Available1[] = {_(fa62), _(9eb5), _(01fa)};
 
-const char *const BuildMenu_EventStrings_Available2[] = {"%s %i will be available in %i turns.",
-                                                         "%s %i will be available in %i turns.",
-                                                         "%s %i will be available in %i turns."};
+const char *const BuildMenu_EventStrings_Available2[] = {_(c4e7), _(803c), _(3346)};
 
 bool AbstractBuildMenu::button_description_rest_state = true;
 
@@ -190,7 +184,7 @@ void BuildUnitTypeSelector::Draw() {
     buf_to_buf(&local_image->transparent_color, local_image->width, local_image->height, local_image->width,
                &window_info.buffer[115], window_info.width);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     consumption_rate = Cargo_GetRawConsumptionRate(unit->unit_type, 1);
 
@@ -205,8 +199,8 @@ void BuildUnitTypeSelector::Draw() {
             color = COLOR_RED;
         }
 
-        ReportStats_DrawNumber(&window_info.buffer[(i * 32 + 16 - text_height() / 2) * window_info.width + 135], turns,
-                               20, window_info.width, color);
+        ReportStats_DrawNumber(&window_info.buffer[(i * 32 + 16 - Text_GetHeight() / 2) * window_info.width + 135],
+                               turns, 20, window_info.width, color);
     }
 
     bounds.ulx = window_info.window.ulx + 115;
@@ -425,12 +419,12 @@ void AbstractBuildMenu::InitControls() {
     button_up_arrow->CopyUpDisabled(BLDUP__X);
     button_down_arrow->CopyUpDisabled(BLDDWN_X);
 
-    button_done->SetCaption("Done");
-    button_cancel->SetCaption("Cancel");
+    button_done->SetCaption(_(11a6));
+    button_cancel->SetCaption(_(1976));
 
-    build_rate_x1->SetCaption("Build X1");
-    build_rate_x2->SetCaption("Build X2");
-    build_rate_x4->SetCaption("Build X4");
+    build_rate_x1->SetCaption(_(6b67));
+    build_rate_x2->SetCaption(_(68dc));
+    build_rate_x4->SetCaption(_(8433));
 
     button_description->SetPValue(1104);
     button_description->SetRValue(1105);
@@ -569,7 +563,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
                         stats_background->GetWidth(), I_RAW, I_RAWE);
 
     if (button_description_rest_state) {
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         Text_TextBox(window.buffer, window.width, base_unit->description, 16, 17, 290, 230, GNW_TEXT_OUTLINE | 0xA2,
                      false, false);
@@ -833,7 +827,7 @@ bool AbstractBuildMenu::Run() {
 MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, unit) {
     WindowInfo window_info;
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     button_up_arrow = new (std::nothrow) Button(BLDUP__U, BLDUP__D, 471, 441);
     button_down_arrow = new (std::nothrow) Button(BLDDWN_U, BLDDWN_D, 491, 441);
@@ -848,7 +842,7 @@ MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, u
     if (unit->unit_type == ENGINEER) {
         button_path_build = new (std::nothrow) Button(BLDPTH_U, BLDPTH_D, 347, 427);
 
-        button_path_build->SetCaption("path");
+        button_path_build->SetCaption(_(a0af));
     }
 
     window_info = window;
@@ -870,13 +864,13 @@ MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, u
     turns_background_x4 = new (std::nothrow) Image(378, 399, 20, 11);
     cost_background_x4 = new (std::nothrow) Image(414, 399, 30, 11);
 
-    Text_TextBox(window.buffer, window.width, "Construction Menu", 327, 7, 158, 18, COLOR_GREEN, true);
+    Text_TextBox(window.buffer, window.width, _(3a76), 327, 7, 158, 18, COLOR_GREEN, true);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    Text_TextBox(&window, "Description", 209, 264, 80, 17, true, true);
-    Text_TextBox(&window, "Turns", 368, 330, 41, 13, true, true);
-    Text_TextBox(&window, "Cost", 409, 330, 41, 13, true, true);
+    Text_TextBox(&window, _(526e), 209, 264, 80, 17, true, true);
+    Text_TextBox(&window, _(53cf), 368, 330, 41, 13, true, true);
+    Text_TextBox(&window, _(204a), 409, 330, 41, 13, true, true);
 }
 
 MobileBuildMenu::~MobileBuildMenu() {}
@@ -911,7 +905,7 @@ void MobileBuildMenu::Build() {
             }
 
             if (build_rate == 1 && unit->storage < Cargo_GetRawConsumptionRate(unit->unit_type, 1) * turns_to_build) {
-                MessageManager_DrawMessage("WARNING:\ninsufficient material in storage\nto start construction.", 2, 0);
+                MessageManager_DrawMessage(_(c529), 2, 0);
 
             } else {
                 unit->GetBuildList().PushBack(&unit_type);
@@ -932,7 +926,7 @@ void MobileBuildMenu::Build() {
                     GameManager_TempTape = UnitsManager_SpawnUnit((base_unit->flags & BUILDING) ? LRGTAPE : SMLTAPE,
                                                                   GameManager_PlayerTeam, grid_x, grid_y, unit);
 
-                    MessageManager_DrawMessage("Position tape and click inside it to begin building.", 0, 0);
+                    MessageManager_DrawMessage(_(06cb), 0, 0);
 
                     if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING) {
                         SoundManager.PlayVoice(V_M049, V_F050);
@@ -953,9 +947,7 @@ void MobileBuildMenu::Build() {
                                    UnitsManager_TeamInfo[unit->team].unit_counters[unit_type], turns_to_build);
 
                     if (GameManager_GameFileNumber == 1 && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING) {
-                        string +=
-                            "\nAt this point you might wish to click the 'End Turn' button several times, so the "
-                            "Engineer will finish building.";
+                        string += _(6682);
                     }
 
                     point.x = unit->grid_x;
@@ -1005,10 +997,10 @@ FactoryBuildMenu::FactoryBuildMenu(UnitInfo *unit)
     button_build_queue_repeat = new (std::nothrow) Button(BLDREP_U, BLDREP_D, 447, 322);
     button_build_queue_build = new (std::nothrow) Button(BLDBLD_U, BLDBLD_D, 548, 441);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    button_build_queue_delete->SetCaption("Delete");
-    button_build_queue_build->SetCaption("Build");
+    button_build_queue_delete->SetCaption(_(e2d0));
+    button_build_queue_build->SetCaption(_(bdd2));
 
     window_info = window;
 
@@ -1042,13 +1034,13 @@ FactoryBuildMenu::FactoryBuildMenu(UnitInfo *unit)
     turns_background_x4 = new (std::nothrow) Image(378, 426, 20, 11);
     cost_background_x4 = new (std::nothrow) Image(414, 426, 30, 11);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window.buffer, window.width, "Factory Menu", 327, 7, 158, 18, COLOR_GREEN, true);
-    Text_TextBox(&window, "Description", 209, 264, 80, 17, true, true);
-    Text_TextBox(&window, "Turns", 368, 357, 41, 13, true, true);
-    Text_TextBox(&window, "Cost", 409, 357, 41, 13, true, true);
-    Text_TextBox(&window, "Repeat", 395, 322, 50, 17, true, true);
+    Text_TextBox(window.buffer, window.width, _(faaf), 327, 7, 158, 18, COLOR_GREEN, true);
+    Text_TextBox(&window, _(207f), 209, 264, 80, 17, true, true);
+    Text_TextBox(&window, _(2180), 368, 357, 41, 13, true, true);
+    Text_TextBox(&window, _(064b), 409, 357, 41, 13, true, true);
+    Text_TextBox(&window, _(b6b7), 395, 322, 50, 17, true, true);
 }
 
 FactoryBuildMenu::~FactoryBuildMenu() {

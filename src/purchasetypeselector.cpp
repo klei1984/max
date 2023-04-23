@@ -44,7 +44,7 @@ void PurchaseTypeSelector::Draw() {
 
     image->Write(&window_info);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     for (int i = 0; i < max_item_count && i < unit_types->GetCount(); ++i) {
         turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *unit_types[page_min_index + i])
@@ -58,7 +58,7 @@ void PurchaseTypeSelector::Draw() {
 
         ReportStats_DrawNumber(
             &window_info
-                 .buffer[(i * 32 + 16 - text_height() / 2) * window_info.width + image->GetULX() + image->GetWidth()],
+                 .buffer[(i * 32 + 16 - Text_GetHeight() / 2) * window_info.width + image->GetULX() + image->GetWidth()],
             cost, image->GetWidth(), window_info.width, COLOR_YELLOW);
     }
 

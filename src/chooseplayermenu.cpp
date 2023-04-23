@@ -23,6 +23,7 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "window_manager.hpp"
@@ -40,9 +41,9 @@ struct ChoosePlayerMenuControlItem {
     { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
 
 static struct MenuTitleItem choose_player_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, nullptr),  MENU_TITLE_ITEM_DEF(61, 31, 141, 51, "Team"),
-    MENU_TITLE_ITEM_DEF(162, 31, 241, 51, "Human"), MENU_TITLE_ITEM_DEF(272, 31, 351, 51, "Computer"),
-    MENU_TITLE_ITEM_DEF(380, 31, 459, 51, "None"),  MENU_TITLE_ITEM_DEF(497, 31, 576, 51, "Clan"),
+    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, nullptr),  MENU_TITLE_ITEM_DEF(61, 31, 141, 51, _(5985)),
+    MENU_TITLE_ITEM_DEF(162, 31, 241, 51, _(9ffa)), MENU_TITLE_ITEM_DEF(272, 31, 351, 51, _(76ed)),
+    MENU_TITLE_ITEM_DEF(380, 31, 459, 51, _(dc93)), MENU_TITLE_ITEM_DEF(497, 31, 576, 51, _(bda5)),
 };
 
 static struct ChoosePlayerMenuControlItem choose_player_menu_controls[] = {
@@ -62,9 +63,9 @@ static struct ChoosePlayerMenuControlItem choose_player_menu_controls[] = {
     MENU_CONTROL_DEF(495, 153, 0, 0, CH_TM2_U, nullptr, 0, &ChoosePlayerMenu::EventSelectClan, NCLAN0),
     MENU_CONTROL_DEF(495, 245, 0, 0, CH_TM3_U, nullptr, 0, &ChoosePlayerMenu::EventSelectClan, NCLAN0),
     MENU_CONTROL_DEF(495, 337, 0, 0, CH_TM4_U, nullptr, 0, &ChoosePlayerMenu::EventSelectClan, NCLAN0),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, &ChoosePlayerMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &ChoosePlayerMenu::EventHelp, NHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_RETURN, &ChoosePlayerMenu::EventDone, NDONE0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(4042), GNW_KB_KEY_ESCAPE, &ChoosePlayerMenu::EventCancel, NCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(9605), GNW_KB_KEY_SHIFT_DIVIDE, &ChoosePlayerMenu::EventHelp, NHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(ef0a), GNW_KB_KEY_RETURN, &ChoosePlayerMenu::EventDone, NDONE0),
 };
 
 static_assert(CHOOSE_PLAYER_MENU_ITEM_COUNT ==
@@ -164,7 +165,7 @@ void ChoosePlayerMenu::ButtonInit(int index, int mode) {
 
     control = &choose_player_menu_controls[index];
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
 
     if (index >= 12 && index < 16) {
         ResourceID image_id;
@@ -229,12 +230,12 @@ void ChoosePlayerMenu::UpdateButtons() {
         ButtonInit(i, false);
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     if (game_type) {
-        strcpy(buffer, "Custom Game Menu");
+        strcpy(buffer, _(5512));
     } else {
-        strcpy(buffer, "Hot Seat Menu");
+        strcpy(buffer, _(55c8));
     }
 
     choose_player_menu_titles[0].title = buffer;
@@ -277,13 +278,13 @@ void ChoosePlayerMenu::EventDone() {
 
     if (game_type) {
         if (human_player_count + computer_player_count < 2) {
-            MessageManager_DrawMessage("There must be at least two players to begin a new game.", 0, 1);
+            MessageManager_DrawMessage(_(bc94), 0, 1);
         } else {
             event_click_done = true;
         }
 
     } else if (human_player_count < 2) {
-        MessageManager_DrawMessage("There must be at least two human players to begin a hot seat game.", 0, 1);
+        MessageManager_DrawMessage(_(06ec), 0, 1);
     } else {
         event_click_done = true;
     }

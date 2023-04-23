@@ -23,6 +23,7 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
@@ -39,7 +40,7 @@ struct PlanetSelectMenuControlItem {
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
     { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
 
-static struct MenuTitleItem planet_select_menu_screen_title = {{230, 6, 410, 26}, "Planet Select Menu"};
+static struct MenuTitleItem planet_select_menu_screen_title = {{230, 6, 410, 26}, _(f7c8)};
 static struct MenuTitleItem planet_select_menu_planet_name = {{16, 61, 165, 80}, nullptr};
 static struct MenuTitleItem planet_select_menu_planet_description = {{41, 350, 600, 409}, nullptr};
 
@@ -52,11 +53,11 @@ static struct PlanetSelectMenuControlItem planet_select_menu_controls[] = {
     MENU_CONTROL_DEF(469, 189, 580, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
     MENU_CONTROL_DEF(60, 248, 0, 0, MNULAROU, nullptr, 0, &PlanetSelectMenu::EventWorld, PSELW0),
     MENU_CONTROL_DEF(92, 248, 0, 0, MNURAROU, nullptr, 0, &PlanetSelectMenu::EventWorld, PSELW0),
-    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN4U, "Random", 0, &PlanetSelectMenu::EventRandom, PDONE0),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, &PlanetSelectMenu::EventCancel,
+    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN4U, _(67bc), 0, &PlanetSelectMenu::EventRandom, PDONE0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(9d35), GNW_KB_KEY_SHIFT_ESCAPE, &PlanetSelectMenu::EventCancel,
                      PCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &PlanetSelectMenu::EventHelp, PHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, &PlanetSelectMenu::EventDone, PDONE0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(8a8d), GNW_KB_KEY_SHIFT_DIVIDE, &PlanetSelectMenu::EventHelp, PHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(bf2c), GNW_KB_KEY_SHIFT_RETURN, &PlanetSelectMenu::EventDone, PDONE0),
 };
 
 static_assert(PLANET_SELECT_MENU_ITEM_COUNT ==
@@ -65,7 +66,7 @@ static_assert(PLANET_SELECT_MENU_ITEM_COUNT ==
 void PlanetSelectMenu::ButtonInit(int index) {
     struct PlanetSelectMenuControlItem* control = &planet_select_menu_controls[index];
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
 
     if (control->image_id == INVALID_ID) {
         buttons[index] = new (std::nothrow) Button(
@@ -140,7 +141,7 @@ void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
 void PlanetSelectMenu::DrawTexts() {
     Rect* bounds;
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     menu_draw_menu_title(window, &planet_select_menu_screen_title, COLOR_GREEN, true);
 

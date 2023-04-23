@@ -74,7 +74,7 @@ void MessageManager_WrapText(const char* text, short width) {
         } else {
             local_text[0] = text[position];
 
-            short char_width = text_width(local_text);
+            short char_width = Text_GetWidth(local_text);
 
             if ((row_width + char_width) > width) {
                 char* line_buffer = &MessageManager_MessageBuffer[MessageManager_Buffer1_Length];
@@ -87,10 +87,10 @@ void MessageManager_WrapText(const char* text, short width) {
                 }
 
                 *line_buffer = '\0';
-                row_width = text_width(buffer);
+                row_width = Text_GetWidth(buffer);
                 MessageManager_MessageBox_Width = std::max(row_width, MessageManager_MessageBox_Width);
                 buffer = line_buffer + 1;
-                row_width = text_width(buffer);
+                row_width = Text_GetWidth(buffer);
                 MessageManager_MessageBox_Height += 10;
             }
 
@@ -113,7 +113,7 @@ void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int lef
     int offset;
 
     offset = 0;
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     top_margin *= width;
 
@@ -125,7 +125,7 @@ void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int lef
 
     color += flags + GNW_TEXT_OUTLINE;
     do {
-        text_to_buf(&buffer[left_margin + top_margin], &text[offset], width, width, color);
+        Text_Blit(&buffer[left_margin + top_margin], &text[offset], width, width, color);
         top_margin += 10 * width;
         offset += strlen(&text[offset]) + 1;
     } while (text[offset] != '\0');
@@ -182,7 +182,7 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
                 }
             }
 
-            text_font(GNW_TEXT_FONT_5);
+            Text_SetFont(GNW_TEXT_FONT_5);
             window_main_map = WindowManager_GetWindow(WINDOW_MAIN_MAP);
             width = window_main_map->window.lrx - window_main_map->window.ulx;
 

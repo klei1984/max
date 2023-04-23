@@ -612,8 +612,8 @@ WinID default_pause_window(void) {
     int width;
     int length;
 
-    width = text_width("Paused") + 32;
-    length = 3 * text_height() + 16;
+    width = Text_GetWidth("Paused") + 32;
+    length = 3 * Text_GetHeight() + 16;
 
     id = win_add((scr_size.lrx - scr_size.ulx + 1 - width) / 2, (scr_size.lry - scr_size.uly + 1 - length) / 2, width,
                  length, 256, 20);
@@ -625,10 +625,10 @@ WinID default_pause_window(void) {
 
         buf = win_get_buf(id);
 
-        text_to_buf(&buf[8 * width + 16], "Paused", width, width, colorTable[124 * PALETTE_SIZE]);
+        Text_Blit(&buf[8 * width + 16], "Paused", width, width, colorTable[124 * PALETTE_SIZE]);
 
-        win_register_text_button(id, (width - text_width("Done") - 16) / 2, length - 8 - text_height() - 6, -1, -1, -1,
-                                 27, "Done", 0);
+        win_register_text_button(id, (width - Text_GetWidth("Done") - 16) / 2, length - 8 - Text_GetHeight() - 6, -1,
+                                 -1, -1, 27, "Done", 0);
 
         win_draw(id);
 

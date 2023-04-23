@@ -25,6 +25,7 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "resource_manager.hpp"
@@ -99,7 +100,7 @@ public:
     void Run();
 };
 
-const char *const ResearchMenu_TopicLabels[] = {"Attack", "Shots", "Range", "Armor", "Hits", "Speed", "Scan", "Cost"};
+const char *const ResearchMenu_TopicLabels[] = {_(4cd5), _(7382), _(86bc), _(a592), _(07f9), _(5857), _(920c), _(dbae)};
 
 const ResourceID ResearchMenu_TopicIcons[] = {I_HRDATK, I_SHOTS, I_RANGE, I_ARMOR, I_HITS, I_SPEED, I_SCAN, I_GOLD};
 
@@ -382,7 +383,7 @@ void ResearchControl::Init(ResearchMenu *menu, unsigned char research_topic_inde
     image_labs_slider_bg = new (std::nothrow) Image(91, uly_slider, 48, 17);
     image_labs_slider_bg->Copy(&window);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     Text_TextBox(&window, ResearchMenu_TopicLabels[topic_index], 185, uly_slider, 49, 15, false, true);
 
@@ -395,8 +396,8 @@ void ResearchControl::Init(ResearchMenu *menu, unsigned char research_topic_inde
     string.Sprintf(10, "+%i%%",
                    UnitsManager_TeamInfo[research_menu->GetTeam()].research_topics[topic_index].research_level * 10);
 
-    text_to_buf(&window.buffer[(276 + (uly_slider + 3) * window.width) - text_width(string.GetCStr())],
-                string.GetCStr(), 35, window.width, 0xA2);
+    Text_Blit(&window.buffer[(276 + (uly_slider + 3) * window.width) - Text_GetWidth(string.GetCStr())],
+              string.GetCStr(), 35, window.width, 0xA2);
 
     RefreshScreen(false);
 }
@@ -409,7 +410,7 @@ void ResearchControl::RefreshScreen(bool redraw) {
 
     topic = &UnitsManager_TeamInfo[research_menu->GetTeam()].research_topics[topic_index];
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     research_menu->FillWindowInfo(&window);
 
@@ -565,21 +566,21 @@ ResearchMenu::ResearchMenu(unsigned short team)
     Add();
     FillWindowInfo(&window);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window.buffer, window.width, "Research Topics", 95, 19, 170, 13, COLOR_GREEN, true);
+    Text_TextBox(window.buffer, window.width, _(3609), 95, 19, 170, 13, COLOR_GREEN, true);
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
 
-    Text_TextLine(&window, "Labs", 23, 52, 125, true);
-    Text_TextLine(&window, "Topics", 184, 52, 90, true);
-    Text_TextLine(&window, "Turns", 282, 52, 60, true);
+    Text_TextLine(&window, _(d181), 23, 52, 125, true);
+    Text_TextLine(&window, _(e228), 184, 52, 90, true);
+    Text_TextLine(&window, _(9892), 282, 52, 60, true);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     button_cancel = new (std::nothrow) Button(DPTBAYUP, DPTBAYDN, 92, 294);
     button_cancel->Copy(window.id);
-    button_cancel->SetCaption("Cancel");
+    button_cancel->SetCaption(_(74d9));
     button_cancel->SetRFunc(&ResearchMenu_OnClick_Cancel, reinterpret_cast<intptr_t>(this));
     button_cancel->RegisterButton(window.id);
 
@@ -589,7 +590,7 @@ ResearchMenu::ResearchMenu(unsigned short team)
 
     button_done = new (std::nothrow) Button(DPTBAYUP, DPTBAYDN, 194, 294);
     button_done->Copy(window.id);
-    button_done->SetCaption("Done");
+    button_done->SetCaption(_(0bd5));
     button_done->SetRFunc(&ResearchMenu_OnClick_Done, reinterpret_cast<intptr_t>(this));
     button_done->RegisterButton(window.id);
 

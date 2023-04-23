@@ -30,6 +30,7 @@
 #include "gfx.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "screendump.h"
@@ -317,7 +318,7 @@ const char *const ResourceManager_ResourceIdList[RESOURCE_E] = {
     "DSRT_PIC", "STAR_PIC", "WORLD_S",  "SNOW_1",   "SNOW_2",   "SNOW_3",   "SNOW_4",   "SNOW_5",   "SNOW_6",
     "CRATER_1", "CRATER_2", "CRATER_3", "CRATER_4", "CRATER_5", "CRATER_6", "GREEN_1",  "GREEN_2",  "GREEN_3",
     "GREEN_4",  "GREEN_5",  "GREEN_6",  "DESERT_1", "DESERT_2", "DESERT_3", "DESERT_4", "DESERT_5", "DESERT_6",
-    "WORLD_E",
+    "WORLD_E",  "FONT_S",   "FONT_1",   "FONT_2",   "FONT_5",   "FONT_E",
 };
 
 char ResourceManager_FilePathCd[PATH_MAX];
@@ -333,23 +334,9 @@ char ResourceManager_FilePathMsc[PATH_MAX];
 bool ResourceManager_IsMaxDdInUse;
 bool ResourceManager_DisableEnhancedGraphics;
 
-const char *const ResourceManager_ErrorCodes[] = {"",
-                                                  "\nThanks for playing M.A.X.!\n\n",
-                                                  "\nNo mouse driver found.\n\n",
-                                                  "\nNot enough memory for buffers.\n\n",
-                                                  "\nSound card not found.\n\n",
-                                                  "\nScreen Init failed.\n\n",
-                                                  "\nUnable to find game resource file.\n\n",
-                                                  "\nError reading resource file.\n\n",
-                                                  "\nInvalid resource file ID.\n\n",
-                                                  "\nInvalid Directory name.\n\n",
-                                                  "\nInvalid script file.\n\n",
-                                                  "\nError reading script file.\n\n",
-                                                  "\nM.A.X. INI not found.\n\n",
-                                                  "\nPlease insert the M.A.X. CD and try again.\n\n",
-                                                  "\nTo play M.A.X. type MC\n\n",
-                                                  "\nThis Version has Expired.\n\n",
-                                                  "\nToo many files open or .WRL file not found.\n\n"};
+const char *const ResourceManager_ErrorCodes[] = {"",      _(1347), _(c164), _(c116), _(9edb), _(6bc6),
+                                                  _(5ced), _(3b69), _(c499), _(4afd), _(bc1c), _(908e),
+                                                  _(b2b3), _(00a7), _(371d), _(3004), _(07f8)};
 
 TeamUnits ResourceManager_TeamUnitsRed;
 TeamUnits ResourceManager_TeamUnitsGreen;
@@ -381,7 +368,7 @@ bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_err
     const std::filesystem::path cdrom_path(ResourceManager_FilePathCd);
 
     while (std::filesystem::current_path(cdrom_path, ec), ec) {
-        if (!prompt_user || !OKCancelMenu_Menu("\nPlease insert the M.A.X. CD and try again.\n")) {
+        if (!prompt_user || !OKCancelMenu_Menu(_(e946))) {
             return false;
         }
     }
@@ -1051,7 +1038,7 @@ void ResourceManager_InitInGameAssets(int world) {
     }
 
     progress_bar_value = 0;
-    DrawLoadBar load_bar("Scanning planet surface...");
+    DrawLoadBar load_bar(_(df4f));
 
     if (fseek(fp, 3, SEEK_SET) || 1 != fread(&map_layer_count, sizeof(unsigned short), 1, fp)) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);

@@ -31,6 +31,7 @@
 #include "hash.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
@@ -79,46 +80,21 @@ public:
 };
 
 const char *SaveLoadMenu_SaveFileTypes[] = {"dta", "tra", "cam", "hot", "mlt", "dmo", "dbg", "txt", "sce", "mps"};
-const char *SaveLoadMenu_SaveTypeTitles[] = {"Custom", "Learning", "Campaign", "Hot seat", "Multi",
-                                             "Demo",   "Debug",    "Text",     "Scenario", "MPS"};
+const char *SaveLoadMenu_SaveTypeTitles[] = {_(494c), _(8b45), _(2682), _(4bf8), _(dea8),
+                                             _(8a2c), _(1a03), _(7198), _(2fcb), _(3bc3)};
 
 const char *SaveLoadMenu_TutorialTitles[] = {
-    "Mining and Storage",
-    "Factory & Structures",
-    "Power & Construction",
-    "Surveying",
-    "Seek & Destroy",
-    "Material Transfer",
-    "Mining Allocation",
-    "Mining for Gold",
-    "Upgrade your Tanks",
-    "Victory Points",
-    "Infiltrator",
-    "Mines",
-    "Repairing",
-    "Reloading",
-    "Research",
+    _(a03c), _(1ec8), _(357f), _(be30), _(6e67), _(de7c), _(6e4e), _(768e),
+    _(5f44), _(1e2d), _(38df), _(dd4a), _(e7f7), _(a7ec), _(979d),
 };
 
 const char *SaveLoadMenu_ScenarioTitles[] = {
-    "Fast & Furious",       "Great Abandon",      "The Long Short Cut",
-    "Planes from Hell",     "The Wall",           "Stuck in the Middle",
-    "Golden Opportunity",   "Man versus Machine", "One Bullet",
-    "Scout Horde",          "The Last Ditch",     "Sneaky Sub",
-    "Battle at Sea",        "Their Finest Hour",  "Playing Catch Up",
-    "Defense of the Realm", "The King Must Die",  "Covert",
-    "To The Death",         "Alien Attack",       "Tank Horde",
-    "Stealth Required",     "Beachhead",          "D-Day",
+    _(244f), _(5006), _(8974), _(1b58), _(e302), _(b452), _(abbf), _(e356), _(54fa), _(f88f), _(353a), _(b7dd),
+    _(adcf), _(f4d5), _(ab3a), _(625d), _(513e), _(7e10), _(4be1), _(803e), _(5eec), _(da78), _(54eb), _(563d),
 };
 
 const char *SaveLoadMenu_CampaignTitles[] = {
-    "Islands in the Sun", "Heart of the Matter",  "Element of Import", "Stone Cold Deadly", "Slaughter Shore",
-    "Repel Boarders",     "Bastion of Rebellion", "Bright Hope",       "Price of Freedom",
-};
-
-const char *SaveLoadMenu_MultiScenarioTitles[] = {
-    "Bottleneck",    "Iron Cross", "4 Player 1 Island", "Small Sea Battle", "Great Circle",
-    "Splatterscape", "Middle Sea", "Around The Lake",   "Four Way",
+    _(78f1), _(db51), _(c13a), _(00b7), _(963a), _(c14a), _(ecc9), _(9d98), _(d033),
 };
 
 static int SaveLoadMenu_FirstSaveSlotOnPage = 1;
@@ -128,7 +104,7 @@ unsigned short SaveLoadMenu_TurnTimer;
 static bool SaveLoadMenu_Flag;
 static char SaveLoadMenu_SaveSlotTextEditBuffer[30];
 
-static void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int uly, ResourceID id, const char *title,
+static void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int width, ResourceID id, const char *title,
                                               int font_num);
 static Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int ulx, int uly,
                                          const char *caption, int r_value);
@@ -161,7 +137,7 @@ void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int 
         } break;
 
         case GAME_TYPE_MULTI_PLAYER_SCENARIO: {
-            sprintf(buffer, "%s #%i", "Scenario", save_slot + 1);
+            sprintf(buffer, "%s #%i", _(2954), save_slot + 1);
             title = buffer;
         } break;
     }
@@ -197,28 +173,34 @@ Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int
     return button;
 }
 
-void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int uly, ResourceID id, const char *title, int font_num) {
+void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int width, ResourceID id, const char *title,
+                                       int font_num) {
     struct ImageSimpleHeader *image_header;
     int buffer_position;
 
-    text_font(font_num);
+    Text_SetFont(font_num);
 
     image_header = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_ReadResource(id));
 
-    buffer_position = image_header->uly * uly + image_header->ulx;
+    buffer_position = image_header->uly * width + image_header->ulx;
 
     buf_to_buf(&image_header->transparent_color, image_header->width, image_header->height, image_header->width,
-               &image[buffer_position], uly);
+               &image[buffer_position], width);
 
-    buffer_position += ((image_header->height - text_height()) / 2) * uly;
+    buffer_position += ((image_header->height - Text_GetHeight()) / 2) * width;
 
     if (font_num == GNW_TEXT_FONT_2) {
-        buffer_position += (image_header->width - text_width(title)) / 2;
+        int offset = (image_header->width - Text_GetWidth(title)) / 2;
+        if (offset > 5) {
+            buffer_position += offset;
+        } else {
+            buffer_position += 5;
+        }
     } else {
         buffer_position += 5;
     }
 
-    text_to_buf(&image[buffer_position], title, image_header->width + uly + 2, uly, COLOR_GREEN);
+    Text_Blit(&image[buffer_position], title, image_header->width - 10, width, COLOR_GREEN);
 
     delete[] image_header;
 }
@@ -284,9 +266,9 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         WindowManager_LoadBigImage(LOADPIC, window, window->width, true, false, -1, -1, true);
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window->buffer, window->width, is_saving_allowed ? "Save/Load Menu" : "Load Menu",
+    Text_TextBox(window->buffer, window->width, is_saving_allowed ? _(5426) : _(63e7),
                  WindowManager_ScaleUlx(window, 229), WindowManager_ScaleUly(window, 5), 181, 21, COLOR_GREEN, true);
 
     for (int i = 0; i < num_buttons; ++i) {
@@ -360,7 +342,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         memcpy(slots[i].image_up, &image_up->transparent_color, image_up_size);
         memcpy(slots[i].image_down, &image_down->transparent_color, image_down_size);
 
-        text_font(GNW_TEXT_FONT_1);
+        Text_SetFont(GNW_TEXT_FONT_1);
 
         snprintf(text_slot_index, sizeof(text_slot_index), "%d", first_slot_on_page + i);
 
@@ -372,7 +354,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         slot_window.width = image_down->width;
         Text_TextBox(&slot_window, text_slot_index, 0, 0, 40, 70, true, true, FontColor(5, 58, 199));
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         slots[i].ulx = WindowManager_ScaleUlx(window, 402 * (i / 5) + 16);
         slots[i].uly = WindowManager_ScaleUly(window, 76 * (i % 5) + 44);
@@ -399,20 +381,20 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
     buttons[1] = SaveLoadMenu_CreateButton(window->id, MNUDAROU, MNUDAROD, WindowManager_ScaleUlx(window, 63),
                                            WindowManager_ScaleUly(window, 438), nullptr, 337);
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
     buttons[2] = SaveLoadMenu_CreateButton(window->id, MNUBTN6U, MNUBTN6D, WindowManager_ScaleUlx(window, 514),
-                                           WindowManager_ScaleUly(window, 438), "Load", 1023);
+                                           WindowManager_ScaleUly(window, 438), _(f846), 1023);
     buttons[3] = SaveLoadMenu_CreateButton(window->id, MNUBTN5U, MNUBTN5D, WindowManager_ScaleUlx(window, 465),
-                                           WindowManager_ScaleUly(window, 438), "?", 1021);
+                                           WindowManager_ScaleUly(window, 438), _(278f), 1021);
     buttons[4] =
         SaveLoadMenu_CreateButton(window->id, MNUBTN4U, MNUBTN4D, WindowManager_ScaleUlx(window, 354),
-                                  WindowManager_ScaleUly(window, 438), is_saving_allowed ? "Return" : "Cancel", 1000);
+                                  WindowManager_ScaleUly(window, 438), is_saving_allowed ? _(6b01) : _(f752), 1000);
 
     if (is_saving_allowed) {
         buttons[5] = SaveLoadMenu_CreateButton(window->id, MNUBTN3U, MNUBTN3D, WindowManager_ScaleUlx(window, 243),
-                                               WindowManager_ScaleUly(window, 438), "Quit", 1024);
+                                               WindowManager_ScaleUly(window, 438), _(d4ac), 1024);
         buttons[6] = SaveLoadMenu_CreateButton(window->id, MNUBTN2U, MNUBTN2D, WindowManager_ScaleUlx(window, 132),
-                                               WindowManager_ScaleUly(window, 438), "Save", 1022);
+                                               WindowManager_ScaleUly(window, 438), _(1509), 1022);
     }
 
     win_draw(window->id);
@@ -666,8 +648,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
 
                         game_state = GameManager_GameState;
                         GameManager_GameState = GAME_STATE_10;
-                        MessageManager_DrawMessage("Unable to load a saved game while remote play in progress.", 2, 1,
-                                                   true);
+                        MessageManager_DrawMessage(_(1fc6), 2, 1, true);
                         GameManager_GameState = game_state;
                     } else if (save_slot_index != -1 && slots[save_slot_index].in_use) {
                         result = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
@@ -1180,7 +1161,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
             result = true;
 
         } else {
-            MessageManager_DrawMessage("Wrong save version - Can't load.", 2, 1, true);
+            MessageManager_DrawMessage(_(61ef), 2, 1, true);
             result = false;
         }
 

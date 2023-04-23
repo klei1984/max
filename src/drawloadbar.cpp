@@ -28,7 +28,7 @@
 #include "window_manager.hpp"
 
 DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, GameManager_GetDialogWindowCenterMode()) {
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
     Add();
     FillWindowInfo(&window);
     Text_TextBox(&window, text, 0, 140, window.width, 30, true);

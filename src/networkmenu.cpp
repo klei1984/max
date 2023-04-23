@@ -27,6 +27,7 @@
 #include "gameconfigmenu.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
@@ -73,20 +74,13 @@ struct NetworkMenuControlItem {
 #define MENU_CONTROL_START_BUTTON 23
 
 static struct MenuTitleItem network_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(42, 48, 134, 61, "Player Name:"),
-    MENU_TITLE_ITEM_DEF(42, 71, 185, 84, nullptr),
-    MENU_TITLE_ITEM_DEF(359, 28, 568, 188, "Searching for hosts..."),
-    MENU_TITLE_ITEM_DEF(59, 131, 149, 143, nullptr),
-    MENU_TITLE_ITEM_DEF(191, 131, 285, 143, nullptr),
-    MENU_TITLE_ITEM_DEF(59, 249, 149, 260, nullptr),
-    MENU_TITLE_ITEM_DEF(191, 249, 285, 260, nullptr),
-    MENU_TITLE_ITEM_DEF(150, 377, 617, 392, nullptr),
-    MENU_TITLE_ITEM_DEF(150, 408, 617, 423, nullptr),
-    MENU_TITLE_ITEM_DEF(75, 160, 132, 231, nullptr),
-    MENU_TITLE_ITEM_DEF(208, 160, 263, 231, nullptr),
-    MENU_TITLE_ITEM_DEF(75, 278, 132, 349, nullptr),
-    MENU_TITLE_ITEM_DEF(208, 278, 263, 349, nullptr),
-    MENU_TITLE_ITEM_DEF(355, 228, 469, 342, nullptr),
+    MENU_TITLE_ITEM_DEF(42, 48, 134, 61, _(4869)),    MENU_TITLE_ITEM_DEF(42, 71, 185, 84, nullptr),
+    MENU_TITLE_ITEM_DEF(359, 28, 568, 188, _(5939)),  MENU_TITLE_ITEM_DEF(59, 131, 149, 143, nullptr),
+    MENU_TITLE_ITEM_DEF(191, 131, 285, 143, nullptr), MENU_TITLE_ITEM_DEF(59, 249, 149, 260, nullptr),
+    MENU_TITLE_ITEM_DEF(191, 249, 285, 260, nullptr), MENU_TITLE_ITEM_DEF(150, 377, 617, 392, nullptr),
+    MENU_TITLE_ITEM_DEF(150, 408, 617, 423, nullptr), MENU_TITLE_ITEM_DEF(75, 160, 132, 231, nullptr),
+    MENU_TITLE_ITEM_DEF(208, 160, 263, 231, nullptr), MENU_TITLE_ITEM_DEF(75, 278, 132, 349, nullptr),
+    MENU_TITLE_ITEM_DEF(208, 278, 263, 349, nullptr), MENU_TITLE_ITEM_DEF(355, 228, 469, 342, nullptr),
 };
 
 static struct NetworkMenuControlItem network_menu_controls[] = {
@@ -100,20 +94,20 @@ static struct NetworkMenuControlItem network_menu_controls[] = {
     MENU_CONTROL_DEF(359, 128, 568, 148, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
     MENU_CONTROL_DEF(359, 148, 568, 168, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
     MENU_CONTROL_DEF(359, 168, 568, 188, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(516, 232, 0, 0, SBLNK_UP, "Maps", 0, &NetworkMenu::EventMapButton, MENUOP),
-    MENU_CONTROL_DEF(516, 268, 0, 0, SBLNK_UP, "Load", 0, &NetworkMenu::EventLoadButton, MENUOP),
-    MENU_CONTROL_DEF(516, 304, 0, 0, SBLNK_UP, "Scenarios", 0, &NetworkMenu::EventScenarioButton, MENUOP),
+    MENU_CONTROL_DEF(516, 232, 0, 0, SBLNK_UP, _(119e), 0, &NetworkMenu::EventMapButton, MENUOP),
+    MENU_CONTROL_DEF(516, 268, 0, 0, SBLNK_UP, _(8a6b), 0, &NetworkMenu::EventLoadButton, MENUOP),
+    MENU_CONTROL_DEF(516, 304, 0, 0, SBLNK_UP, _(72fa), 0, &NetworkMenu::EventScenarioButton, MENUOP),
     MENU_CONTROL_DEF(75, 160, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
     MENU_CONTROL_DEF(208, 160, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
     MENU_CONTROL_DEF(75, 278, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
     MENU_CONTROL_DEF(208, 278, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
-    MENU_CONTROL_DEF(33, 369, 0, 0, SBLNK_UP, "Chat", 0, &NetworkMenu::EventChat, MENUOP),
+    MENU_CONTROL_DEF(33, 369, 0, 0, SBLNK_UP, _(1baf), 0, &NetworkMenu::EventChat, MENUOP),
     MENU_CONTROL_DEF(150, 377, 617, 392, INVALID_ID, 0, 0, &NetworkMenu::EventChat, MENUOP),
-    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, "Options", 0, &NetworkMenu::EventOptions, MENUOP),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, &NetworkMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &NetworkMenu::EventHelp, MENUOP),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Ready", GNW_KB_KEY_RETURN, &NetworkMenu::EventReady, NDONE0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Start", GNW_KB_KEY_RETURN, &NetworkMenu::EventStart, NDONE0),
+    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, _(d0db), 0, &NetworkMenu::EventOptions, MENUOP),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(808a), GNW_KB_KEY_ESCAPE, &NetworkMenu::EventCancel, NCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(0b5a), GNW_KB_KEY_SHIFT_DIVIDE, &NetworkMenu::EventHelp, MENUOP),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(5fa7), GNW_KB_KEY_RETURN, &NetworkMenu::EventReady, NDONE0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(e4bb), GNW_KB_KEY_RETURN, &NetworkMenu::EventStart, NDONE0),
 };
 
 bool NetworkMenu_MenuLoop(bool is_host_mode) {
@@ -244,7 +238,7 @@ void NetworkMenu::ButtonInit(int index) {
 
     control = &network_menu_controls[index];
 
-    text_font((index < MENU_CONTROL_OPTIONS_BUTTON) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
+    Text_SetFont((index < MENU_CONTROL_OPTIONS_BUTTON) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
 
     if (index == MENU_CONTROL_CLAN_BUTTON) {
         ResourceID clan_logo;
@@ -304,7 +298,7 @@ void NetworkMenu::ButtonInit(int index) {
     menu_items[index].event_code = control->event_code;
     menu_items[index].event_handler = control->event_handler;
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 }
 
 void NetworkMenu::Init() {
@@ -325,10 +319,10 @@ void NetworkMenu::Init() {
     mouse_hide();
     WindowManager_LoadBigImage(MULTGAME, window, window->width, false, false, -1, -1, true);
 
-    text_font(GNW_TEXT_FONT_1);
-    Text_TextBox(window, "Messages:", 28, 403, 106, 25, true);
+    Text_SetFont(GNW_TEXT_FONT_1);
+    Text_TextBox(window, _(6637), 28, 403, 106, 25, true);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     for (int i = 0; i < NETWORK_MENU_IMAGE_COUNT; ++i) {
         MenuTitleItem *menu_item = &network_menu_titles[i];
@@ -536,10 +530,7 @@ void NetworkMenu::EventSetJar() {
     button_index = key;
 
     if (is_incompatible_save_file) {
-        MessageManager_DrawMessage(
-            "The host has selected a load file that is not compatible with the load file on your system. You will not "
-            "be able to start this session until the host selects another load file or selects a new world map.",
-            0, 1);
+        MessageManager_DrawMessage(_(cdfc), 0, 1);
 
         buttons[button_index]->SetRestState(false);
 
@@ -604,7 +595,7 @@ void NetworkMenu::EventReady() {
 }
 
 void NetworkMenu::DrawScreen() {
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
     InitPlayerPanel();
 
     if (is_host_mode || host_node) {
@@ -810,10 +801,7 @@ int NetworkMenu::SetupScenario(int mode) {
         result = true;
 
     } else {
-        MessageManager_DrawMessage(
-            "The host has selected a load file that is not compatible with the load file on your system. You will not "
-            "be able to start this session until the host selects another load file or selects a new world map.",
-            0, 1);
+        MessageManager_DrawMessage(_(4ba6), 0, 1);
 
         is_incompatible_save_file = true;
         client_state = 0;
@@ -963,8 +951,8 @@ void NetworkMenu::DeleteButtons() {
 void NetworkMenu::Reinit(int palette_from_image) {
     mouse_hide();
     WindowManager_LoadBigImage(MULTGAME, window, window->width, palette_from_image, false, -1, -1, true);
-    text_font(GNW_TEXT_FONT_1);
-    Text_TextBox(window, "Messages:", 28, 403, 106, 25, true);
+    Text_SetFont(GNW_TEXT_FONT_1);
+    Text_TextBox(window, _(90a9), 28, 403, 106, 25, true);
     DrawScreen();
     mouse_show();
 }
@@ -995,62 +983,62 @@ void NetworkMenu::DrawTextWindow() {
     height = 10;
 
     images[2]->Write(window);
-    strcpy(text, "Game Setup:");
+    strcpy(text, _(a661));
 
     DrawTextLine(line_index, text, height, true);
     ++line_index;
 
     if (is_multi_scenario) {
-        sprintf(text, "Map: %s", world_name);
+        sprintf(text, _(b764), world_name);
         DrawTextLine(line_index, text, height, false);
         ++line_index;
 
-        sprintf(text, "File: %s", "");
+        sprintf(text, _(6c04), "");
         DrawTextLine(line_index, text, height, false);
         ++line_index;
 
     } else {
-        sprintf(text, "Map: %s", menu_planet_names[ini_world_index]);
+        sprintf(text, _(c56b), menu_planet_names[ini_world_index]);
         DrawTextLine(line_index, text, height, false);
         ++line_index;
 
-        sprintf(text, "File: %s", world_name);
+        sprintf(text, _(1c1d), world_name);
         DrawTextLine(line_index, text, height, false);
         ++line_index;
     }
 
-    sprintf(text, "Play Mode: %s", ini_play_mode == 0 ? "Turn Based" : "Simultaneous");
+    sprintf(text, _(af71), ini_play_mode == 0 ? _(ec45) : _(3d0b));
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
     snprintf(text_ini_timer, 10, "%d", ini_timer);
     snprintf(text_ini_endturn, 10, "%d", ini_endturn);
 
-    sprintf(text, "Turn Time: %s - End Turn: %s", text_ini_timer, text_ini_endturn);
+    sprintf(text, _(fc1c), text_ini_timer, text_ini_endturn);
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, "Starting Credit: %i", ini_start_gold);
+    sprintf(text, _(1c7d), ini_start_gold);
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, "Raw Resources: %s", game_config_menu_items[47 + ini_raw_resource].title);
+    sprintf(text, _(d895), game_config_menu_items[47 + ini_raw_resource].title);
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, "Fuel Resources: %s", game_config_menu_items[50 + ini_fuel_resource].title);
+    sprintf(text, _(85cd), game_config_menu_items[50 + ini_fuel_resource].title);
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, "Gold Resources: %s", game_config_menu_items[53 + ini_gold_resource].title);
+    sprintf(text, _(d46a), game_config_menu_items[53 + ini_gold_resource].title);
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, "Alien Derelicts: %s", game_config_menu_items[56 + ini_alien_derelicts].title);
+    sprintf(text, _(dd95), game_config_menu_items[56 + ini_alien_derelicts].title);
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, "Victory: %i %s", ini_victory_limit, ini_victory_type ? "points" : "turns");
+    sprintf(text, _(961e), ini_victory_limit, ini_victory_type ? _(e878) : _(97c6));
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
@@ -1201,7 +1189,7 @@ void NetworkMenu::LeaveEditField() {
             strcpy(player_name, text_buffer);
 
             if (!strlen(player_name)) {
-                strcpy(player_name, "No Name");
+                strcpy(player_name, _(0cb7));
             }
 
             images[1]->Write(window);

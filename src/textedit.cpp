@@ -47,8 +47,8 @@ TextEdit::TextEdit(WindowInfo *window, char *text, int buffer_size, int ulx, int
       mode(0),
       cursor_position(0),
       time_stamp(0) {
-    text_font(this->font_num);
-    uly += (height - text_height()) / 2;
+    Text_SetFont(this->font_num);
+    uly += (height - Text_GetHeight()) / 2;
 
     this->window.buffer = &window->buffer[window->width * uly + ulx];
 
@@ -56,13 +56,13 @@ TextEdit::TextEdit(WindowInfo *window, char *text, int buffer_size, int ulx, int
     this->window.window.uly += uly;
 
     this->window.window.lrx = this->window.window.ulx + width;
-    this->window.window.lry = this->window.window.uly + text_height();
+    this->window.window.lry = this->window.window.uly + Text_GetHeight();
 
     edited_text = new (std::nothrow) char[buffer_size];
     text_before_cursor = new (std::nothrow) char[buffer_size];
 
     strcpy(edited_text, text);
-    bg_image = new (std::nothrow) Image(0, 0, width, text_height());
+    bg_image = new (std::nothrow) Image(0, 0, width, Text_GetHeight());
 }
 
 TextEdit::~TextEdit() {
@@ -123,7 +123,7 @@ void TextEdit::Clear() {
 void TextEdit::DrawFullText(int refresh_screen) {
     int color;
 
-    text_font(font_num);
+    Text_SetFont(font_num);
     bg_image->Write(&window);
 
     if (is_being_edited && is_selected) {
@@ -132,7 +132,7 @@ void TextEdit::DrawFullText(int refresh_screen) {
         color = this->color;
     }
 
-    text_to_buf(window.buffer, edited_text, window.window.lrx - window.window.ulx, window.width, color);
+    Text_Blit(window.buffer, edited_text, window.window.lrx - window.window.ulx, window.width, color);
 
     if (refresh_screen) {
         win_draw_rect(window.id, &window.window);
@@ -149,14 +149,14 @@ void TextEdit::DrawTillCursor() {
 
         text_before_cursor[cursor_position] = '\0';
 
-        text_font(font_num);
+        Text_SetFont(font_num);
 
-        bounds.ulx = text_width(text_before_cursor);
-        bounds.lrx = bounds.ulx + text_width("|");
+        bounds.ulx = Text_GetWidth(text_before_cursor);
+        bounds.lrx = bounds.ulx + Text_GetWidth("|");
         bounds.uly = 0;
-        bounds.lry = text_height();
+        bounds.lry = Text_GetHeight();
 
-        text_to_buf(&window.buffer[bounds.ulx], "|", bounds.lrx - bounds.ulx, window.width, color);
+        Text_Blit(&window.buffer[bounds.ulx], "|", bounds.lrx - bounds.ulx, window.width, color);
 
         bounds.ulx += window.window.ulx;
         bounds.lrx += window.window.ulx;
@@ -245,7 +245,7 @@ void TextEdit::InsertCharacter(char character) {
 
             strcat(text_before_cursor, &edited_text[cursor_position]);
 
-            if ((text_width(text_before_cursor) + text_width("|")) <= (window.window.lrx - window.window.ulx)) {
+            if ((Text_GetWidth(text_before_cursor) + Text_GetWidth("|")) <= (window.window.lrx - window.window.ulx)) {
                 strcpy(edited_text, text_before_cursor);
 
                 DrawFullText();

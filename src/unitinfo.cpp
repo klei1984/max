@@ -31,6 +31,7 @@
 #include "gfx.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "paths_manager.hpp"
@@ -1347,7 +1348,7 @@ void UnitInfo::GetDisplayName(char* text) const {
 
     GetName(unit_name);
     GetVersion(unit_mark, base_values->GetVersion());
-    strcpy(text, "Mk ");
+    strcpy(text, _(660b));
     strcat(text, unit_mark);
     strcat(text, " ");
     strcat(text, unit_name);
@@ -2055,8 +2056,7 @@ void UnitInfo::GainExperience(int experience) {
                 if (team == GameManager_PlayerTeam) {
                     SmartString string;
 
-                    string.Sprintf(80, "%s at [%i,%i] has increased in experience.",
-                                   UnitsManager_BaseUnits[team].singular_name, grid_x + 1, grid_y + 1);
+                    string.Sprintf(80, _(d6a7), UnitsManager_BaseUnits[team].singular_name, grid_x + 1, grid_y + 1);
                     MessageManager_DrawMessage(string.GetCStr(), 0, this, Point(grid_x, grid_y));
                 }
 
@@ -2139,8 +2139,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) 
             }
 
         } else if (IsVisibleToTeam(GameManager_PlayerTeam) && hits == 0) {
-            const char* formats[] = {"Enemy %s at [%i,%i] destroyed.", "Enemy %s at [%i,%i] destroyed.",
-                                     "Enemy %s at [%i,%i] destroyed."};
+            const char* formats[] = {_(e6d7), _(2962), _(01c2)};
 
             BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
             Point position(grid_x, grid_y);
@@ -4585,8 +4584,8 @@ void UnitInfo::Upgrade(UnitInfo* parent) {
 
                 GetVersion(unit_mark, parent->GetBaseValues()->GetVersion());
 
-                message.Sprintf(80, "%s upgraded to mark %s for %i raw material.",
-                                UnitsManager_BaseUnits[parent->unit_type].singular_name, unit_mark, materials_cost);
+                message.Sprintf(80, _(d23e), UnitsManager_BaseUnits[parent->unit_type].singular_name, unit_mark,
+                                materials_cost);
 
                 MessageManager_DrawMessage(message.GetCStr(), 0, parent, Point(parent->grid_x, parent->grid_y));
             }
@@ -4594,7 +4593,7 @@ void UnitInfo::Upgrade(UnitInfo* parent) {
         } else if (GameManager_PlayerTeam == team && state != ORDER_STATE_1) {
             SmartString message;
 
-            message.Sprintf(80, "%i raw material needed to upgrade.", materials_cost);
+            message.Sprintf(80, _(e3e0), materials_cost);
 
             MessageManager_DrawMessage(message.GetCStr(), 2, 0);
         }

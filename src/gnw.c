@@ -77,7 +77,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
         return 7;
     }
 
-    if (GNW_text_init() == -1) {
+    if (Text_Init() == -1) {
         return 3;
     }
 
@@ -276,7 +276,7 @@ void win_exit(void) {
 
             GNW_input_exit();
             GNW_rect_exit();
-            GNW_text_exit();
+            Text_Exit();
             colorsClose();
 
             GNW_win_init_flag = 0;
@@ -484,14 +484,14 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
     if (GNW_win_init_flag && w) {
         if (!field_width) {
             if (color & GNW_TEXT_MONOSPACE) {
-                field_width = text_mono_width(str);
+                field_width = Text_GetMonospaceWidth(str);
             } else {
-                field_width = text_width(str);
+                field_width = Text_GetWidth(str);
             }
         }
 
         if (field_width + x > w->width) {
-            if (!(color & GNW_TEXT_UNKNOWN_3)) {
+            if (!(color & GNW_TEXT_ALLOW_TRUNCATED)) {
                 return;
             }
 
@@ -500,18 +500,18 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
 
         buf = &w->buf[x + w->width * y];
 
-        if ((text_height() + y) <= w->length) {
-            if (!(color & GNW_TEXT_UNKNOWN_2)) {
+        if ((Text_GetHeight() + y) <= w->length) {
+            if (!(color & GNW_TEXT_FILL_WINDOW)) {
                 if (w->color == 0x100 && GNW_texture) {
-                    buf_texture(buf, field_width, text_height(), w->width, GNW_texture, w->tx + x, w->ty + y);
+                    buf_texture(buf, field_width, Text_GetHeight(), w->width, GNW_texture, w->tx + x, w->ty + y);
                 } else {
-                    buf_fill(buf, field_width, text_height(), w->width, w->color);
+                    buf_fill(buf, field_width, Text_GetHeight(), w->width, w->color);
                 }
             }
 
             color = GNW_WinRGB2Color(color);
 
-            text_to_buf(buf, str, field_width, w->width, color);
+            Text_Blit(buf, str, field_width, w->width, color);
 
             if (color & GNW_TEXT_REFRESH_WINDOW) {
                 Rect r;
@@ -519,7 +519,7 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
                 r.ulx = w->w.ulx + x;
                 r.uly = w->w.uly + y;
                 r.lrx = field_width + r.ulx;
-                r.lry = text_height() + r.uly;
+                r.lry = Text_GetHeight() + r.uly;
 
                 GNW_win_refresh(w, &r, 0);
             }
@@ -539,7 +539,7 @@ void win_text(WinID id, char **list, int num, int field_width, int x, int y, int
     if (GNW_win_init_flag && w) {
         full = w->width;
         buf = &w->buf[x + full * y];
-        height = text_height();
+        height = Text_GetHeight();
         i = 0;
 
         while (i < num) {

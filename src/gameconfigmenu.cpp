@@ -23,6 +23,7 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
@@ -40,77 +41,42 @@ struct GameConfigMenuControlItem {
     { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
 
 struct MenuTitleItem game_config_menu_items[] = {
-    MENU_TITLE_ITEM_DEF(230, 5, 409, 25, "Options Menu"),
-    MENU_TITLE_ITEM_DEF(19, 50, 199, 70, "Computer Opponent"),
-    MENU_TITLE_ITEM_DEF(230, 50, 409, 70, "Turn Timers"),
-    MENU_TITLE_ITEM_DEF(439, 50, 619, 70, "Play Mode"),
-    MENU_TITLE_ITEM_DEF(19, 245, 199, 265, "Starting Credit"),
-    MENU_TITLE_ITEM_DEF(230, 245, 409, 265, "Resource Levels"),
-    MENU_TITLE_ITEM_DEF(439, 245, 619, 265, "Victory Condition"),
-    MENU_TITLE_ITEM_DEF(56, 85, 156, 100, "Clueless"),
-    MENU_TITLE_ITEM_DEF(56, 100, 156, 115, "Apprentice"),
-    MENU_TITLE_ITEM_DEF(56, 115, 156, 130, "Average"),
-    MENU_TITLE_ITEM_DEF(56, 130, 156, 145, "Expert"),
-    MENU_TITLE_ITEM_DEF(56, 145, 156, 160, "Master"),
-    MENU_TITLE_ITEM_DEF(56, 160, 156, 175, "God"),
-    MENU_TITLE_ITEM_DEF(227, 85, 307, 105, "Turn Limit:"),
-    MENU_TITLE_ITEM_DEF(331, 85, 411, 105, "End Turn:"),
-    MENU_TITLE_ITEM_DEF(227, 105, 307, 120, "No Limit"),
-    MENU_TITLE_ITEM_DEF(227, 120, 307, 135, "60 seconds"),
-    MENU_TITLE_ITEM_DEF(227, 135, 307, 150, "120"),
-    MENU_TITLE_ITEM_DEF(227, 150, 307, 165, "180"),
-    MENU_TITLE_ITEM_DEF(227, 165, 307, 180, "240"),
-    MENU_TITLE_ITEM_DEF(227, 180, 307, 195, "300"),
-    MENU_TITLE_ITEM_DEF(227, 195, 307, 210, "360"),
-    MENU_TITLE_ITEM_DEF(331, 105, 411, 120, "None"),
-    MENU_TITLE_ITEM_DEF(331, 120, 411, 135, "15 seconds"),
-    MENU_TITLE_ITEM_DEF(331, 135, 411, 150, "30"),
-    MENU_TITLE_ITEM_DEF(331, 150, 411, 165, "45"),
-    MENU_TITLE_ITEM_DEF(331, 165, 411, 180, "60"),
-    MENU_TITLE_ITEM_DEF(331, 180, 411, 195, "75"),
-    MENU_TITLE_ITEM_DEF(331, 195, 411, 210, "90"),
-    MENU_TITLE_ITEM_DEF(480, 90, 580, 110, "Turn Based"),
-    MENU_TITLE_ITEM_DEF(480, 115, 580, 145, "Simultaneous Moves"),
-    MENU_TITLE_ITEM_DEF(24, 285, 114, 300, "None"),
-    MENU_TITLE_ITEM_DEF(24, 305, 114, 320, "Low"),
-    MENU_TITLE_ITEM_DEF(24, 325, 114, 340, "Limited"),
-    MENU_TITLE_ITEM_DEF(24, 345, 114, 360, "Normal"),
-    MENU_TITLE_ITEM_DEF(24, 365, 114, 380, "High"),
-    MENU_TITLE_ITEM_DEF(24, 385, 114, 400, "Too Much!"),
-    MENU_TITLE_ITEM_DEF(144, 285, 194, 300, "0"),
-    MENU_TITLE_ITEM_DEF(144, 305, 194, 320, "50"),
-    MENU_TITLE_ITEM_DEF(144, 325, 194, 340, "100"),
-    MENU_TITLE_ITEM_DEF(144, 345, 194, 360, "150"),
-    MENU_TITLE_ITEM_DEF(144, 365, 194, 380, "200"),
-    MENU_TITLE_ITEM_DEF(144, 385, 194, 400, "250"),
-    MENU_TITLE_ITEM_DEF(229, 280, 409, 292, "Raw Materials:"),
-    MENU_TITLE_ITEM_DEF(229, 315, 409, 327, "Fuel:"),
-    MENU_TITLE_ITEM_DEF(229, 350, 409, 362, "Gold:"),
-    MENU_TITLE_ITEM_DEF(229, 385, 409, 397, "Alien Derelicts:"),
-    MENU_TITLE_ITEM_DEF(225, 292, 287, 304, "Poor"),
-    MENU_TITLE_ITEM_DEF(288, 292, 352, 304, "Medium"),
-    MENU_TITLE_ITEM_DEF(351, 292, 413, 304, "Rich"),
-    MENU_TITLE_ITEM_DEF(225, 327, 287, 339, "Poor"),
-    MENU_TITLE_ITEM_DEF(288, 327, 352, 339, "Medium"),
-    MENU_TITLE_ITEM_DEF(351, 327, 413, 339, "Rich"),
-    MENU_TITLE_ITEM_DEF(225, 362, 287, 374, "Poor"),
-    MENU_TITLE_ITEM_DEF(288, 362, 352, 374, "Medium"),
-    MENU_TITLE_ITEM_DEF(351, 362, 413, 374, "Rich"),
-    MENU_TITLE_ITEM_DEF(225, 397, 287, 409, "None"),
-    MENU_TITLE_ITEM_DEF(288, 397, 352, 409, "Rare"),
-    MENU_TITLE_ITEM_DEF(351, 397, 413, 409, "Common"),
-    MENU_TITLE_ITEM_DEF(427, 285, 529, 305, "Duration:"),
-    MENU_TITLE_ITEM_DEF(529, 285, 633, 305, "Score:"),
-    MENU_TITLE_ITEM_DEF(447, 305, 507, 320, "Short"),
-    MENU_TITLE_ITEM_DEF(447, 325, 507, 340, "Medium"),
-    MENU_TITLE_ITEM_DEF(447, 345, 507, 360, "Long"),
-    MENU_TITLE_ITEM_DEF(551, 305, 611, 320, "Low"),
-    MENU_TITLE_ITEM_DEF(551, 325, 611, 340, "Medium"),
-    MENU_TITLE_ITEM_DEF(551, 345, 611, 360, "High"),
-    MENU_TITLE_ITEM_DEF(447, 370, 507, 390, nullptr),
-    MENU_TITLE_ITEM_DEF(551, 370, 611, 390, nullptr),
-    MENU_TITLE_ITEM_DEF(447, 390, 507, 410, "turns"),
-    MENU_TITLE_ITEM_DEF(551, 390, 611, 410, "points"),
+    MENU_TITLE_ITEM_DEF(230, 5, 409, 25, _(8448)),    MENU_TITLE_ITEM_DEF(19, 50, 199, 70, _(de1b)),
+    MENU_TITLE_ITEM_DEF(230, 50, 409, 70, _(e96a)),   MENU_TITLE_ITEM_DEF(439, 50, 619, 70, _(4599)),
+    MENU_TITLE_ITEM_DEF(19, 245, 199, 265, _(1d15)),  MENU_TITLE_ITEM_DEF(230, 245, 409, 265, _(e1e4)),
+    MENU_TITLE_ITEM_DEF(439, 245, 619, 265, _(3b7b)), MENU_TITLE_ITEM_DEF(56, 85, 156, 100, _(fde2)),
+    MENU_TITLE_ITEM_DEF(56, 100, 156, 115, _(e644)),  MENU_TITLE_ITEM_DEF(56, 115, 156, 130, _(2d88)),
+    MENU_TITLE_ITEM_DEF(56, 130, 156, 145, _(8b31)),  MENU_TITLE_ITEM_DEF(56, 145, 156, 160, _(a2bb)),
+    MENU_TITLE_ITEM_DEF(56, 160, 156, 175, _(9c54)),  MENU_TITLE_ITEM_DEF(227, 85, 307, 105, _(779f)),
+    MENU_TITLE_ITEM_DEF(331, 85, 411, 105, _(99b8)),  MENU_TITLE_ITEM_DEF(227, 105, 307, 120, _(366c)),
+    MENU_TITLE_ITEM_DEF(227, 120, 307, 135, _(03d2)), MENU_TITLE_ITEM_DEF(227, 135, 307, 150, "120"),
+    MENU_TITLE_ITEM_DEF(227, 150, 307, 165, "180"),   MENU_TITLE_ITEM_DEF(227, 165, 307, 180, "240"),
+    MENU_TITLE_ITEM_DEF(227, 180, 307, 195, "300"),   MENU_TITLE_ITEM_DEF(227, 195, 307, 210, "360"),
+    MENU_TITLE_ITEM_DEF(331, 105, 411, 120, _(8f89)), MENU_TITLE_ITEM_DEF(331, 120, 411, 135, _(218f)),
+    MENU_TITLE_ITEM_DEF(331, 135, 411, 150, "30"),    MENU_TITLE_ITEM_DEF(331, 150, 411, 165, "45"),
+    MENU_TITLE_ITEM_DEF(331, 165, 411, 180, "60"),    MENU_TITLE_ITEM_DEF(331, 180, 411, 195, "75"),
+    MENU_TITLE_ITEM_DEF(331, 195, 411, 210, "90"),    MENU_TITLE_ITEM_DEF(480, 90, 580, 110, _(f7e4)),
+    MENU_TITLE_ITEM_DEF(480, 115, 580, 145, _(0ba9)), MENU_TITLE_ITEM_DEF(24, 285, 114, 300, _(dbc7)),
+    MENU_TITLE_ITEM_DEF(24, 305, 114, 320, _(f793)),  MENU_TITLE_ITEM_DEF(24, 325, 114, 340, _(e512)),
+    MENU_TITLE_ITEM_DEF(24, 345, 114, 360, _(a724)),  MENU_TITLE_ITEM_DEF(24, 365, 114, 380, _(c4eb)),
+    MENU_TITLE_ITEM_DEF(24, 385, 114, 400, _(3ade)),  MENU_TITLE_ITEM_DEF(144, 285, 194, 300, "0"),
+    MENU_TITLE_ITEM_DEF(144, 305, 194, 320, "50"),    MENU_TITLE_ITEM_DEF(144, 325, 194, 340, "100"),
+    MENU_TITLE_ITEM_DEF(144, 345, 194, 360, "150"),   MENU_TITLE_ITEM_DEF(144, 365, 194, 380, "200"),
+    MENU_TITLE_ITEM_DEF(144, 385, 194, 400, "250"),   MENU_TITLE_ITEM_DEF(229, 280, 409, 292, _(d558)),
+    MENU_TITLE_ITEM_DEF(229, 315, 409, 327, _(10c4)), MENU_TITLE_ITEM_DEF(229, 350, 409, 362, _(4ef9)),
+    MENU_TITLE_ITEM_DEF(229, 385, 409, 397, _(48bd)), MENU_TITLE_ITEM_DEF(225, 292, 287, 304, _(94df)),
+    MENU_TITLE_ITEM_DEF(288, 292, 352, 304, _(8e58)), MENU_TITLE_ITEM_DEF(351, 292, 413, 304, _(dca9)),
+    MENU_TITLE_ITEM_DEF(225, 327, 287, 339, _(8c28)), MENU_TITLE_ITEM_DEF(288, 327, 352, 339, _(ccfe)),
+    MENU_TITLE_ITEM_DEF(351, 327, 413, 339, _(eac9)), MENU_TITLE_ITEM_DEF(225, 362, 287, 374, _(ec35)),
+    MENU_TITLE_ITEM_DEF(288, 362, 352, 374, _(9c1d)), MENU_TITLE_ITEM_DEF(351, 362, 413, 374, _(0c4a)),
+    MENU_TITLE_ITEM_DEF(225, 397, 287, 409, _(2484)), MENU_TITLE_ITEM_DEF(288, 397, 352, 409, _(291d)),
+    MENU_TITLE_ITEM_DEF(351, 397, 413, 409, _(3099)), MENU_TITLE_ITEM_DEF(427, 285, 529, 305, _(298d)),
+    MENU_TITLE_ITEM_DEF(529, 285, 633, 305, _(9689)), MENU_TITLE_ITEM_DEF(447, 305, 507, 320, _(f5d6)),
+    MENU_TITLE_ITEM_DEF(447, 325, 507, 340, _(9427)), MENU_TITLE_ITEM_DEF(447, 345, 507, 360, _(d1d8)),
+    MENU_TITLE_ITEM_DEF(551, 305, 611, 320, _(76b7)), MENU_TITLE_ITEM_DEF(551, 325, 611, 340, _(b459)),
+    MENU_TITLE_ITEM_DEF(551, 345, 611, 360, _(4065)), MENU_TITLE_ITEM_DEF(447, 370, 507, 390, nullptr),
+    MENU_TITLE_ITEM_DEF(551, 370, 611, 390, nullptr), MENU_TITLE_ITEM_DEF(447, 390, 507, 410, _(a07a)),
+    MENU_TITLE_ITEM_DEF(551, 390, 611, 410, _(7015)),
 };
 
 static struct GameConfigMenuControlItem game_config_menu_controls[] = {
@@ -162,18 +128,13 @@ static struct GameConfigMenuControlItem game_config_menu_controls[] = {
     MENU_CONTROL_DEF(551, 345, 611, 360, INVALID_ID, nullptr, 0, &GameConfigMenu::EventVictoryCondition, KCARG0),
     MENU_CONTROL_DEF(447, 370, 507, 390, PREFEDIT, nullptr, 0, &GameConfigMenu::EventVictoryConditionPrefs, KCARG0),
     MENU_CONTROL_DEF(551, 370, 611, 390, PREFEDIT, nullptr, 0, &GameConfigMenu::EventVictoryConditionPrefs, KCARG0),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_ESCAPE, &GameConfigMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &GameConfigMenu::EventHelp, NHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_RETURN, &GameConfigMenu::EventDone, NDONE0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(a80a), GNW_KB_KEY_ESCAPE, &GameConfigMenu::EventCancel, NCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(8610), GNW_KB_KEY_SHIFT_DIVIDE, &GameConfigMenu::EventHelp, NHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(da62), GNW_KB_KEY_RETURN, &GameConfigMenu::EventDone, NDONE0),
 };
 
 static const char* game_config_menu_difficulty_descriptions[] = {
-    "Very easy opponent with no advanced tactics or strategies, and a 25% penalty to building.",
-    "Basic opponent with some advanced tactics, and no building penalty.",
-    "Fairly clever opponent with some advanced strategies and nastier tactics.",
-    "Smartest opponent available, with no advantages.",
-    "Smartest opponent with a small (25%) bonus to production.",
-    "Merciless opponent with a 50% bonus to production.",
+    _(1dc3), _(eb1c), _(0e00), _(2de0), _(e22c), _(7cb8),
 };
 
 static void DrawCaption(WindowInfo* window, MenuTitleItem* menu_item, FontColor color = Fonts_BrightYellowColor,
@@ -231,7 +192,7 @@ void GameConfigMenu::Init() {
         }
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     bg_panels[0] =
         new (std::nothrow) Image(WindowManager_ScaleUlx(window, 6), WindowManager_ScaleUly(window, 38), 200, 190);
@@ -433,7 +394,7 @@ void GameConfigMenu::ButtonInit(int index) {
 
     control = &game_config_menu_controls[index];
 
-    text_font((index < 48) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
+    Text_SetFont((index < 48) ? GNW_TEXT_FONT_5 : GNW_TEXT_FONT_1);
 
     if (control->image_id != INVALID_ID && control->label) {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),

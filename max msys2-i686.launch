@@ -18,8 +18,8 @@
     <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_ID" value="gdb"/>
     <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_START_MODE" value="run"/>
     <booleanAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN" value="true"/>
-    <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="main"/>
-    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="build/maxrun.exe"/>
+    <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="SDL_main"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="build/max.exe"/>
     <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="max"/>
     <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
     <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="cdt.managedbuild.toolchain.gnu.base.762831889"/>
@@ -36,8 +36,8 @@
     <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
         <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
     </listAttribute>
-    <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;/&gt;"/>
+    <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;&gt;&lt;gdbmemoryBlockExpression address=&quot;260280304&quot; label=&quot;data&quot;/&gt;&lt;/memoryBlockExpressionList&gt;"/>
     <stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
     <stringAttribute key="provider" value="org.eclipse.linuxtools.profiling.provider.timing.gprof"/>
-    <stringAttribute key="saved_expressions&lt;seperator&gt;Unknown" value="0xb501ba8,0xb4b0610,0xb2e3158,0x10ff620,0xb2bc238,0x10ff9a0,0xb2c2268,0xb2b3b18,0xc70bef8,0xc70cfa0,0x38a0c38,0xb2c8f18,0x33702b0,0xb2c8960,0x112f637"/>
+    <stringAttribute key="saved_expressions&lt;seperator&gt;Unknown" value="0xca4be30,0xcfc2cb0,0xccc2440,0x209f8f88,0x22a9cf88,0x1f954f88,0x20222fc0,0x2009a880,buf[repeat_count + scan_line_pos],map.map,08D52FFC,0x08D52FFC,0x8D52E80,0xf838ff0,slot-&gt;bitmap.buffer"/>
 </launchConfiguration>

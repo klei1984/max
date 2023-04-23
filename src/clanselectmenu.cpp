@@ -23,6 +23,7 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "window_manager.hpp"
 
@@ -38,7 +39,7 @@ struct ClanSelectMenuControlItem {
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
     { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
 
-static struct MenuTitleItem clan_select_menu_screen_title = {{230, 6, 410, 26}, "Clan Select Menu"};
+static struct MenuTitleItem clan_select_menu_screen_title = {{230, 6, 410, 26}, _(897f)};
 static struct MenuTitleItem clan_select_menu_screen_text[] = {
     MENU_TITLE_ITEM_DEF(41, 350, 610, 409, nullptr),
     MENU_TITLE_ITEM_DEF(330, 350, 610, 409, nullptr),
@@ -60,10 +61,10 @@ static struct ClanSelectMenuControlItem clan_select_menu_controls[] = {
     MENU_CONTROL_DEF(201, 194, 0, 0, CH_CN6_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CSACR0),
     MENU_CONTROL_DEF(355, 194, 0, 0, CH_CN7_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CKNIG0),
     MENU_CONTROL_DEF(510, 194, 0, 0, CH_CN8_U, nullptr, 0, &ClanSelectMenu::ClanSelection, CAXIS0),
-    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, "Random", 0, &ClanSelectMenu::EventRandom, CRAND0),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, "Cancel", GNW_KB_KEY_SHIFT_ESCAPE, &ClanSelectMenu::EventCancel, CCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", GNW_KB_KEY_SHIFT_DIVIDE, &ClanSelectMenu::EventHelp, CHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_SHIFT_RETURN, &ClanSelectMenu::EventDone, CDONE0),
+    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, _(7e91), 0, &ClanSelectMenu::EventRandom, CRAND0),
+    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(f5ee), GNW_KB_KEY_SHIFT_ESCAPE, &ClanSelectMenu::EventCancel, CCANC0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(eb1b), GNW_KB_KEY_SHIFT_DIVIDE, &ClanSelectMenu::EventHelp, CHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(aff0), GNW_KB_KEY_SHIFT_RETURN, &ClanSelectMenu::EventDone, CDONE0),
 };
 
 void ClanSelectMenu::Init(int team) {
@@ -97,7 +98,7 @@ void ClanSelectMenu::Init(int team) {
               clan_select_menu_screen_text[0].bounds.lry - clan_select_menu_screen_text[0].bounds.uly);
     image->Copy(window);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     menu_draw_menu_title(window, &clan_select_menu_screen_title, COLOR_GREEN, true);
     SelectMenuItems();
@@ -134,7 +135,7 @@ void ClanSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_CLAN_SETUP, WINDOW_MAI
 void ClanSelectMenu::ButtonInit(int index, int mode) {
     struct ClanSelectMenuControlItem* control = &clan_select_menu_controls[index];
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
 
     if (index >= 0 && index <= 7) {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),

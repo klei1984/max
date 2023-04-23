@@ -25,6 +25,7 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "mouseevent.hpp"
 #include "remote.hpp"
@@ -47,80 +48,7 @@ const char* help_menu_sections[] = {
     "BARRACKS_SETUP",
 };
 
-const char* help_menu_keyboard_reference =
-    "Enter: End Turn\n"
-    "\n"
-    "F: Find Selected Unit. Currently selected unit will be centered on screen.\n"
-    "\n"
-    "-,+: Zoom In, Out\n"
-    "\n"
-    "G: Turns on Grid Display\n"
-    "\n"
-    "F1: Centers on Tagged Unit\n"
-    "\n"
-    "Arrow Keys: Scrolls the map\n"
-    "\n"
-    "ALT-P: Pause the game\n"
-    "\n"
-    "ALT-F: Opens the Load/Save Game Menu\n"
-    "\n"
-    "ALT-L: Use to quick load a game\n"
-    "\n"
-    "ALT-S: Use to quick save a game\n"
-    "\n"
-    "ALT-X: Exits the Game to the Main Menu\n"
-    "\n"
-    "ALT-F5, ALT-F6, ALT-F7, ALT-F8: Saves the current window position\n"
-    "\n"
-    "F5, F6, F7, F8: Jumps to a previously saved window position\n"
-    "\n"
-    "?: Initiates HELP mode.  The cursor changes to a question mark, clicking on screen items will display help text.\n"
-    "\n"
-    "ALT-C: Saves a screen shot of the game in PCX format.\n"
-    "\n"
-    "Shift: Hold the Shift key while selecting units to create groups.\n"
-    "\n"
-    "Shift-Done: Holding the Shift key while clicking on the Done button will start in motion all units that are "
-    "waiting to move along a path.\n"
-    "\n"
-    "Hot keys for unit commands:\n"
-    "\n"
-    "Press 1 for these functions:\n"
-    "...Activate\n"
-    "...Allocate\n"
-    "...Auto-Survey\n"
-    "...Build\n"
-    "...Buy Upgrade\n"
-    "...Disable\n"
-    "...Place Mines\n"
-    "...Reload\n"
-    "...Repair\n"
-    "...Research\n"
-    "\n"
-    "Press 2 for these functions:\n"
-    "...Load\n"
-    "...Start\n"
-    "...Steal\n"
-    "\n"
-    "Press 3 for these functions:\n"
-    "...Attack\n"
-    "...Transfer\n"
-    "\n"
-    "Press 4 for the Manual function.\n"
-    "\n"
-    "Press 5 for these functions:\n"
-    "...Enter\n"
-    "...Upgrade\n"
-    "\n"
-    "Press 6 for the Upgrade All function.\n"
-    "\n"
-    "Press 7 for the Stop function.\n"
-    "\n"
-    "Press 8 for the Sentry function.\n"
-    "\n"
-    "Press 9 for the Done function.\n"
-    "\n"
-    "Press 0 for the Remove function.\n";
+const char* help_menu_keyboard_reference = _(ceb6);
 
 HelpMenu::HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window_id)
     : Window(HELPFRAM, window_id),
@@ -159,7 +87,7 @@ HelpMenu::HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window
 
     if (entry_loaded) {
         Cursor_SetCursor(CURSOR_HAND);
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
         Add();
         FillWindowInfo(&window);
 
@@ -170,7 +98,7 @@ HelpMenu::HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window
             button_done = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 85, 193);
             button_keys = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 155, 193);
 
-            button_keys->SetCaption("Keys", 2, 2);
+            button_keys->SetCaption(_(f0d6), 2, 2);
             button_keys->SetRValue(1000);
             button_keys->SetPValue(1000);
             button_keys->SetFlags(1);
@@ -179,7 +107,7 @@ HelpMenu::HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window
             button_done = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 120, 193);
         }
 
-        button_done->SetCaption("Done", 2, 2);
+        button_done->SetCaption(_(4bfa), 2, 2);
         button_done->SetRValue(GNW_KB_KEY_RETURN);
         button_done->SetPValue(GNW_INPUT_PRESS);
         button_done->SetSfx(NDONE0);
@@ -336,9 +264,9 @@ void HelpMenu::ProcessText(const char* text) {
         delete[] strings;
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    rows_per_page = 160 / text_height();
+    rows_per_page = 160 / Text_GetHeight();
 
     strings = Text_SplitText(text, rows_per_page * 10, 265, &string_row_count);
 
@@ -375,7 +303,7 @@ void HelpMenu::DrawText() {
     canvas->Write(&window);
 
     buffer_position = &window.buffer[window.width * 20 + 20];
-    text_full_height = string_row_count * text_height();
+    text_full_height = string_row_count * Text_GetHeight();
 
     if (text_full_height < 160) {
         buffer_position = &buffer_position[window.width * ((160 - text_full_height) / 2)];
@@ -387,11 +315,11 @@ void HelpMenu::DrawText() {
         row_index_max = string_row_count;
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     for (int row_index = string_row_index; row_index < row_index_max; ++row_index) {
-        text_to_buf(&buffer_position[window.width * (row_index - string_row_index) * text_height()],
-                    strings[row_index].GetCStr(), 265, window.width, GNW_TEXT_OUTLINE | 0xFF);
+        Text_Blit(&buffer_position[window.width * (row_index - string_row_index) * Text_GetHeight()],
+                  strings[row_index].GetCStr(), 265, window.width, GNW_TEXT_OUTLINE | 0xFF);
     }
 
     win_draw_rect(window.id, &window.window);

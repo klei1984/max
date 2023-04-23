@@ -37,7 +37,7 @@ void Text_TextBox(unsigned char* buffer, unsigned short length, const char* text
 void Text_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int width, int height,
                   bool horizontal_align = false, bool vertical_align = true, FontColor color = Fonts_GoldColor);
 
-void Text_TextLine(WindowInfo* window, const char* text, int ulx, int uly, int width, bool horizontal_align = false,
+void Text_TextLine(WindowInfo* window, const char* str, int ulx, int uly, int swidth, bool horizontal_align = false,
                    FontColor color = Fonts_GoldColor);
 
 void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int width, int alignment);

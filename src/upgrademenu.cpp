@@ -23,6 +23,7 @@
 
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "remote.hpp"
 #include "text.hpp"
@@ -69,12 +70,12 @@ UpgradeMenu::UpgradeMenu(unsigned short team, Complex* complex) : AbstractUpgrad
         wininfo.window.lry = 370;
         wininfo.buffer = &window1.buffer[window1.width * wininfo.window.uly + wininfo.window.ulx];
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
-        Text_TextBox(window1.buffer, window1.width, "Upgrades Menu", 327, 7, 158, 18, COLOR_GREEN, true);
-        Text_TextBox(&window1, "Description", 209, 264, 80, 17, true, true);
-        Text_TextBox(&window1, "Cost", 320, 283, 48, 16, true, true);
-        Text_TextBox(&window1, "Credit", 358, 284, 48, 17, true, true);
+        Text_TextBox(window1.buffer, window1.width, _(0b85), 327, 7, 158, 18, COLOR_GREEN, true);
+        Text_TextBox(&window1, _(7a2c), 209, 264, 80, 17, true, true);
+        Text_TextBox(&window1, _(f199), 320, 283, 48, 16, true, true);
+        Text_TextBox(&window1, _(fb18), 358, 284, 48, 17, true, true);
 
         Init();
 

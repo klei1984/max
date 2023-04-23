@@ -26,6 +26,7 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
@@ -59,7 +60,7 @@ public:
 
 ChatMenu::ChatMenu(unsigned short team) : Window(CHATWNDO, WINDOW_MAIN_MAP) {
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     this->team = team;
     event_release = false;
@@ -76,13 +77,13 @@ ChatMenu::ChatMenu(unsigned short team) : Window(CHATWNDO, WINDOW_MAIN_MAP) {
     button_team[PLAYER_TEAM_BLUE] = new (std::nothrow) Button(CHTBLU_U, CHTBLU_D, 25, 49);
     button_team[PLAYER_TEAM_GRAY] = new (std::nothrow) Button(CHTGRY_U, CHTGRY_D, 222, 49);
 
-    button_send->SetCaption("Send");
+    button_send->SetCaption(_(f6f4));
     button_send->SetRValue(GNW_KB_KEY_RETURN);
     button_send->SetPValue(GNW_KB_KEY_RETURN + GNW_INPUT_PRESS);
     button_send->SetSfx(NDONE0);
     button_send->RegisterButton(window.id);
 
-    button_cancel->SetCaption("Cancel");
+    button_cancel->SetCaption(_(0de3));
     button_cancel->SetRValue(GNW_KB_KEY_ESCAPE);
     button_cancel->SetPValue(GNW_KB_KEY_ESCAPE + GNW_INPUT_PRESS);
     button_cancel->SetSfx(NCANC0);

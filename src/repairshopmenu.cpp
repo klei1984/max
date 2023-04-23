@@ -27,6 +27,7 @@
 #include "flicsmgr.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
@@ -158,13 +159,13 @@ RepairShopSlot::RepairShopSlot(RepairShopMenu *repairshop, Rect *unit_bg_image_b
 
     rect_init(&unit_slot_button_area, 0, 0, 70, 21);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     button_activate =
         new (std::nothrow) Button(DPTBAYUP, DPTBAYDN, unit_stats_bounds->ulx - 12, unit_stats_bounds->uly + 42);
     button_activate->CopyUpDisabled(DPTBAYDN);
     button_activate->Copy(window.id);
-    button_activate->SetCaption("Activate", &unit_slot_button_area);
+    button_activate->SetCaption(_(2443), &unit_slot_button_area);
     button_activate->SetRFunc(&RepairShopSlot_OnClick_Activate, reinterpret_cast<intptr_t>(this));
     button_activate->SetSfx(MBUTT0);
 
@@ -173,7 +174,7 @@ RepairShopSlot::RepairShopSlot(RepairShopMenu *repairshop, Rect *unit_bg_image_b
             new (std::nothrow) Button(DPTBAYUP, DPTBAYDN, unit_stats_bounds->ulx - 12, unit_stats_bounds->uly + 67);
         button_reload->CopyUpDisabled(DPTBAYDN);
         button_reload->Copy(window.id);
-        button_reload->SetCaption("Reload", &unit_slot_button_area);
+        button_reload->SetCaption(_(bdc0), &unit_slot_button_area);
         button_reload->SetRFunc(&RepairShopSlot_OnClick_Reload, reinterpret_cast<intptr_t>(this));
         button_reload->SetSfx(MBUTT0);
 
@@ -181,7 +182,7 @@ RepairShopSlot::RepairShopSlot(RepairShopMenu *repairshop, Rect *unit_bg_image_b
             new (std::nothrow) Button(DPTBAYUP, DPTBAYDN, unit_stats_bounds->ulx + 63, unit_stats_bounds->uly + 42);
         button_repair->CopyUpDisabled(DPTBAYDN);
         button_repair->Copy(window.id);
-        button_repair->SetCaption("Repair", &unit_slot_button_area);
+        button_repair->SetCaption(_(1196), &unit_slot_button_area);
         button_repair->SetRFunc(&RepairShopSlot_OnClick_Repair, reinterpret_cast<intptr_t>(this));
         button_repair->SetSfx(MBUTT0);
 
@@ -189,7 +190,7 @@ RepairShopSlot::RepairShopSlot(RepairShopMenu *repairshop, Rect *unit_bg_image_b
             new (std::nothrow) Button(DPTBAYUP, DPTBAYDN, unit_stats_bounds->ulx + 63, unit_stats_bounds->uly + 67);
         button_upgrade->CopyUpDisabled(DPTBAYDN);
         button_upgrade->Copy(window.id);
-        button_upgrade->SetCaption("Upgrade", &unit_slot_button_area);
+        button_upgrade->SetCaption(_(7ec0), &unit_slot_button_area);
         button_upgrade->SetRFunc(&RepairShopSlot_OnClick_Upgrade, reinterpret_cast<intptr_t>(this));
         button_upgrade->SetSfx(MBUTT0);
 
@@ -253,7 +254,7 @@ void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
 
         unit->GetDisplayName(text);
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         Text_TextBox(local_window.buffer, local_window.width, text, 10, 3, bg_image_area->GetWidth() - 20,
                      bg_image_area->GetHeight() - 6, GNW_TEXT_OUTLINE | 0xA2, false, false);
@@ -301,18 +302,18 @@ void RepairShopSlot::DrawStats(bool draw_to_screen) {
     bounds.lrx = bounds.ulx + bg_stats_area->GetWidth();
     bounds.lry = bounds.uly + bg_stats_area->GetHeight() / 2;
 
-    ReportStats_DrawRow("Hits", window.id, &bounds, SI_HITSB, EI_HITSB, unit->hits,
+    ReportStats_DrawRow(_(f0dc), window.id, &bounds, SI_HITSB, EI_HITSB, unit->hits,
                         unit->GetBaseValues()->GetAttribute(ATTRIB_HITS), 4, true);
 
     bounds.uly = bounds.lry;
     bounds.lry = bg_stats_area->GetULY() + bg_stats_area->GetHeight();
 
     if (unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
-        ReportStats_DrawRow("Ammo", window.id, &bounds, SI_AMMO, EI_AMMO, unit->ammo,
+        ReportStats_DrawRow(_(c163), window.id, &bounds, SI_AMMO, EI_AMMO, unit->ammo,
                             unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO), 1, false);
 
     } else if (GameManager_PlayerTeam == unit->team && unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-        ReportStats_DrawRow("Cargo", window.id, &bounds,
+        ReportStats_DrawRow(_(8688), window.id, &bounds,
                             ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2],
                             ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2 + 1],
                             unit->storage, unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE), 10, false);
@@ -434,7 +435,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
 
         unit_slot_index = 0;
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         if (unit->unit_type == AIRTRANS) {
             button_activate_all = nullptr;
@@ -443,14 +444,14 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
             button_activate_all = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 511, 252);
             button_activate_all->CopyUpDisabled(DPTMNUDN);
             button_activate_all->Copy(window.id);
-            button_activate_all->SetCaption("Activate All", &bounds);
+            button_activate_all->SetCaption(_(0fbe), &bounds);
             button_activate_all->SetRFunc(&RepairShopMenu_OnClick_ActivateAll, reinterpret_cast<intptr_t>(this));
             button_activate_all->SetSfx(MBUTT0);
         }
 
         button_done = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 511, 372);
         button_done->Copy(window.id);
-        button_done->SetCaption("Done", &bounds);
+        button_done->SetCaption(_(27af), &bounds);
         button_done->SetRFunc(&RepairShopMenu_OnClick_Done, reinterpret_cast<intptr_t>(this));
         button_done->SetSfx(NDONE0);
 
@@ -478,21 +479,21 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
             button_reload_all = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 511, 277);
             button_reload_all->CopyUpDisabled(DPTMNUDN);
             button_reload_all->Copy(window.id);
-            button_reload_all->SetCaption("Reload All", &bounds);
+            button_reload_all->SetCaption(_(e609), &bounds);
             button_reload_all->SetRFunc(&RepairShopMenu_OnClick_ReloadAll, reinterpret_cast<intptr_t>(this));
             button_reload_all->SetSfx(MBUTT0);
 
             button_repair_all = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 511, 302);
             button_repair_all->CopyUpDisabled(DPTMNUDN);
             button_repair_all->Copy(window.id);
-            button_repair_all->SetCaption("Repair All", &bounds);
+            button_repair_all->SetCaption(_(670f), &bounds);
             button_repair_all->SetRFunc(&RepairShopMenu_OnClick_RepairAll, reinterpret_cast<intptr_t>(this));
             button_repair_all->SetSfx(MBUTT0);
 
             button_upgrade_all = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 511, 327);
             button_upgrade_all->CopyUpDisabled(DPTMNUDN);
             button_upgrade_all->Copy(window.id);
-            button_upgrade_all->SetCaption("Upgrade All", &bounds);
+            button_upgrade_all->SetCaption(_(003c), &bounds);
             button_upgrade_all->SetRFunc(&RepairShopMenu_OnClick_UpgradeAll, reinterpret_cast<intptr_t>(this));
             button_upgrade_all->SetSfx(MBUTT0);
 
@@ -502,9 +503,9 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
             raw_material_value_area = new (std::nothrow) Image(529, 76, 54, 12);
             raw_material_value_area->Copy(&window);
 
-            text_font(GNW_TEXT_FONT_5);
+            Text_SetFont(GNW_TEXT_FONT_5);
 
-            Text_TextBox(window.buffer, window.width, "Material in Complex", 520, 53, 72, 20, 0xA2, true);
+            Text_TextBox(window.buffer, window.width, _(c46e), 520, 53, 72, 20, 0xA2, true);
 
             unit->GetComplex()->GetCargoInfo(materials, capacity);
 
@@ -670,7 +671,7 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
             GameManager_EnableMainMenu(&*unit);
 
         } else {
-            MessageManager_DrawMessage("Unable to activate unit at this site.", 1, 0);
+            MessageManager_DrawMessage(_(eeb4), 1, 0);
             GameManager_EnableMainMenu(&*unit);
         }
 
@@ -681,11 +682,11 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
         if (Access_FindReachableSpot(target_unit->unit_type, target_unit, &grid_x, &grid_y, 1, unit->flags & BUILDING,
                                      0)) {
             unit->FollowUnit();
-            MessageManager_DrawMessage("Select an open square to place unit.", 0, 0);
+            MessageManager_DrawMessage(_(755b), 0, 0);
             GameManager_EnableMainMenu(target_unit);
 
         } else {
-            MessageManager_DrawMessage("Unable to activate unit at this site.", 1, 0);
+            MessageManager_DrawMessage(_(a1f0), 1, 0);
             GameManager_EnableMainMenu(&*unit);
         }
     }
@@ -1088,7 +1089,7 @@ void RepairShopMenu::DrawCargoBar(bool draw_to_screen) {
 
     LoadVerticalBar(buffer, window.width, bar_height, raw_material_bar->GetWidth(), VERTRAW);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     sprintf(text, "%i", materials.raw);
 

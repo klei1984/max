@@ -28,6 +28,7 @@
 #include "circumferencewalker.hpp"
 #include "continent.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
 #include "researchmenu.hpp"
@@ -2215,10 +2216,10 @@ void AiPlayer::BeginTurn() {
         transport_orders.Clear();
 
         if (GameManager_PlayMode == PLAY_MODE_TURN_BASED) {
-            const char* team_colors[PLAYER_TEAM_MAX - 1] = {"Red", "Green", "Blue", "Gray"};
+            const char* team_colors[PLAYER_TEAM_MAX - 1] = {_(ba19), _(d486), _(ec7d), _(0d5a)};
             char message[80];
 
-            sprintf(message, "%s Computer Turn.", team_colors[player_team]);
+            sprintf(message, _(2ab8), team_colors[player_team]);
 
             MessageManager_DrawMessage(message, 0, 0);
         }

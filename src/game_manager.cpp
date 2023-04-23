@@ -36,6 +36,7 @@
 #include "hash.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "menulandingsequence.hpp"
 #include "message_manager.hpp"
@@ -393,28 +394,19 @@ struct ResourceAllocator {
 };
 
 const char* const GameManager_OrderStatusMessages[] = {
-    "Awaiting",   "Transforming", "Moving",    "Firing",         "Building",  "Activate Order", "New Allocate Order",
-    "Power On",   "Power Off",    "Exploding", "Unloading",      "Clearing",  "Sentry",         "Landing",
-    "Taking Off", "Loading",      "Idle",      "Repairing",      "Refueling", "Reloading",      "Transferring",
-    "Awaiting",   "Awaiting",     "Awaiting",  "Awaiting",       "Awaiting",  "Disabled",       "Moving",
-    "Repairing",  "Transferring", "Attacking", "Building Halted"};
+    _(1f51), _(e96b), _(8dac), _(1d99), _(87c5), _(0010), _(2200), _(feff), _(2c8d), _(ce0f), _(dfe7),
+    _(0664), _(5ece), _(68b7), _(6553), _(dc38), _(ab01), _(e2c5), _(1469), _(a4b3), _(5e16), _(6172),
+    _(7bcd), _(5f83), _(8115), _(e843), _(7508), _(d80d), _(85f8), _(1925), _(bc06), _(c331)};
 
-const char* const GameManager_EventStrings_FinishedBuilding[] = {
-    "Finished building %s.  To move the %s out of the factory, click on a square with a symbol in it.",
-    "Finished building %s.  To move the %s out of the factory, click on a square with a symbol in it.",
-    "Finished building %s.  To move the %s out of the factory, click on a square with a symbol in it."};
+const char* const GameManager_EventStrings_FinishedBuilding[] = {_(1200), _(74d3), _(8c62)};
 
-const char* const GameManager_EventStrings_FinishedConstruction[] = {
-    "Finished building %s.  To move the %s out of the construction site, click on a square with a symbol in it.",
-    "Finished building %s.  To move the %s out of the construction site, click on a square with a symbol in it.",
-    "Finished building %s.  To move the %s out of the construction site, click on a square with a symbol in it."};
+const char* const GameManager_EventStrings_FinishedConstruction[] = {_(276c), _(d82e), _(01d0)};
 
-const char* const GameManager_EventStrings_NewSingular[] = {"a new %s", "a new %s", "a new %s"};
+const char* const GameManager_EventStrings_NewSingular[] = {_(c64e), _(8d3e), _(9df3)};
 
-const char* const GameManager_EventStrings_NewPlural[] = {"%i new %s", "%i new %s", "%i new %s"};
+const char* const GameManager_EventStrings_NewPlural[] = {_(5e9c), _(6fe5), _(2488)};
 
-const char* const GameManager_EventStrings_EnemySpotted[] = {"Enemy %s in radar range.", "Enemy %s in radar range.",
-                                                             "Enemy %s in radar range."};
+const char* const GameManager_EventStrings_EnemySpotted[] = {_(a2a6), _(7ccc), _(1f7a)};
 
 const char* const GameManager_CheatCodes[CHEAT_CODE_COUNT] = {"[MAXSPY]", "[MAXSURVEY]", "[MAXSTORAGE]", "[MAXAMMO]",
                                                               "[MAXSUPER]"};
@@ -542,30 +534,30 @@ static struct ColorCycleData GameManager_ColorCycleTable[] = {
 };
 
 static struct MenuGuiItem GameManager_MenuItems[] = {
-    MENU_GUI_ITEM_DEF(WINDOW_FILES_BUTTON, FILES_OF, "Files", nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_PREFS_BUTTON, PREF_OFF, "Preferences", nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_FILES_BUTTON, FILES_OF, _(abc7), nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_PREFS_BUTTON, PREF_OFF, _(6696), nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_PLAY_BUTTON, PLAY_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_PAUSE_BUTTON, PAUSE_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_CENTER_BUTTON, FIND_OFF, nullptr, nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_PRE_BUTTON, PREV_OF, "Prev", nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_DONE_BUTTON, UDONE_OF, "Done", nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_NXT_BUTTON, NEXT_OF, "Next", nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_PRE_BUTTON, PREV_OF, _(7391), nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_DONE_BUTTON, UDONE_OF, _(e2e9), nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_NXT_BUTTON, NEXT_OF, _(1ff5), nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_HELP_BUTTON, HELP_OF, nullptr, nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_REPORTS_BUTTON, REPT_OFF, "Reports", nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_CHAT_BUTTON, CHAT_OFF, "Chat", nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_SURVEY_BUTTON, SURV_OFF, "Survey", nullptr, false, ISURV0),
-    MENU_GUI_ITEM_DEF(WINDOW_STATUS_BUTTON, STAT_OFF, "Status", nullptr, false, ISTAT0),
-    MENU_GUI_ITEM_DEF(WINDOW_COLORS_BUTTON, COLOR_OF, "Colors", nullptr, false, ICOLO0),
-    MENU_GUI_ITEM_DEF(WINDOW_HITS_BUTTON, HITS_OF, "Hits", nullptr, false, IHITS0),
-    MENU_GUI_ITEM_DEF(WINDOW_AMMO_BUTTON, AMMO_OF, "Ammo", nullptr, false, IAMMO0),
-    MENU_GUI_ITEM_DEF(WINDOW_RANGE_BUTTON, RANG_OFF, "Range", nullptr, false, IRANG0),
-    MENU_GUI_ITEM_DEF(WINDOW_SCAN_BUTTON, VISN_OFF, "Scan", nullptr, false, IVISI0),
-    MENU_GUI_ITEM_DEF(WINDOW_GRID_BUTTON, GRID_OFF, "Grid", nullptr, false, IGRID0),
-    MENU_GUI_ITEM_DEF(WINDOW_NAME_BUTTON, NAMES_UP, "Names", nullptr, false, INAME0),
+    MENU_GUI_ITEM_DEF(WINDOW_REPORTS_BUTTON, REPT_OFF, _(dacc), nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_CHAT_BUTTON, CHAT_OFF, _(460b), nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_SURVEY_BUTTON, SURV_OFF, _(211b), nullptr, false, ISURV0),
+    MENU_GUI_ITEM_DEF(WINDOW_STATUS_BUTTON, STAT_OFF, _(920e), nullptr, false, ISTAT0),
+    MENU_GUI_ITEM_DEF(WINDOW_COLORS_BUTTON, COLOR_OF, _(88c4), nullptr, false, ICOLO0),
+    MENU_GUI_ITEM_DEF(WINDOW_HITS_BUTTON, HITS_OF, _(5995), nullptr, false, IHITS0),
+    MENU_GUI_ITEM_DEF(WINDOW_AMMO_BUTTON, AMMO_OF, _(7429), nullptr, false, IAMMO0),
+    MENU_GUI_ITEM_DEF(WINDOW_RANGE_BUTTON, RANG_OFF, _(5de7), nullptr, false, IRANG0),
+    MENU_GUI_ITEM_DEF(WINDOW_SCAN_BUTTON, VISN_OFF, _(ea1c), nullptr, false, IVISI0),
+    MENU_GUI_ITEM_DEF(WINDOW_GRID_BUTTON, GRID_OFF, _(0d7d), nullptr, false, IGRID0),
+    MENU_GUI_ITEM_DEF(WINDOW_NAME_BUTTON, NAMES_UP, _(c3b2), nullptr, false, INAME0),
     MENU_GUI_ITEM_DEF(WINDOW_LOCK_BUTTON, LOCK_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_2X_MINIMAP, MIN2X_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_TNT_MINIMAP, MINFL_OF, nullptr, nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_ENDTURN_BUTTON, ENDTRN_U, "End Turn", nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_ENDTURN_BUTTON, ENDTRN_U, _(6af6), nullptr, false, MENUOP),
 };
 
 static Point GameManager_MenuItemLabelOffsets[] = {
@@ -745,7 +737,7 @@ void GameManager_GameLoop(int game_state) {
         if (GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) {
             if (Remote_IsNetworkGame) {
                 if (ini_get_setting(INI_LOG_FILE_DEBUG)) {
-                    MessageManager_DrawMessage("Starting announcement phase...", 0, 0);
+                    MessageManager_DrawMessage(_(0d6b), 0, 0);
                     Remote_AnalyzeDesync();
                 }
 
@@ -772,9 +764,9 @@ void GameManager_GameLoop(int game_state) {
 
             if (GameManager_GameState == GAME_STATE_9_END_TURN && !GameManager_AreTeamsFinishedTurn()) {
                 if (Remote_IsNetworkGame) {
-                    MessageManager_DrawMessage("Waiting for remote End Turn.", 0, 0);
+                    MessageManager_DrawMessage(_(758a), 0, 0);
                 } else {
-                    MessageManager_DrawMessage("Waiting for computer to finish turn.", 0, 0);
+                    MessageManager_DrawMessage(_(c977), 0, 0);
                 }
 
                 while (GameManager_GameState == GAME_STATE_9_END_TURN && !GameManager_AreTeamsFinishedTurn()) {
@@ -1053,7 +1045,7 @@ bool GameManager_RefreshOrders(unsigned short team, bool check_production) {
         }
 
         if (ProductionManager_ManageFactories(team, &(*it)) && is_player) {
-            sprintf(message, "Factories in complex %i re-started.", (*it).GetId());
+            sprintf(message, _(a9fd), (*it).GetId());
 
             MessageManager_DrawMessage(message, 1, 0, false, true);
         }
@@ -1407,7 +1399,7 @@ bool GameManager_CargoSelection(unsigned short team) {
     char message[200];
 
     if (GameManager_HumanPlayerCount) {
-        sprintf(message, "%s:\nBegin cargo selection.", menu_team_names[team]);
+        sprintf(message, _(df78), menu_team_names[team]);
 
         MessageManager_DrawMessage(message, 0, 1, true);
     }
@@ -1474,7 +1466,7 @@ void GameManager_DrawSelectSiteMessage(unsigned short team) {
 
     string = menu_team_names[team];
     string += ":\n";
-    string += "Select starting location.";
+    string += _(851c);
 
     MessageManager_DrawMessage(string.GetCStr(), 0, 1, true);
 }
@@ -1496,7 +1488,7 @@ bool GameManager_SelectSite(unsigned short team) {
     if (proximity_alert_ack == 1) {
         flag = true;
 
-        MessageManager_DrawMessage("Select starting location.", 0, 0);
+        MessageManager_DrawMessage(_(dfe1), 0, 0);
         SoundManager.PlayVoice(V_M278, V_F177);
 
     } else {
@@ -1585,10 +1577,7 @@ bool GameManager_SelectSite(unsigned short team) {
                     }
 
                 } else {
-                    MessageManager_DrawMessage(
-                        "Notice: Proximity zones overlap! Select again or\nclick inside red circle to remain at "
-                        "current location.",
-                        0, 0);
+                    MessageManager_DrawMessage(_(5cb4), 0, 0);
 
                     grid_x_overlap = starting_position_x;
                     grid_y_overlap = starting_position_y;
@@ -1600,7 +1589,7 @@ bool GameManager_SelectSite(unsigned short team) {
             } break;
 
             case 3: {
-                MessageManager_DrawMessage("Warning: Exclusion zones overlap! Select again.", 2, 0);
+                MessageManager_DrawMessage(_(3a97), 2, 0);
 
                 proximity_alert_ack = 1;
                 flag = true;
@@ -2283,7 +2272,7 @@ void GameManager_DrawTimer(char* text, int color) {
 
     turn_timer_image->Write(&window);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     Text_TextBox(window.buffer, window.width, text, bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx,
                  bounds.lry - bounds.uly, color, true);
@@ -2348,7 +2337,7 @@ void GameManager_DrawDisplayPanel(int control_id, char* text, int color, int ulx
         buf_to_buf(&image->transparent_color, image->width, image->height, image->width, control->image->GetData(),
                    image->width);
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         Text_TextBox(control->image->GetData(), image->width, text, ulx, 0, image->width - ulx, image->height, color,
                      true);
@@ -2392,7 +2381,7 @@ void GameManager_UpdateGuiControl(unsigned short team) {
     buf_to_buf(ResourceManager_Minimap, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer, window->width);
     win_draw_rect(window->id, &window->window);
 
-    sprintf(message, "%s:\nBegin turn.", menu_team_names[team]);
+    sprintf(message, _(c2eb), menu_team_names[team]);
 
     MessageManager_DrawMessage(message, 0, 1, true);
 
@@ -2475,7 +2464,7 @@ bool GameManager_CheckDesync() {
                 if (!GameManager_LoadGame(10, GameManager_MenuFadeOut(), false)) {
                     GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
-                    MessageManager_DrawMessage("Auto-save file not found. Unable to continue with this game.", 0, 1);
+                    MessageManager_DrawMessage(_(df36), 0, 1);
                 }
 
             } else {
@@ -2590,7 +2579,7 @@ void GameManager_UpdateGui(unsigned short team, int game_state, bool enable_auto
             char log_message[30];
 
             sprintf(file_name, "save10.%s", SaveLoadMenu_SaveFileTypes[game_file_type]);
-            sprintf(log_message, "Auto-Saved turn %i", GameManager_TurnCounter);
+            sprintf(log_message, _(263f), GameManager_TurnCounter);
 
             SaveLoadMenu_Save(file_name, log_message, false);
         }
@@ -2856,10 +2845,10 @@ void GameManager_ProcessCheatCodes() {
 
     if (is_multiplayer_game) {
         if (Remote_IsNetworkGame && GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
-            MessageManager_DrawMessage("Cheater!", 2, 0);
+            MessageManager_DrawMessage(_(f47b), 2, 0);
 
         } else {
-            MessageManager_DrawMessage("Cheater!  Prepare to pay the price.", 2, 0);
+            MessageManager_DrawMessage(_(abd7), 2, 0);
             GameManager_IsCheater = true;
             GameManager_CheaterTeam = GameManager_PlayerTeam;
         }
@@ -3493,8 +3482,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int event) {
         } break;
 
         case 1: {
-            sprintf(text, unit->hits ? "%s under attack!" : "%s has been destroyed!",
-                    UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, unit->hits ? _(fd20) : _(73cc), UnitsManager_BaseUnits[unit->unit_type].singular_name);
 
             if (unit->hits && !GameManager_IsAtGridPosition(unit)) {
                 resource_id1 = V_M229;
@@ -3509,28 +3497,28 @@ void GameManager_NotifyEvent(UnitInfo* unit, int event) {
         } break;
 
         case 2: {
-            sprintf(text, "%s has been captured!", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, _(3206), UnitsManager_BaseUnits[unit->unit_type].singular_name);
 
             resource_id1 = V_M243;
             resource_id2 = V_F243;
         } break;
 
         case 3: {
-            sprintf(text, "%s has been disabled!", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, _(20c3), UnitsManager_BaseUnits[unit->unit_type].singular_name);
 
             resource_id1 = V_M249;
             resource_id2 = V_F249;
         } break;
 
         case 4: {
-            sprintf(text, "Attempt to capture %s!", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, _(f900), UnitsManager_BaseUnits[unit->unit_type].singular_name);
 
             resource_id1 = V_M012;
             resource_id2 = V_F012;
         } break;
 
         case 5: {
-            sprintf(text, "Attempt to disable %s!", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, _(eb6c), UnitsManager_BaseUnits[unit->unit_type].singular_name);
 
             resource_id1 = V_M012;
             resource_id2 = V_F012;
@@ -3538,7 +3526,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int event) {
     }
 
     if (GameManager_UnknownUnit3 != nullptr) {
-        strcat(text, " Press F1.");
+        strcat(text, _(c719));
     }
 
     MessageManager_DrawMessage(text, 1, unit, GameManager_SpottedEnemyPosition);
@@ -3641,7 +3629,7 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
             ulx += 3;
             uly += 3;
 
-            text_font(GNW_TEXT_FONT_2);
+            Text_SetFont(GNW_TEXT_FONT_2);
 
             for (int i = 0; i < GameManager_PopupButtons.popup_count; ++i) {
                 Button* button;
@@ -3809,7 +3797,7 @@ void GameManager_MenuClickReportButton() {
     GameManager_MenuItems[MENU_GUI_ITEM_REPORTS_BUTTON].button->SetRestState(false);
     GameManager_DisableMainMenu();
     ReportMenu_Menu();
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
     GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
 }
 
@@ -4050,22 +4038,22 @@ void GameManager_FlicButtonRFunction(ButtonID bid, int value) {
         GameManager_SelectedUnit->GetName(GameManager_UnitName);
         GameManager_SelectedUnit->GetDisplayName(text);
 
-        text_font(GNW_TEXT_FONT_2);
+        Text_SetFont(GNW_TEXT_FONT_2);
 
-        bounds.ulx = text_width(text) - text_width(GameManager_UnitName);
+        bounds.ulx = Text_GetWidth(text) - Text_GetWidth(GameManager_UnitName);
         bounds.uly = 0;
         bounds.lrx = window->window.lrx - window->window.ulx;
-        bounds.lry = text_height();
+        bounds.lry = Text_GetHeight();
 
         GameManager_MenuDisplayControls[MENU_DISPLAY_CONTROL_CORNER_FLIC].image->Write(window, &bounds);
         GameManager_TextEditUnitName =
             new (std::nothrow) TextEdit(window, GameManager_UnitName, 30, bounds.ulx, 0, bounds.lrx - bounds.ulx,
-                                        text_height(), 2, GNW_TEXT_FONT_2);
+                                        Text_GetHeight(), 2, GNW_TEXT_FONT_2);
 
         GameManager_TextEditUnitName->LoadBgImage();
 
-        text_to_buf(&window->buffer[bounds.ulx], GameManager_UnitName, bounds.lrx - bounds.ulx, window->width,
-                    COLOR_GREEN);
+        Text_Blit(&window->buffer[bounds.ulx], GameManager_UnitName, bounds.lrx - bounds.ulx, window->width,
+                  COLOR_GREEN);
 
         GameManager_TextEditUnitName->EnterTextEditField();
 
@@ -4092,8 +4080,7 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
 
         SaveLoadMenu_GetSavedGameInfo(SaveLoadMenu_SaveSlot, save_type, save_file_header, false);
 
-        string.Sprintf(200, save_load_mode ? "OK to save file?\n%s\n\"%s\"" : "OK to load file?\n%s\n\"%s\"", file_name,
-                       save_file_header.save_name);
+        string.Sprintf(200, save_load_mode ? _(e285) : _(470e), file_name, save_file_header.save_name);
 
         if (OKCancelMenu_Menu(string.GetCStr())) {
             if (save_load_mode) {
@@ -4102,7 +4089,7 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
                 }
 
                 SaveLoadMenu_Save(file_name, save_file_header.save_name, true);
-                MessageManager_DrawMessage("Game saved.", 1, 0);
+                MessageManager_DrawMessage(_(f640), 1, 0);
 
             } else {
                 Color* palette_buffer;
@@ -4622,41 +4609,41 @@ void GameManager_PathBuild(UnitInfo* unit) {
 void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->orders == ORDER_DISABLE) {
         SoundManager.PlaySfx(NCANC0);
-        MessageManager_DrawMessage("Unable to reload disabled units.", 1, 0);
+        MessageManager_DrawMessage(_(d984), 1, 0);
 
     } else if (unit1->storage) {
         unit1->SetParent(unit2);
-        MessageManager_DrawMessage("Unit resupplied with ammunition.", 0, 0);
+        MessageManager_DrawMessage(_(1fd7), 0, 0);
         UnitsManager_SetNewOrder(unit1, ORDER_RELOAD, ORDER_STATE_0);
         SoundManager.PlayVoice(V_M085, V_F085);
 
     } else {
         SoundManager.PlaySfx(NCANC0);
-        MessageManager_DrawMessage("Insufficient material in storage to reload unit.", 1, 0);
+        MessageManager_DrawMessage(_(930a), 1, 0);
     }
 }
 
 void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->orders == ORDER_DISABLE) {
         SoundManager.PlaySfx(NCANC0);
-        MessageManager_DrawMessage("Unable to repair disabled units.", 1, 0);
+        MessageManager_DrawMessage(_(7c90), 1, 0);
 
     } else if (unit1->storage) {
         unit1->SetParent(unit2);
-        MessageManager_DrawMessage("Unit repaired.", 0, 0);
+        MessageManager_DrawMessage(_(5ae3), 0, 0);
         UnitsManager_SetNewOrder(unit1, ORDER_REPAIR, ORDER_STATE_0);
         SoundManager.PlayVoice(V_M210, V_F210);
 
     } else {
         SoundManager.PlaySfx(NCANC0);
-        MessageManager_DrawMessage("Insufficient material in storage to repair unit.", 1, 0);
+        MessageManager_DrawMessage(_(c65e), 1, 0);
     }
 }
 
 void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->orders == ORDER_DISABLE) {
         SoundManager.PlaySfx(NCANC0);
-        MessageManager_DrawMessage("Unable to transfer to disabled units.", 1, 0);
+        MessageManager_DrawMessage(_(42b7), 1, 0);
 
     } else if (UnitsManager_BaseUnits[unit1->unit_type].cargo_type ==
                    UnitsManager_BaseUnits[unit2->unit_type].cargo_type ||
@@ -4680,15 +4667,15 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
 
             switch (UnitsManager_BaseUnits[unit1->unit_type].cargo_type) {
                 case CARGO_TYPE_RAW: {
-                    sprintf(message, "Total materials transferred: %i", cargo_transferred);
+                    sprintf(message, _(ea89), cargo_transferred);
                 } break;
 
                 case CARGO_TYPE_FUEL: {
-                    sprintf(message, "Total fuel transferred: %i", cargo_transferred);
+                    sprintf(message, _(311d), cargo_transferred);
                 } break;
 
                 case CARGO_TYPE_GOLD: {
-                    sprintf(message, "Total gold transferred: %i", cargo_transferred);
+                    sprintf(message, _(9880), cargo_transferred);
                 } break;
             }
 
@@ -4710,8 +4697,7 @@ void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2) {
             UnitsManager_SetNewOrder(unit1, ORDER_AWAIT_STEAL_UNIT, ORDER_STATE_0);
 
         } else {
-            MessageManager_DrawMessage("Infiltrator has already used his action this turn.  Try again next turn.", 0,
-                                       0);
+            MessageManager_DrawMessage(_(f37a), 0, 0);
         }
     }
 }
@@ -4727,8 +4713,7 @@ void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
             UnitsManager_SetNewOrder(unit1, ORDER_AWAIT_DISABLE_UNIT, ORDER_STATE_0);
 
         } else {
-            MessageManager_DrawMessage("Infiltrator has already used his action this turn.  Try again next turn.", 0,
-                                       0);
+            MessageManager_DrawMessage(_(3e56), 0, 0);
         }
     }
 }
@@ -5428,7 +5413,7 @@ void GameManager_ProcessKey() {
             } else if (GameManager_DemoMode) {
                 GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
-            } else if (OKCancelMenu_Menu("OK to exit game?")) {
+            } else if (OKCancelMenu_Menu(_(d2f1))) {
                 GameManager_GameState = GAME_STATE_3_MAIN_MENU;
             }
 
@@ -5485,8 +5470,7 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_LALT_L: {
             if (GameManager_IsMainMenuEnabled) {
                 if (Remote_IsNetworkGame) {
-                    MessageManager_DrawMessage("Unable to load a saved game while remote play in progress.", 2, 1,
-                                               true);
+                    MessageManager_DrawMessage(_(5504), 2, 1, true);
 
                 } else {
                     GameManager_SaveLoadGame(false);
@@ -5505,7 +5489,7 @@ void GameManager_ProcessKey() {
         } break;
 
         case GNW_KB_KEY_LALT_X: {
-            if (OKCancelMenu_Menu("OK to exit game?")) {
+            if (OKCancelMenu_Menu(_(ecbd))) {
                 GameManager_GameState = GAME_STATE_3_MAIN_MENU;
                 GameManager_DeinitPopupButtons(false);
             }
@@ -5524,7 +5508,7 @@ void GameManager_ProcessKey() {
                     MessageManager_ClearMessageBox();
                     GameManager_MenuUnitSelect(&*GameManager_UnknownUnit3);
                 } else {
-                    MessageManager_DrawMessage("Tagged unit out of range.", 0, 0);
+                    MessageManager_DrawMessage(_(10eb), 0, 0);
                 }
             }
         } break;
@@ -5580,7 +5564,7 @@ void GameManager_ProcessKey() {
             team_info->screen_location[key - GNW_KB_KEY_LALT_F5].x = GameManager_GridCenter.x;
             team_info->screen_location[key - GNW_KB_KEY_LALT_F5].y = GameManager_GridCenter.y;
 
-            MessageManager_DrawMessage("Window position has been saved.", 0, 0);
+            MessageManager_DrawMessage(_(7615), 0, 0);
         } break;
 
         case 1003: {
@@ -6674,7 +6658,7 @@ void GameManager_ProcessInput() {
                                                         GameManager_MousePosition.x, GameManager_MousePosition.y);
 
                                                 } else if (GameManager_Unit->orders == ORDER_DISABLE) {
-                                                    MessageManager_DrawMessage("Unable to load disabled units.", 1, 0);
+                                                    MessageManager_DrawMessage(_(9897), 1, 0);
 
                                                 } else if (GameManager_SelectedUnit->grid_x ==
                                                                GameManager_Unit->grid_x &&
@@ -6858,12 +6842,12 @@ void GameManager_MenuCreateFlic(ResourceID unit_type, int ulx, int uly) {
     GameManager_Flic.flc =
         flicsmgr_construct(base_unit->flics, &GameManager_Flic.sw, GameManager_Flic.sw.width, 0, 0, 2, 0);
 
-    const int font_id = text_curr();
-    text_font(GNW_TEXT_FONT_2);
+    const int font_id = Text_GetFont();
+    Text_SetFont(GNW_TEXT_FONT_2);
 
-    GameManager_Flic.text_height = text_height() * 3 + 1;
+    GameManager_Flic.text_height = Text_GetHeight() * 3 + 1;
 
-    text_font(font_id);
+    Text_SetFont(font_id);
 
     GameManager_DrawFlic(&GameManager_Flic.dw.window);
 }
@@ -6982,10 +6966,10 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
             unit->GetDisplayName(text);
 
-            text_font(GNW_TEXT_FONT_2);
+            Text_SetFont(GNW_TEXT_FONT_2);
 
             win_print(window->id, text, FLICSMGR_FLIC_SIZE, window->window.ulx, window->window.uly,
-                      GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | COLOR_GREEN);
+                      GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED | COLOR_GREEN);
 
             if (unit->unit_type == COMMANDO) {
                 int experience;
@@ -6997,22 +6981,22 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
                     if (experience > 2) {
                         if (experience > 5) {
                             if (experience > 10) {
-                                strcpy(text, "Elite");
+                                strcpy(text, _(1d69));
 
                             } else {
-                                strcpy(text, "Crack");
+                                strcpy(text, _(13d9));
                             }
 
                         } else {
-                            strcpy(text, "Veteran");
+                            strcpy(text, _(abcf));
                         }
 
                     } else {
-                        strcpy(text, "Average");
+                        strcpy(text, _(b38a));
                     }
 
                 } else {
-                    strcpy(text, "Rookie");
+                    strcpy(text, _(ea0b));
                 }
 
                 if (experience > 0) {
@@ -7020,8 +7004,8 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
                     strcat(text, exp_text);
                 }
 
-                win_print(window->id, text, 128, window->window.ulx, window->window.uly + text_height() * 2,
-                          GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | COLOR_GREEN);
+                win_print(window->id, text, 128, window->window.ulx, window->window.uly + Text_GetHeight() * 2,
+                          GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED | COLOR_GREEN);
             }
 
             GameManager_UpdateInfoDisplay(unit);
@@ -7201,7 +7185,7 @@ void GameManager_DrawInfoDisplayRow(const char* label, int window_id, ResourceID
             color = COLOR_GREEN;
         }
 
-        text_font(GNW_TEXT_FONT_2);
+        Text_SetFont(GNW_TEXT_FONT_2);
 
         if (icon == SI_FUEL || icon == SI_GOLD) {
             size = 20;
@@ -7248,10 +7232,10 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
         current_power_need = cargo.power;
 
         if (power_need >= 0) {
-            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_2, SI_POWER, -current_power_need, power_need, 1);
+            GameManager_DrawInfoDisplayRow(_(8d59), WINDOW_STAT_ROW_2, SI_POWER, -current_power_need, power_need, 1);
 
         } else {
-            GameManager_DrawInfoDisplayRow("Power", WINDOW_STAT_ROW_2, SI_POWER, current_power_need, -power_need, 1);
+            GameManager_DrawInfoDisplayRow(_(848e), WINDOW_STAT_ROW_2, SI_POWER, current_power_need, -power_need, 1);
         }
 
         power_need = 0;
@@ -7281,11 +7265,11 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
         }
 
         if (Cargo_GetPowerConsumptionRate(unit->unit_type) > 0) {
-            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_POWER, current_value, base_value, 1);
+            GameManager_DrawInfoDisplayRow(_(c9b3), WINDOW_STAT_ROW_3, SI_POWER, current_value, base_value, 1);
 
         } else {
-            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_POWER, current_power_need, power_need, 1);
-            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_4, SI_POWER, current_value, base_value, 1);
+            GameManager_DrawInfoDisplayRow(_(d4ca), WINDOW_STAT_ROW_3, SI_POWER, current_power_need, power_need, 1);
+            GameManager_DrawInfoDisplayRow(_(81c5), WINDOW_STAT_ROW_4, SI_POWER, current_value, base_value, 1);
         }
     }
 }
@@ -7309,10 +7293,10 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
         current_life_need = cargo.life;
 
         if (life_need >= 0) {
-            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_2, SI_WORK, -current_life_need, life_need, 1);
+            GameManager_DrawInfoDisplayRow(_(3aea), WINDOW_STAT_ROW_2, SI_WORK, -current_life_need, life_need, 1);
 
         } else {
-            GameManager_DrawInfoDisplayRow("Teams", WINDOW_STAT_ROW_2, SI_WORK, current_life_need, -life_need, 1);
+            GameManager_DrawInfoDisplayRow(_(1e1a), WINDOW_STAT_ROW_2, SI_WORK, current_life_need, -life_need, 1);
         }
 
         life_need = 0;
@@ -7342,11 +7326,11 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
         }
 
         if (Cargo_GetLifeConsumptionRate(unit->unit_type) > 0) {
-            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_WORK, current_value, base_value, 1);
+            GameManager_DrawInfoDisplayRow(_(c6fe), WINDOW_STAT_ROW_3, SI_WORK, current_value, base_value, 1);
 
         } else {
-            GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_WORK, current_life_need, life_need, 1);
-            GameManager_DrawInfoDisplayRow("Usage", WINDOW_STAT_ROW_4, SI_WORK, current_value, base_value, 1);
+            GameManager_DrawInfoDisplayRow(_(7be8), WINDOW_STAT_ROW_3, SI_WORK, current_life_need, life_need, 1);
+            GameManager_DrawInfoDisplayRow(_(160c), WINDOW_STAT_ROW_4, SI_WORK, current_value, base_value, 1);
         }
     }
 }
@@ -7375,8 +7359,8 @@ void GameManager_DrawInfoDisplayType3(UnitInfo* unit) {
 
     value_limit = (current_value + 14) / 15;
 
-    GameManager_DrawInfoDisplayRow("points", WINDOW_STAT_ROW_2, SI_WORK, unit->storage, unit->storage, value_limit);
-    GameManager_DrawInfoDisplayRow("Total", WINDOW_STAT_ROW_3, SI_WORK, UnitsManager_TeamInfo[unit->team].team_points,
+    GameManager_DrawInfoDisplayRow(_(c54a), WINDOW_STAT_ROW_2, SI_WORK, unit->storage, unit->storage, value_limit);
+    GameManager_DrawInfoDisplayRow(_(5f25), WINDOW_STAT_ROW_3, SI_WORK, UnitsManager_TeamInfo[unit->team].team_points,
                                    current_value, value_limit);
 }
 
@@ -7385,10 +7369,10 @@ SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
 
     if (unit->orders == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
         if (unit->recoil_delay == 1) {
-            message = "Disabled 1 turn.";
+            message = _(54ba);
 
         } else {
-            message.Sprintf(25, "Disabled %i turns.", unit->recoil_delay);
+            message.Sprintf(25, _(45e4), unit->recoil_delay);
         }
 
     } else {
@@ -7396,19 +7380,19 @@ SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
 
         if ((unit->orders == ORDER_AWAIT || unit->orders == ORDER_MOVE) && unit->team == GameManager_PlayerTeam) {
             if (unit->auto_survey) {
-                message = "Surveying";
+                message = _(2a38);
             }
 
             if (unit->disabled_reaction_fire) {
-                message = "Reaction Fire Off";
+                message = _(c35e);
             }
 
             if (unit->GetLayingState() == 2) {
-                message = "Placing mines";
+                message = _(bd3a);
             }
 
             if (unit->GetLayingState() == 1) {
-                message = "Removing mines";
+                message = _(361e);
             }
         }
     }
@@ -7440,14 +7424,14 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 
         window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
 
-        text_font(GNW_TEXT_FONT_2);
+        Text_SetFont(GNW_TEXT_FONT_2);
 
         win_print(window->id, GameManager_GetUnitStatusMessage(unit).GetCStr(), 128, window->window.ulx,
-                  window->window.uly + text_height(), GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_UNKNOWN_3 | 0xA2);
+                  window->window.uly + Text_GetHeight(), GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED | 0xA2);
 
         GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, COLOR_BLACK, false);
 
-        GameManager_DrawInfoDisplayRow("Hits", WINDOW_STAT_ROW_1, SI_HITSB, unit->hits,
+        GameManager_DrawInfoDisplayRow(_(c02c), WINDOW_STAT_ROW_1, SI_HITSB, unit->hits,
                                        unit_values->GetAttribute(ATTRIB_HITS), 4);
 
         if (unit_values->GetAttribute(ATTRIB_ATTACK)) {
@@ -7460,7 +7444,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
                 ammo = 0;
             }
 
-            GameManager_DrawInfoDisplayRow("Ammo", WINDOW_STAT_ROW_2, SI_AMMO, unit->ammo, ammo, 1);
+            GameManager_DrawInfoDisplayRow(_(5027), WINDOW_STAT_ROW_2, SI_AMMO, unit->ammo, ammo, 1);
 
         } else {
             unsigned char cargo_type;
@@ -7487,14 +7471,14 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
                 scaling_factor = 0;
             }
 
-            GameManager_DrawInfoDisplayRow("Cargo", WINDOW_STAT_ROW_2, ReportStats_CargoIcons[cargo_type * 2],
+            GameManager_DrawInfoDisplayRow(_(1274), WINDOW_STAT_ROW_2, ReportStats_CargoIcons[cargo_type * 2],
                                            unit->storage, storage_value, scaling_factor);
         }
 
-        GameManager_DrawInfoDisplayRow("Speed", WINDOW_STAT_ROW_3, SI_SPEED, unit->speed,
+        GameManager_DrawInfoDisplayRow(_(c372), WINDOW_STAT_ROW_3, SI_SPEED, unit->speed,
                                        unit_values->GetAttribute(ATTRIB_SPEED), 1);
 
-        GameManager_DrawInfoDisplayRow("Shots", WINDOW_STAT_ROW_4, SI_SHOTS, unit->shots,
+        GameManager_DrawInfoDisplayRow(_(2bce), WINDOW_STAT_ROW_4, SI_SHOTS, unit->shots,
                                        unit_values->GetAttribute(ATTRIB_ROUNDS), 1);
 
         if (unit_values->GetAttribute(ATTRIB_STORAGE) == 0) {
@@ -7537,7 +7521,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
             }
 
             GameManager_DrawInfoDisplayRow(
-                "Total", WINDOW_STAT_ROW_3,
+                _(d28b), WINDOW_STAT_ROW_3,
                 ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2], value, value_limit,
                 scaling_factor);
         }
@@ -7558,10 +7542,10 @@ void GameManager_MenuInitButtons(bool mode) {
 
     if (GameManager_GameFileNumber && !Remote_IsNetworkGame) {
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].gfx = GOAL_OFF;
-        GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = "Goal";
+        GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = _(cdbf);
     } else {
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].gfx = CHAT_OFF;
-        GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = "Chat";
+        GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = _(ea1a);
     }
 
     for (int i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
@@ -7578,11 +7562,11 @@ void GameManager_MenuInitButtons(bool mode) {
             p_value = r_value;
 
             flags = 0x20;
-            text_font(GNW_TEXT_FONT_2);
+            Text_SetFont(GNW_TEXT_FONT_2);
 
             if (i == MENU_GUI_ITEM_ENDTURN_BUTTON) {
                 flags |= 0x4;
-                text_font(GNW_TEXT_FONT_5);
+                Text_SetFont(GNW_TEXT_FONT_5);
             }
 
             if (i <= MENU_GUI_ITEM_CHAT_BUTTON) {
@@ -7619,7 +7603,7 @@ void GameManager_MenuInitButtons(bool mode) {
         }
     }
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         struct ImageSimpleHeader* image;
@@ -7643,8 +7627,7 @@ void GameManager_MenuInitButtons(bool mode) {
             color = i + 1;
         }
 
-        Text_TextBox(&wininfo, "End Turn", 0, 0, image->width, image->height, true, true,
-                     FontColor(color, color, 0x3F));
+        Text_TextBox(&wininfo, _(aeb0), 0, 0, image->width, image->height, true, true, FontColor(color, color, 0x3F));
     }
 }
 
@@ -7659,7 +7642,7 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
     SmartString string;
 
     if (unit->unit_type == BULLDOZR) {
-        string.Sprintf(80, "Number of turns to clear site: %i.", unit->build_time);
+        string.Sprintf(80, _(af4a), unit->build_time);
 
     } else if (unit->state == ORDER_STATE_UNIT_READY) {
         BaseUnit* base_unit1 = &UnitsManager_BaseUnits[unit->unit_type];
@@ -7679,16 +7662,14 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
         SDL_assert(build_list.GetCount() > 0);
 
         if (unit->orders == ORDER_HALT_BUILDING || unit->orders == ORDER_HALT_BUILDING_2) {
-            string.Sprintf(200, "Was building %s, with %i turns to completion.",
-                           UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
+            string.Sprintf(200, _(cdf8), UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
 
         } else {
             int turns_to_build;
 
             unit->GetTurnsToBuild(*build_list[0], unit->GetBuildRate(), &turns_to_build);
 
-            string.Sprintf(200, "Currently building: %s.\nTurns to completion: %i.",
-                           UnitsManager_BaseUnits[*build_list[0]].singular_name, turns_to_build);
+            string.Sprintf(200, _(ee24), UnitsManager_BaseUnits[*build_list[0]].singular_name, turns_to_build);
         }
     }
 
@@ -7698,7 +7679,7 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
 void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit) {
     SmartString string;
 
-    string.Sprintf(200, "Turns to repair unit: %i.", unit->recoil_delay);
+    string.Sprintf(200, _(bda4), unit->recoil_delay);
 
     MessageManager_DrawMessage(string.GetCStr(), 0, 0);
 }
@@ -7895,10 +7876,10 @@ void GameManager_ReportNewUnitsMessage(unsigned short* counts) {
 
             } else {
                 if (different_type_count == 2) {
-                    strcat(chunk, " and ");
+                    strcat(chunk, _(e3ee));
 
                 } else {
-                    strcat(chunk, ", ");
+                    strcat(chunk, _(0a07));
                 }
 
                 SDL_assert(strlen(chunk) + strlen(message) < sizeof(message) + 1);
@@ -7912,16 +7893,16 @@ void GameManager_ReportNewUnitsMessage(unsigned short* counts) {
         message[0] = toupper(message[0]);
 
         if (unit_count == 1) {
-            strcat(message, " is");
-            strcat(message, " available this turn.");
+            strcat(message, _(a8bd));
+            strcat(message, _(e3cd));
 
             if (flag) {
                 SoundManager.PlayVoice(V_M215, V_F217);
             }
 
         } else {
-            strcat(message, " are");
-            strcat(message, " available this turn.");
+            strcat(message, _(2cd0));
+            strcat(message, _(9753));
 
             if (flag) {
                 SoundManager.PlayVoice(V_M206, V_F207);
@@ -7929,7 +7910,7 @@ void GameManager_ReportNewUnitsMessage(unsigned short* counts) {
         }
     }
 
-    sprintf(chunk, "Begin turn %i.\n", GameManager_TurnCounter);
+    sprintf(chunk, _(9733), GameManager_TurnCounter);
 
     GameManager_PrependMessageChunk(chunk, message);
 

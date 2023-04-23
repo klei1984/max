@@ -22,6 +22,7 @@
 #include "menulandingsequence.hpp"
 
 #include "game_manager.hpp"
+#include "localization.hpp"
 #include "sound_manager.hpp"
 #include "window_manager.hpp"
 
@@ -84,13 +85,13 @@ void MenuLandingSequence::Init(bool enable_controls) {
         button_1->RegisterButton(panel_bottom->id);
         button_1->Enable();
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         button_2 = new (std::nothrow) Button(PNLCAN_U, PNLCAN_D, 40 * scale, 252 * scale);
         button_2->SetRValue(GNW_KB_KEY_ESCAPE);
         button_2->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
         button_2->SetSfx(NCANC0);
-        button_2->SetCaption("Cancel");
+        button_2->SetCaption(_(773a));
         button_2->RegisterButton(panel_bottom->id);
         button_2->Enable();
     }

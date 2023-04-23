@@ -26,6 +26,7 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "reportstats.hpp"
 #include "resource_manager.hpp"
@@ -123,14 +124,14 @@ void UnitStats_DrawText(unsigned char* buffer, int screen_width, const char* lab
                         bool drawline) {
     unsigned char* address;
 
-    text_font(GNW_TEXT_FONT_5);
-    address = &buffer[((19 - text_height()) / 2) * screen_width + 24];
+    Text_SetFont(GNW_TEXT_FONT_5);
+    address = &buffer[((19 - Text_GetHeight()) / 2) * screen_width + 24];
 
     if (resource_count) {
         ReportStats_DrawNumber(address, resource_count, 24, screen_width, COLOR_YELLOW);
     }
 
-    text_to_buf(&address[4], label, 49, screen_width, 0xA2);
+    Text_Blit(&address[4], label, 49, screen_width, 0xA2);
 
     if (drawline) {
         draw_line(buffer, screen_width, 2, 18, line_length - 2, 18, COLOR_RED);
@@ -258,14 +259,14 @@ int UnitStats_DrawIcons(unsigned char* buffer, int screen_width, int max_width, 
 
 unsigned char* UnitStats_DrawMilitary(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
                                       UnitValues* unit_values2, int image_width) {
-    UnitStats_DrawText(buffer, screen_width, "Attack", image_width, unit_values2->GetAttribute(ATTRIB_ATTACK), true);
+    UnitStats_DrawText(buffer, screen_width, _(98a8), image_width, unit_values2->GetAttribute(ATTRIB_ATTACK), true);
     UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_HRDATK, I_HRDATK,
                         unit_values1->GetAttribute(ATTRIB_ATTACK), unit_values2->GetAttribute(ATTRIB_ATTACK));
 
     buffer = &buffer[screen_width * 19];
 
     if (unit_values1->GetAttribute(ATTRIB_ROUNDS)) {
-        UnitStats_DrawText(buffer, screen_width, "Shots", image_width, unit_values2->GetAttribute(ATTRIB_ROUNDS), true);
+        UnitStats_DrawText(buffer, screen_width, _(5e40), image_width, unit_values2->GetAttribute(ATTRIB_ROUNDS), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_SHOTS, I_SHOTS,
                             unit_values1->GetAttribute(ATTRIB_ROUNDS), unit_values2->GetAttribute(ATTRIB_ROUNDS));
     }
@@ -273,7 +274,7 @@ unsigned char* UnitStats_DrawMilitary(unsigned char* buffer, int screen_width, U
     buffer = &buffer[screen_width * 19];
 
     if (unit_values1->GetAttribute(ATTRIB_RANGE)) {
-        UnitStats_DrawText(buffer, screen_width, "Range", image_width, unit_values2->GetAttribute(ATTRIB_RANGE), true);
+        UnitStats_DrawText(buffer, screen_width, _(2540), image_width, unit_values2->GetAttribute(ATTRIB_RANGE), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_RANGE, I_RANGE,
                             unit_values1->GetAttribute(ATTRIB_RANGE), unit_values2->GetAttribute(ATTRIB_RANGE));
     }
@@ -281,7 +282,7 @@ unsigned char* UnitStats_DrawMilitary(unsigned char* buffer, int screen_width, U
     buffer = &buffer[screen_width * 19];
 
     if (unit_values1->GetAttribute(ATTRIB_AMMO)) {
-        UnitStats_DrawText(buffer, screen_width, "Range", image_width, unit_values2->GetAttribute(ATTRIB_AMMO), true);
+        UnitStats_DrawText(buffer, screen_width, _(d510), image_width, unit_values2->GetAttribute(ATTRIB_AMMO), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_AMMO, I_AMMO,
                             unit_values1->GetAttribute(ATTRIB_AMMO), unit_values2->GetAttribute(ATTRIB_AMMO));
     }
@@ -319,7 +320,7 @@ unsigned char* UnitStats_DrawCargo(unsigned char* buffer, int screen_width, Reso
         } break;
     }
 
-    UnitStats_DrawText(buffer, screen_width, "Cargo", image_width, unit_values->GetAttribute(ATTRIB_STORAGE), true);
+    UnitStats_DrawText(buffer, screen_width, _(054b), image_width, unit_values->GetAttribute(ATTRIB_STORAGE), true);
 
     UnitStats_DrawIcons(
         &buffer[76], screen_width, image_width - 76, icon, icon,
@@ -345,14 +346,14 @@ unsigned char* UnitStats_DrawUsage(unsigned char* buffer, int screen_width, Reso
     gold_usage = Cargo_GetGoldConsumptionRate(unit_type);
 
     if (power_usage < 0) {
-        UnitStats_DrawText(buffer, screen_width, "Prod.", image_width, -power_usage, true);
+        UnitStats_DrawText(buffer, screen_width, _(527f), image_width, -power_usage, true);
         UnitStats_DrawIcons(buffer + 76, screen_width, image_width - 76, I_POWER, I_POWER, -power_usage, -power_usage);
 
         buffer = &buffer[screen_width * 19];
     }
 
     if (life_usage < 0) {
-        UnitStats_DrawText(buffer, screen_width, "Prod.", image_width, -life_usage, true);
+        UnitStats_DrawText(buffer, screen_width, _(3641), image_width, -life_usage, true);
         UnitStats_DrawIcons(buffer + 76, screen_width, image_width - 76, I_LIFE, I_LIFE, -life_usage, -life_usage);
 
         buffer = &buffer[screen_width * 19];
@@ -361,7 +362,7 @@ unsigned char* UnitStats_DrawUsage(unsigned char* buffer, int screen_width, Reso
     if (raw_material_usage > 0 || fuel_usage > 0 || power_usage > 0 || life_usage > 0) {
         int offset;
 
-        UnitStats_DrawText(buffer, screen_width, "Uses", image_width, 0, true);
+        UnitStats_DrawText(buffer, screen_width, _(9e61), image_width, 0, true);
         offset = 76;
 
         if (raw_material_usage > 0) {
@@ -398,21 +399,21 @@ unsigned char* UnitStats_DrawUsage(unsigned char* buffer, int screen_width, Reso
 unsigned char* UnitStats_DrawCommon(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
                                     UnitValues* unit_values2, int image_width) {
     if (unit_values1->GetAttribute(ATTRIB_ARMOR)) {
-        UnitStats_DrawText(buffer, screen_width, "Armor", image_width, unit_values2->GetAttribute(ATTRIB_ARMOR), true);
+        UnitStats_DrawText(buffer, screen_width, _(49d1), image_width, unit_values2->GetAttribute(ATTRIB_ARMOR), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_ARMOR, I_ARMOR,
                             unit_values1->GetAttribute(ATTRIB_ARMOR), unit_values2->GetAttribute(ATTRIB_ARMOR));
         buffer = &buffer[screen_width * 19];
     }
 
     if (unit_values1->GetAttribute(ATTRIB_HITS)) {
-        UnitStats_DrawText(buffer, screen_width, "Hits", image_width, unit_values2->GetAttribute(ATTRIB_HITS), true);
+        UnitStats_DrawText(buffer, screen_width, _(be42), image_width, unit_values2->GetAttribute(ATTRIB_HITS), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_HITS, I_HITS,
                             unit_values1->GetAttribute(ATTRIB_HITS), unit_values2->GetAttribute(ATTRIB_HITS));
         buffer = &buffer[screen_width * 19];
     }
 
     if (unit_values1->GetAttribute(ATTRIB_SCAN)) {
-        UnitStats_DrawText(buffer, screen_width, "Scan", image_width, unit_values2->GetAttribute(ATTRIB_SCAN), true);
+        UnitStats_DrawText(buffer, screen_width, _(d10e), image_width, unit_values2->GetAttribute(ATTRIB_SCAN), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_SCAN, I_SCAN,
                             unit_values1->GetAttribute(ATTRIB_SCAN), unit_values2->GetAttribute(ATTRIB_SCAN));
         buffer = &buffer[screen_width * 19];
@@ -423,7 +424,7 @@ unsigned char* UnitStats_DrawCommon(unsigned char* buffer, int screen_width, Uni
 
 unsigned char* UnitStats_DrawSpeed(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
                                    UnitValues* unit_values2, int image_width) {
-    UnitStats_DrawText(buffer, screen_width, "Speed", image_width, unit_values2->GetAttribute(ATTRIB_SPEED), true);
+    UnitStats_DrawText(buffer, screen_width, _(6136), image_width, unit_values2->GetAttribute(ATTRIB_SPEED), true);
     UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_SPEED, I_SPEED,
                         unit_values1->GetAttribute(ATTRIB_SPEED), unit_values2->GetAttribute(ATTRIB_SPEED));
     buffer = &buffer[screen_width * 19];
@@ -447,7 +448,7 @@ void UnitStats_DrawCost(unsigned char* buffer, int screen_width, ResourceID unit
         level2 = 1;
     }
 
-    UnitStats_DrawText(buffer, screen_width, "Cost", image_width, level2, false);
+    UnitStats_DrawText(buffer, screen_width, _(7dfb), image_width, level2, false);
     UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, id_normal, id_empty, level2, level1);
 }
 
@@ -470,10 +471,10 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
 
     GameManager_DisableMainMenu();
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     button_done = new (std::nothrow) Button(BLDONE_U, BLDONE_D, 484, 452);
-    button_done->SetCaption("Done");
+    button_done->SetCaption(_(cf39));
     button_done->SetRValue(GNW_KB_KEY_KP_ENTER);
     button_done->SetPValue(GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS);
     button_done->SetSfx(NDONE0);
@@ -507,15 +508,15 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
     UnitStats_DrawStats(&window.buffer[11 + window.width * 293], window.width, unit->unit_type, unit->team,
                         *unit->GetBaseValues(), 245, I_RAW, I_RAWE);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     unit->GetDisplayName(text);
 
     Text_TextBox(window.buffer, window.width, text, 336, 60, 287, 11, 0xA2, true);
     Text_TextBox(window.buffer, window.width, base_unit->description, 345, 90, 270, 117, 0xA2, false, false);
 
-    text_font(GNW_TEXT_FONT_5);
-    Text_TextBox(window.buffer, window.width, "Unit Status Screen", 327, 7, 158, 18, COLOR_GREEN, true);
+    Text_SetFont(GNW_TEXT_FONT_5);
+    Text_TextBox(window.buffer, window.width, _(94b7), 327, 7, 158, 18, COLOR_GREEN, true);
 
     if (task_debugger) {
         task_debugger->DrawRows();

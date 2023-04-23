@@ -30,6 +30,7 @@
 #include "drawmap.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "message_manager.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
@@ -231,12 +232,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Gold Refinery",
-        /* plural name     */ "Gold Refineries",
+        /* singular name   */ _(79a5),
+        /* plural name     */ _(08ad),
         /* description */
-        "Refinery for converting gold into credits.  Credits are required to purchase unit improvements.  To run, a "
-        "gold refinery needs a source of power and a source of gold ore.  A mining station can produce gold ore if one "
-        "of its four squares covers a square with underground gold."
+        _(9ed6)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -252,10 +251,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Power Station",
-        /* plural name     */ "Power Stations",
+        /* singular name   */ _(1c9b),
+        /* plural name     */ _(1522),
         /* description */
-        "A power station consumes six fuel each turn, and provides enough power for six factories or mining stations.\n"
+        _(1a05)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -271,14 +270,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Power Generator",
-        /* plural name     */ "Power Generators",
+        /* singular name   */ _(bbf4),
+        /* plural name     */ _(7084),
         /* description */
-        "A power generator consumes two fuel each turn, and provides enough power for one mining station or factory.  "
-        "The power generator must be connected to the fuel source (usually a mining station) and the building that "
-        "needs the power."
+        _(7ed6),
         /* tutorial description (optional) */
-        ),
+        _(fbcd)),
     AbstractUnit(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ BARRACKS,
@@ -292,12 +289,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ "Barracks",
-        /* plural name     */ "Barracks",
+        /* singular name   */ _(c8d3),
+        /* plural name     */ _(10c9),
         /* description */
-        "A barracks holds infiltrators and infantry units.  Inside the barracks is a machine shop for repairing and "
-        "improving powered suits, and for manufacturing ammunition.  The barracks needs raw materials to repair, "
-        "upgrade, or resupply, so it should be connected to a storage unit or a mining station."
+        _(5a81)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -313,10 +308,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Monopole Mine",
-        /* plural name     */ "Monopole Mines",
+        /* singular name   */ _(5ea2),
+        /* plural name     */ _(5a91),
         /* description */
-        "Specialized mining station for extracting magnetic monopoles."
+        _(4582)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -333,11 +328,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Radar",
-        /* plural name     */ "Radars",
+        /* singular name   */ _(524f),
+        /* plural name     */ _(3184),
         /* description */
-        "Stationary, long-range radar.  Longer-range units like missile launchers and artillery cannot fire on what "
-        "they cannot see, so it's important to have a scanner or radar nearby."
+        _(a5d2)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -353,14 +347,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Storage Unit",
-        /* plural name     */ "Storage Units",
+        /* singular name   */ _(c2d8),
+        /* plural name     */ _(5053),
         /* description */
-        "Holds raw materials.  Mining stations produce raw materials every turn.  To save extra raw materials, a "
-        "mining station must be connected to a storage unit.",
+        _(53b3),
         /* tutorial description (optional) */
-        "Storage Units hold raw materials produced by any mining stations that are connected to them.  To fill an "
-        "adjacent Engineer or Constructor, click the Xfer button and then click on the Engineer or Constructor."),
+        _(656d)),
     AbstractUnit(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
         /* sprite          */ FDUMP,
@@ -374,14 +366,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ FUEL,
         /* gender          */ 'N',
-        /* singular name   */ "Fuel Tank",
-        /* plural name     */ "Fuel Tanks",
+        /* singular name   */ _(93dc),
+        /* plural name     */ _(51d9),
         /* description */
-        "Holds fuel reserves.  Mining stations produce fuel every turn.  To save extra fuel, a mining station must be "
-        "connected to a fuel tank.",
+        _(e1a5),
         /* tutorial description (optional) */
-        "Holds fuel reserves.  Mining stations produce fuel every turn.  To save extra fuel, a mining station must be "
-        "connected to a fuel tank."),
+        _(75d4)),
     AbstractUnit(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
         /* sprite          */ GOLDSM,
@@ -395,14 +385,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ GOLD,
         /* gender          */ 'N',
-        /* singular name   */ "Gold Vault",
-        /* plural name     */ "Gold Vaults",
+        /* singular name   */ _(282f),
+        /* plural name     */ _(4340),
         /* description */
-        "Holds unrefined gold ore.  Mining stations produce gold every turn, if they have gold ore underneath them.  "
-        "To store the ore, a mining station must be connected to a gold vault.",
+        _(760c),
         /* tutorial description (optional) */
-        "Holds unrefined gold ore.  Mining stations produce gold every turn, if they have gold ore underneath them.  "
-        "To store the ore, a mining station must be connected to a gold vault."),
+        _(8672)),
     AbstractUnit(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ DEPOT,
@@ -416,14 +404,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ "Depot",
-        /* plural name     */ "Depots",
+        /* singular name   */ _(f830),
+        /* plural name     */ _(e8a8),
         /* description */
-        "A depot can repair damage, manufacture ammunition, and refit ground units with the newest technology.  All of "
-        "these operations require raw materials, so depots should be connected to stored materials.",
+        _(a135),
         /* tutorial description (optional) */
-        "Depots perform repairs and supply ammunition. To drive a unit into the depot, click 'Load' and then click on "
-        "the unit.  To look inside the depot, click 'Activate'."),
+        _(731e)),
     AbstractUnit(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ HANGAR,
@@ -437,11 +423,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ 6,
         /* gender          */ 'N',
-        /* singular name   */ "Hangar",
-        /* plural name     */ "Hangars",
+        /* singular name   */ _(66ad),
+        /* plural name     */ _(43a4),
         /* description */
-        "A hangar can repair damage, manufacture ammunition, and refit planes with the newest technology.  All of "
-        "these operations require raw materials, so hangars should be connected to stored materials."
+        _(42ec)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -457,11 +442,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ 5,
         /* gender          */ 'N',
-        /* singular name   */ "Dock",
-        /* plural name     */ "Docks",
+        /* singular name   */ _(49c1),
+        /* plural name     */ _(5d61),
         /* description */
-        "A dock can repair damage, manufacture ammunition, and refit ships with the newest technology.  All of these "
-        "operations require raw materials, so docks should be connected to stored materials."
+        _(1c3b)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -477,14 +461,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ 0,
         /* gender          */ 'N',
-        /* singular name   */ "Connector",
-        /* plural name     */ "Connectors",
+        /* singular name   */ _(8f0d),
+        /* plural name     */ _(c3d2),
         /* description */
-        "Buildings must be connected to share power, fuel, raw materials, and gold.  You can connect buildings by "
-        "placing them next to each other, or by building connectors from one building to the other.",
+        _(c971),
         /* tutorial description (optional) */
-        "Buildings must be connected to share power, fuel, raw materials, and gold.  You can connect buildings by "
-        "placing them next to each other, or by building connectors from one building to the other."),
+        _(9736)),
     AbstractUnit(
         /* flags           */ GROUND_COVER | BUILDING | STATIONARY,
         /* sprite          */ LRGRUBLE,
@@ -650,10 +632,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Road",
-        /* plural name     */ "Roads",
+        /* singular name   */ _(a22e),
+        /* plural name     */ _(02e7),
         /* description */
-        "Units move twice as fast over road squares."
+        _(4d4a)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -669,11 +651,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ 6,
         /* gender          */ 'N',
-        /* singular name   */ "Landing Pad",
-        /* plural name     */ "Landing Pads",
+        /* singular name   */ _(be71),
+        /* plural name     */ _(b393),
         /* description */
-        "Landing facility for planes.  Does not repair, resupply, or refuel planes.  To resupply a plane on a landing "
-        "pad, use a nearby truck or storage unit."
+        _(2627)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -689,11 +670,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Shipyard",
-        /* plural name     */ "Shipyards",
+        /* singular name   */ _(bc7b),
+        /* plural name     */ _(c323),
         /* description */
-        "Shipyards manufacture ships, such as submarines, sea transports, and missile cruisers.  A shipyard requires "
-        "three raw materials a turn to operate, and power from a power generator or power station."
+        _(29b9)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -710,15 +690,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Light Vehicle Plant",
-        /* plural name     */ "Light Vehicle Plants",
+        /* singular name   */ _(eebb),
+        /* plural name     */ _(27ca),
         /* description */
-        "Builds light vehicles: engineers, trucks, mobile repair units, scouts, and mobile anti-aircraft units.  A "
-        "light vehicle plant requires three raw materials a turn to operate, and power from a power generator or power "
-        "station.",
+        _(0c63),
         /* tutorial description (optional) */
-        "Click on the light vehicle plant to show the Build button.  Factories need to be connected to power and a "
-        "source of raw materials (usually a mining station) to operate."),
+        _(381d)),
     AbstractUnit(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE |
             REQUIRES_SLAB,
@@ -733,15 +710,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Heavy Vehicle Plant",
-        /* plural name     */ "Heavy Vehicle Plants",
+        /* singular name   */ _(ca88),
+        /* plural name     */ _(43e4),
         /* description */
-        "Builds constructors, mobile scanners, and the heavy fighting units: tanks, assault guns, rocket launchers, "
-        "and missile crawlers.  A heavy factory needs three raw materials a turn to operate, and power from a power "
-        "generator or power station.",
+        _(e9d2),
         /* tutorial description (optional) */
-        "Click on the heavy vehicle plant to show the Build button.  Factories need to be connected to power and a "
-        "source of raw materials (usually a mining station) to operate."),
+        _(70ae)),
     AbstractUnit(
         /* flags           */ BUILDING | STATIONARY | REQUIRES_SLAB,
         /* sprite          */ SUPRTPLT,
@@ -775,11 +749,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Air Units Plant",
-        /* plural name     */ "Air Units Plants",
+        /* singular name   */ _(751e),
+        /* plural name     */ _(331b),
         /* description */
-        "Builds fighters, ground attack planes, and air transports.  A heavy factory needs three raw materials a turn "
-        "to operate, and power from a power generator or power station."
+        _(784f)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -795,11 +768,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Habitat",
-        /* plural name     */ "Habitats",
+        /* singular name   */ _(97e9),
+        /* plural name     */ _(c2e2),
         /* description */
-        "Habitats house colonists.  Each habitat houses enough colonists to operate three research centers, training "
-        "halls, or eco-spheres.  The colonist buildings must be connected to the habitat before they can operate."
+        _(73ae)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -815,13 +787,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Research Center",
-        /* plural name     */ "Research Centers",
+        /* singular name   */ _(e531),
+        /* plural name     */ _(e103),
         /* description */
-        "Research centers investigate ways to improve your units.  Unlike upgrades purchased with refined gold, "
-        "research takes time, and the improvements are small.  However, research affects all of your units instead of "
-        "just one type, and doesn't require a source of gold ore.  A research center requires colonists from a Habitat "
-        "to operate, and power."
+        _(fa10)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -837,13 +806,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Eco-sphere",
-        /* plural name     */ "Eco-spheres",
+        /* singular name   */ _(5972),
+        /* plural name     */ _(4b34),
         /* description */
-        "Domed building containing an earthlike environment.  Your ultimate goal is to provide as many of these for "
-        "your colonists as possible.  Every turn an ecosphere operates, it increases your colony rating.  If its "
-        "destroyed, you lose all of the improvements the ecosphere made to your rating.  Ecospheres require colonists "
-        "from a Habitat and power to operate."
+        _(6182)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -859,8 +825,8 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Recreation Center",
-        /* plural name     */ "Recreation Centers",
+        /* singular name   */ _(79b5),
+        /* plural name     */ _(6006),
         /* description */
         ""
         /* tutorial description (optional) */
@@ -878,12 +844,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Training Hall",
-        /* plural name     */ "Training Halls",
+        /* singular name   */ _(30c9),
+        /* plural name     */ _(aaad),
         /* description */
-        "Trains infiltrators who can disable or capture enemy units, and infantry to guard against infiltrators.  Only "
-        "infantry and other infiltrators can detect infiltrators.  A training hall requires colonists from a Habitat "
-        "and power to operate."
+        _(c11b)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -899,12 +863,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Water Platform",
-        /* plural name     */ "Water Platforms",
+        /* singular name   */ _(9a30),
+        /* plural name     */ _(cbf4),
         /* description */
-        "Provides a surface over water on which to construct other buildings.  Engineers can build water platforms "
-        "over shore as well as open water.  Water platforms are particularly important on island maps, or when a "
-        "valuable material deposit is under water."
+        _(75fb)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -921,14 +883,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Gun Turret",
-        /* plural name     */ "Gun Turrets",
+        /* singular name   */ _(e1c0),
+        /* plural name     */ _(5cd9),
         /* description */
-        "Heavily armored stationary gun turret.  Gun turrets have good firepower, heavy armor, and moderate range.  "
-        "Because they take little time to build, they are a good choice when you need defense in a hurry.",
+        _(6fae),
         /* tutorial description (optional) */
-        "Gun turrets fire automatically on enemy units.  Of course they can't fire on what they can't see, so it's "
-        "important to have a scout, scanner, or radar nearby."),
+        _(0fc3)),
     AbstractUnit(
         /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
             REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
@@ -943,11 +903,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Anti Aircraft",
-        /* plural name     */ "Anti Aircraft",
+        /* singular name   */ _(4cb4),
+        /* plural name     */ _(3764),
         /* description */
-        "Low caliber, high speed anti aircraft cannon.   Anti aircraft make short work of planes, but cannot attack "
-        "ground units."
+        _(5282)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -964,11 +923,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Artillery",
-        /* plural name     */ "Artillery",
+        /* singular name   */ _(6689),
+        /* plural name     */ _(64b7),
         /* description */
-        "High powered stationary gun.  Artillery is a compromise between the cheap, rugged gun turret and the "
-        "expensive, long-range missile turret."
+        _(96b3)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -985,11 +943,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Missile Launcher",
-        /* plural name     */ "Missile Launchers",
+        /* singular name   */ _(f5c8),
+        /* plural name     */ _(24cb),
         /* description */
-        "Long-range missile launcher on a fixed mount. Excellent range and firepower, but only slightly more armor "
-        "than the mobile version.  Best surrounded by gun turrets and anti aircraft."
+        _(d8d2)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1005,10 +962,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Concrete Block",
-        /* plural name     */ "Concrete Blocks",
+        /* singular name   */ _(65a8),
+        /* plural name     */ _(703f),
         /* description */
-        "Hardened, armored block for blocking enemy movement."
+        _(c75e)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1024,10 +981,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Bridge",
-        /* plural name     */ "Bridges",
+        /* singular name   */ _(3892),
+        /* plural name     */ _(d982),
         /* description */
-        "Pontoon bridge for crossing water.  Bridges, unlike water platforms, do not block the movement of ships."
+        _(0886)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1043,15 +1000,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Mining Station",
-        /* plural name     */ "Mining Stations",
+        /* singular name   */ _(72a5),
+        /* plural name     */ _(b41b),
         /* description */
-        "Extracts raw materials, fuel, and gold from the ground every turn.  Buildings must be connected to a mine to "
-        "use the resources a mine produces.  If there are no storage buildings, fuel tanks, or gold vaults to store "
-        "extra material, fuel, or gold, it will be lost.",
+        _(0777),
         /* tutorial description (optional) */
-        "A mining station produces raw materials, fuel, and gold every turn.  Buildings must be connected to the mine "
-        "to use the resources the mine produces."),
+        _(5a0e)),
     AbstractUnit(
         /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ LANDMINE,
@@ -1065,11 +1019,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Land Mine",
-        /* plural name     */ "Land Mines",
+        /* singular name   */ _(a2c3),
+        /* plural name     */ _(ee79),
         /* description */
-        "Small, hard to detect explosive device.  Only surveyors, minelayers, and infiltrators can spot mines.  Once "
-        "spotted, almost any damage will destroy it."
+        _(3b31)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1085,11 +1038,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Sea Mine",
-        /* plural name     */ "Sea Mines",
+        /* singular name   */ _(a309),
+        /* plural name     */ _(e7f8),
         /* description */
-        "Small, hard to detect explosive device.  Only surveyors, minelayers, and infiltrators can spot mines.  Once "
-        "spotted, almost any damage will destroy it."
+        _(470d)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1200,10 +1152,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Master Builder",
-        /* plural name     */ "Master Builders",
+        /* singular name   */ _(4ef8),
+        /* plural name     */ _(603b),
         /* description */
-        "Specialized vehicle which transforms to become a new mining station."
+        _(b66a)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1220,14 +1172,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Constructor",
-        /* plural name     */ "Constructors",
+        /* singular name   */ _(7a39),
+        /* plural name     */ _(3b10),
         /* description */
-        "Large construction vehicle for creating large buildings, such as mines and factories.  A constructor consumes "
-        "two material per turn while operating.",
+        _(d28e),
         /* tutorial description (optional) */
-        "Constructors build large buildings like factories.  Click once on the constructor to select it, click a "
-        "second time to show the Build button."),
+        _(aafe)),
     AbstractUnit(
         /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
@@ -1242,15 +1192,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Scout",
-        /* plural name     */ "Scouts",
+        /* singular name   */ _(8a1d),
+        /* plural name     */ _(95a3),
         /* description */
-        "High speed scouting vehicle for exploration and spotting enemy units.  Can cross water without a bridge, but "
-        "is faster on land.\n\nVery fast and good scan range, but much weaker than most combat units.",
+        _(b2bb),
         /* tutorial description (optional) */
-        "A Scout can see a long way, and is very fast. It also has a small gun for harassing the enemy.  To move the "
-        "Scout, click on it, and then click where you want to move.  To attack an enemy, move within 3 squares, and "
-        "then click on the enemy."),
+        _(1ccb)),
     AbstractUnit(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
             TURRET_SPRITE | SENTRY_UNIT,
@@ -1265,15 +1212,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Tank",
-        /* plural name     */ "Tanks",
+        /* singular name   */ _(c0b2),
+        /* plural name     */ _(ca60),
         /* description */
-        "Heavily armored fighting vehicle.  Best used in the front line to prevent enemy units from reaching "
-        "lightly-armored support units such as assault guns and rocket launchers.",
+        _(d58b),
         /* tutorial description (optional) */
-        "Tanks are big and tough, but not as fast as scouts.  Like most units, tanks can either move or fire, but not "
-        "always both.  If you don't move a tank, it can fire twice each turn.  If you move it a short way, it can fire "
-        "once.  If you move it a long way, it can't fire at all."),
+        _(809e)),
     AbstractUnit(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
             SENTRY_UNIT,
@@ -1288,11 +1232,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Assault Gun",
-        /* plural name     */ "Assault Guns",
+        /* singular name   */ _(baf1),
+        /* plural name     */ _(301e),
         /* description */
-        "Lightly armored vehicle with a long range gun firing high-explosive shells.  Fast and effective on the "
-        "attack, but fragile."
+        _(3a41)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1309,11 +1252,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Rocket Launcher",
-        /* plural name     */ "Rocket Launchers",
+        /* singular name   */ _(dcf4),
+        /* plural name     */ _(a685),
         /* description */
-        "Lightly armored vehicle firing medium-range rockets which affect all units within 2 squares of the target.  "
-        "Most effective against groups of enemy units."
+        _(03cb)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1330,12 +1272,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Missile Crawler",
-        /* plural name     */ "Missile Crawlers",
+        /* singular name   */ _(3fa5),
+        /* plural name     */ _(c263),
         /* description */
-        "Missile launcher on a lightly armored chassis.  This mobile launcher is slightly less sturdy than the "
-        "stationary version, and requires more material to build.  However, the ability to move makes it much more "
-        "flexible."
+        _(0aa6)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1352,12 +1292,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Mobile Anti Aircraft",
-        /* plural name     */ "Mobile Anti Aircraft",
+        /* singular name   */ _(b6ef),
+        /* plural name     */ _(a3da),
         /* description */
-        "Light, fast vehicle with a rapid fire cannon for shooting down enemy planes.  Mobile anti aircraft are "
-        "generally defensive units, because they aren't as fast as planes, and can't move while firing.  Use them to "
-        "protect an area once your fighters have chased away enemy ground attack planes."
+        _(051d)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1373,12 +1311,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'M',
-        /* singular name   */ "Mine Layer",
-        /* plural name     */ "Mine Layers",
+        /* singular name   */ _(c838),
+        /* plural name     */ _(d26f),
         /* description */
-        "Minelayers are specialized construction vehicles which place, detect, and remove mines.  Minelayers convert "
-        "onboard raw materials into mines.  They can also remove those mines later and convert them back into "
-        "materials.  They cannot remove enemy minefields - those must be exploded with gunfire and rockets."
+        _(45c2)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1395,14 +1331,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Surveyor",
-        /* plural name     */ "Surveyors",
+        /* singular name   */ _(5bc4),
+        /* plural name     */ _(8def),
         /* description */
-        "Light, amphibious vehicle with sophisticated sensors for detecting underground minerals and enemy mines.  "
-        "Unlike most amphibious units, surveyors are just as fast on water as on land.",
+        _(f3a3),
         /* tutorial description (optional) */
-        "Surveyors spot minerals under the ground. To find a good spot for a mining station, move the surveyor around "
-        "until you find a square with a white 'Raw Materials' symbol.  This may take several turns."),
+        _(d2c2)),
     AbstractUnit(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT |
             SPINNING_TURRET,
@@ -1417,11 +1351,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Scanner",
-        /* plural name     */ "Scanners",
+        /* singular name   */ _(71d4),
+        /* plural name     */ _(e812),
         /* description */
-        "Mobile radar platform.  Slower and more expensive than a scout, but with a better scan range.  A scanner is "
-        "an excellent way to spot targets for very long ranged units like missile crawlers."
+        _(2643)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1437,11 +1370,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Supply Truck",
-        /* plural name     */ "Supply Trucks",
+        /* singular name   */ _(9dff),
+        /* plural name     */ _(c597),
         /* description */
-        "Truck for hauling raw material.  Useful for resupplying engineers and constructors, and for supplying combat "
-        "units with new ammunition."
+        _(d932)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1457,10 +1389,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ GOLD,
         /* gender          */ 'N',
-        /* singular name   */ "Gold Truck",
-        /* plural name     */ "Gold Trucks",
+        /* singular name   */ _(e4c1),
+        /* plural name     */ _(23bb),
         /* description */
-        "Unit for moving gold ore from one location to another."
+        _(65cf)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1477,13 +1409,12 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Engineer",
-        /* plural name     */ "Engineers",
+        /* singular name   */ _(d933),
+        /* plural name     */ _(373a),
         /* description */
-        "Small construction vehicle for creating small buildings and stationary weapons.",
+        _(52b5),
         /* tutorial description (optional) */
-        "You have an engineer selected.  To show the build button, click again on the engineer.  Click on any other "
-        "unit to select that unit."),
+        _(3fec)),
     AbstractUnit(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ BULLDOZR,
@@ -1497,10 +1428,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Bulldozer",
-        /* plural name     */ "Bulldozers",
+        /* singular name   */ _(fac3),
+        /* plural name     */ _(5be1),
         /* description */
-        "Vehicle for clearing rubble and demolishing buildings. Bulldozers can scavenge material from debris."
+        _(3876)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1516,12 +1447,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Repair Unit",
-        /* plural name     */ "Repair Units",
+        /* singular name   */ _(f152),
+        /* plural name     */ _(156b),
         /* description */
-        "Light vehicle which can rapidly repair ground units and buildings.  Repairs require materials.  The most "
-        "extensive the damage, the more materials the repair requires.  Depots, docks, hangars, and barracks can also "
-        "repair units."
+        _(8fdf)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1537,10 +1466,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ FUEL,
         /* gender          */ 'N',
-        /* singular name   */ "Fuel Truck",
-        /* plural name     */ "Fuel Trucks",
+        /* singular name   */ _(3753),
+        /* plural name     */ _(7dd4),
         /* description */
-        "Truck for moving fuel."
+        _(f5be)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1557,11 +1486,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ "Personnel Carrier",
-        /* plural name     */ "Personnel Carriers",
+        /* singular name   */ _(66e9),
+        /* plural name     */ _(93e1),
         /* description */
-        "Fast armored to transport infantry and infiltrators.  The APC can move slowly underwater as well as on land.  "
-        "Only enemy corvettes can detect an APC moving underwater."
+        _(a28a)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1577,12 +1505,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Infiltrator",
-        /* plural name     */ "Infiltrators",
+        /* singular name   */ _(ba90),
+        /* plural name     */ _(6b15),
         /* description */
-        "Commando trained in the arts of stealth and electronic warfare.  Infiltrators can disable or capture enemy "
-        "units. Infiltrators are normally invisible until they make a mistake trying to capture enemy units, or until "
-        "spotted by infantry or infiltrators."
+        _(cc81)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1598,10 +1524,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Infantry",
-        /* plural name     */ "Infantry",
+        /* singular name   */ _(ad96),
+        /* plural name     */ _(461c),
         /* description */
-        "Human soldiers equipped with light anti-tank shoulder weapons.  Infantry can spot enemy inflitrators."
+        _(9e7c)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1618,11 +1544,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Escort",
-        /* plural name     */ "Escorts",
+        /* singular name   */ _(4cc2),
+        /* plural name     */ _(363b),
         /* description */
-        "High speed boat with good radar and rapid fire anti aircraft cannon.  Escorts are the eyes of a fleet, and a "
-        "fleet's protection from planes."
+        _(365d)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1639,11 +1564,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Corvette",
-        /* plural name     */ "Corvettes",
+        /* singular name   */ _(0f0c),
+        /* plural name     */ _(eb92),
         /* description */
-        "High speed boat with torpedo tubes and sonar.  Corvettes can attack any sea unit, but their real strength is "
-        "their ability to spot and attack submarines."
+        _(916e)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1660,11 +1584,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Gunboat",
-        /* plural name     */ "Gunboat",
+        /* singular name   */ _(4ae7),
+        /* plural name     */ _(9cbf),
         /* description */
-        "Heavily armored ship with a high caliber, medium range cannon.  Excellent at destroying other ships and "
-        "bombarding shore targets."
+        _(fe06)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1681,12 +1604,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Submarine",
-        /* plural name     */ "Submarines",
+        /* singular name   */ _(5662),
+        /* plural name     */ _(358f),
         /* description */
-        "Lurking beneath the surface, submarines must sneak close to the enemy to fire their powerful torpedoes.  "
-        "Submarines do not carry active sonar, which might reveal their positions.  Only corvettes can spot a "
-        "submarine before it fires.  Only submarines, corvettes, and ground attack planes can attack them."
+        _(06b2)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1702,11 +1623,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ "Sea Transport",
-        /* plural name     */ "Sea Transports",
+        /* singular name   */ _(2b1a),
+        /* plural name     */ _(fb02),
         /* description */
-        "Heavily armored ship with space to carry up to six land units.  Sea transports are much slower than air "
-        "transports, but also much more likely to survive an enemy attack."
+        _(f368)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1723,11 +1643,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Missile Cruiser",
-        /* plural name     */ "Missile Cruisers",
+        /* singular name   */ _(ee2f),
+        /* plural name     */ _(76ab),
         /* description */
-        "Ship mounted missile launcher.  Excellent range, high attack strength, and medium armor makes this a powerful "
-        "unit."
+        _(ac8d)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1743,11 +1662,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Sea Mine Layer",
-        /* plural name     */ "Sea Mine Layers",
+        /* singular name   */ _(efbe),
+        /* plural name     */ _(f511),
         /* description */
-        "Seaborne version of the minelayer.  Like its land based counterpart, the sea minelayer can manufacture mines, "
-        "detect them, and convert them back into raw material."
+        _(24e7)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1763,10 +1681,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ "Cargo Ship",
-        /* plural name     */ "Cargo Ship",
+        /* singular name   */ _(a04b),
+        /* plural name     */ _(48bb),
         /* description */
-        "Ships for hauling raw material.  Useful for resupplying engineers and sea combat units with new ammunition."
+        _(2a9f)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1783,12 +1701,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Fighter",
-        /* plural name     */ "Fighters",
+        /* singular name   */ _(fe5b),
+        /* plural name     */ _(c8fd),
         /* description */
-        "Fast but fragile aircraft carrying a limited number of air-to-air missiles.  Fighters are the best way to "
-        "drive enemy planes out of an area, and to defend a moving force.  Ground based anti aircraft is a better "
-        "choice for defending a fixed area."
+        _(71d6)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1805,12 +1721,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Ground Attack Plane",
-        /* plural name     */ "Ground Attack Planes",
+        /* singular name   */ _(62eb),
+        /* plural name     */ _(a8d9),
         /* description */
-        "A heavier plane carrying a full load of air to ground missiles.  Ground Attack Planes are expensive, but the "
-        "advantages are worth the cost.  Their great speed lets them reach any trouble spot quickly, and once they "
-        "arrive only fighters and antiaircraft can defend against them."
+        _(2e66)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1826,10 +1740,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ "Air Transport",
-        /* plural name     */ "Air Transports",
+        /* singular name   */ _(4195),
+        /* plural name     */ _(883c),
         /* description */
-        "Heavy aircraft capable of holding up to three ground units."
+        _(60d7)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1846,11 +1760,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "AWAC",
-        /* plural name     */ "AWACs",
+        /* singular name   */ _(d91c),
+        /* plural name     */ _(4044),
         /* description */
-        "Airborne Warning And Control plane.  Basically a flying radar dish, an AWAC is essential to spot enemy anti "
-        "aircraft before your planes fly into firing range."
+        _(9b5d)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1867,12 +1780,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Alien Gunboat",
-        /* plural name     */ "Alien Gunboats",
+        /* singular name   */ _(1801),
+        /* plural name     */ _(48c0),
         /* description */
-        "Heavily armored and armed warship of alien design.  Like the human gunboat, the alien gunboat excels at "
-        "destroying other ships and land targets near the shore.  All alien units repair themselves, and improve their "
-        "abilities with experience."
+        _(9f7c)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1889,11 +1800,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Alien Tank",
-        /* plural name     */ "Alien Tanks",
+        /* singular name   */ _(b952),
+        /* plural name     */ _(1cff),
         /* description */
-        "Heavily armored tank of alien design.  Alien tanks are best used at the front of an attack to soak up enemy "
-        "fire.  All alien units repair themselves, and improve their abilities with experience."
+        _(91b3)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1910,12 +1820,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Alien Assault Gun",
-        /* plural name     */ "Alien Assault Guns",
+        /* singular name   */ _(0ca9),
+        /* plural name     */ _(bde7),
         /* description */
-        "Powerful plasma weapon mounted on a fast, medium-armored chassis.  While not as fragile as human assault "
-        "guns, the alien assault gun should still avoid enemy fire whenever possible.  All alien units repair "
-        "themselves, and improve their abilities with experience."
+        _(0a15)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1932,13 +1840,10 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ "Alien Attack Plane",
-        /* plural name     */ "Alien Attack Planes",
+        /* singular name   */ _(1d38),
+        /* plural name     */ _(a44c),
         /* description */
-        "Alien fighter-bomber.  While the alien attack plane is primarily designed to attack ground targets, it can "
-        "also fire its missiles at other planes.  Though powerful, the alien attack plane is still vulnerable to anti "
-        "aircraft fire.  Like other alien units, alien attack planes repair themselves, and improve their abilities "
-        "with experience."
+        _(0f27)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -2119,13 +2024,9 @@ struct PopupFunctions UnitsManager_PopupCallbacks[POPUP_MENU_TYPE_COUNT];
 
 TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
-static const char* const UnitsManager_BuildTimeEstimates[] = {"%s %i will be available in %i turns.",
-                                                              "%s %i will be available in %i turns.",
-                                                              "%s %i will be available in %i turns."};
+static const char* const UnitsManager_BuildTimeEstimates[] = {_(360a), _(16f4), _(7101)};
 
-static const char* const UnitsManager_ReactionsToEnemy[] = {"%s at [%i,%i] reacting to enemy %s at [%i,%i].",
-                                                            "%s at [%i,%i] reacting to enemy %s at [%i,%i].",
-                                                            "%s at [%i,%i] reacting to enemy %s at [%i,%i]."};
+static const char* const UnitsManager_ReactionsToEnemy[] = {_(1b93), _(5a01), _(eb57)};
 
 bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
     Button* button_destruct;
@@ -2195,21 +2096,21 @@ bool UnitsManager_SelfDestructMenu() {
     bool event_release;
 
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
     destruct_window.SetFlags(0x10);
 
     destruct_window.Add();
     destruct_window.FillWindowInfo(&window);
 
     button_arm = new (std::nothrow) Button(SLFDAR_U, SLFDAR_D, 89, 14);
-    button_arm->SetCaption("Arm");
+    button_arm->SetCaption(_(d5cb));
     button_arm->SetFlags(0x05);
     button_arm->SetPValue(GNW_KB_KEY_RETURN);
     button_arm->SetSfx(MBUTT0);
     button_arm->RegisterButton(window.id);
 
     button_cancel = new (std::nothrow) Button(SLFDCN_U, SLFDCN_D, 89, 46);
-    button_cancel->SetCaption("Cancel");
+    button_cancel->SetCaption(_(ef77));
     button_cancel->SetRValue(GNW_KB_KEY_ESCAPE);
     button_cancel->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
     button_cancel->SetSfx(NCANC0);
@@ -2437,17 +2338,14 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
     if (unit_count <= 0) {
         SmartString string;
 
-        MessageManager_DrawMessage(
-            string.Sprintf(80, "%i raw material needed to upgrade.", unit->GetNormalRateBuildCost() / 4).GetCStr(), 2,
-            0);
+        MessageManager_DrawMessage(string.Sprintf(80, _(a0ee), unit->GetNormalRateBuildCost() / 4).GetCStr(), 2, 0);
 
     } else if (unit_count == 1) {
         SmartString string;
 
         MessageManager_DrawMessage(
             string
-                .Sprintf(80, "%s upgraded to mark %s for %i raw material.",
-                         UnitsManager_BaseUnits[unit->unit_type].singular_name, mark_level, material_cost)
+                .Sprintf(80, _(8967), UnitsManager_BaseUnits[unit->unit_type].singular_name, mark_level, material_cost)
                 .GetCStr(),
             0, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
 
@@ -2456,8 +2354,8 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
 
         MessageManager_DrawMessage(
             string
-                .Sprintf(80, "%i %s upgraded to mark %s for %i raw material.", unit_count,
-                         UnitsManager_BaseUnits[unit->unit_type].plural_name, mark_level, material_cost)
+                .Sprintf(80, _(2693), unit_count, UnitsManager_BaseUnits[unit->unit_type].plural_name, mark_level,
+                         material_cost)
                 .GetCStr(),
             0, 0);
     }
@@ -2511,45 +2409,45 @@ void UnitsManager_Popup_OnClick_Manual(ButtonID bid, UnitInfo* unit) {
 void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons) {
     if (GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES && unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0 &&
         unit->unit_type != COMMANDO) {
-        UnitsManager_RegisterButton(buttons, unit->disabled_reaction_fire, "Manual", '4',
+        UnitsManager_RegisterButton(buttons, unit->disabled_reaction_fire, _(b0b9), '4',
                                     &UnitsManager_Popup_OnClick_Manual);
     }
 
     if (UnitsManager_BaseUnits[unit->unit_type].cargo_type > CARGO_TYPE_NONE &&
         UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD && unit->orders != ORDER_CLEAR &&
         unit->orders != ORDER_BUILD) {
-        UnitsManager_RegisterButton(buttons, unit->cursor == 3, "x-fer", '3', &UnitsManager_Popup_OnClick_Transfer);
+        UnitsManager_RegisterButton(buttons, unit->cursor == 3, _(886b), '3', &UnitsManager_Popup_OnClick_Transfer);
     }
 
     if ((unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) && unit->orders != ORDER_CLEAR &&
         unit->orders != ORDER_BUILD) {
-        UnitsManager_RegisterButton(buttons, unit->enter_mode, "enter", '5', &UnitsManager_Popup_OnClick_Enter);
+        UnitsManager_RegisterButton(buttons, unit->enter_mode, _(e08d), '5', &UnitsManager_Popup_OnClick_Enter);
     }
 
     if (unit->path != nullptr && unit->orders != ORDER_CLEAR && unit->orders != ORDER_BUILD) {
-        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_Stop);
+        UnitsManager_RegisterButton(buttons, false, _(6c45), '7', &UnitsManager_Popup_OnClick_Stop);
     }
 
     if (unit->IsUpgradeAvailable()) {
-        UnitsManager_RegisterButton(buttons, false, "upgrade", '5', &UnitsManager_Popup_OnClick_Upgrade);
-        UnitsManager_RegisterButton(buttons, false, "Upg. All", '6', &UnitsManager_Popup_OnClick_UpgradeAll);
+        UnitsManager_RegisterButton(buttons, false, _(7fef), '5', &UnitsManager_Popup_OnClick_Upgrade);
+        UnitsManager_RegisterButton(buttons, false, _(97a2), '6', &UnitsManager_Popup_OnClick_UpgradeAll);
     }
 
     if (unit->flags & SENTRY_UNIT) {
         if (unit->unit_type != COMMANDO) {
             if (unit->orders == ORDER_SENTRY) {
-                UnitsManager_RegisterButton(buttons, true, "sentry", '8', &UnitsManager_Popup_OnClick_Sentry);
+                UnitsManager_RegisterButton(buttons, true, _(0cf6), '8', &UnitsManager_Popup_OnClick_Sentry);
 
             } else if (unit->orders == ORDER_AWAIT) {
-                UnitsManager_RegisterButton(buttons, false, "sentry", '8', &UnitsManager_Popup_OnClick_Sentry);
+                UnitsManager_RegisterButton(buttons, false, _(524e), '8', &UnitsManager_Popup_OnClick_Sentry);
             }
         }
 
-        UnitsManager_RegisterButton(buttons, false, "Done", '9', &UnitsManager_Popup_OnClick_Done);
+        UnitsManager_RegisterButton(buttons, false, _(2b7d), '9', &UnitsManager_Popup_OnClick_Done);
     }
 
     if (unit->flags & STATIONARY) {
-        UnitsManager_RegisterButton(buttons, false, "remove", '0', &UnitsManager_Popup_OnClick_Remove);
+        UnitsManager_RegisterButton(buttons, false, _(7e56), '0', &UnitsManager_Popup_OnClick_Remove);
     }
 }
 
@@ -2574,7 +2472,7 @@ void UnitsManager_Popup_OnClick_Auto(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_InitSurveyor(UnitInfo* unit, struct PopupButtons* buttons) {
-    UnitsManager_RegisterButton(buttons, unit->auto_survey, "Auto", '1', &UnitsManager_Popup_OnClick_Auto);
+    UnitsManager_RegisterButton(buttons, unit->auto_survey, _(0286), '1', &UnitsManager_Popup_OnClick_Auto);
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
 
@@ -2591,8 +2489,7 @@ void UnitsManager_Popup_OnClick_TargetingMode(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_InitMilitary(UnitInfo* unit, struct PopupButtons* buttons) {
-    UnitsManager_RegisterButton(buttons, unit->targeting_mode, "attack", '3',
-                                &UnitsManager_Popup_OnClick_TargetingMode);
+    UnitsManager_RegisterButton(buttons, unit->targeting_mode, _(e183), '3', &UnitsManager_Popup_OnClick_TargetingMode);
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
 
@@ -2608,7 +2505,7 @@ void UnitsManager_Popup_OnClick_Reload(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_InitReloaders(UnitInfo* unit, struct PopupButtons* buttons) {
-    UnitsManager_RegisterButton(buttons, unit->cursor == 6, "reload", '1', &UnitsManager_Popup_OnClick_Reload);
+    UnitsManager_RegisterButton(buttons, unit->cursor == 6, _(9d39), '1', &UnitsManager_Popup_OnClick_Reload);
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
 
@@ -2622,8 +2519,7 @@ void UnitsManager_Popup_OnClick_PlaceMine(ButtonID bid, UnitInfo* unit) {
         UnitsManager_SetNewOrder(unit, ORDER_LAY_MINE, ORDER_STATE_PLACING_MINES);
 
     } else {
-        MessageManager_DrawMessage("Minelayer is empty, fill it with materials from a supply truck or mining station.",
-                                   1, 0);
+        MessageManager_DrawMessage(_(78a0), 1, 0);
     }
 }
 
@@ -2637,14 +2533,14 @@ void UnitsManager_Popup_OnClick_RemoveMine(ButtonID bid, UnitInfo* unit) {
         UnitsManager_SetNewOrder(unit, ORDER_LAY_MINE, ORDER_STATE_REMOVING_MINES);
 
     } else {
-        MessageManager_DrawMessage("Minelayer is full, cannot pick up more mines.", 1, 0);
+        MessageManager_DrawMessage(_(63d6), 1, 0);
     }
 }
 
 void UnitsManager_Popup_InitMineLayers(UnitInfo* unit, struct PopupButtons* buttons) {
-    UnitsManager_RegisterButton(buttons, unit->GetLayingState() == 2, "place", '1',
+    UnitsManager_RegisterButton(buttons, unit->GetLayingState() == 2, _(81df), '1',
                                 &UnitsManager_Popup_OnClick_PlaceMine);
-    UnitsManager_RegisterButton(buttons, unit->GetLayingState() == 1, "remove", '0',
+    UnitsManager_RegisterButton(buttons, unit->GetLayingState() == 1, _(bfe6), '0',
                                 &UnitsManager_Popup_OnClick_RemoveMine);
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
@@ -2661,7 +2557,7 @@ void UnitsManager_Popup_OnClick_Repair(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_InitRepair(UnitInfo* unit, struct PopupButtons* buttons) {
-    UnitsManager_RegisterButton(buttons, unit->cursor == 4, "repair", '1', &UnitsManager_Popup_OnClick_Repair);
+    UnitsManager_RegisterButton(buttons, unit->cursor == 4, _(a1a1), '1', &UnitsManager_Popup_OnClick_Repair);
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
 
@@ -2685,10 +2581,10 @@ void UnitsManager_Popup_OnClick_BuildStop(ButtonID bid, UnitInfo* unit) {
 
 void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_13 && unit->state != ORDER_STATE_46) {
-        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_BuildStop);
+        UnitsManager_RegisterButton(buttons, false, _(bf85), '7', &UnitsManager_Popup_OnClick_BuildStop);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "Build", '1', &UnitsManager_Popup_OnClick_BuildStop);
+        UnitsManager_RegisterButton(buttons, false, _(b3ef), '1', &UnitsManager_Popup_OnClick_BuildStop);
     }
 
     UnitsManager_Popup_InitCommons(unit, buttons);
@@ -2814,11 +2710,11 @@ void UnitsManager_Popup_PlaceNewUnit(ButtonID bid, UnitInfo* unit) {
 
     if (Access_FindReachableSpot(parent->unit_type, parent, &grid_x, &grid_y, 1, 1, 0)) {
         parent->FollowUnit();
-        MessageManager_DrawMessage("Select an open square to place unit.", 0, 0);
+        MessageManager_DrawMessage(_(87e9), 0, 0);
         GameManager_EnableMainMenu(parent);
 
     } else {
-        MessageManager_DrawMessage("Unable to activate unit at this site.", 1, 0);
+        MessageManager_DrawMessage(_(c710), 1, 0);
         GameManager_EnableMainMenu(parent);
     }
 }
@@ -2840,13 +2736,13 @@ void UnitsManager_Popup_InitFactories(UnitInfo* unit, struct PopupButtons* butto
         UnitsManager_Popup_PlaceNewUnit(0, unit);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "Build", '1', &UnitsManager_Popup_OnClick_Build);
+        UnitsManager_RegisterButton(buttons, false, _(7b6d), '1', &UnitsManager_Popup_OnClick_Build);
 
         if (unit->orders == ORDER_HALT_BUILDING || unit->orders == ORDER_HALT_BUILDING_2) {
-            UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_StartBuild);
+            UnitsManager_RegisterButton(buttons, false, _(cced), '2', &UnitsManager_Popup_OnClick_StartBuild);
 
         } else if (unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_13 && unit->state != ORDER_STATE_46) {
-            UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_StopBuild);
+            UnitsManager_RegisterButton(buttons, false, _(bcf7), '7', &UnitsManager_Popup_OnClick_StopBuild);
         }
 
         UnitsManager_Popup_InitCommons(unit, buttons);
@@ -2859,7 +2755,7 @@ void UnitsManager_Popup_OnClick_PowerOn(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_0);
 
-    sprintf(message, "%s powered %s", UnitsManager_BaseUnits[unit->unit_type].singular_name, "on");
+    sprintf(message, _(8576), UnitsManager_BaseUnits[unit->unit_type].singular_name, _(b8d3));
 
     MessageManager_DrawMessage(message, 0, 0);
 }
@@ -2870,7 +2766,7 @@ void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_0);
 
-    sprintf(message, "%s powered %s", UnitsManager_BaseUnits[unit->unit_type].singular_name, "off");
+    sprintf(message, _(d599), UnitsManager_BaseUnits[unit->unit_type].singular_name, _(b4dc));
 
     MessageManager_DrawMessage(message, 0, 0);
 }
@@ -2898,10 +2794,9 @@ void UnitsManager_Popup_OnClick_Disable(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_InitInfiltrator(UnitInfo* unit, struct PopupButtons* buttons) {
-    UnitsManager_RegisterButton(buttons, unit->cursor == 9, "disable", '1', &UnitsManager_Popup_OnClick_Disable);
-    UnitsManager_RegisterButton(buttons, unit->cursor == 8, "steal", '2', &UnitsManager_Popup_OnClick_Steal);
-    UnitsManager_RegisterButton(buttons, unit->targeting_mode, "attack", '3',
-                                &UnitsManager_Popup_OnClick_TargetingMode);
+    UnitsManager_RegisterButton(buttons, unit->cursor == 9, _(6d6a), '1', &UnitsManager_Popup_OnClick_Disable);
+    UnitsManager_RegisterButton(buttons, unit->cursor == 8, _(a0fd), '2', &UnitsManager_Popup_OnClick_Steal);
+    UnitsManager_RegisterButton(buttons, unit->targeting_mode, _(5f6b), '3', &UnitsManager_Popup_OnClick_TargetingMode);
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
 
@@ -2913,11 +2808,11 @@ void UnitsManager_Popup_OnClick_Research(ButtonID bid, UnitInfo* unit) {
 
 void UnitsManager_Popup_InitResearch(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_POWER_ON) {
-        UnitsManager_RegisterButton(buttons, false, "resrch", '1', &UnitsManager_Popup_OnClick_Research);
-        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+        UnitsManager_RegisterButton(buttons, false, _(2e00), '1', &UnitsManager_Popup_OnClick_Research);
+        UnitsManager_RegisterButton(buttons, false, _(6889), '7', &UnitsManager_Popup_OnClick_PowerOff);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+        UnitsManager_RegisterButton(buttons, false, _(283e), '2', &UnitsManager_Popup_OnClick_PowerOn);
     }
 
     UnitsManager_Popup_InitCommons(unit, buttons);
@@ -2930,20 +2825,20 @@ void UnitsManager_Popup_OnClick_BuyUpgrade(ButtonID bid, UnitInfo* unit) {
 
 void UnitsManager_Popup_InitGoldRefinery(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_POWER_ON) {
-        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+        UnitsManager_RegisterButton(buttons, false, _(3f13), '7', &UnitsManager_Popup_OnClick_PowerOff);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+        UnitsManager_RegisterButton(buttons, false, _(53c3), '2', &UnitsManager_Popup_OnClick_PowerOn);
     }
 
-    UnitsManager_RegisterButton(buttons, false, "buy upg", '1', &UnitsManager_Popup_OnClick_BuyUpgrade);
+    UnitsManager_RegisterButton(buttons, false, _(1da0), '1', &UnitsManager_Popup_OnClick_BuyUpgrade);
 
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
 
 void UnitsManager_Popup_InitRecreationCenter(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_POWER_OFF) {
-        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+        UnitsManager_RegisterButton(buttons, false, _(bd97), '2', &UnitsManager_Popup_OnClick_PowerOn);
     }
 
     UnitsManager_Popup_InitCommons(unit, buttons);
@@ -2990,13 +2885,13 @@ void UnitsManager_Popup_OnClick_Load(ButtonID bid, UnitInfo* unit) {
 
 void UnitsManager_Popup_InitRepairShops(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_POWER_OFF) {
-        UnitsManager_RegisterButton(buttons, false, "start", '1', &UnitsManager_Popup_OnClick_Activate);
+        UnitsManager_RegisterButton(buttons, false, _(cec1), '1', &UnitsManager_Popup_OnClick_Activate);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "activate", '1', &UnitsManager_Popup_OnClick_Activate);
+        UnitsManager_RegisterButton(buttons, false, _(200c), '1', &UnitsManager_Popup_OnClick_Activate);
     }
 
-    UnitsManager_RegisterButton(buttons, unit->cursor == 7, "load", '2', &UnitsManager_Popup_OnClick_Load);
+    UnitsManager_RegisterButton(buttons, unit->cursor == 7, _(8452), '2', &UnitsManager_Popup_OnClick_Load);
 
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
@@ -3016,11 +2911,11 @@ void UnitsManager_Popup_OnClick_PowerOnAllocate(ButtonID bid, UnitInfo* unit) {
 
 void UnitsManager_Popup_InitMiningStation(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_POWER_OFF) {
-        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOnAllocate);
+        UnitsManager_RegisterButton(buttons, false, _(98c9), '2', &UnitsManager_Popup_OnClick_PowerOnAllocate);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "allocate", '1', &UnitsManager_Popup_OnClick_PowerOnAllocate);
-        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+        UnitsManager_RegisterButton(buttons, false, _(33b7), '1', &UnitsManager_Popup_OnClick_PowerOnAllocate);
+        UnitsManager_RegisterButton(buttons, false, _(d9c8), '7', &UnitsManager_Popup_OnClick_PowerOff);
     }
 
     UnitsManager_Popup_InitCommons(unit, buttons);
@@ -3028,10 +2923,10 @@ void UnitsManager_Popup_InitMiningStation(UnitInfo* unit, struct PopupButtons* b
 
 void UnitsManager_Popup_InitEcoSphere(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_POWER_ON) {
-        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+        UnitsManager_RegisterButton(buttons, false, _(df26), '7', &UnitsManager_Popup_OnClick_PowerOff);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+        UnitsManager_RegisterButton(buttons, false, _(5fe9), '2', &UnitsManager_Popup_OnClick_PowerOn);
     }
 
     UnitsManager_Popup_InitCommons(unit, buttons);
@@ -3039,10 +2934,10 @@ void UnitsManager_Popup_InitEcoSphere(UnitInfo* unit, struct PopupButtons* butto
 
 void UnitsManager_Popup_InitPowerGenerators(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_POWER_ON) {
-        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_PowerOff);
+        UnitsManager_RegisterButton(buttons, false, _(7a07), '7', &UnitsManager_Popup_OnClick_PowerOff);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "start", '2', &UnitsManager_Popup_OnClick_PowerOn);
+        UnitsManager_RegisterButton(buttons, false, _(e7b6), '2', &UnitsManager_Popup_OnClick_PowerOn);
     }
 
     UnitsManager_Popup_InitCommons(unit, buttons);
@@ -3079,22 +2974,22 @@ void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
             GameManager_UpdateInfoDisplay(unit);
             GameManager_AutoSelectNext(unit);
 
-            sprintf(message, "Number of turns to clear site: %i.", unit->build_time);
+            sprintf(message, _(b9b7), unit->build_time);
 
             MessageManager_DrawMessage(message, 0, unit, Point(unit->grid_x, unit->grid_y));
 
         } else {
-            MessageManager_DrawMessage("Unable to clear at current location.", 1, 0);
+            MessageManager_DrawMessage(_(a615), 1, 0);
         }
     }
 }
 
 void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons) {
     if (unit->orders == ORDER_CLEAR) {
-        UnitsManager_RegisterButton(buttons, false, "stop", '7', &UnitsManager_Popup_OnClick_StopRemove);
+        UnitsManager_RegisterButton(buttons, false, _(bc20), '7', &UnitsManager_Popup_OnClick_StopRemove);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, "remove", '0', &UnitsManager_Popup_OnClick_StopRemove);
+        UnitsManager_RegisterButton(buttons, false, _(9737), '0', &UnitsManager_Popup_OnClick_StopRemove);
     }
 
     UnitsManager_Popup_InitCommons(unit, buttons);
@@ -3171,10 +3066,10 @@ void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit)
             UnitsManager_SpawnUnit(LRGTAPE, GameManager_PlayerTeam, unit->target_grid_x, unit->target_grid_y, unit);
 
     } else {
-        MessageManager_DrawMessage("Need a location to put the power generator.", 2, 0);
+        MessageManager_DrawMessage(_(5e0b), 2, 0);
     }
 
-    MessageManager_DrawMessage("Click inside tape to begin transformation.", 0, 0);
+    MessageManager_DrawMessage(_(bb70), 0, 0);
 }
 
 bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int grid_x, int grid_y) {
@@ -3216,7 +3111,7 @@ void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons)
             is_placeable = UnitsManager_IsMasterBuilderPlaceable(unit, grid_x, grid_y);
 
             if (is_placeable) {
-                UnitsManager_RegisterButton(buttons, false, "start", '1',
+                UnitsManager_RegisterButton(buttons, false, _(2c2a), '1',
                                             &UnitsManager_Popup_OnClick_StartMasterBuilder);
 
                 unit->target_grid_x = grid_x;
@@ -5334,7 +5229,7 @@ void UnitsManager_Loading(UnitInfo* unit) {
         if (GameManager_SelectedUnit == unit) {
             char message[400];
 
-            sprintf(message, "%s %i has been loaded\ninto air transport.", base_unit->singular_name, parent->unit_id);
+            sprintf(message, _(c15c), base_unit->singular_name, parent->unit_id);
 
             MessageManager_DrawMessage(message, 0, 0);
         }
@@ -5357,7 +5252,7 @@ void UnitsManager_Unloading(UnitInfo* unit) {
         if (GameManager_SelectedUnit == unit) {
             char message[400];
 
-            sprintf(message, "%s %i has been unloaded\nfrom air transport.", base_unit->singular_name, parent->unit_id);
+            sprintf(message, _(60f3), base_unit->singular_name, parent->unit_id);
 
             MessageManager_DrawMessage(message, 0, 0);
         }
@@ -6360,12 +6255,10 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
             if (parent->orders == ORDER_DISABLE) {
                 if (GameManager_PlayerTeam == unit->team) {
                     if (unit->orders == ORDER_AWAIT_STEAL_UNIT) {
-                        MessageManager_DrawMessage("Unable to capture enemy unit.", 1, unit,
-                                                   Point(unit->grid_x, unit->grid_y));
+                        MessageManager_DrawMessage(_(1141), 1, unit, Point(unit->grid_x, unit->grid_y));
 
                     } else {
-                        MessageManager_DrawMessage("Unable to disable enemy unit.", 1, unit,
-                                                   Point(unit->grid_x, unit->grid_y));
+                        MessageManager_DrawMessage(_(1c5c), 1, unit, Point(unit->grid_x, unit->grid_y));
                     }
                 }
 
@@ -6388,11 +6281,9 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
 
                 } else if (GameManager_PlayerTeam == unit->team) {
                     if (unit->orders == ORDER_AWAIT_STEAL_UNIT) {
-                        MessageManager_DrawMessage("Unable to capture enemy unit.", 1, unit,
-                                                   Point(unit->grid_x, unit->grid_y));
+                        MessageManager_DrawMessage(_(f876), 1, unit, Point(unit->grid_x, unit->grid_y));
                     } else {
-                        MessageManager_DrawMessage("Unable to disable enemy unit.", 1, unit,
-                                                   Point(unit->grid_x, unit->grid_y));
+                        MessageManager_DrawMessage(_(a939), 1, unit, Point(unit->grid_x, unit->grid_y));
                     }
                 }
 
@@ -6415,7 +6306,7 @@ void UnitsManager_CaptureUnit(UnitInfo* unit) {
         GameManager_NotifyEvent(&*parent, 2);
 
     } else if (GameManager_PlayerTeam == old_team) {
-        MessageManager_DrawMessage("Enemy unit captured.", 0, &*parent, Point(parent->grid_x, parent->grid_y));
+        MessageManager_DrawMessage(_(8c00), 0, &*parent, Point(parent->grid_x, parent->grid_y));
         SoundManager.PlayVoice(V_M239, V_F242);
     }
 
@@ -6460,12 +6351,12 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
         Point position(parent->grid_x, parent->grid_y);
 
         if (turns_disabled == 1) {
-            MessageManager_DrawMessage("Enemy unit disabled for 1 turn.", 0, &*parent, position);
+            MessageManager_DrawMessage(_(ea13), 0, &*parent, position);
 
         } else {
             SmartString message;
 
-            message.Sprintf(100, "Enemy unit disabled for %i turns.", turns_disabled);
+            message.Sprintf(100, _(836d), turns_disabled);
 
             MessageManager_DrawMessage(message.GetCStr(), 0, &*parent, position);
         }

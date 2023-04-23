@@ -27,6 +27,7 @@
 #include "hash.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
@@ -411,14 +412,14 @@ void Remote_ResponseTimeout(unsigned short team, bool mode) {
     UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
 
     if (mode) {
-        sprintf(message, "%s does not respond. Terminating Connection.", menu_team_names[team]);
+        sprintf(message, _(62a6), menu_team_names[team]);
 
     } else {
         if (GameManager_WrapUpGame) {
             return;
         }
 
-        sprintf(message, "%s has left the game.", menu_team_names[team]);
+        sprintf(message, _(9a28), menu_team_names[team]);
 
         SoundManager.PlayVoice(static_cast<ResourceID>(V_M025 + team * 4), static_cast<ResourceID>(V_F026 + team * 4));
     }
@@ -941,7 +942,7 @@ void Remote_ProcessNetPackets() {
 void Remote_NetErrorUnknownUnit(unsigned short unit_id) {
     char message[100];
 
-    sprintf(message, "Unknown unit, id %i, referenced in remote packet.", unit_id);
+    sprintf(message, _(ef35), unit_id);
 
     MessageManager_DrawMessage(message, 2, 1, false, true);
 }
@@ -1173,7 +1174,7 @@ int Remote_SiteSelectMenu() {
     }
 
     if (stay_in_loop && Remote_IsNetworkGame) {
-        MessageManager_DrawMessage("Waiting for remote player\nto select starting location...", 0, 0);
+        MessageManager_DrawMessage(_(6da5), 0, 0);
 
         Cursor_SetCursor(CURSOR_HAND);
 
@@ -1437,7 +1438,7 @@ void Remote_ReceiveNetPacket_06(NetPacket& packet) {
         if (is_found) {
             char message[100];
 
-            sprintf(message, "%s has ended turn.", menu_team_names[entity_id]);
+            sprintf(message, _(2abe), menu_team_names[entity_id]);
 
             MessageManager_DrawMessage(message, 1, 0);
 
@@ -1791,7 +1792,7 @@ void Remote_ReceiveNetPacket_16(NetPacket& packet) {
 
     SaveLoadMenu_Save(file_name.GetCStr(), file_title.GetCStr(), true);
 
-    MessageManager_DrawMessage("Game saved.", 1, 0);
+    MessageManager_DrawMessage(_(87d7), 1, 0);
 }
 
 void Remote_SendNetPacket_17() {
@@ -2071,7 +2072,7 @@ void Remote_ReceiveNetPacket_17(NetPacket& packet) {
         }
 
         if (backup_timer != timer || backup_endturn != endturn) {
-            MessageManager_DrawMessage("NOTICE: Turn timers have been changed.", 1, 0);
+            MessageManager_DrawMessage(_(7be4), 1, 0);
         }
     }
 }
@@ -2772,7 +2773,7 @@ void Remote_ReceiveNetPacket_39(NetPacket& packet) {
 
     packet >> entity_id;
 
-    DialogMenu_Menu("Game Paused.\nClick OK to continue.");
+    DialogMenu_Menu(_(1dc1));
 }
 
 void Remote_ReceiveNetPacket_40(NetPacket& packet) {

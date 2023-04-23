@@ -23,6 +23,7 @@
 
 #include "cargomenu.hpp"
 #include "game_manager.hpp"
+#include "localization.hpp"
 #include "reportstats.hpp"
 #include "smartstring.hpp"
 #include "text.hpp"
@@ -101,25 +102,25 @@ void CargoSelector::Draw() {
             if (cargo) {
                 if (storage > cargo) {
                     if (unit_type == FUELTRCK) {
-                        sprintf(text2, "\n(%i Fuel)", cargo);
+                        sprintf(text2, _(2683), cargo);
                     } else if (unit_type == GOLDTRCK) {
-                        sprintf(text2, "\n(%i Gold)", cargo);
+                        sprintf(text2, _(0dfd), cargo);
                     } else {
-                        sprintf(text2, "\n(%i Mat.)", cargo);
+                        sprintf(text2, _(b0e8), cargo);
                     }
 
                     strcat(text, text2);
 
                 } else {
-                    strcat(text, "\n(Full)");
+                    strcat(text, _(ed1b));
                 }
 
             } else {
-                strcat(text, "\n(Empty)");
+                strcat(text, _(64fd));
             }
         }
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         Text_TextBox(window_info.buffer, window_info.width, text, 32, 32 * i, width - 32, 32, 0xA2, false);
     }

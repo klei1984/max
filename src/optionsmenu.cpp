@@ -27,6 +27,7 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
@@ -63,45 +64,45 @@ enum OptionsType {
 
 static struct OptionsButton options_menu_buttons[] = {
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_SETUP, 0, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Volume:", INI_MUSIC_LEVEL, 25, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Enhanced graphics (requires 16MB)", INI_ENHANCED_GRAPHICS, 210, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Music", INI_MUSIC_LEVEL, 25, 0, 100),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Disable Music", INI_DISABLE_MUSIC, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "FX", INI_FX_SOUND_LEVEL, 25, 0, 100),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "FX Disabled", INI_DISABLE_FX, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Voice", INI_VOICE_LEVEL, 25, 0, 100),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Voice Disabled", INI_DISABLE_VOICE, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Auto-Save Enabled", INI_AUTO_SAVE, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_HEX, "IPX Socket:", INI_IPX_SOCKET, 210, 0, 0x7FFF),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_STR, "Player Name:", INI_PLAYER_NAME, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, _(b2c7), INI_MUSIC_LEVEL, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(644b), INI_ENHANCED_GRAPHICS, 210, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, _(6eb0), INI_MUSIC_LEVEL, 25, 0, 100),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(c2e5), INI_DISABLE_MUSIC, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, _(adf0), INI_FX_SOUND_LEVEL, 25, 0, 100),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(2eeb), INI_DISABLE_FX, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, _(87bf), INI_VOICE_LEVEL, 25, 0, 100),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(e9db), INI_DISABLE_VOICE, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(64fb), INI_AUTO_SAVE, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_HEX, _(5940), INI_IPX_SOCKET, 210, 0, 0x7FFF),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_STR, _(f11f), INI_PLAYER_NAME, 25, 0, 0),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_PREFERENCES, 0, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Animate Effects", INI_EFFECTS, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Click to Scroll", INI_CLICK_SCROLL, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Double Unit Steps", INI_FAST_MOVEMENT, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Track Selected Unit", INI_FOLLOW_UNIT, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Halt movement when enemy is detected", INI_ENEMY_HALT, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Auto-Select Next Unit", INI_AUTO_SELECT, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, "Scroll Speed", INI_QUICK_SCROLL, 25, 4, 128),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(238c), INI_EFFECTS, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(bf3b), INI_CLICK_SCROLL, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(2349), INI_FAST_MOVEMENT, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(09e9), INI_FOLLOW_UNIT, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(f99e), INI_ENEMY_HALT, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(c8b2), INI_AUTO_SELECT, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, _(24e6), INI_QUICK_SCROLL, 25, 4, 128),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_OPTIONS, 0, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Turn Time:", INI_TIMER, 25, 0, 32767),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "End Turn Time:", INI_ENDTURN, 210, 0, 32767),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Play Mode: %s", INI_PLAY_MODE, 25, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Computer Player(s): %s", INI_OPPONENT, 25, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, "Game ends at %i %s.", INI_VICTORY_LIMIT, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, _(86df), INI_TIMER, 25, 0, 32767),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, _(de3f), INI_ENDTURN, 210, 0, 32767),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, _(f019), INI_PLAY_MODE, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, _(d5b2), INI_OPPONENT, 25, 0, 0),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_LABEL, _(e791), INI_VICTORY_LIMIT, 25, 0, 0),
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_INVALID_ID, 0, 0, 0),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Disable Fire", INI_DISABLE_FIRE, 25, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, "Real Time", INI_REAL_TIME, 210, 0, 1),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Red Team", INI_RED_TEAM_PLAYER, 25, 0, 3),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Green Team", INI_GREEN_TEAM_PLAYER, 210, 0, 3),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Blue Team", INI_BLUE_TEAM_PLAYER, 25, 0, 3),
-    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, "Gray Team", INI_GRAY_TEAM_PLAYER, 210, 0, 3),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(d5fa), INI_DISABLE_FIRE, 25, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(6a65), INI_REAL_TIME, 210, 0, 1),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, _(3bda), INI_RED_TEAM_PLAYER, 25, 0, 3),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, _(3bb7), INI_GREEN_TEAM_PLAYER, 210, 0, 3),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, _(11a8), INI_BLUE_TEAM_PLAYER, 25, 0, 3),
+    OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, _(75a0), INI_GRAY_TEAM_PLAYER, 210, 0, 3),
 };
 
-static const char *options_menu_play_mode_strings[] = {"Turn Based", "Simultaneous Moves"};
+static const char *options_menu_play_mode_strings[] = {_(d0a7), _(ee25)};
 
-static const char *options_menu_opponent_strings[] = {"Clueless", "Apprentice", "Average", "Expert", "Master", "God"};
+static const char *options_menu_opponent_strings[] = {_(a24d), _(37b7), _(bb85), _(b663), _(ab89), _(c7e3)};
 
-static const char *options_menu_victory_type_strings[] = {"turns", "points"};
+static const char *options_menu_victory_type_strings[] = {_(b542), _(c303)};
 
 OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
     : Window(bg_image, GameManager_GetDialogWindowCenterMode()),
@@ -114,20 +115,20 @@ OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
     int uly = bg_image == SETUPPIC ? 141 : 383;
 
     Cursor_SetCursor(CURSOR_HAND);
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     Add();
     FillWindowInfo(&window);
 
     button_done = new (std::nothrow) Button(PRFDNE_U, PRFDNE_D, 215, uly);
-    button_done->SetCaption("Done");
+    button_done->SetCaption(_(6907));
     button_done->SetRValue(1000);
     button_done->SetPValue(GNW_INPUT_PRESS + 1000);
     button_done->SetSfx(NDONE0);
     button_done->RegisterButton(window.id);
 
     button_cancel = new (std::nothrow) Button(PRFCAN_U, PRFCAN_D, 125, uly);
-    button_cancel->SetCaption("Cancel");
+    button_cancel->SetCaption(_(3fda));
     button_cancel->SetRValue(1001);
     button_cancel->SetPValue(GNW_INPUT_PRESS + 1001);
     button_cancel->SetSfx(NCANC0);
@@ -140,7 +141,7 @@ OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
     button_help->RegisterButton(window.id);
 
     if (bg_image == PREFSPIC) {
-        Text_TextBox(window.buffer, window.width, "Preferences", 108, 12, 184, 17, COLOR_GREEN, true, true);
+        Text_TextBox(window.buffer, window.width, _(f70f), 108, 12, 184, 17, COLOR_GREEN, true, true);
     }
 
     Init();
@@ -190,7 +191,7 @@ void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
     slider_slit_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIT));
     prfslit_ulx = slider_slit_image->width;
 
-    prfslit_pos_x = text_width(options_menu_buttons[id].format) + ulx + 10;
+    prfslit_pos_x = Text_GetWidth(options_menu_buttons[id].format) + ulx + 10;
     prfslit_pos_y = uly + (20 - slider_slit_image->height) / 2;
 
     WindowManager_LoadSimpleImage(PRFSLIT, prfslit_pos_x, prfslit_pos_y, 1, &window);
@@ -259,7 +260,7 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
     image_ulx = resource_image->width;
     image_uly = resource_image->height;
 
-    image_pos_x = text_width(options_menu_buttons[id].format) + ulx + 10;
+    image_pos_x = Text_GetWidth(options_menu_buttons[id].format) + ulx + 10;
     image_pos_y = uly + (20 - image_uly) / 2;
 
     WindowManager_LoadSimpleImage(resource_id, image_pos_x, image_pos_y, 1, &window);
@@ -489,7 +490,7 @@ void OptionsMenu::Init() {
                     } break;
                     case OPTIONS_TYPE_LABEL: {
                         InitLabelControl(i, ulx, uly);
-                        uly -= 20 - (text_height() + 3);
+                        uly -= 20 - (Text_GetHeight() + 3);
                     } break;
                 }
 

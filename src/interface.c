@@ -81,11 +81,7 @@ int win_get_str(char* str, int limit, char* title, int x, int y) {
     WinID id;
 
     if (GNW_win_init_flag) {
-        width = text_width(title) + 12;
-
-        if (((limit + 1) * text_max()) > width) {
-            width = text_max() * (limit + 1);
-        }
+        width = Text_GetWidth(title) + 12;
 
         width += 16;
 
@@ -93,7 +89,7 @@ int win_get_str(char* str, int limit, char* title, int x, int y) {
             width = 160;
         }
 
-        length = 5 * text_height() + 16;
+        length = 5 * Text_GetHeight() + 16;
 
         id = win_add(x, y, width, length, 256, 20);
 
@@ -104,21 +100,21 @@ int win_get_str(char* str, int limit, char* title, int x, int y) {
 
             buf = GNW_find(id)->buf;
 
-            buf_fill(&buf[(text_height() + 14) * width + 14], width - 28, text_height() + 2, width,
+            buf_fill(&buf[(Text_GetHeight() + 14) * width + 14], width - 28, Text_GetHeight() + 2, width,
                      colorTable[GNW_wcolor[0]]);
 
-            text_to_buf(&buf[8 * width + 8], title, width, width, colorTable[GNW_wcolor[4]]);
+            Text_Blit(&buf[8 * width + 8], title, width, width, colorTable[GNW_wcolor[4]]);
 
-            draw_shaded_box(buf, width, 14, text_height() + 14, width - 14, 2 * text_height() + 16,
+            draw_shaded_box(buf, width, 14, Text_GetHeight() + 14, width - 14, 2 * Text_GetHeight() + 16,
                             colorTable[GNW_wcolor[2]], colorTable[GNW_wcolor[1]]);
 
-            win_register_text_button(id, width / 2 - 72, length - 8 - text_height() - 6, -1, -1, -1, 13, "Done", 0);
+            win_register_text_button(id, width / 2 - 72, length - 8 - Text_GetHeight() - 6, -1, -1, -1, 13, "Done", 0);
 
-            win_register_text_button(id, width / 2 + 8, length - 8 - text_height() - 6, -1, -1, -1, 27, "Cancel", 0);
+            win_register_text_button(id, width / 2 + 8, length - 8 - Text_GetHeight() - 6, -1, -1, -1, 27, "Cancel", 0);
 
             win_draw(id);
 
-            retval = win_input_str(id, str, limit, 16, text_height() + 16, colorTable[GNW_wcolor[3]],
+            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16, colorTable[GNW_wcolor[3]],
                                    colorTable[GNW_wcolor[0]]);
 
             win_delete(id);
@@ -177,7 +173,7 @@ WinID create_pull_down(char** list, int num, int ulx, int uly, int fcolor, int b
     int length;
     WinID id;
 
-    length = num * text_height() + 16;
+    length = num * Text_GetHeight() + 16;
     width = win_width_needed(list, num) + 4;
 
     if (length >= 2 && width >= 2) {
@@ -272,17 +268,18 @@ int win_register_menu_pulldown(WinID wid, int offx, char* name, int value, int n
         i = w->menu->num_pds;
 
         x = w->menu->m.ulx + offx;
-        y = (w->menu->m.lry + w->menu->m.uly - text_height()) / 2;
+        y = (w->menu->m.lry + w->menu->m.uly - Text_GetHeight()) / 2;
 
-        if (win_register_button(wid, x, y, text_width(name), text_height(), -1, -1, value, -1, 0, 0, 0, 0) == -1) {
+        if (win_register_button(wid, x, y, Text_GetWidth(name), Text_GetHeight(), -1, -1, value, -1, 0, 0, 0, 0) ==
+            -1) {
             result = -1;
         } else {
-            win_print(wid, name, 0, x, y, w->menu->fcolor | GNW_TEXT_UNKNOWN_2);
+            win_print(wid, name, 0, x, y, w->menu->fcolor | GNW_TEXT_FILL_WINDOW);
 
             w->menu->pd[i].r.ulx = x;
             w->menu->pd[i].r.uly = y;
-            w->menu->pd[i].r.lrx = text_width(name) + x - 1;
-            w->menu->pd[i].r.lry = text_height() + y - 1;
+            w->menu->pd[i].r.lrx = Text_GetWidth(name) + x - 1;
+            w->menu->pd[i].r.lry = Text_GetHeight() + y - 1;
             w->menu->pd[i].value = value;
             w->menu->pd[i].num_list = num;
             w->menu->pd[i].list = list;
@@ -387,7 +384,7 @@ int win_width_needed(char** list, int num) {
     lc = list;
 
     for (i = 0; i < num; i++) {
-        j = text_width(lc[i]);
+        j = Text_GetWidth(lc[i]);
 
         if (j > width) {
             width = j;
@@ -471,7 +468,7 @@ void GNW_intr_init(void) {
         tm_text_y = 10;
     }
 
-    tm_h = 2 * tm_text_y + text_height();
+    tm_h = 2 * tm_text_y + Text_GetHeight();
 
     for (i = 0; i < 5; i++) {
         tm_location[i].taken = 0;

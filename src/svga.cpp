@@ -28,7 +28,7 @@
 #define SVGA_DEFAULT_HEIGHT (480)
 #define SVGA_DEFAULT_REFRESH_RATE (60)
 
-static Uint32 Svga_SetupDisplayMode();
+static Uint32 Svga_SetupDisplayMode(SDL_Rect *bounds);
 static void Svga_CorrectAspectRatio(SDL_DisplayMode *display_mode);
 
 static const bool SVGA_NO_TEXTURE_UPDATE = true;
@@ -53,7 +53,7 @@ static Uint32 Svga_DisplayPixelFormat;
 Rect scr_size;
 ScreenBlitFunc scr_blit;
 
-Uint32 Svga_SetupDisplayMode() {
+Uint32 Svga_SetupDisplayMode(SDL_Rect *bounds) {
     Uint32 flags = 0uL;
     SDL_DisplayMode display_mode;
 
@@ -98,6 +98,16 @@ Uint32 Svga_SetupDisplayMode() {
         } break;
     }
 
+    if (Svga_ScreenMode == WINDOW_MODE_WINDOWED) {
+        *bounds = {0, 0, Svga_ScreenWidth, Svga_ScreenHeight};
+
+    } else {
+        if (SDL_GetDisplayBounds(Svga_DisplayIndex, bounds)) {
+            SDL_Log("SDL_GetDisplayBounds failed: %s\n", SDL_GetError());
+            *bounds = {0, 0, Svga_ScreenWidth, Svga_ScreenHeight};
+        }
+    }
+
     return flags;
 }
 
@@ -126,17 +136,12 @@ int Svga_Init(void) {
         return 0;
     }
 
-    Uint32 flags = Svga_SetupDisplayMode();
-    SDL_Rect screen_bounds;
-
-    if (SDL_GetDisplayBounds(Svga_DisplayIndex, &screen_bounds)) {
-        SDL_Log("SDL_GetDisplayBounds failed: %s\n", SDL_GetError());
-        screen_bounds = {0, 0, Svga_ScreenWidth, Svga_ScreenHeight};
-    }
+    SDL_Rect bounds;
+    Uint32 flags = Svga_SetupDisplayMode(&bounds);
 
     if ((sdlWindow = SDL_CreateWindow(
              "M.A.X.: Mechanized Assault & Exploration", SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex),
-             SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex), screen_bounds.w, screen_bounds.h, flags)) == NULL) {
+             SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex), bounds.w, bounds.h, flags)) == NULL) {
         SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
     }
 
@@ -297,7 +302,7 @@ void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char
 
     Svga_PaletteChanged = true;
 
-    if ((i == PALETTE_SIZE - 1) || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(60))) {
+    if ((i == PALETTE_SIZE - 1) || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(Svga_DisplayRefreshRate))) {
         Svga_RenderTimer = timer_get();
 
         unsigned char srcBuf;

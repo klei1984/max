@@ -1952,7 +1952,12 @@ enum ResourceID : unsigned short {
     DESERT_5 = 0x784,
     DESERT_6 = 0x785,
     WORLD_E = 0x786,
-    RESOURCE_E = 0x787,
+    FONT_S = 0x787,
+    FONT_1 = 0x788,
+    FONT_2 = 0x789,
+    FONT_5 = 0x78A,
+    FONT_E = 0x78B,
+    RESOURCE_E = 0x78C,
     INVALID_ID = 0xFFFF
 };
 

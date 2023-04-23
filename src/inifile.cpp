@@ -27,6 +27,7 @@
 #include <cstring>
 
 #include "gnw.h"
+#include "localization.hpp"
 #include "resource_manager.hpp"
 #include "units_manager.hpp"
 
@@ -216,15 +217,15 @@ void IniSettings::Init() {
     int index;
 
     strcpy(filename, ResourceManager_FilePathGameInstall);
-    strcat(filename, "max.ini");
+    strcat(filename, "settings.ini");
     fp = fopen(filename, "rt");
 
     if (!fp) {
-        SDL_Log("\nMAX INI File not found..  Using Defaults...\n");
+        SDL_Log(_(f3e3));
         fp = fopen(filename, "wt");
 
         if (!fp) {
-            SDL_Log("\nUnable to Write File..  Disk Full?\n");
+            SDL_Log(_(db0c));
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_FIND_MAX_INI);
         }
 
@@ -450,43 +451,43 @@ int IniClans::GetNextUnitUpgrade(short *attrib_id, short *value) {
 
         switch (*attrib_id) {
             case ATTRIB_ATTACK: {
-                result = stricmp("attack", cstr);
+                result = stricmp(_(fca3), cstr);
             } break;
 
             case ATTRIB_ROUNDS: {
-                result = stricmp("rounds", cstr);
+                result = stricmp(_(206c), cstr);
             } break;
 
             case ATTRIB_RANGE: {
-                result = stricmp("range", cstr);
+                result = stricmp(_(2269), cstr);
             } break;
 
             case ATTRIB_ARMOR: {
-                result = stricmp("armor", cstr);
+                result = stricmp(_(d81e), cstr);
             } break;
 
             case ATTRIB_HITS: {
-                result = stricmp("hits", cstr);
+                result = stricmp(_(62f5), cstr);
             } break;
 
             case ATTRIB_SPEED: {
-                result = stricmp("speed", cstr);
+                result = stricmp(_(bbcc), cstr);
             } break;
 
             case ATTRIB_SCAN: {
-                result = stricmp("scan", cstr);
+                result = stricmp(_(59ad), cstr);
             } break;
 
             case ATTRIB_TURNS: {
-                result = stricmp("turns", cstr);
+                result = stricmp(_(6976), cstr);
             } break;
 
             case ATTRIB_AMMO: {
-                result = stricmp("ammo", cstr);
+                result = stricmp(_(24d8), cstr);
             } break;
 
             case ATTRIB_MOVE_AND_FIRE: {
-                result = stricmp("reload", cstr);
+                result = stricmp(_(4027), cstr);
             } break;
 
             case ATTRIB_FUEL: {
@@ -494,15 +495,15 @@ int IniClans::GetNextUnitUpgrade(short *attrib_id, short *value) {
             } break;
 
             case ATTRIB_STORAGE: {
-                result = stricmp("storage", cstr);
+                result = stricmp(_(49a2), cstr);
             } break;
 
             case ATTRIB_ATTACK_RADIUS: {
-                result = stricmp("area", cstr);
+                result = stricmp(_(4a91), cstr);
             } break;
 
             case ATTRIB_AGENT_ADJUST: {
-                result = stricmp("disable", cstr);
+                result = stricmp(_(e9d8), cstr);
             } break;
         }
 
@@ -534,7 +535,7 @@ int IniClans::GetClanGold(int clan) {
 void IniClans::GetClanText(int clan, char *buffer, int buffer_size) {
     if (!inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) || !inifile_ini_seek_param(&ini, "Text") ||
         !inifile_ini_process_string_value(&ini, buffer, buffer_size)) {
-        strcpy(buffer, "No clan chosen - computer will choose a clan at random.");
+        strcpy(buffer, _(7f53));
     }
 }
 

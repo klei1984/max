@@ -28,6 +28,7 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
@@ -139,23 +140,23 @@ static struct AllocMenuControlItem allocation_menu_controls[ALLOCATION_MENU_CONT
     MENU_CONTROL_DEF(174, 70, 440, 99, INVALID_ID, nullptr, 1003, nullptr, KCARG0),
     MENU_CONTROL_DEF(174, 190, 440, 219, INVALID_ID, nullptr, 1006, nullptr, KCARG0),
     MENU_CONTROL_DEF(174, 310, 440, 339, INVALID_ID, nullptr, 1009, nullptr, KCARG0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, "?", 1000, nullptr, NHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, "Done", GNW_KB_KEY_RETURN, nullptr, NDONE0),
+    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(eb74), 1000, nullptr, NHELP0),
+    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(40c7), GNW_KB_KEY_RETURN, nullptr, NDONE0),
 };
 
 static const struct MenuTitleItem allocation_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, "Allocation Menu"), MENU_TITLE_ITEM_DEF(42, 74, 120, 93, "Raw"),
-    MENU_TITLE_ITEM_DEF(42, 111, 120, 130, "Usage"),         MENU_TITLE_ITEM_DEF(42, 148, 120, 167, "Reserve"),
-    MENU_TITLE_ITEM_DEF(42, 194, 120, 213, "Fuel"),          MENU_TITLE_ITEM_DEF(42, 231, 120, 250, "Usage"),
-    MENU_TITLE_ITEM_DEF(42, 268, 120, 287, "Reserve"),       MENU_TITLE_ITEM_DEF(42, 315, 120, 333, "Gold"),
-    MENU_TITLE_ITEM_DEF(42, 353, 120, 370, "Usage"),         MENU_TITLE_ITEM_DEF(42, 389, 120, 407, "Reserve"),
+    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, _(c771)),   MENU_TITLE_ITEM_DEF(42, 74, 120, 93, _(8481)),
+    MENU_TITLE_ITEM_DEF(42, 111, 120, 130, _(1e19)), MENU_TITLE_ITEM_DEF(42, 148, 120, 167, _(5ae6)),
+    MENU_TITLE_ITEM_DEF(42, 194, 120, 213, _(a80f)), MENU_TITLE_ITEM_DEF(42, 231, 120, 250, _(5432)),
+    MENU_TITLE_ITEM_DEF(42, 268, 120, 287, _(04dd)), MENU_TITLE_ITEM_DEF(42, 315, 120, 333, _(dff1)),
+    MENU_TITLE_ITEM_DEF(42, 353, 120, 370, _(e187)), MENU_TITLE_ITEM_DEF(42, 389, 120, 407, _(89a3)),
 };
 
 AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWindowCenterMode()), unit(unit) {
     Add();
     FillWindowInfo(&window);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     Cursor_SetCursor(CURSOR_HAND);
 
@@ -203,7 +204,7 @@ void AllocMenu::InitButton(int index) {
 
     control = &allocation_menu_controls[index];
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
 
     if (control->image_id == INVALID_ID) {
         buttons[index] = new (std::nothrow)
@@ -278,28 +279,28 @@ void CargoBarData::Draw() {
 
     LoadHorizontalTape(&address[rect_width - offset_x], width, rect_height, offset_x, tape_id);
 
-    text_font(GNW_TEXT_FONT_1);
+    Text_SetFont(GNW_TEXT_FONT_1);
 
-    str_width = text_width(caption);
+    str_width = Text_GetWidth(caption);
 
     if (str_width > rect_width) {
         str_width = rect_width;
     }
 
     bounds.ulx = (rect_width - str_width) / 2 + rect.ulx - 2;
-    bounds.uly = (rect_height - text_height()) / 2 + rect.uly;
+    bounds.uly = (rect_height - Text_GetHeight()) / 2 + rect.uly;
     bounds.lrx = bounds.ulx + str_width + 4;
-    bounds.lry = bounds.uly + text_height();
+    bounds.lry = bounds.uly + Text_GetHeight();
 
-    Color_RecolorPixels(&window->buffer[bounds.ulx + bounds.uly * width], width, str_width + 4, text_height(),
+    Color_RecolorPixels(&window->buffer[bounds.ulx + bounds.uly * width], width, str_width + 4, Text_GetHeight(),
                         color_index_map);
 
-    offset = ((rect_height - text_height()) / 2) + rect.uly;
+    offset = ((rect_height - Text_GetHeight()) / 2) + rect.uly;
 
     offset *= width;
 
-    text_to_buf(&window->buffer[((rect_width - str_width) / 2) + rect.ulx + offset], caption, rect_width, width,
-                GNW_TEXT_OUTLINE | 0xFF);
+    Text_Blit(&window->buffer[((rect_width - str_width) / 2) + rect.ulx + offset], caption, rect_width, width,
+              GNW_TEXT_OUTLINE | 0xFF);
 
     win_draw_rect(window->id, &rect);
 }
@@ -344,7 +345,7 @@ void CargoBar::Draw() {
 
     data.flag = false;
 
-    sprintf(text, "%i (%+i / turn)", cargo_4, cargo_1 - cargo_4);
+    sprintf(text, _(592f), cargo_4, cargo_1 - cargo_4);
 
     data.Draw();
 

@@ -25,6 +25,7 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"
@@ -254,7 +255,7 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
             color = COLOR_RED;
         }
 
-        text_font(GNW_TEXT_FONT_2);
+        Text_SetFont(GNW_TEXT_FONT_2);
         sprintf(string, "%i/%i", current_value, base_value);
 
         if (icon_normal == SI_FUEL || icon_normal == SI_GOLD) {
@@ -336,13 +337,13 @@ void ReportStats_DrawNumber(unsigned char* buffer, int number, int width, int fu
 void ReportStats_DrawText(unsigned char* buffer, char* text, int width, int full, int color) {
     int length;
 
-    length = text_width(text);
+    length = Text_GetWidth(text);
 
     if (length > width) {
         length = width;
     }
 
-    text_to_buf(&buffer[-length], text, width, full, color);
+    Text_Blit(&buffer[-length], text, width, full, color);
 }
 
 void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
@@ -364,10 +365,10 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         power_consumption_current = cargo.power;
 
         if (power_consumption_base >= 0) {
-            ReportStats_DrawRowEx("Usage", id, bounds, 1, SI_POWER, EI_POWER, -power_consumption_current,
+            ReportStats_DrawRowEx(_(deb1), id, bounds, 1, SI_POWER, EI_POWER, -power_consumption_current,
                                   power_consumption_base, 1, false);
         } else {
-            ReportStats_DrawRowEx("Power", id, bounds, 1, SI_POWER, EI_POWER, power_consumption_current,
+            ReportStats_DrawRowEx(_(76a7), id, bounds, 1, SI_POWER, EI_POWER, power_consumption_current,
                                   -power_consumption_base, 1, false);
         }
 
@@ -396,11 +397,11 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         }
 
         if (Cargo_GetPowerConsumptionRate(unit->unit_type) > 0) {
-            ReportStats_DrawRowEx("Total", id, bounds, 2, SI_POWER, EI_POWER, current_value, base_value, 1, false);
+            ReportStats_DrawRowEx(_(bda3), id, bounds, 2, SI_POWER, EI_POWER, current_value, base_value, 1, false);
         } else {
-            ReportStats_DrawRowEx("Total", id, bounds, 2, SI_POWER, EI_POWER, power_consumption_current,
+            ReportStats_DrawRowEx(_(f047), id, bounds, 2, SI_POWER, EI_POWER, power_consumption_current,
                                   power_consumption_base, 1, false);
-            ReportStats_DrawRowEx("Usage", id, bounds, 3, SI_POWER, EI_POWER, current_value, base_value, 1, false);
+            ReportStats_DrawRowEx(_(b719), id, bounds, 3, SI_POWER, EI_POWER, current_value, base_value, 1, false);
         }
     }
 }
@@ -424,9 +425,9 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         current_life_need = cargo.life;
 
         if (life_need >= 0) {
-            ReportStats_DrawRowEx("Usage", id, bounds, 1, SI_WORK, EI_WORK, -current_life_need, life_need, 1, false);
+            ReportStats_DrawRowEx(_(1439), id, bounds, 1, SI_WORK, EI_WORK, -current_life_need, life_need, 1, false);
         } else {
-            ReportStats_DrawRowEx("Teams", id, bounds, 1, SI_WORK, EI_WORK, current_life_need, -life_need, 1, false);
+            ReportStats_DrawRowEx(_(3b4a), id, bounds, 1, SI_WORK, EI_WORK, current_life_need, -life_need, 1, false);
         }
 
         life_need = 0;
@@ -456,10 +457,10 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         }
 
         if (Cargo_GetLifeConsumptionRate(unit->unit_type) > 0) {
-            ReportStats_DrawRowEx("Total", id, bounds, 2, SI_WORK, EI_WORK, current_value, base_value, 1, false);
+            ReportStats_DrawRowEx(_(7697), id, bounds, 2, SI_WORK, EI_WORK, current_value, base_value, 1, false);
         } else {
-            ReportStats_DrawRowEx("Total", id, bounds, 2, SI_WORK, EI_WORK, current_life_need, life_need, 1, false);
-            ReportStats_DrawRowEx("Usage", id, bounds, 3, SI_WORK, EI_WORK, current_value, base_value, 1, false);
+            ReportStats_DrawRowEx(_(efc4), id, bounds, 2, SI_WORK, EI_WORK, current_life_need, life_need, 1, false);
+            ReportStats_DrawRowEx(_(d94e), id, bounds, 3, SI_WORK, EI_WORK, current_value, base_value, 1, false);
         }
     }
 }
@@ -487,9 +488,9 @@ void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds) {
 
     victory_limit_scaled = (victory_limit + 14) / 15;
 
-    ReportStats_DrawRowEx("points", id, bounds, 1, SI_WORK, EI_WORK, unit->storage, unit->storage, victory_limit_scaled,
+    ReportStats_DrawRowEx(_(c394), id, bounds, 1, SI_WORK, EI_WORK, unit->storage, unit->storage, victory_limit_scaled,
                           false);
-    ReportStats_DrawRowEx("Total", id, bounds, 2, SI_WORK, EI_WORK, UnitsManager_TeamInfo[unit->team].team_points,
+    ReportStats_DrawRowEx(_(a4e4), id, bounds, 2, SI_WORK, EI_WORK, UnitsManager_TeamInfo[unit->team].team_points,
                           victory_limit, victory_limit_scaled, false);
 }
 
@@ -497,11 +498,11 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
     if (unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
         SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
 
-        ReportStats_DrawRowEx("Hits", id, bounds, 0, SI_HITSB, EI_HITSB, unit->hits,
+        ReportStats_DrawRowEx(_(891f), id, bounds, 0, SI_HITSB, EI_HITSB, unit->hits,
                               unit_values->GetAttribute(ATTRIB_HITS), 4, true);
 
         if (unit_values->GetAttribute(ATTRIB_ATTACK)) {
-            ReportStats_DrawRowEx("Ammo", id, bounds, 1, SI_AMMO, EI_AMMO, unit->ammo,
+            ReportStats_DrawRowEx(_(3347), id, bounds, 1, SI_AMMO, EI_AMMO, unit->ammo,
                                   unit->team == GameManager_PlayerTeam ? unit_values->GetAttribute(ATTRIB_AMMO) : 0, 1,
                                   true);
         } else {
@@ -528,14 +529,14 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
                 cargo_value = 0;
             }
 
-            ReportStats_DrawRowEx("Cargo", id, bounds, 1, ReportStats_CargoIcons[cargo_type * 2],
+            ReportStats_DrawRowEx(_(199c), id, bounds, 1, ReportStats_CargoIcons[cargo_type * 2],
                                   ReportStats_CargoIcons[cargo_type * 2 + 1], unit->storage,
                                   unit_values->GetAttribute(ATTRIB_STORAGE), cargo_value, true);
         }
 
-        ReportStats_DrawRowEx("Speed", id, bounds, 2, SI_SPEED, EI_SPEED, unit->speed,
+        ReportStats_DrawRowEx(_(50c9), id, bounds, 2, SI_SPEED, EI_SPEED, unit->speed,
                               unit_values->GetAttribute(ATTRIB_SPEED), 1, true);
-        ReportStats_DrawRowEx("Shots", id, bounds, 3, SI_SHOTS, EI_SHOTS, unit->shots,
+        ReportStats_DrawRowEx(_(27e1), id, bounds, 3, SI_SHOTS, EI_SHOTS, unit->shots,
                               unit_values->GetAttribute(ATTRIB_ROUNDS), 1, false);
 
         if (!unit_values->GetAttribute(ATTRIB_STORAGE)) {
@@ -588,7 +589,7 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
                 cargo_value = base_value / 25;
             }
 
-            ReportStats_DrawRowEx("Total", id, bounds, 2,
+            ReportStats_DrawRowEx(_(4bde), id, bounds, 2,
                                   ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2],
                                   ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2 + 1],
                                   current_value, base_value, cargo_value, false);

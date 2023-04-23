@@ -24,6 +24,7 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
@@ -75,7 +76,7 @@ static bool ReportMenu_ButtonState_CombatUnits = false;
 static bool ReportMenu_ButtonState_DamagedUnits = false;
 static bool ReportMenu_ButtonState_StealthyUnits = false;
 
-static const char *ReportMenu_TeamNames[PLAYER_TEAM_MAX] = {"Red Team", "Green Team", "Blue Team", "Gray Team", ""};
+static const char *ReportMenu_TeamNames[PLAYER_TEAM_MAX] = {_(a18e), _(f3cd), _(2b0e), _(7e3b), ""};
 
 static const ColorIndex ReportMenu_TeamColors[PLAYER_TEAM_MAX] = {COLOR_RED, COLOR_GREEN, COLOR_BLUE, 0xA9, 0xFF};
 
@@ -204,11 +205,11 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     report_screen_image = new (std::nothrow) Image(20, 17, 459, 448);
     report_screen_image->Copy(&window);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     row_counts[0] = report_screen_image->GetHeight() / 50;
     row_counts[1] = (report_screen_image->GetHeight() - 20) / 40;
-    row_counts[2] = (report_screen_image->GetHeight() - 12) / text_height();
+    row_counts[2] = (report_screen_image->GetHeight() - 12) / Text_GetHeight();
 
     row_indices[0] = 0;
     row_indices[1] = 0;
@@ -217,7 +218,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_units = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 509, 71);
     button_units->SetFlags(0x01);
     button_units->Copy(window.id);
-    button_units->SetCaption("Units", &bounds);
+    button_units->SetCaption(_(9fb6), &bounds);
     button_units->SetPFunc(&ReportMenu_OnClick_Units, reinterpret_cast<intptr_t>(this));
     button_units->SetSfx(MBUTT0);
     button_units->RegisterButton(window.id);
@@ -225,7 +226,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_casulties = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 509, 100);
     button_casulties->SetFlags(0x01);
     button_casulties->Copy(window.id);
-    button_casulties->SetCaption("Casualties", &bounds);
+    button_casulties->SetCaption(_(8787), &bounds);
     button_casulties->SetPFunc(&ReportMenu_OnClick_Casualties, reinterpret_cast<intptr_t>(this));
     button_casulties->SetSfx(MBUTT0);
     button_casulties->RegisterButton(window.id);
@@ -233,7 +234,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_score = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 509, 129);
     button_score->SetFlags(0x01);
     button_score->Copy(window.id);
-    button_score->SetCaption("Score", &bounds);
+    button_score->SetCaption(_(38e5), &bounds);
     button_score->SetPFunc(&ReportMenu_OnClick_Score, reinterpret_cast<intptr_t>(this));
     button_score->SetSfx(MBUTT0);
     button_score->RegisterButton(window.id);
@@ -241,7 +242,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_messages = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 509, 158);
     button_messages->SetFlags(0x01);
     button_messages->Copy(window.id);
-    button_messages->SetCaption("Messages", &bounds);
+    button_messages->SetCaption(_(04d7), &bounds);
     button_messages->SetPFunc(&ReportMenu_OnClick_Messages, reinterpret_cast<intptr_t>(this));
     button_messages->SetSfx(MBUTT0);
     button_messages->RegisterButton(window.id);
@@ -253,7 +254,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
 
     win_group_radio_buttons(4, button_list);
 
-    Text_TextLine(&window, "Include:", 497, 206, 140);
+    Text_TextLine(&window, _(bbb4), 497, 206, 140);
 
     button_air_units = new (std::nothrow) Button(UNCHKED, CHECKED, 496, 218);
     button_air_units->SetFlags(0x01);
@@ -263,7 +264,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_air_units->SetSfx(MBUTT0);
     button_air_units->RegisterButton(window.id);
 
-    Text_TextLine(&window, "Air Units", 517, 220, 120);
+    Text_TextLine(&window, _(2ecc), 517, 220, 120);
 
     button_land_units = new (std::nothrow) Button(UNCHKED, CHECKED, 496, 236);
     button_land_units->SetFlags(0x01);
@@ -273,7 +274,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_land_units->SetSfx(MBUTT0);
     button_land_units->RegisterButton(window.id);
 
-    Text_TextLine(&window, "Land Units", 517, 238, 120);
+    Text_TextLine(&window, _(4a3b), 517, 238, 120);
 
     button_sea_units = new (std::nothrow) Button(UNCHKED, CHECKED, 496, 254);
     button_sea_units->SetFlags(0x01);
@@ -283,7 +284,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_sea_units->SetSfx(MBUTT0);
     button_sea_units->RegisterButton(window.id);
 
-    Text_TextLine(&window, "Sea Units", 517, 256, 120);
+    Text_TextLine(&window, _(1c43), 517, 256, 120);
 
     button_stationary_units = new (std::nothrow) Button(UNCHKED, CHECKED, 496, 272);
     button_stationary_units->SetFlags(0x01);
@@ -293,9 +294,9 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_stationary_units->SetSfx(MBUTT0);
     button_stationary_units->RegisterButton(window.id);
 
-    Text_TextLine(&window, "Stationary Units", 517, 274, 120);
+    Text_TextLine(&window, _(4393), 517, 274, 120);
 
-    Text_TextLine(&window, "Limit To:", 497, 298, 140);
+    Text_TextLine(&window, _(28d5), 497, 298, 140);
 
     button_production_units = new (std::nothrow) Button(UNCHKED, CHECKED, 496, 312);
     button_production_units->SetFlags(0x01);
@@ -305,7 +306,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_production_units->SetSfx(MBUTT0);
     button_production_units->RegisterButton(window.id);
 
-    Text_TextLine(&window, "Production Units", 517, 314, 120);
+    Text_TextLine(&window, _(929b), 517, 314, 120);
 
     button_combat_units = new (std::nothrow) Button(UNCHKED, CHECKED, 496, 330);
     button_combat_units->SetFlags(0x01);
@@ -315,7 +316,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_combat_units->SetSfx(MBUTT0);
     button_combat_units->RegisterButton(window.id);
 
-    Text_TextLine(&window, "Combat Units", 517, 332, 120);
+    Text_TextLine(&window, _(1f97), 517, 332, 120);
 
     button_damaged_units = new (std::nothrow) Button(UNCHKED, CHECKED, 496, 348);
     button_damaged_units->SetFlags(0x01);
@@ -325,7 +326,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_damaged_units->SetSfx(MBUTT0);
     button_damaged_units->RegisterButton(window.id);
 
-    Text_TextLine(&window, "Damaged Units", 517, 350, 120);
+    Text_TextLine(&window, _(045b), 517, 350, 120);
 
     button_stealthy_units = new (std::nothrow) Button(UNCHKED, CHECKED, 496, 366);
     button_stealthy_units->SetFlags(0x01);
@@ -335,7 +336,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
     button_stealthy_units->SetSfx(MBUTT0);
     button_stealthy_units->RegisterButton(window.id);
 
-    Text_TextLine(&window, "Stealthy Units", 517, 368, 120);
+    Text_TextLine(&window, _(e5ae), 517, 368, 120);
 
     button_up = new (std::nothrow) Button(DPTUP_UP, DPTUP_DN, 487, 426);
     button_up->CopyUpDisabled(DPTUP_X);
@@ -353,7 +354,7 @@ ReportMenu::ReportMenu() : Window(REP_FRME, GameManager_GetDialogWindowCenterMod
 
     button_done = new (std::nothrow) Button(DPTMNUUP, DPTMNUDN, 509, 398);
     button_done->Copy(window.id);
-    button_done->SetCaption("Done", &bounds);
+    button_done->SetCaption(_(64cf), &bounds);
     button_done->SetRValue(GNW_KB_KEY_ESCAPE);
     button_done->SetSfx(MBUTT0);
     button_done->RegisterButton(window.id);
@@ -626,11 +627,11 @@ void ReportMenu::InitMessages() {
     bool skip_new_paragraph;
 
     skip_new_paragraph = true;
-    row_limit = (text_height() + 31) / text_height();
+    row_limit = (Text_GetHeight() + 31) / Text_GetHeight();
 
     message_lines.Release();
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin();
          it != MessageManager_TeamMessageLog[GameManager_PlayerTeam].End(); ++it) {
@@ -693,7 +694,7 @@ void ReportMenu::DrawUnits() {
 
         units[i].GetDisplayName(text);
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         Text_TextBox(window.buffer, window.width, text, window_ulx + 35, window_uly, 80, 50, 0xA2, false);
 
@@ -704,7 +705,7 @@ void ReportMenu::DrawUnits() {
 
         ReportStats_Draw(&units[i], window.id, &bounds);
 
-        text_font(GNW_TEXT_FONT_5);
+        Text_SetFont(GNW_TEXT_FONT_5);
 
         Text_TextBox(window.buffer, window.width,
                      SmartString().Sprintf(10, "%i,%i", units[i].grid_x, units[i].grid_y).GetCStr(), window_ulx + 265,
@@ -742,7 +743,7 @@ void ReportMenu::DrawCasualties() {
 
     FillWindowInfo(&window);
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     window_ulx += 145;
 
@@ -751,7 +752,7 @@ void ReportMenu::DrawCasualties() {
     for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             Text_TextBox(window.buffer, window.width, ReportMenu_TeamNames[team], window_ulx,
-                         report_screen_image->GetULY(), width, text_height() + 1, ReportMenu_TeamColors[team], true);
+                         report_screen_image->GetULY(), width, Text_GetHeight() + 1, ReportMenu_TeamColors[team], true);
             window_ulx += width;
         }
     }
@@ -809,7 +810,7 @@ void ReportMenu::DrawScores() {
     x2 = report_screen_image->GetULX() + report_screen_image->GetWidth();
     y2 = report_screen_image->GetULY() + report_screen_image->GetHeight() - 22;
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     window_ulx = report_screen_image->GetULX();
     window_uly = report_screen_image->GetULY();
@@ -833,17 +834,17 @@ void ReportMenu::DrawScores() {
             }
 
             if (ecosphere_counts[team] == 1) {
-                unit_name = "Eco-sphere";
+                unit_name = _(0334);
 
             } else {
-                unit_name = "Eco-spheres";
+                unit_name = _(3baf);
             }
 
-            string.Sprintf(70, "%s: %i points, %i %s", ReportMenu_TeamNames[team],
-                           UnitsManager_TeamInfo[team].team_points, ecosphere_counts[team], unit_name);
+            string.Sprintf(70, _(13b0), ReportMenu_TeamNames[team], UnitsManager_TeamInfo[team].team_points,
+                           ecosphere_counts[team], unit_name);
 
-            text_to_buf(&window.buffer[window_ulx + window.width * window_uly], string.GetCStr(),
-                        report_screen_image->GetWidth(), window.width, ReportMenu_TeamColors[team]);
+            Text_Blit(&window.buffer[window_ulx + window.width * window_uly], string.GetCStr(),
+                      report_screen_image->GetWidth(), window.width, ReportMenu_TeamColors[team]);
 
             window_uly += 12;
         }
@@ -985,7 +986,7 @@ void ReportMenu::DrawMessages() {
     MessageLogEntry *message2;
     ColorIndex color;
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     window_ulx = report_screen_image->GetULX() + 5;
     window_uly = report_screen_image->GetULY() + 6;
@@ -1011,8 +1012,8 @@ void ReportMenu::DrawMessages() {
             color = 0xA2;
         }
 
-        text_to_buf(&window.buffer[window_ulx + window_uly * window.width + 85], message_lines[i].GetCStr(),
-                    report_screen_image->GetWidth() - 95, window.width, color);
+        Text_Blit(&window.buffer[window_ulx + window_uly * window.width + 85], message_lines[i].GetCStr(),
+                  report_screen_image->GetWidth() - 95, window.width, color);
 
         if (message2 && message2 != message1 &&
             (report_screen_image->GetULY() + report_screen_image->GetHeight() - window_uly) >= 38) {
@@ -1040,7 +1041,7 @@ void ReportMenu::DrawMessages() {
 
         message1 = message2;
 
-        window_uly += text_height();
+        window_uly += Text_GetHeight();
     }
 
     if (selected_message != nullptr) {
@@ -1060,9 +1061,9 @@ void ReportMenu::DrawMessages() {
         image_lry = report_screen_image->GetULY() + report_screen_image->GetHeight();
 
         x1 = report_screen_image->GetULX();
-        y1 = text_height() * start_index + image_uly + 3;
+        y1 = Text_GetHeight() * start_index + image_uly + 3;
         x2 = report_screen_image->GetWidth() + x1 - 1;
-        y2 = text_height() * end_index + image_uly + 8;
+        y2 = Text_GetHeight() * end_index + image_uly + 8;
 
         if (image_uly <= y1 && image_lry > y1) {
             draw_line(window.buffer, window.width, x1, y1, x2, y1, 0xA2);
@@ -1100,14 +1101,14 @@ int ReportMenu::GetWorkingEcoSphereCount(unsigned short team) {
 void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int ulx, int uly, int width, int height) {
     SmartString string;
 
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
     width -= 40;
 
     if (unit->orders == ORDER_BUILD || unit->orders == ORDER_CLEAR || unit->orders == ORDER_HALT_BUILDING ||
         unit->orders == ORDER_HALT_BUILDING_2) {
         if (unit->unit_type == BULLDOZR) {
-            string.Sprintf(80, "Number of turns to clear site: %i.", unit->build_time);
+            string.Sprintf(80, _(138d), unit->build_time);
 
         } else if (unit->state == ORDER_STATE_UNIT_READY) {
             string = GameManager_GetUnitStatusMessage(unit);
@@ -1118,16 +1119,14 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
             SDL_assert(build_list.GetCount() > 0);
 
             if (unit->orders == ORDER_HALT_BUILDING || unit->orders == ORDER_HALT_BUILDING_2) {
-                string.Sprintf(200, "Was building %s, with %i turns to completion.",
-                               UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
+                string.Sprintf(200, _(abea), UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
 
             } else {
                 int turns_to_build;
 
                 unit->GetTurnsToBuild(*build_list[0], unit->GetBuildRate(), &turns_to_build);
 
-                string.Sprintf(200, "Currently building: %s.\nTurns to completion: %i.",
-                               UnitsManager_BaseUnits[*build_list[0]].singular_name, turns_to_build);
+                string.Sprintf(200, _(4262), UnitsManager_BaseUnits[*build_list[0]].singular_name, turns_to_build);
 
                 ReportStats_DrawListItemIcon(window->buffer, window->width, *build_list[0], GameManager_PlayerTeam,
                                              ulx + width + 20, (height / 2) + uly);
@@ -1278,9 +1277,9 @@ void ReportMenu::SelectMessage(MessageLogEntry *message) {
 }
 
 void ReportMenu::SelectMessage(Point point) {
-    text_font(GNW_TEXT_FONT_5);
+    Text_SetFont(GNW_TEXT_FONT_5);
 
-    int index = ((point.y - report_screen_image->GetULY() - 6) / text_height()) + row_indices[2];
+    int index = ((point.y - report_screen_image->GetULY() - 6) / Text_GetHeight()) + row_indices[2];
 
     if (message_lines.GetCount() > index) {
         if (message_lines[index].GetMessage()) {

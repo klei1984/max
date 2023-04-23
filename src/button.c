@@ -80,8 +80,8 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
     w = GNW_find(id);
 
     if (GNW_win_init_flag && w) {
-        width = text_width(name) + 16;
-        length = text_height() + 6;
+        width = Text_GetWidth(name) + 16;
+        length = Text_GetHeight() + 6;
 
         up = (unsigned char*)malloc(length * width);
 
@@ -99,7 +99,7 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
 
                 lighten_buf(up, width, length, width);
 
-                text_to_buf(&up[3 * width + 8], name, width, width, colorTable[GNW_wcolor[3]] | GNW_TEXT_OUTLINE);
+                Text_Blit(&up[3 * width + 8], name, width, width, colorTable[GNW_wcolor[3]] | GNW_TEXT_OUTLINE);
 
                 draw_shaded_box(up, width, 2, 2, width - 3, length - 3, colorTable[GNW_wcolor[1]],
                                 colorTable[GNW_wcolor[2]]);
@@ -109,7 +109,7 @@ ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int 
 
                 draw_box(up, width, 0, 0, width - 1, length - 1, colorTable[0]);
 
-                text_to_buf(&down[4 * width + 9], name, width, width, colorTable[GNW_wcolor[3]] | GNW_TEXT_OUTLINE);
+                Text_Blit(&down[4 * width + 9], name, width, width, colorTable[GNW_wcolor[3]] | GNW_TEXT_OUTLINE);
 
                 draw_shaded_box(down, width, 2, 2, width - 3, length - 3, colorTable[GNW_wcolor[2]],
                                 colorTable[GNW_wcolor[1]]);
@@ -252,7 +252,7 @@ int win_register_right_button(ButtonID bid, int p_value, int r_value, ButtonFunc
             if (p_value != -1 || r_value != -1 || p_func || r_func) {
                 b->flags |= 0x080000;
             } else {
-                b->flags &= 0xFFF7FFFF;
+                b->flags &= ~0x080000;
             }
 
             result = 0;

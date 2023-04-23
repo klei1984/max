@@ -24,6 +24,7 @@
 #include "access.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
+#include "localization.hpp"
 #include "researchmenu.hpp"
 #include "survey.hpp"
 #include "text.hpp"
@@ -43,7 +44,7 @@ static int DrawMap_BuildMMarkDelayCounter = 1;
 static int DrawMap_BuildMarkImageIndex;
 static ResourceID DrawMap_BuildMarkImages[] = {BLDMRK1, BLDMRK2, BLDMRK3, BLDMRK4, BLDMRK5};
 
-static const char* const DrawMap_UnitCompletionLabels[] = {"New %s available", "New %s available", "New %s available"};
+static const char* const DrawMap_UnitCompletionLabels[] = {_(d7d0), _(2ec0), _(7c23)};
 
 static int DrawMap_GetSideOverlap(int lr1, int ul1, int lr2, int ul2);
 static void Drawmap_AddDirtyZone(Rect* bounds1, Rect* bounds2, int horizontal_side, int vertical_side);
@@ -439,7 +440,7 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, in
 
         if (image->width <= width - ulx && image->height <= height - uly) {
             WindowManager_DecodeSimpleImage(image, (width + ulx - image->width) / 2, (height + uly - image->height) / 2,
-                                       true, window);
+                                            true, window);
         }
 
     } else if (unit->speed || unit->shots) {
@@ -482,13 +483,15 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, in
             }
 
             if (unit->speed) {
-                WindowManager_DecodeSimpleImage(image_speed, width + ulx, height - image_speed->height - 1, true, window);
+                WindowManager_DecodeSimpleImage(image_speed, width + ulx, height - image_speed->height - 1, true,
+                                                window);
 
                 width = width * 2 + image_speed->width;
             }
 
             if (unit->shots) {
-                WindowManager_DecodeSimpleImage(image_shots, width + ulx, height - image_shots->height - 1, true, window);
+                WindowManager_DecodeSimpleImage(image_shots, width + ulx, height - image_shots->height - 1, true,
+                                                window);
             }
         }
     }
@@ -713,13 +716,13 @@ void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int color) {
             Gfx_MapScalingFactor;
 
         if (zoom_level >= 42) {
-            text_font(GNW_TEXT_FONT_1);
+            Text_SetFont(GNW_TEXT_FONT_1);
 
         } else if (zoom_level >= 24) {
-            text_font(GNW_TEXT_FONT_5);
+            Text_SetFont(GNW_TEXT_FONT_5);
 
         } else {
-            text_font(GNW_TEXT_FONT_2);
+            Text_SetFont(GNW_TEXT_FONT_2);
         }
 
         Text_AutofitTextBox(window->buffer, window->width, text, &text_area, &draw_area, color, true);
@@ -731,7 +734,7 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
 
     if (unit->unit_type == RESEARCH && unit->orders == ORDER_POWER_ON &&
         UnitsManager_TeamInfo[unit->team].research_topics[unit->research_topic].turns_to_complete == 0) {
-        sprintf(text, "%s research completed", ResearchMenu_TopicLabels[unit->research_topic]);
+        sprintf(text, _(e3a4), ResearchMenu_TopicLabels[unit->research_topic]);
         DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | 0x1F);
 
     } else if (unit->state == ORDER_STATE_UNIT_READY) {

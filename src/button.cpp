@@ -430,7 +430,7 @@ void Button::SetCaption(const char *caption, Rect *r, FontColor color_up, FontCo
 
     window.buffer = up->GetData();
     window.width = up->GetWidth();
-    uly_caption = ((height - text_height()) / 2) + r->uly;
+    uly_caption = ((height - Text_GetHeight()) / 2) + r->uly;
     Text_TextLine(&window, caption, r->ulx, uly_caption, width, true, color_up);
 
     window.buffer = down->GetData();
