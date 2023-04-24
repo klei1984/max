@@ -110,15 +110,17 @@ void TaskKillUnit::FindVaildTypes() {
         }
 
         for (int i = 0; i < weight_table.GetCount(); ++i) {
-            if (weight_table[i].unit_type != COMMANDO) {
-                if (unit_flags & UnitsManager_BaseUnits[weight_table[i].unit_type].flags) {
-                    if (weight_table[i].unit_type == SCOUT && !(unit_flags & MOBILE_LAND_UNIT) &&
-                        AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
+            if (weight_table[i].weight > 0) {
+                if (weight_table[i].unit_type != COMMANDO) {
+                    if (unit_flags & UnitsManager_BaseUnits[weight_table[i].unit_type].flags) {
+                        if (weight_table[i].unit_type == SCOUT && !(unit_flags & MOBILE_LAND_UNIT) &&
+                            AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
+                            weight_table[i].weight = 0;
+                        }
+
+                    } else {
                         weight_table[i].weight = 0;
                     }
-
-                } else {
-                    weight_table[i].weight = 0;
                 }
             }
         }
