@@ -587,6 +587,7 @@ static bool GameManager_IsSurveyorSelected;
 
 static unsigned int GameManager_ScrollTimeStamp;
 static float GameManager_ScrollRateLimit = 1.0f;
+static float GameManager_ScrollRate;
 
 static bool GameManager_PlayerMissionSetup(unsigned short team);
 static void GameManager_DrawSelectSiteMessage(unsigned short team);
@@ -1805,9 +1806,13 @@ void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
     GameManager_UpdateScrollRateLimit();
 
     if (mode == 2) {
-        const float step_level = GameManager_GridStepLevel * GameManager_GetScrollRateLimit();
+        GameManager_ScrollRate += GameManager_GridStepLevel * GameManager_GetScrollRateLimit();
+        const int step_level = GameManager_ScrollRate;
+
         int grid_ulx = GameManager_GridPosition.ulx;
         int grid_uly = GameManager_GridPosition.uly;
+
+        GameManager_ScrollRate -= step_level;
 
         ulx = ulx * step_level + GameManager_MapWindowDrawBounds.ulx;
 
