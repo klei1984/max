@@ -120,8 +120,9 @@ void TaskFrontalAttack::IssueOrders() {
                     UnitValues* unit_values = (*it).GetBaseValues();
 
                     if (units1.GetCount() == 1 ||
-                        UnitsManager_TeamInfo[team]
-                                .heat_map_complete[target->grid_y * ResourceManager_MapSize.x + target->grid_x] != 1 ||
+                        (UnitsManager_TeamInfo[team].heat_map_complete &&
+                         UnitsManager_TeamInfo[team].heat_map_complete[target->grid_y * ResourceManager_MapSize.x +
+                                                                       target->grid_x] != 1) ||
                         Access_GetDistance(&*it, target) >
                             unit_values->GetAttribute(ATTRIB_SCAN) * unit_values->GetAttribute(ATTRIB_SCAN)) {
                         unit_value = ((unit_values->GetAttribute(ATTRIB_ARMOR) * 4 + (*it).hits) * 12) /
