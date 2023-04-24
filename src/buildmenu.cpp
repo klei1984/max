@@ -842,7 +842,7 @@ MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, u
     if (unit->unit_type == ENGINEER) {
         button_path_build = new (std::nothrow) Button(BLDPTH_U, BLDPTH_D, 347, 427);
 
-        button_path_build->SetCaption(_(a0af));
+        button_path_build->SetCaption(_(62fa));
     }
 
     window_info = window;

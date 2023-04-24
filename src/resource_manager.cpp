@@ -336,7 +336,7 @@ bool ResourceManager_DisableEnhancedGraphics;
 
 const char *const ResourceManager_ErrorCodes[] = {"",      _(1347), _(c164), _(c116), _(9edb), _(6bc6),
                                                   _(5ced), _(3b69), _(c499), _(4afd), _(bc1c), _(908e),
-                                                  _(b2b3), _(00a7), _(371d), _(3004), _(07f8)};
+                                                  _(b2b3), _(00a7), _(eb11), _(3004), _(07f8)};
 
 TeamUnits ResourceManager_TeamUnitsRed;
 TeamUnits ResourceManager_TeamUnitsGreen;
