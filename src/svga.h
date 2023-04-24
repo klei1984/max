@@ -46,6 +46,7 @@ int Svga_WarpMouse(int window_x, int window_y);
 void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char b);
 int Svga_GetScreenWidth(void);
 int Svga_GetScreenHeight(void);
+int Svga_GetScreenRefreshRate(void);
 
 #ifdef __cplusplus
 }

@@ -314,3 +314,5 @@ void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char
 int Svga_GetScreenWidth(void) { return Svga_ScreenWidth; }
 
 int Svga_GetScreenHeight(void) { return Svga_ScreenHeight; }
+
+int Svga_GetScreenRefreshRate(void) { return Svga_DisplayRefreshRate; }

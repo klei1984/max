@@ -502,10 +502,10 @@ unsigned char GameManager_PlayMode;
 bool GameManager_FastMovement;
 unsigned short GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];
 
-Point GameManager_GridOffset;
-int GameManager_QuickScroll;
-int GameManager_GridStepLevel;
-int GameManager_GridStepOffset;
+static Point GameManager_GridOffset;
+static int GameManager_QuickScroll;
+static float GameManager_GridStepLevel;
+static int GameManager_GridStepOffset;
 
 MenuLandingSequence GameManager_LandingSequence;
 
@@ -584,6 +584,9 @@ static unsigned char GameManager_ColorCycleStep;
 static bool GameManager_UpdateFlag;
 static unsigned char GameManager_MarkerColorUpdatePeriod = 5;
 static bool GameManager_IsSurveyorSelected;
+
+static unsigned int GameManager_ScrollTimeStamp;
+static float GameManager_ScrollRateLimit = 1.0f;
 
 static bool GameManager_PlayerMissionSetup(unsigned short team);
 static void GameManager_DrawSelectSiteMessage(unsigned short team);
@@ -713,6 +716,8 @@ static void GameManager_ManageEconomy(unsigned short team);
 static Point GameManager_GetStartPositionMiningStation(unsigned short team);
 static Point GameManager_GetStartingPositionPowerGenerator(Point point, unsigned short team);
 static int GameManager_DetermineZoomLimit();
+static float GameManager_GetScrollRateLimit();
+static float GameManager_UpdateScrollRateLimit();
 
 void GameManager_GameLoop(int game_state) {
     unsigned int turn_counter;
@@ -1778,16 +1783,37 @@ int GameManager_DetermineZoomLimit() {
     return limit;
 }
 
+float GameManager_GetScrollRateLimit() { return GameManager_ScrollRateLimit; }
+
+float GameManager_UpdateScrollRateLimit() {
+    const unsigned int elapsed_time = timer_elapsed_time(GameManager_ScrollTimeStamp);
+    const unsigned int time_limit = TIMER_FPS_TO_MS(Svga_GetScreenRefreshRate());
+
+    GameManager_ScrollTimeStamp = timer_get();
+
+    if (elapsed_time > time_limit * 1.5f) {
+        GameManager_ScrollRateLimit = 1.5f;
+
+    } else {
+        GameManager_ScrollRateLimit = static_cast<float>(elapsed_time) / time_limit;
+    }
+
+    return GameManager_ScrollRateLimit;
+}
+
 void GameManager_UpdateMainMapView(int mode, int ulx, int uly, bool flag) {
+    GameManager_UpdateScrollRateLimit();
+
     if (mode == 2) {
+        const float step_level = GameManager_GridStepLevel * GameManager_GetScrollRateLimit();
         int grid_ulx = GameManager_GridPosition.ulx;
         int grid_uly = GameManager_GridPosition.uly;
 
-        ulx = ulx * GameManager_GridStepLevel + GameManager_MapWindowDrawBounds.ulx;
+        ulx = ulx * step_level + GameManager_MapWindowDrawBounds.ulx;
 
-        uly = uly * GameManager_GridStepLevel + GameManager_MapWindowDrawBounds.uly;
+        uly = uly * step_level + GameManager_MapWindowDrawBounds.uly;
 
-        GameManager_GridStepOffset += GameManager_GridStepLevel;
+        GameManager_GridStepOffset += step_level;
 
         if (GameManager_UpdateMapDrawBounds(ulx, uly)) {
             GameManager_GridCenter.x += GameManager_GridPosition.ulx - grid_ulx;
