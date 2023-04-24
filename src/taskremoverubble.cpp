@@ -91,7 +91,7 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
 
     if (unit_.IsReadyForOrders(this)) {
         if (target) {
-            target = Access_GetUnit8(unit_.team, target->grid_x, target->grid_y);
+            target = Access_GetRemovableRubble(unit_.team, target->grid_x, target->grid_y);
         }
 
         if (target &&

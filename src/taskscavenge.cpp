@@ -108,7 +108,7 @@ bool TaskScavenge::Execute(UnitInfo& unit) {
 
                 if ((!target || distance < minimum_distance) &&
                     !Ai_IsDangerousLocation(&unit, position, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1) &&
-                    Access_GetUnit8(team, (*it).grid_x, (*it).grid_y)) {
+                    Access_GetRemovableRubble(team, (*it).grid_x, (*it).grid_y)) {
                     target = &*it;
                     minimum_distance = distance;
                 }

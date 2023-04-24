@@ -895,10 +895,8 @@ bool Access_IsFullyLandCovered(int grid_x, int grid_y, unsigned int flags) {
     return result;
 }
 
-UnitInfo* Access_GetUnit8(unsigned short team, int grid_x, int grid_y) {
-    UnitInfo* unit;
-
-    unit = nullptr;
+UnitInfo* Access_GetRemovableRubble(unsigned short team, int grid_x, int grid_y) {
+    UnitInfo* unit = nullptr;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
@@ -911,7 +909,7 @@ UnitInfo* Access_GetUnit8(unsigned short team, int grid_x, int grid_y) {
                 for (int y = (*it).grid_y; y <= (*it).grid_y + 1; ++y) {
                     for (int x = (*it).grid_x; x <= (*it).grid_x + 1; ++x) {
                         if (x != grid_x || y != grid_y) {
-                            if (!Access_IsAccessible(BULLDOZR, team, grid_x, grid_y, 2)) {
+                            if (!Access_IsAccessible(BULLDOZR, team, x, y, 2)) {
                                 return nullptr;
                             }
                         }

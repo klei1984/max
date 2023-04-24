@@ -60,7 +60,7 @@ unsigned char Access_GetSurfaceType(int grid_x, int grid_y);
 unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y);
 bool Access_IsAnyLandPresent(int grid_x, int grid_y, unsigned int flags);
 bool Access_IsFullyLandCovered(int grid_x, int grid_y, unsigned int flags);
-UnitInfo *Access_GetUnit8(unsigned short team, int grid_x, int grid_y);
+UnitInfo *Access_GetRemovableRubble(unsigned short team, int grid_x, int grid_y);
 int Access_FindUnitInUnitList(UnitInfo *unit);
 bool Access_IsTeamInUnitList(unsigned short team, SmartList<UnitInfo> &units);
 bool Access_IsTeamInUnitLists(unsigned short team);

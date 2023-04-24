@@ -2953,7 +2953,7 @@ void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
         GameManager_EnableMainMenu(unit);
 
     } else {
-        rubble = Access_GetUnit8(unit->team, unit->grid_x, unit->grid_y);
+        rubble = Access_GetRemovableRubble(unit->team, unit->grid_x, unit->grid_y);
 
         if (rubble != nullptr) {
             int clearing_time;
