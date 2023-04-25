@@ -7284,7 +7284,17 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
                     power_need -= cargo.power;
                 }
 
+                const bool upgrade_all = (*it).orders == ORDER_UPGRADE && (*it).state == ORDER_STATE_1;
+
+                if (upgrade_all) {
+                    std::swap((*it).orders, (*it).prior_orders);
+                }
+
                 Cargo_GetCargoDemand(&(*it), &cargo);
+
+                if (upgrade_all) {
+                    std::swap((*it).orders, (*it).prior_orders);
+                }
 
                 if (cargo.power >= 0) {
                     current_power_need += cargo.power;
@@ -7345,7 +7355,17 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
                     life_need -= cargo.life;
                 }
 
+                const bool upgrade_all = (*it).orders == ORDER_UPGRADE && (*it).state == ORDER_STATE_1;
+
+                if (upgrade_all) {
+                    std::swap((*it).orders, (*it).prior_orders);
+                }
+
                 Cargo_GetCargoDemand(&(*it), &cargo);
+
+                if (upgrade_all) {
+                    std::swap((*it).orders, (*it).prior_orders);
+                }
 
                 if (cargo.life >= 0) {
                     current_life_need += cargo.life;
