@@ -411,7 +411,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
 
             if (unit->unit_type == DOCK) {
                 WindowManager_LoadBigImage(E_DOCK, &window, window.width, false, false, slot_window_ulx,
-                                           slot_window_uly, true);
+                                           slot_window_uly);
             }
 
             repair_slots[index] = new (std::nothrow)

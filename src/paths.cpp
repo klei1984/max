@@ -416,8 +416,8 @@ void AirPath::Draw(UnitInfo* unit, WindowInfo* window) {
     grid_x = unit->grid_x;
     grid_y = unit->grid_y;
 
-    grid_x = (grid_x << 16) + 32;
-    grid_y = (grid_y << 16) + 32;
+    grid_x = (grid_x << 6) + 32;
+    grid_y = (grid_y << 6) + 32;
 
     step_x = x_step;
     step_y = y_step;
@@ -430,7 +430,7 @@ void AirPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
     base_speed = unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED);
 
-    for (int i = 0; i < steps; ++i) {
+    for (int i = 0; i <= steps; ++i) {
         if (grid_x < GameManager_MapWindowDrawBounds.lrx && grid_x > GameManager_MapWindowDrawBounds.ulx &&
             grid_y < GameManager_MapWindowDrawBounds.lry && grid_y > GameManager_MapWindowDrawBounds.uly) {
             scaled_grid_x = (grid_x << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
@@ -1490,9 +1490,7 @@ void Paths_FinishMove(UnitInfo* unit) {
         } else {
             unit->state = ORDER_STATE_1;
 
-            Paths_GetAirPath(unit);
-
-            unit->path = nullptr;
+            unit->path = Paths_GetAirPath(unit);
 
             unit->MoveFinished();
         }

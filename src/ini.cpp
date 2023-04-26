@@ -352,7 +352,7 @@ int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buf
 }
 
 int inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const unsigned int buffer_size,
-                           const int mode) {
+                           const int mode, bool skip_leading_white_space) {
     char *address;
     char *end_address;
     unsigned int offset;
@@ -372,9 +372,11 @@ int inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const
     end_address = &pini->buffer[pini->file_size];
     offset = 0;
 
-    /* seek through leading space */
-    while (*address == ' ') {
-        address++;
+    if (skip_leading_white_space) {
+        /* seek through leading space */
+        while (*address == ' ') {
+            address++;
+        }
     }
 
     while (*address != '\r' && (buffer_size - 1) > offset) {

@@ -86,7 +86,7 @@ int Localization::Load() {
 
         } else if (entry.type & INI_STRING) {
             if (inifile_ini_seek_section(&ini, section_entry->name) && inifile_ini_seek_param(&ini, entry.name)) {
-                if (inifile_ini_get_string(&ini, buffer.get(), LOCALIZATION_BUFFER_SIZE, 1)) {
+                if (inifile_ini_get_string(&ini, buffer.get(), LOCALIZATION_BUFFER_SIZE, 1, false)) {
                     auto write_address = buffer.get();
                     for (auto read_address = write_address; *read_address; ++read_address, ++write_address) {
                         if (read_address[0] == '\\' and read_address[1] == 'n') {

@@ -40,7 +40,7 @@ struct CTInfo {
     Point markers[10];
     char team_type;
     bool finished_turn;
-    char unit_counters[UNIT_END];
+    unsigned char unit_counters[UNIT_END];
     char team_clan;
     ResearchTopic research_topics[RESEARCH_TOPIC_COUNT];
     unsigned int team_points;
