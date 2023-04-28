@@ -269,25 +269,25 @@ unsigned char* UnitStats_DrawMilitary(unsigned char* buffer, int screen_width, U
         UnitStats_DrawText(buffer, screen_width, _(5e40), image_width, unit_values2->GetAttribute(ATTRIB_ROUNDS), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_SHOTS, I_SHOTS,
                             unit_values1->GetAttribute(ATTRIB_ROUNDS), unit_values2->GetAttribute(ATTRIB_ROUNDS));
-    }
 
-    buffer = &buffer[screen_width * 19];
+        buffer = &buffer[screen_width * 19];
+    }
 
     if (unit_values1->GetAttribute(ATTRIB_RANGE)) {
         UnitStats_DrawText(buffer, screen_width, _(2540), image_width, unit_values2->GetAttribute(ATTRIB_RANGE), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_RANGE, I_RANGE,
                             unit_values1->GetAttribute(ATTRIB_RANGE), unit_values2->GetAttribute(ATTRIB_RANGE));
-    }
 
-    buffer = &buffer[screen_width * 19];
+        buffer = &buffer[screen_width * 19];
+    }
 
     if (unit_values1->GetAttribute(ATTRIB_AMMO)) {
         UnitStats_DrawText(buffer, screen_width, _(d510), image_width, unit_values2->GetAttribute(ATTRIB_AMMO), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_AMMO, I_AMMO,
                             unit_values1->GetAttribute(ATTRIB_AMMO), unit_values2->GetAttribute(ATTRIB_AMMO));
-    }
 
-    buffer = &buffer[screen_width * 19];
+        buffer = &buffer[screen_width * 19];
+    }
 
     return buffer;
 }
