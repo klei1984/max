@@ -751,7 +751,7 @@ bool TaskManageBuildings::IsSafeSite(unsigned short** construction_map, Point si
                 }
             }
 
-            SDL_assert(marker_index < 12);
+            SDL_assert(marker_index <= sizeof(markers) / sizeof(markers[0]));
 
             if (marker_index > 1 && markers[0] == markers[marker_index - 1]) {
                 --marker_index;
