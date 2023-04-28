@@ -4941,6 +4941,8 @@ void GameManager_SpawnAlienDerelicts(Point point, int alien_unit_value) {
                                                    false, true);
 
                 } else {
+                    int alien_unit_index;
+
                     SDL_assert(land_tiles.GetCount() > 0);
 
                     index = (dos_rand() * land_tiles.GetCount()) >> 15;
@@ -4952,15 +4954,13 @@ void GameManager_SpawnAlienDerelicts(Point point, int alien_unit_value) {
                     land_tiles.Remove(index);
 
                     do {
-                        ;
-                    } while (UnitsManager_GetCurrentUnitValues(
-                                 &UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN],
-                                 GameManager_AlienUnits[(dos_rand() * std::size(GameManager_AlienUnits)) >> 15])
+                        alien_unit_index = (dos_rand() * std::size(GameManager_AlienUnits)) >> 15;
+                    } while (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN],
+                                                               GameManager_AlienUnits[alien_unit_index])
                                  ->GetAttribute(ATTRIB_TURNS) > alien_unit_value);
 
-                    unit = UnitsManager_DeployUnit(
-                        GameManager_AlienUnits[(dos_rand() * std::size(GameManager_AlienUnits)) >> 15],
-                        PLAYER_TEAM_ALIEN, nullptr, position.x, position.y, 0, false, true);
+                    unit = UnitsManager_DeployUnit(GameManager_AlienUnits[alien_unit_index], PLAYER_TEAM_ALIEN, nullptr,
+                                                   position.x, position.y, 0, false, true);
                 }
 
                 alien_unit_value -= unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS);
