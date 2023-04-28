@@ -8,7 +8,7 @@ The article maintains a comprehensive list of game defects that is present in th
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
-2. If the game cannot play the intro movie, INTROFLC (maxint.mve), it tries to load and render a full screen Interplay logo image, ILOGO, which was removed from the game resource database max.res. The game continues gracefully after failing to open the ILOGO resource.
+2. **[Fixed]** If the game cannot play the intro movie, INTROFLC (maxint.mve), it tries to load and render a full screen Interplay logo image, ILOGO, which was removed from the game resource database max.res. The game continues gracefully after failing to open the ILOGO resource.
 <br>
 The game supports loading game resources from a secondary resource file called patches.res. The file does not exist in v1.04, but when created the contents of it are processed as expected. ILOGO is taken from the interactive demo of M.A.X. where the resource exists.
     <br>
@@ -114,15 +114,15 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 35. **[Fixed]** Similarly to defect 6 a cargo transfer related function (cseg01:00098F46) calls the play voice API with an invalid voice range. PlayVoice(V_M224, V_M224, PRIO_0) instead of PlayVoice(V_M224, V_F224, PRIO_0).
 
-36. The ObjectArray base class uses memcpy() to shift data in its internally allocated buffer after removal of an array element. In case the destination and source addresses overlap memmove() is supposed to be used instead of memcpy() as the latter does not guarantee proper handling of overlapping memory areas. The original compiler's memcpy() implementation for example performs 32 bit word copy operations and only the final non 32 bit sized data chunk is copied per byte. This means that if the instantiated derived array class holds a type which has an element size that is smaller than 32 bits each removal could result in data corruption in all the elements that were held after the removed item. It is not yet confirmed whether there were any offending types though.
+36. **[Fixed]** The ObjectArray base class uses memcpy() to shift data in its internally allocated buffer after removal (cseg01:0006DB14) of an array element. In case the destination and source addresses overlap memmove() is supposed to be used instead of memcpy() as the latter does not guarantee proper handling of overlapping memory areas. The original compiler's memcpy() implementation for example performs 32 bit word copy operations and only the final non 32 bit sized data chunk is copied per byte. This means that if the instantiated derived array class holds a type which has an element size that is smaller than 32 bits each removal could result in data corruption in all the elements that were held after the removed item. It is not yet confirmed whether there were any offending types though.
 
-37. The TeamUnits class specific TextLoad method patches one of the unit ATTRIBS entires to disable the unit specific move & fire capability via code. Most probably the Infantry was the unit in question as it lost this capability during development. There are other inconsistencies between the human readable and binary parsers of TextfileObject based classes which indicates that after switching to binary format from the initial text based one the text parsers were not fully maintained.
+37. **[Fixed]** The TeamUnits class specific TextLoad method patches one of the unit ATTRIBS entires to disable the unit specific move & fire capability via code. Most probably the Infantry was the unit in question as it lost this capability during development. There are other inconsistencies between the human readable and binary parsers of TextfileObject based classes which indicates that after switching to binary format from the initial text based one the text parsers were not fully maintained.
 
-38. The ScrollBar base class and therefore the derived LimitedScrollbar class forget to delete the Button class instance in their destructor leaking heap memory at least 56 bytes at a time.
+38. **[Fixed]** The ScrollBar base class and therefore the derived LimitedScrollbar class forget to delete the Button class instance in their destructor (cseg01:00076E67) leaking heap memory at least 56 bytes at a time.
 
-39. The play voice API is called with wrong voice range. PlayVoice(V_M229, V_F256, PRIO_0) is called when a unit is under attack and it does not gets destroyed. There are only four under attack type voice samples: V_F229 - V_F232 so the correct range would be PlayVoice(V_M229, V_F232, PRIO_0). It is not easy to test the failure scenario as a unit might be destroyed in a single shot and the API call could still randomly select a correct sample or a sample that does not exists so no incorrect sound would play.
+39. **[Fixed]** The play voice API is called with wrong voice range. PlayVoice(V_M229, V_F256, PRIO_0) is called when a unit is under attack and it does not gets destroyed (cseg01:00093C32). There are only four under attack type voice samples: V_F229 - V_F232 so the correct range would be PlayVoice(V_M229, V_F232, PRIO_0). It is not easy to test the failure scenario as a unit might be destroyed in a single shot and the API call could still randomly select a correct sample or a sample that does not exists so no incorrect sound would play.
 
-40. The function which builds network packet 41 (path blocked) forgets to set the packet header's *data_size* field so random garbage in random size is sent over the network. Typically a single byte of data is sent as the most common packet on the network has one data byte.
+40. **[Fixed]** The function (cseg01:000CB020) which builds network packet 41 (path blocked) forgets to set the packet header's *data_size* field so random garbage in random size is sent over the network. Typically a single byte of data is sent as the most common packet on the network has one data byte.
 
 41. On the Network Game lobby screen clients cannot see the maps, load, scenarios and options buttons as these are only available for the host. The in-game help mouse spot areas for these buttons are not deactivated for clients.
 
@@ -143,15 +143,15 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 47. The save file format header allocates 5 team instances for team type and team clan parameters but only 4 team instances are filled up with valid data. To fix this technical debt the save file format version needs to be updated.
 
-48. **[Fixed]** There is a typo in the description of Valentine's Planet. "Two to four can be easily accomodated." -> accommodated.
+48. **[Fixed]** There is a typo in the description of Valentine's Planet. `Two to four can be easily accomodated.` -> `accommodated.`
 
 49. The resource levels panel of the game options menu allows to configure the amount of alien derelicts. The built-in help entry for the panel does not explain the meaning of alien derelicts indicating that the English help is older than the concept of alien derelicts. Additionally the "Alien Derelicts" caption is the only one without a colon within the panel.
 
-50. The built-in help menu's popup window supports rendering multiple pages of text. If more than one page is needed to display the help entry arrow buttons are added to the window. The up arrow registers an sfx, the down arrow does not. Interestingly neither is played by the game for some reason.
+50. **[FIXED]** The built-in help menu's popup window supports rendering multiple pages of text. If more than one page is needed to display the help entry arrow buttons are added to the window. The up arrow registers an sfx, the down arrow does not (cseg01:000A53E9). Interestingly neither is played by the game for some reason.
 
-51. The game setup menu allocates char buffers to hold mission titles using new char[], but deletes the buffers using the delete operator instead of the delete[] operator which is undefined behavior.
+51. **[FIXED]** The game setup menu allocates char buffers to hold mission titles using new char[], but deletes (cseg01:000B12B5) the buffers using the delete operator instead of the delete[] operator which is undefined behavior.
 
-52. The event handler of the scroll up button on mission selection screens tests against an uninitialized local (stack) variable. In the extremely unlikely case when the test would pass the function does nothing to the GameSetupMenu class object's state as the function prematurely exits.
+52. **[FIXED]** The event handler of the scroll up button (cseg01:000B1035) on mission selection screens tests against an uninitialized local (stack) variable. In the extremely unlikely case when the test would pass the function does nothing to the GameSetupMenu class object's state as the function prematurely exits.
 
 53. If a multiplayer game desyncs on the beginning of the first round before a new autosave is made, thus no autosave exists for the given game session, the game still asks whether players, any of them, wants to reload the last save.
 
@@ -165,13 +165,13 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 58. If a high-tech unit is captured, and then it gets upgraded in the depot, the unit would lose any of its superior unit values. For example if an enemy tank had 34 attack power and the player's own latest tank upgrades would only grant 20 attack power to an upgraded tank then the captured tank would lose the 34 attack power and would get the inferior 20 "as an upgrade". This behavior was considered to be a defect in M.A.X. 2 back in March, 1998.
 
-59. The SaveSlot class has two image resources, FILEx_UP and FILEx_DN. The SaveLoadMenu_Init() function allocates memory for the images' data. The buffer size is determined for both images, but the allocation uses the size of FILEx_UP data for both. As both images have the same dimensions this defect does not cause any issues.
+59. **[FIXED]** The SaveSlot class has two image resources, FILEx_UP and FILEx_DN. The save load menu init function (cseg01:000D7A19) allocates memory for the images' data. The buffer size is determined for both images, but the allocation uses the size of FILEx_UP data for both. As both images have the same dimensions this defect does not cause any issues.
 
-60. The function which builds network packet 13 (update RNG seed) forgets to set the packet header's *entity_id* field so the previously configured packet's field value is used.
+60. **[FIXED]** The function (cseg01:000C9093) which builds network packet 13 (update RNG seed) forgets to set the packet header's *entity_id* field so the previously configured packet's field value is used.
 
 61. If an IPX client exits abnormally while it is in an IPX network lobby the host and its other peers will not be able to proceed with their game creation process. The only way to continue game creation is to exit the lobby by the host and start the connection process again from scratch. Adding a visual marker for ready state and adding the ability for the host to kick an unresponsive client could resolve the issue.
 
-62. The ButtonManager class allocates ButtonID buffers with new[] but deletes the buffer with free which is undefined behavior. It worked under Watcom 10.x compiler.
+62. **[FIXED]** The ButtonManager class (cseg01:00089450) allocates ButtonID buffers with new[] but deletes the buffer with free which is undefined behavior. It worked under Watcom 10.x compiler.
 
 63. The AI misbehaves when a hidden infiltrator steps aside, but doing so reveals its presence to the enemy.
     <br>
@@ -191,7 +191,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 66. If a unit is selected the primary selection marker starts to blink at a 1 second rate. If a multiselect rectangle is redrawn by clicking and dragging the mouse pointer the primary marker gets redrawn as well and its draw function toggles the marker state much faster. The primary marker should not start to blink like crazy in such events.
 
-67. When a supply truck tries to reload a unit and it's storage container is empty the following alert message is shown: "insufficient material in storage to reload unit.". The message should start with capital letter. Same goes for repairing a unit.
+67. **[Fixed]** When a supply truck tries to reload a unit and it's storage container is empty the following alert message is shown: `insufficient material in storage to reload unit.`. The message should start with capital letter. Same goes for repairing a unit.
 
 68. The path generator erroneously cannot find path to a cell location in corner cases. Note: the audio can be unmuted on this video clip.
     <br>
@@ -217,19 +217,19 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     This makes the text background brighter now, but more importantly more detail is visible. Maybe in the future the blue color temperature could be made darker to match the original aesthetic keeping the higher level of detail.
 
-71. There is a typo in the briefing text of stand alone mission 20 (DESCR20.SCE). "Can you affort to shut down" -> afford.
+71. There is a typo in the briefing text of stand alone mission 20 (DESCR20.SCE). `Can you affort to shut down` -> `afford`.
 
-72. There is a function (cseg01:0008E881) to wrap up games and display the mission's end briefing. The function takes an ordered array with the places of teams and builds another local array later on with very similar content. In the beginning of the function the local yet to be initialized array is used to test which is the winner team in case of custom games instead of the array which was taken as a function argument by mistake.
+72. **[Fixed]** There is a function (cseg01:0008E881) to wrap up games and display the mission's end briefing. The function takes an ordered array with the places of teams and builds another local array later on with very similar content. In the beginning of the function the local yet to be initialized array is used to test which is the winner team in case of custom games instead of the array which was taken as a function argument by mistake.
 
-73. The order of initialization of global variables across translation units is unspecified behavior in standard C++. The original SmartString class has a default constructor (cseg01:000E1AE8) which uses a globally constructed SmartString object instantiated by an overloaded constructor. The idea behind is that if new SmartString objects are created with the default constructor the class just increments internally its reference counter to a default empty string object. The problem with this approach is that nothing guarantees that the SmartString module's internal global variable will be initialized first before another module's global SmartString variable in which case the object for which the reference counter would be incremented does not exist yet and the application crashes with a null pointer dereference related segmentation fault at some point. It seems that the original solution worked in the old Watcom C/C++ compiler while it fails with GCC.
+73. **[Fixed]** The order of initialization of global variables across translation units is unspecified behavior in standard C++. The original SmartString class has a default constructor (cseg01:000E1AE8) which uses a globally constructed SmartString object instantiated by an overloaded constructor. The idea behind is that if new SmartString objects are created with the default constructor the class just increments internally its reference counter to a default empty string object. The problem with this approach is that nothing guarantees that the SmartString module's internal global variable will be initialized first before another module's global SmartString variable in which case the object for which the reference counter would be incremented does not exist yet and the application crashes with a null pointer dereference related segmentation fault at some point. It seems that the original solution worked in the old Watcom C/C++ compiler while it fails with GCC.
 
-74. The function (cseg01:0009D3A7) that spawns all derelict alien units on the map uses rand() which generates pseudo random numbers. There is a code snippet that seeks a pseudo randomly selected alien unit that fits within a predetermined value budget. When such a unit is found the function deploys another pseudo randomly selected alien unit instead of reusing the unit type that was tested to actually fit into the budget. The code clearly wanted to select a unit within budget so spawning another one which may not fit must be a defect.
+74. **[Fixed]** The function (cseg01:0009D3A7) that spawns all derelict alien units on the map uses rand() which generates pseudo random numbers. There is a code snippet that seeks a pseudo randomly selected alien unit that fits within a predetermined value budget. When such a unit is found the function deploys another pseudo randomly selected alien unit instead of reusing the unit type that was tested to actually fit into the budget. The code clearly wanted to select a unit within budget so spawning another one which may not fit must be a defect.
 
 75. The functions (cseg01:0009CAE7, cseg01:0009C6F6) responsible for resource distribution on maps do not check whether the calculated grid coordinates are within map boundaries. In corner cases this could lead to heap memory corruption under DOS or in worst case could cause segmentation faults on modern operating systems (ResourceManager_CargoMap[]).
 
-76. Dot is missing from end of sentence "%i %s upgraded to mark %s for %i raw material" in Upgrade All event handler function (cseg01:000F80FD). There are three possible messages: no upgrade, single unit upgrade, more then one unit upgrade. The messages are ended with dots for the first two, only the third one is inconsistent.
+76. **[Fixed]** Dot is missing from end of sentence `%i %s upgraded to mark %s for %i raw material` in Upgrade All event handler function (cseg01:000F80FD). There are three possible messages: no upgrade, single unit upgrade, more then one unit upgrade. The messages are ended with dots for the first two, only the third one is inconsistent.
 
-77. One of the access module functions (cseg01:000136D8) reads already released heap memory which leads to random crashes or even worse, to memory corruption.
+77. **[Fixed]** One of the access module functions (cseg01:000136D8) reads already released heap memory which leads to random crashes or even worse, to memory corruption.
 ```cpp
     UnitInfo* unit;
     SmartList<UnitInfo>::Iterator it;
@@ -291,7 +291,7 @@ The issue can be resolved if the iterator ++ and \-\- operators pass object T re
 ```
 On modern operating systems the deallocated heap memory could be reallocated by another thread or process before the next list node gets assigned so memory corruption or crashes might still occur even if the heap deallocator does not fill the released memory with nasty bug trapping test patterns. On DOS this is highly unlikely so there this defect was assumably latent.
 
-78. The Engineer and Constructor specific popup context menu button list initializer function (cseg01:000F9304) tests whether the units are building `order = build and order_state != 13 and order_state != 46` and either adds the Stop or the Build button to the button list. The last test in the original code is `order != 46` which is always true of course as there is no such order ID. In case the order state would be 46, whatever that means, the wrong button would be presented to the user. Interestingly the button on click event handler is the same function so the test and the button label is defective, but the outcome of the event will be the same action.
+78. **[Fixed]** The Engineer and Constructor specific popup context menu button list initializer function (cseg01:000F9304) tests whether the units are building `order = build and order_state != 13 and order_state != 46` and either adds the Stop or the Build button to the button list. The last test in the original code is `order != 46` which is always true of course as there is no such order ID. In case the order state would be 46, whatever that means, the wrong button would be presented to the user. Interestingly the button on click event handler is the same function so the test and the button label is defective, but the outcome of the event will be the same action.
 
 79. The function (cseg01:0009C6F6) responsible for resource distribution on maps uses an uninitialized variable by mistake. Fixing this issue potentially alters the original resource distribution probabilities.
 
