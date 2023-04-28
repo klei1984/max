@@ -24,17 +24,17 @@
 
 #include <cstdio>
 
+#include "fileobject.hpp"
 #include "smartarray.hpp"
 #include "smartlist.hpp"
-#include "textfileobject.hpp"
 
 class SmartFileReader {
-    void LoadObject(TextFileObject& object);
+    void LoadObject(FileObject& object);
     unsigned short ReadIndex();
 
 protected:
     FILE* file;
-    SmartArray<TextFileObject> read_objects;
+    SmartArray<FileObject> read_objects;
 
 public:
     SmartFileReader();
@@ -47,18 +47,18 @@ public:
     template <typename T>
     void Read(T& buffer);
     unsigned short ReadObjectCount();
-    TextFileObject* ReadObject();
+    FileObject* ReadObject();
 };
 
 class SmartFileWriter {
-    void SaveObject(TextFileObject* object);
+    void SaveObject(FileObject* object);
     void WriteIndex(unsigned short index);
 
 protected:
-    SmartList<TextFileObject> objects;
+    SmartList<FileObject> objects;
     FILE* file;
 
-    void AddObject(TextFileObject* object);
+    void AddObject(FileObject* object);
 
 public:
     SmartFileWriter();
@@ -71,7 +71,7 @@ public:
     template <typename T>
     void Write(T& buffer);
     void WriteObjectCount(unsigned short count);
-    void WriteObject(TextFileObject* object);
+    void WriteObject(FileObject* object);
 };
 
 template <typename T>

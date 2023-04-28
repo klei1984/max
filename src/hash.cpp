@@ -71,34 +71,6 @@ void SmartList_UnitInfo_Clear(SmartList<UnitInfo>& list) {
     list.Clear();
 }
 
-void SmartList_UnitInfo_TextLoad(SmartList<UnitInfo>& list, TextStructure& object) {
-    list.Clear();
-
-    for (UnitInfo* unit; (unit = dynamic_cast<UnitInfo*>(&*object.ReadPointer("unit"))), unit != nullptr;) {
-        list.PushBack(*unit);
-
-        if (unit->flags & HASH_TEAM_RED) {
-            unit->color_cycling_lut = ResourceManager_TeamRedColorIndexTable;
-        } else if (unit->flags & HASH_TEAM_GREEN) {
-            unit->color_cycling_lut = ResourceManager_TeamGreenColorIndexTable;
-        } else if (unit->flags & HASH_TEAM_BLUE) {
-            unit->color_cycling_lut = ResourceManager_TeamBlueColorIndexTable;
-        } else if (unit->flags & HASH_TEAM_GRAY) {
-            unit->color_cycling_lut = ResourceManager_TeamGrayColorIndexTable;
-        } else {
-            unit->color_cycling_lut = ResourceManager_TeamDerelictColorIndexTable;
-        }
-
-        unit->sound = SFX_TYPE_INVALID;
-    }
-}
-
-void SmartList_UnitInfo_TextSave(SmartList<UnitInfo>& list, SmartTextfileWriter& file) {
-    for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != nullptr; ++unit) {
-        file.WritePointer("unit", &*unit);
-    }
-}
-
 class MapHashObject : public SmartObject {
     SmartList<UnitInfo> list;
     unsigned short x;
@@ -110,8 +82,6 @@ public:
 
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
 
     unsigned short GetX() const;
     unsigned short GetY() const;
@@ -135,18 +105,6 @@ void MapHashObject::FileSave(SmartFileWriter& file) {
     file.Write(x);
     file.Write(y);
     SmartList_UnitInfo_FileSave(list, file);
-}
-
-void MapHashObject::TextLoad(TextStructure& object) {
-    x = object.ReadInt("x");
-    y = object.ReadInt("y");
-    SmartList_UnitInfo_TextLoad(list, object);
-}
-
-void MapHashObject::TextSave(SmartTextfileWriter& file) {
-    file.WriteInt("x", x);
-    file.WriteInt("y", y);
-    SmartList_UnitInfo_TextSave(list, file);
 }
 
 unsigned short MapHashObject::GetX() const { return x; }
@@ -291,64 +249,6 @@ void MapHash::FileSave(SmartFileWriter& file) {
     }
 }
 
-void MapHash::TextLoad(TextStructure& object) {
-    Clear();
-    delete[] entry;
-
-    hash_size = object.ReadInt("hash_size");
-    x_shift = object.ReadInt("x_shift");
-
-    entry = new (std::nothrow) SmartList<MapHashObject>[hash_size];
-
-    SmartPointer<TextStructure> entry_reader = nullptr;
-
-    for (;;) {
-        entry_reader = object.ReadStructure("entry");
-
-        if (entry_reader == nullptr) {
-            break;
-        }
-
-        unsigned short index = entry_reader->ReadInt("index");
-
-        SmartPointer<TextStructure> list_reader = nullptr;
-
-        for (;;) {
-            list_reader = entry_reader->ReadStructure("list");
-
-            if (list_reader == nullptr) {
-                break;
-            } else {
-                MapHashObject* maphash = new (std::nothrow) MapHashObject(0, 0);
-                maphash->TextLoad(*list_reader);
-                entry[index].PushBack(*maphash);
-            }
-        }
-    }
-}
-
-void MapHash::TextSave(SmartTextfileWriter& file) {
-    file.WriteInt("hash_size", hash_size);
-    file.WriteInt("x_shift", x_shift);
-
-    for (int index = 0; index < hash_size; ++index) {
-        unsigned short count = entry[index].GetCount();
-
-        if (count) {
-            file.WriteIdentifier("entry");
-            file.WriteInt("index", index);
-
-            for (SmartList<MapHashObject>::Iterator object = entry[index].Begin(); object != nullptr; ++object) {
-                file.WriteIdentifier("list");
-                (*object).TextSave(file);
-                file.WriteDelimiter();
-            }
-
-            file.WriteDelimiter();
-        }
-    }
-}
-
 SmartList<UnitInfo>::Iterator MapHash::operator[](const Point& key) {
     SDL_assert(key.x >= 0 && key.y >= 0);
 
@@ -413,40 +313,6 @@ void UnitHash::FileSave(SmartFileWriter& file) {
     file.Write(hash_size);
 
     for (int index = 0; index < hash_size; ++index) {
-        SmartList_UnitInfo_FileSave(list[index], file);
-    }
-}
-
-void UnitHash::TextLoad(TextStructure& object) {
-    Clear();
-    delete[] list;
-
-    hash_size = object.ReadInt("hash_size");
-    list = new (std::nothrow) SmartList<UnitInfo>[hash_size];
-
-    SmartPointer<TextStructure> list_reader = nullptr;
-
-    for (;;) {
-        list_reader = object.ReadStructure("list");
-
-        if (list_reader == nullptr) {
-            break;
-        }
-
-        SmartList_UnitInfo_TextLoad(list[list_reader->ReadInt("index")], *list_reader);
-    }
-}
-
-void UnitHash::TextSave(SmartTextfileWriter& file) {
-    file.WriteInt("hash_size", hash_size);
-
-    for (int index = 0; index < hash_size; ++index) {
-        if (list[index].GetCount()) {
-            file.WriteIdentifier("list");
-            file.WriteInt("index", index);
-            SmartList_UnitInfo_TextSave(list[index], file);
-            file.WriteDelimiter();
-        }
         SmartList_UnitInfo_FileSave(list[index], file);
     }
 }

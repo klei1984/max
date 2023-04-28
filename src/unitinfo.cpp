@@ -445,8 +445,6 @@ const unsigned char UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESE
 
 static void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, SmartFileReader& file);
 static void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, SmartFileWriter& file);
-static void UnitInfo_BuildList_TextLoad(SmartObjectArray<ResourceID>* build_list, TextStructure& object);
-static void UnitInfo_BuildList_TextSave(SmartObjectArray<ResourceID>* build_list, SmartTextfileWriter& file);
 
 void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, SmartFileReader& file) {
     ResourceID unit_type;
@@ -471,31 +469,6 @@ void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, Smart
         unit_type = *((*build_list)[i]);
 
         file.Write(unit_type);
-    }
-}
-
-void UnitInfo_BuildList_TextLoad(SmartObjectArray<ResourceID>* build_list, TextStructure& object) {
-    unsigned short value;
-    ResourceID unit_type;
-
-    build_list->Clear();
-
-    while (object.GetField("unit", Enums_UnitType, &value)) {
-        unit_type = static_cast<ResourceID>(value);
-        build_list->PushBack(&unit_type);
-    }
-}
-
-void UnitInfo_BuildList_TextSave(SmartObjectArray<ResourceID>* build_list, SmartTextfileWriter& file) {
-    ResourceID unit_type;
-    int count;
-
-    count = build_list->GetCount();
-
-    for (int i = 0; i < count; ++i) {
-        unit_type = *((*build_list)[i]);
-
-        file.WriteEnum("unit", Enums_UnitType, unit_type);
     }
 }
 
@@ -725,7 +698,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
 
 UnitInfo::~UnitInfo() { delete[] name; }
 
-TextFileObject* UnitInfo::Allocate() { return new (std::nothrow) UnitInfo(); }
+FileObject* UnitInfo::Allocate() { return new (std::nothrow) UnitInfo(); }
 
 static unsigned short UnitInfo_TypeIndex;
 static MAXRegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &UnitInfo::Allocate);
@@ -3060,14 +3033,6 @@ void UnitInfo::FileSave(SmartFileWriter& file) {
     file.WriteObject(&*enemy_unit);
 
     UnitInfo_BuildList_FileSave(&build_list, file);
-}
-
-void UnitInfo::TextLoad(TextStructure& object) {
-    /// \todo Implement later
-}
-
-void UnitInfo::TextSave(SmartTextfileWriter& file) {
-    /// \todo Implement later
 }
 
 void UnitInfo::WritePacket(NetPacket& packet) {

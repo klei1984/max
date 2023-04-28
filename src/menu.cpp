@@ -790,7 +790,7 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
         delete button_end;
     }
 
-    GameManager_LoadGame(0, palette, false);
+    GameManager_LoadGame(0, palette);
 
     GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
@@ -2322,7 +2322,7 @@ int menu_multiplayer_menu_loop() {
                     int game_file_number;
                     menu_delete_menu_buttons();
                     ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_HOT_SEAT);
-                    game_file_number = SaveLoadMenu_MenuLoop(false, false);
+                    game_file_number = SaveLoadMenu_MenuLoop(false);
 
                     if (game_file_number) {
                         ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
@@ -2510,7 +2510,7 @@ void main_menu() {
                         int game_file_number;
 
                         menu_delete_menu_buttons();
-                        game_file_number = SaveLoadMenu_MenuLoop(false, false);
+                        game_file_number = SaveLoadMenu_MenuLoop(false);
 
                         if (game_file_number) {
                             ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
@@ -2523,25 +2523,6 @@ void main_menu() {
                         palette_from_image = 1;
                         exit_loop = true;
 
-                    } break;
-
-                    case GNW_KB_KEY_CTRL_L: {
-                        int game_file_number;
-
-                        menu_delete_menu_buttons();
-                        game_file_number = SaveLoadMenu_MenuLoop(false, true);
-
-                        if (game_file_number) {
-                            ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_TEXT);
-                            ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
-
-                            GameManager_GameLoop(GAME_STATE_10);
-
-                            menu_portrait_id = INVALID_ID;
-                        }
-
-                        palette_from_image = 1;
-                        exit_loop = true;
                     } break;
 
                     case GNW_KB_KEY_SHIFT_N: {

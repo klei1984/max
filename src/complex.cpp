@@ -32,7 +32,7 @@ Complex::Complex(short id) : buildings(0), id(id), material(0), fuel(0), gold(0)
 
 Complex::~Complex() {}
 
-TextFileObject* Complex::Allocate() { return new (std::nothrow) Complex(0); }
+FileObject* Complex::Allocate() { return new (std::nothrow) Complex(0); }
 
 short Complex::GetId() const { return id; }
 
@@ -59,26 +59,6 @@ void Complex::FileSave(SmartFileWriter& file) {
     file.Write(workers);
     file.Write(buildings);
     file.Write(id);
-}
-
-void Complex::TextLoad(TextStructure& object) {
-    material = object.ReadInt("material");
-    fuel = object.ReadInt("fuel");
-    gold = object.ReadInt("gold");
-    power = object.ReadInt("power");
-    workers = object.ReadInt("workers");
-    buildings = object.ReadInt("buildings");
-    id = object.ReadInt("id");
-}
-
-void Complex::TextSave(SmartTextfileWriter& file) {
-    file.WriteInt("material", material);
-    file.WriteInt("fuel", fuel);
-    file.WriteInt("gold", gold);
-    file.WriteInt("power", power);
-    file.WriteInt("workers", workers);
-    file.WriteInt("buildings", buildings);
-    file.WriteInt("id", id);
 }
 
 void Complex::WritePacket(NetPacket& packet) {

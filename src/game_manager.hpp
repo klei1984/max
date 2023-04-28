@@ -24,6 +24,7 @@
 
 #include "button.hpp"
 #include "flicsmgr.hpp"
+#include "smartstring.hpp"
 #include "unitinfo.hpp"
 
 void GameManager_GameLoop(int game_state);
@@ -38,7 +39,7 @@ void GameManager_HandleTurnTimer();
 void GameManager_ProcessState(bool process_tick, bool clear_mouse_events = true);
 bool GameManager_ProcessTick(bool render_screen);
 void GameManager_GuiSwitchTeam(unsigned short team);
-bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mode);
+bool GameManager_LoadGame(int save_slot, Color* palette_buffer);
 void GameManager_NotifyEvent(UnitInfo* unit, int event);
 void GameManager_SelectBuildSite(UnitInfo* unit);
 void GameManager_EnableMainMenu(UnitInfo* unit);

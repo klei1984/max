@@ -22,6 +22,7 @@
 #ifndef TEAMMISSIONSUPPLIES_HPP
 #define TEAMMISSIONSUPPLIES_HPP
 
+#include "enums.hpp"
 #include "point.hpp"
 #include "smartobjectarray.hpp"
 

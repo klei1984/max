@@ -58,7 +58,7 @@ struct PopupButtons {
 
 class UnitInfoGroup;
 
-class UnitInfo : public TextFileObject {
+class UnitInfo : public FileObject {
 private:
     Complex* CreateComplex(unsigned short team);
     static struct ImageMultiFrameHeader* GetSpriteFrame(struct ImageMultiHeader* sprite, unsigned short image_index);
@@ -94,13 +94,11 @@ public:
     UnitInfo(const UnitInfo& other);
     ~UnitInfo();
 
-    static TextFileObject* Allocate();
+    static FileObject* Allocate();
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
 
     bool IsVisibleToTeam(unsigned short team) const;
     void SetEnemy(UnitInfo* enemy);

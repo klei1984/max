@@ -22,18 +22,18 @@
 #ifndef REGISTERARRAY_HPP
 #define REGISTERARRAY_HPP
 
+#include "fileobject.hpp"
 #include "sortedarray.hpp"
-#include "textfileobject.hpp"
 
 class MAXRegisterClass : public SmartObject {
     CharSortKey sortkey;
-    TextFileObject* (*allocator)();
+    FileObject* (*allocator)();
     unsigned short* type_index;
 
     void Insert();
 
 public:
-    MAXRegisterClass(const char* class_name, unsigned short* type_index, TextFileObject* (*allocator)())
+    MAXRegisterClass(const char* class_name, unsigned short* type_index, FileObject* (*allocator)())
         : sortkey(class_name), allocator(allocator), type_index(type_index) {
         Insert();
     }
@@ -41,7 +41,7 @@ public:
         : sortkey(other.sortkey), allocator(other.allocator), type_index(other.type_index) {}
     ~MAXRegisterClass() {}
 
-    TextFileObject* Allocate() const { return allocator(); }
+    FileObject* Allocate() const { return allocator(); }
     unsigned short* GetTypeIndexPointer() const { return type_index; }
     static void SetTypeIndex(unsigned short* type_index_pointer, unsigned short value) { *type_index_pointer = value; }
     SortKey& GetSortKey() { return sortkey; }

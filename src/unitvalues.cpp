@@ -63,7 +63,7 @@ UnitValues::UnitValues(const UnitValues& other)
 
 UnitValues::~UnitValues() {}
 
-TextFileObject* UnitValues::Allocate() { return new (std::nothrow) UnitValues(); }
+FileObject* UnitValues::Allocate() { return new (std::nothrow) UnitValues(); }
 
 static unsigned short UnitValues_TypeIndex;
 static MAXRegisterClass UnitValues_ClassRegister("UnitValues", &UnitValues_TypeIndex, &UnitValues::Allocate);
@@ -104,42 +104,6 @@ void UnitValues::FileSave(SmartFileWriter& file) {
     file.Write(agent_adjust);
     file.Write(version);
     file.Write(units_built);
-}
-
-void UnitValues::TextLoad(TextStructure& object) {
-    turns = object.ReadInt("turns");
-    hits = object.ReadInt("hits");
-    armor = object.ReadInt("armor");
-    attack = object.ReadInt("attack");
-    speed = object.ReadInt("speed");
-    range = object.ReadInt("range");
-    rounds = object.ReadInt("rounds");
-    move_and_fire = object.ReadBool("move_and_fire");
-    scan = object.ReadInt("scan");
-    storage = object.ReadInt("storage");
-    ammo = object.ReadInt("ammo");
-    attack_radius = object.ReadInt("attack_radius");
-    agent_adjust = object.ReadInt("agent_adjust");
-    version = object.ReadInt("version");
-    units_built = object.ReadInt("units_built");
-}
-
-void UnitValues::TextSave(SmartTextfileWriter& file) {
-    file.WriteInt("turns", turns);
-    file.WriteInt("hits", hits);
-    file.WriteInt("armor", armor);
-    file.WriteInt("attack", attack);
-    file.WriteInt("speed", speed);
-    file.WriteInt("range", range);
-    file.WriteInt("rounds", rounds);
-    file.WriteBool("move_and_fire", move_and_fire);
-    file.WriteInt("scan", scan);
-    file.WriteInt("storage", storage);
-    file.WriteInt("ammo", ammo);
-    file.WriteInt("attack_radius", attack_radius);
-    file.WriteInt("agent_adjust", agent_adjust);
-    file.WriteInt("version", version);
-    file.WriteInt("units_built", units_built);
 }
 
 int UnitValues::GetAttribute(char attribute) {

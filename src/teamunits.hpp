@@ -115,8 +115,6 @@ public:
 
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
 
     void WriteComplexPacket(unsigned short complex_id, NetPacket& packet);
     void ReadComplexPacket(NetPacket& packet);

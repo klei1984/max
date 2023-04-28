@@ -22,9 +22,10 @@
 #ifndef UNITVALUES_HPP
 #define UNITVALUES_HPP
 
-#include "textfile.hpp"
+#include "enums.hpp"
+#include "smartfile.hpp"
 
-class UnitValues : public TextFileObject {
+class UnitValues : public FileObject {
     unsigned short turns;
     unsigned short hits;
     unsigned short armor;
@@ -47,7 +48,7 @@ public:
     UnitValues(const UnitValues& other);
     ~UnitValues();
 
-    static TextFileObject* Allocate();
+    static FileObject* Allocate();
     int GetAttribute(char attribute);
     unsigned short* GetAttributeAddress(char attribute);
     void SetAttribute(char attribute, int value);
@@ -60,8 +61,6 @@ public:
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
 
     bool operator==(const UnitValues& other) const;
     bool operator!=(const UnitValues& other) const;

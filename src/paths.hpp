@@ -29,7 +29,7 @@
 class UnitInfo;
 class NetPacket;
 
-class UnitPath : public TextFileObject {
+class UnitPath : public FileObject {
 protected:
     short x_end;
     short y_end;
@@ -46,8 +46,6 @@ public:
     virtual unsigned short GetTypeIndex() const = 0;
     virtual void FileLoad(SmartFileReader& file) = 0;
     virtual void FileSave(SmartFileWriter& file) = 0;
-    virtual void TextLoad(TextStructure& object) = 0;
-    virtual void TextSave(SmartTextfileWriter& file) = 0;
     virtual Point GetPosition(UnitInfo* unit) const;
     virtual bool IsInPath(int grid_x, int grid_y) const;
     virtual void Path_vfunc8(UnitInfo* unit);
@@ -78,13 +76,11 @@ public:
     GroundPath(int target_x, int target_y);
     ~GroundPath();
 
-    static TextFileObject* Allocate();
+    static FileObject* Allocate();
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
     Point GetPosition(UnitInfo* unit) const;
     bool IsInPath(int grid_x, int grid_y) const;
     void Path_vfunc8(UnitInfo* unit);
@@ -118,13 +114,11 @@ public:
     AirPath(UnitInfo* unit, int distance_x, int distance_y, int euclidean_distance, int target_x, int target_y);
     ~AirPath();
 
-    static TextFileObject* Allocate();
+    static FileObject* Allocate();
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
     Point GetPosition(UnitInfo* unit) const;
     void Path_vfunc8(UnitInfo* unit);
     int GetMovementCost(UnitInfo* unit);
@@ -141,13 +135,11 @@ public:
     BuilderPath();
     ~BuilderPath();
 
-    static TextFileObject* Allocate();
+    static FileObject* Allocate();
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
     int GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
     void Path_vfunc12(int unknown);

@@ -660,7 +660,7 @@ static void GameManager_MenuClickFindButton();
 static void GameManager_MenuClickScanButton(bool rest_state);
 static void GameManager_MenuClickChatGoalButton();
 static void GameManager_MenuClickPreferencesButton();
-static void GameManager_MenuClickFileButton(bool is_saving_allowed, bool is_text_mode);
+static void GameManager_MenuClickFileButton(bool is_saving_allowed);
 static void GameManager_MenuClickGridButton(bool rest_state);
 static void GameManager_MenuClickEndTurnButton(bool state);
 static void GameManager_MenuClickSurveyButton(bool rest_state);
@@ -2492,7 +2492,7 @@ bool GameManager_CheckDesync() {
 
         } else {
             if (DesyncMenu_Menu()) {
-                if (!GameManager_LoadGame(10, GameManager_MenuFadeOut(), false)) {
+                if (!GameManager_LoadGame(10, GameManager_MenuFadeOut())) {
                     GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
                     MessageManager_DrawMessage(_(df36), 0, 1);
@@ -3395,7 +3395,7 @@ void GameManager_MenuAnimateDisplayControls() {
     }
 }
 
-bool GameManager_LoadGame(int save_slot, Color* palette_buffer, bool is_text_mode) {
+bool GameManager_LoadGame(int save_slot, Color* palette_buffer) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     bool load_successful;
     int game_file_type;
@@ -4016,7 +4016,7 @@ void GameManager_MenuClickPreferencesButton() {
     GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
 }
 
-void GameManager_MenuClickFileButton(bool is_saving_allowed, bool is_text_mode) {
+void GameManager_MenuClickFileButton(bool is_saving_allowed) {
     Color* palette_buffer;
     int save_slot;
 
@@ -4031,8 +4031,8 @@ void GameManager_MenuClickFileButton(bool is_saving_allowed, bool is_text_mode) 
     GameManager_MenuItems[MENU_GUI_ITEM_FILES_BUTTON].button->SetRestState(false);
     palette_buffer = GameManager_MenuFadeOut();
     Cursor_SetCursor(CURSOR_HAND);
-    save_slot = SaveLoadMenu_MenuLoop(is_saving_allowed, is_text_mode);
-    GameManager_LoadGame(save_slot, palette_buffer, is_text_mode);
+    save_slot = SaveLoadMenu_MenuLoop(is_saving_allowed);
+    GameManager_LoadGame(save_slot, palette_buffer);
 }
 
 void GameManager_MenuClickGridButton(bool rest_state) {
@@ -4126,12 +4126,12 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
                 Color* palette_buffer;
 
                 palette_buffer = GameManager_MenuFadeOut();
-                GameManager_LoadGame(SaveLoadMenu_SaveSlot, palette_buffer, false);
+                GameManager_LoadGame(SaveLoadMenu_SaveSlot, palette_buffer);
             }
         }
 
     } else {
-        GameManager_MenuClickFileButton(save_load_mode, false);
+        GameManager_MenuClickFileButton(save_load_mode);
     }
 }
 
@@ -5494,7 +5494,7 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_LALT_F:
         case 1004: {
             if (GameManager_IsMainMenuEnabled) {
-                GameManager_MenuClickFileButton(true, false);
+                GameManager_MenuClickFileButton(true);
             }
         } break;
 

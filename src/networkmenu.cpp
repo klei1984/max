@@ -463,7 +463,7 @@ void NetworkMenu::EventLoadButton() {
 
     DeleteButtons();
 
-    save_slot = SaveLoadMenu_MenuLoop(false, false);
+    save_slot = SaveLoadMenu_MenuLoop(false);
 
     if (save_slot) {
         multi_scenario_id = save_slot;

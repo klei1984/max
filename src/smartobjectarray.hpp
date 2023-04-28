@@ -25,7 +25,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include "textfile.hpp"
+#include "smartfile.hpp"
 
 #define OBJECTARRAY_DEFAULT_GROWTH_FACTOR 5
 #define SMARTOBJECTARRAY_DEFAULT_GROWTH_FACTOR 5

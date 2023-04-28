@@ -42,7 +42,6 @@
 #include "teamunits.hpp"
 #include "text.hpp"
 #include "textedit.hpp"
-#include "textfile.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
@@ -109,7 +108,7 @@ static void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int width, R
 static Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int ulx, int uly,
                                          const char *caption, int r_value);
 static void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
-                              bool is_text_mode, int save_file_type, int first_slot_on_page, bool mode);
+                              int save_file_type, int first_slot_on_page, bool mode);
 static void SaveLoadMenu_PlaySfx(ResourceID id);
 static void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int *save_slot_index, int key, int is_saving_allowed);
 static void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int save_slot_index, int is_saving_allowed);
@@ -245,7 +244,7 @@ int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct Save
 void SaveLoadMenu_PlaySfx(ResourceID id) { SoundManager.PlaySfx(id); }
 
 void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
-                       bool is_text_mode, int save_file_type, int first_slot_on_page, bool mode) {
+                       int save_file_type, int first_slot_on_page, bool mode) {
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     unsigned char game_file_type;
     char filepath[PATH_MAX];
@@ -272,12 +271,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
                  WindowManager_ScaleUlx(window, 229), WindowManager_ScaleUly(window, 5), 181, 21, COLOR_GREEN, true);
 
     for (int i = 0; i < num_buttons; ++i) {
-        if (is_text_mode) {
-            sprintf(slots[i].file_name, "scnrio%i.txt", first_slot_on_page + i);
-        } else {
-            sprintf(slots[i].file_name, "save%i.%s", first_slot_on_page + i,
-                    SaveLoadMenu_SaveFileTypes[save_file_type]);
-        }
+        sprintf(slots[i].file_name, "save%i.%s", first_slot_on_page + i, SaveLoadMenu_SaveFileTypes[save_file_type]);
 
         strcpy(file_name, slots[i].file_name);
         ResourceManager_ToUpperCase(file_name);
@@ -288,14 +282,10 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         fp = fopen(filepath, "rb");
 
         if (fp) {
-            if (is_text_mode) {
-                slots[i].in_use = true;
-            } else {
-                fread(&version, sizeof(version), 1, fp);
-                slots[i].in_use = version == MAX_SAVE_FILE_FORMAT_VERSION;
+            fread(&version, sizeof(version), 1, fp);
+            slots[i].in_use = version == MAX_SAVE_FILE_FORMAT_VERSION;
 
-                fread(&game_file_type, sizeof(game_file_type), 1, fp);
-            }
+            fread(&game_file_type, sizeof(game_file_type), 1, fp);
         } else {
             slots[i].in_use = false;
         }
@@ -303,23 +293,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         slots[i].game_file_type = game_file_type;
 
         if (slots[i].in_use) {
-            if (is_text_mode) {
-                fclose(fp);
-                fp = nullptr;
-
-                SmartTextfileReader file;
-
-                file.Open(filepath);
-                SmartPointer<TextStructure> object = file.GetObject();
-                SmartString description = object->ReadString("description");
-
-                strcpy(slots[i].save_name, description.GetCStr());
-
-                file.Close();
-
-            } else {
-                fread(slots[i].save_name, sizeof(char), 30, fp);
-            }
+            fread(slots[i].save_name, sizeof(char), 30, fp);
         } else {
             slots[i].save_name[0] = '\0';
         }
@@ -468,7 +442,7 @@ void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int save_slot_index, i
     }
 }
 
-int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
+int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
     SaveSlot slots[10];
     Button *buttons[7];
     Flic *flc;
@@ -490,7 +464,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
 
     save_file_type = SaveLoadMenu_GetGameFileType();
 
-    SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, is_text_mode, save_file_type,
+    SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, save_file_type,
                       SaveLoadMenu_FirstSaveSlotOnPage, true);
 
     time_stamp = timer_get();
@@ -563,8 +537,8 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
                             SaveLoadMenu_FirstSaveSlotOnPage += slot_count;
                         }
 
-                        SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, is_text_mode,
-                                          save_file_type, SaveLoadMenu_FirstSaveSlotOnPage, false);
+                        SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, save_file_type,
+                                          SaveLoadMenu_FirstSaveSlotOnPage, false);
                         save_slot_index = -1;
                     }
                 } break;
@@ -583,10 +557,9 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
                     }
 
                     ini_set_setting(INI_GAME_FILE_TYPE, save_file_type);
-                    is_text_mode = save_file_type == GAME_TYPE_TEXT;
                     SaveLoadMenu_FirstSaveSlotOnPage = 1;
 
-                    SaveLoadMenu_Init(slots, slot_count, buttons, flc, is_saving_allowed, is_text_mode, save_file_type,
+                    SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, save_file_type,
                                       SaveLoadMenu_FirstSaveSlotOnPage, false);
                     save_slot_index = -1;
                 } break;
@@ -599,7 +572,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed, int is_text_mode) {
                         slots[save_slot_index].text_edit->ProcessKeyPress(GNW_KB_KEY_RETURN);
                         slots[save_slot_index].AcceptEditedText();
 
-                        if (Remote_IsNetworkGame && !is_text_mode) {
+                        if (Remote_IsNetworkGame) {
                             Remote_SendNetPacket_16(slots[save_slot_index].file_name, slots[save_slot_index].save_name);
                         }
 

@@ -31,7 +31,6 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/unitinfo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitinfogroup.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/registerarray.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/textfile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/units_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/teamunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/enums.cpp

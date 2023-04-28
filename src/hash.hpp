@@ -44,8 +44,6 @@ public:
 
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
 
     SmartList<UnitInfo>::Iterator operator[](const Point& key);
 };
@@ -64,8 +62,6 @@ public:
 
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
 
     UnitInfo* operator[](const unsigned short& key);
 };

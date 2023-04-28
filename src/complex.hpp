@@ -23,12 +23,12 @@
 #define COMPLEX_HPP
 
 #include "cargo.hpp"
-#include "textfile.hpp"
+#include "smartfile.hpp"
 
 class UnitInfo;
 class NetPacket;
 
-class Complex : public TextFileObject {
+class Complex : public FileObject {
     short buildings;
     short id;
 
@@ -38,15 +38,13 @@ public:
     Complex(short id);
     ~Complex();
 
-    static TextFileObject* Allocate();
+    static FileObject* Allocate();
 
     short GetId() const;
 
     unsigned short GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
-    void TextLoad(TextStructure& object);
-    void TextSave(SmartTextfileWriter& file);
 
     void WritePacket(NetPacket& packet);
     void ReadPacket(NetPacket& packet);

@@ -151,7 +151,7 @@ AirPath::AirPath(UnitInfo* unit, int distance_x, int distance_y, int euclidean_d
 
 AirPath::~AirPath() {}
 
-TextFileObject* AirPath::Allocate() { return new (std::nothrow) AirPath(); }
+FileObject* AirPath::Allocate() { return new (std::nothrow) AirPath(); }
 
 unsigned short AirPath::GetTypeIndex() const { return Paths_AirPath_TypeIndex; }
 
@@ -179,32 +179,6 @@ void AirPath::FileSave(SmartFileWriter& file) {
     file.Write(y_step);
     file.Write(delta_x);
     file.Write(delta_y);
-}
-
-void AirPath::TextLoad(TextStructure& object) {
-    length = object.ReadInt("length");
-    angle = object.ReadInt("angle");
-    pixel_x_start = object.ReadInt("pixel_x_start");
-    pixel_y_start = object.ReadInt("pixel_y_start");
-    x_end = object.ReadInt("x_end");
-    y_end = object.ReadInt("y_end");
-    x_step = object.ReadInt("x_step");
-    y_step = object.ReadInt("y_step");
-    delta_x = object.ReadInt("delta_x");
-    delta_y = object.ReadInt("delta_y");
-}
-
-void AirPath::TextSave(SmartTextfileWriter& file) {
-    file.WriteInt("length", length);
-    file.WriteInt("angle", angle);
-    file.WriteInt("pixel_x_start", pixel_x_start);
-    file.WriteInt("pixel_y_start", pixel_y_start);
-    file.WriteInt("x_end", x_end);
-    file.WriteInt("y_end", y_end);
-    file.WriteInt("x_step", x_step);
-    file.WriteInt("y_step", y_step);
-    file.WriteInt("delta_x", delta_x);
-    file.WriteInt("delta_y", delta_y);
 }
 
 Point AirPath::GetPosition(UnitInfo* unit) const {
@@ -466,7 +440,7 @@ GroundPath::GroundPath(int target_x, int target_y) : UnitPath(target_x, target_y
 
 GroundPath::~GroundPath() {}
 
-TextFileObject* GroundPath::Allocate() { return new (std::nothrow) GroundPath(); }
+FileObject* GroundPath::Allocate() { return new (std::nothrow) GroundPath(); }
 
 unsigned short GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
 
@@ -502,37 +476,6 @@ void GroundPath::FileSave(SmartFileWriter& file) {
 
     for (int i = 0; i < count; ++i) {
         file.Write(*steps[i]);
-    }
-}
-
-void GroundPath::TextLoad(TextStructure& object) {
-    PathStep step;
-
-    x_end = object.ReadInt("x_end");
-    y_end = object.ReadInt("y_end");
-    index = object.ReadInt("index");
-
-    steps.Clear();
-
-    for (SmartPointer<TextStructure> step_reader = object.ReadStructure("step"); step_reader != nullptr;
-         step_reader = object.ReadStructure("unit")) {
-        step.x = step_reader->ReadInt("x");
-        step.y = step_reader->ReadInt("y");
-
-        steps.PushBack(&step);
-    }
-}
-
-void GroundPath::TextSave(SmartTextfileWriter& file) {
-    file.WriteInt("x_end", x_end);
-    file.WriteInt("y_end", y_end);
-    file.WriteInt("index", index);
-
-    for (int i = 0; i < steps.GetCount(); ++i) {
-        file.WriteIdentifier("step");
-        file.WriteInt("x", steps[i]->x);
-        file.WriteInt("y", steps[i]->y);
-        file.WriteDelimiter();
     }
 }
 
@@ -1224,7 +1167,7 @@ BuilderPath::BuilderPath() : UnitPath(0, 0), x(1), y(1) {}
 
 BuilderPath::~BuilderPath() {}
 
-TextFileObject* BuilderPath::Allocate() { return new (std::nothrow) BuilderPath(); }
+FileObject* BuilderPath::Allocate() { return new (std::nothrow) BuilderPath(); }
 
 unsigned short BuilderPath::GetTypeIndex() const { return Paths_BuilderPath_TypeIndex; }
 
@@ -1236,16 +1179,6 @@ void BuilderPath::FileLoad(SmartFileReader& file) {
 void BuilderPath::FileSave(SmartFileWriter& file) {
     file.Write(x);
     file.Write(y);
-}
-
-void BuilderPath::TextLoad(TextStructure& object) {
-    x = object.ReadInt("x");
-    y = object.ReadInt("y");
-}
-
-void BuilderPath::TextSave(SmartTextfileWriter& file) {
-    file.WriteInt("x", x);
-    file.WriteInt("y", y);
 }
 
 int BuilderPath::GetMovementCost(UnitInfo* unit) { return SHRT_MAX; }

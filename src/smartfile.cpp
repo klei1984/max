@@ -27,10 +27,6 @@ FileObject::FileObject() : object_index(0) {}
 FileObject::FileObject(const FileObject& other) : object_index(other.object_index) {}
 FileObject::~FileObject() {}
 
-TextFileObject::TextFileObject() {}
-TextFileObject::TextFileObject(const TextFileObject& other) {}
-TextFileObject::~TextFileObject() {}
-
 SmartFileReader::SmartFileReader() : file(nullptr) {}
 
 SmartFileReader::SmartFileReader(const char* const path) : file(nullptr) { Open(path); }
@@ -61,7 +57,7 @@ void SmartFileReader::Read(void* buffer, int size) {
     SDL_assert(read_count == 1);
 }
 
-void SmartFileReader::LoadObject(TextFileObject& object) {
+void SmartFileReader::LoadObject(FileObject& object) {
     read_objects.Insert(&object);
 
     object.FileLoad(*this);
@@ -83,10 +79,10 @@ unsigned short SmartFileReader::ReadObjectCount() {
     return value;
 }
 
-TextFileObject* SmartFileReader::ReadObject() {
+FileObject* SmartFileReader::ReadObject() {
     unsigned short object_index;
     unsigned short type_index;
-    TextFileObject* object;
+    FileObject* object;
 
     object_index = ReadIndex();
 
@@ -124,7 +120,7 @@ bool SmartFileWriter::Open(const char* const path) {
 }
 
 void SmartFileWriter::Close() {
-    for (SmartList<TextFileObject>::Iterator it = objects.Begin(); it != objects.End(); ++it) {
+    for (SmartList<FileObject>::Iterator it = objects.Begin(); it != objects.End(); ++it) {
         (*it).SetIndex(0);
     }
 
@@ -142,12 +138,12 @@ void SmartFileWriter::Write(void* buffer, int size) {
     SDL_assert(write_count == 1);
 }
 
-void SmartFileWriter::AddObject(TextFileObject* object) {
+void SmartFileWriter::AddObject(FileObject* object) {
     objects.PushBack(*object);
     object->SetIndex(objects.GetCount());
 }
 
-void SmartFileWriter::SaveObject(TextFileObject* object) {
+void SmartFileWriter::SaveObject(FileObject* object) {
     AddObject(object);
     object->FileSave(*this);
 }
@@ -156,7 +152,7 @@ void SmartFileWriter::WriteIndex(unsigned short index) { Write(index); }
 
 void SmartFileWriter::WriteObjectCount(unsigned short count) { Write(count); }
 
-void SmartFileWriter::WriteObject(TextFileObject* object) {
+void SmartFileWriter::WriteObject(FileObject* object) {
     if (nullptr == object) {
         WriteIndex(0);
     } else {
