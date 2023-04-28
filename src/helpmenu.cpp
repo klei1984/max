@@ -337,6 +337,8 @@ bool HelpMenu::ProcessKey(int key) {
                 int row_index;
                 unsigned int time_stamp;
 
+                button_up->PlaySound();
+
                 row_index = string_row_index - rows_per_page;
 
                 if (row_index < 0) {
@@ -362,6 +364,8 @@ bool HelpMenu::ProcessKey(int key) {
             if ((string_row_index + rows_per_page) < string_row_count) {
                 int row_index;
                 unsigned int time_stamp;
+
+                button_down->PlaySound();
 
                 row_index = string_row_index + rows_per_page;
 
