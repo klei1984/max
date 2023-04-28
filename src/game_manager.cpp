@@ -3517,7 +3517,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int event) {
 
             if (unit->hits && !GameManager_IsAtGridPosition(unit)) {
                 resource_id1 = V_M229;
-                resource_id2 = V_F256;
+                resource_id2 = V_F232;
 
             } else if (!GameManager_IsAtGridPosition(unit)) {
                 GameManager_UnknownUnit3 = nullptr;
