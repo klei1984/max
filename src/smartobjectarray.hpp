@@ -88,7 +88,7 @@ public:
     void Remove(unsigned short position) {
         if (position < count) {
             if (position < (count - 1)) {
-                memcpy(&object_array[position], &object_array[position + 1], (count - position - 1) * sizeof(T));
+                memmove(&object_array[position], &object_array[position + 1], (count - position - 1) * sizeof(T));
             }
 
             SDL_assert(count != 0);
