@@ -3825,7 +3825,7 @@ void UnitInfo::SpawnNewUnit() {
             AddReminders(true);
 
         } else {
-            if (GameManager_SelectedUnit) {
+            if (GameManager_SelectedUnit == this) {
                 SoundManager.PlaySfx(this, SFX_TYPE_IDLE);
             }
 
