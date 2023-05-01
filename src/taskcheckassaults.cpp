@@ -22,6 +22,7 @@
 #include "taskcheckassaults.hpp"
 
 #include "aiattack.hpp"
+#include "ailog.hpp"
 #include "reminders.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
@@ -32,6 +33,9 @@ TaskCheckAssaults::TaskCheckAssaults(unsigned short team) : Task(team, nullptr, 
 TaskCheckAssaults::~TaskCheckAssaults() {}
 
 void TaskCheckAssaults::CheckAssaults() {
+    AiLog log("Task check assaults");
+    unsigned short unit_count = 0;
+
     if (unit_iterator == nullptr && field_6) {
         field_6 = false;
 
@@ -49,10 +53,17 @@ void TaskCheckAssaults::CheckAssaults() {
     for (; unit_iterator != nullptr; SelectNext()) {
         if (Paths_HaveTimeToThink()) {
             if (EvaluateAssaults()) {
+                log.Log("Assault check paused.");
+
                 return;
             }
 
+            ++unit_count;
+
         } else {
+            log.Log("Assault check paused, %i msecs since frame update, %i units checked.",
+                    timer_elapsed_time(Paths_LastTimeStamp), unit_count);
+
             if (!GetField8()) {
                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
             }

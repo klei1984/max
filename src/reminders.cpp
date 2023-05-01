@@ -22,6 +22,7 @@
 #include "reminders.hpp"
 
 #include "aiattack.hpp"
+#include "ailog.hpp"
 #include "task_manager.hpp"
 #include "taskdebugger.hpp"
 #include "unitinfo.hpp"
@@ -36,12 +37,16 @@ RemindTurnStart::RemindTurnStart(Task& task) : task(task) { this->task->SetField
 RemindTurnStart::~RemindTurnStart() {}
 
 void RemindTurnStart::Execute() {
+    char buffer[500];
+
+    AiLog("Begin turn for %s", task->WriteStatusLog(buffer));
+
     task->SetField7(false);
     TaskDebugger_DebugBreak(task->GetId());
     task->BeginTurn();
 }
 
-int RemindTurnStart::GetType() { return 0; }
+int RemindTurnStart::GetType() { return REMINDER_TYPE_TURN_START; }
 
 int RemindTurnStart::GetMemoryUse() const { return 4; }
 
@@ -50,12 +55,16 @@ RemindTurnEnd::RemindTurnEnd(Task& task) : task(task) { this->task->SetField8(tr
 RemindTurnEnd::~RemindTurnEnd() {}
 
 void RemindTurnEnd::Execute() {
+    char buffer[500];
+
+    AiLog("End turn for %s", task->WriteStatusLog(buffer));
+
     task->SetField8(false);
     TaskDebugger_DebugBreak(task->GetId());
     task->EndTurn();
 }
 
-int RemindTurnEnd::GetType() { return 1; }
+int RemindTurnEnd::GetType() { return REMINDER_TYPE_TURN_END; }
 
 int RemindTurnEnd::GetMemoryUse() const { return 4; }
 
@@ -69,7 +78,7 @@ void RemindAvailable::Execute() {
     }
 }
 
-int RemindAvailable::GetType() { return 2; }
+int RemindAvailable::GetType() { return REMINDER_TYPE_AVAILABLE; }
 
 int RemindAvailable::GetMemoryUse() const { return 4; }
 
@@ -87,11 +96,15 @@ void RemindMoveFinished::Execute() {
     Task* task = new_unit->GetTask();
 
     if (task && new_unit->hits > 0) {
+        char buffer[500];
+
+        AiLog("Move finished reminder for %s", task->WriteStatusLog(buffer));
+
         task->Execute(*new_unit);
     }
 }
 
-int RemindMoveFinished::GetType() { return 3; }
+int RemindMoveFinished::GetType() { return REMINDER_TYPE_MOVE; }
 
 int RemindMoveFinished::GetMemoryUse() const { return 4; }
 
@@ -101,10 +114,16 @@ RemindAttack::~RemindAttack() {}
 
 void RemindAttack::Execute() {
     if (unit->hits && unit->shots && UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
+        if (unit->GetTask()) {
+            char buffer[500];
+
+            AiLog("Attack reminder for %s", unit->GetTask()->WriteStatusLog(buffer));
+        }
+
         AiAttack_EvaluateAttack(&*unit);
     }
 }
 
-int RemindAttack::GetType() { return 4; }
+int RemindAttack::GetType() { return REMINDER_TYPE_ATTACK; }
 
 int RemindAttack::GetMemoryUse() const { return 4; }

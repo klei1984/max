@@ -25,6 +25,15 @@
 #include "smartpointer.hpp"
 #include "task.hpp"
 
+enum {
+    REMINDER_TYPE_TURN_START,
+    REMINDER_TYPE_TURN_END,
+    REMINDER_TYPE_AVAILABLE,
+    REMINDER_TYPE_MOVE,
+    REMINDER_TYPE_ATTACK,
+    REMINDER_TYPE_COUNT
+};
+
 class Reminder : public SmartObject {
 public:
     Reminder();

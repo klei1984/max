@@ -21,6 +21,7 @@
 
 #include "taskobtainunits.hpp"
 
+#include "ailog.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 
@@ -90,6 +91,8 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
         list = &UnitsManager_MobileLandSeaUnits;
     }
 
+    AiLog log("Obtain Unit: Find %s ", UnitsManager_BaseUnits[unit_type].singular_name);
+
     for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != nullptr; ++unit) {
         if ((*unit).unit_type == unit_type) {
             if ((*unit).orders == ORDER_BUILD &&
@@ -116,8 +119,18 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
         }
     }
 
-    if (!is_unit_available) {
-        selected_unit = nullptr;
+    if (selected_unit) {
+        if (!is_unit_available) {
+            log.Log("%s at [%i,%i] has %i turns left to build",
+                    UnitsManager_BaseUnits[selected_unit->unit_type].singular_name, selected_unit->grid_x + 1,
+                    selected_unit->grid_y + 1, selected_unit->build_time);
+
+            selected_unit = nullptr;
+        } else {
+            log.Log("found.");
+        }
+    } else {
+        log.Log("not found.");
     }
 
     return selected_unit;
@@ -175,6 +188,8 @@ bool TaskObtainUnits::Task_vfunc9() {
 void TaskObtainUnits::AddUnit(UnitInfo& unit) {
     int index = units->Find(&unit.unit_type);
 
+    AiLog("Obtain Units: Add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+
     if (CountInstancesOfUnitType(unit.unit_type)) {
         units->Remove(index);
         parent->AddUnit(unit);
@@ -200,6 +215,8 @@ void TaskObtainUnits::Begin() {
 }
 
 void TaskObtainUnits::BeginTurn() {
+    AiLog("Obtain Unit: Begin Turn");
+
     field_28 = true;
     EndTurn();
 }
@@ -261,6 +278,8 @@ void TaskObtainUnits::EndTurn() {
 }
 
 void TaskObtainUnits::RemoveSelf() {
+    AiLog("Obtain Unit: Parent Complete");
+
     units.Clear();
     parent = nullptr;
     TaskManager.RemoveTask(*this);

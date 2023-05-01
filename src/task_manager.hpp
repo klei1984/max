@@ -72,6 +72,8 @@ public:
     SmartList<Task>& GetTaskList();
 };
 
+const char* TaskManager_GetTaskName(Task* task);
+
 extern class TaskManager TaskManager;
 extern unsigned short TaskManager_word_1731C0;
 

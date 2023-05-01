@@ -406,7 +406,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, in
 }
 
 void TaskManager::AppendTask(Task& task) {
-    AiLog("Task Manager: append task '%s'.", TaskManager_TaskNames[task.GetType()]);
+    AiLog("Task Manager: append task '%s'.", TaskManager_GetTaskName(&task));
 
     tasks.PushBack(task);
 
@@ -480,7 +480,7 @@ bool TaskManager::ExecuteReminders() {
 }
 
 void TaskManager::BeginTurn(unsigned short team) {
-    AiLog("Task Manager: begin turn.");
+    AiLog log("Task Manager: begin turn.");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() != TaskType_TaskTransport) {
@@ -499,6 +499,20 @@ void TaskManager::BeginTurn(unsigned short team) {
             (*it).RemindTurnStart();
         }
     }
+
+    unsigned short reminders[REMINDER_TYPE_COUNT];
+
+    memset(reminders, 0, sizeof(reminders));
+
+    for (SmartList<Reminder>::Iterator it = normal_reminders.Begin(); it != normal_reminders.End(); ++it) {
+        ++reminders[(*it).GetType()];
+    }
+
+    log.Log("Turn start reminders: %i", reminders[REMINDER_TYPE_TURN_START]);
+    log.Log("Turn end reminders: %i", reminders[REMINDER_TYPE_TURN_END]);
+    log.Log("Available reminders: %i", reminders[REMINDER_TYPE_AVAILABLE]);
+    log.Log("Move reminders: %i", reminders[REMINDER_TYPE_MOVE]);
+    log.Log("Attack reminders: %i", reminders[REMINDER_TYPE_ATTACK]);
 }
 
 void TaskManager::EndTurn(unsigned short team) {
@@ -562,6 +576,8 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 unsigned short task_flags;
 
                 unit->GetDisplayName(unit_name);
+
+                AiLog("Task manager: find a task for %s.", unit_name);
 
                 if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
                     if (unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) != unit->hits ||
@@ -687,3 +703,5 @@ void TaskManager::ProcessTasks2(UnitInfo* unit) {
 int TaskManager::GetRemindersCount() const { return normal_reminders.GetCount() + priority_reminders.GetCount(); }
 
 SmartList<Task>& TaskManager::GetTaskList() { return tasks; }
+
+const char* TaskManager_GetTaskName(Task* task) { return task ? TaskManager_TaskNames[task->GetType()] : ""; }
