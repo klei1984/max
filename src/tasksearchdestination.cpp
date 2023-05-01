@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
@@ -36,7 +37,7 @@ TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int ra
     field_57 = 0;
     field_59 = 0;
     field_61 = 0;
-    field_62 = 0;
+    is_doomed = 0;
     unit = unit_;
     point1.x = unit_->grid_x;
     point1.y = unit_->grid_y;
@@ -62,6 +63,8 @@ unsigned char TaskSearchDestination::GetType() const { return TaskType_TaskSearc
 
 void TaskSearchDestination::Begin() {
     Point position;
+
+    AiLog("Search destination begin.");
 
     unit->AddTask(this);
     point3 = search_task->GetPoint();
@@ -99,8 +102,15 @@ void TaskSearchDestination::RemoveSelf() {
 }
 
 void TaskSearchDestination::FinishSearch() {
+    AiLog log("Search destination: finished.");
+
+    log.Log("Calls: valid %i, searched %i, can enter %i", valid_sites, searched_sites, enterable_sites);
+
     if (unit) {
         unit->RemoveTask(this);
+
+    } else {
+        log.Log("Unit is null.");
     }
 
     unit = nullptr;
@@ -114,6 +124,8 @@ void TaskSearchDestination::SearchNextCircle() {
     Point position(unit->grid_x, unit->grid_y);
     int direction;
 
+    AiLog log("Search destination: NextCircle");
+
     while (field_61) {
         direction = UnitsManager_GetTargetAngle(point3.x - point2.x, point3.y - point2.y);
 
@@ -125,6 +137,8 @@ void TaskSearchDestination::SearchNextCircle() {
         }
 
         radius = TaskManager_GetDistance(position, point2) / 2;
+
+        log.Log("Radius %i", radius);
 
         field_61 = true;
 
@@ -163,10 +177,10 @@ bool TaskSearchDestination::Search() {
     short** damage_potential_map = nullptr;
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    TransporterMap map(&*unit, 1, field_62 ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
+    TransporterMap map(&*unit, 1, is_doomed ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                        UnitsManager_BaseUnits[unit->unit_type].land_type & SURFACE_TYPE_WATER ? INVALID_ID : AIRTRANS);
 
-    if (!field_62) {
+    if (!is_doomed) {
         damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1);
     }
 
@@ -219,7 +233,11 @@ bool TaskSearchDestination::Search() {
             }
 
         } else {
+            AiLog log("Search paused, %i msecs since frame update", timer_elapsed_time(Paths_LastTimeStamp));
+
             if (!GetField8()) {
+                log.Log("Adding end turn reminder");
+
                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
             }
 
@@ -237,6 +255,9 @@ void TaskSearchDestination::SearchTrySite() {
     SmartList<UnitInfo>* units;
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
+
+    AiLog log("Search destination: try [%i,%i]", points[index].x + 1, points[index].y + 1);
+
     Point_object1 = search_task->GetPoint();
     direction = UnitsManager_GetTargetAngle(points[index].x - Point_object1.x, points[index].y - Point_object1.y);
     site = points[index];
@@ -246,7 +267,7 @@ void TaskSearchDestination::SearchTrySite() {
 
     for (int i = search_radius;
          i > 0 && Access_IsInsideBounds(&bounds, &site) &&
-         (field_62 || !Ai_IsDangerousLocation(&*unit, site, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1)) &&
+         (is_doomed || !Ai_IsDangerousLocation(&*unit, site, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1)) &&
          sub_3DFCF(&*unit, site);
          --i) {
         best_site = site;
@@ -279,6 +300,10 @@ void TaskSearchDestination::SearchTrySite() {
             if (flag) {
                 SmartPointer<UnitInfo> backup = unit;
                 unit = &*it;
+
+                log.Log("Swapping for %s at [%i,%i]", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+                        unit->grid_x + 1, unit->grid_y + 1);
+
                 unit->ClearFromTaskLists();
                 search_task->AddUnit(*unit);
                 unit->AddTask(this);
@@ -290,7 +315,7 @@ void TaskSearchDestination::SearchTrySite() {
     }
 
     SmartPointer<Task> move_task =
-        new (std::nothrow) TaskMove(&*unit, this, 0, field_62 ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
+        new (std::nothrow) TaskMove(&*unit, this, 0, is_doomed ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                     best_site, &CloseMoveFinishedCallback);
 
     TaskManager.AppendTask(*move_task);
@@ -313,20 +338,33 @@ bool TaskSearchDestination::sub_3DFCF(UnitInfo* unit_, Point point) {
 }
 
 void TaskSearchDestination::ResumeSearch() {
+    AiLog log("Search destination: resume search.");
+
     if (unit) {
         if (unit->IsReadyForOrders(this) && unit->speed > 0) {
-            if (!field_62) {
+            log.Log("Client unit: %s at [%i,%i]", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+                    unit->grid_x + 1, unit->grid_y + 1);
+
+            if (!is_doomed) {
                 if (Task_RetreatFromDanger(this, &*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
+                    log.Log("Retreating from danger.");
+
                     FinishSearch();
 
                     return;
 
                 } else if (Task_IsUnitDoomedToDestruction(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
-                    field_62 = true;
+                    is_doomed = true;
                 }
             }
 
-            if (field_62 && (unit->grid_x != point1.x || unit->grid_y != point1.y)) {
+            if (is_doomed) {
+                log.Log("Unit is doomed to destruction.");
+            }
+
+            if (is_doomed && (unit->grid_x != point1.x || unit->grid_y != point1.y)) {
+                log.Log("Unit has moved.");
+
                 FinishSearch();
 
                 return;
@@ -338,13 +376,20 @@ void TaskSearchDestination::ResumeSearch() {
             }
 
         } else {
+            log.Log("Not ready for orders, or no movement left.");
+
             FinishSearch();
         }
+
+    } else {
+        log.Log("Unit is null.");
     }
 }
 
 void TaskSearchDestination::CloseMoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     TaskSearchDestination* search_task = dynamic_cast<TaskSearchDestination*>(task);
+
+    AiLog("Search destination: close result");
 
     if (result == TASKMOVE_RESULT_BLOCKED) {
         SmartPointer<Task> move_task = new (std::nothrow)
@@ -360,6 +405,8 @@ void TaskSearchDestination::CloseMoveFinishedCallback(Task* task, UnitInfo* unit
 
 void TaskSearchDestination::FarMoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     TaskSearchDestination* search_task = dynamic_cast<TaskSearchDestination*>(task);
+
+    AiLog("Search destination: far result");
 
     if (result == TASKMOVE_RESULT_BLOCKED) {
         search_task->ResumeSearch();

@@ -40,7 +40,7 @@ class TaskSearchDestination : public Task {
     short field_59;
 
     bool field_61;
-    bool field_62;
+    bool is_doomed;
 
     short valid_sites;
     short searched_sites;

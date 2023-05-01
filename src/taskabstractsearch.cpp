@@ -21,12 +21,16 @@
 
 #include "taskabstractsearch.hpp"
 
+#include "ailog.hpp"
 #include "inifile.hpp"
 #include "task_manager.hpp"
 #include "taskrepair.hpp"
 #include "tasksearchdestination.hpp"
+#include "units_manager.hpp"
 
 void TaskAbstractSearch::FindDestination(UnitInfo& unit, int radius) {
+    AiLog("Abstract Search: Find Destination");
+
     if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && field_6 && unit.speed) {
         field_6 = false;
 
@@ -47,6 +51,8 @@ TaskAbstractSearch::~TaskAbstractSearch() {}
 Point TaskAbstractSearch::GetPoint() const { return point; }
 
 void TaskAbstractSearch::AddUnit(UnitInfo& unit) {
+    AiLog("Abstract search: Add %s", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+
     units.PushBack(unit);
     unit.AddTask(this);
     Task_RemindMoveFinished(&unit);
@@ -55,16 +61,22 @@ void TaskAbstractSearch::AddUnit(UnitInfo& unit) {
 void TaskAbstractSearch::BeginTurn() { EndTurn(); }
 
 void TaskAbstractSearch::ChildComplete(Task* task) {
+    AiLog log("Abstract Search:: Child Complete.");
+
     if (task->GetType() == TaskType_TaskObtainUnits) {
         --requestors;
 
         if (requestors < 0) {
             requestors = 0;
         }
+
+        log.Log("Requestors open: %i", requestors);
     }
 }
 
 void TaskAbstractSearch::EndTurn() {
+    AiLog("Abstract search end turn");
+
     if (units.GetCount()) {
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             if ((*it).speed && (*it).IsReadyForOrders(this)) {
@@ -105,7 +117,12 @@ void TaskAbstractSearch::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
+void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) {
+    AiLog("Abstract search: Remove %s (requestors open: %i)", UnitsManager_BaseUnits[unit.unit_type].singular_name,
+          requestors);
+
+    units.Remove(unit);
+}
 
 void TaskAbstractSearch::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
     if (units.GetCount() > 0 || requestors > 0) {

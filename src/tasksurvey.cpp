@@ -56,7 +56,7 @@ unsigned char TaskSurvey::GetType() const { return TaskType_TaskSurvey; }
 bool TaskSurvey::Execute(UnitInfo& unit) {
     bool result;
 
-    AiLog log("survey: move finished.");
+    AiLog log("Survey: move finished.");
 
     if (unit.IsReadyForOrders(this)) {
         if (unit.speed) {
@@ -124,7 +124,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
         }
 
     } else {
-        log.Log("not ready for orders.");
+        log.Log("Not ready for orders.");
 
         result = false;
     }
