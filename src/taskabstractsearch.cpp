@@ -29,7 +29,7 @@
 #include "units_manager.hpp"
 
 void TaskAbstractSearch::FindDestination(UnitInfo& unit, int radius) {
-    AiLog("Abstract Search: Find Destination");
+    AiLog log("Abstract Search: Find Destination");
 
     if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && field_6 && unit.speed) {
         field_6 = false;
@@ -51,7 +51,7 @@ TaskAbstractSearch::~TaskAbstractSearch() {}
 Point TaskAbstractSearch::GetPoint() const { return point; }
 
 void TaskAbstractSearch::AddUnit(UnitInfo& unit) {
-    AiLog("Abstract search: Add %s", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+    AiLog log("Abstract search: Add %s", UnitsManager_BaseUnits[unit.unit_type].singular_name);
 
     units.PushBack(unit);
     unit.AddTask(this);
@@ -75,7 +75,7 @@ void TaskAbstractSearch::ChildComplete(Task* task) {
 }
 
 void TaskAbstractSearch::EndTurn() {
-    AiLog("Abstract search end turn");
+    AiLog log("Abstract search end turn");
 
     if (units.GetCount()) {
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
@@ -118,8 +118,8 @@ void TaskAbstractSearch::RemoveSelf() {
 }
 
 void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) {
-    AiLog("Abstract search: Remove %s (requestors open: %i)", UnitsManager_BaseUnits[unit.unit_type].singular_name,
-          requestors);
+    AiLog log("Abstract search: Remove %s (requestors open: %i)", UnitsManager_BaseUnits[unit.unit_type].singular_name,
+              requestors);
 
     units.Remove(unit);
 }

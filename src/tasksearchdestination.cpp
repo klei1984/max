@@ -64,7 +64,7 @@ unsigned char TaskSearchDestination::GetType() const { return TaskType_TaskSearc
 void TaskSearchDestination::Begin() {
     Point position;
 
-    AiLog("Search destination begin.");
+    AiLog log("Search destination begin.");
 
     unit->AddTask(this);
     point3 = search_task->GetPoint();
@@ -389,7 +389,7 @@ void TaskSearchDestination::ResumeSearch() {
 void TaskSearchDestination::CloseMoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     TaskSearchDestination* search_task = dynamic_cast<TaskSearchDestination*>(task);
 
-    AiLog("Search destination: close result");
+    AiLog log("Search destination: close result");
 
     if (result == TASKMOVE_RESULT_BLOCKED) {
         SmartPointer<Task> move_task = new (std::nothrow)
@@ -406,7 +406,7 @@ void TaskSearchDestination::CloseMoveFinishedCallback(Task* task, UnitInfo* unit
 void TaskSearchDestination::FarMoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     TaskSearchDestination* search_task = dynamic_cast<TaskSearchDestination*>(task);
 
-    AiLog("Search destination: far result");
+    AiLog log("Search destination: far result");
 
     if (result == TASKMOVE_RESULT_BLOCKED) {
         search_task->ResumeSearch();

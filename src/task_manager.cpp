@@ -255,7 +255,7 @@ bool TaskManager::CheckTasksThinking(unsigned short team) {
         if ((*it).GetTeam() == team && (*it).IsThinking()) {
             char text[200];
 
-            AiLog("Task thinking: %s", (*it).WriteStatusLog(text));
+            AiLog log("Task thinking: %s", (*it).WriteStatusLog(text));
 
             return true;
         }
@@ -268,7 +268,7 @@ void TaskManager::CheckComputerReactions() {
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (GameManager_PlayMode != PLAY_MODE_TURN_BASED ||
             UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
-            AiLog("Checking computer reactions");
+            AiLog log("Checking computer reactions");
 
             for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
                 if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == (*it).GetTeam()) {
@@ -355,7 +355,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, in
     unsigned short task_flags = task->GetFlags();
     unsigned short task_team = task->GetTeam();
 
-    AiLog("Task: Request %s.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AiLog log("Task: Request %s.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (Task_EstimateTurnsTillMissionEnd() >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
@@ -406,7 +406,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, in
 }
 
 void TaskManager::AppendTask(Task& task) {
-    AiLog("Task Manager: append task '%s'.", TaskManager_GetTaskName(&task));
+    AiLog log("Task Manager: append task '%s'.", TaskManager_GetTaskName(&task));
 
     tasks.PushBack(task);
 
@@ -516,7 +516,7 @@ void TaskManager::BeginTurn(unsigned short team) {
 }
 
 void TaskManager::EndTurn(unsigned short team) {
-    AiLog("Task Manager: end turn.");
+    AiLog log("Task Manager: end turn.");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team) {
@@ -526,7 +526,7 @@ void TaskManager::EndTurn(unsigned short team) {
 }
 
 void TaskManager::ChangeFlagsSet(unsigned short team) {
-    AiLog("Task Manager: change flags set");
+    AiLog log("Task Manager: change flags set");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team) {
@@ -553,7 +553,7 @@ void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
 
     unit->GetDisplayName(unit_name);
 
-    AiLog("Task manager: make %s available.", unit_name);
+    AiLog log("Task manager: make %s available.", unit_name);
 
     unit->ClearFromTaskLists();
     unit->ChangeField221(0x100, false);
@@ -577,7 +577,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
 
                 unit->GetDisplayName(unit_name);
 
-                AiLog("Task manager: find a task for %s.", unit_name);
+                AiLog log("Task manager: find a task for %s.", unit_name);
 
                 if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
                     if (unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) != unit->hits ||

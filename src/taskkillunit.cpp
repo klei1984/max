@@ -490,7 +490,7 @@ void TaskKillUnit::BeginTurn() {
     if (spotted_unit) {
         Point position;
 
-        AiLog("Kill %s: Begin Turn.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name);
+        AiLog log("Kill %s: Begin Turn.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name);
 
         managed_unit = nullptr;
 
@@ -502,7 +502,7 @@ void TaskKillUnit::BeginTurn() {
 }
 
 void TaskKillUnit::ChildComplete(Task* task) {
-    AiLog("Kill Unit: Child Complete.");
+    AiLog log("Kill Unit: Child Complete.");
 
     if (spotted_unit) {
         if (task->GetType() == TaskType_TaskObtainUnits) {
@@ -514,7 +514,7 @@ void TaskKillUnit::ChildComplete(Task* task) {
 
 void TaskKillUnit::EndTurn() {
     if (spotted_unit) {
-        AiLog("Kill %s: End Turn.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name);
+        AiLog log("Kill %s: End Turn.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name);
 
         MoveUnits();
     }

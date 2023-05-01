@@ -86,7 +86,7 @@ bool TaskExplore::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.IsReadyForOrders(this) && unit.speed) {
-        AiLog("Exlore: Move Finished");
+        AiLog log("Exlore: Move Finished");
 
         FindDestination(unit, unit.GetBaseValues()->GetAttribute(ATTRIB_SCAN));
 

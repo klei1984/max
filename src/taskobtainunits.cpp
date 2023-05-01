@@ -188,7 +188,7 @@ bool TaskObtainUnits::Task_vfunc9() {
 void TaskObtainUnits::AddUnit(UnitInfo& unit) {
     int index = units->Find(&unit.unit_type);
 
-    AiLog("Obtain Units: Add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+    AiLog log("Obtain Units: Add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
 
     if (CountInstancesOfUnitType(unit.unit_type)) {
         units->Remove(index);
@@ -215,7 +215,7 @@ void TaskObtainUnits::Begin() {
 }
 
 void TaskObtainUnits::BeginTurn() {
-    AiLog("Obtain Unit: Begin Turn");
+    AiLog log("Obtain Unit: Begin Turn");
 
     field_28 = true;
     EndTurn();
@@ -278,7 +278,7 @@ void TaskObtainUnits::EndTurn() {
 }
 
 void TaskObtainUnits::RemoveSelf() {
-    AiLog("Obtain Unit: Parent Complete");
+    AiLog log("Obtain Unit: Parent Complete");
 
     units.Clear();
     parent = nullptr;
