@@ -21,9 +21,11 @@
 
 #include "taskfindpath.hpp"
 
+#include "ailog.hpp"
 #include "paths_manager.hpp"
 #include "task_manager.hpp"
 #include "taskpathrequest.hpp"
+#include "units_manager.hpp"
 
 TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
                            void (*result_callback_)(Task* task, PathRequest* path_request, Point destination_,
@@ -45,7 +47,7 @@ int TaskFindPath::GetMemoryUse() const { return 4; }
 char* TaskFindPath::WriteStatusLog(char* buffer) const {
     if (path_request) {
         Point destination(path_request->GetPoint());
-        char string[20];
+        char string[50];
 
         strcpy(buffer, "Find Path to ");
         sprintf(string, "[%i,%i], c.l. %i", destination.x + 1, destination.y + 1, path_request->GetCautionLevel());
@@ -63,6 +65,9 @@ unsigned char TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
 bool TaskFindPath::IsThinking() { return path_request; }
 
 void TaskFindPath::Begin() {
+    AiLog log("Task find path for %s: begin",
+              UnitsManager_BaseUnits[path_request->GetUnit1()->unit_type].singular_name);
+
     path_request->GetUnit1()->AddTask(this);
     PathsManager_RemoveRequest(path_request->GetUnit1());
     PathsManager_PushBack(*path_request);
@@ -72,6 +77,9 @@ void TaskFindPath::EndTurn() {}
 
 void TaskFindPath::RemoveSelf() {
     if (path_request) {
+        AiLog log("Task find path for %s: parent complete",
+                  UnitsManager_BaseUnits[path_request->GetUnit1()->unit_type].singular_name);
+
         PathsManager_RemoveRequest(&*path_request);
 
         path_request = nullptr;
@@ -83,6 +91,10 @@ void TaskFindPath::RemoveSelf() {
 
 void TaskFindPath::RemoveUnit(UnitInfo& unit) {
     if (path_request) {
+        AiLog log("Task find path for %s: remove %s",
+                  UnitsManager_BaseUnits[path_request->GetUnit1()->unit_type].singular_name,
+                  UnitsManager_BaseUnits[unit.unit_type].singular_name);
+
         SDL_assert(path_request->GetUnit1() == &unit);
 
         RemoveSelf();
