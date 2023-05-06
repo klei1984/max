@@ -1794,12 +1794,16 @@ void TaskAttack::EvaluateAttackReadiness() {
     int required_damage = 0;
     int projected_damage = 0;
 
+    AiLog log("Considering readiness of attack.");
+
     if (op_state < ATTACK_STATE_WAIT) {
         op_state = ATTACK_STATE_WAIT;
     }
 
     if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
         if (!kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team) && !IsReconUnitAvailable()) {
+            log.Log("Task has no spotter.");
+
             op_state = ATTACK_STATE_WAIT;
 
             return;
@@ -1819,24 +1823,32 @@ void TaskAttack::EvaluateAttackReadiness() {
 
     if (projected_damage >= required_damage) {
         if (op_state == ATTACK_STATE_WAIT) {
+            log.Log("Enough units available.");
+
             op_state = ATTACK_STATE_GATHER_FORCES;
             attack_zone_reached = false;
         }
 
     } else {
         if (op_state > ATTACK_STATE_WAIT && (op_state < ATTACK_STATE_ATTACK || !IsAnyTargetInRange())) {
+            log.Log("Halt attack, too many losses.");
+
             op_state = ATTACK_STATE_WAIT;
         }
     }
 
     if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
         if (op_state == ATTACK_STATE_NORMAL_SEARCH && !IsTargetGroupInSight()) {
+            log.Log("Reverting to Advance, all units hidden.");
+
             op_state = ATTACK_STATE_ADVANCE;
         }
 
         if (op_state >= ATTACK_STATE_GATHER_FORCES && op_state < ATTACK_STATE_NORMAL_SEARCH) {
             if (DetermineLeader() && attack_zone_reached && Task_IsReadyToTakeOrders(&*leader) && leader->speed > 0 &&
                 IsAttackUnderControl()) {
+                log.Log("Ready for next stage of attack.");
+
                 ++op_state;
                 attack_zone_reached = false;
 
@@ -1851,6 +1863,10 @@ void TaskAttack::EvaluateAttackReadiness() {
                     int unit_range = (*it2).GetAttackRange();
 
                     if (Access_GetDistance(&*it2, position) <= unit_range * unit_range) {
+                        log.Log("%s at [%i,%i] is in assault range, shifting to attack mode.",
+                                UnitsManager_BaseUnits[(*it2).unit_type].singular_name, (*it2).grid_x + 1,
+                                (*it2).grid_y + 1);
+
                         op_state = ATTACK_STATE_NORMAL_SEARCH;
                         attack_zone_reached = false;
 
@@ -1862,6 +1878,8 @@ void TaskAttack::EvaluateAttackReadiness() {
 
         if (op_state == ATTACK_STATE_NORMAL_SEARCH || op_state == ATTACK_STATE_BOLD_SEARCH) {
             if (kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
+                log.Log("Target is visible.");
+
                 op_state = ATTACK_STATE_ATTACK;
                 attack_zone_reached = false;
 
@@ -1870,6 +1888,8 @@ void TaskAttack::EvaluateAttackReadiness() {
         }
 
         if (op_state == ATTACK_STATE_ATTACK && !kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
+            log.Log("Target not visible, changing from Attack to Search.");
+
             op_state = ATTACK_STATE_NORMAL_SEARCH;
             attack_zone_reached = false;
 
@@ -1878,6 +1898,8 @@ void TaskAttack::EvaluateAttackReadiness() {
 
     } else {
         if (op_state > ATTACK_STATE_WAIT) {
+            log.Log("Target is destroyed, halting attack.");
+
             op_state = ATTACK_STATE_WAIT;
         }
     }
@@ -1920,6 +1942,8 @@ void TaskAttack::AssessEnemyUnits() {
     bool teams[PLAYER_TEAM_MAX];
     unsigned short enemy_team;
     bool is_relevant;
+
+    AiLog log("Assess which enemy units protect primary targets.");
 
     access_flags |= MOBILE_AIR_UNIT;
 
@@ -1986,6 +2010,8 @@ void TaskAttack::AssessEnemyUnits() {
 
             if (attack_task) {
                 if (attack_task->GetAccessFlags() == access_flags && (attack_task->GetFlags() & 0xFF00) == flags) {
+                    log.Log("Merging attack tasks.");
+
                     attack_task->CopyTargets(this);
 
                     secondary_targets.Clear();
