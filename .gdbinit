@@ -62,17 +62,35 @@ class PrinterSmartString:
         return self.val['object_pointer'].dereference()
 
 class PlotMatrix:
-    """example: py PlotMatrix("this.map", (112,112)).plot()"""
-    def __init__(self, name, dimensions):
+    """example: py PlotMatrix("this.map", (112,112), 0).plot()"""
+    def __init__(self, name, dimensions, mode):
         self.val = gdb.parse_and_eval(name)
         self.dim = dimensions
+        self.mode = mode
 
     def plot(self):
-        with open("map.txt", "wt") as f:
-            for y in range(self.dim[0]):
-                for x in range(self.dim[1]):
-                    f.write(f"{int(self.val[x][y])}")
-                f.write("\n")
+        if self.mode:
+            with open("map.txt", "wt") as f:
+                for y in range(self.dim[0]):
+                    for x in range(self.dim[1]):
+                        f.write(f"{int(self.val[x][y])}")
+                    f.write("\n")
+        else:
+            with open("matrix.data", "wb") as f:
+                min = 0
+                max = 0
+                for y in range(self.dim[0]):
+                    for x in range(self.dim[1]):
+                        value = int(self.val[x][y])
+                        if min > value:
+                            min = value
+                        if max < value:
+                            max = value
+                for y in range(self.dim[0]):
+                    for x in range(self.dim[1]):
+                        value = int(self.val[x][y])
+                        value = int(((value - min) * 255) / (max - min))
+                        f.write(bytes([value]))
 
 class PlotIndexedImage:
     """example: py PlotIndexedImage("image.buffer", (640,480)).plot()"""
