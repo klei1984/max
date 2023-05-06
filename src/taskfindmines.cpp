@@ -21,6 +21,7 @@
 
 #include "taskfindmines.hpp"
 
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
@@ -40,6 +41,8 @@ char* TaskFindMines::WriteStatusLog(char* buffer) const {
 unsigned char TaskFindMines::GetType() const { return TaskType_TaskFindMines; }
 
 void TaskFindMines::BeginTurn() {
+    AiLog log("Find mines: begin turn");
+
     SmartList<UnitInfo>::Iterator unit = units.Begin();
 
     if (unit && requestors == 0) {
@@ -73,12 +76,16 @@ void TaskFindMines::BeginTurn() {
 bool TaskFindMines::Execute(UnitInfo& unit) {
     bool result;
 
+    AiLog log("Find mines: move finished.");
+
     if (unit.IsReadyForOrders(this) && unit.speed) {
         FindDestination(unit, 1);
 
         result = true;
 
     } else {
+        log.Log("Not ready for orders.");
+
         result = false;
     }
 

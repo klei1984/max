@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "inifile.hpp"
@@ -68,6 +69,8 @@ void Task_RemoveMovementTasks(UnitInfo* unit) {
     if (unit->orders != ORDER_IDLE || unit->hits <= 0) {
         for (SmartList<Task>::Iterator it = unit->GetTask1ListIterator(); it; ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
+                AiLog log("Move %s: removing old move task", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
                 unit->RemoveTask(&*it, false);
                 (*it).RemoveUnit(*unit);
             }
@@ -124,45 +127,62 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
             }
         }
 
-        if (team != PLAYER_TEAM_MAX - 1 &&
-            Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
-            for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnitIterator(); it; ++it) {
-                UnitInfo* spotted_unit = (*it).GetUnit();
-                int spotted_unit_range = spotted_unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+        if (team != PLAYER_TEAM_ALIEN) {
+            AiLog log("Determine if %s should reserve a shot at [%i,%i].",
+                      UnitsManager_BaseUnits[unit->unit_type].singular_name, site.x + 1, site.y + 1);
 
-                if (spotted_unit->ammo > 0 && relevant_teams[spotted_unit->team] && spotted_unit_range > unit_range &&
-                    Access_IsValidAttackTarget(spotted_unit->unit_type, unit->unit_type, site)) {
-                    UnitValues* unit_values = spotted_unit->GetBaseValues();
-                    int unit_distance = Access_GetDistance(unit, (*it).GetLastPosition());
-                    int attack_distance = unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+            if (Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
+                for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnitIterator(); it;
+                     ++it) {
+                    UnitInfo* spotted_unit = (*it).GetUnit();
+                    int spotted_unit_range = spotted_unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
-                    if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-                        attack_distance += unit_values->GetAttribute(ATTRIB_SPEED) / 2;
+                    if (spotted_unit->ammo > 0 && relevant_teams[spotted_unit->team] &&
+                        spotted_unit_range > unit_range &&
+                        Access_IsValidAttackTarget(spotted_unit->unit_type, unit->unit_type, site)) {
+                        UnitValues* unit_values = spotted_unit->GetBaseValues();
+                        int unit_distance = Access_GetDistance(unit, (*it).GetLastPosition());
+                        int attack_distance = unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
-                    } else {
-                        attack_distance += ((unit_values->GetAttribute(ATTRIB_ROUNDS) - 1) *
-                                            (unit_values->GetAttribute(ATTRIB_SPEED) + 1)) /
-                                           unit_values->GetAttribute(ATTRIB_ROUNDS);
-                    }
+                        if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                            attack_distance += unit_values->GetAttribute(ATTRIB_SPEED) / 2;
 
-                    if (unit_distance <= attack_distance * attack_distance) {
-                        if (spotted_unit_range <= unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
-                            if (Access_IsValidAttackTargetType(unit->unit_type, spotted_unit->unit_type)) {
-                                unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+                        } else {
+                            attack_distance += ((unit_values->GetAttribute(ATTRIB_ROUNDS) - 1) *
+                                                (unit_values->GetAttribute(ATTRIB_SPEED) + 1)) /
+                                               unit_values->GetAttribute(ATTRIB_ROUNDS);
+                        }
+
+                        if (unit_distance <= attack_distance * attack_distance) {
+                            if (spotted_unit_range <= unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
+                                if (Access_IsValidAttackTargetType(unit->unit_type, spotted_unit->unit_type)) {
+                                    unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+
+                                } else {
+                                    log.Log("%s at [%i,%i] outranges us.",
+                                            UnitsManager_BaseUnits[spotted_unit->unit_type].singular_name,
+                                            (*it).GetLastPositionX(), (*it).GetLastPositionY());
+
+                                    return false;
+                                }
 
                             } else {
                                 return false;
                             }
-
-                        } else {
-                            return false;
                         }
                     }
                 }
-            }
 
-            if (unit_range) {
-                result = true;
+                if (unit_range) {
+                    log.Log("Square is dangerous but there are no longer range threats.");
+
+                    result = true;
+
+                } else {
+                    log.Log("No danger.");
+
+                    result = false;
+                }
 
             } else {
                 result = false;

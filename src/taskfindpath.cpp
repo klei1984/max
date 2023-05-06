@@ -103,6 +103,9 @@ void TaskFindPath::RemoveUnit(UnitInfo& unit) {
 
 void TaskFindPath::CancelRequest() {
     if (path_request) {
+        AiLog log("Task find path for %s: cancelled",
+                  UnitsManager_BaseUnits[path_request->GetUnit1()->unit_type].singular_name);
+
         path_request->GetUnit1()->RemoveTask(this, false);
 
         cancel_callback(&*parent, &*path_request);
@@ -114,6 +117,9 @@ void TaskFindPath::CancelRequest() {
 }
 
 void TaskFindPath::Finish(Point position, GroundPath* path, bool result) {
+    AiLog log("Task find path for %s: finished (%s).",
+              UnitsManager_BaseUnits[path_request->GetUnit1()->unit_type].singular_name, result ? "True" : "False");
+
     path_request->GetUnit1()->RemoveTask(this, false);
 
     result_callback(&*parent, &*path_request, position, path, result);
