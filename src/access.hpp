@@ -51,7 +51,7 @@ unsigned int Access_GetAttackTargetGroup(UnitInfo *unit);
 unsigned int Access_UpdateMapStatusAddUnit(UnitInfo *unit, int grid_x, int grid_y);
 void Access_UpdateMapStatusRemoveUnit(UnitInfo *unit, int grid_x, int grid_y);
 void Access_DrawUnit(UnitInfo *unit);
-unsigned int Access_GetVelocity(UnitInfo *unit);
+unsigned int Access_GetTargetClass(UnitInfo *unit);
 void Access_UpdateMapStatus(UnitInfo *unit, bool mode);
 void Access_UpdateUnitVisibilityStatus(SmartList<UnitInfo> &units);
 void Access_UpdateVisibilityStatus(bool all_visible);

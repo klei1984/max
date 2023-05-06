@@ -102,7 +102,7 @@ Point UnitPath::GetPosition(UnitInfo* unit) const { return Point(unit->grid_x, u
 
 bool UnitPath::IsInPath(int grid_x, int grid_y) const { return false; }
 
-void UnitPath::Path_vfunc8(UnitInfo* unit) {}
+void UnitPath::CancelMoment(UnitInfo* unit) {}
 
 void UnitPath::UpdateUnitAngle(UnitInfo* unit) {}
 
@@ -203,7 +203,7 @@ Point AirPath::GetPosition(UnitInfo* unit) const {
     return point;
 }
 
-void AirPath::Path_vfunc8(UnitInfo* unit) {
+void AirPath::CancelMoment(UnitInfo* unit) {
     if (length) {
         if (unit->angle == angle) {
             if (delta_x > 0) {
@@ -541,7 +541,7 @@ bool GroundPath::IsInPath(int grid_x, int grid_y) const {
     return point.x == grid_x && point.y == grid_y;
 }
 
-void GroundPath::Path_vfunc8(UnitInfo* unit) {
+void GroundPath::CancelMoment(UnitInfo* unit) {
     if (unit->state == ORDER_STATE_5) {
         unit->BlockedOnPathRequest();
 

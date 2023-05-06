@@ -395,7 +395,7 @@ void TaskMove::TaskMove_sub_4C6BA() {
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
     if (Access_IsAccessible(passenger->unit_type, team, site.x, site.y, 2) &&
-        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 1)) {
+        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
         point3 = destination;
     }
 
@@ -412,7 +412,7 @@ void TaskMove::TaskMove_sub_4C6BA() {
                     keep_searching = true;
 
                     if (Access_IsAccessible(passenger->unit_type, team, site.x, site.y, 1) &&
-                        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 1)) {
+                        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                         destination = site;
                         point3 = destination;
 
@@ -838,7 +838,7 @@ bool TaskMove::CheckAirPath() {
         result = true;
 
     } else {
-        short** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, 0x01);
+        short** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
 
         if (damage_potential_map) {
             int line_distance_x = point1.x - passenger->grid_x;
@@ -1028,7 +1028,7 @@ void TaskMove::FindCurrentLocation() {
         minimum_distance = TaskManager_GetDistance(position, *planned_path[0]) / 2;
 
         if (caution_level > CAUTION_LEVEL_NONE) {
-            damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, 1);
+            damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
         }
 
         unit_hits = passenger->hits;
@@ -1073,7 +1073,7 @@ bool TaskMove::FindWaypoint() {
     short** damage_potential_map = nullptr;
 
     if (caution_level >= CAUTION_LEVEL_NONE) {
-        damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, 1);
+        damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
     }
 
     if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {

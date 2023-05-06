@@ -69,8 +69,8 @@ class AiPlayer {
 
     SmartList<SpottedUnit> spotted_units;
 
-    SmartList<UnitInfo> unitinfo_list1;
-    SmartList<UnitInfo> unitinfo_list2;
+    SmartList<UnitInfo> air_force;
+    SmartList<UnitInfo> ground_forces;
 
     short dimension_x;
 
@@ -128,12 +128,12 @@ class AiPlayer {
     static void UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int range, int attack,
                                  int shots, int& ammo, bool normalize);
     static void UpdateDamagePotentialMap(SmartList<UnitInfo>* units, short** map);
-    static void DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams, ThreatMap* threat_map1,
-                                 ThreatMap* threat_map2);
+    static void DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams,
+                                 ThreatMap* air_force_map, ThreatMap* ground_forces_map);
     static void SumUpMaps(short** map1, short** map2);
     static void NormalizeThreatMap(ThreatMap* threat_map);
-    static bool IsAbleToAttack(UnitInfo* unit, ResourceID unit_type, unsigned short team);
-    ThreatMap* GetThreatMap(int risk_level, int caution_level, unsigned char flags);
+    static bool IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, unsigned short team);
+    ThreatMap* GetThreatMap(int risk_level, int caution_level, bool is_for_attacking);
     WeightTable GetWeightTable(ResourceID unit_type);
     void AddThreatToMineMap(int grid_x, int grid_y, int range, int damage_potential, int factor);
     void MineSpotted(UnitInfo* unit);
@@ -168,7 +168,7 @@ public:
     Task* FindManager(Point site);
     SmartList<SpottedUnit>::Iterator GetSpottedUnitIterator();
     int GetMemoryUsage();
-    void AddThreat(UnitInfo* unit);
+    void AddMilitaryUnit(UnitInfo* unit);
     void BeginTurn();
     void GuessEnemyAttackDirections();
     void PlanMinefields();
@@ -177,9 +177,9 @@ public:
     bool CreateBuilding(ResourceID unit_type, Point position, Task* task);
     void Init(unsigned short team);
     int GetPredictedAttack(UnitInfo* unit, int caution_level);
-    short** GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsigned char flags);
-    short** GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags);
-    int GetDamagePotential(UnitInfo* unit, Point site, int caution_level, unsigned char flags);
+    short** GetDamagePotentialMap(UnitInfo* unit, int caution_level, bool is_for_attacking);
+    short** GetDamagePotentialMap(ResourceID unit_type, int caution_level, bool is_for_attacking);
+    int GetDamagePotential(UnitInfo* unit, Point site, int caution_level, bool is_for_attacking);
     void ClearZone(Zone* zone);
     WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned short flags);
     void SetInfoMapPoint(Point site);

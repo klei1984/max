@@ -240,7 +240,7 @@ void TaskManageBuildings::MarkBuildingAreas(unsigned short** construction_map, i
 
 void TaskManageBuildings::ClearBuildingAreas(unsigned short** construction_map, TaskCreateBuilding* task) {
     short** damage_potential_map =
-        AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 0x01);
+        AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
 
     if (damage_potential_map) {
         for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -1368,7 +1368,7 @@ void TaskManageBuildings::ClearAreasNearBuildings(unsigned char** access_map, in
 
 void TaskManageBuildings::EvaluateDangers(unsigned char** access_map) {
     short** damage_potential_map =
-        AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 0x01);
+        AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
 
     if (damage_potential_map) {
         for (int x = 0; x < ResourceManager_MapSize.x; ++x) {

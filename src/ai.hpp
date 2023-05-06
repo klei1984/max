@@ -39,7 +39,7 @@ void Ai_FileSave(SmartFileWriter& file);
 void Ai_SelectStartingPosition(unsigned short team);
 void Ai_AddUnitToTrackerList(UnitInfo* unit);
 void Ai_EnableAutoSurvey(UnitInfo* unit);
-bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, unsigned char flags);
+bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, bool is_for_attacking);
 void Ai_UpdateTerrain(UnitInfo* unit);
 int Ai_DetermineCautionLevel(UnitInfo* unit);
 void Ai_RemoveUnit(UnitInfo* unit);

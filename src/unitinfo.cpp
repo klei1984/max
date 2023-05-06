@@ -3599,9 +3599,9 @@ int UnitInfo::GetMaxAllowedBuildRate() {
     return result;
 }
 
-void UnitInfo::TakePathStep() {
+void UnitInfo::StopMovement() {
     if (orders == ORDER_MOVE && path != nullptr && (state == ORDER_STATE_5 || state == ORDER_STATE_6)) {
-        path->Path_vfunc8(this);
+        path->CancelMoment(this);
     }
 }
 

@@ -183,7 +183,7 @@ void TaskCreateBuilding::BeginBuilding() {
                 if (!parent || parent->Task_vfunc9()) {
                     if (builder->GetTask() == this) {
                         if (!RequestWaterPlatform() && !RequestMineRemoval() && !RequestRubbleRemoval()) {
-                            if (!Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0)) {
+                            if (!Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false)) {
                                 if (CheckMaterials()) {
                                     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED ||
                                         GameManager_ActiveTurnTeam == team) {
@@ -569,7 +569,7 @@ void TaskCreateBuilding::EndTurn() {
                         Activate();
 
                     } else if (builder->orders == ORDER_BUILD && builder->state == ORDER_STATE_11 &&
-                               Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0)) {
+                               Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false)) {
                         MoveToSite();
                     }
                 }
@@ -1074,7 +1074,7 @@ void TaskCreateBuilding::MarkBridgeAreas(unsigned char** map) {
         }
     }
 
-    damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1);
+    damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
 
     for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
         for (int y = 0; y < ResourceManager_MapSize.y; ++y) {

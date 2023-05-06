@@ -2975,7 +2975,7 @@ void Remote_ReceiveNetPacket_50(NetPacket& packet) {
     UnitInfo* unit = Hash_UnitHash[entity_id];
 
     if (unit) {
-        unit->TakePathStep();
+        unit->StopMovement();
 
     } else {
         Remote_NetErrorUnknownUnit(entity_id);

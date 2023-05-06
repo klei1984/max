@@ -45,7 +45,7 @@ public:
     short id;
     unsigned char risk_level;
     unsigned char caution_level;
-    unsigned char flags;
+    bool for_attacking;
     short armor;
     short **damage_potential_map;
     short **shots_map;

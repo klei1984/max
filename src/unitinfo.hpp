@@ -154,7 +154,7 @@ public:
     void InitStealthStatus();
     void Draw(unsigned short team);
     void DrawStealth(unsigned short team);
-    void TakePathStep();
+    void StopMovement();
     void SpotByTeam(unsigned short team);
     static void GetVersion(char* text, int version);
     void GetName(char* text) const;

@@ -69,7 +69,7 @@ void TaskRetreat::EndTurn() {
     if (unit_to_retreat != nullptr && unit_to_retreat->IsReadyForOrders(this)) {
         Point site(unit_to_retreat->grid_x, unit_to_retreat->grid_y);
 
-        if (AiPlayer_Teams[team].GetDamagePotential(&*unit_to_retreat, site, caution_level, 0x00)) {
+        if (AiPlayer_Teams[team].GetDamagePotential(&*unit_to_retreat, site, caution_level, false)) {
             Search();
 
         } else {
@@ -104,7 +104,7 @@ void TaskRetreat::Search() {
     int unit_hits;
     int index;
 
-    damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit_to_retreat, caution_level, 0x00);
+    damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit_to_retreat, caution_level, false);
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 

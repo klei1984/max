@@ -94,8 +94,8 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
             target = Access_GetRemovableRubble(unit_.team, target->grid_x, target->grid_y);
         }
 
-        if (target &&
-            !Ai_IsDangerousLocation(&unit_, Point(target->grid_x, target->grid_y), CAUTION_LEVEL_AVOID_ALL_DAMAGE, 1)) {
+        if (target && !Ai_IsDangerousLocation(&unit_, Point(target->grid_x, target->grid_y),
+                                              CAUTION_LEVEL_AVOID_ALL_DAMAGE, true)) {
             if (unit_.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) != unit_.storage) {
                 if (unit_.grid_x == target->grid_x && unit_.grid_y == target->grid_y) {
                     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {

@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "aiattack.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "continent.hpp"
 #include "inifile.hpp"
@@ -188,6 +189,8 @@ void TaskAttack::AddUnit(UnitInfo& unit) {
     }
 
     if (!recon_unit && IsReconUnitUsable(&unit)) {
+        AiLog log("Task Attack: add spotter.");
+
         recon_unit = unit;
         unit.AddTask(this);
 
@@ -244,6 +247,8 @@ void TaskAttack::BeginTurn() {
 
 void TaskAttack::ChildComplete(Task* task) {
     if (task->GetType() == TaskType_TaskKillUnit) {
+        AiLog log("Task Attack: kill unit task is complete.");
+
         secondary_targets.Remove(*dynamic_cast<TaskKillUnit*>(task));
 
         if (kill_unit_task == dynamic_cast<TaskKillUnit*>(task)) {
@@ -330,6 +335,8 @@ bool TaskAttack::Execute(UnitInfo& unit) {
 
     if (secondary_targets.GetCount() > 0) {
         if (unit.speed > 0 && unit.IsReadyForOrders(this)) {
+            AiLog log("Task Attack: move finished.");
+
             if ((unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) ||
                 ((leader == unit || recon_unit == unit) &&
                  (unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2))) {
@@ -428,6 +435,8 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
     int caution_level;
     bool result;
 
+    AiLog log("Task Attack: move combat unit.");
+
     if (op_state > ATTACK_STATE_GATHER_FORCES) {
         caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
 
@@ -470,6 +479,8 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                     }
 
                 } else {
+                    log.Log("Attack with %s impossible.", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
                     TaskManager.RemindAvailable(unit);
 
                     return false;
@@ -480,40 +491,48 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
             }
         }
 
+        log.Log("Attack square found, but it's too dangerous.");
+
         if (DetermineLeader()) {
             if (leader != unit) {
                 if (Task_IsReadyToTakeOrders(&*leader)) {
                     if (unit->grid_x == unit->point.x && unit->grid_y == unit->point.y) {
                         result = false;
 
-                    } else if (TaskManager_GetDistance(&*leader, unit) / 2 >
-                               unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
-                        if (MoveUnit(task, unit, GetLeaderDestination(), caution_level)) {
-                            result = true;
-
-                        } else {
-                            EvaluateAttackReadiness();
-
-                            result = false;
-                        }
-
                     } else {
-                        FindNewSiteForUnit(unit);
+                        log.Log("Grouping unit with %s at [%i,%i]",
+                                UnitsManager_BaseUnits[leader->unit_type].singular_name, leader->grid_x + 1,
+                                leader->grid_y + 1);
 
-                        if (unit->grid_x == unit->point.x && unit->grid_y == unit->point.y) {
-                            EvaluateAttackReadiness();
+                        if (TaskManager_GetDistance(&*leader, unit) / 2 >
+                            unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
+                            if (MoveUnit(task, unit, GetLeaderDestination(), caution_level)) {
+                                result = true;
 
-                            result = false;
+                            } else {
+                                EvaluateAttackReadiness();
+
+                                result = false;
+                            }
 
                         } else {
-                            SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(
-                                unit, task, 0, caution_level, unit->point, &TaskTransport_MoveFinishedCallback));
+                            FindNewSiteForUnit(unit);
 
-                            move_task->SetField68(true);
+                            if (unit->grid_x == unit->point.x && unit->grid_y == unit->point.y) {
+                                EvaluateAttackReadiness();
 
-                            TaskManager.AppendTask(*move_task);
+                                result = false;
 
-                            result = true;
+                            } else {
+                                SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(
+                                    unit, task, 0, caution_level, unit->point, &TaskTransport_MoveFinishedCallback));
+
+                                move_task->SetField68(true);
+
+                                TaskManager.AppendTask(*move_task);
+
+                                result = true;
+                            }
                         }
                     }
 
@@ -613,6 +632,8 @@ bool TaskAttack::EvaluateLandAttack() {
     UnitInfo* unit = nullptr;
     bool result;
 
+    AiLog log("Task Attack: Deciding if land attack is possible.");
+
     for (int i = 0; !unit && i < primary_targets.GetCount(); ++i) {
         unit = primary_targets[i].GetUnitSpotted();
     }
@@ -706,6 +727,8 @@ bool TaskAttack::EvaluateLandAttack() {
                 }
             }
 
+            log.Log("Land unit value: %i, sea unit value %i", worth_of_land_units, worth_of_sea_units);
+
             if (worth_of_sea_units > 0 || worth_of_land_units > 0) {
                 result = worth_of_land_units > worth_of_sea_units;
 
@@ -734,6 +757,8 @@ bool TaskAttack::EvaluateLandAttack() {
             }
 
         } else {
+            log.Log("Must attack via land, targets are not near water");
+
             result = true;
         }
 
@@ -745,6 +770,8 @@ bool TaskAttack::EvaluateLandAttack() {
 }
 
 void TaskAttack::Finish() {
+    AiLog log("Task Attack: finish.");
+
     if (support_attack_task) {
         support_attack_task->RemoveSelf();
         support_attack_task = nullptr;
@@ -955,6 +982,8 @@ void TaskAttack::UpdateReconUnit() {
         int safe_air_distance;
         int safe_ground_distance;
 
+        AiLog log("Task Attack: Update recon distances.");
+
         GetSafeDistances(&safe_air_distance, &safe_ground_distance);
 
         if (recon_unit) {
@@ -969,6 +998,8 @@ void TaskAttack::UpdateReconUnit() {
                 }
             }
         }
+
+        log.Log("Choose proper spotting unit.");
 
         if (access_flags & MOBILE_SEA_UNIT) {
             if (!FindReconUnit(FASTBOAT, safe_ground_distance) && !FindReconUnit(AWAC, safe_air_distance)) {
@@ -992,6 +1023,8 @@ void TaskAttack::UpdateReconUnit() {
 }
 
 void TaskAttack::ChooseFirstTarget() {
+    AiLog log("Task Attack: Deciding which target to attack first.");
+
     if (secondary_targets.GetCount() > 0) {
         kill_unit_task = secondary_targets[0];
 
@@ -1007,6 +1040,13 @@ void TaskAttack::ChooseFirstTarget() {
                 }
             }
         }
+    }
+
+    if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
+        log.Log("Chose to attack %s",
+                UnitsManager_BaseUnits[kill_unit_task->GetUnitSpotted()->unit_type].singular_name);
+    } else {
+        log.Log("No target chosen.");
     }
 }
 
@@ -1074,7 +1114,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_le
     Point target_position(unit->grid_x, unit->grid_y);
     Point position;
     unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
-    short** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(unit, caution_level, 0x00);
+    short** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(unit, caution_level, false);
     Rect bounds;
     ResourceID transporter = INVALID_ID;
     bool result;
@@ -1097,6 +1137,9 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_le
     } else if (Task_GetReadyUnitsCount(team, SHIPYARD) > 0) {
         transporter = SEATRANS;
     }
+
+    AiLog log("Task Attack: Move %s at [%i,%i] near [%i,%i].", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+              target_position.x + 1, target_position.y + 1, site.x + 1, site.y + 1);
 
     TransporterMap map(unit, 0x01, caution_level, transporter);
     bool is_there_time_to_prepare = IsThereTimeToPrepare();
@@ -1239,6 +1282,8 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
     int distance;
     int minimum_distance;
 
+    AiLog log("Find destination that does not require transport.");
+
     if (unit->flags & MOBILE_LAND_UNIT) {
         surface_type = SURFACE_TYPE_LAND;
 
@@ -1313,6 +1358,8 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
         }
     }
 
+    log.Log("Nearest location is [%i,%i], distance %i.", best_site.x + 1, best_site.y + 1, minimum_distance);
+
     unit->point = best_site;
 
     return best_site;
@@ -1323,6 +1370,8 @@ bool TaskAttack::MoveReconUnit(int caution_level) {
     Point site;
     bool is_visible_to_team = kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team);
     bool result;
+
+    AiLog log("Move recon unit.");
 
     if (op_state >= ATTACK_STATE_ADVANCE) {
         caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
@@ -1378,6 +1427,8 @@ bool TaskAttack::MoveReconUnit(int caution_level) {
         }
 
     } else {
+        log.Log("Previous destination was at leader's location.");
+
         result = false;
     }
 
@@ -1448,6 +1499,8 @@ bool TaskAttack::PlanMoveForReconUnit() {
     bool result;
     int caution_level;
 
+    AiLog log("Determine if moving recon unit is a good idea.");
+
     if (leader->speed > 0) {
         if (leader_task == leader->GetTask()) {
             if (leader->IsReadyForOrders(&*leader_task)) {
@@ -1473,6 +1526,8 @@ bool TaskAttack::PlanMoveForReconUnit() {
                                     result = MoveReconUnit(caution_level);
 
                                 } else {
+                                    log.Log("Not enough units nearby group yet.");
+
                                     result = false;
                                 }
                             }
@@ -1482,22 +1537,32 @@ bool TaskAttack::PlanMoveForReconUnit() {
                         }
 
                     } else {
+                        log.Log("No target.");
+
                         result = false;
                     }
 
                 } else {
+                    log.Log("Leader is retreating.");
+
                     result = true;
                 }
 
             } else {
+                log.Log("Leader is not ready for orders");
+
                 result = false;
             }
 
         } else {
+            log.Log("Leader is under control of another task.");
+
             result = false;
         }
 
     } else {
+        log.Log("Leader has no movement");
+
         result = false;
     }
 

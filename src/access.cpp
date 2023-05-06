@@ -35,12 +35,12 @@
 #include "units_manager.hpp"
 
 enum {
-    ATTACK_TARGET_GROUP_NONE = 0x0,
-    ATTACK_TARGET_GROUP_LAND_STEALTH = 0x1,
-    ATTACK_TARGET_GROUP_SEA_STEALTH = 0x2,
-    ATTACK_TARGET_GROUP_LAND = 0x4,
-    ATTACK_TARGET_GROUP_WATER = 0x8,
-    ATTACK_TARGET_GROUP_AIR = 0x10
+    TARGET_CLASS_NONE = 0x0,
+    TARGET_CLASS_LAND_STEALTH = 0x1,
+    TARGET_CLASS_SEA_STEALTH = 0x2,
+    TARGET_CLASS_LAND = 0x4,
+    TARGET_CLASS_WATER = 0x8,
+    TARGET_CLASS_AIR = 0x10
 };
 
 static SmartList<UnitInfo>* Access_UnitsLists[] = {&UnitsManager_MobileLandSeaUnits, &UnitsManager_MobileAirUnits,
@@ -439,17 +439,17 @@ unsigned int Access_GetAttackTargetGroup(UnitInfo* unit) {
     unsigned int result;
 
     if (unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) == 0 || unit->orders == ORDER_DISABLE) {
-        result = ATTACK_TARGET_GROUP_NONE;
+        result = TARGET_CLASS_NONE;
 
     } else {
         switch (unit->unit_type) {
             case COMMANDO:
             case INFANTRY: {
-                result = ATTACK_TARGET_GROUP_LAND_STEALTH | ATTACK_TARGET_GROUP_LAND | ATTACK_TARGET_GROUP_WATER;
+                result = TARGET_CLASS_LAND_STEALTH | TARGET_CLASS_LAND | TARGET_CLASS_WATER;
             } break;
 
             case CORVETTE: {
-                result = ATTACK_TARGET_GROUP_SEA_STEALTH | ATTACK_TARGET_GROUP_WATER;
+                result = TARGET_CLASS_SEA_STEALTH | TARGET_CLASS_WATER;
             } break;
 
             case GUNTURRT:
@@ -467,26 +467,26 @@ unsigned int Access_GetAttackTargetGroup(UnitInfo* unit) {
             case JUGGRNT:
             case ALNTANK:
             case ALNASGUN: {
-                result = ATTACK_TARGET_GROUP_LAND | ATTACK_TARGET_GROUP_WATER;
+                result = TARGET_CLASS_LAND | TARGET_CLASS_WATER;
             } break;
 
             case SUBMARNE: {
-                result = ATTACK_TARGET_GROUP_WATER;
+                result = TARGET_CLASS_WATER;
             } break;
 
             case ANTIAIR:
             case SP_FLAK:
             case FIGHTER: {
-                result = ATTACK_TARGET_GROUP_AIR;
+                result = TARGET_CLASS_AIR;
             } break;
 
             case ALNPLANE: {
-                result = ATTACK_TARGET_GROUP_LAND | ATTACK_TARGET_GROUP_WATER | ATTACK_TARGET_GROUP_AIR;
+                result = TARGET_CLASS_LAND | TARGET_CLASS_WATER | TARGET_CLASS_AIR;
             } break;
 
             case LANDMINE:
             case SEAMINE: {
-                result = ATTACK_TARGET_GROUP_NONE;
+                result = TARGET_CLASS_NONE;
             } break;
 
             default: {
@@ -505,7 +505,7 @@ unsigned int Access_UpdateMapStatusAddUnit(UnitInfo* unit, int grid_x, int grid_
 
     team = unit->team;
     map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
-    result = ATTACK_TARGET_GROUP_NONE;
+    result = TARGET_CLASS_NONE;
 
     if (unit->unit_type == CORVETTE) {
         if (++UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] == 1) {
@@ -628,7 +628,7 @@ void Access_DrawUnit(UnitInfo* unit) {
     }
 }
 
-unsigned int Access_GetVelocity(UnitInfo* unit) {
+unsigned int Access_GetTargetClass(UnitInfo* unit) {
     unsigned int result;
 
     if (unit->unit_type == COMMANDO || UnitsManager_IsUnitUnderWater(unit)) {
@@ -636,9 +636,9 @@ unsigned int Access_GetVelocity(UnitInfo* unit) {
             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 unit->IsVisibleToTeam(team)) {
                 if (unit->unit_type == COMMANDO) {
-                    result = 4;
+                    result = TARGET_CLASS_LAND;
                 } else {
-                    result = 8;
+                    result = TARGET_CLASS_WATER;
                 }
 
                 return result;
@@ -646,20 +646,20 @@ unsigned int Access_GetVelocity(UnitInfo* unit) {
         }
 
         if (unit->unit_type == COMMANDO) {
-            result = 1;
+            result = TARGET_CLASS_LAND_STEALTH;
         } else {
-            result = 2;
+            result = TARGET_CLASS_SEA_STEALTH;
         }
 
     } else {
         if (unit->flags & MOBILE_AIR_UNIT) {
-            result = 16;
+            result = TARGET_CLASS_AIR;
 
         } else if (unit->flags & MOBILE_SEA_UNIT) {
-            result = 8;
+            result = TARGET_CLASS_WATER;
 
         } else {
-            result = 4;
+            result = TARGET_CLASS_LAND;
         }
     }
 
@@ -692,11 +692,11 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
             }
 
             if ((unit->flags & SELECTABLE) && UnitsManager_TeamInfo[unit->team].team_type != TEAM_TYPE_NONE) {
-                unsigned char target_group;
+                unsigned char enemy_target_class;
                 int scan;
                 Rect zone;
 
-                target_group = ATTACK_TARGET_GROUP_NONE;
+                enemy_target_class = TARGET_CLASS_NONE;
                 scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
 
                 if (unit->orders == ORDER_DISABLE) {
@@ -725,7 +725,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                     for (int grid_x = zone.ulx; grid_x <= zone.lrx; ++grid_x) {
                         if (Access_IsWithinScanRange(unit, grid_x, grid_y, scan)) {
                             if (mode) {
-                                target_group |= Access_UpdateMapStatusAddUnit(unit, grid_x, grid_y);
+                                enemy_target_class |= Access_UpdateMapStatusAddUnit(unit, grid_x, grid_y);
 
                             } else {
                                 Access_UpdateMapStatusRemoveUnit(unit, grid_x, grid_y);
@@ -734,20 +734,20 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                     }
                 }
 
-                if (target_group != ATTACK_TARGET_GROUP_NONE &&
+                if (enemy_target_class != TARGET_CLASS_NONE &&
                     (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER ||
                      UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) &&
                     unit->orders != ORDER_AWAIT && ini_get_setting(INI_ENEMY_HALT)) {
-                    unsigned int velocity_type = Access_GetVelocity(unit);
+                    unsigned int friendly_target_class = Access_GetTargetClass(unit);
 
                     if (unit->GetUnitList()) {
                         for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
                              it != unit->GetUnitList()->End(); ++it) {
-                            velocity_type |= Access_GetVelocity(&*it);
+                            friendly_target_class |= Access_GetTargetClass(&*it);
                         }
                     }
 
-                    if (velocity_type & target_group) {
+                    if (friendly_target_class & enemy_target_class) {
                         if (unit->GetUnitList()) {
                             for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
                                  it != unit->GetUnitList()->End(); ++it) {

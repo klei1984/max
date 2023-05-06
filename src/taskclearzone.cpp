@@ -371,7 +371,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                 }
 
                 if (caution_level > CAUTION_LEVEL_NONE &&
-                    AiPlayer_Teams[team].GetDamagePotential(zone_square->unit, site, caution_level, 0x01) >=
+                    AiPlayer_Teams[team].GetDamagePotential(zone_square->unit, site, caution_level, true) >=
                         unit_hits) {
                 } else {
                     moving_unit = zone_square->unit;

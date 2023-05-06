@@ -48,7 +48,7 @@ public:
     virtual void FileSave(SmartFileWriter& file) = 0;
     virtual Point GetPosition(UnitInfo* unit) const;
     virtual bool IsInPath(int grid_x, int grid_y) const;
-    virtual void Path_vfunc8(UnitInfo* unit);
+    virtual void CancelMoment(UnitInfo* unit);
     virtual int GetMovementCost(UnitInfo* unit) = 0;
     virtual bool Path_vfunc10(UnitInfo* unit) = 0;
     virtual void UpdateUnitAngle(UnitInfo* unit);
@@ -83,7 +83,7 @@ public:
     void FileSave(SmartFileWriter& file);
     Point GetPosition(UnitInfo* unit) const;
     bool IsInPath(int grid_x, int grid_y) const;
-    void Path_vfunc8(UnitInfo* unit);
+    void CancelMoment(UnitInfo* unit);
     int GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
     void UpdateUnitAngle(UnitInfo* unit);
@@ -120,7 +120,7 @@ public:
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
     Point GetPosition(UnitInfo* unit) const;
-    void Path_vfunc8(UnitInfo* unit);
+    void CancelMoment(UnitInfo* unit);
     int GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
     void Path_vfunc12(int unknown);

@@ -125,7 +125,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
         }
 
         if (team != PLAYER_TEAM_MAX - 1 &&
-            Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01)) {
+            Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
             for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnitIterator(); it; ++it) {
                 UnitInfo* spotted_unit = (*it).GetUnit();
                 int spotted_unit_range = spotted_unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
@@ -193,11 +193,11 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level) {
             unit_hits = 1;
         }
 
-        if (ai_player->GetDamagePotential(unit, position, caution_level, 0x01) < unit_hits) {
+        if (ai_player->GetDamagePotential(unit, position, caution_level, true) < unit_hits) {
             result = false;
 
         } else if (unit->speed > 0) {
-            short** damage_potential_map = ai_player->GetDamagePotentialMap(unit, caution_level, 0x01);
+            short** damage_potential_map = ai_player->GetDamagePotentialMap(unit, caution_level, true);
 
             if (damage_potential_map) {
                 ZoneWalker walker(position, unit->speed);
@@ -374,7 +374,7 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {
             unit_hits = 1;
         }
 
-        if (AiPlayer_Teams[unit->team].GetDamagePotential(unit, position, caution_level, 0x00) >= unit_hits) {
+        if (AiPlayer_Teams[unit->team].GetDamagePotential(unit, position, caution_level, false) >= unit_hits) {
             if (unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
                 (unit->shots > 0 || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
                  ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) &&

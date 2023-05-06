@@ -177,11 +177,12 @@ void Ai_EnableAutoSurvey(UnitInfo* unit) {
     TaskManager.AppendTask(*task);
 }
 
-bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, unsigned char flags) {
+bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, bool is_for_attacking) {
     bool result;
 
     if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER && caution_level != CAUTION_LEVEL_NONE) {
-        short** damage_potential_map = AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, flags);
+        short** damage_potential_map =
+            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, is_for_attacking);
         int unit_hits = unit->hits;
 
         if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
@@ -220,7 +221,7 @@ void Ai_UpdateTerrain(UnitInfo* unit) {
 
     if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER &&
         unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
-        AiPlayer_Teams[unit->team].AddThreat(unit);
+        AiPlayer_Teams[unit->team].AddMilitaryUnit(unit);
     }
 }
 

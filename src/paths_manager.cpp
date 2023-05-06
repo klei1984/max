@@ -511,7 +511,7 @@ void PathsManager::ProcessRequest() {
                     } else {
                         if (Access_IsAccessible(unit->unit_type, unit->team, destination.x, destination.y,
                                                 request->GetFlags()) &&
-                            !Ai_IsDangerousLocation(&*unit, destination, request->GetCautionLevel(), 0x01)) {
+                            !Ai_IsDangerousLocation(&*unit, destination, request->GetCautionLevel(), true)) {
                             is_path_viable = true;
                         }
                     }
@@ -699,10 +699,10 @@ void PathsManager_ApplyCautionLevel(unsigned char **map, UnitInfo *unit, int cau
 
             if (unit->GetId() == 0xFFFF) {
                 damage_potential_map =
-                    AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit->unit_type, caution_level, 0x01);
+                    AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit->unit_type, caution_level, true);
 
             } else {
-                damage_potential_map = AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, 0x01);
+                damage_potential_map = AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, true);
             }
 
             if (damage_potential_map) {

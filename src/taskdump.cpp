@@ -93,7 +93,7 @@ void TaskDump::Search() {
             field_37 = 1;
 
             if (Access_IsAccessible(passenger->unit_type, team, destination.x, destination.y, 0x01)) {
-                if (!Ai_IsDangerousLocation(&*passenger, destination, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x01)) {
+                if (!Ai_IsDangerousLocation(&*passenger, destination, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                     TaskPathRequest* request = new (std::nothrow) TaskPathRequest(&*unit, 1, destination);
 
                     request->SetMinimumDistance(minimum_distance);

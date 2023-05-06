@@ -51,9 +51,11 @@
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
+#define AIPLAYER_THREAT_MAP_CACHE_ENTRIES 10
+
 AiPlayer AiPlayer_Teams[PLAYER_TEAM_MAX - 1];
 TerrainMap AiPlayer_TerrainMap;
-ThreatMap AiPlayer_ThreatMaps[10];
+ThreatMap AiPlayer_ThreatMaps[AIPLAYER_THREAT_MAP_CACHE_ENTRIES];
 
 void AiPlayer::AddBuilding(UnitInfo* unit) { FindManager(Point(unit->grid_x, unit->grid_y))->AddUnit(*unit); }
 
@@ -589,10 +591,10 @@ void AiPlayer::UpdateDamagePotentialMap(SmartList<UnitInfo>* units, short** map)
     }
 }
 
-void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams, ThreatMap* threat_map1,
-                                ThreatMap* threat_map2) {
-    if ((unit->flags & MOBILE_AIR_UNIT) && threat_map1->shots_map) {
-        threat_map2 = threat_map1;
+void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams,
+                                ThreatMap* air_force_map, ThreatMap* ground_forces_map) {
+    if ((unit->flags & MOBILE_AIR_UNIT) && air_force_map->shots_map) {
+        ground_forces_map = air_force_map;
     }
 
     if (!unit->speed || teams[unit->team]) {
@@ -607,21 +609,21 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
         switch (caution_level) {
             case CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE: {
                 if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-                    UpdateThreatMaps(threat_map2, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
+                    UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
                                      true);
 
                     if (teams[unit->team]) {
-                        UpdateThreatMaps(threat_map2, unit, position, attack_range + unit_speed / 2, unit_attack,
+                        UpdateThreatMaps(ground_forces_map, unit, position, attack_range + unit_speed / 2, unit_attack,
                                          unit_shots, unit_ammo, false);
 
                     } else {
-                        UpdateThreatMaps(threat_map2, unit, position, attack_range, unit_attack, unit_shots, unit_ammo,
-                                         false);
+                        UpdateThreatMaps(ground_forces_map, unit, position, attack_range, unit_attack, unit_shots,
+                                         unit_ammo, false);
                     }
 
                 } else {
-                    UpdateThreatMaps(threat_map2, unit, position, unit_range, unit_attack, unit->shots + 1, unit_ammo,
-                                     true);
+                    UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots + 1,
+                                     unit_ammo, true);
 
                     if (teams[unit->team]) {
                         for (;;) {
@@ -631,7 +633,7 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
                                 break;
                             }
 
-                            UpdateThreatMaps(threat_map2, unit, position,
+                            UpdateThreatMaps(ground_forces_map, unit, position,
                                              ((unit_speed + 1) * unit_shots) / (unit_shots + 1) + attack_range,
                                              unit_attack, 1, unit_ammo, false);
                         }
@@ -656,13 +658,14 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
                 }
 
                 if (range > 0) {
-                    UpdateThreatMaps(threat_map2, unit, position, range + attack_range, unit_attack, unit_shots,
+                    UpdateThreatMaps(ground_forces_map, unit, position, range + attack_range, unit_attack, unit_shots,
                                      unit_ammo, false);
                 }
             } break;
 
             case CAUTION_LEVEL_AVOID_REACTION_FIRE: {
-                UpdateThreatMaps(threat_map2, unit, position, unit_range, unit_attack, unit->shots, unit_ammo, false);
+                UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
+                                 false);
             } break;
         }
     }
@@ -687,13 +690,14 @@ void AiPlayer::NormalizeThreatMap(ThreatMap* threat_map) {
     }
 }
 
-bool AiPlayer::IsAbleToAttack(UnitInfo* unit, ResourceID unit_type, unsigned short team) {
+bool AiPlayer::IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, unsigned short team) {
     bool result;
 
-    if (unit->ammo > 0 && unit->orders != ORDER_DISABLE && unit->orders != ORDER_IDLE && unit->hits > 0 &&
-        Access_IsValidAttackTargetType(unit->unit_type, unit_type)) {
-        if (unit->unit_type != LANDMINE && unit->unit_type != SEAMINE) {
-            if ((unit->unit_type != COMMANDO && unit->unit_type != SUBMARNE) || unit->IsVisibleToTeam(team)) {
+    if (attacker->ammo > 0 && attacker->orders != ORDER_DISABLE && attacker->orders != ORDER_IDLE &&
+        attacker->hits > 0 && Access_IsValidAttackTargetType(attacker->unit_type, target_type)) {
+        if (attacker->unit_type != LANDMINE && attacker->unit_type != SEAMINE) {
+            if ((attacker->unit_type != COMMANDO && attacker->unit_type != SUBMARNE) ||
+                attacker->IsVisibleToTeam(team)) {
                 result = true;
 
             } else {
@@ -711,7 +715,7 @@ bool AiPlayer::IsAbleToAttack(UnitInfo* unit, ResourceID unit_type, unsigned sho
     return result;
 }
 
-ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned char flags) {
+ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for_attacking) {
     ThreatMap* result;
 
     if (ResourceManager_MapSize.x > 0) {
@@ -720,18 +724,19 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
         }
 
         if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT) {
-            flags = 0x00;
+            is_for_attacking = false;
         }
 
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
             if (AiPlayer_ThreatMaps[i].risk_level == risk_level &&
-                AiPlayer_ThreatMaps[i].caution_level == caution_level && AiPlayer_ThreatMaps[i].flags == flags &&
+                AiPlayer_ThreatMaps[i].caution_level == caution_level &&
+                AiPlayer_ThreatMaps[i].for_attacking == is_for_attacking &&
                 AiPlayer_ThreatMaps[i].team == player_team) {
                 AiPlayer_ThreatMaps[i].id = 0;
 
                 result = &AiPlayer_ThreatMaps[i];
 
-                for (int j = 0; j < 10; ++j) {
+                for (int j = 0; j < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++j) {
                     ++AiPlayer_ThreatMaps[j].id;
                 }
 
@@ -741,7 +746,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
 
         int index = 0;
 
-        for (int i = 1; i < 10; ++i) {
+        for (int i = 1; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
             if (AiPlayer_ThreatMaps[index].id < AiPlayer_ThreatMaps[i].id) {
                 index = i;
             }
@@ -752,15 +757,15 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
         AiPlayer_ThreatMaps[index].risk_level = risk_level;
         AiPlayer_ThreatMaps[index].armor = 0;
         AiPlayer_ThreatMaps[index].caution_level = caution_level;
-        AiPlayer_ThreatMaps[index].flags = flags;
+        AiPlayer_ThreatMaps[index].for_attacking = is_for_attacking;
         AiPlayer_ThreatMaps[index].team = player_team;
         AiPlayer_ThreatMaps[index].id = 0;
 
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
             ++AiPlayer_ThreatMaps[i].id;
         }
 
-        ThreatMap threat_map;
+        ThreatMap air_force_threat_map;
         const ResourceID risk_group[] = {INVALID_ID, TANK, SURVEYOR, FIGHTER, COMMANDO, COMMANDO, SUBMARNE, CLNTRANS};
         ResourceID risk_group_unit = risk_group[risk_level];
         bool teams[PLAYER_TEAM_MAX];
@@ -768,25 +773,25 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
         AiAttack_GetTargetTeams(player_team, teams);
 
         if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
-            threat_map.Init();
+            air_force_threat_map.Init();
         }
 
         if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
-            UpdateDamagePotentialMap(&unitinfo_list1, threat_map.damage_potential_map);
-            UpdateDamagePotentialMap(&unitinfo_list2, AiPlayer_ThreatMaps[index].damage_potential_map);
+            UpdateDamagePotentialMap(&air_force, air_force_threat_map.damage_potential_map);
+            UpdateDamagePotentialMap(&ground_forces, AiPlayer_ThreatMaps[index].damage_potential_map);
         }
 
         int counter = 0;
 
-        if (flags) {
+        if (is_for_attacking) {
             if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_MASTER) {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
                         ++counter;
 
-                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams, &threat_map,
-                                         &AiPlayer_ThreatMaps[index]);
+                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
+                                         &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
                 }
 
@@ -795,8 +800,8 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
                     if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
                         ++counter;
 
-                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams, &threat_map,
-                                         &AiPlayer_ThreatMaps[index]);
+                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
+                                         &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
                 }
 
@@ -805,8 +810,8 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
                     if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
                         ++counter;
 
-                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams, &threat_map,
-                                         &AiPlayer_ThreatMaps[index]);
+                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
+                                         &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
                 }
 
@@ -816,7 +821,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
                         ++counter;
 
                         DetermineThreats((*it).GetUnit(), Point((*it).GetUnit()->grid_x, (*it).GetUnit()->grid_y),
-                                         caution_level, teams, &threat_map, &AiPlayer_ThreatMaps[index]);
+                                         caution_level, teams, &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
                 }
             }
@@ -826,17 +831,17 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
                 if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
                     ++counter;
 
-                    DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, teams, &threat_map,
-                                     &AiPlayer_ThreatMaps[index]);
+                    DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, teams,
+                                     &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                 }
             }
         }
 
         if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
             NormalizeThreatMap(&AiPlayer_ThreatMaps[index]);
-            NormalizeThreatMap(&threat_map);
-            SumUpMaps(AiPlayer_ThreatMaps[index].damage_potential_map, threat_map.damage_potential_map);
-            SumUpMaps(AiPlayer_ThreatMaps[index].shots_map, threat_map.shots_map);
+            NormalizeThreatMap(&air_force_threat_map);
+            SumUpMaps(AiPlayer_ThreatMaps[index].damage_potential_map, air_force_threat_map.damage_potential_map);
+            SumUpMaps(AiPlayer_ThreatMaps[index].shots_map, air_force_threat_map.shots_map);
         }
 
         int team_count = 0;
@@ -912,7 +917,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, unsigned ch
         for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
             for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
                 if (AiPlayer_ThreatMaps[index].damage_potential_map[x][y] & 0x8000) {
-                    AiPlayer_ThreatMaps[index].damage_potential_map[x][y] &= 0x7FFF;
+                    AiPlayer_ThreatMaps[index].damage_potential_map[x][y] &= ~0x8000;
 
                 } else {
                     AiPlayer_ThreatMaps[index].damage_potential_map[x][y] = 0x00;
@@ -2192,12 +2197,12 @@ int AiPlayer::GetMemoryUsage() {
            (ResourceManager_MapSize.x * ResourceManager_MapSize.y) * sizeof(void*) - 10;
 }
 
-void AiPlayer::AddThreat(UnitInfo* unit) {
+void AiPlayer::AddMilitaryUnit(UnitInfo* unit) {
     if (Access_IsValidAttackTargetType(unit->unit_type, FIGHTER)) {
-        unitinfo_list1.PushBack(*unit);
+        air_force.PushBack(*unit);
 
     } else {
-        unitinfo_list2.PushBack(*unit);
+        ground_forces.PushBack(*unit);
     }
 
     if (unit->shots > 0 && !need_init) {
@@ -2207,7 +2212,7 @@ void AiPlayer::AddThreat(UnitInfo* unit) {
 
 void AiPlayer::BeginTurn() {
     if (UnitsManager_TeamInfo[player_team].team_type == TEAM_TYPE_COMPUTER) {
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
             AiPlayer_ThreatMaps[i].SetRiskLevel(0);
         }
 
@@ -2410,10 +2415,10 @@ void AiPlayer::BeginTurn() {
 
                         TaskManager.AppendTask(*escort);
                     }
-                }
 
-                if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
-                    AddThreat(&*it);
+                    if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
+                        AddMilitaryUnit(&*it);
+                    }
                 }
             }
 
@@ -2434,15 +2439,17 @@ void AiPlayer::BeginTurn() {
                     }
 
                     if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
-                        AddThreat(&*it);
+                        AddMilitaryUnit(&*it);
                     }
                 }
             }
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                  it != UnitsManager_StationaryUnits.End(); ++it) {
-                if ((*it).team == player_team && (*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
-                    AddThreat(&*it);
+                if ((*it).team == player_team) {
+                    if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
+                        AddMilitaryUnit(&*it);
+                    }
                 }
             }
 
@@ -2948,13 +2955,13 @@ void AiPlayer::Init(unsigned short team) {
         mine_map = nullptr;
     }
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
         AiPlayer_ThreatMaps[i].SetRiskLevel(0);
     }
 
     spotted_units.Clear();
-    unitinfo_list1.Clear();
-    unitinfo_list2.Clear();
+    air_force.Clear();
+    ground_forces.Clear();
 
     player_team = team;
     need_init = true;
@@ -3650,9 +3657,9 @@ int AiPlayer::GetPredictedAttack(UnitInfo* unit, int caution_level) {
            GetTotalProjectedDamage(unit, caution_level, player_team, &UnitsManager_MobileAirUnits);
 }
 
-short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsigned char flags) {
+short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_level, bool is_for_attacking) {
     short** result;
-    ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level, flags);
+    ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level, is_for_attacking);
 
     if (threat_map) {
         threat_map->Update(unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR));
@@ -3666,9 +3673,9 @@ short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_level, unsig
     return result;
 }
 
-short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level, unsigned char flags) {
+short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level, bool is_for_attacking) {
     short** result;
-    ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit_type), caution_level, flags);
+    ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit_type), caution_level, is_for_attacking);
 
     if (threat_map) {
         threat_map->Update(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], unit_type)
@@ -3683,14 +3690,14 @@ short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level,
     return result;
 }
 
-int AiPlayer::GetDamagePotential(UnitInfo* unit, Point site, int caution_level, unsigned char flags) {
+int AiPlayer::GetDamagePotential(UnitInfo* unit, Point site, int caution_level, bool is_for_attacking) {
     int result;
 
     if (caution_level == CAUTION_LEVEL_NONE) {
         result = 0;
 
     } else {
-        ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level, flags);
+        ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level, is_for_attacking);
 
         if (threat_map) {
             result = threat_map->damage_potential_map[site.x][site.y] +
@@ -3936,8 +3943,8 @@ bool AiPlayer::ShouldUpgradeUnit(UnitInfo* unit) {
 
 void AiPlayer::RemoveUnit(UnitInfo* unit) {
     if (player_team == unit->team) {
-        unitinfo_list1.Remove(*unit);
-        unitinfo_list2.Remove(*unit);
+        air_force.Remove(*unit);
+        ground_forces.Remove(*unit);
 
     } else {
         for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
@@ -4507,8 +4514,8 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
     item_count = file.ReadObjectCount();
 
     spotted_units.Clear();
-    unitinfo_list1.Clear();
-    unitinfo_list2.Clear();
+    air_force.Clear();
+    ground_forces.Clear();
 
     for (int i = 0; i < item_count; ++i) {
         SmartPointer<SpottedUnit> spotted_unit(new (std::nothrow) SpottedUnit(file));
