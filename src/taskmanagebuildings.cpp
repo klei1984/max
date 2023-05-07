@@ -2017,7 +2017,7 @@ char* TaskManageBuildings::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskManageBuildings::GetType() const { return TaskType_TaskManageBuildings; }
 
-bool TaskManageBuildings::Task_vfunc9() { return true; }
+bool TaskManageBuildings::IsNeeded() { return true; }
 
 void TaskManageBuildings::AddUnit(UnitInfo& unit) {
     if (unit.flags & STATIONARY) {

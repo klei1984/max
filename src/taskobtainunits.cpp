@@ -173,11 +173,11 @@ char* TaskObtainUnits::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskObtainUnits::GetType() const { return TaskType_TaskObtainUnits; }
 
-bool TaskObtainUnits::Task_vfunc9() {
+bool TaskObtainUnits::IsNeeded() {
     bool result;
 
     if (units->GetCount() > 0 && parent != nullptr) {
-        result = parent->Task_vfunc9();
+        result = parent->IsNeeded();
     } else {
         result = false;
     }
@@ -222,7 +222,7 @@ void TaskObtainUnits::BeginTurn() {
 }
 
 void TaskObtainUnits::EndTurn() {
-    if (parent == nullptr || !parent->Task_vfunc9()) {
+    if (parent == nullptr || !parent->IsNeeded()) {
         units.Clear();
     }
 

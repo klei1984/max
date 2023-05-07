@@ -310,7 +310,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
             if (Task_EstimateTurnsTillMissionEnd() >
                     UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)
                         ->GetAttribute(ATTRIB_TURNS) &&
-                parent && parent->Task_vfunc9()) {
+                parent && parent->IsNeeded()) {
                 result = true;
 
             } else if (builder && op_state == CREATE_UNIT_STATE_3 &&

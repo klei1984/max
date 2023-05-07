@@ -64,7 +64,7 @@ Rect* TaskRemoveRubble::GetBounds(Rect* bounds) {
 
 unsigned char TaskRemoveRubble::GetType() const { return TaskType_TaskRemoveRubble; }
 
-bool TaskRemoveRubble::Task_vfunc9() { return !unit; }
+bool TaskRemoveRubble::IsNeeded() { return !unit; }
 
 void TaskRemoveRubble::AddUnit(UnitInfo& unit_) {
     if (!unit) {

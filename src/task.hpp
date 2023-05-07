@@ -146,7 +146,7 @@ public:
     virtual char* WriteStatusLog(char* buffer) const = 0;
     virtual Rect* GetBounds(Rect* bounds);
     virtual unsigned char GetType() const = 0;
-    virtual bool Task_vfunc9();
+    virtual bool IsNeeded();
     virtual bool IsThinking();
     virtual void AddUnit(UnitInfo& unit);
     virtual void Begin();

@@ -43,7 +43,7 @@ char* TaskScavenge::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskScavenge::GetType() const { return TaskType_TaskScavenge; }
 
-bool TaskScavenge::Task_vfunc9() { return units.GetCount() == 0; }
+bool TaskScavenge::IsNeeded() { return units.GetCount() == 0; }
 
 void TaskScavenge::AddUnit(UnitInfo& unit) {
     units.PushBack(unit);

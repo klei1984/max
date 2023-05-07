@@ -58,7 +58,7 @@ public:
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;
-    bool Task_vfunc9();
+    bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void BeginTurn();
     void ChildComplete(Task* task);

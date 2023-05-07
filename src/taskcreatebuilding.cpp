@@ -180,7 +180,7 @@ void TaskCreateBuilding::BeginBuilding() {
         if (Task_EstimateTurnsTillMissionEnd() >=
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
             if (Access_IsAccessible(unit_type, team, site.x, site.y, 1)) {
-                if (!parent || parent->Task_vfunc9()) {
+                if (!parent || parent->IsNeeded()) {
                     if (builder->GetTask() == this) {
                         if (!RequestWaterPlatform() && !RequestMineRemoval() && !RequestRubbleRemoval()) {
                             if (!Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false)) {
@@ -449,8 +449,8 @@ Rect* TaskCreateBuilding::GetBounds(Rect* bounds) {
 
 unsigned char TaskCreateBuilding::GetType() const { return TaskType_TaskCreateBuilding; }
 
-bool TaskCreateBuilding::Task_vfunc9() {
-    return op_state < CREATE_BUILDING_STATE_BUILDING && (!parent || parent->Task_vfunc9());
+bool TaskCreateBuilding::IsNeeded() {
+    return op_state < CREATE_BUILDING_STATE_BUILDING && (!parent || parent->IsNeeded());
 }
 
 void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
@@ -527,7 +527,7 @@ void TaskCreateBuilding::BeginTurn() {
         op_state = CREATE_BUILDING_STATE_EVALUTING_SITE;
     }
 
-    if (op_state < CREATE_BUILDING_STATE_BUILDING && parent && !parent->Task_vfunc9()) {
+    if (op_state < CREATE_BUILDING_STATE_BUILDING && parent && !parent->IsNeeded()) {
         Abort();
 
     } else {

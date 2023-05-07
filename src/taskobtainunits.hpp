@@ -43,7 +43,7 @@ public:
     unsigned short GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
-    bool Task_vfunc9();
+    bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void Begin();
     void BeginTurn();

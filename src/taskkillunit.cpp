@@ -457,7 +457,7 @@ Rect* TaskKillUnit::GetBounds(Rect* bounds) {
 
 unsigned char TaskKillUnit::GetType() const { return TaskType_TaskKillUnit; }
 
-bool TaskKillUnit::Task_vfunc9() {
+bool TaskKillUnit::IsNeeded() {
     return hits > projected_damage && spotted_unit && spotted_unit->GetUnit()->hits > 0;
 }
 

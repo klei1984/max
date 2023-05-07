@@ -179,7 +179,7 @@ Rect* TaskAttack::GetBounds(Rect* bounds) {
 
 unsigned char TaskAttack::GetType() const { return TaskType_TaskAttack; }
 
-bool TaskAttack::Task_vfunc9() { return primary_targets.GetCount() > 0; }
+bool TaskAttack::IsNeeded() { return primary_targets.GetCount() > 0; }
 
 void TaskAttack::AddUnit(UnitInfo& unit) {
     int unit_index = managed_unit_types->Find(&unit.unit_type);

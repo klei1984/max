@@ -514,11 +514,11 @@ Rect* Task::GetBounds(Rect* bounds) {
     return bounds;
 }
 
-bool Task::Task_vfunc9() {
+bool Task::IsNeeded() {
     bool result;
 
     if (parent != nullptr) {
-        result = parent->Task_vfunc9();
+        result = parent->IsNeeded();
     } else {
         result = true;
     }

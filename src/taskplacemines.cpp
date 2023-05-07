@@ -77,7 +77,7 @@ Rect* TaskPlaceMines::GetBounds(Rect* bounds) {
 
 unsigned char TaskPlaceMines::GetType() const { return TaskType_TaskPlaceMines; }
 
-bool TaskPlaceMines::Task_vfunc9() {
+bool TaskPlaceMines::IsNeeded() {
     bool has_mine_layer = false;
     bool has_sea_mine_layer = false;
 

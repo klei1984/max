@@ -363,7 +363,7 @@ Rect* TaskTransport::GetBounds(Rect* bounds) {
 
 unsigned char TaskTransport::GetType() const { return TaskType_TaskTransport; }
 
-bool TaskTransport::Task_vfunc9() { return !unit_transporter && move_tasks.GetCount() > 0; }
+bool TaskTransport::IsNeeded() { return !unit_transporter && move_tasks.GetCount() > 0; }
 
 void TaskTransport::AddUnit(UnitInfo& unit) {
     if (!unit_transporter && unit.unit_type == transporter_unit_type) {
