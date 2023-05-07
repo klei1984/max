@@ -52,15 +52,16 @@ TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, 
 
 TaskKillUnit::~TaskKillUnit() {}
 
-int TaskKillUnit::GetProjectedDamage(UnitInfo* unit, UnitInfo* threat) {
+int TaskKillUnit::GetProjectedDamage(UnitInfo* attacker, UnitInfo* target) {
     int damage_potential =
-        AiAttack_GetAttackPotential(unit, threat) * unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
+        AiAttack_GetAttackPotential(attacker, target) * attacker->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
 
-    if (threat->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
-        if ((threat->GetBaseValues()->GetAttribute(ATTRIB_SPEED) == 0 &&
-             unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) > threat->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) ||
-            !Access_IsValidAttackTargetType(threat->unit_type, unit->unit_type)) {
-            damage_potential += threat->hits - 1;
+    if (target->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+        if ((target->GetBaseValues()->GetAttribute(ATTRIB_SPEED) == 0 &&
+             attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE) >
+                 target->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) ||
+            !Access_IsValidAttackTargetType(target->unit_type, attacker->unit_type)) {
+            damage_potential += target->hits - 1;
         }
     }
 
@@ -457,9 +458,7 @@ Rect* TaskKillUnit::GetBounds(Rect* bounds) {
 
 unsigned char TaskKillUnit::GetType() const { return TaskType_TaskKillUnit; }
 
-bool TaskKillUnit::IsNeeded() {
-    return hits > projected_damage && spotted_unit && spotted_unit->GetUnit()->hits > 0;
-}
+bool TaskKillUnit::IsNeeded() { return hits > projected_damage && spotted_unit && spotted_unit->GetUnit()->hits > 0; }
 
 void TaskKillUnit::AddUnit(UnitInfo& unit) {
     AiLog log("Kill %s: Add %s.",

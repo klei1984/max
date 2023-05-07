@@ -42,11 +42,11 @@ PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : unit1(unit), p
 
 PathRequest::~PathRequest() {}
 
-UnitInfo* PathRequest::GetUnit1() const { return &*unit1; }
+UnitInfo* PathRequest::GetClient() const { return &*unit1; }
 
-UnitInfo* PathRequest::GetUnit2() const { return &*unit2; }
+UnitInfo* PathRequest::GetTransporter() const { return &*unit2; }
 
-Point PathRequest::GetPoint() const { return point; }
+Point PathRequest::GetDestination() const { return point; }
 
 unsigned char PathRequest::GetCautionLevel() const { return caution_level; }
 

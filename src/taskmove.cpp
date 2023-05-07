@@ -504,13 +504,13 @@ void TaskMove::PathResultCallback(Task* task, PathRequest* path_request, Point d
     SmartPointer<TaskMove> move(dynamic_cast<TaskMove*>(task));
 
     if (path) {
-        move->transporter_unit_type = path_request->GetUnit2()->unit_type;
+        move->transporter_unit_type = path_request->GetTransporter()->unit_type;
         move->field_71 = result;
 
         move->TranscribeTransportPath(destination_, path);
 
     } else {
-        if (path_request->GetUnit2()->unit_type != AIRTRANS && Builder_IsBuildable(AIRTRANS) &&
+        if (path_request->GetTransporter()->unit_type != AIRTRANS && Builder_IsBuildable(AIRTRANS) &&
             (FindUnit(&UnitsManager_MobileAirUnits, move->GetTeam(), AIRTRANS) ||
              FindUnit(&UnitsManager_StationaryUnits, move->GetTeam(), AIRPLT))) {
             move->AttemptTransportType(AIRTRANS);
@@ -530,8 +530,8 @@ void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Poi
     if (path) {
         move->field_71 = result;
 
-        if (path_request->GetUnit2()) {
-            move->transporter_unit_type = path_request->GetUnit2()->unit_type;
+        if (path_request->GetTransporter()) {
+            move->transporter_unit_type = path_request->GetTransporter()->unit_type;
 
         } else {
             move->transporter_unit_type = INVALID_ID;
@@ -559,7 +559,7 @@ void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Poi
     } else if (path_request->GetCautionLevel() != move->caution_level) {
         SmartPointer<Task> find_path;
         PathRequest* request =
-            new (std::nothrow) TaskPathRequest(path_request->GetUnit1(), 1, path_request->GetPoint());
+            new (std::nothrow) TaskPathRequest(path_request->GetClient(), 1, path_request->GetDestination());
 
         request->SetMinimumDistance(move->minimum_distance);
         request->SetCautionLevel(move->caution_level);

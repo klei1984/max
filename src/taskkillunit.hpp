@@ -40,7 +40,7 @@ class TaskKillUnit : public Task {
     WeightTable weight_table;
     bool seek_target;
 
-    static int GetProjectedDamage(UnitInfo* unit, UnitInfo* threat);
+    static int GetProjectedDamage(UnitInfo* attacker, UnitInfo* target);
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
     void FindVaildTypes();

@@ -43,9 +43,9 @@ public:
     PathRequest(UnitInfo* unit, int mode, Point point);
     ~PathRequest();
 
-    UnitInfo* GetUnit1() const;
-    UnitInfo* GetUnit2() const;
-    Point GetPoint() const;
+    UnitInfo* GetClient() const;
+    UnitInfo* GetTransporter() const;
+    Point GetDestination() const;
     unsigned char GetFlags() const;
     unsigned short GetMaxCost() const;
     unsigned char GetCautionLevel() const;

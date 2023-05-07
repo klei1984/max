@@ -674,14 +674,15 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, 
     return spotted_unit;
 }
 
-int AiAttack_GetAttackPotential(UnitInfo* unit1, UnitInfo* unit2) {
+int AiAttack_GetAttackPotential(UnitInfo* attacker, UnitInfo* target) {
     int result;
 
-    if (AiAttack_IsValidSabotageTarget(unit1, unit2)) {
-        result = (UnitsManager_GetStealthChancePercentage(unit1, unit2, ORDER_AWAIT_DISABLE_UNIT) * unit2->hits) / 100;
+    if (AiAttack_IsValidSabotageTarget(attacker, target)) {
+        result =
+            (UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_DISABLE_UNIT) * target->hits) / 100;
 
     } else {
-        result = UnitsManager_GetAttackDamage(unit1, unit2, 0);
+        result = UnitsManager_GetAttackDamage(attacker, target, 0);
     }
 
     return result;

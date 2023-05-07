@@ -4041,10 +4041,10 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 }
 
 bool AiPlayer::MatchPath(TaskPathRequest* request) {
-    UnitInfo* unit = request->GetUnit1();
+    UnitInfo* unit = request->GetClient();
     Point position(unit->grid_x, unit->grid_y);
     int minimum_distance = request->GetMinimumDistance();
-    Point site = request->GetPoint();
+    Point site = request->GetDestination();
     int distance = TaskManager_GetDistance(position, site) / 2;
     bool result;
 

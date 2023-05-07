@@ -110,7 +110,7 @@ void PathsManager::Clear() {
 void PathsManager::PushFront(PathRequest &object) {
     if (request != nullptr) {
         AiLog log("Pre-empting path request for %s.",
-                  UnitsManager_BaseUnits[request->GetUnit1()->unit_type].singular_name);
+                  UnitsManager_BaseUnits[request->GetClient()->unit_type].singular_name);
 
         requests.PushFront(*request);
 
@@ -132,14 +132,14 @@ int PathsManager::GetRequestCount(unsigned short team) const {
     count = 0;
 
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
-        UnitInfo *unit = (*it).GetUnit1();
+        UnitInfo *unit = (*it).GetClient();
 
         if (unit && unit->team == team) {
             ++count;
         }
     }
 
-    if (request != nullptr && request->GetUnit1() && request->GetUnit1()->team == team) {
+    if (request != nullptr && request->GetClient() && request->GetClient()->team == team) {
         ++count;
     }
 
@@ -167,13 +167,13 @@ void PathsManager::RemoveRequest(PathRequest *path_request) {
 
 void PathsManager::RemoveRequest(UnitInfo *unit) {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
-        if ((*it).GetUnit1() == unit) {
+        if ((*it).GetClient() == unit) {
             (*it).Cancel();
             requests.Remove(it);
         }
     }
 
-    if (request != nullptr && request->GetUnit1() == unit) {
+    if (request != nullptr && request->GetClient() == unit) {
         RemoveRequest(&*request);
     }
 }
@@ -211,7 +211,7 @@ void PathsManager::EvaluateTiles() {
 
         AiLog log("Path generator.");
 
-        unit = request->GetUnit1();
+        unit = request->GetClient();
         path_request = request;
 
         for (int index = 5;;) {
@@ -251,10 +251,10 @@ void PathsManager::EvaluateTiles() {
                     backward_searcher = nullptr;
 
                     if (ground_path) {
-                        log.Log("Found path (%i/%i msecs), %i steps, air distance %i.",
-                                timer_elapsed_time(elapsed_time), timer_elapsed_time(time_stamp),
-                                ground_path->GetSteps()->GetCount(),
-                                TaskManager_GetDistance(request->GetPoint(), Point(unit->grid_x, unit->grid_y)) / 2);
+                        log.Log(
+                            "Found path (%i/%i msecs), %i steps, air distance %i.", timer_elapsed_time(elapsed_time),
+                            timer_elapsed_time(time_stamp), ground_path->GetSteps()->GetCount(),
+                            TaskManager_GetDistance(request->GetDestination(), Point(unit->grid_x, unit->grid_y)) / 2);
 
                     } else {
                         log.Log("No path, error in transcription.");
@@ -285,12 +285,12 @@ void PathsManager::EvaluateTiles() {
 
 bool PathsManager::HasRequest(UnitInfo *unit) const {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
-        if ((*it).GetUnit1() == unit) {
+        if ((*it).GetClient() == unit) {
             return true;
         }
     }
 
-    if (request != nullptr && request->GetUnit1() == unit) {
+    if (request != nullptr && request->GetClient() == unit) {
         return true;
     }
 
@@ -326,10 +326,10 @@ bool PathsManager::Init(UnitInfo *unit) {
 
     PathsManager_InitAccessMap(unit, PathsManager_AccessMap, request->GetFlags(), request->GetCautionLevel());
 
-    if (request->GetUnit2()) {
+    if (request->GetTransporter()) {
         AccessMap access_map;
 
-        PathsManager_InitAccessMap(request->GetUnit2(), access_map.GetMap(), request->GetFlags(),
+        PathsManager_InitAccessMap(request->GetTransporter(), access_map.GetMap(), request->GetFlags(),
                                    CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
         for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
@@ -348,7 +348,7 @@ bool PathsManager::Init(UnitInfo *unit) {
 
     {
         Point point1(unit->grid_x, unit->grid_y);
-        Point point2 = request->GetPoint();
+        Point point2 = request->GetDestination();
         int minimum_distance;
         int minimum_distance_sqrt;
         int distance_squared;
@@ -472,9 +472,9 @@ void PathsManager::ProcessRequest() {
         request = &*it;
         requests.Remove(it);
 
-        SmartPointer<UnitInfo> unit(request->GetUnit1());
+        SmartPointer<UnitInfo> unit(request->GetClient());
 
-        Point destination(request->GetPoint());
+        Point destination(request->GetDestination());
         Point position(unit->grid_x, unit->grid_y);
 
         if (request->PathRequest_Vfunc1()) {
@@ -505,7 +505,7 @@ void PathsManager::ProcessRequest() {
                     if (Init(&*unit)) {
                         bool mode;
 
-                        if (request->GetUnit2() && request->GetUnit2()->unit_type == AIRTRANS) {
+                        if (request->GetTransporter() && request->GetTransporter()->unit_type == AIRTRANS) {
                             mode = true;
 
                         } else {
