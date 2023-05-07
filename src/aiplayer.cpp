@@ -573,6 +573,12 @@ void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point pos
     }
 }
 
+void AiPlayer::InvalidateThreatMaps() {
+    for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
+        AiPlayer_ThreatMaps[i].SetRiskLevel(0);
+    }
+}
+
 void AiPlayer::UpdateDamagePotentialMap(SmartList<UnitInfo>* units, short** map) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).shots > 0 && (*it).orders != ORDER_IDLE && (*it).orders != ORDER_DISABLE) {
@@ -2212,9 +2218,7 @@ void AiPlayer::AddMilitaryUnit(UnitInfo* unit) {
 
 void AiPlayer::BeginTurn() {
     if (UnitsManager_TeamInfo[player_team].team_type == TEAM_TYPE_COMPUTER) {
-        for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
-            AiPlayer_ThreatMaps[i].SetRiskLevel(0);
-        }
+        InvalidateThreatMaps();
 
         field_16 = 0;
 

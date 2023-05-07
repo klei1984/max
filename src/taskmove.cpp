@@ -1173,13 +1173,8 @@ bool TaskMove::FindWaypoint() {
     int unit_speed = 0;
     int step_cost = 0;
     int unit_hits = passenger->hits;
-    short** damage_potential_map = nullptr;
 
     AiLog log("Find waypoint.");
-
-    if (caution_level > CAUTION_LEVEL_NONE) {
-        damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
-    }
 
     if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
         unit_hits = 1;
@@ -1209,8 +1204,13 @@ bool TaskMove::FindWaypoint() {
     }
 
     if (step_cost) {
-        if (caution_level > CAUTION_LEVEL_NONE && damage_potential_map &&
-            damage_potential_map[point1.x][point1.y] >= unit_hits) {
+        short** damage_potential_map = nullptr;
+
+        if (caution_level > CAUTION_LEVEL_NONE) {
+            damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
+        }
+
+        if (damage_potential_map && damage_potential_map[point1.x][point1.y] >= unit_hits) {
             log.Log("[%i,%i] is too dangerous.", point1.x + 1, point1.y + 1);
 
             result = false;
