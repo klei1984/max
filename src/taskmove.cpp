@@ -1177,7 +1177,7 @@ bool TaskMove::FindWaypoint() {
 
     AiLog log("Find waypoint.");
 
-    if (caution_level >= CAUTION_LEVEL_NONE) {
+    if (caution_level > CAUTION_LEVEL_NONE) {
         damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
     }
 
