@@ -24,6 +24,7 @@
 #include <cmath>
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "hash.hpp"
@@ -204,6 +205,8 @@ Point AirPath::GetPosition(UnitInfo* unit) const {
 }
 
 void AirPath::CancelMoment(UnitInfo* unit) {
+    AiLog log("Airpath: emergency stop.");
+
     if (length) {
         if (unit->angle == angle) {
             if (delta_x > 0) {
@@ -239,13 +242,20 @@ void AirPath::CancelMoment(UnitInfo* unit) {
             delta_x = (delta_x << 16) / length;
             delta_y = (delta_y << 16) / length;
 
+            log.Log("Recalculated path to [%i,%i], length %i.", x_end + 1, y_end + 1, length);
+
         } else {
+            log.Log("Haven't finished turning.");
+
             unit->Redraw();
 
             unit->path = nullptr;
 
             unit->BlockedOnPathRequest();
         }
+
+    } else {
+        log.Log("Length is zero.");
     }
 }
 
@@ -542,10 +552,16 @@ bool GroundPath::IsInPath(int grid_x, int grid_y) const {
 }
 
 void GroundPath::CancelMoment(UnitInfo* unit) {
+    AiLog log("Ground path: emergency stop.");
+
     if (unit->state == ORDER_STATE_5) {
+        log.Log("In turn state.");
+
         unit->BlockedOnPathRequest();
 
     } else {
+        log.Log("Emptying steps.");
+
         index = 0;
         steps.Clear();
         AddStep(0, 0);

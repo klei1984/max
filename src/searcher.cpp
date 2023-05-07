@@ -21,6 +21,7 @@
 
 #include "searcher.hpp"
 
+#include "ailog.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "paths_manager.hpp"
@@ -536,6 +537,8 @@ SmartPointer<GroundPath> Searcher::DeterminePath(Point point, int max_cost) {
                 return ground_path;
 
             } else {
+                AiLog log("Error: null path.");
+
                 ground_path = nullptr;
                 return ground_path;
             }
@@ -556,6 +559,8 @@ SmartPointer<GroundPath> Searcher::DeterminePath(Point point, int max_cost) {
                 }
 
             } else {
+                AiLog log("Error in path transcription.");
+
                 ground_path = nullptr;
                 return ground_path;
             }

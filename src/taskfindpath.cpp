@@ -49,8 +49,7 @@ char* TaskFindPath::WriteStatusLog(char* buffer) const {
         Point destination(path_request->GetPoint());
         char string[50];
 
-        strcpy(buffer, "Find Path to ");
-        sprintf(string, "[%i,%i], c.l. %i", destination.x + 1, destination.y + 1, path_request->GetCautionLevel());
+        sprintf(string, "Find Path to [%i,%i].", destination.x + 1, destination.y + 1);
         strcat(buffer, string);
 
     } else {

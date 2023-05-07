@@ -65,4 +65,6 @@ public:
     virtual void Finish(GroundPath* path);
 };
 
+extern const char* PathRequest_CautionLevels[];
+
 #endif /* PATHREQUEST_HPP */

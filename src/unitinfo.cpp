@@ -3600,8 +3600,18 @@ int UnitInfo::GetMaxAllowedBuildRate() {
 }
 
 void UnitInfo::StopMovement() {
-    if (orders == ORDER_MOVE && path != nullptr && (state == ORDER_STATE_5 || state == ORDER_STATE_6)) {
-        path->CancelMoment(this);
+    AiLog log("%s at [%i,%i]: Emergency Stop", UnitsManager_BaseUnits[unit_type].singular_name, grid_x + 1, grid_y + 1);
+
+    if (orders == ORDER_MOVE && path != nullptr) {
+        if (state == ORDER_STATE_5 || state == ORDER_STATE_6) {
+            path->CancelMoment(this);
+
+        } else {
+            log.Log("Not in move / turn state.");
+        }
+
+    } else {
+        log.Log("Not moving.");
     }
 }
 

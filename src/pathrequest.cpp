@@ -22,11 +22,17 @@
 #include "pathrequest.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "remote.hpp"
 #include "sound_manager.hpp"
 #include "units_manager.hpp"
 
+const char* PathRequest_CautionLevels[] = {"none", "avoid reaction fire", "avoid next turn's fire", "avoid all damage"};
+
 PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : unit1(unit), point(point), flags(mode) {
+    AiLog log("Path request for %s at [%i,%i].", UnitsManager_BaseUnits[unit1->unit_type].singular_name,
+              unit1->grid_x + 1, unit1->grid_y + 1);
+
     max_cost = INT16_MAX;
     minimum_distance = 0;
     caution_level = 0;
@@ -56,18 +62,40 @@ void PathRequest::Cancel() {
     Access_ProcessNewGroupOrder(&*unit1);
 }
 
-void PathRequest::SetMaxCost(int value) { max_cost = value; }
+void PathRequest::SetMaxCost(int value) {
+    AiLog log("Max cost: %i.", value);
 
-void PathRequest::SetMinimumDistance(int value) { minimum_distance = value; }
+    max_cost = value;
+}
 
-void PathRequest::SetCautionLevel(int value) { caution_level = value; }
+void PathRequest::SetMinimumDistance(int value) {
+    AiLog log("Minimum distance: %i.", value);
 
-void PathRequest::SetBoardTransport(bool value) { board_transport = value; }
+    minimum_distance = value;
+}
 
-void PathRequest::SetOptimizeFlag(bool value) { optimize = value; }
+void PathRequest::SetCautionLevel(int value) {
+    AiLog log("Caution level: %s.", PathRequest_CautionLevels[value]);
+
+    caution_level = value;
+}
+
+void PathRequest::SetBoardTransport(bool value) {
+    AiLog log("Board transport: %s.", value ? "True" : "False");
+
+    board_transport = value;
+}
+
+void PathRequest::SetOptimizeFlag(bool value) {
+    AiLog log("Optimize: %s", value ? "True" : "False");
+
+    optimize = value;
+}
 
 void PathRequest::CreateTransport(ResourceID unit_type) {
     if (unit_type != INVALID_ID) {
+        AiLog log("Use %s.", UnitsManager_BaseUnits[unit_type].singular_name);
+
         unit2 = new (std::nothrow) UnitInfo(unit_type, unit1->team, 0xFFFF);
 
     } else {
