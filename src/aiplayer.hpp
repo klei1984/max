@@ -203,6 +203,5 @@ int AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, i
 
 extern AiPlayer AiPlayer_Teams[PLAYER_TEAM_MAX - 1];
 extern TerrainMap AiPlayer_TerrainMap;
-extern ThreatMap AiPlayer_ThreatMaps[10];
 
 #endif /* AI_PLAYER_HPP */
