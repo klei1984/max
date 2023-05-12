@@ -71,9 +71,10 @@ class PlotMatrix:
     def plot(self):
         if self.mode:
             with open("map.txt", "wt") as f:
+                fmt = "{0:0" + str(len(str(pow(2,self.val[0][0].type.strip_typedefs().sizeof * 8)))) + "} "
                 for y in range(self.dim[0]):
                     for x in range(self.dim[1]):
-                        f.write(f"{int(self.val[x][y])}")
+                        f.write(fmt.format(int(self.val[x][y])))
                     f.write("\n")
         else:
             with open("matrix.data", "wb") as f:
