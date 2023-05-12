@@ -27,12 +27,14 @@
 #include "task_manager.hpp"
 #include "text.hpp"
 
+#define TASK_DEBUGGER_INVALID_ID (-1)
+
 static int TaskDebugger_DebugMode;
-static int TaskDebugger_DebugTask;
+static int TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
 
 TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int button_down_value,
                            int first_row_value) {
-    TaskDebugger_DebugTask = -1;
+    TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
@@ -65,9 +67,9 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int
     button_down->RegisterButton(window.id);
 
     for (int i = 0; i < row_count; ++i) {
-        button_manager.Add(win_register_button(window.id, window.window.ulx, window.window.uly + Text_GetHeight() * i * 2,
-                                               width, Text_GetHeight() * 2, -1, -1, -1, first_row_value + i, nullptr,
-                                               nullptr, nullptr, 0x00));
+        button_manager.Add(win_register_button(
+            window.id, window.window.ulx, window.window.uly + Text_GetHeight() * i * 2, width, Text_GetHeight() * 2, -1,
+            -1, -1, first_row_value + i, nullptr, nullptr, nullptr, 0x00));
     }
 
     InitTaskList(task);
@@ -115,7 +117,7 @@ void TaskDebugger::DrawRow(int uly, const char *caption, Task *task, int color) 
     int full_width = Text_GetWidth(caption);
 
     Text_Blit(&window.buffer[window.width * (Text_GetHeight() / 2 + uly)], caption, image->GetWidth(), window.width,
-                color);
+              color);
 
     if (task) {
         task->WriteStatusLog(text);
@@ -124,8 +126,8 @@ void TaskDebugger::DrawRow(int uly, const char *caption, Task *task, int color) 
         sprintf(text, "Task Manager (%i reminders queued)", TaskManager.GetRemindersCount());
     }
 
-    Text_TextBox(window.buffer, window.width, text, full_width, uly, image->GetWidth() - full_width, Text_GetHeight() * 2,
-                 color, false);
+    Text_TextBox(window.buffer, window.width, text, full_width, uly, image->GetWidth() - full_width,
+                 Text_GetHeight() * 2, color, false);
 }
 
 void TaskDebugger::DrawRows() {
@@ -212,7 +214,7 @@ void TaskDebugger_SetDebugMode() {
 
 void TaskDebugger_DebugBreak(int task_id) {
     if (task_id == TaskDebugger_DebugTask) {
-        TaskDebugger_DebugTask = -1;
+        TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
         SDL_TriggerBreakpoint();
     }
 }
