@@ -268,8 +268,8 @@ public:
     unsigned char gold_mining_max;
     unsigned char fuel_mining_max;
     unsigned char hits;
-    unsigned char speed;
-    unsigned char group_speed;
+    signed char speed;
+    signed char group_speed;
     unsigned char shots;
     unsigned char move_and_fire;
     unsigned short storage;

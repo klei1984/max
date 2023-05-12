@@ -31,7 +31,7 @@
 static void Searcher_DrawMarker(int angle, int grid_x, int grid_y, int color);
 static int Searcher_EvaluateCost(Point point1, Point point2, bool mode);
 
-int Searcher::Searcher_MarkerColor = 1;
+int Searcher::Searcher_MarkerColor = COLOR_RED;
 
 void Searcher_DrawMarker(int angle, int grid_x, int grid_y, int color) {
     WindowInfo* window;
@@ -108,7 +108,7 @@ Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) 
         }
     }
 
-    field_12 = 0;
+    line_distance_max = 0;
 
     map_size.x = ResourceManager_MapSize.x - point1.x;
     map_size.y = ResourceManager_MapSize.y - point1.y;
@@ -131,13 +131,13 @@ Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) 
             array_size = map_size.x * 2 + map_size.y;
         }
 
-        array = new (std::nothrow) unsigned short[array_size];
+        distance_vector = new (std::nothrow) unsigned short[array_size];
 
         for (int i = 0; i < array_size; ++i) {
-            array[i] = 0x7FFF;
+            distance_vector[i] = 0x7FFF;
         }
 
-        array[0] = 0;
+        distance_vector[0] = 0;
         costs_map[point1.x][point1.y] = 0;
 
         square.point.x = point1.x;
@@ -157,7 +157,7 @@ Searcher::~Searcher() {
 
     delete[] costs_map;
     delete[] directions_map;
-    delete[] array;
+    delete[] distance_vector;
 }
 
 void Searcher::EvaluateSquare(Point point, int cost, int direction, Searcher* searcher) {
@@ -182,11 +182,12 @@ void Searcher::EvaluateSquare(Point point, int cost, int direction, Searcher* se
             line_distance = distance.y * 2 + distance.x;
         }
 
-        if (line_distance > searcher->field_12) {
-            array_value = searcher->array[searcher->field_12] + ((line_distance - searcher->field_12) & (~1));
+        if (line_distance > searcher->line_distance_max) {
+            array_value = searcher->distance_vector[searcher->line_distance_max] +
+                          ((line_distance - searcher->line_distance_max) & (~1));
 
         } else {
-            array_value = searcher->array[line_distance];
+            array_value = searcher->distance_vector[line_distance];
         }
 
         if (cost + array_value <= costs_map[destination.x][destination.y]) {
@@ -262,12 +263,12 @@ void Searcher::UpdateCost(Point point1, Point point2, int cost) {
         line_distance = distance.y * 2 + distance.x;
     }
 
-    if (line_distance > field_12) {
-        field_12 = line_distance;
+    if (line_distance > line_distance_max) {
+        line_distance_max = line_distance;
     }
 
-    while (cost < array[line_distance]) {
-        array[line_distance] = cost;
+    while (cost < distance_vector[line_distance]) {
+        distance_vector[line_distance] = cost;
         --line_distance;
     }
 }
@@ -417,7 +418,7 @@ bool Searcher::ForwardSearch(Searcher* backward_searcher) {
 
         UpdateCost(position, backward_searcher->destination, position_cost);
 
-        Searcher_MarkerColor = 1;
+        Searcher_MarkerColor = COLOR_RED;
 
         for (int direction = 0; direction < 8; ++direction) {
             step = position;
@@ -466,7 +467,7 @@ bool Searcher::BackwardSearch(Searcher* forward_searcher) {
 
         UpdateCost(position, forward_searcher->destination, position_cost);
 
-        Searcher_MarkerColor = 3;
+        Searcher_MarkerColor = COLOR_BLUE;
 
         reference_cost = Searcher_EvaluateCost(position, position, mode);
 
@@ -552,7 +553,7 @@ SmartPointer<GroundPath> Searcher::DeterminePath(Point point, int max_cost) {
                 destination_x -= Paths_8DirPointsArray[direction].x;
                 destination_y -= Paths_8DirPointsArray[direction].y;
 
-                if (destination_x < 0 || destination_x >= ResourceManager_MapSize.x || destination_x < 0 ||
+                if (destination_x < 0 || destination_x >= ResourceManager_MapSize.x || destination_y < 0 ||
                     destination_y >= ResourceManager_MapSize.y) {
                     ground_path = nullptr;
                     return ground_path;

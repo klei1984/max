@@ -128,7 +128,7 @@ class AiPlayer {
     static void UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int range, int attack,
                                  int shots, int& ammo, bool normalize);
     static void InvalidateThreatMaps();
-    static void UpdateDamagePotentialMap(SmartList<UnitInfo>* units, short** map);
+    static void DetermineDefenses(SmartList<UnitInfo>* units, short** map);
     static void DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams,
                                  ThreatMap* air_force_map, ThreatMap* ground_forces_map);
     static void SumUpMaps(short** map1, short** map2);

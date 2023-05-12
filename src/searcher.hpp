@@ -37,8 +37,8 @@ class Searcher {
 
     unsigned short **costs_map;
     unsigned char **directions_map;
-    unsigned short *array;
-    short field_12;
+    unsigned short *distance_vector;
+    short line_distance_max;
     ObjectArray<PathSquare> squares;
     Point destination;
     unsigned char mode;

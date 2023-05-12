@@ -3604,7 +3604,7 @@ void UnitInfo::StopMovement() {
 
     if (orders == ORDER_MOVE && path != nullptr) {
         if (state == ORDER_STATE_5 || state == ORDER_STATE_6) {
-            path->CancelMoment(this);
+            path->CancelMovement(this);
 
         } else {
             log.Log("Not in move / turn state.");
@@ -4385,15 +4385,12 @@ int UnitInfo::GetTargetUnitAngle() {
 void UnitInfo::UpdateInfoDisplay() {
     int base_speed = GetBaseValues()->GetAttribute(ATTRIB_SPEED);
     int base_rounds = GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
-    int local_speed = speed;
 
-    local_speed -= (((shots + 1) * base_speed) / base_rounds) - ((shots * base_speed) / base_rounds);
+    speed -= (((shots + 1) * base_speed) / base_rounds) - ((shots * base_speed) / base_rounds);
 
-    if (local_speed < 0) {
-        local_speed = 0;
+    if (speed < 0) {
+        speed = 0;
     }
-
-    speed = local_speed;
 
     if (GameManager_SelectedUnit == this) {
         GameManager_UpdateInfoDisplay(this);

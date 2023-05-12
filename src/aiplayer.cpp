@@ -579,7 +579,7 @@ void AiPlayer::InvalidateThreatMaps() {
     }
 }
 
-void AiPlayer::UpdateDamagePotentialMap(SmartList<UnitInfo>* units, short** map) {
+void AiPlayer::DetermineDefenses(SmartList<UnitInfo>* units, short** map) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).shots > 0 && (*it).orders != ORDER_IDLE && (*it).orders != ORDER_DISABLE) {
             int unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
@@ -603,7 +603,7 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
         ground_forces_map = air_force_map;
     }
 
-    if (!unit->speed || teams[unit->team]) {
+    if (unit->speed <= 0 || teams[unit->team]) {
         UnitValues* base_values = unit->GetBaseValues();
         int unit_range = base_values->GetAttribute(ATTRIB_RANGE);
         int attack_range = unit_range + base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
@@ -618,13 +618,17 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
                     UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
                                      true);
 
+                    int movement_range = 0;
+
                     if (teams[unit->team]) {
-                        UpdateThreatMaps(ground_forces_map, unit, position, attack_range + unit_speed / 2, unit_attack,
+                        movement_range = unit_speed / 2;
+
+                        UpdateThreatMaps(ground_forces_map, unit, position, attack_range + movement_range, unit_attack,
                                          unit_shots, unit_ammo, false);
 
                     } else {
-                        UpdateThreatMaps(ground_forces_map, unit, position, attack_range, unit_attack, unit_shots,
-                                         unit_ammo, false);
+                        UpdateThreatMaps(ground_forces_map, unit, position, attack_range + movement_range, unit_attack,
+                                         unit_shots, unit_ammo, false);
                     }
 
                 } else {
@@ -639,8 +643,9 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
                                 break;
                             }
 
-                            UpdateThreatMaps(ground_forces_map, unit, position,
-                                             ((unit_speed + 1) * unit_shots) / (unit_shots + 1) + attack_range,
+                            int movement_range = ((unit_speed + 1) * unit_shots) / (unit_shots + 1);
+
+                            UpdateThreatMaps(ground_forces_map, unit, position, movement_range + attack_range,
                                              unit_attack, 1, unit_ammo, false);
                         }
                     }
@@ -648,25 +653,29 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
             } break;
 
             case CAUTION_LEVEL_AVOID_ALL_DAMAGE: {
-                int range = 0;
+                UpdateThreatMaps(ground_forces_map, unit, position, attack_range, unit_attack, unit_shots, unit_ammo,
+                                 true);
 
                 if (teams[unit->team]) {
+                    int movement_range = 0;
+
                     if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-                        range = unit_speed / 2;
+                        movement_range = unit_speed / 2;
 
                     } else {
-                        range = ((unit_speed + 1) * (unit_shots - 1)) / (unit_shots);
+                        movement_range = ((unit_speed + 1) * (unit_shots - 1)) / (unit_shots);
 
                         if (GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
-                            range = std::max(range, unit_speed);
+                            movement_range = std::max<int>(movement_range, unit->speed);
                         }
+                    }
+
+                    if (movement_range > 0) {
+                        UpdateThreatMaps(ground_forces_map, unit, position, movement_range + attack_range, unit_attack,
+                                         unit_shots, unit_ammo, false);
                     }
                 }
 
-                if (range > 0) {
-                    UpdateThreatMaps(ground_forces_map, unit, position, range + attack_range, unit_attack, unit_shots,
-                                     unit_ammo, false);
-                }
             } break;
 
             case CAUTION_LEVEL_AVOID_REACTION_FIRE: {
@@ -783,19 +792,15 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
         }
 
         if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
-            UpdateDamagePotentialMap(&air_force, air_force_threat_map.damage_potential_map);
-            UpdateDamagePotentialMap(&ground_forces, AiPlayer_ThreatMaps[index].damage_potential_map);
+            DetermineDefenses(&air_force, air_force_threat_map.damage_potential_map);
+            DetermineDefenses(&ground_forces, AiPlayer_ThreatMaps[index].damage_potential_map);
         }
-
-        int counter = 0;
 
         if (is_for_attacking) {
             if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_MASTER) {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
-                        ++counter;
-
                         DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
                                          &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
@@ -804,8 +809,6 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                      it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                     if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
-                        ++counter;
-
                         DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
                                          &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
@@ -814,8 +817,6 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
                      it != UnitsManager_MobileAirUnits.End(); ++it) {
                     if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
-                        ++counter;
-
                         DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
                                          &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
@@ -824,8 +825,6 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
             } else {
                 for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
                     if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
-                        ++counter;
-
                         DetermineThreats((*it).GetUnit(), Point((*it).GetUnit()->grid_x, (*it).GetUnit()->grid_y),
                                          caution_level, teams, &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
@@ -835,8 +834,6 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
         } else {
             for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
                 if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
-                    ++counter;
-
                     DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, teams,
                                      &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                 }

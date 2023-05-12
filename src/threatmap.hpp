@@ -42,7 +42,7 @@ public:
     void Update(int armor);
 
     short team;
-    short id;
+    unsigned short id;
     unsigned char risk_level;
     unsigned char caution_level;
     bool for_attacking;

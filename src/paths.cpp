@@ -103,7 +103,7 @@ Point UnitPath::GetPosition(UnitInfo* unit) const { return Point(unit->grid_x, u
 
 bool UnitPath::IsInPath(int grid_x, int grid_y) const { return false; }
 
-void UnitPath::CancelMoment(UnitInfo* unit) {}
+void UnitPath::CancelMovement(UnitInfo* unit) {}
 
 void UnitPath::UpdateUnitAngle(UnitInfo* unit) {}
 
@@ -204,7 +204,7 @@ Point AirPath::GetPosition(UnitInfo* unit) const {
     return point;
 }
 
-void AirPath::CancelMoment(UnitInfo* unit) {
+void AirPath::CancelMovement(UnitInfo* unit) {
     AiLog log("Airpath: emergency stop.");
 
     if (length) {
@@ -551,7 +551,7 @@ bool GroundPath::IsInPath(int grid_x, int grid_y) const {
     return point.x == grid_x && point.y == grid_y;
 }
 
-void GroundPath::CancelMoment(UnitInfo* unit) {
+void GroundPath::CancelMovement(UnitInfo* unit) {
     AiLog log("Ground path: emergency stop.");
 
     if (unit->state == ORDER_STATE_5) {
