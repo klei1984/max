@@ -942,7 +942,10 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
             for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
                     AiPlayer_ThreatMaps[index].damage_potential_map[x][y] += mine_map[x][y];
-                    ++AiPlayer_ThreatMaps[index].shots_map[x][y];
+
+                    if (mine_map[x][y] > 0) {
+                        ++AiPlayer_ThreatMaps[index].shots_map[x][y];
+                    }
                 }
             }
         }
@@ -3970,6 +3973,8 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
     if (unit->team != player_team &&
         (!(unit->flags & GROUND_COVER) || unit->unit_type == LANDMINE || unit->unit_type == SEAMINE)) {
         SmartList<SpottedUnit>::Iterator spotted_unit;
+
+        InvalidateThreatMaps();
 
         for (spotted_unit = spotted_units.Begin(); spotted_unit; ++spotted_unit) {
             if ((*spotted_unit).GetUnit() == unit) {
