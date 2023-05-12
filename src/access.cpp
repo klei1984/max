@@ -693,12 +693,9 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
             }
 
             if ((unit->flags & SELECTABLE) && UnitsManager_TeamInfo[unit->team].team_type != TEAM_TYPE_NONE) {
-                unsigned char enemy_target_class;
-                int scan;
+                unsigned char enemy_target_class = TARGET_CLASS_NONE;
+                int scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
                 Rect zone;
-
-                enemy_target_class = TARGET_CLASS_NONE;
-                scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
 
                 if (unit->orders == ORDER_DISABLE) {
                     scan = 0;

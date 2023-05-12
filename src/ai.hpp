@@ -43,7 +43,7 @@ bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level
 void Ai_UpdateTerrain(UnitInfo* unit);
 int Ai_DetermineCautionLevel(UnitInfo* unit);
 void Ai_RemoveUnit(UnitInfo* unit);
-void Ai_ProcessUnitTasks(UnitInfo* unit, unsigned short team);
+void Ai_UnitSpotted(UnitInfo* unit, unsigned short team);
 bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target);
 void Ai_EvaluateAttackTargets(UnitInfo* unit);
 int Ai_GetMemoryUsage();

@@ -2065,7 +2065,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) 
         damaged_this_turn = true;
 
         if (!enemy->IsVisibleToTeam(team)) {
-            Ai_ProcessUnitTasks(enemy, team);
+            Ai_UnitSpotted(enemy, team);
         }
 
         --pin_count;
@@ -2368,7 +2368,7 @@ void UnitInfo::Move() {
                 mine->state = ORDER_STATE_27;
                 mine->visible_to_team[team] = true;
 
-                Ai_ProcessUnitTasks(&*mine, team);
+                Ai_UnitSpotted(&*mine, team);
 
                 if (orders == ORDER_MOVE_TO_ATTACK) {
                     orders = ORDER_AWAIT;
@@ -3222,7 +3222,7 @@ void UnitInfo::SpotByTeam(unsigned short team) {
             DrawSpriteFrame(image_base + angle);
         }
 
-        Ai_ProcessUnitTasks(this, team);
+        Ai_UnitSpotted(this, team);
 
         if (team == GameManager_PlayerTeam) {
             RadarPing();
@@ -5038,7 +5038,7 @@ void UnitInfo::ChangeTeam(unsigned short target_team) {
     visible_to_team[target_team] = true;
 
     Ai_UpdateTerrain(this);
-    Ai_ProcessUnitTasks(this, old_team);
+    Ai_UnitSpotted(this, old_team);
 
     RefreshScreen();
 

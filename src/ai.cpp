@@ -323,7 +323,7 @@ void Ai_RemoveUnit(UnitInfo* unit) {
     TaskManager.ProcessTasks1(unit);
 }
 
-void Ai_ProcessUnitTasks(UnitInfo* unit, unsigned short team) {
+void Ai_UnitSpotted(UnitInfo* unit, unsigned short team) {
     if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER && (unit->flags & SELECTABLE)) {
         AiPlayer_Teams[team].UnitSpotted(unit);
     }

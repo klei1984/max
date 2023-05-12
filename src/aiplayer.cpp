@@ -573,9 +573,19 @@ void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point pos
     }
 }
 
+void AiPlayer::InvalidateThreatMap(UnitInfo* unit) {
+    for (auto& map : AiPlayer_ThreatMaps) {
+        if (map.team == unit->team && map.risk_level == ThreatMap::GetRiskLevel(unit)) {
+            map.SetRiskLevel(0);
+        }
+    }
+}
+
 void AiPlayer::InvalidateThreatMaps() {
-    for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
-        AiPlayer_ThreatMaps[i].SetRiskLevel(0);
+    for (auto& map : AiPlayer_ThreatMaps) {
+        if (map.team == player_team) {
+            map.SetRiskLevel(0);
+        }
     }
 }
 
@@ -2458,7 +2468,7 @@ void AiPlayer::BeginTurn() {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if ((*it).team != player_team && ((*it).unit_type == MININGST || (*it).unit_type == GREENHSE)) {
-                        Ai_ProcessUnitTasks(&*it, player_team);
+                        Ai_UnitSpotted(&*it, player_team);
                     }
                 }
             }

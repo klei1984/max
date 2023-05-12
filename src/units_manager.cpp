@@ -6321,7 +6321,7 @@ void UnitsManager_CaptureUnit(UnitInfo* unit) {
 
     parent->ChangeTeam(old_team);
 
-    Ai_ProcessUnitTasks(unit, new_team);
+    Ai_UnitSpotted(unit, new_team);
 }
 
 void UnitsManager_DisableUnit(UnitInfo* unit) {
@@ -6407,7 +6407,7 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
     Access_UpdateMapStatus(&*parent, true);
     Access_UpdateMapStatus(&*unit_copy, false);
 
-    Ai_ProcessUnitTasks(unit, parent->team);
+    Ai_UnitSpotted(unit, parent->team);
 
     if (UnitsManager_TeamInfo[parent->team].team_type == TEAM_TYPE_PLAYER) {
         GameManager_RenderMinimapDisplay = true;
