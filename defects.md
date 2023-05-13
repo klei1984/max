@@ -34,13 +34,24 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 10. The tm_click_response() internal GNW function within the interface.c module is a GNW button on mouse click release event handler which returns a result code in the original implementation. The button module's ButtonFunc function prototype defines void return type and thus the button module does not expect any return value. The b_value parameter is incremented in certain cases within the handler, but the changed value is basically lost. As M.A.X. does not use the services that rely on this handler it is not clear whether this could cause any negative side effects.
 
-11. AI endlessly loads units into a depot and then unloads them to load another.
+11. **[Fixed]** AI endlessly loads units into a depot and then unloads them to load another.
     <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_11.mp4" type="video/mp4">
     </video>
+    <br>
     The depot contains 12 units which is the maximum it can hold. Moving a unit into and out from a depot does not cost movement points for the unit if it stands next to the depot. The AI is able to perform other tasks parallel which indicates that the issue is not related to code runaway. The game UI is partly unoperational though. For example clicking on the Preferences button pops up the GUI element, but afterwards clicking on the Files button crashes the game. The AI loop does not end even when the end turn timer counts down to zero.
-
+    <br>
+    <br>
+    The TaskRepair class has a method (cseg01:0006C085) that manages relevant unit state changes. In the given defect scenario there are two participants in the operation. There is a stationary repair shop and a mobile unit that needs to be repaired. A mobile unit that could be upgraded also counts as a unit that needs to be repaired. The class member method considers only two possible state changes. Either the mobile unit is successfully loaded into the repair shop or it needs to be ordered to enter the same. Moving to and entering a repair shop means that the unit first moves next to the repair shop, then it is shrunk down (unit loading effect), finally it is removed from hash maps and added to the repair shop to be managed there. When rescaling of the unit is finished, the applicable function (cseg01:001016BD) tests whether the repair shop that takes the unit has free capacity. The free capacity could be tested in two different ways. One method is to check the applicable unit’s `storage` member variable, the other method is to enumerate all movable units that have configured the repair shop as their parent unit. The latter method is reliable, the earlier one is not (the root cause of the defect). The applicable function uses of course the unreliable method and rejects the final step to load the unit into the repair shop. Again, the class member function only knows two unit states. Either the unit is loaded, this is not the case, or it needs to be ordered to load the unit. In short, part of the algorithm uses the reliable method to tell whether there is free capacity in the repair shop and wants to load the target unit while the other part says no this is not possible. This creates an endless loop which blocks the computer from finishing its turn.
+    <br>
+    <br>
+    Improvement potential:
+    - The class method shall be prepared to take a third possible outcome namely, that the repair shop is full or there is no raw material in the complex to upgrade the unit so the task manager should reschedule the task execution for the next turn.
+    - As the defect root cause corrupted the storage level of repair shops and the corruption is saved into saved game files, making the issue persistent between game sessions, the corrupted storage values shall be corrected by the game.
+    - The defect root cause shall be eliminated. As the root cause is not confirmed yet, add assertion tests to potential call sites.
+    <br>
+    <br>
 
 12. Construction tape remains or is misplaced when AI constructor builds a building.
     <br>
@@ -49,12 +60,14 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     It is not allowed to instruct a unit to move to the coordinates found within the tape as the mouse hoover shows that the enemy constructor is found within those cells, but when a pathway is planned with shift + left mouse click the planned path crosses over the affected cells. When the constructor finishes the building the tape and the error remains. The tape and the unit referenced by the area remains even after the offending constructor is destroyed. Mouse hover also detects the constructor at cell 69-100. After finishing the building the unit might have left the construction area in that direction. This would indicate that the tape is not misplaced, but the process to remove the tape on finishing the building and moving the constructor out of the construction zone is bogus.
 
-13. Infiltrator could stuck and game could hang if mine is on a bridge that the unit wants to pass.
+13. **[Fixed]** Infiltrator could stuck and game could hang if mine is on a bridge that the unit wants to pass to reach an otherwise inaccessible area.
     <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_13.mp4" type="video/mp4">
     </video>
     In case of water platforms the game correctly finds that there is no path to the destination. In case of bridges this is bogus. The infiltrator cannot take the path as there is a mine in the way, but the path finding algorith tells there is a valid path. When the issue occurs the game does not accept the end turn action, the affected infiltrator cannot be moved any more and it cannot be loaded by personnel carriers. The affected bridge at the same time is redrawn as if there would be a ship under the bridge. Interestingly it is possible to load back a game in this state and if done so the queued action to end the turn from the previous game activates. This also implies that command or event queues are not cleared on loading games.
+    <br>
+    The paths manager creates so-called access maps for teams. There is a function (cseg01:000BEAC8) to process all ground cover units including bridges, roads, sea and land mines. Access maps store distinct values instead of flags. The ground cover units are stored in an unordered list. When the list is iterated it could easily happen that a mine is found first which sets a grid cell access value to 0 (not accessible), then later a road or bridge or similar is found in the list at the same grid cell location which overwrites the previous access classification to non 0 (accessible). The paths manager eventually finds a path which is assigned to the applicable unit which starts to walk the path at some point and will find that there is a mine in the way so the path is invalid and another should be generated. But the path manager will give the unit the exact same path again as it does not know about the mine in the access map. Most of the time the game will simply spend all available turn time to generate and discard the same path again and again for computer players. In corner cases, like in case of defect 13 where the human player requested a path, the game will hang. The proposed solution is to process ground covers in at least two steps. First process everything but minefields, then finally only the minefields.
 
 14. AI does not consider to leave a free square for engineer to leave the construction site making it stuck.
 <br>
