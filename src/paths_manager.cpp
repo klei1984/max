@@ -635,13 +635,6 @@ void PathsManager_ProcessGroundCover(unsigned char **map, UnitInfo *unit, int su
                         map[(*it).grid_x][(*it).grid_y] = 0;
                     }
                 } break;
-
-                case LANDMINE:
-                case SEAMINE: {
-                    if ((*it).team != team && (*it).IsDetectedByTeam(team)) {
-                        map[(*it).grid_x][(*it).grid_y] = 0;
-                    }
-                } break;
             }
         }
     }
@@ -675,6 +668,21 @@ void PathsManager_ProcessGroundCover(unsigned char **map, UnitInfo *unit, int su
                     map[(*it).grid_x][(*it).grid_y + 1] = 0;
                     map[(*it).grid_x + 1][(*it).grid_y + 1] = 0;
                 }
+            }
+        }
+    }
+
+    // minefields shall be processed after everything else otherwise the map would overwrite no-go zones
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
+         it != UnitsManager_GroundCoverUnits.End(); ++it) {
+        if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
+            switch ((*it).unit_type) {
+                case LANDMINE:
+                case SEAMINE: {
+                    if ((*it).team != team && (*it).IsDetectedByTeam(team)) {
+                        map[(*it).grid_x][(*it).grid_y] = 0;
+                    }
+                } break;
             }
         }
     }
