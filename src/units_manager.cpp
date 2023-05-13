@@ -5504,6 +5504,8 @@ bool UnitsManager_UpdateAttackMoves(UnitInfo* unit) {
 void UnitsManager_Store(UnitInfo* unit) {
     SmartPointer<UnitInfo> parent(unit->GetParent());
 
+    SDL_assert(parent->storage < parent->GetBaseValues()->GetAttribute(ATTRIB_STORAGE));
+
     ++parent->storage;
 
     if (GameManager_SelectedUnit == parent) {
@@ -5719,6 +5721,8 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
 
     if ((parent->flags & MOBILE_AIR_UNIT) ||
         !Paths_IsOccupied(unit->target_grid_x, unit->target_grid_y, 0, unit->team)) {
+        SDL_assert(unit->storage > 0);
+
         --unit->storage;
 
         unit->SetParent(nullptr);
@@ -5940,6 +5944,8 @@ void UnitsManager_ProgressUnloading(UnitInfo* unit) {
             GameManager_RenderMinimapDisplay = true;
         }
 
+        SDL_assert(unit->storage > 0);
+
         --unit->storage;
 
         unit->moved = 0;
@@ -6017,6 +6023,8 @@ void UnitsManager_ProgressLoading(UnitInfo* unit) {
             if (UnitsManager_TeamInfo[parent->team].team_type == TEAM_TYPE_PLAYER) {
                 GameManager_RenderMinimapDisplay = true;
             }
+
+            SDL_assert(unit->storage <= base_values->GetAttribute(ATTRIB_STORAGE));
 
             ++unit->storage;
 

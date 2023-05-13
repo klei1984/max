@@ -21,6 +21,7 @@
 
 #include "taskrepair.hpp"
 
+#include "access.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "pathrequest.hpp"
@@ -306,21 +307,38 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
                                 (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
                                 if (operator_unit->flags & STATIONARY) {
-                                    target_unit->target_grid_x = operator_unit->grid_x;
-                                    target_unit->target_grid_y = operator_unit->grid_y;
+                                    const int stored_units = Access_GetStoredUnitCount(&*operator_unit);
+                                    const int storable_units =
+                                        operator_unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+                                    Cargo materials;
+                                    Cargo capacity;
 
-                                    if (target_unit->target_grid_x == target_unit->grid_x &&
-                                        target_unit->target_grid_y == target_unit->grid_y) {
-                                        ++target_unit->target_grid_x;
+                                    operator_unit->GetComplex()->GetCargoInfo(materials, capacity);
+
+                                    // only enter repair shop if there is free capacity in it,
+                                    // and raw materials are available in the complex
+                                    if (materials.raw > 0 && stored_units < storable_units) {
+                                        target_unit->target_grid_x = operator_unit->grid_x;
+                                        target_unit->target_grid_y = operator_unit->grid_y;
+
+                                        if (target_unit->target_grid_x == target_unit->grid_x &&
+                                            target_unit->target_grid_y == target_unit->grid_y) {
+                                            ++target_unit->target_grid_x;
+                                        }
+
+                                        UnitsManager_SetNewOrder(&*target_unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_0);
+
+                                        result = true;
+
+                                    } else {
+                                        result = false;
                                     }
-
-                                    UnitsManager_SetNewOrder(&*target_unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_0);
 
                                 } else {
                                     DoRepairs();
-                                }
 
-                                result = true;
+                                    result = true;
+                                }
 
                             } else {
                                 result = false;

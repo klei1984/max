@@ -673,7 +673,14 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
         SmartPointer<UnitInfo> receiver(Access_GetReceiverUnit(unit, target_grid_x, target_grid_y));
 
         if (receiver != nullptr) {
-            if (receiver->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) == Access_GetStoredUnitCount(&*receiver)) {
+            const int stored_units = Access_GetStoredUnitCount(&*receiver);
+            const int storable_units = receiver->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+
+            SDL_assert(stored_units <= storable_units && receiver->storage == stored_units);
+
+            receiver->storage = stored_units;
+
+            if (stored_units == storable_units) {
                 unit->BlockedOnPathRequest();
 
             } else {
@@ -1363,7 +1370,14 @@ bool Paths_LoadUnit(UnitInfo* unit) {
             result = true;
 
         } else if (shop->unit_type == HANGAR && unit->orders == ORDER_MOVE_TO_UNIT) {
-            if (Access_GetStoredUnitCount(shop) == shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
+            const int stored_units = Access_GetStoredUnitCount(shop);
+            const int storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+
+            SDL_assert(stored_units <= storable_units && shop->storage == stored_units);
+
+            shop->storage = stored_units;
+
+            if (stored_units == storable_units) {
                 unit->orders = ORDER_AWAIT;
                 unit->state = ORDER_STATE_1;
 

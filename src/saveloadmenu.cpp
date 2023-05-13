@@ -114,6 +114,7 @@ static void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int *save_slot_inde
 static void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int save_slot_index, int is_saving_allowed);
 static void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int save_slot, int game_file_type);
 static void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, unsigned short team);
+static bool SaveLoadMenu_RunPlausibilityTests();
 
 void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int save_slot, int game_file_type) {
     const char *title;
@@ -1131,6 +1132,9 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
             }
 
             SaveLoadMenu_Flag = false;
+
+            SaveLoadMenu_RunPlausibilityTests();
+
             result = true;
 
         } else {
@@ -1245,4 +1249,28 @@ void SaveSlot::DrawSaveSlot(int game_file_type) {
     SaveLoadMenu_DrawSaveSlotResource(image_down, width, FNAME_DN, file_name, GNW_TEXT_FONT_5);
     SaveLoadMenu_DrawSaveSlotResource(image_down, width, FTYPE_DN, SaveLoadMenu_SaveTypeTitles[game_file_type],
                                       GNW_TEXT_FONT_2);
+}
+
+bool SaveLoadMenu_RunPlausibilityTests() {
+    bool result = false;
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        SmartPointer<UnitInfo> shop(*it);
+
+        if (shop->unit_type == DEPOT || (*it).unit_type == DOCK || (*it).unit_type == HANGAR) {
+            const int stored_units = Access_GetStoredUnitCount(&*shop);
+            const int storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+
+            if (stored_units > storable_units || shop->storage != stored_units) {
+                shop->storage = stored_units;
+
+                SDL_Log("Repair shop corruption detected at [%i,%i].", shop->grid_x, shop->grid_y);
+
+                result = true;
+            }
+        }
+    }
+
+    return result;
 }
