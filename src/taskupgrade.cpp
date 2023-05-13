@@ -21,6 +21,7 @@
 
 #include "taskupgrade.hpp"
 
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "units_manager.hpp"
 
@@ -31,7 +32,7 @@ TaskUpgrade::~TaskUpgrade() {}
 int TaskUpgrade::GetMemoryUse() const { return 4; }
 
 char* TaskUpgrade::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Upgrade unit");
+    strcpy(buffer, "Upgrade unit.");
 
     return buffer;
 }
@@ -82,6 +83,8 @@ void TaskUpgrade::CreateUnit() {
 }
 
 void TaskUpgrade::IssueOrder() {
+    AiLog log("Upgrading %s.", UnitsManager_BaseUnits[target_unit->unit_type].singular_name);
+
     operator_unit->SetParent(&*target_unit);
 
     if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {

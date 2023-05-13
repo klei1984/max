@@ -22,6 +22,7 @@
 #include "taskreload.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 
@@ -32,7 +33,7 @@ TaskReload::~TaskReload() {}
 int TaskReload::GetMemoryUse() const { return 4; }
 
 char* TaskReload::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Reload unit with ammunition");
+    strcpy(buffer, "Reload unit with ammunition.");
 
     return buffer;
 }
@@ -140,6 +141,9 @@ void TaskReload::CreateUnit() {
 }
 
 void TaskReload::IssueOrder() {
+    AiLog log("Reloading %s from %s.", UnitsManager_BaseUnits[target_unit->unit_type].singular_name,
+              UnitsManager_BaseUnits[operator_unit->unit_type].singular_name);
+
     operator_unit->SetParent(&*target_unit);
     UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_0);
 }

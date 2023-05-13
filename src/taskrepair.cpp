@@ -22,6 +22,7 @@
 #include "taskrepair.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "pathrequest.hpp"
@@ -42,6 +43,8 @@ void TaskRepair::ChooseUnitToRepair() {
 
     if (target_unit != nullptr) {
         operator_unit = nullptr;
+
+        AiLog log("Choose unit to repair %s.", UnitsManager_BaseUnits[target_unit->unit_type].singular_name);
 
         unit = SelectRepairShop();
 
@@ -65,6 +68,8 @@ void TaskRepair::ChooseUnitToRepair() {
         }
 
         if (operator_unit != nullptr) {
+            log.Log("Found %s.", UnitsManager_BaseUnits[operator_unit->unit_type].singular_name);
+
             operator_unit->AddTask(this);
         }
     }
@@ -75,6 +80,9 @@ void TaskRepair::DoRepairs() {
         !(operator_unit->flags & (MOBILE_AIR_UNIT || MOBILE_SEA_UNIT || MOBILE_LAND_UNIT))) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
             (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
+            AiLog log("Repair/reload %s: perform repair.",
+                      UnitsManager_BaseUnits[target_unit->unit_type].singular_name);
+
             if (operator_unit->flags & STATIONARY) {
                 Cargo materials;
                 Cargo capacity;
@@ -85,6 +93,9 @@ void TaskRepair::DoRepairs() {
                     if (Task_IsReadyToTakeOrders(&*operator_unit)) {
                         IssueOrder();
                     }
+
+                } else {
+                    log.Log("%s has no material.", UnitsManager_BaseUnits[operator_unit->unit_type].singular_name);
                 }
 
             } else if (operator_unit->storage > 0) {
@@ -139,6 +150,8 @@ void TaskRepair::RemoveMovementTasks() {
 }
 
 void TaskRepair::RendezvousResultCallback(Task* task, UnitInfo* unit, char result) {
+    AiLog log("Repair: rendezvous result.");
+
     if (result == 2) {
         dynamic_cast<TaskRepair*>(task)->RemoveMovementTasks();
 
@@ -236,6 +249,8 @@ Rect* TaskRepair::GetBounds(Rect* bounds) {
 unsigned char TaskRepair::GetType() const { return TaskType_TaskRepair; }
 
 void TaskRepair::Begin() {
+    AiLog log("Begin repair/reload/upgrade unit.");
+
     target_unit->AddTask(this);
     CreateUnit();
     ChooseUnitToRepair();
@@ -254,6 +269,8 @@ bool TaskRepair::Execute(UnitInfo& unit) {
     bool result;
 
     if (target_unit == unit && target_unit->GetTask() == this) {
+        AiLog log("Repair/reload %s move unit.", UnitsManager_BaseUnits[target_unit->unit_type].singular_name);
+
         if (IsInPerfectCondition()) {
             SmartPointer<Task> task;
 
@@ -295,6 +312,9 @@ bool TaskRepair::Execute(UnitInfo& unit) {
             } else {
                 if (target_unit->state == ORDER_STATE_3) {
                     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam) {
+                        log.Log("%s is inside %s.", UnitsManager_BaseUnits[target_unit->unit_type].singular_name,
+                                UnitsManager_BaseUnits[operator_unit->unit_type].singular_name);
+
                         DoRepairs();
                     }
 
@@ -304,6 +324,8 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                     if ((operator_unit->flags & STATIONARY) || operator_unit->storage > 0 ||
                         operator_unit->GetTask() != this) {
                         if (Task_IsAdjacent(&*operator_unit, target_unit->grid_x, target_unit->grid_y)) {
+                            log.Log("Adjacent to %s.", UnitsManager_BaseUnits[operator_unit->unit_type].singular_name);
+
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
                                 (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
                                 if (operator_unit->flags & STATIONARY) {
@@ -318,6 +340,8 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                                     // only enter repair shop if there is free capacity in it,
                                     // and raw materials are available in the complex
                                     if (materials.raw > 0 && stored_units < storable_units) {
+                                        log.Log("Sending Board order.");
+
                                         target_unit->target_grid_x = operator_unit->grid_x;
                                         target_unit->target_grid_y = operator_unit->grid_y;
 
@@ -392,6 +416,9 @@ void TaskRepair::RemoveSelf() {
 }
 
 void TaskRepair::RemoveUnit(UnitInfo& unit) {
+    AiLog log("Repair %s: remove %s.", UnitsManager_BaseUnits[target_unit->unit_type].singular_name,
+              UnitsManager_BaseUnits[unit.unit_type].singular_name);
+
     if (target_unit == unit) {
         SmartPointer<Task> task(this);
 
@@ -476,6 +503,8 @@ void TaskRepair::CreateUnit() {
 }
 
 void TaskRepair::IssueOrder() {
+    AiLog log("Sending repair order.");
+
     operator_unit->SetParent(&*target_unit);
 
     if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
