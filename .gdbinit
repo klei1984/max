@@ -8,6 +8,7 @@ skip -file sortedenum.hpp
 skip -file smartarray.hpp
 skip -file smartlist.hpp
 skip -file point.hpp
+skip -file ailog.cpp
 
 python
 class RegisterControl(gdb.printing.PrettyPrinter):
