@@ -125,7 +125,7 @@ bool UnitInfoGroup::Populate() {
 
                                 case SMLRUBLE:
                                 case LRGRUBLE: {
-                                    land_rubles.Insert((*it));
+                                    land_rubbles.Insert((*it));
                                 } break;
 
                                 default: {
@@ -184,8 +184,8 @@ void UnitInfoGroup::RenderGroups() {
         DrawMap_RenderUnit(this, &passeable_ground_cover[i]);
     }
 
-    for (int i = land_rubles.GetCount() - 1; i >= 0; --i) {
-        DrawMap_RenderUnit(this, &land_rubles[i]);
+    for (int i = land_rubbles.GetCount() - 1; i >= 0; --i) {
+        DrawMap_RenderUnit(this, &land_rubbles[i]);
     }
 
     for (int i = sea_land_mines.GetCount() - 1; i >= 0; --i) {
@@ -298,7 +298,7 @@ void UnitInfoGroup::ProcessDirtyZone(Rect* bounds) {
     torpedos.Release();
     water_platform.Release();
     passeable_ground_cover.Release();
-    land_rubles.Release();
+    land_rubbles.Release();
     sea_land_mines.Release();
     ground_covers.Release();
     sea_land_units.Release();

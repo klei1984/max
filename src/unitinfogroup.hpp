@@ -46,7 +46,7 @@ class UnitInfoGroup {
     UnitInfoArray torpedos;
     UnitInfoArray water_platform;
     UnitInfoArray passeable_ground_cover;
-    UnitInfoArray land_rubles;
+    UnitInfoArray land_rubbles;
     UnitInfoArray sea_land_mines;
     UnitInfoArray ground_covers;
     UnitInfoArray sea_land_units;
