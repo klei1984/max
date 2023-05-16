@@ -37,6 +37,7 @@
 #include "mouseevent.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "saveloadchecks.hpp"
 #include "smartfile.hpp"
 #include "sound_manager.hpp"
 #include "teamunits.hpp"
@@ -705,6 +706,16 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     struct SaveFormatHeader file_header;
     unsigned short game_state;
 
+    if (!play_voice) {
+        bool corruption_detected = SaveLoadMenu_RunPlausibilityTests();
+
+        SDL_assert(!corruption_detected);
+
+        if (corruption_detected) {
+            return;
+        }
+    }
+
     filepath = ResourceManager_FilePathGameInstall;
     filepath += filename.Toupper();
 
@@ -1254,23 +1265,9 @@ void SaveSlot::DrawSaveSlot(int game_file_type) {
 bool SaveLoadMenu_RunPlausibilityTests() {
     bool result = false;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
-        SmartPointer<UnitInfo> shop(*it);
-
-        if (shop->unit_type == DEPOT || (*it).unit_type == DOCK || (*it).unit_type == HANGAR) {
-            const int stored_units = Access_GetStoredUnitCount(&*shop);
-            const int storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
-
-            if (stored_units > storable_units || shop->storage != stored_units) {
-                shop->storage = stored_units;
-
-                SDL_Log("Repair shop corruption detected at [%i,%i].", shop->grid_x, shop->grid_y);
-
-                result = true;
-            }
-        }
-    }
+    result |= SaveLoadChecks_Defect11();
+    result |= SaveLoadChecks_Defect183();
+    result |= SaveLoadChecks_Defect151();
 
     return result;
 }
