@@ -23,7 +23,6 @@
 
 #include "cursor.hpp"
 #include "game_manager.hpp"
-#include "gnw.h"
 #include "localization.hpp"
 #include "remote.hpp"
 #include "text.hpp"
@@ -54,7 +53,7 @@ void DialogMenu::DrawText() {
     row_width = 0;
 
     for (int i = row_offset; i < num_rows; ++i) {
-        if (field_64) {
+        if (center_align_text) {
             row_width = Text_GetWidth(strings[i].GetCStr());
 
             if (row_width > 265) {
@@ -142,12 +141,12 @@ bool DialogMenu::ProcessKey(int key) {
 
 DialogMenu::DialogMenu(const char* caption, bool mode)
     : Window(HELPFRAM, GameManager_GetDialogWindowCenterMode()),
-      field_62(GameManager_GameState != GAME_STATE_3_MAIN_MENU),
+      is_ingame(GameManager_GameState > GAME_STATE_3_MAIN_MENU),
       strings(nullptr),
       row_offset(0),
       button_up(nullptr),
       button_down(nullptr),
-      field_64(mode) {
+      center_align_text(mode) {
     Cursor_SetCursor(CURSOR_HAND);
     Text_SetFont(GNW_TEXT_FONT_5);
     SetFlags(0x10);
@@ -207,7 +206,7 @@ void DialogMenu::Run() {
                 UnitsManager_ProcessRemoteOrders();
             }
         } else {
-            if (field_62) {
+            if (is_ingame) {
                 GameManager_ProcessState(true);
             }
         }

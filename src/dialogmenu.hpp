@@ -37,9 +37,9 @@ class DialogMenu : Window {
     int max_row_count;
     int row_offset;
     bool event_click_ok;
-    bool field_62;
+    bool is_ingame;
     bool event_release;
-    bool field_64;
+    bool center_align_text;
 
     void DrawText();
     bool ProcessKey(int key);
