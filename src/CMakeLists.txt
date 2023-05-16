@@ -56,6 +56,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/drawmap.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/color.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/assertmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/desyncmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transfermenu.cpp
@@ -69,6 +70,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/optionsmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/chatmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/saveloadchecks.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gfx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reportstats.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/allocmenu.cpp

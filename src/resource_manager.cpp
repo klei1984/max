@@ -24,6 +24,7 @@
 #include <filesystem>
 
 #include "access.hpp"
+#include "assertmenu.hpp"
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
 #include "game_manager.hpp"
@@ -344,6 +345,7 @@ TeamUnits ResourceManager_TeamUnitsBlue;
 TeamUnits ResourceManager_TeamUnitsGray;
 TeamUnits ResourceManager_TeamUnitsDerelict;
 
+static void ResourceManager_InitSDL();
 static void ResourceManager_TestMemory();
 static void ResourceManager_TestDiskSpace();
 static void ResourceManager_InitInternals();
@@ -356,6 +358,7 @@ static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
 static void ResourceManager_ManipulateColorMap(int red_level, int green_level, int blue_level, ColorIndex *table);
 static void ResourceManager_ManipulateColorMap2(int red_level, int green_level, int blue_level, ColorIndex *table);
 static void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues *unit_values);
+static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
 
 bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_error) {
     std::error_code ec;
@@ -465,10 +468,20 @@ void ResourceManager_InitPaths(int argc, char *argv[]) {
 }
 
 void ResourceManager_InitResources() {
+    ResourceManager_InitSDL();
     ResourceManager_TestMemory();
     ResourceManager_TestDiskSpace();
     ResourceManager_InitInternals();
     ResourceManager_TestMouse();
+}
+
+void ResourceManager_InitSDL() {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
+        SDL_Log("Unable to initialize SDL: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    atexit(SDL_Quit);
 }
 
 void ResourceManager_TestMemory() {
@@ -516,6 +529,8 @@ void ResourceManager_InitInternals() {
     if (WindowManager_Init()) {
         ResourceManager_ExitGame(EXIT_CODE_SCREEN_INIT_FAILED);
     }
+
+    SDL_SetAssertionHandler(&ResourceManager_AssertionHandler, NULL);
 
     if (SDL_GetSystemRAM() < 13) {
         ini_set_setting(INI_ENHANCED_GRAPHICS, false);
@@ -1523,4 +1538,14 @@ void ResourceManager_InitTeamInfo() {
 
 unsigned char *ResourceManager_GetBuffer(ResourceID id) {
     return id == INVALID_ID ? nullptr : ResourceManager_ResMetaTable[id].resource_buffer;
+}
+
+SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata) {
+    char caption[500];
+
+    snprintf(caption, sizeof(caption), "Assertion failure at %s (%s:%d), triggered %u %s: '%s'.", data->function,
+             data->filename, data->linenum, data->trigger_count, (data->trigger_count == 1) ? "time" : "times",
+             data->condition);
+
+    return static_cast<SDL_AssertState>(AssertMenu(caption).Run());
 }

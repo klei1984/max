@@ -1,4 +1,4 @@
-/* Copyright (c) 2022 M.A.X. Port Team
+/* Copyright (c) 2023 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,23 +19,26 @@
  * SOFTWARE.
  */
 
-#include "menu.hpp"
-#include "movie.hpp"
-#include "resource_manager.hpp"
-#include "sound_manager.hpp"
+#ifndef ASSERTMENU_HPP
+#define ASSERTMENU_HPP
 
-int main(int argc, char* argv[]) {
-    ResourceManager_InitPaths(argc, argv);
-    ResourceManager_InitResources();
+#include "button.hpp"
+#include "window.hpp"
 
-    if (Movie_PlayIntro()) {
-        menu_draw_logo(ILOGO, 3000);
-    }
+class AssertMenu : Window {
+    WindowInfo window;
+    Button *button_break;
+    Button *button_abort;
+    Button *button_ignore;
+    bool show_cursor_state;
+    bool event_click;
+    bool event_release;
 
-    SoundManager.PlayMusic(MAIN_MSC, false);
-    menu_draw_logo(MLOGO, 3000);
+public:
+    AssertMenu(const char *caption);
+    ~AssertMenu();
 
-    main_menu();
+    int Run();
+};
 
-    return 0;
-}
+#endif /* ASSERTMENU_HPP */
