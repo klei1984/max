@@ -905,7 +905,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
 
             for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
-                    if (active_heat_map[y * ResourceManager_MapSize.x + x]) {
+                    if (active_heat_map && active_heat_map[y * ResourceManager_MapSize.x + x]) {
                         AiPlayer_ThreatMaps[index].damage_potential_map[x][y] |= 0x8000;
                     }
                 }
