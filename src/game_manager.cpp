@@ -421,6 +421,7 @@ int GameManager_MouseX;
 int GameManager_MouseY;
 Point GameManager_MousePosition;
 Point GameManager_LastMousePosition;
+Point GameManager_LastMinimapPosition;
 Point GameManager_MousePosition2;
 Point GameManager_ScaledMousePosition;
 Rect GameManager_RenderArea;
@@ -719,6 +720,7 @@ static Point GameManager_GetStartingPositionPowerGenerator(Point point, unsigned
 static int GameManager_DetermineZoomLimit();
 static float GameManager_GetScrollRateLimit();
 static float GameManager_UpdateScrollRateLimit();
+static Point GameManager_GetMinimapPosition();
 
 void GameManager_GameLoop(int game_state) {
     unsigned int turn_counter;
@@ -6469,6 +6471,17 @@ void GameManager_ProcessInput() {
             GameManager_LastMousePosition.x = GameManager_MousePosition.x;
             GameManager_LastMousePosition.y = GameManager_MousePosition.y;
         }
+
+    } else if (window_index == WINDOW_MINIMAP) {
+        Point minimap_position = GameManager_GetMinimapPosition();
+
+        if (minimap_position.x != GameManager_LastMinimapPosition.x ||
+            minimap_position.y != GameManager_LastMinimapPosition.y) {
+            GameManager_DrawMouseCoordinates(minimap_position.x + 1, minimap_position.y + 1);
+
+            GameManager_LastMinimapPosition.x = minimap_position.x;
+            GameManager_LastMinimapPosition.y = minimap_position.y;
+        }
     }
 
     if (GameManager_MouseButtons) {
@@ -6529,31 +6542,21 @@ void GameManager_ProcessInput() {
             } break;
 
             case WINDOW_MINIMAP: {
-                const double scale = WindowManager_GetScale();
-                int offset_x = (GameManager_MouseX - window->window.ulx) / scale;
-                int offset_y = (GameManager_MouseY - window->window.uly) / scale;
-
-                offset_x = std::min(ResourceManager_MapSize.x - 1, std::max(0, offset_x));
-                offset_y = std::min(ResourceManager_MapSize.y - 1, std::max(0, offset_y));
-
-                if (GameManager_DisplayButtonMinimap2x) {
-                    offset_x = (offset_x / 2) + GameManager_GridCenterOffset.x;
-                    offset_y = (offset_y / 2) + GameManager_GridCenterOffset.y;
-                }
+                Point minimap_position = GameManager_GetMinimapPosition();
 
                 if (GameManager_MouseButtons & (MOUSE_PRESS_LEFT | MOUSE_RELEASE_LEFT)) {
-                    GameManager_UpdateMainMapView(1, offset_x, offset_y);
+                    GameManager_UpdateMainMapView(1, minimap_position.x, minimap_position.y);
 
                 } else if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
                     unsigned char cursor;
 
-                    cursor = GameManager_GetWindowCursor(offset_x, offset_y);
+                    cursor = GameManager_GetWindowCursor(minimap_position.x, minimap_position.y);
 
                     if (cursor == CURSOR_UNIT_GO || cursor == CURSOR_WAY) {
                         if (GameManager_SelectedUnit->state != ORDER_STATE_UNIT_READY) {
-                            GameManager_SetUnitOrder(ORDER_MOVE,
-                                                     cursor == CURSOR_UNIT_GO ? ORDER_STATE_0 : ORDER_STATE_28,
-                                                     &*GameManager_SelectedUnit, offset_x, offset_y);
+                            GameManager_SetUnitOrder(
+                                ORDER_MOVE, cursor == CURSOR_UNIT_GO ? ORDER_STATE_0 : ORDER_STATE_28,
+                                &*GameManager_SelectedUnit, minimap_position.x, minimap_position.y);
                         }
                     }
                 }
@@ -8027,4 +8030,23 @@ void GameManager_DrawProximityZones() {
         while (!GameManager_ProcessTick(false)) {
         }
     }
+}
+
+Point GameManager_GetMinimapPosition() {
+    const double scale = WindowManager_GetScale();
+    WindowInfo* minimap = WindowManager_GetWindow(WINDOW_MINIMAP);
+    Point minimap_position;
+
+    minimap_position.x = (GameManager_MouseX - minimap->window.ulx) / scale;
+    minimap_position.y = (GameManager_MouseY - minimap->window.uly) / scale;
+
+    minimap_position.x = std::min(ResourceManager_MapSize.x - 1, std::max<int>(0, minimap_position.x));
+    minimap_position.y = std::min(ResourceManager_MapSize.y - 1, std::max<int>(0, minimap_position.y));
+
+    if (GameManager_DisplayButtonMinimap2x) {
+        minimap_position.x = (minimap_position.x / 2) + GameManager_GridCenterOffset.x;
+        minimap_position.y = (minimap_position.y / 2) + GameManager_GridCenterOffset.y;
+    }
+
+    return minimap_position;
 }
