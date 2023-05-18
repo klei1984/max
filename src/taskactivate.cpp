@@ -56,8 +56,8 @@ void TaskActivate::Activate() {
                                 }
                             }
 
-                            if (unit_to_activate->orders != ORDER_IDLE || unit_parent->orders != ORDER_BUILD ||
-                                unit_parent->orders != ORDER_AWAIT) {
+                            if (unit_to_activate->orders != ORDER_IDLE || unit_parent->orders == ORDER_BUILD ||
+                                unit_parent->orders == ORDER_AWAIT) {
                                 Point position(unit_parent->grid_x - 1, unit_parent->grid_y);
                                 int unit_size;
 
