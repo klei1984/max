@@ -619,14 +619,6 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
         ++index;
 
         if (index >= steps.GetCount()) {
-            SmartPointer<UnitPath> path(this);
-
-            /// \todo Is this smart pointer really required?
-            /// In case unit would hold the last reference to this path object, then
-            /// postponing the destruction of the object till return from this virtual
-            /// function would not make any difference as BlockedOnPathRequest() is
-            /// the last function call before return.
-
             unit->BlockedOnPathRequest();
 
             return false;
@@ -666,6 +658,12 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
     target_grid_x = grid_x + offset_x;
     target_grid_y = grid_y + offset_y;
+
+    if (target_grid_x < 0 || target_grid_x >= ResourceManager_MapSize.x || target_grid_y < 0 ||
+        target_grid_y >= ResourceManager_MapSize.y) {
+        unit->BlockedOnPathRequest();
+        return false;
+    }
 
     cost = 4;
 
