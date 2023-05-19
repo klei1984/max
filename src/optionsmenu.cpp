@@ -453,23 +453,35 @@ int OptionsMenu::ProcessTextEditKeyPress(int key) {
 }
 
 void OptionsMenu::Init() {
-    int ulx;
-    int uly;
+    int window_ulx;
+    int window_uly;
     IniParameter ini_param_index;
 
     if (bg_image == PREFSPIC) {
-        uly = 20;
+        window_uly = 20;
+
+        if (ini_get_setting(INI_DEBUG)) {
+            window_uly = 0;
+        }
+
     } else {
-        uly = -20;
+        window_uly = -20;
     }
 
     for (int i = 0; i < button_count; ++i) {
-        ulx = options_menu_buttons[i].ulx;
+        window_ulx = options_menu_buttons[i].ulx;
         ini_param_index = options_menu_buttons[i].ini_param_index;
 
         if (ini_param_index != INI_ENHANCED_GRAPHICS || bg_image == SETUPPIC) {
-            if (ulx == 25) {
-                uly += 20;
+            if (ini_get_setting(INI_DEBUG)) {
+                if (ini_param_index == INI_PLAY_MODE || ini_param_index == INI_OPPONENT ||
+                    ini_param_index == INI_VICTORY_LIMIT) {
+                    continue;
+                }
+            }
+
+            if (window_ulx == 25) {
+                window_uly += 20;
             }
 
             if (options_menu_buttons[i].type != OPTIONS_TYPE_SECTION) {
@@ -478,19 +490,19 @@ void OptionsMenu::Init() {
 
                 switch (options_menu_buttons[i].type) {
                     case OPTIONS_TYPE_SLIDER: {
-                        InitSliderControl(i, ulx, uly);
+                        InitSliderControl(i, window_ulx, window_uly);
                     } break;
                     case OPTIONS_TYPE_EDIT_INT:
                     case OPTIONS_TYPE_EDIT_HEX:
                     case OPTIONS_TYPE_EDIT_STR: {
-                        InitEditControl(i, ulx, uly);
+                        InitEditControl(i, window_ulx, window_uly);
                     } break;
                     case OPTIONS_TYPE_CHECKBOX: {
-                        InitCheckboxControl(i, ulx, uly);
+                        InitCheckboxControl(i, window_ulx, window_uly);
                     } break;
                     case OPTIONS_TYPE_LABEL: {
-                        InitLabelControl(i, ulx, uly);
-                        uly -= 20 - (Text_GetHeight() + 3);
+                        InitLabelControl(i, window_ulx, window_uly);
+                        window_uly -= 20 - (Text_GetHeight() + 3);
                     } break;
                 }
 
@@ -500,12 +512,12 @@ void OptionsMenu::Init() {
                     return;
                 }
 
-                if (!ini_param_index) {
+                if (!ini_param_index && !ini_get_setting(INI_DEBUG)) {
                     button_count = i;
                     return;
                 }
 
-                uly += 20;
+                window_uly += 20;
             }
         }
     }
