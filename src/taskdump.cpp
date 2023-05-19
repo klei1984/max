@@ -34,7 +34,7 @@ TaskDump::TaskDump(TaskTransport* task_transport, TaskMove* task_move_, UnitInfo
 TaskDump::~TaskDump() {}
 
 void TaskDump::TaskDump_PathResultCallback(Task* task, PathRequest* request, Point destination_, GroundPath* path,
-                                           char result) {
+                                           unsigned char result) {
     TaskDump* dump_task = dynamic_cast<TaskDump*>(task);
 
     if (path) {

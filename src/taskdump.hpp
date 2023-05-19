@@ -36,7 +36,7 @@ class TaskDump : public Task {
     char field_37;
 
     static void TaskDump_PathResultCallback(Task* task, PathRequest* request, Point destination, GroundPath* path,
-                                            char result);
+                                            unsigned char result);
     static void TaskDump_PathCancelCallback(Task* task, PathRequest* request);
 
     void Search();

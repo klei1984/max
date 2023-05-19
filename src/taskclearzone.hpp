@@ -43,7 +43,8 @@ class TaskClearZone : public Task {
     SmartPointer<UnitInfo> moving_unit;
     unsigned int unit_flags;
 
-    static void PathFindResultCallback(Task* task, PathRequest* request, Point point, GroundPath* path, char result);
+    static void PathFindResultCallback(Task* task, PathRequest* request, Point point, GroundPath* path,
+                                       unsigned char result);
     static void PathFindCancelCallback(Task* task, PathRequest* request);
 
     bool ExamineZones();

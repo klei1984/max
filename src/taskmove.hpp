@@ -37,23 +37,22 @@ class TaskMove : public Task {
     SmartPointer<UnitInfo> passenger;
     unsigned short minimum_distance;
     unsigned char caution_level;
-    Point point1;
-    Point point2;
-    Point point3;
+    Point passenger_waypoint;
+    Point transport_waypoint;
+    Point destination_waypoint;
     ResourceID transporter_unit_type;
-    Point destination;
+    Point passenger_destination;
     ObjectArray<Point> planned_path;
     SmartPointer<Zone> zone;
     void (*result_callback)(Task* task, UnitInfo* unit, char result);
     bool field_68;
     bool field_69;
-    unsigned char field_70;
-    unsigned char field_71;
-    unsigned char field_72;
+    bool field_70;
+    unsigned char path_result;
 
     void AttemptTransport();
     void AttemptTransportType(ResourceID unit_type);
-    void TaskMove_sub_4C6BA();
+    void FindWaypointUsingTransport();
     void Search(bool mode);
     void Finished(int result);
     void ProcessPath(Point site, GroundPath* path);
@@ -69,15 +68,15 @@ class TaskMove : public Task {
 
     static UnitInfo* FindUnit(SmartList<UnitInfo>* units, unsigned short team, ResourceID unit_type);
     static void PathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                   char result);
+                                   unsigned char result);
     static void FullPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                       char result);
+                                       unsigned char result);
     static void DirectPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                         char result);
+                                         unsigned char result);
     static void BlockedPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                          char result);
+                                          unsigned char result);
     static void ActualPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                         char result);
+                                         unsigned char result);
     static void PathCancelCallback(Task* task, PathRequest* path_request);
 
 public:
@@ -105,9 +104,9 @@ public:
     Point GetDestination();
     void SetDestination(Point site);
     ResourceID GetTransporterType() const;
-    Point GetPoint2() const;
-    void TaskMove_sub_4C66B(bool mode);
-    bool TaskMove_sub_4D247();
+    Point GetTransporterWaypoint() const;
+    void RemoveTransport(bool mode);
+    bool IsReadyForTransport();
 };
 
 #endif /* TASKMOVE_HPP */

@@ -271,9 +271,10 @@ void TaskTransport::AddMove(TaskMove* move) {
 void TaskTransport::RemoveMove(TaskMove* move) {
     if (move->GetPassenger()) {
         if (move->GetPassenger()->orders != ORDER_IDLE) {
-            move->TaskMove_sub_4C66B(false);
+            move->RemoveTransport(false);
         }
 
+        SDL_assert(move->GetPassenger());
         move->GetPassenger()->RemoveFromTask2List(this);
     }
 
@@ -352,8 +353,8 @@ Rect* TaskTransport::GetBounds(Rect* bounds) {
         bounds->lry = bounds->uly + 1;
 
     } else if (task_move) {
-        bounds->ulx = task_move->GetPoint2().x;
-        bounds->uly = task_move->GetPoint2().y;
+        bounds->ulx = task_move->GetTransporterWaypoint().x;
+        bounds->uly = task_move->GetTransporterWaypoint().y;
         bounds->lrx = bounds->ulx + 1;
         bounds->lry = bounds->uly + 1;
     }
@@ -380,7 +381,7 @@ void TaskTransport::Begin() {
         unit_transporter->AddTask(this);
 
     } else {
-        task_obtain_units = new (std::nothrow) TaskObtainUnits(this, task_move->GetPoint2());
+        task_obtain_units = new (std::nothrow) TaskObtainUnits(this, task_move->GetTransporterWaypoint());
 
         task_obtain_units->AddUnit(transporter_unit_type);
 
@@ -467,7 +468,7 @@ bool TaskTransport::Execute(UnitInfo& unit) {
 
             } else {
                 SmartPointer<UnitInfo> passenger(task_move->GetPassenger());
-                Point position = task_move->GetPoint2();
+                Point position = task_move->GetTransporterWaypoint();
                 Point line_distance;
 
                 if (Task_IsReadyToTakeOrders(&*passenger)) {
@@ -568,7 +569,7 @@ void TaskTransport::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {
 
 void TaskTransport::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
     if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
-        dynamic_cast<TaskMove*>(unit2.GetTask())->TaskMove_sub_4C66B(true);
+        dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport(true);
     }
 
     Task_RemindMoveFinished(&unit2, true);

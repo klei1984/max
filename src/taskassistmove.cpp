@@ -233,7 +233,7 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
                 if ((*it).team == team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).unit_type != SURVEYOR) {
                     if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
                         Task_IsReadyToTakeOrders(&*it)) {
-                        if (dynamic_cast<TaskMove*>((*it).GetTask())->TaskMove_sub_4D247() || unit.speed == 0) {
+                        if (dynamic_cast<TaskMove*>((*it).GetTask())->IsReadyForTransport() || unit.speed == 0) {
                             distance = Access_GetDistance(&*it, &unit);
 
                             if (UnitInfo_object2 == nullptr || distance < minimum_distance) {
@@ -327,7 +327,7 @@ void TaskAssistMove::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) { Task_Remin
 
 void TaskAssistMove::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
     if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
-        dynamic_cast<TaskMove*>(unit2.GetTask())->TaskMove_sub_4C66B(true);
+        dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport(true);
     }
 
     Task_RemindMoveFinished(&unit1);

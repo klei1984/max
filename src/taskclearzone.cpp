@@ -32,7 +32,7 @@
 #include "units_manager.hpp"
 
 void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Point point, GroundPath* path,
-                                           char result) {
+                                           unsigned char result) {
     TaskClearZone* clear_zone = dynamic_cast<TaskClearZone*>(task);
 
     if (path && (!clear_zone->moving_unit || clear_zone->moving_unit->IsReadyForOrders(clear_zone)) &&

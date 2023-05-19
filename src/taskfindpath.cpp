@@ -29,7 +29,7 @@
 
 TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
                            void (*result_callback_)(Task* task, PathRequest* path_request, Point destination_,
-                                                    GroundPath* path, char result),
+                                                    GroundPath* path, unsigned char result),
                            void (*cancel_callback_)(Task* task, PathRequest* path_request))
     : Task(parent->GetTeam(), parent, parent->GetFlags()) {
     result_callback = result_callback_;
