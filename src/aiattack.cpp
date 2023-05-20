@@ -193,12 +193,11 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
     *projected_damage = INT16_MAX;
 
     distance2 = Access_GetDistance(unit, target);
+    distance3 = Access_GetDistance(unit, target);
 
     damage = 0;
 
-    distance3 = Access_GetDistance(unit, target);
-
-    if (range * range <= distance3 && distance3 <= distance1) {
+    if (distance3 <= range * range && distance3 <= distance1) {
         site->x = unit->grid_x;
         site->y = unit->grid_y;
         distance2 = 0;
@@ -620,7 +619,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, 
                                         score = unit_flags & 0xFE;
 
                                         if (score) {
-                                            unit_flags &= 0xFFFFFF01;
+                                            unit_flags &= ~0xFE;
 
                                             if (score > 2) {
                                                 unit_flags |= score - 2;
