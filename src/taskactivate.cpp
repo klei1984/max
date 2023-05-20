@@ -86,6 +86,12 @@ void TaskActivate::Activate() {
                                                 } break;
 
                                                 case ORDER_IDLE: {
+                                                    if (unit_to_activate->prior_orders == ORDER_BUILD &&
+                                                        unit_to_activate->prior_state == ORDER_STATE_UNIT_READY &&
+                                                        unit_parent->prior_state == ORDER_STATE_BUILDING_READY) {
+                                                        SDL_assert(false);
+                                                    }
+
                                                     unit_parent->target_grid_x = position.x;
                                                     unit_parent->target_grid_y = position.y;
 
