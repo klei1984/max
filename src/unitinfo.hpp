@@ -196,7 +196,7 @@ public:
     void BusyWaitOrder();
     void AddReminders(bool priority);
     Task* GetTask() const;
-    SmartList<Task>::Iterator GetTask1ListIterator();
+    SmartList<Task>::Iterator GetTasks();
     void PushBackTask2List(Task* task);
     void RemoveFromTask2List(Task* task);
     void AddTask(Task* task);

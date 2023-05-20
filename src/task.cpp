@@ -67,7 +67,7 @@ bool Task_IsReadyToTakeOrders(UnitInfo* unit) {
 
 void Task_RemoveMovementTasks(UnitInfo* unit) {
     if (unit->orders != ORDER_IDLE || unit->hits <= 0) {
-        for (SmartList<Task>::Iterator it = unit->GetTask1ListIterator(); it; ++it) {
+        for (SmartList<Task>::Iterator it = unit->GetTasks(); it; ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
                 AiLog log("Move %s: removing old move task", UnitsManager_BaseUnits[unit->unit_type].singular_name);
 

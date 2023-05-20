@@ -78,14 +78,14 @@ void TaskRendezvous::PrimaryMoveFinishedCallback(Task* task, UnitInfo* unit, cha
     SmartPointer<UnitInfo> local_unit(task_rendezvous->unit1);
 
     if (local_unit && task_rendezvous->unit2) {
-        if (result == 0) {
+        if (result == TASKMOVE_RESULT_SUCCESS) {
             Task_RemindMoveFinished(unit);
 
-        } else if (result == 2) {
+        } else if (result == TASKMOVE_RESULT_BLOCKED) {
             if (local_unit->speed && local_unit->IsReadyForOrders(task_rendezvous)) {
                 if ((task_rendezvous->unit2->flags & STATIONARY) ||
                     (task_rendezvous->unit2->speed && task_rendezvous->unit2->IsReadyForOrders(task_rendezvous))) {
-                    task_rendezvous->Finish(2);
+                    task_rendezvous->Finish(TASKMOVE_RESULT_BLOCKED);
                 }
             }
         }
@@ -96,10 +96,10 @@ void TaskRendezvous::SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, c
     TaskRendezvous* task_rendezvous = dynamic_cast<TaskRendezvous*>(task);
 
     if (task_rendezvous->unit1 && task_rendezvous->unit2) {
-        if (result == 0) {
+        if (result == TASKMOVE_RESULT_SUCCESS) {
             Task_RemindMoveFinished(unit);
 
-        } else if (result == 2) {
+        } else if (result == TASKMOVE_RESULT_BLOCKED) {
             SmartPointer<UnitInfo> local_unit1(task_rendezvous->unit1);
             SmartPointer<UnitInfo> local_unit2(task_rendezvous->unit2);
 
@@ -121,12 +121,12 @@ void TaskRendezvous::SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, c
                         TaskManager.AppendTask(*move_task);
 
                     } else {
-                        PrimaryMoveFinishedCallback(task_rendezvous, &*local_unit1, 2);
+                        PrimaryMoveFinishedCallback(task_rendezvous, &*local_unit1, TASKMOVE_RESULT_BLOCKED);
                     }
                 }
 
             } else {
-                PrimaryMoveFinishedCallback(task_rendezvous, &*local_unit1, 2);
+                PrimaryMoveFinishedCallback(task_rendezvous, &*local_unit1, TASKMOVE_RESULT_BLOCKED);
             }
         }
     }
@@ -183,7 +183,7 @@ bool TaskRendezvous::Execute(UnitInfo& unit) {
             if (unit1->GetTask() == this || unit1->GetTask() == nullptr ||
                 unit1->GetTask()->GetType() == TaskType_TaskMove) {
                 if (Task_IsAdjacent(&*unit2, unit1->grid_x, unit1->grid_y)) {
-                    Finish(0);
+                    Finish(TASKMOVE_RESULT_SUCCESS);
 
                 } else if (unit2->speed && unit2->IsReadyForOrders(this)) {
                     if (unit1->IsReadyForOrders(this) &&
@@ -200,14 +200,14 @@ bool TaskRendezvous::Execute(UnitInfo& unit) {
                             TaskManager.AppendTask(*move_task);
 
                         } else {
-                            SecondaryMoveFinishedCallback(this, &*unit2, 2);
+                            SecondaryMoveFinishedCallback(this, &*unit2, TASKMOVE_RESULT_BLOCKED);
                         }
 
                         result = true;
                     }
 
                 } else {
-                    SecondaryMoveFinishedCallback(this, &*unit2, 2);
+                    SecondaryMoveFinishedCallback(this, &*unit2, TASKMOVE_RESULT_BLOCKED);
                 }
             }
         }

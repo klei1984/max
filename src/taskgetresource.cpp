@@ -23,6 +23,7 @@
 
 #include "game_manager.hpp"
 #include "task_manager.hpp"
+#include "taskmove.hpp"
 #include "taskrendezvous.hpp"
 #include "units_manager.hpp"
 
@@ -61,10 +62,10 @@ void TaskGetResource::ChooseSource() {
 }
 
 void TaskGetResource::RendezvousResultCallback(Task* task, UnitInfo* unit, char mode) {
-    if (mode == 2) {
+    if (mode == TASKMOVE_RESULT_BLOCKED) {
         dynamic_cast<TaskGetResource*>(task)->ReleaseSource();
 
-    } else if (mode == 0) {
+    } else if (mode == TASKMOVE_RESULT_SUCCESS) {
         dynamic_cast<TaskGetResource*>(task)->EndTurn();
     }
 }

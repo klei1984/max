@@ -30,6 +30,7 @@
 #include "taskactivate.hpp"
 #include "taskcreateunit.hpp"
 #include "taskgetmaterials.hpp"
+#include "taskmove.hpp"
 #include "taskmovehome.hpp"
 #include "taskrendezvous.hpp"
 #include "units_manager.hpp"
@@ -141,7 +142,7 @@ UnitInfo* TaskRepair::SelectRepairShop() {
     return result;
 }
 
-void TaskRepair::RemoveMovementTasks() {
+void TaskRepair::RemoveOperator() {
     if (operator_unit != nullptr) {
         operator_unit->RemoveTask(this);
         Task_RemoveMovementTasks(&*operator_unit);
@@ -152,10 +153,10 @@ void TaskRepair::RemoveMovementTasks() {
 void TaskRepair::RendezvousResultCallback(Task* task, UnitInfo* unit, char result) {
     AiLog log("Repair: rendezvous result.");
 
-    if (result == 2) {
-        dynamic_cast<TaskRepair*>(task)->RemoveMovementTasks();
+    if (result == TASKMOVE_RESULT_BLOCKED) {
+        dynamic_cast<TaskRepair*>(task)->RemoveOperator();
 
-    } else if (result == 0) {
+    } else if (result == TASKMOVE_RESULT_SUCCESS) {
         dynamic_cast<TaskRepair*>(task)->EndTurn();
     }
 }
@@ -282,7 +283,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
             } else {
                 task = this;
 
-                RemoveMovementTasks();
+                RemoveOperator();
 
                 target_unit->RemoveTask(this);
                 target_unit = nullptr;
@@ -422,7 +423,7 @@ void TaskRepair::RemoveUnit(UnitInfo& unit) {
     if (target_unit == unit) {
         SmartPointer<Task> task(this);
 
-        RemoveMovementTasks();
+        RemoveOperator();
 
         target_unit = nullptr;
 

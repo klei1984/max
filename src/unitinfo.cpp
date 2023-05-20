@@ -1218,7 +1218,7 @@ Task* UnitInfo::GetTask() const {
     return task;
 }
 
-SmartList<Task>::Iterator UnitInfo::GetTask1ListIterator() { return task_list1.Begin(); }
+SmartList<Task>::Iterator UnitInfo::GetTasks() { return task_list1.Begin(); }
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
 

@@ -28,7 +28,7 @@ class TaskRepair : public Task {
     void ChooseUnitToRepair();
     void DoRepairs();
     UnitInfo* SelectRepairShop();
-    void RemoveMovementTasks();
+    void RemoveOperator();
 
     static void RendezvousResultCallback(Task* task, UnitInfo* unit, char result);
 
