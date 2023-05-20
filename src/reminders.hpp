@@ -81,7 +81,7 @@ public:
 };
 
 class RemindMoveFinished : public Reminder {
-    SmartPointer<UnitInfo> new_unit;
+    SmartPointer<UnitInfo> unit;
 
 public:
     RemindMoveFinished(UnitInfo& new_unit);

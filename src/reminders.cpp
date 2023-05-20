@@ -82,25 +82,23 @@ int RemindAvailable::GetType() { return REMINDER_TYPE_AVAILABLE; }
 
 int RemindAvailable::GetMemoryUse() const { return 4; }
 
-RemindMoveFinished::RemindMoveFinished(UnitInfo& new_unit_) : new_unit(new_unit_) {
-    new_unit->ChangeField221(0x100, true);
-}
+RemindMoveFinished::RemindMoveFinished(UnitInfo& new_unit_) : unit(new_unit_) { unit->ChangeField221(0x100, true); }
 
 RemindMoveFinished::~RemindMoveFinished() {}
 
 void RemindMoveFinished::Execute() {
-    if (new_unit) {
-        new_unit->ChangeField221(0x100, false);
+    if (unit) {
+        unit->ChangeField221(0x100, false);
     }
 
-    Task* task = new_unit->GetTask();
+    Task* task = unit->GetTask();
 
-    if (task && new_unit->hits > 0) {
+    if (task && unit->hits > 0) {
         char buffer[500];
 
         AiLog log("Move finished reminder for %s", task->WriteStatusLog(buffer));
 
-        task->Execute(*new_unit);
+        task->Execute(*unit);
     }
 }
 
