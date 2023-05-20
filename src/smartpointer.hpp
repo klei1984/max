@@ -34,13 +34,20 @@ class SmartObject {
 protected:
     inline void Increment() {
         if (this) {
+            SDL_assert(reference_count != UINT16_MAX);
+
             ++reference_count;
         }
     }
 
     inline void Decrement() {
-        if (this && --reference_count == 0) {
-            delete this;
+        if (this) {
+            SDL_assert(reference_count != 0);
+
+            --reference_count;
+            if (reference_count == 0) {
+                delete this;
+            }
         }
     }
 
