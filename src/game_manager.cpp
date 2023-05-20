@@ -2614,6 +2614,7 @@ void GameManager_UpdateGui(unsigned short team, int game_state, bool enable_auto
             sprintf(file_name, "save10.%s", SaveLoadMenu_SaveFileTypes[game_file_type]);
             sprintf(log_message, _(263f), GameManager_TurnCounter);
 
+            SaveLoadMenu_CreateBackup(file_name);
             SaveLoadMenu_Save(file_name, log_message, false);
         }
 

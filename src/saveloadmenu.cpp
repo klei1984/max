@@ -22,6 +22,7 @@
 #include "saveloadmenu.hpp"
 
 #include <ctime>
+#include <filesystem>
 
 #include "access.hpp"
 #include "ai.hpp"
@@ -1270,4 +1271,15 @@ bool SaveLoadMenu_RunPlausibilityTests() {
     result |= SaveLoadChecks_Defect151();
 
     return result;
+}
+
+void SaveLoadMenu_CreateBackup(const char *file_name) {
+    std::error_code ec;
+    const auto filepath = std::filesystem::current_path(ec);
+
+    if (!ec) {
+        if (std::filesystem::exists(filepath, ec)) {
+            std::filesystem::rename(filepath / file_name, filepath / "SAVE10.BAK", ec);
+        }
+    }
 }

@@ -50,7 +50,7 @@ extern unsigned char SaveLoadMenu_GameState;
 
 int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct SaveFormatHeader& save_file_header,
                                   bool load_ini_options = true);
-
+void SaveLoadMenu_CreateBackup(const char* file_name);
 int SaveLoadMenu_MenuLoop(int is_saving_allowed);
 void SaveLoadMenu_Save(const char* file_name, const char* save_name, bool play_voice);
 bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode);
