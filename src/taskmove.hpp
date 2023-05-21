@@ -66,7 +66,6 @@ class TaskMove : public Task {
     bool FindWaypoint();
     void MoveUnit(GroundPath* path);
 
-    static UnitInfo* FindUnit(SmartList<UnitInfo>* units, unsigned short team, ResourceID unit_type);
     static void PathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
                                    unsigned char result);
     static void FullPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
@@ -107,6 +106,8 @@ public:
     Point GetTransporterWaypoint() const;
     void RemoveTransport(bool mode);
     bool IsReadyForTransport();
+
+    static UnitInfo* FindUnit(SmartList<UnitInfo>* units, unsigned short team, ResourceID unit_type);
 };
 
 #endif /* TASKMOVE_HPP */
