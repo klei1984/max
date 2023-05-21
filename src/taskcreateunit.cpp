@@ -21,6 +21,7 @@
 
 #include "taskcreateunit.hpp"
 
+#include "ailog.hpp"
 #include "builder.hpp"
 #include "buildmenu.hpp"
 #include "game_manager.hpp"
@@ -75,6 +76,8 @@ char* TaskCreateUnit::WriteStatusLog(char* buffer) const {
 unsigned char TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
 
 void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
+    AiLog log("Task Create Unit: Add %s", UnitsManager_BaseUnits[unit_.unit_type].singular_name);
+
     if (op_state == CREATE_UNIT_STATE_1 && (unit_.flags & STATIONARY)) {
         op_state = CREATE_UNIT_STATE_WAITING_FOR_MATERIALS;
         builder = unit_;
@@ -122,6 +125,8 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
 }
 
 void TaskCreateUnit::Begin() {
+    AiLog log("Task Create Unit: Begin.");
+
     if (builder) {
         builder->AddTask(this);
     }
@@ -130,6 +135,8 @@ void TaskCreateUnit::Begin() {
 }
 
 void TaskCreateUnit::BeginTurn() {
+    AiLog log("Task Create Unit: Begin Turn.");
+
     if (op_state == CREATE_UNIT_STATE_WAITING_FOR_MATERIALS) {
         WaitForMaterials();
     }
@@ -148,6 +155,8 @@ void TaskCreateUnit::BeginTurn() {
 }
 
 void TaskCreateUnit::EndTurn() {
+    AiLog log("Create %s: End Turn.", UnitsManager_BaseUnits[unit_type].singular_name);
+
     if (op_state == CREATE_UNIT_STATE_0) {
         SmartPointer<TaskObtainUnits> task_obtain_units = new (std::nothrow) TaskObtainUnits(this, site);
         op_state = CREATE_UNIT_STATE_1;
@@ -175,6 +184,8 @@ bool TaskCreateUnit::Execute(UnitInfo& unit_) {
 }
 
 void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
+    AiLog log("Task Create Unit: Remove %s.", UnitsManager_BaseUnits[unit_.unit_type].singular_name);
+
     if (builder == unit_) {
         if (op_state <= CREATE_UNIT_STATE_3) {
             op_state = CREATE_UNIT_STATE_0;
@@ -319,6 +330,8 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 result = true;
 
             } else {
+                AiLog log("Create %s: aborting, no longer needed.", UnitsManager_BaseUnits[unit_type].singular_name);
+
                 if (op_state == CREATE_UNIT_STATE_3 && builder) {
                     UnitsManager_SetNewOrder(&*builder, ORDER_HALT_BUILDING, ORDER_STATE_13);
                 }
