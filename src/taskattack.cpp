@@ -1333,7 +1333,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
 
     continent->GetBounds(bounds);
 
-    minimum_distance = TaskManager_GetDistance(best_site, target_position);
+    minimum_distance = TaskManager_GetDistance(best_site, target_position) / 2;
 
     for (int i = 1; i < minimum_distance; ++i) {
         site.x = target_position.x - i;
@@ -1412,8 +1412,7 @@ bool TaskAttack::MoveReconUnit(int caution_level) {
                     }
                 }
 
-                leader->point.x = site.x;
-                leader->point.y = site.y;
+                leader->point = site;
 
                 SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(&*leader, this, 0, caution_level, site,
                                                                              &TaskTransport_MoveFinishedCallback));
