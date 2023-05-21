@@ -21,6 +21,7 @@
 
 #include "maxfloodfill.hpp"
 
+#include "ailog.hpp"
 #include "smartobjectarray.hpp"
 
 struct FloodRun {
@@ -37,9 +38,8 @@ int MAXFloodFill::Fill(Point point) {
     FloodRun run;
     ObjectArray<FloodRun> runs;
     int runs_count;
-    int max_runs;
-
-    max_runs = 0;
+    int max_runs = 0;
+    unsigned int time_stamp = timer_get();
 
     cell_count = 0;
 
@@ -142,6 +142,10 @@ int MAXFloodFill::Fill(Point point) {
     }
 
     ++bounds.lrx;
+
+    if (timer_elapsed_time(time_stamp) > 10 || max_runs > 10) {
+        AiLog log("Flood fill, %i msecs, %i max depth.", time_stamp, max_runs);
+    }
 
     return cell_count;
 }
