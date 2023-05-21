@@ -2070,7 +2070,7 @@ unsigned char TaskManageBuildings::GetType() const { return TaskType_TaskManageB
 bool TaskManageBuildings::IsNeeded() { return true; }
 
 void TaskManageBuildings::AddUnit(UnitInfo& unit) {
-    AiLog log("Task Manage Buildings: Add %s.");
+    AiLog log("Task Manage Buildings: Add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
 
     if (unit.flags & STATIONARY) {
         units.PushBack(unit);
