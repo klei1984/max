@@ -699,7 +699,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
     return result;
 }
 
-void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_voice) {
+void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_voice, bool backup) {
     SmartFileWriter file;
     SmartString filepath;
     SmartString filename(file_name);
@@ -719,6 +719,10 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
 
     filepath = ResourceManager_FilePathGameInstall;
     filepath += filename.Toupper();
+
+    if (backup) {
+        SaveLoadMenu_CreateBackup(filepath.GetCStr());
+    }
 
     if (file.Open(filepath.GetCStr())) {
         GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
@@ -1273,13 +1277,17 @@ bool SaveLoadMenu_RunPlausibilityTests() {
     return result;
 }
 
-void SaveLoadMenu_CreateBackup(const char *file_name) {
+void SaveLoadMenu_CreateBackup(const char *fil_path) {
+    const auto save_path = std::filesystem::path(fil_path).lexically_normal();
     std::error_code ec;
-    const auto filepath = std::filesystem::current_path(ec);
 
-    if (!ec) {
-        if (std::filesystem::exists(filepath, ec)) {
-            std::filesystem::rename(filepath / file_name, filepath / "SAVE10.BAK", ec);
+    if (std::filesystem::exists(save_path, ec)) {
+        const auto backup_path = std::filesystem::path(fil_path).replace_extension(".BAK");
+
+        std::filesystem::rename(save_path, backup_path, ec);
+
+        if (ec) {
+            SDL_Log("Cannot create saved game backup: '%s'.", ec.message().c_str());
         }
     }
 }
