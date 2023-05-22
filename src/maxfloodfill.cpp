@@ -143,8 +143,10 @@ int MAXFloodFill::Fill(Point point) {
 
     ++bounds.lrx;
 
-    if (timer_elapsed_time(time_stamp) > 10 || max_runs > 10) {
-        AiLog log("Flood fill, %i msecs, %i max depth.", time_stamp, max_runs);
+    int elapsed_time = timer_elapsed_time(time_stamp);
+
+    if (elapsed_time > 10 || max_runs > 10) {
+        AiLog log("Flood fill, %i msecs, %i max depth.", elapsed_time, max_runs);
     }
 
     return cell_count;
