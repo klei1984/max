@@ -214,3 +214,5 @@ void Complex::Shrink(UnitInfo& unit) {
         UnitsManager_TeamInfo[unit.team].team_units->RemoveComplex(*this);
     }
 }
+
+short Complex::GetBuildings() const { return buildings; }

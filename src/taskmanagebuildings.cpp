@@ -56,6 +56,15 @@ enum AreaMapMarkers {
     AREA_BUILT_IN = 0x9,
 };
 
+enum ConnectionMapMarkers {
+    MARKER_EMPTY_SQUARE,
+    MARKER_PLANNED_SQUARE,
+    MARKER_BUILT_SQUARE,
+    MARKER_CONNECTED_SQUARE,
+    MARKER_CONSTRUCTION_SQUARE,
+    MARKER_CONNECTED_CONSTRUCTION,
+};
+
 static bool TaskManageBuildings_IsSiteValuable(Point site, unsigned short team);
 static bool TaskManageBuildings_IsUnitAvailable(unsigned short team, SmartList<UnitInfo>* units, ResourceID unit_type);
 
@@ -1643,7 +1652,8 @@ bool TaskManageBuildings::EvaluateNeedForRadar(unsigned char** access_map, TaskC
 }
 
 bool TaskManageBuildings::MarkBuildings(unsigned char** access_map, Point& site) {
-    ResourceID unit_type2 = INVALID_ID;
+    ResourceID best_unit_type = INVALID_ID;
+    int best_complex_size = 0;
 
     AiLog log("Mark Buildings.");
 
@@ -1653,19 +1663,29 @@ bool TaskManageBuildings::MarkBuildings(unsigned char** access_map, Point& site)
 
             (*it).GetBounds(&bounds);
 
-            if ((*it).unit_type == MININGST && unit_type2 != MININGST) {
-                unit_type2 = INVALID_ID;
+            if ((*it).unit_type == MININGST) {
+                if (best_unit_type != MININGST) {
+                    best_unit_type = INVALID_ID;
+
+                } else {
+                    const int complex_size = (*it).GetComplex()->GetBuildings();
+
+                    if (best_complex_size < complex_size) {
+                        best_complex_size = complex_size;
+                        best_unit_type = INVALID_ID;
+                    }
+                }
             }
 
-            if (unit_type2 == INVALID_ID) {
-                unit_type2 = (*it).unit_type;
+            if (best_unit_type == INVALID_ID) {
+                best_unit_type = (*it).unit_type;
                 site.x = bounds.ulx;
                 site.y = bounds.uly;
             }
 
             for (int x = bounds.ulx; x < bounds.lrx; ++x) {
                 for (int y = bounds.uly; y < bounds.lry; ++y) {
-                    access_map[x][y] = 2;
+                    access_map[x][y] = MARKER_BUILT_SQUARE;
                 }
             }
         }
@@ -1679,19 +1699,19 @@ bool TaskManageBuildings::MarkBuildings(unsigned char** access_map, Point& site)
 
             (*it).GetBounds(&bounds);
 
-            if (unit_type == MININGST && unit_type2 != MININGST) {
-                unit_type2 = INVALID_ID;
+            if (unit_type == MININGST && best_unit_type != MININGST) {
+                best_unit_type = INVALID_ID;
             }
 
-            if (unit_type2 == INVALID_ID) {
-                unit_type2 = unit_type;
+            if (best_unit_type == INVALID_ID) {
+                best_unit_type = unit_type;
                 site.x = bounds.ulx;
                 site.y = bounds.uly;
             }
 
             for (int x = bounds.ulx; x < bounds.lrx; ++x) {
                 for (int y = bounds.uly; y < bounds.lry; ++y) {
-                    access_map[x][y] = 4;
+                    access_map[x][y] = MARKER_CONSTRUCTION_SQUARE;
                 }
             }
         }
@@ -1699,7 +1719,7 @@ bool TaskManageBuildings::MarkBuildings(unsigned char** access_map, Point& site)
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).unit_type == CNCT_4W) {
-            access_map[(*it).grid_x][(*it).grid_y] = 2;
+            access_map[(*it).grid_x][(*it).grid_y] = MARKER_BUILT_SQUARE;
         }
     }
 
@@ -1709,11 +1729,11 @@ bool TaskManageBuildings::MarkBuildings(unsigned char** access_map, Point& site)
 
             (*it).GetBounds(&bounds);
 
-            access_map[bounds.ulx][bounds.uly] = 2;
+            access_map[bounds.ulx][bounds.uly] = MARKER_BUILT_SQUARE;
         }
     }
 
-    return unit_type2 != INVALID_ID;
+    return best_unit_type != INVALID_ID;
 }
 
 void TaskManageBuildings::MarkConnections(unsigned char** access_map, Point site, int value) {
@@ -1728,14 +1748,15 @@ void TaskManageBuildings::MarkConnections(unsigned char** access_map, Point site
         AiLog log("Mark Connections from %s at [%i,%i].", TaskManageBuildings_ConnectionStrings[value], site.x + 1,
                   site.y + 1);
 
-        while (site.x > 0 && (access_map[site.x][site.y] == value || access_map[site.x][site.y] == 2)) {
+        while (site.x > 0 &&
+               (access_map[site.x][site.y] == value || access_map[site.x][site.y] == MARKER_BUILT_SQUARE)) {
             --site.x;
         }
 
         ++site.x;
 
         if (site.x >= ResourceManager_MapSize.x ||
-            (access_map[site.x][site.y] != value && access_map[site.x][site.y] != 2)) {
+            (access_map[site.x][site.y] != value && access_map[site.x][site.y] != MARKER_BUILT_SQUARE)) {
             return;
         }
 
@@ -1745,15 +1766,16 @@ void TaskManageBuildings::MarkConnections(unsigned char** access_map, Point site
         flag4 = false;
 
         while (site.x < ResourceManager_MapSize.x &&
-               (access_map[site.x][site.y] == value || access_map[site.x][site.y] == 2)) {
-            if (value == 2) {
-                access_map[site.x][site.y] = 3;
+               (access_map[site.x][site.y] == value || access_map[site.x][site.y] == MARKER_BUILT_SQUARE)) {
+            if (value == MARKER_BUILT_SQUARE) {
+                access_map[site.x][site.y] = MARKER_CONNECTED_SQUARE;
 
             } else {
-                access_map[site.x][site.y] = 5;
+                access_map[site.x][site.y] = MARKER_CONNECTED_CONSTRUCTION;
             }
 
-            if (site.y > 0 && (access_map[site.x][site.y - 1] == value || access_map[site.x][site.y - 1] == 2)) {
+            if (site.y > 0 &&
+                (access_map[site.x][site.y - 1] == value || access_map[site.x][site.y - 1] == MARKER_BUILT_SQUARE)) {
                 if (flag2) {
                     MarkConnections(access_map, site2, value);
 
@@ -1775,7 +1797,7 @@ void TaskManageBuildings::MarkConnections(unsigned char** access_map, Point site
             }
 
             if (site.y < ResourceManager_MapSize.y - 1 &&
-                (access_map[site.x][site.y + 1] == value || access_map[site.x][site.y + 1] == 2)) {
+                (access_map[site.x][site.y + 1] == value || access_map[site.x][site.y + 1] == MARKER_BUILT_SQUARE)) {
                 if (flag4) {
                     MarkConnections(access_map, site3, value);
 
@@ -1817,7 +1839,7 @@ void TaskManageBuildings::MarkConnections(unsigned char** access_map, Point site
 void TaskManageBuildings::UpdateConnectors(unsigned char** access_map, int ulx, int uly, int lrx, int lry) {
     for (int x = ulx; x < lrx; ++x) {
         for (int y = uly; y < lry; ++y) {
-            access_map[x][y] = 2;
+            access_map[x][y] = MARKER_BUILT_SQUARE;
         }
     }
 
@@ -1839,17 +1861,18 @@ int TaskManageBuildings::GetConnectionDistance(unsigned char** access_map, Point
             return 1000;
         }
 
-    } while (access_map[site1.x][site1.y] == value || access_map[site1.x][site1.y] == 2);
+    } while (access_map[site1.x][site1.y] == value || access_map[site1.x][site1.y] == MARKER_BUILT_SQUARE);
 
     site3 = site1;
 
     for (;;) {
-        if (access_map[site3.x][site3.y] > 0 || TaskManageBuildings_IsSiteValuable(site3, team_) ||
+        if (access_map[site3.x][site3.y] > MARKER_EMPTY_SQUARE || TaskManageBuildings_IsSiteValuable(site3, team_) ||
             Access_GetModifiedSurfaceType(site3.x, site3.y) == SURFACE_TYPE_AIR) {
-            if (access_map[site3.x][site3.y] == 3) {
+            if (access_map[site3.x][site3.y] == MARKER_CONNECTED_SQUARE) {
                 return TaskManager_GetDistance(site3, site1);
 
-            } else if (access_map[site3.x][site3.y] == 5 && value == 4) {
+            } else if (access_map[site3.x][site3.y] == MARKER_CONNECTED_CONSTRUCTION &&
+                       value == MARKER_CONSTRUCTION_SQUARE) {
                 return TaskManager_GetDistance(site3, site1);
 
             } else {
@@ -1867,7 +1890,8 @@ int TaskManageBuildings::GetConnectionDistance(unsigned char** access_map, Point
         site4.y = site3.y + labs(site2.x);
 
         if (Access_IsInsideBounds(&bounds, &site4) &&
-            (access_map[site4.x][site4.y] == 3 || (access_map[site4.x][site4.y] == 5 && value == 4))) {
+            (access_map[site4.x][site4.y] == MARKER_CONNECTED_SQUARE ||
+             (access_map[site4.x][site4.y] == MARKER_CONNECTED_CONSTRUCTION && value == MARKER_CONSTRUCTION_SQUARE))) {
             return TaskManager_GetDistance(site3, site1) + 2;
         }
 
@@ -1875,7 +1899,8 @@ int TaskManageBuildings::GetConnectionDistance(unsigned char** access_map, Point
         site4.y = site3.y - labs(site2.x);
 
         if (Access_IsInsideBounds(&bounds, &site4) &&
-            (access_map[site4.x][site4.y] == 3 || (access_map[site4.x][site4.y] == 5 && value == 4))) {
+            (access_map[site4.x][site4.y] == MARKER_CONNECTED_SQUARE ||
+             (access_map[site4.x][site4.y] == MARKER_CONNECTED_CONSTRUCTION && value == MARKER_CONSTRUCTION_SQUARE))) {
             return TaskManager_GetDistance(site3, site1) + 2;
         }
     }
@@ -1965,12 +1990,12 @@ bool TaskManageBuildings::ConnectBuilding(unsigned char** access_map, Point site
 bool TaskManageBuildings::ReconnectBuilding(unsigned char** access_map, Rect* bounds, int value) {
     Point site;
 
-    if (value == 4) {
-        if (access_map[bounds->ulx][bounds->uly] != 4) {
+    if (value == MARKER_CONSTRUCTION_SQUARE) {
+        if (access_map[bounds->ulx][bounds->uly] != MARKER_CONSTRUCTION_SQUARE) {
             return false;
         }
 
-    } else if (access_map[bounds->ulx][bounds->uly] == 3) {
+    } else if (access_map[bounds->ulx][bounds->uly] == MARKER_CONNECTED_SQUARE) {
         return false;
     }
 
@@ -1985,7 +2010,7 @@ bool TaskManageBuildings::ReconnectBuilding(unsigned char** access_map, Rect* bo
     for (site.x = bounds->ulx; site.x < bounds->lrx; ++site.x) {
         site.y = bounds->uly - 1;
 
-        if (access_map[site.x][site.y] == 0) {
+        if (access_map[site.x][site.y] == MARKER_EMPTY_SQUARE) {
             if (ConnectBuilding(access_map, site, value)) {
                 UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
 
@@ -1995,7 +2020,7 @@ bool TaskManageBuildings::ReconnectBuilding(unsigned char** access_map, Rect* bo
 
         site.y = bounds->lry;
 
-        if (access_map[site.x][site.y] == 0) {
+        if (access_map[site.x][site.y] == MARKER_EMPTY_SQUARE) {
             if (ConnectBuilding(access_map, site, value)) {
                 UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
 
@@ -2007,7 +2032,7 @@ bool TaskManageBuildings::ReconnectBuilding(unsigned char** access_map, Rect* bo
     for (site.y = bounds->uly; site.y < bounds->lry; ++site.y) {
         site.x = bounds->ulx - 1;
 
-        if (access_map[site.x][site.y] == 0) {
+        if (access_map[site.x][site.y] == MARKER_EMPTY_SQUARE) {
             if (ConnectBuilding(access_map, site, value)) {
                 UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
 
@@ -2017,7 +2042,7 @@ bool TaskManageBuildings::ReconnectBuilding(unsigned char** access_map, Rect* bo
 
         site.x = bounds->lrx;
 
-        if (access_map[site.x][site.y] == 0) {
+        if (access_map[site.x][site.y] == MARKER_EMPTY_SQUARE) {
             if (ConnectBuilding(access_map, site, value)) {
                 UpdateConnectors(access_map, site.x, site.y, site.x + 1, site.y + 1);
 
@@ -2040,7 +2065,7 @@ bool TaskManageBuildings::FindMarkedSite(unsigned char** access_map, Rect* bound
 
     for (site.x = limits.ulx; site.x < limits.lrx; ++site.x) {
         for (site.y = bounds->uly; site.y < bounds->lry; ++site.y) {
-            if (access_map[site.x][site.y] == 3) {
+            if (access_map[site.x][site.y] == MARKER_CONNECTED_SQUARE) {
                 return true;
             }
         }
@@ -2048,7 +2073,7 @@ bool TaskManageBuildings::FindMarkedSite(unsigned char** access_map, Rect* bound
 
     for (site.x = bounds->ulx; site.x < bounds->lrx; ++site.x) {
         for (site.y = limits.uly; site.y < limits.lry; ++site.y) {
-            if (access_map[site.x][site.y] == 3) {
+            if (access_map[site.x][site.y] == MARKER_CONNECTED_SQUARE) {
                 return true;
             }
         }
@@ -2350,7 +2375,7 @@ bool TaskManageBuildings::ReconnectBuildings() {
         if (MarkBuildings(access_map.GetMap(), site)) {
             AiLog log("Reconnect buildings.");
 
-            MarkConnections(access_map.GetMap(), site, 2);
+            MarkConnections(access_map.GetMap(), site, MARKER_BUILT_SQUARE);
 
             for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
                 ResourceID unit_type = (*it).GetUnitType();
@@ -2363,8 +2388,8 @@ bool TaskManageBuildings::ReconnectBuildings() {
                     if (FindMarkedSite(access_map.GetMap(), &bounds)) {
                         for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                             for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
-                                if (access_map.GetMapColumn(site.x)[site.y] == 4) {
-                                    MarkConnections(access_map.GetMap(), site, 4);
+                                if (access_map.GetMapColumn(site.x)[site.y] == MARKER_CONSTRUCTION_SQUARE) {
+                                    MarkConnections(access_map.GetMap(), site, MARKER_CONSTRUCTION_SQUARE);
                                 }
                             }
                         }
@@ -2382,7 +2407,7 @@ bool TaskManageBuildings::ReconnectBuildings() {
 
                     (*it).GetBounds(&bounds);
 
-                    if (ReconnectBuilding(access_map.GetMap(), &bounds, 2)) {
+                    if (ReconnectBuilding(access_map.GetMap(), &bounds, MARKER_BUILT_SQUARE)) {
                         result = true;
                     }
                 }
@@ -2398,7 +2423,7 @@ bool TaskManageBuildings::ReconnectBuildings() {
 
                     (*it).GetBounds(&bounds);
 
-                    if (ReconnectBuilding(access_map.GetMap(), &bounds, 4)) {
+                    if (ReconnectBuilding(access_map.GetMap(), &bounds, MARKER_CONSTRUCTION_SQUARE)) {
                         result = true;
                     }
                 }

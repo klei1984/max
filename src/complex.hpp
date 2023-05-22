@@ -58,6 +58,8 @@ public:
 
     void Transfer(int raw, int fuel, int gold);
 
+    short GetBuildings() const;
+
     short material;
     short fuel;
     short gold;
