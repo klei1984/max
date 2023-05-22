@@ -207,7 +207,7 @@ bool TaskKillUnit::GetNewUnits() {
                     unit1 = FindClosestCombatUnit(&UnitsManager_MobileAirUnits, &*unit1, &distance, nullptr);
 
                     if (unit1) {
-                        unit1->ClearFromTaskLists();
+                        unit1->RemoveTasks();
                         AddUnit(*unit1);
 
                         if (Paths_HaveTimeToThink()) {
@@ -529,7 +529,7 @@ bool TaskKillUnit::Execute(UnitInfo& unit) {
 
         if (unit.IsReadyForOrders(this) && unit.speed > 0) {
             if (unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
-                unit.ClearFromTaskLists();
+                unit.RemoveTasks();
 
                 SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(&unit));
 

@@ -340,7 +340,7 @@ bool TaskAttack::Execute(UnitInfo& unit) {
             if ((unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) ||
                 ((leader == unit || recon_unit == unit) &&
                  (unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2))) {
-                unit.ClearFromTaskLists();
+                unit.RemoveTasks();
 
                 SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(&unit));
 
@@ -861,7 +861,7 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int safe_distance) {
                 TaskManager.RemindAvailable(&*recon_unit);
             }
 
-            new_recon_unit->ClearFromTaskLists();
+            new_recon_unit->RemoveTasks();
             new_recon_unit->AddTask(this);
             recon_unit = new_recon_unit;
 

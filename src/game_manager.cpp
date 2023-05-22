@@ -4244,7 +4244,7 @@ void GameManager_SetUnitOrder(int order, int state, UnitInfo* unit, int grid_x, 
     }
 
     unit->auto_survey = false;
-    unit->ClearFromTaskLists();
+    unit->RemoveTasks();
     UnitsManager_SetNewOrder(unit, order, state);
 
     if (GameManager_SelectedUnit == unit) {

@@ -1859,7 +1859,7 @@ void UnitInfo::UpdatePinCount(int grid_x, int grid_y, int pin_units) {
     }
 }
 
-void UnitInfo::ClearFromTaskLists() {
+void UnitInfo::RemoveTasks() {
     SmartList<Task> tasks(task_list1);
 
     task_list1.Clear();
@@ -2096,7 +2096,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) 
             UnitsManager_DelayedAttackTargets[team].Remove(*this);
             UnitsManager_UnitList6.Remove(*this);
 
-            ClearFromTaskLists();
+            RemoveTasks();
             ProcessTaskList();
 
             Ai_RemoveUnit(this);
@@ -5009,7 +5009,7 @@ void UnitInfo::ChangeTeam(unsigned short target_team) {
     SetParent(nullptr);
     SetEnemy(nullptr);
     path = nullptr;
-    ClearFromTaskLists();
+    RemoveTasks();
     Ai_RemoveUnit(this);
     Access_UpdateMapStatus(this, true);
 

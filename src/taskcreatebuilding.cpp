@@ -459,7 +459,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
 
         op_state = CREATE_BUILDING_STATE_FINISHED;
 
-        unit.ClearFromTaskLists();
+        unit.RemoveTasks();
 
         if (manager) {
             manager->ChildComplete(this);
@@ -487,7 +487,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
                 Builder_GetBuilderType(create_building->GetUnitType()) == builder->unit_type) {
                 SmartPointer<UnitInfo> backup(builder);
 
-                backup->ClearFromTaskLists();
+                backup->RemoveTasks();
 
                 dynamic_cast<TaskCreateBuilding*>(&*parent)->AddUnit(*backup);
             }
@@ -841,7 +841,7 @@ bool TaskCreateBuilding::RequestWaterPlatform() {
 
         if (builder) {
             op_state = CREATE_BUILDING_STATE_WAITING_FOR_PLATFORM;
-            builder->ClearFromTaskLists();
+            builder->RemoveTasks();
         }
 
         if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {

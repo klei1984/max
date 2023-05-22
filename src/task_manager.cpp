@@ -555,7 +555,7 @@ void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
 
     AiLog log("Task manager: make %s available.", unit_name);
 
-    unit->ClearFromTaskLists();
+    unit->RemoveTasks();
     unit->ChangeField221(0x100, false);
 
     if (unit->hits > 0 && UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
@@ -676,7 +676,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
         }
 
     } else {
-        unit->ClearFromTaskLists();
+        unit->RemoveTasks();
     }
 }
 

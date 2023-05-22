@@ -304,7 +304,7 @@ void TaskSearchDestination::SearchTrySite() {
                 log.Log("Swapping for %s at [%i,%i]", UnitsManager_BaseUnits[unit->unit_type].singular_name,
                         unit->grid_x + 1, unit->grid_y + 1);
 
-                unit->ClearFromTaskLists();
+                unit->RemoveTasks();
                 search_task->AddUnit(*unit);
                 unit->AddTask(this);
                 backup->RemoveTask(this, false);

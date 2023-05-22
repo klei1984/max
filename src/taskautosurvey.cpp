@@ -114,7 +114,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
                         } else {
                             unit->auto_survey = false;
-                            unit->ClearFromTaskLists();
+                            unit->RemoveTasks();
 
                             result = false;
 
@@ -239,7 +239,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
 void TaskAutoSurvey::RemoveSelf() {
     if (unit) {
-        unit->ClearFromTaskLists();
+        unit->RemoveTasks();
     }
 
     unit = nullptr;

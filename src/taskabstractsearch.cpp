@@ -82,7 +82,7 @@ void TaskAbstractSearch::EndTurn() {
             if ((*it).speed && (*it).IsReadyForOrders(this)) {
                 if ((*it).hits <= ((*it).GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2) &&
                     ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
-                    (*it).ClearFromTaskLists();
+                    (*it).RemoveTasks();
 
                     SmartPointer<Task> repair_task = new (std::nothrow) TaskRepair(&*it);
 

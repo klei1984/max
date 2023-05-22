@@ -303,7 +303,7 @@ bool TaskMove::Execute(UnitInfo& unit) {
                 }
 
             } else {
-                passenger->ClearFromTaskLists();
+                passenger->RemoveTasks();
                 RemoveSelf();
 
                 result = false;

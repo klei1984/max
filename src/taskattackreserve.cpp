@@ -128,7 +128,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
             }
 
             if (best_task) {
-                unit.ClearFromTaskLists();
+                unit.RemoveTasks();
 
                 best_task->AddUnit(unit);
             }

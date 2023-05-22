@@ -2465,7 +2465,7 @@ void UnitsManager_Popup_OnClick_Auto(ButtonID bid, UnitInfo* unit) {
         Ai_EnableAutoSurvey(unit);
 
     } else {
-        unit->ClearFromTaskLists();
+        unit->RemoveTasks();
     }
 
     GameManager_UpdateInfoDisplay(unit);
@@ -4083,7 +4083,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     unit_to_destroy->SetParent(nullptr);
     unit_to_destroy->path = nullptr;
 
-    unit->ClearFromTaskLists();
+    unit->RemoveTasks();
     unit->ProcessTaskList();
 
     Hash_MapHash.Remove(unit);
@@ -6409,7 +6409,7 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
 
     UnitsManager_SetNewOrderInt(&*parent, ORDER_DISABLE, ORDER_STATE_1);
 
-    parent->ClearFromTaskLists();
+    parent->RemoveTasks();
     parent->recoil_delay = turns_disabled;
 
     Access_UpdateMapStatus(&*parent, true);

@@ -200,7 +200,7 @@ public:
     void PushBackTask2List(Task* task);
     void RemoveFromTask2List(Task* task);
     void AddTask(Task* task);
-    void ClearFromTaskLists();
+    void RemoveTasks();
     void RemoveTask(Task* task, bool mode = true);
     bool IsReadyForOrders(Task* task);
     int GetAttackRange();
