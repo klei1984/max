@@ -4038,6 +4038,8 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
         }
 
     } else {
+        SDL_assert(task_list1.GetCount() == 0);
+
         log.Log("Unit has no tasks!");
     }
 }
