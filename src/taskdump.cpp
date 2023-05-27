@@ -170,7 +170,7 @@ void TaskDump::RemoveSelf() {
 }
 
 void TaskDump::RemoveUnit(UnitInfo& unit_) {
-    if (unit == &unit_ || task_move->GetPassenger() == &unit_) {
+    if (unit == &unit_ || (task_move && task_move->GetPassenger() == &unit_)) {
         RemoveTask();
     }
 }
