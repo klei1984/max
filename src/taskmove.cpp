@@ -327,6 +327,8 @@ void TaskMove::RemoveSelf() {
         passenger->RemoveTask(this);
     }
 
+    AiLog("Move: Remove passenger (self).");
+
     passenger = nullptr;
     zone = nullptr;
     parent = nullptr;
@@ -496,6 +498,8 @@ void TaskMove::Finished(int result) {
 
         result_callback(&*parent, &*passenger, result);
     }
+
+    AiLog("Move: Remove passenger (finish).");
 
     passenger = nullptr;
     zone = nullptr;
