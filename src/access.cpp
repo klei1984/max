@@ -84,9 +84,9 @@ bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int ta
     if (unit != nullptr) {
         if (unit->orders == ORDER_AWAIT) {
             if (mode) {
-                UnitsManager_SetNewOrderInt(&*unit, ORDER_MOVE, ORDER_STATE_39);
+                UnitsManager_SetNewOrderInt(&*unit, ORDER_MOVE, ORDER_STATE_LOWER);
             } else {
-                UnitsManager_SetNewOrderInt(&*unit, ORDER_MOVE, ORDER_STATE_38);
+                UnitsManager_SetNewOrderInt(&*unit, ORDER_MOVE, ORDER_STATE_ELEVATE);
             }
         }
 

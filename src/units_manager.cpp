@@ -4346,7 +4346,7 @@ void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
             case ORDER_STATE_1: {
                 if (unit->unit_type == BRIDGE && unit->IsBridgeElevated() &&
                     !Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
-                    UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_39);
+                    UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_LOWER);
                 }
 
                 UnitsManager_PerformAutoSurvey(unit);
@@ -4369,7 +4369,7 @@ void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
 
                 if (unit->unit_type == BRIDGE && unit->IsBridgeElevated() &&
                     !Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
-                    UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_39);
+                    UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_LOWER);
                 }
 
                 UnitsManager_PerformAutoSurvey(unit);
@@ -4464,7 +4464,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
             }
         } break;
 
-        case ORDER_STATE_38: {
+        case ORDER_STATE_ELEVATE: {
             if (unit->GetImageIndex() == unit->image_index_max) {
                 UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT, ORDER_STATE_1);
 
@@ -4478,9 +4478,9 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
             }
         } break;
 
-        case ORDER_STATE_39: {
+        case ORDER_STATE_LOWER: {
             if (Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
-                UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_38);
+                UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_ELEVATE);
 
             } else {
                 if (unit->IsBridgeElevated()) {
@@ -5777,7 +5777,7 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
                 UnitInfo* bridge_unit = Access_GetUnit1(unit->target_grid_x, unit->target_grid_y);
 
                 if (bridge_unit) {
-                    UnitsManager_SetNewOrderInt(bridge_unit, ORDER_MOVE, ORDER_STATE_38);
+                    UnitsManager_SetNewOrderInt(bridge_unit, ORDER_MOVE, ORDER_STATE_ELEVATE);
                 }
             }
 
