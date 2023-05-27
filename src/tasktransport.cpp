@@ -254,7 +254,7 @@ bool TaskTransport::ChooseNewTask() {
     return result;
 }
 
-void TaskTransport::AddMove(TaskMove* move) {
+void TaskTransport::AddClient(TaskMove* move) {
     move_tasks.PushBack(*move);
     move->GetPassenger()->PushBackTask2List(this);
 
@@ -268,7 +268,7 @@ void TaskTransport::AddMove(TaskMove* move) {
     }
 }
 
-void TaskTransport::RemoveMove(TaskMove* move) {
+void TaskTransport::RemoveClient(TaskMove* move) {
     if (move->GetPassenger()) {
         if (move->GetPassenger()->orders != ORDER_IDLE) {
             move->RemoveTransport(false);
@@ -288,7 +288,7 @@ void TaskTransport::MoveFinishedCallback1(Task* task, UnitInfo* unit, char resul
     } else if (result == 2) {
         TaskTransport* transport = dynamic_cast<TaskTransport*>(task);
 
-        transport->RemoveMove(&*transport->task_move);
+        transport->RemoveClient(&*transport->task_move);
         transport->ChooseNewTask();
     }
 }
@@ -544,7 +544,7 @@ void TaskTransport::RemoveSelf() {
 void TaskTransport::RemoveUnit(UnitInfo& unit) {
     if (unit_transporter == &unit) {
         for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
-            RemoveMove(&*it);
+            RemoveClient(&*it);
         }
 
         move_tasks.Clear();

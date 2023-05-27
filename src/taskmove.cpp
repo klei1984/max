@@ -1349,7 +1349,7 @@ void TaskMove::FindTransport(ResourceID unit_type) {
     }
 
     if (transport) {
-        transport->AddMove(this);
+        transport->AddClient(this);
 
     } else {
         TaskTransport* task = new (std::nothrow) TaskTransport(this, transporter_unit_type);

@@ -35,7 +35,7 @@ class TaskTransport : public Task {
 
     void AddClients(SmartList<TaskMove>* list);
     bool ChooseNewTask();
-    void RemoveMove(TaskMove* move);
+    void RemoveClient(TaskMove* move);
 
     static void MoveFinishedCallback1(Task* task, UnitInfo* unit, char result);
     static void MoveFinishedCallback2(Task* task, UnitInfo* unit, char result);
@@ -67,7 +67,7 @@ public:
 
     ResourceID GetTransporterType() const;
     bool WillTransportNewClient(TaskMove* task);
-    void AddMove(TaskMove* move);
+    void AddClient(TaskMove* move);
 };
 
 bool TaskTransport_Search(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map);
