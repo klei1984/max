@@ -22,6 +22,7 @@
 #include "tasktransport.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "remote.hpp"
@@ -99,6 +100,8 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
                             SmartList<TaskMove> moves;
                             int distance2;
 
+                            AiLog log("Task Transport: Will Transport ");
+
                             AddClients(&moves);
 
                             for (SmartList<TaskMove>::Iterator it = moves.Begin(); it != moves.End(); ++it) {
@@ -106,10 +109,14 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
                                     distance2 = TaskManager_GetDistance(position, (*it).GetDestination());
 
                                     if (distance2 < distance) {
+                                        log.Log("FALSE");
+
                                         return false;
                                     }
                                 }
                             }
+
+                            log.Log("TRUE");
 
                             result = true;
 
@@ -150,6 +157,8 @@ bool TaskTransport::ChooseNewTask() {
     int distance;
     int minimum_distance;
     bool result;
+
+    AiLog log("Transport: Choose New Task.");
 
     if (unit_transporter) {
         Point position(unit_transporter->grid_x, unit_transporter->grid_y);
@@ -228,6 +237,9 @@ bool TaskTransport::ChooseNewTask() {
         }
 
         if (task_move) {
+            log.Log("Transport: moving to drop off %s.",
+                    UnitsManager_BaseUnits[task_move->GetPassenger()->unit_type].singular_name);
+
             result = true;
 
         } else {
@@ -242,6 +254,8 @@ bool TaskTransport::ChooseNewTask() {
                 task_obtain_units = nullptr;
             }
 
+            log.Log("Transport Task Removed.");
+
             TaskManager.RemoveTask(*this);
 
             result = false;
@@ -255,6 +269,8 @@ bool TaskTransport::ChooseNewTask() {
 }
 
 void TaskTransport::AddClient(TaskMove* move) {
+    AiLog log("Transport: Add Client %s.", UnitsManager_BaseUnits[move->GetPassenger()->unit_type].singular_name);
+
     move_tasks.PushBack(*move);
     move->GetPassenger()->PushBackTask2List(this);
 
@@ -265,6 +281,9 @@ void TaskTransport::AddClient(TaskMove* move) {
     if (unit_transporter) {
         Task_RemoveMovementTasks(&*unit_transporter);
         Task_RemindMoveFinished(&*unit_transporter, true);
+
+    } else {
+        log.Log("Waiting for transport.");
     }
 }
 
@@ -282,10 +301,10 @@ void TaskTransport::RemoveClient(TaskMove* move) {
 }
 
 void TaskTransport::MoveFinishedCallback1(Task* task, UnitInfo* unit, char result) {
-    if (result == 0) {
+    if (result == TASKMOVE_RESULT_SUCCESS) {
         Task_RemindMoveFinished(unit, unit->speed > 0);
 
-    } else if (result == 2) {
+    } else if (result == TASKMOVE_RESULT_BLOCKED) {
         TaskTransport* transport = dynamic_cast<TaskTransport*>(task);
 
         transport->RemoveClient(&*transport->task_move);
@@ -294,10 +313,10 @@ void TaskTransport::MoveFinishedCallback1(Task* task, UnitInfo* unit, char resul
 }
 
 void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char result) {
-    if (result == 0) {
+    if (result == TASKMOVE_RESULT_SUCCESS) {
         Task_RemindMoveFinished(unit, unit->speed > 0);
 
-    } else if (result == 2) {
+    } else if (result == TASKMOVE_RESULT_BLOCKED) {
         TaskTransport* transport = dynamic_cast<TaskTransport*>(task);
 
         SmartPointer<Task> dump =
@@ -312,6 +331,8 @@ bool TaskTransport::Task_vfunc1(UnitInfo& unit) { return unit_transporter != uni
 int TaskTransport::GetMemoryUse() const { return move_tasks.GetMemorySize() - 6; }
 
 char* TaskTransport::WriteStatusLog(char* buffer) const {
+    strcpy(buffer, "Transport units: ");
+
     if (unit_transporter || !task_obtain_units) {
         if (task_move && task_move->GetPassenger()) {
             if (task_move->GetPassenger()->orders == ORDER_IDLE) {
@@ -367,6 +388,8 @@ unsigned char TaskTransport::GetType() const { return TaskType_TaskTransport; }
 bool TaskTransport::IsNeeded() { return !unit_transporter && move_tasks.GetCount() > 0; }
 
 void TaskTransport::AddUnit(UnitInfo& unit) {
+    AiLog log("Transport: Add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+
     if (!unit_transporter && unit.unit_type == transporter_unit_type) {
         unit_transporter = unit;
         unit_transporter->AddTask(this);
@@ -378,6 +401,8 @@ void TaskTransport::AddUnit(UnitInfo& unit) {
 
 void TaskTransport::Begin() {
     if (unit_transporter) {
+        AiLog log("Transport: Begin.");
+
         unit_transporter->AddTask(this);
 
     } else {
@@ -392,6 +417,8 @@ void TaskTransport::Begin() {
 void TaskTransport::BeginTurn() { EndTurn(); }
 
 void TaskTransport::ChildComplete(Task* task) {
+    AiLog log("Transport: Child Complete: ");
+
     if (task->GetType() == TaskType_TaskMove) {
         TaskMove* move = dynamic_cast<TaskMove*>(task);
 
@@ -403,20 +430,29 @@ void TaskTransport::ChildComplete(Task* task) {
 
         if (&*task_move == task) {
             if (unit_transporter) {
+                log.Log("client %s", UnitsManager_BaseUnits[task_move->GetPassenger()->unit_type].singular_name);
+
                 Task_RemoveMovementTasks(&*unit_transporter);
                 Task_RemindMoveFinished(&*unit_transporter, true);
             }
 
             task_move = nullptr;
+
+        } else {
+            log.Log("secondary client.");
         }
     }
 
     if (&*task_obtain_units == task) {
+        log.Log("obtainer.");
+
         task_obtain_units = nullptr;
     }
 }
 
 void TaskTransport::EndTurn() {
+    AiLog log("Transport: End Turn.");
+
     if (unit_transporter && unit_transporter->IsReadyForOrders(this)) {
         Execute(*unit_transporter);
     }
@@ -426,6 +462,8 @@ bool TaskTransport::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit_transporter == &unit && unit.IsReadyForOrders(this)) {
+        AiLog log("Transport: Move Finished.");
+
         if (Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
             result = true;
 
@@ -543,6 +581,8 @@ void TaskTransport::RemoveSelf() {
 
 void TaskTransport::RemoveUnit(UnitInfo& unit) {
     if (unit_transporter == &unit) {
+        AiLog log("Transport: Remove %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+
         for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
             RemoveClient(&*it);
         }
@@ -555,6 +595,8 @@ void TaskTransport::RemoveUnit(UnitInfo& unit) {
 
 void TaskTransport::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {
     if (unit_transporter == &unit1) {
+        AiLog log("Transport: %s Loaded.", UnitsManager_BaseUnits[unit2.unit_type].singular_name);
+
         for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
             if ((*it).GetPassenger() == &unit2) {
                 unit2.RemoveFromTask2List(this);
@@ -568,6 +610,8 @@ void TaskTransport::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {
 }
 
 void TaskTransport::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
+    AiLog log("Transport: %s Unloaded.", UnitsManager_BaseUnits[unit2.unit_type].singular_name);
+
     if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
         dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport(true);
     }
@@ -634,7 +678,7 @@ bool TaskTransport_Search(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map)
 }
 
 void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
-    if (!result) {
+    if (result == TASKMOVE_RESULT_SUCCESS) {
         Task_RemindMoveFinished(unit, unit->speed > 0 ? true : false);
     }
 }
@@ -644,15 +688,22 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
 
     if (unit_transporter && unit_transporter->IsReadyForOrders(this) &&
         (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team)) {
+        AiLog log("Transport: Load %s on %s.", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+                  UnitsManager_BaseUnits[unit_transporter->unit_type].singular_name);
+
         if (Task_IsReadyToTakeOrders(unit) &&
             (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team)) {
             int distance = TaskManager_GetDistance(unit, &*unit_transporter);
 
             if (unit_transporter->unit_type == AIRTRANS && distance > 0) {
+                log.Log("Too far away.");
+
                 result = false;
 
             } else if ((unit_transporter->unit_type == SEATRANS || unit_transporter->unit_type == CLNTRANS) &&
                        distance > 3) {
+                log.Log("Too far away.");
+
                 result = false;
 
             } else if (unit_transporter->unit_type == AIRTRANS) {
@@ -692,6 +743,8 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
             }
 
         } else {
+            log.Log("Unit not ready for orders.");
+
             result = false;
         }
 
@@ -703,6 +756,8 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
 }
 
 void TaskTransport::UnloadUnit(UnitInfo* unit) {
+    AiLog log("Transport: Unload %s.", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
         Point destination = task_move->GetDestination();
 
@@ -712,6 +767,8 @@ void TaskTransport::UnloadUnit(UnitInfo* unit) {
 
             if (unit_in_the_way) {
                 SmartPointer<Zone> zone = new (std::nothrow) Zone(unit, this);
+
+                log.Log("Must clear landing zone first.");
 
                 zone->Add(&destination);
 
