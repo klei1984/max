@@ -330,30 +330,27 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
                                 (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
                                 if (operator_unit->flags & STATIONARY) {
-                                    const int stored_units = Access_GetStoredUnitCount(&*operator_unit);
-                                    const int storable_units =
-                                        operator_unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
-                                    Cargo materials;
-                                    Cargo capacity;
+                                    if (target_unit->orders == ORDER_AWAIT) {
+                                        // only enter repair shop if there is free capacity in it
+                                        if (Access_GetStoredUnitCount(&*operator_unit) <
+                                            operator_unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
+                                            log.Log("Sending Board order.");
 
-                                    operator_unit->GetComplex()->GetCargoInfo(materials, capacity);
+                                            target_unit->target_grid_x = operator_unit->grid_x;
+                                            target_unit->target_grid_y = operator_unit->grid_y;
 
-                                    // only enter repair shop if there is free capacity in it,
-                                    // and raw materials are available in the complex
-                                    if (materials.raw > 0 && stored_units < storable_units) {
-                                        log.Log("Sending Board order.");
+                                            if (target_unit->target_grid_x == target_unit->grid_x &&
+                                                target_unit->target_grid_y == target_unit->grid_y) {
+                                                ++target_unit->target_grid_x;
+                                            }
 
-                                        target_unit->target_grid_x = operator_unit->grid_x;
-                                        target_unit->target_grid_y = operator_unit->grid_y;
+                                            UnitsManager_SetNewOrder(&*target_unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_0);
 
-                                        if (target_unit->target_grid_x == target_unit->grid_x &&
-                                            target_unit->target_grid_y == target_unit->grid_y) {
-                                            ++target_unit->target_grid_x;
+                                            result = true;
+
+                                        } else {
+                                            result = false;
                                         }
-
-                                        UnitsManager_SetNewOrder(&*target_unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_0);
-
-                                        result = true;
 
                                     } else {
                                         result = false;
@@ -371,10 +368,21 @@ bool TaskRepair::Execute(UnitInfo& unit) {
 
                         } else {
                             if (!Task_RetreatFromDanger(this, &*target_unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
-                                SmartPointer<Task> task(new (std::nothrow) TaskRendezvous(
-                                    &*target_unit, &*operator_unit, this, &TaskRepair::RendezvousResultCallback));
+                                // only request rendezvous once
+                                auto task = operator_unit->GetTasks();
 
-                                TaskManager.AppendTask(*task);
+                                for (; task != nullptr; ++task) {
+                                    if ((*task).GetType() == TaskType_TaskRendezvous && (*task).GetParent() == this) {
+                                        break;
+                                    }
+                                }
+
+                                if (!task) {
+                                    SmartPointer<Task> task_rendezvous(new (std::nothrow) TaskRendezvous(
+                                        &*target_unit, &*operator_unit, this, &TaskRepair::RendezvousResultCallback));
+
+                                    TaskManager.AppendTask(*task_rendezvous);
+                                }
                             }
 
                             result = true;
