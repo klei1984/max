@@ -787,7 +787,8 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
         }
 
     } else {
-        if (!Access_SetUnitDestination(unit->grid_x, unit->grid_y, target_grid_x, target_grid_y, false)) {
+        if (!Access_SetUnitDestination(unit->grid_x, unit->grid_y, target_grid_x, target_grid_y,
+                                       !(unit->flags & MOBILE_SEA_UNIT))) {
             SmartPointer<UnitPath> path(this);
 
             if (unit->orders == ORDER_BUILD || UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_ELIMINATED ||
