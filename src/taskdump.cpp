@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "paths.hpp"
 #include "taskfindpath.hpp"
 #include "taskpathrequest.hpp"
@@ -35,6 +36,8 @@ TaskDump::~TaskDump() {}
 
 void TaskDump::TaskDump_PathResultCallback(Task* task, PathRequest* request, Point destination_, GroundPath* path,
                                            unsigned char result) {
+    AiLog log("Dump: path result.");
+
     TaskDump* dump_task = dynamic_cast<TaskDump*>(task);
 
     if (path) {
@@ -67,6 +70,8 @@ void TaskDump::Search() {
     }
 
     passenger = task_move->GetPassenger();
+
+    AiLog log("Dump %s: search for position.", UnitsManager_BaseUnits[passenger->unit_type].singular_name);
 
     for (;;) {
         if (--field_31 <= 0) {
