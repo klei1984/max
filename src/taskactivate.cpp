@@ -22,6 +22,7 @@
 #include "taskactivate.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
@@ -56,6 +57,9 @@ void TaskActivate::Activate() {
                                 }
                             }
 
+                            AiLog log("Activate %s.",
+                                      UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name);
+
                             if (unit_to_activate->orders != ORDER_IDLE || unit_parent->orders == ORDER_BUILD ||
                                 unit_parent->orders == ORDER_AWAIT) {
                                 Point position(unit_parent->grid_x - 1, unit_parent->grid_y);
@@ -76,6 +80,8 @@ void TaskActivate::Activate() {
 
                                         if (Access_IsAccessible(unit_to_activate->unit_type, team, position.x,
                                                                 position.y, 0x02)) {
+                                            log.Log("Open square: [%i,%i].", position.x + 1, position.y + 1);
+
                                             switch (unit_to_activate->orders) {
                                                 case ORDER_BUILD: {
                                                     unit_to_activate->target_grid_x = position.x;
@@ -122,6 +128,8 @@ void TaskActivate::Activate() {
 
                                         if (Access_IsAccessible(unit_to_activate->unit_type, team, position.x,
                                                                 position.y, 0x01)) {
+                                            log.Log("Clearing square: [%i,%i].", position.x + 1, position.y + 1);
+
                                             zone = new (std::nothrow) Zone(&*unit_to_activate, this);
 
                                             zone->Add(&position);
@@ -132,6 +140,10 @@ void TaskActivate::Activate() {
                                         }
                                     }
                                 }
+
+                            } else {
+                                log.Log("%s is not ready for orders.",
+                                        UnitsManager_BaseUnits[unit_parent->unit_type].singular_name);
                             }
                         }
                     }
@@ -200,6 +212,9 @@ bool TaskActivate::Execute(UnitInfo& unit) {
             Point position(unit_to_activate->grid_x, unit_to_activate->grid_y);
 
             if (!Access_IsInsideBounds(&bounds, &position)) {
+                AiLog log("Completed activation of %s.",
+                          UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name);
+
                 unit_to_activate->RemoveTask(this);
 
                 if (parent->GetType() == TaskType_TaskCreateUnit) {
@@ -247,6 +262,8 @@ void TaskActivate::RemoveSelf() {
 
 void TaskActivate::RemoveUnit(UnitInfo& unit) {
     if (unit_to_activate == unit) {
+        AiLog log("Removing %s from Activate Unit.", UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name);
+
         unit_to_activate = nullptr;
         zone = nullptr;
         parent = nullptr;
