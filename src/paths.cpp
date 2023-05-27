@@ -676,8 +676,6 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
             SDL_assert(stored_units <= storable_units && receiver->storage == stored_units);
 
-            receiver->storage = stored_units;
-
             if (stored_units == storable_units) {
                 unit->BlockedOnPathRequest();
 
@@ -1372,8 +1370,6 @@ bool Paths_LoadUnit(UnitInfo* unit) {
             const int storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
             SDL_assert(stored_units <= storable_units && shop->storage == stored_units);
-
-            shop->storage = stored_units;
 
             if (stored_units == storable_units) {
                 unit->orders = ORDER_AWAIT;
