@@ -25,7 +25,7 @@
 #include "task.hpp"
 
 class TaskRepair : public Task {
-    void ChooseUnitToRepair();
+    void ChooseOperator();
     void DoRepairs();
     UnitInfo* SelectRepairShop();
     void RemoveOperator();

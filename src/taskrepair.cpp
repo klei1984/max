@@ -39,7 +39,7 @@ static void TaskRepair_RendesvousResultCallback();
 
 void TaskRepair_RendesvousResultCallback() {}
 
-void TaskRepair::ChooseUnitToRepair() {
+void TaskRepair::ChooseOperator() {
     SmartPointer<UnitInfo> unit;
 
     if (target_unit != nullptr) {
@@ -254,7 +254,7 @@ void TaskRepair::Begin() {
 
     target_unit->AddTask(this);
     CreateUnit();
-    ChooseUnitToRepair();
+    ChooseOperator();
     Task_RemindMoveFinished(&*target_unit);
 }
 
@@ -295,7 +295,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
 
         } else {
             if (operator_unit == nullptr) {
-                ChooseUnitToRepair();
+                ChooseOperator();
             }
 
             if (operator_unit == nullptr) {
