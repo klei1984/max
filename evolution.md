@@ -111,63 +111,126 @@ Tony was very kind and allowed us to show he's magnificent concept art sketches 
   
 **Tony**: _I believe so... MechaMander or Mech Commander was a game idea that was being considered during my time at Mindcraft Software (I worked there on and off between 88-94), before the business closed... Then Ali Atabek took it onto Interplay, I recall._
   
+<div style="margin:1em;max-width:90%">
+<img src="{{ site.baseurl }}/assets/images/art_mobile_anti_air.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
+<img src="{{ site.baseurl }}/assets/images/art_gunboat.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
+</div>
+<br>
+
 **Tamas**: _According to an article in Electronic Games magazine, issue March 1994, there was a working interactive demo of MechaMander. Was this a too optimistic advertisement only or did the demo really exist?_
   
 **Tony**: _I can’t be too sure what existed of the game at the time of the article... I was very busy finishing up my degree at Art Center College of Design, and wasn’t very aware of what was happening with Mindcraft’s projects._
   
+<div style="margin:1em;max-width:90%">
+<img src="{{ site.baseurl }}/assets/images/art_scout.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
+<img src="{{ site.baseurl }}/assets/images/art_fighter.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
+</div>
+<br>
+
 **Tamas**: _Other than the advertisement I found no pictures or any visuals from the game. Do you remember how far the game progressed during its development at Mindcraft? Based on the various articles and M.A.X. resources I studied so far I am convinced that MechaMander's source code was repurposed for M.A.X. one way or another._
   
 **Tony**: _I have vague recollections of images or animations being shown at CES around that time... I didn’t attend the convention with the Mindcraft crew, so I'm unaware of what was actually previewed. It could have been a playable demo, but I'm not sure... When I began working on MechaMander/MAX at Interplay, I was also unaware how much of the original source code was repurposed... I freelanced during the first few months of MAX's development doing storyboards and vehicle designs, so I wasn’t knowledgeable of much else on the project._
   
+<div style="margin:1em;max-width:90%">
+<img src="{{ site.baseurl }}/assets/images/art_rocket_launcher.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
+<img src="{{ site.baseurl }}/assets/images/art_sheevat_alien_fighter.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
+</div>
+<br>
+
 **Tamas**: _According to an in-house Interplay interview with Ali Atabek the development of M.A.X. was (re)started only in 1996 and the development time was about 10 months only. What could have happened between 1994 and 1996 and what did you work on back then?_
   
 **Tony**: _I freelanced for Interplay in '94, starting full time in '95... MAX's or MechaMander's production was going at the time, but some of my time I did work on other games... concept art for Shattered Steel, Star Trek Starfleet Academy, concept and UI design for Fallout (the vault cog door and found objects as maps were my contributions)... and some misc art for a few other titles... But the majority of my time was directed towards MAX... I'm unsure of the details of that time, but I do remember MAX's production being interrupted or throttled back a few times, for reasons I can’t be sure of._
   
+<div style="margin:1em;max-width:90%">
+<img src="{{ site.baseurl }}/assets/images/art_sheevat_anti_air.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
+<img src="{{ site.baseurl }}/assets/images/art_sheevat_infiltrator.jpg" width="10%" alt="Concept Design by Anthony E. Postma">
+</div>
+<br>
+
 **Tamas**: _According to the game credits you not only created concept designs for M.A.X. but also worked as a 2D artist, a writer and even the awesome box cover design is your merit. What kind of story elements did you add to the game? And as a 2D artist did you work on unit sprites, world tiles, menu graphics or all of that? I am still astonished at the quality of the graphics and the color or palette animations. The water effect is simply amazing. Were the 2D unit sprites made by hand or were they rendered and post processed from 3D models? Did you draw everything on paper first and scanned the drawings or was everything made digitally from scratch?_
   
 **Tony**: _I wore a lot of hats on both MAX and what became MAX2... the name was my creation, M.A.X. Mechanized Assault & eXploration was my idea, because the project ran into legal issues with the name MechaMander or Mech Commander which I think FASA Studio owned or owns... I helped write up history and backgrounds to the various factions, and the alien species for MAX2, The Sheevat. I did all the concept sketches for the vehicles and structures, then worked with the 3D modelers (Mark Bergo and Chris Regalado) as they developed and textured the models, then I processed the Sprites, providing explosions and lighting animations and such. I did box cover designs as well for both MAX and MAX2, but was not responsible for the finished artwork, which was completed by an outside agency I believe... I did UI design for both games, working on icons and buttons, and I also provided the Story Boards for the intro animation... I was fairly involved in all of the graphic aspects of the game. Even did some play testing as the AI was being sorted out by the programmers. It was a pretty fun period in my time in game development... always something new to envision._
   
 <br>
 
-Some of Tony's concept designs:<br>
-<div style="margin:1em;max-width:90%">
-<img src="{{ site.baseurl }}/assets/images/art_mobile_anti_air.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
-<img src="{{ site.baseurl }}/assets/images/art_gunboat.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
-<img src="{{ site.baseurl }}/assets/images/art_scout.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
-<img src="{{ site.baseurl }}/assets/images/art_fighter.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
-<img src="{{ site.baseurl }}/assets/images/art_rocket_launcher.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
-<img src="{{ site.baseurl }}/assets/images/art_sheevat_alien_fighter.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
-<img src="{{ site.baseurl }}/assets/images/art_sheevat_anti_air.jpg" width="33%" alt="Concept Design by Anthony E. Postma">
-<img src="{{ site.baseurl }}/assets/images/art_sheevat_infiltrator.jpg" width="10%" alt="Concept Design by Anthony E. Postma">
-</div>
-<br>
+For the human units Tony was influenced by designers like Joe Johnston, Ralph McQuarry, Ron Cobb, Chris Foss and Syd Mead while for the aliens he took inspiration from Yasushi Nirasawa and Masamune Shirow [\[27\]](#ref27).
 
-Interplay filed the first trademark application for _"M.A.X. MECHANIZED ASSAULT & EXPLORATION"_ in the USA on April 19th, 1996. A second application covering broader range of goods was filed on 20th of June, 1996.
-<br style="clear:both"><br><br>
+{% include image_note.html align="right" image="max_cup.png" title="" description="The development team received special M.A.X. themed cups, and<br>a copy of both the US and European releases of the game [\[26\]](#ref26)." alt="White cup with red M.A.X. label on it" %}  
+Interplay filed the first trademark application for _"M.A.X. MECHANIZED ASSAULT & EXPLORATION"_ in the USA on April 19th, 1996. A second application covering broader range of goods was filed on 20th of June, 1996. Interplay eventually did not sell any merchandise for the game and abandoned the broader trademark application. M.A.X. is still a registered active trademark in the USA.
 
-Several screenshots exist that show content that originates from before the first available interactive demo. These screenshots depict a M.A.X. that is very different from the final design. The following screenshots have time stamps from July 21st, 1996 [\[11\]](#ref11).
+<br style="clear:both">
+
+Several screenshots exist that show content that originates from before the first available interactive demo. These screenshots depict a M.A.X. that is even gloomier than the final design. The following screenshots have time stamps from July 21st, 1996 [\[11\]](#ref11).
 
 <img src="{{ site.baseurl }}/assets/images/secret_service_max01.png" alt="secret service screenshot">
 <img src="{{ site.baseurl }}/assets/images/secret_service_max02.png" alt="secret service screenshot">
 <br><br>
+
+The first screenshot shows the old design of the ground attack plane. The 3D model of the unit was later modified to become the alien attack plane and the human race got an even more astonishing ground attack plane design.
+<br>
+At some point mobile units had a fuel attribute which was represented by charges on the above screenshot for the plane. Fuel limited the reach of mobile units. Based on FLIC animation metadata the gold truck was originally a mobile charger unit while the fuel truck was a mobile power generator potentially for the charger. We can rightfully assume that these mobile support units had much higher strategic value in the old game design than their near useless status in the final one. Even though the feature was completely removed from the retail game, related assets and various code fragments are still present in some of the available game revisions. The attribute table of all units also contains the fuel attribute even in the retail versions. Scouts, infiltrators and infantry units had the most fuel or charge points, constructors the least.
+
 <img src="{{ site.baseurl }}/assets/images/secret_service_max04.png" alt="secret service screenshot">
 <img src="{{ site.baseurl }}/assets/images/secret_service_max05.png" alt="secret service screenshot">
 
-The first screenshot shows the old design of the ground attack plane. The _charge_ attribute indicates that units had fuel; the game resource called ATTRIBS also contains the fuel unit attribute even in the retail version of the game. The art was later modified to become the alien attack plane.
-Some of the dark themed UI elements can also be found within older versions of the game resource file, MAX.RES.
+Some of the dark themed UI elements can also be found within older versions of the game resource file, MAX.RES. These older artwork also appear in the intro animation and on the back cover of the game's packaging box.
+  
+<br>
 
-The December, 1996 issue of the German PC Games magazine [\[12\]](#ref12) featured a video report about their visit at Interplay. There is a short interview with Ali Atabek about M.A.X. in it.
+3D artists working on M.A.X. started development using 3D Studio MAX 4 which was eventually replaced by Lightwave. Artist Mike Sherak brought Lightwave into Interplay. According to sources it was easier to work with in many ways when creating low polygon models. He first used it in Virtual Pool for the rooms and the table model. Rachel Regalado was asked to learn Lightwave so she could finish off Mike’s work since he was moved onto another project. Later Mark Bergo was brought on to the M.A.X. team to do unit models and cinematics. He had extensive experience in Lightwave so the 3D art director had the team switch from 3D Studio. Several units had to be remodeled due to the switch over, in cases the old models were completely scrapped in the process.
 
+**Rachel**: _The Scout is one of my favorite units. It was the first model I built that had more complex curves. Plus I wanted to do justice to Tony’s design. However my all time favorite is the ground attack plane._
+
+<img src="{{ site.baseurl }}/assets/images/bomber_model.png" alt="ground attack plane from Rachel Regalado's portfolio" style="max-width:40%">
+<img src="{{ site.baseurl }}/assets/images/bomber_sketch.png" alt="sketch of ground attack plane from Tony Postma" style="max-width:40%"><br>
+Ground attack plane 3D model from Rachel Regalado's portfolio and Tony Postma's concept art.
+{: style="color:gray; font-size: 100%; text-align: center;"}
+
+<br style="clear:both">
+
+M.A.X. was the first game for which Mark Bergo was credited [\[28\]](#ref28). He worked as a 3D artist on both M.A.X. 1 and 2.
+
+**Tamas**: _Was M.A.X. your first game that you worked on?_
+
+{% include image_note.html align="right" image="dou_1997.png" title="" description="Descent to Undermountain was released in Christmas of 1997. According to MobyGames Mark did not get any credit for this game." %}  
+
+**Mark**: _YES, (sort of) I started at Interplay as a contractor making environment models for Descent to Undermountain then got a full time spot and started working on MAX with Ali Atabek._
+
+**Tamas**: _If you were a computer game enthusiast, what was your favorite computer game, let's say between 1987-1995, that motivated you to join Interplay Productions? Did you know any of the Interplay guys before you joined them?
+
+**Mark**: _I was a solid game player before I joined Interplay, but since I had an Amiga 100 (at first) I played the old CinemaWare games. Rocket Ranger, It Came from the Desert, etc.
+<br>I also loved the early C&C games. I met one of the Interplay guys at a Newtek Video Toaster convention and he helped me get in the door. I remember one funny experience when I had just started, I was at my desk playing Command and Conquer and Brain Fargo walks in the back door through my office and sees me playing and says... "Command and Conquer! My favorite game!"_
+
+**Tamas** _Do you remember anything interesting about the history of the project from before 1996? Did you work closely with the other artits?_
+
+**Mark** _I don't recall much about early days in production for this project. Rachel Regalado and I modeled using Lightwave and then we ran some scripts to process into game ready assets (sprites).<br>
+Tony Postma was our concept guy and he is a rockstar honestly. Rachel did many of the early units. She was a much better modeler than I was frankly. Her models were tight. Mine a bit more loosy goosy. I did many of the water/sea units. Rachel did all the tanks and ground vehicles, as well as the buildings. I took these and made the in game render screens that have a red sky and some mountains in it. Tony at one point gave me some story boards for a cinematic that had a submarine pursuing a boat, firing a torpedo and blowing it up. I worked on that thing forever! Water explosions are tough, and this one came out pretty mediocre and thats being kind._
+
+**Tamas** _I liked the in-game cinematics and back in 1996 I hoped to see more of them as the campaign game progressed._
+
+<br style="clear:both">
+
+The December, 1996 issue of the German PC Games magazine [\[12\]](#ref12) featured a video report about their visit at Interplay. There is a short interview with Ali Atabek about M.A.X. in it where Ali explains the idea behind simultaneous play that bridges the gaps between turn based and real time strategy games.
+
+{::options parse_block_html="true" /}
+<div style="max-width:50%">
 {% include drive_player.html id=page.driveId1 %}
 Copyright 1996 - Computec Verlag & Three Dog Productions 
 {: style="color:gray; font-size: 100%; text-align: right;"}
+</div>
+{::options parse_block_html="false" /}
 
-The video demonstrates two different versions of the game. Based on the main menu graphics the modern looking one is newer than the V1.00 and V1.01 interactive demos, but it is not the retail version as it has the internal build warning message on the title screen. The other version has the dark GUI design and is very interesting.
-* At time stamp 00:55.733 the master builder is shown which was cut from the later versions of the game. This proves that the unit art existed. This is the only unit in the retail version of the game for which sprites do not exist.
-* At time stamp 01:28.667 the master builder animation starts, but this version plays during the day while in the retail version of the game the video plays at night or on a world where there is no direct sunlight.
-* The music track playing in the background is Cold Reality from Descent II.  
-<br><br>
+The video demonstrates two different versions of the game. Based on the main menu graphics the modern looking one is newer than the V1.00 and V1.01 interactive demos, but it is not the retail version as it has the internal build warning message on the title screen. The other version has the dark UI design.
+
+Some highlights of the video:
+* At timestamp 00:55.733 the master builder is shown which was cut from the later versions of the game. This proves that the unit art existed. This is the only unit in the retail version of the game for which sprites do not exist. The reason they were removed from the game assets is that an invisible master builder unit is used to represent the landing spot that human players select on the landing zone selection screen. The yellow and red circles that represent the exclusion zones are actually the scan and range indicators of the master builder unit.
+* At timestamp 01:09:800 the built in debug mode menu options can be seen on the bottom of the preferences control panel. One of the option allows to switch the game into full real time operation mode.
+* At timestamp 01:28.667 the master builder animation starts, but this version plays during the day while in the retail version of the game the video plays at night or on a world where there is no direct sunlight.
+* The music track playing in the background is Cold Reality from Descent II.
   
+
+
+
 It seems that the game design, and probably even the creative direction, has seen a lot of changes over the course of development. According to the game credits at least three key developers shaped the design of M.A.X.  
 Gus Smedstad is one of them and we should also thank him for his outstanding work on the game’s AI.
 <br><br>
@@ -215,11 +278,16 @@ Do you remember anything about that time frame or about the original MechaMander
 _There was a lot of back and forth on game balance. At one point, for example, I implemented "soft" vs "hard" targets, based largely on my experience with Panzer General. I wanted some weapons, such as missile launchers, to be much more effective against hard targets. That was eventually removed because Ali felt the results were not intuitive.  
 Of course we paid attention to Command and Conquer, though the game was already in development before C&C was released._  
 
+<img src="{{ site.baseurl }}/assets/images/unit_models.png" alt="mobile unit 3D models from Rachel Regalado's portfolio" style="max-width:40%">
+<img src="{{ site.baseurl }}/assets/images/unit_sketches.png" alt="mobile unit sketches from Tony Postma" style="max-width:40%"><br>
+Mobile unit 3D models from Rachel Regalado's portfolio and Tony Postma's concept arts.
+{: style="color:gray; font-size: 100%; text-align: center;"}
+
 **Tamas**: _According to Paul Kellner you had a complex Excel workbook [\[23\]](#ref23) with all the unit parameters and game mechanics related formulas that you used to balance the game and you had many discussions with Ali Atabek about game design. Can you elaborate a bit on this?_  
 
 **Gus**: _Paul's correct. I ended up being primarily responsible for unit stats and game balance, and I used spreadsheets a lot to calculate cost effectiveness of specific unit vs. unit matches._  
   
-_I was shooting for a design where every unit in the game had specific strengths, and an effective strategy would require combined arms. I wanted a design where building masses of a single unit had hard counters. For example ground anti-air units needed to be extremely cost effective against bombers._  
+_I was shooting for a design where every unit in the game had specific strengths, and an effective strategy would require combined arms. I wanted a design where building masses of a single unit had hard counters. For example ground anti-air units needed to be extremely cost effective against bombers (ground attack planes)._  
 
 **Tamas**: _Do you remember what led to the removal of fuel from M.A.X.? Was it a conscious design decision or was it more related to time pressure?_
 
@@ -260,6 +328,11 @@ _Can you elaborate on how you debugged the AI back then? Was the AI specific log
 
 **Gus**: _There was no "special debug" M.A.X. client. There was, of course, the regular debugging window available through the C++ development environment, which displayed text on a secondary monitor. I used that, or I used log files._
 
+<img src="{{ site.baseurl }}/assets/images/artillery_turret.png" alt="artillery turret from Rachel Regalado's portfolio" style="max-width:40%">
+<img src="{{ site.baseurl }}/assets/images/assault_gun.png" alt="assault gun sketch from Tony Postma" style="max-width:40%"><br>
+Mobile unit 3D models from Rachel Regalado's portfolio and Tony Postma's concept arts.
+{: style="color:gray; font-size: 100%; text-align: center;"}
+
 **Tamas**: _According to marketing materials M.A.X. has 8 unique AI personalities for the 8 clans. But based on the code base I am not so sure about this. The AI personalities I found are Defensive, Missiles, Air, Sea, Scout horde, Tank horde, Fast attack, Combined arms and Espionage._  
   
 _Do computer players switch personalities during the game? E.g. what happens if the selected personality is Sea, but the map does not have any water tiles.  
@@ -284,6 +357,7 @@ _Did you write all of these SW components or were you mainly in the designer rol
   
 _I wrote the C++ libraries you mentioned. The rest of the team were C programmers, not really comfortable with C++. Dave, for example, had a background in device drivers, and mostly focused on assembler and network code._  
 
+{% include image_note.html align="right" image="tires.png" title="" description="**Rachel Regalado**: _A bit of trivia. The big knobby tires on the M.A.X. vehicles appear in Fallout around the Junktown walls._ [\[27\]](#ref27)." %}
 **Tamas**: _Based on my current understanding of the code base Interplay developed their own C++ memory managers as well. E.g. they used their own smart list, array, object pointer, file, hash, vector and such managers. What I find odd in this is that other Interplay titles did not reuse any of these._  
   
 _Do you remember what was the reason for having so many unique, game specific modules for such generic object patterns like arrays or lists? It is true that M.A.X. requires a lot of memory from the typical 8-16 MiB that was available around that time in PCs, but I still find this rather odd._  
@@ -351,21 +425,26 @@ Amazing M.A.X. 2 trailer
 
 # Catalogue of M.A.X. Revisions
 
-| Publication Date* | Type of Publication | Version Number** |
-|-------|--------|---------|
-| 1996-08-15        | Interactive Demo    | V1.00 Demo       |
-| 1996-08-21        | Internal Test Build | V1.01 Demo       |
-| 1996-10-09        | Interactive Demo    | V1.01 Demo       |
-| 1996-11-20        | Internal Test Build | V1.56            |
-| 1996-12-08        | Retail (CD)         | V1.00 (Serial CD-ICD-082-EU) |
-| 1996-12-10        | Retail (CD)         | V1.01 (Serial CD-ICD-082-G) |
-| 1996-12-13        | Retail (CD)         | V1.02 (Serial CD-ICD-082-0) |
-| 1997-01-08        | Retail (patch)      | V1.03            |
-| 1997-01-16        | Interactive Demo    | V1.03a Demo      |
-| 1997-03-26        | Retail (patch)      | V1.04            |
-| 1998-01-28        | Retail (CD)         | V1.04 (Serial CD-ICD-082-1) |
+| Publication Date* | Type of Publication | Version Number** | Notes |
+|-------|--------|---------|---------|
+| 1996-08-15 | Interactive Demo    | V1.00 Demo  | |
+| 1996-08-21 | Internal Test Build | V1.01 Demo  | |
+| 1996-10-09 | Interactive Demo    | V1.01 Demo  | |
+| 1996-10-29 | Warez               | V1.56       | Stolen by Animal & Dogfriend from Hybrid Group |
+| 1996-12-08 | Retail CD-ROM       | V1.00       | European release (Serial CD-ICD-082-EU) |
+| 1996-12-10 | Retail CD-ROM       | V1.01       | German release (Serial CD-ICD-082-G) |
+| 1996-12-13 | Retail CD-ROM       | V1.02       | North American release (Serial CD-ICD-082-0) |
+| 1997-01-08 | Retail Patch        | V1.03       | |
+| 1997-01-09 | Retail CD-ROM       | V1.03       | Spanish release (Serial CD-ICD-082-SP) |
+| 1997-01-16 | Interactive Demo    | V1.03a Demo | |
+| 1997-03-26 | Retail Patch        | V1.04       | |
+| 1998-01-28 | Retail CD-ROM       | V1.04       | North American re-release (Serial CD-ICD-082-1) |
+| 1998-04-15 | Bundled CD-ROM      | V1.02       | Revista BigMax issue 18 (Serial CD-ICD-082-ALT) |
+| 1999-??-?? | Retail CD-ROM       | V1.0?       | Ultimate Strategy Archives Bundle (Serial CD-ICD-825-E3) |
+| 1999-??-?? | Retail CD-ROM       | V1.04       | Interplay 15th Anniversary Anthology (Serial CD-C95-1111-4) |
+| 2001-10    | Bundled CD-ROM      | V1.01       | Game Live issue 11 (Serial CD-ICD-082-HSEFGI) |
 
-\* The publication date is based on file system date and time stamps. Date format used is YYYY-MM-DD.
+\* The publication date is mainly based on file system date and time stamps. Date format used is YYYY-MM-DD.
 <br>
 \*\* The version number is taken from the game executable.
 
@@ -399,3 +478,6 @@ Amazing M.A.X. 2 trailer
 <a name="ref23"></a>\[23\] [MAX 2 Beta Chat Logs](http://web.archive.org/web/19990116235006/http://www.interplay.com/max2/chatlogs.html) - February 19, 1998<br>
 <a name="ref24"></a>\[24\] [Wikipedia - Where's Waldo](https://en.wikipedia.org/wiki/Where%27s_Wally%3F)<br>
 <a name="ref25"></a>\[25\] [Wikipedia - Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)<br>
+<a name="ref26"></a>\[26\] Facebook discussion between Rachel Regalado and M.A.X. fans - November, 2020<br>
+<a name="ref27"></a>\[27\] Facebook discussion between Tony Postma, Rachel Regalado and M.A.X. fans - August, 2020<br>
+<a name="ref28"></a>\[28\] [M.A.X. Cracktro by Hybrid](https://defacto2.net/f/a638a0) - October 29, 1996<br>
