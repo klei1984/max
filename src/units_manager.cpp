@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "allocmenu.hpp"
 #include "builder.hpp"
 #include "buildmenu.hpp"
@@ -217,6 +218,14 @@ int UnitsManager_TimeBenchmarkValues[20];
 
 signed char UnitsManager_EffectCounter;
 signed char UnitsManager_byte_17947D;
+
+const char* const UnitsManager_Orders[] = {
+    "Awaiting",   "Transforming", "Moving",    "Firing",          "Building",  "Activate Order", "New Allocate Order",
+    "Power On",   "Power Off",    "Exploding", "Unloading",       "Clearing",  "Sentry",         "Landing",
+    "Taking Off", "Loading",      "Idle",      "Repairing",       "Refueling", "Reloading",      "Transferring",
+    "Awaiting",   "Awaiting",     "Awaiting",  "Awaiting",        "Awaiting",  "Disabled",       "Moving",
+    "Repairing",  "Transferring", "Attacking", "Building Halted",
+};
 
 AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
     AbstractUnit(
@@ -3757,10 +3766,16 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
 
     if (unit->orders != ORDER_EXPLODE && unit->state != ORDER_STATE_14) {
         if (unit->orders == ORDER_AWAIT_SCALING) {
+            AiLog log("New order (%s) issued for %s while scaling.", UnitsManager_Orders[order],
+                      UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
             UnitsManager_NewOrderWhileScaling(unit);
         }
 
         if (unit->state == ORDER_STATE_NEW_ORDER) {
+            AiLog log("New order (%s) issued for %s while waiting for path.", UnitsManager_Orders[order],
+                      UnitsManager_BaseUnits[unit->unit_type].singular_name);
+
             unit->orders = ORDER_AWAIT;
             unit->state = ORDER_STATE_1;
 
@@ -4344,9 +4359,10 @@ void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
     if (unit->unit_type != ROAD && unit->unit_type != WTRPLTFM) {
         switch (unit->state) {
             case ORDER_STATE_1: {
-                if (unit->unit_type == BRIDGE && unit->IsBridgeElevated() &&
-                    !Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
-                    UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_LOWER);
+                if (unit->unit_type == BRIDGE && unit->IsBridgeElevated()) {
+                    if (!Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
+                        UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_LOWER);
+                    }
                 }
 
                 UnitsManager_PerformAutoSurvey(unit);
