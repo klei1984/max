@@ -217,9 +217,18 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, unsigned short task_fl
                 task_array[task_index]->RemoveSelf();
             }
 
-            task_array[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
+            // expert and tougher computer players capture alien units
+            if (spotted_unit->GetUnit()->team == PLAYER_TEAM_ALIEN &&
+                ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
+                if (TaskMove::FindUnit(&UnitsManager_MobileLandSeaUnits, player_team, COMMANDO)) {
+                    task_array[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
+                    TaskManager.AppendTask(*task_array[task_index]);
+                }
 
-            TaskManager.AppendTask(*task_array[task_index]);
+            } else {
+                task_array[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
+                TaskManager.AppendTask(*task_array[task_index]);
+            }
         }
     }
 }

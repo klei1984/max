@@ -581,8 +581,9 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, 
                 if (target_unit->IsVisibleToTeam(unit->team) || distance <= scan) {
                     if (unit->unit_type == COMMANDO && !unit->IsVisibleToTeam(target_unit->team)) {
                         if (!AiAttack_IsValidSabotageTarget(unit, target_unit) ||
-                            UnitsManager_GetStealthChancePercentage(unit, target_unit, ORDER_AWAIT_DISABLE_UNIT) <=
-                                85) {
+                            (UnitsManager_GetStealthChancePercentage(unit, target_unit, ORDER_AWAIT_DISABLE_UNIT) <=
+                                 85 &&
+                             target_unit->orders != ORDER_DISABLE)) {
                             continue;
                         }
 
