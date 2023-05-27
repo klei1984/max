@@ -734,6 +734,8 @@ void GameManager_GameLoop(int game_state) {
         GameManager_DemoMode = false;
     }
 
+    AiLog log("Main Game Loop.");
+
     GameManager_GameSetup(game_state);
 
     turn_counter = GameManager_TurnCounter;
@@ -767,7 +769,12 @@ void GameManager_GameLoop(int game_state) {
                 }
             }
 
+            log.Log("Concurrent team turn.");
+
             GameManager_UpdateGui(GameManager_PlayerTeam, game_state, true);
+
+            log.Log("Waiting for all teams to end turn.");
+
             GameManager_EnableMainMenu(nullptr);
 
             if (GameManager_GameState == GAME_STATE_9_END_TURN && !GameManager_AreTeamsFinishedTurn()) {
@@ -786,10 +793,14 @@ void GameManager_GameLoop(int game_state) {
                 GameManager_PlayMode = PLAY_MODE_UNKNOWN;
                 GameManager_ResetRenderState();
 
+                log.Log("Waiting for units to finish moving.  Game status = %i.", GameManager_GameState);
+
                 while (GameManager_GameState == GAME_STATE_9_END_TURN && Access_AreTaskEventsPending()) {
                     GameManager_ProgressTurn();
                 }
             }
+
+            log.Log("Getting ready for next turn.  Game status = %i.", GameManager_GameState);
 
             GameManager_PlayMode = PLAY_MODE_SIMULTANEOUS_MOVES;
 
@@ -799,6 +810,8 @@ void GameManager_GameLoop(int game_state) {
                 game_state = GAME_STATE_10;
                 GameManager_GameState = GAME_STATE_8_IN_GAME;
             } else if (GameManager_GameState == GAME_STATE_9_END_TURN) {
+                log.Log("Resetting units.");
+
                 for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                     if (UnitsManager_TeamInfo[team].finished_turn) {
                         GameManager_ManageEconomy(team);
@@ -858,6 +871,9 @@ void GameManager_GameLoop(int game_state) {
 
         if (GameManager_GameState == GAME_STATE_9_END_TURN) {
             GameManager_GameState = GAME_STATE_8_IN_GAME;
+
+            log.Log("Checking victory conditions.");
+
             if (menu_check_end_game_conditions(GameManager_TurnCounter, turn_counter, GameManager_DemoMode)) {
                 break;
             }
@@ -866,6 +882,8 @@ void GameManager_GameLoop(int game_state) {
                 UnitsManager_TeamInfo[team].finished_turn = false;
             }
 
+            log.Log("End turn %i.", GameManager_TurnCounter);
+
             GameManager_UpdateScoreGraph();
 
             ++GameManager_TurnCounter;
@@ -873,6 +891,8 @@ void GameManager_GameLoop(int game_state) {
             GameManager_AnnounceWinner(team_winner);
         }
     }
+
+    log.Log("Game loop end.");
 
     GameManager_GameLoopCleanup();
 
