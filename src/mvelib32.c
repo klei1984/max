@@ -28,8 +28,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #elif defined(_WIN32)
-#include <Windows.h>
 #include <memoryapi.h>
+#include <windows.h>
 #else
 #error "Platform is not supported"
 #endif /* defined(platform) */

@@ -23,6 +23,7 @@
 #define SMARTPOINTER_HPP
 
 #include <SDL_assert.h>
+#include <stdint.h>
 
 #include <new>
 
