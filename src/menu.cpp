@@ -310,7 +310,7 @@ static const struct CreditsLine menu_credits_lines[] = {
     CREDITS_TEXT("Apple's Animation"),
     CREDITS_SEPARATOR,
     CREDITS_TITLE(_(c5af)),
-    CREDITS_TEXT("Albert LIoyd Olson for Four Bars Entertainment"),
+    CREDITS_TEXT("Albert Olsen for Four Bars Intertainment"),
     CREDITS_SEPARATOR,
     CREDITS_TITLE(_(9376)),
     CREDITS_TEXT("David Farmer"),
