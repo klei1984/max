@@ -118,9 +118,7 @@ void TaskManageBuildings::BuildBridge(Point site, Task* task) {
     SmartPointer<TaskCreateBuilding> create_building_task(
         new (std::nothrow) TaskCreateBuilding(task, task->GetFlags(), BRIDGE, site, this));
 
-    tasks.PushBack(*create_building_task);
-
-    TaskManager.AppendTask(*create_building_task);
+    AddCreateOrder(&*create_building_task);
 }
 
 void TaskManageBuildings::FillMap(unsigned short** construction_map, int ulx, int uly, int lrx, int lry,
@@ -1304,9 +1302,7 @@ void TaskManageBuildings::MakeConnectors(int ulx, int uly, int lrx, int lry, Tas
             SmartPointer<TaskCreateBuilding> create_building_task(
                 new (std::nothrow) TaskCreateBuilding(task, 0x800, CNCT_4W, site, this));
 
-            tasks.PushBack(*create_building_task);
-
-            TaskManager.AppendTask(*create_building_task);
+            AddCreateOrder(&*create_building_task);
         }
     }
 }
@@ -2334,9 +2330,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, unsig
                     SmartPointer<TaskCreateBuilding> create_building_task(
                         new (std::nothrow) TaskCreateBuilding(task, task_flags, unit_type, site, this));
 
-                    tasks.PushBack(*create_building_task);
-
-                    TaskManager.AppendTask(*create_building_task);
+                    AddCreateOrder(&*create_building_task);
 
                     result = true;
 
