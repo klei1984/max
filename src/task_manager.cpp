@@ -685,6 +685,8 @@ void TaskManager::RemoveTask(Task& task) {
         unit_requests.Remove(*dynamic_cast<TaskObtainUnits*>(&task));
     }
 
+    AiLog log("Task Manager: remove task '%s'.", TaskManager_GetTaskName(&task));
+
     tasks.Remove(task);
 }
 
