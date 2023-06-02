@@ -150,7 +150,7 @@ void PathsManager::RemoveRequest(PathRequest *path_request) {
     /// the smart pointer is required to avoid premature destruction of the held object
     SmartPointer<PathRequest> protect_request(path_request);
 
-    if (request == path_request) {
+    if (request == protect_request) {
         delete forward_searcher;
         forward_searcher = nullptr;
 
@@ -160,14 +160,19 @@ void PathsManager::RemoveRequest(PathRequest *path_request) {
         request = nullptr;
     }
 
-    requests.Remove(*path_request);
+    AiLog log("Remove path request for %s.",
+              UnitsManager_BaseUnits[protect_request->GetClient()->unit_type].singular_name);
 
-    path_request->Cancel();
+    protect_request->Cancel();
+    requests.Remove(*protect_request);
 }
 
 void PathsManager::RemoveRequest(UnitInfo *unit) {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
         if ((*it).GetClient() == unit) {
+            AiLog log("Remove path request for %s.",
+                      UnitsManager_BaseUnits[(*it).GetClient()->unit_type].singular_name);
+
             (*it).Cancel();
             requests.Remove(it);
         }
