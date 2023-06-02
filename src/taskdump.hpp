@@ -28,12 +28,12 @@
 
 class TaskDump : public Task {
     SmartPointer<TaskMove> task_move;
-    SmartPointer<UnitInfo> unit;
-    short field_27;
+    SmartPointer<UnitInfo> transporter_unit;
+    short steps_limit;
     short direction;
-    short field_31;
+    short steps_counter;
     Point destination;
-    char field_37;
+    bool keep_searching;
 
     static void TaskDump_PathResultCallback(Task* task, PathRequest* request, Point destination, GroundPath* path,
                                             unsigned char result);
@@ -43,7 +43,7 @@ class TaskDump : public Task {
     void RemoveTask();
 
 public:
-    TaskDump(TaskTransport* task_transport, TaskMove* task_move, UnitInfo* unit);
+    TaskDump(TaskTransport* task_transport, TaskMove* task_move, UnitInfo* transporter);
     ~TaskDump();
 
     int GetMemoryUse() const;

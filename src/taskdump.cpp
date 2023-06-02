@@ -29,8 +29,19 @@
 #include "taskpathrequest.hpp"
 #include "units_manager.hpp"
 
-TaskDump::TaskDump(TaskTransport* task_transport, TaskMove* task_move_, UnitInfo* unit_)
-    : Task(task_move_->GetTeam(), task_transport, task_move_->GetFlags()), unit(unit_), task_move(task_move_) {}
+TaskDump::TaskDump(TaskTransport* task_transport, TaskMove* task_move_, UnitInfo* transporter)
+    : Task(task_move_->GetTeam(), task_transport, task_move_->GetFlags()),
+      transporter_unit(transporter),
+      task_move(task_move_) {
+    steps_limit = 2;
+    steps_counter = 2;
+    direction = 0;
+
+    destination.x = transporter_unit->grid_x - 1;
+    destination.y = transporter_unit->grid_y + 1;
+
+    keep_searching = 0;
+}
 
 TaskDump::~TaskDump() {}
 
@@ -62,7 +73,7 @@ void TaskDump::Search() {
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    if (unit->unit_type == AIRTRANS) {
+    if (transporter_unit->unit_type == AIRTRANS) {
         minimum_distance = 0;
 
     } else {
@@ -74,32 +85,32 @@ void TaskDump::Search() {
     AiLog log("Dump %s: search for position.", UnitsManager_BaseUnits[passenger->unit_type].singular_name);
 
     for (;;) {
-        if (--field_31 <= 0) {
+        if (--steps_counter < 0) {
             direction += 2;
 
             if (direction >= 8) {
-                if (!field_37) {
+                if (!keep_searching) {
                     RemoveTask();
 
                     return;
                 }
 
-                field_27 += 2;
-                field_37 = 0;
+                steps_limit += 2;
+                keep_searching = false;
                 direction = 0;
             }
 
-            field_31 = field_27;
+            steps_counter = steps_limit;
         }
 
         destination += Paths_8DirPointsArray[direction];
 
         if (Access_IsInsideBounds(&bounds, &destination)) {
-            field_37 = 1;
+            keep_searching = true;
 
             if (Access_IsAccessible(passenger->unit_type, team, destination.x, destination.y, 0x01)) {
                 if (!Ai_IsDangerousLocation(&*passenger, destination, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
-                    TaskPathRequest* request = new (std::nothrow) TaskPathRequest(&*unit, 1, destination);
+                    TaskPathRequest* request = new (std::nothrow) TaskPathRequest(&*transporter_unit, 1, destination);
 
                     request->SetMinimumDistance(minimum_distance);
                     request->SetCautionLevel(CAUTION_LEVEL_AVOID_ALL_DAMAGE);
@@ -118,8 +129,8 @@ void TaskDump::Search() {
 }
 
 void TaskDump::RemoveTask() {
-    unit->RemoveTask(this);
-    unit = nullptr;
+    transporter_unit->RemoveTask(this);
+    transporter_unit = nullptr;
     task_move = nullptr;
     parent = nullptr;
     TaskManager.RemoveTask(*this);
@@ -145,32 +156,32 @@ char* TaskDump::WriteStatusLog(char* buffer) const {
 unsigned char TaskDump::GetType() const { return TaskType_TaskDump; }
 
 void TaskDump::Begin() {
-    unit->AddTask(this);
-    field_27 = 2;
+    transporter_unit->AddTask(this);
+    steps_limit = 2;
+    steps_counter = 2;
     direction = 0;
-    field_31 = 2;
 
-    destination.x = unit->grid_x - 1;
-    destination.y = unit->grid_y + 1;
+    destination.x = transporter_unit->grid_x - 1;
+    destination.y = transporter_unit->grid_y + 1;
 
-    field_37 = 0;
+    keep_searching = 0;
 
     Search();
 }
 
 void TaskDump::RemoveSelf() {
-    if (unit != nullptr) {
-        TaskManager.RemindAvailable(&*unit);
+    if (transporter_unit != nullptr) {
+        TaskManager.RemindAvailable(&*transporter_unit);
     }
 
-    unit = nullptr;
+    transporter_unit = nullptr;
     task_move = nullptr;
     parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 
 void TaskDump::RemoveUnit(UnitInfo& unit_) {
-    if (unit == &unit_ || (task_move && task_move->GetPassenger() == &unit_)) {
+    if (transporter_unit == &unit_ || (task_move && task_move->GetPassenger() == &unit_)) {
         RemoveTask();
     }
 }
