@@ -97,7 +97,9 @@ void TaskDump::Search() {
 
                 steps_limit += 2;
                 keep_searching = false;
+
                 direction = 0;
+                destination += Point(-1, 1);
             }
 
             steps_counter = steps_limit;
