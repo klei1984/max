@@ -290,10 +290,9 @@ void TaskTransport::AddClient(TaskMove* move) {
 void TaskTransport::RemoveClient(TaskMove* move) {
     if (move->GetPassenger()) {
         if (move->GetPassenger()->orders != ORDER_IDLE) {
-            move->RemoveTransport(false);
+            move->RemoveTransport();
         }
 
-        SDL_assert(move->GetPassenger());
         move->GetPassenger()->RemoveFromTask2List(this);
     }
 
@@ -613,7 +612,7 @@ void TaskTransport::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
     AiLog log("Transport: %s Unloaded.", UnitsManager_BaseUnits[unit2.unit_type].singular_name);
 
     if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
-        dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport(true);
+        dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport();
     }
 
     Task_RemindMoveFinished(&unit2, true);

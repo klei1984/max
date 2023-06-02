@@ -145,14 +145,7 @@ ResourceID TaskMove::GetTransporterType() const { return transporter_unit_type; 
 
 Point TaskMove::GetTransporterWaypoint() const { return transport_waypoint; }
 
-void TaskMove::RemoveTransport(bool mode) {
-    if (transporter_unit_type == CLNTRANS && !mode) {
-        AttemptTransportType(AIRTRANS);
-
-    } else {
-        transporter_unit_type = INVALID_ID;
-    }
-}
+void TaskMove::RemoveTransport() { transporter_unit_type = INVALID_ID; }
 
 void TaskMove::AddUnit(UnitInfo& unit) {
     AiLog log("Move: add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
@@ -496,7 +489,9 @@ void TaskMove::Finished(int result) {
 
         passenger->RemoveTask(this, false);
 
-        result_callback(&*parent, &*passenger, result);
+        if (parent) {
+            result_callback(&*parent, &*passenger, result);
+        }
     }
 
     AiLog("Move: Remove passenger (finish).");

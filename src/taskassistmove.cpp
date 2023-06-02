@@ -327,7 +327,7 @@ void TaskAssistMove::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) { Task_Remin
 
 void TaskAssistMove::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
     if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
-        dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport(true);
+        dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport();
     }
 
     Task_RemindMoveFinished(&unit1);

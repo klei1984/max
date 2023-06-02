@@ -104,7 +104,7 @@ public:
     void SetDestination(Point site);
     ResourceID GetTransporterType() const;
     Point GetTransporterWaypoint() const;
-    void RemoveTransport(bool mode);
+    void RemoveTransport();
     bool IsReadyForTransport();
 
     static UnitInfo* FindUnit(SmartList<UnitInfo>* units, unsigned short team, ResourceID unit_type);
