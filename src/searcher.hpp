@@ -39,6 +39,7 @@ class Searcher {
     unsigned char **directions_map;
     unsigned short *distance_vector;
     short line_distance_max;
+    int line_distance_limit;
     ObjectArray<PathSquare> squares;
     Point destination;
     unsigned char mode;

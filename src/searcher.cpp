@@ -122,18 +122,16 @@ Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) 
     }
 
     {
-        int array_size;
-
         if (map_size.x <= map_size.y) {
-            array_size = map_size.y * 2 + map_size.x;
+            line_distance_limit = map_size.y * 2 + map_size.x + 1;
 
         } else {
-            array_size = map_size.x * 2 + map_size.y;
+            line_distance_limit = map_size.x * 2 + map_size.y + 1;
         }
 
-        distance_vector = new (std::nothrow) unsigned short[array_size];
+        distance_vector = new (std::nothrow) unsigned short[line_distance_limit];
 
-        for (int i = 0; i < array_size; ++i) {
+        for (int i = 0; i < line_distance_limit; ++i) {
             distance_vector[i] = 0x7FFF;
         }
 
@@ -265,6 +263,8 @@ void Searcher::UpdateCost(Point point1, Point point2, int cost) {
 
     if (line_distance > line_distance_max) {
         line_distance_max = line_distance;
+
+        SDL_assert(line_distance_limit > line_distance_max);
     }
 
     while (cost < distance_vector[line_distance]) {
