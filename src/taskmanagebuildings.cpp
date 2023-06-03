@@ -1133,7 +1133,48 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                 result = true;
 
             } else {
-                result = false;
+                int unit_count = Access_GetUnitCount(team, MOBILE_LAND_UNIT | ELECTRONIC_UNIT);
+                int shop_capacity =
+                    UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(DEPOT)->GetAttribute(ATTRIB_STORAGE);
+
+                if (GetUnitCount(DEPOT, 0x1400) < (unit_count / (shop_capacity * 2)) &&
+                    CreateBuilding(DEPOT, this, 0x1400)) {
+                    result = true;
+
+                } else {
+                    unit_count = Access_GetUnitCount(team, MOBILE_AIR_UNIT);
+                    shop_capacity =
+                        UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(HANGAR)->GetAttribute(ATTRIB_STORAGE);
+
+                    if (GetUnitCount(HANGAR, 0x1400) < (unit_count / (shop_capacity * 2)) &&
+                        CreateBuilding(HANGAR, this, 0x1400)) {
+                        result = true;
+
+                    } else {
+                        unit_count = Access_GetUnitCount(team, MOBILE_SEA_UNIT);
+                        shop_capacity = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(DOCK)->GetAttribute(
+                            ATTRIB_STORAGE);
+
+                        if (GetUnitCount(DOCK, 0x1400) < (unit_count / (shop_capacity * 2)) &&
+                            CreateBuilding(DOCK, this, 0x1400)) {
+                            result = true;
+
+                        } else {
+                            unit_count = Access_GetUnitCount(team, MOBILE_LAND_UNIT);
+                            shop_capacity =
+                                UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(BARRACKS)->GetAttribute(
+                                    ATTRIB_STORAGE);
+
+                            if (GetUnitCount(BARRACKS, 0x1D00) < (unit_count / (shop_capacity * 2)) &&
+                                CreateBuilding(BARRACKS, this, 0x1D00)) {
+                                result = true;
+
+                            } else {
+                                result = false;
+                            }
+                        }
+                    }
+                }
             }
         }
 
