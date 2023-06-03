@@ -33,7 +33,7 @@ bool TaskPathRequest::PathRequest_Vfunc1() {
 
     if (field_30 && find_path != nullptr && AiPlayer_Teams[find_path->GetTeam()].MatchPath(this)) {
         find_path = nullptr;
-        unit1 = nullptr;
+        client = nullptr;
 
         result = true;
 
@@ -47,15 +47,15 @@ bool TaskPathRequest::PathRequest_Vfunc1() {
 void TaskPathRequest::Cancel() {
     find_path->CancelRequest();
     find_path = nullptr;
-    unit1 = nullptr;
+    client = nullptr;
 }
 
 void TaskPathRequest::Finish(GroundPath* path) {
-    Point position(unit1->grid_x, unit1->grid_y);
+    Point position(client->grid_x, client->grid_y);
 
     find_path->Finish(position, path, false);
     find_path = nullptr;
-    unit1 = nullptr;
+    client = nullptr;
 }
 
 void TaskPathRequest::AssignPathFindTask(TaskFindPath* task) { find_path = task; }
@@ -70,5 +70,5 @@ bool TaskPathRequest::GetField31() const { return field_31; }
 void TaskPathRequest::Complete(Point position, GroundPath* path) {
     find_path->Finish(position, path, true);
     find_path = nullptr;
-    unit1 = nullptr;
+    client = nullptr;
 }

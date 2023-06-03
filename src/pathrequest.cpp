@@ -29,9 +29,9 @@
 
 const char* PathRequest_CautionLevels[] = {"none", "avoid reaction fire", "avoid next turn's fire", "avoid all damage"};
 
-PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : unit1(unit), point(point), flags(mode) {
-    AiLog log("Path request for %s at [%i,%i].", UnitsManager_BaseUnits[unit1->unit_type].singular_name,
-              unit1->grid_x + 1, unit1->grid_y + 1);
+PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : client(unit), point(point), flags(mode) {
+    AiLog log("Path request for %s at [%i,%i].", UnitsManager_BaseUnits[client->unit_type].singular_name,
+              client->grid_x + 1, client->grid_y + 1);
 
     max_cost = INT16_MAX;
     minimum_distance = 0;
@@ -42,9 +42,9 @@ PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : unit1(unit), p
 
 PathRequest::~PathRequest() {}
 
-UnitInfo* PathRequest::GetClient() const { return &*unit1; }
+UnitInfo* PathRequest::GetClient() const { return &*client; }
 
-UnitInfo* PathRequest::GetTransporter() const { return &*unit2; }
+UnitInfo* PathRequest::GetTransporter() const { return &*transporter; }
 
 Point PathRequest::GetDestination() const { return point; }
 
@@ -53,13 +53,14 @@ unsigned char PathRequest::GetCautionLevel() const { return caution_level; }
 bool PathRequest::PathRequest_Vfunc1() { return false; }
 
 void PathRequest::Cancel() {
-    if (unit1->hits &&
-        (unit1->orders == ORDER_MOVE || unit1->orders == ORDER_MOVE_TO_UNIT || unit1->orders == ORDER_MOVE_TO_ATTACK) &&
-        unit1->state == ORDER_STATE_NEW_ORDER) {
-        UnitsManager_SetNewOrder(&*unit1, unit1->orders, ORDER_STATE_12);
+    if (client->hits &&
+        (client->orders == ORDER_MOVE || client->orders == ORDER_MOVE_TO_UNIT ||
+         client->orders == ORDER_MOVE_TO_ATTACK) &&
+        client->state == ORDER_STATE_NEW_ORDER) {
+        UnitsManager_SetNewOrder(&*client, client->orders, ORDER_STATE_12);
     }
 
-    Access_ProcessNewGroupOrder(&*unit1);
+    Access_ProcessNewGroupOrder(&*client);
 }
 
 void PathRequest::SetMaxCost(int value) {
@@ -96,10 +97,10 @@ void PathRequest::CreateTransport(ResourceID unit_type) {
     if (unit_type != INVALID_ID) {
         AiLog log("Use %s.", UnitsManager_BaseUnits[unit_type].singular_name);
 
-        unit2 = new (std::nothrow) UnitInfo(unit_type, unit1->team, 0xFFFF);
+        transporter = new (std::nothrow) UnitInfo(unit_type, client->team, 0xFFFF);
 
     } else {
-        unit2 = nullptr;
+        transporter = nullptr;
     }
 }
 
@@ -142,82 +143,82 @@ void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
 }
 
 void PathRequest::Finish(GroundPath* path) {
-    if (unit1->hits > 0 &&
-        (unit1->orders == ORDER_MOVE || unit1->orders == ORDER_MOVE_TO_UNIT || unit1->orders == ORDER_BUILD ||
-         unit1->orders == ORDER_MOVE_TO_ATTACK) &&
-        (unit1->state == ORDER_STATE_NEW_ORDER || unit1->state == ORDER_STATE_29)) {
-        unsigned char unit1_order_state = unit1->state;
+    if (client->hits > 0 &&
+        (client->orders == ORDER_MOVE || client->orders == ORDER_MOVE_TO_UNIT || client->orders == ORDER_BUILD ||
+         client->orders == ORDER_MOVE_TO_ATTACK) &&
+        (client->state == ORDER_STATE_NEW_ORDER || client->state == ORDER_STATE_29)) {
+        unsigned char unit1_order_state = client->state;
 
-        unit1->path = path;
+        client->path = path;
 
-        if (unit1->orders == ORDER_MOVE_TO_ATTACK && path != nullptr) {
-            AssignGroundPath(&*unit1, path);
+        if (client->orders == ORDER_MOVE_TO_ATTACK && path != nullptr) {
+            AssignGroundPath(&*client, path);
         }
 
-        if (unit1->path == nullptr) {
-            if (unit1->orders == ORDER_MOVE_TO_ATTACK) {
-                int range = unit1->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+        if (client->path == nullptr) {
+            if (client->orders == ORDER_MOVE_TO_ATTACK) {
+                int range = client->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                 range = range * range;
 
-                if (Access_GetDistance(&*unit1, Point(unit1->target_grid_x, unit1->target_grid_y)) <= range) {
-                    UnitsManager_SetNewOrder(&*unit1, ORDER_MOVE_TO_ATTACK, ORDER_STATE_1);
-                    unit1->RefreshScreen();
-                    Access_ProcessNewGroupOrder(&*unit1);
+                if (Access_GetDistance(&*client, Point(client->target_grid_x, client->target_grid_y)) <= range) {
+                    UnitsManager_SetNewOrder(&*client, ORDER_MOVE_TO_ATTACK, ORDER_STATE_1);
+                    client->RefreshScreen();
+                    Access_ProcessNewGroupOrder(&*client);
 
                     return;
                 }
             }
 
-            unit1->BlockedOnPathRequest(false);
+            client->BlockedOnPathRequest(false);
 
             if (Remote_IsNetworkGame) {
-                Remote_SendNetPacket_41(&*unit1);
+                Remote_SendNetPacket_41(&*client);
             }
 
-            if (unit1->GetUnitList() && unit1_order_state == ORDER_STATE_NEW_ORDER) {
-                unit1->ClearUnitList();
+            if (client->GetUnitList() && unit1_order_state == ORDER_STATE_NEW_ORDER) {
+                client->ClearUnitList();
             }
 
-            if (GameManager_SelectedUnit == unit1) {
+            if (GameManager_SelectedUnit == client) {
                 SoundManager.PlayVoice(V_M094, V_F095);
             }
 
         } else {
-            if (unit1->orders == ORDER_BUILD) {
+            if (client->orders == ORDER_BUILD) {
                 if (Remote_IsNetworkGame) {
-                    Remote_SendNetPacket_38(&*unit1);
+                    Remote_SendNetPacket_38(&*client);
                 }
 
-                UnitsManager_StartBuild(&*unit1);
+                UnitsManager_StartBuild(&*client);
 
-            } else if (unit1->state == ORDER_STATE_29) {
-                if (unit1->orders == ORDER_MOVE_TO_ATTACK) {
-                    unit1->state = ORDER_STATE_1;
+            } else if (client->state == ORDER_STATE_29) {
+                if (client->orders == ORDER_MOVE_TO_ATTACK) {
+                    client->state = ORDER_STATE_1;
 
                 } else {
-                    unit1->RestoreOrders();
+                    client->RestoreOrders();
                 }
 
                 if (Remote_IsNetworkGame) {
-                    Remote_SendNetPacket_38(&*unit1);
+                    Remote_SendNetPacket_38(&*client);
                 }
 
                 GameManager_UpdateDrawBounds();
 
-            } else if (unit1->GetUnitList()) {
+            } else if (client->GetUnitList()) {
                 if (Remote_IsNetworkGame) {
-                    Remote_SendNetPacket_38(&*unit1);
+                    Remote_SendNetPacket_38(&*client);
                 }
 
-                Access_ProcessNewGroupOrder(&*unit1);
+                Access_ProcessNewGroupOrder(&*client);
 
             } else {
-                unit1->Redraw();
-                unit1->state = ORDER_STATE_5;
+                client->Redraw();
+                client->state = ORDER_STATE_5;
 
                 if (Remote_IsNetworkGame) {
-                    Remote_SendNetPacket_38(&*unit1);
+                    Remote_SendNetPacket_38(&*client);
                 }
             }
         }

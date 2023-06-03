@@ -25,7 +25,7 @@
 #include "unitinfo.hpp"
 
 class PathRequest : public SmartObject {
-    SmartPointer<UnitInfo> unit2;
+    SmartPointer<UnitInfo> transporter;
     Point point;
     unsigned char flags;
     unsigned short max_cost;
@@ -37,7 +37,7 @@ class PathRequest : public SmartObject {
     static void AssignGroundPath(UnitInfo* unit, GroundPath* path);
 
 protected:
-    SmartPointer<UnitInfo> unit1;
+    SmartPointer<UnitInfo> client;
 
 public:
     PathRequest(UnitInfo* unit, int mode, Point point);
