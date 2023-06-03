@@ -4099,7 +4099,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     unit_to_destroy->path = nullptr;
 
     unit->RemoveTasks();
-    unit->ProcessTaskList();
+    unit->RemoveDelayedTasks();
 
     Hash_MapHash.Remove(unit);
 
@@ -4283,7 +4283,7 @@ void UnitsManager_FinishUnitScaling(UnitInfo* unit) {
             ++parent->storage;
 
             if (parent->flags & STATIONARY) {
-                unit->AddReminders(true);
+                unit->ScheduleDelayedTasks(true);
 
             } else if (parent->GetTask()) {
                 parent->GetTask()->Task_vfunc24(*parent, *unit);
@@ -4349,7 +4349,7 @@ void UnitsManager_PerformAutoSurvey(UnitInfo* unit) {
                     Ai_EnableAutoSurvey(unit);
                 }
 
-                unit->AddReminders(false);
+                unit->ScheduleDelayedTasks(false);
             }
         }
     }
@@ -4915,7 +4915,7 @@ void UnitsManager_ProcessOrderAwaitScaling(UnitInfo* unit) {
                     unit->GetTask()->AddUnit(*unit);
                 }
 
-                unit->AddReminders(true);
+                unit->ScheduleDelayedTasks(true);
             }
         } break;
 
@@ -4997,7 +4997,7 @@ void UnitsManager_ProcessOrderLayMine(UnitInfo* unit) {
     }
 
     unit->RestoreOrders();
-    unit->AddReminders(true);
+    unit->ScheduleDelayedTasks(true);
 }
 
 void UnitsManager_ProcessOrder(UnitInfo* unit) {
@@ -5433,7 +5433,7 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
                 }
 
             } else {
-                unit->AddReminders(true);
+                unit->ScheduleDelayedTasks(true);
                 enemy_unit = nullptr;
             }
         }
@@ -5480,7 +5480,7 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
 
                 UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_CLEAR_PATH);
 
-                unit->AddReminders(false);
+                unit->ScheduleDelayedTasks(false);
 
                 if (GameManager_SelectedUnit == unit) {
                     GameManager_UpdateInfoDisplay(unit);
@@ -6153,7 +6153,7 @@ void UnitsManager_Repair(UnitInfo* unit) {
         GameManager_UpdateInfoDisplay(unit);
     }
 
-    parent->AddReminders(true);
+    parent->ScheduleDelayedTasks(true);
 }
 
 void UnitsManager_Transfer(UnitInfo* unit) {

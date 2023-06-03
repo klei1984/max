@@ -164,13 +164,13 @@ void TaskEscort::AddUnit(UnitInfo& unit) {
     if (!escort && unit_type == unit.unit_type && target) {
         escort = unit;
         escort->AddTask(this);
-        escort->AddReminders(true);
+        escort->ScheduleDelayedTasks(true);
         is_escort_requested = 0;
     }
 }
 
 void TaskEscort::Begin() {
-    target->PushBackTask2List(this);
+    target->AddDelayedTask(this);
     RemindTurnStart(true);
 }
 
@@ -294,7 +294,7 @@ void TaskEscort::RemoveSelf() {
     }
 
     if (target) {
-        target->RemoveFromTask2List(this);
+        target->RemoveDelayedTask(this);
     }
 
     target = nullptr;

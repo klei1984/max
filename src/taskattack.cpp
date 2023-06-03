@@ -301,9 +301,9 @@ bool TaskAttack::Task_vfunc16(UnitInfo& unit) {
             SmartPointer<UnitInfo> copy(recon_unit);
 
             if (leader == recon_unit) {
-                leader->RemoveFromTask2List(this);
+                leader->RemoveDelayedTask(this);
                 leader = unit;
-                leader->PushBackTask2List(this);
+                leader->AddDelayedTask(this);
             }
 
             recon_unit = unit;
@@ -372,7 +372,7 @@ void TaskAttack::RemoveSelf() {
     }
 
     if (leader) {
-        leader->RemoveFromTask2List(this);
+        leader->RemoveDelayedTask(this);
         TaskManager.RemindAvailable(&*leader);
     }
 
@@ -399,7 +399,7 @@ void TaskAttack::RemoveUnit(UnitInfo& unit) {
     }
 
     if (leader == unit) {
-        leader->RemoveFromTask2List(this);
+        leader->RemoveDelayedTask(this);
         leader = nullptr;
         leader_task = nullptr;
     }
@@ -615,11 +615,11 @@ UnitInfo* TaskAttack::DetermineLeader() {
         }
 
         if (candidate) {
-            candidate->RemoveFromTask2List(this);
+            candidate->RemoveDelayedTask(this);
         }
 
         if (leader) {
-            leader->PushBackTask2List(this);
+            leader->AddDelayedTask(this);
         }
 
         result = &*leader;

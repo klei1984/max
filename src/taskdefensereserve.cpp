@@ -205,7 +205,7 @@ void TaskDefenseReserve::AddUnit(UnitInfo& unit) {
     for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         if (managers[i].AddUnit(&unit)) {
             unit.AddTask(this);
-            unit.AddReminders(false);
+            unit.ScheduleDelayedTasks(false);
 
             return;
         }

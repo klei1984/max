@@ -679,7 +679,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       unit_list(other.unit_list),
       parent_unit(other.parent_unit),
       enemy_unit(other.enemy_unit),
-      task_list1(other.task_list1),
+      tasks(other.tasks),
       in_transit(other.in_transit),
       last_target(other.last_target),
       pin_count(other.pin_count),
@@ -1187,16 +1187,16 @@ void UnitInfo::AddTask(Task* task) {
 
     AiLog log("Adding task to %s: %s", UnitsManager_BaseUnits[unit_type].singular_name, task->WriteStatusLog(text));
 
-    task_list1.PushFront(*task);
+    tasks.PushFront(*task);
 
     if (old_task) {
         log.Log("Old topmost task: %s", old_task->WriteStatusLog(text));
     }
 }
 
-void UnitInfo::AddReminders(bool priority) {
+void UnitInfo::ScheduleDelayedTasks(bool priority) {
     if (field_165) {
-        for (SmartList<Task>::Iterator it = task_list2.Begin(); it; ++it) {
+        for (SmartList<Task>::Iterator it = delayed_tasks.Begin(); it; ++it) {
             (*it).RemindTurnEnd(true);
         }
     }
@@ -1209,8 +1209,8 @@ void UnitInfo::AddReminders(bool priority) {
 Task* UnitInfo::GetTask() const {
     Task* task;
 
-    if (task_list1.GetCount()) {
-        task = &task_list1[0];
+    if (tasks.GetCount()) {
+        task = &tasks[0];
     } else {
         task = nullptr;
     }
@@ -1218,7 +1218,7 @@ Task* UnitInfo::GetTask() const {
     return task;
 }
 
-SmartList<Task>::Iterator UnitInfo::GetTasks() { return task_list1.Begin(); }
+SmartList<Task>::Iterator UnitInfo::GetTasks() { return tasks.Begin(); }
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
 
@@ -1860,11 +1860,11 @@ void UnitInfo::UpdatePinCount(int grid_x, int grid_y, int pin_units) {
 }
 
 void UnitInfo::RemoveTasks() {
-    SmartList<Task> tasks(task_list1);
+    SmartList<Task> backup_tasks(tasks);
 
-    task_list1.Clear();
+    tasks.Clear();
 
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (SmartList<Task>::Iterator it = backup_tasks.Begin(); it != backup_tasks.End(); ++it) {
         (*it).RemoveUnit(*this);
     }
 }
@@ -2050,12 +2050,12 @@ void UnitInfo::GainExperience(int experience) {
     }
 }
 
-void UnitInfo::ProcessTaskList() {
-    for (SmartList<Task>::Iterator it = task_list2.Begin(); it != task_list2.End(); ++it) {
+void UnitInfo::RemoveDelayedTasks() {
+    for (SmartList<Task>::Iterator it = delayed_tasks.Begin(); it != delayed_tasks.End(); ++it) {
         (*it).RemoveUnit(*this);
     }
 
-    task_list2.Clear();
+    delayed_tasks.Clear();
 }
 
 void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) {
@@ -2081,7 +2081,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) 
         hits -= attack_damage;
 
         if (hits > 0) {
-            AddReminders(true);
+            ScheduleDelayedTasks(true);
 
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
                 Ai_AddUnitToTrackerList(this);
@@ -2097,7 +2097,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) 
             UnitsManager_UnitList6.Remove(*this);
 
             RemoveTasks();
-            ProcessTaskList();
+            RemoveDelayedTasks();
 
             Ai_RemoveUnit(this);
 
@@ -3832,7 +3832,7 @@ void UnitInfo::SpawnNewUnit() {
             state = ORDER_STATE_UNIT_READY;
 
             DrawSpriteFrame(image_base);
-            AddReminders(true);
+            ScheduleDelayedTasks(true);
 
         } else {
             if (GameManager_SelectedUnit == this) {
@@ -3951,7 +3951,7 @@ void UnitInfo::MoveFinished(bool mode) {
     velocity = 0;
     moved = 0;
 
-    AddReminders(true);
+    ScheduleDelayedTasks(true);
 
     if (unit_type == INFANTRY) {
         UpdateSpriteFrame(0, image_index_max);
@@ -4022,14 +4022,14 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
     if (unit_task) {
         SmartPointer<Task> reference_task;
 
-        task_list1.Remove(*task);
+        tasks.Remove(*task);
 
         reference_task = GetTask();
 
         if (unit_task == reference_task) {
             log.Log("No change in top task (%s)", unit_task->WriteStatusLog(text));
 
-        } else if (task_list1.GetCount() > 0) {
+        } else if (tasks.GetCount() > 0) {
             log.Log("New topmost task: %s", reference_task->WriteStatusLog(text));
 
             if (mode && Task_IsReadyToTakeOrders(this)) {
@@ -4038,7 +4038,7 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
         }
 
     } else {
-        SDL_assert(task_list1.GetCount() == 0);
+        SDL_assert(tasks.GetCount() == 0);
 
         log.Log("Unit has no tasks!");
     }
@@ -4068,9 +4068,9 @@ void UnitInfo::RestoreOrders() {
     state = prior_state;
 }
 
-void UnitInfo::PushBackTask2List(Task* task) { task_list2.PushBack(*task); }
+void UnitInfo::AddDelayedTask(Task* task) { delayed_tasks.PushBack(*task); }
 
-void UnitInfo::RemoveFromTask2List(Task* task) { task_list2.Remove(*task); }
+void UnitInfo::RemoveDelayedTask(Task* task) { delayed_tasks.Remove(*task); }
 
 bool UnitInfo::AreTherePins() { return pin_count > 0; }
 
@@ -4589,7 +4589,7 @@ void UnitInfo::Upgrade(UnitInfo* parent) {
         GameManager_MenuUnitSelect(parent);
     }
 
-    parent->AddReminders(true);
+    parent->ScheduleDelayedTasks(true);
 }
 
 void UnitInfo::BusyWaitOrder() {
@@ -4993,7 +4993,7 @@ void UnitInfo::ProgressFire() {
         }
 
         if (speed > 0) {
-            AddReminders(true);
+            ScheduleDelayedTasks(true);
         }
     }
 }

@@ -132,7 +132,7 @@ public:
     void UpdateAngle(unsigned short image_index);
     void AddToDrawList(unsigned int override_flags = 0);
     void SetPosition(int grid_x, int grid_y, bool skip_map_status_update);
-    void ProcessTaskList();
+    void RemoveDelayedTasks();
     void AttackUnit(UnitInfo* enemy, int attack_potential, int direction);
     bool ExpectAttack();
     void ClearBuildListAndPath();
@@ -194,11 +194,11 @@ public:
     void RemoveInTransitUnitFromMapHash();
     void GetBounds(Rect* bounds);
     void BusyWaitOrder();
-    void AddReminders(bool priority);
+    void ScheduleDelayedTasks(bool priority);
     Task* GetTask() const;
     SmartList<Task>::Iterator GetTasks();
-    void PushBackTask2List(Task* task);
-    void RemoveFromTask2List(Task* task);
+    void AddDelayedTask(Task* task);
+    void RemoveDelayedTask(Task* task);
     void AddTask(Task* task);
     void RemoveTasks();
     void RemoveTask(Task* task, bool mode = true);
@@ -303,8 +303,8 @@ public:
     SmartList<UnitInfo>* unit_list;
     SmartPointer<UnitInfo> parent_unit;
     SmartPointer<UnitInfo> enemy_unit;
-    SmartList<Task> task_list1;
-    SmartList<Task> task_list2;
+    SmartList<Task> tasks;
+    SmartList<Task> delayed_tasks;
     bool in_transit;
     Point last_target;
     short pin_count;

@@ -35,7 +35,7 @@ TaskTransport::TaskTransport(TaskMove* task_move_, ResourceID transporter)
     transporter_unit_type = transporter;
     task_move = task_move_;
     move_tasks.PushBack(*task_move_);
-    task_move_->GetPassenger()->PushBackTask2List(this);
+    task_move_->GetPassenger()->AddDelayedTask(this);
 }
 
 TaskTransport::~TaskTransport() {}
@@ -184,7 +184,7 @@ bool TaskTransport::ChooseNewTask() {
 
                     } else {
                         if ((*it).GetPassenger()) {
-                            (*it).GetPassenger()->RemoveFromTask2List(this);
+                            (*it).GetPassenger()->RemoveDelayedTask(this);
                         }
 
                         move_tasks.Remove(*it);
@@ -272,7 +272,7 @@ void TaskTransport::AddClient(TaskMove* move) {
     AiLog log("Transport: Add Client %s.", UnitsManager_BaseUnits[move->GetPassenger()->unit_type].singular_name);
 
     move_tasks.PushBack(*move);
-    move->GetPassenger()->PushBackTask2List(this);
+    move->GetPassenger()->AddDelayedTask(this);
 
     if (!task_move) {
         task_move = move;
@@ -293,7 +293,7 @@ void TaskTransport::RemoveClient(TaskMove* move) {
             move->RemoveTransport();
         }
 
-        move->GetPassenger()->RemoveFromTask2List(this);
+        move->GetPassenger()->RemoveDelayedTask(this);
     }
 
     move_tasks.Remove(*move);
@@ -422,7 +422,7 @@ void TaskTransport::ChildComplete(Task* task) {
         TaskMove* move = dynamic_cast<TaskMove*>(task);
 
         if (move->GetPassenger()) {
-            move->GetPassenger()->RemoveFromTask2List(this);
+            move->GetPassenger()->RemoveDelayedTask(this);
         }
 
         move_tasks.Remove(*move);
@@ -556,7 +556,7 @@ bool TaskTransport::Execute(UnitInfo& unit) {
 void TaskTransport::RemoveSelf() {
     for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
         if ((*it).GetPassenger()) {
-            (*it).GetPassenger()->RemoveFromTask2List(this);
+            (*it).GetPassenger()->RemoveDelayedTask(this);
         }
     }
 
@@ -598,7 +598,7 @@ void TaskTransport::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {
 
         for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
             if ((*it).GetPassenger() == &unit2) {
-                unit2.RemoveFromTask2List(this);
+                unit2.RemoveDelayedTask(this);
                 move_tasks.Remove(*it);
                 break;
             }

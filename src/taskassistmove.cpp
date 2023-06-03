@@ -332,5 +332,5 @@ void TaskAssistMove::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
 
     Task_RemindMoveFinished(&unit1);
 
-    unit2.AddReminders(true);
+    unit2.ScheduleDelayedTasks(true);
 }
