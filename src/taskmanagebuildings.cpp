@@ -893,7 +893,15 @@ bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* tas
         MarkMiningAreas(construction_map);
 
     } else {
-        int area_expanse = (unit_type == SHIPYARD) ? 10 : 4;
+        int area_expanse;
+
+        if (unit_type == SHIPYARD || unit_type == DEPOT || unit_type == HANGAR || unit_type == DOCK ||
+            unit_type == BARRACKS) {
+            area_expanse = 10;
+
+        } else {
+            area_expanse = 4;
+        }
 
         MarkBuildingAreas(construction_map, area_expanse, unit_size);
     }
@@ -1133,7 +1141,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                 result = true;
 
             } else {
-                int unit_count = Access_GetUnitCount(team, MOBILE_LAND_UNIT | ELECTRONIC_UNIT);
+                int unit_count = Access_GetRepairShopClientCount(team, DEPOT);
                 int shop_capacity =
                     UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(DEPOT)->GetAttribute(ATTRIB_STORAGE);
 
@@ -1142,7 +1150,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                     result = true;
 
                 } else {
-                    unit_count = Access_GetUnitCount(team, MOBILE_AIR_UNIT);
+                    unit_count = Access_GetRepairShopClientCount(team, HANGAR);
                     shop_capacity =
                         UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(HANGAR)->GetAttribute(ATTRIB_STORAGE);
 
@@ -1151,7 +1159,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                         result = true;
 
                     } else {
-                        unit_count = Access_GetUnitCount(team, MOBILE_SEA_UNIT);
+                        unit_count = Access_GetRepairShopClientCount(team, DOCK);
                         shop_capacity = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(DOCK)->GetAttribute(
                             ATTRIB_STORAGE);
 
@@ -1160,7 +1168,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                             result = true;
 
                         } else {
-                            unit_count = Access_GetUnitCount(team, MOBILE_LAND_UNIT);
+                            unit_count = Access_GetRepairShopClientCount(team, BARRACKS);
                             shop_capacity =
                                 UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(BARRACKS)->GetAttribute(
                                     ATTRIB_STORAGE);

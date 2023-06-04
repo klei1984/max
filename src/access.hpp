@@ -73,7 +73,7 @@ bool Access_IsChildOfUnitInList(UnitInfo *unit, SmartList<UnitInfo>::Iterator *i
 void Access_RenewAttackOrders(SmartList<UnitInfo> &units, unsigned short team);
 void Access_GroupAttackOrder(UnitInfo *unit, bool mode);
 int Access_GetStoredUnitCount(UnitInfo *unit);
-int Access_GetUnitCount(unsigned short team, unsigned int flags);
+int Access_GetRepairShopClientCount(unsigned short team, ResourceID unit_type);
 void Access_UpdateResourcesTotal(Complex *complex);
 void Access_DestroyUtilities(int grid_x, int grid_y, bool remove_slabs, bool remove_rubble, bool remove_connectors,
                              bool remove_road);

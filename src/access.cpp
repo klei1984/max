@@ -1138,36 +1138,44 @@ int Access_GetStoredUnitCount(UnitInfo* unit) {
     return result;
 }
 
-int Access_GetUnitCount(unsigned short team, unsigned int flags) {
+int Access_GetRepairShopClientCount(unsigned short team, ResourceID unit_type) {
     int result = 0;
+    unsigned int flags;
+    SmartList<UnitInfo>* units;
 
-    flags &= (MOBILE_AIR_UNIT | MOBILE_LAND_UNIT | MOBILE_SEA_UNIT | ELECTRONIC_UNIT);
+    switch (unit_type) {
+        case DEPOT: {
+            units = &UnitsManager_MobileLandSeaUnits;
+            flags = (MOBILE_LAND_UNIT | ELECTRONIC_UNIT);
 
-    if (flags & MOBILE_AIR_UNIT) {
-        for (auto it = UnitsManager_MobileAirUnits.Begin(); it != UnitsManager_MobileAirUnits.End(); ++it) {
-            if ((*it).team == team && ((*it).flags & MOBILE_AIR_UNIT) && (*it).hits > 0) {
-                ++result;
-            }
-        }
+        } break;
+
+        case HANGAR: {
+            units = &UnitsManager_MobileAirUnits;
+            flags = (MOBILE_AIR_UNIT | ELECTRONIC_UNIT);
+        } break;
+
+        case DOCK: {
+            units = &UnitsManager_MobileLandSeaUnits;
+            flags = (MOBILE_SEA_UNIT | ELECTRONIC_UNIT);
+        } break;
+
+        case BARRACKS: {
+            units = &UnitsManager_MobileLandSeaUnits;
+            flags = (MOBILE_LAND_UNIT);
+        } break;
+
+        default: {
+            return 0;
+        } break;
     }
 
-    if (flags & (MOBILE_LAND_UNIT | MOBILE_SEA_UNIT)) {
-        const bool is_human = (flags & (MOBILE_LAND_UNIT | ELECTRONIC_UNIT)) == MOBILE_LAND_UNIT;
+    for (auto it = units->Begin(); it != units->End(); ++it) {
+        const unsigned int unit_flags =
+            (*it).flags & (MOBILE_AIR_UNIT | MOBILE_LAND_UNIT | MOBILE_SEA_UNIT | ELECTRONIC_UNIT);
 
-        for (auto it = UnitsManager_MobileLandSeaUnits.Begin(); it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).team == team && ((*it).flags & (flags & (MOBILE_LAND_UNIT | MOBILE_SEA_UNIT))) &&
-                (*it).hits > 0) {
-                if (is_human) {
-                    if (!((*it).flags & ELECTRONIC_UNIT)) {
-                        ++result;
-                    }
-
-                } else {
-                    if (((*it).flags & ELECTRONIC_UNIT)) {
-                        ++result;
-                    }
-                }
-            }
+        if ((*it).team == team && (unit_flags == flags) && (*it).hits > 0) {
+            ++result;
         }
     }
 
