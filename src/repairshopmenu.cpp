@@ -539,8 +539,6 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
         }
     }
 
-    Draw(false);
-
     if (button_activate_all) {
         button_activate_all->RegisterButton(GetId());
     }
@@ -559,6 +557,8 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
     for (int i = 0; i < unit_slots_per_screen; ++i) {
         repair_slots[i]->Init();
     }
+
+    Draw(false);
 
     win_draw(GetId());
     mouse_show();
