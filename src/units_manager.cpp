@@ -5735,8 +5735,9 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
 
     SDL_assert(&*parent);
 
-    if ((parent->flags & MOBILE_AIR_UNIT) ||
-        !Paths_IsOccupied(unit->target_grid_x, unit->target_grid_y, 0, unit->team)) {
+    if (((parent->flags & MOBILE_AIR_UNIT) && parent->speed > 0) ||
+        (!Paths_IsOccupied(unit->target_grid_x, unit->target_grid_y, 0, unit->team) &&
+         !(parent->flags & MOBILE_AIR_UNIT))) {
         SDL_assert(unit->storage > 0);
 
         --unit->storage;

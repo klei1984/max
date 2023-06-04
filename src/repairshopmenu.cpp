@@ -62,7 +62,7 @@ class RepairShopMenu;
 
 class RepairShopSlot {
     RepairShopMenu *menu;
-    SmartPointer<UnitInfo> unit;
+    SmartPointer<UnitInfo> client;
 
     Image *bg_image_area;
     Image *bg_stats_area;
@@ -89,7 +89,7 @@ public:
 
 class RepairShopMenu : public Window {
     SmartList<UnitInfo> units;
-    SmartPointer<UnitInfo> unit;
+    SmartPointer<UnitInfo> repairshop;
 
     int unit_slot_index;
     int unit_slots_per_screen;
@@ -128,6 +128,7 @@ public:
     bool IsReloadViable(UnitInfo *target_unit);
     bool IsRepairViable(UnitInfo *target_unit);
     bool IsUpgradeViable(UnitInfo *target_unit);
+    bool IsActivateViable(UnitInfo *target_unit);
 
     void Activate(UnitInfo *target_unit);
     void Reload(UnitInfo *target_unit);
@@ -227,11 +228,11 @@ void RepairShopSlot::Init() {
 void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
     WindowInfo window;
 
-    this->unit = unit;
+    this->client = unit;
 
     menu->FillWindowInfo(&window);
 
-    if (this->unit != nullptr) {
+    if (this->client != nullptr) {
         WindowInfo local_window;
         BaseUnit *base_unit;
         char text[200];
@@ -302,21 +303,21 @@ void RepairShopSlot::DrawStats(bool draw_to_screen) {
     bounds.lrx = bounds.ulx + bg_stats_area->GetWidth();
     bounds.lry = bounds.uly + bg_stats_area->GetHeight() / 2;
 
-    ReportStats_DrawRow(_(f0dc), window.id, &bounds, SI_HITSB, EI_HITSB, unit->hits,
-                        unit->GetBaseValues()->GetAttribute(ATTRIB_HITS), 4, true);
+    ReportStats_DrawRow(_(f0dc), window.id, &bounds, SI_HITSB, EI_HITSB, client->hits,
+                        client->GetBaseValues()->GetAttribute(ATTRIB_HITS), 4, true);
 
     bounds.uly = bounds.lry;
     bounds.lry = bg_stats_area->GetULY() + bg_stats_area->GetHeight();
 
-    if (unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
-        ReportStats_DrawRow(_(c163), window.id, &bounds, SI_AMMO, EI_AMMO, unit->ammo,
-                            unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO), 1, false);
+    if (client->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
+        ReportStats_DrawRow(_(c163), window.id, &bounds, SI_AMMO, EI_AMMO, client->ammo,
+                            client->GetBaseValues()->GetAttribute(ATTRIB_AMMO), 1, false);
 
-    } else if (GameManager_PlayerTeam == unit->team && unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
+    } else if (GameManager_PlayerTeam == client->team && client->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
         ReportStats_DrawRow(_(8688), window.id, &bounds,
-                            ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2],
-                            ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2 + 1],
-                            unit->storage, unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE), 10, false);
+                            ReportStats_CargoIcons[UnitsManager_BaseUnits[client->unit_type].cargo_type * 2],
+                            ReportStats_CargoIcons[UnitsManager_BaseUnits[client->unit_type].cargo_type * 2 + 1],
+                            client->storage, client->GetBaseValues()->GetAttribute(ATTRIB_STORAGE), 10, false);
     }
 
     if (draw_to_screen) {
@@ -330,7 +331,7 @@ void RepairShopSlot::DrawStats(bool draw_to_screen) {
 }
 
 void RepairShopSlot::UpdateButtons() {
-    if (unit != nullptr) {
+    if (client != nullptr && menu->IsActivateViable(&*client)) {
         button_activate->Enable();
 
     } else {
@@ -338,21 +339,21 @@ void RepairShopSlot::UpdateButtons() {
     }
 
     if (button_repair) {
-        if (unit != nullptr && menu->IsReloadViable(&*unit)) {
+        if (client != nullptr && menu->IsReloadViable(&*client)) {
             button_reload->Enable();
 
         } else {
             button_reload->Disable();
         }
 
-        if (unit != nullptr && menu->IsRepairViable(&*unit)) {
+        if (client != nullptr && menu->IsRepairViable(&*client)) {
             button_repair->Enable();
 
         } else {
             button_repair->Disable();
         }
 
-        if (unit != nullptr && menu->IsUpgradeViable(&*unit)) {
+        if (client != nullptr && menu->IsUpgradeViable(&*client)) {
             button_upgrade->Enable();
 
         } else {
@@ -362,7 +363,8 @@ void RepairShopSlot::UpdateButtons() {
 }
 
 RepairShopMenu::RepairShopMenu(UnitInfo *unit)
-    : Window(unit->unit_type == HANGAR ? HANGRFRM : DEPOTFRM, GameManager_GetDialogWindowCenterMode()), unit(unit) {
+    : Window(unit->unit_type == HANGAR ? HANGRFRM : DEPOTFRM, GameManager_GetDialogWindowCenterMode()),
+      repairshop(unit) {
     WindowInfo window;
     int slot_window_ulx;
     int slot_window_uly;
@@ -574,7 +576,7 @@ void RepairShopMenu::Run() {
             PauseMenu_Menu();
 
         } else if (key == GNW_KB_KEY_SHIFT_DIVIDE) {
-            switch (unit->unit_type) {
+            switch (repairshop->unit_type) {
                 case HANGAR: {
                     HelpMenu_Menu(HELPMENU_HANGAR_SETUP, WINDOW_MAIN_WINDOW);
                 } break;
@@ -612,7 +614,7 @@ bool RepairShopMenu::IsReloadViable(UnitInfo *target_unit) {
         Cargo materials;
         Cargo capacity;
 
-        unit->GetComplex()->GetCargoInfo(materials, capacity);
+        repairshop->GetComplex()->GetCargoInfo(materials, capacity);
 
         result = materials.raw > 0;
 
@@ -630,7 +632,7 @@ bool RepairShopMenu::IsRepairViable(UnitInfo *target_unit) {
         Cargo materials;
         Cargo capacity;
 
-        unit->GetComplex()->GetCargoInfo(materials, capacity);
+        repairshop->GetComplex()->GetCargoInfo(materials, capacity);
 
         result = materials.raw > 0;
 
@@ -650,7 +652,7 @@ bool RepairShopMenu::IsUpgradeViable(UnitInfo *target_unit) {
         Cargo materials;
         Cargo capacity;
 
-        unit->GetComplex()->GetCargoInfo(materials, capacity);
+        repairshop->GetComplex()->GetCargoInfo(materials, capacity);
 
         result = materials.raw >= (target_unit->GetNormalRateBuildCost() / 4);
 
@@ -661,44 +663,48 @@ bool RepairShopMenu::IsUpgradeViable(UnitInfo *target_unit) {
     return result;
 }
 
+bool RepairShopMenu::IsActivateViable(UnitInfo *target_unit) {
+    return (!(target_unit->flags & MOBILE_AIR_UNIT) || target_unit->speed > 0);
+}
+
 void RepairShopMenu::Activate(UnitInfo *target_unit) {
     Deinit();
 
-    if (unit->unit_type == AIRTRANS) {
-        if (Access_IsAccessible(target_unit->unit_type, target_unit->team, unit->grid_x, unit->grid_y, 2)) {
-            unit->SetParent(target_unit);
-            UnitsManager_SetNewOrder(&*unit, ORDER_UNLOAD, ORDER_STATE_0);
-            GameManager_EnableMainMenu(&*unit);
+    if (repairshop->unit_type == AIRTRANS) {
+        if (Access_IsAccessible(target_unit->unit_type, target_unit->team, repairshop->grid_x, repairshop->grid_y, 2)) {
+            repairshop->SetParent(target_unit);
+            UnitsManager_SetNewOrder(&*repairshop, ORDER_UNLOAD, ORDER_STATE_0);
+            GameManager_EnableMainMenu(&*repairshop);
 
         } else {
             MessageManager_DrawMessage(_(eeb4), 1, 0);
-            GameManager_EnableMainMenu(&*unit);
+            GameManager_EnableMainMenu(&*repairshop);
         }
 
     } else {
-        short grid_x = unit->grid_x;
-        short grid_y = unit->grid_y;
+        short grid_x = repairshop->grid_x;
+        short grid_y = repairshop->grid_y;
 
-        if (Access_FindReachableSpot(target_unit->unit_type, target_unit, &grid_x, &grid_y, 1, unit->flags & BUILDING,
-                                     0)) {
-            unit->FollowUnit();
+        if (Access_FindReachableSpot(target_unit->unit_type, target_unit, &grid_x, &grid_y, 1,
+                                     repairshop->flags & BUILDING, 0)) {
+            repairshop->FollowUnit();
             MessageManager_DrawMessage(_(755b), 0, 0);
             GameManager_EnableMainMenu(target_unit);
 
         } else {
             MessageManager_DrawMessage(_(a1f0), 1, 0);
-            GameManager_EnableMainMenu(&*unit);
+            GameManager_EnableMainMenu(&*repairshop);
         }
     }
 }
 
 void RepairShopMenu::Reload(UnitInfo *target_unit) {
     if (IsReloadViable(target_unit)) {
-        unit->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*unit, ORDER_RELOAD, ORDER_STATE_0);
+        repairshop->SetParent(target_unit);
+        UnitsManager_SetNewOrder(&*repairshop, ORDER_RELOAD, ORDER_STATE_0);
 
         if (Remote_IsNetworkGame) {
-            RepairShopMenu_ProcessOrders(&*unit, ORDER_RELOAD, false);
+            RepairShopMenu_ProcessOrders(&*repairshop, ORDER_RELOAD, false);
 
         } else {
             UnitsManager_ProcessRemoteOrders();
@@ -708,11 +714,11 @@ void RepairShopMenu::Reload(UnitInfo *target_unit) {
 
 void RepairShopMenu::Repair(UnitInfo *target_unit) {
     if (IsRepairViable(target_unit)) {
-        unit->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*unit, ORDER_REPAIR, ORDER_STATE_0);
+        repairshop->SetParent(target_unit);
+        UnitsManager_SetNewOrder(&*repairshop, ORDER_REPAIR, ORDER_STATE_0);
 
         if (Remote_IsNetworkGame) {
-            RepairShopMenu_ProcessOrders(&*unit, ORDER_REPAIR, false);
+            RepairShopMenu_ProcessOrders(&*repairshop, ORDER_REPAIR, false);
 
         } else {
             UnitsManager_ProcessRemoteOrders();
@@ -722,11 +728,11 @@ void RepairShopMenu::Repair(UnitInfo *target_unit) {
 
 void RepairShopMenu::Upgrade(UnitInfo *target_unit) {
     if (IsUpgradeViable(target_unit)) {
-        unit->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*unit, ORDER_UPGRADE, ORDER_STATE_0);
+        repairshop->SetParent(target_unit);
+        UnitsManager_SetNewOrder(&*repairshop, ORDER_UPGRADE, ORDER_STATE_0);
 
         if (Remote_IsNetworkGame) {
-            RepairShopMenu_ProcessOrders(&*unit, ORDER_UPGRADE, false);
+            RepairShopMenu_ProcessOrders(&*repairshop, ORDER_UPGRADE, false);
 
         } else {
             UnitsManager_ProcessRemoteOrders();
@@ -741,8 +747,8 @@ void RepairShopSlot_OnClick_Activate(ButtonID bid, intptr_t value) {
 
     slot = reinterpret_cast<RepairShopSlot *>(value);
 
-    if (slot->unit != nullptr) {
-        slot->menu->Activate(&*slot->unit);
+    if (slot->client != nullptr) {
+        slot->menu->Activate(&*slot->client);
     }
 }
 
@@ -751,8 +757,8 @@ void RepairShopSlot_OnClick_Reload(ButtonID bid, intptr_t value) {
 
     slot = reinterpret_cast<RepairShopSlot *>(value);
 
-    if (slot->unit != nullptr && slot->menu->IsReloadViable(&*slot->unit)) {
-        slot->menu->Reload(&*slot->unit);
+    if (slot->client != nullptr && slot->menu->IsReloadViable(&*slot->client)) {
+        slot->menu->Reload(&*slot->client);
         slot->menu->DrawCargoBar(true);
         slot->menu->UpdateButtons();
         slot->DrawStats(true);
@@ -767,8 +773,8 @@ void RepairShopSlot_OnClick_Repair(ButtonID bid, intptr_t value) {
 
     slot = reinterpret_cast<RepairShopSlot *>(value);
 
-    if (slot->unit != nullptr && slot->menu->IsRepairViable(&*slot->unit)) {
-        slot->menu->Repair(&*slot->unit);
+    if (slot->client != nullptr && slot->menu->IsRepairViable(&*slot->client)) {
+        slot->menu->Repair(&*slot->client);
         slot->menu->DrawCargoBar(true);
         slot->menu->UpdateButtons();
         slot->DrawStats(true);
@@ -783,17 +789,17 @@ void RepairShopSlot_OnClick_Upgrade(ButtonID bid, intptr_t value) {
 
     slot = reinterpret_cast<RepairShopSlot *>(value);
 
-    if (slot->unit != nullptr && slot->menu->IsUpgradeViable(&*slot->unit)) {
-        slot->menu->Upgrade(&*slot->unit);
+    if (slot->client != nullptr && slot->menu->IsUpgradeViable(&*slot->client)) {
+        slot->menu->Upgrade(&*slot->client);
         slot->menu->DrawCargoBar(true);
-        slot->Draw(&*slot->unit, true);
+        slot->Draw(&*slot->client, true);
         slot->menu->UpdateButtons();
     }
 }
 
 void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
     RepairShopMenu *shop = reinterpret_cast<RepairShopMenu *>(value);
-    SmartPointer<UnitInfo> unit(shop->unit);
+    SmartPointer<UnitInfo> unit(shop->repairshop);
     SmartList<UnitInfo> units;
     SmartList<UnitInfo>::Iterator it = shop->units.Begin();
     Point point(unit->grid_x - 1, unit->grid_y + 1);
@@ -946,7 +952,7 @@ void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value) {
 
     shop = reinterpret_cast<RepairShopMenu *>(value);
 
-    switch (shop->unit->unit_type) {
+    switch (shop->repairshop->unit_type) {
         case HANGAR: {
             HelpMenu_Menu(HELPMENU_HANGAR_SETUP, WINDOW_MAIN_WINDOW);
         } break;
@@ -1072,7 +1078,7 @@ void RepairShopMenu::DrawCargoBar(bool draw_to_screen) {
     char text[50];
 
     FillWindowInfo(&window);
-    unit->GetComplex()->GetCargoInfo(materials, capacity);
+    repairshop->GetComplex()->GetCargoInfo(materials, capacity);
 
     raw_material_bar->Write(&window);
     raw_material_value_area->Write(&window);
