@@ -1,0 +1,28 @@
+include(versions)
+include(FetchContent)
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_FILE})
+	file(${SDL2_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_FILE} SDL2_FILE_HASH)
+
+	if(${SDL2_FILE_HASH} STREQUAL ${SDL2_HASH})
+		set(SDL2_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_FILE})
+	endif()
+endif()
+
+FetchContent_Declare(
+	SDL2
+	TIMEOUT 60
+	URL ${SDL2_URI}
+	URL_HASH ${SDL2_HASH_TYPE}=${SDL2_HASH}
+	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+	OVERRIDE_FIND_PACKAGE
+)
+
+set(SDL_HAPTIC OFF)
+set(SDL_HIDAPI OFF)
+set(SDL_JOYSTICK OFF)
+set(SDL_SENSOR OFF)
+set(SDL_TEST OFF)
+set(SDL2_DISABLE_INSTALL ON)
+
+FetchContent_MakeAvailable(SDL2)

@@ -23,7 +23,7 @@ on:
 jobs:
    Linux-i386:
       runs-on: ubuntu-latest
-      container: ubuntu:22.04
+      container: ubuntu:22.10
 
       env:
          BUILD_DIR: build
@@ -35,7 +35,7 @@ jobs:
             apt update && apt install sudo
             sudo dpkg --add-architecture i386
             sudo apt-get update -y
-            sudo apt-get install -y file build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libsdl2-mixer-dev:i386 libsdl2-net-dev:i386 libfreetype-dev:i386 ninja-build:i386 cmake p7zip-full
+            sudo apt-get install -y file build-essential gcc-multilib g++-multilib ninja-build:i386 cmake gettext p7zip-full
 
       -  name: Checkout
          uses: actions/checkout@v3
@@ -44,7 +44,7 @@ jobs:
          run: |-
             mkdir $BUILD_DIR
             cd $BUILD_DIR
-            cmake -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=/usr/local ..
+            cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-linux-i686.cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local ..
             cmake --build . --parallel
 
       -  name: Package
@@ -52,11 +52,55 @@ jobs:
             cd $BUILD_DIR
             cpack --config CPackConfig.cmake
             cpack --config CPackSourceConfig.cmake
-            mkdir Artifacts
-            cp *.deb Artifacts/
-            cp *.tar.gz Artifacts/
+            mkdir -p Artifacts/Linux-i386
+            cp *.deb Artifacts/Linux-i386/
+            cp *.tar.gz Artifacts/Linux-i386/
             7z a -mx9 -bd max-port-linux-symbols.7z max.debug
-            cp max-port-linux-symbols.7z Artifacts/
+            cp max-port-linux-symbols.7z Artifacts/Linux-i386/
+
+      -  name: Upload Artifacts
+         uses: actions/upload-artifact@v3
+         with:
+            name: build artifacts
+            path: ${{env.BUILD_DIR}}/Artifacts
+
+   WindowsXP-i386:
+      runs-on: ubuntu-latest
+      container: ubuntu:22.10
+
+      env:
+         BUILD_DIR: build
+         BUILD_TYPE: Debug
+
+      steps:
+      -  name: Setup Dependencies
+         run: |
+            apt update && apt install sudo
+            sudo dpkg --add-architecture i386
+            sudo apt-get update -y
+            sudo apt-get install -y file build-essential binutils-mingw-w64-i686 g++-mingw-w64-i686 gcc-mingw-w64-i686 ninja-build:i386 cmake nsis gettext p7zip-full
+
+      -  name: Checkout
+         uses: actions/checkout@v3
+
+      -  name: Build
+         run: |-
+            mkdir $BUILD_DIR
+            cd $BUILD_DIR
+            cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-cross-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
+            cmake --build . --parallel
+
+      -  name: Package
+         run: |
+            cd $BUILD_DIR
+            cpack --config CPackConfig.cmake
+            cpack --config CPackSourceConfig.cmake
+            mkdir -p Artifacts/WindowsXP-i386
+            cp *-win32.exe Artifacts/WindowsXP-i386/
+            cp *-win32.7z Artifacts/WindowsXP-i386/
+            cp *-Source.7z Artifacts/WindowsXP-i386/
+            7z a -mx9 -bd max-port-win32-symbols.7z max.debug
+            cp max-port-win32-symbols.7z Artifacts/WindowsXP-i386/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3
@@ -82,7 +126,7 @@ jobs:
 
       -  name: Setup Dependencies
          run: |
-            pacman -S --noconfirm git mingw-w64-i686-toolchain mingw32/mingw-w64-i686-SDL2 mingw32/mingw-w64-i686-SDL2_mixer mingw32/mingw-w64-i686-SDL2_net mingw32/mingw-w64-i686-libiconv mingw32/mingw-w64-i686-freetype p7zip mingw32/mingw-w64-i686-cmake mingw-w64-x86_64-ninja make
+            pacman -S --noconfirm git mingw-w64-i686-toolchain p7zip mingw32/mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-nsis gettext make
 
       -  name: Checkout
          uses: actions/checkout@v3
@@ -92,21 +136,20 @@ jobs:
             export PATH=$PATH:/mingw32/bin
             mkdir $BUILD_DIR
             cd $BUILD_DIR
-            cmake -G "Ninja" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX="C:/Program Files (x86)/max" ..
+            cmake -G "MSYS Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
             cmake --build . --parallel
-
 
       -  name: Package
          run: |
             cd $BUILD_DIR
             cpack --config CPackConfig.cmake
             cpack --config CPackSourceConfig.cmake
-            mkdir Artifacts
-            cp *-win32.exe Artifacts/
-            cp *-win32.7z Artifacts/
-            cp *-Source.7z Artifacts/
+            mkdir -p Artifacts/Windows-i386
+            cp *-win32.exe Artifacts/Windows-i386/
+            cp *-win32.7z Artifacts/Windows-i386/
+            cp *-Source.7z Artifacts/Windows-i386/
             7z a -mx9 -bd max-port-win32-symbols.7z max.debug
-            cp max-port-win32-symbols.7z Artifacts/
+            cp max-port-win32-symbols.7z Artifacts/Windows-i386/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v3

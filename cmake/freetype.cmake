@@ -1,0 +1,32 @@
+include(versions)
+include(FetchContent)
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${FREETYPE_FILE})
+	file(${FREETYPE_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${FREETYPE_FILE} FREETYPE_FILE_HASH)
+	
+	if(${FREETYPE_FILE_HASH} STREQUAL ${FREETYPE_HASH})
+		set(FREETYPE_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${FREETYPE_FILE})
+	endif()
+endif()
+
+FetchContent_Declare(
+	FREETYPE
+	TIMEOUT 60
+	URL ${FREETYPE_URI}
+	URL_HASH ${FREETYPE_HASH_TYPE}=${FREETYPE_HASH}
+	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+	OVERRIDE_FIND_PACKAGE
+)
+
+set(FT_DISABLE_BZIP2 ON)
+set(FT_DISABLE_HARFBUZZ ON)
+set(FT_DISABLE_PNG ON)
+set(FT_DISABLE_BROTLI ON)
+set(FT_DISABLE_ZLIB ON)
+set(SKIP_INSTALL_ALL ON)
+
+FetchContent_MakeAvailable(FREETYPE)
+
+if(NOT TARGET Freetype::Freetype)
+	add_library(Freetype::Freetype ALIAS freetype)
+endif()

@@ -1,0 +1,46 @@
+cmake_minimum_required (VERSION 3.24)
+
+set(CMAKE_MODULE_PATH "@PROJECT_SOURCE_DIR@/cmake")
+set(DEPS_SOURCE_DIR "@PROJECT_SOURCE_DIR@/dependencies")
+
+include(versions)
+include(ExternalProject)
+
+set(ICONV_EXTRA_ARGS
+	"@CONFIGURE_EXTRA_ARGS@"
+)
+
+project(builder NONE)
+
+set(ICONV_NAME iconv_external)
+set(ICONV_ROOT_DIR ${CMAKE_BINARY_DIR})
+set(ICONV_LIB_DIR ${ICONV_ROOT_DIR}/lib)
+set(ICONV_INCLUDE_DIR ${ICONV_ROOT_DIR}/include)
+
+if(EXISTS ${DEPS_SOURCE_DIR}/${ICONV_FILE})
+	file(${ICONV_HASH_TYPE} ${DEPS_SOURCE_DIR}/${ICONV_FILE} ICONV_FILE_HASH)
+
+	if(${ICONV_FILE_HASH} STREQUAL ${ICONV_HASH})
+		set(ICONV_URI file://${DEPS_SOURCE_DIR}/${ICONV_FILE})
+	endif()
+endif()
+
+if(@BUILD_SHARED_LIBS@)
+	set(ICONV_EXTRA_ARGS ${ICONV_EXTRA_ARGS} -enable-shared --disable-static)
+else()
+	set(ICONV_EXTRA_ARGS ${ICONV_EXTRA_ARGS} -disable-shared --enable-static)
+endif()
+
+include(ExternalProject)
+
+ExternalProject_Add(${ICONV_NAME}
+	PREFIX ${ICONV_ROOT_DIR}
+	TIMEOUT 60
+	URL ${ICONV_URI}
+	URL_HASH ${ICONV_HASH_TYPE}=${ICONV_HASH}
+	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+	UPDATE_COMMAND ""
+	PATCH_COMMAND ""
+	CONFIGURE_COMMAND ../${ICONV_NAME}/./configure --prefix=@DEPS_BINARY_DIR@ ${ICONV_EXTRA_ARGS}
+	BUILD_BYPRODUCTS ${ICONV_LIB_DIR}/@ICONV_LIB_NAME@
+)

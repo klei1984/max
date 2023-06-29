@@ -1,139 +1,53 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.24)
 
-project(max)
-set(GAME_BINARY "max")
+project(max LANGUAGES C CXX)
 
-find_package(Git)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-if(Git_FOUND)
-	execute_process(
-		COMMAND ${GIT_EXECUTABLE} describe --always --tags
-		RESULT_VARIABLE GIT_RESULT
-		OUTPUT_VARIABLE GIT_OUTPUT
-		ERROR_QUIET
-	)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-	string(STRIP "${GIT_OUTPUT}" GIT_OUTPUT)
-
-	string(REGEX MATCH "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)\\-([0-9]+)\\-([a-fA-F0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
-	if(CMAKE_MATCH_COUNT EQUAL 5)
-		set(GAME_VERSION_MAJOR ${CMAKE_MATCH_1})
-		set(GAME_VERSION_MINOR ${CMAKE_MATCH_2})
-		set(GAME_VERSION_PATCH ${CMAKE_MATCH_3})
-		set(GAME_VERSION_BUILD ${CMAKE_MATCH_4})
-		set(GAME_VERSION_REVISION ${CMAKE_MATCH_5})
-		set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH} Build ${GAME_VERSION_BUILD} Revision ${GAME_VERSION_REVISION}")
-	else()
-		string(REGEX MATCH "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
-		if(CMAKE_MATCH_COUNT EQUAL 3)
-			set(GAME_VERSION_MAJOR ${CMAKE_MATCH_1})
-			set(GAME_VERSION_MINOR ${CMAKE_MATCH_2})
-			set(GAME_VERSION_PATCH ${CMAKE_MATCH_3})
-			set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
-		else()
-			string(REGEX MATCH "^([a-fA-F0-9]+)$" GIT_MATCHES "${GIT_OUTPUT}")
-			if(CMAKE_MATCH_COUNT EQUAL 1)
-				set(GAME_VERSION_REVISION ${CMAKE_MATCH_1})
-			else()
-				string(TIMESTAMP DATE_TIME "%Y-%m-%d %H:%M:%S")
-				set(GAME_VERSION_REVISION "${DATE_TIME}")
-			endif()
-
-			set(GAME_VERSION_MAJOR "0")
-			set(GAME_VERSION_MINOR "4")
-			set(GAME_VERSION_PATCH "2")
-			set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH} Revision ${GAME_VERSION_REVISION}")
-		endif()
-	endif()
-else()
-	set(GAME_VERSION_MAJOR "0")
-	set(GAME_VERSION_MINOR "4")
-	set(GAME_VERSION_PATCH "2")
-	set(GAME_VERSION "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
-endif()
-
-message(STATUS "Set build version to v${GAME_VERSION}")
-
-enable_language(C CXX)
+include(setup)
 
 set(GAME_INCLUDES "")
 set(GAME_SOURCES "")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/")
 
-if (MINGW)
-	find_package(Freetype)
-	find_package(Iconv)
-	find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
-	find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main)
-	find_package(SDL2_mixer REQUIRED CONFIG REQUIRED COMPONENTS SDL2_mixer)
-	find_package(SDL2_net REQUIRED CONFIG REQUIRED COMPONENTS SDL2_net)
-endif (MINGW)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-if (UNIX)
-	set(ENV{PKG_CONFIG_PATH} "/usr/lib/i386-linux-gnu/pkgconfig")
+add_executable(${PROJECT_NAME} ${GAME_SOURCES})
 
-	INCLUDE(FindPkgConfig)
-
-	PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
-	#PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2_main)
-	PKG_SEARCH_MODULE(SDL2_mixer REQUIRED SDL2_mixer)
-	PKG_SEARCH_MODULE(SDL2_net REQUIRED SDL2_net>=2.0.0)
-	PKG_SEARCH_MODULE(Freetype REQUIRED freetype2)
-	#PKG_SEARCH_MODULE(Iconv REQUIRED iconv)
-
-	if(NOT TARGET SDL2::SDL2)
-		add_library(SDL2::SDL2 INTERFACE IMPORTED)
-		set_property(TARGET SDL2::SDL2 APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${SDL2_LIBRARIES})
-		set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIRS})
-		add_library(SDL2::SDL2main INTERFACE IMPORTED)
-		set_property(TARGET SDL2::SDL2main APPEND PROPERTY INTERFACE_LINK_LIBRARIES )
-		set_property(TARGET SDL2::SDL2main PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
-	endif()
-
-	if(NOT TARGET SDL2_net::SDL2_net)
-		add_library(SDL2_net::SDL2_net INTERFACE IMPORTED)
-		set_property(TARGET SDL2_net::SDL2_net APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${SDL2_net_LIBRARIES})
-		set_property(TARGET SDL2_net::SDL2_net PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_net_INCLUDE_DIRS})
-	endif()
-
-	if(NOT TARGET SDL2_mixer::SDL2_mixer)
-		add_library(SDL2_mixer::SDL2_mixer INTERFACE IMPORTED)
-		set_property(TARGET SDL2_mixer::SDL2_mixer APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${SDL2_mixer_LIBRARIES})
-		set_property(TARGET SDL2_mixer::SDL2_mixer PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL2_mixer_INCLUDE_DIRS})
-	endif()
-
-	if(NOT TARGET Iconv::Iconv)
-		add_library(Iconv::Iconv INTERFACE IMPORTED)
-		set_property(TARGET Iconv::Iconv APPEND PROPERTY INTERFACE_LINK_LIBRARIES )
-		set_property(TARGET Iconv::Iconv PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
-	endif()
-
-	if(NOT TARGET Freetype::Freetype)
-		add_library(Freetype::Freetype INTERFACE IMPORTED)
-		set_property(TARGET Freetype::Freetype APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${Freetype_LIBRARIES})
-		set_property(TARGET Freetype::Freetype PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${Freetype_INCLUDE_DIRS})
-	endif()
-endif (UNIX)
-
-add_executable(${GAME_BINARY} ${GAME_SOURCES})
-
-target_include_directories(${GAME_BINARY} PRIVATE
-	SDL2::SDL2main Iconv::Iconv Freetype::Freetype SDL2::SDL2 SDL2_net::SDL2_net SDL2_mixer::SDL2_mixer
+target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 	${GAME_INCLUDES}
 )
 
-set_target_properties(${GAME_BINARY} PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD "20"
-	COMPILE_FLAGS "-m32 -Wcomments -Wignored-qualifiers -Wshadow=local -Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -Wformat-overflow -Wformat-truncation -Wlogical-op -Wlogical-not-parentheses -fno-eliminate-unused-debug-types -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
-	LINK_FLAGS "-m32")
+	COMPILE_FLAGS "-Wcomments -Wignored-qualifiers -Wshadow=local -Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -Wformat-overflow -Wformat-truncation -Wlogical-op -Wlogical-not-parentheses -fno-eliminate-unused-debug-types -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
+)
 
-target_link_libraries(${GAME_BINARY} PRIVATE SDL2::SDL2main Iconv::Iconv Freetype::Freetype SDL2::SDL2 SDL2_net::SDL2_net SDL2_mixer::SDL2_mixer)
+if(NOT BUILD_SHARED_LIBS)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype SDL2::SDL2-static SDL2_net::SDL2_net-static SDL2_mixer::SDL2_mixer-static)
 
-add_custom_command(TARGET ${GAME_BINARY} POST_BUILD
-	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${GAME_BINARY}> ${GAME_BINARY}.debug
-	COMMAND ${CMAKE_STRIP} ARGS --strip-debug --strip-unneeded $<TARGET_FILE:${GAME_BINARY}>
-	COMMAND ${CMAKE_OBJCOPY} ARGS --add-gnu-debuglink ${GAME_BINARY}.debug $<TARGET_FILE:${GAME_BINARY}>
+	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
+else()
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype SDL2::SDL2 SDL2_net::SDL2_net SDL2_mixer::SDL2_mixer)
+
+	target_link_libraries(${PROJECT_NAME} PRIVATE  ${${PROJECT_NAME}_deps})
+endif()
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/lib-iconv ${CMAKE_CURRENT_BINARY_DIR}/_deps/iconv-build)
+
+include(sdl2)
+include(sdl2_mixer)
+include(sdl2_net)
+include(freetype)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.debug
+	COMMAND ${CMAKE_STRIP} ARGS --strip-debug --strip-unneeded $<TARGET_FILE:${PROJECT_NAME}>
+	COMMAND ${CMAKE_OBJCOPY} ARGS --add-gnu-debuglink ${PROJECT_NAME}.debug $<TARGET_FILE:${PROJECT_NAME}>
 )
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})
@@ -146,7 +60,7 @@ set(CPACK_PACKAGE_CONTACT "M.A.X. Port Team")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.")
-set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR}")
+set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};/dependencies/.*\.tar\.gz")
 
 install(FILES "LICENSE" DESTINATION .)
 install(FILES "assets/PATCHES.RES" DESTINATION .)
@@ -165,31 +79,53 @@ if(UNIX)
 	set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://klei1984.github.io/max/")
 	set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
 
-	install(TARGETS ${GAME_BINARY}
+	set(DEP_BIN_DIRS)
+	foreach(TARGET_NAME ${${PROJECT_NAME}_deps})
+			get_target_property(BIN_DIR ${TARGET_NAME} BINARY_DIR)
+			list(APPEND DEP_BIN_DIRS "${BIN_DIR}")
+			list(APPEND DEP_BIN_DIRS "${BIN_DIR}/lib")
+	endforeach()
+
+	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS ${DEP_BIN_DIRS})
+
+	install(TARGETS ${PROJECT_NAME}
 		CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 		RUNTIME DESTINATION .
 	)
 endif()
 
 if(MINGW)
-	set(CPACK_GENERATOR "NSIS;7Z")
+	set(CPACK_GENERATOR "7Z")
 	set(CPACK_SOURCE_GENERATOR "7Z")
-	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-	set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${GAME_BINARY}")
-	set(CPACK_NSIS_DISPLAY_NAME "M.A.X. Port")
-	set(CPACK_NSIS_PACKAGE_NAME "M.A.X. Port v${GAME_VERSION}")
-	set(CPACK_NSIS_URL_INFO_ABOUT "https://klei1984.github.io/max/")
 
-	install(TARGETS ${GAME_BINARY}
+	find_program(MAKENSIS_EXECUTABLE NAMES makensis DOC "The NSIS package maker command")
+	if (MAKENSIS_EXECUTABLE)
+		list(APPEND CPACK_GENERATOR "NSIS")
+		set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+		set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${PROJECT_NAME}")
+		set(CPACK_NSIS_DISPLAY_NAME "M.A.X. Port")
+		set(CPACK_NSIS_PACKAGE_NAME "M.A.X. Port v${GAME_VERSION}")
+		set(CPACK_NSIS_URL_INFO_ABOUT "https://klei1984.github.io/max/")
+	endif()
+
+	install(TARGETS ${PROJECT_NAME}
 		CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 		RUNTIME DESTINATION .
 	)
 
-	install(CODE "
-		include(BundleUtilities)
-		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${GAME_BINARY}${CMAKE_EXECUTABLE_SUFFIX}\" \"\" \"\")
-		"
-	)
+	if (BUILD_SHARED_LIBS)
+		set(DEP_BIN_DIRS)
+		foreach(TARGET_NAME ${${PROJECT_NAME}_deps})
+				get_target_property(BIN_DIR ${TARGET_NAME} BINARY_DIR)
+				list(APPEND DEP_BIN_DIRS "${BIN_DIR}")
+		endforeach()
+	
+		install(CODE "
+			include(BundleUtilities)
+			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}\" \"\" \"${DEP_BIN_DIRS}\")
+			"
+		)
+	endif()
 endif()
 
 INCLUDE(CPack)

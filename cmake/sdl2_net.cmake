@@ -1,0 +1,23 @@
+include(versions)
+include(FetchContent)
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_NET_FILE})
+	file(${SDL2_NET_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_NET_FILE} SDL2_NET_FILE_HASH)
+
+	if(${SDL2_NET_FILE_HASH} STREQUAL ${SDL2_NET_HASH})
+		set(SDL2_NET_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_NET_FILE})
+	endif()
+endif()
+
+FetchContent_Declare(
+	SDL2_NET
+	TIMEOUT 60
+	URL ${SDL2_NET_URI}
+	URL_HASH ${SDL2_NET_HASH_TYPE}=${SDL2_NET_HASH}
+	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+	OVERRIDE_FIND_PACKAGE
+)
+
+set(SDL2NET_INSTALL OFF)
+
+FetchContent_MakeAvailable(SDL2_NET)
