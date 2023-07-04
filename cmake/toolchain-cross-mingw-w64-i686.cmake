@@ -13,6 +13,6 @@ find_program(CMAKE_RC_COMPILER NAMES ${TOOLSET}-windres)
 find_program(CMAKE_C_COMPILER NAMES ${TOOLSET}-gcc)
 find_program(CMAKE_CXX_COMPILER NAMES ${TOOLSET}-g++)
 
-set(CONFIGURE_EXTRA_ARGS --target=${TOOLSET} --host=${TOOLSET} --build=x86_64-linux CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32)
+set(CONFIGURE_EXTRA_ARGS --target=${TOOLSET} --host=${TOOLSET} --build=x86_64-linux CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32)
 
 add_compile_options(-m32)
