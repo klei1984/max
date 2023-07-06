@@ -4,6 +4,8 @@ project(max LANGUAGES C CXX)
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+option(MAX_BUILD_TESTS "Build unit tests by default" ON)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -34,7 +36,7 @@ if(NOT BUILD_SHARED_LIBS)
 else()
 	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype SDL2::SDL2 SDL2_net::SDL2_net SDL2_mixer::SDL2_mixer)
 
-	target_link_libraries(${PROJECT_NAME} PRIVATE  ${${PROJECT_NAME}_deps})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/lib-iconv ${CMAKE_CURRENT_BINARY_DIR}/_deps/iconv-build)
@@ -49,6 +51,11 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_STRIP} ARGS --strip-debug --strip-unneeded $<TARGET_FILE:${PROJECT_NAME}>
 	COMMAND ${CMAKE_OBJCOPY} ARGS --add-gnu-debuglink ${PROJECT_NAME}.debug $<TARGET_FILE:${PROJECT_NAME}>
 )
+
+if(MAX_BUILD_TESTS)
+	enable_testing()
+	add_subdirectory(test)
+endif()
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GAME_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${GAME_VERSION_MINOR})

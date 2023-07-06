@@ -35,8 +35,8 @@ class SmartList {
         friend class SmartList;
 
     public:
-        ListNode(N& object) : object(object) {}
-        ~ListNode() {}
+        explicit ListNode(N& object) : object(object) {}
+        ~ListNode() = default;
 
         void InsertAfter(ListNode<N>& node) {
             node.next = this->next;
@@ -79,15 +79,16 @@ class SmartList {
         }
     };
 
-    unsigned short count;
+    uint16_t count{0};
     SmartPointer<ListNode<T>> first;
     SmartPointer<ListNode<T>> last;
 
     void Erase(ListNode<T>& position) {
         if (position.prev == nullptr) {
-            if (first != position) {
+            if (first != &position) {
                 return;
             }
+
         } else {
             if (position.prev->next != &position) {
                 return;
@@ -95,18 +96,19 @@ class SmartList {
         }
 
         --count;
+
         position.RemoveSelf();
 
-        if (first == position) {
+        if (first == &position) {
             first = position.next;
         }
 
-        if (last == position) {
+        if (last == &position) {
             last = position.prev;
         }
     }
 
-    ListNode<T>& GetByIndex(int index) const {
+    ListNode<T>& GetByIndex(int32_t index) const {
         Iterator it;
 
         SDL_assert(index >= 0 && index < count);
@@ -117,8 +119,10 @@ class SmartList {
             for (it = &*last; index != -1; --it) {
                 --index;
             }
+
         } else {
             --index;
+
             for (it = &*first; index != -1; ++it) {
                 --index;
             }
@@ -131,28 +135,28 @@ public:
     class Iterator : public SmartPointer<ListNode<T>> {
         friend class SmartList;
 
-        ListNode<T>& GetNode() const { return *this->object_pointer; }
+        ListNode<T>& GetNode() const { return *this->Get(); }
 
     public:
         Iterator() : SmartPointer<ListNode<T>>(nullptr) {}
         Iterator(ListNode<T>* object) : SmartPointer<ListNode<T>>(object) {}
 
-        T& operator*() const { return *(this->object_pointer->GetObject()); }
+        T& operator*() const { return *(this->Get()->GetObject()); }
 
         Iterator& operator++() {
-            SmartPointer<ListNode<T>>::operator=(&*this->object_pointer->next);
+            SmartPointer<ListNode<T>>::operator=(&*this->Get()->next);
             return *this;
         }
 
         Iterator& operator--() {
-            SmartPointer<ListNode<T>>::operator=(&*this->object_pointer->prev);
+            SmartPointer<ListNode<T>>::operator=(&*this->Get()->prev);
             return *this;
         }
     };
 
-    SmartList() : count(0) {}
+    SmartList() = default;
 
-    SmartList(const SmartList& other) : count(0) {
+    SmartList(const SmartList& other) {
         for (Iterator it = other.Begin(); it != other.End(); ++it) {
             PushBack(*it);
         }
@@ -176,9 +180,12 @@ public:
 
     void PushBack(T& object) {
         Iterator it = new (std::nothrow) ListNode<T>(object);
+
         ++count;
+
         if (last == nullptr) {
             first = it;
+
         } else {
             (*last).InsertAfter(it.GetNode());
         }
@@ -188,9 +195,12 @@ public:
 
     void PushFront(T& object) {
         Iterator it = new (std::nothrow) ListNode<T>(object);
+
         ++count;
+
         if (first == nullptr) {
             last = it;
+
         } else {
             (*first).InsertBefore(it.GetNode());
         }
@@ -201,10 +211,14 @@ public:
     void InsertAfter(Iterator& position, T& object) {
         if (position == nullptr) {
             PushBack(object);
+
         } else {
             Iterator it = new (std::nothrow) ListNode<T>(object);
+
             ++count;
+
             position.GetNode().InsertBefore(it.GetNode());
+
             if (it.GetNode().prev == nullptr) {
                 first = it;
             }
@@ -214,10 +228,14 @@ public:
     void InsertBefore(Iterator& position, T& object) {
         if (position == nullptr) {
             PushFront(object);
+
         } else {
             Iterator it = new (std::nothrow) ListNode<T>(object);
+
             ++count;
+
             position.GetNode().InsertAfter(it.GetNode());
+
             if (it.GetNode().prev == nullptr) {
                 last = it;
             }
@@ -238,7 +256,7 @@ public:
     }
 
     bool Remove(T& object) {
-        bool result;
+        bool result{false};
 
         Iterator it = Find(object);
 
@@ -267,11 +285,15 @@ public:
         count = 0;
     }
 
-    unsigned short GetCount() const { return count; }
+    [[nodiscard]] uint16_t GetCount() const { return count; }
 
-    int GetMemorySize() const { return count * sizeof(ListNode<T>) + sizeof(count); }
+    [[nodiscard]] int32_t GetMemorySize() const { return count * sizeof(ListNode<T>) + sizeof(count); }
 
     SmartList<T>& operator=(const SmartList<T>& other) {
+        if (&this == &other) {
+            return *this;
+        }
+
         Clear();
 
         for (Iterator it = other.Begin(); it != other.End(); ++it) {
@@ -281,7 +303,7 @@ public:
         return *this;
     }
 
-    T& operator[](unsigned short index) const { return *GetByIndex(index).GetObject(); }
+    T& operator[](uint16_t index) const { return *GetByIndex(index).GetObject(); }
 };
 
 #endif /* SMARTLIST_HPP */

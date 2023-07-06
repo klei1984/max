@@ -283,7 +283,7 @@ void TaskCreateBuilding::Abort() {
         manager->ChildComplete(this);
     }
 
-    if (parent && parent != manager) {
+    if (parent && &*parent != &*manager) {
         parent->ChildComplete(this);
     }
 
@@ -505,7 +505,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
         }
 
         if (unit_type == WTRPLTFM || unit_type == BRIDGE) {
-            if (manager != parent) {
+            if (&*manager != &*parent) {
                 parent->AddUnit(unit);
             }
 
@@ -513,7 +513,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
             TaskManager.RemindAvailable(&unit);
         }
 
-        if (manager != parent) {
+        if (&*manager != &*parent) {
             ChildComplete(this);
         }
 

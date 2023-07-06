@@ -62,7 +62,7 @@ char* TaskFindPath::WriteStatusLog(char* buffer) const {
 
 unsigned char TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
 
-bool TaskFindPath::IsThinking() { return path_request; }
+bool TaskFindPath::IsThinking() { return path_request != nullptr; }
 
 void TaskFindPath::Begin() {
     AiLog log("Task find path for %s: begin.",

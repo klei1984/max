@@ -47,6 +47,11 @@ jobs:
             cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-linux-i686.cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local ..
             cmake --build . --parallel
 
+      -  name: Test
+         run: |
+            cd $BUILD_DIR
+            ctest
+
       -  name: Package
          run: |
             cd $BUILD_DIR
@@ -138,6 +143,11 @@ jobs:
             cd $BUILD_DIR
             cmake -G "MSYS Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
             cmake --build . --parallel
+
+      -  name: Test
+         run: |
+            cd $BUILD_DIR
+            ctest
 
       -  name: Package
          run: |

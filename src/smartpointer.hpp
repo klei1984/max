@@ -23,90 +23,185 @@
 #define SMARTPOINTER_HPP
 
 #include <SDL_assert.h>
-#include <stdint.h>
 
+#include <cstdint>
 #include <new>
 
 class SmartObject {
     template <class T>
     friend class SmartPointer;
-    unsigned short reference_count;
+    uint16_t reference_count{0};
 
 protected:
-    inline void Increment() {
-        if (this) {
-            SDL_assert(reference_count != UINT16_MAX);
+    inline void Increment() noexcept {
+        SDL_assert(reference_count != UINT16_MAX);
 
-            ++reference_count;
-        }
+        ++reference_count;
     }
 
-    inline void Decrement() {
-        if (this) {
-            SDL_assert(reference_count != 0);
+    inline void Decrement() noexcept {
+        SDL_assert(reference_count != 0);
 
-            --reference_count;
-            if (reference_count == 0) {
-                delete this;
-            }
+        --reference_count;
+        if (reference_count == 0) {
+            delete this;
         }
     }
 
 public:
-    SmartObject() : reference_count(0) {}
-    SmartObject(const SmartObject& other) : reference_count(0) {}
+    SmartObject() = default;
+    SmartObject(const SmartObject& /* unused */) {}
     virtual ~SmartObject() { SDL_assert(reference_count == 0); }
 };
 
 template <class T>
 class SmartPointer {
-protected:
-    T* object_pointer;
+    T* object_pointer{nullptr};
 
 public:
-    SmartPointer() : object_pointer(nullptr) {}
-    SmartPointer(T* object) : object_pointer(object) { object_pointer->Increment(); }
-    SmartPointer(T& object) : object_pointer(&object) { object_pointer->Increment(); }
-    SmartPointer(const SmartPointer<T>& other) : object_pointer(other.object_pointer) { object_pointer->Increment(); }
-    ~SmartPointer() { object_pointer->Decrement(); }
+    SmartPointer() = default;
 
-    T* operator->() const { return object_pointer; }
+    SmartPointer(T* object) : object_pointer(object) {
+        if (object_pointer) {
+            object_pointer->Increment();
+        }
+    }
 
-    T& operator*() const { return *object_pointer; }
+    SmartPointer(T& object) : object_pointer(&object) {
+        if (object_pointer) {
+            object_pointer->Increment();
+        }
+    }
 
-    SmartPointer<T>& operator=(const SmartPointer<T>& other) {
-        other.object_pointer->Increment();
-        object_pointer->Decrement();
+    SmartPointer(const SmartPointer<T>& other) : object_pointer(other.object_pointer) {
+        if (object_pointer) {
+            object_pointer->Increment();
+        }
+    }
+
+    ~SmartPointer() {
+        if (object_pointer) {
+            object_pointer->Decrement();
+        }
+    }
+
+    inline T* operator->() const noexcept { return object_pointer; }
+
+    inline T& operator*() const noexcept { return *object_pointer; }
+
+    SmartPointer<T>& operator=(const SmartPointer<T>& other) noexcept {
+        if (other.object_pointer) {
+            other.object_pointer->Increment();
+        }
+
+        if (object_pointer) {
+            object_pointer->Decrement();
+        }
+
         object_pointer = other.object_pointer;
 
         return *this;
     }
 
-    SmartPointer<T>& operator=(T* other) {
-        other->Increment();
-        object_pointer->Decrement();
+    SmartPointer<T>& operator=(T* other) noexcept {
+        if (other) {
+            other->Increment();
+        }
+
+        if (object_pointer) {
+            object_pointer->Decrement();
+        }
+
         object_pointer = other;
 
         return *this;
     }
 
-    SmartPointer<T>& operator=(T& other) {
+    SmartPointer<T>& operator=(T& other) noexcept {
         other.Increment();
-        object_pointer->Decrement();
+
+        if (object_pointer) {
+            object_pointer->Decrement();
+        }
+
         object_pointer = &other;
 
         return *this;
     }
 
-    bool operator==(const SmartPointer<T>& t) const { return object_pointer == t.object_pointer; }
+    inline explicit operator bool() const noexcept { return object_pointer != nullptr; }
 
-    bool operator==(const T* t) const { return object_pointer == t; }
-
-    bool operator!=(const SmartPointer<T>& t) const { return object_pointer != t.object_pointer; }
-
-    bool operator!=(const T* t) const { return object_pointer != t; }
-
-    operator bool() const { return object_pointer != nullptr; }
+    inline T* Get() const noexcept { return object_pointer; };
 };
+
+template <class T>
+inline bool operator==(const SmartPointer<T>& lhs, const SmartPointer<T>& rhs) noexcept {
+    return lhs.Get() == rhs.Get();
+}
+
+template <class T>
+inline bool operator==(const SmartPointer<T>& lhs, const T* rhs) noexcept {
+    return lhs.Get() == rhs;
+}
+
+template <class T>
+inline bool operator==(const T* lhs, const SmartPointer<T>& rhs) noexcept {
+    return lhs == rhs.Get();
+}
+
+template <class T>
+inline bool operator==(const SmartPointer<T>& lhs, const T& rhs) noexcept {
+    return lhs.Get() == &rhs;
+}
+
+template <class T>
+inline bool operator==(const T& lhs, const SmartPointer<T>& rhs) noexcept {
+    return &lhs == rhs.Get();
+}
+
+template <class T>
+inline bool operator==(const SmartPointer<T>& lhs, std::nullptr_t) noexcept {
+    return !lhs.Get();
+}
+
+template <class T>
+inline bool operator==(std::nullptr_t, const SmartPointer<T>& rhs) noexcept {
+    return !rhs.Get();
+}
+
+template <class T>
+inline bool operator!=(const SmartPointer<T>& lhs, const SmartPointer<T>& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+template <class T>
+inline bool operator!=(const SmartPointer<T>& lhs, const T* rhs) noexcept {
+    return !(lhs.Get() == rhs);
+}
+
+template <class T>
+inline bool operator!=(const T* lhs, const SmartPointer<T>& rhs) noexcept {
+    return !(lhs == rhs.Get());
+}
+
+template <class T>
+inline bool operator!=(const SmartPointer<T>& lhs, const T& rhs) noexcept {
+    return !(lhs.Get() == &rhs);
+}
+
+template <class T>
+inline bool operator!=(const T& lhs, const SmartPointer<T>& rhs) noexcept {
+    return !(&lhs == rhs.Get());
+}
+
+template <class T>
+inline bool operator!=(const SmartPointer<T>& lhs, std::nullptr_t) noexcept {
+    return lhs.Get();
+}
+
+template <class T>
+inline bool operator!=(std::nullptr_t, const SmartPointer<T>& rhs) noexcept {
+    return rhs.Get();
+}
 
 #endif /* SMARTPOINTER_HPP */

@@ -170,7 +170,7 @@ Rect* TaskSupportAttack::GetBounds(Rect* bounds) {
 
 unsigned char TaskSupportAttack::GetType() const { return TaskType_TaskSupportAttack; }
 
-bool TaskSupportAttack::IsNeeded() { return parent; }
+bool TaskSupportAttack::IsNeeded() { return parent != nullptr; }
 
 void TaskSupportAttack::AddUnit(UnitInfo& unit) {
     if (parent) {
