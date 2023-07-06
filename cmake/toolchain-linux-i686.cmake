@@ -1,8 +1,6 @@
 set(CMAKE_SYSTEM_NAME Linux)
 
-set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_C_COMPILER gcc -m32)
+set(CMAKE_CXX_COMPILER g++ -m32)
 
-set(CONFIGURE_EXTRA_ARGS --build=i686-pc-linux-gnu CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32)
-
-add_compile_options(-m32)
+set(CONFIGURE_EXTRA_ARGS --build=i686-pc-linux-gnu CC=gcc CXX=g++ CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32)
