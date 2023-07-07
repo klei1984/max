@@ -831,7 +831,7 @@ bool TaskManageBuildings::IsSafeSite(unsigned short** construction_map, Point si
 bool TaskManageBuildings::EvaluateSite(unsigned short** construction_map, ResourceID unit_type, Point& site) {
     Point position;
     int site_value;
-    int best_site_value;
+    int best_site_value{INT32_MIN};
     bool is_site_found = false;
     bool result;
 
@@ -2599,7 +2599,7 @@ bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site
     if (EvaluateNeedForRadar(access_map.GetMap(), task)) {
         Point location;
         int access_map_value;
-        int best_access_map_value;
+        int best_access_map_value{INT32_MAX};
 
         AiLog log("Find site for radar.");
 
@@ -2652,7 +2652,7 @@ bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuildi
         int access_map_value;
         int best_access_map_value = 1;
         int distance;
-        int minimum_distance;
+        int minimum_distance{INT32_MAX};
 
         MouseEvent::ProcessInput();
 

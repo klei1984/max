@@ -44,7 +44,7 @@ bool TaskRendezvous_SearchMap(UnitInfo* unit1, UnitInfo* unit2, Point* site, cha
     Point position2(unit2->grid_x - 1, unit2->grid_y + range - 1);
     bool result = false;
     int distance;
-    int minimum_distance;
+    int minimum_distance{INT32_MAX};
 
     for (int direction = 0; direction < 8; direction += 2) {
         for (int i = 0; i < range; ++i) {

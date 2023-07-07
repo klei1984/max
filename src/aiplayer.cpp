@@ -512,7 +512,7 @@ void AiPlayer::UpdateMap(short** map, Point position, int range, int damage_pote
     Point limit;
     int distance = range * range;
     int map_offset;
-    short* map_address;
+    short* map_address{nullptr};
 
     site.x = std::max(position.x - range, 0) - 1;
     site.y = 0;
@@ -1143,7 +1143,7 @@ bool AiPlayer::IsSurfaceTypePresent(Point site, int range, int surface_type) {
 }
 
 int AiPlayer::SelectTeamClan() {
-    int team_clan;
+    int team_clan{TEAM_CLAN_RANDOM};
 
     switch (strategy) {
         case AI_STRATEGY_DEFENSIVE: {
@@ -1213,7 +1213,7 @@ int AiPlayer::SelectTeamClan() {
         } break;
 
         default: {
-            SDL_assert(false);
+            SDL_assert(0);
         } break;
     }
 

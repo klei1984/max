@@ -106,7 +106,7 @@ void TaskFrontalAttack::IssueOrders() {
             UnitInfo* attacker = nullptr;
             bool has_attack_target = false;
             int unit_value;
-            int best_unit_value;
+            int best_unit_value{0};
 
             for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
                 if ((*it).orders == ORDER_MOVE_TO_ATTACK || Access_GetDistance(&*it, spotted_unit->GetLastPosition()) <=

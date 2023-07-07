@@ -155,7 +155,7 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
 
 bool TaskTransport::ChooseNewTask() {
     int distance;
-    int minimum_distance;
+    int minimum_distance{INT32_MAX};
     bool result;
 
     AiLog log("Transport: Choose New Task.");

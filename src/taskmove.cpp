@@ -1322,7 +1322,7 @@ UnitInfo* TaskMove::FindUnit(SmartList<UnitInfo>* units, unsigned short team, Re
 void TaskMove::FindTransport(ResourceID unit_type) {
     TaskTransport* transport = nullptr;
     int distance;
-    int minimum_distance;
+    int minimum_distance{INT32_MAX};
 
     AiLog log("Find transport.");
 

@@ -46,7 +46,7 @@ void TaskReload::SelectOperator() {
         ResourceID repair_shop_type;
         UnitInfo* unit = nullptr;
         int distance;
-        int shortest_distance;
+        int minimum_distance{INT32_MAX};
 
         repair_shop_type = GetRepairShopType();
 
@@ -104,9 +104,9 @@ void TaskReload::SelectOperator() {
                 if ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) {
                     distance = TaskManager_GetDistance(&*it, &*target_unit);
 
-                    if (unit == nullptr || distance < shortest_distance) {
+                    if (unit == nullptr || distance < minimum_distance) {
                         unit = &*it;
-                        shortest_distance = distance;
+                        minimum_distance = distance;
                     }
                 }
             }

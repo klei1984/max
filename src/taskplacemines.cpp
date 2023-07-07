@@ -176,7 +176,7 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
                     Point position;
                     int surface_type;
                     int distance;
-                    int minimum_distance;
+                    int minimum_distance{INT32_MAX};
                     bool is_found = false;
 
                     if (unit.unit_type == MINELAYR) {

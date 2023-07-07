@@ -86,7 +86,7 @@ AssertMenu::~AssertMenu() {
 }
 
 int AssertMenu::Run() {
-    int result;
+    int result{SDL_ASSERTION_ALWAYS_IGNORE};
 
     if (Remote_IsNetworkGame) {
         result = SDL_ASSERTION_ALWAYS_IGNORE;

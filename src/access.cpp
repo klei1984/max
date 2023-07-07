@@ -246,8 +246,8 @@ unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int 
 bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, short* grid_x, short* grid_y, int range_limit,
                                  int mode, int direction) {
     UnitValues* unit_values;
-    int offset_x;
-    int offset_y;
+    int offset_x{0};
+    int offset_y{0};
 
     unit_values = unit->GetBaseValues();
 
@@ -270,6 +270,10 @@ bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, short* gr
         case 3: {
             offset_x = 0;
             offset_y = -1;
+        } break;
+
+        default: {
+            SDL_assert(0);
         } break;
     }
 
@@ -437,7 +441,7 @@ bool Access_FindReachableSpot(ResourceID unit_type, UnitInfo* unit, short* grid_
 }
 
 unsigned int Access_GetAttackTargetGroup(UnitInfo* unit) {
-    unsigned int result;
+    unsigned int result{TARGET_CLASS_NONE};
 
     if (unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) == 0 || unit->orders == ORDER_DISABLE) {
         result = TARGET_CLASS_NONE;
@@ -1050,7 +1054,7 @@ bool Access_UpdateGroupSpeed(UnitInfo* unit) {
 
 void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
     if (Access_UpdateGroupSpeed(unit)) {
-        UnitInfo* enemy;
+        UnitInfo* enemy{nullptr};
         UnitInfo* friendly;
 
         if (unit->orders == ORDER_MOVE_TO_ATTACK) {

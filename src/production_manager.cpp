@@ -497,10 +497,10 @@ int ProductionManager::CheckCargoNeed(int type, int amount, bool mode) {
     int result;
 
     if (amount > 0) {
-        int mining_total;
-        int mining_gold;
-        int mining_raw;
-        int mining_fuel;
+        int mining_total{0};
+        int mining_gold{0};
+        int mining_raw{0};
+        int mining_fuel{0};
 
         switch (type) {
             case CARGO_MATERIALS: {
@@ -513,6 +513,10 @@ int ProductionManager::CheckCargoNeed(int type, int amount, bool mode) {
 
             case CARGO_GOLD: {
                 mining_total = cargo_mining_capacity.gold - cargo_resource_reserves.gold;
+            } break;
+
+            default: {
+                SDL_assert(0);
             } break;
         }
 

@@ -52,5 +52,7 @@ Mkfile.old
 dkms.conf
 
 # CMake
-build/**
-build-mingw/**
+Debug/**
+Release/**
+RelWithDebInfo/**
+MinSizeRel/**

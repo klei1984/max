@@ -172,7 +172,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
         } else {
             Rect bounds;
             int distance;
-            int minimum_distance;
+            int minimum_distance{INT32_MAX};
 
             bounds.ulx = std::max(1, unit->grid_x - 5);
             bounds.lrx = std::min(ResourceManager_MapSize.x - 1, unit->grid_x + 6);

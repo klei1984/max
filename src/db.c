@@ -855,7 +855,7 @@ int db_init_database(db_handle db, char* datafile, char* datafile_path) {
     assoc_func_list assoc_funcs;
     int i;
     int j;
-    char* path;
+    char* path = "\0";
     int size;
 
     if (!db) {

@@ -283,8 +283,8 @@ void GameConfigMenu::EventResourceLevelsAlien() {
 }
 
 void GameConfigMenu::EventVictoryCondition() {
-    int victory_type;
-    int victory_limit;
+    int victory_type{0};
+    int victory_limit{0};
     int index;
 
     index = key - 40;

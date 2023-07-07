@@ -108,7 +108,7 @@ char* TaskAttack::WriteStatusLog(char* buffer) const {
 
     if (task) {
         Point position;
-        const char* status;
+        const char* status = " ";
 
         switch (op_state) {
             case ATTACK_STATE_INIT: {
@@ -142,6 +142,10 @@ char* TaskAttack::WriteStatusLog(char* buffer) const {
             case ATTACK_STATE_ATTACK: {
                 status = "Attack ";
             } break;
+
+            default: {
+                SDL_assert(0);
+            }
         }
 
         position = task->DeterminePosition();
@@ -566,7 +570,7 @@ UnitInfo* TaskAttack::DetermineLeader() {
         Point position;
         SmartPointer<UnitInfo> candidate(leader);
         int distance;
-        int minimum_distance;
+        int minimum_distance{INT32_MAX};
 
         attack_zone_reached = false;
 

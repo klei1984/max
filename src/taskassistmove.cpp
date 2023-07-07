@@ -219,7 +219,7 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
     Point Point_object1;
     Point Point_object2;
     int distance;
-    int minimum_distance;
+    int minimum_distance{INT32_MAX};
     bool result;
 
     if (unit.IsReadyForOrders(this)) {

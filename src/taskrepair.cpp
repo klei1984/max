@@ -124,16 +124,16 @@ UnitInfo* TaskRepair::SelectRepairShop() {
 
     if (repair_shop != INVALID_ID) {
         int distance;
-        int shortest_distance;
+        int minimum_distance{INT32_MAX};
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).team == team && (*it).unit_type == repair_shop) {
                 distance = TaskManager_GetDistance(&*it, &*target_unit);
 
-                if (result == nullptr || distance < shortest_distance) {
+                if (result == nullptr || distance < minimum_distance) {
                     result = &*it;
-                    shortest_distance = distance;
+                    minimum_distance = distance;
                 }
             }
         }
@@ -446,7 +446,7 @@ void TaskRepair::SelectOperator() {
     if (GetRepairShopType() == DEPOT) {
         UnitInfo* unit = nullptr;
         int distance;
-        int shortest_distance;
+        int minimum_distance{INT32_MAX};
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
@@ -456,9 +456,9 @@ void TaskRepair::SelectOperator() {
                 if ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) {
                     distance = TaskManager_GetDistance(&*it, &*target_unit);
 
-                    if (unit == nullptr || distance < shortest_distance) {
+                    if (unit == nullptr || distance < minimum_distance) {
                         unit = &*it;
-                        shortest_distance = distance;
+                        minimum_distance = distance;
                     }
                 }
             }

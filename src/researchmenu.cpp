@@ -246,7 +246,7 @@ int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, Resour
 
     if (topic->research_level) {
         SmartPointer<UnitValues> unit_values = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type);
-        int value;
+        int value{0};
 
         switch (research_topic) {
             case RESEARCH_TOPIC_ATTACK: {

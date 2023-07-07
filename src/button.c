@@ -393,7 +393,7 @@ int win_button_down(ButtonID bid) {
 }
 
 int GNW_check_buttons(GNW_Window* w, int* press) {
-    Rect s;
+    Rect s = {0, 0, 0, 0};
     int result;
     int mbuttons;
     GNW_ButtonPtr b;

@@ -164,7 +164,7 @@ void TaskGetMaterials::DoTransfer() {
 UnitInfo* TaskGetMaterials::FindBuilding() {
     UnitInfo* building = nullptr;
     int distance;
-    int minimum_distance;
+    int minimum_distance{INT32_MAX};
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -188,7 +188,7 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
 void TaskGetMaterials::FindTruck() {
     UnitInfo* truck = nullptr;
     int distance;
-    int minimum_distance;
+    int minimum_distance{INT32_MAX};
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {

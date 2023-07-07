@@ -212,7 +212,7 @@ void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
 
 void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
     IniParameter ini_param_index;
-    ResourceID resource_id;
+    ResourceID resource_id{INVALID_ID};
     struct ImageSimpleHeader *resource_image;
     int image_ulx;
     int image_uly;

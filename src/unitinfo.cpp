@@ -2438,7 +2438,7 @@ void UnitInfo::MoveToFrontInUnitList() {
 
 UnitInfo* UnitInfo::GetConnectedBuilding(unsigned int connector) {
     int grid_size;
-    UnitInfo* result;
+    UnitInfo* result{nullptr};
 
     if (flags & BUILDING) {
         grid_size = 2;
@@ -3649,9 +3649,9 @@ bool UnitInfo::AttemptSideStep(int grid_x, int grid_y, int angle) {
                 Point position;
                 Point best_site;
                 int step_cost;
-                int best_cost = 0;
-                int unit_angle;
-                int best_angle;
+                int best_cost{0};
+                int unit_angle{8};
+                int best_angle{0};
 
                 for (int direction = 0; direction < 8; ++direction) {
                     for (int scan_range = 0; scan_range < 2; ++scan_range) {

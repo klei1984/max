@@ -97,7 +97,7 @@ bool TaskScavenge::Execute(UnitInfo& unit) {
     if (unit.IsReadyForOrders(this)) {
         UnitInfo* target = nullptr;
         int distance;
-        int minimum_distance;
+        int minimum_distance{INT32_MAX};
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {

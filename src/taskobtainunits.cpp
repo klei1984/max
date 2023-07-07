@@ -78,8 +78,8 @@ bool TaskObtainUnits::IsValidCandidate(UnitInfo* unit, bool mode) {
 
 UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     SmartList<UnitInfo>* list;
-    int speed = 0;
-    int best_speed;
+    int speed{0};
+    int best_speed{0};
     UnitInfo* selected_unit = nullptr;
     bool is_unit_available = false;
 

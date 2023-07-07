@@ -349,7 +349,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                     bool is_found = false;
                     int distance = attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
                     int distance2;
-                    int minimal_distance;
+                    int minimal_distance{INT32_MAX};
 
                     distance = distance * distance;
 
@@ -1076,7 +1076,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_fla
     bool is_execution_phase = false;
     TaskAttack* attack_task = nullptr;
     int distance;
-    int minimum_distance;
+    int minimum_distance{INT32_MAX};
     bool result;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();

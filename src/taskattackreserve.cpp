@@ -104,7 +104,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
         if (unit.speed > 0) {
             SmartPointer<Task> best_task;
             int distance;
-            int minimum_distance;
+            int minimum_distance{INT32_MAX};
 
             units.PushBack(unit);
             unit.AddTask(this);

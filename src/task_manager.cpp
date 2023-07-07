@@ -573,7 +573,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
             if (!unit->GetTask() && unit->hits > 0) {
                 char unit_name[300];
                 SmartPointer<TaskObtainUnits> obtain_units_task;
-                unsigned short task_flags;
+                unsigned short task_flags{UINT16_MAX};
 
                 unit->GetDisplayName(unit_name);
 
@@ -651,7 +651,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
 
                 SmartPointer<Task> best_task;
                 int distance;
-                int minimum_distance;
+                int minimum_distance{INT32_MAX};
 
                 for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
                     if ((*it).GetTeam() == unit->team && (*it).IsUnitUsable(*unit)) {

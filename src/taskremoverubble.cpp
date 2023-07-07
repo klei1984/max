@@ -189,7 +189,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
     if (unit_->speed) {
         UnitInfo* best_unit = nullptr;
         int distance;
-        int minimum_distance;
+        int minimum_distance{INT32_MAX};
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {

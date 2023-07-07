@@ -73,7 +73,7 @@ void TaskGetResource::RendezvousResultCallback(Task* task, UnitInfo* unit, char 
 UnitInfo* TaskGetResource::FindClosestBuilding(Complex* complex) {
     UnitInfo* best_building = nullptr;
     int distance;
-    int minimum_distance;
+    int minimum_distance{INT32_MAX};
 
     for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin(); unit != nullptr; ++unit) {
         if ((*unit).GetComplex() == complex) {

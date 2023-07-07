@@ -556,8 +556,8 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
             Cargo capacity;
             int cargo_type;
             int cargo_value;
-            int current_value;
-            int base_value;
+            int current_value{0};
+            int base_value{0};
 
             unit->GetComplex()->GetCargoInfo(materials, capacity);
             cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;

@@ -4,6 +4,11 @@ project(max LANGUAGES C CXX)
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -24,7 +29,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-	CXX_STANDARD "20"
 	COMPILE_FLAGS "-Wcomments -Wignored-qualifiers -Wshadow=local -Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -Wformat-overflow -Wformat-truncation -Wlogical-op -Wlogical-not-parentheses -fno-eliminate-unused-debug-types -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
 )
 
@@ -67,7 +71,7 @@ set(CPACK_PACKAGE_CONTACT "M.A.X. Port Team")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.")
-set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};/dependencies/.*\.tar\.gz")
+set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};Debug;Release;RelWithDebInfo;MinSizeRel;/dependencies/.*\.tar\.gz")
 
 install(FILES "LICENSE" DESTINATION .)
 install(FILES "assets/PATCHES.RES" DESTINATION .)

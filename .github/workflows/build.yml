@@ -26,8 +26,8 @@ jobs:
       container: ubuntu:22.10
 
       env:
-         BUILD_DIR: build
          BUILD_TYPE: Debug
+         BUILD_DIR: Debug
 
       steps:
       -  name: Setup Dependencies
@@ -74,7 +74,7 @@ jobs:
       container: ubuntu:22.10
 
       env:
-         BUILD_DIR: build
+         BUILD_DIR: Debug
          BUILD_TYPE: Debug
 
       steps:
@@ -116,7 +116,7 @@ jobs:
    Windows-i386:
       runs-on: windows-2019
       env:
-         BUILD_DIR: build
+         BUILD_DIR: Debug
          BUILD_TYPE: Debug
 
       defaults:

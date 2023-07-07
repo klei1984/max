@@ -1501,14 +1501,14 @@ void GameManager_DrawSelectSiteMessage(unsigned short team) {
 
 bool GameManager_SelectSite(unsigned short team) {
     int proximity_alert_ack;
-    int range;
-    int scan;
+    int range{0};
+    int scan{0};
     SmartPointer<UnitValues> unit_values;
     bool flag;
     int starting_position_x;
     int starting_position_y;
-    int grid_x_overlap;
-    int grid_y_overlap;
+    int grid_x_overlap{0};
+    int grid_y_overlap{0};
     int proximity_state;
 
     proximity_alert_ack = UnitsManager_TeamMissionSupplies[team].proximity_alert_ack;
@@ -7494,7 +7494,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
     if (unit->IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) {
         SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
         WindowInfo* window;
-        unsigned char scaling_factor;
+        unsigned char scaling_factor{0};
 
         window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
 
@@ -7572,8 +7572,8 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
             UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD) {
             Cargo materials;
             Cargo capacity;
-            int value;
-            int value_limit;
+            int value{0};
+            int value_limit{0};
 
             unit->GetComplex()->GetCargoInfo(materials, capacity);
 

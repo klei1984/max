@@ -957,7 +957,7 @@ const char *ResourceManager_ToUpperCase(std::string &string) {
 }
 
 ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bool full_scan) {
-    ColorIndex color_index;
+    ColorIndex color_index{0};
     int color_distance;
     int color_distance_minimum;
     int red;
@@ -1294,7 +1294,7 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     int tile_index;
     int data_size;
     unsigned char *normal_tile_buffer;
-    unsigned char *full_tile_buffer;
+    unsigned char *full_tile_buffer{nullptr};
 
     tile_size = GFX_MAP_TILE_SIZE;
 
@@ -1429,8 +1429,8 @@ void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues 
 
 void ResourceManager_InitClanUnitValues(unsigned short team) {
     SmartPointer<UnitValues> unit_values;
-    TeamUnits *team_units;
-    int team_clan;
+    TeamUnits *team_units{nullptr};
+    int team_clan{TEAM_CLAN_RANDOM};
 
     switch (team) {
         case PLAYER_TEAM_RED: {

@@ -457,8 +457,8 @@ int AllocMenu_Optimize(Complex *complex, int cargo_type1, int material, int carg
                 (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
                 Survey_GetResourcesInArea((*it).grid_x, (*it).grid_y, 1, 16, &raw, &gold, &fuel, true, (*it).team);
 
-                unsigned char *cargo;
-                short cargo_value;
+                unsigned char *cargo{nullptr};
+                short cargo_value{0};
 
                 switch (cargo_type1) {
                     case CARGO_GOLD: {
@@ -474,6 +474,10 @@ int AllocMenu_Optimize(Complex *complex, int cargo_type1, int material, int carg
                     case CARGO_FUEL: {
                         cargo = &(*it).fuel_mining;
                         cargo_value = fuel;
+                    } break;
+
+                    default: {
+                        SDL_assert(0);
                     } break;
                 };
 
@@ -524,7 +528,7 @@ void AllocMenu_AdjustForDemands(Complex *complex, int cargo_type, int material) 
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
             (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
-            unsigned char *cargo;
+            unsigned char *cargo{nullptr};
 
             switch (cargo_type) {
                 case CARGO_GOLD: {
@@ -537,6 +541,10 @@ void AllocMenu_AdjustForDemands(Complex *complex, int cargo_type, int material) 
 
                 case CARGO_FUEL: {
                     cargo = &(*it).fuel_mining;
+                } break;
+
+                default: {
+                    SDL_assert(0);
                 } break;
             };
 
