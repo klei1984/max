@@ -21,3 +21,5 @@ find_program(CMAKE_CXX_COMPILER NAMES clang++ REQUIRED)
 set(CONFIGURE_EXTRA_ARGS --target=${TOOLSET} --host=${TOOLSET} --build=${TOOLSET} CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32)
 
 add_compile_options(-m32)
+
+set(MAX_CFLAGS "")

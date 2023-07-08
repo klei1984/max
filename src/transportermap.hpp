@@ -25,6 +25,7 @@
 #include "accessmap.hpp"
 #include "enums.hpp"
 #include "point.hpp"
+#include "smartpointer.hpp"
 
 class UnitInfo;
 

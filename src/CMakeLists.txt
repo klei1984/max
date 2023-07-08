@@ -33,7 +33,6 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/registerarray.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/units_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/teamunits.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/enums.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/window_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/resource_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/menulandingsequence.cpp

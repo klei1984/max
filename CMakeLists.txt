@@ -24,7 +24,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-	COMPILE_FLAGS "-Wcomments -Wignored-qualifiers -Wshadow=local -Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -Wformat-overflow -Wformat-truncation -Wlogical-op -Wlogical-not-parentheses -fno-eliminate-unused-debug-types -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
+	COMPILE_FLAGS "${MAX_CFLAGS} -DGAME_VERSION=\"\\\"v${GAME_VERSION}\\\"\""
 )
 
 if(NOT BUILD_SHARED_LIBS)

@@ -770,10 +770,14 @@ int db_fwriteFloat(DB_FILE stream, float q) { return db_fwriteInt(stream, (signe
 
 int db_assoc_load_dir_entry(FILE* fp, void* dir_entry, size_t size, int unknown) {
     SDL_assert(0 /** \todo implement unused code */);
+
+    return -1;
 }
 
 int db_assoc_save_dir_entry(FILE* fp, void* dir_entry, size_t size, int unknown) {
     SDL_assert(0 /** \todo implement unused code */);
+
+    return -1;
 }
 
 long db_filelength(DB_FILE stream) {

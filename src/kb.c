@@ -137,31 +137,30 @@ void kb_set_layout(kb_layout_t layout) {
     old_layout = kb_layout;
     kb_layout = layout;
 
-    if (layout >= unsupported_language) {
-        kb_layout = old_layout;
-    } else {
-        switch (layout) {
-            case english:
-                kb_scan_to_ascii = kb_next_ascii_English_US;
-                kb_map_ascii_English_US();
-                break;
-            case french:
-                kb_scan_to_ascii = kb_next_ascii_French;
-                kb_map_ascii_French();
-                break;
-            case german:
-                kb_scan_to_ascii = kb_next_ascii_German;
-                kb_map_ascii_German();
-                break;
-            case italian:
-                kb_scan_to_ascii = kb_next_ascii_Italian;
-                kb_map_ascii_Italian();
-                break;
-            case spanish:
-                kb_scan_to_ascii = kb_next_ascii_Spanish;
-                kb_map_ascii_Spanish();
-                break;
-        }
+    switch (layout) {
+        case english:
+            kb_scan_to_ascii = kb_next_ascii_English_US;
+            kb_map_ascii_English_US();
+            break;
+        case french:
+            kb_scan_to_ascii = kb_next_ascii_French;
+            kb_map_ascii_French();
+            break;
+        case german:
+            kb_scan_to_ascii = kb_next_ascii_German;
+            kb_map_ascii_German();
+            break;
+        case italian:
+            kb_scan_to_ascii = kb_next_ascii_Italian;
+            kb_map_ascii_Italian();
+            break;
+        case spanish:
+            kb_scan_to_ascii = kb_next_ascii_Spanish;
+            kb_map_ascii_Spanish();
+            break;
+        default:
+            kb_layout = old_layout;
+            break;
     }
 }
 

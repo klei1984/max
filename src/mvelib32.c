@@ -188,7 +188,7 @@ void *MemAlloc(MveMemBlock *ptr, size_t size) {
 
 void syncRelease(void) {}
 
-int syncInit(unsigned int rate, unsigned short divider) {}
+int syncInit(unsigned int rate, unsigned short divider) { return 0; }
 
 int syncWait(void) {}
 

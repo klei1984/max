@@ -21,3 +21,5 @@ find_program(CMAKE_CXX_COMPILER NAMES ${TOOLSET}-g++ REQUIRED)
 set(CONFIGURE_EXTRA_ARGS --target=${TOOLSET} --host=${TOOLSET} --build=${TOOLSET} CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32)
 
 add_compile_options(-m32)
+
+set(MAX_CFLAGS "-Wcomments -Wignored-qualifiers -Wshadow=local -Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -Wformat-overflow -Wformat-truncation -Wlogical-op -Wlogical-not-parentheses -fno-eliminate-unused-debug-types")

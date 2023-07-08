@@ -22,8 +22,6 @@
 #ifndef ENUMS_HPP
 #define ENUMS_HPP
 
-#include "sortedenum.hpp"
-
 enum ResourceID : unsigned short {
     COMMTWR = 0x0,
     POWERSTN = 0x1,
@@ -2270,14 +2268,5 @@ enum {
     AI_STRATEGY_ESPIONAGE,
     AI_STRATEGY_MAX
 };
-
-extern SortedEnum Enums_UnitType;
-extern SortedEnum Enums_ResearchTopic;
-extern SortedEnum Enums_Sound;
-extern SortedEnum Enums_Orders;
-extern SortedEnum Enums_States;
-extern SortedEnum Enums_LayingState;
-extern SortedEnum Enums_Cursor;
-extern SortedEnum Enums_EngineWeaponComm;
 
 #endif /* ENUMS_HPP */
