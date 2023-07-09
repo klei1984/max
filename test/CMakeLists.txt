@@ -29,6 +29,7 @@ add_executable(
     max_tests
     test_main.cpp
     smartpointer.cpp
+    smartlist.cpp
 )
 
 if(NOT BUILD_SHARED_LIBS)

@@ -63,9 +63,9 @@ void SmartList_UnitInfo_FileSave(SmartList<UnitInfo>& list, SmartFileWriter& fil
 
 void SmartList_UnitInfo_Clear(SmartList<UnitInfo>& list) {
     for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != nullptr; ++unit) {
-        unit->GetObject()->SetParent(nullptr);
-        unit->GetObject()->SetEnemy(nullptr);
-        unit->GetObject()->RemoveTasks();
+        unit->Get()->SetParent(nullptr);
+        unit->Get()->SetEnemy(nullptr);
+        unit->Get()->RemoveTasks();
     }
 
     list.Clear();

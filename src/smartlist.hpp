@@ -38,7 +38,7 @@ class SmartList {
         explicit ListNode(N& object) : object(object) {}
         ~ListNode() = default;
 
-        void InsertAfter(ListNode<N>& node) {
+        inline void InsertAfter(ListNode<N>& node) noexcept {
             node.next = this->next;
             node.prev = this;
 
@@ -49,7 +49,7 @@ class SmartList {
             this->next = node;
         }
 
-        void InsertBefore(ListNode<N>& node) {
+        inline void InsertBefore(ListNode<N>& node) noexcept {
             node.prev = this->prev;
             node.next = this;
 
@@ -60,7 +60,7 @@ class SmartList {
             this->prev = node;
         }
 
-        void RemoveSelf() {
+        inline void RemoveSelf() noexcept {
             if (this->prev != nullptr) {
                 this->prev->next = this->next;
             }
@@ -70,10 +70,12 @@ class SmartList {
             }
         }
 
-        N* GetObject() { return &*object; }
+        inline N* Get() const noexcept { return object.Get(); }
 
-        ListNode<N>& operator=(const ListNode<N>* other) {
-            object = other->object;
+        inline ListNode<N>& operator=(const ListNode<N>* other) noexcept {
+            if (this != other) {
+                object = other->object;
+            }
 
             return *this;
         }
@@ -83,14 +85,14 @@ class SmartList {
     SmartPointer<ListNode<T>> first;
     SmartPointer<ListNode<T>> last;
 
-    void Erase(ListNode<T>& position) {
+    inline void Erase(ListNode<T>& position) noexcept {
         if (position.prev == nullptr) {
-            if (first != &position) {
+            if (first != position) {
                 return;
             }
 
         } else {
-            if (position.prev->next != &position) {
+            if (position.prev->next != position) {
                 return;
             }
         }
@@ -99,31 +101,29 @@ class SmartList {
 
         position.RemoveSelf();
 
-        if (first == &position) {
+        if (first == position) {
             first = position.next;
         }
 
-        if (last == &position) {
+        if (last == position) {
             last = position.prev;
         }
     }
 
-    ListNode<T>& GetByIndex(int32_t index) const {
+    inline ListNode<T>& Get(int32_t index) const noexcept {
         Iterator it;
 
-        SDL_assert(index >= 0 && index < count);
-
-        if (index > (count / 2)) {
+        if (index >= (count / 2)) {
             index = count - index - 1;
 
-            for (it = &*last; index != -1; --it) {
+            for (it = last.Get(); index != -1; --it) {
                 --index;
             }
 
         } else {
             --index;
 
-            for (it = &*first; index != -1; ++it) {
+            for (it = first.Get(); index != -1; ++it) {
                 --index;
             }
         }
@@ -135,50 +135,53 @@ public:
     class Iterator : public SmartPointer<ListNode<T>> {
         friend class SmartList;
 
-        ListNode<T>& GetNode() const { return *this->Get(); }
+        ListNode<T>& GetNode() const noexcept { return *this->Get(); }
 
     public:
-        Iterator() : SmartPointer<ListNode<T>>(nullptr) {}
-        Iterator(ListNode<T>* object) : SmartPointer<ListNode<T>>(object) {}
+        Iterator() noexcept : SmartPointer<ListNode<T>>(nullptr) {}
+        Iterator(ListNode<T>* object) noexcept : SmartPointer<ListNode<T>>(object) {}
+        Iterator(ListNode<T>& object) noexcept : SmartPointer<ListNode<T>>(object) {}
+        Iterator(const Iterator& other) noexcept : SmartPointer<ListNode<T>>(other.GetNode()) {}
 
-        T& operator*() const { return *(this->Get()->GetObject()); }
+        inline T& operator*() const noexcept { return *(this->Get()->Get()); }
+        inline explicit operator T&() const noexcept { return *(this->Get()->Get()); }
 
-        Iterator& operator++() {
-            SmartPointer<ListNode<T>>::operator=(&*this->Get()->next);
+        Iterator& operator++() noexcept {
+            SmartPointer<ListNode<T>>::operator=(this->Get()->next);
             return *this;
         }
 
-        Iterator& operator--() {
-            SmartPointer<ListNode<T>>::operator=(&*this->Get()->prev);
+        Iterator& operator--() noexcept {
+            SmartPointer<ListNode<T>>::operator=(this->Get()->prev);
             return *this;
         }
     };
 
-    SmartList() = default;
+    SmartList() noexcept = default;
 
-    SmartList(const SmartList& other) {
+    SmartList(const SmartList& other) noexcept {
         for (Iterator it = other.Begin(); it != other.End(); ++it) {
             PushBack(*it);
         }
     }
 
-    ~SmartList() { Clear(); }
+    ~SmartList() noexcept { Clear(); }
 
-    Iterator Begin() const { return Iterator(&*first); }
+    inline Iterator Begin() const noexcept { return Iterator(first.Get()); }
 
-    Iterator Last() const { return Iterator(&*last); }
+    inline Iterator Last() const noexcept { return Iterator(last.Get()); }
 
-    Iterator End() const {
-        ListNode<T>* end = &*last;
+    inline Iterator End() const {
+        ListNode<T>* end = last.Get();
 
         if (end) {
-            end = &*last->next;
+            end = last->next.Get();
         }
 
         return Iterator(end);
     }
 
-    void PushBack(T& object) {
+    inline void PushBack(T& object) noexcept {
         Iterator it = new (std::nothrow) ListNode<T>(object);
 
         ++count;
@@ -193,7 +196,7 @@ public:
         last = it;
     }
 
-    void PushFront(T& object) {
+    inline void PushFront(T& object) noexcept {
         Iterator it = new (std::nothrow) ListNode<T>(object);
 
         ++count;
@@ -208,7 +211,7 @@ public:
         first = it;
     }
 
-    void InsertAfter(Iterator& position, T& object) {
+    inline void InsertAfter(Iterator& position, T& object) noexcept {
         if (position == nullptr) {
             PushBack(object);
 
@@ -225,7 +228,7 @@ public:
         }
     }
 
-    void InsertBefore(Iterator& position, T& object) {
+    inline void InsertBefore(Iterator& position, T& object) noexcept {
         if (position == nullptr) {
             PushFront(object);
 
@@ -242,7 +245,7 @@ public:
         }
     }
 
-    ListNode<T>* Find(T& object) {
+    inline ListNode<T>* Find(T& object) const noexcept {
         ListNode<T>* result = nullptr;
 
         for (Iterator it = Begin(); it != End(); ++it) {
@@ -255,7 +258,7 @@ public:
         return result;
     }
 
-    bool Remove(T& object) {
+    inline bool Remove(T& object) noexcept {
         bool result{false};
 
         Iterator it = Find(object);
@@ -271,9 +274,9 @@ public:
         return result;
     }
 
-    void Remove(Iterator& position) { Erase(position.GetNode()); }
+    inline void Remove(Iterator& position) noexcept { Erase(position.GetNode()); }
 
-    void Clear() {
+    inline void Clear() noexcept {
         while (first != nullptr) {
             last = first->next;
             first->prev = nullptr;
@@ -285,11 +288,11 @@ public:
         count = 0;
     }
 
-    [[nodiscard]] uint16_t GetCount() const { return count; }
+    [[nodiscard]] inline uint16_t GetCount() const noexcept { return count; }
 
-    [[nodiscard]] int32_t GetMemorySize() const { return count * sizeof(ListNode<T>) + sizeof(count); }
+    [[nodiscard]] inline int32_t GetMemorySize() const noexcept { return count * sizeof(ListNode<T>) + sizeof(count); }
 
-    SmartList<T>& operator=(const SmartList<T>& other) {
+    inline SmartList<T>& operator=(const SmartList<T>& other) {
         if (&this == &other) {
             return *this;
         }
@@ -303,7 +306,11 @@ public:
         return *this;
     }
 
-    T& operator[](uint16_t index) const { return *GetByIndex(index).GetObject(); }
+    inline T& operator[](uint16_t index) const noexcept {
+        SDL_assert(index >= 0 && index < count);
+
+        return *Get(index).Get();
+    }
 };
 
 #endif /* SMARTLIST_HPP */

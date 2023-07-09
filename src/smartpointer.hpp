@@ -132,76 +132,38 @@ public:
     inline explicit operator bool() const noexcept { return object_pointer != nullptr; }
 
     inline T* Get() const noexcept { return object_pointer; };
+
+    friend inline bool operator==(const SmartPointer<T>& lhs, const SmartPointer<T>& rhs) noexcept {
+        return lhs.Get() == rhs.Get();
+    }
+
+    friend inline bool operator==(const SmartPointer<T>& lhs, const T* rhs) noexcept { return lhs.Get() == rhs; }
+
+    friend inline bool operator==(const T* lhs, const SmartPointer<T>& rhs) noexcept { return lhs == rhs.Get(); }
+
+    friend inline bool operator==(const SmartPointer<T>& lhs, const T& rhs) noexcept { return lhs.Get() == &rhs; }
+
+    friend inline bool operator==(const T& lhs, const SmartPointer<T>& rhs) noexcept { return &lhs == rhs.Get(); }
+
+    friend inline bool operator==(const SmartPointer<T>& lhs, std::nullptr_t) noexcept { return !lhs.Get(); }
+
+    friend inline bool operator==(std::nullptr_t, const SmartPointer<T>& rhs) noexcept { return !rhs.Get(); }
+
+    friend inline bool operator!=(const SmartPointer<T>& lhs, const SmartPointer<T>& rhs) noexcept {
+        return !(lhs == rhs);
+    }
+
+    friend inline bool operator!=(const SmartPointer<T>& lhs, const T* rhs) noexcept { return !(lhs.Get() == rhs); }
+
+    friend inline bool operator!=(const T* lhs, const SmartPointer<T>& rhs) noexcept { return !(lhs == rhs.Get()); }
+
+    friend inline bool operator!=(const SmartPointer<T>& lhs, const T& rhs) noexcept { return !(lhs.Get() == &rhs); }
+
+    friend inline bool operator!=(const T& lhs, const SmartPointer<T>& rhs) noexcept { return !(&lhs == rhs.Get()); }
+
+    friend inline bool operator!=(const SmartPointer<T>& lhs, std::nullptr_t) noexcept { return lhs.Get(); }
+
+    friend inline bool operator!=(std::nullptr_t, const SmartPointer<T>& rhs) noexcept { return rhs.Get(); }
 };
-
-template <class T>
-inline bool operator==(const SmartPointer<T>& lhs, const SmartPointer<T>& rhs) noexcept {
-    return lhs.Get() == rhs.Get();
-}
-
-template <class T>
-inline bool operator==(const SmartPointer<T>& lhs, const T* rhs) noexcept {
-    return lhs.Get() == rhs;
-}
-
-template <class T>
-inline bool operator==(const T* lhs, const SmartPointer<T>& rhs) noexcept {
-    return lhs == rhs.Get();
-}
-
-template <class T>
-inline bool operator==(const SmartPointer<T>& lhs, const T& rhs) noexcept {
-    return lhs.Get() == &rhs;
-}
-
-template <class T>
-inline bool operator==(const T& lhs, const SmartPointer<T>& rhs) noexcept {
-    return &lhs == rhs.Get();
-}
-
-template <class T>
-inline bool operator==(const SmartPointer<T>& lhs, std::nullptr_t) noexcept {
-    return !lhs.Get();
-}
-
-template <class T>
-inline bool operator==(std::nullptr_t, const SmartPointer<T>& rhs) noexcept {
-    return !rhs.Get();
-}
-
-template <class T>
-inline bool operator!=(const SmartPointer<T>& lhs, const SmartPointer<T>& rhs) noexcept {
-    return !(lhs == rhs);
-}
-
-template <class T>
-inline bool operator!=(const SmartPointer<T>& lhs, const T* rhs) noexcept {
-    return !(lhs.Get() == rhs);
-}
-
-template <class T>
-inline bool operator!=(const T* lhs, const SmartPointer<T>& rhs) noexcept {
-    return !(lhs == rhs.Get());
-}
-
-template <class T>
-inline bool operator!=(const SmartPointer<T>& lhs, const T& rhs) noexcept {
-    return !(lhs.Get() == &rhs);
-}
-
-template <class T>
-inline bool operator!=(const T& lhs, const SmartPointer<T>& rhs) noexcept {
-    return !(&lhs == rhs.Get());
-}
-
-template <class T>
-inline bool operator!=(const SmartPointer<T>& lhs, std::nullptr_t) noexcept {
-    return lhs.Get();
-}
-
-template <class T>
-inline bool operator!=(std::nullptr_t, const SmartPointer<T>& rhs) noexcept {
-    return rhs.Get();
-}
 
 #endif /* SMARTPOINTER_HPP */

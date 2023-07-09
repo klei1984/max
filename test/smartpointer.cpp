@@ -19,39 +19,9 @@
  * SOFTWARE.
  */
 
-#include "smartpointer.hpp"
-
 #include <gtest/gtest.h>
 
-enum {
-    TEST_CLASS_UNDEFINED,
-    TEST_CLASS_CONSTRUCTED,
-    TEST_CLASS_DESTRUCTED,
-};
-
-class TestObject : public SmartObject {
-    uint32_t index{0};
-    uint32_t* status{nullptr};
-
-public:
-    TestObject() = default;
-
-    TestObject(uint32_t* _status) : status(_status) {
-        if (status) {
-            *status = TEST_CLASS_CONSTRUCTED;
-        }
-    }
-
-    ~TestObject() {
-        if (status) {
-            *status = TEST_CLASS_DESTRUCTED;
-        }
-    }
-
-    uint32_t Get() const noexcept { return index; }
-
-    void Set(uint32_t idx) noexcept { index = idx; }
-};
+#include "testobject.hpp"
 
 TEST(SmartPointer, ctor) {
     SmartPointer<SmartObject> sp1(new (std::nothrow) SmartObject());
