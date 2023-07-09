@@ -4,7 +4,6 @@ skip -file smartobjectarray.hpp
 skip -file smartstring.cpp
 skip -file smartstring.hpp
 skip -file sortedarray.hpp
-skip -file sortedenum.hpp
 skip -file smartarray.hpp
 skip -file smartlist.hpp
 skip -file point.hpp
