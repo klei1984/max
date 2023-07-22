@@ -28,8 +28,6 @@ TaskFrontierAssistant::TaskFrontierAssistant(unsigned short team) : Task(team, n
 
 TaskFrontierAssistant::~TaskFrontierAssistant() {}
 
-int TaskFrontierAssistant::GetMemoryUse() const { return 4; }
-
 char* TaskFrontierAssistant::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Frontier determining assistant");
 

@@ -30,8 +30,6 @@ TaskPowerAssistant::TaskPowerAssistant(TaskManageBuildings* manager_)
 
 TaskPowerAssistant::~TaskPowerAssistant() {}
 
-int TaskPowerAssistant::GetMemoryUse() const { return 4; }
-
 char* TaskPowerAssistant::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Power assistant");
 

@@ -169,7 +169,6 @@ public:
     void AddTransportOrder(TransportOrder* transport_order);
     Task* FindManager(Point site);
     SmartList<SpottedUnit>& GetSpottedUnits();
-    int GetMemoryUsage();
     void AddMilitaryUnit(UnitInfo* unit);
     void BeginTurn();
     void GuessEnemyAttackDirections();

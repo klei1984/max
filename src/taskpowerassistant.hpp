@@ -31,7 +31,6 @@ public:
     TaskPowerAssistant(TaskManageBuildings* manager);
     ~TaskPowerAssistant();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void BeginTurn();

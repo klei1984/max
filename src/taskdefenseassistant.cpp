@@ -32,8 +32,6 @@ TaskDefenseAssistant::TaskDefenseAssistant(TaskManageBuildings* manager_, Resour
 
 TaskDefenseAssistant::~TaskDefenseAssistant() {}
 
-int TaskDefenseAssistant::GetMemoryUse() const { return 4; }
-
 char* TaskDefenseAssistant::WriteStatusLog(char* buffer) const {
     strcpy(buffer, UnitsManager_BaseUnits[unit_type].singular_name);
     strcat(buffer, " defense assistant");

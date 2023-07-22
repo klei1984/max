@@ -38,7 +38,6 @@ public:
                  void (*cancel_callback)(Task* task, PathRequest* path_request));
     ~TaskFindPath();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     bool IsThinking();

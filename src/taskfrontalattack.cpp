@@ -307,8 +307,6 @@ int TaskFrontalAttack::GetCautionLevel(UnitInfo& unit) {
     return result;
 }
 
-int TaskFrontalAttack::GetMemoryUse() const { return units1.GetMemorySize() - 6 + units2.GetMemorySize() - 10; }
-
 char* TaskFrontalAttack::WriteStatusLog(char* buffer) const {
     if (spotted_unit && spotted_unit->GetUnit() && spotted_unit->GetUnit()->hits > 0) {
         sprintf(buffer, "Frontal attack on %s in [%i,%i]",

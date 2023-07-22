@@ -227,8 +227,6 @@ TaskRepair::~TaskRepair() {}
 
 bool TaskRepair::Task_vfunc1(UnitInfo& unit) { return target_unit != unit; }
 
-int TaskRepair::GetMemoryUse() const { return 4; }
-
 char* TaskRepair::WriteStatusLog(char* buffer) const {
     if (target_unit != nullptr) {
         strcpy(buffer, "Repair ");

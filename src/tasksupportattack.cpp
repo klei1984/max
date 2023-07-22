@@ -147,8 +147,6 @@ TaskSupportAttack::~TaskSupportAttack() {}
 
 bool TaskSupportAttack::IsUnitUsable(UnitInfo& unit) { return false; }
 
-int TaskSupportAttack::GetMemoryUse() const { return units.GetMemorySize() - 6; }
-
 char* TaskSupportAttack::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Support attack.");
 

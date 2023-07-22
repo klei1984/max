@@ -31,8 +31,6 @@ TaskRadarAssistant::TaskRadarAssistant(TaskManageBuildings* manager_)
 
 TaskRadarAssistant::~TaskRadarAssistant() {}
 
-int TaskRadarAssistant::GetMemoryUse() const { return 4; }
-
 char* TaskRadarAssistant::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Radar assistant");
 

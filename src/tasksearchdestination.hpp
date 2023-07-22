@@ -60,7 +60,6 @@ public:
     TaskSearchDestination(Task* task, UnitInfo* unit, int radius);
     ~TaskSearchDestination();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void Begin();

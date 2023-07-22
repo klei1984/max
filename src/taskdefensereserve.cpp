@@ -181,18 +181,6 @@ bool TaskDefenseReserve::IsUnitUsable(UnitInfo& unit) {
     return false;
 }
 
-int TaskDefenseReserve::GetMemoryUse() const {
-    int result;
-
-    result = units.GetMemorySize() - 6;
-
-    for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
-        result += managers[i].GetMemoryUse() - 22;
-    }
-
-    return result;
-}
-
 char* TaskDefenseReserve::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Defense Reserve");
 

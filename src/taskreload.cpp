@@ -30,8 +30,6 @@ TaskReload::TaskReload(UnitInfo* unit) : TaskRepair(unit) {}
 
 TaskReload::~TaskReload() {}
 
-int TaskReload::GetMemoryUse() const { return 4; }
-
 char* TaskReload::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Reload unit with ammunition.");
 

@@ -132,8 +132,6 @@ void TaskRendezvous::SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, c
     }
 }
 
-int TaskRendezvous::GetMemoryUse() const { return 4; }
-
 char* TaskRendezvous::WriteStatusLog(char* buffer) const {
     if (unit1 == nullptr || unit2 == nullptr) {
         strcpy(buffer, "Completed rendezvous task.");

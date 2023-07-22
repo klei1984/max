@@ -30,8 +30,6 @@ TaskRemoveMines::TaskRemoveMines(Task* task, UnitInfo* unit_) : TaskRemoveRubble
 
 TaskRemoveMines::~TaskRemoveMines() {}
 
-int TaskRemoveMines::GetMemoryUse() const { return 4; }
-
 char* TaskRemoveMines::WriteStatusLog(char* buffer) const {
     if (target) {
         sprintf(buffer, "Remove mine from [%i,%i]", target->grid_x + 1, target->grid_y + 1);

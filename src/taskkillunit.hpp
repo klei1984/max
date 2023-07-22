@@ -53,7 +53,6 @@ public:
     ~TaskKillUnit();
 
     bool IsUnitUsable(UnitInfo& unit);
-    int GetMemoryUse() const;
     unsigned short GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);

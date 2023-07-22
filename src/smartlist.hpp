@@ -210,8 +210,6 @@ public:
 
     inline uint16_t GetCount() const noexcept { return count; }
 
-    inline int32_t GetMemorySize() const noexcept { return count * sizeof(ListNode<T>) + sizeof(count); }
-
     inline SmartList<T>& operator=(const SmartList<T>& other) {
         if (this == &other) {
             return *this;

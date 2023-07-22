@@ -99,8 +99,6 @@ bool TaskAssistMove::IsUnitUsable(UnitInfo& unit) {
     return unit.unit_type == AIRTRANS || unit.unit_type == SEATRANS || unit.unit_type == CLNTRANS;
 }
 
-int TaskAssistMove::GetMemoryUse() const { return units.GetMemorySize() - 6; }
-
 char* TaskAssistMove::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Use transports to speed movement");
 

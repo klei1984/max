@@ -48,7 +48,6 @@ public:
     TaskManager();
     ~TaskManager();
 
-    unsigned int CalcMemoryUsage();
     bool CheckTasksThinking(unsigned short team);
     void CheckComputerReactions();
     void EnumeratePotentialAttackTargets(UnitInfo* unit);

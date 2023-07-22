@@ -30,8 +30,6 @@ TaskGetMaterials::TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short ma
 
 TaskGetMaterials::~TaskGetMaterials() {}
 
-int TaskGetMaterials::GetMemoryUse() const { return 4; }
-
 unsigned short TaskGetMaterials::GetFlags() const {
     unsigned short result;
 

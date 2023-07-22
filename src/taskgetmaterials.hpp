@@ -31,7 +31,6 @@ public:
     TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short materials_needed);
     ~TaskGetMaterials();
 
-    int GetMemoryUse() const;
     unsigned short GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;

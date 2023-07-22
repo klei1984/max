@@ -72,8 +72,6 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
     return result;
 }
 
-int TaskExplore::GetMemoryUse() const { return units.GetMemorySize() - 6; }
-
 char* TaskExplore::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Explore map.");
 

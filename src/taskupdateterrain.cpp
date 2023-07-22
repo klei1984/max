@@ -33,8 +33,6 @@ TaskUpdateTerrain::TaskUpdateTerrain(unsigned short team) : Task(team, nullptr, 
 
 TaskUpdateTerrain::~TaskUpdateTerrain() {}
 
-int TaskUpdateTerrain::GetMemoryUse() const { return 4; }
-
 char* TaskUpdateTerrain::WriteStatusLog(char* buffer) const {
     if (location.x < ResourceManager_MapSize.x) {
         sprintf(buffer, "Update Terrain [%i,%i]", location.x + 1, location.y + 1);

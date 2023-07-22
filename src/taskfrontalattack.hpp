@@ -41,7 +41,6 @@ public:
     ~TaskFrontalAttack();
 
     int GetCautionLevel(UnitInfo& unit);
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void AddUnit(UnitInfo& unit);

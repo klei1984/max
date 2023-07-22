@@ -42,8 +42,6 @@ TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
 
 TaskFindPath::~TaskFindPath() {}
 
-int TaskFindPath::GetMemoryUse() const { return 4; }
-
 char* TaskFindPath::WriteStatusLog(char* buffer) const {
     if (path_request) {
         Point destination(path_request->GetDestination());

@@ -345,20 +345,6 @@ bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target) {
 
 void Ai_EvaluateAttackTargets(UnitInfo* unit) { TaskManager.EnumeratePotentialAttackTargets(unit); }
 
-int Ai_GetMemoryUsage() {
-    int result;
-
-    result = TaskManager.CalcMemoryUsage();
-
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-            result += AiPlayer_Teams[team].GetMemoryUsage();
-        }
-    }
-
-    return result;
-}
-
 void Ai_CheckComputerReactions() { TaskManager.CheckComputerReactions(); }
 
 void Ai_CheckMines(UnitInfo* unit) {

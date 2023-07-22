@@ -194,8 +194,3 @@ void DefenseManager::PlanDefenses(int asset_value_goal_, TaskObtainUnits* task, 
         }
     }
 }
-
-int DefenseManager::GetMemoryUse() const {
-    return units.GetMemorySize() - 6 + weight_table.GetCount() * sizeof(UnitWeight) +
-           unit_types.GetCount() * sizeof(ResourceID);
-}

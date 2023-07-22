@@ -39,7 +39,6 @@ public:
     unsigned short CountInstancesOfUnitType(ResourceID unit_type);
     UnitInfo* FindUnit(ResourceID unit_type, bool mode);
 
-    int GetMemoryUse() const;
     unsigned short GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;

@@ -74,10 +74,6 @@ int TaskAttack::GetCautionLevel(UnitInfo& unit) {
     return result;
 }
 
-int TaskAttack::GetMemoryUse() const {
-    return primary_targets.GetMemorySize() - 6 + secondary_targets.GetMemorySize() - 10;
-}
-
 unsigned short TaskAttack::GetFlags() const {
     unsigned short result;
 

@@ -41,7 +41,6 @@ public:
 
     virtual void Execute() = 0;
     virtual int GetType() = 0;
-    virtual int GetMemoryUse() const = 0;
 };
 
 class RemindTurnStart : public Reminder {
@@ -53,7 +52,6 @@ public:
 
     void Execute();
     int GetType();
-    int GetMemoryUse() const;
 };
 
 class RemindTurnEnd : public Reminder {
@@ -65,7 +63,6 @@ public:
 
     void Execute();
     int GetType();
-    int GetMemoryUse() const;
 };
 
 class RemindAvailable : public Reminder {
@@ -77,7 +74,6 @@ public:
 
     void Execute();
     int GetType();
-    int GetMemoryUse() const;
 };
 
 class RemindMoveFinished : public Reminder {
@@ -89,7 +85,6 @@ public:
 
     void Execute();
     int GetType();
-    int GetMemoryUse() const;
 };
 
 class RemindAttack : public Reminder {
@@ -101,7 +96,6 @@ public:
 
     void Execute();
     int GetType();
-    int GetMemoryUse() const;
 };
 
 #endif /* REMINDERS_HPP */

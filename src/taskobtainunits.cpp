@@ -136,8 +136,6 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     return selected_unit;
 }
 
-int TaskObtainUnits::GetMemoryUse() const { return 2 * units.GetCount() + 4; }
-
 unsigned short TaskObtainUnits::GetFlags() const {
     unsigned short flags;
 

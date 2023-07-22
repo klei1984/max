@@ -56,7 +56,6 @@ public:
     TaskClearZone(unsigned short team, unsigned int flags);
     ~TaskClearZone();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     bool IsThinking();

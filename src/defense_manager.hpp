@@ -44,7 +44,6 @@ public:
     void MaintainDefences(Task* task);
     void EvaluateNeeds(int* unit_counts);
     void PlanDefenses(int asset_value_goal, TaskObtainUnits* task, int* unit_counts);
-    int GetMemoryUse() const;
 };
 
 #endif /* DEFENSE_MANAGER_HPP */

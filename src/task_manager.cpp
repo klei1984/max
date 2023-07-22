@@ -229,27 +229,6 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, unsigned short team, unsign
     return result;
 }
 
-unsigned int TaskManager::CalcMemoryUsage() {
-    unsigned int used_memory;
-
-    used_memory = unit_requests.GetMemorySize() + tasks.GetMemorySize() + normal_reminders.GetMemorySize() +
-                  priority_reminders.GetMemorySize() - 36;
-
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-        used_memory += (*it).GetMemoryUse();
-    }
-
-    for (SmartList<Reminder>::Iterator it = normal_reminders.Begin(); it != normal_reminders.End(); ++it) {
-        used_memory += (*it).GetMemoryUse();
-    }
-
-    for (SmartList<Reminder>::Iterator it = priority_reminders.Begin(); it != priority_reminders.End(); ++it) {
-        used_memory += (*it).GetMemoryUse();
-    }
-
-    return used_memory;
-}
-
 bool TaskManager::CheckTasksThinking(unsigned short team) {
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).IsThinking()) {

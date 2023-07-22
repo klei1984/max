@@ -89,8 +89,6 @@ bool TaskAttackReserve::IsUnitUsable(UnitInfo& unit) {
     return result;
 }
 
-int TaskAttackReserve::GetMemoryUse() const { return units.GetMemorySize() - 6; }
-
 char* TaskAttackReserve::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Maintain an attack reserve.");
 

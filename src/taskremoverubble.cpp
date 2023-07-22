@@ -35,8 +35,6 @@ TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, unsigned short f
 
 TaskRemoveRubble::~TaskRemoveRubble() {}
 
-int TaskRemoveRubble::GetMemoryUse() const { return 4; }
-
 char* TaskRemoveRubble::WriteStatusLog(char* buffer) const {
     if (!target) {
         strcpy(buffer, "Completed rubble removal");

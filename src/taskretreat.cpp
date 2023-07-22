@@ -35,8 +35,6 @@ TaskRetreat::~TaskRetreat() {}
 
 bool TaskRetreat::Task_vfunc1(UnitInfo& unit) { return unit_to_retreat != unit; }
 
-int TaskRetreat::GetMemoryUse() const { return 4; }
-
 char* TaskRetreat::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Retreat from danger");
 

@@ -29,7 +29,6 @@ public:
     TaskMineAssistant(unsigned short team);
     ~TaskMineAssistant();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void BeginTurn();

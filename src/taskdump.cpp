@@ -138,8 +138,6 @@ void TaskDump::RemoveTask() {
     TaskManager.RemoveTask(*this);
 }
 
-int TaskDump::GetMemoryUse() const { return 4; }
-
 char* TaskDump::WriteStatusLog(char* buffer) const {
     if (task_move == nullptr) {
         strcpy(buffer, "Dump unit task, null move.");

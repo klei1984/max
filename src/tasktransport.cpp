@@ -327,8 +327,6 @@ void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char resul
 
 bool TaskTransport::Task_vfunc1(UnitInfo& unit) { return unit_transporter != unit; }
 
-int TaskTransport::GetMemoryUse() const { return move_tasks.GetMemorySize() - 6; }
-
 char* TaskTransport::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Transport units: ");
 

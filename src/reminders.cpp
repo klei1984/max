@@ -48,8 +48,6 @@ void RemindTurnStart::Execute() {
 
 int RemindTurnStart::GetType() { return REMINDER_TYPE_TURN_START; }
 
-int RemindTurnStart::GetMemoryUse() const { return 4; }
-
 RemindTurnEnd::RemindTurnEnd(Task& task) : task(task) { this->task->SetField8(true); }
 
 RemindTurnEnd::~RemindTurnEnd() {}
@@ -66,8 +64,6 @@ void RemindTurnEnd::Execute() {
 
 int RemindTurnEnd::GetType() { return REMINDER_TYPE_TURN_END; }
 
-int RemindTurnEnd::GetMemoryUse() const { return 4; }
-
 RemindAvailable::RemindAvailable(UnitInfo& unit) : unit(unit) {}
 
 RemindAvailable::~RemindAvailable() {}
@@ -79,8 +75,6 @@ void RemindAvailable::Execute() {
 }
 
 int RemindAvailable::GetType() { return REMINDER_TYPE_AVAILABLE; }
-
-int RemindAvailable::GetMemoryUse() const { return 4; }
 
 RemindMoveFinished::RemindMoveFinished(UnitInfo& new_unit_) : unit(new_unit_) { unit->ChangeField221(0x100, true); }
 
@@ -104,8 +98,6 @@ void RemindMoveFinished::Execute() {
 
 int RemindMoveFinished::GetType() { return REMINDER_TYPE_MOVE; }
 
-int RemindMoveFinished::GetMemoryUse() const { return 4; }
-
 RemindAttack::RemindAttack(UnitInfo& unit) : unit(unit) {}
 
 RemindAttack::~RemindAttack() {}
@@ -123,5 +115,3 @@ void RemindAttack::Execute() {
 }
 
 int RemindAttack::GetType() { return REMINDER_TYPE_ATTACK; }
-
-int RemindAttack::GetMemoryUse() const { return 4; }

@@ -403,8 +403,6 @@ bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
     return result;
 }
 
-int TaskKillUnit::GetMemoryUse() const { return weight_table.GetCount() * 4 + 4; }
-
 unsigned short TaskKillUnit::GetFlags() const {
     unsigned short result;
 

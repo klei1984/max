@@ -95,11 +95,6 @@ TaskClearZone::TaskClearZone(unsigned short team, unsigned int flags_)
 
 TaskClearZone::~TaskClearZone() {}
 
-int TaskClearZone::GetMemoryUse() const {
-    return 4 + zones.GetCount() * (sizeof(Zone) + 4) + zone_squares.GetCount() * sizeof(ZoneSquare) +
-           (points1.GetCount() + points2.GetCount()) * sizeof(Point);
-}
-
 char* TaskClearZone::WriteStatusLog(char* buffer) const {
     if (unit_flags == MOBILE_AIR_UNIT) {
         strcpy(buffer, "Clear air zones: ");

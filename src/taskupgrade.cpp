@@ -29,8 +29,6 @@ TaskUpgrade::TaskUpgrade(UnitInfo* unit) : TaskRepair(unit) {}
 
 TaskUpgrade::~TaskUpgrade() {}
 
-int TaskUpgrade::GetMemoryUse() const { return 4; }
-
 char* TaskUpgrade::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Upgrade unit.");
 

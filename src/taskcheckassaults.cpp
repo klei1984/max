@@ -103,8 +103,6 @@ void TaskCheckAssaults::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
     }
 }
 
-int TaskCheckAssaults::GetMemoryUse() const { return 4; }
-
 char* TaskCheckAssaults::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Advance to attack nearby enemies.");
 

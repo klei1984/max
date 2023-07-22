@@ -2218,11 +2218,6 @@ Task* AiPlayer::FindManager(Point site) {
 
 SmartList<SpottedUnit>& AiPlayer::GetSpottedUnits() { return spotted_units; }
 
-int AiPlayer::GetMemoryUsage() {
-    return task_list.GetMemorySize() + spotted_units.GetMemorySize() - 10 +
-           (ResourceManager_MapSize.x * ResourceManager_MapSize.y) * sizeof(void*) - 10;
-}
-
 void AiPlayer::AddMilitaryUnit(UnitInfo* unit) {
     if (Access_IsValidAttackTargetType(unit->unit_type, FIGHTER)) {
         air_force.PushBack(*unit);

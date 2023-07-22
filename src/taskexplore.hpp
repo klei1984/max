@@ -33,7 +33,6 @@ public:
     ~TaskExplore();
 
     bool IsUnitUsable(UnitInfo& unit);
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     bool Execute(UnitInfo& unit);

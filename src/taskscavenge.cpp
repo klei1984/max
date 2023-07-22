@@ -33,8 +33,6 @@ TaskScavenge::~TaskScavenge() {}
 
 bool TaskScavenge::IsUnitUsable(UnitInfo& unit) { return unit.unit_type == BULLDOZR; }
 
-int TaskScavenge::GetMemoryUse() const { return 4; }
-
 char* TaskScavenge::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Scavenge materials");
 

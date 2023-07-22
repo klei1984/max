@@ -29,7 +29,6 @@ public:
     TaskFindMines(unsigned short team, Point point);
     ~TaskFindMines();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void BeginTurn();

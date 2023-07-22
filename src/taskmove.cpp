@@ -100,8 +100,6 @@ TaskMove::~TaskMove() {}
 
 int TaskMove::GetCautionLevel(UnitInfo& unit) { return caution_level; }
 
-int TaskMove::GetMemoryUse() const { return planned_path.GetCount() * 4 + 4; }
-
 char* TaskMove::WriteStatusLog(char* buffer) const {
     if (passenger) {
         if (planned_path.GetCount()) {

@@ -48,8 +48,6 @@ TaskCreateUnit::TaskCreateUnit(UnitInfo* unit_, Task* task)
 
 TaskCreateUnit::~TaskCreateUnit() {}
 
-int TaskCreateUnit::GetMemoryUse() const { return 4; }
-
 unsigned short TaskCreateUnit::GetFlags() const {
     unsigned short result;
 

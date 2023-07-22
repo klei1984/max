@@ -37,7 +37,6 @@ public:
     TaskCheckAssaults(unsigned short team);
     ~TaskCheckAssaults();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     bool IsThinking();

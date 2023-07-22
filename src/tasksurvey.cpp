@@ -43,8 +43,6 @@ TaskSurvey::TaskSurvey(unsigned short team_, Point point_) : TaskAbstractSearch(
 
 TaskSurvey::~TaskSurvey() {}
 
-int TaskSurvey::GetMemoryUse() const { return units.GetMemorySize() - 6; }
-
 char* TaskSurvey::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Survey");
 

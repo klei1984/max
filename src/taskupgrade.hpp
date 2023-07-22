@@ -29,7 +29,6 @@ public:
     TaskUpgrade(UnitInfo* unit);
     ~TaskUpgrade();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
 

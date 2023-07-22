@@ -30,8 +30,6 @@ TaskConnectionAssistant::TaskConnectionAssistant(TaskManageBuildings* manager_)
 
 TaskConnectionAssistant::~TaskConnectionAssistant() {}
 
-int TaskConnectionAssistant::GetMemoryUse() const { return 4; }
-
 char* TaskConnectionAssistant::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Connection assistant");
 

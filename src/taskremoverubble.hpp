@@ -38,7 +38,6 @@ public:
     TaskRemoveRubble(Task* task, UnitInfo* unit, unsigned short flags);
     ~TaskRemoveRubble();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;

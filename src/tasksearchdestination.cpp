@@ -51,8 +51,6 @@ TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int ra
 
 TaskSearchDestination::~TaskSearchDestination() {}
 
-int TaskSearchDestination::GetMemoryUse() const { return 4; }
-
 char* TaskSearchDestination::WriteStatusLog(char* buffer) const {
     sprintf(buffer, "Find search square (radius %i)", radius);
 

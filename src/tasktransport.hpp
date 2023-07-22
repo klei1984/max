@@ -48,7 +48,6 @@ public:
     ~TaskTransport();
 
     bool Task_vfunc1(UnitInfo& unit);
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
     unsigned char GetType() const;

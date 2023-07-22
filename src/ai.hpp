@@ -46,7 +46,6 @@ void Ai_RemoveUnit(UnitInfo* unit);
 void Ai_UnitSpotted(UnitInfo* unit, unsigned short team);
 bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target);
 void Ai_EvaluateAttackTargets(UnitInfo* unit);
-int Ai_GetMemoryUsage();
 void Ai_CheckComputerReactions();
 void Ai_CheckMines(UnitInfo* unit);
 void Ai_CheckReactions();

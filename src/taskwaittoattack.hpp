@@ -31,7 +31,6 @@ public:
     TaskWaitToAttack(UnitInfo* unit);
     ~TaskWaitToAttack();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     bool IsThinking();

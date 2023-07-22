@@ -28,8 +28,6 @@ TaskMineAssistant::TaskMineAssistant(unsigned short team) : Task(team, nullptr, 
 
 TaskMineAssistant::~TaskMineAssistant() {}
 
-int TaskMineAssistant::GetMemoryUse() const { return 4; }
-
 char* TaskMineAssistant::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Mine placing assistant");
 

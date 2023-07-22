@@ -155,8 +155,6 @@ void TaskActivate::Activate() {
 
 bool TaskActivate::Task_vfunc1(UnitInfo& unit) { return unit_to_activate != unit; }
 
-int TaskActivate::GetMemoryUse() const { return 4; }
-
 char* TaskActivate::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Activate unit");
 

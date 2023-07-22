@@ -53,8 +53,6 @@ TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, 0x2
 
 TaskAutoSurvey::~TaskAutoSurvey() {}
 
-int TaskAutoSurvey::GetMemoryUse() const { return 4; }
-
 char* TaskAutoSurvey::WriteStatusLog(char* buffer) const {
     sprintf(buffer, "Auto Survey (radius %i)", radius);
 

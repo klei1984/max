@@ -29,7 +29,6 @@ public:
     TaskFrontierAssistant(unsigned short team);
     ~TaskFrontierAssistant();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void BeginTurn();

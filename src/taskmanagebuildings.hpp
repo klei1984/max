@@ -87,7 +87,6 @@ public:
     TaskManageBuildings(unsigned short team, Point site);
     ~TaskManageBuildings();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     bool IsNeeded();

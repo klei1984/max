@@ -30,8 +30,6 @@ TaskWaitToAttack::TaskWaitToAttack(UnitInfo* unit)
 
 TaskWaitToAttack::~TaskWaitToAttack() {}
 
-int TaskWaitToAttack::GetMemoryUse() const { return 4; }
-
 char* TaskWaitToAttack::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Waiting to attack.");
 

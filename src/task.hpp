@@ -141,7 +141,6 @@ public:
     virtual bool Task_vfunc1(UnitInfo& unit);
     virtual bool IsUnitUsable(UnitInfo& unit);
     virtual int GetCautionLevel(UnitInfo& unit);
-    virtual int GetMemoryUse() const = 0;
     virtual unsigned short GetFlags() const;
     virtual char* WriteStatusLog(char* buffer) const = 0;
     virtual Rect* GetBounds(Rect* bounds);

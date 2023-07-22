@@ -46,7 +46,6 @@ public:
     TaskDump(TaskTransport* task_transport, TaskMove* task_move, UnitInfo* transporter);
     ~TaskDump();
 
-    int GetMemoryUse() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;
     void Begin();

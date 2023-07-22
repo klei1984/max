@@ -2127,8 +2127,6 @@ bool TaskManageBuildings::FindMarkedSite(unsigned char** access_map, Rect* bound
     return false;
 }
 
-int TaskManageBuildings::GetMemoryUse() const { return units.GetMemorySize() - 6 + tasks.GetMemorySize() - 10; }
-
 char* TaskManageBuildings::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Manage buildings.");
 

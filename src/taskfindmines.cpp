@@ -30,8 +30,6 @@ TaskFindMines::TaskFindMines(unsigned short team_, Point point_) : TaskAbstractS
 
 TaskFindMines::~TaskFindMines() {}
 
-int TaskFindMines::GetMemoryUse() const { return units.GetMemorySize() - 6; }
-
 char* TaskFindMines::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Look for enemy land/sea mines");
 

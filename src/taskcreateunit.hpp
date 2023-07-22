@@ -36,7 +36,6 @@ public:
     TaskCreateUnit(UnitInfo* unit, Task* task);
     ~TaskCreateUnit();
 
-    int GetMemoryUse() const;
     unsigned short GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
     unsigned char GetType() const;

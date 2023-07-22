@@ -46,8 +46,6 @@ TaskPlaceMines::~TaskPlaceMines() {}
 
 bool TaskPlaceMines::IsUnitUsable(UnitInfo& unit) { return unit.unit_type == MINELAYR || unit.unit_type == SEAMNLYR; }
 
-int TaskPlaceMines::GetMemoryUse() const { return units.GetMemorySize() - 6; }
-
 char* TaskPlaceMines::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Place mines");
 

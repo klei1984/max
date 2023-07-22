@@ -109,8 +109,6 @@ void TaskMoveHome::PopulateOccupiedSites(unsigned char** map, SmartList<UnitInfo
     }
 }
 
-int TaskMoveHome::GetMemoryUse() const { return 4; }
-
 char* TaskMoveHome::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Move back to complex");
 

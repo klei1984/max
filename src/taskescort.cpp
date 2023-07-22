@@ -144,8 +144,6 @@ TaskEscort::~TaskEscort() {}
 
 bool TaskEscort::Task_vfunc1(UnitInfo& unit) { return (!target || target->hits == 0 || escort != unit); }
 
-int TaskEscort::GetMemoryUse() const { return 4; }
-
 char* TaskEscort::WriteStatusLog(char* buffer) const {
     if (target) {
         sprintf(buffer, "Escort %s at [%i,%i]", UnitsManager_BaseUnits[target->unit_type].singular_name,

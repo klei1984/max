@@ -30,8 +30,6 @@ TaskHabitatAssistant::TaskHabitatAssistant(TaskManageBuildings* manager_)
 
 TaskHabitatAssistant::~TaskHabitatAssistant() {}
 
-int TaskHabitatAssistant::GetMemoryUse() const { return 4; }
-
 char* TaskHabitatAssistant::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Habitat assistant");
 
