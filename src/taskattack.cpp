@@ -194,7 +194,7 @@ void TaskAttack::AddUnit(UnitInfo& unit) {
         recon_unit = unit;
         unit.AddTask(this);
 
-        if (!GetField7()) {
+        if (!IsScheduledForTurnStart()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
         }
 
@@ -291,7 +291,7 @@ void TaskAttack::EndTurn() {
     }
 }
 
-bool TaskAttack::Task_vfunc16(UnitInfo& unit) {
+bool TaskAttack::ExchangeOperator(UnitInfo& unit) {
     bool result;
 
     if (recon_unit && kill_unit_task) {
@@ -405,7 +405,7 @@ void TaskAttack::RemoveUnit(UnitInfo& unit) {
         leader_task = nullptr;
     }
 
-    if (!GetField7()) {
+    if (!IsScheduledForTurnStart()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
     }
 }

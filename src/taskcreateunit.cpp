@@ -193,7 +193,7 @@ void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
     }
 }
 
-void TaskCreateUnit::Task_vfunc27(Zone* zone, char mode) {}
+void TaskCreateUnit::EventZoneCleared(Zone* zone, bool status) {}
 
 bool TaskCreateUnit::Task_vfunc28() { return op_state >= CREATE_UNIT_STATE_3; }
 

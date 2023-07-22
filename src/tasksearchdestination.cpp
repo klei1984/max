@@ -233,7 +233,7 @@ bool TaskSearchDestination::Search() {
         } else {
             AiLog log("Search paused, %i msecs since frame update", timer_elapsed_time(Paths_LastTimeStamp));
 
-            if (!GetField8()) {
+            if (!IsScheduledForTurnEnd()) {
                 log.Log("Adding end turn reminder");
 
                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));

@@ -70,7 +70,7 @@ void TaskScavenge::BeginTurn() {
         }
     }
 
-    if (!GetField8()) {
+    if (!IsScheduledForTurnEnd()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
     }
 }

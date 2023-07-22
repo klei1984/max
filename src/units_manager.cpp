@@ -4286,7 +4286,7 @@ void UnitsManager_FinishUnitScaling(UnitInfo* unit) {
                 unit->ScheduleDelayedTasks(true);
 
             } else if (parent->GetTask()) {
-                parent->GetTask()->Task_vfunc24(*parent, *unit);
+                parent->GetTask()->EventUnitLoaded(*parent, *unit);
             }
 
         } else {
@@ -5239,7 +5239,7 @@ void UnitsManager_Loading(UnitInfo* unit) {
         unit->SetParent(nullptr);
 
         if (unit->GetTask()) {
-            unit->GetTask()->Task_vfunc24(*unit, *parent);
+            unit->GetTask()->EventUnitLoaded(*unit, *parent);
         }
 
         if (GameManager_SelectedUnit == unit) {
@@ -5262,7 +5262,7 @@ void UnitsManager_Unloading(UnitInfo* unit) {
         unit->SetParent(nullptr);
 
         if (unit->GetTask()) {
-            unit->GetTask()->Task_vfunc26(*unit, *parent);
+            unit->GetTask()->EventUnitUnloaded(*unit, *parent);
         }
 
         if (GameManager_SelectedUnit == unit) {
@@ -5815,7 +5815,7 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
 
         if (unit->GetTask() &&
             (unit->unit_type == AIRTRANS || unit->unit_type == SEATRANS || unit->unit_type == CLNTRANS)) {
-            unit->GetTask()->Task_vfunc26(*unit, *parent);
+            unit->GetTask()->EventUnitUnloaded(*unit, *parent);
         }
 
         unit->RefreshScreen();
@@ -6240,7 +6240,7 @@ void UnitsManager_Transfer(UnitInfo* unit) {
     target = unit->GetParent();
 
     if (target->GetTask()) {
-        target->GetTask()->Task_vfunc22(*target);
+        target->GetTask()->EventCargoTransfer(*target);
     }
 }
 

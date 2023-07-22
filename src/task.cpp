@@ -298,7 +298,13 @@ int Task_EstimateTurnsTillMissionEnd() {
 }
 
 Task::Task(unsigned short team, Task* parent, unsigned short flags)
-    : id(++task_id), team(team), parent(parent), flags(flags), field_6(true), field_7(false), field_8(false) {
+    : id(++task_id),
+      team(team),
+      parent(parent),
+      flags(flags),
+      need_init(true),
+      scheduled_for_turn_start(false),
+      scheduled_for_turn_end(false) {
     ++task_count;
 }
 
@@ -307,37 +313,37 @@ Task::Task(const Task& other)
       team(other.team),
       parent(other.parent),
       flags(other.flags),
-      field_6(other.field_6),
-      field_7(other.field_7),
-      field_8(other.field_8) {
+      need_init(other.need_init),
+      scheduled_for_turn_start(other.scheduled_for_turn_start),
+      scheduled_for_turn_end(other.scheduled_for_turn_end) {
     ++task_count;
 }
 
 Task::~Task() { --task_count; }
 
 void Task::RemindTurnEnd(bool priority) {
-    if (!GetField8()) {
+    if (!IsScheduledForTurnEnd()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this), priority);
     }
 }
 
 void Task::RemindTurnStart(bool priority) {
-    if (!GetField7()) {
+    if (!IsScheduledForTurnStart()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this), priority);
     }
 }
 
-bool Task::GetField6() const { return field_6; }
+bool Task::IsInitNeeded() const { return need_init; }
 
-void Task::SetField6(bool value) { field_6 = value; }
+void Task::ChangeInitNeededFlag(bool value) { need_init = value; }
 
-bool Task::GetField7() const { return field_7; }
+bool Task::IsScheduledForTurnStart() const { return scheduled_for_turn_start; }
 
-void Task::SetField7(bool value) { field_7 = value; }
+void Task::ChangeIsScheduledForTurnStart(bool value) { scheduled_for_turn_start = value; }
 
-bool Task::GetField8() const { return field_8; }
+bool Task::IsScheduledForTurnEnd() const { return scheduled_for_turn_end; }
 
-void Task::SetField8(bool value) { field_8 = value; }
+void Task::ChangeIsScheduledForTurnEnd(bool value) { scheduled_for_turn_end = value; }
 
 unsigned short Task::GetTeam() const { return team; }
 
@@ -425,8 +431,8 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {
 bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level) {
     bool result;
 
-    if (task->GetField6() && Task_RetreatIfNecessary(task, unit, caution_level)) {
-        task->SetField6(false);
+    if (task->IsInitNeeded() && Task_RetreatIfNecessary(task, unit, caution_level)) {
+        task->ChangeInitNeededFlag(false);
 
         result = true;
 
@@ -538,7 +544,7 @@ void Task::ChildComplete(Task* task) {}
 
 void Task::EndTurn() {}
 
-bool Task::Task_vfunc16(UnitInfo& unit) { return false; }
+bool Task::ExchangeOperator(UnitInfo& unit) { return false; }
 
 bool Task::Execute(UnitInfo& unit) { return false; }
 
@@ -547,22 +553,22 @@ void Task::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-bool Task::Task_vfunc19() { return false; }
+bool Task::CheckReactions() { return false; }
 
 void Task::Task_vfunc20(UnitInfo& unit) {}
 
 void Task::RemoveUnit(UnitInfo& unit) {}
 
-void Task::Task_vfunc22(UnitInfo& unit) {}
+void Task::EventCargoTransfer(UnitInfo& unit) {}
 
-void Task::Task_vfunc23(UnitInfo& unit) {}
+void Task::EventUnitDestroyed(UnitInfo& unit) {}
 
-void Task::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {}
+void Task::EventUnitLoaded(UnitInfo& unit1, UnitInfo& unit2) {}
 
-void Task::Task_vfunc25(UnitInfo& unit) {}
+void Task::EventEnemyUnitSpotted(UnitInfo& unit) {}
 
-void Task::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {}
+void Task::EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2) {}
 
-void Task::Task_vfunc27(Zone* zone, char mode) {}
+void Task::EventZoneCleared(Zone* zone, bool status) {}
 
 unsigned short Task::GetId() const { return id; }

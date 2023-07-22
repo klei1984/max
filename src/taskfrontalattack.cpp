@@ -85,7 +85,7 @@ void TaskFrontalAttack::IssueOrders() {
                             units1.Remove(*it);
                         }
 
-                        if (units1.GetCount() > 0 && !GetField8()) {
+                        if (units1.GetCount() > 0 && !IsScheduledForTurnEnd()) {
                             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
                         }
 
@@ -240,7 +240,7 @@ void TaskFrontalAttack::IssueOrders() {
                         units1.Remove(*attacker);
                         units2.PushBack(*attacker);
 
-                        if (!GetField8()) {
+                        if (!IsScheduledForTurnEnd()) {
                             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
                         }
 
@@ -255,7 +255,7 @@ void TaskFrontalAttack::IssueOrders() {
                 if (!has_attack_target) {
                     for (SmartList<UnitInfo>::Iterator it = units2.Begin(); it != units2.End(); ++it) {
                         if (Task_RetreatIfNecessary(this, &*it, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
-                            if (!GetField8()) {
+                            if (!IsScheduledForTurnEnd()) {
                                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
                             }
 
@@ -265,7 +265,7 @@ void TaskFrontalAttack::IssueOrders() {
 
                     for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
                         if (Task_RetreatIfNecessary(this, &*it, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
-                            if (!GetField8()) {
+                            if (!IsScheduledForTurnEnd()) {
                                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
                             }
 
@@ -346,7 +346,7 @@ void TaskFrontalAttack::Begin() {
         }
     }
 
-    if (!GetField8()) {
+    if (!IsScheduledForTurnEnd()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
     }
 }
@@ -396,7 +396,7 @@ void TaskFrontalAttack::RemoveUnit(UnitInfo& unit) {
     units2.Remove(unit);
 
     if (units1.GetCount()) {
-        if (!GetField8()) {
+        if (!IsScheduledForTurnEnd()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
         }
 
@@ -405,7 +405,7 @@ void TaskFrontalAttack::RemoveUnit(UnitInfo& unit) {
     }
 }
 
-void TaskFrontalAttack::Task_vfunc23(UnitInfo& unit) {
+void TaskFrontalAttack::EventUnitDestroyed(UnitInfo& unit) {
     if (spotted_unit->GetUnit() == &unit) {
         Finish();
     }

@@ -50,7 +50,7 @@ public:
     bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc23(UnitInfo& unit);
+    void EventUnitDestroyed(UnitInfo& unit);
 };
 
 #endif /* TASKFRONTALATTACK_HPP */

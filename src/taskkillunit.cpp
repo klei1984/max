@@ -219,7 +219,7 @@ bool TaskKillUnit::GetNewUnits() {
                             log.Log("Get new units halted, %i msecs since frame update",
                                     timer_elapsed_time(Paths_LastTimeStamp));
 
-                            if (!GetField7()) {
+                            if (!IsScheduledForTurnStart()) {
                                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
                             }
 
@@ -472,7 +472,7 @@ void TaskKillUnit::AddUnit(UnitInfo& unit) {
         unit.point.x = 0;
         unit.point.y = 0;
 
-        if (parent && !parent->GetField8()) {
+        if (parent && !parent->IsScheduledForTurnEnd()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*parent));
         }
 
@@ -585,7 +585,7 @@ void TaskKillUnit::RemoveSelf() {
     }
 }
 
-bool TaskKillUnit::Task_vfunc19() { return false; }
+bool TaskKillUnit::CheckReactions() { return false; }
 
 void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
     SmartPointer<Task> task(this);
@@ -604,12 +604,12 @@ void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
         parent->RemoveUnit(unit);
     }
 
-    if (!GetField7()) {
+    if (!IsScheduledForTurnStart()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
     }
 }
 
-void TaskKillUnit::Task_vfunc23(UnitInfo& unit) {
+void TaskKillUnit::EventUnitDestroyed(UnitInfo& unit) {
     if (GetUnitSpotted() == &unit) {
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             TaskManager.RemindAvailable(&*it, true);
@@ -621,7 +621,7 @@ void TaskKillUnit::Task_vfunc23(UnitInfo& unit) {
     }
 }
 
-void TaskKillUnit::Task_vfunc25(UnitInfo& unit) {}
+void TaskKillUnit::EventEnemyUnitSpotted(UnitInfo& unit) {}
 
 int TaskKillUnit::GetTotalProjectedDamage() {
     int result = 0;

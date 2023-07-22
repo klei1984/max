@@ -335,7 +335,7 @@ void TaskMove::RemoveUnit(UnitInfo& unit) {
     }
 }
 
-void TaskMove::Task_vfunc27(Zone* zone_, char mode) {
+void TaskMove::EventZoneCleared(Zone* zone_, bool status) {
     AiLog log("Move: Zone Cleared");
 
     if (zone == zone_) {
@@ -343,7 +343,7 @@ void TaskMove::Task_vfunc27(Zone* zone_, char mode) {
     }
 
     if (passenger) {
-        if (!mode && field_69) {
+        if (!status && field_69) {
             Finished(TASKMOVE_RESULT_SUCCESS);
 
         } else {

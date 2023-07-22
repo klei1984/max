@@ -251,7 +251,7 @@ void TaskManager::CheckComputerReactions() {
 
             for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
                 if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == (*it).GetTeam()) {
-                    if ((*it).Task_vfunc19()) {
+                    if ((*it).CheckReactions()) {
                         return;
                     }
                 }
@@ -463,7 +463,7 @@ void TaskManager::BeginTurn(unsigned short team) {
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() != TaskType_TaskTransport) {
-            (*it).SetField6(true);
+            (*it).ChangeInitNeededFlag(true);
         }
     }
 
@@ -509,7 +509,7 @@ void TaskManager::ChangeFlagsSet(unsigned short team) {
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team) {
-            (*it).SetField6(true);
+            (*it).ChangeInitNeededFlag(true);
         }
     }
 }
@@ -595,7 +595,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
 
                 if (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-                        if ((*it).GetTeam() == unit->team && (*it).Task_vfunc16(*unit)) {
+                        if ((*it).GetTeam() == unit->team && (*it).ExchangeOperator(*unit)) {
                             return;
                         }
                     }
@@ -669,15 +669,15 @@ void TaskManager::RemoveTask(Task& task) {
     tasks.Remove(task);
 }
 
-void TaskManager::ProcessTasks1(UnitInfo* unit) {
+void TaskManager::RemoveDestroyedUnit(UnitInfo* unit) {
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-        (*it).Task_vfunc23(*unit);
+        (*it).EventUnitDestroyed(*unit);
     }
 }
 
-void TaskManager::ProcessTasks2(UnitInfo* unit) {
+void TaskManager::AddSpottedUnit(UnitInfo* unit) {
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-        (*it).Task_vfunc25(*unit);
+        (*it).EventEnemyUnitSpotted(*unit);
     }
 }
 

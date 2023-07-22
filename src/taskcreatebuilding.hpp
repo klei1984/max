@@ -72,11 +72,11 @@ public:
     void BeginTurn();
     void ChildComplete(Task* task);
     void EndTurn();
-    bool Task_vfunc16(UnitInfo& unit);
+    bool ExchangeOperator(UnitInfo& unit);
     bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc27(Zone* zone, char mode);
+    void EventZoneCleared(Zone* zone, bool status);
     bool Task_vfunc28();
     bool Task_vfunc29();
 

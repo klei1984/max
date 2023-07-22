@@ -95,7 +95,7 @@ public:
     void BeginTurn();
     void ChildComplete(Task* task);
     void EndTurn();
-    bool Task_vfunc16(UnitInfo& unit);
+    bool ExchangeOperator(UnitInfo& unit);
     bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);

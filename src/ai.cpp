@@ -324,7 +324,7 @@ void Ai_RemoveUnit(UnitInfo* unit) {
         }
     }
 
-    TaskManager.ProcessTasks1(unit);
+    TaskManager.RemoveDestroyedUnit(unit);
 }
 
 void Ai_UnitSpotted(UnitInfo* unit, unsigned short team) {
@@ -332,7 +332,7 @@ void Ai_UnitSpotted(UnitInfo* unit, unsigned short team) {
         AiPlayer_Teams[team].UnitSpotted(unit);
     }
 
-    TaskManager.ProcessTasks2(unit);
+    TaskManager.AddSpottedUnit(unit);
 }
 
 bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target) {

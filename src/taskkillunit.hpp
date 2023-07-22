@@ -64,10 +64,10 @@ public:
     void EndTurn();
     bool Execute(UnitInfo& unit);
     void RemoveSelf();
-    bool Task_vfunc19();
+    bool CheckReactions();
     void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc23(UnitInfo& unit);
-    void Task_vfunc25(UnitInfo& unit);
+    void EventUnitDestroyed(UnitInfo& unit);
+    void EventEnemyUnitSpotted(UnitInfo& unit);
 
     int GetTotalProjectedDamage();
     bool MoveUnits();

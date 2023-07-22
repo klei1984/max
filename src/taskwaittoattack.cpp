@@ -57,7 +57,7 @@ void TaskWaitToAttack::Begin() {
     }
 }
 
-void TaskWaitToAttack::EndTurn() { Task_vfunc19(); }
+void TaskWaitToAttack::EndTurn() { CheckReactions(); }
 
 void TaskWaitToAttack::RemoveSelf() {
     if (attacker) {
@@ -70,7 +70,7 @@ void TaskWaitToAttack::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-bool TaskWaitToAttack::Task_vfunc19() {
+bool TaskWaitToAttack::CheckReactions() {
     if (attacker && !attacker->delayed_reaction && UnitsManager_UnitList6.GetCount() == 0 &&
         TaskManager_word_1731C0 != 2) {
         AiAttack_EvaluateAttack(&*attacker);

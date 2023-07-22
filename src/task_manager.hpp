@@ -65,8 +65,8 @@ public:
     void RemindAvailable(UnitInfo* unit, bool priority = false);
     void FindTaskForUnit(UnitInfo* unit);
     void RemoveTask(Task& task);
-    void ProcessTasks1(UnitInfo* unit);
-    void ProcessTasks2(UnitInfo* unit);
+    void RemoveDestroyedUnit(UnitInfo* unit);
+    void AddSpottedUnit(UnitInfo* unit);
     int GetRemindersCount() const;
     SmartList<Task>& GetTaskList();
 };

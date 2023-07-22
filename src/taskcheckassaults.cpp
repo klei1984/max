@@ -37,8 +37,8 @@ void TaskCheckAssaults::CheckAssaults() {
     AiLog log("Task check assaults");
     unsigned short unit_count = 0;
 
-    if (unit_iterator == UnitsManager_MobileAirUnits.End() && field_6) {
-        field_6 = false;
+    if (unit_iterator == UnitsManager_MobileAirUnits.End() && IsInitNeeded()) {
+        ChangeInitNeededFlag(false);
 
         unit_iterator = UnitsManager_MobileLandSeaUnits.Begin();
 
@@ -65,7 +65,7 @@ void TaskCheckAssaults::CheckAssaults() {
             log.Log("Assault check paused, %i msecs since frame update, %i units checked.",
                     timer_elapsed_time(Paths_LastTimeStamp), unit_count);
 
-            if (!GetField8()) {
+            if (!IsScheduledForTurnEnd()) {
                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
             }
 
@@ -98,7 +98,7 @@ void TaskCheckAssaults::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
         unit->RemoveTask(task);
     }
 
-    if (!task->GetField8()) {
+    if (!task->IsScheduledForTurnEnd()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*task));
     }
 }

@@ -321,9 +321,9 @@ void TaskAssistMove::RemoveSelf() {
 
 void TaskAssistMove::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 
-void TaskAssistMove::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) { Task_RemindMoveFinished(&unit1); }
+void TaskAssistMove::EventUnitLoaded(UnitInfo& unit1, UnitInfo& unit2) { Task_RemindMoveFinished(&unit1); }
 
-void TaskAssistMove::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
+void TaskAssistMove::EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2) {
     if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
         dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport();
     }

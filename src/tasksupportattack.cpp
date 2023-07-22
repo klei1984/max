@@ -201,7 +201,7 @@ void TaskSupportAttack::BeginTurn() {
     if (parent) {
         ObtainUnits(dynamic_cast<TaskAttack*>(&*parent)->GetAccessFlags());
 
-        if (!GetField8()) {
+        if (!IsScheduledForTurnEnd()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
         }
     }

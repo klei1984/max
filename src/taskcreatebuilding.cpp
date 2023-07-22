@@ -605,11 +605,11 @@ void TaskCreateBuilding::EndTurn() {
             } break;
 
             case CREATE_BUILDING_STATE_SITE_BLOCKED: {
-                if (field_6) {
+                if (IsInitNeeded()) {
                     AiLog log("Task Create %s at [%i,%i]: site blocked",
                               UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
 
-                    field_6 = false;
+                    ChangeInitNeededFlag(false);
 
                     FindBuildSite();
                 }
@@ -655,7 +655,7 @@ void TaskCreateBuilding::EndTurn() {
     }
 }
 
-bool TaskCreateBuilding::Task_vfunc16(UnitInfo& unit_) {
+bool TaskCreateBuilding::ExchangeOperator(UnitInfo& unit_) {
     bool result;
 
     if (builder && builder->unit_type == unit_.unit_type) {
@@ -824,14 +824,14 @@ void TaskCreateBuilding::RemoveUnit(UnitInfo& unit) {
     }
 }
 
-void TaskCreateBuilding::Task_vfunc27(Zone* zone_, char mode) {
+void TaskCreateBuilding::EventZoneCleared(Zone* zone_, bool status) {
     AiLog log("Task Create Building: zone cleared.");
 
     if (zone == zone_) {
         zone = nullptr;
 
         if (op_state == CREATE_BUILDING_STATE_CLEARING_SITE && builder) {
-            if (mode) {
+            if (status) {
                 if (builder->grid_x == site.x && builder->grid_y == site.y) {
                     BeginBuilding();
 
@@ -893,7 +893,8 @@ void TaskCreateBuilding::FindBuildSite() {
                 op_state = CREATE_BUILDING_STATE_MOVING_TO_SITE;
 
                 if (builder) {
-                    if (!RequestWaterPlatform() && !RequestMineRemoval() && !RequestRubbleRemoval() && !GetField8()) {
+                    if (!RequestWaterPlatform() && !RequestMineRemoval() && !RequestRubbleRemoval() &&
+                        !IsScheduledForTurnEnd()) {
                         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
                     }
 

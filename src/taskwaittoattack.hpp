@@ -37,7 +37,7 @@ public:
     void Begin();
     void EndTurn();
     void RemoveSelf();
-    bool Task_vfunc19();
+    bool CheckReactions();
     void RemoveUnit(UnitInfo& unit);
 };
 

@@ -44,8 +44,8 @@ public:
     bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
-    void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
+    void EventUnitLoaded(UnitInfo& unit1, UnitInfo& unit2);
+    void EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2);
 };
 
 #endif /* TASKASSISTMOVE_HPP */

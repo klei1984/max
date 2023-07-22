@@ -590,7 +590,7 @@ void TaskTransport::RemoveUnit(UnitInfo& unit) {
     }
 }
 
-void TaskTransport::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {
+void TaskTransport::EventUnitLoaded(UnitInfo& unit1, UnitInfo& unit2) {
     if (unit_transporter == &unit1) {
         AiLog log("Transport: %s Loaded.", UnitsManager_BaseUnits[unit2.unit_type].singular_name);
 
@@ -606,7 +606,7 @@ void TaskTransport::Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2) {
     }
 }
 
-void TaskTransport::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
+void TaskTransport::EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2) {
     AiLog log("Transport: %s Unloaded.", UnitsManager_BaseUnits[unit2.unit_type].singular_name);
 
     if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
@@ -617,8 +617,8 @@ void TaskTransport::Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2) {
     Task_RemindMoveFinished(&unit1);
 }
 
-void TaskTransport::Task_vfunc27(Zone* zone, char mode) {
-    if (mode && unit_transporter && unit_transporter->orders == ORDER_AWAIT) {
+void TaskTransport::EventZoneCleared(Zone* zone, bool status) {
+    if (status && unit_transporter && unit_transporter->orders == ORDER_AWAIT) {
         Task_RemindMoveFinished(&*unit_transporter);
     }
 }

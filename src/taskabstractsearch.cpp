@@ -31,8 +31,8 @@
 void TaskAbstractSearch::FindDestination(UnitInfo& unit, int radius) {
     AiLog log("Abstract Search: Find Destination");
 
-    if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && field_6 && unit.speed) {
-        field_6 = false;
+    if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && IsInitNeeded() && unit.speed) {
+        ChangeInitNeededFlag(false);
 
         SmartPointer<Task> search_destination_task = new (std::nothrow) TaskSearchDestination(this, &unit, radius);
 

@@ -118,7 +118,7 @@ TaskGetResource::~TaskGetResource() {}
 void TaskGetResource::Begin() {
     requestor->AddTask(this);
 
-    if (!GetField7()) {
+    if (!IsScheduledForTurnStart()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
     }
 }

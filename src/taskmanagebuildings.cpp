@@ -2214,7 +2214,7 @@ void TaskManageBuildings::BeginTurn() {
     MouseEvent::ProcessInput();
     CheckNeeds();
 
-    if (!GetField8()) {
+    if (!IsScheduledForTurnEnd()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
     }
 }
@@ -2322,7 +2322,7 @@ void TaskManageBuildings::RemoveSelf() {
 
 void TaskManageBuildings::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 
-void TaskManageBuildings::Task_vfunc23(UnitInfo& unit) { units.Remove(unit); }
+void TaskManageBuildings::EventUnitDestroyed(UnitInfo& unit) { units.Remove(unit); }
 
 bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, unsigned short task_flags) {
     Point site;

@@ -91,7 +91,7 @@ void TaskGetMaterials::EndTurn() {
             TaskGetResource::EndTurn();
 
         } else {
-            Task_vfunc22(*requestor);
+            EventCargoTransfer(*requestor);
         }
 
     } else {
@@ -103,7 +103,7 @@ void TaskGetMaterials::EndTurn() {
     }
 }
 
-void TaskGetMaterials::Task_vfunc22(UnitInfo& unit) {
+void TaskGetMaterials::EventCargoTransfer(UnitInfo& unit) {
     if (requestor == unit) {
         SmartPointer<Task> get_materials_task = this;
 

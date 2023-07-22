@@ -97,7 +97,7 @@ public:
     void EndTurn();
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc23(UnitInfo& unit);
+    void EventUnitDestroyed(UnitInfo& unit);
 
     void AddCreateOrder(TaskCreateBuilding* task);
     bool CheckPower();

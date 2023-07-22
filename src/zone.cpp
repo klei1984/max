@@ -42,7 +42,7 @@ void Zone::Add(Rect* bounds) {
     }
 }
 
-void Zone::CallTaskVfunc27(bool mode) { task->Task_vfunc27(this, mode); }
+void Zone::CallTaskVfunc27(bool mode) { task->EventZoneCleared(this, mode); }
 
 bool Zone::GetField30() const { return field_30; }
 

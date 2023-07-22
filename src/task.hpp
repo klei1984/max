@@ -97,12 +97,11 @@ class Task : public SmartObject {
     static unsigned short task_id;
     static unsigned short task_count;
 
-    bool field_7;
-    bool field_8;
+    bool need_init;
+    bool scheduled_for_turn_start;
+    bool scheduled_for_turn_end;
 
 protected:
-    bool field_6;
-
     unsigned short team;
     unsigned short id;
     unsigned short flags;
@@ -118,14 +117,14 @@ public:
 
     void RemindTurnStart(bool priority = false);
 
-    bool GetField6() const;
-    void SetField6(bool value);
+    bool IsInitNeeded() const;
+    void ChangeInitNeededFlag(bool value);
 
-    bool GetField7() const;
-    void SetField7(bool value);
+    bool IsScheduledForTurnStart() const;
+    void ChangeIsScheduledForTurnStart(bool value);
 
-    bool GetField8() const;
-    void SetField8(bool value);
+    bool IsScheduledForTurnEnd() const;
+    void ChangeIsScheduledForTurnEnd(bool value);
 
     unsigned short GetTeam() const;
     unsigned short GetId() const;
@@ -152,18 +151,18 @@ public:
     virtual void BeginTurn();
     virtual void ChildComplete(Task* task);
     virtual void EndTurn();
-    virtual bool Task_vfunc16(UnitInfo& unit);
+    virtual bool ExchangeOperator(UnitInfo& unit);
     virtual bool Execute(UnitInfo& unit);
     virtual void RemoveSelf();
-    virtual bool Task_vfunc19();
+    virtual bool CheckReactions();
     virtual void Task_vfunc20(UnitInfo& unit);
     virtual void RemoveUnit(UnitInfo& unit);
-    virtual void Task_vfunc22(UnitInfo& unit);
-    virtual void Task_vfunc23(UnitInfo& unit);
-    virtual void Task_vfunc24(UnitInfo& unit1, UnitInfo& unit2);
-    virtual void Task_vfunc25(UnitInfo& unit);
-    virtual void Task_vfunc26(UnitInfo& unit1, UnitInfo& unit2);
-    virtual void Task_vfunc27(Zone* zone, char mode);
+    virtual void EventCargoTransfer(UnitInfo& unit);
+    virtual void EventUnitDestroyed(UnitInfo& unit);
+    virtual void EventUnitLoaded(UnitInfo& unit1, UnitInfo& unit2);
+    virtual void EventEnemyUnitSpotted(UnitInfo& unit);
+    virtual void EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2);
+    virtual void EventZoneCleared(Zone* zone, bool status);
 };
 
 #endif /* TASKS_HPP */

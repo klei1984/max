@@ -45,7 +45,7 @@ public:
     bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc27(Zone* zone, char mode);
+    void EventZoneCleared(Zone* zone, bool status);
 };
 
 #endif /* TASKACTIVATE_HPP */

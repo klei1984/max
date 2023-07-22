@@ -271,7 +271,7 @@ void TaskActivate::RemoveUnit(UnitInfo& unit) {
     }
 }
 
-void TaskActivate::Task_vfunc27(Zone* zone_, char mode) {
+void TaskActivate::EventZoneCleared(Zone* zone_, bool status) {
     if (zone == zone_) {
         zone = nullptr;
         Activate();

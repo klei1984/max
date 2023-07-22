@@ -32,7 +32,7 @@ Reminder::Reminder() {}
 
 Reminder::~Reminder() {}
 
-RemindTurnStart::RemindTurnStart(Task& task) : task(task) { this->task->SetField7(true); }
+RemindTurnStart::RemindTurnStart(Task& task) : task(task) { this->task->ChangeIsScheduledForTurnStart(true); }
 
 RemindTurnStart::~RemindTurnStart() {}
 
@@ -41,14 +41,14 @@ void RemindTurnStart::Execute() {
 
     AiLog log("Begin turn for %s", task->WriteStatusLog(buffer));
 
-    task->SetField7(false);
+    task->ChangeIsScheduledForTurnStart(false);
     TaskDebugger_DebugBreak(task->GetId());
     task->BeginTurn();
 }
 
 int RemindTurnStart::GetType() { return REMINDER_TYPE_TURN_START; }
 
-RemindTurnEnd::RemindTurnEnd(Task& task) : task(task) { this->task->SetField8(true); }
+RemindTurnEnd::RemindTurnEnd(Task& task) : task(task) { this->task->ChangeIsScheduledForTurnEnd(true); }
 
 RemindTurnEnd::~RemindTurnEnd() {}
 
@@ -57,7 +57,7 @@ void RemindTurnEnd::Execute() {
 
     AiLog log("End turn for %s", task->WriteStatusLog(buffer));
 
-    task->SetField8(false);
+    task->ChangeIsScheduledForTurnEnd(false);
     TaskDebugger_DebugBreak(task->GetId());
     task->EndTurn();
 }

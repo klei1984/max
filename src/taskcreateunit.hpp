@@ -46,7 +46,7 @@ public:
     void EndTurn();
     bool Execute(UnitInfo& unit);
     void RemoveUnit(UnitInfo& unit);
-    void Task_vfunc27(Zone* zone, char mode);
+    void EventZoneCleared(Zone* zone, bool status);
 
     bool Task_vfunc28();
     bool Task_vfunc29();
