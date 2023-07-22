@@ -22,11 +22,7 @@
 #ifndef INI_HPP
 #define INI_HPP
 
-#include <limits.h>
-
-#ifdef __unix__
-#include <linux/limits.h>
-#endif
+#include <climits>
 
 #include "enums.hpp"
 

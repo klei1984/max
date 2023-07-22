@@ -530,7 +530,7 @@ void ResourceManager_InitInternals() {
         ResourceManager_ExitGame(EXIT_CODE_SCREEN_INIT_FAILED);
     }
 
-    SDL_SetAssertionHandler(&ResourceManager_AssertionHandler, NULL);
+    SDL_SetAssertionHandler(&ResourceManager_AssertionHandler, nullptr);
 
     if (SDL_GetSystemRAM() < 13) {
         ini_set_setting(INI_ENHANCED_GRAPHICS, false);

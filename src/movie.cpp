@@ -128,7 +128,7 @@ int movie_run(ResourceID resource_id, int mode) {
                 MVE_rmFastMode(1);
             }
 
-            MVE_sfSVGA(640, 480, 640, 0, NULL, 0, 0, NULL, 0);
+            MVE_sfSVGA(640, 480, 640, 0, nullptr, 0, 0, nullptr, 0);
 
             if (!MVE_rmUnprotect() && !MVE_rmPrepMovie(fp, -1, -1, 0)) {
                 int aborted = 0;

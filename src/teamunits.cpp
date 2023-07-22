@@ -108,7 +108,7 @@ int TeamUnits::GetParam(char* string, int* offset) {
         ++*offset;
     }
 
-    number = strtol(&string[*offset], NULL, 10);
+    number = strtol(&string[*offset], nullptr, 10);
 
     while (string[*offset] != ' ' && string[*offset] != '\0') {
         ++*offset;
@@ -117,7 +117,7 @@ int TeamUnits::GetParam(char* string, int* offset) {
     return number;
 }
 
-TeamUnits::TeamUnits() : gold(0), hash_team_id(0), color_index_table(0) {}
+TeamUnits::TeamUnits() : gold(0), hash_team_id(0), color_index_table(nullptr) {}
 
 TeamUnits::~TeamUnits() {}
 

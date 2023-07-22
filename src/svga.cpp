@@ -141,12 +141,12 @@ int Svga_Init(void) {
 
     if ((sdlWindow = SDL_CreateWindow(
              "M.A.X.: Mechanized Assault & Exploration", SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex),
-             SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex), bounds.w, bounds.h, flags)) == NULL) {
+             SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex), bounds.w, bounds.h, flags)) == nullptr) {
         SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
     }
 
     if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE)) ==
-        NULL) {
+        nullptr) {
         SDL_Log("SDL_CreateRenderer failed: %s\n", SDL_GetError());
     }
 
@@ -267,7 +267,7 @@ void Svga_Blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsi
     }
 
     /* Make the modified texture visible by rendering it */
-    if (SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL) != 0) {
+    if (SDL_RenderCopy(sdlRenderer, sdlTexture, nullptr, nullptr) != 0) {
         SDL_Log("SDL_RenderCopy failed: %s\n", SDL_GetError());
     }
 

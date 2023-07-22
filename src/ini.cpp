@@ -70,10 +70,10 @@ int inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const char
             pini->buffer[pini->file_size] = '\r';
             pini->buffer[pini->file_size + 1] = '\n';
             pini->current_address = pini->buffer;
-            pini->value_start_address = 0;
-            pini->next_value_address = 0;
-            pini->key_start_address = 0;
-            pini->param_start_address = 0;
+            pini->value_start_address = nullptr;
+            pini->next_value_address = nullptr;
+            pini->key_start_address = nullptr;
+            pini->param_start_address = nullptr;
             pini->flags &= ~0x80u;
             result = 1;
         } else {

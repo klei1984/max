@@ -21,7 +21,7 @@
 
 #include "game_manager.hpp"
 
-#include <time.h>
+#include <ctime>
 
 #include "access.hpp"
 #include "ai.hpp"
