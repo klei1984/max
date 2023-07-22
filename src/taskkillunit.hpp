@@ -74,7 +74,7 @@ public:
     bool MoveUnits();
     SpottedUnit* GetSpottedUnit() const;
     UnitInfo* GetUnitSpotted() const;
-    SmartList<UnitInfo>::Iterator GetUnitsListIterator();
+    SmartList<UnitInfo>& GetUnits();
     unsigned short GetRequiredDamage() const;
     unsigned short GetProjectedDamage() const;
 };

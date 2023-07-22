@@ -69,7 +69,7 @@ UnitInfo *Access_GetFirstMiningStation(unsigned short team);
 UnitInfo *Access_GetFirstActiveUnit(unsigned short team, SmartList<UnitInfo> &units);
 bool Access_IsWithinMovementRange(UnitInfo *unit);
 UnitInfo *Access_SeekNextUnit(unsigned short team, UnitInfo *unit, bool seek_direction);
-bool Access_IsChildOfUnitInList(UnitInfo *unit, SmartList<UnitInfo>::Iterator *it);
+bool Access_IsChildOfUnitInList(UnitInfo *unit, SmartList<UnitInfo> *list, SmartList<UnitInfo>::Iterator *it);
 void Access_RenewAttackOrders(SmartList<UnitInfo> &units, unsigned short team);
 void Access_GroupAttackOrder(UnitInfo *unit, bool mode);
 int Access_GetStoredUnitCount(UnitInfo *unit);

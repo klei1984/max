@@ -64,7 +64,7 @@ static bool WinLoss_CanRebuildComplex(unsigned short team);
 static bool WinLoss_CanRebuildBuilders(unsigned short team);
 static int WinLoss_GetWorthOfAssets(unsigned short team, SmartList<UnitInfo>* units);
 static int WinLoss_GetTotalWorthOfAssets(unsigned short team);
-static SmartList<UnitInfo>::Iterator WinLoss_GetRelevantUnitListIterator(ResourceID unit_type);
+static SmartList<UnitInfo>& WinLoss_GetRelevantUnits(ResourceID unit_type);
 static int WinLoss_CountReadyUnits(unsigned short team, ResourceID unit_type);
 static void WinLoss_CountTotalMining(unsigned short team, int* raw_mining_max, int* fuel_mining_max,
                                      int* gold_mining_max);
@@ -121,7 +121,7 @@ bool WinLoss_CanRebuildComplex(unsigned short team) {
         }
     }
 
-    if (it != nullptr) {
+    if (it != UnitsManager_StationaryUnits.End()) {
         int sum_cargo_fuel;
         int sum_cargo_materials;
         int power_demand;
@@ -139,7 +139,7 @@ bool WinLoss_CanRebuildComplex(unsigned short team) {
                 }
             }
 
-            if (it != nullptr) {
+            if (it != UnitsManager_StationaryUnits.End()) {
                 power_demand = 2;
 
             } else {
@@ -173,14 +173,14 @@ bool WinLoss_CanRebuildBuilders(unsigned short team) {
         }
     }
 
-    if (it != nullptr) {
+    if (it != UnitsManager_MobileLandSeaUnits.End()) {
         for (it = UnitsManager_MobileLandSeaUnits.Begin(); it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
             if ((*it).team == team && (*it).unit_type == ENGINEER) {
                 break;
             }
         }
 
-        if (it != nullptr) {
+        if (it != UnitsManager_MobileLandSeaUnits.End()) {
             int resources_needed;
 
             resources_needed = 38;
@@ -191,7 +191,7 @@ bool WinLoss_CanRebuildBuilders(unsigned short team) {
                 }
             }
 
-            if (it != nullptr) {
+            if (it != UnitsManager_StationaryUnits.End()) {
                 resources_needed = 8;
             }
 
@@ -201,7 +201,7 @@ bool WinLoss_CanRebuildBuilders(unsigned short team) {
                 }
             }
 
-            if (it != nullptr) {
+            if (it != UnitsManager_StationaryUnits.End()) {
                 resources_needed -= 8;
             }
 
@@ -277,33 +277,32 @@ int WinLoss_DetermineWinner(unsigned short team1, unsigned short team2) {
     return result;
 }
 
-SmartList<UnitInfo>::Iterator WinLoss_GetRelevantUnitListIterator(ResourceID unit_type) {
+SmartList<UnitInfo>& WinLoss_GetRelevantUnits(ResourceID unit_type) {
     unsigned int flags;
 
     flags = UnitsManager_BaseUnits[unit_type].flags;
 
     if (flags & STATIONARY) {
         if (flags & GROUND_COVER) {
-            return UnitsManager_GroundCoverUnits.Begin();
+            return UnitsManager_GroundCoverUnits;
 
         } else {
-            return UnitsManager_StationaryUnits.Begin();
+            return UnitsManager_StationaryUnits;
         }
 
     } else if (flags & MOBILE_AIR_UNIT) {
-        return UnitsManager_MobileAirUnits.Begin();
+        return UnitsManager_MobileAirUnits;
 
     } else {
-        return UnitsManager_MobileLandSeaUnits.Begin();
+        return UnitsManager_MobileLandSeaUnits;
     }
 }
 
 int WinLoss_CountReadyUnits(unsigned short team, ResourceID unit_type) {
-    int result;
+    int result{0};
+    const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
-    result = 0;
-
-    for (SmartList<UnitInfo>::Iterator it = WinLoss_GetRelevantUnitListIterator(unit_type); it != nullptr; ++it) {
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).team == team && (*it).unit_type == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
             ++result;
         }
@@ -452,11 +451,10 @@ bool WinLoss_HasInfiltratorExperience(unsigned short team) {
 }
 
 int WinLoss_CountDamangedUnits(unsigned short team, ResourceID unit_type) {
-    int result;
+    int result{0};
+    const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
-    result = 0;
-
-    for (SmartList<UnitInfo>::Iterator it = WinLoss_GetRelevantUnitListIterator(unit_type); it != nullptr; ++it) {
+    for (auto it = units.Begin(); it != units.End(); ++it) {
         if ((*it).team == team && (*it).unit_type == unit_type &&
             (*it).hits != (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
             ++result;
@@ -467,11 +465,10 @@ int WinLoss_CountDamangedUnits(unsigned short team, ResourceID unit_type) {
 }
 
 int WinLoss_CountUnitsThatUsedAmmo(unsigned short team, ResourceID unit_type) {
-    int result;
+    int result{0};
+    const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
-    result = 0;
-
-    for (SmartList<UnitInfo>::Iterator it = WinLoss_GetRelevantUnitListIterator(unit_type); it != nullptr; ++it) {
+    for (auto it = units.Begin(); it != units.End(); ++it) {
         if ((*it).team == team && (*it).unit_type == unit_type &&
             (*it).ammo != (*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
             ++result;

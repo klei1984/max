@@ -369,10 +369,12 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                         } else {
                             if (!Task_RetreatFromDanger(this, &*target_unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
                                 // only request rendezvous once
-                                auto task = operator_unit->GetTasks();
+                                const auto tasks = operator_unit->GetTasks();
+                                SmartPointer<Task> task;
 
-                                for (; task != nullptr; ++task) {
-                                    if ((*task).GetType() == TaskType_TaskRendezvous && (*task).GetParent() == this) {
+                                for (auto it = tasks.Begin(); it != tasks.End(); ++it) {
+                                    if ((*it).GetType() == TaskType_TaskRendezvous && (*it).GetParent() == this) {
+                                        task = *it;
                                         break;
                                     }
                                 }

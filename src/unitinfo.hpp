@@ -196,7 +196,7 @@ public:
     void BusyWaitOrder();
     void ScheduleDelayedTasks(bool priority);
     Task* GetTask() const;
-    SmartList<Task>::Iterator GetTasks();
+    SmartList<Task>& GetTasks();
     void AddDelayedTask(Task* task);
     void RemoveDelayedTask(Task* task);
     void AddTask(Task* task);

@@ -1196,7 +1196,7 @@ void UnitInfo::AddTask(Task* task) {
 
 void UnitInfo::ScheduleDelayedTasks(bool priority) {
     if (field_165) {
-        for (SmartList<Task>::Iterator it = delayed_tasks.Begin(); it; ++it) {
+        for (SmartList<Task>::Iterator it = delayed_tasks.Begin(); it != delayed_tasks.End(); ++it) {
             (*it).RemindTurnEnd(true);
         }
     }
@@ -1218,7 +1218,7 @@ Task* UnitInfo::GetTask() const {
     return task;
 }
 
-SmartList<Task>::Iterator UnitInfo::GetTasks() { return tasks.Begin(); }
+SmartList<Task>& UnitInfo::GetTasks() { return tasks; }
 
 void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
 
@@ -4312,9 +4312,13 @@ void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
 
         for (site.x = position.x; site.x < position.x + 2; ++site.x) {
             for (site.y = position.y; site.y < position.y + 2; ++site.y) {
-                for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[site]; it; ++it) {
-                    if ((*it).unit_type == COMMANDO || (*it).unit_type == SUBMARNE || (*it).unit_type == CLNTRANS) {
-                        (*it).StepMoveUnit(position);
+                const auto units = Hash_MapHash[site];
+
+                if (units) {
+                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                        if ((*it).unit_type == COMMANDO || (*it).unit_type == SUBMARNE || (*it).unit_type == CLNTRANS) {
+                            (*it).StepMoveUnit(position);
+                        }
                     }
                 }
             }
@@ -4664,16 +4668,23 @@ void UnitInfo::PositionInTape() {
 
 void UnitInfo::PlaceMine() {
     if ((unit_type == MINELAYR || unit_type == SEAMNLYR) && storage > 0) {
-        SmartList<UnitInfo>::Iterator unit_it;
-        ResourceID mine_type = (unit_type == SEAMNLYR) ? SEAMINE : LANDMINE;
+        ResourceID mine_type{(unit_type == SEAMNLYR) ? SEAMINE : LANDMINE};
+        bool is_found{false};
 
-        for (unit_it = Hash_MapHash[Point(grid_x, grid_y)]; unit_it; ++unit_it) {
-            if ((*unit_it).unit_type == mine_type) {
-                break;
+        {
+            const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+            if (units) {
+                for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                    if ((*it).unit_type == mine_type) {
+                        is_found = true;
+                        break;
+                    }
+                }
             }
         }
 
-        if (!unit_it) {
+        if (!is_found) {
             SmartPointer<UnitInfo> new_unit(UnitsManager_DeployUnit(mine_type, team, nullptr, grid_x, grid_y, 0));
             Rect bounds;
             Point site;
@@ -4685,9 +4696,13 @@ void UnitInfo::PlaceMine() {
 
             for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                 for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
-                    for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[site]; it; ++it) {
-                        if ((*it).unit_type == SURVEYOR) {
-                            new_unit->SpotByTeam((*it).team);
+                    const auto units = Hash_MapHash[site];
+
+                    if (units) {
+                        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                            if ((*it).unit_type == SURVEYOR) {
+                                new_unit->SpotByTeam((*it).team);
+                            }
                         }
                     }
                 }
@@ -4710,17 +4725,21 @@ void UnitInfo::PlaceMine() {
 
 void UnitInfo::PickUpMine() {
     if ((unit_type == MINELAYR || unit_type == SEAMNLYR) && storage < GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-        SmartList<UnitInfo>::Iterator unit_it;
-        ResourceID mine_type = (unit_type == SEAMNLYR) ? SEAMINE : LANDMINE;
+        SmartPointer<UnitInfo> mine;
+        ResourceID mine_type{(unit_type == SEAMNLYR) ? SEAMINE : LANDMINE};
+        const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
-        for (unit_it = Hash_MapHash[Point(grid_x, grid_y)]; unit_it; ++unit_it) {
-            if ((*unit_it).unit_type == mine_type) {
-                break;
+        if (units) {
+            for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                if ((*it).unit_type == mine_type) {
+                    mine = *it;
+                    break;
+                }
             }
         }
 
-        if (unit_it) {
-            UnitsManager_DestroyUnit(&*unit_it);
+        if (mine) {
+            UnitsManager_DestroyUnit(mine.Get());
             ++storage;
 
             if (storage == GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {

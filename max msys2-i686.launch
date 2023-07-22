@@ -37,8 +37,8 @@
     <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
         <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
     </listAttribute>
-    <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;&gt;&lt;gdbmemoryBlockExpression address=&quot;260280304&quot; label=&quot;data&quot;/&gt;&lt;/memoryBlockExpressionList&gt;"/>
+    <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;&gt;&lt;gdbmemoryBlockExpression address=&quot;870518760&quot; label=&quot;0x33e30fe8&quot;/&gt;&lt;/memoryBlockExpressionList&gt;"/>
     <stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
     <stringAttribute key="provider" value="org.eclipse.linuxtools.profiling.provider.timing.gprof"/>
-    <stringAttribute key="saved_expressions&lt;seperator&gt;Unknown" value="0xca4be30,0xcfc2cb0,0xccc2440,0x209f8f88,0x22a9cf88,0x1f954f88,0x20222fc0,0x2009a880,buf[repeat_count + scan_line_pos],map.map,08D52FFC,0x08D52FFC,0x8D52E80,0xf838ff0,slot-&gt;bitmap.buffer"/>
+    <stringAttribute key="saved_expressions&lt;seperator&gt;Unknown" value="buf[repeat_count + scan_line_pos],map.map,08D52FFC,0x08D52FFC,0x8D52E80,0xf838ff0,slot-&gt;bitmap.buffer,0x1f058fe8,0x5ff878,0x1fc0efe8,0x1f7a4fe8,0x1f7a4ff4,0x3668afe8,0x36688ff0,0x36688ff4"/>
 </launchConfiguration>

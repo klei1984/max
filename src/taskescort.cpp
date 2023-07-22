@@ -217,7 +217,7 @@ void TaskEscort::EndTurn() {
                             }
                         }
 
-                        if (!it) {
+                        if (it == UnitsManager_StationaryUnits.End()) {
                             for (it = UnitsManager_MobileAirUnits.Begin(); it != UnitsManager_MobileAirUnits.End();
                                  ++it) {
                                 if ((*it).team != team && teams[(*it).team]) {
@@ -226,7 +226,7 @@ void TaskEscort::EndTurn() {
                             }
                         }
 
-                        if (!it) {
+                        if (it == UnitsManager_MobileAirUnits.End()) {
                             return;
                         }
                     }

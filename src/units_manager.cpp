@@ -3752,7 +3752,7 @@ void UnitsManager_ProcessRemoteOrders() {
         UnitsManager_Unit = nullptr;
     }
 
-    for (SmartList<UnitEvent>::Iterator it = UnitEvent_UnitEvents.Begin(); it; ++it) {
+    for (SmartList<UnitEvent>::Iterator it = UnitEvent_UnitEvents.Begin(); it != UnitEvent_UnitEvents.End(); ++it) {
         (*it).Process();
     }
 
@@ -5665,11 +5665,11 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         units = &UnitsManager_MobileLandSeaUnits;
     }
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); Access_IsChildOfUnitInList(unit, &it);
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); Access_IsChildOfUnitInList(unit, units, &it);
          UnitsManager_DestroyUnit(&*it)) {
         if ((*it).unit_type == SEATRANS || (*it).unit_type == AIRTRANS || (*it).unit_type == CLNTRANS) {
             for (SmartList<UnitInfo>::Iterator it2 = UnitsManager_MobileLandSeaUnits.Begin();
-                 Access_IsChildOfUnitInList(&*it, &it2); UnitsManager_DestroyUnit(&*it2)) {
+                 Access_IsChildOfUnitInList(&*it, units, &it2); UnitsManager_DestroyUnit(&*it2)) {
                 ++UnitsManager_TeamInfo[(*it2).team].casualties[(*it2).unit_type];
             }
         }

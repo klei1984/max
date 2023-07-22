@@ -56,13 +56,13 @@ void SmartList_UnitInfo_FileSave(SmartList<UnitInfo>& list, SmartFileWriter& fil
     unsigned short count = list.GetCount();
 
     file.Write(count);
-    for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != nullptr; ++unit) {
+    for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != list.End(); ++unit) {
         file.WriteObject(&*unit);
     }
 }
 
 void SmartList_UnitInfo_Clear(SmartList<UnitInfo>& list) {
-    for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != nullptr; ++unit) {
+    for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != list.End(); ++unit) {
         unit->Get()->SetParent(nullptr);
         unit->Get()->SetEnemy(nullptr);
         unit->Get()->RemoveTasks();
@@ -133,7 +133,7 @@ void MapHash::AddEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y
     SmartList<MapHashObject>* list = &entry[(grid_y ^ (grid_x << x_shift)) % hash_size];
     SmartList<MapHashObject>::Iterator object = list->Begin();
 
-    while (object != nullptr) {
+    while (object != list->End()) {
         if (grid_x == (*object).GetX() && grid_y == (*object).GetY()) {
             break;
         }
@@ -141,7 +141,7 @@ void MapHash::AddEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y
         ++object;
     }
 
-    if (object == nullptr) {
+    if (object == list->End()) {
         list->PushFront(*new (std::nothrow) MapHashObject(grid_x, grid_y));
         object = list->Begin();
     }
@@ -175,7 +175,7 @@ void MapHash::RemoveEx(UnitInfo* unit, unsigned short grid_x, unsigned short gri
     SmartList<MapHashObject>* list = &entry[(grid_y ^ (grid_x << x_shift)) % hash_size];
     SmartList<MapHashObject>::Iterator object = list->Begin();
 
-    while (object != nullptr) {
+    while (object != list->End()) {
         if (grid_x == (*object).GetX() && grid_y == (*object).GetY()) {
             break;
         }
@@ -183,7 +183,7 @@ void MapHash::RemoveEx(UnitInfo* unit, unsigned short grid_x, unsigned short gri
         ++object;
     }
 
-    if (object != nullptr) {
+    if (object != list->End()) {
         (*object).Remove(unit);
 
         if (!(*object).GetList().GetCount()) {
@@ -243,29 +243,23 @@ void MapHash::FileSave(SmartFileWriter& file) {
         unsigned short count = entry[index].GetCount();
         file.Write(count);
 
-        for (SmartList<MapHashObject>::Iterator object = entry[index].Begin(); object != nullptr; ++object) {
+        for (SmartList<MapHashObject>::Iterator object = entry[index].Begin(); object != entry[index].End(); ++object) {
             (*object).FileSave(file);
         }
     }
 }
 
-SmartList<UnitInfo>::Iterator MapHash::operator[](const Point& key) {
+SmartList<UnitInfo>* MapHash::operator[](const Point& key) {
     SDL_assert(key.x >= 0 && key.y >= 0);
 
-    SmartList<MapHashObject>* list = &entry[(key.y ^ (key.x << x_shift)) % hash_size];
-    SmartList<MapHashObject>::Iterator object = list->Begin();
-    SmartList<UnitInfo>::Iterator result;
+    SmartList<UnitInfo>* result{nullptr};
+    SmartList<MapHashObject>& list = entry[(key.y ^ (key.x << x_shift)) % hash_size];
 
-    while (object != nullptr) {
-        if (key.x == (*object).GetX() && key.y == (*object).GetY()) {
+    for (auto& object : list) {
+        if (key.x == object.GetX() && key.y == object.GetY()) {
+            result = &object.GetList();
             break;
         }
-
-        ++object;
-    }
-
-    if (object != nullptr) {
-        result = (*object).GetList().Begin();
     }
 
     return result;
@@ -288,7 +282,7 @@ void UnitHash::Remove(UnitInfo* unit) {
 
 void UnitHash::Clear() {
     for (int index = 0; index < hash_size; ++index) {
-        for (SmartList<UnitInfo>::Iterator unit = list[index].Begin(); unit != nullptr; ++unit) {
+        for (SmartList<UnitInfo>::Iterator unit = list[index].Begin(); unit != list[index].End(); ++unit) {
             (*unit).ClearUnitList();
             (*unit).SetParent(nullptr);
         }
@@ -318,7 +312,9 @@ void UnitHash::FileSave(SmartFileWriter& file) {
 }
 
 UnitInfo* UnitHash::operator[](const unsigned short& key) {
-    for (SmartList<UnitInfo>::Iterator unit = list[key % hash_size].Begin(); unit != nullptr; ++unit) {
+    const auto& units = list[key % hash_size];
+
+    for (auto unit = units.Begin(); unit != units.End(); ++unit) {
         if (key == (*unit).GetId()) {
             return &(*unit);
         }

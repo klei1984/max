@@ -79,7 +79,7 @@ bool AiAttack_DecideDesperationAttack(UnitInfo* attacker, UnitInfo* target) {
                 }
             }
 
-            if (it) {
+            if (it != UnitsManager_StationaryUnits.End()) {
                 result = true;
 
             } else {
@@ -568,8 +568,8 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, 
     range = range * range;
     scan = scan * scan;
 
-    for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnitIterator(); it != nullptr;
-         ++it) {
+    for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin();
+         it != AiPlayer_Teams[unit->team].GetSpottedUnits().End(); ++it) {
         UnitInfo* target_unit = (*it).GetUnit();
 
         if (teams[target_unit->team] && target_unit->orders != ORDER_IDLE && target_unit->state != ORDER_STATE_14 &&

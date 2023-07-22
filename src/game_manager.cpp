@@ -1065,7 +1065,9 @@ bool GameManager_RefreshOrders(unsigned short team, bool check_production) {
 
     SDL_assert(team_info->team_type != TEAM_TYPE_REMOTE);
 
-    for (SmartList<Complex>::Iterator it = team_info->team_units->GetFrontComplex(); it != nullptr; ++it) {
+    const auto& complexes = team_info->team_units->GetComplexes();
+
+    for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
         Access_UpdateResourcesTotal(&(*it));
 
         if (!GameManager_OptimizeProduction(team, &(*it), is_player, true) && !check_production) {
@@ -3834,7 +3836,7 @@ void GameManager_MenuClickLockButton(bool rest_state) {
     GameManager_MenuItems[MENU_GUI_ITEM_LOCK_BUTTON].button->SetRestState(rest_state);
 
     if (rest_state && GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit->team != GameManager_PlayerTeam &&
-        !GameManager_LockedUnits.Find(*GameManager_SelectedUnit)) {
+        GameManager_LockedUnits.Find(*GameManager_SelectedUnit) == GameManager_LockedUnits.End()) {
         GameManager_LockedUnits.PushBack(*GameManager_SelectedUnit);
     }
 
@@ -8007,8 +8009,9 @@ void GameManager_ProgressBuildState(unsigned short team) {
         GameManager_ReportNewUnitsMessage(unit_counters);
     }
 
-    for (SmartList<Complex>::Iterator it = UnitsManager_TeamInfo[team].team_units->GetFrontComplex(); it != nullptr;
-         ++it) {
+    const auto& complexes = UnitsManager_TeamInfo[team].team_units->GetComplexes();
+
+    for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
         Access_UpdateResourcesTotal(&(*it));
         GameManager_OptimizeProduction(team, &(*it), false, true);
     }

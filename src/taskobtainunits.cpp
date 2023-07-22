@@ -93,7 +93,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
 
     AiLog log("Obtain Unit: Find %s ", UnitsManager_BaseUnits[unit_type].singular_name);
 
-    for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != nullptr; ++unit) {
+    for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != list->End(); ++unit) {
         if ((*unit).unit_type == unit_type) {
             if ((*unit).orders == ORDER_BUILD &&
                 ((*unit).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {

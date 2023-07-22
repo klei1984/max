@@ -1380,7 +1380,7 @@ bool TaskManageBuildings::CheckNeeds() {
                 }
             }
 
-            if (it) {
+            if (it != UnitsManager_StationaryUnits.End()) {
                 task_flags = 0xE00;
 
             } else {

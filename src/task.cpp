@@ -67,7 +67,7 @@ bool Task_IsReadyToTakeOrders(UnitInfo* unit) {
 
 void Task_RemoveMovementTasks(UnitInfo* unit) {
     if (unit->orders != ORDER_IDLE || unit->hits <= 0) {
-        for (SmartList<Task>::Iterator it = unit->GetTasks(); it; ++it) {
+        for (SmartList<Task>::Iterator it = unit->GetTasks().Begin(); it != unit->GetTasks().End(); ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
                 AiLog log("Move %s: removing old move task", UnitsManager_BaseUnits[unit->unit_type].singular_name);
 
@@ -132,8 +132,8 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                       UnitsManager_BaseUnits[unit->unit_type].singular_name, site.x + 1, site.y + 1);
 
             if (Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
-                for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnitIterator(); it;
-                     ++it) {
+                for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin();
+                     it != AiPlayer_Teams[unit->team].GetSpottedUnits().End(); ++it) {
                     UnitInfo* spotted_unit = (*it).GetUnit();
                     int spotted_unit_range = spotted_unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 

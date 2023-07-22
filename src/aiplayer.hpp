@@ -168,7 +168,7 @@ public:
     signed char** GetMineMap();
     void AddTransportOrder(TransportOrder* transport_order);
     Task* FindManager(Point site);
-    SmartList<SpottedUnit>::Iterator GetSpottedUnitIterator();
+    SmartList<SpottedUnit>& GetSpottedUnits();
     int GetMemoryUsage();
     void AddMilitaryUnit(UnitInfo* unit);
     void BeginTurn();

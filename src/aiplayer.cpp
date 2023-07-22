@@ -164,7 +164,7 @@ Point AiPlayer::GetUnitClusterCoordinates(unsigned short team, SmartList<UnitInf
     int grid_y = 0;
     Point result(0, 0);
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it; ++it) {
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team) {
             ++team_unit_count;
             grid_x += (*it).grid_x;
@@ -238,7 +238,8 @@ void AiPlayer::UpdatePriorityTasks() {
         task_array[i] = nullptr;
     }
 
-    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it; ++it) {
+    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+         ++it) {
         if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskAttack) {
             unsigned short task_flags = (*it).GetFlags();
             int task_index;
@@ -272,7 +273,7 @@ void AiPlayer::DetermineTargetLocation(Point position) {
         int distance;
         int minimum_distance;
 
-        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
             UnitInfo* unit = (*it).GetUnit();
 
             if (!target || unit->unit_type == MININGST || target->GetUnit()->unit_type != MININGST) {
@@ -1075,7 +1076,7 @@ WeightTable AiPlayer::GetWeightTable(ResourceID unit_type) {
                 table += weight_table_commando;
             }
 
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
                 table += GetWeightTable((*it).GetUnit()->unit_type);
             }
 
@@ -2184,7 +2185,7 @@ Task* AiPlayer::FindManager(Point site) {
 
         minimum_distance = position.x * position.x + position.y * position.y;
 
-        for (++task_it; task_it; ++task_it) {
+        for (++task_it; task_it != task_list.End(); ++task_it) {
             (*task_it).GetBounds(&bounds);
 
             position = site;
@@ -2215,7 +2216,7 @@ Task* AiPlayer::FindManager(Point site) {
     return &*task;
 }
 
-SmartList<SpottedUnit>::Iterator AiPlayer::GetSpottedUnitIterator() { return spotted_units.Begin(); }
+SmartList<SpottedUnit>& AiPlayer::GetSpottedUnits() { return spotted_units; }
 
 int AiPlayer::GetMemoryUsage() {
     return task_list.GetMemorySize() + spotted_units.GetMemorySize() - 10 +
@@ -2485,7 +2486,7 @@ void AiPlayer::BeginTurn() {
                 }
             }
 
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
                 if (IsKeyFacility((*it).GetUnit()->unit_type) && (*it).GetUnit()->team == target_team) {
                     DetermineAttack(&*it, 0x1F00);
                 }
@@ -2532,7 +2533,7 @@ void AiPlayer::BeginTurn() {
 
         AiAttack_GetTargetTeams(player_team, teams);
 
-        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
             if (!(*it).GetTask()) {
                 UnitInfo* target = (*it).GetUnit();
 
@@ -2732,7 +2733,8 @@ void AiPlayer::PlanMinefields() {
             }
         }
 
-        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it; ++it) {
+        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+             ++it) {
             if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
                 TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
 
@@ -2754,7 +2756,8 @@ void AiPlayer::PlanMinefields() {
         }
 
         /// \todo The entire block is dead code due to the inner for loops.
-        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it; ++it) {
+        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+             ++it) {
             if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
                 TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
 
@@ -3970,7 +3973,7 @@ void AiPlayer::RemoveUnit(UnitInfo* unit) {
         ground_forces.Remove(*unit);
 
     } else {
-        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
             if (unit == (*it).GetUnit()) {
                 spotted_units.Remove(*it);
             }
@@ -3985,13 +3988,13 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 
         InvalidateThreatMaps();
 
-        for (spotted_unit = spotted_units.Begin(); spotted_unit; ++spotted_unit) {
+        for (spotted_unit = spotted_units.Begin(); spotted_unit != spotted_units.End(); ++spotted_unit) {
             if ((*spotted_unit).GetUnit() == unit) {
                 break;
             }
         }
 
-        if (spotted_unit) {
+        if (spotted_unit != spotted_units.End()) {
             (*spotted_unit).UpdatePosition();
 
         } else {
@@ -4005,7 +4008,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 
             bool is_key_facility = false;
 
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
                 if (IsKeyFacility((*it).GetUnit()->unit_type)) {
                     is_key_facility = true;
                     break;
@@ -4034,7 +4037,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
                         }
                     }
 
-                    for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+                    for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
                         if ((*it).GetUnit()->unit_type == CONSTRCT) {
                             return;
                         }
@@ -4499,7 +4502,7 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
 
     file.WriteObjectCount(spotted_units.GetCount());
 
-    for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it; ++it) {
+    for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
         (*it).FileSave(file);
     }
 

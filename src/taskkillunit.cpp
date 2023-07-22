@@ -663,7 +663,7 @@ UnitInfo* TaskKillUnit::GetUnitSpotted() const {
     return result;
 }
 
-SmartList<UnitInfo>::Iterator TaskKillUnit::GetUnitsListIterator() { return units.Begin(); }
+SmartList<UnitInfo>& TaskKillUnit::GetUnits() { return units; }
 
 unsigned short TaskKillUnit::GetRequiredDamage() const { return required_damage; }
 

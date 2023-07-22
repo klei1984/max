@@ -86,75 +86,79 @@ bool UnitInfoGroup::Populate() {
     if ((bounds.lrx - bounds.ulx) * (bounds.lry - bounds.uly) <= (unit_count / 2)) {
         for (point.y = bounds.uly; point.y < bounds.lry; ++point.y) {
             for (point.x = bounds.ulx; point.x < bounds.lrx; ++point.x) {
-                for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[point]; it != nullptr; ++it) {
-                    if (UnitInfoGroup::IsRelevant(&(*it), this)) {
-                        if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
-                            sea_land_units.Insert((*it));
+                const auto units = Hash_MapHash[point];
 
-                        } else if ((*it).flags & GROUND_COVER) {
-                            switch ((*it).unit_type) {
-                                case BRIDGE: {
-                                    if ((*it).IsBridgeElevated()) {
-                                        elevated_bridge.Insert((*it));
+                if (units) {
+                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                        if (UnitInfoGroup::IsRelevant(&(*it), this)) {
+                            if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+                                sea_land_units.Insert((*it));
 
-                                    } else {
+                            } else if ((*it).flags & GROUND_COVER) {
+                                switch ((*it).unit_type) {
+                                    case BRIDGE: {
+                                        if ((*it).IsBridgeElevated()) {
+                                            elevated_bridge.Insert((*it));
+
+                                        } else {
+                                            passeable_ground_cover.Insert((*it));
+                                        }
+                                    } break;
+
+                                    case TORPEDO:
+                                    case TRPBUBLE: {
+                                        torpedos.Insert((*it));
+                                    } break;
+
+                                    case SMLSLAB:
+                                    case LRGSLAB:
+                                    case ROAD:
+                                    case WALDO: {
                                         passeable_ground_cover.Insert((*it));
-                                    }
-                                } break;
+                                    } break;
 
-                                case TORPEDO:
-                                case TRPBUBLE: {
-                                    torpedos.Insert((*it));
-                                } break;
+                                    case LANDMINE:
+                                    case SEAMINE: {
+                                        sea_land_mines.Insert((*it));
+                                    } break;
 
-                                case SMLSLAB:
-                                case LRGSLAB:
-                                case ROAD:
-                                case WALDO: {
-                                    passeable_ground_cover.Insert((*it));
-                                } break;
+                                    case WTRPLTFM: {
+                                        water_platform.Insert((*it));
+                                    } break;
 
-                                case LANDMINE:
-                                case SEAMINE: {
-                                    sea_land_mines.Insert((*it));
-                                } break;
+                                    case SMLRUBLE:
+                                    case LRGRUBLE: {
+                                        land_rubbles.Insert((*it));
+                                    } break;
 
-                                case WTRPLTFM: {
-                                    water_platform.Insert((*it));
-                                } break;
+                                    default: {
+                                        ground_covers.Insert((*it));
+                                    } break;
+                                }
 
-                                case SMLRUBLE:
-                                case LRGRUBLE: {
-                                    land_rubbles.Insert((*it));
-                                } break;
-
-                                default: {
+                            } else if ((*it).flags & STATIONARY) {
+                                if ((*it).unit_type == LANDPAD) {
                                     ground_covers.Insert((*it));
-                                } break;
-                            }
 
-                        } else if ((*it).flags & STATIONARY) {
-                            if ((*it).unit_type == LANDPAD) {
-                                ground_covers.Insert((*it));
+                                } else {
+                                    elevated_bridge.Insert((*it));
+                                }
 
-                            } else {
-                                elevated_bridge.Insert((*it));
-                            }
+                            } else if ((*it).flags & MISSILE_UNIT) {
+                                if (((*it).flags & EXPLODING) && (*it).unit_type != RKTSMOKE) {
+                                    air_particles_explosions.Insert((*it));
 
-                        } else if ((*it).flags & MISSILE_UNIT) {
-                            if (((*it).flags & EXPLODING) && (*it).unit_type != RKTSMOKE) {
-                                air_particles_explosions.Insert((*it));
+                                } else {
+                                    rockets.Insert((*it));
+                                }
 
-                            } else {
-                                rockets.Insert((*it));
-                            }
+                            } else if ((*it).flags & MOBILE_AIR_UNIT) {
+                                if (((*it).flags & HOVERING) || (*it).orders == ORDER_MOVE) {
+                                    air_units_in_air.Insert((*it));
 
-                        } else if ((*it).flags & MOBILE_AIR_UNIT) {
-                            if (((*it).flags & HOVERING) || (*it).orders == ORDER_MOVE) {
-                                air_units_in_air.Insert((*it));
-
-                            } else {
-                                air_units_on_ground.Insert((*it));
+                                } else {
+                                    air_units_on_ground.Insert((*it));
+                                }
                             }
                         }
                     }
@@ -241,7 +245,7 @@ void UnitInfoGroup::RenderLists() {
     RenderList(&UnitsManager_GroundCoverUnits);
     RenderList(&UnitsManager_MobileLandSeaUnits);
     RenderList(&UnitsManager_StationaryUnits);
-    SmartList<UnitInfo>::Iterator it2;
+    SmartList<UnitInfo>::Iterator it2 = UnitsManager_ParticleUnits.End();
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
          it != UnitsManager_MobileAirUnits.End(); ++it) {

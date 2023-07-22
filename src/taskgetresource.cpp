@@ -75,7 +75,8 @@ UnitInfo* TaskGetResource::FindClosestBuilding(Complex* complex) {
     int distance;
     int minimum_distance{INT32_MAX};
 
-    for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin(); unit != nullptr; ++unit) {
+    for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin();
+         unit != UnitsManager_StationaryUnits.End(); ++unit) {
         if ((*unit).GetComplex() == complex) {
             distance = TaskManager_GetDistance(&(*unit), &*requestor);
 

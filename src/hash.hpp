@@ -45,7 +45,7 @@ public:
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
 
-    SmartList<UnitInfo>::Iterator operator[](const Point& key);
+    SmartList<UnitInfo>* operator[](const Point& key);
 };
 
 class UnitHash {

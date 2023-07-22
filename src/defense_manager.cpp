@@ -86,7 +86,7 @@ bool DefenseManager::AddUnit(UnitInfo* unit) {
 bool DefenseManager::RemoveUnit(UnitInfo* unit) {
     bool result;
 
-    if (units.Find(*unit)) {
+    if (units.Find(*unit) != units.End()) {
         asset_value -= unit->GetNormalRateBuildCost();
         units.Remove(*unit);
 

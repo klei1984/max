@@ -28,7 +28,8 @@
 #include "taskmove.hpp"
 #include "units_manager.hpp"
 
-TaskCheckAssaults::TaskCheckAssaults(unsigned short team) : Task(team, nullptr, 0x1E) {}
+TaskCheckAssaults::TaskCheckAssaults(unsigned short team)
+    : Task(team, nullptr, 0x1E), unit_iterator(UnitsManager_MobileAirUnits.End()) {}
 
 TaskCheckAssaults::~TaskCheckAssaults() {}
 
@@ -36,21 +37,21 @@ void TaskCheckAssaults::CheckAssaults() {
     AiLog log("Task check assaults");
     unsigned short unit_count = 0;
 
-    if (unit_iterator == nullptr && field_6) {
+    if (unit_iterator == UnitsManager_MobileAirUnits.End() && field_6) {
         field_6 = false;
 
         unit_iterator = UnitsManager_MobileLandSeaUnits.Begin();
 
-        if (unit_iterator == nullptr) {
+        if (unit_iterator == UnitsManager_MobileLandSeaUnits.End()) {
             unit_iterator = UnitsManager_MobileAirUnits.Begin();
         }
 
-        if (unit_iterator != nullptr && (*unit_iterator).team != team) {
+        if (unit_iterator != UnitsManager_MobileAirUnits.End() && (*unit_iterator).team != team) {
             SelectNext();
         }
     }
 
-    for (; unit_iterator != nullptr; SelectNext()) {
+    for (; unit_iterator != UnitsManager_MobileAirUnits.End(); SelectNext()) {
         if (Paths_HaveTimeToThink()) {
             if (EvaluateAssaults()) {
                 log.Log("Assault check paused.");
@@ -74,17 +75,15 @@ void TaskCheckAssaults::CheckAssaults() {
 }
 
 void TaskCheckAssaults::SelectNext() {
-    if (unit_iterator != nullptr) {
+    if (unit_iterator != UnitsManager_MobileAirUnits.End()) {
         do {
-            bool is_air_unit = (*unit_iterator).flags & MOBILE_AIR_UNIT;
-
             ++unit_iterator;
 
-            if (unit_iterator == nullptr && !is_air_unit) {
+            if (unit_iterator == UnitsManager_MobileLandSeaUnits.End()) {
                 unit_iterator = UnitsManager_MobileAirUnits.Begin();
             }
 
-        } while (unit_iterator != nullptr && (*unit_iterator).team != team);
+        } while (unit_iterator != UnitsManager_MobileAirUnits.End() && (*unit_iterator).team != team);
     }
 }
 
@@ -121,14 +120,14 @@ void TaskCheckAssaults::BeginTurn() { CheckAssaults(); }
 void TaskCheckAssaults::EndTurn() { CheckAssaults(); }
 
 void TaskCheckAssaults::RemoveSelf() {
-    unit_iterator = nullptr;
+    unit_iterator = UnitsManager_MobileAirUnits.End();
     parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
 
 void TaskCheckAssaults::RemoveUnit(UnitInfo& unit) {
-    if ((unit_iterator != nullptr) && (&*unit_iterator == &unit)) {
+    if ((unit_iterator != UnitsManager_MobileAirUnits.End()) && (&(*unit_iterator) == &unit)) {
         SelectNext();
     }
 }

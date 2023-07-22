@@ -297,7 +297,7 @@ TaskFrontalAttack::~TaskFrontalAttack() {}
 int TaskFrontalAttack::GetCautionLevel(UnitInfo& unit) {
     int result;
 
-    if (units1.Find(unit)) {
+    if (units1.Find(unit) != units1.End()) {
         result = CAUTION_LEVEL_NONE;
 
     } else {

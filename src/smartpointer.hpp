@@ -59,6 +59,9 @@ class SmartPointer {
     T* object_pointer{nullptr};
 
 public:
+    using Reference = SmartPointer<T>&;
+    using ConstReference = const SmartPointer<T>&;
+
     SmartPointer() = default;
 
     SmartPointer(T* object) : object_pointer(object) {
@@ -73,7 +76,7 @@ public:
         }
     }
 
-    SmartPointer(const SmartPointer<T>& other) : object_pointer(other.object_pointer) {
+    SmartPointer(ConstReference other) : object_pointer(other.object_pointer) {
         if (object_pointer) {
             object_pointer->Increment();
         }
@@ -89,7 +92,7 @@ public:
 
     inline T& operator*() const noexcept { return *object_pointer; }
 
-    SmartPointer<T>& operator=(const SmartPointer<T>& other) noexcept {
+    Reference operator=(ConstReference other) noexcept {
         if (other.object_pointer) {
             other.object_pointer->Increment();
         }
@@ -103,7 +106,7 @@ public:
         return *this;
     }
 
-    SmartPointer<T>& operator=(T* other) noexcept {
+    Reference operator=(T* other) noexcept {
         if (other) {
             other->Increment();
         }
@@ -117,7 +120,7 @@ public:
         return *this;
     }
 
-    SmartPointer<T>& operator=(T& other) noexcept {
+    Reference operator=(T& other) noexcept {
         other.Increment();
 
         if (object_pointer) {
@@ -133,37 +136,33 @@ public:
 
     inline T* Get() const noexcept { return object_pointer; };
 
-    friend inline bool operator==(const SmartPointer<T>& lhs, const SmartPointer<T>& rhs) noexcept {
-        return lhs.Get() == rhs.Get();
-    }
+    friend inline bool operator==(ConstReference lhs, ConstReference rhs) noexcept { return lhs.Get() == rhs.Get(); }
 
-    friend inline bool operator==(const SmartPointer<T>& lhs, const T* rhs) noexcept { return lhs.Get() == rhs; }
+    friend inline bool operator==(ConstReference lhs, const T* rhs) noexcept { return lhs.Get() == rhs; }
 
-    friend inline bool operator==(const T* lhs, const SmartPointer<T>& rhs) noexcept { return lhs == rhs.Get(); }
+    friend inline bool operator==(const T* lhs, ConstReference rhs) noexcept { return lhs == rhs.Get(); }
 
-    friend inline bool operator==(const SmartPointer<T>& lhs, const T& rhs) noexcept { return lhs.Get() == &rhs; }
+    friend inline bool operator==(ConstReference lhs, const T& rhs) noexcept { return lhs.Get() == &rhs; }
 
-    friend inline bool operator==(const T& lhs, const SmartPointer<T>& rhs) noexcept { return &lhs == rhs.Get(); }
+    friend inline bool operator==(const T& lhs, ConstReference rhs) noexcept { return &lhs == rhs.Get(); }
 
-    friend inline bool operator==(const SmartPointer<T>& lhs, std::nullptr_t) noexcept { return !lhs.Get(); }
+    friend inline bool operator==(ConstReference lhs, std::nullptr_t) noexcept { return !lhs.Get(); }
 
-    friend inline bool operator==(std::nullptr_t, const SmartPointer<T>& rhs) noexcept { return !rhs.Get(); }
+    friend inline bool operator==(std::nullptr_t, ConstReference rhs) noexcept { return !rhs.Get(); }
 
-    friend inline bool operator!=(const SmartPointer<T>& lhs, const SmartPointer<T>& rhs) noexcept {
-        return !(lhs == rhs);
-    }
+    friend inline bool operator!=(ConstReference lhs, ConstReference rhs) noexcept { return !(lhs == rhs); }
 
-    friend inline bool operator!=(const SmartPointer<T>& lhs, const T* rhs) noexcept { return !(lhs.Get() == rhs); }
+    friend inline bool operator!=(ConstReference lhs, const T* rhs) noexcept { return !(lhs.Get() == rhs); }
 
-    friend inline bool operator!=(const T* lhs, const SmartPointer<T>& rhs) noexcept { return !(lhs == rhs.Get()); }
+    friend inline bool operator!=(const T* lhs, ConstReference rhs) noexcept { return !(lhs == rhs.Get()); }
 
-    friend inline bool operator!=(const SmartPointer<T>& lhs, const T& rhs) noexcept { return !(lhs.Get() == &rhs); }
+    friend inline bool operator!=(ConstReference lhs, const T& rhs) noexcept { return !(lhs.Get() == &rhs); }
 
-    friend inline bool operator!=(const T& lhs, const SmartPointer<T>& rhs) noexcept { return !(&lhs == rhs.Get()); }
+    friend inline bool operator!=(const T& lhs, ConstReference rhs) noexcept { return !(&lhs == rhs.Get()); }
 
-    friend inline bool operator!=(const SmartPointer<T>& lhs, std::nullptr_t) noexcept { return lhs.Get(); }
+    friend inline bool operator!=(ConstReference lhs, std::nullptr_t) noexcept { return lhs.Get(); }
 
-    friend inline bool operator!=(std::nullptr_t, const SmartPointer<T>& rhs) noexcept { return rhs.Get(); }
+    friend inline bool operator!=(std::nullptr_t, ConstReference rhs) noexcept { return rhs.Get(); }
 };
 
 #endif /* SMARTPOINTER_HPP */

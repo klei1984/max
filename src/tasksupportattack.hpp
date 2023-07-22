@@ -30,7 +30,7 @@ class TaskSupportAttack : public Task {
     ResourceID unit_type2;
     unsigned int unit_flags;
 
-    void GetUnits(unsigned int unit_flags);
+    void ObtainUnits(unsigned int unit_flags);
     bool IssueOrders(UnitInfo* unit);
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
@@ -53,7 +53,7 @@ public:
     void RemoveUnit(UnitInfo& unit);
 
     bool AddReminders();
-    SmartList<UnitInfo>::Iterator GetUnitsListIterator();
+    SmartList<UnitInfo>& GetUnits();
 };
 
 #endif /* TASKSUPPORTATTACK_HPP */

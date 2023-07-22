@@ -528,13 +528,13 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
 
     if (unit->unit_type == HANGAR) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-             Access_IsChildOfUnitInList(unit, &it); ++it) {
+             Access_IsChildOfUnitInList(unit, &UnitsManager_MobileAirUnits, &it); ++it) {
             units.PushBack(*it);
         }
 
     } else {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-             Access_IsChildOfUnitInList(unit, &it); ++it) {
+             Access_IsChildOfUnitInList(unit, &UnitsManager_MobileLandSeaUnits, &it); ++it) {
             units.PushBack(*it);
         }
     }
@@ -801,7 +801,6 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
     RepairShopMenu *shop = reinterpret_cast<RepairShopMenu *>(value);
     SmartPointer<UnitInfo> unit(shop->repairshop);
     SmartList<UnitInfo> units;
-    SmartList<UnitInfo>::Iterator it = shop->units.Begin();
     Point point(unit->grid_x - 1, unit->grid_y + 1);
     Rect bounds;
     int limit;
@@ -816,7 +815,7 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
         limit = 2;
     }
 
-    for (; it != nullptr; ++it) {
+    for (SmartList<UnitInfo>::Iterator it = shop->units.Begin(); it != shop->units.End(); ++it) {
         units.PushBack(*it);
     }
 
@@ -827,11 +826,13 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
             point += Paths_8DirPointsArray[i];
 
             if (Access_IsInsideBounds(&bounds, &point)) {
-                for (it = units.Begin();
-                     it != nullptr && !Access_IsAccessible((*it).unit_type, (*it).team, point.x, point.y, 2); ++it) {
+                SmartList<UnitInfo>::Iterator it = units.Begin();
+
+                for (; it != units.End() && !Access_IsAccessible((*it).unit_type, (*it).team, point.x, point.y, 2);
+                     ++it) {
                 }
 
-                if (it != nullptr) {
+                if (it != units.End()) {
                     unit->SetParent(&*it);
                     unit->target_grid_x = point.x;
                     unit->target_grid_y = point.y;
@@ -997,7 +998,7 @@ void RepairShopMenu::Draw(bool draw_to_screen) {
     }
 
     for (int i = 0; i < unit_slots_per_screen; ++i) {
-        if (it != nullptr) {
+        if (it != units.End()) {
             repair_slots[i]->Draw(&*it, draw_to_screen);
             ++it;
 
@@ -1012,7 +1013,6 @@ void RepairShopMenu::Draw(bool draw_to_screen) {
 }
 
 void RepairShopMenu::UpdateButtons() {
-    SmartList<UnitInfo>::Iterator it = units.Begin();
     bool is_reload_viable;
     bool is_repair_viable;
     bool is_upgrade_viable;
@@ -1042,7 +1042,7 @@ void RepairShopMenu::UpdateButtons() {
             button_activate_all->Enable();
         }
 
-        for (; it != nullptr; ++it) {
+        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             if (IsReloadViable(&*it)) {
                 is_reload_viable = true;
             }

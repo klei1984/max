@@ -45,10 +45,11 @@ bool TaskWaitToAttack::IsThinking() { return false; }
 void TaskWaitToAttack::Begin() {
     SmartList<Task>::Iterator it;
 
-    for (it = attacker->GetTasks(); it != nullptr && (*it).GetType() != TaskType_TaskWaitToAttack; ++it) {
+    for (it = attacker->GetTasks().Begin();
+         it != attacker->GetTasks().End() && (*it).GetType() != TaskType_TaskWaitToAttack; ++it) {
     }
 
-    if (it) {
+    if (it != attacker->GetTasks().End()) {
         parent = nullptr;
 
         TaskManager.RemoveTask(*this);

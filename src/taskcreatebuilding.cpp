@@ -337,21 +337,26 @@ bool TaskCreateBuilding::RequestMineRemoval() {
     bool result;
 
     if (!tasks.GetCount()) {
-        SmartList<UnitInfo>::Iterator it;
         Rect bounds;
 
         GetBounds(&bounds);
 
         for (int x = bounds.ulx; x < bounds.lrx; ++x) {
             for (int y = bounds.uly; y < bounds.lry; ++y) {
-                for (it = Hash_MapHash[Point(x, y)]; it; ++it) {
-                    if ((*it).team == team && ((*it).unit_type == LANDMINE || (*it).unit_type == SEAMINE)) {
-                        break;
+                const auto units = Hash_MapHash[Point(x, y)];
+                SmartPointer<UnitInfo> unit;
+
+                if (units) {
+                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                        if ((*it).team == team && ((*it).unit_type == LANDMINE || (*it).unit_type == SEAMINE)) {
+                            unit = *it;
+                            break;
+                        }
                     }
                 }
 
-                if (it) {
-                    SmartPointer<Task> remove_mines_task(new (std::nothrow) TaskRemoveMines(this, &*it));
+                if (unit) {
+                    SmartPointer<Task> remove_mines_task(new (std::nothrow) TaskRemoveMines(this, unit.Get()));
 
                     tasks.PushBack(*remove_mines_task);
                     TaskManager.AppendTask(*remove_mines_task);
@@ -370,21 +375,26 @@ bool TaskCreateBuilding::RequestMineRemoval() {
 
 bool TaskCreateBuilding::RequestRubbleRemoval() {
     if (!tasks.GetCount()) {
-        SmartList<UnitInfo>::Iterator it;
         Rect bounds;
 
         GetBounds(&bounds);
 
         for (int x = bounds.ulx; x < bounds.lrx; ++x) {
             for (int y = bounds.uly; y < bounds.lry; ++y) {
-                for (it = Hash_MapHash[Point(x, y)]; it; ++it) {
-                    if ((*it).unit_type == SMLRUBLE || (*it).unit_type == LRGRUBLE) {
-                        break;
+                const auto units = Hash_MapHash[Point(x, y)];
+                SmartPointer<UnitInfo> unit;
+
+                if (units) {
+                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                        if ((*it).unit_type == SMLRUBLE || (*it).unit_type == LRGRUBLE) {
+                            unit = *it;
+                            break;
+                        }
                     }
                 }
 
-                if (it) {
-                    SmartPointer<Task> remove_rubble_task(new (std::nothrow) TaskRemoveRubble(this, &*builder, 0x200));
+                if (unit) {
+                    SmartPointer<Task> remove_rubble_task(new (std::nothrow) TaskRemoveRubble(this, unit.Get(), 0x200));
 
                     tasks.PushBack(*remove_rubble_task);
                     TaskManager.AppendTask(*remove_rubble_task);

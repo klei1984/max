@@ -976,44 +976,47 @@ void TaskMove::MoveAirUnit() {
                 if (CheckAirPath()) {
                     flag = true;
 
-                    for (SmartList<UnitInfo>::Iterator it =
-                             Hash_MapHash[Point(passenger_waypoint.x, passenger_waypoint.y)];
-                         it != nullptr; ++it) {
-                        if ((*it).flags & MOBILE_AIR_UNIT) {
-                            log.Log("Blocked by %s at [%i,%i]", UnitsManager_BaseUnits[(*it).unit_type].singular_name,
-                                    (*it).grid_x + 1, (*it).grid_y + 1);
+                    const auto units = Hash_MapHash[passenger_waypoint];
 
-                            if ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) {
-                                log.Log("Blocker is moving.");
+                    if (units) {
+                        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                            if ((*it).flags & MOBILE_AIR_UNIT) {
+                                log.Log("Blocked by %s at [%i,%i]",
+                                        UnitsManager_BaseUnits[(*it).unit_type].singular_name, (*it).grid_x + 1,
+                                        (*it).grid_y + 1);
 
-                                class RemindTurnEnd* reminder = new (std::nothrow) class RemindTurnEnd(*this);
+                                if ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) {
+                                    log.Log("Blocker is moving.");
 
-                                TaskManager.AppendReminder(reminder);
+                                    class RemindTurnEnd* reminder = new (std::nothrow) class RemindTurnEnd(*this);
 
-                                return;
+                                    TaskManager.AppendReminder(reminder);
 
-                            } else if ((*it).team == team && (*it).speed >= 2) {
-                                log.Log("Attempting to displace blocker.");
+                                    return;
 
-                                if (!zone) {
-                                    zone = new (std::nothrow) Zone(&*passenger, this);
+                                } else if ((*it).team == team && (*it).speed >= 2) {
+                                    log.Log("Attempting to displace blocker.");
 
-                                    zone->Add(&passenger_waypoint);
-                                    zone->SetField30(field_69);
+                                    if (!zone) {
+                                        zone = new (std::nothrow) Zone(&*passenger, this);
 
-                                    AiPlayer_Teams[team].ClearZone(&*zone);
-                                }
+                                        zone->Add(&passenger_waypoint);
+                                        zone->SetField30(field_69);
 
-                            } else {
-                                log.Log("Can't move blocker.");
-
-                                if (step_index) {
-                                    flag = false;
-
-                                    break;
+                                        AiPlayer_Teams[team].ClearZone(&*zone);
+                                    }
 
                                 } else {
-                                    return;
+                                    log.Log("Can't move blocker.");
+
+                                    if (step_index) {
+                                        flag = false;
+
+                                        break;
+
+                                    } else {
+                                        return;
+                                    }
                                 }
                             }
                         }

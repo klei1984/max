@@ -80,10 +80,14 @@ bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit) {
 
         for (int x = bounds.ulx; x < bounds.lrx; ++x) {
             for (int y = bounds.uly; y < bounds.lry; ++y) {
-                for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(x, y)]; it != nullptr; ++it) {
-                    if (&*it == unit) {
-                        --cell_count;
-                        break;
+                const auto units = Hash_MapHash[Point(x, y)];
+
+                if (units) {
+                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                        if (&*it == unit) {
+                            --cell_count;
+                            break;
+                        }
                     }
                 }
             }
@@ -144,18 +148,21 @@ bool SaveLoadChecks_Defect151() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).flags & CONNECTOR_UNIT) {
-            for (SmartList<UnitInfo>::Iterator hash_it = Hash_MapHash[Point((*it).grid_x, (*it).grid_y)];
-                 hash_it != nullptr; ++hash_it) {
-                if (((*hash_it).flags & STATIONARY) && !((*hash_it).flags & (GROUND_COVER | CONNECTOR_UNIT)) &&
-                    !((*hash_it).orders == ORDER_IDLE && (*hash_it).state == ORDER_STATE_BUILDING_READY)) {
-                    SDL_Log("Unit corruption detected. Connector at [%i,%i] overlaps with %s at [%i,%i].",
-                            (*it).grid_x + 1, (*it).grid_y + 1,
-                            UnitsManager_BaseUnits[(*hash_it).unit_type].singular_name, (*hash_it).grid_x + 1,
-                            (*hash_it).grid_y + 1);
+            const auto units = Hash_MapHash[Point((*it).grid_x, (*it).grid_y)];
 
-                    UnitsManager_DestroyUnit(&*it);
+            if (units) {
+                for (SmartList<UnitInfo>::Iterator hash_it = units->Begin(); hash_it != units->End(); ++hash_it) {
+                    if (((*hash_it).flags & STATIONARY) && !((*hash_it).flags & (GROUND_COVER | CONNECTOR_UNIT)) &&
+                        !((*hash_it).orders == ORDER_IDLE && (*hash_it).state == ORDER_STATE_BUILDING_READY)) {
+                        SDL_Log("Unit corruption detected. Connector at [%i,%i] overlaps with %s at [%i,%i].",
+                                (*it).grid_x + 1, (*it).grid_y + 1,
+                                UnitsManager_BaseUnits[(*hash_it).unit_type].singular_name, (*hash_it).grid_x + 1,
+                                (*hash_it).grid_y + 1);
 
-                    result = true;
+                        UnitsManager_DestroyUnit(&*it);
+
+                        result = true;
+                    }
                 }
             }
         }
@@ -170,32 +177,38 @@ bool SaveLoadChecks_Defect183() {
     // first remove already destroyed units from the hash map
     for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
         for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
-            for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(x, y)]; it != nullptr; ++it) {
-                Rect bounds;
-                Point site(x, y);
-                Point position((*it).grid_x, (*it).grid_y);
+            const auto units = Hash_MapHash[Point(x, y)];
 
-                if (((*it).flags) & BUILDING) {
-                    rect_init(&bounds, position.x, position.y, position.x + 2, position.y + 2);
+            if (units) {
+                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                for (SmartList<UnitInfo>::Iterator it = units->Begin(), end = units->End(); it != end; ++it) {
+                    Rect bounds;
+                    Point site(x, y);
+                    Point position((*it).grid_x, (*it).grid_y);
 
-                } else {
-                    rect_init(&bounds, position.x, position.y, position.x + 1, position.y + 1);
-                }
+                    if (((*it).flags) & BUILDING) {
+                        rect_init(&bounds, position.x, position.y, position.x + 2, position.y + 2);
 
-                if (!Access_IsInsideBounds(&bounds, &site)) {
-                    SDL_Log("Map hash corruption detected in pot [%i,%i]. %s is at [%i,%i].", site.x + 1, site.y + 1,
-                            UnitsManager_BaseUnits[(*it).unit_type].singular_name, position.x + 1, position.y + 1);
+                    } else {
+                        rect_init(&bounds, position.x, position.y, position.x + 1, position.y + 1);
+                    }
 
-                    Hash_MapHash.Remove(&*it);
-                    Access_UpdateMapStatus(&*it, false);
+                    if (!Access_IsInsideBounds(&bounds, &site)) {
+                        SDL_Log("Map hash corruption detected in pot [%i,%i]. %s is at [%i,%i].", site.x + 1,
+                                site.y + 1, UnitsManager_BaseUnits[(*it).unit_type].singular_name, position.x + 1,
+                                position.y + 1);
 
-                    (*it).grid_x = site.x;
-                    (*it).grid_y = site.y;
+                        Hash_MapHash.Remove(&*it);
+                        Access_UpdateMapStatus(&*it, false);
 
-                    Hash_MapHash.Remove(&*it);
-                    Access_UpdateMapStatus(&*it, false);
+                        (*it).grid_x = site.x;
+                        (*it).grid_y = site.y;
 
-                    result = true;
+                        Hash_MapHash.Remove(&*it);
+                        Access_UpdateMapStatus(&*it, false);
+
+                        result = true;
+                    }
                 }
             }
         }

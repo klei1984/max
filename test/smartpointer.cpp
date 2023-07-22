@@ -23,7 +23,7 @@
 
 #include "testobject.hpp"
 
-TEST(SmartPointer, ctor) {
+TEST(SmartPointer, Ctor) {
     SmartPointer<SmartObject> sp1(new (std::nothrow) SmartObject());
     SmartPointer<SmartObject> sp2;
     SmartPointer<SmartObject> sp3(sp1);
@@ -36,7 +36,7 @@ TEST(SmartPointer, ctor) {
     EXPECT_EQ(sp3.Get(), sp1.Get());
 }
 
-TEST(SmartPointer, assign) {
+TEST(SmartPointer, Assign) {
     SmartPointer<SmartObject> sp1(new (std::nothrow) SmartObject());
     SmartPointer<SmartObject> sp2 = sp1;
     SmartPointer<SmartObject> sp3 = sp1.Get();
@@ -60,7 +60,7 @@ TEST(SmartPointer, assign) {
     EXPECT_EQ(sp7.Get(), sp1.Get());
 }
 
-TEST(SmartPointer, dtor) {
+TEST(SmartPointer, Dtor) {
     uint32_t status{TEST_CLASS_UNDEFINED};
 
     {
@@ -74,7 +74,7 @@ TEST(SmartPointer, dtor) {
     EXPECT_EQ(status, TEST_CLASS_DESTRUCTED);
 }
 
-TEST(SmartPointer, shared) {
+TEST(SmartPointer, Shared) {
     uint32_t status{TEST_CLASS_UNDEFINED};
     TestObject* obj = new (std::nothrow) TestObject(&status);
     SmartPointer<TestObject> sp1(obj);
@@ -94,4 +94,51 @@ TEST(SmartPointer, shared) {
     sp1 = nullptr;
 
     EXPECT_EQ(status, TEST_CLASS_DESTRUCTED);
+}
+
+TEST(SmartPointer, Compare) {
+    TestObject* obj1 = new (std::nothrow) TestObject();
+    TestObject* obj2 = new (std::nothrow) TestObject();
+
+    SmartPointer<TestObject> sp1(obj1);
+    SmartPointer<TestObject> sp2(obj2);
+    SmartPointer<TestObject> sp3;
+
+    obj1->Set(1);
+    obj2->Set(2);
+
+    EXPECT_EQ(sp1 == sp2, false);
+    EXPECT_EQ(sp1 != sp2, true);
+    EXPECT_EQ(sp1.Get() == sp2, false);
+    EXPECT_EQ(sp1.Get() != sp2, true);
+    EXPECT_EQ(sp1 == sp2.Get(), false);
+    EXPECT_EQ(sp1 != sp2.Get(), true);
+    EXPECT_EQ(sp1 == nullptr, false);
+    EXPECT_EQ(sp1 != nullptr, true);
+    EXPECT_EQ(nullptr == sp1, false);
+    EXPECT_EQ(nullptr != sp1, true);
+    EXPECT_EQ(nullptr == sp3, true);
+    EXPECT_EQ(sp1 == sp2.Get(), false);
+    EXPECT_EQ(sp1 != sp2.Get(), true);
+    EXPECT_EQ(*sp1.Get() == sp2, false);
+    EXPECT_EQ(*sp1.Get() != sp2, true);
+    EXPECT_EQ(sp1 == *sp2.Get(), false);
+    EXPECT_EQ(sp1 != *sp2.Get(), true);
+
+    EXPECT_NE(sp1, sp2);
+    EXPECT_NE(sp1.Get(), sp2);
+    EXPECT_NE(sp1, sp2.Get());
+    EXPECT_NE(sp1, nullptr);
+    EXPECT_NE(nullptr, sp1);
+    EXPECT_EQ(nullptr, sp3);
+    EXPECT_NE(*sp1.Get(), sp2);
+    EXPECT_NE(sp1, *sp2.Get());
+
+    if (sp1) {
+        SUCCEED() << "if(sp1){}";
+    }
+
+    if (!sp3) {
+        SUCCEED() << "if(!sp3){}";
+    }
 }

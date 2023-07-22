@@ -30,7 +30,7 @@
 #include "taskrepair.hpp"
 #include "units_manager.hpp"
 
-void TaskSupportAttack::GetUnits(unsigned int unit_flags_) {
+void TaskSupportAttack::ObtainUnits(unsigned int unit_flags_) {
     bool needs_supply_unit = true;
     bool needs_repair_unit = true;
     int highest_scan;
@@ -201,7 +201,7 @@ void TaskSupportAttack::AddUnit(UnitInfo& unit) {
 
 void TaskSupportAttack::BeginTurn() {
     if (parent) {
-        GetUnits(dynamic_cast<TaskAttack*>(&*parent)->GetAccessFlags());
+        ObtainUnits(dynamic_cast<TaskAttack*>(&*parent)->GetAccessFlags());
 
         if (!GetField8()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
@@ -273,4 +273,4 @@ bool TaskSupportAttack::AddReminders() {
     return false;
 }
 
-SmartList<UnitInfo>::Iterator TaskSupportAttack::GetUnitsListIterator() { return units.Begin(); }
+SmartList<UnitInfo>& TaskSupportAttack::GetUnits() { return units; }

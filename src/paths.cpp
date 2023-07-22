@@ -1617,12 +1617,16 @@ void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots) {
 }
 
 bool Paths_IsOccupied(int grid_x, int grid_y, int angle, int team) {
-    for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(grid_x, grid_y)]; it != nullptr; ++it) {
-        if (((*it).unit_type == SUBMARNE || (*it).unit_type == COMMANDO || (*it).unit_type == CLNTRANS) &&
-            !(*it).IsVisibleToTeam(team)) {
-            if (!(*it).AttemptSideStep(grid_x, grid_y, angle)) {
-                (*it).SpotByTeam(team);
-                return true;
+    const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+    if (units) {
+        for (auto it = units->Begin(); it != units->End(); ++it) {
+            if (((*it).unit_type == SUBMARNE || (*it).unit_type == COMMANDO || (*it).unit_type == CLNTRANS) &&
+                !(*it).IsVisibleToTeam(team)) {
+                if (!(*it).AttemptSideStep(grid_x, grid_y, angle)) {
+                    (*it).SpotByTeam(team);
+                    return true;
+                }
             }
         }
     }

@@ -294,18 +294,22 @@ void Ai_RemoveUnit(UnitInfo* unit) {
             for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
                 surface_type = ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x];
 
-                for (SmartList<UnitInfo>::Iterator it = Hash_MapHash[Point(site.x, site.y)]; it != nullptr; ++it) {
-                    if ((*it).unit_type == BRIDGE) {
-                        surface_type |= SURFACE_TYPE_LAND;
-                    }
+                const auto units = Hash_MapHash[Point(site.x, site.y)];
 
-                    if ((*it).unit_type == WTRPLTFM) {
-                        surface_type = SURFACE_TYPE_LAND;
-                    }
+                if (units) {
+                    for (auto it = units->Begin(); it != units->End(); ++it) {
+                        if ((*it).unit_type == BRIDGE) {
+                            surface_type |= SURFACE_TYPE_LAND;
+                        }
 
-                    if ((*it).unit_type != CNCT_4W && (((*it).flags & (GROUND_COVER | STATIONARY)) == STATIONARY)) {
-                        surface_type = SURFACE_TYPE_NONE;
-                        break;
+                        if ((*it).unit_type == WTRPLTFM) {
+                            surface_type = SURFACE_TYPE_LAND;
+                        }
+
+                        if ((*it).unit_type != CNCT_4W && (((*it).flags & (GROUND_COVER | STATIONARY)) == STATIONARY)) {
+                            surface_type = SURFACE_TYPE_NONE;
+                            break;
+                        }
                     }
                 }
 
