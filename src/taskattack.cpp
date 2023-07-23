@@ -88,7 +88,7 @@ uint16_t TaskAttack::GetFlags() const {
 }
 
 char* TaskAttack::WriteStatusLog(char* buffer) const {
-    TaskKillUnit* task = &*kill_unit_task;
+    TaskKillUnit* task = kill_unit_task.Get();
 
     if (task && !task->GetUnitSpotted()) {
         task = nullptr;
@@ -454,7 +454,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                 Point site;
                 Point position = kill_unit_task->DeterminePosition();
                 int32_t unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) +
-                                 unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED);
+                                     unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED);
                 int32_t projected_damage;
 
                 if (Access_GetDistance(unit, position) <= unit_range * unit_range) {
