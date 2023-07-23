@@ -377,8 +377,8 @@ struct ResourceAllocator {
         point1.y = ((mixed_resource_seperation / 2 + 1) * dos_rand()) >> 15;
 
         for (int32_t i = point1.x; i < ResourceManager_MapSize.x; i += (mixed_resource_seperation * 4) / 5) {
-            for (int32_t j = flag ? (mixed_resource_seperation / 2 + point1.y) : point1.y; j < ResourceManager_MapSize.y;
-                 j += mixed_resource_seperation) {
+            for (int32_t j = flag ? (mixed_resource_seperation / 2 + point1.y) : point1.y;
+                 j < ResourceManager_MapSize.y; j += mixed_resource_seperation) {
                 point2.x =
                     (((mixed_resource_seperation_min * 2 + 1) * dos_rand()) >> 15) - mixed_resource_seperation_min + i;
                 point2.y =
@@ -624,8 +624,7 @@ static void GameManager_DrawDisplayPanel(int32_t control_id, char* text, int32_t
 static void GameManager_ProgressBuildState(uint16_t team);
 static void GameManager_UpdateGuiControl(uint16_t team);
 static uint16_t GameManager_GetCrc16(uint16_t data, uint16_t crc_checksum);
-static uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t team,
-                                                      uint16_t crc_checksum);
+static uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t team, uint16_t crc_checksum);
 static bool GameManager_CheckDesync();
 static void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosave);
 static bool GameManager_AreTeamsFinishedTurn();
@@ -684,7 +683,7 @@ static void GameManager_FindSpot(Point* point);
 static void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value);
 static void GameManager_PopulateMapWithAlienUnits(int32_t alien_seperation, int32_t alien_unit_value);
 static void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team);
-static void GameManager_FlicButtonRFunction(ButtonID bid, int32_t value);
+static void GameManager_FlicButtonRFunction(ButtonID bid, intptr_t value);
 static void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit);
 static void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit);
 static void GameManager_PlayUnitStatusVoice(UnitInfo* unit);
@@ -961,8 +960,9 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
     }
 }
 
-void GameManager_DrawUnitSelector(uint8_t* buffer, int32_t pitch, int32_t offsetx, int32_t height, int32_t offsety, int32_t bottom,
-                                  int32_t item_height, int32_t top, int32_t scaling_factor, int32_t is_big_sprite, bool double_marker) {
+void GameManager_DrawUnitSelector(uint8_t* buffer, int32_t pitch, int32_t offsetx, int32_t height, int32_t offsety,
+                                  int32_t bottom, int32_t item_height, int32_t top, int32_t scaling_factor,
+                                  int32_t is_big_sprite, bool double_marker) {
     uint8_t color;
     int32_t loop_count;
     int32_t scaled_size2;
@@ -2457,8 +2457,7 @@ uint16_t GameManager_GetCrc16(uint16_t data, uint16_t crc_checksum) {
     return crc_checksum ^ data;
 }
 
-uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t team,
-                                               uint16_t crc_checksum) {
+uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t team, uint16_t crc_checksum) {
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE || team == PLAYER_TEAM_ALIEN) {
         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
             if ((*it).GetId() != 0xFFFF && !((*it).flags & EXPLODING) && (*it).team == team) {
@@ -2813,7 +2812,8 @@ bool GameManager_ProcessPopupMenuInput(int32_t key) {
 
             if (result) {
                 SoundManager.PlaySfx(KCARG0);
-                GameManager_PopupButtons.r_func[button_index](0, reinterpret_cast<int32_t>(&*GameManager_SelectedUnit));
+                GameManager_PopupButtons.r_func[button_index](
+                    0, reinterpret_cast<intptr_t>(GameManager_SelectedUnit.Get()));
             }
 
         } else {
@@ -3046,8 +3046,8 @@ void GameManager_ProcessCheatCodes() {
                         if (unit_values->GetAttribute(ATTRIB_SCAN) != new_unit_values->GetAttribute(ATTRIB_SCAN) ||
                             unit_values->GetAttribute(ATTRIB_RANGE) != new_unit_values->GetAttribute(ATTRIB_RANGE)) {
                             int32_t radius = std::max(new_unit_values->GetAttribute(ATTRIB_SCAN),
-                                                  new_unit_values->GetAttribute(ATTRIB_RANGE)) *
-                                         GFX_MAP_TILE_SIZE;
+                                                      new_unit_values->GetAttribute(ATTRIB_RANGE)) *
+                                             GFX_MAP_TILE_SIZE;
                             Rect bounds;
                             int32_t unit_size;
 
@@ -3703,7 +3703,7 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
 
                 button->SetFlags(0x20);
                 button->SetCaption(GameManager_PopupButtons.caption[i], -1, 2);
-                button->SetRFunc(GameManager_PopupButtons.r_func[i], reinterpret_cast<int32_t>(unit));
+                button->SetRFunc(GameManager_PopupButtons.r_func[i], reinterpret_cast<intptr_t>(unit));
                 button->RegisterButton(main_map_window->id);
                 button->Enable();
 
@@ -4081,7 +4081,7 @@ void GameManager_MenuClickSurveyButton(bool rest_state) {
     GameManager_UpdateDrawBounds();
 }
 
-void GameManager_FlicButtonRFunction(ButtonID bid, int32_t value) {
+void GameManager_FlicButtonRFunction(ButtonID bid, intptr_t value) {
     if (!GameManager_TextEditUnitName && GameManager_SelectedUnit != nullptr &&
         GameManager_SelectedUnit->team == GameManager_PlayerTeam &&
         UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) {
@@ -7122,8 +7122,8 @@ void GameManager_FillOrRestoreWindow(uint8_t id, int32_t color, bool redraw) {
     }
 }
 
-void GameManager_DrawInfoDisplayRowIcons(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height, ResourceID icon,
-                                         int32_t current_value, int32_t base_value) {
+void GameManager_DrawInfoDisplayRowIcons(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height,
+                                         ResourceID icon, int32_t current_value, int32_t base_value) {
     struct ImageSimpleHeader* image;
     int32_t width_offset;
     int32_t height_offset;

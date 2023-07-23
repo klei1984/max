@@ -1126,7 +1126,7 @@ int32_t win_get_rect(WinID id, Rect *r) {
 
 int32_t win_check_all_buttons(void) {
     int32_t result;
-    int32_t press;
+    intptr_t press;
 
     press = -1;
 

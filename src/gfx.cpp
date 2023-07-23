@@ -401,8 +401,8 @@ void Gfx_DecodeSprite() {
 
                     if (Gfx_TeamColorIndexBase) {
                         memset(address,
-                               reinterpret_cast<uint8_t*>((reinterpret_cast<uintptr_t>(Gfx_Decode_ColorMap) &
-                                                                 0xFFFFFF00))[Gfx_TeamColorIndexBase],
+                               reinterpret_cast<uint8_t*>(
+                                   (reinterpret_cast<uintptr_t>(Gfx_Decode_ColorMap) & ~0xFF))[Gfx_TeamColorIndexBase],
                                temp);
                         offset += temp;
                     } else {
@@ -410,9 +410,8 @@ void Gfx_DecodeSprite() {
 
                         for (int32_t i = 0; i < temp; ++i) {
                             address[i] = reinterpret_cast<uint8_t*>(
-                                (reinterpret_cast<uintptr_t>(Gfx_Decode_ColorMap) & 0xFFFFFF00))
-                                [reinterpret_cast<uint8_t*>((reinterpret_cast<uintptr_t>(Gfx_ColorIndices) &
-                                                                   0xFFFFFF00))[row_address[ebp >> 16]]];
+                                (reinterpret_cast<uintptr_t>(Gfx_Decode_ColorMap) & ~0xFF))[reinterpret_cast<uint8_t*>(
+                                (reinterpret_cast<uintptr_t>(Gfx_ColorIndices) & ~0xFF))[row_address[ebp >> 16]]];
                             ebp += Gfx_ScalingFactorWidth;
                         }
 
@@ -594,8 +593,7 @@ uint8_t* Gfx_RescaleSprite(uint8_t* buffer, uint32_t* data_size, int32_t mode, i
         reinterpret_cast<uint16_t*>(decoded_image_frame)[3] = frames[i].hot_spot.y;
 
         image_frame_row_offsets = reinterpret_cast<uint32_t*>(&decoded_image_frame[sizeof(uint16_t) * 4]);
-        decoded_image_frame =
-            &decoded_image_frame[sizeof(uint16_t) * 4 + sizeof(uint32_t) * frames[i].height];
+        decoded_image_frame = &decoded_image_frame[sizeof(uint16_t) * 4 + sizeof(uint32_t) * frames[i].height];
 
         for (int32_t j = 0; j < frames[i].height; ++j) {
             image_frame_row_offsets[j] = static_cast<uint32_t>(decoded_image_frame - decoded_image_buffer);
@@ -614,8 +612,8 @@ uint8_t* Gfx_RescaleSprite(uint8_t* buffer, uint32_t* data_size, int32_t mode, i
     return decoded_image_buffer;
 }
 
-void Gfx_RenderCircle(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height, int32_t xc, int32_t yc, int32_t radius,
-                      int32_t color) {
+void Gfx_RenderCircle(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height, int32_t xc, int32_t yc,
+                      int32_t radius, int32_t color) {
 #define Gfx_RenderCirclePoint(x, y) \
     if ((x) < width && (y) < height && (x) >= 0 && (y) >= 0) buffer[(y)*full_width + (x)] = color
 

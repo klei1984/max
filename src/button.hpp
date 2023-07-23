@@ -36,8 +36,8 @@ class Button {
     Image *down;
     Image *up_disabled;
     Image *down_disabled;
-    int32_t p_value;
-    int32_t r_value;
+    intptr_t p_value;
+    intptr_t r_value;
     uint32_t flags;
     ButtonFunc p_func;
     ButtonFunc r_func;
@@ -74,8 +74,8 @@ public:
     void CopyUpDisabled(uint8_t *data);
     void CopyDownDisabled(uint8_t *data);
 
-    void SetPFunc(ButtonFunc p_func, int32_t p_value);
-    void SetRFunc(ButtonFunc r_func, int32_t r_value);
+    void SetPFunc(ButtonFunc p_func, intptr_t p_value);
+    void SetRFunc(ButtonFunc r_func, intptr_t r_value);
 
     void RegisterButton(WinID wid);
 
@@ -86,8 +86,8 @@ public:
     void PlaySound() const;
     void SetSfx(ResourceID id);
     ButtonID GetId() const;
-    void SetPValue(int32_t p_value);
-    void SetRValue(int32_t r_value);
+    void SetPValue(intptr_t p_value);
+    void SetRValue(intptr_t r_value);
     void SetFlags(uint32_t flags);
     void SetCaption(const char *caption, int16_t x = 0, int16_t y = 0, FontColor color_up = Fonts_GoldColor,
                     FontColor color_down = Fonts_DarkOrageColor, FontColor color_up_disabled = Fonts_DarkGrayColor,

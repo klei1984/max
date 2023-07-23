@@ -23,9 +23,9 @@
 
 #include "gnw.h"
 
-static GNW_ButtonPtr button_create(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t on_value, int32_t off_value,
-                                   int32_t p_value, int32_t r_value, uint32_t flags, uint8_t* up, uint8_t* down,
-                                   uint8_t* hover);
+static GNW_ButtonPtr button_create(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, intptr_t on_value,
+                                   intptr_t off_value, intptr_t p_value, intptr_t r_value, uint32_t flags, uint8_t* up,
+                                   uint8_t* down, uint8_t* hover);
 static int32_t button_under_mouse(GNW_ButtonPtr b, Rect* r);
 static int32_t button_check_group(GNW_ButtonPtr b);
 static void button_draw(GNW_ButtonPtr b, GNW_Window* w, uint8_t* image, int32_t draw, Rect* bound);
@@ -33,9 +33,9 @@ static void button_draw(GNW_ButtonPtr b, GNW_Window* w, uint8_t* image, int32_t 
 static WinID last_button_winID = -1;
 static GNW_ButtonGroup btn_grp[64];
 
-ButtonID win_register_button(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t on_value, int32_t off_value,
-                             int32_t p_value, int32_t r_value, uint8_t* up, uint8_t* down, uint8_t* hover,
-                             uint32_t flags) {
+ButtonID win_register_button(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, intptr_t on_value,
+                             intptr_t off_value, intptr_t p_value, intptr_t r_value, uint8_t* up, uint8_t* down,
+                             uint8_t* hover, uint32_t flags) {
     ButtonID result;
     GNW_Window* w;
 
@@ -67,8 +67,8 @@ ButtonID win_register_button(WinID id, int32_t ulx, int32_t uly, int32_t width, 
     return result;
 }
 
-ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, int32_t on_value, int32_t off_value, int32_t p_value, int32_t r_value,
-                                  char* name, int32_t flags) {
+ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, intptr_t on_value, intptr_t off_value,
+                                  intptr_t p_value, intptr_t r_value, char* name, int32_t flags) {
     ButtonID result;
     int32_t width;
     int32_t length;
@@ -147,7 +147,7 @@ ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, int32_t on
 }
 
 int32_t win_register_button_disable(ButtonID bid, uint8_t* disabled_up, uint8_t* disabled_down,
-                                uint8_t* disabled_hover) {
+                                    uint8_t* disabled_hover) {
     int32_t result;
     GNW_ButtonPtr b;
 
@@ -213,7 +213,7 @@ int32_t win_register_button_image(ButtonID bid, uint8_t* up, uint8_t* down, uint
 }
 
 int32_t win_register_button_func(ButtonID bid, ButtonFunc on_func, ButtonFunc off_func, ButtonFunc p_func,
-                             ButtonFunc r_func) {
+                                 ButtonFunc r_func) {
     int32_t result;
     GNW_ButtonPtr b;
 
@@ -237,7 +237,8 @@ int32_t win_register_button_func(ButtonID bid, ButtonFunc on_func, ButtonFunc of
     return result;
 }
 
-int32_t win_register_right_button(ButtonID bid, int32_t p_value, int32_t r_value, ButtonFunc p_func, ButtonFunc r_func) {
+int32_t win_register_right_button(ButtonID bid, intptr_t p_value, intptr_t r_value, ButtonFunc p_func,
+                                  ButtonFunc r_func) {
     int32_t result;
     GNW_ButtonPtr b;
 
@@ -287,9 +288,9 @@ int32_t win_register_button_mask(ButtonID bid, char* mask) {
     return result;
 }
 
-GNW_ButtonPtr button_create(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t on_value, int32_t off_value, int32_t p_value,
-                            int32_t r_value, uint32_t flags, uint8_t* up, uint8_t* down,
-                            uint8_t* hover) {
+GNW_ButtonPtr button_create(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, intptr_t on_value,
+                            intptr_t off_value, intptr_t p_value, intptr_t r_value, uint32_t flags, uint8_t* up,
+                            uint8_t* down, uint8_t* hover) {
     GNW_ButtonPtr result;
     GNW_ButtonPtr b;
     GNW_Window* w;
@@ -392,7 +393,7 @@ int32_t win_button_down(ButtonID bid) {
     return result;
 }
 
-int32_t GNW_check_buttons(GNW_Window* w, int32_t* press) {
+int32_t GNW_check_buttons(GNW_Window* w, intptr_t* press) {
     Rect s = {0, 0, 0, 0};
     int32_t result;
     int32_t mbuttons;
@@ -746,7 +747,7 @@ int32_t GNW_check_buttons(GNW_Window* w, int32_t* press) {
                     if (func) {
                         // exchanged the call to the event handler and the conditional test as the event handler
                         // potentially deletes the button instance
-                        int32_t local_press = *press;
+                        intptr_t local_press = *press;
 
                         if (!(b->flags & 0x40)) *press = -1;
                         func(b->id, local_press);
@@ -940,7 +941,7 @@ void GNW_delete_button(GNW_ButtonPtr b) {
     }
 }
 
-void win_delete_button_win(ButtonID bid, int32_t button_value) {
+void win_delete_button_win(ButtonID bid, intptr_t button_value) {
     GNW_Window* w;
 
     if (GNW_find_button(bid, &w)) {

@@ -258,8 +258,7 @@ void Text_LoadFontTTF(int32_t n, FT_Library library, struct Font& font) {
                             font_glyph.advance = slot->metrics.horiAdvance / TEXT_GLYPH_METRICS_SCALE;
 
                             font_glyph.pitch = slot->bitmap.pitch;
-                            font_glyph.buffer =
-                                new (std::nothrow) uint8_t[slot->bitmap.pitch * slot->bitmap.rows];
+                            font_glyph.buffer = new (std::nothrow) uint8_t[slot->bitmap.pitch * slot->bitmap.rows];
 
                             if (font_glyph.buffer) {
                                 buf_to_buf(slot->bitmap.buffer, slot->bitmap.pitch, slot->bitmap.rows,
@@ -459,8 +458,8 @@ Uint32* Text_Utf8ToUcs4(const char* str) {
     }
 
     if (Text_CurrentFont->cd != reinterpret_cast<iconv_t>(-1)) {
-        uint32_t src_len = strlen(str) + 1;
-        uint32_t dst_len = src_len;
+        size_t src_len = strlen(str) + 1;
+        size_t dst_len = src_len;
         Uint32* buffer = new (std::nothrow) Uint32[dst_len];
 
         if (buffer) {
@@ -745,8 +744,8 @@ void Text_TextBox(uint8_t* buffer, uint16_t length, const char* text, int32_t ul
     }
 }
 
-void Text_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width, int32_t height, bool horizontal_align,
-                  bool vertical_align, FontColor color) {
+void Text_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width, int32_t height,
+                  bool horizontal_align, bool vertical_align, FontColor color) {
     int32_t font_height = Text_GetHeight() + 1;
     int32_t row_count;
     int32_t max_row_count;
@@ -810,7 +809,8 @@ void Text_TextLine(WindowInfo* window, const char* str, int32_t ulx, int32_t uly
     delete[] buffer;
 }
 
-void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width, int32_t alignment) {
+void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width,
+                             int32_t alignment) {
     int32_t width_text;
     int32_t text_position;
     uint32_t initial_time_stamp;
@@ -873,8 +873,8 @@ void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, 
     }
 }
 
-void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width,
-                                              int32_t height, int32_t alignment) {
+void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int32_t ulx, int32_t uly,
+                                              int32_t width, int32_t height, int32_t alignment) {
     int32_t font_height;
     int32_t max_row_count;
     int32_t row_count;
@@ -932,8 +932,8 @@ bool Text_IsFitting(Rect* bounds1, Rect* bounds2) {
            bounds1->lry >= bounds2->lry;
 }
 
-void Text_AutofitTextBox(uint8_t* buffer, uint16_t pitch, const char* text, Rect* text_area,
-                         Rect* draw_area, int32_t color, bool horizontal_align) {
+void Text_AutofitTextBox(uint8_t* buffer, uint16_t pitch, const char* text, Rect* text_area, Rect* draw_area,
+                         int32_t color, bool horizontal_align) {
     Rect render_area;
 
     if (Text_FitBounds(&render_area, text_area, draw_area)) {

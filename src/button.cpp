@@ -302,12 +302,12 @@ void Button::CopyDownDisabled(uint8_t *buffer) {
     buf_to_buf(buffer, width, height, width, down_disabled->GetData(), width);
 }
 
-void Button::SetPFunc(ButtonFunc p_func, int32_t p_value) {
+void Button::SetPFunc(ButtonFunc p_func, intptr_t p_value) {
     this->p_func = p_func;
     this->p_value = p_value;
 }
 
-void Button::SetRFunc(ButtonFunc r_func, int32_t r_value) {
+void Button::SetRFunc(ButtonFunc r_func, intptr_t r_value) {
     this->r_func = r_func;
     this->r_value = r_value;
 }
@@ -316,8 +316,8 @@ void Button::RegisterButton(WinID wid) {
     uint8_t *up_data;
     uint8_t *down_data;
     uint32_t flags;
-    int32_t r_value;
-    int32_t p_value;
+    intptr_t r_value;
+    intptr_t p_value;
 
     if (down && ((down->GetWidth() != width) || (down->GetHeight() != height))) {
         Image *image;
@@ -349,8 +349,8 @@ void Button::RegisterButton(WinID wid) {
     r_value = this->r_value;
 
     if (this->p_func || this->r_func) {
-        p_value = reinterpret_cast<int32_t>(this);
-        r_value = reinterpret_cast<int32_t>(this);
+        p_value = reinterpret_cast<intptr_t>(this);
+        r_value = reinterpret_cast<intptr_t>(this);
     }
 
     bid =
@@ -403,9 +403,9 @@ void Button::SetSfx(ResourceID id) { sfx = id; }
 
 ButtonID Button::GetId() const { return bid; }
 
-void Button::SetPValue(int32_t p_value) { this->p_value = p_value; }
+void Button::SetPValue(intptr_t p_value) { this->p_value = p_value; }
 
-void Button::SetRValue(int32_t r_value) { this->r_value = r_value; }
+void Button::SetRValue(intptr_t r_value) { this->r_value = r_value; }
 
 void Button::SetFlags(uint32_t flags) { this->flags = flags; }
 

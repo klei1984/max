@@ -26,7 +26,7 @@
 
 typedef int32_t ButtonID;
 
-typedef void (*ButtonFunc)(ButtonID, int32_t);
+typedef void (*ButtonFunc)(ButtonID, intptr_t);
 typedef void (*CheckButtonFunc)(ButtonID);
 
 typedef struct GNW_buttondata* GNW_ButtonPtr;
@@ -43,12 +43,12 @@ struct GNW_buttondata {
     ButtonID id;
     uint32_t flags;
     Rect b;
-    int32_t on_value;
-    int32_t off_value;
-    int32_t p_value;
-    int32_t r_value;
-    int32_t rp_value;
-    int32_t rr_value;
+    intptr_t on_value;
+    intptr_t off_value;
+    intptr_t p_value;
+    intptr_t r_value;
+    intptr_t rp_value;
+    intptr_t rr_value;
     uint8_t* up;
     uint8_t* down;
     uint8_t* hover;
@@ -68,25 +68,26 @@ struct GNW_buttondata {
     GNW_ButtonPtr next;
 };
 
-ButtonID win_register_button(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t on_value, int32_t off_value,
-                             int32_t p_value, int32_t r_value, uint8_t* up, uint8_t* down, uint8_t* hover,
-                             uint32_t flags);
-ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, int32_t on_value, int32_t off_value, int32_t p_value, int32_t r_value,
-                                  char* name, int32_t flags);
+ButtonID win_register_button(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, intptr_t on_value,
+                             intptr_t off_value, intptr_t p_value, intptr_t r_value, uint8_t* up, uint8_t* down,
+                             uint8_t* hover, uint32_t flags);
+ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, intptr_t on_value, intptr_t off_value,
+                                  intptr_t p_value, intptr_t r_value, char* name, int32_t flags);
 int32_t win_register_button_disable(ButtonID bid, uint8_t* disabled_up, uint8_t* disabled_down,
-                                uint8_t* disabled_hover);
+                                    uint8_t* disabled_hover);
 int32_t win_register_button_image(ButtonID bid, uint8_t* up, uint8_t* down, uint8_t* hover, int32_t draw);
 int32_t win_register_button_func(ButtonID bid, ButtonFunc on_func, ButtonFunc off_func, ButtonFunc p_func,
-                             ButtonFunc r_func);
-int32_t win_register_right_button(ButtonID bid, int32_t p_value, int32_t r_value, ButtonFunc p_func, ButtonFunc r_func);
+                                 ButtonFunc r_func);
+int32_t win_register_right_button(ButtonID bid, intptr_t p_value, intptr_t r_value, ButtonFunc p_func,
+                                  ButtonFunc r_func);
 int32_t win_register_button_mask(ButtonID bid, char* mask);
 int32_t win_button_down(ButtonID bid);
-int32_t GNW_check_buttons(GNW_Window* w, int32_t* press);
+int32_t GNW_check_buttons(GNW_Window* w, intptr_t* press);
 WinID win_button_winID(ButtonID bid);
 WinID win_last_button_winID(void);
 int32_t win_delete_button(ButtonID bid);
 void GNW_delete_button(GNW_ButtonPtr b);
-void win_delete_button_win(ButtonID bid, int32_t button_value);
+void win_delete_button_win(ButtonID bid, intptr_t button_value);
 ButtonID button_new_id(void);
 int32_t win_enable_button(ButtonID bid);
 int32_t win_disable_button(ButtonID bid);
