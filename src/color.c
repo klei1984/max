@@ -23,9 +23,6 @@
 
 #include "gnw.h"
 
-static uint32_t colorOpen(char* file, int32_t mode);
-static uint32_t colorRead(uint32_t handle, void* buf, uint32_t size);
-static uint32_t colorClose(uint32_t handle);
 static void setIntensityTableColor(int32_t cc);
 static void setIntensityTables(void);
 static void setMixTableColor(int32_t i);
@@ -63,63 +60,10 @@ static uint32_t rdist;
 static uint32_t gdist;
 static int32_t gstride;
 static int32_t rstride;
-
-static ColorOpenFunc openFunc;
-static ColorReadFunc readFunc;
-static ColorCloseFunc closeFunc;
-
-static char* errorStr = "color.c: No errors\n";
-
 static int32_t colorsInited;
 static double currentGamma = 1.0;
 
-static ColorNameMangleFunc colorNameMangler;
-
 static uint8_t cmap[768];
-
-uint32_t colorOpen(char* file, int32_t mode) {
-    uint32_t result;
-
-    if (openFunc) {
-        result = openFunc(file, mode);
-    } else {
-        result = -1;
-    }
-
-    return result;
-}
-
-uint32_t colorRead(uint32_t handle, void* buf, uint32_t size) {
-    uint32_t result;
-
-    if (readFunc) {
-        result = readFunc(handle, buf, size);
-    } else {
-        result = -1;
-    }
-
-    return result;
-}
-
-uint32_t colorClose(uint32_t handle) {
-    uint32_t result;
-
-    if (closeFunc) {
-        result = closeFunc(handle);
-    } else {
-        result = -1;
-    }
-
-    return result;
-}
-
-void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c) {
-    openFunc = o;
-    readFunc = r;
-    closeFunc = c;
-}
-
-void colorSetNameMangler(ColorNameMangleFunc c) { colorNameMangler = c; }
 
 Color colorMixAdd(Color a, Color b) { return colorMixAddTable[a][b]; }
 
@@ -144,8 +88,7 @@ ColorRGB Color2RGB(Color c) {
     result |= ((int32_t)cmap[3 * c + 1] >> 1) << 5;
     result |= ((int32_t)cmap[3 * c] >> 1) << 10;
 
-    return ((int32_t)cmap[3 * c + 2] >> 1) |
-           32 * (((int32_t)cmap[3 * c + 1] >> 1) | 32 * ((int32_t)cmap[3 * c] >> 1));
+    return ((int32_t)cmap[3 * c + 2] >> 1) | 32 * (((int32_t)cmap[3 * c + 1] >> 1) | 32 * ((int32_t)cmap[3 * c] >> 1));
 }
 
 void fadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps) {
@@ -359,35 +302,25 @@ void setMixTable(void) {
     }
 }
 
-int32_t loadColorTable(char* table) {
-    Color r;
-    Color b;
-    Color g;
+int32_t loadColorTable(const char* table) {
+    Color r = 0;
+    Color b = 0;
+    Color g = 0;
     int32_t result;
-    uint32_t in;
-    uint32_t tag;
+    FILE* in;
+    uint32_t tag = 0;
     int32_t i;
 
-    if (colorNameMangler) {
-        table = colorNameMangler(table);
-    }
+    in = fopen(table, "rb");
 
-    if (openFunc) {
-        in = openFunc(table, 0x200);
-    } else {
-        in = -1;
-    }
-
-    if (in == -1) {
-        errorStr = "color.c: color table not found\n";
+    if (in == NULL) {
         result = 0;
+
     } else {
         for (i = 0; i < PALETTE_SIZE; i++) {
-            if (readFunc) {
-                readFunc(in, &r, sizeof(Color));
-                readFunc(in, &g, sizeof(Color));
-                readFunc(in, &b, sizeof(Color));
-            }
+            fread(&r, sizeof(Color), 1, in);
+            fread(&g, sizeof(Color), 1, in);
+            fread(&b, sizeof(Color), 1, in);
 
             if ((r <= 0x3F) && (g <= 0x3F) && (b <= 0x3F)) {
                 mappedColor[i] = 1;
@@ -401,21 +334,14 @@ int32_t loadColorTable(char* table) {
             setColorPaletteEntry(i, r, g, b);
         }
 
-        if (readFunc) {
-            readFunc(in, colorTable, sizeof(colorTable));
-        }
-
-        tag = 0;
-        if (readFunc) {
-            readFunc(in, &tag, sizeof(tag));
-        }
+        fread(colorTable, sizeof(colorTable), 1, in);
+        fread(&tag, sizeof(tag), 1, in);
 
         if (tag == 0x4E455743 /* 'NEWC' */) {
-            if (readFunc) {
-                readFunc(in, intensityColorTable, 256 * PALETTE_SIZE);
-                readFunc(in, colorMixAddTable, 256 * PALETTE_SIZE);
-                readFunc(in, colorMixMulTable, 256 * PALETTE_SIZE);
-            }
+            fread(intensityColorTable, 256 * PALETTE_SIZE, 1, in);
+            fread(colorMixAddTable, 256 * PALETTE_SIZE, 1, in);
+            fread(colorMixMulTable, 256 * PALETTE_SIZE, 1, in);
+
         } else {
             setIntensityTables();
             setMixTable();
@@ -423,17 +349,13 @@ int32_t loadColorTable(char* table) {
 
         rebuildColorBlendTables();
 
-        if (closeFunc) {
-            closeFunc(in);
-        }
+        fclose(in);
 
         result = 1;
     }
 
     return result;
 }
-
-char* colorError(void) { return errorStr; }
 
 void setColorPalette(uint8_t* pal) {
     memcpy(cmap, pal, sizeof(cmap));

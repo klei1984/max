@@ -33,20 +33,16 @@
 extern "C" {
 #endif
 
-#include "assoc.h"
 #include "button.h"
 #include "color.h"
-#include "db.h"
 #include "dos.h"
 #include "grbuf.h"
 #include "input.h"
 #include "interface.h"
 #include "kb.h"
-#include "lzss.h"
 #include "mouse.h"
 #include "rect.h"
 #include "text.h"
-#include "vcr.h"
 
 typedef int32_t (*SetModeFunc)(void);
 typedef void (*ResetModeFunc)(void);
@@ -98,8 +94,6 @@ WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t c
 void win_delete(WinID id);
 void win_buffering(int32_t state);
 void win_border(WinID id);
-void win_no_texture(void);
-void win_texture(char* fname);
 void win_set_bk_color(int32_t color);
 void win_print(WinID id, char* str, int32_t field_width, int32_t x, int32_t y, int32_t color);
 void win_text(WinID id, char** list, int32_t num, int32_t field_width, int32_t x, int32_t y, int32_t color);

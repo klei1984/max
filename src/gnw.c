@@ -26,10 +26,6 @@
 static void win_free(WinID id);
 static void win_clip(GNW_Window *w, RectPtr *L, uint8_t *buf);
 static void refresh_all(Rect *bound, uint8_t *buf);
-static char *load_texture(char *filename);
-static uint32_t colorOpen(char *file, int32_t mode);
-static uint32_t colorClose(uint32_t handle);
-static uint32_t colorRead(uint32_t handle, void *buf, uint32_t size);
 
 static int32_t window_index[50];
 static GNW_Window *window[50];
@@ -73,10 +69,6 @@ int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
         window_index[i] = -1;
     }
 
-    if (!db_total() && db_init(NULL, NULL, NULL) == NULL) {
-        return 7;
-    }
-
     if (Text_Init() == -1) {
         return 3;
     }
@@ -106,8 +98,6 @@ int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
 
     buffering = 0;
     doing_refresh_all = 0;
-
-    colorInitIO(colorOpen, colorRead, colorClose);
 
     if (!initColors()) {
         pal = (uint8_t *)malloc(3 * PALETTE_SIZE);
@@ -447,16 +437,6 @@ void win_border(WinID id) {
                             colorTable[GNW_wcolor[1]]);
         }
     }
-}
-
-void win_no_texture(void) {
-    /* not implemented yet as M.A.X. does not use it */
-    SDL_assert(0);
-}
-
-void win_texture(char *fname) {
-    /* not implemented yet as M.A.X. does not use it */
-    SDL_assert(0);
 }
 
 void win_set_bk_color(int32_t color) {
@@ -842,11 +822,11 @@ void GNW_win_refresh(GNW_Window *w, Rect *bound, uint8_t *scr_buf) {
                                                  &scr_buf[full2 * (L->r.uly - bound->uly) + L->r.ulx - bound->ulx],
                                                  full2);
                                 } else {
-                                    buf_to_buf(&w->buf[L->r.ulx - w->w.ulx + (L->r.uly - w->w.uly) * w->width],
-                                               L->r.lrx - L->r.ulx + 1, L->r.lry - L->r.uly + 1, w->width,
-                                               (uint8_t
-                                                    *)&scr_buf[full2 * (L->r.uly - bound->uly) + L->r.ulx - bound->ulx],
-                                               full2);
+                                    buf_to_buf(
+                                        &w->buf[L->r.ulx - w->w.ulx + (L->r.uly - w->w.uly) * w->width],
+                                        L->r.lrx - L->r.ulx + 1, L->r.lry - L->r.uly + 1, w->width,
+                                        (uint8_t *)&scr_buf[full2 * (L->r.uly - bound->uly) + L->r.ulx - bound->ulx],
+                                        full2);
                                 }
                             } else if (buffering) {
                                 if (w->flags & 0x20) {
@@ -880,10 +860,10 @@ void GNW_win_refresh(GNW_Window *w, Rect *bound, uint8_t *scr_buf) {
                                 buf_fill(buf, srcW, srcH, srcW, bk_color);
 
                                 if (scr_buf) {
-                                    buf_to_buf(buf, srcW, srcH, srcW,
-                                               (uint8_t
-                                                    *)&scr_buf[full2 * (L->r.uly - bound->uly) + L->r.ulx - bound->ulx],
-                                               full2);
+                                    buf_to_buf(
+                                        buf, srcW, srcH, srcW,
+                                        (uint8_t *)&scr_buf[full2 * (L->r.uly - bound->uly) + L->r.ulx - bound->ulx],
+                                        full2);
                                 } else if (buffering) {
                                     buf_to_buf(buf, srcW, srcH, srcW,
                                                &screen_buffer[L->r.uly * (scr_size.lrx - scr_size.ulx + 1) + L->r.ulx],
@@ -974,9 +954,7 @@ void win_drag(WinID id) {
 
         GNW_do_bk_process();
 
-        if (vcr_update() != mouse) {
-            mouse_info();
-        }
+        mouse_info();
 
         while (!((mouse_get_buttons() & 0x30))) {
             if (dx || dy) {
@@ -1001,9 +979,7 @@ void win_drag(WinID id) {
 
             GNW_do_bk_process();
 
-            if (vcr_update() != mouse) {
-                mouse_info();
-            }
+            mouse_info();
 
             dx = x;
             dy = y;
@@ -1218,13 +1194,6 @@ int32_t GNW_check_menu_bars(int32_t input) {
     return result;
 }
 
-char *load_texture(char *filename) {
-    /* not implemented yet as M.A.X. does not use it */
-    SDL_assert(0);
-
-    return NULL;
-}
-
 void win_set_trans_b2b(WinID id, Trans_b2b trans_b2b) {
     GNW_Window *w;
 
@@ -1237,39 +1206,4 @@ void win_set_trans_b2b(WinID id, Trans_b2b trans_b2b) {
             w->trans_b2b = trans_buf_to_buf;
         }
     }
-}
-
-uint32_t colorOpen(char *file, int32_t mode) {
-    uint32_t result;
-    char text[4];
-
-    memset(text, 0, 4);
-
-    if (mode & 0x01) {
-        text[0] = 'w';
-    } else if (mode & 0x10) {
-        text[0] = 'a';
-    } else {
-        text[0] = 'r';
-    }
-
-    if (mode & 0x100) {
-        text[1] = 't';
-    } else if (mode & 0x200) {
-        text[1] = 'b';
-    }
-
-    result = (uint32_t)db_fopen(file, text);
-
-    if (!result) {
-        result = -1;
-    }
-
-    return result;
-}
-
-uint32_t colorClose(uint32_t handle) { return db_fclose((DB_FILE)handle); }
-
-uint32_t colorRead(uint32_t handle, void *buf, uint32_t size) {
-    return db_fread(buf, 1, size, (DB_FILE)handle);
 }

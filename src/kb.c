@@ -181,15 +181,6 @@ void kb_simulate_key(uint16_t scan_code) {
     static key_data_t temp;
     uint16_t press_code;
 
-    if ((vcr_state == 0) && (vcr_buffer_index != 4095)) {
-        vcr_buffer[vcr_buffer_index].type = key;
-        vcr_buffer[vcr_buffer_index].time = vcr_time;
-        vcr_buffer[vcr_buffer_index].counter = vcr_counter;
-        vcr_buffer[vcr_buffer_index].data.key_data.scan_code = scan_code;
-
-        vcr_buffer_index++;
-    }
-
     if (scan_code == 0xE0) {
         extended_code = 0x80;
     } else {

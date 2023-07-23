@@ -44,16 +44,9 @@ typedef uint8_t Color;
 typedef int32_t fixed;
 typedef ColorIndex ColorBlendTable[16][PALETTE_SIZE];
 
-typedef uint32_t (*ColorOpenFunc)(char* file, int32_t mode);
-typedef uint32_t (*ColorReadFunc)(uint32_t handle, void* buf, uint32_t size);
-typedef uint32_t (*ColorCloseFunc)(uint32_t handle);
-typedef char* (*ColorNameMangleFunc)(char* table);
-
 extern ColorIndex colorTable[32 * 32 * 32];
 extern Color intensityColorTable[256][PALETTE_SIZE];
 
-void colorInitIO(ColorOpenFunc o, ColorReadFunc r, ColorCloseFunc c);
-void colorSetNameMangler(ColorNameMangleFunc c);
 Color colorMixAdd(Color a, Color b);
 Color colorMixMul(Color a, Color b);
 Color calculateColor(fixed intensity, Color color);
@@ -70,8 +63,7 @@ uint8_t* getSystemPalette(void);
 void setSystemPaletteEntries(uint8_t* pal, uint32_t start, uint32_t end);
 void setSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);
 void getSystemPaletteEntry(int32_t entry, uint8_t* r, uint8_t* g, uint8_t* b);
-int32_t loadColorTable(char* table);
-char* colorError(void);
+int32_t loadColorTable(const char* table);
 void setColorPalette(uint8_t* pal);
 void setColorPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);
 void getColorPaletteEntry(int32_t entry, uint8_t* r, uint8_t* g, uint8_t* b);

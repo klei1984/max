@@ -35,8 +35,8 @@ static void mouse_clip(void);
 
 static double mouse_sensitivity = 1.0;
 static uint8_t or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
-                                    1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
-                                    15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
+                              1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
+                              15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
 static uint32_t last_buttons;
 static uint8_t *mouse_fptr;
 static uint8_t *mouse_shape;
@@ -113,7 +113,8 @@ void mouse_colorize(void) {
     }
 }
 
-int32_t mouse_get_shape(uint8_t **buf, int32_t *width, int32_t *length, int32_t *full, int32_t *hotx, int32_t *hoty, char *trans) {
+int32_t mouse_get_shape(uint8_t **buf, int32_t *width, int32_t *length, int32_t *full, int32_t *hotx, int32_t *hoty,
+                        char *trans) {
     *buf = mouse_shape;
     *width = mouse_width;
     *length = mouse_length;
@@ -125,7 +126,8 @@ int32_t mouse_get_shape(uint8_t **buf, int32_t *width, int32_t *length, int32_t 
     return 0;
 }
 
-int32_t mouse_set_shape(uint8_t *buf, int32_t width, int32_t length, int32_t full, int32_t hotx, int32_t hoty, char trans) {
+int32_t mouse_set_shape(uint8_t *buf, int32_t width, int32_t length, int32_t full, int32_t hotx, int32_t hoty,
+                        char trans) {
     int32_t mh;
 
     if (!buf) {
@@ -183,8 +185,8 @@ int32_t mouse_set_shape(uint8_t *buf, int32_t width, int32_t length, int32_t ful
     return 0;
 }
 
-int32_t mouse_get_anim(uint8_t **frames, int32_t *num_frames, int32_t *width, int32_t *length, int32_t *hotx, int32_t *hoty, char *trans,
-                   TOCKS *speed) {
+int32_t mouse_get_anim(uint8_t **frames, int32_t *num_frames, int32_t *width, int32_t *length, int32_t *hotx,
+                       int32_t *hoty, char *trans, TOCKS *speed) {
     int32_t result;
 
     if (mouse_fptr) {
@@ -204,8 +206,8 @@ int32_t mouse_get_anim(uint8_t **frames, int32_t *num_frames, int32_t *width, in
     return result;
 }
 
-int32_t mouse_set_anim_frames(uint8_t *frames, int32_t num_frames, int32_t start_frame, int32_t width, int32_t length, int32_t hotx,
-                          int32_t hoty, char trans, TOCKS speed) {
+int32_t mouse_set_anim_frames(uint8_t *frames, int32_t num_frames, int32_t start_frame, int32_t width, int32_t length,
+                              int32_t hotx, int32_t hoty, char trans, TOCKS speed) {
     int32_t result;
 
     result = mouse_set_shape(&frames[length * width * start_frame], width, length, width, hotx, hoty, trans);
@@ -335,16 +337,7 @@ void mouse_info(void) {
         delta_x = (int32_t)((double)delta_x * mouse_sensitivity);
         delta_y = (int32_t)((double)delta_y * mouse_sensitivity);
 
-        if (vcr_state == 1) {
-            if (((vcr_terminate_flags & 4) && buttons) || ((vcr_terminate_flags & 2) && (delta_x || delta_y))) {
-                vcr_terminated_condition = 2;
-                vcr_stop();
-            }
-
-            mouse_simulate_input(0, 0, last_buttons);
-        } else {
-            mouse_simulate_input(delta_x, delta_y, buttons);
-        }
+        mouse_simulate_input(delta_x, delta_y, buttons);
     }
 }
 
@@ -355,21 +348,6 @@ void mouse_simulate_input(int32_t delta_x, int32_t delta_y, uint32_t buttons) {
 
     if (!have_mouse || mouse_is_hidden) {
         return;
-    }
-
-    if ((delta_x || delta_y || buttons != last_buttons) && !vcr_state) {
-        if (vcr_buffer_index == 4095) {
-            vcr_dump_buffer();
-        }
-
-        vcr_buffer[vcr_buffer_index].type = 3;
-        vcr_buffer[vcr_buffer_index].time = vcr_time;
-        vcr_buffer[vcr_buffer_index].counter = vcr_counter;
-        vcr_buffer[vcr_buffer_index].data.init_data.mouse_x = delta_x;
-        vcr_buffer[vcr_buffer_index].data.init_data.mouse_y = delta_y;
-        vcr_buffer[vcr_buffer_index].data.mouse_data.buttons = buttons;
-
-        vcr_buffer_index++;
     }
 
     old = mouse_buttons;

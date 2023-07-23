@@ -43,8 +43,6 @@ static void WindowManager_ResizeSimpleImage(ResourceID id, double scale);
 static void WindowManager_ScaleWindow(int32_t wid, double scale);
 static void WindowManager_ScaleButtonResource(ResourceID id, double scale);
 
-static char *empty_string = (char *)"\0";
-
 Color *WindowManager_SystemPalette;
 Color *WindowManager_ColorPalette;
 
@@ -460,8 +458,8 @@ void WindowManager_ScaleWindows() {
     }
 }
 
-bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int16_t pitch, int32_t ulx,
-                                      int32_t uly) {
+bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int16_t pitch,
+                                      int32_t ulx, int32_t uly) {
     bool result = false;
 
     /// \todo Support ULX, ULY offsets
@@ -512,8 +510,6 @@ bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, Wind
 int32_t WindowManager_Init() {
     uint8_t result;
     WinID wid;
-
-    db_init(nullptr, nullptr, empty_string);
 
     if (win_init(Svga_Init, Svga_Deinit, 0)) {
         return EXIT_CODE_SCREEN_INIT_FAILED;
@@ -616,7 +612,8 @@ void WindowManager_LoadPalette(ResourceID id) {
     delete[] resource;
 }
 
-void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer, int32_t ulx, int32_t uly, int32_t pitch) {
+void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer, int32_t ulx, int32_t uly,
+                                  int32_t pitch) {
     int32_t image_height;
     int32_t image_width;
     uint8_t *image_data;
@@ -660,7 +657,7 @@ void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer,
 }
 
 int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int16_t pitch, bool palette_from_image,
-                               bool draw_to_screen, int32_t ulx, int32_t uly, bool center_align, bool rescale) {
+                                   bool draw_to_screen, int32_t ulx, int32_t uly, bool center_align, bool rescale) {
     uint8_t *resource;
     ImageBigHeader *image;
     int32_t width = WindowManager_GetWidth(window);
@@ -888,9 +885,13 @@ double WindowManager_GetScale() {
     return scale;
 }
 
-int32_t WindowManager_ScaleUlx(WindowInfo *w, int32_t ulx) { return (WindowManager_GetWidth(w) - WINDOW_WIDTH) / 2 + ulx; }
+int32_t WindowManager_ScaleUlx(WindowInfo *w, int32_t ulx) {
+    return (WindowManager_GetWidth(w) - WINDOW_WIDTH) / 2 + ulx;
+}
 
-int32_t WindowManager_ScaleUly(WindowInfo *w, int32_t uly) { return (WindowManager_GetHeight(w) - WINDOW_HEIGHT) / 2 + uly; }
+int32_t WindowManager_ScaleUly(WindowInfo *w, int32_t uly) {
+    return (WindowManager_GetHeight(w) - WINDOW_HEIGHT) / 2 + uly;
+}
 
 int32_t WindowManager_ScaleLrx(WindowInfo *w, int32_t ulx, int32_t lrx) {
     int32_t width = lrx - ulx;

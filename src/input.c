@@ -46,8 +46,8 @@ typedef struct inputdata_s {
 static int32_t get_input_buffer(void);
 static void pause_game(void);
 static WinID default_pause_window(void);
-static void buf_blit(uint8_t *buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy,
-                     uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty);
+static void buf_blit(uint8_t *buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h,
+                     uint32_t dstx, uint32_t dsty);
 static int32_t default_screendump(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal);
 static void GNW_process_key(SDL_KeyboardEvent *key_data);
 
@@ -411,25 +411,18 @@ void GNW_process_key(SDL_KeyboardEvent *key_data) {
         GNW_INPUT_SCANCODE_MAP_ITEM(0xFF, -1, -1),
     };
 
-    if (vcr_state == 1) {
-        if (vcr_terminate_flags & 1) {
-            vcr_terminated_condition = 2;
-            vcr_stop();
-        }
-    } else {
-        switch (key_data->type) {
-            case SDL_KEYDOWN:
-                if (key_data->keysym.scancode < 256) {
-                    kb_simulate_key(input_scancode_map[key_data->keysym.scancode]);
-                }
-                break;
+    switch (key_data->type) {
+        case SDL_KEYDOWN:
+            if (key_data->keysym.scancode < 256) {
+                kb_simulate_key(input_scancode_map[key_data->keysym.scancode]);
+            }
+            break;
 
-            case SDL_KEYUP:
-                if (key_data->keysym.scancode < 256) {
-                    kb_simulate_key(0x80 | input_scancode_map[key_data->keysym.scancode]);
-                }
-                break;
-        }
+        case SDL_KEYUP:
+            if (key_data->keysym.scancode < 256) {
+                kb_simulate_key(0x80 | input_scancode_map[key_data->keysym.scancode]);
+            }
+            break;
     }
 }
 
@@ -462,9 +455,7 @@ void process_bk(void) {
 
     GNW_do_bk_process();
 
-    if (vcr_update() != mouse) {
-        mouse_info();
-    }
+    mouse_info();
 
     input = win_check_all_buttons();
     if (input != -1) {
@@ -681,8 +672,8 @@ void dump_screen(void) {
     }
 }
 
-void buf_blit(uint8_t *buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy,
-              uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty) {
+void buf_blit(uint8_t *buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h,
+              uint32_t dstx, uint32_t dsty) {
     buf_to_buf(&buf[sx] + bufw * sy, w, h, bufw, &screendump_buf[dstx] + (scr_size.lrx - scr_size.ulx + 1) * dsty,
                scr_size.lrx - scr_size.ulx + 1);
 }
