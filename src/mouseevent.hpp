@@ -25,7 +25,7 @@
 #include "point.hpp"
 
 struct MouseEvent {
-    unsigned char buttons;
+    uint8_t buttons;
     Point point;
 
     static void Clear();

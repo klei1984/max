@@ -26,24 +26,24 @@
 
 class CircumferenceWalker {
     Point start;
-    short direction;
-    short range;
-    short distance;
+    int16_t direction;
+    int16_t range;
+    int16_t distance;
     Point offset;
     Point current;
-    short *grid_x;
-    short *grid_y;
-    short factor_x;
-    short factor_y;
+    int16_t *grid_x;
+    int16_t *grid_y;
+    int16_t factor_x;
+    int16_t factor_y;
 
     bool InitXY();
     bool InitDirection();
 
 public:
-    CircumferenceWalker(Point position, int range);
+    CircumferenceWalker(Point position, int32_t range);
 
-    int GetGridX() const;
-    int GetGridY() const;
+    int32_t GetGridX() const;
+    int32_t GetGridY() const;
     const Point *GetGridXY() const;
 
     bool FindNext();

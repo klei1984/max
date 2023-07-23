@@ -41,7 +41,7 @@ public:
     ~TaskRendezvous();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void Begin();
     void BeginTurn();
     void EndTurn();

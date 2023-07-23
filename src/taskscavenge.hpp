@@ -29,12 +29,12 @@ class TaskScavenge : public Task {
     bool wait_for_unit;
 
 public:
-    TaskScavenge(unsigned short team);
+    TaskScavenge(uint16_t team);
     ~TaskScavenge();
 
     bool IsUnitUsable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void BeginTurn();

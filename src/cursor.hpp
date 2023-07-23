@@ -24,7 +24,7 @@
 
 #include "unitinfo.hpp"
 
-enum : unsigned char {
+enum : uint8_t {
     CURSOR_HIDDEN,
     CURSOR_HAND,
     CURSOR_ARROW_N,
@@ -58,10 +58,10 @@ enum : unsigned char {
 };
 
 void Cursor_Init();
-unsigned char Cursor_GetCursor();
-unsigned char Cursor_GetDefaultWindowCursor(unsigned char window_index);
-void Cursor_SetCursor(unsigned char cursor_index);
-void Cursor_DrawAttackPowerCursor(UnitInfo* selected_unit, UnitInfo* target_unit, unsigned char cursor_index);
-void Cursor_DrawStealthActionChanceCursor(int experience_level, unsigned char cursor_index);
+uint8_t Cursor_GetCursor();
+uint8_t Cursor_GetDefaultWindowCursor(uint8_t window_index);
+void Cursor_SetCursor(uint8_t cursor_index);
+void Cursor_DrawAttackPowerCursor(UnitInfo* selected_unit, UnitInfo* target_unit, uint8_t cursor_index);
+void Cursor_DrawStealthActionChanceCursor(int32_t experience_level, uint8_t cursor_index);
 
 #endif /* CURSOR_HPP */

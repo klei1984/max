@@ -23,10 +23,10 @@
 
 #include "resource_manager.hpp"
 
-ContinentFiller::ContinentFiller(unsigned char** map, unsigned char filler)
+ContinentFiller::ContinentFiller(uint8_t** map, uint8_t filler)
     : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, true), map(map), filler(filler) {}
 
-int ContinentFiller::Vfunc0(Point point, int uly) {
+int32_t ContinentFiller::Vfunc0(Point point, int32_t uly) {
     for (; point.y > uly; --point.y) {
         if (map[point.x][point.y - 1] != 2) {
             break;
@@ -36,7 +36,7 @@ int ContinentFiller::Vfunc0(Point point, int uly) {
     return point.y;
 }
 
-int ContinentFiller::Vfunc1(Point point, int lry) {
+int32_t ContinentFiller::Vfunc1(Point point, int32_t lry) {
     for (; point.y < lry; ++point.y) {
         if (map[point.x][point.y] != 2) {
             break;
@@ -46,7 +46,7 @@ int ContinentFiller::Vfunc1(Point point, int lry) {
     return point.y;
 }
 
-int ContinentFiller::Vfunc2(Point point, int lry) {
+int32_t ContinentFiller::Vfunc2(Point point, int32_t lry) {
     for (; point.y < lry; ++point.y) {
         if (map[point.x][point.y] == 2) {
             break;
@@ -56,7 +56,7 @@ int ContinentFiller::Vfunc2(Point point, int lry) {
     return point.y;
 }
 
-void ContinentFiller::Vfunc3(int ulx, int uly, int lry) {
+void ContinentFiller::Vfunc3(int32_t ulx, int32_t uly, int32_t lry) {
     for (; uly < lry; ++uly) {
         map[ulx][uly] = filler;
     }

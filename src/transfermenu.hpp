@@ -28,16 +28,16 @@
 #include "window.hpp"
 
 class TransferMenu : public Window {
-    short total_materials_transferred;
+    int16_t total_materials_transferred;
     UnitInfo *source_unit;
     UnitInfo *target_unit;
     ResourceID material_id;
     WindowInfo window;
-    short source_unit_free_capacity;
-    short target_unit_free_capacity;
-    unsigned short team;
-    short source_unit_materials;
-    short target_unit_materials;
+    int16_t source_unit_free_capacity;
+    int16_t target_unit_free_capacity;
+    uint16_t team;
+    int16_t source_unit_materials;
+    int16_t target_unit_materials;
     bool event_click_done;
     Button *button_cancel;
     Button *button_done;
@@ -52,7 +52,7 @@ class TransferMenu : public Window {
     bool event_release;
 
     void UpdateIndicators();
-    bool ProcessKey(int key);
+    bool ProcessKey(int32_t key);
 
 public:
     TransferMenu(UnitInfo *unit);
@@ -60,9 +60,9 @@ public:
 
     void Run();
 
-    short GetCargoTransferred() const;
+    int16_t GetCargoTransferred() const;
 };
 
-int TransferMenu_Menu(UnitInfo *unit);
+int32_t TransferMenu_Menu(UnitInfo *unit);
 
 #endif /* TRANSFERMENU_HPP */

@@ -29,8 +29,8 @@ class PurchaseTypeSelector : public UnitTypeSelector {
 
 public:
     PurchaseTypeSelector(Window *window, WindowInfo *window_info, SmartObjectArray<ResourceID> unit_types,
-                         unsigned short team, int key_code, Button *button_scroll_up, Button *button_scroll_down,
-                         int ulx, int width);
+                         uint16_t team, int32_t key_code, Button *button_scroll_up, Button *button_scroll_down,
+                         int32_t ulx, int32_t width);
     ~PurchaseTypeSelector();
 
     void Draw();

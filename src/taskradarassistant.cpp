@@ -37,7 +37,7 @@ char* TaskRadarAssistant::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskRadarAssistant::GetType() const { return TaskType_TaskRadarAssistant; }
+uint8_t TaskRadarAssistant::GetType() const { return TaskType_TaskRadarAssistant; }
 
 void TaskRadarAssistant::BeginTurn() {
     Point site;

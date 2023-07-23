@@ -29,8 +29,8 @@ class DefenseManager {
     SmartList<UnitInfo> units;
     WeightTable weight_table;
     SmartObjectArray<ResourceID> unit_types;
-    int asset_value;
-    int asset_value_goal;
+    int32_t asset_value;
+    int32_t asset_value_goal;
 
 public:
     DefenseManager();
@@ -40,10 +40,10 @@ public:
     bool IsUnitUsable(UnitInfo* unit);
     bool AddUnit(UnitInfo* unit);
     bool RemoveUnit(UnitInfo* unit);
-    void AddRule(ResourceID unit_type, int weight);
+    void AddRule(ResourceID unit_type, int32_t weight);
     void MaintainDefences(Task* task);
-    void EvaluateNeeds(int* unit_counts);
-    void PlanDefenses(int asset_value_goal, TaskObtainUnits* task, int* unit_counts);
+    void EvaluateNeeds(int32_t* unit_counts);
+    void PlanDefenses(int32_t asset_value_goal, TaskObtainUnits* task, int32_t* unit_counts);
 };
 
 #endif /* DEFENSE_MANAGER_HPP */

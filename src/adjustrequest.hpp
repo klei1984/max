@@ -28,7 +28,7 @@ class AdjustRequest : public TaskPathRequest {
     SmartPointer<GroundPath> ground_path;
 
 public:
-    AdjustRequest(UnitInfo* unit, int mode, Point position, GroundPath* path);
+    AdjustRequest(UnitInfo* unit, int32_t mode, Point position, GroundPath* path);
     ~AdjustRequest();
 
     GroundPath* GetPath();

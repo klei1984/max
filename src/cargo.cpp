@@ -24,7 +24,7 @@
 #include "inifile.hpp"
 #include "units_manager.hpp"
 
-static void Cargo_ApplyUnitConsumption(ResourceID unit_type, int build_speed_multiplier, Cargo* cargo);
+static void Cargo_ApplyUnitConsumption(ResourceID unit_type, int32_t build_speed_multiplier, Cargo* cargo);
 
 Cargo::Cargo() { Init(); }
 
@@ -78,9 +78,9 @@ Cargo* Cargo_GetCargoCapacity(UnitInfo* unit, Cargo* cargo) {
 }
 
 Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order) {
-    unsigned char orders;
-    int difficulty_factor;
-    int opponent;
+    uint8_t orders;
+    int32_t difficulty_factor;
+    int32_t opponent;
 
     cargo->Init();
 
@@ -140,7 +140,7 @@ Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order) {
     return cargo;
 }
 
-void Cargo_ApplyUnitConsumption(ResourceID unit_type, int build_speed_multiplier, Cargo* cargo) {
+void Cargo_ApplyUnitConsumption(ResourceID unit_type, int32_t build_speed_multiplier, Cargo* cargo) {
     cargo->raw -= Cargo_GetRawConsumptionRate(unit_type, build_speed_multiplier);
     cargo->fuel -= Cargo_GetFuelConsumptionRate(unit_type);
     cargo->power -= Cargo_GetPowerConsumptionRate(unit_type);
@@ -170,9 +170,9 @@ Cargo& Cargo::operator-=(Cargo const& other) {
     return *this;
 }
 
-int Cargo_GetRawConsumptionRate(ResourceID unit_type, int speed_multiplier) {
-    int multiplier;
-    int result;
+int32_t Cargo_GetRawConsumptionRate(ResourceID unit_type, int32_t speed_multiplier) {
+    int32_t multiplier;
+    int32_t result;
 
     switch (speed_multiplier) {
         case 2: {
@@ -213,8 +213,8 @@ int Cargo_GetRawConsumptionRate(ResourceID unit_type, int speed_multiplier) {
     return result;
 }
 
-int Cargo_GetFuelConsumptionRate(ResourceID unit_type) {
-    int result;
+int32_t Cargo_GetFuelConsumptionRate(ResourceID unit_type) {
+    int32_t result;
 
     switch (unit_type) {
         case POWERSTN: {
@@ -233,8 +233,8 @@ int Cargo_GetFuelConsumptionRate(ResourceID unit_type) {
     return result;
 }
 
-int Cargo_GetPowerConsumptionRate(ResourceID unit_type) {
-    int result;
+int32_t Cargo_GetPowerConsumptionRate(ResourceID unit_type) {
+    int32_t result;
 
     switch (unit_type) {
         case SHIPYARD:
@@ -265,8 +265,8 @@ int Cargo_GetPowerConsumptionRate(ResourceID unit_type) {
     return result;
 }
 
-int Cargo_GetLifeConsumptionRate(ResourceID unit_type) {
-    int result;
+int32_t Cargo_GetLifeConsumptionRate(ResourceID unit_type) {
+    int32_t result;
 
     switch (unit_type) {
         case HABITAT: {
@@ -287,8 +287,8 @@ int Cargo_GetLifeConsumptionRate(ResourceID unit_type) {
     return result;
 }
 
-int Cargo_GetGoldConsumptionRate(ResourceID unit_type) {
-    int result;
+int32_t Cargo_GetGoldConsumptionRate(ResourceID unit_type) {
+    int32_t result;
 
     switch (unit_type) {
         case COMMTWR: {
@@ -303,7 +303,7 @@ int Cargo_GetGoldConsumptionRate(ResourceID unit_type) {
     return result;
 }
 
-void Cargo_UpdateResourceLevels(UnitInfo* unit, int factor) {
+void Cargo_UpdateResourceLevels(UnitInfo* unit, int32_t factor) {
     SmartPointer<Complex> complex = unit->GetComplex();
 
     complex->material += unit->GetRawConsumptionRate() * factor;
@@ -313,8 +313,8 @@ void Cargo_UpdateResourceLevels(UnitInfo* unit, int factor) {
     complex->gold += Cargo_GetGoldConsumptionRate(unit->unit_type) * factor;
 }
 
-int Cargo::Get(int type) const {
-    int result;
+int32_t Cargo::Get(int32_t type) const {
+    int32_t result;
 
     switch (type) {
         case CARGO_MATERIALS: {

@@ -97,7 +97,7 @@ void MenuLandingSequence::Init(bool enable_controls) {
     }
 }
 
-void MenuLandingSequence::AnimateStep(int offset) {
+void MenuLandingSequence::AnimateStep(int32_t offset) {
     WindowManager_LoadSimpleImage(PANELTOP, panel_top->window.ulx, panel_top->window.uly - offset, true);
     WindowManager_LoadSimpleImage(PANELBTM, panel_bottom->window.ulx, panel_bottom->window.uly + offset, true);
     win_draw_rect(panel_top->id, &panel_top->window);
@@ -113,7 +113,7 @@ void MenuLandingSequence::OpenPanel() {
     DeleteButtons();
     SoundManager.PlaySfx(IOPEN0);
 
-    for (int i = 0; i < PANEL_STEP_COUNT; ++i) {
+    for (int32_t i = 0; i < PANEL_STEP_COUNT; ++i) {
         time_stamp = timer_get();
         image_1->Write(panel_top);
         image_2->Write(panel_bottom);
@@ -147,7 +147,7 @@ void MenuLandingSequence::ClosePanel() {
 
         SoundManager.PlaySfx(ICLOS0);
 
-        for (int i = 0; i < PANEL_STEP_COUNT; ++i) {
+        for (int32_t i = 0; i < PANEL_STEP_COUNT; ++i) {
             time_stamp = timer_get();
             AnimateStep((PANEL_STEP_COUNT - 1 - i) * step_size);
         }

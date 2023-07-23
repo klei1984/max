@@ -21,7 +21,7 @@
 
 #include "maphashlist.hpp"
 
-MapHashList::MapHashList(UnitInfo& unit, unsigned short team) : unit(unit), team(team) {
+MapHashList::MapHashList(UnitInfo& unit, uint16_t team) : unit(unit), team(team) {
     visible = unit.IsVisibleToTeam(team);
     point.x = unit.grid_x;
     point.y = unit.grid_y;
@@ -54,12 +54,12 @@ Point MapHashList::GetPosition() {
 
 void MapHashList::SetPosition(Point point) { this->point = point; }
 
-short MapHashList::GetPositionX() {
+int16_t MapHashList::GetPositionX() {
     UpdateVisibility();
     return point.x;
 }
 
-short MapHashList::GetPositionY() {
+int16_t MapHashList::GetPositionY() {
     UpdateVisibility();
     return point.y;
 }

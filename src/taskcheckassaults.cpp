@@ -28,14 +28,14 @@
 #include "taskmove.hpp"
 #include "units_manager.hpp"
 
-TaskCheckAssaults::TaskCheckAssaults(unsigned short team)
+TaskCheckAssaults::TaskCheckAssaults(uint16_t team)
     : Task(team, nullptr, 0x1E), unit_iterator(UnitsManager_MobileAirUnits.End()) {}
 
 TaskCheckAssaults::~TaskCheckAssaults() {}
 
 void TaskCheckAssaults::CheckAssaults() {
     AiLog log("Task check assaults");
-    unsigned short unit_count = 0;
+    uint16_t unit_count = 0;
 
     if (unit_iterator == UnitsManager_MobileAirUnits.End() && IsInitNeeded()) {
         ChangeInitNeededFlag(false);
@@ -109,7 +109,7 @@ char* TaskCheckAssaults::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskCheckAssaults::GetType() const { return TaskType_TaskCheckAssaults; }
+uint8_t TaskCheckAssaults::GetType() const { return TaskType_TaskCheckAssaults; }
 
 bool TaskCheckAssaults::IsThinking() { return false; }
 

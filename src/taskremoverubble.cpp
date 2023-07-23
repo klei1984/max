@@ -28,7 +28,7 @@
 #include "taskrendezvous.hpp"
 #include "units_manager.hpp"
 
-TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, unsigned short flags_)
+TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, uint16_t flags_)
     : Task(task->GetTeam(), task, flags_) {
     target = unit_;
 }
@@ -60,7 +60,7 @@ Rect* TaskRemoveRubble::GetBounds(Rect* bounds) {
     return bounds;
 }
 
-unsigned char TaskRemoveRubble::GetType() const { return TaskType_TaskRemoveRubble; }
+uint8_t TaskRemoveRubble::GetType() const { return TaskType_TaskRemoveRubble; }
 
 bool TaskRemoveRubble::IsNeeded() { return !unit; }
 
@@ -186,8 +186,8 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
 
     if (unit_->speed) {
         UnitInfo* best_unit = nullptr;
-        int distance;
-        int minimum_distance{INT32_MAX};
+        int32_t distance;
+        int32_t minimum_distance{INT32_MAX};
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -201,7 +201,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                         if (Task_IsAdjacent(&*building, unit_->grid_x, unit_->grid_y)) {
                             if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
                                 unit_->target_grid_x =
-                                    std::min(static_cast<int>(unit_->storage),
+                                    std::min(static_cast<int32_t>(unit_->storage),
                                              (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - (*it).storage);
                                 unit_->SetParent(&*it);
 

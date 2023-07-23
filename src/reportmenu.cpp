@@ -101,8 +101,8 @@ class ReportMenu : public Window {
 
     SmartPointer<MessageLogEntry> selected_message;
 
-    int row_counts[3];
-    int row_indices[3];
+    int32_t row_counts[3];
+    int32_t row_indices[3];
 
     bool active_units[UNIT_END];
 
@@ -155,16 +155,16 @@ class ReportMenu : public Window {
     void DrawCasualties();
     void DrawScores();
     void DrawMessages();
-    void SelectUnit(int index);
+    void SelectUnit(int32_t index);
     void SelectUnit(Point point);
 
-    static int GetWorkingEcoSphereCount(unsigned short team);
-    static void UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int ulx, int uly, int width, int height);
+    static int32_t GetWorkingEcoSphereCount(uint16_t team);
+    static void UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width, int32_t height);
 
     void AddUnits(SmartList<UnitInfo> *unit_list);
-    int GetSelectedUnitIndex();
-    int GetMessageIndex(MessageLogEntry *message);
-    int GetNextMessageIndex(MessageLogEntry *message);
+    int32_t GetSelectedUnitIndex();
+    int32_t GetMessageIndex(MessageLogEntry *message);
+    int32_t GetNextMessageIndex(MessageLogEntry *message);
     void SelectMessage(MessageLogEntry *message);
     void SelectMessage(Point point);
     void MessageUp();
@@ -406,9 +406,9 @@ ReportMenu::~ReportMenu() {
 
 void ReportMenu::Run() {
     SmartPointer<UnitInfo> selected_unit(GameManager_SelectedUnit);
-    int key;
+    int32_t key;
     MouseEvent mouse_event;
-    int index;
+    int32_t index;
 
     if (Remote_IsNetworkGame) {
         GameManager_ProcessState(false);
@@ -513,8 +513,8 @@ void ReportMenu::Run() {
 }
 
 void ReportMenu::UpdateStatistics() {
-    unsigned int unit_flags_mask;
-    unsigned int unit_flags;
+    uint32_t unit_flags_mask;
+    uint32_t unit_flags;
 
     unit_flags_mask = 0;
 
@@ -539,7 +539,7 @@ void ReportMenu::UpdateStatistics() {
     }
 
     if (ReportMenu_ButtonState_CombatUnits) {
-        for (int unit_type = 0; unit_type < UNIT_END; ++unit_type) {
+        for (int32_t unit_type = 0; unit_type < UNIT_END; ++unit_type) {
             if (!UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[GameManager_PlayerTeam],
                                                    static_cast<ResourceID>(unit_type))
                      ->GetAttribute(ATTRIB_ATTACK)) {
@@ -549,7 +549,7 @@ void ReportMenu::UpdateStatistics() {
     }
 
     if (ReportMenu_ButtonState_StealthyUnits) {
-        for (int unit_type = 0; unit_type < UNIT_END; ++unit_type) {
+        for (int32_t unit_type = 0; unit_type < UNIT_END; ++unit_type) {
             if (unit_type != SUBMARNE && unit_type != COMMANDO) {
                 active_units[unit_type] = false;
             }
@@ -572,7 +572,7 @@ void ReportMenu::UpdateStatistics() {
         unit_flags_mask |= STATIONARY;
     }
 
-    for (int unit_type = 0; unit_type < UNIT_END; ++unit_type) {
+    for (int32_t unit_type = 0; unit_type < UNIT_END; ++unit_type) {
         unit_flags = UnitsManager_BaseUnits[unit_type].flags;
 
         if (!(unit_flags & SELECTABLE) || (unit_flags & GROUND_COVER) || !(unit_flags & unit_flags_mask)) {
@@ -599,10 +599,10 @@ void ReportMenu::UpdateStatistics() {
     unit_types.Clear();
 
     {
-        int team;
+        int32_t team;
         ResourceID type;
 
-        for (int unit_type = 0; unit_type < UNIT_END; ++unit_type) {
+        for (int32_t unit_type = 0; unit_type < UNIT_END; ++unit_type) {
             if (active_units[unit_type]) {
                 for (team = PLAYER_TEAM_RED;
                      (team < PLAYER_TEAM_MAX - 1) && !UnitsManager_TeamInfo[team].casualties[unit_type]; ++team) {
@@ -621,8 +621,8 @@ void ReportMenu::UpdateStatistics() {
 }
 
 void ReportMenu::InitMessages() {
-    int row_limit;
-    int row_count;
+    int32_t row_limit;
+    int32_t row_count;
     SmartString *rows;
     bool skip_new_paragraph;
 
@@ -644,15 +644,15 @@ void ReportMenu::InitMessages() {
 
             skip_new_paragraph = false;
 
-            for (int i = 0; i < (row_limit - row_count) / 2; ++i) {
+            for (int32_t i = 0; i < (row_limit - row_count) / 2; ++i) {
                 message_lines.Insert(new (std::nothrow) MessageLine(&*it, SmartString()));
             }
 
-            for (int i = 0; i < row_count; ++i) {
+            for (int32_t i = 0; i < row_count; ++i) {
                 message_lines.Insert(new (std::nothrow) MessageLine(&*it, rows[i]));
             }
 
-            for (int i = ((row_limit - row_count) / 2) + row_count; i < row_limit; ++i) {
+            for (int32_t i = ((row_limit - row_count) / 2) + row_count; i < row_limit; ++i) {
                 message_lines.Insert(new (std::nothrow) MessageLine(&*it, SmartString()));
             }
 
@@ -670,10 +670,10 @@ void ReportMenu::InitMessages() {
 }
 
 void ReportMenu::DrawUnits() {
-    int row_limit;
-    int window_ulx;
-    int window_uly;
-    int item_max;
+    int32_t row_limit;
+    int32_t window_ulx;
+    int32_t window_uly;
+    int32_t item_max;
     WindowInfo window;
     Rect bounds;
     char text[50];
@@ -682,13 +682,13 @@ void ReportMenu::DrawUnits() {
 
     window_ulx = report_screen_image->GetULX();
 
-    item_max = std::min(static_cast<int>(units.GetCount()), row_counts[0] + row_indices[0]);
+    item_max = std::min(static_cast<int32_t>(units.GetCount()), row_counts[0] + row_indices[0]);
 
     FillWindowInfo(&window);
 
     window_uly = report_screen_image->GetULY() + (row_limit - 50) / 2;
 
-    for (int i = row_indices[0]; i < item_max; ++i) {
+    for (int32_t i = row_indices[0]; i < item_max; ++i) {
         ReportStats_DrawListItemIcon(window.buffer, window.width, units[i].unit_type, GameManager_PlayerTeam,
                                      window_ulx + 16, window_uly + 25);
 
@@ -728,18 +728,18 @@ void ReportMenu::DrawUnits() {
 }
 
 void ReportMenu::DrawCasualties() {
-    int row_limit;
-    int window_ulx;
-    int window_uly;
-    int item_max;
+    int32_t row_limit;
+    int32_t window_ulx;
+    int32_t window_uly;
+    int32_t item_max;
     WindowInfo window;
-    int width;
+    int32_t width;
 
     row_limit = (report_screen_image->GetHeight() - 20) / row_counts[1];
 
     window_ulx = report_screen_image->GetULX();
 
-    item_max = std::min(static_cast<int>(unit_types.GetCount()), row_counts[1] + row_indices[1]);
+    item_max = std::min(static_cast<int32_t>(unit_types.GetCount()), row_counts[1] + row_indices[1]);
 
     FillWindowInfo(&window);
 
@@ -749,7 +749,7 @@ void ReportMenu::DrawCasualties() {
 
     width = (report_screen_image->GetWidth() - 145) / 4;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             Text_TextBox(window.buffer, window.width, ReportMenu_TeamNames[team], window_ulx,
                          report_screen_image->GetULY(), width, Text_GetHeight() + 1, ReportMenu_TeamColors[team], true);
@@ -759,14 +759,14 @@ void ReportMenu::DrawCasualties() {
 
     window_uly = ((row_limit - 40) / 2) + report_screen_image->GetULY() + 20;
 
-    for (int i = row_indices[1]; i < item_max; ++i) {
+    for (int32_t i = row_indices[1]; i < item_max; ++i) {
         window_ulx = report_screen_image->GetULX();
 
         ReportStats_DrawListItem(window.buffer, window.width, *unit_types[i], window_ulx, window_uly, 140, 0xA2);
 
         window_ulx += 145;
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 ReportStats_DrawNumber(&window.buffer[window_ulx + (width / 2) + 15 + (window_uly + 11) * window.width],
                                        UnitsManager_TeamInfo[team].casualties[*unit_types[i]], (width / 2) + 15,
@@ -784,24 +784,24 @@ void ReportMenu::DrawCasualties() {
 
 void ReportMenu::DrawScores() {
     SmartString string;
-    int window_ulx;
-    int window_uly;
-    int item_max;
+    int32_t window_ulx;
+    int32_t window_uly;
+    int32_t item_max;
     WindowInfo window;
-    int x1;
-    int x2;
-    int y1;
-    int y2;
-    int ecosphere_counts[PLAYER_TEAM_MAX - 1];
-    int team_score;
-    int max_score;
+    int32_t x1;
+    int32_t x2;
+    int32_t y1;
+    int32_t y2;
+    int32_t ecosphere_counts[PLAYER_TEAM_MAX - 1];
+    int32_t team_score;
+    int32_t max_score;
     const char *unit_name;
-    int width;
-    int height;
-    int y_min;
-    int y_max;
-    int ulx;
-    int team_points;
+    int32_t width;
+    int32_t height;
+    int32_t y_min;
+    int32_t y_max;
+    int32_t ulx;
+    int32_t team_points;
 
     max_score = 0;
 
@@ -817,7 +817,7 @@ void ReportMenu::DrawScores() {
 
     FillWindowInfo(&window);
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ecosphere_counts[team] = GetWorkingEcoSphereCount(team);
 
@@ -827,7 +827,7 @@ void ReportMenu::DrawScores() {
                 max_score = team_score;
             }
 
-            for (int i = 0; i < 50; ++i) {
+            for (int32_t i = 0; i < 50; ++i) {
                 if (UnitsManager_TeamInfo[team].score_graph[i] > max_score) {
                     max_score = UnitsManager_TeamInfo[team].score_graph[i];
                 }
@@ -862,7 +862,7 @@ void ReportMenu::DrawScores() {
     width = x2 - x1;
     height = y2 - y1;
 
-    for (int i = 0; i <= 10; ++i) {
+    for (int32_t i = 0; i <= 10; ++i) {
         ReportStats_DrawNumber(
             &window.buffer[x1 - 4 + (y2 - ((((max_score * i) / 10) * height) / max_score) - 10) * window.width],
             (max_score * i) / 10, 34, window.width, 0x04);
@@ -876,7 +876,7 @@ void ReportMenu::DrawScores() {
     }
 
     {
-        int index;
+        int32_t index;
 
         index = (y_min - GameManager_TurnCounter) / 10;
         index = index * 10 + GameManager_TurnCounter;
@@ -902,10 +902,10 @@ void ReportMenu::DrawScores() {
     } else {
         window_uly = 10;
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 window_uly = std::max(
-                    static_cast<int>(ecosphere_counts[team] * (ini_setting_victory_limit - GameManager_TurnCounter) +
+                    static_cast<int32_t>(ecosphere_counts[team] * (ini_setting_victory_limit - GameManager_TurnCounter) +
                                      UnitsManager_TeamInfo[team].team_points),
                     window_uly);
             }
@@ -918,7 +918,7 @@ void ReportMenu::DrawScores() {
         draw_line(window.buffer, window.width, x1, window_uly, x2 - 1, window_uly, 0xD7);
     }
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ulx = x1;
 
@@ -931,7 +931,7 @@ void ReportMenu::DrawScores() {
 
             team_points = y2 - (height * team_points) / max_score;
 
-            for (int i = y_min + 1; i < GameManager_TurnCounter; ++i) {
+            for (int32_t i = y_min + 1; i < GameManager_TurnCounter; ++i) {
                 window_ulx = ulx;
                 window_uly = team_points;
 
@@ -978,9 +978,9 @@ void ReportMenu::DrawScores() {
 }
 
 void ReportMenu::DrawMessages() {
-    int window_ulx;
-    int window_uly;
-    int item_max;
+    int32_t window_ulx;
+    int32_t window_uly;
+    int32_t item_max;
     WindowInfo window;
     MessageLogEntry *message1;
     MessageLogEntry *message2;
@@ -991,7 +991,7 @@ void ReportMenu::DrawMessages() {
     window_ulx = report_screen_image->GetULX() + 5;
     window_uly = report_screen_image->GetULY() + 6;
 
-    item_max = std::min<int>(message_lines.GetCount(), row_counts[2] + row_indices[2]);
+    item_max = std::min<int32_t>(message_lines.GetCount(), row_counts[2] + row_indices[2]);
 
     FillWindowInfo(&window);
 
@@ -1002,7 +1002,7 @@ void ReportMenu::DrawMessages() {
         message1 = nullptr;
     }
 
-    for (int i = row_indices[2]; i < item_max; ++i) {
+    for (int32_t i = row_indices[2]; i < item_max; ++i) {
         message2 = message_lines[i].GetMessage();
 
         if (selected_message == message2) {
@@ -1045,14 +1045,14 @@ void ReportMenu::DrawMessages() {
     }
 
     if (selected_message != nullptr) {
-        int start_index;
-        int end_index;
-        int image_uly;
-        int image_lry;
-        int x1;
-        int x2;
-        int y1;
-        int y2;
+        int32_t start_index;
+        int32_t end_index;
+        int32_t image_uly;
+        int32_t image_lry;
+        int32_t x1;
+        int32_t x2;
+        int32_t y1;
+        int32_t y2;
 
         start_index = GetMessageIndex(&*selected_message) - row_indices[2];
         end_index = GetNextMessageIndex(&*selected_message) - row_indices[2];
@@ -1081,8 +1081,8 @@ void ReportMenu::DrawMessages() {
     button_down->Enable(row_indices[2] + row_counts[2] < message_lines.GetCount());
 }
 
-int ReportMenu::GetWorkingEcoSphereCount(unsigned short team) {
-    int result;
+int32_t ReportMenu::GetWorkingEcoSphereCount(uint16_t team) {
+    int32_t result;
 
     result = 0;
 
@@ -1098,7 +1098,7 @@ int ReportMenu::GetWorkingEcoSphereCount(unsigned short team) {
     return result;
 }
 
-void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int ulx, int uly, int width, int height) {
+void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width, int32_t height) {
     SmartString string;
 
     Text_SetFont(GNW_TEXT_FONT_5);
@@ -1122,7 +1122,7 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
                 string.Sprintf(200, _(abea), UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
 
             } else {
-                int turns_to_build;
+                int32_t turns_to_build;
 
                 unit->GetTurnsToBuild(*build_list[0], unit->GetBuildRate(), &turns_to_build);
 
@@ -1140,7 +1140,7 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
     Text_TextBox(window->buffer, window->width, string.GetCStr(), ulx, uly, width, height, 0xA2, false);
 }
 
-void ReportMenu::SelectUnit(int index) {
+void ReportMenu::SelectUnit(int32_t index) {
     if (index >= 0 && index < units.GetCount()) {
         if (GameManager_SelectedUnit == units[index]) {
             exit_loop = true;
@@ -1162,9 +1162,9 @@ void ReportMenu::SelectUnit(int index) {
 }
 
 void ReportMenu::SelectUnit(Point point) {
-    int index;
-    int image_uly;
-    int offset;
+    int32_t index;
+    int32_t image_uly;
+    int32_t offset;
 
     offset = report_screen_image->GetHeight() / row_counts[0];
 
@@ -1184,7 +1184,7 @@ void ReportMenu::SelectUnit(Point point) {
 }
 
 void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
-    int index;
+    int32_t index;
 
     for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
         if ((*it).team == GameManager_PlayerTeam && active_units[(*it).unit_type] &&
@@ -1205,8 +1205,8 @@ void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
     }
 }
 
-int ReportMenu::GetSelectedUnitIndex() {
-    for (int i = units.GetCount() - 1; i >= 0; --i) {
+int32_t ReportMenu::GetSelectedUnitIndex() {
+    for (int32_t i = units.GetCount() - 1; i >= 0; --i) {
         if (GameManager_SelectedUnit == units[i]) {
             return i;
         }
@@ -1215,8 +1215,8 @@ int ReportMenu::GetSelectedUnitIndex() {
     return -1;
 }
 
-int ReportMenu::GetMessageIndex(MessageLogEntry *message) {
-    int index;
+int32_t ReportMenu::GetMessageIndex(MessageLogEntry *message) {
+    int32_t index;
 
     for (index = 0; index < message_lines.GetCount(); ++index) {
         if (message_lines[index].GetMessage() == message) {
@@ -1227,8 +1227,8 @@ int ReportMenu::GetMessageIndex(MessageLogEntry *message) {
     return index;
 }
 
-int ReportMenu::GetNextMessageIndex(MessageLogEntry *message) {
-    int index;
+int32_t ReportMenu::GetNextMessageIndex(MessageLogEntry *message) {
+    int32_t index;
 
     for (index = GetMessageIndex(message); index < message_lines.GetCount(); ++index) {
         if (message_lines[index].GetMessage() != message) {
@@ -1240,8 +1240,8 @@ int ReportMenu::GetNextMessageIndex(MessageLogEntry *message) {
 }
 
 void ReportMenu::SelectMessage(MessageLogEntry *message) {
-    int message_index;
-    int index;
+    int32_t message_index;
+    int32_t index;
 
     if (selected_message == message) {
         exit_loop = true;
@@ -1279,7 +1279,7 @@ void ReportMenu::SelectMessage(MessageLogEntry *message) {
 void ReportMenu::SelectMessage(Point point) {
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    int index = ((point.y - report_screen_image->GetULY() - 6) / Text_GetHeight()) + row_indices[2];
+    int32_t index = ((point.y - report_screen_image->GetULY() - 6) / Text_GetHeight()) + row_indices[2];
 
     if (message_lines.GetCount() > index) {
         if (message_lines[index].GetMessage()) {
@@ -1290,7 +1290,7 @@ void ReportMenu::SelectMessage(Point point) {
 
 void ReportMenu::MessageUp() {
     if (message_lines.GetCount()) {
-        int index;
+        int32_t index;
 
         if (selected_message != nullptr) {
             index = GetMessageIndex(&*selected_message);
@@ -1307,7 +1307,7 @@ void ReportMenu::MessageUp() {
 
 void ReportMenu::MessageDown() {
     if (message_lines.GetCount()) {
-        int index;
+        int32_t index;
 
         if (selected_message != nullptr) {
             index = GetNextMessageIndex(&*selected_message);

@@ -35,9 +35,9 @@
 #include "units_manager.hpp"
 #include "upgradecontrol.hpp"
 
-AbstractUnit::AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
+AbstractUnit::AbstractUnit(uint32_t flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
-                           unsigned char land_type, unsigned char cargo_type, char new_gender,
+                           uint8_t land_type, uint8_t cargo_type, char new_gender,
                            const char* singular_name, const char* plural_name, const char* description,
                            const char* tutorial)
     : flags(flags),
@@ -101,8 +101,8 @@ void BaseUnit::Init(AbstractUnit* unit) {
     tutorial = unit->tutorial;
 }
 
-int TeamUnits::GetParam(char* string, int* offset) {
-    int number;
+int32_t TeamUnits::GetParam(char* string, int32_t* offset) {
+    int32_t number;
 
     while (string[*offset] == ' ') {
         ++*offset;
@@ -127,15 +127,15 @@ void TeamUnits::Init() {
     attribs = reinterpret_cast<char*>(ResourceManager_ReadResource(ATTRIBS));
 
     if (attribs) {
-        unsigned int file_size;
-        unsigned int file_pos;
+        uint32_t file_size;
+        uint32_t file_pos;
 
         file_size = ResourceManager_GetResourceSize(ATTRIBS);
         file_pos = 0;
 
-        for (int id = 0; id < UNIT_END;) {
+        for (int32_t id = 0; id < UNIT_END;) {
             char buffer[100];
-            int position;
+            int32_t position;
 
             position = 0;
 
@@ -183,19 +183,19 @@ void TeamUnits::Init() {
 void TeamUnits::FileLoad(SmartFileReader& file) {
     file.Read(gold);
 
-    for (int unit_id = 0; unit_id < UNIT_END; ++unit_id) {
+    for (int32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
         base_values[unit_id] = dynamic_cast<UnitValues*>(file.ReadObject());
     }
 
-    for (int unit_id = 0; unit_id < UNIT_END; ++unit_id) {
+    for (int32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
         current_values[unit_id] = dynamic_cast<UnitValues*>(file.ReadObject());
     }
 
     complexes.Clear();
 
-    int complex_count = file.ReadObjectCount();
+    int32_t complex_count = file.ReadObjectCount();
 
-    for (int i = 0; i < complex_count; ++i) {
+    for (int32_t i = 0; i < complex_count; ++i) {
         complexes.PushBack(*dynamic_cast<Complex*>(file.ReadObject()));
     }
 }
@@ -203,11 +203,11 @@ void TeamUnits::FileLoad(SmartFileReader& file) {
 void TeamUnits::FileSave(SmartFileWriter& file) {
     file.Write(gold);
 
-    for (int unit_id = 0; unit_id < UNIT_END; ++unit_id) {
+    for (int32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
         file.WriteObject(&*(base_values[unit_id]));
     }
 
-    for (int unit_id = 0; unit_id < UNIT_END; ++unit_id) {
+    for (int32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
         file.WriteObject(&*(current_values[unit_id]));
     }
 
@@ -218,26 +218,26 @@ void TeamUnits::FileSave(SmartFileWriter& file) {
     }
 }
 
-void TeamUnits::WriteComplexPacket(unsigned short complex_id, NetPacket& packet) {
+void TeamUnits::WriteComplexPacket(uint16_t complex_id, NetPacket& packet) {
     packet << complex_id;
 
     GetComplex(complex_id)->WritePacket(packet);
 }
 
 void TeamUnits::ReadComplexPacket(NetPacket& packet) {
-    unsigned short complex_id;
+    uint16_t complex_id;
 
     packet >> complex_id;
 
     GetComplex(complex_id)->ReadPacket(packet);
 }
 
-unsigned short TeamUnits::GetGold() { return gold; }
+uint16_t TeamUnits::GetGold() { return gold; }
 
-void TeamUnits::SetGold(unsigned short value) { gold = value; }
+void TeamUnits::SetGold(uint16_t value) { gold = value; }
 
 Complex* TeamUnits::CreateComplex() {
-    unsigned short complex_id;
+    uint16_t complex_id;
     Complex* result;
     SmartList<Complex>::Iterator it;
 
@@ -255,7 +255,7 @@ Complex* TeamUnits::CreateComplex() {
 
 SmartList<Complex>& TeamUnits::GetComplexes() { return complexes; }
 
-Complex* TeamUnits::GetComplex(unsigned short complex_id) {
+Complex* TeamUnits::GetComplex(uint16_t complex_id) {
     Complex* result = nullptr;
 
     for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
@@ -268,7 +268,7 @@ Complex* TeamUnits::GetComplex(unsigned short complex_id) {
     return result;
 }
 
-void TeamUnits::OptimizeComplexes(unsigned short team) {
+void TeamUnits::OptimizeComplexes(uint16_t team) {
     for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
         Access_UpdateResourcesTotal(&*it);
         ProductionManager_ManageMining(team, &*it, nullptr, false);
@@ -279,22 +279,22 @@ void TeamUnits::RemoveComplex(Complex& object) { complexes.Remove(object); }
 
 void TeamUnits::ClearComplexes() { complexes.Clear(); }
 
-UnitValues* TeamUnits::GetBaseUnitValues(unsigned short id) { return &*base_values[id]; }
+UnitValues* TeamUnits::GetBaseUnitValues(uint16_t id) { return &*base_values[id]; }
 
-void TeamUnits::SetBaseUnitValues(unsigned short id, UnitValues& object) { base_values[id] = object; }
+void TeamUnits::SetBaseUnitValues(uint16_t id, UnitValues& object) { base_values[id] = object; }
 
-UnitValues* TeamUnits::GetCurrentUnitValues(unsigned short id) { return &*current_values[id]; }
+UnitValues* TeamUnits::GetCurrentUnitValues(uint16_t id) { return &*current_values[id]; }
 
-void TeamUnits::SetCurrentUnitValues(unsigned short id, UnitValues& object) { current_values[id] = object; }
+void TeamUnits::SetCurrentUnitValues(uint16_t id, UnitValues& object) { current_values[id] = object; }
 
-int TeamUnits_GetUpgradeCost(unsigned short team, ResourceID unit_type, int attribute) {
+int32_t TeamUnits_GetUpgradeCost(uint16_t team, ResourceID unit_type, int32_t attribute) {
     SmartPointer<UnitValues> base_values(UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type));
     SmartPointer<UnitValues> current_values(UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(unit_type));
-    int upgrade_offset_factor = TeamUnits_UpgradeOffsetFactor(team, unit_type, attribute);
-    int factor;
-    int base_value;
-    int current_value;
-    int upgrade_cost;
+    int32_t upgrade_offset_factor = TeamUnits_UpgradeOffsetFactor(team, unit_type, attribute);
+    int32_t factor;
+    int32_t base_value;
+    int32_t current_value;
+    int32_t upgrade_cost;
 
     switch (attribute) {
         case ATTRIB_ATTACK: {
@@ -369,9 +369,9 @@ int TeamUnits_GetUpgradeCost(unsigned short team, ResourceID unit_type, int attr
     return upgrade_cost;
 }
 
-int TeamUnits_UpgradeOffsetFactor(unsigned short team, ResourceID unit_type, int attribute) {
-    int value;
-    int result;
+int32_t TeamUnits_UpgradeOffsetFactor(uint16_t team, ResourceID unit_type, int32_t attribute) {
+    int32_t value;
+    int32_t result;
 
     value = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type)->GetAttribute(attribute);
 

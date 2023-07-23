@@ -38,34 +38,34 @@ enum {
 };
 
 class TaskAttack : public Task {
-    unsigned short target_team;
-    unsigned char op_state;
+    uint16_t target_team;
+    uint8_t op_state;
     SmartList<TaskKillUnit> primary_targets;
     SmartList<TaskKillUnit> secondary_targets;
     SmartPointer<TaskKillUnit> kill_unit_task;
     SmartPointer<TaskSupportAttack> support_attack_task;
     SmartPointer<UnitInfo> leader;
     SmartPointer<Task> leader_task;
-    unsigned int access_flags;
+    uint32_t access_flags;
     SmartPointer<UnitInfo> recon_unit;
     SmartObjectArray<ResourceID> managed_unit_types;
     bool attack_zone_reached;
 
     bool EvaluateLandAttack();
     void Finish();
-    bool RequestReconUnit(ResourceID unit_type, int safe_distance);
-    bool FindReconUnit(ResourceID unit_type, int safe_distance);
+    bool RequestReconUnit(ResourceID unit_type, int32_t safe_distance);
+    bool FindReconUnit(ResourceID unit_type, int32_t safe_distance);
     bool IsReconUnitUsable(UnitInfo* unit);
     bool IsWithinAttackRange(UnitInfo* unit, Point unit_position);
-    void GetSafeDistances(int* safe_distance_air, int* safe_distance_ground);
+    void GetSafeDistances(int32_t* safe_distance_air, int32_t* safe_distance_ground);
     void UpdateReconUnit();
     void ChooseFirstTarget();
     void CopyTargets(TaskAttack* other);
     bool IsTargetGroupInSight();
     bool IsThereTimeToPrepare();
-    bool MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_level);
-    Point FindClosestDirectRoute(UnitInfo* unit, int caution_level);
-    bool MoveReconUnit(int caution_level);
+    bool MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t caution_level);
+    Point FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level);
+    bool MoveReconUnit(int32_t caution_level);
     bool IsAttackUnderControl();
     bool PlanMoveForReconUnit();
     bool IsViableLeader(UnitInfo* unit);
@@ -80,15 +80,15 @@ class TaskAttack : public Task {
     void AssessEnemyUnits();
 
 public:
-    TaskAttack(SpottedUnit* spotted_unit, unsigned short task_flags);
+    TaskAttack(SpottedUnit* spotted_unit, uint16_t task_flags);
     ~TaskAttack();
 
     bool IsUnitUsable(UnitInfo& unit);
-    int GetCautionLevel(UnitInfo& unit);
-    unsigned short GetFlags() const;
+    int32_t GetCautionLevel(UnitInfo& unit);
+    uint16_t GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void Begin();
@@ -102,9 +102,9 @@ public:
 
     UnitInfo* DetermineLeader();
     bool MoveCombatUnit(Task* task, UnitInfo* unit);
-    int GetHighestScan();
+    int32_t GetHighestScan();
     bool IsDestinationReached(UnitInfo* unit);
-    unsigned int GetAccessFlags() const;
+    uint32_t GetAccessFlags() const;
     bool IsExecutionPhase();
 };
 

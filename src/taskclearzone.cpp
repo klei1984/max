@@ -32,7 +32,7 @@
 #include "units_manager.hpp"
 
 void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Point point, GroundPath* path,
-                                           unsigned char result) {
+                                           uint8_t result) {
     TaskClearZone* clear_zone = dynamic_cast<TaskClearZone*>(task);
 
     if (path && (!clear_zone->moving_unit || clear_zone->moving_unit->IsReadyForOrders(clear_zone)) &&
@@ -90,7 +90,7 @@ void TaskClearZone::PathFindCancelCallback(Task* task, PathRequest* request) {
     }
 }
 
-TaskClearZone::TaskClearZone(unsigned short team, unsigned int flags_)
+TaskClearZone::TaskClearZone(uint16_t team, uint32_t flags_)
     : Task(team, nullptr, 0), unit_flags(flags_), state(CLEARZONE_STATE_WAITING) {}
 
 TaskClearZone::~TaskClearZone() {}
@@ -129,7 +129,7 @@ char* TaskClearZone::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskClearZone::GetType() const { return TaskType_TaskClearZone; }
+uint8_t TaskClearZone::GetType() const { return TaskType_TaskClearZone; }
 
 bool TaskClearZone::IsThinking() { return state != CLEARZONE_STATE_WAITING && state != CLEARZONE_STATE_MOVING_UNIT; }
 
@@ -211,13 +211,13 @@ bool TaskClearZone::ExamineZones() {
     zone_squares.Clear();
     points2.Clear();
 
-    unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
+    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
 
     if (info_map) {
-        for (int i = 0; i < zones.GetCount(); ++i) {
+        for (int32_t i = 0; i < zones.GetCount(); ++i) {
             zone = zones[i];
 
-            for (int j = 0; j < zone->points.GetCount(); ++j) {
+            for (int32_t j = 0; j < zone->points.GetCount(); ++j) {
                 site = *zone->points[j];
 
                 info_map[site.x][site.y] &= ~0x08;
@@ -225,12 +225,12 @@ bool TaskClearZone::ExamineZones() {
         }
     }
 
-    for (int i = 0; i < zones.GetCount(); ++i) {
+    for (int32_t i = 0; i < zones.GetCount(); ++i) {
         bool is_found = false;
 
         zone = zones[i];
 
-        for (int j = 0; j < zone->points.GetCount(); ++j) {
+        for (int32_t j = 0; j < zone->points.GetCount(); ++j) {
             site = *zone->points[j];
 
             if (info_map) {
@@ -308,13 +308,13 @@ bool TaskClearZone::ExamineZones() {
 }
 
 bool TaskClearZone::IsNewSite(Point site) {
-    for (int i = 0; i < points2.GetCount(); ++i) {
+    for (int32_t i = 0; i < points2.GetCount(); ++i) {
         if (*points2[i] == site) {
             return false;
         }
     }
 
-    for (int i = 0; i < zone_squares.GetCount(); ++i) {
+    for (int32_t i = 0; i < zone_squares.GetCount(); ++i) {
         if (zone_squares[i]->point == site) {
             return false;
         }
@@ -343,7 +343,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
         } else if (Access_IsAccessible(zone_square->unit->unit_type, team, site.x, site.y, 0x02)) {
             bool is_found = false;
 
-            for (int i = 0; i < points1.GetCount(); ++i) {
+            for (int32_t i = 0; i < points1.GetCount(); ++i) {
                 if (*points1[i] == site) {
                     is_found = true;
                     points1.Remove(i);
@@ -358,8 +358,8 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                 zone_squares.Append(&local);
 
             } else {
-                int unit_hits = zone_square->unit->hits;
-                int caution_level = Ai_DetermineCautionLevel(zone_square->unit);
+                int32_t unit_hits = zone_square->unit->hits;
+                int32_t caution_level = Ai_DetermineCautionLevel(zone_square->unit);
 
                 if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
                     unit_hits = 1;
@@ -434,7 +434,7 @@ void TaskClearZone::SearchMap() {
 
         points2.Append(&zone_square.point);
 
-        for (int direction = 0; direction < 8 && state == CLEARZONE_STATE_SEARCHING_MAP; ++direction) {
+        for (int32_t direction = 0; direction < 8 && state == CLEARZONE_STATE_SEARCHING_MAP; ++direction) {
             position = zone_square.point;
             position += Paths_8DirPointsArray[direction];
 
@@ -458,14 +458,14 @@ void TaskClearZone::SearchMap() {
 }
 
 void TaskClearZone::AddZone(Zone* zone) {
-    unsigned char** map;
+    uint8_t** map;
 
     map = AiPlayer_Teams[team].GetInfoMap();
 
     zones.Insert(zone);
 
     if (map) {
-        for (int i = 0; i < zone->points.GetCount(); ++i) {
+        for (int32_t i = 0; i < zone->points.GetCount(); ++i) {
             map[zone->points[i]->x][zone->points[i]->y] |= 0x08;
         }
     }

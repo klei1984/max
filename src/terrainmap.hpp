@@ -25,13 +25,13 @@
 #include "point.hpp"
 
 class TerrainMap {
-    short dimension_x;
-    unsigned short **land_map;
-    unsigned short **water_map;
+    int16_t dimension_x;
+    uint16_t **land_map;
+    uint16_t **water_map;
 
-    int TerrainMap_sub_68EEF(unsigned short **map, Point location);
-    void SetTerrain(unsigned short **map, Point location);
-    void ClearTerrain(unsigned short **map, Point location);
+    int32_t TerrainMap_sub_68EEF(uint16_t **map, Point location);
+    void SetTerrain(uint16_t **map, Point location);
+    void ClearTerrain(uint16_t **map, Point location);
 
 public:
     TerrainMap();
@@ -40,8 +40,8 @@ public:
     void Init();
     void Deinit();
 
-    int TerrainMap_sub_690D6(Point location, int surface_type);
-    void UpdateTerrain(Point location, int surface_type);
+    int32_t TerrainMap_sub_690D6(Point location, int32_t surface_type);
+    void UpdateTerrain(Point location, int32_t surface_type);
 };
 
 #endif /* TERRAINMAP_HPP */

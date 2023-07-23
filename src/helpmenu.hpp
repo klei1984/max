@@ -72,37 +72,37 @@ class HelpMenu : public Window {
     bool event_click_help;
     bool event_click_done;
     bool keys_mode;
-    unsigned short help_cache_index;
-    unsigned short help_cache_use_count;
+    uint16_t help_cache_index;
+    uint16_t help_cache_use_count;
     char *help_cache[10];
     char buffer[1000];
-    unsigned char section;
-    unsigned char window_id;
+    uint8_t section;
+    uint8_t window_id;
     FILE *file;
-    int file_size;
+    int32_t file_size;
     Image *canvas;
-    unsigned short rows_per_page;
-    int string_row_count;
-    unsigned short string_row_index;
+    uint16_t rows_per_page;
+    int32_t string_row_count;
+    uint16_t string_row_index;
     SmartString *strings;
 
     void GetHotZone(const char *chunk, Rect *hot_zone) const;
-    int ReadNextChunk();
-    int SeekSection();
-    int SeekEntry(int cursor_x, int cursor_y);
-    int ReadEntry();
+    int32_t ReadNextChunk();
+    int32_t SeekSection();
+    int32_t SeekEntry(int32_t cursor_x, int32_t cursor_y);
+    int32_t ReadEntry();
     void ProcessText(const char *text);
-    bool ProcessKey(int key);
+    bool ProcessKey(int32_t key);
     void DrawText();
 
 public:
-    HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window_id);
+    HelpMenu(uint8_t section, int32_t cursor_x, int32_t cursor_y, int32_t window_id);
     ~HelpMenu();
 
-    bool Run(int mode);
+    bool Run(int32_t mode);
 };
 
-void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode = false);
-bool HelpMenu_UnitReport(int mouse_x, int mouse_y);
+void HelpMenu_Menu(HelpSectionId section_id, int32_t window_index, bool mode = false);
+bool HelpMenu_UnitReport(int32_t mouse_x, int32_t mouse_y);
 
 #endif /* HELPMENU_HPP */

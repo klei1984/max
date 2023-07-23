@@ -24,7 +24,7 @@
 #include "aiplayer.hpp"
 #include "task_manager.hpp"
 
-TaskMineAssistant::TaskMineAssistant(unsigned short team) : Task(team, nullptr, 0x1A00) {}
+TaskMineAssistant::TaskMineAssistant(uint16_t team) : Task(team, nullptr, 0x1A00) {}
 
 TaskMineAssistant::~TaskMineAssistant() {}
 
@@ -34,7 +34,7 @@ char* TaskMineAssistant::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskMineAssistant::GetType() const {
+uint8_t TaskMineAssistant::GetType() const {
     /// \todo Is this a defect? Could something be broken by fixing this?
     return TaskType_TaskFrontierAssistant;
 }

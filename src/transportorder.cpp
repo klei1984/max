@@ -37,10 +37,10 @@ TransportOrder::~TransportOrder() {}
 
 ResourceID TransportOrder::GetUnitType() const { return unit_type; }
 
-unsigned char TransportOrder::GetTransportCategory() const { return transport_category; }
+uint8_t TransportOrder::GetTransportCategory() const { return transport_category; }
 
-int TransportOrder::DetermineCategory(ResourceID unit_type_) {
-    int result;
+int32_t TransportOrder::DetermineCategory(ResourceID unit_type_) {
+    int32_t result;
 
     if (UnitsManager_BaseUnits[unit_type_].flags & MOBILE_AIR_UNIT) {
         result = 0;
@@ -71,9 +71,9 @@ Point TransportOrder::MatchClosestPosition(Point end_position, Point start_posit
     SmartObjectArray<PathStep> steps = path->GetSteps();
     Point path_position = position;
     Point closest_position;
-    int index;
-    int distance;
-    int minimum_distance;
+    int32_t index;
+    int32_t distance;
+    int32_t minimum_distance;
 
     for (index = 0; path_position != start_position; ++index) {
         path_position.x += steps[index]->x;

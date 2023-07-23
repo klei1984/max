@@ -26,19 +26,19 @@
 
 class TaskPlaceMines : public Task {
     SmartList<UnitInfo> units;
-    unsigned short mine_layer_count;
-    unsigned short sea_mine_layer_count;
+    uint16_t mine_layer_count;
+    uint16_t sea_mine_layer_count;
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskPlaceMines(unsigned short team);
+    TaskPlaceMines(uint16_t team);
     ~TaskPlaceMines();
 
     bool IsUnitUsable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void BeginTurn();

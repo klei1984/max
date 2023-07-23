@@ -28,7 +28,7 @@
 #include "resource_manager.hpp"
 #include "units_manager.hpp"
 
-unsigned short Builder_CapabilityListNormal[] = {
+uint16_t Builder_CapabilityListNormal[] = {
 
     /* builder */ CONSTRCT,
     /* unit list size */ 15,
@@ -218,13 +218,13 @@ ResourceID Builder_GetBuilderType(ResourceID unit_type) {
     ResourceID result;
     ResourceID builder_unit;
     ResourceID list_item;
-    unsigned short list_size;
+    uint16_t list_size;
 
-    for (int i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(unsigned short);) {
+    for (int32_t i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(uint16_t);) {
         builder_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[i++]);
         list_size = Builder_CapabilityListNormal[i++];
 
-        for (int j = 0; j < list_size; ++j) {
+        for (int32_t j = 0; j < list_size; ++j) {
             if (Builder_CapabilityListNormal[i++] == unit_type) {
                 return builder_unit;
             }
@@ -243,7 +243,7 @@ bool Builder_IsBuildable(ResourceID unit_type) {
 
             unit_list = Builder_CapabilityListTrainingList[GameManager_GameFileNumber];
 
-            for (int i = 0; unit_list[i] != INVALID_ID; ++i) {
+            for (int32_t i = 0; unit_list[i] != INVALID_ID; ++i) {
                 if (unit_list[i] == unit_type) {
                     return true;
                 }
@@ -262,10 +262,10 @@ bool Builder_IsBuildable(ResourceID unit_type) {
     return result;
 }
 
-bool Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, ResourceID unit_type) {
+bool Builder_IssueBuildOrder(UnitInfo *unit, int16_t *grid_x, int16_t *grid_y, ResourceID unit_type) {
     BaseUnit *base_unit;
     bool result;
-    unsigned short team;
+    uint16_t team;
 
     base_unit = &UnitsManager_BaseUnits[unit_type];
     team = unit->team;
@@ -292,7 +292,7 @@ bool Builder_IssueBuildOrder(UnitInfo *unit, short *grid_x, short *grid_y, Resou
     return result;
 }
 
-bool Builder_IsAccessible(unsigned short team, ResourceID unit_type, int grid_x, int grid_y) {
+bool Builder_IsAccessible(uint16_t team, ResourceID unit_type, int32_t grid_x, int32_t grid_y) {
     bool result;
 
     if (grid_x >= 0 && grid_y >= 0 && grid_x <= ResourceManager_MapSize.x - 2 &&
@@ -312,9 +312,9 @@ SmartObjectArray<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type) {
     SmartObjectArray<ResourceID> units;
     ResourceID builder_unit;
     ResourceID buildable_unit;
-    unsigned short list_size;
+    uint16_t list_size;
 
-    for (int i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(unsigned short);) {
+    for (int32_t i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(uint16_t);) {
         builder_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[i++]);
         list_size = Builder_CapabilityListNormal[i++];
 
@@ -322,7 +322,7 @@ SmartObjectArray<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type) {
             i += list_size;
 
         } else {
-            for (int j = 0; j < list_size; ++j) {
+            for (int32_t j = 0; j < list_size; ++j) {
                 buildable_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[i++]);
 
                 units.PushBack(&buildable_unit);

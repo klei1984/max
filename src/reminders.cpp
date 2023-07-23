@@ -46,7 +46,7 @@ void RemindTurnStart::Execute() {
     task->BeginTurn();
 }
 
-int RemindTurnStart::GetType() { return REMINDER_TYPE_TURN_START; }
+int32_t RemindTurnStart::GetType() { return REMINDER_TYPE_TURN_START; }
 
 RemindTurnEnd::RemindTurnEnd(Task& task) : task(task) { this->task->ChangeIsScheduledForTurnEnd(true); }
 
@@ -62,7 +62,7 @@ void RemindTurnEnd::Execute() {
     task->EndTurn();
 }
 
-int RemindTurnEnd::GetType() { return REMINDER_TYPE_TURN_END; }
+int32_t RemindTurnEnd::GetType() { return REMINDER_TYPE_TURN_END; }
 
 RemindAvailable::RemindAvailable(UnitInfo& unit) : unit(unit) {}
 
@@ -74,7 +74,7 @@ void RemindAvailable::Execute() {
     }
 }
 
-int RemindAvailable::GetType() { return REMINDER_TYPE_AVAILABLE; }
+int32_t RemindAvailable::GetType() { return REMINDER_TYPE_AVAILABLE; }
 
 RemindMoveFinished::RemindMoveFinished(UnitInfo& new_unit_) : unit(new_unit_) { unit->ChangeField221(0x100, true); }
 
@@ -96,7 +96,7 @@ void RemindMoveFinished::Execute() {
     }
 }
 
-int RemindMoveFinished::GetType() { return REMINDER_TYPE_MOVE; }
+int32_t RemindMoveFinished::GetType() { return REMINDER_TYPE_MOVE; }
 
 RemindAttack::RemindAttack(UnitInfo& unit) : unit(unit) {}
 
@@ -114,4 +114,4 @@ void RemindAttack::Execute() {
     }
 }
 
-int RemindAttack::GetType() { return REMINDER_TYPE_ATTACK; }
+int32_t RemindAttack::GetType() { return REMINDER_TYPE_ATTACK; }

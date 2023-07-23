@@ -22,6 +22,8 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#include <stdint.h>
+
 enum {
     GNW_TEXT_FONT_0,
     GNW_TEXT_FONT_1,
@@ -49,13 +51,13 @@ enum {
 
 typedef struct FontMgr* FontMgrPtr;
 
-typedef void (*text_to_buf_func)(unsigned char* buf, const char* str, int swidth, int fullw, int color);
-typedef int (*text_height_func)(void);
-typedef int (*text_width_func)(const char* str);
-typedef int (*text_char_width_func)(const unsigned int glyph);
-typedef int (*text_mono_width_func)(const char* str);
-typedef int (*text_spacing_func)(void);
-typedef int (*text_size_func)(const char* str);
+typedef void (*text_to_buf_func)(uint8_t* buf, const char* str, int32_t swidth, int32_t fullw, int32_t color);
+typedef int32_t (*text_height_func)(void);
+typedef int32_t (*text_width_func)(const char* str);
+typedef int32_t (*text_char_width_func)(const uint32_t glyph);
+typedef int32_t (*text_mono_width_func)(const char* str);
+typedef int32_t (*text_spacing_func)(void);
+typedef int32_t (*text_size_func)(const char* str);
 
 extern text_to_buf_func Text_Blit;
 extern text_height_func Text_GetHeight;
@@ -65,11 +67,11 @@ extern text_mono_width_func Text_GetMonospaceWidth;
 extern text_spacing_func Text_GetSpacing;
 extern text_size_func Text_GetSize;
 
-int Text_Init(void);
+int32_t Text_Init(void);
 void Text_Exit(void);
-int Text_AddManager(FontMgrPtr mgr);
-int Text_RemoveManager(int font_num);
-int Text_GetFont(void);
-void Text_SetFont(int font_num);
+int32_t Text_AddManager(FontMgrPtr mgr);
+int32_t Text_RemoveManager(int32_t font_num);
+int32_t Text_GetFont(void);
+void Text_SetFont(int32_t font_num);
 
 #endif /* TEXT_H */

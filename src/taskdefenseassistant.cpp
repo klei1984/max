@@ -39,7 +39,7 @@ char* TaskDefenseAssistant::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskDefenseAssistant::GetType() const { return TaskType_TaskDefenseAssistant; }
+uint8_t TaskDefenseAssistant::GetType() const { return TaskType_TaskDefenseAssistant; }
 
 void TaskDefenseAssistant::BeginTurn() {
     if (Task_EstimateTurnsTillMissionEnd() >=

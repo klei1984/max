@@ -36,13 +36,13 @@
 #define AI_SAFE_ENEMY_DISTANCE 400
 
 static bool Ai_IsValidStartingPosition(Rect* bounds);
-static bool Ai_IsSafeStartingPosition(int grid_x, int grid_y, unsigned short team);
+static bool Ai_IsSafeStartingPosition(int32_t grid_x, int32_t grid_y, uint16_t team);
 static bool Ai_AreThereParticles();
 static bool Ai_AreThereMovingUnits();
 
-int Ai_GetNormalRateBuildCost(ResourceID unit_type, unsigned short team) {
-    int turns = BuildMenu_GetTurnsToBuild(unit_type, team);
-    int result;
+int32_t Ai_GetNormalRateBuildCost(ResourceID unit_type, uint16_t team) {
+    int32_t turns = BuildMenu_GetTurnsToBuild(unit_type, team);
+    int32_t result;
 
     if (UnitsManager_BaseUnits[unit_type].flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
         result = turns * Cargo_GetRawConsumptionRate(LANDPLT, 1);
@@ -55,8 +55,8 @@ int Ai_GetNormalRateBuildCost(ResourceID unit_type, unsigned short team) {
 }
 
 bool Ai_IsValidStartingPosition(Rect* bounds) {
-    for (int x = bounds->ulx; x <= bounds->lrx; ++x) {
-        for (int y = bounds->uly; y <= bounds->lry; ++y) {
+    for (int32_t x = bounds->ulx; x <= bounds->lrx; ++x) {
+        for (int32_t y = bounds->uly; y <= bounds->lry; ++y) {
             if (Access_GetModifiedSurfaceType(x, y) != SURFACE_TYPE_LAND) {
                 return false;
             }
@@ -66,14 +66,14 @@ bool Ai_IsValidStartingPosition(Rect* bounds) {
     return true;
 }
 
-bool Ai_IsSafeStartingPosition(int grid_x, int grid_y, unsigned short team) {
+bool Ai_IsSafeStartingPosition(int32_t grid_x, int32_t grid_y, uint16_t team) {
     Rect bounds;
     Point point;
 
     rect_init(&bounds, grid_x - 2, grid_y - 2, grid_x + 2, grid_y + 2);
 
     if (Ai_IsValidStartingPosition(&bounds)) {
-        for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
+        for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
             if (team != i && UnitsManager_TeamMissionSupplies[i].units.GetCount()) {
                 point.x = grid_x - UnitsManager_TeamMissionSupplies[i].starting_position.x;
                 point.y = grid_y - UnitsManager_TeamMissionSupplies[i].starting_position.y;
@@ -91,9 +91,9 @@ bool Ai_IsSafeStartingPosition(int grid_x, int grid_y, unsigned short team) {
     }
 }
 
-void Ai_SelectStartingPosition(unsigned short team) {
-    int grid_x;
-    int grid_y;
+void Ai_SelectStartingPosition(uint16_t team) {
+    int32_t grid_x;
+    int32_t grid_y;
 
     do {
         grid_x = (((ResourceManager_MapSize.x - 6) * dos_rand()) >> 15) + 3;
@@ -104,39 +104,39 @@ void Ai_SelectStartingPosition(unsigned short team) {
     UnitsManager_TeamMissionSupplies[team].starting_position.y = grid_y;
 }
 
-bool Ai_SetupStrategy(unsigned short team) {
+bool Ai_SetupStrategy(uint16_t team) {
     ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), "Computer");
 
     return AiPlayer_Teams[team].SelectStrategy();
 }
 
-void Ai_SetInfoMapPoint(Point point, unsigned short team) {
+void Ai_SetInfoMapPoint(Point point, uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
         AiPlayer_Teams[team].SetInfoMapPoint(point);
     }
 }
 
-void Ai_MarkMineMapPoint(Point point, unsigned short team) {
+void Ai_MarkMineMapPoint(Point point, uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
         AiPlayer_Teams[team].MarkMineMapPoint(point);
     }
 }
 
-void Ai_UpdateMineMap(Point point, unsigned short team) {
+void Ai_UpdateMineMap(Point point, uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
         AiPlayer_Teams[team].UpdateMineMap(point);
     }
 }
 
 void Ai_SetTasksPendingFlag(const char* event) {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].ChangeTasksPendingFlag(true);
         }
     }
 }
 
-void Ai_BeginTurn(unsigned short team) {
+void Ai_BeginTurn(uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
         AiPlayer_Teams[team].BeginTurn();
     }
@@ -146,7 +146,7 @@ void Ai_Init() {
     TaskManager.Clear();
     AiPlayer_TerrainMap.Deinit();
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         AiPlayer_Teams[team].Init(team);
     }
 }
@@ -154,7 +154,7 @@ void Ai_Init() {
 void Ai_FileLoad(SmartFileReader& file) {
     Ai_Init();
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].FileLoad(file);
         }
@@ -162,7 +162,7 @@ void Ai_FileLoad(SmartFileReader& file) {
 }
 
 void Ai_FileSave(SmartFileWriter& file) {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].FileSave(file);
         }
@@ -177,13 +177,13 @@ void Ai_EnableAutoSurvey(UnitInfo* unit) {
     TaskManager.AppendTask(*task);
 }
 
-bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, bool is_for_attacking) {
+bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int32_t caution_level, bool is_for_attacking) {
     bool result;
 
     if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER && caution_level != CAUTION_LEVEL_NONE) {
-        short** damage_potential_map =
+        int16_t** damage_potential_map =
             AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, is_for_attacking);
-        int unit_hits = unit->hits;
+        int32_t unit_hits = unit->hits;
 
         if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
             unit_hits = 1;
@@ -237,7 +237,7 @@ void Ai_CheckEndTurn() {
 
     } else {
         if (GameManager_GameState == GAME_STATE_9_END_TURN || GameManager_GameState == GAME_STATE_8_IN_GAME) {
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
                     if (!UnitsManager_TeamInfo[team].finished_turn) {
                         if (AiPlayer_Teams[team].CheckEndTurn()) {
@@ -260,13 +260,13 @@ void Ai_CheckEndTurn() {
 }
 
 void Ai_ClearTasksPendingFlags() {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         AiPlayer_Teams[team].ChangeTasksPendingFlag(false);
     }
 }
 
-int Ai_DetermineCautionLevel(UnitInfo* unit) {
-    int result;
+int32_t Ai_DetermineCautionLevel(UnitInfo* unit) {
+    int32_t result;
 
     if (unit->GetField221() & 1) {
         result = CAUTION_LEVEL_NONE;
@@ -286,7 +286,7 @@ void Ai_RemoveUnit(UnitInfo* unit) {
 
     if (unit->flags & STATIONARY) {
         Rect bounds;
-        int surface_type;
+        int32_t surface_type;
 
         unit->GetBounds(&bounds);
 
@@ -318,7 +318,7 @@ void Ai_RemoveUnit(UnitInfo* unit) {
         }
     }
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].RemoveUnit(unit);
         }
@@ -327,7 +327,7 @@ void Ai_RemoveUnit(UnitInfo* unit) {
     TaskManager.RemoveDestroyedUnit(unit);
 }
 
-void Ai_UnitSpotted(UnitInfo* unit, unsigned short team) {
+void Ai_UnitSpotted(UnitInfo* unit, uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER && (unit->flags & SELECTABLE)) {
         AiPlayer_Teams[team].UnitSpotted(unit);
     }
@@ -348,7 +348,7 @@ void Ai_EvaluateAttackTargets(UnitInfo* unit) { TaskManager.EnumeratePotentialAt
 void Ai_CheckComputerReactions() { TaskManager.CheckComputerReactions(); }
 
 void Ai_CheckMines(UnitInfo* unit) {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (unit->team != team && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER &&
             unit->IsVisibleToTeam(team)) {
             AiPlayer_Teams[team].FindMines(unit);

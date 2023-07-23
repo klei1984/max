@@ -24,6 +24,7 @@
 
 #include <SDL.h>
 #include <SDL_surface.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,22 +32,21 @@ extern "C" {
 
 #include "rect.h"
 
-typedef void (*ScreenBlitFunc)(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX,
-                               unsigned int subY, unsigned int subW, unsigned int subH, unsigned int dstX,
-                               unsigned int dstY);
+typedef void (*ScreenBlitFunc)(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY,
+                               uint32_t subW, uint32_t subH, uint32_t dstX, uint32_t dstY);
 
 extern Rect scr_size;
 extern ScreenBlitFunc scr_blit;
 
-int Svga_Init(void);
+int32_t Svga_Init(void);
 void Svga_Deinit(void);
-void Svga_Blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX, unsigned int subY,
-               unsigned int subW, unsigned int subH, unsigned int dstX, unsigned int dstY);
-int Svga_WarpMouse(int window_x, int window_y);
-void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char b);
-int Svga_GetScreenWidth(void);
-int Svga_GetScreenHeight(void);
-int Svga_GetScreenRefreshRate(void);
+void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+               uint32_t subH, uint32_t dstX, uint32_t dstY);
+int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y);
+void Svga_SetPaletteColor(int32_t i, uint8_t r, uint8_t g, uint8_t b);
+int32_t Svga_GetScreenWidth(void);
+int32_t Svga_GetScreenHeight(void);
+int32_t Svga_GetScreenRefreshRate(void);
 
 #ifdef __cplusplus
 }

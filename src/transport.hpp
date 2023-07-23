@@ -40,15 +40,15 @@ class Transport {
 public:
     virtual ~Transport(){};
     virtual const char* GetError() const = 0;
-    virtual bool Init(int mode) = 0;
+    virtual bool Init(int32_t mode) = 0;
     virtual bool Deinit() = 0;
     virtual bool Connect() = 0;
     virtual bool Disconnect() = 0;
     virtual bool TransmitPacket(NetPacket& packet) = 0;
     virtual bool ReceivePacket(NetPacket& packet) = 0;
-    virtual void SetSessionId(unsigned short session_id) = 0;
+    virtual void SetSessionId(uint16_t session_id) = 0;
 };
 
-Transport* Transport_Create(int type);
+Transport* Transport_Create(int32_t type);
 
 #endif /* TRANSPORT_HPP */

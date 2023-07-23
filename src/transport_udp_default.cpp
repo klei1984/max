@@ -41,7 +41,7 @@ TransportUdpDefault::TransportUdpDefault()
       socket(nullptr),
       channel(-1),
       UdpPacket(nullptr) {
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         channels[i] = -1;
     }
 
@@ -131,7 +131,7 @@ bool TransportUdpDefault::SetupClient() {
     return result;
 }
 
-bool TransportUdpDefault::Init(int mode) {
+bool TransportUdpDefault::Init(int32_t mode) {
     bool result;
 
     if (SDLNet_Init() == -1) {
@@ -181,7 +181,7 @@ bool TransportUdpDefault::Connect() { return false; }
 
 bool TransportUdpDefault::Disconnect() { return false; }
 
-void TransportUdpDefault::SetSessionId(unsigned short session_id) { SessionId = session_id; }
+void TransportUdpDefault::SetSessionId(uint16_t session_id) { SessionId = session_id; }
 
 void TransportUdpDefault::SetError(const char* error) { LastError = error; }
 
@@ -219,7 +219,7 @@ bool TransportUdpDefault::TransmitPacket(NetPacket& packet) {
     udp_packet.len = packet.GetDataSize();
     udp_packet.maxlen = packet.GetDataSize();
 
-    for (int i = 0; i < packet.GetAddressCount(); ++i) {
+    for (int32_t i = 0; i < packet.GetAddressCount(); ++i) {
         udp_packet.address.host = packet.GetAddress(i).host;
         udp_packet.address.port = packet.GetAddress(i).port;
 
@@ -233,7 +233,7 @@ bool TransportUdpDefault::TransmitPacket(NetPacket& packet) {
 }
 
 bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
-    int state;
+    int32_t state;
     bool result;
 
     state = SDLNet_UDP_Recv(socket, UdpPacket);

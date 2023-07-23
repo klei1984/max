@@ -35,7 +35,7 @@
 #include "units_manager.hpp"
 #include "weighttable.hpp"
 
-TaskAttackReserve::TaskAttackReserve(unsigned short team, Point site_) : Task(team, nullptr, 0x2600) {
+TaskAttackReserve::TaskAttackReserve(uint16_t team, Point site_) : Task(team, nullptr, 0x2600) {
     site = site_;
     total_worth = 0;
 }
@@ -95,14 +95,14 @@ char* TaskAttackReserve::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskAttackReserve::GetType() const { return TaskType_TaskAttackReserve; }
+uint8_t TaskAttackReserve::GetType() const { return TaskType_TaskAttackReserve; }
 
 void TaskAttackReserve::AddUnit(UnitInfo& unit) {
     if (unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
         if (unit.speed > 0) {
             SmartPointer<Task> best_task;
-            int distance;
-            int minimum_distance{INT32_MAX};
+            int32_t distance;
+            int32_t minimum_distance{INT32_MAX};
 
             units.PushBack(unit);
             unit.AddTask(this);
@@ -139,10 +139,10 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
         if (unit.unit_type == LANDPLT || unit.unit_type == LIGHTPLT || unit.unit_type == AIRPLT ||
             unit.unit_type == SHIPYARD || unit.unit_type == TRAINHAL) {
             if (unit.GetComplex()->material > 10 && unit.GetComplex()->fuel > 10) {
-                int turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
+                int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
                 WeightTable table = AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 3);
 
-                for (int i = 0; i < table.GetCount(); ++i) {
+                for (int32_t i = 0; i < table.GetCount(); ++i) {
                     if (Builder_GetBuilderType(table[i].unit_type) != unit.unit_type ||
                         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
                                 ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end) {
@@ -169,7 +169,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 WeightTable table;
                 bool builders_needed = false;
                 ResourceID unit_type;
-                unsigned short unit_types[UNIT_END];
+                uint16_t unit_types[UNIT_END];
 
                 memset(unit_types, 0, sizeof(unit_types));
 
@@ -186,7 +186,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 
                 table += AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 2);
 
-                for (int i = 0; i < table.GetCount(); ++i) {
+                for (int32_t i = 0; i < table.GetCount(); ++i) {
                     if (table[i].unit_type == INVALID_ID) {
                         table[i].weight = 0;
 

@@ -26,23 +26,23 @@
 AccessMap::AccessMap() {
     size = ResourceManager_MapSize.x;
 
-    map = new (std::nothrow) unsigned char*[ResourceManager_MapSize.x];
+    map = new (std::nothrow) uint8_t*[ResourceManager_MapSize.x];
 
-    for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-        map[i] = new (std::nothrow) unsigned char[ResourceManager_MapSize.y];
+    for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+        map[i] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
 
         memset(map[i], 0, ResourceManager_MapSize.y);
     }
 }
 
 AccessMap::~AccessMap() {
-    for (int i = 0; i < size; ++i) {
+    for (int32_t i = 0; i < size; ++i) {
         delete[] map[i];
     }
 
     delete[] map;
 }
 
-unsigned char** AccessMap::GetMap() const { return map; }
+uint8_t** AccessMap::GetMap() const { return map; }
 
-unsigned char* AccessMap::GetMapColumn(int index) const { return map[index]; }
+uint8_t* AccessMap::GetMapColumn(int32_t index) const { return map[index]; }

@@ -24,7 +24,7 @@
 #include "aiplayer.hpp"
 #include "taskfindpath.hpp"
 
-TaskPathRequest::TaskPathRequest(UnitInfo* unit, int mode, Point point) : PathRequest(unit, mode, point), field_30(0) {}
+TaskPathRequest::TaskPathRequest(UnitInfo* unit, int32_t mode, Point point) : PathRequest(unit, mode, point), field_30(0) {}
 
 TaskPathRequest::~TaskPathRequest() {}
 

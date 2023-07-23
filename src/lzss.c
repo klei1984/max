@@ -23,4 +23,4 @@
 
 #include <SDL.h>
 
-void lzss_decode_to_buf(FILE *fp, char *buffer, int comp_size) { SDL_assert(0 /** \todo implement unused code */); }
+void lzss_decode_to_buf(FILE *fp, char *buffer, int32_t comp_size) { SDL_assert(0 /** \todo implement unused code */); }

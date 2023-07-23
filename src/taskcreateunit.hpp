@@ -26,7 +26,7 @@
 
 class TaskCreateUnit : public TaskCreate {
     Point site;
-    unsigned char op_state;
+    uint8_t op_state;
 
     void WaitForMaterials();
     bool IsUnitStillNeeded();
@@ -36,9 +36,9 @@ public:
     TaskCreateUnit(UnitInfo* unit, Task* task);
     ~TaskCreateUnit();
 
-    unsigned short GetFlags() const;
+    uint16_t GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
 
     void AddUnit(UnitInfo& unit);
     void Begin();

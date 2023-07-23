@@ -26,8 +26,8 @@
 #include "units_manager.hpp"
 
 PurchaseTypeSelector::PurchaseTypeSelector(Window *window, WindowInfo *window_info,
-                                           SmartObjectArray<ResourceID> unit_types, unsigned short team, int key_code,
-                                           Button *button_scroll_up, Button *button_scroll_down, int ulx, int width)
+                                           SmartObjectArray<ResourceID> unit_types, uint16_t team, int32_t key_code,
+                                           Button *button_scroll_up, Button *button_scroll_down, int32_t ulx, int32_t width)
     : UnitTypeSelector(window, window_info, unit_types, team, key_code, button_scroll_up, button_scroll_down) {
     image = new (std::nothrow) Image(ulx, 0, width, max_item_count * 32);
     image->Copy(window_info);
@@ -36,8 +36,8 @@ PurchaseTypeSelector::PurchaseTypeSelector(Window *window, WindowInfo *window_in
 PurchaseTypeSelector::~PurchaseTypeSelector() { delete image; }
 
 void PurchaseTypeSelector::Draw() {
-    int turns;
-    int cost;
+    int32_t turns;
+    int32_t cost;
     Rect bounds;
 
     UnitTypeSelector::Draw();
@@ -46,7 +46,7 @@ void PurchaseTypeSelector::Draw() {
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    for (int i = 0; i < max_item_count && i < unit_types->GetCount(); ++i) {
+    for (int32_t i = 0; i < max_item_count && i < unit_types->GetCount(); ++i) {
         turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *unit_types[page_min_index + i])
                     ->GetAttribute(ATTRIB_TURNS);
 

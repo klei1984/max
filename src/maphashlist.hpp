@@ -29,12 +29,12 @@
 class MapHashList : public SmartObject {
     SmartPointer<UnitInfo> unit;
     SmartPointer<Task> task;
-    unsigned short team;
+    uint16_t team;
     Point point;
     bool visible;
 
 public:
-    MapHashList(UnitInfo& unit, unsigned short team);
+    MapHashList(UnitInfo& unit, uint16_t team);
     MapHashList(SmartFileReader& file);
     virtual ~MapHashList();
 
@@ -43,8 +43,8 @@ public:
     void SetTask(Task* task);
     Point GetPosition();
     void SetPosition(Point point);
-    short GetPositionX();
-    short GetPositionY();
+    int16_t GetPositionX();
+    int16_t GetPositionY();
     void UpdatePosition();
     void UpdateVisibility();
 };

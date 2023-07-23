@@ -22,6 +22,8 @@
 #ifndef KB_H
 #define KB_H
 
+#include <stdint.h>
+
 #include "kb_code.h"
 #include "timer.h"
 
@@ -33,13 +35,13 @@ void GNW_kb_set(void);
 void GNW_kb_restore(void);
 void kb_wait(void);
 void kb_clear(void);
-int kb_getch(void);
+int32_t kb_getch(void);
 void kb_disable(void);
 void kb_enable(void);
-int kb_is_disabled(void);
+int32_t kb_is_disabled(void);
 void kb_set_layout(kb_layout_t layout);
 kb_layout_t kb_get_layout(void);
-int kb_ascii_to_scan(int ascii);
-void kb_simulate_key(unsigned short scan_code);
+int32_t kb_ascii_to_scan(int32_t ascii);
+void kb_simulate_key(uint16_t scan_code);
 
 #endif /* KB_H */

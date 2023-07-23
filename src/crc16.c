@@ -21,9 +21,9 @@
 
 #include "crc16.h"
 
-void crc16(unsigned short *crc, unsigned char c) {
-    int i;
-    int carry;
+void crc16(uint16_t *crc, uint8_t c) {
+    int32_t i;
+    int32_t carry;
 
     for (i = 0; i < 8; i++) {
         carry = *crc & 0x8000;

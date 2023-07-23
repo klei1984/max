@@ -29,16 +29,16 @@ class TaskMoveHome : public Task {
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
-    void PopulateTeamZones(unsigned char** map);
-    void PopulateDefenses(unsigned char** map, ResourceID unit_type);
-    void PopulateOccupiedSites(unsigned char** map, SmartList<UnitInfo>* units);
+    void PopulateTeamZones(uint8_t** map);
+    void PopulateDefenses(uint8_t** map, ResourceID unit_type);
+    void PopulateOccupiedSites(uint8_t** map, SmartList<UnitInfo>* units);
 
 public:
     TaskMoveHome(UnitInfo* unit, Task* task);
     ~TaskMoveHome();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void Begin();
     void EndTurn();
     bool Execute(UnitInfo& unit);

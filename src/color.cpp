@@ -21,10 +21,10 @@
 
 #include "color.hpp"
 
-int Color_GetColorDistance(Color* color1, Color* color2) {
-    int diff_r;
-    int diff_g;
-    int diff_b;
+int32_t Color_GetColorDistance(Color* color1, Color* color2) {
+    int32_t diff_r;
+    int32_t diff_g;
+    int32_t diff_b;
     diff_r = color1[0] - color2[0];
     diff_g = color1[1] - color2[1];
     diff_b = color1[2] - color2[2];
@@ -32,20 +32,20 @@ int Color_GetColorDistance(Color* color1, Color* color2) {
     return diff_r * diff_r + diff_g * diff_g + diff_b * diff_b;
 }
 
-void Color_ChangeColorTemperature(int factor_r, int factor_g, int factor_b, int multiplier_factor1,
-                                  int multiplier_factor2, unsigned char* color_map) {
-    int multiplier_factor_sum;
+void Color_ChangeColorTemperature(int32_t factor_r, int32_t factor_g, int32_t factor_b, int32_t multiplier_factor1,
+                                  int32_t multiplier_factor2, uint8_t* color_map) {
+    int32_t multiplier_factor_sum;
     Color* palette;
-    int index;
+    int32_t index;
     Color color[3];
-    int distance1;
-    int distance2;
+    int32_t distance1;
+    int32_t distance2;
 
     palette = getSystemPalette();
 
     multiplier_factor_sum = multiplier_factor1 + multiplier_factor2;
 
-    for (int i = 0; i < PALETTE_SIZE; ++i) {
+    for (int32_t i = 0; i < PALETTE_SIZE; ++i) {
         index = i;
 
         color[0] = (palette[i * 3 + 0] * multiplier_factor2 + factor_r * multiplier_factor1) / multiplier_factor_sum;
@@ -54,7 +54,7 @@ void Color_ChangeColorTemperature(int factor_r, int factor_g, int factor_b, int 
 
         distance1 = Color_GetColorDistance(&palette[index * 3], color);
 
-        for (int j = 0; j < PALETTE_SIZE && distance1 > 0; ++j) {
+        for (int32_t j = 0; j < PALETTE_SIZE && distance1 > 0; ++j) {
             distance2 = Color_GetColorDistance(&palette[j * 3], color);
 
             if (distance2 < distance1) {
@@ -67,9 +67,9 @@ void Color_ChangeColorTemperature(int factor_r, int factor_g, int factor_b, int 
     }
 }
 
-void Color_RecolorPixels(unsigned char* buffer, int width, int width_text, int height_text, unsigned char* color_map) {
-    for (int i = 0; i < height_text; ++i) {
-        for (int j = 0; j < width_text; ++j) {
+void Color_RecolorPixels(uint8_t* buffer, int32_t width, int32_t width_text, int32_t height_text, uint8_t* color_map) {
+    for (int32_t i = 0; i < height_text; ++i) {
+        for (int32_t j = 0; j < width_text; ++j) {
             buffer[i * width + j] = color_map[buffer[i * width + j]];
         }
     }

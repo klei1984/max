@@ -32,7 +32,7 @@ struct ChoosePlayerMenuControlItem {
     Rect bounds;
     ResourceID image_id;
     const char* label;
-    int event_code;
+    int32_t event_code;
     void (ChoosePlayerMenu::*event_handler)();
     ResourceID sfx;
 };
@@ -71,8 +71,8 @@ static struct ChoosePlayerMenuControlItem choose_player_menu_controls[] = {
 static_assert(CHOOSE_PLAYER_MENU_ITEM_COUNT ==
               sizeof(choose_player_menu_controls) / sizeof(ChoosePlayerMenuControlItem));
 
-void ChoosePlayerMenu::ButtonSetState(int team, int rest_state) {
-    int team_player_ini_setting;
+void ChoosePlayerMenu::ButtonSetState(int32_t team, int32_t rest_state) {
+    int32_t team_player_ini_setting;
 
     team_player_ini_setting = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team)) - 1;
 
@@ -84,8 +84,8 @@ void ChoosePlayerMenu::ButtonSetState(int team, int rest_state) {
 }
 
 void ChoosePlayerMenu::Init() {
-    const int team_count = 4;
-    const int num_buttons = 3;
+    const int32_t team_count = 4;
+    const int32_t num_buttons = 3;
     ButtonID button_list[num_buttons];
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
@@ -95,7 +95,7 @@ void ChoosePlayerMenu::Init() {
     mouse_hide();
     WindowManager_LoadBigImage(CHOSPLYR, window, window->width, false, false, -1, -1, true);
 
-    for (int i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
 
         ButtonInit(i, i < 12);
@@ -103,8 +103,8 @@ void ChoosePlayerMenu::Init() {
 
     UpdateButtons();
 
-    for (int i = 0; i < team_count; ++i) {
-        for (int j = 0; j < num_buttons; ++j) {
+    for (int32_t i = 0; i < team_count; ++i) {
+        for (int32_t j = 0; j < num_buttons; ++j) {
             button_list[j] = buttons[j * team_count + i]->GetId();
         }
 
@@ -116,14 +116,14 @@ void ChoosePlayerMenu::Init() {
 }
 
 void ChoosePlayerMenu::Deinit() {
-    for (int i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
     }
 }
 
 void ChoosePlayerMenu::EventSelectHuman() {
     if (game_type) {
-        for (int i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
+        for (int32_t i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
             if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i)) == TEAM_TYPE_PLAYER) {
                 ButtonSetState(i, 0);
                 ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i),
@@ -160,7 +160,7 @@ void ChoosePlayerMenu::EventHelp() {
     HelpMenu_Menu(game_type == 0 ? HELPMENU_HOT_SEAT_SETUP : HELPMENU_NEW_GAME_SETUP, WINDOW_MAIN_WINDOW);
 }
 
-void ChoosePlayerMenu::ButtonInit(int index, int mode) {
+void ChoosePlayerMenu::ButtonInit(int32_t index, int32_t mode) {
     ChoosePlayerMenuControlItem* control;
 
     control = &choose_player_menu_controls[index];
@@ -224,7 +224,7 @@ void ChoosePlayerMenu::ButtonInit(int index, int mode) {
 void ChoosePlayerMenu::UpdateButtons() {
     char buffer[100];
 
-    for (int i = 12; i < 16; ++i) {
+    for (int32_t i = 12; i < 16; ++i) {
         delete buttons[i];
 
         ButtonInit(i, false);
@@ -240,11 +240,11 @@ void ChoosePlayerMenu::UpdateButtons() {
 
     choose_player_menu_titles[0].title = buffer;
 
-    for (int i = 0; i < 6; ++i) {
+    for (int32_t i = 0; i < 6; ++i) {
         menu_draw_menu_title(window, &choose_player_menu_titles[i], COLOR_GREEN, true);
     }
 
-    for (int i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
         buttons[i]->Enable();
 
         if (i >= 12 && i < 16 &&
@@ -258,14 +258,14 @@ void ChoosePlayerMenu::UpdateButtons() {
 }
 
 void ChoosePlayerMenu::EventDone() {
-    int human_player_count;
-    int computer_player_count;
+    int32_t human_player_count;
+    int32_t computer_player_count;
 
     human_player_count = 0;
     computer_player_count = 0;
 
-    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
-        int team_type;
+    for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
+        int32_t team_type;
 
         team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
 

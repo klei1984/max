@@ -32,11 +32,11 @@ class AbstractUpgradeMenu : public Window {
 protected:
     WindowInfo window1;
     WindowInfo window2;
-    unsigned short team;
-    unsigned short start_gold;
-    unsigned short team_gold;
-    unsigned short upgrade_control_count;
-    unsigned short upgrade_control_next_uly;
+    uint16_t team;
+    uint16_t start_gold;
+    uint16_t team_gold;
+    uint16_t upgrade_control_count;
+    uint16_t upgrade_control_next_uly;
     ResourceID interface_icon_full;
     ResourceID interface_icon_empty;
     ResourceID unit_type;
@@ -55,10 +55,10 @@ protected:
     Button *button_combat;
     Button *button_description;
     UpgradeControl *upgrade_controls[UPGRADE_CONTROL_COUNT];
-    unsigned char event_click_done;
-    unsigned char event_click_cancel;
-    unsigned char buy_upgrade_toggle_state;
-    unsigned char event_release;
+    uint8_t event_click_done;
+    uint8_t event_click_cancel;
+    uint8_t buy_upgrade_toggle_state;
+    uint8_t event_release;
     Image *stats_background;
     Image *cost_background;
     Image *gold_background;
@@ -71,7 +71,7 @@ protected:
     static bool button_combat_rest_state;
     static bool button_description_rest_state;
 
-    void AddUpgrade(int id, int value1, int value2, unsigned short *attribute, int value);
+    void AddUpgrade(int32_t id, int32_t value1, int32_t value2, uint16_t *attribute, int32_t value);
     void AddUpgradeMilitary(ResourceID unit_type);
     void AdjustRowStorage(ResourceID unit_type);
     void AdjustRowConsumptions(ResourceID unit_type);
@@ -84,7 +84,7 @@ protected:
     void Init();
 
 public:
-    AbstractUpgradeMenu(unsigned short team, ResourceID bg_image);
+    AbstractUpgradeMenu(uint16_t team, ResourceID bg_image);
     virtual ~AbstractUpgradeMenu();
 
     bool EventHandler(Event *event);
@@ -94,7 +94,7 @@ public:
     virtual void PopulateTeamUnitsList();
     virtual void DrawUnitStats(ResourceID unit_type);
     virtual void AbstractUpgradeMenu_vfunc7();
-    virtual bool ProcessKey(int key);
+    virtual bool ProcessKey(int32_t key);
 
     bool Run();
 };

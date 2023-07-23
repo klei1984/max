@@ -33,7 +33,7 @@
 #include "tasktransport.hpp"
 #include "units_manager.hpp"
 
-TaskAttack::TaskAttack(SpottedUnit* spotted_unit, unsigned short task_flags)
+TaskAttack::TaskAttack(SpottedUnit* spotted_unit, uint16_t task_flags)
     : Task(spotted_unit->GetTeam(), nullptr, task_flags) {
     op_state = ATTACK_STATE_INIT;
     attack_zone_reached = false;
@@ -50,8 +50,8 @@ TaskAttack::~TaskAttack() {}
 
 bool TaskAttack::IsUnitUsable(UnitInfo& unit) { return !recon_unit && IsReconUnitUsable(&unit); }
 
-int TaskAttack::GetCautionLevel(UnitInfo& unit) {
-    int result;
+int32_t TaskAttack::GetCautionLevel(UnitInfo& unit) {
+    int32_t result;
 
     if (unit.GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
         ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
@@ -74,8 +74,8 @@ int TaskAttack::GetCautionLevel(UnitInfo& unit) {
     return result;
 }
 
-unsigned short TaskAttack::GetFlags() const {
-    unsigned short result;
+uint16_t TaskAttack::GetFlags() const {
+    uint16_t result;
 
     if (secondary_targets.GetCount()) {
         result = secondary_targets[0].GetFlags();
@@ -177,12 +177,12 @@ Rect* TaskAttack::GetBounds(Rect* bounds) {
     return bounds;
 }
 
-unsigned char TaskAttack::GetType() const { return TaskType_TaskAttack; }
+uint8_t TaskAttack::GetType() const { return TaskType_TaskAttack; }
 
 bool TaskAttack::IsNeeded() { return primary_targets.GetCount() > 0; }
 
 void TaskAttack::AddUnit(UnitInfo& unit) {
-    int unit_index = managed_unit_types->Find(&unit.unit_type);
+    int32_t unit_index = managed_unit_types->Find(&unit.unit_type);
 
     if (unit_index >= 0) {
         managed_unit_types.Remove(unit_index);
@@ -410,10 +410,10 @@ void TaskAttack::RemoveUnit(UnitInfo& unit) {
     }
 }
 
-unsigned int TaskAttack::GetAccessFlags() const { return access_flags; }
+uint32_t TaskAttack::GetAccessFlags() const { return access_flags; }
 
-int TaskAttack::GetHighestScan() {
-    int unit_scan = 0;
+int32_t TaskAttack::GetHighestScan() {
+    int32_t unit_scan = 0;
 
     if (recon_unit) {
         unit_scan = recon_unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
@@ -421,7 +421,7 @@ int TaskAttack::GetHighestScan() {
 
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
         for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
-            int scan = (*it2).GetBaseValues()->GetAttribute(ATTRIB_SCAN);
+            int32_t scan = (*it2).GetBaseValues()->GetAttribute(ATTRIB_SCAN);
 
             if (scan > unit_scan) {
                 unit_scan = scan;
@@ -433,7 +433,7 @@ int TaskAttack::GetHighestScan() {
 }
 
 bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
-    int caution_level;
+    int32_t caution_level;
     bool result;
 
     AiLog log("Task Attack: move combat unit.");
@@ -453,9 +453,9 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
             if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
                 Point site;
                 Point position = kill_unit_task->DeterminePosition();
-                int unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) +
+                int32_t unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) +
                                  unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED);
-                int projected_damage;
+                int32_t projected_damage;
 
                 if (Access_GetDistance(unit, position) <= unit_range * unit_range) {
                     unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
@@ -566,8 +566,8 @@ UnitInfo* TaskAttack::DetermineLeader() {
     } else {
         Point position;
         SmartPointer<UnitInfo> candidate(leader);
-        int distance;
-        int minimum_distance{INT32_MAX};
+        int32_t distance;
+        int32_t minimum_distance{INT32_MAX};
 
         attack_zone_reached = false;
 
@@ -636,18 +636,18 @@ bool TaskAttack::EvaluateLandAttack() {
 
     AiLog log("Task Attack: Deciding if land attack is possible.");
 
-    for (int i = 0; !unit && i < primary_targets.GetCount(); ++i) {
+    for (int32_t i = 0; !unit && i < primary_targets.GetCount(); ++i) {
         unit = primary_targets[i].GetUnitSpotted();
     }
 
     if (unit) {
         WeightTable weight_table;
         bool sea_unit_present = false;
-        unsigned short task_flags = GetFlags();
+        uint16_t task_flags = GetFlags();
 
         weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(unit, 0x03);
 
-        for (int i = 0; !unit && i < weight_table.GetCount(); ++i) {
+        for (int32_t i = 0; !unit && i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0 &&
                 !(UnitsManager_BaseUnits[weight_table[i].unit_type].flags & MOBILE_LAND_UNIT) &&
                 (UnitsManager_BaseUnits[weight_table[i].unit_type].flags & MOBILE_SEA_UNIT)) {
@@ -660,13 +660,13 @@ bool TaskAttack::EvaluateLandAttack() {
             bool stationary_unit_present = false;
             Point position;
             Rect bounds;
-            int worth_of_land_units;
-            int worth_of_sea_units;
+            int32_t worth_of_land_units;
+            int32_t worth_of_sea_units;
 
             rect_init(&bounds, 0, 0, 0, 0);
 
-            for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-                for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+            for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                     if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * y + x] == SURFACE_TYPE_LAND) {
                         access_map.GetMapColumn(x)[y] = 2;
                     }
@@ -794,7 +794,7 @@ void TaskAttack::Finish() {
     TaskManager.RemoveTask(*this);
 }
 
-bool TaskAttack::RequestReconUnit(ResourceID unit_type, int safe_distance) {
+bool TaskAttack::RequestReconUnit(ResourceID unit_type, int32_t safe_distance) {
     bool result;
 
     if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_SCAN) >=
@@ -832,14 +832,14 @@ bool TaskAttack::RequestReconUnit(ResourceID unit_type, int safe_distance) {
     return result;
 }
 
-bool TaskAttack::FindReconUnit(ResourceID unit_type, int safe_distance) {
+bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
     bool result;
 
     if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_SCAN) >=
         safe_distance) {
         SmartList<UnitInfo>* units{nullptr};
         UnitInfo* new_recon_unit{nullptr};
-        unsigned short task_flags = GetFlags();
+        uint16_t task_flags = GetFlags();
 
         if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_AIR_UNIT) {
             units = &UnitsManager_MobileAirUnits;
@@ -888,8 +888,8 @@ bool TaskAttack::IsReconUnitUsable(UnitInfo* unit) {
 
     if (unit->unit_type == AWAC || unit->unit_type == SCOUT || unit->unit_type == SCANNER ||
         unit->unit_type == FASTBOAT) {
-        int safe_distance_ground;
-        int safe_distance_air;
+        int32_t safe_distance_ground;
+        int32_t safe_distance_air;
 
         GetSafeDistances(&safe_distance_air, &safe_distance_ground);
 
@@ -911,7 +911,7 @@ bool TaskAttack::IsWithinAttackRange(UnitInfo* unit, Point unit_position) {
     bool result;
 
     if (unit && unit->ammo > 0) {
-        int distance = unit->GetAttackRange() - 3;
+        int32_t distance = unit->GetAttackRange() - 3;
 
         distance = distance * distance;
 
@@ -924,15 +924,15 @@ bool TaskAttack::IsWithinAttackRange(UnitInfo* unit, Point unit_position) {
     return result;
 }
 
-void TaskAttack::GetSafeDistances(int* safe_distance_air, int* safe_distance_ground) {
+void TaskAttack::GetSafeDistances(int32_t* safe_distance_air, int32_t* safe_distance_ground) {
     *safe_distance_air = 0;
     *safe_distance_ground = 0;
 
     if (kill_unit_task) {
         UnitInfo* unit = kill_unit_task->GetUnitSpotted();
         Point unit_position(unit->grid_x, unit->grid_y);
-        int safe_air_distance;
-        int safe_ground_distance;
+        int32_t safe_air_distance;
+        int32_t safe_ground_distance;
 
         for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
             unit = (*it).GetUnitSpotted();
@@ -971,7 +971,7 @@ void TaskAttack::GetSafeDistances(int* safe_distance_air, int* safe_distance_gro
         }
 
         if (safe_air_distance > 0 && safe_ground_distance > 0) {
-            int safe_distane = std::min(safe_air_distance, safe_ground_distance);
+            int32_t safe_distane = std::min(safe_air_distance, safe_ground_distance);
 
             *safe_distance_air -= safe_distane;
             *safe_distance_ground -= safe_distane;
@@ -981,8 +981,8 @@ void TaskAttack::GetSafeDistances(int* safe_distance_air, int* safe_distance_gro
 
 void TaskAttack::UpdateReconUnit() {
     if (kill_unit_task) {
-        int safe_air_distance;
-        int safe_ground_distance;
+        int32_t safe_air_distance;
+        int32_t safe_ground_distance;
 
         AiLog log("Task Attack: Update recon distances.");
 
@@ -1070,7 +1070,7 @@ bool TaskAttack::IsTargetGroupInSight() {
     bool result;
 
     if (secondary_targets.GetCount() > 0) {
-        unsigned short unit_team = secondary_targets[0].GetUnitSpotted()->team;
+        uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
 
         for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
             for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
@@ -1112,11 +1112,11 @@ bool TaskAttack::IsThereTimeToPrepare() {
     return result;
 }
 
-bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_level) {
+bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t caution_level) {
     Point target_position(unit->grid_x, unit->grid_y);
     Point position;
-    unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
-    short** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(unit, caution_level, false);
+    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+    int16_t** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(unit, caution_level, false);
     Rect bounds;
     ResourceID transporter = INVALID_ID;
     bool result;
@@ -1150,11 +1150,11 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_le
         if (secondary_targets.GetCount() > 0) {
             if (!Task_RetreatFromDanger(this, unit, caution_level)) {
                 if (secondary_targets[0].GetUnitSpotted()) {
-                    unsigned short unit_team = secondary_targets[0].GetUnitSpotted()->team;
+                    uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
                     char* heat_map;
-                    int minimum_distance;
-                    int unit_hits;
-                    int distance;
+                    int32_t minimum_distance;
+                    int32_t unit_hits;
+                    int32_t distance;
 
                     if (unit->unit_type == COMMANDO) {
                         heat_map = UnitsManager_TeamInfo[unit_team].heat_map_stealth_land;
@@ -1174,12 +1174,12 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_le
                         unit_hits = 1;
                     }
 
-                    for (int i = 1; i < minimum_distance; ++i) {
+                    for (int32_t i = 1; i < minimum_distance; ++i) {
                         position.x = site.x - i;
                         position.y = site.y + i;
 
-                        for (int direction = 0; direction < 8; direction += 2) {
-                            for (int range = 0; range < i * 2; ++range) {
+                        for (int32_t direction = 0; direction < 8; direction += 2) {
+                            for (int32_t range = 0; range < i * 2; ++range) {
                                 position += Paths_8DirPointsArray[direction];
 
                                 if (Access_IsInsideBounds(&bounds, &position) &&
@@ -1270,19 +1270,19 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int caution_le
     return result;
 }
 
-Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
+Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) {
     Point target_position(kill_unit_task->DeterminePosition());
     Point unit_position(unit->grid_x, unit->grid_y);
     Point best_site(unit_position);
     Point site;
     AccessMap map;
     bool is_there_time_to_prepare = IsThereTimeToPrepare();
-    int surface_type;
-    unsigned short unit_team = secondary_targets[0].GetUnitSpotted()->team;
+    int32_t surface_type;
+    uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
     char* heat_map;
     Rect bounds;
-    int distance;
-    int minimum_distance;
+    int32_t distance;
+    int32_t minimum_distance;
 
     AiLog log("Find destination that does not require transport.");
 
@@ -1337,12 +1337,12 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
 
     minimum_distance = TaskManager_GetDistance(best_site, target_position) / 2;
 
-    for (int i = 1; i < minimum_distance; ++i) {
+    for (int32_t i = 1; i < minimum_distance; ++i) {
         site.x = target_position.x - i;
         site.y = target_position.y + i;
 
-        for (int direction = 0; direction < 8; direction += 2) {
-            for (int range = 0; range < i * 2; ++range) {
+        for (int32_t direction = 0; direction < 8; direction += 2) {
+            for (int32_t range = 0; range < i * 2; ++range) {
                 site += Paths_8DirPointsArray[direction];
 
                 if (Access_IsInsideBounds(&bounds, &site) && map.GetMapColumn(site.x)[site.y] == 3) {
@@ -1367,7 +1367,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int caution_level) {
     return best_site;
 }
 
-bool TaskAttack::MoveReconUnit(int caution_level) {
+bool TaskAttack::MoveReconUnit(int32_t caution_level) {
     Point position = kill_unit_task->DeterminePosition();
     Point site;
     bool is_visible_to_team = kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team);
@@ -1438,8 +1438,8 @@ bool TaskAttack::MoveReconUnit(int caution_level) {
 }
 
 bool TaskAttack::IsAttackUnderControl() {
-    int projected_damage = 0;
-    int required_damage = 0;
+    int32_t projected_damage = 0;
+    int32_t required_damage = 0;
     Point unit_location;
     bool result;
 
@@ -1464,10 +1464,10 @@ bool TaskAttack::IsAttackUnderControl() {
                     result = true;
 
                 } else {
-                    int max_unit_worth = 0;
-                    int max_unit_scan = 0;
-                    int unit_worth;
-                    int unit_scan;
+                    int32_t max_unit_worth = 0;
+                    int32_t max_unit_scan = 0;
+                    int32_t unit_worth;
+                    int32_t unit_scan;
 
                     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin();
                          it != secondary_targets.End(); ++it) {
@@ -1500,7 +1500,7 @@ bool TaskAttack::IsAttackUnderControl() {
 
 bool TaskAttack::PlanMoveForReconUnit() {
     bool result;
-    int caution_level;
+    int32_t caution_level;
 
     AiLog log("Determine if moving recon unit is a good idea.");
 
@@ -1580,7 +1580,7 @@ bool TaskAttack::IsViableLeader(UnitInfo* unit) {
             if (kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
                 if (unit->unit_type == COMMANDO || unit->unit_type == SUBMARNE) {
                     UnitInfo* target = kill_unit_task->GetUnitSpotted();
-                    int unit_scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
+                    int32_t unit_scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
 
                     result = Access_GetDistance(unit, target) <= unit_scan * unit_scan;
 
@@ -1628,8 +1628,8 @@ Point TaskAttack::GetLeaderDestination() {
 
 void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
     AccessMap access_map;
-    unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
-    int caution_level = unit->ammo > 0 ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE;
+    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+    int32_t caution_level = unit->ammo > 0 ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE;
 
     PathsManager_InitAccessMap(unit, access_map.GetMap(), 0x01, caution_level);
 
@@ -1658,14 +1658,14 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
     Point destination = GetLeaderDestination();
     Point site(unit->grid_x, unit->grid_y);
     Point best_site(site);
-    int unit_angle = UnitsManager_GetTargetAngle(destination.x - site.x, destination.y - site.y);
-    int distance;
-    int minimum_distance = 50 * TaskManager_GetDistance(destination, best_site);
-    int direction1;
-    int direction2;
-    int limit;
+    int32_t unit_angle = UnitsManager_GetTargetAngle(destination.x - site.x, destination.y - site.y);
+    int32_t distance;
+    int32_t minimum_distance = 50 * TaskManager_GetDistance(destination, best_site);
+    int32_t direction1;
+    int32_t direction2;
+    int32_t limit;
 
-    for (int i = 1; i < minimum_distance / 100; ++i) {
+    for (int32_t i = 1; i < minimum_distance / 100; ++i) {
         direction1 = (unit_angle + 2) & 0x7;
         position.x = destination.x + Paths_8DirPointsArray[direction1].x * i;
         position.y = destination.y + Paths_8DirPointsArray[direction1].y * i;
@@ -1693,7 +1693,7 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
                 } break;
             }
 
-            for (int j = 0; j < limit; ++j) {
+            for (int32_t j = 0; j < limit; ++j) {
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                     position.y < ResourceManager_MapSize.y && access_map.GetMapColumn(position.x)[position.y] > 0 &&
                     (!info_map || !(info_map[position.x][position.y] & 8))) {
@@ -1742,7 +1742,7 @@ bool TaskAttack::MoveUnits() {
 bool TaskAttack::IsAnyTargetInRange() {
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
         for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
-            int unit_range = (*it2).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+            int32_t unit_range = (*it2).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
             unit_range = unit_range * unit_range;
 
@@ -1765,8 +1765,8 @@ bool TaskAttack::IsReconUnitAvailable() {
         result = true;
 
     } else {
-        int safe_distance_air = 0;
-        int safe_distance_ground = 0;
+        int32_t safe_distance_air = 0;
+        int32_t safe_distance_ground = 0;
         UnitValues* unit_values;
 
         GetSafeDistances(&safe_distance_air, &safe_distance_ground);
@@ -1795,8 +1795,8 @@ bool TaskAttack::IsReconUnitAvailable() {
 }
 
 void TaskAttack::EvaluateAttackReadiness() {
-    int required_damage = 0;
-    int projected_damage = 0;
+    int32_t required_damage = 0;
+    int32_t projected_damage = 0;
 
     AiLog log("Considering readiness of attack.");
 
@@ -1865,7 +1865,7 @@ void TaskAttack::EvaluateAttackReadiness() {
                  ++it) {
                 for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End();
                      ++it2) {
-                    int unit_range = (*it2).GetAttackRange();
+                    int32_t unit_range = (*it2).GetAttackRange();
 
                     if (Access_GetDistance(&*it2, position) <= unit_range * unit_range) {
                         log.Log("%s at [%i,%i] is in assault range, shifting to attack mode.",
@@ -1915,7 +1915,7 @@ bool TaskAttack::IsDefenderDangerous(SpottedUnit* spotted_unit) {
     bool result;
 
     if (target && target->ammo > 0) {
-        int unit_range = target->GetAttackRange() - 3;
+        int32_t unit_range = target->GetAttackRange() - 3;
         Point position = spotted_unit->GetLastPosition();
 
         unit_range = unit_range * unit_range;
@@ -1945,7 +1945,7 @@ void TaskAttack::RemoveTask(TaskKillUnit* task) {
 
 void TaskAttack::AssessEnemyUnits() {
     bool teams[PLAYER_TEAM_MAX];
-    unsigned short enemy_team;
+    uint16_t enemy_team;
     bool is_relevant;
 
     AiLog log("Assess which enemy units protect primary targets.");

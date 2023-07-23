@@ -38,7 +38,7 @@ public:
     bool Task_vfunc1(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
     void Begin();
     void EndTurn();

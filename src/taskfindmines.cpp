@@ -26,7 +26,7 @@
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
 
-TaskFindMines::TaskFindMines(unsigned short team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x2000, point_) {}
+TaskFindMines::TaskFindMines(uint16_t team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x2000, point_) {}
 
 TaskFindMines::~TaskFindMines() {}
 
@@ -36,7 +36,7 @@ char* TaskFindMines::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskFindMines::GetType() const { return TaskType_TaskFindMines; }
+uint8_t TaskFindMines::GetType() const { return TaskType_TaskFindMines; }
 
 void TaskFindMines::BeginTurn() {
     AiLog log("Find mines: begin turn");
@@ -44,14 +44,14 @@ void TaskFindMines::BeginTurn() {
     SmartList<UnitInfo>::Iterator unit = units.Begin();
 
     if (unit != units.End() && requestors == 0) {
-        short** damage_potential_map =
+        int16_t** damage_potential_map =
             AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, false);
-        signed char** mine_map = AiPlayer_Teams[team].GetMineMap();
-        int valuable_sites = 0;
+        int8_t** mine_map = AiPlayer_Teams[team].GetMineMap();
+        int32_t valuable_sites = 0;
 
         if (damage_potential_map && mine_map) {
-            for (int index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
-                for (int index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
+            for (int32_t index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
+                for (int32_t index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
                     if (mine_map[index_x][index_y] > 0 && damage_potential_map[index_x][index_y] <= 0) {
                         ++valuable_sites;
                     }

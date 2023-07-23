@@ -36,7 +36,7 @@ char* TaskWaitToAttack::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskWaitToAttack::GetType() const { return TaskType_TaskWaitToAttack; }
+uint8_t TaskWaitToAttack::GetType() const { return TaskType_TaskWaitToAttack; }
 
 bool TaskWaitToAttack::IsThinking() { return false; }
 

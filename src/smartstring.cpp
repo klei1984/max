@@ -33,7 +33,7 @@
 
 #include "SDL_assert.h"
 
-StringObject::StringObject(unsigned short size) : size(size), length(0), reference_count(1) {
+StringObject::StringObject(uint16_t size) : size(size), length(0), reference_count(1) {
     buffer = new (std::nothrow) char[size + 1];
     buffer[0] = '\0';
 }
@@ -54,7 +54,7 @@ StringObject::~StringObject() {
     delete[] buffer;
 }
 
-void StringObject::Resize(unsigned short size, bool keep) {
+void StringObject::Resize(uint16_t size, bool keep) {
     if (size != this->size) {
         this->size = size;
 
@@ -82,21 +82,21 @@ void StringObject::Resize(unsigned short size, bool keep) {
     }
 }
 
-unsigned short StringObject::GetLength() const { return length; }
+uint16_t StringObject::GetLength() const { return length; }
 
-unsigned short StringObject::GetSize() const { return size; }
+uint16_t StringObject::GetSize() const { return size; }
 
 char *StringObject::GetCStr() const { return buffer; }
 
-void StringObject::SetLength(unsigned short length) { this->length = length; }
+void StringObject::SetLength(uint16_t length) { this->length = length; }
 
 SmartString::SmartString() {
-    static SmartString *empty_string = new (std::nothrow) SmartString(static_cast<unsigned short>(0));
+    static SmartString *empty_string = new (std::nothrow) SmartString(static_cast<uint16_t>(0));
     object_pointer = empty_string->object_pointer;
     Increment();
 }
 
-SmartString::SmartString(unsigned short size) { object_pointer = new (std::nothrow) StringObject(size); }
+SmartString::SmartString(uint16_t size) { object_pointer = new (std::nothrow) StringObject(size); }
 
 SmartString::SmartString(const char *cstring) { object_pointer = new (std::nothrow) StringObject(cstring); }
 
@@ -117,7 +117,7 @@ void SmartString::Decrement() {
     }
 }
 
-void SmartString::Resize(unsigned short size, bool keep) {
+void SmartString::Resize(uint16_t size, bool keep) {
     Copy();
     object_pointer->Resize(size, keep);
 }
@@ -131,18 +131,18 @@ void SmartString::Copy() {
 
 bool SmartString::IsLastReference() { return 1 == object_pointer->reference_count; }
 
-unsigned short SmartString::CalcOptimalCapacity(unsigned short needed_capacity) {
+uint16_t SmartString::CalcOptimalCapacity(uint16_t needed_capacity) {
     return needed_capacity / 64u * 64u + 64u;
 }
 
 char *SmartString::GetCStr() const { return object_pointer->GetCStr(); }
 
-unsigned short SmartString::GetLength() const { return object_pointer->GetLength(); }
+uint16_t SmartString::GetLength() const { return object_pointer->GetLength(); }
 
 /// \todo This API seems to handle length inconsistently
-SmartString SmartString::Substr(unsigned short position, unsigned short length) {
-    int size;
-    int max_length;
+SmartString SmartString::Substr(uint16_t position, uint16_t length) {
+    int32_t size;
+    int32_t max_length;
     SmartString result;
     static SmartString empty_string;
 
@@ -167,13 +167,13 @@ SmartString SmartString::Substr(unsigned short position, unsigned short length) 
     return result;
 }
 
-char &SmartString::operator[](unsigned short position) {
+char &SmartString::operator[](uint16_t position) {
     SDL_assert(position < object_pointer->GetSize());
     return object_pointer->GetCStr()[position];
 }
 
 SmartString &SmartString::operator+=(SmartString const &other) {
-    unsigned short length;
+    uint16_t length;
 
     Copy();
     length = object_pointer->GetLength() + other.object_pointer->GetLength();
@@ -189,7 +189,7 @@ SmartString &SmartString::operator+=(SmartString const &other) {
 }
 
 SmartString &SmartString::operator+=(const char *cstring) {
-    unsigned short length;
+    uint16_t length;
 
     Copy();
     length = object_pointer->GetLength() + strlen(cstring);
@@ -205,7 +205,7 @@ SmartString &SmartString::operator+=(const char *cstring) {
 }
 
 SmartString &SmartString::operator+=(const char character) {
-    unsigned short length;
+    uint16_t length;
 
     Copy();
     length = object_pointer->GetLength() + sizeof(char);
@@ -253,7 +253,7 @@ SmartString &SmartString::Tolower() {
     return *this;
 }
 
-SmartString &SmartString::Sprintf(unsigned short size, const char *format, ...) {
+SmartString &SmartString::Sprintf(uint16_t size, const char *format, ...) {
     va_list args;
 
     va_start(args, format);
@@ -263,8 +263,8 @@ SmartString &SmartString::Sprintf(unsigned short size, const char *format, ...) 
     return *this;
 }
 
-int SmartString::Strcmp(const char *cstring, bool case_sensitive) const {
-    int result;
+int32_t SmartString::Strcmp(const char *cstring, bool case_sensitive) const {
+    int32_t result;
 
     if (case_sensitive) {
         result = strcmp(GetCStr(), cstring);
@@ -292,7 +292,7 @@ SmartString &SmartString::operator=(const char *rhs) {
 
 bool SmartString::IsEqual(const char *cstring) { return !Strcmp(cstring); }
 
-SmartString &SmartString::VSprintf(unsigned short size, const char *format, va_list args) {
+SmartString &SmartString::VSprintf(uint16_t size, const char *format, va_list args) {
     char *buffer;
 
     buffer = new (std::nothrow) char[size + 1];

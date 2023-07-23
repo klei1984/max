@@ -56,27 +56,27 @@ enum {
 };
 
 struct MveControlBlock_s {
-    unsigned short size;
-    unsigned char opcode;
-    unsigned char version;
+    uint16_t size;
+    uint8_t opcode;
+    uint8_t version;
 };
 
 typedef struct MveControlBlock_s MveControlBlock;
 
 struct MveMemBlock_s {
-    unsigned char *buffer;
+    uint8_t *buffer;
     size_t length;
-    int is_allocated;
+    int32_t is_allocated;
 };
 
 typedef struct MveMemBlock_s MveMemBlock;
 
 struct __attribute__((packed)) MveHeader_s {
     const char tag[20];
-    unsigned short field_20;
-    unsigned short field_22;
-    unsigned short field_24;
-    int next_header;
+    uint16_t field_20;
+    uint16_t field_22;
+    uint16_t field_24;
+    int32_t next_header;
 };
 
 static_assert(sizeof(struct MveHeader_s) == 30, "The structure needs to be packed.");
@@ -90,25 +90,25 @@ void MemFree(MveMemBlock *ptr);
 static void MemInit(MveMemBlock *ptr, size_t length, void *address);
 void *MemAlloc(MveMemBlock *ptr, size_t size);
 static void syncRelease(void);
-static int syncInit(unsigned int rate, unsigned short divider);
-static int syncWait(void);
-int ioReset(FILE *handle);
+static int32_t syncInit(uint32_t rate, uint16_t divider);
+static int32_t syncWait(void);
+int32_t ioReset(FILE *handle);
 void *ioRead(size_t size);
-unsigned char *ioNextRecord(void);
+uint8_t *ioNextRecord(void);
 static void ioRelease(void);
 static void sndReset(void);
 static void nfRelease(void);
 static void nfAdvance(void);
 
 static FILE *mve_io_handle;
-static int mve_io_next_hdr;
+static int32_t mve_io_next_hdr;
 
 static MveMemBlock mve_io_mem_buf;
 
 static MveMemBlock nf_mem_buf1;
 static MveMemBlock nf_mem_buf2;
-static unsigned char *nf_buf_cur;
-static unsigned char *nf_buf_prv;
+static uint8_t *nf_buf_cur;
+static uint8_t *nf_buf_prv;
 
 static mve_cb_Alloc mve_mem_alloc;
 static mve_cb_Free mve_mem_free;
@@ -117,21 +117,21 @@ static mve_cb_ShowFrame mve_sf_ShowFrame;
 static mve_cb_SetPalette mve_pal_SetPalette;
 static mve_cb_Ctl mve_rm_ctl;
 
-static int mve_rm_hold;
-static int mve_rm_active;
+static int32_t mve_rm_hold;
+static int32_t mve_rm_active;
 
-static unsigned char *mve_rm_p;
-static int mve_rm_len;
-static int mve_rm_FrameCount;
-static int mve_rm_FrameDropCount;
-static int mve_rm_track_bit;
-static int mve_rm_dx;
-static int mve_rm_dy;
+static uint8_t *mve_rm_p;
+static int32_t mve_rm_len;
+static int32_t mve_rm_FrameCount;
+static int32_t mve_rm_FrameDropCount;
+static int32_t mve_rm_track_bit;
+static int32_t mve_rm_dx;
+static int32_t mve_rm_dy;
 
-int mve_opt_fastmode;
-int mve_opt_hscale_step = 4;
+int32_t mve_opt_fastmode;
+int32_t mve_opt_hscale_step = 4;
 
-unsigned int mve_snd_vol = 32767;
+uint32_t mve_snd_vol = 32767;
 
 void MVE_memCallbacks(mve_cb_Alloc alloc, mve_cb_Free free) {
     mve_mem_alloc = alloc;
@@ -188,17 +188,17 @@ void *MemAlloc(MveMemBlock *ptr, size_t size) {
 
 void syncRelease(void) {}
 
-int syncInit(unsigned int rate, unsigned short divider) { return 0; }
+int32_t syncInit(uint32_t rate, uint16_t divider) { return 0; }
 
-int syncWait(void) {}
+int32_t syncWait(void) {}
 
 void MVE_logDumpStats(void) { SDL_Log("Logging support disabled.\n"); }
 
 void MVE_ioCallbacks(mve_cb_Read read) { mve_io_read = read; }
 
-int ioReset(FILE *handle) {
+int32_t ioReset(FILE *handle) {
     MveHeader *header;
-    int result;
+    int32_t result;
 
     mve_io_handle = handle;
     header = ioRead(30);
@@ -225,12 +225,12 @@ void *ioRead(size_t size) {
     return buffer;
 }
 
-unsigned char *ioNextRecord(void) {
-    unsigned char *buffer;
+uint8_t *ioNextRecord(void) {
+    uint8_t *buffer;
 
-    buffer = ioRead(mve_io_next_hdr + sizeof(int));
+    buffer = ioRead(mve_io_next_hdr + sizeof(int32_t));
     if (buffer) {
-        mve_io_next_hdr = *(int *)&buffer[mve_io_next_hdr];
+        mve_io_next_hdr = *(int32_t *)&buffer[mve_io_next_hdr];
     }
 
     return buffer;
@@ -238,7 +238,7 @@ unsigned char *ioNextRecord(void) {
 
 void ioRelease(void) { MemFree(&mve_io_mem_buf); }
 
-void MVE_sndVolume(unsigned int volume) {
+void MVE_sndVolume(uint32_t volume) {
     if (volume > 32767) {
         volume = 32767;
     }
@@ -247,7 +247,7 @@ void MVE_sndVolume(unsigned int volume) {
 }
 
 void sndReset(void) {}
-int MVE_sndConfigure() {}
+int32_t MVE_sndConfigure() {}
 
 void MVE_sndPause(void) {}
 void MVE_sndResume(void) {}
@@ -258,17 +258,17 @@ void nfRelease(void) {
 }
 
 void nfAdvance(void) {
-    unsigned char *ptr;
+    uint8_t *ptr;
 
     ptr = nf_buf_prv;
     nf_buf_prv = nf_buf_cur;
     nf_buf_cur = ptr;
 }
 
-void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, void *write_win_ptr, int window_size,
-                int window_granuality, void *window_function, int hicolor) {
-    //    int line_width;            // ecx@1
-    //    unsigned int v10;  // ebx@4
+void MVE_sfSVGA(int32_t width, int32_t height, int32_t bytes_per_scan_line, int32_t write_window, void *write_win_ptr, int32_t window_size,
+                int32_t window_granuality, void *window_function, int32_t hicolor) {
+    //    int32_t line_width;            // ecx@1
+    //    uint32_t v10;  // ebx@4
     //
     //    sf_ScreenWidth = width;
     //    sf_ScreenHeight = height;
@@ -279,13 +279,13 @@ void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window
     //        line_width = 2 * bytes_per_scan_line;
     //    }
     //    sf_WriteWin = write_window;
-    //    sf_WriteWinPtr = (int)write_win_ptr;
+    //    sf_WriteWinPtr = (int32_t)write_win_ptr;
     //    sf_WinSize = window_size;
-    //    sf_WriteWinLimit = (int)write_win_ptr + window_size;
+    //    sf_WriteWinLimit = (int32_t)write_win_ptr + window_size;
     //    sf_WinGran = window_granuality;
-    //    sf_SetBank = (int)window_function;
+    //    sf_SetBank = (int32_t)window_function;
     //    if (window_granuality)
-    //        v10 = window_size / (unsigned int)window_granuality;
+    //        v10 = window_size / (uint32_t)window_granuality;
     //    else
     //        v10 = 1;
     //    sf_auto = 0;
@@ -300,19 +300,19 @@ void MVE_palCallbacks(mve_cb_SetPalette setpalette) { mve_pal_SetPalette = setpa
 
 void MVE_rmCallbacks(mve_cb_Ctl ctl) { mve_rm_ctl = ctl; }
 
-void MVE_rmFastMode(int fastmode) { mve_opt_fastmode = fastmode; }
+void MVE_rmFastMode(int32_t fastmode) { mve_opt_fastmode = fastmode; }
 
-void MVE_rmHScale(int hscale_step) { mve_opt_hscale_step = (hscale_step != 3) + 3; }
+void MVE_rmHScale(int32_t hscale_step) { mve_opt_hscale_step = (hscale_step != 3) + 3; }
 
-void MVE_rmFrameCounts(int *frame_count, int *drop_count) {
+void MVE_rmFrameCounts(int32_t *frame_count, int32_t *drop_count) {
     *frame_count = mve_rm_FrameCount;
     *drop_count = mve_rm_FrameDropCount;
 }
 
-int MVE_rmUnprotect(void) {
-    static int is_unprotected = 0;
-    unsigned long flOldProtect;
-    int result;
+int32_t MVE_rmUnprotect(void) {
+    static int32_t is_unprotected = 0;
+    uint32_t flOldProtect;
+    int32_t result;
 
     if (!is_unprotected) {
 #if defined(__unix__)
@@ -338,8 +338,8 @@ int MVE_rmUnprotect(void) {
     return 0;
 }
 
-int MVE_rmPrepMovie(FILE *handle, int dx, int dy, int track) {
-    int result;
+int32_t MVE_rmPrepMovie(FILE *handle, int32_t dx, int32_t dy, int32_t track) {
+    int32_t result;
 
     mve_rm_dx = dx;
     mve_rm_dy = dy;
@@ -373,10 +373,10 @@ int MVE_rmPrepMovie(FILE *handle, int dx, int dy, int track) {
     return result;
 }
 
-int MVE_rmStepMovie(void) {
-    unsigned char *buffer;
-    unsigned char *decoding_map;
-    int buffer_length;
+int32_t MVE_rmStepMovie(void) {
+    uint8_t *buffer;
+    uint8_t *decoding_map;
+    int32_t buffer_length;
 
     buffer_length = mve_rm_len;
     buffer = mve_rm_p;
@@ -402,7 +402,7 @@ int MVE_rmStepMovie(void) {
 
         cb = *(MveControlBlock *)&buffer[buffer_length];
 
-        buffer = &buffer[buffer_length + sizeof(int)];
+        buffer = &buffer[buffer_length + sizeof(int32_t)];
         buffer_length = cb.size;
 
         switch (cb.opcode) {
@@ -416,8 +416,8 @@ int MVE_rmStepMovie(void) {
             } break;
 
             case MVE_OPCODE_CREATE_TIMER: {
-                unsigned int rate = *(unsigned int *)buffer;
-                unsigned short divider = *(unsigned short *)(buffer + sizeof(unsigned int));
+                uint32_t rate = *(uint32_t *)buffer;
+                uint16_t divider = *(uint16_t *)(buffer + sizeof(uint32_t));
 
                 if (!syncInit(rate, divider)) {
                     MVE_rmEndMovie();
@@ -489,7 +489,7 @@ int MVE_rmStepMovie(void) {
     }
 }
 
-int MVE_rmHoldMovie(void) {
+int32_t MVE_rmHoldMovie(void) {
     if (!mve_rm_hold) {
         MVE_sndPause();
         mve_rm_hold = 1;
@@ -509,9 +509,9 @@ void MVE_rmEndMovie(void) {
     }
 }
 
-int MVE_RunMovie(FILE *handle, int dx, int dy, int track) {
-    int result;
-    int aborted = 0;
+int32_t MVE_RunMovie(FILE *handle, int32_t dx, int32_t dy, int32_t track) {
+    int32_t result;
+    int32_t aborted = 0;
 
     result = MVE_rmPrepMovie(handle, dx, dy, track);
 
@@ -539,7 +539,7 @@ void MVE_ReleaseMem(void) {
     nfRelease();
 }
 
-const char *MVE_strerror(int error_code) {
+const char *MVE_strerror(int32_t error_code) {
     const char *str_error;
 
     switch (error_code) {

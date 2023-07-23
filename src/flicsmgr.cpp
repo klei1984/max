@@ -32,100 +32,100 @@
 enum ChunkTypes { COLOR_256 = 4, DELTA_FLC = 7, COLOR_64 = 11, BLACK = 13, BYTE_RUN = 15, LITERAL = 16 };
 
 typedef struct __attribute__((packed)) {
-    long size;
-    unsigned short type;
-    unsigned short frames;
-    unsigned short width;
-    unsigned short height;
-    unsigned short depth;
-    unsigned short flags;
-    long speed;
-    short reserved1;
-    unsigned long created;
-    unsigned long creator;
-    unsigned long updated;
-    unsigned long updater;
-    unsigned short aspect_dx;
-    unsigned short aspect_dy;
+    int32_t size;
+    uint16_t type;
+    uint16_t frames;
+    uint16_t width;
+    uint16_t height;
+    uint16_t depth;
+    uint16_t flags;
+    int32_t speed;
+    int16_t reserved1;
+    uint32_t created;
+    uint32_t creator;
+    uint32_t updated;
+    uint32_t updater;
+    uint16_t aspect_dx;
+    uint16_t aspect_dy;
     char reserved2[38];
-    long oframe1;
-    long oframe2;
+    int32_t oframe1;
+    int32_t oframe2;
     char reserved3[40];
 } FlicHeader;
 
 static_assert(sizeof(FlicHeader) == 128, "FLIC header is 128 bytes");
 
 typedef struct {
-    long size;
-    unsigned short type;
-    short chunks;
+    int32_t size;
+    uint16_t type;
+    int16_t chunks;
     char reserved[8];
 } FrameHeader;
 
 static_assert(sizeof(FrameHeader) == 16, "FLIC frame header is 16 bytes");
 
 typedef struct __attribute__((packed)) {
-    int size;
-    unsigned short type;
+    int32_t size;
+    uint16_t type;
 } FlicChunkHeader;
 
 static_assert(sizeof(FlicChunkHeader) == 6, "FLIC chunk header is 6 bytes");
 
 typedef struct {
-    unsigned int size;
-    unsigned short type;
-    unsigned short chunks;
+    uint32_t size;
+    uint16_t type;
+    uint16_t chunks;
     char *buffer;
 } FlicFrame;
 
 struct Flic {
     FILE *fp;
-    short field_4;
-    short field_6;
+    int16_t field_4;
+    int16_t field_6;
     FlicFrame frames[FLICSMGR_FRAME_BUFFER];
-    long int file_pos;
+    int32_t file_pos;
     WinID wid;
-    unsigned char *buffer;
+    uint8_t *buffer;
     Rect bound;
     char animate;
-    short frame_count;
-    short width;
-    short height;
-    short frame_pos;
-    short full;
-    int speed;
+    int16_t frame_count;
+    int16_t width;
+    int16_t height;
+    int16_t frame_pos;
+    int16_t full;
+    int32_t speed;
     char load_flic_palette;
 };
 
-static void flicsmgr_decode_delta_flc(unsigned char *buffer, Flic *flc);
-static void flicsmgr_decode_color(unsigned char *buffer, int shift);
-static void flicsmgr_decode_byte_run(unsigned char *buffer, Flic *flc);
+static void flicsmgr_decode_delta_flc(uint8_t *buffer, Flic *flc);
+static void flicsmgr_decode_color(uint8_t *buffer, int32_t shift);
+static void flicsmgr_decode_byte_run(uint8_t *buffer, Flic *flc);
 static void flicsmgr_decode_frame(FlicFrame *frame, Flic *flc);
 static char Flicsmgr_load_frame(FILE *file, FlicFrame *frame);
 static char flicsmgr_fill_frame_buffer(Flic *flc);
 static char flicsmgr_read(Flic *flc);
 static char flicsmgr_load(char *flic_file, Flic *flc);
 
-void flicsmgr_decode_delta_flc(unsigned char *buffer, Flic *flc) {
-    short opt_word;
-    short packet_count;
-    unsigned char column_skip_count;
-    signed char packet_type;
-    unsigned char *line_address;
-    short line_count;
-    int offset;
+void flicsmgr_decode_delta_flc(uint8_t *buffer, Flic *flc) {
+    int16_t opt_word;
+    int16_t packet_count;
+    uint8_t column_skip_count;
+    int8_t packet_type;
+    uint8_t *line_address;
+    int16_t line_count;
+    int32_t offset;
 
-    line_count = *(short *)buffer;
-    buffer += sizeof(short);
+    line_count = *(int16_t *)buffer;
+    buffer += sizeof(int16_t);
 
     line_address = flc->buffer;
     while (--line_count >= 0) {
-        opt_word = *(short *)buffer;
-        buffer += sizeof(short);
+        opt_word = *(int16_t *)buffer;
+        buffer += sizeof(int16_t);
 
         /* process optional skip count words and last byte word */
-        while ((unsigned short)opt_word & 0x8000) {
-            if ((unsigned short)opt_word & 0x4000) {
+        while ((uint16_t)opt_word & 0x8000) {
+            if ((uint16_t)opt_word & 0x4000) {
                 /* absolute value of optional word holds line skip count */
                 opt_word = -opt_word;
                 line_address += opt_word * flc->full;
@@ -134,8 +134,8 @@ void flicsmgr_decode_delta_flc(unsigned char *buffer, Flic *flc) {
                 line_address[flc->width - 1] = opt_word;
             }
 
-            opt_word = *(short *)buffer;
-            buffer += sizeof(short);
+            opt_word = *(int16_t *)buffer;
+            buffer += sizeof(int16_t);
         }
 
         packet_count = opt_word;
@@ -145,26 +145,26 @@ void flicsmgr_decode_delta_flc(unsigned char *buffer, Flic *flc) {
             column_skip_count = buffer[0];
             packet_type = buffer[1];
 
-            buffer += sizeof(short);
+            buffer += sizeof(int16_t);
 
             offset += column_skip_count;
 
             if (packet_type >= 0) {
                 /* copy pocket type count of words */
-                memcpy(&line_address[offset], buffer, packet_type * sizeof(short));
-                buffer += packet_type * sizeof(short);
-                offset += packet_type * sizeof(short);
+                memcpy(&line_address[offset], buffer, packet_type * sizeof(int16_t));
+                buffer += packet_type * sizeof(int16_t);
+                offset += packet_type * sizeof(int16_t);
             } else {
                 /* replicate absolute value of the pocket type count of words
                  * the word to replicate is the next word in the buffer
                  */
-                short word = *(short *)buffer;
-                buffer += sizeof(short);
+                int16_t word = *(int16_t *)buffer;
+                buffer += sizeof(int16_t);
 
                 packet_type = -packet_type;
                 while (--packet_type >= 0) {
-                    *(short *)(&line_address[offset]) = word;
-                    offset += sizeof(short);
+                    *(int16_t *)(&line_address[offset]) = word;
+                    offset += sizeof(int16_t);
                 }
             }
         }
@@ -173,16 +173,16 @@ void flicsmgr_decode_delta_flc(unsigned char *buffer, Flic *flc) {
     }
 }
 
-void flicsmgr_decode_color(unsigned char *buffer, int shift) {
-    int entry;
-    unsigned char *cbuf;
-    short *wp;
-    short ops;
-    int count;
+void flicsmgr_decode_color(uint8_t *buffer, int32_t shift) {
+    int32_t entry;
+    uint8_t *cbuf;
+    int16_t *wp;
+    int16_t ops;
+    int32_t count;
 
     entry = 0;
     cbuf = buffer;
-    wp = (short *)buffer;
+    wp = (int16_t *)buffer;
 
     ops = *wp;
     cbuf += sizeof(*wp);
@@ -203,13 +203,13 @@ void flicsmgr_decode_color(unsigned char *buffer, int shift) {
     }
 }
 
-void flicsmgr_decode_byte_run(unsigned char *buffer, Flic *flc) {
-    int x;
-    int y;
-    int height;
-    int offset;
+void flicsmgr_decode_byte_run(uint8_t *buffer, Flic *flc) {
+    int32_t x;
+    int32_t y;
+    int32_t height;
+    int32_t offset;
     char psize;
-    unsigned char *cpt;
+    uint8_t *cpt;
 
     height = flc->height;
     cpt = buffer;
@@ -245,33 +245,33 @@ void flicsmgr_decode_frame(FlicFrame *frame, Flic *flc) {
 
     next_chunk = frame->buffer;
 
-    for (int i = 0; i < frame->chunks; i++) {
+    for (int32_t i = 0; i < frame->chunks; i++) {
         chunk = (FlicChunkHeader *)next_chunk;
         next_chunk += chunk->size;
 
         switch (chunk->type) {
             case COLOR_256:
                 if (flc->load_flic_palette) {
-                    flicsmgr_decode_color((unsigned char *)&chunk[1], 2);
+                    flicsmgr_decode_color((uint8_t *)&chunk[1], 2);
                 }
                 break;
             case DELTA_FLC:
-                flicsmgr_decode_delta_flc((unsigned char *)&chunk[1], flc);
+                flicsmgr_decode_delta_flc((uint8_t *)&chunk[1], flc);
                 break;
             case COLOR_64:
                 if (flc->load_flic_palette) {
-                    flicsmgr_decode_color((unsigned char *)&chunk[1], 0);
+                    flicsmgr_decode_color((uint8_t *)&chunk[1], 0);
                 }
                 break;
             case BLACK:
                 win_fill(flc->wid, flc->bound.ulx, flc->bound.uly, flc->width, flc->height, 0);
                 break;
             case BYTE_RUN:
-                flicsmgr_decode_byte_run((unsigned char *)&chunk[1], flc);
+                flicsmgr_decode_byte_run((uint8_t *)&chunk[1], flc);
                 break;
             case LITERAL:
-                buf_to_buf(reinterpret_cast<unsigned char *>(&chunk[1]), flc->width, flc->width, flc->height,
-                           flc->buffer, flc->full);
+                buf_to_buf(reinterpret_cast<uint8_t *>(&chunk[1]), flc->width, flc->width, flc->height, flc->buffer,
+                           flc->full);
                 break;
             default:
                 break;
@@ -316,7 +316,7 @@ char Flicsmgr_load_frame(FILE *file, FlicFrame *frame) {
 }
 
 char flicsmgr_fill_frame_buffer(Flic *flc) {
-    int v2;
+    int32_t v2;
 
     flc->field_4 = flc->frame_pos;
     v2 = flc->frame_count - flc->frame_pos + 1;
@@ -325,7 +325,7 @@ char flicsmgr_fill_frame_buffer(Flic *flc) {
         v2 = FLICSMGR_FRAME_BUFFER;
     }
 
-    for (int i = 0; i < v2; i++) {
+    for (int32_t i = 0; i < v2; i++) {
         if (!Flicsmgr_load_frame(flc->fp, &flc->frames[i])) {
             return 0;
         }
@@ -428,7 +428,7 @@ char flicsmgr_load(char *flic_file, Flic *flc) {
     return 0;
 }
 
-Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int uly, char animate,
+Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int32_t width, int32_t ulx, int32_t uly, char animate,
                          char load_flic_palette) {
     Flic *flc = static_cast<struct Flic *>(malloc(sizeof(struct Flic)));
 
@@ -443,7 +443,7 @@ Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int u
     flc->animate = animate;
     flc->load_flic_palette = load_flic_palette;
 
-    for (int i = 0; i < FLICSMGR_FRAME_BUFFER; i++) {
+    for (int32_t i = 0; i < FLICSMGR_FRAME_BUFFER; i++) {
         flc->frames[i].buffer = nullptr;
     }
 
@@ -500,7 +500,7 @@ char flicsmgr_advance_animation(Flic *flc) {
 }
 
 void flicsmgr_delete(Flic *flc) {
-    for (int i = 0; i < FLICSMGR_FRAME_BUFFER; i++) {
+    for (int32_t i = 0; i < FLICSMGR_FRAME_BUFFER; i++) {
         if (flc->frames[i].buffer) {
             free(flc->frames[i].buffer);
             flc->frames[i].buffer = nullptr;

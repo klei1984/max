@@ -23,7 +23,7 @@
 
 #include "transport_udp_default.hpp"
 
-Transport* Transport_Create(int type) {
+Transport* Transport_Create(int32_t type) {
     Transport* transport;
 
     switch (type) {

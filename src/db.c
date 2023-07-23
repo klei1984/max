@@ -34,23 +34,23 @@
 #define GNW_DB_READ_THRESHOLD 16384
 
 struct dir_entry_s {
-    long flags;
-    int offset;
-    int uncomp_size;
-    int comp_size;
+    int32_t flags;
+    int32_t offset;
+    int32_t uncomp_size;
+    int32_t comp_size;
 };
 
 static_assert(sizeof(struct dir_entry_s) == 16, "The structure needs to be packed.");
 
 struct db_file_s {
     db_handle db;
-    int flags;
+    int32_t flags;
     char in_use;
     char field_9[3];
-    int field_12;
-    int field_16;
-    int field_20;
-    long int file_position;
+    int32_t field_12;
+    int32_t field_16;
+    int32_t field_20;
+    int32_t file_position;
     char* buffer_position;
     char* buffer_end;
 };
@@ -68,21 +68,21 @@ struct db_s {
     char field_17[3];
     assoc_array assoc_a;
     assoc_array* assoc_list;
-    int db_file_count;
+    int32_t db_file_count;
     db_file db_file_list[GNW_DB_FILE_LIST_SIZE];
 };
 
 static_assert(sizeof(struct db_s) == 424, "The structure needs to be packed.");
 
-static int db_create_database(db_handle* db);
-static int db_destroy_database(db_handle* db);
-static int db_init_database(db_handle handle, char* datafile, char* datafile_path);
+static int32_t db_create_database(db_handle* db);
+static int32_t db_destroy_database(db_handle* db);
+static int32_t db_init_database(db_handle handle, char* datafile, char* datafile_path);
 static void db_exit_database(db_handle db);
-static int db_init_patches(db_handle db, char* patches_path);
+static int32_t db_init_patches(db_handle db, char* patches_path);
 static void db_exit_patches(db_handle db);
-static DB_FILE db_add_fp_rec(FILE* fp, char* buffer, size_t size, int flags);
-static int db_find_empty_position(int* index);
-static int db_find_dir_entry(char* filename, dir_entry de);
+static DB_FILE db_add_fp_rec(FILE* fp, char* buffer, size_t size, int32_t flags);
+static int32_t db_find_empty_position(int32_t* index);
+static int32_t db_find_dir_entry(char* filename, dir_entry de);
 static inline void* internal_malloc(size_t size);
 static inline char* internal_strdup(const char* s);
 static inline void internal_free(void* ptr);
@@ -90,11 +90,11 @@ static void* db_default_malloc(size_t size);
 static char* db_default_strdup(const char* s);
 static void db_default_free(void* ptr);
 static void db_preload_buffer(DB_FILE stream);
-static int db_fread_short(FILE* fp, unsigned short* s);
-static int db_fread_long(FILE* fp, unsigned long* l);
-static int db_fwrite_long(FILE* fp, unsigned long l);
+static int32_t db_fread_short(FILE* fp, uint16_t* s);
+static int32_t db_fread_long(FILE* fp, uint32_t* l);
+static int32_t db_fwrite_long(FILE* fp, uint32_t l);
 
-static int db_used_malloc;
+static int32_t db_used_malloc;
 
 static char* empty_string = "\0";
 
@@ -103,8 +103,8 @@ static db_strdup_func strdup_function = db_default_strdup;
 static db_free_func free_function = db_default_free;
 
 static db_read_callback read_callback;
-static unsigned int read_threshold = GNW_DB_READ_THRESHOLD;
-static unsigned int read_count;
+static uint32_t read_threshold = GNW_DB_READ_THRESHOLD;
+static uint32_t read_count;
 
 db_handle database_list[GNW_DB_DATABASE_LIST_SIZE];
 db_handle current_database;
@@ -129,8 +129,8 @@ db_handle db_init(char* datafile, char* datafile_path, char* patches_path) {
     return db;
 }
 
-int db_select(db_handle db) {
-    for (int i = 0; i < GNW_DB_DATABASE_LIST_SIZE; i++) {
+int32_t db_select(db_handle db) {
+    for (int32_t i = 0; i < GNW_DB_DATABASE_LIST_SIZE; i++) {
         if (db == database_list[i]) {
             current_database = db;
             return 0;
@@ -142,8 +142,8 @@ int db_select(db_handle db) {
 
 db_handle db_current(void) { return current_database; }
 
-int db_total(void) {
-    int i;
+int32_t db_total(void) {
+    int32_t i;
 
     for (i = 0; (i < GNW_DB_DATABASE_LIST_SIZE) && database_list[i]; i++) {
         ;
@@ -152,8 +152,8 @@ int db_total(void) {
     return i;
 }
 
-int db_close(db_handle db) {
-    int i;
+int32_t db_close(db_handle db) {
+    int32_t i;
 
     if (!db || db == (db_handle)-1) {
         return -1;
@@ -185,18 +185,18 @@ int db_close(db_handle db) {
 }
 
 void db_exit(void) {
-    for (int i = 0; i < GNW_DB_DATABASE_LIST_SIZE; i++) {
+    for (int32_t i = 0; i < GNW_DB_DATABASE_LIST_SIZE; i++) {
         if (database_list[i]) {
             db_close(database_list[i]);
         }
     }
 }
 
-int db_dir_entry(char* filename, dir_entry de) {
+int32_t db_dir_entry(char* filename, dir_entry de) {
     char path[PATH_MAX];
     FILE* fp;
-    int is_normal_file;
-    int result;
+    int32_t is_normal_file;
+    int32_t result;
 
     if (!current_database || !filename || !de) {
         return -1;
@@ -249,14 +249,14 @@ int db_dir_entry(char* filename, dir_entry de) {
     return result;
 }
 
-int db_load(char* filename, unsigned long* comp_size, unsigned long* uncomp_size, char** data) {
+int32_t db_load(char* filename, uint32_t* comp_size, uint32_t* uncomp_size, char** data) {
     char path[PATH_MAX];
     struct dir_entry_s de;
     FILE* fp;
-    int file_size;
+    int32_t file_size;
     char* buffer;
-    int is_normal_file;
-    int result;
+    int32_t is_normal_file;
+    int32_t result;
 
     if (!current_database || !filename || !comp_size || !uncomp_size || !data) {
         return -1;
@@ -284,7 +284,7 @@ int db_load(char* filename, unsigned long* comp_size, unsigned long* uncomp_size
                 *data = buffer;
 
                 if (buffer) {
-                    int read_bytes;
+                    int32_t read_bytes;
 
                     if (file_size == fread(buffer, 1, file_size, fp)) {
                         fclose(fp);
@@ -339,11 +339,11 @@ int db_load(char* filename, unsigned long* comp_size, unsigned long* uncomp_size
 
 DB_FILE db_fopen(char* filename, char* mode) {
     char path[PATH_MAX];
-    int is_normal_file;
+    int32_t is_normal_file;
     FILE* fp = NULL;
     struct dir_entry_s de;
     char* buffer;
-    int op_mode;
+    int32_t op_mode;
 
     if (!current_database || !filename || !mode || current_database->db_file_count >= GNW_DB_FILE_LIST_SIZE) {
         return NULL;
@@ -351,7 +351,7 @@ DB_FILE db_fopen(char* filename, char* mode) {
 
     op_mode = -1;
 
-    for (int i = 0; mode[i]; i++) {
+    for (int32_t i = 0; mode[i]; i++) {
         switch (mode[i]) {
             case '+':
                 op_mode = 0;
@@ -455,8 +455,8 @@ size_t db_fread(void* ptr, size_t size, size_t nmemb, DB_FILE stream) {
     return 0;
 }
 
-int db_fgetc(DB_FILE stream) {
-    int result;
+int32_t db_fgetc(DB_FILE stream) {
+    int32_t result;
 
     result = -1;
 
@@ -490,8 +490,8 @@ int db_fgetc(DB_FILE stream) {
     return result;
 }
 
-int db_ungetc(int c, DB_FILE stream) {
-    int result;
+int32_t db_ungetc(int32_t c, DB_FILE stream) {
+    int32_t result;
 
     result = c;
 
@@ -535,7 +535,7 @@ int db_ungetc(int c, DB_FILE stream) {
     return result;
 }
 
-char* db_fgets(char* s, int n, DB_FILE stream) {
+char* db_fgets(char* s, int32_t n, DB_FILE stream) {
     char* result;
 
     result = NULL;
@@ -544,8 +544,8 @@ char* db_fgets(char* s, int n, DB_FILE stream) {
         if (stream->flags & 4) {
             result = fgets(s, n, (FILE*)stream->field_12);
         } else if (s) {
-            int i;
-            int c;
+            int32_t i;
+            int32_t c;
 
             for (i = 0; i + 1 < n; i++) {
                 c = db_fgetc(stream);
@@ -571,8 +571,8 @@ char* db_fgets(char* s, int n, DB_FILE stream) {
     return result;
 }
 
-long db_ftell(DB_FILE stream) {
-    long result;
+int32_t db_ftell(DB_FILE stream) {
+    int32_t result;
 
     result = -1;
 
@@ -612,8 +612,8 @@ size_t db_fwrite(void* ptr, size_t size, size_t nmemb, DB_FILE stream) {
     return result;
 }
 
-int db_fputc(int c, DB_FILE stream) {
-    int result;
+int32_t db_fputc(int32_t c, DB_FILE stream) {
+    int32_t result;
 
     if (stream && (stream->flags & 4)) {
         result = fputc(c, (FILE*)stream->field_12);
@@ -624,8 +624,8 @@ int db_fputc(int c, DB_FILE stream) {
     return result;
 }
 
-int db_fputs(char* s, DB_FILE stream) {
-    int result;
+int32_t db_fputs(char* s, DB_FILE stream) {
+    int32_t result;
 
     if (stream && (stream->flags & 4)) {
         result = fputs(s, (FILE*)stream->field_12);
@@ -636,8 +636,8 @@ int db_fputs(char* s, DB_FILE stream) {
     return result;
 }
 
-int db_freadByte(DB_FILE stream, unsigned char* c) {
-    int result;
+int32_t db_freadByte(DB_FILE stream, uint8_t* c) {
+    int32_t result;
 
     result = db_fgetc(stream);
 
@@ -649,9 +649,9 @@ int db_freadByte(DB_FILE stream, unsigned char* c) {
     return result;
 }
 
-int db_freadShort(DB_FILE stream, unsigned short* s) {
-    int result;
-    unsigned char c;
+int32_t db_freadShort(DB_FILE stream, uint16_t* s) {
+    int32_t result;
+    uint8_t c;
 
     if (db_freadByte((DB_FILE)stream, &c) == -1) {
         result = -1;
@@ -669,9 +669,9 @@ int db_freadShort(DB_FILE stream, unsigned short* s) {
     return result;
 }
 
-int db_freadInt(DB_FILE stream, int* i) {
-    int result;
-    unsigned short s;
+int32_t db_freadInt(DB_FILE stream, int32_t* i) {
+    int32_t result;
+    uint16_t s;
 
     if (db_freadShort((DB_FILE)stream, &s) == -1) {
         result = -1;
@@ -689,21 +689,21 @@ int db_freadInt(DB_FILE stream, int* i) {
     return result;
 }
 
-int db_freadFloat(DB_FILE stream, float* q) {
-    int result;
-    int i;
+int32_t db_freadFloat(DB_FILE stream, float* q) {
+    int32_t result;
+    int32_t i;
 
     result = db_freadInt(stream, &i);
     if (result != -1) {
         result = 0;
-        *q = (long double)(unsigned int)i;
+        *q = i;
     }
 
     return result;
 }
 
-int db_fwriteByte(DB_FILE stream, unsigned char c) {
-    int result;
+int32_t db_fwriteByte(DB_FILE stream, uint8_t c) {
+    int32_t result;
 
     if (stream && (stream->flags & 4)) {
         if (fputc(c, (FILE*)stream->field_12) != -1) {
@@ -718,8 +718,8 @@ int db_fwriteByte(DB_FILE stream, unsigned char c) {
     return result;
 }
 
-int db_fwriteShort(DB_FILE stream, unsigned short s) {
-    int result;
+int32_t db_fwriteShort(DB_FILE stream, uint16_t s) {
+    int32_t result;
 
     if (db_fwriteByte(stream, s >> 8) != -1) {
         if (db_fwriteByte(stream, s) != -1) {
@@ -734,8 +734,8 @@ int db_fwriteShort(DB_FILE stream, unsigned short s) {
     return result;
 }
 
-int db_fwriteInt(DB_FILE stream, int i) {
-    int result;
+int32_t db_fwriteInt(DB_FILE stream, int32_t i) {
+    int32_t result;
 
     if (db_fwriteShort(stream, i >> 16) != -1) {
         if (db_fwriteShort(stream, i) != -1) {
@@ -750,8 +750,8 @@ int db_fwriteInt(DB_FILE stream, int i) {
     return result;
 }
 
-int db_fwriteLong(DB_FILE stream, unsigned long l) {
-    int result;
+int32_t db_fwriteLong(DB_FILE stream, uint32_t l) {
+    int32_t result;
 
     if (db_fwriteShort(stream, l >> 16) != -1) {
         if (db_fwriteShort(stream, l) != -1) {
@@ -766,22 +766,22 @@ int db_fwriteLong(DB_FILE stream, unsigned long l) {
     return result;
 }
 
-int db_fwriteFloat(DB_FILE stream, float q) { return db_fwriteInt(stream, (signed long long)q); }
+int32_t db_fwriteFloat(DB_FILE stream, float q) { return db_fwriteInt(stream, (int64_t)q); }
 
-int db_assoc_load_dir_entry(FILE* fp, void* dir_entry, size_t size, int unknown) {
+int32_t db_assoc_load_dir_entry(FILE* fp, void* dir_entry, size_t size, int32_t unknown) {
     SDL_assert(0 /** \todo implement unused code */);
 
     return -1;
 }
 
-int db_assoc_save_dir_entry(FILE* fp, void* dir_entry, size_t size, int unknown) {
+int32_t db_assoc_save_dir_entry(FILE* fp, void* dir_entry, size_t size, int32_t unknown) {
     SDL_assert(0 /** \todo implement unused code */);
 
     return -1;
 }
 
-long db_filelength(DB_FILE stream) {
-    int result;
+int32_t db_filelength(DB_FILE stream) {
+    int32_t result;
 
     result = -1;
 
@@ -810,15 +810,15 @@ void db_register_mem(db_malloc_func malloc_func, db_strdup_func strdup_func, db_
     }
 }
 
-void db_register_callback(db_read_callback callback, unsigned int threshold) {
+void db_register_callback(db_read_callback callback, uint32_t threshold) {
     read_callback = callback;
     read_threshold = threshold;
     read_count = 0;
 }
 
-int db_create_database(db_handle* db) {
-    int result;
-    int i;
+int32_t db_create_database(db_handle* db) {
+    int32_t result;
+    int32_t i;
 
     for (i = 0; (i < GNW_DB_DATABASE_LIST_SIZE) && database_list[i]; i++) {
         ;
@@ -840,8 +840,8 @@ int db_create_database(db_handle* db) {
     return result;
 }
 
-int db_destroy_database(db_handle* db) {
-    int result;
+int32_t db_destroy_database(db_handle* db) {
+    int32_t result;
 
     if (db && *db) {
         free_function(*db);
@@ -855,12 +855,12 @@ int db_destroy_database(db_handle* db) {
     return result;
 }
 
-int db_init_database(db_handle db, char* datafile, char* datafile_path) {
+int32_t db_init_database(db_handle db, char* datafile, char* datafile_path) {
     assoc_func_list assoc_funcs;
-    int i;
-    int j;
+    int32_t i;
+    int32_t j;
     char* path = "\0";
-    int size;
+    int32_t size;
 
     if (!db) {
         return -1;
@@ -964,8 +964,8 @@ int db_init_database(db_handle db, char* datafile, char* datafile_path) {
 
 void db_exit_database(db_handle db) {}
 
-int db_init_patches(db_handle db, char* patches_path) {
-    int size;
+int32_t db_init_patches(db_handle db, char* patches_path) {
+    int32_t size;
 
     if (db) {
         if (!patches_path) {
@@ -1013,9 +1013,9 @@ void db_exit_patches(db_handle db) {
     }
 }
 
-DB_FILE db_add_fp_rec(FILE* fp, char* buffer, size_t size, int flags) {
+DB_FILE db_add_fp_rec(FILE* fp, char* buffer, size_t size, int32_t flags) {
     DB_FILE result;
-    int fp_rec_index;
+    int32_t fp_rec_index;
 
     result = NULL;
 
@@ -1025,7 +1025,7 @@ DB_FILE db_add_fp_rec(FILE* fp, char* buffer, size_t size, int flags) {
         current_database->db_file_list[fp_rec_index].db = current_database;
 
         if (flags & 4) {
-            current_database->db_file_list[fp_rec_index].field_12 = (int)fp;
+            current_database->db_file_list[fp_rec_index].field_12 = (int32_t)fp;
 
             result = (DB_FILE)&current_database->db_file_list[fp_rec_index].db;
         } else {
@@ -1066,7 +1066,7 @@ DB_FILE db_add_fp_rec(FILE* fp, char* buffer, size_t size, int flags) {
     return result;
 }
 
-int db_fclose(DB_FILE stream) {
+int32_t db_fclose(DB_FILE stream) {
     if (stream) {
         if (stream->flags & 4) {
             fclose((FILE*)stream->field_12);
@@ -1103,9 +1103,9 @@ int db_fclose(DB_FILE stream) {
     return -1;
 }
 
-int db_find_empty_position(int* index) {
+int32_t db_find_empty_position(int32_t* index) {
     if (index && (current_database->db_file_count < 10)) {
-        int i;
+        int32_t i;
 
         for (i = 0; i < 10 && current_database->db_file_list[i].in_use; i++) {
             ;
@@ -1120,10 +1120,10 @@ int db_find_empty_position(int* index) {
     return -1;
 }
 
-int db_find_dir_entry(char* filename, dir_entry de) {
-    int size;
-    int i;
-    int j;
+int32_t db_find_dir_entry(char* filename, dir_entry de) {
+    int32_t size;
+    int32_t i;
+    int32_t j;
 
     if (!current_database->datafile || !filename || !de) {
         return -1;
@@ -1194,7 +1194,7 @@ char* db_default_strdup(const char* s) {
 void db_default_free(void* ptr) { free(ptr); }
 
 void db_preload_buffer(DB_FILE stream) {
-    unsigned short size;
+    uint16_t size;
 
     if ((stream->flags & 0x08) && ((stream->flags & 0xF0) == 0x40) && stream->field_16 &&
         (stream->buffer_position + GNW_DB_READ_THRESHOLD) <= stream->buffer_end &&
@@ -1216,10 +1216,10 @@ void db_preload_buffer(DB_FILE stream) {
     }
 }
 
-int db_fread_short(FILE* fp, unsigned short* s) {
-    int c1;
-    int c2;
-    int result;
+int32_t db_fread_short(FILE* fp, uint16_t* s) {
+    int32_t c1;
+    int32_t c2;
+    int32_t result;
 
     c1 = fgetc(fp);
     c2 = fgetc(fp);

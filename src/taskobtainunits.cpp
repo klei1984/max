@@ -30,10 +30,10 @@ TaskObtainUnits::TaskObtainUnits(Task* task, Point point)
 
 TaskObtainUnits::~TaskObtainUnits() {}
 
-unsigned short TaskObtainUnits::CountInstancesOfUnitType(ResourceID unit_type) {
-    unsigned short count = 0;
+uint16_t TaskObtainUnits::CountInstancesOfUnitType(ResourceID unit_type) {
+    uint16_t count = 0;
 
-    for (int i = 0; i < units->GetCount(); ++i) {
+    for (int32_t i = 0; i < units->GetCount(); ++i) {
         if (*units[i] == unit_type) {
             ++count;
         }
@@ -78,8 +78,8 @@ bool TaskObtainUnits::IsValidCandidate(UnitInfo* unit, bool mode) {
 
 UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     SmartList<UnitInfo>* list;
-    int speed{0};
-    int best_speed{0};
+    int32_t speed{0};
+    int32_t best_speed{0};
     UnitInfo* selected_unit = nullptr;
     bool is_unit_available = false;
 
@@ -136,8 +136,8 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     return selected_unit;
 }
 
-unsigned short TaskObtainUnits::GetFlags() const {
-    unsigned short flags;
+uint16_t TaskObtainUnits::GetFlags() const {
+    uint16_t flags;
 
     if (parent != nullptr) {
         flags = parent->GetFlags();
@@ -155,7 +155,7 @@ char* TaskObtainUnits::WriteStatusLog(char* buffer) const {
         strcat(buffer, "(finished)");
     }
 
-    for (int i = 0; i < units->GetCount() && i < 3; ++i) {
+    for (int32_t i = 0; i < units->GetCount() && i < 3; ++i) {
         strcat(buffer, UnitsManager_BaseUnits[*units[i]].singular_name);
         if ((i + 1) < units->GetCount() && i < 2) {
             strcat(buffer, ", ");
@@ -169,7 +169,7 @@ char* TaskObtainUnits::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskObtainUnits::GetType() const { return TaskType_TaskObtainUnits; }
+uint8_t TaskObtainUnits::GetType() const { return TaskType_TaskObtainUnits; }
 
 bool TaskObtainUnits::IsNeeded() {
     bool result;
@@ -184,7 +184,7 @@ bool TaskObtainUnits::IsNeeded() {
 }
 
 void TaskObtainUnits::AddUnit(UnitInfo& unit) {
-    int index = units->Find(&unit.unit_type);
+    int32_t index = units->Find(&unit.unit_type);
 
     AiLog log("Obtain Units: Add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
 
@@ -225,7 +225,7 @@ void TaskObtainUnits::EndTurn() {
     }
 
     if (field_27) {
-        for (int i = units.GetCount() - 1; i >= 0; --i) {
+        for (int32_t i = units.GetCount() - 1; i >= 0; --i) {
             UnitInfo* unit = FindUnit(*units[i], false);
 
             if (unit) {
@@ -250,7 +250,7 @@ void TaskObtainUnits::EndTurn() {
 
         memset(IsUnitTypeRequested, false, sizeof(IsUnitTypeRequested));
 
-        for (int i = 0; i < units.GetCount(); ++i) {
+        for (int32_t i = 0; i < units.GetCount(); ++i) {
             if (UnitsManager_BaseUnits[*units[i]].flags & STATIONARY) {
                 TaskManager.CreateBuilding(*units[i], team, point, this);
             } else if (*units[i] == CONSTRCT || *units[i] == ENGINEER) {

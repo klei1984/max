@@ -30,10 +30,10 @@
 #include "window_manager.hpp"
 
 void DialogMenu::DrawText() {
-    unsigned char* buffer;
-    int height;
-    int num_rows;
-    int row_width;
+    uint8_t* buffer;
+    int32_t height;
+    int32_t num_rows;
+    int32_t row_width;
 
     canvas->Write(&window);
 
@@ -52,7 +52,7 @@ void DialogMenu::DrawText() {
 
     row_width = 0;
 
-    for (int i = row_offset; i < num_rows; ++i) {
+    for (int32_t i = row_offset; i < num_rows; ++i) {
         if (center_align_text) {
             row_width = Text_GetWidth(strings[i].GetCStr());
 
@@ -70,7 +70,7 @@ void DialogMenu::DrawText() {
     win_draw_rect(window.id, &window.window);
 }
 
-bool DialogMenu::ProcessKey(int key) {
+bool DialogMenu::ProcessKey(int32_t key) {
     if (key > 0 && key < GNW_INPUT_PRESS) {
         event_release = false;
     }
@@ -79,7 +79,7 @@ bool DialogMenu::ProcessKey(int key) {
         case GNW_KB_KEY_PAGEUP:
         case 1000: {
             if (row_offset) {
-                int num_rows;
+                int32_t num_rows;
 
                 num_rows = row_offset - max_row_count;
 
@@ -88,7 +88,7 @@ bool DialogMenu::ProcessKey(int key) {
                 }
 
                 do {
-                    unsigned int time_Stamp = timer_get();
+                    uint32_t time_Stamp = timer_get();
 
                     --row_offset;
                     DrawText();
@@ -107,12 +107,12 @@ bool DialogMenu::ProcessKey(int key) {
         case GNW_KB_KEY_PAGEDOWN:
         case 1001: {
             if ((max_row_count + row_offset) < row_count) {
-                int num_rows;
+                int32_t num_rows;
 
                 num_rows = row_offset + max_row_count;
 
                 do {
-                    unsigned int time_Stamp = timer_get();
+                    uint32_t time_Stamp = timer_get();
 
                     ++row_offset;
                     DrawText();
@@ -197,7 +197,7 @@ void DialogMenu::Run() {
     event_release = false;
 
     while (!event_click_ok) {
-        int key = get_input();
+        int32_t key = get_input();
 
         ProcessKey(key);
 
@@ -217,7 +217,7 @@ void DialogMenu::RunMenu() {
     event_click_ok = false;
 
     while (!event_click_ok) {
-        int key = get_input();
+        int32_t key = get_input();
 
         if (Remote_IsNetworkGame) {
             if (Remote_CheckUnpauseEvent()) {

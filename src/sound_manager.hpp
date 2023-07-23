@@ -48,17 +48,17 @@ public:
     void FreeMusic();
 
     void PlaySfx(ResourceID id);
-    void PlaySfx(UnitInfo* unit, int sound, bool mode = false);
+    void PlaySfx(UnitInfo* unit, int32_t sound, bool mode = false);
     void UpdateSfxPosition();
     void UpdateSfxPosition(UnitInfo* unit);
     void UpdateAllSfxPositions();
     void HaltSfxPlayback(bool disable);
 
-    void PlayVoice(ResourceID id1, ResourceID id2, short priority = 0);
+    void PlayVoice(ResourceID id1, ResourceID id2, int16_t priority = 0);
     void HaltVoicePlayback(bool disable);
 
     void FreeAllSamples();
-    void SetVolume(int type, int volume);
+    void SetVolume(int32_t type, int32_t volume);
 
     void BkProcess();
 
@@ -66,38 +66,38 @@ private:
     typedef enum { JOB_TYPE_SFX0, JOB_TYPE_SFX1, JOB_TYPE_SFX2, JOB_TYPE_VOICE, JOB_TYPE_MUSIC } JOB_TYPE;
 
     typedef struct {
-        int volume;
+        int32_t volume;
         char flags;
     } SoundVolume;
 
     typedef struct {
         ResourceID id;
         JOB_TYPE type;
-        unsigned int volume_1;
-        unsigned int volume_2;
-        unsigned short panning;
-        int loop_count;
-        short grid_x;
-        short grid_y;
-        short priority;
-        int sound;
-        unsigned short unit_id;
+        uint32_t volume_1;
+        uint32_t volume_2;
+        uint16_t panning;
+        int32_t loop_count;
+        int16_t grid_x;
+        int16_t grid_y;
+        int16_t priority;
+        int32_t sound;
+        uint16_t unit_id;
     } SoundJob;
 
     typedef struct {
         ResourceID id;
         JOB_TYPE type;
-        unsigned int volume_1;
-        unsigned int volume_2;
-        int loop_count;
-        short grid_x;
-        short grid_y;
-        short priority;
-        unsigned int time_stamp;
-        unsigned int loop_point_start;
-        int loop_point_length;
+        uint32_t volume_1;
+        uint32_t volume_2;
+        int32_t loop_count;
+        int16_t grid_x;
+        int16_t grid_y;
+        int16_t priority;
+        uint32_t time_stamp;
+        uint32_t loop_point_start;
+        int32_t loop_point_length;
 
-        int mixer_channel;
+        int32_t mixer_channel;
         Mix_Chunk* chunk;
         Mix_Music* music;
     } SoundSample;
@@ -117,21 +117,21 @@ private:
     std::list<SoundJob> jobs;
 
     std::list<SoundSample> samples;
-    int mixer_channels_count;
+    int32_t mixer_channels_count;
     SoundSample* music;
     SoundSample* voice;
     SoundSample* sfx;
 
     void AddJob(SoundJob& job);
-    int ProcessJob(SoundJob& job);
+    int32_t ProcessJob(SoundJob& job);
     void FreeSample(SoundSample* sample);
     void UpdateMusic();
     void FreeSfx(UnitInfo* unit);
     void FreeVoice(ResourceID id1, ResourceID id2);
     bool IsVoiceGroupScheduled(ResourceID id1, ResourceID id2);
-    static int GetPanning(int distance, bool reverse);
+    static int32_t GetPanning(int32_t distance, bool reverse);
     bool LoadMusic(ResourceID id);
-    int LoadSound(SoundJob& job, SoundSample& sample);
+    int32_t LoadSound(SoundJob& job, SoundSample& sample);
     void LoadLoopPoints(FILE* fp, SoundSample& sample);
 };
 

@@ -28,23 +28,23 @@ class TaskSearchDestination : public Task {
     SmartPointer<UnitInfo> unit;
     Point point1;
     TaskAbstractSearch* search_task;
-    unsigned short search_radius;
-    short index;
+    uint16_t search_radius;
+    int16_t index;
     Point points[2];
-    short directions[2];
+    int16_t directions[2];
     Point point2;
     Point point3;
 
-    short radius;
-    short field_57;
-    short field_59;
+    int16_t radius;
+    int16_t field_57;
+    int16_t field_59;
 
     bool field_61;
     bool is_doomed;
 
-    short valid_sites;
-    short searched_sites;
-    short enterable_sites;
+    int16_t valid_sites;
+    int16_t searched_sites;
+    int16_t enterable_sites;
 
     void FinishSearch();
     void SearchNextCircle();
@@ -57,11 +57,11 @@ class TaskSearchDestination : public Task {
     static void FarMoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskSearchDestination(Task* task, UnitInfo* unit, int radius);
+    TaskSearchDestination(Task* task, UnitInfo* unit, int32_t radius);
     ~TaskSearchDestination();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void Begin();
     void EndTurn();
     void RemoveSelf();

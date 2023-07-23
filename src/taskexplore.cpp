@@ -31,7 +31,7 @@
 #include "taskobtainunits.hpp"
 #include "units_manager.hpp"
 
-TaskExplore::TaskExplore(unsigned short team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x1B00, point_) {
+TaskExplore::TaskExplore(uint16_t team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x1B00, point_) {
     memset(obtain_requests, 0, sizeof(obtain_requests));
 
     obtain_requests[SCOUT] = 1;
@@ -46,7 +46,7 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
     bool result;
 
     if (obtain_requests[unit.unit_type]) {
-        int unit_count = 0;
+        int32_t unit_count = 0;
 
         AiLog log("Can explore task use %s?", UnitsManager_BaseUnits[unit.unit_type].singular_name);
 
@@ -78,7 +78,7 @@ char* TaskExplore::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskExplore::GetType() const { return TaskType_TaskExplore; }
+uint8_t TaskExplore::GetType() const { return TaskType_TaskExplore; }
 
 bool TaskExplore::Execute(UnitInfo& unit) {
     bool result;
@@ -104,7 +104,7 @@ void TaskExplore::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
 }
 
 bool TaskExplore::IsVisited(UnitInfo& unit, Point point) {
-    unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
+    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
 
     if (unit.unit_type == FASTBOAT || unit.unit_type == SUBMARNE) {
         if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * point.y + point.x] != SURFACE_TYPE_WATER) {

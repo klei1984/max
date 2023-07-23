@@ -48,7 +48,7 @@ void Button_RFunc(ButtonID bid, Button *b) {
     }
 }
 
-Button::Button(int ulx, int uly, int width, int height)
+Button::Button(int32_t ulx, int32_t uly, int32_t width, int32_t height)
     : bid(0),
       ulx(ulx),
       uly(uly),
@@ -68,7 +68,7 @@ Button::Button(int ulx, int uly, int width, int height)
       sfx(INVALID_ID),
       rest_state(false) {}
 
-Button::Button(ResourceID up, ResourceID down, int ulx, int uly)
+Button::Button(ResourceID up, ResourceID down, int32_t ulx, int32_t uly)
     : bid(0),
       up_disabled(nullptr),
       down_disabled(nullptr),
@@ -137,8 +137,8 @@ void Button::Allocate() {
 
 Rect Button::GetBounds() const { return {ulx, uly, width + ulx, height + uly}; }
 
-unsigned char *Button::GetUpData() const {
-    unsigned char *buffer;
+uint8_t *Button::GetUpData() const {
+    uint8_t *buffer;
 
     if (up) {
         buffer = up->GetData();
@@ -149,8 +149,8 @@ unsigned char *Button::GetUpData() const {
     return buffer;
 }
 
-unsigned char *Button::GetDownData() const {
-    unsigned char *buffer;
+uint8_t *Button::GetDownData() const {
+    uint8_t *buffer;
 
     if (down) {
         buffer = down->GetData();
@@ -161,8 +161,8 @@ unsigned char *Button::GetDownData() const {
     return buffer;
 }
 
-unsigned char *Button::GetUpDisabledData() const {
-    unsigned char *buffer;
+uint8_t *Button::GetUpDisabledData() const {
+    uint8_t *buffer;
 
     if (up_disabled) {
         buffer = up_disabled->GetData();
@@ -173,8 +173,8 @@ unsigned char *Button::GetUpDisabledData() const {
     return buffer;
 }
 
-unsigned char *Button::GetDownDisabledData() const {
-    unsigned char *buffer;
+uint8_t *Button::GetDownDisabledData() const {
+    uint8_t *buffer;
 
     if (down_disabled) {
         buffer = down_disabled->GetData();
@@ -229,7 +229,7 @@ void Button::Copy(WinID wid) {
     }
 }
 
-void Button::Copy(ResourceID id, int ulx, int uly) {
+void Button::Copy(ResourceID id, int32_t ulx, int32_t uly) {
     WindowInfo window;
 
     Allocate();
@@ -278,46 +278,46 @@ void Button::CopyDownDisabled(ResourceID id) {
     down_disabled = new (std::nothrow) Image(id, ulx, uly);
 }
 
-void Button::CopyUp(unsigned char *buffer) {
+void Button::CopyUp(uint8_t *buffer) {
     delete up;
     up = new (std::nothrow) Image(ulx, uly, width, height);
     buf_to_buf(buffer, width, height, width, up->GetData(), width);
 }
 
-void Button::CopyDown(unsigned char *buffer) {
+void Button::CopyDown(uint8_t *buffer) {
     delete down;
     down = new (std::nothrow) Image(ulx, uly, width, height);
     buf_to_buf(buffer, width, height, width, down->GetData(), width);
 }
 
-void Button::CopyUpDisabled(unsigned char *buffer) {
+void Button::CopyUpDisabled(uint8_t *buffer) {
     delete up_disabled;
     up_disabled = new (std::nothrow) Image(ulx, uly, width, height);
     buf_to_buf(buffer, width, height, width, up_disabled->GetData(), width);
 }
 
-void Button::CopyDownDisabled(unsigned char *buffer) {
+void Button::CopyDownDisabled(uint8_t *buffer) {
     delete down_disabled;
     down_disabled = new (std::nothrow) Image(ulx, uly, width, height);
     buf_to_buf(buffer, width, height, width, down_disabled->GetData(), width);
 }
 
-void Button::SetPFunc(ButtonFunc p_func, int p_value) {
+void Button::SetPFunc(ButtonFunc p_func, int32_t p_value) {
     this->p_func = p_func;
     this->p_value = p_value;
 }
 
-void Button::SetRFunc(ButtonFunc r_func, int r_value) {
+void Button::SetRFunc(ButtonFunc r_func, int32_t r_value) {
     this->r_func = r_func;
     this->r_value = r_value;
 }
 
 void Button::RegisterButton(WinID wid) {
-    unsigned char *up_data;
-    unsigned char *down_data;
-    unsigned int flags;
-    int r_value;
-    int p_value;
+    uint8_t *up_data;
+    uint8_t *down_data;
+    uint32_t flags;
+    int32_t r_value;
+    int32_t p_value;
 
     if (down && ((down->GetWidth() != width) || (down->GetHeight() != height))) {
         Image *image;
@@ -349,8 +349,8 @@ void Button::RegisterButton(WinID wid) {
     r_value = this->r_value;
 
     if (this->p_func || this->r_func) {
-        p_value = reinterpret_cast<int>(this);
-        r_value = reinterpret_cast<int>(this);
+        p_value = reinterpret_cast<int32_t>(this);
+        r_value = reinterpret_cast<int32_t>(this);
     }
 
     bid =
@@ -403,13 +403,13 @@ void Button::SetSfx(ResourceID id) { sfx = id; }
 
 ButtonID Button::GetId() const { return bid; }
 
-void Button::SetPValue(int p_value) { this->p_value = p_value; }
+void Button::SetPValue(int32_t p_value) { this->p_value = p_value; }
 
-void Button::SetRValue(int r_value) { this->r_value = r_value; }
+void Button::SetRValue(int32_t r_value) { this->r_value = r_value; }
 
-void Button::SetFlags(unsigned int flags) { this->flags = flags; }
+void Button::SetFlags(uint32_t flags) { this->flags = flags; }
 
-void Button::SetCaption(const char *caption, short x, short y, FontColor color_up, FontColor color_down,
+void Button::SetCaption(const char *caption, int16_t x, int16_t y, FontColor color_up, FontColor color_down,
                         FontColor color_up_disabled, FontColor color_down_disabled) {
     Rect bounds = {0, 0, width - x, height - y};
 
@@ -419,9 +419,9 @@ void Button::SetCaption(const char *caption, short x, short y, FontColor color_u
 void Button::SetCaption(const char *caption, Rect *r, FontColor color_up, FontColor color_down,
                         FontColor color_up_disabled, FontColor color_down_disabled) {
     WindowInfo window;
-    int width;
-    int height;
-    int uly_caption;
+    int32_t width;
+    int32_t height;
+    int32_t uly_caption;
 
     Allocate();
 

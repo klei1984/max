@@ -65,10 +65,10 @@ UnitValues::~UnitValues() {}
 
 FileObject* UnitValues::Allocate() { return new (std::nothrow) UnitValues(); }
 
-static unsigned short UnitValues_TypeIndex;
+static uint16_t UnitValues_TypeIndex;
 static MAXRegisterClass UnitValues_ClassRegister("UnitValues", &UnitValues_TypeIndex, &UnitValues::Allocate);
 
-unsigned short UnitValues::GetTypeIndex() const { return UnitValues_TypeIndex; }
+uint16_t UnitValues::GetTypeIndex() const { return UnitValues_TypeIndex; }
 
 void UnitValues::FileLoad(SmartFileReader& file) {
     file.Read(turns);
@@ -106,8 +106,8 @@ void UnitValues::FileSave(SmartFileWriter& file) {
     file.Write(units_built);
 }
 
-int UnitValues::GetAttribute(char attribute) {
-    int result;
+int32_t UnitValues::GetAttribute(char attribute) {
+    int32_t result;
 
     switch (attribute) {
         case ATTRIB_TURNS:
@@ -162,8 +162,8 @@ int UnitValues::GetAttribute(char attribute) {
     return result;
 }
 
-unsigned short* UnitValues::GetAttributeAddress(char attribute) {
-    unsigned short* result;
+uint16_t* UnitValues::GetAttributeAddress(char attribute) {
+    uint16_t* result;
 
     switch (attribute) {
         case ATTRIB_TURNS:
@@ -215,7 +215,7 @@ unsigned short* UnitValues::GetAttributeAddress(char attribute) {
     return result;
 }
 
-void UnitValues::SetAttribute(char attribute, int value) {
+void UnitValues::SetAttribute(char attribute, int32_t value) {
     switch (attribute) {
         case ATTRIB_TURNS:
             turns = value;
@@ -265,7 +265,7 @@ void UnitValues::SetAttribute(char attribute, int value) {
             break;
     }
 }
-void UnitValues::AddAttribute(char attribute, int value) {
+void UnitValues::AddAttribute(char attribute, int32_t value) {
     switch (attribute) {
         case ATTRIB_TURNS:
             turns += value;
@@ -322,9 +322,9 @@ void UnitValues::UpdateVersion() {
     }
 }
 
-int UnitValues::GetVersion() const { return version; }
+int32_t UnitValues::GetVersion() const { return version; }
 
-void UnitValues::SetUnitsBuilt(unsigned char count) { units_built = count; }
+void UnitValues::SetUnitsBuilt(uint8_t count) { units_built = count; }
 
 bool UnitValues::operator==(const UnitValues& other) const {
     return turns == other.turns && hits == other.hits && armor == other.armor && attack == other.attack &&

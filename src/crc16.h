@@ -22,6 +22,8 @@
 #ifndef CRC16_H
 #define CRC16_H
 
-void crc16(unsigned short *crc, unsigned char c);
+#include <stdint.h>
+
+void crc16(uint16_t *crc, uint8_t c);
 
 #endif /* CRC16_H */

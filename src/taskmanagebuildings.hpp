@@ -32,63 +32,63 @@ class TaskManageBuildings : public Task {
     Cargo cargo_demand;
 
     struct Block {
-        signed char d1;
-        signed char d2;
-        signed char d3;
-        signed char d4;
+        int8_t d1;
+        int8_t d2;
+        int8_t d3;
+        int8_t d4;
     };
 
-    void FillMap(unsigned short** construction_map, int ulx, int uly, int lrx, int lry, int fill_value);
-    unsigned short** CreateMap();
-    void DeleteMap(unsigned short** construction_map);
-    void MarkMiningAreas(unsigned short** construction_map);
-    void MarkBuildingAreas(unsigned short** construction_map, int area_expanse, int area_offset);
-    void ClearBuildingAreas(unsigned short** construction_map, TaskCreateBuilding* task);
-    void ClearPathways(unsigned short** construction_map, Rect bounds, int unit_size);
-    void ClearPlannedBuildings(unsigned short** construction_map, TaskCreateBuilding* task, ResourceID unit_type,
-                               unsigned short task_flags);
-    static bool FillBlockMap(int ul1, int lr1, int ul2, int lr2, signed char* address_a, signed char* address_b);
-    void ClearBlocks(unsigned short** construction_map, struct Block** block_map, Rect bounds, int area_marker,
-                     int unit_size);
-    void LimitBlockSize(unsigned short** construction_map, int unit_size);
-    int EvaluateSiteValue(unsigned short** construction_map, Point site, ResourceID unit_type);
+    void FillMap(uint16_t** construction_map, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t fill_value);
+    uint16_t** CreateMap();
+    void DeleteMap(uint16_t** construction_map);
+    void MarkMiningAreas(uint16_t** construction_map);
+    void MarkBuildingAreas(uint16_t** construction_map, int32_t area_expanse, int32_t area_offset);
+    void ClearBuildingAreas(uint16_t** construction_map, TaskCreateBuilding* task);
+    void ClearPathways(uint16_t** construction_map, Rect bounds, int32_t unit_size);
+    void ClearPlannedBuildings(uint16_t** construction_map, TaskCreateBuilding* task, ResourceID unit_type,
+                               uint16_t task_flags);
+    static bool FillBlockMap(int32_t ul1, int32_t lr1, int32_t ul2, int32_t lr2, int8_t* address_a, int8_t* address_b);
+    void ClearBlocks(uint16_t** construction_map, struct Block** block_map, Rect bounds, int32_t area_marker,
+                     int32_t unit_size);
+    void LimitBlockSize(uint16_t** construction_map, int32_t unit_size);
+    int32_t EvaluateSiteValue(uint16_t** construction_map, Point site, ResourceID unit_type);
     bool IsFavorableMiningSite(Point site);
-    bool IsViableMiningSite(unsigned short** construction_map, int ulx, int uly, int lrx, int lry);
-    bool IsSafeSite(unsigned short** construction_map, Point site, ResourceID unit_type);
-    bool EvaluateSite(unsigned short** construction_map, ResourceID unit_type, Point& site);
-    bool FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, unsigned short task_flags);
-    int GetUnitCount(ResourceID unit_type, unsigned short task_flags);
-    bool IsSupremeTeam(unsigned short team);
-    int GetHighestGreenHouseCount(unsigned short team);
-    bool CreateBuildings(int building_demand, ResourceID unit_type, unsigned short task_flags);
+    bool IsViableMiningSite(uint16_t** construction_map, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry);
+    bool IsSafeSite(uint16_t** construction_map, Point site, ResourceID unit_type);
+    bool EvaluateSite(uint16_t** construction_map, ResourceID unit_type, Point& site);
+    bool FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, uint16_t task_flags);
+    int32_t GetUnitCount(ResourceID unit_type, uint16_t task_flags);
+    bool IsSupremeTeam(uint16_t team);
+    int32_t GetHighestGreenHouseCount(uint16_t team);
+    bool CreateBuildings(int32_t building_demand, ResourceID unit_type, uint16_t task_flags);
     bool PlanNextBuildJob();
-    static void UpdateCargoDemand(short* limit, short* material, int max_mining);
+    static void UpdateCargoDemand(int16_t* limit, int16_t* material, int32_t max_mining);
     void UpdateMiningNeeds();
-    void MakeConnectors(int ulx, int uly, int lrx, int lry, Task* task);
+    void MakeConnectors(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, Task* task);
     bool CheckNeeds();
-    void ClearAreasNearBuildings(unsigned char** access_map, int area_expanse, TaskCreateBuilding* task);
-    void EvaluateDangers(unsigned char** access_map);
-    void MarkDefenseSites(unsigned short** construction_map, unsigned char** access_map, TaskCreateBuilding* task,
-                          int value);
-    void ClearDefenseSites(unsigned char** access_map, ResourceID unit_type, TaskCreateBuilding* task,
-                           unsigned short task_flags);
-    bool IsSiteWithinRadarRange(Point site, int unit_range, TaskCreateBuilding* task);
-    void UpdateAccessMap(unsigned char** access_map, TaskCreateBuilding* task);
-    bool EvaluateNeedForRadar(unsigned char** access_map, TaskCreateBuilding* task);
-    bool MarkBuildings(unsigned char** access_map, Point& site);
-    void MarkConnections(unsigned char** access_map, Point site, int value);
-    void UpdateConnectors(unsigned char** access_map, int ulx, int uly, int lrx, int lry);
-    int GetConnectionDistance(unsigned char** access_map, Point& site1, Point site2, unsigned short team, int value);
-    bool ConnectBuilding(unsigned char** access_map, Point site, int value);
-    bool ReconnectBuilding(unsigned char** access_map, Rect* bounds, int value);
-    static bool FindMarkedSite(unsigned char** access_map, Rect* bounds);
+    void ClearAreasNearBuildings(uint8_t** access_map, int32_t area_expanse, TaskCreateBuilding* task);
+    void EvaluateDangers(uint8_t** access_map);
+    void MarkDefenseSites(uint16_t** construction_map, uint8_t** access_map, TaskCreateBuilding* task,
+                          int32_t value);
+    void ClearDefenseSites(uint8_t** access_map, ResourceID unit_type, TaskCreateBuilding* task,
+                           uint16_t task_flags);
+    bool IsSiteWithinRadarRange(Point site, int32_t unit_range, TaskCreateBuilding* task);
+    void UpdateAccessMap(uint8_t** access_map, TaskCreateBuilding* task);
+    bool EvaluateNeedForRadar(uint8_t** access_map, TaskCreateBuilding* task);
+    bool MarkBuildings(uint8_t** access_map, Point& site);
+    void MarkConnections(uint8_t** access_map, Point site, int32_t value);
+    void UpdateConnectors(uint8_t** access_map, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry);
+    int32_t GetConnectionDistance(uint8_t** access_map, Point& site1, Point site2, uint16_t team, int32_t value);
+    bool ConnectBuilding(uint8_t** access_map, Point site, int32_t value);
+    bool ReconnectBuilding(uint8_t** access_map, Rect* bounds, int32_t value);
+    static bool FindMarkedSite(uint8_t** access_map, Rect* bounds);
 
 public:
-    TaskManageBuildings(unsigned short team, Point site);
+    TaskManageBuildings(uint16_t team, Point site);
     ~TaskManageBuildings();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void Begin();
@@ -102,12 +102,12 @@ public:
     void AddCreateOrder(TaskCreateBuilding* task);
     bool CheckPower();
     void CheckWorkers();
-    bool FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, int value,
-                         unsigned short task_flags);
+    bool FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, int32_t value,
+                         uint16_t task_flags);
     bool FindSiteForRadar(TaskCreateBuilding* task, Point& site);
     bool ChangeSite(TaskCreateBuilding* task, Point& site);
     void BuildBridge(Point site, Task* task);
-    bool CreateBuilding(ResourceID unit_type, Task* task, unsigned short task_flags);
+    bool CreateBuilding(ResourceID unit_type, Task* task, uint16_t task_flags);
 
     bool ReconnectBuildings();
 };

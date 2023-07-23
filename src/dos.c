@@ -34,7 +34,7 @@ int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
 int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1, s2, len); }
 #endif /* defined(__unix__) */
 
-static unsigned int dos_rand_next = 1;
+static uint32_t dos_rand_next = 1;
 
 #if defined(__unix__)
 char *dos_strupr(char *s) {
@@ -69,11 +69,11 @@ long int filesize(FILE *fp) {
     return (size_of_file);
 }
 
-static unsigned int *initrandnext() { return &dos_rand_next; }
+static uint32_t *initrandnext() { return &dos_rand_next; }
 
-int dos_rand(void) {
-    unsigned int *next;
-    int result;
+int32_t dos_rand(void) {
+    uint32_t *next;
+    int32_t result;
 
     next = initrandnext();
     if (next) {
@@ -86,8 +86,8 @@ int dos_rand(void) {
     return result;
 }
 
-void dos_srand(unsigned int seed) {
-    unsigned int *next;
+void dos_srand(uint32_t seed) {
+    uint32_t *next;
 
     next = initrandnext();
     if (next) {

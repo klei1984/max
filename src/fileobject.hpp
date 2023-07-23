@@ -28,19 +28,19 @@ class SmartFileReader;
 class SmartFileWriter;
 
 class FileObject : public SmartObject {
-    unsigned short object_index;
+    uint16_t object_index;
 
 public:
     FileObject();
     FileObject(const FileObject& other);
     virtual ~FileObject();
 
-    virtual unsigned short GetTypeIndex() const = 0;
+    virtual uint16_t GetTypeIndex() const = 0;
     virtual void FileLoad(SmartFileReader& file) = 0;
     virtual void FileSave(SmartFileWriter& file) = 0;
 
-    unsigned short GetIndex() const { return object_index; }
-    void SetIndex(unsigned short index) { object_index = index; }
+    uint16_t GetIndex() const { return object_index; }
+    void SetIndex(uint16_t index) { object_index = index; }
 };
 
 #endif /* FILEOBJECT_HPP */

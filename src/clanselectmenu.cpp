@@ -31,7 +31,7 @@ struct ClanSelectMenuControlItem {
     Rect bounds;
     ResourceID image_id;
     const char* label;
-    int event_code;
+    int32_t event_code;
     void (ClanSelectMenu::*event_handler)();
     ResourceID sfx;
 };
@@ -67,7 +67,7 @@ static struct ClanSelectMenuControlItem clan_select_menu_controls[] = {
     MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(aff0), GNW_KB_KEY_SHIFT_RETURN, &ClanSelectMenu::EventDone, CDONE0),
 };
 
-void ClanSelectMenu::Init(int team) {
+void ClanSelectMenu::Init(int32_t team) {
     ButtonID button_list[8];
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
@@ -81,11 +81,11 @@ void ClanSelectMenu::Init(int team) {
     mouse_hide();
     WindowManager_LoadBigImage(CLANSEL, window, window->width, false, false, -1, -1, true);
 
-    for (int i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
         ButtonInit(i, i <= 7);
     }
 
-    for (int i = 0; i < 8; ++i) {
+    for (int32_t i = 0; i < 8; ++i) {
         button_list[i] = buttons[i]->GetId();
     }
 
@@ -113,7 +113,7 @@ void ClanSelectMenu::Init(int team) {
 void ClanSelectMenu::Deinit() {
     delete image;
 
-    for (int i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
     }
 }
@@ -132,7 +132,7 @@ void ClanSelectMenu::EventCancel() { event_click_done_cancel_random = true; }
 
 void ClanSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_CLAN_SETUP, WINDOW_MAIN_WINDOW); }
 
-void ClanSelectMenu::ButtonInit(int index, int mode) {
+void ClanSelectMenu::ButtonInit(int32_t index, int32_t mode) {
     struct ClanSelectMenuControlItem* control = &clan_select_menu_controls[index];
 
     Text_SetFont(GNW_TEXT_FONT_1);
@@ -177,10 +177,10 @@ void ClanSelectMenu::SelectMenuItems() {
     char buffer[500];
     char buffer2[500];
     char* pointer;
-    int color;
-    int index;
+    int32_t color;
+    int32_t index;
 
-    for (int i = 0; i < 8; ++i) {
+    for (int32_t i = 0; i < 8; ++i) {
         ini_clans.GetClanName(i + 1, buffer, 100);
         clan_select_menu_clan_icons[i].title = buffer;
         color = ((i + 1) == team_clan_selection) ? COLOR_GREEN : 0xA2;
@@ -219,24 +219,24 @@ void ClanSelectMenu::SelectMenuItems() {
     win_draw(window->id);
 }
 
-void ClanSelectMenu::DrawClanUpgrades(const char* text, int index, int color) {
+void ClanSelectMenu::DrawClanUpgrades(const char* text, int32_t index, int32_t color) {
     char buffer[500];
-    int position;
-    int limit1;
-    int limit2;
+    int32_t position;
+    int32_t limit1;
+    int32_t limit2;
 
     position = (index / 5) ? 1 : 0;
     buffer[0] = '\0';
     limit1 = index % 5;
     limit2 = 5 - limit1;
 
-    for (int i = 0; i < limit1; ++i) {
+    for (int32_t i = 0; i < limit1; ++i) {
         strcat(buffer, "\n");
     }
 
     strcat(buffer, text);
 
-    for (int i = 0; i < limit2; ++i) {
+    for (int32_t i = 0; i < limit2; ++i) {
         strcat(buffer, "\n");
     }
 

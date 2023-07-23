@@ -43,22 +43,22 @@ class ChatMenu : public Window {
     Button *button_help;
     Button *button_team[PLAYER_TEAM_MAX - 1];
     TextEdit *text_edit;
-    unsigned short team;
+    uint16_t team;
     bool event_click_done_cancel;
     bool event_release;
     char text[60];
 
-    bool ProcessKey(int key);
+    bool ProcessKey(int32_t key);
     void DrawMessage();
 
 public:
-    ChatMenu(unsigned short team);
+    ChatMenu(uint16_t team);
     ~ChatMenu();
 
     void Run();
 };
 
-ChatMenu::ChatMenu(unsigned short team) : Window(CHATWNDO, WINDOW_MAIN_MAP) {
+ChatMenu::ChatMenu(uint16_t team) : Window(CHATWNDO, WINDOW_MAIN_MAP) {
     Cursor_SetCursor(CURSOR_HAND);
     Text_SetFont(GNW_TEXT_FONT_5);
 
@@ -94,7 +94,7 @@ ChatMenu::ChatMenu(unsigned short team) : Window(CHATWNDO, WINDOW_MAIN_MAP) {
     button_help->SetSfx(NHELP0);
     button_help->RegisterButton(window.id);
 
-    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
+    for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
             button_team[i]->SetPValue(i + 1001);
             button_team[i]->SetRValue(i + 1001);
@@ -122,7 +122,7 @@ ChatMenu::~ChatMenu() {
     delete button_send;
     delete button_help;
 
-    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
+    for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         delete button_team[i];
     }
 
@@ -131,7 +131,7 @@ ChatMenu::~ChatMenu() {
     GameManager_ProcessTick(true);
 }
 
-bool ChatMenu::ProcessKey(int key) {
+bool ChatMenu::ProcessKey(int32_t key) {
     if (key > 0 && key < GNW_INPUT_PRESS) {
         event_click_done_cancel = false;
     }
@@ -144,7 +144,7 @@ bool ChatMenu::ProcessKey(int key) {
         case GNW_KB_KEY_RETURN: {
             text_edit->AcceptEditedText();
 
-            for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
+            for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
                 GameManager_MultiChatTargets[i] = win_button_down(button_team[i]->GetId());
 
                 if (GameManager_MultiChatTargets[i]) {
@@ -206,10 +206,10 @@ bool ChatMenu::ProcessKey(int key) {
 void ChatMenu::DrawMessage() {
     char buffer[30];
 
-    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
+    for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
-            int team_ulx;
-            int team_uly;
+            int32_t team_ulx;
+            int32_t team_uly;
 
             ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i), buffer, sizeof(buffer));
 
@@ -244,7 +244,7 @@ void ChatMenu::DrawMessage() {
 }
 
 void ChatMenu::Run() {
-    int key;
+    int32_t key;
 
     event_click_done_cancel = false;
 
@@ -260,4 +260,4 @@ void ChatMenu::Run() {
     }
 }
 
-void ChatMenu_Menu(unsigned short team) { ChatMenu(team).Run(); }
+void ChatMenu_Menu(uint16_t team) { ChatMenu(team).Run(); }

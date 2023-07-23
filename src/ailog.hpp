@@ -22,14 +22,15 @@
 #ifndef AILOG_HPP
 #define AILOG_HPP
 
+#include <cstdint>
 #include <fstream>
 
 class AiLog {
     static std::ofstream AiLog_File;
-    static int AiLog_SectionCount;
-    static int AiLog_EntryCount;
+    static int32_t AiLog_SectionCount;
+    static int32_t AiLog_EntryCount;
 
-    unsigned int time_stamp;
+    uint32_t time_stamp;
 
     void VSprintf(const char *format, va_list args);
 

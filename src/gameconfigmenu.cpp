@@ -32,7 +32,7 @@ struct GameConfigMenuControlItem {
     Rect bounds;
     ResourceID image_id;
     const char* label;
-    int event_code;
+    int32_t event_code;
     void (GameConfigMenu::*event_handler)();
     ResourceID sfx;
 };
@@ -147,7 +147,7 @@ static void DrawCaption(WindowInfo* window, MenuTitleItem* menu_item, FontColor 
     }
 }
 
-static void DrawSelector(WindowInfo* window, MenuTitleItem* menu_item, int color) {
+static void DrawSelector(WindowInfo* window, MenuTitleItem* menu_item, int32_t color) {
     draw_box(window->buffer, window->width, WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
              WindowManager_ScaleUly(window, menu_item->bounds.uly),
              WindowManager_ScaleUlx(window, menu_item->bounds.lrx),
@@ -182,7 +182,7 @@ void GameConfigMenu::Init() {
     mouse_hide();
     WindowManager_LoadBigImage(OPTNFRM, window, window->width, false, false, -1, -1, true);
 
-    for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
 
         if ((i > 5 || (game_mode != GAME_CONFIG_MENU_GAME_MODE_3 && game_mode != GAME_CONFIG_MENU_GAME_MODE_4)) &&
@@ -207,7 +207,7 @@ void GameConfigMenu::Init() {
     bg_panels[5] =
         new (std::nothrow) Image(WindowManager_ScaleUlx(window, 426), WindowManager_ScaleUly(window, 233), 200, 190);
 
-    for (int i = 0; i < 6; ++i) {
+    for (int32_t i = 0; i < 6; ++i) {
         bg_panels[i]->Copy(window);
     }
 
@@ -217,11 +217,11 @@ void GameConfigMenu::Init() {
 }
 
 void GameConfigMenu::Deinit() {
-    for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
     }
 
-    for (int i = 0; i < 6; ++i) {
+    for (int32_t i = 0; i < 6; ++i) {
         delete bg_panels[i];
     }
 
@@ -283,9 +283,9 @@ void GameConfigMenu::EventResourceLevelsAlien() {
 }
 
 void GameConfigMenu::EventVictoryCondition() {
-    int victory_type{0};
-    int victory_limit{0};
-    int index;
+    int32_t victory_type{0};
+    int32_t victory_limit{0};
+    int32_t index;
 
     index = key - 40;
 
@@ -334,8 +334,8 @@ void GameConfigMenu::EventVictoryCondition() {
 
 void GameConfigMenu::EventVictoryConditionPrefs() {
     GameConfigMenuControlItem* control;
-    int victory_type;
-    int victory_limit;
+    int32_t victory_type;
+    int32_t victory_limit;
 
     field_867 = key;
 
@@ -389,7 +389,7 @@ void GameConfigMenu::EventCancel() {
 
 void GameConfigMenu::EventHelp() { HelpMenu_Menu(HELPMENU_OPTIONS_SETUP, WINDOW_MAIN_WINDOW); }
 
-void GameConfigMenu::ButtonInit(int index) {
+void GameConfigMenu::ButtonInit(int32_t index) {
     GameConfigMenuControlItem* control;
 
     control = &game_config_menu_controls[index];
@@ -443,7 +443,7 @@ void GameConfigMenu::DrawPanels() {
 
 void GameConfigMenu::DrawPanelComputerOpponent() {
     const char* text;
-    int opponent;
+    int32_t opponent;
 
     DrawBgPanel(1);
     opponent = ini_get_setting(INI_OPPONENT);
@@ -454,12 +454,12 @@ void GameConfigMenu::DrawPanelComputerOpponent() {
 }
 
 void GameConfigMenu::DrawPanelTurnTimers() {
-    int timer_setting;
-    int timer_value;
-    int timer_index;
-    int endturn_setting;
-    int endturn_value;
-    int endturn_index;
+    int32_t timer_setting;
+    int32_t timer_value;
+    int32_t timer_index;
+    int32_t endturn_setting;
+    int32_t endturn_value;
+    int32_t endturn_index;
 
     DrawBgPanel(2);
     DrawCaption(window, &game_config_menu_items[13], Fonts_BrightYellowColor, true);
@@ -495,13 +495,13 @@ void GameConfigMenu::DrawPanelPlayMode() {
 }
 
 void GameConfigMenu::DrawPanelStartingCredit() {
-    int starting_credits;
-    int credits;
-    int index;
+    int32_t starting_credits;
+    int32_t credits;
+    int32_t index;
 
     DrawBgPanel(4);
 
-    for (int i = 0; i < 6; ++i) {
+    for (int32_t i = 0; i < 6; ++i) {
         DrawCaption(window, &game_config_menu_items[i + 31]);
     }
 
@@ -533,8 +533,8 @@ void GameConfigMenu::DrawPanelResourceLevels() {
 }
 
 void GameConfigMenu::DrawPanelVictoryCondition() {
-    int menu_index;
-    int victory_limit;
+    int32_t menu_index;
+    int32_t victory_limit;
     char text[30];
 
     DrawBgPanel(6);
@@ -594,13 +594,13 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
     DrawCaption(window, &game_config_menu_items[70], Fonts_BrightYellowColor, true);
 }
 
-void GameConfigMenu::DrawBgPanel(int group_index) {
+void GameConfigMenu::DrawBgPanel(int32_t group_index) {
     bg_panels[group_index - 1]->Write(window);
     menu_draw_menu_title(window, &game_config_menu_items[group_index], GNW_TEXT_OUTLINE | COLOR_GREEN, true);
 }
 
-void GameConfigMenu::DrawRadioButtons(int element_count, int start_index, int selection_index) {
-    for (int i = 0; i < element_count; ++i) {
+void GameConfigMenu::DrawRadioButtons(int32_t element_count, int32_t start_index, int32_t selection_index) {
+    for (int32_t i = 0; i < element_count; ++i) {
         DrawCaption(window, &game_config_menu_items[start_index + i], Fonts_BrightBrownColor, true);
 
         if (selection_index == i) {
@@ -609,7 +609,7 @@ void GameConfigMenu::DrawRadioButtons(int element_count, int start_index, int se
     }
 }
 
-void GameConfigMenu::UpdateTextEdit(int mode) {
+void GameConfigMenu::UpdateTextEdit(int32_t mode) {
     if (text_edit) {
         if (mode) {
             ini_set_setting(INI_VICTORY_TYPE, field_867 - 46);

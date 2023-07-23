@@ -39,16 +39,16 @@ void TerrainMap::Init() {
     if (!water_map) {
         dimension_x = ResourceManager_MapSize.x;
 
-        water_map = new (std::nothrow) unsigned short*[ResourceManager_MapSize.x];
-        land_map = new (std::nothrow) unsigned short*[ResourceManager_MapSize.x];
+        water_map = new (std::nothrow) uint16_t*[ResourceManager_MapSize.x];
+        land_map = new (std::nothrow) uint16_t*[ResourceManager_MapSize.x];
 
-        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-            water_map[i] = new (std::nothrow) unsigned short[ResourceManager_MapSize.y];
-            land_map[i] = new (std::nothrow) unsigned short[ResourceManager_MapSize.y];
+        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+            water_map[i] = new (std::nothrow) uint16_t[ResourceManager_MapSize.y];
+            land_map[i] = new (std::nothrow) uint16_t[ResourceManager_MapSize.y];
         }
 
-        for (int j = 0; j < ResourceManager_MapSize.y; ++j) {
-            for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
+        for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
+            for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
                 if (ResourceManager_MapSurfaceMap[i + j * ResourceManager_MapSize.x] == SURFACE_TYPE_LAND) {
                     water_map[i][j] = TERRAINMAP_PATH_BLOCKED;
 
@@ -85,8 +85,8 @@ void TerrainMap::Init() {
 
                 (*it).GetBounds(&bounds);
 
-                for (int i = bounds.ulx; i < bounds.lrx; ++i) {
-                    for (int j = bounds.uly; j < bounds.lry; ++j) {
+                for (int32_t i = bounds.ulx; i < bounds.lrx; ++i) {
+                    for (int32_t j = bounds.uly; j < bounds.lry; ++j) {
                         water_map[i][j] = TERRAINMAP_PATH_MAX_DISTANCE;
                         land_map[i][j] = TERRAINMAP_PATH_MAX_DISTANCE;
                     }
@@ -98,7 +98,7 @@ void TerrainMap::Init() {
 
 void TerrainMap::Deinit() {
     if (water_map) {
-        for (int i = 0; i < dimension_x; ++i) {
+        for (int32_t i = 0; i < dimension_x; ++i) {
             delete[] water_map[i];
             delete[] land_map[i];
         }
@@ -111,32 +111,32 @@ void TerrainMap::Deinit() {
     }
 }
 
-int TerrainMap::TerrainMap_sub_68EEF(unsigned short** map, Point location) {
-    unsigned short stored_distance;
-    int result;
+int32_t TerrainMap::TerrainMap_sub_68EEF(uint16_t** map, Point location) {
+    uint16_t stored_distance;
+    int32_t result;
 
     stored_distance = map[location.x][location.y] & TERRAINMAP_PATH_MAX_DISTANCE;
 
     if (stored_distance >= TERRAINMAP_PATH_MAX_DISTANCE) {
         Point position;
-        int shortest_distance;
+        int32_t shortest_distance;
 
         position = location;
         shortest_distance = TERRAINMAP_PATH_MAX_DISTANCE;
 
         if (Paths_HaveTimeToThink()) {
-            for (int i = 1; i * i < shortest_distance; ++i) {
+            for (int32_t i = 1; i * i < shortest_distance; ++i) {
                 --position.x;
                 ++position.y;
 
-                for (int direction = 0; direction < 8; direction += 2) {
-                    for (int j = 0; j < i * 2; ++j) {
+                for (int32_t direction = 0; direction < 8; direction += 2) {
+                    for (int32_t j = 0; j < i * 2; ++j) {
                         position += Paths_8DirPointsArray[direction];
 
                         if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                             position.y < ResourceManager_MapSize.y) {
                             if (map[position.x][position.y] & TERRAINMAP_PATH_PROCESSED) {
-                                int distance = Access_GetDistance(position, location);
+                                int32_t distance = Access_GetDistance(position, location);
 
                                 if (distance < shortest_distance) {
                                     shortest_distance = distance;
@@ -162,29 +162,29 @@ int TerrainMap::TerrainMap_sub_68EEF(unsigned short** map, Point location) {
     return result;
 }
 
-void TerrainMap::SetTerrain(unsigned short** map, Point location) {
+void TerrainMap::SetTerrain(uint16_t** map, Point location) {
     Point position;
     bool flag;
-    int distance;
+    int32_t distance;
 
     position = location;
     flag = true;
 
     if (!(map[location.x][location.y] & TERRAINMAP_PATH_PROCESSED)) {
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
                 TaskManager.AppendTask(*new (std::nothrow) TaskUpdateTerrain(team));
 
                 map[location.x][location.y] = TERRAINMAP_PATH_BLOCKED;
 
-                for (int i = 1; flag; ++i) {
+                for (int32_t i = 1; flag; ++i) {
                     --position.x;
                     ++position.y;
 
                     flag = false;
 
-                    for (int direction = 0; direction < 8; direction += 2) {
-                        for (int j = 0; j < i * 2; ++j) {
+                    for (int32_t direction = 0; direction < 8; direction += 2) {
+                        for (int32_t j = 0; j < i * 2; ++j) {
                             position += Paths_8DirPointsArray[direction];
 
                             if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
@@ -211,29 +211,29 @@ void TerrainMap::SetTerrain(unsigned short** map, Point location) {
     }
 }
 
-void TerrainMap::ClearTerrain(unsigned short** map, Point location) {
+void TerrainMap::ClearTerrain(uint16_t** map, Point location) {
     Point position;
     bool flag;
-    int distance;
+    int32_t distance;
 
     position = location;
     flag = true;
 
     if (map[location.x][location.y] & TERRAINMAP_PATH_PROCESSED) {
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
                 TaskManager.AppendTask(*new (std::nothrow) TaskUpdateTerrain(team));
 
                 map[location.x][location.y] = TERRAINMAP_PATH_MAX_DISTANCE;
 
-                for (int i = 1; flag; ++i) {
+                for (int32_t i = 1; flag; ++i) {
                     --position.x;
                     ++position.y;
 
                     flag = false;
 
-                    for (int direction = 0; direction < 8; direction += 2) {
-                        for (int j = 0; j < i * 2; ++j) {
+                    for (int32_t direction = 0; direction < 8; direction += 2) {
+                        for (int32_t j = 0; j < i * 2; ++j) {
                             position += Paths_8DirPointsArray[direction];
 
                             if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
@@ -258,8 +258,8 @@ void TerrainMap::ClearTerrain(unsigned short** map, Point location) {
     }
 }
 
-int TerrainMap::TerrainMap_sub_690D6(Point location, int surface_type) {
-    int result;
+int32_t TerrainMap::TerrainMap_sub_690D6(Point location, int32_t surface_type) {
+    int32_t result;
 
     Init();
 
@@ -276,7 +276,7 @@ int TerrainMap::TerrainMap_sub_690D6(Point location, int surface_type) {
     return result;
 }
 
-void TerrainMap::UpdateTerrain(Point location, int surface_type) {
+void TerrainMap::UpdateTerrain(Point location, int32_t surface_type) {
     if (water_map) {
         if (surface_type & SURFACE_TYPE_LAND) {
             SetTerrain(water_map, location);

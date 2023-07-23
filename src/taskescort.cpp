@@ -42,8 +42,8 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
         Point target_location(target->grid_x, target->grid_y);
         Point unit_location(unit->grid_x, unit->grid_y);
         Point position;
-        unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
-        short** damage_potential_map =
+        uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+        int16_t** damage_potential_map =
             AiPlayer_Teams[team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false);
         Rect bounds;
         ResourceID escort_type = INVALID_ID;
@@ -69,16 +69,16 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
 
         if (damage_potential_map) {
             TransporterMap transporter_map(unit, 0x01, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, escort_type);
-            int distance;
-            int minimum_distance = TaskManager_GetDistance(unit_location, target_location) / 2;
-            int unit_hits = unit->hits;
+            int32_t distance;
+            int32_t minimum_distance = TaskManager_GetDistance(unit_location, target_location) / 2;
+            int32_t unit_hits = unit->hits;
 
-            for (int range = 1; range < minimum_distance; ++range) {
+            for (int32_t range = 1; range < minimum_distance; ++range) {
                 position.x = target_location.x - range;
                 position.y = target_location.y + range;
 
-                for (int direction = 0; direction < 8; direction += 2) {
-                    for (int index = 0; index < range * 2; ++index) {
+                for (int32_t direction = 0; direction < 8; direction += 2) {
+                    for (int32_t index = 0; index < range * 2; ++index) {
                         position += Paths_8DirPointsArray[direction];
 
                         if (Access_IsInsideBounds(&bounds, &position) &&
@@ -156,7 +156,7 @@ char* TaskEscort::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskEscort::GetType() const { return TaskType_TaskEscort; }
+uint8_t TaskEscort::GetType() const { return TaskType_TaskEscort; }
 
 void TaskEscort::AddUnit(UnitInfo& unit) {
     if (!escort && unit_type == unit.unit_type && target) {

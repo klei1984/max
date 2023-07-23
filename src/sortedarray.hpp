@@ -32,7 +32,7 @@ public:
     SortKey(const SortKey& other) {}
     virtual ~SortKey() {}
 
-    virtual int Compare(const SortKey& other) const = 0;
+    virtual int32_t Compare(const SortKey& other) const = 0;
 };
 
 class CharSortKey : public SortKey {
@@ -42,30 +42,30 @@ public:
     CharSortKey(const char* name) : name(name) {}
     CharSortKey(const CharSortKey& other) : name(other.name) {}
 
-    int Compare(const SortKey& other) const { return strcmp(name, dynamic_cast<const CharSortKey&>(other).name); }
+    int32_t Compare(const SortKey& other) const { return strcmp(name, dynamic_cast<const CharSortKey&>(other).name); }
     const char* GetKey() const { return name; }
 };
 
 class ShortSortKey : public SortKey {
-    unsigned short key;
+    uint16_t key;
 
 public:
-    ShortSortKey(unsigned short key) : key(key) {}
+    ShortSortKey(uint16_t key) : key(key) {}
     ShortSortKey(const ShortSortKey& other) : key(other.key) {}
 
-    int Compare(const SortKey& other) const { return key - dynamic_cast<const ShortSortKey&>(other).key; }
-    unsigned short GetKey() const { return key; }
+    int32_t Compare(const SortKey& other) const { return key - dynamic_cast<const ShortSortKey&>(other).key; }
+    uint16_t GetKey() const { return key; }
 };
 
 template <class T>
 class SortedArray : public SmartArray<T> {
-    int Find(SortKey& sort_key, bool mode) const {
-        int last = this->GetCount() - 1;
-        int first = 0;
-        int position;
+    int32_t Find(SortKey& sort_key, bool mode) const {
+        int32_t last = this->GetCount() - 1;
+        int32_t first = 0;
+        int32_t position;
 
         while (first <= last) {
-            int comparison_result;
+            int32_t comparison_result;
 
             position = (first + last) / 2;
 
@@ -90,11 +90,11 @@ class SortedArray : public SmartArray<T> {
     }
 
 public:
-    SortedArray(unsigned short growth_factor) : SmartArray<T>(growth_factor) {}
+    SortedArray(uint16_t growth_factor) : SmartArray<T>(growth_factor) {}
     virtual ~SortedArray() {}
 
-    unsigned short Insert(T& object) {
-        unsigned short position;
+    uint16_t Insert(T& object) {
+        uint16_t position;
 
         position = Find(GetSortKey(object), false);
         SmartArray<T>::Insert(&object, position);
@@ -105,7 +105,7 @@ public:
     virtual SortKey& GetSortKey(T& object) const = 0;
     T& operator[](SortKey& sort_key) const {
         T* object;
-        int position;
+        int32_t position;
 
         position = Find(sort_key, true);
         if (position >= 0) {
@@ -116,7 +116,7 @@ public:
 
         return *object;
     }
-    T& operator[](unsigned short index) const { return SmartArray<T>::operator[](index); }
+    T& operator[](uint16_t index) const { return SmartArray<T>::operator[](index); }
 };
 
 #endif /* SORTEDARRAY_HPP */

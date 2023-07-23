@@ -26,8 +26,8 @@
 
 class ZoneWalker {
     Point start;
-    short range;
-    short distance;
+    int16_t range;
+    int16_t distance;
     Point current;
     Point limit;
 
@@ -35,10 +35,10 @@ class ZoneWalker {
     void InitX();
 
 public:
-    ZoneWalker(Point position, int range);
+    ZoneWalker(Point position, int32_t range);
 
-    int GetGridX() const;
-    int GetGridY() const;
+    int32_t GetGridX() const;
+    int32_t GetGridY() const;
     Point* GetCurrentLocation();
 
     bool FindNext();

@@ -38,7 +38,7 @@ public:
     AssertMenu(const char *caption);
     ~AssertMenu();
 
-    int Run();
+    int32_t Run();
 };
 
 #endif /* ASSERTMENU_HPP */

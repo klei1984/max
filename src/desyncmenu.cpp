@@ -69,7 +69,7 @@ bool DesyncMenu::Run() {
     event_release = false;
 
     while (!event_click_restart && !event_click_quit && Remote_IsNetworkGame) {
-        int key;
+        int32_t key;
 
         if (Remote_CheckRestartAfterDesyncEvent()) {
             key = GNW_KB_KEY_RETURN;

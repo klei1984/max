@@ -27,18 +27,18 @@
 class TaskAttackReserve : public Task {
     SmartList<UnitInfo> units;
     Point site;
-    int total_worth;
+    int32_t total_worth;
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
     bool ChaseAttacker(UnitInfo* unit);
 
 public:
-    TaskAttackReserve(unsigned short team, Point site);
+    TaskAttackReserve(uint16_t team, Point site);
     ~TaskAttackReserve();
 
     bool IsUnitUsable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
     void ChildComplete(Task* task);
     void EndTurn();

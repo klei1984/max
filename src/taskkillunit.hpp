@@ -30,33 +30,33 @@
 class TaskAttack;
 
 class TaskKillUnit : public Task {
-    unsigned short unit_requests;
+    uint16_t unit_requests;
     SmartPointer<SpottedUnit> spotted_unit;
     SmartList<UnitInfo> units;
-    unsigned short required_damage;
-    unsigned short projected_damage;
-    unsigned short hits;
+    uint16_t required_damage;
+    uint16_t projected_damage;
+    uint16_t hits;
     SmartPointer<UnitInfo> managed_unit;
     WeightTable weight_table;
     bool seek_target;
 
-    static int GetProjectedDamage(UnitInfo* attacker, UnitInfo* target);
+    static int32_t GetProjectedDamage(UnitInfo* attacker, UnitInfo* target);
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
     void FindVaildTypes();
     bool GetNewUnits();
-    UnitInfo* FindClosestCombatUnit(SmartList<UnitInfo>* units, UnitInfo* unit, int* distance, TransporterMap* map);
+    UnitInfo* FindClosestCombatUnit(SmartList<UnitInfo>* units, UnitInfo* unit, int32_t* distance, TransporterMap* map);
     bool GiveOrdersToUnit(UnitInfo* unit);
 
 public:
-    TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit, unsigned short flags);
+    TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit, uint16_t flags);
     ~TaskKillUnit();
 
     bool IsUnitUsable(UnitInfo& unit);
-    unsigned short GetFlags() const;
+    uint16_t GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void BeginTurn();
@@ -69,13 +69,13 @@ public:
     void EventUnitDestroyed(UnitInfo& unit);
     void EventEnemyUnitSpotted(UnitInfo& unit);
 
-    int GetTotalProjectedDamage();
+    int32_t GetTotalProjectedDamage();
     bool MoveUnits();
     SpottedUnit* GetSpottedUnit() const;
     UnitInfo* GetUnitSpotted() const;
     SmartList<UnitInfo>& GetUnits();
-    unsigned short GetRequiredDamage() const;
-    unsigned short GetProjectedDamage() const;
+    uint16_t GetRequiredDamage() const;
+    uint16_t GetProjectedDamage() const;
 };
 
 #endif /* TASKKILLUNIT_HPP */

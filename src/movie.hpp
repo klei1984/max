@@ -24,8 +24,8 @@
 
 #include "enums.hpp"
 
-int Movie_PlayOemLogo(void);
-int Movie_PlayIntro(void);
-int Movie_Play(ResourceID resource_id);
+int32_t Movie_PlayOemLogo(void);
+int32_t Movie_PlayIntro(void);
+int32_t Movie_Play(ResourceID resource_id);
 
 #endif /* MOVIE_HPP */

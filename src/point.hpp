@@ -22,17 +22,19 @@
 #ifndef POINT_HPP
 #define POINT_HPP
 
+#include <cstdint>
+
 struct PathStep {
-    signed char x;
-    signed char y;
+    int8_t x;
+    int8_t y;
 };
 
 struct Point {
-    short x;
-    short y;
+    int16_t x;
+    int16_t y;
 
     Point() : x(0), y(0) {}
-    Point(int x, int y) : x(x), y(y) {}
+    Point(int32_t x, int32_t y) : x(x), y(y) {}
     Point(const Point& other) : x(other.x), y(other.y) {}
 
     Point& operator=(const Point& other) {

@@ -59,7 +59,7 @@ char* TaskAutoSurvey::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskAutoSurvey::GetType() const { return TaskType_TaskAutoSurvey; }
+uint8_t TaskAutoSurvey::GetType() const { return TaskType_TaskAutoSurvey; }
 
 void TaskAutoSurvey::Begin() { unit->AddTask(this); }
 
@@ -71,13 +71,13 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
         AiLog log("Auto survey: Move %s at [%i,%i]", UnitsManager_BaseUnits[unit->unit_type].singular_name,
                   unit->grid_x + 1, unit->grid_y + 1);
 
-        unsigned short hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
+        uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
         TransporterMap map(&*unit, 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
         if (radius) {
-            int loop_count = 0;
+            int32_t loop_count = 0;
             Point Point_object1;
-            int target_direction =
+            int32_t target_direction =
                 UnitsManager_GetTargetAngle(unit->grid_x - central_site.x, unit->grid_y - central_site.y);
 
             while (Paths_HaveTimeToThink() || loop_count < 20) {
@@ -127,7 +127,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
                     if (!(ResourceManager_CargoMap[ResourceManager_MapSize.x * position.y + position.x] &
                           hash_team_id)) {
-                        int direction_difference =
+                        int32_t direction_difference =
                             UnitsManager_GetTargetAngle(position.x - unit->grid_x, position.y - unit->grid_y) -
                             target_direction;
 
@@ -169,8 +169,8 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
         } else {
             Rect bounds;
-            int distance;
-            int minimum_distance{INT32_MAX};
+            int32_t distance;
+            int32_t minimum_distance{INT32_MAX};
 
             bounds.ulx = std::max(1, unit->grid_x - 5);
             bounds.lrx = std::min(ResourceManager_MapSize.x - 1, unit->grid_x + 6);
@@ -181,15 +181,15 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
             for (position.x = bounds.ulx; position.x < bounds.lrx; ++position.x) {
                 for (position.y = bounds.uly; position.y < bounds.lry; ++position.y) {
-                    unsigned short cargo_at_site =
+                    uint16_t cargo_at_site =
                         ResourceManager_CargoMap[ResourceManager_MapSize.x * position.y + position.x];
 
                     if ((cargo_at_site & hash_team_id) && (cargo_at_site & 0x1F)) {
                         distance = Access_GetDistance(&*unit, position);
 
                         if (!location_found || minimum_distance > distance) {
-                            for (int index_x = position.x - 1; index_x <= position.x + 1; ++index_x) {
-                                for (int index_y = position.y - 1; index_y <= position.y + 1; ++index_y) {
+                            for (int32_t index_x = position.x - 1; index_x <= position.x + 1; ++index_x) {
+                                for (int32_t index_y = position.y - 1; index_y <= position.y + 1; ++index_y) {
                                     cargo_at_site =
                                         ResourceManager_CargoMap[ResourceManager_MapSize.x * index_y + index_x];
 

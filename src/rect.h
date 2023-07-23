@@ -22,11 +22,13 @@
 #ifndef RECT_H
 #define RECT_H
 
+#include <stdint.h>
+
 typedef struct Rect_s {
-    int ulx;
-    int uly;
-    int lrx;
-    int lry;
+    int32_t ulx;
+    int32_t uly;
+    int32_t lrx;
+    int32_t lry;
 } Rect;
 
 typedef struct rectdata* RectPtr;
@@ -42,9 +44,9 @@ RectPtr rect_clip(Rect* b, Rect* t);
 RectPtr rect_malloc(void);
 void rect_free(RectPtr ptr);
 void rect_min_bound(Rect* r1, Rect* r2, Rect* min_bound);
-int rect_inside_bound(Rect* r1, Rect* bound, Rect* r2);
-Rect* rect_init(Rect* r, int ulx, int uly, int lrx, int lry);
-int rect_get_width(Rect* r);
-int rect_get_height(Rect* r);
+int32_t rect_inside_bound(Rect* r1, Rect* bound, Rect* r2);
+Rect* rect_init(Rect* r, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry);
+int32_t rect_get_width(Rect* r);
+int32_t rect_get_height(Rect* r);
 
 #endif /* RECT_H */

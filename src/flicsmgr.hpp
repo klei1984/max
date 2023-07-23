@@ -29,7 +29,7 @@
 
 struct Flic;
 
-Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int width, int ulx, int uly, char animate,
+Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int32_t width, int32_t ulx, int32_t uly, char animate,
                          char load_flic_palette);
 char flicsmgr_advance_animation(Flic *flc);
 void flicsmgr_delete(Flic *flc);

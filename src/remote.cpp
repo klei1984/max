@@ -61,27 +61,27 @@ NetNodeArray Remote_Nodes;
 NetNodeArray Remote_Hosts;
 NetNodeArray Remote_Clients;
 
-unsigned char Remote_GameState;
-unsigned char Remote_RemotePlayerCount;
+uint8_t Remote_GameState;
+uint8_t Remote_RemotePlayerCount;
 bool Remote_IsHostMode;
 bool Remote_IsNetworkGame;
 bool Remote_UpdatePauseTimer;
 bool Remote_UnpauseGameEvent;
 bool Remote_SendP1SyncFrame;
-unsigned int Remote_PauseTimeStamp;
-unsigned int Remote_TimeoutTimeStamp;
-unsigned int Remote_RngSeed;
+uint32_t Remote_PauseTimeStamp;
+uint32_t Remote_TimeoutTimeStamp;
+uint32_t Remote_RngSeed;
 Transport* Remote_Transport;
 NetworkMenu* Remote_NetworkMenu;
 
-static unsigned char Remote_FrameSyncCounter2;
-static unsigned char Remote_FrameSyncCounter[TRANSPORT_MAX_TEAM_COUNT];
-static unsigned char Remote_FrameSyncCounter2values[TRANSPORT_MAX_TEAM_COUNT];
-static unsigned char Remote_LeaveGameRequestId[TRANSPORT_MAX_TEAM_COUNT];
-static unsigned char Remote_TurnIndices[TRANSPORT_MAX_TEAM_COUNT];
-static unsigned char Remote_NextTurnIndices[TRANSPORT_MAX_TEAM_COUNT];
-static unsigned short Remote_TeamDataCrc16[TRANSPORT_MAX_TEAM_COUNT];
-static unsigned short Remote_P23_UnitId;
+static uint8_t Remote_FrameSyncCounter2;
+static uint8_t Remote_FrameSyncCounter[TRANSPORT_MAX_TEAM_COUNT];
+static uint8_t Remote_FrameSyncCounter2values[TRANSPORT_MAX_TEAM_COUNT];
+static uint8_t Remote_LeaveGameRequestId[TRANSPORT_MAX_TEAM_COUNT];
+static uint8_t Remote_TurnIndices[TRANSPORT_MAX_TEAM_COUNT];
+static uint8_t Remote_NextTurnIndices[TRANSPORT_MAX_TEAM_COUNT];
+static uint16_t Remote_TeamDataCrc16[TRANSPORT_MAX_TEAM_COUNT];
+static uint16_t Remote_P23_UnitId;
 static NetPacket Remote_P23_Packet;
 static bool Remote_P24_Signals[TRANSPORT_MAX_TEAM_COUNT];
 static bool Remote_P49_Signal;
@@ -89,8 +89,8 @@ static bool Remote_P51_Signal;
 
 static OrderProcessor Remote_OrderProcessors[32];
 
-static unsigned short Remote_GenerateEntityId();
-static void Remote_UpdateEntityId(NetAddress& address, unsigned short entity_id);
+static uint16_t Remote_GenerateEntityId();
+static void Remote_UpdateEntityId(NetAddress& address, uint16_t entity_id);
 
 static void Remote_WriteGameSettings(NetPacket& packet);
 static void Remote_ReadGameSettings(NetPacket& packet);
@@ -106,16 +106,16 @@ static void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet);
 static void Remote_OrderProcessor5_Write(UnitInfo* unit, NetPacket& packet);
 static void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet);
 
-static int Remote_SetupPlayers();
-static void Remote_ResponseTimeout(unsigned short team, bool mode);
+static int32_t Remote_SetupPlayers();
+static void Remote_ResponseTimeout(uint16_t team, bool mode);
 static bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units);
 static void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet);
-static void Remote_NetErrorUnknownUnit(unsigned short unit_id);
+static void Remote_NetErrorUnknownUnit(uint16_t unit_id);
 static void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet);
 
-static void Remote_SendNetPacket_07(unsigned short team, bool mode);
+static void Remote_SendNetPacket_07(uint16_t team, bool mode);
 static void Remote_SendNetPacket_23(UnitInfo* unit);
-static void Remote_SendNetPacket_45(unsigned short team, unsigned char next_turn_index, unsigned short crc_checksum);
+static void Remote_SendNetPacket_45(uint16_t team, uint8_t next_turn_index, uint16_t crc_checksum);
 
 static void Remote_ReceiveNetPacket_00(NetPacket& packet);
 static void Remote_ReceiveNetPacket_01(NetPacket& packet);
@@ -163,8 +163,8 @@ static void Remote_ReceiveNetPacket_50(NetPacket& packet);
 static void Remote_ReceiveNetPacket_51(NetPacket& packet);
 static void Remote_ReceiveNetPacket_52(NetPacket& packet);
 
-unsigned short Remote_GenerateEntityId() {
-    unsigned short new_entity_id;
+uint16_t Remote_GenerateEntityId() {
+    uint16_t new_entity_id;
 
     for (;;) {
         new_entity_id = ((dos_rand() * 31991) >> 15) + 10;
@@ -177,8 +177,8 @@ unsigned short Remote_GenerateEntityId() {
     return new_entity_id;
 }
 
-void Remote_UpdateEntityId(NetAddress& address, unsigned short entity_id) {
-    for (int i = 0; i < Remote_Nodes.GetCount(); ++i) {
+void Remote_UpdateEntityId(NetAddress& address, uint16_t entity_id) {
+    for (int32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
         if (Remote_Nodes[i]->address == address) {
             Remote_Nodes[i]->entity_id = entity_id;
         }
@@ -252,14 +252,14 @@ void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet) {
         packet << unit->GetParent()->GetId();
 
     } else {
-        packet << static_cast<unsigned short>(0);
+        packet << static_cast<uint16_t>(0);
     }
 }
 
 void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet) {
     Remote_OrderProcessor1_Read(unit, packet);
 
-    unsigned short unit_id;
+    uint16_t unit_id;
 
     packet >> unit_id;
 
@@ -281,7 +281,7 @@ void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet) {
         packet << unit->GetEnemy()->GetId();
 
     } else {
-        packet << static_cast<unsigned short>(0);
+        packet << static_cast<uint16_t>(0);
     }
 }
 
@@ -290,7 +290,7 @@ void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet) {
 
     packet >> unit->target_grid_x;
     packet >> unit->target_grid_y;
-    unsigned short unit_id;
+    uint16_t unit_id;
 
     packet >> unit_id;
 
@@ -309,13 +309,13 @@ void Remote_OrderProcessor4_Write(UnitInfo* unit, NetPacket& packet) {
 
     packet << unit->GetRepeatBuildState();
     packet << unit->build_time;
-    packet << static_cast<unsigned short>(unit->GetBuildRate());
+    packet << static_cast<uint16_t>(unit->GetBuildRate());
 
-    unsigned short unit_count = build_queue.GetCount();
+    uint16_t unit_count = build_queue.GetCount();
 
     packet << unit_count;
 
-    for (int i = 0; i < unit_count; ++i) {
+    for (int32_t i = 0; i < unit_count; ++i) {
         packet << *build_queue[i];
     }
 }
@@ -323,8 +323,8 @@ void Remote_OrderProcessor4_Write(UnitInfo* unit, NetPacket& packet) {
 void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet) {
     SmartObjectArray<ResourceID> build_queue = unit->GetBuildList();
     bool repeat_build;
-    unsigned short build_rate;
-    unsigned short unit_count;
+    uint16_t build_rate;
+    uint16_t unit_count;
     ResourceID unit_type;
 
     Remote_OrderProcessor3_Read(unit, packet);
@@ -338,7 +338,7 @@ void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet) {
 
     build_queue.Clear();
 
-    for (int i = 0; i < unit_count; ++i) {
+    for (int32_t i = 0; i < unit_count; ++i) {
         packet >> unit_type;
         build_queue.PushBack(&unit_type);
     }
@@ -362,7 +362,7 @@ void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet) {
     packet >> unit->gold_mining;
 }
 
-int Remote_SetupPlayers() {
+int32_t Remote_SetupPlayers() {
     GameManager_PlayerTeam = Remote_NetworkMenu->player_team;
 
     ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + GameManager_PlayerTeam), TEAM_TYPE_PLAYER);
@@ -373,15 +373,15 @@ int Remote_SetupPlayers() {
 
     /// \todo Copy player address from TP layer?
 
-    int player_clan = ini_get_setting(INI_PLAYER_CLAN);
+    int32_t player_clan = ini_get_setting(INI_PLAYER_CLAN);
 
     ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + GameManager_PlayerTeam), player_clan);
 
     UnitsManager_TeamInfo[GameManager_PlayerTeam].team_clan = player_clan;
 
-    int remote_player_count = 0;
+    int32_t remote_player_count = 0;
 
-    for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+    for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
         if (Remote_NetworkMenu->team_nodes[team] > 4) {
             ini_config.SetStringValue(INI_RED_TEAM_NAME, Remote_NetworkMenu->team_names[team]);
 
@@ -404,7 +404,7 @@ int Remote_SetupPlayers() {
     return remote_player_count;
 }
 
-void Remote_ResponseTimeout(unsigned short team, bool mode) {
+void Remote_ResponseTimeout(uint16_t team, bool mode) {
     char message[100];
 
     ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_ELIMINATED);
@@ -428,7 +428,7 @@ void Remote_ResponseTimeout(unsigned short team, bool mode) {
         MessageManager_DrawMessage(message, 1, 1, true);
     }
 
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
             ++Remote_RngSeed;
 
@@ -451,7 +451,7 @@ void Remote_Init() {
     Remote_RemotePlayerCount = 0;
     Remote_P51_Signal = false;
 
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         Remote_FrameSyncCounter2values[i] = 0;
         Remote_FrameSyncCounter[i] = 0;
         Remote_NextTurnIndices[i] = 0;
@@ -463,7 +463,7 @@ void Remote_Init() {
     Remote_Nodes.Clear();
     Remote_Hosts.Clear();
 
-    for (int i = 0; i < 32; ++i) {
+    for (int32_t i = 0; i < 32; ++i) {
         switch (i) {
             case ORDER_AWAIT:
             case ORDER_POWER_ON:
@@ -539,14 +539,14 @@ static bool Remote_ReceivePacket(NetPacket& packet) {
     return result;
 }
 
-static void Remote_TransmitPacket(NetPacket& packet, int transmit_mode) {
+static void Remote_TransmitPacket(NetPacket& packet, int32_t transmit_mode) {
     switch (transmit_mode) {
         case REMOTE_UNICAST: {
             SDL_assert(packet.GetAddressCount() == 1);
         } break;
 
         case REMOTE_MULTICAST: {
-            for (int i = 0; i < Remote_Nodes.GetCount(); ++i) {
+            for (int32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
                 if (Remote_NetworkMenu->player_node != Remote_Nodes[i]->entity_id) {
                     packet.AddAddress(Remote_Nodes[i]->address);
                 }
@@ -566,7 +566,7 @@ static void Remote_TransmitPacket(NetPacket& packet, int transmit_mode) {
         /// \todo Handle transport layer errors
         Remote_Transport->GetError();
     } else {
-        unsigned char packet_type;
+        uint8_t packet_type;
         packet.Peek(0, &packet_type, sizeof(packet_type));
         SDL_Log("Remote: Transmit packet (%i).\n", packet_type);
     }
@@ -587,7 +587,7 @@ void Remote_Deinit() {
 bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).unit_type != MININGST) {
-            for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 Remote_P24_Signals[i] = false;
             }
 
@@ -601,7 +601,7 @@ bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
 
                 stay_in_loop = false;
 
-                for (int i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
+                for (int32_t i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
                     if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
                         if (!Remote_P24_Signals[i]) {
                             stay_in_loop = true;
@@ -619,10 +619,10 @@ bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
     return true;
 }
 
-int Remote_Lobby(bool is_host_mode) {
-    int result;
+int32_t Remote_Lobby(bool is_host_mode) {
+    int32_t result;
     char ini_transport[30];
-    int transort_type;
+    int32_t transort_type;
 
     Remote_IsHostMode = is_host_mode;
 
@@ -667,8 +667,8 @@ int Remote_Lobby(bool is_host_mode) {
 }
 
 void Remote_SetupConnection() {
-    unsigned int rng_number;
-    int remote_player_count;
+    uint32_t rng_number;
+    int32_t remote_player_count;
 
     rng_number = dos_rand();
     remote_player_count = Remote_SetupPlayers();
@@ -689,7 +689,7 @@ void Remote_SetupConnection() {
 
     Remote_SendNetPacket_34();
 
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
             //            ipx_rx_packetnum[i] = 1;
         }
@@ -741,7 +741,7 @@ void Remote_RegisterMenu(NetworkMenu* menu) {
 void Remote_ProcessNetPackets() {
     for (;;) {
         NetPacket packet;
-        unsigned char packet_type;
+        uint8_t packet_type;
 
         if (Remote_ReceivePacket(packet)) {
             packet >> packet_type;
@@ -939,7 +939,7 @@ void Remote_ProcessNetPackets() {
     };
 }
 
-void Remote_NetErrorUnknownUnit(unsigned short unit_id) {
+void Remote_NetErrorUnknownUnit(uint16_t unit_id) {
     char message[100];
 
     sprintf(message, _(ef35), unit_id);
@@ -981,7 +981,7 @@ void Remote_AnalyzeDesync() {
                 if (unit) {
                     NetPacket packet;
 
-                    packet << static_cast<unsigned char>(REMOTE_PACKET_23);
+                    packet << static_cast<uint8_t>(REMOTE_PACKET_23);
                     packet << unit->GetId();
 
                     Remote_CreateNetPacket_23(unit, packet);
@@ -1012,7 +1012,7 @@ void Remote_AnalyzeDesync() {
     }
 }
 
-int Remote_CheckUnpauseEvent() {
+int32_t Remote_CheckUnpauseEvent() {
     Remote_UnpauseGameEvent = false;
 
     Remote_ProcessNetPackets();
@@ -1031,7 +1031,7 @@ void Remote_ProcessTick(bool mode) {
         Remote_SendP1SyncFrame = true;
 
     } else {
-        unsigned int time_stamp = timer_get();
+        uint32_t time_stamp = timer_get();
         bool stay_in_loop = true;
 
         while (stay_in_loop && Remote_IsNetworkGame) {
@@ -1044,7 +1044,7 @@ void Remote_ProcessTick(bool mode) {
 
             stay_in_loop = false;
 
-            for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+            for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
                 UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_REMOTE;
 
                 if (((Remote_FrameSyncCounter2 - 1) & 0x3F) == Remote_FrameSyncCounter2values[team]) {
@@ -1081,8 +1081,8 @@ void Remote_WaitBeginTurnAcknowledge() {
     Remote_SendNetPacket_Signal(REMOTE_PACKET_00, GameManager_PlayerTeam,
                                 Remote_FrameSyncCounter[GameManager_PlayerTeam]);
 
-    unsigned int time_stamp_timeout = timer_get();
-    unsigned int time_stamp_ping = timer_get();
+    uint32_t time_stamp_timeout = timer_get();
+    uint32_t time_stamp_ping = timer_get();
 
     bool stay_in_loop = true;
 
@@ -1098,7 +1098,7 @@ void Remote_WaitBeginTurnAcknowledge() {
 
         stay_in_loop = false;
 
-        for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+        for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
                 if (Remote_FrameSyncCounter[team] != Remote_FrameSyncCounter[GameManager_PlayerTeam]) {
                     stay_in_loop = true;
@@ -1125,8 +1125,8 @@ void Remote_WaitEndTurnAcknowledge() {
 
     Remote_SendNetPacket_Signal(REMOTE_PACKET_52, GameManager_PlayerTeam, Remote_TurnIndices[GameManager_PlayerTeam]);
 
-    unsigned int time_stamp_timeout = timer_get();
-    unsigned int time_stamp_ping = timer_get();
+    uint32_t time_stamp_timeout = timer_get();
+    uint32_t time_stamp_ping = timer_get();
 
     bool stay_in_loop = true;
 
@@ -1142,7 +1142,7 @@ void Remote_WaitEndTurnAcknowledge() {
 
         stay_in_loop = false;
 
-        for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+        for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
                 if (Remote_TurnIndices[team] != Remote_TurnIndices[GameManager_PlayerTeam]) {
                     stay_in_loop = true;
@@ -1160,12 +1160,12 @@ void Remote_WaitEndTurnAcknowledge() {
     }
 }
 
-int Remote_SiteSelectMenu() {
+int32_t Remote_SiteSelectMenu() {
     bool stay_in_loop = false;
 
     Remote_ProcessNetPackets();
 
-    for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+    for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
             if (!UnitsManager_TeamMissionSupplies[team].units.GetCount()) {
                 stay_in_loop = true;
@@ -1185,7 +1185,7 @@ int Remote_SiteSelectMenu() {
 
             stay_in_loop = false;
 
-            for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+            for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
                     if (!UnitsManager_TeamMissionSupplies[team].units.GetCount()) {
                         stay_in_loop = true;
@@ -1193,7 +1193,7 @@ int Remote_SiteSelectMenu() {
                 }
             }
 
-            int key_press = get_input();
+            int32_t key_press = get_input();
 
             switch (key_press) {
                 case GNW_KB_KEY_ESCAPE: {
@@ -1232,9 +1232,9 @@ int Remote_SiteSelectMenu() {
         MessageManager_ClearMessageBox();
     }
 
-    for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+    for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
-            int proximity_state = GameManager_CheckLandingZones(GameManager_PlayerTeam, team);
+            int32_t proximity_state = GameManager_CheckLandingZones(GameManager_PlayerTeam, team);
 
             if (proximity_state != 0) {
                 UnitsManager_TeamMissionSupplies[team].units.Clear();
@@ -1244,9 +1244,9 @@ int Remote_SiteSelectMenu() {
         }
     }
 
-    for (int team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+    for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
-            for (int team2 = 0; team2 < TRANSPORT_MAX_TEAM_COUNT; ++team2) {
+            for (int32_t team2 = 0; team2 < TRANSPORT_MAX_TEAM_COUNT; ++team2) {
                 if (team != team2) {
                     if (UnitsManager_TeamInfo[team2].team_type == TEAM_TYPE_REMOTE) {
                         if (GameManager_CheckLandingZones(team, team2)) {
@@ -1266,9 +1266,9 @@ int Remote_SiteSelectMenu() {
     return 0;
 }
 
-void Remote_LeaveGame(unsigned short team, bool mode) {
+void Remote_LeaveGame(uint16_t team, bool mode) {
     if (UnitsManager_TeamInfo[UnitsManager_Team].team_type != TEAM_TYPE_REMOTE) {
-        unsigned short source_team = UnitsManager_Team;
+        uint16_t source_team = UnitsManager_Team;
 
         do {
             UnitsManager_Team = (UnitsManager_Team + 1) % TRANSPORT_MAX_TEAM_COUNT;
@@ -1287,7 +1287,7 @@ void Remote_LeaveGame(unsigned short team, bool mode) {
 
     Remote_SendNetPacket_07(team, mode);
 
-    unsigned int time_stamp = timer_get();
+    uint32_t time_stamp = timer_get();
     bool stay_in_loop = true;
 
     while (stay_in_loop && Remote_IsNetworkGame) {
@@ -1296,7 +1296,7 @@ void Remote_LeaveGame(unsigned short team, bool mode) {
 
         stay_in_loop = false;
 
-        for (int team2 = 0; team2 < TRANSPORT_MAX_TEAM_COUNT; ++team2) {
+        for (int32_t team2 = 0; team2 < TRANSPORT_MAX_TEAM_COUNT; ++team2) {
             if (UnitsManager_TeamInfo[team2].team_type == TEAM_TYPE_REMOTE) {
                 if (Remote_LeaveGameRequestId[team2] < Remote_LeaveGameRequestId[team]) {
                     if (timer_elapsed_time(time_stamp) < 5000) {
@@ -1315,13 +1315,13 @@ void Remote_LeaveGame(unsigned short team, bool mode) {
     Remote_IsNetworkGame = false;
 }
 
-bool Remote_CheckDesync(unsigned short team, unsigned short crc_checksum) {
+bool Remote_CheckDesync(uint16_t team, uint16_t crc_checksum) {
     ++Remote_NextTurnIndices[team];
 
     Remote_SendNetPacket_45(team, Remote_NextTurnIndices[team], crc_checksum);
 
-    unsigned int time_stamp_timeout = timer_get();
-    unsigned int time_stamp_ping = timer_get();
+    uint32_t time_stamp_timeout = timer_get();
+    uint32_t time_stamp_ping = timer_get();
 
     bool stay_in_loop = true;
 
@@ -1335,7 +1335,7 @@ bool Remote_CheckDesync(unsigned short team, unsigned short crc_checksum) {
 
         stay_in_loop = false;
 
-        for (int i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
+        for (int32_t i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
             if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
                 if (Remote_NextTurnIndices[i] != Remote_NextTurnIndices[team]) {
                     stay_in_loop = true;
@@ -1352,7 +1352,7 @@ bool Remote_CheckDesync(unsigned short team, unsigned short crc_checksum) {
         }
     }
 
-    for (int i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
+    for (int32_t i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
             if (Remote_TeamDataCrc16[i] != crc_checksum && Remote_IsNetworkGame) {
                 return false;
@@ -1363,11 +1363,11 @@ bool Remote_CheckDesync(unsigned short team, unsigned short crc_checksum) {
     return true;
 }
 
-void Remote_SendNetPacket_Signal(int packet_type, int team, int parameter) {
+void Remote_SendNetPacket_Signal(int32_t packet_type, int32_t team, int32_t parameter) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(packet_type);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(packet_type);
+    packet << static_cast<uint16_t>(team);
 
     packet << parameter;
 
@@ -1375,24 +1375,24 @@ void Remote_SendNetPacket_Signal(int packet_type, int team, int parameter) {
 }
 
 void Remote_ReceiveNetPacket_00(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
     packet >> Remote_FrameSyncCounter[entity_id];
 }
 
 void Remote_ReceiveNetPacket_01(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
     packet >> Remote_FrameSyncCounter2values[entity_id];
 }
 
-void Remote_SendNetPacket_05(unsigned short random_number, int transmit_mode) {
+void Remote_SendNetPacket_05(uint16_t random_number, int32_t transmit_mode) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_05);
-    packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_05);
+    packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
     packet << Remote_NetworkMenu->player_team;
     packet << random_number;
@@ -1403,7 +1403,7 @@ void Remote_SendNetPacket_05(unsigned short random_number, int transmit_mode) {
 }
 
 void Remote_ReceiveNetPacket_05(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -1413,7 +1413,7 @@ void Remote_ReceiveNetPacket_05(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_06(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -1425,7 +1425,7 @@ void Remote_ReceiveNetPacket_06(NetPacket& packet) {
     } else {
         bool is_found = false;
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED &&
                 !UnitsManager_TeamInfo[team].finished_turn) {
@@ -1448,11 +1448,11 @@ void Remote_ReceiveNetPacket_06(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_07(unsigned short team, bool mode) {
+void Remote_SendNetPacket_07(uint16_t team, bool mode) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_07);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_07);
+    packet << static_cast<uint16_t>(team);
 
     packet << Remote_LeaveGameRequestId[team];
     packet << mode;
@@ -1461,8 +1461,8 @@ void Remote_SendNetPacket_07(unsigned short team, bool mode) {
 }
 
 void Remote_ReceiveNetPacket_07(NetPacket& packet) {
-    unsigned short entity_id;
-    unsigned char request_id;
+    uint16_t entity_id;
+    uint8_t request_id;
     bool request_mode;
 
     packet >> entity_id;
@@ -1483,8 +1483,8 @@ void Remote_ReceiveNetPacket_07(NetPacket& packet) {
 void Remote_SendNetPacket_08(UnitInfo* unit) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_08);
-    packet << static_cast<unsigned short>(unit->GetId());
+    packet << static_cast<uint8_t>(REMOTE_PACKET_08);
+    packet << static_cast<uint16_t>(unit->GetId());
 
     Remote_OrderProcessors[unit->orders].WritePacket(unit, packet);
 
@@ -1492,7 +1492,7 @@ void Remote_SendNetPacket_08(UnitInfo* unit) {
 }
 
 void Remote_ReceiveNetPacket_08(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -1508,11 +1508,11 @@ void Remote_ReceiveNetPacket_08(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_09(int team) {
+void Remote_SendNetPacket_09(int32_t team) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_09);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_09);
+    packet << static_cast<uint16_t>(team);
 
     packet << UnitsManager_TeamInfo[team].team_units->GetGold();
     packet << UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
@@ -1532,8 +1532,8 @@ void Remote_SendNetPacket_09(int team) {
 }
 
 void Remote_ReceiveNetPacket_09(NetPacket& packet) {
-    unsigned short entity_id;
-    unsigned short gold;
+    uint16_t entity_id;
+    uint16_t gold;
     SmartString team_name;
 
     packet >> entity_id;
@@ -1550,35 +1550,35 @@ void Remote_ReceiveNetPacket_09(NetPacket& packet) {
     ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + entity_id), team_name.GetCStr());
 }
 
-void Remote_SendNetPacket_10(int team, ResourceID unit_type) {
+void Remote_SendNetPacket_10(int32_t team, ResourceID unit_type) {
     NetPacket packet;
     SmartPointer<UnitValues> unit_values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type));
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_10);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_10);
+    packet << static_cast<uint16_t>(team);
 
     packet << unit_type;
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_TURNS));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_HITS));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ARMOR));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ATTACK));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_SPEED));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_RANGE));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ROUNDS));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_SCAN));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_STORAGE));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_AMMO));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_AGENT_ADJUST));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_TURNS));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_HITS));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_ARMOR));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_ATTACK));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_SPEED));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_RANGE));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_ROUNDS));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_SCAN));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_STORAGE));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_AMMO));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_AGENT_ADJUST));
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
 
 void Remote_ReceiveNetPacket_10(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
     ResourceID unit_type;
-    unsigned short value;
+    uint16_t value;
 
     packet >> entity_id;
 
@@ -1632,7 +1632,7 @@ void Remote_ReceiveNetPacket_10(NetPacket& packet) {
     UnitsManager_TeamInfo[entity_id].team_units->SetCurrentUnitValues(unit_type, *unit_values);
 }
 
-void Remote_SendNetPacket_11(int team, Complex* complex) {
+void Remote_SendNetPacket_11(int32_t team, Complex* complex) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
@@ -1643,8 +1643,8 @@ void Remote_SendNetPacket_11(int team, Complex* complex) {
 
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_11);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_11);
+    packet << static_cast<uint16_t>(team);
 
     UnitsManager_TeamInfo[team].team_units->WriteComplexPacket(complex->GetId(), packet);
 
@@ -1652,20 +1652,20 @@ void Remote_SendNetPacket_11(int team, Complex* complex) {
 }
 
 void Remote_ReceiveNetPacket_11(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
     UnitsManager_TeamInfo[entity_id].team_units->ReadComplexPacket(packet);
 }
 
-void Remote_SendNetPacket_12(int team) {
+void Remote_SendNetPacket_12(int32_t team) {
     TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
     NetPacket packet;
-    unsigned short unit_count = supplies->units.GetCount();
+    uint16_t unit_count = supplies->units.GetCount();
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_12);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_12);
+    packet << static_cast<uint16_t>(team);
 
     packet << supplies->field_12;
     packet << supplies->team_gold;
@@ -1674,7 +1674,7 @@ void Remote_SendNetPacket_12(int team) {
     packet << supplies->starting_position;
     packet << supplies->proximity_alert_ack;
 
-    for (int i = 0; i < unit_count; ++i) {
+    for (int32_t i = 0; i < unit_count; ++i) {
         packet << *supplies->units[i];
         packet << *supplies->cargos[i];
     }
@@ -1683,7 +1683,7 @@ void Remote_SendNetPacket_12(int team) {
 }
 
 void Remote_ReceiveNetPacket_12(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -1692,7 +1692,7 @@ void Remote_ReceiveNetPacket_12(NetPacket& packet) {
     supplies->units.Clear();
     supplies->cargos.Clear();
 
-    unsigned short unit_count;
+    uint16_t unit_count;
 
     packet >> supplies->field_12;
     packet >> supplies->team_gold;
@@ -1701,9 +1701,9 @@ void Remote_ReceiveNetPacket_12(NetPacket& packet) {
     packet >> supplies->starting_position;
     packet >> supplies->proximity_alert_ack;
 
-    for (int i = 0; i < unit_count; ++i) {
+    for (int32_t i = 0; i < unit_count; ++i) {
         ResourceID unit_type;
-        unsigned short cargo;
+        uint16_t cargo;
 
         packet >> unit_type;
         supplies->units.PushBack(&unit_type);
@@ -1713,11 +1713,11 @@ void Remote_ReceiveNetPacket_12(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_13(unsigned int rng_seed) {
+void Remote_SendNetPacket_13(uint32_t rng_seed) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_13);
-    packet << static_cast<unsigned short>(0);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_13);
+    packet << static_cast<uint16_t>(0);
 
     packet << rng_seed;
 
@@ -1725,18 +1725,18 @@ void Remote_SendNetPacket_13(unsigned int rng_seed) {
 }
 
 void Remote_ReceiveNetPacket_13(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
     packet >> Remote_RngSeed;
 }
 
-void Remote_SendNetPacket_14(int team, ResourceID unit_type, int grid_x, int grid_y) {
+void Remote_SendNetPacket_14(int32_t team, ResourceID unit_type, int32_t grid_x, int32_t grid_y) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_14);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_14);
+    packet << static_cast<uint16_t>(team);
 
     packet << unit_type;
     packet << grid_x;
@@ -1746,13 +1746,13 @@ void Remote_SendNetPacket_14(int team, ResourceID unit_type, int grid_x, int gri
 }
 
 void Remote_ReceiveNetPacket_14(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
     ResourceID unit_type;
-    int grid_x;
-    int grid_y;
+    int32_t grid_x;
+    int32_t grid_y;
 
     packet >> unit_type;
     packet >> grid_x;
@@ -1770,8 +1770,8 @@ void Remote_ReceiveNetPacket_14(NetPacket& packet) {
 void Remote_SendNetPacket_16(const char* file_name, const char* file_title) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_16);
-    packet << static_cast<unsigned short>(0);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_16);
+    packet << static_cast<uint16_t>(0);
 
     packet << SmartString(file_name);
     packet << SmartString(file_title);
@@ -1780,7 +1780,7 @@ void Remote_SendNetPacket_16(const char* file_name, const char* file_title) {
 }
 
 void Remote_ReceiveNetPacket_16(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -1798,45 +1798,45 @@ void Remote_ReceiveNetPacket_16(NetPacket& packet) {
 void Remote_SendNetPacket_17() {
     NetPacket packet;
 
-    int world;
-    int game_file_number;
-    int game_file_type;
-    int play_mode;
-    int all_visible;
-    int quick_build;
-    int real_time;
-    int log_file_debug;
-    int disable_fire;
-    int fast_movement;
-    int timer;
-    int endturn;
-    int start_gold;
-    int auto_save;
-    int victory_type;
-    int victory_limit;
-    int raw_normal_low;
-    int raw_normal_high;
-    int raw_concentrate_low;
-    int raw_concentrate_high;
-    int raw_concentrate_seperation;
-    int raw_concentrate_diffusion;
-    int fuel_normal_low;
-    int fuel_normal_high;
-    int fuel_concentrate_low;
-    int fuel_concentrate_high;
-    int fuel_concentrate_seperation;
-    int fuel_concentrate_diffusion;
-    int gold_normal_low;
-    int gold_normal_high;
-    int gold_concentrate_low;
-    int gold_concentrate_high;
-    int gold_concentrate_seperation;
-    int gold_concentrate_diffusion;
-    int mixed_resource_seperation;
-    int min_resources;
-    int max_resources;
-    int alien_seperation;
-    int alien_unit_value;
+    int32_t world;
+    int32_t game_file_number;
+    int32_t game_file_type;
+    int32_t play_mode;
+    int32_t all_visible;
+    int32_t quick_build;
+    int32_t real_time;
+    int32_t log_file_debug;
+    int32_t disable_fire;
+    int32_t fast_movement;
+    int32_t timer;
+    int32_t endturn;
+    int32_t start_gold;
+    int32_t auto_save;
+    int32_t victory_type;
+    int32_t victory_limit;
+    int32_t raw_normal_low;
+    int32_t raw_normal_high;
+    int32_t raw_concentrate_low;
+    int32_t raw_concentrate_high;
+    int32_t raw_concentrate_seperation;
+    int32_t raw_concentrate_diffusion;
+    int32_t fuel_normal_low;
+    int32_t fuel_normal_high;
+    int32_t fuel_concentrate_low;
+    int32_t fuel_concentrate_high;
+    int32_t fuel_concentrate_seperation;
+    int32_t fuel_concentrate_diffusion;
+    int32_t gold_normal_low;
+    int32_t gold_normal_high;
+    int32_t gold_concentrate_low;
+    int32_t gold_concentrate_high;
+    int32_t gold_concentrate_seperation;
+    int32_t gold_concentrate_diffusion;
+    int32_t mixed_resource_seperation;
+    int32_t min_resources;
+    int32_t max_resources;
+    int32_t alien_seperation;
+    int32_t alien_unit_value;
 
     world = ini_get_setting(INI_WORLD);
     game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
@@ -1878,8 +1878,8 @@ void Remote_SendNetPacket_17() {
     alien_seperation = ini_get_setting(INI_ALIEN_SEPERATION);
     alien_unit_value = ini_get_setting(INI_ALIEN_UNIT_VALUE);
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_17);
-    packet << static_cast<unsigned short>(0);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_17);
+    packet << static_cast<uint16_t>(0);
 
     packet << GameManager_GameState;
     packet << world;
@@ -1926,52 +1926,52 @@ void Remote_SendNetPacket_17() {
 }
 
 void Remote_ReceiveNetPacket_17(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
     char game_state;
-    int world;
-    int game_file_number;
-    int game_file_type;
-    int play_mode;
-    int all_visible;
-    int quick_build;
-    int real_time;
-    int log_file_debug;
-    int disable_fire;
-    int fast_movement;
-    int timer;
-    int endturn;
-    int backup_timer;
-    int backup_endturn;
-    int start_gold;
-    int auto_save;
-    int victory_type;
-    int victory_limit;
-    int raw_normal_low;
-    int raw_normal_high;
-    int raw_concentrate_low;
-    int raw_concentrate_high;
-    int raw_concentrate_seperation;
-    int raw_concentrate_diffusion;
-    int fuel_normal_low;
-    int fuel_normal_high;
-    int fuel_concentrate_low;
-    int fuel_concentrate_high;
-    int fuel_concentrate_seperation;
-    int fuel_concentrate_diffusion;
-    int gold_normal_low;
-    int gold_normal_high;
-    int gold_concentrate_low;
-    int gold_concentrate_high;
-    int gold_concentrate_seperation;
-    int gold_concentrate_diffusion;
-    int mixed_resource_seperation;
-    int min_resources;
-    int max_resources;
-    int alien_seperation;
-    int alien_unit_value;
+    int32_t world;
+    int32_t game_file_number;
+    int32_t game_file_type;
+    int32_t play_mode;
+    int32_t all_visible;
+    int32_t quick_build;
+    int32_t real_time;
+    int32_t log_file_debug;
+    int32_t disable_fire;
+    int32_t fast_movement;
+    int32_t timer;
+    int32_t endturn;
+    int32_t backup_timer;
+    int32_t backup_endturn;
+    int32_t start_gold;
+    int32_t auto_save;
+    int32_t victory_type;
+    int32_t victory_limit;
+    int32_t raw_normal_low;
+    int32_t raw_normal_high;
+    int32_t raw_concentrate_low;
+    int32_t raw_concentrate_high;
+    int32_t raw_concentrate_seperation;
+    int32_t raw_concentrate_diffusion;
+    int32_t fuel_normal_low;
+    int32_t fuel_normal_high;
+    int32_t fuel_concentrate_low;
+    int32_t fuel_concentrate_high;
+    int32_t fuel_concentrate_seperation;
+    int32_t fuel_concentrate_diffusion;
+    int32_t gold_normal_low;
+    int32_t gold_normal_high;
+    int32_t gold_concentrate_low;
+    int32_t gold_concentrate_high;
+    int32_t gold_concentrate_seperation;
+    int32_t gold_concentrate_diffusion;
+    int32_t mixed_resource_seperation;
+    int32_t min_resources;
+    int32_t max_resources;
+    int32_t alien_seperation;
+    int32_t alien_unit_value;
 
     backup_timer = ini_get_setting(INI_TIMER);
     backup_endturn = ini_get_setting(INI_ENDTURN);
@@ -2077,16 +2077,16 @@ void Remote_ReceiveNetPacket_17(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_18(int sender_team, int addresse_team, const char* message) {
-    int message_length;
+void Remote_SendNetPacket_18(int32_t sender_team, int32_t addresse_team, const char* message) {
+    int32_t message_length;
 
     message_length = strlen(message);
 
     if (message_length && Remote_IsNetworkGame) {
         NetPacket packet;
 
-        packet << static_cast<unsigned char>(REMOTE_PACKET_18);
-        packet << static_cast<unsigned short>(sender_team);
+        packet << static_cast<uint8_t>(REMOTE_PACKET_18);
+        packet << static_cast<uint16_t>(sender_team);
 
         packet << SmartString(message);
 
@@ -2095,7 +2095,7 @@ void Remote_SendNetPacket_18(int sender_team, int addresse_team, const char* mes
 }
 
 void Remote_ReceiveNetPacket_18(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2119,29 +2119,29 @@ void Remote_SendNetPacket_20(UnitInfo* unit) {
     NetPacket packet;
     SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_20);
-    packet << static_cast<unsigned short>(unit->GetId());
+    packet << static_cast<uint8_t>(REMOTE_PACKET_20);
+    packet << static_cast<uint16_t>(unit->GetId());
 
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_TURNS));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_HITS));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ARMOR));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ATTACK));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_SPEED));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_RANGE));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ROUNDS));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_SCAN));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_STORAGE));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_AMMO));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS));
-    packet << static_cast<unsigned short>(unit_values->GetAttribute(ATTRIB_AGENT_ADJUST));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_TURNS));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_HITS));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_ARMOR));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_ATTACK));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_SPEED));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_RANGE));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_ROUNDS));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_SCAN));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_STORAGE));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_AMMO));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS));
+    packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_AGENT_ADJUST));
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
 
 void Remote_ReceiveNetPacket_20(NetPacket& packet) {
-    unsigned short entity_id;
-    unsigned short value;
+    uint16_t entity_id;
+    uint16_t value;
 
     packet >> entity_id;
 
@@ -2200,11 +2200,11 @@ void Remote_ReceiveNetPacket_20(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_21(NetPacket& packet) {
-    unsigned short entity_id;
-    unsigned short complex_id;
-    unsigned short material;
-    unsigned short fuel;
-    unsigned short gold;
+    uint16_t entity_id;
+    uint16_t complex_id;
+    uint16_t material;
+    uint16_t fuel;
+    uint16_t gold;
 
     packet >> entity_id;
 
@@ -2217,7 +2217,7 @@ void Remote_ReceiveNetPacket_21(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_22(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2251,7 +2251,7 @@ void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet) {
 void Remote_SendNetPacket_23(UnitInfo* unit) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_23);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_23);
     packet << unit->GetId();
 
     Remote_CreateNetPacket_23(unit, packet);
@@ -2260,7 +2260,7 @@ void Remote_SendNetPacket_23(UnitInfo* unit) {
 }
 
 void Remote_ReceiveNetPacket_23(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2268,14 +2268,14 @@ void Remote_ReceiveNetPacket_23(NetPacket& packet) {
 
     Remote_P23_Packet.Reset();
 
-    Remote_P23_Packet << static_cast<unsigned char>(REMOTE_PACKET_23);
-    Remote_P23_Packet << static_cast<unsigned short>(entity_id);
+    Remote_P23_Packet << static_cast<uint8_t>(REMOTE_PACKET_23);
+    Remote_P23_Packet << static_cast<uint16_t>(entity_id);
 
     Remote_P23_Packet.Write(packet.GetBuffer(), packet.GetDataSize());
 }
 
 void Remote_ReceiveNetPacket_24(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
     bool status;
 
     packet >> entity_id;
@@ -2286,8 +2286,8 @@ void Remote_ReceiveNetPacket_24(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_26(NetPacket& packet) {
-    unsigned short entity_id;
-    unsigned char team_clan;
+    uint16_t entity_id;
+    uint8_t team_clan;
 
     packet >> entity_id;
 
@@ -2298,11 +2298,11 @@ void Remote_ReceiveNetPacket_26(NetPacket& packet) {
     ResourceManager_InitClanUnitValues(entity_id);
 }
 
-void Remote_SendNetPacket_28(int node) {
+void Remote_SendNetPacket_28(int32_t node) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_28);
-    packet << static_cast<unsigned short>(node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_28);
+    packet << static_cast<uint16_t>(node);
 
     Remote_TransmitPacket(packet, REMOTE_BROADCAST);
 }
@@ -2321,12 +2321,12 @@ void Remote_ReceiveNetPacket_28(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_29(int node) {
+void Remote_SendNetPacket_29(int32_t node) {
     NetPacket packet;
     NetNode* host_node;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_29);
-    packet << static_cast<unsigned short>(node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_29);
+    packet << static_cast<uint16_t>(node);
 
     host_node = Remote_Hosts.Find(node);
     if (host_node) {
@@ -2341,7 +2341,7 @@ void Remote_SendNetPacket_29(int node) {
 }
 
 void Remote_ReceiveNetPacket_29(NetPacket& packet) {
-    unsigned short host_node;
+    uint16_t host_node;
 
     packet >> host_node;
 
@@ -2364,7 +2364,7 @@ void Remote_SendNetPacket_30(NetAddress& address) {
 
     node = Remote_Nodes.Find(address);
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_30);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_30);
     packet << node->entity_id;
 
     packet << Remote_NetworkMenu->player_node;
@@ -2373,7 +2373,7 @@ void Remote_SendNetPacket_30(NetAddress& address) {
 
     packet << Remote_Nodes.GetCount();
 
-    for (int i = 0; i < Remote_Nodes.GetCount(); ++i) {
+    for (int32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
         packet << *Remote_Nodes[i];
     }
 
@@ -2386,9 +2386,9 @@ void Remote_SendNetPacket_30(NetAddress& address) {
 
 void Remote_ReceiveNetPacket_30(NetPacket& packet) {
     if (Remote_GameState == 1) {
-        unsigned short player_node;
-        unsigned short host_node;
-        unsigned short node_count;
+        uint16_t player_node;
+        uint16_t host_node;
+        uint16_t node_count;
 
         packet >> player_node;
         Remote_NetworkMenu->player_node = player_node;
@@ -2401,7 +2401,7 @@ void Remote_ReceiveNetPacket_30(NetPacket& packet) {
 
         packet >> node_count;
 
-        for (int i = 0; i < node_count; ++i) {
+        for (int32_t i = 0; i < node_count; ++i) {
             NetNode peer_node;
 
             packet >> peer_node;
@@ -2416,14 +2416,14 @@ void Remote_ReceiveNetPacket_30(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_31(int node) {
+void Remote_SendNetPacket_31(int32_t node) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_31);
-    packet << static_cast<unsigned short>(node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_31);
+    packet << static_cast<uint16_t>(node);
 
     if (Remote_NetworkMenu->is_host_mode) {
-        for (int i = 0; i < Remote_Clients.GetCount(); ++i) {
+        for (int32_t i = 0; i < Remote_Clients.GetCount(); ++i) {
             packet.AddAddress(Remote_Clients[i]->address);
         }
 
@@ -2435,7 +2435,7 @@ void Remote_SendNetPacket_31(int node) {
 
 void Remote_ReceiveNetPacket_31(NetPacket& packet) {
     if (Remote_GameState == 1) {
-        unsigned short entity_id;
+        uint16_t entity_id;
 
         packet >> entity_id;
 
@@ -2449,11 +2449,11 @@ void Remote_ReceiveNetPacket_31(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_32(unsigned short random_number, int transmit_mode) {
+void Remote_SendNetPacket_32(uint16_t random_number, int32_t transmit_mode) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_32);
-    packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_32);
+    packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
     packet << Remote_NetworkMenu->player_team;
     packet << random_number;
@@ -2465,7 +2465,7 @@ void Remote_SendNetPacket_32(unsigned short random_number, int transmit_mode) {
 
 void Remote_ReceiveNetPacket_32(NetPacket& packet) {
     if (Remote_GameState == 1) {
-        unsigned short entity_id;
+        uint16_t entity_id;
 
         packet >> entity_id;
 
@@ -2479,7 +2479,7 @@ void Remote_ReceiveNetPacket_32(NetPacket& packet) {
 
             } else {
                 char team;
-                unsigned short random_number;
+                uint16_t random_number;
 
                 Remote_SetupPlayers();
 
@@ -2504,8 +2504,8 @@ void Remote_SendNetPacket_33() {
     if (strlen(Remote_NetworkMenu->chat_input_buffer)) {
         NetPacket packet;
 
-        packet << static_cast<unsigned char>(REMOTE_PACKET_33);
-        packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+        packet << static_cast<uint8_t>(REMOTE_PACKET_33);
+        packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
         SmartString string(Remote_NetworkMenu->player_name);
         string += ": ";
@@ -2518,7 +2518,7 @@ void Remote_SendNetPacket_33() {
 }
 
 void Remote_ReceiveNetPacket_33(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2537,8 +2537,8 @@ void Remote_ReceiveNetPacket_33(NetPacket& packet) {
 void Remote_SendNetPacket_34() {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_34);
-    packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_34);
+    packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
     /// \todo Copy address table from TP layer?
 
@@ -2546,7 +2546,7 @@ void Remote_SendNetPacket_34() {
 }
 
 void Remote_ReceiveNetPacket_34(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2559,8 +2559,8 @@ void Remote_SendNetPacket_35() {
     if (Remote_Nodes.GetCount()) {
         NetPacket packet;
 
-        packet << static_cast<unsigned char>(REMOTE_PACKET_35);
-        packet << static_cast<unsigned short>(Remote_NetworkMenu->host_node);
+        packet << static_cast<uint8_t>(REMOTE_PACKET_35);
+        packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
         packet << Remote_NetworkMenu->player_node;
         packet << Remote_NetworkMenu->player_team;
@@ -2572,19 +2572,19 @@ void Remote_SendNetPacket_35() {
 }
 
 void Remote_ReceiveNetPacket_35(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
     if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
-        unsigned short source_node;
+        uint16_t source_node;
         char team_slot;
         bool ready_state;
         SmartString team_name;
 
         packet >> source_node;
 
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             if (Remote_NetworkMenu->team_nodes[i] == source_node) {
                 Remote_NetworkMenu->ResetJar(i);
                 --Remote_NetworkMenu->remote_player_count;
@@ -2609,8 +2609,8 @@ void Remote_ReceiveNetPacket_35(NetPacket& packet) {
 void Remote_SendNetPacket_36() {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_36);
-    packet << static_cast<unsigned short>(Remote_NetworkMenu->player_node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_36);
+    packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
 
     packet << Remote_NetworkMenu->player_name;
 
@@ -2619,7 +2619,7 @@ void Remote_SendNetPacket_36() {
 
 void Remote_ReceiveNetPacket_36(NetPacket& packet) {
     if (Remote_GameState == 1) {
-        unsigned short entity_id;
+        uint16_t entity_id;
         char player_name[30];
         NetNode* host_node;
 
@@ -2633,7 +2633,7 @@ void Remote_ReceiveNetPacket_36(NetPacket& packet) {
             Remote_NetworkMenu->is_gui_update_needed = true;
         }
 
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             if (Remote_NetworkMenu->team_nodes[i] == entity_id) {
                 strcpy(Remote_NetworkMenu->team_names[i], player_name);
 
@@ -2646,8 +2646,8 @@ void Remote_ReceiveNetPacket_36(NetPacket& packet) {
 void Remote_SendNetPacket_37() {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_37);
-    packet << static_cast<unsigned short>(Remote_NetworkMenu->player_node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_37);
+    packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
 
     Remote_WriteGameSettings(packet);
 
@@ -2655,7 +2655,7 @@ void Remote_SendNetPacket_37() {
 }
 
 void Remote_ReceiveNetPacket_37(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2669,8 +2669,8 @@ void Remote_ReceiveNetPacket_37(NetPacket& packet) {
 void Remote_SendNetPacket_38(UnitInfo* unit) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_38);
-    packet << static_cast<unsigned short>(unit->GetId());
+    packet << static_cast<uint8_t>(REMOTE_PACKET_38);
+    packet << static_cast<uint16_t>(unit->GetId());
 
     packet << unit->orders;
     packet << unit->state;
@@ -2678,7 +2678,7 @@ void Remote_SendNetPacket_38(UnitInfo* unit) {
     packet << unit->target_grid_y;
     packet << unit->group_speed;
 
-    unsigned short steps_count;
+    uint16_t steps_count;
 
     if (unit->path) {
         if (unit->flags & MOBILE_AIR_UNIT) {
@@ -2709,14 +2709,14 @@ void Remote_SendNetPacket_38(UnitInfo* unit) {
 }
 
 void Remote_ReceiveNetPacket_38(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
     UnitInfo* unit = Hash_UnitHash[entity_id];
 
     if (unit) {
-        unsigned short steps_count;
+        uint16_t steps_count;
 
         if (unit->path) {
             unit->path = nullptr;
@@ -2734,11 +2734,11 @@ void Remote_ReceiveNetPacket_38(NetPacket& packet) {
 
         if (steps_count) {
             if (unit->flags & MOBILE_AIR_UNIT) {
-                short end_x;
-                short end_y;
-                int distance_x;
-                int distance_y;
-                short euclidean_distance;
+                int16_t end_x;
+                int16_t end_y;
+                int32_t distance_x;
+                int32_t distance_y;
+                int16_t euclidean_distance;
 
                 packet >> end_x;
                 packet >> end_y;
@@ -2769,7 +2769,7 @@ void Remote_ReceiveNetPacket_38(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_39(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2777,7 +2777,7 @@ void Remote_ReceiveNetPacket_39(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_40(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2787,14 +2787,14 @@ void Remote_ReceiveNetPacket_40(NetPacket& packet) {
 void Remote_SendNetPacket_41(UnitInfo* unit) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_41);
-    packet << static_cast<unsigned short>(unit->GetId());
+    packet << static_cast<uint8_t>(REMOTE_PACKET_41);
+    packet << static_cast<uint16_t>(unit->GetId());
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
 
 void Remote_ReceiveNetPacket_41(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2809,7 +2809,7 @@ void Remote_ReceiveNetPacket_41(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_42(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2822,8 +2822,8 @@ void Remote_ReceiveNetPacket_42(NetPacket& packet) {
 void Remote_SendNetPacket_43(UnitInfo* unit, const char* name) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_43);
-    packet << static_cast<unsigned short>(unit->GetId());
+    packet << static_cast<uint8_t>(REMOTE_PACKET_43);
+    packet << static_cast<uint16_t>(unit->GetId());
 
     packet << SmartString(name);
 
@@ -2831,7 +2831,7 @@ void Remote_SendNetPacket_43(UnitInfo* unit, const char* name) {
 }
 
 void Remote_ReceiveNetPacket_43(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2854,8 +2854,8 @@ void Remote_SendNetPacket_44(NetAddress& address) {
 
     packet.AddAddress(address);
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_44);
-    packet << static_cast<unsigned short>(Remote_NetworkMenu->player_node);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_44);
+    packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
     packet << SmartString(GAME_VERSION);
     packet << SmartString(Remote_NetworkMenu->player_name);
 
@@ -2864,7 +2864,7 @@ void Remote_SendNetPacket_44(NetAddress& address) {
 
 void Remote_ReceiveNetPacket_44(NetPacket& packet) {
     if (Remote_GameState == 1) {
-        unsigned short entity_id;
+        uint16_t entity_id;
 
         packet >> entity_id;
 
@@ -2890,11 +2890,11 @@ void Remote_ReceiveNetPacket_44(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_45(unsigned short team, unsigned char next_turn_index, unsigned short crc_checksum) {
+void Remote_SendNetPacket_45(uint16_t team, uint8_t next_turn_index, uint16_t crc_checksum) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_45);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_45);
+    packet << static_cast<uint16_t>(team);
 
     packet << next_turn_index;
     packet << crc_checksum;
@@ -2903,7 +2903,7 @@ void Remote_SendNetPacket_45(unsigned short team, unsigned char next_turn_index,
 }
 
 void Remote_ReceiveNetPacket_45(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2911,11 +2911,11 @@ void Remote_ReceiveNetPacket_45(NetPacket& packet) {
     packet >> Remote_TeamDataCrc16[entity_id];
 }
 
-void Remote_SendNetPacket_46(unsigned short team, bool state, unsigned int counter) {
+void Remote_SendNetPacket_46(uint16_t team, bool state, uint32_t counter) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_46);
-    packet << static_cast<unsigned short>(team);
+    packet << static_cast<uint8_t>(REMOTE_PACKET_46);
+    packet << static_cast<uint16_t>(team);
 
     packet << state;
     packet << counter;
@@ -2924,9 +2924,9 @@ void Remote_SendNetPacket_46(unsigned short team, bool state, unsigned int count
 }
 
 void Remote_ReceiveNetPacket_46(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
     bool state;
-    unsigned int counter;
+    uint32_t counter;
 
     packet >> entity_id;
     packet >> state;
@@ -2943,7 +2943,7 @@ void Remote_ReceiveNetPacket_46(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_48(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2951,7 +2951,7 @@ void Remote_ReceiveNetPacket_48(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_49(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2961,14 +2961,14 @@ void Remote_ReceiveNetPacket_49(NetPacket& packet) {
 void Remote_SendNetPacket_50(UnitInfo* unit) {
     NetPacket packet;
 
-    packet << static_cast<unsigned char>(REMOTE_PACKET_50);
-    packet << static_cast<unsigned short>(unit->GetId());
+    packet << static_cast<uint8_t>(REMOTE_PACKET_50);
+    packet << static_cast<uint16_t>(unit->GetId());
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
 
 void Remote_ReceiveNetPacket_50(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2983,7 +2983,7 @@ void Remote_ReceiveNetPacket_50(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_51(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 
@@ -2991,7 +2991,7 @@ void Remote_ReceiveNetPacket_51(NetPacket& packet) {
 }
 
 void Remote_ReceiveNetPacket_52(NetPacket& packet) {
-    unsigned short entity_id;
+    uint16_t entity_id;
 
     packet >> entity_id;
 

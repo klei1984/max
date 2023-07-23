@@ -40,11 +40,11 @@
 #define TEXT_GLYPH_METRICS_SCALE (64)
 #define TEXT_CACHE_ENTRIES (30)
 
-typedef void (*text_font_func)(int);
+typedef void (*text_font_func)(int32_t);
 
 typedef struct FontMgr {
-    int low_font_num;
-    int high_font_num;
+    int32_t low_font_num;
+    int32_t high_font_num;
     text_font_func text_font;
     text_to_buf_func text_to_buf;
     text_height_func text_height;
@@ -55,55 +55,55 @@ typedef struct FontMgr {
     text_size_func text_size;
 } FontMgr, *FontMgrPtr;
 
-static void Text_LoadFontTTF(int n, FT_Library library, struct Font& font);
-static void Text_SetFontTTF(int font_num);
-static int Text_FontExistsTTF(int font_num, FontMgrPtr* mgr);
-static void Text_BlitTTF(unsigned char* buf, const char* str, int swidth, int fullw, int color);
-static int Text_GetHeightTTF(void);
-static int Text_GetWidthTTF(const char* str);
-static int Text_GetGlyphWidthTTF(unsigned int glyph);
-static int Text_GetMonospaceWidthTTF(const char* str);
-static int Text_GetSpacingTTF(void);
-static int Text_GetSizeTTF(const char* str);
+static void Text_LoadFontTTF(int32_t n, FT_Library library, struct Font& font);
+static void Text_SetFontTTF(int32_t font_num);
+static int32_t Text_FontExistsTTF(int32_t font_num, FontMgrPtr* mgr);
+static void Text_BlitTTF(uint8_t* buf, const char* str, int32_t swidth, int32_t fullw, int32_t color);
+static int32_t Text_GetHeightTTF(void);
+static int32_t Text_GetWidthTTF(const char* str);
+static int32_t Text_GetGlyphWidthTTF(uint32_t glyph);
+static int32_t Text_GetMonospaceWidthTTF(const char* str);
+static int32_t Text_GetSpacingTTF(void);
+static int32_t Text_GetSizeTTF(const char* str);
 static bool Text_FitBounds(Rect* output, Rect* bounds1, Rect* bounds2);
 static bool Text_IsFitting(Rect* bounds1, Rect* bounds2);
 static inline struct FontGlyph& Text_GetGlyph(Uint32 key);
 static Uint32* Text_Utf8ToUcs4(const char* str);
-static unsigned int Text_GetHash(const char* str);
-static Uint32* Text_GetCachedString(const char* str, unsigned int& hash);
-static void Text_AddCachedString(Uint32* buffer, unsigned int& hash);
+static uint32_t Text_GetHash(const char* str);
+static Uint32* Text_GetCachedString(const char* str, uint32_t& hash);
+static void Text_AddCachedString(Uint32* buffer, uint32_t& hash);
 
 struct FontGlyph {
-    unsigned char* buffer;
-    unsigned short width;
-    unsigned short height;
-    short pitch;
-    short ulx;
-    short uly;
-    short advance;
+    uint8_t* buffer;
+    uint16_t width;
+    uint16_t height;
+    int16_t pitch;
+    int16_t ulx;
+    int16_t uly;
+    int16_t advance;
 };
 
 struct FontMeta {
-    int id;
-    int height;
+    int32_t id;
+    int32_t height;
 };
 
 struct Font {
-    int ascender;
-    int max_width;
-    int max_height;
+    int32_t ascender;
+    int32_t max_width;
+    int32_t max_height;
     iconv_t cd;
     std::map<Uint32, struct FontGlyph> glyphs;
 };
 
 struct TextCacheEntry {
-    unsigned int hash;
+    uint32_t hash;
     Uint32* buffer;
 };
 
 struct TextCache {
     struct TextCacheEntry entries[TEXT_CACHE_ENTRIES];
-    int write_index;
+    int32_t write_index;
 };
 
 const struct FontMeta Text_FontMetas[] = {
@@ -115,9 +115,9 @@ const struct FontMeta Text_FontMetas[] = {
 static struct TextCache Text_StringCache;
 static struct Font Text_Fonts[GNW_TEXT_FONT_COUNT];
 static struct FontMgr Text_FontManagers[TEXT_FONT_MANAGER_COUNT];
-static int Text_TotalManagers;
+static int32_t Text_TotalManagers;
 static struct Font* Text_CurrentFont;
-static int Text_CurrentFontIndex = -1;
+static int32_t Text_CurrentFontIndex = -1;
 
 text_to_buf_func Text_Blit;
 text_height_func Text_GetHeight;
@@ -127,10 +127,10 @@ text_mono_width_func Text_GetMonospaceWidth;
 text_spacing_func Text_GetSpacing;
 text_size_func Text_GetSize;
 
-unsigned int Text_TypeWriter_CharacterTimeMs = 50;
-unsigned int Text_TypeWriter_BeepTimeMs = 100;
+uint32_t Text_TypeWriter_CharacterTimeMs = 50;
+uint32_t Text_TypeWriter_BeepTimeMs = 100;
 
-int Text_Init(void) {
+int32_t Text_Init(void) {
     FT_Library Text_Library;
     struct FontMgr manager = {GNW_TEXT_FONT_0,    GNW_TEXT_FONT_9,  Text_SetFontTTF,       Text_BlitTTF,
                               Text_GetHeightTTF,  Text_GetWidthTTF, Text_GetGlyphWidthTTF, Text_GetMonospaceWidthTTF,
@@ -144,12 +144,12 @@ int Text_Init(void) {
 
     memset(&Text_StringCache, 0, sizeof(Text_StringCache));
 
-    int first_font = -1;
-    int result;
+    int32_t first_font = -1;
+    int32_t result;
 
     Text_TotalManagers = 0;
 
-    for (int i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; ++i) {
+    for (int32_t i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; ++i) {
         Text_LoadFontTTF(i, Text_Library, Text_Fonts[i]);
 
         if (Text_Fonts[i].glyphs.size()) {
@@ -179,7 +179,7 @@ int Text_Init(void) {
 }
 
 void Text_Exit(void) {
-    for (int i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; ++i) {
+    for (int32_t i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; ++i) {
         if (Text_Fonts[i].cd != reinterpret_cast<iconv_t>(-1)) {
             iconv_close(Text_Fonts[i].cd);
             Text_Fonts[i].cd = reinterpret_cast<iconv_t>(-1);
@@ -195,7 +195,7 @@ void Text_Exit(void) {
     }
 }
 
-void Text_LoadFontTTF(int n, FT_Library library, struct Font& font) {
+void Text_LoadFontTTF(int32_t n, FT_Library library, struct Font& font) {
     ResourceID id;
 
     switch (n) {
@@ -226,8 +226,8 @@ void Text_LoadFontTTF(int n, FT_Library library, struct Font& font) {
         return;
     }
 
-    unsigned int file_size = ResourceManager_GetResourceSize(id);
-    unsigned char* file_base = ResourceManager_ReadResource(id);
+    uint32_t file_size = ResourceManager_GetResourceSize(id);
+    uint8_t* file_base = ResourceManager_ReadResource(id);
 
     if (file_base) {
         if (FT_New_Memory_Face(library, file_base, file_size, 0, &font_face) == FT_Err_Ok) {
@@ -259,15 +259,15 @@ void Text_LoadFontTTF(int n, FT_Library library, struct Font& font) {
 
                             font_glyph.pitch = slot->bitmap.pitch;
                             font_glyph.buffer =
-                                new (std::nothrow) unsigned char[slot->bitmap.pitch * slot->bitmap.rows];
+                                new (std::nothrow) uint8_t[slot->bitmap.pitch * slot->bitmap.rows];
 
                             if (font_glyph.buffer) {
                                 buf_to_buf(slot->bitmap.buffer, slot->bitmap.pitch, slot->bitmap.rows,
                                            slot->bitmap.pitch, font_glyph.buffer, slot->bitmap.pitch);
                             }
 
-                            font.max_width = std::max<int>(font.max_width, font_glyph.width);
-                            font.max_height = std::max<int>(font.max_height, font_glyph.height);
+                            font.max_width = std::max<int32_t>(font.max_width, font_glyph.width);
+                            font.max_height = std::max<int32_t>(font.max_height, font_glyph.height);
                         }
 
                         font.glyphs.insert({char_code, font_glyph});
@@ -300,8 +300,8 @@ void Text_LoadFontTTF(int n, FT_Library library, struct Font& font) {
     }
 }
 
-int Text_AddManager(FontMgrPtr mgr) {
-    int result;
+int32_t Text_AddManager(FontMgrPtr mgr) {
+    int32_t result;
     FontMgrPtr mgr_temp;
 
     result = -1;
@@ -309,7 +309,7 @@ int Text_AddManager(FontMgrPtr mgr) {
     if (mgr) {
         if (Text_TotalManagers < TEXT_FONT_MANAGER_COUNT) {
             if (mgr->low_font_num < mgr->high_font_num) {
-                int k = mgr->low_font_num;
+                int32_t k = mgr->low_font_num;
 
                 while (!Text_FontExistsTTF(k, &mgr_temp)) {
                     k++;
@@ -327,12 +327,12 @@ int Text_AddManager(FontMgrPtr mgr) {
     return result;
 }
 
-int Text_RemoveManager(int font_num) {
+int32_t Text_RemoveManager(int32_t font_num) {
     FontMgrPtr mgr;
-    int result = -1;
+    int32_t result = -1;
 
     if (Text_FontExistsTTF(font_num, &mgr)) {
-        int i = 0;
+        int32_t i = 0;
 
         while (i < Text_TotalManagers &&
                (mgr != &Text_FontManagers[i] || (Text_CurrentFontIndex >= Text_FontManagers[i].low_font_num &&
@@ -351,7 +351,7 @@ int Text_RemoveManager(int font_num) {
     return result;
 }
 
-void Text_SetFontTTF(int font_num) {
+void Text_SetFontTTF(int32_t font_num) {
     if (font_num < GNW_TEXT_FONT_COUNT) {
         if (Text_Fonts[font_num].glyphs.size()) {
             Text_CurrentFont = &Text_Fonts[font_num];
@@ -359,9 +359,9 @@ void Text_SetFontTTF(int font_num) {
     }
 }
 
-int Text_GetFont(void) { return Text_CurrentFontIndex; }
+int32_t Text_GetFont(void) { return Text_CurrentFontIndex; }
 
-void Text_SetFont(int font_num) {
+void Text_SetFont(int32_t font_num) {
     FontMgrPtr mgr;
 
     if (Text_FontExistsTTF(font_num, &mgr)) {
@@ -379,9 +379,9 @@ void Text_SetFont(int font_num) {
     }
 }
 
-int Text_FontExistsTTF(int font_num, FontMgrPtr* mgr) {
-    int result;
-    int i = 0;
+int32_t Text_FontExistsTTF(int32_t font_num, FontMgrPtr* mgr) {
+    int32_t result;
+    int32_t i = 0;
 
     while (i < Text_TotalManagers &&
            (font_num < Text_FontManagers[i].low_font_num || font_num > Text_FontManagers[i].high_font_num)) {
@@ -408,7 +408,7 @@ struct FontGlyph& Text_GetGlyph(Uint32 key) {
     return Text_CurrentFont->glyphs[key];
 }
 
-unsigned int Text_GetHash(const char* str) {
+uint32_t Text_GetHash(const char* str) {
     uint32_t hash = 0;
 
     for (; *str; ++str) {
@@ -424,7 +424,7 @@ unsigned int Text_GetHash(const char* str) {
     return hash;
 }
 
-Uint32* Text_GetCachedString(const char* str, unsigned int& hash) {
+Uint32* Text_GetCachedString(const char* str, uint32_t& hash) {
     hash = Text_GetHash(str);
 
     for (auto& cache : Text_StringCache.entries) {
@@ -436,7 +436,7 @@ Uint32* Text_GetCachedString(const char* str, unsigned int& hash) {
     return nullptr;
 }
 
-void Text_AddCachedString(Uint32* buffer, unsigned int& hash) {
+void Text_AddCachedString(Uint32* buffer, uint32_t& hash) {
     ++Text_StringCache.write_index;
 
     if (Text_StringCache.write_index >= TEXT_CACHE_ENTRIES) {
@@ -451,7 +451,7 @@ void Text_AddCachedString(Uint32* buffer, unsigned int& hash) {
 }
 
 Uint32* Text_Utf8ToUcs4(const char* str) {
-    unsigned int hash;
+    uint32_t hash;
     Uint32* result = Text_GetCachedString(str, hash);
 
     if (result) {
@@ -459,8 +459,8 @@ Uint32* Text_Utf8ToUcs4(const char* str) {
     }
 
     if (Text_CurrentFont->cd != reinterpret_cast<iconv_t>(-1)) {
-        unsigned int src_len = strlen(str) + 1;
-        unsigned int dst_len = src_len;
+        uint32_t src_len = strlen(str) + 1;
+        uint32_t dst_len = src_len;
         Uint32* buffer = new (std::nothrow) Uint32[dst_len];
 
         if (buffer) {
@@ -485,10 +485,10 @@ Uint32* Text_Utf8ToUcs4(const char* str) {
     return result;
 }
 
-void Text_BlitTTF(unsigned char* buf, const char* str, int swidth, int fullw, int color) {
-    unsigned char* data;
-    unsigned char* bstart;
-    unsigned char* bnext;
+void Text_BlitTTF(uint8_t* buf, const char* str, int32_t swidth, int32_t fullw, int32_t color) {
+    uint8_t* data;
+    uint8_t* bstart;
+    uint8_t* bnext;
 
     bstart = buf;
 
@@ -502,7 +502,7 @@ void Text_BlitTTF(unsigned char* buf, const char* str, int swidth, int fullw, in
     if (uni_str) {
         for (Uint32* uni_str_pos = uni_str; *uni_str_pos; ++uni_str_pos) {
             const struct FontGlyph& glyph = Text_GetGlyph(*uni_str_pos);
-            const int offset = fullw * glyph.uly + glyph.ulx;
+            const int32_t offset = fullw * glyph.uly + glyph.ulx;
 
             bnext = &buf[glyph.advance];
 
@@ -511,11 +511,11 @@ void Text_BlitTTF(unsigned char* buf, const char* str, int swidth, int fullw, in
                     break;
                 }
 
-                for (int h = 0; h < glyph.height; ++h) {
-                    unsigned char mask = 0x80;
+                for (int32_t h = 0; h < glyph.height; ++h) {
+                    uint8_t mask = 0x80;
                     data = &glyph.buffer[glyph.pitch * h];
 
-                    for (int w = 0; w < glyph.width; ++w, ++buf) {
+                    for (int32_t w = 0; w < glyph.width; ++w, ++buf) {
                         if (!mask) {
                             mask = 0x80;
                             ++data;
@@ -537,19 +537,19 @@ void Text_BlitTTF(unsigned char* buf, const char* str, int swidth, int fullw, in
     }
 
     if (color & GNW_TEXT_UNDERLINE) {
-        const int width = buf - bstart;
+        const int32_t width = buf - bstart;
         buf = &bstart[fullw * (Text_GetHeight() - 1)];
 
-        for (int i = 0; i < width; i++) {
+        for (int32_t i = 0; i < width; i++) {
             buf[i] = color;
         }
     }
 }
 
-int Text_GetHeightTTF(void) { return Text_CurrentFont->max_height; }
+int32_t Text_GetHeightTTF(void) { return Text_CurrentFont->max_height; }
 
-int Text_GetWidthTTF(const char* str) {
-    int width = 0;
+int32_t Text_GetWidthTTF(const char* str) {
+    int32_t width = 0;
     Uint32* uni_str = Text_Utf8ToUcs4(str);
 
     if (uni_str) {
@@ -563,14 +563,14 @@ int Text_GetWidthTTF(const char* str) {
     return width;
 }
 
-int Text_GetGlyphWidthTTF(Uint32 glyph) {
+int32_t Text_GetGlyphWidthTTF(Uint32 glyph) {
     const struct FontGlyph& font_glyph = Text_GetGlyph(glyph);
 
     return font_glyph.advance;
 }
 
-int Text_GetMonospaceWidthTTF(const char* str) {
-    int count = 0;
+int32_t Text_GetMonospaceWidthTTF(const char* str) {
+    int32_t count = 0;
     Uint32* uni_str = Text_Utf8ToUcs4(str);
 
     if (uni_str) {
@@ -582,11 +582,11 @@ int Text_GetMonospaceWidthTTF(const char* str) {
     return count * Text_CurrentFont->max_width;
 }
 
-int Text_GetSpacingTTF(void) { return 0; }
+int32_t Text_GetSpacingTTF(void) { return 0; }
 
-int Text_GetSizeTTF(const char* str) { return Text_GetWidth(str) * Text_GetHeight(); }
+int32_t Text_GetSizeTTF(const char* str) { return Text_GetWidth(str) * Text_GetHeight(); }
 
-SmartString* Text_SplitText(const char* text, int max_row_count, int width, int* row_count) {
+SmartString* Text_SplitText(const char* text, int32_t max_row_count, int32_t width, int32_t* row_count) {
     SmartString string;
     SmartString* string_array;
     bool flag;
@@ -606,17 +606,17 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
                 }
             }
 
-            int string_character_count = string.GetLength();
-            int string_pixel_count = Text_GetWidth(string.GetCStr());
+            int32_t string_character_count = string.GetLength();
+            int32_t string_pixel_count = Text_GetWidth(string.GetCStr());
 
             if (string_pixel_count > width && string_character_count >= 4 && *row_count < (max_row_count - 1)) {
-                int pixels_remaining = width;
+                int32_t pixels_remaining = width;
 
                 if (!flag) {
                     pixels_remaining -= Text_GetWidth(string_array[*row_count - 1].GetCStr()) + Text_GetGlyphWidth(' ');
 
                     if (*row_count < (max_row_count - 1)) {
-                        int segment_pixels =
+                        int32_t segment_pixels =
                             Text_GetGlyphWidth('-') + Text_GetGlyphWidth(string[0]) + Text_GetGlyphWidth(string[1]);
 
                         if (pixels_remaining < segment_pixels) {
@@ -627,7 +627,7 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
 
                 pixels_remaining -= Text_GetGlyphWidth('-') + Text_GetWidth(string.GetCStr());
 
-                for (int i = string_character_count - 2; i < string_character_count; ++i) {
+                for (int32_t i = string_character_count - 2; i < string_character_count; ++i) {
                     pixels_remaining += Text_GetGlyphWidth(string[i]);
                 }
 
@@ -675,7 +675,7 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
                           width))) {
                 SmartString* new_array = new (std::nothrow) SmartString[*row_count + 1];
 
-                for (int i = 0; i < *row_count; ++i) {
+                for (int32_t i = 0; i < *row_count; ++i) {
                     new_array[i] = string_array[i];
                 }
 
@@ -700,11 +700,11 @@ SmartString* Text_SplitText(const char* text, int max_row_count, int width, int*
     return string_array;
 }
 
-void Text_TextBox(unsigned char* buffer, unsigned short length, const char* text, int ulx, int uly, int width,
-                  int height, int color, bool horizontal_align, bool vertical_align) {
-    int font_height = Text_GetHeight();
-    int row_count;
-    int max_row_count;
+void Text_TextBox(uint8_t* buffer, uint16_t length, const char* text, int32_t ulx, int32_t uly, int32_t width,
+                  int32_t height, int32_t color, bool horizontal_align, bool vertical_align) {
+    int32_t font_height = Text_GetHeight();
+    int32_t row_count;
+    int32_t max_row_count;
     SmartString* string_array;
 
     if (color & GNW_TEXT_OUTLINE) {
@@ -723,7 +723,7 @@ void Text_TextBox(unsigned char* buffer, unsigned short length, const char* text
         max_row_count = row_count;
 
         for (row_count = 0; row_count < max_row_count; ++row_count) {
-            int string_width;
+            int32_t string_width;
 
             if (horizontal_align) {
                 string_width = Text_GetWidth(string_array[row_count].GetCStr()) + 1;
@@ -745,11 +745,11 @@ void Text_TextBox(unsigned char* buffer, unsigned short length, const char* text
     }
 }
 
-void Text_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int width, int height, bool horizontal_align,
+void Text_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width, int32_t height, bool horizontal_align,
                   bool vertical_align, FontColor color) {
-    int font_height = Text_GetHeight() + 1;
-    int row_count;
-    int max_row_count;
+    int32_t font_height = Text_GetHeight() + 1;
+    int32_t row_count;
+    int32_t max_row_count;
     SmartString* string_array;
 
     max_row_count = height / font_height;
@@ -772,27 +772,27 @@ void Text_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int wi
     }
 }
 
-void Text_TextLine(WindowInfo* window, const char* str, int ulx, int uly, int swidth, bool horizontal_align,
+void Text_TextLine(WindowInfo* window, const char* str, int32_t ulx, int32_t uly, int32_t swidth, bool horizontal_align,
                    FontColor color) {
-    const int text_width = Text_GetWidth(str) + 1;
-    const int text_height = Text_GetHeight() + 1;
+    const int32_t text_width = Text_GetWidth(str) + 1;
+    const int32_t text_height = Text_GetHeight() + 1;
 
     if (horizontal_align) {
-        int spacing = (swidth - text_width) / 2;
+        int32_t spacing = (swidth - text_width) / 2;
 
         if (spacing > 0) {
             ulx += spacing;
         }
     }
 
-    const int buffer_size = text_width * text_height;
-    unsigned char* buffer = new (std::nothrow) unsigned char[buffer_size];
+    const int32_t buffer_size = text_width * text_height;
+    uint8_t* buffer = new (std::nothrow) uint8_t[buffer_size];
     memset(buffer, colorTable[0], buffer_size);
 
     Text_Blit(buffer, str, swidth, text_width, color.base);
 
-    for (int y = text_height - 2; y >= 0; --y) {
-        for (int x = 0; x < text_width; ++x) {
+    for (int32_t y = text_height - 2; y >= 0; --y) {
+        for (int32_t x = 0; x < text_width; ++x) {
             if (buffer[text_width * y + x] == color.base) {
                 if (buffer[text_width * (y + 1) + x + 1] == color.base) {
                     buffer[text_width * (y + 1) + x + 1] = color.outline;
@@ -810,11 +810,11 @@ void Text_TextLine(WindowInfo* window, const char* str, int ulx, int uly, int sw
     delete[] buffer;
 }
 
-void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int uly, int width, int alignment) {
-    int width_text;
-    int text_position;
-    unsigned int initial_time_stamp;
-    unsigned int time_stamp;
+void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width, int32_t alignment) {
+    int32_t width_text;
+    int32_t text_position;
+    uint32_t initial_time_stamp;
+    uint32_t time_stamp;
     char character[2];
 
     width_text = Text_GetWidth(text);
@@ -836,7 +836,7 @@ void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int 
 
     while (text[text_position] && width > 0) {
         Rect bounds;
-        int character_width;
+        int32_t character_width;
 
         character[0] = text[text_position];
         Text_TextLine(window, character, ulx, uly, width, false, Fonts_BrightSilverColor);
@@ -873,11 +873,11 @@ void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int ulx, int 
     }
 }
 
-void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int ulx, int uly, int width,
-                                              int height, int alignment) {
-    int font_height;
-    int max_row_count;
-    int row_count;
+void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width,
+                                              int32_t height, int32_t alignment) {
+    int32_t font_height;
+    int32_t max_row_count;
+    int32_t row_count;
     SmartString* strings;
 
     font_height = Text_GetHeight() + 1;
@@ -888,7 +888,7 @@ void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* te
 
         uly += (height + 1 - row_count * font_height) / 2;
 
-        for (int i = 0; i < row_count; ++i) {
+        for (int32_t i = 0; i < row_count; ++i) {
             Text_TypeWriter_TextBox(window, strings[i].GetCStr(), ulx, uly + i * font_height, width, alignment);
         }
 
@@ -932,8 +932,8 @@ bool Text_IsFitting(Rect* bounds1, Rect* bounds2) {
            bounds1->lry >= bounds2->lry;
 }
 
-void Text_AutofitTextBox(unsigned char* buffer, unsigned short pitch, const char* text, Rect* text_area,
-                         Rect* draw_area, int color, bool horizontal_align) {
+void Text_AutofitTextBox(uint8_t* buffer, uint16_t pitch, const char* text, Rect* text_area,
+                         Rect* draw_area, int32_t color, bool horizontal_align) {
     Rect render_area;
 
     if (Text_FitBounds(&render_area, text_area, draw_area)) {
@@ -942,19 +942,19 @@ void Text_AutofitTextBox(unsigned char* buffer, unsigned short pitch, const char
                          text_area->lry - text_area->uly, color, horizontal_align);
 
         } else {
-            int render_width;
-            int render_height;
-            int text_width;
-            int text_height;
-            unsigned char* text_buffer;
-            unsigned char* target_buffer;
+            int32_t render_width;
+            int32_t render_height;
+            int32_t text_width;
+            int32_t text_height;
+            uint8_t* text_buffer;
+            uint8_t* target_buffer;
 
             render_width = render_area.lrx - render_area.ulx;
             render_height = render_area.lry - render_area.uly;
             text_width = text_area->lrx - text_area->ulx;
             text_height = text_area->lry - text_area->uly;
 
-            text_buffer = new (std::nothrow) unsigned char[text_width * text_height];
+            text_buffer = new (std::nothrow) uint8_t[text_width * text_height];
             buffer = &buffer[pitch * render_area.uly + render_area.ulx];
             target_buffer =
                 &text_buffer[(render_area.uly - text_area->uly) * text_width + (render_area.ulx - text_area->ulx)];

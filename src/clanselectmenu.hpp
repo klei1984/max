@@ -30,30 +30,30 @@
 class ClanSelectMenu;
 
 struct ClanSelectMenuItem {
-    int r_value;
-    int event_code;
+    int32_t r_value;
+    int32_t event_code;
     void (ClanSelectMenu::*event_handler)();
 };
 
 class ClanSelectMenu {
-    void ButtonInit(int index, int mode);
+    void ButtonInit(int32_t index, int32_t mode);
     void SelectMenuItems();
-    void DrawClanUpgrades(const char *text, int index, int color);
+    void DrawClanUpgrades(const char *text, int32_t index, int32_t color);
 
 public:
     WindowInfo *window;
 
     bool event_click_done_cancel_random;
     IniParameter team_clan_ini_id;
-    int team_clan;
-    int team_clan_selection;
-    int key;
+    int32_t team_clan;
+    int32_t team_clan_selection;
+    int32_t key;
     Image *image;
 
     Button *buttons[CLAN_SELECT_MENU_ITEM_COUNT];
     ClanSelectMenuItem menu_item[CLAN_SELECT_MENU_ITEM_COUNT];
 
-    void Init(int team);
+    void Init(int32_t team);
     void Deinit();
     void ClanSelection();
     void EventRandom();

@@ -41,39 +41,39 @@
 
 struct res_index {
     char tag[8];
-    int data_offset;
-    int data_size;
+    int32_t data_offset;
+    int32_t data_size;
 };
 
 static_assert(sizeof(struct res_index) == 16, "The structure needs to be packed.");
 
 struct res_header {
     char id[4];
-    int offset;
-    int size;
+    int32_t offset;
+    int32_t size;
 };
 
 static_assert(sizeof(struct res_header) == 12, "The structure needs to be packed.");
 
 struct GameResourceMeta {
     ResourceID res_file_item_index;
-    unsigned char *resource_buffer;
-    unsigned char res_file_id;
+    uint8_t *resource_buffer;
+    uint8_t res_file_id;
 };
 
 FILE *res_file_handle_array[2];
 struct res_index *ResourceManager_ResItemTable;
 struct GameResourceMeta *ResourceManager_ResMetaTable;
-unsigned char ResourceManager_ResFileCount;
-int ResourceManager_ResItemCount;
-int resource_buffer_size;
+uint8_t ResourceManager_ResFileCount;
+int32_t ResourceManager_ResItemCount;
+int32_t resource_buffer_size;
 ColorIndex *color_animation_buffer;
 
-const unsigned char ResourceManager_TeamRedColorIndices[8] = {56, 57, 58, 59, 60, 61, 62, 63};
-const unsigned char ResourceManager_TeamGreenColorIndices[8] = {32, 33, 34, 35, 36, 37, 38, 39};
-const unsigned char ResourceManager_TeamBlueColorIndices[8] = {48, 49, 50, 51, 52, 53, 54, 55};
-const unsigned char ResourceManager_TeamGrayColorIndices[8] = {255, 161, 172, 169, 216, 213, 212, 207};
-const unsigned char ResourceManager_TeamDerelictColorIndices[8] = {216, 215, 214, 213, 212, 211, 210, 209};
+const uint8_t ResourceManager_TeamRedColorIndices[8] = {56, 57, 58, 59, 60, 61, 62, 63};
+const uint8_t ResourceManager_TeamGreenColorIndices[8] = {32, 33, 34, 35, 36, 37, 38, 39};
+const uint8_t ResourceManager_TeamBlueColorIndices[8] = {48, 49, 50, 51, 52, 53, 54, 55};
+const uint8_t ResourceManager_TeamGrayColorIndices[8] = {255, 161, 172, 169, 216, 213, 212, 207};
+const uint8_t ResourceManager_TeamDerelictColorIndices[8] = {216, 215, 214, 213, 212, 211, 210, 209};
 
 ColorIndex *ResourceManager_TeamRedColorIndexTable;
 ColorIndex *ResourceManager_TeamGreenColorIndexTable;
@@ -89,17 +89,17 @@ ColorIndex *ResourceManager_ColorIndexTable11;
 ColorIndex *ResourceManager_ColorIndexTable12;
 ColorIndex *ResourceManager_ColorIndexTable13x8;
 
-unsigned char *ResourceManager_MinimapFov;
-unsigned char *ResourceManager_Minimap;
-unsigned char *ResourceManager_Minimap2x;
+uint8_t *ResourceManager_MinimapFov;
+uint8_t *ResourceManager_Minimap;
+uint8_t *ResourceManager_Minimap2x;
 
-unsigned short *ResourceManager_MapTileIds;
-unsigned char *ResourceManager_MapTileBuffer;
-unsigned char *ResourceManager_MapSurfaceMap;
-unsigned short *ResourceManager_CargoMap;
-unsigned short ResourceManager_MapTileCount;
+uint16_t *ResourceManager_MapTileIds;
+uint8_t *ResourceManager_MapTileBuffer;
+uint8_t *ResourceManager_MapSurfaceMap;
+uint16_t *ResourceManager_CargoMap;
+uint16_t ResourceManager_MapTileCount;
 
-unsigned char ResourceManager_PassData[4] = {SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST,
+uint8_t ResourceManager_PassData[4] = {SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST,
                                              SURFACE_TYPE_AIR};
 
 Point ResourceManager_MapSize;
@@ -349,15 +349,15 @@ static void ResourceManager_InitSDL();
 static void ResourceManager_TestMemory();
 static void ResourceManager_TestDiskSpace();
 static void ResourceManager_InitInternals();
-static int ResourceManager_InitResManager();
+static int32_t ResourceManager_InitResManager();
 static void ResourceManager_TestMouse();
 static bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_error);
-static int ResourceManager_BuildResourceTable(const char *file_path);
-static int ResourceManager_BuildColorTables();
+static int32_t ResourceManager_BuildResourceTable(const char *file_path);
+static int32_t ResourceManager_BuildColorTables();
 static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
-static void ResourceManager_ManipulateColorMap(int red_level, int green_level, int blue_level, ColorIndex *table);
-static void ResourceManager_ManipulateColorMap2(int red_level, int green_level, int blue_level, ColorIndex *table);
-static void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues *unit_values);
+static void ResourceManager_ManipulateColorMap(int32_t red_level, int32_t green_level, int32_t blue_level, ColorIndex *table);
+static void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level, int32_t blue_level, ColorIndex *table);
+static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values);
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
 
 bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_error) {
@@ -383,9 +383,9 @@ bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_err
     return true;
 }
 
-void ResourceManager_InitPaths(int argc, char *argv[]) {
+void ResourceManager_InitPaths(int32_t argc, char *argv[]) {
     char dst[PATH_MAX];
-    short i;
+    int16_t i;
 
     if ((*argv)[1] == ':') {
         strcpy(dst, *argv);
@@ -485,7 +485,7 @@ void ResourceManager_InitSDL() {
 }
 
 void ResourceManager_TestMemory() {
-    int memory;
+    int32_t memory;
 
     memory = SDL_GetSystemRAM();
     if (memory < 6L) {
@@ -515,7 +515,7 @@ void ResourceManager_TestDiskSpace() {
 }
 
 void ResourceManager_InitInternals() {
-    int error_code;
+    int32_t error_code;
 
     error_code = ResourceManager_InitResManager();
 
@@ -549,7 +549,7 @@ void ResourceManager_TestMouse() {
     }
 }
 
-void ResourceManager_ExitGame(int error_code) {
+void ResourceManager_ExitGame(int32_t error_code) {
     SoundManager.FreeAllSamples();
 
     if ((error_code == EXIT_CODE_NO_ERROR) || (error_code == EXIT_CODE_THANKS)) {
@@ -563,14 +563,14 @@ void ResourceManager_ExitGame(int error_code) {
     exit(0);
 }
 
-int ResourceManager_InitResManager() {
+int32_t ResourceManager_InitResManager() {
     char file_path[PATH_MAX];
-    int result;
+    int32_t result;
 
     ResourceManager_ResMetaTable = new (std::nothrow) GameResourceMeta[RESOURCE_E];
 
     if (ResourceManager_ResMetaTable) {
-        for (int i = 0; i < RESOURCE_E; i++) {
+        for (int32_t i = 0; i < RESOURCE_E; i++) {
             ResourceManager_ResMetaTable[i].resource_buffer = nullptr;
             ResourceManager_ResMetaTable[i].res_file_item_index = INVALID_ID;
         }
@@ -589,15 +589,15 @@ int ResourceManager_InitResManager() {
             result = ResourceManager_BuildResourceTable(file_path);
 
             if (result == EXIT_CODE_NO_ERROR) {
-                ResourceManager_MinimapFov = new (std::nothrow) unsigned char[GFX_MAP_SIZE * GFX_MAP_SIZE];
-                ResourceManager_Minimap = new (std::nothrow) unsigned char[GFX_MAP_SIZE * GFX_MAP_SIZE];
-                ResourceManager_Minimap2x = new (std::nothrow) unsigned char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+                ResourceManager_MinimapFov = new (std::nothrow) uint8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
+                ResourceManager_Minimap = new (std::nothrow) uint8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
+                ResourceManager_Minimap2x = new (std::nothrow) uint8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
 
                 if (ResourceManager_MinimapFov && ResourceManager_Minimap && ResourceManager_Minimap2x) {
                     if (ResourceManager_BuildColorTables()) {
                         Cursor_Init();
 
-                        for (short j = 0; j < UNIT_END; ++j) {
+                        for (int16_t j = 0; j < UNIT_END; ++j) {
                             UnitsManager_BaseUnits[j].Init(&UnitsManager_AbstractUnits[j]);
                         }
 
@@ -618,8 +618,8 @@ int ResourceManager_InitResManager() {
     return result;
 }
 
-unsigned char *ResourceManager_ReadResource(ResourceID id) {
-    unsigned char *resource_buffer;
+uint8_t *ResourceManager_ReadResource(ResourceID id) {
+    uint8_t *resource_buffer;
 
     SDL_assert(id < RESOURCE_E);
 
@@ -632,14 +632,14 @@ unsigned char *ResourceManager_ReadResource(ResourceID id) {
             resource_buffer = nullptr;
         } else {
             FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
-            int data_size =
+            int32_t data_size =
                 ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_size;
-            int data_offset =
+            int32_t data_offset =
                 ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_offset;
 
             fseek(fp, data_offset, SEEK_SET);
 
-            unsigned char *buffer = new (std::nothrow) unsigned char[data_size + sizeof('\0')];
+            uint8_t *buffer = new (std::nothrow) uint8_t[data_size + sizeof('\0')];
             if (!buffer) {
                 ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
             }
@@ -656,8 +656,8 @@ unsigned char *ResourceManager_ReadResource(ResourceID id) {
     return resource_buffer;
 }
 
-unsigned char *ResourceManager_LoadResource(ResourceID id) {
-    unsigned char *resource_buffer;
+uint8_t *ResourceManager_LoadResource(ResourceID id) {
+    uint8_t *resource_buffer;
 
     if (id == INVALID_ID) {
         resource_buffer = nullptr;
@@ -669,14 +669,14 @@ unsigned char *ResourceManager_LoadResource(ResourceID id) {
         } else {
             if ((resource_buffer = ResourceManager_ResMetaTable[id].resource_buffer) == nullptr) {
                 FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
-                int data_size =
+                int32_t data_size =
                     ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_size;
-                int data_offset =
+                int32_t data_offset =
                     ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_offset;
 
                 fseek(fp, data_offset, SEEK_SET);
 
-                resource_buffer = new (std::nothrow) unsigned char[data_size];
+                resource_buffer = new (std::nothrow) uint8_t[data_size];
                 if (!resource_buffer) {
                     ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
                 }
@@ -694,8 +694,8 @@ unsigned char *ResourceManager_LoadResource(ResourceID id) {
     return resource_buffer;
 }
 
-unsigned int ResourceManager_GetResourceSize(ResourceID id) {
-    unsigned int data_size;
+uint32_t ResourceManager_GetResourceSize(ResourceID id) {
+    uint32_t data_size;
 
     if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         data_size = 0;
@@ -706,8 +706,8 @@ unsigned int ResourceManager_GetResourceSize(ResourceID id) {
     return data_size;
 }
 
-int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer) {
-    int result;
+int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer) {
+    int32_t result;
 
     SDL_assert(ResourceManager_ResMetaTable);
 
@@ -715,7 +715,7 @@ int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer
         result = false;
     } else {
         FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
-        int data_offset =
+        int32_t data_offset =
             ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_offset;
 
         fseek(fp, data_offset, SEEK_SET);
@@ -730,7 +730,7 @@ int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer
     return result;
 }
 
-int ResourceManager_GetResourceFileID(ResourceID id) { return ResourceManager_ResMetaTable[id].res_file_item_index; }
+int32_t ResourceManager_GetResourceFileID(ResourceID id) { return ResourceManager_ResMetaTable[id].res_file_item_index; }
 
 const char *ResourceManager_GetResourceID(ResourceID id) { return ResourceManager_ResourceIdList[id]; }
 
@@ -741,7 +741,7 @@ FILE *ResourceManager_GetFileHandle(ResourceID id) {
         fp = nullptr;
     } else {
         fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
-        int data_offset =
+        int32_t data_offset =
             ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_offset;
 
         fseek(fp, data_offset, SEEK_SET);
@@ -750,12 +750,12 @@ FILE *ResourceManager_GetFileHandle(ResourceID id) {
     return fp;
 }
 
-ResourceID ResourceManager_GetResourceID(int index) {
+ResourceID ResourceManager_GetResourceID(int32_t index) {
     char buffer[9];
 
     memset(buffer, 0, sizeof(buffer));
     strncpy(buffer, ResourceManager_ResItemTable[index].tag, sizeof(((struct res_index){0}).tag));
-    for (int i = 0; i < RESOURCE_E; ++i) {
+    for (int32_t i = 0; i < RESOURCE_E; ++i) {
         if (!strncmp(buffer, ResourceManager_ResourceIdList[i], sizeof(buffer))) {
             return static_cast<ResourceID>(i);
         }
@@ -764,7 +764,7 @@ ResourceID ResourceManager_GetResourceID(int index) {
     return INVALID_ID;
 }
 
-void ResourceManager_Realloc(ResourceID id, unsigned char *buffer, int data_size) {
+void ResourceManager_Realloc(ResourceID id, uint8_t *buffer, int32_t data_size) {
     if (ResourceManager_ResMetaTable[id].resource_buffer) {
         delete[] ResourceManager_ResMetaTable[id].resource_buffer;
         resource_buffer_size -=
@@ -775,8 +775,8 @@ void ResourceManager_Realloc(ResourceID id, unsigned char *buffer, int data_size
     resource_buffer_size += data_size;
 }
 
-int ResourceManager_GetFileOffset(ResourceID id) {
-    int data_offset;
+int32_t ResourceManager_GetFileOffset(ResourceID id) {
+    int32_t data_offset;
 
     if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         data_offset = 0;
@@ -790,14 +790,14 @@ int ResourceManager_GetFileOffset(ResourceID id) {
 void ResourceManager_FreeResources() {
     mouse_hide();
 
-    for (short i = 0; i < MEM_END; ++i) {
+    for (int16_t i = 0; i < MEM_END; ++i) {
         if (ResourceManager_ResMetaTable[i].resource_buffer) {
             delete[] ResourceManager_ResMetaTable[i].resource_buffer;
             ResourceManager_ResMetaTable[i].resource_buffer = nullptr;
         }
     }
 
-    for (short j = 0; j < UNIT_END; ++j) {
+    for (int16_t j = 0; j < UNIT_END; ++j) {
         UnitsManager_BaseUnits[j].sprite = nullptr;
         UnitsManager_BaseUnits[j].shadows = nullptr;
         UnitsManager_BaseUnits[j].field_47 = nullptr;
@@ -810,8 +810,8 @@ void ResourceManager_FreeResources() {
     mouse_show();
 }
 
-int ResourceManager_BuildColorTables() {
-    int result;
+int32_t ResourceManager_BuildColorTables() {
+    int32_t result;
     ColorIndex *aligned_buffer;
 
     color_animation_buffer = new (std::nothrow) ColorIndex[20 * PALETTE_SIZE + PALETTE_SIZE];
@@ -836,7 +836,7 @@ int ResourceManager_BuildColorTables() {
         {
             ColorIndex *buffer = &aligned_buffer[19 * PALETTE_SIZE];
 
-            for (int i = 0; i < PALETTE_SIZE; ++i) {
+            for (int32_t i = 0; i < PALETTE_SIZE; ++i) {
                 ResourceManager_TeamDerelictColorIndexTable[i] = i;
                 ResourceManager_TeamGrayColorIndexTable[i] = i;
                 ResourceManager_TeamBlueColorIndexTable[i] = i;
@@ -847,8 +847,8 @@ int ResourceManager_BuildColorTables() {
         }
 
         {
-            int j = 0;
-            int k = 32;
+            int32_t j = 0;
+            int32_t k = 32;
 
             while (j < 24) {
                 if (j == 8) {
@@ -887,8 +887,8 @@ int ResourceManager_BuildColorTables() {
     return result;
 }
 
-int ResourceManager_BuildResourceTable(const char *file_path) {
-    int result;
+int32_t ResourceManager_BuildResourceTable(const char *file_path) {
+    int32_t result;
     FILE *fp;
     struct res_header header;
 
@@ -909,9 +909,9 @@ int ResourceManager_BuildResourceTable(const char *file_path) {
                 if (ResourceManager_ResItemTable) {
                     fseek(fp, header.offset, SEEK_SET);
                     if (fread(&ResourceManager_ResItemTable[ResourceManager_ResItemCount], header.size, 1, fp)) {
-                        short new_item_count = ResourceManager_ResItemCount + header.size / sizeof(struct res_index);
+                        int16_t new_item_count = ResourceManager_ResItemCount + header.size / sizeof(struct res_index);
 
-                        for (int i = ResourceManager_ResItemCount; i < new_item_count; ++i) {
+                        for (int32_t i = ResourceManager_ResItemCount; i < new_item_count; ++i) {
                             ResourceID id = ResourceManager_GetResourceID(i);
                             if (id != INVALID_ID &&
                                 ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
@@ -958,15 +958,15 @@ const char *ResourceManager_ToUpperCase(std::string &string) {
 
 ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bool full_scan) {
     ColorIndex color_index{0};
-    int color_distance;
-    int color_distance_minimum;
-    int red;
-    int green;
-    int blue;
+    int32_t color_distance;
+    int32_t color_distance_minimum;
+    int32_t red;
+    int32_t green;
+    int32_t blue;
 
     color_distance_minimum = INT_MAX;
 
-    for (int i = 0; i < 3 * PALETTE_SIZE; i += 3) {
+    for (int32_t i = 0; i < 3 * PALETTE_SIZE; i += 3) {
         if (full_scan || ((i < 9 * 3 || i > 31 * 3) && (i < 96 * 3 || i > 127 * 3))) {
             red = WindowManager_ColorPalette[i] - r;
             green = WindowManager_ColorPalette[i + 1] - g;
@@ -989,18 +989,18 @@ ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bo
     return color_index;
 }
 
-void ResourceManager_InitInGameAssets(int world) {
+void ResourceManager_InitInGameAssets(int32_t world) {
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-    unsigned char *world_file_name;
+    uint8_t *world_file_name;
     FILE *fp;
-    int progress_bar_value;
-    unsigned short map_layer_count = 0;
+    int32_t progress_bar_value;
+    uint16_t map_layer_count = 0;
     Point map_layer_dimensions[12];
-    int map_minimap_count;
-    int map_dimensions;
-    int file_position;
-    int file_offset;
-    unsigned short map_tile_count = 0;
+    int32_t map_minimap_count;
+    int32_t map_dimensions;
+    int32_t file_position;
+    int32_t file_offset;
+    uint16_t map_tile_count = 0;
 
     ini_set_setting(INI_WORLD, world);
 
@@ -1055,7 +1055,7 @@ void ResourceManager_InitInGameAssets(int world) {
     progress_bar_value = 0;
     DrawLoadBar load_bar(_(df4f));
 
-    if (fseek(fp, 3, SEEK_SET) || 1 != fread(&map_layer_count, sizeof(unsigned short), 1, fp)) {
+    if (fseek(fp, 3, SEEK_SET) || 1 != fread(&map_layer_count, sizeof(uint16_t), 1, fp)) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
@@ -1079,22 +1079,22 @@ void ResourceManager_InitInGameAssets(int world) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
-    if (fseek(fp, sizeof(unsigned short) * map_dimensions, SEEK_CUR) ||
-        1 != fread(&map_tile_count, sizeof(unsigned short), 1, fp)) {
+    if (fseek(fp, sizeof(uint16_t) * map_dimensions, SEEK_CUR) ||
+        1 != fread(&map_tile_count, sizeof(uint16_t), 1, fp)) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
     {
-        unsigned char *palette;
+        uint8_t *palette;
 
-        palette = new (std::nothrow) unsigned char[3 * PALETTE_SIZE];
+        palette = new (std::nothrow) uint8_t[3 * PALETTE_SIZE];
 
         if (fseek(fp, GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE * map_tile_count, SEEK_CUR) ||
-            3 * PALETTE_SIZE != fread(palette, sizeof(unsigned char), 3 * PALETTE_SIZE, fp)) {
+            3 * PALETTE_SIZE != fread(palette, sizeof(uint8_t), 3 * PALETTE_SIZE, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
 
-        for (int i = 64 * 3; i < 160 * 3; ++i) {
+        for (int32_t i = 64 * 3; i < 160 * 3; ++i) {
             WindowManager_ColorPalette[i] = palette[i] / 4;
         }
 
@@ -1110,8 +1110,8 @@ void ResourceManager_InitInGameAssets(int world) {
 
     file_offset = (map_layer_count - map_minimap_count) * map_dimensions;
 
-    for (int i = map_minimap_count; --i;) {
-        file_offset += sizeof(unsigned short) * map_layer_dimensions[i].x * map_layer_dimensions[i].y;
+    for (int32_t i = map_minimap_count; --i;) {
+        file_offset += sizeof(uint16_t) * map_layer_dimensions[i].x * map_layer_dimensions[i].y;
     }
 
     if (fseek(fp, file_offset, SEEK_CUR)) {
@@ -1123,18 +1123,18 @@ void ResourceManager_InitInGameAssets(int world) {
 
     map_dimensions = ResourceManager_MapSize.x * ResourceManager_MapSize.y;
 
-    ResourceManager_MapTileIds = new (std::nothrow) unsigned short[map_dimensions];
+    ResourceManager_MapTileIds = new (std::nothrow) uint16_t[map_dimensions];
 
     if (!ResourceManager_MapTileIds) {
         ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
     }
 
     {
-        int data_chunk_size = map_dimensions / 4;
+        int32_t data_chunk_size = map_dimensions / 4;
 
-        for (int data_offset = 0; data_offset < map_dimensions;) {
+        for (int32_t data_offset = 0; data_offset < map_dimensions;) {
             data_chunk_size = std::min(data_chunk_size, map_dimensions - data_offset);
-            if (fread(&ResourceManager_MapTileIds[data_offset], sizeof(unsigned short), data_chunk_size, fp) !=
+            if (fread(&ResourceManager_MapTileIds[data_offset], sizeof(uint16_t), data_chunk_size, fp) !=
                 data_chunk_size) {
                 ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
             }
@@ -1144,8 +1144,8 @@ void ResourceManager_InitInGameAssets(int world) {
         }
     }
 
-    for (int i = map_layer_count - map_minimap_count; --i > -1;) {
-        file_offset += sizeof(unsigned short) * map_layer_dimensions[map_minimap_count + i].x *
+    for (int32_t i = map_layer_count - map_minimap_count; --i > -1;) {
+        file_offset += sizeof(uint16_t) * map_layer_dimensions[map_minimap_count + i].x *
                        map_layer_dimensions[map_minimap_count + i].y;
     }
 
@@ -1159,17 +1159,17 @@ void ResourceManager_InitInGameAssets(int world) {
     }
 
     {
-        unsigned char *palette;
+        uint8_t *palette;
 
         progress_bar_value = 70;
 
-        palette = new (std::nothrow) unsigned char[3 * PALETTE_SIZE];
+        palette = new (std::nothrow) uint8_t[3 * PALETTE_SIZE];
 
-        if (3 * PALETTE_SIZE != fread(palette, sizeof(unsigned char), 3 * PALETTE_SIZE, fp)) {
+        if (3 * PALETTE_SIZE != fread(palette, sizeof(uint8_t), 3 * PALETTE_SIZE, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
 
-        for (int i = 64 * 3; i < 160 * 3; ++i) {
+        for (int32_t i = 64 * 3; i < 160 * 3; ++i) {
             WindowManager_ColorPalette[i] = palette[i] / 4;
         }
 
@@ -1184,22 +1184,22 @@ void ResourceManager_InitInGameAssets(int world) {
     }
 
     {
-        unsigned char *pass_table;
+        uint8_t *pass_table;
 
-        pass_table = new (std::nothrow) unsigned char[ResourceManager_MapTileCount];
+        pass_table = new (std::nothrow) uint8_t[ResourceManager_MapTileCount];
 
-        ResourceManager_MapSurfaceMap = new (std::nothrow) unsigned char[map_dimensions];
+        ResourceManager_MapSurfaceMap = new (std::nothrow) uint8_t[map_dimensions];
 
         if (ResourceManager_MapTileCount !=
-            fread(pass_table, sizeof(unsigned char), ResourceManager_MapTileCount, fp)) {
+            fread(pass_table, sizeof(uint8_t), ResourceManager_MapTileCount, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
 
-        for (int i = 0; i < ResourceManager_MapTileCount; ++i) {
+        for (int32_t i = 0; i < ResourceManager_MapTileCount; ++i) {
             pass_table[i] = ResourceManager_PassData[pass_table[i]];
         }
 
-        for (int i = 0; i < map_dimensions; ++i) {
+        for (int32_t i = 0; i < map_dimensions; ++i) {
             ResourceManager_MapSurfaceMap[i] = pass_table[ResourceManager_MapTileIds[i]];
         }
 
@@ -1208,9 +1208,9 @@ void ResourceManager_InitInGameAssets(int world) {
 
     fclose(fp);
 
-    ResourceManager_CargoMap = new (std::nothrow) unsigned short[map_dimensions];
+    ResourceManager_CargoMap = new (std::nothrow) uint16_t[map_dimensions];
 
-    for (int i = 0; i < map_dimensions; ++i) {
+    for (int32_t i = 0; i < map_dimensions; ++i) {
         ResourceManager_CargoMap[i] = 0;
     }
 
@@ -1243,12 +1243,12 @@ void ResourceManager_InitInGameAssets(int world) {
         ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
     }
 
-    for (int i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
-        int r;
-        int g;
-        int b;
+    for (int32_t i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+        int32_t r;
+        int32_t g;
+        int32_t b;
 
-        int factor;
+        int32_t factor;
 
         r = WindowManager_ColorPalette[i];
         g = WindowManager_ColorPalette[i + 1];
@@ -1267,15 +1267,15 @@ void ResourceManager_InitInGameAssets(int world) {
 
     load_bar.SetValue(progress_bar_value);
 
-    for (int i = 0, l = 0; i < 7 * 32; i += 32, ++l) {
-        for (int j = 0, k = 0; j < 3 * PALETTE_SIZE; j += 3, ++k) {
+    for (int32_t i = 0, l = 0; i < 7 * 32; i += 32, ++l) {
+        for (int32_t j = 0, k = 0; j < 3 * PALETTE_SIZE; j += 3, ++k) {
             if (j == 3 * 31) {
                 ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] = 31;
 
             } else {
-                int r = (WindowManager_ColorPalette[j] * i) / (7 * 32);
-                int g = (WindowManager_ColorPalette[j + 1] * i) / (7 * 32);
-                int b = (WindowManager_ColorPalette[j + 2] * i) / (7 * 32);
+                int32_t r = (WindowManager_ColorPalette[j] * i) / (7 * 32);
+                int32_t g = (WindowManager_ColorPalette[j + 1] * i) / (7 * 32);
+                int32_t b = (WindowManager_ColorPalette[j + 2] * i) / (7 * 32);
 
                 ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] =
                     ResourceManager_FindClosestPaletteColor(r, g, b, false);
@@ -1289,12 +1289,12 @@ void ResourceManager_InitInGameAssets(int world) {
 }
 
 bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
-    int tile_size;
-    int reduced_tile_count;
-    int tile_index;
-    int data_size;
-    unsigned char *normal_tile_buffer;
-    unsigned char *full_tile_buffer{nullptr};
+    int32_t tile_size;
+    int32_t reduced_tile_count;
+    int32_t tile_index;
+    int32_t data_size;
+    uint8_t *normal_tile_buffer;
+    uint8_t *full_tile_buffer{nullptr};
 
     tile_size = GFX_MAP_TILE_SIZE;
 
@@ -1302,13 +1302,13 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
 
     if (ResourceManager_DisableEnhancedGraphics) {
         tile_size /= 2;
-        full_tile_buffer = new (std::nothrow) unsigned char[reduced_tile_count * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
+        full_tile_buffer = new (std::nothrow) uint8_t[reduced_tile_count * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
     }
 
     ResourceManager_MapTileBuffer =
-        new (std::nothrow) unsigned char[ResourceManager_MapTileCount * tile_size * tile_size];
+        new (std::nothrow) uint8_t[ResourceManager_MapTileCount * tile_size * tile_size];
 
-    for (int i = 0; i < ResourceManager_MapTileCount; i += reduced_tile_count) {
+    for (int32_t i = 0; i < ResourceManager_MapTileCount; i += reduced_tile_count) {
         loadbar->SetValue(i * 50 / ResourceManager_MapTileCount + 20);
 
         if (!ResourceManager_DisableEnhancedGraphics) {
@@ -1318,20 +1318,20 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
         tile_index = std::min(reduced_tile_count, ResourceManager_MapTileCount - i);
         data_size = tile_index * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE;
 
-        if (data_size != fread(full_tile_buffer, sizeof(unsigned char), data_size, fp)) {
+        if (data_size != fread(full_tile_buffer, sizeof(uint8_t), data_size, fp)) {
             return false;
         }
 
         if (ResourceManager_DisableEnhancedGraphics) {
-            unsigned char *address;
-            int offset;
+            uint8_t *address;
+            int32_t offset;
 
             address = full_tile_buffer;
             normal_tile_buffer = &ResourceManager_MapTileBuffer[tile_size * tile_size * i];
 
-            for (int j = 0; j < tile_index; ++j) {
-                for (int k = 0; k < tile_size; ++k) {
-                    for (int l = 0; l < tile_size; ++l) {
+            for (int32_t j = 0; j < tile_index; ++j) {
+                for (int32_t k = 0; k < tile_size; ++k) {
+                    for (int32_t l = 0; l < tile_size; ++l) {
                         *normal_tile_buffer = *address;
                         normal_tile_buffer += 1;
                         address += 2;
@@ -1352,12 +1352,12 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     return true;
 }
 
-void ResourceManager_ManipulateColorMap(int red_level, int green_level, int blue_level, ColorIndex *table) {
-    int max_level;
-    int max_color;
-    int red;
-    int green;
-    int blue;
+void ResourceManager_ManipulateColorMap(int32_t red_level, int32_t green_level, int32_t blue_level, ColorIndex *table) {
+    int32_t max_level;
+    int32_t max_color;
+    int32_t red;
+    int32_t green;
+    int32_t blue;
 
     if (!red_level && !green_level && !blue_level) {
         red_level = 1;
@@ -1368,7 +1368,7 @@ void ResourceManager_ManipulateColorMap(int red_level, int green_level, int blue
     max_level = std::max(red_level, green_level);
     max_level = std::max(max_level, blue_level);
 
-    for (int i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+    for (int32_t i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
         red = WindowManager_ColorPalette[i];
         green = WindowManager_ColorPalette[i + 1];
         blue = WindowManager_ColorPalette[i + 2];
@@ -1386,12 +1386,12 @@ void ResourceManager_ManipulateColorMap(int red_level, int green_level, int blue
     }
 }
 
-void ResourceManager_ManipulateColorMap2(int red_level, int green_level, int blue_level, ColorIndex *table) {
-    int world;
-    int factor;
-    int red;
-    int green;
-    int blue;
+void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level, int32_t blue_level, ColorIndex *table) {
+    int32_t world;
+    int32_t factor;
+    int32_t red;
+    int32_t green;
+    int32_t blue;
 
     world = ini_get_setting(INI_WORLD) + SNOW_1;
 
@@ -1401,7 +1401,7 @@ void ResourceManager_ManipulateColorMap2(int red_level, int green_level, int blu
         factor = 31;
     }
 
-    for (int i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+    for (int32_t i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
         red = WindowManager_ColorPalette[i];
         green = WindowManager_ColorPalette[i + 1];
         blue = WindowManager_ColorPalette[i + 2];
@@ -1414,9 +1414,9 @@ void ResourceManager_ManipulateColorMap2(int red_level, int green_level, int blu
     }
 }
 
-void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues *unit_values) {
+void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values) {
     if (ini_clans.SeekUnit(clan, unit_type)) {
-        for (short attribute, value; ini_clans.GetNextUnitUpgrade(&attribute, &value);) {
+        for (int16_t attribute, value; ini_clans.GetNextUnitUpgrade(&attribute, &value);) {
             if (attribute == ATTRIB_TURNS) {
                 unit_values->SetAttribute(attribute, value);
 
@@ -1427,10 +1427,10 @@ void ResourceManager_SetClanUpgrades(int clan, ResourceID unit_type, UnitValues 
     }
 }
 
-void ResourceManager_InitClanUnitValues(unsigned short team) {
+void ResourceManager_InitClanUnitValues(uint16_t team) {
     SmartPointer<UnitValues> unit_values;
     TeamUnits *team_units{nullptr};
-    int team_clan{TEAM_CLAN_RANDOM};
+    int32_t team_clan{TEAM_CLAN_RANDOM};
 
     switch (team) {
         case PLAYER_TEAM_RED: {
@@ -1472,7 +1472,7 @@ void ResourceManager_InitClanUnitValues(unsigned short team) {
     team_units->ClearComplexes();
     team_units->Init();
 
-    for (int i = 0; i < UNIT_END; ++i) {
+    for (int32_t i = 0; i < UNIT_END; ++i) {
         unit_values = new (std::nothrow) UnitValues(*team_units->GetBaseUnitValues(i));
 
         ResourceManager_SetClanUpgrades(team_clan, static_cast<ResourceID>(i), &*unit_values);
@@ -1481,7 +1481,7 @@ void ResourceManager_InitClanUnitValues(unsigned short team) {
     }
 }
 
-void ResourceManager_InitHeatMaps(unsigned short team) {
+void ResourceManager_InitHeatMaps(uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type) {
         UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) char[GFX_MAP_SIZE * GFX_MAP_SIZE];
         memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
@@ -1500,7 +1500,7 @@ void ResourceManager_InitHeatMaps(unsigned short team) {
 }
 
 void ResourceManager_InitTeamInfo() {
-    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
+    for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
         UnitsManager_TeamMissionSupplies[i].units.Clear();
         UnitsManager_TeamInfo[i].selected_unit = nullptr;
 
@@ -1536,7 +1536,7 @@ void ResourceManager_InitTeamInfo() {
     MessageManager_ClearMessageLogs();
 }
 
-unsigned char *ResourceManager_GetBuffer(ResourceID id) {
+uint8_t *ResourceManager_GetBuffer(ResourceID id) {
     return id == INVALID_ID ? nullptr : ResourceManager_ResMetaTable[id].resource_buffer;
 }
 

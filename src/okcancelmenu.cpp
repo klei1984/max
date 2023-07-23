@@ -71,7 +71,7 @@ bool OKCancelMenu::Run() {
     event_release = false;
 
     while (!event_click_ok && !event_click_cancel) {
-        int key = get_input();
+        int32_t key = get_input();
 
         if (key > 0 && key < GNW_INPUT_PRESS) {
             event_release = false;

@@ -28,10 +28,10 @@
 class UnitWeight {
 public:
     UnitWeight();
-    UnitWeight(ResourceID unit_type, unsigned short weight);
+    UnitWeight(ResourceID unit_type, uint16_t weight);
 
     ResourceID unit_type;
-    unsigned short weight;
+    uint16_t weight;
 };
 
 class WeightTable {
@@ -44,14 +44,14 @@ public:
 
     WeightTable& operator=(WeightTable const& other);
     WeightTable& operator+=(WeightTable const& other);
-    UnitWeight& operator[](unsigned short position);
+    UnitWeight& operator[](uint16_t position);
 
     void PushBack(UnitWeight& object);
     void Clear();
 
-    int GetCount() const;
+    int32_t GetCount() const;
     ResourceID RollUnitType() const;
-    int GetWeight(ResourceID unit_type) const;
+    int32_t GetWeight(ResourceID unit_type) const;
 };
 
 #endif /* UNITWEIGHT_HPP */

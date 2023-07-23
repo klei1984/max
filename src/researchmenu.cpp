@@ -43,14 +43,14 @@ static void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value);
 static void ResearchMenu_OnClick_Help(ButtonID bid, intptr_t value);
 static void ResearchMenu_OnClick_Cancel(ButtonID bid, intptr_t value);
 
-static void ResearchMenu_ApplyUpgrades(unsigned short team, unsigned char research_topic);
+static void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic);
 
 class ResearchMenu;
 
 class ResearchControl {
     ResearchMenu *research_menu;
-    unsigned char topic_index;
-    unsigned short topic_value;
+    uint8_t topic_index;
+    uint16_t topic_value;
     Button *button_upgrade_right;
     Button *button_upgrade_left;
     Button *button_slider;
@@ -66,17 +66,17 @@ public:
     ResearchControl();
     ~ResearchControl();
 
-    void Init(ResearchMenu *menu, unsigned char research_topic_index, unsigned short research_topic_value);
+    void Init(ResearchMenu *menu, uint8_t research_topic_index, uint16_t research_topic_value);
     void RefreshScreen(bool redraw);
-    void Update(int value);
+    void Update(int32_t value);
     void UpdateButtons();
-    unsigned short GetValue() const;
+    uint16_t GetValue() const;
 };
 
 class ResearchMenu : public Window {
-    unsigned short team;
-    unsigned short free_capacity;
-    unsigned short active_research_centers;
+    uint16_t team;
+    uint16_t free_capacity;
+    uint16_t active_research_centers;
     bool exit_loop;
 
     Button *button_cancel;
@@ -90,13 +90,13 @@ class ResearchMenu : public Window {
     friend void ResearchMenu_OnClick_Cancel(ButtonID bid, intptr_t value);
 
 public:
-    ResearchMenu(unsigned short team);
+    ResearchMenu(uint16_t team);
     ~ResearchMenu();
 
-    unsigned short GetFreeCapacity() const;
-    unsigned short GetTeam() const;
-    unsigned short GetActiveResearchersCount() const;
-    void UpdateTopics(int difference);
+    uint16_t GetFreeCapacity() const;
+    uint16_t GetTeam() const;
+    uint16_t GetActiveResearchersCount() const;
+    void UpdateTopics(int32_t difference);
     void Run();
 };
 
@@ -106,10 +106,10 @@ const ResourceID ResearchMenu_TopicIcons[] = {I_HRDATK, I_SHOTS, I_RANGE, I_ARMO
 
 void ResearchMenu_Menu(UnitInfo *unit) { ResearchMenu(unit->team).Run(); }
 
-void ResearchMenu_UpdateResearchProgress(unsigned short team, int research_topic, int allocation) {
+void ResearchMenu_UpdateResearchProgress(uint16_t team, int32_t research_topic, int32_t allocation) {
     ResearchTopic *topic;
-    int topic_factor;
-    int turns_to_complete;
+    int32_t topic_factor;
+    int32_t turns_to_complete;
     double base;
 
     topic = &UnitsManager_TeamInfo[team].research_topics[research_topic];
@@ -132,22 +132,22 @@ void ResearchMenu_UpdateResearchProgress(unsigned short team, int research_topic
     }
 }
 
-void ResearchMenu_ApplyUpgrades(unsigned short team, unsigned char research_topic) {
-    unsigned int research_level;
+void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic) {
+    uint32_t research_level;
     TeamUnits *team_units;
 
     research_level = UnitsManager_TeamInfo[team].research_topics[research_topic].research_level;
 
     team_units = UnitsManager_TeamInfo[team].team_units;
 
-    for (int unit_type = 0; unit_type < UNIT_END; ++unit_type) {
+    for (int32_t unit_type = 0; unit_type < UNIT_END; ++unit_type) {
         SmartPointer<UnitValues> unit_values1 = team_units->GetBaseUnitValues(static_cast<ResourceID>(unit_type));
         SmartPointer<UnitValues> unit_values2 =
             new (std::nothrow) UnitValues(*team_units->GetCurrentUnitValues(static_cast<ResourceID>(unit_type)));
-        unsigned short value1;
-        unsigned short *value2;
-        int old_value;
-        int new_value;
+        uint16_t value1;
+        uint16_t *value2;
+        int32_t old_value;
+        int32_t new_value;
 
         switch (research_topic) {
             case RESEARCH_TOPIC_ATTACK: {
@@ -214,10 +214,10 @@ void ResearchMenu_ApplyUpgrades(unsigned short team, unsigned char research_topi
     }
 }
 
-void ResearchMenu_NewTurn(unsigned short team) {
+void ResearchMenu_NewTurn(uint16_t team) {
     ResearchTopic *topic;
 
-    for (int i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
+    for (int32_t i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
         topic = &UnitsManager_TeamInfo[team].research_topics[i];
 
         if (topic->allocation) {
@@ -238,15 +238,15 @@ void ResearchMenu_NewTurn(unsigned short team) {
     }
 }
 
-int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type) {
+int32_t ResearchMenu_CalculateFactor(uint16_t team, int32_t research_topic, ResourceID unit_type) {
     ResearchTopic *topic;
-    int result;
+    int32_t result;
 
     topic = &UnitsManager_TeamInfo[team].research_topics[research_topic];
 
     if (topic->research_level) {
         SmartPointer<UnitValues> unit_values = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type);
-        int value{0};
+        int32_t value{0};
 
         switch (research_topic) {
             case RESEARCH_TOPIC_ATTACK: {
@@ -311,7 +311,7 @@ ResearchControl::~ResearchControl() {
     delete image_labs_slider_bg;
 }
 
-void ResearchControl::Update(int value) {
+void ResearchControl::Update(int32_t value) {
     if (value < 0) {
         value = 0;
     }
@@ -321,7 +321,7 @@ void ResearchControl::Update(int value) {
     }
 
     if (value != topic_value) {
-        int difference;
+        int32_t difference;
 
         difference = topic_value - value;
 
@@ -338,14 +338,14 @@ void ResearchControl::UpdateButtons() {
     button_upgrade_left->Enable(topic_value > 0);
 }
 
-unsigned short ResearchControl::GetValue() const { return topic_value; }
+uint16_t ResearchControl::GetValue() const { return topic_value; }
 
-void ResearchControl::Init(ResearchMenu *menu, unsigned char research_topic_index,
-                           unsigned short research_topic_value) {
+void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index,
+                           uint16_t research_topic_value) {
     WindowInfo window;
     SmartString string;
-    int uly_slider;
-    unsigned char *icon;
+    int32_t uly_slider;
+    uint8_t *icon;
     struct ImageSimpleHeader *image;
 
     research_menu = menu;
@@ -405,7 +405,7 @@ void ResearchControl::Init(ResearchMenu *menu, unsigned char research_topic_inde
 void ResearchControl::RefreshScreen(bool redraw) {
     ResearchTopic *topic;
     WindowInfo window;
-    int offset;
+    int32_t offset;
     struct ImageSimpleHeader *sprite;
 
     topic = &UnitsManager_TeamInfo[research_menu->GetTeam()].research_topics[topic_index];
@@ -423,7 +423,7 @@ void ResearchControl::RefreshScreen(bool redraw) {
     image_turns_bg->Write(&window);
 
     if (topic_value > 0) {
-        int turns;
+        int32_t turns;
 
         ResearchMenu_UpdateResearchProgress(research_menu->GetTeam(), topic_index, 1);
 
@@ -480,9 +480,9 @@ void ResearchMenu_OnClick_Slider(ButtonID bid, intptr_t value) {
     control = reinterpret_cast<ResearchControl *>(value);
 
     if (control->research_menu->GetActiveResearchersCount() > 0) {
-        int width;
-        int mouse_x;
-        int mouse_y;
+        int32_t width;
+        int32_t mouse_x;
+        int32_t mouse_y;
 
         width = control->image_labs_slider_bg->GetWidth();
 
@@ -498,14 +498,14 @@ void ResearchMenu_OnClick_Slider(ButtonID bid, intptr_t value) {
 }
 
 void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value) {
-    unsigned short research_topics[RESEARCH_TOPIC_COUNT];
+    uint16_t research_topics[RESEARCH_TOPIC_COUNT];
     ResearchMenu *control;
 
     control = reinterpret_cast<ResearchMenu *>(value);
 
     control->exit_loop = true;
 
-    for (int i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
+    for (int32_t i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
         research_topics[i] = control->topics[i].GetValue();
     }
 
@@ -516,7 +516,7 @@ void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value) {
                 --research_topics[(*it).research_topic];
 
             } else {
-                int index;
+                int32_t index;
 
                 for (index = 0; index < RESEARCH_TOPIC_COUNT && !research_topics[index]; ++index) {
                 }
@@ -554,10 +554,10 @@ void ResearchMenu_OnClick_Cancel(ButtonID bid, intptr_t value) {
     control->exit_loop = true;
 }
 
-ResearchMenu::ResearchMenu(unsigned short team)
+ResearchMenu::ResearchMenu(uint16_t team)
     : Window(RSRCHPIC, GameManager_GetDialogWindowCenterMode()), team(team) {
     WindowInfo window;
-    unsigned short research_topics[RESEARCH_TOPIC_COUNT];
+    uint16_t research_topics[RESEARCH_TOPIC_COUNT];
 
     Cursor_SetCursor(CURSOR_HAND);
 
@@ -608,7 +608,7 @@ ResearchMenu::ResearchMenu(unsigned short team)
         }
     }
 
-    for (int i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
+    for (int32_t i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
         topics[i].Init(this, i, research_topics[i]);
     }
 
@@ -624,23 +624,23 @@ ResearchMenu::~ResearchMenu() {
     GameManager_ProcessTick(true);
 }
 
-unsigned short ResearchMenu::GetFreeCapacity() const { return free_capacity; }
+uint16_t ResearchMenu::GetFreeCapacity() const { return free_capacity; }
 
-unsigned short ResearchMenu::GetTeam() const { return team; }
+uint16_t ResearchMenu::GetTeam() const { return team; }
 
-unsigned short ResearchMenu::GetActiveResearchersCount() const { return active_research_centers; }
+uint16_t ResearchMenu::GetActiveResearchersCount() const { return active_research_centers; }
 
-void ResearchMenu::UpdateTopics(int difference) {
+void ResearchMenu::UpdateTopics(int32_t difference) {
     free_capacity += difference;
 
-    for (int i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
+    for (int32_t i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
         topics[i].UpdateButtons();
     }
 }
 
 void ResearchMenu::Run() {
     exit_loop = false;
-    int key;
+    int32_t key;
 
     while (!exit_loop) {
         key = get_input();

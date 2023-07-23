@@ -32,12 +32,12 @@ extern "C" {
 #define CURSOR_CURSOR_COUNT 30
 
 struct Cursor_Descriptor {
-    short width;
-    short height;
-    short ulx;
-    short uly;
-    unsigned short frame_count;
-    unsigned char* data;
+    int16_t width;
+    int16_t height;
+    int16_t ulx;
+    int16_t uly;
+    uint16_t frame_count;
+    uint8_t* data;
 };
 
 static ResourceID Cursor_ResourceLut[CURSOR_CURSOR_COUNT] = {
@@ -47,7 +47,7 @@ static ResourceID Cursor_ResourceLut[CURSOR_CURSOR_COUNT] = {
 
 static Cursor_Descriptor Cursor_CursorDescriptorLut[CURSOR_CURSOR_COUNT];
 
-static unsigned char Cursor_DefaultWindowCursorLut[] = {
+static uint8_t Cursor_DefaultWindowCursorLut[] = {
     CURSOR_HAND,    CURSOR_HAND,     CURSOR_HAND,     CURSOR_HAND,    CURSOR_HAND,     CURSOR_HAND,
     CURSOR_HAND,    CURSOR_HAND,     CURSOR_HAND,     CURSOR_HAND,    CURSOR_HAND,     CURSOR_HAND,
     CURSOR_HAND,    CURSOR_HAND,     CURSOR_HAND,     CURSOR_HAND,    CURSOR_HAND,     CURSOR_HAND,
@@ -59,14 +59,14 @@ static unsigned char Cursor_DefaultWindowCursorLut[] = {
     CURSOR_ARROW_W, CURSOR_ARROW_NW, CURSOR_ARROW_NW, CURSOR_HAND,    CURSOR_HAND,     CURSOR_HAND,
     CURSOR_HAND,    CURSOR_HAND,     CURSOR_HAND,     CURSOR_HAND,    CURSOR_HAND};
 
-static unsigned char Cursor_ActiveCursorIndex = CURSOR_HIDDEN;
+static uint8_t Cursor_ActiveCursorIndex = CURSOR_HIDDEN;
 
-static void Cursor_DrawAttackPowerCursorHelper(int target_current_hits, int attacker_damage, int target_base_hits,
-                                               unsigned char cursor_index) {
+static void Cursor_DrawAttackPowerCursorHelper(int32_t target_current_hits, int32_t attacker_damage, int32_t target_base_hits,
+                                               uint8_t cursor_index) {
     Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
-    int lrx = cursor->ulx - 18;
-    int lry = cursor->uly + 15;
-    unsigned char* data = &cursor->data[lrx + cursor->width * lry];
+    int32_t lrx = cursor->ulx - 18;
+    int32_t lry = cursor->uly + 15;
+    uint8_t* data = &cursor->data[lrx + cursor->width * lry];
 
     if (target_base_hits) {
         if (attacker_damage > target_current_hits) {
@@ -99,7 +99,7 @@ static void Cursor_DrawAttackPowerCursorHelper(int target_current_hits, int atta
 }
 
 void Cursor_Init() {
-    for (int cursor_index = 0; cursor_index < CURSOR_CURSOR_COUNT; ++cursor_index) {
+    for (int32_t cursor_index = 0; cursor_index < CURSOR_CURSOR_COUNT; ++cursor_index) {
         struct ImageSimpleHeader* sprite =
             reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(Cursor_ResourceLut[cursor_index]));
         Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
@@ -123,13 +123,13 @@ void Cursor_Init() {
     Cursor_ActiveCursorIndex = CURSOR_CURSOR_COUNT;
 }
 
-unsigned char Cursor_GetCursor() { return Cursor_ActiveCursorIndex; }
+uint8_t Cursor_GetCursor() { return Cursor_ActiveCursorIndex; }
 
-unsigned char Cursor_GetDefaultWindowCursor(unsigned char window_index) {
+uint8_t Cursor_GetDefaultWindowCursor(uint8_t window_index) {
     return Cursor_DefaultWindowCursorLut[window_index];
 }
 
-void Cursor_SetCursor(unsigned char cursor_index) {
+void Cursor_SetCursor(uint8_t cursor_index) {
     if (cursor_index != Cursor_ActiveCursorIndex) {
         Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
 
@@ -147,7 +147,7 @@ void Cursor_SetCursor(unsigned char cursor_index) {
     }
 }
 
-void Cursor_DrawAttackPowerCursor(UnitInfo* selected_unit, UnitInfo* target_unit, unsigned char cursor_index) {
+void Cursor_DrawAttackPowerCursor(UnitInfo* selected_unit, UnitInfo* target_unit, uint8_t cursor_index) {
     if (target_unit) {
         Cursor_DrawAttackPowerCursorHelper(target_unit->hits,
                                            UnitsManager_GetAttackDamage(selected_unit, target_unit, 0),
@@ -157,13 +157,13 @@ void Cursor_DrawAttackPowerCursor(UnitInfo* selected_unit, UnitInfo* target_unit
     }
 }
 
-void Cursor_DrawStealthActionChanceCursor(int experience_level, unsigned char cursor_index) {
+void Cursor_DrawStealthActionChanceCursor(int32_t experience_level, uint8_t cursor_index) {
     Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
-    int lrx = cursor->ulx - 18;
-    int lry = cursor->uly + 15;
-    unsigned char* data = &cursor->data[lrx + cursor->width * lry];
-    int chance = experience_level * 35 / 100;
-    int reminder = 35 - experience_level * 35 / 100;
+    int32_t lrx = cursor->ulx - 18;
+    int32_t lry = cursor->uly + 15;
+    uint8_t* data = &cursor->data[lrx + cursor->width * lry];
+    int32_t chance = experience_level * 35 / 100;
+    int32_t reminder = 35 - experience_level * 35 / 100;
 
     draw_box(data, cursor->width, 0, 0, 36, 4, COLOR_BLACK);
 

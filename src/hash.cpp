@@ -31,7 +31,7 @@ MapHash Hash_MapHash(HASH_HASH_SIZE);
 void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& file) {
     list.Clear();
 
-    for (int count = file.ReadObjectCount(); count; --count) {
+    for (int32_t count = file.ReadObjectCount(); count; --count) {
         UnitInfo* unit = dynamic_cast<UnitInfo*>(file.ReadObject());
 
         list.PushBack(*unit);
@@ -53,7 +53,7 @@ void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& fil
 }
 
 void SmartList_UnitInfo_FileSave(SmartList<UnitInfo>& list, SmartFileWriter& file) {
-    unsigned short count = list.GetCount();
+    uint16_t count = list.GetCount();
 
     file.Write(count);
     for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != list.End(); ++unit) {
@@ -73,25 +73,25 @@ void SmartList_UnitInfo_Clear(SmartList<UnitInfo>& list) {
 
 class MapHashObject : public SmartObject {
     SmartList<UnitInfo> list;
-    unsigned short x;
-    unsigned short y;
+    uint16_t x;
+    uint16_t y;
 
 public:
-    MapHashObject(unsigned short grid_x, unsigned short grid_y);
+    MapHashObject(uint16_t grid_x, uint16_t grid_y);
     ~MapHashObject();
 
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
 
-    unsigned short GetX() const;
-    unsigned short GetY() const;
+    uint16_t GetX() const;
+    uint16_t GetY() const;
     SmartList<UnitInfo>& GetList();
     void PushFront(UnitInfo* unit);
     void PushBack(UnitInfo* unit);
     void Remove(UnitInfo* unit);
 };
 
-MapHashObject::MapHashObject(unsigned short grid_x, unsigned short grid_y) : x(grid_x), y(grid_y) {}
+MapHashObject::MapHashObject(uint16_t grid_x, uint16_t grid_y) : x(grid_x), y(grid_y) {}
 
 MapHashObject::~MapHashObject() {}
 
@@ -107,9 +107,9 @@ void MapHashObject::FileSave(SmartFileWriter& file) {
     SmartList_UnitInfo_FileSave(list, file);
 }
 
-unsigned short MapHashObject::GetX() const { return x; }
+uint16_t MapHashObject::GetX() const { return x; }
 
-unsigned short MapHashObject::GetY() const { return y; }
+uint16_t MapHashObject::GetY() const { return y; }
 
 SmartList<UnitInfo>& MapHashObject::GetList() { return list; }
 
@@ -119,7 +119,7 @@ void MapHashObject::PushBack(UnitInfo* unit) { list.PushBack(*unit); }
 
 void MapHashObject::Remove(UnitInfo* unit) { list.Remove(*unit); }
 
-MapHash::MapHash(unsigned short hash_size)
+MapHash::MapHash(uint16_t hash_size)
     : hash_size(hash_size), x_shift(0), entry(new(std::nothrow) SmartList<MapHashObject>[hash_size]) {
     while (hash_size > 128) {
         ++x_shift;
@@ -129,7 +129,7 @@ MapHash::MapHash(unsigned short hash_size)
 
 MapHash::~MapHash() { delete[] entry; }
 
-void MapHash::AddEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y, bool mode) {
+void MapHash::AddEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y, bool mode) {
     SmartList<MapHashObject>* list = &entry[(grid_y ^ (grid_x << x_shift)) % hash_size];
     SmartList<MapHashObject>::Iterator object = list->Begin();
 
@@ -154,8 +154,8 @@ void MapHash::AddEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y
 }
 
 void MapHash::Add(UnitInfo* unit, bool mode) {
-    unsigned short grid_x;
-    unsigned short grid_y;
+    uint16_t grid_x;
+    uint16_t grid_y;
 
     SDL_assert(unit != nullptr);
 
@@ -171,7 +171,7 @@ void MapHash::Add(UnitInfo* unit, bool mode) {
     }
 }
 
-void MapHash::RemoveEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y) {
+void MapHash::RemoveEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y) {
     SmartList<MapHashObject>* list = &entry[(grid_y ^ (grid_x << x_shift)) % hash_size];
     SmartList<MapHashObject>::Iterator object = list->Begin();
 
@@ -193,8 +193,8 @@ void MapHash::RemoveEx(UnitInfo* unit, unsigned short grid_x, unsigned short gri
 }
 
 void MapHash::Remove(UnitInfo* unit) {
-    unsigned short grid_x;
-    unsigned short grid_y;
+    uint16_t grid_x;
+    uint16_t grid_y;
 
     SDL_assert(unit != nullptr);
 
@@ -211,7 +211,7 @@ void MapHash::Remove(UnitInfo* unit) {
 }
 
 void MapHash::Clear() {
-    for (int index = 0; index < hash_size; ++index) {
+    for (int32_t index = 0; index < hash_size; ++index) {
         entry[index].Clear();
     }
 }
@@ -225,8 +225,8 @@ void MapHash::FileLoad(SmartFileReader& file) {
 
     entry = new (std::nothrow) SmartList<MapHashObject>[hash_size];
 
-    for (int index = 0; index < hash_size; ++index) {
-        for (int count = file.ReadObjectCount(); count; --count) {
+    for (int32_t index = 0; index < hash_size; ++index) {
+        for (int32_t count = file.ReadObjectCount(); count; --count) {
             MapHashObject* object = new (std::nothrow) MapHashObject(0, 0);
 
             object->FileLoad(file);
@@ -239,8 +239,8 @@ void MapHash::FileSave(SmartFileWriter& file) {
     file.Write(hash_size);
     file.Write(x_shift);
 
-    for (int index = 0; index < hash_size; ++index) {
-        unsigned short count = entry[index].GetCount();
+    for (int32_t index = 0; index < hash_size; ++index) {
+        uint16_t count = entry[index].GetCount();
         file.Write(count);
 
         for (SmartList<MapHashObject>::Iterator object = entry[index].Begin(); object != entry[index].End(); ++object) {
@@ -265,7 +265,7 @@ SmartList<UnitInfo>* MapHash::operator[](const Point& key) {
     return result;
 }
 
-UnitHash::UnitHash(unsigned short hash_size)
+UnitHash::UnitHash(uint16_t hash_size)
     : hash_size(hash_size), list(new(std::nothrow) SmartList<UnitInfo>[hash_size]) {}
 UnitHash::~UnitHash() { delete[] list; }
 
@@ -281,7 +281,7 @@ void UnitHash::Remove(UnitInfo* unit) {
 }
 
 void UnitHash::Clear() {
-    for (int index = 0; index < hash_size; ++index) {
+    for (int32_t index = 0; index < hash_size; ++index) {
         for (SmartList<UnitInfo>::Iterator unit = list[index].Begin(); unit != list[index].End(); ++unit) {
             (*unit).ClearUnitList();
             (*unit).SetParent(nullptr);
@@ -298,7 +298,7 @@ void UnitHash::FileLoad(SmartFileReader& file) {
     file.Read(hash_size);
     list = new (std::nothrow) SmartList<UnitInfo>[hash_size];
 
-    for (int index = 0; index < hash_size; ++index) {
+    for (int32_t index = 0; index < hash_size; ++index) {
         SmartList_UnitInfo_FileLoad(list[index], file);
     }
 }
@@ -306,12 +306,12 @@ void UnitHash::FileLoad(SmartFileReader& file) {
 void UnitHash::FileSave(SmartFileWriter& file) {
     file.Write(hash_size);
 
-    for (int index = 0; index < hash_size; ++index) {
+    for (int32_t index = 0; index < hash_size; ++index) {
         SmartList_UnitInfo_FileSave(list[index], file);
     }
 }
 
-UnitInfo* UnitHash::operator[](const unsigned short& key) {
+UnitInfo* UnitHash::operator[](const uint16_t& key) {
     const auto& units = list[key % hash_size];
 
     for (auto unit = units.Begin(); unit != units.End(); ++unit) {

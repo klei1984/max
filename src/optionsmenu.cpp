@@ -39,14 +39,14 @@ struct OptionsButton {
     char type;
     const char *format;
     IniParameter ini_param_index;
-    short ulx;
-    short range_min;
-    short range_max;
+    int16_t ulx;
+    int16_t range_min;
+    int16_t range_max;
     Button *button;
     Image *image;
     char *ini_string_value;
-    short rest_state;
-    short last_rest_state;
+    int16_t rest_state;
+    int16_t last_rest_state;
 };
 
 enum OptionsType {
@@ -104,7 +104,7 @@ static const char *options_menu_opponent_strings[] = {_(a24d), _(37b7), _(bb85),
 
 static const char *options_menu_victory_type_strings[] = {_(b542), _(c303)};
 
-OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
+OptionsMenu::OptionsMenu(uint16_t team, ResourceID bg_image)
     : Window(bg_image, GameManager_GetDialogWindowCenterMode()),
       team(team),
       bg_image(bg_image),
@@ -112,7 +112,7 @@ OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
       control_id(0),
       is_slider_active(false),
       button_count(sizeof(options_menu_buttons) / sizeof(struct OptionsButton)) {
-    int uly = bg_image == SETUPPIC ? 141 : 383;
+    int32_t uly = bg_image == SETUPPIC ? 141 : 383;
 
     Cursor_SetCursor(CURSOR_HAND);
     Text_SetFont(GNW_TEXT_FONT_5);
@@ -147,7 +147,7 @@ OptionsMenu::OptionsMenu(unsigned short team, ResourceID bg_image)
     Init();
     win_draw_rect(window.id, &window.window);
 
-    for (int i = 0; i < button_count; ++i) {
+    for (int32_t i = 0; i < button_count; ++i) {
         if ((options_menu_buttons[i].ini_param_index != INI_ENHANCED_GRAPHICS || bg_image == SETUPPIC) &&
             options_menu_buttons[i].type == OPTIONS_TYPE_CHECKBOX) {
             options_menu_buttons[i].button->SetRestState(options_menu_buttons[i].rest_state);
@@ -161,7 +161,7 @@ OptionsMenu::~OptionsMenu() {
     delete button_help;
     delete text_edit;
 
-    for (int i = 0; i < button_count; ++i) {
+    for (int32_t i = 0; i < button_count; ++i) {
         delete options_menu_buttons[i].button;
         options_menu_buttons[i].button = nullptr;
 
@@ -177,13 +177,13 @@ OptionsMenu::~OptionsMenu() {
     }
 }
 
-void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
+void OptionsMenu::InitSliderControl(int32_t id, int32_t ulx, int32_t uly) {
     IniParameter ini_param_index;
     struct ImageSimpleHeader *slider_slit_image;
-    int prfslit_ulx;
-    int prfslit_uly;
-    int prfslit_pos_x;
-    int prfslit_pos_y;
+    int32_t prfslit_ulx;
+    int32_t prfslit_uly;
+    int32_t prfslit_pos_x;
+    int32_t prfslit_pos_y;
 
     ini_param_index = options_menu_buttons[id].ini_param_index;
 
@@ -210,14 +210,14 @@ void OptionsMenu::InitSliderControl(int id, int ulx, int uly) {
     options_menu_buttons[id].button->RegisterButton(window.id);
 }
 
-void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
+void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
     IniParameter ini_param_index;
     ResourceID resource_id{INVALID_ID};
     struct ImageSimpleHeader *resource_image;
-    int image_ulx;
-    int image_uly;
-    int image_pos_x;
-    int image_pos_y;
+    int32_t image_ulx;
+    int32_t image_uly;
+    int32_t image_pos_x;
+    int32_t image_pos_y;
 
     Text_TextBox(&window, options_menu_buttons[id].format, ulx, uly, 185, 20, false, true);
     ini_param_index = options_menu_buttons[id].ini_param_index;
@@ -225,7 +225,7 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
     switch (options_menu_buttons[id].type) {
         case OPTIONS_TYPE_EDIT_INT:
         case OPTIONS_TYPE_EDIT_HEX: {
-            int radix;
+            int32_t radix;
 
             options_menu_buttons[id].ini_string_value = new (std::nothrow) char[30];
 
@@ -277,7 +277,7 @@ void OptionsMenu::InitEditControl(int id, int ulx, int uly) {
     options_menu_buttons[id].button->RegisterButton(window.id);
 }
 
-void OptionsMenu::InitCheckboxControl(int id, int ulx, int uly) {
+void OptionsMenu::InitCheckboxControl(int32_t id, int32_t ulx, int32_t uly) {
     Button *button;
     IniParameter ini_param_index;
 
@@ -304,7 +304,7 @@ void OptionsMenu::InitCheckboxControl(int id, int ulx, int uly) {
     Text_TextBox(&window, options_menu_buttons[id].format, ulx + 25, uly - 2, 155, 24, false, true);
 }
 
-void OptionsMenu::InitLabelControl(int id, int ulx, int uly) {
+void OptionsMenu::InitLabelControl(int32_t id, int32_t ulx, int32_t uly) {
     IniParameter ini_param_index;
     char buffer[200];
     FontColor font_color = Fonts_BrightYellowColor;
@@ -336,18 +336,18 @@ void OptionsMenu::InitLabelControl(int id, int ulx, int uly) {
     Text_TextBox(&window, buffer, ulx, uly, window.width, 20, false, true, font_color);
 }
 
-void OptionsMenu::DrawSlider(int id, int value) {
+void OptionsMenu::DrawSlider(int32_t id, int32_t value) {
     OptionsButton *button;
     struct ImageSimpleHeader *slider_slit_image;
     struct ImageSimpleHeader *slider_slide_image;
-    short max;
-    int ulx;
-    int uly;
+    int16_t max;
+    int32_t ulx;
+    int32_t uly;
 
     button = &options_menu_buttons[id];
     button->image->Write(&window);
 
-    max = std::max(value, static_cast<int>(button->range_min));
+    max = std::max(value, static_cast<int32_t>(button->range_min));
     value = std::min(button->range_max, max);
 
     ulx = button->image->GetULX() + 10;
@@ -367,13 +367,13 @@ void OptionsMenu::DrawSlider(int id, int value) {
     button->rest_state = value;
 }
 
-void OptionsMenu::UpdateSlider(int id) {
+void OptionsMenu::UpdateSlider(int32_t id) {
     OptionsButton *button;
     Rect bounds;
-    int mouse_x;
-    int mouse_y;
-    int value;
-    int audio_type;
+    int32_t mouse_x;
+    int32_t mouse_y;
+    int32_t value;
+    int32_t audio_type;
 
     button = &options_menu_buttons[id];
 
@@ -403,13 +403,13 @@ void OptionsMenu::UpdateSlider(int id) {
     }
 }
 
-void OptionsMenu::SetVolume(int id, int audio_type, int value) {
+void OptionsMenu::SetVolume(int32_t id, int32_t audio_type, int32_t value) {
     SoundManager.SetVolume(audio_type, value);
     ini_set_setting(options_menu_buttons[id].ini_param_index, value);
 }
 
-int OptionsMenu::ProcessTextEditKeyPress(int key) {
-    int result;
+int32_t OptionsMenu::ProcessTextEditKeyPress(int32_t key) {
+    int32_t result;
 
     if (text_edit) {
         OptionsButton *button;
@@ -424,13 +424,13 @@ int OptionsMenu::ProcessTextEditKeyPress(int key) {
         text_edit = nullptr;
 
         if (button->type == OPTIONS_TYPE_EDIT_INT) {
-            int value;
-            int max;
+            int32_t value;
+            int32_t max;
 
             value = strtol(button->ini_string_value, nullptr, 10);
 
-            max = std::max(value, static_cast<int>(button->range_min));
-            value = std::min(static_cast<int>(button->range_max), max);
+            max = std::max(value, static_cast<int32_t>(button->range_min));
+            value = std::min(static_cast<int32_t>(button->range_max), max);
 
             snprintf(button->ini_string_value, 30, "%d", value);
         }
@@ -453,8 +453,8 @@ int OptionsMenu::ProcessTextEditKeyPress(int key) {
 }
 
 void OptionsMenu::Init() {
-    int window_ulx;
-    int window_uly;
+    int32_t window_ulx;
+    int32_t window_uly;
     IniParameter ini_param_index;
 
     if (bg_image == PREFSPIC) {
@@ -468,7 +468,7 @@ void OptionsMenu::Init() {
         window_uly = -20;
     }
 
-    for (int i = 0; i < button_count; ++i) {
+    for (int32_t i = 0; i < button_count; ++i) {
         window_ulx = options_menu_buttons[i].ulx;
         ini_param_index = options_menu_buttons[i].ini_param_index;
 
@@ -523,9 +523,9 @@ void OptionsMenu::Init() {
     }
 }
 
-int OptionsMenu::ProcessKeyPress(int key) {
+int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
     if (is_slider_active) {
-        int mouse_buttons;
+        int32_t mouse_buttons;
 
         mouse_buttons = mouse_get_buttons();
 
@@ -559,9 +559,9 @@ int OptionsMenu::ProcessKeyPress(int key) {
 
             ProcessTextEditKeyPress(GNW_KB_KEY_RETURN);
 
-            for (int i = 0; i < button_count; ++i) {
+            for (int32_t i = 0; i < button_count; ++i) {
                 IniParameter ini_param_index;
-                int option_type;
+                int32_t option_type;
 
                 ini_param_index = options_menu_buttons[i].ini_param_index;
                 option_type = options_menu_buttons[i].type;
@@ -631,9 +631,9 @@ int OptionsMenu::ProcessKeyPress(int key) {
 
             ProcessTextEditKeyPress(GNW_KB_KEY_ESCAPE);
 
-            for (int i = 0; i < button_count; ++i) {
-                int ini_param_index;
-                int last_value;
+            for (int32_t i = 0; i < button_count; ++i) {
+                int32_t ini_param_index;
+                int32_t last_value;
 
                 ini_param_index = options_menu_buttons[i].ini_param_index;
                 last_value = options_menu_buttons[i].last_rest_state;
@@ -692,7 +692,7 @@ int OptionsMenu::ProcessKeyPress(int key) {
 
                         if (options_menu_buttons[key].type == OPTIONS_TYPE_CHECKBOX) {
                             IniParameter ini_param_index;
-                            int value;
+                            int32_t value;
 
                             options_menu_buttons[key].button->PlaySound();
                             value = win_button_down(options_menu_buttons[key].button->GetId());
@@ -792,7 +792,7 @@ void OptionsMenu::Run() {
     event_release = false;
 
     while (!exit_menu) {
-        int key = get_input();
+        int32_t key = get_input();
 
         if (key > 0 && key < GNW_INPUT_PRESS) {
             event_release = false;

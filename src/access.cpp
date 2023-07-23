@@ -49,12 +49,12 @@ static const SmartList<UnitInfo>* Access_UnitsLists[] = {&UnitsManager_MobileLan
                                                          &UnitsManager_ParticleUnits};
 
 static bool Access_UpdateGroupSpeed(UnitInfo* unit);
-static bool Access_IsValidAttackTargetTypeEx(ResourceID attacker, ResourceID target, unsigned int target_flags);
-static bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, unsigned int target_flags,
+static bool Access_IsValidAttackTargetTypeEx(ResourceID attacker, ResourceID target, uint32_t target_flags);
+static bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, uint32_t target_flags,
                                          Point point);
 static void Access_ProcessGroupAirPath(UnitInfo* unit);
 
-bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int target_grid_y, bool mode) {
+bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_grid_x, int32_t target_grid_y, bool mode) {
     SmartPointer<UnitInfo> unit;
     const auto units = Hash_MapHash[Point(target_grid_x, target_grid_y)];
 
@@ -100,10 +100,10 @@ bool Access_SetUnitDestination(int grid_x, int grid_y, int target_grid_x, int ta
     }
 }
 
-unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
-                                 unsigned int flags) {
-    unsigned int unit_flags;
-    unsigned int result;
+uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y,
+                                 uint32_t flags) {
+    uint32_t unit_flags;
+    uint32_t result;
     bool debug_flag;
 
     debug_flag = false;
@@ -114,7 +114,7 @@ unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int 
         result = 4;
 
         if (!(flags & 0x20)) {
-            unsigned char surface_type = Access_GetModifiedSurfaceType(grid_x, grid_y);
+            uint8_t surface_type = Access_GetModifiedSurfaceType(grid_x, grid_y);
 
             if ((surface_type & SURFACE_TYPE_WATER) && (unit_flags & MOBILE_LAND_UNIT) && unit_type != SURVEYOR) {
                 result = 4 + 8;
@@ -249,11 +249,11 @@ unsigned int Access_IsAccessible(ResourceID unit_type, unsigned short team, int 
     return result;
 }
 
-bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, short* grid_x, short* grid_y, int range_limit,
-                                 int mode, int direction) {
+bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, int16_t* grid_x, int16_t* grid_y, int32_t range_limit,
+                                 int32_t mode, int32_t direction) {
     UnitValues* unit_values;
-    int offset_x{0};
-    int offset_y{0};
+    int32_t offset_x{0};
+    int32_t offset_y{0};
 
     unit_values = unit->GetBaseValues();
 
@@ -283,7 +283,7 @@ bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, short* gr
         } break;
     }
 
-    for (int i = 0; i < range_limit; ++i) {
+    for (int32_t i = 0; i < range_limit; ++i) {
         if (*grid_x >= 0 && *grid_x < ResourceManager_MapSize.x && *grid_y >= 0 &&
             *grid_y < ResourceManager_MapSize.y) {
             switch (mode) {
@@ -316,7 +316,7 @@ void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units) {
 }
 
 void Access_InitStealthMaps() {
-    int heat_map_size;
+    int32_t heat_map_size;
 
     Access_InitUnitStealthStatus(UnitsManager_GroundCoverUnits);
     Access_InitUnitStealthStatus(UnitsManager_MobileLandSeaUnits);
@@ -326,7 +326,7 @@ void Access_InitStealthMaps() {
 
     heat_map_size = ResourceManager_MapSize.x * ResourceManager_MapSize.y;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, heat_map_size);
             memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, heat_map_size);
@@ -347,31 +347,31 @@ bool Access_IsSurveyorOverlayActive(UnitInfo* unit) {
     return result;
 }
 
-bool Access_IsWithinScanRange(UnitInfo* unit, int grid_x, int grid_y, int scan_range) {
-    int scan_area = (scan_range * 64) * (scan_range * 64);
-    int radius_x = ((grid_x - unit->grid_x) * 64);
-    int radius_y = ((grid_y - unit->grid_y) * 64);
-    int grid_area = radius_x * radius_x + radius_y * radius_y;
+bool Access_IsWithinScanRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, int32_t scan_range) {
+    int32_t scan_area = (scan_range * 64) * (scan_range * 64);
+    int32_t radius_x = ((grid_x - unit->grid_x) * 64);
+    int32_t radius_y = ((grid_y - unit->grid_y) * 64);
+    int32_t grid_area = radius_x * radius_x + radius_y * radius_y;
 
     return grid_area <= scan_area;
 }
 
-int Access_GetDistance(int grid_x, int grid_y) { return grid_x * grid_x + grid_y * grid_y; }
+int32_t Access_GetDistance(int32_t grid_x, int32_t grid_y) { return grid_x * grid_x + grid_y * grid_y; }
 
-int Access_GetDistance(Point position1, Point position2) {
+int32_t Access_GetDistance(Point position1, Point position2) {
     position1 -= position2;
 
     return position1.x * position1.x + position1.y * position1.y;
 }
 
-int Access_GetDistance(UnitInfo* unit, Point position) {
+int32_t Access_GetDistance(UnitInfo* unit, Point position) {
     position.x -= unit->grid_x;
     position.y -= unit->grid_y;
 
     return position.x * position.x + position.y * position.y;
 }
 
-int Access_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
+int32_t Access_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
     Point distance;
 
     distance.x = unit1->grid_x - unit2->grid_x;
@@ -380,12 +380,12 @@ int Access_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
     return distance.x * distance.x + distance.y * distance.y;
 }
 
-bool Access_IsWithinAttackRange(UnitInfo* unit, int grid_x, int grid_y, int attack_range) {
-    int distance_x;
-    int distance_y;
-    int distance;
-    int ratio_x;
-    int ratio_y;
+bool Access_IsWithinAttackRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, int32_t attack_range) {
+    int32_t distance_x;
+    int32_t distance_y;
+    int32_t distance;
+    int32_t ratio_x;
+    int32_t ratio_y;
     bool result;
 
     attack_range *= 64;
@@ -409,7 +409,7 @@ bool Access_IsWithinAttackRange(UnitInfo* unit, int grid_x, int grid_y, int atta
                 distance_y = ratio_y + (unit->y << 16);
 
                 for (; --distance; distance_x += ratio_x, distance_y += ratio_y) {
-                    unsigned char surface_type;
+                    uint8_t surface_type;
 
                     surface_type = Access_GetSurfaceType((distance_x >> 16) >> 6, (distance_y >> 16) >> 6);
 
@@ -429,9 +429,9 @@ bool Access_IsWithinAttackRange(UnitInfo* unit, int grid_x, int grid_y, int atta
     return result;
 }
 
-bool Access_FindReachableSpot(ResourceID unit_type, UnitInfo* unit, short* grid_x, short* grid_y, int range,
-                              int exclusion_zone, int mode) {
-    for (int i = 1; i <= range; ++i) {
+bool Access_FindReachableSpot(ResourceID unit_type, UnitInfo* unit, int16_t* grid_x, int16_t* grid_y, int32_t range,
+                              int32_t exclusion_zone, int32_t mode) {
+    for (int32_t i = 1; i <= range; ++i) {
         --*grid_x;
         --*grid_y;
 
@@ -446,8 +446,8 @@ bool Access_FindReachableSpot(ResourceID unit_type, UnitInfo* unit, short* grid_
     return false;
 }
 
-unsigned int Access_GetAttackTargetGroup(UnitInfo* unit) {
-    unsigned int result{TARGET_CLASS_NONE};
+uint32_t Access_GetAttackTargetGroup(UnitInfo* unit) {
+    uint32_t result{TARGET_CLASS_NONE};
 
     if (unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) == 0 || unit->orders == ORDER_DISABLE) {
         result = TARGET_CLASS_NONE;
@@ -509,10 +509,10 @@ unsigned int Access_GetAttackTargetGroup(UnitInfo* unit) {
     return result;
 }
 
-unsigned int Access_UpdateMapStatusAddUnit(UnitInfo* unit, int grid_x, int grid_y) {
-    unsigned int result;
-    unsigned short team;
-    int map_offset;
+uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+    uint32_t result;
+    uint16_t team;
+    int32_t map_offset;
 
     team = unit->team;
     map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
@@ -579,9 +579,9 @@ unsigned int Access_UpdateMapStatusAddUnit(UnitInfo* unit, int grid_x, int grid_
     return result;
 }
 
-void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
-    unsigned short team;
-    int map_offset;
+void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+    uint16_t team;
+    int32_t map_offset;
 
     team = unit->team;
     map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
@@ -622,10 +622,10 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
 }
 
 void Access_DrawUnit(UnitInfo* unit) {
-    int map_offset;
+    int32_t map_offset;
 
     if (GameManager_AllVisible) {
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 unit->SpotByTeam(team);
             }
@@ -634,7 +634,7 @@ void Access_DrawUnit(UnitInfo* unit) {
 
     map_offset = ResourceManager_MapSize.x * unit->grid_y + unit->grid_x;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] && UnitsManager_IsUnitUnderWater(unit)) {
                 unit->SpotByTeam(team);
@@ -655,11 +655,11 @@ void Access_DrawUnit(UnitInfo* unit) {
     }
 }
 
-unsigned int Access_GetTargetClass(UnitInfo* unit) {
-    unsigned int result;
+uint32_t Access_GetTargetClass(UnitInfo* unit) {
+    uint32_t result;
 
     if (unit->unit_type == COMMANDO || UnitsManager_IsUnitUnderWater(unit)) {
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 unit->IsVisibleToTeam(team)) {
                 if (unit->unit_type == COMMANDO) {
@@ -702,7 +702,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
         }
 
         if (GameManager_AllVisible) {
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                     unit->SpotByTeam(team);
                 }
@@ -713,14 +713,14 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                 Access_DrawUnit(unit);
 
             } else {
-                for (int team = PLAYER_TEAM_GRAY; team >= PLAYER_TEAM_RED; --team) {
+                for (int32_t team = PLAYER_TEAM_GRAY; team >= PLAYER_TEAM_RED; --team) {
                     unit->Draw(team);
                 }
             }
 
             if ((unit->flags & SELECTABLE) && UnitsManager_TeamInfo[unit->team].team_type != TEAM_TYPE_NONE) {
-                unsigned char enemy_target_class = TARGET_CLASS_NONE;
-                int scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
+                uint8_t enemy_target_class = TARGET_CLASS_NONE;
+                int32_t scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
                 Rect zone;
 
                 if (unit->orders == ORDER_DISABLE) {
@@ -745,8 +745,8 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                     zone.lry = ResourceManager_MapSize.y - 1;
                 }
 
-                for (int grid_y = zone.uly; grid_y <= zone.lry; ++grid_y) {
-                    for (int grid_x = zone.ulx; grid_x <= zone.lrx; ++grid_x) {
+                for (int32_t grid_y = zone.uly; grid_y <= zone.lry; ++grid_y) {
+                    for (int32_t grid_x = zone.ulx; grid_x <= zone.lrx; ++grid_x) {
                         if (Access_IsWithinScanRange(unit, grid_x, grid_y, scan)) {
                             if (mode) {
                                 enemy_target_class |= Access_UpdateMapStatusAddUnit(unit, grid_x, grid_y);
@@ -762,7 +762,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                     (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER ||
                      UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) &&
                     unit->orders != ORDER_AWAIT && ini_get_setting(INI_ENEMY_HALT)) {
-                    unsigned int friendly_target_class = Access_GetTargetClass(unit);
+                    uint32_t friendly_target_class = Access_GetTargetClass(unit);
 
                     if (unit->GetUnitList()) {
                         for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
@@ -826,11 +826,11 @@ void Access_UpdateVisibilityStatus(bool all_visible) {
     GameManager_UpdateDrawBounds();
 }
 
-void Access_UpdateMinimapFogOfWar(unsigned short team, bool all_visible, bool ignore_team_heat_map) {
+void Access_UpdateMinimapFogOfWar(uint16_t team, bool all_visible, bool ignore_team_heat_map) {
     memcpy(ResourceManager_Minimap, ResourceManager_MinimapFov, 112 * 112);
 
     if (!all_visible) {
-        for (int i = 0; i < 112 * 112; ++i) {
+        for (int32_t i = 0; i < 112 * 112; ++i) {
             if (UnitsManager_TeamInfo[team].heat_map_complete[i] == 0 || ignore_team_heat_map) {
                 ResourceManager_Minimap[i] = ResourceManager_ColorIndexTable12[ResourceManager_Minimap[i]];
             }
@@ -863,8 +863,8 @@ void Access_UpdateResourcesTotal(Complex* complex) {
     }
 }
 
-unsigned char Access_GetSurfaceType(int grid_x, int grid_y) {
-    unsigned char result;
+uint8_t Access_GetSurfaceType(int32_t grid_x, int32_t grid_y) {
+    uint8_t result;
 
     if (ResourceManager_MapSurfaceMap) {
         result = ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * grid_y + grid_x];
@@ -875,8 +875,8 @@ unsigned char Access_GetSurfaceType(int grid_x, int grid_y) {
     return result;
 }
 
-unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y) {
-    unsigned char surface_type;
+uint8_t Access_GetModifiedSurfaceType(int32_t grid_x, int32_t grid_y) {
+    uint8_t surface_type;
 
     surface_type = Access_GetSurfaceType(grid_x, grid_y);
 
@@ -895,7 +895,7 @@ unsigned char Access_GetModifiedSurfaceType(int grid_x, int grid_y) {
     return surface_type;
 }
 
-bool Access_IsAnyLandPresent(int grid_x, int grid_y, unsigned int flags) {
+bool Access_IsAnyLandPresent(int32_t grid_x, int32_t grid_y, uint32_t flags) {
     bool result;
 
     if (((flags & BUILDING) && (Access_GetSurfaceType(grid_x + 1, grid_y) == SURFACE_TYPE_LAND ||
@@ -911,7 +911,7 @@ bool Access_IsAnyLandPresent(int grid_x, int grid_y, unsigned int flags) {
     return result;
 }
 
-bool Access_IsFullyLandCovered(int grid_x, int grid_y, unsigned int flags) {
+bool Access_IsFullyLandCovered(int32_t grid_x, int32_t grid_y, uint32_t flags) {
     bool result;
 
     if (((flags & BUILDING) || (Access_GetSurfaceType(grid_x + 1, grid_y) == SURFACE_TYPE_LAND &&
@@ -927,7 +927,7 @@ bool Access_IsFullyLandCovered(int grid_x, int grid_y, unsigned int flags) {
     return result;
 }
 
-UnitInfo* Access_GetRemovableRubble(unsigned short team, int grid_x, int grid_y) {
+UnitInfo* Access_GetRemovableRubble(uint16_t team, int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit = nullptr;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
@@ -941,8 +941,8 @@ UnitInfo* Access_GetRemovableRubble(unsigned short team, int grid_x, int grid_y)
                 }
 
                 if ((*it).unit_type == LRGRUBLE) {
-                    for (int y = (*it).grid_y; y <= (*it).grid_y + 1; ++y) {
-                        for (int x = (*it).grid_x; x <= (*it).grid_x + 1; ++x) {
+                    for (int32_t y = (*it).grid_y; y <= (*it).grid_y + 1; ++y) {
+                        for (int32_t x = (*it).grid_x; x <= (*it).grid_x + 1; ++x) {
                             if (x != grid_x || y != grid_y) {
                                 if (!Access_IsAccessible(BULLDOZR, team, x, y, 2)) {
                                     return nullptr;
@@ -961,12 +961,12 @@ UnitInfo* Access_GetRemovableRubble(unsigned short team, int grid_x, int grid_y)
     return unit;
 }
 
-int Access_FindUnitInUnitList(UnitInfo* unit) {
-    int result;
+int32_t Access_FindUnitInUnitList(UnitInfo* unit) {
+    int32_t result;
 
     result = -1;
 
-    for (int i = 0; i < std::size(Access_UnitsLists); ++i) {
+    for (int32_t i = 0; i < std::size(Access_UnitsLists); ++i) {
         if (Access_UnitsLists[i]->Find(*unit) != Access_UnitsLists[i]->End()) {
             result = i;
             break;
@@ -976,7 +976,7 @@ int Access_FindUnitInUnitList(UnitInfo* unit) {
     return result;
 }
 
-bool Access_IsTeamInUnitList(unsigned short team, SmartList<UnitInfo>& units) {
+bool Access_IsTeamInUnitList(uint16_t team, SmartList<UnitInfo>& units) {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).team == team) {
             return true;
@@ -986,13 +986,13 @@ bool Access_IsTeamInUnitList(unsigned short team, SmartList<UnitInfo>& units) {
     return false;
 }
 
-bool Access_IsTeamInUnitLists(unsigned short team) {
+bool Access_IsTeamInUnitLists(uint16_t team) {
     return Access_IsTeamInUnitList(team, UnitsManager_MobileLandSeaUnits) ||
            Access_IsTeamInUnitList(team, UnitsManager_MobileAirUnits) ||
            Access_IsTeamInUnitList(team, UnitsManager_StationaryUnits);
 }
 
-UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int grid_x, int grid_y) {
+UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit2;
 
     Hash_MapHash.Remove(unit);
@@ -1014,7 +1014,7 @@ UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int grid_x, int grid_y) {
     return unit2;
 }
 
-UnitInfo* Access_GetFirstMiningStation(unsigned short team) {
+UnitInfo* Access_GetFirstMiningStation(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team && (*it).unit_type == MININGST) {
@@ -1025,7 +1025,7 @@ UnitInfo* Access_GetFirstMiningStation(unsigned short team) {
     return nullptr;
 }
 
-UnitInfo* Access_GetFirstActiveUnit(unsigned short team, SmartList<UnitInfo>& units) {
+UnitInfo* Access_GetFirstActiveUnit(uint16_t team, SmartList<UnitInfo>& units) {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).team == team && (*it).orders != ORDER_IDLE) {
             return &*it;
@@ -1035,7 +1035,7 @@ UnitInfo* Access_GetFirstActiveUnit(unsigned short team, SmartList<UnitInfo>& un
     return nullptr;
 }
 
-void Access_RenewAttackOrders(SmartList<UnitInfo>& units, unsigned short team) {
+void Access_RenewAttackOrders(SmartList<UnitInfo>& units, uint16_t team) {
     UnitInfo* unit;
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
@@ -1059,7 +1059,7 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, unsigned short team) {
 }
 
 bool Access_UpdateGroupSpeed(UnitInfo* unit) {
-    int max_speed = INT32_MAX;
+    int32_t max_speed = INT32_MAX;
     SmartList<UnitInfo>* units;
 
     units = unit->GetUnitList();
@@ -1152,9 +1152,9 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
     }
 }
 
-int Access_GetStoredUnitCount(UnitInfo* unit) {
+int32_t Access_GetStoredUnitCount(UnitInfo* unit) {
     SmartList<UnitInfo>* units = nullptr;
-    int result = 0;
+    int32_t result = 0;
 
     if (unit->unit_type == HANGAR) {
         units = &UnitsManager_MobileAirUnits;
@@ -1172,9 +1172,9 @@ int Access_GetStoredUnitCount(UnitInfo* unit) {
     return result;
 }
 
-int Access_GetRepairShopClientCount(unsigned short team, ResourceID unit_type) {
-    int result = 0;
-    unsigned int flags;
+int32_t Access_GetRepairShopClientCount(uint16_t team, ResourceID unit_type) {
+    int32_t result = 0;
+    uint32_t flags;
     SmartList<UnitInfo>* units;
 
     switch (unit_type) {
@@ -1205,7 +1205,7 @@ int Access_GetRepairShopClientCount(unsigned short team, ResourceID unit_type) {
     }
 
     for (auto it = units->Begin(); it != units->End(); ++it) {
-        const unsigned int unit_flags =
+        const uint32_t unit_flags =
             (*it).flags & (MOBILE_AIR_UNIT | MOBILE_LAND_UNIT | MOBILE_SEA_UNIT | ELECTRONIC_UNIT);
 
         if ((*it).team == team && (unit_flags == flags) && (*it).hits > 0) {
@@ -1240,8 +1240,8 @@ bool Access_IsWithinMovementRange(UnitInfo* unit) {
 
 bool Access_IsValidNextUnit(UnitInfo* unit) {
     SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
-    short grid_x = unit->grid_x;
-    short grid_y = unit->grid_y;
+    int16_t grid_x = unit->grid_x;
+    int16_t grid_y = unit->grid_y;
     bool result;
 
     if (unit->orders == ORDER_SENTRY || unit->orders == ORDER_IDLE || unit->orders == ORDER_DISABLE ||
@@ -1261,9 +1261,9 @@ bool Access_IsValidNextUnit(UnitInfo* unit) {
     return result;
 }
 
-UnitInfo* Access_SeekNextUnit(unsigned short team, UnitInfo* unit, bool seek_direction) {
-    int list_index;
-    int seek_index;
+UnitInfo* Access_SeekNextUnit(uint16_t team, UnitInfo* unit, bool seek_direction) {
+    int32_t list_index;
+    int32_t seek_index;
     SmartList<UnitInfo>::Iterator it;
     SmartList<UnitInfo>::Iterator it_end;
     UnitInfo* result;
@@ -1350,7 +1350,7 @@ bool Access_IsChildOfUnitInList(UnitInfo* unit, SmartList<UnitInfo>* list, Smart
     return *it != list->End();
 }
 
-UnitInfo* Access_GetUnit5(int grid_x, int grid_y) {
+UnitInfo* Access_GetUnit5(int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit;
 
     unit = nullptr;
@@ -1371,7 +1371,7 @@ UnitInfo* Access_GetUnit5(int grid_x, int grid_y) {
     return unit;
 }
 
-UnitInfo* Access_GetUnit3(int grid_x, int grid_y, unsigned int flags) {
+UnitInfo* Access_GetUnit3(int32_t grid_x, int32_t grid_y, uint32_t flags) {
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         SmartPointer<UnitInfo> unit;
         SmartList<UnitInfo>::Iterator it, end;
@@ -1409,7 +1409,7 @@ UnitInfo* Access_GetUnit3(int grid_x, int grid_y, unsigned int flags) {
     return nullptr;
 }
 
-UnitInfo* Access_GetUnit1(int grid_x, int grid_y) {
+UnitInfo* Access_GetUnit1(int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit;
 
     unit = nullptr;
@@ -1430,7 +1430,7 @@ UnitInfo* Access_GetUnit1(int grid_x, int grid_y) {
     return unit;
 }
 
-UnitInfo* Access_GetUnit2(int grid_x, int grid_y, unsigned short team) {
+UnitInfo* Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team) {
     UnitInfo* unit;
 
     unit = nullptr;
@@ -1456,7 +1456,7 @@ UnitInfo* Access_GetUnit2(int grid_x, int grid_y, unsigned short team) {
     return unit;
 }
 
-void Access_DestroyUtilities(int grid_x, int grid_y, bool remove_slabs, bool remove_rubble, bool remove_connectors,
+void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, bool remove_rubble, bool remove_connectors,
                              bool remove_road) {
     const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
@@ -1501,7 +1501,7 @@ void Access_DestroyUtilities(int grid_x, int grid_y, bool remove_slabs, bool rem
     }
 }
 
-void Access_DestroyGroundCovers(int grid_x, int grid_y) {
+void Access_DestroyGroundCovers(int32_t grid_x, int32_t grid_y) {
     const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
     if (units) {
@@ -1518,7 +1518,7 @@ void Access_DestroyGroundCovers(int grid_x, int grid_y) {
     }
 }
 
-UnitInfo* Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned int flags) {
+UnitInfo* Access_GetUnit6(uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags) {
     UnitInfo* unit;
 
     unit = nullptr;
@@ -1545,7 +1545,7 @@ UnitInfo* Access_GetUnit6(unsigned short team, int grid_x, int grid_y, unsigned 
     return unit;
 }
 
-UnitInfo* Access_GetUnit7(unsigned short team, int grid_x, int grid_y) {
+UnitInfo* Access_GetUnit7(uint16_t team, int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit = nullptr;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
@@ -1564,7 +1564,7 @@ UnitInfo* Access_GetUnit7(unsigned short team, int grid_x, int grid_y) {
     return unit;
 }
 
-UnitInfo* Access_GetUnit4(int grid_x, int grid_y, unsigned short team, unsigned int flags) {
+UnitInfo* Access_GetUnit4(int32_t grid_x, int32_t grid_y, uint16_t team, uint32_t flags) {
     SmartPointer<UnitInfo> unit;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
@@ -1599,8 +1599,8 @@ UnitInfo* Access_GetUnit4(int grid_x, int grid_y, unsigned short team, unsigned 
     return unit.Get();
 }
 
-unsigned int Access_GetValidAttackTargetTypes(ResourceID unit_type) {
-    unsigned int target_types;
+uint32_t Access_GetValidAttackTargetTypes(ResourceID unit_type) {
+    uint32_t target_types;
 
     switch (unit_type) {
         case SCOUT:
@@ -1648,7 +1648,7 @@ unsigned int Access_GetValidAttackTargetTypes(ResourceID unit_type) {
     return target_types;
 }
 
-bool Access_IsValidAttackTargetTypeEx(ResourceID attacker, ResourceID target, unsigned int target_flags) {
+bool Access_IsValidAttackTargetTypeEx(ResourceID attacker, ResourceID target, uint32_t target_flags) {
     switch (target) {
         case BRIDGE:
         case WTRPLTFM:
@@ -1680,8 +1680,8 @@ bool Access_IsValidAttackTargetTypeEx(ResourceID attacker, ResourceID target, un
     return (target_flags & Access_GetValidAttackTargetTypes(attacker)) != 0;
 }
 
-bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, unsigned int target_flags, Point point) {
-    unsigned char surface_type;
+bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, uint32_t target_flags, Point point) {
+    uint8_t surface_type;
     bool result;
 
     surface_type = Access_GetSurfaceType(point.x, point.y);
@@ -1726,7 +1726,7 @@ bool Access_IsUnitBusyAtLocation(UnitInfo* unit) {
 }
 
 bool Access_IsValidAttackTarget(UnitInfo* attacker, UnitInfo* target, Point point) {
-    unsigned int target_flags;
+    uint32_t target_flags;
     ResourceID target_type;
     bool result;
 
@@ -1756,7 +1756,7 @@ bool Access_IsValidAttackTarget(UnitInfo* attacker, UnitInfo* target) {
     return Access_IsValidAttackTarget(attacker, target, Point(target->grid_x, target->grid_y));
 }
 
-UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int grid_x, int grid_y, bool mode) {
+UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int32_t grid_x, int32_t grid_y, bool mode) {
     UnitInfo* result;
     bool normal_unit;
 
@@ -1801,7 +1801,7 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int grid_x, int grid_y, bool mo
     return result;
 }
 
-UnitInfo* Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_y) {
+UnitInfo* Access_GetEnemyMineOnSentry(uint16_t team, int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit;
 
     unit = nullptr;
@@ -1823,7 +1823,7 @@ UnitInfo* Access_GetEnemyMineOnSentry(unsigned short team, int grid_x, int grid_
     return unit;
 }
 
-UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int grid_x, int grid_y) {
+UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     UnitInfo* result;
 
     result = nullptr;
@@ -1845,10 +1845,10 @@ UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int grid_x, int grid_y) {
     return result;
 }
 
-UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int grid_x, int grid_y) {
+UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     UnitInfo* result;
-    unsigned short team;
-    unsigned int flags;
+    uint16_t team;
+    uint32_t flags;
 
     result = nullptr;
 
@@ -1896,7 +1896,7 @@ UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int grid_x, int grid_y) {
     return result;
 }
 
-UnitInfo* Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y) {
+UnitInfo* Access_GetTeamBuilding(uint16_t team, int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit{nullptr};
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
@@ -1920,7 +1920,7 @@ UnitInfo* Access_GetTeamBuilding(unsigned short team, int grid_x, int grid_y) {
 void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
     Rect selection;
     UnitInfo* parent = nullptr;
-    int unit_count;
+    int32_t unit_count;
     bool limit_reached;
 
     selection.ulx = (bounds->ulx + 16) / 64;
@@ -1948,8 +1948,8 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
 
     limit_reached = false;
 
-    for (int y = selection.uly; y <= selection.lry && !limit_reached; ++y) {
-        for (int x = selection.ulx; x <= selection.lrx && !limit_reached; ++x) {
+    for (int32_t y = selection.uly; y <= selection.lry && !limit_reached; ++y) {
+        for (int32_t x = selection.ulx; x <= selection.lrx && !limit_reached; ++x) {
             UnitInfo* unit2 =
                 Access_GetUnit4(x, y, GameManager_PlayerTeam, MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
 
@@ -2009,7 +2009,7 @@ void Access_ProcessGroupAirPath(UnitInfo* unit) {
 }
 
 bool Access_AreTaskEventsPending() {
-    for (int i = std::size(Access_UnitsLists) - 1; i >= 0; --i) {
+    for (int32_t i = std::size(Access_UnitsLists) - 1; i >= 0; --i) {
         for (SmartList<UnitInfo>::Iterator it = Access_UnitsLists[i]->Begin(); it != Access_UnitsLists[i]->End();
              ++it) {
             if ((*it).orders == ORDER_FIRE || (*it).orders == ORDER_EXPLODE || (*it).orders == ORDER_ACTIVATE ||
@@ -2046,7 +2046,7 @@ bool Access_AreTaskEventsPending() {
         }
     }
 
-    for (int i = 0; i < std::size(UnitsManager_DelayedAttackTargets); ++i) {
+    for (int32_t i = 0; i < std::size(UnitsManager_DelayedAttackTargets); ++i) {
         if (UnitsManager_DelayedAttackTargets[i].GetCount()) {
             return true;
         }

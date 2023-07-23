@@ -22,6 +22,7 @@
 #ifndef LOCALIZATION_HPP
 #define LOCALIZATION_HPP
 
+#include <cstdint>
 #include <map>
 #include <string>
 
@@ -30,7 +31,7 @@ private:
     std::map<std::string, std::string> strings;
 
     std::string GetLanguage() const;
-    int Load();
+    int32_t Load();
 
 public:
     Localization();

@@ -440,7 +440,7 @@ static const std::vector<SoundElement> UnitInfo_SfxAlienAttackPlane = {{{SFX_TYP
                                                                         {SFX_TYPE_LAND, ALNPL19},
                                                                         {SFX_TYPE_TAKE, ALNPL20}}};
 
-const unsigned char UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESEARCH_TOPIC_SHOTS, RESEARCH_TOPIC_RANGE,
+const uint8_t UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESEARCH_TOPIC_SHOTS, RESEARCH_TOPIC_RANGE,
                                                      RESEARCH_TOPIC_ARMOR, RESEARCH_TOPIC_HITS};
 
 static void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, SmartFileReader& file);
@@ -451,7 +451,7 @@ void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, Smart
 
     build_list->Clear();
 
-    for (int count = file.ReadObjectCount(); count > 0; --count) {
+    for (int32_t count = file.ReadObjectCount(); count > 0; --count) {
         file.Read(unit_type);
         build_list->PushBack(&unit_type);
     }
@@ -459,13 +459,13 @@ void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, Smart
 
 void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, SmartFileWriter& file) {
     ResourceID unit_type;
-    int count;
+    int32_t count;
 
     count = build_list->GetCount();
 
     file.WriteObjectCount(count);
 
-    for (int i = 0; i < count; ++i) {
+    for (int32_t i = 0; i < count; ++i) {
         unit_type = *((*build_list)[i]);
 
         file.Write(unit_type);
@@ -490,7 +490,7 @@ UnitInfo::UnitInfo()
     rect_init(&shadow_bounds, 0, 0, 0, 0);
 }
 
-UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id, unsigned char angle)
+UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle)
     : orders(ORDER_AWAIT),
       state(ORDER_STATE_1),
       prior_orders(ORDER_AWAIT),
@@ -561,7 +561,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, unsigned short team, unsigned short id,
     connector_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->connector_image_base;
 
     if (unit_type == MININGST) {
-        image_base = (UnitsManager_TeamInfo[team].team_clan - 1) * sizeof(unsigned short);
+        image_base = (UnitsManager_TeamInfo[team].team_clan - 1) * sizeof(uint16_t);
     }
 
     image_index = image_base + angle;
@@ -700,14 +700,14 @@ UnitInfo::~UnitInfo() { delete[] name; }
 
 FileObject* UnitInfo::Allocate() { return new (std::nothrow) UnitInfo(); }
 
-static unsigned short UnitInfo_TypeIndex;
+static uint16_t UnitInfo_TypeIndex;
 static MAXRegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &UnitInfo::Allocate);
 
-unsigned short UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
+uint16_t UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
 
 void UnitInfo::Init() {
     BaseUnit* base_unit;
-    unsigned int data_size;
+    uint32_t data_size;
 
     base_unit = &UnitsManager_BaseUnits[unit_type];
 
@@ -1142,7 +1142,7 @@ void UnitInfo::Init() {
     }
 }
 
-bool UnitInfo::IsVisibleToTeam(unsigned short team) const { return visible_to_team[team]; }
+bool UnitInfo::IsVisibleToTeam(uint16_t team) const { return visible_to_team[team]; }
 
 void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
 
@@ -1150,7 +1150,7 @@ UnitInfo* UnitInfo::GetEnemy() const { return &*enemy_unit; }
 
 UnitInfo* UnitInfo::GetParent() const { return &*parent_unit; }
 
-unsigned short UnitInfo::GetId() const { return id; }
+uint16_t UnitInfo::GetId() const { return id; }
 
 UnitInfo* UnitInfo::GetFirstFromUnitList() const {
     UnitInfo* result;
@@ -1166,11 +1166,11 @@ UnitInfo* UnitInfo::GetFirstFromUnitList() const {
 
 SmartList<UnitInfo>* UnitInfo::GetUnitList() const { return unit_list; }
 
-unsigned int UnitInfo::GetField221() const { return field_221; }
+uint32_t UnitInfo::GetField221() const { return field_221; }
 
-void UnitInfo::SetField221(unsigned int value) { field_221 = value; }
+void UnitInfo::SetField221(uint32_t value) { field_221 = value; }
 
-void UnitInfo::ChangeField221(unsigned int flags, bool mode) {
+void UnitInfo::ChangeField221(uint32_t flags, bool mode) {
     if (mode) {
         field_221 |= flags;
 
@@ -1179,7 +1179,7 @@ void UnitInfo::ChangeField221(unsigned int flags, bool mode) {
     }
 }
 
-unsigned short UnitInfo::GetImageIndex() const { return image_index; }
+uint16_t UnitInfo::GetImageIndex() const { return image_index; }
 
 void UnitInfo::AddTask(Task* task) {
     SmartPointer<Task> old_task(GetTask());
@@ -1226,7 +1226,7 @@ void UnitInfo::SetBaseValues(UnitValues* unit_values) { base_values = unit_value
 
 UnitValues* UnitInfo::GetBaseValues() const { return &*base_values; }
 
-bool UnitInfo::IsDetectedByTeam(unsigned short team) const { return (spotted_by_team[team] || visible_to_team[team]); }
+bool UnitInfo::IsDetectedByTeam(uint16_t team) const { return (spotted_by_team[team] || visible_to_team[team]); }
 
 Complex* UnitInfo::GetComplex() const { return &*complex; }
 
@@ -1237,7 +1237,7 @@ SmartPointer<UnitInfo> UnitInfo::MakeCopy() {
     return copy;
 }
 
-void UnitInfo::OffsetDrawZones(int offset_x, int offset_y) {
+void UnitInfo::OffsetDrawZones(int32_t offset_x, int32_t offset_y) {
     x += offset_x;
     sprite_bounds.ulx += offset_x;
     sprite_bounds.lrx += offset_x;
@@ -1258,7 +1258,7 @@ void UnitInfo::UpdateUnitDrawZones() {
 
     if (base_unit->sprite) {
         Point position;
-        int unit_size;
+        int32_t unit_size;
 
         position.x = x;
         position.y = y;
@@ -1327,7 +1327,7 @@ void UnitInfo::GetDisplayName(char* text) const {
     strcat(text, unit_name);
 }
 
-void UnitInfo::CalcRomanDigit(char* text, int value, const char* digit1, const char* digit2, const char* digit3) {
+void UnitInfo::CalcRomanDigit(char* text, int32_t value, const char* digit1, const char* digit2, const char* digit3) {
     if (value == 9) {
         strcat(text, digit1);
         strcat(text, digit3);
@@ -1343,33 +1343,33 @@ void UnitInfo::CalcRomanDigit(char* text, int value, const char* digit1, const c
             value -= 4;
         }
 
-        for (int i = 0; i < value; ++i) {
+        for (int32_t i = 0; i < value; ++i) {
             strcat(text, digit1);
         }
     }
 }
 
-Complex* UnitInfo::CreateComplex(unsigned short team) {
+Complex* UnitInfo::CreateComplex(uint16_t team) {
     return UnitsManager_TeamInfo[team].team_units->CreateComplex();
 }
 
-struct ImageMultiFrameHeader* UnitInfo::GetSpriteFrame(struct ImageMultiHeader* sprite, unsigned short image_index) {
+struct ImageMultiFrameHeader* UnitInfo::GetSpriteFrame(struct ImageMultiHeader* sprite, uint16_t image_index) {
     uintptr_t offset;
 
     SDL_assert(sprite);
     SDL_assert(image_index >= 0 && image_index < sprite->image_count);
 
     offset =
-        reinterpret_cast<int*>(&(reinterpret_cast<unsigned char*>(sprite)[sizeof(sprite->image_count)]))[image_index];
+        reinterpret_cast<int32_t*>(&(reinterpret_cast<uint8_t*>(sprite)[sizeof(sprite->image_count)]))[image_index];
 
-    return reinterpret_cast<ImageMultiFrameHeader*>(&(reinterpret_cast<unsigned char*>(sprite)[offset]));
+    return reinterpret_cast<ImageMultiFrameHeader*>(&(reinterpret_cast<uint8_t*>(sprite)[offset]));
 }
 
-void UnitInfo::UpdateSpriteFrameBounds(Rect* bounds, int x, int y, struct ImageMultiHeader* sprite,
-                                       unsigned short image_index) {
+void UnitInfo::UpdateSpriteFrameBounds(Rect* bounds, int32_t x, int32_t y, struct ImageMultiHeader* sprite,
+                                       uint16_t image_index) {
     if (sprite) {
         struct ImageMultiFrameHeader* frame;
-        int scaling_factor;
+        int32_t scaling_factor;
         Rect frame_bounds;
 
         frame = GetSpriteFrame(sprite, image_index);
@@ -1394,13 +1394,13 @@ void UnitInfo::UpdateSpriteFrameBounds(Rect* bounds, int x, int y, struct ImageM
     }
 }
 
-void UnitInfo::UpdateSpriteFrame(unsigned short image_base, unsigned short image_index_max) {
+void UnitInfo::UpdateSpriteFrame(uint16_t image_base, uint16_t image_index_max) {
     this->image_base = image_base;
     this->image_index_max = image_index_max;
     DrawSpriteFrame(image_base + angle);
 }
 
-void UnitInfo::DrawSpriteFrame(unsigned short image_index) {
+void UnitInfo::DrawSpriteFrame(uint16_t image_index) {
     if (this->image_index != image_index) {
         bool is_visible;
 
@@ -1419,7 +1419,7 @@ void UnitInfo::DrawSpriteFrame(unsigned short image_index) {
     }
 }
 
-void UnitInfo::DrawSpriteTurretFrame(unsigned short turret_image_index) {
+void UnitInfo::DrawSpriteTurretFrame(uint16_t turret_image_index) {
     if (this->turret_image_index != turret_image_index) {
         bool is_visible;
 
@@ -1438,7 +1438,7 @@ void UnitInfo::DrawSpriteTurretFrame(unsigned short turret_image_index) {
     }
 }
 
-void UnitInfo::GetVersion(char* text, int version) {
+void UnitInfo::GetVersion(char* text, int32_t version) {
     text[0] = '\0';
 
     CalcRomanDigit(text, version / 100, "C", "D", "M");
@@ -1461,8 +1461,8 @@ void UnitInfo::SetName(char* text) {
     }
 }
 
-int UnitInfo::GetRaw() {
-    int result;
+int32_t UnitInfo::GetRaw() {
+    int32_t result;
 
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
         if (complex != nullptr) {
@@ -1484,8 +1484,8 @@ int UnitInfo::GetRaw() {
     return result;
 }
 
-int UnitInfo::GetRawFreeCapacity() {
-    int result;
+int32_t UnitInfo::GetRawFreeCapacity() {
+    int32_t result;
 
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
         if (complex != nullptr) {
@@ -1507,12 +1507,12 @@ int UnitInfo::GetRawFreeCapacity() {
     return result;
 }
 
-void UnitInfo::TransferRaw(int amount) {
+void UnitInfo::TransferRaw(int32_t amount) {
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
         storage += amount;
 
         if (complex != nullptr) {
-            int storage_capacity;
+            int32_t storage_capacity;
 
             storage_capacity = GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
@@ -1529,8 +1529,8 @@ void UnitInfo::TransferRaw(int amount) {
     }
 }
 
-int UnitInfo::GetFuel() {
-    int result;
+int32_t UnitInfo::GetFuel() {
+    int32_t result;
 
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
         if (complex != nullptr) {
@@ -1552,8 +1552,8 @@ int UnitInfo::GetFuel() {
     return result;
 }
 
-int UnitInfo::GetFuelFreeCapacity() {
-    int result;
+int32_t UnitInfo::GetFuelFreeCapacity() {
+    int32_t result;
 
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
         if (complex != nullptr) {
@@ -1575,12 +1575,12 @@ int UnitInfo::GetFuelFreeCapacity() {
     return result;
 }
 
-void UnitInfo::TransferFuel(int amount) {
+void UnitInfo::TransferFuel(int32_t amount) {
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
         storage += amount;
 
         if (complex != nullptr) {
-            int storage_capacity;
+            int32_t storage_capacity;
 
             storage_capacity = GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
@@ -1597,8 +1597,8 @@ void UnitInfo::TransferFuel(int amount) {
     }
 }
 
-int UnitInfo::GetGold() {
-    int result;
+int32_t UnitInfo::GetGold() {
+    int32_t result;
 
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
         if (complex != nullptr) {
@@ -1620,8 +1620,8 @@ int UnitInfo::GetGold() {
     return result;
 }
 
-int UnitInfo::GetGoldFreeCapacity() {
-    int result;
+int32_t UnitInfo::GetGoldFreeCapacity() {
+    int32_t result;
 
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
         if (complex != nullptr) {
@@ -1643,12 +1643,12 @@ int UnitInfo::GetGoldFreeCapacity() {
     return result;
 }
 
-void UnitInfo::TransferGold(int amount) {
+void UnitInfo::TransferGold(int32_t amount) {
     if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
         storage += amount;
 
         if (complex != nullptr) {
-            int storage_capacity;
+            int32_t storage_capacity;
 
             storage_capacity = GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
@@ -1665,9 +1665,9 @@ void UnitInfo::TransferGold(int amount) {
     }
 }
 
-int UnitInfo::GetTurnsToRepair() {
-    int hits_damage;
-    int base_hits;
+int32_t UnitInfo::GetTurnsToRepair() {
+    int32_t hits_damage;
+    int32_t base_hits;
 
     base_hits = base_values->GetAttribute(ATTRIB_HITS);
     hits_damage = base_hits - hits;
@@ -1680,8 +1680,8 @@ void UnitInfo::RefreshScreen() {
     GameManager_AddDrawBounds(&sprite_bounds);
 }
 
-void UnitInfo::UpdateAngle(unsigned short image_index) {
-    int image_diff;
+void UnitInfo::UpdateAngle(uint16_t image_index) {
+    int32_t image_diff;
 
     image_diff = image_index - angle;
 
@@ -1710,8 +1710,8 @@ void UnitInfo::UpdateAngle(unsigned short image_index) {
     }
 }
 
-int UnitInfo::GetDrawLayer(ResourceID unit_type) {
-    int result;
+int32_t UnitInfo::GetDrawLayer(ResourceID unit_type) {
+    int32_t result;
 
     switch (unit_type) {
         case TORPEDO:
@@ -1749,8 +1749,8 @@ int UnitInfo::GetDrawLayer(ResourceID unit_type) {
     return result;
 }
 
-void UnitInfo::AddToDrawList(unsigned int override_flags) {
-    unsigned int unit_flags;
+void UnitInfo::AddToDrawList(uint32_t override_flags) {
+    uint32_t unit_flags;
 
     if (override_flags) {
         unit_flags = override_flags;
@@ -1763,7 +1763,7 @@ void UnitInfo::AddToDrawList(unsigned int override_flags) {
 
     } else if (unit_flags & STATIONARY) {
         if (unit_flags & GROUND_COVER) {
-            int layer_index;
+            int32_t layer_index;
             SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
 
             layer_index = GetDrawLayer(unit_type);
@@ -1777,7 +1777,7 @@ void UnitInfo::AddToDrawList(unsigned int override_flags) {
             UnitsManager_GroundCoverUnits.InsertAfter(it, *this);
 
         } else {
-            int reference_y;
+            int32_t reference_y;
             SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
 
             reference_y = y;
@@ -1820,7 +1820,7 @@ void UnitInfo::AddToDrawList(unsigned int override_flags) {
     }
 }
 
-void UnitInfo::SetPosition(int grid_x, int grid_y, bool skip_map_status_update) {
+void UnitInfo::SetPosition(int32_t grid_x, int32_t grid_y, bool skip_map_status_update) {
     x = grid_x * 64 + 32;
     y = grid_y * 64 + 32;
 
@@ -1844,7 +1844,7 @@ void UnitInfo::SetPosition(int grid_x, int grid_y, bool skip_map_status_update) 
     AddToDrawList();
 }
 
-void UnitInfo::UpdatePinCount(int grid_x, int grid_y, int pin_units) {
+void UnitInfo::UpdatePinCount(int32_t grid_x, int32_t grid_y, int32_t pin_units) {
     if (base_values->GetAttribute(ATTRIB_ATTACK_RADIUS)) {
         UpdatePinsFromLists(grid_x, grid_y, &UnitsManager_GroundCoverUnits, pin_units);
         UpdatePinsFromLists(grid_x, grid_y, &UnitsManager_StationaryUnits, pin_units);
@@ -1869,7 +1869,7 @@ void UnitInfo::RemoveTasks() {
     }
 }
 
-void UnitInfo::MoveInTransitUnitInMapHash(int grid_x, int grid_y) {
+void UnitInfo::MoveInTransitUnitInMapHash(int32_t grid_x, int32_t grid_y) {
     RemoveInTransitUnitFromMapHash();
 
     in_transit = true;
@@ -1878,8 +1878,8 @@ void UnitInfo::MoveInTransitUnitInMapHash(int grid_x, int grid_y) {
     last_target.y = grid_y;
 
     {
-        int backup_grid_x;
-        int backup_grid_y;
+        int32_t backup_grid_x;
+        int32_t backup_grid_y;
 
         backup_grid_x = this->grid_x;
         backup_grid_y = this->grid_y;
@@ -1896,8 +1896,8 @@ void UnitInfo::MoveInTransitUnitInMapHash(int grid_x, int grid_y) {
 
 void UnitInfo::RemoveInTransitUnitFromMapHash() {
     if (in_transit) {
-        int backup_grid_x;
-        int backup_grid_y;
+        int32_t backup_grid_x;
+        int32_t backup_grid_y;
 
         backup_grid_x = this->grid_x;
         backup_grid_y = this->grid_y;
@@ -1971,8 +1971,8 @@ void UnitInfo::Redraw() {
         RefreshScreen();
     }
 
-    int offset_x = (grid_x * 64 + 32) - x;
-    int offset_y = (grid_y * 64 + 32) - y;
+    int32_t offset_x = (grid_x * 64 + 32) - x;
+    int32_t offset_y = (grid_y * 64 + 32) - y;
 
     OffsetDrawZones(offset_x, offset_y);
 
@@ -1992,13 +1992,13 @@ void UnitInfo::Redraw() {
     }
 }
 
-void UnitInfo::GainExperience(int experience) {
+void UnitInfo::GainExperience(int32_t experience) {
     if (flags & REGENERATING_UNIT) {
         storage += experience;
 
         if (storage >= 15) {
-            int upgrade_topic;
-            int upgrade_cost;
+            int32_t upgrade_topic;
+            int32_t upgrade_cost;
             bool is_upgraded;
 
             SmartPointer<UnitValues> unit_values =
@@ -2058,8 +2058,8 @@ void UnitInfo::RemoveDelayedTasks() {
     delayed_tasks.Clear();
 }
 
-void UnitInfo::AttackUnit(UnitInfo* enemy, int attack_potential, int direction) {
-    int attack_damage = UnitsManager_GetAttackDamage(enemy, this, attack_potential);
+void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t direction) {
+    int32_t attack_damage = UnitsManager_GetAttackDamage(enemy, this, attack_potential);
 
     if (hits > 0) {
         damaged_this_turn = true;
@@ -2265,7 +2265,7 @@ void UnitInfo::Move() {
             }
         }
 
-        int unit_velocity = velocity;
+        int32_t unit_velocity = velocity;
 
         if (unit_velocity + moved >= 64 - (unit_velocity / 2)) {
             unit_velocity = 64 - moved;
@@ -2286,14 +2286,14 @@ void UnitInfo::Move() {
 
         moved += unit_velocity;
 
-        int step_x = Paths_8DirPointsArrayX[angle];
-        int step_y = Paths_8DirPointsArrayY[angle];
+        int32_t step_x = Paths_8DirPointsArrayX[angle];
+        int32_t step_y = Paths_8DirPointsArrayY[angle];
 
-        int distance_x = step_x * unit_velocity;
-        int distance_y = step_y * unit_velocity;
+        int32_t distance_x = step_x * unit_velocity;
+        int32_t distance_y = step_y * unit_velocity;
 
-        int offset_x = ((x + distance_x - step_x) / 64) - grid_x;
-        int offset_y = ((y + distance_y - step_y) / 64) - grid_y;
+        int32_t offset_x = ((x + distance_x - step_x) / 64) - grid_x;
+        int32_t offset_y = ((y + distance_y - step_y) / 64) - grid_y;
 
         if (offset_x || offset_y) {
             unit = MakeCopy();
@@ -2313,7 +2313,7 @@ void UnitInfo::Move() {
             if (path) {
                 GroundPath* ground_path = dynamic_cast<GroundPath*>(&*path);
                 SmartObjectArray<PathStep> path_steps = ground_path->GetSteps();
-                int path_step_index = ground_path->GetPathStepIndex();
+                int32_t path_step_index = ground_path->GetPathStepIndex();
 
                 path_steps[path_step_index]->x -= offset_x;
                 path_steps[path_step_index]->y -= offset_y;
@@ -2436,8 +2436,8 @@ void UnitInfo::MoveToFrontInUnitList() {
     unit_list->PushFront(*this);
 }
 
-UnitInfo* UnitInfo::GetConnectedBuilding(unsigned int connector) {
-    int grid_size;
+UnitInfo* UnitInfo::GetConnectedBuilding(uint32_t connector) {
+    int32_t grid_size;
     UnitInfo* result{nullptr};
 
     if (flags & BUILDING) {
@@ -2831,7 +2831,7 @@ void UnitInfo::FileLoad(SmartFileReader& file) {
 
     delete[] name;
 
-    unsigned short name_length;
+    uint16_t name_length;
 
     file.Read(name_length);
 
@@ -2948,13 +2948,13 @@ void UnitInfo::FileSave(SmartFileWriter& file) {
     file.Write(grid_y);
 
     if (name) {
-        unsigned short name_length = strlen(name);
+        uint16_t name_length = strlen(name);
 
         file.Write(name_length);
         file.Write(name, name_length);
 
     } else {
-        unsigned short name_length = 0;
+        uint16_t name_length = 0;
 
         file.Write(name_length);
     }
@@ -3046,13 +3046,13 @@ void UnitInfo::WritePacket(NetPacket& packet) {
 
     packet << build_list.GetCount();
 
-    for (int i = 0; i < build_list.GetCount(); ++i) {
+    for (int32_t i = 0; i < build_list.GetCount(); ++i) {
         packet << *build_list[i];
     }
 }
 
 void UnitInfo::ReadPacket(NetPacket& packet) {
-    unsigned short unit_count;
+    uint16_t unit_count;
     ResourceID list_item;
 
     packet >> team;
@@ -3067,7 +3067,7 @@ void UnitInfo::ReadPacket(NetPacket& packet) {
 
     packet >> unit_count;
 
-    for (int i = 0; i < unit_count; ++i) {
+    for (int32_t i = 0; i < unit_count; ++i) {
         packet >> list_item;
 
         build_list.PushBack(&list_item);
@@ -3076,7 +3076,7 @@ void UnitInfo::ReadPacket(NetPacket& packet) {
     StartBuilding();
 }
 
-void UnitInfo::UpdateTurretAngle(int turret_angle_, bool redraw) {
+void UnitInfo::UpdateTurretAngle(int32_t turret_angle_, bool redraw) {
     BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
 
     turret_angle = turret_angle_;
@@ -3091,7 +3091,7 @@ void UnitInfo::UpdateTurretAngle(int turret_angle_, bool redraw) {
     }
 }
 
-void UnitInfo::Attack(int grid_x, int grid_y) {
+void UnitInfo::Attack(int32_t grid_x, int32_t grid_y) {
     SmartPointer<UnitInfo> target(Access_GetAttackTarget(this, grid_x, grid_y));
     UnitInfo* enemy = nullptr;
 
@@ -3118,7 +3118,7 @@ void UnitInfo::Attack(int grid_x, int grid_y) {
         }
     }
 
-    int target_angle;
+    int32_t target_angle;
 
     if (flags & MISSILE_UNIT) {
         target_angle = angle / 2;
@@ -3188,7 +3188,7 @@ void UnitInfo::StartBuilding() {
 }
 
 void UnitInfo::InitStealthStatus() {
-    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
+    for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
         if (unit_type == LANDMINE || unit_type == SEAMINE || unit_type == COMMANDO || unit_type == SUBMARNE) {
             visible_to_team[i] = 0;
         } else {
@@ -3201,7 +3201,7 @@ void UnitInfo::InitStealthStatus() {
     visible_to_team[team] = 1;
 }
 
-void UnitInfo::SpotByTeam(unsigned short team) {
+void UnitInfo::SpotByTeam(uint16_t team) {
     if (this->team != team && orders != ORDER_IDLE && !visible_to_team[team]) {
         visible_to_team[team] = true;
         spotted_by_team[team] = true;
@@ -3233,7 +3233,7 @@ void UnitInfo::SpotByTeam(unsigned short team) {
     }
 }
 
-void UnitInfo::Draw(unsigned short team) {
+void UnitInfo::Draw(uint16_t team) {
     if (this->team != team &&
         (visible_to_team[team] ||
          ((unit_type == COMMANDO || unit_type == SUBMARNE || unit_type == CLNTRANS) && image_base >= 8))) {
@@ -3263,7 +3263,7 @@ void UnitInfo::Draw(unsigned short team) {
     }
 }
 
-void UnitInfo::DrawStealth(unsigned short team) {
+void UnitInfo::DrawStealth(uint16_t team) {
     if (spotted_by_team[team] || (!UnitsManager_IsUnitUnderWater(this) && unit_type != COMMANDO &&
                                   unit_type != LANDMINE && unit_type != SEAMINE)) {
         SpotByTeam(team);
@@ -3293,15 +3293,15 @@ void UnitInfo::Resupply() {
     Regenerate();
 }
 
-int UnitInfo::GetRawConsumptionRate() { return Cargo_GetRawConsumptionRate(unit_type, GetMaxAllowedBuildRate()); }
+int32_t UnitInfo::GetRawConsumptionRate() { return Cargo_GetRawConsumptionRate(unit_type, GetMaxAllowedBuildRate()); }
 
 void UnitInfo::UpdateProduction() {
     energized = false;
 
     if (orders == ORDER_BUILD && state != ORDER_STATE_UNIT_READY && (flags & MOBILE_LAND_UNIT)) {
-        int maximum_build_rate = BuildMenu_GetMaxPossibleBuildRate(unit_type, build_time, storage);
+        int32_t maximum_build_rate = BuildMenu_GetMaxPossibleBuildRate(unit_type, build_time, storage);
 
-        build_rate = std::min(static_cast<int>(build_rate), maximum_build_rate);
+        build_rate = std::min(static_cast<int32_t>(build_rate), maximum_build_rate);
 
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER ||
             ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_MASTER ||
@@ -3313,7 +3313,7 @@ void UnitInfo::UpdateProduction() {
 
     if (unit_type == COMMTWR && orders == ORDER_POWER_ON) {
         TeamUnits* team_units = UnitsManager_TeamInfo[team].team_units;
-        int gold_reserves = team_units->GetGold();
+        int32_t gold_reserves = team_units->GetGold();
 
         team_units->SetGold(Cargo_GetGoldConsumptionRate(unit_type) + gold_reserves);
 
@@ -3350,7 +3350,7 @@ void UnitInfo::UpdateProduction() {
     speed = base_values->GetAttribute(ATTRIB_SPEED);
 
     if (speed > 0) {
-        for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
+        for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
             spotted_by_team[i] = false;
         }
     }
@@ -3388,17 +3388,17 @@ void UnitInfo::UpdateProduction() {
     if (complex) {
         switch (UnitsManager_BaseUnits[unit_type].cargo_type) {
             case CARGO_TYPE_RAW: {
-                storage = std::min(static_cast<int>(complex->material), base_values->GetAttribute(ATTRIB_STORAGE));
+                storage = std::min(static_cast<int32_t>(complex->material), base_values->GetAttribute(ATTRIB_STORAGE));
                 complex->material -= storage;
             } break;
 
             case CARGO_TYPE_FUEL: {
-                storage = std::min(static_cast<int>(complex->fuel), base_values->GetAttribute(ATTRIB_STORAGE));
+                storage = std::min(static_cast<int32_t>(complex->fuel), base_values->GetAttribute(ATTRIB_STORAGE));
                 complex->fuel -= storage;
             } break;
 
             case CARGO_TYPE_GOLD: {
-                storage = std::min(static_cast<int>(complex->gold), base_values->GetAttribute(ATTRIB_STORAGE));
+                storage = std::min(static_cast<int32_t>(complex->gold), base_values->GetAttribute(ATTRIB_STORAGE));
                 complex->gold -= storage;
             } break;
         }
@@ -3431,10 +3431,10 @@ bool UnitInfo::IsInGroupZone(UnitInfoGroup* group) {
     return result;
 }
 
-void UnitInfo::RenderShadow(Point point, int image_id, Rect* bounds) {
+void UnitInfo::RenderShadow(Point point, int32_t image_id, Rect* bounds) {
     if (UnitsManager_BaseUnits[unit_type].shadows) {
-        unsigned int scaling_factor;
-        unsigned int zoom_level;
+        uint32_t scaling_factor;
+        uint32_t zoom_level;
         struct ImageMultiFrameHeader* frame;
 
         scaling_factor = 1 << (scaler_adjust + 1);
@@ -3452,8 +3452,8 @@ void UnitInfo::RenderShadow(Point point, int image_id, Rect* bounds) {
                 scaling_factor /= 2;
             }
 
-            if (Gfx_DecodeSpriteSetup(point, reinterpret_cast<unsigned char*>(frame), scaling_factor, bounds)) {
-                Gfx_SpriteRowAddresses = reinterpret_cast<unsigned int*>(&frame->rows);
+            if (Gfx_DecodeSpriteSetup(point, reinterpret_cast<uint8_t*>(frame), scaling_factor, bounds)) {
+                Gfx_SpriteRowAddresses = reinterpret_cast<uint32_t*>(&frame->rows);
                 Gfx_ColorIndices = color_cycling_lut;
 
                 Gfx_DecodeShadow();
@@ -3464,10 +3464,10 @@ void UnitInfo::RenderShadow(Point point, int image_id, Rect* bounds) {
 
 void UnitInfo::RenderAirShadow(Rect* bounds) { RenderShadow(Point(x, y), image_index, bounds); }
 
-void UnitInfo::RenderSprite(Point point, int image_base, Rect* bounds) {
+void UnitInfo::RenderSprite(Point point, int32_t image_base, Rect* bounds) {
     if (UnitsManager_BaseUnits[unit_type].sprite) {
-        unsigned int scaling_factor;
-        unsigned int zoom_level;
+        uint32_t scaling_factor;
+        uint32_t zoom_level;
         struct ImageMultiFrameHeader* frame;
 
         scaling_factor = 1 << (scaler_adjust + 1);
@@ -3483,8 +3483,8 @@ void UnitInfo::RenderSprite(Point point, int image_base, Rect* bounds) {
                 scaling_factor /= 2;
             }
 
-            if (Gfx_DecodeSpriteSetup(point, reinterpret_cast<unsigned char*>(frame), scaling_factor, bounds)) {
-                Gfx_SpriteRowAddresses = reinterpret_cast<unsigned int*>(&frame->rows);
+            if (Gfx_DecodeSpriteSetup(point, reinterpret_cast<uint8_t*>(frame), scaling_factor, bounds)) {
+                Gfx_SpriteRowAddresses = reinterpret_cast<uint32_t*>(&frame->rows);
                 Gfx_ColorIndices = color_cycling_lut;
                 Gfx_UnitBrightnessBase = brightness;
 
@@ -3585,15 +3585,15 @@ void UnitInfo::RenderWithConnectors(Rect* bounds) {
     }
 }
 
-int UnitInfo::GetMaxAllowedBuildRate() {
-    int result;
+int32_t UnitInfo::GetMaxAllowedBuildRate() {
+    int32_t result;
 
     if (flags & MOBILE_LAND_UNIT) {
         result = build_rate;
 
     } else {
         result =
-            std::min(static_cast<int>(build_rate), BuildMenu_GetMaxPossibleBuildRate(unit_type, build_time, storage));
+            std::min(static_cast<int32_t>(build_rate), BuildMenu_GetMaxPossibleBuildRate(unit_type, build_time, storage));
     }
 
     return result;
@@ -3615,20 +3615,20 @@ void UnitInfo::StopMovement() {
     }
 }
 
-int UnitInfo::GetLayingState() const { return laying_state; }
+int32_t UnitInfo::GetLayingState() const { return laying_state; }
 
-void UnitInfo::SetLayingState(int state) { laying_state = state; }
+void UnitInfo::SetLayingState(int32_t state) { laying_state = state; }
 
 void UnitInfo::ClearPins() { pin_count = 0; }
 
-bool UnitInfo::AttemptSideStep(int grid_x, int grid_y, int angle) {
+bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
     bool result;
 
     if (orders == ORDER_AWAIT || orders == ORDER_SENTRY || orders == ORDER_MOVE) {
         if (speed > 0 || UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             if (this->grid_x != grid_x || this->grid_y != grid_y) {
-                int backup_grid_x = this->grid_x;
-                int backup_grid_y = this->grid_y;
+                int32_t backup_grid_x = this->grid_x;
+                int32_t backup_grid_y = this->grid_y;
 
                 this->grid_x = grid_x;
                 this->grid_y = grid_y;
@@ -3648,13 +3648,13 @@ bool UnitInfo::AttemptSideStep(int grid_x, int grid_y, int angle) {
             } else {
                 Point position;
                 Point best_site;
-                int step_cost;
-                int best_cost{0};
-                int unit_angle{8};
-                int best_angle{0};
+                int32_t step_cost;
+                int32_t best_cost{0};
+                int32_t unit_angle{8};
+                int32_t best_angle{0};
 
-                for (int direction = 0; direction < 8; ++direction) {
-                    for (int scan_range = 0; scan_range < 2; ++scan_range) {
+                for (int32_t direction = 0; direction < 8; ++direction) {
+                    for (int32_t scan_range = 0; scan_range < 2; ++scan_range) {
                         position.x = this->grid_x + Paths_8DirPointsArray[direction].x;
                         position.y = this->grid_y + Paths_8DirPointsArray[direction].y;
 
@@ -3725,10 +3725,10 @@ bool UnitInfo::AttemptSideStep(int grid_x, int grid_y, int angle) {
     return result;
 }
 
-int UnitInfo::GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, int* turns_to_build) {
-    int result;
-    int turns;
-    int local_storage;
+int32_t UnitInfo::GetTurnsToBuild(ResourceID unit_type, int32_t build_speed_multiplier, int32_t* turns_to_build) {
+    int32_t result;
+    int32_t turns;
+    int32_t local_storage;
 
     if (build_time > 0 && build_list.GetCount() > 0 && *build_list[0] == unit_type) {
         turns = build_time;
@@ -3748,7 +3748,7 @@ int UnitInfo::GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, 
     result = 0;
 
     while (turns > 0) {
-        int build_speed_limit = BuildMenu_GetMaxPossibleBuildRate(this->unit_type, turns, local_storage);
+        int32_t build_speed_limit = BuildMenu_GetMaxPossibleBuildRate(this->unit_type, turns, local_storage);
 
         build_speed_multiplier = std::min(build_speed_multiplier, build_speed_limit);
 
@@ -3764,20 +3764,20 @@ int UnitInfo::GetTurnsToBuild(ResourceID unit_type, int build_speed_multiplier, 
     return result;
 }
 
-void UnitInfo::SetBuildRate(int value) { build_rate = value; }
+void UnitInfo::SetBuildRate(int32_t value) { build_rate = value; }
 
-int UnitInfo::GetBuildRate() const { return build_rate; }
+int32_t UnitInfo::GetBuildRate() const { return build_rate; }
 
 void UnitInfo::SetRepeatBuildState(bool value) { repeat_build = value; }
 
 bool UnitInfo::GetRepeatBuildState() const { return repeat_build; }
 
 void UnitInfo::SpawnNewUnit() {
-    int position_x = this->grid_x;
-    int position_y = this->grid_y;
+    int32_t position_x = this->grid_x;
+    int32_t position_y = this->grid_y;
 
     if (unit_type == BULLDOZR) {
-        int parent_storage = parent_unit->storage;
+        int32_t parent_storage = parent_unit->storage;
 
         while (state == ORDER_STATE_6) {
             GameManager_ProcessTick(false);
@@ -3915,8 +3915,8 @@ void UnitInfo::FollowUnit() {
     }
 }
 
-int UnitInfo::GetExperience() {
-    int result = sqrt(storage * 10) - 2.0;
+int32_t UnitInfo::GetExperience() {
+    int32_t result = sqrt(storage * 10) - 2.0;
 
     if (result < 0) {
         result = 0;
@@ -3995,8 +3995,8 @@ void UnitInfo::RadarPing() {
     }
 }
 
-int UnitInfo::GetNormalRateBuildCost() const {
-    int result;
+int32_t UnitInfo::GetNormalRateBuildCost() const {
+    int32_t result;
 
     if (flags & STATIONARY) {
         result = Cargo_GetRawConsumptionRate(CONSTRCT, 1) * GetBaseValues()->GetAttribute(ATTRIB_TURNS);
@@ -4075,7 +4075,7 @@ void UnitInfo::RemoveDelayedTask(Task* task) { delayed_tasks.Remove(*task); }
 bool UnitInfo::AreTherePins() { return pin_count > 0; }
 
 void UnitInfo::DeployConstructionSiteMarkers(ResourceID unit_type) {
-    int unit_angle = 0;
+    int32_t unit_angle = 0;
     ResourceID unit_type1;
     ResourceID unit_type2;
 
@@ -4172,8 +4172,8 @@ void UnitInfo::SpinningTurretAdvanceAnimation() {
     }
 }
 
-int UnitInfo::GetAttackRange() {
-    int result;
+int32_t UnitInfo::GetAttackRange() {
+    int32_t result;
 
     if (base_values->GetAttribute(ATTRIB_ROUNDS) > 0) {
         if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
@@ -4192,8 +4192,8 @@ int UnitInfo::GetAttackRange() {
     return result;
 }
 
-void UnitInfo::UpdatePinsFromLists(int grid_x, int grid_y, SmartList<UnitInfo>* units, int pin_units) {
-    int attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+void UnitInfo::UpdatePinsFromLists(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* units, int32_t pin_units) {
+    int32_t attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(&*it, grid_x, grid_y, attack_radius) &&
@@ -4203,8 +4203,8 @@ void UnitInfo::UpdatePinsFromLists(int grid_x, int grid_y, SmartList<UnitInfo>* 
     }
 }
 
-void UnitInfo::FindTarget(int grid_x, int grid_y, SmartList<UnitInfo>* units) {
-    int attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+void UnitInfo::FindTarget(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* units) {
+    int32_t attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(&*it, grid_x, grid_y, attack_radius) &&
@@ -4247,7 +4247,7 @@ void UnitInfo::Regenerate() {
             materials.raw = 1;
         }
 
-        int turns_to_repair = Repair(materials.raw);
+        int32_t turns_to_repair = Repair(materials.raw);
 
         complex->Transfer(-turns_to_repair, 0, 0);
     }
@@ -4262,12 +4262,12 @@ void UnitInfo::Regenerate() {
 void UnitInfo::StepMoveUnit(Point position) {
     ++position.y;
 
-    for (int range_limit = 3;; range_limit += 2) {
+    for (int32_t range_limit = 3;; range_limit += 2) {
         --position.x;
         ++position.y;
 
-        for (int direction = 0; direction < 8; direction += 2) {
-            for (int i = 0; i < range_limit; ++i) {
+        for (int32_t direction = 0; direction < 8; direction += 2) {
+            for (int32_t i = 0; i < range_limit; ++i) {
                 position += Paths_8DirPointsArray[direction];
 
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
@@ -4303,7 +4303,7 @@ void UnitInfo::StepMoveUnit(Point position) {
 }
 
 void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
-    unsigned int unit_flags = UnitsManager_BaseUnits[unit_type].flags;
+    uint32_t unit_flags = UnitsManager_BaseUnits[unit_type].flags;
     SmartPointer<UnitInfo> utility_unit(Access_GetUnit7(team, grid_x, grid_y));
     Point position(utility_unit->grid_x, utility_unit->grid_y);
 
@@ -4340,8 +4340,8 @@ void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
     }
 }
 
-int UnitInfo::GetTargetUnitAngle() {
-    int result;
+int32_t UnitInfo::GetTargetUnitAngle() {
+    int32_t result;
 
     if (state == ORDER_STATE_35) {
         SmartPointer<UnitInfo> utility_unit(Access_GetUnit7(team, grid_x, grid_y));
@@ -4364,8 +4364,8 @@ int UnitInfo::GetTargetUnitAngle() {
         }
 
     } else {
-        int target_x = target_grid_x * 64 + 32;
-        int target_y = target_grid_y * 64 + 32;
+        int32_t target_x = target_grid_x * 64 + 32;
+        int32_t target_y = target_grid_y * 64 + 32;
 
         if (target_x > x) {
             if (target_y > y) {
@@ -4389,8 +4389,8 @@ int UnitInfo::GetTargetUnitAngle() {
 }
 
 void UnitInfo::UpdateInfoDisplay() {
-    int base_speed = GetBaseValues()->GetAttribute(ATTRIB_SPEED);
-    int base_rounds = GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
+    int32_t base_speed = GetBaseValues()->GetAttribute(ATTRIB_SPEED);
+    int32_t base_rounds = GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
 
     speed -= (((shots + 1) * base_speed) / base_rounds) - ((shots * base_speed) / base_rounds);
 
@@ -4403,9 +4403,9 @@ void UnitInfo::UpdateInfoDisplay() {
     }
 }
 
-int UnitInfo::Repair(int materials) {
-    int hits_damage_level = base_values->GetAttribute(ATTRIB_HITS) - hits;
-    int repair_cost = GetTurnsToRepair();
+int32_t UnitInfo::Repair(int32_t materials) {
+    int32_t hits_damage_level = base_values->GetAttribute(ATTRIB_HITS) - hits;
+    int32_t repair_cost = GetTurnsToRepair();
 
     if (repair_cost > materials) {
         hits_damage_level = (base_values->GetAttribute(ATTRIB_HITS) * 4 * materials) / GetNormalRateBuildCost();
@@ -4549,7 +4549,7 @@ void UnitInfo::Upgrade(UnitInfo* parent) {
 
         complex->GetCargoInfo(materials, capacity);
 
-        int materials_cost = parent->GetNormalRateBuildCost() / 4;
+        int32_t materials_cost = parent->GetNormalRateBuildCost() / 4;
 
         if (materials.raw >= materials_cost) {
             parent->UpgradeInt();
@@ -4624,7 +4624,7 @@ void UnitInfo::PositionInTape() {
     RefreshScreen();
 
     if (moved >= 4) {
-        unsigned char old_state = state;
+        uint8_t old_state = state;
 
         RestoreOrders();
 
@@ -4654,7 +4654,7 @@ void UnitInfo::PositionInTape() {
         }
 
     } else {
-        int target_angle = GetTargetUnitAngle();
+        int32_t target_angle = GetTargetUnitAngle();
 
         if (moved || !Paths_UpdateAngle(this, target_angle)) {
             ++moved;
@@ -4691,8 +4691,8 @@ void UnitInfo::PlaceMine() {
 
             bounds.ulx = std::max(0, grid_x - 1);
             bounds.uly = std::max(0, grid_y - 1);
-            bounds.lrx = std::min(static_cast<int>(ResourceManager_MapSize.x), grid_x + 2);
-            bounds.lry = std::min(static_cast<int>(ResourceManager_MapSize.y), grid_y + 2);
+            bounds.lrx = std::min(static_cast<int32_t>(ResourceManager_MapSize.x), grid_x + 2);
+            bounds.lry = std::min(static_cast<int32_t>(ResourceManager_MapSize.y), grid_y + 2);
 
             for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                 for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
@@ -4760,9 +4760,9 @@ bool UnitInfo::ShakeWater() {
         bobbed = false;
     }
 
-    int distance = moved / 64;
-    int offset_x = 0;
-    int offset_y = 0;
+    int32_t distance = moved / 64;
+    int32_t offset_x = 0;
+    int32_t offset_y = 0;
 
     if (moved >= distance * 64 + 32) {
         if ((moved & 0x1F) == 0) {
@@ -4804,9 +4804,9 @@ bool UnitInfo::ShakeAir() {
         bobbed = false;
     }
 
-    int distance = moved / 8;
-    int offset_x = 0;
-    int offset_y = 0;
+    int32_t distance = moved / 8;
+    int32_t offset_x = 0;
+    int32_t offset_y = 0;
 
     if (moved >= distance * 8 + 4) {
         if ((moved & 0x01) == 0) {
@@ -4849,8 +4849,8 @@ void UnitInfo::ShakeSabotage() {
     shake_effect_state &= 0x0F;
 
     if (!(flags & BUILDING)) {
-        int offset_x = Paths_8DirPointsArrayX[shake_effect_state / 2];
-        int offset_y = Paths_8DirPointsArrayY[shake_effect_state / 2];
+        int32_t offset_x = Paths_8DirPointsArrayX[shake_effect_state / 2];
+        int32_t offset_y = Paths_8DirPointsArrayY[shake_effect_state / 2];
 
         RefreshScreen();
 
@@ -4866,7 +4866,7 @@ void UnitInfo::ShakeSabotage() {
 }
 
 void UnitInfo::PrepareFire() {
-    int unit_angle = angle;
+    int32_t unit_angle = angle;
     bool team_visibility = IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy;
 
     recoil_delay = 3;
@@ -5017,8 +5017,8 @@ void UnitInfo::ProgressFire() {
     }
 }
 
-void UnitInfo::ChangeTeam(unsigned short target_team) {
-    unsigned short old_team = team;
+void UnitInfo::ChangeTeam(uint16_t target_team) {
+    uint16_t old_team = team;
 
     if (target_team != old_team) {
         PathsManager_RemoveRequest(this);

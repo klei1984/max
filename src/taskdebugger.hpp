@@ -28,33 +28,33 @@
 
 class TaskDebugger {
     WindowInfo window;
-    unsigned short team;
+    uint16_t team;
     SmartArray<Task> tasks;
-    short row_index;
-    short task_count;
-    short row_count;
+    int16_t row_index;
+    int16_t task_count;
+    int16_t row_count;
     Image *image;
     Button *button_up;
     Button *button_down;
-    unsigned short first_row_r_value;
-    unsigned short button_up_r_value;
-    unsigned short button_down_r_value;
+    uint16_t first_row_r_value;
+    uint16_t button_up_r_value;
+    uint16_t button_down_r_value;
     ButtonManager button_manager;
 
     void InitTaskList(Task *task);
-    void DrawRow(int uly, const char *caption, Task *task, int color);
-    void SetLimits(int limit);
+    void DrawRow(int32_t uly, const char *caption, Task *task, int32_t color);
+    void SetLimits(int32_t limit);
 
 public:
-    TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int button_down_value, int first_row_value);
+    TaskDebugger(WindowInfo *win, Task *task, int32_t button_up_value, int32_t button_down_value, int32_t first_row_value);
     ~TaskDebugger();
 
-    bool ProcessKeyPress(int key);
+    bool ProcessKeyPress(int32_t key);
     void DrawRows();
 };
 
-int TaskDebugger_GetDebugMode();
+int32_t TaskDebugger_GetDebugMode();
 void TaskDebugger_SetDebugMode();
-void TaskDebugger_DebugBreak(int task_id);
+void TaskDebugger_DebugBreak(int32_t task_id);
 
 #endif /* TASKDEBUGGER_HPP */

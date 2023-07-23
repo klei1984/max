@@ -26,23 +26,23 @@
 #include "gnw.h"
 
 class Image {
-    unsigned char *data;
-    short ulx;
-    short uly;
-    short width;
-    short height;
+    uint8_t *data;
+    int16_t ulx;
+    int16_t uly;
+    int16_t width;
+    int16_t height;
     bool allocated;
 
 public:
-    Image(short ulx, short uly, short width, short height);
-    Image(ResourceID id, short ulx, short uly);
+    Image(int16_t ulx, int16_t uly, int16_t width, int16_t height);
+    Image(ResourceID id, int16_t ulx, int16_t uly);
     ~Image();
 
-    unsigned char *GetData() const;
-    short GetULX() const;
-    short GetULY() const;
-    short GetWidth() const;
-    short GetHeight() const;
+    uint8_t *GetData() const;
+    int16_t GetULX() const;
+    int16_t GetULY() const;
+    int16_t GetWidth() const;
+    int16_t GetHeight() const;
 
     void Allocate();
     Rect GetBounds() const;
@@ -51,7 +51,7 @@ public:
     void Blend(const Image &other);
     void Write(WindowInfo *w) const;
     void Write(WindowInfo *w, Rect *r) const;
-    void Write(WindowInfo *w, int ulx, int uly) const;
+    void Write(WindowInfo *w, int32_t ulx, int32_t uly) const;
     void Draw(WinID wid) const;
 };
 

@@ -30,10 +30,10 @@ public:
     ~TaskReload();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
 
     void SelectOperator();
-    int GetTurnsToComplete();
+    int32_t GetTurnsToComplete();
     bool IsInPerfectCondition();
     void CreateUnit();
     void IssueOrder();

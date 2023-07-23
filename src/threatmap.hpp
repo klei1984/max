@@ -35,20 +35,20 @@ public:
 
     void Init();
 
-    static unsigned short GetRiskLevel(ResourceID unit_type);
-    static unsigned short GetRiskLevel(UnitInfo *unit);
-    void SetRiskLevel(unsigned char risk_level);
+    static uint16_t GetRiskLevel(ResourceID unit_type);
+    static uint16_t GetRiskLevel(UnitInfo *unit);
+    void SetRiskLevel(uint8_t risk_level);
 
-    void Update(int armor);
+    void Update(int32_t armor);
 
-    short team;
-    unsigned short id;
-    unsigned char risk_level;
-    unsigned char caution_level;
+    int16_t team;
+    uint16_t id;
+    uint8_t risk_level;
+    uint8_t caution_level;
     bool for_attacking;
-    short armor;
-    short **damage_potential_map;
-    short **shots_map;
+    int16_t armor;
+    int16_t **damage_potential_map;
+    int16_t **shots_map;
 };
 
 #endif /* THREATMAP_HPP */

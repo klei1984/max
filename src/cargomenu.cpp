@@ -29,7 +29,7 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
-CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) {
+CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
     type_selector = nullptr;
     buy_upgrade_toggle_state = true;
     Rect bounds1;
@@ -56,7 +56,7 @@ CargoMenu::CargoMenu(unsigned short team) : AbstractUpgradeMenu(team, CARGOPIC) 
         unit_count = default_units.GetCount() + 3;
         team_gold = UnitsManager_TeamMissionSupplies[team].team_gold;
 
-        for (int i = 0; i < UNIT_END; ++i) {
+        for (int32_t i = 0; i < UNIT_END; ++i) {
             unitvalues_base[i] = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(i);
         }
 
@@ -268,7 +268,7 @@ CargoMenu::~CargoMenu() {
     delete scrollbar;
 }
 
-void CargoMenu::Select(int index) {
+void CargoMenu::Select(int32_t index) {
     ResourceID unit;
     ResourceID vbar;
 
@@ -405,20 +405,20 @@ void CargoMenu::DrawUnitStats(ResourceID unit_type) {
 }
 
 void CargoMenu::AbstractUpgradeMenu_vfunc7() {
-    int cargo;
+    int32_t cargo;
 
     AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7();
 
     UnitsManager_TeamMissionSupplies[team].team_gold = team_gold;
 
-    for (int i = unit_count; i < unit_types2->GetCount(); ++i) {
+    for (int32_t i = unit_count; i < unit_types2->GetCount(); ++i) {
         UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades -=
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *unit_types2[i])
                 ->GetAttribute(ATTRIB_TURNS) *
             Cargo_GetRawConsumptionRate(LANDPLT, 1);
     }
 
-    for (int i = 0; i < unit_types2->GetCount(); ++i) {
+    for (int32_t i = 0; i < unit_types2->GetCount(); ++i) {
         cargo = *cargos[i];
 
         switch (i) {
@@ -435,7 +435,7 @@ void CargoMenu::AbstractUpgradeMenu_vfunc7() {
     }
 }
 
-bool CargoMenu::ProcessKey(int key) {
+bool CargoMenu::ProcessKey(int32_t key) {
     bool result;
 
     if (key > 0 && key < GNW_INPUT_PRESS) {
@@ -522,7 +522,7 @@ bool CargoMenu::ProcessKey(int key) {
 
 void CargoMenu::BuyUnit() {
     ResourceID last;
-    int cost;
+    int32_t cost;
 
     last = type_selector->GetLast();
 
@@ -566,12 +566,12 @@ void CargoMenu::DeleteUnit() {
 }
 
 void CargoMenu::UpdateScrollbar() {
-    int storage_max;
+    int32_t storage_max;
     bool flag;
 
     flag = false;
 
-    for (int i = 0; i < unit_types2->GetCount(); ++i) {
+    for (int32_t i = 0; i < unit_types2->GetCount(); ++i) {
         storage_max = unitvalues_actual[*unit_types2[i]]->GetAttribute(ATTRIB_STORAGE);
 
         if (*cargos[i] > storage_max) {
@@ -592,12 +592,12 @@ void CargoMenu::UpdateScrollbar() {
     }
 }
 
-void CargoMenu::UpdateTeamGold(int factor) {
+void CargoMenu::UpdateTeamGold(int32_t factor) {
     ResourceID last;
 
     last = type_selector->GetLast();
 
-    for (int i = 2; i < unit_types2->GetCount(); ++i) {
+    for (int32_t i = 2; i < unit_types2->GetCount(); ++i) {
         if (last == *unit_types2[i]) {
             team_gold -= Cargo_GetRawConsumptionRate(LANDPLT, 1) * factor;
         }

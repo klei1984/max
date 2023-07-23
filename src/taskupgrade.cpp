@@ -35,12 +35,12 @@ char* TaskUpgrade::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskUpgrade::GetType() const { return TaskType_TaskUpgrade; }
+uint8_t TaskUpgrade::GetType() const { return TaskType_TaskUpgrade; }
 
 void TaskUpgrade::SelectOperator() {}
 
-int TaskUpgrade::GetTurnsToComplete() {
-    int result;
+int32_t TaskUpgrade::GetTurnsToComplete() {
+    int32_t result;
 
     if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {
         result = target_unit->GetNormalRateBuildCost() / 4;

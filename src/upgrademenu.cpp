@@ -30,7 +30,7 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
-UpgradeMenu::UpgradeMenu(unsigned short team, Complex* complex) : AbstractUpgradeMenu(team, UPGRADE), complex(complex) {
+UpgradeMenu::UpgradeMenu(uint16_t team, Complex* complex) : AbstractUpgradeMenu(team, UPGRADE), complex(complex) {
     stats_background = new (std::nothrow) Image(11, 293, 250, 174);
     cost_background = new (std::nothrow) Image(321, 293, 40, 174);
     button_background = new (std::nothrow) Image(283, 293, 38, 174);
@@ -101,7 +101,7 @@ void UpgradeMenu::AbstractUpgradeMenu_vfunc7() {
     }
 }
 
-bool UpgradeMenu::ProcessKey(int key) {
+bool UpgradeMenu::ProcessKey(int32_t key) {
     bool result;
 
     if (GameManager_RequestMenuExit) {

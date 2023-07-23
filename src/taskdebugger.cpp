@@ -29,11 +29,11 @@
 
 #define TASK_DEBUGGER_INVALID_ID (-1)
 
-static int TaskDebugger_DebugMode;
-static int TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
+static int32_t TaskDebugger_DebugMode;
+static int32_t TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
 
-TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int button_down_value,
-                           int first_row_value) {
+TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int32_t button_up_value, int32_t button_down_value,
+                           int32_t first_row_value) {
     TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
 
     Text_SetFont(GNW_TEXT_FONT_5);
@@ -48,8 +48,8 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int
 
     row_count = (window.window.lry - window.window.uly) / (Text_GetHeight() * 2);
 
-    int width = window.window.lrx - window.window.ulx;
-    int height = Text_GetHeight() * row_count * 2;
+    int32_t width = window.window.lrx - window.window.ulx;
+    int32_t height = Text_GetHeight() * row_count * 2;
 
     image = new (std::nothrow) Image(0, 0, width, height);
     image->Copy(&window);
@@ -66,7 +66,7 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int button_up_value, int
     button_down->SetPValue(GNW_INPUT_PRESS + 1);
     button_down->RegisterButton(window.id);
 
-    for (int i = 0; i < row_count; ++i) {
+    for (int32_t i = 0; i < row_count; ++i) {
         button_manager.Add(win_register_button(
             window.id, window.window.ulx, window.window.uly + Text_GetHeight() * i * 2, width, Text_GetHeight() * 2, -1,
             -1, -1, first_row_value + i, nullptr, nullptr, nullptr, 0x00));
@@ -112,9 +112,9 @@ void TaskDebugger::InitTaskList(Task *task) {
     SetLimits(task_count);
 }
 
-void TaskDebugger::DrawRow(int uly, const char *caption, Task *task, int color) {
+void TaskDebugger::DrawRow(int32_t uly, const char *caption, Task *task, int32_t color) {
     char text[100];
-    int full_width = Text_GetWidth(caption);
+    int32_t full_width = Text_GetWidth(caption);
 
     Text_Blit(&window.buffer[window.width * (Text_GetHeight() / 2 + uly)], caption, image->GetWidth(), window.width,
               color);
@@ -135,7 +135,7 @@ void TaskDebugger::DrawRows() {
 
     image->Write(&window);
 
-    int limit = row_index + row_count;
+    int32_t limit = row_index + row_count;
 
     if (tasks.GetCount() > limit) {
         button_down->Enable();
@@ -153,9 +153,9 @@ void TaskDebugger::DrawRows() {
         button_up->Disable();
     }
 
-    int uly = 0;
+    int32_t uly = 0;
 
-    for (int i = row_index; i < limit; ++i) {
+    for (int32_t i = row_index; i < limit; ++i) {
         if (i < task_count) {
             DrawRow(uly, "Parent: ", &tasks[i], COLOR_GREEN);
 
@@ -172,7 +172,7 @@ void TaskDebugger::DrawRows() {
     win_draw(window.id);
 }
 
-void TaskDebugger::SetLimits(int limit) {
+void TaskDebugger::SetLimits(int32_t limit) {
     if (row_index > limit) {
         row_index = limit;
     }
@@ -190,7 +190,7 @@ void TaskDebugger::SetLimits(int limit) {
     }
 }
 
-int TaskDebugger_GetDebugMode() { return TaskDebugger_DebugMode; }
+int32_t TaskDebugger_GetDebugMode() { return TaskDebugger_DebugMode; }
 
 void TaskDebugger_SetDebugMode() {
     TaskDebugger_DebugMode = (TaskDebugger_DebugMode + 1) % 3;
@@ -212,18 +212,18 @@ void TaskDebugger_SetDebugMode() {
     }
 }
 
-void TaskDebugger_DebugBreak(int task_id) {
+void TaskDebugger_DebugBreak(int32_t task_id) {
     if (task_id == TaskDebugger_DebugTask) {
         TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
         SDL_TriggerBreakpoint();
     }
 }
 
-bool TaskDebugger::ProcessKeyPress(int key) {
+bool TaskDebugger::ProcessKeyPress(int32_t key) {
     bool result;
 
     if (first_row_r_value <= key && first_row_r_value + row_count > key) {
-        int index = key + row_index - first_row_r_value;
+        int32_t index = key + row_index - first_row_r_value;
 
         if (tasks.GetCount() > index) {
             if (index == task_count) {

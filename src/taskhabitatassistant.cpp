@@ -36,7 +36,7 @@ char* TaskHabitatAssistant::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskHabitatAssistant::GetType() const { return TaskType_TaskHabitatAssistant; }
+uint8_t TaskHabitatAssistant::GetType() const { return TaskType_TaskHabitatAssistant; }
 
 void TaskHabitatAssistant::BeginTurn() { manager->CheckWorkers(); }
 

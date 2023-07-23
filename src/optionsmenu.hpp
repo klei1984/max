@@ -32,28 +32,28 @@ class OptionsMenu : public Window {
     Button *button_cancel;
     Button *button_done;
     Button *button_help;
-    unsigned short team;
+    uint16_t team;
     ResourceID bg_image;
     TextEdit *text_edit;
-    unsigned short control_id;
-    unsigned short button_count;
+    uint16_t control_id;
+    uint16_t button_count;
     bool exit_menu;
     bool is_slider_active;
     bool event_release;
 
     void Init();
-    void InitSliderControl(int id, int ulx, int uly);
-    void InitEditControl(int id, int ulx, int uly);
-    void InitCheckboxControl(int id, int ulx, int uly);
-    void InitLabelControl(int id, int ulx, int uly);
-    void DrawSlider(int id, int value);
-    void UpdateSlider(int id);
-    void SetVolume(int id, int audio_type, int value);
-    int ProcessTextEditKeyPress(int key);
-    int ProcessKeyPress(int key);
+    void InitSliderControl(int32_t id, int32_t ulx, int32_t uly);
+    void InitEditControl(int32_t id, int32_t ulx, int32_t uly);
+    void InitCheckboxControl(int32_t id, int32_t ulx, int32_t uly);
+    void InitLabelControl(int32_t id, int32_t ulx, int32_t uly);
+    void DrawSlider(int32_t id, int32_t value);
+    void UpdateSlider(int32_t id);
+    void SetVolume(int32_t id, int32_t audio_type, int32_t value);
+    int32_t ProcessTextEditKeyPress(int32_t key);
+    int32_t ProcessKeyPress(int32_t key);
 
 public:
-    OptionsMenu(unsigned short team, ResourceID bg_image);
+    OptionsMenu(uint16_t team, ResourceID bg_image);
     ~OptionsMenu();
 
     void Run();

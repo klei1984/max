@@ -38,7 +38,7 @@
 #include "unitstats.hpp"
 #include "window_manager.hpp"
 
-AbstractUpgradeMenu::AbstractUpgradeMenu(unsigned short team, ResourceID resource_id)
+AbstractUpgradeMenu::AbstractUpgradeMenu(uint16_t team, ResourceID resource_id)
     : Window(resource_id, GameManager_GetDialogWindowCenterMode()),
       team(team),
       upgrade_control_count(0),
@@ -68,11 +68,11 @@ AbstractUpgradeMenu::AbstractUpgradeMenu(unsigned short team, ResourceID resourc
       event_click_cancel(0),
       buy_upgrade_toggle_state(0),
       event_release(0) {
-    for (int i = 0; i < UPGRADE_CONTROL_COUNT; ++i) {
+    for (int32_t i = 0; i < UPGRADE_CONTROL_COUNT; ++i) {
         upgrade_controls[i] = nullptr;
     }
 
-    for (int i = 0; i < UNIT_END; ++i) {
+    for (int32_t i = 0; i < UNIT_END; ++i) {
         unitvalues_base[i] =
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], static_cast<ResourceID>(i));
         unitvalues_actual[i] = new (std::nothrow) UnitValues(*unitvalues_base[i]);
@@ -188,7 +188,7 @@ void AbstractUpgradeMenu::Init() {
 }
 
 AbstractUpgradeMenu::~AbstractUpgradeMenu() {
-    for (int i = 0; i < upgrade_control_count; ++i) {
+    for (int32_t i = 0; i < upgrade_control_count; ++i) {
         delete upgrade_controls[i];
     }
 
@@ -212,7 +212,7 @@ AbstractUpgradeMenu::~AbstractUpgradeMenu() {
     delete button_description;
 }
 
-void AbstractUpgradeMenu::AddUpgrade(int id, int value1, int value2, unsigned short *attribute, int value) {
+void AbstractUpgradeMenu::AddUpgrade(int32_t id, int32_t value1, int32_t value2, uint16_t *attribute, int32_t value) {
     upgrade_controls[upgrade_control_count] =
         new (std::nothrow) UpgradeControl(window1.id, cost_background->GetULX() - 38, upgrade_control_next_uly,
                                           upgrade_control_count + 1015, upgrade_control_count + 1025, &team_gold);
@@ -271,10 +271,10 @@ void AbstractUpgradeMenu::AdjustRowStorage(ResourceID unit_type) {
 }
 
 void AbstractUpgradeMenu::AdjustRowConsumptions(ResourceID unit_type) {
-    int raw_consumption;
-    int fuel_consumption;
-    int power_consumption;
-    int life_consumption;
+    int32_t raw_consumption;
+    int32_t fuel_consumption;
+    int32_t power_consumption;
+    int32_t life_consumption;
 
     raw_consumption = Cargo_GetRawConsumptionRate(unit_type, 1);
     fuel_consumption = Cargo_GetFuelConsumptionRate(unit_type);
@@ -370,7 +370,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
                      false, false);
     }
 
-    for (int i = 0; i < upgrade_control_count; ++i) {
+    for (int32_t i = 0; i < upgrade_control_count; ++i) {
         delete upgrade_controls[i];
         upgrade_controls[i] = nullptr;
     }
@@ -417,15 +417,15 @@ void AbstractUpgradeMenu::PopulateTeamUnitsList() {
 
     SDL_assert(type_selector);
 
-    for (int i = 0; i < UNIT_END; ++i) {
+    for (int32_t i = 0; i < UNIT_END; ++i) {
         if (IsUnitFiltered(static_cast<ResourceID>(i))) {
             ResourceID type = static_cast<ResourceID>(i);
             unit_types.PushBack(&type);
         }
     }
 
-    for (int i = 0; i < unit_types.GetCount() - 1; ++i) {
-        for (int j = i + 1; unit_types.GetCount() > j; ++j) {
+    for (int32_t i = 0; i < unit_types.GetCount() - 1; ++i) {
+        for (int32_t j = i + 1; unit_types.GetCount() > j; ++j) {
             if (IsBetterUnit(*unit_types[i], *unit_types[j])) {
                 std::swap(*unit_types[i], *unit_types[j]);
             }
@@ -437,8 +437,8 @@ void AbstractUpgradeMenu::PopulateTeamUnitsList() {
 
 void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
     struct ImageSimpleHeader *image;
-    unsigned char *buffer_text;
-    unsigned char *buffer_icon;
+    uint8_t *buffer_text;
+    uint8_t *buffer_icon;
 
     stats_background->Write(&window1);
 
@@ -457,14 +457,14 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
     buffer_text = &window1.buffer[cost_background->GetULX() + window1.width * 5 + 24];
     buffer_icon = &window1.buffer[cost_background->GetULX() + window1.width * 3 + 25];
 
-    for (int i = 0; i < upgrade_control_count; ++i) {
-        int cost;
+    for (int32_t i = 0; i < upgrade_control_count; ++i) {
+        int32_t cost;
 
         upgrade_controls[i]->UpdateControlState();
         cost = upgrade_controls[i]->GetCost();
 
         if (cost > 0 && cost < UPGRADECONTROL_UPGRADE_COST_LIMIT) {
-            int offset;
+            int32_t offset;
 
             offset = window1.width * upgrade_controls[i]->GetUly();
 
@@ -474,8 +474,8 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
     }
 
     {
-        int height;
-        unsigned char *buffer;
+        int32_t height;
+        uint8_t *buffer;
 
         gold_background->Write(&window1);
 
@@ -493,8 +493,8 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
 
     {
         char text[20];
-        unsigned char *buffer;
-        int length;
+        uint8_t *buffer;
+        int32_t length;
 
         snprintf(text, sizeof(text), "%i", team_gold);
 
@@ -509,7 +509,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
 }
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7() {
-    for (int i = 0; i < UNIT_END; ++i) {
+    for (int32_t i = 0; i < UNIT_END; ++i) {
         if (*unitvalues_actual[i] != *unitvalues_base[i]) {
             unitvalues_actual[i]->UpdateVersion();
             unitvalues_actual[i]->SetUnitsBuilt(0);
@@ -525,7 +525,7 @@ void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7() {
     UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades += start_gold - team_gold;
 }
 
-bool AbstractUpgradeMenu::ProcessKey(int key) {
+bool AbstractUpgradeMenu::ProcessKey(int32_t key) {
     bool result;
 
     if (key > 0 && key < GNW_INPUT_PRESS) {
@@ -679,7 +679,7 @@ bool AbstractUpgradeMenu::ProcessKey(int key) {
 
 bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
     bool result;
-    unsigned int flags;
+    uint32_t flags;
 
     flags = UnitsManager_BaseUnits[unit_type].flags;
 
@@ -707,8 +707,8 @@ bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
 
 bool AbstractUpgradeMenu::IsBetterUnit(ResourceID unit_type1, ResourceID unit_type2) {
     bool result;
-    unsigned int flags1;
-    unsigned int flags2;
+    uint32_t flags1;
+    uint32_t flags2;
 
     flags1 = UnitsManager_BaseUnits[unit_type1].flags;
     flags2 = UnitsManager_BaseUnits[unit_type2].flags;
@@ -754,7 +754,7 @@ bool AbstractUpgradeMenu::Run() {
     DrawUnitInfo(type_selector->GetLast());
 
     while (!event_click_done) {
-        int key;
+        int32_t key;
 
         key = get_input();
 

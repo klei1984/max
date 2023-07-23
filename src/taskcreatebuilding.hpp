@@ -30,7 +30,7 @@ class TaskCreateBuilding : public TaskCreate {
     SmartPointer<UnitInfo> building;
     SmartPointer<TaskManageBuildings> manager;
     Point site;
-    unsigned char op_state;
+    uint8_t op_state;
     SmartPointer<Zone> zone;
     bool field_42;
     SmartList<Task> tasks;
@@ -49,23 +49,23 @@ class TaskCreateBuilding : public TaskCreate {
     bool CheckMaterials();
     void BuildBoardwalks();
     void BuildBridges();
-    void MarkBridgeAreas(unsigned char** map);
-    void PopulateMap(unsigned char** map);
-    bool FindBridgePath(unsigned char** map, int value);
+    void MarkBridgeAreas(uint8_t** map);
+    void PopulateMap(uint8_t** map);
+    bool FindBridgePath(uint8_t** map, int32_t value);
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
-    static bool SearchPathStep(unsigned char** map, Point position, int* direction, unsigned short* best_unit_count,
-                               int value);
+    static bool SearchPathStep(uint8_t** map, Point position, int32_t* direction, uint16_t* best_unit_count,
+                               int32_t value);
 
 public:
-    TaskCreateBuilding(Task* task, unsigned short flags, ResourceID unit_type, Point site,
+    TaskCreateBuilding(Task* task, uint16_t flags, ResourceID unit_type, Point site,
                        TaskManageBuildings* manager);
     TaskCreateBuilding(UnitInfo* unit, TaskManageBuildings* manager);
     ~TaskCreateBuilding();
 
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void Begin();
@@ -80,7 +80,7 @@ public:
     bool Task_vfunc28();
     bool Task_vfunc29();
 
-    int EstimateBuildTime();
+    int32_t EstimateBuildTime();
 };
 
 #endif /* TASKCREATEBUILDING_HPP */

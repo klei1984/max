@@ -30,17 +30,17 @@
 
 EVENTS_REGISTER_EVENT(ScrollbarEvent);
 
-EventScrollbarChange::EventScrollbarChange(Scrollbar* scrollbar, short value) : scrollbar(scrollbar), value(value) {}
-unsigned short EventScrollbarChange::GetEventId() const { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
+EventScrollbarChange::EventScrollbarChange(Scrollbar* scrollbar, int16_t value) : scrollbar(scrollbar), value(value) {}
+uint16_t EventScrollbarChange::GetEventId() const { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
 
-void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
+void LoadHorizontalBar(uint8_t* buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id) {
     struct ImageSimpleHeader* sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
-    unsigned char* sprite_data = &sprite->transparent_color;
-    unsigned char* data = &sprite_data[sprite->width - height];
-    const unsigned char transparent_color = sprite->transparent_color;
+    uint8_t* sprite_data = &sprite->transparent_color;
+    uint8_t* data = &sprite_data[sprite->width - height];
+    const uint8_t transparent_color = sprite->transparent_color;
 
-    for (int i = 0; i < capacity; ++i) {
-        for (int j = 0; j < height; ++j) {
+    for (int32_t i = 0; i < capacity; ++i) {
+        for (int32_t j = 0; j < height; ++j) {
             if (data[j] != transparent_color) {
                 buffer[j] = data[j];
             }
@@ -51,22 +51,22 @@ void LoadHorizontalBar(unsigned char* buffer, short width, short capacity, short
     }
 }
 
-void LoadHorizontalTape(unsigned char* buffer, short full2, short length, short width, ResourceID id) {
+void LoadHorizontalTape(uint8_t* buffer, int16_t full2, int16_t length, int16_t width, ResourceID id) {
     if (width > 0) {
         struct ImageSimpleHeader* sprite =
             reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
-        unsigned char* sprite_data = &sprite->transparent_color;
+        uint8_t* sprite_data = &sprite->transparent_color;
 
         buf_to_buf(sprite_data, width, length, sprite->width, buffer, full2);
     }
 }
 
-void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short height, ResourceID id) {
+void LoadVerticalBar(uint8_t* buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id) {
     if (capacity > 0) {
         struct ImageSimpleHeader* sprite =
             reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
-        unsigned char* sprite_data = &sprite->transparent_color;
-        const unsigned char transparent_color = sprite->transparent_color;
+        uint8_t* sprite_data = &sprite->transparent_color;
+        const uint8_t transparent_color = sprite->transparent_color;
 
         buffer = &buffer[(height - sprite->width) / 2];
 
@@ -74,8 +74,8 @@ void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short h
             capacity = sprite->height;
         }
 
-        for (int i = 0; i < capacity; ++i) {
-            for (int j = 0; j < sprite->width; ++j) {
+        for (int32_t i = 0; i < capacity; ++i) {
+            for (int32_t j = 0; j < sprite->width; ++j) {
                 if (sprite_data[j] != transparent_color) {
                     buffer[j] = sprite_data[j];
                 }
@@ -87,8 +87,8 @@ void LoadVerticalBar(unsigned char* buffer, short width, short capacity, short h
     }
 }
 
-void Scrollbar::ProcessValueChange(short value) {
-    short old_value;
+void Scrollbar::ProcessValueChange(int16_t value) {
+    int16_t old_value;
 
     old_value = this->value;
     this->value = value;
@@ -102,7 +102,7 @@ void Scrollbar::ProcessValueChange(short value) {
 }
 
 Scrollbar::Scrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds, ResourceID id,
-                     int key_code_increase, int key_code_decrease, int key_code_click_slider, short scaling_factor,
+                     int32_t key_code_increase, int32_t key_code_decrease, int32_t key_code_click_slider, int16_t scaling_factor,
                      bool vertical)
     : material_bar(id),
       key_code_increase(key_code_increase),
@@ -114,10 +114,10 @@ Scrollbar::Scrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount
       value(0),
       scaling_factor(scaling_factor),
       scrollbar_type(vertical) {
-    short ulx;
-    short uly;
-    short width;
-    short height;
+    int16_t ulx;
+    int16_t uly;
+    int16_t width;
+    int16_t height;
 
     if (scaling_factor) {
         ulx = xfer_amount_bounds->ulx;
@@ -160,15 +160,15 @@ Scrollbar::~Scrollbar() {
     delete button_slider;
 }
 
-void Scrollbar::SetValue(unsigned short value) { this->value = value; }
+void Scrollbar::SetValue(uint16_t value) { this->value = value; }
 
-void Scrollbar::SetZeroOffset(short offset) { zero_offset = offset; }
+void Scrollbar::SetZeroOffset(int16_t offset) { zero_offset = offset; }
 
-void Scrollbar::SetFreeCapacity(short free_capacity) { this->free_capacity = free_capacity; }
+void Scrollbar::SetFreeCapacity(int16_t free_capacity) { this->free_capacity = free_capacity; }
 
 void Scrollbar::SetMaterialBar(ResourceID id) { material_bar = id; }
 
-short Scrollbar::GetValue() const { return value; }
+int16_t Scrollbar::GetValue() const { return value; }
 
 void Scrollbar::Register() {
     WindowInfo win;
@@ -185,8 +185,8 @@ void Scrollbar::Register() {
 
 void Scrollbar::RefreshScreen() {
     WindowInfo win;
-    int capacity;
-    unsigned char* buffer;
+    int32_t capacity;
+    uint8_t* buffer;
 
     window->FillWindowInfo(&win);
 
@@ -247,7 +247,7 @@ void Scrollbar::RefreshScreen() {
     }
 }
 
-bool Scrollbar::ProcessKey(int key_code) {
+bool Scrollbar::ProcessKey(int32_t key_code) {
     bool result;
 
     if (key_code == key_code_increase) {
@@ -265,10 +265,10 @@ bool Scrollbar::ProcessKey(int key_code) {
         result = true;
 
     } else if (key_code == button_p_value) {
-        int x;
-        int y;
-        int capacity;
-        short new_value;
+        int32_t x;
+        int32_t y;
+        int32_t capacity;
+        int16_t new_value;
 
         window->GetCursorPosition(x, y);
         capacity = free_capacity - zero_offset;
@@ -296,8 +296,8 @@ bool Scrollbar::ProcessKey(int key_code) {
 }
 
 LimitedScrollbar::LimitedScrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds, ResourceID id,
-                                   int key_code_increase, int key_code_decrease, int key_code_click_slider,
-                                   short scaling_factor, bool vertical)
+                                   int32_t key_code_increase, int32_t key_code_decrease, int32_t key_code_click_slider,
+                                   int16_t scaling_factor, bool vertical)
     : Scrollbar(window, xfer_slider_bounds, xfer_amount_bounds, id, key_code_increase, key_code_decrease,
                 key_code_click_slider, scaling_factor, vertical),
       xfer_give_max(0),
@@ -305,11 +305,11 @@ LimitedScrollbar::LimitedScrollbar(Window* window, Rect* xfer_slider_bounds, Rec
 
 LimitedScrollbar::~LimitedScrollbar() {}
 
-void LimitedScrollbar::SetXferGiveMax(short limit) { xfer_give_max = limit; }
+void LimitedScrollbar::SetXferGiveMax(int16_t limit) { xfer_give_max = limit; }
 
-void LimitedScrollbar::SetXferTakeMax(short limit) { xfer_take_max = limit; }
+void LimitedScrollbar::SetXferTakeMax(int16_t limit) { xfer_take_max = limit; }
 
-bool LimitedScrollbar::ProcessKey(int key_code) {
+bool LimitedScrollbar::ProcessKey(int32_t key_code) {
     bool result;
 
     if (key_code == key_code_increase) {
@@ -325,10 +325,10 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
     }
 
     if (key_code == button_p_value) {
-        int x;
-        int y;
-        int capacity;
-        short new_value;
+        int32_t x;
+        int32_t y;
+        int32_t capacity;
+        int16_t new_value;
 
         window->GetCursorPosition(x, y);
         capacity = free_capacity - zero_offset;
@@ -363,6 +363,6 @@ bool LimitedScrollbar::ProcessKey(int key_code) {
     return result;
 }
 
-short EventScrollbarChange::GetValue() const { return value; }
+int16_t EventScrollbarChange::GetValue() const { return value; }
 
-short EventScrollbarChange::GetScrollbarValue() const { return scrollbar->GetValue(); }
+int16_t EventScrollbarChange::GetScrollbarValue() const { return scrollbar->GetValue(); }

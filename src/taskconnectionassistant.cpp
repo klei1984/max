@@ -36,7 +36,7 @@ char* TaskConnectionAssistant::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskConnectionAssistant::GetType() const { return TaskType_TaskConnectionAssistant; }
+uint8_t TaskConnectionAssistant::GetType() const { return TaskType_TaskConnectionAssistant; }
 
 void TaskConnectionAssistant::BeginTurn() { manager->ReconnectBuildings(); }
 

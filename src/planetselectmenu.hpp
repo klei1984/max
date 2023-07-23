@@ -56,24 +56,24 @@ enum PlanetType {
 class PlanetSelectMenu;
 
 struct PlanetSelectMenuItem {
-    int r_value;
-    int event_code;
+    int32_t r_value;
+    int32_t event_code;
     void (PlanetSelectMenu::*event_handler)();
 };
 
 class PlanetSelectMenu {
-    void ButtonInit(int index);
-    void DrawMaps(int draw_to_screen);
+    void ButtonInit(int32_t index);
+    void DrawMaps(int32_t draw_to_screen);
     void DrawTexts();
-    void AnimateWorldChange(int world1, int world2, bool direction);
+    void AnimateWorldChange(int32_t world1, int32_t world2, bool direction);
 
 public:
     WindowInfo *window;
-    unsigned int event_click_done;
-    unsigned int event_click_cancel;
-    short world;
-    unsigned short menu_item_index;
-    unsigned int key;
+    uint32_t event_click_done;
+    uint32_t event_click_cancel;
+    int16_t world;
+    uint16_t menu_item_index;
+    uint32_t key;
     Image *image1;
     Image *image2;
     Image *image3;

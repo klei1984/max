@@ -29,15 +29,15 @@ class MenuLandingSequence {
     WindowInfo* panel_bottom;
     Image* image_1;
     Image* image_2;
-    unsigned int time_stamp;
-    int step_size;
+    uint32_t time_stamp;
+    int32_t step_size;
 
 public:
     MenuLandingSequence();
     ~MenuLandingSequence();
 
     void DeleteButtons();
-    void AnimateStep(int offset);
+    void AnimateStep(int32_t offset);
     void OpenPanel();
     void ClosePanel();
     void Init(bool enable_controls);

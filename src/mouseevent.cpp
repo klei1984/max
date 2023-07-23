@@ -28,7 +28,7 @@ extern "C" {
 #include "smartobjectarray.hpp"
 
 static ObjectArray<MouseEvent> MouseEvent_MouseEvents;
-static unsigned char MouseEvent_PreviousButtons;
+static uint8_t MouseEvent_PreviousButtons;
 
 void MouseEvent::Clear() {
     MouseEvent_MouseEvents.Clear();
@@ -36,7 +36,7 @@ void MouseEvent::Clear() {
 }
 
 void MouseEvent::ProcessInput() {
-    unsigned int mouse_buttons;
+    uint32_t mouse_buttons;
 
     process_bk();
     mouse_buttons = mouse_get_buttons();
@@ -51,8 +51,8 @@ void MouseEvent::ProcessInput() {
 
     if (mouse_buttons != MouseEvent_PreviousButtons) {
         MouseEvent mouse_event;
-        int mouse_x;
-        int mouse_y;
+        int32_t mouse_x;
+        int32_t mouse_y;
 
         mouse_get_position(&mouse_x, &mouse_y);
 

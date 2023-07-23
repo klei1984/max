@@ -25,15 +25,15 @@
 #include "maxfloodfill.hpp"
 
 class PathFill : public MAXFloodFill {
-    unsigned char** map;
+    uint8_t** map;
 
 public:
-    PathFill(unsigned char** map);
+    PathFill(uint8_t** map);
 
-    int Vfunc0(Point point, int uly);
-    int Vfunc1(Point point, int lry);
-    int Vfunc2(Point point, int lry);
-    void Vfunc3(int ulx, int uly, int lry);
+    int32_t Vfunc0(Point point, int32_t uly);
+    int32_t Vfunc1(Point point, int32_t lry);
+    int32_t Vfunc2(Point point, int32_t lry);
+    void Vfunc3(int32_t ulx, int32_t uly, int32_t lry);
 };
 
 #endif /* PATHFILL_HPP */

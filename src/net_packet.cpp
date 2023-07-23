@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <new>
 
-void NetPacket::GrowBuffer(int length) {
+void NetPacket::GrowBuffer(int32_t length) {
     while (buffer_write_position + length >= buffer_capacity) {
         buffer_capacity *= 2;
     }
@@ -37,7 +37,7 @@ void NetPacket::GrowBuffer(int length) {
     buffer = new_buffer;
 }
 
-void NetPacket::Read(void* address, int length) {
+void NetPacket::Read(void* address, int32_t length) {
     SDL_assert(address);
     SDL_assert(buffer);
     SDL_assert(length);
@@ -47,7 +47,7 @@ void NetPacket::Read(void* address, int length) {
     buffer_read_position += length;
 }
 
-void NetPacket::Write(const void* address, int length) {
+void NetPacket::Write(const void* address, int32_t length) {
     if (!buffer) {
         buffer = new (std::nothrow) char[100];
         buffer_capacity = 100;
@@ -61,11 +61,11 @@ void NetPacket::Write(const void* address, int length) {
     buffer_write_position += length;
 }
 
-unsigned int NetPacket::Peek(unsigned int offset, void* data_address, unsigned int length) {
-    unsigned int size;
+uint32_t NetPacket::Peek(uint32_t offset, void* data_address, uint32_t length) {
+    uint32_t size;
 
     if (buffer) {
-        unsigned int end_position;
+        uint32_t end_position;
 
         end_position = std::min(offset + length, buffer_write_position);
         if (offset >= end_position) {
@@ -96,17 +96,17 @@ NetPacket::~NetPacket() { delete[] buffer; }
 
 char* NetPacket::GetBuffer() const { return buffer; }
 
-int NetPacket::GetDataSize() const { return buffer_write_position; }
+int32_t NetPacket::GetDataSize() const { return buffer_write_position; }
 
 NetPacket& operator<<(NetPacket& packet, SmartString& string) {
-    unsigned short length = string.GetLength() + sizeof('\0');
+    uint16_t length = string.GetLength() + sizeof('\0');
     packet.Write(&length, sizeof(length));
     packet.Write(string.GetCStr(), length);
     return packet;
 }
 
 NetPacket& operator<<(NetPacket& packet, const SmartString& string) {
-    unsigned short length = string.GetLength() + sizeof('\0');
+    uint16_t length = string.GetLength() + sizeof('\0');
     packet.Write(&length, sizeof(length));
     packet.Write(string.GetCStr(), length);
     return packet;
@@ -114,14 +114,14 @@ NetPacket& operator<<(NetPacket& packet, const SmartString& string) {
 
 void NetPacket::AddAddress(NetAddress& address) { addresses.PushBack(&address); }
 
-NetAddress& NetPacket::GetAddress(unsigned short index) const { return *addresses[index]; }
+NetAddress& NetPacket::GetAddress(uint16_t index) const { return *addresses[index]; }
 
-unsigned short NetPacket::GetAddressCount() const { return addresses.GetCount(); }
+uint16_t NetPacket::GetAddressCount() const { return addresses.GetCount(); }
 
 void NetPacket::ClearAddressTable() { addresses.Clear(); }
 
 NetPacket& operator>>(NetPacket& packet, SmartString& string) {
-    unsigned short length;
+    uint16_t length;
     packet.Read(&length, sizeof(length));
     char* text_buffer = new (std::nothrow) char[length];
     packet.Read(text_buffer, length);

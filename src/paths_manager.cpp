@@ -36,18 +36,18 @@
 #include "zonewalker.hpp"
 
 class PathsManager {
-    static unsigned char **PathsManager_AccessMap;
+    static uint8_t **PathsManager_AccessMap;
 
     SmartPointer<PathRequest> request;
     SmartList<PathRequest> requests;
-    unsigned int time_stamp;
-    unsigned int elapsed_time;
+    uint32_t time_stamp;
+    uint32_t elapsed_time;
     Searcher *forward_searcher;
     Searcher *backward_searcher;
 
     void CompleteRequest(GroundPath *path);
 
-    friend unsigned char **PathsManager_GetAccessMap();
+    friend uint8_t **PathsManager_GetAccessMap();
 
 public:
     PathsManager();
@@ -56,7 +56,7 @@ public:
     void PushBack(PathRequest &object);
     void PushFront(PathRequest &object);
     void Clear();
-    int GetRequestCount(unsigned short team) const;
+    int32_t GetRequestCount(uint16_t team) const;
     void RemoveRequest(PathRequest *path_request);
     void RemoveRequest(UnitInfo *unit);
     void EvaluateTiles();
@@ -65,18 +65,18 @@ public:
     void ProcessRequest();
 };
 
-unsigned char **PathsManager::PathsManager_AccessMap;
+uint8_t **PathsManager::PathsManager_AccessMap;
 
 static PathsManager PathsManager_Instance;
 
-static void PathsManager_ProcessStationaryUnits(unsigned char **map, UnitInfo *unit);
-static void PathsManager_ProcessMobileUnits(unsigned char **map, SmartList<UnitInfo> *units, UnitInfo *unit,
-                                            unsigned char flags);
-static void PathsManager_ProcessMapSurface(unsigned char **map, int surface_type, unsigned char value);
-static void PathsManager_ProcessGroundCover(unsigned char **map, UnitInfo *unit, int surface_type);
-static bool PathsManager_IsProcessed(int grid_x, int grid_y);
-static void PathsManager_ProcessDangers(unsigned char **map, UnitInfo *unit);
-static void PathsManager_ProcessSurface(unsigned char **map, UnitInfo *unit);
+static void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit);
+static void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, UnitInfo *unit,
+                                            uint8_t flags);
+static void PathsManager_ProcessMapSurface(uint8_t **map, int32_t surface_type, uint8_t value);
+static void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surface_type);
+static bool PathsManager_IsProcessed(int32_t grid_x, int32_t grid_y);
+static void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit);
+static void PathsManager_ProcessSurface(uint8_t **map, UnitInfo *unit);
 
 PathsManager::PathsManager() : forward_searcher(nullptr), backward_searcher(nullptr), time_stamp(0), elapsed_time(0) {}
 
@@ -85,7 +85,7 @@ PathsManager::~PathsManager() {
     delete backward_searcher;
 
     if (PathsManager_AccessMap) {
-        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
+        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
             delete[] PathsManager_AccessMap[i];
         }
 
@@ -126,8 +126,8 @@ void PathsManager::PushFront(PathRequest &object) {
     requests.PushFront(object);
 }
 
-int PathsManager::GetRequestCount(unsigned short team) const {
-    int count;
+int32_t PathsManager::GetRequestCount(uint16_t team) const {
+    int32_t count;
 
     count = 0;
 
@@ -219,7 +219,7 @@ void PathsManager::EvaluateTiles() {
         unit = request->GetClient();
         path_request = request;
 
-        for (int index = 5;;) {
+        for (int32_t index = 5;;) {
             MouseEvent::ProcessInput();
             --index;
 
@@ -302,7 +302,7 @@ bool PathsManager::HasRequest(UnitInfo *unit) const {
     return false;
 }
 
-int PathsManager_GetRequestCount(unsigned short team) { return PathsManager_Instance.GetRequestCount(team); }
+int32_t PathsManager_GetRequestCount(uint16_t team) { return PathsManager_Instance.GetRequestCount(team); }
 
 void PathsManager_RemoveRequest(PathRequest *request) { PathsManager_Instance.RemoveRequest(request); }
 
@@ -322,10 +322,10 @@ bool PathsManager::Init(UnitInfo *unit) {
     bool result;
 
     if (PathsManager_AccessMap == nullptr) {
-        PathsManager_AccessMap = new (std::nothrow) unsigned char *[ResourceManager_MapSize.x];
+        PathsManager_AccessMap = new (std::nothrow) uint8_t *[ResourceManager_MapSize.x];
 
-        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-            PathsManager_AccessMap[i] = new (std::nothrow) unsigned char[ResourceManager_MapSize.y];
+        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+            PathsManager_AccessMap[i] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
         }
     }
 
@@ -337,8 +337,8 @@ bool PathsManager::Init(UnitInfo *unit) {
         PathsManager_InitAccessMap(request->GetTransporter(), access_map.GetMap(), request->GetFlags(),
                                    CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
-        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-            for (int j = 0; j < ResourceManager_MapSize.y; ++j) {
+        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+            for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
                 if (access_map.GetMapColumn(i)[j]) {
                     if (PathsManager_AccessMap[i][j] == 0x00) {
                         PathsManager_AccessMap[i][j] = (access_map.GetMapColumn(i)[j] * 3) | 0x80;
@@ -354,13 +354,13 @@ bool PathsManager::Init(UnitInfo *unit) {
     {
         Point point1(unit->grid_x, unit->grid_y);
         Point point2 = request->GetDestination();
-        int minimum_distance;
-        int minimum_distance_sqrt;
-        int distance_squared;
-        int distance_x;
-        int distance_y;
-        int limit;
-        int limit2;
+        int32_t minimum_distance;
+        int32_t minimum_distance_sqrt;
+        int32_t distance_squared;
+        int32_t distance_x;
+        int32_t distance_y;
+        int32_t limit;
+        int32_t limit2;
 
         PathsManager_AccessMap[point1.x][point1.y] = 2;
 
@@ -370,8 +370,8 @@ bool PathsManager::Init(UnitInfo *unit) {
             receiver_unit = Access_GetReceiverUnit(unit, point2.x, point2.y);
 
             if (receiver_unit != nullptr) {
-                int grid_x = receiver_unit->grid_x;
-                int grid_y = receiver_unit->grid_y;
+                int32_t grid_x = receiver_unit->grid_x;
+                int32_t grid_y = receiver_unit->grid_y;
 
                 PathsManager_AccessMap[grid_x][grid_y] = 2;
 
@@ -389,15 +389,15 @@ bool PathsManager::Init(UnitInfo *unit) {
         result = false;
 
         if (minimum_distance_sqrt == 0) {
-            unsigned char value = PathsManager_AccessMap[point2.x][point2.y];
+            uint8_t value = PathsManager_AccessMap[point2.x][point2.y];
 
             if (value && !(value & 0x80)) {
                 result = true;
             }
         }
 
-        for (int i = point2.x - minimum_distance_sqrt; i < point2.x; ++i) {
-            int j;
+        for (int32_t i = point2.x - minimum_distance_sqrt; i < point2.x; ++i) {
+            int32_t j;
 
             distance_squared = (i - point2.x) * (i - point2.x);
 
@@ -574,8 +574,8 @@ void PathsManager::ProcessRequest() {
     }
 }
 
-void PathsManager_ProcessStationaryUnits(unsigned char **map, UnitInfo *unit) {
-    unsigned short team = unit->team;
+void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit) {
+    uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -591,9 +591,9 @@ void PathsManager_ProcessStationaryUnits(unsigned char **map, UnitInfo *unit) {
     }
 }
 
-void PathsManager_ProcessMobileUnits(unsigned char **map, SmartList<UnitInfo> *units, UnitInfo *unit,
-                                     unsigned char flags) {
-    unsigned short team = unit->team;
+void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, UnitInfo *unit,
+                                     uint8_t flags) {
+    uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).orders != ORDER_IDLE && (*it).IsVisibleToTeam(team)) {
@@ -609,9 +609,9 @@ void PathsManager_ProcessMobileUnits(unsigned char **map, SmartList<UnitInfo> *u
     }
 }
 
-void PathsManager_ProcessMapSurface(unsigned char **map, int surface_type, unsigned char value) {
-    for (int index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
-        for (int index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
+void PathsManager_ProcessMapSurface(uint8_t **map, int32_t surface_type, uint8_t value) {
+    for (int32_t index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
+        for (int32_t index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
             if (ResourceManager_MapSurfaceMap[index_y * ResourceManager_MapSize.x + index_x] == surface_type) {
                 map[index_x][index_y] = value;
             }
@@ -619,8 +619,8 @@ void PathsManager_ProcessMapSurface(unsigned char **map, int surface_type, unsig
     }
 }
 
-void PathsManager_ProcessGroundCover(unsigned char **map, UnitInfo *unit, int surface_type) {
-    unsigned short team = unit->team;
+void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surface_type) {
+    uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
@@ -693,20 +693,20 @@ void PathsManager_ProcessGroundCover(unsigned char **map, UnitInfo *unit, int su
     }
 }
 
-void PathsManager_InitAccessMap(UnitInfo *unit, unsigned char **map, unsigned char flags, int caution_level) {
+void PathsManager_InitAccessMap(UnitInfo *unit, uint8_t **map, uint8_t flags, int32_t caution_level) {
     AiLog log("Mark cost map for %s.", UnitsManager_BaseUnits[unit->unit_type].singular_name);
 
     if (unit->flags & MOBILE_AIR_UNIT) {
-        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
+        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
             memset(map[i], 4, ResourceManager_MapSize.y);
         }
 
         PathsManager_ProcessMobileUnits(map, &UnitsManager_MobileAirUnits, unit, flags);
 
     } else {
-        int surface_types = UnitsManager_BaseUnits[unit->unit_type].land_type;
+        int32_t surface_types = UnitsManager_BaseUnits[unit->unit_type].land_type;
 
-        for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
+        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
             memset(map[i], 0, ResourceManager_MapSize.y);
         }
 
@@ -737,17 +737,17 @@ void PathsManager_InitAccessMap(UnitInfo *unit, unsigned char **map, unsigned ch
     }
 }
 
-unsigned char **PathsManager_GetAccessMap() { return PathsManager::PathsManager_AccessMap; }
+uint8_t **PathsManager_GetAccessMap() { return PathsManager::PathsManager_AccessMap; }
 
-void PathsManager_ApplyCautionLevel(unsigned char **map, UnitInfo *unit, int caution_level) {
+void PathsManager_ApplyCautionLevel(uint8_t **map, UnitInfo *unit, int32_t caution_level) {
     if (caution_level > 0) {
         if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER) {
             PathsManager_ProcessDangers(map, unit);
         }
 
         if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
-            int unit_hits = unit->hits;
-            short **damage_potential_map;
+            int32_t unit_hits = unit->hits;
+            int16_t **damage_potential_map;
 
             if (unit->GetId() == 0xFFFF) {
                 damage_potential_map =
@@ -762,8 +762,8 @@ void PathsManager_ApplyCautionLevel(unsigned char **map, UnitInfo *unit, int cau
                     unit_hits = 1;
                 }
 
-                for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-                    for (int j = 0; j < ResourceManager_MapSize.y; ++j) {
+                for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+                    for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
                         if (damage_potential_map[i][j] >= unit_hits) {
                             map[i][j] = 0;
                         }
@@ -774,11 +774,11 @@ void PathsManager_ApplyCautionLevel(unsigned char **map, UnitInfo *unit, int cau
     }
 }
 
-bool PathsManager_IsProcessed(int grid_x, int grid_y) {
+bool PathsManager_IsProcessed(int32_t grid_x, int32_t grid_y) {
     bool result;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
-        unsigned char value = PathsManager_GetAccessMap()[grid_x][grid_y];
+        uint8_t value = PathsManager_GetAccessMap()[grid_x][grid_y];
 
         if (value && !(value & 0x80)) {
             result = true;
@@ -812,8 +812,8 @@ void PathsManager_SetPathDebugMode() {
     }
 }
 
-void PathsManager_ProcessDangers(unsigned char **map, UnitInfo *unit) {
-    unsigned short team = unit->team;
+void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
+    uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -846,8 +846,8 @@ void PathsManager_ProcessDangers(unsigned char **map, UnitInfo *unit) {
     }
 }
 
-void PathsManager_ProcessSurface(unsigned char **map, UnitInfo *unit) {
-    int range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+void PathsManager_ProcessSurface(uint8_t **map, UnitInfo *unit) {
+    int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
     Point position(unit->grid_x, unit->grid_y);
 
     if (unit->unit_type == SUBMARNE || unit->unit_type == CORVETTE) {
@@ -863,8 +863,8 @@ void PathsManager_ProcessSurface(unsigned char **map, UnitInfo *unit) {
     } else {
         Point point3;
         Point point4;
-        int range_square;
-        int distance_square;
+        int32_t range_square;
+        int32_t distance_square;
 
         range_square = range * range;
 

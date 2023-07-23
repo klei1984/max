@@ -22,21 +22,25 @@
 #ifndef GRBUF_H
 #define GRBUF_H
 
-void draw_line(unsigned char* buffer, int width, int x1, int y1, int x2, int y2, int color);
-void draw_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color);
-void draw_shaded_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color1, int color2);
-void draw_circle(unsigned char* buf, int full, int x, int y, int r, int color);
-void cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, int nw, int nl, int full2);
-void trans_cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, int nw, int nl, int full2);
-void buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2);
-void trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2);
-void mask_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* msk, int full2,
-                     unsigned char* dst, int full3);
-void mask_trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* msk, int full2,
-                           unsigned char* dst, int full3);
-void buf_fill(unsigned char* buf, int width, int length, int full, int color);
-void buf_texture(unsigned char* buf, int width, int length, int full, unsigned char* texture, int tx, int ty);
-void lighten_buf(unsigned char* buf, int width, int length, int full);
-void swap_color_buf(unsigned char* buf, int width, int length, int full, int c1, int c2);
+#include <stdint.h>
+
+void draw_line(uint8_t* buffer, int32_t width, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
+void draw_box(uint8_t* buf, int32_t full, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color);
+void draw_shaded_box(uint8_t* buf, int32_t full, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color1,
+                     int32_t color2);
+void draw_circle(uint8_t* buf, int32_t full, int32_t x, int32_t y, int32_t r, int32_t color);
+void cscale(uint8_t* src, int32_t ow, int32_t ol, int32_t full, uint8_t* dst, int32_t nw, int32_t nl, int32_t full2);
+void trans_cscale(uint8_t* src, int32_t ow, int32_t ol, int32_t full, uint8_t* dst, int32_t nw, int32_t nl,
+                  int32_t full2);
+void buf_to_buf(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* dst, int32_t full2);
+void trans_buf_to_buf(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* dst, int32_t full2);
+void mask_buf_to_buf(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* msk, int32_t full2,
+                     uint8_t* dst, int32_t full3);
+void mask_trans_buf_to_buf(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* msk, int32_t full2,
+                           uint8_t* dst, int32_t full3);
+void buf_fill(uint8_t* buf, int32_t width, int32_t length, int32_t full, int32_t color);
+void buf_texture(uint8_t* buf, int32_t width, int32_t length, int32_t full, uint8_t* texture, int32_t tx, int32_t ty);
+void lighten_buf(uint8_t* buf, int32_t width, int32_t length, int32_t full);
+void swap_color_buf(uint8_t* buf, int32_t width, int32_t length, int32_t full, int32_t c1, int32_t c2);
 
 #endif /* GRBUF_H */

@@ -26,58 +26,58 @@
 typedef struct tm_item_s {
     TOCKS created;
     WinID id;
-    int location;
+    int32_t location;
 } tm_item;
 
 typedef struct tm_location_item_s {
-    int taken;
-    int y;
+    int32_t taken;
+    int32_t y;
 } tm_location_item;
 
-static WinID create_pull_down(char** list, int num, int ulx, int uly, int fcolor, int bcolor, Rect* r);
-static int process_pull_down(WinID id, Rect* r, char** list, int num, int fcolor, int bcolor, GNW_Menu* m, int num_pd);
-static void win_debug_delete(ButtonID bid, int button_value);
-static int find_first_letter(int c, char** list, int num);
-static int calc_max_field_chars_wcursor(int min, int max);
-static int get_num_i(WinID id, int* value, int max_chars_wcursor, char clear, char allow_negative, int x, int y);
+static WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_t fcolor, int32_t bcolor, Rect* r);
+static int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t fcolor, int32_t bcolor, GNW_Menu* m, int32_t num_pd);
+static void win_debug_delete(ButtonID bid, int32_t button_value);
+static int32_t find_first_letter(int32_t c, char** list, int32_t num);
+static int32_t calc_max_field_chars_wcursor(int32_t min, int32_t max);
+static int32_t get_num_i(WinID id, int32_t* value, int32_t max_chars_wcursor, char clear, char allow_negative, int32_t x, int32_t y);
 static void tm_watch_msgs(void);
 static void tm_kill_msg(void);
-static void tm_kill_out_of_order(int queue_index);
-static void tm_click_response(ButtonID b_id, int b_value);
-static int tm_index_active(int queue_index);
+static void tm_kill_out_of_order(int32_t queue_index);
+static void tm_click_response(ButtonID b_id, int32_t b_value);
+static int32_t tm_index_active(int32_t queue_index);
 
-int win_list_select(char* title, char** list, int num, SelectFunc select_func, int ulx, int uly, int color) {
+int32_t win_list_select(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly, int32_t color) {
     return win_list_select_at(title, list, num, select_func, ulx, uly, color, 0);
 }
 
 static tm_location_item tm_location[5];
-static int tm_text_x;
-static int tm_h;
+static int32_t tm_text_x;
+static int32_t tm_h;
 static tm_item tm_queue[5];
 static TOCKS tm_persistence;
-static int tm_kill;
-static int scr_center_x;
-static int tm_add;
-static int tm_text_y;
-static int curry;
-static int currx;
-static int tm_watch_active;
+static int32_t tm_kill;
+static int32_t scr_center_x;
+static int32_t tm_add;
+static int32_t tm_text_y;
+static int32_t curry;
+static int32_t currx;
+static int32_t tm_watch_active;
 
 static WinID wd = -1;
 
-int win_list_select_at(char* title, char** list, int num, SelectFunc select_func, int ulx, int uly, int color,
-                       int start) {
+int32_t win_list_select_at(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly, int32_t color,
+                       int32_t start) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
     return -1;
 }
 
-int win_get_str(char* str, int limit, char* title, int x, int y) {
-    unsigned char* buf;
-    int retval;
-    int width;
-    int length;
+int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y) {
+    uint8_t* buf;
+    int32_t retval;
+    int32_t width;
+    int32_t length;
     WinID id;
 
     if (GNW_win_init_flag) {
@@ -126,30 +126,30 @@ int win_get_str(char* str, int limit, char* title, int x, int y) {
     return retval;
 }
 
-int win_output(char* title, char** list, int num, int ulx, int uly, int color, char* extra_button) {
+int32_t win_output(char* title, char** list, int32_t num, int32_t ulx, int32_t uly, int32_t color, char* extra_button) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
     return -1;
 }
 
-int win_yes_no(char* question, int ulx, int uly, int color) {
+int32_t win_yes_no(char* question, int32_t ulx, int32_t uly, int32_t color) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
     return -1;
 }
 
-int win_msg(char* msg, int ulx, int uly, int color) {
+int32_t win_msg(char* msg, int32_t ulx, int32_t uly, int32_t color) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
     return -1;
 }
 
-int win_pull_down(char** list, int num, int ulx, int uly, int color) {
+int32_t win_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_t color) {
     Rect r;
-    int result;
+    int32_t result;
     WinID id;
 
     if (GNW_win_init_flag) {
@@ -167,10 +167,10 @@ int win_pull_down(char** list, int num, int ulx, int uly, int color) {
     return result;
 }
 
-WinID create_pull_down(char** list, int num, int ulx, int uly, int fcolor, int bcolor, Rect* r) {
+WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_t fcolor, int32_t bcolor, Rect* r) {
     WinID result;
-    int width;
-    int length;
+    int32_t width;
+    int32_t length;
     WinID id;
 
     length = num * Text_GetHeight() + 16;
@@ -200,27 +200,27 @@ WinID create_pull_down(char** list, int num, int ulx, int uly, int fcolor, int b
     return result;
 }
 
-int process_pull_down(WinID id, Rect* r, char** list, int num, int fcolor, int bcolor, GNW_Menu* m, int num_pd) {
+int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t fcolor, int32_t bcolor, GNW_Menu* m, int32_t num_pd) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
     return -1;
 }
 
-int win_debug(char* str) {
+int32_t win_debug(char* str) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
     return -1;
 }
 
-void win_debug_delete(ButtonID bid, int button_value) {
+void win_debug_delete(ButtonID bid, int32_t button_value) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 }
 
-int win_register_menu_bar(WinID wid, int ulx, int uly, int width, int length, int fore_color, int back_color) {
-    int result;
+int32_t win_register_menu_bar(WinID wid, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t fore_color, int32_t back_color) {
+    int32_t result;
     GNW_Window* w;
 
     w = GNW_find(wid);
@@ -255,13 +255,13 @@ int win_register_menu_bar(WinID wid, int ulx, int uly, int width, int length, in
     return result;
 }
 
-int win_register_menu_pulldown(WinID wid, int offx, char* name, int value, int num, char** list, int fore_color,
-                               int back_color) {
-    int result;
+int32_t win_register_menu_pulldown(WinID wid, int32_t offx, char* name, int32_t value, int32_t num, char** list, int32_t fore_color,
+                               int32_t back_color) {
+    int32_t result;
     GNW_Window* w;
-    int i;
-    int x;
-    int y;
+    int32_t i;
+    int32_t x;
+    int32_t y;
 
     w = GNW_find(wid);
     if (GNW_win_init_flag && w && w->menu && w->menu->num_pds != 15) {
@@ -313,13 +313,13 @@ void win_delete_menu_bar(WinID wid) {
     }
 }
 
-int GNW_process_menu(GNW_Menu* m, int num_pd) {
+int32_t GNW_process_menu(GNW_Menu* m, int32_t num_pd) {
     static GNW_Menu* curr_menu = NULL;
 
     Rect r;
     WinID wid;
-    int i;
-    int result;
+    int32_t i;
+    int32_t result;
     GNW_PD* pd;
 
     if (curr_menu) {
@@ -360,12 +360,12 @@ int GNW_process_menu(GNW_Menu* m, int num_pd) {
     return result;
 }
 
-int find_first_letter(int c, char** list, int num) {
+int32_t find_first_letter(int32_t c, char** list, int32_t num) {
     if (c >= 'A' && c <= 'Z') {
         c += ' ';
     }
 
-    for (int i = 0; i < num; i++) {
+    for (int32_t i = 0; i < num; i++) {
         if ((*list[i] == c) || (*list[i] == c - ' ')) {
             return i;
         }
@@ -374,11 +374,11 @@ int find_first_letter(int c, char** list, int num) {
     return -1;
 }
 
-int win_width_needed(char** list, int num) {
+int32_t win_width_needed(char** list, int32_t num) {
     char** lc;
-    int i;
-    int j;
-    int width;
+    int32_t i;
+    int32_t j;
+    int32_t width;
 
     width = 0;
     lc = list;
@@ -394,26 +394,26 @@ int win_width_needed(char** list, int num) {
     return width;
 }
 
-int win_input_str(WinID id, char* str, int limit, int x, int y, int text_color, int back_color) {
+int32_t win_input_str(WinID id, char* str, int32_t limit, int32_t x, int32_t y, int32_t text_color, int32_t back_color) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
     return -1;
 }
 
-int win_get_num_i(int* value, int min, int max, int clear, char* title, int x, int y) {
+int32_t win_get_num_i(int32_t* value, int32_t min, int32_t max, int32_t clear, char* title, int32_t x, int32_t y) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
     return -1;
 }
 
-int calc_max_field_chars_wcursor(int min, int max) {
-    int result;
+int32_t calc_max_field_chars_wcursor(int32_t min, int32_t max) {
+    int32_t result;
     char* str_num;
-    int len_min;
-    int len_max;
-    int r;
+    int32_t len_min;
+    int32_t len_max;
+    int32_t r;
 
     str_num = (char*)malloc(17);
 
@@ -440,7 +440,7 @@ int calc_max_field_chars_wcursor(int min, int max) {
     return result;
 }
 
-int get_num_i(WinID id, int* value, int max_chars_wcursor, char clear, char allow_negative, int x, int y) {
+int32_t get_num_i(WinID id, int32_t* value, int32_t max_chars_wcursor, char clear, char allow_negative, int32_t x, int32_t y) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
@@ -448,9 +448,9 @@ int get_num_i(WinID id, int* value, int max_chars_wcursor, char clear, char allo
 }
 
 void GNW_intr_init(void) {
-    int i;
-    int y_first;
-    int y_inc;
+    int32_t i;
+    int32_t y_first;
+    int32_t y_inc;
 
     tm_add = 0;
     tm_kill = -1;
@@ -485,7 +485,7 @@ void GNW_intr_exit(void) {
     }
 }
 
-int win_timed_msg(char* msg, int color) {
+int32_t win_timed_msg(char* msg, int32_t color) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
@@ -525,9 +525,9 @@ void tm_kill_msg(void) {
     }
 }
 
-void tm_kill_out_of_order(int queue_index) {
-    int copy_over;
-    int copy_from;
+void tm_kill_out_of_order(int32_t queue_index) {
+    int32_t copy_over;
+    int32_t copy_from;
 
     if (tm_kill != -1 && tm_index_active(queue_index)) {
         win_delete(tm_queue[queue_index].id);
@@ -558,8 +558,8 @@ void tm_kill_out_of_order(int queue_index) {
     }
 }
 
-void tm_click_response(ButtonID b_id, int b_value) {
-    int queue_index;
+void tm_click_response(ButtonID b_id, int32_t b_value) {
+    int32_t queue_index;
     WinID w_id;
 
     if (tm_kill != -1) {
@@ -583,7 +583,7 @@ void tm_click_response(ButtonID b_id, int b_value) {
     }
 }
 
-int tm_index_active(int queue_index) {
+int32_t tm_index_active(int32_t queue_index) {
     if (tm_kill == tm_add) {
         return 1;
     }

@@ -24,6 +24,7 @@
 
 #include <SDL.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #define PALETTE_SIZE 256
 
@@ -37,15 +38,15 @@
 #define COLOR_RED_ORANGE 0x07
 #define COLOR_PASTEL_YELLOW 0x08
 
-typedef unsigned char ColorIndex;
-typedef long ColorRGB;
-typedef unsigned char Color;
-typedef long fixed;
+typedef uint8_t ColorIndex;
+typedef int32_t ColorRGB;
+typedef uint8_t Color;
+typedef int32_t fixed;
 typedef ColorIndex ColorBlendTable[16][PALETTE_SIZE];
 
-typedef unsigned long (*ColorOpenFunc)(char* file, int mode);
-typedef unsigned long (*ColorReadFunc)(unsigned long handle, void* buf, unsigned long size);
-typedef unsigned long (*ColorCloseFunc)(unsigned long handle);
+typedef uint32_t (*ColorOpenFunc)(char* file, int32_t mode);
+typedef uint32_t (*ColorReadFunc)(uint32_t handle, void* buf, uint32_t size);
+typedef uint32_t (*ColorCloseFunc)(uint32_t handle);
 typedef char* (*ColorNameMangleFunc)(char* table);
 
 extern ColorIndex colorTable[32 * 32 * 32];
@@ -62,29 +63,29 @@ Color Index2Color(ColorIndex c);
 Color RGB2Color(ColorRGB c);
 ColorRGB Index2RGB(ColorIndex c);
 ColorRGB Color2RGB(Color c);
-void fadeSystemPalette(unsigned char* src, unsigned char* dest, int steps);
+void fadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps);
 void setBlackSystemPalette(void);
-void setSystemPalette(unsigned char* palette);
-unsigned char* getSystemPalette(void);
-void setSystemPaletteEntries(unsigned char* pal, unsigned int start, unsigned int end);
-void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
-void getSystemPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b);
-int loadColorTable(char* table);
+void setSystemPalette(uint8_t* palette);
+uint8_t* getSystemPalette(void);
+void setSystemPaletteEntries(uint8_t* pal, uint32_t start, uint32_t end);
+void setSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);
+void getSystemPaletteEntry(int32_t entry, uint8_t* r, uint8_t* g, uint8_t* b);
+int32_t loadColorTable(char* table);
 char* colorError(void);
-void setColorPalette(unsigned char* pal);
-void setColorPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
-void getColorPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b);
+void setColorPalette(uint8_t* pal);
+void setColorPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);
+void getColorPaletteEntry(int32_t entry, uint8_t* r, uint8_t* g, uint8_t* b);
 ColorBlendTable* getColorBlendTable(ColorIndex c);
 void freeColorBlendTable(ColorIndex c);
 void colorGamma(double gamma);
 double colorGetGamma(void);
-int colorMappedColor(ColorIndex i);
-int colorBuildColorTable(unsigned char* colormap, unsigned char* matchtable);
-int colorSetColorTable(unsigned char* colormap, unsigned char* matchtable);
-int colorPushColorPalette(void);
-int colorPopColorPalette(void);
-int initColors(void);
+int32_t colorMappedColor(ColorIndex i);
+int32_t colorBuildColorTable(uint8_t* colormap, uint8_t* matchtable);
+int32_t colorSetColorTable(uint8_t* colormap, uint8_t* matchtable);
+int32_t colorPushColorPalette(void);
+int32_t colorPopColorPalette(void);
+int32_t initColors(void);
 void colorsClose(void);
-unsigned char* getColorPalette(void);
+uint8_t* getColorPalette(void);
 
 #endif /* COLOR_H */

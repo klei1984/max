@@ -22,11 +22,13 @@
 #ifndef SCREENDUMP_H
 #define SCREENDUMP_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int screendump_pcx(int width, int length, unsigned char *buf, unsigned char *pal);
+int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal);
 
 #ifdef __cplusplus
 }

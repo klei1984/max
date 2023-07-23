@@ -25,18 +25,18 @@
 #include "maxfloodfill.hpp"
 
 class SiteMarker : public MAXFloodFill {
-    unsigned short** map;
-    unsigned short marker;
+    uint16_t** map;
+    uint16_t marker;
 
 public:
-    SiteMarker(unsigned short** map);
+    SiteMarker(uint16_t** map);
 
-    int Vfunc0(Point point, int uly);
-    int Vfunc1(Point point, int lry);
-    int Vfunc2(Point point, int lry);
-    void Vfunc3(int ulx, int uly, int lry);
+    int32_t Vfunc0(Point point, int32_t uly);
+    int32_t Vfunc1(Point point, int32_t lry);
+    int32_t Vfunc2(Point point, int32_t lry);
+    void Vfunc3(int32_t ulx, int32_t uly, int32_t lry);
 
-    int Fill(Point point, int value);
+    int32_t Fill(Point point, int32_t value);
 };
 
 #endif /* sitemarker_HPP */

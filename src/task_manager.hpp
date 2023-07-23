@@ -28,11 +28,11 @@
 #include "taskobtainunits.hpp"
 #include "unitinfo.hpp"
 
-int TaskManager_GetDistance(int distance_x, int distance_y);
-int TaskManager_GetDistance(Point point1, Point point2);
-int TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2);
+int32_t TaskManager_GetDistance(int32_t distance_x, int32_t distance_y);
+int32_t TaskManager_GetDistance(Point point1, Point point2);
+int32_t TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2);
 
-bool TaskManager_NeedToReserveRawMaterials(unsigned short team);
+bool TaskManager_NeedToReserveRawMaterials(uint16_t team);
 
 class TaskManager {
     SmartList<Task> tasks;
@@ -40,40 +40,40 @@ class TaskManager {
     SmartList<Reminder> normal_reminders;
     SmartList<Reminder> priority_reminders;
     SmartList<UnitInfo> units;
-    unsigned short reminder_counter;
+    uint16_t reminder_counter;
 
-    bool IsUnitNeeded(ResourceID unit_type, unsigned short team, unsigned short flags);
+    bool IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t flags);
 
 public:
     TaskManager();
     ~TaskManager();
 
-    bool CheckTasksThinking(unsigned short team);
+    bool CheckTasksThinking(uint16_t team);
     void CheckComputerReactions();
     void EnumeratePotentialAttackTargets(UnitInfo* unit);
     void AppendUnit(UnitInfo& unit);
-    void CreateBuilding(ResourceID unit_type, unsigned short team, Point site, Task* task);
-    void CreateUnit(ResourceID unit_type, unsigned short team, Point site, Task* task);
-    void ManufactureUnits(ResourceID unit_type, unsigned short team, int requested_amount, Task* task, Point site);
+    void CreateBuilding(ResourceID unit_type, uint16_t team, Point site, Task* task);
+    void CreateUnit(ResourceID unit_type, uint16_t team, Point site, Task* task);
+    void ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t requested_amount, Task* task, Point site);
     void AppendTask(Task& task);
     void AppendReminder(Reminder* reminder, bool priority = false);
     bool ExecuteReminders();
-    void BeginTurn(unsigned short team);
-    void EndTurn(unsigned short team);
-    void ChangeFlagsSet(unsigned short team);
+    void BeginTurn(uint16_t team);
+    void EndTurn(uint16_t team);
+    void ChangeFlagsSet(uint16_t team);
     void Clear();
     void RemindAvailable(UnitInfo* unit, bool priority = false);
     void FindTaskForUnit(UnitInfo* unit);
     void RemoveTask(Task& task);
     void RemoveDestroyedUnit(UnitInfo* unit);
     void AddSpottedUnit(UnitInfo* unit);
-    int GetRemindersCount() const;
+    int32_t GetRemindersCount() const;
     SmartList<Task>& GetTaskList();
 };
 
 const char* TaskManager_GetTaskName(Task* task);
 
 extern class TaskManager TaskManager;
-extern unsigned short TaskManager_word_1731C0;
+extern uint16_t TaskManager_word_1731C0;
 
 #endif /* TASK_MANAGER_HPP */

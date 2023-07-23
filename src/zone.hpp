@@ -56,7 +56,7 @@ struct ZoneSquare {
     UnitInfo* unit;
 
     ZoneSquare();
-    ZoneSquare(int grid_x, int grid_y, UnitInfo* unit);
+    ZoneSquare(int32_t grid_x, int32_t grid_y, UnitInfo* unit);
     ZoneSquare(const ZoneSquare& other);
 };
 

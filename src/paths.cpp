@@ -40,28 +40,28 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
-static int Paths_GetAngle(int x, int y);
-static void Paths_DrawMissile(UnitInfo* unit, int position_x, int position_y);
+static int32_t Paths_GetAngle(int32_t x, int32_t y);
+static void Paths_DrawMissile(UnitInfo* unit, int32_t position_x, int32_t position_y);
 static bool Paths_LoadUnit(UnitInfo* unit);
 static void Paths_FinishMove(UnitInfo* unit);
-static void Paths_TakeStep(UnitInfo* unit, int cost, int param);
-static bool Paths_CalculateStep(UnitInfo* unit, int cost, int param, bool is_diagonal_step);
+static void Paths_TakeStep(UnitInfo* unit, int32_t cost, int32_t param);
+static bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_diagonal_step);
 
-static unsigned short Paths_AirPath_TypeIndex;
+static uint16_t Paths_AirPath_TypeIndex;
 static MAXRegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
 
-static unsigned short Paths_GroundPath_TypeIndex;
+static uint16_t Paths_GroundPath_TypeIndex;
 static MAXRegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex,
                                                        &GroundPath::Allocate);
 
-static unsigned short Paths_BuilderPath_TypeIndex;
+static uint16_t Paths_BuilderPath_TypeIndex;
 static MAXRegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
                                                         &BuilderPath::Allocate);
 
 const Point Paths_8DirPointsArray[8] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
 
-const short Paths_8DirPointsArrayX[8] = {0, 1, 1, 1, 0, -1, -1, -1};
-const short Paths_8DirPointsArrayY[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
+const int16_t Paths_8DirPointsArrayX[8] = {0, 1, 1, 1, 0, -1, -1, -1};
+const int16_t Paths_8DirPointsArrayY[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
 
 const Point Paths_8DirPointsArrayMarkerA[8] = {{0, -10}, {8, -8}, {10, 0},  {8, 8},
                                                {0, 10},  {-8, 8}, {-10, 0}, {-8, -8}};
@@ -72,25 +72,25 @@ const Point Paths_8DirPointsArrayMarkerB[8] = {{-10, 10}, {-12, 0}, {-10, -10}, 
 const Point Paths_8DirPointsArrayMarkerC[8] = {{10, 10},   {0, 12},  {-10, 10}, {-12, 0},
                                                {-10, -10}, {0, -12}, {10, -10}, {12, 0}};
 
-unsigned int Paths_LastTimeStamp;
+uint32_t Paths_LastTimeStamp;
 bool Paths_TimeBenchmarkDisable;
-unsigned int Paths_TimeLimit = TIMER_FPS_TO_MS(30 / 1.1);
+uint32_t Paths_TimeLimit = TIMER_FPS_TO_MS(30 / 1.1);
 
-unsigned int Paths_DebugMode;
+uint32_t Paths_DebugMode;
 
-unsigned int Paths_EvaluatedTileCount;
-unsigned int Paths_EvaluatorCallCount;
-unsigned int Paths_SquareAdditionsCount;
-unsigned int Paths_SquareInsertionsCount;
-unsigned int Paths_EvaluatedSquareCount;
-unsigned int Paths_MaxDepth;
+uint32_t Paths_EvaluatedTileCount;
+uint32_t Paths_EvaluatorCallCount;
+uint32_t Paths_SquareAdditionsCount;
+uint32_t Paths_SquareInsertionsCount;
+uint32_t Paths_EvaluatedSquareCount;
+uint32_t Paths_MaxDepth;
 
 UnitPath::UnitPath() : x_end(0), y_end(0), distance_x(0), distance_y(0), euclidean_distance(0) {}
 
-UnitPath::UnitPath(int target_x, int target_y)
+UnitPath::UnitPath(int32_t target_x, int32_t target_y)
     : x_end(target_x), y_end(target_y), distance_x(0), distance_y(0), euclidean_distance(0) {}
 
-UnitPath::UnitPath(int distance_x, int distance_y, int euclidean_distance, int target_x, int target_y)
+UnitPath::UnitPath(int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x, int32_t target_y)
     : x_end(target_x),
       y_end(target_y),
       distance_x(distance_x),
@@ -101,7 +101,7 @@ UnitPath::~UnitPath() {}
 
 Point UnitPath::GetPosition(UnitInfo* unit) const { return Point(unit->grid_x, unit->grid_y); }
 
-bool UnitPath::IsInPath(int grid_x, int grid_y) const { return false; }
+bool UnitPath::IsInPath(int32_t grid_x, int32_t grid_y) const { return false; }
 
 void UnitPath::CancelMovement(UnitInfo* unit) {}
 
@@ -111,21 +111,21 @@ bool UnitPath::IsEndStep() const { return false; }
 
 void UnitPath::WritePacket(NetPacket& packet) {}
 
-void UnitPath::ReadPacket(NetPacket& packet, int steps_count) {}
+void UnitPath::ReadPacket(NetPacket& packet, int32_t steps_count) {}
 
-void UnitPath::Path_vfunc17(int distance_x, int distance_y) {}
+void UnitPath::Path_vfunc17(int32_t distance_x, int32_t distance_y) {}
 
-short UnitPath::GetEndX() const { return x_end; }
+int16_t UnitPath::GetEndX() const { return x_end; }
 
-short UnitPath::GetEndY() const { return y_end; }
+int16_t UnitPath::GetEndY() const { return y_end; }
 
-int UnitPath::GetDistanceX() const { return distance_x; }
+int32_t UnitPath::GetDistanceX() const { return distance_x; }
 
-int UnitPath::GetDistanceY() const { return distance_y; }
+int32_t UnitPath::GetDistanceY() const { return distance_y; }
 
-short UnitPath::GetEuclideanDistance() const { return euclidean_distance; }
+int16_t UnitPath::GetEuclideanDistance() const { return euclidean_distance; }
 
-void UnitPath::SetEndXY(int target_x, int target_y) {
+void UnitPath::SetEndXY(int32_t target_x, int32_t target_y) {
     x_end = target_x;
     y_end = target_y;
 }
@@ -133,7 +133,7 @@ void UnitPath::SetEndXY(int target_x, int target_y) {
 AirPath::AirPath()
     : length(0), angle(0), pixel_x_start(0), pixel_y_start(0), x_step(0), y_step(0), delta_x(0), delta_y(0) {}
 
-AirPath::AirPath(UnitInfo* unit, int distance_x, int distance_y, int euclidean_distance, int target_x, int target_y)
+AirPath::AirPath(UnitInfo* unit, int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x, int32_t target_y)
     : UnitPath(distance_x, distance_y, euclidean_distance, target_x, target_y),
       length(euclidean_distance),
       pixel_x_start(unit->x),
@@ -154,7 +154,7 @@ AirPath::~AirPath() {}
 
 FileObject* AirPath::Allocate() { return new (std::nothrow) AirPath(); }
 
-unsigned short AirPath::GetTypeIndex() const { return Paths_AirPath_TypeIndex; }
+uint16_t AirPath::GetTypeIndex() const { return Paths_AirPath_TypeIndex; }
 
 void AirPath::FileLoad(SmartFileReader& file) {
     file.Read(length);
@@ -183,8 +183,8 @@ void AirPath::FileSave(SmartFileWriter& file) {
 }
 
 Point AirPath::GetPosition(UnitInfo* unit) const {
-    int pixel_x;
-    int pixel_y;
+    int32_t pixel_x;
+    int32_t pixel_y;
     Point point(unit->grid_x, unit->grid_y);
 
     if (unit->flags & MOBILE_AIR_UNIT) {
@@ -259,7 +259,7 @@ void AirPath::CancelMovement(UnitInfo* unit) {
     }
 }
 
-int AirPath::GetMovementCost(UnitInfo* unit) { return (length / unit->max_velocity) * 4; }
+int32_t AirPath::GetMovementCost(UnitInfo* unit) { return (length / unit->max_velocity) * 4; }
 
 bool AirPath::Path_vfunc10(UnitInfo* unit) {
     bool team_visibility;
@@ -273,7 +273,7 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
         }
 
         if (unit->flags & MOBILE_AIR_UNIT) {
-            int speed = unit->speed;
+            int32_t speed = unit->speed;
 
             if (unit->group_speed) {
                 speed = unit->group_speed - 1;
@@ -290,8 +290,8 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
         if (!Paths_UpdateAngle(unit, angle)) {
             if (unit->flags & MOBILE_AIR_UNIT) {
                 if (length == 1) {
-                    int dx = labs(delta_x >> 16) >> 1;
-                    int dy = labs(delta_y >> 16) >> 1;
+                    int32_t dx = labs(delta_x >> 16) >> 1;
+                    int32_t dy = labs(delta_y >> 16) >> 1;
 
                     if (dx || dy) {
                         ++length;
@@ -308,12 +308,12 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
             x_step += delta_x;
             y_step += delta_y;
 
-            int position_x = (x_step >> 16) + pixel_x_start;
-            int position_y = (y_step >> 16) + pixel_y_start;
-            int offset_x = position_x - unit->x;
-            int offset_y = position_y - unit->y;
-            int grid_x = (position_x >> 6) - unit->grid_x;
-            int grid_y = (position_y >> 6) - unit->grid_y;
+            int32_t position_x = (x_step >> 16) + pixel_x_start;
+            int32_t position_y = (y_step >> 16) + pixel_y_start;
+            int32_t offset_x = position_x - unit->x;
+            int32_t offset_y = position_y - unit->y;
+            int32_t grid_x = (position_x >> 6) - unit->grid_x;
+            int32_t grid_y = (position_y >> 6) - unit->grid_y;
 
             if (grid_x || grid_y) {
                 if ((unit->flags & MISSILE_UNIT) && team_visibility) {
@@ -381,19 +381,19 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
     return false;
 }
 
-void AirPath::Path_vfunc12(int unknown) {}
+void AirPath::Path_vfunc12(int32_t unknown) {}
 
 void AirPath::Draw(UnitInfo* unit, WindowInfo* window) {
-    int steps;
-    int grid_x;
-    int grid_y;
-    int step_x;
-    int step_y;
-    int max_speed;
-    int base_speed;
-    int scaled_grid_x;
-    int scaled_grid_y;
-    int color;
+    int32_t steps;
+    int32_t grid_x;
+    int32_t grid_y;
+    int32_t step_x;
+    int32_t step_y;
+    int32_t max_speed;
+    int32_t base_speed;
+    int32_t scaled_grid_x;
+    int32_t scaled_grid_y;
+    int32_t color;
 
     steps = length / unit->max_velocity;
 
@@ -414,7 +414,7 @@ void AirPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
     base_speed = unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED);
 
-    for (int i = 0; i <= steps; ++i) {
+    for (int32_t i = 0; i <= steps; ++i) {
         if (grid_x < GameManager_MapWindowDrawBounds.lrx && grid_x > GameManager_MapWindowDrawBounds.ulx &&
             grid_y < GameManager_MapWindowDrawBounds.lry && grid_y > GameManager_MapWindowDrawBounds.uly) {
             scaled_grid_x = (grid_x << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
@@ -446,16 +446,16 @@ void AirPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
 GroundPath::GroundPath() : index(0) {}
 
-GroundPath::GroundPath(int target_x, int target_y) : UnitPath(target_x, target_y), index(0) {}
+GroundPath::GroundPath(int32_t target_x, int32_t target_y) : UnitPath(target_x, target_y), index(0) {}
 
 GroundPath::~GroundPath() {}
 
 FileObject* GroundPath::Allocate() { return new (std::nothrow) GroundPath(); }
 
-unsigned short GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
+uint16_t GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
 
 void GroundPath::FileLoad(SmartFileReader& file) {
-    int count;
+    int32_t count;
     PathStep step;
 
     file.Read(x_end);
@@ -466,14 +466,14 @@ void GroundPath::FileLoad(SmartFileReader& file) {
 
     steps.Clear();
 
-    for (int i = 0; i < count; ++i) {
+    for (int32_t i = 0; i < count; ++i) {
         file.Read(step);
         steps.PushBack(&step);
     }
 }
 
 void GroundPath::FileSave(SmartFileWriter& file) {
-    int count;
+    int32_t count;
     PathStep step;
 
     file.Write(x_end);
@@ -484,24 +484,24 @@ void GroundPath::FileSave(SmartFileWriter& file) {
 
     file.WriteObjectCount(count);
 
-    for (int i = 0; i < count; ++i) {
+    for (int32_t i = 0; i < count; ++i) {
         file.Write(*steps[i]);
     }
 }
 
 Point GroundPath::GetPosition(UnitInfo* unit) const {
     Point position(unit->grid_x, unit->grid_y);
-    int speed = unit->speed;
+    int32_t speed = unit->speed;
 
     if (unit->orders != ORDER_BUILD && unit->state == ORDER_STATE_1 && speed > 0) {
-        int move_fraction;
+        int32_t move_fraction;
         Point point;
         PathStep* step;
-        int step_cost;
+        int32_t step_cost;
 
         move_fraction = unit->move_fraction;
 
-        for (int i = index; i < steps->GetCount(); ++i) {
+        for (int32_t i = index; i < steps->GetCount(); ++i) {
             step = steps[i];
 
             point.x = position.x + step->x;
@@ -536,10 +536,10 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {
     return position;
 }
 
-bool GroundPath::IsInPath(int grid_x, int grid_y) const {
+bool GroundPath::IsInPath(int32_t grid_x, int32_t grid_y) const {
     Point point(0, 0);
 
-    for (int i = index; i < steps.GetCount(); ++i) {
+    for (int32_t i = index; i < steps.GetCount(); ++i) {
         if (point.x == grid_x && point.y == grid_y) {
             return true;
         }
@@ -568,18 +568,18 @@ void GroundPath::CancelMovement(UnitInfo* unit) {
     }
 }
 
-int GroundPath::GetMovementCost(UnitInfo* unit) {
-    int grid_x;
-    int grid_y;
-    int result;
-    int step_cost;
+int32_t GroundPath::GetMovementCost(UnitInfo* unit) {
+    int32_t grid_x;
+    int32_t grid_y;
+    int32_t result;
+    int32_t step_cost;
 
     grid_x = unit->grid_x;
     grid_y = unit->grid_y;
 
     result = 0;
 
-    for (int i = index; i < steps.GetCount(); ++i) {
+    for (int32_t i = index; i < steps.GetCount(); ++i) {
         PathStep* step = steps[i];
 
         if (step->x || step->y) {
@@ -601,15 +601,15 @@ int GroundPath::GetMovementCost(UnitInfo* unit) {
 
 bool GroundPath::Path_vfunc10(UnitInfo* unit) {
     PathStep* step;
-    int angle;
-    int grid_x;
-    int grid_y;
-    int target_grid_x;
-    int target_grid_y;
-    int offset_x;
-    int offset_y;
-    int speed;
-    int cost;
+    int32_t angle;
+    int32_t grid_x;
+    int32_t grid_y;
+    int32_t target_grid_x;
+    int32_t target_grid_y;
+    int32_t offset_x;
+    int32_t offset_y;
+    int32_t speed;
+    int32_t cost;
     bool is_diagonal_step;
 
     unit->target_grid_x = x_end;
@@ -671,8 +671,8 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
         SmartPointer<UnitInfo> receiver(Access_GetReceiverUnit(unit, target_grid_x, target_grid_y));
 
         if (receiver != nullptr) {
-            const int stored_units = Access_GetStoredUnitCount(&*receiver);
-            const int storable_units = receiver->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+            const int32_t stored_units = Access_GetStoredUnitCount(&*receiver);
+            const int32_t storable_units = receiver->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
             SDL_assert(stored_units <= storable_units && receiver->storage == stored_units);
 
@@ -718,15 +718,15 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
         if (Paths_CalculateStep(unit, cost, 2, is_diagonal_step)) {
             if ((unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
-                int image_index;
+                int32_t image_index;
 
-                int surface_type = Access_GetModifiedSurfaceType(target_grid_x, target_grid_y);
+                int32_t surface_type = Access_GetModifiedSurfaceType(target_grid_x, target_grid_y);
 
                 if (unit->unit_type == CLNTRANS) {
                     image_index = 0;
 
                     if (surface_type == SURFACE_TYPE_WATER) {
-                        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                                 if (UnitsManager_TeamInfo[team]
                                         .heat_map_stealth_sea[target_grid_y * ResourceManager_MapSize.x +
@@ -810,25 +810,25 @@ void GroundPath::UpdateUnitAngle(UnitInfo* unit) {
     }
 }
 
-void GroundPath::Path_vfunc12(int unknown) {}
+void GroundPath::Path_vfunc12(int32_t unknown) {}
 
 void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
-    int limited_speed;
-    int unit_speed;
-    int base_speed;
-    int grid_x;
-    int grid_y;
-    int scaled_grid_x;
-    int scaled_grid_y;
-    int pixel_grid_x;
-    int pixel_grid_y;
-    int steps_count;
-    int path_x = 0;
-    int path_y = 0;
-    int cost = 0;
-    int angle;
-    int color;
-    int shots;
+    int32_t limited_speed;
+    int32_t unit_speed;
+    int32_t base_speed;
+    int32_t grid_x;
+    int32_t grid_y;
+    int32_t scaled_grid_x;
+    int32_t scaled_grid_y;
+    int32_t pixel_grid_x;
+    int32_t pixel_grid_y;
+    int32_t steps_count;
+    int32_t path_x = 0;
+    int32_t path_y = 0;
+    int32_t cost = 0;
+    int32_t angle;
+    int32_t color;
+    int32_t shots;
 
     limited_speed = unit->speed;
 
@@ -850,7 +850,7 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
     steps_count = steps->GetCount();
 
-    for (int i = index; i <= steps_count; ++i) {
+    for (int32_t i = index; i <= steps_count; ++i) {
         if (i != steps_count) {
             path_x = steps[i]->x;
             path_y = steps[i]->y;
@@ -922,7 +922,7 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
                         shots = (unit_speed * unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) /
                                 (unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 4);
 
-                        shots = std::min(shots, static_cast<int>(unit->shots));
+                        shots = std::min(shots, static_cast<int32_t>(unit->shots));
                     }
 
                     Paths_DrawShots(window, scaled_grid_x, scaled_grid_y, shots);
@@ -940,27 +940,27 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
 bool GroundPath::IsEndStep() const { return index + 1 == steps.GetCount(); }
 
 void GroundPath::WritePacket(NetPacket& packet) {
-    unsigned short steps_count = steps.GetCount();
+    uint16_t steps_count = steps.GetCount();
 
     packet << steps_count;
 
-    for (int i = 0; i < steps_count; ++i) {
+    for (int32_t i = 0; i < steps_count; ++i) {
         packet << *steps[i];
     }
 }
 
-void GroundPath::ReadPacket(NetPacket& packet, int steps_count) {
+void GroundPath::ReadPacket(NetPacket& packet, int32_t steps_count) {
     PathStep step;
 
-    for (int i = 0; i < steps_count; ++i) {
+    for (int32_t i = 0; i < steps_count; ++i) {
         packet >> step;
         steps.PushBack(&step);
     }
 }
 
-void GroundPath::Path_vfunc17(int distance_x_, int distance_y_) {
-    int step_x;
-    int step_y;
+void GroundPath::Path_vfunc17(int32_t distance_x_, int32_t distance_y_) {
+    int32_t step_x;
+    int32_t step_y;
     PathStep step;
 
     while (distance_x_ || distance_y_) {
@@ -995,7 +995,7 @@ void GroundPath::Path_vfunc17(int distance_x_, int distance_y_) {
     }
 }
 
-void GroundPath::AddStep(int step_x, int step_y) {
+void GroundPath::AddStep(int32_t step_x, int32_t step_y) {
     PathStep step;
 
     step.x = step_x;
@@ -1008,9 +1008,9 @@ void GroundPath::AddStep(int step_x, int step_y) {
 
 SmartObjectArray<PathStep> GroundPath::GetSteps() { return steps; }
 
-unsigned short GroundPath::GetPathStepIndex() const { return index; }
+uint16_t GroundPath::GetPathStepIndex() const { return index; }
 
-bool Paths_RequestPath(UnitInfo* unit, int mode) {
+bool Paths_RequestPath(UnitInfo* unit, int32_t mode) {
     bool result;
 
     if (unit->orders == ORDER_MOVE_TO_ATTACK) {
@@ -1034,7 +1034,7 @@ bool Paths_RequestPath(UnitInfo* unit, int mode) {
         }
 
         if (unit->orders == ORDER_MOVE_TO_ATTACK) {
-            int range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+            int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
             request->SetMinimumDistance(range * range);
         }
@@ -1068,17 +1068,17 @@ bool Paths_RequestPath(UnitInfo* unit, int mode) {
 AirPath* Paths_GetAirPath(UnitInfo* unit) {
     AirPath* result;
 
-    int grid_x;
-    int grid_y;
-    int end_x;
-    int end_y;
-    int distance_x;
-    int distance_y;
-    int distance;
-    int max_distance;
-    int steps_distance;
-    int target_grid_x;
-    int target_grid_y;
+    int32_t grid_x;
+    int32_t grid_y;
+    int32_t end_x;
+    int32_t end_y;
+    int32_t distance_x;
+    int32_t distance_y;
+    int32_t distance;
+    int32_t max_distance;
+    int32_t steps_distance;
+    int32_t target_grid_x;
+    int32_t target_grid_y;
 
     unit->Redraw();
 
@@ -1189,7 +1189,7 @@ BuilderPath::~BuilderPath() {}
 
 FileObject* BuilderPath::Allocate() { return new (std::nothrow) BuilderPath(); }
 
-unsigned short BuilderPath::GetTypeIndex() const { return Paths_BuilderPath_TypeIndex; }
+uint16_t BuilderPath::GetTypeIndex() const { return Paths_BuilderPath_TypeIndex; }
 
 void BuilderPath::FileLoad(SmartFileReader& file) {
     file.Read(x);
@@ -1201,11 +1201,11 @@ void BuilderPath::FileSave(SmartFileWriter& file) {
     file.Write(y);
 }
 
-int BuilderPath::GetMovementCost(UnitInfo* unit) { return SHRT_MAX; }
+int32_t BuilderPath::GetMovementCost(UnitInfo* unit) { return SHRT_MAX; }
 
 bool BuilderPath::Path_vfunc10(UnitInfo* unit) {
     bool result;
-    int direction;
+    int32_t direction;
 
     if (ini_get_setting(INI_EFFECTS)) {
         unit->RefreshScreen();
@@ -1229,12 +1229,12 @@ bool BuilderPath::Path_vfunc10(UnitInfo* unit) {
     return result;
 }
 
-void BuilderPath::Path_vfunc12(int unknown) {}
+void BuilderPath::Path_vfunc12(int32_t unknown) {}
 
 void BuilderPath::Draw(UnitInfo* unit, WindowInfo* window) {}
 
-int Paths_GetAngle(int x, int y) {
-    int result;
+int32_t Paths_GetAngle(int32_t x, int32_t y) {
+    int32_t result;
 
     if (x) {
         if (x <= 0) {
@@ -1272,13 +1272,13 @@ int Paths_GetAngle(int x, int y) {
     return result;
 }
 
-bool Paths_UpdateAngle(UnitInfo* unit, int angle) {
+bool Paths_UpdateAngle(UnitInfo* unit, int32_t angle) {
     bool result;
 
     if (unit->angle != angle) {
-        int delta_a = angle - unit->angle;
-        int delta_b = unit->angle - angle;
-        int direction;
+        int32_t delta_a = angle - unit->angle;
+        int32_t delta_b = unit->angle - angle;
+        int32_t direction;
 
         if (delta_a < 0) {
             delta_a += 8;
@@ -1306,18 +1306,18 @@ bool Paths_UpdateAngle(UnitInfo* unit, int angle) {
     return result;
 }
 
-void Paths_DrawMissile(UnitInfo* unit, int position_x, int position_y) {
+void Paths_DrawMissile(UnitInfo* unit, int32_t position_x, int32_t position_y) {
     if (unit->unit_type == TORPEDO || unit->unit_type == ROCKET) {
-        int index;
-        int team;
-        int grid_x;
-        int grid_y;
-        int delta_x;
-        int delta_y;
-        int scaled_x;
-        int scaled_y;
-        int offset_x;
-        int offset_y;
+        int32_t index;
+        int32_t team;
+        int32_t grid_x;
+        int32_t grid_y;
+        int32_t delta_x;
+        int32_t delta_y;
+        int32_t scaled_x;
+        int32_t scaled_y;
+        int32_t offset_x;
+        int32_t offset_y;
         ResourceID unit_type;
 
         index = 3;
@@ -1336,7 +1336,7 @@ void Paths_DrawMissile(UnitInfo* unit, int position_x, int position_y) {
             unit_type = RKTSMOKE;
         }
 
-        for (int i = 0; i < index; ++i) {
+        for (int32_t i = 0; i < index; ++i) {
             SmartPointer<UnitInfo> particle =
                 UnitsManager_DeployUnit(unit_type, team, nullptr, grid_x, grid_y, 0, true);
 
@@ -1367,8 +1367,8 @@ bool Paths_LoadUnit(UnitInfo* unit) {
             result = true;
 
         } else if (shop->unit_type == HANGAR && unit->orders == ORDER_MOVE_TO_UNIT) {
-            const int stored_units = Access_GetStoredUnitCount(shop);
-            const int storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+            const int32_t stored_units = Access_GetStoredUnitCount(shop);
+            const int32_t storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
             SDL_assert(stored_units <= storable_units && shop->storage == stored_units);
 
@@ -1404,8 +1404,8 @@ bool Paths_LoadUnit(UnitInfo* unit) {
 }
 
 void Paths_FinishMove(UnitInfo* unit) {
-    int grid_x;
-    int grid_y;
+    int32_t grid_x;
+    int32_t grid_y;
 
     GameManager_RenderMinimapDisplay = true;
 
@@ -1455,8 +1455,8 @@ void Paths_FinishMove(UnitInfo* unit) {
     }
 }
 
-void Paths_TakeStep(UnitInfo* unit, int cost, int param) {
-    int group_speed;
+void Paths_TakeStep(UnitInfo* unit, int32_t cost, int32_t param) {
+    int32_t group_speed;
     UnitValues* base_values;
 
     if (GameManager_RealTime) {
@@ -1481,7 +1481,7 @@ void Paths_TakeStep(UnitInfo* unit, int cost, int param) {
     base_values = unit->GetBaseValues();
 
     if (!base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-        int shots;
+        int32_t shots;
 
         shots = (base_values->GetAttribute(ATTRIB_ROUNDS) * unit->speed) / base_values->GetAttribute(ATTRIB_SPEED);
 
@@ -1491,9 +1491,9 @@ void Paths_TakeStep(UnitInfo* unit, int cost, int param) {
     }
 }
 
-bool Paths_CalculateStep(UnitInfo* unit, int cost, int param, bool is_diagonal_step) {
-    int max_velocity;
-    int normalized_cost;
+bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_diagonal_step) {
+    int32_t max_velocity;
+    int32_t normalized_cost;
     bool result;
 
     if (GameManager_FastMovement) {
@@ -1553,13 +1553,13 @@ bool Paths_CalculateStep(UnitInfo* unit, int cost, int param, bool is_diagonal_s
     return result;
 }
 
-void Paths_DrawMarker(WindowInfo* window, int angle, int grid_x, int grid_y, int color) {
-    int a_x;
-    int a_y;
-    int b_x;
-    int b_y;
-    int c_x;
-    int c_y;
+void Paths_DrawMarker(WindowInfo* window, int32_t angle, int32_t grid_x, int32_t grid_y, int32_t color) {
+    int32_t a_x;
+    int32_t a_y;
+    int32_t b_x;
+    int32_t b_y;
+    int32_t c_x;
+    int32_t c_y;
 
     a_x = (Paths_8DirPointsArrayMarkerA[angle].x << 16) / Gfx_MapScalingFactor + grid_x;
     a_y = (Paths_8DirPointsArrayMarkerA[angle].y << 16) / Gfx_MapScalingFactor + grid_y;
@@ -1580,9 +1580,9 @@ void Paths_DrawMarker(WindowInfo* window, int angle, int grid_x, int grid_y, int
     draw_line(window->buffer, window->width, c_x, c_y, a_x, a_y, color);
 }
 
-void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots) {
+void Paths_DrawShots(WindowInfo* window, int32_t grid_x, int32_t grid_y, int32_t shots) {
     if (shots && GameManager_DisplayButtonStatus) {
-        int size;
+        int32_t size;
 
         size = 0x400000 / Gfx_MapScalingFactor - 2;
 
@@ -1601,7 +1601,7 @@ void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots) {
                         if (image->width + grid_y < WindowManager_MapHeight) {
                             grid_x += (size / 2) - (image->width * shots);
 
-                            for (int i = 0; i < shots; ++i) {
+                            for (int32_t i = 0; i < shots; ++i) {
                                 if (grid_x >= 0 && (image->width + grid_x) < WindowManager_MapWidth) {
                                     WindowManager_DecodeSimpleImage(image, grid_x, grid_y, true, window);
                                 }
@@ -1616,7 +1616,7 @@ void Paths_DrawShots(WindowInfo* window, int grid_x, int grid_y, int shots) {
     }
 }
 
-bool Paths_IsOccupied(int grid_x, int grid_y, int angle, int team) {
+bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t team) {
     const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
     if (units) {

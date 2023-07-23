@@ -30,19 +30,19 @@ class TaskFrontalAttack : public Task {
     SmartPointer<SpottedUnit> spotted_unit;
     SmartList<UnitInfo> units1;
     SmartList<UnitInfo> units2;
-    int caution_level;
+    int32_t caution_level;
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
     void Finish();
     void IssueOrders();
 
 public:
-    TaskFrontalAttack(unsigned short team, SpottedUnit* spotted_unit, int caution_level);
+    TaskFrontalAttack(uint16_t team, SpottedUnit* spotted_unit, int32_t caution_level);
     ~TaskFrontalAttack();
 
-    int GetCautionLevel(UnitInfo& unit);
+    int32_t GetCautionLevel(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
     void Begin();
     void BeginTurn();

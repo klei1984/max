@@ -27,7 +27,7 @@
 #include "taskremoverubble.hpp"
 #include "units_manager.hpp"
 
-TaskScavenge::TaskScavenge(unsigned short team_) : Task(team_, nullptr, 0x2100) { wait_for_unit = false; }
+TaskScavenge::TaskScavenge(uint16_t team_) : Task(team_, nullptr, 0x2100) { wait_for_unit = false; }
 
 TaskScavenge::~TaskScavenge() {}
 
@@ -39,7 +39,7 @@ char* TaskScavenge::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskScavenge::GetType() const { return TaskType_TaskScavenge; }
+uint8_t TaskScavenge::GetType() const { return TaskType_TaskScavenge; }
 
 bool TaskScavenge::IsNeeded() { return units.GetCount() == 0; }
 
@@ -94,8 +94,8 @@ bool TaskScavenge::Execute(UnitInfo& unit) {
 
     if (unit.IsReadyForOrders(this)) {
         UnitInfo* target = nullptr;
-        int distance;
-        int minimum_distance{INT32_MAX};
+        int32_t distance;
+        int32_t minimum_distance{INT32_MAX};
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {

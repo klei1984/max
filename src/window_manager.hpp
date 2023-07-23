@@ -91,34 +91,34 @@ enum {
 extern Color *WindowManager_SystemPalette;
 extern Color *WindowManager_ColorPalette;
 
-extern int WindowManager_WindowWidth;
-extern int WindowManager_WindowHeight;
-extern int WindowManager_MapWidth;
-extern int WindowManager_MapHeight;
+extern int32_t WindowManager_WindowWidth;
+extern int32_t WindowManager_WindowHeight;
+extern int32_t WindowManager_MapWidth;
+extern int32_t WindowManager_MapHeight;
 
-int WindowManager_Init();
-WindowInfo *WindowManager_GetWindow(unsigned char id);
+int32_t WindowManager_Init();
+WindowInfo *WindowManager_GetWindow(uint8_t id);
 void WindowManager_ClearWindow();
-void WindowManager_FadeOut(int steps);
-void WindowManager_FadeIn(int steps);
+void WindowManager_FadeOut(int32_t steps);
+void WindowManager_FadeIn(int32_t steps);
 void WindowManager_LoadPalette(ResourceID id);
-void WindowManager_DecodeBigImage(struct ImageBigHeader *image, unsigned char *buffer, int ulx, int uly, int pitch);
-int WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, short pitch, bool palette_from_image,
-                               bool draw_to_screen = true, int ulx = -1, int uly = -1, bool center_align = false,
+void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer, int32_t ulx, int32_t uly, int32_t pitch);
+int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int16_t pitch, bool palette_from_image,
+                               bool draw_to_screen = true, int32_t ulx = -1, int32_t uly = -1, bool center_align = false,
                                bool rescale = false);
-void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int ulx, int uly, bool has_transparency,
+void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int32_t ulx, int32_t uly, bool has_transparency,
                                      WindowInfo *w);
-void WindowManager_LoadSimpleImage(ResourceID id, int ulx, int uly, bool has_transparency, WindowInfo *w = nullptr);
-struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHeader *image, int scaling_factor);
+void WindowManager_LoadSimpleImage(ResourceID id, int32_t ulx, int32_t uly, bool has_transparency, WindowInfo *w = nullptr);
+struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHeader *image, int32_t scaling_factor);
 void WindowManager_ScaleResources();
-int WindowManager_GetWidth(WindowInfo *w);
-int WindowManager_GetHeight(WindowInfo *w);
-int WindowManager_ScaleUlx(WindowInfo *w, int ulx);
-int WindowManager_ScaleUly(WindowInfo *w, int uly);
-int WindowManager_ScaleLrx(WindowInfo *w, int ulx, int lrx);
-int WindowManager_ScaleLry(WindowInfo *w, int uly, int lry);
-int WindowManager_ScaleOffset(WindowInfo *w, int ulx, int uly);
+int32_t WindowManager_GetWidth(WindowInfo *w);
+int32_t WindowManager_GetHeight(WindowInfo *w);
+int32_t WindowManager_ScaleUlx(WindowInfo *w, int32_t ulx);
+int32_t WindowManager_ScaleUly(WindowInfo *w, int32_t uly);
+int32_t WindowManager_ScaleLrx(WindowInfo *w, int32_t ulx, int32_t lrx);
+int32_t WindowManager_ScaleLry(WindowInfo *w, int32_t uly, int32_t lry);
+int32_t WindowManager_ScaleOffset(WindowInfo *w, int32_t ulx, int32_t uly);
 double WindowManager_GetScale();
-void WindowManager_ScaleCursor(int help_id, int window_id, int &cursor_x, int &cursor_y);
+void WindowManager_ScaleCursor(int32_t help_id, int32_t window_id, int32_t &cursor_x, int32_t &cursor_y);
 
 #endif /* WINDOW_MANAGER_HPP */

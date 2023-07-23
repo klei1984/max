@@ -28,15 +28,15 @@
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
 
-static void Searcher_DrawMarker(int angle, int grid_x, int grid_y, int color);
-static int Searcher_EvaluateCost(Point point1, Point point2, bool mode);
+static void Searcher_DrawMarker(int32_t angle, int32_t grid_x, int32_t grid_y, int32_t color);
+static int32_t Searcher_EvaluateCost(Point point1, Point point2, bool mode);
 
-int Searcher::Searcher_MarkerColor = COLOR_RED;
+int32_t Searcher::Searcher_MarkerColor = COLOR_RED;
 
-void Searcher_DrawMarker(int angle, int grid_x, int grid_y, int color) {
+void Searcher_DrawMarker(int32_t angle, int32_t grid_x, int32_t grid_y, int32_t color) {
     WindowInfo* window;
-    int pixel_x;
-    int pixel_y;
+    int32_t pixel_x;
+    int32_t pixel_y;
     Rect bounds;
 
     window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
@@ -61,10 +61,10 @@ void Searcher_DrawMarker(int angle, int grid_x, int grid_y, int color) {
     win_draw_rect(window->id, &bounds);
 }
 
-int Searcher_EvaluateCost(Point point1, Point point2, bool mode) {
-    unsigned char value1;
-    unsigned char value2;
-    int result;
+int32_t Searcher_EvaluateCost(Point point1, Point point2, bool mode) {
+    uint8_t value1;
+    uint8_t value2;
+    int32_t result;
 
     value2 = PathsManager_GetAccessMap()[point2.x][point2.y];
 
@@ -90,20 +90,20 @@ int Searcher_EvaluateCost(Point point1, Point point2, bool mode) {
     return result;
 }
 
-Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) {
+Searcher::Searcher(Point point1, Point point2, uint8_t mode) : mode(mode) {
     Point map_size;
     PathSquare square;
 
-    costs_map = new (std::nothrow) unsigned short*[ResourceManager_MapSize.x];
-    directions_map = new (std::nothrow) unsigned char*[ResourceManager_MapSize.x];
+    costs_map = new (std::nothrow) uint16_t*[ResourceManager_MapSize.x];
+    directions_map = new (std::nothrow) uint8_t*[ResourceManager_MapSize.x];
 
-    for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-        costs_map[i] = new (std::nothrow) unsigned short[ResourceManager_MapSize.y];
-        directions_map[i] = new (std::nothrow) unsigned char[ResourceManager_MapSize.y];
+    for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+        costs_map[i] = new (std::nothrow) uint16_t[ResourceManager_MapSize.y];
+        directions_map[i] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
 
         memset(directions_map[i], 0xFF, ResourceManager_MapSize.y);
 
-        for (int j = 0; j < ResourceManager_MapSize.y; ++j) {
+        for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
             costs_map[i][j] = 0x3FFF;
         }
     }
@@ -129,9 +129,9 @@ Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) 
             line_distance_limit = map_size.x * 2 + map_size.y + 1;
         }
 
-        distance_vector = new (std::nothrow) unsigned short[line_distance_limit];
+        distance_vector = new (std::nothrow) uint16_t[line_distance_limit];
 
-        for (int i = 0; i < line_distance_limit; ++i) {
+        for (int32_t i = 0; i < line_distance_limit; ++i) {
             distance_vector[i] = 0x7FFF;
         }
 
@@ -148,7 +148,7 @@ Searcher::Searcher(Point point1, Point point2, unsigned char mode) : mode(mode) 
 }
 
 Searcher::~Searcher() {
-    for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
+    for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
         delete[] costs_map[i];
         delete[] directions_map[i];
     }
@@ -158,10 +158,10 @@ Searcher::~Searcher() {
     delete[] distance_vector;
 }
 
-void Searcher::EvaluateSquare(Point point, int cost, int direction, Searcher* searcher) {
+void Searcher::EvaluateSquare(Point point, int32_t cost, int32_t direction, Searcher* searcher) {
     Point distance;
-    short line_distance;
-    short array_value;
+    int16_t line_distance;
+    int16_t array_value;
 
     ++Paths_EvaluatedSquareCount;
 
@@ -189,9 +189,9 @@ void Searcher::EvaluateSquare(Point point, int cost, int direction, Searcher* se
         }
 
         if (cost + array_value <= costs_map[destination.x][destination.y]) {
-            int square_count;
-            int loop_limit;
-            int index;
+            int32_t square_count;
+            int32_t loop_limit;
+            int32_t index;
 
             square_count = squares.GetCount();
 
@@ -206,7 +206,7 @@ void Searcher::EvaluateSquare(Point point, int cost, int direction, Searcher* se
             ++Paths_SquareAdditionsCount;
 
             if (square_count > 0) {
-                int array_index;
+                int32_t array_index;
 
                 for (index = 0, loop_limit = square_count - 1; index < loop_limit;) {
                     array_index = (index + loop_limit + 1) / 2;
@@ -247,9 +247,9 @@ void Searcher::EvaluateSquare(Point point, int cost, int direction, Searcher* se
     }
 }
 
-void Searcher::UpdateCost(Point point1, Point point2, int cost) {
+void Searcher::UpdateCost(Point point1, Point point2, int32_t cost) {
     Point distance;
-    int line_distance;
+    int32_t line_distance;
 
     distance.x = labs(point2.x - point1.x);
     distance.y = labs(point2.y - point1.y);
@@ -280,10 +280,10 @@ void Searcher::Process(Point point, bool mode_flag) {
     Point point4;
     Point point5;
     PathSquare path_square;
-    int min_distance;
-    int direction;
-    int angle;
-    int step_cost;
+    int32_t min_distance;
+    int32_t direction;
+    int32_t angle;
+    int32_t step_cost;
 
     distance.x = destination.x - point.x;
     distance.y = destination.y - point.y;
@@ -404,9 +404,9 @@ void Searcher::Process(Point point, bool mode_flag) {
 bool Searcher::ForwardSearch(Searcher* backward_searcher) {
     Point step;
     Point position;
-    int position_cost;
+    int32_t position_cost;
     bool result;
-    int cost;
+    int32_t cost;
 
     if (squares.GetCount()) {
         ++Paths_EvaluatedTileCount;
@@ -420,7 +420,7 @@ bool Searcher::ForwardSearch(Searcher* backward_searcher) {
 
         Searcher_MarkerColor = COLOR_RED;
 
-        for (int direction = 0; direction < 8; ++direction) {
+        for (int32_t direction = 0; direction < 8; ++direction) {
             step = position;
             step += Paths_8DirPointsArray[direction];
 
@@ -452,10 +452,10 @@ bool Searcher::ForwardSearch(Searcher* backward_searcher) {
 bool Searcher::BackwardSearch(Searcher* forward_searcher) {
     Point step;
     Point position;
-    int position_cost;
+    int32_t position_cost;
     bool result;
-    int reference_cost;
-    int cost;
+    int32_t reference_cost;
+    int32_t cost;
 
     if (squares.GetCount()) {
         ++Paths_EvaluatedTileCount;
@@ -471,7 +471,7 @@ bool Searcher::BackwardSearch(Searcher* forward_searcher) {
 
         reference_cost = Searcher_EvaluateCost(position, position, mode);
 
-        for (int direction = 0; direction < 8; ++direction) {
+        for (int32_t direction = 0; direction < 8; ++direction) {
             step = position;
             step += Paths_8DirPointsArray[direction];
 
@@ -500,12 +500,12 @@ bool Searcher::BackwardSearch(Searcher* forward_searcher) {
     return result;
 }
 
-SmartPointer<GroundPath> Searcher::DeterminePath(Point point, int max_cost) {
+SmartPointer<GroundPath> Searcher::DeterminePath(Point point, int32_t max_cost) {
     SmartPointer<GroundPath> ground_path(new (std::nothrow) GroundPath(destination.x, destination.y));
     ObjectArray<Point> points;
-    int destination_x;
-    int destination_y;
-    int direction;
+    int32_t destination_x;
+    int32_t destination_y;
+    int32_t direction;
 
     destination_x = destination.x;
     destination_y = destination.y;
@@ -513,10 +513,10 @@ SmartPointer<GroundPath> Searcher::DeterminePath(Point point, int max_cost) {
     for (;;) {
         if (destination_x == point.x && destination_y == point.y) {
             if (points.GetCount()) {
-                int cost = 0;
-                int accessmap_cost;
+                int32_t cost = 0;
+                int32_t accessmap_cost;
 
-                for (int steps_count = points.GetCount() - 1; steps_count >= 0 && cost < max_cost; --steps_count) {
+                for (int32_t steps_count = points.GetCount() - 1; steps_count >= 0 && cost < max_cost; --steps_count) {
                     destination_x += points[steps_count]->x;
                     destination_y += points[steps_count]->y;
 

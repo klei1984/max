@@ -22,9 +22,11 @@
 #ifndef NET_ADDRESS_HPP
 #define NET_ADDRESS_HPP
 
+#include <cstdint>
+
 struct NetAddress {
-    unsigned int host;
-    unsigned short port;
+    uint32_t host;
+    uint16_t port;
 };
 
 bool inline operator==(const NetAddress& lhs, const NetAddress& rhs) {

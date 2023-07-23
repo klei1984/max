@@ -22,6 +22,7 @@
 #ifndef DOS_H
 #define DOS_H
 
+#include <stdint.h>
 #include <stdio.h>
 
 #if defined(__unix__)
@@ -33,8 +34,8 @@ int strnicmp(const char *s1, const char *s2, size_t len);
 
 long int filesize(FILE *fp);
 
-int dos_rand(void);
+int32_t dos_rand(void);
 
-void dos_srand(unsigned int seed);
+void dos_srand(uint32_t seed);
 
 #endif /* DOS_H */

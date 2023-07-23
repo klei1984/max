@@ -63,7 +63,7 @@ void TaskFrontalAttack::Finish() {
 
 void TaskFrontalAttack::IssueOrders() {
     UnitInfo* target = spotted_unit->GetUnit();
-    int units_ready_for_orders = 0;
+    int32_t units_ready_for_orders = 0;
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && target->hits > 0) {
         for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
@@ -105,8 +105,8 @@ void TaskFrontalAttack::IssueOrders() {
         while (units1.GetCount() > 0) {
             UnitInfo* attacker = nullptr;
             bool has_attack_target = false;
-            int unit_value;
-            int best_unit_value{0};
+            int32_t unit_value;
+            int32_t best_unit_value{0};
 
             for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
                 if ((*it).orders == ORDER_MOVE_TO_ATTACK || Access_GetDistance(&*it, spotted_unit->GetLastPosition()) <=
@@ -148,10 +148,10 @@ void TaskFrontalAttack::IssueOrders() {
             if (attacker) {
                 if (attacker->IsReadyForOrders(this)) {
                     Point site;
-                    int damage_potential_on_friendly_unit;
-                    int attacker_range;
-                    int total_predicted_damage_to_enemy;
-                    int local_caution_level;
+                    int32_t damage_potential_on_friendly_unit;
+                    int32_t attacker_range;
+                    int32_t total_predicted_damage_to_enemy;
+                    int32_t local_caution_level;
                     bool is_found;
 
                     if (attacker->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
@@ -285,7 +285,7 @@ void TaskFrontalAttack::IssueOrders() {
     }
 }
 
-TaskFrontalAttack::TaskFrontalAttack(unsigned short team_, SpottedUnit* spotted_unit_, int caution_level_)
+TaskFrontalAttack::TaskFrontalAttack(uint16_t team_, SpottedUnit* spotted_unit_, int32_t caution_level_)
     : Task(team_, nullptr, 0x400) {
     spotted_unit = spotted_unit_;
     caution_level = caution_level_;
@@ -294,8 +294,8 @@ TaskFrontalAttack::TaskFrontalAttack(unsigned short team_, SpottedUnit* spotted_
 
 TaskFrontalAttack::~TaskFrontalAttack() {}
 
-int TaskFrontalAttack::GetCautionLevel(UnitInfo& unit) {
-    int result;
+int32_t TaskFrontalAttack::GetCautionLevel(UnitInfo& unit) {
+    int32_t result;
 
     if (units1.Find(unit) != units1.End()) {
         result = CAUTION_LEVEL_NONE;
@@ -320,7 +320,7 @@ char* TaskFrontalAttack::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskFrontalAttack::GetType() const { return TaskType_TaskFrontalAttack; }
+uint8_t TaskFrontalAttack::GetType() const { return TaskType_TaskFrontalAttack; }
 
 void TaskFrontalAttack::AddUnit(UnitInfo& unit) {
     unit.AddTask(this);

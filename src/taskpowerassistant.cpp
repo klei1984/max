@@ -36,7 +36,7 @@ char* TaskPowerAssistant::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskPowerAssistant::GetType() const { return TaskType_TaskConnectionAssistant; }
+uint8_t TaskPowerAssistant::GetType() const { return TaskType_TaskConnectionAssistant; }
 
 void TaskPowerAssistant::BeginTurn() {
     if (manager->CheckPower()) {

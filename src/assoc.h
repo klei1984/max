@@ -23,6 +23,7 @@
 #define ASSOC_H
 
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 
 typedef struct db_file_s* DB_FILE;
@@ -31,10 +32,10 @@ typedef void* (*assoc_malloc_func)(size_t);
 typedef void* (*assoc_realloc_func)(void*, size_t);
 typedef void (*assoc_free_func)(void*);
 
-typedef int (*assoc_load_func_db)(DB_FILE stream, void*, size_t, int);
-typedef int (*assoc_save_func_db)(DB_FILE stream, void*, size_t, int);
-typedef int (*assoc_load_func)(FILE* fp, void*, size_t, int);
-typedef int (*assoc_save_func)(FILE* fp, void*, size_t, int);
+typedef int32_t (*assoc_load_func_db)(DB_FILE stream, void*, size_t, int32_t);
+typedef int32_t (*assoc_save_func_db)(DB_FILE stream, void*, size_t, int32_t);
+typedef int32_t (*assoc_load_func)(FILE* fp, void*, size_t, int32_t);
+typedef int32_t (*assoc_save_func)(FILE* fp, void*, size_t, int32_t);
 
 struct assoc_func_list_s {
     assoc_load_func loadFunc;
@@ -53,9 +54,9 @@ struct assoc_pair_s {
 typedef struct assoc_pair_s assoc_pair;
 
 struct assoc_array_s {
-    int init_flag;
-    int size;
-    int max;
+    int32_t init_flag;
+    int32_t size;
+    int32_t max;
     size_t datasize;
     assoc_func_list load_save_funcs;
     assoc_pair* list;
@@ -63,16 +64,16 @@ struct assoc_array_s {
 
 typedef struct assoc_array_s assoc_array;
 
-int assoc_init(assoc_array* a, int n, size_t datasize, assoc_func_list* assoc_funcs);
-int assoc_resize(assoc_array* a, int n);
-int assoc_free(assoc_array* a);
-int assoc_search(assoc_array* a, char* name);
-int assoc_insert(assoc_array* a, char* name, void* data);
-int assoc_delete(assoc_array* a, char* name);
-int assoc_copy(assoc_array* dst, assoc_array* src);
-int assoc_find_first(assoc_array* a, char* name, int find_num);
-int assoc_load(FILE* fp, assoc_array* a, int flags);
-int assoc_save(FILE* fp, assoc_array* a, int flags);
+int32_t assoc_init(assoc_array* a, int32_t n, size_t datasize, assoc_func_list* assoc_funcs);
+int32_t assoc_resize(assoc_array* a, int32_t n);
+int32_t assoc_free(assoc_array* a);
+int32_t assoc_search(assoc_array* a, char* name);
+int32_t assoc_insert(assoc_array* a, char* name, void* data);
+int32_t assoc_delete(assoc_array* a, char* name);
+int32_t assoc_copy(assoc_array* dst, assoc_array* src);
+int32_t assoc_find_first(assoc_array* a, char* name, int32_t find_num);
+int32_t assoc_load(FILE* fp, assoc_array* a, int32_t flags);
+int32_t assoc_save(FILE* fp, assoc_array* a, int32_t flags);
 void assoc_register_mem(assoc_malloc_func malloc_func, assoc_realloc_func realloc_func, assoc_free_func free_func);
 
 #endif /* ASSOC_H */

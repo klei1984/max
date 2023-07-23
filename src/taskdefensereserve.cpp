@@ -33,7 +33,7 @@
 bool TaskDefenseReserve::IsAdjacentToWater(UnitInfo* unit) {
     Point position;
     Rect bounds;
-    int unit_size;
+    int32_t unit_size;
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
@@ -47,8 +47,8 @@ bool TaskDefenseReserve::IsAdjacentToWater(UnitInfo* unit) {
     position.x = unit->grid_x - 1;
     position.y = unit->grid_x + unit_size;
 
-    for (int direction = 0; direction < 8; direction += 2) {
-        for (int range = 0; range < unit_size + 1; ++range) {
+    for (int32_t direction = 0; direction < 8; direction += 2) {
+        for (int32_t range = 0; range < unit_size + 1; ++range) {
             position += Paths_8DirPointsArray[direction];
 
             if (Access_IsInsideBounds(&bounds, &position) &&
@@ -86,8 +86,8 @@ bool TaskDefenseReserve::SupportAttacker(UnitInfo* unit) {
     return result;
 }
 
-TaskDefenseReserve::TaskDefenseReserve(unsigned short team_, Point site_) : Task(team_, nullptr, 0x1900) {
-    int ai_strategy = AiPlayer_Teams[team].GetStrategy();
+TaskDefenseReserve::TaskDefenseReserve(uint16_t team_, Point site_) : Task(team_, nullptr, 0x1900) {
+    int32_t ai_strategy = AiPlayer_Teams[team].GetStrategy();
     site = site_;
 
     managers[0].AddRule(ALNTANK, 1);
@@ -171,7 +171,7 @@ TaskDefenseReserve::~TaskDefenseReserve() {}
 
 bool TaskDefenseReserve::IsUnitUsable(UnitInfo& unit) {
     if (unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0) {
-        for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
+        for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
             if (managers[i].IsUnitUsable(&unit)) {
                 return true;
             }
@@ -187,10 +187,10 @@ char* TaskDefenseReserve::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskDefenseReserve::GetType() const { return TaskType_TaskDefenseReserve; }
+uint8_t TaskDefenseReserve::GetType() const { return TaskType_TaskDefenseReserve; }
 
 void TaskDefenseReserve::AddUnit(UnitInfo& unit) {
-    for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
+    for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         if (managers[i].AddUnit(&unit)) {
             unit.AddTask(this);
             unit.ScheduleDelayedTasks(false);
@@ -208,19 +208,19 @@ void TaskDefenseReserve::BeginTurn() {
 
 void TaskDefenseReserve::EndTurn() {
     SmartPointer<TaskObtainUnits> obtain_units_task;
-    int unit_counts[UNIT_END];
-    unsigned short target_team;
-    int total_assets_land;
-    int total_assets_sea;
-    int total_assets_air;
-    int total_assets_stealth_land;
-    int total_assets_stealth_sea;
+    int32_t unit_counts[UNIT_END];
+    uint16_t target_team;
+    int32_t total_assets_land;
+    int32_t total_assets_sea;
+    int32_t total_assets_air;
+    int32_t total_assets_stealth_land;
+    int32_t total_assets_stealth_sea;
 
     memset(unit_counts, 0, sizeof(unit_counts));
 
     target_team = AiPlayer_Teams[team].GetTargetTeam();
 
-    for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
+    for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         managers[i].MaintainDefences(this);
     }
 
@@ -254,7 +254,7 @@ void TaskDefenseReserve::EndTurn() {
     ++unit_counts[SHIPYARD];
     ++unit_counts[TRAINHAL];
 
-    for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
+    for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         managers[i].EvaluateNeeds(unit_counts);
     }
 
@@ -327,7 +327,7 @@ bool TaskDefenseReserve::Execute(UnitInfo& unit) {
 }
 
 void TaskDefenseReserve::RemoveSelf() {
-    for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
+    for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         managers[i].ClearUnitsList();
     }
 
@@ -337,7 +337,7 @@ void TaskDefenseReserve::RemoveSelf() {
 }
 
 void TaskDefenseReserve::RemoveUnit(UnitInfo& unit) {
-    for (int i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
+    for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         managers[i].RemoveUnit(&unit);
     }
 }

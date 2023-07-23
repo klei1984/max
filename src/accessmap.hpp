@@ -22,16 +22,18 @@
 #ifndef ACCESSMAP_HPP
 #define ACCESSMAP_HPP
 
+#include <cstdint>
+
 class AccessMap {
-    unsigned char **map;
-    short size;
+    uint8_t **map;
+    int16_t size;
 
 public:
     AccessMap();
     ~AccessMap();
 
-    unsigned char **GetMap() const;
-    unsigned char *GetMapColumn(int index) const;
+    uint8_t **GetMap() const;
+    uint8_t *GetMapColumn(int32_t index) const;
 };
 
 #endif /* ACCESSMAP_HPP */

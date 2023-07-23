@@ -27,12 +27,12 @@
 class SpottedUnit : public SmartObject {
     SmartPointer<UnitInfo> unit;
     SmartPointer<Task> task;
-    unsigned short team;
+    uint16_t team;
     Point last_position;
     bool visible_to_team;
 
 public:
-    SpottedUnit(UnitInfo* unit, unsigned short team);
+    SpottedUnit(UnitInfo* unit, uint16_t team);
     SpottedUnit(SmartFileReader& file);
     ~SpottedUnit();
 
@@ -43,15 +43,15 @@ public:
     void SetTask(Task* task);
 
     Point GetLastPosition();
-    int GetLastPositionX();
-    int GetLastPositionY();
+    int32_t GetLastPositionX();
+    int32_t GetLastPositionY();
     void SetPosition(Point position);
     void UpdatePosition();
     void UpdatePositionIfVisible();
 
     UnitInfo* GetUnit() const;
 
-    unsigned short GetTeam() const;
+    uint16_t GetTeam() const;
 };
 
 #endif /* SPOTTEDUNIT_HPP */

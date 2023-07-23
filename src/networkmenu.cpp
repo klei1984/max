@@ -39,7 +39,7 @@ struct NetworkMenuControlItem {
     Rect bounds;
     ResourceID image_id;
     const char *label;
-    int event_code;
+    int32_t event_code;
     void (NetworkMenu::*event_handler)();
     ResourceID sfx;
 };
@@ -112,7 +112,7 @@ static struct NetworkMenuControlItem network_menu_controls[] = {
 
 bool NetworkMenu_MenuLoop(bool is_host_mode) {
     NetworkMenu network_menu;
-    unsigned int time_stamp;
+    uint32_t time_stamp;
     bool event_release;
 
     event_release = false;
@@ -182,7 +182,7 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
                 }
             }
 
-            for (int i = 0; i < NETWORK_MENU_ITEM_COUNT; ++i) {
+            for (int32_t i = 0; i < NETWORK_MENU_ITEM_COUNT; ++i) {
                 if (network_menu.buttons[i]) {
                     if (network_menu.key == GNW_INPUT_PRESS + i) {
                         if (!event_release) {
@@ -233,7 +233,7 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
     return network_menu.connection_state;
 }
 
-void NetworkMenu::ButtonInit(int index) {
+void NetworkMenu::ButtonInit(int32_t index) {
     NetworkMenuControlItem *control;
 
     control = &network_menu_controls[index];
@@ -324,7 +324,7 @@ void NetworkMenu::Init() {
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    for (int i = 0; i < NETWORK_MENU_IMAGE_COUNT; ++i) {
+    for (int32_t i = 0; i < NETWORK_MENU_IMAGE_COUNT; ++i) {
         MenuTitleItem *menu_item = &network_menu_titles[i];
 
         images[i] = new (std::nothrow)
@@ -334,7 +334,7 @@ void NetworkMenu::Init() {
         images[i]->Copy(window);
     }
 
-    for (int i = 0; i < NETWORK_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < NETWORK_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
     }
 
@@ -342,7 +342,7 @@ void NetworkMenu::Init() {
 
     network_menu_titles[MENU_ITEM_NAME_FIELD].title = player_name;
 
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         team_nodes[i] = 0;
         team_names[i][0] = '\0';
         team_jar_in_use[i] = 0;
@@ -362,7 +362,7 @@ void NetworkMenu::Init() {
     if (is_host_mode) {
         ReadIniSettings(GAME_STATE_6);
 
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             default_team_names[i][0] = '\0';
         }
 
@@ -388,11 +388,11 @@ void NetworkMenu::Deinit() {
     delete text_edit1;
     delete text_edit2;
 
-    for (int i = 0; i < NETWORK_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < NETWORK_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
     }
 
-    for (int i = 0; i < NETWORK_MENU_IMAGE_COUNT; ++i) {
+    for (int32_t i = 0; i < NETWORK_MENU_IMAGE_COUNT; ++i) {
         delete images[i];
     }
 }
@@ -414,7 +414,7 @@ void NetworkMenu::EventSelectClan() {
 }
 
 void NetworkMenu::EventTextWindow() {
-    int key_press;
+    int32_t key_press;
     NetNode *host_node_pointer;
 
     host_node_pointer = Remote_Hosts[key - 2];
@@ -458,7 +458,7 @@ void NetworkMenu::EventMapButton() {
 }
 
 void NetworkMenu::EventLoadButton() {
-    int save_slot;
+    int32_t save_slot;
     SaveFormatHeader save_file_header;
 
     DeleteButtons();
@@ -473,7 +473,7 @@ void NetworkMenu::EventLoadButton() {
 
         SaveLoadMenu_GetSavedGameInfo(save_slot, GAME_TYPE_MULTI, save_file_header);
 
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             team_clans[i] = save_file_header.team_clan[i];
         }
 
@@ -490,8 +490,8 @@ void NetworkMenu::EventLoadButton() {
 }
 
 void NetworkMenu::EventScenarioButton() {
-    int team_index;
-    int ini_game_file_number;
+    int32_t team_index;
+    int32_t ini_game_file_number;
     SaveFormatHeader save_file_header;
 
     DeleteButtons();
@@ -509,7 +509,7 @@ void NetworkMenu::EventScenarioButton() {
         ini_set_setting(INI_TIMER, ini_timer);
         ini_set_setting(INI_ENDTURN, ini_endturn);
 
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             team_clans[i] = save_file_header.team_clan[i];
         }
 
@@ -523,8 +523,8 @@ void NetworkMenu::EventScenarioButton() {
 }
 
 void NetworkMenu::EventSetJar() {
-    int team_index;
-    int button_index;
+    int32_t team_index;
+    int32_t button_index;
 
     team_index = key - MENU_CONTROL_JAR_1;
     button_index = key;
@@ -607,7 +607,7 @@ void NetworkMenu::DrawScreen() {
     }
 
     if (host_node && minimap_world_index != ini_world_index) {
-        unsigned char *buffer_position;
+        uint8_t *buffer_position;
 
         minimap_world_index = ini_world_index;
 
@@ -621,8 +621,8 @@ void NetworkMenu::DrawScreen() {
     win_draw(window->id);
 
     if (is_host_mode || host_node) {
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-            int button_index = MENU_CONTROL_JAR_1 + i;
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            int32_t button_index = MENU_CONTROL_JAR_1 + i;
 
             if (team_nodes[i]) {
                 buttons[button_index]->SetRestState(true);
@@ -651,7 +651,7 @@ void NetworkMenu::InitPlayerPanel() {
     }
 }
 
-void NetworkMenu::SetButtonState(int button_index, bool state) {
+void NetworkMenu::SetButtonState(int32_t button_index, bool state) {
     if (state) {
         if (!buttons[button_index]) {
             ButtonInit(button_index);
@@ -663,7 +663,7 @@ void NetworkMenu::SetButtonState(int button_index, bool state) {
     }
 }
 
-void NetworkMenu::ReadIniSettings(int game_state) {
+void NetworkMenu::ReadIniSettings(int32_t game_state) {
     GameManager_GameState = game_state;
 
     ini_play_mode = ini_get_setting(INI_PLAY_MODE);
@@ -684,11 +684,11 @@ void NetworkMenu::ReadIniSettings(int game_state) {
     }
 }
 
-void NetworkMenu::DrawTextLine(int line_index, char *text, int height, bool horizontal_align) {
+void NetworkMenu::DrawTextLine(int32_t line_index, char *text, int32_t height, bool horizontal_align) {
     MenuTitleItem *menu_item = &network_menu_titles[MENU_ITEM_JOIN_TEXT_WINDOW];
-    int ulx;
-    int uly;
-    int width;
+    int32_t ulx;
+    int32_t uly;
+    int32_t width;
 
     ulx = menu_item->bounds.ulx + 5;
     uly = line_index * height + menu_item->bounds.uly;
@@ -697,7 +697,7 @@ void NetworkMenu::DrawTextLine(int line_index, char *text, int height, bool hori
     Text_TextBox(window->buffer, window->width, text, ulx, uly, width, height, COLOR_GREEN, horizontal_align);
 }
 
-void NetworkMenu::ResetJar(int team) {
+void NetworkMenu::ResetJar(int32_t team) {
     if (default_team_names[team][0]) {
         strcpy(team_names[team], "<");
         strcat(team_names[team], default_team_names[team]);
@@ -714,7 +714,7 @@ void NetworkMenu::UpdateSaveSettings(struct SaveFormatHeader *save_file_header) 
     if (save_file_header) {
         is_multi_scenario = true;
 
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             strcpy(default_team_names[i], team_names[i]);
         }
 
@@ -724,7 +724,7 @@ void NetworkMenu::UpdateSaveSettings(struct SaveFormatHeader *save_file_header) 
     } else {
         is_multi_scenario = false;
 
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             default_team_names[i][0] = '\0';
         }
     }
@@ -734,19 +734,19 @@ void NetworkMenu::UpdateSaveSettings(struct SaveFormatHeader *save_file_header) 
     Remote_SendNetPacket_37();
 }
 
-void NetworkMenu::SetClans(int team_clan) {
+void NetworkMenu::SetClans(int32_t team_clan) {
     player_clan = team_clan;
 
     if (!is_multi_scenario) {
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             team_clans[i] = team_clan;
         }
     }
 }
 
-int NetworkMenu::SetupScenario(int mode) {
+int32_t NetworkMenu::SetupScenario(int32_t mode) {
     SaveFormatHeader save_file_header;
-    int result;
+    int32_t result;
 
     if (!is_multi_scenario) {
         SetClans(ini_get_setting(INI_PLAYER_CLAN));
@@ -773,21 +773,21 @@ int NetworkMenu::SetupScenario(int mode) {
         is_incompatible_save_file = false;
 
         if (is_map_changed) {
-            for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 ResetJar(i);
             }
 
             is_map_changed = false;
         }
 
-        for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             team_clans[i] = save_file_header.team_clan[i];
         }
 
         if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI) {
             NetSync(save_file_header);
         } else {
-            int player_team_local;
+            int32_t player_team_local;
 
             player_team_local = player_team;
 
@@ -823,12 +823,12 @@ void NetworkMenu::UpdateMenuButtonStates() {
     }
 }
 
-int NetworkMenu::IsAllowedToStartGame() {
+int32_t NetworkMenu::IsAllowedToStartGame() {
     if (player_team == -1 || remote_player_count < 2) {
         return false;
     }
 
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         if (team_nodes[i] && !team_jar_in_use[i]) {
             return false;
         }
@@ -837,10 +837,10 @@ int NetworkMenu::IsAllowedToStartGame() {
     return true;
 }
 
-void NetworkMenu::LeaveGame(unsigned short team_node) {
+void NetworkMenu::LeaveGame(uint16_t team_node) {
     Remote_Hosts.Remove(team_node);
 
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         if (team_nodes[i] == team_node) {
             ResetJar(i);
 
@@ -856,7 +856,7 @@ void NetworkMenu::LeaveGame(unsigned short team_node) {
     is_gui_update_needed = true;
 }
 
-void NetworkMenu::NetSync(int team) {
+void NetworkMenu::NetSync(int32_t team) {
     bool game_found;
 
     Remote_NetSync();
@@ -883,7 +883,7 @@ void NetworkMenu::NetSync(int team) {
                 break;
             }
 
-            for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 if (team_nodes[i] == host_node) {
                     game_found = true;
                 }
@@ -892,12 +892,12 @@ void NetworkMenu::NetSync(int team) {
     }
 
     if (game_found) {
-        int index;
+        int32_t index;
 
         index = TRANSPORT_MAX_TEAM_COUNT;
 
         if (is_multi_scenario) {
-            for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 if (!stricmp(player_name, default_team_names[i]) && !team_nodes[i]) {
                     index = i;
                     break;
@@ -911,7 +911,7 @@ void NetworkMenu::NetSync(int team) {
         }
 
         if (index == TRANSPORT_MAX_TEAM_COUNT) {
-            for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 if (!team_nodes[i] && (!is_multi_scenario || default_team_names[i][0] != '\0')) {
                     index = i;
                     break;
@@ -927,7 +927,7 @@ void NetworkMenu::NetSync(int team) {
 }
 
 void NetworkMenu::NetSync(struct SaveFormatHeader &save_file_header) {
-    int index;
+    int32_t index;
 
     for (index = 0; index < 3 && save_file_header.team_type[index] != TEAM_TYPE_PLAYER; ++index) {
     }
@@ -942,13 +942,13 @@ void NetworkMenu::EventStart() {
 }
 
 void NetworkMenu::DeleteButtons() {
-    for (int i = 0; i < NETWORK_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < NETWORK_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
         buttons[i] = nullptr;
     }
 }
 
-void NetworkMenu::Reinit(int palette_from_image) {
+void NetworkMenu::Reinit(int32_t palette_from_image) {
     mouse_hide();
     WindowManager_LoadBigImage(MULTGAME, window, window->width, palette_from_image, false, -1, -1, true);
     Text_SetFont(GNW_TEXT_FONT_1);
@@ -957,7 +957,7 @@ void NetworkMenu::Reinit(int palette_from_image) {
     mouse_show();
 }
 
-TextEdit *NetworkMenu::CreateTextEdit(int index) {
+TextEdit *NetworkMenu::CreateTextEdit(int32_t index) {
     NetworkMenuControlItem *control;
     TextEdit *text_edit;
 
@@ -973,8 +973,8 @@ TextEdit *NetworkMenu::CreateTextEdit(int index) {
 }
 
 void NetworkMenu::DrawTextWindow() {
-    int line_index;
-    int height;
+    int32_t line_index;
+    int32_t height;
     char text[90];
     char text_ini_timer[10];
     char text_ini_endturn[10];
@@ -1049,19 +1049,19 @@ void NetworkMenu::DrawTextWindow() {
         SetButtonState(MENU_CONTROL_SCENARIO_BUTTON, true);
     }
 
-    for (int i = MENU_CONTROL_TEXT_WINDOW; i < MENU_CONTROL_TEXT_WINDOW + 8; ++i) {
+    for (int32_t i = MENU_CONTROL_TEXT_WINDOW; i < MENU_CONTROL_TEXT_WINDOW + 8; ++i) {
         SetButtonState(i, false);
     }
 }
 
 void NetworkMenu::DrawJars() {
-    int button_index;
+    int32_t button_index;
 
     if (is_map_changed) {
         is_map_changed = false;
 
         if (is_multi_scenario) {
-            for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 ResetJar(i);
             }
 
@@ -1069,7 +1069,7 @@ void NetworkMenu::DrawJars() {
             player_team = -1;
 
         } else {
-            for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 if (!team_nodes[i]) {
                     team_names[i][0] = '\0';
                 }
@@ -1077,7 +1077,7 @@ void NetworkMenu::DrawJars() {
         }
     }
 
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         button_index = MENU_CONTROL_JAR_1 + i;
 
         images[3 + i]->Write(window);
@@ -1118,12 +1118,12 @@ void NetworkMenu::DrawJars() {
 }
 
 void NetworkMenu::DrawJoinScreen() {
-    int index;
+    int32_t index;
 
     images[2]->Write(window);
 
     if (Remote_Hosts.GetCount()) {
-        for (int i = 0; i < NETWORK_MAX_HOSTS_PER_PAGE; ++i) {
+        for (int32_t i = 0; i < NETWORK_MAX_HOSTS_PER_PAGE; ++i) {
             index = MENU_CONTROL_TEXT_WINDOW + i;
             NetNode *host_node_pointer = Remote_Hosts[i];
 
@@ -1144,16 +1144,16 @@ void NetworkMenu::DrawJoinScreen() {
     } else {
         menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_JOIN_TEXT_WINDOW], 0xA2, true);
 
-        for (int i = MENU_CONTROL_TEXT_WINDOW; i < MENU_CONTROL_TEXT_WINDOW + NETWORK_MAX_HOSTS_PER_PAGE; ++i) {
+        for (int32_t i = MENU_CONTROL_TEXT_WINDOW; i < MENU_CONTROL_TEXT_WINDOW + NETWORK_MAX_HOSTS_PER_PAGE; ++i) {
             SetButtonState(i, false);
         }
     }
 }
 
 void NetworkMenu::InitJoinScreen() {
-    int button_index;
+    int32_t button_index;
 
-    for (int i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         button_index = MENU_CONTROL_JAR_1 + i;
 
         SetButtonState(button_index, false);
@@ -1171,7 +1171,7 @@ void NetworkMenu::InitJoinScreen() {
         buttons[MENU_CONTROL_CHAT_BAR_TWO]->Disable();
     }
 
-    for (int i = 2; i < 14; ++i) {
+    for (int32_t i = 2; i < 14; ++i) {
         images[i]->Write(window);
     }
 

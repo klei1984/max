@@ -21,7 +21,7 @@
 
 #include "spottedunit.hpp"
 
-SpottedUnit::SpottedUnit(UnitInfo* unit_, unsigned short team_) {
+SpottedUnit::SpottedUnit(UnitInfo* unit_, uint16_t team_) {
     unit = unit_;
 
     team = team_;
@@ -37,7 +37,7 @@ SpottedUnit::SpottedUnit(SmartFileReader& file) { FileLoad(file); }
 SpottedUnit::~SpottedUnit() {}
 
 void SpottedUnit::FileLoad(SmartFileReader& file) {
-    static_assert(sizeof(SpottedUnit::visible_to_team) == sizeof(unsigned char));
+    static_assert(sizeof(SpottedUnit::visible_to_team) == sizeof(uint8_t));
 
     unit = dynamic_cast<UnitInfo*>(file.ReadObject());
     file.Read(team);
@@ -62,13 +62,13 @@ Point SpottedUnit::GetLastPosition() {
     return last_position;
 }
 
-int SpottedUnit::GetLastPositionX() {
+int32_t SpottedUnit::GetLastPositionX() {
     UpdatePositionIfVisible();
 
     return last_position.x;
 }
 
-int SpottedUnit::GetLastPositionY() {
+int32_t SpottedUnit::GetLastPositionY() {
     UpdatePositionIfVisible();
 
     return last_position.y;
@@ -92,4 +92,4 @@ void SpottedUnit::UpdatePositionIfVisible() {
 
 UnitInfo* SpottedUnit::GetUnit() const { return &*unit; }
 
-unsigned short SpottedUnit::GetTeam() const { return team; }
+uint16_t SpottedUnit::GetTeam() const { return team; }

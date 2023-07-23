@@ -50,40 +50,40 @@ public:
     void Run();
 };
 
-static void UnitStats_DrawText(unsigned char* buffer, int screen_width, const char* label, int line_length,
-                               int resource_count, bool drawline);
+static void UnitStats_DrawText(uint8_t* buffer, int32_t screen_width, const char* label, int32_t line_length,
+                               int32_t resource_count, bool drawline);
 
-static int UnitStats_DrawIcon(unsigned char* buffer, int screen_width, struct ImageSimpleHeader* image, int original,
-                              int current, int width, int height);
+static int32_t UnitStats_DrawIcon(uint8_t* buffer, int32_t screen_width, struct ImageSimpleHeader* image, int32_t original,
+                              int32_t current, int32_t width, int32_t height);
 
-static int UnitStats_DrawIcons(unsigned char* buffer, int screen_width, int max_width, ResourceID id_normal,
-                               ResourceID id_empty, int current, int original);
+static int32_t UnitStats_DrawIcons(uint8_t* buffer, int32_t screen_width, int32_t max_width, ResourceID id_normal,
+                               ResourceID id_empty, int32_t current, int32_t original);
 
-static unsigned char* UnitStats_DrawMilitary(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
-                                             UnitValues* unit_values2, int image_width);
+static uint8_t* UnitStats_DrawMilitary(uint8_t* buffer, int32_t screen_width, UnitValues* unit_values1,
+                                             UnitValues* unit_values2, int32_t image_width);
 
-static unsigned char* UnitStats_DrawCargo(unsigned char* buffer, int screen_width, ResourceID unit_type,
-                                          unsigned short team, UnitValues* unit_values, int image_width);
+static uint8_t* UnitStats_DrawCargo(uint8_t* buffer, int32_t screen_width, ResourceID unit_type,
+                                          uint16_t team, UnitValues* unit_values, int32_t image_width);
 
-static unsigned char* UnitStats_DrawUsage(unsigned char* buffer, int screen_width, ResourceID unit_type,
-                                          int image_width);
+static uint8_t* UnitStats_DrawUsage(uint8_t* buffer, int32_t screen_width, ResourceID unit_type,
+                                          int32_t image_width);
 
-static unsigned char* UnitStats_DrawCommon(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
-                                           UnitValues* unit_values2, int image_width);
+static uint8_t* UnitStats_DrawCommon(uint8_t* buffer, int32_t screen_width, UnitValues* unit_values1,
+                                           UnitValues* unit_values2, int32_t image_width);
 
-static unsigned char* UnitStats_DrawSpeed(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
-                                          UnitValues* unit_values2, int image_width);
+static uint8_t* UnitStats_DrawSpeed(uint8_t* buffer, int32_t screen_width, UnitValues* unit_values1,
+                                          UnitValues* unit_values2, int32_t image_width);
 
-static void UnitStats_DrawCost(unsigned char* buffer, int screen_width, ResourceID unit_type, int value1, int value2,
-                               ResourceID id_normal, ResourceID id_empty, int image_width);
+static void UnitStats_DrawCost(uint8_t* buffer, int32_t screen_width, ResourceID unit_type, int32_t value1, int32_t value2,
+                               ResourceID id_normal, ResourceID id_empty, int32_t image_width);
 
-void UnitStats_DrawImage(unsigned char* buffer, int window_width, struct ImageSimpleHeader* image) {
-    const unsigned char transparent_pixel = image->transparent_color;
-    unsigned char* image_data = &image->transparent_color;
-    int offset = 0;
+void UnitStats_DrawImage(uint8_t* buffer, int32_t window_width, struct ImageSimpleHeader* image) {
+    const uint8_t transparent_pixel = image->transparent_color;
+    uint8_t* image_data = &image->transparent_color;
+    int32_t offset = 0;
 
-    for (int i = 0; i < image->height; ++i) {
-        for (int j = 0; j < image->width; ++j) {
+    for (int32_t i = 0; i < image->height; ++i) {
+        for (int32_t j = 0; j < image->width; ++j) {
             if (transparent_pixel != image_data[j + i * image->width]) {
                 buffer[offset + j + i * image->width] = image_data[j + i * image->width];
             }
@@ -93,8 +93,8 @@ void UnitStats_DrawImage(unsigned char* buffer, int window_width, struct ImageSi
     }
 }
 
-void UnitStats_DrawStats(unsigned char* buffer, int window_width, ResourceID unit_type, unsigned short team,
-                         UnitValues& unit_values, int image_width, ResourceID icon_full, ResourceID icon_empty) {
+void UnitStats_DrawStats(uint8_t* buffer, int32_t window_width, ResourceID unit_type, uint16_t team,
+                         UnitValues& unit_values, int32_t image_width, ResourceID icon_full, ResourceID icon_empty) {
     UnitValues* unit_values2;
 
     unit_values2 = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type);
@@ -120,9 +120,9 @@ void UnitStats_DrawStats(unsigned char* buffer, int window_width, ResourceID uni
     }
 }
 
-void UnitStats_DrawText(unsigned char* buffer, int screen_width, const char* label, int line_length, int resource_count,
+void UnitStats_DrawText(uint8_t* buffer, int32_t screen_width, const char* label, int32_t line_length, int32_t resource_count,
                         bool drawline) {
-    unsigned char* address;
+    uint8_t* address;
 
     Text_SetFont(GNW_TEXT_FONT_5);
     address = &buffer[((19 - Text_GetHeight()) / 2) * screen_width + 24];
@@ -138,12 +138,12 @@ void UnitStats_DrawText(unsigned char* buffer, int screen_width, const char* lab
     }
 }
 
-int UnitStats_DrawIcon(unsigned char* buffer, int screen_width, struct ImageSimpleHeader* image, int original,
-                       int current, int width, int height) {
-    int offset = 0;
+int32_t UnitStats_DrawIcon(uint8_t* buffer, int32_t screen_width, struct ImageSimpleHeader* image, int32_t original,
+                       int32_t current, int32_t width, int32_t height) {
+    int32_t offset = 0;
 
-    for (int i = 0; i < original; ++i) {
-        int reminder = i % 5;
+    for (int32_t i = 0; i < original; ++i) {
+        int32_t reminder = i % 5;
         offset = width * (i / 5) + current * reminder;
 
         UnitStats_DrawImage(&buffer[offset + screen_width * reminder * height], screen_width, image);
@@ -152,23 +152,23 @@ int UnitStats_DrawIcon(unsigned char* buffer, int screen_width, struct ImageSimp
     return image->width + offset;
 }
 
-int UnitStats_DrawIcons(unsigned char* buffer, int screen_width, int max_width, ResourceID id_normal,
-                        ResourceID id_empty, int current, int original) {
-    int result;
+int32_t UnitStats_DrawIcons(uint8_t* buffer, int32_t screen_width, int32_t max_width, ResourceID id_normal,
+                        ResourceID id_empty, int32_t current, int32_t original) {
+    int32_t result;
     struct ImageSimpleHeader* image_normal;
     struct ImageSimpleHeader* image_empty;
-    int height;
-    int original_scaled;
-    int current_scaled;
-    int original_offset;
-    int current_offset;
-    int full_scaled;
-    int var_24;
-    int var_28;
-    int var_2C;
-    int width;
-    int var_34;
-    unsigned char* address;
+    int32_t height;
+    int32_t original_scaled;
+    int32_t current_scaled;
+    int32_t original_offset;
+    int32_t current_offset;
+    int32_t full_scaled;
+    int32_t var_24;
+    int32_t var_28;
+    int32_t var_2C;
+    int32_t width;
+    int32_t var_34;
+    uint8_t* address;
 
     image_normal = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id_normal));
     image_empty = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id_empty));
@@ -257,8 +257,8 @@ int UnitStats_DrawIcons(unsigned char* buffer, int screen_width, int max_width, 
     return result;
 }
 
-unsigned char* UnitStats_DrawMilitary(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
-                                      UnitValues* unit_values2, int image_width) {
+uint8_t* UnitStats_DrawMilitary(uint8_t* buffer, int32_t screen_width, UnitValues* unit_values1,
+                                      UnitValues* unit_values2, int32_t image_width) {
     UnitStats_DrawText(buffer, screen_width, _(98a8), image_width, unit_values2->GetAttribute(ATTRIB_ATTACK), true);
     UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_HRDATK, I_HRDATK,
                         unit_values1->GetAttribute(ATTRIB_ATTACK), unit_values2->GetAttribute(ATTRIB_ATTACK));
@@ -292,8 +292,8 @@ unsigned char* UnitStats_DrawMilitary(unsigned char* buffer, int screen_width, U
     return buffer;
 }
 
-unsigned char* UnitStats_DrawCargo(unsigned char* buffer, int screen_width, ResourceID unit_type, unsigned short team,
-                                   UnitValues* unit_values, int image_width) {
+uint8_t* UnitStats_DrawCargo(uint8_t* buffer, int32_t screen_width, ResourceID unit_type, uint16_t team,
+                                   UnitValues* unit_values, int32_t image_width) {
     ResourceID icon;
 
     switch (unit_type) {
@@ -332,12 +332,12 @@ unsigned char* UnitStats_DrawCargo(unsigned char* buffer, int screen_width, Reso
     return buffer;
 }
 
-unsigned char* UnitStats_DrawUsage(unsigned char* buffer, int screen_width, ResourceID unit_type, int image_width) {
-    int raw_material_usage;
-    int fuel_usage;
-    int power_usage;
-    int life_usage;
-    int gold_usage;
+uint8_t* UnitStats_DrawUsage(uint8_t* buffer, int32_t screen_width, ResourceID unit_type, int32_t image_width) {
+    int32_t raw_material_usage;
+    int32_t fuel_usage;
+    int32_t power_usage;
+    int32_t life_usage;
+    int32_t gold_usage;
 
     raw_material_usage = Cargo_GetRawConsumptionRate(unit_type, 1);
     fuel_usage = Cargo_GetFuelConsumptionRate(unit_type);
@@ -360,7 +360,7 @@ unsigned char* UnitStats_DrawUsage(unsigned char* buffer, int screen_width, Reso
     }
 
     if (raw_material_usage > 0 || fuel_usage > 0 || power_usage > 0 || life_usage > 0) {
-        int offset;
+        int32_t offset;
 
         UnitStats_DrawText(buffer, screen_width, _(9e61), image_width, 0, true);
         offset = 76;
@@ -396,8 +396,8 @@ unsigned char* UnitStats_DrawUsage(unsigned char* buffer, int screen_width, Reso
     return buffer;
 }
 
-unsigned char* UnitStats_DrawCommon(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
-                                    UnitValues* unit_values2, int image_width) {
+uint8_t* UnitStats_DrawCommon(uint8_t* buffer, int32_t screen_width, UnitValues* unit_values1,
+                                    UnitValues* unit_values2, int32_t image_width) {
     if (unit_values1->GetAttribute(ATTRIB_ARMOR)) {
         UnitStats_DrawText(buffer, screen_width, _(49d1), image_width, unit_values2->GetAttribute(ATTRIB_ARMOR), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_ARMOR, I_ARMOR,
@@ -422,8 +422,8 @@ unsigned char* UnitStats_DrawCommon(unsigned char* buffer, int screen_width, Uni
     return buffer;
 }
 
-unsigned char* UnitStats_DrawSpeed(unsigned char* buffer, int screen_width, UnitValues* unit_values1,
-                                   UnitValues* unit_values2, int image_width) {
+uint8_t* UnitStats_DrawSpeed(uint8_t* buffer, int32_t screen_width, UnitValues* unit_values1,
+                                   UnitValues* unit_values2, int32_t image_width) {
     UnitStats_DrawText(buffer, screen_width, _(6136), image_width, unit_values2->GetAttribute(ATTRIB_SPEED), true);
     UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_SPEED, I_SPEED,
                         unit_values1->GetAttribute(ATTRIB_SPEED), unit_values2->GetAttribute(ATTRIB_SPEED));
@@ -432,10 +432,10 @@ unsigned char* UnitStats_DrawSpeed(unsigned char* buffer, int screen_width, Unit
     return buffer;
 }
 
-void UnitStats_DrawCost(unsigned char* buffer, int screen_width, ResourceID unit_type, int value1, int value2,
-                        ResourceID id_normal, ResourceID id_empty, int image_width) {
-    int level1;
-    int level2;
+void UnitStats_DrawCost(uint8_t* buffer, int32_t screen_width, ResourceID unit_type, int32_t value1, int32_t value2,
+                        ResourceID id_normal, ResourceID id_empty, int32_t image_width) {
+    int32_t level1;
+    int32_t level2;
 
     level1 = Cargo_GetRawConsumptionRate(Builder_GetBuilderType(unit_type), 1) * value1;
     level2 = Cargo_GetRawConsumptionRate(Builder_GetBuilderType(unit_type), 1) * value2;
@@ -535,7 +535,7 @@ UnitStatsMenu::~UnitStatsMenu() {
 }
 
 void UnitStatsMenu::Run() {
-    int key = 0;
+    int32_t key = 0;
 
     while (key != GNW_KB_KEY_ESCAPE && key != GNW_KB_KEY_KP_ENTER) {
         key = get_input();

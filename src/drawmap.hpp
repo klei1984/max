@@ -26,7 +26,7 @@
 #include "unitinfogroup.hpp"
 
 class DrawMapBuffer {
-    unsigned char** buffer;
+    uint8_t** buffer;
     Rect bounds;
 
     void Deinit();
@@ -37,9 +37,9 @@ public:
 
     void Init(Rect* bounds);
 
-    unsigned char** GetBuffer() const;
-    int GetWidth() const;
-    int GetHeight() const;
+    uint8_t** GetBuffer() const;
+    int32_t GetWidth() const;
+    int32_t GetHeight() const;
     Rect* GetBounds();
 };
 

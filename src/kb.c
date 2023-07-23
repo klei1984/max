@@ -33,26 +33,26 @@
 #define KB_EVENT_LONG_PRESS 2
 
 typedef struct key_ansi_s {
-    short key;
-    short shift;
-    short left_alt;
-    short right_alt;
-    short ctrl;
+    int16_t key;
+    int16_t shift;
+    int16_t left_alt;
+    int16_t right_alt;
+    int16_t ctrl;
 } key_ansi_t;
 
 typedef struct key_data_s {
     char scan_code;
-    unsigned short modifiers;
+    uint16_t modifiers;
 } key_data_t;
 
-typedef int (*AsciiConvert)(void);
+typedef int32_t (*AsciiConvert)(void);
 
-static int kb_next_ascii_English_US(void);
-static int kb_next_ascii_French(void);
-static int kb_next_ascii_German(void);
-static int kb_next_ascii_Italian(void);
-static int kb_next_ascii_Spanish(void);
-static int kb_next_ascii(void);
+static int32_t kb_next_ascii_English_US(void);
+static int32_t kb_next_ascii_French(void);
+static int32_t kb_next_ascii_German(void);
+static int32_t kb_next_ascii_Italian(void);
+static int32_t kb_next_ascii_Spanish(void);
+static int32_t kb_next_ascii(void);
 static void kb_map_ascii_English_US(void);
 static void kb_map_ascii_French(void);
 static void kb_map_ascii_German(void);
@@ -63,22 +63,22 @@ static void kb_toggle_caps(void);
 static void kb_toggle_num(void);
 static void kb_toggle_scroll(void);
 static void kb_set_led_status(void);
-static int kb_buffer_put(key_data_t* key_data);
-static int kb_buffer_get(key_data_t* key_data);
-static int kb_buffer_peek(int count, key_data_t** key_data);
+static int32_t kb_buffer_put(key_data_t* key_data);
+static int32_t kb_buffer_get(key_data_t* key_data);
+static int32_t kb_buffer_peek(int32_t count, key_data_t** key_data);
 
-static unsigned char kb_installed;
-static int kb_disabled;
-static int kb_put;
-static int kb_get;
-static unsigned short extended_code;
-static unsigned char kb_lock_flags;
+static uint8_t kb_installed;
+static int32_t kb_disabled;
+static int32_t kb_put;
+static int32_t kb_get;
+static uint16_t extended_code;
+static uint8_t kb_lock_flags;
 static AsciiConvert kb_scan_to_ascii = kb_next_ascii_English_US;
 
 static key_data_t kb_buffer[64];
 static key_ansi_t ascii_table[256];
 static kb_layout_t kb_layout = english;
-static unsigned char keynumpress;
+static uint8_t keynumpress;
 
 char keys[256];
 
@@ -113,8 +113,8 @@ void kb_clear(void) {
     }
 }
 
-int kb_getch(void) {
-    int result;
+int32_t kb_getch(void) {
+    int32_t result;
 
     if (kb_installed) {
         result = kb_scan_to_ascii();
@@ -129,7 +129,7 @@ void kb_disable(void) { kb_disabled = 1; }
 
 void kb_enable(void) { kb_disabled = 0; }
 
-int kb_is_disabled(void) { return kb_disabled; }
+int32_t kb_is_disabled(void) { return kb_disabled; }
 
 void kb_set_layout(kb_layout_t layout) {
     kb_layout_t old_layout;
@@ -166,8 +166,8 @@ void kb_set_layout(kb_layout_t layout) {
 
 kb_layout_t kb_get_layout(void) { return kb_layout; }
 
-int kb_ascii_to_scan(int ascii) {
-    for (int k = 0; k < 256; ++k) {
+int32_t kb_ascii_to_scan(int32_t ascii) {
+    for (int32_t k = 0; k < 256; ++k) {
         if (ascii_table[k].key == ascii || ascii_table[k].shift == ascii || ascii_table[k].left_alt == ascii ||
             ascii_table[k].right_alt == ascii || ascii_table[k].ctrl == ascii) {
             return k;
@@ -177,9 +177,9 @@ int kb_ascii_to_scan(int ascii) {
     return -1;
 }
 
-void kb_simulate_key(unsigned short scan_code) {
+void kb_simulate_key(uint16_t scan_code) {
     static key_data_t temp;
-    unsigned short press_code;
+    uint16_t press_code;
 
     if ((vcr_state == 0) && (vcr_buffer_index != 4095)) {
         vcr_buffer[vcr_buffer_index].type = key;
@@ -299,8 +299,8 @@ void kb_simulate_key(unsigned short scan_code) {
     }
 }
 
-int kb_next_ascii_English_US(void) {
-    signed int result;
+int32_t kb_next_ascii_English_US(void) {
+    int32_t result;
     key_data_t* this_key;
 
     if (kb_buffer_peek(0, &this_key)) {
@@ -351,17 +351,17 @@ int kb_next_ascii_English_US(void) {
     return result;
 }
 
-int kb_next_ascii_French(void) { return -1; }
+int32_t kb_next_ascii_French(void) { return -1; }
 
-int kb_next_ascii_German(void) { return -1; }
+int32_t kb_next_ascii_German(void) { return -1; }
 
-int kb_next_ascii_Italian(void) { return -1; }
+int32_t kb_next_ascii_Italian(void) { return -1; }
 
-int kb_next_ascii_Spanish(void) { return -1; }
+int32_t kb_next_ascii_Spanish(void) { return -1; }
 
-int kb_next_ascii(void) {
+int32_t kb_next_ascii(void) {
     key_data_t* this_key;
-    int ascii;
+    int32_t ascii;
 
     ascii = -1;
     if (kb_buffer_peek(0, &this_key)) {
@@ -565,8 +565,8 @@ void kb_toggle_scroll(void) {
 
 void kb_set_led_status(void) {}
 
-int kb_buffer_put(key_data_t* key_data) {
-    int result;
+int32_t kb_buffer_put(key_data_t* key_data) {
+    int32_t result;
 
     if (((kb_put + 1) & 0x3F) != kb_get) {
         kb_buffer[kb_put] = *key_data;
@@ -581,8 +581,8 @@ int kb_buffer_put(key_data_t* key_data) {
     return result;
 }
 
-int kb_buffer_get(key_data_t* key_data) {
-    int result;
+int32_t kb_buffer_get(key_data_t* key_data) {
+    int32_t result;
 
     if (kb_get != kb_put) {
         if (key_data) {
@@ -599,9 +599,9 @@ int kb_buffer_get(key_data_t* key_data) {
     return result;
 }
 
-int kb_buffer_peek(int count, key_data_t** key_data) {
-    int dist;
-    int result;
+int32_t kb_buffer_peek(int32_t count, key_data_t** key_data) {
+    int32_t dist;
+    int32_t result;
 
     result = -1;
 

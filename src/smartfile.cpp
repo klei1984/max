@@ -50,8 +50,8 @@ void SmartFileReader::Close() {
     }
 }
 
-void SmartFileReader::Read(void* buffer, int size) {
-    int read_count;
+void SmartFileReader::Read(void* buffer, int32_t size) {
+    int32_t read_count;
 
     read_count = fread(buffer, size, 1, file);
     SDL_assert(read_count == 1);
@@ -63,16 +63,16 @@ void SmartFileReader::LoadObject(FileObject& object) {
     object.FileLoad(*this);
 }
 
-unsigned short SmartFileReader::ReadIndex() {
-    unsigned short value;
+uint16_t SmartFileReader::ReadIndex() {
+    uint16_t value;
 
     Read(value);
 
     return value;
 }
 
-unsigned short SmartFileReader::ReadObjectCount() {
-    unsigned short value;
+uint16_t SmartFileReader::ReadObjectCount() {
+    uint16_t value;
 
     Read(value);
 
@@ -80,8 +80,8 @@ unsigned short SmartFileReader::ReadObjectCount() {
 }
 
 FileObject* SmartFileReader::ReadObject() {
-    unsigned short object_index;
-    unsigned short type_index;
+    uint16_t object_index;
+    uint16_t type_index;
     FileObject* object;
 
     object_index = ReadIndex();
@@ -132,8 +132,8 @@ void SmartFileWriter::Close() {
     }
 }
 
-void SmartFileWriter::Write(void* buffer, int size) {
-    int write_count;
+void SmartFileWriter::Write(void* buffer, int32_t size) {
+    int32_t write_count;
     write_count = fwrite(buffer, size, 1, file);
     SDL_assert(write_count == 1);
 }
@@ -148,15 +148,15 @@ void SmartFileWriter::SaveObject(FileObject* object) {
     object->FileSave(*this);
 }
 
-void SmartFileWriter::WriteIndex(unsigned short index) { Write(index); }
+void SmartFileWriter::WriteIndex(uint16_t index) { Write(index); }
 
-void SmartFileWriter::WriteObjectCount(unsigned short count) { Write(count); }
+void SmartFileWriter::WriteObjectCount(uint16_t count) { Write(count); }
 
 void SmartFileWriter::WriteObject(FileObject* object) {
     if (nullptr == object) {
         WriteIndex(0);
     } else {
-        unsigned short object_index;
+        uint16_t object_index;
 
         object_index = object->GetIndex();
 

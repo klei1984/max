@@ -30,10 +30,10 @@
 #include "taskrepair.hpp"
 #include "units_manager.hpp"
 
-void TaskSupportAttack::ObtainUnits(unsigned int unit_flags_) {
+void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
     bool needs_supply_unit = true;
     bool needs_repair_unit = true;
-    int highest_scan;
+    int32_t highest_scan;
 
     AiLog log("Support attack: get units");
 
@@ -166,7 +166,7 @@ Rect* TaskSupportAttack::GetBounds(Rect* bounds) {
     return result;
 }
 
-unsigned char TaskSupportAttack::GetType() const { return TaskType_TaskSupportAttack; }
+uint8_t TaskSupportAttack::GetType() const { return TaskType_TaskSupportAttack; }
 
 bool TaskSupportAttack::IsNeeded() { return parent != nullptr; }
 

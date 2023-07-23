@@ -43,15 +43,15 @@ void ThreatMap::Init() {
     if (!damage_potential_map) {
         dimension = ResourceManager_MapSize;
 
-        damage_potential_map = new (std::nothrow) short*[dimension.x];
-        shots_map = new (std::nothrow) short*[dimension.x];
+        damage_potential_map = new (std::nothrow) int16_t*[dimension.x];
+        shots_map = new (std::nothrow) int16_t*[dimension.x];
 
-        for (int i = 0; i < dimension.x; ++i) {
-            damage_potential_map[i] = new (std::nothrow) short[dimension.y];
-            shots_map[i] = new (std::nothrow) short[dimension.y];
+        for (int32_t i = 0; i < dimension.x; ++i) {
+            damage_potential_map[i] = new (std::nothrow) int16_t[dimension.y];
+            shots_map[i] = new (std::nothrow) int16_t[dimension.y];
 
-            memset(damage_potential_map[i], 0, dimension.y * sizeof(short));
-            memset(shots_map[i], 0, dimension.y * sizeof(short));
+            memset(damage_potential_map[i], 0, dimension.y * sizeof(int16_t));
+            memset(shots_map[i], 0, dimension.y * sizeof(int16_t));
         }
     }
 }
@@ -60,7 +60,7 @@ void ThreatMap::Deinit() {
     risk_level = 0;
 
     if (damage_potential_map) {
-        for (int i = 0; i < dimension.x; ++i) {
+        for (int32_t i = 0; i < dimension.x; ++i) {
             delete[] damage_potential_map[i];
         }
 
@@ -69,7 +69,7 @@ void ThreatMap::Deinit() {
     }
 
     if (shots_map) {
-        for (int i = 0; i < dimension.x; ++i) {
+        for (int32_t i = 0; i < dimension.x; ++i) {
             delete[] shots_map[i];
         }
 
@@ -78,8 +78,8 @@ void ThreatMap::Deinit() {
     }
 }
 
-unsigned short ThreatMap::GetRiskLevel(ResourceID unit_type) {
-    unsigned short result;
+uint16_t ThreatMap::GetRiskLevel(ResourceID unit_type) {
+    uint16_t result;
 
     switch (unit_type) {
         case CLNTRANS: {
@@ -111,9 +111,9 @@ unsigned short ThreatMap::GetRiskLevel(ResourceID unit_type) {
     return result;
 }
 
-unsigned short ThreatMap::GetRiskLevel(UnitInfo* unit) {
-    unsigned short result;
-    int team_index;
+uint16_t ThreatMap::GetRiskLevel(UnitInfo* unit) {
+    uint16_t result;
+    int32_t team_index;
 
     result = GetRiskLevel(unit->unit_type);
 
@@ -135,16 +135,16 @@ unsigned short ThreatMap::GetRiskLevel(UnitInfo* unit) {
     return result;
 }
 
-void ThreatMap::SetRiskLevel(unsigned char risk_level_) { risk_level = risk_level_; }
+void ThreatMap::SetRiskLevel(uint8_t risk_level_) { risk_level = risk_level_; }
 
-void ThreatMap::Update(int armor_) {
+void ThreatMap::Update(int32_t armor_) {
     if (armor != armor_) {
-        int difference = armor - armor_;
+        int32_t difference = armor - armor_;
 
         armor = armor_;
 
-        for (int grid_x = 0; grid_x < dimension.x; ++grid_x) {
-            for (int grid_y = 0; grid_y < dimension.y; ++grid_y) {
+        for (int32_t grid_x = 0; grid_x < dimension.x; ++grid_x) {
+            for (int32_t grid_y = 0; grid_y < dimension.y; ++grid_y) {
                 damage_potential_map[grid_x][grid_y] += shots_map[grid_x][grid_y] * difference;
             }
         }

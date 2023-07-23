@@ -32,11 +32,11 @@ class UnitTypeSelector;
 
 class EventUnitSelect : public Event {
     UnitTypeSelector *selector;
-    unsigned char value;
+    uint8_t value;
 
 public:
-    EventUnitSelect(UnitTypeSelector *selector, short value);
-    unsigned short GetEventId() const;
+    EventUnitSelect(UnitTypeSelector *selector, int16_t value);
+    uint16_t GetEventId() const;
     UnitTypeSelector *GetSelector() const;
     bool GetValue() const;
 };
@@ -48,31 +48,31 @@ protected:
     Window *window;
     WindowInfo window_info;
     SmartObjectArray<ResourceID> unit_types;
-    unsigned short team;
-    short page_min_index;
-    short page_max_index;
-    short max_item_count;
+    uint16_t team;
+    int16_t page_min_index;
+    int16_t page_max_index;
+    int16_t max_item_count;
     struct ImageSimpleHeader *image;
-    int key_code;
+    int32_t key_code;
     ButtonManager button_group;
     Button *button_scroll_up;
     Button *button_scroll_down;
 
 public:
     UnitTypeSelector(Window *window, WindowInfo *window_info, SmartObjectArray<ResourceID> unit_types,
-                     unsigned short team, int key_code, Button *button_scroll_up, Button *button_scroll_down);
+                     uint16_t team, int32_t key_code, Button *button_scroll_up, Button *button_scroll_down);
     virtual ~UnitTypeSelector();
 
     ResourceID GetLast();
-    void ScrollTo(int index);
+    void ScrollTo(int32_t index);
     void AddItems(SmartObjectArray<ResourceID> unit_types);
-    void Select(unsigned char value);
+    void Select(uint8_t value);
     void PushBack(ResourceID unit_type);
-    int GetPageMaxIndex() const;
+    int32_t GetPageMaxIndex() const;
 
-    virtual void Add(ResourceID unit_type, int position);
+    virtual void Add(ResourceID unit_type, int32_t position);
     virtual void RemoveLast();
-    virtual bool ProcessKeys(int key_press);
+    virtual bool ProcessKeys(int32_t key_press);
     virtual void Draw();
 };
 

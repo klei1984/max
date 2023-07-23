@@ -48,37 +48,37 @@ extern "C" {
 #include "text.h"
 #include "vcr.h"
 
-typedef int (*SetModeFunc)(void);
+typedef int32_t (*SetModeFunc)(void);
 typedef void (*ResetModeFunc)(void);
 
 typedef struct GNW_PD_s {
     Rect r;
-    int value;
-    int num_list;
+    int32_t value;
+    int32_t num_list;
     char** list;
-    int fcolor;
-    int bcolor;
+    int32_t fcolor;
+    int32_t bcolor;
 } GNW_PD;
 
 typedef struct GNW_Menu_s {
     WinID wid;
     Rect m;
-    int num_pds;
+    int32_t num_pds;
     GNW_PD pd[15];
-    int fcolor;
-    int bcolor;
+    int32_t fcolor;
+    int32_t bcolor;
 } GNW_Menu;
 
 typedef struct GNW_Window_s {
     WinID id;
-    unsigned int flags;
+    uint32_t flags;
     Rect w;
-    int width;
-    int length;
-    int color;
-    int tx;
-    int ty;
-    unsigned char* buf;
+    int32_t width;
+    int32_t length;
+    int32_t color;
+    int32_t tx;
+    int32_t ty;
+    uint8_t* buf;
     GNW_ButtonPtr button_list;
     GNW_ButtonPtr last_over;
     GNW_ButtonPtr last_click;
@@ -86,47 +86,47 @@ typedef struct GNW_Window_s {
     Trans_b2b trans_b2b;
 } GNW_Window;
 
-extern unsigned char* GNW_texture;
-extern int GNW_win_init_flag;
+extern uint8_t* GNW_texture;
+extern int32_t GNW_win_init_flag;
 extern ColorRGB GNW_wcolor[6];
 
-int win_init(SetModeFunc set_mode_func, ResetModeFunc reset_mode_func, int flags);
-int win_reinit(SetModeFunc set_mode_func);
-int win_active(void);
+int32_t win_init(SetModeFunc set_mode_func, ResetModeFunc reset_mode_func, int32_t flags);
+int32_t win_reinit(SetModeFunc set_mode_func);
+int32_t win_active(void);
 void win_exit(void);
-WinID win_add(int ulx, int uly, int width, int length, int color, int flags);
+WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t color, int32_t flags);
 void win_delete(WinID id);
-void win_buffering(int state);
+void win_buffering(int32_t state);
 void win_border(WinID id);
 void win_no_texture(void);
 void win_texture(char* fname);
-void win_set_bk_color(int color);
-void win_print(WinID id, char* str, int field_width, int x, int y, int color);
-void win_text(WinID id, char** list, int num, int field_width, int x, int y, int color);
-void win_line(WinID id, int x1, int y1, int x2, int y2, int color);
-void win_box(WinID id, int ulx, int uly, int lrx, int lry, int color);
-void win_shaded_box(WinID id, int ulx, int uly, int lrx, int lry, int color1, int color2);
-void win_fill(WinID id, int ulx, int uly, int width, int length, int color);
+void win_set_bk_color(int32_t color);
+void win_print(WinID id, char* str, int32_t field_width, int32_t x, int32_t y, int32_t color);
+void win_text(WinID id, char** list, int32_t num, int32_t field_width, int32_t x, int32_t y, int32_t color);
+void win_line(WinID id, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
+void win_box(WinID id, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color);
+void win_shaded_box(WinID id, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color1, int32_t color2);
+void win_fill(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t color);
 void win_show(WinID id);
 void win_hide(WinID id);
-void win_move(WinID id, int ulx, int uly);
+void win_move(WinID id, int32_t ulx, int32_t uly);
 void win_draw(WinID id);
 void win_draw_rect(WinID id, Rect* bound);
-void GNW_win_refresh(GNW_Window* w, Rect* bound, unsigned char* scr_buf);
+void GNW_win_refresh(GNW_Window* w, Rect* bound, uint8_t* scr_buf);
 void win_refresh_all(Rect* bound);
 void win_drag(WinID id);
-void win_get_mouse_buf(unsigned char* buf);
+void win_get_mouse_buf(uint8_t* buf);
 GNW_Window* GNW_find(WinID id);
-unsigned char* win_get_buf(WinID id);
-WinID win_get_top_win(int x, int y);
-int win_width(WinID id);
-int win_height(WinID id);
-int win_get_rect(WinID id, Rect* r);
-int win_check_all_buttons(void);
+uint8_t* win_get_buf(WinID id);
+WinID win_get_top_win(int32_t x, int32_t y);
+int32_t win_width(WinID id);
+int32_t win_height(WinID id);
+int32_t win_get_rect(WinID id, Rect* r);
+int32_t win_check_all_buttons(void);
 GNW_ButtonPtr GNW_find_button(ButtonID id, GNW_Window** w);
-int GNW_check_menu_bars(int input);
+int32_t GNW_check_menu_bars(int32_t input);
 void win_set_trans_b2b(WinID id, Trans_b2b trans_b2b);
-unsigned long GNWSystemError(char* errStr);
+uint32_t GNWSystemError(char* errStr);
 
 #ifdef __cplusplus
 }

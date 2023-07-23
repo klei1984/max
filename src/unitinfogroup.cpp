@@ -27,12 +27,12 @@
 #include "hash.hpp"
 #include "units_manager.hpp"
 
-UnitInfoArray::UnitInfoArray(unsigned short growth_factor) : array(growth_factor) {}
+UnitInfoArray::UnitInfoArray(uint16_t growth_factor) : array(growth_factor) {}
 
 UnitInfoArray::~UnitInfoArray() {}
 
 void UnitInfoArray::Insert(UnitInfo& unit) {
-    for (int i = 0; i < array.GetCount(); ++i) {
+    for (int32_t i = 0; i < array.GetCount(); ++i) {
         if (&array[i] == &unit) {
             return;
         }
@@ -41,9 +41,9 @@ void UnitInfoArray::Insert(UnitInfo& unit) {
     array.Insert(&unit, array.GetCount());
 }
 
-int UnitInfoArray::GetCount() const { return array.GetCount(); }
+int32_t UnitInfoArray::GetCount() const { return array.GetCount(); }
 
-UnitInfo& UnitInfoArray::operator[](int index) const { return array[index]; }
+UnitInfo& UnitInfoArray::operator[](int32_t index) const { return array[index]; }
 
 void UnitInfoArray::Release() { array.Release(); }
 
@@ -71,7 +71,7 @@ bool UnitInfoGroup::IsRelevant(UnitInfo* unit, UnitInfoGroup* group) {
 bool UnitInfoGroup::Populate() {
     bool result;
     Point point;
-    int unit_count;
+    int32_t unit_count;
     Rect bounds;
 
     unit_count = UnitsManager_GroundCoverUnits.GetCount() + UnitsManager_MobileLandSeaUnits.GetCount() +
@@ -80,8 +80,8 @@ bool UnitInfoGroup::Populate() {
 
     bounds.ulx = std::max(bounds1.ulx / 64 - 2, 0);
     bounds.uly = std::max(bounds1.uly / 64 - 2, 0);
-    bounds.lrx = std::min((bounds1.lrx + 63) / 64 + 1, static_cast<int>(ResourceManager_MapSize.x));
-    bounds.lry = std::min((bounds1.lry + 63) / 64 + 1, static_cast<int>(ResourceManager_MapSize.y));
+    bounds.lrx = std::min((bounds1.lrx + 63) / 64 + 1, static_cast<int32_t>(ResourceManager_MapSize.x));
+    bounds.lry = std::min((bounds1.lry + 63) / 64 + 1, static_cast<int32_t>(ResourceManager_MapSize.y));
 
     if ((bounds.lrx - bounds.ulx) * (bounds.lry - bounds.uly) <= (unit_count / 2)) {
         for (point.y = bounds.uly; point.y < bounds.lry; ++point.y) {
@@ -176,59 +176,59 @@ bool UnitInfoGroup::Populate() {
 }
 
 void UnitInfoGroup::RenderGroups() {
-    for (int i = torpedos.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = torpedos.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &torpedos[i]);
     }
 
-    for (int i = water_platform.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = water_platform.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &water_platform[i]);
     }
 
-    for (int i = passeable_ground_cover.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = passeable_ground_cover.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &passeable_ground_cover[i]);
     }
 
-    for (int i = land_rubbles.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = land_rubbles.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &land_rubbles[i]);
     }
 
-    for (int i = sea_land_mines.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = sea_land_mines.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &sea_land_mines[i]);
     }
 
-    for (int i = ground_covers.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = ground_covers.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &ground_covers[i]);
     }
 
-    for (int i = sea_land_units.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = sea_land_units.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &sea_land_units[i]);
     }
 
-    for (int i = elevated_bridge.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = elevated_bridge.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &elevated_bridge[i]);
     }
 
-    for (int i = air_units_on_ground.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = air_units_on_ground.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderAirShadow(this, &air_units_on_ground[i]);
     }
 
-    for (int i = air_units_on_ground.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = air_units_on_ground.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &air_units_on_ground[i], false);
     }
 
-    for (int i = air_units_in_air.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = air_units_in_air.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderAirShadow(this, &air_units_in_air[i]);
     }
 
-    for (int i = rockets.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = rockets.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &rockets[i]);
     }
 
-    for (int i = air_units_in_air.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = air_units_in_air.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &air_units_in_air[i], false);
     }
 
-    for (int i = air_particles_explosions.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = air_particles_explosions.GetCount() - 1; i >= 0; --i) {
         DrawMap_RenderUnit(this, &air_particles_explosions[i]);
     }
 }

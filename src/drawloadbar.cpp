@@ -45,8 +45,8 @@ DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, GameManager_GetDia
 
 DrawLoadBar::~DrawLoadBar() { delete loadbar; }
 
-void DrawLoadBar::SetValue(short value) {
-    short length;
+void DrawLoadBar::SetValue(int16_t value) {
+    int16_t length;
 
     loadbar->SetValue(value);
     loadbar->RefreshScreen();

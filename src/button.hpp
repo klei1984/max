@@ -28,17 +28,17 @@
 
 class Button {
     ButtonID bid;
-    int ulx;
-    int uly;
-    int width;
-    int height;
+    int32_t ulx;
+    int32_t uly;
+    int32_t width;
+    int32_t height;
     Image *up;
     Image *down;
     Image *up_disabled;
     Image *down_disabled;
-    int p_value;
-    int r_value;
-    unsigned int flags;
+    int32_t p_value;
+    int32_t r_value;
+    uint32_t flags;
     ButtonFunc p_func;
     ButtonFunc r_func;
     WinID wid;
@@ -50,32 +50,32 @@ class Button {
     friend void Button_RFunc(ButtonID bid, Button *b);
 
 public:
-    Button(int ulx, int uly, int width, int height);
-    Button(ResourceID up, ResourceID down, int ulx, int uly);
+    Button(int32_t ulx, int32_t uly, int32_t width, int32_t height);
+    Button(ResourceID up, ResourceID down, int32_t ulx, int32_t uly);
     ~Button();
 
     void Allocate();
     Rect GetBounds() const;
 
-    unsigned char *GetUpData() const;
-    unsigned char *GetDownData() const;
-    unsigned char *GetUpDisabledData() const;
-    unsigned char *GetDownDisabledData() const;
+    uint8_t *GetUpData() const;
+    uint8_t *GetDownData() const;
+    uint8_t *GetUpDisabledData() const;
+    uint8_t *GetDownDisabledData() const;
 
     void Copy(WinID wid);
-    void Copy(ResourceID id, int ulx, int uly);
+    void Copy(ResourceID id, int32_t ulx, int32_t uly);
     void CopyDisabled(WindowInfo *w);
     void CopyUp(ResourceID id);
     void CopyDown(ResourceID id);
     void CopyUpDisabled(ResourceID id);
     void CopyDownDisabled(ResourceID id);
-    void CopyUp(unsigned char *data);
-    void CopyDown(unsigned char *data);
-    void CopyUpDisabled(unsigned char *data);
-    void CopyDownDisabled(unsigned char *data);
+    void CopyUp(uint8_t *data);
+    void CopyDown(uint8_t *data);
+    void CopyUpDisabled(uint8_t *data);
+    void CopyDownDisabled(uint8_t *data);
 
-    void SetPFunc(ButtonFunc p_func, int p_value);
-    void SetRFunc(ButtonFunc r_func, int r_value);
+    void SetPFunc(ButtonFunc p_func, int32_t p_value);
+    void SetRFunc(ButtonFunc r_func, int32_t r_value);
 
     void RegisterButton(WinID wid);
 
@@ -86,10 +86,10 @@ public:
     void PlaySound() const;
     void SetSfx(ResourceID id);
     ButtonID GetId() const;
-    void SetPValue(int p_value);
-    void SetRValue(int r_value);
-    void SetFlags(unsigned int flags);
-    void SetCaption(const char *caption, short x = 0, short y = 0, FontColor color_up = Fonts_GoldColor,
+    void SetPValue(int32_t p_value);
+    void SetRValue(int32_t r_value);
+    void SetFlags(uint32_t flags);
+    void SetCaption(const char *caption, int16_t x = 0, int16_t y = 0, FontColor color_up = Fonts_GoldColor,
                     FontColor color_down = Fonts_DarkOrageColor, FontColor color_up_disabled = Fonts_DarkGrayColor,
                     FontColor color_down_disabled = Fonts_DarkGrayColor);
     void SetCaption(const char *caption, Rect *r, FontColor color_up = Fonts_GoldColor,

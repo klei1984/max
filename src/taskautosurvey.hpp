@@ -27,21 +27,21 @@
 class TaskAutoSurvey : public Task {
     Point central_site;
     SmartPointer<UnitInfo> unit;
-    unsigned short radius;
-    unsigned short direction;
+    uint16_t radius;
+    uint16_t direction;
     Point position;
     Point destination;
-    unsigned short direction2;
+    uint16_t direction2;
     bool continue_search;
     bool location_found;
-    unsigned short current_radius;
+    uint16_t current_radius;
 
 public:
     TaskAutoSurvey(UnitInfo* unit);
     ~TaskAutoSurvey();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void Begin();
     bool Execute(UnitInfo& unit);
     void RemoveSelf();

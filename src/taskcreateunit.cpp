@@ -48,8 +48,8 @@ TaskCreateUnit::TaskCreateUnit(UnitInfo* unit_, Task* task)
 
 TaskCreateUnit::~TaskCreateUnit() {}
 
-unsigned short TaskCreateUnit::GetFlags() const {
-    unsigned short result;
+uint16_t TaskCreateUnit::GetFlags() const {
+    uint16_t result;
 
     if (parent) {
         result = parent->GetFlags();
@@ -71,7 +71,7 @@ char* TaskCreateUnit::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
+uint8_t TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
 
 void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
     AiLog log("Task Create Unit: Add %s", UnitsManager_BaseUnits[unit_.unit_type].singular_name);
@@ -213,11 +213,11 @@ void TaskCreateUnit::WaitForMaterials() {
             }
 
             if (materials.fuel < 10) {
-                int mining_station_count = 0;
-                int buildings_count = 0;
-                int power_consumption = 0;
-                int required_mining_stations;
-                int buildings_to_shut_down;
+                int32_t mining_station_count = 0;
+                int32_t buildings_count = 0;
+                int32_t power_consumption = 0;
+                int32_t required_mining_stations;
+                int32_t buildings_to_shut_down;
 
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -229,7 +229,7 @@ void TaskCreateUnit::WaitForMaterials() {
                             ++buildings_count;
 
                         } else if ((*it).orders == ORDER_BUILD && (*it).state != ORDER_STATE_UNIT_READY) {
-                            int consumption = Cargo_GetPowerConsumptionRate((*it).unit_type);
+                            int32_t consumption = Cargo_GetPowerConsumptionRate((*it).unit_type);
 
                             if (consumption > 0) {
                                 power_consumption += consumption;

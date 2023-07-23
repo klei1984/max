@@ -27,18 +27,18 @@
 
 extern const ResourceID ReportStats_CargoIcons[];
 
-void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID unit_type, unsigned short team, int ulx,
-                                  int uly);
+void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID unit_type, uint16_t team, int32_t ulx,
+                                  int32_t uly);
 
-void ReportStats_DrawListItem(unsigned char* buffer, int width, ResourceID unit_type, int ulx, int uly, int full,
-                              int color);
+void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_type, int32_t ulx, int32_t uly, int32_t full,
+                              int32_t color);
 
-void ReportStats_DrawNumber(unsigned char* buffer, int number, int width, int full, int color);
+void ReportStats_DrawNumber(uint8_t* buffer, int32_t number, int32_t width, int32_t full, int32_t color);
 
-void ReportStats_DrawText(unsigned char* buffer, char* text, int width, int full, int color);
+void ReportStats_DrawText(uint8_t* buffer, char* text, int32_t width, int32_t full, int32_t color);
 
 void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID icon_normal, ResourceID icon_empty,
-                         int current_value, int base_value, int factor, bool drawline);
+                         int32_t current_value, int32_t base_value, int32_t factor, bool drawline);
 
 void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds);
 

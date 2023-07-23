@@ -30,7 +30,7 @@
 
 class SmartFileReader {
     void LoadObject(FileObject& object);
-    unsigned short ReadIndex();
+    uint16_t ReadIndex();
 
 protected:
     FILE* file;
@@ -43,16 +43,16 @@ public:
 
     bool Open(const char* const path);
     void Close();
-    void Read(void* buffer, int size);
+    void Read(void* buffer, int32_t size);
     template <typename T>
     void Read(T& buffer);
-    unsigned short ReadObjectCount();
+    uint16_t ReadObjectCount();
     FileObject* ReadObject();
 };
 
 class SmartFileWriter {
     void SaveObject(FileObject* object);
-    void WriteIndex(unsigned short index);
+    void WriteIndex(uint16_t index);
 
 protected:
     SmartList<FileObject> objects;
@@ -67,10 +67,10 @@ public:
 
     bool Open(const char* const path);
     void Close();
-    void Write(void* buffer, int size);
+    void Write(void* buffer, int32_t size);
     template <typename T>
     void Write(T& buffer);
-    void WriteObjectCount(unsigned short count);
+    void WriteObjectCount(uint16_t count);
     void WriteObject(FileObject* object);
 };
 

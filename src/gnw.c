@@ -24,35 +24,35 @@
 #include <SDL.h>
 
 static void win_free(WinID id);
-static void win_clip(GNW_Window *w, RectPtr *L, unsigned char *buf);
-static void refresh_all(Rect *bound, unsigned char *buf);
+static void win_clip(GNW_Window *w, RectPtr *L, uint8_t *buf);
+static void refresh_all(Rect *bound, uint8_t *buf);
 static char *load_texture(char *filename);
-static unsigned long colorOpen(char *file, int mode);
-static unsigned long colorClose(unsigned long handle);
-static unsigned long colorRead(unsigned long handle, void *buf, unsigned long size);
+static uint32_t colorOpen(char *file, int32_t mode);
+static uint32_t colorClose(uint32_t handle);
+static uint32_t colorRead(uint32_t handle, void *buf, uint32_t size);
 
-static int window_index[50];
+static int32_t window_index[50];
 static GNW_Window *window[50];
-static int buffering;
-static int bk_color;
+static int32_t buffering;
+static int32_t bk_color;
 static SetModeFunc set_mode_ptr;
-static int doing_refresh_all;
+static int32_t doing_refresh_all;
 static ResetModeFunc reset_mode_ptr;
-static unsigned char *screen_buffer;
-static unsigned int window_flags;
-static int num_windows;
+static uint8_t *screen_buffer;
+static uint32_t window_flags;
+static int32_t num_windows;
 
-unsigned char *GNW_texture;
-int GNW_win_init_flag;
+uint8_t *GNW_texture;
+int32_t GNW_win_init_flag;
 ColorRGB GNW_wcolor[6];
 
-static inline int GetRGBColor(int r, int g, int b) {
+static inline int32_t GetRGBColor(int32_t r, int32_t g, int32_t b) {
     return ((r & 0x1F) << 10) | ((g & 0x1F) << 5) | ((b & 0x1F) << 0);
 }
 
-static inline int GNW_IsRGBColor(int color) { return (color & (GNW_TEXT_RGB_MASK & (~GNW_TEXT_COLOR_MASK))); }
+static inline int32_t GNW_IsRGBColor(int32_t color) { return (color & (GNW_TEXT_RGB_MASK & (~GNW_TEXT_COLOR_MASK))); }
 
-static inline int GNW_WinRGB2Color(int color) {
+static inline int32_t GNW_WinRGB2Color(int32_t color) {
     if (GNW_IsRGBColor(color)) {
         return (color & GNW_TEXT_CONTROL_MASK) | colorTable[GNW_wcolor[(color & GNW_TEXT_RGB_MASK) >> 8]];
 
@@ -61,15 +61,15 @@ static inline int GNW_WinRGB2Color(int color) {
     }
 }
 
-int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
-    unsigned char *pal;
-    int result;
+int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
+    uint8_t *pal;
+    int32_t result;
 
     if (GNW_win_init_flag) {
         return 4;
     }
 
-    for (int i = 0; i < 50; i++) {
+    for (int32_t i = 0; i < 50; i++) {
         window_index[i] = -1;
     }
 
@@ -91,7 +91,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
     if (flags & 1) {
         size_t size = (scr_size.lry - scr_size.uly + 1) * (scr_size.lrx - scr_size.ulx + 1);
 
-        screen_buffer = (unsigned char *)malloc(size);
+        screen_buffer = (uint8_t *)malloc(size);
 
         if (!screen_buffer) {
             if (reset_mode_ptr) {
@@ -110,7 +110,7 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
     colorInitIO(colorOpen, colorRead, colorClose);
 
     if (!initColors()) {
-        pal = (unsigned char *)malloc(3 * PALETTE_SIZE);
+        pal = (uint8_t *)malloc(3 * PALETTE_SIZE);
 
         if (!pal) {
             if (reset_mode_ptr) {
@@ -187,15 +187,15 @@ int win_init(SetModeFunc set, ResetModeFunc reset, int flags) {
     return result;
 }
 
-int win_reinit(SetModeFunc set) {
-    int result;
+int32_t win_reinit(SetModeFunc set) {
+    int32_t result;
 
     result = 0;
     if (GNW_win_init_flag) {
         if (set() == -1) {
             result = 1;
         } else {
-            for (int i = 1; i < num_windows; i++) {
+            for (int32_t i = 1; i < num_windows; i++) {
                 if ((scr_size.lrx - scr_size.ulx + 1) < window[i]->width ||
                     (scr_size.lry - scr_size.uly + 1) < window[i]->length) {
                     result = 6;
@@ -205,7 +205,7 @@ int win_reinit(SetModeFunc set) {
 
             if (!result && (window_flags & 1)) {
                 size_t size = (scr_size.lry - scr_size.uly + 1) * (scr_size.lrx - scr_size.ulx + 1);
-                unsigned char *buffer = (unsigned char *)malloc(size);
+                uint8_t *buffer = (uint8_t *)malloc(size);
 
                 if (buffer) {
                     free(screen_buffer);
@@ -236,7 +236,7 @@ int win_reinit(SetModeFunc set) {
                 }
             }
 
-            for (int i = 1; i < num_windows; i++) {
+            for (int32_t i = 1; i < num_windows; i++) {
                 win_move(window[i]->id, window[i]->w.ulx, window[i]->w.uly);
             }
         }
@@ -247,10 +247,10 @@ int win_reinit(SetModeFunc set) {
     return result;
 }
 
-int win_active(void) { return GNW_win_init_flag; }
+int32_t win_active(void) { return GNW_win_init_flag; }
 
 void win_exit(void) {
-    static int insideWinExit = 0;
+    static int32_t insideWinExit = 0;
 
     if (!insideWinExit) {
         insideWinExit = 1;
@@ -258,7 +258,7 @@ void win_exit(void) {
         if (GNW_win_init_flag) {
             GNW_intr_exit();
 
-            for (int i = num_windows - 1; i >= 0; i--) {
+            for (int32_t i = num_windows - 1; i >= 0; i--) {
                 win_free(window[i]->id);
             }
 
@@ -286,10 +286,10 @@ void win_exit(void) {
     }
 }
 
-WinID win_add(int ulx, int uly, int width, int length, int color, int flags) {
+WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t color, int32_t flags) {
     WinID result;
-    int i;
-    int j;
+    int32_t i;
+    int32_t j;
     WinID id;
     GNW_Window *w;
 
@@ -300,7 +300,7 @@ WinID win_add(int ulx, int uly, int width, int length, int color, int flags) {
         if (w) {
             window[num_windows] = w;
 
-            w->buf = (unsigned char *)malloc(length * width);
+            w->buf = (uint8_t *)malloc(length * width);
 
             if (w->buf) {
                 for (id = 1; GNW_find(id); id++) {
@@ -379,7 +379,7 @@ WinID win_add(int ulx, int uly, int width, int length, int color, int flags) {
 void win_delete(WinID id) {
     Rect r;
     GNW_Window *w;
-    int win_num;
+    int32_t win_num;
 
     w = GNW_find(id);
 
@@ -391,7 +391,7 @@ void win_delete(WinID id) {
         window_index[id] = -1;
         num_windows--;
 
-        for (int i = win_num; i < num_windows; i++) {
+        for (int32_t i = win_num; i < num_windows; i++) {
             window[i] = window[i + 1];
             window_index[window[i]->id] = i;
         }
@@ -420,7 +420,7 @@ void win_free(WinID id) {
     }
 }
 
-void win_buffering(int state) {
+void win_buffering(int32_t state) {
     if (screen_buffer) {
         buffering = state;
     }
@@ -459,7 +459,7 @@ void win_texture(char *fname) {
     SDL_assert(0);
 }
 
-void win_set_bk_color(int color) {
+void win_set_bk_color(int32_t color) {
     GNW_Window *w;
 
     if (GNW_win_init_flag) {
@@ -475,9 +475,9 @@ void win_set_bk_color(int color) {
     }
 }
 
-void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
+void win_print(WinID id, char *str, int32_t field_width, int32_t x, int32_t y, int32_t color) {
     GNW_Window *w;
-    unsigned char *buf;
+    uint8_t *buf;
 
     w = GNW_find(id);
 
@@ -527,11 +527,11 @@ void win_print(WinID id, char *str, int field_width, int x, int y, int color) {
     }
 }
 
-void win_text(WinID id, char **list, int num, int field_width, int x, int y, int color) {
-    int i;
-    int height;
-    int full;
-    unsigned char *buf;
+void win_text(WinID id, char **list, int32_t num, int32_t field_width, int32_t x, int32_t y, int32_t color) {
+    int32_t i;
+    int32_t height;
+    int32_t full;
+    uint8_t *buf;
     GNW_Window *w;
 
     w = GNW_find(id);
@@ -558,7 +558,7 @@ void win_text(WinID id, char **list, int num, int field_width, int x, int y, int
     }
 }
 
-void win_line(WinID id, int x1, int y1, int x2, int y2, int color) {
+void win_line(WinID id, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color) {
     GNW_Window *w;
 
     w = GNW_find(id);
@@ -570,12 +570,12 @@ void win_line(WinID id, int x1, int y1, int x2, int y2, int color) {
     }
 }
 
-void win_box(WinID id, int ulx, int uly, int lrx, int lry, int color) {
+void win_box(WinID id, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color) {
     GNW_Window *w;
-    int v7;
-    int ulya;
-    int lrxa;
-    int lrya;
+    int32_t v7;
+    int32_t ulya;
+    int32_t lrxa;
+    int32_t lrya;
 
     ulya = uly;
     lrxa = lrx;
@@ -601,7 +601,7 @@ void win_box(WinID id, int ulx, int uly, int lrx, int lry, int color) {
     }
 }
 
-void win_shaded_box(WinID id, int ulx, int uly, int lrx, int lry, int color1, int color2) {
+void win_shaded_box(WinID id, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color1, int32_t color2) {
     GNW_Window *w;
 
     w = GNW_find(id);
@@ -614,7 +614,7 @@ void win_shaded_box(WinID id, int ulx, int uly, int lrx, int lry, int color1, in
     }
 }
 
-void win_fill(WinID id, int ulx, int uly, int width, int length, int color) {
+void win_fill(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t color) {
     GNW_Window *w;
 
     w = GNW_find(id);
@@ -639,7 +639,7 @@ void win_fill(WinID id, int ulx, int uly, int width, int length, int color) {
 
 void win_show(WinID id) {
     GNW_Window *w;
-    int i;
+    int32_t i;
 
     w = GNW_find(id);
 
@@ -680,7 +680,7 @@ void win_hide(WinID id) {
     }
 }
 
-void win_move(WinID id, int ulx, int uly) {
+void win_move(WinID id, int32_t ulx, int32_t uly) {
     Rect r;
     GNW_Window *w;
 
@@ -755,16 +755,16 @@ void win_draw_rect(WinID id, Rect *bound) {
     }
 }
 
-void GNW_win_refresh(GNW_Window *w, Rect *bound, unsigned char *scr_buf) {
+void GNW_win_refresh(GNW_Window *w, Rect *bound, uint8_t *scr_buf) {
     Rect m;
-    unsigned char *buf;
+    uint8_t *buf;
     Rect *r;
     RectPtr L;
     RectPtr N;
     RectPtr rp;
-    unsigned int srcW;
-    unsigned int srcH;
-    int full2;
+    uint32_t srcW;
+    uint32_t srcH;
+    int32_t full2;
 
     if (!(w->flags & 8)) {
         if ((w->flags & 0x20) && buffering && !doing_refresh_all) {
@@ -844,7 +844,7 @@ void GNW_win_refresh(GNW_Window *w, Rect *bound, unsigned char *scr_buf) {
                                 } else {
                                     buf_to_buf(&w->buf[L->r.ulx - w->w.ulx + (L->r.uly - w->w.uly) * w->width],
                                                L->r.lrx - L->r.ulx + 1, L->r.lry - L->r.uly + 1, w->width,
-                                               (unsigned char
+                                               (uint8_t
                                                     *)&scr_buf[full2 * (L->r.uly - bound->uly) + L->r.ulx - bound->ulx],
                                                full2);
                                 }
@@ -874,14 +874,14 @@ void GNW_win_refresh(GNW_Window *w, Rect *bound, unsigned char *scr_buf) {
                             srcW = L->r.lrx - L->r.ulx + 1;
                             srcH = L->r.lry - L->r.uly + 1;
 
-                            buf = (unsigned char *)malloc(srcH * srcW);
+                            buf = (uint8_t *)malloc(srcH * srcW);
 
                             if (buf) {
                                 buf_fill(buf, srcW, srcH, srcW, bk_color);
 
                                 if (scr_buf) {
                                     buf_to_buf(buf, srcW, srcH, srcW,
-                                               (unsigned char
+                                               (uint8_t
                                                     *)&scr_buf[full2 * (L->r.uly - bound->uly) + L->r.ulx - bound->ulx],
                                                full2);
                                 } else if (buffering) {
@@ -927,8 +927,8 @@ void win_refresh_all(Rect *bound) {
     }
 }
 
-void win_clip(GNW_Window *w, RectPtr *L, unsigned char *buf) {
-    for (int i = window_index[w->id] + 1; (i < num_windows) && *L; i++) {
+void win_clip(GNW_Window *w, RectPtr *L, uint8_t *buf) {
+    for (int32_t i = window_index[w->id] + 1; (i < num_windows) && *L; i++) {
         if (window[i]->flags & 8) {
             continue;
         }
@@ -954,10 +954,10 @@ void win_clip(GNW_Window *w, RectPtr *L, unsigned char *buf) {
 
 void win_drag(WinID id) {
     Rect r;
-    int x;
-    int y;
-    int dx;
-    int dy;
+    int32_t x;
+    int32_t y;
+    int32_t dx;
+    int32_t dy;
     RectPtr L;
     RectPtr N;
     GNW_Window *w;
@@ -1036,17 +1036,17 @@ void win_drag(WinID id) {
     }
 }
 
-void win_get_mouse_buf(unsigned char *buf) {
+void win_get_mouse_buf(uint8_t *buf) {
     Rect m;
 
     mouse_get_rect(&m);
     refresh_all(&m, buf);
 }
 
-void refresh_all(Rect *bound, unsigned char *buf) {
+void refresh_all(Rect *bound, uint8_t *buf) {
     doing_refresh_all = 1;
 
-    for (int i = 0; i < num_windows; i++) {
+    for (int32_t i = 0; i < num_windows; i++) {
         GNW_win_refresh(window[i], bound, buf);
     }
 
@@ -1075,8 +1075,8 @@ GNW_Window *GNW_find(WinID id) {
     return w;
 }
 
-unsigned char *win_get_buf(WinID id) {
-    unsigned char *buf;
+uint8_t *win_get_buf(WinID id) {
+    uint8_t *buf;
     GNW_Window *w;
 
     w = GNW_find(id);
@@ -1090,8 +1090,8 @@ unsigned char *win_get_buf(WinID id) {
     return buf;
 }
 
-WinID win_get_top_win(int x, int y) {
-    int i;
+WinID win_get_top_win(int32_t x, int32_t y) {
+    int32_t i;
 
     for (i = num_windows - 1; i >= 1; i--) {
         if ((x >= window[i]->w.ulx) && (x <= window[i]->w.lrx) && (y >= window[i]->w.uly) && (y <= window[i]->w.lry)) {
@@ -1102,9 +1102,9 @@ WinID win_get_top_win(int x, int y) {
     return window[i]->id;
 }
 
-int win_width(WinID id) {
+int32_t win_width(WinID id) {
     GNW_Window *w;
-    int result;
+    int32_t result;
 
     w = GNW_find(id);
 
@@ -1117,9 +1117,9 @@ int win_width(WinID id) {
     return result;
 }
 
-int win_height(WinID id) {
+int32_t win_height(WinID id) {
     GNW_Window *w;
-    int result;
+    int32_t result;
 
     w = GNW_find(id);
 
@@ -1132,9 +1132,9 @@ int win_height(WinID id) {
     return result;
 }
 
-int win_get_rect(WinID id, Rect *r) {
+int32_t win_get_rect(WinID id, Rect *r) {
     GNW_Window *w;
-    int result;
+    int32_t result;
 
     w = GNW_find(id);
 
@@ -1148,14 +1148,14 @@ int win_get_rect(WinID id, Rect *r) {
     return result;
 }
 
-int win_check_all_buttons(void) {
-    int result;
-    int press;
+int32_t win_check_all_buttons(void) {
+    int32_t result;
+    int32_t press;
 
     press = -1;
 
     if (GNW_win_init_flag) {
-        for (int i = num_windows - 1; i >= 1; i--) {
+        for (int32_t i = num_windows - 1; i >= 1; i--) {
             if (!GNW_check_buttons(window[i], &press)) {
                 break;
             }
@@ -1176,7 +1176,7 @@ int win_check_all_buttons(void) {
 GNW_ButtonPtr GNW_find_button(ButtonID id, GNW_Window **w) {
     GNW_ButtonPtr b;
 
-    for (int i = 0; i < num_windows; i++) {
+    for (int32_t i = 0; i < num_windows; i++) {
         for (b = window[i]->button_list; b; b = b->next) {
             if (b->id == id) {
                 if (w) {
@@ -1191,13 +1191,13 @@ GNW_ButtonPtr GNW_find_button(ButtonID id, GNW_Window **w) {
     return NULL;
 }
 
-int GNW_check_menu_bars(int input) {
-    int result;
+int32_t GNW_check_menu_bars(int32_t input) {
+    int32_t result;
 
     if (GNW_win_init_flag) {
-        for (int i = num_windows - 1; i >= 1; i--) {
+        for (int32_t i = num_windows - 1; i >= 1; i--) {
             if (window[i]->menu) {
-                for (int j = 0; j < window[i]->menu->num_pds; j++) {
+                for (int32_t j = 0; j < window[i]->menu->num_pds; j++) {
                     if (window[i]->menu->pd[j].value == input) {
                         input = GNW_process_menu(window[i]->menu, j);
                         break;
@@ -1239,8 +1239,8 @@ void win_set_trans_b2b(WinID id, Trans_b2b trans_b2b) {
     }
 }
 
-unsigned long colorOpen(char *file, int mode) {
-    unsigned long result;
+uint32_t colorOpen(char *file, int32_t mode) {
+    uint32_t result;
     char text[4];
 
     memset(text, 0, 4);
@@ -1259,7 +1259,7 @@ unsigned long colorOpen(char *file, int mode) {
         text[1] = 'b';
     }
 
-    result = (unsigned long)db_fopen(file, text);
+    result = (uint32_t)db_fopen(file, text);
 
     if (!result) {
         result = -1;
@@ -1268,8 +1268,8 @@ unsigned long colorOpen(char *file, int mode) {
     return result;
 }
 
-unsigned long colorClose(unsigned long handle) { return db_fclose((DB_FILE)handle); }
+uint32_t colorClose(uint32_t handle) { return db_fclose((DB_FILE)handle); }
 
-unsigned long colorRead(unsigned long handle, void *buf, unsigned long size) {
+uint32_t colorRead(uint32_t handle, void *buf, uint32_t size) {
     return db_fread(buf, 1, size, (DB_FILE)handle);
 }

@@ -33,12 +33,12 @@ class TransporterMap {
     AccessMap map;
     bool is_initialized;
     SmartPointer<UnitInfo> unit;
-    unsigned char flags;
-    unsigned char caution_level;
+    uint8_t flags;
+    uint8_t caution_level;
     ResourceID unit_type;
 
 public:
-    TransporterMap(UnitInfo* unit, unsigned char flags, unsigned char caution_level, ResourceID unit_type = INVALID_ID);
+    TransporterMap(UnitInfo* unit, uint8_t flags, uint8_t caution_level, ResourceID unit_type = INVALID_ID);
     ~TransporterMap();
 
     bool Search(Point site);

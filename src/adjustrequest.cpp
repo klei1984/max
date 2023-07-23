@@ -21,7 +21,7 @@
 
 #include "adjustrequest.hpp"
 
-AdjustRequest::AdjustRequest(UnitInfo* unit, int mode, Point position, GroundPath* path)
+AdjustRequest::AdjustRequest(UnitInfo* unit, int32_t mode, Point position, GroundPath* path)
     : TaskPathRequest(unit, mode, position), ground_path(path) {}
 
 AdjustRequest::~AdjustRequest() {}

@@ -53,8 +53,8 @@
 
 static bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window);
 static bool UnitsManager_SelfDestructMenu();
-static void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y);
-static void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y);
+static void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+static void UnitsManager_UpdateMapHash(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 static void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit);
 static void UnitsManager_RegisterButton(PopupButtons* buttons, bool state, const char* caption, char position,
                                         void (*event_handler)(ButtonID bid, UnitInfo* unit));
@@ -91,7 +91,7 @@ static void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons*
 static bool UnitsManager_Popup_IsUnitReady(UnitInfo* unit);
 static void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit);
 static void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons);
-static bool UnitsManager_IsPowerGeneratorPlaceable(unsigned short team, short* grid_x, short* grid_y);
+static bool UnitsManager_IsPowerGeneratorPlaceable(uint16_t team, int16_t* grid_x, int16_t* grid_y);
 static void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit);
 static void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons);
 static void UnitsManager_Popup_OnClick_ActivateNonAirUnit(ButtonID bid, UnitInfo* unit);
@@ -126,7 +126,7 @@ static void UnitsManager_Landing(UnitInfo* unit);
 static void UnitsManager_Loading(UnitInfo* unit);
 static void UnitsManager_Unloading(UnitInfo* unit);
 static void UnitsManager_PerformAutoSurvey(UnitInfo* unit);
-static void UnitsManager_PowerUpUnit(UnitInfo* unit, int factor);
+static void UnitsManager_PowerUpUnit(UnitInfo* unit, int32_t factor);
 static void UnitsManager_PowerDownUnit(UnitInfo* unit);
 static void UnitsManager_Animate(UnitInfo* unit);
 static void UnitsManager_DeployMasterBuilder(UnitInfo* unit);
@@ -149,7 +149,7 @@ static bool UnitsManager_AttemptStealthAction(UnitInfo* unit);
 static void UnitsManager_CaptureUnit(UnitInfo* unit);
 static void UnitsManager_DisableUnit(UnitInfo* unit);
 static bool UnitsManager_AssessAttacks();
-static bool UnitsManager_IsTeamReactionPending(unsigned short team, UnitInfo* unit, SmartList<UnitInfo>* units);
+static bool UnitsManager_IsTeamReactionPending(uint16_t team, UnitInfo* unit, SmartList<UnitInfo>* units);
 static bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2);
 static bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2);
 static bool UnitsManager_IsReactionPending(SmartList<UnitInfo>* units, UnitInfo* unit);
@@ -157,7 +157,7 @@ static AirPath* UnitsManager_GetMissilePath(UnitInfo* unit);
 static void UnitsManager_UpdateAttackPaths(UnitInfo* unit);
 static bool UnitsManager_IsAttackScheduled();
 static Point UnitsManager_GetAttackPosition(UnitInfo* unit1, UnitInfo* unit2);
-static bool UnitsManager_CheckDelayedReactions(unsigned short team);
+static bool UnitsManager_CheckDelayedReactions(uint16_t team);
 
 static void UnitsManager_ProcessOrderAwait(UnitInfo* unit);
 static void UnitsManager_ProcessOrderTransform(UnitInfo* unit);
@@ -188,9 +188,9 @@ static void UnitsManager_ProcessOrderDisable(UnitInfo* unit);
 static void UnitsManager_ProcessOrderUpgrade(UnitInfo* unit);
 static void UnitsManager_ProcessOrderLayMine(UnitInfo* unit);
 
-unsigned short UnitsManager_Team;
+uint16_t UnitsManager_Team;
 
-unsigned int UnitsManager_UnknownCounter;
+uint32_t UnitsManager_UnknownCounter;
 
 SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
@@ -212,12 +212,12 @@ bool UnitsManager_byte_179448;
 bool UnitsManager_byte_178170;
 
 bool UnitsManager_TimeBenchmarkInit;
-unsigned char UnitsManager_TimeBenchmarkNextIndex;
-unsigned char UnitsManager_TimeBenchmarkIndices[20];
-int UnitsManager_TimeBenchmarkValues[20];
+uint8_t UnitsManager_TimeBenchmarkNextIndex;
+uint8_t UnitsManager_TimeBenchmarkIndices[20];
+int32_t UnitsManager_TimeBenchmarkValues[20];
 
-signed char UnitsManager_EffectCounter;
-signed char UnitsManager_byte_17947D;
+int8_t UnitsManager_EffectCounter;
+int8_t UnitsManager_byte_17947D;
 
 const char* const UnitsManager_Orders[] = {
     "Awaiting",   "Transforming", "Moving",    "Firing",          "Building",  "Activate Order", "New Allocate Order",
@@ -2043,8 +2043,8 @@ bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
     bool event_click_cancel;
     bool event_release;
 
-    for (unsigned short id = SLFDOPN1; id <= SLFDOPN6; ++id) {
-        unsigned int time_Stamp = timer_get();
+    for (uint16_t id = SLFDOPN1; id <= SLFDOPN6; ++id) {
+        uint32_t time_Stamp = timer_get();
 
         WindowManager_LoadSimpleImage(static_cast<ResourceID>(id), 13, 11, false, window);
         win_draw(window->id);
@@ -2067,7 +2067,7 @@ bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
     event_release = false;
 
     while (!event_click_destruct && !event_click_cancel) {
-        int key = get_input();
+        int32_t key = get_input();
 
         if (GameManager_RequestMenuExit) {
             key = GNW_KB_KEY_ESCAPE;
@@ -2132,7 +2132,7 @@ bool UnitsManager_SelfDestructMenu() {
     event_release = false;
 
     while (!event_click_arm && !event_click_cancel) {
-        int key = get_input();
+        int32_t key = get_input();
 
         if (GameManager_RequestMenuExit) {
             key = GNW_KB_KEY_ESCAPE;
@@ -2162,9 +2162,9 @@ bool UnitsManager_SelfDestructMenu() {
     return event_click_arm;
 }
 
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential) {
-    int target_armor = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);
-    int attacker_damage = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
+int32_t UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int32_t damage_potential) {
+    int32_t target_armor = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);
+    int32_t attacker_damage = target_unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
 
     if (damage_potential > 1) {
         attacker_damage *= (5 - damage_potential) / 4;
@@ -2188,12 +2188,12 @@ UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit
     return team_info->team_units->GetCurrentUnitValues(unit_type);
 }
 
-void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<ResourceID> units) {
+void UnitsManager_AddAxisMissionLoadout(uint16_t team, SmartObjectArray<ResourceID> units) {
     if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + team)) == TEAM_CLAN_AXIS_INC) {
-        int credits;
+        int32_t credits;
         ResourceID unit_type;
-        unsigned short engineer_turns;
-        unsigned short constructor_turns;
+        uint16_t engineer_turns;
+        uint16_t constructor_turns;
 
         credits = ((ini_get_setting(INI_START_GOLD) / 3) + 18) / 3;
         engineer_turns =
@@ -2217,16 +2217,16 @@ void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<Re
     }
 }
 
-int UnitsManager_AddDefaultMissionLoadout(unsigned short team) {
+int32_t UnitsManager_AddDefaultMissionLoadout(uint16_t team) {
     ResourceID unit_type;
-    unsigned short cargo;
-    int units_count;
+    uint16_t cargo;
+    int32_t units_count;
 
     UnitsManager_TeamMissionSupplies[team].team_gold = 0;
     UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades = 0;
 
     SmartObjectArray<ResourceID> units(UnitsManager_TeamMissionSupplies[team].units);
-    SmartObjectArray<unsigned short> cargos(UnitsManager_TeamMissionSupplies[team].cargos);
+    SmartObjectArray<uint16_t> cargos(UnitsManager_TeamMissionSupplies[team].cargos);
 
     units.Clear();
 
@@ -2251,7 +2251,7 @@ int UnitsManager_AddDefaultMissionLoadout(unsigned short team) {
     cargo = 20;
     cargos.PushBack(&cargo);
 
-    for (int i = 2; i < units_count; ++i) {
+    for (int32_t i = 2; i < units_count; ++i) {
         cargo = 0;
         cargos.PushBack(&cargo);
     }
@@ -2289,13 +2289,13 @@ void UnitsManager_Popup_OnClick_Upgrade(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
-    int material_cost;
-    int cost;
-    int unit_count;
+    int32_t material_cost;
+    int32_t cost;
+    int32_t unit_count;
     UnitInfo* upgraded_unit;
     SmartArray<Complex> complexes;
-    ObjectArray<short> costs;
-    int index;
+    ObjectArray<int16_t> costs;
+    int32_t index;
     char mark_level[20];
 
     GameManager_DeinitPopupButtons(true);
@@ -2608,7 +2608,7 @@ bool UnitsManager_Popup_IsReady(UnitInfo* unit) {
 
 void UnitsManager_RegisterButton(PopupButtons* buttons, bool state, const char* caption, char position,
                                  void (*event_handler)(ButtonID bid, UnitInfo* unit)) {
-    int count;
+    int32_t count;
     char key;
 
     SDL_assert(buttons->popup_count < UNITINFO_MAX_POPUP_BUTTON_COUNT);
@@ -2622,7 +2622,7 @@ void UnitsManager_RegisterButton(PopupButtons* buttons, bool state, const char* 
     for (count = buttons->popup_count; count > 0 && buttons->key_code[count - 1] > key; --count) {
     }
 
-    for (int i = buttons->popup_count - 1; i >= count; --i) {
+    for (int32_t i = buttons->popup_count - 1; i >= count; --i) {
         buttons->caption[i + 1] = buttons->caption[i];
         buttons->state[i + 1] = buttons->state[i];
         buttons->r_func[i + 1] = buttons->r_func[i];
@@ -2652,7 +2652,7 @@ void UnitsManager_PerformAction(UnitInfo* unit) {
 
     if (unit->path != nullptr && unit->speed > 0 && unit->orders != ORDER_CLEAR && unit->orders != ORDER_BUILD &&
         !unit->GetUnitList()) {
-        unsigned char order;
+        uint8_t order;
 
         order = unit->orders;
 
@@ -2706,8 +2706,8 @@ void UnitsManager_Popup_OnClick_Build(ButtonID bid, UnitInfo* unit) {
 
 void UnitsManager_Popup_PlaceNewUnit(ButtonID bid, UnitInfo* unit) {
     UnitInfo* parent;
-    short grid_x;
-    short grid_y;
+    int16_t grid_x;
+    int16_t grid_y;
 
     GameManager_DeinitPopupButtons(true);
     GameManager_DisableMainMenu();
@@ -2965,7 +2965,7 @@ void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
         rubble = Access_GetRemovableRubble(unit->team, unit->grid_x, unit->grid_y);
 
         if (rubble != nullptr) {
-            int clearing_time;
+            int32_t clearing_time;
             char message[400];
 
             unit->SetParent(&*rubble);
@@ -3004,7 +3004,7 @@ void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons)
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
 
-bool UnitsManager_IsPowerGeneratorPlaceable(unsigned short team, short* grid_x, short* grid_y) {
+bool UnitsManager_IsPowerGeneratorPlaceable(uint16_t team, int16_t* grid_x, int16_t* grid_y) {
     *grid_x -= 1;
     *grid_y += 1;
 
@@ -3061,8 +3061,8 @@ bool UnitsManager_IsPowerGeneratorPlaceable(unsigned short team, short* grid_x, 
 }
 
 void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit) {
-    short grid_x;
-    short grid_y;
+    int16_t grid_x;
+    int16_t grid_y;
 
     GameManager_DeinitPopupButtons(true);
 
@@ -3081,11 +3081,11 @@ void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit)
     MessageManager_DrawMessage(_(bb70), 0, 0);
 }
 
-bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int grid_x, int grid_y) {
+bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     bool result;
-    short raw;
-    short fuel;
-    short gold;
+    int16_t raw;
+    int16_t fuel;
+    int16_t gold;
 
     result = false;
 
@@ -3115,8 +3115,8 @@ void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons)
 
     is_placeable = false;
 
-    for (int grid_y = unit->grid_y; grid_y >= std::max(unit->grid_y - 1, 0) && !is_placeable; --grid_y) {
-        for (int grid_x = unit->grid_x; grid_x >= std::max(unit->grid_x - 1, 0) && !is_placeable; --grid_x) {
+    for (int32_t grid_y = unit->grid_y; grid_y >= std::max(unit->grid_y - 1, 0) && !is_placeable; --grid_y) {
+        for (int32_t grid_x = unit->grid_x; grid_x >= std::max(unit->grid_x - 1, 0) && !is_placeable; --grid_x) {
             is_placeable = UnitsManager_IsMasterBuilderPlaceable(unit, grid_x, grid_y);
 
             if (is_placeable) {
@@ -3133,7 +3133,7 @@ void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons)
 }
 
 void UnitsManager_InitPopupMenus() {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
         UnitsManager_DelayedAttackTargets[team].Clear();
     }
 
@@ -3143,7 +3143,7 @@ void UnitsManager_InitPopupMenus() {
 
     UnitsManager_UnknownCounter = 0;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
             UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
             UnitsManager_Team = team;
@@ -3221,10 +3221,10 @@ void UnitsManager_InitPopupMenus() {
     UnitsManager_PopupCallbacks[22].test = &UnitsManager_Popup_IsNever;
 }
 
-int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int order) {
-    int unit_turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit2->team], unit2->unit_type)
+int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int32_t order) {
+    int32_t unit_turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit2->team], unit2->unit_type)
                          ->GetAttribute(ATTRIB_TURNS);
-    int chance = ((unit1->GetExperience() * 12) * 8 + 640) / unit_turns;
+    int32_t chance = ((unit1->GetExperience() * 12) * 8 + 640) / unit_turns;
 
     if (order == ORDER_AWAIT_STEAL_UNIT) {
         chance /= 4;
@@ -3237,7 +3237,7 @@ int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, in
     return chance;
 }
 
-SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
+SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y,
                                               UnitInfo* parent) {
     SmartPointer<UnitInfo> unit;
 
@@ -3248,7 +3248,7 @@ SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned sho
     return unit;
 }
 
-void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
+void UnitsManager_MoveUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     if (unit->grid_x != grid_x || unit->grid_y != grid_y) {
         unit->RefreshScreen();
         UnitsManager_UpdateMapHash(unit, grid_x, grid_y);
@@ -3256,10 +3256,10 @@ void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y) {
     }
 }
 
-unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid_y) {
+uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     ResourceID unit_type;
     SmartPointer<UnitInfo> parent;
-    unsigned int result;
+    uint32_t result;
 
     unit_type = unit->unit_type;
     parent = unit->GetParent();
@@ -3293,11 +3293,11 @@ unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid
     return result;
 }
 
-void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y) {
-    short raw;
-    short fuel;
-    short gold;
-    short free_capacity;
+void UnitsManager_SetInitialMining(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+    int16_t raw;
+    int16_t fuel;
+    int16_t gold;
+    int16_t free_capacity;
 
     Survey_GetTotalResourcesInArea(grid_x, grid_y, 1, &raw, &gold, &fuel, true, unit->team);
 
@@ -3305,7 +3305,7 @@ void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y) {
     unit->fuel_mining_max = fuel;
     unit->gold_mining_max = gold;
 
-    unit->fuel_mining = std::min(Cargo_GetFuelConsumptionRate(POWGEN), static_cast<int>(fuel));
+    unit->fuel_mining = std::min(Cargo_GetFuelConsumptionRate(POWGEN), static_cast<int32_t>(fuel));
 
     free_capacity = 16 - unit->fuel_mining;
 
@@ -3313,7 +3313,7 @@ void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y) {
 
     free_capacity -= unit->raw_mining;
 
-    fuel = std::min(static_cast<short>(fuel - unit->fuel_mining), free_capacity);
+    fuel = std::min(static_cast<int16_t>(fuel - unit->fuel_mining), free_capacity);
 
     unit->fuel_mining += fuel;
 
@@ -3339,8 +3339,8 @@ void UnitsManager_StartBuild(UnitInfo* unit) {
         SmartString string;
         SmartObjectArray<ResourceID> build_list;
         ResourceID unit_type;
-        int build_speed_multiplier;
-        int turns_to_build_unit;
+        int32_t build_speed_multiplier;
+        int32_t turns_to_build_unit;
 
         build_list = unit->GetBuildList();
         unit_type = *build_list[0];
@@ -3358,7 +3358,7 @@ void UnitsManager_StartBuild(UnitInfo* unit) {
     }
 }
 
-void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y) {
+void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     unit->grid_x = grid_x;
     unit->grid_y = grid_y;
 
@@ -3376,14 +3376,14 @@ void UnitsManager_UpdateUnitPosition(UnitInfo* unit, int grid_x, int grid_y) {
     unit->OffsetDrawZones(grid_x, grid_y);
 }
 
-void UnitsManager_UpdateMapHash(UnitInfo* unit, int grid_x, int grid_y) {
+void UnitsManager_UpdateMapHash(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     Hash_MapHash.Remove(unit);
     UnitsManager_UpdateUnitPosition(unit, grid_x, grid_y);
     Hash_MapHash.Add(unit);
 }
 
 void UnitsManager_RemoveConnections(UnitInfo* unit) {
-    unsigned short team;
+    uint16_t team;
     SmartPointer<UnitInfo> building;
 
     team = unit->team;
@@ -3391,9 +3391,9 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
     unit->RefreshScreen();
 
     if ((unit->flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(unit->flags & GROUND_COVER)) {
-        int unit_size;
-        int grid_x;
-        int grid_y;
+        int32_t unit_size;
+        int32_t grid_x;
+        int32_t grid_y;
 
         unit->DetachComplex();
 
@@ -3537,11 +3537,11 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
     }
 }
 
-int UnitsManager_GetTargetAngle(int distance_x, int distance_y) {
-    int result;
+int32_t UnitsManager_GetTargetAngle(int32_t distance_x, int32_t distance_y) {
+    int32_t result;
 
-    int level_x = labs(distance_x);
-    int level_y = labs(distance_y);
+    int32_t level_x = labs(distance_x);
+    int32_t level_y = labs(distance_y);
 
     if (distance_x > 0 || distance_y > 0) {
         if (distance_x >= 0 && distance_y >= 0) {
@@ -3593,11 +3593,11 @@ int UnitsManager_GetTargetAngle(int distance_x, int distance_y) {
     return result;
 }
 
-int UnitsManager_GetFiringAngle(int distance_x, int distance_y) {
-    int result;
+int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y) {
+    int32_t result;
 
-    int level_x = labs(distance_x);
-    int level_y = labs(distance_y);
+    int32_t level_x = labs(distance_x);
+    int32_t level_y = labs(distance_y);
 
     if (distance_x > 0 || distance_y > 0) {
         if (distance_x >= 0 && distance_y >= 0) {
@@ -3676,7 +3676,7 @@ int UnitsManager_GetFiringAngle(int distance_x, int distance_y) {
 void UnitsManager_DrawBustedCommando(UnitInfo* unit) { unit->DrawSpriteFrame(unit->angle + 200); }
 
 void UnitsManager_TestBustedCommando(UnitInfo* unit) {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (unit->team != team) {
             if (unit->IsVisibleToTeam(team)) {
                 UnitsManager_DrawBustedCommando(unit);
@@ -3685,7 +3685,7 @@ void UnitsManager_TestBustedCommando(UnitInfo* unit) {
     }
 }
 
-void UnitsManager_ScaleUnit(UnitInfo* unit, int state) {
+void UnitsManager_ScaleUnit(UnitInfo* unit, int32_t state) {
     if (GameManager_PlayerTeam == unit->team) {
         SoundManager.PlaySfx(unit, state == ORDER_STATE_EXPAND ? SFX_TYPE_EXPAND : SFX_TYPE_SHRINK);
     }
@@ -3700,7 +3700,7 @@ void UnitsManager_ProcessRemoteOrders() {
 
     Ai_ClearTasksPendingFlags();
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
         UnitsManager_Units[team] = nullptr;
     }
 
@@ -3761,7 +3761,7 @@ void UnitsManager_ProcessRemoteOrders() {
     UnitsManager_byte_17947D = UnitsManager_EffectCounter;
 }
 
-void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
+void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state) {
     bool delete_path = false;
 
     if (unit->orders != ORDER_EXPLODE && unit->state != ORDER_STATE_14) {
@@ -3800,7 +3800,7 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state) {
 
 void UnitsManager_UpdatePathsTimeLimit() {
     if (!UnitsManager_TimeBenchmarkInit) {
-        for (int i = 0; i < 20; ++i) {
+        for (int32_t i = 0; i < 20; ++i) {
             UnitsManager_TimeBenchmarkValues[i] = TIMER_FPS_TO_MS(30 / 1.1);
             UnitsManager_TimeBenchmarkIndices[i] = i;
 
@@ -3810,13 +3810,13 @@ void UnitsManager_UpdatePathsTimeLimit() {
     }
 
     if (!Paths_TimeBenchmarkDisable) {
-        unsigned char index = UnitsManager_TimeBenchmarkIndices[UnitsManager_TimeBenchmarkNextIndex];
+        uint8_t index = UnitsManager_TimeBenchmarkIndices[UnitsManager_TimeBenchmarkNextIndex];
 
         if (index < 19) {
             memmove(&UnitsManager_TimeBenchmarkIndices[index], &UnitsManager_TimeBenchmarkIndices[index + 1],
                     sizeof(UnitsManager_TimeBenchmarkIndices[0]) * (19 - index));
 
-            unsigned int elapsed_time = timer_get() - Paths_LastTimeStamp;
+            uint32_t elapsed_time = timer_get() - Paths_LastTimeStamp;
 
             if (elapsed_time > TIMER_FPS_TO_MS(1)) {
                 elapsed_time = TIMER_FPS_TO_MS(1);
@@ -3839,7 +3839,7 @@ void UnitsManager_UpdatePathsTimeLimit() {
 
             UnitsManager_TimeBenchmarkNextIndex = (UnitsManager_TimeBenchmarkNextIndex + 1) % 20;
 
-            unsigned int time_budget = (elapsed_time * 3) / 2;
+            uint32_t time_budget = (elapsed_time * 3) / 2;
 
             time_budget = std::max(time_budget, TIMER_FPS_TO_MS(50));
             time_budget = std::min(time_budget, TIMER_FPS_TO_MS(30));
@@ -3859,7 +3859,7 @@ void UnitsManager_UpdatePathsTimeLimit() {
     }
 }
 
-void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state) {
+void UnitsManager_SetNewOrder(UnitInfo* unit, int32_t order, int32_t state) {
     UnitsManager_SetNewOrderInt(unit, order, state);
 
     if (Remote_IsNetworkGame) {
@@ -3894,9 +3894,9 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
     if (unit->flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) {
         if (!(unit->flags & GROUND_COVER)) {
             SmartPointer<UnitInfo> building;
-            int unit_size = (unit->flags & BUILDING) ? 2 : 1;
-            int grid_x = unit->grid_x;
-            int grid_y = unit->grid_y;
+            int32_t unit_size = (unit->flags & BUILDING) ? 2 : 1;
+            int32_t grid_x = unit->grid_x;
+            int32_t grid_y = unit->grid_y;
             CTInfo* team_info = &UnitsManager_TeamInfo[unit->team];
 
             if (UnitsManager_IsFactory(unit->unit_type)) {
@@ -4138,10 +4138,10 @@ void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit) {
     }
 }
 
-SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
-                                               int grid_y, unsigned char unit_angle, bool is_existing_unit,
+SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t team, Complex* complex, int32_t grid_x,
+                                               int32_t grid_y, uint8_t unit_angle, bool is_existing_unit,
                                                bool skip_map_status_update) {
-    unsigned short id;
+    uint16_t id;
     UnitInfo* unit;
     BaseUnit* base_unit;
 
@@ -5202,7 +5202,7 @@ void UnitsManager_ClearDelayedReactions() {
     UnitsManager_ClearDelayedReaction(&UnitsManager_MobileLandSeaUnits);
     UnitsManager_ClearDelayedReaction(&UnitsManager_MobileAirUnits);
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
         UnitsManager_DelayedAttackTargets[team].Clear();
     }
 }
@@ -5275,7 +5275,7 @@ void UnitsManager_Unloading(UnitInfo* unit) {
     }
 }
 
-void UnitsManager_PowerUpUnit(UnitInfo* unit, int factor) {
+void UnitsManager_PowerUpUnit(UnitInfo* unit, int32_t factor) {
     Cargo_UpdateResourceLevels(unit, factor);
 
     unit->state = ORDER_STATE_1;
@@ -5334,7 +5334,7 @@ void UnitsManager_Animate(UnitInfo* unit) {
         }
 
         if (GameManager_SelectedUnit == unit || is_unit_moved) {
-            int unit_size = (unit->flags & BUILDING) ? 63 : 31;
+            int32_t unit_size = (unit->flags & BUILDING) ? 63 : 31;
             Rect bounds;
 
             bounds.ulx = unit->x - unit_size;
@@ -5359,14 +5359,14 @@ void UnitsManager_Animate(UnitInfo* unit) {
 }
 
 void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
-    unsigned short unit_team = unit->team;
+    uint16_t unit_team = unit->team;
     SmartPointer<Task> unit_task(unit->GetTask());
     SmartPointer<UnitInfo> mining_station;
     SmartPointer<UnitInfo> power_generator;
     SmartPointer<UnitInfo> small_slab;
 
-    int mining_station_grid_x = unit->target_grid_x;
-    int mining_station_grid_y = unit->target_grid_y;
+    int32_t mining_station_grid_x = unit->target_grid_x;
+    int32_t mining_station_grid_y = unit->target_grid_y;
 
     UnitsManager_DestroyUnit(unit);
 
@@ -5375,8 +5375,8 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
     mining_station =
         UnitsManager_DeployUnit(MININGST, unit_team, nullptr, mining_station_grid_x, mining_station_grid_y, 0);
 
-    short power_generator_grid_x = mining_station_grid_x;
-    short power_generator_grid_y = mining_station_grid_y;
+    int16_t power_generator_grid_x = mining_station_grid_x;
+    int16_t power_generator_grid_y = mining_station_grid_y;
 
     UnitsManager_IsPowerGeneratorPlaceable(unit_team, &power_generator_grid_x, &power_generator_grid_y);
 
@@ -5414,7 +5414,7 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
     if (unit->orders == ORDER_MOVE_TO_ATTACK && unit->state == ORDER_STATE_1 && !unit->delayed_reaction &&
         !UnitsManager_Units[unit->team]) {
         UnitInfo* enemy_unit = unit->GetEnemy();
-        int unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+        int32_t unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
         Point position;
 
         if (enemy_unit) {
@@ -5540,7 +5540,7 @@ void UnitsManager_Store(UnitInfo* unit) {
 
 bool UnitsManager_BeginFire(UnitInfo* unit) {
     bool result;
-    int unit_angle;
+    int32_t unit_angle;
 
     if (unit->flags & TURRET_SPRITE) {
         unit_angle = unit->turret_angle;
@@ -5549,14 +5549,14 @@ bool UnitsManager_BeginFire(UnitInfo* unit) {
         unit_angle = unit->angle;
     }
 
-    int distance_x = unit->target_grid_x - unit->grid_x;
-    int distance_y = unit->target_grid_y - unit->grid_y;
-    int target_angle = UnitsManager_GetTargetAngle(distance_x, distance_y);
+    int32_t distance_x = unit->target_grid_x - unit->grid_x;
+    int32_t distance_y = unit->target_grid_y - unit->grid_y;
+    int32_t target_angle = UnitsManager_GetTargetAngle(distance_x, distance_y);
 
     if (unit_angle == target_angle) {
         unit->state = ORDER_STATE_8;
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 UnitsManager_TeamInfo[team]
                     .heat_map_complete[unit->grid_y * ResourceManager_MapSize.x + unit->grid_x]) {
@@ -5591,13 +5591,13 @@ bool UnitsManager_BeginFire(UnitInfo* unit) {
 
 void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     ResourceID unit_type = unit->unit_type;
-    unsigned short unit_team = unit->team;
-    unsigned int unit_flags = unit->flags;
-    int unit_grid_x = unit->grid_x;
-    int unit_grid_y = unit->grid_y;
+    uint16_t unit_team = unit->team;
+    uint32_t unit_flags = unit->flags;
+    int32_t unit_grid_x = unit->grid_x;
+    int32_t unit_grid_y = unit->grid_y;
     ResourceID rubble_type = INVALID_ID;
-    int cargo_amount = 0;
-    int unit_orders = unit->orders;
+    int32_t cargo_amount = 0;
+    int32_t unit_orders = unit->orders;
 
     unit->RefreshScreen();
 
@@ -5696,7 +5696,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     }
 
     if (rubble_type != INVALID_ID) {
-        int image_index =
+        int32_t image_index =
             reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[rubble_type].data_buffer)->image_count -
             1;
 
@@ -5713,7 +5713,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
 
 void UnitsManager_BuildNext(UnitInfo* unit) {
     ResourceID unit_type = *unit->GetBuildList()[0];
-    int turns_to_build = BuildMenu_GetTurnsToBuild(unit_type, unit->team);
+    int32_t turns_to_build = BuildMenu_GetTurnsToBuild(unit_type, unit->team);
 
     if (unit->storage >= turns_to_build * Cargo_GetRawConsumptionRate(unit->unit_type, 1) &&
         (unit->path->GetEndX() != unit->grid_x || unit->path->GetEndY() != unit->grid_y)) {
@@ -5827,7 +5827,7 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
 
 void UnitsManager_StartExplosion(UnitInfo* unit) {
     SmartPointer<UnitInfo> explosion;
-    unsigned int unit_flags = unit->flags;
+    uint32_t unit_flags = unit->flags;
 
     unit->RefreshScreen();
 
@@ -5976,10 +5976,10 @@ void UnitsManager_ProgressUnloading(UnitInfo* unit) {
 }
 
 void UnitsManager_StartClearing(UnitInfo* unit) {
-    unsigned short unit_team = unit->team;
+    uint16_t unit_team = unit->team;
     SmartPointer<UnitInfo> parent(unit->GetParent());
-    int grid_x = parent->grid_x;
-    int grid_y = parent->grid_y;
+    int32_t grid_x = parent->grid_x;
+    int32_t grid_y = parent->grid_y;
     ResourceID cone_type;
     ResourceID tape_type;
 
@@ -6134,12 +6134,12 @@ void UnitsManager_Repair(UnitInfo* unit) {
 
         unit->GetComplex()->GetCargoInfo(materials, capacity);
 
-        int repair_cost = parent->Repair(materials.raw);
+        int32_t repair_cost = parent->Repair(materials.raw);
 
         unit->GetComplex()->Transfer(-repair_cost, 0, 0);
 
     } else {
-        int repair_cost = parent->Repair(unit->storage);
+        int32_t repair_cost = parent->Repair(unit->storage);
 
         unit->storage -= repair_cost;
     }
@@ -6160,8 +6160,8 @@ void UnitsManager_Repair(UnitInfo* unit) {
 void UnitsManager_Transfer(UnitInfo* unit) {
     SmartPointer<UnitInfo> source(unit);
     SmartPointer<UnitInfo> target(unit->GetParent());
-    int cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
-    int transfer_amount = unit->target_grid_x;
+    int32_t cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
+    int32_t transfer_amount = unit->target_grid_x;
 
     if (transfer_amount < 0) {
         source = target;
@@ -6246,7 +6246,7 @@ void UnitsManager_Transfer(UnitInfo* unit) {
 
 bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
     SmartPointer<UnitInfo> parent(unit->GetParent());
-    int stealth_chance = UnitsManager_GetStealthChancePercentage(unit, &*parent, unit->orders);
+    int32_t stealth_chance = UnitsManager_GetStealthChancePercentage(unit, &*parent, unit->orders);
     bool result;
 
     if (unit->team == parent->team) {
@@ -6324,8 +6324,8 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
 
 void UnitsManager_CaptureUnit(UnitInfo* unit) {
     SmartPointer<UnitInfo> parent(unit->GetParent());
-    unsigned short old_team = unit->team;
-    unsigned short new_team = parent->team;
+    uint16_t old_team = unit->team;
+    uint16_t new_team = parent->team;
 
     if (GameManager_PlayerTeam == new_team) {
         GameManager_NotifyEvent(&*parent, 2);
@@ -6351,9 +6351,9 @@ void UnitsManager_CaptureUnit(UnitInfo* unit) {
 
 void UnitsManager_DisableUnit(UnitInfo* unit) {
     SmartPointer<UnitInfo> parent(unit->GetParent());
-    unsigned short unit_team = unit->team;
+    uint16_t unit_team = unit->team;
     bool is_found = false;
-    int turns_disabled;
+    int32_t turns_disabled;
 
     if (parent->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
         turns_disabled =
@@ -6453,7 +6453,7 @@ bool UnitsManager_AssessAttacks() {
     } else {
         bool are_attacks_delayed = false;
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
             if (UnitsManager_DelayedAttackTargets[team].GetCount() > 0 || UnitsManager_Units[team]) {
                 are_attacks_delayed = true;
             }
@@ -6466,7 +6466,7 @@ bool UnitsManager_AssessAttacks() {
             } else {
                 are_attacks_delayed = false;
 
-                int team = UnitsManager_Team;
+                int32_t team = UnitsManager_Team;
 
                 do {
                     if (UnitsManager_CheckDelayedReactions(UnitsManager_Team)) {
@@ -6514,7 +6514,7 @@ bool UnitsManager_AssessAttacks() {
     return result;
 }
 
-bool UnitsManager_IsTeamReactionPending(unsigned short team, UnitInfo* unit, SmartList<UnitInfo>* units) {
+bool UnitsManager_IsTeamReactionPending(uint16_t team, UnitInfo* unit, SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team && UnitsManager_CheckReaction(&*it, unit)) {
             return true;
@@ -6563,8 +6563,8 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
                     result = true;
 
                 } else if (unit2->shots > 0 && !unit1->disabled_reaction_fire) {
-                    unsigned short unit1_team = unit1->team;
-                    int unit2_distance = unit2->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+                    uint16_t unit1_team = unit1->team;
+                    int32_t unit2_distance = unit2->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                     unit2_distance = unit2_distance * unit2_distance;
 
@@ -6659,9 +6659,9 @@ bool UnitsManager_IsReactionPending(SmartList<UnitInfo>* units, UnitInfo* unit) 
 }
 
 AirPath* UnitsManager_GetMissilePath(UnitInfo* unit) {
-    int distance_x = unit->target_grid_x - unit->grid_x;
-    int distance_y = unit->target_grid_y - unit->grid_y;
-    int distance = sqrt(distance_x * distance_x + distance_y * distance_y) * 4.0 + 0.5;
+    int32_t distance_x = unit->target_grid_x - unit->grid_x;
+    int32_t distance_y = unit->target_grid_y - unit->grid_y;
+    int32_t distance = sqrt(distance_x * distance_x + distance_y * distance_y) * 4.0 + 0.5;
     AirPath* result;
 
     if (distance > 0) {
@@ -6767,10 +6767,10 @@ Point UnitsManager_GetAttackPosition(UnitInfo* unit1, UnitInfo* unit2) {
         }
 
         if (unit1->unit_type == SUBMARNE || unit1->unit_type == CORVETTE) {
-            int direction = 4;
+            int32_t direction = 4;
 
             while (direction >= 0) {
-                int surface_type = Access_GetSurfaceType(position.x, position.y);
+                int32_t surface_type = Access_GetSurfaceType(position.x, position.y);
 
                 if (surface_type == SURFACE_TYPE_WATER || surface_type == SURFACE_TYPE_COAST) {
                     break;
@@ -6787,7 +6787,7 @@ Point UnitsManager_GetAttackPosition(UnitInfo* unit1, UnitInfo* unit2) {
     return position;
 }
 
-bool UnitsManager_CheckDelayedReactions(unsigned short team) {
+bool UnitsManager_CheckDelayedReactions(uint16_t team) {
     bool result;
 
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
@@ -6821,7 +6821,7 @@ bool UnitsManager_CheckDelayedReactions(unsigned short team) {
             result = true;
 
         } else {
-            for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
+            for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
                 if (team != i) {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_DelayedAttackTargets[i].Begin();
                          it != UnitsManager_DelayedAttackTargets[i].End(); ++it) {
@@ -6853,10 +6853,10 @@ bool UnitsManager_CheckDelayedReactions(unsigned short team) {
     return result;
 }
 
-int UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int attack_potential) {
-    int target_armor = target->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);
-    int attacker_attack = attacker->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
-    int result;
+int32_t UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int32_t attack_potential) {
+    int32_t target_armor = target->GetBaseValues()->GetAttribute(ATTRIB_ARMOR);
+    int32_t attacker_attack = attacker->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
+    int32_t result;
 
     if (attack_potential > 1) {
         attacker_attack = ((5 - attack_potential) * attacker_attack) / 4;

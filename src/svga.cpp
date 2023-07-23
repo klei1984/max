@@ -38,16 +38,16 @@ static SDL_Renderer *sdlRenderer;
 static SDL_Surface *sdlWindowSurface;
 static SDL_Surface *sdlPaletteSurface;
 static SDL_Texture *sdlTexture;
-static unsigned int Svga_RenderTimer;
-static int sdl_win_init_flag;
+static uint32_t Svga_RenderTimer;
+static int32_t sdl_win_init_flag;
 static bool Svga_PaletteChanged;
 
-static int Svga_ScreenWidth;
-static int Svga_ScreenHeight;
-static int Svga_ScreenMode;
-static int Svga_ScaleQuality;
-static int Svga_DisplayIndex;
-static int Svga_DisplayRefreshRate;
+static int32_t Svga_ScreenWidth;
+static int32_t Svga_ScreenHeight;
+static int32_t Svga_ScreenMode;
+static int32_t Svga_ScaleQuality;
+static int32_t Svga_DisplayIndex;
+static int32_t Svga_DisplayRefreshRate;
 static Uint32 Svga_DisplayPixelFormat;
 
 Rect scr_size;
@@ -131,7 +131,7 @@ void Svga_CorrectAspectRatio(SDL_DisplayMode *display_mode) {
     Svga_ScreenWidth = static_cast<double>(Svga_ScreenHeight) * user_aspect_ratio + .9;
 }
 
-int Svga_Init(void) {
+int32_t Svga_Init(void) {
     if (sdl_win_init_flag) {
         return 0;
     }
@@ -207,24 +207,24 @@ void Svga_Deinit(void) {
     }
 }
 
-void Svga_Blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsigned int subX, unsigned int subY,
-               unsigned int subW, unsigned int subH, unsigned int dstX, unsigned int dstY) {
+void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY,
+               uint32_t subW, uint32_t subH, uint32_t dstX, uint32_t dstY) {
     SDL_assert(sdlPaletteSurface && sdlPaletteSurface->format &&
-               sdlPaletteSurface->format->BytesPerPixel == sizeof(unsigned char));
+               sdlPaletteSurface->format->BytesPerPixel == sizeof(uint8_t));
 
     {
-        unsigned char *target_pixels =
-            &((unsigned char *)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY];
-        unsigned char *source_pixels = &srcBuf[subX + srcW * subY];
+        uint8_t *target_pixels =
+            &((uint8_t *)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY];
+        uint8_t *source_pixels = &srcBuf[subX + srcW * subY];
 
-        for (unsigned int h = 0; h < subH; ++h) {
+        for (uint32_t h = 0; h < subH; ++h) {
             SDL_memcpy(target_pixels, source_pixels, subW);
             source_pixels += srcW;
             target_pixels += sdlPaletteSurface->pitch;
         }
     }
 
-    SDL_Rect bounds = {static_cast<int>(dstX), static_cast<int>(dstY), static_cast<int>(subW), static_cast<int>(subH)};
+    SDL_Rect bounds = {static_cast<int32_t>(dstX), static_cast<int32_t>(dstY), static_cast<int32_t>(subW), static_cast<int32_t>(subH)};
 
     if (Svga_PaletteChanged) {
         Svga_PaletteChanged = false;
@@ -243,13 +243,13 @@ void Svga_Blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsi
     if (SVGA_NO_TEXTURE_UPDATE) {
         Uint32 *source_pixels = &((Uint32 *)sdlWindowSurface->pixels)[bounds.x + sdlWindowSurface->w * bounds.y];
         void *target_pixels = nullptr;
-        int target_pitch = 0;
+        int32_t target_pitch = 0;
 
         if (SDL_LockTexture(sdlTexture, &bounds, &target_pixels, &target_pitch)) {
             SDL_Log("SDL_LockTexture failed: %s\n", SDL_GetError());
 
         } else {
-            for (unsigned int h = 0; h < bounds.h; ++h) {
+            for (uint32_t h = 0; h < bounds.h; ++h) {
                 SDL_memcpy(target_pixels, source_pixels, bounds.w * sizeof(Uint32));
                 source_pixels += sdlWindowSurface->w;
                 target_pixels = &(static_cast<Uint32 *>(target_pixels)[target_pitch / sizeof(Uint32)]);
@@ -274,8 +274,8 @@ void Svga_Blit(unsigned char *srcBuf, unsigned int srcW, unsigned int srcH, unsi
     SDL_RenderPresent(sdlRenderer);
 }
 
-int Svga_WarpMouse(int window_x, int window_y) {
-    int result;
+int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y) {
+    int32_t result;
 
     if (SDL_GetWindowFlags(sdlWindow) & SDL_WINDOW_INPUT_FOCUS) {
         SDL_WarpMouseInWindow(sdlWindow, window_x, window_y);
@@ -288,7 +288,7 @@ int Svga_WarpMouse(int window_x, int window_y) {
     return result;
 }
 
-void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char b) {
+void Svga_SetPaletteColor(int32_t i, uint8_t r, uint8_t g, uint8_t b) {
     SDL_Color color;
 
     color.r = r;
@@ -305,14 +305,14 @@ void Svga_SetPaletteColor(int i, unsigned char r, unsigned char g, unsigned char
     if ((i == PALETTE_SIZE - 1) || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(Svga_DisplayRefreshRate))) {
         Svga_RenderTimer = timer_get();
 
-        unsigned char srcBuf;
+        uint8_t srcBuf;
 
         Svga_Blit(&srcBuf, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 }
 
-int Svga_GetScreenWidth(void) { return Svga_ScreenWidth; }
+int32_t Svga_GetScreenWidth(void) { return Svga_ScreenWidth; }
 
-int Svga_GetScreenHeight(void) { return Svga_ScreenHeight; }
+int32_t Svga_GetScreenHeight(void) { return Svga_ScreenHeight; }
 
-int Svga_GetScreenRefreshRate(void) { return Svga_DisplayRefreshRate; }
+int32_t Svga_GetScreenRefreshRate(void) { return Svga_DisplayRefreshRate; }

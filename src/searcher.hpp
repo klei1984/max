@@ -29,32 +29,32 @@ class GroundPath;
 
 struct PathSquare {
     Point point;
-    unsigned short cost;
+    uint16_t cost;
 };
 
 class Searcher {
-    static int Searcher_MarkerColor;
+    static int32_t Searcher_MarkerColor;
 
-    unsigned short **costs_map;
-    unsigned char **directions_map;
-    unsigned short *distance_vector;
-    short line_distance_max;
-    int line_distance_limit;
+    uint16_t **costs_map;
+    uint8_t **directions_map;
+    uint16_t *distance_vector;
+    int16_t line_distance_max;
+    int32_t line_distance_limit;
     ObjectArray<PathSquare> squares;
     Point destination;
-    unsigned char mode;
+    uint8_t mode;
 
-    void EvaluateSquare(Point point, int cost, int direction, Searcher *searcher);
-    void UpdateCost(Point point1, Point point2, int cost);
+    void EvaluateSquare(Point point, int32_t cost, int32_t direction, Searcher *searcher);
+    void UpdateCost(Point point1, Point point2, int32_t cost);
 
 public:
-    Searcher(Point point1, Point point2, unsigned char mode);
+    Searcher(Point point1, Point point2, uint8_t mode);
     ~Searcher();
 
     void Process(Point point, bool mode_flag);
     bool ForwardSearch(Searcher *backward_searcher);
     bool BackwardSearch(Searcher *forward_searcher);
-    SmartPointer<GroundPath> DeterminePath(Point point, int max_cost);
+    SmartPointer<GroundPath> DeterminePath(Point point, int32_t max_cost);
 };
 
 #endif /* SEARCHER_HPP */

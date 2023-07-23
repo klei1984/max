@@ -33,25 +33,25 @@
 #include "weighttable.hpp"
 
 struct BuildOrder {
-    unsigned char primary_attribute;
+    uint8_t primary_attribute;
     ResourceID unit_type;
 
     BuildOrder() : primary_attribute(0), unit_type(INVALID_ID) {}
-    BuildOrder(unsigned char primary_attribute, ResourceID unit_type)
+    BuildOrder(uint8_t primary_attribute, ResourceID unit_type)
         : primary_attribute(primary_attribute), unit_type(unit_type) {}
 };
 
 class AiPlayer {
-    unsigned short player_team;
-    unsigned char strategy;
-    signed short field_3;
-    signed short field_5;
-    signed short field_7;
+    uint16_t player_team;
+    uint8_t strategy;
+    int16_t field_3;
+    int16_t field_5;
+    int16_t field_7;
     BuildOrder build_order;
-    signed short upgrade_cost;
+    int16_t upgrade_cost;
     bool need_init;
     bool tasks_pending;
-    unsigned char field_16;
+    uint8_t field_16;
 
     SmartPointer<TaskClearZone> task_clear_ground_zone;
     SmartPointer<TaskClearZone> task_clear_air_zone;
@@ -72,17 +72,17 @@ class AiPlayer {
     SmartList<UnitInfo> air_force;
     SmartList<UnitInfo> ground_forces;
 
-    short dimension_x;
+    int16_t dimension_x;
 
-    unsigned char** info_map;
-    signed char** mine_map;
+    uint8_t** info_map;
+    int8_t** mine_map;
 
-    unsigned char field_107[2];
+    uint8_t field_107[2];
 
     SmartList<TransportOrder> transport_orders;
 
     Point target_location;
-    signed short target_team;
+    int16_t target_team;
 
     WeightTable weight_table_ground_defense;
     WeightTable weight_table_scout;
@@ -104,68 +104,68 @@ class AiPlayer {
     WeightTable weight_table_generic;
 
     void AddBuilding(UnitInfo* unit);
-    void RebuildWeightTable(WeightTable table, ResourceID unit_type, int factor);
-    void RebuildWeightTables(ResourceID unit_type, int factor);
+    void RebuildWeightTable(WeightTable table, ResourceID unit_type, int32_t factor);
+    void RebuildWeightTables(ResourceID unit_type, int32_t factor);
     void UpdateWeightTables();
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
-    Point GetUnitClusterCoordinates(unsigned short team, SmartList<UnitInfo>* units);
-    Point GetTeamClusterCoordinates(unsigned short team);
-    void DetermineAttack(SpottedUnit* spotted_unit, unsigned short task_flags);
+    Point GetUnitClusterCoordinates(uint16_t team, SmartList<UnitInfo>* units);
+    Point GetTeamClusterCoordinates(uint16_t team);
+    void DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_flags);
     void UpdatePriorityTasks();
     void DetermineTargetLocation(Point position);
     bool IsKeyFacility(ResourceID unit_type);
     void DetermineResearchProjects();
-    bool IsPotentialSpotter(unsigned short team, UnitInfo* unit);
-    void UpdateAccessMap(Point point1, Point point2, unsigned char** access_map);
+    bool IsPotentialSpotter(uint16_t team, UnitInfo* unit);
+    void UpdateAccessMap(Point point1, Point point2, uint8_t** access_map);
     bool CheckAttacks();
     void RegisterReadyAndAbleUnits(SmartList<UnitInfo>* units);
     bool AreActionsPending();
     bool IsDemoMode();
     void RegisterIdleUnits();
-    static int GetTotalProjectedDamage(UnitInfo* unit, int caution_level, unsigned short team,
+    static int32_t GetTotalProjectedDamage(UnitInfo* unit, int32_t caution_level, uint16_t team,
                                        SmartList<UnitInfo>* units);
-    static void UpdateMap(short** map, Point position, int range, int damage_potential, bool normalize);
-    static void UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int range, int attack,
-                                 int shots, int& ammo, bool normalize);
+    static void UpdateMap(int16_t** map, Point position, int32_t range, int32_t damage_potential, bool normalize);
+    static void UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int32_t range, int32_t attack,
+                                 int32_t shots, int32_t& ammo, bool normalize);
     static void InvalidateThreatMap(UnitInfo* unit);
     void InvalidateThreatMaps();
-    static void DetermineDefenses(SmartList<UnitInfo>* units, short** map);
-    static void DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams,
+    static void DetermineDefenses(SmartList<UnitInfo>* units, int16_t** map);
+    static void DetermineThreats(UnitInfo* unit, Point position, int32_t caution_level, bool* teams,
                                  ThreatMap* air_force_map, ThreatMap* ground_forces_map);
-    static void SumUpMaps(short** map1, short** map2);
+    static void SumUpMaps(int16_t** map1, int16_t** map2);
     static void NormalizeThreatMap(ThreatMap* threat_map);
-    static bool IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, unsigned short team);
-    ThreatMap* GetThreatMap(int risk_level, int caution_level, bool is_for_attacking);
+    static bool IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, uint16_t team);
+    ThreatMap* GetThreatMap(int32_t risk_level, int32_t caution_level, bool is_for_attacking);
     WeightTable GetWeightTable(ResourceID unit_type);
-    void AddThreatToMineMap(int grid_x, int grid_y, int range, int damage_potential, int factor);
+    void AddThreatToMineMap(int32_t grid_x, int32_t grid_y, int32_t range, int32_t damage_potential, int32_t factor);
     void MineSpotted(UnitInfo* unit);
-    static bool IsSurfaceTypePresent(Point site, int range, int surface_type);
-    int SelectTeamClan();
+    static bool IsSurfaceTypePresent(Point site, int32_t range, int32_t surface_type);
+    int32_t SelectTeamClan();
     void RollField3();
     void RollField5();
     void RollField7();
-    bool AddUnitToTeamMissionSupplies(ResourceID unit_type, unsigned short supplies);
-    static int GetVictoryConditionsFactor();
-    void RollTeamMissionSupplies(int clan);
-    static void AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, int attribute);
+    bool AddUnitToTeamMissionSupplies(ResourceID unit_type, uint16_t supplies);
+    static int32_t GetVictoryConditionsFactor();
+    void RollTeamMissionSupplies(int32_t clan);
+    static void AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, int32_t attribute);
     static void CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type,
-                                         unsigned short team, unsigned short enemy_team, bool mode);
+                                         uint16_t team, uint16_t enemy_team, bool mode);
     SmartObjectArray<BuildOrder> ChooseStrategicBuildOrders(bool mode);
     void ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders);
     SmartObjectArray<BuildOrder> ChooseGenericBuildOrders();
-    void ChooseInitialUpgrades(int team_gold);
+    void ChooseInitialUpgrades(int32_t team_gold);
     void UpgradeUnitType();
 
 public:
     AiPlayer();
     ~AiPlayer();
 
-    int GetStrategy() const;
-    signed short GetTargetTeam() const;
-    unsigned char** GetInfoMap();
+    int32_t GetStrategy() const;
+    int16_t GetTargetTeam() const;
+    uint8_t** GetInfoMap();
     Point GetTargetLocation() const;
-    unsigned short GetField5() const;
-    signed char** GetMineMap();
+    uint16_t GetField5() const;
+    int8_t** GetMineMap();
     void AddTransportOrder(TransportOrder* transport_order);
     Task* FindManager(Point site);
     SmartList<SpottedUnit>& GetSpottedUnits();
@@ -176,19 +176,19 @@ public:
     void ChangeTasksPendingFlag(bool value);
     bool CheckEndTurn();
     bool CreateBuilding(ResourceID unit_type, Point position, Task* task);
-    void Init(unsigned short team);
-    int GetPredictedAttack(UnitInfo* unit, int caution_level);
-    short** GetDamagePotentialMap(UnitInfo* unit, int caution_level, bool is_for_attacking);
-    short** GetDamagePotentialMap(ResourceID unit_type, int caution_level, bool is_for_attacking);
-    int GetDamagePotential(UnitInfo* unit, Point site, int caution_level, bool is_for_attacking);
+    void Init(uint16_t team);
+    int32_t GetPredictedAttack(UnitInfo* unit, int32_t caution_level);
+    int16_t** GetDamagePotentialMap(UnitInfo* unit, int32_t caution_level, bool is_for_attacking);
+    int16_t** GetDamagePotentialMap(ResourceID unit_type, int32_t caution_level, bool is_for_attacking);
+    int32_t GetDamagePotential(UnitInfo* unit, Point site, int32_t caution_level, bool is_for_attacking);
     void ClearZone(Zone* zone);
-    WeightTable GetFilteredWeightTable(ResourceID unit_type, unsigned short flags);
+    WeightTable GetFilteredWeightTable(ResourceID unit_type, uint16_t flags);
     void SetInfoMapPoint(Point site);
     void UpdateMineMap(Point site);
     void MarkMineMapPoint(Point site);
-    signed char GetMineMapEntry(Point site);
+    int8_t GetMineMapEntry(Point site);
     void FindMines(UnitInfo* unit);
-    WeightTable GetExtendedWeightTable(UnitInfo* target, unsigned char flags);
+    WeightTable GetExtendedWeightTable(UnitInfo* target, uint8_t flags);
     bool ShouldUpgradeUnit(UnitInfo* unit);
     void RemoveUnit(UnitInfo* unit);
     void UnitSpotted(UnitInfo* unit);
@@ -199,8 +199,8 @@ public:
     void ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartObjectArray<BuildOrder> build_orders2);
 };
 
-int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level);
-int AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level);
+int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t caution_level);
+int32_t AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t caution_level);
 
 extern AiPlayer AiPlayer_Teams[PLAYER_TEAM_MAX - 1];
 extern TerrainMap AiPlayer_TerrainMap;

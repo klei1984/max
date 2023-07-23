@@ -28,9 +28,9 @@ class TaskSupportAttack : public Task {
     SmartList<UnitInfo> units;
     ResourceID unit_type1;
     ResourceID unit_type2;
-    unsigned int unit_flags;
+    uint32_t unit_flags;
 
-    void ObtainUnits(unsigned int unit_flags);
+    void ObtainUnits(uint32_t unit_flags);
     bool IssueOrders(UnitInfo* unit);
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
@@ -42,7 +42,7 @@ public:
     bool IsUnitUsable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void BeginTurn();

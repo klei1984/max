@@ -47,7 +47,7 @@ void ButtonManager::Add(ButtonID button_id) {
 }
 
 void ButtonManager::Deinit() {
-    for (int i = 0; i < used; ++i) {
+    for (int32_t i = 0; i < used; ++i) {
         win_delete_button(buttons[i]);
     }
 
@@ -58,13 +58,13 @@ void ButtonManager::Deinit() {
 }
 
 void ButtonManager::EnableAll() {
-    for (int i = 0; i < used; ++i) {
+    for (int32_t i = 0; i < used; ++i) {
         win_enable_button(buttons[i]);
     }
 }
 
 void ButtonManager::DisableAll() {
-    for (int i = 0; i < used; ++i) {
+    for (int32_t i = 0; i < used; ++i) {
         win_disable_button(buttons[i]);
     }
 }

@@ -26,7 +26,7 @@
 
 void AllocMenu_Menu(UnitInfo* unit);
 
-void AllocMenu_AdjustForDemands(Complex* complex, int cargo_type, int material);
-int AllocMenu_Optimize(Complex* complex, int cargo_type1, int material, int cargo_type2);
+void AllocMenu_AdjustForDemands(Complex* complex, int32_t cargo_type, int32_t material);
+int32_t AllocMenu_Optimize(Complex* complex, int32_t cargo_type1, int32_t material, int32_t cargo_type2);
 
 #endif /* ALLOCMENU_HPP */

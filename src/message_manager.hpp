@@ -27,11 +27,11 @@
 
 void MessageManager_AddMessage(const char* text, ResourceID id);
 void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Point point);
-void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag1 = false, bool save_to_log = false);
+void MessageManager_DrawMessage(const char* text, char type, int32_t mode, bool flag1 = false, bool save_to_log = false);
 void MessageManager_DrawMessageBox();
 void MessageManager_ClearMessageBox();
-void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, int width, int left_margin,
-                                    int top_margin, char* text, int color, bool screen_refresh);
+void MessageManager_DrawTextMessage(WindowInfo* window, uint8_t* buffer, int32_t width, int32_t left_margin,
+                                    int32_t top_margin, char* text, int32_t color, bool screen_refresh);
 void MessageManager_LoadMessageLogs(SmartFileReader& file);
 void MessageManager_SaveMessageLogs(SmartFileWriter& file);
 void MessageManager_ClearMessageLogs();

@@ -50,6 +50,6 @@ void Zone::SetField30(bool value) { field_30 = value; }
 
 ZoneSquare::ZoneSquare() : point(0, 0), unit(nullptr) {}
 
-ZoneSquare::ZoneSquare(int grid_x, int grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+ZoneSquare::ZoneSquare(int32_t grid_x, int32_t grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
 
 ZoneSquare::ZoneSquare(const ZoneSquare& other) : point(other.point), unit(other.unit) {}

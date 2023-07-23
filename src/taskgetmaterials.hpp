@@ -25,15 +25,15 @@
 #include "taskgetresource.hpp"
 
 class TaskGetMaterials : public TaskGetResource {
-    unsigned short materials_needed;
+    uint16_t materials_needed;
 
 public:
-    TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short materials_needed);
+    TaskGetMaterials(Task* task, UnitInfo* unit, uint16_t materials_needed);
     ~TaskGetMaterials();
 
-    unsigned short GetFlags() const;
+    uint16_t GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void EndTurn();
     void EventCargoTransfer(UnitInfo& unit);
 

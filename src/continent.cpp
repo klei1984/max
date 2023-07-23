@@ -27,8 +27,8 @@
 #include "inifile.hpp"
 #include "units_manager.hpp"
 
-bool Continent::IsDangerousProximity(int grid_x, int grid_y, unsigned short team, int proximity_range) {
-    for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
+bool Continent::IsDangerousProximity(int32_t grid_x, int32_t grid_y, uint16_t team, int32_t proximity_range) {
+    for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (team != i && UnitsManager_TeamMissionSupplies[i].units.GetCount() > 0) {
             Point distance;
 
@@ -44,7 +44,7 @@ bool Continent::IsDangerousProximity(int grid_x, int grid_y, unsigned short team
     return false;
 }
 
-bool Continent::IsViableSite(bool test_proximity, unsigned short team, Point site) {
+bool Continent::IsViableSite(bool test_proximity, uint16_t team, Point site) {
     bool result;
 
     if (map[site.x][site.y] == filler) {
@@ -54,8 +54,8 @@ bool Continent::IsViableSite(bool test_proximity, unsigned short team, Point sit
             }
         }
 
-        for (int i = site.x; i < site.x + 4; ++i) {
-            for (int j = site.y; j < site.y + 4; ++j) {
+        for (int32_t i = site.x; i < site.x + 4; ++i) {
+            for (int32_t j = site.y; j < site.y + 4; ++j) {
                 if (map[i][j] != filler) {
                     return false;
                 }
@@ -71,7 +71,7 @@ bool Continent::IsViableSite(bool test_proximity, unsigned short team, Point sit
     return result;
 }
 
-Continent::Continent(unsigned char** map, unsigned short filler, Point point, unsigned char value) {
+Continent::Continent(uint8_t** map, uint16_t filler, Point point, uint8_t value) {
     ContinentFiller continent_filler(map, filler);
 
     this->point = point;
@@ -88,8 +88,8 @@ Continent::Continent(unsigned char** map, unsigned short filler, Point point, un
 
 Continent::~Continent() {
     if (field_35) {
-        for (int x = bounds.ulx; x < bounds.lrx; ++x) {
-            for (int y = bounds.uly; y < bounds.lry - 3; ++y) {
+        for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
+            for (int32_t y = bounds.uly; y < bounds.lry - 3; ++y) {
                 if (map[x][y] == filler) {
                     map[x][y] = 0;
                 }
@@ -104,19 +104,19 @@ Point Continent::GetCenter() const { return Point((bounds.lrx + bounds.ulx) / 2,
 
 bool Continent::IsIsolated() const { return is_isolated; }
 
-unsigned short Continent::GetContinentSize() const { return continent_size; }
+uint16_t Continent::GetContinentSize() const { return continent_size; }
 
-unsigned short Continent::GetFiller() const { return filler; }
+uint16_t Continent::GetFiller() const { return filler; }
 
 bool Continent::IsCloseProximity() const {
-    int proximity_range;
+    int32_t proximity_range;
 
     proximity_range = ini_get_setting(INI_PROXIMITY_RANGE);
 
     return (bounds.lrx - bounds.ulx) <= proximity_range && (bounds.lry - bounds.uly) <= proximity_range;
 }
 
-bool Continent::IsViableContinent(bool test_proximity, unsigned short team) {
+bool Continent::IsViableContinent(bool test_proximity, uint16_t team) {
     Point site;
 
     for (site.x = bounds.ulx; site.x < bounds.lrx - 3; ++site.x) {
@@ -130,7 +130,7 @@ bool Continent::IsViableContinent(bool test_proximity, unsigned short team) {
     return false;
 }
 
-void Continent::SelectLandingSite(unsigned short team, int strategy) {
+void Continent::SelectLandingSite(uint16_t team, int32_t strategy) {
     Point site;
 
     do {
@@ -152,8 +152,8 @@ void Continent::TestIsolated() {
 
         zone.ulx = std::max(0, zone.ulx - 6);
         zone.uly = std::max(0, zone.uly - 6);
-        zone.lrx = std::min(static_cast<int>(ResourceManager_MapSize.x), zone.lrx + 6);
-        zone.lry = std::min(static_cast<int>(ResourceManager_MapSize.y), zone.lry + 6);
+        zone.lrx = std::min(static_cast<int32_t>(ResourceManager_MapSize.x), zone.lrx + 6);
+        zone.lry = std::min(static_cast<int32_t>(ResourceManager_MapSize.y), zone.lry + 6);
 
         for (position.x = zone.ulx; position.x < zone.lrx; ++position.x) {
             for (position.y = zone.uly; position.y < zone.lry; ++position.y) {
@@ -170,8 +170,8 @@ void Continent::TestIsolated() {
         {
             Rect zone2;
             Point position2;
-            int value;
-            int value2;
+            int32_t value;
+            int32_t value2;
 
             rect_init(&zone2, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
@@ -182,7 +182,7 @@ void Continent::TestIsolated() {
                 value = access_map.GetMapColumn(position.x)[position.y] | 0x01;
                 access_map.GetMapColumn(position.x)[position.y] = value;
 
-                for (int direction = 0; direction < 8; ++direction) {
+                for (int32_t direction = 0; direction < 8; ++direction) {
                     position2 = position;
 
                     position2 += Paths_8DirPointsArray[direction];

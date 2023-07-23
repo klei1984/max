@@ -29,8 +29,8 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
-void Survey_RenderMarker(WindowInfo* window, int grid_x, int grid_y, unsigned short material_type) {
-    int resource_value;
+void Survey_RenderMarker(WindowInfo* window, int32_t grid_x, int32_t grid_y, uint16_t material_type) {
+    int32_t resource_value;
     ResourceID marker_big;
     ResourceID marker_small;
     struct ImageSimpleHeader* buffer;
@@ -81,11 +81,11 @@ void Survey_RenderMarker(WindowInfo* window, int grid_x, int grid_y, unsigned sh
     }
 }
 
-void Survey_SurveyArea(UnitInfo* unit, int radius) {
-    unsigned short team;
+void Survey_SurveyArea(UnitInfo* unit, int32_t radius) {
+    uint16_t team;
     CTInfo* team_info;
-    int grid_x;
-    int grid_y;
+    int32_t grid_x;
+    int32_t grid_y;
     UnitInfo* enemy;
     Rect bounds;
 
@@ -94,8 +94,8 @@ void Survey_SurveyArea(UnitInfo* unit, int radius) {
     grid_x = unit->grid_x;
     grid_y = unit->grid_y;
 
-    for (int i = std::max(0, grid_x - radius); i <= std::min(ResourceManager_MapSize.x - 1, grid_x + radius); ++i) {
-        for (int j = std::max(0, grid_y - radius); j <= std::min(ResourceManager_MapSize.y - 1, grid_y + radius); ++j) {
+    for (int32_t i = std::max(0, grid_x - radius); i <= std::min(ResourceManager_MapSize.x - 1, grid_x + radius); ++i) {
+        for (int32_t j = std::max(0, grid_y - radius); j <= std::min(ResourceManager_MapSize.y - 1, grid_y + radius); ++j) {
             if (Access_GetModifiedSurfaceType(i, j) != SURFACE_TYPE_AIR) {
                 enemy = Access_GetEnemyMineOnSentry(team, i, j);
                 Ai_MarkMineMapPoint(Point(i, j), team);
@@ -119,11 +119,11 @@ void Survey_SurveyArea(UnitInfo* unit, int radius) {
     }
 }
 
-void Survey_RenderMarkers(unsigned short team, int grid_ulx, int grid_uly, int grid_lrx) {
+void Survey_RenderMarkers(uint16_t team, int32_t grid_ulx, int32_t grid_uly, int32_t grid_lrx) {
     CTInfo* team_info;
     WindowInfo* window;
-    int grid_lry;
-    unsigned short mask;
+    int32_t grid_lry;
+    uint16_t mask;
 
     team_info = &UnitsManager_TeamInfo[team];
     window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
@@ -141,9 +141,9 @@ void Survey_RenderMarkers(unsigned short team, int grid_ulx, int grid_uly, int g
 
     mask |= team_info->team_units->hash_team_id;
 
-    for (int i = std::max(GameManager_GridPosition.ulx, grid_ulx);
+    for (int32_t i = std::max(GameManager_GridPosition.ulx, grid_ulx);
          i < std::min(GameManager_GridPosition.lrx + 1, grid_lrx); ++i) {
-        for (int j = std::max(GameManager_GridPosition.uly, grid_uly);
+        for (int32_t j = std::max(GameManager_GridPosition.uly, grid_uly);
              j < std::min(GameManager_GridPosition.lry + 1, grid_lry); ++j) {
             if (Access_GetModifiedSurfaceType(i, j) != SURFACE_TYPE_AIR &&
                 (ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] & mask)) {
@@ -153,11 +153,11 @@ void Survey_RenderMarkers(unsigned short team, int grid_ulx, int grid_uly, int g
     }
 }
 
-void Survey_GetResourcesInArea(int grid_x, int grid_y, int radius, int resource_limit, short* raw, short* gold,
-                               short* fuel, bool mode, unsigned short team) {
+void Survey_GetResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int32_t resource_limit, int16_t* raw, int16_t* gold,
+                               int16_t* fuel, bool mode, uint16_t team) {
     CTInfo* team_info;
-    unsigned short mask;
-    unsigned short value;
+    uint16_t mask;
+    uint16_t value;
 
     team_info = &UnitsManager_TeamInfo[team];
 
@@ -173,8 +173,8 @@ void Survey_GetResourcesInArea(int grid_x, int grid_y, int radius, int resource_
 
     mask |= team_info->team_units->hash_team_id;
 
-    for (int i = grid_x; i <= std::min(ResourceManager_MapSize.x - 1, grid_x + radius); ++i) {
-        for (int j = grid_y; j <= std::min(ResourceManager_MapSize.y - 1, grid_y + radius); ++j) {
+    for (int32_t i = grid_x; i <= std::min(ResourceManager_MapSize.x - 1, grid_x + radius); ++i) {
+        for (int32_t j = grid_y; j <= std::min(ResourceManager_MapSize.y - 1, grid_y + radius); ++j) {
             value = ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i];
 
             if ((value & mask) && Access_GetModifiedSurfaceType(i, j) != SURFACE_TYPE_AIR) {
@@ -202,7 +202,7 @@ void Survey_GetResourcesInArea(int grid_x, int grid_y, int radius, int resource_
     }
 }
 
-void Survey_GetTotalResourcesInArea(int grid_x, int grid_y, int radius, short* raw, short* gold, short* fuel, bool mode,
-                                    unsigned short team) {
+void Survey_GetTotalResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int16_t* raw, int16_t* gold, int16_t* fuel, bool mode,
+                                    uint16_t team) {
     Survey_GetResourcesInArea(grid_x, grid_y, radius, 255, raw, gold, fuel, mode, team);
 }

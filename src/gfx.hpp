@@ -33,25 +33,25 @@
 #define GFX_SCALE_DENOMINATOR (1 << GFX_SCALE_BASE)
 #define GFX_SCALE_NUMERATOR (GFX_MAP_TILE_SIZE * GFX_SCALE_DENOMINATOR)
 
-bool Gfx_DecodeSpriteSetup(Point point, unsigned char* buffer, int divisor, Rect* bounds);
-void Gfx_DecodeMapTile(Rect* bounds, unsigned int tile_size, unsigned char quotient);
+bool Gfx_DecodeSpriteSetup(Point point, uint8_t* buffer, int32_t divisor, Rect* bounds);
+void Gfx_DecodeMapTile(Rect* bounds, uint32_t tile_size, uint8_t quotient);
 void Gfx_DecodeSprite();
 void Gfx_DecodeShadow();
-void Gfx_RenderCircle(unsigned char* buffer, int full_width, int width, int height, int xc, int yc, int radius,
-                      int color);
-unsigned char* Gfx_RescaleSprite(unsigned char* buffer, unsigned int* data_size, int mode, int scaling_factor);
+void Gfx_RenderCircle(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height, int32_t xc, int32_t yc, int32_t radius,
+                      int32_t color);
+uint8_t* Gfx_RescaleSprite(uint8_t* buffer, uint32_t* data_size, int32_t mode, int32_t scaling_factor);
 
-extern unsigned char* Gfx_ResourceBuffer;
-extern unsigned int* Gfx_SpriteRowAddresses;
-extern unsigned char Gfx_TeamColorIndexBase;
+extern uint8_t* Gfx_ResourceBuffer;
+extern uint32_t* Gfx_SpriteRowAddresses;
+extern uint8_t Gfx_TeamColorIndexBase;
 extern ColorIndex* Gfx_ColorIndices;
-extern unsigned char Gfx_UnitBrightnessBase;
-extern unsigned int Gfx_MapBrightness;
-extern unsigned int Gfx_MapBigmapIileIdBufferOffset;
-extern unsigned char* Gfx_MapWindowBuffer;
-extern unsigned int Gfx_ZoomLevel;
-extern int Gfx_MapScalingFactor;
-extern int Gfx_MapWindowUlx;
-extern int Gfx_MapWindowUly;
+extern uint8_t Gfx_UnitBrightnessBase;
+extern uint32_t Gfx_MapBrightness;
+extern uint32_t Gfx_MapBigmapIileIdBufferOffset;
+extern uint8_t* Gfx_MapWindowBuffer;
+extern uint32_t Gfx_ZoomLevel;
+extern int32_t Gfx_MapScalingFactor;
+extern int32_t Gfx_MapWindowUlx;
+extern int32_t Gfx_MapWindowUly;
 
 #endif /* GFX_HPP */

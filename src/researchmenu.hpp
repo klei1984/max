@@ -29,8 +29,8 @@ extern const char* const ResearchMenu_TopicLabels[];
 extern const ResourceID ResearchMenu_TopicIcon[];
 
 void ResearchMenu_Menu(UnitInfo* unit);
-void ResearchMenu_UpdateResearchProgress(unsigned short team, int research_topic, int allocation);
-void ResearchMenu_NewTurn(unsigned short team);
-int ResearchMenu_CalculateFactor(unsigned short team, int research_topic, ResourceID unit_type);
+void ResearchMenu_UpdateResearchProgress(uint16_t team, int32_t research_topic, int32_t allocation);
+void ResearchMenu_NewTurn(uint16_t team);
+int32_t ResearchMenu_CalculateFactor(uint16_t team, int32_t research_topic, ResourceID unit_type);
 
 #endif /* RESEARCHMENU_HPP */

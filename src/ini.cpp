@@ -27,9 +27,9 @@
 #include "resource_manager.hpp"
 
 static const char *hex_to_dec_lut1 = "0123456789ABCDEF";
-static unsigned int hex_to_dec_lut2[] = {0x00, 0x01, 0x10, 0x100, 0x1000, 0x10000, 0x100000, 0x1000000, 0x10000000};
+static uint32_t hex_to_dec_lut2[] = {0x00, 0x01, 0x10, 0x100, 0x1000, 0x10000, 0x100000, 0x1000000, 0x10000000};
 
-static int inifile_hex_to_dec_digit(char c);
+static int32_t inifile_hex_to_dec_digit(char c);
 
 void inifile_load_from_resource(Ini_descriptor *const pini, ResourceID resource_id) {
     pini->ini_file_path[0] = '\0';
@@ -47,8 +47,8 @@ void inifile_load_from_resource(Ini_descriptor *const pini, ResourceID resource_
     }
 }
 
-int inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const char *const inifile_path) {
-    int result;
+int32_t inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const char *const inifile_path) {
+    int32_t result;
     FILE *fp;
 
     strcpy(pini->ini_file_path, inifile_path);
@@ -90,7 +90,7 @@ int inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const char
     return result;
 }
 
-int inifile_save_to_file(Ini_descriptor *const pini) {
+int32_t inifile_save_to_file(Ini_descriptor *const pini) {
     FILE *fp;
 
     if (pini->buffer) {
@@ -111,8 +111,8 @@ int inifile_save_to_file(Ini_descriptor *const pini) {
     return 1;
 }
 
-int inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini, bool free_only) {
-    int result = 1;
+int32_t inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini, bool free_only) {
+    int32_t result = 1;
 
     if (!free_only) {
         if (!inifile_save_to_file(pini)) {
@@ -126,11 +126,11 @@ int inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini, bool free_o
     return result;
 }
 
-int inifile_ini_seek_section(Ini_descriptor *const pini, const char *const ini_section_name) {
+int32_t inifile_ini_seek_section(Ini_descriptor *const pini, const char *const ini_section_name) {
     char *address;
     char *section_start;
     char *end_address;
-    int result;
+    int32_t result;
 
     result = 0;
 
@@ -144,7 +144,7 @@ int inifile_ini_seek_section(Ini_descriptor *const pini, const char *const ini_s
     do {
         /* seek to section start */
         if (*address == '[') {
-            int offset = 0;
+            int32_t offset = 0;
 
             section_start = address++;
 
@@ -183,11 +183,11 @@ int inifile_ini_seek_section(Ini_descriptor *const pini, const char *const ini_s
     return result;
 }
 
-int inifile_ini_seek_param(Ini_descriptor *const pini, const char *const ini_param_name) {
+int32_t inifile_ini_seek_param(Ini_descriptor *const pini, const char *const ini_param_name) {
     char *address;
     char *key_start;
     char *end_address;
-    int result;
+    int32_t result;
 
     result = 0;
 
@@ -195,7 +195,7 @@ int inifile_ini_seek_param(Ini_descriptor *const pini, const char *const ini_par
     end_address = &pini->buffer[pini->file_size];
 
     do {
-        int offset = 0;
+        int32_t offset = 0;
 
         if (*address == ini_param_name[offset]) {
             key_start = address;
@@ -244,11 +244,11 @@ int inifile_ini_seek_param(Ini_descriptor *const pini, const char *const ini_par
     return result;
 }
 
-int inifile_ini_process_numeric_value(Ini_descriptor *const pini, int *const value) {
+int32_t inifile_ini_process_numeric_value(Ini_descriptor *const pini, int32_t *const value) {
     char number[30];
     char *address;
     char *end_address;
-    unsigned int offset;
+    uint32_t offset;
 
     if (pini->next_value_address) {
         address = pini->next_value_address;
@@ -307,9 +307,9 @@ int inifile_ini_process_numeric_value(Ini_descriptor *const pini, int *const val
     return 1;
 }
 
-int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buffer, const unsigned int buffer_size) {
+int32_t inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buffer, const uint32_t buffer_size) {
     char *address;
-    unsigned int offset;
+    uint32_t offset;
 
     if (pini->next_value_address) {
         address = pini->next_value_address;
@@ -351,11 +351,11 @@ int inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buf
     return 1;
 }
 
-int inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const unsigned int buffer_size,
-                           const int mode, bool skip_leading_white_space) {
+int32_t inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const uint32_t buffer_size,
+                           const int32_t mode, bool skip_leading_white_space) {
     char *address;
     char *end_address;
-    unsigned int offset;
+    uint32_t offset;
 
     if (mode) {
         address = pini->value_start_address;
@@ -397,12 +397,12 @@ int inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const
     return 1;
 }
 
-int inifile_ini_set_numeric_value(Ini_descriptor *const pini, const int value) {
+int32_t inifile_ini_set_numeric_value(Ini_descriptor *const pini, const int32_t value) {
     char buffer[30];
     char *source_address;
     char *address;
-    unsigned int offset;
-    unsigned int length;
+    uint32_t offset;
+    uint32_t length;
     size_t size;
 
     if (!pini->value_start_address) {
@@ -465,11 +465,11 @@ int inifile_ini_set_numeric_value(Ini_descriptor *const pini, const int value) {
     return 1;
 }
 
-int inifile_ini_set_string_value(Ini_descriptor *const pini, const char *value) {
+int32_t inifile_ini_set_string_value(Ini_descriptor *const pini, const char *value) {
     char *address;
     char *source_address;
-    unsigned int offset;
-    unsigned int length;
+    uint32_t offset;
+    uint32_t length;
     size_t size;
 
     address = pini->value_start_address;
@@ -522,7 +522,7 @@ int inifile_ini_set_string_value(Ini_descriptor *const pini, const char *value) 
     return 1;
 }
 
-int inifile_get_boolean_value(Ini_descriptor *const pini, const char *const ini_param_name) {
+int32_t inifile_get_boolean_value(Ini_descriptor *const pini, const char *const ini_param_name) {
     char buffer[30];
 
     if (!inifile_ini_seek_param(pini, ini_param_name)) {
@@ -536,8 +536,8 @@ int inifile_get_boolean_value(Ini_descriptor *const pini, const char *const ini_
     return 0;
 }
 
-int inifile_ini_get_numeric_value(Ini_descriptor *const pini, const char *const ini_param_name, int *const value) {
-    int result;
+int32_t inifile_ini_get_numeric_value(Ini_descriptor *const pini, const char *const ini_param_name, int32_t *const value) {
+    int32_t result;
 
     if (inifile_ini_seek_param(pini, ini_param_name)) {
         result = inifile_ini_process_numeric_value(pini, value) != 0;
@@ -548,9 +548,9 @@ int inifile_ini_get_numeric_value(Ini_descriptor *const pini, const char *const 
     return result;
 }
 
-int inifile_ini_get_string_value(Ini_descriptor *const pini, const char *const ini_param_name, char *const buffer,
-                                 const int buffer_size) {
-    int result;
+int32_t inifile_ini_get_string_value(Ini_descriptor *const pini, const char *const ini_param_name, char *const buffer,
+                                 const int32_t buffer_size) {
+    int32_t result;
 
     if (inifile_ini_seek_param(pini, ini_param_name)) {
         result = inifile_ini_process_string_value(pini, buffer, buffer_size) != 0;
@@ -561,7 +561,7 @@ int inifile_ini_get_string_value(Ini_descriptor *const pini, const char *const i
     return result;
 }
 
-int inifile_set_boolean_value(Ini_descriptor *const pini, const char *const ini_param_name, const int value) {
+int32_t inifile_set_boolean_value(Ini_descriptor *const pini, const char *const ini_param_name, const int32_t value) {
     if (inifile_ini_seek_param(pini, ini_param_name)) {
         if (value) {
             if (!inifile_ini_set_string_value(pini, "Yes")) {
@@ -577,9 +577,9 @@ int inifile_set_boolean_value(Ini_descriptor *const pini, const char *const ini_
     return 0;
 }
 
-int inifile_delete_param(Ini_descriptor *const pini, const char *const ini_param_name) {
+int32_t inifile_delete_param(Ini_descriptor *const pini, const char *const ini_param_name) {
     char *address;
-    unsigned int offset;
+    uint32_t offset;
 
     offset = 0;
 
@@ -602,10 +602,10 @@ int inifile_delete_param(Ini_descriptor *const pini, const char *const ini_param
     return 1;
 }
 
-int inifile_delete_section(Ini_descriptor *const pini, char *param_name) {
+int32_t inifile_delete_section(Ini_descriptor *const pini, char *param_name) {
     char *end_address;
     char *address;
-    unsigned int offset;
+    uint32_t offset;
 
     if (!inifile_ini_seek_section(pini, param_name)) {
         return 0;
@@ -627,10 +627,10 @@ int inifile_delete_section(Ini_descriptor *const pini, char *param_name) {
     return 1;
 }
 
-int inifile_add_section(Ini_descriptor *const pini, char *ini_section_name) {
+int32_t inifile_add_section(Ini_descriptor *const pini, char *ini_section_name) {
     char *address;
-    unsigned int length;
-    unsigned int offset;
+    uint32_t length;
+    uint32_t offset;
 
     if (inifile_ini_seek_section(pini, ini_section_name)) {
         return 0;
@@ -678,10 +678,10 @@ int inifile_add_section(Ini_descriptor *const pini, char *ini_section_name) {
     return 1;
 }
 
-int inifile_add_string_param(Ini_descriptor *const pini, char *ini_param_name, char *buffer, int buffer_size) {
-    int result;
+int32_t inifile_add_string_param(Ini_descriptor *const pini, char *ini_param_name, char *buffer, int32_t buffer_size) {
+    int32_t result;
     char *src;
-    int length;
+    int32_t length;
 
     if (inifile_ini_seek_param(pini, ini_param_name)) {
         inifile_ini_set_string_value(pini, buffer);
@@ -732,12 +732,12 @@ int inifile_add_string_param(Ini_descriptor *const pini, char *ini_param_name, c
     return result;
 }
 
-int inifile_add_numeric_param(Ini_descriptor *const pini, char *ini_param_name, int value, int size, int radix) {
+int32_t inifile_add_numeric_param(Ini_descriptor *const pini, char *ini_param_name, int32_t value, int32_t size, int32_t radix) {
     char buffer[30];
     char *src;
-    int length;
-    int offset;
-    int result;
+    int32_t length;
+    int32_t offset;
+    int32_t result;
 
     if (inifile_ini_seek_param(pini, ini_param_name)) {
         inifile_ini_set_numeric_value(pini, value);
@@ -797,10 +797,10 @@ int inifile_add_numeric_param(Ini_descriptor *const pini, char *ini_param_name, 
     return result;
 }
 
-unsigned int inifile_hex_to_dec(const char *const hex) {
-    unsigned int sum;
-    int length;
-    int offset;
+uint32_t inifile_hex_to_dec(const char *const hex) {
+    uint32_t sum;
+    int32_t length;
+    int32_t offset;
 
     sum = 0;
     offset = 0;
@@ -818,8 +818,8 @@ unsigned int inifile_hex_to_dec(const char *const hex) {
     return sum;
 }
 
-static int inifile_hex_to_dec_digit(const char c) {
-    for (unsigned int index = 0; index < 16; index++) {
+static int32_t inifile_hex_to_dec_digit(const char c) {
+    for (uint32_t index = 0; index < 16; index++) {
         if (hex_to_dec_lut1[index] == toupper(c)) {
             return index;
         }

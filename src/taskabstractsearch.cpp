@@ -28,7 +28,7 @@
 #include "tasksearchdestination.hpp"
 #include "units_manager.hpp"
 
-void TaskAbstractSearch::FindDestination(UnitInfo& unit, int radius) {
+void TaskAbstractSearch::FindDestination(UnitInfo& unit, int32_t radius) {
     AiLog log("Abstract Search: Find Destination");
 
     if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && IsInitNeeded() && unit.speed) {
@@ -40,7 +40,7 @@ void TaskAbstractSearch::FindDestination(UnitInfo& unit, int radius) {
     }
 }
 
-TaskAbstractSearch::TaskAbstractSearch(unsigned short team_, Task* task, unsigned short flags_, Point point_)
+TaskAbstractSearch::TaskAbstractSearch(uint16_t team_, Task* task, uint16_t flags_, Point point_)
     : Task(team_, task, flags_) {
     point = point_;
     requestors = 0;

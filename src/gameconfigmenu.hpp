@@ -37,15 +37,15 @@ enum {
 class GameConfigMenu;
 
 struct GameConfigMenuItem {
-    int r_value;
-    int event_code;
+    int32_t r_value;
+    int32_t event_code;
     void (GameConfigMenu::*event_handler)();
 };
 
 class GameConfigMenu {
-    void ButtonInit(int index);
-    void DrawBgPanel(int group_index);
-    void DrawRadioButtons(int element_count, int start_index, int selection_index);
+    void ButtonInit(int32_t index);
+    void DrawBgPanel(int32_t group_index);
+    void DrawRadioButtons(int32_t element_count, int32_t start_index, int32_t selection_index);
     void DrawPanelComputerOpponent();
     void DrawPanelTurnTimers();
     void DrawPanelPlayMode();
@@ -58,25 +58,25 @@ public:
     WindowInfo *window;
     bool event_click_done;
     bool event_click_cancel;
-    unsigned char game_mode;
-    int key;
+    uint8_t game_mode;
+    int32_t key;
     GameConfigMenuItem menu_item[GAME_CONFIG_MENU_ITEM_COUNT];
     Button *buttons[GAME_CONFIG_MENU_ITEM_COUNT];
     TextEdit *text_edit;
     Image *bg_panels[6];
     char victory_limit_text[30];
-    unsigned int field_867;
-    unsigned char ini_play_mode;
-    unsigned short ini_timer;
-    unsigned short ini_endturn;
-    unsigned char ini_opponent;
-    unsigned short ini_start_gold;
-    unsigned char ini_raw_resource;
-    unsigned char ini_fuel_resource;
-    unsigned char ini_gold_resource;
-    unsigned char ini_alien_derelicts;
-    unsigned char ini_victory_type;
-    unsigned short ini_victory_limit;
+    uint32_t field_867;
+    uint8_t ini_play_mode;
+    uint16_t ini_timer;
+    uint16_t ini_endturn;
+    uint8_t ini_opponent;
+    uint16_t ini_start_gold;
+    uint8_t ini_raw_resource;
+    uint8_t ini_fuel_resource;
+    uint8_t ini_gold_resource;
+    uint8_t ini_alien_derelicts;
+    uint8_t ini_victory_type;
+    uint16_t ini_victory_limit;
 
     void Init();
     void Deinit();
@@ -94,7 +94,7 @@ public:
     void EventCancel();
     void EventHelp();
     void EventDone();
-    void UpdateTextEdit(int mode);
+    void UpdateTextEdit(int32_t mode);
 };
 
 extern struct MenuTitleItem game_config_menu_items[];

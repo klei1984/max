@@ -35,16 +35,16 @@ enum {
 };
 
 class TaskClearZone : public Task {
-    unsigned char state;
+    uint8_t state;
     SmartArray<Zone> zones;
     ObjectArray<ZoneSquare> zone_squares;
     ObjectArray<Point> points1;
     ObjectArray<Point> points2;
     SmartPointer<UnitInfo> moving_unit;
-    unsigned int unit_flags;
+    uint32_t unit_flags;
 
     static void PathFindResultCallback(Task* task, PathRequest* request, Point point, GroundPath* path,
-                                       unsigned char result);
+                                       uint8_t result);
     static void PathFindCancelCallback(Task* task, PathRequest* request);
 
     bool ExamineZones();
@@ -53,11 +53,11 @@ class TaskClearZone : public Task {
     void SearchMap();
 
 public:
-    TaskClearZone(unsigned short team, unsigned int flags);
+    TaskClearZone(uint16_t team, uint32_t flags);
     ~TaskClearZone();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsThinking();
     void Begin();
     void BeginTurn();

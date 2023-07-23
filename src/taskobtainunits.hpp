@@ -36,12 +36,12 @@ public:
     TaskObtainUnits(Task* task, Point point);
     ~TaskObtainUnits();
 
-    unsigned short CountInstancesOfUnitType(ResourceID unit_type);
+    uint16_t CountInstancesOfUnitType(ResourceID unit_type);
     UnitInfo* FindUnit(ResourceID unit_type, bool mode);
 
-    unsigned short GetFlags() const;
+    uint16_t GetFlags() const;
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
     void Begin();

@@ -41,40 +41,40 @@ enum {
 };
 
 class UpgradeControl {
-    unsigned short *team_gold;
-    unsigned short uly;
+    uint16_t *team_gold;
+    uint16_t uly;
     Button *upgrade_right;
     Button *upgrade_left;
-    unsigned char id;
-    unsigned short team_base_value;
-    unsigned short control_base_value;
-    unsigned short upgrade_amount;
-    unsigned short *control_actual_value;
-    unsigned short factor;
-    unsigned short *upgrade_ratio;
-    unsigned short research_factor;
+    uint8_t id;
+    uint16_t team_base_value;
+    uint16_t control_base_value;
+    uint16_t upgrade_amount;
+    uint16_t *control_actual_value;
+    uint16_t factor;
+    uint16_t *upgrade_ratio;
+    uint16_t research_factor;
 
     void Disable();
-    int CalculateCost();
-    int GetLevelCost(unsigned short current_value);
-    int GetRatio(unsigned short value) const;
-    void SetupRatio(unsigned short factor, unsigned short *upgrade_ratio);
+    int32_t CalculateCost();
+    int32_t GetLevelCost(uint16_t current_value);
+    int32_t GetRatio(uint16_t value) const;
+    void SetupRatio(uint16_t factor, uint16_t *upgrade_ratio);
 
 public:
-    UpgradeControl(WinID window_id, int ulx, int uly, int button_right_r_value, int button_left_r_value,
-                   unsigned short *team_gold);
+    UpgradeControl(WinID window_id, int32_t ulx, int32_t uly, int32_t button_right_r_value, int32_t button_left_r_value,
+                   uint16_t *team_gold);
     ~UpgradeControl();
 
-    void Init(int id, int base_value_team, int base_value_control, unsigned short *actual_value_control, int value);
+    void Init(int32_t id, int32_t base_value_team, int32_t base_value_control, uint16_t *actual_value_control, int32_t value);
     void Increase();
     void Decrease();
     void UpdateControlState();
-    int GetCost();
-    int GetId() const;
-    int GetUly() const;
+    int32_t GetCost();
+    int32_t GetId() const;
+    int32_t GetUly() const;
 };
 
-int UpgradeControl_CalculateCost(int id, unsigned short current_value, unsigned short factor,
-                                 unsigned short base_value);
+int32_t UpgradeControl_CalculateCost(int32_t id, uint16_t current_value, uint16_t factor,
+                                 uint16_t base_value);
 
 #endif /* UPGRADECONTROL_HPP */

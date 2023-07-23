@@ -28,18 +28,18 @@
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 
-Complex::Complex(short id) : buildings(0), id(id), material(0), fuel(0), gold(0), power(0), workers(0) {}
+Complex::Complex(int16_t id) : buildings(0), id(id), material(0), fuel(0), gold(0), power(0), workers(0) {}
 
 Complex::~Complex() {}
 
 FileObject* Complex::Allocate() { return new (std::nothrow) Complex(0); }
 
-short Complex::GetId() const { return id; }
+int16_t Complex::GetId() const { return id; }
 
-static unsigned short Complex_TypeIndex;
+static uint16_t Complex_TypeIndex;
 static MAXRegisterClass Complex_ClassRegister("Complex", &Complex_TypeIndex, &Complex::Allocate);
 
-unsigned short Complex::GetTypeIndex() const { return Complex_TypeIndex; }
+uint16_t Complex::GetTypeIndex() const { return Complex_TypeIndex; }
 
 void Complex::FileLoad(SmartFileReader& file) {
     file.Read(material);
@@ -71,7 +71,7 @@ void Complex::WritePacket(NetPacket& packet) {
 }
 
 void Complex::ReadPacket(NetPacket& packet) {
-    short packet_buildings;
+    int16_t packet_buildings;
 
     packet >> material;
     packet >> fuel;
@@ -108,9 +108,9 @@ void Complex::GetCargoMinable(Cargo& capacity) {
 }
 
 void Complex::GetCargoMining(Cargo& materials, Cargo& capacity) {
-    short cargo_raw;
-    short cargo_fuel;
-    short cargo_gold;
+    int16_t cargo_raw;
+    int16_t cargo_fuel;
+    int16_t cargo_gold;
 
     materials.Init();
     capacity.Init();
@@ -149,9 +149,9 @@ void Complex::GetCargoInfo(Cargo& materials, Cargo& capacity) {
     }
 }
 
-void Complex::TransferCargo(UnitInfo* unit, int* cargo) {
+void Complex::TransferCargo(UnitInfo* unit, int32_t* cargo) {
     if (*cargo >= 0) {
-        int free_capacity;
+        int32_t free_capacity;
 
         free_capacity = unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - unit->storage;
 
@@ -178,7 +178,7 @@ void Complex::TransferCargo(UnitInfo* unit, int* cargo) {
     }
 }
 
-void Complex::Transfer(int raw, int fuel, int gold) {
+void Complex::Transfer(int32_t raw, int32_t fuel, int32_t gold) {
     this->gold += gold;
     this->fuel += fuel;
     this->material += raw;
@@ -215,4 +215,4 @@ void Complex::Shrink(UnitInfo& unit) {
     }
 }
 
-short Complex::GetBuildings() const { return buildings; }
+int16_t Complex::GetBuildings() const { return buildings; }

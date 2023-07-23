@@ -23,7 +23,7 @@
 
 #include "resource_manager.hpp"
 
-ZoneWalker::ZoneWalker(Point position, int range_) {
+ZoneWalker::ZoneWalker(Point position, int32_t range_) {
     range = range_;
     start = position;
     distance = range * range;
@@ -47,9 +47,9 @@ void ZoneWalker::InitXY() {
 }
 
 void ZoneWalker::InitX() {
-    int distance_x;
-    int distance_y;
-    int index_x;
+    int32_t distance_x;
+    int32_t distance_y;
+    int32_t index_x;
 
     distance_y = (current.y - start.y) * (current.y - start.y);
 
@@ -73,9 +73,9 @@ void ZoneWalker::InitX() {
     }
 }
 
-int ZoneWalker::GetGridX() const { return current.x; }
+int32_t ZoneWalker::GetGridX() const { return current.x; }
 
-int ZoneWalker::GetGridY() const { return current.y; }
+int32_t ZoneWalker::GetGridY() const { return current.y; }
 
 Point* ZoneWalker::GetCurrentLocation() { return &current; }
 

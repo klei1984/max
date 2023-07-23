@@ -27,15 +27,15 @@
 class MapHashObject;
 
 class MapHash {
-    unsigned short hash_size;
-    unsigned short x_shift;
+    uint16_t hash_size;
+    uint16_t x_shift;
     SmartList<MapHashObject>* entry;
 
-    void AddEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y, bool mode);
-    void RemoveEx(UnitInfo* unit, unsigned short grid_x, unsigned short grid_y);
+    void AddEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y, bool mode);
+    void RemoveEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y);
 
 public:
-    MapHash(unsigned short hash_size);
+    MapHash(uint16_t hash_size);
     ~MapHash();
 
     void Add(UnitInfo* unit, bool mode = false);
@@ -49,11 +49,11 @@ public:
 };
 
 class UnitHash {
-    unsigned short hash_size;
+    uint16_t hash_size;
     SmartList<UnitInfo>* list;
 
 public:
-    UnitHash(unsigned short hash_size);
+    UnitHash(uint16_t hash_size);
     ~UnitHash();
 
     void PushBack(UnitInfo* unit);
@@ -63,7 +63,7 @@ public:
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
 
-    UnitInfo* operator[](const unsigned short& key);
+    UnitInfo* operator[](const uint16_t& key);
 };
 
 extern UnitHash Hash_UnitHash;

@@ -26,7 +26,7 @@
 
 UnitWeight::UnitWeight() : unit_type(INVALID_ID), weight(0) {}
 
-UnitWeight::UnitWeight(ResourceID unit_type_, unsigned short weight_) {
+UnitWeight::UnitWeight(ResourceID unit_type_, uint16_t weight_) {
     if (Builder_IsBuildable(unit_type_)) {
         unit_type = unit_type_;
         weight = weight_;
@@ -50,9 +50,9 @@ WeightTable& WeightTable::operator=(WeightTable const& other) {
 
 WeightTable& WeightTable::operator+=(WeightTable const& other) {
     ResourceID unit_type;
-    int index;
+    int32_t index;
 
-    for (int i = 0; i < other.weight_table.GetCount(); ++i) {
+    for (int32_t i = 0; i < other.weight_table.GetCount(); ++i) {
         unit_type = other.weight_table[i]->unit_type;
 
         for (index = 0; index < weight_table.GetCount() && unit_type != weight_table[index]->unit_type; ++index) {
@@ -71,22 +71,22 @@ WeightTable& WeightTable::operator+=(WeightTable const& other) {
     return *this;
 }
 
-UnitWeight& WeightTable::operator[](unsigned short position) { return *weight_table[position]; }
+UnitWeight& WeightTable::operator[](uint16_t position) { return *weight_table[position]; }
 
-int WeightTable::GetCount() const { return weight_table.GetCount(); }
+int32_t WeightTable::GetCount() const { return weight_table.GetCount(); }
 
 ResourceID WeightTable::RollUnitType() const {
-    int weight = 0;
+    int32_t weight = 0;
     ResourceID unit_type = INVALID_ID;
 
-    for (int i = 0; i < weight_table.GetCount(); ++i) {
+    for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
         weight += weight_table[i]->weight;
     }
 
     if (weight > 0) {
         weight = ((dos_rand() * weight) >> 15) + 1;
 
-        for (int i = 0; i < weight_table.GetCount(); ++i) {
+        for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
             weight -= weight_table[i]->weight;
 
             if (weight <= 0) {
@@ -103,10 +103,10 @@ void WeightTable::PushBack(UnitWeight& object) { weight_table.PushBack(&object);
 
 void WeightTable::Clear() { weight_table.Clear(); }
 
-int WeightTable::GetWeight(ResourceID unit_type) const {
-    int weight = 0;
+int32_t WeightTable::GetWeight(ResourceID unit_type) const {
+    int32_t weight = 0;
 
-    for (int i = 0; i < weight_table.GetCount(); ++i) {
+    for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
         if (unit_type == weight_table[i]->unit_type) {
             weight = weight_table[i]->weight;
             break;

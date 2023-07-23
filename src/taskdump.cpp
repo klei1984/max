@@ -46,7 +46,7 @@ TaskDump::TaskDump(TaskTransport* task_transport, TaskMove* task_move_, UnitInfo
 TaskDump::~TaskDump() {}
 
 void TaskDump::TaskDump_PathResultCallback(Task* task, PathRequest* request, Point destination_, GroundPath* path,
-                                           unsigned char result) {
+                                           uint8_t result) {
     AiLog log("Dump: path result.");
 
     TaskDump* dump_task = dynamic_cast<TaskDump*>(task);
@@ -69,7 +69,7 @@ void TaskDump::TaskDump_PathCancelCallback(Task* task, PathRequest* request) {
 void TaskDump::Search() {
     Rect bounds;
     SmartPointer<UnitInfo> passenger;
-    int minimum_distance;
+    int32_t minimum_distance;
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
@@ -153,7 +153,7 @@ char* TaskDump::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskDump::GetType() const { return TaskType_TaskDump; }
+uint8_t TaskDump::GetType() const { return TaskType_TaskDump; }
 
 void TaskDump::Begin() {
     transporter_unit->AddTask(this);

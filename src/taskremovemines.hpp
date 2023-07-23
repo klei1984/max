@@ -30,7 +30,7 @@ public:
     ~TaskRemoveMines();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool Execute(UnitInfo& unit);
     void ObtainUnit();
 };

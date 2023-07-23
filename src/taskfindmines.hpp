@@ -26,11 +26,11 @@
 
 class TaskFindMines : public TaskAbstractSearch {
 public:
-    TaskFindMines(unsigned short team, Point point);
+    TaskFindMines(uint16_t team, Point point);
     ~TaskFindMines();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void BeginTurn();
     bool Execute(UnitInfo& unit);
     bool IsVisited(UnitInfo& unit, Point point);

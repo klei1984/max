@@ -22,22 +22,24 @@
 #ifndef EVENTS_HPP
 #define EVENTS_HPP
 
+#include <cstdint>
+
 class Event {
 public:
-    virtual unsigned short GetEventId() const = 0;
+    virtual uint16_t GetEventId() const = 0;
 };
 
 struct RegisterEvent {
-    static unsigned short IdRegistry;
-    RegisterEvent(unsigned short& id) { id = IdRegistry++; }
+    static uint16_t IdRegistry;
+    RegisterEvent(uint16_t& id) { id = IdRegistry++; }
 };
 
-#define EVENTS_REGISTER_EVENT(event)        \
-    unsigned short RegisterEventId_##event; \
+#define EVENTS_REGISTER_EVENT(event)  \
+    uint16_t RegisterEventId_##event; \
     RegisterEvent RegisterEvent_##event(RegisterEventId_##event)
 
 #define EVENTS_GET_EVENT_ID(event) RegisterEventId_##event
 
-#define EVENTS_DECLARE_EVENT_ID(event) extern unsigned short RegisterEventId_##event
+#define EVENTS_DECLARE_EVENT_ID(event) extern uint16_t RegisterEventId_##event
 
 #endif /* EVENTS_HPP */

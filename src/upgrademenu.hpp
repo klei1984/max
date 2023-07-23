@@ -29,11 +29,11 @@ class UpgradeMenu : public AbstractUpgradeMenu {
     SmartPointer<Complex> complex;
 
 public:
-    UpgradeMenu(unsigned short team, Complex* complex);
+    UpgradeMenu(uint16_t team, Complex* complex);
     ~UpgradeMenu();
 
     void AbstractUpgradeMenu_vfunc7();
-    bool ProcessKey(int key);
+    bool ProcessKey(int32_t key);
 };
 
 #endif /* UPGRADEMENU_HPP */

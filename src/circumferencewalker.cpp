@@ -23,7 +23,7 @@
 
 #include "resource_manager.hpp"
 
-CircumferenceWalker::CircumferenceWalker(Point position, int range_) {
+CircumferenceWalker::CircumferenceWalker(Point position, int32_t range_) {
     start = position;
     range = range_;
     distance = range * range;
@@ -59,8 +59,8 @@ bool CircumferenceWalker::InitXY() {
 }
 
 bool CircumferenceWalker::InitDirection() {
-    int factor1;
-    int factor2;
+    int32_t factor1;
+    int32_t factor2;
 
     while (direction < 8) {
         if (direction & 1) {
@@ -107,16 +107,16 @@ bool CircumferenceWalker::InitDirection() {
     return false;
 }
 
-int CircumferenceWalker::GetGridX() const { return current.x; }
+int32_t CircumferenceWalker::GetGridX() const { return current.x; }
 
-int CircumferenceWalker::GetGridY() const { return current.y; }
+int32_t CircumferenceWalker::GetGridY() const { return current.y; }
 
 const Point* CircumferenceWalker::GetGridXY() const { return &current; }
 
 bool CircumferenceWalker::FindNext() {
-    int value1;
-    int value2;
-    int limit;
+    int32_t value1;
+    int32_t value2;
+    int32_t limit;
 
     while (InitDirection()) {
         *grid_x += factor_x;

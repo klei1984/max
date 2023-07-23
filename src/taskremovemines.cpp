@@ -41,7 +41,7 @@ char* TaskRemoveMines::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskRemoveMines::GetType() const { return TaskType_TaskRemoveMines; }
+uint8_t TaskRemoveMines::GetType() const { return TaskType_TaskRemoveMines; }
 
 bool TaskRemoveMines::Execute(UnitInfo& unit_) {
     bool result;

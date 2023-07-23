@@ -23,13 +23,14 @@
 #define INTERFACE_H
 
 #include <assert.h>
+#include <stdint.h>
 
 #include "rect.h"
 
-typedef int WinID;
-typedef unsigned int TOCKS;
+typedef int32_t WinID;
+typedef uint32_t TOCKS;
 
-typedef void (*Trans_b2b)(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2);
+typedef void (*Trans_b2b)(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* dst, int32_t full2);
 
 typedef struct GNW_Menu_s GNW_Menu;
 
@@ -37,35 +38,37 @@ typedef struct GNW_Window_s GNW_Window;
 
 struct WindowInfo {
     Rect window;
-    unsigned short width;
+    uint16_t width;
     WinID id;
-    unsigned char* buffer;
+    uint8_t* buffer;
 };
 
 typedef struct WindowInfo WindowInfo;
 
-typedef void (*SelectFunc)(char**, int);
+typedef void (*SelectFunc)(char**, int32_t);
 
-int win_list_select(char* title, char** list, int num, SelectFunc select_func, int ulx, int uly, int color);
-int win_list_select_at(char* title, char** list, int num, SelectFunc select_func, int ulx, int uly, int color,
-                       int start);
-int win_get_str(char* str, int limit, char* title, int x, int y);
-int win_output(char* title, char** list, int num, int ulx, int uly, int color, char* extra_button);
-int win_yes_no(char* question, int ulx, int uly, int color);
-int win_msg(char* msg, int ulx, int uly, int color);
-int win_pull_down(char** list, int num, int ulx, int uly, int color);
-int win_debug(char* str);
-int win_register_menu_bar(WinID wid, int ulx, int uly, int width, int length, int fore_color, int back_color);
-int win_register_menu_pulldown(WinID wid, int offx, char* name, int value, int num, char** list, int fore_color,
-                               int back_color);
+int32_t win_list_select(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly,
+                        int32_t color);
+int32_t win_list_select_at(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly,
+                           int32_t color, int32_t start);
+int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y);
+int32_t win_output(char* title, char** list, int32_t num, int32_t ulx, int32_t uly, int32_t color, char* extra_button);
+int32_t win_yes_no(char* question, int32_t ulx, int32_t uly, int32_t color);
+int32_t win_msg(char* msg, int32_t ulx, int32_t uly, int32_t color);
+int32_t win_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_t color);
+int32_t win_debug(char* str);
+int32_t win_register_menu_bar(WinID wid, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t fore_color,
+                              int32_t back_color);
+int32_t win_register_menu_pulldown(WinID wid, int32_t offx, char* name, int32_t value, int32_t num, char** list,
+                                   int32_t fore_color, int32_t back_color);
 void win_delete_menu_bar(WinID wid);
-int GNW_process_menu(GNW_Menu* m, int num_pd);
-int win_width_needed(char** list, int num);
-int win_input_str(WinID id, char* str, int limit, int x, int y, int text_color, int back_color);
-int win_get_num_i(int* value, int min, int max, int clear, char* title, int x, int y);
+int32_t GNW_process_menu(GNW_Menu* m, int32_t num_pd);
+int32_t win_width_needed(char** list, int32_t num);
+int32_t win_input_str(WinID id, char* str, int32_t limit, int32_t x, int32_t y, int32_t text_color, int32_t back_color);
+int32_t win_get_num_i(int32_t* value, int32_t min, int32_t max, int32_t clear, char* title, int32_t x, int32_t y);
 void GNW_intr_init(void);
 void win_timed_msg_defaults(TOCKS persistence);
 void GNW_intr_exit(void);
-int win_timed_msg(char* msg, int color);
+int32_t win_timed_msg(char* msg, int32_t color);
 
 #endif /* INTERFACE_H */

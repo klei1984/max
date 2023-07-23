@@ -99,7 +99,7 @@ bool DefenseManager::RemoveUnit(UnitInfo* unit) {
     return result;
 }
 
-void DefenseManager::AddRule(ResourceID unit_type, int weight) {
+void DefenseManager::AddRule(ResourceID unit_type, int32_t weight) {
     if (Builder_IsBuildable(unit_type)) {
         UnitWeight unit_weight(unit_type, weight);
 
@@ -133,8 +133,8 @@ void DefenseManager::MaintainDefences(Task* task) {
     }
 }
 
-void DefenseManager::EvaluateNeeds(int* unit_counts) {
-    for (int i = 0; i < unit_types.GetCount(); ++i) {
+void DefenseManager::EvaluateNeeds(int32_t* unit_counts) {
+    for (int32_t i = 0; i < unit_types.GetCount(); ++i) {
         ResourceID unit_type = Builder_GetBuilderType(*unit_types[i]);
 
         if (unit_counts[unit_type] > 0) {
@@ -143,20 +143,20 @@ void DefenseManager::EvaluateNeeds(int* unit_counts) {
     }
 }
 
-void DefenseManager::PlanDefenses(int asset_value_goal_, TaskObtainUnits* task, int* unit_counts) {
+void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* task, int32_t* unit_counts) {
     TeamUnits* team_units = UnitsManager_TeamInfo[task->GetTeam()].team_units;
-    int build_costs = 0;
-    int turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
+    int32_t build_costs = 0;
+    int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
     WeightTable table(weight_table, true);
 
     if (table.GetCount()) {
         asset_value_goal = asset_value_goal_;
 
-        for (int i = 0; i < unit_types.GetCount(); ++i) {
+        for (int32_t i = 0; i < unit_types.GetCount(); ++i) {
             build_costs += Ai_GetNormalRateBuildCost(*unit_types[i], task->GetTeam());
         }
 
-        for (int i = 0; i < weight_table.GetCount(); ++i) {
+        for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
             UnitValues* unit_values = team_units->GetCurrentUnitValues(weight_table[i].unit_type);
 
             if (unit_values->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
@@ -176,7 +176,7 @@ void DefenseManager::PlanDefenses(int asset_value_goal_, TaskObtainUnits* task, 
                 --unit_counts[builder_type];
 
                 if (unit_counts[builder_type] == 0) {
-                    for (int i = 0; i < table.GetCount(); ++i) {
+                    for (int32_t i = 0; i < table.GetCount(); ++i) {
                         if (table[i].weight && Builder_GetBuilderType(table[i].unit_type) == builder_type) {
                             table[i].weight = 0;
                         }

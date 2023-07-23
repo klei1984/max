@@ -23,12 +23,12 @@
 
 #include "resource_manager.hpp"
 
-PathFill::PathFill(unsigned char** map)
+PathFill::PathFill(uint8_t** map)
     : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, true), map(map) {}
 
-int PathFill::Vfunc0(Point point, int uly) {
+int32_t PathFill::Vfunc0(Point point, int32_t uly) {
     for (; point.y > uly; --point.y) {
-        unsigned char value;
+        uint8_t value;
 
         value = map[point.x][point.y - 1];
 
@@ -40,9 +40,9 @@ int PathFill::Vfunc0(Point point, int uly) {
     return point.y;
 }
 
-int PathFill::Vfunc1(Point point, int lry) {
+int32_t PathFill::Vfunc1(Point point, int32_t lry) {
     for (; point.y < lry; ++point.y) {
-        unsigned char value;
+        uint8_t value;
 
         value = map[point.x][point.y];
 
@@ -54,9 +54,9 @@ int PathFill::Vfunc1(Point point, int lry) {
     return point.y;
 }
 
-int PathFill::Vfunc2(Point point, int lry) {
+int32_t PathFill::Vfunc2(Point point, int32_t lry) {
     for (; point.y < lry; ++point.y) {
-        unsigned char value;
+        uint8_t value;
 
         value = map[point.x][point.y];
 
@@ -68,7 +68,7 @@ int PathFill::Vfunc2(Point point, int lry) {
     return point.y;
 }
 
-void PathFill::Vfunc3(int ulx, int uly, int lry) {
+void PathFill::Vfunc3(int32_t ulx, int32_t uly, int32_t lry) {
     for (; uly < lry; ++uly) {
         map[ulx][uly] |= 0x20;
     }

@@ -23,10 +23,10 @@
 
 #include "resource_manager.hpp"
 
-SiteMarker::SiteMarker(unsigned short** map)
+SiteMarker::SiteMarker(uint16_t** map)
     : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, false), map(map), marker(0) {}
 
-int SiteMarker::Vfunc0(Point point, int uly) {
+int32_t SiteMarker::Vfunc0(Point point, int32_t uly) {
     for (; point.y > uly; --point.y) {
         if (map[point.x][point.y - 1] != 9) {
             break;
@@ -36,7 +36,7 @@ int SiteMarker::Vfunc0(Point point, int uly) {
     return point.y;
 }
 
-int SiteMarker::Vfunc1(Point point, int lry) {
+int32_t SiteMarker::Vfunc1(Point point, int32_t lry) {
     for (; point.y < lry; ++point.y) {
         if (map[point.x][point.y] != 9) {
             break;
@@ -46,7 +46,7 @@ int SiteMarker::Vfunc1(Point point, int lry) {
     return point.y;
 }
 
-int SiteMarker::Vfunc2(Point point, int lry) {
+int32_t SiteMarker::Vfunc2(Point point, int32_t lry) {
     for (; point.y < lry; ++point.y) {
         if (map[point.x][point.y] == 9) {
             break;
@@ -56,13 +56,13 @@ int SiteMarker::Vfunc2(Point point, int lry) {
     return point.y;
 }
 
-void SiteMarker::Vfunc3(int ulx, int uly, int lry) {
+void SiteMarker::Vfunc3(int32_t ulx, int32_t uly, int32_t lry) {
     for (; uly < lry; ++uly) {
         map[ulx][uly] = marker;
     }
 }
 
-int SiteMarker::Fill(Point point, int value) {
+int32_t SiteMarker::Fill(Point point, int32_t value) {
     marker = value;
 
     return MAXFloodFill::Fill(point);

@@ -36,15 +36,15 @@ char* TaskReload::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskReload::GetType() const { return TaskType_TaskReload; }
+uint8_t TaskReload::GetType() const { return TaskType_TaskReload; }
 
 void TaskReload::SelectOperator() {
     if (!(target_unit->flags & MOBILE_AIR_UNIT)) {
         ResourceID unit_type = INVALID_ID;
         ResourceID repair_shop_type;
         UnitInfo* unit = nullptr;
-        int distance;
-        int minimum_distance{INT32_MAX};
+        int32_t distance;
+        int32_t minimum_distance{INT32_MAX};
 
         repair_shop_type = GetRepairShopType();
 
@@ -57,8 +57,8 @@ void TaskReload::SelectOperator() {
         } else {
             Point site;
             Rect bounds;
-            int range;
-            int surface_type;
+            int32_t range;
+            int32_t surface_type;
 
             site.x = target_unit->grid_x - 1;
             site.y = target_unit->grid_y + 1;
@@ -72,8 +72,8 @@ void TaskReload::SelectOperator() {
                 range = 2;
             }
 
-            for (int direction = 0; direction < 8; direction += 2) {
-                for (int i = 0; i < range; ++i) {
+            for (int32_t direction = 0; direction < 8; direction += 2) {
+                for (int32_t i = 0; i < range; ++i) {
                     site += Paths_8DirPointsArray[direction];
 
                     if (Access_IsInsideBounds(&bounds, &site)) {
@@ -114,7 +114,7 @@ void TaskReload::SelectOperator() {
     }
 }
 
-int TaskReload::GetTurnsToComplete() { return 1; }
+int32_t TaskReload::GetTurnsToComplete() { return 1; }
 
 bool TaskReload::IsInPerfectCondition() {
     return target_unit->ammo == target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO);

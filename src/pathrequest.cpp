@@ -29,7 +29,7 @@
 
 const char* PathRequest_CautionLevels[] = {"none", "avoid reaction fire", "avoid next turn's fire", "avoid all damage"};
 
-PathRequest::PathRequest(UnitInfo* unit, int mode, Point point) : client(unit), point(point), flags(mode) {
+PathRequest::PathRequest(UnitInfo* unit, int32_t mode, Point point) : client(unit), point(point), flags(mode) {
     AiLog log("Path request for %s at [%i,%i].", UnitsManager_BaseUnits[client->unit_type].singular_name,
               client->grid_x + 1, client->grid_y + 1);
 
@@ -48,7 +48,7 @@ UnitInfo* PathRequest::GetTransporter() const { return &*transporter; }
 
 Point PathRequest::GetDestination() const { return point; }
 
-unsigned char PathRequest::GetCautionLevel() const { return caution_level; }
+uint8_t PathRequest::GetCautionLevel() const { return caution_level; }
 
 bool PathRequest::PathRequest_Vfunc1() { return false; }
 
@@ -63,19 +63,19 @@ void PathRequest::Cancel() {
     Access_ProcessNewGroupOrder(&*client);
 }
 
-void PathRequest::SetMaxCost(int value) {
+void PathRequest::SetMaxCost(int32_t value) {
     AiLog log("Max cost: %i.", value);
 
     max_cost = value;
 }
 
-void PathRequest::SetMinimumDistance(int value) {
+void PathRequest::SetMinimumDistance(int32_t value) {
     AiLog log("Minimum distance: %i.", value);
 
     minimum_distance = value;
 }
 
-void PathRequest::SetCautionLevel(int value) {
+void PathRequest::SetCautionLevel(int32_t value) {
     AiLog log("Caution level: %s.", PathRequest_CautionLevels[value]);
 
     caution_level = value;
@@ -104,21 +104,21 @@ void PathRequest::CreateTransport(ResourceID unit_type) {
     }
 }
 
-unsigned char PathRequest::GetFlags() const { return flags; }
+uint8_t PathRequest::GetFlags() const { return flags; }
 
-unsigned short PathRequest::GetMaxCost() const { return max_cost; }
+uint16_t PathRequest::GetMaxCost() const { return max_cost; }
 
-unsigned char PathRequest::GetBoardTransport() const { return board_transport; }
+uint8_t PathRequest::GetBoardTransport() const { return board_transport; }
 
-unsigned short PathRequest::GetMinimumDistance() const { return minimum_distance; }
+uint16_t PathRequest::GetMinimumDistance() const { return minimum_distance; }
 
 void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
     Point destination(unit->target_grid_x, unit->target_grid_y);
     SmartObjectArray<PathStep> steps = path->GetSteps();
     SmartPointer<GroundPath> ground_path(new (std::nothrow) GroundPath(destination.x, destination.y));
-    int range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+    int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
     Point position(unit->grid_x, unit->grid_y);
-    int index;
+    int32_t index;
 
     range = range * range;
 
@@ -147,7 +147,7 @@ void PathRequest::Finish(GroundPath* path) {
         (client->orders == ORDER_MOVE || client->orders == ORDER_MOVE_TO_UNIT || client->orders == ORDER_BUILD ||
          client->orders == ORDER_MOVE_TO_ATTACK) &&
         (client->state == ORDER_STATE_NEW_ORDER || client->state == ORDER_STATE_29)) {
-        unsigned char unit1_order_state = client->state;
+        uint8_t unit1_order_state = client->state;
 
         client->path = path;
 
@@ -157,7 +157,7 @@ void PathRequest::Finish(GroundPath* path) {
 
         if (client->path == nullptr) {
             if (client->orders == ORDER_MOVE_TO_ATTACK) {
-                int range = client->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+                int32_t range = client->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                 range = range * range;
 

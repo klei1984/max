@@ -32,7 +32,7 @@
 #include "tasktransport.hpp"
 #include "units_manager.hpp"
 
-TaskAssistMove::TaskAssistMove(unsigned short team_) : Task(team_, nullptr, 0x2800) {}
+TaskAssistMove::TaskAssistMove(uint16_t team_) : Task(team_, nullptr, 0x2800) {}
 
 TaskAssistMove::~TaskAssistMove() {}
 
@@ -105,7 +105,7 @@ char* TaskAssistMove::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskAssistMove::GetType() const { return TaskType_TaskAssistMove; }
+uint8_t TaskAssistMove::GetType() const { return TaskType_TaskAssistMove; }
 
 void TaskAssistMove::AddUnit(UnitInfo& unit) {
     if (unit.unit_type == AIRTRANS || unit.unit_type == SEATRANS || unit.unit_type == CLNTRANS) {
@@ -117,8 +117,8 @@ void TaskAssistMove::AddUnit(UnitInfo& unit) {
 
 void TaskAssistMove::BeginTurn() {
     SmartPointer<UnitInfo> local_unit;
-    int unit_count_transport = 0;
-    int unit_count_client = 0;
+    int32_t unit_count_transport = 0;
+    int32_t unit_count_client = 0;
     bool is_found;
 
     if (Builder_IsBuildable(AIRTRANS)) {
@@ -216,8 +216,8 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
     UnitInfo* UnitInfo_object2 = nullptr;
     Point Point_object1;
     Point Point_object2;
-    int distance;
-    int minimum_distance{INT32_MAX};
+    int32_t distance;
+    int32_t minimum_distance{INT32_MAX};
     bool result;
 
     if (unit.IsReadyForOrders(this)) {

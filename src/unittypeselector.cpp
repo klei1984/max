@@ -28,13 +28,13 @@
 
 EVENTS_REGISTER_EVENT(UnitSelectEvent);
 
-EventUnitSelect::EventUnitSelect(UnitTypeSelector* selector, short value) : selector(selector), value(value) {}
-unsigned short EventUnitSelect::GetEventId() const { return EVENTS_GET_EVENT_ID(UnitSelectEvent); }
+EventUnitSelect::EventUnitSelect(UnitTypeSelector* selector, int16_t value) : selector(selector), value(value) {}
+uint16_t EventUnitSelect::GetEventId() const { return EVENTS_GET_EVENT_ID(UnitSelectEvent); }
 UnitTypeSelector* EventUnitSelect::GetSelector() const { return selector; }
 bool EventUnitSelect::GetValue() const { return value; }
 
 UnitTypeSelector::UnitTypeSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
-                                   unsigned short team, int key_code, Button* button_scroll_up,
+                                   uint16_t team, int32_t key_code, Button* button_scroll_up,
                                    Button* button_scroll_down)
     : window(window),
       window_info(*window_info),
@@ -45,8 +45,8 @@ UnitTypeSelector::UnitTypeSelector(Window* window, WindowInfo* window_info, Smar
       team(team),
       page_min_index(0),
       page_max_index(0) {
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
 
     button_scroll_up->SetRValue(this->key_code);
     button_scroll_up->SetPValue(GNW_INPUT_PRESS);
@@ -63,7 +63,7 @@ UnitTypeSelector::UnitTypeSelector(Window* window, WindowInfo* window_info, Smar
     width = this->window_info.window.lrx - this->window_info.window.ulx;
     height = max_item_count * 32;
 
-    for (int i = 0; i < max_item_count; ++i) {
+    for (int32_t i = 0; i < max_item_count; ++i) {
         button_group.Add(win_register_button(this->window_info.id, this->window_info.window.ulx,
                                              this->window_info.window.uly + i * 32, width, 32, -1, -1, -1,
                                              this->key_code + 2 + i, nullptr, nullptr, nullptr, 0x00));
@@ -95,7 +95,7 @@ ResourceID UnitTypeSelector::GetLast() {
     return unit_type;
 }
 
-void UnitTypeSelector::ScrollTo(int index) {
+void UnitTypeSelector::ScrollTo(int32_t index) {
     if (index < page_min_index) {
         page_min_index = index;
     }
@@ -132,7 +132,7 @@ void UnitTypeSelector::AddItems(SmartObjectArray<ResourceID> array) {
     }
 }
 
-void UnitTypeSelector::Add(ResourceID unit_type, int position) {
+void UnitTypeSelector::Add(ResourceID unit_type, int32_t position) {
     if (unit_types.GetCount() < position) {
         position = unit_types.GetCount();
     }
@@ -162,11 +162,11 @@ void UnitTypeSelector::RemoveLast() {
     }
 }
 
-bool UnitTypeSelector::ProcessKeys(int key_press) {
+bool UnitTypeSelector::ProcessKeys(int32_t key_press) {
     bool result;
 
     if ((key_code + 2) <= key_press && (key_code + 2 + max_item_count) > key_press) {
-        int position;
+        int32_t position;
 
         position = key_press + page_min_index - 2 - key_code;
 
@@ -208,9 +208,9 @@ bool UnitTypeSelector::ProcessKeys(int key_press) {
 
         result = true;
     } else if (key_press == GNW_KB_KEY_PAGEDOWN || key_code + 1 == key_press) {
-        int time_stamp;
+        int32_t time_stamp;
 
-        for (int i = 0; i < max_item_count; ++i) {
+        for (int32_t i = 0; i < max_item_count; ++i) {
             time_stamp = timer_get();
             ++page_min_index;
 
@@ -227,9 +227,9 @@ bool UnitTypeSelector::ProcessKeys(int key_press) {
 
         result = true;
     } else if (key_press == GNW_KB_KEY_PAGEUP || key_code == key_press) {
-        int time_stamp;
+        int32_t time_stamp;
 
-        for (int i = 0; i < max_item_count && page_min_index > 0; ++i) {
+        for (int32_t i = 0; i < max_item_count && page_min_index > 0; ++i) {
             time_stamp = timer_get();
             --page_min_index;
 
@@ -251,7 +251,7 @@ bool UnitTypeSelector::ProcessKeys(int key_press) {
     return result;
 }
 
-void UnitTypeSelector::Select(unsigned char value) {
+void UnitTypeSelector::Select(uint8_t value) {
     EventUnitSelect event(this, value);
     SoundManager.PlaySfx(KCARG0);
     window->EventHandler(&event);
@@ -260,7 +260,7 @@ void UnitTypeSelector::Select(unsigned char value) {
 void UnitTypeSelector::PushBack(ResourceID unit_type) { Add(unit_type, unit_types.GetCount()); }
 
 void UnitTypeSelector::Draw() {
-    int width;
+    int32_t width;
 
     width = window_info.window.lrx - window_info.window.ulx;
 
@@ -268,15 +268,15 @@ void UnitTypeSelector::Draw() {
                window_info.width);
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    for (int i = 0; i < max_item_count && i + page_min_index < unit_types.GetCount(); ++i) {
+    for (int32_t i = 0; i < max_item_count && i + page_min_index < unit_types.GetCount(); ++i) {
         ReportStats_DrawListItem(window_info.buffer, window_info.width, *unit_types[page_min_index + i], 0, i * 32,
                                  width, 0xA2);
     }
 
     if (unit_types.GetCount() && (page_max_index >= page_min_index) &&
         (page_max_index < (page_min_index + max_item_count))) {
-        int height;
-        unsigned int flags;
+        int32_t height;
+        uint32_t flags;
 
         height = (page_max_index - page_min_index) * 32;
         flags = UnitsManager_BaseUnits[*unit_types[page_max_index]].flags;
@@ -300,4 +300,4 @@ void UnitTypeSelector::Draw() {
     win_draw_rect(window_info.id, &window_info.window);
 }
 
-int UnitTypeSelector::GetPageMaxIndex() const { return page_max_index; }
+int32_t UnitTypeSelector::GetPageMaxIndex() const { return page_max_index; }

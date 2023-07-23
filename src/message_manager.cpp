@@ -28,8 +28,8 @@
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
 
-static_assert(sizeof(Point) == 4, "It is expected that Point is exactly 2+2 bytes long.");
-static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte long.");
+static_assert(sizeof(Point) == 4, "It is expected that Point is exactly 2+2 bytes int32_t.");
+static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte int32_t.");
 
 #define MESSAGE_MANAGER_MAX_COUNT 50
 #define MESSAGE_MANAGER_MESSAGE_BUFFER_SIZE 800
@@ -38,9 +38,9 @@ static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte lon
 char MessageManager_MessageBuffer[MESSAGE_MANAGER_MESSAGE_BUFFER_SIZE];
 char MessageManager_TextBuffer[MESSAGE_MANAGER_TEXT_BUFFER_SIZE];
 
-short MessageManager_Buffer1_Length;
-short MessageManager_MessageBox_Width;
-short MessageManager_MessageBox_Height;
+int16_t MessageManager_Buffer1_Length;
+int16_t MessageManager_MessageBox_Width;
+int16_t MessageManager_MessageBox_Height;
 ColorIndex* MessageManager_MessageBox_BgColor;
 bool MessageManager_MessageBox_IsActive;
 
@@ -49,9 +49,9 @@ ColorIndex** MessageManager_MessageBox_BgColorArray[] = {
 
 SmartList<MessageLogEntry> MessageManager_TeamMessageLog[PLAYER_TEAM_MAX - 1];
 
-void MessageManager_WrapText(const char* text, short width) {
-    int position = 0;
-    short row_width = 0;
+void MessageManager_WrapText(const char* text, int16_t width) {
+    int32_t position = 0;
+    int16_t row_width = 0;
     char* buffer = MessageManager_MessageBuffer;
     char local_text[2];
 
@@ -74,7 +74,7 @@ void MessageManager_WrapText(const char* text, short width) {
         } else {
             local_text[0] = text[position];
 
-            short char_width = Text_GetWidth(local_text);
+            int16_t char_width = Text_GetWidth(local_text);
 
             if ((row_width + char_width) > width) {
                 char* line_buffer = &MessageManager_MessageBuffer[MessageManager_Buffer1_Length];
@@ -107,10 +107,10 @@ void MessageManager_WrapText(const char* text, short width) {
     MessageManager_MessageBox_Height += 10;
 }
 
-void MessageManager_DrawMessageBoxText(unsigned char* buffer, int width, int left_margin, int top_margin, char* text,
-                                       int color, bool monospace) {
-    int flags;
-    int offset;
+void MessageManager_DrawMessageBoxText(uint8_t* buffer, int32_t width, int32_t left_margin, int32_t top_margin, char* text,
+                                       int32_t color, bool monospace) {
+    int32_t flags;
+    int32_t offset;
 
     offset = 0;
     Text_SetFont(GNW_TEXT_FONT_5);
@@ -155,7 +155,7 @@ void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Poi
     }
 }
 
-void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag1, bool save_to_log) {
+void MessageManager_DrawMessage(const char* text, char type, int32_t mode, bool flag1, bool save_to_log) {
     if (*text != '\0') {
         if (mode) {
             DialogMenu dialog(text, flag1);
@@ -163,9 +163,9 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
         } else {
             WindowInfo* window_message_box;
             WindowInfo* window_main_map;
-            int width;
-            int offset_x;
-            int offset_y;
+            int32_t width;
+            int32_t offset_x;
+            int32_t offset_y;
             Rect bounds;
 
             if (MessageManager_MessageBox_IsActive) {
@@ -218,9 +218,9 @@ void MessageManager_DrawMessage(const char* text, char type, int mode, bool flag
 
 void MessageManager_DrawMessageBox() {
     WindowInfo* window;
-    int height;
-    int fullw;
-    int row;
+    int32_t height;
+    int32_t fullw;
+    int32_t row;
 
     window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
@@ -250,10 +250,10 @@ void MessageManager_ClearMessageBox() {
     MessageManager_MessageBox_IsActive = false;
 }
 
-void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, int width, int left_margin,
-                                    int top_margin, char* text, int color, bool screen_refresh) {
-    int text_position = 0;
-    int buffer_position = 0;
+void MessageManager_DrawTextMessage(WindowInfo* window, uint8_t* buffer, int32_t width, int32_t left_margin,
+                                    int32_t top_margin, char* text, int32_t color, bool screen_refresh) {
+    int32_t text_position = 0;
+    int32_t buffer_position = 0;
 
     do {
         if (text[text_position] == '\n') {
@@ -277,10 +277,10 @@ void MessageManager_DrawTextMessage(WindowInfo* window, unsigned char* buffer, i
 }
 
 void MessageManager_LoadMessageLogs(SmartFileReader& file) {
-    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
+    for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         MessageManager_TeamMessageLog[i].Clear();
 
-        for (int count = file.ReadObjectCount(); count > 0; --count) {
+        for (int32_t count = file.ReadObjectCount(); count > 0; --count) {
             MessageManager_TeamMessageLog[i].PushBack(
                 *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(file)));
         }
@@ -288,7 +288,7 @@ void MessageManager_LoadMessageLogs(SmartFileReader& file) {
 }
 
 void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
-    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
+    for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         file.WriteObjectCount(MessageManager_TeamMessageLog[i].GetCount());
 
         for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[i].Begin();
@@ -299,13 +299,13 @@ void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
 }
 
 void MessageManager_ClearMessageLogs() {
-    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
+    for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         MessageManager_TeamMessageLog[i].Clear();
     }
 }
 
 MessageLogEntry::MessageLogEntry(SmartFileReader& file) {
-    unsigned short length;
+    uint16_t length;
 
     file.Read(length);
     text = new (std::nothrow) char[length];
@@ -325,7 +325,7 @@ MessageLogEntry::MessageLogEntry(const char* text, UnitInfo* unit, Point point)
 MessageLogEntry::~MessageLogEntry() { delete text; }
 
 void MessageLogEntry::FileSave(SmartFileWriter& file) {
-    unsigned short length = strlen(text) + 1;
+    uint16_t length = strlen(text) + 1;
 
     file.Write(length);
     file.Write(text, length);

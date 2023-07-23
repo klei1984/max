@@ -26,22 +26,22 @@
 #include "smartfile.hpp"
 
 class UnitValues : public FileObject {
-    unsigned short turns;
-    unsigned short hits;
-    unsigned short armor;
-    unsigned short attack;
-    unsigned short speed;
-    unsigned short fuel;
-    unsigned short range;
-    unsigned short rounds;
-    unsigned char move_and_fire;
-    unsigned short scan;
-    unsigned short storage;
-    unsigned short ammo;
-    unsigned short attack_radius;
-    unsigned short agent_adjust;
-    unsigned short version;
-    unsigned char units_built;
+    uint16_t turns;
+    uint16_t hits;
+    uint16_t armor;
+    uint16_t attack;
+    uint16_t speed;
+    uint16_t fuel;
+    uint16_t range;
+    uint16_t rounds;
+    uint8_t move_and_fire;
+    uint16_t scan;
+    uint16_t storage;
+    uint16_t ammo;
+    uint16_t attack_radius;
+    uint16_t agent_adjust;
+    uint16_t version;
+    uint8_t units_built;
 
 public:
     UnitValues();
@@ -49,16 +49,16 @@ public:
     ~UnitValues();
 
     static FileObject* Allocate();
-    int GetAttribute(char attribute);
-    unsigned short* GetAttributeAddress(char attribute);
-    void SetAttribute(char attribute, int value);
-    void AddAttribute(char attribute, int value);
+    int32_t GetAttribute(char attribute);
+    uint16_t* GetAttributeAddress(char attribute);
+    void SetAttribute(char attribute, int32_t value);
+    void AddAttribute(char attribute, int32_t value);
     void UpdateVersion();
-    int GetVersion() const;
-    int GetAgentSkill() const;
-    void SetUnitsBuilt(unsigned char count);
+    int32_t GetVersion() const;
+    int32_t GetAgentSkill() const;
+    void SetUnitsBuilt(uint8_t count);
 
-    unsigned short GetTypeIndex() const;
+    uint16_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
 

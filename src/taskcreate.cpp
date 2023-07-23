@@ -23,7 +23,7 @@
 
 #include "task_manager.hpp"
 
-TaskCreate::TaskCreate(Task* task, unsigned short flags, ResourceID unit_type_)
+TaskCreate::TaskCreate(Task* task, uint16_t flags, ResourceID unit_type_)
     : Task(task->GetTeam(), task, flags), unit_type(unit_type_) {}
 
 TaskCreate::TaskCreate(Task* task, UnitInfo* unit_) : Task(unit_->team, task, task->GetFlags()), builder(unit_) {

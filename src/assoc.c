@@ -30,11 +30,11 @@ static void* default_malloc(size_t t);
 static void* default_realloc(void* p, size_t t);
 static void default_free(void* p);
 
-static int assoc_find(assoc_array* a, char* name, int* position);
-static int assoc_read_long(FILE* fp, long* theLong);
-static int assoc_read_assoc_array(FILE* fp, assoc_array* a);
-static int assoc_write_long(FILE* fp, long theLong);
-static int assoc_write_assoc_array(FILE* fp, assoc_array* a);
+static int32_t assoc_find(assoc_array* a, char* name, int32_t* position);
+static int32_t assoc_read_long(FILE* fp, int32_t* theLong);
+static int32_t assoc_read_assoc_array(FILE* fp, assoc_array* a);
+static int32_t assoc_write_long(FILE* fp, int32_t theLong);
+static int32_t assoc_write_assoc_array(FILE* fp, assoc_array* a);
 
 static assoc_malloc_func internal_malloc = default_malloc;
 static assoc_realloc_func internal_realloc = default_realloc;
@@ -46,11 +46,11 @@ void* default_realloc(void* p, size_t t) { return realloc(p, t); }
 
 void default_free(void* p) { free(p); }
 
-int assoc_find(assoc_array* a, char* name, int* position) {
-    int i;
-    int j;
-    int min;
-    int max;
+int32_t assoc_find(assoc_array* a, char* name, int32_t* position) {
+    int32_t i;
+    int32_t j;
+    int32_t min;
+    int32_t max;
 
     if (a->init_flag != 0xFEBAFEBA) {
         return -1;
@@ -97,9 +97,9 @@ int assoc_find(assoc_array* a, char* name, int* position) {
     return -1;
 }
 
-int assoc_read_long(FILE* fp, long* theLong) {
-    long temp;
-    int c;
+int32_t assoc_read_long(FILE* fp, int32_t* theLong) {
+    int32_t temp;
+    int32_t c;
 
     c = fgetc(fp);
 
@@ -127,8 +127,8 @@ int assoc_read_long(FILE* fp, long* theLong) {
     return -1;
 }
 
-int assoc_read_assoc_array(FILE* fp, assoc_array* a) {
-    long temp;
+int32_t assoc_read_assoc_array(FILE* fp, assoc_array* a) {
+    int32_t temp;
 
     if (!assoc_read_long(fp, &temp)) {
         a->size = temp;
@@ -148,8 +148,8 @@ int assoc_read_assoc_array(FILE* fp, assoc_array* a) {
     return -1;
 }
 
-int assoc_write_long(FILE* fp, long theLong) {
-    int result;
+int32_t assoc_write_long(FILE* fp, int32_t theLong) {
+    int32_t result;
 
     if (fputc(theLong >> 24, fp) == -1 || fputc(theLong >> 16, fp) == -1 || fputc(theLong >> 8, fp) == -1 ||
         fputc(theLong, fp) == -1) {
@@ -161,11 +161,11 @@ int assoc_write_long(FILE* fp, long theLong) {
     return result;
 }
 
-int assoc_write_assoc_array(FILE* fp, assoc_array* a) {
-    int result;
+int32_t assoc_write_assoc_array(FILE* fp, assoc_array* a) {
+    int32_t result;
 
     if (assoc_write_long(fp, a->size) || assoc_write_long(fp, a->max) || assoc_write_long(fp, a->datasize) ||
-        assoc_write_long(fp, (long)a->list)) {
+        assoc_write_long(fp, (int32_t)a->list)) {
         result = -1;
     } else {
         result = 0;
@@ -174,8 +174,8 @@ int assoc_write_assoc_array(FILE* fp, assoc_array* a) {
     return result;
 }
 
-int assoc_init(assoc_array* a, int n, size_t datasize, assoc_func_list* assoc_funcs) {
-    int result;
+int32_t assoc_init(assoc_array* a, int32_t n, size_t datasize, assoc_func_list* assoc_funcs) {
+    int32_t result;
 
     result = 0;
     a->size = 0;
@@ -209,8 +209,8 @@ int assoc_init(assoc_array* a, int n, size_t datasize, assoc_func_list* assoc_fu
     return result;
 }
 
-int assoc_resize(assoc_array* a, int n) {
-    int result;
+int32_t assoc_resize(assoc_array* a, int32_t n) {
+    int32_t result;
     assoc_pair* new_list;
 
     if ((a->init_flag == 0xFEBAFEBA) && (n >= a->size) &&
@@ -226,9 +226,9 @@ int assoc_resize(assoc_array* a, int n) {
     return result;
 }
 
-int assoc_free(assoc_array* a) {
-    int result;
-    int i;
+int32_t assoc_free(assoc_array* a) {
+    int32_t result;
+    int32_t i;
 
     if (a->init_flag == 0xFEBAFEBA) {
         for (i = 0; i < a->size; i++) {
@@ -255,9 +255,9 @@ int assoc_free(assoc_array* a) {
     return result;
 }
 
-int assoc_search(assoc_array* a, char* name) {
-    int result;
-    int position;
+int32_t assoc_search(assoc_array* a, char* name) {
+    int32_t result;
+    int32_t position;
 
     if ((a->init_flag != 0xFEBAFEBA) || assoc_find(a, name, &position)) {
         result = -1;
@@ -268,10 +268,10 @@ int assoc_search(assoc_array* a, char* name) {
     return result;
 }
 
-int assoc_insert(assoc_array* a, char* name, void* data) {
+int32_t assoc_insert(assoc_array* a, char* name, void* data) {
     void* tdata;
-    int i;
-    int position;
+    int32_t i;
+    int32_t position;
     char* tname;
 
     if ((a->init_flag != 0xFEBAFEBA) || !assoc_find(a, name, &position)) {
@@ -318,10 +318,10 @@ int assoc_insert(assoc_array* a, char* name, void* data) {
     return 0;
 }
 
-int assoc_delete(assoc_array* a, char* name) {
-    int result;
-    int position;
-    int i;
+int32_t assoc_delete(assoc_array* a, char* name) {
+    int32_t result;
+    int32_t position;
+    int32_t i;
 
     if (a->init_flag != 0xFEBAFEBA || assoc_find(a, name, &position) == -1) {
         result = -1;
@@ -344,9 +344,9 @@ int assoc_delete(assoc_array* a, char* name) {
     return result;
 }
 
-int assoc_copy(assoc_array* dst, assoc_array* src) {
-    int result;
-    int i;
+int32_t assoc_copy(assoc_array* dst, assoc_array* src) {
+    int32_t result;
+    int32_t i;
 
     if (src->init_flag == 0xFEBAFEBA) {
         if (!assoc_init(dst, src->max, src->datasize, &src->load_save_funcs)) {
@@ -365,8 +365,8 @@ int assoc_copy(assoc_array* dst, assoc_array* src) {
     return result;
 }
 
-int assoc_find_first(assoc_array* a, char* name, int find_num) {
-    int result;
+int32_t assoc_find_first(assoc_array* a, char* name, int32_t find_num) {
+    int32_t result;
     size_t find_len;
     char* str;
 
@@ -402,9 +402,9 @@ int assoc_find_first(assoc_array* a, char* name, int find_num) {
     return result;
 }
 
-int assoc_load(FILE* fp, assoc_array* a, int flags) {
-    int len;
-    int i;
+int32_t assoc_load(FILE* fp, assoc_array* a, int32_t flags) {
+    int32_t len;
+    int32_t i;
 
     if (a->init_flag != 0xFEBAFEBA) {
         return -1;
@@ -484,10 +484,10 @@ int assoc_load(FILE* fp, assoc_array* a, int flags) {
     return -1;
 }
 
-int assoc_save(FILE* fp, assoc_array* a, int flags) {
-    int result;
+int32_t assoc_save(FILE* fp, assoc_array* a, int32_t flags) {
+    int32_t result;
     size_t len;
-    int i;
+    int32_t i;
 
     if (a->init_flag != 0xFEBAFEBA || assoc_write_assoc_array(fp, a)) {
         result = -1;

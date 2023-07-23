@@ -34,11 +34,11 @@ class TaskCheckAssaults : public Task {
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskCheckAssaults(unsigned short team);
+    TaskCheckAssaults(uint16_t team);
     ~TaskCheckAssaults();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsThinking();
     void BeginTurn();
     void EndTurn();

@@ -29,12 +29,12 @@ class UnitInfo;
 struct Cargo {
     Cargo();
 
-    short gold;
-    short raw;
-    short fuel;
-    short power;
-    short life;
-    short free_capacity;
+    int16_t gold;
+    int16_t raw;
+    int16_t fuel;
+    int16_t power;
+    int16_t life;
+    int16_t free_capacity;
 
     void Init();
 
@@ -45,18 +45,18 @@ struct Cargo {
     Cargo& operator+=(Cargo const& other);
     Cargo& operator-=(Cargo const& other);
 
-    int Get(int type) const;
+    int32_t Get(int32_t type) const;
 };
 
 Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo);
 Cargo* Cargo_GetCargoCapacity(UnitInfo* unit, Cargo* cargo);
 Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order = false);
 
-int Cargo_GetRawConsumptionRate(ResourceID unit_type, int speed_multiplier);
-int Cargo_GetFuelConsumptionRate(ResourceID unit_type);
-int Cargo_GetPowerConsumptionRate(ResourceID unit_type);
-int Cargo_GetLifeConsumptionRate(ResourceID unit_type);
-int Cargo_GetGoldConsumptionRate(ResourceID unit_type);
-void Cargo_UpdateResourceLevels(UnitInfo* unit, int factor);
+int32_t Cargo_GetRawConsumptionRate(ResourceID unit_type, int32_t speed_multiplier);
+int32_t Cargo_GetFuelConsumptionRate(ResourceID unit_type);
+int32_t Cargo_GetPowerConsumptionRate(ResourceID unit_type);
+int32_t Cargo_GetLifeConsumptionRate(ResourceID unit_type);
+int32_t Cargo_GetGoldConsumptionRate(ResourceID unit_type);
+void Cargo_UpdateResourceLevels(UnitInfo* unit, int32_t factor);
 
 #endif /* CARGO_HPP */

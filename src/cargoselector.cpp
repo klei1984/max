@@ -30,7 +30,7 @@
 #include "units_manager.hpp"
 
 CargoSelector::CargoSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
-                             SmartObjectArray<unsigned short> cargos, unsigned short team, int key_code,
+                             SmartObjectArray<uint16_t> cargos, uint16_t team, int32_t key_code,
                              Button* button_scroll_up, Button* button_scroll_down)
     : UnitTypeSelector(window, window_info, unit_types, team, key_code, button_scroll_up, button_scroll_down),
       cargos(cargos),
@@ -38,8 +38,8 @@ CargoSelector::CargoSelector(Window* window, WindowInfo* window_info, SmartObjec
 
 CargoSelector::~CargoSelector() {}
 
-void CargoSelector::Add(ResourceID unit_type, int position) {
-    unsigned short value;
+void CargoSelector::Add(ResourceID unit_type, int32_t position) {
+    uint16_t value;
 
     if (unit_types.GetCount() < position) {
         position = unit_types.GetCount();
@@ -59,19 +59,19 @@ void CargoSelector::RemoveLast() {
 }
 
 void CargoSelector::Draw() {
-    int width;
+    int32_t width;
     char text[200];
     char text2[50];
-    int index;
-    int storage;
-    int cargo;
+    int32_t index;
+    int32_t storage;
+    int32_t cargo;
 
     width = window_info.window.lrx - window_info.window.ulx;
 
     buf_to_buf(&image->transparent_color, image->width, image->height, image->width, window_info.buffer,
                window_info.width);
 
-    for (int i = 0; i < max_item_count && (page_min_index + i) < unit_types.GetCount(); ++i) {
+    for (int32_t i = 0; i < max_item_count && (page_min_index + i) < unit_types.GetCount(); ++i) {
         ResourceID unit_type;
 
         unit_type = *unit_types[page_min_index + i];
@@ -83,7 +83,7 @@ void CargoSelector::Draw() {
 
         index = 1;
 
-        for (int j = 0; j < (page_min_index + i); ++j) {
+        for (int32_t j = 0; j < (page_min_index + i); ++j) {
             if (unit_type == *unit_types[j]) {
                 ++index;
             }
@@ -127,7 +127,7 @@ void CargoSelector::Draw() {
 
     if (page_max_index >= page_min_index && page_max_index < max_item_count + page_min_index) {
         BaseUnit* unit;
-        int height;
+        int32_t height;
 
         unit = &UnitsManager_BaseUnits[*unit_types[page_max_index]];
         height = 32 * (page_max_index - page_min_index);

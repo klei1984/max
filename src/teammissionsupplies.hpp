@@ -29,12 +29,12 @@
 class TeamMissionSupplies {
 public:
     SmartObjectArray<ResourceID> units;
-    SmartObjectArray<unsigned short> cargos;
+    SmartObjectArray<uint16_t> cargos;
 
     Point starting_position;
-    unsigned int field_12;
-    unsigned short team_gold;
-    unsigned char proximity_alert_ack;
+    uint32_t field_12;
+    uint16_t team_gold;
+    uint8_t proximity_alert_ack;
 
     TeamMissionSupplies();
     ~TeamMissionSupplies();

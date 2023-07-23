@@ -45,16 +45,16 @@ struct BaseUnitDataFile {
 static_assert(sizeof(struct BaseUnitDataFile) == 24, "The structure needs to be packed.");
 
 struct AbstractUnit {
-    AbstractUnit(unsigned int flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
+    AbstractUnit(uint32_t flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                  ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
-                 unsigned char cargo_type, unsigned char land_type, char new_gender, const char* singular_name,
+                 uint8_t cargo_type, uint8_t land_type, char new_gender, const char* singular_name,
                  const char* plural_name, const char* description, const char* tutorial = "");
 
-    unsigned int flags;
+    uint32_t flags;
 
     ResourceID data;
 
-    unsigned int field_6;
+    uint32_t field_6;
 
     ResourceID flics;
     ResourceID portrait;
@@ -62,9 +62,9 @@ struct AbstractUnit {
     ResourceID armory_portrait;
     ResourceID field_18;
 
-    unsigned char land_type;
-    unsigned char cargo_type;
-    unsigned char gender;
+    uint8_t land_type;
+    uint8_t cargo_type;
+    uint8_t gender;
 
     const char* singular_name;
     const char* plural_name;
@@ -79,33 +79,33 @@ struct BaseUnit {
     BaseUnit();
     void Init(AbstractUnit* unit);
 
-    unsigned int flags;
+    uint32_t flags;
     ResourceID data;
-    unsigned char* data_buffer;
+    uint8_t* data_buffer;
     ResourceID flics;
     ResourceID portrait;
     ResourceID icon;
     ResourceID armory_portrait;
     ResourceID field_18;
-    unsigned char land_type;
-    unsigned char cargo_type;
-    unsigned char gender;
+    uint8_t land_type;
+    uint8_t cargo_type;
+    uint8_t gender;
     const char* singular_name;
     const char* plural_name;
     const char* description;
     const char* tutorial;
-    unsigned char* sprite;
-    unsigned char* shadows;
+    uint8_t* sprite;
+    uint8_t* shadows;
     char* field_47;
 };
 
 class TeamUnits {
-    unsigned short gold;
+    uint16_t gold;
     SmartPointer<UnitValues> base_values[UNIT_END];
     SmartPointer<UnitValues> current_values[UNIT_END];
     SmartList<Complex> complexes;
 
-    static int GetParam(char* string, int* offset);
+    static int32_t GetParam(char* string, int32_t* offset);
 
 public:
     TeamUnits();
@@ -116,31 +116,31 @@ public:
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
 
-    void WriteComplexPacket(unsigned short complex_id, NetPacket& packet);
+    void WriteComplexPacket(uint16_t complex_id, NetPacket& packet);
     void ReadComplexPacket(NetPacket& packet);
 
-    unsigned short GetGold();
-    void SetGold(unsigned short value);
+    uint16_t GetGold();
+    void SetGold(uint16_t value);
 
     Complex* CreateComplex();
     SmartList<Complex>& GetComplexes();
-    Complex* GetComplex(unsigned short complex_id);
-    void OptimizeComplexes(unsigned short team);
+    Complex* GetComplex(uint16_t complex_id);
+    void OptimizeComplexes(uint16_t team);
     void RemoveComplex(Complex& object);
     void ClearComplexes();
 
-    UnitValues* GetBaseUnitValues(unsigned short id);
-    void SetBaseUnitValues(unsigned short id, UnitValues& object);
+    UnitValues* GetBaseUnitValues(uint16_t id);
+    void SetBaseUnitValues(uint16_t id, UnitValues& object);
 
-    UnitValues* GetCurrentUnitValues(unsigned short id);
-    void SetCurrentUnitValues(unsigned short id, UnitValues& object);
+    UnitValues* GetCurrentUnitValues(uint16_t id);
+    void SetCurrentUnitValues(uint16_t id, UnitValues& object);
 
-    unsigned short hash_team_id;
+    uint16_t hash_team_id;
     ColorIndex* color_index_table;
 };
 
-int TeamUnits_GetUpgradeCost(unsigned short team, ResourceID unit_type, int attribute);
-int TeamUnits_UpgradeOffsetFactor(unsigned short team, ResourceID unit_type, int attribute);
+int32_t TeamUnits_GetUpgradeCost(uint16_t team, ResourceID unit_type, int32_t attribute);
+int32_t TeamUnits_UpgradeOffsetFactor(uint16_t team, ResourceID unit_type, int32_t attribute);
 
 extern TeamUnits ResourceManager_TeamUnitsRed;
 extern TeamUnits ResourceManager_TeamUnitsGreen;

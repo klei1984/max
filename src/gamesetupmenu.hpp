@@ -30,37 +30,37 @@
 class GameSetupMenu;
 
 struct GameSetupMenuItem {
-    int r_value;
-    int event_code;
+    int32_t r_value;
+    int32_t event_code;
     void (GameSetupMenu::*event_handler)();
 };
 
 class GameSetupMenu {
-    void ButtonInit(int index);
+    void ButtonInit(int32_t index);
     void DrawMissionList();
     void LoadMissionDescription();
     void DrawMissionDescription();
-    void DrawSaveFileTitle(int game_slot, int color);
+    void DrawSaveFileTitle(int32_t game_slot, int32_t color);
     void DrawDescriptionPanel();
-    int FindNextValidFile(int game_slot);
+    int32_t FindNextValidFile(int32_t game_slot);
 
 public:
     WindowInfo *window;
     bool event_click_done;
     bool event_click_cancel;
-    int key;
+    int32_t key;
     Button *buttons[GAME_SETUP_MENU_ITEM_COUNT];
     GameSetupMenuItem menu_item[GAME_SETUP_MENU_ITEM_COUNT];
-    int game_index_first_on_page;
-    int game_count;
-    int game_file_number;
-    int game_file_type;
+    int32_t game_index_first_on_page;
+    int32_t game_count;
+    int32_t game_file_number;
+    int32_t game_file_type;
     SmartString *strings;
-    int string_row_count;
-    short string_row_index;
-    short rows_per_page;
+    int32_t string_row_count;
+    int16_t string_row_index;
+    int16_t rows_per_page;
 
-    void Init(int palette_from_image);
+    void Init(int32_t palette_from_image);
     void Deinit();
     void EventSelectItem();
     void EventScrollButton();

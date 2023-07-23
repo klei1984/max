@@ -35,8 +35,8 @@ enum {
 
 class TaskMove : public Task {
     SmartPointer<UnitInfo> passenger;
-    unsigned short minimum_distance;
-    unsigned char caution_level;
+    uint16_t minimum_distance;
+    uint8_t caution_level;
     Point passenger_waypoint;
     Point transport_waypoint;
     Point destination_waypoint;
@@ -48,13 +48,13 @@ class TaskMove : public Task {
     bool field_68;
     bool field_69;
     bool field_70;
-    unsigned char path_result;
+    uint8_t path_result;
 
     void AttemptTransport();
     void AttemptTransportType(ResourceID unit_type);
     void FindWaypointUsingTransport();
     void Search(bool mode);
-    void Finished(int result);
+    void Finished(int32_t result);
     void ProcessPath(Point site, GroundPath* path);
     void RetryMove();
     void FindTransport(ResourceID unit_type);
@@ -67,26 +67,26 @@ class TaskMove : public Task {
     void MoveUnit(GroundPath* path);
 
     static void PathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                   unsigned char result);
+                                   uint8_t result);
     static void FullPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                       unsigned char result);
+                                       uint8_t result);
     static void DirectPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                         unsigned char result);
+                                         uint8_t result);
     static void BlockedPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                          unsigned char result);
+                                          uint8_t result);
     static void ActualPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
-                                         unsigned char result);
+                                         uint8_t result);
     static void PathCancelCallback(Task* task, PathRequest* path_request);
 
 public:
-    TaskMove(UnitInfo* unit, Task* task, unsigned short minimum_distance, unsigned char caution_level,
+    TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance, uint8_t caution_level,
              Point destination, void (*result_callback)(Task* task, UnitInfo* unit, char result));
     TaskMove(UnitInfo* unit, void (*result_callback)(Task* task, UnitInfo* unit, char result));
     ~TaskMove();
 
-    int GetCautionLevel(UnitInfo& unit);
+    int32_t GetCautionLevel(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
     void Begin();
     void BeginTurn();
@@ -106,7 +106,7 @@ public:
     void RemoveTransport();
     bool IsReadyForTransport();
 
-    static UnitInfo* FindUnit(SmartList<UnitInfo>* units, unsigned short team, ResourceID unit_type);
+    static UnitInfo* FindUnit(SmartList<UnitInfo>* units, uint16_t team, ResourceID unit_type);
 };
 
 #endif /* TASKMOVE_HPP */

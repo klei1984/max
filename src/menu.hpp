@@ -37,16 +37,16 @@ extern const char* menu_planet_descriptions[];
 extern const char* menu_planet_names[];
 extern const char* menu_team_names[];
 
-bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_demo_mode);
+bool menu_check_end_game_conditions(int32_t global_turn, int32_t local_turn, bool is_demo_mode);
 
-void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align = false,
+void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int32_t color, bool horizontal_align = false,
                           bool vertical_align = true);
 
-void menu_draw_logo(ResourceID resource_id, int time_limit);
+void menu_draw_logo(ResourceID resource_id, int32_t time_limit);
 
-int Menu_LoadPlanetMinimap(int planet_index, unsigned char* buffer, int width);
+int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t width);
 
-int menu_clan_select_menu_loop(int team);
+int32_t menu_clan_select_menu_loop(int32_t team);
 
 void menu_update_resource_levels();
 
@@ -54,14 +54,14 @@ void menu_draw_menu_portrait_frame(WindowInfo* window);
 
 void draw_menu_title(WindowInfo* window, const char* caption);
 
-int menu_options_menu_loop(int game_mode);
-void menu_preferences_window(unsigned short team);
-int GameSetupMenu_Menu(int game_file_type, bool flag1 = true, bool flag2 = true);
+int32_t menu_options_menu_loop(int32_t game_mode);
+void menu_preferences_window(uint16_t team);
+int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1 = true, bool flag2 = true);
 bool OKCancelMenu_Menu(const char* caption);
 void DialogMenu_Menu(const char* label);
 bool DesyncMenu_Menu();
 void PauseMenu_Menu();
-int menu_planet_select_menu_loop();
+int32_t menu_planet_select_menu_loop();
 void menu_draw_exit_logos();
 void main_menu();
 

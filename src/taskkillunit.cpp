@@ -31,7 +31,7 @@
 #include "taskrepair.hpp"
 #include "units_manager.hpp"
 
-TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, unsigned short flags_)
+TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, uint16_t flags_)
     : Task(spotted_unit_->GetTeam(), task_attack, flags_) {
     UnitInfo* target = spotted_unit_->GetUnit();
     spotted_unit = spotted_unit_;
@@ -52,8 +52,8 @@ TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, 
 
 TaskKillUnit::~TaskKillUnit() {}
 
-int TaskKillUnit::GetProjectedDamage(UnitInfo* attacker, UnitInfo* target) {
-    int damage_potential =
+int32_t TaskKillUnit::GetProjectedDamage(UnitInfo* attacker, UnitInfo* target) {
+    int32_t damage_potential =
         AiAttack_GetAttackPotential(attacker, target) * attacker->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
 
     if (target->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
@@ -78,15 +78,15 @@ void TaskKillUnit::MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
 
 void TaskKillUnit::FindVaildTypes() {
     TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*parent);
-    unsigned int unit_flags = 0;
-    unsigned int unit_flags2 = attack_task->GetAccessFlags();
+    uint32_t unit_flags = 0;
+    uint32_t unit_flags2 = attack_task->GetAccessFlags();
 
     if (spotted_unit) {
         AiLog log("Kill unit: Find Valid Types");
 
         weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(spotted_unit->GetUnit(), 0x01);
 
-        for (int i = 0; i < weight_table.GetCount(); ++i) {
+        for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0) {
                 if (weight_table[i].unit_type == SCOUT &&
                     AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
@@ -129,7 +129,7 @@ void TaskKillUnit::FindVaildTypes() {
             log.Log("No valid types available");
         }
 
-        for (int i = 0; i < weight_table.GetCount(); ++i) {
+        for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0) {
                 if (weight_table[i].unit_type != COMMANDO) {
                     if (unit_flags & UnitsManager_BaseUnits[weight_table[i].unit_type].flags) {
@@ -171,7 +171,7 @@ bool TaskKillUnit::GetNewUnits() {
             if (seek_target) {
                 SmartPointer<UnitInfo> unit1;
                 SmartPointer<UnitInfo> unit2;
-                int distance;
+                int32_t distance;
 
                 if (!is_found) {
                     FindVaildTypes();
@@ -247,11 +247,11 @@ bool TaskKillUnit::GetNewUnits() {
                     SmartPointer<TaskObtainUnits> obtain_units_task;
                     SmartPointer<UnitInfo> unit;
                     WeightTable table(weight_table, true);
-                    int turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
-                    int remaining_hits;
+                    int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
+                    int32_t remaining_hits;
                     ResourceID unit_type;
 
-                    for (int i = 0; i < table.GetCount(); ++i) {
+                    for (int32_t i = 0; i < table.GetCount(); ++i) {
                         if (table[i].unit_type != INVALID_ID) {
                             if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
                                         ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
@@ -313,9 +313,9 @@ bool TaskKillUnit::GetNewUnits() {
     return result;
 }
 
-UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitInfo* unit, int* distance,
+UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitInfo* unit, int32_t* distance,
                                               TransporterMap* map) {
-    unsigned int task_flags = GetFlags();
+    uint32_t task_flags = GetFlags();
     bool is_found;
 
     for (SmartList<UnitInfo>::Iterator it = units_->Begin(); it != units_->End(); ++it) {
@@ -336,7 +336,7 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
                 if (is_found) {
                     if (IsUnitUsable(*it)) {
                         if (!map || map->Search(Point((*it).grid_x, (*it).grid_y))) {
-                            int distance_ = Access_GetDistance(&*it, spotted_unit->GetLastPosition());
+                            int32_t distance_ = Access_GetDistance(&*it, spotted_unit->GetLastPosition());
 
                             if (!unit || *distance > distance_) {
                                 unit = &*it;
@@ -403,8 +403,8 @@ bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
     return result;
 }
 
-unsigned short TaskKillUnit::GetFlags() const {
-    unsigned short result;
+uint16_t TaskKillUnit::GetFlags() const {
+    uint16_t result;
 
     if (spotted_unit) {
         result = flags + AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), team);
@@ -454,7 +454,7 @@ Rect* TaskKillUnit::GetBounds(Rect* bounds) {
     return bounds;
 }
 
-unsigned char TaskKillUnit::GetType() const { return TaskType_TaskKillUnit; }
+uint8_t TaskKillUnit::GetType() const { return TaskType_TaskKillUnit; }
 
 bool TaskKillUnit::IsNeeded() { return hits > projected_damage && spotted_unit && spotted_unit->GetUnit()->hits > 0; }
 
@@ -623,8 +623,8 @@ void TaskKillUnit::EventUnitDestroyed(UnitInfo& unit) {
 
 void TaskKillUnit::EventEnemyUnitSpotted(UnitInfo& unit) {}
 
-int TaskKillUnit::GetTotalProjectedDamage() {
-    int result = 0;
+int32_t TaskKillUnit::GetTotalProjectedDamage() {
+    int32_t result = 0;
     TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*parent);
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
@@ -663,6 +663,6 @@ UnitInfo* TaskKillUnit::GetUnitSpotted() const {
 
 SmartList<UnitInfo>& TaskKillUnit::GetUnits() { return units; }
 
-unsigned short TaskKillUnit::GetRequiredDamage() const { return required_damage; }
+uint16_t TaskKillUnit::GetRequiredDamage() const { return required_damage; }
 
-unsigned short TaskKillUnit::GetProjectedDamage() const { return projected_damage; }
+uint16_t TaskKillUnit::GetProjectedDamage() const { return projected_damage; }

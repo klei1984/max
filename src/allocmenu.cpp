@@ -41,57 +41,57 @@
 #define ALLOCATION_MENU_CONTROL_ITEM_COUNT 11
 
 struct Allocator {
-    unsigned int field_0;
+    uint32_t field_0;
     SmartPointer<Complex> complex;
-    int cargo_demand;
-    int cargo_material_type;
-    int material_mining;
+    int32_t cargo_demand;
+    int32_t cargo_material_type;
+    int32_t material_mining;
 
-    bool Optimize(int cargo_type, unsigned char *cargo1, short cargo_value, unsigned char *cargo2);
+    bool Optimize(int32_t cargo_type, uint8_t *cargo1, int16_t cargo_value, uint8_t *cargo2);
 };
 
 struct CargoBar {
     WindowInfo *window;
-    unsigned char *buffer;
-    short width;
-    short uly;
-    short cargo_1;
-    short cargo_2;
-    short cargo_3;
-    short cargo_4;
-    short cargo_5;
-    short cargo_6;
+    uint8_t *buffer;
+    int16_t width;
+    int16_t uly;
+    int16_t cargo_1;
+    int16_t cargo_2;
+    int16_t cargo_3;
+    int16_t cargo_4;
+    int16_t cargo_5;
+    int16_t cargo_6;
     ResourceID bar_id;
     ResourceID tape_id;
-    unsigned char *color_index_map;
+    uint8_t *color_index_map;
 
     void Draw();
 };
 
 struct CargoBarData {
     WindowInfo *window;
-    unsigned char *buffer;
-    short width;
+    uint8_t *buffer;
+    int16_t width;
     Rect rect;
-    short cargo_1;
-    short cargo_2;
-    short cargo_3;
-    int flag;
+    int16_t cargo_1;
+    int16_t cargo_2;
+    int16_t cargo_3;
+    int32_t flag;
     char *caption;
     ResourceID bar_id;
     ResourceID tape_id;
-    unsigned char *color_index_map;
+    uint8_t *color_index_map;
 
     void Draw();
 };
 
 class AllocMenu : public Window {
     WindowInfo window;
-    unsigned char *cargo_bars_buffer;
+    uint8_t *cargo_bars_buffer;
     Button *buttons[ALLOCATION_MENU_CONTROL_ITEM_COUNT];
     SmartPointer<UnitInfo> unit;
     SmartPointer<Complex> complex;
-    unsigned char color_index_map[256];
+    uint8_t color_index_map[256];
     Cargo production;
     Cargo cargo_2;
     Cargo capacity;
@@ -100,13 +100,13 @@ class AllocMenu : public Window {
     Cargo complex_capacity;
 
     void Deinit();
-    void InitButton(int index);
+    void InitButton(int32_t index);
     void DrawCargoBars();
-    static int Balance(Complex *complex, int cargo_type, int material1, int material2);
-    int GetHorizontalBarClickValue(WinID wid, int material);
-    void UpdateRawAllocation(int material);
-    void UpdateFuelAllocation(int material);
-    void UpdateGoldAllocation(int material);
+    static int32_t Balance(Complex *complex, int32_t cargo_type, int32_t material1, int32_t material2);
+    int32_t GetHorizontalBarClickValue(WinID wid, int32_t material);
+    void UpdateRawAllocation(int32_t material);
+    void UpdateFuelAllocation(int32_t material);
+    void UpdateGoldAllocation(int32_t material);
     void OnClickRawBar();
     void OnClickFuelBar();
     void OnClickGoldBar();
@@ -122,7 +122,7 @@ struct AllocMenuControlItem {
     Rect bounds;
     ResourceID image_id;
     const char *label;
-    int event_code;
+    int32_t event_code;
     void *event_handler;
     ResourceID sfx;
 };
@@ -164,7 +164,7 @@ AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWin
 
     Color_ChangeColorTemperature(0, 0, 63, 1, 2, color_index_map);
 
-    cargo_bars_buffer = new (std::nothrow) unsigned char[4 * sizeof(unsigned short) + 240 * 344];
+    cargo_bars_buffer = new (std::nothrow) uint8_t[4 * sizeof(uint16_t) + 240 * 344];
 
     struct ImageSimpleHeader *image = reinterpret_cast<struct ImageSimpleHeader *>(cargo_bars_buffer);
 
@@ -176,7 +176,7 @@ AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWin
     buf_to_buf(&window.buffer[window.width * 70 + 174], image->width, image->height, window.width,
                &image->transparent_color, image->width);
 
-    for (int i = 0; i < std::size(allocation_menu_titles); ++i) {
+    for (int32_t i = 0; i < std::size(allocation_menu_titles); ++i) {
         Text_TextBox(window.buffer, window.width, allocation_menu_titles[i].title, allocation_menu_titles[i].bounds.ulx,
                      allocation_menu_titles[i].bounds.uly,
                      allocation_menu_titles[i].bounds.lrx - allocation_menu_titles[i].bounds.ulx,
@@ -184,7 +184,7 @@ AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWin
                      true);
     }
 
-    for (int i = 0; i < std::size(allocation_menu_controls); ++i) {
+    for (int32_t i = 0; i < std::size(allocation_menu_controls); ++i) {
         InitButton(i);
     }
 
@@ -199,7 +199,7 @@ AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWin
 
 AllocMenu::~AllocMenu() {}
 
-void AllocMenu::InitButton(int index) {
+void AllocMenu::InitButton(int32_t index) {
     struct AllocMenuControlItem *control;
 
     control = &allocation_menu_controls[index];
@@ -235,13 +235,13 @@ void AllocMenu::InitButton(int index) {
 
 void CargoBarData::Draw() {
     struct ImageSimpleHeader *image;
-    unsigned char *address;
-    int rect_width;
-    int rect_height;
-    int offset_x;
-    int offset_y;
-    int offset;
-    int str_width;
+    uint8_t *address;
+    int32_t rect_width;
+    int32_t rect_height;
+    int32_t offset_x;
+    int32_t offset_y;
+    int32_t offset;
+    int32_t str_width;
     Rect bounds;
 
     image = reinterpret_cast<struct ImageSimpleHeader *>(buffer);
@@ -250,7 +250,7 @@ void CargoBarData::Draw() {
     rect_width = rect.lrx - rect.ulx;
     rect_height = rect.lry - rect.uly;
 
-    unsigned char *image_data = &image->transparent_color;
+    uint8_t *image_data = &image->transparent_color;
 
     buf_to_buf(&image_data[image->width * (rect.uly - 70)], rect_width, rect_height, image->width, address, width);
 
@@ -412,9 +412,9 @@ void AllocMenu::DrawCargoBars() {
     bar.Draw();
 }
 
-bool Allocator::Optimize(int cargo_type, unsigned char *cargo1, short cargo_value, unsigned char *cargo2) {
+bool Allocator::Optimize(int32_t cargo_type, uint8_t *cargo1, int16_t cargo_value, uint8_t *cargo2) {
     if (!(cargo_material_type & cargo_type) && *cargo2) {
-        int demand;
+        int32_t demand;
 
         demand = cargo_demand;
 
@@ -437,14 +437,14 @@ bool Allocator::Optimize(int cargo_type, unsigned char *cargo1, short cargo_valu
     return cargo_demand == 0;
 }
 
-int AllocMenu_Optimize(Complex *complex, int cargo_type1, int material, int cargo_type2) {
-    int result;
+int32_t AllocMenu_Optimize(Complex *complex, int32_t cargo_type1, int32_t material, int32_t cargo_type2) {
+    int32_t result;
 
     if (material) {
         Allocator alloc;
-        short raw;
-        short fuel;
-        short gold;
+        int16_t raw;
+        int16_t fuel;
+        int16_t gold;
 
         alloc.complex = complex;
         alloc.cargo_demand = material;
@@ -457,8 +457,8 @@ int AllocMenu_Optimize(Complex *complex, int cargo_type1, int material, int carg
                 (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
                 Survey_GetResourcesInArea((*it).grid_x, (*it).grid_y, 1, 16, &raw, &gold, &fuel, true, (*it).team);
 
-                unsigned char *cargo{nullptr};
-                short cargo_value{0};
+                uint8_t *cargo{nullptr};
+                int16_t cargo_value{0};
 
                 switch (cargo_type1) {
                     case CARGO_GOLD: {
@@ -483,7 +483,7 @@ int AllocMenu_Optimize(Complex *complex, int cargo_type1, int material, int carg
 
                 if (*cargo < cargo_value) {
                     if ((*it).raw_mining + (*it).fuel_mining + (*it).gold_mining < 16) {
-                        int remaining_capacity;
+                        int32_t remaining_capacity;
 
                         remaining_capacity = 16 - ((*it).raw_mining + (*it).fuel_mining + (*it).gold_mining);
 
@@ -523,12 +523,12 @@ int AllocMenu_Optimize(Complex *complex, int cargo_type1, int material, int carg
     return result;
 }
 
-void AllocMenu_AdjustForDemands(Complex *complex, int cargo_type, int material) {
+void AllocMenu_AdjustForDemands(Complex *complex, int32_t cargo_type, int32_t material) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
             (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
-            unsigned char *cargo{nullptr};
+            uint8_t *cargo{nullptr};
 
             switch (cargo_type) {
                 case CARGO_GOLD: {
@@ -565,8 +565,8 @@ void AllocMenu_AdjustForDemands(Complex *complex, int cargo_type, int material) 
     }
 }
 
-int AllocMenu::Balance(Complex *complex, int cargo_type, int material1, int material2) {
-    int result;
+int32_t AllocMenu::Balance(Complex *complex, int32_t cargo_type, int32_t material1, int32_t material2) {
+    int32_t result;
 
     if (material1 >= material2) {
         result = material2;
@@ -583,16 +583,16 @@ int AllocMenu::Balance(Complex *complex, int cargo_type, int material1, int mate
 }
 
 void AllocMenu::Deinit() {
-    for (int i = 0; i < std::size(allocation_menu_controls); ++i) {
+    for (int32_t i = 0; i < std::size(allocation_menu_controls); ++i) {
         delete buttons[i];
     }
 
     delete[] cargo_bars_buffer;
 }
 
-int AllocMenu::GetHorizontalBarClickValue(WinID wid, int material) {
-    int x;
-    int y;
+int32_t AllocMenu::GetHorizontalBarClickValue(WinID wid, int32_t material) {
+    int32_t x;
+    int32_t y;
     Rect bounds;
 
     get_input_position(&x, &y);
@@ -604,7 +604,7 @@ int AllocMenu::GetHorizontalBarClickValue(WinID wid, int material) {
     return (material * x + 120) / 240;
 }
 
-void AllocMenu::UpdateRawAllocation(int material) {
+void AllocMenu::UpdateRawAllocation(int32_t material) {
     buttons[6]->PlaySound();
 
     production.raw += material;
@@ -615,7 +615,7 @@ void AllocMenu::UpdateRawAllocation(int material) {
     DrawCargoBars();
 }
 
-void AllocMenu::UpdateFuelAllocation(int material) {
+void AllocMenu::UpdateFuelAllocation(int32_t material) {
     buttons[7]->PlaySound();
 
     production.fuel += material;
@@ -626,7 +626,7 @@ void AllocMenu::UpdateFuelAllocation(int material) {
     DrawCargoBars();
 }
 
-void AllocMenu::UpdateGoldAllocation(int material) {
+void AllocMenu::UpdateGoldAllocation(int32_t material) {
     buttons[8]->PlaySound();
 
     production.gold += material;
@@ -638,7 +638,7 @@ void AllocMenu::UpdateGoldAllocation(int material) {
 }
 
 void AllocMenu::OnClickRawBar() {
-    int materials;
+    int32_t materials;
 
     materials = GetHorizontalBarClickValue(window.id, capacity.raw) - production.raw;
 
@@ -656,7 +656,7 @@ void AllocMenu::OnClickRawBar() {
 }
 
 void AllocMenu::OnClickFuelBar() {
-    int materials;
+    int32_t materials;
 
     materials = GetHorizontalBarClickValue(window.id, capacity.fuel) - production.fuel;
 
@@ -674,7 +674,7 @@ void AllocMenu::OnClickFuelBar() {
 }
 
 void AllocMenu::OnClickGoldBar() {
-    int materials;
+    int32_t materials;
 
     materials = GetHorizontalBarClickValue(window.id, capacity.gold) - production.gold;
 
@@ -696,7 +696,7 @@ void AllocMenu::Run() {
     bool event_release = false;
 
     while (!exit_loop) {
-        int key = get_input();
+        int32_t key = get_input();
 
         if (key > 0 && key < GNW_INPUT_PRESS) {
             event_release = false;

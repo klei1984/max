@@ -38,7 +38,7 @@ void TaskMoveHome::MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
     TaskManager.RemoveTask(*task);
 }
 
-void TaskMoveHome::PopulateTeamZones(unsigned char** map) {
+void TaskMoveHome::PopulateTeamZones(uint8_t** map) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team) {
@@ -48,9 +48,9 @@ void TaskMoveHome::PopulateTeamZones(unsigned char** map) {
             (*it).GetBounds(&bounds);
 
             bounds.ulx = std::max(0, bounds.ulx - 2);
-            bounds.lrx = std::min(static_cast<int>(ResourceManager_MapSize.x), bounds.lrx + 2);
+            bounds.lrx = std::min(static_cast<int32_t>(ResourceManager_MapSize.x), bounds.lrx + 2);
             bounds.uly = std::max(0, bounds.uly - 2);
-            bounds.lry = std::min(static_cast<int>(ResourceManager_MapSize.y), bounds.lry + 2);
+            bounds.lry = std::min(static_cast<int32_t>(ResourceManager_MapSize.y), bounds.lry + 2);
 
             for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                 for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
@@ -61,21 +61,21 @@ void TaskMoveHome::PopulateTeamZones(unsigned char** map) {
     }
 }
 
-void TaskMoveHome::PopulateDefenses(unsigned char** map, ResourceID unit_type) {
+void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team && (*it).unit_type == unit_type && (*it).orders != ORDER_IDLE &&
             (*it).ammo > (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
             (*it).hits == (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
-            int unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+            int32_t unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
             if (unit_range > 0) {
                 ZoneWalker walker(Point((*it).grid_x, (*it).grid_y), unit_range);
-                int damage_potential = (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) *
+                int32_t damage_potential = (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) *
                                        (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
 
                 do {
-                    unsigned char* map_site = &map[walker.GetGridX()][walker.GetGridY()];
+                    uint8_t* map_site = &map[walker.GetGridX()][walker.GetGridY()];
 
                     if (map_site[0]) {
                         if (map_site[0] + damage_potential < 0x1F) {
@@ -92,7 +92,7 @@ void TaskMoveHome::PopulateDefenses(unsigned char** map, ResourceID unit_type) {
     }
 }
 
-void TaskMoveHome::PopulateOccupiedSites(unsigned char** map, SmartList<UnitInfo>* units) {
+void TaskMoveHome::PopulateOccupiedSites(uint8_t** map, SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).orders != ORDER_IDLE && (&*it) != &*unit) {
             Point site;
@@ -115,7 +115,7 @@ char* TaskMoveHome::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskMoveHome::GetType() const { return TaskType_TaskMoveHome; }
+uint8_t TaskMoveHome::GetType() const { return TaskType_TaskMoveHome; }
 
 void TaskMoveHome::Begin() {
     unit->AddTask(this);
@@ -156,11 +156,11 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
         {
             Point destination(unit->grid_x, unit->grid_y);
             Point site;
-            unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
-            int safety;
-            int maximum_safety = map1.GetMapColumn(unit->grid_x)[unit->grid_y];
-            int distance;
-            int minimum_distance = 0;
+            uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+            int32_t safety;
+            int32_t maximum_safety = map1.GetMapColumn(unit->grid_x)[unit->grid_y];
+            int32_t distance;
+            int32_t minimum_distance = 0;
 
             PathsManager_InitAccessMap(&*unit, map2.GetMap(), 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 

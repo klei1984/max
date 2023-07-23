@@ -26,11 +26,11 @@
 
 class TaskMineAssistant : public Task {
 public:
-    TaskMineAssistant(unsigned short team);
+    TaskMineAssistant(uint16_t team);
     ~TaskMineAssistant();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void BeginTurn();
     void RemoveSelf();
 };

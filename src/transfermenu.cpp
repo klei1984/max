@@ -34,8 +34,8 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
-void TransferMenu_GetUnitCargoInfo(UnitInfo *source_unit, UnitInfo *destination_unit, short &materials,
-                                   short &capacity) {
+void TransferMenu_GetUnitCargoInfo(UnitInfo *source_unit, UnitInfo *destination_unit, int16_t &materials,
+                                   int16_t &capacity) {
     Complex *complex;
 
     complex = source_unit->GetComplex();
@@ -98,7 +98,7 @@ void TransferMenu::UpdateIndicators() {
     win_draw_rect(window.id, &window.window);
 }
 
-bool TransferMenu::ProcessKey(int key) {
+bool TransferMenu::ProcessKey(int32_t key) {
     if (key > 0 && key < GNW_INPUT_PRESS) {
         event_release = false;
     }
@@ -118,7 +118,7 @@ bool TransferMenu::ProcessKey(int key) {
 
     } else if (key < GNW_INPUT_PRESS) {
         if (scrollbar->ProcessKey(key)) {
-            int old_value = total_materials_transferred;
+            int32_t old_value = total_materials_transferred;
             total_materials_transferred = scrollbar->GetValue();
 
             if (old_value != total_materials_transferred) {
@@ -146,8 +146,8 @@ bool TransferMenu::ProcessKey(int key) {
 }
 
 TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, GameManager_GetDialogWindowCenterMode()) {
-    short source_unit_capacity;
-    short target_unit_capacity;
+    int16_t source_unit_capacity;
+    int16_t target_unit_capacity;
 
     team = unit->team;
 
@@ -286,7 +286,7 @@ void TransferMenu::Run() {
     event_click_done = false;
 
     while (!event_click_done) {
-        int key = get_input();
+        int32_t key = get_input();
 
         if (GameManager_RequestMenuExit || source_unit->orders == ORDER_DISABLE ||
             target_unit->orders == ORDER_DISABLE || source_unit->team != GameManager_PlayerTeam ||
@@ -299,9 +299,9 @@ void TransferMenu::Run() {
     }
 }
 
-short TransferMenu::GetCargoTransferred() const { return total_materials_transferred; }
+int16_t TransferMenu::GetCargoTransferred() const { return total_materials_transferred; }
 
-int TransferMenu_Menu(UnitInfo *unit) {
+int32_t TransferMenu_Menu(UnitInfo *unit) {
     TransferMenu menu(unit);
 
     menu.Run();

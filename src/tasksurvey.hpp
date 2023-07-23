@@ -28,11 +28,11 @@ class TaskSurvey : public TaskAbstractSearch {
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskSurvey(unsigned short team, Point point);
+    TaskSurvey(uint16_t team, Point point);
     ~TaskSurvey();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool Execute(UnitInfo& unit);
     bool IsVisited(UnitInfo& unit, Point point);
     void ObtainUnit();

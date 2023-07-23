@@ -22,7 +22,7 @@
 #include "textedit.hpp"
 
 /* Convert key codes 128-255 to code page 437 characters */
-static const short TextEdit_KeyToAsciiMap[] = {
+static const int16_t TextEdit_KeyToAsciiMap[] = {
     '\0', '\0', '\0', 159,  '\0', '\0', '\0', '\0', 94,   '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
     '\0', '\0', '\0', 45,   95,   126,  '\0', '\0', '\0', '\0', '\0', '\0', 152,  '\0', 173,  155,  156,  214,  157,
     124,  213,  215,  '\0', 166,  174,  170,  '\0', '\0', '\0', 248,  241,  '\0', '\0', 216,  230,  20,   250,  '\0',
@@ -32,10 +32,10 @@ static const short TextEdit_KeyToAsciiMap[] = {
     149,  162,  147,  211,  148,  246,  237,  151,  163,  150,  129,  212,  '\0', '\0',
 };
 
-static_assert(sizeof(TextEdit_KeyToAsciiMap) == 128 * sizeof(const short));
+static_assert(sizeof(TextEdit_KeyToAsciiMap) == 128 * sizeof(const int16_t));
 
-TextEdit::TextEdit(WindowInfo *window, char *text, int buffer_size, int ulx, int uly, int width, int height,
-                   unsigned short color, int font_num)
+TextEdit::TextEdit(WindowInfo *window, char *text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width, int32_t height,
+                   uint16_t color, int32_t font_num)
     : font_num(font_num),
       window(*window),
       buffer_size(buffer_size),
@@ -91,7 +91,7 @@ void TextEdit::EnterTextEditField() {
     DrawFullText();
 }
 
-void TextEdit::SetMode(int mode) { this->mode = mode; }
+void TextEdit::SetMode(int32_t mode) { this->mode = mode; }
 
 void TextEdit::LeaveTextEditField() {
     if (is_being_edited) {
@@ -120,8 +120,8 @@ void TextEdit::Clear() {
     win_draw_rect(window.id, &window.window);
 }
 
-void TextEdit::DrawFullText(int refresh_screen) {
-    int color;
+void TextEdit::DrawFullText(int32_t refresh_screen) {
+    int32_t color;
 
     Text_SetFont(font_num);
     bg_image->Write(&window);
@@ -169,10 +169,10 @@ void TextEdit::DrawTillCursor() {
     }
 }
 
-void TextEdit::SetCursorPosition(int position) {
+void TextEdit::SetCursorPosition(int32_t position) {
     is_selected = false;
     cursor_blink = false;
-    int text_size;
+    int32_t text_size;
 
     DrawTillCursor();
 
@@ -196,7 +196,7 @@ void TextEdit::Delete() {
     if (is_selected) {
         Clear();
     } else {
-        int text_size;
+        int32_t text_size;
 
         text_size = strlen(edited_text);
 
@@ -258,8 +258,8 @@ void TextEdit::InsertCharacter(char character) {
     }
 }
 
-int TextEdit::ProcessKeyPress(int key) {
-    int result;
+int32_t TextEdit::ProcessKeyPress(int32_t key) {
+    int32_t result;
 
     if (is_being_edited) {
         if (timer_elapsed_time(time_stamp) >= 500) {

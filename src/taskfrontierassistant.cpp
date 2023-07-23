@@ -24,7 +24,7 @@
 #include "aiplayer.hpp"
 #include "task_manager.hpp"
 
-TaskFrontierAssistant::TaskFrontierAssistant(unsigned short team) : Task(team, nullptr, 0x1A00) {}
+TaskFrontierAssistant::TaskFrontierAssistant(uint16_t team) : Task(team, nullptr, 0x1A00) {}
 
 TaskFrontierAssistant::~TaskFrontierAssistant() {}
 
@@ -34,7 +34,7 @@ char* TaskFrontierAssistant::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskFrontierAssistant::GetType() const { return TaskType_TaskFrontierAssistant; }
+uint8_t TaskFrontierAssistant::GetType() const { return TaskType_TaskFrontierAssistant; }
 
 void TaskFrontierAssistant::BeginTurn() { AiPlayer_Teams[team].GuessEnemyAttackDirections(); }
 

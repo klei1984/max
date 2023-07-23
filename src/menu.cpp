@@ -51,10 +51,10 @@
 struct MenuButton {
     Button* button;
     char big_size;
-    short ulx;
-    short uly;
+    int16_t ulx;
+    int16_t uly;
     const char* label;
-    int r_value;
+    int32_t r_value;
     ResourceID sfx;
 };
 
@@ -64,7 +64,7 @@ struct MenuButton {
     { nullptr, (is_big), (ulx), (uly), (label), (r_value), (sfx) }
 
 struct CreditsLine {
-    unsigned short color;
+    uint16_t color;
     const char* text;
 };
 
@@ -77,14 +77,14 @@ struct CreditsLine {
 #define CREDITS_TEXT(text) \
     { (0x04), (text) }
 
-static void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int global_turn, bool mode);
-static void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn, bool mode);
+static void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode);
+static void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_turn, bool mode);
 
 static ResourceID menu_portrait_id;
 
 static struct MenuButton* menu_button_items;
-static int menu_button_items_count;
-unsigned int menu_turn_timer_value;
+static int32_t menu_button_items_count;
+uint32_t menu_turn_timer_value;
 
 static struct MenuButton main_menu_buttons[] = {
     MENU_BUTTON_DEF(true, 385, 175, _(28f9), GNW_KB_KEY_SHIFT_N, MBUTT0),
@@ -122,9 +122,9 @@ static const char* menu_tips_data;
 static SmartString* menu_tips_strings;
 static Button* menu_tips_button_up;
 static Button* menu_tips_button_down;
-static int menu_tips_max_row_count_per_page;
-static int menu_tips_row_count;
-static int menu_tips_current_row_index;
+static int32_t menu_tips_max_row_count_per_page;
+static int32_t menu_tips_row_count;
+static int32_t menu_tips_current_row_index;
 
 static const struct CreditsLine menu_credits_lines[] = {
     CREDITS_TITLE(_(0a6f)),
@@ -415,12 +415,12 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
     }
 }
 
-void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int global_turn, bool mode) {
-    int ulx;
-    int lrx;
-    unsigned short visible_team;
+void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode) {
+    int32_t ulx;
+    int32_t lrx;
+    uint16_t visible_team;
     FontColor team_fonts[PLAYER_TEAM_MAX - 1] = {{165, 230, 199}, {165, 238, 199}, {165, 245, 199}, {165, 214, 199}};
-    int victory_status;
+    int32_t victory_status;
 
     if (Remote_IsNetworkGame || mode) {
         Text_TextLine(window, _(71f1), 100, 10, 440, true, Fonts_BrightSilverColor);
@@ -429,7 +429,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             char team_name[40];
             ulx += 110;
@@ -455,7 +455,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
 
     victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ulx += 110;
             ++visible_team;
@@ -482,7 +482,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ulx += 110;
             ++visible_team;
@@ -499,7 +499,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ulx += 110;
             ++visible_team;
@@ -516,7 +516,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ulx += 110;
             ++visible_team;
@@ -533,10 +533,10 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             CTInfo* team_info;
-            int casualties;
+            int32_t casualties;
 
             ulx += 110;
             ++visible_team;
@@ -545,7 +545,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
             team_info = &UnitsManager_TeamInfo[team];
             casualties = 0;
 
-            for (int j = 0; j < UNIT_END; ++j) {
+            for (int32_t j = 0; j < UNIT_END; ++j) {
                 if (UnitsManager_BaseUnits[j].flags & BUILDING) {
                     casualties += team_info->casualties[j];
                 }
@@ -561,7 +561,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ulx += 110;
             ++visible_team;
@@ -578,10 +578,10 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             CTInfo* team_info;
-            int casualties;
+            int32_t casualties;
 
             ulx += 110;
             ++visible_team;
@@ -590,7 +590,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
             team_info = &UnitsManager_TeamInfo[team];
             casualties = 0;
 
-            for (int j = 0; j < UNIT_END; ++j) {
+            for (int32_t j = 0; j < UNIT_END; ++j) {
                 if (UnitsManager_BaseUnits[j].flags & SELECTABLE) {
                     casualties += team_info->casualties[j];
                 }
@@ -606,7 +606,7 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ulx += 110;
             ++visible_team;
@@ -632,10 +632,10 @@ void menu_draw_game_over_screen(WindowInfo* window, unsigned short* teams, int g
     }
 }
 
-void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn, bool mode) {
-    int victory_status;
+void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_turn, bool mode) {
+    int32_t victory_status;
     bool is_winner;
-    int bg_image_id;
+    int32_t bg_image_id;
     Color* palette;
     SmartString mission_briefing;
 
@@ -667,7 +667,7 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
         fp = fopen(path.GetCStr(), "rt");
 
         if (fp) {
-            int character;
+            int32_t character;
 
             for (;;) {
                 character = fgetc(fp);
@@ -687,10 +687,10 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
     {
         Window window(menu_briefing_backgrounds[bg_image_id]);
         WindowInfo window_info;
-        unsigned short team_places[PLAYER_TEAM_MAX - 1];
+        uint16_t team_places[PLAYER_TEAM_MAX - 1];
         Button* button_end;
         bool exit_loop;
-        int key;
+        int32_t key;
 
         GameManager_WrapUpGame = true;
         GameManager_RequestMenuExit = false;
@@ -711,19 +711,19 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
         window.Add();
         window.FillWindowInfo(&window_info);
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             team_places[team] = 0;
         }
 
-        for (int i = 0; i < teams_in_play - 1; ++i) {
-            for (int j = i + 1; j < teams_in_play; ++j) {
+        for (int32_t i = 0; i < teams_in_play - 1; ++i) {
+            for (int32_t j = i + 1; j < teams_in_play; ++j) {
                 if (WinLoss_DetermineWinner(teams[i], teams[j]) < 0) {
                     std::swap(teams[i], teams[j]);
                 }
             }
         }
 
-        for (int i = 0; i < teams_in_play; ++i) {
+        for (int32_t i = 0; i < teams_in_play; ++i) {
             team_places[teams[i]] = i + 1;
         }
 
@@ -805,14 +805,14 @@ void menu_wrap_up_game(unsigned short* teams, int teams_in_play, int global_turn
     }
 }
 
-bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_demo_mode) {
-    int ini_victory_limit;
-    int team_count;
-    int teams_in_play;
-    int human_teams_in_play;
-    int non_computer_teams_count;
-    unsigned short team_places[PLAYER_TEAM_MAX - 1];
-    int victory_status;
+bool menu_check_end_game_conditions(int32_t global_turn, int32_t local_turn, bool is_demo_mode) {
+    int32_t ini_victory_limit;
+    int32_t team_count;
+    int32_t teams_in_play;
+    int32_t human_teams_in_play;
+    int32_t non_computer_teams_count;
+    uint16_t team_places[PLAYER_TEAM_MAX - 1];
+    int32_t victory_status;
     bool result;
     char game_state;
     bool is_network_game;
@@ -828,7 +828,7 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
         result = true;
 
     } else {
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 ++team_count;
 
@@ -866,7 +866,7 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
             }
 
         } else {
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                     UnitsManager_TeamInfo[team].team_points >= ini_victory_limit) {
                     menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
@@ -876,7 +876,7 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
         }
 
         if (victory_status == VICTORY_STATE_GENERIC) {
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER && !WinLoss_CheckLossConditions(team)) {
                     game_state = GameManager_GameState;
                     is_network_game = Remote_IsNetworkGame;
@@ -900,7 +900,7 @@ bool menu_check_end_game_conditions(int global_turn, int local_turn, bool is_dem
     return result;
 }
 
-void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int color, bool horizontal_align,
+void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int32_t color, bool horizontal_align,
                           bool vertical_align) {
     if (menu_item->title && strlen(menu_item->title)) {
         Text_TextBox(
@@ -910,9 +910,9 @@ void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int colo
     }
 }
 
-void menu_draw_logo(ResourceID resource_id, int time_limit) {
+void menu_draw_logo(ResourceID resource_id, int32_t time_limit) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-    unsigned int time_stamp;
+    uint32_t time_stamp;
 
     if (WindowManager_LoadBigImage(resource_id, window, window->width, true, false, -1, -1, true, true)) {
         Cursor_SetCursor(CURSOR_HIDDEN);
@@ -937,15 +937,15 @@ void ReadFile(FILE* fp, T& buffer) {
 }
 
 template <typename T>
-void ReadFile(FILE* fp, T* buffer, int size) {
+void ReadFile(FILE* fp, T* buffer, int32_t size) {
     if (fread(buffer, sizeof(char), size, fp) != size) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 }
 
-int Menu_LoadPlanetMinimap(int planet_index, unsigned char* buffer, int width) {
+int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t width) {
     char* filename;
-    int result;
+    int32_t result;
 
     filename = reinterpret_cast<char*>(ResourceManager_ReadResource(static_cast<ResourceID>(SNOW_1 + planet_index)));
 
@@ -960,13 +960,13 @@ int Menu_LoadPlanetMinimap(int planet_index, unsigned char* buffer, int width) {
         if (fp) {
             char map_type[5];
             Point map_dimensions;
-            short map_tile_count;
+            int16_t map_tile_count;
             Color palette[3 * PALETTE_SIZE];
 
             ReadFile(fp, map_type);
             ReadFile(fp, map_dimensions);
 
-            for (int i = 0; i < map_dimensions.x; ++i) {
+            for (int32_t i = 0; i < map_dimensions.x; ++i) {
                 ReadFile(fp, &buffer[width * i], map_dimensions.y);
             }
 
@@ -977,19 +977,19 @@ int Menu_LoadPlanetMinimap(int planet_index, unsigned char* buffer, int width) {
 
             ReadFile(fp, palette);
 
-            for (int i = 0; i < sizeof(palette); ++i) {
+            for (int32_t i = 0; i < sizeof(palette); ++i) {
                 palette[i] /= 4;
             }
 
             WindowManager_ColorPalette = getColorPalette();
 
-            for (int i = 0; i < sizeof(palette); i += 3) {
+            for (int32_t i = 0; i < sizeof(palette); i += 3) {
                 palette[i / 3] =
                     ResourceManager_FindClosestPaletteColor(palette[i], palette[i + 1], palette[i + 2], true);
             }
 
-            for (int i = 0; i < map_dimensions.x; ++i) {
-                for (int j = 0; j < map_dimensions.y; ++j) {
+            for (int32_t i = 0; i < map_dimensions.x; ++i) {
+                for (int32_t j = 0; j < map_dimensions.y; ++j) {
                     buffer[i * width + j] = palette[buffer[i * width + j]];
                 }
             }
@@ -1008,7 +1008,7 @@ int Menu_LoadPlanetMinimap(int planet_index, unsigned char* buffer, int width) {
 }
 
 void menu_draw_campaign_mission_briefing_screen() {
-    int image_index;
+    int32_t image_index;
     FILE* fp;
     SmartString filepath(ResourceManager_FilePathText);
     SmartString filename;
@@ -1029,7 +1029,7 @@ void menu_draw_campaign_mission_briefing_screen() {
 
     if (fp) {
         for (;;) {
-            int character = fgetc(fp);
+            int32_t character = fgetc(fp);
 
             if (character == EOF) {
                 break;
@@ -1069,7 +1069,7 @@ void menu_draw_campaign_mission_briefing_screen() {
         exit_loop = false;
 
         do {
-            int key;
+            int32_t key;
 
             key = get_input();
 
@@ -1099,12 +1099,12 @@ void menu_draw_campaign_mission_briefing_screen() {
 }
 
 void menu_update_resource_levels() {
-    int resource_min;
-    int resource_max;
-    int resource_raw;
-    int resource_fuel;
-    int resource_gold;
-    int resource_derelicts;
+    int32_t resource_min;
+    int32_t resource_max;
+    int32_t resource_raw;
+    int32_t resource_fuel;
+    int32_t resource_gold;
+    int32_t resource_derelicts;
 
     resource_raw = ini_get_setting(INI_RAW_RESOURCE);
     resource_fuel = ini_get_setting(INI_FUEL_RESOURCE);
@@ -1287,7 +1287,7 @@ void draw_copyright_label(WindowInfo* window) {
                  bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx, bounds.lry - bounds.uly, COLOR_BLACK, true, false);
 }
 
-void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int special_button_id = 0) {
+void menu_draw_main_menu_buttons(MenuButton* button_items, int32_t button_count, int32_t special_button_id = 0) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     menu_button_items = button_items;
@@ -1295,7 +1295,7 @@ void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int
 
     Text_SetFont(GNW_TEXT_FONT_1);
 
-    for (int i = 0; i < button_count; ++i) {
+    for (int32_t i = 0; i < button_count; ++i) {
         ResourceID up;
         ResourceID down;
 
@@ -1342,8 +1342,8 @@ void menu_draw_main_menu_buttons(MenuButton* button_items, int button_count, int
 void menu_draw_tips_frame(WindowInfo* window) {
     if (menu_tips_strings) {
         Rect bounds;
-        unsigned char* buffer_position;
-        int row_index_limit;
+        uint8_t* buffer_position;
+        int32_t row_index_limit;
 
         menu_draw_menu_portrait_frame(window);
 
@@ -1361,7 +1361,7 @@ void menu_draw_tips_frame(WindowInfo* window) {
 
         Text_SetFont(GNW_TEXT_FONT_5);
 
-        for (int i = menu_tips_current_row_index; i < row_index_limit; ++i) {
+        for (int32_t i = menu_tips_current_row_index; i < row_index_limit; ++i) {
             Text_Blit(&buffer_position[(i - menu_tips_current_row_index) * Text_GetHeight() * window->width],
                       menu_tips_strings[i].GetCStr(),
                       WindowManager_ScaleLrx(window, bounds.lrx, 315) - WindowManager_ScaleUlx(window, 19),
@@ -1416,8 +1416,8 @@ void menu_delete_tips() {
 
 void tips_on_click_up(WindowInfo* window) {
     if (menu_tips_current_row_index) {
-        int page_offset;
-        unsigned int time_stamp;
+        int32_t page_offset;
+        uint32_t time_stamp;
 
         page_offset = menu_tips_current_row_index - menu_tips_max_row_count_per_page;
 
@@ -1437,8 +1437,8 @@ void tips_on_click_up(WindowInfo* window) {
 }
 
 void tips_on_click_down(WindowInfo* window) {
-    int page_offset;
-    unsigned int time_stamp;
+    int32_t page_offset;
+    uint32_t time_stamp;
 
     page_offset = menu_tips_current_row_index + menu_tips_max_row_count_per_page;
 
@@ -1456,7 +1456,7 @@ void tips_on_click_down(WindowInfo* window) {
 
 void menu_delete_menu_buttons() {
     if (menu_button_items) {
-        for (int i = 0; i < menu_button_items_count; ++i) {
+        for (int32_t i = 0; i < menu_button_items_count; ++i) {
             if (menu_button_items[i].button) {
                 delete menu_button_items[i].button;
             }
@@ -1468,10 +1468,10 @@ void menu_delete_menu_buttons() {
     }
 }
 
-int play_attract_demo(int save_slot) {
+int32_t play_attract_demo(int32_t save_slot) {
     char filename[20];
     FILE* fp;
-    int result;
+    int32_t result;
 
     sprintf(filename, "save%i.%s", save_slot, save_file_extensions[0]);
 
@@ -1480,15 +1480,15 @@ int play_attract_demo(int save_slot) {
     fp = fopen(filename, "rb");
 
     if (fp) {
-        int backup_opponent;
-        int backup_timer;
-        int backup_endturn;
-        int backup_play_mode;
-        int backup_start_gold;
-        int backup_raw_resource;
-        int backup_fuel_resource;
-        int backup_gold_resource;
-        int backup_alien_derelicts;
+        int32_t backup_opponent;
+        int32_t backup_timer;
+        int32_t backup_endturn;
+        int32_t backup_play_mode;
+        int32_t backup_start_gold;
+        int32_t backup_raw_resource;
+        int32_t backup_fuel_resource;
+        int32_t backup_gold_resource;
+        int32_t backup_alien_derelicts;
 
         char backup_player_name[30];
         char backup_red_team_name[30];
@@ -1546,7 +1546,7 @@ int play_attract_demo(int save_slot) {
 
 void menu_disable_menu_buttons() {
     if (menu_button_items) {
-        for (int i = 0; i < menu_button_items_count; ++i) {
+        for (int32_t i = 0; i < menu_button_items_count; ++i) {
             menu_button_items[i].button->Disable();
         }
     }
@@ -1554,7 +1554,7 @@ void menu_disable_menu_buttons() {
 
 void menu_enable_menu_buttons() {
     if (menu_button_items) {
-        for (int i = 0; i < menu_button_items_count; ++i) {
+        for (int32_t i = 0; i < menu_button_items_count; ++i) {
             menu_button_items[i].button->Enable();
         }
     }
@@ -1565,14 +1565,14 @@ void menu_credits_menu_loop() {
     Image* image1;
     Image* image2;
     Rect bounds;
-    int window_width;
-    int window_height;
+    int32_t window_width;
+    int32_t window_height;
     bool play;
-    int height_offset;
-    int line_index;
-    unsigned char* image_buffer_position;
-    unsigned char* window_buffer_position;
-    unsigned int time_stamp;
+    int32_t height_offset;
+    int32_t line_index;
+    uint8_t* image_buffer_position;
+    uint8_t* window_buffer_position;
+    uint32_t time_stamp;
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     Cursor_SetCursor(CURSOR_HIDDEN);
@@ -1616,8 +1616,8 @@ void menu_credits_menu_loop() {
         image_buffer_position = image2->GetData();
         window_buffer_position = &window->buffer[window->width * bounds.uly + bounds.ulx];
 
-        for (int i = 0; i < window_height; ++i) {
-            for (int j = 0; j < window_width; ++j) {
+        for (int32_t i = 0; i < window_height; ++i) {
+            for (int32_t j = 0; j < window_width; ++j) {
                 if (image_buffer_position[j] != 0x80) {
                     window_buffer_position[j] = image_buffer_position[j];
                 }
@@ -1645,9 +1645,9 @@ void menu_credits_menu_loop() {
     delete image2;
 }
 
-int menu_clan_select_menu_loop(int team) {
+int32_t menu_clan_select_menu_loop(int32_t team) {
     ClanSelectMenu clan_select_menu;
-    int result;
+    int32_t result;
     bool event_release;
 
     event_release = false;
@@ -1668,7 +1668,7 @@ int menu_clan_select_menu_loop(int team) {
             event_release = false;
         }
 
-        for (int i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
+        for (int32_t i = 0; i < CLAN_SELECT_MENU_ITEM_COUNT; ++i) {
             if (clan_select_menu.buttons[i]) {
                 if (clan_select_menu.key == GNW_INPUT_PRESS + i) {
                     if (!event_release) {
@@ -1731,9 +1731,9 @@ void PauseMenu_Menu() {
     DialogMenu_Menu(_(f9bb));
 }
 
-int menu_planet_select_menu_loop() {
+int32_t menu_planet_select_menu_loop() {
     PlanetSelectMenu planet_select_menu;
-    int result;
+    int32_t result;
     bool event_release;
 
     event_release = false;
@@ -1750,7 +1750,7 @@ int menu_planet_select_menu_loop() {
             event_release = false;
         }
 
-        for (int i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
+        for (int32_t i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
             if (planet_select_menu.buttons[i]) {
                 if (planet_select_menu.key == GNW_INPUT_PRESS + i) {
                     if (!event_release) {
@@ -1786,9 +1786,9 @@ int menu_planet_select_menu_loop() {
     return result;
 }
 
-int menu_options_menu_loop(int game_mode) {
+int32_t menu_options_menu_loop(int32_t game_mode) {
     GameConfigMenu game_config_menu;
-    int result;
+    int32_t result;
     bool event_release;
 
     event_release = false;
@@ -1822,7 +1822,7 @@ int menu_options_menu_loop(int game_mode) {
             }
         }
 
-        for (int i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
+        for (int32_t i = 0; i < GAME_CONFIG_MENU_ITEM_COUNT; ++i) {
             if (game_config_menu.buttons[i]) {
                 if (game_config_menu.key == game_config_menu.menu_item[i].event_code) {
                     game_config_menu.key = game_config_menu.menu_item[i].r_value;
@@ -1849,7 +1849,7 @@ int menu_options_menu_loop(int game_mode) {
     return result;
 }
 
-int menu_choose_player_menu_loop(bool game_type) {
+int32_t menu_choose_player_menu_loop(bool game_type) {
     ChoosePlayerMenu choose_player_menu;
     bool event_release;
 
@@ -1877,7 +1877,7 @@ int menu_choose_player_menu_loop(bool game_type) {
             event_release = false;
         }
 
-        for (int i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
+        for (int32_t i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
             if (choose_player_menu.buttons[i]) {
                 if (choose_player_menu.key_press == i + GNW_INPUT_PRESS) {
                     if (!event_release) {
@@ -1914,8 +1914,8 @@ int menu_choose_player_menu_loop(bool game_type) {
 
     choose_player_menu.Deinit();
 
-    for (int i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
-        int team_type;
+    for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
+        int32_t team_type;
         char buffer[30];
 
         team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
@@ -1932,12 +1932,12 @@ int menu_choose_player_menu_loop(bool game_type) {
     return true;
 }
 
-int GameSetupMenu_Menu(int game_file_type, bool flag1, bool flag2) {
+int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
     GameSetupMenu game_setup_menu;
     SaveFormatHeader save_file_header;
     bool palette_from_image;
     bool event_release;
-    int result;
+    int32_t result;
 
     palette_from_image = false;
     game_setup_menu.game_file_type = game_file_type;
@@ -1980,7 +1980,7 @@ int GameSetupMenu_Menu(int game_file_type, bool flag1, bool flag2) {
                 } break;
 
                 default: {
-                    for (int i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
+                    for (int32_t i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
                         if (game_setup_menu.buttons[i]) {
                             if (game_setup_menu.key == GNW_INPUT_PRESS + i) {
                                 if (!event_release) {
@@ -2065,8 +2065,8 @@ int GameSetupMenu_Menu(int game_file_type, bool flag1, bool flag2) {
     return result;
 }
 
-int menu_custom_game_menu(bool game_type) {
-    int result;
+int32_t menu_custom_game_menu(bool game_type) {
+    int32_t result;
     bool enter_options_menu;
     bool enter_planet_select_menu;
     bool player_menu_passed;
@@ -2093,7 +2093,7 @@ int menu_custom_game_menu(bool game_type) {
             enter_planet_select_menu = false;
         }
 
-        for (int i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
+        for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
             ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i), ini_get_setting(INI_PLAYER_CLAN));
         }
 
@@ -2114,9 +2114,9 @@ int menu_custom_game_menu(bool game_type) {
     return 1;
 }
 
-int menu_new_game_menu_loop() {
+int32_t menu_new_game_menu_loop() {
     WindowInfo* window;
-    int key;
+    int32_t key;
     bool exit_loop;
     bool event_release;
     bool is_tips_window_active;
@@ -2257,7 +2257,7 @@ int menu_new_game_menu_loop() {
     return key == 9000;
 }
 
-void menu_preferences_window(unsigned short team) {
+void menu_preferences_window(uint16_t team) {
     OptionsMenu options_menu = OptionsMenu(team, PREFSPIC);
 
     options_menu.Run();
@@ -2269,7 +2269,7 @@ void menu_setup_window() {
     options_menu.Run();
 }
 
-int menu_network_game_menu(bool is_host_mode) {
+int32_t menu_network_game_menu(bool is_host_mode) {
     if (Remote_Lobby(is_host_mode)) {
         if (is_host_mode) {
             menu_update_resource_levels();
@@ -2284,10 +2284,10 @@ int menu_network_game_menu(bool is_host_mode) {
     return false;
 }
 
-int menu_multiplayer_menu_loop() {
+int32_t menu_multiplayer_menu_loop() {
     WindowInfo* window;
-    short palette_from_image;
-    int key;
+    int16_t palette_from_image;
+    int32_t key;
     bool exit_loop;
     bool event_release;
 
@@ -2319,7 +2319,7 @@ int menu_multiplayer_menu_loop() {
 
             switch (key) {
                 case GNW_KB_KEY_SHIFT_L: {
-                    int game_file_number;
+                    int32_t game_file_number;
                     menu_delete_menu_buttons();
                     ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_HOT_SEAT);
                     game_file_number = SaveLoadMenu_MenuLoop(false);
@@ -2431,14 +2431,14 @@ bool DesyncMenu_Menu() {
 
 void main_menu() {
     WindowInfo* window;
-    unsigned int time_stamp;
-    short palette_from_image;
+    uint32_t time_stamp;
+    int16_t palette_from_image;
     bool exit_loop;
     bool event_release;
-    int save_slot;
-    int old_save_slot;
-    int last_mouse_x;
-    int last_mouse_y;
+    int32_t save_slot;
+    int32_t old_save_slot;
+    int32_t last_mouse_x;
+    int32_t last_mouse_y;
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     palette_from_image = 1;
@@ -2486,9 +2486,9 @@ void main_menu() {
                 break;
 
             } else {
-                int key;
-                int mouse_x;
-                int mouse_y;
+                int32_t key;
+                int32_t mouse_x;
+                int32_t mouse_y;
 
                 key = get_input();
                 mouse_get_position(&mouse_x, &mouse_y);
@@ -2507,7 +2507,7 @@ void main_menu() {
 
                 switch (key) {
                     case GNW_KB_KEY_SHIFT_L: {
-                        int game_file_number;
+                        int32_t game_file_number;
 
                         menu_delete_menu_buttons();
                         game_file_number = SaveLoadMenu_MenuLoop(false);

@@ -30,7 +30,7 @@
 #include "transportermap.hpp"
 #include "units_manager.hpp"
 
-TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int radius_)
+TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int32_t radius_)
     : Task(task->GetTeam(), task, task->GetFlags()) {
     index = 0;
     radius = 0;
@@ -57,7 +57,7 @@ char* TaskSearchDestination::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskSearchDestination::GetType() const { return TaskType_TaskSearchDestination; }
+uint8_t TaskSearchDestination::GetType() const { return TaskType_TaskSearchDestination; }
 
 void TaskSearchDestination::Begin() {
     Point position;
@@ -120,7 +120,7 @@ void TaskSearchDestination::FinishSearch() {
 
 void TaskSearchDestination::SearchNextCircle() {
     Point position(unit->grid_x, unit->grid_y);
-    int direction;
+    int32_t direction;
 
     AiLog log("Search destination: NextCircle");
 
@@ -170,9 +170,9 @@ bool TaskSearchDestination::Search() {
     Point position;
     Point site;
     Rect bounds;
-    int loop_count = 0;
+    int32_t loop_count = 0;
     ResourceID unit_type = INVALID_ID;
-    short** damage_potential_map = nullptr;
+    int16_t** damage_potential_map = nullptr;
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
     TransporterMap map(&*unit, 1, is_doomed ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
@@ -191,7 +191,7 @@ bool TaskSearchDestination::Search() {
 
         directions[index] = (directions[index] - (field_59 * 2)) & 0x7;
 
-        for (int direction = 0;;) {
+        for (int32_t direction = 0;;) {
             directions[index] = (directions[index] + field_59) & 0x7;
 
             site = points[index];
@@ -249,7 +249,7 @@ void TaskSearchDestination::SearchTrySite() {
     Point site;
     Point best_site;
     Rect bounds;
-    int direction;
+    int32_t direction;
     SmartList<UnitInfo>* units;
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
@@ -263,7 +263,7 @@ void TaskSearchDestination::SearchTrySite() {
 
     site += Paths_8DirPointsArray[direction];
 
-    for (int i = search_radius;
+    for (int32_t i = search_radius;
          i > 0 && Access_IsInsideBounds(&bounds, &site) &&
          (is_doomed || !Ai_IsDangerousLocation(&*unit, site, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true)) &&
          sub_3DFCF(&*unit, site);

@@ -26,7 +26,7 @@
 #include "ini.hpp"
 #include "smartfile.hpp"
 
-enum : unsigned char {
+enum : uint8_t {
     OPPONENT_TYPE_CLUELESS,
     OPPONENT_TYPE_APPRENTICE,
     OPPONENT_TYPE_AVERAGE,
@@ -41,10 +41,10 @@ public:
     ~IniSettings();
     void Init();
     void Save();
-    int SetNumericValue(IniParameter param, int value);
-    int GetNumericValue(IniParameter param);
-    int SetStringValue(IniParameter param, const char *buffer);
-    int GetStringValue(IniParameter param, char *buffer, int buffer_size);
+    int32_t SetNumericValue(IniParameter param, int32_t value);
+    int32_t GetNumericValue(IniParameter param);
+    int32_t SetStringValue(IniParameter param, const char *buffer);
+    int32_t GetStringValue(IniParameter param, char *buffer, int32_t buffer_size);
     void SaveSection(SmartFileWriter &file, IniParameter section);
     void LoadSection(SmartFileReader &file, IniParameter section, char mode);
 
@@ -53,7 +53,7 @@ private:
     static const char *SeekToSection(IniParameter param);
 
     Ini_descriptor ini;
-    unsigned int *items;
+    uint32_t *items;
 };
 
 class IniClans {
@@ -61,12 +61,12 @@ public:
     IniClans();
     ~IniClans();
     void Init();
-    int SeekUnit(int clan, int unit);
-    int GetNextUnitUpgrade(short *attrib_id, short *value);
-    void GetStringValue(char *buffer, int buffer_size);
-    int GetClanGold(int clan);
-    void GetClanText(int clan, char *buffer, int buffer_size);
-    void GetClanName(int clan, char *buffer, int buffer_size);
+    int32_t SeekUnit(int32_t clan, int32_t unit);
+    int32_t GetNextUnitUpgrade(int16_t *attrib_id, int16_t *value);
+    void GetStringValue(char *buffer, int32_t buffer_size);
+    int32_t GetClanGold(int32_t clan);
+    void GetClanText(int32_t clan, char *buffer, int32_t buffer_size);
+    void GetClanName(int32_t clan, char *buffer, int32_t buffer_size);
 
 private:
     Ini_descriptor ini;
@@ -80,13 +80,13 @@ public:
     IniSoundVolumes();
     ~IniSoundVolumes();
     void Init();
-    int GetUnitVolume(ResourceID id);
+    int32_t GetUnitVolume(ResourceID id);
 };
 
 extern IniSettings ini_config;
 extern IniClans ini_clans;
 
-extern int ini_setting_victory_type;
-extern int ini_setting_victory_limit;
+extern int32_t ini_setting_victory_type;
+extern int32_t ini_setting_victory_limit;
 
 #endif /* INIFILE_HPP */

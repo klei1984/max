@@ -39,15 +39,15 @@ bool TaskRendezvous_SearchLocation(UnitInfo* unit1, UnitInfo* unit2, Point* site
 bool TaskRendezvous_SearchMap(UnitInfo* unit1, UnitInfo* unit2, Point* site, char mode) {
     TransporterMap transporter_map(unit1, 1, CAUTION_LEVEL_NONE,
                                    (unit1->flags & MOBILE_LAND_UNIT) ? AIRTRANS : INVALID_ID);
-    int range = (unit2->flags & BUILDING) ? 3 : 2;
+    int32_t range = (unit2->flags & BUILDING) ? 3 : 2;
     Point position1(unit1->grid_x, unit1->grid_y);
     Point position2(unit2->grid_x - 1, unit2->grid_y + range - 1);
     bool result = false;
-    int distance;
-    int minimum_distance{INT32_MAX};
+    int32_t distance;
+    int32_t minimum_distance{INT32_MAX};
 
-    for (int direction = 0; direction < 8; direction += 2) {
-        for (int i = 0; i < range; ++i) {
+    for (int32_t direction = 0; direction < 8; direction += 2) {
+        for (int32_t i = 0; i < range; ++i) {
             position2 += Paths_8DirPointsArray[direction];
 
             distance = TaskManager_GetDistance(position1, position2);
@@ -146,7 +146,7 @@ char* TaskRendezvous::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskRendezvous::GetType() const { return TaskType_TaskRendezvous; }
+uint8_t TaskRendezvous::GetType() const { return TaskType_TaskRendezvous; }
 
 void TaskRendezvous::Begin() {
     if (unit1->GetBaseValues()->GetAttribute(ATTRIB_SPEED) > 0) {

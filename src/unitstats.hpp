@@ -24,10 +24,10 @@
 
 #include "unitinfo.hpp"
 
-void UnitStats_DrawImage(unsigned char* buffer, int window_width, struct ImageSimpleHeader* image);
+void UnitStats_DrawImage(uint8_t* buffer, int32_t window_width, struct ImageSimpleHeader* image);
 
-void UnitStats_DrawStats(unsigned char* buffer, int window_width, ResourceID unit_type, unsigned short team,
-                         UnitValues& unit_values, int image_width, ResourceID icon_full, ResourceID icon_empty);
+void UnitStats_DrawStats(uint8_t* buffer, int32_t window_width, ResourceID unit_type, uint16_t team,
+                         UnitValues& unit_values, int32_t image_width, ResourceID icon_full, ResourceID icon_empty);
 
 void UnitStats_Menu(UnitInfo* unit);
 

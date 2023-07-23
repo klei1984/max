@@ -30,36 +30,36 @@
 #include "point.hpp"
 
 struct __attribute__((packed)) ImageSimpleHeader {
-    short width;
-    short height;
-    short ulx;
-    short uly;
-    unsigned char transparent_color;
+    int16_t width;
+    int16_t height;
+    int16_t ulx;
+    int16_t uly;
+    uint8_t transparent_color;
 };
 
 static_assert(sizeof(struct ImageSimpleHeader) == 9, "The structure needs to be packed.");
 
 struct __attribute__((packed)) ImageBigHeader {
-    short ulx;
-    short uly;
-    short width;
-    short height;
+    int16_t ulx;
+    int16_t uly;
+    int16_t width;
+    int16_t height;
     Color palette[3 * PALETTE_SIZE];
-    unsigned char transparent_color;
+    uint8_t transparent_color;
 };
 
 static_assert(sizeof(struct ImageBigHeader) == 777, "The structure needs to be packed.");
 
 struct ImageMultiFrameHeader {
-    short width;
-    short height;
-    short hotx;
-    short hoty;
-    unsigned int *rows;
+    int16_t width;
+    int16_t height;
+    int16_t hotx;
+    int16_t hoty;
+    uint32_t *rows;
 };
 
 struct ImageMultiHeader {
-    unsigned short image_count;
+    uint16_t image_count;
     struct ImageMultiFrameHeader *frames[];
 };
 
@@ -90,36 +90,36 @@ extern ColorIndex *ResourceManager_ColorIndexTable11;
 extern ColorIndex *ResourceManager_ColorIndexTable12;
 extern ColorIndex *ResourceManager_ColorIndexTable13x8;
 
-extern unsigned char *ResourceManager_MinimapFov;
-extern unsigned char *ResourceManager_Minimap;
-extern unsigned char *ResourceManager_Minimap2x;
+extern uint8_t *ResourceManager_MinimapFov;
+extern uint8_t *ResourceManager_Minimap;
+extern uint8_t *ResourceManager_Minimap2x;
 
-extern unsigned short *ResourceManager_MapTileIds;
-extern unsigned char *ResourceManager_MapTileBuffer;
-extern unsigned char *ResourceManager_MapSurfaceMap;
-extern unsigned short *ResourceManager_CargoMap;
+extern uint16_t *ResourceManager_MapTileIds;
+extern uint8_t *ResourceManager_MapTileBuffer;
+extern uint8_t *ResourceManager_MapSurfaceMap;
+extern uint16_t *ResourceManager_CargoMap;
 
 extern Point ResourceManager_MapSize;
 
-void ResourceManager_InitPaths(int argc, char *argv[]);
+void ResourceManager_InitPaths(int32_t argc, char *argv[]);
 void ResourceManager_InitResources();
-void ResourceManager_ExitGame(int error_code);
+void ResourceManager_ExitGame(int32_t error_code);
 ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bool full_scan);
-unsigned char *ResourceManager_ReadResource(ResourceID id);
-unsigned char *ResourceManager_LoadResource(ResourceID id);
-unsigned int ResourceManager_GetResourceSize(ResourceID id);
-int ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer);
-int ResourceManager_GetResourceFileID(ResourceID id);
+uint8_t *ResourceManager_ReadResource(ResourceID id);
+uint8_t *ResourceManager_LoadResource(ResourceID id);
+uint32_t ResourceManager_GetResourceSize(ResourceID id);
+int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer);
+int32_t ResourceManager_GetResourceFileID(ResourceID id);
 const char *ResourceManager_GetResourceID(ResourceID id);
-void ResourceManager_Realloc(ResourceID id, unsigned char *buffer, int data_size);
+void ResourceManager_Realloc(ResourceID id, uint8_t *buffer, int32_t data_size);
 FILE *ResourceManager_GetFileHandle(ResourceID id);
-void ResourceManager_InitInGameAssets(int world);
+void ResourceManager_InitInGameAssets(int32_t world);
 const char *ResourceManager_ToUpperCase(char *cstr);
 const char *ResourceManager_ToUpperCase(std::string &string);
 void ResourceManager_FreeResources();
-void ResourceManager_InitClanUnitValues(unsigned short team);
-void ResourceManager_InitHeatMaps(unsigned short team);
+void ResourceManager_InitClanUnitValues(uint16_t team);
+void ResourceManager_InitHeatMaps(uint16_t team);
 void ResourceManager_InitTeamInfo();
-unsigned char *ResourceManager_GetBuffer(ResourceID id);
+uint8_t *ResourceManager_GetBuffer(ResourceID id);
 
 #endif /* RESOURCE_MANAGER_HPP */

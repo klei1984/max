@@ -25,8 +25,8 @@
 #include "gnw.h"
 
 class ButtonManager {
-    unsigned short slots;
-    unsigned short used;
+    uint16_t slots;
+    uint16_t used;
     ButtonID* buttons;
 
 public:

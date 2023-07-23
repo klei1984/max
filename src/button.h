@@ -24,38 +24,38 @@
 
 #include "interface.h"
 
-typedef int ButtonID;
+typedef int32_t ButtonID;
 
-typedef void (*ButtonFunc)(ButtonID, int);
+typedef void (*ButtonFunc)(ButtonID, int32_t);
 typedef void (*CheckButtonFunc)(ButtonID);
 
 typedef struct GNW_buttondata* GNW_ButtonPtr;
 
 typedef struct GNW_ButtonGroup_s {
-    int max_checked;
-    int curr_checked;
+    int32_t max_checked;
+    int32_t curr_checked;
     CheckButtonFunc func;
-    int num_buttons;
+    int32_t num_buttons;
     GNW_ButtonPtr list[64];
 } GNW_ButtonGroup;
 
 struct GNW_buttondata {
     ButtonID id;
-    unsigned int flags;
+    uint32_t flags;
     Rect b;
-    int on_value;
-    int off_value;
-    int p_value;
-    int r_value;
-    int rp_value;
-    int rr_value;
-    unsigned char* up;
-    unsigned char* down;
-    unsigned char* hover;
-    unsigned char* dis_up;
-    unsigned char* dis_down;
-    unsigned char* dis_hover;
-    unsigned char* last_image;
+    int32_t on_value;
+    int32_t off_value;
+    int32_t p_value;
+    int32_t r_value;
+    int32_t rp_value;
+    int32_t rr_value;
+    uint8_t* up;
+    uint8_t* down;
+    uint8_t* hover;
+    uint8_t* dis_up;
+    uint8_t* dis_down;
+    uint8_t* dis_hover;
+    uint8_t* last_image;
     char* mask;
     ButtonFunc on_func;
     ButtonFunc off_func;
@@ -68,32 +68,32 @@ struct GNW_buttondata {
     GNW_ButtonPtr next;
 };
 
-ButtonID win_register_button(WinID id, int ulx, int uly, int width, int length, int on_value, int off_value,
-                             int p_value, int r_value, unsigned char* up, unsigned char* down, unsigned char* hover,
-                             unsigned int flags);
-ButtonID win_register_text_button(WinID id, int ulx, int uly, int on_value, int off_value, int p_value, int r_value,
-                                  char* name, int flags);
-int win_register_button_disable(ButtonID bid, unsigned char* disabled_up, unsigned char* disabled_down,
-                                unsigned char* disabled_hover);
-int win_register_button_image(ButtonID bid, unsigned char* up, unsigned char* down, unsigned char* hover, int draw);
-int win_register_button_func(ButtonID bid, ButtonFunc on_func, ButtonFunc off_func, ButtonFunc p_func,
+ButtonID win_register_button(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t on_value, int32_t off_value,
+                             int32_t p_value, int32_t r_value, uint8_t* up, uint8_t* down, uint8_t* hover,
+                             uint32_t flags);
+ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, int32_t on_value, int32_t off_value, int32_t p_value, int32_t r_value,
+                                  char* name, int32_t flags);
+int32_t win_register_button_disable(ButtonID bid, uint8_t* disabled_up, uint8_t* disabled_down,
+                                uint8_t* disabled_hover);
+int32_t win_register_button_image(ButtonID bid, uint8_t* up, uint8_t* down, uint8_t* hover, int32_t draw);
+int32_t win_register_button_func(ButtonID bid, ButtonFunc on_func, ButtonFunc off_func, ButtonFunc p_func,
                              ButtonFunc r_func);
-int win_register_right_button(ButtonID bid, int p_value, int r_value, ButtonFunc p_func, ButtonFunc r_func);
-int win_register_button_mask(ButtonID bid, char* mask);
-int win_button_down(ButtonID bid);
-int GNW_check_buttons(GNW_Window* w, int* press);
+int32_t win_register_right_button(ButtonID bid, int32_t p_value, int32_t r_value, ButtonFunc p_func, ButtonFunc r_func);
+int32_t win_register_button_mask(ButtonID bid, char* mask);
+int32_t win_button_down(ButtonID bid);
+int32_t GNW_check_buttons(GNW_Window* w, int32_t* press);
 WinID win_button_winID(ButtonID bid);
 WinID win_last_button_winID(void);
-int win_delete_button(ButtonID bid);
+int32_t win_delete_button(ButtonID bid);
 void GNW_delete_button(GNW_ButtonPtr b);
-void win_delete_button_win(ButtonID bid, int button_value);
+void win_delete_button_win(ButtonID bid, int32_t button_value);
 ButtonID button_new_id(void);
-int win_enable_button(ButtonID bid);
-int win_disable_button(ButtonID bid);
-int win_set_button_rest_state(ButtonID bid, int rest_down, int flags);
-int win_group_check_buttons(int num_buttons, ButtonID* button_list, int max_checked, CheckButtonFunc func);
-int win_group_radio_buttons(int num_buttons, ButtonID* button_list);
+int32_t win_enable_button(ButtonID bid);
+int32_t win_disable_button(ButtonID bid);
+int32_t win_set_button_rest_state(ButtonID bid, int32_t rest_down, int32_t flags);
+int32_t win_group_check_buttons(int32_t num_buttons, ButtonID* button_list, int32_t max_checked, CheckButtonFunc func);
+int32_t win_group_radio_buttons(int32_t num_buttons, ButtonID* button_list);
 void GNW_button_refresh(GNW_Window* w, Rect* r);
-int win_button_press_and_release(ButtonID bid);
+int32_t win_button_press_and_release(ButtonID bid);
 
 #endif /* BUTTON_H */

@@ -28,18 +28,18 @@
 class TaskFindPath : public Task {
     SmartPointer<PathRequest> path_request;
     void (*result_callback)(Task* task, PathRequest* path_request, Point destination_, GroundPath* path,
-                            unsigned char result);
+                            uint8_t result);
     void (*cancel_callback)(Task* task, PathRequest* path_request);
 
 public:
     TaskFindPath(Task* parent, PathRequest* request,
                  void (*result_callback)(Task* task, PathRequest* path_request, Point destination_, GroundPath* path,
-                                         unsigned char result),
+                                         uint8_t result),
                  void (*cancel_callback)(Task* task, PathRequest* path_request));
     ~TaskFindPath();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsThinking();
     void Begin();
     void EndTurn();

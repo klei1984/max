@@ -30,7 +30,7 @@
 class CargoMenu : public AbstractUpgradeMenu {
     SmartObjectArray<ResourceID> unit_types1;
     SmartObjectArray<ResourceID> unit_types2;
-    SmartObjectArray<unsigned short> cargos;
+    SmartObjectArray<uint16_t> cargos;
     CargoSelector *cargo_selector;
     UnitTypeSelector *active_selector;
     Button *button_purchase_list_up;
@@ -41,16 +41,16 @@ class CargoMenu : public AbstractUpgradeMenu {
     Button *button_delete;
     Button *button_buy;
     LimitedScrollbar *scrollbar;
-    unsigned short unit_count;
+    uint16_t unit_count;
 
-    void Select(int index);
+    void Select(int32_t index);
     void BuyUnit();
     void DeleteUnit();
     void UpdateScrollbar();
-    void UpdateTeamGold(int factor);
+    void UpdateTeamGold(int32_t factor);
 
 public:
-    CargoMenu(unsigned short team);
+    CargoMenu(uint16_t team);
     ~CargoMenu();
 
     bool EventHandler(Event *event);
@@ -60,7 +60,7 @@ public:
     void PopulateTeamUnitsList();
     void DrawUnitStats(ResourceID unit_type);
     void AbstractUpgradeMenu_vfunc7();
-    bool ProcessKey(int key);
+    bool ProcessKey(int32_t key);
 
     UnitValues *GetCurrentUnitValues(ResourceID unit_type);
 };

@@ -34,8 +34,8 @@
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
-unsigned short Task::task_id = 0;
-unsigned short Task::task_count = 0;
+uint16_t Task::task_id = 0;
+uint16_t Task::task_count = 0;
 
 static SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type);
 
@@ -82,9 +82,9 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
     bool result;
 
     if (unit->shots && !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-        int unit_range = 0;
+        int32_t unit_range = 0;
         bool relevant_teams[PLAYER_TEAM_MAX - 1];
-        int team;
+        int32_t team;
 
         for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
@@ -135,14 +135,14 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                 for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin();
                      it != AiPlayer_Teams[unit->team].GetSpottedUnits().End(); ++it) {
                     UnitInfo* spotted_unit = (*it).GetUnit();
-                    int spotted_unit_range = spotted_unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+                    int32_t spotted_unit_range = spotted_unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                     if (spotted_unit->ammo > 0 && relevant_teams[spotted_unit->team] &&
                         spotted_unit_range > unit_range &&
                         Access_IsValidAttackTarget(spotted_unit->unit_type, unit->unit_type, site)) {
                         UnitValues* unit_values = spotted_unit->GetBaseValues();
-                        int unit_distance = Access_GetDistance(unit, (*it).GetLastPosition());
-                        int attack_distance = unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+                        int32_t unit_distance = Access_GetDistance(unit, (*it).GetLastPosition());
+                        int32_t attack_distance = unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
                         if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                             attack_distance += unit_values->GetAttribute(ATTRIB_SPEED) / 2;
@@ -199,10 +199,10 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
     return result;
 }
 
-bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level) {
+bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int32_t caution_level) {
     AiPlayer* ai_player = &AiPlayer_Teams[unit->team];
     Point position(unit->grid_x, unit->grid_y);
-    int unit_hits = unit->hits;
+    int32_t unit_hits = unit->hits;
     bool result;
 
     if (unit->GetField221() & 1) {
@@ -217,7 +217,7 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level) {
             result = false;
 
         } else if (unit->speed > 0) {
-            short** damage_potential_map = ai_player->GetDamagePotentialMap(unit, caution_level, true);
+            int16_t** damage_potential_map = ai_player->GetDamagePotentialMap(unit, caution_level, true);
 
             if (damage_potential_map) {
                 ZoneWalker walker(position, unit->speed);
@@ -245,8 +245,8 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level) {
     return result;
 }
 
-bool Task_IsAdjacent(UnitInfo* unit, short grid_x, short grid_y) {
-    int unit_size;
+bool Task_IsAdjacent(UnitInfo* unit, int16_t grid_x, int16_t grid_y) {
+    int32_t unit_size;
 
     if (unit->flags & BUILDING) {
         unit_size = 2;
@@ -259,17 +259,17 @@ bool Task_IsAdjacent(UnitInfo* unit, short grid_x, short grid_y) {
            unit->grid_y + unit_size >= grid_y;
 }
 
-int Task_EstimateTurnsTillMissionEnd() {
-    int victory_limit = ini_setting_victory_limit;
-    int result;
+int32_t Task_EstimateTurnsTillMissionEnd() {
+    int32_t victory_limit = ini_setting_victory_limit;
+    int32_t result;
 
     if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
-        int remaining_turns = 1000;
-        int turns;
+        int32_t remaining_turns = 1000;
+        int32_t turns;
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                int count = 0;
+                int32_t count = 0;
 
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -297,7 +297,7 @@ int Task_EstimateTurnsTillMissionEnd() {
     return result;
 }
 
-Task::Task(unsigned short team, Task* parent, unsigned short flags)
+Task::Task(uint16_t team, Task* parent, uint16_t flags)
     : id(++task_id),
       team(team),
       parent(parent),
@@ -345,16 +345,16 @@ bool Task::IsScheduledForTurnEnd() const { return scheduled_for_turn_end; }
 
 void Task::ChangeIsScheduledForTurnEnd(bool value) { scheduled_for_turn_end = value; }
 
-unsigned short Task::GetTeam() const { return team; }
+uint16_t Task::GetTeam() const { return team; }
 
 Task* Task::GetParent() { return &*parent; }
 
 void Task::SetParent(Task* task) { parent = task; }
 
-void Task::SetFlags(unsigned short flags_) { flags = flags_; }
+void Task::SetFlags(uint16_t flags_) { flags = flags_; }
 
-short Task::DeterminePriority(unsigned short task_flags) {
-    int result;
+int16_t Task::DeterminePriority(uint16_t task_flags) {
+    int32_t result;
 
     if (flags + 0xFF >= task_flags) {
         if (flags - 0xFF <= task_flags) {
@@ -377,7 +377,7 @@ Point Task::DeterminePosition() {
     return Point(bounds.ulx, bounds.uly);
 }
 
-bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {
+bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level) {
     bool result;
 
     if (caution_level == CAUTION_LEVEL_NONE || (unit->GetField221() & 1)) {
@@ -394,7 +394,7 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {
         }
 
         Point position(unit->grid_x, unit->grid_y);
-        int unit_hits = unit->hits;
+        int32_t unit_hits = unit->hits;
 
         if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
             unit_hits = 1;
@@ -428,7 +428,7 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level) {
     return result;
 }
 
-bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level) {
+bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int32_t caution_level) {
     bool result;
 
     if (task->IsInitNeeded() && Task_RetreatIfNecessary(task, unit, caution_level)) {
@@ -444,7 +444,7 @@ bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level) {
 }
 
 SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type) {
-    unsigned int flags = UnitsManager_BaseUnits[unit_type].flags;
+    uint32_t flags = UnitsManager_BaseUnits[unit_type].flags;
     SmartList<UnitInfo>* list;
 
     if (flags & STATIONARY) {
@@ -465,9 +465,9 @@ SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type) {
     return list;
 }
 
-int Task_GetReadyUnitsCount(unsigned short team, ResourceID unit_type) {
+int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type) {
     SmartList<UnitInfo>* units = Task_GetUnitList(unit_type);
-    int count = 0;
+    int32_t count = 0;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team && (*it).unit_type == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
@@ -490,8 +490,8 @@ bool Task::Task_vfunc1(UnitInfo& unit) {
 
 bool Task::IsUnitUsable(UnitInfo& unit) { return false; }
 
-int Task::GetCautionLevel(UnitInfo& unit) {
-    int result;
+int32_t Task::GetCautionLevel(UnitInfo& unit) {
+    int32_t result;
 
     if (unit.base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
         ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
@@ -509,7 +509,7 @@ int Task::GetCautionLevel(UnitInfo& unit) {
     return result;
 }
 
-unsigned short Task::GetFlags() const { return flags; }
+uint16_t Task::GetFlags() const { return flags; }
 
 Rect* Task::GetBounds(Rect* bounds) {
     bounds->ulx = 0;
@@ -571,4 +571,4 @@ void Task::EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2) {}
 
 void Task::EventZoneCleared(Zone* zone, bool status) {}
 
-unsigned short Task::GetId() const { return id; }
+uint16_t Task::GetId() const { return id; }

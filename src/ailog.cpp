@@ -27,8 +27,8 @@
 #define AILOG_FILE_LIMIT UINT16_MAX
 
 std::ofstream AiLog::AiLog_File;
-int AiLog::AiLog_SectionCount;
-int AiLog::AiLog_EntryCount;
+int32_t AiLog::AiLog_SectionCount;
+int32_t AiLog::AiLog_EntryCount;
 
 AiLog::AiLog(const char* format, ...) {
     if (AiLog_File.is_open()) {
@@ -48,7 +48,7 @@ AiLog::~AiLog() {
     --AiLog_SectionCount;
 
     if (AiLog_File.is_open()) {
-        unsigned int elapsed_time = timer_elapsed_time(time_stamp);
+        uint32_t elapsed_time = timer_elapsed_time(time_stamp);
 
         if (elapsed_time >= TIMER_FPS_TO_MS(50)) {
             Log("log section complete, %li msecs elapsed", elapsed_time);

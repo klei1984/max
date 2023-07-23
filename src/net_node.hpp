@@ -26,7 +26,7 @@
 #include "smartobjectarray.hpp"
 
 struct NetNode {
-    unsigned short entity_id;
+    uint16_t entity_id;
     NetAddress address;
     char name[30];
     bool is_host;
@@ -52,8 +52,8 @@ public:
         }
     }
 
-    NetNode* Find(unsigned short entity_id) const {
-        for (int i = 0; i < nodes.GetCount(); ++i) {
+    NetNode* Find(uint16_t entity_id) const {
+        for (int32_t i = 0; i < nodes.GetCount(); ++i) {
             if (nodes[i]->entity_id == entity_id) {
                 return nodes[i];
             }
@@ -63,7 +63,7 @@ public:
     }
 
     NetNode* Find(NetAddress& address) const {
-        for (int i = 0; i < nodes.GetCount(); ++i) {
+        for (int32_t i = 0; i < nodes.GetCount(); ++i) {
             if (nodes[i]->address == address) {
                 return nodes[i];
             }
@@ -72,14 +72,14 @@ public:
         return nullptr;
     }
 
-    NetNode* operator[](unsigned short position) const {
+    NetNode* operator[](uint16_t position) const {
         return nodes.GetCount() > position ? nodes[position] : nullptr;
     }
 
     void Clear() { nodes.Clear(); }
 
-    void Remove(unsigned short entity_id) {
-        for (int i = 0; i < nodes.GetCount(); ++i) {
+    void Remove(uint16_t entity_id) {
+        for (int32_t i = 0; i < nodes.GetCount(); ++i) {
             if (nodes[i]->entity_id == entity_id) {
                 nodes.Remove(i);
                 break;
@@ -87,7 +87,7 @@ public:
         }
     }
 
-    unsigned short GetCount() const { return nodes.GetCount(); }
+    uint16_t GetCount() const { return nodes.GetCount(); }
 };
 
 #endif /* NET_NODE_HPP */

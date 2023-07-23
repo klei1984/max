@@ -25,21 +25,21 @@
 #include "smartobjectarray.hpp"
 
 struct FloodRun {
-    short grid_x;
-    short uly;
-    short lry;
+    int16_t grid_x;
+    int16_t uly;
+    int16_t lry;
 };
 
 MAXFloodFill::MAXFloodFill(Rect bounds, bool mode) : mode(mode), target_bounds(bounds), cell_count(0) {}
 
 Rect* MAXFloodFill::GetBounds() { return &bounds; }
 
-int MAXFloodFill::Fill(Point point) {
+int32_t MAXFloodFill::Fill(Point point) {
     FloodRun run;
     ObjectArray<FloodRun> runs;
-    int runs_count;
-    int max_runs = 0;
-    unsigned int time_stamp = timer_get();
+    int32_t runs_count;
+    int32_t max_runs = 0;
+    uint32_t time_stamp = timer_get();
 
     cell_count = 0;
 
@@ -143,7 +143,7 @@ int MAXFloodFill::Fill(Point point) {
 
     ++bounds.lrx;
 
-    int elapsed_time = timer_elapsed_time(time_stamp);
+    int32_t elapsed_time = timer_elapsed_time(time_stamp);
 
     if (elapsed_time > 10 || max_runs > 10) {
         AiLog log("Flood fill, %i msecs, %i max depth.", elapsed_time, max_runs);

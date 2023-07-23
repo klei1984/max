@@ -32,23 +32,23 @@
 #include "window_manager.hpp"
 
 struct InterfaceMeta {
-    unsigned short divisor;
+    uint16_t divisor;
     ColorIndex* color_index_table;
-    unsigned short brightness;
+    uint16_t brightness;
     ResourceID icon;
-    unsigned char* buffer;
-    unsigned short width;
+    uint8_t* buffer;
+    uint16_t width;
     Rect bounds;
-    unsigned short ulx;
-    unsigned short uly;
-    unsigned short frame_index;
+    uint16_t ulx;
+    uint16_t uly;
+    uint16_t frame_index;
 };
 
 static void ReportStats_RenderSprite(struct InterfaceMeta* data);
-static void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int current_value,
-                                  int base_value);
-static void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
-                                  ResourceID icon_empty, int current_value, int base_value, int factor, bool drawline);
+static void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int32_t current_value,
+                                  int32_t base_value);
+static void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int32_t row_id, ResourceID icon_normal,
+                                  ResourceID icon_empty, int32_t current_value, int32_t base_value, int32_t factor, bool drawline);
 static void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds);
 static void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds);
 static void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds);
@@ -59,13 +59,13 @@ const ResourceID ReportStats_CargoIcons[] = {
 };
 
 void ReportStats_RenderSprite(struct InterfaceMeta* data) {
-    unsigned int scaling_divisor_factor;
-    unsigned int data_size;
-    unsigned int map_scaling_factor;
-    unsigned char* image_frame;
-    int map_window_ulx;
-    int map_window_uly;
-    int window_width_backup;
+    uint32_t scaling_divisor_factor;
+    uint32_t data_size;
+    uint32_t map_scaling_factor;
+    uint8_t* image_frame;
+    int32_t map_window_ulx;
+    int32_t map_window_uly;
+    int32_t window_width_backup;
 
     scaling_divisor_factor = 1 << data->divisor;
 
@@ -82,8 +82,8 @@ void ReportStats_RenderSprite(struct InterfaceMeta* data) {
         ResourceManager_Realloc(data->icon, Gfx_ResourceBuffer, data_size);
     }
 
-    image_frame = &Gfx_ResourceBuffer[reinterpret_cast<unsigned int*>(
-        &Gfx_ResourceBuffer[sizeof(unsigned short)])[data->frame_index]];
+    image_frame = &Gfx_ResourceBuffer[reinterpret_cast<uint32_t*>(
+        &Gfx_ResourceBuffer[sizeof(uint16_t)])[data->frame_index]];
 
     map_scaling_factor = Gfx_MapScalingFactor;
     map_window_ulx = Gfx_MapWindowUlx;
@@ -95,7 +95,7 @@ void ReportStats_RenderSprite(struct InterfaceMeta* data) {
     WindowManager_WindowWidth = data->width;
 
     if (Gfx_DecodeSpriteSetup(Point(data->ulx, data->uly), image_frame, 2, &data->bounds)) {
-        Gfx_SpriteRowAddresses = reinterpret_cast<unsigned int*>(&image_frame[sizeof(short) * 4]);
+        Gfx_SpriteRowAddresses = reinterpret_cast<uint32_t*>(&image_frame[sizeof(int16_t) * 4]);
         Gfx_TeamColorIndexBase = 0;
         Gfx_ColorIndices = data->color_index_table;
         Gfx_UnitBrightnessBase = data->brightness;
@@ -110,21 +110,21 @@ void ReportStats_RenderSprite(struct InterfaceMeta* data) {
     Gfx_MapWindowUly = map_window_uly;
 }
 
-void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int current_value,
-                           int base_value) {
+void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int32_t current_value,
+                           int32_t base_value) {
     struct ImageSimpleHeader* image;
-    int width;
-    int height;
-    int width_offset;
-    int height_offset;
-    unsigned char* buffer;
-    int base_value_scaled;
-    int base_value_diff;
-    int factor;
-    int offset;
-    int ulx;
-    int uly;
-    int icon_index;
+    int32_t width;
+    int32_t height;
+    int32_t width_offset;
+    int32_t height_offset;
+    uint8_t* buffer;
+    int32_t base_value_scaled;
+    int32_t base_value_diff;
+    int32_t factor;
+    int32_t offset;
+    int32_t ulx;
+    int32_t uly;
+    int32_t icon_index;
 
     width = window->window.lrx - window->window.ulx;
     height = window->window.lry - window->window.uly;
@@ -176,8 +176,8 @@ void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceI
 
         ulx = (factor * 4 + image->width) - offset;
 
-        for (int i = 0; i < base_value; ++i) {
-            int buffer_position;
+        for (int32_t i = 0; i < base_value; ++i) {
+            int32_t buffer_position;
 
             icon_index = i % 5;
             buffer_position = ulx * (i / 5) + (factor * icon_index);
@@ -193,10 +193,10 @@ void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceI
     }
 }
 
-void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int row_id, ResourceID icon_normal,
-                           ResourceID icon_empty, int current_value, int base_value, int factor, bool drawline) {
+void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int32_t row_id, ResourceID icon_normal,
+                           ResourceID icon_empty, int32_t current_value, int32_t base_value, int32_t factor, bool drawline) {
     Rect new_bounds;
-    int height;
+    int32_t height;
 
     height = bounds->lry - bounds->uly;
 
@@ -210,12 +210,12 @@ void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int row_id,
 }
 
 void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID icon_normal, ResourceID icon_empty,
-                         int current_value, int base_value, int factor, bool drawline) {
+                         int32_t current_value, int32_t base_value, int32_t factor, bool drawline) {
     WindowInfo window;
-    int width;
-    int height;
-    int color;
-    int size;
+    int32_t width;
+    int32_t height;
+    int32_t color;
+    int32_t size;
     char string[10];
 
     width = bounds->lrx - bounds->ulx;
@@ -282,8 +282,8 @@ void ReportStats_DrawRow(const char* text, WinID id, Rect* bounds, ResourceID ic
     }
 }
 
-void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID unit_type, unsigned short team, int ulx,
-                                  int uly) {
+void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID unit_type, uint16_t team, int32_t ulx,
+                                  int32_t uly) {
     InterfaceMeta data;
 
     if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
@@ -320,22 +320,22 @@ void ReportStats_DrawListItemIcon(unsigned char* buffer, int width, ResourceID u
     }
 }
 
-void ReportStats_DrawListItem(unsigned char* buffer, int width, ResourceID unit_type, int ulx, int uly, int full,
-                              int color) {
+void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_type, int32_t ulx, int32_t uly, int32_t full,
+                              int32_t color) {
     ReportStats_DrawListItemIcon(buffer, width, unit_type, GameManager_PlayerTeam, ulx + 16, uly + 16);
     Text_TextBox(buffer, width, UnitsManager_BaseUnits[unit_type].singular_name, ulx + 35, uly, full - 35, 32, color,
                  false);
 }
 
-void ReportStats_DrawNumber(unsigned char* buffer, int number, int width, int full, int color) {
+void ReportStats_DrawNumber(uint8_t* buffer, int32_t number, int32_t width, int32_t full, int32_t color) {
     char text_buffer[10];
 
     snprintf(text_buffer, sizeof(text_buffer), "%i", number);
     ReportStats_DrawText(buffer, text_buffer, width, full, color);
 }
 
-void ReportStats_DrawText(unsigned char* buffer, char* text, int width, int full, int color) {
-    int length;
+void ReportStats_DrawText(uint8_t* buffer, char* text, int32_t width, int32_t full, int32_t color) {
+    int32_t length;
 
     length = Text_GetWidth(text);
 
@@ -347,15 +347,15 @@ void ReportStats_DrawText(unsigned char* buffer, char* text, int width, int full
 }
 
 void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
-    int power_consumption_base;
-    int power_consumption_current;
+    int32_t power_consumption_base;
+    int32_t power_consumption_current;
 
     power_consumption_base = Cargo_GetPowerConsumptionRate(unit->unit_type);
 
     if (power_consumption_base && GameManager_PlayerTeam == unit->team &&
         !Cargo_GetLifeConsumptionRate(unit->unit_type)) {
-        int current_value;
-        int base_value;
+        int32_t current_value;
+        int32_t base_value;
         Cargo cargo;
 
         current_value = 0;
@@ -407,14 +407,14 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
 }
 
 void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
-    int life_need;
+    int32_t life_need;
 
     life_need = Cargo_GetLifeConsumptionRate(unit->unit_type);
 
     if (life_need && GameManager_PlayerTeam == unit->team) {
-        int current_life_need;
-        int current_value;
-        int base_value;
+        int32_t current_life_need;
+        int32_t current_value;
+        int32_t base_value;
         Cargo cargo;
 
         current_value = 0;
@@ -466,15 +466,15 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
 }
 
 void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds) {
-    unsigned int victory_limit;
-    unsigned int victory_limit_scaled;
+    uint32_t victory_limit;
+    uint32_t victory_limit_scaled;
 
     if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
         victory_limit = ini_setting_victory_limit;
     } else {
         victory_limit = 0;
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
                 victory_limit = std::max(victory_limit, UnitsManager_TeamInfo[unit->team].team_points);
@@ -506,8 +506,8 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
                                   unit->team == GameManager_PlayerTeam ? unit_values->GetAttribute(ATTRIB_AMMO) : 0, 1,
                                   true);
         } else {
-            int cargo_type;
-            int cargo_value;
+            int32_t cargo_type;
+            int32_t cargo_value;
 
             cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
             cargo_value = 3;
@@ -554,10 +554,10 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
             UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD) {
             Cargo materials;
             Cargo capacity;
-            int cargo_type;
-            int cargo_value;
-            int current_value{0};
-            int base_value{0};
+            int32_t cargo_type;
+            int32_t cargo_value;
+            int32_t current_value{0};
+            int32_t base_value{0};
 
             unit->GetComplex()->GetCargoInfo(materials, capacity);
             cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;

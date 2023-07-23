@@ -31,25 +31,25 @@
 
 static void* mve_cb_alloc(size_t size);
 static void mve_cb_free(void* p);
-static int mve_cb_read(FILE* handle, void* buf, size_t count);
-static int mve_cb_ctl(void);
-static void movie_cb_show_frame(unsigned char* buffer, int bufw, int bufh, int sx, int sy, int w, int h, int dstx,
-                                int dsty);
-static void movie_cb_set_palette(unsigned char* p, int start, int count);
+static int32_t mve_cb_read(FILE* handle, void* buf, size_t count);
+static int32_t mve_cb_ctl(void);
+static void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dstx,
+                                int32_t dsty);
+static void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count);
 static void movie_init_palette(void);
-static int movie_run(ResourceID resource_id, int mode);
+static int32_t movie_run(ResourceID resource_id, int32_t mode);
 
-static unsigned int movie_music_level;
+static uint32_t movie_music_level;
 
 void* mve_cb_alloc(size_t size) { return malloc(size); }
 
 void mve_cb_free(void* p) { free(p); }
 
-int mve_cb_read(FILE* handle, void* buf, size_t count) { return fread(buf, 1, count, handle); }
+int32_t mve_cb_read(FILE* handle, void* buf, size_t count) { return fread(buf, 1, count, handle); }
 
-int mve_cb_ctl(void) {
-    int input;
-    int result;
+int32_t mve_cb_ctl(void) {
+    int32_t input;
+    int32_t result;
 
     input = get_input();
 
@@ -62,30 +62,30 @@ int mve_cb_ctl(void) {
     return result;
 }
 
-void movie_cb_show_frame(unsigned char* buffer, int bufw, int bufh, int sx, int sy, int w, int h, int dstx, int dsty) {
+void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dstx, int32_t dsty) {
     Svga_Blit(buffer, bufw, bufh, sx, sy, w, h, dstx, dsty);
 }
 
-void movie_cb_set_palette(unsigned char* p, int start, int count) {
-    for (int i = start; i < (start + count); i++) {
+void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count) {
+    for (int32_t i = start; i < (start + count); i++) {
         Svga_SetPaletteColor(i, p[3 * i + 0] * 4, p[3 * i + 1] * 4, p[3 * i + 2] * 4);
     }
 }
 
 static void movie_init_palette(void) {
-    for (int i = 0; i < PALETTE_SIZE; i++) {
+    for (int32_t i = 0; i < PALETTE_SIZE; i++) {
         Svga_SetPaletteColor(i, 0, 0, 0);
     }
 
     Svga_SetPaletteColor(PALETTE_SIZE - 1, 50, 50, 50);
 }
 
-int movie_run(ResourceID resource_id, int mode) {
+int32_t movie_run(ResourceID resource_id, int32_t mode) {
     FILE* fp;
     char result;
     char path[PATH_MAX];
     char* file_name;
-    unsigned char* palette;
+    uint8_t* palette;
 
     SoundManager.FreeMusic();
 
@@ -131,8 +131,8 @@ int movie_run(ResourceID resource_id, int mode) {
             MVE_sfSVGA(640, 480, 640, 0, nullptr, 0, 0, nullptr, 0);
 
             if (!MVE_rmUnprotect() && !MVE_rmPrepMovie(fp, -1, -1, 0)) {
-                int aborted = 0;
-                int frame_index = 0;
+                int32_t aborted = 0;
+                int32_t frame_index = 0;
 
                 for (; (result = MVE_rmStepMovie()) == 0 && !aborted;) {
                     if (mve_cb_ctl()) {
@@ -176,11 +176,11 @@ int movie_run(ResourceID resource_id, int mode) {
     return result;
 }
 
-int Movie_PlayOemLogo(void) { return movie_run(LOGOFLIC, 0); }
+int32_t Movie_PlayOemLogo(void) { return movie_run(LOGOFLIC, 0); }
 
-int Movie_PlayIntro(void) { return movie_run(INTROFLC, 1); }
+int32_t Movie_PlayIntro(void) { return movie_run(INTROFLC, 1); }
 
-int Movie_Play(ResourceID resource_id) {
+int32_t Movie_Play(ResourceID resource_id) {
     WindowManager_ClearWindow();
     return movie_run(resource_id, 0);
 }

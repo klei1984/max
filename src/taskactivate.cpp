@@ -63,7 +63,7 @@ void TaskActivate::Activate() {
                             if (unit_to_activate->orders != ORDER_IDLE || unit_parent->orders == ORDER_BUILD ||
                                 unit_parent->orders == ORDER_AWAIT) {
                                 Point position(unit_parent->grid_x - 1, unit_parent->grid_y);
-                                int unit_size;
+                                int32_t unit_size;
 
                                 if (unit_parent->flags & BUILDING) {
                                     unit_size = 2;
@@ -74,8 +74,8 @@ void TaskActivate::Activate() {
 
                                 position.y += unit_size;
 
-                                for (int direction = 0; direction < 8; direction += 2) {
-                                    for (int range = 0; range < unit_size + 1; ++range) {
+                                for (int32_t direction = 0; direction < 8; direction += 2) {
+                                    for (int32_t range = 0; range < unit_size + 1; ++range) {
                                         position += Paths_8DirPointsArray[direction];
 
                                         if (Access_IsAccessible(unit_to_activate->unit_type, team, position.x,
@@ -122,8 +122,8 @@ void TaskActivate::Activate() {
                                     }
                                 }
 
-                                for (int direction = 0; direction < 8; direction += 2) {
-                                    for (int range = 0; range < unit_size + 1; ++range) {
+                                for (int32_t direction = 0; direction < 8; direction += 2) {
+                                    for (int32_t range = 0; range < unit_size + 1; ++range) {
                                         position += Paths_8DirPointsArray[direction];
 
                                         if (Access_IsAccessible(unit_to_activate->unit_type, team, position.x,
@@ -174,7 +174,7 @@ Rect* TaskActivate::GetBounds(Rect* bounds) {
     return bounds;
 }
 
-unsigned char TaskActivate::GetType() const { return TaskType_TaskActivate; }
+uint8_t TaskActivate::GetType() const { return TaskType_TaskActivate; }
 
 void TaskActivate::AddUnit(UnitInfo& unit) {
     if (&*unit_to_activate == &unit) {

@@ -29,13 +29,13 @@
 static_assert(sizeof(struct NetAddress) == sizeof(IPaddress));
 
 class TransportUdpDefault : public Transport {
-    int NetState;
-    int network_role;
+    int32_t NetState;
+    int32_t network_role;
     const char* LastError;
-    unsigned short SessionId;
-    int channels[TRANSPORT_MAX_TEAM_COUNT];
+    uint16_t SessionId;
+    int32_t channels[TRANSPORT_MAX_TEAM_COUNT];
     UDPsocket socket;
-    int channel;
+    int32_t channel;
     UDPpacket* UdpPacket;
     NetAddress BroadcastAddress;
 
@@ -48,13 +48,13 @@ public:
     ~TransportUdpDefault();
 
     const char* GetError() const;
-    bool Init(int mode);
+    bool Init(int32_t mode);
     bool Deinit();
     bool Connect();
     bool Disconnect();
     bool TransmitPacket(NetPacket& packet);
     bool ReceivePacket(NetPacket& packet);
-    void SetSessionId(unsigned short session_id);
+    void SetSessionId(uint16_t session_id);
 };
 
 #endif /* TRANSPORT_UDP_DEFAULT_HPP */

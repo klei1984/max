@@ -30,13 +30,13 @@
 
 template <class T>
 class SmartArray {
-    unsigned short capacity;
-    unsigned short growth_factor;
-    unsigned short count;
+    uint16_t capacity;
+    uint16_t growth_factor;
+    uint16_t count;
     SmartPointer<T>* smartarray;
 
 public:
-    SmartArray(unsigned short growth_factor = SMARTARRAY_DEFAULT_GROWTH_FACTOR)
+    SmartArray(uint16_t growth_factor = SMARTARRAY_DEFAULT_GROWTH_FACTOR)
         : capacity(0), growth_factor(growth_factor), count(0), smartarray(nullptr) {}
     ~SmartArray() {
         Release();
@@ -44,13 +44,13 @@ public:
         delete[] smartarray;
     }
 
-    void Insert(T* object, unsigned short index = SHRT_MAX) {
+    void Insert(T* object, uint16_t index = SHRT_MAX) {
         SmartPointer<T>* array;
 
         if (count == capacity) {
             array = new (std::nothrow) SmartPointer<T>[growth_factor + capacity + 1];
 
-            for (int i = 0; i < count; ++i) {
+            for (int32_t i = 0; i < count; ++i) {
                 array[i] = smartarray[i];
             }
 
@@ -64,7 +64,7 @@ public:
             index = count;
         }
 
-        for (int i = count; i > index; --i) {
+        for (int32_t i = count; i > index; --i) {
             smartarray[i] = smartarray[i - 1];
         }
 
@@ -72,10 +72,10 @@ public:
         ++count;
     }
 
-    void Erase(unsigned short index) {
+    void Erase(uint16_t index) {
         SDL_assert(index < count);
 
-        for (int i = index; i < count - 1; ++i) {
+        for (int32_t i = index; i < count - 1; ++i) {
             smartarray[i] = smartarray[i + 1];
         }
 
@@ -85,7 +85,7 @@ public:
     }
 
     void Release() {
-        for (int i = 0; i < count; ++i) {
+        for (int32_t i = 0; i < count; ++i) {
             SmartPointer<T> sp;
             smartarray[i] = sp;
         }
@@ -93,9 +93,9 @@ public:
         count = 0;
     }
 
-    unsigned short GetCount() const { return count; }
+    uint16_t GetCount() const { return count; }
 
-    T& operator[](unsigned short index) const { return *smartarray[index]; }
+    T& operator[](uint16_t index) const { return *smartarray[index]; }
 };
 
 #endif /* SMARTARRAY_HPP */

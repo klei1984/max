@@ -29,22 +29,22 @@
 class ChoosePlayerMenu;
 
 struct ChoosePlayerMenuItem {
-    int r_value;
-    int event_code;
+    int32_t r_value;
+    int32_t event_code;
     void (ChoosePlayerMenu::*event_handler)();
 };
 
 class ChoosePlayerMenu {
-    void ButtonInit(int index, int mode);
+    void ButtonInit(int32_t index, int32_t mode);
     void UpdateButtons();
-    void ButtonSetState(int team, int rest_state);
+    void ButtonSetState(int32_t team, int32_t rest_state);
 
 public:
     WindowInfo *window;
-    unsigned int event_click_done;
-    unsigned int event_click_cancel;
-    unsigned int game_type;
-    unsigned int key_press;
+    uint32_t event_click_done;
+    uint32_t event_click_cancel;
+    uint32_t game_type;
+    uint32_t key_press;
     Button *buttons[CHOOSE_PLAYER_MENU_ITEM_COUNT];
     ChoosePlayerMenuItem menu_item[CHOOSE_PLAYER_MENU_ITEM_COUNT];
 

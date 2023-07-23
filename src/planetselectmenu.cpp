@@ -32,7 +32,7 @@ struct PlanetSelectMenuControlItem {
     Rect bounds;
     ResourceID image_id;
     const char* label;
-    int event_code;
+    int32_t event_code;
     void (PlanetSelectMenu::*event_handler)();
     ResourceID sfx;
 };
@@ -63,7 +63,7 @@ static struct PlanetSelectMenuControlItem planet_select_menu_controls[] = {
 static_assert(PLANET_SELECT_MENU_ITEM_COUNT ==
               sizeof(planet_select_menu_controls) / sizeof(PlanetSelectMenuControlItem));
 
-void PlanetSelectMenu::ButtonInit(int index) {
+void PlanetSelectMenu::ButtonInit(int32_t index) {
     struct PlanetSelectMenuControlItem* control = &planet_select_menu_controls[index];
 
     Text_SetFont(GNW_TEXT_FONT_1);
@@ -93,17 +93,17 @@ void PlanetSelectMenu::ButtonInit(int index) {
     menu_item[index].event_handler = control->event_handler;
 }
 
-void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
-    int world_first;
-    int world_last;
-    unsigned char* buffer_position;
+void PlanetSelectMenu::DrawMaps(int32_t draw_to_screen) {
+    int32_t world_first;
+    int32_t world_last;
+    uint8_t* buffer_position;
 
     world_first = (world / 6) * 6;
     world_last = world_first + 6;
 
     menu_item_index = 0;
 
-    for (int i = world_first; i < world_last; ++i) {
+    for (int32_t i = world_first; i < world_last; ++i) {
         process_bk();
 
         buffer_position =
@@ -119,10 +119,10 @@ void PlanetSelectMenu::DrawMaps(int draw_to_screen) {
         }
     }
 
-    unsigned char* world_resource = ResourceManager_ReadResource(static_cast<ResourceID>(SNOW_PIC + world / 6));
+    uint8_t* world_resource = ResourceManager_ReadResource(static_cast<ResourceID>(SNOW_PIC + world / 6));
     struct ImageBigHeader* world_image = reinterpret_cast<struct ImageBigHeader*>(world_resource);
-    int ulx = world_image->ulx;
-    int uly = world_image->uly;
+    int32_t ulx = world_image->ulx;
+    int32_t uly = world_image->uly;
     delete[] world_resource;
 
     WindowManager_LoadBigImage(static_cast<ResourceID>(SNOW_PIC + world / 6), window, window->width, false, false,
@@ -162,7 +162,7 @@ void PlanetSelectMenu::DrawTexts() {
     planet_select_menu_planet_description.title = menu_planet_descriptions[world];
     menu_draw_menu_title(window, &planet_select_menu_planet_description, COLOR_GREEN);
 
-    for (int i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
         buttons[i]->Enable();
     }
 
@@ -189,12 +189,12 @@ void PlanetSelectMenu::DrawTexts() {
     win_draw(window->id);
 }
 
-void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction) {
+void PlanetSelectMenu::AnimateWorldChange(int32_t world1, int32_t world2, bool direction) {
     ResourceID resource;
-    unsigned char* world1_image;
-    unsigned char* world2_image;
-    unsigned char* stars_image;
-    unsigned char* window_buffer;
+    uint8_t* world1_image;
+    uint8_t* world2_image;
+    uint8_t* stars_image;
+    uint8_t* window_buffer;
 
     resource = static_cast<ResourceID>(SNOW_PIC + (world1 / 6));
     world1_image = ResourceManager_ReadResource(resource);
@@ -208,17 +208,17 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
         struct ImageBigHeader* image1_header = reinterpret_cast<struct ImageBigHeader*>(world1_image);
         struct ImageBigHeader* image2_header = reinterpret_cast<struct ImageBigHeader*>(world2_image);
         struct ImageBigHeader* image3_header = reinterpret_cast<struct ImageBigHeader*>(stars_image);
-        int width;
-        int height;
+        int32_t width;
+        int32_t height;
         Rect bounds;
-        unsigned char* buffer_position;
-        unsigned int time_stamp;
-        int offset;
+        uint8_t* buffer_position;
+        uint32_t time_stamp;
+        int32_t offset;
 
         width = image1_header->width;
         height = image1_header->height;
 
-        window_buffer = new (std::nothrow) unsigned char[width * height * 3];
+        window_buffer = new (std::nothrow) uint8_t[width * height * 3];
 
         if (direction) {
             WindowManager_DecodeBigImage(image1_header, window_buffer, false, false, width * 3);
@@ -238,7 +238,7 @@ void PlanetSelectMenu::AnimateWorldChange(int world1, int world2, bool direction
 
         buffer_position = &window->buffer[bounds.uly * window->width + bounds.ulx];
 
-        for (int i = 1; i <= 16; ++i) {
+        for (int32_t i = 1; i <= 16; ++i) {
             time_stamp = timer_get();
 
             if (direction) {
@@ -276,7 +276,7 @@ void PlanetSelectMenu::Init() {
 
     mouse_hide();
 
-    for (int i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
         ButtonInit(i);
     }
 
@@ -289,7 +289,7 @@ void PlanetSelectMenu::Init() {
 }
 
 void PlanetSelectMenu::Deinit() {
-    for (int i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
     }
 
@@ -307,7 +307,7 @@ void PlanetSelectMenu::EventPlanet() {
 }
 
 void PlanetSelectMenu::EventWorld() {
-    short old_world;
+    int16_t old_world;
     bool direction;
 
     if (image2) {

@@ -32,9 +32,9 @@ struct PopupFunctions {
     bool (*test)(UnitInfo* unit);
 };
 
-extern unsigned short UnitsManager_Team;
+extern uint16_t UnitsManager_Team;
 
-extern unsigned int UnitsManager_UnknownCounter;
+extern uint32_t UnitsManager_UnknownCounter;
 
 extern SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 extern SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
@@ -54,8 +54,8 @@ extern bool UnitsManager_OrdersPending;
 extern bool UnitsManager_byte_179448;
 extern bool UnitsManager_byte_178170;
 
-extern signed char UnitsManager_EffectCounter;
-extern signed char UnitsManager_byte_17947D;
+extern int8_t UnitsManager_EffectCounter;
+extern int8_t UnitsManager_byte_17947D;
 
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
@@ -64,38 +64,38 @@ extern struct PopupFunctions UnitsManager_PopupCallbacks[];
 extern TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
 void UnitsManager_PerformAction(UnitInfo* unit);
-int UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int damage_potential);
+int32_t UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int32_t damage_potential);
 UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type);
-void UnitsManager_AddAxisMissionLoadout(unsigned short team, SmartObjectArray<ResourceID> units);
-int UnitsManager_AddDefaultMissionLoadout(unsigned short team);
-bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int grid_x, int grid_y);
+void UnitsManager_AddAxisMissionLoadout(uint16_t team, SmartObjectArray<ResourceID> units);
+int32_t UnitsManager_AddDefaultMissionLoadout(uint16_t team);
+bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 void UnitsManager_InitPopupMenus();
-int UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int order);
-SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, unsigned short team, int grid_x, int grid_y,
+int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int32_t order);
+SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y,
                                               UnitInfo* parent);
 void UnitsManager_ProcessRemoteOrders();
 void UnitsManager_NewOrderWhileScaling(UnitInfo* unit);
 void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit);
-void UnitsManager_SetNewOrderInt(UnitInfo* unit, int order, int state);
+void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state);
 void UnitsManager_UpdatePathsTimeLimit();
-void UnitsManager_SetNewOrder(UnitInfo* unit, int order, int state);
-void UnitsManager_MoveUnit(UnitInfo* unit, int grid_x, int grid_y);
-unsigned int UnitsManager_MoveUnitAndParent(UnitInfo* unit, int grid_x, int grid_y);
-void UnitsManager_SetInitialMining(UnitInfo* unit, int grid_x, int grid_y);
+void UnitsManager_SetNewOrder(UnitInfo* unit, int32_t order, int32_t state);
+void UnitsManager_MoveUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+void UnitsManager_SetInitialMining(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 void UnitsManager_StartBuild(UnitInfo* unit);
 bool UnitsManager_IsUnitUnderWater(UnitInfo* unit);
 void UnitsManager_UpdateConnectors(UnitInfo* unit);
 void UnitsManager_DestroyUnit(UnitInfo* unit);
-SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, unsigned short team, Complex* complex, int grid_x,
-                                               int grid_y, unsigned char unit_angle, bool is_existing_unit = false,
+SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t team, Complex* complex, int32_t grid_x,
+                                               int32_t grid_y, uint8_t unit_angle, bool is_existing_unit = false,
                                                bool skip_map_status_update = false);
 void UnitsManager_RemoveConnections(UnitInfo* unit);
-int UnitsManager_GetTargetAngle(int distance_x, int distance_y);
-int UnitsManager_GetFiringAngle(int distance_x, int distance_y);
+int32_t UnitsManager_GetTargetAngle(int32_t distance_x, int32_t distance_y);
+int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y);
 void UnitsManager_AddToDelayedReactionList(UnitInfo* unit);
 void UnitsManager_DrawBustedCommando(UnitInfo* unit);
 void UnitsManager_TestBustedCommando(UnitInfo* unit);
-void UnitsManager_ScaleUnit(UnitInfo* unit, int state);
-int UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int attack_potential);
+void UnitsManager_ScaleUnit(UnitInfo* unit, int32_t state);
+int32_t UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int32_t attack_potential);
 
 #endif /* UNITS_MANAGER_HPP */

@@ -29,14 +29,14 @@
 class TaskDump : public Task {
     SmartPointer<TaskMove> task_move;
     SmartPointer<UnitInfo> transporter_unit;
-    short steps_limit;
-    short direction;
-    short steps_counter;
+    int16_t steps_limit;
+    int16_t direction;
+    int16_t steps_counter;
     Point destination;
     bool keep_searching;
 
     static void TaskDump_PathResultCallback(Task* task, PathRequest* request, Point destination, GroundPath* path,
-                                            unsigned char result);
+                                            uint8_t result);
     static void TaskDump_PathCancelCallback(Task* task, PathRequest* request);
 
     void Search();
@@ -47,7 +47,7 @@ public:
     ~TaskDump();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void Begin();
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);

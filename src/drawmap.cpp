@@ -40,38 +40,38 @@ enum {
 
 static ObjectArray<Rect> DrawMap_DirtyRectangles;
 static struct ImageSimpleHeader* DrawMap_BuildMarkImage;
-static int DrawMap_BuildMMarkDelayCounter = 1;
-static int DrawMap_BuildMarkImageIndex;
+static int32_t DrawMap_BuildMMarkDelayCounter = 1;
+static int32_t DrawMap_BuildMarkImageIndex;
 static ResourceID DrawMap_BuildMarkImages[] = {BLDMRK1, BLDMRK2, BLDMRK3, BLDMRK4, BLDMRK5};
 
 static const char* const DrawMap_UnitCompletionLabels[] = {_(d7d0), _(2ec0), _(7c23)};
 
-static int DrawMap_GetSideOverlap(int lr1, int ul1, int lr2, int ul2);
-static void Drawmap_AddDirtyZone(Rect* bounds1, Rect* bounds2, int horizontal_side, int vertical_side);
-static void DrawMap_Callback1(int ulx, int uly);
-static void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly));
-static void DrawMap_Callback2(int ulx, int uly);
+static int32_t DrawMap_GetSideOverlap(int32_t lr1, int32_t ul1, int32_t lr2, int32_t ul2);
+static void Drawmap_AddDirtyZone(Rect* bounds1, Rect* bounds2, int32_t horizontal_side, int32_t vertical_side);
+static void DrawMap_Callback1(int32_t ulx, int32_t uly);
+static void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t uly));
+static void DrawMap_Callback2(int32_t ulx, int32_t uly);
 static void DrawMap_RenderWaitBulb(UnitInfo* unit);
-static void DrawMap_RenderBarDisplay(WindowInfo* window, int ulx, int uly, int width, int height, int color);
-static void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, int height);
-static void DrawMap_RenderColorsDisplay(int ulx, int uly, int width, int height, unsigned char* buffer, int color);
+static void DrawMap_RenderBarDisplay(WindowInfo* window, int32_t ulx, int32_t uly, int32_t width, int32_t height, int32_t color);
+static void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32_t width, int32_t height);
+static void DrawMap_RenderColorsDisplay(int32_t ulx, int32_t uly, int32_t width, int32_t height, uint8_t* buffer, int32_t color);
 static void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit);
 static void DrawMap_RenderColorsDisplay(UnitInfo* unit);
-static void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int color);
+static void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int32_t color);
 static void DrawMap_RenderNamesDisplay(UnitInfo* unit);
 static void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units);
 static void DrawMap_RenderMiniMap();
-static void DrawMap_RenderMapTile(int ulx, int uly, Rect bounds, unsigned char* buffer);
+static void DrawMap_RenderMapTile(int32_t ulx, int32_t uly, Rect bounds, uint8_t* buffer);
 
 DrawMapBuffer::DrawMapBuffer() : buffer(nullptr), bounds({0, 0, 0, 0}) {}
 
 void DrawMapBuffer::Deinit() {
     if (buffer) {
-        int width;
+        int32_t width;
 
         width = bounds.lrx - bounds.ulx;
 
-        for (int i = 0; i < width; ++i) {
+        for (int32_t i = 0; i < width; ++i) {
             delete[] buffer[i];
         }
 
@@ -84,8 +84,8 @@ void DrawMapBuffer::Deinit() {
 DrawMapBuffer::~DrawMapBuffer() { Deinit(); }
 
 void DrawMapBuffer::Init(Rect* bounds) {
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
 
     Deinit();
 
@@ -94,24 +94,24 @@ void DrawMapBuffer::Init(Rect* bounds) {
     width = this->bounds.lrx - this->bounds.ulx;
     height = this->bounds.lry - this->bounds.uly;
 
-    buffer = new (std::nothrow) unsigned char*[width];
+    buffer = new (std::nothrow) uint8_t*[width];
 
-    for (int i = 0; i < width; ++i) {
-        buffer[i] = new (std::nothrow) unsigned char[height];
+    for (int32_t i = 0; i < width; ++i) {
+        buffer[i] = new (std::nothrow) uint8_t[height];
         memset(buffer[i], 0, height);
     }
 }
 
-unsigned char** DrawMapBuffer::GetBuffer() const { return buffer; }
+uint8_t** DrawMapBuffer::GetBuffer() const { return buffer; }
 
-int DrawMapBuffer::GetWidth() const { return bounds.lrx - bounds.ulx; }
+int32_t DrawMapBuffer::GetWidth() const { return bounds.lrx - bounds.ulx; }
 
-int DrawMapBuffer::GetHeight() const { return bounds.lry - bounds.uly; }
+int32_t DrawMapBuffer::GetHeight() const { return bounds.lry - bounds.uly; }
 
 Rect* DrawMapBuffer::GetBounds() { return &bounds; }
 
-int DrawMap_GetSideOverlap(int lr1, int ul1, int lr2, int ul2) {
-    int result;
+int32_t DrawMap_GetSideOverlap(int32_t lr1, int32_t ul1, int32_t lr2, int32_t ul2) {
+    int32_t result;
 
     if (lr1 >= lr2 && ul1 <= ul2) {
         result = OVERLAP_2IN1;
@@ -129,7 +129,7 @@ int DrawMap_GetSideOverlap(int lr1, int ul1, int lr2, int ul2) {
     return result;
 }
 
-void Drawmap_AddDirtyZone(Rect* bounds1, Rect* bounds2, int horizontal_side, int vertical_side) {
+void Drawmap_AddDirtyZone(Rect* bounds1, Rect* bounds2, int32_t horizontal_side, int32_t vertical_side) {
     if (horizontal_side != OVERLAP_2IN1) {
         if (horizontal_side == OVERLAP_1B2_SIDE_IS_LOWER) {
             if (vertical_side != OVERLAP_2IN1) {
@@ -210,10 +210,10 @@ void Drawmap_UpdateDirtyZones(Rect* bounds) {
         }
 
         if (local.lrx > local.ulx && local.lry > local.uly) {
-            for (int i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
+            for (int32_t i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
                 Rect dirty;
-                int overlap_x;
-                int overlap_y;
+                int32_t overlap_x;
+                int32_t overlap_y;
 
                 dirty = *DrawMap_DirtyRectangles[i];
 
@@ -253,7 +253,7 @@ void Drawmap_UpdateDirtyZones(Rect* bounds) {
                 }
             }
 
-            for (int i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
+            for (int32_t i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
                 Rect dirty;
 
                 dirty = *DrawMap_DirtyRectangles[i];
@@ -280,7 +280,7 @@ void Drawmap_UpdateDirtyZones(Rect* bounds) {
     }
 }
 
-void DrawMap_Callback1(int ulx, int uly) {
+void DrawMap_Callback1(int32_t ulx, int32_t uly) {
     Rect bounds;
 
     bounds.ulx = ulx * 64;
@@ -291,7 +291,7 @@ void DrawMap_Callback1(int ulx, int uly) {
     GameManager_AddDrawBounds(&bounds);
 }
 
-void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly)) {
+void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t uly)) {
     if (unit->team == GameManager_PlayerTeam) {
         UnitInfo* parent = unit->GetParent();
 
@@ -300,8 +300,8 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly)) {
                                                 (unit->flags & STATIONARY) == 0)) &&
                 parent->unit_type != AIRTRANS) {
                 Point point(parent->grid_x - 1, parent->grid_y + 1);
-                int limit;
-                unsigned int flags;
+                int32_t limit;
+                uint32_t flags;
 
                 flags = 0x2;
 
@@ -313,8 +313,8 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly)) {
                     limit = 2;
                 }
 
-                for (int i = 0; i < 8; i += 2) {
-                    for (int j = 0; j < limit; ++j) {
+                for (int32_t i = 0; i < 8; i += 2) {
+                    for (int32_t j = 0; j < limit; ++j) {
                         point += Paths_8DirPointsArray[i];
 
                         if (Access_IsAccessible(unit->unit_type, GameManager_PlayerTeam, point.x, point.y, flags)) {
@@ -327,7 +327,7 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int ulx, int uly)) {
     }
 }
 
-void DrawMap_Callback2(int ulx, int uly) {
+void DrawMap_Callback2(int32_t ulx, int32_t uly) {
     WindowInfo* window;
 
     window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
@@ -383,10 +383,10 @@ void DrawMap_RenderWaitBulb(UnitInfo* unit) {
     if (Gfx_ZoomLevel >= 8) {
         WindowInfo* window;
         struct ImageSimpleHeader* image;
-        int unit_size;
-        int unit_size2;
-        int ulx;
-        int uly;
+        int32_t unit_size;
+        int32_t unit_size2;
+        int32_t ulx;
+        int32_t uly;
 
         window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
@@ -416,11 +416,11 @@ void DrawMap_RenderWaitBulb(UnitInfo* unit) {
     }
 }
 
-void DrawMap_RenderBarDisplay(WindowInfo* window, int ulx, int uly, int width, int height, int color) {
+void DrawMap_RenderBarDisplay(WindowInfo* window, int32_t ulx, int32_t uly, int32_t width, int32_t height, int32_t color) {
     ulx = std::max(0, ulx);
     uly = std::max(0, uly);
-    width = std::min(width, static_cast<int>(WindowManager_MapWidth) - 1);
-    height = std::min(height, static_cast<int>(WindowManager_MapHeight) - 1);
+    width = std::min(width, static_cast<int32_t>(WindowManager_MapWidth) - 1);
+    height = std::min(height, static_cast<int32_t>(WindowManager_MapHeight) - 1);
 
     width = width - ulx + 1;
     height = height - uly + 1;
@@ -430,7 +430,7 @@ void DrawMap_RenderBarDisplay(WindowInfo* window, int ulx, int uly, int width, i
     }
 }
 
-void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, int height) {
+void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32_t width, int32_t height) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
     if (unit->orders == ORDER_DISABLE) {
@@ -497,13 +497,13 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int ulx, int uly, int width, in
     }
 }
 
-void DrawMap_RenderColorsDisplay(int ulx, int uly, int width, int height, unsigned char* buffer, int color) {
+void DrawMap_RenderColorsDisplay(int32_t ulx, int32_t uly, int32_t width, int32_t height, uint8_t* buffer, int32_t color) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
-    int ulx_max;
-    int uly_max;
-    int width_min;
-    int height_min;
+    int32_t ulx_max;
+    int32_t uly_max;
+    int32_t width_min;
+    int32_t height_min;
 
     ulx_max = std::max(0, ulx);
     uly_max = std::max(0, uly);
@@ -530,11 +530,11 @@ void DrawMap_RenderColorsDisplay(int ulx, int uly, int width, int height, unsign
 
 void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
     WindowInfo* window;
-    int unit_size;
-    int ulx;
-    int uly;
-    int lrx;
-    int lry;
+    int32_t unit_size;
+    int32_t ulx;
+    int32_t uly;
+    int32_t lrx;
+    int32_t lry;
 
     window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
@@ -564,7 +564,7 @@ void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
     lry = uly + unit_size;
 
     if (lrx >= 0 && lry >= 0 && ulx < WindowManager_MapWidth && uly < WindowManager_MapHeight) {
-        int color;
+        int32_t color;
 
         if (GameManager_DisplayButtonColors && !(unit->flags & STATIONARY)) {
             if (unit->flags & HASH_TEAM_RED) {
@@ -591,9 +591,9 @@ void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
         }
 
         if (Gfx_ZoomLevel > 8 && (GameManager_DisplayButtonHits || GameManager_DisplayButtonAmmo)) {
-            int display_size;
-            int value_max;
-            int value_actual;
+            int32_t display_size;
+            int32_t value_max;
+            int32_t value_actual;
 
             display_size = unit_size / 8;
 
@@ -607,7 +607,7 @@ void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
             lrx = ulx + unit_size - 1;
             lry = uly + display_size - 1;
 
-            for (int i = 0; i < 2; ++i) {
+            for (int32_t i = 0; i < 2; ++i) {
                 value_max = 0;
 
                 switch (i) {
@@ -616,7 +616,7 @@ void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
                             value_max = unit->GetBaseValues()->GetAttribute(ATTRIB_HITS);
                         }
 
-                        value_actual = std::min(static_cast<int>(unit->hits), value_max);
+                        value_actual = std::min(static_cast<int32_t>(unit->hits), value_max);
                     } break;
 
                     case 1: {
@@ -624,12 +624,12 @@ void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
                             value_max = unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO);
                         }
 
-                        value_actual = std::min(static_cast<int>(unit->ammo), value_max);
+                        value_actual = std::min(static_cast<int32_t>(unit->ammo), value_max);
                     } break;
                 }
 
                 if (value_max) {
-                    int width;
+                    int32_t width;
 
                     DrawMap_RenderBarDisplay(window, ulx, uly, lrx, lry, COLOR_BLACK);
 
@@ -661,9 +661,9 @@ void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit) {
 
 void DrawMap_RenderColorsDisplay(UnitInfo* unit) {
     WindowInfo* window;
-    int ulx;
-    int uly;
-    int size;
+    int32_t ulx;
+    int32_t uly;
+    int32_t size;
 
     window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
@@ -677,9 +677,9 @@ void DrawMap_RenderColorsDisplay(UnitInfo* unit) {
     }
 }
 
-void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int color) {
+void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int32_t color) {
     WindowInfo* window;
-    int unit_size;
+    int32_t unit_size;
     Rect text_area;
     Rect draw_area;
 
@@ -698,7 +698,7 @@ void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int color) {
     text_area.lry = text_area.uly + (unit_size * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - 8;
 
     if (text_area.ulx < text_area.lrx && text_area.uly < text_area.lry) {
-        unsigned int zoom_level;
+        uint32_t zoom_level;
 
         zoom_level = Gfx_ZoomLevel;
 
@@ -792,7 +792,7 @@ void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode) {
 
     if (GameManager_SelectedUnit == unit) {
         WindowInfo* window;
-        int unit_size;
+        int32_t unit_size;
 
         window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
@@ -823,9 +823,9 @@ void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
             (Gfx_ZoomLevel > 4 || !((*it).flags & GROUND_COVER)) && (*it).orders != ORDER_IDLE &&
             ((*it).flags & SELECTABLE) &&
             (!GameManager_DisplayButtonMinimapTnt || ((*it).flags & (HAS_FIRING_SPRITE | FIRES_MISSILES)))) {
-            int color;
-            int grid_x;
-            int grid_y;
+            int32_t color;
+            int32_t grid_x;
+            int32_t grid_y;
 
             if ((*it).flags & HASH_TEAM_RED) {
                 color = COLOR_RED;
@@ -881,7 +881,7 @@ void DrawMap_RenderUnits() {
 
     Gfx_MapWindowBuffer = window->buffer;
 
-    for (int i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
         group.ProcessDirtyZone(DrawMap_DirtyRectangles[i]);
     }
 
@@ -890,9 +890,9 @@ void DrawMap_RenderUnits() {
     }
 }
 
-void DrawMap_RenderMapTile(int ulx, int uly, Rect bounds, unsigned char* buffer) {
-    int grid_x;
-    int grid_y;
+void DrawMap_RenderMapTile(int32_t ulx, int32_t uly, Rect bounds, uint8_t* buffer) {
+    int32_t grid_x;
+    int32_t grid_y;
 
     grid_x = (bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
     grid_y = (bounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
@@ -910,7 +910,7 @@ void DrawMap_RenderMapTile(int ulx, int uly, Rect bounds, unsigned char* buffer)
 }
 
 void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
-    int index;
+    int32_t index;
 
     index = DrawMap_DirtyRectangles.GetCount();
 
@@ -920,7 +920,7 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
         Rect bounds;
         Rect bounds2;
         Point point;
-        unsigned char** buffer;
+        uint8_t** buffer;
 
         window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
@@ -938,14 +938,14 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
 
         dirty.ulx /= GFX_MAP_TILE_SIZE;
         dirty.uly /= GFX_MAP_TILE_SIZE;
-        dirty.lrx = std::min<int>((dirty.lrx + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, ResourceManager_MapSize.x);
-        dirty.lry = std::min<int>((dirty.lry + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, ResourceManager_MapSize.y);
+        dirty.lrx = std::min<int32_t>((dirty.lrx + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, ResourceManager_MapSize.x);
+        dirty.lry = std::min<int32_t>((dirty.lry + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, ResourceManager_MapSize.y);
 
         drawmap->Init(&dirty);
 
         buffer = drawmap->GetBuffer();
 
-        for (int i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
+        for (int32_t i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
             bounds = *DrawMap_DirtyRectangles[i];
             bounds2 = bounds;
 
@@ -966,15 +966,15 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
                 bounds2.lrx = ((bounds2.lrx - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
                 bounds2.lry = ((bounds2.lry - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
 
-                int width = bounds.lrx - bounds.ulx;
-                int height = bounds.lry - bounds.uly;
+                int32_t width = bounds.lrx - bounds.ulx;
+                int32_t height = bounds.lry - bounds.uly;
 
                 bounds.ulx = ((bounds.ulx * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
                              Gfx_MapWindowUlx;
                 bounds.uly = ((bounds.uly * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
                              Gfx_MapWindowUly;
 
-                for (int j = 0; j < width; ++j) {
+                for (int32_t j = 0; j < width; ++j) {
                     if (bounds.ulx >= bounds2.ulx && bounds.ulx <= bounds2.lrx) {
                         draw_line(window->buffer, window->width, bounds.ulx, bounds2.uly, bounds.ulx, bounds2.lry,
                                   0x25);
@@ -983,7 +983,7 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
                     bounds.ulx += Gfx_ZoomLevel;
                 }
 
-                for (int j = 0; j < height; ++j) {
+                for (int32_t j = 0; j < height; ++j) {
                     if (bounds.uly >= bounds2.uly && bounds.uly <= bounds2.lry) {
                         draw_line(window->buffer, window->width, bounds2.ulx, bounds.uly, bounds2.lrx, bounds.uly,
                                   0x25);
@@ -999,10 +999,10 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
 void DrawMap_RenderSurveyDisplay(DrawMapBuffer* drawmap) {
     Point point;
     Rect bounds;
-    unsigned char** buffer;
-    int width;
-    int height;
-    int start_x;
+    uint8_t** buffer;
+    int32_t width;
+    int32_t height;
+    int32_t start_x;
 
     bounds = *drawmap->GetBounds();
     buffer = drawmap->GetBuffer();
@@ -1037,7 +1037,7 @@ void DrawMap_RedrawDirtyZones() {
         DrawMap_RedrawUnit(&*GameManager_SelectedUnit, &DrawMap_Callback2);
     }
 
-    for (int i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
         bounds = *DrawMap_DirtyRectangles[i];
 
         bounds.ulx = (bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
@@ -1064,7 +1064,7 @@ void DrawMap_RedrawDirtyZones() {
 bool DrawMap_IsInsideBounds(Rect* bounds) {
     Rect dirty;
 
-    for (int i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
         dirty = *DrawMap_DirtyRectangles[i];
 
         if (bounds->lrx > dirty.ulx && bounds->ulx < dirty.lrx && bounds->lry > dirty.uly && bounds->uly < dirty.lry) {

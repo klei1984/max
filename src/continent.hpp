@@ -28,29 +28,29 @@
 
 class Continent : public SmartObject {
     bool is_isolated;
-    unsigned short filler;
-    unsigned short continent_size;
+    uint16_t filler;
+    uint16_t continent_size;
     Rect bounds;
     Point point;
-    unsigned char **map;
-    unsigned char field_35;
+    uint8_t **map;
+    uint8_t field_35;
 
-    bool IsDangerousProximity(int grid_x, int grid_y, unsigned short team, int proximity_range);
-    bool IsViableSite(bool test_proximity, unsigned short team, Point site);
+    bool IsDangerousProximity(int32_t grid_x, int32_t grid_y, uint16_t team, int32_t proximity_range);
+    bool IsViableSite(bool test_proximity, uint16_t team, Point site);
 
 public:
-    Continent(unsigned char **map, unsigned short filler, Point point, unsigned char value = 1);
+    Continent(uint8_t **map, uint16_t filler, Point point, uint8_t value = 1);
     ~Continent();
 
     void GetBounds(Rect &bounds) const;
     Point GetCenter() const;
     bool IsIsolated() const;
-    unsigned short GetContinentSize() const;
-    unsigned short GetFiller() const;
+    uint16_t GetContinentSize() const;
+    uint16_t GetFiller() const;
 
     bool IsCloseProximity() const;
-    bool IsViableContinent(bool test_proximity, unsigned short team);
-    void SelectLandingSite(unsigned short team, int strategy);
+    bool IsViableContinent(bool test_proximity, uint16_t team);
+    void SelectLandingSite(uint16_t team, int32_t strategy);
     void TestIsolated();
 };
 

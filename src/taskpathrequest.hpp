@@ -32,7 +32,7 @@ class TaskPathRequest : public PathRequest {
     bool field_31;
 
 public:
-    TaskPathRequest(UnitInfo* unit, int mode, Point point);
+    TaskPathRequest(UnitInfo* unit, int32_t mode, Point point);
     ~TaskPathRequest();
 
     bool PathRequest_Vfunc1();

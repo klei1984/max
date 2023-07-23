@@ -24,7 +24,7 @@
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
 
-Window::Window(short ulx, short uly, short width, short height)
+Window::Window(int16_t ulx, int16_t uly, int16_t width, int16_t height)
     : window_id(0),
       ulx(ulx),
       uly(uly),
@@ -36,7 +36,7 @@ Window::Window(short ulx, short uly, short width, short height)
 
 Window::Window(ResourceID id) : window_id(0), flags(0), resource_id(id), palette_from_image(false) {
     struct ImageBigHeader image_header;
-    int result;
+    int32_t result;
 
     result = ResourceManager_ReadImageHeader(id, &image_header);
     SDL_assert(result == 1);
@@ -47,11 +47,11 @@ Window::Window(ResourceID id) : window_id(0), flags(0), resource_id(id), palette
     height = image_header.height;
 }
 
-Window::Window(ResourceID id, unsigned char win_id)
+Window::Window(ResourceID id, uint8_t win_id)
     : window_id(0), flags(0), resource_id(id), palette_from_image(false) {
     struct ImageBigHeader image_header;
     WindowInfo* window;
-    int result;
+    int32_t result;
 
     window = WindowManager_GetWindow(win_id);
     result = ResourceManager_ReadImageHeader(id, &image_header);
@@ -93,16 +93,16 @@ void Window::Add(bool draw_to_screen) {
     }
 }
 
-void Window::GetCursorPosition(int& x, int& y) const {
-    int position_x;
-    int position_y;
+void Window::GetCursorPosition(int32_t& x, int32_t& y) const {
+    int32_t position_x;
+    int32_t position_y;
 
     mouse_get_position(&position_x, &position_y);
     x = position_x - ulx;
     y = position_y - uly;
 }
 
-void Window::SetFlags(unsigned int flags) { this->flags = flags; }
+void Window::SetFlags(uint32_t flags) { this->flags = flags; }
 
 void Window::SetPaletteMode(bool palette_from_image) { this->palette_from_image = palette_from_image; }
 

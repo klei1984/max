@@ -22,7 +22,9 @@
 #ifndef ENUMS_HPP
 #define ENUMS_HPP
 
-enum ResourceID : unsigned short {
+#include <cstdint>
+
+enum ResourceID : uint16_t {
     COMMTWR = 0x0,
     POWERSTN = 0x1,
     POWGEN = 0x2,
@@ -1990,9 +1992,9 @@ enum {
     REGENERATING_UNIT = 0x10000000
 };
 
-enum : unsigned char { NO_CARGO = 0x0, MATERIALS = 0x1, FUEL = 0x2, GOLD = 0x3 };
+enum : uint8_t { NO_CARGO = 0x0, MATERIALS = 0x1, FUEL = 0x2, GOLD = 0x3 };
 
-enum : unsigned char {
+enum : uint8_t {
     ORDER_AWAIT = 0x0,
     ORDER_TRANSFORM = 0x1,
     ORDER_MOVE = 0x2,
@@ -2027,7 +2029,7 @@ enum : unsigned char {
     ORDER_HALT_BUILDING_2 = 0x1F
 };
 
-enum : unsigned char {
+enum : uint8_t {
     ORDER_STATE_0 = 0x0,
     ORDER_STATE_1 = 0x1,
     ORDER_STATE_2 = 0x2,
@@ -2077,7 +2079,7 @@ enum : unsigned char {
     ORDER_STATE_46 = 0x2E,
 };
 
-enum : unsigned char {
+enum : uint8_t {
     GAME_TYPE_CUSTOM = 0x0,
     GAME_TYPE_TRAINING = 0x1,
     GAME_TYPE_CAMPAIGN = 0x2,
@@ -2090,7 +2092,7 @@ enum : unsigned char {
     GAME_TYPE_MULTI_PLAYER_SCENARIO = 0x9
 };
 
-enum : unsigned char {
+enum : uint8_t {
     PLAYER_TEAM_RED = 0x0,
     PLAYER_TEAM_GREEN = 0x1,
     PLAYER_TEAM_BLUE = 0x2,
@@ -2099,7 +2101,7 @@ enum : unsigned char {
     PLAYER_TEAM_MAX = 0x5,
 };
 
-enum : unsigned char {
+enum : uint8_t {
     TEAM_TYPE_NONE,
     TEAM_TYPE_PLAYER,
     TEAM_TYPE_COMPUTER,
@@ -2107,7 +2109,7 @@ enum : unsigned char {
     TEAM_TYPE_ELIMINATED,
 };
 
-enum : unsigned char {
+enum : uint8_t {
     TEAM_CLAN_RANDOM = 0x0,
     TEAM_CLAN_THE_CHOSEN = 0x1,
     TEAM_CLAN_CRIMSON_PATH = 0x2,
@@ -2220,7 +2222,7 @@ enum {
     CONNECTION_BEING_TESTED = 0x400
 };
 
-enum : unsigned char {
+enum : uint8_t {
     GAME_STATE_0 = 0x0,
     GAME_STATE_1 = 0x1,
     GAME_STATE_2 = 0x2,

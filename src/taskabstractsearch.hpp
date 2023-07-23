@@ -28,12 +28,12 @@ class TaskAbstractSearch : public Task {
 protected:
     Point point;
     SmartList<UnitInfo> units;
-    short requestors;
+    int16_t requestors;
 
-    void FindDestination(UnitInfo& unit, int radius);
+    void FindDestination(UnitInfo& unit, int32_t radius);
 
 public:
-    TaskAbstractSearch(unsigned short team, Task* task, unsigned short flags, Point point);
+    TaskAbstractSearch(uint16_t team, Task* task, uint16_t flags, Point point);
     ~TaskAbstractSearch();
 
     Point GetPoint() const;

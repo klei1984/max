@@ -53,8 +53,8 @@ void TaskRepair::ChooseOperator() {
 
         if (unit != nullptr) {
             if (operator_unit != nullptr) {
-                int distance1;
-                int distance2;
+                int32_t distance1;
+                int32_t distance2;
 
                 distance1 = TaskManager_GetDistance(&*unit, &*target_unit);
                 distance2 = TaskManager_GetDistance(&*operator_unit, &*target_unit);
@@ -123,8 +123,8 @@ UnitInfo* TaskRepair::SelectRepairShop() {
     repair_shop = GetRepairShopType();
 
     if (repair_shop != INVALID_ID) {
-        int distance;
-        int minimum_distance{INT32_MAX};
+        int32_t distance;
+        int32_t minimum_distance{INT32_MAX};
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -245,7 +245,7 @@ Rect* TaskRepair::GetBounds(Rect* bounds) {
     return bounds;
 }
 
-unsigned char TaskRepair::GetType() const { return TaskType_TaskRepair; }
+uint8_t TaskRepair::GetType() const { return TaskType_TaskRepair; }
 
 void TaskRepair::Begin() {
     AiLog log("Begin repair/reload/upgrade unit.");
@@ -445,8 +445,8 @@ void TaskRepair::RemoveUnit(UnitInfo& unit) {
 void TaskRepair::SelectOperator() {
     if (GetRepairShopType() == DEPOT) {
         UnitInfo* unit = nullptr;
-        int distance;
-        int minimum_distance{INT32_MAX};
+        int32_t distance;
+        int32_t minimum_distance{INT32_MAX};
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
@@ -468,8 +468,8 @@ void TaskRepair::SelectOperator() {
     }
 }
 
-int TaskRepair::GetTurnsToComplete() {
-    int result;
+int32_t TaskRepair::GetTurnsToComplete() {
+    int32_t result;
 
     if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
         result = target_unit->GetTurnsToRepair();

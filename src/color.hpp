@@ -24,9 +24,9 @@
 
 #include "gnw.h"
 
-int Color_GetColorDistance(Color* color1, Color* color2);
-void Color_ChangeColorTemperature(int factor_r, int factor_g, int factor_b, int multiplier_factor1,
-                                  int multiplier_factor2, unsigned char* color_map);
-void Color_RecolorPixels(unsigned char* buffer, int width, int width_text, int height_text, unsigned char* color_map);
+int32_t Color_GetColorDistance(Color* color1, Color* color2);
+void Color_ChangeColorTemperature(int32_t factor_r, int32_t factor_g, int32_t factor_b, int32_t multiplier_factor1,
+                                  int32_t multiplier_factor2, uint8_t* color_map);
+void Color_RecolorPixels(uint8_t* buffer, int32_t width, int32_t width_text, int32_t height_text, uint8_t* color_map);
 
 #endif /* COLOR_HPP */

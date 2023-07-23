@@ -22,13 +22,14 @@
 #ifndef FONTS_HPP
 #define FONTS_HPP
 
-struct FontColor {
-    unsigned char base;
-    unsigned char outline;
-    unsigned char shadow;
+#include <cstdint>
 
-    FontColor(unsigned char base, unsigned char outline, unsigned char shadow)
-        : base(base), outline(outline), shadow(shadow) {}
+struct FontColor {
+    uint8_t base;
+    uint8_t outline;
+    uint8_t shadow;
+
+    FontColor(uint8_t base, uint8_t outline, uint8_t shadow) : base(base), outline(outline), shadow(shadow) {}
     FontColor(const FontColor& other) : base(other.base), outline(other.outline), shadow(other.shadow) {}
     FontColor& operator=(const FontColor& other) {
         base = other.base;

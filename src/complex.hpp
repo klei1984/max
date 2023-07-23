@@ -29,20 +29,20 @@ class UnitInfo;
 class NetPacket;
 
 class Complex : public FileObject {
-    short buildings;
-    short id;
+    int16_t buildings;
+    int16_t id;
 
-    static void TransferCargo(UnitInfo* unit, int* cargo);
+    static void TransferCargo(UnitInfo* unit, int32_t* cargo);
 
 public:
-    Complex(short id);
+    Complex(int16_t id);
     ~Complex();
 
     static FileObject* Allocate();
 
-    short GetId() const;
+    int16_t GetId() const;
 
-    unsigned short GetTypeIndex() const;
+    uint16_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
 
@@ -56,15 +56,15 @@ public:
     void GetCargoMining(Cargo& materials, Cargo& capacity);
     void GetCargoInfo(Cargo& materials, Cargo& capacity);
 
-    void Transfer(int raw, int fuel, int gold);
+    void Transfer(int32_t raw, int32_t fuel, int32_t gold);
 
-    short GetBuildings() const;
+    int16_t GetBuildings() const;
 
-    short material;
-    short fuel;
-    short gold;
-    short power;
-    short workers;
+    int16_t material;
+    int16_t fuel;
+    int16_t gold;
+    int16_t power;
+    int16_t workers;
 };
 
 #endif /* COMPLEX_HPP */

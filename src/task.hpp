@@ -29,7 +29,7 @@
 #include "smartpointer.hpp"
 #include "zone.hpp"
 
-enum : unsigned char {
+enum : uint8_t {
     TaskType_TaskActivate = 0,
     TaskType_TaskAssistMove = 1,
     TaskType_TaskAttack = 2,
@@ -85,31 +85,31 @@ void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
 bool Task_IsReadyToTakeOrders(UnitInfo* unit);
 void Task_RemoveMovementTasks(UnitInfo* unit);
 bool Task_ShouldReserveShot(UnitInfo* unit, Point site);
-bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int caution_level);
-bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int caution_level);
-bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int caution_level);
-bool Task_IsAdjacent(UnitInfo* unit, short grid_x, short grid_y);
-int Task_EstimateTurnsTillMissionEnd();
+bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int32_t caution_level);
+bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level);
+bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int32_t caution_level);
+bool Task_IsAdjacent(UnitInfo* unit, int16_t grid_x, int16_t grid_y);
+int32_t Task_EstimateTurnsTillMissionEnd();
 
-int Task_GetReadyUnitsCount(unsigned short team, ResourceID unit_type);
+int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type);
 
 class Task : public SmartObject {
-    static unsigned short task_id;
-    static unsigned short task_count;
+    static uint16_t task_id;
+    static uint16_t task_count;
 
     bool need_init;
     bool scheduled_for_turn_start;
     bool scheduled_for_turn_end;
 
 protected:
-    unsigned short team;
-    unsigned short id;
-    unsigned short flags;
+    uint16_t team;
+    uint16_t id;
+    uint16_t flags;
 
     SmartPointer<Task> parent;
 
 public:
-    Task(unsigned short team, Task* parent, unsigned short flags);
+    Task(uint16_t team, Task* parent, uint16_t flags);
     Task(const Task& other);
     virtual ~Task();
 
@@ -126,24 +126,24 @@ public:
     bool IsScheduledForTurnEnd() const;
     void ChangeIsScheduledForTurnEnd(bool value);
 
-    unsigned short GetTeam() const;
-    unsigned short GetId() const;
+    uint16_t GetTeam() const;
+    uint16_t GetId() const;
 
     Task* GetParent();
     void SetParent(Task* task);
 
-    void SetFlags(unsigned short flags);
+    void SetFlags(uint16_t flags);
 
-    short DeterminePriority(unsigned short task_flags);
+    int16_t DeterminePriority(uint16_t task_flags);
     Point DeterminePosition();
 
     virtual bool Task_vfunc1(UnitInfo& unit);
     virtual bool IsUnitUsable(UnitInfo& unit);
-    virtual int GetCautionLevel(UnitInfo& unit);
-    virtual unsigned short GetFlags() const;
+    virtual int32_t GetCautionLevel(UnitInfo& unit);
+    virtual uint16_t GetFlags() const;
     virtual char* WriteStatusLog(char* buffer) const = 0;
     virtual Rect* GetBounds(Rect* bounds);
-    virtual unsigned char GetType() const = 0;
+    virtual uint8_t GetType() const = 0;
     virtual bool IsNeeded();
     virtual bool IsThinking();
     virtual void AddUnit(UnitInfo& unit);

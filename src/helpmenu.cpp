@@ -50,7 +50,7 @@ const char* help_menu_sections[] = {
 
 const char* help_menu_keyboard_reference = _(ceb6);
 
-HelpMenu::HelpMenu(unsigned char section, int cursor_x, int cursor_y, int window_id)
+HelpMenu::HelpMenu(uint8_t section, int32_t cursor_x, int32_t cursor_y, int32_t window_id)
     : Window(HELPFRAM, window_id),
       section(section),
       help_cache_use_count(0),
@@ -169,9 +169,9 @@ void HelpMenu::GetHotZone(const char* chunk, Rect* hot_zone) const {
     hot_zone->lry = strtol(chunk, nullptr, 10);
 }
 
-int HelpMenu::ReadNextChunk() {
-    int result;
-    int size;
+int32_t HelpMenu::ReadNextChunk() {
+    int32_t result;
+    int32_t size;
 
     if (file_size > 0) {
         size = file_size + 1;
@@ -194,7 +194,7 @@ int HelpMenu::ReadNextChunk() {
     return result;
 }
 
-int HelpMenu::SeekSection() {
+int32_t HelpMenu::SeekSection() {
     do {
         if (!ReadNextChunk()) {
             return 0;
@@ -205,7 +205,7 @@ int HelpMenu::SeekSection() {
     return 1;
 }
 
-int HelpMenu::SeekEntry(int cursor_x, int cursor_y) {
+int32_t HelpMenu::SeekEntry(int32_t cursor_x, int32_t cursor_y) {
     Rect hot_zone;
 
     for (;;) {
@@ -230,7 +230,7 @@ int HelpMenu::SeekEntry(int cursor_x, int cursor_y) {
     return 1;
 }
 
-int HelpMenu::ReadEntry() {
+int32_t HelpMenu::ReadEntry() {
     char* text;
 
     for (;;) {
@@ -296,9 +296,9 @@ void HelpMenu::ProcessText(const char* text) {
 }
 
 void HelpMenu::DrawText() {
-    unsigned char* buffer_position;
-    int text_full_height;
-    int row_index_max;
+    uint8_t* buffer_position;
+    int32_t text_full_height;
+    int32_t row_index_max;
 
     canvas->Write(&window);
 
@@ -317,7 +317,7 @@ void HelpMenu::DrawText() {
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    for (int row_index = string_row_index; row_index < row_index_max; ++row_index) {
+    for (int32_t row_index = string_row_index; row_index < row_index_max; ++row_index) {
         Text_Blit(&buffer_position[window.width * (row_index - string_row_index) * Text_GetHeight()],
                   strings[row_index].GetCStr(), 265, window.width, GNW_TEXT_OUTLINE | 0xFF);
     }
@@ -325,7 +325,7 @@ void HelpMenu::DrawText() {
     win_draw_rect(window.id, &window.window);
 }
 
-bool HelpMenu::ProcessKey(int key) {
+bool HelpMenu::ProcessKey(int32_t key) {
     if (key > 0 && key < GNW_INPUT_PRESS) {
         event_click_done = false;
     }
@@ -334,8 +334,8 @@ bool HelpMenu::ProcessKey(int key) {
         case 1001:
         case GNW_KB_KEY_PAGEUP: {
             if (string_row_index) {
-                int row_index;
-                unsigned int time_stamp;
+                int32_t row_index;
+                uint32_t time_stamp;
 
                 button_up->PlaySound();
 
@@ -362,8 +362,8 @@ bool HelpMenu::ProcessKey(int key) {
         case 1002:
         case GNW_KB_KEY_PAGEDOWN: {
             if ((string_row_index + rows_per_page) < string_row_count) {
-                int row_index;
-                unsigned int time_stamp;
+                int32_t row_index;
+                uint32_t time_stamp;
 
                 button_down->PlaySound();
 
@@ -423,8 +423,8 @@ bool HelpMenu::ProcessKey(int key) {
     return true;
 }
 
-bool HelpMenu::Run(int mode) {
-    int key;
+bool HelpMenu::Run(int32_t mode) {
+    int32_t key;
 
     event_click_done = false;
 
@@ -461,7 +461,7 @@ bool HelpMenu::Run(int mode) {
     return event_click_help;
 }
 
-void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
+void HelpMenu_Menu(HelpSectionId section_id, int32_t window_index, bool mode) {
     MouseEvent mouse_event;
     WinID window_id;
 
@@ -520,7 +520,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int window_index, bool mode) {
     MouseEvent::Clear();
 }
 
-bool HelpMenu_UnitReport(int mouse_x, int mouse_y) {
+bool HelpMenu_UnitReport(int32_t mouse_x, int32_t mouse_y) {
     WindowInfo* window;
     UnitInfo* unit;
     bool result;

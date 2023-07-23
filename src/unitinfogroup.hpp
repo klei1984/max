@@ -30,12 +30,12 @@ class UnitInfoArray {
     SmartArray<UnitInfo> array;
 
 public:
-    UnitInfoArray(unsigned short growth_factor = SMARTFILE_OBJECT_ARRAY_DEFAULT_CAPACITY);
+    UnitInfoArray(uint16_t growth_factor = SMARTFILE_OBJECT_ARRAY_DEFAULT_CAPACITY);
     ~UnitInfoArray();
 
     void Insert(UnitInfo& unit);
-    int GetCount() const;
-    UnitInfo& operator[](int index) const;
+    int32_t GetCount() const;
+    UnitInfo& operator[](int32_t index) const;
     void Release();
 };
 

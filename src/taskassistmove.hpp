@@ -31,13 +31,13 @@ class TaskAssistMove : public Task {
     void CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site);
 
 public:
-    TaskAssistMove(unsigned short team);
+    TaskAssistMove(uint16_t team);
     ~TaskAssistMove();
 
     bool Task_vfunc1(UnitInfo& unit);
     bool IsUnitUsable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
     void BeginTurn();
     void EndTurn();

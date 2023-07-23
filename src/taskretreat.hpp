@@ -26,10 +26,10 @@
 
 class TaskRetreat : public Task {
     SmartPointer<UnitInfo> unit_to_retreat;
-    short field_23;
+    int16_t field_23;
     Point position;
-    short direction;
-    short field_31;
+    int16_t direction;
+    int16_t field_31;
     char caution_level;
     char field_34;
 
@@ -39,12 +39,12 @@ class TaskRetreat : public Task {
     static void TaskMoveResultCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskRetreat(UnitInfo* unit, Task* task, unsigned short flags, int caution_level);
+    TaskRetreat(UnitInfo* unit, Task* task, uint16_t flags, int32_t caution_level);
     ~TaskRetreat();
 
     bool Task_vfunc1(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void Begin();
     void EndTurn();
     void RemoveSelf();

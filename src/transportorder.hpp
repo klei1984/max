@@ -26,7 +26,7 @@
 #include "taskpathrequest.hpp"
 
 class TransportOrder : public SmartObject {
-    unsigned char transport_category;
+    uint8_t transport_category;
     ResourceID unit_type;
     SmartPointer<GroundPath> path;
     Point position;
@@ -36,8 +36,8 @@ public:
     ~TransportOrder();
 
     ResourceID GetUnitType() const;
-    unsigned char GetTransportCategory() const;
-    static int DetermineCategory(ResourceID unit_type);
+    uint8_t GetTransportCategory() const;
+    static int32_t DetermineCategory(ResourceID unit_type);
     Point MatchClosestPosition(Point target, Point current);
     Point MatchStartPosition(Point target);
     void UsePrecalculatedPath(TaskPathRequest* request);

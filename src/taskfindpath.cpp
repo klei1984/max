@@ -29,7 +29,7 @@
 
 TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
                            void (*result_callback_)(Task* task, PathRequest* path_request, Point destination_,
-                                                    GroundPath* path, unsigned char result),
+                                                    GroundPath* path, uint8_t result),
                            void (*cancel_callback_)(Task* task, PathRequest* path_request))
     : Task(parent->GetTeam(), parent, parent->GetFlags()) {
     result_callback = result_callback_;
@@ -58,7 +58,7 @@ char* TaskFindPath::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
+uint8_t TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
 
 bool TaskFindPath::IsThinking() { return path_request != nullptr; }
 

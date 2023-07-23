@@ -48,7 +48,7 @@
 
 CSoundManager SoundManager;
 
-static const unsigned char soundmgr_sfx_type_flags[SFX_TYPE_LIMIT] = {
+static const uint8_t soundmgr_sfx_type_flags[SFX_TYPE_LIMIT] = {
     SOUNDMGR_SFX_FLAG_INVALID,
     SOUNDMGR_SFX_FLAG_UNKNOWN_2 | SOUNDMGR_SFX_FLAG_INFINITE_LOOPING,
     SOUNDMGR_SFX_FLAG_UNKNOWN_2 | SOUNDMGR_SFX_FLAG_INFINITE_LOOPING,
@@ -69,7 +69,7 @@ static const unsigned char soundmgr_sfx_type_flags[SFX_TYPE_LIMIT] = {
     SOUNDMGR_SFX_FLAG_UNKNOWN_2,
     SOUNDMGR_SFX_FLAG_UNKNOWN_2};
 
-static const short soundmgr_voice_priority[V_END - V_START + 1] = {
+static const int16_t soundmgr_voice_priority[V_END - V_START + 1] = {
     0,  10, 10, 10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 35, 35, 30, 30, 40, 40, 40, 40, 0,  0,  45, 45, 45, 45, 10,
     10, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 50,
     50, 50, 50, 0,  50, 50, 50, 50, 50, 50, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 0,  0,  0,  0,  0,  0,
@@ -118,7 +118,7 @@ void CSoundManager::Init() {
 
         SDL_assert(volumes);
 
-        for (int i = 0; i < (FXS_END - FXS_STRT - 1); i++) {
+        for (int32_t i = 0; i < (FXS_END - FXS_STRT - 1); i++) {
             volumes[i].volume = ini_soundvol.GetUnitVolume((ResourceID)(FXS_STRT + i + 1));
             volumes[i].flags = -1;
         }
@@ -161,7 +161,7 @@ void CSoundManager::UpdateMusic() {
     if (music && !Mix_PlayingMusic()) {
         if (shuffle_music) {
             ResourceID resource_id;
-            int index;
+            int32_t index;
 
             /* if all tracks were played from the list, reset list state */
             for (index = 0; (index < (BKG9_MSC - MAIN_MSC + 1)) && (shuffle_music_playlist[index] != true); index++) {
@@ -207,7 +207,7 @@ void CSoundManager::UpdateMusic() {
 }
 
 void CSoundManager::FreeSfx(UnitInfo* unit) {
-    unsigned short unit_id;
+    uint16_t unit_id;
 
     if (sfx) {
         sfx->time_stamp = timer_get();
@@ -277,7 +277,7 @@ void CSoundManager::PlayMusic(ResourceID id, bool shuffle) {
             shuffle_music = shuffle;
 
             if ((shuffle_music) && ((id < MAIN_MSC) || (id > BKG9_MSC))) {
-                for (int i = 0; i < (BKG9_MSC - MAIN_MSC + 1); i++) {
+                for (int32_t i = 0; i < (BKG9_MSC - MAIN_MSC + 1); i++) {
                     shuffle_music_playlist[i] = true;
                 }
             }
@@ -339,9 +339,9 @@ void CSoundManager::PlaySfx(ResourceID id) {
     }
 }
 
-void CSoundManager::PlaySfx(UnitInfo* unit, int sound, bool mode) {
-    unsigned char flags;
-    int previous_sound;
+void CSoundManager::PlaySfx(UnitInfo* unit, int32_t sound, bool mode) {
+    uint8_t flags;
+    int32_t previous_sound;
 
     SDL_assert(unit);
     SDL_assert(sound < SFX_TYPE_LIMIT);
@@ -360,17 +360,17 @@ void CSoundManager::PlaySfx(UnitInfo* unit, int sound, bool mode) {
         }
 
         if (!ini_get_setting(INI_DISABLE_FX) && is_audio_enabled) {
-            int grid_center_x;
-            int grid_center_y;
-            int grid_offset_x;
-            int grid_offset_y;
-            int grid_distance_x;
-            int grid_distance_y;
+            int32_t grid_center_x;
+            int32_t grid_center_y;
+            int32_t grid_offset_x;
+            int32_t grid_offset_y;
+            int32_t grid_distance_x;
+            int32_t grid_distance_y;
             SoundJob job;
-            int loop_count;
-            int sound_index;
-            int volume_index;
-            int resource_id;
+            int32_t loop_count;
+            int32_t sound_index;
+            int32_t volume_index;
+            int32_t resource_id;
 
             for (sound_index = 0;
                  sound_index < unit->sound_table->size() && (*unit->sound_table)[sound_index].type != sound;
@@ -461,15 +461,15 @@ void CSoundManager::PlaySfx(UnitInfo* unit, int sound, bool mode) {
 }
 
 void CSoundManager::UpdateSfxPosition() {
-    int grid_center_x;
-    int grid_center_y;
-    int grid_offset_x;
-    int grid_offset_y;
-    int grid_distance_x;
-    int grid_distance_y;
+    int32_t grid_center_x;
+    int32_t grid_center_y;
+    int32_t grid_offset_x;
+    int32_t grid_offset_y;
+    int32_t grid_distance_x;
+    int32_t grid_distance_y;
 
-    int pan_location;
-    int sound_level;
+    int32_t pan_location;
+    int32_t sound_level;
 
     grid_center_x = (GameManager_GridPosition.ulx + GameManager_GridPosition.lrx) / 2;
     grid_center_y = (GameManager_GridPosition.uly + GameManager_GridPosition.lry) / 2;
@@ -488,8 +488,8 @@ void CSoundManager::UpdateSfxPosition() {
                 pan_location = GetPanning(grid_distance_x, true);
             }
 
-            int pan_right = SOUNDMGR_SCALE_PANNING_RIGHT(pan_location);
-            int pan_left = 254 - pan_right;
+            int32_t pan_right = SOUNDMGR_SCALE_PANNING_RIGHT(pan_location);
+            int32_t pan_left = 254 - pan_right;
 
             if (!Mix_SetPanning(it->mixer_channel, pan_left, pan_right)) {
                 SDL_Log("SDL_Mixer failed to set stereo pan position: %s\n", Mix_GetError());
@@ -503,15 +503,15 @@ void CSoundManager::UpdateSfxPosition() {
 }
 
 void CSoundManager::UpdateSfxPosition(UnitInfo* unit) {
-    int grid_center_x;
-    int grid_center_y;
-    int grid_offset_x;
-    int grid_offset_y;
-    int grid_distance_x;
-    int grid_distance_y;
+    int32_t grid_center_x;
+    int32_t grid_center_y;
+    int32_t grid_offset_x;
+    int32_t grid_offset_y;
+    int32_t grid_distance_x;
+    int32_t grid_distance_y;
 
-    int pan_location;
-    int sound_level;
+    int32_t pan_location;
+    int32_t sound_level;
 
     SDL_assert(unit);
 
@@ -534,8 +534,8 @@ void CSoundManager::UpdateSfxPosition(UnitInfo* unit) {
             pan_location = GetPanning(grid_distance_x, true);
         }
 
-        int pan_right = SOUNDMGR_SCALE_PANNING_RIGHT(pan_location);
-        int pan_left = 254 - pan_right;
+        int32_t pan_right = SOUNDMGR_SCALE_PANNING_RIGHT(pan_location);
+        int32_t pan_left = 254 - pan_right;
 
         if (!Mix_SetPanning(sfx->mixer_channel, pan_left, pan_right)) {
             SDL_Log("SDL_Mixer failed to set stereo pan position: %s\n", Mix_GetError());
@@ -566,11 +566,11 @@ void CSoundManager::HaltSfxPlayback(bool disable) {
     }
 }
 
-void CSoundManager::PlayVoice(ResourceID id1, ResourceID id2, short priority) {
+void CSoundManager::PlayVoice(ResourceID id1, ResourceID id2, int16_t priority) {
     if (priority >= 0) {
         if (!IsVoiceGroupScheduled(id1, id2) && !ini_get_setting(INI_DISABLE_VOICE)) {
-            short priority_value;
-            unsigned short randomized_voice_id;
+            int16_t priority_value;
+            uint16_t randomized_voice_id;
 
             if (priority > 0) {
                 priority_value = priority;
@@ -634,14 +634,14 @@ void CSoundManager::FreeAllSamples() {
     SDL_assert(samples.empty());
 }
 
-void CSoundManager::SetVolume(int type, int volume) {
+void CSoundManager::SetVolume(int32_t type, int32_t volume) {
     SDL_assert(type <= JOB_TYPE_MUSIC);
     SDL_assert(volume <= 100);
 
     for (auto it = samples.begin(); it != samples.end(); it++) {
         if (it->mixer_channel != SOUNDMGR_INVALID_CHANNEL &&
             (it->type == type || (type == JOB_TYPE_SFX2 && it->type <= JOB_TYPE_SFX2))) {
-            int new_volume = (it->volume_1 * volume) / 100;
+            int32_t new_volume = (it->volume_1 * volume) / 100;
 
             if (it->type == JOB_TYPE_MUSIC) {
                 Mix_VolumeMusic(SOUNDMGR_SCALE_VOLUME(new_volume));
@@ -671,7 +671,7 @@ void CSoundManager::BkProcess() {
                     it->volume_2 /= 2;
 
                     if (it->volume_2) {
-                        int sfx_volume = ini_get_setting(INI_FX_SOUND_LEVEL);
+                        int32_t sfx_volume = ini_get_setting(INI_FX_SOUND_LEVEL);
                         SDL_assert(sfx_volume <= 100);
 
                         it->volume_1 /= 2;
@@ -735,8 +735,8 @@ void CSoundManager::AddJob(SoundJob& job) {
     }
 }
 
-int CSoundManager::ProcessJob(SoundJob& job) {
-    int result;
+int32_t CSoundManager::ProcessJob(SoundJob& job) {
+    int32_t result;
 
     if (job.type == JOB_TYPE_VOICE && voice && voice->mixer_channel != SOUNDMGR_INVALID_CHANNEL &&
         Mix_Playing(voice->mixer_channel)) {
@@ -760,7 +760,7 @@ int CSoundManager::ProcessJob(SoundJob& job) {
             result = LoadSound(job, sample);
 
             if (0 == result) {
-                int sound_level;
+                int32_t sound_level;
 
                 if (sample.loop_point_start != 0) {
                     if (job.sound == SFX_TYPE_BUILDING) {
@@ -798,18 +798,18 @@ int CSoundManager::ProcessJob(SoundJob& job) {
                 if (JOB_TYPE_MUSIC == sample.type) {
                     sample.mixer_channel = 0;
                     Mix_VolumeMusic(SOUNDMGR_SCALE_VOLUME(sample.volume_1 * sound_level / 100));
-                    int local_result = Mix_PlayMusic(sample.music, sample.loop_count);
+                    int32_t local_result = Mix_PlayMusic(sample.music, sample.loop_count);
                     SDL_assert(local_result != -1);
                 } else {
-                    int pan_right = SOUNDMGR_SCALE_PANNING_RIGHT(job.panning);
-                    int pan_left = 254 - pan_right;
+                    int32_t pan_right = SOUNDMGR_SCALE_PANNING_RIGHT(job.panning);
+                    int32_t pan_left = 254 - pan_right;
 
                     if (!Mix_SetPanning(sample.mixer_channel, pan_left, pan_right)) {
                         SDL_Log("SDL_Mixer failed to set stereo pan position: %s\n", Mix_GetError());
                     }
 
                     {
-                        int i = 0;
+                        int32_t i = 0;
 
                         while (Mix_Playing(i)) {
                             i++;
@@ -820,7 +820,7 @@ int CSoundManager::ProcessJob(SoundJob& job) {
                     }
 
                     Mix_Volume(sample.mixer_channel, SOUNDMGR_SCALE_VOLUME(sample.volume_1 * sound_level / 100));
-                    int channel = Mix_PlayChannel(sample.mixer_channel, sample.chunk, sample.loop_count);
+                    int32_t channel = Mix_PlayChannel(sample.mixer_channel, sample.chunk, sample.loop_count);
                     SDL_assert(channel == sample.mixer_channel);
                 }
 
@@ -877,8 +877,8 @@ bool CSoundManager::IsVoiceGroupScheduled(ResourceID id1, ResourceID id2) {
     return false;
 }
 
-int CSoundManager::GetPanning(int distance, bool reverse) {
-    int panning;
+int32_t CSoundManager::GetPanning(int32_t distance, bool reverse) {
+    int32_t panning;
 
     if (distance > 28) {
         distance = 28;
@@ -928,10 +928,10 @@ bool CSoundManager::LoadMusic(ResourceID id) {
     return result;
 }
 
-int CSoundManager::LoadSound(SoundJob& job, SoundSample& sample) {
+int32_t CSoundManager::LoadSound(SoundJob& job, SoundSample& sample) {
     char* file;
     char file_path[PATH_MAX];
-    int result;
+    int32_t result;
 
     file = reinterpret_cast<char*>(ResourceManager_ReadResource(job.id));
 
@@ -990,7 +990,7 @@ int CSoundManager::LoadSound(SoundJob& job, SoundSample& sample) {
 
 void CSoundManager::LoadLoopPoints(FILE* fp, SoundSample& sample) {
     char chunk_id[4];
-    unsigned int chunk_size;
+    uint32_t chunk_size;
 
     sample.loop_point_start = 0;
     sample.loop_point_length = 0;
@@ -1007,32 +1007,32 @@ void CSoundManager::LoadLoopPoints(FILE* fp, SoundSample& sample) {
 
                             if (!strncmp(chunk_id, "smpl", sizeof(chunk_id))) {
                                 typedef struct {
-                                    unsigned int manufacturer;
-                                    unsigned int product;
-                                    unsigned int sample_period;
-                                    unsigned int midi_unity_note;
-                                    unsigned int midi_pitch_fraction;
-                                    unsigned int smpte_format;
-                                    unsigned int smpte_offset;
-                                    unsigned int num_sample_loops;
-                                    unsigned int sampler_data;
+                                    uint32_t manufacturer;
+                                    uint32_t product;
+                                    uint32_t sample_period;
+                                    uint32_t midi_unity_note;
+                                    uint32_t midi_pitch_fraction;
+                                    uint32_t smpte_format;
+                                    uint32_t smpte_offset;
+                                    uint32_t num_sample_loops;
+                                    uint32_t sampler_data;
                                 } SamplerChunk;
 
                                 SamplerChunk sampler_chunk;
 
                                 if (fread(&sampler_chunk, sizeof(sampler_chunk), 1, fp)) {
                                     typedef struct {
-                                        unsigned int cue_point_id;
-                                        unsigned int type;
-                                        unsigned int start;
-                                        unsigned int end;
-                                        unsigned int fraction;
-                                        unsigned int play_count;
+                                        uint32_t cue_point_id;
+                                        uint32_t type;
+                                        uint32_t start;
+                                        uint32_t end;
+                                        uint32_t fraction;
+                                        uint32_t play_count;
                                     } SampleLoop;
 
                                     SampleLoop sample_loop;
 
-                                    for (int i = 0; i < sampler_chunk.num_sample_loops &&
+                                    for (int32_t i = 0; i < sampler_chunk.num_sample_loops &&
                                                     fread(&sample_loop, sizeof(sample_loop), 1, fp);
                                          i++) {
                                         sample.loop_point_start = sample_loop.start;

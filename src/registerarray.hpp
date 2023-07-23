@@ -28,12 +28,12 @@
 class MAXRegisterClass : public SmartObject {
     CharSortKey sortkey;
     FileObject* (*allocator)();
-    unsigned short* type_index;
+    uint16_t* type_index;
 
     void Insert();
 
 public:
-    MAXRegisterClass(const char* class_name, unsigned short* type_index, FileObject* (*allocator)())
+    MAXRegisterClass(const char* class_name, uint16_t* type_index, FileObject* (*allocator)())
         : sortkey(class_name), allocator(allocator), type_index(type_index) {
         Insert();
     }
@@ -42,18 +42,18 @@ public:
     ~MAXRegisterClass() {}
 
     FileObject* Allocate() const { return allocator(); }
-    unsigned short* GetTypeIndexPointer() const { return type_index; }
-    static void SetTypeIndex(unsigned short* type_index_pointer, unsigned short value) { *type_index_pointer = value; }
+    uint16_t* GetTypeIndexPointer() const { return type_index; }
+    static void SetTypeIndex(uint16_t* type_index_pointer, uint16_t value) { *type_index_pointer = value; }
     SortKey& GetSortKey() { return sortkey; }
     const char* GetClassName() const { return sortkey.GetKey(); }
 };
 
 class RegisterArray : public SortedArray<MAXRegisterClass> {
 public:
-    RegisterArray(unsigned short growth_factor) : SortedArray<MAXRegisterClass>(growth_factor) {}
+    RegisterArray(uint16_t growth_factor) : SortedArray<MAXRegisterClass>(growth_factor) {}
 
     void Insert(MAXRegisterClass& object) {
-        for (unsigned short position = SortedArray<MAXRegisterClass>::Insert(object); position < GetCount();
+        for (uint16_t position = SortedArray<MAXRegisterClass>::Insert(object); position < GetCount();
              ++position) {
             MAXRegisterClass::SetTypeIndex(operator[](position).GetTypeIndexPointer(), position + 1);
         }

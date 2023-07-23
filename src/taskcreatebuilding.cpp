@@ -57,12 +57,12 @@ enum {
     CREATE_BUILDING_STATE_FINISHED,
 };
 
-static bool TaskCreateBuilding_IsMorePowerNeeded(unsigned short team);
-static bool TaskCreateBuilding_IsMoreLifeNeeded(unsigned short team);
-static bool TaskCreateBuilding_IsMoreFuelReservesNeeded(unsigned short team);
-static int TaskCreateBuilding_DetermineMapSurfaceRequirements(ResourceID unit_type, Point site);
+static bool TaskCreateBuilding_IsMorePowerNeeded(uint16_t team);
+static bool TaskCreateBuilding_IsMoreLifeNeeded(uint16_t team);
+static bool TaskCreateBuilding_IsMoreFuelReservesNeeded(uint16_t team);
+static int32_t TaskCreateBuilding_DetermineMapSurfaceRequirements(ResourceID unit_type, Point site);
 
-TaskCreateBuilding::TaskCreateBuilding(Task* task, unsigned short flags_, ResourceID unit_type_, Point site_,
+TaskCreateBuilding::TaskCreateBuilding(Task* task, uint16_t flags_, ResourceID unit_type_, Point site_,
                                        TaskManageBuildings* manager_)
     : TaskCreate(task, flags_, unit_type_) {
     char buffer[200];
@@ -91,8 +91,8 @@ TaskCreateBuilding::TaskCreateBuilding(UnitInfo* unit_, TaskManageBuildings* man
 
 TaskCreateBuilding::~TaskCreateBuilding() {}
 
-int TaskCreateBuilding::EstimateBuildTime() {
-    int result;
+int32_t TaskCreateBuilding::EstimateBuildTime() {
+    int32_t result;
 
     if (builder && Task_vfunc28()) {
         result = builder->build_time;
@@ -341,8 +341,8 @@ bool TaskCreateBuilding::RequestMineRemoval() {
 
         GetBounds(&bounds);
 
-        for (int x = bounds.ulx; x < bounds.lrx; ++x) {
-            for (int y = bounds.uly; y < bounds.lry; ++y) {
+        for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
+            for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
                 const auto units = Hash_MapHash[Point(x, y)];
                 SmartPointer<UnitInfo> unit;
 
@@ -379,8 +379,8 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
 
         GetBounds(&bounds);
 
-        for (int x = bounds.ulx; x < bounds.lrx; ++x) {
-            for (int y = bounds.uly; y < bounds.lry; ++y) {
+        for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
+            for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
                 const auto units = Hash_MapHash[Point(x, y)];
                 SmartPointer<UnitInfo> unit;
 
@@ -473,7 +473,7 @@ char* TaskCreateBuilding::WriteStatusLog(char* buffer) const {
 }
 
 Rect* TaskCreateBuilding::GetBounds(Rect* bounds) {
-    int unit_size;
+    int32_t unit_size;
 
     if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {
         unit_size = 2;
@@ -490,7 +490,7 @@ Rect* TaskCreateBuilding::GetBounds(Rect* bounds) {
     return bounds;
 }
 
-unsigned char TaskCreateBuilding::GetType() const { return TaskType_TaskCreateBuilding; }
+uint8_t TaskCreateBuilding::GetType() const { return TaskType_TaskCreateBuilding; }
 
 bool TaskCreateBuilding::IsNeeded() {
     return op_state < CREATE_BUILDING_STATE_BUILDING && (!parent || parent->IsNeeded());
@@ -730,7 +730,7 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
                             }
 
                         } else {
-                            int minimum_distance;
+                            int32_t minimum_distance;
                             Point line_distance;
 
                             if (tasks.GetCount()) {
@@ -992,7 +992,7 @@ bool TaskCreateBuilding::CheckMaterials() {
             result = false;
 
         } else {
-            int resource_demand =
+            int32_t resource_demand =
                 BuildMenu_GetTurnsToBuild(unit_type, team) * Cargo_GetRawConsumptionRate(builder->unit_type, 1);
 
             if (TaskCreateBuilding_DetermineMapSurfaceRequirements(unit_type, site) == 2 &&
@@ -1046,7 +1046,7 @@ void TaskCreateBuilding::BuildBoardwalks() {
         Point position;
         AccessMap map;
         Rect bounds;
-        int range_limit;
+        int32_t range_limit;
 
         AiLog log("Create boardwalks around unit.");
 
@@ -1061,8 +1061,8 @@ void TaskCreateBuilding::BuildBoardwalks() {
 
         range_limit = bounds.lrx - bounds.ulx;
 
-        for (int direction = 0; direction < 8; direction += 2) {
-            for (int range = 0; range < range_limit; ++range) {
+        for (int32_t direction = 0; direction < 8; direction += 2) {
+            for (int32_t range = 0; range < range_limit; ++range) {
                 position += Paths_8DirPointsArray[direction];
 
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
@@ -1107,8 +1107,8 @@ void TaskCreateBuilding::BuildBridges() {
             position.x = (*it).grid_x - 1;
             position.y = (*it).grid_y + 2;
 
-            for (int direction = 0; direction < 8 && !spot_found; direction += 2) {
-                for (int range = 0; range < 3 && !spot_found; ++range) {
+            for (int32_t direction = 0; direction < 8 && !spot_found; direction += 2) {
+                for (int32_t range = 0; range < 3 && !spot_found; ++range) {
                     position += Paths_8DirPointsArray[direction];
 
                     if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
@@ -1140,13 +1140,13 @@ void TaskCreateBuilding::BuildBridges() {
     }
 }
 
-void TaskCreateBuilding::MarkBridgeAreas(unsigned char** map) {
-    short** damage_potential_map;
+void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
+    int16_t** damage_potential_map;
 
     AiLog log("Marking bridge areas.");
 
-    for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+    for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             switch (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x]) {
                 case SURFACE_TYPE_LAND: {
                     map[x][y] = 2;
@@ -1171,8 +1171,8 @@ void TaskCreateBuilding::MarkBridgeAreas(unsigned char** map) {
 
             (*it).GetBounds(&bounds);
 
-            for (int x = bounds.ulx; x < bounds.lrx; ++x) {
-                for (int y = bounds.uly; y < bounds.lry; ++y) {
+            for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
+                for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
                     map[x][y] = 4;
                 }
             }
@@ -1181,8 +1181,8 @@ void TaskCreateBuilding::MarkBridgeAreas(unsigned char** map) {
 
     damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
 
-    for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-        for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+    for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+        for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
             if (damage_potential_map[x][y] > 0) {
                 map[x][y] = 0;
             }
@@ -1199,8 +1199,8 @@ void TaskCreateBuilding::MarkBridgeAreas(unsigned char** map) {
 
             if (create_building_task->GetUnitType() != BRIDGE && create_building_task->GetUnitType() != WTRPLTFM &&
                 create_building_task->GetUnitType() != CNCT_4W) {
-                for (int x = bounds.ulx; x < bounds.lrx; ++x) {
-                    for (int y = bounds.uly; y < bounds.lry; ++y) {
+                for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
+                    for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
                         map[x][y] = 4;
                     }
                 }
@@ -1209,7 +1209,7 @@ void TaskCreateBuilding::MarkBridgeAreas(unsigned char** map) {
     }
 }
 
-void TaskCreateBuilding::PopulateMap(unsigned char** map) {
+void TaskCreateBuilding::PopulateMap(uint8_t** map) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
         if ((*it).unit_type == BRIDGE && (*it).IsVisibleToTeam(team)) {
@@ -1233,8 +1233,8 @@ void TaskCreateBuilding::PopulateMap(unsigned char** map) {
         }
     }
 
-    for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+    for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             if ((ResourceManager_CargoMap[y * ResourceManager_MapSize.x + x] & 0x1F) >= 8) {
                 if (map[x][y] == 1) {
                     map[x][y] = 0;
@@ -1244,15 +1244,15 @@ void TaskCreateBuilding::PopulateMap(unsigned char** map) {
     }
 }
 
-bool TaskCreateBuilding::FindBridgePath(unsigned char** map, int value) {
+bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
     Point position;
     Point start_position;
     bool is_found = false;
-    unsigned short flags1;
-    unsigned short bridge_count;
+    uint16_t flags1;
+    uint16_t bridge_count;
     Rect bounds;
-    int range_limit;
-    int direction2;
+    int32_t range_limit;
+    int32_t direction2;
 
     AiLog log("Find bridge path.");
 
@@ -1265,8 +1265,8 @@ bool TaskCreateBuilding::FindBridgePath(unsigned char** map, int value) {
 
     bridge_count = SHRT_MAX;
 
-    for (int direction = 0; direction < 8; direction += 2) {
-        for (int range = 0; range < range_limit; ++range) {
+    for (int32_t direction = 0; direction < 8; direction += 2) {
+        for (int32_t range = 0; range < range_limit; ++range) {
             position += Paths_8DirPointsArray[direction];
 
             if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
@@ -1329,16 +1329,16 @@ bool TaskCreateBuilding::FindBridgePath(unsigned char** map, int value) {
     return is_found;
 }
 
-bool TaskCreateBuilding::SearchPathStep(unsigned char** map, Point position, int* direction,
-                                        unsigned short* best_unit_count, int value) {
+bool TaskCreateBuilding::SearchPathStep(uint8_t** map, Point position, int32_t* direction,
+                                        uint16_t* best_unit_count, int32_t value) {
     Point site1;
     Point site2;
     Point site3;
     bool result = false;
-    unsigned short unit_count;
+    uint16_t unit_count;
     bool is_found;
 
-    for (int local_direction = 0; local_direction < 8; local_direction += 2) {
+    for (int32_t local_direction = 0; local_direction < 8; local_direction += 2) {
         unit_count = 0;
         is_found = false;
 
@@ -1409,9 +1409,9 @@ bool TaskCreateBuilding::Task_vfunc29() {
     return result;
 }
 
-bool TaskCreateBuilding_IsMorePowerNeeded(unsigned short team) {
+bool TaskCreateBuilding_IsMorePowerNeeded(uint16_t team) {
     bool result;
-    int consumption_rate = 0;
+    int32_t consumption_rate = 0;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -1441,9 +1441,9 @@ bool TaskCreateBuilding_IsMorePowerNeeded(unsigned short team) {
     return result;
 }
 
-bool TaskCreateBuilding_IsMoreLifeNeeded(unsigned short team) {
+bool TaskCreateBuilding_IsMoreLifeNeeded(uint16_t team) {
     bool result;
-    int consumption_rate = 0;
+    int32_t consumption_rate = 0;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -1473,8 +1473,8 @@ bool TaskCreateBuilding_IsMoreLifeNeeded(unsigned short team) {
     return result;
 }
 
-bool TaskCreateBuilding_IsMoreFuelReservesNeeded(unsigned short team) {
-    int fuel_reserves = 0;
+bool TaskCreateBuilding_IsMoreFuelReservesNeeded(uint16_t team) {
+    int32_t fuel_reserves = 0;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -1486,13 +1486,13 @@ bool TaskCreateBuilding_IsMoreFuelReservesNeeded(unsigned short team) {
     return fuel_reserves < 10;
 }
 
-int TaskCreateBuilding_DetermineMapSurfaceRequirements(ResourceID unit_type, Point site) {
+int32_t TaskCreateBuilding_DetermineMapSurfaceRequirements(ResourceID unit_type, Point site) {
     Rect bounds;
     BaseUnit* base_unit;
     bool water_present;
     bool land_present;
     bool coast_present;
-    int result;
+    int32_t result;
 
     rect_init(&bounds, site.x, site.y, site.x + 1, site.y + 1);
 
@@ -1509,8 +1509,8 @@ int TaskCreateBuilding_DetermineMapSurfaceRequirements(ResourceID unit_type, Poi
 
     if (bounds.ulx >= 0 && bounds.uly >= 0 && bounds.lrx <= ResourceManager_MapSize.x &&
         bounds.lry <= ResourceManager_MapSize.y) {
-        for (int x = bounds.ulx; x < bounds.lrx; ++x) {
-            for (int y = bounds.uly; y < bounds.lry; ++y) {
+        for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
+            for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
                 switch (Access_GetModifiedSurfaceType(x, y)) {
                     case SURFACE_TYPE_LAND: {
                         land_present = true;

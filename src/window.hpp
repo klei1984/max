@@ -29,24 +29,24 @@
 class Window {
 protected:
     WinID window_id;
-    short ulx;
-    short uly;
-    short width;
-    short height;
-    unsigned int flags;
+    int16_t ulx;
+    int16_t uly;
+    int16_t width;
+    int16_t height;
+    uint32_t flags;
     ResourceID resource_id;
     bool palette_from_image;
 
 public:
-    Window(short ulx, short uly, short width, short height);
+    Window(int16_t ulx, int16_t uly, int16_t width, int16_t height);
     Window(ResourceID id);
-    Window(ResourceID id, unsigned char win_id);
+    Window(ResourceID id, uint8_t win_id);
     virtual ~Window();
 
     void FillWindowInfo(WindowInfo* window);
     void Add(bool draw_to_screen = false);
-    void GetCursorPosition(int& x, int& y) const;
-    void SetFlags(unsigned int flags);
+    void GetCursorPosition(int32_t& x, int32_t& y) const;
+    void SetFlags(uint32_t flags);
     void SetPaletteMode(bool palette_from_image);
     virtual bool EventHandler(Event* event);
     WinID GetId() const;

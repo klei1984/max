@@ -37,7 +37,7 @@ void TaskPlaceMines::MoveFinishedCallback(Task* task, UnitInfo* unit, char resul
     }
 }
 
-TaskPlaceMines::TaskPlaceMines(unsigned short team_) : Task(team_, nullptr, 0x1A00) {
+TaskPlaceMines::TaskPlaceMines(uint16_t team_) : Task(team_, nullptr, 0x1A00) {
     mine_layer_count = 0;
     sea_mine_layer_count = 0;
 }
@@ -53,11 +53,11 @@ char* TaskPlaceMines::WriteStatusLog(char* buffer) const {
 }
 
 Rect* TaskPlaceMines::GetBounds(Rect* bounds) {
-    unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
+    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
 
     if (info_map) {
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-            for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+            for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                 if (info_map[x][y] & 2) {
                     bounds->ulx = x;
                     bounds->uly = y;
@@ -73,7 +73,7 @@ Rect* TaskPlaceMines::GetBounds(Rect* bounds) {
     return Task::GetBounds(bounds);
 }
 
-unsigned char TaskPlaceMines::GetType() const { return TaskType_TaskPlaceMines; }
+uint8_t TaskPlaceMines::GetType() const { return TaskType_TaskPlaceMines; }
 
 bool TaskPlaceMines::IsNeeded() {
     bool has_mine_layer = false;
@@ -153,7 +153,7 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
             result = true;
 
         } else if (unit.storage > 0) {
-            unsigned char** info_map = AiPlayer_Teams[team].GetInfoMap();
+            uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
 
             if (info_map) {
                 if (info_map[unit.grid_x][unit.grid_y] & 2) {
@@ -172,9 +172,9 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
 
                 } else {
                     Point position;
-                    int surface_type;
-                    int distance;
-                    int minimum_distance{INT32_MAX};
+                    int32_t surface_type;
+                    int32_t distance;
+                    int32_t minimum_distance{INT32_MAX};
                     bool is_found = false;
 
                     if (unit.unit_type == MINELAYR) {
@@ -184,8 +184,8 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
                         surface_type = SURFACE_TYPE_WATER;
                     }
 
-                    for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-                        for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                    for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+                        for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                             if ((info_map[x][y] & 2) && !(info_map[x][y] & 8) &&
                                 Access_GetSurfaceType(x, y) == surface_type) {
                                 distance = TaskManager_GetDistance(unit.grid_x - x, unit.grid_y - y);

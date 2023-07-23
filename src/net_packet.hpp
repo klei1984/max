@@ -29,25 +29,25 @@
 class NetPacket {
     SmartObjectArray<NetAddress> addresses;
     char* buffer;
-    unsigned int buffer_capacity;
-    unsigned int buffer_read_position;
-    unsigned int buffer_write_position;
+    uint32_t buffer_capacity;
+    uint32_t buffer_read_position;
+    uint32_t buffer_write_position;
 
-    void GrowBuffer(int length);
+    void GrowBuffer(int32_t length);
 
 public:
     NetPacket();
     ~NetPacket();
-    void Read(void* address, int length);
-    void Write(const void* address, int length);
-    unsigned int Peek(unsigned int offset, void* address, unsigned int length);
+    void Read(void* address, int32_t length);
+    void Write(const void* address, int32_t length);
+    uint32_t Peek(uint32_t offset, void* address, uint32_t length);
     void Reset();
     char* GetBuffer() const;
-    int GetDataSize() const;
+    int32_t GetDataSize() const;
 
     void AddAddress(NetAddress& address);
-    NetAddress& GetAddress(unsigned short index) const;
-    unsigned short GetAddressCount() const;
+    NetAddress& GetAddress(uint16_t index) const;
+    uint16_t GetAddressCount() const;
     void ClearAddressTable();
 
     friend NetPacket& operator<<(NetPacket& packet, const SmartString& string);

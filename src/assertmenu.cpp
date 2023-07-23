@@ -85,8 +85,8 @@ AssertMenu::~AssertMenu() {
     }
 }
 
-int AssertMenu::Run() {
-    int result{SDL_ASSERTION_ALWAYS_IGNORE};
+int32_t AssertMenu::Run() {
+    int32_t result{SDL_ASSERTION_ALWAYS_IGNORE};
 
     if (Remote_IsNetworkGame) {
         result = SDL_ASSERTION_ALWAYS_IGNORE;
@@ -96,7 +96,7 @@ int AssertMenu::Run() {
         event_release = false;
 
         while (!event_click) {
-            int key = get_input();
+            int32_t key = get_input();
 
             if (key > 0 && key < GNW_INPUT_PRESS) {
                 event_release = false;

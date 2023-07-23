@@ -24,26 +24,26 @@
 
 #include "unitinfo.hpp"
 
-int Ai_GetNormalRateBuildCost(ResourceID unit_type, unsigned short team);
-bool Ai_SetupStrategy(unsigned short team);
-void Ai_SetInfoMapPoint(Point point, unsigned short team);
-void Ai_MarkMineMapPoint(Point point, unsigned short team);
-void Ai_UpdateMineMap(Point point, unsigned short team);
+int32_t Ai_GetNormalRateBuildCost(ResourceID unit_type, uint16_t team);
+bool Ai_SetupStrategy(uint16_t team);
+void Ai_SetInfoMapPoint(Point point, uint16_t team);
+void Ai_MarkMineMapPoint(Point point, uint16_t team);
+void Ai_UpdateMineMap(Point point, uint16_t team);
 void Ai_SetTasksPendingFlag(const char* event);
-void Ai_BeginTurn(unsigned short team);
+void Ai_BeginTurn(uint16_t team);
 void Ai_Init();
 void Ai_CheckEndTurn();
 void Ai_ClearTasksPendingFlags();
 void Ai_FileLoad(SmartFileReader& file);
 void Ai_FileSave(SmartFileWriter& file);
-void Ai_SelectStartingPosition(unsigned short team);
+void Ai_SelectStartingPosition(uint16_t team);
 void Ai_AddUnitToTrackerList(UnitInfo* unit);
 void Ai_EnableAutoSurvey(UnitInfo* unit);
-bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int caution_level, bool is_for_attacking);
+bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int32_t caution_level, bool is_for_attacking);
 void Ai_UpdateTerrain(UnitInfo* unit);
-int Ai_DetermineCautionLevel(UnitInfo* unit);
+int32_t Ai_DetermineCautionLevel(UnitInfo* unit);
 void Ai_RemoveUnit(UnitInfo* unit);
-void Ai_UnitSpotted(UnitInfo* unit, unsigned short team);
+void Ai_UnitSpotted(UnitInfo* unit, uint16_t team);
 bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target);
 void Ai_EvaluateAttackTargets(UnitInfo* unit);
 void Ai_CheckComputerReactions();

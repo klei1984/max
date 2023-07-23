@@ -22,8 +22,9 @@
 #ifndef LZSS_H
 #define LZSS_H
 
+#include <stdint.h>
 #include <stdio.h>
 
-void lzss_decode_to_buf(FILE *fp, char *buffer, int comp_size);
+void lzss_decode_to_buf(FILE *fp, char *buffer, int32_t comp_size);
 
 #endif /* LZSS_H */

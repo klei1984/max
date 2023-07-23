@@ -33,7 +33,7 @@ public:
     DrawLoadBar(const char* caption);
     ~DrawLoadBar();
 
-    void SetValue(short value);
+    void SetValue(int16_t value);
 };
 
 #endif /* DRAWLOADBAR_HPP */

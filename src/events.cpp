@@ -21,4 +21,4 @@
 
 #include "events.hpp"
 
-unsigned short RegisterEvent::IdRegistry = 0;
+uint16_t RegisterEvent::IdRegistry = 0;

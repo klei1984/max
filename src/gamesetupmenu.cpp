@@ -36,7 +36,7 @@ struct GameSetupMenuControlItem {
     Rect bounds;
     ResourceID image_id;
     const char* label;
-    int event_code;
+    int32_t event_code;
     void (GameSetupMenu::*event_handler)();
     ResourceID sfx;
 };
@@ -87,7 +87,7 @@ static void GameSetupMenu_DrawBigInfoPanel(WindowInfo* window) {
                                   false, window);
 }
 
-void GameSetupMenu::ButtonInit(int index) {
+void GameSetupMenu::ButtonInit(int32_t index) {
     GameSetupMenuControlItem* control;
 
     control = &game_setup_menu_controls[index];
@@ -125,7 +125,7 @@ void GameSetupMenu::ButtonInit(int index) {
     menu_item[index].event_handler = control->event_handler;
 }
 
-void GameSetupMenu::Init(int palette_from_image) {
+void GameSetupMenu::Init(int32_t palette_from_image) {
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     event_click_done = false;
@@ -158,7 +158,7 @@ void GameSetupMenu::Init(int palette_from_image) {
             break;
     }
 
-    for (int i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
         buttons[i] = nullptr;
         ButtonInit(i);
     }
@@ -173,11 +173,11 @@ void GameSetupMenu::Init(int palette_from_image) {
 }
 
 void GameSetupMenu::Deinit() {
-    for (int i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
+    for (int32_t i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
     }
 
-    for (int i = 0; i < GAME_SETUP_MENU_MISSION_COUNT; ++i) {
+    for (int32_t i = 0; i < GAME_SETUP_MENU_MISSION_COUNT; ++i) {
         delete[] menu_setup_menu_mission_titles[i];
     }
 
@@ -185,7 +185,7 @@ void GameSetupMenu::Deinit() {
 }
 
 void GameSetupMenu::EventSelectItem() {
-    int game_slot;
+    int32_t game_slot;
 
     game_slot = game_index_first_on_page + key;
 
@@ -204,7 +204,7 @@ void GameSetupMenu::EventSelectItem() {
 }
 
 void GameSetupMenu::EventScrollButton() {
-    int game_slot;
+    int32_t game_slot;
 
     if (key == 12) {
         game_slot = game_index_first_on_page - GAME_SETUP_MENU_MISSION_COUNT;
@@ -222,8 +222,8 @@ void GameSetupMenu::EventScrollButton() {
 void GameSetupMenu::EventBriefingButton() {
     if (key == 14) {
         if (string_row_index) {
-            int row_index;
-            unsigned int time_stamp;
+            int32_t row_index;
+            uint32_t time_stamp;
 
             row_index = string_row_index - rows_per_page;
 
@@ -245,8 +245,8 @@ void GameSetupMenu::EventBriefingButton() {
 
     } else {
         if (string_row_index + rows_per_page < string_row_count) {
-            int row_index;
-            unsigned int time_stamp;
+            int32_t row_index;
+            uint32_t time_stamp;
 
             row_index = string_row_index + rows_per_page;
 
@@ -291,7 +291,7 @@ void GameSetupMenu::DrawMissionList() {
 
     game_count = 0;
 
-    for (int i = 0; i < GAME_SETUP_MENU_MISSION_COUNT; ++i) {
+    for (int32_t i = 0; i < GAME_SETUP_MENU_MISSION_COUNT; ++i) {
         GameSetupMenuControlItem* control;
         SaveFormatHeader save_file_header;
 
@@ -332,8 +332,8 @@ void GameSetupMenu::DrawMissionList() {
 void GameSetupMenu::LoadMissionDescription() {
     SmartString string;
     FILE* fp;
-    int width;
-    int height;
+    int32_t width;
+    int32_t height;
 
     if (strings) {
         delete[] strings;
@@ -386,7 +386,7 @@ void GameSetupMenu::DrawMissionDescription() {
     GameSetupMenu_DrawBigInfoPanel(window);
 
     if (game_count) {
-        int game_slot;
+        int32_t game_slot;
 
         game_slot = game_file_number - game_index_first_on_page;
 
@@ -405,7 +405,7 @@ void GameSetupMenu::DrawMissionDescription() {
     win_draw(window->id);
 }
 
-void GameSetupMenu::DrawSaveFileTitle(int game_slot, int color) {
+void GameSetupMenu::DrawSaveFileTitle(int32_t game_slot, int32_t color) {
     GameSetupMenuControlItem* control;
     char text[40];
 
@@ -420,9 +420,9 @@ void GameSetupMenu::DrawSaveFileTitle(int game_slot, int color) {
 
 void GameSetupMenu::DrawDescriptionPanel() {
     MenuTitleItem* menu_item;
-    int width;
-    unsigned char* buffer_position;
-    int row_index_max;
+    int32_t width;
+    uint8_t* buffer_position;
+    int32_t row_index_max;
 
     GameSetupMenu_DrawBigInfoPanel(window);
 
@@ -437,7 +437,7 @@ void GameSetupMenu::DrawDescriptionPanel() {
     }
 
     if (strings) {
-        for (int row_index = string_row_index; row_index < row_index_max; ++row_index) {
+        for (int32_t row_index = string_row_index; row_index < row_index_max; ++row_index) {
             Text_Blit(&buffer_position[window->width * (row_index - string_row_index) * Text_GetHeight()],
                       strings[row_index].GetCStr(), width, window->width, 0xA2);
         }
@@ -446,8 +446,8 @@ void GameSetupMenu::DrawDescriptionPanel() {
     win_draw_rect(window->id, &menu_item->bounds);
 }
 
-int GameSetupMenu::FindNextValidFile(int game_slot) {
-    int result;
+int32_t GameSetupMenu::FindNextValidFile(int32_t game_slot) {
+    int32_t result;
 
     if (game_file_type == GAME_TYPE_CAMPAIGN && ini_get_setting(INI_LAST_CAMPAIGN) < game_slot) {
         result = false;
@@ -456,7 +456,7 @@ int GameSetupMenu::FindNextValidFile(int game_slot) {
 
         result = false;
 
-        for (int i = game_slot; i < game_slot + GAME_SETUP_MENU_MISSION_COUNT; ++i) {
+        for (int32_t i = game_slot; i < game_slot + GAME_SETUP_MENU_MISSION_COUNT; ++i) {
             if (SaveLoadMenu_GetSavedGameInfo(i, game_file_type, save_file_header, false)) {
                 result = true;
                 break;
@@ -468,8 +468,8 @@ int GameSetupMenu::FindNextValidFile(int game_slot) {
 }
 
 void GameSetupMenu::EventStepButton() {
-    int game_slot;
-    int game_slot_first;
+    int32_t game_slot;
+    int32_t game_slot_first;
 
     game_slot = game_file_number;
     game_slot_first = game_index_first_on_page;

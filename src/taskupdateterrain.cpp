@@ -29,7 +29,7 @@
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 
-TaskUpdateTerrain::TaskUpdateTerrain(unsigned short team) : Task(team, nullptr, 0) {}
+TaskUpdateTerrain::TaskUpdateTerrain(uint16_t team) : Task(team, nullptr, 0) {}
 
 TaskUpdateTerrain::~TaskUpdateTerrain() {}
 
@@ -44,7 +44,7 @@ char* TaskUpdateTerrain::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskUpdateTerrain::GetType() const { return TaskType_TaskUpdateTerrain; }
+uint8_t TaskUpdateTerrain::GetType() const { return TaskType_TaskUpdateTerrain; }
 
 void TaskUpdateTerrain::BeginTurn() {
     while (location.x < ResourceManager_MapSize.x) {

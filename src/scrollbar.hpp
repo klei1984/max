@@ -30,73 +30,73 @@ class Scrollbar;
 
 class EventScrollbarChange : public Event {
     Scrollbar *scrollbar;
-    short value;
+    int16_t value;
 
 public:
-    EventScrollbarChange(Scrollbar *scrollbar, short value);
-    unsigned short GetEventId() const;
+    EventScrollbarChange(Scrollbar *scrollbar, int16_t value);
+    uint16_t GetEventId() const;
 
-    short GetValue() const;
-    short GetScrollbarValue() const;
+    int16_t GetValue() const;
+    int16_t GetScrollbarValue() const;
 };
 
 EVENTS_DECLARE_EVENT_ID(ScrollbarEvent);
 
-void LoadHorizontalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
-void LoadHorizontalTape(unsigned char *buffer, short full2, short length, short width, ResourceID id);
-void LoadVerticalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
+void LoadHorizontalBar(uint8_t *buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id);
+void LoadHorizontalTape(uint8_t *buffer, int16_t full2, int16_t length, int16_t width, ResourceID id);
+void LoadVerticalBar(uint8_t *buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id);
 
 class Scrollbar {
 protected:
-    short free_capacity;
-    short zero_offset;
-    short value;
+    int16_t free_capacity;
+    int16_t zero_offset;
+    int16_t value;
     Image *xfer_slider;
     Image *xfer_amount_background;
     ResourceID material_bar;
-    unsigned int key_code_increase;
-    unsigned int key_code_decrease;
-    unsigned int button_p_value;
+    uint32_t key_code_increase;
+    uint32_t key_code_decrease;
+    uint32_t button_p_value;
     Button *button_slider;
     Window *window;
-    unsigned short scaling_factor;
+    uint16_t scaling_factor;
     bool scrollbar_type;
 
-    friend void LoadHorizontalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
-    friend void LoadVerticalBar(unsigned char *buffer, short width, short capacity, short height, ResourceID id);
-    void ProcessValueChange(short value);
+    friend void LoadHorizontalBar(uint8_t *buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id);
+    friend void LoadVerticalBar(uint8_t *buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id);
+    void ProcessValueChange(int16_t value);
 
 public:
-    Scrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id, int key_code_increase,
-              int key_code_decrease, int key_code_click_slider, short scaling_factor, bool vertical = false);
+    Scrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id, int32_t key_code_increase,
+              int32_t key_code_decrease, int32_t key_code_click_slider, int16_t scaling_factor, bool vertical = false);
     virtual ~Scrollbar();
 
-    void SetValue(unsigned short value);
-    void SetZeroOffset(short offset);
-    void SetFreeCapacity(short free_capacity);
+    void SetValue(uint16_t value);
+    void SetZeroOffset(int16_t offset);
+    void SetFreeCapacity(int16_t free_capacity);
     void SetMaterialBar(ResourceID id);
 
-    short GetValue() const;
+    int16_t GetValue() const;
 
     virtual void Register();
     virtual void RefreshScreen();
-    virtual bool ProcessKey(int key_code);
+    virtual bool ProcessKey(int32_t key_code);
 };
 
 class LimitedScrollbar : public Scrollbar {
-    short xfer_give_max;
-    short xfer_take_max;
+    int16_t xfer_give_max;
+    int16_t xfer_take_max;
 
 public:
     LimitedScrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id,
-                     int key_code_increase, int key_code_decrease, int key_code_click_slider, short scaling_factor,
+                     int32_t key_code_increase, int32_t key_code_decrease, int32_t key_code_click_slider, int16_t scaling_factor,
                      bool vertical = false);
     ~LimitedScrollbar();
 
-    void SetXferGiveMax(short limit);
-    void SetXferTakeMax(short limit);
+    void SetXferGiveMax(int16_t limit);
+    void SetXferTakeMax(int16_t limit);
 
-    bool ProcessKey(int key_code);
+    bool ProcessKey(int32_t key_code);
 };
 
 #endif /* SCROLLBAR_HPP */

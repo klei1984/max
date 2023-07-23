@@ -25,7 +25,7 @@
 #include "pathrequest.hpp"
 #include "unitinfo.hpp"
 
-int PathsManager_GetRequestCount(unsigned short team);
+int32_t PathsManager_GetRequestCount(uint16_t team);
 void PathsManager_RemoveRequest(PathRequest* request);
 void PathsManager_RemoveRequest(UnitInfo* unit);
 void PathsManager_PushBack(PathRequest& object);
@@ -33,10 +33,10 @@ void PathsManager_PushFront(PathRequest& object);
 void PathsManager_EvaluateTiles();
 void PathsManager_Clear();
 bool PathsManager_HasRequest(UnitInfo* unit);
-void PathsManager_ProcessGroundCover(UnitInfo* unit, unsigned char** map, unsigned char flags, int caution_level);
-void PathsManager_InitAccessMap(UnitInfo* unit, unsigned char** map, unsigned char flags, int caution_level);
-unsigned char** PathsManager_GetAccessMap();
-void PathsManager_ApplyCautionLevel(unsigned char** map, UnitInfo* unit, int caution_level);
+void PathsManager_ProcessGroundCover(UnitInfo* unit, uint8_t** map, uint8_t flags, int32_t caution_level);
+void PathsManager_InitAccessMap(UnitInfo* unit, uint8_t** map, uint8_t flags, int32_t caution_level);
+uint8_t** PathsManager_GetAccessMap();
+void PathsManager_ApplyCautionLevel(uint8_t** map, UnitInfo* unit, int32_t caution_level);
 void PathsManager_SetPathDebugMode();
 
 #endif /* PATHS_MANAGER_HPP */

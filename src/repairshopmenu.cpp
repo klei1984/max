@@ -56,7 +56,7 @@ static void RepairShopMenu_OnClick_UpArrow(ButtonID bid, intptr_t value);
 static void RepairShopMenu_OnClick_DownArrow(ButtonID bid, intptr_t value);
 static void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value);
 
-static void RepairShopMenu_ProcessOrders(UnitInfo *unit, unsigned char order, bool process_tick);
+static void RepairShopMenu_ProcessOrders(UnitInfo *unit, uint8_t order, bool process_tick);
 
 class RepairShopMenu;
 
@@ -91,9 +91,9 @@ class RepairShopMenu : public Window {
     SmartList<UnitInfo> units;
     SmartPointer<UnitInfo> repairshop;
 
-    int unit_slot_index;
-    int unit_slots_per_screen;
-    int raw_material_in_complex;
+    int32_t unit_slot_index;
+    int32_t unit_slots_per_screen;
+    int32_t raw_material_in_complex;
 
     RepairShopSlot *repair_slots[REPAIRSHOP_SLOT_COUNT];
 
@@ -366,8 +366,8 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
     : Window(unit->unit_type == HANGAR ? HANGRFRM : DEPOTFRM, GameManager_GetDialogWindowCenterMode()),
       repairshop(unit) {
     WindowInfo window;
-    int slot_window_ulx;
-    int slot_window_uly;
+    int32_t slot_window_ulx;
+    int32_t slot_window_uly;
 
     exit_loop = false;
 
@@ -379,7 +379,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
     if (unit->unit_type == HANGAR) {
         Rect unit_bg_image_bounds;
         Rect unit_stats_bounds;
-        int index;
+        int32_t index;
 
         unit_slots_per_screen = REPAIRSHOP_SLOT_COUNT - 2;
 
@@ -403,7 +403,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
     } else {
         Rect unit_bg_image_bounds;
         Rect unit_stats_bounds;
-        int index;
+        int32_t index;
 
         unit_slots_per_screen = REPAIRSHOP_SLOT_COUNT;
 
@@ -554,7 +554,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
     button_down_arrow->RegisterButton(GetId());
     button_help->RegisterButton(GetId());
 
-    for (int i = 0; i < unit_slots_per_screen; ++i) {
+    for (int32_t i = 0; i < unit_slots_per_screen; ++i) {
         repair_slots[i]->Init();
     }
 
@@ -567,7 +567,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
 RepairShopMenu::~RepairShopMenu() { Deinit(); }
 
 void RepairShopMenu::Run() {
-    int key;
+    int32_t key;
 
     while (!exit_loop) {
         key = get_input();
@@ -682,8 +682,8 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
         }
 
     } else {
-        short grid_x = repairshop->grid_x;
-        short grid_y = repairshop->grid_y;
+        int16_t grid_x = repairshop->grid_x;
+        int16_t grid_y = repairshop->grid_y;
 
         if (Access_FindReachableSpot(target_unit->unit_type, target_unit, &grid_x, &grid_y, 1,
                                      repairshop->flags & BUILDING, 0)) {
@@ -803,7 +803,7 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
     SmartList<UnitInfo> units;
     Point point(unit->grid_x - 1, unit->grid_y + 1);
     Rect bounds;
-    int limit;
+    int32_t limit;
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
@@ -821,8 +821,8 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
 
     shop->Deinit();
 
-    for (int i = 0; i < 8 && units.GetCount() > 0; i += 2) {
-        for (int j = 0; j < limit && units.GetCount() > 0; ++j) {
+    for (int32_t i = 0; i < 8 && units.GetCount() > 0; i += 2) {
+        for (int32_t j = 0; j < limit && units.GetCount() > 0; ++j) {
             point += Paths_8DirPointsArray[i];
 
             if (Access_IsInsideBounds(&bounds, &point)) {
@@ -976,7 +976,7 @@ void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value) {
     }
 }
 
-void RepairShopMenu_ProcessOrders(UnitInfo *unit, unsigned char order, bool process_tick) {
+void RepairShopMenu_ProcessOrders(UnitInfo *unit, uint8_t order, bool process_tick) {
     while (unit->orders == order) {
         GameManager_ProcessState(process_tick);
     }
@@ -993,11 +993,11 @@ void RepairShopMenu::Draw(bool draw_to_screen) {
 
     UpdateButtons();
 
-    for (int i = 0; i < unit_slot_index; ++i) {
+    for (int32_t i = 0; i < unit_slot_index; ++i) {
         ++it;
     }
 
-    for (int i = 0; i < unit_slots_per_screen; ++i) {
+    for (int32_t i = 0; i < unit_slots_per_screen; ++i) {
         if (it != units.End()) {
             repair_slots[i]->Draw(&*it, draw_to_screen);
             ++it;
@@ -1073,8 +1073,8 @@ void RepairShopMenu::DrawCargoBar(bool draw_to_screen) {
     Cargo materials;
     Cargo capacity;
     WindowInfo window;
-    int bar_height;
-    unsigned char *buffer;
+    int32_t bar_height;
+    uint8_t *buffer;
     char text[50];
 
     FillWindowInfo(&window);
@@ -1113,7 +1113,7 @@ void RepairShopMenu::Deinit() {
     exit_loop = true;
 
     if (unit_slots_per_screen > 0) {
-        for (int i = 0; i < unit_slots_per_screen; ++i) {
+        for (int32_t i = 0; i < unit_slots_per_screen; ++i) {
             delete repair_slots[i];
             repair_slots[i] = nullptr;
         }

@@ -25,13 +25,13 @@
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 
-TaskGetMaterials::TaskGetMaterials(Task* task, UnitInfo* unit, unsigned short materials_needed_)
+TaskGetMaterials::TaskGetMaterials(Task* task, UnitInfo* unit, uint16_t materials_needed_)
     : TaskGetResource(task, *unit), materials_needed(materials_needed_) {}
 
 TaskGetMaterials::~TaskGetMaterials() {}
 
-unsigned short TaskGetMaterials::GetFlags() const {
-    unsigned short result;
+uint16_t TaskGetMaterials::GetFlags() const {
+    uint16_t result;
 
     if (parent) {
         result = parent->GetFlags();
@@ -54,7 +54,7 @@ char* TaskGetMaterials::WriteStatusLog(char* buffer) const {
             strcat(buffer, text);
 
             if (source) {
-                int remaining_demand = materials_needed - requestor->storage;
+                int32_t remaining_demand = materials_needed - requestor->storage;
 
                 if (remaining_demand > source->storage) {
                     remaining_demand = source->storage;
@@ -79,7 +79,7 @@ char* TaskGetMaterials::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskGetMaterials::GetType() const { return TaskType_TaskGetMaterials; }
+uint8_t TaskGetMaterials::GetType() const { return TaskType_TaskGetMaterials; }
 
 void TaskGetMaterials::EndTurn() {
     if (requestor) {
@@ -161,8 +161,8 @@ void TaskGetMaterials::DoTransfer() {
 
 UnitInfo* TaskGetMaterials::FindBuilding() {
     UnitInfo* building = nullptr;
-    int distance;
-    int minimum_distance{INT32_MAX};
+    int32_t distance;
+    int32_t minimum_distance{INT32_MAX};
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -185,8 +185,8 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
 
 void TaskGetMaterials::FindTruck() {
     UnitInfo* truck = nullptr;
-    int distance;
-    int minimum_distance{INT32_MAX};
+    int32_t distance;
+    int32_t minimum_distance{INT32_MAX};
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {

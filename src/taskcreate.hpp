@@ -30,7 +30,7 @@ protected:
     SmartPointer<UnitInfo> builder;
 
 public:
-    TaskCreate(Task* task, unsigned short flags, ResourceID unit_type);
+    TaskCreate(Task* task, uint16_t flags, ResourceID unit_type);
     TaskCreate(Task* task, UnitInfo* unit);
     ~TaskCreate();
 

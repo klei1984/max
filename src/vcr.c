@@ -23,29 +23,29 @@
 
 #include "gnw.h"
 
-static int vcr_create_buffer(void);
-static int vcr_destroy_buffer(void);
-static int vcr_clear_buffer(void);
-static int vcr_load_buffer(void);
+static int32_t vcr_create_buffer(void);
+static int32_t vcr_destroy_buffer(void);
+static int32_t vcr_clear_buffer(void);
+static int32_t vcr_load_buffer(void);
 
-static int vcr_buffer_end;
+static int32_t vcr_buffer_end;
 static DB_FILE vcr_file;
-static int vcr_temp_terminate_flags;
+static int32_t vcr_temp_terminate_flags;
 static VCRNotifyCallback vcr_notify_callback;
 static TOCKS vcr_start_time;
 static VCREventRecord vcr_last_play_event;
 static kb_layout_t vcr_old_layout = english;
-static int vcr_registered_atexit;
+static int32_t vcr_registered_atexit;
 
-int vcr_buffer_index;
+int32_t vcr_buffer_index;
 VCREventRecord *vcr_buffer;
 TOCKS vcr_time;
-unsigned int vcr_counter;
-int vcr_state = 2;
-int vcr_terminate_flags;
-int vcr_terminated_condition;
+uint32_t vcr_counter;
+int32_t vcr_state = 2;
+int32_t vcr_terminate_flags;
+int32_t vcr_terminated_condition;
 
-int vcr_record(char *record_file) {
+int32_t vcr_record(char *record_file) {
     if (vcr_state != 2 || !record_file || vcr_create_buffer() != 1) {
         return 0;
     }
@@ -81,7 +81,7 @@ int vcr_record(char *record_file) {
     return 1;
 }
 
-int vcr_play(char *playback_file, int terminate_flags, VCRNotifyCallback notify_callback) {
+int32_t vcr_play(char *playback_file, int32_t terminate_flags, VCRNotifyCallback notify_callback) {
     if ((vcr_state != 2) || (!playback_file) || (vcr_create_buffer() != 1)) {
         return 0;
     }
@@ -119,8 +119,8 @@ int vcr_play(char *playback_file, int terminate_flags, VCRNotifyCallback notify_
     return 1;
 }
 
-int vcr_stop(void) {
-    int temp;
+int32_t vcr_stop(void) {
+    int32_t temp;
 
     temp = vcr_state;
     vcr_state = 2;
@@ -155,7 +155,7 @@ int vcr_stop(void) {
     return 1;
 }
 
-int vcr_status(void) { return vcr_state; }
+int32_t vcr_status(void) { return vcr_state; }
 
 VCREventType vcr_update(void) {
     VCREventType event_type;
@@ -246,8 +246,8 @@ VCREventType vcr_update(void) {
     return event_type;
 }
 
-int vcr_create_buffer(void) {
-    int result;
+int32_t vcr_create_buffer(void) {
+    int32_t result;
 
     if (vcr_buffer) {
         result = 0;
@@ -259,8 +259,8 @@ int vcr_create_buffer(void) {
     return result;
 }
 
-int vcr_destroy_buffer(void) {
-    int result;
+int32_t vcr_destroy_buffer(void) {
+    int32_t result;
 
     result = vcr_clear_buffer();
     if (result) {
@@ -271,8 +271,8 @@ int vcr_destroy_buffer(void) {
     return result;
 }
 
-int vcr_clear_buffer(void) {
-    int result;
+int32_t vcr_clear_buffer(void) {
+    int32_t result;
 
     if (vcr_buffer) {
         vcr_buffer_index = 0;
@@ -284,13 +284,13 @@ int vcr_clear_buffer(void) {
     return result;
 }
 
-int vcr_dump_buffer(void) {
-    int result;
+int32_t vcr_dump_buffer(void) {
+    int32_t result;
 
     if (!vcr_file || !vcr_buffer) {
         result = 0;
     } else {
-        int i;
+        int32_t i;
 
         for (i = 0; i < vcr_buffer_index && vcr_save_record(&vcr_buffer[i], vcr_file); i++) {
             ;
@@ -306,8 +306,8 @@ int vcr_dump_buffer(void) {
     return result;
 }
 
-int vcr_load_buffer(void) {
-    int result;
+int32_t vcr_load_buffer(void) {
+    int32_t result;
 
     if (!vcr_file || vcr_clear_buffer() != 1) {
         result = 0;
@@ -327,8 +327,8 @@ int vcr_load_buffer(void) {
     return result;
 }
 
-int vcr_save_record(VCREventRecord *record, DB_FILE fp) {
-    int result = 0;
+int32_t vcr_save_record(VCREventRecord *record, DB_FILE fp) {
+    int32_t result = 0;
 
     if ((db_fwriteLong(fp, record->type) != -1) && (db_fwriteLong(fp, record->time) != -1) &&
         (db_fwriteLong(fp, record->counter) != -1)) {
@@ -361,16 +361,16 @@ int vcr_save_record(VCREventRecord *record, DB_FILE fp) {
     return result;
 }
 
-int vcr_load_record(VCREventRecord *record, DB_FILE fp) {
-    int result = 0;
+int32_t vcr_load_record(VCREventRecord *record, DB_FILE fp) {
+    int32_t result = 0;
 
-    if ((db_freadInt(fp, (int *)&record->type) != -1) && (db_freadInt(fp, (int *)&record->time) != -1) &&
-        (db_freadInt(fp, (int *)&record->counter) != -1)) {
+    if ((db_freadInt(fp, (int32_t *)&record->type) != -1) && (db_freadInt(fp, (int32_t *)&record->time) != -1) &&
+        (db_freadInt(fp, (int32_t *)&record->counter) != -1)) {
         switch (record->type) {
             case init:
                 if ((db_freadInt(fp, &record->data.init_data.mouse_x) != -1) &&
                     (db_freadInt(fp, &record->data.init_data.mouse_y) != -1) &&
-                    (db_freadInt(fp, (int *)&record->data.init_data.keyboard_layout) != -1)) {
+                    (db_freadInt(fp, (int32_t *)&record->data.init_data.keyboard_layout) != -1)) {
                     result = 1;
                 }
                 break;

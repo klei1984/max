@@ -34,33 +34,33 @@ static void mouse_colorize(void);
 static void mouse_clip(void);
 
 static double mouse_sensitivity = 1.0;
-static unsigned char or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
+static uint8_t or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
                                     1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
                                     15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
-static unsigned int last_buttons;
-static unsigned char *mouse_fptr;
-static unsigned char *mouse_shape;
-static int mouse_is_hidden;
-static int mouse_length;
-static int mouse_disabled;
-static int mouse_buttons;
+static uint32_t last_buttons;
+static uint8_t *mouse_fptr;
+static uint8_t *mouse_shape;
+static int32_t mouse_is_hidden;
+static int32_t mouse_length;
+static int32_t mouse_disabled;
+static int32_t mouse_buttons;
 static TOCKS mouse_speed;
-static int mouse_curr_frame;
-static unsigned char *mouse_buf;
-static int mouse_full;
-static int mouse_num_frames;
-static int mouse_hotx;
-static int mouse_hoty;
-static int mouse_x;
-static int mouse_y;
-static int have_mouse;
-static int mouse_width;
+static int32_t mouse_curr_frame;
+static uint8_t *mouse_buf;
+static int32_t mouse_full;
+static int32_t mouse_num_frames;
+static int32_t mouse_hotx;
+static int32_t mouse_hoty;
+static int32_t mouse_x;
+static int32_t mouse_y;
+static int32_t have_mouse;
+static int32_t mouse_width;
 static char mouse_trans;
 
 ScreenBlitFunc mouse_blit;
 
-int GNW_mouse_init(void) {
-    int result;
+int32_t GNW_mouse_init(void) {
+    int32_t result;
 
     have_mouse = 0;
     mouse_disabled = 0;
@@ -102,7 +102,7 @@ void GNW_mouse_exit(void) {
 }
 
 void mouse_colorize(void) {
-    for (int i = 0; i < 64; i++) {
+    for (int32_t i = 0; i < 64; i++) {
         if (or_mask[i] == 15) {
             or_mask[i] = colorTable[0x7FFF];
         } else if (or_mask[i] == 1) {
@@ -113,7 +113,7 @@ void mouse_colorize(void) {
     }
 }
 
-int mouse_get_shape(unsigned char **buf, int *width, int *length, int *full, int *hotx, int *hoty, char *trans) {
+int32_t mouse_get_shape(uint8_t **buf, int32_t *width, int32_t *length, int32_t *full, int32_t *hotx, int32_t *hoty, char *trans) {
     *buf = mouse_shape;
     *width = mouse_width;
     *length = mouse_length;
@@ -125,8 +125,8 @@ int mouse_get_shape(unsigned char **buf, int *width, int *length, int *full, int
     return 0;
 }
 
-int mouse_set_shape(unsigned char *buf, int width, int length, int full, int hotx, int hoty, char trans) {
-    int mh;
+int32_t mouse_set_shape(uint8_t *buf, int32_t width, int32_t length, int32_t full, int32_t hotx, int32_t hoty, char trans) {
+    int32_t mh;
 
     if (!buf) {
         return mouse_set_shape(or_mask, 8, 8, 8, 1, 1, colorTable[0]);
@@ -139,9 +139,9 @@ int mouse_set_shape(unsigned char *buf, int width, int length, int full, int hot
     }
 
     if (width != mouse_width || length != mouse_length) {
-        unsigned char *temp;
+        uint8_t *temp;
 
-        temp = (unsigned char *)malloc(length * width);
+        temp = (uint8_t *)malloc(length * width);
         if (!temp) {
             if (!mh) {
                 mouse_show();
@@ -183,15 +183,15 @@ int mouse_set_shape(unsigned char *buf, int width, int length, int full, int hot
     return 0;
 }
 
-int mouse_get_anim(unsigned char **frames, int *num_frames, int *width, int *length, int *hotx, int *hoty, char *trans,
+int32_t mouse_get_anim(uint8_t **frames, int32_t *num_frames, int32_t *width, int32_t *length, int32_t *hotx, int32_t *hoty, char *trans,
                    TOCKS *speed) {
-    int result;
+    int32_t result;
 
     if (mouse_fptr) {
         *frames = mouse_fptr;
         *num_frames = mouse_num_frames;
         *width = mouse_width;
-        *length = (int)mouse_length;
+        *length = (int32_t)mouse_length;
         *hotx = mouse_hotx;
         *hoty = mouse_hoty;
         *trans = mouse_trans;
@@ -204,9 +204,9 @@ int mouse_get_anim(unsigned char **frames, int *num_frames, int *width, int *len
     return result;
 }
 
-int mouse_set_anim_frames(unsigned char *frames, int num_frames, int start_frame, int width, int length, int hotx,
-                          int hoty, char trans, TOCKS speed) {
-    int result;
+int32_t mouse_set_anim_frames(uint8_t *frames, int32_t num_frames, int32_t start_frame, int32_t width, int32_t length, int32_t hotx,
+                          int32_t hoty, char trans, TOCKS speed) {
+    int32_t result;
 
     result = mouse_set_shape(&frames[length * width * start_frame], width, length, width, hotx, hoty, trans);
 
@@ -244,10 +244,10 @@ void mouse_anim(void) {
 }
 
 void mouse_show(void) {
-    int xlen;
-    int ylen;
-    int xoff;
-    int yoff;
+    int32_t xlen;
+    int32_t ylen;
+    int32_t xoff;
+    int32_t yoff;
 
     if (have_mouse) {
         win_get_mouse_buf(mouse_buf);
@@ -255,8 +255,8 @@ void mouse_show(void) {
         yoff = 0;
         xoff = 0;
 
-        for (int i = 0; i < mouse_length; i++) {
-            for (int j = 0; j < mouse_width; j++) {
+        for (int32_t i = 0; i < mouse_length; i++) {
+            for (int32_t j = 0; j < mouse_width; j++) {
                 if (mouse_shape[j + yoff] != mouse_trans) {
                     mouse_buf[xoff] = mouse_shape[j + yoff];
                 }
@@ -311,12 +311,12 @@ void mouse_hide(void) {
 }
 
 void mouse_info(void) {
-    unsigned int buttons = 0;
-    signed int delta_x;
-    signed int delta_y;
+    uint32_t buttons = 0;
+    int32_t delta_x;
+    int32_t delta_y;
 
     if (have_mouse && !mouse_is_hidden && !mouse_disabled) {
-        unsigned int button_bitmask;
+        uint32_t button_bitmask;
 
         button_bitmask = SDL_GetRelativeMouseState(&delta_x, &delta_y);
 
@@ -332,8 +332,8 @@ void mouse_info(void) {
             buttons |= GNW_MOUSE_BUTTON_MIDDLE;
         }
 
-        delta_x = (signed int)((double)delta_x * mouse_sensitivity);
-        delta_y = (signed int)((double)delta_y * mouse_sensitivity);
+        delta_x = (int32_t)((double)delta_x * mouse_sensitivity);
+        delta_y = (int32_t)((double)delta_y * mouse_sensitivity);
 
         if (vcr_state == 1) {
             if (((vcr_terminate_flags & 4) && buttons) || ((vcr_terminate_flags & 2) && (delta_x || delta_y))) {
@@ -348,10 +348,10 @@ void mouse_info(void) {
     }
 }
 
-void mouse_simulate_input(int delta_x, int delta_y, unsigned int buttons) {
-    static unsigned int right_time;
-    static unsigned int left_time;
-    static int old;
+void mouse_simulate_input(int32_t delta_x, int32_t delta_y, uint32_t buttons) {
+    static uint32_t right_time;
+    static uint32_t left_time;
+    static int32_t old;
 
     if (!have_mouse || mouse_is_hidden) {
         return;
@@ -426,8 +426,8 @@ void mouse_simulate_input(int delta_x, int delta_y, unsigned int buttons) {
     }
 }
 
-int mouse_in(int ulx, int uly, int lrx, int lry) {
-    int result;
+int32_t mouse_in(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
+    int32_t result;
 
     if (have_mouse) {
         result =
@@ -439,8 +439,8 @@ int mouse_in(int ulx, int uly, int lrx, int lry) {
     return result;
 }
 
-int mouse_click_in(int ulx, int uly, int lrx, int lry) {
-    int result;
+int32_t mouse_click_in(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
+    int32_t result;
 
     if (have_mouse) {
         result = ((mouse_hoty + mouse_y) >= uly) && ((mouse_hotx + mouse_x) <= lrx) &&
@@ -459,12 +459,12 @@ void mouse_get_rect(Rect *m) {
     m->lry = mouse_length + mouse_y - 1;
 }
 
-void mouse_get_position(int *x, int *y) {
+void mouse_get_position(int32_t *x, int32_t *y) {
     *x = mouse_hotx + mouse_x;
     *y = mouse_hoty + mouse_y;
 }
 
-void mouse_set_position(int x, int y) {
+void mouse_set_position(int32_t x, int32_t y) {
     mouse_x = x - mouse_hotx;
     mouse_y = y - mouse_hoty;
 
@@ -490,16 +490,16 @@ void mouse_clip(void) {
     }
 }
 
-unsigned int mouse_get_buttons(void) { return mouse_buttons; }
+uint32_t mouse_get_buttons(void) { return mouse_buttons; }
 
-int mouse_hidden(void) { return mouse_is_hidden; }
+int32_t mouse_hidden(void) { return mouse_is_hidden; }
 
-void mouse_get_hotspot(int *hotx, int *hoty) {
+void mouse_get_hotspot(int32_t *hotx, int32_t *hoty) {
     *hotx = mouse_hotx;
     *hoty = mouse_hoty;
 }
 
-void mouse_set_hotspot(int hotx, int hoty) {
+void mouse_set_hotspot(int32_t hotx, int32_t hoty) {
     if (!mouse_is_hidden) {
         mouse_hide();
     }
@@ -516,13 +516,13 @@ void mouse_set_hotspot(int hotx, int hoty) {
     }
 }
 
-int mouse_query_exist(void) { return have_mouse; }
+int32_t mouse_query_exist(void) { return have_mouse; }
 
 void mouse_disable(void) { mouse_disabled = 1; }
 
 void mouse_enable(void) { mouse_disabled = 0; }
 
-int mouse_is_disabled(void) { return mouse_disabled; }
+int32_t mouse_is_disabled(void) { return mouse_disabled; }
 
 void mouse_set_sensitivity(double new_sensitivity) {
     if (new_sensitivity > 0.0 && new_sensitivity < 2.0) {

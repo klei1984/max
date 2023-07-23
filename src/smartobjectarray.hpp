@@ -32,13 +32,13 @@
 
 template <class T>
 class ObjectArray {
-    unsigned short count;
-    unsigned short capacity;
-    unsigned short growth_factor;
+    uint16_t count;
+    uint16_t capacity;
+    uint16_t growth_factor;
     T* object_array;
 
 public:
-    ObjectArray(unsigned short growth_factor = OBJECTARRAY_DEFAULT_GROWTH_FACTOR)
+    ObjectArray(uint16_t growth_factor = OBJECTARRAY_DEFAULT_GROWTH_FACTOR)
         : growth_factor(growth_factor), count(0), capacity(0), object_array(nullptr) {}
 
     ObjectArray(const ObjectArray<T>& other)
@@ -53,7 +53,7 @@ public:
 
     virtual ~ObjectArray() { delete[] object_array; }
 
-    void Insert(T* object, unsigned short position) {
+    void Insert(T* object, uint16_t position) {
         if (position > count) {
             position = count;
         }
@@ -85,7 +85,7 @@ public:
 
     void Append(T* object) { Insert(object, count); }
 
-    void Remove(unsigned short position) {
+    void Remove(uint16_t position) {
         if (position < count) {
             if (position < (count - 1)) {
                 memmove(&object_array[position], &object_array[position + 1], (count - position - 1) * sizeof(T));
@@ -97,8 +97,8 @@ public:
         }
     }
 
-    int Find(T* object) const {
-        for (unsigned short index = 0; index < count; ++index) {
+    int32_t Find(T* object) const {
+        for (uint16_t index = 0; index < count; ++index) {
             if (!memcmp(&object_array[index], object, sizeof(T))) {
                 return index;
             }
@@ -109,9 +109,9 @@ public:
 
     void Clear() { count = 0; }
 
-    unsigned short GetCount() const { return count; }
+    uint16_t GetCount() const { return count; }
 
-    T* operator[](unsigned short position) const {
+    T* operator[](uint16_t position) const {
         SDL_assert(position < count);
         return &object_array[position];
     }
@@ -120,7 +120,7 @@ public:
 template <class T>
 class ObjectSmartArrayData : public SmartObject, public ObjectArray<T> {
 public:
-    ObjectSmartArrayData(unsigned short growth_factor) : ObjectArray<T>(growth_factor) {}
+    ObjectSmartArrayData(uint16_t growth_factor) : ObjectArray<T>(growth_factor) {}
 
     ObjectSmartArrayData(const ObjectSmartArrayData<T>& other) : ObjectArray<T>(other) {}
 
@@ -132,7 +132,7 @@ class SmartObjectArray : public SmartPointer<ObjectSmartArrayData<T>> {
     ObjectArray<T>* GetArray() const { return this->Get(); }
 
 public:
-    SmartObjectArray(unsigned short growth_factor = SMARTOBJECTARRAY_DEFAULT_GROWTH_FACTOR)
+    SmartObjectArray(uint16_t growth_factor = SMARTOBJECTARRAY_DEFAULT_GROWTH_FACTOR)
         : SmartPointer<ObjectSmartArrayData<T>>(*new(std::nothrow) ObjectSmartArrayData<T>(growth_factor)) {}
 
     SmartObjectArray(const SmartObjectArray& other, bool deep_copy = false)
@@ -141,13 +141,13 @@ public:
 
     void Clear() { GetArray()->Clear(); }
 
-    T* operator[](unsigned short position) const { return (*GetArray())[position]; }
+    T* operator[](uint16_t position) const { return (*GetArray())[position]; }
 
-    unsigned short GetCount() const { return GetArray()->GetCount(); }
+    uint16_t GetCount() const { return GetArray()->GetCount(); }
 
-    void Insert(T* object, unsigned short position) { GetArray()->Insert(object, position); }
+    void Insert(T* object, uint16_t position) { GetArray()->Insert(object, position); }
 
-    void Remove(unsigned short position) { GetArray()->Remove(position); }
+    void Remove(uint16_t position) { GetArray()->Remove(position); }
 
     void PushBack(T* object) { Insert(object, GetCount()); }
 };

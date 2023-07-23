@@ -42,8 +42,8 @@ void TaskGetResource::ChooseSource() {
                 supplier = unit;
 
             } else {
-                int distance1 = TaskManager_GetDistance(&*unit, &*requestor);
-                int distance2 = TaskManager_GetDistance(&*supplier, &*requestor);
+                int32_t distance1 = TaskManager_GetDistance(&*unit, &*requestor);
+                int32_t distance2 = TaskManager_GetDistance(&*supplier, &*requestor);
 
                 if (distance2 / 2 > distance1) {
                     supplier = unit;
@@ -72,8 +72,8 @@ void TaskGetResource::RendezvousResultCallback(Task* task, UnitInfo* unit, char 
 
 UnitInfo* TaskGetResource::FindClosestBuilding(Complex* complex) {
     UnitInfo* best_building = nullptr;
-    int distance;
-    int minimum_distance{INT32_MAX};
+    int32_t distance;
+    int32_t minimum_distance{INT32_MAX};
 
     for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin();
          unit != UnitsManager_StationaryUnits.End(); ++unit) {

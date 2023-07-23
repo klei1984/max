@@ -25,11 +25,11 @@
 
 #define TEXT_FONT_MANAGER_COUNT 10
 
-typedef void (*text_font_func)(int);
+typedef void (*text_font_func)(int32_t);
 
 typedef struct FontMgr {
-    int low_font_num;
-    int high_font_num;
+    int32_t low_font_num;
+    int32_t high_font_num;
     text_font_func text_font;
     text_to_buf_func text_to_buf;
     text_height_func text_height;
@@ -41,36 +41,36 @@ typedef struct FontMgr {
     text_max_func text_max;
 } FontMgr, *FontMgrPtr;
 
-static int load_font(int n);
-static void GNW_text_font(int font_num);
-static int text_font_exists(int font_num, FontMgrPtr* mgr);
-static void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw, int color);
-static int GNW_text_height(void);
-static int GNW_text_width(const char* str);
-static int GNW_text_char_width(char c);
-static int GNW_text_mono_width(char* str);
-static int GNW_text_spacing(void);
-static int GNW_text_size(char* str);
-static int GNW_text_max(void);
+static int32_t load_font(int32_t n);
+static void GNW_text_font(int32_t font_num);
+static int32_t text_font_exists(int32_t font_num, FontMgrPtr* mgr);
+static void GNW_text_to_buf(uint8_t* buf, const char* str, int32_t swidth, int32_t fullw, int32_t color);
+static int32_t GNW_text_height(void);
+static int32_t GNW_text_width(const char* str);
+static int32_t GNW_text_char_width(char c);
+static int32_t GNW_text_mono_width(char* str);
+static int32_t GNW_text_spacing(void);
+static int32_t GNW_text_size(char* str);
+static int32_t GNW_text_max(void);
 
 typedef struct FontInfo_s {
-    int width;
-    int offset;
+    int32_t width;
+    int32_t offset;
 } FontInfo;
 
 typedef struct Font_s {
-    int num;
-    int height;
-    int spacing;
+    int32_t num;
+    int32_t height;
+    int32_t spacing;
     FontInfo* info;
-    unsigned char* data;
+    uint8_t* data;
 } Font;
 
 static Font font[GNW_TEXT_FONT_COUNT];
 static FontMgr font_managers[TEXT_FONT_MANAGER_COUNT];
-static int total_managers;
+static int32_t total_managers;
 static Font* curr_font;
-static int curr_font_num = -1;
+static int32_t curr_font_num = -1;
 
 text_to_buf_func text_to_buf;
 text_height_func text_height;
@@ -81,14 +81,14 @@ text_spacing_func text_spacing;
 text_size_func text_size;
 text_max_func text_max;
 
-int GNW_text_init(void) {
+int32_t GNW_text_init(void) {
     FontMgr GNW_font_mgr = {GNW_TEXT_FONT_0,  GNW_TEXT_FONT_9, GNW_text_font,       GNW_text_to_buf,
                             GNW_text_height,  GNW_text_width,  GNW_text_char_width, GNW_text_mono_width,
                             GNW_text_spacing, GNW_text_size,   GNW_text_max};
-    int first_font = -1;
-    int result;
+    int32_t first_font = -1;
+    int32_t result;
 
-    for (int i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; i++) {
+    for (int32_t i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; i++) {
         if (load_font(i) == -1) {
             font[i].num = 0;
         } else if (first_font == -1) {
@@ -112,7 +112,7 @@ int GNW_text_init(void) {
 }
 
 void GNW_text_exit(void) {
-    for (int i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; i++) {
+    for (int32_t i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; i++) {
         if (font[i].num) {
             free(font[i].info);
             free(font[i].data);
@@ -120,10 +120,10 @@ void GNW_text_exit(void) {
     }
 }
 
-int load_font(int n) {
+int32_t load_font(int32_t n) {
     char str[13];
     DB_FILE fp;
-    int result;
+    int32_t result;
 
     sprintf((char*)&str, "FONT%d.FON", n);
 
@@ -134,16 +134,16 @@ int load_font(int n) {
             font[n].info = (FontInfo*)malloc(sizeof(FontInfo) * font[n].num);
 
             if (font[n].info) {
-                int nelem = db_fread(font[n].info, sizeof(FontInfo), font[n].num, fp);
+                int32_t nelem = db_fread(font[n].info, sizeof(FontInfo), font[n].num, fp);
                 if (nelem == font[n].num) {
-                    int last;
-                    int size;
+                    int32_t last;
+                    int32_t size;
 
                     last = nelem - 1;
                     size = font[n].height * ((font[n].info[last].width + 7) >> 3) + font[n].info[last].offset;
-                    font[n].data = (unsigned char*)malloc(size);
+                    font[n].data = (uint8_t*)malloc(size);
                     if (font[n].data) {
-                        if (db_fread(font[n].data, sizeof(unsigned char), size, fp) == size) {
+                        if (db_fread(font[n].data, sizeof(uint8_t), size, fp) == size) {
                             db_fclose(fp);
                             result = 0;
                         } else {
@@ -177,8 +177,8 @@ int load_font(int n) {
     return result;
 }
 
-int text_add_manager(FontMgrPtr mgr) {
-    int result;
+int32_t text_add_manager(FontMgrPtr mgr) {
+    int32_t result;
     FontMgrPtr mgr_temp;
 
     result = -1;
@@ -186,7 +186,7 @@ int text_add_manager(FontMgrPtr mgr) {
     if (mgr) {
         if (total_managers < TEXT_FONT_MANAGER_COUNT) {
             if (mgr->low_font_num < mgr->high_font_num) {
-                int k = mgr->low_font_num;
+                int32_t k = mgr->low_font_num;
 
                 while (!text_font_exists(k, &mgr_temp)) {
                     k++;
@@ -204,12 +204,12 @@ int text_add_manager(FontMgrPtr mgr) {
     return result;
 }
 
-int text_remove_manager(int font_num) {
+int32_t text_remove_manager(int32_t font_num) {
     FontMgrPtr mgr;
-    int result = -1;
+    int32_t result = -1;
 
     if (text_font_exists(font_num, &mgr)) {
-        int i = 0;
+        int32_t i = 0;
 
         while (i < total_managers && (mgr != &font_managers[i] || (curr_font_num >= font_managers[i].low_font_num &&
                                                                    curr_font_num <= font_managers[i].high_font_num))) {
@@ -226,7 +226,7 @@ int text_remove_manager(int font_num) {
     return result;
 }
 
-void GNW_text_font(int font_num) {
+void GNW_text_font(int32_t font_num) {
     if (font_num < GNW_TEXT_FONT_COUNT) {
         if (font[font_num].num) {
             curr_font = &font[font_num];
@@ -234,9 +234,9 @@ void GNW_text_font(int font_num) {
     }
 }
 
-int text_curr(void) { return curr_font_num; }
+int32_t text_curr(void) { return curr_font_num; }
 
-void text_font(int font_num) {
+void text_font(int32_t font_num) {
     FontMgrPtr mgr;
 
     if (text_font_exists(font_num, &mgr)) {
@@ -255,9 +255,9 @@ void text_font(int font_num) {
     }
 }
 
-int text_font_exists(int font_num, FontMgrPtr* mgr) {
-    int result;
-    int i = 0;
+int32_t text_font_exists(int32_t font_num, FontMgrPtr* mgr) {
+    int32_t result;
+    int32_t i = 0;
 
     while (i < total_managers &&
            (font_num < font_managers[i].low_font_num || font_num > font_managers[i].high_font_num)) {
@@ -274,12 +274,12 @@ int text_font_exists(int font_num, FontMgrPtr* mgr) {
     return result;
 }
 
-void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw, int color) {
-    unsigned char* data;
-    unsigned char* bstart;
-    unsigned char* bnext;
-    int tmax;
-    int width;
+void GNW_text_to_buf(uint8_t* buf, const char* str, int32_t swidth, int32_t fullw, int32_t color) {
+    uint8_t* data;
+    uint8_t* bstart;
+    uint8_t* bnext;
+    int32_t tmax;
+    int32_t width;
 
     bstart = buf;
 
@@ -303,16 +303,16 @@ void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw,
                 bnext = (&buf[width] + curr_font->spacing);
             }
 
-            if ((int)(bnext - bstart) > swidth) {
+            if ((int32_t)(bnext - bstart) > swidth) {
                 break;
             }
 
             data = &curr_font->data[curr_font->info[*str].offset];
 
-            for (int h = 0; h < curr_font->height; h++) {
-                unsigned char mask = 0x80;
+            for (int32_t h = 0; h < curr_font->height; h++) {
+                uint8_t mask = 0x80;
 
-                for (int w = 0; w < width; w++, buf++) {
+                for (int32_t w = 0; w < width; w++, buf++) {
                     if (!mask) {
                         mask = 0x80;
                         data++;
@@ -337,17 +337,17 @@ void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw,
         width = buf - bstart;
         buf = &bstart[fullw * (curr_font->height - 1)];
 
-        for (int i = 0; i < width; i++) {
+        for (int32_t i = 0; i < width; i++) {
             buf[i] = color;
         }
     }
 }
 
-int GNW_text_height(void) { return curr_font->height; }
+int32_t GNW_text_height(void) { return curr_font->height; }
 
-int GNW_text_width(const char* str) {
-    int len;
-    int i;
+int32_t GNW_text_width(const char* str) {
+    int32_t len;
+    int32_t i;
 
     len = 0;
 
@@ -362,19 +362,19 @@ int GNW_text_width(const char* str) {
     return len;
 }
 
-int GNW_text_char_width(char c) { return curr_font->info[c].width; }
+int32_t GNW_text_char_width(char c) { return curr_font->info[c].width; }
 
-int GNW_text_mono_width(char* str) { return strlen(str) * text_max(); }
+int32_t GNW_text_mono_width(char* str) { return strlen(str) * text_max(); }
 
-int GNW_text_spacing(void) { return curr_font->spacing; }
+int32_t GNW_text_spacing(void) { return curr_font->spacing; }
 
-int GNW_text_size(char* str) { return text_width(str) * text_height(); }
+int32_t GNW_text_size(char* str) { return text_width(str) * text_height(); }
 
-int GNW_text_max(void) {
-    int len;
+int32_t GNW_text_max(void) {
+    int32_t len;
 
     len = 0;
-    for (int i = 0; i < curr_font->num; i++) {
+    for (int32_t i = 0; i < curr_font->num; i++) {
         if (len < curr_font->info[i].width) {
             len = curr_font->info[i].width;
         }

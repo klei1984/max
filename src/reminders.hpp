@@ -40,7 +40,7 @@ public:
     virtual ~Reminder();
 
     virtual void Execute() = 0;
-    virtual int GetType() = 0;
+    virtual int32_t GetType() = 0;
 };
 
 class RemindTurnStart : public Reminder {
@@ -51,7 +51,7 @@ public:
     ~RemindTurnStart();
 
     void Execute();
-    int GetType();
+    int32_t GetType();
 };
 
 class RemindTurnEnd : public Reminder {
@@ -62,7 +62,7 @@ public:
     ~RemindTurnEnd();
 
     void Execute();
-    int GetType();
+    int32_t GetType();
 };
 
 class RemindAvailable : public Reminder {
@@ -73,7 +73,7 @@ public:
     ~RemindAvailable();
 
     void Execute();
-    int GetType();
+    int32_t GetType();
 };
 
 class RemindMoveFinished : public Reminder {
@@ -84,7 +84,7 @@ public:
     ~RemindMoveFinished();
 
     void Execute();
-    int GetType();
+    int32_t GetType();
 };
 
 class RemindAttack : public Reminder {
@@ -95,7 +95,7 @@ public:
     ~RemindAttack();
 
     void Execute();
-    int GetType();
+    int32_t GetType();
 };
 
 #endif /* REMINDERS_HPP */

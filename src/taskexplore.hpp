@@ -26,15 +26,15 @@
 
 class TaskExplore : public TaskAbstractSearch {
     bool obtain_requests[UNIT_END];
-    unsigned char field_80[5];
+    uint8_t field_80[5];
 
 public:
-    TaskExplore(unsigned short team, Point point);
+    TaskExplore(uint16_t team, Point point);
     ~TaskExplore();
 
     bool IsUnitUsable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool Execute(UnitInfo& unit);
     void TaskAbstractSearch_vfunc28(UnitInfo& unit);
     bool IsVisited(UnitInfo& unit, Point point);

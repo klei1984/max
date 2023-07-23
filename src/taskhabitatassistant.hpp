@@ -32,7 +32,7 @@ public:
     ~TaskHabitatAssistant();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void BeginTurn();
     void RemoveSelf();
 };

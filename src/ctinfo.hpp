@@ -26,29 +26,29 @@
 #include "unitinfo.hpp"
 
 struct ResearchTopic {
-    unsigned int research_level;
-    int turns_to_complete;
-    unsigned int allocation;
+    uint32_t research_level;
+    int32_t turns_to_complete;
+    uint32_t allocation;
 };
 
 struct ScreenLocation {
-    signed char x;
-    signed char y;
+    int8_t x;
+    int8_t y;
 };
 
 struct CTInfo {
     Point markers[10];
     char team_type;
     bool finished_turn;
-    unsigned char unit_counters[UNIT_END];
+    uint8_t unit_counters[UNIT_END];
     char team_clan;
     ResearchTopic research_topics[RESEARCH_TOPIC_COUNT];
-    unsigned int team_points;
-    unsigned short number_of_objects_created;
+    uint32_t team_points;
+    uint16_t number_of_objects_created;
     ScreenLocation screen_location[6];
     TeamUnits *team_units;
     SmartPointer<UnitInfo> selected_unit;
-    unsigned short zoom_level;
+    uint16_t zoom_level;
     Point camera_position;
     char display_button_range;
     char display_button_scan;
@@ -61,13 +61,13 @@ struct CTInfo {
     char display_button_minimap_tnt;
     char display_button_grid;
     char display_button_survey;
-    short stats_factories_built;
-    short stats_mines_built;
-    short stats_buildings_built;
-    short stats_units_built;
-    short stats_gold_spent_on_upgrades;
-    short score_graph[50];
-    unsigned short casualties[UNIT_END];
+    int16_t stats_factories_built;
+    int16_t stats_mines_built;
+    int16_t stats_buildings_built;
+    int16_t stats_units_built;
+    int16_t stats_gold_spent_on_upgrades;
+    int16_t score_graph[50];
+    uint16_t casualties[UNIT_END];
     char *heat_map_complete;
     char *heat_map_stealth_sea;
     char *heat_map_stealth_land;

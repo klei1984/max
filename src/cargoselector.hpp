@@ -25,16 +25,16 @@
 #include "unittypeselector.hpp"
 
 class CargoSelector : public UnitTypeSelector {
-    SmartObjectArray<unsigned short> cargos;
+    SmartObjectArray<uint16_t> cargos;
     Window* cargomenu;
 
 public:
     CargoSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
-                  SmartObjectArray<unsigned short> cargos, unsigned short team, int key_code, Button* button_scroll_up,
+                  SmartObjectArray<uint16_t> cargos, uint16_t team, int32_t key_code, Button* button_scroll_up,
                   Button* button_scroll_down);
     ~CargoSelector();
 
-    void Add(ResourceID unit_type, int position);
+    void Add(ResourceID unit_type, int32_t position);
     void RemoveLast();
     void Draw();
 };

@@ -23,26 +23,27 @@
 #define SMARTSTRING_HPP
 
 #include <cstdarg>
+#include <cstdint>
 
 class StringObject {
     friend class SmartString;
 
     char* buffer;
-    unsigned short size;
-    unsigned short length;
-    unsigned int reference_count;
+    uint16_t size;
+    uint16_t length;
+    uint32_t reference_count;
 
 public:
-    StringObject(unsigned short size);
+    StringObject(uint16_t size);
     StringObject(const char* cstring);
     StringObject(const StringObject& other);
     ~StringObject();
 
-    void Resize(unsigned short size, bool keep);
-    unsigned short GetLength() const;
-    unsigned short GetSize() const;
+    void Resize(uint16_t size, bool keep);
+    uint16_t GetLength() const;
+    uint16_t GetSize() const;
     char* GetCStr() const;
-    void SetLength(unsigned short length);
+    void SetLength(uint16_t length);
 };
 
 class SmartString {
@@ -50,22 +51,22 @@ class SmartString {
 
     void Increment() const;
     void Decrement();
-    void Resize(unsigned short size, bool keep = true);
+    void Resize(uint16_t size, bool keep = true);
     void Copy();
     bool IsLastReference();
-    static unsigned short CalcOptimalCapacity(unsigned short needed_capacity);
+    static uint16_t CalcOptimalCapacity(uint16_t needed_capacity);
 
 public:
     SmartString();
-    SmartString(unsigned short size);
+    SmartString(uint16_t size);
     SmartString(const char* cstring);
     SmartString(const SmartString& other);
     ~SmartString();
 
     char* GetCStr() const;
-    unsigned short GetLength() const;
-    SmartString Substr(unsigned short position, unsigned short length);
-    char& operator[](unsigned short position);
+    uint16_t GetLength() const;
+    SmartString Substr(uint16_t position, uint16_t length);
+    char& operator[](uint16_t position);
     SmartString& operator+=(SmartString const& other);
     SmartString& operator+=(const char* cstring);
     SmartString& operator+=(const char character);
@@ -74,9 +75,9 @@ public:
     SmartString& Clear();
     SmartString& Toupper();
     SmartString& Tolower();
-    SmartString& Sprintf(unsigned short size, const char* format, ...);
-    SmartString& VSprintf(unsigned short size, const char* format, va_list args);
-    int Strcmp(const char* cstring, bool case_sensitive = true) const;
+    SmartString& Sprintf(uint16_t size, const char* format, ...);
+    SmartString& VSprintf(uint16_t size, const char* format, va_list args);
+    int32_t Strcmp(const char* cstring, bool case_sensitive = true) const;
     SmartString& operator=(SmartString const& rhs);
     SmartString& operator=(char const* rhs);
     bool IsEqual(const char* cstring);

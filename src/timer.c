@@ -23,15 +23,15 @@
 
 #include <SDL.h>
 
-int timer_init(void) { return 0; }
+int32_t timer_init(void) { return 0; }
 
-int timer_close(void) { return 0; }
+int32_t timer_close(void) { return 0; }
 
-void timer_wait(unsigned int ms) { SDL_Delay(ms); }
+void timer_wait(uint32_t ms) { SDL_Delay(ms); }
 
-unsigned int timer_elapsed_time(unsigned int ms) {
-    unsigned int result;
-    unsigned int time_stamp = SDL_GetTicks();
+uint32_t timer_elapsed_time(uint32_t ms) {
+    uint32_t result;
+    uint32_t time_stamp = SDL_GetTicks();
 
     if (time_stamp > ms) {
         result = time_stamp - ms;
@@ -43,4 +43,4 @@ unsigned int timer_elapsed_time(unsigned int ms) {
     return result;
 }
 
-unsigned int timer_get(void) { return SDL_GetTicks(); }
+uint32_t timer_get(void) { return SDL_GetTicks(); }

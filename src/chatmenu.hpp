@@ -22,6 +22,8 @@
 #ifndef CHATMENU_HPP
 #define CHATMENU_HPP
 
-void ChatMenu_Menu(unsigned short team);
+#include <cstdint>
+
+void ChatMenu_Menu(uint16_t team);
 
 #endif /* CHATMENU_HPP */

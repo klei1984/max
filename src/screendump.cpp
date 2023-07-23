@@ -28,31 +28,31 @@
 #include "resource_manager.hpp"
 
 typedef struct {
-    unsigned char Identifier;
-    unsigned char Version;
-    unsigned char Encoding;
-    unsigned char BitsPerPixel;
-    unsigned short XStart;
-    unsigned short YStart;
-    unsigned short XEnd;
-    unsigned short YEnd;
-    unsigned short HorzRes;
-    unsigned short VertRes;
-    unsigned char Palette[48];
-    unsigned char Reserved1;
-    unsigned char NumBitPlanes;
-    unsigned short BytesPerLine;
-    unsigned short PaletteType;
-    unsigned short HorzScreenSize;
-    unsigned short VertScreenSize;
-    unsigned char Reserved2[54];
+    uint8_t Identifier;
+    uint8_t Version;
+    uint8_t Encoding;
+    uint8_t BitsPerPixel;
+    uint16_t XStart;
+    uint16_t YStart;
+    uint16_t XEnd;
+    uint16_t YEnd;
+    uint16_t HorzRes;
+    uint16_t VertRes;
+    uint8_t Palette[48];
+    uint8_t Reserved1;
+    uint8_t NumBitPlanes;
+    uint16_t BytesPerLine;
+    uint16_t PaletteType;
+    uint16_t HorzScreenSize;
+    uint16_t VertScreenSize;
+    uint8_t Reserved2[54];
 } PcxHeader;
 
-int screendump_pcx(int width, int length, unsigned char *buf, unsigned char *pal) {
+int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal) {
     PcxHeader pcx_header;
     char filename[PATH_MAX];
-    int file_index;
-    unsigned char palette[3 * PALETTE_SIZE];
+    int32_t file_index;
+    uint8_t palette[3 * PALETTE_SIZE];
     FILE *fp;
 
     file_index = 0;
@@ -84,7 +84,7 @@ int screendump_pcx(int width, int length, unsigned char *buf, unsigned char *pal
     pcx_header.BytesPerLine = width;
     pcx_header.PaletteType = 1;
 
-    for (int i = 0; i < (3 * PALETTE_SIZE); i++) {
+    for (int32_t i = 0; i < (3 * PALETTE_SIZE); i++) {
         palette[i] = pal[i] * 4;
     }
 
@@ -93,8 +93,8 @@ int screendump_pcx(int width, int length, unsigned char *buf, unsigned char *pal
     fwrite(&pcx_header, 1, sizeof(PcxHeader), fp);
 
     while (length) {
-        int scan_line_pos;
-        int repeat_count;
+        int32_t scan_line_pos;
+        int32_t repeat_count;
 
         scan_line_pos = 0;
         do {

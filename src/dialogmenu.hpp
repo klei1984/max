@@ -33,16 +33,16 @@ class DialogMenu : Window {
     Button *button_down;
     Image *canvas;
     SmartString *strings;
-    int row_count;
-    int max_row_count;
-    int row_offset;
+    int32_t row_count;
+    int32_t max_row_count;
+    int32_t row_offset;
     bool event_click_ok;
     bool is_ingame;
     bool event_release;
     bool center_align_text;
 
     void DrawText();
-    bool ProcessKey(int key);
+    bool ProcessKey(int32_t key);
 
 public:
     DialogMenu(const char *text, bool mode);

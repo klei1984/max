@@ -67,7 +67,7 @@ std::string Localization::GetLanguage() const {
     return result;
 }
 
-int Localization::Load() {
+int32_t Localization::Load() {
     auto filepath = std::filesystem::current_path() / (std::string("lang_") + GetLanguage() + ".ini");
     Ini_descriptor ini;
 

@@ -36,8 +36,8 @@ bool SaveLoadChecks_Defect11() {
         SmartPointer<UnitInfo> shop(*it);
 
         if (shop->unit_type == DEPOT || (*it).unit_type == DOCK || (*it).unit_type == HANGAR) {
-            const int stored_units = Access_GetStoredUnitCount(&*shop);
-            const int storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+            const int32_t stored_units = Access_GetStoredUnitCount(&*shop);
+            const int32_t storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
             if (stored_units > storable_units || shop->storage != stored_units) {
                 SDL_Log("Repair shop corruption detected at [%i,%i].", shop->grid_x, shop->grid_y);
@@ -66,7 +66,7 @@ bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit) {
     }
 
     if (!result) {
-        int cell_count;
+        int32_t cell_count;
         Rect bounds;
 
         if ((unit->flags) & BUILDING) {
@@ -78,8 +78,8 @@ bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit) {
             cell_count = 1;
         }
 
-        for (int x = bounds.ulx; x < bounds.lrx; ++x) {
-            for (int y = bounds.uly; y < bounds.lry; ++y) {
+        for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
+            for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
                 const auto units = Hash_MapHash[Point(x, y)];
 
                 if (units) {
@@ -175,8 +175,8 @@ bool SaveLoadChecks_Defect183() {
     bool result = false;
 
     // first remove already destroyed units from the hash map
-    for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-        for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+    for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+        for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
             const auto units = Hash_MapHash[Point(x, y)];
 
             if (units) {

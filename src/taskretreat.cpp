@@ -28,7 +28,7 @@
 #include "taskmove.hpp"
 #include "transportermap.hpp"
 
-TaskRetreat::TaskRetreat(UnitInfo* unit, Task* task, unsigned short flags, int caution_level_)
+TaskRetreat::TaskRetreat(UnitInfo* unit, Task* task, uint16_t flags, int32_t caution_level_)
     : Task(unit->team, task, flags), unit_to_retreat(unit), caution_level(caution_level_) {}
 
 TaskRetreat::~TaskRetreat() {}
@@ -41,7 +41,7 @@ char* TaskRetreat::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskRetreat::GetType() const { return TaskType_TaskRetreat; }
+uint8_t TaskRetreat::GetType() const { return TaskType_TaskRetreat; }
 
 void TaskRetreat::Begin() {
     field_23 = 0;
@@ -98,10 +98,10 @@ void TaskRetreat::RemoveTask() {
 }
 
 void TaskRetreat::Search() {
-    short** damage_potential_map;
+    int16_t** damage_potential_map;
     Rect bounds;
-    int unit_hits;
-    int index;
+    int32_t unit_hits;
+    int32_t index;
 
     damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit_to_retreat, caution_level, false);
 

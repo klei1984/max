@@ -26,12 +26,12 @@
 
 #include "gnw.h"
 
-void draw_line(unsigned char* buffer, int width, int x1, int y1, int x2, int y2, int color) {
-    int delta_x;
-    int delta_y;
-    int offset_x;
-    int offset_y;
-    int accum;
+void draw_line(uint8_t* buffer, int32_t width, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color) {
+    int32_t delta_x;
+    int32_t delta_y;
+    int32_t offset_x;
+    int32_t offset_y;
+    int32_t accum;
 
     delta_x = 2 * abs(x2 - x1);
 
@@ -88,24 +88,24 @@ void draw_line(unsigned char* buffer, int width, int x1, int y1, int x2, int y2,
     }
 }
 
-void draw_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color) {
+void draw_box(uint8_t* buf, int32_t full, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color) {
     draw_line(buf, full, ulx, uly, lrx, uly, color);
     draw_line(buf, full, ulx, lry, lrx, lry, color);
     draw_line(buf, full, ulx, uly, ulx, lry, color);
     draw_line(buf, full, lrx, uly, lrx, lry, color);
 }
 
-void draw_shaded_box(unsigned char* buf, int full, int ulx, int uly, int lrx, int lry, int color1, int color2) {
+void draw_shaded_box(uint8_t* buf, int32_t full, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color1, int32_t color2) {
     draw_line(buf, full, ulx, uly, lrx, uly, color1);
     draw_line(buf, full, ulx, lry, lrx, lry, color2);
     draw_line(buf, full, ulx, uly, ulx, lry, color1);
     draw_line(buf, full, lrx, uly, lrx, lry, color2);
 }
 
-void draw_circle(unsigned char* buf, int full, int x, int y, int r, int color) {
-    int x1;
-    int y1;
-    int d1;
+void draw_circle(uint8_t* buf, int32_t full, int32_t x, int32_t y, int32_t r, int32_t color) {
+    int32_t x1;
+    int32_t y1;
+    int32_t d1;
 
     x1 = 0;
     y1 = r;
@@ -138,23 +138,23 @@ void draw_circle(unsigned char* buf, int full, int x, int y, int r, int color) {
     }
 }
 
-void cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, int nw, int nl, int full2) {
-    unsigned char* src_addr;
-    unsigned char* dst_addr;
+void cscale(uint8_t* src, int32_t ow, int32_t ol, int32_t full, uint8_t* dst, int32_t nw, int32_t nl, int32_t full2) {
+    uint8_t* src_addr;
+    uint8_t* dst_addr;
 
-    unsigned int sx_preshift;
-    unsigned int ex_preshift;
+    uint32_t sx_preshift;
+    uint32_t ex_preshift;
 
-    unsigned char pixel;
+    uint8_t pixel;
 
-    int destx;
-    int desty;
+    int32_t destx;
+    int32_t desty;
 
-    int srcx;
-    int srcy;
+    int32_t srcx;
+    int32_t srcy;
 
-    int my;
-    int mx;
+    int32_t my;
+    int32_t mx;
 
     my = (nl << 16) / ol;
     mx = (nw << 16) / ow;
@@ -181,23 +181,23 @@ void cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, in
     }
 }
 
-void trans_cscale(unsigned char* src, int ow, int ol, int full, unsigned char* dst, int nw, int nl, int full2) {
-    unsigned char* src_addr;
-    unsigned char* dst_addr;
+void trans_cscale(uint8_t* src, int32_t ow, int32_t ol, int32_t full, uint8_t* dst, int32_t nw, int32_t nl, int32_t full2) {
+    uint8_t* src_addr;
+    uint8_t* dst_addr;
 
-    unsigned int sx_preshift;
-    unsigned int ex_preshift;
+    uint32_t sx_preshift;
+    uint32_t ex_preshift;
 
-    unsigned char pixel;
+    uint8_t pixel;
 
-    int destx;
-    int desty;
+    int32_t destx;
+    int32_t desty;
 
-    int srcx;
-    int srcy;
+    int32_t srcx;
+    int32_t srcy;
 
-    int my;
-    int mx;
+    int32_t my;
+    int32_t mx;
 
     my = (nl << 16) / ol;
     mx = (nw << 16) / ow;
@@ -226,8 +226,8 @@ void trans_cscale(unsigned char* src, int ow, int ol, int full, unsigned char* d
     }
 }
 
-void buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2) {
-    for (int i = 0; i < length; i++) {
+void buf_to_buf(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* dst, int32_t full2) {
+    for (int32_t i = 0; i < length; i++) {
         memcpy(dst, src, width);
 
         src += full;
@@ -235,9 +235,9 @@ void buf_to_buf(unsigned char* src, int width, int length, int full, unsigned ch
     }
 }
 
-void trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* dst, int full2) {
-    for (int i = 0; i < length; i++) {
-        for (int j = 0; j < width; j++) {
+void trans_buf_to_buf(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* dst, int32_t full2) {
+    for (int32_t i = 0; i < length; i++) {
+        for (int32_t j = 0; j < width; j++) {
             if (*src) {
                 *dst = *src;
             }
@@ -251,10 +251,10 @@ void trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsig
     }
 }
 
-void mask_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* msk, int full2,
-                     unsigned char* dst, int full3) {
-    for (int i = 0; i < length; i++) {
-        for (int j = 0; j < width; j++) {
+void mask_buf_to_buf(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* msk, int32_t full2,
+                     uint8_t* dst, int32_t full3) {
+    for (int32_t i = 0; i < length; i++) {
+        for (int32_t j = 0; j < width; j++) {
             if (*msk) {
                 if (*src) {
                     *dst = *src;
@@ -272,10 +272,10 @@ void mask_buf_to_buf(unsigned char* src, int width, int length, int full, unsign
     }
 }
 
-void mask_trans_buf_to_buf(unsigned char* src, int width, int length, int full, unsigned char* msk, int full2,
-                           unsigned char* dst, int full3) {
-    for (int i = 0; i < length; i++) {
-        for (int j = 0; j < width; j++) {
+void mask_trans_buf_to_buf(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* msk, int32_t full2,
+                           uint8_t* dst, int32_t full3) {
+    for (int32_t i = 0; i < length; i++) {
+        for (int32_t j = 0; j < width; j++) {
             if (*msk) {
                 *dst = *src;
             }
@@ -291,31 +291,31 @@ void mask_trans_buf_to_buf(unsigned char* src, int width, int length, int full, 
     }
 }
 
-void buf_fill(unsigned char* buf, int width, int length, int full, int color) {
+void buf_fill(uint8_t* buf, int32_t width, int32_t length, int32_t full, int32_t color) {
     color &= 0xFFFF00FF;
     color |= (color & 0xFF) << 8;
     color = color | (color << 16);
 
-    for (int i = 0; i < length; i++) {
+    for (int32_t i = 0; i < length; i++) {
         memset(buf, color, width);
         buf += full;
     }
 }
 
-void buf_texture(unsigned char* buf, int width, int length, int full, unsigned char* texture, int tx, int ty) {
-    unsigned int n;
-    int x;
-    int y;
-    int oldtx;
-    unsigned char* tex;
-    short ysize;
-    short xsize;
+void buf_texture(uint8_t* buf, int32_t width, int32_t length, int32_t full, uint8_t* texture, int32_t tx, int32_t ty) {
+    uint32_t n;
+    int32_t x;
+    int32_t y;
+    int32_t oldtx;
+    uint8_t* tex;
+    int16_t ysize;
+    int16_t xsize;
 
-    xsize = ((short*)texture)[0];
-    texture += sizeof(short);
+    xsize = ((int16_t*)texture)[0];
+    texture += sizeof(int16_t);
 
-    ysize = ((short*)texture)[0];
-    texture += sizeof(short);
+    ysize = ((int16_t*)texture)[0];
+    texture += sizeof(int16_t);
 
     tx = tx % xsize;
     oldtx = tx;
@@ -351,9 +351,9 @@ void buf_texture(unsigned char* buf, int width, int length, int full, unsigned c
     }
 }
 
-void lighten_buf(unsigned char* buf, int width, int length, int full) {
-    for (unsigned int y = 0; y < length; y++) {
-        for (unsigned int x = 0; x < width; x++) {
+void lighten_buf(uint8_t* buf, int32_t width, int32_t length, int32_t full) {
+    for (uint32_t y = 0; y < length; y++) {
+        for (uint32_t x = 0; x < width; x++) {
             *buf = intensityColorTable[*buf][147];
             buf++;
         }
@@ -362,9 +362,9 @@ void lighten_buf(unsigned char* buf, int width, int length, int full) {
     }
 }
 
-void swap_color_buf(unsigned char* buf, int width, int length, int full, int c1, int c2) {
-    for (unsigned int y = 0; y < length; y++) {
-        for (unsigned int x = 0; x < width; x++) {
+void swap_color_buf(uint8_t* buf, int32_t width, int32_t length, int32_t full, int32_t c1, int32_t c2) {
+    for (uint32_t y = 0; y < length; y++) {
+        for (uint32_t x = 0; x < width; x++) {
             if (*buf == c1) {
                 *buf = c2;
             } else if (*buf == c2) {

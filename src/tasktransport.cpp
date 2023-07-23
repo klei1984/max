@@ -72,7 +72,7 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
             if (task->GetPassenger()) {
                 if (move_tasks.GetCount() != 0 || (unit_transporter && unit_transporter->storage != 0)) {
                     if (unit_transporter) {
-                        int distance;
+                        int32_t distance;
                         Point position(unit_transporter->grid_x, unit_transporter->grid_y);
                         UnitInfo* passenger = task->GetPassenger();
 
@@ -80,7 +80,7 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
                                                            unit_transporter->grid_y - passenger->grid_y);
 
                         if (move_tasks.GetCount()) {
-                            int distance2;
+                            int32_t distance2;
 
                             for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
                                 if ((*it).GetPassenger()) {
@@ -98,7 +98,7 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
 
                         if (unit_transporter->storage > 0) {
                             SmartList<TaskMove> moves;
-                            int distance2;
+                            int32_t distance2;
 
                             AiLog log("Task Transport: Will Transport ");
 
@@ -154,8 +154,8 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
 }
 
 bool TaskTransport::ChooseNewTask() {
-    int distance;
-    int minimum_distance{INT32_MAX};
+    int32_t distance;
+    int32_t minimum_distance{INT32_MAX};
     bool result;
 
     AiLog log("Transport: Choose New Task.");
@@ -380,7 +380,7 @@ Rect* TaskTransport::GetBounds(Rect* bounds) {
     return bounds;
 }
 
-unsigned char TaskTransport::GetType() const { return TaskType_TaskTransport; }
+uint8_t TaskTransport::GetType() const { return TaskType_TaskTransport; }
 
 bool TaskTransport::IsNeeded() { return !unit_transporter && move_tasks.GetCount() > 0; }
 
@@ -465,7 +465,7 @@ bool TaskTransport::Execute(UnitInfo& unit) {
             result = true;
 
         } else if (ChooseNewTask()) {
-            int distance;
+            int32_t distance;
 
             if (transporter_unit_type == AIRTRANS) {
                 distance = 0;
@@ -641,8 +641,8 @@ bool TaskTransport_Search(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map)
                         Point site;
 
                         rect_init(&bounds, std::max(0, destination.x - 1), std::max(0, destination.y - 1),
-                                  std::min(static_cast<int>(ResourceManager_MapSize.x), destination.x + 2),
-                                  std::min(static_cast<int>(ResourceManager_MapSize.y), destination.y + 2));
+                                  std::min(static_cast<int32_t>(ResourceManager_MapSize.x), destination.x + 2),
+                                  std::min(static_cast<int32_t>(ResourceManager_MapSize.y), destination.y + 2));
 
                         for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                             for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
@@ -690,7 +690,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
 
         if (Task_IsReadyToTakeOrders(unit) &&
             (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team)) {
-            int distance = TaskManager_GetDistance(unit, &*unit_transporter);
+            int32_t distance = TaskManager_GetDistance(unit, &*unit_transporter);
 
             if (unit_transporter->unit_type == AIRTRANS && distance > 0) {
                 log.Log("Too far away.");

@@ -35,11 +35,11 @@
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
-int AiAttack_GetTargetValue(UnitInfo* unit) {
-    int result;
+int32_t AiAttack_GetTargetValue(UnitInfo* unit) {
+    int32_t result;
 
-    int attack_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
-    int turns_to_build = unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS);
+    int32_t attack_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+    int32_t turns_to_build = unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS);
 
     if (turns_to_build > 4) {
         if (attack_range >= 10 || unit->unit_type == COMMANDO || unit->unit_type == SUBMARNE ||
@@ -94,16 +94,16 @@ bool AiAttack_DecideDesperationAttack(UnitInfo* attacker, UnitInfo* target) {
     return result;
 }
 
-bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site, int* projected_damage,
-                                   int caution_level) {
-    unsigned char** info_map = AiPlayer_Teams[unit1->team].GetInfoMap();
+bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site, int32_t* projected_damage,
+                                   int32_t caution_level) {
+    uint8_t** info_map = AiPlayer_Teams[unit1->team].GetInfoMap();
     Point position;
     bool result = false;
-    short** damage_potential_map = AiPlayer_Teams[unit1->team].GetDamagePotentialMap(unit1, caution_level, true);
-    int distance;
-    int minimum_distance = INT_MAX;
-    int damage_potential = 0;
-    int range;
+    int16_t** damage_potential_map = AiPlayer_Teams[unit1->team].GetDamagePotentialMap(unit1, caution_level, true);
+    int32_t distance;
+    int32_t minimum_distance = INT_MAX;
+    int32_t damage_potential = 0;
+    int32_t range;
 
     *projected_damage = INT_MAX;
 
@@ -132,8 +132,8 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
     position.x = unit2->grid_x - 1;
     position.y = unit2->grid_y - 1 + range;
 
-    for (int direction = 0; direction < 8; direction += 2) {
-        for (int i = 0; i < range; ++i) {
+    for (int32_t direction = 0; direction < 8; direction += 2) {
+        for (int32_t i = 0; i < range; ++i) {
             position += Paths_8DirPointsArray[direction];
 
             if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
@@ -164,16 +164,16 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
     return result;
 }
 
-bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int* projected_damage, int caution_level,
-                                    int range, bool mode) {
+bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int32_t* projected_damage, int32_t caution_level,
+                                    int32_t range, bool mode) {
     ZoneWalker walker(target, range);
-    unsigned char** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
-    short** damage_potential_map;
+    uint8_t** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
+    int16_t** damage_potential_map;
     bool result = false;
-    int distance1 = range;
-    int distance2;
-    int distance3;
-    int damage;
+    int32_t distance1 = range;
+    int32_t distance2;
+    int32_t distance3;
+    int32_t damage;
     TransporterMap transporter_map(unit, 0x02, CAUTION_LEVEL_NONE);
     bool is_better;
 
@@ -251,9 +251,9 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
     return result;
 }
 
-bool AiAttack_IsWithinReach(UnitInfo* unit, unsigned short team, bool* relevant_teams) {
+bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team, bool* relevant_teams) {
     bool result;
-    int distance;
+    int32_t distance;
     Point line_distance;
 
     distance = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
@@ -324,7 +324,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
             result = true;
 
         } else {
-            int attack_range = attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+            int32_t attack_range = attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
             bool is_valid = false;
 
             if (AiAttack_IsValidSabotageTarget(attacker, target)) {
@@ -340,16 +340,16 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                 attacker->target_grid_y = target->grid_y;
 
             } else {
-                int attack_radius = attacker->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS);
+                int32_t attack_radius = attacker->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
                 if (attack_radius >= 1 && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE &&
                     attacker->shots > 0) {
                     ZoneWalker walker(Point(target->grid_x, target->grid_y), attack_radius);
                     Point site;
                     bool is_found = false;
-                    int distance = attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
-                    int distance2;
-                    int minimal_distance{INT32_MAX};
+                    int32_t distance = attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+                    int32_t distance2;
+                    int32_t minimal_distance{INT32_MAX};
 
                     distance = distance * distance;
 
@@ -439,7 +439,7 @@ bool AiAttack_CanAttack(UnitInfo* attacker, UnitInfo* target) {
                                       attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE));
 }
 
-bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, unsigned short team, int caution_level) {
+bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, uint16_t team, int32_t caution_level) {
     bool result = false;
 
     if (unit->IsVisibleToTeam(team) &&
@@ -467,7 +467,7 @@ bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, unsi
     return result;
 }
 
-int AiAttack_EstimateAttackValue(UnitInfo* unit, int predicted_damage) {
+int32_t AiAttack_EstimateAttackValue(UnitInfo* unit, int32_t predicted_damage) {
     UnitValues* base_values = unit->GetBaseValues();
 
     return ((base_values->GetAttribute(ATTRIB_HITS) + predicted_damage - unit->hits) *
@@ -475,10 +475,10 @@ int AiAttack_EstimateAttackValue(UnitInfo* unit, int predicted_damage) {
            base_values->GetAttribute(ATTRIB_HITS);
 }
 
-bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int damage_to_friendly,
-                                 int caution_level, int damage_to_enemy, bool is_desperation_attack) {
+bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t damage_to_friendly,
+                                 int32_t caution_level, int32_t damage_to_enemy, bool is_desperation_attack) {
     bool result;
-    int projected_damage = AiPlayer_CalculateProjectedDamage(friendly_unit, enemy_unit, caution_level);
+    int32_t projected_damage = AiPlayer_CalculateProjectedDamage(friendly_unit, enemy_unit, caution_level);
 
     damage_to_friendly = AiAttack_EstimateAttackValue(friendly_unit, damage_to_friendly);
 
@@ -507,17 +507,17 @@ bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, 
     return result;
 }
 
-bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int damage_to_friendly,
-                                 int caution_level, bool is_desperation_attack) {
-    int projected_damage = AiPlayer_Teams[friendly_unit->team].GetPredictedAttack(enemy_unit, caution_level);
+bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t damage_to_friendly,
+                                 int32_t caution_level, bool is_desperation_attack) {
+    int32_t projected_damage = AiPlayer_Teams[friendly_unit->team].GetPredictedAttack(enemy_unit, caution_level);
 
     return AiAttack_IsAttackProfitable(friendly_unit, enemy_unit, damage_to_friendly, caution_level, projected_damage,
                                        is_desperation_attack);
 }
 
-void AiAttack_GetTargetTeams(unsigned short team, bool* teams) {
+void AiAttack_GetTargetTeams(uint16_t team, bool* teams) {
     if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
-        signed short target_team;
+        int16_t target_team;
 
         memset(teams, 0, PLAYER_TEAM_MAX * sizeof(bool));
 
@@ -545,19 +545,19 @@ void AiAttack_GetTargetTeams(unsigned short team, bool* teams) {
     }
 }
 
-SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, int caution_level, bool mode) {
+SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_t scan, int32_t caution_level, bool mode) {
     SpottedUnit* spotted_unit = nullptr;
     UnitValues* base_values = unit->GetBaseValues();
-    int minimum_score = 0;
-    unsigned short unit_team = unit->team;
-    short** damage_potential_map = nullptr;
-    int minimum_damage = 32000;
-    int unit_scan = base_values->GetAttribute(ATTRIB_SCAN);
-    int unit_range = base_values->GetAttribute(ATTRIB_RANGE);
-    unsigned char surface_type = UnitsManager_BaseUnits[unit->unit_type].land_type;
+    int32_t minimum_score = 0;
+    uint16_t unit_team = unit->team;
+    int16_t** damage_potential_map = nullptr;
+    int32_t minimum_damage = 32000;
+    int32_t unit_scan = base_values->GetAttribute(ATTRIB_SCAN);
+    int32_t unit_range = base_values->GetAttribute(ATTRIB_RANGE);
+    uint8_t surface_type = UnitsManager_BaseUnits[unit->unit_type].land_type;
     Point unit_position;
     bool teams[PLAYER_TEAM_MAX];
-    int distance;
+    int32_t distance;
 
     AiAttack_GetTargetTeams(unit_team, teams);
 
@@ -611,11 +611,11 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, 
                                 AiPlayer_TerrainMap.TerrainMap_sub_690D6(unit_position, surface_type) <= unit_scan) {
                                 if (AiPlayer_TerrainMap.TerrainMap_sub_690D6(unit_position, surface_type) <=
                                     unit_range) {
-                                    int score;
-                                    int damage_potential;
+                                    int32_t score;
+                                    int32_t damage_potential;
 
                                     if (mode) {
-                                        unsigned int unit_flags = target_unit->GetField221();
+                                        uint32_t unit_flags = target_unit->GetField221();
 
                                         score = unit_flags & 0xFE;
 
@@ -674,8 +674,8 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int range, int scan, 
     return spotted_unit;
 }
 
-int AiAttack_GetAttackPotential(UnitInfo* attacker, UnitInfo* target) {
-    int result;
+int32_t AiAttack_GetAttackPotential(UnitInfo* attacker, UnitInfo* target) {
+    int32_t result;
 
     if (AiAttack_IsValidSabotageTarget(attacker, target)) {
         result =
@@ -711,7 +711,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
 
                     if (Task_IsReadyToTakeOrders(unit)) {
                         SmartPointer<SpottedUnit> spotted_unit;
-                        int attack_radius;
+                        int32_t attack_radius;
 
                         if (unit->shots) {
                             attack_radius = unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS) / 2;
@@ -756,7 +756,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                     (target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) <
                                          unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS) ||
                                      unit->shots * UnitsManager_GetAttackDamage(unit, target, 0) < target->hits)) {
-                                    int damage_potential = AiPlayer_Teams[unit->team].GetDamagePotential(
+                                    int32_t damage_potential = AiPlayer_Teams[unit->team].GetDamagePotential(
                                         unit, Point(unit->grid_x, unit->grid_y), CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
                                         true);
 
@@ -820,11 +820,11 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
     if (unit && unit->shots > 0 && unit->speed > 0 && unit->hits > 0) {
         if (Task_IsReadyToTakeOrders(unit)) {
             SmartPointer<SpottedUnit> spotted_unit;
-            unsigned short unit_team = unit->team;
-            int caution_level = CAUTION_LEVEL_AVOID_REACTION_FIRE;
+            uint16_t unit_team = unit->team;
+            int32_t caution_level = CAUTION_LEVEL_AVOID_REACTION_FIRE;
             UnitValues* unit_values = unit->GetBaseValues();
-            int unit_range;
-            int unit_speed;
+            int32_t unit_range;
+            int32_t unit_speed;
 
             if (unit->unit_type == COMMANDO) {
                 unit_range = 1;
@@ -847,7 +847,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
 
                 if (spotted_unit) {
                     UnitInfo* target = spotted_unit->GetUnit();
-                    int distance = Access_GetDistance(unit, target);
+                    int32_t distance = Access_GetDistance(unit, target);
 
                     if (target->IsVisibleToTeam(unit->team)) {
                         unit_range = std::min(unit_range, unit_values->GetAttribute(ATTRIB_SCAN));
@@ -867,7 +867,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
 
                     } else {
                         if (!unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-                            int target_range = target->GetAttackRange() + unit_speed;
+                            int32_t target_range = target->GetAttackRange() + unit_speed;
 
                             target_range = target_range * target_range;
 
@@ -884,10 +884,10 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                         }
 
                         Point site;
-                        int unit_shots = unit->shots;
-                        int projected_damage;
-                        int attack_potential;
-                        int damage_potential;
+                        int32_t unit_shots = unit->shots;
+                        int32_t projected_damage;
+                        int32_t attack_potential;
+                        int32_t damage_potential;
                         bool is_site_found;
 
                         if (!unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
@@ -1051,7 +1051,7 @@ Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
     Task* task = unit->GetTask();
 
     while (task) {
-        int task_type = task->GetType();
+        int32_t task_type = task->GetType();
 
         if (task_type != TaskType_TaskAttack) {
             if (task_type == TaskType_TaskMove || task_type == TaskType_TaskFindPath ||
@@ -1071,12 +1071,12 @@ Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
     return task;
 }
 
-bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_flags) {
+bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
     SmartPointer<UnitInfo> leader;
     bool is_execution_phase = false;
     TaskAttack* attack_task = nullptr;
-    int distance;
-    int minimum_distance{INT32_MAX};
+    int32_t distance;
+    int32_t minimum_distance{INT32_MAX};
     bool result;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
@@ -1125,7 +1125,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_fla
 
     if (leader) {
         Point target_location;
-        unsigned char** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
+        uint8_t** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
         Point unit_position(unit->grid_x, unit->grid_y);
         ResourceID transporter_type = INVALID_ID;
 
@@ -1139,18 +1139,18 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_fla
         }
 
         TransporterMap map(unit, 0x02, CAUTION_LEVEL_NONE, transporter_type);
-        short** damage_potential_map =
+        int16_t** damage_potential_map =
             AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true);
-        int range = TaskManager_GetDistance(&*leader, unit) / 2;
+        int32_t range = TaskManager_GetDistance(&*leader, unit) / 2;
 
         target_location = unit_position;
 
-        for (int i = 1; i < range; ++i) {
+        for (int32_t i = 1; i < range; ++i) {
             --unit_position.x;
             ++unit_position.y;
 
-            for (int direction = 0; direction < 8; direction += 2) {
-                for (int j = 0; j < i; ++j) {
+            for (int32_t direction = 0; direction < 8; direction += 2) {
+                for (int32_t j = 0; j < i; ++j) {
                     unit_position += Paths_8DirPointsArray[direction];
 
                     if (unit_position.x >= 0 && unit_position.x < ResourceManager_MapSize.x && unit_position.y >= 0 &&
@@ -1196,8 +1196,8 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, unsigned short task_fla
 
 bool AiAttack_IsReadyToMove(UnitInfo* unit) { return unit->orders == ORDER_MOVE && unit->state != ORDER_STATE_1; }
 
-unsigned int AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, unsigned short team) {
-    unsigned int result = 0;
+uint32_t AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, uint16_t team) {
+    uint32_t result = 0;
 
     if (target->ammo > 0 && target->orders != ORDER_DISABLE) {
         if (target->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 35) {
@@ -1243,11 +1243,11 @@ unsigned int AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, unsig
     return result;
 }
 
-unsigned int AiAttack_GetTargetWorth(UnitInfo* attacker, UnitInfo* target) {
-    unsigned int result;
+uint32_t AiAttack_GetTargetWorth(UnitInfo* attacker, UnitInfo* target) {
+    uint32_t result;
 
     if (Access_IsValidAttackTarget(attacker, target) && target->hits > 0) {
-        int value = (attacker->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) *
+        int32_t value = (attacker->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) *
                      UnitsManager_GetAttackDamage(attacker, target, 0) *
                      target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) * 7) /
                     (target->hits * 12);

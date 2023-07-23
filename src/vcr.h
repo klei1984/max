@@ -23,6 +23,7 @@
 #define VCR_H
 
 #include <assert.h>
+#include <stdint.h>
 
 #include "db.h"
 #include "input.h"
@@ -37,25 +38,25 @@ typedef enum VCREventType_e {
 } VCREventType;
 
 typedef struct VCRInitData_s {
-    int mouse_x;
-    int mouse_y;
+    int32_t mouse_x;
+    int32_t mouse_y;
     kb_layout_t keyboard_layout;
 } VCRInitData;
 
 typedef struct VCRKeyData_s {
-    unsigned short scan_code;
+    uint16_t scan_code;
 } VCRKeyData;
 
 typedef struct VCRMouseData_s {
-    int delta_x;
-    int delta_y;
-    int buttons;
+    int32_t delta_x;
+    int32_t delta_y;
+    int32_t buttons;
 } VCRMouseData;
 
 typedef struct VCRJoystickData_s {
-    int joy_x;
-    int joy_y;
-    int buttons;
+    int32_t joy_x;
+    int32_t joy_y;
+    int32_t buttons;
 } VCRJoystickData;
 
 typedef union VCREventData_u {
@@ -68,29 +69,29 @@ typedef union VCREventData_u {
 typedef struct VCREventRecord_s {
     VCREventType type;
     TOCKS time;
-    unsigned long counter;
+    uint32_t counter;
     VCREventData data;
 } VCREventRecord;
 
 static_assert(sizeof(struct VCREventRecord_s) == 24, "The structure needs to be packed.");
 
-typedef void (*VCRNotifyCallback)(int);
+typedef void (*VCRNotifyCallback)(int32_t);
 
-extern int vcr_buffer_index;
+extern int32_t vcr_buffer_index;
 extern VCREventRecord* vcr_buffer;
 extern TOCKS vcr_time;
-extern unsigned int vcr_counter;
-extern int vcr_state;
-extern int vcr_terminate_flags;
-extern int vcr_terminated_condition;
+extern uint32_t vcr_counter;
+extern int32_t vcr_state;
+extern int32_t vcr_terminate_flags;
+extern int32_t vcr_terminated_condition;
 
-int vcr_record(char* record_file);
-int vcr_play(char* playback_file, int terminate_flags, VCRNotifyCallback notify_callback);
-int vcr_stop(void);
-int vcr_status(void);
+int32_t vcr_record(char* record_file);
+int32_t vcr_play(char* playback_file, int32_t terminate_flags, VCRNotifyCallback notify_callback);
+int32_t vcr_stop(void);
+int32_t vcr_status(void);
 VCREventType vcr_update(void);
-int vcr_dump_buffer(void);
-int vcr_save_record(VCREventRecord* record, DB_FILE fp);
-int vcr_load_record(VCREventRecord* record, DB_FILE fp);
+int32_t vcr_dump_buffer(void);
+int32_t vcr_save_record(VCREventRecord* record, DB_FILE fp);
+int32_t vcr_load_record(VCREventRecord* record, DB_FILE fp);
 
 #endif /* VCR_H */

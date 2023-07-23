@@ -22,10 +22,12 @@
 #ifndef WINLOSS_HPP
 #define WINLOSS_HPP
 
+#include <cstdint>
+
 enum { VICTORY_STATE_GENERIC = 0, VICTORY_STATE_PENDING = 1, VICTORY_STATE_WON = 2, VICTORY_STATE_LOST = 3 };
 
-bool WinLoss_CheckLossConditions(unsigned short team);
-int WinLoss_DetermineWinner(unsigned short team1, unsigned short team2);
-int WinLoss_CheckWinConditions(unsigned short team, int turn_counter);
+bool WinLoss_CheckLossConditions(uint16_t team);
+int32_t WinLoss_DetermineWinner(uint16_t team1, uint16_t team2);
+int32_t WinLoss_CheckWinConditions(uint16_t team, int32_t turn_counter);
 
 #endif /* WINLOSS_HPP */

@@ -46,7 +46,7 @@ public:
     bool Task_vfunc1(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void Begin();
     void BeginTurn();
     void EndTurn();
@@ -55,7 +55,7 @@ public:
     void RemoveUnit(UnitInfo& unit);
 
     virtual void SelectOperator();
-    virtual int GetTurnsToComplete();
+    virtual int32_t GetTurnsToComplete();
     virtual bool IsInPerfectCondition();
     virtual void CreateUnit();
     virtual void IssueOrder();

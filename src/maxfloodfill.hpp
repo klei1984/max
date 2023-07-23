@@ -29,18 +29,18 @@ class MAXFloodFill {
     bool mode;
     Rect bounds;
     Rect target_bounds;
-    int cell_count;
+    int32_t cell_count;
 
 public:
     MAXFloodFill(Rect bounds, bool mode);
 
-    virtual int Vfunc0(Point point, int uly) = 0;
-    virtual int Vfunc1(Point point, int lry) = 0;
-    virtual int Vfunc2(Point point, int lry) = 0;
-    virtual void Vfunc3(int ulx, int uly, int lry) = 0;
+    virtual int32_t Vfunc0(Point point, int32_t uly) = 0;
+    virtual int32_t Vfunc1(Point point, int32_t lry) = 0;
+    virtual int32_t Vfunc2(Point point, int32_t lry) = 0;
+    virtual void Vfunc3(int32_t ulx, int32_t uly, int32_t lry) = 0;
 
     Rect* GetBounds();
-    int Fill(Point point);
+    int32_t Fill(Point point);
 };
 
 #endif /* MAXFLOODFILL_HPP */

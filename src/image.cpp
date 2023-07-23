@@ -28,12 +28,12 @@
 
 #include "resource_manager.hpp"
 
-Image::Image(short ulx, short uly, short width, short height) : ulx(ulx), uly(uly), width(width), height(height) {
-    data = new (std::nothrow) unsigned char[width * height];
+Image::Image(int16_t ulx, int16_t uly, int16_t width, int16_t height) : ulx(ulx), uly(uly), width(width), height(height) {
+    data = new (std::nothrow) uint8_t[width * height];
     allocated = true;
 }
 
-Image::Image(ResourceID id, short ulx, short uly) {
+Image::Image(ResourceID id, int16_t ulx, int16_t uly) {
     struct ImageSimpleHeader *sprite;
 
     sprite = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(id));
@@ -65,21 +65,21 @@ Image::~Image() {
     }
 }
 
-unsigned char *Image::GetData() const { return data; }
+uint8_t *Image::GetData() const { return data; }
 
-short Image::GetULX() const { return ulx; }
+int16_t Image::GetULX() const { return ulx; }
 
-short Image::GetULY() const { return uly; }
+int16_t Image::GetULY() const { return uly; }
 
-short Image::GetWidth() const { return width; }
+int16_t Image::GetWidth() const { return width; }
 
-short Image::GetHeight() const { return height; }
+int16_t Image::GetHeight() const { return height; }
 
 void Image::Allocate() {
-    unsigned char *buffer;
+    uint8_t *buffer;
 
     if (!allocated) {
-        buffer = new (std::nothrow) unsigned char[width * height];
+        buffer = new (std::nothrow) uint8_t[width * height];
 
         memcpy(buffer, data, width * height);
         data = buffer;
@@ -103,11 +103,11 @@ void Image::Copy(const Image &other) {
 }
 
 void Image::Blend(const Image &other) {
-    unsigned char *source_buffer;
-    unsigned char *destination_buffer;
-    short min_width;
-    short width_offset;
-    short height_offset;
+    uint8_t *source_buffer;
+    uint8_t *destination_buffer;
+    int16_t min_width;
+    int16_t width_offset;
+    int16_t height_offset;
     char transparent_pixel;
 
     Allocate();
@@ -144,7 +144,7 @@ void Image::Write(WindowInfo *w, Rect *r) const {
                &w->buffer[ulx + r->ulx + w->width * (r->uly + uly)], w->width);
 }
 
-void Image::Write(WindowInfo *w, int ulx, int uly) const {
+void Image::Write(WindowInfo *w, int32_t ulx, int32_t uly) const {
     buf_to_buf(data, width, height, width, &w->buffer[ulx + w->width * uly], w->width);
 }
 

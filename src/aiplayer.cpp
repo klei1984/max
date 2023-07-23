@@ -59,15 +59,15 @@ ThreatMap AiPlayer_ThreatMaps[AIPLAYER_THREAT_MAP_CACHE_ENTRIES];
 
 void AiPlayer::AddBuilding(UnitInfo* unit) { FindManager(Point(unit->grid_x, unit->grid_y))->AddUnit(*unit); }
 
-void AiPlayer::RebuildWeightTable(WeightTable table, ResourceID unit_type, int factor) {
-    for (int i = 0; i < table.GetCount(); ++i) {
+void AiPlayer::RebuildWeightTable(WeightTable table, ResourceID unit_type, int32_t factor) {
+    for (int32_t i = 0; i < table.GetCount(); ++i) {
         if (table[i].unit_type == unit_type) {
             table[i].weight *= factor;
         }
     }
 }
 
-void AiPlayer::RebuildWeightTables(ResourceID unit_type, int factor) {
+void AiPlayer::RebuildWeightTables(ResourceID unit_type, int32_t factor) {
     RebuildWeightTable(weight_table_ground_defense, unit_type, factor);
     RebuildWeightTable(weight_table_scout, unit_type, factor);
     RebuildWeightTable(weight_table_tanks, unit_type, factor);
@@ -158,10 +158,10 @@ void AiPlayer::UpdateWeightTables() {
 
 void AiPlayer::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {}
 
-Point AiPlayer::GetUnitClusterCoordinates(unsigned short team, SmartList<UnitInfo>* units) {
-    int team_unit_count = 0;
-    int grid_x = 0;
-    int grid_y = 0;
+Point AiPlayer::GetUnitClusterCoordinates(uint16_t team, SmartList<UnitInfo>* units) {
+    int32_t team_unit_count = 0;
+    int32_t grid_x = 0;
+    int32_t grid_y = 0;
     Point result(0, 0);
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
@@ -180,7 +180,7 @@ Point AiPlayer::GetUnitClusterCoordinates(unsigned short team, SmartList<UnitInf
     return result;
 }
 
-Point AiPlayer::GetTeamClusterCoordinates(unsigned short team) {
+Point AiPlayer::GetTeamClusterCoordinates(uint16_t team) {
     Point site = GetUnitClusterCoordinates(team, &UnitsManager_StationaryUnits);
 
     if (site.x == 0 && site.y == 0) {
@@ -190,7 +190,7 @@ Point AiPlayer::GetTeamClusterCoordinates(unsigned short team) {
     return site;
 }
 
-void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, unsigned short task_flags) {
+void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_flags) {
     if (!spotted_unit->GetTask()) {
         if (task_flags > 0x1000 &&
             UnitsManager_TeamInfo[spotted_unit->GetUnit()->team].team_points >
@@ -199,9 +199,9 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, unsigned short task_fl
             task_flags = 0x1700;
         }
 
-        unsigned short target_task_flags =
+        uint16_t target_task_flags =
             AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), player_team) + task_flags + 0xFA;
-        int task_index;
+        int32_t task_index;
 
         for (task_index = 0; task_index < 3 && task_array[task_index]; ++task_index) {
         }
@@ -234,15 +234,15 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, unsigned short task_fl
 }
 
 void AiPlayer::UpdatePriorityTasks() {
-    for (int i = 0; i < 3; ++i) {
+    for (int32_t i = 0; i < 3; ++i) {
         task_array[i] = nullptr;
     }
 
     for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
          ++it) {
         if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskAttack) {
-            unsigned short task_flags = (*it).GetFlags();
-            int task_index;
+            uint16_t task_flags = (*it).GetFlags();
+            int32_t task_index;
 
             for (task_index = 0;
                  task_index < 3 && task_array[task_index] && task_array[task_index]->DeterminePriority(task_flags) <= 0;
@@ -257,7 +257,7 @@ void AiPlayer::UpdatePriorityTasks() {
                     task_array[2]->RemoveSelf();
                 }
 
-                for (int i = 2; i > task_index; --i) {
+                for (int32_t i = 2; i > task_index; --i) {
                     task_array[i] = task_array[i - 1];
                 }
 
@@ -270,8 +270,8 @@ void AiPlayer::UpdatePriorityTasks() {
 void AiPlayer::DetermineTargetLocation(Point position) {
     if (spotted_units.GetCount() > 0) {
         SpottedUnit* target = nullptr;
-        int distance;
-        int minimum_distance;
+        int32_t distance;
+        int32_t minimum_distance;
 
         for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
             UnitInfo* unit = (*it).GetUnit();
@@ -301,12 +301,12 @@ bool AiPlayer::IsKeyFacility(ResourceID unit_type) {
 }
 
 void AiPlayer::DetermineResearchProjects() {
-    int best_research_topic = RESEARCH_TOPIC_ATTACK;
-    int best_turns_to_complete =
+    int32_t best_research_topic = RESEARCH_TOPIC_ATTACK;
+    int32_t best_turns_to_complete =
         UnitsManager_TeamInfo[player_team].research_topics[best_research_topic].turns_to_complete;
-    int turns_to_complete;
+    int32_t turns_to_complete;
 
-    for (int research_topic = RESEARCH_TOPIC_SHOTS; research_topic < RESEARCH_TOPIC_COST; ++research_topic) {
+    for (int32_t research_topic = RESEARCH_TOPIC_SHOTS; research_topic < RESEARCH_TOPIC_COST; ++research_topic) {
         turns_to_complete = UnitsManager_TeamInfo[player_team].research_topics[research_topic].turns_to_complete;
 
         if (research_topic == RESEARCH_TOPIC_RANGE) {
@@ -343,8 +343,8 @@ void AiPlayer::DetermineResearchProjects() {
     }
 }
 
-bool AiPlayer::IsPotentialSpotter(unsigned short team, UnitInfo* unit) {
-    int distance = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
+bool AiPlayer::IsPotentialSpotter(uint16_t team, UnitInfo* unit) {
+    int32_t distance = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
 
     distance = distance * distance;
 
@@ -358,11 +358,11 @@ bool AiPlayer::IsPotentialSpotter(unsigned short team, UnitInfo* unit) {
     return false;
 }
 
-void AiPlayer::UpdateAccessMap(Point point1, Point point2, unsigned char** access_map) {
+void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map) {
     Point site(point1);
     Point distance;
-    int surface_type = Access_GetSurfaceType(point1.x, point1.y);
-    int step;
+    int32_t surface_type = Access_GetSurfaceType(point1.x, point1.y);
+    int32_t step;
 
     distance.x = labs(point2.x - point1.x);
     distance.y = labs(point2.y - point1.y);
@@ -375,7 +375,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, unsigned char** acces
             step = -step;
         }
 
-        for (int x = 0, y = distance.y / 2; x < distance.x; ++x) {
+        for (int32_t x = 0, y = distance.y / 2; x < distance.x; ++x) {
             ++site.x;
             y += distance.y;
 
@@ -401,7 +401,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, unsigned char** acces
             step = -step;
         }
 
-        for (int y = 0, x = distance.x / 2; y < distance.y; ++y) {
+        for (int32_t y = 0, x = distance.x / 2; y < distance.y; ++y) {
             ++site.y;
             x += distance.x;
 
@@ -459,7 +459,7 @@ void AiPlayer::RegisterReadyAndAbleUnits(SmartList<UnitInfo>* units) {
 bool AiPlayer::AreActionsPending() { return TaskManager_word_1731C0 == 2 || TaskManager.GetRemindersCount() > 0; }
 
 bool AiPlayer::IsDemoMode() {
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER ||
             UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
             return false;
@@ -495,9 +495,9 @@ void AiPlayer::RegisterIdleUnits() {
     }
 }
 
-int AiPlayer::GetTotalProjectedDamage(UnitInfo* unit, int caution_level, unsigned short team,
+int32_t AiPlayer::GetTotalProjectedDamage(UnitInfo* unit, int32_t caution_level, uint16_t team,
                                       SmartList<UnitInfo>* units) {
-    int result = 0;
+    int32_t result = 0;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team) {
@@ -508,12 +508,12 @@ int AiPlayer::GetTotalProjectedDamage(UnitInfo* unit, int caution_level, unsigne
     return result;
 }
 
-void AiPlayer::UpdateMap(short** map, Point position, int range, int damage_potential, bool normalize) {
+void AiPlayer::UpdateMap(int16_t** map, Point position, int32_t range, int32_t damage_potential, bool normalize) {
     Point site;
     Point limit;
-    int distance = range * range;
-    int map_offset;
-    short* map_address{nullptr};
+    int32_t distance = range * range;
+    int32_t map_offset;
+    int16_t* map_address{nullptr};
 
     site.x = std::max(position.x - range, 0) - 1;
     site.y = 0;
@@ -554,15 +554,15 @@ void AiPlayer::UpdateMap(short** map, Point position, int range, int damage_pote
     }
 }
 
-void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int range, int attack, int shots,
-                                int& ammo, bool normalize) {
+void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int32_t range, int32_t attack, int32_t shots,
+                                int32_t& ammo, bool normalize) {
     if (shots > ammo) {
         shots = ammo;
     }
 
     ammo -= shots;
 
-    int damage_potential = attack * shots;
+    int32_t damage_potential = attack * shots;
 
     if (damage_potential > 0) {
         if (unit->unit_type == SUBMARNE || unit->unit_type == CORVETTE) {
@@ -599,17 +599,17 @@ void AiPlayer::InvalidateThreatMaps() {
     }
 }
 
-void AiPlayer::DetermineDefenses(SmartList<UnitInfo>* units, short** map) {
+void AiPlayer::DetermineDefenses(SmartList<UnitInfo>* units, int16_t** map) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).shots > 0 && (*it).orders != ORDER_IDLE && (*it).orders != ORDER_DISABLE) {
-            int unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+            int32_t unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
             if (!(*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                 unit_range -= 3;
             }
 
             if (unit_range > 0) {
-                int attack_power = (-(*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK)) * (*it).shots;
+                int32_t attack_power = (-(*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK)) * (*it).shots;
 
                 UpdateMap(map, Point((*it).grid_x, (*it).grid_y), unit_range, attack_power, false);
             }
@@ -617,7 +617,7 @@ void AiPlayer::DetermineDefenses(SmartList<UnitInfo>* units, short** map) {
     }
 }
 
-void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_level, bool* teams,
+void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int32_t caution_level, bool* teams,
                                 ThreatMap* air_force_map, ThreatMap* ground_forces_map) {
     if ((unit->flags & MOBILE_AIR_UNIT) && air_force_map->shots_map) {
         ground_forces_map = air_force_map;
@@ -625,12 +625,12 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
 
     if (unit->speed <= 0 || teams[unit->team]) {
         UnitValues* base_values = unit->GetBaseValues();
-        int unit_range = base_values->GetAttribute(ATTRIB_RANGE);
-        int attack_range = unit_range + base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
-        int unit_attack = base_values->GetAttribute(ATTRIB_ATTACK);
-        int unit_shots = base_values->GetAttribute(ATTRIB_ROUNDS);
-        int unit_ammo = unit->ammo;
-        int unit_speed = base_values->GetAttribute(ATTRIB_SPEED);
+        int32_t unit_range = base_values->GetAttribute(ATTRIB_RANGE);
+        int32_t attack_range = unit_range + base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+        int32_t unit_attack = base_values->GetAttribute(ATTRIB_ATTACK);
+        int32_t unit_shots = base_values->GetAttribute(ATTRIB_ROUNDS);
+        int32_t unit_ammo = unit->ammo;
+        int32_t unit_speed = base_values->GetAttribute(ATTRIB_SPEED);
 
         switch (caution_level) {
             case CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE: {
@@ -638,7 +638,7 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
                     UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
                                      true);
 
-                    int movement_range = 0;
+                    int32_t movement_range = 0;
 
                     if (teams[unit->team]) {
                         movement_range = unit_speed / 2;
@@ -663,7 +663,7 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
                                 break;
                             }
 
-                            int movement_range = ((unit_speed + 1) * unit_shots) / (unit_shots + 1);
+                            int32_t movement_range = ((unit_speed + 1) * unit_shots) / (unit_shots + 1);
 
                             UpdateThreatMaps(ground_forces_map, unit, position, movement_range + attack_range,
                                              unit_attack, 1, unit_ammo, false);
@@ -677,7 +677,7 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
                                  true);
 
                 if (teams[unit->team]) {
-                    int movement_range = 0;
+                    int32_t movement_range = 0;
 
                     if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                         movement_range = unit_speed / 2;
@@ -686,7 +686,7 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
                         movement_range = ((unit_speed + 1) * (unit_shots - 1)) / (unit_shots);
 
                         if (GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
-                            movement_range = std::max<int>(movement_range, unit->speed);
+                            movement_range = std::max<int32_t>(movement_range, unit->speed);
                         }
                     }
 
@@ -706,17 +706,17 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int caution_leve
     }
 }
 
-void AiPlayer::SumUpMaps(short** map1, short** map2) {
-    for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-        for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+void AiPlayer::SumUpMaps(int16_t** map1, int16_t** map2) {
+    for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+        for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
             map1[x][y] += map2[x][y];
         }
     }
 }
 
 void AiPlayer::NormalizeThreatMap(ThreatMap* threat_map) {
-    for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-        for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+    for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+        for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
             if (threat_map->damage_potential_map[x][y] < 0) {
                 threat_map->damage_potential_map[x][y] = 0;
                 threat_map->shots_map[x][y] = 0;
@@ -725,7 +725,7 @@ void AiPlayer::NormalizeThreatMap(ThreatMap* threat_map) {
     }
 }
 
-bool AiPlayer::IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, unsigned short team) {
+bool AiPlayer::IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, uint16_t team) {
     bool result;
 
     if (attacker->ammo > 0 && attacker->orders != ORDER_DISABLE && attacker->orders != ORDER_IDLE &&
@@ -750,7 +750,7 @@ bool AiPlayer::IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, unsign
     return result;
 }
 
-ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for_attacking) {
+ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, bool is_for_attacking) {
     ThreatMap* result;
 
     if (ResourceManager_MapSize.x > 0) {
@@ -762,7 +762,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
             is_for_attacking = false;
         }
 
-        for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
+        for (int32_t i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
             if (AiPlayer_ThreatMaps[i].risk_level == risk_level &&
                 AiPlayer_ThreatMaps[i].caution_level == caution_level &&
                 AiPlayer_ThreatMaps[i].for_attacking == is_for_attacking &&
@@ -771,7 +771,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
 
                 result = &AiPlayer_ThreatMaps[i];
 
-                for (int j = 0; j < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++j) {
+                for (int32_t j = 0; j < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++j) {
                     ++AiPlayer_ThreatMaps[j].id;
                 }
 
@@ -779,9 +779,9 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
             }
         }
 
-        int index = 0;
+        int32_t index = 0;
 
-        for (int i = 1; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
+        for (int32_t i = 1; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
             if (AiPlayer_ThreatMaps[index].id < AiPlayer_ThreatMaps[i].id) {
                 index = i;
             }
@@ -796,7 +796,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
         AiPlayer_ThreatMaps[index].team = player_team;
         AiPlayer_ThreatMaps[index].id = 0;
 
-        for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
+        for (int32_t i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
             ++AiPlayer_ThreatMaps[i].id;
         }
 
@@ -867,11 +867,11 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
             SumUpMaps(AiPlayer_ThreatMaps[index].shots_map, air_force_threat_map.shots_map);
         }
 
-        int team_count = 0;
-        signed short enemies[PLAYER_TEAM_MAX];
+        int32_t team_count = 0;
+        int16_t enemies[PLAYER_TEAM_MAX];
         char* heat_maps_stealth_sea[PLAYER_TEAM_MAX];
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
             if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 enemies[team_count] = team;
                 ++team_count;
@@ -879,16 +879,16 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
         }
 
         if (risk_level == 7) {
-            for (int team = 0; team < team_count; ++team) {
+            for (int32_t team = 0; team < team_count; ++team) {
                 heat_maps_stealth_sea[team] = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_sea;
             }
 
-            for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-                for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+            for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                     if (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x] == SURFACE_TYPE_WATER) {
                         bool is_found = false;
 
-                        for (int team = 0; team < team_count; ++team) {
+                        for (int32_t team = 0; team < team_count; ++team) {
                             if (heat_maps_stealth_sea[team][y * ResourceManager_MapSize.x + x]) {
                                 is_found = true;
                                 break;
@@ -903,7 +903,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
             }
         }
 
-        for (int team = 0; team < team_count; ++team) {
+        for (int32_t team = 0; team < team_count; ++team) {
             char* active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_complete;
 
             if (risk_level == 6) {
@@ -913,8 +913,8 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
                 active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_land;
             }
 
-            for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-                for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+            for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                     if (active_heat_map && active_heat_map[y * ResourceManager_MapSize.x + x]) {
                         AiPlayer_ThreatMaps[index].damage_potential_map[x][y] |= 0x8000;
                     }
@@ -923,7 +923,7 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
         }
 
         if (risk_level == 4) {
-            short** active_damage_potential_map = AiPlayer_ThreatMaps[index].damage_potential_map;
+            int16_t** active_damage_potential_map = AiPlayer_ThreatMaps[index].damage_potential_map;
 
             for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
                 if ((*it).GetUnit()->orders == ORDER_DISABLE) {
@@ -937,8 +937,8 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
             }
         }
 
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-            for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+            for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                 if (AiPlayer_ThreatMaps[index].damage_potential_map[x][y] & 0x8000) {
                     AiPlayer_ThreatMaps[index].damage_potential_map[x][y] &= ~0x8000;
 
@@ -949,8 +949,8 @@ ThreatMap* AiPlayer::GetThreatMap(int risk_level, int caution_level, bool is_for
         }
 
         if (risk_level != 3 && risk_level != 2 && mine_map) {
-            for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-                for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+            for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                     AiPlayer_ThreatMaps[index].damage_potential_map[x][y] += mine_map[x][y];
 
                     if (mine_map[x][y] > 0) {
@@ -1092,18 +1092,18 @@ WeightTable AiPlayer::GetWeightTable(ResourceID unit_type) {
     return result;
 }
 
-void AiPlayer::AddThreatToMineMap(int grid_x, int grid_y, int range, int damage_potential, int factor) {
+void AiPlayer::AddThreatToMineMap(int32_t grid_x, int32_t grid_y, int32_t range, int32_t damage_potential, int32_t factor) {
     Point position(grid_x, grid_y);
     Rect bounds;
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    for (int direction = 0; direction < 8; direction += 2) {
-        for (int i = 0; i < range; ++i) {
+    for (int32_t direction = 0; direction < 8; direction += 2) {
+        for (int32_t i = 0; i < range; ++i) {
             position += Paths_8DirPointsArray[direction];
 
             if (Access_IsInsideBounds(&bounds, &position)) {
-                signed char mine_value = mine_map[position.x][position.y];
+                int8_t mine_value = mine_map[position.x][position.y];
 
                 if (mine_value >= 0) {
                     mine_map[position.x][position.y] = (((damage_potential - mine_value) * factor) / 10) + mine_value;
@@ -1116,7 +1116,7 @@ void AiPlayer::AddThreatToMineMap(int grid_x, int grid_y, int range, int damage_
 void AiPlayer::MineSpotted(UnitInfo* unit) {
     if (mine_map) {
         Point position(unit->grid_x, unit->grid_y);
-        int base_attack = unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
+        int32_t base_attack = unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
 
         AddThreatToMineMap(position.x - 1, position.y + 1, 2, base_attack, 7);
         AddThreatToMineMap(position.x - 2, position.y + 2, 4, base_attack, 5);
@@ -1131,7 +1131,7 @@ void AiPlayer::MineSpotted(UnitInfo* unit) {
     }
 }
 
-bool AiPlayer::IsSurfaceTypePresent(Point site, int range, int surface_type) {
+bool AiPlayer::IsSurfaceTypePresent(Point site, int32_t range, int32_t surface_type) {
     ZoneWalker walker(site, range);
 
     do {
@@ -1143,8 +1143,8 @@ bool AiPlayer::IsSurfaceTypePresent(Point site, int range, int surface_type) {
     return false;
 }
 
-int AiPlayer::SelectTeamClan() {
-    int team_clan{TEAM_CLAN_RANDOM};
+int32_t AiPlayer::SelectTeamClan() {
+    int32_t team_clan{TEAM_CLAN_RANDOM};
 
     switch (strategy) {
         case AI_STRATEGY_DEFENSIVE: {
@@ -1294,9 +1294,9 @@ void AiPlayer::RollField7() {
     }
 }
 
-bool AiPlayer::AddUnitToTeamMissionSupplies(ResourceID unit_type, unsigned short supplies) {
+bool AiPlayer::AddUnitToTeamMissionSupplies(ResourceID unit_type, uint16_t supplies) {
     TeamMissionSupplies* mission_supplies = &UnitsManager_TeamMissionSupplies[player_team];
-    int build_cost = Ai_GetNormalRateBuildCost(unit_type, player_team);
+    int32_t build_cost = Ai_GetNormalRateBuildCost(unit_type, player_team);
     bool result;
 
     if (Builder_IsBuildable(unit_type) && mission_supplies->units.GetCount() < 20) {
@@ -1323,8 +1323,8 @@ bool AiPlayer::AddUnitToTeamMissionSupplies(ResourceID unit_type, unsigned short
     return result;
 }
 
-int AiPlayer::GetVictoryConditionsFactor() {
-    int result;
+int32_t AiPlayer::GetVictoryConditionsFactor() {
+    int32_t result;
 
     if (ini_setting_victory_type != VICTORY_TYPE_DURATION) {
         result = 2;
@@ -1342,10 +1342,10 @@ int AiPlayer::GetVictoryConditionsFactor() {
     return result;
 }
 
-void AiPlayer::RollTeamMissionSupplies(int clan) {
+void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
     TeamMissionSupplies* mission_supplies = &UnitsManager_TeamMissionSupplies[player_team];
     ResourceID unit_type;
-    unsigned short cargo;
+    uint16_t cargo;
 
     mission_supplies->team_gold =
         ini_clans.GetClanGold(UnitsManager_TeamInfo[player_team].team_clan) + ini_get_setting(INI_START_GOLD);
@@ -1371,7 +1371,7 @@ void AiPlayer::RollTeamMissionSupplies(int clan) {
     cargo = 20;
     mission_supplies->cargos.PushBack(&cargo);
 
-    for (int i = 2; i < mission_supplies->units.GetCount(); ++i) {
+    for (int32_t i = 2; i < mission_supplies->units.GetCount(); ++i) {
         cargo = 0;
         mission_supplies->cargos.PushBack(&cargo);
     }
@@ -1691,7 +1691,7 @@ void AiPlayer::RollTeamMissionSupplies(int clan) {
     ChooseInitialUpgrades(mission_supplies->team_gold);
 }
 
-void AiPlayer::AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, int attribute) {
+void AiPlayer::AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, int32_t attribute) {
     if (Builder_IsBuildable(unit_type)) {
         BuildOrder order(attribute, unit_type);
 
@@ -1700,12 +1700,12 @@ void AiPlayer::AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, Resourc
 }
 
 void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type,
-                                        unsigned short team, unsigned short enemy_team, bool mode) {
-    int unit_range_max = 0;
-    int unit_scan = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type)->GetAttribute(ATTRIB_SCAN);
+                                        uint16_t team, uint16_t enemy_team, bool mode) {
+    int32_t unit_range_max = 0;
+    int32_t unit_scan = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type)->GetAttribute(ATTRIB_SCAN);
     CTInfo* team_info = &UnitsManager_TeamInfo[enemy_team];
 
-    for (int i = 0; i < UNIT_END; ++i) {
+    for (int32_t i = 0; i < UNIT_END; ++i) {
         UnitValues* unit_values = UnitsManager_GetCurrentUnitValues(team_info, static_cast<ResourceID>(i));
 
         if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0 && (mode || unit_values->GetAttribute(ATTRIB_SPEED)) &&
@@ -1728,7 +1728,7 @@ SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
     SmartObjectArray<BuildOrder> build_orders;
 
     if (target_team < PLAYER_TEAM_RED) {
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (target_team < PLAYER_TEAM_RED || UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
                 target_team = team;
             }
@@ -1996,7 +1996,7 @@ void AiPlayer::ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders) {
         }
     }
 
-    for (int i = build_orders.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = build_orders.GetCount() - 1; i >= 0; --i) {
         if (unit_types->Find(&build_orders[i]->unit_type) < 0) {
             build_orders.Remove(i);
         }
@@ -2090,7 +2090,7 @@ SmartObjectArray<BuildOrder> AiPlayer::ChooseGenericBuildOrders() {
     return result;
 }
 
-void AiPlayer::ChooseInitialUpgrades(int team_gold) {
+void AiPlayer::ChooseInitialUpgrades(int32_t team_gold) {
     SmartObjectArray<BuildOrder> strategic_orders = ChooseStrategicBuildOrders(true);
     SmartObjectArray<BuildOrder> orders;
 
@@ -2134,7 +2134,7 @@ AiPlayer::AiPlayer() : info_map(nullptr), mine_map(nullptr), target_location(1, 
 
 AiPlayer::~AiPlayer() {
     if (info_map) {
-        for (int i = 0; i < dimension_x; ++i) {
+        for (int32_t i = 0; i < dimension_x; ++i) {
             delete[] info_map[i];
         }
 
@@ -2142,7 +2142,7 @@ AiPlayer::~AiPlayer() {
     }
 
     if (mine_map) {
-        for (int i = 0; i < dimension_x; ++i) {
+        for (int32_t i = 0; i < dimension_x; ++i) {
             delete[] mine_map[i];
         }
 
@@ -2150,17 +2150,17 @@ AiPlayer::~AiPlayer() {
     }
 }
 
-int AiPlayer::GetStrategy() const { return strategy; }
+int32_t AiPlayer::GetStrategy() const { return strategy; }
 
-signed short AiPlayer::GetTargetTeam() const { return target_team; }
+int16_t AiPlayer::GetTargetTeam() const { return target_team; }
 
-unsigned char** AiPlayer::GetInfoMap() { return info_map; }
+uint8_t** AiPlayer::GetInfoMap() { return info_map; }
 
 Point AiPlayer::GetTargetLocation() const { return target_location; }
 
-unsigned short AiPlayer::GetField5() const { return field_5; }
+uint16_t AiPlayer::GetField5() const { return field_5; }
 
-signed char** AiPlayer::GetMineMap() { return mine_map; }
+int8_t** AiPlayer::GetMineMap() { return mine_map; }
 
 void AiPlayer::AddTransportOrder(TransportOrder* transport_order) { transport_orders.PushBack(*transport_order); }
 
@@ -2172,8 +2172,8 @@ Task* AiPlayer::FindManager(Point site) {
         Point location;
         SmartList<Task>::Iterator task_it = task_list.Begin();
         Rect bounds;
-        int distance;
-        int minimum_distance;
+        int32_t distance;
+        int32_t minimum_distance;
 
         task = *task_it;
 
@@ -2253,10 +2253,10 @@ void AiPlayer::BeginTurn() {
         DetermineTargetLocation(position);
         UpdatePriorityTasks();
 
-        int player_team_points = UnitsManager_TeamInfo[player_team].team_points;
-        int team_building_counts[PLAYER_TEAM_MAX];
-        int target_team_points;
-        int enemy_team_points;
+        int32_t player_team_points = UnitsManager_TeamInfo[player_team].team_points;
+        int32_t team_building_counts[PLAYER_TEAM_MAX];
+        int32_t target_team_points;
+        int32_t enemy_team_points;
 
         memset(team_building_counts, 0, sizeof(team_building_counts));
 
@@ -2280,7 +2280,7 @@ void AiPlayer::BeginTurn() {
             target_team_points = -1;
         }
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE && player_team != team && target_team != team) {
                 enemy_team_points = UnitsManager_TeamInfo[team].team_points;
 
@@ -2351,27 +2351,27 @@ void AiPlayer::BeginTurn() {
             dimension_x = ResourceManager_MapSize.x;
 
             if (!info_map) {
-                info_map = new (std::nothrow) unsigned char*[ResourceManager_MapSize.x];
+                info_map = new (std::nothrow) uint8_t*[ResourceManager_MapSize.x];
 
-                for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-                    info_map[i] = new (std::nothrow) unsigned char[ResourceManager_MapSize.y];
+                for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+                    info_map[i] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
 
                     memset(info_map[i], 0, ResourceManager_MapSize.y);
                 }
             }
 
             if (!mine_map) {
-                mine_map = new (std::nothrow) signed char*[ResourceManager_MapSize.x];
+                mine_map = new (std::nothrow) int8_t*[ResourceManager_MapSize.x];
 
-                for (int i = 0; i < ResourceManager_MapSize.x; ++i) {
-                    mine_map[i] = new (std::nothrow) signed char[ResourceManager_MapSize.y];
+                for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+                    mine_map[i] = new (std::nothrow) int8_t[ResourceManager_MapSize.y];
 
                     memset(mine_map[i], 0, ResourceManager_MapSize.y);
                 }
             }
 
-            for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-                for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+            for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                     if (UnitsManager_TeamInfo[player_team].heat_map_complete[y * ResourceManager_MapSize.x + x]) {
                         info_map[x][y] = 1;
                     }
@@ -2489,8 +2489,8 @@ void AiPlayer::BeginTurn() {
 
             if (!task_3) {
                 bool is_found = false;
-                int grid_x;
-                int grid_y;
+                int32_t grid_x;
+                int32_t grid_y;
 
                 for (grid_x = 0; grid_x < ResourceManager_MapSize.x && !is_found; ++grid_x) {
                     for (grid_y = 0; grid_y < ResourceManager_MapSize.y && !is_found; ++grid_y) {
@@ -2546,7 +2546,7 @@ void AiPlayer::BeginTurn() {
             }
         }
 
-        int fuel_reserves = 0;
+        int32_t fuel_reserves = 0;
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -2579,7 +2579,7 @@ void AiPlayer::BeginTurn() {
 
         ChooseUpgrade(strategic_orders, generic_orders);
 
-        int team_gold = UnitsManager_TeamInfo[player_team].team_units->GetGold();
+        int32_t team_gold = UnitsManager_TeamInfo[player_team].team_units->GetGold();
 
         while (build_order.unit_type != INVALID_ID && upgrade_cost <= team_gold) {
             team_gold -= upgrade_cost;
@@ -2669,7 +2669,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
             } while (walker.FindNext());
         }
 
-        for (int team = PLAYER_TEAM_MAX; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_MAX; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
                     for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
@@ -2705,7 +2705,7 @@ void AiPlayer::PlanMinefields() {
                 if ((*it).unit_type == GUNTURRT || (*it).unit_type == ANTIMSSL || (*it).unit_type == ARTYTRRT) {
                     ZoneWalker walker(Point((*it).grid_x, (*it).grid_y),
                                       (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE));
-                    int surface_type = Access_GetSurfaceType((*it).grid_x, (*it).grid_y);
+                    int32_t surface_type = Access_GetSurfaceType((*it).grid_x, (*it).grid_y);
 
                     do {
                         if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
@@ -2716,7 +2716,7 @@ void AiPlayer::PlanMinefields() {
 
                 } else if ((*it).flags & BUILDING) {
                     ZoneWalker walker(Point((*it).grid_x, (*it).grid_y), 8);
-                    int surface_type = Access_GetSurfaceType((*it).grid_x, (*it).grid_y);
+                    int32_t surface_type = Access_GetSurfaceType((*it).grid_x, (*it).grid_y);
 
                     do {
                         if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
@@ -2737,7 +2737,7 @@ void AiPlayer::PlanMinefields() {
                     if (UnitsManager_BaseUnits[create_building->GetUnitType()].flags & BUILDING) {
                         Point position = create_building->DeterminePosition();
                         ZoneWalker walker(position, 8);
-                        int surface_type = Access_GetSurfaceType(position.x, position.y);
+                        int32_t surface_type = Access_GetSurfaceType(position.x, position.y);
 
                         do {
                             if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
@@ -2764,11 +2764,11 @@ void AiPlayer::PlanMinefields() {
                     if (UnitsManager_BaseUnits[create_building->GetUnitType()].flags & BUILDING) {
                         bounds.ulx = std::max(0, bounds.ulx - 2);
                         bounds.uly = std::max(0, bounds.uly - 2);
-                        bounds.lrx = std::min(static_cast<int>(ResourceManager_MapSize.x), bounds.lrx + 2);
-                        bounds.lry = std::min(static_cast<int>(ResourceManager_MapSize.y), bounds.lry + 2);
+                        bounds.lrx = std::min(static_cast<int32_t>(ResourceManager_MapSize.x), bounds.lrx + 2);
+                        bounds.lry = std::min(static_cast<int32_t>(ResourceManager_MapSize.y), bounds.lry + 2);
 
-                        for (int x = bounds.ulx; x < 0; ++x) {
-                            for (int y = bounds.uly; y < 0; ++y) {
+                        for (int32_t x = bounds.ulx; x < 0; ++x) {
+                            for (int32_t y = bounds.uly; y < 0; ++y) {
                                 access_map.GetMapColumn(x)[y] = 0x00;
                             }
                         }
@@ -2787,22 +2787,22 @@ void AiPlayer::PlanMinefields() {
             if (UnitsManager_BaseUnits[(*it).unit_type].flags & BUILDING) {
                 bounds.ulx = std::max(0, bounds.ulx - 2);
                 bounds.uly = std::max(0, bounds.uly - 2);
-                bounds.lrx = std::min(static_cast<int>(ResourceManager_MapSize.x), bounds.lrx + 2);
-                bounds.lry = std::min(static_cast<int>(ResourceManager_MapSize.y), bounds.lry + 2);
+                bounds.lrx = std::min(static_cast<int32_t>(ResourceManager_MapSize.x), bounds.lrx + 2);
+                bounds.lry = std::min(static_cast<int32_t>(ResourceManager_MapSize.y), bounds.lry + 2);
 
-                for (int x = bounds.ulx; x < 0; ++x) {
-                    for (int y = bounds.uly; y < 0; ++y) {
+                for (int32_t x = bounds.ulx; x < 0; ++x) {
+                    for (int32_t y = bounds.uly; y < 0; ++y) {
                         access_map.GetMapColumn(x)[y] = 0x00;
                     }
                 }
             }
         }
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (team != player_team) {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                    for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-                        for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+                    for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+                        for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                             if (UnitsManager_TeamInfo[team].heat_map_complete[y * ResourceManager_MapSize.x + x]) {
                                 access_map.GetMapColumn(x)[y] = 0x00;
                             }
@@ -2812,12 +2812,12 @@ void AiPlayer::PlanMinefields() {
             }
         }
 
-        int counter1 = 0;
-        int counter2 = 0;
-        int counter3 = 0;
+        int32_t counter1 = 0;
+        int32_t counter2 = 0;
+        int32_t counter3 = 0;
 
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-            for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+            for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                 if (access_map.GetMapColumn(x)[y]) {
                     ++counter1;
 
@@ -2844,7 +2844,7 @@ void AiPlayer::PlanMinefields() {
             }
         }
 
-        int probability = ((field_7 * counter1) / 100) - counter2 - counter3;
+        int32_t probability = ((field_7 * counter1) / 100) - counter2 - counter3;
 
         if (probability >= 32 - counter2) {
             probability = 32 - counter2;
@@ -2853,8 +2853,8 @@ void AiPlayer::PlanMinefields() {
         counter1 -= counter2 + counter3;
 
         if (probability > 0) {
-            for (int x = 0; x < ResourceManager_MapSize.x && probability; ++x) {
-                for (int y = 0; y < ResourceManager_MapSize.y && probability; ++y) {
+            for (int32_t x = 0; x < ResourceManager_MapSize.x && probability; ++x) {
+                for (int32_t y = 0; y < ResourceManager_MapSize.y && probability; ++y) {
                     if (access_map.GetMapColumn(x)[y]) {
                         if (((dos_rand() * counter1) >> 15) + 1 <= probability) {
                             info_map[x][y] |= 0x02;
@@ -2949,7 +2949,7 @@ bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) 
     return dynamic_cast<TaskManageBuildings*>(FindManager(position))->CreateBuilding(unit_type, task, task->GetFlags());
 }
 
-void AiPlayer::Init(unsigned short team) {
+void AiPlayer::Init(uint16_t team) {
     strategy = AI_STRATEGY_RANDOM;
     field_3 = 0;
     target_team = -1;
@@ -2959,7 +2959,7 @@ void AiPlayer::Init(unsigned short team) {
     task_4 = nullptr;
 
     if (info_map) {
-        for (int x = 0; x < dimension_x; ++x) {
+        for (int32_t x = 0; x < dimension_x; ++x) {
             delete[] info_map[x];
         }
 
@@ -2968,7 +2968,7 @@ void AiPlayer::Init(unsigned short team) {
     }
 
     if (mine_map) {
-        for (int x = 0; x < dimension_x; ++x) {
+        for (int32_t x = 0; x < dimension_x; ++x) {
             delete[] mine_map[x];
         }
 
@@ -2976,7 +2976,7 @@ void AiPlayer::Init(unsigned short team) {
         mine_map = nullptr;
     }
 
-    for (int i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
+    for (int32_t i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
         AiPlayer_ThreatMaps[i].SetRiskLevel(0);
     }
 
@@ -2996,11 +2996,11 @@ void AiPlayer::Init(unsigned short team) {
     attack_reserve_task = nullptr;
     defense_reserve_task = nullptr;
 
-    for (int i = 0; i < 3; ++i) {
+    for (int32_t i = 0; i < 3; ++i) {
         task_array[i] = nullptr;
     }
 
-    int opponent = ini_get_setting(INI_OPPONENT);
+    int32_t opponent = ini_get_setting(INI_OPPONENT);
 
     weight_table_ground_defense.Clear();
 
@@ -3673,13 +3673,13 @@ void AiPlayer::Init(unsigned short team) {
     weight_table_generic.PushBack(weight192);
 }
 
-int AiPlayer::GetPredictedAttack(UnitInfo* unit, int caution_level) {
+int32_t AiPlayer::GetPredictedAttack(UnitInfo* unit, int32_t caution_level) {
     return GetTotalProjectedDamage(unit, caution_level, player_team, &UnitsManager_MobileLandSeaUnits) +
            GetTotalProjectedDamage(unit, caution_level, player_team, &UnitsManager_MobileAirUnits);
 }
 
-short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_level, bool is_for_attacking) {
-    short** result;
+int16_t** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int32_t caution_level, bool is_for_attacking) {
+    int16_t** result;
     ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level, is_for_attacking);
 
     if (threat_map) {
@@ -3694,8 +3694,8 @@ short** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int caution_level, bool 
     return result;
 }
 
-short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level, bool is_for_attacking) {
-    short** result;
+int16_t** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int32_t caution_level, bool is_for_attacking) {
+    int16_t** result;
     ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit_type), caution_level, is_for_attacking);
 
     if (threat_map) {
@@ -3711,8 +3711,8 @@ short** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int caution_level,
     return result;
 }
 
-int AiPlayer::GetDamagePotential(UnitInfo* unit, Point site, int caution_level, bool is_for_attacking) {
-    int result;
+int32_t AiPlayer::GetDamagePotential(UnitInfo* unit, Point site, int32_t caution_level, bool is_for_attacking) {
+    int32_t result;
 
     if (caution_level == CAUTION_LEVEL_NONE) {
         result = 0;
@@ -3753,11 +3753,11 @@ void AiPlayer::ClearZone(Zone* zone) {
     }
 }
 
-WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, unsigned short flags) {
+WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, uint16_t flags) {
     WeightTable table(GetWeightTable(unit_type), true);
 
     if (flags & 0x01) {
-        for (int i = 0; i < table.GetCount(); ++i) {
+        for (int32_t i = 0; i < table.GetCount(); ++i) {
             if (table[i].unit_type != INVALID_ID && (UnitsManager_BaseUnits[table[i].unit_type].flags & STATIONARY)) {
                 table[i].weight = 0;
             }
@@ -3765,7 +3765,7 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, unsigned shor
     }
 
     if (flags & 0x02) {
-        for (int i = 0; i < table.GetCount(); ++i) {
+        for (int32_t i = 0; i < table.GetCount(); ++i) {
             if (table[i].unit_type != INVALID_ID &&
                 (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT)) {
                 table[i].weight = 0;
@@ -3794,8 +3794,8 @@ void AiPlayer::MarkMineMapPoint(Point site) {
     }
 }
 
-signed char AiPlayer::GetMineMapEntry(Point site) {
-    signed char result;
+int8_t AiPlayer::GetMineMapEntry(Point site) {
+    int8_t result;
 
     if (mine_map) {
         result = mine_map[site.x][site.y];
@@ -3810,8 +3810,8 @@ signed char AiPlayer::GetMineMapEntry(Point site) {
 void AiPlayer::FindMines(UnitInfo* unit) {
     if (mine_map) {
         Point position(unit->grid_x, unit->grid_y);
-        unsigned short team = unit->team;
-        int attack =
+        uint16_t team = unit->team;
+        int32_t attack =
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], LANDMINE)->GetAttribute(ATTRIB_ATTACK);
 
         mine_map[position.x][position.y] = (attack + mine_map[position.x][position.y]) / 2;
@@ -3824,7 +3824,7 @@ void AiPlayer::FindMines(UnitInfo* unit) {
     }
 }
 
-WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, unsigned char flags) {
+WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, uint8_t flags) {
     WeightTable table = GetFilteredWeightTable(target->unit_type, flags);
     TeamUnits* team_units = UnitsManager_TeamInfo[player_team].team_units;
     Point position(target->grid_x, target->grid_y);
@@ -3847,8 +3847,8 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, unsigned char fla
 
             target->GetBounds(&bounds);
 
-            for (int x = bounds.ulx; x < bounds.lrx; ++x) {
-                for (int y = bounds.uly; y < bounds.lry; ++y) {
+            for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
+                for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
                     if (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x] == SURFACE_TYPE_WATER) {
                         is_water_present = true;
                     }
@@ -3868,10 +3868,10 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, unsigned char fla
             }
         }
 
-        for (int i = 0; i < table.GetCount(); ++i) {
+        for (int32_t i = 0; i < table.GetCount(); ++i) {
             if (table[i].unit_type != INVALID_ID) {
-                int surface_type = UnitsManager_BaseUnits[table[i].unit_type].land_type;
-                int unit_range = team_units->GetCurrentUnitValues(table[i].unit_type)->GetAttribute(ATTRIB_RANGE);
+                int32_t surface_type = UnitsManager_BaseUnits[table[i].unit_type].land_type;
+                int32_t unit_range = team_units->GetCurrentUnitValues(table[i].unit_type)->GetAttribute(ATTRIB_RANGE);
 
                 if (surface_type == SURFACE_TYPE_LAND &&
                     !IsSurfaceTypePresent(position, unit_range, SURFACE_TYPE_LAND)) {
@@ -4062,25 +4062,25 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 bool AiPlayer::MatchPath(TaskPathRequest* request) {
     UnitInfo* unit = request->GetClient();
     Point position(unit->grid_x, unit->grid_y);
-    int minimum_distance = request->GetMinimumDistance();
+    int32_t minimum_distance = request->GetMinimumDistance();
     Point site = request->GetDestination();
-    int distance = TaskManager_GetDistance(position, site) / 2;
+    int32_t distance = TaskManager_GetDistance(position, site) / 2;
     bool result;
 
     distance -= minimum_distance;
 
     if (distance >= unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
-        int transport_category = TransportOrder::DetermineCategory(unit->unit_type);
+        int32_t transport_category = TransportOrder::DetermineCategory(unit->unit_type);
         bool flag = request->GetField31();
         TransportOrder* transport_order = nullptr;
         Point source;
         Point destination;
-        int minimum_distance2;
+        int32_t minimum_distance2;
 
         for (SmartList<TransportOrder>::Iterator it = transport_orders.Begin(); it != transport_orders.End(); ++it) {
             if ((*it).GetTransportCategory() == transport_category) {
-                int distance1;
-                int distance2;
+                int32_t distance1;
+                int32_t distance2;
 
                 source = (*it).MatchStartPosition(position);
                 distance1 = TaskManager_GetDistance(position, source) / 2;
@@ -4122,8 +4122,8 @@ bool AiPlayer::SelectStrategy() {
     SmartArray<Continent> continents;
     AccessMap access_map;
     Point site;
-    int continent_size = 0;
-    unsigned short strategy_scores[AI_STRATEGY_MAX];
+    int32_t continent_size = 0;
+    uint16_t strategy_scores[AI_STRATEGY_MAX];
 
     for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
         for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
@@ -4157,23 +4157,23 @@ bool AiPlayer::SelectStrategy() {
         }
     }
 
-    int opponent_class = ini_get_setting(INI_OPPONENT);
+    int32_t opponent_class = ini_get_setting(INI_OPPONENT);
 
-    for (int i = 0; i < AI_STRATEGY_MAX; ++i) {
+    for (int32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
         strategy_scores[i] = 0;
     }
 
     if (opponent_class >= OPPONENT_TYPE_AVERAGE) {
-        int continent_score = 0;
+        int32_t continent_score = 0;
         continent_size = 0;
 
-        for (int i = 0; i < continents.GetCount(); ++i) {
+        for (int32_t i = 0; i < continents.GetCount(); ++i) {
             if (continents[i].GetContinentSize() > continent_size) {
                 continent_size = continents[i].GetContinentSize();
             }
         }
 
-        for (int i = 0; i < continents.GetCount(); ++i) {
+        for (int32_t i = 0; i < continents.GetCount(); ++i) {
             if (continent_size <= 80 || continents[i].GetContinentSize() >= 80) {
                 if (continents[i].IsViableContinent(true, player_team)) {
                     ++continent_score;
@@ -4207,11 +4207,11 @@ bool AiPlayer::SelectStrategy() {
 
     continent_size = 0;
 
-    for (int i = 0; i < continents.GetCount(); ++i) {
+    for (int32_t i = 0; i < continents.GetCount(); ++i) {
         continents[i].TestIsolated();
     }
 
-    for (int i = continents.GetCount() - 1; i >= 0; --i) {
+    for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
         if (continents[i].IsViableContinent(true, player_team)) {
             if (continents[i].GetContinentSize() > continent_size) {
                 continent_size = continents[i].GetContinentSize();
@@ -4223,17 +4223,17 @@ bool AiPlayer::SelectStrategy() {
     }
 
     if (continent_size > 80) {
-        for (int i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
             if (continents[i].GetContinentSize() < 80) {
                 continents.Erase(i);
             }
         }
     }
 
-    int isolated_continents = 0;
-    int continents_in_close_proximity = 0;
+    int32_t isolated_continents = 0;
+    int32_t continents_in_close_proximity = 0;
 
-    for (int i = 0; i < continents.GetCount(); ++i) {
+    for (int32_t i = 0; i < continents.GetCount(); ++i) {
         if (continents[i].IsIsolated()) {
             ++isolated_continents;
         }
@@ -4290,7 +4290,7 @@ bool AiPlayer::SelectStrategy() {
 
         if (ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_STRATEGY + player_team), strategy_string,
                                       sizeof(strategy_string))) {
-            for (int i = 0; i < AI_STRATEGY_MAX; ++i) {
+            for (int32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
                 if (!stricmp(strategy_string, strategy_strings[i])) {
                     if (strategy_scores[i] == 0) {
                         strategy = AI_STRATEGY_RANDOM;
@@ -4306,16 +4306,16 @@ bool AiPlayer::SelectStrategy() {
     }
 
     if (strategy == AI_STRATEGY_RANDOM) {
-        int total_score = 0;
-        int potential_strategies = 0;
+        int32_t total_score = 0;
+        int32_t potential_strategies = 0;
 
-        for (int i = 0; i < AI_STRATEGY_MAX; ++i) {
+        for (int32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
             if (strategy_scores[i] > 0) {
                 ++potential_strategies;
             }
         }
 
-        for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER && team != player_team &&
                 AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_RANDOM) {
                 --potential_strategies;
@@ -4323,7 +4323,7 @@ bool AiPlayer::SelectStrategy() {
         }
 
         if (potential_strategies > 0) {
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER && team != player_team &&
                     AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_RANDOM) {
                     strategy_scores[AiPlayer_Teams[team].GetStrategy()] = 0;
@@ -4331,7 +4331,7 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        for (int i = 0; i < AI_STRATEGY_MAX; ++i) {
+        for (int32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
             total_score += strategy_scores[i];
 
             if (strategy_scores[i] > 0) {
@@ -4341,7 +4341,7 @@ bool AiPlayer::SelectStrategy() {
 
         total_score = ((dos_rand() * total_score) >> 15) + 1;
 
-        int index = -1;
+        int32_t index = -1;
 
         do {
             ++index;
@@ -4353,7 +4353,7 @@ bool AiPlayer::SelectStrategy() {
 
     switch (strategy) {
         case AI_STRATEGY_SEA: {
-            for (int i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
                 if (!continents[i].IsIsolated()) {
                     continents.Erase(i);
                 }
@@ -4362,7 +4362,7 @@ bool AiPlayer::SelectStrategy() {
 
         case AI_STRATEGY_FAST_ATTACK:
         case AI_STRATEGY_COMBINED_ARMS: {
-            for (int i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
                 if (continents[i].IsCloseProximity()) {
                     continents.Erase(i);
                 }
@@ -4370,7 +4370,7 @@ bool AiPlayer::SelectStrategy() {
         } break;
 
         case AI_STRATEGY_AIR: {
-            for (int i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
                 if (!continents[i].IsCloseProximity()) {
                     continents.Erase(i);
                 }
@@ -4378,15 +4378,15 @@ bool AiPlayer::SelectStrategy() {
         } break;
     }
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (continents.GetCount() > 1 && team != player_team &&
             UnitsManager_TeamMissionSupplies[team].units.GetCount() > 0 &&
             UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-            unsigned char filler = access_map.GetMapColumn(
+            uint8_t filler = access_map.GetMapColumn(
                 UnitsManager_TeamMissionSupplies[team]
                     .starting_position.x)[UnitsManager_TeamMissionSupplies[team].starting_position.y];
 
-            for (int i = continents.GetCount() - 1; i >= 0 && continents.GetCount() > 1; --i) {
+            for (int32_t i = continents.GetCount() - 1; i >= 0 && continents.GetCount() > 1; --i) {
                 if (continents[i].GetFiller() == filler) {
                     continents.Erase(i);
                 }
@@ -4398,10 +4398,10 @@ bool AiPlayer::SelectStrategy() {
 
     if (strategy == AI_STRATEGY_DEFENSIVE || strategy == AI_STRATEGY_AIR || strategy == AI_STRATEGY_SEA ||
         strategy == AI_STRATEGY_ESPIONAGE) {
-        int maximum_distance = 0;
-        int distance;
+        int32_t maximum_distance = 0;
+        int32_t distance;
 
-        for (int i = 0; i < continents.GetCount(); ++i) {
+        for (int32_t i = 0; i < continents.GetCount(); ++i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4411,7 +4411,7 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        for (int i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4423,10 +4423,10 @@ bool AiPlayer::SelectStrategy() {
     }
 
     if (strategy == AI_STRATEGY_SCOUT_HORDE) {
-        int minimum_distance = ResourceManager_MapSize.x + ResourceManager_MapSize.y;
-        int distance;
+        int32_t minimum_distance = ResourceManager_MapSize.x + ResourceManager_MapSize.y;
+        int32_t distance;
 
-        for (int i = 0; i < continents.GetCount(); ++i) {
+        for (int32_t i = 0; i < continents.GetCount(); ++i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4436,7 +4436,7 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        for (int i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4447,17 +4447,17 @@ bool AiPlayer::SelectStrategy() {
         }
     }
 
-    int total_continent_size = 0;
+    int32_t total_continent_size = 0;
     bool result;
 
-    for (int i = 0; i < continents.GetCount(); ++i) {
+    for (int32_t i = 0; i < continents.GetCount(); ++i) {
         total_continent_size += continents[i].GetContinentSize();
     }
 
     if (total_continent_size) {
         total_continent_size = ((dos_rand() * total_continent_size) >> 15) + 1;
 
-        int index = -1;
+        int32_t index = -1;
 
         do {
             ++index;
@@ -4486,7 +4486,7 @@ bool AiPlayer::SelectStrategy() {
 }
 
 void AiPlayer::FileSave(SmartFileWriter& file) {
-    unsigned short item_count;
+    uint16_t item_count;
 
     file.Write(player_team);
     file.Write(strategy);
@@ -4506,7 +4506,7 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
     file.Write(item_count);
 
     if (item_count) {
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             file.Write(info_map[x], ResourceManager_MapSize.y);
         }
     }
@@ -4516,7 +4516,7 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
     file.Write(item_count);
 
     if (item_count) {
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             file.Write(mine_map[x], ResourceManager_MapSize.y);
         }
     }
@@ -4525,7 +4525,7 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
 }
 
 void AiPlayer::FileLoad(SmartFileReader& file) {
-    unsigned short item_count;
+    uint16_t item_count;
 
     file.Read(player_team);
     file.Read(strategy);
@@ -4540,7 +4540,7 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
     air_force.Clear();
     ground_forces.Clear();
 
-    for (int i = 0; i < item_count; ++i) {
+    for (int32_t i = 0; i < item_count; ++i) {
         SmartPointer<SpottedUnit> spotted_unit(new (std::nothrow) SpottedUnit(file));
 
         spotted_units.PushBack(*spotted_unit);
@@ -4551,14 +4551,14 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
     item_count = file.ReadObjectCount();
 
     if (item_count) {
-        info_map = new (std::nothrow) unsigned char*[ResourceManager_MapSize.x];
+        info_map = new (std::nothrow) uint8_t*[ResourceManager_MapSize.x];
 
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-            info_map[x] = new (std::nothrow) unsigned char[ResourceManager_MapSize.y];
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+            info_map[x] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
 
             file.Read(info_map[x], ResourceManager_MapSize.y);
 
-            for (int y = 0; y < ResourceManager_MapSize.y; ++y) {
+            for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                 info_map[x][y] &= 0x03;
             }
         }
@@ -4569,10 +4569,10 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
     item_count = file.ReadObjectCount();
 
     if (item_count) {
-        mine_map = new (std::nothrow) signed char*[ResourceManager_MapSize.x];
+        mine_map = new (std::nothrow) int8_t*[ResourceManager_MapSize.x];
 
-        for (int x = 0; x < ResourceManager_MapSize.x; ++x) {
-            mine_map[x] = new (std::nothrow) signed char[ResourceManager_MapSize.y];
+        for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+            mine_map[x] = new (std::nothrow) int8_t[ResourceManager_MapSize.y];
 
             file.Read(mine_map[x], ResourceManager_MapSize.y);
         }
@@ -4585,8 +4585,8 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
     upgrade_cost = INT16_MAX;
     build_order.unit_type = INVALID_ID;
 
-    for (int i = 0; i < build_orders1.GetCount(); ++i) {
-        int new_upgrade_cost =
+    for (int32_t i = 0; i < build_orders1.GetCount(); ++i) {
+        int32_t new_upgrade_cost =
             TeamUnits_GetUpgradeCost(player_team, build_orders1[i]->unit_type, build_orders1[i]->primary_attribute);
 
         if (new_upgrade_cost < upgrade_cost) {
@@ -4595,10 +4595,10 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
         }
     }
 
-    int factor = 2;
+    int32_t factor = 2;
 
-    for (int i = 0; i < build_orders2.GetCount(); ++i) {
-        int new_upgrade_cost =
+    for (int32_t i = 0; i < build_orders2.GetCount(); ++i) {
+        int32_t new_upgrade_cost =
             TeamUnits_GetUpgradeCost(player_team, build_orders2[i]->unit_type, build_orders2[i]->primary_attribute);
 
         if (new_upgrade_cost * factor < upgrade_cost) {
@@ -4610,12 +4610,12 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
     }
 }
 
-int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level) {
+int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t caution_level) {
     UnitValues* unit_values = friendly_unit->GetBaseValues();
-    int range = unit_values->GetAttribute(ATTRIB_RANGE);
-    int distance;
-    int shots;
-    int result;
+    int32_t range = unit_values->GetAttribute(ATTRIB_RANGE);
+    int32_t distance;
+    int32_t shots;
+    int32_t result;
 
     if (!enemy_unit->IsVisibleToTeam(friendly_unit->team)) {
         range = std::min(range, unit_values->GetAttribute(ATTRIB_SCAN));
@@ -4628,18 +4628,18 @@ int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_u
                                                  UnitsManager_BaseUnits[friendly_unit->unit_type].land_type) <=
         range * range) {
         if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
-            int distance2 = ((friendly_unit->speed / 2) + range);
+            int32_t distance2 = ((friendly_unit->speed / 2) + range);
 
             if (distance <= distance2 * distance2) {
                 shots = friendly_unit->shots;
             }
 
         } else {
-            int base_rounds = unit_values->GetAttribute(ATTRIB_ROUNDS);
-            int base_speed = unit_values->GetAttribute(ATTRIB_SPEED);
+            int32_t base_rounds = unit_values->GetAttribute(ATTRIB_ROUNDS);
+            int32_t base_speed = unit_values->GetAttribute(ATTRIB_SPEED);
 
             for (shots = friendly_unit->shots; shots > 0; --shots) {
-                int distance2 = friendly_unit->speed - ((base_speed * shots) / base_rounds) + range;
+                int32_t distance2 = friendly_unit->speed - ((base_speed * shots) / base_rounds) + range;
 
                 if (distance <= distance2 * distance2) {
                     break;
@@ -4669,8 +4669,8 @@ int AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_u
     return result;
 }
 
-int AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int caution_level) {
-    int result;
+int32_t AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t caution_level) {
+    int32_t result;
 
     if (friendly_unit->shots > 0 && Task_IsReadyToTakeOrders(friendly_unit) &&
         Access_IsValidAttackTarget(friendly_unit, enemy_unit)) {

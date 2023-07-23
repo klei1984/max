@@ -58,26 +58,26 @@ enum {
     CAMPAIGN_MISSION_9 = 9,
 };
 
-static bool WinLoss_HasAttackPower(unsigned short team, SmartList<UnitInfo>* units);
-static int WinLoss_HasMaterials(unsigned short team, unsigned char cargo_type);
-static bool WinLoss_CanRebuildComplex(unsigned short team);
-static bool WinLoss_CanRebuildBuilders(unsigned short team);
-static int WinLoss_GetWorthOfAssets(unsigned short team, SmartList<UnitInfo>* units);
-static int WinLoss_GetTotalWorthOfAssets(unsigned short team);
+static bool WinLoss_HasAttackPower(uint16_t team, SmartList<UnitInfo>* units);
+static int32_t WinLoss_HasMaterials(uint16_t team, uint8_t cargo_type);
+static bool WinLoss_CanRebuildComplex(uint16_t team);
+static bool WinLoss_CanRebuildBuilders(uint16_t team);
+static int32_t WinLoss_GetWorthOfAssets(uint16_t team, SmartList<UnitInfo>* units);
+static int32_t WinLoss_GetTotalWorthOfAssets(uint16_t team);
 static SmartList<UnitInfo>& WinLoss_GetRelevantUnits(ResourceID unit_type);
-static int WinLoss_CountReadyUnits(unsigned short team, ResourceID unit_type);
-static void WinLoss_CountTotalMining(unsigned short team, int* raw_mining_max, int* fuel_mining_max,
-                                     int* gold_mining_max);
-static bool WinLoss_HasAtLeastOneUpgradedTank(unsigned short team);
-static int WinLoss_GetTotalPowerConsumption(unsigned short team, ResourceID unit_type);
-static int WinLoss_GetTotalMining(unsigned short team, unsigned char cargo_type);
-static int WinLoss_GetTotalConsumption(unsigned short team, unsigned char cargo_type);
-static int WinLoss_GetTotalUnitsBeingConstructed(unsigned short team, ResourceID unit_type);
-static bool WinLoss_HasInfiltratorExperience(unsigned short team);
-static int WinLoss_CountDamangedUnits(unsigned short team, ResourceID unit_type);
-static int WinLoss_CountUnitsThatUsedAmmo(unsigned short team, ResourceID unit_type);
+static int32_t WinLoss_CountReadyUnits(uint16_t team, ResourceID unit_type);
+static void WinLoss_CountTotalMining(uint16_t team, int32_t* raw_mining_max, int32_t* fuel_mining_max,
+                                     int32_t* gold_mining_max);
+static bool WinLoss_HasAtLeastOneUpgradedTank(uint16_t team);
+static int32_t WinLoss_GetTotalPowerConsumption(uint16_t team, ResourceID unit_type);
+static int32_t WinLoss_GetTotalMining(uint16_t team, uint8_t cargo_type);
+static int32_t WinLoss_GetTotalConsumption(uint16_t team, uint8_t cargo_type);
+static int32_t WinLoss_GetTotalUnitsBeingConstructed(uint16_t team, ResourceID unit_type);
+static bool WinLoss_HasInfiltratorExperience(uint16_t team);
+static int32_t WinLoss_CountDamangedUnits(uint16_t team, ResourceID unit_type);
+static int32_t WinLoss_CountUnitsThatUsedAmmo(uint16_t team, ResourceID unit_type);
 
-bool WinLoss_HasAttackPower(unsigned short team, SmartList<UnitInfo>* units) {
+bool WinLoss_HasAttackPower(uint16_t team, SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team && (*it).ammo > 0 && (*it).unit_type != SUBMARNE && (*it).unit_type != COMMANDO) {
             return true;
@@ -87,8 +87,8 @@ bool WinLoss_HasAttackPower(unsigned short team, SmartList<UnitInfo>* units) {
     return false;
 }
 
-int WinLoss_HasMaterials(unsigned short team, unsigned char cargo_type) {
-    int cargo_sum;
+int32_t WinLoss_HasMaterials(uint16_t team, uint8_t cargo_type) {
+    int32_t cargo_sum;
 
     cargo_sum = 0;
 
@@ -109,7 +109,7 @@ int WinLoss_HasMaterials(unsigned short team, unsigned char cargo_type) {
     return cargo_sum;
 }
 
-bool WinLoss_CanRebuildComplex(unsigned short team) {
+bool WinLoss_CanRebuildComplex(uint16_t team) {
     SmartList<UnitInfo>::Iterator it;
     bool result;
 
@@ -122,10 +122,10 @@ bool WinLoss_CanRebuildComplex(unsigned short team) {
     }
 
     if (it != UnitsManager_StationaryUnits.End()) {
-        int sum_cargo_fuel;
-        int sum_cargo_materials;
-        int power_demand;
-        int sum_cargo_generated_power;
+        int32_t sum_cargo_fuel;
+        int32_t sum_cargo_materials;
+        int32_t power_demand;
+        int32_t sum_cargo_generated_power;
 
         sum_cargo_fuel = WinLoss_HasMaterials(team, CARGO_TYPE_FUEL);
         sum_cargo_materials = WinLoss_HasMaterials(team, CARGO_TYPE_RAW);
@@ -163,7 +163,7 @@ bool WinLoss_CanRebuildComplex(unsigned short team) {
     return result;
 }
 
-bool WinLoss_CanRebuildBuilders(unsigned short team) {
+bool WinLoss_CanRebuildBuilders(uint16_t team) {
     SmartList<UnitInfo>::Iterator it;
     bool result;
 
@@ -181,7 +181,7 @@ bool WinLoss_CanRebuildBuilders(unsigned short team) {
         }
 
         if (it != UnitsManager_MobileLandSeaUnits.End()) {
-            int resources_needed;
+            int32_t resources_needed;
 
             resources_needed = 38;
 
@@ -223,7 +223,7 @@ bool WinLoss_CanRebuildBuilders(unsigned short team) {
     return result;
 }
 
-bool WinLoss_CheckLossConditions(unsigned short team) {
+bool WinLoss_CheckLossConditions(uint16_t team) {
     bool result;
 
     if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING && GameManager_GameFileNumber == 1 &&
@@ -243,8 +243,8 @@ bool WinLoss_CheckLossConditions(unsigned short team) {
     return result;
 }
 
-int WinLoss_GetWorthOfAssets(unsigned short team, SmartList<UnitInfo>* units) {
-    int sum_build_turns_value_of_team;
+int32_t WinLoss_GetWorthOfAssets(uint16_t team, SmartList<UnitInfo>* units) {
+    int32_t sum_build_turns_value_of_team;
 
     sum_build_turns_value_of_team = 0;
 
@@ -257,14 +257,14 @@ int WinLoss_GetWorthOfAssets(unsigned short team, SmartList<UnitInfo>* units) {
     return sum_build_turns_value_of_team;
 }
 
-int WinLoss_GetTotalWorthOfAssets(unsigned short team) {
+int32_t WinLoss_GetTotalWorthOfAssets(uint16_t team) {
     return WinLoss_GetWorthOfAssets(team, &UnitsManager_MobileLandSeaUnits) +
            WinLoss_GetWorthOfAssets(team, &UnitsManager_MobileAirUnits) +
            WinLoss_GetWorthOfAssets(team, &UnitsManager_StationaryUnits);
 }
 
-int WinLoss_DetermineWinner(unsigned short team1, unsigned short team2) {
-    int result;
+int32_t WinLoss_DetermineWinner(uint16_t team1, uint16_t team2) {
+    int32_t result;
 
     if (UnitsManager_TeamInfo[team1].team_points < UnitsManager_TeamInfo[team2].team_points) {
         result = -1;
@@ -278,7 +278,7 @@ int WinLoss_DetermineWinner(unsigned short team1, unsigned short team2) {
 }
 
 SmartList<UnitInfo>& WinLoss_GetRelevantUnits(ResourceID unit_type) {
-    unsigned int flags;
+    uint32_t flags;
 
     flags = UnitsManager_BaseUnits[unit_type].flags;
 
@@ -298,8 +298,8 @@ SmartList<UnitInfo>& WinLoss_GetRelevantUnits(ResourceID unit_type) {
     }
 }
 
-int WinLoss_CountReadyUnits(unsigned short team, ResourceID unit_type) {
-    int result{0};
+int32_t WinLoss_CountReadyUnits(uint16_t team, ResourceID unit_type) {
+    int32_t result{0};
     const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
@@ -311,7 +311,7 @@ int WinLoss_CountReadyUnits(unsigned short team, ResourceID unit_type) {
     return result;
 }
 
-void WinLoss_CountTotalMining(unsigned short team, int* raw_mining_max, int* fuel_mining_max, int* gold_mining_max) {
+void WinLoss_CountTotalMining(uint16_t team, int32_t* raw_mining_max, int32_t* fuel_mining_max, int32_t* gold_mining_max) {
     raw_mining_max[0] = 0;
     fuel_mining_max[0] = 0;
     gold_mining_max[0] = 0;
@@ -326,7 +326,7 @@ void WinLoss_CountTotalMining(unsigned short team, int* raw_mining_max, int* fue
     }
 }
 
-bool WinLoss_HasAtLeastOneUpgradedTank(unsigned short team) {
+bool WinLoss_HasAtLeastOneUpgradedTank(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).team == team && (*it).unit_type == TANK && (*it).GetBaseValues()->GetVersion() > 1) {
@@ -337,8 +337,8 @@ bool WinLoss_HasAtLeastOneUpgradedTank(unsigned short team) {
     return false;
 }
 
-int WinLoss_GetTotalPowerConsumption(unsigned short team, ResourceID unit_type) {
-    int result;
+int32_t WinLoss_GetTotalPowerConsumption(uint16_t team, ResourceID unit_type) {
+    int32_t result;
 
     result = 0;
 
@@ -353,8 +353,8 @@ int WinLoss_GetTotalPowerConsumption(unsigned short team, ResourceID unit_type) 
     return result;
 }
 
-int WinLoss_GetTotalMining(unsigned short team, unsigned char cargo_type) {
-    int result;
+int32_t WinLoss_GetTotalMining(uint16_t team, uint8_t cargo_type) {
+    int32_t result;
 
     result = 0;
 
@@ -380,9 +380,9 @@ int WinLoss_GetTotalMining(unsigned short team, unsigned char cargo_type) {
     return result;
 }
 
-int WinLoss_GetTotalConsumption(unsigned short team, unsigned char cargo_type) {
+int32_t WinLoss_GetTotalConsumption(uint16_t team, uint8_t cargo_type) {
     Cargo cargo;
-    int result;
+    int32_t result;
 
     result = 0;
 
@@ -416,9 +416,9 @@ int WinLoss_GetTotalConsumption(unsigned short team, unsigned char cargo_type) {
     return result;
 }
 
-int WinLoss_GetTotalUnitsBeingConstructed(unsigned short team, ResourceID unit_type) {
+int32_t WinLoss_GetTotalUnitsBeingConstructed(uint16_t team, ResourceID unit_type) {
     SmartList<UnitInfo>* units;
-    int result;
+    int32_t result;
 
     result = 0;
 
@@ -439,7 +439,7 @@ int WinLoss_GetTotalUnitsBeingConstructed(unsigned short team, ResourceID unit_t
     return result;
 }
 
-bool WinLoss_HasInfiltratorExperience(unsigned short team) {
+bool WinLoss_HasInfiltratorExperience(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).team == team && (*it).unit_type == COMMANDO && (*it).storage > 0) {
@@ -450,8 +450,8 @@ bool WinLoss_HasInfiltratorExperience(unsigned short team) {
     return false;
 }
 
-int WinLoss_CountDamangedUnits(unsigned short team, ResourceID unit_type) {
-    int result{0};
+int32_t WinLoss_CountDamangedUnits(uint16_t team, ResourceID unit_type) {
+    int32_t result{0};
     const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
     for (auto it = units.Begin(); it != units.End(); ++it) {
@@ -464,8 +464,8 @@ int WinLoss_CountDamangedUnits(unsigned short team, ResourceID unit_type) {
     return result;
 }
 
-int WinLoss_CountUnitsThatUsedAmmo(unsigned short team, ResourceID unit_type) {
-    int result{0};
+int32_t WinLoss_CountUnitsThatUsedAmmo(uint16_t team, ResourceID unit_type) {
+    int32_t result{0};
     const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
     for (auto it = units.Begin(); it != units.End(); ++it) {
@@ -478,8 +478,8 @@ int WinLoss_CountUnitsThatUsedAmmo(unsigned short team, ResourceID unit_type) {
     return result;
 }
 
-int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
-    int result;
+int32_t WinLoss_CheckWinConditions(uint16_t team, int32_t turn_counter) {
+    int32_t result;
 
     if (team != PLAYER_TEAM_RED) {
         result = VICTORY_STATE_GENERIC;
@@ -545,7 +545,7 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
                             result = VICTORY_STATE_LOST;
 
                         } else {
-                            int alien_mobile_units_count;
+                            int32_t alien_mobile_units_count;
 
                             alien_mobile_units_count = WinLoss_CountReadyUnits(team, ALNPLANE);
                             alien_mobile_units_count += WinLoss_CountReadyUnits(team, ALNTANK);
@@ -653,9 +653,9 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
                     } break;
 
                     case TRAINING_MISSION_4: {
-                        int raw_mining_max;
-                        int fuel_mining_max;
-                        int gold_mining_max;
+                        int32_t raw_mining_max;
+                        int32_t fuel_mining_max;
+                        int32_t gold_mining_max;
 
                         WinLoss_CountTotalMining(team, &raw_mining_max, &fuel_mining_max, &gold_mining_max);
 
@@ -826,8 +826,8 @@ int WinLoss_CheckWinConditions(unsigned short team, int turn_counter) {
                     } break;
 
                     case SCENARIO_MISSION_20: {
-                        int red_max_team_points_forecast;
-                        int green_max_team_points_forecast;
+                        int32_t red_max_team_points_forecast;
+                        int32_t green_max_team_points_forecast;
 
                         red_max_team_points_forecast =
                             ((ini_setting_victory_limit - turn_counter) * WinLoss_CountReadyUnits(team, GREENHSE)) +

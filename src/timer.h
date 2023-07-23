@@ -22,12 +22,14 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#define TIMER_FPS_TO_MS(fps) ((unsigned int)(1000.f / (fps) + 0.5f))
+#include <stdint.h>
 
-int timer_init(void);
-int timer_close(void);
-void timer_wait(unsigned int ms);
-unsigned int timer_elapsed_time(unsigned int ms);
-unsigned int timer_get(void);
+#define TIMER_FPS_TO_MS(fps) ((uint32_t)(1000.f / (fps) + 0.5f))
+
+int32_t timer_init(void);
+int32_t timer_close(void);
+void timer_wait(uint32_t ms);
+uint32_t timer_elapsed_time(uint32_t ms);
+uint32_t timer_get(void);
 
 #endif /* TIMER_H */

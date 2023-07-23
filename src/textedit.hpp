@@ -36,37 +36,37 @@ class TextEdit {
     char *approved_text;
     char *edited_text;
     char *text_before_cursor;
-    unsigned short cursor_position;
-    unsigned short buffer_size;
-    unsigned short color;
+    uint16_t cursor_position;
+    uint16_t buffer_size;
+    uint16_t color;
     bool cursor_blink;
     bool is_selected;
     bool is_being_edited;
-    unsigned short font_num;
-    unsigned char mode;
-    unsigned int time_stamp;
+    uint16_t font_num;
+    uint8_t mode;
+    uint32_t time_stamp;
 
     void DrawTillCursor();
     void Clear();
-    void SetCursorPosition(int position);
+    void SetCursorPosition(int32_t position);
     void Delete();
     void Backspace();
     void InsertCharacter(char character);
 
 public:
-    TextEdit(WindowInfo *window, char *text, int buffer_size, int ulx, int uly, int width, int height,
-             unsigned short color, int font_num);
+    TextEdit(WindowInfo *window, char *text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width, int32_t height,
+             uint16_t color, int32_t font_num);
     ~TextEdit();
 
-    void SetMode(int mode);
+    void SetMode(int32_t mode);
     void SetEditedText(const char *text);
     void LoadBgImage();
     void EnterTextEditField();
     void LeaveTextEditField();
-    void DrawFullText(int refresh_screen = true);
+    void DrawFullText(int32_t refresh_screen = true);
     void UpdateWindow(WindowInfo *window);
     void AcceptEditedText();
-    int ProcessKeyPress(int key);
+    int32_t ProcessKeyPress(int32_t key);
 };
 
 #endif /* TEXTEDIT_HPP */

@@ -39,7 +39,7 @@ void TaskSurvey::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     }
 }
 
-TaskSurvey::TaskSurvey(unsigned short team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x2200, point_) {}
+TaskSurvey::TaskSurvey(uint16_t team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x2200, point_) {}
 
 TaskSurvey::~TaskSurvey() {}
 
@@ -49,7 +49,7 @@ char* TaskSurvey::WriteStatusLog(char* buffer) const {
     return buffer;
 }
 
-unsigned char TaskSurvey::GetType() const { return TaskType_TaskSurvey; }
+uint8_t TaskSurvey::GetType() const { return TaskType_TaskSurvey; }
 
 bool TaskSurvey::Execute(UnitInfo& unit) {
     bool result;
@@ -61,12 +61,12 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
             bool location_found = false;
             Point best_site;
             Point site;
-            unsigned short hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
-            short** damage_potential_map = nullptr;
-            unsigned short cargo_at_site;
+            uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
+            int16_t** damage_potential_map = nullptr;
+            uint16_t cargo_at_site;
             Rect bounds;
-            int distance;
-            int minimum_distance{INT32_MAX};
+            int32_t distance;
+            int32_t minimum_distance{INT32_MAX};
 
             bounds.ulx = std::max(1, unit.grid_x - 5);
             bounds.lrx = std::min(ResourceManager_MapSize.x - 1, unit.grid_x + 6);
@@ -86,8 +86,8 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
                         if (!location_found || distance < minimum_distance) {
                             if (damage_potential_map[site.x][site.y] <= 0) {
                                 if (Access_IsAccessible(SURVEYOR, team, site.x, site.y, 1)) {
-                                    for (int index_x = site.x - 1; index_x <= site.x + 1; ++index_x) {
-                                        for (int index_y = site.y - 1; index_y <= site.y + 1; ++index_y) {
+                                    for (int32_t index_x = site.x - 1; index_x <= site.x + 1; ++index_x) {
+                                        for (int32_t index_y = site.y - 1; index_y <= site.y + 1; ++index_y) {
                                             cargo_at_site =
                                                 ResourceManager_CargoMap[ResourceManager_MapSize.x * index_y + index_x];
 

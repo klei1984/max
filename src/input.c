@@ -32,41 +32,41 @@
 typedef struct funcdata *FuncPtr;
 
 struct funcdata {
-    unsigned int flags;
+    uint32_t flags;
     BackgroundProcess f;
     FuncPtr next;
 };
 
 typedef struct inputdata_s {
-    int input;
-    int mx;
-    int my;
+    int32_t input;
+    int32_t mx;
+    int32_t my;
 } inputdata;
 
-static int get_input_buffer(void);
+static int32_t get_input_buffer(void);
 static void pause_game(void);
 static WinID default_pause_window(void);
-static void buf_blit(unsigned char *buf, unsigned int bufw, unsigned int bufh, unsigned int sx, unsigned int sy,
-                     unsigned int w, unsigned int h, unsigned int dstx, unsigned int dsty);
-static int default_screendump(int width, int length, unsigned char *buf, unsigned char *pal);
+static void buf_blit(uint8_t *buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy,
+                     uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty);
+static int32_t default_screendump(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal);
 static void GNW_process_key(SDL_KeyboardEvent *key_data);
 
 static inputdata input_buffer[GNW_INPUT_BUFFER_SIZE];
-static int input_mx;
-static int input_my;
+static int32_t input_mx;
+static int32_t input_my;
 static FuncPtr bk_list;
-static int game_paused;
-static int screendump_key;
-static int pause_key;
+static int32_t game_paused;
+static int32_t screendump_key;
+static int32_t pause_key;
 static ScreenDumpFunc screendump_func;
-static int input_get;
-static unsigned char *screendump_buf;
+static int32_t input_get;
+static uint8_t *screendump_buf;
 static PauseWinFunc pause_win_func;
-static int input_put;
-static int bk_disabled;
+static int32_t input_put;
+static int32_t bk_disabled;
 
-int GNW_input_init(void) {
-    int result;
+int32_t GNW_input_init(void) {
+    int32_t result;
 
     bk_list = NULL;
 
@@ -126,9 +126,9 @@ void GNW_process_message(void) {
                             SDL_ShowCursor(SDL_ENABLE);
                             break;
                         case SDL_WINDOWEVENT_ENTER: {
-                            int mouse_x;
-                            int mouse_y;
-                            int mouse_state;
+                            int32_t mouse_x;
+                            int32_t mouse_y;
+                            int32_t mouse_state;
 
                             SDL_GetMouseState(&mouse_x, &mouse_y);
 
@@ -152,7 +152,7 @@ void GNW_process_message(void) {
 
 void GNW_process_key(SDL_KeyboardEvent *key_data) {
     /* map to convert SDL (USB) scan codes to IBM PC scan codes set 1 */
-    static const unsigned short input_scancode_map[256] = {
+    static const uint16_t input_scancode_map[256] = {
         GNW_INPUT_SCANCODE_MAP_ITEM(0x00, SDL_SCANCODE_UNKNOWN, GNW_KB_SCAN_BUFFER_FULL),
         GNW_INPUT_SCANCODE_MAP_ITEM(0x01, -1, -1),
         GNW_INPUT_SCANCODE_MAP_ITEM(0x02, -1, -1),
@@ -433,9 +433,9 @@ void GNW_process_key(SDL_KeyboardEvent *key_data) {
     }
 }
 
-int get_input(void) {
-    int result;
-    int i;
+int32_t get_input(void) {
+    int32_t result;
+    int32_t i;
 
     GNW_process_message();
 
@@ -452,13 +452,13 @@ int get_input(void) {
     return result;
 }
 
-void get_input_position(int *x, int *y) {
+void get_input_position(int32_t *x, int32_t *y) {
     *x = input_mx;
     *y = input_my;
 }
 
 void process_bk(void) {
-    int input;
+    int32_t input;
 
     GNW_do_bk_process();
 
@@ -477,7 +477,7 @@ void process_bk(void) {
     }
 }
 
-void GNW_add_input_buffer(int input) {
+void GNW_add_input_buffer(int32_t input) {
     if (input != -1) {
         if (input == pause_key) {
             pause_game();
@@ -499,8 +499,8 @@ void GNW_add_input_buffer(int input) {
     }
 }
 
-int get_input_buffer(void) {
-    int input;
+int32_t get_input_buffer(void) {
+    int32_t input;
 
     input = -1;
 
@@ -606,11 +606,11 @@ void pause_game(void) {
 }
 
 WinID default_pause_window(void) {
-    unsigned char *buf;
+    uint8_t *buf;
     WinID result;
     WinID id;
-    int width;
-    int length;
+    int32_t width;
+    int32_t length;
 
     width = Text_GetWidth("Paused") + 32;
     length = 3 * Text_GetHeight() + 16;
@@ -638,7 +638,7 @@ WinID default_pause_window(void) {
     return result;
 }
 
-void register_pause(int new_pause_key, PauseWinFunc new_pause_win_func) {
+void register_pause(int32_t new_pause_key, PauseWinFunc new_pause_win_func) {
     pause_key = new_pause_key;
 
     if (new_pause_win_func) {
@@ -652,14 +652,14 @@ void dump_screen(void) {
     ScreenBlitFunc old_scr_blit;
     ScreenBlitFunc old_mouse_blit;
 
-    unsigned char *pal;
-    int width;
-    int length;
+    uint8_t *pal;
+    int32_t width;
+    int32_t length;
 
     width = scr_size.lrx - scr_size.ulx + 1;
     length = scr_size.lry - scr_size.uly + 1;
 
-    screendump_buf = (unsigned char *)malloc(length * width);
+    screendump_buf = (uint8_t *)malloc(length * width);
 
     if (screendump_buf) {
         old_scr_blit = scr_blit;
@@ -681,27 +681,27 @@ void dump_screen(void) {
     }
 }
 
-void buf_blit(unsigned char *buf, unsigned int bufw, unsigned int bufh, unsigned int sx, unsigned int sy,
-              unsigned int w, unsigned int h, unsigned int dstx, unsigned int dsty) {
+void buf_blit(uint8_t *buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy,
+              uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty) {
     buf_to_buf(&buf[sx] + bufw * sy, w, h, bufw, &screendump_buf[dstx] + (scr_size.lrx - scr_size.ulx + 1) * dsty,
                scr_size.lrx - scr_size.ulx + 1);
 }
 
-int default_screendump(int width, int length, unsigned char *buf, unsigned char *pal) {
-    unsigned char blue;
-    unsigned char reserved;
-    unsigned char red;
-    unsigned char green;
+int32_t default_screendump(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal) {
+    uint8_t blue;
+    uint8_t reserved;
+    uint8_t red;
+    uint8_t green;
 
-    int result;
+    int32_t result;
 
-    int i;
+    int32_t i;
     FILE *fp;
     char fname[13];
 
-    int temp_signed_32;
-    unsigned int temp_unsigned_32;
-    unsigned short temp_unsigned_16;
+    int32_t temp_signed_32;
+    uint32_t temp_unsigned_32;
+    uint16_t temp_unsigned_16;
 
     for (i = 0; i < 100000; ++i) {
         sprintf(fname, "scr%.5d.bmp", i);
@@ -773,7 +773,7 @@ int default_screendump(int width, int length, unsigned char *buf, unsigned char 
         }
 
         for (i = length - 1; i >= 0; i--) {
-            fwrite(&buf[width * i], sizeof(unsigned char), width, fp);
+            fwrite(&buf[width * i], sizeof(uint8_t), width, fp);
         }
 
         fflush(fp);
@@ -787,7 +787,7 @@ int default_screendump(int width, int length, unsigned char *buf, unsigned char 
     return result;
 }
 
-void register_screendump(int new_screendump_key, ScreenDumpFunc new_screendump_func) {
+void register_screendump(int32_t new_screendump_key, ScreenDumpFunc new_screendump_func) {
     screendump_key = new_screendump_key;
 
     if (new_screendump_func) {
@@ -799,7 +799,7 @@ void register_screendump(int new_screendump_key, ScreenDumpFunc new_screendump_f
 
 TOCKS get_time(void) { return SDL_GetTicks(); }
 
-void pause_for_tocks(unsigned int tocks) {
+void pause_for_tocks(uint32_t tocks) {
     TOCKS past_time;
 
     past_time = get_time();
@@ -808,7 +808,7 @@ void pause_for_tocks(unsigned int tocks) {
     }
 }
 
-void block_for_tocks(unsigned int tocks) {
+void block_for_tocks(uint32_t tocks) {
     TOCKS past_time;
 
     past_time = get_time();

@@ -22,21 +22,23 @@
 #ifndef SAVELOADMENU_HPP
 #define SAVELOADMENU_HPP
 
+#include <cstdint>
+
 #define MAX_SAVE_FILE_FORMAT_VERSION 70
 
 struct __attribute__((packed)) SaveFormatHeader {
-    unsigned short version;
+    uint16_t version;
     char save_game_type;
     char save_name[30];
     char world;
-    unsigned short mission_index;
+    uint16_t mission_index;
     char team_name[4][30];
     char team_type[5];
     char team_clan[5];
-    unsigned int rng_seed;
+    uint32_t rng_seed;
     char opponent;
-    unsigned short turn_timer_time;
-    unsigned short endturn_time;
+    uint16_t turn_timer_time;
+    uint16_t endturn_time;
     char play_mode;
 };
 
@@ -45,15 +47,15 @@ extern const char* SaveLoadMenu_TutorialTitles[];
 extern const char* SaveLoadMenu_ScenarioTitles[];
 extern const char* SaveLoadMenu_CampaignTitles[];
 
-extern int SaveLoadMenu_SaveSlot;
-extern unsigned char SaveLoadMenu_GameState;
+extern int32_t SaveLoadMenu_SaveSlot;
+extern uint8_t SaveLoadMenu_GameState;
 
-int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct SaveFormatHeader& save_file_header,
-                                  bool load_ini_options = true);
+int32_t SaveLoadMenu_GetSavedGameInfo(int32_t save_slot, int32_t game_file_type,
+                                      struct SaveFormatHeader& save_file_header, bool load_ini_options = true);
 void SaveLoadMenu_CreateBackup(const char* file_name);
-int SaveLoadMenu_MenuLoop(int is_saving_allowed);
+int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed);
 void SaveLoadMenu_Save(const char* file_name, const char* save_name, bool play_voice, bool backup = false);
-bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode);
-int SaveLoadMenu_GetGameFileType();
+bool SaveLoadMenu_Load(int32_t save_slot, int32_t game_file_type, bool ini_load_mode);
+int32_t SaveLoadMenu_GetGameFileType();
 
 #endif /* SAVELOADMENU_HPP */

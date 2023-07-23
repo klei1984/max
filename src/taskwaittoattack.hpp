@@ -32,7 +32,7 @@ public:
     ~TaskWaitToAttack();
 
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     bool IsThinking();
     void Begin();
     void EndTurn();

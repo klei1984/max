@@ -22,6 +22,7 @@
 #ifndef MVELIB32_H
 #define MVELIB32_H
 
+#include <stdint.h>
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -30,44 +31,46 @@ extern "C" {
 
 typedef void *(*mve_cb_Alloc)(size_t size);
 typedef void (*mve_cb_Free)(void *ptr);
-typedef int (*mve_cb_Read)(FILE *handle, void *buf, size_t count);
-typedef void (*mve_cb_ShowFrame)(unsigned char *buffer, int bufw, int bufh, int sx, int sy, int w, int h, int dstx,
-                                 int dsty);
-typedef void (*mve_cb_SetPalette)(unsigned char *p, int start, int count);
-typedef int (*mve_cb_Ctl)(void);
+typedef int32_t (*mve_cb_Read)(FILE *handle, void *buf, size_t count);
+typedef void (*mve_cb_ShowFrame)(uint8_t *buffer, int32_t bufw, int32_t bufh, int32_t sx, int32_t sy, int32_t w,
+                                 int32_t h, int32_t dstx, int32_t dsty);
+typedef void (*mve_cb_SetPalette)(uint8_t *p, int32_t start, int32_t count);
+typedef int32_t (*mve_cb_Ctl)(void);
 
 void MVE_memCallbacks(mve_cb_Alloc alloc, mve_cb_Free free);
 void MVE_logDumpStats(void);
 void MVE_ioCallbacks(mve_cb_Read read);
-void MVE_sndVolume(unsigned int volume);
-int MVE_sndConfigure();
+void MVE_sndVolume(uint32_t volume);
+int32_t MVE_sndConfigure();
 void MVE_sndPause(void);
 void MVE_sndResume(void);
-void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, void *write_win_ptr, int window_size,
-                int window_granuality, void *window_function, int hicolor);
+void MVE_sfSVGA(int32_t width, int32_t height, int32_t bytes_per_scan_line, int32_t write_window, void *write_win_ptr,
+                int32_t window_size, int32_t window_granuality, void *window_function, int32_t hicolor);
 void MVE_sfCallbacks(mve_cb_ShowFrame showframe);
 void MVE_palCallbacks(mve_cb_SetPalette setpalette);
 void MVE_rmCallbacks(mve_cb_Ctl ctl);
-void MVE_rmFastMode(int fastmode);
-void MVE_rmHScale(int hscale_step);
-void MVE_rmFrameCounts(int *frame_count, int *drop_count);
-int MVE_rmUnprotect(void);
-int MVE_rmPrepMovie(FILE *handle, int dx, int dy, int track);
-int MVE_rmHoldMovie(void);
-int MVE_rmStepMovie(void);
+void MVE_rmFastMode(int32_t fastmode);
+void MVE_rmHScale(int32_t hscale_step);
+void MVE_rmFrameCounts(int32_t *frame_count, int32_t *drop_count);
+int32_t MVE_rmUnprotect(void);
+int32_t MVE_rmPrepMovie(FILE *handle, int32_t dx, int32_t dy, int32_t track);
+int32_t MVE_rmHoldMovie(void);
+int32_t MVE_rmStepMovie(void);
 void MVE_rmEndMovie(void);
-int MVE_RunMovie(FILE *handle, int dx, int dy, int track);
+int32_t MVE_RunMovie(FILE *handle, int32_t dx, int32_t dy, int32_t track);
 void MVE_ReleaseMem(void);
-const char *MVE_strerror(int error_code);
+const char *MVE_strerror(int32_t error_code);
 
 /// \todo Reimplement missing stuff
-extern int MVE_RunMovie(FILE* fp, int dx, int dy, int track)	__asm("_MVE_RunMovie_");
-extern int MVE_gfxMode(int mode)	__asm("_MVE_gfxMode_");
-extern void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, void *write_win_ptr, int window_size, int window_granuality, void *window_function, int hicolor)	__asm("_MVE_sfSVGA_");
-extern int MVE_rmPrepMovie(FILE* fp, int dx, int dy, int track)	__asm("_MVE_rmPrepMovie_");
-extern int MVE_rmStepMovie(void)	__asm("_MVE_rmStepMovie_");
-extern void MVE_rmEndMovie(void)	__asm("_MVE_rmEndMovie_");
-extern void MVE_ReleaseMem(void)	__asm("_MVE_ReleaseMem_");
+extern int32_t MVE_RunMovie(FILE *fp, int32_t dx, int32_t dy, int32_t track) __asm("_MVE_RunMovie_");
+extern int32_t MVE_gfxMode(int32_t mode) __asm("_MVE_gfxMode_");
+extern void MVE_sfSVGA(int32_t width, int32_t height, int32_t bytes_per_scan_line, int32_t write_window,
+                       void *write_win_ptr, int32_t window_size, int32_t window_granuality, void *window_function,
+                       int32_t hicolor) __asm("_MVE_sfSVGA_");
+extern int32_t MVE_rmPrepMovie(FILE *fp, int32_t dx, int32_t dy, int32_t track) __asm("_MVE_rmPrepMovie_");
+extern int32_t MVE_rmStepMovie(void) __asm("_MVE_rmStepMovie_");
+extern void MVE_rmEndMovie(void) __asm("_MVE_rmEndMovie_");
+extern void MVE_ReleaseMem(void) __asm("_MVE_ReleaseMem_");
 
 #ifdef __cplusplus
 }

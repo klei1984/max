@@ -53,12 +53,12 @@ static_assert(sizeof(struct SaveFormatHeader) == 176,
 class SaveSlot {
 public:
     WinID wid;
-    int ulx;
-    int uly;
-    int width;
-    int height;
-    unsigned char *image_up;
-    unsigned char *image_down;
+    int32_t ulx;
+    int32_t uly;
+    int32_t width;
+    int32_t height;
+    uint8_t *image_up;
+    uint8_t *image_down;
     ButtonID bid;
     char file_name[15];
     char save_name[30];
@@ -71,13 +71,13 @@ public:
 
     void Deinit();
     void InitTextEdit(WinID wid);
-    void UpdateTextEdit(unsigned char *image);
+    void UpdateTextEdit(uint8_t *image);
     void SetImageDownForTextEdit();
     void SetImageUpForTextEdit();
     void EnterTextEditField();
     void LeaveTextEditField();
     void AcceptEditedText();
-    void DrawSaveSlot(int game_file_type);
+    void DrawSaveSlot(int32_t game_file_type);
 };
 
 const char *SaveLoadMenu_SaveFileTypes[] = {"dta", "tra", "cam", "hot", "mlt", "dmo", "dbg", "txt", "sce", "mps"};
@@ -98,27 +98,27 @@ const char *SaveLoadMenu_CampaignTitles[] = {
     _(78f1), _(db51), _(c13a), _(00b7), _(963a), _(c14a), _(ecc9), _(9d98), _(d033),
 };
 
-static int SaveLoadMenu_FirstSaveSlotOnPage = 1;
-int SaveLoadMenu_SaveSlot;
-unsigned char SaveLoadMenu_GameState;
-unsigned short SaveLoadMenu_TurnTimer;
+static int32_t SaveLoadMenu_FirstSaveSlotOnPage = 1;
+int32_t SaveLoadMenu_SaveSlot;
+uint8_t SaveLoadMenu_GameState;
+uint16_t SaveLoadMenu_TurnTimer;
 static bool SaveLoadMenu_Flag;
 static char SaveLoadMenu_SaveSlotTextEditBuffer[30];
 
-static void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int width, ResourceID id, const char *title,
-                                              int font_num);
-static Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int ulx, int uly,
-                                         const char *caption, int r_value);
-static void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
-                              int save_file_type, int first_slot_on_page, bool mode);
+static void SaveLoadMenu_DrawSaveSlotResource(uint8_t *image, int32_t width, ResourceID id, const char *title,
+                                              int32_t font_num);
+static Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int32_t ulx, int32_t uly,
+                                         const char *caption, int32_t r_value);
+static void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
+                              int32_t save_file_type, int32_t first_slot_on_page, bool mode);
 static void SaveLoadMenu_PlaySfx(ResourceID id);
-static void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int *save_slot_index, int key, int is_saving_allowed);
-static void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int save_slot_index, int is_saving_allowed);
-static void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int save_slot, int game_file_type);
-static void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, unsigned short team);
+static void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int32_t *save_slot_index, int32_t key, int32_t is_saving_allowed);
+static void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int32_t save_slot_index, int32_t is_saving_allowed);
+static void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int32_t save_slot, int32_t game_file_type);
+static void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team);
 static bool SaveLoadMenu_RunPlausibilityTests();
 
-void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int save_slot, int game_file_type) {
+void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int32_t save_slot, int32_t game_file_type) {
     const char *title;
     char buffer[50];
 
@@ -149,7 +149,7 @@ void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int 
     }
 }
 
-void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, unsigned short team) {
+void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).team == team) {
             UnitsManager_DestroyUnit(&*it);
@@ -157,8 +157,8 @@ void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, unsigned short t
     }
 }
 
-Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int ulx, int uly, const char *caption,
-                                  int r_value) {
+Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int32_t ulx, int32_t uly, const char *caption,
+                                  int32_t r_value) {
     Button *button;
 
     button = new (std::nothrow) Button(up, down, ulx, uly);
@@ -175,10 +175,10 @@ Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int
     return button;
 }
 
-void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int width, ResourceID id, const char *title,
-                                       int font_num) {
+void SaveLoadMenu_DrawSaveSlotResource(uint8_t *image, int32_t width, ResourceID id, const char *title,
+                                       int32_t font_num) {
     struct ImageSimpleHeader *image_header;
-    int buffer_position;
+    int32_t buffer_position;
 
     Text_SetFont(font_num);
 
@@ -192,7 +192,7 @@ void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int width, Resource
     buffer_position += ((image_header->height - Text_GetHeight()) / 2) * width;
 
     if (font_num == GNW_TEXT_FONT_2) {
-        int offset = (image_header->width - Text_GetWidth(title)) / 2;
+        int32_t offset = (image_header->width - Text_GetWidth(title)) / 2;
         if (offset > 5) {
             buffer_position += offset;
         } else {
@@ -207,7 +207,7 @@ void SaveLoadMenu_DrawSaveSlotResource(unsigned char *image, int width, Resource
     delete[] image_header;
 }
 
-int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct SaveFormatHeader &save_file_header,
+int32_t SaveLoadMenu_GetSavedGameInfo(int32_t save_slot, int32_t game_file_type, struct SaveFormatHeader &save_file_header,
                                   bool load_ini_options) {
     SmartFileReader file;
     char filename[16];
@@ -246,18 +246,18 @@ int SaveLoadMenu_GetSavedGameInfo(int save_slot, int game_file_type, struct Save
 
 void SaveLoadMenu_PlaySfx(ResourceID id) { SoundManager.PlaySfx(id); }
 
-void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
-                       int save_file_type, int first_slot_on_page, bool mode) {
+void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
+                       int32_t save_file_type, int32_t first_slot_on_page, bool mode) {
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-    unsigned char game_file_type;
+    uint8_t game_file_type;
     char filepath[PATH_MAX];
     char file_name[20];
     FILE *fp;
-    unsigned short version;
+    uint16_t version;
     ImageSimpleHeader *image_up;
     ImageSimpleHeader *image_down;
-    int image_up_size;
-    int image_down_size;
+    int32_t image_up_size;
+    int32_t image_down_size;
     char text_slot_index[8];
     WindowInfo slot_window;
     ButtonID button_list[num_buttons];
@@ -273,7 +273,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
     Text_TextBox(window->buffer, window->width, is_saving_allowed ? _(5426) : _(63e7),
                  WindowManager_ScaleUlx(window, 229), WindowManager_ScaleUly(window, 5), 181, 21, COLOR_GREEN, true);
 
-    for (int i = 0; i < num_buttons; ++i) {
+    for (int32_t i = 0; i < num_buttons; ++i) {
         sprintf(slots[i].file_name, "save%i.%s", first_slot_on_page + i, SaveLoadMenu_SaveFileTypes[save_file_type]);
 
         strcpy(file_name, slots[i].file_name);
@@ -313,8 +313,8 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
         image_up_size = image_up->width * image_up->height;
         image_down_size = image_down->width * image_down->height;
 
-        slots[i].image_up = new (std::nothrow) unsigned char[image_up_size];
-        slots[i].image_down = new (std::nothrow) unsigned char[image_down_size];
+        slots[i].image_up = new (std::nothrow) uint8_t[image_up_size];
+        slots[i].image_down = new (std::nothrow) uint8_t[image_down_size];
 
         memcpy(slots[i].image_up, &image_up->transparent_color, image_up_size);
         memcpy(slots[i].image_down, &image_down->transparent_color, image_down_size);
@@ -384,9 +384,9 @@ void SaveLoadMenu_Init(SaveSlot *slots, int num_buttons, Button *buttons[], Flic
     mouse_show();
 }
 
-int SaveLoadMenu_GetGameFileType() {
-    int game_file_type;
-    int result;
+int32_t SaveLoadMenu_GetGameFileType() {
+    int32_t game_file_type;
+    int32_t result;
 
     game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
 
@@ -415,7 +415,7 @@ int SaveLoadMenu_GetGameFileType() {
     return result;
 }
 
-void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int *save_slot_index, int key, int is_saving_allowed) {
+void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int32_t *save_slot_index, int32_t key, int32_t is_saving_allowed) {
     SaveLoadMenu_PlaySfx(KCARG0);
 
     if (*save_slot_index >= 0) {
@@ -436,7 +436,7 @@ void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int *save_slot_index, int 
     }
 }
 
-void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int save_slot_index, int is_saving_allowed) {
+void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int32_t save_slot_index, int32_t is_saving_allowed) {
     SaveLoadMenu_PlaySfx(KCARG0);
     win_set_button_rest_state(slots[save_slot_index].bid, 1, 0);
 
@@ -445,17 +445,17 @@ void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int save_slot_index, i
     }
 }
 
-int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
+int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
     SaveSlot slots[10];
     Button *buttons[7];
     Flic *flc;
-    int result;
-    int save_slot_index;
-    int save_file_type;
-    unsigned int time_stamp;
+    int32_t result;
+    int32_t save_slot_index;
+    int32_t save_file_type;
+    uint32_t time_stamp;
     bool exit_loop;
-    int key;
-    const int slot_count = sizeof(slots) / sizeof(SaveSlot);
+    int32_t key;
+    const int32_t slot_count = sizeof(slots) / sizeof(SaveSlot);
 
     result = 0;
     flc = nullptr;
@@ -516,7 +516,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
 
                     if ((key != GNW_KB_KEY_PAGEUP || SaveLoadMenu_FirstSaveSlotOnPage != 1) &&
                         (key != GNW_KB_KEY_PAGEDOWN || SaveLoadMenu_FirstSaveSlotOnPage != 91)) {
-                        int button_max_index;
+                        int32_t button_max_index;
 
                         if (is_saving_allowed) {
                             button_max_index = 7;
@@ -524,11 +524,11 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
                             button_max_index = 5;
                         }
 
-                        for (int i = 0; i < button_max_index; ++i) {
+                        for (int32_t i = 0; i < button_max_index; ++i) {
                             delete buttons[i];
                         }
 
-                        for (int i = 0; i < slot_count; ++i) {
+                        for (int32_t i = 0; i < slot_count; ++i) {
                             slots[i].Deinit();
                         }
 
@@ -585,7 +585,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
                             GameManager_GameFileNumber = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
 
                             if (save_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                                for (int i = 0; i < 4; ++i) {
+                                for (int32_t i = 0; i < 4; ++i) {
                                     if (UnitsManager_TeamInfo[i].team_type) {
                                         ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i),
                                                                   menu_team_names[i]);
@@ -620,7 +620,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
                 case 1023: {
                     SaveLoadMenu_PlaySfx(FLOAD);
                     if (is_saving_allowed && Remote_IsNetworkGame) {
-                        int game_state;
+                        int32_t game_state;
 
                         game_state = GameManager_GameState;
                         GameManager_GameState = GAME_STATE_10;
@@ -672,7 +672,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
     } while (!exit_loop);
 
     {
-        int button_max_index;
+        int32_t button_max_index;
 
         if (is_saving_allowed) {
             button_max_index = 7;
@@ -680,7 +680,7 @@ int SaveLoadMenu_MenuLoop(int is_saving_allowed) {
             button_max_index = 5;
         }
 
-        for (int i = 0; i < button_max_index; ++i) {
+        for (int32_t i = 0; i < button_max_index; ++i) {
             delete buttons[i];
         }
     }
@@ -705,7 +705,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     SmartString filename(file_name);
     char team_types[PLAYER_TEAM_MAX - 1];
     struct SaveFormatHeader file_header;
-    unsigned short game_state;
+    uint16_t game_state;
 
     if (!play_voice) {
         bool corruption_detected = SaveLoadMenu_RunPlausibilityTests();
@@ -728,7 +728,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
         GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
     }
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         team_types[team] = UnitsManager_TeamInfo[team].team_type;
     }
 
@@ -746,7 +746,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     file_header.endturn_time = ini_get_setting(INI_ENDTURN);
     file_header.play_mode = ini_get_setting(INI_PLAY_MODE);
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if ((file_header.save_game_type == GAME_TYPE_TRAINING || file_header.save_game_type == GAME_TYPE_SCENARIO ||
              file_header.save_game_type == GAME_TYPE_CAMPAIGN) &&
             team != PLAYER_TEAM_RED && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER) {
@@ -772,7 +772,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
         file_header.rng_seed = time(nullptr);
     }
 
-    for (int i = 0, limit = strlen(file_name); i < limit; ++i) {
+    for (int32_t i = 0, limit = strlen(file_name); i < limit; ++i) {
         file_header.rng_seed += file_name[i];
     }
 
@@ -781,14 +781,14 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     ini_config.SaveSection(file, INI_OPTIONS);
 
     file.Write(ResourceManager_MapSurfaceMap,
-               ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(unsigned char));
+               ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint8_t));
 
     file.Write(ResourceManager_CargoMap,
-               ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(unsigned short));
+               ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint16_t));
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         CTInfo *team_info;
-        unsigned short unit_id;
+        uint16_t unit_id;
 
         team_info = &UnitsManager_TeamInfo[team];
 
@@ -840,7 +840,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     game_state = GameManager_GameState;
     file.Write(game_state);
 
-    unsigned short timer_value = GameManager_TurnTimerValue;
+    uint16_t timer_value = GameManager_TurnTimerValue;
     file.Write(timer_value);
 
     ini_config.SaveSection(file, INI_PREFERENCES);
@@ -859,7 +859,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     Hash_UnitHash.FileSave(file);
     Hash_MapHash.FileSave(file);
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             file.Write(UnitsManager_TeamInfo[team].heat_map_complete, 112 * 112);
             file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 112 * 112);
@@ -871,7 +871,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     Ai_FileSave(file);
     file.Close();
 
-    for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         UnitsManager_TeamInfo[team].team_type = team_types[team];
     }
 
@@ -880,7 +880,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     }
 }
 
-bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
+bool SaveLoadMenu_Load(int32_t save_slot, int32_t game_file_type, bool ini_load_mode) {
     SmartFileReader file;
     char file_name[16];
     char file_path[PATH_MAX];
@@ -906,16 +906,16 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
         SaveLoadMenu_UpdateSaveName(file_header, save_slot, game_file_type);
 
         if (file_header.version == MAX_SAVE_FILE_FORMAT_VERSION) {
-            int backup_start_gold;
-            int backup_raw_resource;
-            int backup_fuel_resource;
-            int backup_gold_resource;
-            int backup_alien_derelicts;
-            unsigned short selected_unit_ids[PLAYER_TEAM_MAX - 1];
-            unsigned short game_state;
+            int32_t backup_start_gold;
+            int32_t backup_raw_resource;
+            int32_t backup_fuel_resource;
+            int32_t backup_gold_resource;
+            int32_t backup_alien_derelicts;
+            uint16_t selected_unit_ids[PLAYER_TEAM_MAX - 1];
+            uint16_t game_state;
 
             if (!Remote_IsNetworkGame) {
-                for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                     ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team),
                                               file_header.team_name[team]);
                 }
@@ -957,14 +957,14 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
             GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
 
             file.Read(ResourceManager_MapSurfaceMap,
-                      ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(unsigned char));
+                      ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint8_t));
 
             file.Read(ResourceManager_CargoMap,
-                      ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(unsigned short));
+                      ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint16_t));
 
             ResourceManager_InitTeamInfo();
 
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 CTInfo *team_info;
 
                 team_info = &UnitsManager_TeamInfo[team];
@@ -1036,7 +1036,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
 
             save_load_flag = true;
 
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 CTInfo *team_info;
                 char team_name[30];
 
@@ -1134,7 +1134,7 @@ bool SaveLoadMenu_Load(int save_slot, int game_file_type, bool ini_load_mode) {
             Access_UpdateVisibilityStatus(GameManager_AllVisible);
             GameManager_SelectedUnit = nullptr;
 
-            for (int team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (selected_unit_ids[team] != 0xFFFF) {
                     UnitsManager_TeamInfo[team].selected_unit = Hash_UnitHash[selected_unit_ids[team]];
 
@@ -1222,7 +1222,7 @@ void SaveSlot::InitTextEdit(WinID wid) {
     text_edit->DrawFullText(false);
 }
 
-void SaveSlot::UpdateTextEdit(unsigned char *image) {
+void SaveSlot::UpdateTextEdit(uint8_t *image) {
     WindowInfo window;
 
     window.id = wid;
@@ -1247,7 +1247,7 @@ void SaveSlot::LeaveTextEditField() { text_edit->LeaveTextEditField(); }
 
 void SaveSlot::AcceptEditedText() { text_edit->AcceptEditedText(); }
 
-void SaveSlot::DrawSaveSlot(int game_file_type) {
+void SaveSlot::DrawSaveSlot(int32_t game_file_type) {
     const char *filename;
     const char *filetype;
 

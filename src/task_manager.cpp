@@ -36,7 +36,7 @@
 
 class TaskManager TaskManager;
 
-unsigned short TaskManager_word_1731C0;
+uint16_t TaskManager_word_1731C0;
 
 static const char* const TaskManager_TaskNames[] = {"Activate",
                                                     "AssistMove",
@@ -88,8 +88,8 @@ static const char* const TaskManager_TaskNames[] = {"Activate",
                                                     "Upgrade",
                                                     "WaitToAttack"};
 
-int TaskManager_GetDistance(int distance_x, int distance_y) {
-    int result;
+int32_t TaskManager_GetDistance(int32_t distance_x, int32_t distance_y) {
+    int32_t result;
 
     distance_x = labs(distance_x);
     distance_y = labs(distance_y);
@@ -103,16 +103,16 @@ int TaskManager_GetDistance(int distance_x, int distance_y) {
     return result;
 }
 
-int TaskManager_GetDistance(Point point1, Point point2) {
+int32_t TaskManager_GetDistance(Point point1, Point point2) {
     return TaskManager_GetDistance(point1.x - point2.x, point1.y - point2.y);
 }
 
-int TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
+int32_t TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
     return TaskManager_GetDistance(unit1->grid_x - unit2->grid_x, unit1->grid_y - unit2->grid_y);
 }
 
-bool TaskManager_NeedToReserveRawMaterials(unsigned short team) {
-    int raw_materials = -10;
+bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
+    int32_t raw_materials = -10;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
@@ -151,14 +151,14 @@ TaskManager::TaskManager() : reminder_counter(0) {}
 
 TaskManager::~TaskManager() {}
 
-bool TaskManager::IsUnitNeeded(ResourceID unit_type, unsigned short team, unsigned short flags) {
+bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t flags) {
     bool result;
 
     AiLog log("Task: should build %s?", UnitsManager_BaseUnits[unit_type].singular_name);
 
-    int available_count = 0;
-    int requested_count = 0;
-    int turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
+    int32_t available_count = 0;
+    int32_t requested_count = 0;
+    int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
     SmartList<UnitInfo>* unit_list;
 
     if (turns_till_mission_end >=
@@ -229,7 +229,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, unsigned short team, unsign
     return result;
 }
 
-bool TaskManager::CheckTasksThinking(unsigned short team) {
+bool TaskManager::CheckTasksThinking(uint16_t team) {
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).IsThinking()) {
             char text[200];
@@ -285,7 +285,7 @@ void TaskManager::CheckComputerReactions() {
 
 void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
     if (unit->ammo) {
-        int range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+        int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
         range = range * range;
 
@@ -315,13 +315,13 @@ void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
 
 void TaskManager::AppendUnit(UnitInfo& unit) { units.PushBack(unit); }
 
-void TaskManager::CreateBuilding(ResourceID unit_type, unsigned short team, Point site, Task* task) {
+void TaskManager::CreateBuilding(ResourceID unit_type, uint16_t team, Point site, Task* task) {
     if (IsUnitNeeded(unit_type, team, task->GetFlags())) {
         AiPlayer_Teams[team].CreateBuilding(unit_type, site, task);
     }
 }
 
-void TaskManager::CreateUnit(ResourceID unit_type, unsigned short team, Point site, Task* task) {
+void TaskManager::CreateUnit(ResourceID unit_type, uint16_t team, Point site, Task* task) {
     if (IsUnitNeeded(unit_type, team, task->GetFlags())) {
         SmartPointer<TaskCreateUnit> create_unit_task(new (std::nothrow) TaskCreateUnit(unit_type, task, site));
 
@@ -329,20 +329,20 @@ void TaskManager::CreateUnit(ResourceID unit_type, unsigned short team, Point si
     }
 }
 
-void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, int requested_amount, Task* task,
+void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t requested_amount, Task* task,
                                    Point site) {
-    unsigned short task_flags = task->GetFlags();
-    unsigned short task_team = task->GetTeam();
+    uint16_t task_flags = task->GetFlags();
+    uint16_t task_team = task->GetTeam();
 
     AiLog log("Task: Request %s.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (Task_EstimateTurnsTillMissionEnd() >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
-        unsigned short unit_counters[UNIT_END];
+        uint16_t unit_counters[UNIT_END];
         ResourceID builder_type;
-        int builder_count;
-        int buildable_count;
-        int units_count;
+        int32_t builder_count;
+        int32_t buildable_count;
+        int32_t units_count;
 
         memset(unit_counters, 0, sizeof(unit_counters));
 
@@ -366,7 +366,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, in
             }
         }
 
-        for (int i = 0; i < unit_selection.GetCount(); ++i) {
+        for (int32_t i = 0; i < unit_selection.GetCount(); ++i) {
             units_count += unit_counters[*unit_selection[i]];
         }
 
@@ -376,7 +376,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, unsigned short team, in
             buildable_count = requested_amount;
         }
 
-        for (int i = 0; i < buildable_count; ++i) {
+        for (int32_t i = 0; i < buildable_count; ++i) {
             SmartPointer<TaskCreateUnit> create_unit_task(new (std::nothrow) TaskCreateUnit(unit_type, task, site));
 
             AppendTask(*create_unit_task);
@@ -413,7 +413,7 @@ bool TaskManager::ExecuteReminders() {
 
         if (Paths_HaveTimeToThink()) {
             SmartPointer<Reminder> reminder;
-            int reminders_executed = 0;
+            int32_t reminders_executed = 0;
 
             while (normal_reminders.GetCount() + priority_reminders.GetCount() > 0) {
                 if (normal_reminders.GetCount() == 0) {
@@ -458,7 +458,7 @@ bool TaskManager::ExecuteReminders() {
     return result;
 }
 
-void TaskManager::BeginTurn(unsigned short team) {
+void TaskManager::BeginTurn(uint16_t team) {
     AiLog log("Task Manager: begin turn.");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
@@ -479,7 +479,7 @@ void TaskManager::BeginTurn(unsigned short team) {
         }
     }
 
-    unsigned short reminders[REMINDER_TYPE_COUNT];
+    uint16_t reminders[REMINDER_TYPE_COUNT];
 
     memset(reminders, 0, sizeof(reminders));
 
@@ -494,7 +494,7 @@ void TaskManager::BeginTurn(unsigned short team) {
     log.Log("Attack reminders: %i", reminders[REMINDER_TYPE_ATTACK]);
 }
 
-void TaskManager::EndTurn(unsigned short team) {
+void TaskManager::EndTurn(uint16_t team) {
     AiLog log("Task Manager: end turn.");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
@@ -504,7 +504,7 @@ void TaskManager::EndTurn(unsigned short team) {
     }
 }
 
-void TaskManager::ChangeFlagsSet(unsigned short team) {
+void TaskManager::ChangeFlagsSet(uint16_t team) {
     AiLog log("Task Manager: change flags set");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
@@ -552,7 +552,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
             if (!unit->GetTask() && unit->hits > 0) {
                 char unit_name[300];
                 SmartPointer<TaskObtainUnits> obtain_units_task;
-                unsigned short task_flags{UINT16_MAX};
+                uint16_t task_flags{UINT16_MAX};
 
                 unit->GetDisplayName(unit_name);
 
@@ -629,8 +629,8 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 }
 
                 SmartPointer<Task> best_task;
-                int distance;
-                int minimum_distance{INT32_MAX};
+                int32_t distance;
+                int32_t minimum_distance{INT32_MAX};
 
                 for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
                     if ((*it).GetTeam() == unit->team && (*it).IsUnitUsable(*unit)) {
@@ -681,7 +681,7 @@ void TaskManager::AddSpottedUnit(UnitInfo* unit) {
     }
 }
 
-int TaskManager::GetRemindersCount() const { return normal_reminders.GetCount() + priority_reminders.GetCount(); }
+int32_t TaskManager::GetRemindersCount() const { return normal_reminders.GetCount() + priority_reminders.GetCount(); }
 
 SmartList<Task>& TaskManager::GetTaskList() { return tasks; }
 

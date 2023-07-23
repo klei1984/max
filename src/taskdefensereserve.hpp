@@ -37,12 +37,12 @@ class TaskDefenseReserve : public Task {
     bool SupportAttacker(UnitInfo* unit);
 
 public:
-    TaskDefenseReserve(unsigned short team, Point site);
+    TaskDefenseReserve(uint16_t team, Point site);
     ~TaskDefenseReserve();
 
     bool IsUnitUsable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
-    unsigned char GetType() const;
+    uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
     void BeginTurn();
     void EndTurn();
