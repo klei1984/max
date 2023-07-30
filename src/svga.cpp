@@ -21,7 +21,7 @@
 
 #include "svga.h"
 
-#include "color.hpp"
+#include "gnw.h"
 #include "ini.hpp"
 
 #define SVGA_DEFAULT_WIDTH (640)
@@ -30,6 +30,7 @@
 
 static Uint32 Svga_SetupDisplayMode(SDL_Rect *bounds);
 static void Svga_CorrectAspectRatio(SDL_DisplayMode *display_mode);
+static void Svga_RefreshSystemPalette(bool force);
 
 static const bool SVGA_NO_TEXTURE_UPDATE = true;
 
@@ -207,14 +208,13 @@ void Svga_Deinit(void) {
     }
 }
 
-void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY,
-               uint32_t subW, uint32_t subH, uint32_t dstX, uint32_t dstY) {
+void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+               uint32_t subH, uint32_t dstX, uint32_t dstY) {
     SDL_assert(sdlPaletteSurface && sdlPaletteSurface->format &&
                sdlPaletteSurface->format->BytesPerPixel == sizeof(uint8_t));
 
     {
-        uint8_t *target_pixels =
-            &((uint8_t *)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY];
+        uint8_t *target_pixels = &((uint8_t *)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY];
         uint8_t *source_pixels = &srcBuf[subX + srcW * subY];
 
         for (uint32_t h = 0; h < subH; ++h) {
@@ -224,7 +224,8 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
         }
     }
 
-    SDL_Rect bounds = {static_cast<int32_t>(dstX), static_cast<int32_t>(dstY), static_cast<int32_t>(subW), static_cast<int32_t>(subH)};
+    SDL_Rect bounds = {static_cast<int32_t>(dstX), static_cast<int32_t>(dstY), static_cast<int32_t>(subW),
+                       static_cast<int32_t>(subH)};
 
     if (Svga_PaletteChanged) {
         Svga_PaletteChanged = false;
@@ -288,27 +289,32 @@ int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y) {
     return result;
 }
 
-void Svga_SetPaletteColor(int32_t i, uint8_t r, uint8_t g, uint8_t b) {
-    SDL_Color color;
-
-    color.r = r;
-    color.g = g;
-    color.b = b;
-    color.a = 0;
-
-    if (SDL_SetPaletteColors(sdlPaletteSurface->format->palette, &color, i, 1)) {
-        SDL_Log("SDL_SetPaletteColors failed: %s\n", SDL_GetError());
-    }
-
+void Svga_RefreshSystemPalette(bool force) {
     Svga_PaletteChanged = true;
 
-    if ((i == PALETTE_SIZE - 1) || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(Svga_DisplayRefreshRate))) {
+    if (force || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(Svga_DisplayRefreshRate))) {
         Svga_RenderTimer = timer_get();
 
         uint8_t srcBuf;
 
         Svga_Blit(&srcBuf, 0, 0, 0, 0, 0, 0, 0, 0);
     }
+}
+
+void Svga_SetPaletteColor(int32_t index, SDL_Color *color) {
+    if (SDL_SetPaletteColors(sdlPaletteSurface->format->palette, color, index, 1)) {
+        SDL_Log("SDL_SetPaletteColors failed: %s\n", SDL_GetError());
+    }
+
+    Svga_RefreshSystemPalette(index == PALETTE_SIZE - 1);
+}
+
+void Svga_SetPalette(int32_t index, SDL_Palette *palette) {
+    if (SDL_SetSurfacePalette(sdlPaletteSurface, palette)) {
+        SDL_Log("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
+    }
+
+    Svga_RefreshSystemPalette(true);
 }
 
 int32_t Svga_GetScreenWidth(void) { return Svga_ScreenWidth; }

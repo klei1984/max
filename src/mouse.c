@@ -193,7 +193,7 @@ int32_t mouse_get_anim(uint8_t **frames, int32_t *num_frames, int32_t *width, in
         *frames = mouse_fptr;
         *num_frames = mouse_num_frames;
         *width = mouse_width;
-        *length = (int32_t)mouse_length;
+        *length = mouse_length;
         *hotx = mouse_hotx;
         *hoty = mouse_hoty;
         *trans = mouse_trans;
@@ -314,8 +314,8 @@ void mouse_hide(void) {
 
 void mouse_info(void) {
     uint32_t buttons = 0;
-    int32_t delta_x;
-    int32_t delta_y;
+    int delta_x;
+    int delta_y;
 
     if (have_mouse && !mouse_is_hidden && !mouse_disabled) {
         uint32_t button_bitmask;

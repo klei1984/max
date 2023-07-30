@@ -27,6 +27,7 @@
 #include <stdint.h>
 
 #define PALETTE_SIZE 256
+#define PALETTE_STRIDE 3
 
 #define COLOR_BLACK 0x00
 #define COLOR_RED 0x01
@@ -41,41 +42,21 @@
 typedef uint8_t ColorIndex;
 typedef int32_t ColorRGB;
 typedef uint8_t Color;
-typedef int32_t fixed;
-typedef ColorIndex ColorBlendTable[16][PALETTE_SIZE];
 
-extern ColorIndex colorTable[32 * 32 * 32];
+extern ColorIndex colorTable[128 * PALETTE_SIZE];
 extern Color intensityColorTable[256][PALETTE_SIZE];
 
-Color colorMixAdd(Color a, Color b);
-Color colorMixMul(Color a, Color b);
-Color calculateColor(fixed intensity, Color color);
-ColorIndex Color2Index(Color c);
-ColorIndex RGB2Index(ColorRGB c);
-Color Index2Color(ColorIndex c);
+int32_t Color_GetColorDistance(Color* color1, Color* color2);
+void Color_ChangeColorTemperature(int32_t factor_r, int32_t factor_g, int32_t factor_b, int32_t multiplier_factor1,
+                                  int32_t multiplier_factor2, uint8_t* color_map);
+void Color_RecolorPixels(uint8_t* buffer, int32_t width, int32_t width_text, int32_t height_text, uint8_t* color_map);
+
 Color RGB2Color(ColorRGB c);
-ColorRGB Index2RGB(ColorIndex c);
-ColorRGB Color2RGB(Color c);
 void fadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps);
-void setBlackSystemPalette(void);
 void setSystemPalette(uint8_t* palette);
 uint8_t* getSystemPalette(void);
-void setSystemPaletteEntries(uint8_t* pal, uint32_t start, uint32_t end);
 void setSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);
-void getSystemPaletteEntry(int32_t entry, uint8_t* r, uint8_t* g, uint8_t* b);
-int32_t loadColorTable(const char* table);
 void setColorPalette(uint8_t* pal);
-void setColorPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);
-void getColorPaletteEntry(int32_t entry, uint8_t* r, uint8_t* g, uint8_t* b);
-ColorBlendTable* getColorBlendTable(ColorIndex c);
-void freeColorBlendTable(ColorIndex c);
-void colorGamma(double gamma);
-double colorGetGamma(void);
-int32_t colorMappedColor(ColorIndex i);
-int32_t colorBuildColorTable(uint8_t* colormap, uint8_t* matchtable);
-int32_t colorSetColorTable(uint8_t* colormap, uint8_t* matchtable);
-int32_t colorPushColorPalette(void);
-int32_t colorPopColorPalette(void);
 int32_t initColors(void);
 void colorsClose(void);
 uint8_t* getColorPalette(void);

@@ -23,7 +23,6 @@
 
 #include <array>
 
-#include "color.hpp"
 #include "complex.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"

@@ -100,24 +100,16 @@ int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
     doing_refresh_all = 0;
 
     if (!initColors()) {
-        pal = (uint8_t *)malloc(3 * PALETTE_SIZE);
-
-        if (!pal) {
-            if (reset_mode_ptr) {
-                reset_mode_ptr();
-            } else {
-                Svga_Deinit();
-            }
-            if (screen_buffer) {
-                free(screen_buffer);
-            }
-
-            return 2;
+        if (reset_mode_ptr) {
+            reset_mode_ptr();
+        } else {
+            Svga_Deinit();
+        }
+        if (screen_buffer) {
+            free(screen_buffer);
         }
 
-        buf_fill(pal, 3 * PALETTE_SIZE, 1, 3 * PALETTE_SIZE, 0);
-        colorBuildColorTable(getSystemPalette(), pal);
-        free(pal);
+        return 2;
     }
 
     GNW_input_init();

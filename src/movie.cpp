@@ -33,8 +33,8 @@ static void* mve_cb_alloc(size_t size);
 static void mve_cb_free(void* p);
 static int32_t mve_cb_read(FILE* handle, void* buf, size_t count);
 static int32_t mve_cb_ctl(void);
-static void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dstx,
-                                int32_t dsty);
+static void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int32_t sx, int32_t sy, int32_t w,
+                                int32_t h, int32_t dstx, int32_t dsty);
 static void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count);
 static void movie_init_palette(void);
 static int32_t movie_run(ResourceID resource_id, int32_t mode);
@@ -62,22 +62,42 @@ int32_t mve_cb_ctl(void) {
     return result;
 }
 
-void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dstx, int32_t dsty) {
+void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int32_t sx, int32_t sy, int32_t w, int32_t h,
+                         int32_t dstx, int32_t dsty) {
     Svga_Blit(buffer, bufw, bufh, sx, sy, w, h, dstx, dsty);
 }
 
 void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count) {
     for (int32_t i = start; i < (start + count); i++) {
-        Svga_SetPaletteColor(i, p[3 * i + 0] * 4, p[3 * i + 1] * 4, p[3 * i + 2] * 4);
+        SDL_Color color;
+
+        color.r = p[3 * i + 0] * 4;
+        color.g = p[3 * i + 1] * 4;
+        color.b = p[3 * i + 2] * 4;
+        color.a = 0;
+
+        Svga_SetPaletteColor(i, &color);
     }
 }
 
 static void movie_init_palette(void) {
+    SDL_Color color;
+
     for (int32_t i = 0; i < PALETTE_SIZE; i++) {
-        Svga_SetPaletteColor(i, 0, 0, 0);
+        color.r = 0;
+        color.g = 0;
+        color.b = 0;
+        color.a = 0;
+
+        Svga_SetPaletteColor(i, &color);
     }
 
-    Svga_SetPaletteColor(PALETTE_SIZE - 1, 50, 50, 50);
+    color.r = 50;
+    color.g = 50;
+    color.b = 50;
+    color.a = 0;
+
+    Svga_SetPaletteColor(PALETTE_SIZE - 1, &color);
 }
 
 int32_t movie_run(ResourceID resource_id, int32_t mode) {
