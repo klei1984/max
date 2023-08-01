@@ -26,6 +26,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PALETTE_SIZE 256
 #define PALETTE_STRIDE 3
 
@@ -43,7 +47,6 @@ typedef uint8_t ColorIndex;
 typedef int32_t ColorRGB;
 typedef uint8_t Color;
 
-extern ColorIndex colorTable[128 * PALETTE_SIZE];
 extern Color intensityColorTable[256][PALETTE_SIZE];
 
 int32_t Color_GetColorDistance(Color* color1, Color* color2);
@@ -60,5 +63,9 @@ void setColorPalette(uint8_t* pal);
 int32_t initColors(void);
 void colorsClose(void);
 uint8_t* getColorPalette(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* COLOR_H */

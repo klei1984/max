@@ -493,7 +493,7 @@ void Text_BlitTTF(uint8_t* buf, const char* str, int32_t swidth, int32_t fullw, 
 
     if (color & GNW_TEXT_OUTLINE) {
         color &= ~GNW_TEXT_OUTLINE;
-        Text_Blit(&buf[fullw + 1], str, swidth, fullw, (color & (~GNW_TEXT_COLOR_MASK)) | colorTable[0]);
+        Text_Blit(&buf[fullw + 1], str, swidth, fullw, (color & (~GNW_TEXT_COLOR_MASK)) | RGB2Color(0));
     }
 
     Uint32* uni_str = Text_Utf8ToUcs4(str);
@@ -786,7 +786,7 @@ void Text_TextLine(WindowInfo* window, const char* str, int32_t ulx, int32_t uly
 
     const int32_t buffer_size = text_width * text_height;
     uint8_t* buffer = new (std::nothrow) uint8_t[buffer_size];
-    memset(buffer, colorTable[0], buffer_size);
+    memset(buffer, RGB2Color(0), buffer_size);
 
     Text_Blit(buffer, str, swidth, text_width, color.base);
 

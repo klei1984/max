@@ -23,14 +23,16 @@
 
 #include "gnw.h"
 
+#define RGB555_COLOR_COUNT 32767
+
 Color intensityColorTable[256][PALETTE_SIZE];
-ColorIndex colorTable[128 * PALETTE_SIZE];
 
-static int32_t colorsInited;
-static uint8_t colorMap[PALETTE_STRIDE * PALETTE_SIZE];
-static uint8_t systemCmap[PALETTE_STRIDE * PALETTE_SIZE];
+static int8_t Color_Inited;
+static ColorIndex Color_RgbIndexTable[RGB555_COLOR_COUNT];
+static uint8_t Color_ColorPalette[PALETTE_STRIDE * PALETTE_SIZE];
+static uint8_t Color_SystemPalette[PALETTE_STRIDE * PALETTE_SIZE];
 
-Color RGB2Color(ColorRGB c) { return colorTable[c]; }
+Color RGB2Color(ColorRGB c) { return Color_RgbIndexTable[c]; }
 
 void fadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps) {
     uint8_t temp[PALETTE_STRIDE * PALETTE_SIZE];
@@ -48,7 +50,7 @@ void fadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps) {
 }
 
 void setSystemPalette(uint8_t* palette) {
-    memmove(systemCmap, palette, PALETTE_STRIDE * PALETTE_SIZE);
+    memmove(Color_SystemPalette, palette, PALETTE_STRIDE * PALETTE_SIZE);
 
     for (int32_t i = 0; i < PALETTE_SIZE; i++) {
         SDL_Color color;
@@ -62,12 +64,12 @@ void setSystemPalette(uint8_t* palette) {
     }
 }
 
-uint8_t* getSystemPalette(void) { return systemCmap; }
+uint8_t* getSystemPalette(void) { return Color_SystemPalette; }
 
 void setSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b) {
-    systemCmap[entry * PALETTE_STRIDE] = r;
-    systemCmap[entry * PALETTE_STRIDE + 1] = g;
-    systemCmap[entry * PALETTE_STRIDE + 2] = b;
+    Color_SystemPalette[entry * PALETTE_STRIDE] = r;
+    Color_SystemPalette[entry * PALETTE_STRIDE + 1] = g;
+    Color_SystemPalette[entry * PALETTE_STRIDE + 2] = b;
 
     SDL_Color color;
 
@@ -79,31 +81,31 @@ void setSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b) {
     Svga_SetPaletteColor(entry, &color);
 }
 
-uint8_t* getColorPalette(void) { return colorMap; }
+uint8_t* getColorPalette(void) { return Color_ColorPalette; }
 
-void setColorPalette(uint8_t* pal) { memmove(colorMap, pal, sizeof(colorMap)); }
+void setColorPalette(uint8_t* pal) { memmove(Color_ColorPalette, pal, sizeof(Color_ColorPalette)); }
 
 int32_t initColors(void) {
     int32_t result;
 
-    if (colorsInited) {
+    if (Color_Inited) {
         result = 1;
 
     } else {
-        colorsInited = 1;
         FILE* in = fopen("COLOR.PAL", "rb");
 
         if (in == NULL) {
             result = 0;
 
         } else {
-            fread(colorMap, sizeof(colorMap), 1, in);
-            fread(colorTable, sizeof(colorTable), 1, in);
+            fread(Color_ColorPalette, sizeof(Color_ColorPalette), 1, in);
+            fread(Color_RgbIndexTable, sizeof(Color_RgbIndexTable), 1, in);
 
             fclose(in);
 
-            setSystemPalette(colorMap);
+            setSystemPalette(Color_ColorPalette);
 
+            Color_Inited = 1;
             result = 1;
         }
     }
@@ -111,7 +113,7 @@ int32_t initColors(void) {
     return result;
 }
 
-void colorsClose(void) { colorsInited = 0; }
+void colorsClose(void) { Color_Inited = 0; }
 
 int32_t Color_GetColorDistance(Color* color1, Color* color2) {
     const int32_t diff_r = color1[0] - color2[0];

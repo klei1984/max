@@ -309,7 +309,7 @@ void Svga_SetPaletteColor(int32_t index, SDL_Color *color) {
     Svga_RefreshSystemPalette(index == PALETTE_SIZE - 1);
 }
 
-void Svga_SetPalette(int32_t index, SDL_Palette *palette) {
+void Svga_SetPalette(SDL_Palette *palette) {
     if (SDL_SetSurfacePalette(sdlPaletteSurface, palette)) {
         SDL_Log("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
     }

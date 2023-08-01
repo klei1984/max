@@ -34,19 +34,23 @@ typedef struct tm_location_item_s {
     int32_t y;
 } tm_location_item;
 
-static WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_t fcolor, int32_t bcolor, Rect* r);
-static int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t fcolor, int32_t bcolor, GNW_Menu* m, int32_t num_pd);
+static WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_t fcolor, int32_t bcolor,
+                              Rect* r);
+static int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t fcolor, int32_t bcolor,
+                                 GNW_Menu* m, int32_t num_pd);
 static void win_debug_delete(ButtonID bid, int32_t button_value);
 static int32_t find_first_letter(int32_t c, char** list, int32_t num);
 static int32_t calc_max_field_chars_wcursor(int32_t min, int32_t max);
-static int32_t get_num_i(WinID id, int32_t* value, int32_t max_chars_wcursor, char clear, char allow_negative, int32_t x, int32_t y);
+static int32_t get_num_i(WinID id, int32_t* value, int32_t max_chars_wcursor, char clear, char allow_negative,
+                         int32_t x, int32_t y);
 static void tm_watch_msgs(void);
 static void tm_kill_msg(void);
 static void tm_kill_out_of_order(int32_t queue_index);
 static void tm_click_response(ButtonID b_id, int32_t b_value);
 static int32_t tm_index_active(int32_t queue_index);
 
-int32_t win_list_select(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly, int32_t color) {
+int32_t win_list_select(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly,
+                        int32_t color) {
     return win_list_select_at(title, list, num, select_func, ulx, uly, color, 0);
 }
 
@@ -65,8 +69,8 @@ static int32_t tm_watch_active;
 
 static WinID wd = -1;
 
-int32_t win_list_select_at(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly, int32_t color,
-                       int32_t start) {
+int32_t win_list_select_at(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly,
+                           int32_t color, int32_t start) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
@@ -101,12 +105,12 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
             buf = GNW_find(id)->buf;
 
             buf_fill(&buf[(Text_GetHeight() + 14) * width + 14], width - 28, Text_GetHeight() + 2, width,
-                     colorTable[GNW_wcolor[0]]);
+                     RGB2Color(GNW_wcolor[0]));
 
-            Text_Blit(&buf[8 * width + 8], title, width, width, colorTable[GNW_wcolor[4]]);
+            Text_Blit(&buf[8 * width + 8], title, width, width, RGB2Color(GNW_wcolor[4]));
 
             draw_shaded_box(buf, width, 14, Text_GetHeight() + 14, width - 14, 2 * Text_GetHeight() + 16,
-                            colorTable[GNW_wcolor[2]], colorTable[GNW_wcolor[1]]);
+                            RGB2Color(GNW_wcolor[2]), RGB2Color(GNW_wcolor[1]));
 
             win_register_text_button(id, width / 2 - 72, length - 8 - Text_GetHeight() - 6, -1, -1, -1, 13, "Done", 0);
 
@@ -114,8 +118,8 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
 
             win_draw(id);
 
-            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16, colorTable[GNW_wcolor[3]],
-                                   colorTable[GNW_wcolor[0]]);
+            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16, RGB2Color(GNW_wcolor[3]),
+                                   RGB2Color(GNW_wcolor[0]));
 
             win_delete(id);
         }
@@ -153,12 +157,12 @@ int32_t win_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_
     WinID id;
 
     if (GNW_win_init_flag) {
-        id = create_pull_down(list, num, ulx, uly, color, colorTable[GNW_wcolor[0]], &r);
+        id = create_pull_down(list, num, ulx, uly, color, RGB2Color(GNW_wcolor[0]), &r);
 
         if (id == -1) {
             result = -1;
         } else {
-            result = process_pull_down(id, &r, list, num, color, colorTable[GNW_wcolor[0]], 0, -1);
+            result = process_pull_down(id, &r, list, num, color, RGB2Color(GNW_wcolor[0]), 0, -1);
         }
     } else {
         result = -1;
@@ -184,7 +188,7 @@ WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32
         } else {
             win_text(id, list, num, width - 4, 2, 8, fcolor);
 
-            win_box(id, 0, 0, width - 1, length - 1, colorTable[0]);
+            win_box(id, 0, 0, width - 1, length - 1, RGB2Color(0));
             win_box(id, 1, 1, width - 2, length - 2, fcolor);
 
             win_draw(id);
@@ -200,7 +204,8 @@ WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32
     return result;
 }
 
-int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t fcolor, int32_t bcolor, GNW_Menu* m, int32_t num_pd) {
+int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t fcolor, int32_t bcolor, GNW_Menu* m,
+                          int32_t num_pd) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
@@ -219,7 +224,8 @@ void win_debug_delete(ButtonID bid, int32_t button_value) {
     SDL_assert(0);
 }
 
-int32_t win_register_menu_bar(WinID wid, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t fore_color, int32_t back_color) {
+int32_t win_register_menu_bar(WinID wid, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t fore_color,
+                              int32_t back_color) {
     int32_t result;
     GNW_Window* w;
 
@@ -255,8 +261,8 @@ int32_t win_register_menu_bar(WinID wid, int32_t ulx, int32_t uly, int32_t width
     return result;
 }
 
-int32_t win_register_menu_pulldown(WinID wid, int32_t offx, char* name, int32_t value, int32_t num, char** list, int32_t fore_color,
-                               int32_t back_color) {
+int32_t win_register_menu_pulldown(WinID wid, int32_t offx, char* name, int32_t value, int32_t num, char** list,
+                                   int32_t fore_color, int32_t back_color) {
     int32_t result;
     GNW_Window* w;
     int32_t i;
@@ -394,7 +400,8 @@ int32_t win_width_needed(char** list, int32_t num) {
     return width;
 }
 
-int32_t win_input_str(WinID id, char* str, int32_t limit, int32_t x, int32_t y, int32_t text_color, int32_t back_color) {
+int32_t win_input_str(WinID id, char* str, int32_t limit, int32_t x, int32_t y, int32_t text_color,
+                      int32_t back_color) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
@@ -440,7 +447,8 @@ int32_t calc_max_field_chars_wcursor(int32_t min, int32_t max) {
     return result;
 }
 
-int32_t get_num_i(WinID id, int32_t* value, int32_t max_chars_wcursor, char clear, char allow_negative, int32_t x, int32_t y) {
+int32_t get_num_i(WinID id, int32_t* value, int32_t max_chars_wcursor, char clear, char allow_negative, int32_t x,
+                  int32_t y) {
     /* not implemented yet as M.A.X. does not use it */
     SDL_assert(0);
 
