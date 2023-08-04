@@ -99,25 +99,25 @@ ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, intptr_t o
 
                 lighten_buf(up, width, length, width);
 
-                Text_Blit(&up[3 * width + 8], name, width, width, RGB2Color(GNW_wcolor[3]) | GNW_TEXT_OUTLINE);
+                Text_Blit(&up[3 * width + 8], name, width, width, Color_RGB2Color(GNW_wcolor[3]) | GNW_TEXT_OUTLINE);
 
-                draw_shaded_box(up, width, 2, 2, width - 3, length - 3, RGB2Color(GNW_wcolor[1]),
-                                RGB2Color(GNW_wcolor[2]));
+                draw_shaded_box(up, width, 2, 2, width - 3, length - 3, Color_RGB2Color(GNW_wcolor[1]),
+                                Color_RGB2Color(GNW_wcolor[2]));
 
-                draw_shaded_box(up, width, 1, 1, width - 2, length - 2, RGB2Color(GNW_wcolor[1]),
-                                RGB2Color(GNW_wcolor[2]));
+                draw_shaded_box(up, width, 1, 1, width - 2, length - 2, Color_RGB2Color(GNW_wcolor[1]),
+                                Color_RGB2Color(GNW_wcolor[2]));
 
-                draw_box(up, width, 0, 0, width - 1, length - 1, RGB2Color(0));
+                draw_box(up, width, 0, 0, width - 1, length - 1, Color_RGB2Color(0));
 
-                Text_Blit(&down[4 * width + 9], name, width, width, RGB2Color(GNW_wcolor[3]) | GNW_TEXT_OUTLINE);
+                Text_Blit(&down[4 * width + 9], name, width, width, Color_RGB2Color(GNW_wcolor[3]) | GNW_TEXT_OUTLINE);
 
-                draw_shaded_box(down, width, 2, 2, width - 3, length - 3, RGB2Color(GNW_wcolor[2]),
-                                RGB2Color(GNW_wcolor[1]));
+                draw_shaded_box(down, width, 2, 2, width - 3, length - 3, Color_RGB2Color(GNW_wcolor[2]),
+                                Color_RGB2Color(GNW_wcolor[1]));
 
-                draw_shaded_box(down, width, 1, 1, width - 2, length - 2, RGB2Color(GNW_wcolor[2]),
-                                RGB2Color(GNW_wcolor[1]));
+                draw_shaded_box(down, width, 1, 1, width - 2, length - 2, Color_RGB2Color(GNW_wcolor[2]),
+                                Color_RGB2Color(GNW_wcolor[1]));
 
-                draw_box(down, width, 0, 0, width - 1, length - 1, RGB2Color(0));
+                draw_box(down, width, 0, 0, width - 1, length - 1, Color_RGB2Color(0));
 
                 b = button_create(id, ulx, uly, width, length, on_value, off_value, p_value, r_value, flags, up, down,
                                   NULL);

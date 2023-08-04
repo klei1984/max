@@ -290,10 +290,9 @@ int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y) {
 }
 
 void Svga_RefreshSystemPalette(bool force) {
-    Svga_PaletteChanged = true;
-
     if (force || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(Svga_DisplayRefreshRate))) {
         Svga_RenderTimer = timer_get();
+        Svga_PaletteChanged = true;
 
         uint8_t srcBuf;
 

@@ -195,7 +195,7 @@ void flicsmgr_decode_color(uint8_t *buffer, int32_t shift) {
         }
 
         while (--count >= 0) {
-            setSystemPaletteEntry(entry, cbuf[0] >> shift, cbuf[1] >> shift, cbuf[2] >> shift);
+            Color_SetSystemPaletteEntry(entry, cbuf[0] >> shift, cbuf[1] >> shift, cbuf[2] >> shift);
 
             cbuf += 3;
             entry++;

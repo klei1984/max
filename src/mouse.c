@@ -104,11 +104,11 @@ void GNW_mouse_exit(void) {
 void mouse_colorize(void) {
     for (int32_t i = 0; i < 64; i++) {
         if (or_mask[i] == 15) {
-            or_mask[i] = RGB2Color(0x7FFF);
+            or_mask[i] = Color_RGB2Color(0x7FFF);
         } else if (or_mask[i] == 1) {
-            or_mask[i] = RGB2Color(0x2108);
+            or_mask[i] = Color_RGB2Color(0x2108);
         } else if (!or_mask[i]) {
-            or_mask[i] = RGB2Color(0);
+            or_mask[i] = Color_RGB2Color(0);
         }
     }
 }
@@ -131,7 +131,7 @@ int32_t mouse_set_shape(uint8_t *buf, int32_t width, int32_t length, int32_t ful
     int32_t mh;
 
     if (!buf) {
-        return mouse_set_shape(or_mask, 8, 8, 8, 1, 1, RGB2Color(0));
+        return mouse_set_shape(or_mask, 8, 8, 8, 1, 1, Color_RGB2Color(0));
     }
 
     mh = mouse_is_hidden;

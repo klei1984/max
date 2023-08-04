@@ -105,12 +105,12 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
             buf = GNW_find(id)->buf;
 
             buf_fill(&buf[(Text_GetHeight() + 14) * width + 14], width - 28, Text_GetHeight() + 2, width,
-                     RGB2Color(GNW_wcolor[0]));
+                     Color_RGB2Color(GNW_wcolor[0]));
 
-            Text_Blit(&buf[8 * width + 8], title, width, width, RGB2Color(GNW_wcolor[4]));
+            Text_Blit(&buf[8 * width + 8], title, width, width, Color_RGB2Color(GNW_wcolor[4]));
 
             draw_shaded_box(buf, width, 14, Text_GetHeight() + 14, width - 14, 2 * Text_GetHeight() + 16,
-                            RGB2Color(GNW_wcolor[2]), RGB2Color(GNW_wcolor[1]));
+                            Color_RGB2Color(GNW_wcolor[2]), Color_RGB2Color(GNW_wcolor[1]));
 
             win_register_text_button(id, width / 2 - 72, length - 8 - Text_GetHeight() - 6, -1, -1, -1, 13, "Done", 0);
 
@@ -118,8 +118,8 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
 
             win_draw(id);
 
-            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16, RGB2Color(GNW_wcolor[3]),
-                                   RGB2Color(GNW_wcolor[0]));
+            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16, Color_RGB2Color(GNW_wcolor[3]),
+                                   Color_RGB2Color(GNW_wcolor[0]));
 
             win_delete(id);
         }
@@ -157,12 +157,12 @@ int32_t win_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_
     WinID id;
 
     if (GNW_win_init_flag) {
-        id = create_pull_down(list, num, ulx, uly, color, RGB2Color(GNW_wcolor[0]), &r);
+        id = create_pull_down(list, num, ulx, uly, color, Color_RGB2Color(GNW_wcolor[0]), &r);
 
         if (id == -1) {
             result = -1;
         } else {
-            result = process_pull_down(id, &r, list, num, color, RGB2Color(GNW_wcolor[0]), 0, -1);
+            result = process_pull_down(id, &r, list, num, color, Color_RGB2Color(GNW_wcolor[0]), 0, -1);
         }
     } else {
         result = -1;
@@ -188,7 +188,7 @@ WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32
         } else {
             win_text(id, list, num, width - 4, 2, 8, fcolor);
 
-            win_box(id, 0, 0, width - 1, length - 1, RGB2Color(0));
+            win_box(id, 0, 0, width - 1, length - 1, Color_RGB2Color(0));
             win_box(id, 1, 1, width - 2, length - 2, fcolor);
 
             win_draw(id);

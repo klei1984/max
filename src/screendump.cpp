@@ -52,7 +52,7 @@ int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal
     PcxHeader pcx_header;
     char filename[PATH_MAX];
     int32_t file_index;
-    uint8_t palette[3 * PALETTE_SIZE];
+    uint8_t palette[PALETTE_STRIDE * PALETTE_SIZE];
     FILE *fp;
 
     file_index = 0;
@@ -84,7 +84,7 @@ int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal
     pcx_header.BytesPerLine = width;
     pcx_header.PaletteType = 1;
 
-    for (int32_t i = 0; i < (3 * PALETTE_SIZE); i++) {
+    for (int32_t i = 0; i < (PALETTE_STRIDE * PALETTE_SIZE); i++) {
         palette[i] = pal[i] * 4;
     }
 

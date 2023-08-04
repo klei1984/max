@@ -616,7 +616,7 @@ WinID default_pause_window(void) {
 
         buf = win_get_buf(id);
 
-        Text_Blit(&buf[8 * width + 16], "Paused", width, width, RGB2Color(0x7C00));
+        Text_Blit(&buf[8 * width + 16], "Paused", width, width, Color_RGB2Color(0x7C00));
 
         win_register_text_button(id, (width - Text_GetWidth("Done") - 16) / 2, length - 8 - Text_GetHeight() - 6, -1,
                                  -1, -1, 27, "Done", 0);
@@ -663,7 +663,7 @@ void dump_screen(void) {
         mouse_blit = old_mouse_blit;
         scr_blit = old_scr_blit;
 
-        pal = getSystemPalette();
+        pal = Color_GetSystemPalette();
 
         screendump_func(width, length, screendump_buf, pal);
 

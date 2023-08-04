@@ -49,20 +49,19 @@ typedef uint8_t Color;
 
 extern Color intensityColorTable[256][PALETTE_SIZE];
 
+int32_t Color_Init(void);
+void Color_Deinit(void);
+Color Color_RGB2Color(ColorRGB c);
 int32_t Color_GetColorDistance(Color* color1, Color* color2);
 void Color_ChangeColorTemperature(int32_t factor_r, int32_t factor_g, int32_t factor_b, int32_t multiplier_factor1,
                                   int32_t multiplier_factor2, uint8_t* color_map);
 void Color_RecolorPixels(uint8_t* buffer, int32_t width, int32_t width_text, int32_t height_text, uint8_t* color_map);
-
-Color RGB2Color(ColorRGB c);
-void fadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps);
-void setSystemPalette(uint8_t* palette);
-uint8_t* getSystemPalette(void);
-void setSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);
-void setColorPalette(uint8_t* pal);
-int32_t initColors(void);
-void colorsClose(void);
-uint8_t* getColorPalette(void);
+void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps);
+uint8_t* Color_GetSystemPalette(void);
+void Color_SetSystemPalette(uint8_t* palette);
+void Color_SetSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);
+uint8_t* Color_GetColorPalette(void);
+void Color_SetColorPalette(uint8_t* palette);
 
 #ifdef __cplusplus
 }

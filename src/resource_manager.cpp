@@ -99,8 +99,7 @@ uint8_t *ResourceManager_MapSurfaceMap;
 uint16_t *ResourceManager_CargoMap;
 uint16_t ResourceManager_MapTileCount;
 
-uint8_t ResourceManager_PassData[4] = {SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST,
-                                             SURFACE_TYPE_AIR};
+uint8_t ResourceManager_PassData[4] = {SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST, SURFACE_TYPE_AIR};
 
 Point ResourceManager_MapSize;
 
@@ -355,8 +354,10 @@ static bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive
 static int32_t ResourceManager_BuildResourceTable(const char *file_path);
 static int32_t ResourceManager_BuildColorTables();
 static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
-static void ResourceManager_ManipulateColorMap(int32_t red_level, int32_t green_level, int32_t blue_level, ColorIndex *table);
-static void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level, int32_t blue_level, ColorIndex *table);
+static void ResourceManager_ManipulateColorMap(int32_t red_level, int32_t green_level, int32_t blue_level,
+                                               ColorIndex *table);
+static void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level, int32_t blue_level,
+                                                ColorIndex *table);
 static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values);
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
 
@@ -730,7 +731,9 @@ int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *bu
     return result;
 }
 
-int32_t ResourceManager_GetResourceFileID(ResourceID id) { return ResourceManager_ResMetaTable[id].res_file_item_index; }
+int32_t ResourceManager_GetResourceFileID(ResourceID id) {
+    return ResourceManager_ResMetaTable[id].res_file_item_index;
+}
 
 const char *ResourceManager_GetResourceID(ResourceID id) { return ResourceManager_ResourceIdList[id]; }
 
@@ -966,8 +969,9 @@ ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bo
 
     color_distance_minimum = INT_MAX;
 
-    for (int32_t i = 0; i < 3 * PALETTE_SIZE; i += 3) {
-        if (full_scan || ((i < 9 * 3 || i > 31 * 3) && (i < 96 * 3 || i > 127 * 3))) {
+    for (int32_t i = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE) {
+        if (full_scan || ((i < 9 * PALETTE_STRIDE || i > 31 * PALETTE_STRIDE) &&
+                          (i < 96 * PALETTE_STRIDE || i > 127 * PALETTE_STRIDE))) {
             red = WindowManager_ColorPalette[i] - r;
             green = WindowManager_ColorPalette[i + 1] - g;
             blue = WindowManager_ColorPalette[i + 2] - b;
@@ -976,7 +980,7 @@ ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bo
 
             if (color_distance < color_distance_minimum) {
                 color_distance_minimum = color_distance;
-                color_index = i / 3;
+                color_index = i / PALETTE_STRIDE;
 
                 if (!color_distance_minimum) {
                     /* found perfect match in palette */
@@ -1087,19 +1091,19 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     {
         uint8_t *palette;
 
-        palette = new (std::nothrow) uint8_t[3 * PALETTE_SIZE];
+        palette = new (std::nothrow) uint8_t[PALETTE_STRIDE * PALETTE_SIZE];
 
         if (fseek(fp, GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE * map_tile_count, SEEK_CUR) ||
-            3 * PALETTE_SIZE != fread(palette, sizeof(uint8_t), 3 * PALETTE_SIZE, fp)) {
+            PALETTE_STRIDE * PALETTE_SIZE != fread(palette, sizeof(uint8_t), PALETTE_STRIDE * PALETTE_SIZE, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
 
-        for (int32_t i = 64 * 3; i < 160 * 3; ++i) {
+        for (int32_t i = 64 * PALETTE_STRIDE; i < 160 * PALETTE_STRIDE; ++i) {
             WindowManager_ColorPalette[i] = palette[i] / 4;
         }
 
-        setSystemPalette(WindowManager_ColorPalette);
-        setColorPalette(WindowManager_ColorPalette);
+        Color_SetSystemPalette(WindowManager_ColorPalette);
+        Color_SetColorPalette(WindowManager_ColorPalette);
 
         delete[] palette;
     }
@@ -1163,18 +1167,18 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
         progress_bar_value = 70;
 
-        palette = new (std::nothrow) uint8_t[3 * PALETTE_SIZE];
+        palette = new (std::nothrow) uint8_t[PALETTE_STRIDE * PALETTE_SIZE];
 
-        if (3 * PALETTE_SIZE != fread(palette, sizeof(uint8_t), 3 * PALETTE_SIZE, fp)) {
+        if (PALETTE_STRIDE * PALETTE_SIZE != fread(palette, sizeof(uint8_t), PALETTE_STRIDE * PALETTE_SIZE, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
 
-        for (int32_t i = 64 * 3; i < 160 * 3; ++i) {
+        for (int32_t i = 64 * PALETTE_STRIDE; i < 160 * PALETTE_STRIDE; ++i) {
             WindowManager_ColorPalette[i] = palette[i] / 4;
         }
 
-        setSystemPalette(WindowManager_ColorPalette);
-        setColorPalette(WindowManager_ColorPalette);
+        Color_SetSystemPalette(WindowManager_ColorPalette);
+        Color_SetColorPalette(WindowManager_ColorPalette);
 
         progress_bar_value += 3;
 
@@ -1190,8 +1194,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
         ResourceManager_MapSurfaceMap = new (std::nothrow) uint8_t[map_dimensions];
 
-        if (ResourceManager_MapTileCount !=
-            fread(pass_table, sizeof(uint8_t), ResourceManager_MapTileCount, fp)) {
+        if (ResourceManager_MapTileCount != fread(pass_table, sizeof(uint8_t), ResourceManager_MapTileCount, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
         }
 
@@ -1243,7 +1246,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
         ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
     }
 
-    for (int32_t i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+    for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
         int32_t r;
         int32_t g;
         int32_t b;
@@ -1268,8 +1271,8 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     load_bar.SetValue(progress_bar_value);
 
     for (int32_t i = 0, l = 0; i < 7 * 32; i += 32, ++l) {
-        for (int32_t j = 0, k = 0; j < 3 * PALETTE_SIZE; j += 3, ++k) {
-            if (j == 3 * 31) {
+        for (int32_t j = 0, k = 0; j < PALETTE_STRIDE * PALETTE_SIZE; j += PALETTE_STRIDE, ++k) {
+            if (j == PALETTE_STRIDE * 31) {
                 ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] = 31;
 
             } else {
@@ -1305,8 +1308,7 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
         full_tile_buffer = new (std::nothrow) uint8_t[reduced_tile_count * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
     }
 
-    ResourceManager_MapTileBuffer =
-        new (std::nothrow) uint8_t[ResourceManager_MapTileCount * tile_size * tile_size];
+    ResourceManager_MapTileBuffer = new (std::nothrow) uint8_t[ResourceManager_MapTileCount * tile_size * tile_size];
 
     for (int32_t i = 0; i < ResourceManager_MapTileCount; i += reduced_tile_count) {
         loadbar->SetValue(i * 50 / ResourceManager_MapTileCount + 20);
@@ -1368,7 +1370,7 @@ void ResourceManager_ManipulateColorMap(int32_t red_level, int32_t green_level, 
     max_level = std::max(red_level, green_level);
     max_level = std::max(max_level, blue_level);
 
-    for (int32_t i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+    for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
         red = WindowManager_ColorPalette[i];
         green = WindowManager_ColorPalette[i + 1];
         blue = WindowManager_ColorPalette[i + 2];
@@ -1386,7 +1388,8 @@ void ResourceManager_ManipulateColorMap(int32_t red_level, int32_t green_level, 
     }
 }
 
-void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level, int32_t blue_level, ColorIndex *table) {
+void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level, int32_t blue_level,
+                                         ColorIndex *table) {
     int32_t world;
     int32_t factor;
     int32_t red;
@@ -1401,7 +1404,7 @@ void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level,
         factor = 31;
     }
 
-    for (int32_t i = 0, j = 0; i < 3 * PALETTE_SIZE; i += 3, ++j) {
+    for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
         red = WindowManager_ColorPalette[i];
         green = WindowManager_ColorPalette[i + 1];
         blue = WindowManager_ColorPalette[i + 2];

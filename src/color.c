@@ -23,7 +23,7 @@
 
 #include "gnw.h"
 
-#define RGB555_COLOR_COUNT 32767
+#define RGB555_COLOR_COUNT (1 << 15)
 
 Color intensityColorTable[256][PALETTE_SIZE];
 
@@ -32,27 +32,27 @@ static ColorIndex Color_RgbIndexTable[RGB555_COLOR_COUNT];
 static uint8_t Color_ColorPalette[PALETTE_STRIDE * PALETTE_SIZE];
 static uint8_t Color_SystemPalette[PALETTE_STRIDE * PALETTE_SIZE];
 
-Color RGB2Color(ColorRGB c) { return Color_RgbIndexTable[c]; }
+Color Color_RGB2Color(ColorRGB c) { return Color_RgbIndexTable[c]; }
 
-void fadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps) {
+void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps) {
     uint8_t temp[PALETTE_STRIDE * PALETTE_SIZE];
 
-    for (int32_t i = 0; i < steps; i++) {
-        for (int32_t j = 0; j < sizeof(temp); j++) {
+    for (int32_t i = 0; i < steps; ++i) {
+        for (int32_t j = 0; j < sizeof(temp); ++j) {
             int32_t d = src[j] - dest[j];
             temp[j] = src[j] - (uint32_t)(i * d / steps);
         }
 
-        setSystemPalette(temp);
+        Color_SetSystemPalette(temp);
     }
 
-    setSystemPalette(dest);
+    Color_SetSystemPalette(dest);
 }
 
-void setSystemPalette(uint8_t* palette) {
+void Color_SetSystemPalette(uint8_t* palette) {
     memmove(Color_SystemPalette, palette, PALETTE_STRIDE * PALETTE_SIZE);
 
-    for (int32_t i = 0; i < PALETTE_SIZE; i++) {
+    for (int32_t i = 0; i < PALETTE_SIZE; ++i) {
         SDL_Color color;
 
         color.r = palette[PALETTE_STRIDE * i + 0] * 4;
@@ -64,9 +64,9 @@ void setSystemPalette(uint8_t* palette) {
     }
 }
 
-uint8_t* getSystemPalette(void) { return Color_SystemPalette; }
+uint8_t* Color_GetSystemPalette(void) { return Color_SystemPalette; }
 
-void setSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b) {
+void Color_SetSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b) {
     Color_SystemPalette[entry * PALETTE_STRIDE] = r;
     Color_SystemPalette[entry * PALETTE_STRIDE + 1] = g;
     Color_SystemPalette[entry * PALETTE_STRIDE + 2] = b;
@@ -81,11 +81,11 @@ void setSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b) {
     Svga_SetPaletteColor(entry, &color);
 }
 
-uint8_t* getColorPalette(void) { return Color_ColorPalette; }
+uint8_t* Color_GetColorPalette(void) { return Color_ColorPalette; }
 
-void setColorPalette(uint8_t* pal) { memmove(Color_ColorPalette, pal, sizeof(Color_ColorPalette)); }
+void Color_SetColorPalette(uint8_t* palette) { memmove(Color_ColorPalette, palette, sizeof(Color_ColorPalette)); }
 
-int32_t initColors(void) {
+int32_t Color_Init(void) {
     int32_t result;
 
     if (Color_Inited) {
@@ -103,7 +103,7 @@ int32_t initColors(void) {
 
             fclose(in);
 
-            setSystemPalette(Color_ColorPalette);
+            Color_SetSystemPalette(Color_ColorPalette);
 
             Color_Inited = 1;
             result = 1;
@@ -113,7 +113,7 @@ int32_t initColors(void) {
     return result;
 }
 
-void colorsClose(void) { Color_Inited = 0; }
+void Color_Deinit(void) { Color_Inited = 0; }
 
 int32_t Color_GetColorDistance(Color* color1, Color* color2) {
     const int32_t diff_r = color1[0] - color2[0];
@@ -132,7 +132,7 @@ void Color_ChangeColorTemperature(int32_t factor_r, int32_t factor_g, int32_t fa
     int32_t distance1;
     int32_t distance2;
 
-    palette = getSystemPalette();
+    palette = Color_GetSystemPalette();
 
     multiplier_factor_sum = multiplier_factor1 + multiplier_factor2;
 

@@ -50,7 +50,7 @@ static inline int32_t GNW_IsRGBColor(int32_t color) { return (color & (GNW_TEXT_
 
 static inline int32_t GNW_WinRGB2Color(int32_t color) {
     if (GNW_IsRGBColor(color)) {
-        return (color & GNW_TEXT_CONTROL_MASK) | RGB2Color(GNW_wcolor[(color & GNW_TEXT_RGB_MASK) >> 8]);
+        return (color & GNW_TEXT_CONTROL_MASK) | Color_RGB2Color(GNW_wcolor[(color & GNW_TEXT_RGB_MASK) >> 8]);
 
     } else {
         return color;
@@ -99,7 +99,7 @@ int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
     buffering = 0;
     doing_refresh_all = 0;
 
-    if (!initColors()) {
+    if (!Color_Init()) {
         if (reset_mode_ptr) {
             reset_mode_ptr();
         } else {
@@ -203,7 +203,7 @@ int32_t win_reinit(SetModeFunc set) {
                 set_mode_ptr = set;
             }
 
-            setSystemPalette(getSystemPalette());
+            Color_SetSystemPalette(Color_GetSystemPalette());
 
             window[0]->w = scr_size;
             window[0]->width = scr_size.lrx - scr_size.ulx + 1;
@@ -259,7 +259,7 @@ void win_exit(void) {
             GNW_input_exit();
             GNW_rect_exit();
             Text_Exit();
-            colorsClose();
+            Color_Deinit();
 
             GNW_win_init_flag = 0;
         }
@@ -303,7 +303,7 @@ WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t c
 
                 if (color == 0x100) {
                     if (!GNW_texture) {
-                        color = RGB2Color(GNW_wcolor[0]);
+                        color = Color_RGB2Color(GNW_wcolor[0]);
                     }
                 } else {
                     color = GNW_WinRGB2Color(color);
@@ -420,13 +420,13 @@ void win_border(WinID id) {
             lighten_buf(&w->buf[w->width - 5], 5, w->length, w->width);
             lighten_buf(&w->buf[w->width * (w->length - 5) + 5], w->width - 10, 5, w->width);
 
-            draw_box(w->buf, w->width, 0, 0, w->width - 1, w->length - 1, RGB2Color(0));
+            draw_box(w->buf, w->width, 0, 0, w->width - 1, w->length - 1, Color_RGB2Color(0));
 
-            draw_shaded_box(w->buf, w->width, 1, 1, w->width - 2, w->length - 2, RGB2Color(GNW_wcolor[1]),
-                            RGB2Color(GNW_wcolor[2]));
+            draw_shaded_box(w->buf, w->width, 1, 1, w->width - 2, w->length - 2, Color_RGB2Color(GNW_wcolor[1]),
+                            Color_RGB2Color(GNW_wcolor[2]));
 
-            draw_shaded_box(w->buf, w->width, 5, 5, w->width - 6, w->length - 6, RGB2Color(GNW_wcolor[2]),
-                            RGB2Color(GNW_wcolor[1]));
+            draw_shaded_box(w->buf, w->width, 5, 5, w->width - 6, w->length - 6, Color_RGB2Color(GNW_wcolor[2]),
+                            Color_RGB2Color(GNW_wcolor[1]));
         }
     }
 }
@@ -518,8 +518,8 @@ void win_text(WinID id, char **list, int32_t num, int32_t field_width, int32_t x
             if (*list[i]) {
                 win_print(id, list[i], field_width, x, y, color);
             } else if (field_width) {
-                draw_line(buf, full, 0, height / 2, field_width - 1, height / 2, RGB2Color(GNW_wcolor[2]));
-                draw_line(buf, full, 0, height / 2 + 1, field_width - 1, height / 2 + 1, RGB2Color(GNW_wcolor[1]));
+                draw_line(buf, full, 0, height / 2, field_width - 1, height / 2, Color_RGB2Color(GNW_wcolor[2]));
+                draw_line(buf, full, 0, height / 2 + 1, field_width - 1, height / 2 + 1, Color_RGB2Color(GNW_wcolor[1]));
             }
 
             i++;
@@ -597,7 +597,7 @@ void win_fill(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length,
                 buf_texture(&w->buf[w->width * uly + ulx], width, length, w->width, GNW_texture, ulx + w->tx,
                             uly + w->ty);
             } else {
-                color = RGB2Color(GNW_wcolor[0]);
+                color = Color_RGB2Color(GNW_wcolor[0]);
             }
         } else {
             color = GNW_WinRGB2Color(color);

@@ -917,7 +917,7 @@ void menu_draw_logo(ResourceID resource_id, int32_t time_limit) {
     if (WindowManager_LoadBigImage(resource_id, window, window->width, true, false, -1, -1, true, true)) {
         Cursor_SetCursor(CURSOR_HIDDEN);
         mouse_show();
-        setSystemPalette(WindowManager_SystemPalette);
+        Color_SetSystemPalette(WindowManager_SystemPalette);
         win_draw(window->id);
         WindowManager_FadeIn(500);
 
@@ -961,7 +961,7 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
             char map_type[5];
             Point map_dimensions;
             int16_t map_tile_count;
-            Color palette[3 * PALETTE_SIZE];
+            Color palette[PALETTE_STRIDE * PALETTE_SIZE];
 
             ReadFile(fp, map_type);
             ReadFile(fp, map_dimensions);
@@ -981,10 +981,10 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
                 palette[i] /= 4;
             }
 
-            WindowManager_ColorPalette = getColorPalette();
+            WindowManager_ColorPalette = Color_GetColorPalette();
 
-            for (int32_t i = 0; i < sizeof(palette); i += 3) {
-                palette[i / 3] =
+            for (int32_t i = 0; i < sizeof(palette); i += PALETTE_STRIDE) {
+                palette[i / PALETTE_STRIDE] =
                     ResourceManager_FindClosestPaletteColor(palette[i], palette[i + 1], palette[i + 2], true);
             }
 

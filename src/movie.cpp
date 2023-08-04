@@ -124,7 +124,7 @@ int32_t movie_run(ResourceID resource_id, int32_t mode) {
         fp = fopen(path, "rb");
 
         if (fp) {
-            palette = getSystemPalette();
+            palette = Color_GetSystemPalette();
             Cursor_SetCursor(CURSOR_HIDDEN);
             mouse_show();
 
@@ -170,8 +170,7 @@ int32_t movie_run(ResourceID resource_id, int32_t mode) {
 
             MVE_ReleaseMem();
 
-            memcpy(getColorPalette(), palette, 3 * PALETTE_SIZE);
-            setColorPalette(getColorPalette());
+            Color_SetColorPalette(palette);
             fclose(fp);
 
             result = 0;

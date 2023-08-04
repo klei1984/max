@@ -542,8 +542,8 @@ int32_t WindowManager_Init() {
 
             WindowManager_ScaleWindows();
 
-            WindowManager_SystemPalette = new (std::nothrow) uint8_t[3 * PALETTE_SIZE];
-            memset(WindowManager_SystemPalette, 0, 3 * PALETTE_SIZE);
+            WindowManager_SystemPalette = new (std::nothrow) uint8_t[PALETTE_STRIDE * PALETTE_SIZE];
+            memset(WindowManager_SystemPalette, 0, PALETTE_STRIDE * PALETTE_SIZE);
 
             result = EXIT_CODE_NO_ERROR;
 
@@ -572,30 +572,30 @@ void WindowManager_ClearWindow() {
 
     WindowManager_FadeOut(100);
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-    setSystemPalette(WindowManager_SystemPalette);
+    Color_SetSystemPalette(WindowManager_SystemPalette);
     memset(window->buffer, 0, (window->window.lry + 1) * (window->window.lrx + 1));
     win_draw(window->id);
 }
 
-void WindowManager_FadeOut(int32_t steps) { fadeSystemPalette(getColorPalette(), WindowManager_SystemPalette, steps); }
+void WindowManager_FadeOut(int32_t steps) { Color_FadeSystemPalette(Color_GetColorPalette(), WindowManager_SystemPalette, steps); }
 
-void WindowManager_FadeIn(int32_t steps) { fadeSystemPalette(WindowManager_SystemPalette, getColorPalette(), steps); }
+void WindowManager_FadeIn(int32_t steps) { Color_FadeSystemPalette(WindowManager_SystemPalette, Color_GetColorPalette(), steps); }
 
 void WindowManager_SwapSystemPalette(ImageBigHeader *image) {
     uint8_t *palette;
 
     WindowManager_ClearWindow();
-    palette = getSystemPalette();
+    palette = Color_GetSystemPalette();
 
-    for (int32_t i = 0; i < (3 * PALETTE_SIZE); i++) {
+    for (int32_t i = 0; i < (PALETTE_STRIDE * PALETTE_SIZE); ++i) {
         palette[i] = image->palette[i] / 4;
     }
 
-    setSystemPalette(palette);
+    Color_SetSystemPalette(palette);
 
-    WindowManager_ColorPalette = getColorPalette();
-    memcpy(WindowManager_ColorPalette, palette, 3 * PALETTE_SIZE);
-    setColorPalette(WindowManager_ColorPalette);
+    WindowManager_ColorPalette = Color_GetColorPalette();
+    memcpy(WindowManager_ColorPalette, palette, PALETTE_STRIDE * PALETTE_SIZE);
+    Color_SetColorPalette(WindowManager_ColorPalette);
 }
 
 void WindowManager_LoadPalette(ResourceID id) {

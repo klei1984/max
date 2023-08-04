@@ -2050,7 +2050,7 @@ void GameManager_GameSetup(int32_t game_state) {
             GameManager_LandingSequence.DeleteButtons();
             palette = GameManager_MenuFadeOut(150);
             Movie_Play(DEMO1FLC);
-            memcpy(WindowManager_ColorPalette, palette, 3 * PALETTE_SIZE);
+            memcpy(WindowManager_ColorPalette, palette, PALETTE_STRIDE * PALETTE_SIZE);
 
             delete[] palette;
 
@@ -3238,8 +3238,8 @@ bool GameManager_InitGame() {
 Color* GameManager_MenuFadeOut(int32_t fade_steps) {
     Color* palette;
 
-    palette = new (std::nothrow) Color[3 * PALETTE_SIZE];
-    memcpy(palette, WindowManager_ColorPalette, 3 * PALETTE_SIZE);
+    palette = new (std::nothrow) Color[PALETTE_STRIDE * PALETTE_SIZE];
+    memcpy(palette, WindowManager_ColorPalette, PALETTE_STRIDE * PALETTE_SIZE);
     GameManager_MenuDeinitDisplayControls();
     WindowManager_FadeOut(fade_steps);
     GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, COLOR_BLACK, true);
@@ -3312,7 +3312,7 @@ void GameManager_ColorEffect(struct ColorCycleData* color_cycle_table) {
     }
 
     for (int32_t i = start_index; i <= end_index; ++i) {
-        setSystemPaletteEntry(i, WindowManager_ColorPalette[i * 3 + 0], WindowManager_ColorPalette[i * 3 + 1],
+        Color_SetSystemPaletteEntry(i, WindowManager_ColorPalette[i * 3 + 0], WindowManager_ColorPalette[i * 3 + 1],
                               WindowManager_ColorPalette[i * 3 + 2]);
     }
 }
@@ -3426,7 +3426,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
     WindowManager_FadeOut(0);
     GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, COLOR_BLACK, true);
-    memcpy(WindowManager_ColorPalette, palette_buffer, 3 * PALETTE_SIZE);
+    memcpy(WindowManager_ColorPalette, palette_buffer, PALETTE_STRIDE * PALETTE_SIZE);
     delete[] palette_buffer;
 
     load_successful = false;
