@@ -984,8 +984,8 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
             WindowManager_ColorPalette = Color_GetColorPalette();
 
             for (int32_t i = 0; i < sizeof(palette); i += PALETTE_STRIDE) {
-                palette[i / PALETTE_STRIDE] =
-                    ResourceManager_FindClosestPaletteColor(palette[i], palette[i + 1], palette[i + 2], true);
+                palette[i / PALETTE_STRIDE] = Color_MapColor(WindowManager_ColorPalette, palette[i],
+                                                                     palette[i + 1], palette[i + 2], true);
             }
 
             for (int32_t i = 0; i < map_dimensions.x; ++i) {

@@ -354,10 +354,6 @@ static bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive
 static int32_t ResourceManager_BuildResourceTable(const char *file_path);
 static int32_t ResourceManager_BuildColorTables();
 static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
-static void ResourceManager_ManipulateColorMap(int32_t red_level, int32_t green_level, int32_t blue_level,
-                                               ColorIndex *table);
-static void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level, int32_t blue_level,
-                                                ColorIndex *table);
 static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values);
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
 
@@ -959,40 +955,6 @@ const char *ResourceManager_ToUpperCase(std::string &string) {
     return string.c_str();
 }
 
-ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bool full_scan) {
-    ColorIndex color_index{0};
-    int32_t color_distance;
-    int32_t color_distance_minimum;
-    int32_t red;
-    int32_t green;
-    int32_t blue;
-
-    color_distance_minimum = INT_MAX;
-
-    for (int32_t i = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE) {
-        if (full_scan || ((i < 9 * PALETTE_STRIDE || i > 31 * PALETTE_STRIDE) &&
-                          (i < 96 * PALETTE_STRIDE || i > 127 * PALETTE_STRIDE))) {
-            red = WindowManager_ColorPalette[i] - r;
-            green = WindowManager_ColorPalette[i + 1] - g;
-            blue = WindowManager_ColorPalette[i + 2] - b;
-
-            color_distance = blue * blue + green * green + red * red;
-
-            if (color_distance < color_distance_minimum) {
-                color_distance_minimum = color_distance;
-                color_index = i / PALETTE_STRIDE;
-
-                if (!color_distance_minimum) {
-                    /* found perfect match in palette */
-                    break;
-                }
-            }
-        }
-    }
-
-    return color_index;
-}
-
 void ResourceManager_InitInGameAssets(int32_t world) {
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     uint8_t *world_file_name;
@@ -1221,29 +1183,36 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
     load_bar.SetValue(progress_bar_value);
 
-    ResourceManager_ManipulateColorMap2(63, 0, 0, ResourceManager_ColorIndexTable06);
-    ResourceManager_ManipulateColorMap2(0, 63, 0, ResourceManager_ColorIndexTable07);
-    ResourceManager_ManipulateColorMap2(0, 0, 63, ResourceManager_ColorIndexTable08);
+    if (world >= SNOW_1 && world <= SNOW_6) {
+        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 63, 0, 0, 63, ResourceManager_ColorIndexTable06);
+        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 0, 63, 0, 63, ResourceManager_ColorIndexTable07);
+        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 0, 0, 63, 63, ResourceManager_ColorIndexTable08);
+
+    } else {
+        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 63, 0, 0, 31, ResourceManager_ColorIndexTable06);
+        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 0, 63, 0, 31, ResourceManager_ColorIndexTable07);
+        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 0, 0, 63, 31, ResourceManager_ColorIndexTable08);
+    }
 
     if (world >= CRATER_1 && world <= CRATER_6) {
-        ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
-        ResourceManager_ManipulateColorMap(0, 63, 0, ResourceManager_ColorIndexTable11);
-        ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_ColorIndexTable10);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 0, 63, 0, ResourceManager_ColorIndexTable11);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 0, ResourceManager_ColorIndexTable09);
 
     } else if (world >= GREEN_1 && world <= GREEN_6) {
-        ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
-        ResourceManager_ManipulateColorMap(0, 0, 31, ResourceManager_ColorIndexTable11);
-        ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_ColorIndexTable10);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 0, 0, 31, ResourceManager_ColorIndexTable11);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 0, ResourceManager_ColorIndexTable09);
 
     } else if (world >= DESERT_1 && world <= DESERT_6) {
-        ResourceManager_ManipulateColorMap(63, 63, 63, ResourceManager_ColorIndexTable10);
-        ResourceManager_ManipulateColorMap(0, 0, 31, ResourceManager_ColorIndexTable11);
-        ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_ColorIndexTable10);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 0, 0, 31, ResourceManager_ColorIndexTable11);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 0, ResourceManager_ColorIndexTable09);
 
     } else if (world >= SNOW_1 && world <= SNOW_6) {
-        ResourceManager_ManipulateColorMap(63, 0, 0, ResourceManager_ColorIndexTable10);
-        ResourceManager_ManipulateColorMap(0, 0, 63, ResourceManager_ColorIndexTable11);
-        ResourceManager_ManipulateColorMap(63, 63, 0, ResourceManager_ColorIndexTable09);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 0, 0, ResourceManager_ColorIndexTable10);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 0, 0, 63, ResourceManager_ColorIndexTable11);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 0, ResourceManager_ColorIndexTable09);
     }
 
     for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
@@ -1263,7 +1232,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
         g = (std::max(factor, g) * 31) / 63;
         b = (std::max(factor, b) * 31) / 63;
 
-        ResourceManager_ColorIndexTable12[j] = ResourceManager_FindClosestPaletteColor(r, g, b, false);
+        ResourceManager_ColorIndexTable12[j] = Color_MapColor(WindowManager_ColorPalette, r, g, b, false);
     }
 
     progress_bar_value += 3;
@@ -1281,7 +1250,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
                 int32_t b = (WindowManager_ColorPalette[j + 2] * i) / (7 * 32);
 
                 ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] =
-                    ResourceManager_FindClosestPaletteColor(r, g, b, false);
+                    Color_MapColor(WindowManager_ColorPalette, r, g, b, false);
             }
         }
 
@@ -1352,69 +1321,6 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     }
 
     return true;
-}
-
-void ResourceManager_ManipulateColorMap(int32_t red_level, int32_t green_level, int32_t blue_level, ColorIndex *table) {
-    int32_t max_level;
-    int32_t max_color;
-    int32_t red;
-    int32_t green;
-    int32_t blue;
-
-    if (!red_level && !green_level && !blue_level) {
-        red_level = 1;
-        green_level = 1;
-        blue_level = 1;
-    }
-
-    max_level = std::max(red_level, green_level);
-    max_level = std::max(max_level, blue_level);
-
-    for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
-        red = WindowManager_ColorPalette[i];
-        green = WindowManager_ColorPalette[i + 1];
-        blue = WindowManager_ColorPalette[i + 2];
-
-        max_color = std::max(red, green);
-        max_color = std::max(max_color, blue);
-
-        max_color = (max_color + max_level) / 2;
-
-        red = (max_color * red_level) / max_level;
-        green = (max_color * green_level) / max_level;
-        blue = (max_color * blue_level) / max_level;
-
-        table[j] = ResourceManager_FindClosestPaletteColor(red, green, blue, false);
-    }
-}
-
-void ResourceManager_ManipulateColorMap2(int32_t red_level, int32_t green_level, int32_t blue_level,
-                                         ColorIndex *table) {
-    int32_t world;
-    int32_t factor;
-    int32_t red;
-    int32_t green;
-    int32_t blue;
-
-    world = ini_get_setting(INI_WORLD) + SNOW_1;
-
-    if (world >= SNOW_1 && world <= SNOW_6) {
-        factor = 63;
-    } else {
-        factor = 31;
-    }
-
-    for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
-        red = WindowManager_ColorPalette[i];
-        green = WindowManager_ColorPalette[i + 1];
-        blue = WindowManager_ColorPalette[i + 2];
-
-        red = (std::max(red, red_level / 4) * red_level) / factor;
-        green = (std::max(green, green_level / 4) * green_level) / factor;
-        blue = (std::max(blue, blue_level / 4) * blue_level) / factor;
-
-        table[j] = ResourceManager_FindClosestPaletteColor(red, green, blue, false);
-    }
 }
 
 void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values) {

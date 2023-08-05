@@ -577,9 +577,13 @@ void WindowManager_ClearWindow() {
     win_draw(window->id);
 }
 
-void WindowManager_FadeOut(int32_t steps) { Color_FadeSystemPalette(Color_GetColorPalette(), WindowManager_SystemPalette, steps); }
+void WindowManager_FadeOut(int32_t steps) {
+    Color_FadeSystemPalette(Color_GetColorPalette(), WindowManager_SystemPalette, steps);
+}
 
-void WindowManager_FadeIn(int32_t steps) { Color_FadeSystemPalette(WindowManager_SystemPalette, Color_GetColorPalette(), steps); }
+void WindowManager_FadeIn(int32_t steps) {
+    Color_FadeSystemPalette(WindowManager_SystemPalette, Color_GetColorPalette(), steps);
+}
 
 void WindowManager_SwapSystemPalette(ImageBigHeader *image) {
     uint8_t *palette;

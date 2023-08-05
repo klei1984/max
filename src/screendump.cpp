@@ -48,11 +48,11 @@ typedef struct {
     uint8_t Reserved2[54];
 } PcxHeader;
 
-int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal) {
+int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buffer, uint8_t *palette) {
     PcxHeader pcx_header;
     char filename[PATH_MAX];
     int32_t file_index;
-    uint8_t palette[PALETTE_STRIDE * PALETTE_SIZE];
+    uint8_t pcx_palette[PALETTE_STRIDE * PALETTE_SIZE];
     FILE *fp;
 
     file_index = 0;
@@ -85,10 +85,10 @@ int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal
     pcx_header.PaletteType = 1;
 
     for (int32_t i = 0; i < (PALETTE_STRIDE * PALETTE_SIZE); i++) {
-        palette[i] = pal[i] * 4;
+        pcx_palette[i] = palette[i] * 4;
     }
 
-    memcpy(pcx_header.Palette, palette, sizeof(pcx_header.Palette));
+    memcpy(pcx_header.Palette, pcx_palette, sizeof(pcx_header.Palette));
 
     fwrite(&pcx_header, 1, sizeof(PcxHeader), fp);
 
@@ -99,26 +99,26 @@ int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal
         scan_line_pos = 0;
         do {
             for (repeat_count = 1; ((scan_line_pos + repeat_count) < width) && (repeat_count < 63) &&
-                                   (buf[scan_line_pos + repeat_count - 1] == buf[repeat_count + scan_line_pos]);
+                                   (buffer[scan_line_pos + repeat_count - 1] == buffer[repeat_count + scan_line_pos]);
                  ++repeat_count) {
                 ;
             }
 
-            if ((repeat_count > 1) || (buf[scan_line_pos] & 0xC0)) {
+            if ((repeat_count > 1) || (buffer[scan_line_pos] & 0xC0)) {
                 fputc(repeat_count | 0xC0, fp);
             }
 
-            fputc(buf[scan_line_pos], fp);
+            fputc(buffer[scan_line_pos], fp);
             scan_line_pos += repeat_count;
         } while (scan_line_pos < width);
 
-        buf += width;
+        buffer += width;
         --length;
     }
 
     fputc(0x0C, fp);
 
-    fwrite(palette, 1, sizeof(palette), fp);
+    fwrite(pcx_palette, 1, sizeof(pcx_palette), fp);
 
     fclose(fp);
 

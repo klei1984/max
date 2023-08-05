@@ -95,7 +95,8 @@ void draw_box(uint8_t* buf, int32_t full, int32_t ulx, int32_t uly, int32_t lrx,
     draw_line(buf, full, lrx, uly, lrx, lry, color);
 }
 
-void draw_shaded_box(uint8_t* buf, int32_t full, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color1, int32_t color2) {
+void draw_shaded_box(uint8_t* buf, int32_t full, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color1,
+                     int32_t color2) {
     draw_line(buf, full, ulx, uly, lrx, uly, color1);
     draw_line(buf, full, ulx, lry, lrx, lry, color2);
     draw_line(buf, full, ulx, uly, ulx, lry, color1);
@@ -181,7 +182,8 @@ void cscale(uint8_t* src, int32_t ow, int32_t ol, int32_t full, uint8_t* dst, in
     }
 }
 
-void trans_cscale(uint8_t* src, int32_t ow, int32_t ol, int32_t full, uint8_t* dst, int32_t nw, int32_t nl, int32_t full2) {
+void trans_cscale(uint8_t* src, int32_t ow, int32_t ol, int32_t full, uint8_t* dst, int32_t nw, int32_t nl,
+                  int32_t full2) {
     uint8_t* src_addr;
     uint8_t* dst_addr;
 
@@ -354,7 +356,7 @@ void buf_texture(uint8_t* buf, int32_t width, int32_t length, int32_t full, uint
 void lighten_buf(uint8_t* buf, int32_t width, int32_t length, int32_t full) {
     for (uint32_t y = 0; y < length; y++) {
         for (uint32_t x = 0; x < width; x++) {
-            *buf = intensityColorTable[*buf][147];
+            *buf = Color_ColorIntensity(0x12600, *buf);
             buf++;
         }
 

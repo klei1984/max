@@ -24,15 +24,16 @@
 #include "gnw.h"
 
 #define RGB555_COLOR_COUNT (1 << 15)
-
-Color intensityColorTable[256][PALETTE_SIZE];
+#define PALETTE_FILE_TAG 0x4E455743 /* 'NEWC' */
 
 static int8_t Color_Inited;
-static ColorIndex Color_RgbIndexTable[RGB555_COLOR_COUNT];
 static uint8_t Color_ColorPalette[PALETTE_STRIDE * PALETTE_SIZE];
 static uint8_t Color_SystemPalette[PALETTE_STRIDE * PALETTE_SIZE];
+static ColorIndex Color_RgbIndexTable[RGB555_COLOR_COUNT];
+static Color Color_IntensityColorTable[256][PALETTE_SIZE];
 
 Color Color_RGB2Color(ColorRGB c) { return Color_RgbIndexTable[c]; }
+Color Color_ColorIntensity(int32_t intensity, Color color) { return Color_IntensityColorTable[color][intensity / 512]; }
 
 void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps) {
     uint8_t temp[PALETTE_STRIDE * PALETTE_SIZE];
@@ -50,24 +51,16 @@ void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps) {
 }
 
 void Color_SetSystemPalette(uint8_t* palette) {
-    memmove(Color_SystemPalette, palette, PALETTE_STRIDE * PALETTE_SIZE);
-
     for (int32_t i = 0; i < PALETTE_SIZE; ++i) {
-        SDL_Color color;
-
-        color.r = palette[PALETTE_STRIDE * i + 0] * 4;
-        color.g = palette[PALETTE_STRIDE * i + 1] * 4;
-        color.b = palette[PALETTE_STRIDE * i + 2] * 4;
-        color.a = 0;
-
-        Svga_SetPaletteColor(i, &color);
+        Color_SetSystemPaletteEntry(i, palette[PALETTE_STRIDE * i + 0], palette[PALETTE_STRIDE * i + 1],
+                                    palette[PALETTE_STRIDE * i + 2]);
     }
 }
 
 uint8_t* Color_GetSystemPalette(void) { return Color_SystemPalette; }
 
 void Color_SetSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b) {
-    Color_SystemPalette[entry * PALETTE_STRIDE] = r;
+    Color_SystemPalette[entry * PALETTE_STRIDE + 0] = r;
     Color_SystemPalette[entry * PALETTE_STRIDE + 1] = g;
     Color_SystemPalette[entry * PALETTE_STRIDE + 2] = b;
 
@@ -98,8 +91,16 @@ int32_t Color_Init(void) {
             result = 0;
 
         } else {
+            uint32_t tag;
+
             fread(Color_ColorPalette, sizeof(Color_ColorPalette), 1, in);
             fread(Color_RgbIndexTable, sizeof(Color_RgbIndexTable), 1, in);
+
+            fread(&tag, sizeof(tag), 1, in);
+
+            if (tag == PALETTE_FILE_TAG) {
+                fread(Color_IntensityColorTable, sizeof(Color_IntensityColorTable), 1, in);
+            }
 
             fclose(in);
 
@@ -123,9 +124,9 @@ int32_t Color_GetColorDistance(Color* color1, Color* color2) {
     return diff_r * diff_r + diff_g * diff_g + diff_b * diff_b;
 }
 
-void Color_ChangeColorTemperature(int32_t factor_r, int32_t factor_g, int32_t factor_b, int32_t multiplier_factor1,
-                                  int32_t multiplier_factor2, uint8_t* color_map) {
-    int32_t multiplier_factor_sum;
+void Color_GenerateIntensityTable1(int32_t red_level, int32_t green_level, int32_t blue_level, int32_t factor1,
+                                   int32_t factor2, uint8_t* table) {
+    int32_t factor_sum;
     Color* palette;
     int32_t index;
     Color color[3];
@@ -134,17 +135,14 @@ void Color_ChangeColorTemperature(int32_t factor_r, int32_t factor_g, int32_t fa
 
     palette = Color_GetSystemPalette();
 
-    multiplier_factor_sum = multiplier_factor1 + multiplier_factor2;
+    factor_sum = factor1 + factor2;
 
     for (int32_t i = 0; i < PALETTE_SIZE; ++i) {
         index = i;
 
-        color[0] = (palette[i * PALETTE_STRIDE + 0] * multiplier_factor2 + factor_r * multiplier_factor1) /
-                   multiplier_factor_sum;
-        color[1] = (palette[i * PALETTE_STRIDE + 1] * multiplier_factor2 + factor_g * multiplier_factor1) /
-                   multiplier_factor_sum;
-        color[2] = (palette[i * PALETTE_STRIDE + 2] * multiplier_factor2 + factor_b * multiplier_factor1) /
-                   multiplier_factor_sum;
+        color[0] = (palette[i * PALETTE_STRIDE + 0] * factor2 + red_level * factor1) / factor_sum;
+        color[1] = (palette[i * PALETTE_STRIDE + 1] * factor2 + green_level * factor1) / factor_sum;
+        color[2] = (palette[i * PALETTE_STRIDE + 2] * factor2 + blue_level * factor1) / factor_sum;
 
         distance1 = Color_GetColorDistance(&palette[index * PALETTE_STRIDE], color);
 
@@ -157,7 +155,61 @@ void Color_ChangeColorTemperature(int32_t factor_r, int32_t factor_g, int32_t fa
             }
         }
 
-        color_map[i] = index;
+        table[i] = index;
+    }
+}
+
+void Color_GenerateIntensityTable2(uint8_t* palette, int32_t red_level, int32_t green_level, int32_t blue_level,
+                                   ColorIndex* table) {
+    int32_t max_level;
+    int32_t max_color;
+    int32_t red;
+    int32_t green;
+    int32_t blue;
+
+    if (!red_level && !green_level && !blue_level) {
+        red_level = 1;
+        green_level = 1;
+        blue_level = 1;
+    }
+
+    max_level = std::max(red_level, green_level);
+    max_level = std::max(max_level, blue_level);
+
+    for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
+        red = palette[i + 0];
+        green = palette[i + 1];
+        blue = palette[i + 2];
+
+        max_color = std::max(red, green);
+        max_color = std::max(max_color, blue);
+
+        max_color = (max_color + max_level) / 2;
+
+        red = (max_color * red_level) / max_level;
+        green = (max_color * green_level) / max_level;
+        blue = (max_color * blue_level) / max_level;
+
+        table[j] = Color_MapColor(palette, red, green, blue, false);
+    }
+}
+
+void Color_GenerateIntensityTable3(uint8_t* palette, int32_t red_level, int32_t green_level, int32_t blue_level,
+                                   int32_t factor, ColorIndex* table) {
+    int32_t red;
+    int32_t green;
+    int32_t blue;
+
+    for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
+        red = palette[i + 0];
+        green = palette[i + 1];
+        blue = palette[i + 2];
+
+        red = (std::max(red, red_level / 4) * red_level) / factor;
+        green = (std::max(green, green_level / 4) * green_level) / factor;
+        blue = (std::max(blue, blue_level / 4) * blue_level) / factor;
+
+        table[j] = Color_MapColor(palette, red, green, blue, false);
     }
 }
 
@@ -167,4 +219,38 @@ void Color_RecolorPixels(uint8_t* buffer, int32_t width, int32_t width_text, int
             buffer[i * width + j] = color_map[buffer[i * width + j]];
         }
     }
+}
+
+ColorIndex Color_MapColor(uint8_t* palette, Color r, Color g, Color b, bool full_scan) {
+    ColorIndex color_index = 0;
+    int32_t color_distance;
+    int32_t color_distance_minimum;
+    int32_t red;
+    int32_t green;
+    int32_t blue;
+
+    color_distance_minimum = INT_MAX;
+
+    for (int32_t i = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE) {
+        if (full_scan || ((i < 9 * PALETTE_STRIDE || i > 31 * PALETTE_STRIDE) &&
+                          (i < 96 * PALETTE_STRIDE || i > 127 * PALETTE_STRIDE))) {
+            red = palette[i] - r;
+            green = palette[i + 1] - g;
+            blue = palette[i + 2] - b;
+
+            color_distance = blue * blue + green * green + red * red;
+
+            if (color_distance < color_distance_minimum) {
+                color_distance_minimum = color_distance;
+                color_index = i / PALETTE_STRIDE;
+
+                if (!color_distance_minimum) {
+                    /* found perfect match in palette */
+                    break;
+                }
+            }
+        }
+    }
+
+    return color_index;
 }

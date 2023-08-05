@@ -71,9 +71,9 @@ void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count) {
     for (int32_t i = start; i < (start + count); i++) {
         SDL_Color color;
 
-        color.r = p[3 * i + 0] * 4;
-        color.g = p[3 * i + 1] * 4;
-        color.b = p[3 * i + 2] * 4;
+        color.r = p[PALETTE_STRIDE * i + 0] * 4;
+        color.g = p[PALETTE_STRIDE * i + 1] * 4;
+        color.b = p[PALETTE_STRIDE * i + 2] * 4;
         color.a = 0;
 
         Svga_SetPaletteColor(i, &color);

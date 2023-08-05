@@ -48,7 +48,7 @@ static void pause_game(void);
 static WinID default_pause_window(void);
 static void buf_blit(uint8_t *buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h,
                      uint32_t dstx, uint32_t dsty);
-static int32_t default_screendump(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal);
+static int32_t default_screendump(int32_t width, int32_t length, uint8_t *buffer, uint8_t *palette);
 static void GNW_process_key(SDL_KeyboardEvent *key_data);
 
 static inputdata input_buffer[GNW_INPUT_BUFFER_SIZE];
@@ -678,7 +678,7 @@ void buf_blit(uint8_t *buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t 
                scr_size.lrx - scr_size.ulx + 1);
 }
 
-int32_t default_screendump(int32_t width, int32_t length, uint8_t *buf, uint8_t *pal) {
+int32_t default_screendump(int32_t width, int32_t length, uint8_t *buffer, uint8_t *palette) {
     uint8_t blue;
     uint8_t reserved;
     uint8_t red;
@@ -750,12 +750,11 @@ int32_t default_screendump(int32_t width, int32_t length, uint8_t *buf, uint8_t 
         temp_unsigned_32 = 0;
         fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
 
-        for (i = 0; i < 256; ++i) {
+        for (i = 0; i < PALETTE_SIZE; ++i) {
             reserved = 0;
-            red = 4 * pal[0];
-            green = 4 * pal[1];
-            blue = 4 * pal[2];
-            pal += 3;
+            red = palette[PALETTE_STRIDE * i + 0] * 4;
+            green = palette[PALETTE_STRIDE * i + 1] * 4;
+            blue = palette[PALETTE_STRIDE * i + 2] * 4;
 
             fwrite(&blue, 1, 1, fp);
             fwrite(&green, 1, 1, fp);
@@ -763,8 +762,8 @@ int32_t default_screendump(int32_t width, int32_t length, uint8_t *buf, uint8_t 
             fwrite(&reserved, 1, 1, fp);
         }
 
-        for (i = length - 1; i >= 0; i--) {
-            fwrite(&buf[width * i], sizeof(uint8_t), width, fp);
+        for (i = length - 1; i >= 0; --i) {
+            fwrite(&buffer[width * i], sizeof(uint8_t), width, fp);
         }
 
         fflush(fp);

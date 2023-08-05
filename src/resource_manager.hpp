@@ -104,7 +104,6 @@ extern Point ResourceManager_MapSize;
 void ResourceManager_InitPaths(int32_t argc, char *argv[]);
 void ResourceManager_InitResources();
 void ResourceManager_ExitGame(int32_t error_code);
-ColorIndex ResourceManager_FindClosestPaletteColor(Color r, Color g, Color b, bool full_scan);
 uint8_t *ResourceManager_ReadResource(ResourceID id);
 uint8_t *ResourceManager_LoadResource(ResourceID id);
 uint32_t ResourceManager_GetResourceSize(ResourceID id);
