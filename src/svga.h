@@ -45,6 +45,7 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
 int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y);
 void Svga_SetPaletteColor(int32_t index, SDL_Color *color);
 void Svga_SetPalette(SDL_Palette *palette);
+SDL_Palette *Svga_GetPalette();
 int32_t Svga_GetScreenWidth(void);
 int32_t Svga_GetScreenHeight(void);
 int32_t Svga_GetScreenRefreshRate(void);

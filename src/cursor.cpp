@@ -61,8 +61,8 @@ static uint8_t Cursor_DefaultWindowCursorLut[] = {
 
 static uint8_t Cursor_ActiveCursorIndex = CURSOR_HIDDEN;
 
-static void Cursor_DrawAttackPowerCursorHelper(int32_t target_current_hits, int32_t attacker_damage, int32_t target_base_hits,
-                                               uint8_t cursor_index) {
+static void Cursor_DrawAttackPowerCursorHelper(int32_t target_current_hits, int32_t attacker_damage,
+                                               int32_t target_base_hits, uint8_t cursor_index) {
     Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
     int32_t lrx = cursor->ulx - 18;
     int32_t lry = cursor->uly + 15;
@@ -100,13 +100,13 @@ static void Cursor_DrawAttackPowerCursorHelper(int32_t target_current_hits, int3
 
 void Cursor_Init() {
     for (int32_t cursor_index = 0; cursor_index < CURSOR_CURSOR_COUNT; ++cursor_index) {
-        struct ImageSimpleHeader* sprite =
+        struct ImageSimpleHeader* const sprite =
             reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(Cursor_ResourceLut[cursor_index]));
-        Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
-
-        cursor->data = &sprite->transparent_color;
 
         if (sprite) {
+            Cursor_Descriptor* cursor = &Cursor_CursorDescriptorLut[cursor_index];
+
+            cursor->data = &sprite->transparent_color;
             cursor->width = sprite->width;
             cursor->height = sprite->height;
             cursor->ulx = sprite->ulx;
@@ -125,9 +125,7 @@ void Cursor_Init() {
 
 uint8_t Cursor_GetCursor() { return Cursor_ActiveCursorIndex; }
 
-uint8_t Cursor_GetDefaultWindowCursor(uint8_t window_index) {
-    return Cursor_DefaultWindowCursorLut[window_index];
-}
+uint8_t Cursor_GetDefaultWindowCursor(uint8_t window_index) { return Cursor_DefaultWindowCursorLut[window_index]; }
 
 void Cursor_SetCursor(uint8_t cursor_index) {
     if (cursor_index != Cursor_ActiveCursorIndex) {

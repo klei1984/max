@@ -214,14 +214,9 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
                sdlPaletteSurface->format->BytesPerPixel == sizeof(uint8_t));
 
     {
-        uint8_t *target_pixels = &((uint8_t *)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY];
-        uint8_t *source_pixels = &srcBuf[subX + srcW * subY];
-
-        for (uint32_t h = 0; h < subH; ++h) {
-            SDL_memcpy(target_pixels, source_pixels, subW);
-            source_pixels += srcW;
-            target_pixels += sdlPaletteSurface->pitch;
-        }
+        buf_to_buf(&srcBuf[subX + srcW * subY], subW, subH, srcW,
+                   &((uint8_t *)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY],
+                   sdlPaletteSurface->pitch);
     }
 
     SDL_Rect bounds = {static_cast<int32_t>(dstX), static_cast<int32_t>(dstY), static_cast<int32_t>(subW),
@@ -315,6 +310,8 @@ void Svga_SetPalette(SDL_Palette *palette) {
 
     Svga_RefreshSystemPalette(true);
 }
+
+SDL_Palette *Svga_GetPalette() { return sdlPaletteSurface->format->palette; }
 
 int32_t Svga_GetScreenWidth(void) { return Svga_ScreenWidth; }
 
