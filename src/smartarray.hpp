@@ -26,18 +26,19 @@
 
 #include "smartpointer.hpp"
 
-#define SMARTARRAY_DEFAULT_GROWTH_FACTOR 5
-
 template <class T>
 class SmartArray {
-    uint16_t capacity;
+    static constexpr uint16_t MINIMUM_GROWTH_FACTOR = UINT16_C(5);
+    static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(20);
+
+    SmartPointer<T>* smartarray{nullptr};
     uint16_t growth_factor;
-    uint16_t count;
-    SmartPointer<T>* smartarray;
+    uint16_t capacity{0};
+    uint16_t count{0};
 
 public:
-    SmartArray(uint16_t growth_factor = SMARTARRAY_DEFAULT_GROWTH_FACTOR)
-        : capacity(0), growth_factor(growth_factor), count(0), smartarray(nullptr) {}
+    SmartArray(uint16_t growth_factor = DEFAULT_GROWTH_FACTOR)
+        : growth_factor(growth_factor < MINIMUM_GROWTH_FACTOR ? MINIMUM_GROWTH_FACTOR : growth_factor) {}
     ~SmartArray() {
         Release();
 
@@ -45,13 +46,12 @@ public:
     }
 
     void Insert(T* object, uint16_t index = SHRT_MAX) {
-        SmartPointer<T>* array;
-
         if (count == capacity) {
-            array = new (std::nothrow) SmartPointer<T>[growth_factor + capacity + 1];
+            auto* array = new (std::nothrow) SmartPointer<T>[growth_factor + capacity];
 
             for (int32_t i = 0; i < count; ++i) {
                 array[i] = smartarray[i];
+                smartarray[i] = nullptr;
             }
 
             delete[] smartarray;
@@ -79,15 +79,13 @@ public:
             smartarray[i] = smartarray[i + 1];
         }
 
-        SmartPointer<T> sp;
-        smartarray[count - 1] = sp;
+        smartarray[count - 1] = nullptr;
         --count;
     }
 
     void Release() {
         for (int32_t i = 0; i < count; ++i) {
-            SmartPointer<T> sp;
-            smartarray[i] = sp;
+            smartarray[i] = nullptr;
         }
 
         count = 0;
