@@ -31,6 +31,7 @@ add_executable(
     smartpointer.cpp
     smartlist.cpp
     smartarray.cpp
+    sortedarray.cpp
 )
 
 target_compile_options(max_tests PRIVATE --coverage)

@@ -45,7 +45,7 @@ public:
         delete[] smartarray;
     }
 
-    void Insert(T* object, uint16_t index = SHRT_MAX) {
+    uint16_t Insert(T* object, uint16_t index = SHRT_MAX) {
         if (count == capacity) {
             auto* array = new (std::nothrow) SmartPointer<T>[growth_factor + capacity];
 
@@ -70,6 +70,8 @@ public:
 
         smartarray[index] = object;
         ++count;
+
+        return index;
     }
 
     void Erase(uint16_t index) {

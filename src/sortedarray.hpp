@@ -22,15 +22,13 @@
 #ifndef SORTEDARRAY_HPP
 #define SORTEDARRAY_HPP
 
-#include <cstring>
-
 #include "smartarray.hpp"
 
 class SortKey {
 public:
-    SortKey() {}
-    SortKey(const SortKey& other) {}
-    virtual ~SortKey() {}
+    SortKey() = default;
+    SortKey(const SortKey& other) = default;
+    virtual ~SortKey() = default;
 
     virtual int32_t Compare(const SortKey& other) const = 0;
 };
@@ -39,10 +37,12 @@ class CharSortKey : public SortKey {
     const char* name;
 
 public:
-    CharSortKey(const char* name) : name(name) {}
+    explicit CharSortKey(const char* name) : name(name) {}
     CharSortKey(const CharSortKey& other) : name(other.name) {}
 
-    int32_t Compare(const SortKey& other) const { return strcmp(name, dynamic_cast<const CharSortKey&>(other).name); }
+    int32_t Compare(const SortKey& other) const override {
+        return SDL_strcmp(name, dynamic_cast<const CharSortKey&>(other).name);
+    }
     const char* GetKey() const { return name; }
 };
 
@@ -50,31 +50,32 @@ class ShortSortKey : public SortKey {
     uint16_t key;
 
 public:
-    ShortSortKey(uint16_t key) : key(key) {}
+    explicit ShortSortKey(uint16_t key) : key(key) {}
     ShortSortKey(const ShortSortKey& other) : key(other.key) {}
 
-    int32_t Compare(const SortKey& other) const { return key - dynamic_cast<const ShortSortKey&>(other).key; }
+    int32_t Compare(const SortKey& other) const override { return key - dynamic_cast<const ShortSortKey&>(other).key; }
     uint16_t GetKey() const { return key; }
 };
 
 template <class T>
 class SortedArray : public SmartArray<T> {
     int32_t Find(SortKey& sort_key, bool mode) const {
-        int32_t last = this->GetCount() - 1;
-        int32_t first = 0;
-        int32_t position;
+        int32_t last{this->GetCount() - 1};
+        int32_t first{0};
+        int32_t position{-1};
 
         while (first <= last) {
-            int32_t comparison_result;
-
             position = (first + last) / 2;
 
-            comparison_result = sort_key.Compare(GetSortKey(operator[](position)));
+            int32_t comparison_result = sort_key.Compare(GetSortKey(operator[](position)));
 
             if (0 == comparison_result) {
                 return position;
-            } else if (comparison_result < 0) {
+            }
+
+            if (comparison_result < 0) {
                 last = position - 1;
+
             } else {
                 first = position + 1;
             }
@@ -82,6 +83,7 @@ class SortedArray : public SmartArray<T> {
 
         if (mode) {
             position = -1;
+
         } else {
             position = first;
         }
@@ -90,32 +92,31 @@ class SortedArray : public SmartArray<T> {
     }
 
 public:
-    SortedArray(uint16_t growth_factor) : SmartArray<T>(growth_factor) {}
-    virtual ~SortedArray() {}
+    explicit SortedArray(uint16_t growth_factor = SmartArray<T>::DEFAULT_GROWTH_FACTOR)
+        : SmartArray<T>(growth_factor) {}
+    virtual ~SortedArray() = default;
 
     uint16_t Insert(T& object) {
-        uint16_t position;
+        auto position = Find(GetSortKey(object), false);
 
-        position = Find(GetSortKey(object), false);
         SmartArray<T>::Insert(&object, position);
 
         return position;
     }
 
     virtual SortKey& GetSortKey(T& object) const = 0;
-    T& operator[](SortKey& sort_key) const {
-        T* object;
-        int32_t position;
 
-        position = Find(sort_key, true);
+    T* operator[](SortKey& sort_key) const {
+        T* object{nullptr};
+        auto position = Find(sort_key, true);
+
         if (position >= 0) {
             object = &(SmartArray<T>::operator[](position));
-        } else {
-            object = nullptr;
         }
 
-        return *object;
+        return object;
     }
+
     T& operator[](uint16_t index) const { return SmartArray<T>::operator[](index); }
 };
 
