@@ -37,15 +37,15 @@ class SmartArray {
     uint16_t count{0};
 
 public:
-    SmartArray(uint16_t growth_factor = DEFAULT_GROWTH_FACTOR)
+    SmartArray(uint16_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
         : growth_factor(growth_factor < MINIMUM_GROWTH_FACTOR ? MINIMUM_GROWTH_FACTOR : growth_factor) {}
-    ~SmartArray() {
+    virtual ~SmartArray() noexcept {
         Release();
 
         delete[] smartarray;
     }
 
-    uint16_t Insert(T* object, uint16_t index = SHRT_MAX) {
+    inline uint16_t Insert(T* object, uint16_t index = SHRT_MAX) noexcept {
         if (count == capacity) {
             auto* array = new (std::nothrow) SmartPointer<T>[growth_factor + capacity];
 
@@ -74,7 +74,7 @@ public:
         return index;
     }
 
-    void Erase(uint16_t index) {
+    inline void Erase(uint16_t index) noexcept {
         SDL_assert(index < count);
 
         for (int32_t i = index; i < count - 1; ++i) {
@@ -85,7 +85,7 @@ public:
         --count;
     }
 
-    void Release() {
+    inline void Release() noexcept {
         for (int32_t i = 0; i < count; ++i) {
             smartarray[i] = nullptr;
         }
@@ -93,9 +93,9 @@ public:
         count = 0;
     }
 
-    uint16_t GetCount() const { return count; }
+    [[nodiscard]] inline uint16_t GetCount() const noexcept { return count; }
 
-    T& operator[](uint16_t index) const { return *smartarray[index]; }
+    [[nodiscard]] inline T& operator[](uint16_t index) const noexcept { return *smartarray[index]; }
 };
 
 #endif /* SMARTARRAY_HPP */

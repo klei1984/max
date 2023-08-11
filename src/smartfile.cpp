@@ -23,10 +23,6 @@
 
 #include "registerarray.hpp"
 
-FileObject::FileObject() : object_index(0) {}
-FileObject::FileObject(const FileObject& other) : object_index(other.object_index) {}
-FileObject::~FileObject() {}
-
 SmartFileReader::SmartFileReader() : file(nullptr) {}
 
 SmartFileReader::SmartFileReader(const char* const path) : file(nullptr) { Open(path); }
@@ -95,9 +91,9 @@ FileObject* SmartFileReader::ReadObject() {
             SDL_assert(object_index == read_objects.GetCount() + 1);
             type_index = ReadIndex();
             SDL_assert(type_index != 0);
-            SDL_assert(type_index <= registered_classes->GetCount());
+            SDL_assert(type_index <= RegisterClass::GetRegister().GetCount());
 
-            object = (*registered_classes)[type_index - 1].Allocate();
+            object = RegisterClass::GetRegister()[type_index - 1].Allocate();
             LoadObject(*object);
         }
     }

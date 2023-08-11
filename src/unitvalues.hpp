@@ -59,8 +59,8 @@ public:
     void SetUnitsBuilt(uint8_t count);
 
     uint16_t GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
+    void FileLoad(SmartFileReader& file) noexcept;
+    void FileSave(SmartFileWriter& file) noexcept;
 
     bool operator==(const UnitValues& other) const;
     bool operator!=(const UnitValues& other) const;

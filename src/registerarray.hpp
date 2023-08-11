@@ -25,43 +25,47 @@
 #include "fileobject.hpp"
 #include "sortedarray.hpp"
 
-class MAXRegisterClass : public SmartObject {
+class RegisterArray;
+
+class RegisterClass : public SmartObject {
+    static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(5);
+    static RegisterArray* registered_classes;
     CharSortKey sortkey;
     FileObject* (*allocator)();
     uint16_t* type_index;
 
-    void Insert();
+    void Insert() noexcept;
 
 public:
-    MAXRegisterClass(const char* class_name, uint16_t* type_index, FileObject* (*allocator)())
+    RegisterClass(const char* class_name, uint16_t* type_index, FileObject* (*allocator)()) noexcept
         : sortkey(class_name), allocator(allocator), type_index(type_index) {
         Insert();
     }
-    MAXRegisterClass(const MAXRegisterClass& other)
+    RegisterClass(const RegisterClass& other) noexcept
         : sortkey(other.sortkey), allocator(other.allocator), type_index(other.type_index) {}
-    ~MAXRegisterClass() {}
+    ~RegisterClass() noexcept override = default;
 
-    FileObject* Allocate() const { return allocator(); }
-    uint16_t* GetTypeIndexPointer() const { return type_index; }
-    static void SetTypeIndex(uint16_t* type_index_pointer, uint16_t value) { *type_index_pointer = value; }
-    SortKey& GetSortKey() { return sortkey; }
-    const char* GetClassName() const { return sortkey.GetKey(); }
+    [[nodiscard]] inline FileObject* Allocate() const noexcept { return allocator(); }
+    [[nodiscard]] inline uint16_t* GetTypeIndexPointer() const noexcept { return type_index; }
+    static void SetTypeIndex(uint16_t* type_index_pointer, uint16_t value) noexcept { *type_index_pointer = value; }
+    [[nodiscard]] inline SortKey& GetSortKey() noexcept { return sortkey; }
+    [[nodiscard]] inline const char* GetClassName() const noexcept { return sortkey.GetKey(); }
+    [[nodiscard]] static inline RegisterArray& GetRegister() noexcept { return *registered_classes; }
 };
 
-class RegisterArray : public SortedArray<MAXRegisterClass> {
+class RegisterArray : public SortedArray<RegisterClass> {
 public:
-    RegisterArray(uint16_t growth_factor) : SortedArray<MAXRegisterClass>(growth_factor) {}
+    explicit RegisterArray(uint16_t growth_factor) noexcept : SortedArray<RegisterClass>(growth_factor) {}
+    ~RegisterArray() noexcept override = default;
 
-    void Insert(MAXRegisterClass& object) {
-        for (uint16_t position = SortedArray<MAXRegisterClass>::Insert(object); position < GetCount();
-             ++position) {
-            MAXRegisterClass::SetTypeIndex(operator[](position).GetTypeIndexPointer(), position + 1);
+    inline void Insert(RegisterClass& object) noexcept {
+        for (uint16_t position = SortedArray<RegisterClass>::Insert(object); position < GetCount(); ++position) {
+            RegisterClass::SetTypeIndex(operator[](position).GetTypeIndexPointer(), position + 1);
         }
     }
-
-    SortKey& GetSortKey(MAXRegisterClass& object) const { return object.GetSortKey(); }
+    [[nodiscard]] inline SortKey& GetSortKey(RegisterClass& object) const noexcept override {
+        return object.GetSortKey();
+    }
 };
-
-extern RegisterArray* registered_classes;
 
 #endif /* REGISTERARRAY_HPP */

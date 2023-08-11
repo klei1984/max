@@ -441,7 +441,7 @@ static const std::vector<SoundElement> UnitInfo_SfxAlienAttackPlane = {{{SFX_TYP
                                                                         {SFX_TYPE_TAKE, ALNPL20}}};
 
 const uint8_t UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESEARCH_TOPIC_SHOTS, RESEARCH_TOPIC_RANGE,
-                                                     RESEARCH_TOPIC_ARMOR, RESEARCH_TOPIC_HITS};
+                                               RESEARCH_TOPIC_ARMOR, RESEARCH_TOPIC_HITS};
 
 static void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, SmartFileReader& file);
 static void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, SmartFileWriter& file);
@@ -701,7 +701,7 @@ UnitInfo::~UnitInfo() { delete[] name; }
 FileObject* UnitInfo::Allocate() { return new (std::nothrow) UnitInfo(); }
 
 static uint16_t UnitInfo_TypeIndex;
-static MAXRegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &UnitInfo::Allocate);
+static RegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &UnitInfo::Allocate);
 
 uint16_t UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
 
@@ -1349,9 +1349,7 @@ void UnitInfo::CalcRomanDigit(char* text, int32_t value, const char* digit1, con
     }
 }
 
-Complex* UnitInfo::CreateComplex(uint16_t team) {
-    return UnitsManager_TeamInfo[team].team_units->CreateComplex();
-}
+Complex* UnitInfo::CreateComplex(uint16_t team) { return UnitsManager_TeamInfo[team].team_units->CreateComplex(); }
 
 struct ImageMultiFrameHeader* UnitInfo::GetSpriteFrame(struct ImageMultiHeader* sprite, uint16_t image_index) {
     uintptr_t offset;
@@ -2820,7 +2818,7 @@ void UnitInfo::DetachComplex() {
     }
 }
 
-void UnitInfo::FileLoad(SmartFileReader& file) {
+void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(unit_type);
     file.Read(id);
     file.Read(flags);
@@ -2938,7 +2936,7 @@ void UnitInfo::FileLoad(SmartFileReader& file) {
     UpdateUnitDrawZones();
 }
 
-void UnitInfo::FileSave(SmartFileWriter& file) {
+void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(unit_type);
     file.Write(id);
     file.Write(flags);
@@ -3592,8 +3590,8 @@ int32_t UnitInfo::GetMaxAllowedBuildRate() {
         result = build_rate;
 
     } else {
-        result =
-            std::min(static_cast<int32_t>(build_rate), BuildMenu_GetMaxPossibleBuildRate(unit_type, build_time, storage));
+        result = std::min(static_cast<int32_t>(build_rate),
+                          BuildMenu_GetMaxPossibleBuildRate(unit_type, build_time, storage));
     }
 
     return result;

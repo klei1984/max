@@ -48,14 +48,14 @@ static void Paths_TakeStep(UnitInfo* unit, int32_t cost, int32_t param);
 static bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_diagonal_step);
 
 static uint16_t Paths_AirPath_TypeIndex;
-static MAXRegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
+static RegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
 
 static uint16_t Paths_GroundPath_TypeIndex;
-static MAXRegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex,
+static RegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex,
                                                        &GroundPath::Allocate);
 
 static uint16_t Paths_BuilderPath_TypeIndex;
-static MAXRegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
+static RegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
                                                         &BuilderPath::Allocate);
 
 const Point Paths_8DirPointsArray[8] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
@@ -90,7 +90,8 @@ UnitPath::UnitPath() : x_end(0), y_end(0), distance_x(0), distance_y(0), euclide
 UnitPath::UnitPath(int32_t target_x, int32_t target_y)
     : x_end(target_x), y_end(target_y), distance_x(0), distance_y(0), euclidean_distance(0) {}
 
-UnitPath::UnitPath(int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x, int32_t target_y)
+UnitPath::UnitPath(int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x,
+                   int32_t target_y)
     : x_end(target_x),
       y_end(target_y),
       distance_x(distance_x),
@@ -133,7 +134,8 @@ void UnitPath::SetEndXY(int32_t target_x, int32_t target_y) {
 AirPath::AirPath()
     : length(0), angle(0), pixel_x_start(0), pixel_y_start(0), x_step(0), y_step(0), delta_x(0), delta_y(0) {}
 
-AirPath::AirPath(UnitInfo* unit, int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x, int32_t target_y)
+AirPath::AirPath(UnitInfo* unit, int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x,
+                 int32_t target_y)
     : UnitPath(distance_x, distance_y, euclidean_distance, target_x, target_y),
       length(euclidean_distance),
       pixel_x_start(unit->x),
@@ -156,7 +158,7 @@ FileObject* AirPath::Allocate() { return new (std::nothrow) AirPath(); }
 
 uint16_t AirPath::GetTypeIndex() const { return Paths_AirPath_TypeIndex; }
 
-void AirPath::FileLoad(SmartFileReader& file) {
+void AirPath::FileLoad(SmartFileReader& file) noexcept {
     file.Read(length);
     file.Read(angle);
     file.Read(pixel_x_start);
@@ -169,7 +171,7 @@ void AirPath::FileLoad(SmartFileReader& file) {
     file.Read(delta_y);
 }
 
-void AirPath::FileSave(SmartFileWriter& file) {
+void AirPath::FileSave(SmartFileWriter& file) noexcept {
     file.Write(length);
     file.Write(angle);
     file.Write(pixel_x_start);
@@ -454,7 +456,7 @@ FileObject* GroundPath::Allocate() { return new (std::nothrow) GroundPath(); }
 
 uint16_t GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
 
-void GroundPath::FileLoad(SmartFileReader& file) {
+void GroundPath::FileLoad(SmartFileReader& file) noexcept {
     int32_t count;
     PathStep step;
 
@@ -472,7 +474,7 @@ void GroundPath::FileLoad(SmartFileReader& file) {
     }
 }
 
-void GroundPath::FileSave(SmartFileWriter& file) {
+void GroundPath::FileSave(SmartFileWriter& file) noexcept {
     int32_t count;
     PathStep step;
 
@@ -1191,12 +1193,12 @@ FileObject* BuilderPath::Allocate() { return new (std::nothrow) BuilderPath(); }
 
 uint16_t BuilderPath::GetTypeIndex() const { return Paths_BuilderPath_TypeIndex; }
 
-void BuilderPath::FileLoad(SmartFileReader& file) {
+void BuilderPath::FileLoad(SmartFileReader& file) noexcept {
     file.Read(x);
     file.Read(y);
 }
 
-void BuilderPath::FileSave(SmartFileWriter& file) {
+void BuilderPath::FileSave(SmartFileWriter& file) noexcept {
     file.Write(x);
     file.Write(y);
 }

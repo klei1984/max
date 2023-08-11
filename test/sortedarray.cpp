@@ -45,7 +45,7 @@ template <class T>
 class TestSortedArray : public SortedArray<T> {
 public:
     TestSortedArray(uint16_t growth_factor) : SortedArray<T>(growth_factor) {}
-    SortKey& GetSortKey(T& object) const { return object.GetSortKey(); }
+    inline SortKey& GetSortKey(T& object) const noexcept override { return object.GetSortKey(); }
 };
 
 class SortedArrayTest : public ::testing::Test {

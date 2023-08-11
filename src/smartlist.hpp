@@ -35,9 +35,9 @@ class SmartList {
         friend class SmartList;
 
     public:
-        ListNode() : object(nullptr) {}
-        explicit ListNode(N& object) : object(object) {}
-        ~ListNode() = default;
+        ListNode() noexcept : object(nullptr) {}
+        explicit ListNode(N& object) noexcept : object(object) {}
+        ~ListNode() noexcept override = default;
 
         inline void InsertAfter(ListNode<N>& node) noexcept {
             node.next = this->next;
@@ -60,13 +60,13 @@ class SmartList {
             this->next->prev = this->prev;
         }
 
-        inline N* Get() const noexcept { return object.Get(); }
+        [[nodiscard]] inline N* Get() const noexcept { return object.Get(); }
     };
 
     uint16_t count{0};
     SmartPointer<ListNode<T>> list_node;
 
-    inline ListNode<T>& Get(int32_t index) const noexcept {
+    [[nodiscard]] inline ListNode<T>& Get(int32_t index) const noexcept {
         Iterator it;
 
         if (index >= (count / 2)) {
@@ -89,7 +89,7 @@ public:
     class ListIterator : public SmartPointer<ListNode<T>> {
         friend class SmartList;
 
-        ListNode<T>& GetNode() const noexcept { return *this->Get(); }
+        [[nodiscard]] ListNode<T>& GetNode() const noexcept { return *this->Get(); }
 
     protected:
         ListIterator(const ListNode<T>* object) noexcept : SmartPointer<ListNode<T>>(object) {}
@@ -140,18 +140,18 @@ public:
 
     ~SmartList() noexcept { Clear(); }
 
-    inline Iterator Begin() noexcept { return Iterator(list_node->next); }
-    inline Iterator Begin() const noexcept { return Iterator(list_node->next); }
-    inline Iterator End() noexcept { return Iterator(list_node); }
-    inline Iterator End() const noexcept { return Iterator(list_node); }
-    inline T& Front() const noexcept { return *Begin(); }
-    inline T& Back() const noexcept { return *(--End()); }
+    [[nodiscard]] inline Iterator Begin() noexcept { return Iterator(list_node->next); }
+    [[nodiscard]] inline Iterator Begin() const noexcept { return Iterator(list_node->next); }
+    [[nodiscard]] inline Iterator End() noexcept { return Iterator(list_node); }
+    [[nodiscard]] inline Iterator End() const noexcept { return Iterator(list_node); }
+    [[nodiscard]] inline T& Front() const noexcept { return *Begin(); }
+    [[nodiscard]] inline T& Back() const noexcept { return *(--End()); }
 
     /* compatibility interfaces */
-    inline Iterator begin() noexcept { return Iterator(list_node->next); }
-    inline Iterator begin() const noexcept { return Iterator(list_node->next); }
-    inline Iterator end() noexcept { return Iterator(list_node); }
-    inline Iterator end() const noexcept { return Iterator(list_node); }
+    [[nodiscard]] inline Iterator begin() noexcept { return Iterator(list_node->next); }
+    [[nodiscard]] inline Iterator begin() const noexcept { return Iterator(list_node->next); }
+    [[nodiscard]] inline Iterator end() noexcept { return Iterator(list_node); }
+    [[nodiscard]] inline Iterator end() const noexcept { return Iterator(list_node); }
 
     inline void PushBack(T& object) noexcept {
         End()->InsertBefore(*(new (std::nothrow) ListNode<T>(object)));
@@ -173,7 +173,7 @@ public:
         ++count;
     }
 
-    inline Iterator Find(T& object) const noexcept {
+    [[nodiscard]] inline Iterator Find(T& object) const noexcept {
         for (Iterator it = Begin(), end = End(); it != end; ++it) {
             if (&*it == &object) {
                 return Iterator(it.GetNode());
@@ -208,7 +208,7 @@ public:
         SDL_assert(count == 0);
     }
 
-    inline uint16_t GetCount() const noexcept { return count; }
+    [[nodiscard]] inline uint16_t GetCount() const noexcept { return count; }
 
     inline SmartList<T>& operator=(const SmartList<T>& other) {
         if (this == &other) {
@@ -224,7 +224,7 @@ public:
         return *this;
     }
 
-    inline T& operator[](uint16_t index) const noexcept {
+    [[nodiscard]] inline T& operator[](uint16_t index) const noexcept {
         SDL_assert(index >= 0 && index < count);
 
         return *Get(index).Get();

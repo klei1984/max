@@ -44,8 +44,8 @@ public:
     virtual ~UnitPath();
 
     virtual uint16_t GetTypeIndex() const = 0;
-    virtual void FileLoad(SmartFileReader& file) = 0;
-    virtual void FileSave(SmartFileWriter& file) = 0;
+    virtual void FileLoad(SmartFileReader& file) noexcept = 0;
+    virtual void FileSave(SmartFileWriter& file) noexcept = 0;
     virtual Point GetPosition(UnitInfo* unit) const;
     virtual bool IsInPath(int32_t grid_x, int32_t grid_y) const;
     virtual void CancelMovement(UnitInfo* unit);
@@ -79,8 +79,8 @@ public:
     static FileObject* Allocate();
 
     uint16_t GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
+    void FileLoad(SmartFileReader& file) noexcept;
+    void FileSave(SmartFileWriter& file) noexcept;
     Point GetPosition(UnitInfo* unit) const;
     bool IsInPath(int32_t grid_x, int32_t grid_y) const;
     void CancelMovement(UnitInfo* unit);
@@ -111,14 +111,15 @@ class AirPath : public UnitPath {
 
 public:
     AirPath();
-    AirPath(UnitInfo* unit, int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x, int32_t target_y);
+    AirPath(UnitInfo* unit, int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x,
+            int32_t target_y);
     ~AirPath();
 
     static FileObject* Allocate();
 
     uint16_t GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
+    void FileLoad(SmartFileReader& file) noexcept;
+    void FileSave(SmartFileWriter& file) noexcept;
     Point GetPosition(UnitInfo* unit) const;
     void CancelMovement(UnitInfo* unit);
     int32_t GetMovementCost(UnitInfo* unit);
@@ -138,8 +139,8 @@ public:
     static FileObject* Allocate();
 
     uint16_t GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
+    void FileLoad(SmartFileReader& file) noexcept;
+    void FileSave(SmartFileWriter& file) noexcept;
     int32_t GetMovementCost(UnitInfo* unit);
     bool Path_vfunc10(UnitInfo* unit);
     void Path_vfunc12(int32_t unknown);

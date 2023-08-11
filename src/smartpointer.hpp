@@ -49,9 +49,9 @@ protected:
     }
 
 public:
-    SmartObject() = default;
-    SmartObject(const SmartObject& /* unused */) {}
-    virtual ~SmartObject() { SDL_assert(reference_count == 0); }
+    SmartObject() noexcept = default;
+    SmartObject(const SmartObject& /* unused */) noexcept = default;
+    virtual ~SmartObject() noexcept { SDL_assert(reference_count == 0); }
 };
 
 template <class T>
@@ -62,27 +62,27 @@ public:
     using Reference = SmartPointer<T>&;
     using ConstReference = const SmartPointer<T>&;
 
-    SmartPointer() = default;
+    SmartPointer() noexcept = default;
 
-    SmartPointer(T* object) : object_pointer(object) {
+    SmartPointer(T* object) noexcept : object_pointer(object) {
         if (object_pointer) {
             object_pointer->Increment();
         }
     }
 
-    SmartPointer(T& object) : object_pointer(&object) {
+    SmartPointer(T& object) noexcept : object_pointer(&object) {
         if (object_pointer) {
             object_pointer->Increment();
         }
     }
 
-    SmartPointer(ConstReference other) : object_pointer(other.object_pointer) {
+    SmartPointer(ConstReference other) noexcept : object_pointer(other.object_pointer) {
         if (object_pointer) {
             object_pointer->Increment();
         }
     }
 
-    ~SmartPointer() {
+    ~SmartPointer() noexcept {
         if (object_pointer) {
             object_pointer->Decrement();
         }

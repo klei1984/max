@@ -26,40 +26,42 @@
 
 class SortKey {
 public:
-    SortKey() = default;
-    SortKey(const SortKey& other) = default;
-    virtual ~SortKey() = default;
+    SortKey() noexcept = default;
+    SortKey(const SortKey& other) noexcept = default;
+    virtual ~SortKey() noexcept = default;
 
-    virtual int32_t Compare(const SortKey& other) const = 0;
+    [[nodiscard]] inline virtual int32_t Compare(const SortKey& other) const noexcept = 0;
 };
 
 class CharSortKey : public SortKey {
     const char* name;
 
 public:
-    explicit CharSortKey(const char* name) : name(name) {}
-    CharSortKey(const CharSortKey& other) : name(other.name) {}
+    explicit CharSortKey(const char* name) noexcept : name(name) {}
+    CharSortKey(const CharSortKey& other) noexcept : name(other.name) {}
 
-    int32_t Compare(const SortKey& other) const override {
+    [[nodiscard]] inline int32_t Compare(const SortKey& other) const noexcept override {
         return SDL_strcmp(name, dynamic_cast<const CharSortKey&>(other).name);
     }
-    const char* GetKey() const { return name; }
+    [[nodiscard]] inline const char* GetKey() const noexcept { return name; }
 };
 
 class ShortSortKey : public SortKey {
     uint16_t key;
 
 public:
-    explicit ShortSortKey(uint16_t key) : key(key) {}
-    ShortSortKey(const ShortSortKey& other) : key(other.key) {}
+    explicit ShortSortKey(uint16_t key) noexcept : key(key) {}
+    ShortSortKey(const ShortSortKey& other) noexcept : key(other.key) {}
 
-    int32_t Compare(const SortKey& other) const override { return key - dynamic_cast<const ShortSortKey&>(other).key; }
-    uint16_t GetKey() const { return key; }
+    [[nodiscard]] inline int32_t Compare(const SortKey& other) const noexcept override {
+        return key - dynamic_cast<const ShortSortKey&>(other).key;
+    }
+    [[nodiscard]] inline uint16_t GetKey() const noexcept { return key; }
 };
 
 template <class T>
 class SortedArray : public SmartArray<T> {
-    int32_t Find(SortKey& sort_key, bool mode) const {
+    [[nodiscard]] inline int32_t Find(SortKey& sort_key, bool mode) const noexcept {
         int32_t last{this->GetCount() - 1};
         int32_t first{0};
         int32_t position{-1};
@@ -92,11 +94,11 @@ class SortedArray : public SmartArray<T> {
     }
 
 public:
-    explicit SortedArray(uint16_t growth_factor = SmartArray<T>::DEFAULT_GROWTH_FACTOR)
+    explicit SortedArray(uint16_t growth_factor = SmartArray<T>::DEFAULT_GROWTH_FACTOR) noexcept
         : SmartArray<T>(growth_factor) {}
-    virtual ~SortedArray() = default;
+    ~SortedArray() noexcept override = default;
 
-    uint16_t Insert(T& object) {
+    inline uint16_t Insert(T& object) noexcept {
         auto position = Find(GetSortKey(object), false);
 
         SmartArray<T>::Insert(&object, position);
@@ -104,9 +106,9 @@ public:
         return position;
     }
 
-    virtual SortKey& GetSortKey(T& object) const = 0;
+    inline virtual SortKey& GetSortKey(T& object) const noexcept = 0;
 
-    T* operator[](SortKey& sort_key) const {
+    [[nodiscard]] inline T* operator[](SortKey& sort_key) const noexcept {
         T* object{nullptr};
         auto position = Find(sort_key, true);
 
@@ -117,7 +119,7 @@ public:
         return object;
     }
 
-    T& operator[](uint16_t index) const { return SmartArray<T>::operator[](index); }
+    [[nodiscard]] inline T& operator[](uint16_t index) const noexcept { return SmartArray<T>::operator[](index); }
 };
 
 #endif /* SORTEDARRAY_HPP */

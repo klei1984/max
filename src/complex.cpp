@@ -37,11 +37,11 @@ FileObject* Complex::Allocate() { return new (std::nothrow) Complex(0); }
 int16_t Complex::GetId() const { return id; }
 
 static uint16_t Complex_TypeIndex;
-static MAXRegisterClass Complex_ClassRegister("Complex", &Complex_TypeIndex, &Complex::Allocate);
+static RegisterClass Complex_ClassRegister("Complex", &Complex_TypeIndex, &Complex::Allocate);
 
 uint16_t Complex::GetTypeIndex() const { return Complex_TypeIndex; }
 
-void Complex::FileLoad(SmartFileReader& file) {
+void Complex::FileLoad(SmartFileReader& file) noexcept {
     file.Read(material);
     file.Read(fuel);
     file.Read(gold);
@@ -51,7 +51,7 @@ void Complex::FileLoad(SmartFileReader& file) {
     file.Read(id);
 }
 
-void Complex::FileSave(SmartFileWriter& file) {
+void Complex::FileSave(SmartFileWriter& file) noexcept {
     file.Write(material);
     file.Write(fuel);
     file.Write(gold);

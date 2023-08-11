@@ -43,8 +43,8 @@ public:
     int16_t GetId() const;
 
     uint16_t GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
+    void FileLoad(SmartFileReader& file) noexcept;
+    void FileSave(SmartFileWriter& file) noexcept;
 
     void WritePacket(NetPacket& packet);
     void ReadPacket(NetPacket& packet);

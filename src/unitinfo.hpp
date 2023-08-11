@@ -97,8 +97,8 @@ public:
     static FileObject* Allocate();
 
     uint16_t GetTypeIndex() const;
-    void FileLoad(SmartFileReader& file);
-    void FileSave(SmartFileWriter& file);
+    void FileLoad(SmartFileReader& file) noexcept;
+    void FileSave(SmartFileWriter& file) noexcept;
 
     bool IsVisibleToTeam(uint16_t team) const;
     void SetEnemy(UnitInfo* enemy);

@@ -66,11 +66,11 @@ UnitValues::~UnitValues() {}
 FileObject* UnitValues::Allocate() { return new (std::nothrow) UnitValues(); }
 
 static uint16_t UnitValues_TypeIndex;
-static MAXRegisterClass UnitValues_ClassRegister("UnitValues", &UnitValues_TypeIndex, &UnitValues::Allocate);
+static RegisterClass UnitValues_ClassRegister("UnitValues", &UnitValues_TypeIndex, &UnitValues::Allocate);
 
 uint16_t UnitValues::GetTypeIndex() const { return UnitValues_TypeIndex; }
 
-void UnitValues::FileLoad(SmartFileReader& file) {
+void UnitValues::FileLoad(SmartFileReader& file) noexcept {
     file.Read(turns);
     file.Read(hits);
     file.Read(armor);
@@ -88,7 +88,7 @@ void UnitValues::FileLoad(SmartFileReader& file) {
     file.Read(units_built);
 }
 
-void UnitValues::FileSave(SmartFileWriter& file) {
+void UnitValues::FileSave(SmartFileWriter& file) noexcept {
     file.Write(turns);
     file.Write(hits);
     file.Write(armor);
