@@ -28,6 +28,8 @@
 class RegisterArray;
 
 class RegisterClass : public SmartObject {
+    friend class RegisterArray;
+
     static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(5);
     static RegisterArray* registered_classes;
     CharSortKey sortkey;
@@ -35,6 +37,9 @@ class RegisterClass : public SmartObject {
     uint16_t* type_index;
 
     void Insert() noexcept;
+    [[nodiscard]] inline uint16_t* GetTypeIndexPointer() const noexcept { return type_index; }
+    static void SetTypeIndex(uint16_t* type_index_pointer, uint16_t value) noexcept { *type_index_pointer = value; }
+    [[nodiscard]] inline SortKey& GetSortKey() noexcept { return sortkey; }
 
 public:
     RegisterClass(const char* class_name, uint16_t* type_index, FileObject* (*allocator)()) noexcept
@@ -46,9 +51,6 @@ public:
     ~RegisterClass() noexcept override = default;
 
     [[nodiscard]] inline FileObject* Allocate() const noexcept { return allocator(); }
-    [[nodiscard]] inline uint16_t* GetTypeIndexPointer() const noexcept { return type_index; }
-    static void SetTypeIndex(uint16_t* type_index_pointer, uint16_t value) noexcept { *type_index_pointer = value; }
-    [[nodiscard]] inline SortKey& GetSortKey() noexcept { return sortkey; }
     [[nodiscard]] inline const char* GetClassName() const noexcept { return sortkey.GetKey(); }
     [[nodiscard]] static inline RegisterArray& GetRegister() noexcept { return *registered_classes; }
 };

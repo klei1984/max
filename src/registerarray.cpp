@@ -25,6 +25,8 @@ RegisterArray* RegisterClass::registered_classes{nullptr};
 
 void RegisterClass::Insert() noexcept {
     if (nullptr == registered_classes) {
+        // must not use any form of global initialization as it could
+        // invoke undefined behavior due to the registrants
         registered_classes = new (std::nothrow) RegisterArray(DEFAULT_GROWTH_FACTOR);
     }
 
