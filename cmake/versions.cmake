@@ -28,8 +28,8 @@ set(SDL2_NET_URI https://github.com/libsdl-org/SDL_net/releases/download/release
 set(SDL2_NET_HASH ba1cc690ddde85ee90c80e15be9f3bf9)
 set(SDL2_NET_HASH_TYPE MD5)
 
-set(GTEST_VERSION 1.13.0)
+set(GTEST_VERSION 1.14.0)
 set(GTEST_FILE v${GTEST_VERSION}.tar.gz)
 set(GTEST_URI https://github.com/google/googletest/archive/refs/tags/${GTEST_FILE})
-set(GTEST_HASH 95b29f0038ec84a611df951d74d99897)
+set(GTEST_HASH c8340a482851ef6a3fe618a082304cfc)
 set(GTEST_HASH_TYPE MD5)
