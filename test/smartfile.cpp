@@ -23,8 +23,6 @@
 
 #include <gtest/gtest.h>
 
-#include <cstdio>
-
 #include "point.hpp"
 #include "registerarray.hpp"
 
@@ -92,10 +90,7 @@ FileObject* TestSmartFileObject::Allocate() noexcept { return new (std::nothrow)
 class SmartFileTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        char buffer[L_tmpnam];
-        char* name = tmpnam(buffer);
-
-        file_path = testing::TempDir() + name;
+        file_path = testing::TempDir() + "smartfile.dat";
 
         Test_ClassRegister = new (std::nothrow)
             RegisterClass("TestSmartFileObject", &TestSmartFileObject_TypeIndex, &TestSmartFileObject::Allocate);
