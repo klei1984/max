@@ -76,7 +76,7 @@ public:
     GroundPath(int32_t target_x, int32_t target_y);
     ~GroundPath();
 
-    static FileObject* Allocate();
+    static FileObject* Allocate() noexcept;
 
     uint16_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;
@@ -115,7 +115,7 @@ public:
             int32_t target_y);
     ~AirPath();
 
-    static FileObject* Allocate();
+    static FileObject* Allocate() noexcept;
 
     uint16_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;
@@ -136,7 +136,7 @@ public:
     BuilderPath();
     ~BuilderPath();
 
-    static FileObject* Allocate();
+    static FileObject* Allocate() noexcept;
 
     uint16_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;

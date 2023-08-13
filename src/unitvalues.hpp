@@ -48,7 +48,7 @@ public:
     UnitValues(const UnitValues& other);
     ~UnitValues();
 
-    static FileObject* Allocate();
+    static FileObject* Allocate() noexcept;
     int32_t GetAttribute(char attribute);
     uint16_t* GetAttributeAddress(char attribute);
     void SetAttribute(char attribute, int32_t value);

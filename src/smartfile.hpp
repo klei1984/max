@@ -29,59 +29,59 @@
 #include "smartlist.hpp"
 
 class SmartFileReader {
-    void LoadObject(FileObject& object);
-    uint16_t ReadIndex();
+    void LoadObject(FileObject& object) noexcept;
+    [[nodiscard]] uint16_t ReadIndex() noexcept;
 
 protected:
-    FILE* file;
+    FILE* file{nullptr};
     SmartArray<FileObject> read_objects;
 
 public:
-    SmartFileReader();
-    SmartFileReader(const char* const path);
-    ~SmartFileReader();
+    SmartFileReader() noexcept;
+    explicit SmartFileReader(const char* path) noexcept;
+    ~SmartFileReader() noexcept;
 
-    bool Open(const char* const path);
-    void Close();
-    void Read(void* buffer, int32_t size);
+    bool Open(const char* path) noexcept;
+    bool Close() noexcept;
+    bool Read(void* buffer, size_t size) noexcept;
     template <typename T>
-    void Read(T& buffer);
-    uint16_t ReadObjectCount();
-    FileObject* ReadObject();
+    bool Read(T& buffer) noexcept;
+    [[nodiscard]] uint16_t ReadObjectCount() noexcept;
+    [[nodiscard]] FileObject* ReadObject() noexcept;
 };
 
 class SmartFileWriter {
-    void SaveObject(FileObject* object);
-    void WriteIndex(uint16_t index);
+    void SaveObject(FileObject* object) noexcept;
+    void WriteIndex(uint16_t index) noexcept;
 
 protected:
+    FILE* file{nullptr};
     SmartList<FileObject> objects;
-    FILE* file;
 
-    void AddObject(FileObject* object);
+    void AddObject(FileObject* object) noexcept;
 
 public:
-    SmartFileWriter();
-    SmartFileWriter(const char* const path);
-    ~SmartFileWriter();
+    SmartFileWriter() noexcept;
+    explicit SmartFileWriter(const char* path) noexcept;
+    ~SmartFileWriter() noexcept;
 
-    bool Open(const char* const path);
-    void Close();
-    void Write(void* buffer, int32_t size);
+    bool Open(const char* path) noexcept;
+    bool Close() noexcept;
+    bool Write(const void* buffer, size_t size) noexcept;
     template <typename T>
-    void Write(T& buffer);
-    void WriteObjectCount(uint16_t count);
-    void WriteObject(FileObject* object);
+    bool Write(const T& buffer) noexcept;
+    void WriteObjectCount(uint16_t count) noexcept;
+    void WriteObject(FileObject* object) noexcept;
 };
 
 template <typename T>
-void SmartFileReader::Read(T& buffer) {
-    Read(&buffer, sizeof(T));
+inline bool SmartFileReader::Read(T& buffer) noexcept {
+    return Read(&buffer, sizeof(T));
 }
 
 template <typename T>
-void SmartFileWriter::Write(T& buffer) {
-    Write(&buffer, sizeof(T));
+inline bool SmartFileWriter::Write(const T& buffer) noexcept {
+    return Write(&buffer, sizeof(T));
 }
 
 #endif /* SMARTFILE_HPP */

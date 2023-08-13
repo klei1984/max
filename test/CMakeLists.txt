@@ -34,6 +34,8 @@ add_executable(
     sortedarray.cpp
     registerarray.cpp
     ../src/registerarray.cpp
+    smartfile.cpp
+    ../src/smartfile.cpp
 )
 
 target_compile_options(max_tests PRIVATE --coverage)

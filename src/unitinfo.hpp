@@ -94,7 +94,7 @@ public:
     UnitInfo(const UnitInfo& other);
     ~UnitInfo();
 
-    static FileObject* Allocate();
+    static FileObject* Allocate() noexcept;
 
     uint16_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;

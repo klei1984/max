@@ -698,7 +698,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
 
 UnitInfo::~UnitInfo() { delete[] name; }
 
-FileObject* UnitInfo::Allocate() { return new (std::nothrow) UnitInfo(); }
+FileObject* UnitInfo::Allocate() noexcept { return new (std::nothrow) UnitInfo(); }
 
 static uint16_t UnitInfo_TypeIndex;
 static RegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &UnitInfo::Allocate);

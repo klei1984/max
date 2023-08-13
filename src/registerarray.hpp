@@ -42,7 +42,7 @@ class RegisterClass : public SmartObject {
     [[nodiscard]] inline SortKey& GetSortKey() noexcept { return sortkey; }
 
 public:
-    RegisterClass(const char* class_name, uint16_t* type_index, FileObject* (*allocator)()) noexcept
+    RegisterClass(const char* class_name, uint16_t* type_index, FileObject* (*allocator)() noexcept) noexcept
         : sortkey(class_name), allocator(allocator), type_index(type_index) {
         Insert();
     }

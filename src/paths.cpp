@@ -51,12 +51,11 @@ static uint16_t Paths_AirPath_TypeIndex;
 static RegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
 
 static uint16_t Paths_GroundPath_TypeIndex;
-static RegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex,
-                                                       &GroundPath::Allocate);
+static RegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex, &GroundPath::Allocate);
 
 static uint16_t Paths_BuilderPath_TypeIndex;
 static RegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
-                                                        &BuilderPath::Allocate);
+                                                     &BuilderPath::Allocate);
 
 const Point Paths_8DirPointsArray[8] = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
 
@@ -154,7 +153,7 @@ AirPath::AirPath(UnitInfo* unit, int32_t distance_x, int32_t distance_y, int32_t
 
 AirPath::~AirPath() {}
 
-FileObject* AirPath::Allocate() { return new (std::nothrow) AirPath(); }
+FileObject* AirPath::Allocate() noexcept { return new (std::nothrow) AirPath(); }
 
 uint16_t AirPath::GetTypeIndex() const { return Paths_AirPath_TypeIndex; }
 
@@ -452,7 +451,7 @@ GroundPath::GroundPath(int32_t target_x, int32_t target_y) : UnitPath(target_x, 
 
 GroundPath::~GroundPath() {}
 
-FileObject* GroundPath::Allocate() { return new (std::nothrow) GroundPath(); }
+FileObject* GroundPath::Allocate() noexcept { return new (std::nothrow) GroundPath(); }
 
 uint16_t GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
 
@@ -1189,7 +1188,7 @@ BuilderPath::BuilderPath() : UnitPath(0, 0), x(1), y(1) {}
 
 BuilderPath::~BuilderPath() {}
 
-FileObject* BuilderPath::Allocate() { return new (std::nothrow) BuilderPath(); }
+FileObject* BuilderPath::Allocate() noexcept { return new (std::nothrow) BuilderPath(); }
 
 uint16_t BuilderPath::GetTypeIndex() const { return Paths_BuilderPath_TypeIndex; }
 

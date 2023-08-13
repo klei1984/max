@@ -63,7 +63,7 @@ UnitValues::UnitValues(const UnitValues& other)
 
 UnitValues::~UnitValues() {}
 
-FileObject* UnitValues::Allocate() { return new (std::nothrow) UnitValues(); }
+FileObject* UnitValues::Allocate() noexcept { return new (std::nothrow) UnitValues(); }
 
 static uint16_t UnitValues_TypeIndex;
 static RegisterClass UnitValues_ClassRegister("UnitValues", &UnitValues_TypeIndex, &UnitValues::Allocate);

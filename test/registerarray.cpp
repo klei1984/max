@@ -25,34 +25,55 @@
 
 class TestFileObject : public FileObject {
 public:
-    TestFileObject() {}
-    ~TestFileObject() {}
-    static FileObject* Allocate();
-    [[nodiscard]] uint16_t GetTypeIndex() const override { return 0; }
+    TestFileObject() noexcept = default;
+    ~TestFileObject() noexcept = default;
+    static FileObject* Allocate() noexcept;
+    [[nodiscard]] uint16_t GetTypeIndex() const noexcept override { return 0; }
     void FileLoad(SmartFileReader& file) noexcept override {}
     void FileSave(SmartFileWriter& file) noexcept override {}
 };
 
-FileObject* TestFileObject::Allocate() { return new (std::nothrow) TestFileObject(); }
+FileObject* TestFileObject::Allocate() noexcept { return new (std::nothrow) TestFileObject(); }
 
-static uint16_t Test_TypeIndex1{0};
-static RegisterClass Test_ClassRegister1("Mechanized", &Test_TypeIndex1, &TestFileObject::Allocate);
-static uint16_t Test_TypeIndex2{0};
-static RegisterClass Test_ClassRegister2("Assault", &Test_TypeIndex2, &TestFileObject::Allocate);
-static uint16_t Test_TypeIndex3{0};
-static RegisterClass Test_ClassRegister3("Exploration", &Test_TypeIndex3, &TestFileObject::Allocate);
+class RegisterArrayTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        Test_ClassRegister1 =
+            new (std::nothrow) RegisterClass("Mechanized", &Test_TypeIndex1, &TestFileObject::Allocate);
+        Test_ClassRegister2 = new (std::nothrow) RegisterClass("Assault", &Test_TypeIndex2, &TestFileObject::Allocate);
+        Test_ClassRegister3 =
+            new (std::nothrow) RegisterClass("Exploration", &Test_TypeIndex3, &TestFileObject::Allocate);
+    }
 
-TEST(RegisterArray, Interfaces) {
+    void TearDown() override {
+        Test_ClassRegister1->GetRegister().Release();
+
+        delete Test_ClassRegister1;
+        delete Test_ClassRegister2;
+        delete Test_ClassRegister3;
+    }
+
+public:
+    uint16_t Test_TypeIndex1{0};
+    uint16_t Test_TypeIndex2{0};
+    uint16_t Test_TypeIndex3{0};
+
+    RegisterClass* Test_ClassRegister1;
+    RegisterClass* Test_ClassRegister2;
+    RegisterClass* Test_ClassRegister3;
+};
+
+TEST_F(RegisterArrayTest, Interfaces) {
     EXPECT_EQ(Test_TypeIndex1, 3);
     EXPECT_EQ(Test_TypeIndex2, 1);
     EXPECT_EQ(Test_TypeIndex3, 2);
 
-    EXPECT_EQ(Test_ClassRegister1.GetRegister().GetCount(), 3);
-    EXPECT_STREQ(Test_ClassRegister1.GetRegister()[0].GetClassName(), "Assault");
+    EXPECT_EQ(Test_ClassRegister1->GetRegister().GetCount(), 3);
+    EXPECT_STREQ(Test_ClassRegister1->GetRegister()[0].GetClassName(), "Assault");
 
-    EXPECT_EQ(Test_ClassRegister2.GetRegister().GetCount(), 3);
-    EXPECT_STREQ(Test_ClassRegister2.GetRegister()[1].GetClassName(), "Exploration");
+    EXPECT_EQ(Test_ClassRegister2->GetRegister().GetCount(), 3);
+    EXPECT_STREQ(Test_ClassRegister2->GetRegister()[1].GetClassName(), "Exploration");
 
-    EXPECT_EQ(Test_ClassRegister3.GetRegister().GetCount(), 3);
-    EXPECT_STREQ(Test_ClassRegister3.GetRegister()[2].GetClassName(), "Mechanized");
+    EXPECT_EQ(Test_ClassRegister3->GetRegister().GetCount(), 3);
+    EXPECT_STREQ(Test_ClassRegister3->GetRegister()[2].GetClassName(), "Mechanized");
 }

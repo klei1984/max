@@ -23,13 +23,13 @@
 
 #include "registerarray.hpp"
 
-SmartFileReader::SmartFileReader() : file(nullptr) {}
+SmartFileReader::SmartFileReader() noexcept = default;
 
-SmartFileReader::SmartFileReader(const char* const path) : file(nullptr) { Open(path); }
+SmartFileReader::SmartFileReader(const char* const path) noexcept { Open(path); }
 
-SmartFileReader::~SmartFileReader() { Close(); }
+SmartFileReader::~SmartFileReader() noexcept { Close(); }
 
-bool SmartFileReader::Open(const char* const path) {
+bool SmartFileReader::Open(const char* const path) noexcept {
     Close();
 
     file = fopen(path, "rb");
@@ -37,60 +37,52 @@ bool SmartFileReader::Open(const char* const path) {
     return file != nullptr;
 }
 
-void SmartFileReader::Close() {
+bool SmartFileReader::Close() noexcept {
+    bool result{false};
+
     read_objects.Release();
 
-    if (file) {
-        fclose(file);
+    if (file != nullptr) {
+        result = fclose(file) != EOF;
         file = nullptr;
     }
+
+    return result;
 }
 
-void SmartFileReader::Read(void* buffer, int32_t size) {
-    int32_t read_count;
+bool SmartFileReader::Read(void* const buffer, const size_t size) noexcept { return fread(buffer, size, 1, file) == 1; }
 
-    read_count = fread(buffer, size, 1, file);
-    SDL_assert(read_count == 1);
-}
-
-void SmartFileReader::LoadObject(FileObject& object) {
+void SmartFileReader::LoadObject(FileObject& object) noexcept {
     read_objects.Insert(&object);
 
     object.FileLoad(*this);
 }
 
-uint16_t SmartFileReader::ReadIndex() {
-    uint16_t value;
+[[nodiscard]] uint16_t SmartFileReader::ReadIndex() noexcept {
+    uint16_t value{0};
 
-    Read(value);
-
-    return value;
+    return Read(value) ? value : UINT16_C(0);
 }
 
-uint16_t SmartFileReader::ReadObjectCount() {
-    uint16_t value;
+[[nodiscard]] uint16_t SmartFileReader::ReadObjectCount() noexcept {
+    uint16_t value{0};
 
-    Read(value);
-
-    return value;
+    return Read(value) ? value : UINT16_C(0);
 }
 
-FileObject* SmartFileReader::ReadObject() {
-    uint16_t object_index;
-    uint16_t type_index;
-    FileObject* object;
+[[nodiscard]] FileObject* SmartFileReader::ReadObject() noexcept {
+    const uint16_t object_index = ReadIndex();
+    FileObject* object{nullptr};
 
-    object_index = ReadIndex();
-
-    if (0 == object_index) {
-        object = nullptr;
-    } else {
+    if (object_index != UINT16_C(0)) {
         if (read_objects.GetCount() >= object_index) {
             object = &read_objects[object_index - 1];
+
         } else {
+            const uint16_t type_index = ReadIndex();
+
             SDL_assert(object_index == read_objects.GetCount() + 1);
-            type_index = ReadIndex();
-            SDL_assert(type_index != 0);
+            SDL_assert(type_index != UINT16_C(0));
             SDL_assert(type_index <= RegisterClass::GetRegister().GetCount());
 
             object = RegisterClass::GetRegister()[type_index - 1].Allocate();
@@ -101,13 +93,13 @@ FileObject* SmartFileReader::ReadObject() {
     return object;
 }
 
-SmartFileWriter::SmartFileWriter() : file(nullptr), objects() {}
+SmartFileWriter::SmartFileWriter() noexcept = default;
 
-SmartFileWriter::SmartFileWriter(const char* const path) : file(nullptr), objects() { file = fopen(path, "wb"); }
+SmartFileWriter::SmartFileWriter(const char* const path) noexcept : file(fopen(path, "wb")) {}
 
-SmartFileWriter::~SmartFileWriter() { Close(); }
+SmartFileWriter::~SmartFileWriter() noexcept { Close(); }
 
-bool SmartFileWriter::Open(const char* const path) {
+bool SmartFileWriter::Open(const char* const path) noexcept {
     Close();
 
     file = fopen(path, "wb");
@@ -115,49 +107,51 @@ bool SmartFileWriter::Open(const char* const path) {
     return file != nullptr;
 }
 
-void SmartFileWriter::Close() {
-    for (SmartList<FileObject>::Iterator it = objects.Begin(); it != objects.End(); ++it) {
+bool SmartFileWriter::Close() noexcept {
+    bool result{false};
+
+    for (auto it = objects.Begin(); it != objects.End(); ++it) {
         (*it).SetIndex(0);
     }
 
     objects.Clear();
 
-    if (file) {
-        fclose(file);
+    if (file != nullptr) {
+        result = fclose(file) != EOF;
         file = nullptr;
     }
+
+    return result;
 }
 
-void SmartFileWriter::Write(void* buffer, int32_t size) {
-    int32_t write_count;
-    write_count = fwrite(buffer, size, 1, file);
-    SDL_assert(write_count == 1);
+bool SmartFileWriter::Write(const void* const buffer, const size_t size) noexcept {
+    return fwrite(buffer, size, 1, file) == 1;
 }
 
-void SmartFileWriter::AddObject(FileObject* object) {
+void SmartFileWriter::AddObject(FileObject* const object) noexcept {
     objects.PushBack(*object);
     object->SetIndex(objects.GetCount());
 }
 
-void SmartFileWriter::SaveObject(FileObject* object) {
+void SmartFileWriter::SaveObject(FileObject* const object) noexcept {
     AddObject(object);
     object->FileSave(*this);
 }
 
-void SmartFileWriter::WriteIndex(uint16_t index) { Write(index); }
+void SmartFileWriter::WriteIndex(const uint16_t index) noexcept { Write(index); }
 
-void SmartFileWriter::WriteObjectCount(uint16_t count) { Write(count); }
+void SmartFileWriter::WriteObjectCount(const uint16_t count) noexcept { Write(count); }
 
-void SmartFileWriter::WriteObject(FileObject* object) {
+void SmartFileWriter::WriteObject(FileObject* const object) noexcept {
     if (nullptr == object) {
         WriteIndex(0);
+
     } else {
-        uint16_t object_index;
+        const uint16_t object_index = object->GetIndex();
 
-        object_index = object->GetIndex();
-
-        if (object_index) {
+        if (object_index != UINT16_C(0)) {
             Write(object_index);
+
         } else {
             WriteIndex(objects.GetCount() + 1);
             WriteIndex(object->GetTypeIndex());

@@ -38,7 +38,7 @@ public:
     Complex(int16_t id);
     ~Complex();
 
-    static FileObject* Allocate();
+    static FileObject* Allocate() noexcept;
 
     int16_t GetId() const;
 

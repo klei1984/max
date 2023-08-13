@@ -32,7 +32,7 @@ Complex::Complex(int16_t id) : buildings(0), id(id), material(0), fuel(0), gold(
 
 Complex::~Complex() {}
 
-FileObject* Complex::Allocate() { return new (std::nothrow) Complex(0); }
+FileObject* Complex::Allocate() noexcept { return new (std::nothrow) Complex(0); }
 
 int16_t Complex::GetId() const { return id; }
 
