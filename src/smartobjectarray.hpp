@@ -27,33 +27,32 @@
 
 #include "smartfile.hpp"
 
-#define OBJECTARRAY_DEFAULT_GROWTH_FACTOR 5
-#define SMARTOBJECTARRAY_DEFAULT_GROWTH_FACTOR 5
-
 template <class T>
 class ObjectArray {
-    uint16_t count;
-    uint16_t capacity;
+    static constexpr uint16_t MINIMUM_GROWTH_FACTOR = UINT16_C(5);
+    static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(20);
+
     uint16_t growth_factor;
-    T* object_array;
+    uint16_t count{0};
+    uint16_t capacity{0};
+    T* object_array{nullptr};
 
 public:
-    ObjectArray(uint16_t growth_factor = OBJECTARRAY_DEFAULT_GROWTH_FACTOR)
-        : growth_factor(growth_factor), count(0), capacity(0), object_array(nullptr) {}
-
-    ObjectArray(const ObjectArray<T>& other)
+    explicit ObjectArray(const uint16_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
+        : growth_factor(growth_factor < MINIMUM_GROWTH_FACTOR ? MINIMUM_GROWTH_FACTOR : growth_factor) {}
+    ObjectArray(const ObjectArray<T>& other) noexcept
         : growth_factor(other.growth_factor), count(other.count), capacity(other.count) {
-        if (capacity) {
+        if (capacity != UINT16_C(0)) {
             object_array = new (std::nothrow) T[capacity];
             memcpy(object_array, other.object_array, capacity * sizeof(T));
+
         } else {
             object_array = nullptr;
         }
     }
+    virtual ~ObjectArray() noexcept { delete[] object_array; }
 
-    virtual ~ObjectArray() { delete[] object_array; }
-
-    void Insert(T* object, uint16_t position) {
+    inline uint16_t Insert(const T* const object, uint16_t position) noexcept {
         if (position > count) {
             position = count;
         }
@@ -75,29 +74,32 @@ public:
             delete[] object_array;
 
             object_array = new_object_array;
+
         } else if (position < count) {
             memmove(&object_array[position + 1], &object_array[position], (count - position) * sizeof(T));
         }
 
         memcpy(&object_array[position], object, sizeof(T));
         ++count;
+
+        return position;
     }
+    inline void Append(const T* const object) noexcept { Insert(object, count); }
+    inline bool Remove(const uint16_t position) noexcept {
+        bool result{false};
 
-    void Append(T* object) { Insert(object, count); }
-
-    void Remove(uint16_t position) {
         if (position < count) {
             if (position < (count - 1)) {
                 memmove(&object_array[position], &object_array[position + 1], (count - position - 1) * sizeof(T));
             }
 
-            SDL_assert(count != 0);
-
             --count;
+            result = true;
         }
-    }
 
-    int32_t Find(T* object) const {
+        return result;
+    }
+    [[nodiscard]] inline int32_t Find(const T* const object) const noexcept {
         for (uint16_t index = 0; index < count; ++index) {
             if (!memcmp(&object_array[index], object, sizeof(T))) {
                 return index;
@@ -106,50 +108,43 @@ public:
 
         return -1;
     }
-
-    void Clear() { count = 0; }
-
-    uint16_t GetCount() const { return count; }
-
-    T* operator[](uint16_t position) const {
-        SDL_assert(position < count);
-        return &object_array[position];
+    inline void Clear() noexcept { count = 0; }
+    [[nodiscard]] inline uint16_t GetCount() const noexcept { return count; }
+    [[nodiscard]] inline T* operator[](uint16_t position) const noexcept {
+        return (position < count) ? &object_array[position] : nullptr;
     }
 };
 
 template <class T>
 class ObjectSmartArrayData : public SmartObject, public ObjectArray<T> {
 public:
-    ObjectSmartArrayData(uint16_t growth_factor) : ObjectArray<T>(growth_factor) {}
-
-    ObjectSmartArrayData(const ObjectSmartArrayData<T>& other) : ObjectArray<T>(other) {}
-
-    ~ObjectSmartArrayData() {}
+    explicit ObjectSmartArrayData(const uint16_t growth_factor) noexcept : ObjectArray<T>(growth_factor) {}
+    ObjectSmartArrayData(const ObjectSmartArrayData<T>& other) noexcept : ObjectArray<T>(other) {}
+    ~ObjectSmartArrayData() noexcept override = default;
 };
 
 template <class T>
 class SmartObjectArray : public SmartPointer<ObjectSmartArrayData<T>> {
-    ObjectArray<T>* GetArray() const { return this->Get(); }
+    static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(20);
+
+    [[nodiscard]] ObjectArray<T>* GetArray() const noexcept { return this->Get(); }
 
 public:
-    SmartObjectArray(uint16_t growth_factor = SMARTOBJECTARRAY_DEFAULT_GROWTH_FACTOR)
+    explicit SmartObjectArray(const uint16_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
         : SmartPointer<ObjectSmartArrayData<T>>(*new(std::nothrow) ObjectSmartArrayData<T>(growth_factor)) {}
 
-    SmartObjectArray(const SmartObjectArray& other, bool deep_copy = false)
+    SmartObjectArray(const SmartObjectArray& other, const bool deep_copy = false) noexcept
         : SmartPointer<ObjectSmartArrayData<T>>(deep_copy ? (*new(std::nothrow) ObjectSmartArrayData<T>(*other.Get()))
                                                           : (*other.Get())) {}
 
-    void Clear() { GetArray()->Clear(); }
-
-    T* operator[](uint16_t position) const { return (*GetArray())[position]; }
-
-    uint16_t GetCount() const { return GetArray()->GetCount(); }
-
-    void Insert(T* object, uint16_t position) { GetArray()->Insert(object, position); }
-
-    void Remove(uint16_t position) { GetArray()->Remove(position); }
-
-    void PushBack(T* object) { Insert(object, GetCount()); }
+    inline void Clear() noexcept { GetArray()->Clear(); }
+    [[nodiscard]] inline T* operator[](uint16_t position) const noexcept { return (*GetArray())[position]; }
+    [[nodiscard]] inline uint16_t GetCount() const noexcept { return GetArray()->GetCount(); }
+    inline uint16_t Insert(const T* const object, const uint16_t position) noexcept {
+        return GetArray()->Insert(object, position);
+    }
+    inline bool Remove(const uint16_t position) noexcept { return GetArray()->Remove(position); }
+    inline void PushBack(const T* const object) noexcept { (void)Insert(object, GetCount()); }
 };
 
 #endif /* SMARTOBJECTARRAY_HPP */
