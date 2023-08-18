@@ -37,6 +37,7 @@ add_executable(
     smartfile.cpp
     ../src/smartfile.cpp
     smartobjectarray.cpp
+    smartstring.cpp
 )
 
 target_compile_options(max_tests PRIVATE --coverage)

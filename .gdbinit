@@ -1,10 +1,12 @@
 set disassembly-flavor intel
 skip -file smartpointer.hpp
 skip -file smartobjectarray.hpp
-skip -file smartstring.cpp
 skip -file smartstring.hpp
 skip -file sortedarray.hpp
 skip -file smartarray.hpp
+skip -file fileobject.hpp
+skip -file registerarray.cpp
+skip -file registerarray.hpp
 skip -file smartlist.hpp
 skip -file point.hpp
 skip -file ailog.cpp
