@@ -164,7 +164,13 @@ public:
     }
 
     inline void InsertAfter(Iterator& position, T& object) noexcept {
-        position.GetNode().InsertAfter(*(new (std::nothrow) ListNode<T>(object)));
+        ListNode<T>* node = &position.GetNode();
+
+        if (position == list_node) {
+            node = node->prev.Get();
+        }
+
+        node->InsertAfter(*(new (std::nothrow) ListNode<T>(object)));
         ++count;
     }
 
