@@ -109,12 +109,14 @@ static void SaveLoadMenu_DrawSaveSlotResource(uint8_t *image, int32_t width, Res
                                               int32_t font_num);
 static Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int32_t ulx, int32_t uly,
                                          const char *caption, int32_t r_value);
-static void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
-                              int32_t save_file_type, int32_t first_slot_on_page, bool mode);
+static void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], Flic **flc,
+                              bool is_saving_allowed, int32_t save_file_type, int32_t first_slot_on_page, bool mode);
 static void SaveLoadMenu_PlaySfx(ResourceID id);
-static void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int32_t *save_slot_index, int32_t key, int32_t is_saving_allowed);
+static void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int32_t *save_slot_index, int32_t key,
+                                            int32_t is_saving_allowed);
 static void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int32_t save_slot_index, int32_t is_saving_allowed);
-static void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int32_t save_slot, int32_t game_file_type);
+static void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int32_t save_slot,
+                                        int32_t game_file_type);
 static void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team);
 static bool SaveLoadMenu_RunPlausibilityTests();
 
@@ -157,8 +159,8 @@ void SaveLoadMenu_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team) {
     }
 }
 
-Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int32_t ulx, int32_t uly, const char *caption,
-                                  int32_t r_value) {
+Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int32_t ulx, int32_t uly,
+                                  const char *caption, int32_t r_value) {
     Button *button;
 
     button = new (std::nothrow) Button(up, down, ulx, uly);
@@ -207,8 +209,8 @@ void SaveLoadMenu_DrawSaveSlotResource(uint8_t *image, int32_t width, ResourceID
     delete[] image_header;
 }
 
-int32_t SaveLoadMenu_GetSavedGameInfo(int32_t save_slot, int32_t game_file_type, struct SaveFormatHeader &save_file_header,
-                                  bool load_ini_options) {
+int32_t SaveLoadMenu_GetSavedGameInfo(int32_t save_slot, int32_t game_file_type,
+                                      struct SaveFormatHeader &save_file_header, bool load_ini_options) {
     SmartFileReader file;
     char filename[16];
     char filepath[100];
@@ -415,7 +417,8 @@ int32_t SaveLoadMenu_GetGameFileType() {
     return result;
 }
 
-void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int32_t *save_slot_index, int32_t key, int32_t is_saving_allowed) {
+void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int32_t *save_slot_index, int32_t key,
+                                     int32_t is_saving_allowed) {
     SaveLoadMenu_PlaySfx(KCARG0);
 
     if (*save_slot_index >= 0) {
@@ -780,11 +783,9 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
 
     ini_config.SaveSection(file, INI_OPTIONS);
 
-    file.Write(ResourceManager_MapSurfaceMap,
-               ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint8_t));
+    file.Write(ResourceManager_MapSurfaceMap, ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint8_t));
 
-    file.Write(ResourceManager_CargoMap,
-               ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint16_t));
+    file.Write(ResourceManager_CargoMap, ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint16_t));
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         CTInfo *team_info;
@@ -1270,6 +1271,7 @@ void SaveSlot::DrawSaveSlot(int32_t game_file_type) {
 bool SaveLoadMenu_RunPlausibilityTests() {
     bool result = false;
 
+    // too slow    result |= SaveLoadChecks_OrderedLists();
     result |= SaveLoadChecks_Defect11();
     result |= SaveLoadChecks_Defect183();
     result |= SaveLoadChecks_Defect151();

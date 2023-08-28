@@ -65,7 +65,6 @@ private:
     static void UpdateSpriteFrameBounds(Rect* bounds, int32_t x, int32_t y, struct ImageMultiHeader* sprite,
                                         uint16_t image_index);
     void DrawSpriteTurretFrame(uint16_t turret_image_index);
-    static int32_t GetDrawLayer(ResourceID unit_type);
     void GainExperience(int32_t experience);
     void Build();
     UnitInfo* GetConnectedBuilding(uint32_t connector);
@@ -100,6 +99,7 @@ public:
     void FileLoad(SmartFileReader& file) noexcept;
     void FileSave(SmartFileWriter& file) noexcept;
 
+    static int32_t GetDrawLayer(ResourceID unit_type);
     bool IsVisibleToTeam(uint16_t team) const;
     void SetEnemy(UnitInfo* enemy);
     UnitInfo* GetEnemy() const;

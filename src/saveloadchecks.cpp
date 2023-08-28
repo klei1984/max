@@ -28,6 +28,41 @@
 static bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit);
 static bool SaveLoadChecks_CorrectHashMap(SmartList<UnitInfo>* units);
 
+bool SaveLoadChecks_OrderedLists() {
+    struct ListSortCompare {
+        static bool GroundCoverUnits(const SmartList<UnitInfo>::Iterator& lhs,
+                                     const SmartList<UnitInfo>::Iterator& rhs) {
+            return UnitInfo::GetDrawLayer(lhs->Get()->unit_type) < UnitInfo::GetDrawLayer(rhs->Get()->unit_type);
+        }
+
+        static bool SeaParticles(const SmartList<UnitInfo>::Iterator& lhs, const SmartList<UnitInfo>::Iterator& rhs) {
+            return ((lhs->Get()->flags & (MISSILE_UNIT | GROUND_COVER)) == (MISSILE_UNIT | GROUND_COVER));
+        }
+
+        static bool StationaryUnits(const SmartList<UnitInfo>::Iterator& lhs,
+                                    const SmartList<UnitInfo>::Iterator& rhs) {
+            return lhs->Get()->y < rhs->Get()->y;
+        }
+
+        static bool HoveringAirUnits(const SmartList<UnitInfo>::Iterator& lhs,
+                                     const SmartList<UnitInfo>::Iterator& rhs) {
+            return !(lhs->Get()->flags & HOVERING);
+        }
+
+        static bool Explosions(const SmartList<UnitInfo>::Iterator& lhs, const SmartList<UnitInfo>::Iterator& rhs) {
+            return !((lhs->Get()->flags & EXPLODING) && lhs->Get()->unit_type != RKTSMOKE);
+        }
+    };
+
+    UnitsManager_GroundCoverUnits.Sort(ListSortCompare::GroundCoverUnits);
+    UnitsManager_GroundCoverUnits.Sort(ListSortCompare::SeaParticles);
+    UnitsManager_StationaryUnits.Sort(ListSortCompare::StationaryUnits);
+    UnitsManager_MobileAirUnits.Sort(ListSortCompare::HoveringAirUnits);
+    UnitsManager_ParticleUnits.Sort(ListSortCompare::Explosions);
+
+    return false;
+}
+
 bool SaveLoadChecks_Defect11() {
     bool result = false;
 

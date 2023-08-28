@@ -22,6 +22,7 @@
 #ifndef SAVELOADCHECKS_HPP
 #define SAVELOADCHECKS_HPP
 
+bool SaveLoadChecks_OrderedLists();
 bool SaveLoadChecks_Defect11();
 bool SaveLoadChecks_Defect151();
 bool SaveLoadChecks_Defect183();

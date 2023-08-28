@@ -1772,7 +1772,7 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
                 }
             }
 
-            UnitsManager_GroundCoverUnits.InsertAfter(it, *this);
+            UnitsManager_GroundCoverUnits.InsertBefore(it, *this);
 
         } else {
             int32_t reference_y;
@@ -1786,7 +1786,7 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
                 }
             }
 
-            UnitsManager_StationaryUnits.InsertAfter(it, *this);
+            UnitsManager_StationaryUnits.InsertBefore(it, *this);
         }
 
     } else if (unit_flags & MOBILE_AIR_UNIT) {
@@ -1798,7 +1798,7 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
             }
         }
 
-        UnitsManager_MobileAirUnits.InsertAfter(it, *this);
+        UnitsManager_MobileAirUnits.InsertBefore(it, *this);
 
     } else if (unit_flags & MISSILE_UNIT) {
         if (unit_flags & GROUND_COVER) {
@@ -1813,7 +1813,7 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
                 }
             }
 
-            UnitsManager_ParticleUnits.InsertAfter(it, *this);
+            UnitsManager_ParticleUnits.InsertBefore(it, *this);
         }
     }
 }

@@ -37,9 +37,8 @@
 
 AbstractUnit::AbstractUnit(uint32_t flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
-                           uint8_t land_type, uint8_t cargo_type, char new_gender,
-                           const char* singular_name, const char* plural_name, const char* description,
-                           const char* tutorial)
+                           uint8_t land_type, uint8_t cargo_type, char new_gender, const char* singular_name,
+                           const char* plural_name, const char* description, const char* tutorial)
     : flags(flags),
       sprite(sprite),
       shadows(shadows),
@@ -248,7 +247,7 @@ Complex* TeamUnits::CreateComplex() {
     }
 
     result = new (std::nothrow) Complex(complex_id);
-    complexes.InsertAfter(it, *result);
+    complexes.InsertBefore(it, *result);
 
     return result;
 }

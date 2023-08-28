@@ -123,6 +123,7 @@ public:
     };
 
     using Iterator = SmartList<T>::ListIterator;
+    using Compare = bool (*)(const Iterator& lhs, const Iterator& rhs);
 
     SmartList() noexcept : list_node(new(std::nothrow) ListNode<T>()) {
         list_node->next = list_node;
@@ -164,19 +165,23 @@ public:
     }
 
     inline void InsertAfter(Iterator& position, T& object) noexcept {
-        ListNode<T>* node = &position.GetNode();
+        if (position == list_node || position.Get() == nullptr) {
+            PushBack(object);
 
-        if (position == list_node) {
-            node = node->prev.Get();
+        } else {
+            position->InsertAfter(*(new (std::nothrow) ListNode<T>(object)));
+            ++count;
         }
-
-        node->InsertAfter(*(new (std::nothrow) ListNode<T>(object)));
-        ++count;
     }
 
     inline void InsertBefore(Iterator& position, T& object) noexcept {
-        position.GetNode().InsertBefore(*(new (std::nothrow) ListNode<T>(object)));
-        ++count;
+        if (position == list_node || position.Get() == nullptr) {
+            PushFront(object);
+
+        } else {
+            position->InsertBefore(*(new (std::nothrow) ListNode<T>(object)));
+            ++count;
+        }
     }
 
     [[nodiscard]] inline Iterator Find(T& object) const noexcept {
@@ -187,6 +192,12 @@ public:
         }
 
         return End();
+    }
+
+    inline void Sort(Compare compare) noexcept {
+        if (GetCount() > 1) {
+            Sort(0, GetCount() - 1, compare);
+        }
     }
 
     inline bool Remove(T& object) noexcept {
@@ -241,6 +252,41 @@ private:
         if (list_node != position.Get()) {
             position->RemoveSelf();
             --count;
+        }
+    }
+
+    inline void Swap(int32_t lhs, int32_t rhs) noexcept {
+        if (lhs == rhs) {
+            return;
+        }
+
+        SmartPointer<T> object = Get(lhs).object;
+        Get(lhs).object = Get(rhs).object;
+        Get(rhs).object = object;
+    }
+
+    int32_t Partition(int32_t low, int32_t high, Compare compare) noexcept {
+        ListNode<T>& pivot = Get(high);
+        int32_t index{low - 1};
+
+        for (int32_t j{low}; j < high; ++j) {
+            if (compare(Get(j), pivot)) {
+                ++index;
+                Swap(index, j);
+            }
+        }
+
+        Swap(index + 1, high);
+
+        return index + 1;
+    }
+
+    inline void Sort(int32_t low, int32_t high, Compare compare) noexcept {
+        if (low < high) {
+            const int32_t pivot = Partition(low, high, compare);
+
+            Sort(low, pivot - 1, compare);
+            Sort(pivot + 1, high, compare);
         }
     }
 };
