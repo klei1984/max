@@ -166,7 +166,7 @@ public:
 
     inline void InsertAfter(Iterator& position, T& object) noexcept {
         if (position == list_node || position.Get() == nullptr) {
-            PushBack(object);
+            PushFront(object);
 
         } else {
             position->InsertAfter(*(new (std::nothrow) ListNode<T>(object)));
@@ -176,7 +176,7 @@ public:
 
     inline void InsertBefore(Iterator& position, T& object) noexcept {
         if (position == list_node || position.Get() == nullptr) {
-            PushFront(object);
+            PushBack(object);
 
         } else {
             position->InsertBefore(*(new (std::nothrow) ListNode<T>(object)));

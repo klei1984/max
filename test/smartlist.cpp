@@ -239,25 +239,25 @@ TEST_F(SmartListTest, InsertEnd) {
     list1.InsertAfter(it_end, *to5);
 
     EXPECT_EQ(list1.GetCount(), 7);
-    EXPECT_EQ(list1[0].Get(), 2);
-    EXPECT_EQ(list1[1].Get(), 5);
-    EXPECT_EQ(list1[2].Get(), 4);
-    EXPECT_EQ(list1[3].Get(), 1);
-    EXPECT_EQ(list1[4].Get(), 2);
-    EXPECT_EQ(list1[5].Get(), 3);
-    EXPECT_EQ(list1[6].Get(), 5);
-
-    list1.InsertBefore(it_end, *to3);
-
-    EXPECT_EQ(list1.GetCount(), 8);
-    EXPECT_EQ(list1[0].Get(), 3);
+    EXPECT_EQ(list1[0].Get(), 5);
     EXPECT_EQ(list1[1].Get(), 2);
     EXPECT_EQ(list1[2].Get(), 5);
     EXPECT_EQ(list1[3].Get(), 4);
     EXPECT_EQ(list1[4].Get(), 1);
     EXPECT_EQ(list1[5].Get(), 2);
     EXPECT_EQ(list1[6].Get(), 3);
-    EXPECT_EQ(list1[7].Get(), 5);
+
+    list1.InsertBefore(it_end, *to3);
+
+    EXPECT_EQ(list1.GetCount(), 8);
+    EXPECT_EQ(list1[0].Get(), 5);
+    EXPECT_EQ(list1[1].Get(), 2);
+    EXPECT_EQ(list1[2].Get(), 5);
+    EXPECT_EQ(list1[3].Get(), 4);
+    EXPECT_EQ(list1[4].Get(), 1);
+    EXPECT_EQ(list1[5].Get(), 2);
+    EXPECT_EQ(list1[6].Get(), 3);
+    EXPECT_EQ(list1[7].Get(), 3);
 
     list1.Clear();
 
@@ -280,8 +280,8 @@ TEST_F(SmartListTest, InsertEnd) {
     list1.InsertBefore(it_end, *to2);
 
     EXPECT_EQ(list1.GetCount(), 2);
-    EXPECT_EQ(list1[0].Get(), 2);
-    EXPECT_EQ(list1[1].Get(), 3);
+    EXPECT_EQ(list1[0].Get(), 3);
+    EXPECT_EQ(list1[1].Get(), 2);
 }
 
 TEST_F(SmartListTest, Sort) {
