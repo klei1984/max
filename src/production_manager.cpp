@@ -191,15 +191,18 @@ int32_t ProductionManager::BalanceMining(int32_t type1, int32_t type2, int32_t a
     if (type1 != type2 && amount > 0) {
         switch (type1) {
             case CARGO_MATERIALS: {
-                amount = std::min(amount, static_cast<int32_t>(cargo_mining_capacity.raw - cargo_resource_reserves.raw));
+                amount =
+                    std::min(amount, static_cast<int32_t>(cargo_mining_capacity.raw - cargo_resource_reserves.raw));
             } break;
 
             case CARGO_FUEL: {
-                amount = std::min(amount, static_cast<int32_t>(cargo_mining_capacity.fuel - cargo_resource_reserves.fuel));
+                amount =
+                    std::min(amount, static_cast<int32_t>(cargo_mining_capacity.fuel - cargo_resource_reserves.fuel));
             } break;
 
             case CARGO_GOLD: {
-                amount = std::min(amount, static_cast<int32_t>(cargo_mining_capacity.gold - cargo_resource_reserves.gold));
+                amount =
+                    std::min(amount, static_cast<int32_t>(cargo_mining_capacity.gold - cargo_resource_reserves.gold));
             } break;
         }
 
@@ -407,22 +410,20 @@ void ProductionManager::ComposeResourceMessage(char* buffer_, int32_t new_value,
 }
 
 void ProductionManager::CheckGenerators() {
-    int32_t power_generator_fuel_consumption_rate = Cargo_GetFuelConsumptionRate(POWGEN);
-    int32_t power_generator_power_consumption_rate = -Cargo_GetPowerConsumptionRate(POWGEN);
-    int32_t power_station_fuel_consumption_rate = Cargo_GetFuelConsumptionRate(POWERSTN);
-    int32_t power_station_power_consumption_rate = -Cargo_GetPowerConsumptionRate(POWERSTN);
-    int32_t power;
-    int32_t count;
+    const int32_t power_generator_fuel_consumption_rate = Cargo_GetFuelConsumptionRate(POWGEN);
+    const int32_t power_generator_power_consumption_rate = -Cargo_GetPowerConsumptionRate(POWGEN);
+    const int32_t power_station_fuel_consumption_rate = Cargo_GetFuelConsumptionRate(POWERSTN);
+    const int32_t power_station_power_consumption_rate = -Cargo_GetPowerConsumptionRate(POWERSTN);
 
     cargo4.fuel += power_generator_fuel_consumption_rate * power_generator_active +
                    power_station_fuel_consumption_rate * power_station_active;
 
     cargo4.power -= cargo_resource_reserves.power;
 
-    power = -cargo4.power;
+    int32_t power = -cargo4.power;
 
-    count = (power_generator_power_consumption_rate * power_station_fuel_consumption_rate) /
-            power_generator_fuel_consumption_rate;
+    int32_t count = (power_generator_power_consumption_rate * power_station_fuel_consumption_rate) /
+                    power_generator_fuel_consumption_rate;
 
     power_station_active =
         (power + power_station_power_consumption_rate - count) / power_station_power_consumption_rate;
@@ -447,15 +448,13 @@ void ProductionManager::CheckGenerators() {
     power -= power_generator_active * power_generator_power_consumption_rate;
 
     if (power > 0) {
-        int32_t count2;
-
-        count2 = (power + power_station_power_consumption_rate - 1) / power_station_power_consumption_rate;
+        int32_t count2 = (power + power_station_power_consumption_rate - 1) / power_station_power_consumption_rate;
 
         if (count2 > power_station_count - power_station_active) {
             count2 = power_station_count - power_station_active;
         }
 
-        power_station_active = count2;
+        power_station_active += count2;
 
         power = -cargo4.power - power_station_active * power_station_power_consumption_rate;
 
