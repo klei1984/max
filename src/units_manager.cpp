@@ -3223,7 +3223,7 @@ void UnitsManager_InitPopupMenus() {
 
 int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int32_t order) {
     int32_t unit_turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit2->team], unit2->unit_type)
-                         ->GetAttribute(ATTRIB_TURNS);
+                             ->GetAttribute(ATTRIB_TURNS);
     int32_t chance = ((unit1->GetExperience() * 12) * 8 + 640) / unit_turns;
 
     if (order == ORDER_AWAIT_STEAL_UNIT) {
@@ -5684,12 +5684,18 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     }
 
     if ((unit_flags & (BUILDING | STANDALONE)) || unit_orders == ORDER_BUILD || unit_orders == ORDER_CLEAR) {
-        if (unit_type == CONSTRCT && unit_orders == ORDER_BUILD && rubble_type == SMLRUBLE) {
+        if (unit_type == CONSTRCT && unit_orders == ORDER_BUILD) {
             SmartPointer<UnitInfo> utility_unit(Access_GetUnit7(unit_team, unit_grid_x, unit_grid_y));
 
             unit_grid_x = utility_unit->grid_x;
             unit_grid_y = utility_unit->grid_y;
-            rubble_type = LRGRUBLE;
+
+            if (Access_IsFullyLandCovered(unit_grid_x, unit_grid_y, utility_unit->flags)) {
+                rubble_type = LRGRUBLE;
+
+            } else {
+                rubble_type = INVALID_ID;
+            }
         }
 
         Access_DestroyUtilities(unit_grid_x, unit_grid_y, true, true, false, false);
