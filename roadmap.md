@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2023-04-23.
+Last updated: 2023-09-03.
 
 Reimplementation status: 5666 / 5704 (99%) functions.
 
@@ -241,8 +241,12 @@ To be defined
 Code cleanup
 - setup workflows to improve code quality
 - fix original game defects (retain backwards compatibility with save game format version 70)
-- implement missing text mode class serializers and enumerator constants or remove these incomplete features as-is (preferred)
-- implement AI debug and log modules or remove these incomplete features as-is (preferred)
+- <span class="legend-done">
+  implement missing text mode class serializers and enumerator constants or remove these incomplete features as-is (preferred)
+  </span>
+- <span class="legend-done">
+  implement AI debug and log modules
+  </span>
 - make smart containers reentrant, thread safe and improve ISO C++ compliance
 - create or use an audio library that supports loop points (SFX) and streaming (MVE) for digital samples
 - refactor MVE player to eliminate self modifying code from it
@@ -252,7 +256,9 @@ Cross-platform
 - support OS specific line delimiters
 - support long file system paths and utf8 file names
 - support OS specific save game locations
-- support both 32 and 64 bit builds
+- <span class="legend-done">
+  support both 32 and 64 bit builds
+  </span>
 - support game install from original CD-ROMs (reimplement the MS-DOS installer)
 
 Scenario and campaign editor
