@@ -678,3 +678,12 @@ In the demonstrated scenario a hidden enemy submarine with available speed or mo
 <br>
 <br>
 The proposed defect fix is to use `INI_MIN_RESOURCES (9)` or `INI_MAX_RESOURCES (20)` consistently throughout relevant functions and to exclude continent locations from being viable for landing that have no sufficient levels of fuel and raw materials reserves within a configurable grid cells radius based upon `INI_EXCLUDE_RANGE (3)` or `INI_PROXIMITY_RANGE (14)`. Difficulty in the proposed solution is that the Computer AI determines the preferred landing spot and the team specific high level strategy before generating map resources including alien derelict sites.
+
+195. **[Fixed]** The game does not allow placement of small or large rubble on water or coastal tiles. The path finding algorithm cannot handle rubble on non land tiles. The function (cseg01:001007BF) responsible for rubble placement checks whether the unit for which rubble is requested is located on land tiles only. The function handles a special use case. If a constructor is creating a building and the constructor is destroyed during the building procedure the small rubble of the constructor determined earlier in the same function to be placed is replaced by a large rubble to indicate that the entire construction site got blocked by debris. This allows large rubble to be placed on water or coastal tiles if the constructor was standing on a land tile at the time it started to constuct a building.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_195.mp4" type="video/mp4">
+    </video>
+<br>
+<br>
+The proposed defect fix tests whether the large rubble replacement qualifies for placement and does not place any rubble in the negative case. A design alternative could be to place small rubble over eligible land tiles and skip only water and coastal tiles instead.
