@@ -50,11 +50,11 @@ static const SmartList<UnitInfo>* Access_UnitsLists[] = {&UnitsManager_MobileLan
 
 static bool Access_UpdateGroupSpeed(UnitInfo* unit);
 static bool Access_IsValidAttackTargetTypeEx(ResourceID attacker, ResourceID target, uint32_t target_flags);
-static bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, uint32_t target_flags,
-                                         Point point);
+static bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, uint32_t target_flags, Point point);
 static void Access_ProcessGroupAirPath(UnitInfo* unit);
 
-bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_grid_x, int32_t target_grid_y, bool mode) {
+bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_grid_x, int32_t target_grid_y,
+                               bool mode) {
     SmartPointer<UnitInfo> unit;
     const auto units = Hash_MapHash[Point(target_grid_x, target_grid_y)];
 
@@ -100,8 +100,7 @@ bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_gr
     }
 }
 
-uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y,
-                                 uint32_t flags) {
+uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags) {
     uint32_t unit_flags;
     uint32_t result;
     bool debug_flag;
@@ -249,8 +248,8 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
     return result;
 }
 
-bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, int16_t* grid_x, int16_t* grid_y, int32_t range_limit,
-                                 int32_t mode, int32_t direction) {
+bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, int16_t* grid_x, int16_t* grid_y,
+                                 int32_t range_limit, int32_t mode, int32_t direction) {
     UnitValues* unit_values;
     int32_t offset_x{0};
     int32_t offset_y{0};
@@ -914,9 +913,9 @@ bool Access_IsAnyLandPresent(int32_t grid_x, int32_t grid_y, uint32_t flags) {
 bool Access_IsFullyLandCovered(int32_t grid_x, int32_t grid_y, uint32_t flags) {
     bool result;
 
-    if (((flags & BUILDING) || (Access_GetSurfaceType(grid_x + 1, grid_y) == SURFACE_TYPE_LAND &&
-                                Access_GetSurfaceType(grid_x, grid_y + 1) == SURFACE_TYPE_LAND &&
-                                Access_GetSurfaceType(grid_x + 1, grid_y + 1) == SURFACE_TYPE_LAND)) &&
+    if ((!(flags & BUILDING) || (Access_GetSurfaceType(grid_x + 1, grid_y) == SURFACE_TYPE_LAND &&
+                                 Access_GetSurfaceType(grid_x, grid_y + 1) == SURFACE_TYPE_LAND &&
+                                 Access_GetSurfaceType(grid_x + 1, grid_y + 1) == SURFACE_TYPE_LAND)) &&
         Access_GetSurfaceType(grid_x, grid_y) == SURFACE_TYPE_LAND) {
         result = true;
 
@@ -1456,8 +1455,8 @@ UnitInfo* Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team) {
     return unit;
 }
 
-void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, bool remove_rubble, bool remove_connectors,
-                             bool remove_road) {
+void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, bool remove_rubble,
+                             bool remove_connectors, bool remove_road) {
     const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
     if (units) {
