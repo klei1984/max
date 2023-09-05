@@ -6313,9 +6313,12 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
                 } else if (GameManager_PlayerTeam == unit->team) {
                     if (unit->orders == ORDER_AWAIT_STEAL_UNIT) {
                         MessageManager_DrawMessage(_(f876), 1, unit, Point(unit->grid_x, unit->grid_y));
+
                     } else {
                         MessageManager_DrawMessage(_(a939), 1, unit, Point(unit->grid_x, unit->grid_y));
                     }
+
+                    SoundManager.PlayVoice(V_M007, V_F012);
                 }
 
                 UnitsManager_AddToDelayedReactionList(unit);
