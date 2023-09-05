@@ -2027,7 +2027,8 @@ void UnitInfo::GainExperience(int32_t experience) {
                 if (team == GameManager_PlayerTeam) {
                     SmartString string;
 
-                    string.Sprintf(80, _(d6a7), UnitsManager_BaseUnits[team].singular_name, grid_x + 1, grid_y + 1);
+                    string.Sprintf(80, _(d6a7), UnitsManager_BaseUnits[unit_type].singular_name, grid_x + 1,
+                                   grid_y + 1);
                     MessageManager_DrawMessage(string.GetCStr(), 0, this, Point(grid_x, grid_y));
                 }
 
