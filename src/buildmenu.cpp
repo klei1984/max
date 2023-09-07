@@ -754,46 +754,63 @@ int32_t BuildMenu_GetTurnsToBuild(ResourceID unit_type, uint16_t team) {
 }
 
 int32_t BuildMenu_GetMaxPossibleBuildRate(ResourceID unit_type, int32_t build_time, int32_t storage) {
-    int32_t result;
-    int32_t build_speed_multiplier;
+    constexpr int32_t rate_1x = 1;
+    constexpr int32_t rate_2x = 2;
+    constexpr int32_t rate_4x = 4;
 
-    if (build_time > 1) {
-        if (build_time > 2) {
-            build_speed_multiplier = 4;
+    int32_t result;
+
+    if (build_time > rate_1x) {
+        int32_t build_speed_multiplier;
+
+        if (build_time > rate_2x) {
+            build_speed_multiplier = rate_4x;
 
         } else {
-            build_speed_multiplier = 2;
+            build_speed_multiplier = rate_2x;
         }
 
         if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_LAND_UNIT) {
-            int32_t consumption_rate;
-            int32_t new_consumption_rate;
-            int32_t new_build_speed_multiplier;
-            int32_t turns_to_build;
+            const int32_t cost_1x = Cargo_GetRawConsumptionRate(unit_type, 1);
+            const int32_t cost_2x = Cargo_GetRawConsumptionRate(unit_type, 2);
+            const int32_t cost_4x = Cargo_GetRawConsumptionRate(unit_type, 4);
+            int32_t turns_1x{build_time / rate_1x};
+            int32_t turns_2x{0};
+            int32_t turns_4x{0};
 
-            consumption_rate = Cargo_GetRawConsumptionRate(unit_type, build_speed_multiplier);
+            const int32_t const_change_2x = cost_2x - cost_1x * (rate_2x / rate_1x);
 
-            while (build_speed_multiplier > 1) {
-                new_build_speed_multiplier = build_speed_multiplier / 2;
-                new_consumption_rate = Cargo_GetRawConsumptionRate(unit_type, new_build_speed_multiplier);
-
-                turns_to_build = (new_build_speed_multiplier + std::max(build_time - build_speed_multiplier, 0) - 1) /
-                                 new_build_speed_multiplier;
-
-                if (storage < turns_to_build * new_consumption_rate + consumption_rate) {
-                    build_speed_multiplier /= 2;
-                    consumption_rate = new_consumption_rate;
+            for (int32_t cost{turns_1x * cost_1x + const_change_2x}; cost <= storage;) {
+                if (turns_1x >= rate_2x / rate_1x) {
+                    ++turns_2x;
+                    turns_1x -= rate_2x / rate_1x;
+                    cost += const_change_2x;
 
                 } else {
                     break;
                 }
             }
+
+            const int32_t const_change_4x = cost_4x - cost_2x * (rate_4x / rate_2x);
+
+            for (int32_t cost{turns_1x * cost_1x + turns_2x * cost_2x + const_change_4x}; cost <= storage;) {
+                if (turns_2x >= rate_4x / rate_2x) {
+                    ++turns_4x;
+                    turns_2x -= rate_4x / rate_2x;
+                    cost += const_change_4x;
+
+                } else {
+                    break;
+                }
+            }
+
+            build_speed_multiplier = turns_4x ? rate_4x : turns_2x ? rate_2x : rate_1x;
         }
 
         result = build_speed_multiplier;
 
     } else {
-        result = 1;
+        result = rate_1x;
     }
 
     return result;
