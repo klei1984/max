@@ -10,10 +10,10 @@ set(FREETYPE_URI http://prdownloads.sourceforge.net/freetype/${FREETYPE_FILE})
 set(FREETYPE_HASH d99447cf00c5f2679918f66f2b5771f6)
 set(FREETYPE_HASH_TYPE MD5)
 
-set(SDL2_VERSION 2.28.2)
+set(SDL2_VERSION 2.28.3)
 set(SDL2_FILE SDL2-${SDL2_VERSION}.tar.gz)
 set(SDL2_URI https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/${SDL2_FILE})
-set(SDL2_HASH 06ff379c406cd8318d18f0de81ee2709)
+set(SDL2_HASH a9cd672b63386d1f57074a4896045d54)
 set(SDL2_HASH_TYPE MD5)
 
 set(SDL2_MIXER_VERSION 2.6.3)
