@@ -3772,19 +3772,32 @@ void UnitInfo::SetRepeatBuildState(bool value) { repeat_build = value; }
 bool UnitInfo::GetRepeatBuildState() const { return repeat_build; }
 
 void UnitInfo::SpawnNewUnit() {
-    int32_t position_x = this->grid_x;
-    int32_t position_y = this->grid_y;
-
     if (unit_type == BULLDOZR) {
-        int32_t parent_storage = parent_unit->storage;
-
         while (state == ORDER_STATE_6) {
             GameManager_ProcessTick(false);
         }
 
-        Access_DestroyUtilities(position_x, position_y, false, true, false, false);
+        const int32_t limit_x = parent_unit->unit_type == LRGRUBLE ? grid_x + 1 : grid_x;
+        const int32_t limit_y = parent_unit->unit_type == LRGRUBLE ? grid_y + 1 : grid_y;
 
-        storage = std::min(parent_storage + storage, GetBaseValues()->GetAttribute(ATTRIB_STORAGE));
+        for (int32_t pos_x{grid_x}; pos_x <= limit_x; ++pos_x) {
+            for (int32_t pos_y{grid_y}; pos_y <= limit_y; ++pos_y) {
+                const auto units = Hash_MapHash[Point(pos_x, pos_y)];
+
+                if (units) {
+                    for (auto it = units->Begin(); it != units->End(); ++it) {
+                        if ((*it).unit_type == SMLRUBLE || (*it).unit_type == LRGRUBLE) {
+                            storage += (*it).storage;
+
+                            UnitsManager_DestroyUnit(it->Get());
+                        }
+                    }
+                }
+            }
+        }
+
+        Access_DestroyUtilities(grid_x, grid_y, false, false, false, false);
+        storage = std::min<int32_t>(storage, GetBaseValues()->GetAttribute(ATTRIB_STORAGE));
 
         DrawSpriteFrame(image_index - 8);
 
@@ -3806,6 +3819,8 @@ void UnitInfo::SpawnNewUnit() {
 
     } else {
         SmartPointer<UnitInfo> new_unit;
+        int32_t position_x = this->grid_x;
+        int32_t position_y = this->grid_y;
 
         if (flags & STATIONARY) {
             new_unit = UnitsManager_DeployUnit(GetConstructedUnitType(), team, GetComplex(), position_x, position_y, 0,
