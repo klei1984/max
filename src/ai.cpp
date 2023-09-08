@@ -92,16 +92,14 @@ bool Ai_IsSafeStartingPosition(int32_t grid_x, int32_t grid_y, uint16_t team) {
 }
 
 void Ai_SelectStartingPosition(uint16_t team) {
-    int32_t grid_x;
-    int32_t grid_y;
+    Point position;
 
     do {
-        grid_x = (((ResourceManager_MapSize.x - 6) * dos_rand()) >> 15) + 3;
-        grid_y = (((ResourceManager_MapSize.y - 6) * dos_rand()) >> 15) + 3;
-    } while (!Ai_IsSafeStartingPosition(grid_x, grid_y, team));
+        position.x = (((ResourceManager_MapSize.x - 6) * dos_rand()) >> 15) + 3;
+        position.y = (((ResourceManager_MapSize.y - 6) * dos_rand()) >> 15) + 3;
+    } while (!Ai_IsSafeStartingPosition(position.x, position.y, team));
 
-    UnitsManager_TeamMissionSupplies[team].starting_position.x = grid_x;
-    UnitsManager_TeamMissionSupplies[team].starting_position.y = grid_y;
+    UnitsManager_TeamMissionSupplies[team].starting_position = position;
 }
 
 bool Ai_SetupStrategy(uint16_t team) {

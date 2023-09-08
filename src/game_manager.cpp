@@ -677,7 +677,7 @@ static void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2);
 static void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2);
 static void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2);
 static void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2);
-static void GameManager_IsValidStartingRange(int16_t* grid_x, int16_t* grid_y);
+static void GameManager_FindValidStartingPosition(Point* position);
 static void GameManager_PopulateMapWithResources();
 static void GameManager_FindSpot(Point* point);
 static void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value);
@@ -1947,28 +1947,19 @@ void GameManager_AutoSelectNext(UnitInfo* unit) {
 }
 
 Point GameManager_GetStartPositionMiningStation(uint16_t team) {
-    TeamMissionSupplies* supplies;
-    Point point;
-    int32_t max_resources;
-    int32_t resource_limit_min;
-    int32_t resource_limit_max;
-    int16_t cargo_raw;
-    int16_t cargo_fuel;
-    int16_t cargo_gold;
-
-    supplies = &UnitsManager_TeamMissionSupplies[team];
-
-    max_resources = ini_get_setting(INI_MAX_RESOURCES);
-
-    resource_limit_min = (max_resources * 8 + 10) / 20;
-    resource_limit_max = (max_resources * 12 + 10) / 20;
-
-    point = supplies->starting_position;
+    TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
+    const int32_t max_resources = ini_get_setting(INI_MAX_RESOURCES);
+    const int32_t minimum_fuel = (max_resources * 8 + 10) / 20;
+    const int32_t minimum_materials = (max_resources * 12 + 10) / 20;
+    Point point(supplies->starting_position);
+    int16_t cargo_raw{0};
+    int16_t cargo_fuel{0};
+    int16_t cargo_gold{0};
 
     Survey_GetTotalResourcesInArea(point.x, point.y, 1, &cargo_raw, &cargo_gold, &cargo_fuel, true, team);
 
-    if (!GameManager_IsValidStartingPosition(point.x, point.y) || cargo_raw < resource_limit_max ||
-        cargo_fuel < resource_limit_min) {
+    if (!GameManager_IsValidStartingPosition(point.x, point.y) || cargo_raw < minimum_materials ||
+        cargo_fuel < minimum_fuel) {
         for (int32_t range = 1; range < 10; ++range) {
             point.x = supplies->starting_position.x - range;
             point.y = supplies->starting_position.y + range;
@@ -1980,7 +1971,7 @@ Point GameManager_GetStartPositionMiningStation(uint16_t team) {
                     if (GameManager_IsValidStartingPosition(point.x, point.y)) {
                         Survey_GetTotalResourcesInArea(point.x, point.y, 1, &cargo_raw, &cargo_gold, &cargo_fuel, true,
                                                        team);
-                        if (cargo_raw >= 12 && cargo_fuel >= 8) {
+                        if (cargo_raw >= minimum_materials && cargo_fuel >= minimum_fuel) {
                             return point;
                         }
                     }
@@ -3210,8 +3201,10 @@ bool GameManager_InitGame() {
                 GameManager_InitMap();
             }
 
-            if (Ai_SetupStrategy(i) && Remote_IsNetworkGame) {
-                Remote_SendNetPacket_12(i);
+            if (Ai_SetupStrategy(i)) {
+                if (Remote_IsNetworkGame) {
+                    Remote_SendNetPacket_12(i);
+                }
             }
         }
     }
@@ -3313,7 +3306,7 @@ void GameManager_ColorEffect(struct ColorCycleData* color_cycle_table) {
 
     for (int32_t i = start_index; i <= end_index; ++i) {
         Color_SetSystemPaletteEntry(i, WindowManager_ColorPalette[i * 3 + 0], WindowManager_ColorPalette[i * 3 + 1],
-                              WindowManager_ColorPalette[i * 3 + 2]);
+                                    WindowManager_ColorPalette[i * 3 + 2]);
     }
 }
 
@@ -4773,18 +4766,17 @@ void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
     }
 }
 
-void GameManager_IsValidStartingRange(int16_t* grid_x, int16_t* grid_y) {
-    if (!GameManager_IsValidStartingPosition(*grid_x, *grid_y)) {
-        for (int32_t i = 2;; i += 2) {
-            --*grid_x;
-            ++*grid_y;
+void GameManager_FindValidStartingPosition(Point* position) {
+    if (!GameManager_IsValidStartingPosition(position->x, position->y)) {
+        for (int32_t range = 2;; range += 2) {
+            --position->x;
+            ++position->y;
 
-            for (int32_t j = 0; j < 8; j += 2) {
-                for (int32_t k = 0; k < i; ++k) {
-                    *grid_x += Paths_8DirPointsArray[j].x;
-                    *grid_y += Paths_8DirPointsArray[j].y;
+            for (int32_t direction = 0; direction < 8; direction += 2) {
+                for (int32_t i = 0; i < range; ++i) {
+                    *position += Paths_8DirPointsArray[direction];
 
-                    if (GameManager_IsValidStartingPosition(*grid_x, *grid_y)) {
+                    if (GameManager_IsValidStartingPosition(position->x, position->y)) {
                         return;
                     }
                 }
@@ -4797,9 +4789,10 @@ void GameManager_PopulateMapWithResources() {
     ResourceAllocator allocator_materials(CARGO_MATERIALS);
     ResourceAllocator allocator_fuel(CARGO_FUEL);
     ResourceAllocator allocator_gold(CARGO_GOLD);
-    int32_t max_resources;
 
-    max_resources = ini_get_setting(INI_MAX_RESOURCES);
+    const int32_t max_resources{ini_get_setting(INI_MAX_RESOURCES)};
+    const int32_t minimum_fuel{(max_resources * 8 + 10) / 20};
+    const int32_t minimum_materials{(max_resources * 12 + 10) / 20};
 
     dos_srand(Remote_RngSeed);
 
@@ -4809,11 +4802,10 @@ void GameManager_PopulateMapWithResources() {
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            Point starting_position(UnitsManager_TeamMissionSupplies[team].starting_position.x,
-                                    UnitsManager_TeamMissionSupplies[team].starting_position.y);
-            GameManager_IsValidStartingRange(&starting_position.x, &starting_position.y);
-            allocator_materials.Optimize(starting_position, (max_resources * 12 + 10) / 20, 100);
-            allocator_fuel.Optimize(starting_position, (max_resources * 8 + 10) / 20, 100);
+            GameManager_FindValidStartingPosition(&UnitsManager_TeamMissionSupplies[team].starting_position);
+            allocator_materials.Optimize(UnitsManager_TeamMissionSupplies[team].starting_position, minimum_materials,
+                                         100);
+            allocator_fuel.Optimize(UnitsManager_TeamMissionSupplies[team].starting_position, minimum_fuel, 100);
         }
     }
 
