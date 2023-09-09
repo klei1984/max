@@ -734,7 +734,13 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
                             Point line_distance;
 
                             if (tasks.GetCount()) {
-                                minimum_distance = 8;
+                                // do we wait for rubble removal even though we want to build a connector?
+                                if (tasks[0].GetType() == TaskType_TaskRemoveRubble && unit_type == CNCT_4W) {
+                                    minimum_distance = 0;
+
+                                } else {
+                                    minimum_distance = 8;
+                                }
 
                             } else {
                                 minimum_distance = 0;
@@ -1329,8 +1335,8 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
     return is_found;
 }
 
-bool TaskCreateBuilding::SearchPathStep(uint8_t** map, Point position, int32_t* direction,
-                                        uint16_t* best_unit_count, int32_t value) {
+bool TaskCreateBuilding::SearchPathStep(uint8_t** map, Point position, int32_t* direction, uint16_t* best_unit_count,
+                                        int32_t value) {
     Point site1;
     Point site2;
     Point site3;
