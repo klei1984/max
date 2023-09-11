@@ -23,13 +23,13 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
 #include "taskrendezvous.hpp"
 #include "units_manager.hpp"
 
-TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, uint16_t flags_)
-    : Task(task->GetTeam(), task, flags_) {
+TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, uint16_t flags_) : Task(task->GetTeam(), task, flags_) {
     target = unit_;
 }
 
@@ -94,6 +94,8 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
 
         if (target && !Ai_IsDangerousLocation(&unit_, Point(target->grid_x, target->grid_y),
                                               CAUTION_LEVEL_AVOID_ALL_DAMAGE, true)) {
+            AiLog log("Remove Rubble: move finished.");
+
             if (unit_.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) != unit_.storage) {
                 if (unit_.grid_x == target->grid_x && unit_.grid_y == target->grid_y) {
                     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
@@ -188,6 +190,8 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
         UnitInfo* best_unit = nullptr;
         int32_t distance;
         int32_t minimum_distance{INT32_MAX};
+
+        AiLog log("Remove Rubble: attempt to dump materials.");
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
