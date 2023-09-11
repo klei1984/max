@@ -325,3 +325,23 @@ TEST_F(SmartListTest, Sort) {
     EXPECT_EQ(list1[4].Get(), 2);
     EXPECT_EQ(list1[5].Get(), 1);
 }
+
+TEST_F(SmartListTest, IteratorMisuse) {
+    SmartList<TestObject> list2;
+    SmartPointer<TestObject> to(new (std::nothrow) TestObject());
+
+    list2.PushBack(*to);
+
+    EXPECT_EQ(list2.GetCount(), 1);
+
+    list2.Remove(list1.End());
+
+    EXPECT_EQ(list1.GetCount(), 6);
+
+    EXPECT_EQ(list1[0].Get(), 2);
+    EXPECT_EQ(list1[1].Get(), 5);
+    EXPECT_EQ(list1[2].Get(), 4);
+    EXPECT_EQ(list1[3].Get(), 1);
+    EXPECT_EQ(list1[4].Get(), 2);
+    EXPECT_EQ(list1[5].Get(), 3);
+}

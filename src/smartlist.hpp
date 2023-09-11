@@ -215,17 +215,27 @@ public:
         return result;
     }
 
-    inline void Remove(Iterator position) noexcept { Erase(position); }
+    inline void Remove(Iterator position) noexcept {
+        Iterator it = Find(*position);
+
+        if (it != End()) {
+            Erase(it);
+        }
+    }
 
     inline void Clear() noexcept {
         while (Begin() != End()) {
             Erase(Begin());
         }
 
-        SDL_assert(count == 0);
+        SDL_assert(count == 0 && Begin() == End());
     }
 
-    [[nodiscard]] inline uint16_t GetCount() const noexcept { return count; }
+    [[nodiscard]] inline uint16_t GetCount() const noexcept {
+        SDL_assert(count == 0 ? Begin() == End() : true);
+
+        return count;
+    }
 
     inline SmartList<T>& operator=(const SmartList<T>& other) {
         if (this == &other) {
@@ -253,6 +263,8 @@ private:
             position->RemoveSelf();
             --count;
         }
+
+        SDL_assert(count == 0 ? Begin() == End() : true);
     }
 
     inline void Swap(int32_t lhs, int32_t rhs) noexcept {
