@@ -49,10 +49,12 @@ void ThreatMap::Init() {
         for (int32_t i = 0; i < dimension.x; ++i) {
             damage_potential_map[i] = new (std::nothrow) int16_t[dimension.y];
             shots_map[i] = new (std::nothrow) int16_t[dimension.y];
-
-            memset(damage_potential_map[i], 0, dimension.y * sizeof(int16_t));
-            memset(shots_map[i], 0, dimension.y * sizeof(int16_t));
         }
+    }
+
+    for (int32_t i = 0; i < dimension.x; ++i) {
+        memset(damage_potential_map[i], 0, dimension.y * sizeof(int16_t));
+        memset(shots_map[i], 0, dimension.y * sizeof(int16_t));
     }
 }
 
