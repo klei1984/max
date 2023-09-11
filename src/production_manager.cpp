@@ -111,13 +111,13 @@ void ProductionManager::UpdateUnitPowerConsumption(UnitInfo* unit, uint16_t* gen
 
             } else {
                 ComposeIndustryMessage(unit, _(cdcc), _(b9d9), _(acbe));
-                UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_0);
+                UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
             }
 
         } else {
             if (*generator_active == *generator_count) {
                 ComposeIndustryMessage(unit, _(cfb8), _(d25b), _(07d7));
-                UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_0);
+                UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_INIT);
                 --*generator_active;
             }
         }
@@ -305,7 +305,7 @@ void ProductionManager::SatisfyPowerDemand(int32_t amount) {
 
 void ProductionManager::UpdateUnitWorkerConsumption(UnitInfo* unit) {
     if (complex == unit->GetComplex() && Cargo_GetLifeConsumptionRate(unit->unit_type) < 0 &&
-        unit->orders != ORDER_DISABLE && unit->orders != ORDER_POWER_ON && unit->state != ORDER_STATE_0 &&
+        unit->orders != ORDER_DISABLE && unit->orders != ORDER_POWER_ON && unit->state != ORDER_STATE_INIT &&
         CheckPowerNeed(Cargo_GetPowerConsumptionRate(unit->unit_type))) {
         int32_t life_consumption_rate = Cargo_GetLifeConsumptionRate(unit->unit_type);
 
@@ -314,7 +314,7 @@ void ProductionManager::UpdateUnitWorkerConsumption(UnitInfo* unit) {
 
         ComposeIndustryMessage(unit, _(5fd6), _(0a4b), _(ed57));
 
-        UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_INIT);
     }
 }
 
@@ -374,7 +374,7 @@ bool ProductionManager::SatisfyIndustryPower(UnitInfo* unit, bool mode) {
                     SatisfyPowerDemand(-demand.power);
                 }
 
-                UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_0);
+                UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                 result = true;
 
@@ -693,7 +693,7 @@ bool ProductionManager::OptimizeMiningIndustry() {
 
         cargo4 -= minimum_demand;
 
-        UnitsManager_SetNewOrder(&*mine, ORDER_POWER_OFF, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*mine, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
         ComposeIndustryMessage(&*mine, _(2ff7), _(b8fe), _(5f24));
 

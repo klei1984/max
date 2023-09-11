@@ -1050,7 +1050,7 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, uint16_t team) {
                  (*it).orders == ORDER_MOVE_TO_ATTACK) &&
                 (*it).state == ORDER_STATE_1) {
                 if ((*it).team == team && (*it).speed != 0 && (*it).engine == 2) {
-                    UnitsManager_SetNewOrder(&(*it), (*it).orders, ORDER_STATE_0);
+                    UnitsManager_SetNewOrder(&(*it), (*it).orders, ORDER_STATE_INIT);
                 }
             }
         }
@@ -1065,7 +1065,7 @@ bool Access_UpdateGroupSpeed(UnitInfo* unit) {
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).orders == ORDER_MOVE || (*it).orders == ORDER_MOVE_TO_ATTACK) &&
-            ((*it).state == ORDER_STATE_5 || (*it).state == ORDER_STATE_6 || (*it).state == ORDER_STATE_NEW_ORDER)) {
+            ((*it).state == ORDER_STATE_IN_PROGRESS || (*it).state == ORDER_STATE_6 || (*it).state == ORDER_STATE_NEW_ORDER)) {
             return false;
         }
 
@@ -2017,7 +2017,7 @@ bool Access_AreTaskEventsPending() {
                 (*it).state == ORDER_STATE_14 || ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) ||
                 ((*it).orders == ORDER_MOVE_TO_UNIT && (*it).state != ORDER_STATE_1) ||
                 ((*it).orders == ORDER_MOVE_TO_ATTACK && (*it).state != ORDER_STATE_1) ||
-                (*it).state == ORDER_STATE_0) {
+                (*it).state == ORDER_STATE_INIT) {
                 if ((*it).state == ORDER_STATE_NEW_ORDER && (*it).team == GameManager_PlayerTeam &&
                     !PathsManager_HasRequest(&*it)) {
                     if ((*it).path != nullptr) {
@@ -2135,7 +2135,7 @@ bool Access_IsGroupOrderInterrupted(UnitInfo* unit) {
     if (units) {
         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
             if (((*it).orders == ORDER_MOVE || (*it).orders == ORDER_MOVE_TO_ATTACK) &&
-                ((*it).state == ORDER_STATE_5 || (*it).state == ORDER_STATE_6 ||
+                ((*it).state == ORDER_STATE_IN_PROGRESS || (*it).state == ORDER_STATE_6 ||
                  (*it).state == ORDER_STATE_NEW_ORDER)) {
                 return true;
             }

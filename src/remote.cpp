@@ -1637,7 +1637,7 @@ void Remote_SendNetPacket_11(int32_t team, Complex* complex) {
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
             (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
-            UnitsManager_SetNewOrder(&*it, ORDER_NEW_ALLOCATE, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(&*it, ORDER_NEW_ALLOCATE, ORDER_STATE_INIT);
         }
     }
 

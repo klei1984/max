@@ -389,10 +389,10 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                         (!(target->flags & STATIONARY) &&
                          UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_STEAL_UNIT) >=
                              ini_get_setting(INI_MAX_PERCENT))) {
-                        UnitsManager_SetNewOrder(attacker, ORDER_AWAIT_STEAL_UNIT, ORDER_STATE_0);
+                        UnitsManager_SetNewOrder(attacker, ORDER_AWAIT_STEAL_UNIT, ORDER_STATE_INIT);
 
                     } else {
-                        UnitsManager_SetNewOrder(attacker, ORDER_AWAIT_DISABLE_UNIT, ORDER_STATE_0);
+                        UnitsManager_SetNewOrder(attacker, ORDER_AWAIT_DISABLE_UNIT, ORDER_STATE_INIT);
                     }
 
                     result = true;

@@ -357,7 +357,7 @@ void Ai_CheckMines(UnitInfo* unit) {
 bool Ai_AreThereParticles() {
     bool result;
 
-    if (UnitsManager_ParticleUnits.GetCount() > 0 || UnitsManager_UnitList6.GetCount() > 0) {
+    if (UnitsManager_ParticleUnits.GetCount() > 0 || UnitsManager_PendingAttacks.GetCount() > 0) {
         result = true;
 
     } else {
@@ -370,14 +370,14 @@ bool Ai_AreThereParticles() {
 bool Ai_AreThereMovingUnits() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).orders == ORDER_MOVE && ((*it).state == ORDER_STATE_5 || (*it).state == ORDER_STATE_6)) {
+        if ((*it).orders == ORDER_MOVE && ((*it).state == ORDER_STATE_IN_PROGRESS || (*it).state == ORDER_STATE_6)) {
             return true;
         }
     }
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
          it != UnitsManager_MobileAirUnits.End(); ++it) {
-        if ((*it).orders == ORDER_MOVE && ((*it).state == ORDER_STATE_5 || (*it).state == ORDER_STATE_6)) {
+        if ((*it).orders == ORDER_MOVE && ((*it).state == ORDER_STATE_IN_PROGRESS || (*it).state == ORDER_STATE_6)) {
             return true;
         }
     }

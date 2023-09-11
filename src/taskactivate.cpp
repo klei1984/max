@@ -113,7 +113,7 @@ void TaskActivate::Activate() {
                                                     unit_to_activate->target_grid_y = position.y;
 
                                                     UnitsManager_SetNewOrder(&*unit_to_activate, ORDER_MOVE,
-                                                                             ORDER_STATE_0);
+                                                                             ORDER_STATE_INIT);
                                                 } break;
                                             }
 

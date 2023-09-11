@@ -377,7 +377,7 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
             }
         }
 
-    } while (unit->hits && unit->state == ORDER_STATE_5 && !Remote_IsNetworkGame && !team_visibility);
+    } while (unit->hits && unit->state == ORDER_STATE_IN_PROGRESS && !Remote_IsNetworkGame && !team_visibility);
 
     return false;
 }
@@ -555,7 +555,7 @@ bool GroundPath::IsInPath(int32_t grid_x, int32_t grid_y) const {
 void GroundPath::CancelMovement(UnitInfo* unit) {
     AiLog log("Ground path: emergency stop.");
 
-    if (unit->state == ORDER_STATE_5) {
+    if (unit->state == ORDER_STATE_IN_PROGRESS) {
         log.Log("In turn state.");
 
         unit->BlockedOnPathRequest();
@@ -1363,7 +1363,7 @@ bool Paths_LoadUnit(UnitInfo* unit) {
         if (shop->unit_type == LANDPAD && !Access_GetUnit2(unit->grid_x, unit->grid_y, unit->team)) {
             unit->SetParent(nullptr);
             unit->orders = ORDER_LAND;
-            unit->state = ORDER_STATE_0;
+            unit->state = ORDER_STATE_INIT;
 
             result = true;
 
@@ -1384,7 +1384,7 @@ bool Paths_LoadUnit(UnitInfo* unit) {
             } else {
                 unit->SetParent(shop);
                 unit->orders = ORDER_LAND;
-                unit->state = ORDER_STATE_0;
+                unit->state = ORDER_STATE_INIT;
 
                 if (GameManager_SelectedUnit == unit) {
                     GameManager_MenuUnitSelect(shop);
@@ -1433,7 +1433,7 @@ void Paths_FinishMove(UnitInfo* unit) {
                     if (unit->storage < unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
                         if (unit->GetParent() == Access_GetUnit4(grid_x, grid_y, unit->team, MOBILE_LAND_UNIT)) {
                             unit->orders = ORDER_LOAD;
-                            unit->state = ORDER_STATE_0;
+                            unit->state = ORDER_STATE_INIT;
 
                             return;
                         }

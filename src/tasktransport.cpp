@@ -708,7 +708,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
 
                 SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
-                UnitsManager_SetNewOrder(&*unit_transporter, ORDER_LOAD, ORDER_STATE_0);
+                UnitsManager_SetNewOrder(&*unit_transporter, ORDER_LOAD, ORDER_STATE_INIT);
 
                 result = true;
 
@@ -727,7 +727,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
 
                 unit->Redraw();
 
-                UnitsManager_SetNewOrder(unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_5);
+                UnitsManager_SetNewOrder(unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_IN_PROGRESS);
 
                 if (Remote_IsNetworkGame) {
                     Remote_SendNetPacket_38(unit);
@@ -782,7 +782,7 @@ void TaskTransport::UnloadUnit(UnitInfo* unit) {
                 SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
                 if (unit_transporter->unit_type == AIRTRANS) {
-                    UnitsManager_SetNewOrder(&*unit_transporter, ORDER_UNLOAD, ORDER_STATE_0);
+                    UnitsManager_SetNewOrder(&*unit_transporter, ORDER_UNLOAD, ORDER_STATE_INIT);
 
                 } else {
                     UnitsManager_SetNewOrder(&*unit_transporter, ORDER_ACTIVATE, ORDER_STATE_1);

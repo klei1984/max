@@ -331,7 +331,7 @@ void AiPlayer::DetermineResearchProjects() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == player_team && (*it).unit_type == RESEARCH && (*it).orders == ORDER_POWER_ON &&
-            (*it).state != ORDER_STATE_0 && (*it).research_topic != best_research_topic) {
+            (*it).state != ORDER_STATE_INIT && (*it).research_topic != best_research_topic) {
             ResearchMenu_UpdateResearchProgress(player_team, (*it).research_topic, -1);
             (*it).research_topic = best_research_topic;
             ResearchMenu_UpdateResearchProgress(player_team, (*it).research_topic, 1);
@@ -2559,7 +2559,7 @@ void AiPlayer::BeginTurn() {
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).team == player_team && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_ON &&
                 (*it).orders != ORDER_IDLE) {
-                UnitsManager_SetNewOrder(&*it, ORDER_POWER_ON, ORDER_STATE_0);
+                UnitsManager_SetNewOrder(&*it, ORDER_POWER_ON, ORDER_STATE_INIT);
             }
         }
 
@@ -2569,7 +2569,7 @@ void AiPlayer::BeginTurn() {
                 if ((*it).team == player_team &&
                     ((*it).unit_type == COMMTWR || (*it).unit_type == GREENHSE || (*it).unit_type == RESEARCH) &&
                     (*it).orders != ORDER_POWER_ON && (*it).orders != ORDER_IDLE) {
-                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_ON, ORDER_STATE_0);
+                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_ON, ORDER_STATE_INIT);
                 }
             }
         }

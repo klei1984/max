@@ -1055,7 +1055,7 @@ void TaskMove::MoveAirUnit() {
 
             passenger->ChangeField221(1, false);
 
-            UnitsManager_SetNewOrder(&*passenger, ORDER_MOVE, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(&*passenger, ORDER_MOVE, ORDER_STATE_INIT);
         }
     }
 }
@@ -1301,11 +1301,11 @@ void TaskMove::MoveUnit(GroundPath* path) {
         passenger->ChangeField221(1, false);
 
         if (passenger->flags & MOBILE_AIR_UNIT) {
-            UnitsManager_SetNewOrder(&*passenger, ORDER_MOVE, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(&*passenger, ORDER_MOVE, ORDER_STATE_INIT);
 
         } else {
             passenger->path = path;
-            UnitsManager_SetNewOrder(&*passenger, ORDER_MOVE, ORDER_STATE_5);
+            UnitsManager_SetNewOrder(&*passenger, ORDER_MOVE, ORDER_STATE_IN_PROGRESS);
         }
     }
 }

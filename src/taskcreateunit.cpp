@@ -257,7 +257,7 @@ void TaskCreateUnit::WaitForMaterials() {
                          it != UnitsManager_StationaryUnits.End(); ++it) {
                         if (buildings_to_shut_down > 0) {
                             if ((*it).team == team && (*it).unit_type == GREENHSE && (*it).orders == ORDER_POWER_ON) {
-                                UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_0);
+                                UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                                 --buildings_to_shut_down;
                             }
@@ -271,7 +271,7 @@ void TaskCreateUnit::WaitForMaterials() {
                          it != UnitsManager_StationaryUnits.End(); ++it) {
                         if (buildings_to_shut_down > 0) {
                             if ((*it).team == team && (*it).unit_type == COMMTWR && (*it).orders == ORDER_POWER_ON) {
-                                UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_0);
+                                UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                                 --buildings_to_shut_down;
                             }

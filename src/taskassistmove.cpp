@@ -40,7 +40,7 @@ void TaskAssistMove::RequestTransport(UnitInfo* unit1, UnitInfo* unit2) {
     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
         if (unit1->unit_type == AIRTRANS) {
             unit1->SetParent(unit2);
-            UnitsManager_SetNewOrder(unit1, ORDER_LOAD, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(unit1, ORDER_LOAD, ORDER_STATE_INIT);
 
         } else {
             unit2->target_grid_x = unit1->grid_x;
@@ -57,7 +57,7 @@ void TaskAssistMove::RequestTransport(UnitInfo* unit1, UnitInfo* unit2) {
             unit2->path = &*path;
             unit2->Redraw();
 
-            UnitsManager_SetNewOrder(unit2, ORDER_MOVE_TO_UNIT, ORDER_STATE_5);
+            UnitsManager_SetNewOrder(unit2, ORDER_MOVE_TO_UNIT, ORDER_STATE_IN_PROGRESS);
 
             if (Remote_IsNetworkGame) {
                 Remote_SendNetPacket_38(unit2);
@@ -84,7 +84,7 @@ void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point s
             SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
             if (unit1->unit_type == AIRTRANS) {
-                UnitsManager_SetNewOrder(unit1, ORDER_UNLOAD, ORDER_STATE_0);
+                UnitsManager_SetNewOrder(unit1, ORDER_UNLOAD, ORDER_STATE_INIT);
 
             } else {
                 UnitsManager_SetNewOrder(unit1, ORDER_ACTIVATE, ORDER_STATE_1);

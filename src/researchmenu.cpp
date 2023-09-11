@@ -522,7 +522,7 @@ void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value) {
                 }
 
                 if (index == RESEARCH_TOPIC_COUNT) {
-                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_0);
+                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                 } else {
                     ResearchMenu_UpdateResearchProgress(control->team, (*it).research_topic, -1);

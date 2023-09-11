@@ -86,9 +86,9 @@ void TaskUpgrade::IssueOrder() {
     operator_unit->SetParent(&*target_unit);
 
     if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {
-        UnitsManager_SetNewOrder(&*operator_unit, ORDER_UPGRADE, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*operator_unit, ORDER_UPGRADE, ORDER_STATE_INIT);
 
     } else if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
-        UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);
     }
 }

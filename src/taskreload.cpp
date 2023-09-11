@@ -143,5 +143,5 @@ void TaskReload::IssueOrder() {
               UnitsManager_BaseUnits[operator_unit->unit_type].singular_name);
 
     operator_unit->SetParent(&*target_unit);
-    UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_0);
+    UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);
 }

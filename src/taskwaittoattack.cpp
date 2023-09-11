@@ -71,7 +71,7 @@ void TaskWaitToAttack::RemoveSelf() {
 }
 
 bool TaskWaitToAttack::CheckReactions() {
-    if (attacker && !attacker->delayed_reaction && UnitsManager_UnitList6.GetCount() == 0 &&
+    if (attacker && !attacker->delayed_reaction && UnitsManager_PendingAttacks.GetCount() == 0 &&
         TaskManager_word_1731C0 != 2) {
         AiAttack_EvaluateAttack(&*attacker);
 

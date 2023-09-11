@@ -1920,7 +1920,7 @@ void UnitInfo::BuildOrder() {
     orders = ORDER_AWAIT;
     state = ORDER_STATE_1;
 
-    UnitsManager_SetNewOrder(this, ORDER_BUILD, ORDER_STATE_0);
+    UnitsManager_SetNewOrder(this, ORDER_BUILD, ORDER_STATE_INIT);
 }
 
 void UnitInfo::GetBounds(Rect* bounds) {
@@ -2093,7 +2093,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
             }
 
             UnitsManager_DelayedAttackTargets[team].Remove(*this);
-            UnitsManager_UnitList6.Remove(*this);
+            UnitsManager_PendingAttacks.Remove(*this);
 
             RemoveTasks();
             RemoveDelayedTasks();
@@ -2125,7 +2125,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
         UnitsManager_CheckIfUnitDestroyed(this);
 
         if (hits == 0 || (orders != ORDER_EXPLODE && state != ORDER_STATE_14)) {
-            UnitsManager_SetNewOrderInt(this, ORDER_EXPLODE, ORDER_STATE_0);
+            UnitsManager_SetNewOrderInt(this, ORDER_EXPLODE, ORDER_STATE_INIT);
         }
 
         FollowUnit();
@@ -2153,7 +2153,7 @@ bool UnitInfo::ExpectAttack() {
     } else {
         if (path) {
             if ((flags & MOBILE_AIR_UNIT) && !(flags & HOVERING)) {
-                UnitsManager_SetNewOrderInt(this, ORDER_TAKE_OFF, ORDER_STATE_0);
+                UnitsManager_SetNewOrderInt(this, ORDER_TAKE_OFF, ORDER_STATE_INIT);
                 Ai_SetTasksPendingFlag("plane takeoff");
 
                 result = false;
@@ -2347,7 +2347,7 @@ void UnitInfo::Move() {
                 Build();
 
             } else {
-                state = ORDER_STATE_5;
+                state = ORDER_STATE_IN_PROGRESS;
             }
 
             if (orders == ORDER_MOVE || orders == ORDER_MOVE_TO_UNIT || orders == ORDER_MOVE_TO_ATTACK) {
@@ -2391,7 +2391,7 @@ void UnitInfo::Move() {
             return;
         }
 
-        if (state == ORDER_STATE_5 && !team_visibility) {
+        if (state == ORDER_STATE_IN_PROGRESS && !team_visibility) {
             ExpectAttack();
         }
 
@@ -2928,7 +2928,7 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     UnitInfo_BuildList_FileLoad(&build_list, file);
 
     if (state == ORDER_STATE_NEW_ORDER || state == ORDER_STATE_29 || state == ORDER_STATE_7 || state == ORDER_STATE_6 ||
-        state == ORDER_STATE_5) {
+        state == ORDER_STATE_IN_PROGRESS) {
         state = ORDER_STATE_1;
     }
 
@@ -3602,7 +3602,7 @@ void UnitInfo::StopMovement() {
     AiLog log("%s at [%i,%i]: Emergency Stop", UnitsManager_BaseUnits[unit_type].singular_name, grid_x + 1, grid_y + 1);
 
     if (orders == ORDER_MOVE && path != nullptr) {
-        if (state == ORDER_STATE_5 || state == ORDER_STATE_6) {
+        if (state == ORDER_STATE_IN_PROGRESS || state == ORDER_STATE_6) {
             path->CancelMovement(this);
 
         } else {
@@ -3641,7 +3641,7 @@ bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
 
                 result = true;
 
-            } else if (orders == ORDER_MOVE && (state == ORDER_STATE_5 || state == ORDER_STATE_6)) {
+            } else if (orders == ORDER_MOVE && (state == ORDER_STATE_IN_PROGRESS || state == ORDER_STATE_6)) {
                 result = true;
 
             } else {
@@ -3704,7 +3704,7 @@ bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
                     path = &*ground_path;
 
                     orders = ORDER_MOVE;
-                    state = ORDER_STATE_5;
+                    state = ORDER_STATE_IN_PROGRESS;
 
                     result = true;
 
@@ -4965,7 +4965,7 @@ void UnitInfo::PrepareFire() {
         new_unit->SetParent(this);
 
         new_unit->orders = ORDER_MOVE;
-        new_unit->state = ORDER_STATE_0;
+        new_unit->state = ORDER_STATE_INIT;
 
         UnitsManager_AddToDelayedReactionList(this);
     }
@@ -4985,7 +4985,7 @@ void UnitInfo::PrepareFire() {
         }
     }
 
-    state = ORDER_STATE_9;
+    state = ORDER_STATE_FIRE_IN_PROGRESS;
 }
 
 void UnitInfo::ProgressFire() {

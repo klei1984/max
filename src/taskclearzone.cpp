@@ -42,13 +42,13 @@ void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Poi
         clear_zone->state = CLEARZONE_STATE_MOVING_UNIT;
 
         if (clear_zone->moving_unit->flags & MOBILE_AIR_UNIT) {
-            UnitsManager_SetNewOrder(&*clear_zone->moving_unit, ORDER_MOVE, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(&*clear_zone->moving_unit, ORDER_MOVE, ORDER_STATE_INIT);
 
         } else {
             clear_zone->moving_unit->path = path;
             clear_zone->moving_unit->Redraw();
 
-            UnitsManager_SetNewOrder(&*clear_zone->moving_unit, ORDER_MOVE, ORDER_STATE_5);
+            UnitsManager_SetNewOrder(&*clear_zone->moving_unit, ORDER_MOVE, ORDER_STATE_IN_PROGRESS);
 
             if (Remote_IsNetworkGame) {
                 Remote_SendNetPacket_38(&*clear_zone->moving_unit);
@@ -382,7 +382,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                         state = CLEARZONE_STATE_MOVING_UNIT;
 
                         if (moving_unit->flags & MOBILE_AIR_UNIT) {
-                            UnitsManager_SetNewOrder(&*moving_unit, ORDER_MOVE, ORDER_STATE_0);
+                            UnitsManager_SetNewOrder(&*moving_unit, ORDER_MOVE, ORDER_STATE_INIT);
 
                         } else {
                             SmartPointer<GroundPath> path = new (std::nothrow) GroundPath(site.x, site.y);
@@ -393,7 +393,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
 
                             moving_unit->Redraw();
 
-                            UnitsManager_SetNewOrder(&*moving_unit, ORDER_MOVE, ORDER_STATE_5);
+                            UnitsManager_SetNewOrder(&*moving_unit, ORDER_MOVE, ORDER_STATE_IN_PROGRESS);
 
                             if (Remote_IsNetworkGame) {
                                 Remote_SendNetPacket_38(&*moving_unit);

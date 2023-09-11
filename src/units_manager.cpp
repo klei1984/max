@@ -91,7 +91,7 @@ static void UnitsManager_Popup_InitBuilders(UnitInfo* unit, struct PopupButtons*
 static bool UnitsManager_Popup_IsUnitReady(UnitInfo* unit);
 static void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit);
 static void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons);
-static bool UnitsManager_IsPowerGeneratorPlaceable(uint16_t team, int16_t* grid_x, int16_t* grid_y);
+static bool UnitsManager_FindValidPowerGeneratorPosition(uint16_t team, int16_t* grid_x, int16_t* grid_y);
 static void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit);
 static void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons);
 static void UnitsManager_Popup_OnClick_ActivateNonAirUnit(ButtonID bid, UnitInfo* unit);
@@ -133,7 +133,7 @@ static void UnitsManager_DeployMasterBuilder(UnitInfo* unit);
 static bool UnitsManager_PursueEnemy(UnitInfo* unit);
 static bool UnitsManager_UpdateAttackMoves(UnitInfo* unit);
 static void UnitsManager_Store(UnitInfo* unit);
-static bool UnitsManager_BeginFire(UnitInfo* unit);
+static bool UnitsManager_AimAtTarget(UnitInfo* unit);
 static void UnitsManager_BuildClearing(UnitInfo* unit, bool mode);
 static void UnitsManager_BuildNext(UnitInfo* unit);
 static void UnitsManager_ActivateUnit(UnitInfo* unit);
@@ -197,7 +197,7 @@ SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
 SmartList<UnitInfo> UnitsManager_ParticleUnits;
 SmartList<UnitInfo> UnitsManager_StationaryUnits;
 SmartList<UnitInfo> UnitsManager_MobileAirUnits;
-SmartList<UnitInfo> UnitsManager_UnitList6;
+SmartList<UnitInfo> UnitsManager_PendingAttacks;
 
 BaseUnit UnitsManager_BaseUnits[UNIT_END];
 
@@ -2285,7 +2285,7 @@ void UnitsManager_Popup_OnClick_Sentry(ButtonID bid, UnitInfo* unit) {
 void UnitsManager_Popup_OnClick_Upgrade(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(false);
     unit->SetParent(unit);
-    UnitsManager_SetNewOrder(unit, ORDER_UPGRADE, ORDER_STATE_0);
+    UnitsManager_SetNewOrder(unit, ORDER_UPGRADE, ORDER_STATE_INIT);
 }
 
 void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
@@ -2660,10 +2660,10 @@ void UnitsManager_PerformAction(UnitInfo* unit) {
         unit->state = unit->prior_state;
 
         if (order == ORDER_MOVE_TO_ATTACK) {
-            UnitsManager_SetNewOrder(unit, ORDER_MOVE_TO_ATTACK, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(unit, ORDER_MOVE_TO_ATTACK, ORDER_STATE_INIT);
 
         } else {
-            UnitsManager_SetNewOrder(unit, ORDER_MOVE, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(unit, ORDER_MOVE, ORDER_STATE_INIT);
         }
 
         GameManager_UpdateDrawBounds();
@@ -2762,7 +2762,7 @@ void UnitsManager_Popup_OnClick_PowerOn(ButtonID bid, UnitInfo* unit) {
     char message[400];
 
     GameManager_DeinitPopupButtons(true);
-    UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_0);
+    UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_INIT);
 
     sprintf(message, _(8576), UnitsManager_BaseUnits[unit->unit_type].singular_name, _(b8d3));
 
@@ -2773,7 +2773,7 @@ void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit) {
     char message[400];
 
     GameManager_DeinitPopupButtons(true);
-    UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_0);
+    UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
     sprintf(message, _(d599), UnitsManager_BaseUnits[unit->unit_type].singular_name, _(b4dc));
 
@@ -2979,7 +2979,7 @@ void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
 
             unit->build_time = clearing_time;
 
-            UnitsManager_SetNewOrder(unit, ORDER_CLEAR, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(unit, ORDER_CLEAR, ORDER_STATE_INIT);
             GameManager_UpdateInfoDisplay(unit);
             GameManager_AutoSelectNext(unit);
 
@@ -3004,7 +3004,7 @@ void UnitsManager_Popup_InitRemove(UnitInfo* unit, struct PopupButtons* buttons)
     UnitsManager_Popup_InitCommons(unit, buttons);
 }
 
-bool UnitsManager_IsPowerGeneratorPlaceable(uint16_t team, int16_t* grid_x, int16_t* grid_y) {
+bool UnitsManager_FindValidPowerGeneratorPosition(uint16_t team, int16_t* grid_x, int16_t* grid_y) {
     *grid_x -= 1;
     *grid_y += 1;
 
@@ -3069,7 +3069,7 @@ void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit)
     grid_x = unit->target_grid_x;
     grid_y = unit->target_grid_y;
 
-    if (UnitsManager_IsPowerGeneratorPlaceable(unit->team, &grid_x, &grid_y)) {
+    if (UnitsManager_FindValidPowerGeneratorPosition(unit->team, &grid_x, &grid_y)) {
         UnitsManager_SetNewOrderInt(unit, ORDER_BUILD, ORDER_STATE_25);
         GameManager_TempTape =
             UnitsManager_SpawnUnit(LRGTAPE, GameManager_PlayerTeam, unit->target_grid_x, unit->target_grid_y, unit);
@@ -3137,7 +3137,7 @@ void UnitsManager_InitPopupMenus() {
         UnitsManager_DelayedAttackTargets[team].Clear();
     }
 
-    UnitsManager_UnitList6.Clear();
+    UnitsManager_PendingAttacks.Clear();
 
     UnitsManager_Team = PLAYER_TEAM_RED;
 
@@ -3718,11 +3718,13 @@ void UnitsManager_ProcessRemoteOrders() {
     }
 
     if (!UnitsManager_OrdersPending) {
-        if (UnitsManager_UnitList6.GetCount() > 0) {
-            SmartList<UnitInfo>::Iterator unit_it(UnitsManager_UnitList6.Begin());
+        if (UnitsManager_PendingAttacks.GetCount() > 0) {
+            SmartList<UnitInfo>::Iterator unit_it(UnitsManager_PendingAttacks.Begin());
+
+            SDL_assert((*unit_it).hits > 0);
 
             if ((*unit_it).shots > 0) {
-                (*unit_it).state = ORDER_STATE_41;
+                (*unit_it).state = ORDER_STATE_ATTACK_BEGINNING;
 
             } else {
                 (*unit_it).UpdatePinCount((*unit_it).target_grid_x, (*unit_it).target_grid_x, -1);
@@ -3738,7 +3740,7 @@ void UnitsManager_ProcessRemoteOrders() {
                 }
             }
 
-            UnitsManager_UnitList6.Remove(unit_it);
+            UnitsManager_PendingAttacks.Remove(unit_it);
 
         } else {
             if (!UnitsManager_AssessAttacks()) {
@@ -4084,7 +4086,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
         }
     }
 
-    if (unit->prior_orders == ORDER_FIRE && unit->prior_state != ORDER_STATE_0) {
+    if (unit->prior_orders == ORDER_FIRE && unit->prior_state != ORDER_STATE_INIT) {
         unit->UpdatePinCount(unit->target_grid_x, unit->target_grid_y, -1);
     }
 
@@ -4200,7 +4202,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
             case HABITAT:
             case MININGST: {
                 unit->orders = ORDER_POWER_ON;
-                unit->state = ORDER_STATE_0;
+                unit->state = ORDER_STATE_INIT;
             } break;
 
             case LANDMINE:
@@ -4294,7 +4296,7 @@ void UnitsManager_FinishUnitScaling(UnitInfo* unit) {
             unit->state = ORDER_STATE_1;
 
             if (unit->flags & MOBILE_AIR_UNIT) {
-                UnitsManager_SetNewOrderInt(unit, ORDER_TAKE_OFF, ORDER_STATE_0);
+                UnitsManager_SetNewOrderInt(unit, ORDER_TAKE_OFF, ORDER_STATE_INIT);
             }
 
             UnitsManager_ScaleUnit(unit, ORDER_STATE_EXPAND);
@@ -4400,17 +4402,17 @@ void UnitsManager_ProcessOrderTransform(UnitInfo* unit) {
     unit->RefreshScreen();
 
     switch (unit->state) {
-        case ORDER_STATE_0: {
+        case ORDER_STATE_INIT: {
             UnitsManager_DeployMasterBuilderInit(unit);
         } break;
 
-        case ORDER_STATE_22: {
+        case ORDER_STATE_PROGRESS_TRANSFORMING: {
             UnitsManager_DeployMasterBuilder(unit);
         } break;
 
-        case ORDER_STATE_23: {
+        case ORDER_STATE_FINISH_TRANSFORMING: {
             unit->orders = ORDER_POWER_ON;
-            unit->state = ORDER_STATE_0;
+            unit->state = ORDER_STATE_INIT;
             UnitsManager_TeamInfo[unit->team].team_type = TEAM_TYPE_PLAYER;
 
             GameManager_OptimizeProduction(unit->team, unit->GetComplex(), true, true);
@@ -4423,7 +4425,7 @@ void UnitsManager_ProcessOrderTransform(UnitInfo* unit) {
 void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
     if (unit->state == ORDER_STATE_7) {
         unit->Redraw();
-        unit->state = ORDER_STATE_5;
+        unit->state = ORDER_STATE_IN_PROGRESS;
     }
 
     switch (unit->state) {
@@ -4439,7 +4441,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
             UnitsManager_Store(unit);
         } break;
 
-        case ORDER_STATE_5: {
+        case ORDER_STATE_IN_PROGRESS: {
             if (unit->ExpectAttack()) {
                 Ai_SetTasksPendingFlag("Moving");
                 unit->Move();
@@ -4456,7 +4458,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
             unit->BlockedOnPathRequest(false);
         } break;
 
-        case ORDER_STATE_0:
+        case ORDER_STATE_INIT:
         case ORDER_STATE_28: {
             if (unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
                 if (GameManager_SelectedUnit == unit || GameManager_DisplayButtonRange ||
@@ -4531,38 +4533,38 @@ void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
     UnitsManager_byte_179448 = true;
 
     switch (unit->state) {
-        case ORDER_STATE_0: {
-            UnitsManager_UnitList6.PushBack(*unit);
+        case ORDER_STATE_INIT: {
+            UnitsManager_PendingAttacks.PushBack(*unit);
 
             unit->UpdatePinCount(unit->target_grid_x, unit->target_grid_y, 1);
 
-            unit->state = ORDER_STATE_40;
+            unit->state = ORDER_STATE_ATTACK_PENDING;
         } break;
 
-        case ORDER_STATE_5: {
+        case ORDER_STATE_IN_PROGRESS: {
             UnitsManager_OrdersPending = true;
 
-            if (UnitsManager_BeginFire(unit)) {
+            if (UnitsManager_AimAtTarget(unit)) {
                 UnitsManager_OrdersPending = true;
                 unit->PrepareFire();
             }
         } break;
 
-        case ORDER_STATE_8: {
+        case ORDER_STATE_READY_TO_FIRE: {
             UnitsManager_OrdersPending = true;
             unit->PrepareFire();
         } break;
 
-        case ORDER_STATE_9: {
+        case ORDER_STATE_FIRE_IN_PROGRESS: {
             UnitsManager_OrdersPending = true;
             unit->ProgressFire();
         } break;
 
-        case ORDER_STATE_40: {
+        case ORDER_STATE_ATTACK_PENDING: {
         } break;
 
-        case ORDER_STATE_41: {
-            unit->state = ORDER_STATE_5;
+        case ORDER_STATE_ATTACK_BEGINNING: {
+            unit->state = ORDER_STATE_IN_PROGRESS;
 
             if (GameManager_SelectedUnit == unit) {
                 SoundManager.PlaySfx(unit, SFX_TYPE_TURRET);
@@ -4570,7 +4572,7 @@ void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
 
             UnitsManager_OrdersPending = true;
 
-            if (UnitsManager_BeginFire(unit)) {
+            if (UnitsManager_AimAtTarget(unit)) {
                 UnitsManager_OrdersPending = true;
                 unit->PrepareFire();
             }
@@ -4580,13 +4582,13 @@ void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
 
 void UnitsManager_ProcessOrderBuild(UnitInfo* unit) {
     switch (unit->state) {
-        case ORDER_STATE_0: {
+        case ORDER_STATE_INIT: {
             Ai_SetTasksPendingFlag("Build start");
 
             unit->StartBuilding();
         } break;
 
-        case ORDER_STATE_5: {
+        case ORDER_STATE_IN_PROGRESS: {
             if (unit->ExpectAttack()) {
                 Ai_SetTasksPendingFlag("Moving");
 
@@ -4690,7 +4692,7 @@ void UnitsManager_ProcessOrderNewAllocate(UnitInfo* unit) {
 }
 
 void UnitsManager_ProcessOrderPowerOn(UnitInfo* unit) {
-    if (unit->state == ORDER_STATE_0) {
+    if (unit->state == ORDER_STATE_INIT) {
         Ai_SetTasksPendingFlag("Power up");
 
         if (GameManager_SelectedUnit == unit) {
@@ -4709,7 +4711,7 @@ void UnitsManager_ProcessOrderPowerOn(UnitInfo* unit) {
 }
 
 void UnitsManager_ProcessOrderPowerOff(UnitInfo* unit) {
-    if (unit->state == ORDER_STATE_0) {
+    if (unit->state == ORDER_STATE_INIT) {
         UnitsManager_PowerDownUnit(unit);
     }
 
@@ -4720,7 +4722,7 @@ void UnitsManager_ProcessOrderExplode(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Exploding");
 
     switch (unit->state) {
-        case ORDER_STATE_0: {
+        case ORDER_STATE_INIT: {
             UnitsManager_StartExplosion(unit);
         } break;
 
@@ -4743,9 +4745,9 @@ void UnitsManager_ProcessOrderUnload(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Unloading");
 
     switch (unit->state) {
-        case ORDER_STATE_0: {
+        case ORDER_STATE_INIT: {
             unit->moved = 0;
-            unit->state = ORDER_STATE_17;
+            unit->state = ORDER_STATE_UNLOADING_IN_PROGRESS;
 
             if (Paths_IsOccupied(unit->grid_x, unit->grid_y, 0, unit->team)) {
                 unit->orders = ORDER_AWAIT;
@@ -4756,18 +4758,18 @@ void UnitsManager_ProcessOrderUnload(UnitInfo* unit) {
             }
         } break;
 
-        case ORDER_STATE_17: {
+        case ORDER_STATE_UNLOADING_IN_PROGRESS: {
             UnitsManager_ProgressUnloading(unit);
         } break;
 
-        case ORDER_STATE_18: {
+        case ORDER_STATE_FINISH_UNLOADING: {
             UnitsManager_Unloading(unit);
         } break;
     }
 }
 
 void UnitsManager_ProcessOrderClear(UnitInfo* unit) {
-    if (unit->state == ORDER_STATE_0) {
+    if (unit->state == ORDER_STATE_INIT) {
         Ai_SetTasksPendingFlag("Clear start");
 
         UnitsManager_StartClearing(unit);
@@ -4792,14 +4794,14 @@ void UnitsManager_ProcessOrderLand(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Landing");
 
     switch (unit->state) {
-        case ORDER_STATE_0: {
+        case ORDER_STATE_INIT: {
             unit->moved = 0;
-            unit->state = ORDER_STATE_19;
+            unit->state = ORDER_STATE_FINISH_LANDING;
 
             UnitsManager_Landing(unit);
         } break;
 
-        case ORDER_STATE_19: {
+        case ORDER_STATE_FINISH_LANDING: {
             UnitsManager_Landing(unit);
         } break;
     }
@@ -4809,9 +4811,9 @@ void UnitsManager_ProcessOrderTakeOff(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Taking off");
 
     switch (unit->state) {
-        case ORDER_STATE_0: {
+        case ORDER_STATE_INIT: {
             unit->moved = 0;
-            unit->state = ORDER_STATE_20;
+            unit->state = ORDER_STATE_FINISH_TAKE_OFF;
 
             if (unit->Take()) {
                 UnitsManager_RemoveUnitFromUnitLists(unit);
@@ -4821,7 +4823,7 @@ void UnitsManager_ProcessOrderTakeOff(UnitInfo* unit) {
             }
         } break;
 
-        case ORDER_STATE_20: {
+        case ORDER_STATE_FINISH_TAKE_OFF: {
             if (unit->Take()) {
                 UnitsManager_RemoveUnitFromUnitLists(unit);
 
@@ -4836,20 +4838,20 @@ void UnitsManager_ProcessOrderLoad(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Loading");
 
     switch (unit->state) {
-        case ORDER_STATE_0: {
+        case ORDER_STATE_INIT: {
             unit->moved = 0;
-            unit->state = ORDER_STATE_15;
+            unit->state = ORDER_STATE_LOADING_IN_PROGRESS;
 
             UnitsManager_ScaleUnit(unit->GetParent(), ORDER_STATE_SHRINK);
 
             UnitsManager_ProgressLoading(unit);
         } break;
 
-        case ORDER_STATE_15: {
+        case ORDER_STATE_LOADING_IN_PROGRESS: {
             UnitsManager_ProgressLoading(unit);
         } break;
 
-        case ORDER_STATE_16: {
+        case ORDER_STATE_FINISH_LOADING: {
             UnitsManager_Loading(unit);
         } break;
     }
@@ -4938,8 +4940,8 @@ void UnitsManager_ProcessOrderAwaitDisableStealUnit(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Disable/Steal");
 
     switch (unit->state) {
-        case ORDER_STATE_0: {
-            unit->state = ORDER_STATE_5;
+        case ORDER_STATE_INIT: {
+            unit->state = ORDER_STATE_IN_PROGRESS;
 
             UnitsManager_ScaleUnit(unit, ORDER_STATE_SHRINK);
         } break;
@@ -4957,7 +4959,7 @@ void UnitsManager_ProcessOrderAwaitDisableStealUnit(UnitInfo* unit) {
             unit->orders = ORDER_AWAIT;
         } break;
 
-        case ORDER_STATE_5: {
+        case ORDER_STATE_IN_PROGRESS: {
             unit->GetParent()->ShakeSabotage();
 
             if (unit->GetParent()->shake_effect_state == 0) {
@@ -5161,7 +5163,7 @@ void UnitsManager_ActivateEngineer(UnitInfo* unit) {
     unit->prior_orders = ORDER_AWAIT;
     unit->prior_state = ORDER_STATE_1;
     unit->orders = ORDER_MOVE;
-    unit->state = ORDER_STATE_0;
+    unit->state = ORDER_STATE_INIT;
     unit->GetParent()->SetParent(unit);
     unit->SetParent(nullptr);
 }
@@ -5172,7 +5174,7 @@ void UnitsManager_DeployMasterBuilderInit(UnitInfo* unit) {
     }
 
     unit->DeployConstructionSiteMarkers(MININGST);
-    unit->state = ORDER_STATE_22;
+    unit->state = ORDER_STATE_PROGRESS_TRANSFORMING;
 
     UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_34);
 }
@@ -5378,7 +5380,7 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
     int16_t power_generator_grid_x = mining_station_grid_x;
     int16_t power_generator_grid_y = mining_station_grid_y;
 
-    UnitsManager_IsPowerGeneratorPlaceable(unit_team, &power_generator_grid_x, &power_generator_grid_y);
+    UnitsManager_FindValidPowerGeneratorPosition(unit_team, &power_generator_grid_x, &power_generator_grid_y);
 
     power_generator = UnitsManager_DeployUnit(POWGEN, unit_team, mining_station->GetComplex(), mining_station_grid_x,
                                               mining_station_grid_y, 0);
@@ -5396,7 +5398,7 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
     power_generator->scaler_adjust = 4;
 
     mining_station->orders = ORDER_TRANSFORM;
-    mining_station->state = ORDER_STATE_23;
+    mining_station->state = ORDER_STATE_FINISH_TRANSFORMING;
 
     UnitsManager_ScaleUnit(&*mining_station, ORDER_STATE_EXPAND);
     UnitsManager_ScaleUnit(&*small_slab, ORDER_STATE_EXPAND);
@@ -5501,11 +5503,11 @@ bool UnitsManager_UpdateAttackMoves(UnitInfo* unit) {
     unit->RefreshScreen();
     UnitsManager_UpdateAttackPaths(unit);
 
-    if (unit->state == ORDER_STATE_0) {
+    if (unit->state == ORDER_STATE_INIT) {
         unit->FollowUnit();
         unit->Redraw();
 
-        unit->state = ORDER_STATE_5;
+        unit->state = ORDER_STATE_IN_PROGRESS;
 
         if (Remote_IsNetworkGame && (unit->flags & MOBILE_AIR_UNIT)) {
             Remote_SendNetPacket_38(unit);
@@ -5514,7 +5516,7 @@ bool UnitsManager_UpdateAttackMoves(UnitInfo* unit) {
         }
     }
 
-    return (unit->state == ORDER_STATE_5);
+    return (unit->state == ORDER_STATE_IN_PROGRESS);
 }
 
 void UnitsManager_Store(UnitInfo* unit) {
@@ -5538,7 +5540,7 @@ void UnitsManager_Store(UnitInfo* unit) {
     unit->ClearUnitList();
 }
 
-bool UnitsManager_BeginFire(UnitInfo* unit) {
+bool UnitsManager_AimAtTarget(UnitInfo* unit) {
     bool result;
     int32_t unit_angle;
 
@@ -5554,7 +5556,7 @@ bool UnitsManager_BeginFire(UnitInfo* unit) {
     int32_t target_angle = UnitsManager_GetTargetAngle(distance_x, distance_y);
 
     if (unit_angle == target_angle) {
-        unit->state = ORDER_STATE_8;
+        unit->state = ORDER_STATE_READY_TO_FIRE;
 
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
@@ -5729,7 +5731,7 @@ void UnitsManager_BuildNext(UnitInfo* unit) {
 
         Access_DestroyUtilities(unit->grid_x, unit->grid_y, false, false, remove_connectors, remove_road);
 
-        unit->state = ORDER_STATE_5;
+        unit->state = ORDER_STATE_IN_PROGRESS;
 
     } else {
         unit->ClearBuildListAndPath();
@@ -5771,7 +5773,7 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
             parent->target_grid_x = unit->target_grid_x;
             parent->target_grid_y = unit->target_grid_y;
             parent->orders = ORDER_MOVE;
-            parent->state = ORDER_STATE_0;
+            parent->state = ORDER_STATE_INIT;
 
             Access_UpdateMapStatus(&*parent, true);
             UnitsManager_ScaleUnit(&*parent, ORDER_STATE_EXPAND);
@@ -5973,7 +5975,7 @@ void UnitsManager_ProgressUnloading(UnitInfo* unit) {
 
         unit->moved = 0;
 
-        unit->state = ORDER_STATE_18;
+        unit->state = ORDER_STATE_FINISH_UNLOADING;
 
         if (GameManager_SelectedUnit == unit) {
             GameManager_UpdateInfoDisplay(unit);
@@ -6005,7 +6007,7 @@ void UnitsManager_StartClearing(UnitInfo* unit) {
 
     unit->ClearUnitList();
 
-    unit->state = ORDER_STATE_5;
+    unit->state = ORDER_STATE_IN_PROGRESS;
 
     if (tape_type == LRGTAPE) {
         UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_34);
@@ -6057,7 +6059,7 @@ void UnitsManager_ProgressLoading(UnitInfo* unit) {
         }
 
         unit->moved = 0;
-        unit->state = ORDER_STATE_16;
+        unit->state = ORDER_STATE_FINISH_LOADING;
 
         if (GameManager_SelectedUnit == unit) {
             GameManager_UpdateInfoDisplay(unit);
@@ -6641,7 +6643,7 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
             MessageManager_DrawMessage(message.GetCStr(), 0, unit1, position);
         }
 
-        UnitsManager_SetNewOrder(unit1, ORDER_FIRE, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(unit1, ORDER_FIRE, ORDER_STATE_INIT);
 
         if (GameManager_PlayerTeam == unit1->team && GameManager_SelectedUnit == unit1 &&
             !GameManager_IsAtGridPosition(unit1)) {
@@ -6816,7 +6818,7 @@ bool UnitsManager_CheckDelayedReactions(uint16_t team) {
                 unit1->SetEnemy(nullptr);
             }
 
-            UnitsManager_SetNewOrder(unit1, ORDER_FIRE, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(unit1, ORDER_FIRE, ORDER_STATE_INIT);
 
             if (GameManager_PlayerTeam == unit1->team && GameManager_SelectedUnit == unit1 &&
                 !GameManager_IsAtGridPosition(unit1)) {

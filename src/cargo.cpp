@@ -86,7 +86,7 @@ Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order) {
 
     orders = unit->orders;
 
-    if (unit->state == ORDER_STATE_0 && !current_order) {
+    if (unit->state == ORDER_STATE_INIT && !current_order) {
         orders = unit->prior_orders;
     }
 

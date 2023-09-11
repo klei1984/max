@@ -673,7 +673,7 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
     if (repairshop->unit_type == AIRTRANS) {
         if (Access_IsAccessible(target_unit->unit_type, target_unit->team, repairshop->grid_x, repairshop->grid_y, 2)) {
             repairshop->SetParent(target_unit);
-            UnitsManager_SetNewOrder(&*repairshop, ORDER_UNLOAD, ORDER_STATE_0);
+            UnitsManager_SetNewOrder(&*repairshop, ORDER_UNLOAD, ORDER_STATE_INIT);
             GameManager_EnableMainMenu(&*repairshop);
 
         } else {
@@ -701,7 +701,7 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
 void RepairShopMenu::Reload(UnitInfo *target_unit) {
     if (IsReloadViable(target_unit)) {
         repairshop->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*repairshop, ORDER_RELOAD, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*repairshop, ORDER_RELOAD, ORDER_STATE_INIT);
 
         if (Remote_IsNetworkGame) {
             RepairShopMenu_ProcessOrders(&*repairshop, ORDER_RELOAD, false);
@@ -715,7 +715,7 @@ void RepairShopMenu::Reload(UnitInfo *target_unit) {
 void RepairShopMenu::Repair(UnitInfo *target_unit) {
     if (IsRepairViable(target_unit)) {
         repairshop->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*repairshop, ORDER_REPAIR, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*repairshop, ORDER_REPAIR, ORDER_STATE_INIT);
 
         if (Remote_IsNetworkGame) {
             RepairShopMenu_ProcessOrders(&*repairshop, ORDER_REPAIR, false);
@@ -729,7 +729,7 @@ void RepairShopMenu::Repair(UnitInfo *target_unit) {
 void RepairShopMenu::Upgrade(UnitInfo *target_unit) {
     if (IsUpgradeViable(target_unit)) {
         repairshop->SetParent(target_unit);
-        UnitsManager_SetNewOrder(&*repairshop, ORDER_UPGRADE, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*repairshop, ORDER_UPGRADE, ORDER_STATE_INIT);
 
         if (Remote_IsNetworkGame) {
             RepairShopMenu_ProcessOrders(&*repairshop, ORDER_UPGRADE, false);

@@ -342,7 +342,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                                                 ++target_unit->target_grid_x;
                                             }
 
-                                            UnitsManager_SetNewOrder(&*target_unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_0);
+                                            UnitsManager_SetNewOrder(&*target_unit, ORDER_MOVE_TO_UNIT, ORDER_STATE_INIT);
 
                                             result = true;
 
@@ -517,10 +517,10 @@ void TaskRepair::IssueOrder() {
     operator_unit->SetParent(&*target_unit);
 
     if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
-        UnitsManager_SetNewOrder(&*operator_unit, ORDER_REPAIR, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*operator_unit, ORDER_REPAIR, ORDER_STATE_INIT);
 
     } else if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) &&
                target_unit->state == ORDER_STATE_3) {
-        UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);
     }
 }

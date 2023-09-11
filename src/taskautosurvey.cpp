@@ -97,7 +97,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
                             radius = 0;
 
-                            UnitsManager_SetNewOrder(&*unit, ORDER_MOVE, ORDER_STATE_0);
+                            UnitsManager_SetNewOrder(&*unit, ORDER_MOVE, ORDER_STATE_INIT);
 
                             result = true;
 
@@ -214,7 +214,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
                 radius = 0;
 
-                UnitsManager_SetNewOrder(&*unit, ORDER_MOVE, ORDER_STATE_0);
+                UnitsManager_SetNewOrder(&*unit, ORDER_MOVE, ORDER_STATE_INIT);
 
             } else {
                 position.x = unit->grid_x - 1;

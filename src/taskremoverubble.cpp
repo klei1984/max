@@ -101,7 +101,7 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
 
                         unit_.build_time = (target->flags & BUILDING) ? 4 : 1;
 
-                        UnitsManager_SetNewOrder(&unit_, ORDER_CLEAR, ORDER_STATE_0);
+                        UnitsManager_SetNewOrder(&unit_, ORDER_CLEAR, ORDER_STATE_INIT);
                     }
 
                     result = true;
@@ -205,7 +205,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                                              (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - (*it).storage);
                                 unit_->SetParent(&*it);
 
-                                UnitsManager_SetNewOrder(unit_, ORDER_TRANSFER, ORDER_STATE_0);
+                                UnitsManager_SetNewOrder(unit_, ORDER_TRANSFER, ORDER_STATE_INIT);
                             }
 
                             result = true;

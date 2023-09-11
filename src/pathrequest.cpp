@@ -215,7 +215,7 @@ void PathRequest::Finish(GroundPath* path) {
 
             } else {
                 client->Redraw();
-                client->state = ORDER_STATE_5;
+                client->state = ORDER_STATE_IN_PROGRESS;
 
                 if (Remote_IsNetworkGame) {
                     Remote_SendNetPacket_38(&*client);

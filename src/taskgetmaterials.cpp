@@ -155,7 +155,7 @@ void TaskGetMaterials::DoTransfer() {
 
         SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
-        UnitsManager_SetNewOrder(&*source, ORDER_TRANSFER, ORDER_STATE_0);
+        UnitsManager_SetNewOrder(&*source, ORDER_TRANSFER, ORDER_STATE_INIT);
     }
 }
 
