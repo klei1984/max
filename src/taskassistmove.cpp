@@ -283,7 +283,9 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
         }
 
         if (UnitInfo_object2) {
-            if (Access_GetDistance(&unit, Point_object1) <= ((unit.unit_type == AIRTRANS) ? 0 : 3)) {
+            distance = (unit.unit_type == AIRTRANS) ? 0 : 3;
+
+            if (Access_GetDistance(&unit, Point_object1) <= distance) {
                 CompleteTransport(&unit, UnitInfo_object2, Point_object1);
 
             } else {
