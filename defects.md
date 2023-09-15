@@ -690,7 +690,7 @@ In the demonstrated scenario a hidden enemy submarine with available speed or mo
 <br>
 The proposed defect fix is to use `INI_MAX_RESOURCES (20)` consistently throughout relevant functions and to move the predetermined landing spot to where the expected minimum resource levels are granted by the algorithm that populates resources onto the map.
 
-195. placeholder
+195. **[Fixed]** The path transcriber algorithm (cseg01:000BCE26) conditionally stops the copy operation if a path cost limit is reached. The movement cost associated to a grid cell is multiplied by a factor of 3/2 in case of diagonal movement steps. The algorithm tests whether a movement step is diagonal in an incorrect way. Instead of testing the overall path taken, the step offset shall be used to determine whether a step is diagonal. In corner cases the issue could truncate valid paths due to incorrectly high summarized costs.
 
 196. **[Fixed]** A bulldozer removes any number of small rubbles from a single cell in a single turn. A bulldozer removes a large rubble in four turns. If a small rubble and a large rubble overlap at the grid cell where the bulldozer is standing before the clearing operation there is no option to remove only the small rubble or the large rubble, both are removed in four turns. If there are small rubbles overlapping with the large rubble the bulldozer will not remove any of the small rubbles from cells where the bulldozer was not standing at before starting the clearing process. This behavior is unintuitive. Expected behavior: any rubble that is overlapping with the large rubble shall be removed over the four turns clearing operation.
 
