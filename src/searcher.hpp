@@ -42,19 +42,19 @@ class Searcher {
     int32_t line_distance_limit;
     ObjectArray<PathSquare> squares;
     Point destination;
-    uint8_t mode;
+    bool use_air_support;
 
-    void EvaluateSquare(Point point, int32_t cost, int32_t direction, Searcher *searcher);
-    void UpdateCost(Point point1, Point point2, int32_t cost);
+    void EvaluateSquare(const Point position, const int32_t cost, const int32_t direction, Searcher *const searcher);
+    void UpdateCost(const Point start_point, const Point end_point, const int32_t cost);
 
 public:
-    Searcher(Point point1, Point point2, uint8_t mode);
+    Searcher(const Point start_point, const Point end_point, const bool air_support);
     ~Searcher();
 
-    void Process(Point point, bool mode_flag);
-    bool ForwardSearch(Searcher *backward_searcher);
-    bool BackwardSearch(Searcher *forward_searcher);
-    SmartPointer<GroundPath> DeterminePath(Point point, int32_t max_cost);
+    void Process(Point position, const bool mode_flag);
+    bool ForwardSearch(Searcher *const backward_searcher);
+    bool BackwardSearch(Searcher *const forward_searcher);
+    SmartPointer<GroundPath> DeterminePath(const Point position, const int32_t max_cost);
 };
 
 #endif /* SEARCHER_HPP */
