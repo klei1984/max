@@ -59,10 +59,18 @@ struct Point {
     }
 };
 
-inline bool operator==(const Point& point1, const Point& point2) {
-    return point1.x == point2.x && point1.y == point2.y;
+inline bool operator==(const Point& lhs, const Point& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
+
+inline bool operator!=(const Point& lhs, const Point& rhs) { return !(lhs == rhs); }
+
+inline Point operator+(Point lhs, const Point& rhs) {
+    lhs += rhs;
+    return lhs;
 }
 
-inline bool operator!=(const Point& point1, const Point& point2) { return !(point1 == point2); }
+inline Point operator-(Point lhs, const Point& rhs) {
+    lhs -= rhs;
+    return lhs;
+}
 
 #endif /* POINT_HPP */
