@@ -676,7 +676,8 @@ bool TaskManageBuildings::IsFavorableMiningSite(Point site) {
     return result;
 }
 
-bool TaskManageBuildings::IsViableMiningSite(uint16_t** construction_map, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
+bool TaskManageBuildings::IsViableMiningSite(uint16_t** construction_map, int32_t ulx, int32_t uly, int32_t lrx,
+                                             int32_t lry) {
     Point site1;
     Point site2;
 
@@ -881,8 +882,7 @@ bool TaskManageBuildings::EvaluateSite(uint16_t** construction_map, ResourceID u
     return result;
 }
 
-bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site,
-                                   uint16_t task_flags) {
+bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, uint16_t task_flags) {
     uint16_t** construction_map = CreateMap();
     int32_t unit_size = (UnitsManager_BaseUnits[unit_type].flags & BUILDING) ? 2 : 1;
     bool result;
@@ -1016,7 +1016,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
             int32_t unit_count_shipyard = GetUnitCount(SHIPYARD, 0x00);
             int32_t unit_count_trainhall = GetUnitCount(TRAINHAL, 0x00);
             int32_t total_unit_count = unit_count_lightplant + unit_count_landplant + unit_count_airplant +
-                                   unit_count_shipyard + unit_count_trainhall;
+                                       unit_count_shipyard + unit_count_trainhall;
 
             if (unit_count_lightplant > 0 && unit_count_landplant > 0) {
                 if (!GetUnitCount(AIRPLT, 0x1300) && CreateBuilding(AIRPLT, this, 0x1300)) {
@@ -1474,8 +1474,8 @@ void TaskManageBuildings::EvaluateDangers(uint8_t** access_map) {
     }
 }
 
-void TaskManageBuildings::MarkDefenseSites(uint16_t** construction_map, uint8_t** access_map,
-                                           TaskCreateBuilding* task, int32_t value) {
+void TaskManageBuildings::MarkDefenseSites(uint16_t** construction_map, uint8_t** access_map, TaskCreateBuilding* task,
+                                           int32_t value) {
     AiLog log("Mark defense sites.");
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
@@ -1891,8 +1891,8 @@ void TaskManageBuildings::UpdateConnectors(uint8_t** access_map, int32_t ulx, in
     MakeConnectors(ulx, uly, lrx, lry, this);
 }
 
-int32_t TaskManageBuildings::GetConnectionDistance(uint8_t** access_map, Point& site1, Point site2,
-                                               uint16_t team_, int32_t value) {
+int32_t TaskManageBuildings::GetConnectionDistance(uint8_t** access_map, Point& site1, Point site2, uint16_t team_,
+                                                   int32_t value) {
     Point site3;
     Point site4;
     Rect bounds;
@@ -2264,7 +2264,8 @@ void TaskManageBuildings::EndTurn() {
         }
     }
 
-    TeamUnits* team_units = UnitsManager_TeamInfo[team].team_units;
+    const auto team_units = UnitsManager_TeamInfo[team].team_units;
+    const auto adump_capacity = team_units->GetBaseUnitValues(ADUMP)->GetAttribute(ATTRIB_STORAGE);
 
     for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetUnitType() == MININGST && (*it).Task_vfunc28()) {
@@ -2280,6 +2281,11 @@ void TaskManageBuildings::EndTurn() {
             raw_mining_max += raw;
             fuel_mining_max += fuel;
             gold_mining_max += gold;
+
+            // do not count the mediocre storage capacity of planned mining stations under a given capacity threshold
+            if (capacity.raw < 2 * adump_capacity) {
+                continue;
+            }
         }
 
         switch (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type) {
@@ -2297,7 +2303,8 @@ void TaskManageBuildings::EndTurn() {
         }
     }
 
-    if (raw_mining_max > 0 && (cargo.raw >= (capacity.raw * 3) / 4) && capacity.raw < 500) {
+    if (raw_mining_max > 0 && ((cargo.raw >= (capacity.raw * 3) / 4) || (capacity.raw < 2 * adump_capacity)) &&
+        capacity.raw < 500) {
         CreateBuilding(ADUMP, this, 0xA00);
     }
 
