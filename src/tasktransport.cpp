@@ -318,6 +318,11 @@ void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char resul
     } else if (result == TASKMOVE_RESULT_BLOCKED) {
         TaskTransport* transport = dynamic_cast<TaskTransport*>(task);
 
+        AiLog log("Transport: dump client %s.",
+                  transport->task_move->GetPassenger()
+                      ? UnitsManager_BaseUnits[transport->task_move->GetPassenger()->unit_type].singular_name
+                      : "null unit.");
+
         SmartPointer<Task> dump =
             new (std::nothrow) TaskDump(transport, &*transport->task_move, &*transport->unit_transporter);
 
