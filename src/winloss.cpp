@@ -389,7 +389,7 @@ int32_t WinLoss_GetTotalConsumption(uint16_t team, uint8_t cargo_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team) {
-            Cargo_GetCargoDemand(&*it, &cargo);
+            Cargo_GetNetProduction(&*it, &cargo);
 
             switch (cargo_type) {
                 case CARGO_MATERIALS: {

@@ -28,11 +28,62 @@
 #include "remote.hpp"
 #include "units_manager.hpp"
 
-ProductionManager::ProductionManager(uint16_t team, Complex* complex) {
+class ProductionManager {
+    uint16_t team;
+    SmartPointer<Complex> complex;
+    Cargo prev_net_production;
+    Cargo inventory;
+    Cargo net_production;
+    Cargo total;
+    Cargo production_capacity;
+    uint16_t combined_production_capacity;
+    uint16_t power_station_count;
+    uint16_t power_generator_count;
+    uint16_t power_station_active;
+    uint16_t power_generator_active;
+    SmartPointer<UnitInfo> selected_unit;
+    SmartObjectArray<ResourceID> units;
+    bool show_messages;
+    char buffer[800];
+
+    void UpdateUnitPowerConsumption(UnitInfo* unit, uint16_t* generator_count, uint16_t* generator_active);
+    void UpdatePowerConsumption(UnitInfo* unit);
+    void ChangeProduction(const int32_t type, const int32_t amount);
+    int32_t FreeUpProductionCapacity(const int32_t type, int32_t amount);
+    int32_t SwapProduction(const int32_t type_to_increase, const int32_t type_to_reduce, int32_t amount);
+    void ComposeIndustryMessage(UnitInfo* const unit, const char* format1, const char* format2, const char* material);
+    bool PowerOn(ResourceID unit_type);
+    void SatisfyPowerDemand(int32_t amount);
+    void UpdateUnitLifeConsumption(UnitInfo* unit);
+    bool ValidateAuxilaryIndustry(UnitInfo* const unit, const bool forceful_shutoff);
+    bool ValidateIndustry(UnitInfo* const unit, const bool mode);
+    static void ComposeResourceMessage(char* buffer, int32_t new_value, int32_t old_value, const char* format1,
+                                       const char* format2);
+
+    friend bool ProductionManager_UpdateIndustryOrders(const uint16_t team, Complex* const complex);
+    friend void ProductionManager_OptimizeProduction(const uint16_t team, Complex* const complex, UnitInfo* const unit,
+                                                     bool show_messages);
+
+public:
+    ProductionManager(const uint16_t team, Complex* const complex);
+    ~ProductionManager();
+
+    void OptimizePowerProduction();
+    void OptimizePowerConsumption();
+    int32_t OptimizeCargoProduction(const int32_t type, int32_t amount, const bool mode);
+    bool CheckPowerNeed(const int32_t amount);
+    void UpdateLifeConsumption();
+    bool OptimizeIndustry(const bool mode);
+    bool OptimizeAuxilaryIndustry(const ResourceID unit_type, const bool forceful_shutoff);
+    bool OptimizeMiningIndustry();
+    void DrawResourceMessage();
+};
+
+ProductionManager::ProductionManager(const uint16_t team, Complex* const complex) {
     this->team = team;
     this->complex = complex;
 
-    is_player_team = false;
+    show_messages = false;
 
     buffer[0] = '\0';
 
@@ -46,28 +97,33 @@ ProductionManager::ProductionManager(uint16_t team, Complex* complex) {
         if (this->complex == (*it).GetComplex()) {
             Cargo cargo;
 
-            cargo2 += *Cargo_GetCargo(&(*it), &cargo);
-            cargo4 += cargo;
-            cargo4 += *Cargo_GetCargoDemand(&(*it), &cargo, true);
+            cargo = Cargo_GetInventory(it->Get());
+
+            inventory += cargo;
+            total += cargo;
+
+            cargo = Cargo_GetNetProduction(it->Get(), true);
+
+            total += cargo;
 
             if (cargo.raw > 0) {
-                cargo_resource_reserves.raw += cargo.raw;
+                net_production.raw += cargo.raw;
             }
 
             if (cargo.fuel > 0) {
-                cargo_resource_reserves.fuel += cargo.fuel;
+                net_production.fuel += cargo.fuel;
             }
 
             if (cargo.gold > 0) {
-                cargo_resource_reserves.gold += cargo.gold;
+                net_production.gold += cargo.gold;
             }
 
             if (cargo.power > 0) {
-                cargo_resource_reserves.power += cargo.power;
+                net_production.power += cargo.power;
             }
 
             if (cargo.life > 0) {
-                cargo_resource_reserves.life += cargo.life;
+                net_production.life += cargo.life;
             }
 
             if ((*it).unit_type == POWGEN && (*it).orders != ORDER_DISABLE) {
@@ -87,17 +143,17 @@ ProductionManager::ProductionManager(uint16_t team, Complex* complex) {
             }
 
             if ((*it).unit_type == MININGST && ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_NEW_ALLOCATE)) {
-                cargo_mining_capacity.raw += std::min(static_cast<int32_t>((*it).raw_mining_max), 16);
-                cargo_mining_capacity.fuel += std::min(static_cast<int32_t>((*it).fuel_mining_max), 16);
-                cargo_mining_capacity.gold += std::min(static_cast<int32_t>((*it).gold_mining_max), 16);
+                production_capacity.raw += std::min(static_cast<int32_t>((*it).raw_mining_max), 16);
+                production_capacity.fuel += std::min(static_cast<int32_t>((*it).fuel_mining_max), 16);
+                production_capacity.gold += std::min(static_cast<int32_t>((*it).gold_mining_max), 16);
 
-                total_resource_mining_capacity = std::min(
+                combined_production_capacity = std::min(
                     static_cast<int32_t>((*it).raw_mining_max + (*it).fuel_mining_max + (*it).gold_mining_max), 16);
             }
         }
     }
 
-    cargo1 = cargo_resource_reserves;
+    prev_net_production = net_production;
 }
 
 ProductionManager::~ProductionManager() {}
@@ -137,44 +193,44 @@ void ProductionManager::UpdatePowerConsumption(UnitInfo* unit) {
     }
 }
 
-void ProductionManager::AddCargo(int32_t type, int32_t amount) {
+void ProductionManager::ChangeProduction(const int32_t type, const int32_t amount) {
     if (amount != 0) {
         switch (type) {
             case CARGO_MATERIALS: {
-                cargo_resource_reserves.raw += amount;
-                cargo4.raw += amount;
+                net_production.raw += amount;
+                total.raw += amount;
             } break;
 
             case CARGO_FUEL: {
-                cargo_resource_reserves.fuel += amount;
-                cargo4.fuel += amount;
+                net_production.fuel += amount;
+                total.fuel += amount;
             } break;
 
             case CARGO_GOLD: {
-                cargo_resource_reserves.gold += amount;
-                cargo4.gold += amount;
+                net_production.gold += amount;
+                total.gold += amount;
             } break;
         }
     }
 }
 
-int32_t ProductionManager::SatisfyCargoDemand(int32_t type, int32_t amount) {
-    int32_t available = cargo_resource_reserves.Get(type);
+int32_t ProductionManager::FreeUpProductionCapacity(const int32_t type, int32_t amount) {
+    int32_t available = net_production.Get(type);
     int32_t result;
 
     if (amount > available) {
         amount = available;
     }
 
-    available = cargo4.Get(type);
+    available = total.Get(type);
 
     if (amount > available) {
         amount = available;
     }
 
     if (amount > 0) {
-        AllocMenu_AdjustForDemands(&*complex, type, amount);
-        AddCargo(type, -amount);
+        AllocMenu_ReduceProduction(complex.Get(), type, amount);
+        ChangeProduction(type, -amount);
 
         result = amount;
 
@@ -185,53 +241,52 @@ int32_t ProductionManager::SatisfyCargoDemand(int32_t type, int32_t amount) {
     return result;
 }
 
-int32_t ProductionManager::BalanceMining(int32_t type1, int32_t type2, int32_t amount) {
+int32_t ProductionManager::SwapProduction(const int32_t type_to_increase, const int32_t type_to_reduce,
+                                          int32_t amount) {
     int32_t result;
 
-    if (type1 != type2 && amount > 0) {
-        switch (type1) {
+    if (type_to_increase != type_to_reduce && amount > 0) {
+        switch (type_to_increase) {
             case CARGO_MATERIALS: {
-                amount =
-                    std::min(amount, static_cast<int32_t>(cargo_mining_capacity.raw - cargo_resource_reserves.raw));
+                amount = std::min(amount, static_cast<int32_t>(production_capacity.raw - net_production.raw));
             } break;
 
             case CARGO_FUEL: {
-                amount =
-                    std::min(amount, static_cast<int32_t>(cargo_mining_capacity.fuel - cargo_resource_reserves.fuel));
+                amount = std::min(amount, static_cast<int32_t>(production_capacity.fuel - net_production.fuel));
             } break;
 
             case CARGO_GOLD: {
-                amount =
-                    std::min(amount, static_cast<int32_t>(cargo_mining_capacity.gold - cargo_resource_reserves.gold));
+                amount = std::min(amount, static_cast<int32_t>(production_capacity.gold - net_production.gold));
             } break;
         }
 
-        switch (type2) {
+        switch (type_to_reduce) {
             case CARGO_MATERIALS: {
-                amount = std::min(amount, static_cast<int32_t>(cargo_resource_reserves.raw));
+                amount = std::min(amount, static_cast<int32_t>(net_production.raw));
             } break;
 
             case CARGO_FUEL: {
-                amount = std::min(amount, static_cast<int32_t>(cargo_resource_reserves.fuel));
+                amount = std::min(amount, static_cast<int32_t>(net_production.fuel));
             } break;
 
             case CARGO_GOLD: {
-                amount = std::min(amount, static_cast<int32_t>(cargo_resource_reserves.gold));
+                amount = std::min(amount, static_cast<int32_t>(net_production.gold));
             } break;
         }
 
         if (amount > 0) {
-            int32_t mining_total;
+            amount = FreeUpProductionCapacity(type_to_reduce, amount);
 
-            amount = SatisfyCargoDemand(type2, amount);
-            mining_total = AllocMenu_Optimize(&*complex, type1, amount, type1);
-            AddCargo(type1, mining_total);
+            const int32_t supplied_amount =
+                AllocMenu_Optimize(complex.Get(), type_to_increase, amount, type_to_increase);
 
-            if (mining_total < amount) {
-                AllocMenu_Optimize(&*complex, type2, amount - mining_total, type2);
-                AddCargo(type2, amount - mining_total);
+            ChangeProduction(type_to_increase, supplied_amount);
 
-                amount = mining_total;
+            if (supplied_amount < amount) {
+                AllocMenu_Optimize(complex.Get(), type_to_reduce, amount - supplied_amount, type_to_reduce);
+                ChangeProduction(type_to_reduce, amount - supplied_amount);
+
+                amount = supplied_amount;
             }
 
             result = amount;
@@ -247,9 +302,9 @@ int32_t ProductionManager::BalanceMining(int32_t type1, int32_t type2, int32_t a
     return result;
 }
 
-void ProductionManager::ComposeIndustryMessage(UnitInfo* unit, const char* format1, const char* format2,
+void ProductionManager::ComposeIndustryMessage(UnitInfo* const unit, const char* format1, const char* format2,
                                                const char* material) {
-    if (is_player_team && units->Find(&unit->unit_type) == -1) {
+    if (show_messages && units->Find(&unit->unit_type) == -1) {
         char text[300];
 
         units.PushBack(&unit->unit_type);
@@ -272,7 +327,7 @@ void ProductionManager::ComposeIndustryMessage(UnitInfo* unit, const char* forma
 bool ProductionManager::PowerOn(ResourceID unit_type) {
     bool result;
 
-    if (Cargo_GetFuelConsumptionRate(unit_type) > cargo4.fuel) {
+    if (Cargo_GetFuelConsumptionRate(unit_type) > total.fuel) {
         if (units->Find(&unit_type) == -1) {
             char text[300];
 
@@ -292,9 +347,9 @@ bool ProductionManager::PowerOn(ResourceID unit_type) {
 }
 
 void ProductionManager::SatisfyPowerDemand(int32_t amount) {
-    CheckGenerators();
+    OptimizePowerProduction();
 
-    if (is_player_team && cargo4.power < amount) {
+    if (show_messages && total.power < amount) {
         if (power_generator_count <= power_generator_active || !PowerOn(POWGEN)) {
             if (power_station_count > power_station_active) {
                 PowerOn(POWERSTN);
@@ -303,14 +358,14 @@ void ProductionManager::SatisfyPowerDemand(int32_t amount) {
     }
 }
 
-void ProductionManager::UpdateUnitWorkerConsumption(UnitInfo* unit) {
+void ProductionManager::UpdateUnitLifeConsumption(UnitInfo* unit) {
     if (complex == unit->GetComplex() && Cargo_GetLifeConsumptionRate(unit->unit_type) < 0 &&
         unit->orders != ORDER_DISABLE && unit->orders != ORDER_POWER_ON && unit->state != ORDER_STATE_INIT &&
         CheckPowerNeed(Cargo_GetPowerConsumptionRate(unit->unit_type))) {
         int32_t life_consumption_rate = Cargo_GetLifeConsumptionRate(unit->unit_type);
 
-        cargo4.life -= life_consumption_rate;
-        cargo_resource_reserves.life -= life_consumption_rate;
+        total.life -= life_consumption_rate;
+        net_production.life -= life_consumption_rate;
 
         ComposeIndustryMessage(unit, _(5fd6), _(0a4b), _(ed57));
 
@@ -318,47 +373,48 @@ void ProductionManager::UpdateUnitWorkerConsumption(UnitInfo* unit) {
     }
 }
 
-bool ProductionManager::SatisfyIndustryPower(UnitInfo* unit, bool mode) {
+bool ProductionManager::ValidateAuxilaryIndustry(UnitInfo* const unit, const bool forceful_shutoff) {
     bool result;
 
     if (complex == unit->GetComplex() && unit->orders != ORDER_POWER_OFF && unit->orders != ORDER_DISABLE &&
         unit->orders != ORDER_IDLE) {
-        Cargo demand;
+        Cargo production;
 
-        Cargo_GetCargoDemand(unit, &demand, true);
+        production = Cargo_GetNetProduction(unit, true);
 
-        if (demand.raw < 0 || demand.fuel < 0 || demand.gold < 0 || demand.power < 0 || demand.life < 0) {
-            if (mode || (demand.raw < 0 && cargo4.raw < 0) || (demand.fuel < 0 && cargo4.fuel < 0) ||
-                (demand.gold < 0 && cargo4.gold < 0)) {
+        if (production.raw < 0 || production.fuel < 0 || production.gold < 0 || production.power < 0 ||
+            production.life < 0) {
+            if (forceful_shutoff || (production.raw < 0 && total.raw < 0) || (production.fuel < 0 && total.fuel < 0) ||
+                (production.gold < 0 && total.gold < 0)) {
                 bool power_needed = false;
                 const char* material;
 
-                if (demand.raw < 0 && cargo4.raw < 0) {
+                if (production.raw < 0 && total.raw < 0) {
                     material = _(9c91);
 
-                } else if (demand.fuel < 0 && cargo4.fuel < 0) {
+                } else if (production.fuel < 0 && total.fuel < 0) {
                     material = _(2162);
 
-                } else if (demand.gold < 0 && cargo4.gold < 0) {
+                } else if (production.gold < 0 && total.gold < 0) {
                     material = _(24d7);
 
-                } else if (demand.power < 0 && (cargo4.power < 0 || cargo4.fuel < 0)) {
+                } else if (production.power < 0 && (total.power < 0 || total.fuel < 0)) {
                     material = _(f814);
                     power_needed = true;
 
-                } else if (demand.life < 0 && cargo4.life < 0) {
+                } else if (production.life < 0 && total.life < 0) {
                     material = _(73f7);
 
-                } else if (demand.raw < 0) {
+                } else if (production.raw < 0) {
                     material = _(2acf);
 
-                } else if (demand.fuel < 0) {
+                } else if (production.fuel < 0) {
                     material = _(19b2);
 
-                } else if (demand.gold < 0) {
+                } else if (production.gold < 0) {
                     material = _(f260);
 
-                } else if (demand.power < 0) {
+                } else if (production.power < 0) {
                     material = _(7a37);
                     power_needed = true;
 
@@ -368,10 +424,10 @@ bool ProductionManager::SatisfyIndustryPower(UnitInfo* unit, bool mode) {
 
                 ComposeIndustryMessage(unit, _(961d), _(b215), material);
 
-                cargo4 -= demand;
+                total -= production;
 
                 if (power_needed) {
-                    SatisfyPowerDemand(-demand.power);
+                    SatisfyPowerDemand(-production.power);
                 }
 
                 UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
@@ -409,18 +465,18 @@ void ProductionManager::ComposeResourceMessage(char* buffer_, int32_t new_value,
     }
 }
 
-void ProductionManager::CheckGenerators() {
+void ProductionManager::OptimizePowerProduction() {
     const int32_t power_generator_fuel_consumption_rate = Cargo_GetFuelConsumptionRate(POWGEN);
     const int32_t power_generator_power_consumption_rate = -Cargo_GetPowerConsumptionRate(POWGEN);
     const int32_t power_station_fuel_consumption_rate = Cargo_GetFuelConsumptionRate(POWERSTN);
     const int32_t power_station_power_consumption_rate = -Cargo_GetPowerConsumptionRate(POWERSTN);
 
-    cargo4.fuel += power_generator_fuel_consumption_rate * power_generator_active +
-                   power_station_fuel_consumption_rate * power_station_active;
+    total.fuel += power_generator_fuel_consumption_rate * power_generator_active +
+                  power_station_fuel_consumption_rate * power_station_active;
 
-    cargo4.power -= cargo_resource_reserves.power;
+    total.power -= net_production.power;
 
-    int32_t power = -cargo4.power;
+    int32_t power = -total.power;
 
     int32_t count = (power_generator_power_consumption_rate * power_station_fuel_consumption_rate) /
                     power_generator_fuel_consumption_rate;
@@ -456,7 +512,7 @@ void ProductionManager::CheckGenerators() {
 
         power_station_active += count2;
 
-        power = -cargo4.power - power_station_active * power_station_power_consumption_rate;
+        power = -total.power - power_station_active * power_station_power_consumption_rate;
 
         if (power < 0) {
             power = 0;
@@ -470,48 +526,48 @@ void ProductionManager::CheckGenerators() {
         }
     }
 
-    cargo_resource_reserves.power = power_station_active * power_station_power_consumption_rate +
-                                    power_generator_active * power_generator_power_consumption_rate;
+    net_production.power = power_station_active * power_station_power_consumption_rate +
+                           power_generator_active * power_generator_power_consumption_rate;
 
-    cargo4.power += cargo_resource_reserves.power;
+    total.power += net_production.power;
 
-    cargo4.fuel -= power_station_active * power_station_fuel_consumption_rate +
-                   power_generator_active * power_generator_fuel_consumption_rate;
+    total.fuel -= power_station_active * power_station_fuel_consumption_rate +
+                  power_generator_active * power_generator_fuel_consumption_rate;
 }
 
-void ProductionManager::ManagePower() {
+void ProductionManager::OptimizePowerConsumption() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if (selected_unit != &*it) {
-            UpdatePowerConsumption(&*it);
+        if (selected_unit != it->Get()) {
+            UpdatePowerConsumption(it->Get());
         }
     }
 
     if (selected_unit) {
-        UpdatePowerConsumption(&*selected_unit);
+        UpdatePowerConsumption(selected_unit.Get());
     }
 }
 
-int32_t ProductionManager::CheckCargoNeed(int32_t type, int32_t amount, bool mode) {
+int32_t ProductionManager::OptimizeCargoProduction(const int32_t type, int32_t amount, const bool mode) {
     int32_t result;
 
     if (amount > 0) {
-        int32_t mining_total{0};
-        int32_t mining_gold{0};
-        int32_t mining_raw{0};
-        int32_t mining_fuel{0};
+        int32_t free_capacity{0};
+        int32_t reduced_gold_mining{0};
+        int32_t reduced_raw_mining{0};
+        int32_t reduced_fuel_mining{0};
 
         switch (type) {
             case CARGO_MATERIALS: {
-                mining_total = cargo_mining_capacity.raw - cargo_resource_reserves.raw;
+                free_capacity = production_capacity.raw - net_production.raw;
             } break;
 
             case CARGO_FUEL: {
-                mining_total = cargo_mining_capacity.fuel - cargo_resource_reserves.fuel;
+                free_capacity = production_capacity.fuel - net_production.fuel;
             } break;
 
             case CARGO_GOLD: {
-                mining_total = cargo_mining_capacity.gold - cargo_resource_reserves.gold;
+                free_capacity = production_capacity.gold - net_production.gold;
             } break;
 
             default: {
@@ -519,49 +575,48 @@ int32_t ProductionManager::CheckCargoNeed(int32_t type, int32_t amount, bool mod
             } break;
         }
 
-        if (mining_total > 0 &&
-            total_resource_mining_capacity <
-                (cargo_resource_reserves.raw + cargo_resource_reserves.fuel + cargo_resource_reserves.gold)) {
-            mining_total = AllocMenu_Optimize(&*complex, type, amount, type);
+        if (free_capacity > 0 &&
+            combined_production_capacity < (net_production.raw + net_production.fuel + net_production.gold)) {
+            free_capacity = AllocMenu_Optimize(complex.Get(), type, amount, type);
 
         } else {
-            mining_total = 0;
+            free_capacity = 0;
         }
 
-        AddCargo(type, mining_total);
+        ChangeProduction(type, free_capacity);
 
-        amount -= mining_total;
+        amount -= free_capacity;
 
-        mining_gold = BalanceMining(type, CARGO_GOLD, amount);
+        reduced_gold_mining = SwapProduction(type, CARGO_GOLD, amount);
 
-        amount -= mining_gold;
+        amount -= reduced_gold_mining;
 
-        mining_raw = BalanceMining(type, CARGO_MATERIALS, amount);
+        reduced_raw_mining = SwapProduction(type, CARGO_MATERIALS, amount);
 
-        amount -= mining_raw;
+        amount -= reduced_raw_mining;
 
-        mining_fuel = BalanceMining(type, CARGO_FUEL, amount);
+        reduced_fuel_mining = SwapProduction(type, CARGO_FUEL, amount);
 
-        amount -= mining_fuel;
+        amount -= reduced_fuel_mining;
 
-        mining_total += mining_raw + mining_fuel + mining_gold;
+        free_capacity += reduced_raw_mining + reduced_fuel_mining + reduced_gold_mining;
 
-        if (mining_total == 0 || (amount != 0 && !mode)) {
-            AllocMenu_AdjustForDemands(&*complex, type, mining_total);
-            AddCargo(type, -mining_total);
+        if (free_capacity == 0 || (amount != 0 && !mode)) {
+            AllocMenu_ReduceProduction(complex.Get(), type, free_capacity);
+            ChangeProduction(type, -free_capacity);
 
-            AllocMenu_Optimize(&*complex, CARGO_GOLD, mining_gold, CARGO_GOLD);
-            AllocMenu_Optimize(&*complex, CARGO_MATERIALS, mining_raw, CARGO_MATERIALS);
-            AllocMenu_Optimize(&*complex, CARGO_FUEL, mining_fuel, CARGO_FUEL);
+            AllocMenu_Optimize(complex.Get(), CARGO_GOLD, reduced_gold_mining, CARGO_GOLD);
+            AllocMenu_Optimize(complex.Get(), CARGO_MATERIALS, reduced_raw_mining, CARGO_MATERIALS);
+            AllocMenu_Optimize(complex.Get(), CARGO_FUEL, reduced_fuel_mining, CARGO_FUEL);
 
-            AddCargo(CARGO_GOLD, mining_gold);
-            AddCargo(CARGO_MATERIALS, mining_raw);
-            AddCargo(CARGO_FUEL, mining_fuel);
+            ChangeProduction(CARGO_GOLD, reduced_gold_mining);
+            ChangeProduction(CARGO_MATERIALS, reduced_raw_mining);
+            ChangeProduction(CARGO_FUEL, reduced_fuel_mining);
 
             result = 0;
 
         } else {
-            result = mining_total;
+            result = free_capacity;
         }
 
     } else {
@@ -571,23 +626,23 @@ int32_t ProductionManager::CheckCargoNeed(int32_t type, int32_t amount, bool mod
     return result;
 }
 
-bool ProductionManager::CheckPowerNeed(int32_t amount) {
+bool ProductionManager::CheckPowerNeed(const int32_t amount) {
     bool result;
-    cargo4.power -= amount;
+    total.power -= amount;
 
-    CheckGenerators();
+    OptimizePowerProduction();
 
-    if (cargo4.fuel < 0) {
-        CheckCargoNeed(CARGO_FUEL, -cargo4.fuel, false);
+    if (total.fuel < 0) {
+        OptimizeCargoProduction(CARGO_FUEL, -total.fuel, false);
     }
 
-    if (cargo4.fuel >= 0 && cargo4.power >= 0) {
+    if (total.fuel >= 0 && total.power >= 0) {
         result = true;
 
     } else {
-        cargo4.power += amount;
+        total.power += amount;
 
-        CheckGenerators();
+        OptimizePowerProduction();
 
         result = false;
     }
@@ -597,26 +652,24 @@ bool ProductionManager::CheckPowerNeed(int32_t amount) {
 
 void ProductionManager::UpdateLifeConsumption() {
     if (selected_unit) {
-        UpdateUnitWorkerConsumption(&*selected_unit);
+        UpdateUnitLifeConsumption(selected_unit.Get());
     }
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End() && cargo4.life < 0; ++it) {
-        UpdateUnitWorkerConsumption(&*it);
+         it != UnitsManager_StationaryUnits.End() && total.life < 0; ++it) {
+        UpdateUnitLifeConsumption(it->Get());
     }
 }
 
-bool ProductionManager::CheckIndustry(UnitInfo* unit, bool mode) {
+bool ProductionManager::ValidateIndustry(UnitInfo* const unit, const bool mode) {
     bool result;
 
     if (complex == unit->GetComplex() && unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_13 &&
         unit->state != ORDER_STATE_46 && unit->state != ORDER_STATE_UNIT_READY &&
-        Cargo_GetRawConsumptionRate(unit->unit_type, 1) > 0 && (mode || cargo4.raw < 0)) {
-        Cargo cargo;
+        Cargo_GetRawConsumptionRate(unit->unit_type, 1) > 0 && (mode || total.raw < 0)) {
+        Cargo cargo = Cargo_GetNetProduction(unit, true);
 
-        Cargo_GetCargoDemand(unit, &cargo, true);
-
-        if (cargo.life < 0 && cargo4.life < 0) {
+        if (cargo.life < 0 && total.life < 0) {
             ComposeIndustryMessage(unit, _(d139), _(7516), _(0579));
 
         } else if (mode) {
@@ -626,7 +679,7 @@ bool ProductionManager::CheckIndustry(UnitInfo* unit, bool mode) {
             ComposeIndustryMessage(unit, _(5f9a), _(ac9d), _(61e6));
         }
 
-        cargo4 -= cargo;
+        total -= cargo;
 
         if (mode) {
             SatisfyPowerDemand(Cargo_GetPowerConsumptionRate(unit->unit_type));
@@ -643,14 +696,14 @@ bool ProductionManager::CheckIndustry(UnitInfo* unit, bool mode) {
     return result;
 }
 
-bool ProductionManager::OptimizeIndustry(bool mode) {
-    if (selected_unit && CheckIndustry(&*selected_unit, mode)) {
+bool ProductionManager::OptimizeIndustry(const bool mode) {
+    if (selected_unit && ValidateIndustry(selected_unit.Get(), mode)) {
         return true;
 
     } else {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if (CheckIndustry(&*it, mode)) {
+            if (ValidateIndustry(it->Get(), mode)) {
                 return true;
             }
         }
@@ -662,24 +715,23 @@ bool ProductionManager::OptimizeIndustry(bool mode) {
 bool ProductionManager::OptimizeMiningIndustry() {
     SmartPointer<UnitInfo> mine;
     Cargo minimum_demand;
-    Cargo demand;
     bool result;
 
     if (selected_unit && selected_unit->orders != ORDER_POWER_OFF && selected_unit->orders != ORDER_DISABLE &&
         selected_unit->orders != ORDER_IDLE && selected_unit->unit_type == MININGST) {
         mine = selected_unit;
 
-        Cargo_GetCargoDemand(&*selected_unit, &minimum_demand, true);
+        minimum_demand = Cargo_GetNetProduction(selected_unit.Get(), true);
 
     } else {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if (complex == (*it).GetComplex() && (*it).orders != ORDER_POWER_OFF && (*it).orders != ORDER_DISABLE &&
                 (*it).orders != ORDER_IDLE && (*it).unit_type == MININGST) {
-                Cargo_GetCargoDemand(&*it, &demand, true);
+                Cargo demand = Cargo_GetNetProduction(it->Get(), true);
 
                 if (!mine || demand.fuel < minimum_demand.fuel) {
-                    mine = &*it;
+                    mine = it->Get();
                     minimum_demand = demand;
                 }
             }
@@ -687,15 +739,15 @@ bool ProductionManager::OptimizeMiningIndustry() {
     }
 
     if (mine) {
-        cargo_resource_reserves.raw -= mine->raw_mining;
-        cargo_resource_reserves.fuel -= mine->fuel_mining;
-        cargo_resource_reserves.gold -= mine->gold_mining;
+        net_production.raw -= mine->raw_mining;
+        net_production.fuel -= mine->fuel_mining;
+        net_production.gold -= mine->gold_mining;
 
-        cargo4 -= minimum_demand;
+        total -= minimum_demand;
 
-        UnitsManager_SetNewOrder(&*mine, ORDER_POWER_OFF, ORDER_STATE_INIT);
+        UnitsManager_SetNewOrder(mine.Get(), ORDER_POWER_OFF, ORDER_STATE_INIT);
 
-        ComposeIndustryMessage(&*mine, _(2ff7), _(b8fe), _(5f24));
+        ComposeIndustryMessage(mine.Get(), _(2ff7), _(b8fe), _(5f24));
 
         result = true;
 
@@ -706,14 +758,15 @@ bool ProductionManager::OptimizeMiningIndustry() {
     return result;
 }
 
-bool ProductionManager::OptimizeAuxilaryIndustry(ResourceID unit_type, bool mode) {
-    if (selected_unit && selected_unit->unit_type == unit_type && SatisfyIndustryPower(&*selected_unit, mode)) {
+bool ProductionManager::OptimizeAuxilaryIndustry(const ResourceID unit_type, const bool forceful_shutoff) {
+    if (selected_unit && selected_unit->unit_type == unit_type &&
+        ValidateAuxilaryIndustry(selected_unit.Get(), forceful_shutoff)) {
         return true;
     }
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).unit_type == unit_type && SatisfyIndustryPower(&*it, mode)) {
+        if ((*it).unit_type == unit_type && ValidateAuxilaryIndustry(it->Get(), forceful_shutoff)) {
             return true;
         }
     }
@@ -726,27 +779,27 @@ void ProductionManager::DrawResourceMessage() {
         strcpy(buffer, _(3226));
     }
 
-    ComposeResourceMessage(buffer, cargo_resource_reserves.raw, cargo1.raw, _(3d58), _(61fa));
+    ComposeResourceMessage(buffer, net_production.raw, prev_net_production.raw, _(3d58), _(61fa));
 
-    ComposeResourceMessage(buffer, cargo_resource_reserves.fuel, cargo1.fuel, _(f957), _(1dfe));
+    ComposeResourceMessage(buffer, net_production.fuel, prev_net_production.fuel, _(f957), _(1dfe));
 
-    ComposeResourceMessage(buffer, cargo_resource_reserves.gold, cargo1.gold, _(1226), _(17c7));
+    ComposeResourceMessage(buffer, net_production.gold, prev_net_production.gold, _(1226), _(17c7));
 
     MessageManager_DrawMessage(buffer, 1, 0, false, true);
 }
 
-bool ProductionManager_ManageFactories(uint16_t team, Complex* complex) {
+bool ProductionManager_UpdateIndustryOrders(const uint16_t team, Complex* const complex) {
     ProductionManager manager(team, complex);
     bool is_found = false;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End() && manager.cargo4.raw > 0; ++it) {
+         it != UnitsManager_StationaryUnits.End() && manager.total.raw > 0; ++it) {
         if ((*it).GetComplex() == complex && (*it).orders == ORDER_HALT_BUILDING_2 && (*it).storage == 0 &&
-            Cargo_GetRawConsumptionRate((*it).unit_type, (*it).GetMaxAllowedBuildRate()) <= manager.cargo4.raw &&
-            Cargo_GetLifeConsumptionRate((*it).unit_type) <= manager.cargo4.life &&
+            Cargo_GetRawConsumptionRate((*it).unit_type, (*it).GetMaxAllowedBuildRate()) <= manager.total.raw &&
+            Cargo_GetLifeConsumptionRate((*it).unit_type) <= manager.total.life &&
             manager.CheckPowerNeed(Cargo_GetPowerConsumptionRate((*it).unit_type))) {
-            manager.cargo4.raw -= Cargo_GetRawConsumptionRate((*it).unit_type, (*it).GetMaxAllowedBuildRate());
-            manager.cargo4.life -= Cargo_GetLifeConsumptionRate((*it).unit_type);
+            manager.total.raw -= Cargo_GetRawConsumptionRate((*it).unit_type, (*it).GetMaxAllowedBuildRate());
+            manager.total.life -= Cargo_GetLifeConsumptionRate((*it).unit_type);
 
             (*it).BuildOrder();
 
@@ -754,58 +807,59 @@ bool ProductionManager_ManageFactories(uint16_t team, Complex* complex) {
         }
     }
 
-    manager.ManagePower();
+    manager.OptimizePowerConsumption();
 
     return is_found;
 }
 
-void ProductionManager_ManageMining(uint16_t team, Complex* complex, UnitInfo* unit, bool is_player_team) {
+void ProductionManager_OptimizeProduction(const uint16_t team, Complex* const complex, UnitInfo* const unit,
+                                          bool show_messages) {
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_REMOTE) {
         Access_UpdateResourcesTotal(complex);
 
         ProductionManager manager(team, complex);
 
-        if (manager.cargo4.raw >= 0 && manager.cargo4.fuel >= 0 && manager.cargo4.gold >= 0 &&
-            manager.cargo4.power >= 0 && manager.cargo4.life >= 0) {
-            is_player_team = false;
+        if (manager.total.raw >= 0 && manager.total.fuel >= 0 && manager.total.gold >= 0 && manager.total.power >= 0 &&
+            manager.total.life >= 0) {
+            show_messages = false;
         }
 
         manager.selected_unit = unit;
-        manager.is_player_team = is_player_team;
+        manager.show_messages = show_messages;
 
-        manager.CheckGenerators();
+        manager.OptimizePowerProduction();
 
-        while (manager.cargo4.raw < 0 || manager.cargo4.fuel < 0 || manager.cargo4.power < 0 ||
-               manager.cargo4.life < 0 || manager.cargo4.gold < 0) {
+        while (manager.total.raw < 0 || manager.total.fuel < 0 || manager.total.power < 0 || manager.total.life < 0 ||
+               manager.total.gold < 0) {
             manager.CheckPowerNeed(0);
 
-            if (manager.cargo4.raw < 0) {
-                manager.CheckCargoNeed(CARGO_MATERIALS, -manager.cargo4.raw, false);
+            if (manager.total.raw < 0) {
+                manager.OptimizeCargoProduction(CARGO_MATERIALS, -manager.total.raw, false);
             }
 
-            if (manager.cargo4.fuel < 0) {
-                manager.CheckCargoNeed(CARGO_FUEL, -manager.cargo4.fuel, false);
+            if (manager.total.fuel < 0) {
+                manager.OptimizeCargoProduction(CARGO_FUEL, -manager.total.fuel, false);
             }
 
-            if (manager.cargo4.gold < 0) {
-                manager.CheckCargoNeed(CARGO_GOLD, -manager.cargo4.gold, false);
+            if (manager.total.gold < 0) {
+                manager.OptimizeCargoProduction(CARGO_GOLD, -manager.total.gold, false);
             }
 
             bool flag = false;
 
-            if ((manager.cargo4.raw < 0 || manager.cargo4.fuel < 0 || manager.cargo4.gold < 0) &&
+            if ((manager.total.raw < 0 || manager.total.fuel < 0 || manager.total.gold < 0) &&
                 (manager.OptimizeIndustry(false) || manager.OptimizeAuxilaryIndustry(COMMTWR, false))) {
                 flag = true;
             }
 
             if (!flag) {
-                if (manager.cargo4.life < 0) {
+                if (manager.total.life < 0) {
                     manager.UpdateLifeConsumption();
                 }
 
-                if (manager.cargo4.raw < 0 || manager.cargo4.fuel < 0 || manager.cargo4.power < 0 ||
-                    manager.cargo4.life < 0 || manager.cargo4.gold < 0) {
-                    if ((!manager.selected_unit || !manager.CheckIndustry(&*manager.selected_unit, true)) &&
+                if (manager.total.raw < 0 || manager.total.fuel < 0 || manager.total.power < 0 ||
+                    manager.total.life < 0 || manager.total.gold < 0) {
+                    if ((!manager.selected_unit || !manager.ValidateIndustry(manager.selected_unit.Get(), true)) &&
                         !manager.OptimizeAuxilaryIndustry(RESEARCH, true) &&
                         !manager.OptimizeAuxilaryIndustry(GREENHSE, true) &&
                         !manager.OptimizeAuxilaryIndustry(COMMTWR, true) && !manager.OptimizeIndustry(true) &&
@@ -816,8 +870,8 @@ void ProductionManager_ManageMining(uint16_t team, Complex* complex, UnitInfo* u
             }
         }
 
-        manager.CheckGenerators();
-        manager.ManagePower();
+        manager.OptimizePowerProduction();
+        manager.OptimizePowerConsumption();
 
         Access_UpdateResourcesTotal(complex);
 
@@ -825,7 +879,7 @@ void ProductionManager_ManageMining(uint16_t team, Complex* complex, UnitInfo* u
             Remote_SendNetPacket_11(team, complex);
         }
 
-        if (is_player_team) {
+        if (show_messages) {
             manager.DrawResourceMessage();
         }
     }

@@ -6450,7 +6450,7 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
     }
 
     if (is_found) {
-        ProductionManager_ManageMining(parent->team, parent->GetComplex(), &*parent,
+        ProductionManager_OptimizeProduction(parent->team, parent->GetComplex(), &*parent,
                                        GameManager_PlayerTeam == parent->team);
     }
 }

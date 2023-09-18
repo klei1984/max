@@ -27,8 +27,6 @@
 class UnitInfo;
 
 struct Cargo {
-    Cargo();
-
     int16_t gold;
     int16_t raw;
     int16_t fuel;
@@ -36,27 +34,67 @@ struct Cargo {
     int16_t life;
     int16_t free_capacity;
 
-    void Init();
+    Cargo() noexcept { Init(); }
+    ~Cargo() noexcept {}
 
-    friend Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo);
-    friend Cargo* Cargo_GetCargoCapacity(UnitInfo* unit, Cargo* cargo);
-    friend Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order);
+    inline void Init() noexcept {
+        gold = 0;
+        raw = 0;
+        fuel = 0;
+        power = 0;
+        life = 0;
+        free_capacity = 0;
+    }
 
-    Cargo& operator+=(Cargo const& other);
-    Cargo& operator-=(Cargo const& other);
+    inline Cargo& operator+=(const Cargo& other) noexcept {
+        gold += other.gold;
+        raw += other.raw;
+        fuel += other.fuel;
+        power += other.power;
+        life += other.life;
+        free_capacity += other.free_capacity;
+        return *this;
+    }
 
-    int32_t Get(int32_t type) const;
+    inline Cargo& operator-=(const Cargo& other) noexcept {
+        gold -= other.gold;
+        raw -= other.raw;
+        fuel -= other.fuel;
+        power -= other.power;
+        life -= other.life;
+        free_capacity -= other.free_capacity;
+        return *this;
+    }
+
+    [[nodiscard]] inline int32_t Get(int32_t type) const noexcept {
+        int32_t result;
+        switch (type) {
+            case CARGO_MATERIALS: {
+                result = raw;
+            } break;
+            case CARGO_FUEL: {
+                result = fuel;
+            } break;
+            case CARGO_GOLD: {
+                result = gold;
+            } break;
+            default: {
+                result = 0;
+            } break;
+        }
+        return result;
+    }
 };
 
-Cargo* Cargo_GetCargo(UnitInfo* unit, Cargo* cargo);
-Cargo* Cargo_GetCargoCapacity(UnitInfo* unit, Cargo* cargo);
-Cargo* Cargo_GetCargoDemand(UnitInfo* unit, Cargo* cargo, bool current_order = false);
+Cargo Cargo_GetInventory(UnitInfo* const unit);
+Cargo Cargo_GetCargoCapacity(UnitInfo* const unit);
+Cargo Cargo_GetNetProduction(UnitInfo* const unit, const bool current_order = false);
 
-int32_t Cargo_GetRawConsumptionRate(ResourceID unit_type, int32_t speed_multiplier);
-int32_t Cargo_GetFuelConsumptionRate(ResourceID unit_type);
-int32_t Cargo_GetPowerConsumptionRate(ResourceID unit_type);
-int32_t Cargo_GetLifeConsumptionRate(ResourceID unit_type);
-int32_t Cargo_GetGoldConsumptionRate(ResourceID unit_type);
-void Cargo_UpdateResourceLevels(UnitInfo* unit, int32_t factor);
+int32_t Cargo_GetRawConsumptionRate(const ResourceID unit_type, const int32_t speed_multiplier);
+int32_t Cargo_GetFuelConsumptionRate(const ResourceID unit_type);
+int32_t Cargo_GetPowerConsumptionRate(const ResourceID unit_type);
+int32_t Cargo_GetLifeConsumptionRate(const ResourceID unit_type);
+int32_t Cargo_GetGoldConsumptionRate(const ResourceID unit_type);
+void Cargo_UpdateResourceLevels(UnitInfo* const unit, const int32_t factor);
 
 #endif /* CARGO_HPP */

@@ -92,7 +92,7 @@ void Complex::GetCargoMinable(Cargo& capacity) {
             (*it).orders != ORDER_IDLE) {
             Cargo cargo;
 
-            Cargo_GetCargoDemand(&*it, &cargo);
+            Cargo_GetNetProduction(&*it, &cargo);
 
             if ((*it).unit_type == MININGST) {
                 cargo.gold -= (*it).gold_mining;
@@ -135,16 +135,14 @@ void Complex::GetCargoMining(Cargo& materials, Cargo& capacity) {
 }
 
 void Complex::GetCargoInfo(Cargo& materials, Cargo& capacity) {
-    Cargo cargo;
-
     materials.Init();
     capacity.Init();
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == this) {
-            materials += *Cargo_GetCargo(&*it, &cargo);
-            capacity += *Cargo_GetCargoCapacity(&*it, &cargo);
+            materials += Cargo_GetInventory(it->Get());
+            capacity += Cargo_GetCargoCapacity(it->Get());
         }
     }
 }

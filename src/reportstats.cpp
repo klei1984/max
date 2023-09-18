@@ -361,7 +361,7 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         current_value = 0;
         base_value = 0;
 
-        Cargo_GetCargoDemand(unit, &cargo);
+        Cargo_GetNetProduction(unit, &cargo);
         power_consumption_current = cargo.power;
 
         if (power_consumption_base >= 0) {
@@ -386,7 +386,7 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
                     power_consumption_base -= cargo.power;
                 }
 
-                Cargo_GetCargoDemand(&*it, &cargo);
+                Cargo_GetNetProduction(&*it, &cargo);
 
                 if (cargo.power >= 0) {
                     power_consumption_current += cargo.power;
@@ -420,7 +420,7 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         current_value = 0;
         base_value = 0;
 
-        Cargo_GetCargoDemand(unit, &cargo);
+        Cargo_GetNetProduction(unit, &cargo);
 
         current_life_need = cargo.life;
 
@@ -445,7 +445,7 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
                     life_need -= cargo.life;
                 }
 
-                Cargo_GetCargoDemand(&*it, &cargo);
+                Cargo_GetNetProduction(&*it, &cargo);
 
                 if (cargo.life >= 0) {
                     current_life_need += cargo.life;

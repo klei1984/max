@@ -1074,7 +1074,7 @@ bool GameManager_RefreshOrders(uint16_t team, bool check_production) {
             return false;
         }
 
-        if (ProductionManager_ManageFactories(team, &(*it)) && is_player) {
+        if (ProductionManager_UpdateIndustryOrders(team, &(*it)) && is_player) {
             sprintf(message, _(a9fd), (*it).GetId());
 
             MessageManager_DrawMessage(message, 1, 0, false, true);
@@ -2689,10 +2689,10 @@ bool GameManager_OptimizeProduction(uint16_t team, Complex* complex, bool is_pla
         if (mode) {
             if (GameManager_SelectedUnit != nullptr && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER &&
                 GameManager_SelectedUnit->GetComplex() == complex) {
-                ProductionManager_ManageMining(team, complex, &*GameManager_SelectedUnit, is_player_team);
+                ProductionManager_OptimizeProduction(team, complex, &*GameManager_SelectedUnit, is_player_team);
 
             } else {
-                ProductionManager_ManageMining(team, complex, nullptr, is_player_team);
+                ProductionManager_OptimizeProduction(team, complex, nullptr, is_player_team);
             }
 
             result = false;
@@ -7275,7 +7275,7 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
         current_value = 0;
         base_value = 0;
 
-        Cargo_GetCargoDemand(unit, &cargo);
+        Cargo_GetNetProduction(unit, &cargo);
 
         current_power_need = cargo.power;
 
@@ -7307,7 +7307,7 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
                     std::swap((*it).orders, (*it).prior_orders);
                 }
 
-                Cargo_GetCargoDemand(&(*it), &cargo);
+                Cargo_GetNetProduction(&(*it), &cargo);
 
                 if (upgrade_all) {
                     std::swap((*it).orders, (*it).prior_orders);
@@ -7346,7 +7346,7 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
         current_value = 0;
         base_value = 0;
 
-        Cargo_GetCargoDemand(unit, &cargo);
+        Cargo_GetNetProduction(unit, &cargo);
 
         current_life_need = cargo.life;
 
@@ -7378,7 +7378,7 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
                     std::swap((*it).orders, (*it).prior_orders);
                 }
 
-                Cargo_GetCargoDemand(&(*it), &cargo);
+                Cargo_GetNetProduction(&(*it), &cargo);
 
                 if (upgrade_all) {
                     std::swap((*it).orders, (*it).prior_orders);

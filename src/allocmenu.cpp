@@ -522,24 +522,24 @@ int32_t AllocMenu_Optimize(Complex *complex, int32_t cargo_type1, int32_t materi
     return result;
 }
 
-void AllocMenu_AdjustForDemands(Complex *complex, int32_t cargo_type, int32_t material) {
+void AllocMenu_ReduceProduction(Complex *complex, int32_t cargo_type, int32_t amount) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
             (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
-            uint8_t *cargo{nullptr};
+            uint8_t *production{nullptr};
 
             switch (cargo_type) {
                 case CARGO_GOLD: {
-                    cargo = &(*it).gold_mining;
+                    production = &(*it).gold_mining;
                 } break;
 
                 case CARGO_MATERIALS: {
-                    cargo = &(*it).raw_mining;
+                    production = &(*it).raw_mining;
                 } break;
 
                 case CARGO_FUEL: {
-                    cargo = &(*it).fuel_mining;
+                    production = &(*it).fuel_mining;
                 } break;
 
                 default: {
@@ -547,16 +547,16 @@ void AllocMenu_AdjustForDemands(Complex *complex, int32_t cargo_type, int32_t ma
                 } break;
             };
 
-            if (*cargo < material) {
-                if (*cargo != 0) {
-                    material -= *cargo;
-                    (*it).total_mining -= *cargo;
-                    *cargo = 0;
+            if (*production < amount) {
+                if (*production != 0) {
+                    amount -= *production;
+                    (*it).total_mining -= *production;
+                    *production = 0;
                 }
 
             } else {
-                *cargo -= material;
-                (*it).total_mining -= material;
+                *production -= amount;
+                (*it).total_mining -= amount;
 
                 return;
             }
@@ -573,7 +573,7 @@ int32_t AllocMenu::Balance(Complex *complex, int32_t cargo_type, int32_t materia
     } else {
         result = AllocMenu_Optimize(complex, cargo_type, material2 - material1, cargo_type);
 
-        AllocMenu_AdjustForDemands(complex, cargo_type, result);
+        AllocMenu_ReduceProduction(complex, cargo_type, result);
 
         result += material1;
     }
@@ -646,7 +646,7 @@ void AllocMenu::OnClickRawBar() {
     }
 
     if (materials < 0) {
-        AllocMenu_AdjustForDemands(&*complex, CARGO_MATERIALS, -materials);
+        AllocMenu_ReduceProduction(&*complex, CARGO_MATERIALS, -materials);
         UpdateRawAllocation(materials);
 
     } else if (materials > 0) {
@@ -664,7 +664,7 @@ void AllocMenu::OnClickFuelBar() {
     }
 
     if (materials < 0) {
-        AllocMenu_AdjustForDemands(&*complex, CARGO_FUEL, -materials);
+        AllocMenu_ReduceProduction(&*complex, CARGO_FUEL, -materials);
         UpdateFuelAllocation(materials);
 
     } else if (materials > 0) {
@@ -682,7 +682,7 @@ void AllocMenu::OnClickGoldBar() {
     }
 
     if (materials < 0) {
-        AllocMenu_AdjustForDemands(&*complex, CARGO_GOLD, -materials);
+        AllocMenu_ReduceProduction(&*complex, CARGO_GOLD, -materials);
         UpdateGoldAllocation(materials);
 
     } else if (materials > 0) {
@@ -728,7 +728,7 @@ void AllocMenu::Run() {
 
             case 1002: {
                 if (production.raw) {
-                    AllocMenu_AdjustForDemands(&*complex, CARGO_MATERIALS, 1);
+                    AllocMenu_ReduceProduction(&*complex, CARGO_MATERIALS, 1);
                     UpdateRawAllocation(-1);
                 }
             } break;
@@ -745,7 +745,7 @@ void AllocMenu::Run() {
 
             case 1005: {
                 if (production.fuel) {
-                    AllocMenu_AdjustForDemands(&*complex, CARGO_FUEL, 1);
+                    AllocMenu_ReduceProduction(&*complex, CARGO_FUEL, 1);
                     UpdateFuelAllocation(-1);
                 }
             } break;
@@ -762,7 +762,7 @@ void AllocMenu::Run() {
 
             case 1008: {
                 if (production.gold) {
-                    AllocMenu_AdjustForDemands(&*complex, CARGO_GOLD, 1);
+                    AllocMenu_ReduceProduction(&*complex, CARGO_GOLD, 1);
                     UpdateGoldAllocation(-1);
                 }
             } break;

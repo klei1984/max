@@ -838,8 +838,7 @@ void Access_UpdateMinimapFogOfWar(uint16_t team, bool all_visible, bool ignore_t
 }
 
 void Access_UpdateResourcesTotal(Complex* complex) {
-    Cargo total;
-    Cargo cargo;
+    Cargo inventory;
 
     complex->material = 0;
     complex->fuel = 0;
@@ -850,14 +849,14 @@ void Access_UpdateResourcesTotal(Complex* complex) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex) {
-            Cargo_GetCargoDemand(&*it, &total);
-            total += *Cargo_GetCargo(&*it, &cargo);
+            inventory = Cargo_GetNetProduction(it->Get());
+            inventory += Cargo_GetInventory(it->Get());
 
-            complex->material += total.raw;
-            complex->fuel += total.fuel;
-            complex->gold += total.gold;
-            complex->power += total.power;
-            complex->workers += total.life;
+            complex->material += inventory.raw;
+            complex->fuel += inventory.fuel;
+            complex->gold += inventory.gold;
+            complex->power += inventory.power;
+            complex->workers += inventory.life;
         }
     }
 }
@@ -1065,7 +1064,8 @@ bool Access_UpdateGroupSpeed(UnitInfo* unit) {
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).orders == ORDER_MOVE || (*it).orders == ORDER_MOVE_TO_ATTACK) &&
-            ((*it).state == ORDER_STATE_IN_PROGRESS || (*it).state == ORDER_STATE_6 || (*it).state == ORDER_STATE_NEW_ORDER)) {
+            ((*it).state == ORDER_STATE_IN_PROGRESS || (*it).state == ORDER_STATE_6 ||
+             (*it).state == ORDER_STATE_NEW_ORDER)) {
             return false;
         }
 
