@@ -188,7 +188,7 @@ public:
     void WritePacket(NetPacket& packet);
     void Refuel(UnitInfo* parent);
     void Reload(UnitInfo* parent);
-    void Upgrade(UnitInfo* parent);
+    bool Upgrade(UnitInfo* parent);
     void BuildOrder();
     void MoveInTransitUnitInMapHash(int32_t grid_x, int32_t grid_y);
     void RemoveInTransitUnitFromMapHash();

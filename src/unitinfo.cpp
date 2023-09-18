@@ -4555,7 +4555,9 @@ void UnitInfo::Reload(UnitInfo* parent) {
     }
 }
 
-void UnitInfo::Upgrade(UnitInfo* parent) {
+bool UnitInfo::Upgrade(UnitInfo* parent) {
+    bool result;
+
     if (parent->GetBaseValues() != UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], parent->unit_type) &&
         complex) {
         Cargo materials;
@@ -4582,12 +4584,16 @@ void UnitInfo::Upgrade(UnitInfo* parent) {
                 MessageManager_DrawMessage(message.GetCStr(), 0, parent, Point(parent->grid_x, parent->grid_y));
             }
 
+            result = true;
+
         } else if (GameManager_PlayerTeam == team && state != ORDER_STATE_1) {
             SmartString message;
 
             message.Sprintf(80, _(e3e0), materials_cost);
 
             MessageManager_DrawMessage(message.GetCStr(), 2, 0);
+
+            result = false;
         }
     }
 
@@ -4607,7 +4613,9 @@ void UnitInfo::Upgrade(UnitInfo* parent) {
         GameManager_MenuUnitSelect(parent);
     }
 
-    parent->ScheduleDelayedTasks(true);
+    parent->ScheduleDelayedTasks(result);
+
+    return result;
 }
 
 void UnitInfo::BusyWaitOrder() {
