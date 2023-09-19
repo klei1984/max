@@ -26,8 +26,7 @@
 #include "resource_manager.hpp"
 #include "unitinfo.hpp"
 
-TransporterMap::TransporterMap(UnitInfo* unit_, uint8_t flags_, uint8_t caution_level_,
-                               ResourceID unit_type_) {
+TransporterMap::TransporterMap(UnitInfo* unit_, uint8_t flags_, uint8_t caution_level_, ResourceID unit_type_) {
     unit = unit_;
     flags = flags_;
     caution_level = caution_level_;
@@ -50,15 +49,15 @@ bool TransporterMap::Search(Point site) {
             SmartPointer<UnitInfo> transporter(new (std::nothrow) UnitInfo(unit_type, unit->team, 0xFFFF));
             PathsManager_InitAccessMap(&*transporter, access_map.GetMap(), 0x01, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
-            for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
-                for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
-                    if (access_map.GetMapColumn(i)[j]) {
-                        if (map.GetMapColumn(site.x)[site.y] == 0) {
-                            map.GetMapColumn(site.x)[site.y] = (access_map.GetMapColumn(i)[j] * 3) | 0x80;
+            for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
+                for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
+                    if (access_map.GetMapColumn(x)[y]) {
+                        if (map.GetMapColumn(x)[y] == 0) {
+                            map.GetMapColumn(x)[y] = (access_map.GetMapColumn(x)[y] * 3) | 0x80;
                         }
 
                     } else {
-                        map.GetMapColumn(site.x)[site.y] |= 0x40;
+                        map.GetMapColumn(x)[y] |= 0x40;
                     }
                 }
             }
