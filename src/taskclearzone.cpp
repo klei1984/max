@@ -248,7 +248,7 @@ bool TaskClearZone::ExamineZones() {
                     if (unit->team != team) {
                         zones.Erase(i);
 
-                        zone->CallTaskVfunc27(false);
+                        zone->Finished(false);
 
                         return false;
                     }
@@ -260,7 +260,7 @@ bool TaskClearZone::ExamineZones() {
                         if (zone->GetField30() && unit->speed < 2) {
                             zones.Erase(i);
 
-                            zone->CallTaskVfunc27(false);
+                            zone->Finished(false);
 
                             return false;
                         }
@@ -275,7 +275,7 @@ bool TaskClearZone::ExamineZones() {
                                 zone->GetField30()) {
                                 zones.Erase(i);
 
-                                zone->CallTaskVfunc27(false);
+                                zone->Finished(false);
 
                                 return false;
                             }
@@ -298,7 +298,7 @@ bool TaskClearZone::ExamineZones() {
         if (!is_found) {
             zones.Erase(i);
 
-            zone->CallTaskVfunc27(true);
+            zone->Finished(true);
 
             return false;
         }

@@ -87,6 +87,8 @@ private:
 
     static const uint8_t ExpResearchTopics[];
 
+    SmartPointer<UnitInfo> parent_unit;
+
 public:
     UnitInfo();
     UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle = 0);
@@ -103,7 +105,6 @@ public:
     bool IsVisibleToTeam(uint16_t team) const;
     void SetEnemy(UnitInfo* enemy);
     UnitInfo* GetEnemy() const;
-    UnitInfo* GetParent() const;
     uint16_t GetId() const;
     UnitInfo* GetFirstFromUnitList() const;
     SmartList<UnitInfo>* GetUnitList() const;
@@ -111,7 +112,6 @@ public:
     void SetField221(uint32_t value);
     void ChangeField221(uint32_t flags, bool mode);
     uint16_t GetImageIndex() const;
-    void SetParent(UnitInfo* parent);
     void SetBaseValues(UnitValues* unit_values);
     UnitValues* GetBaseValues() const;
     bool IsDetectedByTeam(uint16_t team) const;
@@ -225,6 +225,8 @@ public:
     bool AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle);
     int32_t GetTurnsToBuild(ResourceID unit_type, int32_t build_speed_multiplier, int32_t* turns_to_build);
     void Init();
+    [[nodiscard]] UnitInfo* GetParent() const noexcept;
+    void SetParent(UnitInfo* const parent) noexcept;
 
     ResourceID unit_type;
     struct PopupFunctions* popup;
@@ -301,7 +303,6 @@ public:
     bool energized;
     uint16_t id;
     SmartList<UnitInfo>* unit_list;
-    SmartPointer<UnitInfo> parent_unit;
     SmartPointer<UnitInfo> enemy_unit;
     SmartList<Task> tasks;
     SmartList<Task> delayed_tasks;

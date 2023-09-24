@@ -273,7 +273,6 @@ void TaskActivate::RemoveUnit(UnitInfo& unit) {
 
 void TaskActivate::EventZoneCleared(Zone* zone_, bool status) {
     if (zone == zone_) {
-        SDL_assert(status != false);
         zone = nullptr;
         Activate();
     }

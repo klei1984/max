@@ -43,7 +43,7 @@ public:
 
     void Add(Point* point);
     void Add(Rect* bounds);
-    void CallTaskVfunc27(bool mode);
+    void Finished(bool mode);
     bool GetField30() const;
     void SetField30(bool value);
 

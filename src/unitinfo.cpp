@@ -677,7 +677,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       energized(other.energized),
       id(other.id),
       unit_list(other.unit_list),
-      parent_unit(other.parent_unit),
+      parent_unit(other.GetParent()),
       enemy_unit(other.enemy_unit),
       tasks(other.tasks),
       in_transit(other.in_transit),
@@ -1148,8 +1148,6 @@ void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
 
 UnitInfo* UnitInfo::GetEnemy() const { return &*enemy_unit; }
 
-UnitInfo* UnitInfo::GetParent() const { return &*parent_unit; }
-
 uint16_t UnitInfo::GetId() const { return id; }
 
 UnitInfo* UnitInfo::GetFirstFromUnitList() const {
@@ -1219,8 +1217,6 @@ Task* UnitInfo::GetTask() const {
 }
 
 SmartList<Task>& UnitInfo::GetTasks() { return tasks; }
-
-void UnitInfo::SetParent(UnitInfo* parent) { parent_unit = parent; }
 
 void UnitInfo::SetBaseValues(UnitValues* unit_values) { base_values = unit_values; }
 
@@ -2191,7 +2187,7 @@ bool UnitInfo::ExpectAttack() {
 void UnitInfo::ClearBuildListAndPath() {
     path = nullptr;
 
-    if (parent_unit != nullptr) {
+    if (GetParent() != nullptr) {
         orders = ORDER_BUILD;
         state = ORDER_STATE_UNIT_READY;
     } else {
@@ -2218,7 +2214,7 @@ void UnitInfo::Build() {
             StartBuilding();
 
         } else {
-            parent_unit = nullptr;
+            SetParent(nullptr);
 
             ClearBuildListAndPath();
             SoundManager.PlaySfx(this, SFX_TYPE_IDLE);
@@ -2922,7 +2918,7 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(connectors);
     base_values = dynamic_cast<UnitValues*>(file.ReadObject());
     complex = dynamic_cast<Complex*>(file.ReadObject());
-    parent_unit = dynamic_cast<UnitInfo*>(file.ReadObject());
+    SetParent(dynamic_cast<UnitInfo*>(file.ReadObject()));
     enemy_unit = dynamic_cast<UnitInfo*>(file.ReadObject());
 
     UnitInfo_BuildList_FileLoad(&build_list, file);
@@ -3028,7 +3024,7 @@ void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(connectors);
     file.WriteObject(&*base_values);
     file.WriteObject(&*complex);
-    file.WriteObject(&*parent_unit);
+    file.WriteObject(GetParent());
     file.WriteObject(&*enemy_unit);
 
     UnitInfo_BuildList_FileSave(&build_list, file);
@@ -3777,8 +3773,8 @@ void UnitInfo::SpawnNewUnit() {
             GameManager_ProcessTick(false);
         }
 
-        const int32_t limit_x = parent_unit->unit_type == LRGRUBLE ? grid_x + 1 : grid_x;
-        const int32_t limit_y = parent_unit->unit_type == LRGRUBLE ? grid_y + 1 : grid_y;
+        const int32_t limit_x = GetParent()->unit_type == LRGRUBLE ? grid_x + 1 : grid_x;
+        const int32_t limit_y = GetParent()->unit_type == LRGRUBLE ? grid_y + 1 : grid_y;
 
         for (int32_t pos_x{grid_x}; pos_x <= limit_x; ++pos_x) {
             for (int32_t pos_y{grid_y}; pos_y <= limit_y; ++pos_y) {
@@ -3804,14 +3800,14 @@ void UnitInfo::SpawnNewUnit() {
         orders = ORDER_AWAIT;
         state = ORDER_STATE_1;
 
-        if (parent_unit->flags & BUILDING) {
+        if (GetParent()->flags & BUILDING) {
             target_grid_x = grid_x;
             target_grid_y = grid_y;
 
             UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_36);
         }
 
-        parent_unit = nullptr;
+        SetParent(nullptr);
 
         if (GameManager_SelectedUnit == this) {
             SoundManager.PlaySfx(this, SFX_TYPE_IDLE);
@@ -3839,7 +3835,7 @@ void UnitInfo::SpawnNewUnit() {
                 build_list.PushBack(&new_unit->unit_type);
             }
 
-            parent_unit = new_unit;
+            SetParent(new_unit.Get());
 
             storage = 1;
             orders = ORDER_BUILD;
@@ -3880,7 +3876,7 @@ void UnitInfo::SpawnNewUnit() {
                 new_unit->unit_type == CNCT_4W) {
                 Access_DestroyUtilities(position_x, position_y, false, false, false, false);
 
-                parent_unit = nullptr;
+                SetParent(nullptr);
                 new_unit->orders = ORDER_AWAIT;
                 new_unit->state = ORDER_STATE_1;
 
@@ -4479,7 +4475,7 @@ void UnitInfo::CancelBuilding() {
         orders = ORDER_AWAIT;
         state = ORDER_STATE_1;
 
-        if (unit_type == CONSTRCT || (unit_type == BULLDOZR && (parent_unit->flags & BUILDING))) {
+        if (unit_type == CONSTRCT || (unit_type == BULLDOZR && (GetParent()->flags & BUILDING))) {
             target_grid_x = grid_x;
             target_grid_y = grid_y;
 
@@ -4599,7 +4595,7 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
 
     RestoreOrders();
 
-    parent_unit = nullptr;
+    SetParent(nullptr);
 
     if (GameManager_SelectedUnit == this) {
         GameManager_UpdateInfoDisplay(this);
@@ -5087,3 +5083,7 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
 
     GameManager_RenderMinimapDisplay = true;
 }
+
+[[nodiscard]] UnitInfo* UnitInfo::GetParent() const noexcept { return parent_unit.Get(); }
+
+void UnitInfo::SetParent(UnitInfo* const parent) noexcept { parent_unit = parent; }
