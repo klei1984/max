@@ -4071,6 +4071,9 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
 void UnitsManager_DestroyUnit(UnitInfo* unit) {
     SmartPointer<UnitInfo> unit_to_destroy(unit);
 
+    AiLog log("%s at [%i,%i] destroyed.", UnitsManager_BaseUnits[unit->unit_type].singular_name, unit->grid_x + 1,
+              unit->grid_y + 1);
+
     PathsManager_RemoveRequest(unit);
 
     if (unit_to_destroy == GameManager_SelectedUnit) {
@@ -4120,6 +4123,8 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     if (unit->GetId() != 0xFFFF && !(unit->flags & (EXPLODING | MISSILE_UNIT))) {
         Ai_RemoveUnit(unit);
     }
+
+    unit->hits = 0;
 }
 
 void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit) {
@@ -6451,7 +6456,7 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
 
     if (is_found) {
         ProductionManager_OptimizeProduction(parent->team, parent->GetComplex(), &*parent,
-                                       GameManager_PlayerTeam == parent->team);
+                                             GameManager_PlayerTeam == parent->team);
     }
 }
 
