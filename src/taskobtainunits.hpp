@@ -27,8 +27,8 @@
 class TaskObtainUnits : public Task {
     SmartObjectArray<ResourceID> units;
     Point point;
-    bool field_27;
-    bool field_28;
+    bool init;
+    bool reinit;
 
     bool IsValidCandidate(UnitInfo* unit, bool mode);
 

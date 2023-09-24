@@ -26,7 +26,7 @@
 #include "units_manager.hpp"
 
 TaskObtainUnits::TaskObtainUnits(Task* task, Point point)
-    : Task(task->GetTeam(), task, task->GetFlags()), point(point), field_27(true), field_28(true) {}
+    : Task(task->GetTeam(), task, task->GetFlags()), point(point), init(true), reinit(true) {}
 
 TaskObtainUnits::~TaskObtainUnits() {}
 
@@ -204,18 +204,18 @@ void TaskObtainUnits::AddUnit(UnitInfo& unit) {
 }
 
 void TaskObtainUnits::Begin() {
-    if (field_28) {
+    if (reinit) {
         RemindTurnEnd(true);
 
-        field_27 = true;
-        field_28 = false;
+        init = true;
+        reinit = false;
     }
 }
 
 void TaskObtainUnits::BeginTurn() {
     AiLog log("Obtain Unit: Begin Turn");
 
-    field_28 = true;
+    reinit = true;
     EndTurn();
 }
 
@@ -224,7 +224,7 @@ void TaskObtainUnits::EndTurn() {
         units.Clear();
     }
 
-    if (field_27) {
+    if (init) {
         for (int32_t i = units.GetCount() - 1; i >= 0; --i) {
             UnitInfo* unit = FindUnit(*units[i], false);
 
@@ -262,7 +262,7 @@ void TaskObtainUnits::EndTurn() {
             }
         }
 
-        field_27 = false;
+        init = false;
     }
 
     if (!units.GetCount()) {
@@ -283,4 +283,8 @@ void TaskObtainUnits::RemoveSelf() {
     TaskManager.RemoveTask(*this);
 }
 
-void TaskObtainUnits::AddUnit(ResourceID unit_type) { units.PushBack(&unit_type); }
+void TaskObtainUnits::AddUnit(ResourceID unit_type) {
+    SDL_assert(unit_type != INVALID_ID);
+
+    units.PushBack(&unit_type);
+}

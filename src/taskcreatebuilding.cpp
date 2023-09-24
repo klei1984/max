@@ -283,7 +283,7 @@ void TaskCreateBuilding::Abort() {
         manager->ChildComplete(this);
     }
 
-    if (parent && &*parent != &*manager) {
+    if (parent && parent.Get() != manager.Get()) {
         parent->ChildComplete(this);
     }
 
@@ -298,6 +298,8 @@ void TaskCreateBuilding::Abort() {
     tasks.Clear();
 
     Finish();
+
+    unit_type = INVALID_ID;
 }
 
 void TaskCreateBuilding::Finish() {
@@ -409,64 +411,70 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
 }
 
 char* TaskCreateBuilding::WriteStatusLog(char* buffer) const {
-    sprintf(buffer, "Create a %s at [%i,%i]", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
+    if (unit_type != INVALID_ID) {
+        sprintf(buffer, "Create a %s at [%i,%i]", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+                site.y + 1);
 
-    switch (op_state) {
-        case CREATE_BUILDING_STATE_INITIALIZING: {
-            strcat(buffer, ": initializing");
-        } break;
+        switch (op_state) {
+            case CREATE_BUILDING_STATE_INITIALIZING: {
+                strcat(buffer, ": initializing");
+            } break;
 
-        case CREATE_BUILDING_STATE_WAITING_FOR_PLATFORM: {
-            strcat(buffer, ": waiting for platform");
-        } break;
+            case CREATE_BUILDING_STATE_WAITING_FOR_PLATFORM: {
+                strcat(buffer, ": waiting for platform");
+            } break;
 
-        case CREATE_BUILDING_STATE_REMOVING_MINE: {
-            strcat(buffer, ": removing mines");
-        } break;
+            case CREATE_BUILDING_STATE_REMOVING_MINE: {
+                strcat(buffer, ": removing mines");
+            } break;
 
-        case CREATE_BUILDING_STATE_GETTING_BUILDER: {
-            strcat(buffer, ": get builder");
-        } break;
+            case CREATE_BUILDING_STATE_GETTING_BUILDER: {
+                strcat(buffer, ": get builder");
+            } break;
 
-        case CREATE_BUILDING_STATE_GETTING_MATERIALS: {
-            strcat(buffer, ": get materials");
-        } break;
+            case CREATE_BUILDING_STATE_GETTING_MATERIALS: {
+                strcat(buffer, ": get materials");
+            } break;
 
-        case CREATE_BUILDING_STATE_EVALUTING_SITE: {
-            strcat(buffer, ": evaluating site");
-        } break;
+            case CREATE_BUILDING_STATE_EVALUTING_SITE: {
+                strcat(buffer, ": evaluating site");
+            } break;
 
-        case CREATE_BUILDING_STATE_SITE_BLOCKED: {
-            strcat(buffer, ": site blocked");
-        } break;
+            case CREATE_BUILDING_STATE_SITE_BLOCKED: {
+                strcat(buffer, ": site blocked");
+            } break;
 
-        case CREATE_BUILDING_STATE_MOVING_TO_SITE: {
-            strcat(buffer, ": move to site");
-        } break;
+            case CREATE_BUILDING_STATE_MOVING_TO_SITE: {
+                strcat(buffer, ": move to site");
+            } break;
 
-        case CREATE_BUILDING_STATE_CLEARING_SITE: {
-            strcat(buffer, ": clear site");
-        } break;
+            case CREATE_BUILDING_STATE_CLEARING_SITE: {
+                strcat(buffer, ": clear site");
+            } break;
 
-        case CREATE_BUILDING_STATE_BUILDING: {
-            strcat(buffer, ": building");
-        } break;
+            case CREATE_BUILDING_STATE_BUILDING: {
+                strcat(buffer, ": building");
+            } break;
 
-        case CREATE_BUILDING_STATE_MOVING_OFF_SITE: {
-            strcat(buffer, ": move off site");
-        } break;
+            case CREATE_BUILDING_STATE_MOVING_OFF_SITE: {
+                strcat(buffer, ": move off site");
+            } break;
 
-        case CREATE_BUILDING_STATE_FINISHED: {
-            strcat(buffer, ": finished.");
-        } break;
+            case CREATE_BUILDING_STATE_FINISHED: {
+                strcat(buffer, ": finished.");
+            } break;
 
-        default: {
-            strcat(buffer, ": UNKNOWN STATE!");
-        } break;
-    }
+            default: {
+                strcat(buffer, ": UNKNOWN STATE!");
+            } break;
+        }
 
-    if (builder && builder->GetBuildRate() > 1) {
-        strcat(buffer, " at x2 rate");
+        if (builder && builder->GetBuildRate() > 1) {
+            strcat(buffer, " at x2 rate");
+        }
+
+    } else {
+        sprintf(buffer, "Create building aborted.");
     }
 
     return buffer;
@@ -497,70 +505,73 @@ bool TaskCreateBuilding::IsNeeded() {
 }
 
 void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
-    AiLog log("Build %s at [%i,%i]: Add %s", UnitsManager_BaseUnits[unit_type].singular_name, unit.grid_x + 1,
-              unit.grid_y + 1, UnitsManager_BaseUnits[unit.unit_type].singular_name);
+    if (unit_type != INVALID_ID) {
+        AiLog log("Build %s at [%i,%i]: Add %s", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+                  site.y + 1, UnitsManager_BaseUnits[unit.unit_type].singular_name);
 
-    if (unit.unit_type == unit_type && unit.grid_x == site.x && unit.grid_y == site.y && unit.orders != ORDER_IDLE) {
-        SmartPointer<Task> create_building_task(this);
+        if (unit.unit_type == unit_type && unit.grid_x == site.x && unit.grid_y == site.y &&
+            unit.orders != ORDER_IDLE) {
+            SmartPointer<Task> create_building_task(this);
 
-        op_state = CREATE_BUILDING_STATE_FINISHED;
+            op_state = CREATE_BUILDING_STATE_FINISHED;
 
-        unit.RemoveTasks();
+            unit.RemoveTasks();
 
-        if (manager) {
-            manager->ChildComplete(this);
-            manager->AddUnit(unit);
-        }
-
-        if (unit_type == WTRPLTFM || unit_type == BRIDGE) {
-            if (&*manager != &*parent) {
-                parent->AddUnit(unit);
+            if (manager) {
+                manager->ChildComplete(this);
+                manager->AddUnit(unit);
             }
 
-        } else {
-            TaskManager.RemindAvailable(&unit);
-        }
-
-        if (&*manager != &*parent) {
-            ChildComplete(this);
-        }
-
-        if (builder && builder->GetTask() == this && parent && unit_type == WTRPLTFM &&
-            parent->GetType() == TaskType_TaskCreateBuilding) {
-            TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*parent);
-
-            if (create_building->op_state == CREATE_BUILDING_STATE_WAITING_FOR_PLATFORM &&
-                Builder_GetBuilderType(create_building->GetUnitType()) == builder->unit_type) {
-                SmartPointer<UnitInfo> backup(builder);
-
-                backup->RemoveTasks();
-
-                dynamic_cast<TaskCreateBuilding*>(&*parent)->AddUnit(*backup);
-            }
-        }
-
-        parent = nullptr;
-        manager = nullptr;
-        building = nullptr;
-
-        tasks.Clear();
-
-        Finish();
-
-    } else if (unit.unit_type == Builder_GetBuilderType(unit_type)) {
-        if (!builder) {
-            if (op_state < CREATE_BUILDING_STATE_BUILDING) {
-                op_state = CREATE_BUILDING_STATE_GETTING_MATERIALS;
-                builder = unit;
-                builder->AddTask(this);
-                Task_RemindMoveFinished(&*builder);
+            if (unit_type == WTRPLTFM || unit_type == BRIDGE) {
+                if (manager.Get() != parent.Get()) {
+                    parent->AddUnit(unit);
+                }
 
             } else {
-                log.Log("Task already complete.");
+                TaskManager.RemindAvailable(&unit);
             }
 
-        } else {
-            log.Log("Already have builder.");
+            if (manager.Get() != parent.Get()) {
+                ChildComplete(this);
+            }
+
+            if (builder && builder->GetTask() == this && parent && unit_type == WTRPLTFM &&
+                parent->GetType() == TaskType_TaskCreateBuilding) {
+                TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(parent.Get());
+
+                if (create_building->op_state == CREATE_BUILDING_STATE_WAITING_FOR_PLATFORM &&
+                    Builder_GetBuilderType(create_building->GetUnitType()) == builder->unit_type) {
+                    SmartPointer<UnitInfo> backup(builder);
+
+                    backup->RemoveTasks();
+
+                    dynamic_cast<TaskCreateBuilding*>(parent.Get())->AddUnit(*backup);
+                }
+            }
+
+            parent = nullptr;
+            manager = nullptr;
+            building = nullptr;
+
+            tasks.Clear();
+
+            Finish();
+
+        } else if (unit.unit_type == Builder_GetBuilderType(unit_type)) {
+            if (!builder) {
+                if (op_state < CREATE_BUILDING_STATE_BUILDING) {
+                    op_state = CREATE_BUILDING_STATE_GETTING_MATERIALS;
+                    builder = unit;
+                    builder->AddTask(this);
+                    Task_RemindMoveFinished(&*builder);
+
+                } else {
+                    log.Log("Task already complete.");
+                }
+
+            } else {
+                log.Log("Already have builder.");
+            }
         }
     }
 }
@@ -649,8 +660,8 @@ void TaskCreateBuilding::EndTurn() {
             } break;
         }
 
-    } else if (op_state != CREATE_BUILDING_STATE_GETTING_BUILDER && op_state != CREATE_BUILDING_STATE_BUILDING &&
-               !tasks.GetCount()) {
+    } else if (unit_type != INVALID_ID && op_state != CREATE_BUILDING_STATE_GETTING_BUILDER &&
+               op_state != CREATE_BUILDING_STATE_BUILDING && !tasks.GetCount()) {
         RequestBuilder();
     }
 }
@@ -724,6 +735,8 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
                                 }
 
                             } else {
+                                log.Log("Site blocked.");
+
                                 Abort();
 
                                 result = false;
@@ -889,26 +902,33 @@ void TaskCreateBuilding::FindBuildSite() {
             SDL_assert(manager->GetType() == TaskType_TaskManageBuildings);
 
             if (manager->ChangeSite(this, new_site)) {
-                site = new_site;
+                if (unit_type != INVALID_ID) {
+                    site = new_site;
 
-                log.Log("New site is for %s is [%i, %i].", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-                        site.y + 1);
+                    log.Log("New site for %s is [%i, %i].", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+                            site.y + 1);
 
-                SDL_assert(site.x > 0 && site.y > 0);
+                    SDL_assert(site.x > 0 && site.y > 0);
 
-                op_state = CREATE_BUILDING_STATE_MOVING_TO_SITE;
+                    op_state = CREATE_BUILDING_STATE_MOVING_TO_SITE;
 
-                if (builder) {
-                    if (!RequestWaterPlatform() && !RequestMineRemoval() && !RequestRubbleRemoval() &&
-                        !IsScheduledForTurnEnd()) {
-                        TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
+                    if (builder) {
+                        if (!RequestWaterPlatform() && !RequestMineRemoval() && !RequestRubbleRemoval() &&
+                            !IsScheduledForTurnEnd()) {
+                            TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
+                        }
+
+                    } else {
+                        log.Log("Requirements for site pre-empted builder.");
                     }
 
                 } else {
-                    log.Log("Requirements for site pre-empted builder.");
+                    log.Log("Site blocked and no alternative found.");
                 }
 
             } else {
+                log.Log("Site blocked and no alternative found.");
+
                 Abort();
             }
 
@@ -1317,7 +1337,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
                     manager->AddCreateOrder(&*create_building_task);
 
                 } else {
-                    log.Log("No manager!");
+                    log.Log("No building manager!");
 
                     TaskManager.AppendTask(*create_building_task);
                 }
