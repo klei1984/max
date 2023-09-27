@@ -68,8 +68,11 @@ bool DefenseManager::AddUnit(UnitInfo* unit) {
     bool result;
 
     if (IsUnitUsable(unit)) {
-        /// \todo This is broken by design.
-        unit_types.Remove(unit->unit_type);
+        auto position = unit_types->Find(&unit->unit_type);
+        if (position != -1) {
+            unit_types.Remove(position);
+        }
+
         units.PushBack(*unit);
 
         asset_value += unit->GetNormalRateBuildCost();
