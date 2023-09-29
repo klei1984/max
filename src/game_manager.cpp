@@ -6896,7 +6896,7 @@ void GameManager_MenuCreateFlic(ResourceID unit_type, int32_t ulx, int32_t uly) 
     const int32_t font_id = Text_GetFont();
     Text_SetFont(GNW_TEXT_FONT_2);
 
-    GameManager_Flic.text_height = Text_GetHeight() * 3 + 1;
+    GameManager_Flic.text_height = Text_GetHeight() * (unit_type == COMMANDO ? 3 : 2) + 1;
 
     Text_SetFont(font_id);
 
