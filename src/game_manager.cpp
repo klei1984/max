@@ -6262,9 +6262,12 @@ bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_
             result = true;
         }
 
-    } else {
+    } else if (unit1 != unit2) {
         GameManager_UnitSelect(unit2);
 
+        result = false;
+
+    } else {
         result = false;
     };
 
