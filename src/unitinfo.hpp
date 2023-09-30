@@ -274,7 +274,7 @@ public:
     int8_t group_speed;
     uint8_t shots;
     uint8_t move_and_fire;
-    uint16_t storage;
+    int16_t storage;
     uint8_t ammo;
     uint8_t targeting_mode;
     uint8_t enter_mode;
