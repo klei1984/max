@@ -21,6 +21,7 @@
 
 #include "taskgetmaterials.hpp"
 
+#include "ailog.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
@@ -104,6 +105,8 @@ void TaskGetMaterials::EndTurn() {
 }
 
 void TaskGetMaterials::EventCargoTransfer(UnitInfo& unit) {
+    AiLog log("Task Get Materials: Transfer Finished.");
+
     if (requestor == unit) {
         SmartPointer<Task> get_materials_task = this;
 
@@ -124,6 +127,8 @@ void TaskGetMaterials::EventCargoTransfer(UnitInfo& unit) {
 }
 
 void TaskGetMaterials::DoTransfer() {
+    AiLog log("Task Get Materials: DoTransfer.");
+
     if (source->orders != ORDER_TRANSFER) {
         if (source->flags & STATIONARY) {
             Cargo materials;
@@ -151,18 +156,26 @@ void TaskGetMaterials::DoTransfer() {
             }
         }
 
-        source->SetParent(&*requestor);
+        source->SetParent(requestor.Get());
 
         SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
-        UnitsManager_SetNewOrder(&*source, ORDER_TRANSFER, ORDER_STATE_INIT);
+        log.Log("Order %i materials from %s at [%i,%i] for %s at [%i,%i] holding %i materials.", source->target_grid_x,
+                UnitsManager_BaseUnits[source->unit_type].singular_name, source->grid_x + 1, source->grid_y + 1,
+                UnitsManager_BaseUnits[requestor->unit_type].singular_name, requestor->grid_x + 1,
+                requestor->grid_y + 1, requestor->storage);
+
+        UnitsManager_SetNewOrder(source.Get(), ORDER_TRANSFER, ORDER_STATE_INIT);
+
+    } else {
+        log.Log("Transfer delayed - unit's orders are TRANSFER.");
     }
 }
 
 UnitInfo* TaskGetMaterials::FindBuilding() {
-    UnitInfo* building = nullptr;
-    int32_t distance;
+    UnitInfo* building{nullptr};
     int32_t minimum_distance{INT32_MAX};
+    AiLog log("Task Get Materials: Find Building.");
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -170,7 +183,7 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
             UnitsManager_BaseUnits[(*it).unit_type].cargo_type == CARGO_TYPE_RAW) {
             UnitInfo* candidate_building = FindClosestBuilding((*it).GetComplex());
 
-            distance = TaskManager_GetDistance(candidate_building, &*it);
+            const int32_t distance = TaskManager_GetDistance(candidate_building, it->Get());
 
             if (!building || distance < minimum_distance) {
                 minimum_distance = distance;
@@ -184,9 +197,9 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
 }
 
 void TaskGetMaterials::FindTruck() {
-    UnitInfo* truck = nullptr;
-    int32_t distance;
+    UnitInfo* truck{nullptr};
     int32_t minimum_distance{INT32_MAX};
+    AiLog log("Task Get Materials: Find Truck.");
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
@@ -215,11 +228,11 @@ void TaskGetMaterials::FindTruck() {
             }
 
             if (candidate_found) {
-                distance = TaskManager_GetDistance(&*it, &*requestor);
+                const int32_t distance = TaskManager_GetDistance(it->Get(), requestor.Get());
 
                 if (!truck || distance < minimum_distance) {
                     minimum_distance = distance;
-                    truck = &*it;
+                    truck = it->Get();
                 }
             }
         }
