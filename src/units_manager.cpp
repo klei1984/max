@@ -5649,7 +5649,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
 
     if (unit_type == LANDMINE || unit_type == SEAMINE) {
         SmartPointer<UnitInfo> target_unit(
-            Access_GetUnit6(unit_team, unit_grid_x, unit_grid_y, (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)));
+            Access_GetEnemyUnit(unit_team, unit_grid_x, unit_grid_y, (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)));
 
         if (!target_unit) {
             target_unit = Access_GetAttackTarget2(unit, unit_grid_x, unit_grid_y);
@@ -6194,6 +6194,8 @@ void UnitsManager_Transfer(UnitInfo* unit) {
             source->storage -= transfer_amount;
 
         } else {
+            SDL_assert(source->GetComplex());
+
             transfer_amount -= source->storage;
             source->storage = 0;
 

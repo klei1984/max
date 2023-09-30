@@ -1431,7 +1431,7 @@ void Paths_FinishMove(UnitInfo* unit) {
             if (!Paths_LoadUnit(unit)) {
                 if (unit->unit_type == AIRTRANS && unit->GetParent()) {
                     if (unit->storage < unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-                        if (unit->GetParent() == Access_GetUnit4(grid_x, grid_y, unit->team, MOBILE_LAND_UNIT)) {
+                        if (unit->GetParent() == Access_GetTeamUnit(grid_x, grid_y, unit->team, MOBILE_LAND_UNIT)) {
                             unit->orders = ORDER_LOAD;
                             unit->state = ORDER_STATE_INIT;
 

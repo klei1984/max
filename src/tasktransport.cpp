@@ -765,7 +765,7 @@ void TaskTransport::UnloadUnit(UnitInfo* unit) {
 
         if (destination.x >= 0 && unit_transporter == unit->GetParent()) {
             UnitInfo* unit_in_the_way =
-                Access_GetUnit4(destination.x, destination.y, team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
+                Access_GetTeamUnit(destination.x, destination.y, team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
 
             if (unit_in_the_way) {
                 SmartPointer<Zone> zone = new (std::nothrow) Zone(unit, this);

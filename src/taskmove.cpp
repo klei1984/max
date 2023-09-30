@@ -651,7 +651,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
 
                 local_zone->Add(&site);
 
-                unit = Access_GetUnit4(site.x, site.y, move->team, unit_flags);
+                unit = Access_GetTeamUnit(site.x, site.y, move->team, unit_flags);
 
                 if (unit) {
                     log.Log("Blocked by %s at [%i,%i].", UnitsManager_BaseUnits[unit->unit_type].singular_name,

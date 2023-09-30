@@ -1517,7 +1517,7 @@ void Access_DestroyGroundCovers(int32_t grid_x, int32_t grid_y) {
     }
 }
 
-UnitInfo* Access_GetUnit6(uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags) {
+UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags) {
     UnitInfo* unit;
 
     unit = nullptr;
@@ -1563,7 +1563,7 @@ UnitInfo* Access_GetUnit7(uint16_t team, int32_t grid_x, int32_t grid_y) {
     return unit;
 }
 
-UnitInfo* Access_GetUnit4(int32_t grid_x, int32_t grid_y, uint16_t team, uint32_t flags) {
+UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint32_t flags) {
     SmartPointer<UnitInfo> unit;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
@@ -1756,11 +1756,8 @@ bool Access_IsValidAttackTarget(UnitInfo* attacker, UnitInfo* target) {
 }
 
 UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int32_t grid_x, int32_t grid_y, bool mode) {
-    UnitInfo* result;
-    bool normal_unit;
-
-    result = nullptr;
-    normal_unit = false;
+    UnitInfo* result{nullptr};
+    bool normal_unit{false};
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
@@ -1950,7 +1947,7 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
     for (int32_t y = selection.uly; y <= selection.lry && !limit_reached; ++y) {
         for (int32_t x = selection.ulx; x <= selection.lrx && !limit_reached; ++x) {
             UnitInfo* unit2 =
-                Access_GetUnit4(x, y, GameManager_PlayerTeam, MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
+                Access_GetTeamUnit(x, y, GameManager_PlayerTeam, MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
 
             if (unit2 && (unit2->state == ORDER_STATE_1 || unit2->state == ORDER_STATE_2)) {
                 unit2->ClearUnitList();

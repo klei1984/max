@@ -1506,9 +1506,7 @@ void UnitInfo::TransferRaw(int32_t amount) {
         storage += amount;
 
         if (complex != nullptr) {
-            int32_t storage_capacity;
-
-            storage_capacity = GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+            const int32_t storage_capacity = GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
             complex->material += amount;
 
@@ -3097,7 +3095,7 @@ void UnitInfo::Attack(int32_t grid_x, int32_t grid_y) {
             target->visible_to_team[team] = true;
 
         } else {
-            enemy = Access_GetUnit4(grid_x, grid_y, team, SELECTABLE);
+            enemy = Access_GetTeamUnit(grid_x, grid_y, team, SELECTABLE);
 
             if (!enemy && unit_type != ANTIAIR && unit_type != SP_FLAK && unit_type != FASTBOAT) {
                 SmartPointer<UnitInfo> explosion =

@@ -539,10 +539,10 @@ bool HelpMenu_UnitReport(int32_t mouse_x, int32_t mouse_y) {
             (GameManager_MapWindowDrawBounds.uly + ((Gfx_MapScalingFactor * (mouse_y - window->window.uly)) >> 16)) >>
             6;
 
-        unit = Access_GetUnit4(mouse_x, mouse_y, GameManager_PlayerTeam, SELECTABLE);
+        unit = Access_GetTeamUnit(mouse_x, mouse_y, GameManager_PlayerTeam, SELECTABLE);
 
         if (!unit) {
-            unit = Access_GetUnit6(GameManager_PlayerTeam, mouse_x, mouse_y, SELECTABLE);
+            unit = Access_GetEnemyUnit(GameManager_PlayerTeam, mouse_x, mouse_y, SELECTABLE);
         }
 
         if (!unit) {

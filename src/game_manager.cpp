@@ -433,7 +433,7 @@ SmartPointer<UnitInfo> GameManager_SelectedUnit;
 SmartPointer<UnitInfo> GameManager_TempTape;
 SmartPointer<UnitInfo> GameManager_UnknownUnit2;
 SmartPointer<UnitInfo> GameManager_UnknownUnit3;
-SmartPointer<UnitInfo> GameManager_UnknownUnit4;
+SmartPointer<UnitInfo> GameManager_UnitUnderMouseCursor;
 Image* GameManager_TurnTimerImageNormal;
 Image* GameManager_TurnTimerImageScaled;
 Point GameManager_GridCenter;
@@ -4286,29 +4286,25 @@ bool GameManager_IsValidStartingPosition(int32_t grid_x, int32_t grid_y) {
 }
 
 uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
-    UnitInfo* unit1;
-    UnitInfo* unit2;
+    UnitInfo* team_unit = Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, SELECTABLE);
+    UnitInfo* unit_under_cursor = team_unit;
 
-    unit1 = Access_GetUnit4(grid_x, grid_y, GameManager_PlayerTeam, SELECTABLE);
-
-    unit2 = unit1;
-
-    if (!unit2) {
-        unit2 = Access_GetUnit6(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
+    if (!unit_under_cursor) {
+        unit_under_cursor = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
     }
 
-    if (GameManager_UnknownUnit4 != unit2) {
+    if (GameManager_UnitUnderMouseCursor != unit_under_cursor) {
         char text[100];
 
         text[0] = '\0';
 
-        if (unit2) {
-            unit2->GetDisplayName(text);
+        if (unit_under_cursor) {
+            unit_under_cursor->GetDisplayName(text);
         }
 
         GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_UNIT_DESCRIPTION, text, 0xA2);
 
-        GameManager_UnknownUnit4 = unit2;
+        GameManager_UnitUnderMouseCursor = unit_under_cursor;
     }
 
     GameManager_MousePosition.x = grid_x;
@@ -4318,7 +4314,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type != TEAM_TYPE_PLAYER) {
         uint8_t result;
 
-        if (unit1) {
+        if (team_unit) {
             result = CURSOR_FRIEND;
 
         } else {
@@ -4383,15 +4379,15 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
         GameManager_SelectedUnit->team != GameManager_PlayerTeam) {
         uint8_t result;
 
-        if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit == unit1 &&
+        if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit == team_unit &&
             GameManager_SelectedUnit->orders != ORDER_DISABLE) {
             result = CURSOR_UNIT_NO_GO;
 
-        } else if (GameManager_SelectedUnit != nullptr && unit1 && GameManager_SelectedUnit->GetUnitList() &&
-                   GameManager_SelectedUnit->GetUnitList() == unit1->GetUnitList()) {
+        } else if (GameManager_SelectedUnit != nullptr && team_unit && GameManager_SelectedUnit->GetUnitList() &&
+                   GameManager_SelectedUnit->GetUnitList() == team_unit->GetUnitList()) {
             result = CURSOR_UNIT_NO_GO;
 
-        } else if (unit1) {
+        } else if (team_unit) {
             result = CURSOR_FRIEND;
 
         } else {
@@ -4404,10 +4400,10 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     if (Access_IsGroupOrderInterrupted(&*GameManager_SelectedUnit)) {
         uint8_t result;
 
-        if (unit1 && unit1->GetUnitList() == GameManager_SelectedUnit->GetUnitList()) {
+        if (team_unit && team_unit->GetUnitList() == GameManager_SelectedUnit->GetUnitList()) {
             result = CURSOR_UNIT_NO_GO;
 
-        } else if (unit1) {
+        } else if (team_unit) {
             result = CURSOR_FRIEND;
 
         } else {
@@ -4420,17 +4416,17 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     if ((GameManager_SelectedUnit->orders == ORDER_BUILD ||
          GameManager_SelectedUnit->orders == ORDER_AWAIT_TAPE_POSITIONING) &&
         (GameManager_SelectedUnit->flags & MOBILE_LAND_UNIT)) {
-        return GameManager_GetBuilderUnitCursor(&*GameManager_SelectedUnit, grid_x, grid_y, unit1);
+        return GameManager_GetBuilderUnitCursor(&*GameManager_SelectedUnit, grid_x, grid_y, team_unit);
     }
 
     if (GameManager_SelectedUnit->orders == ORDER_IDLE) {
-        return GameManager_GetAirUnitCursor(&*GameManager_SelectedUnit, grid_x, grid_y, unit1);
+        return GameManager_GetAirUnitCursor(&*GameManager_SelectedUnit, grid_x, grid_y, team_unit);
     }
 
     if (GameManager_SelectedUnit->state == ORDER_STATE_1) {
         UnitInfo* unit;
 
-        unit = Access_GetUnit6(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
+        unit = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
 
         if (unit && unit->unit_type != CNCT_4W &&
             (!(unit->flags & GROUND_COVER) || unit->unit_type == LANDMINE || unit->unit_type == SEAMINE)) {
@@ -4438,7 +4434,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
 
             result = GameManager_GetMilitaryCursor(unit, grid_x, grid_y);
 
-            if (result != CURSOR_UNIT_NO_GO || !unit1) {
+            if (result != CURSOR_UNIT_NO_GO || !team_unit) {
                 return result;
             }
         }
@@ -4447,7 +4443,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     if (GameManager_SelectedUnit->targeting_mode) {
         uint8_t result;
 
-        if (GameManager_SelectedUnit == unit1) {
+        if (GameManager_SelectedUnit == team_unit) {
             result = CURSOR_FRIEND;
 
         } else if (GameManager_SelectedUnit->shots == 0) {
@@ -4457,17 +4453,18 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                                                GameManager_SelectedUnit->GetBaseValues()->GetAttribute(ATTRIB_RANGE))) {
             result = CURSOR_UNIT_NO_GO;
 
-        } else if (unit1 && !Access_IsValidAttackTarget(&*GameManager_SelectedUnit, unit1, Point(grid_x, grid_y))) {
+        } else if (team_unit &&
+                   !Access_IsValidAttackTarget(&*GameManager_SelectedUnit, team_unit, Point(grid_x, grid_y))) {
             result = CURSOR_UNIT_NO_GO;
 
         } else {
-            unit2 = unit1;
+            unit_under_cursor = team_unit;
 
-            if (!unit2) {
-                unit2 = Access_GetUnit6(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
+            if (!unit_under_cursor) {
+                unit_under_cursor = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
             }
 
-            Cursor_DrawAttackPowerCursor(&*GameManager_SelectedUnit, unit2, CURSOR_ENEMY);
+            Cursor_DrawAttackPowerCursor(&*GameManager_SelectedUnit, unit_under_cursor, CURSOR_ENEMY);
 
             result = CURSOR_ENEMY;
         }
@@ -4478,7 +4475,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     if (GameManager_SelectedUnit->enter_mode) {
         uint8_t result;
 
-        if (GameManager_SelectedUnit == unit1) {
+        if (GameManager_SelectedUnit == team_unit) {
             result = CURSOR_FRIEND;
 
         } else {
@@ -4505,17 +4502,17 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                     GameManager_SelectedUnit->state == ORDER_STATE_1) {
                     if (GameManager_SelectedUnit->storage <
                         GameManager_SelectedUnit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-                        GameManager_Unit = Access_GetUnit4(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
+                        GameManager_Unit = Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
 
                         if (GameManager_Unit && GameManager_Unit->orders != ORDER_CLEAR &&
                             GameManager_Unit->orders != ORDER_BUILD &&
-                            !Access_GetUnit4(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_AIR_UNIT)) {
+                            !Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_AIR_UNIT)) {
                             return CURSOR_LOAD;
                         }
                     }
                 }
 
-                if (unit1 && unit1->unit_type != LANDPAD && !(unit1->flags & GROUND_COVER)) {
+                if (team_unit && team_unit->unit_type != LANDPAD && !(team_unit->flags & GROUND_COVER)) {
                     result = CURSOR_FRIEND;
 
                 } else if (GameManager_IsShiftKeyPressed) {
@@ -4529,7 +4526,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
             case MOBILE_LAND_UNIT:
             case MOBILE_SEA_UNIT:
             case (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT): {
-                result = GameManager_GetUnitActionCursor(&*GameManager_SelectedUnit, grid_x, grid_y, unit1);
+                result = GameManager_GetUnitActionCursor(&*GameManager_SelectedUnit, grid_x, grid_y, team_unit);
             } break;
 
             case STATIONARY: {
@@ -4539,7 +4536,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                         switch (GameManager_SelectedUnit->unit_type) {
                             case DEPOT: {
                                 GameManager_Unit =
-                                    Access_GetUnit4(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
+                                    Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
 
                                 if (GameManager_Unit && Task_IsReadyToTakeOrders(GameManager_Unit) &&
                                     GameManager_Unit->unit_type != COMMANDO &&
@@ -4550,7 +4547,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
 
                             case HANGAR: {
                                 GameManager_Unit =
-                                    Access_GetUnit4(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_AIR_UNIT);
+                                    Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_AIR_UNIT);
 
                                 if (GameManager_Unit && Task_IsReadyToTakeOrders(GameManager_Unit)) {
                                     return CURSOR_LOAD;
@@ -4559,7 +4556,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
 
                             case DOCK: {
                                 GameManager_Unit =
-                                    Access_GetUnit4(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_SEA_UNIT);
+                                    Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_SEA_UNIT);
 
                                 if (GameManager_Unit && !(GameManager_Unit->flags & MOBILE_LAND_UNIT) &&
                                     Task_IsReadyToTakeOrders(GameManager_Unit)) {
@@ -4569,7 +4566,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
 
                             case BARRACKS: {
                                 GameManager_Unit =
-                                    Access_GetUnit4(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
+                                    Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
 
                                 if (GameManager_Unit && (GameManager_Unit->unit_type == COMMANDO ||
                                                          GameManager_Unit->unit_type == INFANTRY)) {
@@ -4605,7 +4602,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                     }
                 }
 
-                if (unit1) {
+                if (team_unit) {
                     return CURSOR_FRIEND;
                 } else {
                     return CURSOR_UNIT_NO_GO;
@@ -5919,7 +5916,7 @@ int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t
 
     } else if (unit2) {
         if (unit1->cursor == CURSOR_ARROW_SW && unit1->storage < unit1->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-            GameManager_Unit = Access_GetUnit4(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
+            GameManager_Unit = Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
 
             if (GameManager_Unit && Task_IsReadyToTakeOrders(GameManager_Unit)) {
                 if (unit1->unit_type == CLNTRANS &&
@@ -6094,24 +6091,22 @@ int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t gr
     }
 
     {
-        UnitInfo* target;
-
-        target = Access_GetAttackTarget(&*GameManager_SelectedUnit, grid_x, grid_y);
+        UnitInfo* target = Access_GetAttackTarget(GameManager_SelectedUnit.Get(), grid_x, grid_y);
 
         if (target) {
             if (GameManager_SelectedUnit->unit_type == COMMANDO && GameManager_SelectedUnit->targeting_mode == 0) {
-                if (GameManager_IsUnitNextToPosition(&*GameManager_SelectedUnit, grid_x, grid_y) &&
+                if (GameManager_IsUnitNextToPosition(GameManager_SelectedUnit.Get(), grid_x, grid_y) &&
                     GameManager_IsUnitNotInAir(target)) {
                     if (GameManager_SelectedUnit->cursor == CURSOR_ARROW_NW ||
                         GameManager_SelectedUnit->cursor == CURSOR_HIDDEN) {
-                        if (GameManager_IsValidDisableTarget(&*GameManager_SelectedUnit, target)) {
+                        if (GameManager_IsValidDisableTarget(GameManager_SelectedUnit.Get(), target)) {
                             return CURSOR_DISABLE;
                         }
                     }
 
                     if (GameManager_SelectedUnit->cursor == CURSOR_ARROW_W ||
                         GameManager_SelectedUnit->cursor == CURSOR_HIDDEN) {
-                        if (GameManager_IsValidStealTarget(&*GameManager_SelectedUnit, target)) {
+                        if (GameManager_IsValidStealTarget(GameManager_SelectedUnit.Get(), target)) {
                             return CURSOR_STEAL;
                         }
                     }
@@ -6129,7 +6124,7 @@ int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t gr
             {
                 int32_t result;
 
-                if (Access_IsWithinAttackRange(&*GameManager_SelectedUnit, grid_x, grid_y,
+                if (Access_IsWithinAttackRange(GameManager_SelectedUnit.Get(), grid_x, grid_y,
                                                GameManager_SelectedUnit->GetBaseValues()->GetAttribute(ATTRIB_RANGE))) {
                     if (GameManager_SelectedUnit->ammo > 0) {
                         result = CURSOR_ENEMY;
@@ -6146,7 +6141,7 @@ int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t gr
                 }
 
                 if (result != CURSOR_UNIT_NO_GO) {
-                    Cursor_DrawAttackPowerCursor(&*GameManager_SelectedUnit, target, result);
+                    Cursor_DrawAttackPowerCursor(GameManager_SelectedUnit.Get(), target, result);
                 }
 
                 return result;
@@ -6603,8 +6598,8 @@ void GameManager_ProcessInput() {
                         }
 
                     } else {
-                        UnitInfo* unit = Access_GetUnit4(GameManager_MousePosition.x, GameManager_MousePosition.y,
-                                                         GameManager_PlayerTeam, SELECTABLE);
+                        UnitInfo* unit = Access_GetTeamUnit(GameManager_MousePosition.x, GameManager_MousePosition.y,
+                                                            GameManager_PlayerTeam, SELECTABLE);
 
                         if (GameManager_UnknownFlag3) {
                             if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
@@ -6632,8 +6627,8 @@ void GameManager_ProcessInput() {
                             }
 
                         } else {
-                            UnitInfo* unit2 = Access_GetUnit6(GameManager_PlayerTeam, GameManager_MousePosition.x,
-                                                              GameManager_MousePosition.y, SELECTABLE);
+                            UnitInfo* unit2 = Access_GetEnemyUnit(GameManager_PlayerTeam, GameManager_MousePosition.x,
+                                                                  GameManager_MousePosition.y, SELECTABLE);
 
                             if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
                                 GameManager_ManagePlayerAction();

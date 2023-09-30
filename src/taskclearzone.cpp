@@ -237,7 +237,7 @@ bool TaskClearZone::ExamineZones() {
                 info_map[site.x][site.y] |= 0x08;
             }
 
-            UnitInfo* unit = Access_GetUnit4(site.x, site.y, team, unit_flags);
+            UnitInfo* unit = Access_GetTeamUnit(site.x, site.y, team, unit_flags);
 
             if (unit && zone->unit != unit) {
                 is_found = true;
@@ -325,7 +325,7 @@ bool TaskClearZone::IsNewSite(Point site) {
 
 void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
     if (Task_IsReadyToTakeOrders(zone_square->unit)) {
-        UnitInfo* unit = Access_GetUnit4(site.x, site.y, team, unit_flags);
+        UnitInfo* unit = Access_GetTeamUnit(site.x, site.y, team, unit_flags);
 
         if (unit) {
             if (unit->shots > 0 && Task_ShouldReserveShot(unit, site)) {

@@ -68,7 +68,7 @@ void TaskAssistMove::RequestTransport(UnitInfo* unit1, UnitInfo* unit2) {
 
 void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site) {
     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
-        if (Access_GetUnit4(site.x, site.y, team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+        if (Access_GetTeamUnit(site.x, site.y, team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
             SmartPointer<Zone> zone = new (std::nothrow) Zone(unit2, this);
 
             zone->Add(&site);
