@@ -253,7 +253,7 @@ bool UnitTypeSelector::ProcessKeys(int32_t key_press) {
 
 void UnitTypeSelector::Select(uint8_t value) {
     EventUnitSelect event(this, value);
-    SoundManager.PlaySfx(KCARG0);
+    SoundManager_PlaySfx(KCARG0);
     window->EventHandler(&event);
 }
 

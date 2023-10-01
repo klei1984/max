@@ -246,7 +246,7 @@ int32_t SaveLoadMenu_GetSavedGameInfo(int32_t save_slot, int32_t game_file_type,
     return result;
 }
 
-void SaveLoadMenu_PlaySfx(ResourceID id) { SoundManager.PlaySfx(id); }
+void SaveLoadMenu_PlaySfx(ResourceID id) { SoundManager_PlaySfx(id); }
 
 void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
                        int32_t save_file_type, int32_t first_slot_on_page, bool mode) {
@@ -877,7 +877,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     }
 
     if (play_voice) {
-        SoundManager.PlayVoice(V_M013, V_F013);
+        SoundManager_PlayVoice(V_M013, V_F013);
     }
 }
 

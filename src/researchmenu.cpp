@@ -231,7 +231,7 @@ void ResearchMenu_NewTurn(uint16_t team) {
                 ResearchMenu_ApplyUpgrades(team, i);
 
                 if (team == GameManager_PlayerTeam) {
-                    SoundManager.PlayVoice(V_M093, V_F093);
+                    SoundManager_PlayVoice(V_M093, V_F093);
                 }
             }
         }
@@ -340,8 +340,7 @@ void ResearchControl::UpdateButtons() {
 
 uint16_t ResearchControl::GetValue() const { return topic_value; }
 
-void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index,
-                           uint16_t research_topic_value) {
+void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index, uint16_t research_topic_value) {
     WindowInfo window;
     SmartString string;
     int32_t uly_slider;
@@ -554,8 +553,7 @@ void ResearchMenu_OnClick_Cancel(ButtonID bid, intptr_t value) {
     control->exit_loop = true;
 }
 
-ResearchMenu::ResearchMenu(uint16_t team)
-    : Window(RSRCHPIC, GameManager_GetDialogWindowCenterMode()), team(team) {
+ResearchMenu::ResearchMenu(uint16_t team) : Window(RSRCHPIC, GameManager_GetDialogWindowCenterMode()), team(team) {
     WindowInfo window;
     uint16_t research_topics[RESEARCH_TOPIC_COUNT];
 

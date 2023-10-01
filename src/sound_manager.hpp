@@ -22,10 +22,6 @@
 #ifndef SOUND_MANAGER_HPP
 #define SOUND_MANAGER_HPP
 
-#include <SDL_mixer.h>
-
-#include <list>
-
 #include "unitinfo.hpp"
 
 enum AudioType {
@@ -36,105 +32,20 @@ enum AudioType {
     AUDIO_TYPE_MUSIC,
 };
 
-class CSoundManager {
-public:
-    CSoundManager();
-    ~CSoundManager();
-    void Init();
-    void Deinit();
-
-    void PlayMusic(ResourceID id, bool shuffle);
-    void HaltMusicPlayback(bool disable);
-    void FreeMusic();
-
-    void PlaySfx(ResourceID id);
-    void PlaySfx(UnitInfo* unit, int32_t sound, bool mode = false);
-    void UpdateSfxPosition();
-    void UpdateSfxPosition(UnitInfo* unit);
-    void UpdateAllSfxPositions();
-    void HaltSfxPlayback(bool disable);
-
-    void PlayVoice(ResourceID id1, ResourceID id2, int16_t priority = 0);
-    void HaltVoicePlayback(bool disable);
-
-    void FreeAllSamples();
-    void SetVolume(int32_t type, int32_t volume);
-
-    void BkProcess();
-
-private:
-    typedef enum { JOB_TYPE_SFX0, JOB_TYPE_SFX1, JOB_TYPE_SFX2, JOB_TYPE_VOICE, JOB_TYPE_MUSIC } JOB_TYPE;
-
-    typedef struct {
-        int32_t volume;
-        char flags;
-    } SoundVolume;
-
-    typedef struct {
-        ResourceID id;
-        JOB_TYPE type;
-        uint32_t volume_1;
-        uint32_t volume_2;
-        uint16_t panning;
-        int32_t loop_count;
-        int16_t grid_x;
-        int16_t grid_y;
-        int16_t priority;
-        int32_t sound;
-        uint16_t unit_id;
-    } SoundJob;
-
-    typedef struct {
-        ResourceID id;
-        JOB_TYPE type;
-        uint32_t volume_1;
-        uint32_t volume_2;
-        int32_t loop_count;
-        int16_t grid_x;
-        int16_t grid_y;
-        int16_t priority;
-        uint32_t time_stamp;
-        uint32_t loop_point_start;
-        int32_t loop_point_length;
-
-        int32_t mixer_channel;
-        Mix_Chunk* chunk;
-        Mix_Music* music;
-    } SoundSample;
-
-    bool is_audio_enabled;
-
-    SoundVolume* volumes;
-
-    ResourceID current_music_played;
-    ResourceID last_music_played;
-
-    bool shuffle_music;
-    bool shuffle_music_playlist[BKG9_MSC - MAIN_MSC + 1];
-
-    ResourceID voice_played;
-
-    std::list<SoundJob> jobs;
-
-    std::list<SoundSample> samples;
-    int32_t mixer_channels_count;
-    SoundSample* music;
-    SoundSample* voice;
-    SoundSample* sfx;
-
-    void AddJob(SoundJob& job);
-    int32_t ProcessJob(SoundJob& job);
-    void FreeSample(SoundSample* sample);
-    void UpdateMusic();
-    void FreeSfx(UnitInfo* unit);
-    void FreeVoice(ResourceID id1, ResourceID id2);
-    bool IsVoiceGroupScheduled(ResourceID id1, ResourceID id2);
-    static int32_t GetPanning(int32_t distance, bool reverse);
-    bool LoadMusic(ResourceID id);
-    int32_t LoadSound(SoundJob& job, SoundSample& sample);
-    void LoadLoopPoints(FILE* fp, SoundSample& sample);
-};
-
-extern CSoundManager SoundManager;
+void SoundManager_Init() noexcept;
+void SoundManager_Deinit() noexcept;
+void SoundManager_PlayMusic(const ResourceID id, const bool shuffle) noexcept;
+void SoundManager_HaltMusicPlayback(const bool disable) noexcept;
+void SoundManager_FreeMusic() noexcept;
+void SoundManager_PlaySfx(const ResourceID id) noexcept;
+void SoundManager_PlaySfx(UnitInfo* const unit, const int32_t sound, const bool mode = false) noexcept;
+void SoundManager_UpdateSfxPosition() noexcept;
+void SoundManager_UpdateSfxPosition(UnitInfo* const unit) noexcept;
+void SoundManager_UpdateAllSfxPositions() noexcept;
+void SoundManager_HaltSfxPlayback(const bool disable) noexcept;
+void SoundManager_PlayVoice(const ResourceID id1, const ResourceID id2, const int16_t priority = 0) noexcept;
+void SoundManager_HaltVoicePlayback(const bool disable) noexcept;
+void SoundManager_FreeAllSamples() noexcept;
+void SoundManager_SetVolume(const int32_t type, const int32_t volume) noexcept;
 
 #endif /* SOUND_MANAGER_HPP */

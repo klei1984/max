@@ -535,7 +535,7 @@ void ResourceManager_InitInternals() {
 
     ResourceManager_DisableEnhancedGraphics = !ini_get_setting(INI_ENHANCED_GRAPHICS);
 
-    SoundManager.Init();
+    SoundManager_Init();
     register_pause(-1, nullptr);
     register_screendump(GNW_KB_KEY_LALT_C, screendump_pcx);
 }
@@ -547,13 +547,13 @@ void ResourceManager_TestMouse() {
 }
 
 void ResourceManager_ExitGame(int32_t error_code) {
-    SoundManager.FreeAllSamples();
+    SoundManager_FreeAllSamples();
 
     if ((error_code == EXIT_CODE_NO_ERROR) || (error_code == EXIT_CODE_THANKS)) {
         menu_draw_exit_logos();
     }
 
-    SoundManager.Deinit();
+    SoundManager_Deinit();
     win_exit();
     Svga_Deinit();
     SDL_Log("%s", ResourceManager_ErrorCodes[error_code]);
@@ -993,7 +993,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     delete[] ResourceManager_CargoMap;
     ResourceManager_CargoMap = nullptr;
 
-    SoundManager.FreeMusic();
+    SoundManager_FreeMusic();
 
     WindowManager_LoadBigImage(FRAMEPIC, window, window->width, true, false, -1, -1, false, true);
 

@@ -946,7 +946,7 @@ void MobileBuildMenu::Build() {
                     MessageManager_DrawMessage(_(06cb), 0, 0);
 
                     if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING) {
-                        SoundManager.PlayVoice(V_M049, V_F050);
+                        SoundManager_PlayVoice(V_M049, V_F050);
                     }
 
                 } else {

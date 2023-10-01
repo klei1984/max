@@ -764,7 +764,7 @@ void RepairShopSlot_OnClick_Reload(ButtonID bid, intptr_t value) {
         slot->DrawStats(true);
         slot->UpdateButtons();
 
-        SoundManager.PlayVoice(V_M085, V_F085);
+        SoundManager_PlayVoice(V_M085, V_F085);
     }
 }
 
@@ -780,7 +780,7 @@ void RepairShopSlot_OnClick_Repair(ButtonID bid, intptr_t value) {
         slot->DrawStats(true);
         slot->UpdateButtons();
 
-        SoundManager.PlayVoice(V_M210, V_F210);
+        SoundManager_PlayVoice(V_M210, V_F210);
     }
 }
 
@@ -875,7 +875,7 @@ void RepairShopMenu_OnClick_ReloadAll(ButtonID bid, intptr_t value) {
     shop->Draw(true);
 
     if (success) {
-        SoundManager.PlayVoice(V_M089, V_F089);
+        SoundManager_PlayVoice(V_M089, V_F089);
     }
 }
 
@@ -896,7 +896,7 @@ void RepairShopMenu_OnClick_RepairAll(ButtonID bid, intptr_t value) {
     shop->Draw(true);
 
     if (success) {
-        SoundManager.PlayVoice(V_M211, V_F211);
+        SoundManager_PlayVoice(V_M211, V_F211);
     }
 }
 

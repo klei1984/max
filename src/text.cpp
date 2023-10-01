@@ -831,7 +831,7 @@ void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, 
     time_stamp = timer_get();
 
     if (Text_TypeWriter_CharacterTimeMs > 0) {
-        SoundManager.PlaySfx(MBUTT0);
+        SoundManager_PlaySfx(MBUTT0);
     }
 
     while (text[text_position] && width > 0) {
@@ -856,7 +856,7 @@ void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, 
 
         if (Text_TypeWriter_CharacterTimeMs > 0) {
             if (timer_elapsed_time(time_stamp) >= Text_TypeWriter_BeepTimeMs) {
-                SoundManager.PlaySfx(MBUTT0);
+                SoundManager_PlaySfx(MBUTT0);
                 time_stamp = timer_get();
             }
 

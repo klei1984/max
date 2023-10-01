@@ -476,7 +476,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int32_t window_index, bool mode) {
             }
 
             if (mouse_event.buttons & MOUSE_RELEASE_LEFT) {
-                SoundManager.PlaySfx(KCARG0);
+                SoundManager_PlaySfx(KCARG0);
 
                 if (section_id == HELPMENU_GAME_SCREEN_SETUP &&
                     HelpMenu_UnitReport(mouse_event.point.x, mouse_event.point.y)) {

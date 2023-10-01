@@ -404,7 +404,7 @@ void OptionsMenu::UpdateSlider(int32_t id) {
 }
 
 void OptionsMenu::SetVolume(int32_t id, int32_t audio_type, int32_t value) {
-    SoundManager.SetVolume(audio_type, value);
+    SoundManager_SetVolume(audio_type, value);
     ini_set_setting(options_menu_buttons[id].ini_param_index, value);
 }
 
@@ -654,19 +654,19 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                         } break;
                         case INI_DISABLE_MUSIC: {
                             ini_set_setting(INI_DISABLE_MUSIC, last_value);
-                            SoundManager.HaltMusicPlayback(last_value);
+                            SoundManager_HaltMusicPlayback(last_value);
 
                         } break;
 
                         case INI_DISABLE_FX: {
                             ini_set_setting(INI_DISABLE_FX, last_value);
-                            SoundManager.HaltSfxPlayback(last_value);
+                            SoundManager_HaltSfxPlayback(last_value);
 
                         } break;
 
                         case INI_DISABLE_VOICE: {
                             ini_set_setting(INI_DISABLE_VOICE, last_value);
-                            SoundManager.HaltVoicePlayback(last_value);
+                            SoundManager_HaltVoicePlayback(last_value);
 
                         } break;
                     }
@@ -703,15 +703,15 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
 
                             switch (ini_param_index) {
                                 case INI_DISABLE_MUSIC: {
-                                    SoundManager.HaltMusicPlayback(value);
+                                    SoundManager_HaltMusicPlayback(value);
                                 } break;
 
                                 case INI_DISABLE_FX: {
-                                    SoundManager.HaltSfxPlayback(value);
+                                    SoundManager_HaltSfxPlayback(value);
                                 } break;
 
                                 case INI_DISABLE_VOICE: {
-                                    SoundManager.HaltVoicePlayback(value);
+                                    SoundManager_HaltVoicePlayback(value);
                                 } break;
                             }
 

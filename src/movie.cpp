@@ -107,7 +107,7 @@ int32_t movie_run(ResourceID resource_id, int32_t mode) {
     char* file_name;
     uint8_t* palette;
 
-    SoundManager.FreeMusic();
+    SoundManager_FreeMusic();
 
     WindowManager_ClearWindow();
 

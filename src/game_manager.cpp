@@ -899,7 +899,7 @@ void GameManager_GameLoop(int32_t game_state) {
         ResourceManager_ExitGame(EXIT_CODE_THANKS);
     }
 
-    SoundManager.PlayMusic(MAIN_MSC, false);
+    SoundManager_PlayMusic(MAIN_MSC, false);
 }
 
 void GameManager_UpdateDrawBounds() {
@@ -1519,7 +1519,7 @@ bool GameManager_SelectSite(uint16_t team) {
         flag = true;
 
         MessageManager_DrawMessage(_(dfe1), 0, 0);
-        SoundManager.PlayVoice(V_M278, V_F177);
+        SoundManager_PlayVoice(V_M278, V_F177);
 
     } else {
         flag = false;
@@ -1928,7 +1928,7 @@ void GameManager_UpdateMainMapView(int32_t mode, int32_t ulx, int32_t uly, bool 
         GameManager_RenderEnable = true;
     }
 
-    SoundManager.UpdateSfxPosition();
+    SoundManager_UpdateSfxPosition();
 }
 
 void GameManager_AutoSelectNext(UnitInfo* unit) {
@@ -2101,7 +2101,7 @@ void GameManager_GameSetup(int32_t game_state) {
 
     Access_UpdateVisibilityStatus(GameManager_AllVisible);
 
-    SoundManager.PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
+    SoundManager_PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
 
     GameManager_MenuAnimateDisplayControls();
     GameManager_MenuInitDisplayControls();
@@ -2121,7 +2121,7 @@ void GameManager_GameLoopCleanup() {
     GameManager_RequestMenuExit = false;
     GameManager_TurnTimerValue = 0;
 
-    SoundManager.FreeAllSamples();
+    SoundManager_FreeAllSamples();
 
     GameManager_DeinitPopupButtons(false);
 
@@ -2262,7 +2262,7 @@ void GameManager_AnnounceWinner(uint16_t team) {
         resource_id1 = static_cast<ResourceID>(V_M118 + team * (sample_count + 1));
         resource_id2 = static_cast<ResourceID>(resource_id1 + sample_count);
 
-        SoundManager.PlayVoice(resource_id1, resource_id2);
+        SoundManager_PlayVoice(resource_id1, resource_id2);
     }
 }
 
@@ -2333,10 +2333,10 @@ void GameManager_DrawTurnTimer(int32_t turn_time, bool mode) {
     if (turn_time <= 20) {
         if (GameManager_IsTurnTimerActive && GameManager_PlayerTeam == GameManager_ActiveTurnTeam) {
             if (turn_time == 20 && ini_get_setting(INI_TIMER) > 20) {
-                SoundManager.PlayVoice(V_M272, V_F273);
+                SoundManager_PlayVoice(V_M272, V_F273);
             } else if (!UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn &&
                        ini_get_setting(INI_TIMER) > 20 && Remote_UpdatePauseTimer) {
-                SoundManager.PlayVoice(V_M275, V_F275);
+                SoundManager_PlayVoice(V_M275, V_F275);
             }
 
             GameManager_IsTurnTimerActive = false;
@@ -2415,7 +2415,7 @@ void GameManager_UpdateGuiControl(uint16_t team) {
     GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, COLOR_BLACK, true);
 
     if (GameManager_SelectedUnit != nullptr) {
-        SoundManager.PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
+        SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
     }
 
     GameManager_UpdateMainMapView(0, 4, 0, true);
@@ -2630,7 +2630,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
         }
 
         if (GameManager_ActiveTurnTeam == GameManager_PlayerTeam) {
-            SoundManager.PlayVoice(V_M053, V_F053);
+            SoundManager_PlayVoice(V_M053, V_F053);
         }
     }
 
@@ -2802,7 +2802,7 @@ bool GameManager_ProcessPopupMenuInput(int32_t key) {
             }
 
             if (result) {
-                SoundManager.PlaySfx(KCARG0);
+                SoundManager_PlaySfx(KCARG0);
                 GameManager_PopupButtons.r_func[button_index](
                     0, reinterpret_cast<intptr_t>(GameManager_SelectedUnit.Get()));
             }
@@ -3069,7 +3069,7 @@ void GameManager_ProcessCheatCodes() {
 void GameManager_InitUnitsAndGameState() {
     GameManager_IsCheater = false;
 
-    SoundManager.SetVolume(AUDIO_TYPE_MUSIC, ini_get_setting(INI_MUSIC_LEVEL) / 3);
+    SoundManager_SetVolume(AUDIO_TYPE_MUSIC, ini_get_setting(INI_MUSIC_LEVEL) / 3);
 
     ResourceManager_FreeResources();
     WindowManager_ScaleResources();
@@ -3426,7 +3426,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
     if (save_slot) {
         if (GameManager_SelectedUnit != nullptr) {
-            SoundManager.PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
+            SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
         }
 
         MessageManager_ClearMessageBox();
@@ -3480,7 +3480,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
     WindowManager_FadeIn(0);
 
-    SoundManager.PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
+    SoundManager_PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
 
     GameManager_MenuAnimateDisplayControls();
 
@@ -3580,7 +3580,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
     MessageManager_DrawMessage(text, 1, unit, GameManager_SpottedEnemyPosition);
 
     if (resource_id1 != INVALID_ID) {
-        SoundManager.PlayVoice(resource_id1, resource_id2);
+        SoundManager_PlayVoice(resource_id1, resource_id2);
     }
 }
 
@@ -3592,7 +3592,7 @@ void GameManager_SelectBuildSite(UnitInfo* unit) {
     MessageManager_ClearMessageBox();
 
     if (unit->state == ORDER_STATE_25) {
-        SoundManager.PlayVoice(V_M049, V_F050, -1);
+        SoundManager_PlayVoice(V_M049, V_F050, -1);
 
         SDL_assert(GameManager_TempTape != nullptr);
 
@@ -3610,7 +3610,7 @@ void GameManager_SelectBuildSite(UnitInfo* unit) {
         UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_13);
 
         if (GameManager_SelectedUnit == unit) {
-            SoundManager.PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_END);
+            SoundManager_PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_END);
         }
     }
 
@@ -4621,7 +4621,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
 void GameManager_PathBuild(UnitInfo* unit) {
     SDL_assert(GameManager_TempTape != nullptr);
 
-    SoundManager.PlayVoice(V_M049, V_F050, -1);
+    SoundManager_PlayVoice(V_M049, V_F050, -1);
 
     unit->target_grid_x = GameManager_TempTape->grid_x;
     unit->target_grid_y = GameManager_TempTape->grid_y;
@@ -4653,41 +4653,41 @@ void GameManager_PathBuild(UnitInfo* unit) {
 
 void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->orders == ORDER_DISABLE) {
-        SoundManager.PlaySfx(NCANC0);
+        SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(d984), 1, 0);
 
     } else if (unit1->storage) {
         unit1->SetParent(unit2);
         MessageManager_DrawMessage(_(1fd7), 0, 0);
         UnitsManager_SetNewOrder(unit1, ORDER_RELOAD, ORDER_STATE_INIT);
-        SoundManager.PlayVoice(V_M085, V_F085);
+        SoundManager_PlayVoice(V_M085, V_F085);
 
     } else {
-        SoundManager.PlaySfx(NCANC0);
+        SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(930a), 1, 0);
     }
 }
 
 void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->orders == ORDER_DISABLE) {
-        SoundManager.PlaySfx(NCANC0);
+        SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(7c90), 1, 0);
 
     } else if (unit1->storage) {
         unit1->SetParent(unit2);
         MessageManager_DrawMessage(_(5ae3), 0, 0);
         UnitsManager_SetNewOrder(unit1, ORDER_REPAIR, ORDER_STATE_INIT);
-        SoundManager.PlayVoice(V_M210, V_F210);
+        SoundManager_PlayVoice(V_M210, V_F210);
 
     } else {
-        SoundManager.PlaySfx(NCANC0);
+        SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(c65e), 1, 0);
     }
 }
 
 void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->orders == ORDER_DISABLE) {
-        SoundManager.PlaySfx(NCANC0);
+        SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(42b7), 1, 0);
 
     } else if (UnitsManager_BaseUnits[unit1->unit_type].cargo_type ==
@@ -4726,7 +4726,7 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
 
             MessageManager_DrawMessage(message, 0, 0);
 
-            SoundManager.PlayVoice(V_M224, V_F224);
+            SoundManager_PlayVoice(V_M224, V_F224);
         }
     }
 }
@@ -5432,7 +5432,7 @@ void GameManager_ProcessKey() {
             }
 
             if (GameManager_IsMainMenuEnabled && !UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn) {
-                SoundManager.PlaySfx(MBUTT0);
+                SoundManager_PlaySfx(MBUTT0);
                 GameManager_ResetRenderState();
 
                 if (!GameManager_RefreshOrders(GameManager_PlayerTeam, GameManager_RequestMenuExit)) {
@@ -5496,7 +5496,7 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_G:
         case GNW_KB_KEY_SHIFT_G:
         case 1033: {
-            SoundManager.PlaySfx(IGRID0);
+            SoundManager_PlaySfx(IGRID0);
             GameManager_MenuClickGridButton(!GameManager_DisplayButtonGrid);
         } break;
 
@@ -5612,7 +5612,7 @@ void GameManager_ProcessKey() {
         } break;
 
         case 1003: {
-            SoundManager.PlaySfx(MBUTT0);
+            SoundManager_PlaySfx(MBUTT0);
             GameManager_ResetRenderState();
 
             if (!GameManager_RefreshOrders(GameManager_PlayerTeam, GameManager_RequestMenuExit)) {
@@ -5633,7 +5633,7 @@ void GameManager_ProcessKey() {
         } break;
 
         case 1015: {
-            SoundManager.PlaySfx(MBUTT0);
+            SoundManager_PlaySfx(MBUTT0);
             GameManager_MenuClickLockButton(!GameManager_DisplayButtonLock);
         } break;
 
@@ -5679,52 +5679,52 @@ void GameManager_ProcessKey() {
         } break;
 
         case 1026: {
-            SoundManager.PlaySfx(ISURV0);
+            SoundManager_PlaySfx(ISURV0);
             GameManager_MenuClickSurveyButton(!GameManager_DisplayButtonSurvey);
         } break;
 
         case 1027: {
-            SoundManager.PlaySfx(ISTAT0);
+            SoundManager_PlaySfx(ISTAT0);
             GameManager_MenuClickStatusButton(!GameManager_DisplayButtonStatus);
         } break;
 
         case 1028: {
-            SoundManager.PlaySfx(ICOLO0);
+            SoundManager_PlaySfx(ICOLO0);
             GameManager_MenuClickColorsButton(!GameManager_DisplayButtonColors);
         } break;
 
         case 1029: {
-            SoundManager.PlaySfx(IHITS0);
+            SoundManager_PlaySfx(IHITS0);
             GameManager_MenuClickHitsButton(!GameManager_DisplayButtonHits);
         } break;
 
         case 1030: {
-            SoundManager.PlaySfx(IAMMO0);
+            SoundManager_PlaySfx(IAMMO0);
             GameManager_MenuClickAmmoButton(!GameManager_DisplayButtonAmmo);
         } break;
 
         case 1031: {
-            SoundManager.PlaySfx(IRANG0);
+            SoundManager_PlaySfx(IRANG0);
             GameManager_MenuClickRangeButton(!GameManager_DisplayButtonRange);
         } break;
 
         case 1032: {
-            SoundManager.PlaySfx(IVISI0);
+            SoundManager_PlaySfx(IVISI0);
             GameManager_MenuClickScanButton(!GameManager_DisplayButtonScan);
         } break;
 
         case 1034: {
-            SoundManager.PlaySfx(INAME0);
+            SoundManager_PlaySfx(INAME0);
             GameManager_MenuClickNamesButton(!GameManager_DisplayButtonNames);
         } break;
 
         case 1036: {
-            SoundManager.PlaySfx(IAMMO0);
+            SoundManager_PlaySfx(IAMMO0);
             GameManager_MenuClickMinimap2xButton(!GameManager_DisplayButtonMinimap2x);
         } break;
 
         case 1037: {
-            SoundManager.PlaySfx(IAMMO0);
+            SoundManager_PlaySfx(IAMMO0);
             GameManager_MenuClickMinimapTntButton(!GameManager_DisplayButtonMinimapTnt);
         } break;
 
@@ -5740,7 +5740,7 @@ void GameManager_ProcessKey() {
                     }
 
                 } else {
-                    SoundManager.PlaySfx(MBUTT0);
+                    SoundManager_PlaySfx(MBUTT0);
                 }
 
                 GameManager_SiteSelectReleaseEvent = true;
@@ -6577,7 +6577,7 @@ void GameManager_ProcessInput() {
 
             case WINDOW_MAIN_MAP: {
                 if (!(GameManager_MouseButtons & (MOUSE_PRESS_LEFT | MOUSE_PRESS_RIGHT))) {
-                    SoundManager.PlaySfx(KCARG0);
+                    SoundManager_PlaySfx(KCARG0);
 
                     if (MessageManager_MessageBox_IsActive) {
                         MessageManager_ClearMessageBox();
@@ -6591,10 +6591,10 @@ void GameManager_ProcessInput() {
 
                         if (Cursor_GetCursor() == CURSOR_UNIT_GO) {
                             GameManager_GameState = GAME_STATE_13;
-                            SoundManager.PlaySfx(NDONE0);
+                            SoundManager_PlaySfx(NDONE0);
 
                         } else {
-                            SoundManager.PlaySfx(NCANC0);
+                            SoundManager_PlaySfx(NCANC0);
                         }
 
                     } else {
@@ -6977,7 +6977,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
     if (GameManager_DisplayControlsInitialized) {
         if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit != unit) {
             GameManager_SelectedUnit->RefreshScreen();
-            SoundManager.PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
+            SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
         }
 
         Gamemanager_FlicButton->Enable(unit && unit->team == GameManager_PlayerTeam);
@@ -7069,7 +7069,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
                 sound = SFX_TYPE_BUILDING;
             }
 
-            SoundManager.PlaySfx(unit, sound);
+            SoundManager_PlaySfx(unit, sound);
 
             if (unit->GetUnitList()) {
                 unit->MoveToFrontInUnitList();
@@ -7766,7 +7766,7 @@ void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
     is_damaged = false;
     is_critical = false;
 
-    SoundManager.PlayVoice(V_START, V_START2, -1);
+    SoundManager_PlayVoice(V_START, V_START2, -1);
 
     unit_ammo = unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO);
 
@@ -7787,60 +7787,60 @@ void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
     }
 
     if (is_ammo_depleted) {
-        SoundManager.PlayVoice(V_M142, V_F142);
+        SoundManager_PlayVoice(V_M142, V_F142);
 
     } else if (is_ammo_low) {
-        SoundManager.PlayVoice(V_M138, V_F138);
+        SoundManager_PlayVoice(V_M138, V_F138);
     }
 
     if (is_movement_exhausted) {
-        SoundManager.PlayVoice(V_M145, V_F145);
+        SoundManager_PlayVoice(V_M145, V_F145);
     }
 
     if (is_critical) {
-        SoundManager.PlayVoice(V_M154, V_F155);
+        SoundManager_PlayVoice(V_M154, V_F155);
 
     } else if (is_damaged) {
-        SoundManager.PlayVoice(V_M150, V_F151);
+        SoundManager_PlayVoice(V_M150, V_F151);
     }
 
     if (!is_ammo_depleted && !is_ammo_low && !is_movement_exhausted && !is_damaged) {
         if (unit->unit_type == SURVEYOR) {
-            SoundManager.PlayVoice(V_M191, V_F192);
+            SoundManager_PlayVoice(V_M191, V_F192);
 
         } else if (unit->orders == ORDER_MOVE_TO_ATTACK) {
-            SoundManager.PlayVoice(V_M196, V_F198);
+            SoundManager_PlayVoice(V_M196, V_F198);
 
         } else if ((unit->orders == ORDER_AWAIT || unit->orders == ORDER_MOVE) && unit->GetLayingState() == 2) {
-            SoundManager.PlayVoice(V_M181, V_F182);
+            SoundManager_PlayVoice(V_M181, V_F182);
 
         } else if ((unit->orders == ORDER_AWAIT || unit->orders == ORDER_MOVE) && unit->GetLayingState() == 1) {
-            SoundManager.PlayVoice(V_M186, V_F187);
+            SoundManager_PlayVoice(V_M186, V_F187);
 
         } else if (unit->orders == ORDER_CLEAR) {
-            SoundManager.PlayVoice(V_M171, V_F171);
+            SoundManager_PlayVoice(V_M171, V_F171);
 
         } else if (unit->orders == ORDER_SENTRY &&
                    (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {
-            SoundManager.PlayVoice(V_M158, V_F158);
+            SoundManager_PlayVoice(V_M158, V_F158);
 
         } else if (unit->orders == ORDER_BUILD) {
             if (unit->state == ORDER_STATE_BUILDING_READY) {
-                SoundManager.PlayVoice(V_M162, V_F165);
+                SoundManager_PlayVoice(V_M162, V_F165);
 
             } else if (unit->state == ORDER_STATE_UNIT_READY) {
-                SoundManager.PlayVoice(V_M166, V_F169);
+                SoundManager_PlayVoice(V_M166, V_F169);
 
             } else {
-                SoundManager.PlayVoice(V_M284, V_F284);
+                SoundManager_PlayVoice(V_M284, V_F284);
             }
 
         } else if (unit->unit_type == RESEARCH && unit->orders == ORDER_POWER_ON &&
                    UnitsManager_TeamInfo[unit->team].research_topics[unit->research_topic].turns_to_complete == 0) {
-            SoundManager.PlayVoice(V_M093, V_F093);
+            SoundManager_PlayVoice(V_M093, V_F093);
 
         } else if (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
-            SoundManager.PlayVoice(V_M001, V_F004);
+            SoundManager_PlayVoice(V_M001, V_F004);
         }
     }
 }
@@ -7963,7 +7963,7 @@ void GameManager_ReportNewUnitsMessage(uint16_t* counts) {
             strcat(message, _(e3cd));
 
             if (flag) {
-                SoundManager.PlayVoice(V_M215, V_F217);
+                SoundManager_PlayVoice(V_M215, V_F217);
             }
 
         } else {
@@ -7971,7 +7971,7 @@ void GameManager_ReportNewUnitsMessage(uint16_t* counts) {
             strcat(message, _(9753));
 
             if (flag) {
-                SoundManager.PlayVoice(V_M206, V_F207);
+                SoundManager_PlayVoice(V_M206, V_F207);
             }
         }
     }

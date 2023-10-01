@@ -697,7 +697,7 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
 
         Remote_UpdatePauseTimer = false;
 
-        SoundManager.FreeAllSamples();
+        SoundManager_FreeAllSamples();
 
         GameManager_DeinitPopupButtons(false);
 
@@ -728,11 +728,11 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
         }
 
         if (is_winner) {
-            SoundManager.PlayVoice(V_M283, V_F283);
-            SoundManager.PlayMusic(WINR_MSC, false);
+            SoundManager_PlayVoice(V_M283, V_F283);
+            SoundManager_PlayMusic(WINR_MSC, false);
 
         } else {
-            SoundManager.PlayMusic(LOSE_MSC, false);
+            SoundManager_PlayMusic(LOSE_MSC, false);
         }
 
         if (mission_briefing.GetLength() > 0) {
@@ -2462,7 +2462,7 @@ void main_menu() {
         draw_copyright_label(window);
         menu_draw_main_menu_buttons(main_menu_buttons, sizeof(main_menu_buttons) / sizeof(struct MenuButton));
         mouse_show();
-        SoundManager.PlayMusic(MAIN_MSC, false);
+        SoundManager_PlayMusic(MAIN_MSC, false);
         Cursor_SetCursor(CURSOR_HAND);
         mouse_show();
         palette_from_image = 0;
