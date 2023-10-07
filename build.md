@@ -7,7 +7,7 @@ permalink: /build/
 ## How to build M.A.X. Port
 
 ### Dependencies
-- **Iconv, Freetype, SDL2, SDL2_mixer and SDL2_net** There is no exact version requirement or it was not determined yet. Latest officially released versions are preferred over latest in development revisions.
+- **Iconv, Freetype, SDL2, Miniaudio and SDL2_net** There is no exact version requirement, dependencies are managed by the build system.
 - **CMake** Minimum requirement is currently `3.24`.
 - **NSIS** Install system required by Windows platform for packaging.
 
@@ -17,7 +17,7 @@ permalink: /build/
 
 ### General Notes
 
-The M.A.X. Port source code is only *compatible* with the 32 bit x86 architecture. 64 bit builds cannot be created and in general x86_64 bit compilers cannot be used. Only Windows and Linux operating systems are targeted currently, but potentially an x86 architecture based macOS build would be possible to do if self modifying code is supported by the platform. It is assumed that the OS is built for a 64 bit platform.
+The M.A.X. Port source code is compatible with the 32 bit x86 and 64 bit x86-64 architectures. Only Windows and Linux operating systems are targeted currently, but support for other platforms could potentially be added.
 
 The M.A.X. Port source code packages do not contain packages of required dependencies. The dependencies are downloaded once by the build system on demand. The dependencies can be downloaded manually as well and placed into the `/dependencies` folder in which case the build system will use the local versions of the dependencies instead of downloading them on demand. The version and download location of depenencies are controlled by `/cmake/versions.cmake`.
 
@@ -27,11 +27,11 @@ The M.A.X. Port source code packages do not contain packages of required depende
 
 `CMAKE_BUILD_TYPE`: Can be set to `Debug`, `Release`, `RelWithDebInfo` or `MinSizeRel`. Only use `Debug` option for the time being.
 
-### Build on Linux (Ubuntu 22.10)
+### Build on Linux (Ubuntu 23.10, x86 architecture, Debug configuration)
 
-The user is supposed to have sudo access in a terminal window. A fresh install of Ubuntu 22.10 is assumed, e.g. the installable cmake package is 3.24 or newer.
+The user is supposed to have sudo access in a terminal window. A fresh install of Ubuntu 23.10 is assumed, e.g. the installable cmake package is 3.24 or newer.
 
-The first step is to enable the i386 architecture within the package manager so that a 32 bit x86 executable can be built. The stock x86_64 build framework will simply fail to work.
+For 32 bit x86 builds the first step is to enable the i386 architecture within the package manager so that a 32 bit x86 executable can be built. It is generally recommended to build the application in 64 bit x86-64 mode for a 64 bit operating system.
 
 ```
 sudo dpkg --add-architecture i386
@@ -52,7 +52,7 @@ sudo apt-get install build-essential gcc-multilib g++-multilib ninja-build:i386 
 Now grab the M.A.X. Port source code from either a release baseline or from the latest master branch.
 
 If downloaded as a zip file extract it somewhere and enter that folder. E.g. `unzip master.zip && cd master`.
-If downloaded as a tar.gz source package the commands would look something like `tar -xf max-port-0.4.2-Source.tar.gz && cd max-port-0.4.2-Source`.
+If downloaded as a tar.gz source package the commands would look something like `tar -xf max-port-0.5.0-Source.tar.gz && cd max-port-0.5.0-Source`.
 
 To clone the git repository instead we have to make sure that git is istalled first.
 
@@ -84,9 +84,9 @@ cmake --build . --parallel --target package
 
 If everything went well then a Linux DEB package is created with a name similar to `max-port-x.y.z-Linux.deb`.
 
-### Build on Linux for Windows XP
+### Build on Linux for Windows XP (Ubuntu 23.10, x86 architecture, Debug configuration)
 
-The user is supposed to have sudo access in a terminal window. A fresh install of Ubuntu 22.10 is assumed, e.g. the installable cmake package is 3.24 or newer.
+The user is supposed to have sudo access in a terminal window. A fresh install of Ubuntu 23.10 is assumed, e.g. the installable cmake package is 3.24 or newer.
 
 The first step is to enable the i386 architecture within the package manager so that a 32 bit x86 executable can be built.
 
@@ -109,7 +109,7 @@ sudo apt-get install build-essential binutils-mingw-w64-i686 g++-mingw-w64-i686 
 Now grab the M.A.X. Port source code from either a release baseline or from the latest master branch.
 
 If downloaded as a zip file extract it somewhere and enter that folder. E.g. `unzip master.zip && cd master`.
-If downloaded as a tar.gz source package the commands would look something like `tar -xf max-port-0.4.2-Source.tar.gz && cd max-port-0.4.2-Source`.
+If downloaded as a tar.gz source package the commands would look something like `tar -xf max-port-0.5.0-Source.tar.gz && cd max-port-0.5.0-Source`.
 
 To clone the git repository instead we have to make sure that git is istalled first.
 
@@ -141,7 +141,7 @@ cmake --build . --parallel --target package
 
 If everything went well then an executable installer and a 7-Zip compressed archive is created with names similar to `max-port-x.y.z-win32.exe` and `max-port-x.y.z-win32.7z`. Either run the installer and follow the on screen instructions or unpack the archive. M.A.X. Port is an update for the original M.A.X. game which means that the update needs to be installed or copied into the root folder of an existing M.A.X. installation folder where the `maxrun.exe` game executable is found. Some examples: `c:\Program Files (x86)\GOG Galaxy\Games\MAX`, `c:\Program Files (x86)\Steam\steamapps\common\M.A.X. Mechanized Assault & Exploration\max`, `C:\INTRPLAY\MAX`.
 
-### Build on Windows using MSYS2
+### Build on Windows using MSYS2 (x86 architecture, Debug configuration)
 
 The user may need administrative privileges so that installers could adapt system or user specific path environment variables.
 

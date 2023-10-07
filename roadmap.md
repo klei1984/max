@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2023-09-03.
+Last updated: 2023-10-07.
 
 Reimplementation status: 5666 / 5704 (99%) functions.
 
@@ -96,7 +96,6 @@ The original MVE library was implemented in C and Assembly languages using the W
   Reimplement the MVE library modules (mvelib32, mveliba)
   </span>
 - Implement feature to scale videos to match screen resolution
-- Implement feature to render captions (subtitles)
 
 ### 5 Study Watcom C++, analyse original C++ classes and develop necessary tools
 Most of the game itself was implemented in C++. Even though the Watcom C/C++ compiler became open source it is still very difficult to fully understand how the original compiler organizes constructor, destructor, operator overload and such behind the scenes C++ runtime specific data. Clear understanding of the Watcom C++ runtime library and related data that the compiler emits into executables is a prerequisit to be able to identify and understand the C++ class hierarchies from the game.
@@ -158,7 +157,7 @@ The massive amount of polymorphism that is involved with all the custom object c
 - <span class="legend-done">
   Reimplement the path finding classes (paths.cpp)
   </span>
-- <span class="legend-close">
+- <span class="legend-done">
   Reimplement the sound manager classes (soundmgr.cpp)
   </span>
 - <span class="legend-done">
@@ -234,24 +233,31 @@ In-game hints, in-game help and some other text, like mission briefings or plane
   </span>
 - Develop translation tools
 
-### 8 - and beyond
+### 8 Code cleanup
+- <span class="legend-inwork">
+  Setup workflows to improve code quality
+  </span>
+- <span class="legend-inwork">
+  Fix original game defects (retain backwards compatibility with save game format version 70)
+  </span>
+- <span class="legend-done">
+  Implement missing text mode class serializers and enumerator constants or remove these incomplete features as-is (preferred)
+  </span>
+- <span class="legend-done">
+  Implement AI debug and log modules
+  </span>
+- <span class="legend-inwork">
+  Make smart containers reentrant, thread safe and improve ISO C++ compliance
+  </span>
+- <span class="legend-done">
+  Use an audio library that supports loop points (SFX) and streaming (MVE) for digital samples
+  </span>
+- refactor MVE player to eliminate self modifying code from it
+
+### 9 - and beyond
 To be defined
 
 {% comment %}
-Code cleanup
-- setup workflows to improve code quality
-- fix original game defects (retain backwards compatibility with save game format version 70)
-- <span class="legend-done">
-  implement missing text mode class serializers and enumerator constants or remove these incomplete features as-is (preferred)
-  </span>
-- <span class="legend-done">
-  implement AI debug and log modules
-  </span>
-- make smart containers reentrant, thread safe and improve ISO C++ compliance
-- create or use an audio library that supports loop points (SFX) and streaming (MVE) for digital samples
-- refactor MVE player to eliminate self modifying code from it
-- make GNW and MVE player standalone libraries
-
 Cross-platform
 - support OS specific line delimiters
 - support long file system paths and utf8 file names
