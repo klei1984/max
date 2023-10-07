@@ -473,7 +473,7 @@ void ResourceManager_InitResources() {
 }
 
 void ResourceManager_InitSDL() {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         SDL_Log("Unable to initialize SDL: %s\n", SDL_GetError());
         exit(1);
     }

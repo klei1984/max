@@ -28,12 +28,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype SDL2::SDL2-static SDL2_net::SDL2_net-static SDL2_mixer::SDL2_mixer-static)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio SDL2::SDL2-static SDL2_net::SDL2_net-static)
 
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype SDL2::SDL2 SDL2_net::SDL2_net SDL2_mixer::SDL2_mixer)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio SDL2::SDL2 SDL2_net::SDL2_net)
 
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 endif()
@@ -41,9 +41,9 @@ endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/lib-iconv ${CMAKE_CURRENT_BINARY_DIR}/_deps/iconv-build)
 
 include(sdl2)
-include(sdl2_mixer)
 include(sdl2_net)
 include(freetype)
+include(miniaudio)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.debug

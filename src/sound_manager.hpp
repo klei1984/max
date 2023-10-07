@@ -41,11 +41,10 @@ void SoundManager_PlaySfx(const ResourceID id) noexcept;
 void SoundManager_PlaySfx(UnitInfo* const unit, const int32_t sound, const bool mode = false) noexcept;
 void SoundManager_UpdateSfxPosition() noexcept;
 void SoundManager_UpdateSfxPosition(UnitInfo* const unit) noexcept;
-void SoundManager_UpdateAllSfxPositions() noexcept;
 void SoundManager_HaltSfxPlayback(const bool disable) noexcept;
 void SoundManager_PlayVoice(const ResourceID id1, const ResourceID id2, const int16_t priority = 0) noexcept;
 void SoundManager_HaltVoicePlayback(const bool disable) noexcept;
 void SoundManager_FreeAllSamples() noexcept;
-void SoundManager_SetVolume(const int32_t type, const int32_t volume) noexcept;
+void SoundManager_SetVolume(const int32_t type, const float volume) noexcept;
 
 #endif /* SOUND_MANAGER_HPP */

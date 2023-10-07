@@ -404,7 +404,7 @@ void OptionsMenu::UpdateSlider(int32_t id) {
 }
 
 void OptionsMenu::SetVolume(int32_t id, int32_t audio_type, int32_t value) {
-    SoundManager_SetVolume(audio_type, value);
+    SoundManager_SetVolume(audio_type, static_cast<float>(value) / 100);
     ini_set_setting(options_menu_buttons[id].ini_param_index, value);
 }
 
