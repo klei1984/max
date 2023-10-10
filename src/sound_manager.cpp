@@ -290,10 +290,6 @@ void SoundManager::Init() noexcept {
 
 void SoundManager::Deinit() noexcept {
     if (is_audio_enabled) {
-        ma_engine_uninit(engine);
-        delete engine;
-        engine = nullptr;
-
         music = nullptr;
         voice = nullptr;
         sfx = nullptr;
@@ -306,6 +302,10 @@ void SoundManager::Deinit() noexcept {
 
         delete sfx_group;
         sfx_group = nullptr;
+
+        ma_engine_uninit(engine);
+        delete engine;
+        engine = nullptr;
 
         is_audio_enabled = false;
     }
@@ -767,16 +767,20 @@ void SoundManager::HaltVoicePlayback(const bool disable) noexcept {
 }
 
 void SoundManager::FreeAllSamples() noexcept {
-    for (auto it = music_group->GetSamples()->Begin(), it_end = music_group->GetSamples()->End(); it != it_end; ++it) {
-        FreeSample(it->Get());
-    }
+    if (is_audio_enabled) {
+        for (auto it = music_group->GetSamples()->Begin(), it_end = music_group->GetSamples()->End(); it != it_end;
+             ++it) {
+            FreeSample(it->Get());
+        }
 
-    for (auto it = voice_group->GetSamples()->Begin(), it_end = voice_group->GetSamples()->End(); it != it_end; ++it) {
-        FreeSample(it->Get());
-    }
+        for (auto it = voice_group->GetSamples()->Begin(), it_end = voice_group->GetSamples()->End(); it != it_end;
+             ++it) {
+            FreeSample(it->Get());
+        }
 
-    for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end; ++it) {
-        FreeSample(it->Get());
+        for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end; ++it) {
+            FreeSample(it->Get());
+        }
     }
 }
 

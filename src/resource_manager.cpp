@@ -547,8 +547,6 @@ void ResourceManager_TestMouse() {
 }
 
 void ResourceManager_ExitGame(int32_t error_code) {
-    SoundManager_FreeAllSamples();
-
     if ((error_code == EXIT_CODE_NO_ERROR) || (error_code == EXIT_CODE_THANKS)) {
         menu_draw_exit_logos();
     }
