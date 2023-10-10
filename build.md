@@ -130,7 +130,7 @@ At this stage we should be standing inside the source code's root folder. Here w
 After entering the newly created build folder configure cmake to create a Debug build. Note that as long as the project is under heavy development it is best to keep to Debug builds with no compiler and link time optimizations of any kind.
 
 ```
-cmake -G "MSYS Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
+cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-cross-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
 ```
 
 And finally we can generate our easy to use binary distribution package.
