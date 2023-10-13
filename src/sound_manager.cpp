@@ -599,8 +599,6 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
                         volumes[volume_index].flags = 0;
                         fclose(fp);
                     }
-
-                    delete[] filename;
                 }
             }
 
