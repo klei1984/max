@@ -29,6 +29,7 @@
 #include "game_manager.hpp"
 #include "gnw.h"
 #include "inifile.hpp"
+#include "mvelib32.h"
 #include "resource_manager.hpp"
 
 #define MA_NO_FLAC
@@ -271,6 +272,8 @@ void SoundManager::Init() noexcept {
         is_audio_enabled = false;
 
     } else {
+        MVE_sndInit(engine);
+
         InitVolumeTable();
 
         music_group = new (std::nothrow) SoundGroup;
@@ -306,6 +309,8 @@ void SoundManager::Deinit() noexcept {
         ma_engine_uninit(engine);
         delete engine;
         engine = nullptr;
+
+        MVE_sndInit(nullptr);
 
         is_audio_enabled = false;
     }

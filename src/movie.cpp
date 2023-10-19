@@ -41,6 +41,8 @@ static int32_t movie_run(ResourceID resource_id, int32_t mode);
 
 static uint32_t movie_music_level;
 
+static uint8_t* gfx_buf;
+
 void* mve_cb_alloc(size_t size) { return malloc(size); }
 
 void mve_cb_free(void* p) { free(p); }
@@ -55,6 +57,7 @@ int32_t mve_cb_ctl(void) {
 
     if (input > 0 || (mouse_get_buttons() & (MOUSE_PRESS_LEFT | MOUSE_PRESS_RIGHT))) {
         result = 1;
+
     } else {
         result = 0;
     }
@@ -64,7 +67,25 @@ int32_t mve_cb_ctl(void) {
 
 void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int32_t sx, int32_t sy, int32_t w, int32_t h,
                          int32_t dstx, int32_t dsty) {
-    Svga_Blit(buffer, bufw, bufh, sx, sy, w, h, dstx, dsty);
+    const int32_t window_width = Svga_GetScreenWidth();
+    const int32_t window_height = Svga_GetScreenHeight();
+
+    const float scale_w = static_cast<float>(window_width) / bufw;
+    const float scale_h = static_cast<float>(window_height) / bufh;
+    const float scale = (scale_h >= scale_w) ? scale_w : scale_h;
+
+    int32_t frame_width = scale * bufw;
+    int32_t frame_height = scale * bufh;
+
+    frame_width = std::min(frame_width, window_width);
+    frame_height = std::min(frame_height, window_height);
+
+    const int32_t frame_offset_x = (window_width - frame_width) / 2;
+    const int32_t frame_offset_y = (window_height - frame_height) / 2;
+
+    cscale(buffer, bufw, bufh, bufw, gfx_buf, frame_width, frame_height, window_width);
+
+    Svga_Blit(gfx_buf, window_width, window_height, 0, 0, frame_width, frame_height, frame_offset_x, frame_offset_y);
 }
 
 void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count) {
@@ -102,7 +123,7 @@ static void movie_init_palette(void) {
 
 int32_t movie_run(ResourceID resource_id, int32_t mode) {
     FILE* fp;
-    char result;
+    int32_t result;
     char path[PATH_MAX];
     char* file_name;
     uint8_t* palette;
@@ -148,9 +169,16 @@ int32_t movie_run(ResourceID resource_id, int32_t mode) {
                 MVE_rmFastMode(1);
             }
 
-            MVE_sfSVGA(640, 480, 640, 0, nullptr, 0, 0, nullptr, 0);
+            const int32_t gfx_buf_size = Svga_GetScreenWidth() * Svga_GetScreenHeight();
 
-            if (!MVE_rmUnprotect() && !MVE_rmPrepMovie(fp, -1, -1, 0)) {
+            gfx_buf = (uint8_t*)malloc(Svga_GetScreenWidth() * Svga_GetScreenHeight());
+
+            memset(gfx_buf, 0, gfx_buf_size);
+
+            MVE_sfSVGA(Svga_GetScreenWidth(), Svga_GetScreenHeight(), Svga_GetScreenWidth(), 0, nullptr, 0, 0, nullptr,
+                       0);
+
+            if (!MVE_rmPrepMovie(fp, -1, -1, 0)) {
                 int32_t aborted = 0;
                 int32_t frame_index = 0;
 
@@ -160,13 +188,14 @@ int32_t movie_run(ResourceID resource_id, int32_t mode) {
                         result = 1;
                     }
 
-                    frame_index++;
-
-                    SDL_Delay(33);
+                    ++frame_index;
                 }
 
                 MVE_rmEndMovie();
             }
+
+            free(gfx_buf);
+            gfx_buf = NULL;
 
             MVE_ReleaseMem();
 
