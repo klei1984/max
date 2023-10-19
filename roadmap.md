@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2023-10-07.
+Last updated: 2023-10-20.
 
-Reimplementation status: 5666 / 5704 (99%) functions.
+Reimplementation status: 5700 / 5704 (99%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -89,13 +89,15 @@ The netcode of M.A.X. relied on MS-DOS DPMI services and the IPX protocol for LA
 ### 4 Reimplement original MVE library modules
 The original MVE library was implemented in C and Assembly languages using the Watcom C/C++ compiler. The library uses its own version of MS-DOS video and audio drivers. The library also relies on self modifying code which means that the assembly subroutines are modified on the fly by themselves. This makes the original library very difficult to port to different compiler or processor architectures. The audio data streams are interleaved with the video data streams and the audio frame rate is synchronized with the video frame rate. On low end computers this allows video frames to be skipped to be able to keep up with the audio. A choppy video stream is considered less annoying than a skipping audio stream. The library supported further performance optimization techniques like decreasing the resolution of the rendered video stream or interlacing the output effectively skipping every second horizontal line of the video data. The library itself would support closed captions too, but M.A.X. did not utilize this feature. The workflow within this package is similar to the one in package 0.3 except for the OS dependent drivers layer and the assembler subroutines.
 
-- <span class="legend-inwork">
+- <span class="legend-done">
   Replace the low level OS dependent drivers (sos, vbe, ...)
   </span>
-- <span class="legend-inwork">
+- <span class="legend-done">
   Reimplement the MVE library modules (mvelib32, mveliba)
   </span>
-- Implement feature to scale videos to match screen resolution
+- <span class="legend-done">
+  Implement feature to scale videos to match screen resolution
+  </span>
 
 ### 5 Study Watcom C++, analyse original C++ classes and develop necessary tools
 Most of the game itself was implemented in C++. Even though the Watcom C/C++ compiler became open source it is still very difficult to fully understand how the original compiler organizes constructor, destructor, operator overload and such behind the scenes C++ runtime specific data. Clear understanding of the Watcom C++ runtime library and related data that the compiler emits into executables is a prerequisit to be able to identify and understand the C++ class hierarchies from the game.
@@ -207,7 +209,7 @@ The massive amount of polymorphism that is involved with all the custom object c
   </span>
 <br>
 <br>
-- <span class="legend-inwork">
+- <span class="legend-close">
   Verify the correctness of the reimplemented C++ modules (fix reimplementation issues).
   </span>
 
@@ -252,7 +254,9 @@ In-game hints, in-game help and some other text, like mission briefings or plane
 - <span class="legend-done">
   Use an audio library that supports loop points (SFX) and streaming (MVE) for digital samples
   </span>
-- refactor MVE player to eliminate self modifying code from it
+- <span class="legend-done">
+  Refactor MVE player to eliminate self modifying code from it
+  </span>
 
 ### 9 - and beyond
 To be defined
