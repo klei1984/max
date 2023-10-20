@@ -3,9 +3,9 @@ layout: page
 permalink: /download/
 title: Downloads
 dl_url: https://github.com/klei1984/max/releases/download
-release: 0.5.0
-releaseDate: 2023-10-07
-tag: 0.5.0
+release: 0.6.0
+releaseDate: 2023-10-20
+tag: 0.6.0
 ---
 
 ### Current Release: v{{ page.release }} ({{ page.releaseDate }})
