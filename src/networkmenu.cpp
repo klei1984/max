@@ -129,7 +129,7 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
             }
         }
 
-        if (Remote_NetSync()) {
+        if (Remote_UiProcessNetPackets()) {
             network_menu.is_gui_update_needed = false;
 
             network_menu.SetupScenario(false);
@@ -251,16 +251,20 @@ void NetworkMenu::ButtonInit(int32_t index) {
             image_id = static_cast<ResourceID>(image_id + 1);
         }
 
-        buttons[index] = new (std::nothrow)
-            Button(image_id, static_cast<ResourceID>(control->image_id + 1), control->bounds.ulx, control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(image_id, static_cast<ResourceID>(control->image_id + 1),
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
         buttons[index]->Copy(clan_logo, 41, 40);
+
     } else if (control->image_id == INVALID_ID) {
-        buttons[index] = new (std::nothrow)
-            Button(control->bounds.ulx, control->bounds.uly, control->bounds.lrx - control->bounds.ulx,
-                   control->bounds.lry - control->bounds.uly);
+        buttons[index] = new (std::nothrow) Button(
+            WindowManager_ScaleUlx(window, control->bounds.ulx), WindowManager_ScaleUly(window, control->bounds.uly),
+            control->bounds.lrx - control->bounds.ulx, control->bounds.lry - control->bounds.uly);
+
     } else {
         buttons[index] = new (std::nothrow) Button(control->image_id, static_cast<ResourceID>(control->image_id + 1),
-                                                   control->bounds.ulx, control->bounds.uly);
+                                                   WindowManager_ScaleUlx(window, control->bounds.ulx),
+                                                   WindowManager_ScaleUly(window, control->bounds.uly));
 
         if (control->label) {
             buttons[index]->SetCaption(control->label);
@@ -320,7 +324,8 @@ void NetworkMenu::Init() {
     WindowManager_LoadBigImage(MULTGAME, window, window->width, false, false, -1, -1, true);
 
     Text_SetFont(GNW_TEXT_FONT_1);
-    Text_TextBox(window, _(6637), 28, 403, 106, 25, true);
+    Text_TextBox(window, _(6637), WindowManager_ScaleUlx(window, 28), WindowManager_ScaleUly(window, 403), 106, 25,
+                 true);
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
@@ -328,8 +333,9 @@ void NetworkMenu::Init() {
         MenuTitleItem *menu_item = &network_menu_titles[i];
 
         images[i] = new (std::nothrow)
-            Image(menu_item->bounds.ulx, menu_item->bounds.uly, menu_item->bounds.lrx - menu_item->bounds.ulx + 1,
-                  menu_item->bounds.lry - menu_item->bounds.uly + 1);
+            Image(WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
+                  WindowManager_ScaleUly(window, menu_item->bounds.uly),
+                  menu_item->bounds.lrx - menu_item->bounds.ulx + 1, menu_item->bounds.lry - menu_item->bounds.uly + 1);
 
         images[i]->Copy(window);
     }
@@ -429,7 +435,7 @@ void NetworkMenu::EventTextWindow() {
             break;
         }
 
-        Remote_NetSync();
+        Remote_UiProcessNetPackets();
         key_press = get_input();
 
     } while (key_press != GNW_KB_KEY_ESCAPE && key_press != 1020);
@@ -497,9 +503,6 @@ void NetworkMenu::EventScenarioButton() {
     DeleteButtons();
 
     if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO, false)) {
-    } else {
-        Reinit(true);
-
         team_index = player_team;
         ini_game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
         multi_scenario_id = ini_game_file_number;
@@ -519,6 +522,9 @@ void NetworkMenu::EventScenarioButton() {
         Reinit(true);
         NetSync(team_index);
         DrawScreen();
+
+    } else {
+        Reinit(true);
     }
 }
 
@@ -611,8 +617,10 @@ void NetworkMenu::DrawScreen() {
 
         minimap_world_index = ini_world_index;
 
-        buffer_position = &window->buffer[network_menu_titles[MENU_ITEM_MAP_PICT].bounds.ulx +
-                                          network_menu_titles[MENU_ITEM_MAP_PICT].bounds.uly * window->width];
+        buffer_position =
+            &window->buffer[WindowManager_ScaleUlx(window, network_menu_titles[MENU_ITEM_MAP_PICT].bounds.ulx) +
+                            WindowManager_ScaleUly(window, network_menu_titles[MENU_ITEM_MAP_PICT].bounds.uly) *
+                                window->width];
         Menu_LoadPlanetMinimap(minimap_world_index, buffer_position, window->width);
     }
 
@@ -694,7 +702,8 @@ void NetworkMenu::DrawTextLine(int32_t line_index, char *text, int32_t height, b
     uly = line_index * height + menu_item->bounds.uly;
     width = menu_item->bounds.lrx - ulx;
 
-    Text_TextBox(window->buffer, window->width, text, ulx, uly, width, height, COLOR_GREEN, horizontal_align);
+    Text_TextBox(window->buffer, window->width, text, WindowManager_ScaleUlx(window, ulx),
+                 WindowManager_ScaleUly(window, uly), width, height, COLOR_GREEN, horizontal_align);
 }
 
 void NetworkMenu::ResetJar(int32_t team) {
@@ -715,7 +724,7 @@ void NetworkMenu::UpdateSaveSettings(struct SaveFormatHeader *save_file_header) 
         is_multi_scenario = true;
 
         for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-            strcpy(default_team_names[i], team_names[i]);
+            strcpy(default_team_names[i], save_file_header->team_name[i]);
         }
 
         rng_seed = save_file_header->rng_seed;
@@ -786,6 +795,7 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
 
         if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI) {
             NetSync(save_file_header);
+
         } else {
             int32_t player_team_local;
 
@@ -859,7 +869,7 @@ void NetworkMenu::LeaveGame(uint16_t team_node) {
 void NetworkMenu::NetSync(int32_t team) {
     bool game_found;
 
-    Remote_NetSync();
+    Remote_UiProcessNetPackets();
 
     if (player_team != -1) {
         ResetJar(player_team);
@@ -877,7 +887,7 @@ void NetworkMenu::NetSync(int32_t team) {
         game_found = false;
 
         while (!game_found) {
-            Remote_NetSync();
+            Remote_UiProcessNetPackets();
 
             if (!host_node) {
                 break;
@@ -952,7 +962,9 @@ void NetworkMenu::Reinit(int32_t palette_from_image) {
     mouse_hide();
     WindowManager_LoadBigImage(MULTGAME, window, window->width, palette_from_image, false, -1, -1, true);
     Text_SetFont(GNW_TEXT_FONT_1);
-    Text_TextBox(window, _(90a9), 28, 403, 106, 25, true);
+    Text_TextBox(window, _(90a9), WindowManager_ScaleUlx(window, 28), WindowManager_ScaleUly(window, 403), 106, 25,
+                 true);
+    minimap_world_index = -1;
     DrawScreen();
     mouse_show();
 }
@@ -964,9 +976,10 @@ TextEdit *NetworkMenu::CreateTextEdit(int32_t index) {
     control = &network_menu_controls[index];
 
     text_buffer[0] = '\0';
-    text_edit = new (std::nothrow) TextEdit(window, text_buffer, index == 18 ? 120 : 30, control->bounds.ulx,
-                                            control->bounds.uly, control->bounds.lrx - control->bounds.ulx + 1,
-                                            control->bounds.lry - control->bounds.uly + 1, 0xA2, GNW_TEXT_FONT_5);
+    text_edit = new (std::nothrow)
+        TextEdit(window, text_buffer, index == 18 ? 120 : 30, WindowManager_ScaleUlx(window, control->bounds.ulx),
+                 WindowManager_ScaleUly(window, control->bounds.uly), control->bounds.lrx - control->bounds.ulx + 1,
+                 control->bounds.lry - control->bounds.uly + 1, 0xA2, GNW_TEXT_FONT_5);
     text_edit->LoadBgImage();
 
     return text_edit;
@@ -1083,7 +1096,7 @@ void NetworkMenu::DrawJars() {
         images[3 + i]->Write(window);
         images[9 + i]->Write(window);
 
-        if (is_multi_scenario && default_team_names[i][0] != '\0') {
+        if (is_multi_scenario && default_team_names[i][0] == '\0') {
             delete buttons[button_index];
             buttons[button_index] = nullptr;
 
@@ -1135,9 +1148,10 @@ void NetworkMenu::DrawJoinScreen() {
             }
 
             if (i) {
-                draw_line(window->buffer, 640, network_menu_controls[index].bounds.ulx,
-                          network_menu_controls[index].bounds.uly, network_menu_controls[index].bounds.lrx,
-                          network_menu_controls[index].bounds.uly, COLOR_GREEN);
+                draw_line(window->buffer, 640, WindowManager_ScaleUlx(window, network_menu_controls[index].bounds.ulx),
+                          WindowManager_ScaleUlx(window, network_menu_controls[index].bounds.uly),
+                          network_menu_controls[index].bounds.lrx, network_menu_controls[index].bounds.uly,
+                          COLOR_GREEN);
             }
         }
 

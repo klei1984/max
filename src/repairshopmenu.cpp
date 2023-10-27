@@ -707,7 +707,7 @@ void RepairShopMenu::Reload(UnitInfo *target_unit) {
             RepairShopMenu_ProcessOrders(&*repairshop, ORDER_RELOAD, false);
 
         } else {
-            UnitsManager_ProcessRemoteOrders();
+            UnitsManager_ProcessOrders();
         }
     }
 }
@@ -721,7 +721,7 @@ void RepairShopMenu::Repair(UnitInfo *target_unit) {
             RepairShopMenu_ProcessOrders(&*repairshop, ORDER_REPAIR, false);
 
         } else {
-            UnitsManager_ProcessRemoteOrders();
+            UnitsManager_ProcessOrders();
         }
     }
 }
@@ -735,7 +735,7 @@ void RepairShopMenu::Upgrade(UnitInfo *target_unit) {
             RepairShopMenu_ProcessOrders(&*repairshop, ORDER_UPGRADE, false);
 
         } else {
-            UnitsManager_ProcessRemoteOrders();
+            UnitsManager_ProcessOrders();
         }
     }
 }
@@ -844,7 +844,7 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
 
                     } else {
                         while (unit->orders == ORDER_ACTIVATE) {
-                            UnitsManager_ProcessRemoteOrders();
+                            UnitsManager_ProcessOrders();
                             GameManager_ProcessState(true);
                         }
                     }
@@ -981,11 +981,11 @@ void RepairShopMenu_ProcessOrders(UnitInfo *unit, uint8_t order, bool process_ti
         GameManager_ProcessState(process_tick);
     }
 
-    while (!Remote_ProcessFrame()) {
+    while (!Remote_UiProcessTick()) {
         ;
     }
 
-    UnitsManager_ProcessRemoteOrders();
+    UnitsManager_ProcessOrders();
 }
 
 void RepairShopMenu::Draw(bool draw_to_screen) {

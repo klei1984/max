@@ -444,15 +444,15 @@ bool HelpMenu::Run(int32_t mode) {
                        GameManager_GameState == GAME_STATE_9_END_TURN) {
                 GameManager_ProcessState(false, false);
             } else if (Remote_GameState) {
-                Remote_NetSync();
+                Remote_UiProcessNetPackets();
 
                 if (Remote_GameState == 2) {
                     event_click_cancel = true;
                 }
 
             } else if (Remote_IsNetworkGame) {
-                if (Remote_ProcessFrame()) {
-                    UnitsManager_ProcessRemoteOrders();
+                if (Remote_UiProcessTick()) {
+                    UnitsManager_ProcessOrders();
                 }
             }
         }
@@ -501,14 +501,14 @@ void HelpMenu_Menu(HelpSectionId section_id, int32_t window_index, bool mode) {
                            GameManager_GameState == GAME_STATE_9_END_TURN) {
                     GameManager_ProcessState(false, false);
                 } else if (Remote_GameState) {
-                    Remote_NetSync();
+                    Remote_UiProcessNetPackets();
                     if (Remote_GameState == 2) {
                         break;
                     }
 
                 } else if (Remote_IsNetworkGame) {
-                    if (Remote_ProcessFrame()) {
-                        UnitsManager_ProcessRemoteOrders();
+                    if (Remote_UiProcessTick()) {
+                        UnitsManager_ProcessOrders();
                     }
                 }
             }

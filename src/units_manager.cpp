@@ -115,7 +115,7 @@ static bool UnitsManager_Popup_IsReady(UnitInfo* unit);
 
 static void UnitsManager_ClearPins(SmartList<UnitInfo>* units);
 static void UnitsManager_ProcessOrder(UnitInfo* unit);
-static void UnitsManager_ProcessOrders(SmartList<UnitInfo>* units);
+static void UnitsManager_ProcessUnitOrders(SmartList<UnitInfo>* units);
 static void UnitsManager_FinishUnitScaling(UnitInfo* unit);
 static void UnitsManager_ActivateEngineer(UnitInfo* unit);
 static void UnitsManager_DeployMasterBuilderInit(UnitInfo* unit);
@@ -188,10 +188,6 @@ static void UnitsManager_ProcessOrderDisable(UnitInfo* unit);
 static void UnitsManager_ProcessOrderUpgrade(UnitInfo* unit);
 static void UnitsManager_ProcessOrderLayMine(UnitInfo* unit);
 
-uint16_t UnitsManager_Team;
-
-uint32_t UnitsManager_UnknownCounter;
-
 SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
 SmartList<UnitInfo> UnitsManager_ParticleUnits;
@@ -207,9 +203,12 @@ SmartPointer<UnitInfo> UnitsManager_Units[PLAYER_TEAM_MAX];
 
 SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 
+bool UnitsManager_DelayedReactionsPending;
+uint16_t UnitsManager_DelayedReactionsTeam;
+uint32_t UnitsManager_DelayedReactionsSyncCounter;
+
 bool UnitsManager_OrdersPending;
 bool UnitsManager_byte_179448;
-bool UnitsManager_byte_178170;
 
 bool UnitsManager_TimeBenchmarkInit;
 uint8_t UnitsManager_TimeBenchmarkNextIndex;
@@ -3139,14 +3138,14 @@ void UnitsManager_InitPopupMenus() {
 
     UnitsManager_PendingAttacks.Clear();
 
-    UnitsManager_Team = PLAYER_TEAM_RED;
+    UnitsManager_DelayedReactionsTeam = PLAYER_TEAM_RED;
 
-    UnitsManager_UnknownCounter = 0;
+    UnitsManager_DelayedReactionsSyncCounter = 0;
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
             UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
-            UnitsManager_Team = team;
+            UnitsManager_DelayedReactionsTeam = team;
             break;
         }
     }
@@ -3695,7 +3694,7 @@ void UnitsManager_ScaleUnit(UnitInfo* unit, int32_t state) {
     unit->RefreshScreen();
 }
 
-void UnitsManager_ProcessRemoteOrders() {
+void UnitsManager_ProcessOrders() {
     UnitsManager_EffectCounter = 5;
 
     Ai_ClearTasksPendingFlags();
@@ -3707,11 +3706,11 @@ void UnitsManager_ProcessRemoteOrders() {
     UnitsManager_OrdersPending = false;
     UnitsManager_byte_179448 = false;
 
-    UnitsManager_ProcessOrders(&UnitsManager_GroundCoverUnits);
-    UnitsManager_ProcessOrders(&UnitsManager_MobileLandSeaUnits);
-    UnitsManager_ProcessOrders(&UnitsManager_StationaryUnits);
-    UnitsManager_ProcessOrders(&UnitsManager_MobileAirUnits);
-    UnitsManager_ProcessOrders(&UnitsManager_ParticleUnits);
+    UnitsManager_ProcessUnitOrders(&UnitsManager_GroundCoverUnits);
+    UnitsManager_ProcessUnitOrders(&UnitsManager_MobileLandSeaUnits);
+    UnitsManager_ProcessUnitOrders(&UnitsManager_StationaryUnits);
+    UnitsManager_ProcessUnitOrders(&UnitsManager_MobileAirUnits);
+    UnitsManager_ProcessUnitOrders(&UnitsManager_ParticleUnits);
 
     if (Remote_IsNetworkGame) {
         Remote_ProcessNetPackets();
@@ -3727,10 +3726,15 @@ void UnitsManager_ProcessRemoteOrders() {
                 (*unit_it).state = ORDER_STATE_ATTACK_BEGINNING;
 
             } else {
+                AiLog log("%s at [%i,%i] cannot fire.", UnitsManager_BaseUnits[(*unit_it).unit_type].singular_name,
+                          (*unit_it).grid_x + 1, (*unit_it).grid_y + 1);
+
                 (*unit_it).UpdatePinCount((*unit_it).target_grid_x, (*unit_it).target_grid_x, -1);
                 (*unit_it).RestoreOrders();
 
                 if ((*unit_it).orders == ORDER_FIRE) {
+                    log.Log("Error, unit's prior orders were fire orders.");
+
                     (*unit_it).orders = ORDER_AWAIT;
                     (*unit_it).state = ORDER_STATE_1;
                 }
@@ -5149,7 +5153,7 @@ void UnitsManager_ProcessOrder(UnitInfo* unit) {
     }
 }
 
-void UnitsManager_ProcessOrders(SmartList<UnitInfo>* units) {
+void UnitsManager_ProcessUnitOrders(SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         UnitsManager_ProcessOrder(&*it);
     }
@@ -5191,7 +5195,7 @@ bool UnitsManager_IsFactory(ResourceID unit_type) {
 void UnitsManager_AddToDelayedReactionList(UnitInfo* unit) {
     if (!ini_get_setting(INI_DISABLE_FIRE)) {
         UnitsManager_DelayedAttackTargets[unit->team].PushBack(*unit);
-        UnitsManager_byte_178170 = true;
+        UnitsManager_DelayedReactionsPending = true;
     }
 }
 
@@ -5204,7 +5208,7 @@ void UnitsManager_ClearDelayedReaction(SmartList<UnitInfo>* units) {
 }
 
 void UnitsManager_ClearDelayedReactions() {
-    UnitsManager_byte_178170 = false;
+    UnitsManager_DelayedReactionsPending = false;
 
     UnitsManager_ClearDelayedReaction(&UnitsManager_MobileLandSeaUnits);
     UnitsManager_ClearDelayedReaction(&UnitsManager_MobileAirUnits);
@@ -5471,7 +5475,7 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
                     } else {
                         UnitsManager_Units[unit->team] = unit;
 
-                        UnitsManager_byte_178170 = true;
+                        UnitsManager_DelayedReactionsPending = true;
 
                         result = true;
                     }
@@ -6478,35 +6482,37 @@ bool UnitsManager_AssessAttacks() {
         }
 
         if (are_attacks_delayed) {
-            if (UnitsManager_TeamInfo[UnitsManager_Team].team_type == TEAM_TYPE_REMOTE) {
+            if (UnitsManager_TeamInfo[UnitsManager_DelayedReactionsTeam].team_type == TEAM_TYPE_REMOTE) {
                 result = true;
 
             } else {
                 are_attacks_delayed = false;
 
-                int32_t team = UnitsManager_Team;
+                int32_t team = UnitsManager_DelayedReactionsTeam;
 
                 do {
-                    if (UnitsManager_CheckDelayedReactions(UnitsManager_Team)) {
+                    if (UnitsManager_CheckDelayedReactions(UnitsManager_DelayedReactionsTeam)) {
                         are_attacks_delayed = true;
                     }
 
-                    UnitsManager_Team = (UnitsManager_Team + 1) % 4;
+                    UnitsManager_DelayedReactionsTeam =
+                        (UnitsManager_DelayedReactionsTeam + 1) % TRANSPORT_MAX_TEAM_COUNT;
 
-                    if (UnitsManager_TeamInfo[UnitsManager_Team].team_type == TEAM_TYPE_REMOTE) {
+                    if (UnitsManager_TeamInfo[UnitsManager_DelayedReactionsTeam].team_type == TEAM_TYPE_REMOTE) {
                         if (are_attacks_delayed) {
-                            UnitsManager_byte_178170 = true;
+                            UnitsManager_DelayedReactionsPending = true;
 
-                        } else if (UnitsManager_byte_178170) {
-                            UnitsManager_byte_178170 = false;
+                        } else if (UnitsManager_DelayedReactionsPending) {
+                            UnitsManager_DelayedReactionsPending = false;
 
                         } else {
                             UnitsManager_ClearDelayedReactions();
                         }
 
-                        ++UnitsManager_UnknownCounter;
+                        ++UnitsManager_DelayedReactionsSyncCounter;
 
-                        Remote_SendNetPacket_46(UnitsManager_Team, are_attacks_delayed, UnitsManager_UnknownCounter);
+                        Remote_SendNetPacket_46(UnitsManager_DelayedReactionsTeam, are_attacks_delayed,
+                                                UnitsManager_DelayedReactionsSyncCounter);
 
                         return true;
                     }
@@ -6515,7 +6521,7 @@ bool UnitsManager_AssessAttacks() {
                         return true;
                     }
 
-                } while (team != UnitsManager_Team);
+                } while (team != UnitsManager_DelayedReactionsTeam);
 
                 UnitsManager_ClearDelayedReactions();
 
@@ -6523,7 +6529,7 @@ bool UnitsManager_AssessAttacks() {
             }
 
         } else {
-            UnitsManager_byte_178170 = 0;
+            UnitsManager_DelayedReactionsPending = false;
 
             result = false;
         }

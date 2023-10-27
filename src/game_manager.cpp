@@ -2035,7 +2035,7 @@ void GameManager_GameSetup(int32_t game_state) {
 
         MouseEvent::Clear();
 
-        if (GameManager_PlayScenarioIntro && !ini_get_setting(INI_GAME_FILE_TYPE)) {
+        if (GameManager_PlayScenarioIntro && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CUSTOM) {
             Color* palette;
 
             GameManager_LandingSequence.DeleteButtons();
@@ -5133,8 +5133,8 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
         }
 
         if (Remote_IsNetworkGame) {
-            if (Remote_ProcessFrame()) {
-                UnitsManager_ProcessRemoteOrders();
+            if (Remote_UiProcessTick()) {
+                UnitsManager_ProcessOrders();
             }
 
         } else {
@@ -5196,14 +5196,14 @@ bool GameManager_ProcessTick(bool render_screen) {
         }
 
         if (Remote_IsNetworkGame) {
-            Remote_ProcessTick();
+            Remote_Synchronize();
         }
 
         Paths_LastTimeStamp = time_stamp;
         Paths_TimeBenchmarkDisable = false;
 
         if (GameManager_GameState != GAME_STATE_11) {
-            UnitsManager_ProcessRemoteOrders();
+            UnitsManager_ProcessOrders();
         }
 
         GameManager_Render();

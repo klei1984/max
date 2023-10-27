@@ -478,7 +478,7 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
 
     do {
         if (Remote_GameState == 1) {
-            Remote_NetSync();
+            Remote_UiProcessNetPackets();
         }
 
         key = get_input();
@@ -1107,8 +1107,8 @@ bool SaveLoadMenu_Load(int32_t save_slot, int32_t game_file_type, bool ini_load_
                         SaveLoadMenu_TeamClearUnitList(UnitsManager_MobileAirUnits, team);
                         SaveLoadMenu_TeamClearUnitList(UnitsManager_ParticleUnits, team);
 
-                        if (team == UnitsManager_Team) {
-                            ++UnitsManager_Team;
+                        if (team == UnitsManager_DelayedReactionsTeam) {
+                            ++UnitsManager_DelayedReactionsTeam;
                         }
                     }
 

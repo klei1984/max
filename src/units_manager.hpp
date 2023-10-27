@@ -32,9 +32,9 @@ struct PopupFunctions {
     bool (*test)(UnitInfo* unit);
 };
 
-extern uint16_t UnitsManager_Team;
+extern uint16_t UnitsManager_DelayedReactionsTeam;
 
-extern uint32_t UnitsManager_UnknownCounter;
+extern uint32_t UnitsManager_DelayedReactionsSyncCounter;
 
 extern SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 extern SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
@@ -52,7 +52,7 @@ extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 
 extern bool UnitsManager_OrdersPending;
 extern bool UnitsManager_byte_179448;
-extern bool UnitsManager_byte_178170;
+extern bool UnitsManager_DelayedReactionsPending;
 
 extern int8_t UnitsManager_EffectCounter;
 extern int8_t UnitsManager_byte_17947D;
@@ -73,7 +73,7 @@ void UnitsManager_InitPopupMenus();
 int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int32_t order);
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y,
                                               UnitInfo* parent);
-void UnitsManager_ProcessRemoteOrders();
+void UnitsManager_ProcessOrders();
 void UnitsManager_NewOrderWhileScaling(UnitInfo* unit);
 void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit);
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state);

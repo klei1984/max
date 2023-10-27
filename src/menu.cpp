@@ -1658,7 +1658,7 @@ int32_t menu_clan_select_menu_loop(int32_t team) {
 
     do {
         if (Remote_GameState) {
-            Remote_NetSync();
+            Remote_UiProcessNetPackets();
         }
 
         if (Remote_GameState == 2) {
@@ -1744,7 +1744,7 @@ int32_t menu_planet_select_menu_loop() {
 
     do {
         if (Remote_GameState == 1) {
-            Remote_NetSync();
+            Remote_UiProcessNetPackets();
         }
 
         planet_select_menu.key = get_input();
@@ -1800,7 +1800,7 @@ int32_t menu_options_menu_loop(int32_t game_mode) {
 
     do {
         if (Remote_GameState == 1) {
-            Remote_NetSync();
+            Remote_UiProcessNetPackets();
         }
 
         game_config_menu.key = get_input();
@@ -1957,7 +1957,7 @@ int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
 
         do {
             if (Remote_GameState == 1) {
-                Remote_NetSync();
+                Remote_UiProcessNetPackets();
             }
 
             game_setup_menu.key = get_input();

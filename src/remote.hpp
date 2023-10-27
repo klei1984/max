@@ -87,14 +87,14 @@ enum : uint8_t {
 void Remote_Deinit();
 void Remote_SetupConnection();
 int32_t Remote_Lobby(bool is_host_mode);
-bool Remote_NetSync();
-bool Remote_ProcessFrame(bool mode = false);
+bool Remote_UiProcessNetPackets();
+bool Remote_UiProcessTick(bool mode = false);
 bool Remote_CheckRestartAfterDesyncEvent();
 void Remote_RegisterMenu(NetworkMenu* menu);
 void Remote_ProcessNetPackets();
 void Remote_AnalyzeDesync();
 int32_t Remote_CheckUnpauseEvent();
-void Remote_ProcessTick(bool mode = false);
+void Remote_Synchronize(bool mode = false);
 void Remote_WaitBeginTurnAcknowledge();
 void Remote_WaitEndTurnAcknowledge();
 int32_t Remote_SiteSelectMenu();

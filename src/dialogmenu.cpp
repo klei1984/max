@@ -202,8 +202,8 @@ void DialogMenu::Run() {
         ProcessKey(key);
 
         if (Remote_IsNetworkGame) {
-            if (Remote_ProcessFrame()) {
-                UnitsManager_ProcessRemoteOrders();
+            if (Remote_UiProcessTick()) {
+                UnitsManager_ProcessOrders();
             }
         } else {
             if (is_ingame) {

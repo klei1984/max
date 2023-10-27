@@ -140,6 +140,7 @@ bool TransportUdpDefault::Init(int32_t mode) {
         SetError("Network not available.");
 
         result = false;
+
     } else {
         UdpPacket = SDLNet_AllocPacket(TRANSPORT_MAX_PACKET_SIZE);
         SDL_assert(UdpPacket);

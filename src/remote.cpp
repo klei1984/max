@@ -67,7 +67,7 @@ bool Remote_IsHostMode;
 bool Remote_IsNetworkGame;
 bool Remote_UpdatePauseTimer;
 bool Remote_UnpauseGameEvent;
-bool Remote_SendP1SyncFrame;
+bool Remote_SendSynchFrame;
 uint32_t Remote_PauseTimeStamp;
 uint32_t Remote_TimeoutTimeStamp;
 uint32_t Remote_RngSeed;
@@ -446,8 +446,7 @@ void Remote_Init() {
     Remote_RngSeed = 0;
     GameManager_PlayerTeam = 0;
     Remote_FrameSyncCounter2 = 0;
-    Remote_SendP1SyncFrame = true;
-    /// \todo    Remote_byte_1759C5 = 0;
+    Remote_SendSynchFrame = true;
     Remote_RemotePlayerCount = 0;
     Remote_P51_Signal = false;
 
@@ -698,19 +697,19 @@ void Remote_SetupConnection() {
     Remote_NetworkMenu->connection_state = 1;
 }
 
-bool Remote_NetSync() {
+bool Remote_UiProcessNetPackets() {
     Remote_ProcessNetPackets();
 
     return Remote_NetworkMenu->is_gui_update_needed;
 }
 
-bool Remote_ProcessFrame(bool mode) {
+bool Remote_UiProcessTick(bool mode) {
     bool result;
 
     Remote_ProcessNetPackets();
 
     if (timer_get() - Paths_LastTimeStamp >= TIMER_FPS_TO_MS(24)) {
-        Remote_ProcessTick(mode);
+        Remote_Synchronize(mode);
 
         Paths_LastTimeStamp = timer_get();
 
@@ -1021,14 +1020,14 @@ int32_t Remote_CheckUnpauseEvent() {
     return Remote_UnpauseGameEvent;
 }
 
-void Remote_ProcessTick(bool mode) {
+void Remote_Synchronize(bool async_mode) {
     Remote_ProcessNetPackets();
 
     if (GameManager_GameState == GAME_STATE_3_MAIN_MENU || GameManager_GameState == GAME_STATE_7_SITE_SELECT ||
         GameManager_GameState == GAME_STATE_10 || GameManager_GameState == GAME_STATE_12 ||
         GameManager_GameState == GAME_STATE_13) {
         Remote_TimeoutTimeStamp = timer_get();
-        Remote_SendP1SyncFrame = true;
+        Remote_SendSynchFrame = true;
 
     } else {
         uint32_t time_stamp = timer_get();
@@ -1038,27 +1037,29 @@ void Remote_ProcessTick(bool mode) {
             Remote_ProcessNetPackets();
             MouseEvent::ProcessInput();
 
-            if (Remote_SendP1SyncFrame || timer_elapsed_time(time_stamp) > TIMER_FPS_TO_MS(2)) {
+            if (Remote_SendSynchFrame || timer_elapsed_time(time_stamp) > TIMER_FPS_TO_MS(2)) {
                 Remote_SendNetPacket_Signal(REMOTE_PACKET_01, GameManager_PlayerTeam, Remote_FrameSyncCounter2);
+                time_stamp = timer_get();
+                Remote_SendSynchFrame = false;
             }
 
             stay_in_loop = false;
 
             for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
-                UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_REMOTE;
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
+                    if (((Remote_FrameSyncCounter2 - 1) & 0x3F) == Remote_FrameSyncCounter2values[team]) {
+                        if (timer_elapsed_time(Remote_TimeoutTimeStamp) > REMOTE_RESPONSE_TIMEOUT) {
+                            Remote_ResponseTimeout(team, true);
+                            break;
 
-                if (((Remote_FrameSyncCounter2 - 1) & 0x3F) == Remote_FrameSyncCounter2values[team]) {
-                    if (timer_elapsed_time(Remote_TimeoutTimeStamp) > REMOTE_RESPONSE_TIMEOUT) {
-                        Remote_ResponseTimeout(team, true);
-                        break;
-
-                    } else {
-                        stay_in_loop = true;
+                        } else {
+                            stay_in_loop = true;
+                        }
                     }
                 }
             }
 
-            if (stay_in_loop && mode) {
+            if (stay_in_loop && async_mode) {
                 Remote_TimeoutTimeStamp = timer_get();
 
                 return;
@@ -1067,7 +1068,7 @@ void Remote_ProcessTick(bool mode) {
 
         Remote_FrameSyncCounter2 = (Remote_FrameSyncCounter2 + 1) & 0x3F;
         Remote_TimeoutTimeStamp = timer_get();
-        Remote_SendP1SyncFrame = true;
+        Remote_SendSynchFrame = true;
     }
 }
 
@@ -1087,7 +1088,7 @@ void Remote_WaitBeginTurnAcknowledge() {
     bool stay_in_loop = true;
 
     while (stay_in_loop && Remote_IsNetworkGame) {
-        Remote_ProcessFrame(true);
+        Remote_UiProcessTick(true);
 
         if (timer_elapsed_time(time_stamp_ping) > REMOTE_PING_TIME_PERIOD) {
             Remote_SendNetPacket_Signal(REMOTE_PACKET_00, GameManager_PlayerTeam,
@@ -1131,7 +1132,7 @@ void Remote_WaitEndTurnAcknowledge() {
     bool stay_in_loop = true;
 
     while (stay_in_loop && Remote_IsNetworkGame) {
-        Remote_ProcessFrame(true);
+        Remote_UiProcessTick(true);
 
         if (timer_elapsed_time(time_stamp_ping) > REMOTE_PING_TIME_PERIOD) {
             Remote_SendNetPacket_Signal(REMOTE_PACKET_52, GameManager_PlayerTeam,
@@ -1267,19 +1268,19 @@ int32_t Remote_SiteSelectMenu() {
 }
 
 void Remote_LeaveGame(uint16_t team, bool mode) {
-    if (UnitsManager_TeamInfo[UnitsManager_Team].team_type != TEAM_TYPE_REMOTE) {
-        uint16_t source_team = UnitsManager_Team;
+    if (UnitsManager_TeamInfo[UnitsManager_DelayedReactionsTeam].team_type != TEAM_TYPE_REMOTE) {
+        uint16_t source_team = UnitsManager_DelayedReactionsTeam;
 
         do {
-            UnitsManager_Team = (UnitsManager_Team + 1) % TRANSPORT_MAX_TEAM_COUNT;
+            UnitsManager_DelayedReactionsTeam = (UnitsManager_DelayedReactionsTeam + 1) % TRANSPORT_MAX_TEAM_COUNT;
 
-        } while (UnitsManager_Team != source_team &&
-                 UnitsManager_TeamInfo[UnitsManager_Team].team_type != TEAM_TYPE_REMOTE);
+        } while (UnitsManager_DelayedReactionsTeam != source_team &&
+                 UnitsManager_TeamInfo[UnitsManager_DelayedReactionsTeam].team_type != TEAM_TYPE_REMOTE);
 
-        if (UnitsManager_Team != source_team) {
-            ++UnitsManager_UnknownCounter;
+        if (UnitsManager_DelayedReactionsTeam != source_team) {
+            ++UnitsManager_DelayedReactionsSyncCounter;
 
-            Remote_SendNetPacket_46(UnitsManager_Team, false, UnitsManager_UnknownCounter);
+            Remote_SendNetPacket_46(UnitsManager_DelayedReactionsTeam, false, UnitsManager_DelayedReactionsSyncCounter);
         }
     }
 
@@ -1326,7 +1327,7 @@ bool Remote_CheckDesync(uint16_t team, uint16_t crc_checksum) {
     bool stay_in_loop = true;
 
     while (stay_in_loop && Remote_IsNetworkGame) {
-        Remote_ProcessFrame(true);
+        Remote_UiProcessTick(true);
 
         if (timer_elapsed_time(time_stamp_ping) > REMOTE_PING_TIME_PERIOD) {
             Remote_SendNetPacket_45(team, Remote_NextTurnIndices[team], crc_checksum);
@@ -2933,12 +2934,12 @@ void Remote_ReceiveNetPacket_46(NetPacket& packet) {
     packet >> counter;
 
     if (state) {
-        UnitsManager_byte_178170 = true;
+        UnitsManager_DelayedReactionsPending = true;
     }
 
-    if (counter > UnitsManager_UnknownCounter) {
-        UnitsManager_Team = entity_id;
-        UnitsManager_UnknownCounter = counter;
+    if (counter > UnitsManager_DelayedReactionsSyncCounter) {
+        UnitsManager_DelayedReactionsTeam = entity_id;
+        UnitsManager_DelayedReactionsSyncCounter = counter;
     }
 }
 
