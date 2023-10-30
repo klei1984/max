@@ -284,6 +284,15 @@ void SoundManager::Init() noexcept {
         voice_group->Init(engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE);
         sfx_group->Init(engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE);
 
+        ma_sound_group_set_volume(music_group->GetGroup(),
+                                  std::min<float>(ini_get_setting(INI_MUSIC_LEVEL), 100) / 100);
+
+        ma_sound_group_set_volume(sfx_group->GetGroup(),
+                                  std::min<float>(ini_get_setting(INI_FX_SOUND_LEVEL), 100) / 100);
+
+        ma_sound_group_set_volume(voice_group->GetGroup(),
+                                  std::min<float>(ini_get_setting(INI_VOICE_LEVEL), 100) / 100);
+
         is_audio_enabled = true;
 
         add_bk_process(SoundManager_BackgroundProcess);
@@ -353,7 +362,7 @@ void SoundManager::UpdateMusic() noexcept {
             }
 
             if (index == std::size(music_playlist)) {
-                for (auto item : music_playlist) {
+                for (auto& item : music_playlist) {
                     item = true;
                 }
             }
@@ -464,7 +473,7 @@ void SoundManager::PlayMusic(const ResourceID id, const bool shuffle) noexcept {
             shuffle_music = shuffle;
 
             if ((shuffle_music) && ((id < MAIN_MSC) || (id > BKG9_MSC))) {
-                for (auto item : music_playlist) {
+                for (auto& item : music_playlist) {
                     item = true;
                 }
             }
@@ -669,7 +678,6 @@ void SoundManager::UpdateSfxPosition() noexcept {
 
             float sound_level = (*it).volume_2 - (*it).volume_2 * std::max(grid_distance_x, grid_distance_y) /
                                                      std::max(map_size.x, map_size.y);
-            sound_level = (sound_level * std::max(ini_get_setting(INI_FX_SOUND_LEVEL), 100)) / 100;
 
             ma_sound_set_volume(&(*it).sound, sound_level);
         }
@@ -694,7 +702,6 @@ void SoundManager::UpdateSfxPosition(UnitInfo* const unit) noexcept {
 
         float sound_level = sfx->volume_2 - sfx->volume_2 * std::max(grid_distance_x, grid_distance_y) /
                                                 std::max(map_size.x, map_size.y);
-        sound_level = (sound_level * std::max(ini_get_setting(INI_FX_SOUND_LEVEL), 100)) / 100;
 
         ma_sound_set_volume(&sfx->sound, sound_level);
     }
@@ -892,8 +899,6 @@ int32_t SoundManager::ProcessJob(SoundJob& job) noexcept {
         result = LoadSound(job, *sample);
 
         if (0 == result) {
-            float sound_level;
-
             if (job.type >= JOB_TYPE_SFX0 && job.type <= JOB_TYPE_SFX2) {
                 if (sample->loop_point_start != 0 || sample->loop_point_length != 0) {
                     ma_uint64 length;
@@ -918,16 +923,6 @@ int32_t SoundManager::ProcessJob(SoundJob& job) noexcept {
                 }
             }
 
-            if (job.type == JOB_TYPE_MUSIC) {
-                sound_level = std::max<float>(ini_get_setting(INI_MUSIC_LEVEL), 100) / 100;
-
-            } else if (job.type == JOB_TYPE_VOICE) {
-                sound_level = std::max<float>(ini_get_setting(INI_VOICE_LEVEL), 100) / 100;
-
-            } else {
-                sound_level = std::max<float>(ini_get_setting(INI_FX_SOUND_LEVEL), 100) / 100;
-            }
-
             sample->id = job.id;
             sample->type = job.type;
             sample->volume_1 = job.volume_1;
@@ -939,7 +934,7 @@ int32_t SoundManager::ProcessJob(SoundJob& job) noexcept {
             sample->fade_out = SOUND_MANAGER_NO_FADING;
 
             ma_sound_set_pan(&sample->sound, job.panning);
-            ma_sound_set_volume(&sample->sound, sample->volume_1 * sound_level);
+            ma_sound_set_volume(&sample->sound, sample->volume_1);
             ma_sound_set_looping(&sample->sound, sample->loop_count);
             ma_sound_start(&sample->sound);
 
@@ -1054,7 +1049,7 @@ bool SoundManager::PlayMusic(const ResourceID id) noexcept {
 
                     music_group->GetSamples()->PushFront(*new_sample);
                     music = new_sample;
-                    ma_sound_start(&sample->sound);
+                    ma_sound_start(&music->sound);
                     current_music_played = id;
                     result = true;
                 }

@@ -3069,8 +3069,6 @@ void GameManager_ProcessCheatCodes() {
 void GameManager_InitUnitsAndGameState() {
     GameManager_IsCheater = false;
 
-    SoundManager_SetVolume(AUDIO_TYPE_MUSIC, static_cast<float>(std::max(ini_get_setting(INI_MUSIC_LEVEL), 100)) / 100);
-
     ResourceManager_FreeResources();
     WindowManager_ScaleResources();
     WindowManager_LoadPalette(FRAMEPIC);
