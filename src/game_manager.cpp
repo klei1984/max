@@ -7271,7 +7271,7 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
         current_value = 0;
         base_value = 0;
 
-        Cargo_GetNetProduction(unit, &cargo);
+        cargo = Cargo_GetNetProduction(unit);
 
         current_power_need = cargo.power;
 
@@ -7303,7 +7303,7 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
                     std::swap((*it).orders, (*it).prior_orders);
                 }
 
-                Cargo_GetNetProduction(&(*it), &cargo);
+                cargo = Cargo_GetNetProduction(it->Get());
 
                 if (upgrade_all) {
                     std::swap((*it).orders, (*it).prior_orders);
@@ -7342,7 +7342,7 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
         current_value = 0;
         base_value = 0;
 
-        Cargo_GetNetProduction(unit, &cargo);
+        cargo = Cargo_GetNetProduction(unit);
 
         current_life_need = cargo.life;
 
@@ -7374,7 +7374,7 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
                     std::swap((*it).orders, (*it).prior_orders);
                 }
 
-                Cargo_GetNetProduction(&(*it), &cargo);
+                cargo = Cargo_GetNetProduction(it->Get());
 
                 if (upgrade_all) {
                     std::swap((*it).orders, (*it).prior_orders);

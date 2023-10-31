@@ -311,7 +311,8 @@ int32_t WinLoss_CountReadyUnits(uint16_t team, ResourceID unit_type) {
     return result;
 }
 
-void WinLoss_CountTotalMining(uint16_t team, int32_t* raw_mining_max, int32_t* fuel_mining_max, int32_t* gold_mining_max) {
+void WinLoss_CountTotalMining(uint16_t team, int32_t* raw_mining_max, int32_t* fuel_mining_max,
+                              int32_t* gold_mining_max) {
     raw_mining_max[0] = 0;
     fuel_mining_max[0] = 0;
     gold_mining_max[0] = 0;
@@ -389,7 +390,7 @@ int32_t WinLoss_GetTotalConsumption(uint16_t team, uint8_t cargo_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team) {
-            Cargo_GetNetProduction(&*it, &cargo);
+            cargo = Cargo_GetNetProduction(it->Get());
 
             switch (cargo_type) {
                 case CARGO_MATERIALS: {

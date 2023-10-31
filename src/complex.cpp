@@ -90,9 +90,7 @@ void Complex::GetCargoMinable(Cargo& capacity) {
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == this && (*it).orders != ORDER_POWER_OFF && (*it).orders != ORDER_DISABLE &&
             (*it).orders != ORDER_IDLE) {
-            Cargo cargo;
-
-            Cargo_GetNetProduction(&*it, &cargo);
+            Cargo cargo = Cargo_GetNetProduction(it->Get());
 
             if ((*it).unit_type == MININGST) {
                 cargo.gold -= (*it).gold_mining;

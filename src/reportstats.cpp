@@ -45,10 +45,11 @@ struct InterfaceMeta {
 };
 
 static void ReportStats_RenderSprite(struct InterfaceMeta* data);
-static void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty, int32_t current_value,
-                                  int32_t base_value);
+static void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceID icon_empty,
+                                  int32_t current_value, int32_t base_value);
 static void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int32_t row_id, ResourceID icon_normal,
-                                  ResourceID icon_empty, int32_t current_value, int32_t base_value, int32_t factor, bool drawline);
+                                  ResourceID icon_empty, int32_t current_value, int32_t base_value, int32_t factor,
+                                  bool drawline);
 static void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds);
 static void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds);
 static void ReportStats_DrawPointsUnit(UnitInfo* unit, WinID id, Rect* bounds);
@@ -82,8 +83,8 @@ void ReportStats_RenderSprite(struct InterfaceMeta* data) {
         ResourceManager_Realloc(data->icon, Gfx_ResourceBuffer, data_size);
     }
 
-    image_frame = &Gfx_ResourceBuffer[reinterpret_cast<uint32_t*>(
-        &Gfx_ResourceBuffer[sizeof(uint16_t)])[data->frame_index]];
+    image_frame =
+        &Gfx_ResourceBuffer[reinterpret_cast<uint32_t*>(&Gfx_ResourceBuffer[sizeof(uint16_t)])[data->frame_index]];
 
     map_scaling_factor = Gfx_MapScalingFactor;
     map_window_ulx = Gfx_MapWindowUlx;
@@ -194,7 +195,8 @@ void ReportStats_DrawIcons(WindowInfo* window, ResourceID icon_normal, ResourceI
 }
 
 void ReportStats_DrawRowEx(const char* text, WinID id, Rect* bounds, int32_t row_id, ResourceID icon_normal,
-                           ResourceID icon_empty, int32_t current_value, int32_t base_value, int32_t factor, bool drawline) {
+                           ResourceID icon_empty, int32_t current_value, int32_t base_value, int32_t factor,
+                           bool drawline) {
     Rect new_bounds;
     int32_t height;
 
@@ -320,8 +322,8 @@ void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID uni
     }
 }
 
-void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_type, int32_t ulx, int32_t uly, int32_t full,
-                              int32_t color) {
+void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_type, int32_t ulx, int32_t uly,
+                              int32_t full, int32_t color) {
     ReportStats_DrawListItemIcon(buffer, width, unit_type, GameManager_PlayerTeam, ulx + 16, uly + 16);
     Text_TextBox(buffer, width, UnitsManager_BaseUnits[unit_type].singular_name, ulx + 35, uly, full - 35, 32, color,
                  false);
@@ -361,7 +363,7 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         current_value = 0;
         base_value = 0;
 
-        Cargo_GetNetProduction(unit, &cargo);
+        cargo = Cargo_GetNetProduction(unit);
         power_consumption_current = cargo.power;
 
         if (power_consumption_base >= 0) {
@@ -386,7 +388,7 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
                     power_consumption_base -= cargo.power;
                 }
 
-                Cargo_GetNetProduction(&*it, &cargo);
+                cargo = Cargo_GetNetProduction(it->Get());
 
                 if (cargo.power >= 0) {
                     power_consumption_current += cargo.power;
@@ -420,7 +422,7 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         current_value = 0;
         base_value = 0;
 
-        Cargo_GetNetProduction(unit, &cargo);
+        cargo = Cargo_GetNetProduction(unit);
 
         current_life_need = cargo.life;
 
@@ -445,7 +447,7 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
                     life_need -= cargo.life;
                 }
 
-                Cargo_GetNetProduction(&*it, &cargo);
+                cargo = Cargo_GetNetProduction(it->Get());
 
                 if (cargo.life >= 0) {
                     current_life_need += cargo.life;
