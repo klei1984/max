@@ -4550,7 +4550,7 @@ void UnitInfo::Reload(UnitInfo* parent) {
 }
 
 bool UnitInfo::Upgrade(UnitInfo* parent) {
-    bool result;
+    bool result{false};
 
     if (parent->GetBaseValues() != UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], parent->unit_type) &&
         complex) {
@@ -4586,8 +4586,6 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
             message.Sprintf(80, _(e3e0), materials_cost);
 
             MessageManager_DrawMessage(message.GetCStr(), 2, 0);
-
-            result = false;
         }
     }
 
