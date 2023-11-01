@@ -601,6 +601,7 @@ static void GameManager_AnnounceWinner(uint16_t team);
 static void GameManager_DrawTurnCounter(int32_t turn_count);
 static void GameManager_DrawTimer(char* text, int32_t color);
 static bool GameManager_ProcessTextInput(int32_t key);
+static bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units);
 static void GameManager_ProcessKey();
 static int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
 static int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
@@ -5350,6 +5351,29 @@ bool GameManager_ProcessTextInput(int32_t key) {
     return result;
 }
 
+bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
+    bool result{false};
+
+    for (SmartList<UnitInfo>::Iterator it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        if ((*it).orders == ORDER_FIRE || (*it).orders == ORDER_EXPLODE ||
+            ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) ||
+            ((*it).orders == ORDER_MOVE_TO_UNIT && (*it).state != ORDER_STATE_1)) {
+            char text[200];
+
+            sprintf(text, "End turn delayed because %s at [%i,%i] is %s",
+                    UnitsManager_BaseUnits[(*it).unit_type].singular_name, (*it).grid_x + 1, (*it).grid_y + 1,
+                    GameManager_OrderStatusMessages[(*it).orders]);
+
+            MessageManager_DrawMessage(text, 0, 0);
+
+            result = true;
+            break;
+        }
+    }
+
+    return result;
+}
+
 void GameManager_ProcessKey() {
     CTInfo* team_info;
     int32_t key;
@@ -5568,6 +5592,20 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_LALT_F3: {
 #if !defined(NDEBUG)
             TaskDebugger_SetDebugMode();
+#endif /* !defined(NDEBUG) */
+        } break;
+
+        case GNW_KB_KEY_LALT_F4: {
+#if !defined(NDEBUG)
+            {
+                if (!GameManager_DebugDelayedEndTurn(UnitsManager_MobileLandSeaUnits) &&
+                    !GameManager_DebugDelayedEndTurn(UnitsManager_MobileAirUnits) &&
+                    !GameManager_DebugDelayedEndTurn(UnitsManager_StationaryUnits) &&
+                    !GameManager_DebugDelayedEndTurn(UnitsManager_GroundCoverUnits) &&
+                    !GameManager_DebugDelayedEndTurn(UnitsManager_ParticleUnits)) {
+                    MessageManager_DrawMessage("Turn end is NOT delayed by units.", 0, 0);
+                }
+            }
 #endif /* !defined(NDEBUG) */
         } break;
 
