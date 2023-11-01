@@ -3723,7 +3723,11 @@ void UnitsManager_ProcessOrders() {
             SDL_assert((*unit_it).hits > 0);
 
             if ((*unit_it).shots > 0) {
-                (*unit_it).state = ORDER_STATE_ATTACK_BEGINNING;
+                if ((*unit_it).orders == ORDER_FIRE) {
+                    (*unit_it).state = ORDER_STATE_ATTACK_BEGINNING;
+
+                    UnitsManager_PendingAttacks.Remove(unit_it);
+                }
 
             } else {
                 AiLog log("%s at [%i,%i] cannot fire.", UnitsManager_BaseUnits[(*unit_it).unit_type].singular_name,
@@ -3742,9 +3746,9 @@ void UnitsManager_ProcessOrders() {
                 if (GameManager_SelectedUnit == *unit_it) {
                     GameManager_UpdateInfoDisplay(&*unit_it);
                 }
-            }
 
-            UnitsManager_PendingAttacks.Remove(unit_it);
+                UnitsManager_PendingAttacks.Remove(unit_it);
+            }
 
         } else {
             if (!UnitsManager_AssessAttacks()) {
@@ -4196,7 +4200,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
 
     if (unit->flags & ANIMATED) {
         unit->orders = ORDER_EXPLODE;
-        unit->state = GAME_STATE_14;
+        unit->state = ORDER_STATE_14;
     }
 
     if (!is_existing_unit) {
