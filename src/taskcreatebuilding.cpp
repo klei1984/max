@@ -532,7 +532,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
             }
 
             if (manager.Get() != parent.Get()) {
-                ChildComplete(this);
+                parent->ChildComplete(this);
             }
 
             if (builder && builder->GetTask() == this && parent && unit_type == WTRPLTFM &&
