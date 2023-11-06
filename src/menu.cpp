@@ -758,6 +758,8 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
         exit_loop = false;
 
         do {
+            uint32_t time_stamp = timer_get();
+
             key = get_input();
 
             switch (key) {
@@ -781,6 +783,9 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
                         menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
                     }
                 } break;
+            }
+
+            while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
             }
 
             win_draw(window_info.id);
