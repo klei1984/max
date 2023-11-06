@@ -28,12 +28,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio SDL2::SDL2-static SDL2_net::SDL2_net-static)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2-static SDL2_net::SDL2_net-static)
 
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio SDL2::SDL2 SDL2_net::SDL2_net)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2 SDL2_net::SDL2_net)
 
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 endif()
@@ -44,6 +44,9 @@ include(sdl2)
 include(sdl2_net)
 include(freetype)
 include(miniaudio)
+
+set(ENET_RELEASE ON)
+include(enet)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.debug
