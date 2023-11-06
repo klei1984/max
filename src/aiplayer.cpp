@@ -2606,6 +2606,20 @@ void AiPlayer::BeginTurn() {
         RegisterIdleUnits();
         DetermineResearchProjects();
 
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
+            if ((*it).team == player_team) {
+                if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+                    if ((*it).unit_type == RADAR || (*it).unit_type == GUNTURRT || (*it).unit_type == ARTYTRRT ||
+                        (*it).unit_type == ANTIMSSL || (*it).unit_type == ANTIAIR) {
+                        if (ShouldUpgradeUnit(it->Get())) {
+                            Task_UpgradeStationaryUnit(it->Get());
+                        }
+                    }
+                }
+            }
+        }
+
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
             if ((*it).team == player_team) {

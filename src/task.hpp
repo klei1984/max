@@ -81,6 +81,7 @@ enum : uint8_t {
 class Complex;
 class UnitInfo;
 
+void Task_UpgradeStationaryUnit(UnitInfo* unit);
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
 bool Task_IsReadyToTakeOrders(UnitInfo* unit);
 void Task_RemoveMovementTasks(UnitInfo* unit);

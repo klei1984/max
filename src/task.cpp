@@ -39,6 +39,30 @@ uint16_t Task::task_count = 0;
 
 static SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type);
 
+void Task_UpgradeStationaryUnit(UnitInfo* unit) {
+    Complex* complex = unit->GetComplex();
+
+    if (complex) {
+        Cargo materials;
+        Cargo capacity;
+
+        complex->GetCargoInfo(materials, capacity);
+
+        if (materials.raw >= ((capacity.raw * 3) / 4)) {
+            for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                 it != it_end; ++it) {
+                if ((*it).GetComplex() == complex && (*it).unit_type == ADUMP) {
+                    if (Task_IsReadyToTakeOrders(it->Get())) {
+                        (*it).SetParent(unit);
+                        UnitsManager_SetNewOrder(it->Get(), ORDER_UPGRADE, ORDER_STATE_INIT);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority) {
     if (unit && (unit->GetField221() & 0x100) == 0) {
         TaskManager.AppendReminder(new (std::nothrow) RemindMoveFinished(*unit), priority);
