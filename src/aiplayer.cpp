@@ -496,7 +496,7 @@ void AiPlayer::RegisterIdleUnits() {
 }
 
 int32_t AiPlayer::GetTotalProjectedDamage(UnitInfo* unit, int32_t caution_level, uint16_t team,
-                                      SmartList<UnitInfo>* units) {
+                                          SmartList<UnitInfo>* units) {
     int32_t result = 0;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
@@ -554,8 +554,8 @@ void AiPlayer::UpdateMap(int16_t** map, Point position, int32_t range, int32_t d
     }
 }
 
-void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int32_t range, int32_t attack, int32_t shots,
-                                int32_t& ammo, bool normalize) {
+void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int32_t range, int32_t attack,
+                                int32_t shots, int32_t& ammo, bool normalize) {
     if (shots > ammo) {
         shots = ammo;
     }
@@ -1092,7 +1092,8 @@ WeightTable AiPlayer::GetWeightTable(ResourceID unit_type) {
     return result;
 }
 
-void AiPlayer::AddThreatToMineMap(int32_t grid_x, int32_t grid_y, int32_t range, int32_t damage_potential, int32_t factor) {
+void AiPlayer::AddThreatToMineMap(int32_t grid_x, int32_t grid_y, int32_t range, int32_t damage_potential,
+                                  int32_t factor) {
     Point position(grid_x, grid_y);
     Rect bounds;
 
@@ -1699,8 +1700,8 @@ void AiPlayer::AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, Resourc
     }
 }
 
-void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type,
-                                        uint16_t team, uint16_t enemy_team, bool mode) {
+void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, uint16_t team,
+                                        uint16_t enemy_team, bool mode) {
     int32_t unit_range_max = 0;
     int32_t unit_scan = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type)->GetAttribute(ATTRIB_SCAN);
     CTInfo* team_info = &UnitsManager_TeamInfo[enemy_team];
@@ -1710,11 +1711,13 @@ void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orde
 
         if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0 && (mode || unit_values->GetAttribute(ATTRIB_SPEED)) &&
             Access_IsValidAttackTargetType(static_cast<ResourceID>(i), unit_type)) {
-            unit_range_max = std::max(unit_range_max, unit_values->GetAttribute(ATTRIB_RANGE) + 1);
             if (team_info->team_units->GetBaseUnitValues(static_cast<ResourceID>(i))->GetAttribute(ATTRIB_RANGE) >
                 unit_scan) {
-                return;
+                // do not compete with units that are in another league
+                continue;
             }
+
+            unit_range_max = std::max(unit_range_max, unit_values->GetAttribute(ATTRIB_RANGE) + 1);
         }
     }
 
@@ -1729,8 +1732,13 @@ SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
 
     if (target_team < PLAYER_TEAM_RED) {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            if (target_team < PLAYER_TEAM_RED || UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
-                target_team = team;
+            if (team != player_team) {
+                if (target_team < PLAYER_TEAM_RED ||
+                    (UnitsManager_TeamInfo[team].team_points > UnitsManager_TeamInfo[target_team].team_points &&
+                     (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                      UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED))) {
+                    target_team = team;
+                }
             }
         }
     }
