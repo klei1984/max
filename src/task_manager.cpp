@@ -532,7 +532,7 @@ void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
 
     unit->GetDisplayName(unit_name);
 
-    AiLog log("Task manager: make %s available.", unit_name);
+    AiLog log("Task manager: make %s at [%i,%i] available.", unit_name, unit->grid_x + 1, unit->grid_y + 1);
 
     unit->RemoveTasks();
     unit->ChangeField221(0x100, false);

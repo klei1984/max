@@ -108,6 +108,8 @@ char* TaskAssistMove::WriteStatusLog(char* buffer) const {
 uint8_t TaskAssistMove::GetType() const { return TaskType_TaskAssistMove; }
 
 void TaskAssistMove::AddUnit(UnitInfo& unit) {
+    SDL_assert(unit.team == team);
+
     if (unit.unit_type == AIRTRANS || unit.unit_type == SEATRANS || unit.unit_type == CLNTRANS) {
         units.PushBack(unit);
         unit.AddTask(this);
