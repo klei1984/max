@@ -202,12 +202,12 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                 for (SmartList<UnitInfo>::Iterator building = UnitsManager_StationaryUnits.Begin();
                      building != UnitsManager_StationaryUnits.End(); ++building) {
                     if ((*building).GetComplex() == complex) {
-                        if (Task_IsAdjacent(&*building, unit_->grid_x, unit_->grid_y)) {
+                        if (Task_IsAdjacent(building->Get(), unit_->grid_x, unit_->grid_y)) {
                             if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
                                 unit_->target_grid_x =
                                     std::min(static_cast<int32_t>(unit_->storage),
                                              (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - (*it).storage);
-                                unit_->SetParent(&*it);
+                                unit_->SetParent(it->Get());
 
                                 UnitsManager_SetNewOrder(unit_, ORDER_TRANSFER, ORDER_STATE_INIT);
                             }
@@ -217,12 +217,12 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                             return result;
 
                         } else {
-                            distance = TaskManager_GetDistance(&*building, unit_);
+                            distance = TaskManager_GetDistance(building->Get(), unit_);
 
                             if (!best_unit || distance < minimum_distance) {
                                 minimum_distance = distance;
 
-                                best_unit = &*it;
+                                best_unit = building->Get();
                             }
                         }
                     }
