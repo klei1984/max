@@ -37,8 +37,8 @@
 #include "transportorder.hpp"
 #include "units_manager.hpp"
 
-TaskMove::TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance_, uint8_t caution_level_,
-                   Point destination, void (*result_callback_)(Task* task, UnitInfo* unit, char result))
+TaskMove::TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance_, uint8_t caution_level_, Point destination,
+                   void (*result_callback_)(Task* task, UnitInfo* unit, char result))
     : Task(unit->team, task, task ? task->GetFlags() : 0x1000) {
     path_result = TASKMOVE_RESULT_SUCCESS;
     passenger = unit;
@@ -252,7 +252,7 @@ bool TaskMove::Execute(UnitInfo& unit) {
                                 } else if (IsPathClear()) {
                                     result = true;
 
-                                } else {
+                                } else if (!zone) {
                                     log.Log("Find Direct path.");
 
                                     PathRequest* request =
@@ -268,6 +268,11 @@ bool TaskMove::Execute(UnitInfo& unit) {
                                     TaskManager.AppendTask(*find_path);
 
                                     result = true;
+
+                                } else {
+                                    log.Log("Wait for zone to be cleared.");
+
+                                    result = false;
                                 }
 
                             } else {
@@ -318,7 +323,8 @@ void TaskMove::RemoveSelf() {
         passenger->RemoveTask(this);
     }
 
-    AiLog("Move: Remove passenger (self).");
+    AiLog log("Move (RemoveSelf): Remove %s at [%i,%i].", UnitsManager_BaseUnits[passenger->unit_type].singular_name,
+              passenger->grid_x + 1, passenger->grid_y + 1);
 
     passenger = nullptr;
     zone = nullptr;
@@ -485,14 +491,15 @@ void TaskMove::Finished(int32_t result) {
         AiLog log("Move %s: finished (%s)", UnitsManager_BaseUnits[passenger->unit_type].singular_name,
                   result_codes[result]);
 
+        log.Log("Move (Finished): Remove %s at [%i,%i].", UnitsManager_BaseUnits[passenger->unit_type].singular_name,
+                passenger->grid_x + 1, passenger->grid_y + 1);
+
         passenger->RemoveTask(this, false);
 
         if (parent) {
             result_callback(&*parent, &*passenger, result);
         }
     }
-
-    AiLog("Move: Remove passenger (finish).");
 
     passenger = nullptr;
     zone = nullptr;
