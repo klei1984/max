@@ -30,7 +30,7 @@ set(SDL2_NET_HASH_TYPE MD5)
 
 set(ENET_VERSION 1.3.17)
 set(ENET_FILE enet-${ENET_VERSION}.tar.gz)
-set(ENET_URI https://github.com/lsalzman/enet/archive/refs/tags/${ENET_VERSION}.tar.gz)
+set(ENET_URI https://github.com/lsalzman/enet/archive/refs/tags/v${ENET_VERSION}.tar.gz)
 set(ENET_HASH 1c3270f1e03ccb2a8544a88d91d2a368)
 set(ENET_HASH_TYPE MD5)
 
