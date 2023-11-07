@@ -268,6 +268,19 @@ bool TaskTransport::ChooseNewTask() {
     return result;
 }
 
+bool TaskTransport::IsClient(TaskMove* move) {
+    bool result{false};
+
+    for (auto it = move_tasks.Begin(), it_end = move_tasks.End(); it != it_end; ++it) {
+        if (it->Get() == move) {
+            result = true;
+            break;
+        }
+    }
+
+    return result;
+}
+
 void TaskTransport::AddClient(TaskMove* move) {
     AiLog log("Transport: Add Client %s.", UnitsManager_BaseUnits[move->GetPassenger()->unit_type].singular_name);
 
@@ -321,7 +334,7 @@ void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char resul
         AiLog log("Transport: dump client %s.",
                   transport->task_move->GetPassenger()
                       ? UnitsManager_BaseUnits[transport->task_move->GetPassenger()->unit_type].singular_name
-                      : "null unit.");
+                      : "null unit");
 
         SmartPointer<Task> dump =
             new (std::nothrow) TaskDump(transport, &*transport->task_move, &*transport->unit_transporter);

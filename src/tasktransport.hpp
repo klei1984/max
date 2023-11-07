@@ -66,6 +66,7 @@ public:
 
     ResourceID GetTransporterType() const;
     bool WillTransportNewClient(TaskMove* task);
+    bool IsClient(TaskMove* move);
     void AddClient(TaskMove* move);
 };
 

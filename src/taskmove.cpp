@@ -321,12 +321,14 @@ bool TaskMove::Execute(UnitInfo& unit) {
 void TaskMove::RemoveSelf() {
     if (passenger) {
         passenger->RemoveTask(this);
+
+        AiLog log("Move (RemoveSelf): Remove %s at [%i,%i].",
+                  UnitsManager_BaseUnits[passenger->unit_type].singular_name, passenger->grid_x + 1,
+                  passenger->grid_y + 1);
+
+        passenger = nullptr;
     }
 
-    AiLog log("Move (RemoveSelf): Remove %s at [%i,%i].", UnitsManager_BaseUnits[passenger->unit_type].singular_name,
-              passenger->grid_x + 1, passenger->grid_y + 1);
-
-    passenger = nullptr;
     zone = nullptr;
     parent = nullptr;
 
@@ -335,7 +337,18 @@ void TaskMove::RemoveSelf() {
 
 void TaskMove::RemoveUnit(UnitInfo& unit) {
     if (passenger == &unit) {
-        AiLog log("Move: Remove %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+        for (auto it = passenger->delayed_tasks.Begin(), it_end = passenger->delayed_tasks.End(); it != it_end; ++it) {
+            if ((*it).GetType() == TaskType_TaskTransport) {
+                TaskTransport* transport = dynamic_cast<TaskTransport*>(it->Get());
+
+                if (transport->IsClient(this)) {
+                    transport->RemoveUnit(unit);
+                }
+            }
+        }
+
+        AiLog log("Move (RemoveUnit): Remove %s at [%i,%i].", UnitsManager_BaseUnits[unit.unit_type].singular_name,
+                  unit.grid_x + 1, unit.grid_y + 1);
 
         Finished(TASKMOVE_RESULT_CANCELLED);
     }
