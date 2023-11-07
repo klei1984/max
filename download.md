@@ -12,6 +12,7 @@ tag: 0.6.0
 
 - **[Windows installer 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86.exe)**
 - **[Windows 7-Zip file 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86.7z)**
+- **[Windows XP 7-Zip file 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86.7z)**
 - **[Linux DEB package for x86 systems]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86.deb )**
 - **[Windows installer 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86-64.exe)**
 - **[Windows 7-Zip file 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86-64.7z)**
