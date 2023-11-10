@@ -1252,13 +1252,12 @@ void GameManager_Render() {
             }
 
             if (GameManager_SelectedUnit != nullptr) {
-                SmartPointer<UnitValues> unit_values(GameManager_SelectedUnit->GetBaseValues());
-
                 if (GameManager_SelectedUnit->state == ORDER_STATE_1 ||
                     GameManager_SelectedUnit->state == ORDER_STATE_29 ||
                     GameManager_SelectedUnit->state == ORDER_STATE_2 ||
                     GameManager_SelectedUnit->orders == ORDER_BUILD) {
                     if (GameManager_SelectedUnit->IsVisibleToTeam(GameManager_PlayerTeam)) {
+                        SmartPointer<UnitValues> unit_values(GameManager_SelectedUnit->GetBaseValues());
                         UnitInfo* unit = &*GameManager_SelectedUnit;
 
                         if (unit->team == GameManager_PlayerTeam && unit->path != nullptr) {
@@ -1280,35 +1279,37 @@ void GameManager_Render() {
                         if (GameManager_DisplayButtonScan) {
                             GameManager_DrawCircle(unit, window, unit_values->GetAttribute(ATTRIB_SCAN), COLOR_YELLOW);
                         }
+                    }
+                }
 
-                        if (GameManager_DisplayButtonLock &&
-                            (GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
-                            GameManager_LockedUnits.GetCount()) {
-                            for (SmartList<UnitInfo>::Iterator it = GameManager_LockedUnits.Begin();
-                                 it != GameManager_LockedUnits.End(); ++it) {
-                                if ((*it).team != GameManager_PlayerTeam &&
-                                    ((*it).state == ORDER_STATE_1 || (*it).state == ORDER_STATE_2)) {
-                                    if ((*it).IsVisibleToTeam(GameManager_PlayerTeam)) {
-                                        unit_values = (*it).GetBaseValues();
+                if (GameManager_DisplayButtonLock &&
+                    (GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
+                    GameManager_LockedUnits.GetCount()) {
+                    SmartPointer<UnitValues> unit_values;
 
-                                        if (GameManager_DisplayButtonRange) {
-                                            int32_t color;
+                    for (SmartList<UnitInfo>::Iterator it = GameManager_LockedUnits.Begin();
+                         it != GameManager_LockedUnits.End(); ++it) {
+                        if ((*it).team != GameManager_PlayerTeam &&
+                            ((*it).state == ORDER_STATE_1 || (*it).state == ORDER_STATE_2)) {
+                            if ((*it).IsVisibleToTeam(GameManager_PlayerTeam)) {
+                                unit_values = (*it).GetBaseValues();
 
-                                            if (Access_GetValidAttackTargetTypes((*it).unit_type) & MOBILE_AIR_UNIT) {
-                                                color = COLOR_CHROME_YELLOW;
-                                            } else {
-                                                color = COLOR_RED;
-                                            }
+                                if (GameManager_DisplayButtonRange) {
+                                    int32_t color;
 
-                                            GameManager_DrawCircle(&*it, window,
-                                                                   unit_values->GetAttribute(ATTRIB_RANGE), color);
-                                        }
-
-                                        if (GameManager_DisplayButtonScan) {
-                                            GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_SCAN),
-                                                                   COLOR_YELLOW);
-                                        }
+                                    if (Access_GetValidAttackTargetTypes((*it).unit_type) & MOBILE_AIR_UNIT) {
+                                        color = COLOR_CHROME_YELLOW;
+                                    } else {
+                                        color = COLOR_RED;
                                     }
+
+                                    GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_RANGE),
+                                                           color);
+                                }
+
+                                if (GameManager_DisplayButtonScan) {
+                                    GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_SCAN),
+                                                           COLOR_YELLOW);
                                 }
                             }
                         }
