@@ -2822,6 +2822,9 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(grid_x);
     file.Read(grid_y);
 
+    SDL_assert(grid_x >= 0 && grid_x < ResourceManager_MapSize.x);
+    SDL_assert(grid_y >= 0 && grid_y < ResourceManager_MapSize.y);
+
     delete[] name;
 
     uint16_t name_length;
@@ -2932,6 +2935,9 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
 }
 
 void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
+    SDL_assert(grid_x >= 0 && grid_x < ResourceManager_MapSize.x);
+    SDL_assert(grid_y >= 0 && grid_y < ResourceManager_MapSize.y);
+
     file.Write(unit_type);
     file.Write(id);
     file.Write(flags);
