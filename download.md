@@ -17,9 +17,9 @@ tag: 0.6.1
 - **[Linux DEB package]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86.deb )**
 
 #### 64 bit Builds
-- **[Windows installer]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86-64.exe)**
-- **[Windows 7-Zip file]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86-64.7z)**
-- **[Linux DEB package]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86-64.deb )**
+- **[Windows installer]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86_64.exe)**
+- **[Windows 7-Zip file]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86_64.7z)**
+- **[Linux DEB package]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86_64.deb )**
 
 #### Source Code
 - **[Source .7z]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Source.7z)**
