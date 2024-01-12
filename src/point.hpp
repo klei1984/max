@@ -23,6 +23,7 @@
 #define POINT_HPP
 
 #include <cstdint>
+#include <type_traits>
 
 struct PathStep {
     int8_t x;
@@ -35,14 +36,6 @@ struct Point {
 
     Point() : x(0), y(0) {}
     Point(int32_t x, int32_t y) : x(x), y(y) {}
-    Point(const Point& other) : x(other.x), y(other.y) {}
-
-    Point& operator=(const Point& other) {
-        x = other.x;
-        y = other.y;
-
-        return *this;
-    }
 
     Point& operator+=(const Point& other) {
         x += other.x;
@@ -58,6 +51,8 @@ struct Point {
         return *this;
     }
 };
+
+static_assert(std::is_trivially_copyable<struct Point>::value, "Point is required to be a trivially copyable type.");
 
 inline bool operator==(const Point& lhs, const Point& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
 

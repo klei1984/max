@@ -24,11 +24,13 @@
 
 #include <cstdint>
 #include <cstring>
+#include <type_traits>
 
 #include "smartfile.hpp"
 
 template <class T>
 class ObjectArray {
+    static_assert(std::is_trivially_copyable<T>::value, "T required to be a trivially copyable type.");
     static constexpr uint16_t MINIMUM_GROWTH_FACTOR = UINT16_C(5);
     static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(20);
 

@@ -57,7 +57,6 @@ struct ZoneSquare {
 
     ZoneSquare();
     ZoneSquare(int32_t grid_x, int32_t grid_y, UnitInfo* unit);
-    ZoneSquare(const ZoneSquare& other);
 };
 
 #endif /* ZONE_HPP */
