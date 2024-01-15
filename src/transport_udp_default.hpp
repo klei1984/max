@@ -22,29 +22,15 @@
 #ifndef TRANSPORT_UDP_DEFAULT_HPP
 #define TRANSPORT_UDP_DEFAULT_HPP
 
-#include <SDL_net.h>
-
 #include "transport.hpp"
 
-static_assert(sizeof(struct NetAddress) == sizeof(IPaddress));
-
 class TransportUdpDefault : public Transport {
-    int32_t NetState;
-    int32_t network_role;
-    const char* LastError;
-    uint16_t SessionId;
-    int32_t channels[TRANSPORT_MAX_TEAM_COUNT];
-    UDPsocket socket;
-    int32_t channel;
-    UDPpacket* UdpPacket;
-    NetAddress BroadcastAddress;
+    struct TransportUdpDefault_Context* context{nullptr};
 
     void SetError(const char* error);
-    bool SetupHost();
-    bool SetupClient();
 
 public:
-    TransportUdpDefault();
+    TransportUdpDefault() {}
     ~TransportUdpDefault();
 
     const char* GetError() const;

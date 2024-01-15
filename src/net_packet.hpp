@@ -33,44 +33,46 @@ class NetPacket {
     uint32_t buffer_read_position;
     uint32_t buffer_write_position;
 
-    void GrowBuffer(int32_t length);
+    void GrowBuffer(int32_t length) noexcept;
 
 public:
-    NetPacket();
-    ~NetPacket();
-    void Read(void* address, int32_t length);
-    void Write(const void* address, int32_t length);
-    uint32_t Peek(uint32_t offset, void* address, uint32_t length);
-    void Reset();
-    char* GetBuffer() const;
-    int32_t GetDataSize() const;
+    NetPacket() noexcept;
+    ~NetPacket() noexcept;
+    NetPacket(NetPacket&& other) noexcept;
+    NetPacket& operator=(NetPacket&& other) noexcept;
+    void Read(void* address, int32_t length) noexcept;
+    void Write(const void* address, int32_t length) noexcept;
+    uint32_t Peek(uint32_t offset, void* address, uint32_t length) noexcept;
+    void Reset() noexcept;
+    [[nodiscard]] char* GetBuffer() const noexcept;
+    [[nodiscard]] int32_t GetDataSize() const noexcept;
 
-    void AddAddress(NetAddress& address);
-    NetAddress& GetAddress(uint16_t index) const;
-    uint16_t GetAddressCount() const;
-    void ClearAddressTable();
+    void AddAddress(NetAddress& address) noexcept;
+    [[nodiscard]] NetAddress& GetAddress(uint16_t index) const noexcept;
+    [[nodiscard]] uint16_t GetAddressCount() const noexcept;
+    void ClearAddressTable() noexcept;
 
-    friend NetPacket& operator<<(NetPacket& packet, const SmartString& string);
-    friend NetPacket& operator<<(NetPacket& packet, SmartString& string);
-    friend NetPacket& operator>>(NetPacket& packet, SmartString& string);
+    friend NetPacket& operator<<(NetPacket& packet, const SmartString& string) noexcept;
+    friend NetPacket& operator<<(NetPacket& packet, SmartString& string) noexcept;
+    friend NetPacket& operator>>(NetPacket& packet, SmartString& string) noexcept;
 
-    friend bool operator==(NetPacket& left, NetPacket& right);
-    friend bool operator!=(NetPacket& left, NetPacket& right);
+    friend bool operator==(NetPacket& left, NetPacket& right) noexcept;
+    friend bool operator!=(NetPacket& left, NetPacket& right) noexcept;
 
     template <typename T>
-    friend NetPacket& operator<<(NetPacket& packet, const T& data) {
+    friend NetPacket& operator<<(NetPacket& packet, const T& data) noexcept {
         packet.Write(&data, sizeof(T));
         return packet;
     }
 
     template <typename T>
-    friend NetPacket& operator<<(NetPacket& packet, T& data) {
+    friend NetPacket& operator<<(NetPacket& packet, T& data) noexcept {
         packet.Write(&data, sizeof(T));
         return packet;
     }
 
     template <typename T>
-    friend NetPacket& operator>>(NetPacket& packet, T& data) {
+    friend NetPacket& operator>>(NetPacket& packet, T& data) noexcept {
         packet.Read(&data, sizeof(T));
         return packet;
     }

@@ -28,12 +28,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2-static SDL2_net::SDL2_net-static)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet miniupnpc::miniupnpc SDL2::SDL2-static)
 
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2 SDL2_net::SDL2_net)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet miniupnpc::miniupnpc SDL2::SDL2)
 
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 endif()
@@ -41,12 +41,12 @@ endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/lib-iconv ${CMAKE_CURRENT_BINARY_DIR}/_deps/iconv-build)
 
 include(sdl2)
-include(sdl2_net)
 include(freetype)
 include(miniaudio)
 
 set(ENET_RELEASE ON)
 include(enet)
+include(miniupnp)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.debug
@@ -85,7 +85,12 @@ if(UNIX)
 	set(CPACK_SOURCE_GENERATOR "TGZ")
 	set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 	set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://klei1984.github.io/max/")
-	set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+
+	if(X86)
+		set (CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+	elseif(X86_64)
+		set (CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+	endif()
 
 	set(DEP_BIN_DIRS)
 	foreach(TARGET_NAME ${${PROJECT_NAME}_deps})

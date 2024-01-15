@@ -21,10 +21,20 @@
 
 #include "transport_udp_default.hpp"
 
+#include <SDL.h>
+#include <SDL_thread.h>
+#include <enet/enet.h>
+#include <miniupnpc.h>
+#include <upnpcommands.h>
+
+#include <utility>
+
 #include "inifile.hpp"
 
-#define TRANSPORT_DEFAULT_SESSION_ID 0x913F
-#define TRANSPORT_DEFAULT_HOST_PORT 213
+enum : uint8_t {
+    TRANSPORT_PACKET_00 = TRANSPORT_TP_PACKET_ID,
+    TRANSPORT_PACKET_01,
+};
 
 enum {
     TRANSPORT_NETSTATE_DEINITED,
@@ -33,147 +43,174 @@ enum {
     TRANSPORT_NETSTATE_DISCONNECTED,
 };
 
-TransportUdpDefault::TransportUdpDefault()
-    : NetState(TRANSPORT_NETSTATE_DEINITED),
-      network_role(-1),
-      LastError("No error\n"),
-      SessionId(TRANSPORT_DEFAULT_SESSION_ID),
-      socket(nullptr),
-      channel(-1),
-      UdpPacket(nullptr) {
-    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-        channels[i] = -1;
-    }
+enum {
+    TRANSPORT_TP_CHANNEL,
+    TRANSPORT_APPL_CHANNEL,
+    TRANSPORT_CHANNEL_COUNT,
+};
 
-    BroadcastAddress.host = INADDR_BROADCAST;
-    BroadcastAddress.port = TRANSPORT_DEFAULT_HOST_PORT;
+/// \todo Test protocol version
+static constexpr uint16_t TransportUdpDefault_ProtocolVersionId = 0x0001;
+static constexpr uint16_t TransportUdpDefault_DefaultSessionId = 0x913F;
+static constexpr uint16_t TransportUdpDefault_DefaultHostPort = 31554;
+static constexpr uint32_t TransportUdpDefault_ServiceTickPeriod = 10;
+static constexpr uint32_t TransportUdpDefault_MaximumPeers = 32;
+static constexpr uint32_t TransportUdpDefault_Channels = TRANSPORT_CHANNEL_COUNT;
+
+static constexpr uint32_t TransportUdpDefault_UpnpDeviceResponseTimeout = 3000;
+static_assert(MINIUPNPC_API_VERSION == 17, "API changes of MINIUPNP library shall be reviewed.");
+
+enum {
+    TRANSPORT_IGDSTATUS_NOIGD,
+    TRANSPORT_IGDSTATUS_DISCONNECTED,
+    TRANSPORT_IGDSTATUS_ERROR,
+    TRANSPORT_IGDSTATUS_OK,
+};
+
+struct UpnpDevice {
+    SmartString ControlUrl;
+    SmartString ServiceType;
+    SmartString HostAddress;
+    SmartString ExternalAddress;
+    int8_t Status;
+};
+
+struct TransportUdpDefault_Context {
+    SDL_Thread* Thread;
+    ENetHost* Host;
+    SDL_SpinLock QueueLock;
+    SmartObjectArray<ENetPeer*> Peers;
+    SmartObjectArray<ENetPeer*> RemotePeers;
+    SmartObjectArray<NetPacket*> TxPackets;
+    SmartObjectArray<NetPacket*> RxPackets;
+    struct UpnpDevice UpnpDevice;
+    ENetAddress ServerAddress;
+    bool ExitThread;
+    int32_t NetState;
+    int32_t NetRole;
+    const char* LastError;
+    uint16_t SessionId;
+};
+
+static int TransportUdpDefault_ClientFunction(void* data) noexcept;
+static int TransportUdpDefault_ServerFunction(void* data) noexcept;
+static inline void TransportUdpDefault_GetServerAddress(ENetAddress& address);
+static inline void TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context,
+                                                           ENetPeer* const peer);
+static inline void TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
+                                                               ENetPeer* const peer);
+static inline void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const context,
+                                                    ENetPeer* const peer);
+static inline void TransportUdpDefault_ConnectRemotePeer(struct TransportUdpDefault_Context* const context,
+                                                         NetPacket& packet);
+static inline void TransportUdpDefault_RemoveRemotePeer(struct TransportUdpDefault_Context* const context,
+                                                        ENetPeer* const peer);
+static inline void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* const context,
+                                                       ENetPeer* const peer, ENetPacket* const enet_packet);
+static inline void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefault_Context* const context,
+                                                         ENetPeer* const peer, ENetPacket* const enet_packet);
+static inline void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context* const context);
+static void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const context) noexcept;
+static void TransportUdpDefault_UpnpDeinit(struct TransportUdpDefault_Context* const context) noexcept;
+static void TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept;
+static void TransportUdpDefault_UpnpRemovePortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept;
+
+TransportUdpDefault::~TransportUdpDefault() {
+    Deinit();
+
+    delete context;
+    context = nullptr;
 }
 
-TransportUdpDefault::~TransportUdpDefault() { Deinit(); }
+void TransportUdpDefault_GetServerAddress(ENetAddress& address) {
+    char server_address[30];
 
-bool TransportUdpDefault::SetupHost() {
-    bool result;
-    IPaddress address;
-    Uint16 host_port;
-
-    network_role = TRANSPORT_SERVER;
-
-    host_port = ini_get_setting(INI_NETWORK_HOST_PORT);
-    if (!host_port) {
-        host_port = TRANSPORT_DEFAULT_HOST_PORT;
+    if (!ini_config.GetStringValue(INI_NETWORK_HOST_ADDRESS, server_address, sizeof(server_address)) ||
+        enet_address_set_host_ip(&address, server_address) != 0) {
+        address.host = ENET_HOST_ANY;
     }
 
-    address.host = INADDR_BROADCAST;
-    address.port = host_port;
+    int32_t server_port = ini_get_setting(INI_NETWORK_HOST_PORT);
 
-    socket = SDLNet_UDP_Open(host_port);
-    if (!socket) {
-        SDL_Log("Transport: Unable to open UDP socket. %s\n", SDLNet_GetError());
-        SetError("Network socket error.");
-        result = false;
-    } else {
-        channel = SDLNet_UDP_Bind(socket, -1, &address);
-        if (channel == -1) {
-            SDL_Log("Transport: Unable to open UDP socket. %s\n", SDLNet_GetError());
-            SetError("Network channel error.");
-            result = false;
-        } else {
-            NetState = TRANSPORT_NETSTATE_INITED;
-            result = true;
-        }
+    if (!server_port || server_port < 1024 || server_port > 65535) {
+        server_port = TransportUdpDefault_DefaultHostPort;
     }
 
-    return result;
-}
-
-bool TransportUdpDefault::SetupClient() {
-    char host_address[30];
-    IPaddress address;
-    Uint16 host_port;
-    bool result;
-
-    network_role = TRANSPORT_CLIENT;
-
-    host_port = ini_get_setting(INI_NETWORK_HOST_PORT);
-    if (!host_port) {
-        host_port = TRANSPORT_DEFAULT_HOST_PORT;
-    }
-
-    if (!ini_config.GetStringValue(INI_NETWORK_HOST_ADDRESS, host_address, sizeof(host_address))) {
-        strcpy(host_address, "255.255.255.255");
-    }
-
-    socket = SDLNet_UDP_Open(0);
-    if (!socket) {
-        SDL_Log("Transport: Unable to open UDP socket. %s\n", SDLNet_GetError());
-        SetError("Network socket error.");
-        result = false;
-    } else {
-        if (SDLNet_ResolveHost(&address, host_address, host_port) == -1) {
-            address.host = INADDR_BROADCAST;
-            address.port = host_port;
-        }
-
-        BroadcastAddress.host = address.host;
-        BroadcastAddress.port = address.port;
-
-        channel = SDLNet_UDP_Bind(socket, -1, &address);
-        if (channel == -1) {
-            SDL_Log("Transport: Unable to open UDP socket. %s\n", SDLNet_GetError());
-            SetError("Network channel error.");
-            result = false;
-        } else {
-            NetState = TRANSPORT_NETSTATE_INITED;
-            result = true;
-        }
-    }
-
-    return result;
+    address.port = server_port;
 }
 
 bool TransportUdpDefault::Init(int32_t mode) {
-    bool result;
+    bool result{false};
 
-    if (SDLNet_Init() == -1) {
-        SDL_Log("Transport: Unable to initialize SDL Net. %s\n", SDLNet_GetError());
+    if (context == nullptr) {
+        context = new (std::nothrow) TransportUdpDefault_Context;
 
-        SetError("Network not available.");
+        context->Thread = nullptr;
+        context->Host = nullptr;
+        context->QueueLock = 0;
+        context->Peers.Clear();
+        context->RemotePeers.Clear();
+        context->TxPackets.Clear();
+        context->RxPackets.Clear();
+        context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_ERROR;
+        context->ServerAddress.host = ENET_HOST_ANY;
+        context->ServerAddress.port = TransportUdpDefault_DefaultHostPort;
+        context->ExitThread = false;
+        context->NetState = TRANSPORT_NETSTATE_DEINITED;
+        context->NetRole = -1;
+        context->LastError = "No error.";
+        context->SessionId = TransportUdpDefault_DefaultSessionId;
+    }
 
-        result = false;
+    if (context->NetState == TRANSPORT_NETSTATE_DEINITED) {
+        if (enet_initialize() == 0) {
+            TransportUdpDefault_GetServerAddress(context->ServerAddress);
 
-    } else {
-        UdpPacket = SDLNet_AllocPacket(TRANSPORT_MAX_PACKET_SIZE);
-        SDL_assert(UdpPacket);
+            // safe write access as thread cannot exist yet
+            context->NetState = TRANSPORT_NETSTATE_INITED;
 
-        if (mode == TRANSPORT_SERVER) {
-            result = SetupHost();
+            SDL_assert(context->Thread == nullptr);
+
+            if (mode == TRANSPORT_SERVER) {
+                context->Thread = SDL_CreateThread(&TransportUdpDefault_ServerFunction, "TransportUdpDefault", context);
+
+            } else {
+                context->Thread = SDL_CreateThread(&TransportUdpDefault_ClientFunction, "TransportUdpDefault", context);
+            }
+
+            if (context->Thread) {
+                result = true;
+
+            } else {
+                Deinit();
+                SetError("Network initialization error.");
+            }
 
         } else {
-            result = SetupClient();
+            SetError("Network initialization error.");
         }
+
+    } else {
+        result = true;
     }
 
     return result;
 }
 
 bool TransportUdpDefault::Deinit() {
-    if (socket) {
-        if (channel != -1) {
-            SDLNet_UDP_Unbind(socket, channel);
-            channel = -1;
+    if (context) {
+        if (context->Thread) {
+            context->ExitThread = true;
+            SDL_WaitThread(context->Thread, nullptr);
+            context->Thread = nullptr;
         }
 
-        SDLNet_UDP_Close(socket);
-        socket = nullptr;
+        if (context->NetState != TRANSPORT_NETSTATE_DEINITED) {
+            enet_deinitialize();
+            // safe write access as thread cannot exist anymore
+            context->NetState = TRANSPORT_NETSTATE_DEINITED;
+        }
     }
-
-    if (UdpPacket) {
-        SDLNet_FreePacket(UdpPacket);
-        UdpPacket = nullptr;
-    }
-
-    SDLNet_Quit();
-    NetState = TRANSPORT_NETSTATE_DEINITED;
 
     return true;
 }
@@ -182,82 +219,447 @@ bool TransportUdpDefault::Connect() { return false; }
 
 bool TransportUdpDefault::Disconnect() { return false; }
 
-void TransportUdpDefault::SetSessionId(uint16_t session_id) { SessionId = session_id; }
+void TransportUdpDefault::SetSessionId(uint16_t session_id) {
+    /// \todo The SessionID was part of the IPX Protocol Header. Should it be removed?
 
-void TransportUdpDefault::SetError(const char* error) { LastError = error; }
+    if (context) {
+        context->SessionId = session_id;
+    }
+}
 
-const char* TransportUdpDefault::GetError() const { return LastError; }
+void TransportUdpDefault::SetError(const char* error) {
+    if (context) {
+        context->LastError = error;
+    }
+}
 
-bool inline TransportUdpDefault_TransmitPacket(UDPsocket socket, UDPpacket& udp_packet) {
-    bool result;
+const char* TransportUdpDefault::GetError() const {
+    const char* error{nullptr};
 
-    if (SDLNet_UDP_Send(socket, udp_packet.channel, &udp_packet) == 0) {
-        SDL_Log("Transport: Transmit failed. %s\n", SDLNet_GetError());
-        result = false;
-
-    } else if (udp_packet.len != udp_packet.status) {
-        SDL_Log("Transport: Packet size mismatch (%i/%i).\n", udp_packet.len, udp_packet.status);
-        result = false;
-
-    } else {
-        result = true;
+    if (context) {
+        error = context->LastError;
     }
 
-    return result;
+    return error;
 }
 
 bool TransportUdpDefault::TransmitPacket(NetPacket& packet) {
-    bool result = true;
-    UDPpacket udp_packet;
+    SDL_AtomicLock(&context->QueueLock);
+    {
+        NetPacket* local = new (std::nothrow) NetPacket(std::move(packet));
 
-    if (!packet.GetAddressCount()) {
-        SDL_assert(network_role == TRANSPORT_CLIENT);
-        packet.AddAddress(BroadcastAddress);
+        context->TxPackets.PushBack(&local);
+
+        SDL_AtomicUnlock(&context->QueueLock);
     }
 
-    udp_packet.channel = -1;
-    udp_packet.data = reinterpret_cast<Uint8*>(packet.GetBuffer());
-    udp_packet.len = packet.GetDataSize();
-    udp_packet.maxlen = packet.GetDataSize();
+    return true;
+}
 
-    for (int32_t i = 0; i < packet.GetAddressCount(); ++i) {
-        udp_packet.address.host = packet.GetAddress(i).host;
-        udp_packet.address.port = packet.GetAddress(i).port;
+bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
+    bool result{false};
 
-        result = TransportUdpDefault_TransmitPacket(socket, udp_packet);
-        if (!result) {
-            break;
+    packet.Reset();
+
+    SDL_AtomicLock(&context->QueueLock);
+    {
+        if (context->RxPackets.GetCount() > 0) {
+            NetPacket* local = *context->RxPackets[0];
+
+            packet = std::move(*local);
+            delete local;
+            context->RxPackets.Remove(0);
+
+            result = true;
         }
+
+        SDL_AtomicUnlock(&context->QueueLock);
     }
 
     return result;
 }
 
-bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
-    int32_t state;
-    bool result;
+void TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
+    NetPacket packet;
+    const uint16_t peer_count = context->Peers.GetCount();
 
-    state = SDLNet_UDP_Recv(socket, UdpPacket);
+    packet << static_cast<uint8_t>(TRANSPORT_PACKET_00);
+    packet << peer_count;
 
-    if (state == -1) {
-        SDL_Log("Transport: Receive error. %s\n", SDLNet_GetError());
-        result = false;
-
-    } else if (state > 0) {
-        NetAddress address;
-
-        address.host = UdpPacket->address.host;
-        address.port = UdpPacket->address.port;
-
-        packet.Reset();
-        packet.AddAddress(address);
-        packet.Write(UdpPacket->data, UdpPacket->len);
-
-        result = true;
-
-    } else {
-        result = false;
+    for (auto i = 0; i < peer_count; ++i) {
+        packet << (*context->Peers[i])->address;
     }
 
-    return result;
+    ENetPacket* enet_packet = enet_packet_create(packet.GetBuffer(), packet.GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
+
+    if (enet_packet) {
+        if (enet_peer_send(peer, TRANSPORT_TP_CHANNEL, enet_packet) != 0) {
+            /// \todo Handle error
+        }
+
+        enet_packet = nullptr;
+    }
+}
+
+void TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
+                                                 ENetPeer* const peer) {
+    NetPacket packet;
+
+    packet << static_cast<uint8_t>(TRANSPORT_PACKET_01);
+    packet << peer->address;
+
+    ENetPacket* enet_packet = enet_packet_create(packet.GetBuffer(), packet.GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
+
+    if (enet_packet) {
+        enet_host_broadcast(context->Host, TRANSPORT_TP_CHANNEL, enet_packet);
+        enet_packet = nullptr;
+    }
+}
+
+void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
+    auto position = context->Peers->Find(&peer);
+
+    if (position != -1) {
+        context->Peers.Remove(position);
+    }
+
+    peer->data = nullptr;
+}
+
+void TransportUdpDefault_ConnectRemotePeer(struct TransportUdpDefault_Context* const context, NetPacket& packet) {
+    ENetAddress address{0, 0};
+    ENetPeer* remote_peer{nullptr};
+
+    packet >> address;
+
+    remote_peer = enet_host_connect(context->Host, &address, TransportUdpDefault_Channels, 0);
+
+    if (remote_peer) {
+        context->RemotePeers.PushBack(&remote_peer);
+
+    } else {
+        /// \todo Handle error
+    }
+}
+
+void TransportUdpDefault_RemoveRemotePeer(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
+    auto position = context->RemotePeers->Find(&peer);
+
+    if (position != -1) {
+        context->RemotePeers.Remove(position);
+    }
+
+    peer->data = nullptr;
+}
+
+void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* const context, ENetPeer* const peer,
+                                         ENetPacket* const enet_packet) {
+    NetPacket packet;
+    uint8_t packet_type;
+
+    packet.Write(enet_packet->data, enet_packet->dataLength);
+
+    packet >> packet_type;
+
+    if (context->NetRole == TRANSPORT_SERVER) {
+        switch (packet_type) {
+            default: {
+            } break;
+        }
+
+    } else if (context->NetRole == TRANSPORT_CLIENT) {
+        switch (packet_type) {
+            case TRANSPORT_PACKET_00: {
+                uint16_t peer_count;
+
+                packet >> peer_count;
+
+                for (auto i = 0; i < peer_count; ++i) {
+                    TransportUdpDefault_ConnectRemotePeer(context, packet);
+                }
+            } break;
+
+            case TRANSPORT_PACKET_01: {
+                TransportUdpDefault_ConnectRemotePeer(context, packet);
+            } break;
+
+            default: {
+                /// \todo Handle error
+            } break;
+        }
+    }
+}
+
+void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefault_Context* const context, ENetPeer* const peer,
+                                           ENetPacket* const enet_packet) {
+    NetPacket* packet = new (std::nothrow) NetPacket();
+    uint8_t packet_type;
+    NetAddress address;
+
+    address.host = peer->address.host;
+    address.port = peer->address.port;
+
+    packet->AddAddress(address);
+    packet->Write(enet_packet->data, enet_packet->dataLength);
+
+    SDL_AtomicLock(&context->QueueLock);
+    {
+        context->RxPackets.PushBack(&packet);
+
+        SDL_AtomicUnlock(&context->QueueLock);
+    }
+}
+
+void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context* const context) {
+    for (bool packets_pending = true; packets_pending;) {
+        ENetPacket* enet_packet{nullptr};
+
+        SDL_AtomicLock(&context->QueueLock);
+        {
+            if (context->TxPackets.GetCount() > 0) {
+                NetPacket* local = *context->TxPackets[0];
+
+                enet_packet = enet_packet_create(local->GetBuffer(), local->GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
+
+                context->TxPackets.Remove(0);
+
+            } else {
+                packets_pending = false;
+            }
+
+            SDL_AtomicUnlock(&context->QueueLock);
+        }
+
+        if (enet_packet) {
+            enet_host_broadcast(context->Host, TRANSPORT_APPL_CHANNEL, enet_packet);
+        }
+    }
+}
+
+void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const context) noexcept {
+    struct UPNPDev* device_list{nullptr};
+    int discovery_result{UPNPDISCOVER_SUCCESS};
+
+    device_list = upnpDiscover(TransportUdpDefault_UpnpDeviceResponseTimeout, nullptr, nullptr, UPNP_LOCAL_PORT_ANY, 0,
+                               2, &discovery_result);
+
+    if (UPNPDISCOVER_SUCCESS == discovery_result) {
+        struct UPNPUrls UpnpUrls;
+        struct IGDdatas UpnpIgdData;
+
+        char network_address[64];
+
+        SDL_memset(&UpnpUrls, 0, sizeof(struct UPNPUrls));
+        SDL_memset(&UpnpIgdData, 0, sizeof(struct IGDdatas));
+
+        const int igd_search_result =
+            UPNP_GetValidIGD(device_list, &UpnpUrls, &UpnpIgdData, network_address, sizeof(network_address));
+
+        switch (igd_search_result) {
+            case 1:
+            case 2: {
+                char ip_string[40];
+
+                context->UpnpDevice.ControlUrl = UpnpUrls.controlURL;
+                context->UpnpDevice.ServiceType = UpnpIgdData.first.servicetype;
+                context->UpnpDevice.HostAddress = network_address;
+
+                context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_OK;
+
+                TransportUdpDefault_UpnpAddPortMapping(context->UpnpDevice, context->Host->address);
+
+                if (UPNPCOMMAND_SUCCESS == UPNP_GetExternalIPAddress(context->UpnpDevice.ControlUrl.GetCStr(),
+                                                                     context->UpnpDevice.ServiceType.GetCStr(),
+                                                                     ip_string)) {
+                    context->UpnpDevice.ExternalAddress = ip_string;
+                }
+            } break;
+
+            case 3: {
+                context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_NOIGD;
+            } break;
+
+            default: {
+                context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_ERROR;
+            } break;
+        }
+
+        FreeUPNPUrls(&UpnpUrls);
+
+    } else {
+        context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_ERROR;
+    }
+
+    freeUPNPDevlist(device_list);
+}
+
+void TransportUdpDefault_UpnpDeinit(struct TransportUdpDefault_Context* const context) noexcept {
+    TransportUdpDefault_UpnpRemovePortMapping(context->UpnpDevice, context->Host->address);
+}
+
+void TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept {
+    if (device.Status == TRANSPORT_IGDSTATUS_OK) {
+        SmartString port;
+        int result;
+
+        port.Sprintf(10, "%i", host_address.port);
+
+        result = UPNP_AddPortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
+                                     port.GetCStr(), device.HostAddress.GetCStr(), "M.A.X.", "UDP", nullptr, "0");
+    }
+
+    /// \todo Handle error
+}
+
+void TransportUdpDefault_UpnpRemovePortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept {
+    if (device.Status == TRANSPORT_IGDSTATUS_OK) {
+        SmartString port;
+        int result;
+
+        port.Sprintf(10, "%i", host_address.port);
+
+        result = UPNP_DeletePortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
+                                        "UDP", nullptr);
+    }
+    /// \todo Handle error
+}
+
+int TransportUdpDefault_ServerFunction(void* data) noexcept {
+    auto context = reinterpret_cast<struct TransportUdpDefault_Context*>(data);
+    ENetEvent event;
+
+    context->NetRole = TRANSPORT_SERVER;
+    context->Host =
+        enet_host_create(&context->ServerAddress, TransportUdpDefault_MaximumPeers, TransportUdpDefault_Channels, 0, 0);
+
+    if (context->Host) {
+        TransportUdpDefault_UpnpInit(context);
+
+        context->NetState = TRANSPORT_NETSTATE_CONNECTED;
+
+        for (;;) {
+            if (enet_host_service(context->Host, &event, TransportUdpDefault_ServiceTickPeriod) > 0) {
+                switch (event.type) {
+                    case ENET_EVENT_TYPE_CONNECT: {
+                        TransportUdpDefault_SendPeersListToPeer(context, event.peer);
+                        TransportUdpDefault_BroadcastNewPeerArrived(context, event.peer);
+
+                        context->Peers.PushBack(&event.peer);
+                    } break;
+
+                    case ENET_EVENT_TYPE_RECEIVE: {
+                        switch (event.channelID) {
+                            case TRANSPORT_TP_CHANNEL: {
+                                TransportUdpDefault_ProcessTpPacket(context, event.peer, event.packet);
+                            } break;
+
+                            case TRANSPORT_APPL_CHANNEL: {
+                                TransportUdpDefault_ProcessApplPacket(context, event.peer, event.packet);
+                            } break;
+                        }
+
+                        enet_packet_destroy(event.packet);
+                    } break;
+
+                    case ENET_EVENT_TYPE_DISCONNECT: {
+                        TransportUdpDefault_RemoveClient(context, event.peer);
+                    } break;
+                }
+            }
+
+            TransportUdpDefault_TransmitApplPackets(context);
+
+            if (context->ExitThread) {
+                break;
+            }
+        }
+
+        TransportUdpDefault_UpnpDeinit(context);
+
+        enet_host_destroy(context->Host);
+
+        context->Peers.Clear();
+        context->NetRole = -1;
+        context->NetState = TRANSPORT_NETSTATE_DISCONNECTED;
+    }
+
+    return 0;
+}
+
+int TransportUdpDefault_ClientFunction(void* data) noexcept {
+    struct TransportUdpDefault_Context* context = reinterpret_cast<struct TransportUdpDefault_Context*>(data);
+    ENetAddress host_address;
+
+    context->NetRole = TRANSPORT_CLIENT;
+
+    host_address.host = ENET_HOST_ANY;
+    host_address.port = ENET_PORT_ANY;
+
+    context->Host =
+        enet_host_create(&host_address, TransportUdpDefault_MaximumPeers, TransportUdpDefault_Channels, 0, 0);
+
+    if (context->Host) {
+        TransportUdpDefault_UpnpInit(context);
+
+        ENetPeer* server_peer =
+            enet_host_connect(context->Host, &context->ServerAddress, TransportUdpDefault_Channels, 0);
+
+        if (server_peer) {
+            for (;;) {
+                ENetEvent event;
+
+                while (enet_host_service(context->Host, &event, TransportUdpDefault_ServiceTickPeriod) > 0) {
+                    switch (event.type) {
+                        case ENET_EVENT_TYPE_CONNECT: {
+                            if (event.peer == server_peer) {
+                                context->NetState = TRANSPORT_NETSTATE_CONNECTED;
+                            }
+                        } break;
+
+                        case ENET_EVENT_TYPE_RECEIVE: {
+                            switch (event.channelID) {
+                                case TRANSPORT_TP_CHANNEL: {
+                                    TransportUdpDefault_ProcessTpPacket(context, event.peer, event.packet);
+                                } break;
+
+                                case TRANSPORT_APPL_CHANNEL: {
+                                    TransportUdpDefault_ProcessApplPacket(context, event.peer, event.packet);
+                                } break;
+                            }
+
+                            enet_packet_destroy(event.packet);
+                        } break;
+
+                        case ENET_EVENT_TYPE_DISCONNECT: {
+                            if (event.peer == server_peer) {
+                                context->NetState = TRANSPORT_NETSTATE_DISCONNECTED;
+
+                                server_peer = enet_host_connect(context->Host, &context->ServerAddress,
+                                                                TransportUdpDefault_Channels, 0);
+
+                            } else {
+                                TransportUdpDefault_RemoveRemotePeer(context, event.peer);
+                            }
+                        } break;
+                    }
+                }
+
+                TransportUdpDefault_TransmitApplPackets(context);
+
+                if (context->ExitThread) {
+                    break;
+                }
+            }
+        }
+
+        TransportUdpDefault_UpnpDeinit(context);
+
+        enet_host_destroy(context->Host);
+
+        context->RemotePeers.Clear();
+        context->NetRole = -1;
+        context->NetState = TRANSPORT_NETSTATE_DISCONNECTED;
+    }
+
+    return 0;
 }

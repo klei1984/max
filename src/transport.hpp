@@ -36,6 +36,8 @@ enum {
     TRANSPORT_CLIENT,
 };
 
+enum : uint8_t { TRANSPORT_TP_PACKET_ID = 0x00, TRANSPORT_APPL_PACKET_ID = 0x50 };
+
 class Transport {
 public:
     virtual ~Transport(){};

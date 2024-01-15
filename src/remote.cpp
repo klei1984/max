@@ -87,7 +87,7 @@ static bool Remote_P24_Signals[TRANSPORT_MAX_TEAM_COUNT];
 static bool Remote_P49_Signal;
 static bool Remote_P51_Signal;
 
-static OrderProcessor Remote_OrderProcessors[32];
+static OrderProcessor Remote_OrderProcessors[ORDER_COUNT_MAX];
 
 static uint16_t Remote_GenerateEntityId();
 static void Remote_UpdateEntityId(NetAddress& address, uint16_t entity_id);
@@ -371,8 +371,6 @@ int32_t Remote_SetupPlayers() {
 
     ini_config.SetStringValue(INI_PLAYER_NAME, Remote_NetworkMenu->player_name);
 
-    /// \todo Copy player address from TP layer?
-
     int32_t player_clan = ini_get_setting(INI_PLAYER_CLAN);
 
     ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + GameManager_PlayerTeam), player_clan);
@@ -393,11 +391,9 @@ int32_t Remote_SetupPlayers() {
             }
 
         } else {
-            ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + GameManager_PlayerTeam), TEAM_TYPE_NONE);
+            ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_NONE);
         }
     }
-
-    /// \todo Reset TP layer packet counters
 
     Remote_RemotePlayerCount = remote_player_count;
 
@@ -462,7 +458,7 @@ void Remote_Init() {
     Remote_Nodes.Clear();
     Remote_Hosts.Clear();
 
-    for (int32_t i = 0; i < 32; ++i) {
+    for (int32_t i = 0; i < ORDER_COUNT_MAX; ++i) {
         switch (i) {
             case ORDER_AWAIT:
             case ORDER_POWER_ON:
@@ -515,6 +511,10 @@ void Remote_Init() {
                 Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor2_Write;
                 Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor2_Read;
             } break;
+
+            default: {
+                SDL_assert(false);
+            } break;
         }
     }
 }
@@ -561,13 +561,17 @@ static void Remote_TransmitPacket(NetPacket& packet, int32_t transmit_mode) {
         } break;
     }
 
+    {
+        uint8_t packet_type;
+
+        if (packet.Peek(0, &packet_type, sizeof(packet_type)) > 0) {
+            SDL_Log("Remote: Transmit packet (%i).\n", packet_type - TRANSPORT_APPL_PACKET_ID);
+        }
+    }
+
     if (!Remote_Transport->TransmitPacket(packet)) {
         /// \todo Handle transport layer errors
         Remote_Transport->GetError();
-    } else {
-        uint8_t packet_type;
-        packet.Peek(0, &packet_type, sizeof(packet_type));
-        SDL_Log("Remote: Transmit packet (%i).\n", packet_type);
     }
 }
 
@@ -745,7 +749,7 @@ void Remote_ProcessNetPackets() {
         if (Remote_ReceivePacket(packet)) {
             packet >> packet_type;
 
-            SDL_Log("Remote: Received packet (%i).\n", packet_type);
+            SDL_Log("Remote: Received packet (%i).\n", packet_type - TRANSPORT_APPL_PACKET_ID);
 
             switch (packet_type) {
                 case REMOTE_PACKET_00: {
@@ -929,7 +933,7 @@ void Remote_ProcessNetPackets() {
                 } break;
 
                 default: {
-                    SDL_Log("Remote: Received unknown packet (%i).\n", packet_type);
+                    SDL_Log("Remote: Received unknown packet (%i).\n", packet_type - TRANSPORT_APPL_PACKET_ID);
                 } break;
             }
         } else {
@@ -1391,6 +1395,7 @@ void Remote_ReceiveNetPacket_01(NetPacket& packet) {
 
 void Remote_SendNetPacket_05(uint16_t random_number, int32_t transmit_mode) {
     NetPacket packet;
+    NetNode* node{nullptr};
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_05);
     packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
@@ -1398,7 +1403,9 @@ void Remote_SendNetPacket_05(uint16_t random_number, int32_t transmit_mode) {
     packet << Remote_NetworkMenu->player_team;
     packet << random_number;
 
-    /// \todo Copy player address from TP layer?
+    node = Remote_Nodes.Find(Remote_NetworkMenu->host_node);
+
+    packet.AddAddress(node->address);
 
     Remote_TransmitPacket(packet, transmit_mode);
 }
@@ -1408,9 +1415,9 @@ void Remote_ReceiveNetPacket_05(NetPacket& packet) {
 
     packet >> entity_id;
 
-    /// \todo Copy player address from TP layer?
-
-    ++Remote_NetworkMenu->remote_player_count;
+    if (Remote_NetworkMenu->host_node == entity_id) {
+        ++Remote_NetworkMenu->remote_player_count;
+    }
 }
 
 void Remote_ReceiveNetPacket_06(NetPacket& packet) {
@@ -2459,8 +2466,6 @@ void Remote_SendNetPacket_32(uint16_t random_number, int32_t transmit_mode) {
     packet << Remote_NetworkMenu->player_team;
     packet << random_number;
 
-    /// \todo Copy player address from TP layer?
-
     Remote_TransmitPacket(packet, transmit_mode);
 }
 
@@ -2485,8 +2490,6 @@ void Remote_ReceiveNetPacket_32(NetPacket& packet) {
                 Remote_SetupPlayers();
 
                 Remote_GameState = 2;
-
-                /// \todo Copy player address from TP layer?
 
                 packet >> team;
                 packet >> random_number;
@@ -2541,8 +2544,6 @@ void Remote_SendNetPacket_34() {
     packet << static_cast<uint8_t>(REMOTE_PACKET_34);
     packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
-    /// \todo Copy address table from TP layer?
-
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
 
@@ -2551,9 +2552,9 @@ void Remote_ReceiveNetPacket_34(NetPacket& packet) {
 
     packet >> entity_id;
 
-    /// \todo Copy address table from TP layer?
-
-    Remote_NetworkMenu->connection_state = true;
+    if (Remote_NetworkMenu->host_node == entity_id) {
+        Remote_NetworkMenu->connection_state = true;
+    }
 }
 
 void Remote_SendNetPacket_35() {

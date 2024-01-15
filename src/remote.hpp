@@ -29,7 +29,7 @@
 #include "unitinfo.hpp"
 
 enum : uint8_t {
-    REMOTE_PACKET_00,
+    REMOTE_PACKET_00 = TRANSPORT_APPL_PACKET_ID,
     REMOTE_PACKET_01,
     REMOTE_PACKET_02,
     REMOTE_PACKET_03,

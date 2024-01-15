@@ -26,7 +26,9 @@
 #include <algorithm>
 #include <new>
 
-void NetPacket::GrowBuffer(int32_t length) {
+static constexpr int32_t NetPacket_DefaultPacketSize = 100;
+
+void NetPacket::GrowBuffer(int32_t length) noexcept {
     while (buffer_write_position + length >= buffer_capacity) {
         buffer_capacity *= 2;
     }
@@ -37,20 +39,20 @@ void NetPacket::GrowBuffer(int32_t length) {
     buffer = new_buffer;
 }
 
-void NetPacket::Read(void* address, int32_t length) {
+void NetPacket::Read(void* address, int32_t length) noexcept {
     SDL_assert(address);
     SDL_assert(buffer);
-    SDL_assert(length);
+    SDL_assert(length > 0);
     SDL_assert(buffer_read_position + length <= buffer_write_position);
 
     memcpy(address, &buffer[buffer_read_position], length);
     buffer_read_position += length;
 }
 
-void NetPacket::Write(const void* address, int32_t length) {
+void NetPacket::Write(const void* address, int32_t length) noexcept {
     if (!buffer) {
-        buffer = new (std::nothrow) char[100];
-        buffer_capacity = 100;
+        buffer = new (std::nothrow) char[NetPacket_DefaultPacketSize];
+        buffer_capacity = NetPacket_DefaultPacketSize;
     }
 
     if (buffer_write_position + length > buffer_capacity) {
@@ -61,19 +63,19 @@ void NetPacket::Write(const void* address, int32_t length) {
     buffer_write_position += length;
 }
 
-uint32_t NetPacket::Peek(uint32_t offset, void* data_address, uint32_t length) {
+uint32_t NetPacket::Peek(uint32_t offset, void* data_address, uint32_t length) noexcept {
     uint32_t size;
 
     if (buffer) {
-        uint32_t end_position;
+        const uint32_t end_position = std::min(offset + length, buffer_write_position);
+        const uint32_t start_position = buffer_read_position + offset;
 
-        end_position = std::min(offset + length, buffer_write_position);
-        if (offset >= end_position) {
+        if (start_position >= end_position) {
             size = 0;
         } else {
-            size = end_position - offset;
+            size = end_position - start_position;
 
-            memcpy(data_address, &buffer[offset], std::min(size, length));
+            memcpy(data_address, &buffer[start_position], std::min(size, length));
         }
 
     } else {
@@ -83,44 +85,44 @@ uint32_t NetPacket::Peek(uint32_t offset, void* data_address, uint32_t length) {
     return size;
 }
 
-void NetPacket::Reset() {
+void NetPacket::Reset() noexcept {
     buffer_read_position = 0;
     buffer_write_position = 0;
     addresses.Clear();
 }
 
-NetPacket::NetPacket()
+NetPacket::NetPacket() noexcept
     : buffer(nullptr), buffer_capacity(0), buffer_read_position(0), buffer_write_position(0), addresses(5) {}
 
-NetPacket::~NetPacket() { delete[] buffer; }
+NetPacket::~NetPacket() noexcept { delete[] buffer; }
 
-char* NetPacket::GetBuffer() const { return buffer; }
+[[nodiscard]] char* NetPacket::GetBuffer() const noexcept { return buffer; }
 
-int32_t NetPacket::GetDataSize() const { return buffer_write_position; }
+[[nodiscard]] int32_t NetPacket::GetDataSize() const noexcept { return buffer_write_position; }
 
-NetPacket& operator<<(NetPacket& packet, SmartString& string) {
+NetPacket& operator<<(NetPacket& packet, SmartString& string) noexcept {
     uint16_t length = string.GetLength() + sizeof('\0');
     packet.Write(&length, sizeof(length));
     packet.Write(string.GetCStr(), length);
     return packet;
 }
 
-NetPacket& operator<<(NetPacket& packet, const SmartString& string) {
+NetPacket& operator<<(NetPacket& packet, const SmartString& string) noexcept {
     uint16_t length = string.GetLength() + sizeof('\0');
     packet.Write(&length, sizeof(length));
     packet.Write(string.GetCStr(), length);
     return packet;
 }
 
-void NetPacket::AddAddress(NetAddress& address) { addresses.PushBack(&address); }
+void NetPacket::AddAddress(NetAddress& address) noexcept { addresses.PushBack(&address); }
 
-NetAddress& NetPacket::GetAddress(uint16_t index) const { return *addresses[index]; }
+[[nodiscard]] NetAddress& NetPacket::GetAddress(uint16_t index) const noexcept { return *addresses[index]; }
 
-uint16_t NetPacket::GetAddressCount() const { return addresses.GetCount(); }
+[[nodiscard]] uint16_t NetPacket::GetAddressCount() const noexcept { return addresses.GetCount(); }
 
-void NetPacket::ClearAddressTable() { addresses.Clear(); }
+void NetPacket::ClearAddressTable() noexcept { addresses.Clear(); }
 
-NetPacket& operator>>(NetPacket& packet, SmartString& string) {
+NetPacket& operator>>(NetPacket& packet, SmartString& string) noexcept {
     uint16_t length;
     packet.Read(&length, sizeof(length));
     char* text_buffer = new (std::nothrow) char[length];
@@ -130,9 +132,35 @@ NetPacket& operator>>(NetPacket& packet, SmartString& string) {
     return packet;
 }
 
-bool operator==(NetPacket& left, NetPacket& right) {
+bool operator==(NetPacket& left, NetPacket& right) noexcept {
     return left.GetDataSize() == right.GetDataSize() &&
            !memcmp(left.GetBuffer(), right.GetBuffer(), left.GetDataSize());
 }
 
-bool operator!=(NetPacket& left, NetPacket& right) { return !(left == right); }
+NetPacket::NetPacket(NetPacket&& other) noexcept
+    : addresses(other.addresses, true),
+      buffer(other.buffer),
+      buffer_capacity(other.buffer_capacity),
+      buffer_read_position(other.buffer_read_position),
+      buffer_write_position(other.buffer_write_position) {
+    other.Reset();
+    other.buffer = nullptr;
+    other.buffer_capacity = 0;
+}
+
+NetPacket& NetPacket::operator=(NetPacket&& other) noexcept {
+    addresses = SmartObjectArray<NetAddress>(other.addresses, true);
+    delete[] buffer;
+    buffer = other.buffer;
+    buffer_capacity = other.buffer_capacity;
+    buffer_read_position = other.buffer_read_position;
+    buffer_write_position = other.buffer_write_position;
+
+    other.Reset();
+    other.buffer = nullptr;
+    other.buffer_capacity = 0;
+
+    return *this;
+}
+
+bool operator!=(NetPacket& left, NetPacket& right) noexcept { return !(left == right); }

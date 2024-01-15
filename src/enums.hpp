@@ -2026,7 +2026,8 @@ enum : uint8_t {
     ORDER_UPGRADE = 0x1C,
     ORDER_LAY_MINE = 0x1D,
     ORDER_MOVE_TO_ATTACK = 0x1E,
-    ORDER_HALT_BUILDING_2 = 0x1F
+    ORDER_HALT_BUILDING_2 = 0x1F,
+    ORDER_COUNT_MAX
 };
 
 enum : uint8_t {
