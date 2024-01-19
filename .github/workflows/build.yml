@@ -28,7 +28,7 @@ on:
 jobs:
    Linux-x64:
       runs-on: ubuntu-latest
-      container: ubuntu:23.10
+      container: ubuntu:22.04
 
       steps:
       -  name: Set build configuration
@@ -41,7 +41,13 @@ jobs:
          run: |
             apt update -y && apt install -y sudo
             sudo apt-get update -y
-            sudo apt-get install -y file build-essential ninja-build cmake gettext p7zip-full
+            sudo apt-get install -y file build-essential ninja-build wget gettext p7zip-full libsdl2-dev
+            wget https://github.com/Kitware/CMake/releases/download/v3.25.3/cmake-3.25.3-linux-x86_64.sh 
+            sudo mkdir /opt/cmake
+            sudo sh cmake-3.25.3-linux-x86_64.sh --skip-license --prefix=/opt/cmake
+            sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+            sudo ln -s /opt/cmake/bin/ctest /usr/local/bin/ctest
+            sudo ln -s /opt/cmake/bin/cpack /usr/local/bin/cpack
 
       -  name: Checkout
          uses: actions/checkout@v3
@@ -77,7 +83,7 @@ jobs:
 
    Linux-x86:
       runs-on: ubuntu-latest
-      container: ubuntu:23.10
+      container: ubuntu:22.04
 
       steps:
       -  name: Set build configuration
@@ -91,7 +97,13 @@ jobs:
             apt update -y && apt install -y sudo
             sudo dpkg --add-architecture i386
             sudo apt-get update -y
-            sudo apt-get install -y file build-essential gcc-multilib g++-multilib ninja-build:i386 cmake gettext p7zip-full
+            sudo apt-get install -y file build-essential gcc-multilib g++-multilib ninja-build:i386 wget gettext p7zip-full libsdl2-dev:i386
+            wget https://github.com/Kitware/CMake/releases/download/v3.25.3/cmake-3.25.3-linux-x86_64.sh 
+            sudo mkdir /opt/cmake
+            sudo sh cmake-3.25.3-linux-x86_64.sh --skip-license --prefix=/opt/cmake
+            sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+            sudo ln -s /opt/cmake/bin/ctest /usr/local/bin/ctest
+            sudo ln -s /opt/cmake/bin/cpack /usr/local/bin/cpack
 
       -  name: Checkout
          uses: actions/checkout@v3
