@@ -24,8 +24,11 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 #include <enet/enet.h>
+
+#if defined(MAX_ENABLE_UPNP)
 #include <miniupnpc.h>
 #include <upnpcommands.h>
+#endif
 
 #include <utility>
 
@@ -58,7 +61,10 @@ static constexpr uint32_t TransportUdpDefault_MaximumPeers = 32;
 static constexpr uint32_t TransportUdpDefault_Channels = TRANSPORT_CHANNEL_COUNT;
 
 static constexpr uint32_t TransportUdpDefault_UpnpDeviceResponseTimeout = 3000;
+
+#if defined(MAX_ENABLE_UPNP)
 static_assert(MINIUPNPC_API_VERSION == 17, "API changes of MINIUPNP library shall be reviewed.");
+#endif
 
 enum {
     TRANSPORT_IGDSTATUS_NOIGD,
@@ -116,10 +122,13 @@ static inline void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefaul
 static inline void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefault_Context* const context,
                                                          ENetPeer* const peer, ENetPacket* const enet_packet);
 static inline void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context* const context);
+
+#if defined(MAX_ENABLE_UPNP)
 static void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const context) noexcept;
 static void TransportUdpDefault_UpnpDeinit(struct TransportUdpDefault_Context* const context) noexcept;
 static bool TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept;
 static bool TransportUdpDefault_UpnpRemovePortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept;
+#endif
 
 TransportUdpDefault::~TransportUdpDefault() {
     Deinit();
@@ -494,6 +503,7 @@ void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context*
     }
 }
 
+#if defined(MAX_ENABLE_UPNP)
 void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const context) noexcept {
     struct UPNPDev* device_list{nullptr};
     int discovery_result{UPNPDISCOVER_SUCCESS};
@@ -598,6 +608,7 @@ bool TransportUdpDefault_UpnpRemovePortMapping(struct UpnpDevice& device, ENetAd
 
     return result;
 }
+#endif
 
 int TransportUdpDefault_ServerFunction(void* data) noexcept {
     auto context = reinterpret_cast<struct TransportUdpDefault_Context*>(data);
@@ -608,8 +619,9 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
         enet_host_create(&context->ServerAddress, TransportUdpDefault_MaximumPeers, TransportUdpDefault_Channels, 0, 0);
 
     if (context->Host) {
+#if defined(MAX_ENABLE_UPNP)
         TransportUdpDefault_UpnpInit(context);
-
+#endif
         context->NetState = TRANSPORT_NETSTATE_CONNECTED;
 
         for (;;) {
@@ -645,7 +657,9 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
             }
         }
 
+#if defined(MAX_ENABLE_UPNP)
         TransportUdpDefault_UpnpDeinit(context);
+#endif
 
         enet_host_destroy(context->Host);
 
@@ -665,7 +679,9 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
     context->Host = enet_host_create(nullptr, TransportUdpDefault_MaximumPeers, TransportUdpDefault_Channels, 0, 0);
 
     if (context->Host) {
+#if defined(MAX_ENABLE_UPNP)
         TransportUdpDefault_UpnpInit(context);
+#endif
 
         ENetPeer* server_peer =
             enet_host_connect(context->Host, &context->ServerAddress, TransportUdpDefault_Channels, 0);
@@ -720,7 +736,9 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
             }
         }
 
+#if defined(MAX_ENABLE_UPNP)
         TransportUdpDefault_UpnpDeinit(context);
+#endif
 
         enet_host_destroy(context->Host);
 

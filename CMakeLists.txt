@@ -5,6 +5,7 @@ project(max LANGUAGES C CXX)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
+option(MAX_ENABLE_UPNP "Use miniupnpc library" ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -27,13 +28,25 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 	COMPILE_FLAGS "${MAX_CFLAGS} -DGAME_VERSION_STRING=\"\\\"v${GAME_VERSION_STRING}\\\"\" -DGAME_VERSION_MAJOR=\"${GAME_VERSION_MAJOR}\" -DGAME_VERSION_MINOR=\"${GAME_VERSION_MINOR}\" -DGAME_VERSION_PATCH=\"${GAME_VERSION_PATCH}\" -DSDL_ASSERT_LEVEL=2"
 )
 
+if(MAX_ENABLE_UPNP)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC MAX_ENABLE_UPNP=1)
+endif()
+
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet miniupnpc::miniupnpc SDL2::SDL2-static)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2-static)
+
+	if(MAX_ENABLE_UPNP)
+		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
+	endif()
 
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet miniupnpc::miniupnpc SDL2::SDL2)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2)
+
+	if(MAX_ENABLE_UPNP)
+		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
+	endif()
 
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 endif()
@@ -46,7 +59,10 @@ include(miniaudio)
 
 set(ENET_RELEASE ON)
 include(enet)
-include(miniupnp)
+
+if(MAX_ENABLE_UPNP)
+	include(miniupnp)
+endif()
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.debug
