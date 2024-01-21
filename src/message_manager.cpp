@@ -107,8 +107,8 @@ void MessageManager_WrapText(const char* text, int16_t width) {
     MessageManager_MessageBox_Height += 10;
 }
 
-void MessageManager_DrawMessageBoxText(uint8_t* buffer, int32_t width, int32_t left_margin, int32_t top_margin, char* text,
-                                       int32_t color, bool monospace) {
+void MessageManager_DrawMessageBoxText(uint8_t* buffer, int32_t width, int32_t left_margin, int32_t top_margin,
+                                       char* text, int32_t color, bool monospace) {
     int32_t flags;
     int32_t offset;
 
@@ -156,7 +156,7 @@ void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Poi
 }
 
 void MessageManager_DrawMessage(const char* text, char type, int32_t mode, bool flag1, bool save_to_log) {
-    if (*text != '\0') {
+    if (text && *text != '\0') {
         if (mode) {
             DialogMenu dialog(text, flag1);
             dialog.Run();

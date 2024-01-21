@@ -118,7 +118,7 @@ void Remote_SendNetPacket_28(int32_t node);
 void Remote_SendNetPacket_29(int32_t node);
 void Remote_SendNetPacket_30(NetAddress& address);
 void Remote_SendNetPacket_31(int32_t node);
-void Remote_SendNetPacket_32(uint16_t random_number, int32_t team);
+void Remote_SendNetPacket_32(int32_t team);
 void Remote_SendNetPacket_33();
 void Remote_SendNetPacket_34();
 void Remote_SendNetPacket_35();

@@ -26,6 +26,7 @@
 
 #define TRANSPORT_MAX_TEAM_COUNT 4
 #define TRANSPORT_MAX_PACKET_SIZE 1440
+#define TRANSPORT_DEFAULT_TYPE "udp_default"
 
 enum {
     TRANSPORT_DEFAULT_UDP,
@@ -48,7 +49,6 @@ public:
     virtual bool Disconnect() = 0;
     virtual bool TransmitPacket(NetPacket& packet) = 0;
     virtual bool ReceivePacket(NetPacket& packet) = 0;
-    virtual void SetSessionId(uint16_t session_id) = 0;
 };
 
 Transport* Transport_Create(int32_t type);

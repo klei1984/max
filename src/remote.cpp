@@ -633,10 +633,19 @@ int32_t Remote_Lobby(bool is_host_mode) {
     Remote_Init();
 
     if (ini_config.GetStringValue(INI_NETWORK_TRANSPORT, ini_transport, sizeof(ini_transport))) {
-        if (!strcmp(ini_transport, "udp_default")) {
+        if (!strcmp(ini_transport, TRANSPORT_DEFAULT_TYPE)) {
             transort_type = TRANSPORT_DEFAULT_UDP;
+
         } else {
-            SDL_Log("Remote: Unknown transport type (%s).\n", ini_transport);
+            SmartString error_message;
+
+            ini_config.SetStringValue(INI_NETWORK_TRANSPORT, TRANSPORT_DEFAULT_TYPE);
+
+            error_message.Sprintf(
+                100, "Unknown network transport layer type (%s), using default (" TRANSPORT_DEFAULT_TYPE ").\n",
+                ini_transport);
+            MessageManager_DrawMessage(error_message.GetCStr(), 2, 1, true);
+
             transort_type = TRANSPORT_DEFAULT_UDP;
         }
 
@@ -662,7 +671,10 @@ int32_t Remote_Lobby(bool is_host_mode) {
         }
 
     } else {
-        SDL_Log("Remote: Unable to initialize network transport layer.\n");
+        WindowManager_LoadBigImage(MAINPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW),
+                                   WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->width, false, true, -1, -1, true);
+        MessageManager_DrawMessage("Unable to initialize network transport layer.\n", 2, 1);
+
         result = false;
     }
 
@@ -670,18 +682,14 @@ int32_t Remote_Lobby(bool is_host_mode) {
 }
 
 void Remote_SetupConnection() {
-    uint32_t rng_number;
     int32_t remote_player_count;
 
-    rng_number = dos_rand();
     remote_player_count = Remote_SetupPlayers();
 
     Remote_GameState = 2;
     Remote_NetworkMenu->remote_player_count = 0;
 
-    Remote_SendNetPacket_32(rng_number, REMOTE_BROADCAST);
-
-    Remote_Transport->SetSessionId(rng_number);
+    Remote_SendNetPacket_32(REMOTE_BROADCAST);
 
     while (Remote_NetworkMenu->remote_player_count != remote_player_count) {
         Remote_ProcessNetPackets();
@@ -2457,14 +2465,13 @@ void Remote_ReceiveNetPacket_31(NetPacket& packet) {
     }
 }
 
-void Remote_SendNetPacket_32(uint16_t random_number, int32_t transmit_mode) {
+void Remote_SendNetPacket_32(int32_t transmit_mode) {
     NetPacket packet;
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_32);
     packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
     packet << Remote_NetworkMenu->player_team;
-    packet << random_number;
 
     Remote_TransmitPacket(packet, transmit_mode);
 }
@@ -2485,16 +2492,12 @@ void Remote_ReceiveNetPacket_32(NetPacket& packet) {
 
             } else {
                 char team;
-                uint16_t random_number;
 
                 Remote_SetupPlayers();
 
                 Remote_GameState = 2;
 
                 packet >> team;
-                packet >> random_number;
-
-                Remote_Transport->SetSessionId(random_number);
 
                 Remote_SendNetPacket_05(0, REMOTE_UNICAST);
             }
@@ -2858,7 +2861,7 @@ void Remote_SendNetPacket_44(NetAddress& address) {
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_44);
     packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
-    packet << SmartString(GAME_VERSION);
+    packet << static_cast<uint32_t>(GAME_VERSION);
     packet << SmartString(Remote_NetworkMenu->player_name);
 
     Remote_TransmitPacket(packet, REMOTE_UNICAST);
@@ -2871,10 +2874,10 @@ void Remote_ReceiveNetPacket_44(NetPacket& packet) {
         packet >> entity_id;
 
         if (!Remote_Hosts.Find(entity_id)) {
-            SmartString game_version;
+            uint32_t game_version;
 
             packet >> game_version;
-            if (!strcmp(GAME_VERSION, game_version.GetCStr())) {
+            if (game_version == GAME_VERSION) {
                 NetNode host_node;
                 SmartString host_name;
 

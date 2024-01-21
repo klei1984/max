@@ -40,7 +40,6 @@ public:
     bool Disconnect();
     bool TransmitPacket(NetPacket& packet);
     bool ReceivePacket(NetPacket& packet);
-    void SetSessionId(uint16_t session_id);
 };
 
 #endif /* TRANSPORT_UDP_DEFAULT_HPP */

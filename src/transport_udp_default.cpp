@@ -30,10 +30,12 @@
 #include <utility>
 
 #include "inifile.hpp"
+#include "version.hpp"
 
 enum : uint8_t {
     TRANSPORT_PACKET_00 = TRANSPORT_TP_PACKET_ID,
     TRANSPORT_PACKET_01,
+    TRANSPORT_PACKET_02,
 };
 
 enum {
@@ -49,9 +51,7 @@ enum {
     TRANSPORT_CHANNEL_COUNT,
 };
 
-/// \todo Test protocol version
 static constexpr uint16_t TransportUdpDefault_ProtocolVersionId = 0x0001;
-static constexpr uint16_t TransportUdpDefault_DefaultSessionId = 0x913F;
 static constexpr uint16_t TransportUdpDefault_DefaultHostPort = 31554;
 static constexpr uint32_t TransportUdpDefault_ServiceTickPeriod = 10;
 static constexpr uint32_t TransportUdpDefault_MaximumPeers = 32;
@@ -89,15 +89,20 @@ struct TransportUdpDefault_Context {
     int32_t NetState;
     int32_t NetRole;
     const char* LastError;
-    uint16_t SessionId;
 };
 
 static int TransportUdpDefault_ClientFunction(void* data) noexcept;
 static int TransportUdpDefault_ServerFunction(void* data) noexcept;
 static inline void TransportUdpDefault_GetServerAddress(ENetAddress& address);
-static inline void TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context,
+static inline bool TransportUdpDefault_SendTpPacket(struct TransportUdpDefault_Context* const context,
+                                                    ENetPeer* const peer, const NetPacket& packet);
+static inline bool TransportUdpDefault_SendVersionInfo(struct TransportUdpDefault_Context* const context,
+                                                       ENetPeer* const peer);
+static inline bool TransportUdpDefault_VersionCheck(struct TransportUdpDefault_Context* const context,
+                                                    NetPacket& packet);
+static inline bool TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context,
                                                            ENetPeer* const peer);
-static inline void TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
+static inline bool TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
                                                                ENetPeer* const peer);
 static inline void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const context,
                                                     ENetPeer* const peer);
@@ -105,6 +110,7 @@ static inline void TransportUdpDefault_ConnectRemotePeer(struct TransportUdpDefa
                                                          NetPacket& packet);
 static inline void TransportUdpDefault_RemoveRemotePeer(struct TransportUdpDefault_Context* const context,
                                                         ENetPeer* const peer);
+static inline void TransportUdpDefault_ProtocolErrorMessage(ENetPeer* const peer, uint8_t packet_type);
 static inline void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* const context,
                                                        ENetPeer* const peer, ENetPacket* const enet_packet);
 static inline void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefault_Context* const context,
@@ -112,8 +118,8 @@ static inline void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefa
 static inline void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context* const context);
 static void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const context) noexcept;
 static void TransportUdpDefault_UpnpDeinit(struct TransportUdpDefault_Context* const context) noexcept;
-static void TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept;
-static void TransportUdpDefault_UpnpRemovePortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept;
+static bool TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept;
+static bool TransportUdpDefault_UpnpRemovePortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept;
 
 TransportUdpDefault::~TransportUdpDefault() {
     Deinit();
@@ -127,7 +133,7 @@ void TransportUdpDefault_GetServerAddress(ENetAddress& address) {
 
     if (!ini_config.GetStringValue(INI_NETWORK_HOST_ADDRESS, server_address, sizeof(server_address)) ||
         enet_address_set_host_ip(&address, server_address) != 0) {
-        address.host = ENET_HOST_ANY;
+        (void)enet_address_set_host_ip(&address, "127.0.0.1");
     }
 
     int32_t server_port = ini_get_setting(INI_NETWORK_HOST_PORT);
@@ -159,7 +165,6 @@ bool TransportUdpDefault::Init(int32_t mode) {
         context->NetState = TRANSPORT_NETSTATE_DEINITED;
         context->NetRole = -1;
         context->LastError = "No error.";
-        context->SessionId = TransportUdpDefault_DefaultSessionId;
     }
 
     if (context->NetState == TRANSPORT_NETSTATE_DEINITED) {
@@ -183,11 +188,11 @@ bool TransportUdpDefault::Init(int32_t mode) {
 
             } else {
                 Deinit();
-                SetError("Network initialization error.");
+                SetError("ENET worker thread initialization error.");
             }
 
         } else {
-            SetError("Network initialization error.");
+            SetError("ENET initialization error.");
         }
 
     } else {
@@ -219,14 +224,6 @@ bool TransportUdpDefault::Connect() { return false; }
 
 bool TransportUdpDefault::Disconnect() { return false; }
 
-void TransportUdpDefault::SetSessionId(uint16_t session_id) {
-    /// \todo The SessionID was part of the IPX Protocol Header. Should it be removed?
-
-    if (context) {
-        context->SessionId = session_id;
-    }
-}
-
 void TransportUdpDefault::SetError(const char* error) {
     if (context) {
         context->LastError = error;
@@ -234,7 +231,7 @@ void TransportUdpDefault::SetError(const char* error) {
 }
 
 const char* TransportUdpDefault::GetError() const {
-    const char* error{nullptr};
+    const char* error{""};
 
     if (context) {
         error = context->LastError;
@@ -279,41 +276,79 @@ bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
     return result;
 }
 
-void TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
+bool TransportUdpDefault_SendTpPacket(struct TransportUdpDefault_Context* const context, ENetPeer* const peer,
+                                      const NetPacket& packet) {
+    bool result{false};
+
+    ENetPacket* enet_packet = enet_packet_create(packet.GetBuffer(), packet.GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
+    if (enet_packet) {
+        if (peer) {
+            if (enet_peer_send(peer, TRANSPORT_TP_CHANNEL, enet_packet) == 0) {
+                result = true;
+            }
+
+        } else {
+            enet_host_broadcast(context->Host, TRANSPORT_TP_CHANNEL, enet_packet);
+
+            result = true;
+        }
+    }
+
+    return result;
+}
+
+bool TransportUdpDefault_SendVersionInfo(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
+    NetPacket packet;
+    uint32_t enet_version{static_cast<uint32_t>(enet_linked_version())};
+    uint16_t protocol_version{TransportUdpDefault_ProtocolVersionId};
+    uint32_t game_version{GAME_VERSION};
+
+    packet << static_cast<uint8_t>(TRANSPORT_PACKET_00);
+    packet << game_version;
+    packet << enet_version;
+    packet << protocol_version;
+
+    return TransportUdpDefault_SendTpPacket(context, peer, packet);
+}
+
+bool TransportUdpDefault_VersionCheck(struct TransportUdpDefault_Context* const context, NetPacket& packet) {
+    uint32_t enet_version{static_cast<uint32_t>(enet_linked_version())};
+    uint32_t remote_enet_version{0};
+    uint32_t game_version{GAME_VERSION};
+    uint32_t remote_game_version{0};
+    uint16_t protocol_version{TransportUdpDefault_ProtocolVersionId};
+    uint16_t remote_protocol_version{0};
+
+    packet >> remote_game_version;
+    packet >> remote_enet_version;
+    packet >> remote_protocol_version;
+
+    return game_version == remote_game_version && enet_version == remote_enet_version &&
+           protocol_version == remote_protocol_version;
+}
+
+bool TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
     NetPacket packet;
     const uint16_t peer_count = context->Peers.GetCount();
 
-    packet << static_cast<uint8_t>(TRANSPORT_PACKET_00);
+    packet << static_cast<uint8_t>(TRANSPORT_PACKET_01);
     packet << peer_count;
 
     for (auto i = 0; i < peer_count; ++i) {
         packet << (*context->Peers[i])->address;
     }
 
-    ENetPacket* enet_packet = enet_packet_create(packet.GetBuffer(), packet.GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
-
-    if (enet_packet) {
-        if (enet_peer_send(peer, TRANSPORT_TP_CHANNEL, enet_packet) != 0) {
-            /// \todo Handle error
-        }
-
-        enet_packet = nullptr;
-    }
+    return TransportUdpDefault_SendTpPacket(context, peer, packet);
 }
 
-void TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
+bool TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
                                                  ENetPeer* const peer) {
     NetPacket packet;
 
-    packet << static_cast<uint8_t>(TRANSPORT_PACKET_01);
+    packet << static_cast<uint8_t>(TRANSPORT_PACKET_02);
     packet << peer->address;
 
-    ENetPacket* enet_packet = enet_packet_create(packet.GetBuffer(), packet.GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
-
-    if (enet_packet) {
-        enet_host_broadcast(context->Host, TRANSPORT_TP_CHANNEL, enet_packet);
-        enet_packet = nullptr;
-    }
+    return TransportUdpDefault_SendTpPacket(context, nullptr, packet);
 }
 
 void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
@@ -352,6 +387,16 @@ void TransportUdpDefault_RemoveRemotePeer(struct TransportUdpDefault_Context* co
     peer->data = nullptr;
 }
 
+void TransportUdpDefault_ProtocolErrorMessage(ENetPeer* const peer, uint8_t packet_type) {
+    char peer_ip[40];
+
+    if (enet_address_get_host_ip(&peer->address, peer_ip, sizeof(peer_ip))) {
+        peer_ip[0] = '\0';
+    }
+
+    SDL_Log("Transport protocol error: Unknown packet type received (%i) from '%s'.\n", packet_type, peer_ip);
+}
+
 void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* const context, ENetPeer* const peer,
                                          ENetPacket* const enet_packet) {
     NetPacket packet;
@@ -363,13 +408,26 @@ void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* con
 
     if (context->NetRole == TRANSPORT_SERVER) {
         switch (packet_type) {
+            case TRANSPORT_PACKET_00: {
+                if (TransportUdpDefault_VersionCheck(context, packet) &&
+                    TransportUdpDefault_SendPeersListToPeer(context, peer) &&
+                    TransportUdpDefault_BroadcastNewPeerArrived(context, peer)) {
+                    context->Peers.PushBack(&peer);
+
+                } else {
+                    enet_peer_disconnect(peer, 0);
+                }
+
+            } break;
+
             default: {
+                TransportUdpDefault_ProtocolErrorMessage(peer, packet_type);
             } break;
         }
 
     } else if (context->NetRole == TRANSPORT_CLIENT) {
         switch (packet_type) {
-            case TRANSPORT_PACKET_00: {
+            case TRANSPORT_PACKET_01: {
                 uint16_t peer_count;
 
                 packet >> peer_count;
@@ -379,12 +437,12 @@ void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* con
                 }
             } break;
 
-            case TRANSPORT_PACKET_01: {
+            case TRANSPORT_PACKET_02: {
                 TransportUdpDefault_ConnectRemotePeer(context, packet);
             } break;
 
             default: {
-                /// \todo Handle error
+                TransportUdpDefault_ProtocolErrorMessage(peer, packet_type);
             } break;
         }
     }
@@ -466,7 +524,9 @@ void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const cont
 
                 context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_OK;
 
-                TransportUdpDefault_UpnpAddPortMapping(context->UpnpDevice, context->Host->address);
+                if (!TransportUdpDefault_UpnpAddPortMapping(context->UpnpDevice, context->Host->address)) {
+                    context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_ERROR;
+                }
 
                 if (UPNPCOMMAND_SUCCESS == UPNP_GetExternalIPAddress(context->UpnpDevice.ControlUrl.GetCStr(),
                                                                      context->UpnpDevice.ServiceType.GetCStr(),
@@ -475,6 +535,7 @@ void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const cont
                 }
             } break;
 
+            case 0:
             case 3: {
                 context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_NOIGD;
             } break;
@@ -494,34 +555,48 @@ void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const cont
 }
 
 void TransportUdpDefault_UpnpDeinit(struct TransportUdpDefault_Context* const context) noexcept {
-    TransportUdpDefault_UpnpRemovePortMapping(context->UpnpDevice, context->Host->address);
+    if (TRANSPORT_IGDSTATUS_OK == context->UpnpDevice.Status) {
+        if (!TransportUdpDefault_UpnpRemovePortMapping(context->UpnpDevice, context->Host->address)) {
+            /// \todo Handle error
+        }
+    }
 }
 
-void TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept {
+bool TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept {
+    bool result{true};
+
     if (device.Status == TRANSPORT_IGDSTATUS_OK) {
         SmartString port;
-        int result;
 
         port.Sprintf(10, "%i", host_address.port);
 
-        result = UPNP_AddPortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
-                                     port.GetCStr(), device.HostAddress.GetCStr(), "M.A.X.", "UDP", nullptr, "0");
+        if (UPNP_AddPortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
+                                port.GetCStr(), device.HostAddress.GetCStr(), "M.A.X.", "UDP", nullptr,
+                                "0") != UPNPCOMMAND_SUCCESS) {
+            device.Status = TRANSPORT_IGDSTATUS_ERROR;
+
+            result = false;
+        }
     }
 
-    /// \todo Handle error
+    return result;
 }
 
-void TransportUdpDefault_UpnpRemovePortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept {
+bool TransportUdpDefault_UpnpRemovePortMapping(struct UpnpDevice& device, ENetAddress& host_address) noexcept {
+    bool result{true};
+
     if (device.Status == TRANSPORT_IGDSTATUS_OK) {
         SmartString port;
-        int result;
 
         port.Sprintf(10, "%i", host_address.port);
 
-        result = UPNP_DeletePortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
-                                        "UDP", nullptr);
+        if (UPNP_DeletePortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(), "UDP",
+                                   nullptr) != UPNPCOMMAND_SUCCESS) {
+            result = false;
+        }
     }
-    /// \todo Handle error
+
+    return result;
 }
 
 int TransportUdpDefault_ServerFunction(void* data) noexcept {
@@ -541,10 +616,6 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
             if (enet_host_service(context->Host, &event, TransportUdpDefault_ServiceTickPeriod) > 0) {
                 switch (event.type) {
                     case ENET_EVENT_TYPE_CONNECT: {
-                        TransportUdpDefault_SendPeersListToPeer(context, event.peer);
-                        TransportUdpDefault_BroadcastNewPeerArrived(context, event.peer);
-
-                        context->Peers.PushBack(&event.peer);
                     } break;
 
                     case ENET_EVENT_TYPE_RECEIVE: {
@@ -588,15 +659,10 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
 
 int TransportUdpDefault_ClientFunction(void* data) noexcept {
     struct TransportUdpDefault_Context* context = reinterpret_cast<struct TransportUdpDefault_Context*>(data);
-    ENetAddress host_address;
 
     context->NetRole = TRANSPORT_CLIENT;
 
-    host_address.host = ENET_HOST_ANY;
-    host_address.port = ENET_PORT_ANY;
-
-    context->Host =
-        enet_host_create(&host_address, TransportUdpDefault_MaximumPeers, TransportUdpDefault_Channels, 0, 0);
+    context->Host = enet_host_create(nullptr, TransportUdpDefault_MaximumPeers, TransportUdpDefault_Channels, 0, 0);
 
     if (context->Host) {
         TransportUdpDefault_UpnpInit(context);
@@ -612,6 +678,8 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
                     switch (event.type) {
                         case ENET_EVENT_TYPE_CONNECT: {
                             if (event.peer == server_peer) {
+                                TransportUdpDefault_SendVersionInfo(context, event.peer);
+
                                 context->NetState = TRANSPORT_NETSTATE_CONNECTED;
                             }
                         } break;

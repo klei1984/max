@@ -1291,7 +1291,7 @@ void draw_copyright_label(WindowInfo* window) {
 
     Text_TextBox(window->buffer, window->width,
                  "Copyright 1996 Interplay Productions. v1.04"
-                 "  (M.A.X. Port " GAME_VERSION ")",
+                 "  (M.A.X. Port " GAME_VERSION_STRING ")",
                  bounds.ulx, bounds.uly, bounds.lrx - bounds.ulx, bounds.lry - bounds.uly, COLOR_BLACK, true, false);
 }
 
