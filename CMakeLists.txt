@@ -1,8 +1,8 @@
-cmake_minimum_required (VERSION 3.5..3.24)
+cmake_minimum_required (VERSION 3.24)
 
 project(max LANGUAGES C CXX)
 
-cmake_policy(SET CMP0077 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
 option(MAX_ENABLE_UPNP "Use miniupnpc library" ON)
