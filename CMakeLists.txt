@@ -1,8 +1,8 @@
-cmake_minimum_required (VERSION 3.24)
+cmake_minimum_required (VERSION 3.5..3.24)
 
 project(max LANGUAGES C CXX)
 
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+cmake_policy(SET CMP0077 NEW)
 
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
 option(MAX_ENABLE_UPNP "Use miniupnpc library" ON)
@@ -83,22 +83,16 @@ set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION
 set(CPACK_PACKAGE_NAME "max-port")
 set(CPACK_PACKAGE_CONTACT "M.A.X. Port Team")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION_STRING}")
 set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.")
 set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};Debug;Release;RelWithDebInfo;MinSizeRel;/dependencies/.*\.tar\.gz")
 
-install(FILES "LICENSE" DESTINATION .)
-install(FILES "assets/PATCHES.RES" DESTINATION .)
-install(FILES "assets/settings.ini" DESTINATION .)
-install(FILES "assets/lang_english.ini" DESTINATION .)
-install(FILES "assets/lang_french.ini" DESTINATION .)
-install(FILES "assets/lang_german.ini" DESTINATION .)
-install(FILES "assets/lang_italian.ini" DESTINATION .)
-install(FILES "assets/lang_spanish.ini" DESTINATION .)
-
 if(UNIX)
+	include(GNUInstallDirs)
 	set(CPACK_GENERATOR "DEB")
 	set(CPACK_SOURCE_GENERATOR "TGZ")
+	set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
+	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 	set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 	set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://klei1984.github.io/max/")
 
@@ -117,23 +111,52 @@ if(UNIX)
 
 	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS ${DEP_BIN_DIRS})
 
+	install(CODE "set(PROJECT_NAME \"${PROJECT_NAME}\")")
+	install(CODE "set(CMAKE_INSTALL_BINDIR \"${CMAKE_INSTALL_BINDIR}\")")
+	install(CODE "set(CMAKE_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\")")
+	install(CODE "set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS \"${DEP_BIN_DIRS}\")")
+	install(CODE [[
+		file(GET_RUNTIME_DEPENDENCIES
+			EXECUTABLES max
+			RESOLVED_DEPENDENCIES_VAR DEPS_RESOLVED
+			UNRESOLVED_DEPENDENCIES_VAR DEPS_UNRESOLVED
+			CONFLICTING_DEPENDENCIES_PREFIX DEPS_CONFLICTING
+			DIRECTORIES ${CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS}
+		)
+
+		if(DEPS_CONFLICTING_FILENAMES)
+			message(WARNING "Conflicting dependencies for library: \"${DEPS_CONFLICTING}\"!")
+		endif()
+
+		foreach(DEP_FILE ${DEPS_RESOLVED})
+			file(INSTALL
+				FILES "${DEP_FILE}"
+				FOLLOW_SYMLINK_CHAIN
+				DESTINATION ${CMAKE_INSTALL_PREFIX}
+			)
+		endforeach()
+	]])
+
 	install(TARGETS ${PROJECT_NAME}
 		CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		RUNTIME DESTINATION .
+		RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}
 	)
 endif()
 
 if(MINGW)
+	set(CMAKE_INSTALL_BINDIR "." CACHE PATH "User executables directory" FORCE)
+	set(CMAKE_INSTALL_DATADIR "." CACHE PATH "Read-only architecture-independent data directory" FORCE)
+	include(GNUInstallDirs)
 	set(CPACK_GENERATOR "7Z")
 	set(CPACK_SOURCE_GENERATOR "7Z")
 
 	find_program(MAKENSIS_EXECUTABLE NAMES makensis${CMAKE_EXECUTABLE_SUFFIX} DOC "The NSIS package maker command")
-	if (MAKENSIS_EXECUTABLE)
+	if(MAKENSIS_EXECUTABLE)
 		list(APPEND CPACK_GENERATOR "NSIS")
 		set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
 		set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${PROJECT_NAME}")
 		set(CPACK_NSIS_DISPLAY_NAME "M.A.X. Port")
-		set(CPACK_NSIS_PACKAGE_NAME "M.A.X. Port v${GAME_VERSION}")
+		set(CPACK_NSIS_PACKAGE_NAME "M.A.X. Port v${GAME_VERSION_STRING}")
 		set(CPACK_NSIS_URL_INFO_ABOUT "https://klei1984.github.io/max/")
 	endif()
 
@@ -142,7 +165,7 @@ if(MINGW)
 		RUNTIME DESTINATION .
 	)
 
-	if (BUILD_SHARED_LIBS)
+	if(BUILD_SHARED_LIBS)
 		set(DEP_BIN_DIRS)
 		foreach(TARGET_NAME ${${PROJECT_NAME}_deps})
 				get_target_property(BIN_DIR ${TARGET_NAME} BINARY_DIR)
@@ -156,5 +179,7 @@ if(MINGW)
 		)
 	endif()
 endif()
+
+add_subdirectory(assets)
 
 INCLUDE(CPack)

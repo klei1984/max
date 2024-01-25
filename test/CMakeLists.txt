@@ -59,6 +59,13 @@ target_link_libraries(max_tests PRIVATE gtest)
 
 include(GoogleTest)
 
+if(MINGW AND BUILD_SHARED_LIBS)
+    add_custom_command(TARGET max_tests POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_RUNTIME_DLLS:max_tests>" "$<TARGET_FILE_DIR:max_tests>"
+        COMMAND_EXPAND_LISTS
+    )
+endif()
+
 gtest_discover_tests(max_tests PROPERTIES
 	LABELS "unit tests"
 	DISCOVERY_TIMEOUT 240
