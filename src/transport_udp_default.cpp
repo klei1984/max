@@ -60,9 +60,9 @@ static constexpr uint32_t TransportUdpDefault_ServiceTickPeriod = 10;
 static constexpr uint32_t TransportUdpDefault_MaximumPeers = 32;
 static constexpr uint32_t TransportUdpDefault_Channels = TRANSPORT_CHANNEL_COUNT;
 
+#if defined(MAX_ENABLE_UPNP)
 static constexpr uint32_t TransportUdpDefault_UpnpDeviceResponseTimeout = 3000;
 
-#if defined(MAX_ENABLE_UPNP)
 static_assert(MINIUPNPC_API_VERSION == 17, "API changes of MINIUPNP library shall be reviewed.");
 #endif
 
@@ -498,6 +498,8 @@ void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context*
         }
 
         if (enet_packet) {
+        	/// \todo Properly support Unicast, Multicast and Broadcast messaging
+        	/// \todo Flush buffered packets as soon as a synch packet is found or simply exit loop
             enet_host_broadcast(context->Host, TRANSPORT_APPL_CHANNEL, enet_packet);
         }
     }

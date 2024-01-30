@@ -32,7 +32,6 @@ public:
     SmartObjectArray<uint16_t> cargos;
 
     Point starting_position;
-    uint32_t field_12;
     uint16_t team_gold;
     uint8_t proximity_alert_ack;
 

@@ -1724,7 +1724,7 @@ void DialogMenu_Menu(const char* label) {
         dialog_menu.RunMenu();
 
         if (Remote_IsNetworkGame) {
-            Remote_SendNetPacket_Signal(40, GameManager_PlayerTeam, 0);
+            Remote_SendNetPacket_Signal(REMOTE_PACKET_40, GameManager_PlayerTeam, 0);
         }
 
         Remote_PauseTimeStamp = timer_get();
@@ -1733,7 +1733,7 @@ void DialogMenu_Menu(const char* label) {
 
 void PauseMenu_Menu() {
     if (Remote_IsNetworkGame) {
-        Remote_SendNetPacket_Signal(39, GameManager_PlayerTeam, 0);
+        Remote_SendNetPacket_Signal(REMOTE_PACKET_39, GameManager_PlayerTeam, 0);
     }
 
     DialogMenu_Menu(_(f9bb));

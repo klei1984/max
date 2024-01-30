@@ -101,8 +101,8 @@ int32_t Remote_SiteSelectMenu();
 void Remote_LeaveGame(uint16_t team, bool mode);
 bool Remote_CheckDesync(uint16_t team, uint16_t crc_checksum);
 
-void Remote_SendNetPacket_Signal(int32_t packet_type, int32_t team, int32_t parameter);
-void Remote_SendNetPacket_05(uint16_t random_number, int32_t team);
+void Remote_SendNetPacket_Signal(int32_t packet_type, int32_t team, uint8_t parameter);
+void Remote_SendNetPacket_05(int32_t team);
 void Remote_SendNetPacket_08(UnitInfo* unit);
 void Remote_SendNetPacket_09(int32_t team);
 void Remote_SendNetPacket_10(int32_t team, ResourceID unit_type);

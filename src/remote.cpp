@@ -1376,7 +1376,7 @@ bool Remote_CheckDesync(uint16_t team, uint16_t crc_checksum) {
     return true;
 }
 
-void Remote_SendNetPacket_Signal(int32_t packet_type, int32_t team, int32_t parameter) {
+void Remote_SendNetPacket_Signal(int32_t packet_type, int32_t team, uint8_t parameter) {
     NetPacket packet;
 
     packet << static_cast<uint8_t>(packet_type);
@@ -1401,15 +1401,12 @@ void Remote_ReceiveNetPacket_01(NetPacket& packet) {
     packet >> Remote_FrameSyncCounter2values[entity_id];
 }
 
-void Remote_SendNetPacket_05(uint16_t random_number, int32_t transmit_mode) {
+void Remote_SendNetPacket_05(int32_t transmit_mode) {
     NetPacket packet;
     NetNode* node{nullptr};
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_05);
     packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
-
-    packet << Remote_NetworkMenu->player_team;
-    packet << random_number;
 
     node = Remote_Nodes.Find(Remote_NetworkMenu->host_node);
 
@@ -1683,7 +1680,6 @@ void Remote_SendNetPacket_12(int32_t team) {
     packet << static_cast<uint8_t>(REMOTE_PACKET_12);
     packet << static_cast<uint16_t>(team);
 
-    packet << supplies->field_12;
     packet << supplies->team_gold;
     packet << unit_count;
     packet << UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
@@ -1710,7 +1706,6 @@ void Remote_ReceiveNetPacket_12(NetPacket& packet) {
 
     uint16_t unit_count;
 
-    packet >> supplies->field_12;
     packet >> supplies->team_gold;
     packet >> unit_count;
     packet >> UnitsManager_TeamInfo[entity_id].stats_gold_spent_on_upgrades;
@@ -2471,8 +2466,6 @@ void Remote_SendNetPacket_32(int32_t transmit_mode) {
     packet << static_cast<uint8_t>(REMOTE_PACKET_32);
     packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
-    packet << Remote_NetworkMenu->player_team;
-
     Remote_TransmitPacket(packet, transmit_mode);
 }
 
@@ -2491,15 +2484,11 @@ void Remote_ReceiveNetPacket_32(NetPacket& packet) {
                 Remote_NetworkMenu->LeaveGame(entity_id);
 
             } else {
-                char team;
-
                 Remote_SetupPlayers();
 
                 Remote_GameState = 2;
 
-                packet >> team;
-
-                Remote_SendNetPacket_05(0, REMOTE_UNICAST);
+                Remote_SendNetPacket_05(REMOTE_UNICAST);
             }
         } else {
             Remote_NetworkMenu->LeaveGame(entity_id);
