@@ -339,25 +339,38 @@ bool TransportUdpDefault_VersionCheck(struct TransportUdpDefault_Context* const 
 bool TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
     NetPacket packet;
     const uint16_t peer_count = context->Peers.GetCount();
+    bool result{true};
 
-    packet << static_cast<uint8_t>(TRANSPORT_PACKET_01);
-    packet << peer_count;
+    if (peer_count) {
+        packet << static_cast<uint8_t>(TRANSPORT_PACKET_01);
+        packet << peer_count;
 
-    for (auto i = 0; i < peer_count; ++i) {
-        packet << (*context->Peers[i])->address;
+        for (auto i = 0; i < peer_count; ++i) {
+            packet << (*context->Peers[i])->address;
+        }
+
+        result = TransportUdpDefault_SendTpPacket(context, peer, packet);
     }
 
-    return TransportUdpDefault_SendTpPacket(context, peer, packet);
+    return result;
 }
 
 bool TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
                                                  ENetPeer* const peer) {
     NetPacket packet;
+    const uint16_t peer_count = context->Peers.GetCount();
+    bool result{true};
 
     packet << static_cast<uint8_t>(TRANSPORT_PACKET_02);
     packet << peer->address;
 
-    return TransportUdpDefault_SendTpPacket(context, nullptr, packet);
+    for (auto i = 0; i < peer_count; ++i) {
+        if (!TransportUdpDefault_SendTpPacket(context, *context->Peers[i], packet)) {
+            /// \todo Handle error
+        }
+    }
+
+    return result;
 }
 
 void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
@@ -498,8 +511,8 @@ void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context*
         }
 
         if (enet_packet) {
-        	/// \todo Properly support Unicast, Multicast and Broadcast messaging
-        	/// \todo Flush buffered packets as soon as a synch packet is found or simply exit loop
+            /// \todo Properly support Unicast, Multicast and Broadcast messaging
+            /// \todo Flush buffered packets as soon as a synch packet is found or simply exit loop
             enet_host_broadcast(context->Host, TRANSPORT_APPL_CHANNEL, enet_packet);
         }
     }

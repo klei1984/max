@@ -561,14 +561,6 @@ static void Remote_TransmitPacket(NetPacket& packet, int32_t transmit_mode) {
         } break;
     }
 
-    {
-        uint8_t packet_type;
-
-        if (packet.Peek(0, &packet_type, sizeof(packet_type)) > 0) {
-            SDL_Log("Remote: Transmit packet (%i).\n", packet_type - TRANSPORT_APPL_PACKET_ID);
-        }
-    }
-
     if (!Remote_Transport->TransmitPacket(packet)) {
         /// \todo Handle transport layer errors
         Remote_Transport->GetError();
@@ -756,8 +748,6 @@ void Remote_ProcessNetPackets() {
 
         if (Remote_ReceivePacket(packet)) {
             packet >> packet_type;
-
-            SDL_Log("Remote: Received packet (%i).\n", packet_type - TRANSPORT_APPL_PACKET_ID);
 
             switch (packet_type) {
                 case REMOTE_PACKET_00: {
