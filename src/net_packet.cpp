@@ -67,7 +67,7 @@ uint32_t NetPacket::Peek(uint32_t offset, void* data_address, uint32_t length) n
     uint32_t size;
 
     if (buffer) {
-        const uint32_t end_position = std::min(offset + length, buffer_write_position);
+        const uint32_t end_position = std::min(buffer_read_position + offset + length, buffer_write_position);
         const uint32_t start_position = buffer_read_position + offset;
 
         if (start_position >= end_position) {
