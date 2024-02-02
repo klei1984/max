@@ -1147,11 +1147,13 @@ void NetworkMenu::DrawJoinScreen() {
                 SetButtonState(index, false);
             }
 
-            if (i) {
-                draw_line(window->buffer, 640, WindowManager_ScaleUlx(window, network_menu_controls[index].bounds.ulx),
-                          WindowManager_ScaleUlx(window, network_menu_controls[index].bounds.uly),
-                          network_menu_controls[index].bounds.lrx, network_menu_controls[index].bounds.uly,
-                          COLOR_GREEN);
+            if (i < NETWORK_MAX_HOSTS_PER_PAGE - 1) {
+                struct NetworkMenuControlItem *control = &network_menu_controls[index];
+
+                draw_line(window->buffer, window->width, WindowManager_ScaleUlx(window, control->bounds.ulx),
+                          WindowManager_ScaleUly(window, control->bounds.lry),
+                          WindowManager_ScaleLrx(window, control->bounds.ulx, control->bounds.lrx),
+                          WindowManager_ScaleLry(window, control->bounds.uly, control->bounds.lry), COLOR_GREEN);
             }
         }
 
