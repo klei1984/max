@@ -34,6 +34,7 @@
 #include "networkmenu.hpp"
 #include "sound_manager.hpp"
 #include "transport.hpp"
+#include "unitevents.hpp"
 #include "units_manager.hpp"
 #include "version.hpp"
 #include "window_manager.hpp"
@@ -1502,7 +1503,10 @@ void Remote_ReceiveNetPacket_08(NetPacket& packet) {
     UnitInfo* unit = Hash_UnitHash[entity_id];
 
     if (unit) {
-        packet.Peek(0, &unit->orders, sizeof(unit->orders));
+        if (!packet.Peek(0, &unit->orders, sizeof(unit->orders))) {
+            /// \todo Handle error
+            SDL_Log("Remote: Received corrupted packet (REMOTE_PACKET_08).\n");
+        }
 
         Remote_OrderProcessors[unit->orders].ReadPacket(unit, packet);
 
@@ -2959,7 +2963,9 @@ void Remote_ReceiveNetPacket_50(NetPacket& packet) {
     UnitInfo* unit = Hash_UnitHash[entity_id];
 
     if (unit) {
-        unit->StopMovement();
+        UnitEventEmergencyStop* unit_event = new (std::nothrow) UnitEventEmergencyStop(unit);
+
+        UnitEvent_UnitEvents.PushBack(*unit_event);
 
     } else {
         Remote_NetErrorUnknownUnit(entity_id);

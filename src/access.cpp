@@ -783,7 +783,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                                 UnitEvent_UnitEvents.PushBack(*unit_event);
 
                                 if (Remote_IsNetworkGame) {
-                                    Remote_SendNetPacket_50(&*it);
+                                    Remote_SendNetPacket_50(it->Get());
                                 }
                             }
 
