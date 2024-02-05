@@ -33,6 +33,7 @@
 #include <utility>
 
 #include "inifile.hpp"
+#include "netlog.hpp"
 #include "version.hpp"
 
 enum : uint8_t {
@@ -57,6 +58,7 @@ enum {
 static constexpr uint16_t TransportUdpDefault_ProtocolVersionId = 0x0001;
 static constexpr uint16_t TransportUdpDefault_DefaultHostPort = 31554;
 static constexpr uint32_t TransportUdpDefault_ServiceTickPeriod = 10;
+static constexpr uint32_t TransportUdpDefault_DisconnectResponseTimeout = 3000;
 static constexpr uint32_t TransportUdpDefault_MaximumPeers = 32;
 static constexpr uint32_t TransportUdpDefault_Channels = TRANSPORT_CHANNEL_COUNT;
 
@@ -65,6 +67,9 @@ static constexpr uint32_t TransportUdpDefault_UpnpDeviceResponseTimeout = 3000;
 
 static_assert(MINIUPNPC_API_VERSION == 17, "API changes of MINIUPNP library shall be reviewed.");
 #endif
+
+static_assert(sizeof(NetAddress::host) == sizeof(ENetAddress::host));
+static_assert(sizeof(NetAddress::port) == sizeof(ENetAddress::port));
 
 enum {
     TRANSPORT_IGDSTATUS_NOIGD,
@@ -112,6 +117,7 @@ static inline bool TransportUdpDefault_BroadcastNewPeerArrived(struct TransportU
                                                                ENetPeer* const peer);
 static inline void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const context,
                                                     ENetPeer* const peer);
+static inline void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const context);
 static inline void TransportUdpDefault_ConnectRemotePeer(struct TransportUdpDefault_Context* const context,
                                                          NetPacket& packet);
 static inline void TransportUdpDefault_RemoveRemotePeer(struct TransportUdpDefault_Context* const context,
@@ -174,6 +180,8 @@ bool TransportUdpDefault::Init(int32_t mode) {
         context->NetState = TRANSPORT_NETSTATE_DEINITED;
         context->NetRole = -1;
         context->LastError = "No error.";
+
+        // NetLog_Enable();
     }
 
     if (context->NetState == TRANSPORT_NETSTATE_DEINITED) {
@@ -214,9 +222,13 @@ bool TransportUdpDefault::Init(int32_t mode) {
 bool TransportUdpDefault::Deinit() {
     if (context) {
         if (context->Thread) {
+            int result;
+
             context->ExitThread = true;
-            SDL_WaitThread(context->Thread, nullptr);
+            SDL_WaitThread(context->Thread, &result);
             context->Thread = nullptr;
+
+            /// \todo Handle error.
         }
 
         if (context->NetState != TRANSPORT_NETSTATE_DEINITED) {
@@ -257,6 +269,9 @@ bool TransportUdpDefault::TransmitPacket(NetPacket& packet) {
         context->TxPackets.PushBack(&local);
 
         SDL_AtomicUnlock(&context->QueueLock);
+
+        NetLog log("Transmit");
+        log.Log(*local);
     }
 
     return true;
@@ -280,6 +295,11 @@ bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
         }
 
         SDL_AtomicUnlock(&context->QueueLock);
+    }
+
+    if (result) {
+        NetLog log("Receive from %4X", packet.GetAddress(0).port);
+        log.Log(packet);
     }
 
     return result;
@@ -381,6 +401,44 @@ void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const 
     }
 
     peer->data = nullptr;
+}
+
+void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const context) {
+    ENetEvent event;
+    const uint32_t time_stamp = SDL_GetTicks() + TransportUdpDefault_DisconnectResponseTimeout;
+    auto& peers = context->NetRole == TRANSPORT_SERVER ? context->Peers : context->RemotePeers;
+
+    enet_host_flush(context->Host);
+
+    for (auto i = 0; i < peers.GetCount(); ++i) {
+        enet_peer_disconnect(*peers[i], 0);
+    }
+
+    for (; peers.GetCount();) {
+        if (enet_host_service(context->Host, &event, TransportUdpDefault_ServiceTickPeriod) > 0) {
+            switch (event.type) {
+                case ENET_EVENT_TYPE_CONNECT: {
+                } break;
+
+                case ENET_EVENT_TYPE_RECEIVE: {
+                    enet_packet_destroy(event.packet);
+                } break;
+
+                case ENET_EVENT_TYPE_DISCONNECT: {
+                    TransportUdpDefault_RemoveClient(context, event.peer);
+                } break;
+            }
+        }
+
+        if (time_stamp < SDL_GetTicks()) {
+            for (auto i = 0; i < peers.GetCount(); ++i) {
+                enet_peer_disconnect_now(*peers[i], 0);
+                TransportUdpDefault_RemoveClient(context, *peers[i]);
+            }
+        }
+    }
+
+    peers.Clear();
 }
 
 void TransportUdpDefault_ConnectRemotePeer(struct TransportUdpDefault_Context* const context, NetPacket& packet) {
@@ -668,6 +726,7 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
             TransportUdpDefault_TransmitApplPackets(context);
 
             if (context->ExitThread) {
+                TransportUdpDefault_RemoveClients(context);
                 break;
             }
         }
@@ -678,7 +737,6 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
 
         enet_host_destroy(context->Host);
 
-        context->Peers.Clear();
         context->NetRole = -1;
         context->NetState = TRANSPORT_NETSTATE_DISCONNECTED;
     }
@@ -746,6 +804,7 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
                 TransportUdpDefault_TransmitApplPackets(context);
 
                 if (context->ExitThread) {
+                    TransportUdpDefault_RemoveClients(context);
                     break;
                 }
             }
