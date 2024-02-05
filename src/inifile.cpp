@@ -173,8 +173,8 @@ static const IniKey ini_keys_table[] = {
 
     {"NETWORK_SETTINGS", nullptr, INI_SECTION},
     {"transport", "udp_default", INI_STRING},
-    {"host_address", "192.168.0.1", INI_STRING},
-    {"host_port", "213", INI_NUMERIC},
+    {"host_address", "127.0.0.1", INI_STRING},
+    {"host_port", "31554", INI_NUMERIC},
 };
 
 static const int32_t ini_keys_table_size = sizeof(ini_keys_table) / sizeof(struct IniKey);
@@ -517,7 +517,9 @@ int32_t IniClans::GetNextUnitUpgrade(int16_t *attrib_id, int16_t *value) {
     return 1;
 }
 
-void IniClans::GetStringValue(char *buffer, int32_t buffer_size) { inifile_ini_get_string(&ini, buffer, buffer_size, 0); }
+void IniClans::GetStringValue(char *buffer, int32_t buffer_size) {
+    inifile_ini_get_string(&ini, buffer, buffer_size, 0);
+}
 
 int32_t IniClans::GetClanGold(int32_t clan) {
     int32_t result;
