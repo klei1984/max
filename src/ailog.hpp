@@ -35,6 +35,7 @@ class AiLog {
     void VSprintf(const char *format, va_list args);
 
     friend void AiLog_Open();
+    friend bool AiLog_IsOpen() noexcept;
     friend void AiLog_Close();
 
 public:
@@ -42,9 +43,11 @@ public:
     ~AiLog();
 
     void Log(const char *format, ...);
+    void Log(const char *format, va_list args);
 };
 
 void AiLog_Open();
+[[nodiscard]] bool AiLog_IsOpen() noexcept;
 void AiLog_Close();
 
 #endif /* AILOG_HPP */

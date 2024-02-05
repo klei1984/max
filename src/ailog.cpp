@@ -87,9 +87,21 @@ void AiLog::Log(const char* format, ...) {
     }
 }
 
+void AiLog::Log(const char* format, va_list args) {
+    if (AiLog_File.is_open()) {
+        VSprintf(format, args);
+    }
+}
+
 void AiLog_Open() {
+    if (AiLog_IsOpen()) {
+        AiLog_Close();
+    }
+
     AiLog::AiLog_File.open("ai_log.txt");
     AiLog::AiLog_EntryCount = 0;
 }
+
+bool AiLog_IsOpen() noexcept { return AiLog::AiLog_File.is_open(); }
 
 void AiLog_Close() { AiLog::AiLog_File.close(); }
