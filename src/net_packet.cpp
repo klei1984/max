@@ -96,9 +96,9 @@ NetPacket::NetPacket() noexcept
 
 NetPacket::~NetPacket() noexcept { delete[] buffer; }
 
-[[nodiscard]] char* NetPacket::GetBuffer() const noexcept { return buffer; }
+[[nodiscard]] char* NetPacket::GetBuffer() const noexcept { return &buffer[buffer_read_position]; }
 
-[[nodiscard]] int32_t NetPacket::GetDataSize() const noexcept { return buffer_write_position; }
+[[nodiscard]] int32_t NetPacket::GetDataSize() const noexcept { return buffer_write_position - buffer_read_position; }
 
 NetPacket& operator<<(NetPacket& packet, SmartString& string) noexcept {
     uint16_t length = string.GetLength() + sizeof('\0');
