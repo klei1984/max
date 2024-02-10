@@ -16,10 +16,10 @@ set(MINIAUDIO_URI https://github.com/mackron/miniaudio/archive/refs/tags/${MINIA
 set(MINIAUDIO_HASH 475c0655c49109a4da647a4dcc1042ac)
 set(MINIAUDIO_HASH_TYPE MD5)
 
-set(SDL2_VERSION 2.28.5)
+set(SDL2_VERSION 2.30.0)
 set(SDL2_FILE SDL2-${SDL2_VERSION}.tar.gz)
 set(SDL2_URI https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/${SDL2_FILE})
-set(SDL2_HASH a344eb827a03045c9b399e99af4af13d)
+set(SDL2_HASH 3b0a35e1d794382dcd64d9da93870ea1)
 set(SDL2_HASH_TYPE MD5)
 
 set(ENET_VERSION 1.3.17)
@@ -28,10 +28,10 @@ set(ENET_URI https://github.com/lsalzman/enet/archive/refs/tags/v${ENET_VERSION}
 set(ENET_HASH 1c3270f1e03ccb2a8544a88d91d2a368)
 set(ENET_HASH_TYPE MD5)
 
-set(MINIUPNP_VERSION miniupnpc_2_2_5)
+set(MINIUPNP_VERSION miniupnpc_2_2_6)
 set(MINIUPNP_FILE miniupnpc-${MINIUPNP_VERSION}.tar.gz)
 set(MINIUPNP_URI https://github.com/miniupnp/miniupnp/archive/refs/tags/${MINIUPNP_VERSION}.tar.gz)
-set(MINIUPNP_HASH 44c6b3f8c13617ed5c0900bd601ea179)
+set(MINIUPNP_HASH 2afc7b1750917d0074e667738217a4fe)
 set(MINIUPNP_HASH_TYPE MD5)
 
 set(GTEST_VERSION 1.14.0)
