@@ -998,7 +998,7 @@ void Remote_AnalyzeDesync() {
 
                 Remote_P23_UnitId = 0;
 
-                Remote_SendNetPacket_Signal(REMOTE_PACKET_42, GameManager_PlayerTeam, 1);
+                Remote_SendNetPacket_Signal(REMOTE_PACKET_24, GameManager_PlayerTeam, 1);
             }
 
             if (get_input() == GNW_KB_KEY_ESCAPE) {
