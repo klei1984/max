@@ -22,6 +22,7 @@
 #include "remote.hpp"
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
@@ -55,6 +56,34 @@ enum {
 struct OrderProcessor {
     void (*WritePacket)(UnitInfo* unit, NetPacket& packet);
     void (*ReadPacket)(UnitInfo* unit, NetPacket& packet);
+};
+
+struct Packet23Data {
+    uint8_t orders;
+    uint8_t state;
+    uint8_t prior_orders;
+    uint8_t prior_state;
+    bool disabled_reaction_fire;
+    uint16_t parent_unit_id;
+    int16_t target_grid_x;
+    int16_t target_grid_y;
+    uint16_t enemy_unit_id;
+    uint8_t total_mining;
+    uint8_t raw_mining;
+    uint8_t fuel_mining;
+    uint8_t gold_mining;
+    uint8_t build_time;
+    uint16_t build_rate;
+    uint16_t unit_type;
+    uint8_t unit_id;
+    int16_t grid_x;
+    int16_t grid_y;
+    uint8_t team;
+    uint8_t hits;
+    int8_t speed;
+    uint8_t shots;
+    int16_t storage;
+    uint8_t ammo;
 };
 
 NetNodeArray Remote_Nodes;
@@ -111,6 +140,7 @@ static int32_t Remote_SetupPlayers();
 static void Remote_ResponseTimeout(uint16_t team, bool mode);
 static bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units);
 static void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet);
+static void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet);
 static void Remote_NetErrorUnknownUnit(uint16_t unit_id);
 static void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet);
 
@@ -951,6 +981,47 @@ void Remote_NetErrorUnknownUnit(uint16_t unit_id) {
 
 void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
     char message[100];
+    AiLog log("Units are out of sync:  Host, Peer");
+    struct Packet23Data data;
+    const char* const team_names[PLAYER_TEAM_MAX + 1] = {"Red", "Green", "Blue", "Gray", "Neutral", "Unknown"};
+
+    Remote_ProcessNetPacket_23(data, packet);
+
+    log.Log(" team          %s, %s",
+            (unit->team < PLAYER_TEAM_MAX) ? team_names[unit->team] : team_names[PLAYER_TEAM_MAX],
+            (data.team < PLAYER_TEAM_MAX) ? team_names[data.team] : team_names[PLAYER_TEAM_MAX]);
+
+    log.Log(" type          %s, %s",
+            (unit->unit_type < UNIT_END) ? UnitsManager_BaseUnits[unit->unit_type].singular_name : "?",
+            (data.unit_type < UNIT_END) ? UnitsManager_BaseUnits[unit->unit_type].singular_name : "?");
+
+    log.Log(" unit id       %i, %i", unit->unit_id, data.unit_id);
+    log.Log(" parent id     %X, %X", unit->GetParent() ? unit->GetParent()->GetId() : 0, data.parent_unit_id);
+    log.Log(" enemy id      %X, %X", unit->GetEnemy() ? unit->GetEnemy()->GetId() : 0, data.enemy_unit_id);
+    log.Log(" orders        %i, %i", unit->orders, data.orders);
+    log.Log(" order state   %i, %i", unit->state, data.state);
+    log.Log(" prior orders  %i, %i", unit->prior_orders, data.prior_orders);
+    log.Log(" prior state   %i, %i", unit->prior_state, data.prior_state);
+    log.Log(" grid x        %i, %i", unit->grid_x, data.grid_x);
+    log.Log(" grid y        %i, %i", unit->grid_y, data.grid_y);
+
+    if (unit->orders == ORDER_BUILD || data.orders == ORDER_BUILD) {
+        log.Log(" build turns   %i, %i", unit->build_time, data.build_time);
+        log.Log(" build rate    %i, %i", unit->build_rate, data.build_rate);
+    }
+
+    log.Log(" target grid x %i, %i", unit->target_grid_x, data.target_grid_x);
+    log.Log(" target grid y %i, %i", unit->target_grid_y, data.target_grid_y);
+    log.Log(" reaction fire %i, %i", unit->disabled_reaction_fire, data.disabled_reaction_fire);
+    log.Log(" total mining  %i, %i", unit->total_mining, data.total_mining);
+    log.Log(" raw mining    %i, %i", unit->raw_mining, data.raw_mining);
+    log.Log(" fuel mining   %i, %i", unit->fuel_mining, data.fuel_mining);
+    log.Log(" gold mining   %i, %i", unit->gold_mining, data.gold_mining);
+    log.Log(" hits          %i, %i", unit->hits, data.hits);
+    log.Log(" speed         %i, %i", unit->speed, data.speed);
+    log.Log(" rounds        %i, %i", unit->shots, data.shots);
+    log.Log(" storage       %i, %i", unit->storage, data.storage);
+    log.Log(" ammo          %i, %i", unit->ammo, data.ammo);
 
     sprintf(message, "Unit, id %i, is in different state in remote packet.", unit->GetId());
 
@@ -2251,6 +2322,47 @@ void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet) {
     packet << unit->shots;
     packet << unit->storage;
     packet << unit->ammo;
+}
+
+void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet) {
+    NetPacket local;
+    uint8_t packet_type;
+    uint16_t entity_id;
+
+    local.Write(packet.GetBuffer(), packet.GetDataSize());
+
+    local >> packet_type;
+    local >> entity_id;
+
+    local >> data.orders;
+    local >> data.state;
+    local >> data.prior_orders;
+    local >> data.prior_state;
+    local >> data.disabled_reaction_fire;
+
+    local >> data.parent_unit_id;
+
+    local >> data.target_grid_x;
+    local >> data.target_grid_y;
+    local >> data.enemy_unit_id;
+
+    local >> data.total_mining;
+    local >> data.raw_mining;
+    local >> data.fuel_mining;
+    local >> data.gold_mining;
+
+    local >> data.build_time;
+    local >> data.build_rate;
+    local >> data.unit_type;
+    local >> data.unit_id;
+    local >> data.grid_x;
+    local >> data.grid_y;
+    local >> data.team;
+    local >> data.hits;
+    local >> data.speed;
+    local >> data.shots;
+    local >> data.storage;
+    local >> data.ammo;
 }
 
 void Remote_SendNetPacket_23(UnitInfo* unit) {
