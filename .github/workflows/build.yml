@@ -27,6 +27,7 @@ on:
 
 jobs:
    Linux-x64:
+      name: Linux x64
       runs-on: ubuntu-latest
       container: ubuntu:22.04
 
@@ -50,7 +51,7 @@ jobs:
             sudo ln -s /opt/cmake/bin/cpack /usr/local/bin/cpack
 
       -  name: Checkout
-         uses: actions/checkout@v3
+         uses: actions/checkout@v4
 
       -  name: Build
          run: |-
@@ -76,12 +77,13 @@ jobs:
             cp max-port-linux-symbols.7z Artifacts/Linux-x64/
 
       -  name: Upload Artifacts
-         uses: actions/upload-artifact@v3
+         uses: actions/upload-artifact@v4
          with:
-            name: build artifacts
+            name: ${{github.job}}
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
 
    Linux-x86:
+      name: Linux x86
       runs-on: ubuntu-latest
       container: ubuntu:22.04
 
@@ -106,7 +108,7 @@ jobs:
             sudo ln -s /opt/cmake/bin/cpack /usr/local/bin/cpack
 
       -  name: Checkout
-         uses: actions/checkout@v3
+         uses: actions/checkout@v4
 
       -  name: Build
          run: |-
@@ -132,12 +134,13 @@ jobs:
             cp max-port-linux-symbols.7z Artifacts/Linux-x86/
 
       -  name: Upload Artifacts
-         uses: actions/upload-artifact@v3
+         uses: actions/upload-artifact@v4
          with:
-            name: build artifacts
+            name: ${{github.job}}
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
 
    WindowsXP-x86:
+      name: Windows XP x86
       runs-on: ubuntu-latest
       container: ubuntu:23.10
 
@@ -156,7 +159,7 @@ jobs:
             sudo apt-get install -y file build-essential binutils-mingw-w64-i686 g++-mingw-w64-i686 gcc-mingw-w64-i686 ninja-build:i386 cmake nsis gettext p7zip-full
 
       -  name: Checkout
-         uses: actions/checkout@v3
+         uses: actions/checkout@v4
 
       -  name: Build
          run: |-
@@ -177,12 +180,13 @@ jobs:
             cp max-port-win32-symbols.7z Artifacts/WindowsXP-x86/
 
       -  name: Upload Artifacts
-         uses: actions/upload-artifact@v3
+         uses: actions/upload-artifact@v4
          with:
-            name: build artifacts
+            name: ${{github.job}}
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
 
    Windows-x64:
+      name: Windows x64
       runs-on: windows-2019
 
       defaults:
@@ -206,7 +210,7 @@ jobs:
             pacman -S --noconfirm git mingw-w64-x86_64-toolchain p7zip mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-nsis mingw-w64-x86_64-gettext make
 
       -  name: Checkout
-         uses: actions/checkout@v3
+         uses: actions/checkout@v4
 
       -  name: Build
          run: |-
@@ -233,12 +237,13 @@ jobs:
             cp max-port-win64-symbols.7z Artifacts/Windows-x64/
 
       -  name: Upload Artifacts
-         uses: actions/upload-artifact@v3
+         uses: actions/upload-artifact@v4
          with:
-            name: build artifacts
+            name: ${{github.job}}
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
 
    Windows-x86:
+      name: Windows x86
       runs-on: windows-2019
 
       defaults:
@@ -262,7 +267,7 @@ jobs:
             pacman -S --noconfirm git mingw-w64-i686-toolchain p7zip mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-nsis mingw-w64-i686-gettext make
 
       -  name: Checkout
-         uses: actions/checkout@v3
+         uses: actions/checkout@v4
 
       -  name: Build
          run: |-
@@ -289,7 +294,7 @@ jobs:
             cp max-port-win32-symbols.7z Artifacts/Windows-x86/
 
       -  name: Upload Artifacts
-         uses: actions/upload-artifact@v3
+         uses: actions/upload-artifact@v4
          with:
-            name: build artifacts
+            name: ${{github.job}}
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
