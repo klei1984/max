@@ -181,7 +181,9 @@ bool TransportUdpDefault::Init(int32_t mode) {
         context->NetRole = -1;
         context->LastError = "No error.";
 
-        // NetLog_Enable();
+        if (ini_get_setting(INI_LOG_FILE_DEBUG)) {
+            NetLog_Enable();
+        }
     }
 
     if (context->NetState == TRANSPORT_NETSTATE_DEINITED) {
