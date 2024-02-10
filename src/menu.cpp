@@ -2278,6 +2278,8 @@ void menu_setup_window() {
 }
 
 int32_t menu_network_game_menu(bool is_host_mode) {
+    int32_t result;
+
     if (Remote_Lobby(is_host_mode)) {
         if (is_host_mode) {
             menu_update_resource_levels();
@@ -2285,11 +2287,16 @@ int32_t menu_network_game_menu(bool is_host_mode) {
         }
 
         GameManager_GameLoop(GameManager_GameState);
+
+        result = true;
+
+    } else {
+        result = false;
     }
 
     Remote_Deinit();
 
-    return false;
+    return result;
 }
 
 int32_t menu_multiplayer_menu_loop() {
