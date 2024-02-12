@@ -273,7 +273,7 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
 int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y) {
     int32_t result;
 
-    if (SDL_GetWindowFlags(sdlWindow) & SDL_WINDOW_INPUT_FOCUS) {
+    if (mouse_get_lock() == MOUSE_LOCK_LOCKED) {
         SDL_WarpMouseInWindow(sdlWindow, window_x, window_y);
         result = true;
 
@@ -311,10 +311,24 @@ void Svga_SetPalette(SDL_Palette *palette) {
     Svga_RefreshSystemPalette(true);
 }
 
-SDL_Palette *Svga_GetPalette() { return sdlPaletteSurface->format->palette; }
+SDL_Palette *Svga_GetPalette(void) { return sdlPaletteSurface->format->palette; }
 
 int32_t Svga_GetScreenWidth(void) { return Svga_ScreenWidth; }
 
 int32_t Svga_GetScreenHeight(void) { return Svga_ScreenHeight; }
 
 int32_t Svga_GetScreenRefreshRate(void) { return Svga_DisplayRefreshRate; }
+
+bool Svga_IsFullscreen(void) { return (sdlWindow && (SDL_GetWindowFlags(sdlWindow) & (SDL_WINDOW_FULLSCREEN))); }
+
+bool Svga_GetWindowFlags(uint32_t *flags) {
+    bool result{false};
+
+    if (flags && sdlWindow) {
+        *flags = SDL_GetWindowFlags(sdlWindow);
+
+        result = true;
+    }
+
+    return result;
+}

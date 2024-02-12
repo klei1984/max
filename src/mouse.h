@@ -37,6 +37,12 @@ enum {
     MOUSE_RELEASE_RIGHT = 0x20,
 };
 
+enum {
+    MOUSE_LOCK_UNLOCKED,
+    MOUSE_LOCK_FOCUSED,
+    MOUSE_LOCK_LOCKED,
+};
+
 extern ScreenBlitFunc mouse_blit;
 
 int32_t GNW_mouse_init(void);
@@ -69,5 +75,7 @@ void mouse_enable(void);
 int32_t mouse_is_disabled(void);
 void mouse_set_sensitivity(double new_sensitivity);
 double mouse_get_sensitivity(void);
+int32_t mouse_get_lock(void);
+void mouse_set_lock(int32_t state);
 
 #endif /* define MOUSE_H */

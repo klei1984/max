@@ -120,28 +120,19 @@ void GNW_process_message(void) {
                 if (!SDL_GetRelativeMouseMode()) {
                     switch (ev.window.event) {
                         case SDL_WINDOWEVENT_FOCUS_GAINED:
-                            SDL_ShowCursor(SDL_DISABLE);
+                            if (mouse_get_lock() != MOUSE_LOCK_LOCKED) {
+                                mouse_set_lock(MOUSE_LOCK_FOCUSED);
+                            }
                             break;
                         case SDL_WINDOWEVENT_FOCUS_LOST:
                             SDL_ShowCursor(SDL_ENABLE);
+                            mouse_set_lock(MOUSE_LOCK_UNLOCKED);
                             break;
                         case SDL_WINDOWEVENT_ENTER: {
-                            int32_t mouse_x;
-                            int32_t mouse_y;
-                            int32_t mouse_state;
-
-                            SDL_GetMouseState(&mouse_x, &mouse_y);
-
-                            mouse_state = mouse_hidden();
-                            if (!mouse_state) {
-                                mouse_hide();
-                            }
-                            mouse_set_position(mouse_x, mouse_y);
-                            if (!mouse_state) {
-                                mouse_show();
-                            }
                         } break;
                         case SDL_WINDOWEVENT_LEAVE:
+                            break;
+                        case SDL_WINDOWEVENT_CLOSE:
                             break;
                     }
                 }
@@ -812,7 +803,7 @@ TOCKS elapsed_time(TOCKS past_time) {
 
     t = get_time();
     if (past_time > t) {
-        t = 0x7FFFFFFF;
+        t = INT32_MAX;
     } else {
         t = t - past_time;
     }
@@ -824,7 +815,7 @@ TOCKS elapsed_tocks(TOCKS end_time, TOCKS start_time) {
     TOCKS t;
 
     if (start_time > end_time) {
-        t = 0x7FFFFFFF;
+        t = INT32_MAX;
     } else {
         t = end_time - start_time;
     }

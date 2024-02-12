@@ -24,6 +24,7 @@
 
 #include <SDL.h>
 #include <SDL_surface.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -45,10 +46,12 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
 int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y);
 void Svga_SetPaletteColor(int32_t index, SDL_Color *color);
 void Svga_SetPalette(SDL_Palette *palette);
-SDL_Palette *Svga_GetPalette();
+SDL_Palette *Svga_GetPalette(void);
 int32_t Svga_GetScreenWidth(void);
 int32_t Svga_GetScreenHeight(void);
 int32_t Svga_GetScreenRefreshRate(void);
+bool Svga_IsFullscreen(void);
+bool Svga_GetWindowFlags(uint32_t *flags);
 
 #ifdef __cplusplus
 }

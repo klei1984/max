@@ -55,35 +55,45 @@ static int32_t mouse_x;
 static int32_t mouse_y;
 static int32_t have_mouse;
 static int32_t mouse_width;
+static int32_t mouse_lock;
 static char mouse_trans;
 
 ScreenBlitFunc mouse_blit;
 
 int32_t GNW_mouse_init(void) {
     int32_t result;
+    uint32_t window_flags;
 
-    have_mouse = 0;
-    mouse_disabled = 0;
-    mouse_is_hidden = 1;
+    if (!Svga_GetWindowFlags(&window_flags)) {
+        result = -1;
+    } else {
+        have_mouse = 0;
+        mouse_disabled = 0;
+        mouse_is_hidden = 1;
+        mouse_lock = (window_flags & SDL_WINDOW_FULLSCREEN) ? MOUSE_LOCK_LOCKED : MOUSE_LOCK_UNLOCKED;
 
-    mouse_blit = scr_blit;
+        mouse_blit = scr_blit;
 
-    mouse_colorize();
+        mouse_colorize();
 
-    result = mouse_set_shape(NULL, 0, 0, 0, 0, 0, 0);
+        result = mouse_set_shape(NULL, 0, 0, 0, 0, 0, 0);
 
-    if (result != -1) {
-        SDL_ShowCursor(SDL_DISABLE);
-        if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0) {
-            SDL_Log("SDL_SetRelativeMouseMode failed: %s\n", SDL_GetError());
-            result = -1;
+        if (result != -1) {
+            if (mouse_lock == MOUSE_LOCK_LOCKED) {
+                SDL_ShowCursor(SDL_DISABLE);
+            }
+
+            if (SDL_SetRelativeMouseMode(window_flags & SDL_WINDOW_FULLSCREEN) != 0) {
+                SDL_Log("SDL_SetRelativeMouseMode failed: %s\n", SDL_GetError());
+                result = -1;
+            }
+
+            mouse_x = scr_size.ulx / 2;
+            mouse_y = scr_size.uly / 2;
+
+            have_mouse = 1;
+            result = 0;
         }
-
-        mouse_x = scr_size.ulx / 2;
-        mouse_y = scr_size.uly / 2;
-
-        have_mouse = 1;
-        result = 0;
     }
 
     return result;
@@ -313,14 +323,24 @@ void mouse_hide(void) {
 }
 
 void mouse_info(void) {
-    uint32_t buttons = 0;
-    int delta_x;
-    int delta_y;
-
     if (have_mouse && !mouse_is_hidden && !mouse_disabled) {
+        uint32_t buttons = 0;
         uint32_t button_bitmask;
+        int delta_x;
+        int delta_y;
 
-        button_bitmask = SDL_GetRelativeMouseState(&delta_x, &delta_y);
+        if (SDL_GetRelativeMouseMode()) {
+            button_bitmask = SDL_GetRelativeMouseState(&delta_x, &delta_y);
+
+            delta_x = (int32_t)((double)delta_x * mouse_sensitivity);
+            delta_y = (int32_t)((double)delta_y * mouse_sensitivity);
+
+        } else {
+            button_bitmask = SDL_GetMouseState(&delta_x, &delta_y);
+
+            delta_x -= mouse_x;
+            delta_y -= mouse_y;
+        }
 
         if (SDL_BUTTON(SDL_BUTTON_LEFT) & button_bitmask) {
             buttons |= GNW_MOUSE_BUTTON_LEFT;
@@ -334,10 +354,16 @@ void mouse_info(void) {
             buttons |= GNW_MOUSE_BUTTON_MIDDLE;
         }
 
-        delta_x = (int32_t)((double)delta_x * mouse_sensitivity);
-        delta_y = (int32_t)((double)delta_y * mouse_sensitivity);
+        if (mouse_lock == MOUSE_LOCK_FOCUSED && buttons) {
+            mouse_lock = MOUSE_LOCK_LOCKED;
+            buttons = 0;
 
-        mouse_simulate_input(delta_x, delta_y, buttons);
+            SDL_ShowCursor(SDL_DISABLE);
+        }
+
+        if (mouse_lock == MOUSE_LOCK_LOCKED) {
+            mouse_simulate_input(delta_x, delta_y, buttons);
+        }
     }
 }
 
@@ -509,3 +535,7 @@ void mouse_set_sensitivity(double new_sensitivity) {
 }
 
 double mouse_get_sensitivity(void) { return mouse_sensitivity; }
+
+int32_t mouse_get_lock(void) { return mouse_lock; }
+
+void mouse_set_lock(int32_t state) { mouse_lock = state; }
