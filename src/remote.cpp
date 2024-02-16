@@ -34,6 +34,7 @@
 #include "mouseevent.hpp"
 #include "networkmenu.hpp"
 #include "sound_manager.hpp"
+#include "ticktimer.hpp"
 #include "transport.hpp"
 #include "unitevents.hpp"
 #include "units_manager.hpp"
@@ -743,10 +744,10 @@ bool Remote_UiProcessTick(bool mode) {
 
     Remote_ProcessNetPackets();
 
-    if (timer_get() - Paths_LastTimeStamp >= TIMER_FPS_TO_MS(24)) {
+    if (!TickTimer_HaveTimeToThink(TIMER_FPS_TO_MS(24))) {
         Remote_Synchronize(mode);
 
-        Paths_LastTimeStamp = timer_get();
+        TickTimer_SetLastTimeStamp(timer_get());
 
         result = true;
 

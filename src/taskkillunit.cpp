@@ -29,6 +29,7 @@
 #include "taskattack.hpp"
 #include "taskmove.hpp"
 #include "taskrepair.hpp"
+#include "ticktimer.hpp"
 #include "units_manager.hpp"
 
 TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, uint16_t flags_)
@@ -210,14 +211,13 @@ bool TaskKillUnit::GetNewUnits() {
                         unit1->RemoveTasks();
                         AddUnit(*unit1);
 
-                        if (Paths_HaveTimeToThink()) {
+                        if (TickTimer_HaveTimeToThink()) {
                             if (!unit2 && parent) {
                                 unit2 = dynamic_cast<TaskAttack*>(&*parent)->DetermineLeader();
                             }
 
                         } else {
-                            log.Log("Get new units halted, %i msecs since frame update",
-                                    timer_elapsed_time(Paths_LastTimeStamp));
+                            log.Log("Get new units halted, %i msecs since frame update", TickTimer_GetElapsedTime());
 
                             if (!IsScheduledForTurnStart()) {
                                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));

@@ -25,6 +25,7 @@
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
 #include "taskupdateterrain.hpp"
+#include "ticktimer.hpp"
 #include "units_manager.hpp"
 
 #define TERRAINMAP_PATH_PROCESSED (SHRT_MAX + 1)
@@ -124,7 +125,7 @@ int32_t TerrainMap::TerrainMap_sub_68EEF(uint16_t** map, Point location) {
         position = location;
         shortest_distance = TERRAINMAP_PATH_MAX_DISTANCE;
 
-        if (Paths_HaveTimeToThink()) {
+        if (TickTimer_HaveTimeToThink()) {
             for (int32_t i = 1; i * i < shortest_distance; ++i) {
                 --position.x;
                 ++position.y;

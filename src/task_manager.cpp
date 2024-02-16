@@ -32,6 +32,7 @@
 #include "taskreload.hpp"
 #include "taskrepair.hpp"
 #include "taskupgrade.hpp"
+#include "ticktimer.hpp"
 #include "units_manager.hpp"
 
 class TaskManager TaskManager;
@@ -271,7 +272,7 @@ void TaskManager::CheckComputerReactions() {
 
                         units.Remove(*it);
 
-                        if (!Paths_HaveTimeToThink()) {
+                        if (!TickTimer_HaveTimeToThink()) {
                             TaskManager_word_1731C0 = 1;
 
                             return;
@@ -411,7 +412,7 @@ bool TaskManager::ExecuteReminders() {
     if (normal_reminders.GetCount() + priority_reminders.GetCount() > 0) {
         AiLog log("Execute reminders");
 
-        if (Paths_HaveTimeToThink()) {
+        if (TickTimer_HaveTimeToThink()) {
             SmartPointer<Reminder> reminder;
             int32_t reminders_executed = 0;
 
@@ -439,14 +440,14 @@ bool TaskManager::ExecuteReminders() {
 
                 reminder->Execute();
 
-                if (!Paths_HaveTimeToThink()) {
+                if (!TickTimer_HaveTimeToThink()) {
                     log.Log("%i reminders executed", reminders_executed);
                     break;
                 }
             }
 
         } else {
-            log.Log("No reminders executed, %i msecs since frame update", timer_elapsed_time(Paths_LastTimeStamp));
+            log.Log("No reminders executed, %i msecs since frame update", TickTimer_GetElapsedTime());
         }
 
         result = true;

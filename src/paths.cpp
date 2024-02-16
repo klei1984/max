@@ -71,10 +71,6 @@ const Point Paths_8DirPointsArrayMarkerB[8] = {{-10, 10}, {-12, 0}, {-10, -10}, 
 const Point Paths_8DirPointsArrayMarkerC[8] = {{10, 10},   {0, 12},  {-10, 10}, {-12, 0},
                                                {-10, -10}, {0, -12}, {10, -10}, {12, 0}};
 
-uint32_t Paths_LastTimeStamp;
-bool Paths_TimeBenchmarkDisable;
-uint32_t Paths_TimeLimit = TIMER_FPS_TO_MS(30 / 1.1);
-
 uint32_t Paths_DebugMode;
 
 uint32_t Paths_EvaluatedTileCount;
@@ -1634,5 +1630,3 @@ bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t tea
 
     return false;
 }
-
-bool Paths_HaveTimeToThink() { return (timer_get() - Paths_LastTimeStamp) <= Paths_TimeLimit; }

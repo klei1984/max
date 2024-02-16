@@ -26,6 +26,7 @@
 #include "reminders.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
+#include "ticktimer.hpp"
 #include "units_manager.hpp"
 
 TaskCheckAssaults::TaskCheckAssaults(uint16_t team)
@@ -52,7 +53,7 @@ void TaskCheckAssaults::CheckAssaults() {
     }
 
     for (; unit_iterator != UnitsManager_MobileAirUnits.End(); SelectNext()) {
-        if (Paths_HaveTimeToThink()) {
+        if (TickTimer_HaveTimeToThink()) {
             if (EvaluateAssaults()) {
                 log.Log("Assault check paused.");
 
@@ -62,8 +63,8 @@ void TaskCheckAssaults::CheckAssaults() {
             ++unit_count;
 
         } else {
-            log.Log("Assault check paused, %i msecs since frame update, %i units checked.",
-                    timer_elapsed_time(Paths_LastTimeStamp), unit_count);
+            log.Log("Assault check paused, %i msecs since frame update, %i units checked.", TickTimer_GetElapsedTime(),
+                    unit_count);
 
             if (!IsScheduledForTurnEnd()) {
                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));

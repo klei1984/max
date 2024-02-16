@@ -25,6 +25,7 @@
 #include "ailog.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
+#include "ticktimer.hpp"
 #include "transportermap.hpp"
 #include "units_manager.hpp"
 
@@ -80,7 +81,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
             int32_t target_direction =
                 UnitsManager_GetTargetAngle(unit->grid_x - central_site.x, unit->grid_y - central_site.y);
 
-            while (Paths_HaveTimeToThink() || loop_count < 20) {
+            while (TickTimer_HaveTimeToThink() || loop_count < 20) {
                 ++loop_count;
 
                 position += Paths_8DirPointsArray[direction];
@@ -163,7 +164,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
                 }
             }
 
-            log.Log("Search paused, %i msecs since frame update", Paths_LastTimeStamp);
+            log.Log("Search paused, %i msecs since frame update", TickTimer_GetElapsedTime());
 
             result = false;
 

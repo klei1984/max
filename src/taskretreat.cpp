@@ -26,6 +26,7 @@
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
+#include "ticktimer.hpp"
 #include "transportermap.hpp"
 
 TaskRetreat::TaskRetreat(UnitInfo* unit, Task* task, uint16_t flags, int32_t caution_level_)
@@ -118,7 +119,7 @@ void TaskRetreat::Search() {
     }
 
     if (damage_potential_map) {
-        while (Paths_HaveTimeToThink() || index < 20) {
+        while (TickTimer_HaveTimeToThink() || index < 20) {
             ++field_31;
 
             if (field_31 >= field_23) {

@@ -77,7 +77,6 @@ void UnitsManager_ProcessOrders();
 void UnitsManager_NewOrderWhileScaling(UnitInfo* unit);
 void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit);
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state);
-void UnitsManager_UpdatePathsTimeLimit();
 void UnitsManager_SetNewOrder(UnitInfo* unit, int32_t order, int32_t state);
 void UnitsManager_MoveUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t grid_y);

@@ -56,6 +56,7 @@
 #include "task_manager.hpp"
 #include "taskdebugger.hpp"
 #include "text.hpp"
+#include "ticktimer.hpp"
 #include "transfermenu.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"
@@ -5138,11 +5139,11 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
             }
 
         } else {
-            Paths_LastTimeStamp = timer_get();
-            Paths_TimeBenchmarkDisable = false;
+            TickTimer_SetLastTimeStamp(timer_get());
+            TickTimer_RequestTimeLimitUpdate();
         }
 
-        UnitsManager_UpdatePathsTimeLimit();
+        TickTimer_UpdateTimeLimit();
         PathsManager_EvaluateTiles();
         Ai_CheckReactions();
 
@@ -5190,7 +5191,7 @@ bool GameManager_ProcessTick(bool render_screen) {
 
     time_stamp = timer_get();
 
-    if ((time_stamp - Paths_LastTimeStamp) >= TIMER_FPS_TO_MS(24)) {
+    if (!TickTimer_HaveTimeToThink(TIMER_FPS_TO_MS(24))) {
         if (GameManager_IsCheater && GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             GameManager_PunishCheater();
         }
@@ -5199,8 +5200,8 @@ bool GameManager_ProcessTick(bool render_screen) {
             Remote_Synchronize();
         }
 
-        Paths_LastTimeStamp = time_stamp;
-        Paths_TimeBenchmarkDisable = false;
+        TickTimer_SetLastTimeStamp(time_stamp);
+        TickTimer_RequestTimeLimitUpdate();
 
         if (GameManager_GameState != GAME_STATE_11) {
             UnitsManager_ProcessOrders();
@@ -5209,7 +5210,7 @@ bool GameManager_ProcessTick(bool render_screen) {
         GameManager_Render();
 
         if (GameManager_GameState != GAME_STATE_11 && !UnitsManager_OrdersPending) {
-            UnitsManager_UpdatePathsTimeLimit();
+            TickTimer_UpdateTimeLimit();
 
             if (GameManager_UpdateFlag) {
                 Ai_CheckReactions();

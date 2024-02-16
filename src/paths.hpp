@@ -153,12 +153,11 @@ bool Paths_UpdateAngle(UnitInfo* unit, int32_t angle);
 void Paths_DrawMarker(WindowInfo* window, int32_t angle, int32_t grid_x, int32_t grid_y, int32_t color);
 void Paths_DrawShots(WindowInfo* window, int32_t grid_x, int32_t grid_y, int32_t shots);
 bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t team);
-bool Paths_HaveTimeToThink();
 
 extern const Point Paths_8DirPointsArray[8];
 extern const int16_t Paths_8DirPointsArrayX[8];
 extern const int16_t Paths_8DirPointsArrayY[8];
-extern uint32_t Paths_LastTimeStamp;
+extern uint32_t TickTimer_LastTimeStamp;
 extern uint32_t Paths_DebugMode;
 extern bool Paths_TimeBenchmarkDisable;
 extern uint32_t Paths_TimeLimit;

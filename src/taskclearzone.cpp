@@ -30,6 +30,7 @@
 #include "task_manager.hpp"
 #include "taskfindpath.hpp"
 #include "taskpathrequest.hpp"
+#include "ticktimer.hpp"
 #include "units_manager.hpp"
 
 void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Point point, GroundPath* path,
@@ -174,7 +175,7 @@ void TaskClearZone::EndTurn() {
 
                 if (state == CLEARZONE_STATE_WAITING) {
                     while (!ExamineZones()) {
-                        if (Paths_HaveTimeToThink()) {
+                        if (TickTimer_HaveTimeToThink()) {
                             state = CLEARZONE_STATE_WAITING;
 
                             RemindTurnEnd(true);
@@ -450,7 +451,7 @@ void TaskClearZone::SearchMap() {
 
     state = CLEARZONE_STATE_SEARCHING_MAP;
 
-    while (zone_squares.GetCount() > 0 && state == CLEARZONE_STATE_SEARCHING_MAP && Paths_HaveTimeToThink()) {
+    while (zone_squares.GetCount() > 0 && state == CLEARZONE_STATE_SEARCHING_MAP && TickTimer_HaveTimeToThink()) {
         ZoneSquare zone_square(*zone_squares[0]);
 
         zone_squares.Remove(0);

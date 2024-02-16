@@ -32,6 +32,7 @@
 #include "resource_manager.hpp"
 #include "searcher.hpp"
 #include "task_manager.hpp"
+#include "ticktimer.hpp"
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
@@ -70,8 +71,7 @@ uint8_t **PathsManager::PathsManager_AccessMap;
 static PathsManager PathsManager_Instance;
 
 static void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit);
-static void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, UnitInfo *unit,
-                                            uint8_t flags);
+static void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, UnitInfo *unit, uint8_t flags);
 static void PathsManager_ProcessMapSurface(uint8_t **map, int32_t surface_type, uint8_t value);
 static void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surface_type);
 static bool PathsManager_IsProcessed(int32_t grid_x, int32_t grid_y);
@@ -199,12 +199,12 @@ void PathsManager::EvaluateTiles() {
         }
     }
 
-    if (Paths_HaveTimeToThink() || (request == nullptr && requests.GetCount() == 0)) {
+    if (TickTimer_HaveTimeToThink() || (request == nullptr && requests.GetCount() == 0)) {
         while (request == nullptr) {
             if (requests.GetCount()) {
                 ProcessRequest();
 
-                if (!Paths_HaveTimeToThink()) {
+                if (!TickTimer_HaveTimeToThink()) {
                     elapsed_time = timer_get() - elapsed_time;
                     return;
                 }
@@ -273,19 +273,17 @@ void PathsManager::EvaluateTiles() {
             } else {
                 index = 5;
 
-                if (!Paths_HaveTimeToThink()) {
+                if (!TickTimer_HaveTimeToThink()) {
                     break;
                 }
             }
         }
 
-        elapsed_time = timer_get() - elapsed_time;
-
     } else {
-        AiLog log("Skipping path generator, %i msecs since update.", timer_elapsed_time(Paths_LastTimeStamp));
-
-        elapsed_time = timer_get() - elapsed_time;
+        AiLog log("Skipping path generator, %i msecs since update.", TickTimer_GetElapsedTime());
     }
+
+    elapsed_time = timer_get() - elapsed_time;
 }
 
 bool PathsManager::HasRequest(UnitInfo *unit) const {
@@ -591,8 +589,7 @@ void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit) {
     }
 }
 
-void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, UnitInfo *unit,
-                                     uint8_t flags) {
+void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, UnitInfo *unit, uint8_t flags) {
     uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {

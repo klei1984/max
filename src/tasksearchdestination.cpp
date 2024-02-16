@@ -27,6 +27,7 @@
 #include "aiplayer.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
+#include "ticktimer.hpp"
 #include "transportermap.hpp"
 #include "units_manager.hpp"
 
@@ -225,13 +226,13 @@ bool TaskSearchDestination::Search() {
             }
         }
 
-        if (Paths_HaveTimeToThink() || loop_count <= 20) {
+        if (TickTimer_HaveTimeToThink() || loop_count <= 20) {
             if (points[index] == point2 || points[0] == points[1]) {
                 return false;
             }
 
         } else {
-            AiLog log("Search paused, %i msecs since frame update", timer_elapsed_time(Paths_LastTimeStamp));
+            AiLog log("Search paused, %i msecs since frame update", TickTimer_GetElapsedTime());
 
             if (!IsScheduledForTurnEnd()) {
                 log.Log("Adding end turn reminder");

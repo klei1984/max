@@ -210,11 +210,6 @@ uint32_t UnitsManager_DelayedReactionsSyncCounter;
 bool UnitsManager_OrdersPending;
 bool UnitsManager_byte_179448;
 
-bool UnitsManager_TimeBenchmarkInit;
-uint8_t UnitsManager_TimeBenchmarkNextIndex;
-uint8_t UnitsManager_TimeBenchmarkIndices[20];
-int32_t UnitsManager_TimeBenchmarkValues[20];
-
 int8_t UnitsManager_EffectCounter;
 int8_t UnitsManager_byte_17947D;
 
@@ -3804,67 +3799,6 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state) {
 
         if (delete_path) {
             PathsManager_RemoveRequest(unit);
-        }
-    }
-}
-
-void UnitsManager_UpdatePathsTimeLimit() {
-    if (!UnitsManager_TimeBenchmarkInit) {
-        for (int32_t i = 0; i < 20; ++i) {
-            UnitsManager_TimeBenchmarkValues[i] = TIMER_FPS_TO_MS(30 / 1.1);
-            UnitsManager_TimeBenchmarkIndices[i] = i;
-
-            Paths_TimeBenchmarkDisable = false;
-            UnitsManager_TimeBenchmarkInit = true;
-        }
-    }
-
-    if (!Paths_TimeBenchmarkDisable) {
-        uint8_t index = UnitsManager_TimeBenchmarkIndices[UnitsManager_TimeBenchmarkNextIndex];
-
-        if (index < 19) {
-            memmove(&UnitsManager_TimeBenchmarkIndices[index], &UnitsManager_TimeBenchmarkIndices[index + 1],
-                    sizeof(UnitsManager_TimeBenchmarkIndices[0]) * (19 - index));
-
-            uint32_t elapsed_time = timer_get() - Paths_LastTimeStamp;
-
-            if (elapsed_time > TIMER_FPS_TO_MS(1)) {
-                elapsed_time = TIMER_FPS_TO_MS(1);
-            }
-
-            UnitsManager_TimeBenchmarkValues[UnitsManager_TimeBenchmarkNextIndex] = elapsed_time;
-
-            for (index = 0; index < 19; ++index) {
-                if (UnitsManager_TimeBenchmarkValues[UnitsManager_TimeBenchmarkIndices[index]] >= elapsed_time) {
-                    break;
-                }
-            }
-
-            if (index < 19) {
-                memmove(&UnitsManager_TimeBenchmarkIndices[index + 1], &UnitsManager_TimeBenchmarkIndices[index],
-                        sizeof(UnitsManager_TimeBenchmarkIndices[0]) * (19 - index));
-            }
-
-            UnitsManager_TimeBenchmarkIndices[index] = UnitsManager_TimeBenchmarkNextIndex;
-
-            UnitsManager_TimeBenchmarkNextIndex = (UnitsManager_TimeBenchmarkNextIndex + 1) % 20;
-
-            uint32_t time_budget = (elapsed_time * 3) / 2;
-
-            time_budget = std::max(time_budget, TIMER_FPS_TO_MS(50));
-            time_budget = std::min(time_budget, TIMER_FPS_TO_MS(30));
-
-            Paths_TimeLimit = time_budget + UnitsManager_TimeBenchmarkValues[UnitsManager_TimeBenchmarkIndices[10]];
-
-            if (elapsed_time >= TIMER_FPS_TO_MS(30)) {
-                elapsed_time *= 2;
-
-            } else {
-                elapsed_time += TIMER_FPS_TO_MS(30);
-            }
-
-            Paths_TimeLimit = std::min(Paths_TimeLimit, elapsed_time);
-            Paths_TimeLimit = std::min(Paths_TimeLimit, TIMER_FPS_TO_MS(30 / 1.1));
         }
     }
 }

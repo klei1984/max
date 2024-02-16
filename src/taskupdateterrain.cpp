@@ -27,6 +27,7 @@
 #include "reminders.hpp"
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
+#include "ticktimer.hpp"
 #include "units_manager.hpp"
 
 TaskUpdateTerrain::TaskUpdateTerrain(uint16_t team) : Task(team, nullptr, 0) {}
@@ -48,7 +49,7 @@ uint8_t TaskUpdateTerrain::GetType() const { return TaskType_TaskUpdateTerrain; 
 
 void TaskUpdateTerrain::BeginTurn() {
     while (location.x < ResourceManager_MapSize.x) {
-        if (Paths_HaveTimeToThink()) {
+        if (TickTimer_HaveTimeToThink()) {
             AiPlayer_TerrainMap.TerrainMap_sub_690D6(location, SURFACE_TYPE_LAND);
             AiPlayer_TerrainMap.TerrainMap_sub_690D6(location, SURFACE_TYPE_WATER);
 
