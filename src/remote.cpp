@@ -492,7 +492,6 @@ void Remote_Init() {
 
     for (int32_t i = 0; i < ORDER_COUNT_MAX; ++i) {
         switch (i) {
-            case ORDER_AWAIT:
             case ORDER_POWER_ON:
             case ORDER_POWER_OFF:
             case ORDER_EXPLODE:
@@ -518,6 +517,7 @@ void Remote_Init() {
                 Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor4_Read;
             } break;
 
+            case ORDER_AWAIT:
             case ORDER_MOVE:
             case ORDER_FIRE:
             case ORDER_ACTIVATE:
