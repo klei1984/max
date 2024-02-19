@@ -779,11 +779,6 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
     AiLog log("Concurrent team turn.");
 
     if (Remote_IsNetworkGame) {
-        if (ini_get_setting(INI_LOG_FILE_DEBUG)) {
-            MessageManager_DrawMessage(_(0d6b), 0, 0);
-            Remote_AnalyzeDesync();
-        }
-
         Remote_WaitBeginTurnAcknowledge();
     }
 
@@ -831,6 +826,13 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
 
         while (GameManager_GameState == GAME_STATE_9_END_TURN && Access_AreTaskEventsPending()) {
             GameManager_ProgressTurn();
+        }
+
+        if (Remote_IsNetworkGame) {
+            if (ini_get_setting(INI_LOG_FILE_DEBUG)) {
+                MessageManager_DrawMessage(_(0d6b), 0, 0);
+                Remote_AnalyzeDesync();
+            }
         }
     }
 
