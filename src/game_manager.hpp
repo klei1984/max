@@ -31,9 +31,9 @@ void GameManager_GameLoop(int32_t game_state);
 void GameManager_AddDrawBounds(Rect* bounds);
 void GameManager_UpdateDrawBounds();
 void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x, int32_t grid_y);
-void GameManager_DrawUnitSelector(uint8_t* buffer, int32_t pitch, int32_t offsetx, int32_t height, int32_t offsety, int32_t bottom,
-                                  int32_t item_height, int32_t top, int32_t scaling_factor, int32_t is_big_sprite,
-                                  bool double_marker = false);
+void GameManager_DrawUnitSelector(uint8_t* buffer, int32_t pitch, int32_t offsetx, int32_t height, int32_t offsety,
+                                  int32_t bottom, int32_t item_height, int32_t top, int32_t scaling_factor,
+                                  int32_t is_big_sprite, bool double_marker = false);
 bool GameManager_RefreshOrders(uint16_t team, bool check_production);
 void GameManager_HandleTurnTimer();
 void GameManager_ProcessState(bool process_tick, bool clear_mouse_events = true);

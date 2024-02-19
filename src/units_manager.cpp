@@ -6411,6 +6411,8 @@ bool UnitsManager_AssessAttacks() {
         result = false;
 
     } else {
+        AiLog log("Assess pending attacks.");
+
         bool are_attacks_delayed = false;
 
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
@@ -6426,7 +6428,7 @@ bool UnitsManager_AssessAttacks() {
             } else {
                 are_attacks_delayed = false;
 
-                int32_t team = UnitsManager_DelayedReactionsTeam;
+                uint16_t team = UnitsManager_DelayedReactionsTeam;
 
                 do {
                     if (UnitsManager_CheckDelayedReactions(UnitsManager_DelayedReactionsTeam)) {
@@ -6754,8 +6756,10 @@ bool UnitsManager_CheckDelayedReactions(uint16_t team) {
 
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
         UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+        AiLog log("Check pending reactions.");
+
         if (UnitsManager_Units[team]) {
-            UnitInfo* unit1 = &*UnitsManager_Units[team];
+            UnitInfo* unit1 = UnitsManager_Units[team].Get();
             UnitInfo* unit2 = unit1->GetEnemy();
             Point position = UnitsManager_GetAttackPosition(unit1, unit2);
 

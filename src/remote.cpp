@@ -724,12 +724,6 @@ void Remote_SetupConnection() {
 
     Remote_SendNetPacket_34();
 
-    for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-        if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
-            //            ipx_rx_packetnum[i] = 1;
-        }
-    }
-
     Remote_NetworkMenu->connection_state = 1;
 }
 
@@ -963,7 +957,7 @@ void Remote_ProcessNetPackets() {
                 } break;
 
                 default: {
-                    SDL_Log("Remote: Received unknown packet (%i).\n", packet_type - TRANSPORT_APPL_PACKET_ID);
+                    AiLog log("Received unknown packet type (%i).", packet_type - TRANSPORT_APPL_PACKET_ID);
                 } break;
             }
         } else {
@@ -976,6 +970,8 @@ void Remote_NetErrorUnknownUnit(uint16_t unit_id) {
     char message[100];
 
     sprintf(message, _(ef35), unit_id);
+
+    AiLog log(message);
 
     MessageManager_DrawMessage(message, 2, 1, false, true);
 }
@@ -1575,9 +1571,12 @@ void Remote_ReceiveNetPacket_08(NetPacket& packet) {
     UnitInfo* unit = Hash_UnitHash[entity_id];
 
     if (unit) {
-        if (!packet.Peek(0, &unit->orders, sizeof(unit->orders))) {
-            /// \todo Handle error
-            SDL_Log("Remote: Received corrupted packet (REMOTE_PACKET_08).\n");
+        {
+            NetPacket local;
+
+            local.Write(packet.GetBuffer(), packet.GetDataSize());
+
+            Remote_OrderProcessor1_Read(unit, local);
         }
 
         Remote_OrderProcessors[unit->orders].ReadPacket(unit, packet);

@@ -157,10 +157,7 @@ bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t tea
 extern const Point Paths_8DirPointsArray[8];
 extern const int16_t Paths_8DirPointsArrayX[8];
 extern const int16_t Paths_8DirPointsArrayY[8];
-extern uint32_t TickTimer_LastTimeStamp;
 extern uint32_t Paths_DebugMode;
-extern bool Paths_TimeBenchmarkDisable;
-extern uint32_t Paths_TimeLimit;
 extern uint32_t Paths_EvaluatedTileCount;
 extern uint32_t Paths_EvaluatorCallCount;
 extern uint32_t Paths_SquareAdditionsCount;
