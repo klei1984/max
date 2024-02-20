@@ -465,11 +465,17 @@ void NetworkMenu::EventMapButton() {
 
 void NetworkMenu::EventLoadButton() {
     int32_t save_slot;
+    int32_t game_file_type;
     SaveFormatHeader save_file_header;
 
     DeleteButtons();
 
+    game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
+    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI);
+
     save_slot = SaveLoadMenu_MenuLoop(false);
+
+    ini_set_setting(INI_GAME_FILE_TYPE, game_file_type);
 
     if (save_slot) {
         multi_scenario_id = save_slot;
