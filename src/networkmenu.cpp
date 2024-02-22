@@ -638,7 +638,7 @@ void NetworkMenu::DrawScreen() {
         for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             int32_t button_index = MENU_CONTROL_JAR_1 + i;
 
-            if (team_nodes[i]) {
+            if (team_nodes[i] && buttons[button_index]) {
                 buttons[button_index]->SetRestState(true);
                 buttons[button_index]->Enable();
                 buttons[button_index]->Disable();
@@ -731,6 +731,11 @@ void NetworkMenu::UpdateSaveSettings(struct SaveFormatHeader *save_file_header) 
 
         for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             strcpy(default_team_names[i], save_file_header->team_name[i]);
+
+            if (!strlen(default_team_names[i]) && (save_file_header->team_type[i] == TEAM_TYPE_PLAYER ||
+                                                   save_file_header->team_type[i] == TEAM_TYPE_REMOTE)) {
+                strcpy(default_team_names[i], _(0cb7));
+            }
         }
 
         rng_seed = save_file_header->rng_seed;

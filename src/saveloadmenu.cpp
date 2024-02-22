@@ -763,6 +763,9 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), file_header.team_name[team],
                                       sizeof(file_header.team_name[team]));
+            if (!strlen(file_header.team_name[team])) {
+                strcpy(file_header.team_name[team], menu_team_names[team]);
+            }
         }
 
         file_header.team_type[team] = UnitsManager_TeamInfo[team].team_type;
