@@ -871,17 +871,18 @@ bool GameManager_TeamTurnFinish(uint32_t turn_counter, uint16_t team_winner) {
 
         if (menu_check_end_game_conditions(GameManager_TurnCounter, turn_counter, GameManager_DemoMode)) {
             result = true;
+
+        } else {
+            for (uint8_t team = 0; team < PLAYER_TEAM_MAX - 1; ++team) {
+                UnitsManager_TeamInfo[team].finished_turn = false;
+            }
+
+            GameManager_UpdateScoreGraph();
+
+            ++GameManager_TurnCounter;
+
+            GameManager_AnnounceWinner(team_winner);
         }
-
-        for (uint8_t team = 0; team < PLAYER_TEAM_MAX - 1; ++team) {
-            UnitsManager_TeamInfo[team].finished_turn = false;
-        }
-
-        GameManager_UpdateScoreGraph();
-
-        ++GameManager_TurnCounter;
-
-        GameManager_AnnounceWinner(team_winner);
     }
 
     return result;
