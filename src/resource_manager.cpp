@@ -22,6 +22,8 @@
 #include "resource_manager.hpp"
 
 #include <filesystem>
+#include <fstream>
+#include <memory>
 
 #include "access.hpp"
 #include "assertmenu.hpp"
@@ -60,6 +62,8 @@ struct GameResourceMeta {
     uint8_t *resource_buffer;
     uint8_t res_file_id;
 };
+
+static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
 
 FILE *res_file_handle_array[2];
 struct res_index *ResourceManager_ResItemTable;
@@ -356,6 +360,8 @@ static int32_t ResourceManager_BuildColorTables();
 static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
 static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values);
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
+static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority,
+                                             const char *message);
 
 bool ResourceManager_ChangeToCdDrive(bool prompt_user, bool restore_drive_on_error) {
     std::error_code ec;
@@ -464,15 +470,18 @@ void ResourceManager_InitPaths(int32_t argc, char *argv[]) {
     }
 }
 
-void ResourceManager_InitResources() {
+void ResourceManager_InitResources(int32_t argc, char *argv[]) {
     ResourceManager_InitSDL();
     ResourceManager_TestMemory();
     ResourceManager_TestDiskSpace();
+    ResourceManager_InitPaths(argc, argv);
     ResourceManager_InitInternals();
     ResourceManager_TestMouse();
 }
 
 void ResourceManager_InitSDL() {
+    SDL_LogSetOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         SDL_Log("Unable to initialize SDL: %s\n", SDL_GetError());
         exit(1);
@@ -1455,4 +1464,12 @@ SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *d
              data->condition);
 
     return static_cast<SDL_AssertState>(AssertMenu(caption).Run());
+}
+
+void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority, const char *message) {
+    if (!ResourceManager_LogFile) {
+        ResourceManager_LogFile = std::make_unique<std::ofstream>("./stdout.txt", std::ofstream::trunc);
+    }
+
+    *ResourceManager_LogFile << message;
 }

@@ -25,8 +25,7 @@
 #include "sound_manager.hpp"
 
 int main(int argc, char* argv[]) {
-    ResourceManager_InitPaths(argc, argv);
-    ResourceManager_InitResources();
+    ResourceManager_InitResources(argc, argv);
 
     if (Movie_PlayIntro()) {
         menu_draw_logo(ILOGO, 3000);

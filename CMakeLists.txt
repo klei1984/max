@@ -51,6 +51,10 @@ else()
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 endif()
 
+if(MINGW)
+	target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
+endif()
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/lib-iconv ${CMAKE_CURRENT_BINARY_DIR}/_deps/iconv-build)
 
 include(sdl2)

@@ -102,7 +102,7 @@ extern uint16_t *ResourceManager_CargoMap;
 extern Point ResourceManager_MapSize;
 
 void ResourceManager_InitPaths(int32_t argc, char *argv[]);
-void ResourceManager_InitResources();
+void ResourceManager_InitResources(int32_t argc, char *argv[]);
 void ResourceManager_ExitGame(int32_t error_code);
 uint8_t *ResourceManager_ReadResource(ResourceID id);
 uint8_t *ResourceManager_LoadResource(ResourceID id);
