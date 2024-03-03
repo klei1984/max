@@ -43,7 +43,7 @@ public:
     ~AiLog();
 
     void Log(const char *format, ...);
-    void Log(const char *format, va_list args);
+    void VLog(const char *format, va_list args);
 };
 
 void AiLog_Open();

@@ -87,7 +87,7 @@ void AiLog::Log(const char* format, ...) {
     }
 }
 
-void AiLog::Log(const char* format, va_list args) {
+void AiLog::VLog(const char* format, va_list args) {
     if (AiLog_File.is_open()) {
         VSprintf(format, args);
     }

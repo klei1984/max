@@ -28,7 +28,7 @@
 class NetLog {
     AiLog log;
 
-    inline void ProcessLog(const char* format, va_list args) noexcept { log.Log(format, args); }
+    inline void ProcessLog(const char* format, va_list args) noexcept { log.VLog(format, args); }
 
     inline void ProcessLog(NetPacket& packet) noexcept {
         uint8_t packet_type;
