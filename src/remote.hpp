@@ -125,7 +125,7 @@ void Remote_SendNetPacket_35();
 void Remote_SendNetPacket_36();
 void Remote_SendNetPacket_37();
 void Remote_SendNetPacket_38(UnitInfo* unit);
-void Remote_SendNetPacket_41(UnitInfo* unit);
+void Remote_SendNetPacket_41(UnitInfo* unit, bool mode);
 void Remote_SendNetPacket_43(UnitInfo* unit, const char* name);
 void Remote_SendNetPacket_44(NetAddress& address);
 void Remote_SendNetPacket_46(uint16_t team, bool state, uint32_t counter);

@@ -1052,10 +1052,6 @@ bool Paths_RequestPath(UnitInfo* unit, int32_t mode) {
     } else {
         unit->BlockedOnPathRequest(false);
 
-        if (Remote_IsNetworkGame) {
-            Remote_SendNetPacket_41(unit);
-        }
-
         result = false;
     }
 

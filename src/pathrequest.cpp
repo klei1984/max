@@ -172,10 +172,6 @@ void PathRequest::Finish(GroundPath* path) {
 
             client->BlockedOnPathRequest(false);
 
-            if (Remote_IsNetworkGame) {
-                Remote_SendNetPacket_41(&*client);
-            }
-
             if (client->GetUnitList() && unit1_order_state == ORDER_STATE_NEW_ORDER) {
                 client->ClearUnitList();
             }

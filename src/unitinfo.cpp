@@ -3939,7 +3939,7 @@ int32_t UnitInfo::GetExperience() {
     return result;
 }
 
-void UnitInfo::BlockedOnPathRequest(bool mode) {
+void UnitInfo::BlockedOnPathRequest(bool mode, bool skip_notification) {
     path = nullptr;
 
     if (orders != ORDER_MOVE_TO_ATTACK || state == ORDER_STATE_NEW_ORDER) {
@@ -3953,6 +3953,12 @@ void UnitInfo::BlockedOnPathRequest(bool mode) {
     }
 
     MoveFinished(mode);
+
+    if (Remote_IsNetworkGame) {
+        if (!skip_notification) {
+            Remote_SendNetPacket_41(this, mode);
+        }
+    }
 }
 
 void UnitInfo::MoveFinished(bool mode) {

@@ -1996,10 +1996,6 @@ void Access_ProcessGroupAirPath(UnitInfo* unit) {
     } else {
         unit->BlockedOnPathRequest(false);
 
-        if (Remote_IsNetworkGame) {
-            Remote_SendNetPacket_41(unit);
-        }
-
         unit->ClearUnitList();
     }
 }

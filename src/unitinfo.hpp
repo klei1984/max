@@ -148,7 +148,7 @@ public:
     void Attack(int32_t grid_x, int32_t grid_y);
     SmartPointer<UnitInfo> MakeCopy();
     void MoveFinished(bool mode = true);
-    void BlockedOnPathRequest(bool mode = true);
+    void BlockedOnPathRequest(bool mode = true, bool skip_notification = false);
     void RestoreOrders();
     void FollowUnit();
     void InitStealthStatus();

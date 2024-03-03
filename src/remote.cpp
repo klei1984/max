@@ -2884,24 +2884,27 @@ void Remote_ReceiveNetPacket_40(NetPacket& packet) {
     Remote_UnpauseGameEvent = true;
 }
 
-void Remote_SendNetPacket_41(UnitInfo* unit) {
+void Remote_SendNetPacket_41(UnitInfo* unit, bool mode) {
     NetPacket packet;
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_41);
     packet << static_cast<uint16_t>(unit->GetId());
+    packet << mode;
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
 
 void Remote_ReceiveNetPacket_41(NetPacket& packet) {
     uint16_t entity_id;
+    bool mode;
 
     packet >> entity_id;
+    packet >> mode;
 
     UnitInfo* unit = Hash_UnitHash[entity_id];
 
     if (unit) {
-        unit->BlockedOnPathRequest(false);
+        unit->BlockedOnPathRequest(mode, true);
 
     } else {
         Remote_NetErrorUnknownUnit(entity_id);
