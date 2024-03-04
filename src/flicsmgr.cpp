@@ -367,10 +367,6 @@ char flicsmgr_read(Flic *flc) {
     free(flc->frames[0].buffer);
     flc->frames[0].buffer = nullptr;
 
-    if (ResourceManager_IsMaxDdInUse && strcmp(ResourceManager_FilePathFlc, ResourceManager_FilePathGameInstall)) {
-        flc->frame_count = 1;
-    }
-
     if (flc->frame_count > 1 && flc->animate) {
         flc->frame_pos = 1;
         fseek(flc->fp, flc->file_pos, SEEK_SET);
@@ -399,20 +395,17 @@ char flicsmgr_read(Flic *flc) {
 }
 
 char flicsmgr_load(char *flic_file, Flic *flc) {
-    char filename[PATH_MAX];
-
     if (!flic_file) {
         return 0;
     }
 
     ResourceManager_ToUpperCase(flic_file);
 
-    strcpy(filename, ResourceManager_FilePathFlc);
-    strcat(filename, flic_file);
+    auto filepath = ResourceManager_FilePathFlic / flic_file;
 
     delete[] flic_file;
 
-    flc->fp = fopen(filename, "rb");
+    flc->fp = fopen(filepath.lexically_normal().string().c_str(), "rb");
 
     if (!flc->fp) {
         return 0;

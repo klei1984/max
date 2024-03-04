@@ -22,6 +22,7 @@
 #include "ailog.hpp"
 
 #include "gnw.h"
+#include "resource_manager.hpp"
 #include "smartstring.hpp"
 
 #define AILOG_FILE_LIMIT UINT16_MAX
@@ -98,7 +99,9 @@ void AiLog_Open() {
         AiLog_Close();
     }
 
-    AiLog::AiLog_File.open("ai_log.txt");
+    auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
+
+    AiLog::AiLog_File.open(filepath.string().c_str());
     AiLog::AiLog_EntryCount = 0;
 }
 

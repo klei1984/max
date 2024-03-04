@@ -212,22 +212,21 @@ void SaveLoadMenu_DrawSaveSlotResource(uint8_t *image, int32_t width, ResourceID
 int32_t SaveLoadMenu_GetSavedGameInfo(int32_t save_slot, int32_t game_file_type,
                                       struct SaveFormatHeader &save_file_header, bool load_ini_options) {
     SmartFileReader file;
-    char filename[16];
-    char filepath[100];
+    SmartString filename;
+    std::filesystem::path filepath;
     bool result;
 
-    sprintf(filename, "save%i.%s", save_slot, SaveLoadMenu_SaveFileTypes[game_file_type]);
-    ResourceManager_ToUpperCase(filename);
-    filepath[0] = '\0';
+    filename.Sprintf(20, "save%i.%s", save_slot, SaveLoadMenu_SaveFileTypes[game_file_type]).Toupper();
 
     if (game_file_type == GAME_TYPE_CUSTOM || game_file_type == GAME_TYPE_HOT_SEAT ||
         game_file_type == GAME_TYPE_MULTI) {
-        strcpy(filepath, ResourceManager_FilePathGameInstall);
+        filepath = (ResourceManager_FilePathGamePref / filename.GetCStr()).lexically_normal();
+
+    } else {
+        filepath = (ResourceManager_FilePathGameData / filename.GetCStr()).lexically_normal();
     }
 
-    strcat(filepath, filename);
-
-    if (file.Open(filepath)) {
+    if (file.Open(filepath.string().c_str())) {
         file.Read(save_file_header);
         SaveLoadMenu_UpdateSaveName(save_file_header, save_slot, game_file_type);
 
@@ -252,8 +251,8 @@ void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], 
                        int32_t save_file_type, int32_t first_slot_on_page, bool mode) {
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     uint8_t game_file_type;
-    char filepath[PATH_MAX];
-    char file_name[20];
+    SmartString filename;
+    std::filesystem::path filepath;
     FILE *fp;
     uint16_t version;
     ImageSimpleHeader *image_up;
@@ -276,15 +275,15 @@ void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], 
                  WindowManager_ScaleUlx(window, 229), WindowManager_ScaleUly(window, 5), 181, 21, COLOR_GREEN, true);
 
     for (int32_t i = 0; i < num_buttons; ++i) {
-        sprintf(slots[i].file_name, "save%i.%s", first_slot_on_page + i, SaveLoadMenu_SaveFileTypes[save_file_type]);
-
-        strcpy(file_name, slots[i].file_name);
-        ResourceManager_ToUpperCase(file_name);
-
         game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
-        strcpy(filepath, ResourceManager_FilePathGameInstall);
-        strcat(filepath, file_name);
-        fp = fopen(filepath, "rb");
+
+        filename.Sprintf(20, "save%i.%s", first_slot_on_page + i, SaveLoadMenu_SaveFileTypes[save_file_type]);
+        strcpy(slots[i].file_name, filename.GetCStr());
+        filename.Toupper();
+
+        filepath = (ResourceManager_FilePathGamePref / filename.GetCStr()).lexically_normal();
+
+        fp = fopen(filepath.string().c_str(), "rb");
 
         if (fp) {
             fread(&version, sizeof(version), 1, fp);
@@ -704,8 +703,8 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
 
 void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_voice, bool backup) {
     SmartFileWriter file;
-    SmartString filepath;
-    SmartString filename(file_name);
+    SmartString filename{file_name};
+    std::filesystem::path filepath;
     char team_types[PLAYER_TEAM_MAX - 1];
     struct SaveFormatHeader file_header;
     uint16_t game_state;
@@ -720,14 +719,13 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
         }
     }
 
-    filepath = ResourceManager_FilePathGameInstall;
-    filepath += filename.Toupper();
+    filepath = (ResourceManager_FilePathGamePref / filename.Toupper().GetCStr()).lexically_normal();
 
     if (backup) {
-        SaveLoadMenu_CreateBackup(filepath.GetCStr());
+        SaveLoadMenu_CreateBackup(filepath.string().c_str());
     }
 
-    if (file.Open(filepath.GetCStr())) {
+    if (file.Open(filepath.string().c_str())) {
         GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
     }
 
@@ -886,26 +884,24 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
 
 bool SaveLoadMenu_Load(int32_t save_slot, int32_t game_file_type, bool ini_load_mode) {
     SmartFileReader file;
-    char file_name[16];
-    char file_path[PATH_MAX];
+    SmartString filename;
+    std::filesystem::path filepath;
     struct SaveFormatHeader file_header;
     bool result;
     bool save_load_flag;
 
-    file_path[0] = '\0';
-
-    sprintf(file_name, "save%i.%s", save_slot, SaveLoadMenu_SaveFileTypes[game_file_type]);
-    ResourceManager_ToUpperCase(file_name);
+    filename.Sprintf(20, "save%i.%s", save_slot, SaveLoadMenu_SaveFileTypes[game_file_type]).Toupper();
 
     if (game_file_type != GAME_TYPE_TRAINING && game_file_type != GAME_TYPE_CAMPAIGN &&
         game_file_type != GAME_TYPE_SCENARIO && game_file_type != GAME_TYPE_MULTI_PLAYER_SCENARIO &&
         game_file_type != GAME_TYPE_DEMO) {
-        strcpy(file_path, ResourceManager_FilePathGameInstall);
+        filepath = (ResourceManager_FilePathGamePref / filename.GetCStr()).lexically_normal();
+
+    } else {
+        filepath = (ResourceManager_FilePathGameData / filename.GetCStr()).lexically_normal();
     }
 
-    strcat(file_path, file_name);
-
-    if (file.Open(file_path)) {
+    if (file.Open(filepath.string().c_str())) {
         file.Read(file_header);
         SaveLoadMenu_UpdateSaveName(file_header, save_slot, game_file_type);
 
@@ -1282,17 +1278,17 @@ bool SaveLoadMenu_RunPlausibilityTests() {
     return result;
 }
 
-void SaveLoadMenu_CreateBackup(const char *fil_path) {
-    const auto save_path = std::filesystem::path(fil_path).lexically_normal();
+void SaveLoadMenu_CreateBackup(const char *file_name) {
+    const auto save_path = std::filesystem::path(file_name).lexically_normal();
     std::error_code ec;
 
     if (std::filesystem::exists(save_path, ec)) {
-        const auto backup_path = std::filesystem::path(fil_path).replace_extension(".BAK");
+        const auto backup_path = std::filesystem::path(file_name).replace_extension(".BAK");
 
         std::filesystem::rename(save_path, backup_path, ec);
 
         if (ec) {
-            SDL_Log("Cannot create saved game backup: '%s'.", ec.message().c_str());
+            SDL_Log(_(3889), ec.message().c_str());
         }
     }
 }

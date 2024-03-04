@@ -331,6 +331,8 @@ void GameSetupMenu::DrawMissionList() {
 
 void GameSetupMenu::LoadMissionDescription() {
     SmartString string;
+    SmartString filename;
+    std::filesystem::path filepath;
     FILE* fp;
     int32_t width;
     int32_t height;
@@ -348,14 +350,10 @@ void GameSetupMenu::LoadMissionDescription() {
         }
     }
 
-    std::string file_name =
-        "descr" + std::to_string(game_file_number) + "." + SaveLoadMenu_SaveFileTypes[game_file_type];
+    filename.Sprintf(20, "descr%i.%s", game_file_number, SaveLoadMenu_SaveFileTypes[game_file_type]).Toupper();
+    filepath = (ResourceManager_FilePathText / filename.GetCStr()).lexically_normal();
 
-    ResourceManager_ToUpperCase(file_name);
-
-    auto filepath = std::filesystem::path(ResourceManager_FilePathText) / file_name;
-
-    fp = fopen(file_name.c_str(), "rt");
+    fp = fopen(filepath.string().c_str(), "rt");
 
     if (fp) {
         char character;

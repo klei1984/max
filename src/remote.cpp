@@ -556,7 +556,7 @@ static bool Remote_ReceivePacket(NetPacket& packet) {
 
     if (Remote_Transport->ReceivePacket(packet)) {
         if (packet.GetDataSize() < 3) {
-            SDL_Log("Remote: Dropped malformed packet (size: %i).\n", packet.GetDataSize());
+            AiLog log("Remote: Dropped malformed packet (size: %i).\n", packet.GetDataSize());
             result = false;
 
         } else {
@@ -2453,7 +2453,7 @@ void Remote_SendNetPacket_29(int32_t node) {
 
         Remote_TransmitPacket(packet, REMOTE_UNICAST);
     } else {
-        SDL_Log("Remote: Attempted to register to host that does not exist.\n");
+        AiLog log("Remote: Attempted to register to host that does not exist.\n");
     }
 }
 

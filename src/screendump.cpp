@@ -26,6 +26,7 @@
 
 #include "color.h"
 #include "resource_manager.hpp"
+#include "smartstring.hpp"
 
 typedef struct {
     uint8_t Identifier;
@@ -50,25 +51,22 @@ typedef struct {
 
 int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buffer, uint8_t *palette) {
     PcxHeader pcx_header;
-    char filename[PATH_MAX];
     int32_t file_index;
     uint8_t pcx_palette[PALETTE_STRIDE * PALETTE_SIZE];
     FILE *fp;
+    SmartString filename;
+    std::filesystem::path filepath;
+    std::error_code ec;
 
     file_index = 0;
 
     do {
-        sprintf(filename, "%sMAX%4.4i.PCX", ResourceManager_FilePathGameInstall, file_index);
-        file_index++;
+        filename.Sprintf(20, "MAX%4.4i.PCX", file_index);
+        ++file_index;
+        filepath = (ResourceManager_FilePathGamePref / filename.GetCStr()).lexically_normal();
+    } while (std::filesystem::exists(filepath, ec));
 
-        fp = fopen(filename, "rb");
-
-        if (fp) {
-            fclose(fp);
-        }
-    } while (fp);
-
-    fp = fopen(filename, "wb");
+    fp = fopen(filepath.string().c_str(), "wb");
 
     memset(&pcx_header, 0, sizeof(PcxHeader));
 

@@ -27,6 +27,7 @@
 #include <cstdlib>
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "inifile.hpp"
 #include "net_packet.hpp"
 #include "production_manager.hpp"
@@ -67,7 +68,7 @@ AbstractUnit::AbstractUnit(uint32_t flags, ResourceID sprite, ResourceID shadows
             gender = 0;
             break;
         default:
-            SDL_Log("Incorrect gender for %s", singular_name);
+            AiLog log("Incorrect gender for %s", singular_name);
             SDL_assert(new_gender == 'M' || new_gender == 'F' || new_gender == 'N');
     }
 }

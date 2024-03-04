@@ -84,7 +84,6 @@ int32_t GNW_mouse_init(void) {
             }
 
             if (SDL_SetRelativeMouseMode(window_flags & SDL_WINDOW_FULLSCREEN) != 0) {
-                SDL_Log("SDL_SetRelativeMouseMode failed: %s\n", SDL_GetError());
                 result = -1;
             }
 

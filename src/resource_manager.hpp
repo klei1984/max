@@ -23,6 +23,7 @@
 #define RESOURCE_MANAGER_HPP
 
 #include <cstdio>
+#include <filesystem>
 #include <string>
 
 #include "enums.hpp"
@@ -63,17 +64,17 @@ struct ImageMultiHeader {
     struct ImageMultiFrameHeader *frames[];
 };
 
-extern char ResourceManager_FilePathCd[PATH_MAX];
-extern char ResourceManager_FilePathGameInstall[PATH_MAX];
-extern char ResourceManager_FilePathGameResFile[PATH_MAX];
-extern char ResourceManager_FilePathMovie[PATH_MAX];
-extern char ResourceManager_FilePathText[PATH_MAX];
-extern char ResourceManager_FilePathFlc[PATH_MAX];
-extern char ResourceManager_FilePathVoiceSpw[PATH_MAX];
-extern char ResourceManager_FilePathSfxSpw[PATH_MAX];
-extern char ResourceManager_FilePathMsc[PATH_MAX];
+extern std::filesystem::path ResourceManager_FilePathGameData;
+extern std::filesystem::path ResourceManager_FilePathGameBase;
+extern std::filesystem::path ResourceManager_FilePathGamePref;
+extern std::filesystem::path ResourceManager_FilePathResource;
+extern std::filesystem::path ResourceManager_FilePathMovie;
+extern std::filesystem::path ResourceManager_FilePathText;
+extern std::filesystem::path ResourceManager_FilePathFlic;
+extern std::filesystem::path ResourceManager_FilePathVoice;
+extern std::filesystem::path ResourceManager_FilePathSfx;
+extern std::filesystem::path ResourceManager_FilePathMusic;
 
-extern bool ResourceManager_IsMaxDdInUse;
 extern bool ResourceManager_DisableEnhancedGraphics;
 
 extern ColorIndex *ResourceManager_TeamRedColorIndexTable;
@@ -101,8 +102,8 @@ extern uint16_t *ResourceManager_CargoMap;
 
 extern Point ResourceManager_MapSize;
 
-void ResourceManager_InitPaths(int32_t argc, char *argv[]);
-void ResourceManager_InitResources(int32_t argc, char *argv[]);
+void ResourceManager_InitPaths();
+void ResourceManager_InitResources();
 void ResourceManager_ExitGame(int32_t error_code);
 uint8_t *ResourceManager_ReadResource(ResourceID id);
 uint8_t *ResourceManager_LoadResource(ResourceID id);

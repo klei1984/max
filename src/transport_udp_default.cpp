@@ -476,7 +476,7 @@ void TransportUdpDefault_ProtocolErrorMessage(ENetPeer* const peer, uint8_t pack
         peer_ip[0] = '\0';
     }
 
-    SDL_Log("Transport protocol error: Unknown packet type received (%i) from '%s'.\n", packet_type, peer_ip);
+    AiLog log("Transport protocol error: Unknown packet type received (%i) from '%s'.\n", packet_type, peer_ip);
 }
 
 void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* const context, ENetPeer* const peer,

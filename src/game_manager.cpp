@@ -3985,15 +3985,17 @@ void GameManager_MenuClickChatGoalButton() {
 
     } else if (GameManager_GameFileNumber) {
         int32_t game_file_type;
-        char file_path[PATH_MAX];
+        SmartString filename;
+        std::filesystem::path filepath;
         FILE* fp;
 
         game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
 
-        sprintf(file_path, "%sdescr%i.%s", ResourceManager_FilePathText, GameManager_GameFileNumber,
-                SaveLoadMenu_SaveFileTypes[game_file_type]);
+        filename.Sprintf(20, "descr%i.%s", GameManager_GameFileNumber, SaveLoadMenu_SaveFileTypes[game_file_type])
+            .Toupper();
+        filepath = (ResourceManager_FilePathText / filename.GetCStr()).lexically_normal();
 
-        fp = fopen(file_path, "rt");
+        fp = fopen(filepath.string().c_str(), "rt");
 
         if (fp) {
             int32_t text_size;

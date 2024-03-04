@@ -32,7 +32,7 @@ static uint32_t hex_to_dec_lut2[] = {0x00, 0x01, 0x10, 0x100, 0x1000, 0x10000, 0
 static int32_t inifile_hex_to_dec_digit(char c);
 
 void inifile_load_from_resource(Ini_descriptor *const pini, ResourceID resource_id) {
-    pini->ini_file_path[0] = '\0';
+    pini->ini_file_path.clear();
     pini->file_size = ResourceManager_GetResourceSize(resource_id);
     pini->buffer_size = pini->file_size;
     pini->buffer = reinterpret_cast<char *>(ResourceManager_ReadResource(resource_id));
@@ -51,8 +51,8 @@ int32_t inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const 
     int32_t result;
     FILE *fp;
 
-    strcpy(pini->ini_file_path, inifile_path);
-    fp = fopen(inifile_path, "rb");
+    pini->ini_file_path = std::filesystem::path(inifile_path).lexically_normal();
+    fp = fopen(pini->ini_file_path.string().c_str(), "rb");
 
     if (fp == nullptr) {
         return 0;
@@ -95,7 +95,7 @@ int32_t inifile_save_to_file(Ini_descriptor *const pini) {
 
     if (pini->buffer) {
         if (pini->flags & 0x80u) {
-            fp = fopen(pini->ini_file_path, "wb");
+            fp = fopen(pini->ini_file_path.string().c_str(), "wb");
 
             if (fp == nullptr) {
                 return 0;
@@ -352,7 +352,7 @@ int32_t inifile_ini_process_string_value(Ini_descriptor *const pini, char *const
 }
 
 int32_t inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const uint32_t buffer_size,
-                           const int32_t mode, bool skip_leading_white_space) {
+                               const int32_t mode, bool skip_leading_white_space) {
     char *address;
     char *end_address;
     uint32_t offset;
@@ -536,7 +536,8 @@ int32_t inifile_get_boolean_value(Ini_descriptor *const pini, const char *const 
     return 0;
 }
 
-int32_t inifile_ini_get_numeric_value(Ini_descriptor *const pini, const char *const ini_param_name, int32_t *const value) {
+int32_t inifile_ini_get_numeric_value(Ini_descriptor *const pini, const char *const ini_param_name,
+                                      int32_t *const value) {
     int32_t result;
 
     if (inifile_ini_seek_param(pini, ini_param_name)) {
@@ -549,7 +550,7 @@ int32_t inifile_ini_get_numeric_value(Ini_descriptor *const pini, const char *co
 }
 
 int32_t inifile_ini_get_string_value(Ini_descriptor *const pini, const char *const ini_param_name, char *const buffer,
-                                 const int32_t buffer_size) {
+                                     const int32_t buffer_size) {
     int32_t result;
 
     if (inifile_ini_seek_param(pini, ini_param_name)) {
@@ -732,7 +733,8 @@ int32_t inifile_add_string_param(Ini_descriptor *const pini, char *ini_param_nam
     return result;
 }
 
-int32_t inifile_add_numeric_param(Ini_descriptor *const pini, char *ini_param_name, int32_t value, int32_t size, int32_t radix) {
+int32_t inifile_add_numeric_param(Ini_descriptor *const pini, char *ini_param_name, int32_t value, int32_t size,
+                                  int32_t radix) {
     char buffer[30];
     char *src;
     int32_t length;

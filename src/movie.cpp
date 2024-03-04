@@ -26,6 +26,7 @@
 #include "inifile.hpp"
 #include "mvelib32.h"
 #include "resource_manager.hpp"
+#include "smartstring.hpp"
 #include "sound_manager.hpp"
 #include "window_manager.hpp"
 
@@ -124,8 +125,7 @@ static void movie_init_palette(void) {
 int32_t movie_run(ResourceID resource_id, int32_t mode) {
     FILE* fp;
     int32_t result;
-    char path[PATH_MAX];
-    char* file_name;
+    const char* file_name;
     uint8_t* palette;
 
     SoundManager_FreeMusic();
@@ -134,15 +134,19 @@ int32_t movie_run(ResourceID resource_id, int32_t mode) {
 
     file_name = reinterpret_cast<char*>(ResourceManager_ReadResource(resource_id));
     if (file_name) {
-        path[0] = '\0';
+        SmartString filename(file_name);
+        std::filesystem::path filepath;
+        std::error_code ec;
+
+        delete[] file_name;
 
         if (mode) {
-            strcpy(path, ResourceManager_FilePathMovie);
+            filepath = ResourceManager_FilePathMovie;
         }
 
-        strcat(path, strupr(file_name));
+        filepath.append(filename.Toupper().GetCStr());
 
-        fp = fopen(path, "rb");
+        fp = fopen(filepath.string().c_str(), "rb");
 
         if (fp) {
             palette = Color_GetSystemPalette();
@@ -214,8 +218,6 @@ int32_t movie_run(ResourceID resource_id, int32_t mode) {
 
             result = 0;
         }
-
-        delete[] file_name;
 
     } else {
         result = 0;

@@ -28,6 +28,7 @@
 
 #include <map>
 
+#include "localization.hpp"
 #include "point.hpp"
 #include "resource_manager.hpp"
 #include "sound_manager.hpp"
@@ -137,7 +138,7 @@ int32_t Text_Init(void) {
                               Text_GetSpacingTTF, Text_GetSizeTTF};
 
     if (FT_Init_FreeType(&Text_Library)) {
-        SDL_Log("Couldn't initialize font library\n");
+        SDL_Log(_(6a9c));
 
         return -1;
     }

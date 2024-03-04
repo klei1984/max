@@ -29,6 +29,7 @@
 #include "game_manager.hpp"
 #include "gnw.h"
 #include "inifile.hpp"
+#include "localization.hpp"
 #include "mvelib32.h"
 #include "resource_manager.hpp"
 
@@ -268,7 +269,7 @@ void SoundManager::Init() noexcept {
         delete engine;
         engine = nullptr;
 
-        SDL_Log("Unable to initialize audio engine.\n");
+        SDL_Log(_(37d9));
         is_audio_enabled = false;
 
     } else {
@@ -604,7 +605,7 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
 
                     ResourceManager_ToUpperCase(filename);
                     const auto filepath =
-                        (std::filesystem::path(ResourceManager_FilePathSfxSpw) / filename).lexically_normal();
+                        (std::filesystem::path(ResourceManager_FilePathSfx) / filename).lexically_normal();
                     delete[] filename;
 
                     fp = fopen(filepath.string().c_str(), "rb");
@@ -1034,7 +1035,7 @@ bool SoundManager::PlayMusic(const ResourceID id) noexcept {
             if (filename) {
                 ResourceManager_ToUpperCase(filename);
                 const auto filepath =
-                    (std::filesystem::path(ResourceManager_FilePathMsc) / filename).lexically_normal();
+                    (std::filesystem::path(ResourceManager_FilePathMusic) / filename).lexically_normal();
                 delete[] filename;
 
                 SmartPointer<SoundSample> new_sample(new (std::nothrow) SoundSample);
@@ -1068,29 +1069,29 @@ int32_t SoundManager::LoadSound(SoundJob& job, SoundSample& sample) noexcept {
     MA_ZERO_OBJECT(&sample.sound);
 
     if (filename) {
-        char* root_path;
+        std::filesystem::path root_path;
         ma_sound_group* group;
         ma_uint32 flags;
 
         ResourceManager_ToUpperCase(filename);
 
         if (JOB_TYPE_MUSIC == job.type) {
-            root_path = ResourceManager_FilePathMsc;
+            root_path = ResourceManager_FilePathMusic;
             group = music_group->GetGroup();
             flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_STREAM;
 
         } else if (JOB_TYPE_VOICE == job.type) {
-            root_path = ResourceManager_FilePathVoiceSpw;
+            root_path = ResourceManager_FilePathVoice;
             group = voice_group->GetGroup();
             flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
 
         } else {
-            root_path = ResourceManager_FilePathSfxSpw;
+            root_path = ResourceManager_FilePathSfx;
             group = sfx_group->GetGroup();
             flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
         }
 
-        const auto filepath = (std::filesystem::path(root_path) / filename).lexically_normal();
+        const auto filepath = (root_path / filename).lexically_normal();
         delete[] filename;
 
         FILE* fp = fopen(filepath.string().c_str(), "rb");

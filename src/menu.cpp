@@ -661,10 +661,13 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
 
     if (is_winner && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CAMPAIGN) {
         FILE* fp;
-        SmartString path(ResourceManager_FilePathText);
-        path += SmartString().Sprintf(30, "win%i.cam", GameManager_GameFileNumber);
+        SmartString filename;
+        std::filesystem::path filepath;
 
-        fp = fopen(path.GetCStr(), "rt");
+        filename.Sprintf(20, "win%i.cam", GameManager_GameFileNumber).Toupper();
+        filepath = (ResourceManager_FilePathText / filename.GetCStr()).lexically_normal();
+
+        fp = fopen(filepath.string().c_str(), "rt");
 
         if (fp) {
             int32_t character;
@@ -1018,8 +1021,8 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
 void menu_draw_campaign_mission_briefing_screen() {
     int32_t image_index;
     FILE* fp;
-    SmartString filepath(ResourceManager_FilePathText);
     SmartString filename;
+    std::filesystem::path filepath;
     SmartString text;
     WindowInfo window;
 
@@ -1027,13 +1030,11 @@ void menu_draw_campaign_mission_briefing_screen() {
 
     Text_TypeWriter_CharacterTimeMs = 10;
 
-    filename.Sprintf(30, "intro%i.cam", GameManager_GameFileNumber);
+    filename.Sprintf(20, "intro%i.cam", GameManager_GameFileNumber).Toupper();
 
-    filename.Toupper();
+    filepath = (ResourceManager_FilePathText / filename.GetCStr()).lexically_normal();
 
-    filepath += filename;
-
-    fp = fopen(filepath.GetCStr(), "rt");
+    fp = fopen(filepath.string().c_str(), "rt");
 
     if (fp) {
         for (;;) {

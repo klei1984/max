@@ -363,7 +363,7 @@ void syncSync(void) {
 
 void MVE_memIO(void *buffer, size_t length) { MemInit(&io_mem_buf, length, buffer); }
 
-void MVE_logDumpStats(void) { SDL_Log("Logging support disabled.\n"); }
+void MVE_logDumpStats(void) {}
 
 void MVE_ioCallbacks(mve_cb_Read read) { io_read = read; }
 

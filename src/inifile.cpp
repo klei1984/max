@@ -117,6 +117,7 @@ static const IniKey ini_keys_table[] = {
     {"movie_play", "0", INI_NUMERIC},
     {"alt_movie_res", "0", INI_NUMERIC},
     {"language", "english", INI_STRING},
+    {"game_data", "", INI_STRING},
 
     /// Keep original layout for v1.04 save game compatibility
     {"OPTIONS", nullptr, INI_SECTION},
@@ -158,9 +159,9 @@ static const IniKey ini_keys_table[] = {
     {"gray_team_clan", "0", INI_NUMERIC},
 
     {"AUDIO_SETTINGS", nullptr, INI_SECTION},
-    {"Audio_Device_Name", "None", INI_STRING},
-    {"Audio_Device_ID", "-1", INI_NUMERIC},
-    {"Channels_Reversed", "0", INI_NUMERIC},
+    {"audio_device_name", "None", INI_STRING},
+    {"audio_device_id", "-1", INI_NUMERIC},
+    {"channels_reversed", "0", INI_NUMERIC},
 
     {"GRAPHICS_SETTINGS", nullptr, INI_SECTION},
     {"display_index", "0", INI_NUMERIC},
@@ -212,17 +213,16 @@ void IniSettings::Init() {
     int32_t v1;
     int32_t value;
     char format_string[50];
-    char filename[PATH_MAX];
     FILE *fp;
     int32_t index;
 
-    strcpy(filename, ResourceManager_FilePathGameInstall);
-    strcat(filename, "settings.ini");
-    fp = fopen(filename, "rt");
+    auto filepath{ResourceManager_FilePathGamePref / "settings.ini"};
+
+    fp = fopen(filepath.string().c_str(), "rt");
 
     if (!fp) {
         SDL_Log(_(f3e3));
-        fp = fopen(filename, "wt");
+        fp = fopen(filepath.string().c_str(), "wt");
 
         if (!fp) {
             SDL_Log(_(db0c));
@@ -252,7 +252,7 @@ void IniSettings::Init() {
 
     fclose(fp);
 
-    if (!inifile_init_ini_object_from_ini_file(&ini, filename)) {
+    if (!inifile_init_ini_object_from_ini_file(&ini, filepath.string().c_str())) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_FIND_MAX_INI);
     }
 
