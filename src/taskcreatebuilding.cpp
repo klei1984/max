@@ -132,7 +132,7 @@ void TaskCreateBuilding::MoveToSite() {
 bool TaskCreateBuilding::BuildRoad() {
     bool result;
 
-    if (builder->unit_type == ENGINEER && Task_IsReadyToTakeOrders(&*builder) && builder->speed <= 0 &&
+    if (builder->unit_type == ENGINEER && Task_IsReadyToTakeOrders(&*builder) && builder->speed == 0 &&
         (builder->grid_x != site.x || builder->grid_y != site.y)) {
         if (ini_get_setting(INI_OPPONENT) >= MASTER || builder->storage >= 26) {
             if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {

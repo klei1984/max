@@ -1048,7 +1048,7 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, uint16_t team) {
             if (((*it).orders == ORDER_MOVE || (*it).orders == ORDER_MOVE_TO_UNIT ||
                  (*it).orders == ORDER_MOVE_TO_ATTACK) &&
                 (*it).state == ORDER_STATE_1) {
-                if ((*it).team == team && (*it).speed != 0 && (*it).engine == 2) {
+                if ((*it).team == team && (*it).speed > 0 && (*it).engine == 2) {
                     UnitsManager_SetNewOrder(&(*it), (*it).orders, ORDER_STATE_INIT);
                 }
             }

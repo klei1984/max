@@ -623,7 +623,7 @@ void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int32_t caution_
         ground_forces_map = air_force_map;
     }
 
-    if (unit->speed <= 0 || teams[unit->team]) {
+    if (!(unit->speed > 0 && !teams[unit->team])) {
         UnitValues* base_values = unit->GetBaseValues();
         int32_t unit_range = base_values->GetAttribute(ATTRIB_RANGE);
         int32_t attack_range = unit_range + base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);

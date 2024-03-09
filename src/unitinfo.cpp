@@ -4411,12 +4411,15 @@ int32_t UnitInfo::GetTargetUnitAngle() {
 void UnitInfo::UpdateInfoDisplay() {
     int32_t base_speed = GetBaseValues()->GetAttribute(ATTRIB_SPEED);
     int32_t base_rounds = GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
+    int32_t unit_speed = speed;
 
-    speed -= (((shots + 1) * base_speed) / base_rounds) - ((shots * base_speed) / base_rounds);
+    unit_speed -= (((shots + 1) * base_speed) / base_rounds) - ((shots * base_speed) / base_rounds);
 
-    if (speed < 0) {
-        speed = 0;
+    if (unit_speed < 0) {
+        unit_speed = 0;
     }
+
+    speed = unit_speed;
 
     if (GameManager_SelectedUnit == this) {
         GameManager_UpdateInfoDisplay(this);
