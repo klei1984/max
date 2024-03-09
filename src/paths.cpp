@@ -1528,7 +1528,7 @@ bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_di
     normalized_cost = (cost + 3) / 4;
 
     if (normalized_cost > unit->speed) {
-        SDL_assert((sizeof(unit->move_fraction) << 8) <= (unit->speed * 4));
+        SDL_assert((sizeof(unit->move_fraction) << 8) > (unit->speed * 4));
 
         unit->move_fraction = unit->speed * 4;
         unit->speed = 0;
