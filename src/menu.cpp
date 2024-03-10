@@ -639,6 +639,8 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
     Color* palette;
     SmartString mission_briefing;
 
+    SoundManager_PlayVoice(V_START, V_END, -1);
+
     victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
 
     if (victory_status == VICTORY_STATE_GENERIC) {
