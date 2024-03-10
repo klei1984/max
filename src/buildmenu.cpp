@@ -800,6 +800,10 @@ int32_t BuildMenu_GetMaxPossibleBuildRate(ResourceID unit_type, int32_t build_ti
                     cost += const_change_4x;
 
                 } else {
+                    if (turns_2x > 0 and turns_1x == 1 and cost - rate_2x - rate_1x + rate_4x <= storage) {
+                        ++turns_4x;
+                    }
+
                     break;
                 }
             }
