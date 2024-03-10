@@ -337,8 +337,8 @@ void mouse_info(void) {
         } else {
             button_bitmask = SDL_GetMouseState(&delta_x, &delta_y);
 
-            delta_x -= mouse_x;
-            delta_y -= mouse_y;
+            delta_x -= mouse_hotx + mouse_x;
+            delta_y -= mouse_hoty + mouse_y;
         }
 
         if (SDL_BUTTON(SDL_BUTTON_LEFT) & button_bitmask) {
