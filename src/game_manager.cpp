@@ -3505,15 +3505,15 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
         GameManager_UpdateMainMapView(0, Gfx_ZoomLevel, 0, true);
     }
 
+    GameManager_MenuAnimateDisplayControls();
+
+    GameManager_MenuInitDisplayControls();
+
     GameManager_ProcessTick(true);
 
     WindowManager_FadeIn(0);
 
     SoundManager_PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
-
-    GameManager_MenuAnimateDisplayControls();
-
-    GameManager_MenuInitDisplayControls();
 
     if (load_successful) {
         GameManager_UpdatePanelButtons(GameManager_PlayerTeam);
