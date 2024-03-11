@@ -5150,6 +5150,7 @@ void UnitsManager_ClearDelayedReactions() {
 
     UnitsManager_ClearDelayedReaction(&UnitsManager_MobileLandSeaUnits);
     UnitsManager_ClearDelayedReaction(&UnitsManager_MobileAirUnits);
+    UnitsManager_ClearDelayedReaction(&UnitsManager_StationaryUnits);
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
         UnitsManager_DelayedAttackTargets[team].Clear();
