@@ -28,10 +28,10 @@ set(ENET_URI https://github.com/lsalzman/enet/archive/refs/tags/v${ENET_VERSION}
 set(ENET_HASH 1c3270f1e03ccb2a8544a88d91d2a368)
 set(ENET_HASH_TYPE MD5)
 
-set(MINIUPNP_VERSION miniupnpc_2_2_6)
+set(MINIUPNP_VERSION miniupnpc_2_2_7)
 set(MINIUPNP_FILE miniupnpc-${MINIUPNP_VERSION}.tar.gz)
 set(MINIUPNP_URI https://github.com/miniupnp/miniupnp/archive/refs/tags/${MINIUPNP_VERSION}.tar.gz)
-set(MINIUPNP_HASH 2afc7b1750917d0074e667738217a4fe)
+set(MINIUPNP_HASH 519cb1f34293db76b3b24bcb45204145)
 set(MINIUPNP_HASH_TYPE MD5)
 
 set(GTEST_VERSION 1.14.0)
