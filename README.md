@@ -20,4 +20,4 @@ INTERPLAY PRODUCTIONS IS THE EXCLUSIVE LICENSEE AND DISTRIBUTOR.
 
 ### How to play M.A.X. Port
 
-Visit the [Installation Guideline](https://klei1984.github.io/max/download/) article found on the home page.
+Visit the [Installation Guideline](https://klei1984.github.io/max/install/) article found on the home page.
