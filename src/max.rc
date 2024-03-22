@@ -1,0 +1,30 @@
+#include <winver.h>
+
+#include "version.hpp"
+
+ID_ICON ICON DISCARDABLE "../assets/max.ico"
+
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION GAME_VERSION_MAJOR,GAME_VERSION_MINOR,GAME_VERSION_PATCH,0
+    PRODUCTVERSION GAME_VERSION_MAJOR,GAME_VERSION_MINOR,GAME_VERSION_PATCH,0
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040904E4"
+        {
+            VALUE "CompanyName",        "\0"
+            VALUE "FileDescription",    "M.A.X. Port\0"
+            VALUE "LegalCopyright",     "Copyright (c) 2024 M.A.X. Port Team\0"
+            VALUE "OriginalFilename",   "max.exe\0"
+            VALUE "ProductName",        "M.A.X. Port\0"
+#if !defined(CROSS)
+            VALUE "FileVersion",        GAME_VERSION_STRING "\0"
+            VALUE "ProductVersion",     GAME_VERSION_STRING "\0"
+#endif
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x0409, 0x4E4
+    }
+}

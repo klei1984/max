@@ -535,6 +535,7 @@ void ResourceManager_ExitGame(int32_t error_code) {
 
 int32_t ResourceManager_InitResManager() {
     int32_t result;
+    std::error_code ec;
 
     ResourceManager_ResMetaTable = new (std::nothrow) GameResourceMeta[RESOURCE_E];
 
@@ -548,10 +549,14 @@ int32_t ResourceManager_InitResManager() {
 
         auto filepath = ResourceManager_FilePathGameBase / "PATCHES.RES";
 
+        if (!std::filesystem::exists(filepath, ec) || ec) {
+            filepath = ResourceManager_FilePathGameData / "PATCHES.RES";
+        }
+
         result = ResourceManager_BuildResourceTable(filepath.string().c_str());
 
         if (result == EXIT_CODE_NO_ERROR || result == EXIT_CODE_RES_FILE_NOT_FOUND) {
-            filepath = ResourceManager_FilePathGameBase / "MAX.RES";
+            filepath = ResourceManager_FilePathGameData / "MAX.RES";
 
             result = ResourceManager_BuildResourceTable(filepath.string().c_str());
 
@@ -975,13 +980,15 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
     world_file_name = ResourceManager_ReadResource(static_cast<ResourceID>(world));
 
-    ResourceManager_ToUpperCase(reinterpret_cast<char *>(world_file_name));
-
     if (!world_file_name) {
         ResourceManager_ExitGame(EXIT_CODE_RES_FILE_NOT_FOUND);
     }
 
-    fp = fopen(reinterpret_cast<char *>(world_file_name), "rb");
+    ResourceManager_ToUpperCase(reinterpret_cast<char *>(world_file_name));
+
+    auto filepath = (ResourceManager_FilePathGameData / reinterpret_cast<char *>(world_file_name)).lexically_normal();
+
+    fp = fopen(filepath.string().c_str(), "rb");
     delete[] world_file_name;
 
     if (!fp) {

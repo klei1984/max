@@ -22,6 +22,7 @@
 #include "color.h"
 
 #include "gnw.h"
+#include "resource_manager.hpp"
 
 #define RGB555_COLOR_COUNT (1 << 15)
 #define PALETTE_FILE_TAG 0x4E455743 /* 'NEWC' */
@@ -85,7 +86,8 @@ int32_t Color_Init(void) {
         result = 1;
 
     } else {
-        FILE* in = fopen("COLOR.PAL", "rb");
+        auto filepath = (ResourceManager_FilePathGameData / "COLOR.PAL").lexically_normal();
+        FILE* in = fopen(filepath.string().c_str(), "rb");
 
         if (in == NULL) {
             result = 0;
