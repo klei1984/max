@@ -16,6 +16,7 @@ header_pages:
   "Evolution": evolution.md
   "Roadmap": roadmap.md
   "Articles":
+    - "Installation Guideline": install.md
     - "Build Instructions": build.md
     - "Patching Up MS-DOS Versions": fixdos.md
     - "Development Environments": devenv.md
