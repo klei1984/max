@@ -34,7 +34,7 @@ static uint32_t TickTimer_LastTimeStamp;
 static uint32_t TickTimer_TimeLimit{TIMER_FPS_TO_MS(30 / 1.1)};
 static uint8_t TickTimer_TimeBenchmarkNextIndex;
 static uint8_t TickTimer_TimeBenchmarkIndices[TICKTIMER_BENCHMARK_ARRAY_SIZE];
-static int32_t TickTimer_TimeBenchmarkValues[TICKTIMER_BENCHMARK_ARRAY_SIZE];
+static uint32_t TickTimer_TimeBenchmarkValues[TICKTIMER_BENCHMARK_ARRAY_SIZE];
 
 bool TickTimer_HaveTimeToThink() noexcept { return (timer_get() - TickTimer_LastTimeStamp) <= TickTimer_TimeLimit; }
 
@@ -61,49 +61,51 @@ void TickTimer_UpdateTimeLimit() noexcept {
         if (index < TICKTIMER_BENCHMARK_ARRAY_SIZE - 1) {
             std::memmove(&TickTimer_TimeBenchmarkIndices[index], &TickTimer_TimeBenchmarkIndices[index + 1],
                          sizeof(TickTimer_TimeBenchmarkIndices[0]) * (TICKTIMER_BENCHMARK_ARRAY_SIZE - 1 - index));
-
-            uint32_t elapsed_time = timer_get() - TickTimer_LastTimeStamp;
-
-            if (elapsed_time > TIMER_FPS_TO_MS(1)) {
-                elapsed_time = TIMER_FPS_TO_MS(1);
-            }
-
-            TickTimer_TimeBenchmarkValues[TickTimer_TimeBenchmarkNextIndex] = elapsed_time;
-
-            for (index = 0; index < TICKTIMER_BENCHMARK_ARRAY_SIZE - 1; ++index) {
-                if (TickTimer_TimeBenchmarkValues[TickTimer_TimeBenchmarkIndices[index]] >= elapsed_time) {
-                    break;
-                }
-            }
-
-            if (index < TICKTIMER_BENCHMARK_ARRAY_SIZE - 1) {
-                std::memmove(&TickTimer_TimeBenchmarkIndices[index + 1], &TickTimer_TimeBenchmarkIndices[index],
-                             sizeof(TickTimer_TimeBenchmarkIndices[0]) * (TICKTIMER_BENCHMARK_ARRAY_SIZE - 1 - index));
-            }
-
-            TickTimer_TimeBenchmarkIndices[index] = TickTimer_TimeBenchmarkNextIndex;
-
-            TickTimer_TimeBenchmarkNextIndex = (TickTimer_TimeBenchmarkNextIndex + 1) % TICKTIMER_BENCHMARK_ARRAY_SIZE;
-
-            uint32_t time_budget = (elapsed_time * 3) / 2;
-
-            time_budget = std::max(time_budget, TIMER_FPS_TO_MS(50));
-            time_budget = std::min(time_budget, TIMER_FPS_TO_MS(30));
-
-            TickTimer_TimeLimit =
-                time_budget +
-                TickTimer_TimeBenchmarkValues[TickTimer_TimeBenchmarkIndices[TICKTIMER_BENCHMARK_ARRAY_SIZE / 2]];
-
-            if (elapsed_time >= TIMER_FPS_TO_MS(30)) {
-                elapsed_time *= 2;
-
-            } else {
-                elapsed_time += TIMER_FPS_TO_MS(30);
-            }
-
-            TickTimer_TimeLimit = std::min(TickTimer_TimeLimit, elapsed_time);
-            TickTimer_TimeLimit = std::max(TickTimer_TimeLimit, TIMER_FPS_TO_MS(30 / 1.1));
         }
+
+        uint32_t elapsed_time = timer_get() - TickTimer_LastTimeStamp;
+
+        if (elapsed_time > TIMER_FPS_TO_MS(1)) {
+            elapsed_time = TIMER_FPS_TO_MS(1);
+        }
+
+        TickTimer_TimeBenchmarkValues[TickTimer_TimeBenchmarkNextIndex] = elapsed_time;
+
+        for (index = 0; index < TICKTIMER_BENCHMARK_ARRAY_SIZE - 1; ++index) {
+            if (TickTimer_TimeBenchmarkValues[TickTimer_TimeBenchmarkIndices[index]] >= elapsed_time) {
+                break;
+            }
+        }
+
+        if (index < TICKTIMER_BENCHMARK_ARRAY_SIZE - 1) {
+            std::memmove(&TickTimer_TimeBenchmarkIndices[index + 1], &TickTimer_TimeBenchmarkIndices[index],
+                         sizeof(TickTimer_TimeBenchmarkIndices[0]) * (TICKTIMER_BENCHMARK_ARRAY_SIZE - 1 - index));
+        }
+
+        TickTimer_TimeBenchmarkIndices[index] = TickTimer_TimeBenchmarkNextIndex;
+
+        TickTimer_TimeBenchmarkNextIndex = (TickTimer_TimeBenchmarkNextIndex + 1) % TICKTIMER_BENCHMARK_ARRAY_SIZE;
+
+        printf("%i\n", elapsed_time);
+
+        uint32_t time_budget = (elapsed_time * 3) / 2;
+
+        time_budget = std::max(time_budget, TIMER_FPS_TO_MS(50));
+        time_budget = std::min(time_budget, TIMER_FPS_TO_MS(30));
+
+        TickTimer_TimeLimit =
+            time_budget +
+            TickTimer_TimeBenchmarkValues[TickTimer_TimeBenchmarkIndices[TICKTIMER_BENCHMARK_ARRAY_SIZE / 2]];
+
+        if (elapsed_time >= TIMER_FPS_TO_MS(30)) {
+            elapsed_time *= 2;
+
+        } else {
+            elapsed_time += TIMER_FPS_TO_MS(30);
+        }
+
+        TickTimer_TimeLimit = std::min(TickTimer_TimeLimit, elapsed_time);
+        TickTimer_TimeLimit = std::max(TickTimer_TimeLimit, TIMER_FPS_TO_MS(30 / 1.1));
     }
 }
 
