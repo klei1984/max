@@ -102,6 +102,8 @@ extern uint16_t *ResourceManager_CargoMap;
 
 extern Point ResourceManager_MapSize;
 
+bool ResourceManager_GetBasePath(std::filesystem::path &path);
+bool ResourceManager_GetPrefPath(std::filesystem::path &path);
 void ResourceManager_InitPaths();
 void ResourceManager_InitResources();
 void ResourceManager_ExitGame(int32_t error_code);

@@ -358,7 +358,7 @@ static void ResourceManager_TestDiskSpace();
 static void ResourceManager_InitInternals();
 static int32_t ResourceManager_InitResManager();
 static void ResourceManager_TestMouse();
-static void ResourceManager_ReadGameDataFilePath();
+static bool ResourceManager_GetGameDataPath(std::filesystem::path &path);
 static int32_t ResourceManager_BuildResourceTable(const char *file_path);
 static int32_t ResourceManager_BuildColorTables();
 static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
@@ -367,62 +367,108 @@ static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_Assert
 static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority,
                                              const char *message);
 
-void ResourceManager_ReadGameDataFilePath() {
-    auto filepath{ResourceManager_FilePathGamePref / "settings.ini"};
-    constexpr int32_t buffer_size{2048};
-    Ini_descriptor ini;
+bool ResourceManager_GetBasePath(std::filesystem::path &path) {
+    bool result;
 
-    ResourceManager_FilePathGameData.clear();
+    auto base_path = SDL_GetBasePath();
+    std::filesystem::path local_path;
+    std::error_code ec;
 
-    if (!inifile_init_ini_object_from_ini_file(&ini, filepath.string().c_str())) {
-        return;
+    // SDL_GetBasePath may fail if SDL is not initialized yet
+    if (base_path) {
+        local_path = std::filesystem::path(base_path).lexically_normal();
+        SDL_free(base_path);
     }
 
-    auto buffer = std::make_unique<char[]>(buffer_size);
+    if (!std::filesystem::exists(local_path, ec) || ec) {
+        local_path = std::filesystem::current_path(ec).lexically_normal();
+    }
 
-    if (inifile_ini_seek_section(&ini, "SETUP") && inifile_ini_seek_param(&ini, "game_data")) {
-        if (inifile_ini_get_string(&ini, buffer.get(), buffer_size, 1, false)) {
-            ResourceManager_FilePathGameData = std::filesystem::path(buffer.get()).lexically_normal();
+    if (ec || !std::filesystem::exists(local_path, ec) || ec) {
+        result = false;
+
+    } else {
+        path = local_path;
+
+        result = true;
+    }
+
+    return result;
+}
+
+bool ResourceManager_GetPrefPath(std::filesystem::path &path) {
+    bool result{false};
+    std::filesystem::path base_path;
+
+    if (ResourceManager_GetBasePath(base_path)) {
+        std::filesystem::path local_path;
+        std::error_code ec;
+
+        if (std::filesystem::exists(base_path / ".portable", ec) && !ec) {
+            local_path = base_path;
+
+        } else {
+            // SDL_GetPrefPath may fail if SDL is not initialized yet
+            auto pref_path = SDL_GetPrefPath("Interplay", "MAX");
+
+            if (pref_path) {
+                local_path = std::filesystem::path(pref_path).lexically_normal();
+                SDL_free(pref_path);
+            }
+        }
+
+        if (!ec && std::filesystem::exists(local_path, ec) && !ec) {
+            path = local_path;
+
+            result = true;
+        }
+    }
+
+    return result;
+}
+
+bool ResourceManager_GetGameDataPath(std::filesystem::path &path) {
+    auto filepath{ResourceManager_FilePathGamePref / "settings.ini"};
+    Ini_descriptor ini;
+    bool result{false};
+
+    if (inifile_init_ini_object_from_ini_file(&ini, filepath.string().c_str())) {
+        constexpr int32_t buffer_size{2048};
+        auto buffer = std::make_unique<char[]>(buffer_size);
+
+        if (inifile_ini_seek_section(&ini, "SETUP") && inifile_ini_seek_param(&ini, "game_data")) {
+            if (inifile_ini_get_string(&ini, buffer.get(), buffer_size, 1, false)) {
+                auto local_path = std::filesystem::path(buffer.get()).lexically_normal();
+                std::error_code ec;
+
+                if (std::filesystem::exists(local_path, ec) && !ec) {
+                    path = local_path;
+
+                    result = true;
+                }
+            }
         }
     }
 
     inifile_save_to_file_and_free_buffer(&ini, true);
+
+    return result;
 }
 
 void ResourceManager_InitPaths() {
-    auto base_path = SDL_GetBasePath();
-    std::error_code ec;
-
-    if (base_path) {
-        ResourceManager_FilePathGameBase = std::filesystem::path(base_path).lexically_normal();
-        SDL_free(base_path);
-
-    } else {
-        ResourceManager_FilePathGameBase = std::filesystem::current_path(ec).lexically_normal();
-    }
-
-    if (ec || !std::filesystem::exists(ResourceManager_FilePathGameBase, ec) || ec) {
+    if (!ResourceManager_GetBasePath(ResourceManager_FilePathGameBase)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(2690), nullptr);
         SDL_Log(_(2690));
         exit(1);
     }
 
-    auto pref_path = SDL_GetPrefPath("Interplay", "MAX");
-
-    if (pref_path) {
-        ResourceManager_FilePathGamePref = std::filesystem::path(pref_path).lexically_normal();
-        SDL_free(pref_path);
-    }
-
-    if (!std::filesystem::exists(ResourceManager_FilePathGamePref, ec) || ec) {
+    if (!ResourceManager_GetPrefPath(ResourceManager_FilePathGamePref)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(416b), nullptr);
         SDL_Log(_(416b));
         exit(1);
     }
 
-    ResourceManager_ReadGameDataFilePath();
-
-    if (!std::filesystem::exists(ResourceManager_FilePathGameData, ec) || ec) {
+    if (!ResourceManager_GetGameDataPath(ResourceManager_FilePathGameData)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(0f72), nullptr);
         SDL_Log(_(0f72));
         exit(1);

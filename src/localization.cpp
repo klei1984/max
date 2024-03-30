@@ -27,6 +27,7 @@
 
 #include "ini.hpp"
 #include "lang_config.hpp"
+#include "resource_manager.hpp"
 
 #define LOCALIZATION_BUFFER_SIZE 2048
 
@@ -50,14 +51,18 @@ Localization::~Localization() {}
 
 std::string Localization::GetLanguage() const {
     auto buffer = std::make_unique<char[]>(LOCALIZATION_BUFFER_SIZE);
-    auto filepath = std::filesystem::current_path() / "settings.ini";
     Ini_descriptor ini;
     std::string result("english");
+    std::filesystem::path prefpath;
 
-    if (inifile_init_ini_object_from_ini_file(&ini, filepath.string().c_str())) {
-        if (inifile_ini_seek_section(&ini, "SETUP") && inifile_ini_seek_param(&ini, "language")) {
-            if (inifile_ini_get_string(&ini, buffer.get(), LOCALIZATION_BUFFER_SIZE, 1)) {
-                result = buffer.get();
+    if (ResourceManager_GetPrefPath(prefpath)) {
+        auto filepath = prefpath / "settings.ini";
+
+        if (inifile_init_ini_object_from_ini_file(&ini, filepath.string().c_str())) {
+            if (inifile_ini_seek_section(&ini, "SETUP") && inifile_ini_seek_param(&ini, "language")) {
+                if (inifile_ini_get_string(&ini, buffer.get(), LOCALIZATION_BUFFER_SIZE, 1)) {
+                    result = buffer.get();
+                }
             }
         }
 
@@ -68,10 +73,18 @@ std::string Localization::GetLanguage() const {
 }
 
 int32_t Localization::Load() {
-    auto filepath = std::filesystem::current_path() / (std::string("lang_") + GetLanguage() + ".ini");
+    std::filesystem::path basepath;
+    std::filesystem::path filepath;
+
+    if (ResourceManager_GetBasePath(basepath)) {
+        filepath = basepath / (std::string("lang_") + GetLanguage() + ".ini");
+    }
+
     Ini_descriptor ini;
 
     if (!inifile_init_ini_object_from_ini_file(&ini, filepath.string().c_str())) {
+        inifile_save_to_file_and_free_buffer(&ini, true);
+
         return 0;
     }
 

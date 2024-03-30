@@ -16,8 +16,16 @@ if(MAKENSIS_EXECUTABLE)
 	set(CPACK_NSIS_WELCOME_TITLE_3LINES TRUE)
 	set(CPACK_NSIS_FINISH_TITLE_3LINES TRUE)
 	set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/assets/max.ico")
+	set(CPACK_NSIS_CREATE_ICONS_EXTRA "${CPACK_NSIS_CREATE_ICONS_EXTRA}
+		CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\M.A.X. Port.lnk' '$INSTDIR\\\\max.exe'
+		CreateShortCut '$DESKTOP\\\\M.A.X. Port.lnk' '$INSTDIR\\\\max.exe'
+	")
+	set(CPACK_NSIS_DELETE_ICONS_EXTRA "${CPACK_NSIS_DELETE_ICONS_EXTRA}
+		Delete '$SMPROGRAMS\\\\$MUI_TEMP\\\\M.A.X. Port.lnk'
+		Delete '$DESKTOP\\\\M.A.X. Port.lnk'
+	")
 	set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${PROJECT_NAME}")
 	set(INCLUDE_FILE "${CMAKE_SOURCE_DIR}\\\\cmake\\\\nsis\\\\install.nsh")
 	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "!include ${INCLUDE_FILE}")
-	set(CPACK_NSIS_PAGE_COMPONENTS "Page custom GameDataDirPageCreate")
+	set(CPACK_NSIS_PAGE_COMPONENTS "Page custom GameDataDirPageCreate GameDataDirPageLeave")
 endif()

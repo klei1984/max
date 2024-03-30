@@ -26,23 +26,25 @@ SectionEnd
 !define GameDataDirString_Title `"Configure Game Settings"`
 !define GameDataDirString_Description `"Select location of original game assets."`
 !define GameDataDirString_GameDataDir `"Game Data Folder"`
-!define GameDataDirString_GddFound `"Original M.A.X. game assets found."`
 !define GameDataDirString_Help `"Please select the CD-ROM drive in case of an original M.A.X. CD-ROM, or the root folder of an existing M.A.X. full installation. $(^ClickInstall)"`
+!define GameDataDirString_Portable `"Save all user data into the same folder that contains the game executable."`
 
 ${SetLangString} Title ENGLISH ${GameDataDirString_Title}
 ${SetLangString} Description ENGLISH ${GameDataDirString_Description}
 ${SetLangString} GameDataDir ENGLISH ${GameDataDirString_GameDataDir}
-${SetLangString} GddFound ENGLISH ${GameDataDirString_GddFound}
 ${SetLangString} Help ENGLISH ${GameDataDirString_Help}
+${SetLangString} Portable ENGLISH ${GameDataDirString_Portable}
 
 ${SetLangString} Title HUNGARIAN "Játékbeállítások konfigurálása"
 ${SetLangString} Description HUNGARIAN "Válassza ki az eredeti játékelemek mappáját."
 ${SetLangString} GameDataDir HUNGARIAN "Eredeti játékelemek helye"
-${SetLangString} GddFound HUNGARIAN "Megvannak az eredeti M.A.X. játékelemek."
 ${SetLangString} Help HUNGARIAN "Eredeti M.A.X. CD-ROM esetén válassza ki a CD-ROM meghajtót. Telepített eredeti M.A.X. játék esetén válassza ki a meglévő telepítés gyökérmappáját. $(^ClickInstall)"
+${SetLangString} Portable HUNGARIAN "Mentse az összes felhasználói adatot ugyanabba a mappába, amely a játék futtatható állományát tartalmazza."
 
 Var GameDataDir_EditControlHandle
+Var GameDataDir_CheckBoxHandle
 Var GameDataDir_GameDataPath
+Var GameDataDir_IsPortableMode
 
 Function GameDataDirVerifyAssets
 	Push $R0 # install (next) button handle
@@ -140,6 +142,15 @@ Function GameDataDirPageCreate
 
 	${NSD_OnClick} $R4 GameDataDirBrowseButtonOnClick
 
+	# set portable text
+	${GetLangString} Portable $R1
+
+	# create checkbox
+	${NSD_CreateCheckbox} 0u 110u 100% 20u "$R1"
+	Pop $GameDataDir_CheckBoxHandle
+
+	${NSD_Uncheck} $GameDataDir_CheckBoxHandle
+
 	# simulate directory request on change event
 	Push ""
 	Call GameDataDirVerifyAssets
@@ -154,9 +165,27 @@ Function GameDataDirPageCreate
 	Pop $R0
 FunctionEnd
 
+Function GameDataDirPageLeave
+	Push $R0 # checkbox state
+
+	# save portable mode state
+	${NSD_GetState} $GameDataDir_CheckBoxHandle $R0
+
+	${If} $R0 == ${BST_CHECKED}
+		Push "true"
+	${Else}
+		Push "false"
+	${EndIf}
+
+	Pop $GameDataDir_IsPortableMode
+
+	Pop $R0
+FunctionEnd
+
 Section "" Section_SetupUserPrefsPath
 	Push $R0 # context
 	Push $R1 # path
+	Push $R2 # user data path
 
 	# save context
 	Push "false"
@@ -167,27 +196,43 @@ Section "" Section_SetupUserPrefsPath
 		Push "true"
 		Pop $R0
 
-	# create user PrefsPath directory
-	${IfNot} ${FileExists} "$APPDATA\Interplay\MAX\*.*"
-		CreateDirectory "$APPDATA\Interplay\MAX\"
-	${EndIf}
+	# non portable mode
+	${IfNot} $GameDataDir_IsPortableMode == "true"
+		# store user data directory path
+		Push "$APPDATA\Interplay\MAX"
+		Pop $R2
 
-	# move settings.ini to user PrefsPath directory
-	${IfNot} ${FileExists} "$APPDATA\Interplay\MAX\settings.ini"
-		CopyFiles /SILENT /FILESONLY "$INSTDIR\settings.ini" "$APPDATA\Interplay\MAX\"
+		# create user PrefsPath directory
+		${IfNot} ${FileExists} "$R2\*.*"
+			CreateDirectory "$R2\"
+		${EndIf}
+
+		# move settings.ini to user PrefsPath directory
+		${IfNot} ${FileExists} "$R2\settings.ini"
+			CopyFiles /SILENT /FILESONLY "$INSTDIR\settings.ini" "$R2\"
+		${EndIf}
+
+		# remove unwanted configuration files
+		Delete "$INSTDIR\settings.ini"
+		Delete "$INSTDIR\.portable"
+	${Else}
+		# store user data directory path
+		Push "$INSTDIR"
+		Pop $R2
 	${EndIf}
 
 	# configure game data directory
 	${If} ${FileExists} "$GameDataDir_GameDataPath\*.*"
-		WriteINIStr "$APPDATA\Interplay\MAX\settings.ini" "SETUP" "game_data" "$GameDataDir_GameDataPath"
-		FlushINI "$APPDATA\Interplay\MAX\settings.ini"
+		WriteINIStr "$R2\settings.ini" "SETUP" "game_data" "$GameDataDir_GameDataPath"
+		FlushINI "$R2\settings.ini"
 	${EndIf}
 
 	# copy saved game files to user PrefsPath directory
 	${If} ${FileExists} "$GameDataDir_GameDataPath\*.*"
-		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.DTA" "$APPDATA\Interplay\MAX\"
-		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.HOT" "$APPDATA\Interplay\MAX\"
-		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.MLT" "$APPDATA\Interplay\MAX\"
+		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.DTA" "$R2\"
+		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.HOT" "$R2\"
+		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.MLT" "$R2\"
+		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.BAK" "$R2\"
 	${EndIf}
 
 	# restore context
@@ -195,6 +240,7 @@ Section "" Section_SetupUserPrefsPath
 		SetShellVarContext all
 	${EndIf}
 
+	Pop $R2
 	Pop $R1
 	Pop $R0
 # SectionEnd

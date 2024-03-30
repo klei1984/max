@@ -89,17 +89,24 @@ set(CPACK_PACKAGE_VENDOR "max-port")
 set(CPACK_PACKAGE_CONTACT "M.A.X. Port Team")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION_STRING}")
-set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS game M.A.X.: Mechanized Assault & Exploration developed and published by Interplay Productions.")
+set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS\n" "game M.A.X.: Mechanized Assault & Exploration developed and published by\n" "Interplay Productions.")
 set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};Debug;Release;RelWithDebInfo;MinSizeRel;/dependencies/.*\.tar\.gz")
 
 if(UNIX)
 	include(GNUInstallDirs)
+	set(GAME_INSTALL_PATH "${CMAKE_INSTALL_DATADIR}/max-port")
 	set(CPACK_GENERATOR "DEB")
 	set(CPACK_SOURCE_GENERATOR "TGZ")
 	set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+	set(CPACK_STRIP_FILES TRUE)
 	set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 	set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://klei1984.github.io/max/")
+
+	set(CPACK_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS
+		OWNER_READ OWNER_WRITE OWNER_EXECUTE
+		GROUP_READ GROUP_EXECUTE
+		WORLD_READ WORLD_EXECUTE)
 
 	if(X86)
 		set (CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
@@ -116,9 +123,8 @@ if(UNIX)
 
 	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS ${DEP_BIN_DIRS})
 
-	install(CODE "set(PROJECT_NAME \"${PROJECT_NAME}\")")
-	install(CODE "set(CMAKE_INSTALL_BINDIR \"${CMAKE_INSTALL_BINDIR}\")")
 	install(CODE "set(CMAKE_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\")")
+	install(CODE "set(CMAKE_INSTALL_LIBDIR \"${CMAKE_INSTALL_LIBDIR}\")")
 	install(CODE "set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS \"${DEP_BIN_DIRS}\")")
 	install(CODE [[
 		file(GET_RUNTIME_DEPENDENCIES
@@ -137,21 +143,20 @@ if(UNIX)
 			file(INSTALL
 				FILES "${DEP_FILE}"
 				FOLLOW_SYMLINK_CHAIN
-				DESTINATION ${CMAKE_INSTALL_PREFIX}
+				DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/max-port"
 			)
 		endforeach()
 	]])
 
 	install(TARGETS ${PROJECT_NAME}
 		CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}
+		RUNTIME DESTINATION ${GAME_INSTALL_PATH}
 	)
 endif()
 
 if(MINGW)
-	set(CMAKE_INSTALL_BINDIR "." CACHE PATH "User executables directory" FORCE)
-	set(CMAKE_INSTALL_DATADIR "." CACHE PATH "Read-only architecture-independent data directory" FORCE)
-	include(GNUInstallDirs)
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "M.A.X. Port")
+	set(GAME_INSTALL_PATH ".")
 	set(CPACK_GENERATOR "7Z")
 	set(CPACK_SOURCE_GENERATOR "7Z")
 
