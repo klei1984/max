@@ -23,7 +23,6 @@
 #define SVGA_H
 
 #include <SDL.h>
-#include <SDL_surface.h>
 #include <stdbool.h>
 #include <stdint.h>
 

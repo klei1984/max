@@ -22,7 +22,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include <SDL.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
