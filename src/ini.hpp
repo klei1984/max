@@ -180,6 +180,8 @@ struct Ini_descriptor {
     char *value_start_address;
     char *next_value_address;
     char *param_start_address;
+
+    Ini_descriptor() noexcept;
 };
 
 int32_t inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini, bool free_only = false);
