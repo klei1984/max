@@ -86,8 +86,6 @@ void TickTimer_UpdateTimeLimit() noexcept {
 
         TickTimer_TimeBenchmarkNextIndex = (TickTimer_TimeBenchmarkNextIndex + 1) % TICKTIMER_BENCHMARK_ARRAY_SIZE;
 
-        printf("%i\n", elapsed_time);
-
         uint32_t time_budget = (elapsed_time * 3) / 2;
 
         time_budget = std::max(time_budget, TIMER_FPS_TO_MS(50));
