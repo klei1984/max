@@ -26,10 +26,11 @@
 #include "dialogmenu.hpp"
 #include "game_manager.hpp"
 #include "resource_manager.hpp"
+#include "text.hpp"
 #include "window_manager.hpp"
 
 static_assert(sizeof(Point) == 4, "It is expected that Point is exactly 2+2 bytes int32_t.");
-static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte int32_t.");
+static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte int8_t.");
 
 #define MESSAGE_MANAGER_MAX_COUNT 50
 #define MESSAGE_MANAGER_MESSAGE_BUFFER_SIZE 800
@@ -38,7 +39,7 @@ static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte int
 char MessageManager_MessageBuffer[MESSAGE_MANAGER_MESSAGE_BUFFER_SIZE];
 char MessageManager_TextBuffer[MESSAGE_MANAGER_TEXT_BUFFER_SIZE];
 
-int16_t MessageManager_Buffer1_Length;
+int16_t MessageManager_MessageBuffer_Length;
 int16_t MessageManager_MessageBox_Width;
 int16_t MessageManager_MessageBox_Height;
 ColorIndex* MessageManager_MessageBox_BgColor;
@@ -50,61 +51,24 @@ ColorIndex** MessageManager_MessageBox_BgColorArray[] = {
 SmartList<MessageLogEntry> MessageManager_TeamMessageLog[PLAYER_TEAM_MAX - 1];
 
 void MessageManager_WrapText(const char* text, int16_t width) {
-    int32_t position = 0;
-    int16_t row_width = 0;
-    char* buffer = MessageManager_MessageBuffer;
-    char local_text[2];
+    int32_t row_count{0};
+    auto strings = Text_SplitText(text, 10, width, &row_count);
 
-    local_text[1] = '\0';
+    for (int32_t i = 0; i < row_count; ++i) {
+        auto stride{strings[i].GetLength() + 1};
 
-    do {
-        if (text[position] == '\n') {
-            MessageManager_MessageBox_Width = std::max(row_width, MessageManager_MessageBox_Width);
-            MessageManager_MessageBox_Height += 10;
+        SDL_memcpy(&MessageManager_MessageBuffer[MessageManager_MessageBuffer_Length], strings[i].GetCStr(), stride);
+        MessageManager_MessageBuffer_Length += stride;
+        MessageManager_MessageBox_Width =
+            std::max<int16_t>(Text_GetWidth(strings[i].GetCStr()), MessageManager_MessageBox_Width);
+        MessageManager_MessageBox_Height += Text_GetHeight();
+    }
 
-            MessageManager_MessageBuffer[MessageManager_Buffer1_Length] = ' ';
-            ++MessageManager_Buffer1_Length;
+    MessageManager_MessageBuffer[MessageManager_MessageBuffer_Length++] = '\0';
 
-            MessageManager_MessageBuffer[MessageManager_Buffer1_Length] = '\0';
-            ++MessageManager_Buffer1_Length;
+    delete[] strings;
 
-            row_width = 0;
-            buffer = &MessageManager_MessageBuffer[MessageManager_Buffer1_Length];
-
-        } else {
-            local_text[0] = text[position];
-
-            int16_t char_width = Text_GetWidth(local_text);
-
-            if ((row_width + char_width) > width) {
-                char* line_buffer = &MessageManager_MessageBuffer[MessageManager_Buffer1_Length];
-
-                *line_buffer = '\0';
-                --line_buffer;
-
-                while (*line_buffer != ' ') {
-                    --line_buffer;
-                }
-
-                *line_buffer = '\0';
-                row_width = Text_GetWidth(buffer);
-                MessageManager_MessageBox_Width = std::max(row_width, MessageManager_MessageBox_Width);
-                buffer = line_buffer + 1;
-                row_width = Text_GetWidth(buffer);
-                MessageManager_MessageBox_Height += 10;
-            }
-
-            row_width += char_width;
-
-            SDL_assert(MessageManager_Buffer1_Length < sizeof(MessageManager_MessageBuffer));
-
-            MessageManager_MessageBuffer[MessageManager_Buffer1_Length] = text[position];
-            ++MessageManager_Buffer1_Length;
-        }
-    } while (text[position++] != '\0');
-
-    MessageManager_MessageBox_Width = std::max(row_width, MessageManager_MessageBox_Width);
-    MessageManager_MessageBox_Height += 10;
+    SDL_assert(MessageManager_MessageBuffer_Length < sizeof(MessageManager_MessageBuffer));
 }
 
 void MessageManager_DrawMessageBoxText(uint8_t* buffer, int32_t width, int32_t left_margin, int32_t top_margin,
@@ -187,12 +151,12 @@ void MessageManager_DrawMessage(const char* text, char type, int32_t mode, bool 
             width = window_main_map->window.lrx - window_main_map->window.ulx;
 
             MessageManager_MessageBox_Width = 0;
-            MessageManager_Buffer1_Length = 0;
+            MessageManager_MessageBuffer_Length = 0;
             MessageManager_MessageBox_Height = 20;
 
             MessageManager_WrapText(text, width - 20);
 
-            MessageManager_MessageBuffer[MessageManager_Buffer1_Length] = '\0';
+            MessageManager_MessageBuffer[MessageManager_MessageBuffer_Length] = '\0';
             MessageManager_MessageBox_Width += 20;
 
             offset_x = 0;
