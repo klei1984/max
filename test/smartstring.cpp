@@ -74,6 +74,15 @@ TEST(SmartStringTest, UTF8) {
 
     EXPECT_EQ(string1.GetLength(), 32);
     EXPECT_EQ(string2.GetLength(), 39);
+
+    string1.Toupper();
+
+    EXPECT_TRUE(string1.IsEqual(reinterpret_cast<const char*>(u8"MECHANIZED ASSAULT & EXPLORATION")));
+
+    /// \todo non single byte UTF8 encoded case conversions are not supported yet, would require ICU library
+    // string2.Toupper();
+    //
+    // EXPECT_TRUE(string2.IsEqual(reinterpret_cast<const char*>(u8"GÉPESÍTETT TÁMADÁS ÉS FELDERÍTÉS")));
 }
 
 TEST(SmartStringTest, SubString) {

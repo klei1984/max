@@ -22,9 +22,9 @@
 #ifndef SMARTSTRING_HPP
 #define SMARTSTRING_HPP
 
+#include <SDL.h>
+
 #include <cctype>
-#include <cstdarg>
-#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <new>
@@ -76,9 +76,7 @@ class SmartString {
                         (void)strcpy(new_buffer, this->buffer);
 
                     } else {
-                        (void)strncpy(new_buffer, this->buffer, new_size);
-                        new_buffer[new_size] = '\0';
-                        this->length = new_size;
+                        this->length = SDL_utf8strlcpy(new_buffer, this->buffer, new_size);
                     }
 
                     delete[] this->buffer;
@@ -166,11 +164,7 @@ public:
 
         if (size > 0) {
             SmartString string(size + 1);
-
-            (void)strncpy(string.GetCStr(), &GetCStr()[position], size);
-
-            string[size] = '\0';
-            string.object_pointer->SetLength(size);
+            string.object_pointer->SetLength(SDL_utf8strlcpy(string.GetCStr(), &GetCStr()[position], size + 1));
 
             result = string;
 

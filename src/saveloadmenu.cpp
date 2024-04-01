@@ -147,7 +147,7 @@ void SaveLoadMenu_UpdateSaveName(struct SaveFormatHeader &save_file_header, int3
     }
 
     if (title) {
-        strncpy(save_file_header.save_name, title, sizeof(save_file_header.save_name));
+        SDL_utf8strlcpy(save_file_header.save_name, title, sizeof(save_file_header.save_name));
     }
 }
 

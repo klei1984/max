@@ -2629,8 +2629,8 @@ void Remote_ReceiveNetPacket_33(NetPacket& packet) {
 
         packet >> string;
 
-        strncpy(Remote_NetworkMenu->chat_message_buffer, string.GetCStr(),
-                sizeof(Remote_NetworkMenu->chat_message_buffer));
+        SDL_utf8strlcpy(Remote_NetworkMenu->chat_message_buffer, string.GetCStr(),
+                        sizeof(Remote_NetworkMenu->chat_message_buffer));
 
         Remote_NetworkMenu->is_gui_update_needed = true;
     }
