@@ -33,7 +33,7 @@ if(MAX_ENABLE_UPNP)
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2-static)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2-static)
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
@@ -42,7 +42,7 @@ if(NOT BUILD_SHARED_LIBS)
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL2::SDL2main Iconv::Iconv Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2)
+	set(${PROJECT_NAME}_deps SDL2::SDL2main Freetype::Freetype Miniaudio::Miniaudio Enet::Enet SDL2::SDL2)
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
@@ -54,8 +54,6 @@ endif()
 if(MINGW)
 	target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
 endif()
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/lib-iconv ${CMAKE_CURRENT_BINARY_DIR}/_deps/iconv-build)
 
 include(sdl2)
 include(freetype)

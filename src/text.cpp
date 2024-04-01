@@ -24,8 +24,6 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include <iconv.h>
-
 #include <map>
 
 #include "localization.hpp"
@@ -93,7 +91,7 @@ struct Font {
     int32_t ascender;
     int32_t max_width;
     int32_t max_height;
-    iconv_t cd;
+    SDL_iconv_t cd;
     std::map<Uint32, struct FontGlyph> glyphs;
 };
 
@@ -181,9 +179,9 @@ int32_t Text_Init(void) {
 
 void Text_Exit(void) {
     for (int32_t i = GNW_TEXT_FONT_0; i < GNW_TEXT_FONT_COUNT; ++i) {
-        if (Text_Fonts[i].cd != reinterpret_cast<iconv_t>(-1)) {
-            iconv_close(Text_Fonts[i].cd);
-            Text_Fonts[i].cd = reinterpret_cast<iconv_t>(-1);
+        if (Text_Fonts[i].cd != reinterpret_cast<SDL_iconv_t>(-1)) {
+            SDL_iconv_close(Text_Fonts[i].cd);
+            Text_Fonts[i].cd = reinterpret_cast<SDL_iconv_t>(-1);
         }
 
         Text_Fonts[i].glyphs.clear();
@@ -219,9 +217,9 @@ void Text_LoadFontTTF(int32_t n, FT_Library library, struct Font& font) {
 
     FT_Face font_face = nullptr;
 
-    font.cd = iconv_open("UCS-4LE", "UTF-8");
+    font.cd = SDL_iconv_open("UCS-4LE", "UTF-8");
 
-    if (font.cd == reinterpret_cast<iconv_t>(-1)) {
+    if (font.cd == reinterpret_cast<SDL_iconv_t>(-1)) {
         font.glyphs.clear();
 
         return;
@@ -279,23 +277,23 @@ void Text_LoadFontTTF(int32_t n, FT_Library library, struct Font& font) {
                 FT_Done_Face(font_face);
 
             } else {
-                iconv_close(font.cd);
-                font.cd = reinterpret_cast<iconv_t>(-1);
+                SDL_iconv_close(font.cd);
+                font.cd = reinterpret_cast<SDL_iconv_t>(-1);
                 FT_Done_Face(font_face);
                 font.glyphs.clear();
             }
 
         } else {
-            iconv_close(font.cd);
-            font.cd = reinterpret_cast<iconv_t>(-1);
+            SDL_iconv_close(font.cd);
+            font.cd = reinterpret_cast<SDL_iconv_t>(-1);
             font.glyphs.clear();
         }
 
         delete[] file_base;
 
     } else {
-        iconv_close(font.cd);
-        font.cd = reinterpret_cast<iconv_t>(-1);
+        SDL_iconv_close(font.cd);
+        font.cd = reinterpret_cast<SDL_iconv_t>(-1);
         font.glyphs.clear();
     }
 }
@@ -458,21 +456,21 @@ Uint32* Text_Utf8ToUcs4(const char* str) {
         return result;
     }
 
-    if (Text_CurrentFont->cd != reinterpret_cast<iconv_t>(-1)) {
+    if (Text_CurrentFont->cd != reinterpret_cast<SDL_iconv_t>(-1)) {
         size_t src_len = strlen(str) + 1;
         size_t dst_len = src_len;
         Uint32* buffer = new (std::nothrow) Uint32[dst_len];
 
         if (buffer) {
-            char* src_str = const_cast<char*>(str);
+            const char* src_str = const_cast<char*>(str);
             char* dst_str = reinterpret_cast<char*>(buffer);
 
             buffer[dst_len - 1] = 0;
             dst_len *= sizeof(Uint32);
 
-            iconv(Text_CurrentFont->cd, nullptr, nullptr, nullptr, nullptr);
+            SDL_iconv(Text_CurrentFont->cd, nullptr, nullptr, nullptr, nullptr);
 
-            if (iconv(Text_CurrentFont->cd, &src_str, &src_len, &dst_str, &dst_len) != -1) {
+            if (SDL_iconv(Text_CurrentFont->cd, &src_str, &src_len, &dst_str, &dst_len) != -1) {
                 Text_AddCachedString(buffer, hash);
                 result = buffer;
 
