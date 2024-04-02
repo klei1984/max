@@ -73,8 +73,7 @@ bool TaskAttackReserve::IsUnitUsable(UnitInfo& unit) {
     bool result;
 
     if (unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
-        unit.ammo >= unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
-        unit.GetBaseValues()->GetAttribute(ATTRIB_SPEED) > 0) {
+        unit.ammo >= unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) && unit.speed > 0) {
         result = true;
 
     } else if (unit.unit_type == ENGINEER || unit.unit_type == CONSTRCT || unit.unit_type == LANDPLT ||
