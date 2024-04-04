@@ -1406,9 +1406,9 @@ void Paths_FinishMove(UnitInfo* unit) {
     grid_y = unit->grid_y;
 
     if (unit->flags & MISSILE_UNIT) {
-        SmartPointer<UnitInfo> missile = unit->GetParent();
+        SmartPointer<UnitInfo> parent = unit->GetParent();
 
-        missile->Attack(grid_x, grid_y);
+        parent->Attack(grid_x, grid_y);
 
         UnitsManager_DestroyUnit(unit);
 

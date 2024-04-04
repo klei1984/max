@@ -3767,9 +3767,9 @@ void UnitsManager_ProcessOrders() {
 }
 
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state) {
-    bool delete_path = false;
-
     if (unit->orders != ORDER_EXPLODE && unit->state != ORDER_STATE_14) {
+        bool delete_path = false;
+
         if (unit->orders == ORDER_AWAIT_SCALING) {
             AiLog log("New order (%s) issued for %s while scaling.", UnitsManager_Orders[order],
                       UnitsManager_BaseUnits[unit->unit_type].singular_name);
@@ -4954,7 +4954,7 @@ void UnitsManager_ProcessOrder(UnitInfo* unit) {
         unit->SpinningTurretAdvanceAnimation();
     }
 
-    if ((unit->flags & MISSILE_UNIT) && unit->state == ORDER_STATE_14) {
+    if ((unit->flags & MISSILE_UNIT) || unit->state == ORDER_STATE_14) {
         UnitsManager_OrdersPending = true;
         UnitsManager_byte_179448 = true;
     }

@@ -6107,7 +6107,7 @@ bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
     bool result;
 
     if ((unit2->flags & STATIONARY) || !(unit2->flags & ELECTRONIC_UNIT) || unit2->orders == ORDER_TRANSFORM ||
-        unit2->orders == ORDER_FIRE || unit2->orders == (ORDER_EXPLODE) || unit2->state == ORDER_STATE_14) {
+        unit2->orders == ORDER_FIRE || unit2->orders == ORDER_EXPLODE || unit2->state == ORDER_STATE_14) {
         result = false;
 
     } else if ((unit2->unit_type == CLNTRANS || unit2->unit_type == SEATRANS || unit2->unit_type == AIRTRANS) &&
