@@ -21,6 +21,10 @@
 
 #include "textedit.hpp"
 
+#include <cctype>
+#include <cstring>
+#include <new>
+
 /* Convert key codes 128-255 to code page 437 characters */
 static const int16_t TextEdit_KeyToAsciiMap[] = {
     '\0', '\0', '\0', 159,  '\0', '\0', '\0', '\0', 94,   '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
@@ -34,8 +38,8 @@ static const int16_t TextEdit_KeyToAsciiMap[] = {
 
 static_assert(sizeof(TextEdit_KeyToAsciiMap) == 128 * sizeof(const int16_t));
 
-TextEdit::TextEdit(WindowInfo *window, char *text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width, int32_t height,
-                   uint16_t color, int32_t font_num)
+TextEdit::TextEdit(WindowInfo *window, char *text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width,
+                   int32_t height, uint16_t color, int32_t font_num)
     : font_num(font_num),
       window(*window),
       buffer_size(buffer_size),

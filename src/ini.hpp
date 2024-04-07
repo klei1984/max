@@ -167,9 +167,7 @@ enum IniParameter {
 };
 
 struct Ini_descriptor {
-    uint8_t unknown_1;
     uint8_t flags;
-    uint8_t unknown_2[2];
     std::filesystem::path ini_file_path;
     char *buffer;
     uint32_t file_size;

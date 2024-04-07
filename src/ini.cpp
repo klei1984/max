@@ -32,9 +32,7 @@ static uint32_t hex_to_dec_lut2[] = {0x00, 0x01, 0x10, 0x100, 0x1000, 0x10000, 0
 static int32_t inifile_hex_to_dec_digit(char c);
 
 Ini_descriptor::Ini_descriptor() noexcept
-    : unknown_1(0),
-      flags(0),
-      unknown_2(0, 0),
+    : flags(0),
       buffer(nullptr),
       file_size(0),
       buffer_size(0),
