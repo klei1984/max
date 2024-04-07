@@ -59,7 +59,7 @@ void Color_GenerateIntensityTable2(uint8_t* palette, int32_t red_level, int32_t 
 void Color_GenerateIntensityTable3(uint8_t* palette, int32_t red_level, int32_t green_level, int32_t blue_level,
                                    int32_t factor, ColorIndex* table);
 void Color_RecolorPixels(uint8_t* buffer, int32_t width, int32_t width_text, int32_t height_text, uint8_t* color_map);
-void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps);
+void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t time_limit);
 uint8_t* Color_GetSystemPalette(void);
 void Color_SetSystemPalette(uint8_t* palette);
 void Color_SetSystemPaletteEntry(int32_t entry, uint8_t r, uint8_t g, uint8_t b);

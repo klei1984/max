@@ -929,7 +929,7 @@ void menu_draw_logo(ResourceID resource_id, int32_t time_limit) {
         mouse_show();
         Color_SetSystemPalette(WindowManager_SystemPalette);
         win_draw(window->id);
-        WindowManager_FadeIn(500);
+        WindowManager_FadeIn(750);
 
         time_stamp = timer_get();
         while (timer_elapsed_time(time_stamp) < time_limit) {

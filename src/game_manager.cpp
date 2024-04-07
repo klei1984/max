@@ -2070,7 +2070,7 @@ void GameManager_GameSetup(int32_t game_state) {
             Color* palette;
 
             GameManager_LandingSequence.DeleteButtons();
-            palette = GameManager_MenuFadeOut(150);
+            palette = GameManager_MenuFadeOut(250);
             Movie_Play(DEMO1FLC);
             memcpy(WindowManager_ColorPalette, palette, PALETTE_STRIDE * PALETTE_SIZE);
 
@@ -2078,7 +2078,7 @@ void GameManager_GameSetup(int32_t game_state) {
 
             WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, false, true);
             GameManager_ProcessTick(true);
-            WindowManager_FadeIn(50);
+            WindowManager_FadeIn(100);
 
             GameManager_PlayScenarioIntro = false;
         }
@@ -3257,13 +3257,13 @@ bool GameManager_InitGame() {
     return true;
 }
 
-Color* GameManager_MenuFadeOut(int32_t fade_steps) {
+Color* GameManager_MenuFadeOut(int32_t time_limit) {
     Color* palette;
 
     palette = new (std::nothrow) Color[PALETTE_STRIDE * PALETTE_SIZE];
     memcpy(palette, WindowManager_ColorPalette, PALETTE_STRIDE * PALETTE_SIZE);
     GameManager_MenuDeinitDisplayControls();
-    WindowManager_FadeOut(fade_steps);
+    WindowManager_FadeOut(time_limit);
     GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, COLOR_BLACK, true);
 
     return palette;

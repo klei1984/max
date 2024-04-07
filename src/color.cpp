@@ -24,8 +24,8 @@
 #include "gnw.h"
 #include "resource_manager.hpp"
 
-#define RGB555_COLOR_COUNT (1 << 15)
-#define PALETTE_FILE_TAG 0x4E455743 /* 'NEWC' */
+static constexpr uint32_t RGB555_COLOR_COUNT{1 << 15};
+static constexpr uint32_t PALETTE_FILE_TAG{0x4E455743} /* 'NEWC' */;
 
 static int8_t Color_Inited;
 static uint8_t Color_ColorPalette[PALETTE_STRIDE * PALETTE_SIZE];
@@ -36,16 +36,27 @@ static Color Color_IntensityColorTable[256][PALETTE_SIZE];
 Color Color_RGB2Color(ColorRGB c) { return Color_RgbIndexTable[c]; }
 Color Color_ColorIntensity(int32_t intensity, Color color) { return Color_IntensityColorTable[color][intensity / 512]; }
 
-void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t steps) {
-    uint8_t temp[PALETTE_STRIDE * PALETTE_SIZE];
+void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t time_limit) {
+    uint8_t palette[PALETTE_STRIDE * PALETTE_SIZE];
 
-    for (int32_t i = 0; i < steps; ++i) {
-        for (int32_t j = 0; j < sizeof(temp); ++j) {
-            int32_t d = src[j] - dest[j];
-            temp[j] = src[j] - (uint32_t)(i * d / steps);
+    for (int32_t time_spent{0}, measured_time{1}; time_spent < time_limit; time_spent += measured_time) {
+        const uint32_t time_stamp = timer_get();
+
+        for (int32_t j = 0; j < sizeof(palette); ++j) {
+            const int32_t d = src[j] - dest[j];
+
+            palette[j] = src[j] - ((time_spent * d) / time_limit);
         }
 
-        Color_SetSystemPalette(temp);
+        if (get_input() > 0 || (mouse_get_buttons() & (MOUSE_PRESS_LEFT | MOUSE_PRESS_RIGHT))) {
+            break;
+        }
+
+        Color_SetSystemPalette(palette);
+
+        measured_time = timer_elapsed_time(time_stamp);
+        measured_time = std::min<int32_t>(measured_time, time_limit);
+        measured_time = std::max<int32_t>(measured_time, 1);
     }
 
     Color_SetSystemPalette(dest);

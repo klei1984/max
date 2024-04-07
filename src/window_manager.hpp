@@ -99,8 +99,8 @@ extern int32_t WindowManager_MapHeight;
 int32_t WindowManager_Init();
 WindowInfo *WindowManager_GetWindow(uint8_t id);
 void WindowManager_ClearWindow();
-void WindowManager_FadeOut(int32_t steps);
-void WindowManager_FadeIn(int32_t steps);
+void WindowManager_FadeOut(int32_t time_limit);
+void WindowManager_FadeIn(int32_t time_limit);
 void WindowManager_LoadPalette(ResourceID id);
 void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer, int32_t ulx, int32_t uly, int32_t pitch);
 int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int16_t pitch, bool palette_from_image,

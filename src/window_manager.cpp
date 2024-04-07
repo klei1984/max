@@ -570,19 +570,19 @@ WindowInfo *WindowManager_GetWindow(uint8_t id) {
 void WindowManager_ClearWindow() {
     WindowInfo *window;
 
-    WindowManager_FadeOut(100);
+    WindowManager_FadeOut(150);
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     Color_SetSystemPalette(WindowManager_SystemPalette);
     memset(window->buffer, 0, (window->window.lry + 1) * (window->window.lrx + 1));
     win_draw(window->id);
 }
 
-void WindowManager_FadeOut(int32_t steps) {
-    Color_FadeSystemPalette(Color_GetColorPalette(), WindowManager_SystemPalette, steps);
+void WindowManager_FadeOut(int32_t time_limit) {
+    Color_FadeSystemPalette(Color_GetColorPalette(), WindowManager_SystemPalette, time_limit);
 }
 
-void WindowManager_FadeIn(int32_t steps) {
-    Color_FadeSystemPalette(WindowManager_SystemPalette, Color_GetColorPalette(), steps);
+void WindowManager_FadeIn(int32_t time_limit) {
+    Color_FadeSystemPalette(WindowManager_SystemPalette, Color_GetColorPalette(), time_limit);
 }
 
 void WindowManager_SwapSystemPalette(ImageBigHeader *image) {

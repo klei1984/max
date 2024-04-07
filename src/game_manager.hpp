@@ -56,7 +56,7 @@ bool GameManager_UpdateMapDrawBounds(int32_t ulx, int32_t uly);
 void GameManager_UpdateMainMapView(int32_t mode, int32_t ulx, int32_t uly, bool flag = true);
 void GameManager_AutoSelectNext(UnitInfo* unit);
 void GameManager_DrawTurnTimer(int32_t turn_time, bool mode = false);
-Color* GameManager_MenuFadeOut(int32_t fade_steps = 50);
+Color* GameManager_MenuFadeOut(int32_t time_limit = 100);
 int32_t GameManager_CheckLandingZones(uint16_t team1, uint16_t team2);
 void GameManager_MenuInitButtons(bool mode);
 void GameManager_MenuDeinitButtons();
