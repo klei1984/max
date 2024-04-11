@@ -211,6 +211,8 @@ void Text_LoadFontTTF(int32_t n, FT_Library library, struct Font& font) {
         } break;
 
         default: {
+            font.cd = reinterpret_cast<SDL_iconv_t>(-1);
+
             return;
         } break;
     }
