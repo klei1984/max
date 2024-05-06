@@ -24,6 +24,8 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <sstream>
+#include <string>
 
 #include "access.hpp"
 #include "assertmenu.hpp"
@@ -40,6 +42,8 @@
 #include "sound_manager.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
+
+#define INIFILE_BUFFER_SIZE 2048
 
 struct res_index {
     char tag[8];
@@ -369,22 +373,72 @@ static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_L
 
 bool ResourceManager_GetBasePath(std::filesystem::path &path) {
     bool result;
-
-    auto base_path = SDL_GetBasePath();
     std::filesystem::path local_path;
     std::error_code ec;
 
-    // SDL_GetBasePath may fail if SDL is not initialized yet
-    if (base_path) {
-        local_path = std::filesystem::path(base_path).lexically_normal();
-        SDL_free(base_path);
+    auto platform = SDL_GetPlatform();
+
+    if (!std::strcmp(platform, "Windows")) {
+        auto base_path = SDL_GetBasePath();
+
+        // SDL_GetBasePath may fail if SDL is not initialized yet
+        if (base_path) {
+            local_path = std::filesystem::path(base_path).lexically_normal();
+            SDL_free(base_path);
+        }
+
+        if (!std::filesystem::exists(local_path, ec) || ec) {
+            local_path = std::filesystem::current_path(ec).lexically_normal();
+        }
+
+    } else if (!std::strcmp(platform, "Linux")) {
+        auto xdg_data_dirs = SDL_getenv("XDG_DATA_DIRS");
+
+        if (xdg_data_dirs) {
+            std::istringstream data(xdg_data_dirs);
+            for (std::string xdg_data_dir; std::getline(data, xdg_data_dir, ':');) {
+                local_path = (std::filesystem::path(xdg_data_dir) / "max-port/").lexically_normal();
+
+                if (std::filesystem::exists(local_path, ec) && !ec) {
+                    break;
+                }
+            }
+        }
+
+        if (!std::filesystem::exists(local_path, ec) || ec) {
+            local_path = std::filesystem::path("/usr/share/max-port/").lexically_normal();
+
+            if (!std::filesystem::exists(local_path, ec) || ec) {
+                local_path = std::filesystem::path("/usr/local/share/max-port/").lexically_normal();
+
+                if (!std::filesystem::exists(local_path, ec) || ec) {
+                    auto xdg_data_home = SDL_getenv("XDG_DATA_HOME");
+
+                    if (xdg_data_home) {
+                        local_path = (std::filesystem::path(xdg_data_home) / "max-port/").lexically_normal();
+                    }
+
+#if SDL_VERSION_ATLEAST(2, 0, 1)
+                    if (!std::filesystem::exists(local_path, ec) || ec) {
+                        // SDL_GetPrefPath may fail if SDL is not initialized yet
+                        auto pref_path = SDL_GetPrefPath("", "max-port");
+
+                        if (pref_path) {
+                            local_path = std::filesystem::path(pref_path).lexically_normal();
+                            SDL_free(pref_path);
+                        }
+                    }
+#endif /* SDL_VERSION_ATLEAST(2, 0, 1) */
+                }
+            }
+        }
+
+        if (!std::filesystem::exists(local_path, ec) || ec) {
+            local_path = std::filesystem::current_path(ec).lexically_normal();
+        }
     }
 
-    if (!std::filesystem::exists(local_path, ec) || ec) {
-        local_path = std::filesystem::current_path(ec).lexically_normal();
-    }
-
-    if (ec || !std::filesystem::exists(local_path, ec) || ec) {
+    if (!std::filesystem::exists(local_path / "PATCHES.RES", ec) || ec) {
         result = false;
 
     } else {
@@ -397,31 +451,67 @@ bool ResourceManager_GetBasePath(std::filesystem::path &path) {
 }
 
 bool ResourceManager_GetPrefPath(std::filesystem::path &path) {
-    bool result{false};
-    std::filesystem::path base_path;
+    bool result;
+    std::filesystem::path local_path;
+    std::error_code ec;
 
-    if (ResourceManager_GetBasePath(base_path)) {
-        std::filesystem::path local_path;
-        std::error_code ec;
+    auto platform = SDL_GetPlatform();
 
-        if (std::filesystem::exists(base_path / ".portable", ec) && !ec) {
-            local_path = base_path;
+    if (!std::strcmp(platform, "Windows")) {
+        std::filesystem::path base_path;
 
-        } else {
+        if (ResourceManager_GetBasePath(base_path)) {
+            if (std::filesystem::exists(base_path / ".portable", ec) && !ec) {
+                local_path = base_path;
+            }
+        }
+
+        if (!std::filesystem::exists(local_path, ec) || ec) {
+#if SDL_VERSION_ATLEAST(2, 0, 1)
             // SDL_GetPrefPath may fail if SDL is not initialized yet
-            auto pref_path = SDL_GetPrefPath("Interplay", "MAX");
+            auto pref_path = SDL_GetPrefPath("", "M.A.X. Port");
+
+            if (pref_path) {
+                local_path = std::filesystem::path(pref_path).lexically_normal();
+                SDL_free(pref_path);
+            } else
+#endif /* SDL_VERSION_ATLEAST(2, 0, 1) */
+            {
+                auto app_data = SDL_getenv("APPDATA");
+
+                if (app_data) {
+                    local_path = (std::filesystem::path(app_data) / "M.A.X. Port/").lexically_normal();
+                }
+            }
+        }
+
+    } else if (!std::strcmp(platform, "Linux")) {
+        auto xdg_data_home = SDL_getenv("XDG_DATA_HOME");
+
+        if (xdg_data_home) {
+            local_path = (std::filesystem::path(xdg_data_home) / "max-port/").lexically_normal();
+        }
+
+#if SDL_VERSION_ATLEAST(2, 0, 1)
+        if (!std::filesystem::exists(local_path, ec) || ec) {
+            // SDL_GetPrefPath may fail if SDL is not initialized yet
+            auto pref_path = SDL_GetPrefPath("", "max-port");
 
             if (pref_path) {
                 local_path = std::filesystem::path(pref_path).lexically_normal();
                 SDL_free(pref_path);
             }
         }
+#endif /* SDL_VERSION_ATLEAST(2, 0, 1) */
+    }
 
-        if (!ec && std::filesystem::exists(local_path, ec) && !ec) {
-            path = local_path;
+    if (!std::filesystem::exists(local_path / "settings.ini", ec) || ec) {
+        result = false;
 
-            result = true;
-        }
+    } else {
+        path = local_path;
+
+        result = true;
     }
 
     return result;
@@ -433,7 +523,7 @@ bool ResourceManager_GetGameDataPath(std::filesystem::path &path) {
     bool result{false};
 
     if (inifile_init_ini_object_from_ini_file(&ini, filepath.string().c_str())) {
-        constexpr int32_t buffer_size{2048};
+        constexpr int32_t buffer_size{INIFILE_BUFFER_SIZE};
         auto buffer = std::make_unique<char[]>(buffer_size);
 
         if (inifile_ini_seek_section(&ini, "SETUP") && inifile_ini_seek_param(&ini, "game_data")) {
@@ -458,19 +548,19 @@ bool ResourceManager_GetGameDataPath(std::filesystem::path &path) {
 void ResourceManager_InitPaths() {
     if (!ResourceManager_GetBasePath(ResourceManager_FilePathGameBase)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(2690), nullptr);
-        SDL_Log(_(2690));
+        SDL_Log("%s", _(2690));
         exit(1);
     }
 
     if (!ResourceManager_GetPrefPath(ResourceManager_FilePathGamePref)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(416b), nullptr);
-        SDL_Log(_(416b));
+        SDL_Log("%s", _(416b));
         exit(1);
     }
 
     if (!ResourceManager_GetGameDataPath(ResourceManager_FilePathGameData)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(0f72), nullptr);
-        SDL_Log(_(0f72));
+        SDL_Log("%s", _(0f72));
         exit(1);
     }
 
@@ -495,8 +585,8 @@ void ResourceManager_InitSDL() {
     SDL_LogSetOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
-        SDL_Log(_(438a));
-        SDL_Log(SDL_GetError());
+        SDL_Log("%s", _(438a));
+        SDL_Log("%s", SDL_GetError());
         exit(1);
     }
 
@@ -513,7 +603,7 @@ void ResourceManager_TestMemory() {
         message.Sprintf(200, _(d0a2), ResourceManager_MinimumMemory, memory);
 
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), message.GetCStr(), nullptr);
-        SDL_Log(message.GetCStr());
+        SDL_Log("%s", message.GetCStr());
         exit(1);
     }
 }
@@ -528,7 +618,7 @@ void ResourceManager_TestDiskSpace() {
         message.Sprintf(200, _(efb0), static_cast<float>(ResourceManager_MinimumDiskSpace) / (1024 * 1024));
 
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, _(b7f4), message.GetCStr(), nullptr);
-        SDL_Log(message.GetCStr());
+        SDL_Log("%s", message.GetCStr());
     }
 }
 

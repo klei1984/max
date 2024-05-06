@@ -85,52 +85,42 @@ set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION
 set(CPACK_PACKAGE_NAME "max-port")
 set(CPACK_PACKAGE_VENDOR "max-port")
 set(CPACK_PACKAGE_CONTACT "M.A.X. Port Team")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/assets/LICENSE")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION_STRING}")
 set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS\n" "game M.A.X.: Mechanized Assault & Exploration developed and published by\n" "Interplay Productions.")
 set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};Debug;Release;RelWithDebInfo;MinSizeRel;/dependencies/.*\.tar\.gz")
 
 if(UNIX)
+	set(CPACK_SOURCE_GENERATOR "TGZ")
+
 	include(GNUInstallDirs)
 	set(GAME_INSTALL_PATH "${CMAKE_INSTALL_DATADIR}/max-port")
-	set(CPACK_GENERATOR "DEB")
-	set(CPACK_SOURCE_GENERATOR "TGZ")
-	set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
-	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-	set(CPACK_STRIP_FILES TRUE)
-	set(CPACK_DEBIAN_PACKAGE_SECTION "games")
-	set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://klei1984.github.io/max/")
-
-	set(CPACK_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS
-		OWNER_READ OWNER_WRITE OWNER_EXECUTE
-		GROUP_READ GROUP_EXECUTE
-		WORLD_READ WORLD_EXECUTE)
-
-	if(X86)
-		set (CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
-	elseif(X86_64)
-		set (CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
-	endif()
 
 	set(DEP_BIN_DIRS)
 	foreach(TARGET_NAME ${${PROJECT_NAME}_deps})
-			get_target_property(BIN_DIR ${TARGET_NAME} BINARY_DIR)
-			list(APPEND DEP_BIN_DIRS "${BIN_DIR}")
-			list(APPEND DEP_BIN_DIRS "${BIN_DIR}/lib")
+		get_target_property(BIN_DIR ${TARGET_NAME} BINARY_DIR)
+		list(APPEND DEP_BIN_DIRS "${BIN_DIR}")
+		list(APPEND DEP_BIN_DIRS "${BIN_DIR}/lib")
 	endforeach()
 
-	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS ${DEP_BIN_DIRS})
+	include(deb/deb)
 
 	install(CODE "set(CMAKE_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\")")
 	install(CODE "set(CMAKE_INSTALL_LIBDIR \"${CMAKE_INSTALL_LIBDIR}\")")
-	install(CODE "set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS \"${DEP_BIN_DIRS}\")")
+	install(CODE "set(DEP_BIN_DIRS \"${DEP_BIN_DIRS}\")")
 	install(CODE [[
 		file(GET_RUNTIME_DEPENDENCIES
 			EXECUTABLES max
 			RESOLVED_DEPENDENCIES_VAR DEPS_RESOLVED
 			UNRESOLVED_DEPENDENCIES_VAR DEPS_UNRESOLVED
 			CONFLICTING_DEPENDENCIES_PREFIX DEPS_CONFLICTING
-			DIRECTORIES ${CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS}
+			DIRECTORIES ${DEP_BIN_DIRS}
+			PRE_EXCLUDE_REGEXES
+				 ".*"
+			PRE_INCLUDE_REGEXES
+				"^libSDL2.*$"
+				"^libfreetype.*$"
+				"^libminiupnpc.*$"
 		)
 
 		if(DEPS_CONFLICTING_FILENAMES)
@@ -148,7 +138,23 @@ if(UNIX)
 
 	install(TARGETS ${PROJECT_NAME}
 		CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		RUNTIME DESTINATION ${GAME_INSTALL_PATH}
+		RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/max-port"
+	)
+
+	configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.in" "${CMAKE_BINARY_DIR}/max-port" @ONLY)
+
+	install(FILES "${CMAKE_BINARY_DIR}/max-port"
+		DESTINATION "/usr/games"
+	)
+
+		configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.desktop.in" "${CMAKE_BINARY_DIR}/max-port.desktop" @ONLY)
+
+	install(FILES "${CMAKE_BINARY_DIR}/max-port.desktop"
+		DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
+	)
+
+	install(FILES "${CMAKE_SOURCE_DIR}/assets/max.png"
+		DESTINATION "${GAME_INSTALL_PATH}"
 	)
 endif()
 

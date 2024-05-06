@@ -221,11 +221,11 @@ void IniSettings::Init() {
     fp = fopen(filepath.string().c_str(), "rt");
 
     if (!fp) {
-        SDL_Log(_(f3e3));
+        SDL_Log("%s", _(f3e3));
         fp = fopen(filepath.string().c_str(), "wt");
 
         if (!fp) {
-            SDL_Log(_(db0c));
+            SDL_Log("%s", _(db0c));
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_FIND_MAX_INI);
         }
 
@@ -246,7 +246,7 @@ void IniSettings::Init() {
             }
 
             strcat(format_string, "\n");
-            fprintf(fp, format_string);
+            fprintf(fp, "%s", format_string);
         }
     }
 

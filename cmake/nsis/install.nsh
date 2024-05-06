@@ -199,7 +199,7 @@ Section "" Section_SetupUserPrefsPath
 	# non portable mode
 	${IfNot} $GameDataDir_IsPortableMode == "true"
 		# store user data directory path
-		Push "$APPDATA\Interplay\MAX"
+		Push "$APPDATA\M.A.X. Port"
 		Pop $R2
 
 		# create user PrefsPath directory

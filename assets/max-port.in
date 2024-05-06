@@ -1,0 +1,5 @@
+#!/bin/sh -e
+# Copyright: 2024 M.A.X. Port Team
+# License: MIT
+
+exec "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/max-port/max"

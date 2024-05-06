@@ -269,7 +269,7 @@ void SoundManager::Init() noexcept {
         delete engine;
         engine = nullptr;
 
-        SDL_Log(_(37d9));
+        SDL_Log("%s", _(37d9));
         is_audio_enabled = false;
 
     } else {

@@ -136,7 +136,7 @@ int32_t Text_Init(void) {
                               Text_GetSpacingTTF, Text_GetSizeTTF};
 
     if (FT_Init_FreeType(&Text_Library)) {
-        SDL_Log(_(6a9c));
+        SDL_Log("%s", _(6a9c));
 
         return -1;
     }

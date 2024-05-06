@@ -965,9 +965,10 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
     ResourceManager_ToUpperCase(filename);
 
     if (filename) {
+        auto filepath = ResourceManager_FilePathGameData / filename;
         FILE* fp;
 
-        fp = fopen(filename, "rb");
+        fp = fopen(filepath.lexically_normal().string().c_str(), "rb");
         delete[] filename;
 
         if (fp) {
