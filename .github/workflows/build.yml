@@ -42,13 +42,15 @@ jobs:
          run: |
             apt update -y && apt install -y sudo
             sudo apt-get update -y
-            sudo apt-get install -y file build-essential ninja-build wget gettext p7zip-full libsdl2-dev
-            wget https://github.com/Kitware/CMake/releases/download/v3.25.3/cmake-3.25.3-linux-x86_64.sh 
-            sudo mkdir /opt/cmake
-            sudo sh cmake-3.25.3-linux-x86_64.sh --skip-license --prefix=/opt/cmake
-            sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
-            sudo ln -s /opt/cmake/bin/ctest /usr/local/bin/ctest
-            sudo ln -s /opt/cmake/bin/cpack /usr/local/bin/cpack
+            sudo apt-get install -y ca-certificates gpg wget
+            test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+            wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+            echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+            sudo apt-get update -y
+            test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+            sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
+            sudo apt-get install kitware-archive-keyring
+            sudo apt install -y file build-essential cmake debmake dh-make ninja-build wget gettext p7zip-full libsdl2-dev
 
       -  name: Checkout
          uses: actions/checkout@v4
@@ -65,16 +67,12 @@ jobs:
             cd ${{steps.build_configuration.outputs.build_type}}
             ctest
 
-      -  name: Package
+      -  name: Package Source
          run: |
             cd ${{steps.build_configuration.outputs.build_type}}
-            cpack --config CPackConfig.cmake
             cpack --config CPackSourceConfig.cmake
             mkdir -p Artifacts/Linux-x64
-            cp *.deb Artifacts/Linux-x64/
             cp *.tar.gz Artifacts/Linux-x64/
-            7z a -mx9 -bd max-port-linux-symbols.7z max.debug
-            cp max-port-linux-symbols.7z Artifacts/Linux-x64/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v4
@@ -99,13 +97,15 @@ jobs:
             apt update -y && apt install -y sudo
             sudo dpkg --add-architecture i386
             sudo apt-get update -y
-            sudo apt-get install -y file build-essential gcc-multilib g++-multilib ninja-build:i386 wget gettext p7zip-full libsdl2-dev:i386
-            wget https://github.com/Kitware/CMake/releases/download/v3.25.3/cmake-3.25.3-linux-x86_64.sh 
-            sudo mkdir /opt/cmake
-            sudo sh cmake-3.25.3-linux-x86_64.sh --skip-license --prefix=/opt/cmake
-            sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
-            sudo ln -s /opt/cmake/bin/ctest /usr/local/bin/ctest
-            sudo ln -s /opt/cmake/bin/cpack /usr/local/bin/cpack
+            sudo apt-get install -y ca-certificates gpg wget
+            test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+            wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+            echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+            sudo apt-get update -y
+            test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+            sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
+            sudo apt-get install kitware-archive-keyring
+            sudo apt-get install -y file build-essential cmake debmake dh-make gcc-multilib g++-multilib ninja-build:i386 wget gettext p7zip-full libsdl2-dev:i386
 
       -  name: Checkout
          uses: actions/checkout@v4
@@ -122,16 +122,12 @@ jobs:
             cd ${{steps.build_configuration.outputs.build_type}}
             ctest
 
-      -  name: Package
+      -  name: Package Source
          run: |
             cd ${{steps.build_configuration.outputs.build_type}}
-            cpack --config CPackConfig.cmake
             cpack --config CPackSourceConfig.cmake
             mkdir -p Artifacts/Linux-x86
-            cp *.deb Artifacts/Linux-x86/
             cp *.tar.gz Artifacts/Linux-x86/
-            7z a -mx9 -bd max-port-linux-symbols.7z max.debug
-            cp max-port-linux-symbols.7z Artifacts/Linux-x86/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v4
