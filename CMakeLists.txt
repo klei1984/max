@@ -103,8 +103,6 @@ if(UNIX)
 		list(APPEND DEP_BIN_DIRS "${BIN_DIR}/lib")
 	endforeach()
 
-	include(deb/deb)
-
 	install(CODE "set(CMAKE_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\")")
 	install(CODE "set(CMAKE_INSTALL_LIBDIR \"${CMAKE_INSTALL_LIBDIR}\")")
 	install(CODE "set(DEP_BIN_DIRS \"${DEP_BIN_DIRS}\")")

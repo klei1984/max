@@ -1,0 +1,49 @@
+#!/bin/sh -e
+# Copyright: 2024 M.A.X. Port Team
+# License: MIT
+
+# Load dependencies
+if ! [ -f "$1" ]; then exit 0; fi
+
+maxport_configfile="$1"
+
+FREETYPE_VERSION=$(sed -nr 's/set\(FREETYPE_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+FREETYPE_FILE=$(eval echo $(sed -nr 's/set\(FREETYPE_FILE (.*)\)/\1/p' $maxport_configfile))
+FREETYPE_URI=$(eval echo $(sed -nr 's/set\(FREETYPE_URI (.*)\)/\1/p' $maxport_configfile))
+
+MINIAUDIO_VERSION=$(sed -nr 's/set\(MINIAUDIO_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+MINIAUDIO_FILE=$(eval echo $(sed -nr 's/set\(MINIAUDIO_FILE (.*)\)/\1/p' $maxport_configfile))
+MINIAUDIO_URI=$(eval echo $(sed -nr 's/set\(MINIAUDIO_URI (.*)\)/\1/p' $maxport_configfile))
+
+SDL2_VERSION=$(sed -nr 's/set\(SDL2_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+SDL2_FILE=$(eval echo $(sed -nr 's/set\(SDL2_FILE (.*)\)/\1/p' $maxport_configfile))
+SDL2_URI=$(eval echo $(sed -nr 's/set\(SDL2_URI (.*)\)/\1/p' $maxport_configfile))
+
+ENET_VERSION=$(sed -nr 's/set\(ENET_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+ENET_FILE=$(eval echo $(sed -nr 's/set\(ENET_FILE (.*)\)/\1/p' $maxport_configfile))
+ENET_URI=$(eval echo $(sed -nr 's/set\(ENET_URI (.*)\)/\1/p' $maxport_configfile))
+
+MINIUPNP_VERSION=$(sed -nr 's/set\(MINIUPNP_VERSION ([a-z_0-9]+)\)/\1/p' $maxport_configfile)
+MINIUPNP_FILE=$(eval echo $(sed -nr 's/set\(MINIUPNP_FILE (.*)\)/\1/p' $maxport_configfile))
+MINIUPNP_URI=$(eval echo $(sed -nr 's/set\(MINIUPNP_URI (.*)\)/\1/p' $maxport_configfile))
+
+GTEST_VERSION=$(sed -nr 's/set\(GTEST_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+GTEST_FILE=$(eval echo $(sed -nr 's/set\(GTEST_FILE (.*)\)/\1/p' $maxport_configfile))
+GTEST_URI=$(eval echo $(sed -nr 's/set\(GTEST_URI (.*)\)/\1/p' $maxport_configfile))
+
+wget --no-clobber --quiet --output-document="dependencies/$FREETYPE_FILE" "$FREETYPE_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$MINIAUDIO_FILE" "$MINIAUDIO_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$SDL2_FILE" "$SDL2_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$ENET_FILE" "$ENET_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$MINIUPNP_FILE" "$MINIUPNP_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$GTEST_FILE" "$GTEST_URI" | true
+
+if [ -x dos2unix ] && [ -x md5sum ]; then
+  dos2unix --quiet "dependencies/dependencies.md5"
+  md5sum --quiet "dependencies/dependencies.md5"
+
+  if [ "$?" != 0]; then
+    echo "Failed md5 checksum verification"
+    exit 1
+  fi
+fi

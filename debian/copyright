@@ -9,13 +9,13 @@ License: MIT
 
 Files: dependencies/freetype-2.13.2.tar.gz
 Copyright: 2006-2023 by David Turner, Robert Wilhelm, and Werner Lemberg
-License: FreeType License (FTL)
+License: FTL
  See license file at https://gitlab.freedesktop.org/freetype/freetype/-/blob/
                      920c5502cc3ddda88f6c7d85ee834ac611bb11cc/docs/FTL.TXT
 
 Files: dependencies/miniaudio-0.11.21.tar.gz
 Copyright: 2023 David Reid
-License: MIT No Attribution
+License: MIT-0
 
 Files: dependencies/SDL2-2.30.2.tar.gz
 Copyright: 1997-2023 Sam Lantinga <slouken@libsdl.org>
@@ -52,7 +52,7 @@ License: MIT
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
-License: MIT No Attribution
+License: MIT-0
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
  the Software without restriction, including without limitation the rights to

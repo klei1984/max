@@ -1,9 +1,3 @@
-set(ICONV_VERSION 1.17)
-set(ICONV_FILE libiconv-${ICONV_VERSION}.tar.gz)
-set(ICONV_URI http://ftp.gnu.org/pub/gnu/libiconv/${ICONV_FILE})
-set(ICONV_HASH d718cd5a59438be666d1575855be72c3)
-set(ICONV_HASH_TYPE MD5)
-
 set(FREETYPE_VERSION 2.13.2)
 set(FREETYPE_FILE freetype-${FREETYPE_VERSION}.tar.gz)
 set(FREETYPE_URI http://prdownloads.sourceforge.net/freetype/${FREETYPE_FILE})
@@ -16,16 +10,16 @@ set(MINIAUDIO_URI https://github.com/mackron/miniaudio/archive/refs/tags/${MINIA
 set(MINIAUDIO_HASH 475c0655c49109a4da647a4dcc1042ac)
 set(MINIAUDIO_HASH_TYPE MD5)
 
-set(SDL2_VERSION 2.30.2)
+set(SDL2_VERSION 2.30.3)
 set(SDL2_FILE SDL2-${SDL2_VERSION}.tar.gz)
 set(SDL2_URI https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/${SDL2_FILE})
-set(SDL2_HASH 08667937c83fada423dacc7cd90f3ec8)
+set(SDL2_HASH 85ceed58290332fa4ef75a3dabfa1b89)
 set(SDL2_HASH_TYPE MD5)
 
-set(ENET_VERSION 1.3.17)
+set(ENET_VERSION 1.3.18)
 set(ENET_FILE enet-${ENET_VERSION}.tar.gz)
 set(ENET_URI https://github.com/lsalzman/enet/archive/refs/tags/v${ENET_VERSION}.tar.gz)
-set(ENET_HASH 1c3270f1e03ccb2a8544a88d91d2a368)
+set(ENET_HASH 5f9f7b3fca0131f07f647d3a2d71180d)
 set(ENET_HASH_TYPE MD5)
 
 set(MINIUPNP_VERSION miniupnpc_2_2_7)
