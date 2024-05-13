@@ -1,0 +1,35 @@
+#!/usr/bin/make -f
+# Output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
+
+# Apply all hardening options
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# Package maintainers to append CFLAGS
+#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+
+# Package maintainers to append LDFLAGS
+#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+# main packaging script based on post dh7 syntax
+%:
+	dh $@ --buildsystem=cmake+ninja
+
+override_dh_auto_configure:
+	# copy source dependencies
+	# cp -rf debian/dependencies/*.gz dependencies
+        # prepopulate fetchcontent targets as debhelper breaks them with
+        # FETCHCONTENT_FULLY_DISCONNECTED=true option
+	dh_auto_configure -- \
+        -DFETCHCONTENT_FULLY_DISCONNECTED=OFF \
+        -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-linux-x86_64.cmake \
+        -DBUILD_SHARED_LIBS=ON
+
+# You may need to patch CMakeLists.txt to set the library install path to be:
+#-install(TARGETS <sharedlibname> LIBRARY DESTINATION lib)
+#+install(TARGETS <sharedlibname> LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
+
+# Multiarch package requires library files to be installed to
+# /usr/lib/<triplet>/ .  If the build system does not support
+# $(DEB_HOST_MULTIARCH), you may need to override some targets such as
+# dh_auto_configure or dh_auto_install to use $(DEB_HOST_MULTIARCH) .

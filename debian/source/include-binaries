@@ -1,0 +1,6 @@
+debian/dependencies/googletest-1.14.0.tar.gz
+debian/dependencies/miniupnpc_2_2_7.tar.gz
+debian/dependencies/enet-1.3.17.tar.gz
+debian/dependencies/miniaudio-0.11.21.tar.gz
+debian/dependencies/freetype-2.13.2.tar.gz
+debian/dependencies/SDL2-2.30.2.tar.gz

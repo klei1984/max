@@ -2,4 +2,179 @@
 # Copyright: 2024 M.A.X. Port Team
 # License: MIT
 
-exec "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/max-port/max"
+# Set default values for referenced XDG environment variables if they are unset
+: "${XDG_DATA_HOME:="$HOME/.local/share"}"
+: "${XDG_DATA_DIRS:="/usr/local/share:/usr/share"}"
+
+# Look for max-port preferences folder
+if [ -f "$XDG_DATA_HOME/max-port/settings.ini" ]; then
+  maxport_prefs_dir="$XDG_DATA_HOME/max-port"
+elif [ -f "$HOME/.local/share/max-port/settings.ini" ]; then
+  maxport_prefs_dir="$HOME/.local/share/max-port"
+elif [ -f "./settings.ini" ]; then
+  maxport_prefs_dir="."
+else
+  maxport_prefs_dir=""
+fi
+
+# Look for game base folder
+maxport_base_dir=""
+
+for dir in $(echo "$XDG_DATA_DIRS" | sed "s/:/ /g"); do
+  if [ -f "$dir/max-port/PATCHES.RES" ]; then
+    maxport_base_dir="$dir/max-port"
+    break
+  fi
+done
+
+if ! [ -f "$maxport_base_dir/PATCHES.RES" ]; then
+  if [ -f "/usr/share/max-port/PATCHES.RES" ]; then
+    maxport_base_dir="/usr/share/max-port"
+  elif [ -f "$XDG_DATA_HOME/max-port/PATCHES.RES" ]; then
+    maxport_base_dir="/usr/share/max-port"
+  elif [ -f "./PATCHES.RES" ]; then
+    maxport_base_dir="."
+  else
+    exit 0
+  fi
+fi
+
+# Read game data folder location from ini file
+maxport_game_data_dir=$(grep '^\[SETUP\]' --after-context=100 \
+"$maxport_prefs_dir/settings.ini" 2>/dev/null | tail -n +2  | grep --before-context=100 \
+'^\[' | head -n -1 | grep '^game_data' | cut -d '=' -f 2)
+
+if [ -f "$maxport_game_data_dir/MAX.RES" ] || [ -f "$maxport_game_data_dir/max.res" ]; then
+  :
+elif [ -f "./MAX.RES" ] || [ -f "./max.res" ]; then
+  maxport_game_data_dir="."
+else
+  # Set up UI colors
+  export NEWT_COLORS='
+  root=blue,blue
+  window=white,lightgray
+  border=black,lightgray
+  shadow=white,black
+  title=black,'
+
+  # Strings
+  maxport_caption_ok_en="Ok"
+  maxport_caption_ok_hu="Oké"
+
+  maxport_caption_cancel_en="Cancel"
+  maxport_caption_cancel_hu="Mégse"
+
+  maxport_caption_yes_en="Yes"
+  maxport_caption_yes_hu="Igen"
+
+  maxport_caption_no_en="No"
+  maxport_caption_no_hu="Nem"
+
+  maxport_caption_config_title_en="M.A.X. Port Configuration"
+  maxport_caption_config_title_hu="M.A.X. Port Konfiguráció"
+
+  maxport_caption_language_en="Select Language"
+  maxport_caption_language_hu="Nyelv Kiválasztása"
+
+  maxport_caption_is_portable_en="Portable installation?\n\n  Portable mode saves all user data into the same folder that contains\n  the game executable."
+  maxport_caption_is_portable_hu="Hordozható telepítés?\n\n  A hordozható mód az összes felhasználói adatot ugyanabba a mappába\n  menti ami a játék futtatható állományát tartalmazza."
+
+  maxport_caption_game_data_en="Select location of original game assets.\n\n  Please select the CD-ROM drive in case of an original M.A.X. CD-ROM,\n  or the root folder of an existing M.A.X. full installation."
+  maxport_caption_game_data_hu="Válassza ki az eredeti játékelemek mappáját.\n\n  Eredeti M.A.X. CD-ROM esetén válassza ki a CD-ROM meghajtót.\n  Telepített eredeti M.A.X. játék esetén válassza ki a meglévő\n  telepítés gyökérmappáját."
+
+  # Get Language
+  maxport_selected_language=$(whiptail --title "$maxport_caption_config_title_en" \
+  --menu "$maxport_caption_language_en" --default-item "English" --nocancel \
+  --ok-button="$maxport_caption_ok_en" 10 78 3 \
+  "English" "" \
+  "Magyar" "" \
+  3>&1 1>&2 2>&3)
+
+  case "$maxport_selected_language" in
+    *"Magyar"*)
+      maxport_caption_ok="$maxport_caption_ok_hu"
+      maxport_caption_cancel="$maxport_caption_cancel_hu"
+      maxport_caption_yes="$maxport_caption_yes_hu"
+      maxport_caption_no="$maxport_caption_no_hu"
+      maxport_caption_config_title="$maxport_caption_config_title_hu"
+      maxport_caption_language="$maxport_caption_language_hu"
+      maxport_caption_is_portable="$maxport_caption_is_portable_hu"
+      maxport_caption_game_data="$maxport_caption_game_data_hu"
+    ;;
+
+    *)
+      maxport_caption_ok="$maxport_caption_ok_en"
+      maxport_caption_cancel="$maxport_caption_cancel_en"
+      maxport_caption_yes="$maxport_caption_yes_en"
+      maxport_caption_no="$maxport_caption_no_en"
+      maxport_caption_config_title="$maxport_caption_config_title_en"
+      maxport_caption_language="$maxport_caption_language_en"
+      maxport_caption_is_portable="$maxport_caption_is_portable_en"
+      maxport_caption_game_data="$maxport_caption_game_data_en"
+    ;;
+  esac
+
+  # Use portable mode?
+  if [ "$maxport_prefs_dir" = "." ] || [ "$maxport_prefs_dir" = "" ]; then
+    if whiptail --title "$maxport_caption_config_title" --yesno "$maxport_caption_is_portable" \
+      --yes-button="$maxport_caption_yes" --no-button="$maxport_caption_no" 10 78 3>&1 1>&2 2>&3
+    then
+      maxport_prefs_dir="."
+    elif [ "$?" = "1" ]; then
+      maxport_prefs_dir="$XDG_DATA_HOME/max-port"
+    else
+      exit 0
+    fi
+  fi
+
+  # Find original game data
+  maxport_game_data_dir="/media/max/CDROM/max"
+
+  while true
+  do
+    maxport_game_data_dir=$(whiptail --title "$maxport_caption_config_title" \
+    --inputbox "$maxport_caption_game_data" --ok-button="$maxport_caption_ok" \
+    --cancel-button="$maxport_caption_cancel" 10 78 \
+    "$maxport_game_data_dir" 3>&1 1>&2 2>&3)
+
+    if [ "$?" != "0" ]; then
+      exit 0
+    fi
+
+    if [ -f "$maxport_game_data_dir/MAX.RES" ] || [ -f "$maxport_game_data_dir/max.res" ]; then
+      break
+    fi
+  done
+
+  # Update ini configuration file
+  if ! [ -f "$maxport_prefs_dir/settings.ini" ]; then
+    if [ -f "$maxport_base_dir/settings.ini" ]; then
+      if ! [ -d "$maxport_prefs_dir" ]; then
+        mkdir -p "$maxport_prefs_dir"
+      fi
+      cp -n "$maxport_base_dir/settings.ini" "$maxport_prefs_dir" 2>/dev/null
+    fi
+  fi
+
+    if [ -f "$maxport_prefs_dir/settings.ini" ]; then
+      sed -i'' "/^\[SETUP]/,/^\[/{s+^game_data[[:space:]]*=.*+game_data=$maxport_game_data_dir+}" "$maxport_prefs_dir/settings.ini"
+    fi
+fi
+
+# Copy existing saved game files to preferences folder
+cp -n "$maxport_game_data_dir/*.DTA" "$maxport_prefs_dir" 2>/dev/null || true
+cp -n "$maxport_game_data_dir/*.HOT" "$maxport_prefs_dir" 2>/dev/null || true
+cp -n "$maxport_game_data_dir/*.MLT" "$maxport_prefs_dir" 2>/dev/null || true
+cp -n "$maxport_game_data_dir/*.BAK" "$maxport_prefs_dir" 2>/dev/null || true
+
+echo $maxport_selected_language
+echo $maxport_prefs_dir
+echo $maxport_base_dir
+echo $maxport_game_data_dir
+
+# Play the game
+if [ -x "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/max-port/max" ]; then
+  exec "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/max-port/max"
+elif [ -x "$maxport_base_dir/max" ]; then
+  exec "$maxport_base_dir/max"
+fi
