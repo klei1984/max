@@ -64,7 +64,7 @@ jobs:
             mkdir -p Debian/Linux-x64
             tar zxf Linux-x64/max-port-*-Source.tar.gz --directory=Debian/Linux-x64
             cd Debian/Linux-x64/max-port-*-Source
-            sh ../../../.github/workflows/scripts/linux/get-dependencies cmake/versions.cmake
+            sh ./.github/workflows/scripts/linux/get-dependencies cmake/versions.cmake
             debmake --tar --monoarch --invoke debuild
             cp ../max-port_*_amd64.deb ../../../${{steps.build_configuration.outputs.build_type}}/Artifacts2/Linux-x64/
             cp ../max-port-dbgsym_*_amd64.ddeb ../../../${{steps.build_configuration.outputs.build_type}}/Artifacts2/Linux-x64/
