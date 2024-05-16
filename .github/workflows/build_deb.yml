@@ -62,15 +62,16 @@ jobs:
             sudo apt install -y debmake debhelper dh-make
             7z x Linux-x64.zip -aoa -bd -y
             mkdir -p Debian/Linux-x64
+            mkdir -p ${{steps.build_configuration.outputs.build_type}}/Artifacts/Linux-x64
             tar zxf Linux-x64/max-port-*-Source.tar.gz --directory=Debian/Linux-x64
             cd Debian/Linux-x64/max-port-*-Source
             sh cmake/scripts/linux/get-dependencies cmake/versions.cmake
             debmake --tar --monoarch --invoke debuild
-            cp ../max-port_*_amd64.deb ../../../${{steps.build_configuration.outputs.build_type}}/Artifacts2/Linux-x64/
-            cp ../max-port-dbgsym_*_amd64.ddeb ../../../${{steps.build_configuration.outputs.build_type}}/Artifacts2/Linux-x64/
+            cp ../max-port_*_amd64.deb ../../../${{steps.build_configuration.outputs.build_type}}/Artifacts/Linux-x64/
+            cp ../max-port-dbgsym_*_amd64.ddeb ../../../${{steps.build_configuration.outputs.build_type}}/Artifacts/Linux-x64/
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v4
          with:
             name: ${{github.job}}
-            path: ${{steps.build_configuration.outputs.build_type}}/Artifacts2
+            path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
