@@ -50,7 +50,7 @@ jobs:
             test -f /usr/share/doc/kitware-archive-keyring/copyright ||
             sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
             sudo apt-get install kitware-archive-keyring
-            sudo apt install -y file build-essential cmake debmake dh-make ninja-build wget gettext p7zip-full libsdl2-dev
+            sudo apt install -y file build-essential cmake ninja-build wget gettext p7zip-full libsdl2-dev
 
       -  name: Checkout
          uses: actions/checkout@v4

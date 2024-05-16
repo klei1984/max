@@ -1,6 +1,9 @@
 #!/usr/bin/make -f
 # Output every command that modifies files on the build system.
-#export DH_VERBOSE = 1
+export DH_VERBOSE = 1
+
+# Make sure architecture is defined
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 # Apply all hardening options
 #export DEB_BUILD_MAINT_OPTIONS = hardening=+all
@@ -24,6 +27,10 @@ override_dh_auto_configure:
         -DFETCHCONTENT_FULLY_DISCONNECTED=OFF \
         -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-linux-x86_64.cmake \
         -DBUILD_SHARED_LIBS=ON
+
+# Manually add search path
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(CURDIR)/debian/max-port/usr/lib/$(DEB_HOST_MULTIARCH)/max-port/
 
 # You may need to patch CMakeLists.txt to set the library install path to be:
 #-install(TARGETS <sharedlibname> LIBRARY DESTINATION lib)
