@@ -40,9 +40,12 @@ if ! [ -f "$maxport_base_dir/PATCHES.RES" ] && ! [ -f "$maxport_base_dir/patches
 fi
 
 # Read game data folder location from ini file
-maxport_game_data_dir=$(grep '^\[SETUP\]' --after-context=100 \
-"$maxport_prefs_dir/settings.ini" 2>/dev/null | tail -n +2  | grep --before-context=100 \
+maxport_game_data_dir=$(grep '^\[SETUP\]' --after-context=2048 \
+"$maxport_prefs_dir/settings.ini" 2>/dev/null | tail -n +2  | grep --before-context=2048 \
 '^\[' | head -n -1 | grep '^game_data' | cut -d '=' -f 2)
+
+# Remove carriage return from path
+maxport_game_data_dir=${maxport_game_data_dir%?}
 
 if [ -f "$maxport_game_data_dir/MAX.RES" ] || [ -f "$maxport_game_data_dir/max.res" ]; then
   :
