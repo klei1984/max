@@ -662,28 +662,26 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
     palette = GameManager_MenuFadeOut();
 
     if (is_winner && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CAMPAIGN) {
-        FILE* fp;
         SmartString filename;
-        std::filesystem::path filepath;
 
-        filename.Sprintf(20, "win%i.cam", GameManager_GameFileNumber).Toupper();
-        filepath = (ResourceManager_FilePathText / filename.GetCStr()).lexically_normal();
+        filename.Sprintf(20, "win%i.cam", GameManager_GameFileNumber);
 
-        fp = fopen(filepath.string().c_str(), "rt");
+        auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_Text)};
 
         if (fp) {
-            int32_t character;
+            fseek(fp, 0, SEEK_END);
+            int32_t text_size = ftell(fp);
 
-            for (;;) {
-                character = fgetc(fp);
-                if (character == EOF) {
-                    break;
-                }
+            auto text = std::make_unique<char[]>(text_size + 1);
 
-                mission_briefing += static_cast<char>(character);
-            }
+            text.get()[text_size] = '\0';
+
+            fseek(fp, 0, SEEK_SET);
+            fread(text.get(), sizeof(char), text_size, fp);
 
             fclose(fp);
+
+            mission_briefing = text.get();
 
             Text_TypeWriter_CharacterTimeMs = 10;
         }
@@ -957,63 +955,49 @@ void ReadFile(FILE* fp, T* buffer, int32_t size) {
 }
 
 int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t width) {
-    char* filename;
+    auto fp{ResourceManager_OpenFileResource(static_cast<ResourceID>(SNOW_1 + planet_index), ResourceType_GameData)};
     int32_t result;
 
-    filename = reinterpret_cast<char*>(ResourceManager_ReadResource(static_cast<ResourceID>(SNOW_1 + planet_index)));
+    if (fp) {
+        char map_type[5];
+        Point map_dimensions;
+        int16_t map_tile_count;
+        Color palette[PALETTE_STRIDE * PALETTE_SIZE];
 
-    ResourceManager_ToUpperCase(filename);
+        ReadFile(fp, map_type);
+        ReadFile(fp, map_dimensions);
 
-    if (filename) {
-        auto filepath = ResourceManager_FilePathGameData / filename;
-        FILE* fp;
-
-        fp = fopen(filepath.lexically_normal().string().c_str(), "rb");
-        delete[] filename;
-
-        if (fp) {
-            char map_type[5];
-            Point map_dimensions;
-            int16_t map_tile_count;
-            Color palette[PALETTE_STRIDE * PALETTE_SIZE];
-
-            ReadFile(fp, map_type);
-            ReadFile(fp, map_dimensions);
-
-            for (int32_t i = 0; i < map_dimensions.x; ++i) {
-                ReadFile(fp, &buffer[width * i], map_dimensions.y);
-            }
-
-            fseek(fp, map_dimensions.x * map_dimensions.y * 2, SEEK_CUR);
-
-            ReadFile(fp, map_tile_count);
-            fseek(fp, map_tile_count * 64 * 64, SEEK_CUR);
-
-            ReadFile(fp, palette);
-
-            for (int32_t i = 0; i < sizeof(palette); ++i) {
-                palette[i] /= 4;
-            }
-
-            WindowManager_ColorPalette = Color_GetColorPalette();
-
-            for (int32_t i = 0; i < sizeof(palette); i += PALETTE_STRIDE) {
-                palette[i / PALETTE_STRIDE] =
-                    Color_MapColor(WindowManager_ColorPalette, palette[i], palette[i + 1], palette[i + 2], true);
-            }
-
-            for (int32_t i = 0; i < map_dimensions.x; ++i) {
-                for (int32_t j = 0; j < map_dimensions.y; ++j) {
-                    buffer[i * width + j] = palette[buffer[i * width + j]];
-                }
-            }
-
-            fclose(fp);
-            result = true;
-
-        } else {
-            result = false;
+        for (int32_t i = 0; i < map_dimensions.x; ++i) {
+            ReadFile(fp, &buffer[width * i], map_dimensions.y);
         }
+
+        fseek(fp, map_dimensions.x * map_dimensions.y * 2, SEEK_CUR);
+
+        ReadFile(fp, map_tile_count);
+        fseek(fp, map_tile_count * 64 * 64, SEEK_CUR);
+
+        ReadFile(fp, palette);
+
+        for (int32_t i = 0; i < sizeof(palette); ++i) {
+            palette[i] /= 4;
+        }
+
+        WindowManager_ColorPalette = Color_GetColorPalette();
+
+        for (int32_t i = 0; i < sizeof(palette); i += PALETTE_STRIDE) {
+            palette[i / PALETTE_STRIDE] =
+                Color_MapColor(WindowManager_ColorPalette, palette[i], palette[i + 1], palette[i + 2], true);
+        }
+
+        for (int32_t i = 0; i < map_dimensions.x; ++i) {
+            for (int32_t j = 0; j < map_dimensions.y; ++j) {
+                buffer[i * width + j] = palette[buffer[i * width + j]];
+            }
+        }
+
+        fclose(fp);
+        result = true;
+
     } else {
         result = false;
     }
@@ -1023,34 +1007,32 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
 
 void menu_draw_campaign_mission_briefing_screen() {
     int32_t image_index;
-    FILE* fp;
     SmartString filename;
-    std::filesystem::path filepath;
-    SmartString text;
+    SmartString mission_briefing;
     WindowInfo window;
 
     image_index = (dos_rand() * 9) >> 15;
 
     Text_TypeWriter_CharacterTimeMs = 10;
 
-    filename.Sprintf(20, "intro%i.cam", GameManager_GameFileNumber).Toupper();
+    filename.Sprintf(20, "intro%i.cam", GameManager_GameFileNumber);
 
-    filepath = (ResourceManager_FilePathText / filename.GetCStr()).lexically_normal();
-
-    fp = fopen(filepath.string().c_str(), "rt");
+    auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_Text)};
 
     if (fp) {
-        for (;;) {
-            int32_t character = fgetc(fp);
+        fseek(fp, 0, SEEK_END);
+        int32_t text_size = ftell(fp);
 
-            if (character == EOF) {
-                break;
-            }
+        auto text = std::make_unique<char[]>(text_size + 1);
 
-            text += character;
-        }
+        text.get()[text_size] = '\0';
+
+        fseek(fp, 0, SEEK_SET);
+        fread(text.get(), sizeof(char), text_size, fp);
 
         fclose(fp);
+
+        mission_briefing = text.get();
 
         Window briefing_window(menu_briefing_backgrounds[image_index]);
         Button* button_end_ok;
@@ -1065,7 +1047,7 @@ void menu_draw_campaign_mission_briefing_screen() {
         win_draw(window.id);
         Text_SetFont(GNW_TEXT_FONT_1);
 
-        Text_TypeWriter_TextBoxMultiLineWrapText(&window, text.GetCStr(), 20, 20, 600, 400, 0);
+        Text_TypeWriter_TextBoxMultiLineWrapText(&window, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
         Text_TypeWriter_CharacterTimeMs = 0;
 
         Text_SetFont(GNW_TEXT_FONT_5);
@@ -1099,7 +1081,7 @@ void menu_draw_campaign_mission_briefing_screen() {
 
                     Text_SetFont(GNW_TEXT_FONT_1);
 
-                    Text_TypeWriter_TextBoxMultiLineWrapText(&window, text.GetCStr(), 20, 20, 600, 400, 0);
+                    Text_TypeWriter_TextBoxMultiLineWrapText(&window, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
                     win_draw(window.id);
                 } break;
             }
@@ -1481,15 +1463,12 @@ void menu_delete_menu_buttons() {
 }
 
 int32_t play_attract_demo(int32_t save_slot) {
-    char filename[20];
-    FILE* fp;
+    SmartString filename;
     int32_t result;
 
-    sprintf(filename, "save%i.%s", save_slot, save_file_extensions[0]);
+    filename.Sprintf(20, "save%i.%s", save_slot, save_file_extensions[0]);
 
-    ResourceManager_ToUpperCase(filename);
-
-    fp = fopen(filename, "rb");
+    auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_GameData)};
 
     if (fp) {
         int32_t backup_opponent;

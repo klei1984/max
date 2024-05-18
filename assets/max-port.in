@@ -21,18 +21,18 @@ fi
 maxport_base_dir=""
 
 for dir in $(echo "$XDG_DATA_DIRS" | sed "s/:/ /g"); do
-  if [ -f "$dir/max-port/PATCHES.RES" ]; then
+  if [ -f "$dir/max-port/PATCHES.RES" ] || [ -f "$dir/max-port/patches.res" ]; then
     maxport_base_dir="$dir/max-port"
     break
   fi
 done
 
-if ! [ -f "$maxport_base_dir/PATCHES.RES" ]; then
-  if [ -f "/usr/share/max-port/PATCHES.RES" ]; then
+if ! [ -f "$maxport_base_dir/PATCHES.RES" ] && ! [ -f "$maxport_base_dir/patches.res" ]; then
+  if [ -f "/usr/share/max-port/PATCHES.RES" ] || [ -f "/usr/share/max-port/patches.res" ]; then
     maxport_base_dir="/usr/share/max-port"
-  elif [ -f "$XDG_DATA_HOME/max-port/PATCHES.RES" ]; then
+  elif [ -f "$XDG_DATA_HOME/max-port/PATCHES.RES" ] || [ -f "$XDG_DATA_HOME/max-port/patches.res" ]; then
     maxport_base_dir="/usr/share/max-port"
-  elif [ -f "./PATCHES.RES" ]; then
+  elif [ -f "./PATCHES.RES" ] || [ -f "./patches.res" ]; then
     maxport_base_dir="."
   else
     exit 0
@@ -128,7 +128,7 @@ else
   fi
 
   # Find original game data
-  maxport_game_data_dir="/media/max/CDROM/max"
+  maxport_game_data_dir="/media/user/cdrom"
 
   while true
   do
@@ -157,7 +157,8 @@ else
   fi
 
     if [ -f "$maxport_prefs_dir/settings.ini" ]; then
-      sed -i'' "/^\[SETUP]/,/^\[/{s+^game_data[[:space:]]*=.*+game_data=$maxport_game_data_dir+}" "$maxport_prefs_dir/settings.ini"
+      # Preserve original DOS line endinds
+      sed -bi'' "/^\[SETUP]/,/^\[/{s+^game_data[[:space:]]*=.*\r+game_data=$maxport_game_data_dir\r+}" "$maxport_prefs_dir/settings.ini"
     fi
 fi
 
@@ -166,11 +167,10 @@ cp -n "$maxport_game_data_dir/*.DTA" "$maxport_prefs_dir" 2>/dev/null || true
 cp -n "$maxport_game_data_dir/*.HOT" "$maxport_prefs_dir" 2>/dev/null || true
 cp -n "$maxport_game_data_dir/*.MLT" "$maxport_prefs_dir" 2>/dev/null || true
 cp -n "$maxport_game_data_dir/*.BAK" "$maxport_prefs_dir" 2>/dev/null || true
-
-echo $maxport_selected_language
-echo $maxport_prefs_dir
-echo $maxport_base_dir
-echo $maxport_game_data_dir
+cp -n "$maxport_game_data_dir/*.dta" "$maxport_prefs_dir" 2>/dev/null || true
+cp -n "$maxport_game_data_dir/*.hot" "$maxport_prefs_dir" 2>/dev/null || true
+cp -n "$maxport_game_data_dir/*.mlt" "$maxport_prefs_dir" 2>/dev/null || true
+cp -n "$maxport_game_data_dir/*.bak" "$maxport_prefs_dir" 2>/dev/null || true
 
 # Play the game
 if [ -x "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/max-port/max" ]; then

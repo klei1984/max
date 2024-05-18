@@ -97,25 +97,24 @@ int32_t Color_Init(void) {
         result = 1;
 
     } else {
-        auto filepath = (ResourceManager_FilePathGameData / "COLOR.PAL").lexically_normal();
-        FILE* in = fopen(filepath.string().c_str(), "rb");
+        auto fp{ResourceManager_OpenFileResource("COLOR.PAL", ResourceType_GameData)};
 
-        if (in == NULL) {
+        if (!fp) {
             result = 0;
 
         } else {
             uint32_t tag;
 
-            fread(Color_ColorPalette, sizeof(Color_ColorPalette), 1, in);
-            fread(Color_RgbIndexTable, sizeof(Color_RgbIndexTable), 1, in);
+            fread(Color_ColorPalette, sizeof(Color_ColorPalette), 1, fp);
+            fread(Color_RgbIndexTable, sizeof(Color_RgbIndexTable), 1, fp);
 
-            fread(&tag, sizeof(tag), 1, in);
+            fread(&tag, sizeof(tag), 1, fp);
 
             if (tag == PALETTE_FILE_TAG) {
-                fread(Color_IntensityColorTable, sizeof(Color_IntensityColorTable), 1, in);
+                fread(Color_IntensityColorTable, sizeof(Color_IntensityColorTable), 1, fp);
             }
 
-            fclose(in);
+            fclose(fp);
 
             Color_SetSystemPalette(Color_ColorPalette);
 

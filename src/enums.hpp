@@ -24,6 +24,18 @@
 
 #include <cstdint>
 
+enum ResourceType : uint8_t {
+    ResourceType_GameBase,
+    ResourceType_GamePref,
+    ResourceType_GameData,
+    ResourceType_Voice,
+    ResourceType_Movie,
+    ResourceType_Text,
+    ResourceType_Flic,
+    ResourceType_Sfx,
+    ResourceType_Music,
+};
+
 enum ResourceID : uint16_t {
     COMMTWR = 0x0,
     POWERSTN = 0x1,

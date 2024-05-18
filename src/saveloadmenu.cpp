@@ -252,8 +252,6 @@ void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], 
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     uint8_t game_file_type;
     SmartString filename;
-    std::filesystem::path filepath;
-    FILE *fp;
     uint16_t version;
     ImageSimpleHeader *image_up;
     ImageSimpleHeader *image_down;
@@ -279,11 +277,8 @@ void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], 
 
         filename.Sprintf(20, "save%i.%s", first_slot_on_page + i, SaveLoadMenu_SaveFileTypes[save_file_type]);
         strcpy(slots[i].file_name, filename.GetCStr());
-        filename.Toupper();
 
-        filepath = (ResourceManager_FilePathGamePref / filename.GetCStr()).lexically_normal();
-
-        fp = fopen(filepath.string().c_str(), "rb");
+        auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_GamePref)};
 
         if (fp) {
             fread(&version, sizeof(version), 1, fp);

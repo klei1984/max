@@ -597,23 +597,11 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
             if (volumes[resource_id - GEN_IDLE].flags == -1) {
                 volumes[volume_index].flags = 1;
 
-                char* const filename =
-                    reinterpret_cast<char*>(ResourceManager_ReadResource(static_cast<ResourceID>(resource_id)));
+                auto fp{ResourceManager_OpenFileResource(static_cast<ResourceID>(resource_id), ResourceType_Sfx)};
 
-                if (filename) {
-                    FILE* fp;
-
-                    ResourceManager_ToUpperCase(filename);
-                    const auto filepath =
-                        (std::filesystem::path(ResourceManager_FilePathSfx) / filename).lexically_normal();
-                    delete[] filename;
-
-                    fp = fopen(filepath.string().c_str(), "rb");
-
-                    if (fp) {
-                        volumes[volume_index].flags = 0;
-                        fclose(fp);
-                    }
+                if (fp) {
+                    volumes[volume_index].flags = 0;
+                    fclose(fp);
                 }
             }
 
@@ -1063,58 +1051,46 @@ bool SoundManager::PlayMusic(const ResourceID id) noexcept {
 
 int32_t SoundManager::LoadSound(SoundJob& job, SoundSample& sample) noexcept {
     int32_t result;
-
-    char* const filename = reinterpret_cast<char*>(ResourceManager_ReadResource(job.id));
+    ma_sound_group* group;
+    ma_uint32 flags;
+    ResourceType type;
+    std::filesystem::path filepath;
 
     MA_ZERO_OBJECT(&sample.sound);
 
-    if (filename) {
-        std::filesystem::path root_path;
-        ma_sound_group* group;
-        ma_uint32 flags;
+    if (JOB_TYPE_MUSIC == job.type) {
+        type = ResourceType_Music;
+        group = music_group->GetGroup();
+        flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_STREAM;
 
-        ResourceManager_ToUpperCase(filename);
+    } else if (JOB_TYPE_VOICE == job.type) {
+        type = ResourceType_Voice;
+        group = voice_group->GetGroup();
+        flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
 
-        if (JOB_TYPE_MUSIC == job.type) {
-            root_path = ResourceManager_FilePathMusic;
-            group = music_group->GetGroup();
-            flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_STREAM;
+    } else {
+        type = ResourceType_Sfx;
+        group = sfx_group->GetGroup();
+        flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
+    }
 
-        } else if (JOB_TYPE_VOICE == job.type) {
-            root_path = ResourceManager_FilePathVoice;
-            group = voice_group->GetGroup();
-            flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
+    auto fp{ResourceManager_OpenFileResource(job.id, type, "rb", &filepath)};
 
-        } else {
-            root_path = ResourceManager_FilePathSfx;
-            group = sfx_group->GetGroup();
-            flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
-        }
+    if (fp) {
+        LoadLoopPoints(fp, sample);
+        fclose(fp);
 
-        const auto filepath = (root_path / filename).lexically_normal();
-        delete[] filename;
-
-        FILE* fp = fopen(filepath.string().c_str(), "rb");
-
-        if (fp) {
-            LoadLoopPoints(fp, sample);
-            fclose(fp);
-
-            if (ma_sound_init_from_file(engine, filepath.string().c_str(), flags, group, nullptr, &sample.sound) ==
-                MA_SUCCESS) {
-                sample.initialized = true;
-                result = 0;
-
-            } else {
-                result = 4;
-            }
+        if (ma_sound_init_from_file(engine, filepath.string().c_str(), flags, group, nullptr, &sample.sound) ==
+            MA_SUCCESS) {
+            sample.initialized = true;
+            result = 0;
 
         } else {
             result = 4;
         }
 
     } else {
-        result = 6;
+        result = 4;
     }
 
     return result;

@@ -67,7 +67,6 @@ struct ImageMultiHeader {
 extern std::filesystem::path ResourceManager_FilePathGameData;
 extern std::filesystem::path ResourceManager_FilePathGameBase;
 extern std::filesystem::path ResourceManager_FilePathGamePref;
-extern std::filesystem::path ResourceManager_FilePathResource;
 extern std::filesystem::path ResourceManager_FilePathMovie;
 extern std::filesystem::path ResourceManager_FilePathText;
 extern std::filesystem::path ResourceManager_FilePathFlic;
@@ -115,9 +114,15 @@ int32_t ResourceManager_GetResourceFileID(ResourceID id);
 const char *ResourceManager_GetResourceID(ResourceID id);
 void ResourceManager_Realloc(ResourceID id, uint8_t *buffer, int32_t data_size);
 FILE *ResourceManager_GetFileHandle(ResourceID id);
+FILE *ResourceManager_OpenFileResource(const char *const cstr, const ResourceType type, const char *const mode = "rb",
+                                       std::filesystem::path *path = nullptr);
+FILE *ResourceManager_OpenFileResource(const ResourceID id, const ResourceType type, const char *const mode = "rb",
+                                       std::filesystem::path *path = nullptr);
 void ResourceManager_InitInGameAssets(int32_t world);
 const char *ResourceManager_ToUpperCase(char *cstr);
 const char *ResourceManager_ToUpperCase(std::string &string);
+const char *ResourceManager_ToLowerCase(char *cstr);
+const char *ResourceManager_ToLowerCase(std::string &string);
 void ResourceManager_FreeResources();
 void ResourceManager_InitClanUnitValues(uint16_t team);
 void ResourceManager_InitHeatMaps(uint16_t team);

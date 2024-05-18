@@ -38,7 +38,7 @@ static void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int
                                 int32_t h, int32_t dstx, int32_t dsty);
 static void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count);
 static void movie_init_palette(void);
-static int32_t movie_run(ResourceID resource_id, int32_t mode);
+static int32_t movie_run(ResourceID resource_id);
 
 static uint32_t movie_music_level;
 
@@ -122,115 +122,94 @@ static void movie_init_palette(void) {
     Svga_SetPaletteColor(PALETTE_SIZE - 1, &color);
 }
 
-int32_t movie_run(ResourceID resource_id, int32_t mode) {
-    FILE* fp;
+int32_t movie_run(ResourceID resource_id) {
     int32_t result;
-    const char* file_name;
     uint8_t* palette;
 
     SoundManager_FreeMusic();
 
     WindowManager_ClearWindow();
 
-    file_name = reinterpret_cast<char*>(ResourceManager_ReadResource(resource_id));
-    if (file_name) {
-        SmartString filename(file_name);
-        std::filesystem::path filepath;
-        std::error_code ec;
+    auto fp{ResourceManager_OpenFileResource(resource_id, ResourceType_Movie)};
 
-        delete[] file_name;
+    if (fp) {
+        palette = Color_GetSystemPalette();
+        Cursor_SetCursor(CURSOR_HIDDEN);
+        mouse_show();
 
-        if (mode) {
-            filepath = ResourceManager_FilePathMovie;
+        MVE_memCallbacks(mve_cb_alloc, mve_cb_free);
+        MVE_ioCallbacks(mve_cb_read);
+        MVE_rmCallbacks(mve_cb_ctl);
+        MVE_sfCallbacks(movie_cb_show_frame);
+
+        movie_init_palette();
+        MVE_palCallbacks(movie_cb_set_palette);
+
+        movie_music_level = (32767 * ini_get_setting(INI_MUSIC_LEVEL)) / 100;
+
+        if (ini_get_setting(INI_DISABLE_MUSIC)) {
+            movie_music_level = 0;
         }
 
-        filepath.append(filename.Toupper().GetCStr());
+        MVE_sndVolume(movie_music_level);
 
-        fp = fopen(filepath.string().c_str(), "rb");
+        if (ini_get_setting(INI_MOVIE_PLAY)) {
+            MVE_rmFastMode(1);
+        }
 
-        if (fp) {
-            palette = Color_GetSystemPalette();
-            Cursor_SetCursor(CURSOR_HIDDEN);
-            mouse_show();
+        const int32_t gfx_buf_size = Svga_GetScreenWidth() * Svga_GetScreenHeight();
 
-            MVE_memCallbacks(mve_cb_alloc, mve_cb_free);
-            MVE_ioCallbacks(mve_cb_read);
-            MVE_rmCallbacks(mve_cb_ctl);
-            MVE_sfCallbacks(movie_cb_show_frame);
+        gfx_buf = (uint8_t*)malloc(Svga_GetScreenWidth() * Svga_GetScreenHeight());
 
-            movie_init_palette();
-            MVE_palCallbacks(movie_cb_set_palette);
+        memset(gfx_buf, 0, gfx_buf_size);
 
-            movie_music_level = (32767 * ini_get_setting(INI_MUSIC_LEVEL)) / 100;
+        MVE_sfSVGA(Svga_GetScreenWidth(), Svga_GetScreenHeight(), Svga_GetScreenWidth(), 0, nullptr, 0, 0, nullptr, 0);
 
-            if (ini_get_setting(INI_DISABLE_MUSIC)) {
-                movie_music_level = 0;
-            }
+        if (!MVE_rmPrepMovie(fp, -1, -1, 0)) {
+            int32_t aborted = 0;
+            int32_t frame_index = 0;
 
-            MVE_sndVolume(movie_music_level);
-
-            if (ini_get_setting(INI_MOVIE_PLAY)) {
-                MVE_rmFastMode(1);
-            }
-
-            const int32_t gfx_buf_size = Svga_GetScreenWidth() * Svga_GetScreenHeight();
-
-            gfx_buf = (uint8_t*)malloc(Svga_GetScreenWidth() * Svga_GetScreenHeight());
-
-            memset(gfx_buf, 0, gfx_buf_size);
-
-            MVE_sfSVGA(Svga_GetScreenWidth(), Svga_GetScreenHeight(), Svga_GetScreenWidth(), 0, nullptr, 0, 0, nullptr,
-                       0);
-
-            if (!MVE_rmPrepMovie(fp, -1, -1, 0)) {
-                int32_t aborted = 0;
-                int32_t frame_index = 0;
-
-                for (; (result = MVE_rmStepMovie()) == 0 && !aborted;) {
-                    if (mve_cb_ctl()) {
-                        aborted = 1;
-                        result = 1;
-                    }
-
-                    ++frame_index;
+            for (; (result = MVE_rmStepMovie()) == 0 && !aborted;) {
+                if (mve_cb_ctl()) {
+                    aborted = 1;
+                    result = 1;
                 }
 
-                MVE_rmEndMovie();
+                ++frame_index;
             }
 
-            free(gfx_buf);
-            gfx_buf = NULL;
-
-            MVE_ReleaseMem();
-
-            Color_SetColorPalette(palette);
-            fclose(fp);
-
-            result = 0;
-
-        } else {
-            result = 1;
+            MVE_rmEndMovie();
         }
 
-        if (!result || result == 3) {
-            win_reinit(Svga_Init);
-            WindowManager_ClearWindow();
+        free(gfx_buf);
+        gfx_buf = NULL;
 
-            result = 0;
-        }
+        MVE_ReleaseMem();
+
+        Color_SetColorPalette(palette);
+        fclose(fp);
+
+        result = 0;
 
     } else {
+        result = 1;
+    }
+
+    if (!result || result == 3) {
+        win_reinit(Svga_Init);
+        WindowManager_ClearWindow();
+
         result = 0;
     }
 
     return result;
 }
 
-int32_t Movie_PlayOemLogo(void) { return movie_run(LOGOFLIC, 0); }
+int32_t Movie_PlayOemLogo(void) { return movie_run(LOGOFLIC); }
 
-int32_t Movie_PlayIntro(void) { return movie_run(INTROFLC, 1); }
+int32_t Movie_PlayIntro(void) { return movie_run(INTROFLC); }
 
 int32_t Movie_Play(ResourceID resource_id) {
     WindowManager_ClearWindow();
-    return movie_run(resource_id, 0);
+    return movie_run(resource_id);
 }

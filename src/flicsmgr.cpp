@@ -104,7 +104,7 @@ static void flicsmgr_decode_frame(FlicFrame *frame, Flic *flc);
 static char Flicsmgr_load_frame(FILE *file, FlicFrame *frame);
 static char flicsmgr_fill_frame_buffer(Flic *flc);
 static char flicsmgr_read(Flic *flc);
-static char flicsmgr_load(char *flic_file, Flic *flc);
+static char flicsmgr_load(ResourceID id, Flic *flc);
 
 void flicsmgr_decode_delta_flc(uint8_t *buffer, Flic *flc) {
     int16_t opt_word;
@@ -394,18 +394,8 @@ char flicsmgr_read(Flic *flc) {
     return result;
 }
 
-char flicsmgr_load(char *flic_file, Flic *flc) {
-    if (!flic_file) {
-        return 0;
-    }
-
-    ResourceManager_ToUpperCase(flic_file);
-
-    auto filepath = ResourceManager_FilePathFlic / flic_file;
-
-    delete[] flic_file;
-
-    flc->fp = fopen(filepath.lexically_normal().string().c_str(), "rb");
+char flicsmgr_load(ResourceID id, Flic *flc) {
+    flc->fp = ResourceManager_OpenFileResource(id, ResourceType_Flic);
 
     if (!flc->fp) {
         return 0;
@@ -440,7 +430,7 @@ Flic *flicsmgr_construct(ResourceID id, WindowInfo *w, int32_t width, int32_t ul
         flc->frames[i].buffer = nullptr;
     }
 
-    if (flicsmgr_load(reinterpret_cast<char *>(ResourceManager_ReadResource(id)), flc)) {
+    if (flicsmgr_load(id, flc)) {
         if (!flc->animate) {
             free(flc);
             flc = nullptr;

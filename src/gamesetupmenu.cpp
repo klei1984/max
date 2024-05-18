@@ -332,8 +332,6 @@ void GameSetupMenu::DrawMissionList() {
 void GameSetupMenu::LoadMissionDescription() {
     SmartString string;
     SmartString filename;
-    std::filesystem::path filepath;
-    FILE* fp;
     int32_t width;
     int32_t height;
 
@@ -350,19 +348,24 @@ void GameSetupMenu::LoadMissionDescription() {
         }
     }
 
-    filename.Sprintf(20, "descr%i.%s", game_file_number, SaveLoadMenu_SaveFileTypes[game_file_type]).Toupper();
-    filepath = (ResourceManager_FilePathText / filename.GetCStr()).lexically_normal();
+    filename.Sprintf(20, "descr%i.%s", game_file_number, SaveLoadMenu_SaveFileTypes[game_file_type]);
 
-    fp = fopen(filepath.string().c_str(), "rt");
+    auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_Text)};
 
     if (fp) {
-        char character;
+        fseek(fp, 0, SEEK_END);
+        int32_t text_size = ftell(fp);
 
-        while ((character = fgetc(fp)), character != EOF) {
-            string += character;
-        }
+        auto text = std::make_unique<char[]>(text_size + 1);
+
+        text.get()[text_size] = '\0';
+
+        fseek(fp, 0, SEEK_SET);
+        fread(text.get(), sizeof(char), text_size, fp);
 
         fclose(fp);
+
+        string = text.get();
     }
 
     Text_SetFont(GNW_TEXT_FONT_5);

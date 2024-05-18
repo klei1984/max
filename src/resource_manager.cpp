@@ -336,7 +336,6 @@ const char *const ResourceManager_ResourceIdList[RESOURCE_E] = {
 std::filesystem::path ResourceManager_FilePathGameData;
 std::filesystem::path ResourceManager_FilePathGameBase;
 std::filesystem::path ResourceManager_FilePathGamePref;
-std::filesystem::path ResourceManager_FilePathResource;
 std::filesystem::path ResourceManager_FilePathMovie;
 std::filesystem::path ResourceManager_FilePathText;
 std::filesystem::path ResourceManager_FilePathFlic;
@@ -363,13 +362,57 @@ static void ResourceManager_InitInternals();
 static int32_t ResourceManager_InitResManager();
 static void ResourceManager_TestMouse();
 static bool ResourceManager_GetGameDataPath(std::filesystem::path &path);
-static int32_t ResourceManager_BuildResourceTable(const char *file_path);
+static int32_t ResourceManager_BuildResourceTable(const char *const cstr, const ResourceType type);
 static int32_t ResourceManager_BuildColorTables();
 static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
 static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values);
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
 static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority,
                                              const char *message);
+
+static inline std::filesystem::path &ResourceManager_GetResourcePath(ResourceType type) {
+    auto &path{ResourceManager_FilePathGameData};
+
+    switch (type) {
+        case ResourceType_GameBase: {
+            path = ResourceManager_FilePathGameBase;
+        } break;
+
+        case ResourceType_GamePref: {
+            path = ResourceManager_FilePathGamePref;
+        } break;
+
+        case ResourceType_GameData: {
+            path = ResourceManager_FilePathGameData;
+        } break;
+
+        case ResourceType_Voice: {
+            path = ResourceManager_FilePathVoice;
+        } break;
+
+        case ResourceType_Movie: {
+            path = ResourceManager_FilePathMovie;
+        } break;
+
+        case ResourceType_Text: {
+            path = ResourceManager_FilePathText;
+        } break;
+
+        case ResourceType_Flic: {
+            path = ResourceManager_FilePathFlic;
+        } break;
+
+        case ResourceType_Sfx: {
+            path = ResourceManager_FilePathSfx;
+        } break;
+
+        case ResourceType_Music: {
+            path = ResourceManager_FilePathMusic;
+        } break;
+    }
+
+    return path;
+}
 
 bool ResourceManager_GetBasePath(std::filesystem::path &path) {
     bool result;
@@ -671,7 +714,6 @@ void ResourceManager_ExitGame(int32_t error_code) {
 
 int32_t ResourceManager_InitResManager() {
     int32_t result;
-    std::error_code ec;
 
     ResourceManager_ResMetaTable = new (std::nothrow) GameResourceMeta[RESOURCE_E];
 
@@ -683,18 +725,14 @@ int32_t ResourceManager_InitResManager() {
 
         ResourceManager_ResItemCount = 0;
 
-        auto filepath = ResourceManager_FilePathGameBase / "PATCHES.RES";
+        result = ResourceManager_BuildResourceTable("PATCHES.RES", ResourceType_GameBase);
 
-        if (!std::filesystem::exists(filepath, ec) || ec) {
-            filepath = ResourceManager_FilePathGameData / "PATCHES.RES";
+        if (result == EXIT_CODE_RES_FILE_NOT_FOUND) {
+            result = ResourceManager_BuildResourceTable("PATCHES.RES", ResourceType_GameData);
         }
 
-        result = ResourceManager_BuildResourceTable(filepath.string().c_str());
-
         if (result == EXIT_CODE_NO_ERROR || result == EXIT_CODE_RES_FILE_NOT_FOUND) {
-            filepath = ResourceManager_FilePathGameData / "MAX.RES";
-
-            result = ResourceManager_BuildResourceTable(filepath.string().c_str());
+            result = ResourceManager_BuildResourceTable("MAX.RES", ResourceType_GameData);
 
             if (result == EXIT_CODE_NO_ERROR) {
                 ResourceManager_MinimapFov = new (std::nothrow) uint8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
@@ -860,6 +898,49 @@ FILE *ResourceManager_GetFileHandle(ResourceID id) {
     return fp;
 }
 
+FILE *ResourceManager_OpenFileResource(const char *const cstr, const ResourceType type, const char *const mode,
+                                       std::filesystem::path *path) {
+    auto buffer = std::make_unique<char[]>(strlen(cstr) + 1);
+    FILE *handle{nullptr};
+
+    strcpy(buffer.get(), cstr);
+
+    ResourceManager_ToLowerCase(buffer.get());
+
+    auto pathprefix = ResourceManager_GetResourcePath(type);
+    auto filepath = pathprefix / buffer.get();
+
+    handle = fopen(filepath.lexically_normal().string().c_str(), mode);
+
+    if (!handle) {
+        ResourceManager_ToUpperCase(buffer.get());
+
+        filepath = pathprefix / buffer.get();
+
+        handle = fopen(filepath.lexically_normal().string().c_str(), mode);
+    }
+
+    if (handle && path) {
+        *path = filepath.lexically_normal();
+    }
+
+    return handle;
+}
+
+FILE *ResourceManager_OpenFileResource(const ResourceID id, const ResourceType type, const char *const mode,
+                                       std::filesystem::path *path) {
+    char *resource{reinterpret_cast<char *>(ResourceManager_ReadResource(id))};
+    FILE *handle{nullptr};
+
+    if (resource) {
+        handle = ResourceManager_OpenFileResource(resource, type, mode, path);
+
+        delete[] resource;
+    }
+
+    return handle;
+}
+
 ResourceID ResourceManager_GetResourceID(int32_t index) {
     char buffer[9];
 
@@ -997,12 +1078,13 @@ int32_t ResourceManager_BuildColorTables() {
     return result;
 }
 
-int32_t ResourceManager_BuildResourceTable(const char *file_path) {
+int32_t ResourceManager_BuildResourceTable(const char *const cstr, const ResourceType type) {
     int32_t result;
     FILE *fp;
     struct res_header header;
 
-    fp = fopen(file_path, "rb");
+    fp = ResourceManager_OpenFileResource(cstr, type);
+
     res_file_handle_array[ResourceManager_ResFileCount] = fp;
 
     if (fp) {
@@ -1066,10 +1148,22 @@ const char *ResourceManager_ToUpperCase(std::string &string) {
     return string.c_str();
 }
 
+const char *ResourceManager_ToLowerCase(char *cstr) {
+    for (char *cstring = cstr; *cstring; ++cstring) {
+        *cstring = tolower(*cstring);
+    }
+
+    return cstr;
+}
+
+const char *ResourceManager_ToLowerCase(std::string &string) {
+    for (auto &c : string) c = tolower(c);
+
+    return string.c_str();
+}
+
 void ResourceManager_InitInGameAssets(int32_t world) {
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-    uint8_t *world_file_name;
-    FILE *fp;
     int32_t progress_bar_value;
     uint16_t map_layer_count = 0;
     Point map_layer_dimensions[12];
@@ -1114,18 +1208,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
     world = SNOW_1 + world;
 
-    world_file_name = ResourceManager_ReadResource(static_cast<ResourceID>(world));
-
-    if (!world_file_name) {
-        ResourceManager_ExitGame(EXIT_CODE_RES_FILE_NOT_FOUND);
-    }
-
-    ResourceManager_ToUpperCase(reinterpret_cast<char *>(world_file_name));
-
-    auto filepath = (ResourceManager_FilePathGameData / reinterpret_cast<char *>(world_file_name)).lexically_normal();
-
-    fp = fopen(filepath.string().c_str(), "rb");
-    delete[] world_file_name;
+    auto fp{ResourceManager_OpenFileResource(static_cast<ResourceID>(world), ResourceType_GameData)};
 
     if (!fp) {
         ResourceManager_ExitGame(EXIT_CODE_WRL_FILE_OPEN_ERROR);

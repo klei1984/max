@@ -3986,22 +3986,17 @@ void GameManager_MenuClickChatGoalButton() {
     } else if (GameManager_GameFileNumber) {
         int32_t game_file_type;
         SmartString filename;
-        std::filesystem::path filepath;
-        FILE* fp;
 
         game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
 
-        filename.Sprintf(20, "descr%i.%s", GameManager_GameFileNumber, SaveLoadMenu_SaveFileTypes[game_file_type])
-            .Toupper();
-        filepath = (ResourceManager_FilePathText / filename.GetCStr()).lexically_normal();
+        filename.Sprintf(20, "descr%i.%s", GameManager_GameFileNumber, SaveLoadMenu_SaveFileTypes[game_file_type]);
 
-        fp = fopen(filepath.string().c_str(), "rt");
+        auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_Text)};
 
         if (fp) {
             int32_t text_size;
             const char* mission_title;
             int32_t mission_title_size;
-            char* text;
 
             fseek(fp, 0, SEEK_END);
             text_size = ftell(fp);
@@ -4018,20 +4013,18 @@ void GameManager_MenuClickChatGoalButton() {
 
             mission_title_size = strlen(mission_title) + 2;
 
-            text = new (std::nothrow) char[text_size + mission_title_size + 5];
+            auto text = std::make_unique<char[]>(text_size + mission_title_size + 5);
 
-            memset(text, '\0', text_size + mission_title_size + 5);
+            memset(text.get(), '\0', text_size + mission_title_size + 5);
 
-            strcpy(text, mission_title);
-            strcat(text, "\n\n");
+            strcpy(text.get(), mission_title);
+            strcat(text.get(), "\n\n");
 
             fseek(fp, 0, SEEK_SET);
-            fread(&text[mission_title_size], sizeof(char), text_size, fp);
+            fread(&text.get()[mission_title_size], sizeof(char), text_size, fp);
             fclose(fp);
 
-            MessageManager_DrawMessage(text, 0, 1);
-
-            delete[] text;
+            MessageManager_DrawMessage(text.get(), 0, 1);
         }
     }
 }
