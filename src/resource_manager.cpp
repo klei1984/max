@@ -370,8 +370,8 @@ static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_Assert
 static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority,
                                              const char *message);
 
-static inline std::filesystem::path &ResourceManager_GetResourcePath(ResourceType type) {
-    auto &path{ResourceManager_FilePathGameData};
+static inline std::filesystem::path ResourceManager_GetResourcePath(ResourceType type) {
+    auto path{ResourceManager_FilePathGameData};
 
     switch (type) {
         case ResourceType_GameBase: {
