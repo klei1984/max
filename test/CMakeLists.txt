@@ -1,11 +1,11 @@
 include(versions)
 include(FetchContent)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${GTEST_FILE})
-	file(${GTEST_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${GTEST_FILE} GTEST_FILE_HASH)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/${GTEST_FILE})
+	file(${GTEST_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/${GTEST_FILE} GTEST_FILE_HASH)
 
 	if(${GTEST_FILE_HASH} STREQUAL ${GTEST_HASH})
-		set(GTEST_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${GTEST_FILE})
+		set(GTEST_URI file://${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/${GTEST_FILE})
 	endif()
 endif()
 
