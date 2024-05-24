@@ -140,20 +140,23 @@ if(UNIX)
 	)
 
 	configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.in" "${CMAKE_BINARY_DIR}/max-port" @ONLY)
+	configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.desktop.in" "${CMAKE_BINARY_DIR}/max-port.desktop" @ONLY)
 
-	install(FILES "${CMAKE_BINARY_DIR}/max-port"
-		DESTINATION "/usr/games"
-	)
+	if(MAXPORT_FLATPAK_BUILD)
+		configure_file("${CMAKE_SOURCE_DIR}/flatpak/metainfo.xml.in" "${CMAKE_BINARY_DIR}/metainfo.xml" @ONLY)
+	else()
+		install(FILES "${CMAKE_BINARY_DIR}/max-port"
+			DESTINATION "/usr/games"
+		)
 
-		configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.desktop.in" "${CMAKE_BINARY_DIR}/max-port.desktop" @ONLY)
+		install(FILES "${CMAKE_BINARY_DIR}/max-port.desktop"
+			DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
+		)
 
-	install(FILES "${CMAKE_BINARY_DIR}/max-port.desktop"
-		DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
-	)
-
-	install(FILES "${CMAKE_SOURCE_DIR}/assets/max.png"
-		DESTINATION "${GAME_INSTALL_PATH}"
-	)
+		install(FILES "${CMAKE_SOURCE_DIR}/assets/max.png"
+			DESTINATION "${GAME_INSTALL_PATH}"
+		)
+	endif()
 endif()
 
 if(MINGW)

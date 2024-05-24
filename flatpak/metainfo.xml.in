@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>@FLATPAK_ID@</id>
+  
+  <name>M.A.X. Port</name>
+  <summary>conquer and plunder-type turn-based sci-fi strategy game</summary>
+  
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  
+  <description>
+    <p>
+      M.A.X. Port is an SDL library based runtime executable for the 1996 DOS game M.A.X.: Mechanized Assault &amp; Exploration developed and published by Interplay Productions.
+    </p>
+    <p>
+      Original game files are needed to play this game.
+    </p>
+  </description>
+  <releases>
+    <release version="@CPACK_PACKAGE_VERSION@" date="@GAME_BUILD_DATE@" />
+  </releases>
+  <launchable type="desktop-id">@FLATPAK_ID@.desktop</launchable>
+</component>

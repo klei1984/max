@@ -118,7 +118,9 @@ else
   esac
 
   # Use portable mode?
-  if [ "$maxport_prefs_dir" = "." ] || [ "$maxport_prefs_dir" = "" ]; then
+  if [ "$FLATPAK_ID" = "io.github.max-port" ]; then
+    maxport_prefs_dir="$XDG_DATA_HOME/max-port"
+  elif [ "$maxport_prefs_dir" = "." ] || [ "$maxport_prefs_dir" = "" ]; then
     if whiptail --title "$maxport_caption_config_title" --yesno "$maxport_caption_is_portable" \
       --yes-button="$maxport_caption_yes" --no-button="$maxport_caption_no" 10 78 3>&1 1>&2 2>&3
     then
@@ -131,7 +133,11 @@ else
   fi
 
   # Find original game data
-  maxport_game_data_dir="/media/user/cdrom"
+  if [ "$FLATPAK_ID" = "io.github.max-port" ]; then
+    maxport_game_data_dir="$XDG_DATA_HOME/max-port/MAX"
+  else
+    maxport_game_data_dir="/media/user/cdrom"
+  fi
 
   while true
   do

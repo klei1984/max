@@ -1,5 +1,8 @@
 find_package(Git)
 
+string(TIMESTAMP GAME_BUILD_DATE "%Y-%m-%d")
+string(TIMESTAMP GAME_BUILD_TIME "%H:%M:%S")
+
 if(Git_FOUND)
 	execute_process(
 		COMMAND ${GIT_EXECUTABLE} describe --always --tags
@@ -30,8 +33,7 @@ if(Git_FOUND)
 			if(CMAKE_MATCH_COUNT EQUAL 1)
 				set(GAME_VERSION_REVISION ${CMAKE_MATCH_1})
 			else()
-				string(TIMESTAMP DATE_TIME "%Y-%m-%d %H:%M:%S")
-				set(GAME_VERSION_REVISION "${DATE_TIME}")
+				set(GAME_VERSION_REVISION "${GAME_BUILD_DATE} ${DATE_TIME}")
 			endif()
 
 			set(GAME_VERSION_MAJOR "0")

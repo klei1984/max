@@ -1,0 +1,61 @@
+---
+app-id: io.github.max-port
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+command: max-port
+finish-args:
+- --device=all
+- --share=network
+- --socket=x11
+- --socket=wayland
+- --socket=pulseaudio
+- --filesystem=xdg-data
+modules:
+- name: libpopt-dev
+  sources:
+  - type: archive
+    url: http://deb.debian.org/debian/pool/main/p/popt/popt_1.16.orig.tar.gz
+    sha256: e728ed296fe9f069a0e005003c3d6b2dde3d9cad453422a10d6558616d304cc8
+- name: libnewt-dev
+  sources:
+  - type: archive
+    url: http://deb.debian.org/debian/pool/main/n/newt/newt_0.52.21.orig.tar.xz
+    sha256: 1099418091a7f66b7164c9d2960e233619af5a299d6fdd91a4f58534a9773d13
+- name: libonig
+  sources:
+  - type: archive
+    url: http://deb.debian.org/debian/pool/main/libo/libonig/libonig_6.9.6.orig.tar.gz
+    sha256: aec9f6902ad8b7bb53b2c55d04686ea75da89a06694836b0362cb206578dfe89
+- name: libslang2
+  sources:
+  - type: archive
+    url: http://deb.debian.org/debian/pool/main/s/slang2/slang2_2.3.3.orig.tar.xz
+    sha256: d86128b264933ad88c295b3a58127c2f29c8cb68334dd2e6a310b0a36436c64f
+- name: whiptail
+  sources:
+  - type: archive
+    url: http://deb.debian.org/debian/pool/main/n/newt/newt_0.52.23.orig.tar.xz
+    sha256: 5eff268e0ba857863547f00495cb8823cdde165099009cc7a16ecbcb413535cc
+- name: max-port
+  buildsystem: cmake-ninja
+  builddir: true
+  build-options:
+    strip: true
+    config-opts:
+    - -DCMAKE_BUILD_TYPE=Release
+    - -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-linux-x86_64.cmake
+    - -DBUILD_SHARED_LIBS=ON
+    - -DMAXPORT_FLATPAK_BUILD=TRUE
+    - -DFLATPAK_ID=io.github.max-port
+  sources:
+  - type: dir
+    path: ..
+  post-install:
+    - cp -a /app/lib/max-port/*.* /app/lib
+    - install -Dm755 max-port ${FLATPAK_DEST}/bin/max-port
+    - install -Dm644 max-port.desktop ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
+    - install -Dm644 ${FLATPAK_BUILDER_BUILDDIR}/assets/max.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.png
+    - desktop-file-edit --set-key="Icon" --set-value="${FLATPAK_ID}" ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
+    - desktop-file-edit --set-key="Exec" --set-value="max-port" ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
+    - install -Dm644 metainfo.xml ${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml
