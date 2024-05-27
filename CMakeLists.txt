@@ -108,7 +108,7 @@ if(UNIX)
 	install(CODE "set(DEP_BIN_DIRS \"${DEP_BIN_DIRS}\")")
 	install(CODE [[
 		file(GET_RUNTIME_DEPENDENCIES
-			EXECUTABLES max
+			EXECUTABLES $<TARGET_FILE:max>
 			RESOLVED_DEPENDENCIES_VAR DEPS_RESOLVED
 			UNRESOLVED_DEPENDENCIES_VAR DEPS_UNRESOLVED
 			CONFLICTING_DEPENDENCIES_PREFIX DEPS_CONFLICTING
@@ -145,9 +145,15 @@ if(UNIX)
 	if(MAXPORT_FLATPAK_BUILD)
 		configure_file("${CMAKE_SOURCE_DIR}/flatpak/metainfo.xml.in" "${CMAKE_BINARY_DIR}/metainfo.xml" @ONLY)
 	else()
-		install(FILES "${CMAKE_BINARY_DIR}/max-port"
-			DESTINATION "/usr/games"
-		)
+		if(MAXPORT_PKGMAKE_BUILD)
+			install(FILES "${CMAKE_BINARY_DIR}/max-port"
+				DESTINATION "/usr/bin"
+			)
+		else()
+			install(FILES "${CMAKE_BINARY_DIR}/max-port"
+				DESTINATION "/usr/games"
+			)
+		endif()
 
 		install(FILES "${CMAKE_BINARY_DIR}/max-port.desktop"
 			DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
