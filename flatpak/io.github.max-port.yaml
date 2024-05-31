@@ -52,7 +52,6 @@ modules:
   - type: dir
     path: ..
   post-install:
-    - cp -a /app/lib/max-port/*.* /app/lib
     - install -Dm755 max-port ${FLATPAK_DEST}/bin/max-port
     - install -Dm644 max-port.desktop ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
     - install -Dm644 ${FLATPAK_BUILDER_BUILDDIR}/assets/max.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.png
