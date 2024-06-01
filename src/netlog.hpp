@@ -73,10 +73,6 @@ public:
     inline void Log(NetPacket& packet) noexcept { ProcessLog(packet); }
 };
 
-inline void NetLog_Enable() noexcept {
-    if (!AiLog_IsOpen()) {
-        AiLog_Open();
-    }
-}
+inline void NetLog_Enable() noexcept { AiLog_Open(); }
 
 #endif /* NETLOG_HPP */

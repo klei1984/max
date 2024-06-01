@@ -24,18 +24,20 @@
 
 #include <cstdint>
 #include <fstream>
+#include <mutex>
 
 class AiLog {
     static std::ofstream AiLog_File;
+    static std::mutex AiLog_Mutex;
     static int32_t AiLog_SectionCount;
     static int32_t AiLog_EntryCount;
 
     uint32_t time_stamp;
 
     void VSprintf(const char *format, va_list args);
+    void NoLockLog(const char *format, ...);
 
     friend void AiLog_Open();
-    friend bool AiLog_IsOpen() noexcept;
     friend void AiLog_Close();
 
 public:
@@ -47,7 +49,6 @@ public:
 };
 
 void AiLog_Open();
-[[nodiscard]] bool AiLog_IsOpen() noexcept;
 void AiLog_Close();
 
 #endif /* AILOG_HPP */

@@ -28,10 +28,13 @@
 #define AILOG_FILE_LIMIT UINT16_MAX
 
 std::ofstream AiLog::AiLog_File;
+std::mutex AiLog::AiLog_Mutex;
 int32_t AiLog::AiLog_SectionCount;
 int32_t AiLog::AiLog_EntryCount;
 
 AiLog::AiLog(const char* format, ...) {
+    AiLog_Mutex.lock();
+
     if (AiLog_File.is_open()) {
         time_stamp = timer_get();
 
@@ -43,26 +46,35 @@ AiLog::AiLog(const char* format, ...) {
     }
 
     ++AiLog_SectionCount;
+
+    AiLog_Mutex.unlock();
 }
 
 AiLog::~AiLog() {
+    AiLog_Mutex.lock();
+
     --AiLog_SectionCount;
 
     if (AiLog_File.is_open()) {
-        uint32_t elapsed_time = timer_elapsed_time(time_stamp);
+        auto elapsed_time{timer_elapsed_time(time_stamp)};
 
         if (elapsed_time >= TIMER_FPS_TO_MS(50)) {
-            Log("log section complete, %li msecs elapsed", elapsed_time);
+            NoLockLog("log section complete, %li msecs elapsed", elapsed_time);
 
         } else {
-            Log("log section complete");
+            NoLockLog("log section complete");
         }
 
         if (AiLog_EntryCount > AILOG_FILE_LIMIT) {
-            AiLog_Close();
-            AiLog_Open();
+            auto filepath{(ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal()};
+
+            AiLog::AiLog_File.close();
+            AiLog::AiLog_File.open(filepath.string().c_str());
+            AiLog::AiLog_EntryCount = 0;
         }
     }
+
+    AiLog_Mutex.unlock();
 }
 
 void AiLog::VSprintf(const char* format, va_list args) {
@@ -79,6 +91,8 @@ void AiLog::VSprintf(const char* format, va_list args) {
 }
 
 void AiLog::Log(const char* format, ...) {
+    AiLog::AiLog_Mutex.lock();
+
     if (AiLog_File.is_open()) {
         va_list args;
 
@@ -86,25 +100,45 @@ void AiLog::Log(const char* format, ...) {
         VSprintf(format, args);
         va_end(args);
     }
+
+    AiLog::AiLog_Mutex.unlock();
+}
+
+void AiLog::NoLockLog(const char* format, ...) {
+    va_list args;
+
+    va_start(args, format);
+    VSprintf(format, args);
+    va_end(args);
 }
 
 void AiLog::VLog(const char* format, va_list args) {
+    AiLog::AiLog_Mutex.lock();
+
     if (AiLog_File.is_open()) {
         VSprintf(format, args);
     }
+
+    AiLog::AiLog_Mutex.unlock();
 }
 
 void AiLog_Open() {
-    if (AiLog_IsOpen()) {
-        AiLog_Close();
+    AiLog::AiLog_Mutex.lock();
+
+    if (!AiLog::AiLog_File.is_open()) {
+        auto filepath{(ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal()};
+
+        AiLog::AiLog_File.open(filepath.string().c_str());
+        AiLog::AiLog_EntryCount = 0;
     }
 
-    auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
-
-    AiLog::AiLog_File.open(filepath.string().c_str());
-    AiLog::AiLog_EntryCount = 0;
+    AiLog::AiLog_Mutex.unlock();
 }
 
-bool AiLog_IsOpen() noexcept { return AiLog::AiLog_File.is_open(); }
+void AiLog_Close() {
+    AiLog::AiLog_Mutex.lock();
 
-void AiLog_Close() { AiLog::AiLog_File.close(); }
+    AiLog::AiLog_File.close();
+
+    AiLog::AiLog_Mutex.unlock();
+}
