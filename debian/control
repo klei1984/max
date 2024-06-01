@@ -1,7 +1,7 @@
 Source: max-port
 Section: contrib/games
 Priority: optional
-Maintainer: M.A.X. Port Team <maxport@gmail.com>
+Maintainer: M.A.X. Port Team <maxport@maxport.org>
 Build-Depends: cmake, ninja-build, wget, gettext, p7zip-full, libsdl2-dev,
  debhelper-compat (= 13)
 Standards-Version: 4.6.2

@@ -1,0 +1,46 @@
+# Copyright: 2024 M.A.X. Port Team
+# License: MIT
+
+# Maintainer: M.A.X. Port Team <maxport@maxport.org>
+pkgname="max-port"
+pkgver=0.6.1
+pkgrel=1
+pkgdesc="conquer and plunder-type turn-based sci-fi strategy game"
+arch=("${CARCH}")
+url="https://github.com/klei1984/max"
+license=("MIT")
+depends=("sh" "libnewt" "glibc" "gcc-libs")
+makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "libx11"
+             "libxcursor" "libxext" "libxrender" "pipewire" "libpulse"
+             "wayland" "wayland-protocols" "desktop-file-utils"
+             "libdecor" "libxss")
+source=("$pkgname::git+https://github.com/klei1984/max.git")
+provides=("$pkgname")
+conflicts=("$pkgname")
+sha256sums=("SKIP")
+
+pkgver() {
+    cd "$pkgname"
+    git describe --long --tags --abbrev=8 --exclude="*[a-zA-Z][a-zA-Z]*" \
+        | sed -E "s/^[^0-9]*//;s/([^-]*-g)/r\1/;s/-/./g"
+}
+
+build() {
+    cd "${srcdir}/${pkgname}"
+        DESTDIR=$pkgdir cmake --no-warn-unused-cli -Wno-dev -G "Ninja" \
+        -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain-linux-${CARCH}.cmake \
+        -DMAXPORT_PKGMAKE_BUILD=TRUE \
+        -DCMAKE_BUILD_TYPE=None \
+        -DBUILD_SHARED_LIBS=ON \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -S . -B build
+    cmake --build build --parallel
+}
+
+package() {
+    cd "${srcdir}/${pkgname}"
+    DESTDIR="$pkgdir" cmake --install build
+    chmod 755 "${pkgdir}/usr/bin/${pkgname}"
+    desktop-file-edit --set-key="Exec" --set-value="max-port" "$pkgdir/usr/share/applications/$pkgname.desktop"
+    install -Dm644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}

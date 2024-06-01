@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: max-port
-Upstream-Contact: M.A.X. Port Team <maxport@gmail.com>
+Upstream-Contact: M.A.X. Port Team <maxport@maxport.org>
 Source: https://klei1984.github.io/max/download/
 
 Files: *

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.24)
+cmake_minimum_required (VERSION 3.24) 
 
 project(max LANGUAGES C CXX)
 
@@ -96,7 +96,7 @@ if(UNIX)
 	include(GNUInstallDirs)
 	set(GAME_INSTALL_PATH "${CMAKE_INSTALL_DATADIR}/max-port")
 
-	if(MAXPORT_FLATPAK_BUILD OR MAXPORT_PKGMAKE_BUILD)
+	if(MAXPORT_FLATPAK_BUILD)
 		set(GAME_INSTALL_LIB_PATH "${CMAKE_INSTALL_LIBDIR}")
 	else()
 		set(GAME_INSTALL_LIB_PATH "${CMAKE_INSTALL_LIBDIR}/max-port")
