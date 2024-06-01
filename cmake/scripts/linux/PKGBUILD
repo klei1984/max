@@ -10,10 +10,7 @@ arch=("${CARCH}")
 url="https://github.com/klei1984/max"
 license=("MIT")
 depends=("sh" "libnewt" "glibc" "gcc-libs")
-makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "libx11"
-             "libxcursor" "libxext" "libxrender" "pipewire" "libpulse"
-             "wayland" "wayland-protocols" "desktop-file-utils"
-             "libdecor" "libxss")
+makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "sdl2" "desktop-file-utils")
 source=("$pkgname::git+https://github.com/klei1984/max.git")
 provides=("$pkgname")
 conflicts=("$pkgname")
