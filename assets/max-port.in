@@ -183,9 +183,7 @@ cp -n "$maxport_game_data_dir/*.bak" "$maxport_prefs_dir" 2>/dev/null || true
 
 # Play the game
 if [ -x "@CMAKE_INSTALL_PREFIX@/@GAME_INSTALL_LIB_PATH@/max" ]; then
-  LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}@CMAKE_INSTALL_PREFIX@/@GAME_INSTALL_LIB_PATH@" 
-  exec "@CMAKE_INSTALL_PREFIX@/@GAME_INSTALL_LIB_PATH@/max"
+  LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}@CMAKE_INSTALL_PREFIX@/@GAME_INSTALL_LIB_PATH@" "@CMAKE_INSTALL_PREFIX@/@GAME_INSTALL_LIB_PATH@/max"
 elif [ -x "$maxport_base_dir/max" ]; then
-  LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$maxport_base_dir"
-  exec "$maxport_base_dir/max"
+  LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$maxport_base_dir" "$maxport_base_dir/max"
 fi
