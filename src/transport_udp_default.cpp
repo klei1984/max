@@ -652,18 +652,26 @@ bool TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddre
 
     if (device.Status == TRANSPORT_IGDSTATUS_OK) {
         SmartString port;
+        char reserved_port[6]{'\0'};
 
         port.Sprintf(10, "%i", host_address.port);
 
         // If lease duration is not 0 (permanent), then the allowed range according to specification is
-        // between 120 (2 minutes) and 86400 seconds (24 hours).
+        // between 120 (2 minutes) and 86400 seconds (24 hours), recommended value is 3600 seconds (1 hour).
 
-        if (UPNP_AddPortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
-                                port.GetCStr(), device.HostAddress.GetCStr(), "M.A.X.", "UDP", nullptr,
-                                "0") != UPNPCOMMAND_SUCCESS) {
-            device.Status = TRANSPORT_IGDSTATUS_ERROR;
+        if (UPNP_AddAnyPortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
+                                   port.GetCStr(), device.HostAddress.GetCStr(), "M.A.X.", "UDP", nullptr, "0",
+                                   reserved_port) == UPNPCOMMAND_SUCCESS) {
+            host_address.port = std::strtol(reserved_port, nullptr, 10);
 
-            result = false;
+        } else {
+            if (UPNP_AddPortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
+                                    port.GetCStr(), device.HostAddress.GetCStr(), "M.A.X.", "UDP", nullptr,
+                                    "0") != UPNPCOMMAND_SUCCESS) {
+                device.Status = TRANSPORT_IGDSTATUS_ERROR;
+
+                result = false;
+            }
         }
     }
 
