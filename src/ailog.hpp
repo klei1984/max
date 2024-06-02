@@ -22,18 +22,20 @@
 #ifndef AILOG_HPP
 #define AILOG_HPP
 
+#include <SDL_mutex.h>
+
 #include <cstdint>
 #include <fstream>
-#include <mutex>
 
 class AiLog {
     static std::ofstream AiLog_File;
-    static std::mutex AiLog_Mutex;
+    static SDL_mutex *AiLog_Mutex;
     static int32_t AiLog_SectionCount;
     static int32_t AiLog_EntryCount;
 
     uint32_t time_stamp;
 
+    static void AiLog_InitMutex();
     void VSprintf(const char *format, va_list args);
     void NoLockLog(const char *format, ...);
 

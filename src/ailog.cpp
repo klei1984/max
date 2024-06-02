@@ -28,12 +28,24 @@
 #define AILOG_FILE_LIMIT UINT16_MAX
 
 std::ofstream AiLog::AiLog_File;
-std::mutex AiLog::AiLog_Mutex;
+SDL_mutex* AiLog::AiLog_Mutex;
 int32_t AiLog::AiLog_SectionCount;
 int32_t AiLog::AiLog_EntryCount;
 
+inline void AiLog::AiLog_InitMutex() {
+    if (!AiLog_Mutex) {
+        AiLog_Mutex = SDL_CreateMutex();
+
+        if (!AiLog_Mutex) {
+            ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
+        }
+    }
+}
+
 AiLog::AiLog(const char* format, ...) {
-    AiLog_Mutex.lock();
+    AiLog_InitMutex();
+
+    SDL_LockMutex(AiLog_Mutex);
 
     if (AiLog_File.is_open()) {
         time_stamp = timer_get();
@@ -47,11 +59,13 @@ AiLog::AiLog(const char* format, ...) {
 
     ++AiLog_SectionCount;
 
-    AiLog_Mutex.unlock();
+    SDL_UnlockMutex(AiLog_Mutex);
 }
 
 AiLog::~AiLog() {
-    AiLog_Mutex.lock();
+    AiLog_InitMutex();
+
+    SDL_LockMutex(AiLog_Mutex);
 
     --AiLog_SectionCount;
 
@@ -74,7 +88,7 @@ AiLog::~AiLog() {
         }
     }
 
-    AiLog_Mutex.unlock();
+    SDL_UnlockMutex(AiLog_Mutex);
 }
 
 void AiLog::VSprintf(const char* format, va_list args) {
@@ -91,7 +105,9 @@ void AiLog::VSprintf(const char* format, va_list args) {
 }
 
 void AiLog::Log(const char* format, ...) {
-    AiLog::AiLog_Mutex.lock();
+    AiLog_InitMutex();
+
+    SDL_LockMutex(AiLog_Mutex);
 
     if (AiLog_File.is_open()) {
         va_list args;
@@ -101,7 +117,7 @@ void AiLog::Log(const char* format, ...) {
         va_end(args);
     }
 
-    AiLog::AiLog_Mutex.unlock();
+    SDL_UnlockMutex(AiLog_Mutex);
 }
 
 void AiLog::NoLockLog(const char* format, ...) {
@@ -113,17 +129,21 @@ void AiLog::NoLockLog(const char* format, ...) {
 }
 
 void AiLog::VLog(const char* format, va_list args) {
-    AiLog::AiLog_Mutex.lock();
+    AiLog_InitMutex();
+
+    SDL_LockMutex(AiLog_Mutex);
 
     if (AiLog_File.is_open()) {
         VSprintf(format, args);
     }
 
-    AiLog::AiLog_Mutex.unlock();
+    SDL_UnlockMutex(AiLog_Mutex);
 }
 
 void AiLog_Open() {
-    AiLog::AiLog_Mutex.lock();
+    AiLog::AiLog_InitMutex();
+
+    SDL_LockMutex(AiLog::AiLog_Mutex);
 
     if (!AiLog::AiLog_File.is_open()) {
         auto filepath{(ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal()};
@@ -132,13 +152,15 @@ void AiLog_Open() {
         AiLog::AiLog_EntryCount = 0;
     }
 
-    AiLog::AiLog_Mutex.unlock();
+    SDL_UnlockMutex(AiLog::AiLog_Mutex);
 }
 
 void AiLog_Close() {
-    AiLog::AiLog_Mutex.lock();
+    AiLog::AiLog_InitMutex();
+
+    SDL_LockMutex(AiLog::AiLog_Mutex);
 
     AiLog::AiLog_File.close();
 
-    AiLog::AiLog_Mutex.unlock();
+    SDL_UnlockMutex(AiLog::AiLog_Mutex);
 }
