@@ -656,8 +656,9 @@ bool TransportUdpDefault_UpnpAddPortMapping(struct UpnpDevice& device, ENetAddre
 
         port.Sprintf(10, "%i", host_address.port);
 
-        // If lease duration is not 0 (permanent), then the allowed range according to specification is
-        // between 120 (2 minutes) and 86400 seconds (24 hours), recommended value is 3600 seconds (1 hour).
+        // If a control point uses the value 0 to indicate an infinite lease time mapping, it is REQUIRED that
+        // gateway uses the maximum value instead (e.g. 604800 seconds) according to
+        // WANIPConnection service 2.0 for UPnP Version 1.0.
 
         if (UPNP_AddAnyPortMapping(device.ControlUrl.GetCStr(), device.ServiceType.GetCStr(), port.GetCStr(),
                                    port.GetCStr(), device.HostAddress.GetCStr(), "M.A.X.", "UDP", nullptr, "0",
