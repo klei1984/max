@@ -152,6 +152,14 @@ jobs:
             apt update -y && apt install -y sudo
             sudo dpkg --add-architecture i386
             sudo apt-get update -y
+            sudo apt-get install -y ca-certificates gpg wget
+            test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+            wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+            echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+            sudo apt-get update -y
+            test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+            sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
+            sudo apt-get install kitware-archive-keyring
             sudo apt-get install -y file build-essential binutils-mingw-w64-i686 g++-mingw-w64-i686 gcc-mingw-w64-i686 ninja-build:i386 cmake nsis gettext p7zip-full
 
       -  name: Checkout
