@@ -1544,7 +1544,7 @@ UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uin
     return unit;
 }
 
-UnitInfo* Access_GetUnit7(uint16_t team, int32_t grid_x, int32_t grid_y) {
+UnitInfo* Access_GetConstructionUtility(uint16_t team, int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit = nullptr;
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {

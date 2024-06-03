@@ -180,7 +180,7 @@ public:
     ResourceID GetConstructedUnitType() const;
     void CancelBuilding();
     bool IsUpgradeAvailable();
-    void DeployConstructionSiteMarkers(ResourceID unit_type);
+    void DeployConstructionSiteUtilities(ResourceID unit_type);
     int32_t GetMaxAllowedBuildRate();
     void StartBuilding();
     void SpawnNewUnit();

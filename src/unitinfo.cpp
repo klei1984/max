@@ -3168,7 +3168,7 @@ void UnitInfo::StartBuilding() {
         }
 
     } else {
-        DeployConstructionSiteMarkers(unit_to_build);
+        DeployConstructionSiteUtilities(unit_to_build);
         Redraw();
 
         moved = 0;
@@ -3818,28 +3818,28 @@ void UnitInfo::SpawnNewUnit() {
         }
 
     } else {
-        SmartPointer<UnitInfo> new_unit;
+        SmartPointer<UnitInfo> utility_unit;
         int32_t position_x = this->grid_x;
         int32_t position_y = this->grid_y;
 
         if (flags & STATIONARY) {
-            new_unit = UnitsManager_DeployUnit(GetConstructedUnitType(), team, GetComplex(), position_x, position_y, 0,
-                                               false, true);
+            utility_unit = UnitsManager_DeployUnit(GetConstructedUnitType(), team, GetComplex(), position_x, position_y,
+                                                   0, false, true);
 
-            new_unit->SetParent(this);
-            new_unit->orders = ORDER_IDLE;
-            new_unit->state = ORDER_STATE_3;
-            new_unit->scaler_adjust = 4;
+            utility_unit->SetParent(this);
+            utility_unit->orders = ORDER_IDLE;
+            utility_unit->state = ORDER_STATE_3;
+            utility_unit->scaler_adjust = 4;
 
             ++UnitsManager_TeamInfo[team].stats_units_built;
 
             build_list.Remove(0);
 
             if (repeat_build) {
-                build_list.PushBack(&new_unit->unit_type);
+                build_list.PushBack(&utility_unit->unit_type);
             }
 
-            SetParent(new_unit.Get());
+            SetParent(utility_unit.Get());
 
             storage = 1;
             orders = ORDER_BUILD;
@@ -3853,21 +3853,21 @@ void UnitInfo::SpawnNewUnit() {
                 SoundManager_PlaySfx(this, SFX_TYPE_IDLE);
             }
 
-            new_unit = Access_GetUnit7(team, position_x, position_y);
+            utility_unit = Access_GetConstructionUtility(team, position_x, position_y);
 
-            SDL_assert(new_unit != nullptr);
+            SDL_assert(utility_unit != nullptr);
 
-            new_unit = UnitsManager_DeployUnit(GetConstructedUnitType(), team, nullptr, new_unit->grid_x,
-                                               new_unit->grid_y, 0, false, true);
+            utility_unit = UnitsManager_DeployUnit(GetConstructedUnitType(), team, nullptr, utility_unit->grid_x,
+                                                   utility_unit->grid_y, 0, false, true);
 
             if (!path) {
                 build_list.Clear();
             }
 
-            this->SetParent(&*new_unit);
-            new_unit->SetParent(this);
+            this->SetParent(&*utility_unit);
+            utility_unit->SetParent(this);
 
-            UnitsManager_SetNewOrderInt(&*new_unit, ORDER_IDLE, ORDER_STATE_BUILDING_READY);
+            UnitsManager_SetNewOrderInt(&*utility_unit, ORDER_IDLE, ORDER_STATE_BUILDING_READY);
 
             if (unit_type == ENGINEER) {
                 DrawSpriteFrame(image_index - 16);
@@ -3876,16 +3876,16 @@ void UnitInfo::SpawnNewUnit() {
                 DrawSpriteFrame(angle);
             }
 
-            if (new_unit->unit_type == ROAD || new_unit->unit_type == BRIDGE || new_unit->unit_type == WTRPLTFM ||
-                new_unit->unit_type == CNCT_4W) {
+            if (utility_unit->unit_type == ROAD || utility_unit->unit_type == BRIDGE ||
+                utility_unit->unit_type == WTRPLTFM || utility_unit->unit_type == CNCT_4W) {
                 Access_DestroyUtilities(position_x, position_y, false, false, false, false);
 
                 SetParent(nullptr);
-                new_unit->orders = ORDER_AWAIT;
-                new_unit->state = ORDER_STATE_1;
+                utility_unit->orders = ORDER_AWAIT;
+                utility_unit->state = ORDER_STATE_1;
 
-                UnitsManager_UpdateConnectors(&*new_unit);
-                Access_UpdateMapStatus(&*new_unit, true);
+                UnitsManager_UpdateConnectors(&*utility_unit);
+                Access_UpdateMapStatus(&*utility_unit, true);
 
                 GameManager_RenderMinimapDisplay = true;
 
@@ -3903,7 +3903,7 @@ void UnitInfo::SpawnNewUnit() {
                 DrawSpriteFrame(angle);
 
                 if (GetTask()) {
-                    GetTask()->AddUnit(*new_unit);
+                    GetTask()->AddUnit(*utility_unit);
                 }
 
             } else {
@@ -3911,7 +3911,7 @@ void UnitInfo::SpawnNewUnit() {
                 state = ORDER_STATE_UNIT_READY;
 
                 if (GetTask()) {
-                    new_unit->AddTask(GetTask());
+                    utility_unit->AddTask(GetTask());
                 }
             }
         }
@@ -4094,7 +4094,7 @@ void UnitInfo::RemoveDelayedTask(Task* task) { delayed_tasks.Remove(*task); }
 
 bool UnitInfo::AreTherePins() { return pin_count > 0; }
 
-void UnitInfo::DeployConstructionSiteMarkers(ResourceID unit_type) {
+void UnitInfo::DeployConstructionSiteUtilities(ResourceID unit_type) {
     int32_t unit_angle = 0;
     ResourceID unit_type1;
     ResourceID unit_type2;
@@ -4324,7 +4324,7 @@ void UnitInfo::StepMoveUnit(Point position) {
 
 void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
     uint32_t unit_flags = UnitsManager_BaseUnits[unit_type].flags;
-    SmartPointer<UnitInfo> utility_unit(Access_GetUnit7(team, grid_x, grid_y));
+    SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(team, grid_x, grid_y));
     Point position(utility_unit->grid_x, utility_unit->grid_y);
 
     if (unit_flags & BUILDING) {
@@ -4364,7 +4364,7 @@ int32_t UnitInfo::GetTargetUnitAngle() {
     int32_t result;
 
     if (state == ORDER_STATE_35) {
-        SmartPointer<UnitInfo> utility_unit(Access_GetUnit7(team, grid_x, grid_y));
+        SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(team, grid_x, grid_y));
 
         if (grid_x == utility_unit->grid_x) {
             if (grid_y == utility_unit->grid_y) {

@@ -83,7 +83,7 @@ UnitInfo *Access_GetUnit3(int32_t grid_x, int32_t grid_y, uint32_t flags);
 UnitInfo *Access_GetUnit1(int32_t grid_x, int32_t grid_y);
 UnitInfo *Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team);
 UnitInfo *Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags);
-UnitInfo *Access_GetUnit7(uint16_t team, int32_t grid_x, int32_t grid_y);
+UnitInfo *Access_GetConstructionUtility(uint16_t team, int32_t grid_x, int32_t grid_y);
 UnitInfo *Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint32_t flags);
 uint32_t Access_GetValidAttackTargetTypes(ResourceID unit_type);
 bool Access_IsValidAttackTargetType(ResourceID attacker, ResourceID target);

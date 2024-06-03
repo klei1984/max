@@ -80,13 +80,15 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     SmartList<UnitInfo>* list;
     int32_t speed{0};
     int32_t best_speed{0};
-    UnitInfo* selected_unit = nullptr;
-    bool is_unit_available = false;
+    UnitInfo* selected_unit{nullptr};
+    bool is_unit_available{false};
 
     if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
         list = &UnitsManager_StationaryUnits;
+
     } else if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_AIR_UNIT) {
         list = &UnitsManager_MobileAirUnits;
+
     } else {
         list = &UnitsManager_MobileLandSeaUnits;
     }
@@ -102,16 +104,17 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
 
                 if (selected_unit == nullptr || (best_speed > speed)) {
                     is_unit_available = false;
-                    selected_unit = &*unit;
+                    selected_unit = unit->Get();
                     best_speed = speed;
                 }
+
             } else {
-                if (IsValidCandidate(&*unit, mode)) {
+                if (IsValidCandidate(unit->Get(), mode)) {
                     speed = TaskManager_GetDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
 
                     if (selected_unit == nullptr || (best_speed > speed)) {
                         is_unit_available = true;
-                        selected_unit = &*unit;
+                        selected_unit = unit->Get();
                         best_speed = speed;
                     }
                 }
@@ -126,9 +129,11 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
                     selected_unit->grid_y + 1, selected_unit->build_time);
 
             selected_unit = nullptr;
+
         } else {
             log.Log("found.");
         }
+
     } else {
         log.Log("not found.");
     }

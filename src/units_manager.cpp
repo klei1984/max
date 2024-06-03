@@ -5120,7 +5120,7 @@ void UnitsManager_DeployMasterBuilderInit(UnitInfo* unit) {
         GameManager_DisableMainMenu();
     }
 
-    unit->DeployConstructionSiteMarkers(MININGST);
+    unit->DeployConstructionSiteUtilities(MININGST);
     unit->state = ORDER_STATE_PROGRESS_TRANSFORMING;
 
     UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_34);
@@ -5635,7 +5635,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
 
     if ((unit_flags & (BUILDING | STANDALONE)) || unit_orders == ORDER_BUILD || unit_orders == ORDER_CLEAR) {
         if (unit_type == CONSTRCT && unit_orders == ORDER_BUILD) {
-            SmartPointer<UnitInfo> utility_unit(Access_GetUnit7(unit_team, unit_grid_x, unit_grid_y));
+            SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(unit_team, unit_grid_x, unit_grid_y));
 
             unit_grid_x = utility_unit->grid_x;
             unit_grid_y = utility_unit->grid_y;
@@ -6713,10 +6713,10 @@ bool UnitsManager_IsAttackScheduled() {
 
 Point UnitsManager_GetAttackPosition(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->unit_type == CONSTRCT && unit2->orders == ORDER_BUILD) {
-        UnitInfo* unit = Access_GetUnit7(unit2->team, unit2->grid_x, unit2->grid_y);
+        auto utility_unit = Access_GetConstructionUtility(unit2->team, unit2->grid_x, unit2->grid_y);
 
-        if (unit) {
-            unit2 = unit;
+        if (utility_unit) {
+            unit2 = utility_unit;
         }
     }
 
