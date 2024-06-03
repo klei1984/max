@@ -205,7 +205,7 @@ void TaskGetMaterials::FindTruck() {
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).team == team && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == CARGO_TYPE_RAW &&
             (*it).storage > 0 && (*it).hits > 0 &&
-            ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed) == 0) && requestor != *it) {
+            ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) && requestor != *it) {
             bool candidate_found;
 
             if ((*it).GetTask()) {
