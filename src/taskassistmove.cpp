@@ -150,7 +150,7 @@ void TaskAssistMove::BeginTurn() {
             for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin();
                  it != TaskManager.GetTaskList().End(); ++it) {
                 if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskCreateUnit &&
-                    dynamic_cast<TaskCreate*>(&*it)->GetUnitType() == AIRTRANS) {
+                    dynamic_cast<TaskCreate*>(it->Get())->GetUnitType() == AIRTRANS) {
                     ++unit_count_transport;
                 }
             }
@@ -191,7 +191,7 @@ void TaskAssistMove::BeginTurn() {
             for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin();
                  it != TaskManager.GetTaskList().End(); ++it) {
                 if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskCreateUnit &&
-                    dynamic_cast<TaskCreate*>(&*it)->GetUnitType() == CLNTRANS) {
+                    dynamic_cast<TaskCreate*>(it->Get())->GetUnitType() == CLNTRANS) {
                     ++unit_count_transport;
                 }
             }
@@ -232,13 +232,13 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                 if ((*it).team == team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).unit_type != SURVEYOR) {
                     if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
-                        Task_IsReadyToTakeOrders(&*it)) {
-                        if (dynamic_cast<TaskMove*>((*it).GetTask())->IsReadyForTransport() || unit.speed == 0) {
-                            distance = Access_GetDistance(&*it, &unit);
+                        Task_IsReadyToTakeOrders(it->Get())) {
+                        if (dynamic_cast<TaskMove*>((*it).GetTask())->IsReadyForTransport() || (*it).speed == 0) {
+                            distance = Access_GetDistance(it->Get(), &unit);
 
                             if (UnitInfo_object2 == nullptr || distance < minimum_distance) {
-                                if (TaskTransport_Search(&unit, &*it, &map)) {
-                                    UnitInfo_object2 = &*it;
+                                if (TaskTransport_Search(&unit, it->Get(), &map)) {
+                                    UnitInfo_object2 = it->Get();
                                     minimum_distance = distance;
                                     Point_object1.x = (*it).grid_x;
                                     Point_object1.y = (*it).grid_y;
@@ -264,7 +264,8 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                 if ((*it).orders == ORDER_IDLE && (*it).GetParent() == &unit && (*it).team == team) {
                     if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
-                        TaskMove* task_move = new (std::nothrow) TaskMove(&*it, &TaskTransport_MoveFinishedCallback);
+                        TaskMove* task_move =
+                            new (std::nothrow) TaskMove(it->Get(), &TaskTransport_MoveFinishedCallback);
 
                         TaskManager.AppendTask(*task_move);
                     }
@@ -276,7 +277,7 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
                     distance = Access_GetDistance(&unit, Point_object2);
 
                     if (Point_object2.x >= 0 && (UnitInfo_object2 == nullptr || distance < minimum_distance)) {
-                        UnitInfo_object2 = &*it;
+                        UnitInfo_object2 = it->Get();
                         minimum_distance = distance;
                         Point_object1 = Point_object2;
                     }
