@@ -159,7 +159,8 @@ class ReportMenu : public Window {
     void SelectUnit(Point point);
 
     static int32_t GetWorkingEcoSphereCount(uint16_t team);
-    static void UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width, int32_t height);
+    static void UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width,
+                                         int32_t height);
 
     void AddUnits(SmartList<UnitInfo> *unit_list);
     int32_t GetSelectedUnitIndex();
@@ -708,8 +709,8 @@ void ReportMenu::DrawUnits() {
         Text_SetFont(GNW_TEXT_FONT_5);
 
         Text_TextBox(window.buffer, window.width,
-                     SmartString().Sprintf(10, "%i,%i", units[i].grid_x, units[i].grid_y).GetCStr(), window_ulx + 265,
-                     window_uly, 40, 50, 0xA2, true);
+                     SmartString().Sprintf(10, "%i,%i", units[i].grid_x + 1, units[i].grid_y + 1).GetCStr(),
+                     window_ulx + 265, window_uly, 40, 50, 0xA2, true);
 
         UpdateSelectedUnitStatus(&units[i], &window, window_ulx + 310, window_uly,
                                  report_screen_image->GetWidth() - 310, 50);
@@ -904,10 +905,10 @@ void ReportMenu::DrawScores() {
 
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                window_uly = std::max(
-                    static_cast<int32_t>(ecosphere_counts[team] * (ini_setting_victory_limit - GameManager_TurnCounter) +
-                                     UnitsManager_TeamInfo[team].team_points),
-                    window_uly);
+                window_uly = std::max(static_cast<int32_t>(ecosphere_counts[team] *
+                                                               (ini_setting_victory_limit - GameManager_TurnCounter) +
+                                                           UnitsManager_TeamInfo[team].team_points),
+                                      window_uly);
             }
         }
     }
@@ -1098,7 +1099,8 @@ int32_t ReportMenu::GetWorkingEcoSphereCount(uint16_t team) {
     return result;
 }
 
-void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width, int32_t height) {
+void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width,
+                                          int32_t height) {
     SmartString string;
 
     Text_SetFont(GNW_TEXT_FONT_5);
