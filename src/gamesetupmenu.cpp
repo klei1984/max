@@ -424,12 +424,19 @@ void GameSetupMenu::DrawDescriptionPanel() {
     int32_t width;
     uint8_t* buffer_position;
     int32_t row_index_max;
+    Rect bounds;
 
     GameSetupMenu_DrawBigInfoPanel(window);
 
     menu_item = &game_setup_menu_titles[1];
-    width = menu_item->bounds.lrx - menu_item->bounds.ulx;
-    buffer_position = &window->buffer[WindowManager_ScaleOffset(window, menu_item->bounds.ulx, menu_item->bounds.uly)];
+
+    bounds.ulx = WindowManager_ScaleUlx(window, menu_item->bounds.ulx);
+    bounds.uly = WindowManager_ScaleUly(window, menu_item->bounds.uly);
+    bounds.lrx = WindowManager_ScaleLrx(window, menu_item->bounds.ulx, menu_item->bounds.lrx);
+    bounds.lry = WindowManager_ScaleLrx(window, menu_item->bounds.uly, menu_item->bounds.lry);
+
+    width = bounds.lrx - bounds.ulx;
+    buffer_position = &window->buffer[window->width * bounds.uly + bounds.ulx];
 
     row_index_max = string_row_index + rows_per_page;
 
@@ -444,7 +451,7 @@ void GameSetupMenu::DrawDescriptionPanel() {
         }
     }
 
-    win_draw_rect(window->id, &menu_item->bounds);
+    win_draw_rect(window->id, &bounds);
 }
 
 int32_t GameSetupMenu::FindNextValidFile(int32_t game_slot) {
