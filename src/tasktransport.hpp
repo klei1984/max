@@ -70,7 +70,7 @@ public:
     void AddClient(TaskMove* move);
 };
 
-bool TaskTransport_Search(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map);
+bool TaskTransport_Search(UnitInfo* transporter, UnitInfo* client, TransporterMap* map);
 void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 #endif /* TASKTRANSPORT_HPP */

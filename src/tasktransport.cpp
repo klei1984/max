@@ -319,7 +319,7 @@ void TaskTransport::MoveFinishedCallback1(Task* task, UnitInfo* unit, char resul
     } else if (result == TASKMOVE_RESULT_BLOCKED) {
         TaskTransport* transport = dynamic_cast<TaskTransport*>(task);
 
-        transport->RemoveClient(&*transport->task_move);
+        transport->RemoveClient(transport->task_move.Get());
         transport->ChooseNewTask();
     }
 }
@@ -331,15 +331,21 @@ void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char resul
     } else if (result == TASKMOVE_RESULT_BLOCKED) {
         TaskTransport* transport = dynamic_cast<TaskTransport*>(task);
 
-        AiLog log("Transport: dump client %s.",
-                  transport->task_move->GetPassenger()
-                      ? UnitsManager_BaseUnits[transport->task_move->GetPassenger()->unit_type].singular_name
-                      : "null unit");
+        if (transport->task_move->GetPassenger()) {
+            AiLog log("Transport: dump client %s.",
+                      UnitsManager_BaseUnits[transport->task_move->GetPassenger()->unit_type].singular_name);
 
-        SmartPointer<Task> dump =
-            new (std::nothrow) TaskDump(transport, &*transport->task_move, &*transport->unit_transporter);
+            SmartPointer<Task> dump =
+                new (std::nothrow) TaskDump(transport, &*transport->task_move, &*transport->unit_transporter);
 
-        TaskManager.AppendTask(*dump);
+            TaskManager.AppendTask(*dump);
+
+        } else {
+            AiLog log("Transport: move task without passenger.");
+
+            transport->RemoveClient(transport->task_move.Get());
+            transport->ChooseNewTask();
+        }
     }
 }
 
@@ -641,17 +647,17 @@ void TaskTransport::EventZoneCleared(Zone* zone, bool status) {
     }
 }
 
-bool TaskTransport_Search(UnitInfo* unit1, UnitInfo* unit2, TransporterMap* map) {
-    SmartPointer<TaskMove> move(dynamic_cast<TaskMove*>(unit2->GetTask()));
+bool TaskTransport_Search(UnitInfo* transporter, UnitInfo* client, TransporterMap* map) {
+    SmartPointer<TaskMove> move(dynamic_cast<TaskMove*>(client->GetTask()));
     Point destination = move->GetDestination();
-    Point position(unit2->grid_x, unit2->grid_y);
+    Point position(client->grid_x, client->grid_y);
     bool result;
 
     if (destination.x >= 0) {
-        if (unit1->unit_type != CLNTRANS || (unit2->unit_type == INFANTRY || unit2->unit_type == COMMANDO)) {
+        if (transporter->unit_type != CLNTRANS || (client->unit_type == INFANTRY || client->unit_type == COMMANDO)) {
             if (position.x != destination.x || position.y != destination.y) {
                 if (map->Search(position)) {
-                    if (unit1->unit_type == AIRTRANS) {
+                    if (transporter->unit_type == AIRTRANS) {
                         result = map->Search(destination);
 
                     } else {
