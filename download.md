@@ -27,4 +27,4 @@ tag: 0.6.1
 
 ### Previous Releases
 
-Download previous releases from [Github](https://github.com/klei1984/max/releases)
+Download previous releases from [GitHub](https://github.com/klei1984/max/releases)

@@ -6,9 +6,9 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2023-10-20.
+Last updated: 2024-06-01.
 
-Reimplementation status: 5700 / 5704 (99%) functions.
+Reimplementation status: 5704 / 5704 (100%) functions.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -82,7 +82,7 @@ The netcode of M.A.X. relied on MS-DOS DPMI services and the IPX protocol for LA
 - <span class="legend-done">
   Reimplement the database management module (db, assoc)
   </span>
-- <span class="legend-inwork">
+- <span class="legend-done">
   Replace the IPX driver and related dpmi modules (ipx, dpmi)
   </span>
 
@@ -186,7 +186,7 @@ The massive amount of polymorphism that is involved with all the custom object c
 - <span class="legend-done">
   Reimplement the access classes (access.cpp)
   </span>
-- <span class="legend-close">
+- <span class="legend-done">
   Reimplement the remote classes (remote.cpp)
   </span>
 - <span class="legend-done">
@@ -209,7 +209,7 @@ The massive amount of polymorphism that is involved with all the custom object c
   </span>
 <br>
 <br>
-- <span class="legend-close">
+- <span class="legend-done">
   Verify the correctness of the reimplemented C++ modules (fix reimplementation issues).
   </span>
 
@@ -240,7 +240,7 @@ In-game hints, in-game help and some other text, like mission briefings or plane
   Setup workflows to improve code quality
   </span>
 - <span class="legend-inwork">
-  Fix original game defects (retain backwards compatibility with save game format version 70)
+  Fix original game defects and remaining reimplementation issues (retain backwards compatibility with save game format version 70)
   </span>
 - <span class="legend-done">
   Implement missing text mode class serializers and enumerator constants or remove these incomplete features as-is (preferred)
