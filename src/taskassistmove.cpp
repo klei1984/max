@@ -215,9 +215,9 @@ void TaskAssistMove::EndTurn() {
 }
 
 bool TaskAssistMove::Execute(UnitInfo& unit) {
-    UnitInfo* UnitInfo_object2 = nullptr;
-    Point Point_object1;
-    Point Point_object2;
+    UnitInfo* client_unit = nullptr;
+    Point client_position;
+    Point client_destination;
     int32_t distance;
     int32_t minimum_distance{INT32_MAX};
     bool result;
@@ -236,12 +236,12 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
                         if (dynamic_cast<TaskMove*>((*it).GetTask())->IsReadyForTransport() || (*it).speed == 0) {
                             distance = Access_GetDistance(it->Get(), &unit);
 
-                            if (UnitInfo_object2 == nullptr || distance < minimum_distance) {
+                            if (client_unit == nullptr || distance < minimum_distance) {
                                 if (TaskTransport_Search(&unit, it->Get(), &map)) {
-                                    UnitInfo_object2 = it->Get();
+                                    client_unit = it->Get();
                                     minimum_distance = distance;
-                                    Point_object1.x = (*it).grid_x;
-                                    Point_object1.y = (*it).grid_y;
+                                    client_position.x = (*it).grid_x;
+                                    client_position.y = (*it).grid_y;
                                 }
                             }
                         }
@@ -249,9 +249,8 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
                 }
             }
 
-            if (UnitInfo_object2 &&
-                Access_GetDistance(&unit, Point_object1) <= ((unit.unit_type == AIRTRANS) ? 0 : 3)) {
-                RequestTransport(&unit, UnitInfo_object2);
+            if (client_unit && Access_GetDistance(&unit, client_position) <= ((unit.unit_type == AIRTRANS) ? 0 : 3)) {
+                RequestTransport(&unit, client_unit);
 
                 result = true;
 
@@ -272,30 +271,30 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
 
                     SDL_assert((*it).GetTask()->GetType() == TaskType_TaskMove);
 
-                    Point_object2 = dynamic_cast<TaskMove*>((*it).GetTask())->GetDestination();
+                    client_destination = dynamic_cast<TaskMove*>((*it).GetTask())->GetDestination();
 
-                    distance = Access_GetDistance(&unit, Point_object2);
+                    distance = Access_GetDistance(&unit, client_destination);
 
-                    if (Point_object2.x >= 0 && (UnitInfo_object2 == nullptr || distance < minimum_distance)) {
-                        UnitInfo_object2 = it->Get();
+                    if (client_destination.x >= 0 && (client_unit == nullptr || distance < minimum_distance)) {
+                        client_unit = it->Get();
                         minimum_distance = distance;
-                        Point_object1 = Point_object2;
+                        client_position = client_destination;
                     }
                 }
             }
         }
 
-        if (UnitInfo_object2) {
+        if (client_unit) {
             distance = (unit.unit_type == AIRTRANS) ? 0 : 3;
 
-            if (Access_GetDistance(&unit, Point_object1) <= distance) {
-                CompleteTransport(&unit, UnitInfo_object2, Point_object1);
+            if (Access_GetDistance(&unit, client_position) <= distance) {
+                CompleteTransport(&unit, client_unit, client_position);
 
             } else {
                 SmartPointer<TaskMove> task_move = new (std::nothrow) TaskMove(
                     &unit, this, distance,
                     unit.unit_type == CLNTRANS ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
-                    Point_object1, &TaskTransport_MoveFinishedCallback);
+                    client_position, &TaskTransport_MoveFinishedCallback);
 
                 TaskManager.AppendTask(*task_move);
             }
