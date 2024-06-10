@@ -32,19 +32,19 @@
 #include "units_manager.hpp"
 
 enum {
-    CREATE_UNIT_STATE_0,
-    CREATE_UNIT_STATE_1,
+    CREATE_UNIT_STATE_INITIALIZING,
+    CREATE_UNIT_STATE_OBTAININING_BUILDER,
     CREATE_UNIT_STATE_WAITING_FOR_MATERIALS,
-    CREATE_UNIT_STATE_3,
-    CREATE_UNIT_STATE_4,
-    CREATE_UNIT_STATE_5
+    CREATE_UNIT_STATE_BUILDING,
+    CREATE_UNIT_STATE_ACTIVATING,
+    CREATE_UNIT_STATE_FINISHED
 };
 
 TaskCreateUnit::TaskCreateUnit(ResourceID unit_type, Task* task, Point site_)
-    : TaskCreate(task, task->GetFlags(), unit_type), site(site_), op_state(CREATE_UNIT_STATE_0) {}
+    : TaskCreate(task, task->GetFlags(), unit_type), site(site_), op_state(CREATE_UNIT_STATE_INITIALIZING) {}
 
 TaskCreateUnit::TaskCreateUnit(UnitInfo* unit_, Task* task)
-    : TaskCreate(task, unit_), site(unit_->grid_x, unit_->grid_y), op_state(CREATE_UNIT_STATE_3) {}
+    : TaskCreate(task, unit_), site(unit_->grid_x, unit_->grid_y), op_state(CREATE_UNIT_STATE_BUILDING) {}
 
 TaskCreateUnit::~TaskCreateUnit() {}
 
@@ -74,9 +74,9 @@ char* TaskCreateUnit::WriteStatusLog(char* buffer) const {
 uint8_t TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
 
 void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
-    AiLog log("Task Create Unit: Add %s", UnitsManager_BaseUnits[unit_.unit_type].singular_name);
+    AiLog log("Task Create Unit: Add builder %s.", UnitsManager_BaseUnits[unit_.unit_type].singular_name);
 
-    if (op_state == CREATE_UNIT_STATE_1 && (unit_.flags & STATIONARY)) {
+    if (op_state == CREATE_UNIT_STATE_OBTAININING_BUILDER && (unit_.flags & STATIONARY)) {
         op_state = CREATE_UNIT_STATE_WAITING_FOR_MATERIALS;
         builder = unit_;
 
@@ -85,11 +85,11 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
             WaitForMaterials();
         }
 
-    } else if (op_state == CREATE_UNIT_STATE_5 && (unit_.flags & STATIONARY)) {
+    } else if (op_state == CREATE_UNIT_STATE_FINISHED && (unit_.flags & STATIONARY)) {
         TaskManager.RemindAvailable(&unit_);
 
-    } else if (op_state != CREATE_UNIT_STATE_5 && unit_type == unit_.unit_type) {
-        op_state = CREATE_UNIT_STATE_5;
+    } else if (op_state != CREATE_UNIT_STATE_FINISHED && unit_type == unit_.unit_type) {
+        op_state = CREATE_UNIT_STATE_FINISHED;
 
         switch (unit_type) {
             case MISSLLCH:
@@ -139,8 +139,8 @@ void TaskCreateUnit::BeginTurn() {
         WaitForMaterials();
     }
 
-    if (op_state == CREATE_UNIT_STATE_3 && builder->state == ORDER_STATE_UNIT_READY) {
-        op_state = CREATE_UNIT_STATE_4;
+    if (op_state == CREATE_UNIT_STATE_BUILDING && builder->state == ORDER_STATE_UNIT_READY) {
+        op_state = CREATE_UNIT_STATE_ACTIVATING;
 
         builder->GetParent()->AddTask(this);
 
@@ -155,26 +155,26 @@ void TaskCreateUnit::BeginTurn() {
 void TaskCreateUnit::EndTurn() {
     AiLog log("Create %s: End Turn.", UnitsManager_BaseUnits[unit_type].singular_name);
 
-    if (op_state == CREATE_UNIT_STATE_0) {
+    if (op_state == CREATE_UNIT_STATE_INITIALIZING) {
         SmartPointer<TaskObtainUnits> task_obtain_units = new (std::nothrow) TaskObtainUnits(this, site);
-        op_state = CREATE_UNIT_STATE_1;
+        op_state = CREATE_UNIT_STATE_OBTAININING_BUILDER;
 
         task_obtain_units->AddUnit(Builder_GetBuilderType(unit_type));
 
         TaskManager.AppendTask(*task_obtain_units);
     }
 
-    if (op_state != CREATE_UNIT_STATE_5) {
+    if (op_state != CREATE_UNIT_STATE_FINISHED) {
         IsUnitStillNeeded();
     }
 }
 
 bool TaskCreateUnit::Execute(UnitInfo& unit_) {
-    if (op_state != CREATE_UNIT_STATE_5 && unit_.unit_type == unit_type) {
+    if (op_state != CREATE_UNIT_STATE_FINISHED && unit_.unit_type == unit_type) {
         AddUnit(unit_);
     }
 
-    if (op_state != CREATE_UNIT_STATE_5 && builder == unit_) {
+    if (op_state != CREATE_UNIT_STATE_FINISHED && builder == unit_) {
         BeginTurn();
     }
 
@@ -185,8 +185,8 @@ void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
     AiLog log("Task Create Unit: Remove %s.", UnitsManager_BaseUnits[unit_.unit_type].singular_name);
 
     if (builder == unit_) {
-        if (op_state <= CREATE_UNIT_STATE_3) {
-            op_state = CREATE_UNIT_STATE_0;
+        if (op_state <= CREATE_UNIT_STATE_BUILDING) {
+            op_state = CREATE_UNIT_STATE_INITIALIZING;
         }
 
         builder = nullptr;
@@ -195,7 +195,7 @@ void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
 
 void TaskCreateUnit::EventZoneCleared(Zone* zone, bool status) {}
 
-bool TaskCreateUnit::Task_vfunc28() { return op_state >= CREATE_UNIT_STATE_3; }
+bool TaskCreateUnit::Task_vfunc28() { return op_state >= CREATE_UNIT_STATE_BUILDING; }
 
 void TaskCreateUnit::WaitForMaterials() {
     SDL_assert(op_state == CREATE_UNIT_STATE_WAITING_FOR_MATERIALS);
@@ -290,7 +290,7 @@ void TaskCreateUnit::WaitForMaterials() {
             {
                 SmartObjectArray<ResourceID> build_list = builder->GetBuildList();
 
-                op_state = CREATE_UNIT_STATE_3;
+                op_state = CREATE_UNIT_STATE_BUILDING;
 
                 if (materials.raw > 100 && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
                     builder->SetBuildRate(2);
@@ -314,7 +314,7 @@ void TaskCreateUnit::WaitForMaterials() {
 bool TaskCreateUnit::IsUnitStillNeeded() {
     bool result;
 
-    if (op_state <= CREATE_UNIT_STATE_3) {
+    if (op_state <= CREATE_UNIT_STATE_BUILDING) {
         if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
             if (Task_EstimateTurnsTillMissionEnd() >
                     UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)
@@ -322,7 +322,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 parent && parent->IsNeeded()) {
                 result = true;
 
-            } else if (builder && op_state == CREATE_UNIT_STATE_3 &&
+            } else if (builder && op_state == CREATE_UNIT_STATE_BUILDING &&
                        (builder->state != ORDER_STATE_1 ||
                         builder->build_time != BuildMenu_GetTurnsToBuild(unit_type, team))) {
                 result = true;
@@ -330,11 +330,11 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
             } else {
                 AiLog log("Create %s: aborting, no longer needed.", UnitsManager_BaseUnits[unit_type].singular_name);
 
-                if (op_state == CREATE_UNIT_STATE_3 && builder) {
+                if (op_state == CREATE_UNIT_STATE_BUILDING && builder) {
                     UnitsManager_SetNewOrder(&*builder, ORDER_HALT_BUILDING, ORDER_STATE_13);
                 }
 
-                op_state = CREATE_UNIT_STATE_5;
+                op_state = CREATE_UNIT_STATE_FINISHED;
 
                 if (builder) {
                     TaskManager.RemindAvailable(&*builder);
@@ -359,4 +359,4 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
     return result;
 }
 
-bool TaskCreateUnit::Task_vfunc29() { return op_state >= CREATE_UNIT_STATE_3; }
+bool TaskCreateUnit::Task_vfunc29() { return op_state >= CREATE_UNIT_STATE_BUILDING; }
