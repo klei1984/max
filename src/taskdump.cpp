@@ -56,7 +56,12 @@ void TaskDump::TaskDump_PathResultCallback(Task* task, PathRequest* request, Poi
         dump_task->RemoveTask();
 
     } else {
-        dump_task->Search();
+        if (dump_task->task_move->GetPassenger()) {
+            dump_task->Search();
+
+        } else {
+            dump_task->RemoveTask();
+        }
     }
 }
 
