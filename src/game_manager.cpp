@@ -4107,8 +4107,8 @@ void GameManager_FlicButtonRFunction(ButtonID bid, intptr_t value) {
         char text[40];
 
         window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
-        GameManager_SelectedUnit->GetName(GameManager_UnitName);
-        GameManager_SelectedUnit->GetDisplayName(text);
+        GameManager_SelectedUnit->GetName(GameManager_UnitName, sizeof(GameManager_UnitName));
+        GameManager_SelectedUnit->GetDisplayName(text, sizeof(text));
 
         Text_SetFont(GNW_TEXT_FONT_2);
 
@@ -4323,7 +4323,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
         text[0] = '\0';
 
         if (unit_under_cursor) {
-            unit_under_cursor->GetDisplayName(text);
+            unit_under_cursor->GetDisplayName(text, sizeof(text));
         }
 
         GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_UNIT_DESCRIPTION, text, 0xA2);
@@ -7071,7 +7071,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
             GameManager_MenuCreateFlic(unit->unit_type, window->window.ulx, window->window.uly);
 
-            unit->GetDisplayName(text);
+            unit->GetDisplayName(text, sizeof(text));
 
             Text_SetFont(GNW_TEXT_FONT_2);
 

@@ -1303,24 +1303,52 @@ void UnitInfo::UpdateUnitDrawZones() {
     }
 }
 
-void UnitInfo::GetName(char* text) const {
-    if (name) {
-        strcpy(text, name);
-    } else {
-        sprintf(text, "%s %i", UnitsManager_BaseUnits[unit_type].singular_name, unit_id);
+void UnitInfo::GetName(char* const text, const size_t size) const noexcept {
+    if (text && size > 0) {
+        if (name) {
+            SDL_utf8strlcpy(text, name, size);
+        } else {
+            const auto name_length{
+                snprintf(nullptr, 0, "%s %i", UnitsManager_BaseUnits[unit_type].singular_name, unit_id)};
+
+            if (name_length > 0) {
+                auto buffer{new (std::nothrow) char[name_length + sizeof(char)]};
+
+                snprintf(buffer, name_length + sizeof(char), "%s %i", UnitsManager_BaseUnits[unit_type].singular_name,
+                         unit_id);
+                SDL_utf8strlcpy(text, buffer, size);
+
+                delete[] buffer;
+
+            } else {
+                text[0] = '\0';
+            }
+        }
     }
 }
 
-void UnitInfo::GetDisplayName(char* text) const {
-    char unit_name[40];
-    char unit_mark[20];
+void UnitInfo::GetDisplayName(char* text, const size_t size) const noexcept {
+    if (text && size > 0) {
+        char unit_name[40];
+        char unit_mark[20];
 
-    GetName(unit_name);
-    GetVersion(unit_mark, base_values->GetVersion());
-    strcpy(text, _(660b));
-    strcat(text, unit_mark);
-    strcat(text, " ");
-    strcat(text, unit_name);
+        GetName(unit_name, sizeof(unit_name));
+        GetVersion(unit_mark, base_values->GetVersion());
+
+        const auto name_length{snprintf(nullptr, 0, "%s %s %s", _(660b), unit_mark, unit_name)};
+
+        if (name_length > 0) {
+            auto buffer{new (std::nothrow) char[name_length + sizeof(char)]};
+
+            snprintf(buffer, name_length + sizeof(char), "%s %s %s", _(660b), unit_mark, unit_name);
+            SDL_utf8strlcpy(text, buffer, size);
+
+            delete[] buffer;
+
+        } else {
+            text[0] = '\0';
+        }
+    }
 }
 
 void UnitInfo::CalcRomanDigit(char* text, int32_t value, const char* digit1, const char* digit2, const char* digit3) {
@@ -1444,12 +1472,13 @@ void UnitInfo::GetVersion(char* text, int32_t version) {
     CalcRomanDigit(text, version, "I", "V", "X");
 }
 
-void UnitInfo::SetName(char* text) {
+void UnitInfo::SetName(const char* const text) noexcept {
     delete[] name;
 
     if (text && strlen(text)) {
         name = new (std::nothrow) char[strlen(text) + 1];
         strcpy(name, text);
+
     } else {
         name = nullptr;
     }
@@ -3818,28 +3847,28 @@ void UnitInfo::SpawnNewUnit() {
         }
 
     } else {
-        SmartPointer<UnitInfo> utility_unit;
-        int32_t position_x = this->grid_x;
-        int32_t position_y = this->grid_y;
-
         if (flags & STATIONARY) {
-            utility_unit = UnitsManager_DeployUnit(GetConstructedUnitType(), team, GetComplex(), position_x, position_y,
+            SmartPointer<UnitInfo> factory_unit;
+            int32_t position_x = this->grid_x;
+            int32_t position_y = this->grid_y;
+
+            factory_unit = UnitsManager_DeployUnit(GetConstructedUnitType(), team, GetComplex(), position_x, position_y,
                                                    0, false, true);
 
-            utility_unit->SetParent(this);
-            utility_unit->orders = ORDER_IDLE;
-            utility_unit->state = ORDER_STATE_3;
-            utility_unit->scaler_adjust = 4;
+            factory_unit->SetParent(this);
+            factory_unit->orders = ORDER_IDLE;
+            factory_unit->state = ORDER_STATE_3;
+            factory_unit->scaler_adjust = 4;
 
             ++UnitsManager_TeamInfo[team].stats_units_built;
 
             build_list.Remove(0);
 
             if (repeat_build) {
-                build_list.PushBack(&utility_unit->unit_type);
+                build_list.PushBack(&factory_unit->unit_type);
             }
 
-            SetParent(utility_unit.Get());
+            SetParent(factory_unit.Get());
 
             storage = 1;
             orders = ORDER_BUILD;
@@ -3849,6 +3878,10 @@ void UnitInfo::SpawnNewUnit() {
             ScheduleDelayedTasks(true);
 
         } else {
+            SmartPointer<UnitInfo> utility_unit;
+            int32_t position_x = this->grid_x;
+            int32_t position_y = this->grid_y;
+
             if (GameManager_SelectedUnit == this) {
                 SoundManager_PlaySfx(this, SFX_TYPE_IDLE);
             }

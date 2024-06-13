@@ -253,7 +253,7 @@ void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
                                bg_image_area->GetULY(), false, false);
         }
 
-        unit->GetDisplayName(text);
+        unit->GetDisplayName(text, sizeof(text));
 
         Text_SetFont(GNW_TEXT_FONT_5);
 

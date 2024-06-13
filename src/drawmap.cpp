@@ -52,9 +52,11 @@ static void DrawMap_Callback1(int32_t ulx, int32_t uly);
 static void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t uly));
 static void DrawMap_Callback2(int32_t ulx, int32_t uly);
 static void DrawMap_RenderWaitBulb(UnitInfo* unit);
-static void DrawMap_RenderBarDisplay(WindowInfo* window, int32_t ulx, int32_t uly, int32_t width, int32_t height, int32_t color);
+static void DrawMap_RenderBarDisplay(WindowInfo* window, int32_t ulx, int32_t uly, int32_t width, int32_t height,
+                                     int32_t color);
 static void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32_t width, int32_t height);
-static void DrawMap_RenderColorsDisplay(int32_t ulx, int32_t uly, int32_t width, int32_t height, uint8_t* buffer, int32_t color);
+static void DrawMap_RenderColorsDisplay(int32_t ulx, int32_t uly, int32_t width, int32_t height, uint8_t* buffer,
+                                        int32_t color);
 static void DrawMap_RenderUnitDisplays(UnitInfoGroup* group, UnitInfo* unit);
 static void DrawMap_RenderColorsDisplay(UnitInfo* unit);
 static void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int32_t color);
@@ -416,7 +418,8 @@ void DrawMap_RenderWaitBulb(UnitInfo* unit) {
     }
 }
 
-void DrawMap_RenderBarDisplay(WindowInfo* window, int32_t ulx, int32_t uly, int32_t width, int32_t height, int32_t color) {
+void DrawMap_RenderBarDisplay(WindowInfo* window, int32_t ulx, int32_t uly, int32_t width, int32_t height,
+                              int32_t color) {
     ulx = std::max(0, ulx);
     uly = std::max(0, uly);
     width = std::min(width, static_cast<int32_t>(WindowManager_MapWidth) - 1);
@@ -497,7 +500,8 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32
     }
 }
 
-void DrawMap_RenderColorsDisplay(int32_t ulx, int32_t uly, int32_t width, int32_t height, uint8_t* buffer, int32_t color) {
+void DrawMap_RenderColorsDisplay(int32_t ulx, int32_t uly, int32_t width, int32_t height, uint8_t* buffer,
+                                 int32_t color) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
     int32_t ulx_max;
@@ -753,7 +757,7 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
 
     } else if (GameManager_DisplayButtonNames && (unit->flags & SELECTABLE) && unit->unit_type != LRGTAPE &&
                unit->unit_type != SMLTAPE) {
-        unit->GetDisplayName(text);
+        unit->GetDisplayName(text, sizeof(text));
         DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | COLOR_YELLOW);
     }
 }
@@ -938,8 +942,10 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
 
         dirty.ulx /= GFX_MAP_TILE_SIZE;
         dirty.uly /= GFX_MAP_TILE_SIZE;
-        dirty.lrx = std::min<int32_t>((dirty.lrx + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, ResourceManager_MapSize.x);
-        dirty.lry = std::min<int32_t>((dirty.lry + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, ResourceManager_MapSize.y);
+        dirty.lrx =
+            std::min<int32_t>((dirty.lrx + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, ResourceManager_MapSize.x);
+        dirty.lry =
+            std::min<int32_t>((dirty.lry + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, ResourceManager_MapSize.y);
 
         drawmap->Init(&dirty);
 

@@ -693,7 +693,7 @@ void ReportMenu::DrawUnits() {
         ReportStats_DrawListItemIcon(window.buffer, window.width, units[i].unit_type, GameManager_PlayerTeam,
                                      window_ulx + 16, window_uly + 25);
 
-        units[i].GetDisplayName(text);
+        units[i].GetDisplayName(text, sizeof(text));
 
         Text_SetFont(GNW_TEXT_FONT_5);
 

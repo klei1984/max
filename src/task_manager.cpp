@@ -531,7 +531,7 @@ void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
     SmartPointer<UnitInfo> backup(unit);
     char unit_name[200];
 
-    unit->GetDisplayName(unit_name);
+    unit->GetDisplayName(unit_name, sizeof(unit_name));
 
     AiLog log("Task manager: make %s at [%i,%i] available.", unit_name, unit->grid_x + 1, unit->grid_y + 1);
 
@@ -555,7 +555,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 SmartPointer<TaskObtainUnits> obtain_units_task;
                 uint16_t task_flags{UINT16_MAX};
 
-                unit->GetDisplayName(unit_name);
+                unit->GetDisplayName(unit_name, sizeof(unit_name));
 
                 AiLog log("Task manager: find a task for %s.", unit_name);
 

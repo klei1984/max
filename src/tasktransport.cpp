@@ -360,7 +360,7 @@ char* TaskTransport::WriteStatusLog(char* buffer) const {
                 if (unit_transporter && unit_transporter->storage > 0) {
                     char unit_name[40];
 
-                    task_move->GetPassenger()->GetDisplayName(unit_name);
+                    task_move->GetPassenger()->GetDisplayName(unit_name, sizeof(unit_name));
 
                     sprintf(buffer, "Transport units: drop off %s at [%i,%i]", unit_name,
                             task_move->GetDestination().x + 1, task_move->GetDestination().y + 1);
@@ -369,7 +369,7 @@ char* TaskTransport::WriteStatusLog(char* buffer) const {
             } else {
                 char unit_name[40];
 
-                task_move->GetPassenger()->GetDisplayName(unit_name);
+                task_move->GetPassenger()->GetDisplayName(unit_name, sizeof(unit_name));
 
                 sprintf(buffer, "Transport units: pick up %s at [%i,%i]", unit_name,
                         task_move->GetPassenger()->grid_x + 1, task_move->GetPassenger()->grid_y + 1);

@@ -373,6 +373,8 @@ void Searcher::Process(Point position, const bool mode_flag) {
             distance_limit.y -= distance.x;
         }
 
+        SDL_assert(unit_angle < 8 && unit_angle >= 0);
+
         new_position = position + Paths_8DirPointsArray[unit_angle];
 
         step_cost = Searcher_EvaluateCost(position, new_position, use_air_support);
@@ -545,6 +547,8 @@ SmartPointer<GroundPath> Searcher::DeterminePath(const Point position, const int
 
                 destination_x -= Paths_8DirPointsArray[direction].x;
                 destination_y -= Paths_8DirPointsArray[direction].y;
+
+                SDL_assert(directions_map[destination_x][destination_y] != (direction + 4 % 8));
 
                 if (destination_x < 0 || destination_x >= ResourceManager_MapSize.x || destination_y < 0 ||
                     destination_y >= ResourceManager_MapSize.y) {

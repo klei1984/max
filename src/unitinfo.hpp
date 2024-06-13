@@ -88,6 +88,7 @@ private:
     static const uint8_t ExpResearchTopics[];
 
     SmartPointer<UnitInfo> parent_unit;
+    char* name;
 
 public:
     UnitInfo();
@@ -157,9 +158,29 @@ public:
     void StopMovement();
     void SpotByTeam(uint16_t team);
     static void GetVersion(char* text, int32_t version);
-    void GetName(char* text) const;
-    void GetDisplayName(char* text) const;
-    void SetName(char* text);
+
+    /**
+     * Get UTF-8 encoded null terminated name of unit without mark segment.
+     *
+     * \param text a plain char* buffer to hold the returned unit name
+     * \param size buffer size in bytes
+     */
+    void GetName(char* const text, const size_t size) const noexcept;
+
+    /**
+     * Get UTF-8 encoded null terminated full name of unit.
+     *
+     * \param text a plain char* buffer to hold the returned unit name
+     * \param size buffer size in bytes
+     */
+    void GetDisplayName(char* const text, const size_t size) const noexcept;
+
+    /**
+     * Set UTF-8 encoded null terminated name of unit without mark segment.
+     *
+     * \param text a plain char* buffer that holds the name to set
+     */
+    void SetName(const char* const text) noexcept;
     int32_t GetRaw();
     int32_t GetRawFreeCapacity();
     void TransferRaw(int32_t amount);
@@ -311,7 +332,6 @@ public:
     int16_t pin_count;
     bool field_165;
     uint8_t laying_state;
-    char* name;
     uint8_t visible_to_team[PLAYER_TEAM_MAX];
     uint8_t spotted_by_team[PLAYER_TEAM_MAX];
     Rect sprite_bounds;

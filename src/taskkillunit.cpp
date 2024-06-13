@@ -420,7 +420,7 @@ char* TaskKillUnit::WriteStatusLog(char* buffer) const {
     if (spotted_unit && spotted_unit->GetUnit()) {
         char unit_name[50];
 
-        spotted_unit->GetUnit()->GetDisplayName(unit_name);
+        spotted_unit->GetUnit()->GetDisplayName(unit_name, sizeof(unit_name));
 
         sprintf(buffer, "Kill %s at [%i,%i]", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name,
                 spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
