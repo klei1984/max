@@ -988,7 +988,8 @@ void TaskMove::MoveAirUnit() {
                     const auto units = Hash_MapHash[passenger_waypoint];
 
                     if (units) {
-                        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                             if ((*it).flags & MOBILE_AIR_UNIT) {
                                 log.Log("Blocked by %s at [%i,%i]",
                                         UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,

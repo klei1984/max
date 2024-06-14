@@ -295,7 +295,8 @@ void Ai_RemoveUnit(UnitInfo* unit) {
                 const auto units = Hash_MapHash[Point(site.x, site.y)];
 
                 if (units) {
-                    for (auto it = units->Begin(); it != units->End(); ++it) {
+                    // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                         if ((*it).GetUnitType() == BRIDGE) {
                             surface_type |= SURFACE_TYPE_LAND;
                         }

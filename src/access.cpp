@@ -59,7 +59,8 @@ bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_gr
     const auto units = Hash_MapHash[Point(target_grid_x, target_grid_y)];
 
     if (units) {
-        for (auto it = units->Begin(); it != units->End(); ++it) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
             if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                 if ((*it).orders == ORDER_IDLE) {
                     continue;
@@ -122,7 +123,8 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
             if (units) {
-                for (auto it = units->Begin(); it != units->End(); ++it) {
+                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                     if ((*it).IsVisibleToTeam(team) || (flags & 0x10) ||
                         ((*it).IsDetectedByTeam(team) && ((*it).flags & STATIONARY))) {
                         if ((*it).orders != ORDER_IDLE || ((*it).flags & STATIONARY)) {
@@ -522,7 +524,8 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
             if (units) {
-                for (auto it = units->Begin(); it != units->End(); ++it) {
+                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                     if (UnitsManager_IsUnitUnderWater(&*it)) {
                         (*it).SpotByTeam(team);
 
@@ -540,7 +543,8 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
             if (units) {
-                for (auto it = units->Begin(); it != units->End(); ++it) {
+                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                     if ((*it).GetUnitType() == COMMANDO) {
                         (*it).SpotByTeam(team);
 
@@ -563,7 +567,8 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if (!(*it).IsVisibleToTeam(team)) {
                     (*it).DrawStealth(team);
 
@@ -604,15 +609,17 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t gr
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             auto it = units->Begin();
+            auto end = units->End();
 
-            if (it != units->End()) {
+            if (it != end) {
                 if ((GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
                     GameManager_LockedUnits.GetCount()) {
                     GameManager_UpdateDrawBounds();
                 }
 
-                for (; it != units->End(); ++it) {
+                for (; it != end; ++it) {
                     (*it).Draw(team);
                 }
             }
@@ -882,7 +889,8 @@ uint8_t Access_GetModifiedSurfaceType(int32_t grid_x, int32_t grid_y) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).GetUnitType() == WTRPLTFM || (*it).GetUnitType() == BRIDGE) {
                     surface_type = SURFACE_TYPE_LAND;
                 }
@@ -932,7 +940,8 @@ UnitInfo* Access_GetRemovableRubble(uint16_t team, int32_t grid_x, int32_t grid_
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).GetUnitType() == SMLRUBLE) {
                     unit = &*it;
                     break;
@@ -1358,7 +1367,8 @@ UnitInfo* Access_GetUnit5(int32_t grid_x, int32_t grid_y) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if (((*it).flags & GROUND_COVER) || (*it).GetUnitType() == HARVSTER) {
                     unit = &*it;
                     break;
@@ -1417,7 +1427,8 @@ UnitInfo* Access_GetUnit1(int32_t grid_x, int32_t grid_y) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).GetUnitType() == BRIDGE) {
                     unit = &*it;
                     break;
@@ -1438,7 +1449,8 @@ UnitInfo* Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team == team && ((*it).flags & SELECTABLE) && !((*it).flags & (HOVERING | GROUND_COVER)) &&
                     (*it).GetUnitType() != LANDPAD && (*it).orders != ORDER_IDLE && (*it).GetId() != 0xFFFF) {
                     unit = &*it;
@@ -1460,7 +1472,8 @@ void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, 
     const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
     if (units) {
-        for (auto it = units->Begin(); it != units->End(); ++it) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
             switch ((*it).GetUnitType()) {
                 case SMLTAPE:
                 case LRGTAPE:
@@ -1504,7 +1517,8 @@ void Access_DestroyGroundCovers(int32_t grid_x, int32_t grid_y) {
     const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
     if (units) {
-        for (auto it = units->Begin(); it != units->End(); ++it) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
             switch ((*it).GetUnitType()) {
                 case ROAD:
                 case LANDPAD:
@@ -1526,7 +1540,8 @@ UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uin
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team != team && ((*it).IsVisibleToTeam(team) || GameManager_MaxSpy) &&
                     (*it).orders != ORDER_IDLE && ((*it).flags & flags) && (*it).orders != ORDER_EXPLODE &&
                     (*it).state != ORDER_STATE_14) {
@@ -1551,7 +1566,8 @@ UnitInfo* Access_GetConstructionUtility(uint16_t team, int32_t grid_x, int32_t g
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team == team && (*it).GetUnitType() >= LRGTAPE && (*it).GetUnitType() <= SMLCONES) {
                     unit = &*it;
                     break;
@@ -1570,7 +1586,8 @@ UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team == team && ((*it).flags & flags) && (*it).orders != ORDER_IDLE &&
                     (*it).GetId() != 0xFFFF && (*it).GetUnitType() != LRGTAPE && (*it).GetUnitType() != SMLTAPE &&
                     !((*it).flags & GROUND_COVER)) {
@@ -1580,7 +1597,8 @@ UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint
             }
 
             if (!unit) {
-                for (auto it = units->Begin(); it != units->End(); ++it) {
+                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                     if ((*it).team == team && ((*it).flags & flags) && (*it).orders != ORDER_IDLE &&
                         (*it).GetId() != 0xFFFF) {
                         unit = *it;
@@ -1712,7 +1730,8 @@ bool Access_IsUnitBusyAtLocation(UnitInfo* unit) {
     const auto units = Hash_MapHash[Point(unit->grid_x, unit->grid_y)];
 
     if (units) {
-        for (auto it = units->Begin(); it != units->End(); ++it) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
             if (((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | STATIONARY)) && !((*it).flags & GROUND_COVER) &&
                 (*it).orders != ORDER_IDLE) {
                 result = true;
@@ -1763,7 +1782,8 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int32_t grid_x, int32_t grid_y,
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team == unit->team) {
                     if (!((*it).flags & MISSILE_UNIT)) {
                         normal_unit = true;
@@ -1806,7 +1826,8 @@ UnitInfo* Access_GetEnemyMineOnSentry(uint16_t team, int32_t grid_x, int32_t gri
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if (((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE) && (*it).team != team &&
                     (*it).orders == ORDER_SENTRY) {
                     unit = &*it;
@@ -1828,7 +1849,8 @@ UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int32_t grid_x, int32_t grid_y
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team != unit->team && !(*it).IsVisibleToTeam(unit->team) &&
                     Access_IsValidAttackTarget(unit, &*it)) {
                     result = &*it;
@@ -1855,7 +1877,8 @@ UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team == team && (*it).orders != ORDER_IDLE) {
                     if (flags & MOBILE_LAND_UNIT) {
                         if (((*it).GetUnitType() == BARRACKS || (*it).GetUnitType() == CLNTRANS ||
@@ -1899,7 +1922,8 @@ UnitInfo* Access_GetTeamBuilding(uint16_t team, int32_t grid_x, int32_t grid_y) 
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team == team && (*it).orders != ORDER_IDLE && (*it).GetId() != 0xFFFF &&
                     (((*it).flags & (CONNECTOR_UNIT | STANDALONE)) ||
                      (((*it).flags) & (GROUND_COVER | BUILDING)) == BUILDING)) {

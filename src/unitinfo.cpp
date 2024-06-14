@@ -3881,7 +3881,8 @@ void UnitInfo::SpawnNewUnit() {
                 const auto units = Hash_MapHash[Point(pos_x, pos_y)];
 
                 if (units) {
-                    for (auto it = units->Begin(); it != units->End(); ++it) {
+                    // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                         if ((*it).unit_type == SMLRUBLE || (*it).unit_type == LRGRUBLE) {
                             storage += (*it).storage;
 
@@ -4436,7 +4437,8 @@ void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
                 const auto units = Hash_MapHash[site];
 
                 if (units) {
-                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                    // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                         if ((*it).unit_type == COMMANDO || (*it).unit_type == SUBMARNE || (*it).unit_type == CLNTRANS) {
                             (*it).StepMoveUnit(position);
                         }
@@ -4805,7 +4807,8 @@ void UnitInfo::PlaceMine() {
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
             if (units) {
-                for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                     if ((*it).unit_type == mine_type) {
                         is_found = true;
                         break;
@@ -4829,7 +4832,8 @@ void UnitInfo::PlaceMine() {
                     const auto units = Hash_MapHash[site];
 
                     if (units) {
-                        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                             if ((*it).unit_type == SURVEYOR) {
                                 new_unit->SpotByTeam((*it).team);
                             }
@@ -4860,7 +4864,8 @@ void UnitInfo::PickUpMine() {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).unit_type == mine_type) {
                     mine = *it;
                     break;

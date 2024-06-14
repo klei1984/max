@@ -89,7 +89,8 @@ bool UnitInfoGroup::Populate() {
                 const auto units = Hash_MapHash[point];
 
                 if (units) {
-                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                    // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                         if (UnitInfoGroup::IsRelevant(&(*it), this)) {
                             if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                                 sea_land_units.Insert((*it));

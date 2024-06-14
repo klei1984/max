@@ -1618,7 +1618,8 @@ bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t tea
     const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
     if (units) {
-        for (auto it = units->Begin(); it != units->End(); ++it) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
             if (((*it).GetUnitType() == SUBMARNE || (*it).GetUnitType() == COMMANDO ||
                  (*it).GetUnitType() == CLNTRANS) &&
                 !(*it).IsVisibleToTeam(team)) {

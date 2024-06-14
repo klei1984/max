@@ -349,7 +349,8 @@ bool TaskCreateBuilding::RequestMineRemoval() {
                 SmartPointer<UnitInfo> unit;
 
                 if (units) {
-                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                    // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                         if ((*it).team == team && ((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE)) {
                             unit = *it;
                             break;
@@ -387,7 +388,8 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
                 SmartPointer<UnitInfo> unit;
 
                 if (units) {
-                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                    // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                         if ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE) {
                             unit = *it;
                             break;

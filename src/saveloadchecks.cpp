@@ -121,7 +121,8 @@ bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit) {
                 const auto units = Hash_MapHash[Point(x, y)];
 
                 if (units) {
-                    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                    // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                         if (&*it == unit) {
                             --cell_count;
                             break;
@@ -192,7 +193,8 @@ bool SaveLoadChecks_Defect151() {
             const auto units = Hash_MapHash[Point((*it).grid_x, (*it).grid_y)];
 
             if (units) {
-                for (SmartList<UnitInfo>::Iterator hash_it = units->Begin(); hash_it != units->End(); ++hash_it) {
+                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+                for (auto hash_it = units->Begin(), hash_end = units->End(); hash_it != hash_end; ++hash_it) {
                     if (((*hash_it).flags & STATIONARY) && !((*hash_it).flags & (GROUND_COVER | CONNECTOR_UNIT)) &&
                         !((*hash_it).orders == ORDER_IDLE && (*hash_it).state == ORDER_STATE_BUILDING_READY)) {
                         AiLog log("Unit corruption detected. Connector at [%i,%i] overlaps with %s at [%i,%i].",
@@ -222,7 +224,7 @@ bool SaveLoadChecks_Defect183() {
 
             if (units) {
                 // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                for (SmartList<UnitInfo>::Iterator it = units->Begin(), end = units->End(); it != end; ++it) {
+                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                     Rect bounds;
                     Point site(x, y);
                     Point position((*it).grid_x, (*it).grid_y);
