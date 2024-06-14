@@ -200,8 +200,8 @@ void TaskAttack::AddUnit(UnitInfo& unit) {
 
         Task_RemindMoveFinished(&unit, true);
 
-        recon_unit->point.x = 0;
-        recon_unit->point.y = 0;
+        recon_unit->attack_site.x = 0;
+        recon_unit->attack_site.y = 0;
 
     } else {
         TaskManager.RemindAvailable(&unit);
@@ -311,8 +311,8 @@ bool TaskAttack::ExchangeOperator(UnitInfo& unit) {
 
             unit.AddTask(this);
 
-            unit.point.x = 0;
-            unit.point.y = 0;
+            unit.attack_site.x = 0;
+            unit.attack_site.y = 0;
 
             Task_RemindMoveFinished(&unit);
 
@@ -463,9 +463,9 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
 
                 if (AiAttack_ChooseSiteForAttacker(unit, position, &site, &projected_damage,
                                                    CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, unit_range)) {
-                    unit->point = site;
+                    unit->attack_site = site;
 
-                    if (unit->grid_x == unit->point.x && unit->grid_y == unit->point.y) {
+                    if (unit->grid_x == unit->attack_site.x && unit->grid_y == unit->attack_site.y) {
                         return false;
                     }
 
@@ -497,7 +497,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
         if (DetermineLeader()) {
             if (leader != unit) {
                 if (Task_IsReadyToTakeOrders(&*leader)) {
-                    if (unit->grid_x == unit->point.x && unit->grid_y == unit->point.y) {
+                    if (unit->grid_x == unit->attack_site.x && unit->grid_y == unit->attack_site.y) {
                         result = false;
 
                     } else {
@@ -519,14 +519,14 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                         } else {
                             FindNewSiteForUnit(unit);
 
-                            if (unit->grid_x == unit->point.x && unit->grid_y == unit->point.y) {
+                            if (unit->grid_x == unit->attack_site.x && unit->grid_y == unit->attack_site.y) {
                                 EvaluateAttackReadiness();
 
                                 result = false;
 
                             } else {
                                 SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(
-                                    unit, task, 0, caution_level, unit->point, &TaskTransport_MoveFinishedCallback));
+                                    unit, task, 0, caution_level, unit->attack_site, &TaskTransport_MoveFinishedCallback));
 
                                 move_task->SetField68(true);
 
@@ -554,7 +554,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
 }
 
 bool TaskAttack::IsDestinationReached(UnitInfo* unit) {
-    return unit->grid_x == unit->point.x && unit->grid_y == unit->point.y;
+    return unit->grid_x == unit->attack_site.x && unit->grid_y == unit->attack_site.y;
 }
 
 UnitInfo* TaskAttack::DetermineLeader() {
@@ -867,8 +867,8 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
             new_recon_unit->AddTask(this);
             recon_unit = new_recon_unit;
 
-            recon_unit->point.x = 0;
-            recon_unit->point.y = 0;
+            recon_unit->attack_site.x = 0;
+            recon_unit->attack_site.y = 0;
 
             result = true;
 
@@ -1206,7 +1206,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                         }
                     }
 
-                    unit->point = target_position;
+                    unit->attack_site = target_position;
 
                     if (unit->grid_x == target_position.x && unit->grid_y == target_position.y) {
                         if (leader == unit) {
@@ -1235,8 +1235,8 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                                  it != secondary_targets.End(); ++it) {
                                 for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin();
                                      it2 != (*it).GetUnits().End(); ++it2) {
-                                    (*it2).point.x = 0;
-                                    (*it2).point.y = 0;
+                                    (*it2).attack_site.x = 0;
+                                    (*it2).attack_site.y = 0;
                                 }
                             }
                         }
@@ -1362,7 +1362,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
     log.Log("Nearest location is [%i,%i], distance %i.", best_site.x + 1, best_site.y + 1, minimum_distance);
 
-    unit->point = best_site;
+    unit->attack_site = best_site;
 
     return best_site;
 }
@@ -1409,13 +1409,13 @@ bool TaskAttack::MoveReconUnit(int32_t caution_level) {
                          it != secondary_targets.End(); ++it) {
                         for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin();
                              it2 != (*it).GetUnits().End(); ++it2) {
-                            (*it2).point.x = 0;
-                            (*it2).point.y = 0;
+                            (*it2).attack_site.x = 0;
+                            (*it2).attack_site.y = 0;
                         }
                     }
                 }
 
-                leader->point = site;
+                leader->attack_site = site;
 
                 SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(&*leader, this, 0, caution_level, site,
                                                                              &TaskTransport_MoveFinishedCallback));
@@ -1459,8 +1459,8 @@ bool TaskAttack::IsAttackUnderControl() {
 
         if (projected_damage >= required_damage) {
             if (!kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
-                if (recon_unit && recon_unit->grid_x == recon_unit->point.x &&
-                    recon_unit->grid_y == recon_unit->point.y) {
+                if (recon_unit && recon_unit->grid_x == recon_unit->attack_site.x &&
+                    recon_unit->grid_y == recon_unit->attack_site.y) {
                     result = true;
 
                 } else {
@@ -1522,8 +1522,8 @@ bool TaskAttack::PlanMoveForReconUnit() {
                                 result = MoveReconUnit(caution_level);
 
                             } else {
-                                leader->point.x = leader->grid_x;
-                                leader->point.y = leader->grid_y;
+                                leader->attack_site.x = leader->grid_x;
+                                leader->attack_site.y = leader->grid_y;
 
                                 if (IsAttackUnderControl()) {
                                     result = MoveReconUnit(caution_level);
@@ -1610,13 +1610,13 @@ Point TaskAttack::GetLeaderDestination() {
     Point result;
 
     if (leader->orders == ORDER_IDLE) {
-        result = leader->point;
+        result = leader->attack_site;
 
     } else if (leader->speed > 0 && leader->path) {
         result = leader->path->GetPosition(&*leader);
 
-    } else if (leader->speed > 0 && (leader->point.x || leader->point.y)) {
-        result = leader->point;
+    } else if (leader->speed > 0 && (leader->attack_site.x || leader->attack_site.y)) {
+        result = leader->attack_site;
 
     } else {
         result.x = leader->grid_x;
@@ -1636,7 +1636,7 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
         for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
             if ((&*it2) != unit) {
-                access_map.GetMapColumn((*it2).point.x)[(*it2).point.y] = 0;
+                access_map.GetMapColumn((*it2).attack_site.x)[(*it2).attack_site.y] = 0;
             }
         }
     }
@@ -1645,13 +1645,13 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
         for (SmartList<UnitInfo>::Iterator it = support_attack_task->GetUnits().Begin();
              it != support_attack_task->GetUnits().End(); ++it) {
             if ((&*it) != unit) {
-                access_map.GetMapColumn((*it).point.x)[(*it).point.y] = 0;
+                access_map.GetMapColumn((*it).attack_site.x)[(*it).attack_site.y] = 0;
             }
         }
     }
 
     if (recon_unit && recon_unit != unit) {
-        access_map.GetMapColumn(recon_unit->point.x)[recon_unit->point.y] = 0;
+        access_map.GetMapColumn(recon_unit->attack_site.x)[recon_unit->attack_site.y] = 0;
     }
 
     Point position;
@@ -1713,7 +1713,7 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
         }
     }
 
-    unit->point = best_site;
+    unit->attack_site = best_site;
 }
 
 bool TaskAttack::MoveUnits() {

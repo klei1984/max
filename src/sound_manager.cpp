@@ -420,7 +420,7 @@ void SoundManager::FreeSfx(UnitInfo* const unit) noexcept {
 
     const uint16_t unit_id = unit->GetId();
 
-    unit->sound = SFX_TYPE_INVALID;
+    unit->SetSfxType(SFX_TYPE_INVALID);
 
     for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {
         if ((*it).unit_id == unit_id && (*it).type == JOB_TYPE_SFX0) {
@@ -537,7 +537,6 @@ void SoundManager::PlaySfx(const ResourceID id) noexcept {
 
 void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool mode) noexcept {
     uint8_t flags;
-    int32_t previous_sound;
 
     SDL_assert(unit);
     SDL_assert(sound < SFX_TYPE_LIMIT);
@@ -549,8 +548,7 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
         flags = SoundManager_SfxTypeFlags[sound];
     }
 
-    if (!(flags & SOUND_MANAGER_SFX_FLAG_UNKNOWN_2) ||
-        (previous_sound = unit->sound, unit->sound = sound, previous_sound != sound)) {
+    if (!(flags & SOUND_MANAGER_SFX_FLAG_UNKNOWN_2) || unit->SetSfxType(sound) != sound) {
         if (SFX_TYPE_INVALID == sound) {
             FreeSfx(unit);
             return;
@@ -704,7 +702,7 @@ void SoundManager::HaltSfxPlayback(const bool disable) noexcept {
 
     } else if (GameManager_SelectedUnit != nullptr) {
         PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID, false);
-        PlaySfx(&*GameManager_SelectedUnit, GameManager_SelectedUnit->sound, false);
+        PlaySfx(&*GameManager_SelectedUnit, GameManager_SelectedUnit->GetSfxType(), false);
     }
 }
 

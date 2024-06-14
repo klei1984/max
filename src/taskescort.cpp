@@ -102,7 +102,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
                 result = false;
 
             } else {
-                unit->point = unit_location;
+                unit->attack_site = unit_location;
 
                 SmartPointer<TaskMove> move_task(new (std::nothrow)
                                                      TaskMove(unit, this, 0, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,

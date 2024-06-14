@@ -1112,8 +1112,8 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
                     }
 
                 } else {
-                    friendly->target_grid_x = friendly->point.x - unit->point.x + unit->target_grid_x;
-                    friendly->target_grid_y = friendly->point.y - unit->point.y + unit->target_grid_y;
+                    friendly->target_grid_x = friendly->attack_site.x - unit->attack_site.x + unit->target_grid_x;
+                    friendly->target_grid_y = friendly->attack_site.y - unit->attack_site.y + unit->target_grid_y;
 
                     if (friendly->target_grid_x < 0) {
                         friendly->target_grid_x = 0;
@@ -2110,8 +2110,8 @@ void Access_UpdateMultiSelection(UnitInfo* unit) {
         (*it).orders = ORDER_AWAIT;
         (*it).target_grid_x = (*it).grid_x;
         (*it).target_grid_y = (*it).grid_y;
-        (*it).point.x = (*it).grid_x;
-        (*it).point.y = (*it).grid_y;
+        (*it).attack_site.x = (*it).grid_x;
+        (*it).attack_site.y = (*it).grid_y;
         (*it).path = nullptr;
 
         if (Remote_IsNetworkGame) {

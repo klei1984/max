@@ -48,7 +48,7 @@ void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& fil
             unit->color_cycling_lut = ResourceManager_TeamDerelictColorIndexTable;
         }
 
-        unit->sound = SFX_TYPE_INVALID;
+        unit->SetSfxType(SFX_TYPE_INVALID);
     }
 }
 
@@ -265,8 +265,7 @@ SmartList<UnitInfo>* MapHash::operator[](const Point& key) {
     return result;
 }
 
-UnitHash::UnitHash(uint16_t hash_size)
-    : hash_size(hash_size), list(new(std::nothrow) SmartList<UnitInfo>[hash_size]) {}
+UnitHash::UnitHash(uint16_t hash_size) : hash_size(hash_size), list(new(std::nothrow) SmartList<UnitInfo>[hash_size]) {}
 UnitHash::~UnitHash() { delete[] list; }
 
 void UnitHash::PushBack(UnitInfo* unit) {

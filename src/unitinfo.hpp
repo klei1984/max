@@ -89,6 +89,7 @@ private:
 
     SmartPointer<UnitInfo> parent_unit;
     char* name;
+    uint8_t sound;
 
 public:
     UnitInfo();
@@ -249,6 +250,22 @@ public:
     [[nodiscard]] UnitInfo* GetParent() const noexcept;
     void SetParent(UnitInfo* const parent) noexcept;
 
+    /**
+     * Get sound effect type being played by the sound manager for the unit.
+     * SFX_TYPE_INVALID means no sound effect is associated with the unit.
+     *
+     * \returns one of the SFX_TYPE_* enum values.
+     */
+    [[nodiscard]] uint8_t GetSfxType() const noexcept;
+
+    /**
+     * Set sound effect type being played by the sound manager for the unit.
+     *
+     * \param sound one of the SFX_TYPE_* enum values.
+     * \returns previous sound type.
+     */
+    uint8_t SetSfxType(uint8_t sound) noexcept;
+
     ResourceID unit_type;
     struct PopupFunctions* popup;
     const std::vector<SoundElement>* sound_table;
@@ -257,7 +274,7 @@ public:
     uint16_t y;
     int16_t grid_x;
     int16_t grid_y;
-    Point point;
+    Point attack_site;
     ColorIndex* color_cycling_lut;
     uint8_t team;
     uint8_t unit_id;
@@ -265,7 +282,6 @@ public:
     uint8_t angle;
     uint8_t max_velocity;
     uint8_t velocity;
-    uint8_t sound;
     uint8_t scaler_adjust;
     uint8_t turret_angle;
     char turret_offset_x;

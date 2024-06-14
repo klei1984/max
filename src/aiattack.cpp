@@ -1015,7 +1015,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                             SmartPointer<Task> move_task(
                                 new (std::nothrow) TaskMove(unit, task, 0, caution_level, site, result_callback));
 
-                            unit->point = site;
+                            unit->attack_site = site;
 
                             TaskManager.AppendTask(*move_task);
 

@@ -174,8 +174,8 @@ void TaskSupportAttack::AddUnit(UnitInfo& unit) {
     if (parent) {
         unit.AddTask(this);
         units.PushBack(unit);
-        unit.point.x = 0;
-        unit.point.y = 0;
+        unit.attack_site.x = 0;
+        unit.attack_site.y = 0;
 
         if (unit.unit_type == CARGOSHP || unit.unit_type == SPLYTRCK) {
             unit_type1 = INVALID_ID;

@@ -482,6 +482,7 @@ UnitInfo::UnitInfo()
       unit_list(nullptr),
       group_speed(0),
       name(nullptr),
+      sound(SFX_TYPE_INVALID),
       build_rate(1),
       field_221(0),
       disabled_reaction_fire(false),
@@ -533,7 +534,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       scaler_adjust(0),
       research_topic(0),
       velocity(0),
-      sound(0),
+      sound(SFX_TYPE_INVALID),
       unit_list(nullptr),
       group_speed(0),
       shadow_offset(0, 0),
@@ -610,7 +611,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       y(other.y),
       grid_x(other.grid_x),
       grid_y(other.grid_y),
-      point(other.point),
+      attack_site(other.attack_site),
       color_cycling_lut(other.color_cycling_lut),
       team(other.team),
       unit_id(other.unit_id),
@@ -2279,7 +2280,7 @@ void UnitInfo::Move() {
 
         if (GameManager_SelectedUnit == this) {
             if (speed > 0 && !path->IsEndStep()) {
-                if (sound != SFX_TYPE_DRIVE && sound != SFX_TYPE_STOP) {
+                if (GetSfxType() != SFX_TYPE_DRIVE && GetSfxType() != SFX_TYPE_STOP) {
                     SoundManager_PlaySfx(this, SFX_TYPE_DRIVE);
                 }
 
@@ -5133,3 +5134,15 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
 [[nodiscard]] UnitInfo* UnitInfo::GetParent() const noexcept { return parent_unit.Get(); }
 
 void UnitInfo::SetParent(UnitInfo* const parent) noexcept { parent_unit = parent; }
+
+[[nodiscard]] uint8_t UnitInfo::GetSfxType() const noexcept { return sound; }
+
+uint8_t UnitInfo::SetSfxType(uint8_t sound) noexcept {
+    auto previous_sound{this->sound};
+
+    SDL_assert(sound < SFX_TYPE_LIMIT);
+
+    this->sound = sound;
+
+    return previous_sound;
+}

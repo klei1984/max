@@ -469,8 +469,8 @@ void TaskKillUnit::AddUnit(UnitInfo& unit) {
         unit.AddTask(this);
         units.PushBack(unit);
 
-        unit.point.x = 0;
-        unit.point.y = 0;
+        unit.attack_site.x = 0;
+        unit.attack_site.y = 0;
 
         if (parent && !parent->IsScheduledForTurnEnd()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*parent));

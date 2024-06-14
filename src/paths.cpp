@@ -297,7 +297,7 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
                     delta_x >>= 1;
                     delta_y >>= 1;
 
-                } else if (GameManager_SelectedUnit == unit && unit->sound != SFX_TYPE_DRIVE) {
+                } else if (GameManager_SelectedUnit == unit && unit->GetSfxType() != SFX_TYPE_DRIVE) {
                     SoundManager_PlaySfx(unit, SFX_TYPE_DRIVE);
                 }
             }
