@@ -203,16 +203,16 @@ bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int32_t caution_l
 
 void Ai_UpdateTerrain(UnitInfo* unit) {
     if (unit->flags & STATIONARY) {
-        if (unit->unit_type == BRIDGE) {
+        if (unit->GetUnitType() == BRIDGE) {
             AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y),
                                               SURFACE_TYPE_LAND | SURFACE_TYPE_WATER);
         }
 
-        if (unit->unit_type == CNCT_4W) {
+        if (unit->GetUnitType() == CNCT_4W) {
             AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_LAND);
         }
 
-        if (unit->unit_type != CNCT_4W && !(unit->flags & GROUND_COVER)) {
+        if (unit->GetUnitType() != CNCT_4W && !(unit->flags & GROUND_COVER)) {
             AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_NONE);
         }
     }
@@ -296,15 +296,16 @@ void Ai_RemoveUnit(UnitInfo* unit) {
 
                 if (units) {
                     for (auto it = units->Begin(); it != units->End(); ++it) {
-                        if ((*it).unit_type == BRIDGE) {
+                        if ((*it).GetUnitType() == BRIDGE) {
                             surface_type |= SURFACE_TYPE_LAND;
                         }
 
-                        if ((*it).unit_type == WTRPLTFM) {
+                        if ((*it).GetUnitType() == WTRPLTFM) {
                             surface_type = SURFACE_TYPE_LAND;
                         }
 
-                        if ((*it).unit_type != CNCT_4W && (((*it).flags & (GROUND_COVER | STATIONARY)) == STATIONARY)) {
+                        if ((*it).GetUnitType() != CNCT_4W &&
+                            (((*it).flags & (GROUND_COVER | STATIONARY)) == STATIONARY)) {
                             surface_type = SURFACE_TYPE_NONE;
                             break;
                         }

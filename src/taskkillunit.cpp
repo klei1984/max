@@ -61,7 +61,7 @@ int32_t TaskKillUnit::GetProjectedDamage(UnitInfo* attacker, UnitInfo* target) {
         if ((target->GetBaseValues()->GetAttribute(ATTRIB_SPEED) == 0 &&
              attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE) >
                  target->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) ||
-            !Access_IsValidAttackTargetType(target->unit_type, attacker->unit_type)) {
+            !Access_IsValidAttackTargetType(target->GetUnitType(), attacker->GetUnitType())) {
             damage_potential += target->hits - 1;
         }
     }
@@ -154,7 +154,8 @@ bool TaskKillUnit::GetNewUnits() {
     bool result;
 
     if (spotted_unit) {
-        AiLog log("Kill %s: Get new units ", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name);
+        AiLog log("Kill %s: Get new units ",
+                  UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name);
 
         if (!weight_table.GetCount()) {
             FindVaildTypes();
@@ -163,7 +164,7 @@ bool TaskKillUnit::GetNewUnits() {
         }
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-            if (!weight_table.GetWeight((*it).unit_type)) {
+            if (!weight_table.GetWeight((*it).GetUnitType())) {
                 TaskManager.RemindAvailable(&*it);
             }
         }
@@ -186,7 +187,8 @@ bool TaskKillUnit::GetNewUnits() {
                     unit2 = nullptr;
                 }
 
-                if (unit2 && !(unit2->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT)) && unit2->unit_type != COMMANDO) {
+                if (unit2 && !(unit2->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT)) &&
+                    unit2->GetUnitType() != COMMANDO) {
                     ResourceID unit_type = INVALID_ID;
 
                     if (Task_GetReadyUnitsCount(team, AIRTRANS) > 0) {
@@ -357,8 +359,8 @@ bool TaskKillUnit::GiveOrdersToUnit(UnitInfo* unit) {
 
     if (unit->IsReadyForOrders(this) && parent && unit->speed > 0) {
         AiLog log("Kill %s: give orders to %s.",
-                  spotted_unit ? UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name : "unit",
-                  UnitsManager_BaseUnits[unit->unit_type].singular_name);
+                  spotted_unit ? UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name : "unit",
+                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
         if (spotted_unit && unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
             result = dynamic_cast<TaskAttack*>(&*parent)->MoveCombatUnit(this, unit);
@@ -389,7 +391,7 @@ bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
 
     if (spotted_unit && unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
         unit.ammo >= unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) && managed_unit != unit) {
-        if (weight_table.GetWeight(unit.unit_type)) {
+        if (weight_table.GetWeight(unit.GetUnitType())) {
             result = hits > projected_damage;
 
         } else {
@@ -422,7 +424,8 @@ char* TaskKillUnit::WriteStatusLog(char* buffer) const {
 
         spotted_unit->GetUnit()->GetDisplayName(unit_name, sizeof(unit_name));
 
-        sprintf(buffer, "Kill %s at [%i,%i]", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name,
+        sprintf(buffer, "Kill %s at [%i,%i]",
+                UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name,
                 spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
 
         if (required_damage > projected_damage) {
@@ -460,8 +463,8 @@ bool TaskKillUnit::IsNeeded() { return hits > projected_damage && spotted_unit &
 
 void TaskKillUnit::AddUnit(UnitInfo& unit) {
     AiLog log("Kill %s: Add %s.",
-              spotted_unit ? UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name : "unit",
-              UnitsManager_BaseUnits[unit.unit_type].singular_name);
+              spotted_unit ? UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name : "unit",
+              UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (spotted_unit) {
         projected_damage += GetProjectedDamage(&unit, spotted_unit->GetUnit());
@@ -487,7 +490,7 @@ void TaskKillUnit::BeginTurn() {
     if (spotted_unit) {
         Point position;
 
-        AiLog log("Kill %s: Begin Turn.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name);
+        AiLog log("Kill %s: Begin Turn.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name);
 
         managed_unit = nullptr;
 
@@ -511,7 +514,7 @@ void TaskKillUnit::ChildComplete(Task* task) {
 
 void TaskKillUnit::EndTurn() {
     if (spotted_unit) {
-        AiLog log("Kill %s: End Turn.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name);
+        AiLog log("Kill %s: End Turn.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name);
 
         MoveUnits();
     }
@@ -522,8 +525,8 @@ bool TaskKillUnit::Execute(UnitInfo& unit) {
 
     if (spotted_unit) {
         AiLog log("Kill %s: move %s finished.",
-                  UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name,
-                  UnitsManager_BaseUnits[unit.unit_type].singular_name);
+                  UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name,
+                  UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
         if (unit.IsReadyForOrders(this) && unit.speed > 0) {
             if (unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
@@ -560,7 +563,7 @@ bool TaskKillUnit::Execute(UnitInfo& unit) {
 
 void TaskKillUnit::RemoveSelf() {
     if (spotted_unit) {
-        AiLog log("Kill %s: cancelled.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name);
+        AiLog log("Kill %s: cancelled.", UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name);
 
         spotted_unit = nullptr;
 
@@ -591,8 +594,8 @@ void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
     SmartPointer<Task> task(this);
 
     AiLog log("Kill %s: Remove %s",
-              spotted_unit ? UnitsManager_BaseUnits[spotted_unit->GetUnit()->unit_type].singular_name : "unit",
-              UnitsManager_BaseUnits[unit.unit_type].singular_name);
+              spotted_unit ? UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name : "unit",
+              UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     units.Remove(unit);
 

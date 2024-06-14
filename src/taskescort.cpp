@@ -56,7 +56,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
         } else if (Task_GetReadyUnitsCount(team, SEATRANS) > 0) {
             escort_type = SEATRANS;
 
-        } else if ((unit->unit_type == COMMANDO || unit->unit_type == INFANTRY) &&
+        } else if ((unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) &&
                    Task_GetReadyUnitsCount(team, CLNTRANS) > 0) {
             escort_type = CLNTRANS;
 
@@ -89,7 +89,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
 
                             if (distance < minimum_distance && !(info_map[position.x][position.y] & 8) &&
                                 transporter_map.Search(position) &&
-                                Access_IsAccessible(unit->unit_type, team, position.x, position.y, 0x02)) {
+                                Access_IsAccessible(unit->GetUnitType(), team, position.x, position.y, 0x02)) {
                                 unit_location = position;
                                 minimum_distance = distance;
                             }
@@ -146,7 +146,7 @@ bool TaskEscort::Task_vfunc1(UnitInfo& unit) { return (!target || target->hits =
 
 char* TaskEscort::WriteStatusLog(char* buffer) const {
     if (target) {
-        sprintf(buffer, "Escort %s at [%i,%i]", UnitsManager_BaseUnits[target->unit_type].singular_name,
+        sprintf(buffer, "Escort %s at [%i,%i]", UnitsManager_BaseUnits[target->GetUnitType()].singular_name,
                 target->grid_x + 1, target->grid_y + 1);
 
     } else {
@@ -159,7 +159,7 @@ char* TaskEscort::WriteStatusLog(char* buffer) const {
 uint8_t TaskEscort::GetType() const { return TaskType_TaskEscort; }
 
 void TaskEscort::AddUnit(UnitInfo& unit) {
-    if (!escort && unit_type == unit.unit_type && target) {
+    if (!escort && unit_type == unit.GetUnitType() && target) {
         escort = unit;
         escort->AddTask(this);
         escort->ScheduleDelayedTasks(true);
@@ -210,7 +210,7 @@ void TaskEscort::EndTurn() {
 
                         for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End();
                              ++it) {
-                            if ((*it).team != team && teams[(*it).team] && (*it).unit_type == AIRPLT) {
+                            if ((*it).team != team && teams[(*it).team] && (*it).GetUnitType() == AIRPLT) {
                                 break;
                             }
                         }

@@ -96,7 +96,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     AiLog log("Obtain Unit: Find %s ", UnitsManager_BaseUnits[unit_type].singular_name);
 
     for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != list->End(); ++unit) {
-        if ((*unit).unit_type == unit_type) {
+        if ((*unit).GetUnitType() == unit_type) {
             if ((*unit).orders == ORDER_BUILD &&
                 ((*unit).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {
                 speed = (*unit).build_time * (*unit).GetBaseValues()->GetAttribute(ATTRIB_SPEED) +
@@ -125,7 +125,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     if (selected_unit) {
         if (!is_unit_available) {
             log.Log("%s at [%i,%i] has %i turns left to build",
-                    UnitsManager_BaseUnits[selected_unit->unit_type].singular_name, selected_unit->grid_x + 1,
+                    UnitsManager_BaseUnits[selected_unit->GetUnitType()].singular_name, selected_unit->grid_x + 1,
                     selected_unit->grid_y + 1, selected_unit->build_time);
 
             selected_unit = nullptr;
@@ -189,11 +189,13 @@ bool TaskObtainUnits::IsNeeded() {
 }
 
 void TaskObtainUnits::AddUnit(UnitInfo& unit) {
-    int32_t index = units->Find(&unit.unit_type);
+    auto unit_type{unit.GetUnitType()};
 
-    AiLog log("Obtain Units: Add %s %i.", UnitsManager_BaseUnits[unit.unit_type].singular_name, unit.unit_id);
+    int32_t index = units->Find(&unit_type);
 
-    if (CountInstancesOfUnitType(unit.unit_type)) {
+    AiLog log("Obtain Units: Add %s %i.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name, unit.unit_id);
+
+    if (CountInstancesOfUnitType(unit.GetUnitType())) {
         units->Remove(index);
         parent->AddUnit(unit);
 

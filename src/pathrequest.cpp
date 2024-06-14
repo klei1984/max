@@ -30,7 +30,7 @@
 const char* PathRequest_CautionLevels[] = {"none", "avoid reaction fire", "avoid next turn's fire", "avoid all damage"};
 
 PathRequest::PathRequest(UnitInfo* unit, int32_t mode, Point point) : client(unit), point(point), flags(mode) {
-    AiLog log("Path request for %s at [%i,%i].", UnitsManager_BaseUnits[client->unit_type].singular_name,
+    AiLog log("Path request for %s at [%i,%i].", UnitsManager_BaseUnits[client->GetUnitType()].singular_name,
               client->grid_x + 1, client->grid_y + 1);
 
     max_cost = INT16_MAX;

@@ -76,9 +76,9 @@ bool TaskAttackReserve::IsUnitUsable(UnitInfo& unit) {
         unit.ammo >= unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) && unit.speed > 0) {
         result = true;
 
-    } else if (unit.unit_type == ENGINEER || unit.unit_type == CONSTRCT || unit.unit_type == LANDPLT ||
-               unit.unit_type == LIGHTPLT || unit.unit_type == AIRPLT || unit.unit_type == SHIPYARD ||
-               unit.unit_type == TRAINHAL) {
+    } else if (unit.GetUnitType() == ENGINEER || unit.GetUnitType() == CONSTRCT || unit.GetUnitType() == LANDPLT ||
+               unit.GetUnitType() == LIGHTPLT || unit.GetUnitType() == AIRPLT || unit.GetUnitType() == SHIPYARD ||
+               unit.GetUnitType() == TRAINHAL) {
         result = true;
 
     } else {
@@ -135,14 +135,14 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
         }
 
     } else if (unit.team == team && unit.orders != ORDER_IDLE) {
-        if (unit.unit_type == LANDPLT || unit.unit_type == LIGHTPLT || unit.unit_type == AIRPLT ||
-            unit.unit_type == SHIPYARD || unit.unit_type == TRAINHAL) {
+        if (unit.GetUnitType() == LANDPLT || unit.GetUnitType() == LIGHTPLT || unit.GetUnitType() == AIRPLT ||
+            unit.GetUnitType() == SHIPYARD || unit.GetUnitType() == TRAINHAL) {
             if (unit.GetComplex()->material > 10 && unit.GetComplex()->fuel > 10) {
                 int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
                 WeightTable table = AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 3);
 
                 for (int32_t i = 0; i < table.GetCount(); ++i) {
-                    if (Builder_GetBuilderType(table[i].unit_type) != unit.unit_type ||
+                    if (Builder_GetBuilderType(table[i].unit_type) != unit.GetUnitType() ||
                         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
                                 ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end) {
                         table[i].weight = 0;
@@ -163,7 +163,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
             }
         }
 
-        if (unit.unit_type == CONSTRCT || unit.unit_type == ENGINEER) {
+        if (unit.GetUnitType() == CONSTRCT || unit.GetUnitType() == ENGINEER) {
             if (!TaskManager_NeedToReserveRawMaterials(team)) {
                 WeightTable table;
                 bool builders_needed = false;
@@ -175,7 +175,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if ((*it).team == team) {
-                        ++unit_types[(*it).unit_type];
+                        ++unit_types[(*it).GetUnitType()];
                     }
                 }
 
@@ -194,7 +194,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 
                     unit_type = Builder_GetBuilderType(table[i].unit_type);
 
-                    if (unit_type != unit.unit_type && Builder_GetBuilderType(unit_type) != unit.unit_type) {
+                    if (unit_type != unit.GetUnitType() && Builder_GetBuilderType(unit_type) != unit.GetUnitType()) {
                         table[i].weight = 0;
                     }
 
@@ -215,7 +215,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 if (unit_type != INVALID_ID) {
                     ResourceID builder = Builder_GetBuilderType(unit_type);
 
-                    if (builder != unit.unit_type) {
+                    if (builder != unit.GetUnitType()) {
                         unit_type = builder;
                     }
 

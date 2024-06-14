@@ -300,7 +300,7 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t ul
         if (parent) {
             if ((unit->orders == ORDER_IDLE || (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY &&
                                                 (unit->flags & STATIONARY) == 0)) &&
-                parent->unit_type != AIRTRANS) {
+                parent->GetUnitType() != AIRTRANS) {
                 Point point(parent->grid_x - 1, parent->grid_y + 1);
                 int32_t limit;
                 uint32_t flags;
@@ -319,7 +319,7 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t ul
                     for (int32_t j = 0; j < limit; ++j) {
                         point += Paths_8DirPointsArray[i];
 
-                        if (Access_IsAccessible(unit->unit_type, GameManager_PlayerTeam, point.x, point.y, flags)) {
+                        if (Access_IsAccessible(unit->GetUnitType(), GameManager_PlayerTeam, point.x, point.y, flags)) {
                             callback(point.x, point.y);
                         }
                     }
@@ -736,7 +736,7 @@ void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int32_t color) {
 void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
     char text[400];
 
-    if (unit->unit_type == RESEARCH && unit->orders == ORDER_POWER_ON &&
+    if (unit->GetUnitType() == RESEARCH && unit->orders == ORDER_POWER_ON &&
         UnitsManager_TeamInfo[unit->team].research_topics[unit->research_topic].turns_to_complete == 0) {
         sprintf(text, _(e3a4), ResearchMenu_TopicLabels[unit->research_topic]);
         DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | 0x1F);
@@ -745,8 +745,8 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
         UnitInfo* parent = unit->GetParent();
 
         if (parent) {
-            sprintf(text, DrawMap_UnitCompletionLabels[UnitsManager_BaseUnits[parent->unit_type].gender],
-                    UnitsManager_BaseUnits[parent->unit_type].singular_name);
+            sprintf(text, DrawMap_UnitCompletionLabels[UnitsManager_BaseUnits[parent->GetUnitType()].gender],
+                    UnitsManager_BaseUnits[parent->GetUnitType()].singular_name);
 
             if (parent->flags & STATIONARY) {
                 unit = parent;
@@ -755,8 +755,8 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
             DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | 0x1F);
         }
 
-    } else if (GameManager_DisplayButtonNames && (unit->flags & SELECTABLE) && unit->unit_type != LRGTAPE &&
-               unit->unit_type != SMLTAPE) {
+    } else if (GameManager_DisplayButtonNames && (unit->flags & SELECTABLE) && unit->GetUnitType() != LRGTAPE &&
+               unit->GetUnitType() != SMLTAPE) {
         unit->GetDisplayName(text, sizeof(text));
         DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | COLOR_YELLOW);
     }

@@ -42,7 +42,7 @@ int32_t AiAttack_GetTargetValue(UnitInfo* unit) {
     int32_t turns_to_build = unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS);
 
     if (turns_to_build > 4) {
-        if (attack_range >= 10 || unit->unit_type == COMMANDO || unit->unit_type == SUBMARNE ||
+        if (attack_range >= 10 || unit->GetUnitType() == COMMANDO || unit->GetUnitType() == SUBMARNE ||
             unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS) < 8) {
             result = attack_range;
 
@@ -147,7 +147,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
 
                     if (damage_potential < *projected_damage || distance < minimum_distance) {
                         if (!info_map || !(info_map[position.x][position.y] & 8)) {
-                            if (Access_IsAccessible(unit1->unit_type, unit1->team, position.x, position.y, 2)) {
+                            if (Access_IsAccessible(unit1->GetUnitType(), unit1->team, position.x, position.y, 2)) {
                                 *projected_damage = damage_potential;
                                 *site = position;
                                 minimum_distance = distance;
@@ -164,8 +164,8 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
     return result;
 }
 
-bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int32_t* projected_damage, int32_t caution_level,
-                                    int32_t range, bool mode) {
+bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int32_t* projected_damage,
+                                    int32_t caution_level, int32_t range, bool mode) {
     ZoneWalker walker(target, range);
     uint8_t** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
     int16_t** damage_potential_map;
@@ -179,7 +179,7 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
 
     if (mode) {
         distance1 = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) + unit->speed;
-        if ((UnitsManager_BaseUnits[unit->unit_type].land_type & (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER)) ==
+        if ((UnitsManager_BaseUnits[unit->GetUnitType()].land_type & (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER)) ==
                 (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER) &&
             !(unit->flags & MOBILE_AIR_UNIT)) {
             mode = false;
@@ -229,7 +229,8 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
                     is_better = false;
 
                     if (!info_map || !(info_map[walker.GetGridX()][walker.GetGridY()] & 8)) {
-                        if (Access_IsAccessible(unit->unit_type, unit->team, walker.GetGridX(), walker.GetGridY(), 2)) {
+                        if (Access_IsAccessible(unit->GetUnitType(), unit->team, walker.GetGridX(), walker.GetGridY(),
+                                                2)) {
                             is_better = !mode || transporter_map.Search(*walker.GetCurrentLocation());
                         }
                     }
@@ -301,7 +302,7 @@ bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team, bool* relevant_teams)
 bool AiAttack_IsValidSabotageTarget(UnitInfo* unit, UnitInfo* target) {
     bool result;
 
-    if (unit->unit_type == COMMANDO && (target->flags & ELECTRONIC_UNIT) && !(target->flags & HOVERING) &&
+    if (unit->GetUnitType() == COMMANDO && (target->flags & ELECTRONIC_UNIT) && !(target->flags & HOVERING) &&
         (target->orders != ORDER_DISABLE || !(target->flags & STATIONARY))) {
         result = true;
 
@@ -378,8 +379,8 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                 }
             }
 
-            if (attacker->shots > 0 || attacker->unit_type != COMMANDO) {
-                if (attacker->unit_type == COMMANDO && attack_range == 1) {
+            if (attacker->shots > 0 || attacker->GetUnitType() != COMMANDO) {
+                if (attacker->GetUnitType() == COMMANDO && attack_range == 1) {
                     TaskManager_word_1731C0 = 2;
                     attacker->SetParent(target);
 
@@ -422,7 +423,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
 }
 
 bool AiAttack_CanAttack(UnitInfo* attacker, UnitInfo* target) {
-    if (attacker->unit_type == COMMANDO) {
+    if (attacker->GetUnitType() == COMMANDO) {
         if (AiAttack_IsValidSabotageTarget(attacker, target) &&
             Task_IsAdjacent(target, attacker->grid_x, attacker->grid_y) &&
             UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_DISABLE_UNIT) > 85) {
@@ -447,7 +448,7 @@ bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, uint
         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
             if ((*it).team == team && (*it).shots > 0 && Task_IsReadyToTakeOrders(&*it) &&
                 AiAttack_CanAttack(&*it, unit)) {
-                if ((unit->unit_type != LANDMINE && unit->unit_type != SEAMINE) ||
+                if ((unit->GetUnitType() != LANDMINE && unit->GetUnitType() != SEAMINE) ||
                     (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS) > 0 ||
                     (*it).GetBaseValues()->GetAttribute(ATTRIB_TURNS) < 6) {
                     Point position((*it).grid_x, (*it).grid_y);
@@ -545,7 +546,8 @@ void AiAttack_GetTargetTeams(uint16_t team, bool* teams) {
     }
 }
 
-SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_t scan, int32_t caution_level, bool mode) {
+SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_t scan, int32_t caution_level,
+                                           bool mode) {
     SpottedUnit* spotted_unit = nullptr;
     UnitValues* base_values = unit->GetBaseValues();
     int32_t minimum_score = 0;
@@ -554,7 +556,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
     int32_t minimum_damage = 32000;
     int32_t unit_scan = base_values->GetAttribute(ATTRIB_SCAN);
     int32_t unit_range = base_values->GetAttribute(ATTRIB_RANGE);
-    uint8_t surface_type = UnitsManager_BaseUnits[unit->unit_type].land_type;
+    uint8_t surface_type = UnitsManager_BaseUnits[unit->GetUnitType()].land_type;
     Point unit_position;
     bool teams[PLAYER_TEAM_MAX];
     int32_t distance;
@@ -579,7 +581,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
 
             if (distance <= range) {
                 if (target_unit->IsVisibleToTeam(unit->team) || distance <= scan) {
-                    if (unit->unit_type == COMMANDO && !unit->IsVisibleToTeam(target_unit->team)) {
+                    if (unit->GetUnitType() == COMMANDO && !unit->IsVisibleToTeam(target_unit->team)) {
                         if (!AiAttack_IsValidSabotageTarget(unit, target_unit) ||
                             (UnitsManager_GetStealthChancePercentage(unit, target_unit, ORDER_AWAIT_DISABLE_UNIT) <=
                                  85 &&
@@ -592,11 +594,11 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                     }
 
                     if ((target_unit->IsVisibleToTeam(unit_team) ||
-                         ((target_unit->unit_type != COMMANDO || unit->unit_type == INFANTRY ||
-                           unit->unit_type == COMMANDO) &&
-                          (!UnitsManager_IsUnitUnderWater(target_unit) || unit->unit_type == CORVETTE))) &&
+                         ((target_unit->GetUnitType() != COMMANDO || unit->GetUnitType() == INFANTRY ||
+                           unit->GetUnitType() == COMMANDO) &&
+                          (!UnitsManager_IsUnitUnderWater(target_unit) || unit->GetUnitType() == CORVETTE))) &&
                         (target_unit->orders != ORDER_DISABLE || (target_unit->flags & STATIONARY) ||
-                         unit->unit_type == COMMANDO || ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT)) {
+                         unit->GetUnitType() == COMMANDO || ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT)) {
                         if (!target_unit->IsVisibleToTeam(unit_team) &&
                             UnitsManager_TeamInfo[unit_team]
                                 .heat_map_complete[ResourceManager_MapSize.x * unit_position.y + unit_position.x]) {
@@ -604,7 +606,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                             unit_position = (*it).GetLastPosition();
                         }
 
-                        if ((target_unit->unit_type != LANDMINE && target_unit->unit_type != SEAMINE) ||
+                        if ((target_unit->GetUnitType() != LANDMINE && target_unit->GetUnitType() != SEAMINE) ||
                             base_values->GetAttribute(ATTRIB_ATTACK_RADIUS) > 0 ||
                             base_values->GetAttribute(ATTRIB_TURNS) < 6) {
                             if (target_unit->IsVisibleToTeam(unit_team) ||
@@ -734,7 +736,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                         if (spotted_unit) {
                             UnitInfo* target = spotted_unit->GetUnit();
 
-                            if (unit->unit_type == COMMANDO && AiAttack_IsValidSabotageTarget(unit, target) &&
+                            if (unit->GetUnitType() == COMMANDO && AiAttack_IsValidSabotageTarget(unit, target) &&
                                 !Task_IsAdjacent(target, unit->grid_x, unit->grid_y)) {
                                 result = false;
 
@@ -826,7 +828,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
             int32_t unit_range;
             int32_t unit_speed;
 
-            if (unit->unit_type == COMMANDO) {
+            if (unit->GetUnitType() == COMMANDO) {
                 unit_range = 1;
 
             } else {
@@ -854,7 +856,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                     }
 
                     if (distance <= unit_range * unit_range ||
-                        (unit->unit_type == COMMANDO && AiAttack_CanAttack(unit, target))) {
+                        (unit->GetUnitType() == COMMANDO && AiAttack_CanAttack(unit, target))) {
                         result = AiAttack_EvaluateAttack(unit);
 
                     } else if ((target->orders != ORDER_DISABLE ||
@@ -872,7 +874,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                             target_range = target_range * target_range;
 
                             if (target_range <= distance && unit->shots > 0 &&
-                                Access_IsValidAttackTargetType(target->unit_type, unit->unit_type) &&
+                                Access_IsValidAttackTargetType(target->GetUnitType(), unit->GetUnitType()) &&
                                 !AiAttack_DecideDesperationAttack(unit, target)) {
                                 unit_speed = unit->speed - (unit_values->GetAttribute(ATTRIB_SPEED) /
                                                             unit_values->GetAttribute(ATTRIB_ROUNDS));
@@ -1163,8 +1165,8 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
 
                             if (distance < range && (!info_map || !(info_map[unit_position.x][unit_position.y] & 8))) {
                                 if (map.Search(unit_position) &&
-                                    Access_IsAccessible(unit->unit_type, unit->team, unit_position.x, unit_position.y,
-                                                        0x02)) {
+                                    Access_IsAccessible(unit->GetUnitType(), unit->team, unit_position.x,
+                                                        unit_position.y, 0x02)) {
                                     target_location = unit_position;
                                     range = distance;
                                 }
@@ -1230,8 +1232,9 @@ uint32_t AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, uint16_t 
             if (attacker->shots * UnitsManager_GetAttackDamage(attacker, target, 0) >= target->hits) {
                 result += 0x40;
 
-                if (target->unit_type == REPAIR || target->unit_type == MININGST || target->unit_type == SCANNER ||
-                    target->unit_type == RADAR || target->unit_type == GREENHSE) {
+                if (target->GetUnitType() == REPAIR || target->GetUnitType() == MININGST ||
+                    target->GetUnitType() == SCANNER || target->GetUnitType() == RADAR ||
+                    target->GetUnitType() == GREENHSE) {
                     result += 0x38;
                 }
             }
@@ -1248,9 +1251,9 @@ uint32_t AiAttack_GetTargetWorth(UnitInfo* attacker, UnitInfo* target) {
 
     if (Access_IsValidAttackTarget(attacker, target) && target->hits > 0) {
         int32_t value = (attacker->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) *
-                     UnitsManager_GetAttackDamage(attacker, target, 0) *
-                     target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) * 7) /
-                    (target->hits * 12);
+                         UnitsManager_GetAttackDamage(attacker, target, 0) *
+                         target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) * 7) /
+                        (target->hits * 12);
 
         if (value >= 1) {
             if (value <= 7) {

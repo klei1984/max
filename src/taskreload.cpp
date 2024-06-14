@@ -96,7 +96,7 @@ void TaskReload::SelectOperator() {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).team == team && (*it).unit_type == unit_type && (*it).hits > 0 &&
+            if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).hits > 0 &&
                 ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
                 if ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) {
@@ -139,8 +139,8 @@ void TaskReload::CreateUnit() {
 }
 
 void TaskReload::IssueOrder() {
-    AiLog log("Reloading %s from %s.", UnitsManager_BaseUnits[target_unit->unit_type].singular_name,
-              UnitsManager_BaseUnits[operator_unit->unit_type].singular_name);
+    AiLog log("Reloading %s from %s.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
+              UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
 
     operator_unit->SetParent(&*target_unit);
     UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);

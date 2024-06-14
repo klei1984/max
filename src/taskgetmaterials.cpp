@@ -63,7 +63,7 @@ char* TaskGetMaterials::WriteStatusLog(char* buffer) const {
 
                 sprintf(text, "get %i from ", remaining_demand);
                 strcat(buffer, text);
-                strcat(buffer, UnitsManager_BaseUnits[source->unit_type].singular_name);
+                strcat(buffer, UnitsManager_BaseUnits[source->GetUnitType()].singular_name);
 
             } else {
                 strcat(buffer, "waiting for source.");
@@ -161,8 +161,8 @@ void TaskGetMaterials::DoTransfer() {
         SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
         log.Log("Order %i materials from %s at [%i,%i] for %s at [%i,%i] holding %i materials.", source->target_grid_x,
-                UnitsManager_BaseUnits[source->unit_type].singular_name, source->grid_x + 1, source->grid_y + 1,
-                UnitsManager_BaseUnits[requestor->unit_type].singular_name, requestor->grid_x + 1,
+                UnitsManager_BaseUnits[source->GetUnitType()].singular_name, source->grid_x + 1, source->grid_y + 1,
+                UnitsManager_BaseUnits[requestor->GetUnitType()].singular_name, requestor->grid_x + 1,
                 requestor->grid_y + 1, requestor->storage);
 
         UnitsManager_SetNewOrder(source.Get(), ORDER_TRANSFER, ORDER_STATE_INIT);
@@ -180,7 +180,7 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team && (*it).storage > 0 && (*it).hits > 0 &&
-            UnitsManager_BaseUnits[(*it).unit_type].cargo_type == CARGO_TYPE_RAW) {
+            UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
             UnitInfo* candidate_building = FindClosestBuilding((*it).GetComplex());
 
             const int32_t distance = TaskManager_GetDistance(candidate_building, it->Get());
@@ -203,7 +203,7 @@ void TaskGetMaterials::FindTruck() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == CARGO_TYPE_RAW &&
+        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW &&
             (*it).storage > 0 && (*it).hits > 0 &&
             ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) && requestor != *it) {
             bool candidate_found;

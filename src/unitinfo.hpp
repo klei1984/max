@@ -90,19 +90,87 @@ private:
     SmartPointer<UnitInfo> parent_unit;
     char* name;
     uint8_t sound;
+    ResourceID unit_type;
 
 public:
+    /**
+     * The default constructor is only usable in special use cases.
+     */
     UnitInfo();
+
+    /**
+     * Construct a particular unit type for a given team.
+     *
+     * \param unit_type one of the ResourceID enum values below UNIT_END
+     * \param team unit one of the PlayerTeam enum values
+     * \param id unit hash between 0x0000 - 0xFFFE, 0xFFFF is the invalid id
+     * \param angle one of the UnitAngle enum values
+     */
     UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle = 0);
+
+    /** Copy constructor. */
     UnitInfo(const UnitInfo& other);
+
+    /** Destructor. */
     ~UnitInfo();
 
-    static FileObject* Allocate() noexcept;
+    /**
+     * Get UTF-8 encoded null terminated name of unit without mark segment.
+     *
+     * \param text a plain char* buffer to hold the returned unit name
+     * \param size buffer size in bytes
+     */
+    void GetName(char* const text, const size_t size) const noexcept;
 
+    /**
+     * Get UTF-8 encoded null terminated full name of unit.
+     *
+     * \param text a plain char* buffer to hold the returned unit name
+     * \param size buffer size in bytes
+     */
+    void GetDisplayName(char* const text, const size_t size) const noexcept;
+
+    /**
+     * Set UTF-8 encoded null terminated name of unit without mark segment.
+     *
+     * \param text a plain char* buffer that holds the name to set
+     */
+    void SetName(const char* const text) noexcept;
+
+    /**
+     * Get sound effect type being played by the sound manager for the unit.
+     * SFX_TYPE_INVALID means no sound effect is associated with the unit.
+     *
+     * \returns one of the SfxType enum values
+     */
+    [[nodiscard]] uint8_t GetSfxType() const noexcept;
+
+    /**
+     * Set sound effect type being played by the sound manager for the unit.
+     *
+     * \param sound one of the SfxType enum values
+     * \returns previous sound type
+     */
+    uint8_t SetSfxType(uint8_t sound) noexcept;
+
+    /**
+     * Get type of unit.
+     *
+     * \returns one of the ResourceID enum values below UNIT_END
+     */
+    [[nodiscard]] ResourceID GetUnitType() const noexcept;
+
+    /**
+     * Set type of unit.
+     *
+     * \param unit_type one of the ResourceID enum values below UNIT_END
+     */
+    void SetUnitType(ResourceID unit_type) noexcept;
+
+    static FileObject* Allocate() noexcept;
     uint16_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;
     void FileSave(SmartFileWriter& file) noexcept;
-
     static int32_t GetDrawLayer(ResourceID unit_type);
     bool IsVisibleToTeam(uint16_t team) const;
     void SetEnemy(UnitInfo* enemy);
@@ -159,29 +227,6 @@ public:
     void StopMovement();
     void SpotByTeam(uint16_t team);
     static void GetVersion(char* text, int32_t version);
-
-    /**
-     * Get UTF-8 encoded null terminated name of unit without mark segment.
-     *
-     * \param text a plain char* buffer to hold the returned unit name
-     * \param size buffer size in bytes
-     */
-    void GetName(char* const text, const size_t size) const noexcept;
-
-    /**
-     * Get UTF-8 encoded null terminated full name of unit.
-     *
-     * \param text a plain char* buffer to hold the returned unit name
-     * \param size buffer size in bytes
-     */
-    void GetDisplayName(char* const text, const size_t size) const noexcept;
-
-    /**
-     * Set UTF-8 encoded null terminated name of unit without mark segment.
-     *
-     * \param text a plain char* buffer that holds the name to set
-     */
-    void SetName(const char* const text) noexcept;
     int32_t GetRaw();
     int32_t GetRawFreeCapacity();
     void TransferRaw(int32_t amount);
@@ -250,23 +295,6 @@ public:
     [[nodiscard]] UnitInfo* GetParent() const noexcept;
     void SetParent(UnitInfo* const parent) noexcept;
 
-    /**
-     * Get sound effect type being played by the sound manager for the unit.
-     * SFX_TYPE_INVALID means no sound effect is associated with the unit.
-     *
-     * \returns one of the SFX_TYPE_* enum values.
-     */
-    [[nodiscard]] uint8_t GetSfxType() const noexcept;
-
-    /**
-     * Set sound effect type being played by the sound manager for the unit.
-     *
-     * \param sound one of the SFX_TYPE_* enum values.
-     * \returns previous sound type.
-     */
-    uint8_t SetSfxType(uint8_t sound) noexcept;
-
-    ResourceID unit_type;
     struct PopupFunctions* popup;
     const std::vector<SoundElement>* sound_table;
     uint32_t flags;

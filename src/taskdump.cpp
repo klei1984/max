@@ -78,7 +78,7 @@ void TaskDump::Search() {
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    if (transporter_unit->unit_type == AIRTRANS) {
+    if (transporter_unit->GetUnitType() == AIRTRANS) {
         minimum_distance = 0;
 
     } else {
@@ -87,7 +87,7 @@ void TaskDump::Search() {
 
     passenger = task_move->GetPassenger();
 
-    AiLog log("Dump %s: search for position.", UnitsManager_BaseUnits[passenger->unit_type].singular_name);
+    AiLog log("Dump %s: search for position.", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
 
     for (;;) {
         if (--steps_counter < 0) {
@@ -115,7 +115,7 @@ void TaskDump::Search() {
         if (Access_IsInsideBounds(&bounds, &destination)) {
             keep_searching = true;
 
-            if (Access_IsAccessible(passenger->unit_type, team, destination.x, destination.y, 0x01)) {
+            if (Access_IsAccessible(passenger->GetUnitType(), team, destination.x, destination.y, 0x01)) {
                 if (!Ai_IsDangerousLocation(&*passenger, destination, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                     TaskPathRequest* request = new (std::nothrow) TaskPathRequest(&*transporter_unit, 1, destination);
 
@@ -149,7 +149,7 @@ char* TaskDump::WriteStatusLog(char* buffer) const {
 
     } else if (task_move->GetPassenger()) {
         strcpy(buffer, "Find a place to unload ");
-        strcat(buffer, UnitsManager_BaseUnits[task_move->GetPassenger()->unit_type].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].singular_name);
 
     } else {
         strcpy(buffer, "Dump unit task, null unit.");

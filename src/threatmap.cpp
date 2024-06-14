@@ -117,7 +117,7 @@ uint16_t ThreatMap::GetRiskLevel(UnitInfo* unit) {
     uint16_t result;
     int32_t team_index;
 
-    result = GetRiskLevel(unit->unit_type);
+    result = GetRiskLevel(unit->GetUnitType());
 
     if (result >= 4) {
         for (team_index = PLAYER_TEAM_RED; team_index < PLAYER_TEAM_MAX - 1; ++team_index) {

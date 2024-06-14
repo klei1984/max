@@ -132,7 +132,7 @@ void TaskCreateBuilding::MoveToSite() {
 bool TaskCreateBuilding::BuildRoad() {
     bool result;
 
-    if (builder->unit_type == ENGINEER && Task_IsReadyToTakeOrders(&*builder) && builder->speed == 0 &&
+    if (builder->GetUnitType() == ENGINEER && Task_IsReadyToTakeOrders(&*builder) && builder->speed == 0 &&
         (builder->grid_x != site.x || builder->grid_y != site.y)) {
         if (ini_get_setting(INI_OPPONENT) >= MASTER || builder->storage >= 26) {
             if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
@@ -350,7 +350,7 @@ bool TaskCreateBuilding::RequestMineRemoval() {
 
                 if (units) {
                     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-                        if ((*it).team == team && ((*it).unit_type == LANDMINE || (*it).unit_type == SEAMINE)) {
+                        if ((*it).team == team && ((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE)) {
                             unit = *it;
                             break;
                         }
@@ -388,7 +388,7 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
 
                 if (units) {
                     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-                        if ((*it).unit_type == SMLRUBLE || (*it).unit_type == LRGRUBLE) {
+                        if ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE) {
                             unit = *it;
                             break;
                         }
@@ -507,9 +507,9 @@ bool TaskCreateBuilding::IsNeeded() {
 void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
     if (unit_type != INVALID_ID) {
         AiLog log("Build %s at [%i,%i]: Add %s", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-                  site.y + 1, UnitsManager_BaseUnits[unit.unit_type].singular_name);
+                  site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
-        if (unit.unit_type == unit_type && unit.grid_x == site.x && unit.grid_y == site.y &&
+        if (unit.GetUnitType() == unit_type && unit.grid_x == site.x && unit.grid_y == site.y &&
             unit.orders != ORDER_IDLE) {
             SmartPointer<Task> create_building_task(this);
 
@@ -540,7 +540,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
                 TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(parent.Get());
 
                 if (create_building->op_state == CREATE_BUILDING_STATE_WAITING_FOR_PLATFORM &&
-                    Builder_GetBuilderType(create_building->GetUnitType()) == builder->unit_type) {
+                    Builder_GetBuilderType(create_building->GetUnitType()) == builder->GetUnitType()) {
                     SmartPointer<UnitInfo> backup(builder);
 
                     backup->RemoveTasks();
@@ -557,7 +557,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
 
             Finish();
 
-        } else if (unit.unit_type == Builder_GetBuilderType(unit_type)) {
+        } else if (unit.GetUnitType() == Builder_GetBuilderType(unit_type)) {
             if (!builder) {
                 if (op_state < CREATE_BUILDING_STATE_BUILDING) {
                     op_state = CREATE_BUILDING_STATE_GETTING_MATERIALS;
@@ -669,7 +669,7 @@ void TaskCreateBuilding::EndTurn() {
 bool TaskCreateBuilding::ExchangeOperator(UnitInfo& unit_) {
     bool result;
 
-    if (builder && builder->unit_type == unit_.unit_type) {
+    if (builder && builder->GetUnitType() == unit_.GetUnitType()) {
         if (op_state < CREATE_BUILDING_STATE_BUILDING) {
             if (Access_GetDistance(&*builder, site) > Access_GetDistance(&unit_, site)) {
                 AiLog log("Task Create Building: Exchange unit.");
@@ -835,7 +835,7 @@ void TaskCreateBuilding::RemoveSelf() { Abort(); }
 
 void TaskCreateBuilding::RemoveUnit(UnitInfo& unit) {
     AiLog log("Create %s at [%i,%i]: remove %s.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-              site.y + 1, UnitsManager_BaseUnits[unit.unit_type].singular_name);
+              site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (builder == unit) {
         builder = nullptr;
@@ -1019,12 +1019,12 @@ bool TaskCreateBuilding::CheckMaterials() {
 
         } else {
             int32_t resource_demand =
-                BuildMenu_GetTurnsToBuild(unit_type, team) * Cargo_GetRawConsumptionRate(builder->unit_type, 1);
+                BuildMenu_GetTurnsToBuild(unit_type, team) * Cargo_GetRawConsumptionRate(builder->GetUnitType(), 1);
 
             if (TaskCreateBuilding_DetermineMapSurfaceRequirements(unit_type, site) == 2 &&
-                Builder_GetBuilderType(WTRPLTFM) == builder->unit_type) {
+                Builder_GetBuilderType(WTRPLTFM) == builder->GetUnitType()) {
                 resource_demand +=
-                    BuildMenu_GetTurnsToBuild(WTRPLTFM, team) * Cargo_GetRawConsumptionRate(builder->unit_type, 1);
+                    BuildMenu_GetTurnsToBuild(WTRPLTFM, team) * Cargo_GetRawConsumptionRate(builder->GetUnitType(), 1);
             }
 
             if (builder->storage >= resource_demand) {
@@ -1129,7 +1129,7 @@ void TaskCreateBuilding::BuildBridges() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == MININGST) {
+        if ((*it).team == team && (*it).GetUnitType() == MININGST) {
             position.x = (*it).grid_x - 1;
             position.y = (*it).grid_y + 2;
 
@@ -1192,7 +1192,7 @@ void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).unit_type != CNCT_4W) {
+        if ((*it).GetUnitType() != CNCT_4W) {
             Rect bounds;
 
             (*it).GetBounds(&bounds);
@@ -1238,7 +1238,7 @@ void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
 void TaskCreateBuilding::PopulateMap(uint8_t** map) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
-        if ((*it).unit_type == BRIDGE && (*it).IsVisibleToTeam(team)) {
+        if ((*it).GetUnitType() == BRIDGE && (*it).IsVisibleToTeam(team)) {
             map[(*it).grid_x][(*it).grid_y] = 2;
         }
     }
@@ -1442,7 +1442,7 @@ bool TaskCreateBuilding_IsMorePowerNeeded(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team) {
-            consumption_rate += Cargo_GetPowerConsumptionRate((*it).unit_type);
+            consumption_rate += Cargo_GetPowerConsumptionRate((*it).GetUnitType());
         }
     }
 
@@ -1474,7 +1474,7 @@ bool TaskCreateBuilding_IsMoreLifeNeeded(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team) {
-            consumption_rate += Cargo_GetLifeConsumptionRate((*it).unit_type);
+            consumption_rate += Cargo_GetLifeConsumptionRate((*it).GetUnitType());
         }
     }
 
@@ -1504,7 +1504,7 @@ bool TaskCreateBuilding_IsMoreFuelReservesNeeded(uint16_t team) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == FDUMP) {
+        if ((*it).team == team && (*it).GetUnitType() == FDUMP) {
             fuel_reserves += (*it).storage;
         }
     }

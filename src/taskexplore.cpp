@@ -45,20 +45,20 @@ TaskExplore::~TaskExplore() {}
 bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
     bool result;
 
-    if (obtain_requests[unit.unit_type]) {
+    if (obtain_requests[unit.GetUnitType()]) {
         int32_t unit_count = 0;
 
-        AiLog log("Can explore task use %s?", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+        AiLog log("Can explore task use %s?", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-            if ((*it).unit_type == unit.unit_type) {
+            if ((*it).GetUnitType() == unit.GetUnitType()) {
                 ++unit_count;
             }
         }
 
-        log.Log("Task has %i %s", unit_count, UnitsManager_BaseUnits[unit.unit_type].plural_name);
+        log.Log("Task has %i %s", unit_count, UnitsManager_BaseUnits[unit.GetUnitType()].plural_name);
 
-        if (unit.unit_type == SCOUT || unit.unit_type == FASTBOAT) {
+        if (unit.GetUnitType() == SCOUT || unit.GetUnitType() == FASTBOAT) {
             result = unit_count < 3;
 
         } else {
@@ -98,7 +98,7 @@ bool TaskExplore::Execute(UnitInfo& unit) {
 }
 
 void TaskExplore::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
-    obtain_requests[unit.unit_type] = false;
+    obtain_requests[unit.GetUnitType()] = false;
 
     TaskManager.RemoveTask(*this);
 }
@@ -106,7 +106,7 @@ void TaskExplore::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
 bool TaskExplore::IsVisited(UnitInfo& unit, Point point) {
     uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
 
-    if (unit.unit_type == FASTBOAT || unit.unit_type == SUBMARNE) {
+    if (unit.GetUnitType() == FASTBOAT || unit.GetUnitType() == SUBMARNE) {
         if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * point.y + point.x] != SURFACE_TYPE_WATER) {
             return true;
         }

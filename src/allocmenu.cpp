@@ -452,7 +452,7 @@ int32_t AllocMenu_Optimize(Complex *complex, int32_t cargo_type1, int32_t materi
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
+            if ((*it).GetComplex() == complex && (*it).GetUnitType() == MININGST && (*it).orders != ORDER_POWER_OFF &&
                 (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
                 Survey_GetResourcesInArea((*it).grid_x, (*it).grid_y, 1, 16, &raw, &gold, &fuel, true, (*it).team);
 
@@ -525,7 +525,7 @@ int32_t AllocMenu_Optimize(Complex *complex, int32_t cargo_type1, int32_t materi
 void AllocMenu_ReduceProduction(Complex *complex, int32_t cargo_type, int32_t amount) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
+        if ((*it).GetComplex() == complex && (*it).GetUnitType() == MININGST && (*it).orders != ORDER_POWER_OFF &&
             (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
             uint8_t *production{nullptr};
 

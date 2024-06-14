@@ -485,7 +485,7 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
     button_help->SetSfx(NHELP0);
     button_help->RegisterButton(window.id);
 
-    base_unit = &UnitsManager_BaseUnits[unit->unit_type];
+    base_unit = &UnitsManager_BaseUnits[unit->GetUnitType()];
 
     debug_window = window;
 
@@ -504,7 +504,7 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
         }
     }
 
-    UnitStats_DrawStats(&window.buffer[11 + window.width * 293], window.width, unit->unit_type, unit->team,
+    UnitStats_DrawStats(&window.buffer[11 + window.width * 293], window.width, unit->GetUnitType(), unit->team,
                         *unit->GetBaseValues(), 245, I_RAW, I_RAWE);
 
     Text_SetFont(GNW_TEXT_FONT_5);

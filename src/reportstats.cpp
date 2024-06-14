@@ -352,10 +352,10 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
     int32_t power_consumption_base;
     int32_t power_consumption_current;
 
-    power_consumption_base = Cargo_GetPowerConsumptionRate(unit->unit_type);
+    power_consumption_base = Cargo_GetPowerConsumptionRate(unit->GetUnitType());
 
     if (power_consumption_base && GameManager_PlayerTeam == unit->team &&
-        !Cargo_GetLifeConsumptionRate(unit->unit_type)) {
+        !Cargo_GetLifeConsumptionRate(unit->GetUnitType())) {
         int32_t current_value;
         int32_t base_value;
         Cargo cargo;
@@ -380,7 +380,7 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).GetComplex() == unit->GetComplex()) {
-                cargo.power = Cargo_GetPowerConsumptionRate((*it).unit_type);
+                cargo.power = Cargo_GetPowerConsumptionRate((*it).GetUnitType());
 
                 if (cargo.power >= 0) {
                     base_value += cargo.power;
@@ -398,7 +398,7 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
             }
         }
 
-        if (Cargo_GetPowerConsumptionRate(unit->unit_type) > 0) {
+        if (Cargo_GetPowerConsumptionRate(unit->GetUnitType()) > 0) {
             ReportStats_DrawRowEx(_(bda3), id, bounds, 2, SI_POWER, EI_POWER, current_value, base_value, 1, false);
         } else {
             ReportStats_DrawRowEx(_(f047), id, bounds, 2, SI_POWER, EI_POWER, power_consumption_current,
@@ -411,7 +411,7 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
 void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
     int32_t life_need;
 
-    life_need = Cargo_GetLifeConsumptionRate(unit->unit_type);
+    life_need = Cargo_GetLifeConsumptionRate(unit->GetUnitType());
 
     if (life_need && GameManager_PlayerTeam == unit->team) {
         int32_t current_life_need;
@@ -438,7 +438,7 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).GetComplex() == unit->GetComplex()) {
-                cargo.life = Cargo_GetLifeConsumptionRate((*it).unit_type);
+                cargo.life = Cargo_GetLifeConsumptionRate((*it).GetUnitType());
 
                 if (cargo.life >= 0) {
                     base_value += cargo.life;
@@ -458,7 +458,7 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
             }
         }
 
-        if (Cargo_GetLifeConsumptionRate(unit->unit_type) > 0) {
+        if (Cargo_GetLifeConsumptionRate(unit->GetUnitType()) > 0) {
             ReportStats_DrawRowEx(_(7697), id, bounds, 2, SI_WORK, EI_WORK, current_value, base_value, 1, false);
         } else {
             ReportStats_DrawRowEx(_(efc4), id, bounds, 2, SI_WORK, EI_WORK, current_life_need, life_need, 1, false);
@@ -511,7 +511,7 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
             int32_t cargo_type;
             int32_t cargo_value;
 
-            cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
+            cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
             cargo_value = 3;
 
             if (unit_values->GetAttribute(ATTRIB_STORAGE) > 4) {
@@ -545,15 +545,15 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
             ReportStats_DrawCommonUnit(unit, id, bounds);
         }
 
-        if (unit->unit_type == GREENHSE && unit->team == GameManager_PlayerTeam) {
+        if (unit->GetUnitType() == GREENHSE && unit->team == GameManager_PlayerTeam) {
             ReportStats_DrawPointsUnit(unit, id, bounds);
         } else {
             ReportStats_DrawStorageUnit(unit, id, bounds);
         }
 
         if (unit->team == GameManager_PlayerTeam && unit_values->GetAttribute(ATTRIB_STORAGE) &&
-            (unit->flags & STATIONARY) && UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_RAW &&
-            UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD) {
+            (unit->flags & STATIONARY) && UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type >= CARGO_TYPE_RAW &&
+            UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type <= CARGO_TYPE_GOLD) {
             Cargo materials;
             Cargo capacity;
             int32_t cargo_type;
@@ -562,7 +562,7 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
             int32_t base_value{0};
 
             unit->GetComplex()->GetCargoInfo(materials, capacity);
-            cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
+            cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
 
             switch (cargo_type) {
                 case CARGO_TYPE_RAW: {
@@ -591,10 +591,11 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
                 cargo_value = base_value / 25;
             }
 
-            ReportStats_DrawRowEx(_(4bde), id, bounds, 2,
-                                  ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2],
-                                  ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2 + 1],
-                                  current_value, base_value, cargo_value, false);
+            ReportStats_DrawRowEx(
+                _(4bde), id, bounds, 2,
+                ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type * 2],
+                ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type * 2 + 1], current_value,
+                base_value, cargo_value, false);
         }
     }
 }

@@ -126,7 +126,7 @@ char* TaskClearZone::WriteStatusLog(char* buffer) const {
 
         case CLEARZONE_STATE_MOVING_UNIT: {
             strcat(buffer, "moving ");
-            strcat(buffer, UnitsManager_BaseUnits[moving_unit->unit_type].singular_name);
+            strcat(buffer, UnitsManager_BaseUnits[moving_unit->GetUnitType()].singular_name);
         } break;
     }
 
@@ -160,8 +160,8 @@ void TaskClearZone::EndTurn() {
 
                     if (moving_unit) {
                         log.Log("Clear Zone: Move Finished for %s at [%i,%i].",
-                                UnitsManager_BaseUnits[moving_unit->unit_type].singular_name, moving_unit->grid_x + 1,
-                                moving_unit->grid_y + 1);
+                                UnitsManager_BaseUnits[moving_unit->GetUnitType()].singular_name,
+                                moving_unit->grid_x + 1, moving_unit->grid_y + 1);
 
                         moving_unit->RemoveTask(this);
 
@@ -214,7 +214,7 @@ void TaskClearZone::RemoveSelf() {
 
 void TaskClearZone::RemoveUnit(UnitInfo& unit) {
     if (moving_unit == unit) {
-        AiLog log("Clear Zone: Remove %s at [%i,%i].", UnitsManager_BaseUnits[unit.unit_type].singular_name,
+        AiLog log("Clear Zone: Remove %s at [%i,%i].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
                   unit.grid_x + 1, unit.grid_y + 1);
 
         moving_unit = nullptr;
@@ -307,7 +307,7 @@ bool TaskClearZone::ExamineZones() {
                     }
 
                 } else {
-                    if (Access_IsAccessible(zone->unit->unit_type, team, site.x, site.y, 0x02)) {
+                    if (Access_IsAccessible(zone->unit->GetUnitType(), team, site.x, site.y, 0x02)) {
                         points1.Append(&site);
 
                     } else {
@@ -364,7 +364,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                 points2.Append(&site);
             }
 
-        } else if (Access_IsAccessible(zone_square->unit->unit_type, team, site.x, site.y, 0x02)) {
+        } else if (Access_IsAccessible(zone_square->unit->GetUnitType(), team, site.x, site.y, 0x02)) {
             bool is_found = false;
 
             for (int32_t i = 0; i < points1.GetCount(); ++i) {
@@ -484,8 +484,9 @@ void TaskClearZone::SearchMap() {
 void TaskClearZone::AddZone(Zone* zone) {
     uint8_t** map = AiPlayer_Teams[team].GetInfoMap();
 
-    AiLog log("Clear Zone: Add Zone for %s at [%i,%i].", UnitsManager_BaseUnits[zone->unit->unit_type].singular_name,
-              zone->unit->grid_x + 1, zone->unit->grid_y + 1);
+    AiLog log("Clear Zone: Add Zone for %s at [%i,%i].",
+              UnitsManager_BaseUnits[zone->unit->GetUnitType()].singular_name, zone->unit->grid_x + 1,
+              zone->unit->grid_y + 1);
 
     zones.Insert(zone);
 

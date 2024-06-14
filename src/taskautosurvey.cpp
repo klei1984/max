@@ -45,7 +45,7 @@ TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, 0x2
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == MININGST) {
+        if ((*it).team == team && (*it).GetUnitType() == MININGST) {
             central_site.x = (*it).grid_x;
             central_site.y = (*it).grid_y;
         }
@@ -69,7 +69,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
     if (unit == unit_ && unit->IsReadyForOrders(this) &&
         (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) && unit->speed > 0) {
-        AiLog log("Auto survey: Move %s at [%i,%i]", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+        AiLog log("Auto survey: Move %s at [%i,%i]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
                   unit->grid_x + 1, unit->grid_y + 1);
 
         uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;

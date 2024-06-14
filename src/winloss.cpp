@@ -79,7 +79,8 @@ static int32_t WinLoss_CountUnitsThatUsedAmmo(uint16_t team, ResourceID unit_typ
 
 bool WinLoss_HasAttackPower(uint16_t team, SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).ammo > 0 && (*it).unit_type != SUBMARNE && (*it).unit_type != COMMANDO) {
+        if ((*it).team == team && (*it).ammo > 0 && (*it).GetUnitType() != SUBMARNE &&
+            (*it).GetUnitType() != COMMANDO) {
             return true;
         }
     }
@@ -94,14 +95,14 @@ int32_t WinLoss_HasMaterials(uint16_t team, uint8_t cargo_type) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == cargo_type) {
+        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == cargo_type) {
             cargo_sum += (*it).storage;
         }
     }
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == cargo_type) {
+        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == cargo_type) {
             cargo_sum += (*it).storage;
         }
     }
@@ -115,8 +116,8 @@ bool WinLoss_CanRebuildComplex(uint16_t team) {
 
     for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team &&
-            ((*it).unit_type == SHIPYARD || (*it).unit_type == LIGHTPLT || (*it).unit_type == LANDPLT ||
-             (*it).unit_type == AIRPLT || (*it).unit_type == TRAINHAL)) {
+            ((*it).GetUnitType() == SHIPYARD || (*it).GetUnitType() == LIGHTPLT || (*it).GetUnitType() == LANDPLT ||
+             (*it).GetUnitType() == AIRPLT || (*it).GetUnitType() == TRAINHAL)) {
             break;
         }
     }
@@ -134,7 +135,7 @@ bool WinLoss_CanRebuildComplex(uint16_t team) {
 
         if (sum_cargo_fuel < 8 || sum_cargo_materials < 24) {
             for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
-                if ((*it).team == team && (*it).unit_type == MININGST) {
+                if ((*it).team == team && (*it).GetUnitType() == MININGST) {
                     break;
                 }
             }
@@ -149,8 +150,8 @@ bool WinLoss_CanRebuildComplex(uint16_t team) {
         }
 
         for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == team && Cargo_GetPowerConsumptionRate((*it).unit_type) < 0) {
-                sum_cargo_generated_power -= Cargo_GetPowerConsumptionRate((*it).unit_type);
+            if ((*it).team == team && Cargo_GetPowerConsumptionRate((*it).GetUnitType()) < 0) {
+                sum_cargo_generated_power -= Cargo_GetPowerConsumptionRate((*it).GetUnitType());
             }
         }
 
@@ -168,14 +169,14 @@ bool WinLoss_CanRebuildBuilders(uint16_t team) {
     bool result;
 
     for (it = UnitsManager_MobileLandSeaUnits.Begin(); it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == CONSTRCT) {
+        if ((*it).team == team && (*it).GetUnitType() == CONSTRCT) {
             break;
         }
     }
 
     if (it != UnitsManager_MobileLandSeaUnits.End()) {
         for (it = UnitsManager_MobileLandSeaUnits.Begin(); it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).team == team && (*it).unit_type == ENGINEER) {
+            if ((*it).team == team && (*it).GetUnitType() == ENGINEER) {
                 break;
             }
         }
@@ -186,7 +187,7 @@ bool WinLoss_CanRebuildBuilders(uint16_t team) {
             resources_needed = 38;
 
             for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
-                if ((*it).team == team && (*it).unit_type == MININGST) {
+                if ((*it).team == team && (*it).GetUnitType() == MININGST) {
                     break;
                 }
             }
@@ -196,7 +197,7 @@ bool WinLoss_CanRebuildBuilders(uint16_t team) {
             }
 
             for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
-                if ((*it).team == team && Cargo_GetPowerConsumptionRate((*it).unit_type) < 0) {
+                if ((*it).team == team && Cargo_GetPowerConsumptionRate((*it).GetUnitType()) < 0) {
                     break;
                 }
             }
@@ -303,7 +304,7 @@ int32_t WinLoss_CountReadyUnits(uint16_t team, ResourceID unit_type) {
     const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
+        if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
             ++result;
         }
     }
@@ -319,7 +320,7 @@ void WinLoss_CountTotalMining(uint16_t team, int32_t* raw_mining_max, int32_t* f
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == MININGST && (*it).orders == ORDER_POWER_ON) {
+        if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).orders == ORDER_POWER_ON) {
             raw_mining_max[0] += (*it).raw_mining_max;
             fuel_mining_max[0] += (*it).fuel_mining_max;
             gold_mining_max[0] += (*it).gold_mining_max;
@@ -330,7 +331,7 @@ void WinLoss_CountTotalMining(uint16_t team, int32_t* raw_mining_max, int32_t* f
 bool WinLoss_HasAtLeastOneUpgradedTank(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == TANK && (*it).GetBaseValues()->GetVersion() > 1) {
+        if ((*it).team == team && (*it).GetUnitType() == TANK && (*it).GetBaseValues()->GetVersion() > 1) {
             return true;
         }
     }
@@ -345,7 +346,7 @@ int32_t WinLoss_GetTotalPowerConsumption(uint16_t team, ResourceID unit_type) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == unit_type &&
+        if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_BUILD)) {
             ++result;
         }
@@ -361,7 +362,7 @@ int32_t WinLoss_GetTotalMining(uint16_t team, uint8_t cargo_type) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == MININGST && (*it).orders == ORDER_POWER_ON) {
+        if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).orders == ORDER_POWER_ON) {
             switch (cargo_type) {
                 case CARGO_MATERIALS: {
                     result += (*it).raw_mining;
@@ -443,7 +444,7 @@ int32_t WinLoss_GetTotalUnitsBeingConstructed(uint16_t team, ResourceID unit_typ
 bool WinLoss_HasInfiltratorExperience(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == COMMANDO && (*it).storage > 0) {
+        if ((*it).team == team && (*it).GetUnitType() == COMMANDO && (*it).storage > 0) {
             return true;
         }
     }
@@ -456,7 +457,7 @@ int32_t WinLoss_CountDamangedUnits(uint16_t team, ResourceID unit_type) {
     const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
     for (auto it = units.Begin(); it != units.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == unit_type &&
+        if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             (*it).hits != (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
             ++result;
         }
@@ -470,7 +471,7 @@ int32_t WinLoss_CountUnitsThatUsedAmmo(uint16_t team, ResourceID unit_type) {
     const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
     for (auto it = units.Begin(); it != units.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == unit_type &&
+        if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             (*it).ammo != (*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
             ++result;
         }

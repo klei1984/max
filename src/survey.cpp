@@ -95,7 +95,8 @@ void Survey_SurveyArea(UnitInfo* unit, int32_t radius) {
     grid_y = unit->grid_y;
 
     for (int32_t i = std::max(0, grid_x - radius); i <= std::min(ResourceManager_MapSize.x - 1, grid_x + radius); ++i) {
-        for (int32_t j = std::max(0, grid_y - radius); j <= std::min(ResourceManager_MapSize.y - 1, grid_y + radius); ++j) {
+        for (int32_t j = std::max(0, grid_y - radius); j <= std::min(ResourceManager_MapSize.y - 1, grid_y + radius);
+             ++j) {
             if (Access_GetModifiedSurfaceType(i, j) != SURFACE_TYPE_AIR) {
                 enemy = Access_GetEnemyMineOnSentry(team, i, j);
                 Ai_MarkMineMapPoint(Point(i, j), team);
@@ -104,7 +105,7 @@ void Survey_SurveyArea(UnitInfo* unit, int32_t radius) {
                     enemy->SpotByTeam(team);
                 }
 
-                if (unit->unit_type == SURVEYOR) {
+                if (unit->GetUnitType() == SURVEYOR) {
                     if (team == GameManager_PlayerTeam &&
                         !(ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] &
                           team_info->team_units->hash_team_id)) {
@@ -153,8 +154,8 @@ void Survey_RenderMarkers(uint16_t team, int32_t grid_ulx, int32_t grid_uly, int
     }
 }
 
-void Survey_GetResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int32_t resource_limit, int16_t* raw, int16_t* gold,
-                               int16_t* fuel, bool mode, uint16_t team) {
+void Survey_GetResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int32_t resource_limit, int16_t* raw,
+                               int16_t* gold, int16_t* fuel, bool mode, uint16_t team) {
     CTInfo* team_info;
     uint16_t mask;
     uint16_t value;
@@ -202,7 +203,7 @@ void Survey_GetResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, i
     }
 }
 
-void Survey_GetTotalResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int16_t* raw, int16_t* gold, int16_t* fuel, bool mode,
-                                    uint16_t team) {
+void Survey_GetTotalResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int16_t* raw, int16_t* gold,
+                                    int16_t* fuel, bool mode, uint16_t team) {
     Survey_GetResourcesInArea(grid_x, grid_y, radius, 255, raw, gold, fuel, mode, team);
 }

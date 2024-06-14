@@ -95,7 +95,7 @@ bool UnitInfoGroup::Populate() {
                                 sea_land_units.Insert((*it));
 
                             } else if ((*it).flags & GROUND_COVER) {
-                                switch ((*it).unit_type) {
+                                switch ((*it).GetUnitType()) {
                                     case BRIDGE: {
                                         if ((*it).IsBridgeElevated()) {
                                             elevated_bridge.Insert((*it));
@@ -137,7 +137,7 @@ bool UnitInfoGroup::Populate() {
                                 }
 
                             } else if ((*it).flags & STATIONARY) {
-                                if ((*it).unit_type == LANDPAD) {
+                                if ((*it).GetUnitType() == LANDPAD) {
                                     ground_covers.Insert((*it));
 
                                 } else {
@@ -145,7 +145,7 @@ bool UnitInfoGroup::Populate() {
                                 }
 
                             } else if ((*it).flags & MISSILE_UNIT) {
-                                if (((*it).flags & EXPLODING) && (*it).unit_type != RKTSMOKE) {
+                                if (((*it).flags & EXPLODING) && (*it).GetUnitType() != RKTSMOKE) {
                                     air_particles_explosions.Insert((*it));
 
                                 } else {
@@ -260,7 +260,7 @@ void UnitInfoGroup::RenderLists() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_ParticleUnits.Begin(); it != UnitsManager_ParticleUnits.End();
          ++it) {
-        if (((*it).flags & EXPLODING) && (*it).unit_type != RKTSMOKE) {
+        if (((*it).flags & EXPLODING) && (*it).GetUnitType() != RKTSMOKE) {
             it2 = it;
             break;
         }

@@ -51,7 +51,7 @@ void Task_UpgradeStationaryUnit(UnitInfo* unit) {
         if (materials.raw >= ((capacity.raw * 3) / 4)) {
             for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
                  it != it_end; ++it) {
-                if ((*it).GetComplex() == complex && (*it).unit_type == ADUMP) {
+                if ((*it).GetComplex() == complex && (*it).GetUnitType() == ADUMP) {
                     if (Task_IsReadyToTakeOrders(it->Get())) {
                         (*it).SetParent(unit);
                         UnitsManager_SetNewOrder(it->Get(), ORDER_UPGRADE, ORDER_STATE_INIT);
@@ -93,7 +93,7 @@ void Task_RemoveMovementTasks(UnitInfo* unit) {
     if (unit->orders != ORDER_IDLE || unit->hits <= 0) {
         for (SmartList<Task>::Iterator it = unit->GetTasks().Begin(); it != unit->GetTasks().End(); ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
-                AiLog log("Move %s: removing old move task", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+                AiLog log("Move %s: removing old move task", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
                 unit->RemoveTask(&*it, false);
                 (*it).RemoveUnit(*unit);
@@ -112,7 +112,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
 
         for (team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                if ((unit->unit_type == SUBMARNE || unit->unit_type == CLNTRANS) &&
+                if ((unit->GetUnitType() == SUBMARNE || unit->GetUnitType() == CLNTRANS) &&
                     Access_GetModifiedSurfaceType(site.x, site.y) == SURFACE_TYPE_WATER &&
                     !unit->IsDetectedByTeam(team)) {
                     if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[ResourceManager_MapSize.x * site.y + site.x]) {
@@ -122,7 +122,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                         relevant_teams[team] = false;
                     }
 
-                } else if (unit->unit_type == COMMANDO && !unit->IsDetectedByTeam(team)) {
+                } else if (unit->GetUnitType() == COMMANDO && !unit->IsDetectedByTeam(team)) {
                     if (UnitsManager_TeamInfo[team]
                             .heat_map_stealth_land[ResourceManager_MapSize.x * site.y + site.x]) {
                         relevant_teams[team] = true;
@@ -153,7 +153,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
 
         if (team != PLAYER_TEAM_ALIEN) {
             AiLog log("Determine if %s should reserve a shot at [%i,%i].",
-                      UnitsManager_BaseUnits[unit->unit_type].singular_name, site.x + 1, site.y + 1);
+                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, site.x + 1, site.y + 1);
 
             if (Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                 for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin();
@@ -163,7 +163,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
 
                     if (spotted_unit->ammo > 0 && relevant_teams[spotted_unit->team] &&
                         spotted_unit_range > unit_range &&
-                        Access_IsValidAttackTarget(spotted_unit->unit_type, unit->unit_type, site)) {
+                        Access_IsValidAttackTarget(spotted_unit->GetUnitType(), unit->GetUnitType(), site)) {
                         UnitValues* unit_values = spotted_unit->GetBaseValues();
                         int32_t unit_distance = Access_GetDistance(unit, (*it).GetLastPosition());
                         int32_t attack_distance = unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
@@ -179,12 +179,12 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
 
                         if (unit_distance <= attack_distance * attack_distance) {
                             if (spotted_unit_range <= unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
-                                if (Access_IsValidAttackTargetType(unit->unit_type, spotted_unit->unit_type)) {
+                                if (Access_IsValidAttackTargetType(unit->GetUnitType(), spotted_unit->GetUnitType())) {
                                     unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                                 } else {
                                     log.Log("%s at [%i,%i] outranges us.",
-                                            UnitsManager_BaseUnits[spotted_unit->unit_type].singular_name,
+                                            UnitsManager_BaseUnits[spotted_unit->GetUnitType()].singular_name,
                                             (*it).GetLastPositionX(), (*it).GetLastPositionY());
 
                                     return false;
@@ -248,7 +248,8 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int32_t caution_level) {
 
                 do {
                     if (damage_potential_map[walker.GetGridX()][walker.GetGridY()] < unit_hits &&
-                        Access_IsAccessible(unit->unit_type, unit->team, walker.GetGridX(), walker.GetGridY(), 0x02)) {
+                        Access_IsAccessible(unit->GetUnitType(), unit->team, walker.GetGridX(), walker.GetGridY(),
+                                            0x02)) {
                         return false;
                     }
                 } while (walker.FindNext());
@@ -297,7 +298,7 @@ int32_t Task_EstimateTurnsTillMissionEnd() {
 
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
-                    if ((*it).team == team && (*it).unit_type == GREENHSE && (*it).orders == ORDER_POWER_ON) {
+                    if ((*it).team == team && (*it).GetUnitType() == GREENHSE && (*it).orders == ORDER_POWER_ON) {
                         ++count;
                     }
                 }
@@ -494,7 +495,7 @@ int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type) {
     int32_t count = 0;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
+        if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
             ++count;
         }
     }

@@ -690,7 +690,7 @@ void ReportMenu::DrawUnits() {
     window_uly = report_screen_image->GetULY() + (row_limit - 50) / 2;
 
     for (int32_t i = row_indices[0]; i < item_max; ++i) {
-        ReportStats_DrawListItemIcon(window.buffer, window.width, units[i].unit_type, GameManager_PlayerTeam,
+        ReportStats_DrawListItemIcon(window.buffer, window.width, units[i].GetUnitType(), GameManager_PlayerTeam,
                                      window_ulx + 16, window_uly + 25);
 
         units[i].GetDisplayName(text, sizeof(text));
@@ -1028,8 +1028,8 @@ void ReportMenu::DrawMessages() {
                 Text_TextBox(window.buffer, window.width, string.GetCStr(), window_ulx + 40, window_uly, 40, 32,
                              ReportMenu_TeamColors[unit->team], true);
 
-                ReportStats_DrawListItemIcon(window.buffer, window.width, unit->unit_type, unit->team, window_ulx + 16,
-                                             window_uly + 16);
+                ReportStats_DrawListItemIcon(window.buffer, window.width, unit->GetUnitType(), unit->team,
+                                             window_ulx + 16, window_uly + 16);
 
             } else if (message2->GetIcon() != INVALID_ID) {
                 struct ImageSimpleHeader *sprite =
@@ -1090,7 +1090,7 @@ int32_t ReportMenu::GetWorkingEcoSphereCount(uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == team && (*it).unit_type == GREENHSE && (*it).orders == ORDER_POWER_ON) {
+            if ((*it).team == team && (*it).GetUnitType() == GREENHSE && (*it).orders == ORDER_POWER_ON) {
                 ++result;
             }
         }
@@ -1109,7 +1109,7 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
 
     if (unit->orders == ORDER_BUILD || unit->orders == ORDER_CLEAR || unit->orders == ORDER_HALT_BUILDING ||
         unit->orders == ORDER_HALT_BUILDING_2) {
-        if (unit->unit_type == BULLDOZR) {
+        if (unit->GetUnitType() == BULLDOZR) {
             string.Sprintf(80, _(138d), unit->build_time);
 
         } else if (unit->state == ORDER_STATE_UNIT_READY) {
@@ -1189,15 +1189,15 @@ void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
     int32_t index;
 
     for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
-        if ((*it).team == GameManager_PlayerTeam && active_units[(*it).unit_type] &&
+        if ((*it).team == GameManager_PlayerTeam && active_units[(*it).GetUnitType()] &&
             ((*it).orders != ORDER_IDLE || (*it).state != ORDER_STATE_BUILDING_READY) &&
             (!ReportMenu_ButtonState_DamagedUnits || (*it).hits < (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS))) {
             for (index = 0; index < units.GetCount(); ++index) {
-                if (units[index].unit_type > (*it).unit_type) {
+                if (units[index].GetUnitType() > (*it).GetUnitType()) {
                     break;
                 }
 
-                if (units[index].unit_type == (*it).unit_type && units[index].unit_id > (*it).unit_id) {
+                if (units[index].GetUnitType() == (*it).GetUnitType() && units[index].unit_id > (*it).unit_id) {
                     break;
                 }
             }

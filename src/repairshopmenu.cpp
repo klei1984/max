@@ -238,7 +238,7 @@ void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
         char text[200];
 
         local_window = window;
-        base_unit = &UnitsManager_BaseUnits[unit->unit_type];
+        base_unit = &UnitsManager_BaseUnits[unit->GetUnitType()];
 
         local_window.buffer =
             &local_window.buffer[bg_image_area->GetULY() * local_window.width + bg_image_area->GetULX()];
@@ -315,8 +315,8 @@ void RepairShopSlot::DrawStats(bool draw_to_screen) {
 
     } else if (GameManager_PlayerTeam == client->team && client->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
         ReportStats_DrawRow(_(8688), window.id, &bounds,
-                            ReportStats_CargoIcons[UnitsManager_BaseUnits[client->unit_type].cargo_type * 2],
-                            ReportStats_CargoIcons[UnitsManager_BaseUnits[client->unit_type].cargo_type * 2 + 1],
+                            ReportStats_CargoIcons[UnitsManager_BaseUnits[client->GetUnitType()].cargo_type * 2],
+                            ReportStats_CargoIcons[UnitsManager_BaseUnits[client->GetUnitType()].cargo_type * 2 + 1],
                             client->storage, client->GetBaseValues()->GetAttribute(ATTRIB_STORAGE), 10, false);
     }
 
@@ -363,7 +363,7 @@ void RepairShopSlot::UpdateButtons() {
 }
 
 RepairShopMenu::RepairShopMenu(UnitInfo *unit)
-    : Window(unit->unit_type == HANGAR ? HANGRFRM : DEPOTFRM, GameManager_GetDialogWindowCenterMode()),
+    : Window(unit->GetUnitType() == HANGAR ? HANGRFRM : DEPOTFRM, GameManager_GetDialogWindowCenterMode()),
       repairshop(unit) {
     WindowInfo window;
     int32_t slot_window_ulx;
@@ -376,7 +376,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
     Add(false);
     FillWindowInfo(&window);
 
-    if (unit->unit_type == HANGAR) {
+    if (unit->GetUnitType() == HANGAR) {
         Rect unit_bg_image_bounds;
         Rect unit_stats_bounds;
         int32_t index;
@@ -411,7 +411,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
             slot_window_ulx = (index % 3) * 155 + 17;
             slot_window_uly = (index / 3) * 235 + 9;
 
-            if (unit->unit_type == DOCK) {
+            if (unit->GetUnitType() == DOCK) {
                 WindowManager_LoadBigImage(E_DOCK, &window, window.width, false, false, slot_window_ulx,
                                            slot_window_uly);
             }
@@ -439,7 +439,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
 
         Text_SetFont(GNW_TEXT_FONT_5);
 
-        if (unit->unit_type == AIRTRANS) {
+        if (unit->GetUnitType() == AIRTRANS) {
             button_activate_all = nullptr;
 
         } else {
@@ -473,8 +473,8 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
         button_help->SetRFunc(&RepairShopMenu_OnClick_Help, reinterpret_cast<intptr_t>(this));
         button_help->SetSfx(MBUTT0);
 
-        if (unit->unit_type == DEPOT || unit->unit_type == HANGAR || unit->unit_type == DOCK ||
-            unit->unit_type == BARRACKS) {
+        if (unit->GetUnitType() == DEPOT || unit->GetUnitType() == HANGAR || unit->GetUnitType() == DOCK ||
+            unit->GetUnitType() == BARRACKS) {
             Cargo materials;
             Cargo capacity;
 
@@ -526,7 +526,7 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
         }
     }
 
-    if (unit->unit_type == HANGAR) {
+    if (unit->GetUnitType() == HANGAR) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
              Access_IsChildOfUnitInList(unit, &UnitsManager_MobileAirUnits, &it); ++it) {
             units.PushBack(*it);
@@ -576,7 +576,7 @@ void RepairShopMenu::Run() {
             PauseMenu_Menu();
 
         } else if (key == GNW_KB_KEY_SHIFT_DIVIDE) {
-            switch (repairshop->unit_type) {
+            switch (repairshop->GetUnitType()) {
                 case HANGAR: {
                     HelpMenu_Menu(HELPMENU_HANGAR_SETUP, WINDOW_MAIN_WINDOW);
                 } break;
@@ -647,7 +647,7 @@ bool RepairShopMenu::IsUpgradeViable(UnitInfo *target_unit) {
     bool result;
 
     if (target_unit->GetBaseValues() !=
-            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[target_unit->team], target_unit->unit_type) &&
+            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[target_unit->team], target_unit->GetUnitType()) &&
         !(target_unit->flags & REGENERATING_UNIT)) {
         Cargo materials;
         Cargo capacity;
@@ -670,8 +670,9 @@ bool RepairShopMenu::IsActivateViable(UnitInfo *target_unit) {
 void RepairShopMenu::Activate(UnitInfo *target_unit) {
     Deinit();
 
-    if (repairshop->unit_type == AIRTRANS) {
-        if (Access_IsAccessible(target_unit->unit_type, target_unit->team, repairshop->grid_x, repairshop->grid_y, 2)) {
+    if (repairshop->GetUnitType() == AIRTRANS) {
+        if (Access_IsAccessible(target_unit->GetUnitType(), target_unit->team, repairshop->grid_x, repairshop->grid_y,
+                                2)) {
             repairshop->SetParent(target_unit);
             UnitsManager_SetNewOrder(&*repairshop, ORDER_UNLOAD, ORDER_STATE_INIT);
             GameManager_EnableMainMenu(&*repairshop);
@@ -685,7 +686,7 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
         int16_t grid_x = repairshop->grid_x;
         int16_t grid_y = repairshop->grid_y;
 
-        if (Access_FindReachableSpot(target_unit->unit_type, target_unit, &grid_x, &grid_y, 1,
+        if (Access_FindReachableSpot(target_unit->GetUnitType(), target_unit, &grid_x, &grid_y, 1,
                                      repairshop->flags & BUILDING, 0)) {
             repairshop->FollowUnit();
             MessageManager_DrawMessage(_(755b), 0, 0);
@@ -828,7 +829,7 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
             if (Access_IsInsideBounds(&bounds, &point)) {
                 SmartList<UnitInfo>::Iterator it = units.Begin();
 
-                for (; it != units.End() && !Access_IsAccessible((*it).unit_type, (*it).team, point.x, point.y, 2);
+                for (; it != units.End() && !Access_IsAccessible((*it).GetUnitType(), (*it).team, point.x, point.y, 2);
                      ++it) {
                 }
 
@@ -953,7 +954,7 @@ void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value) {
 
     shop = reinterpret_cast<RepairShopMenu *>(value);
 
-    switch (shop->repairshop->unit_type) {
+    switch (shop->repairshop->GetUnitType()) {
         case HANGAR: {
             HelpMenu_Menu(HELPMENU_HANGAR_SETUP, WINDOW_MAIN_WINDOW);
         } break;

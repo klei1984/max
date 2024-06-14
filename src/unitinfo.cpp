@@ -473,23 +473,88 @@ void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, Smart
 }
 
 UnitInfo::UnitInfo()
-    : unit_type(INVALID_ID),
+    : name(nullptr),
+      sound(SFX_TYPE_INVALID),
+      unit_type(INVALID_ID),
       popup(nullptr),
       sound_table(nullptr),
+      flags(0),
+      x(-1),
+      y(-1),
+      grid_x(-1),
+      grid_y(-1),
+      color_cycling_lut(nullptr),
+      team(-1),
+      unit_id(0),
+      brightness(UINT8_MAX),
+      angle(0),
+      max_velocity(0),
+      velocity(0),
+      scaler_adjust(0),
+      turret_angle(0),
+      turret_offset_x(0),
+      turret_offset_y(0),
+      total_images(0),
+      image_base(0),
+      turret_image_base(0),
+      firing_image_base(0),
+      connector_image_base(0),
+      image_index_max(0),
+      orders(ORDER_AWAIT),
+      state(ORDER_STATE_INIT),
+      prior_orders(ORDER_AWAIT),
+      prior_state(ORDER_STATE_INIT),
+      target_grid_x(0),
+      target_grid_y(0),
+      build_time(0),
+      total_mining(0),
+      raw_mining(0),
+      fuel_mining(0),
+      gold_mining(0),
+      raw_mining_max(0),
+      gold_mining_max(0),
+      fuel_mining_max(0),
+      hits(0),
+      speed(0),
+      group_speed(0),
+      shots(0),
+      move_and_fire(0),
+      storage(0),
+      ammo(0),
+      targeting_mode(0),
+      enter_mode(0),
+      cursor(0),
+      recoil_delay(0),
+      delayed_reaction(0),
+      damaged_this_turn(false),
+      disabled_reaction_fire(false),
+      auto_survey(false),
+      research_topic(false),
+      moved(0),
+      bobbed(false),
+      engine(0),
+      weapon(0),
+      comm(0),
+      fuel_distance(0),
+      move_fraction(0),
+      connectors(0),
+      shake_effect_state(0),
+      build_rate(0),
+      repeat_build(0),
+      energized(false),
+      id(0),
+      unit_list(nullptr),
       in_transit(false),
       pin_count(0),
-      field_165(true),
-      unit_list(nullptr),
-      group_speed(0),
-      name(nullptr),
-      sound(SFX_TYPE_INVALID),
-      build_rate(1),
-      field_221(0),
-      disabled_reaction_fire(false),
-      auto_survey(false) {
-    rect_init(&sprite_bounds, 0, 0, 0, 0);
-    rect_init(&shadow_bounds, 0, 0, 0, 0);
-}
+      field_165(false),
+      laying_state(0),
+      visible_to_team(),
+      spotted_by_team(),
+      sprite_bounds(),
+      shadow_bounds(),
+      image_index(0),
+      turret_image_index(0),
+      field_221(0) {}
 
 UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle)
     : orders(ORDER_AWAIT),
@@ -5145,4 +5210,12 @@ uint8_t UnitInfo::SetSfxType(uint8_t sound) noexcept {
     this->sound = sound;
 
     return previous_sound;
+}
+
+[[nodiscard]] ResourceID UnitInfo::GetUnitType() const noexcept { return unit_type; }
+
+void UnitInfo::SetUnitType(const ResourceID unit_type) noexcept {
+    SDL_assert(unit_type < UNIT_END);
+
+    this->unit_type = unit_type;
 }

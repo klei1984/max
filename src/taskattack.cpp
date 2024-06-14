@@ -147,13 +147,13 @@ char* TaskAttack::WriteStatusLog(char* buffer) const {
         position = task->DeterminePosition();
 
         sprintf(buffer, "%s %s at [%i,%i]", status,
-                UnitsManager_BaseUnits[task->GetUnitSpotted()->unit_type].singular_name, position.x + 1,
+                UnitsManager_BaseUnits[task->GetUnitSpotted()->GetUnitType()].singular_name, position.x + 1,
                 position.y + 1);
 
         if (leader) {
             char text[100];
 
-            sprintf(text, ", leader %s %i at [%i,%i]", UnitsManager_BaseUnits[leader->unit_type].singular_name,
+            sprintf(text, ", leader %s %i at [%i,%i]", UnitsManager_BaseUnits[leader->GetUnitType()].singular_name,
                     leader->unit_id, leader->grid_x + 1, leader->grid_y + 1);
 
             strcat(buffer, text);
@@ -182,7 +182,8 @@ uint8_t TaskAttack::GetType() const { return TaskType_TaskAttack; }
 bool TaskAttack::IsNeeded() { return primary_targets.GetCount() > 0; }
 
 void TaskAttack::AddUnit(UnitInfo& unit) {
-    int32_t unit_index = managed_unit_types->Find(&unit.unit_type);
+    auto unit_type{unit.GetUnitType()};
+    int32_t unit_index = managed_unit_types->Find(&unit_type);
 
     if (unit_index >= 0) {
         managed_unit_types.Remove(unit_index);
@@ -480,7 +481,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                     }
 
                 } else {
-                    log.Log("Attack with %s impossible.", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+                    log.Log("Attack with %s impossible.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
                     TaskManager.RemindAvailable(unit);
 
@@ -502,7 +503,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
 
                     } else {
                         log.Log("Grouping unit with %s at [%i,%i]",
-                                UnitsManager_BaseUnits[leader->unit_type].singular_name, leader->grid_x + 1,
+                                UnitsManager_BaseUnits[leader->GetUnitType()].singular_name, leader->grid_x + 1,
                                 leader->grid_y + 1);
 
                         if (TaskManager_GetDistance(&*leader, unit) / 2 >
@@ -525,8 +526,9 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                                 result = false;
 
                             } else {
-                                SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(
-                                    unit, task, 0, caution_level, unit->attack_site, &TaskTransport_MoveFinishedCallback));
+                                SmartPointer<TaskMove> move_task(
+                                    new (std::nothrow) TaskMove(unit, task, 0, caution_level, unit->attack_site,
+                                                                &TaskTransport_MoveFinishedCallback));
 
                                 move_task->SetField68(true);
 
@@ -675,7 +677,7 @@ bool TaskAttack::EvaluateLandAttack() {
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
                  it != UnitsManager_GroundCoverUnits.End(); ++it) {
-                if ((*it).unit_type != BRIDGE && (*it).IsVisibleToTeam(team)) {
+                if ((*it).GetUnitType() != BRIDGE && (*it).IsVisibleToTeam(team)) {
                     access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] = 2;
                 }
             }
@@ -718,7 +720,7 @@ bool TaskAttack::EvaluateLandAttack() {
                         is_relevant = true;
                     }
 
-                    if (is_relevant && weight_table.GetWeight((*it).unit_type)) {
+                    if (is_relevant && weight_table.GetWeight((*it).GetUnitType())) {
                         if ((*it).flags & MOBILE_SEA_UNIT) {
                             worth_of_sea_units += (*it).GetBaseValues()->GetAttribute(ATTRIB_TURNS);
 
@@ -737,7 +739,7 @@ bool TaskAttack::EvaluateLandAttack() {
             } else {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
-                    if ((*it).team == team && (*it).unit_type == LANDPLT) {
+                    if ((*it).team == team && (*it).GetUnitType() == LANDPLT) {
                         stationary_unit_present = true;
 
                         if (access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) {
@@ -800,7 +802,7 @@ bool TaskAttack::RequestReconUnit(ResourceID unit_type, int32_t safe_distance) {
     if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_SCAN) >=
         safe_distance) {
         if (recon_unit) {
-            if (recon_unit->unit_type == unit_type) {
+            if (recon_unit->GetUnitType() == unit_type) {
                 return true;
             }
 
@@ -849,7 +851,7 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
         }
 
         for (auto it = units->Begin(); it != units->End(); ++it) {
-            if ((*it).team == team && (*it).unit_type == unit_type &&
+            if ((*it).team == team && (*it).GetUnitType() == unit_type &&
                 (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_distance &&
                 (!(*it).GetTask() || (*it).GetTask()->DeterminePriority(task_flags) > 0)) {
                 if (!new_recon_unit || (new_recon_unit->GetTask() && !(*it).GetTask())) {
@@ -886,14 +888,14 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
 bool TaskAttack::IsReconUnitUsable(UnitInfo* unit) {
     bool result;
 
-    if (unit->unit_type == AWAC || unit->unit_type == SCOUT || unit->unit_type == SCANNER ||
-        unit->unit_type == FASTBOAT) {
+    if (unit->GetUnitType() == AWAC || unit->GetUnitType() == SCOUT || unit->GetUnitType() == SCANNER ||
+        unit->GetUnitType() == FASTBOAT) {
         int32_t safe_distance_ground;
         int32_t safe_distance_air;
 
         GetSafeDistances(&safe_distance_air, &safe_distance_ground);
 
-        if (unit->unit_type == AWAC) {
+        if (unit->GetUnitType() == AWAC) {
             result = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_distance_air;
 
         } else {
@@ -942,7 +944,7 @@ void TaskAttack::GetSafeDistances(int32_t* safe_distance_air, int32_t* safe_dist
 
                 if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0) {
                     if (&*it == &*kill_unit_task || IsWithinAttackRange(unit, unit_position)) {
-                        if (Access_IsValidAttackTargetType(unit->unit_type, AWAC)) {
+                        if (Access_IsValidAttackTargetType(unit->GetUnitType(), AWAC)) {
                             *safe_distance_air =
                                 std::max(*safe_distance_air, unit_values->GetAttribute(ATTRIB_RANGE) + 1);
 
@@ -989,7 +991,7 @@ void TaskAttack::UpdateReconUnit() {
         GetSafeDistances(&safe_air_distance, &safe_ground_distance);
 
         if (recon_unit) {
-            if (recon_unit->unit_type == AWAC) {
+            if (recon_unit->GetUnitType() == AWAC) {
                 if (recon_unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_air_distance) {
                     return;
                 }
@@ -1046,7 +1048,7 @@ void TaskAttack::ChooseFirstTarget() {
 
     if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
         log.Log("Chose to attack %s",
-                UnitsManager_BaseUnits[kill_unit_task->GetUnitSpotted()->unit_type].singular_name);
+                UnitsManager_BaseUnits[kill_unit_task->GetUnitSpotted()->GetUnitType()].singular_name);
     } else {
         log.Log("No target chosen.");
     }
@@ -1129,7 +1131,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
     } else if (Task_GetReadyUnitsCount(team, SEATRANS) > 0) {
         transporter = SEATRANS;
 
-    } else if ((unit->unit_type == COMMANDO || unit->unit_type == INFANTRY) &&
+    } else if ((unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) &&
                (Task_GetReadyUnitsCount(team, CLNTRANS) > 0)) {
         transporter = CLNTRANS;
 
@@ -1140,8 +1142,9 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
         transporter = SEATRANS;
     }
 
-    AiLog log("Task Attack: Move %s at [%i,%i] near [%i,%i].", UnitsManager_BaseUnits[unit->unit_type].singular_name,
-              target_position.x + 1, target_position.y + 1, site.x + 1, site.y + 1);
+    AiLog log("Task Attack: Move %s at [%i,%i] near [%i,%i].",
+              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, target_position.x + 1, target_position.y + 1,
+              site.x + 1, site.y + 1);
 
     TransporterMap map(unit, 0x01, caution_level, transporter);
     bool is_there_time_to_prepare = IsThereTimeToPrepare();
@@ -1156,7 +1159,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                     int32_t unit_hits;
                     int32_t distance;
 
-                    if (unit->unit_type == COMMANDO) {
+                    if (unit->GetUnitType() == COMMANDO) {
                         heat_map = UnitsManager_TeamInfo[unit_team].heat_map_stealth_land;
 
                     } else if (UnitsManager_IsUnitUnderWater(unit)) {
@@ -1196,7 +1199,8 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                                         if ((!(access_flags & MOBILE_LAND_UNIT) ||
                                              Access_GetModifiedSurfaceType(position.x, position.y) !=
                                                  SURFACE_TYPE_WATER) &&
-                                            Access_IsAccessible(unit->unit_type, team, position.x, position.y, 0x02)) {
+                                            Access_IsAccessible(unit->GetUnitType(), team, position.x, position.y,
+                                                                0x02)) {
                                             target_position = position;
                                             minimum_distance = distance;
                                         }
@@ -1293,7 +1297,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
         surface_type = SURFACE_TYPE_WATER;
     }
 
-    if (unit->unit_type == COMMANDO) {
+    if (unit->GetUnitType() == COMMANDO) {
         heat_map = UnitsManager_TeamInfo[unit_team].heat_map_stealth_land;
 
     } else if (UnitsManager_IsUnitUnderWater(unit)) {
@@ -1351,7 +1355,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
                     if (distance < minimum_distance &&
                         (!access_flags || Access_GetModifiedSurfaceType(site.x, site.y) != SURFACE_TYPE_WATER) &&
-                        Access_IsAccessible(unit->unit_type, team, site.x, site.y, 0x02)) {
+                        Access_IsAccessible(unit->GetUnitType(), team, site.x, site.y, 0x02)) {
                         best_site = site;
                         minimum_distance = distance;
                     }
@@ -1578,7 +1582,7 @@ bool TaskAttack::IsViableLeader(UnitInfo* unit) {
     if (unit->hits > 0) {
         if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
             if (kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
-                if (unit->unit_type == COMMANDO || unit->unit_type == SUBMARNE) {
+                if (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == SUBMARNE) {
                     UnitInfo* target = kill_unit_task->GetUnitSpotted();
                     int32_t unit_scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
 
@@ -1869,7 +1873,7 @@ void TaskAttack::EvaluateAttackReadiness() {
 
                     if (Access_GetDistance(&*it2, position) <= unit_range * unit_range) {
                         log.Log("%s at [%i,%i] is in assault range, shifting to attack mode.",
-                                UnitsManager_BaseUnits[(*it2).unit_type].singular_name, (*it2).grid_x + 1,
+                                UnitsManager_BaseUnits[(*it2).GetUnitType()].singular_name, (*it2).grid_x + 1,
                                 (*it2).grid_y + 1);
 
                         op_state = ATTACK_STATE_NORMAL_SEARCH;
@@ -1968,10 +1972,11 @@ void TaskAttack::AssessEnemyUnits() {
         if (target) {
             is_relevant = false;
 
-            if ((target->flags & BUILDING) || target->unit_type == CONSTRCT) {
+            if ((target->flags & BUILDING) || target->GetUnitType() == CONSTRCT) {
                 is_relevant = target->team == enemy_team;
 
-                if (is_relevant && flags > 0x1700 && (target->unit_type == GREENHSE || target->unit_type == MININGST) &&
+                if (is_relevant && flags > 0x1700 &&
+                    (target->GetUnitType() == GREENHSE || target->GetUnitType() == MININGST) &&
                     UnitsManager_TeamInfo[enemy_team].team_points > UnitsManager_TeamInfo[team].team_points) {
                     flags = 0x1700;
                 }

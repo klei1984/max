@@ -2164,8 +2164,8 @@ int32_t UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* ta
         attacker_damage *= (5 - damage_potential) / 4;
     }
 
-    if (target_unit->unit_type == SUBMARNE &&
-        (attacker_unit->unit_type == BOMBER || attacker_unit->unit_type == ALNPLANE)) {
+    if (target_unit->GetUnitType() == SUBMARNE &&
+        (attacker_unit->GetUnitType() == BOMBER || attacker_unit->GetUnitType() == ALNPLANE)) {
         attacker_damage /= 2;
     }
 
@@ -2300,7 +2300,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if (unit->team == (*it).team && unit->unit_type == (*it).unit_type && (*it).IsUpgradeAvailable() &&
+        if (unit->team == (*it).team && unit->GetUnitType() == (*it).GetUnitType() && (*it).IsUpgradeAvailable() &&
             (*it).state != ORDER_STATE_UNIT_READY) {
             for (index = 0; index < complexes.GetCount(); ++index) {
                 if ((*it).GetComplex() == &complexes[index]) {
@@ -2336,7 +2336,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
 
     UnitInfo::GetVersion(
         mark_level,
-        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit->team], unit->unit_type)->GetVersion());
+        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit->team], unit->GetUnitType())->GetVersion());
 
     if (unit_count <= 0) {
         SmartString string;
@@ -2346,18 +2346,18 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
     } else if (unit_count == 1) {
         SmartString string;
 
-        MessageManager_DrawMessage(
-            string
-                .Sprintf(80, _(8967), UnitsManager_BaseUnits[unit->unit_type].singular_name, mark_level, material_cost)
-                .GetCStr(),
-            0, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
+        MessageManager_DrawMessage(string
+                                       .Sprintf(80, _(8967), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
+                                                mark_level, material_cost)
+                                       .GetCStr(),
+                                   0, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
 
     } else {
         SmartString string;
 
         MessageManager_DrawMessage(
             string
-                .Sprintf(80, _(2693), unit_count, UnitsManager_BaseUnits[unit->unit_type].plural_name, mark_level,
+                .Sprintf(80, _(2693), unit_count, UnitsManager_BaseUnits[unit->GetUnitType()].plural_name, mark_level,
                          material_cost)
                 .GetCStr(),
             0, 0);
@@ -2411,13 +2411,13 @@ void UnitsManager_Popup_OnClick_Manual(ButtonID bid, UnitInfo* unit) {
 
 void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons) {
     if (GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES && unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0 &&
-        unit->unit_type != COMMANDO) {
+        unit->GetUnitType() != COMMANDO) {
         UnitsManager_RegisterButton(buttons, unit->disabled_reaction_fire, _(b0b9), '4',
                                     &UnitsManager_Popup_OnClick_Manual);
     }
 
-    if (UnitsManager_BaseUnits[unit->unit_type].cargo_type > CARGO_TYPE_NONE &&
-        UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD && unit->orders != ORDER_CLEAR &&
+    if (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type > CARGO_TYPE_NONE &&
+        UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type <= CARGO_TYPE_GOLD && unit->orders != ORDER_CLEAR &&
         unit->orders != ORDER_BUILD) {
         UnitsManager_RegisterButton(buttons, unit->cursor == 3, _(886b), '3', &UnitsManager_Popup_OnClick_Transfer);
     }
@@ -2437,7 +2437,7 @@ void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons
     }
 
     if (unit->flags & SENTRY_UNIT) {
-        if (unit->unit_type != COMMANDO) {
+        if (unit->GetUnitType() != COMMANDO) {
             if (unit->orders == ORDER_SENTRY) {
                 UnitsManager_RegisterButton(buttons, true, _(0cf6), '8', &UnitsManager_Popup_OnClick_Sentry);
 
@@ -2711,7 +2711,7 @@ void UnitsManager_Popup_PlaceNewUnit(ButtonID bid, UnitInfo* unit) {
     grid_x = unit->grid_x;
     grid_y = unit->grid_y;
 
-    if (Access_FindReachableSpot(parent->unit_type, parent, &grid_x, &grid_y, 1, 1, 0)) {
+    if (Access_FindReachableSpot(parent->GetUnitType(), parent, &grid_x, &grid_y, 1, 1, 0)) {
         parent->FollowUnit();
         MessageManager_DrawMessage(_(87e9), 0, 0);
         GameManager_EnableMainMenu(parent);
@@ -2758,7 +2758,7 @@ void UnitsManager_Popup_OnClick_PowerOn(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_INIT);
 
-    sprintf(message, _(8576), UnitsManager_BaseUnits[unit->unit_type].singular_name, _(b8d3));
+    sprintf(message, _(8576), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, _(b8d3));
 
     MessageManager_DrawMessage(message, 0, 0);
 }
@@ -2769,7 +2769,7 @@ void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
-    sprintf(message, _(d599), UnitsManager_BaseUnits[unit->unit_type].singular_name, _(b4dc));
+    sprintf(message, _(d599), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, _(b4dc));
 
     MessageManager_DrawMessage(message, 0, 0);
 }
@@ -3216,7 +3216,7 @@ void UnitsManager_InitPopupMenus() {
 }
 
 int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int32_t order) {
-    int32_t unit_turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit2->team], unit2->unit_type)
+    int32_t unit_turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit2->team], unit2->GetUnitType())
                              ->GetAttribute(ATTRIB_TURNS);
     int32_t chance = ((unit1->GetExperience() * 12) * 8 + 640) / unit_turns;
 
@@ -3255,7 +3255,7 @@ uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t 
     SmartPointer<UnitInfo> parent;
     uint32_t result;
 
-    unit_type = unit->unit_type;
+    unit_type = unit->GetUnitType();
     parent = unit->GetParent();
 
     Hash_MapHash.Remove(unit);
@@ -3266,7 +3266,7 @@ uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t 
         unit_type = parent->GetConstructedUnitType();
     }
 
-    if (UnitsManager_BaseUnits[unit->unit_type].flags & BUILDING) {
+    if (UnitsManager_BaseUnits[unit->GetUnitType()].flags & BUILDING) {
         result = Builder_IsAccessible(unit->team, unit_type, grid_x, grid_y);
 
     } else {
@@ -3319,7 +3319,7 @@ void UnitsManager_SetInitialMining(UnitInfo* unit, int32_t grid_x, int32_t grid_
 }
 
 void UnitsManager_StartBuild(UnitInfo* unit) {
-    if (unit->unit_type == ENGINEER) {
+    if (unit->GetUnitType() == ENGINEER) {
         unit->target_grid_x = unit->grid_x;
         unit->target_grid_y = unit->grid_y;
     }
@@ -3725,7 +3725,7 @@ void UnitsManager_ProcessOrders() {
                 }
 
             } else {
-                AiLog log("%s at [%i,%i] cannot fire.", UnitsManager_BaseUnits[(*unit_it).unit_type].singular_name,
+                AiLog log("%s at [%i,%i] cannot fire.", UnitsManager_BaseUnits[(*unit_it).GetUnitType()].singular_name,
                           (*unit_it).grid_x + 1, (*unit_it).grid_y + 1);
 
                 (*unit_it).UpdatePinCount((*unit_it).target_grid_x, (*unit_it).target_grid_x, -1);
@@ -3772,14 +3772,14 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state) {
 
         if (unit->orders == ORDER_AWAIT_SCALING) {
             AiLog log("New order (%s) issued for %s while scaling.", UnitsManager_Orders[order],
-                      UnitsManager_BaseUnits[unit->unit_type].singular_name);
+                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             UnitsManager_NewOrderWhileScaling(unit);
         }
 
         if (unit->state == ORDER_STATE_NEW_ORDER) {
             AiLog log("New order (%s) issued for %s while waiting for path.", UnitsManager_Orders[order],
-                      UnitsManager_BaseUnits[unit->unit_type].singular_name);
+                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             unit->orders = ORDER_AWAIT;
             unit->state = ORDER_STATE_1;
@@ -3814,10 +3814,10 @@ void UnitsManager_SetNewOrder(UnitInfo* unit, int32_t order, int32_t state) {
 bool UnitsManager_IsUnitUnderWater(UnitInfo* unit) {
     bool result;
 
-    if (unit->unit_type == SUBMARNE) {
+    if (unit->GetUnitType() == SUBMARNE) {
         result = true;
 
-    } else if (unit->unit_type == CLNTRANS) {
+    } else if (unit->GetUnitType() == CLNTRANS) {
         if (Access_GetModifiedSurfaceType(unit->grid_x, unit->grid_y) == SURFACE_TYPE_WATER) {
             result = true;
 
@@ -3843,11 +3843,11 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
             int32_t grid_y = unit->grid_y;
             CTInfo* team_info = &UnitsManager_TeamInfo[unit->team];
 
-            if (UnitsManager_IsFactory(unit->unit_type)) {
+            if (UnitsManager_IsFactory(unit->GetUnitType())) {
                 ++team_info->stats_factories_built;
             }
 
-            if (unit->unit_type == MININGST) {
+            if (unit->GetUnitType() == MININGST) {
                 ++team_info->stats_mines_built;
             }
 
@@ -4013,7 +4013,7 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
 void UnitsManager_DestroyUnit(UnitInfo* unit) {
     SmartPointer<UnitInfo> unit_to_destroy(unit);
 
-    AiLog log("%s at [%i,%i] destroyed.", UnitsManager_BaseUnits[unit->unit_type].singular_name, unit->grid_x + 1,
+    AiLog log("%s at [%i,%i] destroyed.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
               unit->grid_y + 1);
 
     PathsManager_RemoveRequest(unit);
@@ -4128,7 +4128,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
         unit->storage = 0;
     }
 
-    if (unit->unit_type == COMMANDO) {
+    if (unit->GetUnitType() == COMMANDO) {
         unit->storage = unit->GetBaseValues()->GetAttribute(ATTRIB_AGENT_ADJUST);
     }
 
@@ -4305,10 +4305,10 @@ void UnitsManager_PerformAutoSurvey(UnitInfo* unit) {
 }
 
 void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
-    if (unit->unit_type != ROAD && unit->unit_type != WTRPLTFM) {
+    if (unit->GetUnitType() != ROAD && unit->GetUnitType() != WTRPLTFM) {
         switch (unit->state) {
             case ORDER_STATE_1: {
-                if (unit->unit_type == BRIDGE && unit->IsBridgeElevated()) {
+                if (unit->GetUnitType() == BRIDGE && unit->IsBridgeElevated()) {
                     if (!Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
                         UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_LOWER);
                     }
@@ -4332,7 +4332,7 @@ void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
                     GameManager_UpdateDrawBounds();
                 }
 
-                if (unit->unit_type == BRIDGE && unit->IsBridgeElevated() &&
+                if (unit->GetUnitType() == BRIDGE && unit->IsBridgeElevated() &&
                     !Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
                     UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_LOWER);
                 }
@@ -4550,7 +4550,7 @@ void UnitsManager_ProcessOrderBuild(UnitInfo* unit) {
         } break;
 
         case ORDER_STATE_11: {
-            if (ini_get_setting(INI_EFFECTS) && unit->unit_type == CONSTRCT) {
+            if (ini_get_setting(INI_EFFECTS) && unit->GetUnitType() == CONSTRCT) {
                 if (unit->moved & 0x01) {
                     if (unit->GetImageIndex() + 8 >= 40) {
                         unit->DrawSpriteFrame(unit->GetImageIndex() - 16);
@@ -4612,7 +4612,7 @@ void UnitsManager_ProcessOrderActivate(UnitInfo* unit) {
         case ORDER_STATE_6: {
             unit->GetParent()->RefreshScreen();
 
-            if (unit->unit_type == CONSTRCT) {
+            if (unit->GetUnitType() == CONSTRCT) {
                 unit->state = ORDER_STATE_11;
 
                 UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_36);
@@ -4649,7 +4649,7 @@ void UnitsManager_ProcessOrderPowerOn(UnitInfo* unit) {
         UnitsManager_PowerUpUnit(unit, -1);
         unit->DrawSpriteFrame(unit->image_base + 1);
 
-        if (unit->unit_type == RESEARCH) {
+        if (unit->GetUnitType() == RESEARCH) {
             ResearchMenu_UpdateResearchProgress(unit->team, unit->research_topic, 1);
         }
     }
@@ -4679,7 +4679,7 @@ void UnitsManager_ProcessOrderExplode(UnitInfo* unit) {
 
         case ORDER_STATE_27: {
             unit->hits = 0;
-            ++UnitsManager_TeamInfo[unit->team].casualties[unit->unit_type];
+            ++UnitsManager_TeamInfo[unit->team].casualties[unit->GetUnitType()];
 
             UnitsManager_CheckIfUnitDestroyed(unit);
 
@@ -5182,7 +5182,7 @@ void UnitsManager_Landing(UnitInfo* unit) {
 void UnitsManager_Loading(UnitInfo* unit) {
     if (unit->Take()) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
-        BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->unit_type];
+        BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->GetUnitType()];
 
         unit->orders = ORDER_AWAIT;
         unit->state = ORDER_STATE_1;
@@ -5205,7 +5205,7 @@ void UnitsManager_Loading(UnitInfo* unit) {
 void UnitsManager_Unloading(UnitInfo* unit) {
     if (unit->Take()) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
-        BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->unit_type];
+        BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->GetUnitType()];
 
         unit->orders = ORDER_AWAIT;
         unit->state = ORDER_STATE_1;
@@ -5265,7 +5265,7 @@ void UnitsManager_PowerDownUnit(UnitInfo* unit) {
 
     unit->DrawSpriteFrame(unit->image_base);
 
-    if (unit->unit_type == RESEARCH) {
+    if (unit->GetUnitType() == RESEARCH) {
         ResearchMenu_UpdateResearchProgress(unit->team, unit->research_topic, -1);
     }
 }
@@ -5278,7 +5278,7 @@ void UnitsManager_Animate(UnitInfo* unit) {
             is_unit_moved = unit->ShakeAir();
         }
 
-        if (((unit->flags & MOBILE_SEA_UNIT) || unit->unit_type == SEAMINE) &&
+        if (((unit->flags & MOBILE_SEA_UNIT) || unit->GetUnitType() == SEAMINE) &&
             Access_GetModifiedSurfaceType(unit->grid_x, unit->grid_y) == SURFACE_TYPE_WATER) {
             is_unit_moved = unit->ShakeWater();
         }
@@ -5540,7 +5540,7 @@ bool UnitsManager_AimAtTarget(UnitInfo* unit) {
 }
 
 void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
-    ResourceID unit_type = unit->unit_type;
+    ResourceID unit_type = unit->GetUnitType();
     uint16_t unit_team = unit->team;
     uint32_t unit_flags = unit->flags;
     int32_t unit_grid_x = unit->grid_x;
@@ -5554,16 +5554,16 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     if (unit_flags & STATIONARY) {
         UnitsManager_RemoveConnections(unit);
 
-        if (unit->unit_type == RESEARCH) {
+        if (unit->GetUnitType() == RESEARCH) {
             ResearchMenu_UpdateResearchProgress(unit->team, unit->research_topic, -1);
         }
 
-        if (unit->unit_type == GREENHSE) {
+        if (unit->GetUnitType() == GREENHSE) {
             UnitsManager_TeamInfo[unit->team].team_points -= unit->storage;
         }
     }
 
-    if (mode && unit->unit_type != COMMANDO && unit->unit_type != INFANTRY &&
+    if (mode && unit->GetUnitType() != COMMANDO && unit->GetUnitType() != INFANTRY &&
         !(unit_flags & (CONNECTOR_UNIT | HOVERING)) &&
         Access_IsFullyLandCovered(unit_grid_x, unit_grid_y, unit_flags)) {
         if (unit_flags & BUILDING) {
@@ -5575,7 +5575,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
 
         cargo_amount = unit->GetNormalRateBuildCost() / 2;
 
-        if (UnitsManager_BaseUnits[unit->unit_type].cargo_type == CARGO_TYPE_RAW) {
+        if (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
             cargo_amount += unit->storage;
         }
     }
@@ -5617,14 +5617,14 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); Access_IsChildOfUnitInList(unit, units, &it);
          UnitsManager_DestroyUnit(&*it)) {
-        if ((*it).unit_type == SEATRANS || (*it).unit_type == AIRTRANS || (*it).unit_type == CLNTRANS) {
+        if ((*it).GetUnitType() == SEATRANS || (*it).GetUnitType() == AIRTRANS || (*it).GetUnitType() == CLNTRANS) {
             for (SmartList<UnitInfo>::Iterator it2 = UnitsManager_MobileLandSeaUnits.Begin();
                  Access_IsChildOfUnitInList(&*it, units, &it2); UnitsManager_DestroyUnit(&*it2)) {
-                ++UnitsManager_TeamInfo[(*it2).team].casualties[(*it2).unit_type];
+                ++UnitsManager_TeamInfo[(*it2).team].casualties[(*it2).GetUnitType()];
             }
         }
 
-        ++UnitsManager_TeamInfo[(*it).team].casualties[(*it).unit_type];
+        ++UnitsManager_TeamInfo[(*it).team].casualties[(*it).GetUnitType()];
     }
 
     UnitsManager_DestroyUnit(unit);
@@ -5671,7 +5671,7 @@ void UnitsManager_BuildNext(UnitInfo* unit) {
     ResourceID unit_type = *unit->GetBuildList()[0];
     int32_t turns_to_build = BuildMenu_GetTurnsToBuild(unit_type, unit->team);
 
-    if (unit->storage >= turns_to_build * Cargo_GetRawConsumptionRate(unit->unit_type, 1) &&
+    if (unit->storage >= turns_to_build * Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1) &&
         (unit->path->GetEndX() != unit->grid_x || unit->path->GetEndY() != unit->grid_y)) {
         bool remove_road = unit_type != CNCT_4W && unit_type != ROAD && unit_type != BRIDGE && unit_type != WTRPLTFM;
         bool remove_connectors =
@@ -5732,11 +5732,12 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
             parent->orders = ORDER_AWAIT;
             parent->state = ORDER_STATE_1;
 
-            if (parent->unit_type == COMMANDO || parent->unit_type == INFANTRY || parent->unit_type == CLNTRANS) {
-                if (parent->unit_type == COMMANDO) {
+            if (parent->GetUnitType() == COMMANDO || parent->GetUnitType() == INFANTRY ||
+                parent->GetUnitType() == CLNTRANS) {
+                if (parent->GetUnitType() == COMMANDO) {
                     parent->image_base = 0;
 
-                } else if (parent->unit_type == INFANTRY) {
+                } else if (parent->GetUnitType() == INFANTRY) {
                     parent->image_base = 0;
 
                 } else {
@@ -5770,7 +5771,7 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
         }
 
         if (unit->GetTask() &&
-            (unit->unit_type == AIRTRANS || unit->unit_type == SEATRANS || unit->unit_type == CLNTRANS)) {
+            (unit->GetUnitType() == AIRTRANS || unit->GetUnitType() == SEATRANS || unit->GetUnitType() == CLNTRANS)) {
             unit->GetTask()->EventUnitUnloaded(*unit, *parent);
         }
 
@@ -5798,8 +5799,8 @@ void UnitsManager_StartExplosion(UnitInfo* unit) {
         SoundManager_PlaySfx(unit, SFX_TYPE_EXPLOAD);
     }
 
-    if ((unit->unit_type == COMMANDO || unit->unit_type == INFANTRY) && unit->hits == 0) {
-        if (unit->unit_type == COMMANDO) {
+    if ((unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) && unit->hits == 0) {
+        if (unit->GetUnitType() == COMMANDO) {
             unit->image_base = 168;
 
         } else {
@@ -6051,8 +6052,8 @@ void UnitsManager_BuildingReady(UnitInfo* unit) {
     }
 
     if (is_found) {
-        if (unit->unit_type != CNCT_4W) {
-            bool remove_road = unit->unit_type != ROAD;
+        if (unit->GetUnitType() != CNCT_4W) {
+            bool remove_road = unit->GetUnitType() != ROAD;
 
             Access_DestroyUtilities(unit->grid_x, unit->grid_y, false, false, true, remove_road);
 
@@ -6116,7 +6117,7 @@ void UnitsManager_Repair(UnitInfo* unit) {
 void UnitsManager_Transfer(UnitInfo* unit) {
     SmartPointer<UnitInfo> source(unit);
     SmartPointer<UnitInfo> target(unit->GetParent());
-    int32_t cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
+    int32_t cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
     int32_t transfer_amount = unit->target_grid_x;
 
     if (transfer_amount < 0) {
@@ -6492,7 +6493,7 @@ bool UnitsManager_IsTeamReactionPending(uint16_t team, UnitInfo* unit, SmartList
 bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
     bool result;
 
-    if ((unit1->unit_type == SP_FLAK || unit1->unit_type == ANTIAIR || unit1->unit_type == FASTBOAT) &&
+    if ((unit1->GetUnitType() == SP_FLAK || unit1->GetUnitType() == ANTIAIR || unit1->GetUnitType() == FASTBOAT) &&
         !(unit2->flags & MOBILE_AIR_UNIT)) {
         result = false;
 
@@ -6512,7 +6513,7 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
             result = false;
 
         } else if (unit2->IsVisibleToTeam(unit1->team)) {
-            if ((unit1->unit_type == COMMANDO || unit1->unit_type == SUBMARNE) &&
+            if ((unit1->GetUnitType() == COMMANDO || unit1->GetUnitType() == SUBMARNE) &&
                 !unit1->IsVisibleToTeam(unit2->team)) {
                 result = false;
 
@@ -6586,12 +6587,12 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
         unit1->target_grid_y = unit2->grid_y;
 
         if (GameManager_PlayerTeam == unit1->team) {
-            BaseUnit* base_unit = &UnitsManager_BaseUnits[unit2->unit_type];
+            BaseUnit* base_unit = &UnitsManager_BaseUnits[unit2->GetUnitType()];
             Point position(unit1->grid_x, unit1->grid_y);
             SmartString message;
 
             message.Sprintf(150, UnitsManager_ReactionsToEnemy[base_unit->gender],
-                            UnitsManager_BaseUnits[unit1->unit_type].singular_name, unit1->grid_x + 1,
+                            UnitsManager_BaseUnits[unit1->GetUnitType()].singular_name, unit1->grid_x + 1,
                             unit1->grid_y + 1, base_unit->singular_name, unit2->grid_x + 1, unit2->grid_y + 1);
 
             MessageManager_DrawMessage(message.GetCStr(), 0, unit1, position);
@@ -6712,7 +6713,7 @@ bool UnitsManager_IsAttackScheduled() {
 }
 
 Point UnitsManager_GetAttackPosition(UnitInfo* unit1, UnitInfo* unit2) {
-    if (unit2->unit_type == CONSTRCT && unit2->orders == ORDER_BUILD) {
+    if (unit2->GetUnitType() == CONSTRCT && unit2->orders == ORDER_BUILD) {
         auto utility_unit = Access_GetConstructionUtility(unit2->team, unit2->grid_x, unit2->grid_y);
 
         if (utility_unit) {
@@ -6731,7 +6732,7 @@ Point UnitsManager_GetAttackPosition(UnitInfo* unit1, UnitInfo* unit2) {
             ++position.y;
         }
 
-        if (unit1->unit_type == SUBMARNE || unit1->unit_type == CORVETTE) {
+        if (unit1->GetUnitType() == SUBMARNE || unit1->GetUnitType() == CORVETTE) {
             int32_t direction = 4;
 
             while (direction >= 0) {
@@ -6829,7 +6830,8 @@ int32_t UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int32
         attacker_attack = ((5 - attack_potential) * attacker_attack) / 4;
     }
 
-    if (target->unit_type == SUBMARNE && (attacker->unit_type == BOMBER || attacker->unit_type == ALNPLANE)) {
+    if (target->GetUnitType() == SUBMARNE &&
+        (attacker->GetUnitType() == BOMBER || attacker->GetUnitType() == ALNPLANE)) {
         attacker_attack /= 2;
     }
 

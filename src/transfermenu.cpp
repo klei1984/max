@@ -46,7 +46,7 @@ void TransferMenu_GetUnitCargoInfo(UnitInfo *source_unit, UnitInfo *destination_
 
         source_unit->GetComplex()->GetCargoInfo(complex_materials, complex_capacity);
 
-        switch (UnitsManager_BaseUnits[source_unit->unit_type].cargo_type) {
+        switch (UnitsManager_BaseUnits[source_unit->GetUnitType()].cargo_type) {
             case MATERIALS: {
                 materials = complex_materials.raw;
                 capacity = complex_capacity.raw;
@@ -169,7 +169,7 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, GameManager_GetDial
     source_unit_free_capacity = source_unit_capacity - source_unit_materials;
     source_unit_free_capacity = std::min(source_unit_free_capacity, target_unit_materials);
 
-    switch (UnitsManager_BaseUnits[source_unit->unit_type].cargo_type) {
+    switch (UnitsManager_BaseUnits[source_unit->GetUnitType()].cargo_type) {
         case MATERIALS: {
             material_id = SMBRRAW;
         } break;
@@ -251,14 +251,16 @@ TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, GameManager_GetDial
     scrollbar->SetMaterialBar(material_id);
     scrollbar->RefreshScreen();
 
-    ReportStats_DrawListItemIcon(window.buffer, window.width, source_unit->unit_type, GameManager_PlayerTeam, 104, 36);
+    ReportStats_DrawListItemIcon(window.buffer, window.width, source_unit->GetUnitType(), GameManager_PlayerTeam, 104,
+                                 36);
 
-    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[source_unit->unit_type].singular_name, 10, 52, 110,
-                 30, COLOR_BLACK, true);
+    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[source_unit->GetUnitType()].singular_name, 10, 52,
+                 110, 30, COLOR_BLACK, true);
 
-    ReportStats_DrawListItemIcon(window.buffer, window.width, target_unit->unit_type, GameManager_PlayerTeam, 207, 36);
+    ReportStats_DrawListItemIcon(window.buffer, window.width, target_unit->GetUnitType(), GameManager_PlayerTeam, 207,
+                                 36);
 
-    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[target_unit->unit_type].singular_name, 191, 52,
+    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name, 191, 52,
                  110, 30, COLOR_BLACK, true);
 
     UpdateIndicators();

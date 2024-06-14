@@ -255,7 +255,7 @@ void TaskDefenseReserve::EndTurn() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team) {
-            ++unit_counts[(*it).unit_type];
+            ++unit_counts[(*it).GetUnitType()];
         }
     }
 
@@ -296,10 +296,10 @@ void TaskDefenseReserve::EndTurn() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).team == target_team && (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
-            if ((*it).unit_type == COMMANDO) {
+            if ((*it).GetUnitType() == COMMANDO) {
                 total_assets_stealth_land += (*it).GetNormalRateBuildCost();
 
-            } else if ((*it).unit_type == SUBMARNE) {
+            } else if ((*it).GetUnitType() == SUBMARNE) {
                 total_assets_stealth_sea += (*it).GetNormalRateBuildCost();
 
             } else if ((*it).flags & MOBILE_SEA_UNIT) {

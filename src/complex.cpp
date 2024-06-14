@@ -92,7 +92,7 @@ void Complex::GetCargoMinable(Cargo& capacity) {
             (*it).orders != ORDER_IDLE) {
             Cargo cargo = Cargo_GetNetProduction(it->Get());
 
-            if ((*it).unit_type == MININGST) {
+            if ((*it).GetUnitType() == MININGST) {
                 cargo.gold -= (*it).gold_mining;
                 cargo.raw -= (*it).raw_mining;
                 cargo.fuel -= (*it).fuel_mining;
@@ -115,7 +115,7 @@ void Complex::GetCargoMining(Cargo& materials, Cargo& capacity) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetComplex() == this && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
+        if ((*it).GetComplex() == this && (*it).GetUnitType() == MININGST && (*it).orders != ORDER_POWER_OFF &&
             (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
             materials.gold += (*it).gold_mining;
             materials.raw += (*it).raw_mining;
@@ -183,7 +183,7 @@ void Complex::Transfer(int32_t raw, int32_t fuel, int32_t gold) {
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if (raw || fuel || gold) {
             if ((*it).GetComplex() == this) {
-                switch (UnitsManager_BaseUnits[(*it).unit_type].cargo_type) {
+                switch (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type) {
                     case CARGO_TYPE_RAW: {
                         TransferCargo(&*it, &raw);
                     } break;

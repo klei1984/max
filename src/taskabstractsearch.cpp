@@ -51,7 +51,7 @@ TaskAbstractSearch::~TaskAbstractSearch() {}
 Point TaskAbstractSearch::GetPoint() const { return point; }
 
 void TaskAbstractSearch::AddUnit(UnitInfo& unit) {
-    AiLog log("Abstract search: Add %s", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+    AiLog log("Abstract search: Add %s", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     units.PushBack(unit);
     unit.AddTask(this);
@@ -118,8 +118,8 @@ void TaskAbstractSearch::RemoveSelf() {
 }
 
 void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) {
-    AiLog log("Abstract search: Remove %s (requestors open: %i)", UnitsManager_BaseUnits[unit.unit_type].singular_name,
-              requestors);
+    AiLog log("Abstract search: Remove %s (requestors open: %i)",
+              UnitsManager_BaseUnits[unit.GetUnitType()].singular_name, requestors);
 
     units.Remove(unit);
 }

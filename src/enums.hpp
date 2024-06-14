@@ -2105,7 +2105,7 @@ enum : uint8_t {
     GAME_TYPE_MULTI_PLAYER_SCENARIO = 0x9
 };
 
-enum : uint8_t {
+enum PlayerTeam : uint8_t {
     PLAYER_TEAM_RED = 0x0,
     PLAYER_TEAM_GREEN = 0x1,
     PLAYER_TEAM_BLUE = 0x2,
@@ -2200,7 +2200,7 @@ enum {
     RESEARCH_TOPIC_COUNT
 };
 
-enum {
+enum SfxType : uint8_t {
     SFX_TYPE_INVALID,
     SFX_TYPE_IDLE,
     SFX_TYPE_WATER_IDLE,
@@ -2221,6 +2221,17 @@ enum {
     SFX_TYPE_LAND,
     SFX_TYPE_TAKE,
     SFX_TYPE_LIMIT
+};
+
+enum UnitAngle : uint8_t {
+    UNIT_ANGLE_N,
+    UNIT_ANGLE_NE,
+    UNIT_ANGLE_E,
+    UNIT_ANGLE_SE,
+    UNIT_ANGLE_S,
+    UNIT_ANGLE_SW,
+    UNIT_ANGLE_W,
+    UNIT_ANGLE_NW
 };
 
 enum {

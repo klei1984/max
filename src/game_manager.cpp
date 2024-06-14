@@ -1296,7 +1296,7 @@ void GameManager_Render() {
                         if (GameManager_DisplayButtonRange) {
                             int32_t color;
 
-                            if (Access_GetValidAttackTargetTypes(unit->unit_type) & MOBILE_AIR_UNIT) {
+                            if (Access_GetValidAttackTargetTypes(unit->GetUnitType()) & MOBILE_AIR_UNIT) {
                                 color = COLOR_CHROME_YELLOW;
                             } else {
                                 color = COLOR_RED;
@@ -1326,7 +1326,7 @@ void GameManager_Render() {
                                 if (GameManager_DisplayButtonRange) {
                                     int32_t color;
 
-                                    if (Access_GetValidAttackTargetTypes((*it).unit_type) & MOBILE_AIR_UNIT) {
+                                    if (Access_GetValidAttackTargetTypes((*it).GetUnitType()) & MOBILE_AIR_UNIT) {
                                         color = COLOR_CHROME_YELLOW;
                                     } else {
                                         color = COLOR_RED;
@@ -2484,7 +2484,7 @@ uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t te
         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
             if ((*it).GetId() != 0xFFFF && !((*it).flags & EXPLODING) && (*it).team == team) {
                 crc_checksum = GameManager_GetCrc16((*it).team, crc_checksum);
-                crc_checksum = GameManager_GetCrc16((*it).unit_type, crc_checksum);
+                crc_checksum = GameManager_GetCrc16((*it).GetUnitType(), crc_checksum);
                 crc_checksum = GameManager_GetCrc16((*it).unit_id, crc_checksum);
                 crc_checksum = GameManager_GetCrc16((*it).grid_x, crc_checksum);
                 crc_checksum = GameManager_GetCrc16((*it).grid_y, crc_checksum);
@@ -2496,7 +2496,7 @@ uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t te
 
                 crc_checksum = GameManager_GetCrc16((*it).shots, crc_checksum);
 
-                if (UnitsManager_BaseUnits[(*it).unit_type].cargo_type) {
+                if (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type) {
                     crc_checksum = GameManager_GetCrc16((*it).storage, crc_checksum);
                 }
 
@@ -2947,8 +2947,8 @@ void GameManager_ProcessCheatCodes() {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if ((*it).team == GameManager_PlayerTeam &&
-                        UnitsManager_BaseUnits[(*it).unit_type].cargo_type >= CARGO_TYPE_RAW &&
-                        UnitsManager_BaseUnits[(*it).unit_type].cargo_type <= CARGO_TYPE_GOLD) {
+                        UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type >= CARGO_TYPE_RAW &&
+                        UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type <= CARGO_TYPE_GOLD) {
                         (*it).storage = (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
                     }
                 }
@@ -2956,8 +2956,8 @@ void GameManager_ProcessCheatCodes() {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                      it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                     if ((*it).team == GameManager_PlayerTeam &&
-                        UnitsManager_BaseUnits[(*it).unit_type].cargo_type >= CARGO_TYPE_RAW &&
-                        UnitsManager_BaseUnits[(*it).unit_type].cargo_type <= CARGO_TYPE_GOLD) {
+                        UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type >= CARGO_TYPE_RAW &&
+                        UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type <= CARGO_TYPE_GOLD) {
                         (*it).storage = (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
                     }
                 }
@@ -2998,7 +2998,7 @@ void GameManager_ProcessCheatCodes() {
 
                     selected_unit_values =
                         UnitsManager_TeamInfo[GameManager_SelectedUnit->team].team_units->GetBaseUnitValues(
-                            GameManager_SelectedUnit->unit_type);
+                            GameManager_SelectedUnit->GetUnitType());
 
                     do {
                         new_unit_values->UpdateVersion();
@@ -3375,7 +3375,7 @@ bool GameManager_IsInteractable(UnitInfo* unit) {
         result = true;
 
     } else {
-        ResourceID unit_type = unit->unit_type;
+        ResourceID unit_type = unit->GetUnitType();
         int16_t grid_x = unit->grid_x;
         int16_t grid_y = unit->grid_y;
         SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
@@ -3546,8 +3546,8 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
 
     switch (event) {
         case 0: {
-            sprintf(text, GameManager_EventStrings_EnemySpotted[UnitsManager_BaseUnits[unit->unit_type].gender],
-                    UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, GameManager_EventStrings_EnemySpotted[UnitsManager_BaseUnits[unit->GetUnitType()].gender],
+                    UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             if (!GameManager_IsAtGridPosition(unit) && timer_elapsed_time(GameManager_NotifyTimeout) > 5000) {
                 resource_id1 = V_M070;
@@ -3559,7 +3559,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
         } break;
 
         case 1: {
-            sprintf(text, unit->hits ? _(fd20) : _(73cc), UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, unit->hits ? _(fd20) : _(73cc), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             if (unit->hits && !GameManager_IsAtGridPosition(unit)) {
                 resource_id1 = V_M229;
@@ -3574,28 +3574,28 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
         } break;
 
         case 2: {
-            sprintf(text, _(3206), UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, _(3206), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             resource_id1 = V_M243;
             resource_id2 = V_F243;
         } break;
 
         case 3: {
-            sprintf(text, _(20c3), UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, _(20c3), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             resource_id1 = V_M249;
             resource_id2 = V_F249;
         } break;
 
         case 4: {
-            sprintf(text, _(f900), UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, _(f900), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             resource_id1 = V_M012;
             resource_id2 = V_F012;
         } break;
 
         case 5: {
-            sprintf(text, _(eb6c), UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            sprintf(text, _(eb6c), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             resource_id1 = V_M012;
             resource_id2 = V_F012;
@@ -4452,8 +4452,8 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
 
         unit = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
 
-        if (unit && unit->unit_type != CNCT_4W &&
-            (!(unit->flags & GROUND_COVER) || unit->unit_type == LANDMINE || unit->unit_type == SEAMINE)) {
+        if (unit && unit->GetUnitType() != CNCT_4W &&
+            (!(unit->flags & GROUND_COVER) || unit->GetUnitType() == LANDMINE || unit->GetUnitType() == SEAMINE)) {
             uint8_t result;
 
             result = GameManager_GetMilitaryCursor(unit, grid_x, grid_y);
@@ -4536,7 +4536,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                     }
                 }
 
-                if (team_unit && team_unit->unit_type != LANDPAD && !(team_unit->flags & GROUND_COVER)) {
+                if (team_unit && team_unit->GetUnitType() != LANDPAD && !(team_unit->flags & GROUND_COVER)) {
                     result = CURSOR_FRIEND;
 
                 } else if (GameManager_IsShiftKeyPressed) {
@@ -4557,14 +4557,14 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                 if (GameManager_SelectedUnit->cursor == CURSOR_ARROW_SW) {
                     if (GameManager_SelectedUnit->storage <
                         GameManager_SelectedUnit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-                        switch (GameManager_SelectedUnit->unit_type) {
+                        switch (GameManager_SelectedUnit->GetUnitType()) {
                             case DEPOT: {
                                 GameManager_Unit =
                                     Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
 
                                 if (GameManager_Unit && Task_IsReadyToTakeOrders(GameManager_Unit) &&
-                                    GameManager_Unit->unit_type != COMMANDO &&
-                                    GameManager_Unit->unit_type != INFANTRY) {
+                                    GameManager_Unit->GetUnitType() != COMMANDO &&
+                                    GameManager_Unit->GetUnitType() != INFANTRY) {
                                     return CURSOR_LOAD;
                                 }
                             } break;
@@ -4592,8 +4592,8 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                                 GameManager_Unit =
                                     Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
 
-                                if (GameManager_Unit && (GameManager_Unit->unit_type == COMMANDO ||
-                                                         GameManager_Unit->unit_type == INFANTRY)) {
+                                if (GameManager_Unit && (GameManager_Unit->GetUnitType() == COMMANDO ||
+                                                         GameManager_Unit->GetUnitType() == INFANTRY)) {
                                     return CURSOR_LOAD;
                                 }
                             } break;
@@ -4608,8 +4608,8 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                         GameManager_IsValidTransferTarget(GameManager_Unit, &*GameManager_SelectedUnit)) {
                         switch (GameManager_SelectedUnit->cursor) {
                             case CURSOR_ARROW_NE: {
-                                if (UnitsManager_BaseUnits[GameManager_SelectedUnit->unit_type].cargo_type ==
-                                        UnitsManager_BaseUnits[GameManager_Unit->unit_type].cargo_type &&
+                                if (UnitsManager_BaseUnits[GameManager_SelectedUnit->GetUnitType()].cargo_type ==
+                                        UnitsManager_BaseUnits[GameManager_Unit->GetUnitType()].cargo_type &&
                                     GameManager_Unit->orders != ORDER_CLEAR &&
                                     GameManager_Unit->orders != ORDER_BUILD) {
                                     return CURSOR_TRANSFER;
@@ -4659,7 +4659,8 @@ void GameManager_PathBuild(UnitInfo* unit) {
         Remote_SendNetPacket_38(unit);
     }
 
-    if (unit->unit_type == ENGINEER && (unit->grid_x != unit->target_grid_x || unit->grid_y != unit->target_grid_y)) {
+    if (unit->GetUnitType() == ENGINEER &&
+        (unit->grid_x != unit->target_grid_x || unit->grid_y != unit->target_grid_y)) {
         unit->path = new (std::nothrow) GroundPath(unit->target_grid_x, unit->target_grid_y);
 
         unit->path->Path_vfunc17(unit->target_grid_x - unit->grid_x, unit->target_grid_y - unit->grid_y);
@@ -4714,11 +4715,11 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
         SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(42b7), 1, 0);
 
-    } else if (UnitsManager_BaseUnits[unit1->unit_type].cargo_type ==
-                   UnitsManager_BaseUnits[unit2->unit_type].cargo_type ||
+    } else if (UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type ==
+                   UnitsManager_BaseUnits[unit2->GetUnitType()].cargo_type ||
                (unit2->GetComplex() && (unit2->flags & STATIONARY) &&
                 (unit2 = GameManager_GetUnitWithCargoType(
-                     unit2->GetComplex(), UnitsManager_BaseUnits[unit1->unit_type].cargo_type)) != nullptr)) {
+                     unit2->GetComplex(), UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type)) != nullptr)) {
         int32_t cargo_transferred;
 
         unit1->SetParent(unit2);
@@ -4734,7 +4735,7 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
 
             cargo_transferred = labs(cargo_transferred);
 
-            switch (UnitsManager_BaseUnits[unit1->unit_type].cargo_type) {
+            switch (UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type) {
                 case CARGO_TYPE_RAW: {
                     sprintf(message, _(ea89), cargo_transferred);
                 } break;
@@ -5101,7 +5102,7 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
         unit_type = *units[i];
 
         unit.team = team;
-        unit.unit_type = unit_type;
+        unit.SetUnitType(unit_type);
 
         grid_x = mining_station_location.x;
         grid_y = mining_station_location.y;
@@ -5386,7 +5387,7 @@ bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
             char text[200];
 
             sprintf(text, "End turn delayed because %s at [%i,%i] is %s",
-                    UnitsManager_BaseUnits[(*it).unit_type].singular_name, (*it).grid_x + 1, (*it).grid_y + 1,
+                    UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1, (*it).grid_y + 1,
                     GameManager_OrderStatusMessages[(*it).orders]);
 
             MessageManager_DrawMessage(text, 0, 0);
@@ -5815,7 +5816,7 @@ int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_
 
     if (unit1->state == ORDER_STATE_UNIT_READY) {
         if (unit1->GetParent() && GameManager_IsUnitNextToPosition(unit1->GetParent(), grid_x, grid_y) &&
-            Access_IsAccessible(unit1->unit_type, GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
+            Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
             result = CURSOR_UNIT_GO;
 
         } else if (unit2) {
@@ -5834,7 +5835,7 @@ int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_
         unit_grid_x = unit1->grid_x;
         unit_grid_y = unit1->grid_y;
 
-        if (unit1->unit_type == ENGINEER) {
+        if (unit1->GetUnitType() == ENGINEER) {
             target_grid_x = grid_x;
             target_grid_y = grid_y;
 
@@ -5864,7 +5865,7 @@ int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_
             }
         }
 
-        if (unit1->unit_type == MASTER) {
+        if (unit1->GetUnitType() == MASTER) {
             if (UnitsManager_IsMasterBuilderPlaceable(unit1, target_grid_x, target_grid_y)) {
                 UnitsManager_MoveUnit(&*GameManager_TempTape, target_grid_x, target_grid_y);
 
@@ -5881,7 +5882,7 @@ int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_
             }
 
         } else if (UnitsManager_MoveUnitAndParent(&*GameManager_TempTape, target_grid_x, target_grid_y)) {
-            if (unit1->unit_type == ENGINEER) {
+            if (unit1->GetUnitType() == ENGINEER) {
                 if (grid_x == unit_grid_x || grid_y == unit_grid_y) {
                     UnitsManager_MoveUnit(&*GameManager_TempTape, target_grid_x, target_grid_y);
 
@@ -5924,7 +5925,7 @@ int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t gr
     parent = unit1->GetParent();
 
     if (GameManager_IsUnitNextToPosition(parent, grid_x, grid_y) &&
-        Access_IsAccessible(unit1->unit_type, GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
+        Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
         if ((unit1->flags & MOBILE_AIR_UNIT) && parent->grid_x <= grid_x && (parent->grid_x) + 1 >= grid_x &&
             parent->grid_y <= grid_y && (parent->grid_y) + 1 >= grid_y) {
             result = CURSOR_FRIEND;
@@ -5950,7 +5951,7 @@ bool GameManager_IsUnitNotInAir(UnitInfo* unit) {
 UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetComplex() == complex && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == cargo_type) {
+        if ((*it).GetComplex() == complex && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == cargo_type) {
             return &(*it);
         }
     }
@@ -5961,7 +5962,7 @@ UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type)
 int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2) {
     int32_t result;
 
-    if (Access_IsAccessible(unit1->unit_type, GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
+    if (Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
         if (unit2 && (unit2->flags & MOBILE_AIR_UNIT)) {
             result = CURSOR_FRIEND;
 
@@ -5980,11 +5981,11 @@ int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t
             GameManager_Unit = Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
 
             if (GameManager_Unit && Task_IsReadyToTakeOrders(GameManager_Unit)) {
-                if (unit1->unit_type == CLNTRANS &&
-                    (GameManager_Unit->unit_type == COMMANDO || GameManager_Unit->unit_type == INFANTRY)) {
+                if (unit1->GetUnitType() == CLNTRANS &&
+                    (GameManager_Unit->GetUnitType() == COMMANDO || GameManager_Unit->GetUnitType() == INFANTRY)) {
                     result = CURSOR_LOAD;
 
-                } else if (unit1->unit_type == SEATRANS) {
+                } else if (unit1->GetUnitType() == SEATRANS) {
                     result = CURSOR_LOAD;
 
                 } else if (unit2) {
@@ -6011,15 +6012,15 @@ int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t
                 GameManager_Unit != unit1 && GameManager_Unit->hits > 0) {
                 switch (unit1->cursor) {
                     case CURSOR_ARROW_NE: {
-                        if (UnitsManager_BaseUnits[unit1->unit_type].cargo_type ==
-                                UnitsManager_BaseUnits[GameManager_Unit->unit_type].cargo_type &&
+                        if (UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type ==
+                                UnitsManager_BaseUnits[GameManager_Unit->GetUnitType()].cargo_type &&
                             GameManager_Unit->orders != ORDER_CLEAR && GameManager_Unit->orders != ORDER_BUILD) {
                             result = CURSOR_TRANSFER;
 
                         } else if (!(unit1->flags & STATIONARY) && (GameManager_Unit->flags & STATIONARY) &&
                                    GameManager_GetUnitWithCargoType(
                                        GameManager_Unit->GetComplex(),
-                                       UnitsManager_BaseUnits[unit1->unit_type].cargo_type)) {
+                                       UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type)) {
                             result = CURSOR_TRANSFER;
 
                         } else {
@@ -6103,7 +6104,8 @@ bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
         unit2->orders == ORDER_FIRE || unit2->orders == ORDER_EXPLODE || unit2->state == ORDER_STATE_14) {
         result = false;
 
-    } else if ((unit2->unit_type == CLNTRANS || unit2->unit_type == SEATRANS || unit2->unit_type == AIRTRANS) &&
+    } else if ((unit2->GetUnitType() == CLNTRANS || unit2->GetUnitType() == SEATRANS ||
+                unit2->GetUnitType() == AIRTRANS) &&
                unit2->storage) {
         result = false;
 
@@ -6139,7 +6141,7 @@ int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t gr
         return CURSOR_UNIT_NO_GO;
     }
 
-    if (GameManager_SelectedUnit->unit_type != COMMANDO) {
+    if (GameManager_SelectedUnit->GetUnitType() != COMMANDO) {
         if (GameManager_SelectedUnit->weapon != 2) {
             return CURSOR_UNIT_NO_GO;
         }
@@ -6155,7 +6157,7 @@ int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t gr
         UnitInfo* target = Access_GetAttackTarget(GameManager_SelectedUnit.Get(), grid_x, grid_y);
 
         if (target) {
-            if (GameManager_SelectedUnit->unit_type == COMMANDO && GameManager_SelectedUnit->targeting_mode == 0) {
+            if (GameManager_SelectedUnit->GetUnitType() == COMMANDO && GameManager_SelectedUnit->targeting_mode == 0) {
                 if (GameManager_IsUnitNextToPosition(GameManager_SelectedUnit.Get(), grid_x, grid_y) &&
                     GameManager_IsUnitNotInAir(target)) {
                     if (GameManager_SelectedUnit->cursor == CURSOR_ARROW_NW ||
@@ -6758,7 +6760,7 @@ void GameManager_ProcessInput() {
                                             if (GameManager_SelectedUnit->storage <
                                                 GameManager_SelectedUnit->GetBaseValues()->GetAttribute(
                                                     ATTRIB_STORAGE)) {
-                                                if (GameManager_SelectedUnit->unit_type == AIRTRANS) {
+                                                if (GameManager_SelectedUnit->GetUnitType() == AIRTRANS) {
                                                     GameManager_SelectedUnit->SetParent(GameManager_Unit);
                                                     GameManager_SetUnitOrder(
                                                         ORDER_MOVE, ORDER_STATE_INIT, &*GameManager_SelectedUnit,
@@ -7069,7 +7071,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
             window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
 
-            GameManager_MenuCreateFlic(unit->unit_type, window->window.ulx, window->window.uly);
+            GameManager_MenuCreateFlic(unit->GetUnitType(), window->window.ulx, window->window.uly);
 
             unit->GetDisplayName(text, sizeof(text));
 
@@ -7078,7 +7080,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
             win_print(window->id, text, FLICSMGR_FLIC_SIZE, window->window.ulx, window->window.uly,
                       GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED | COLOR_GREEN);
 
-            if (unit->unit_type == COMMANDO) {
+            if (unit->GetUnitType() == COMMANDO) {
                 int32_t experience;
                 char exp_text[10];
 
@@ -7323,9 +7325,9 @@ void GameManager_DrawInfoDisplayRow(const char* label, int32_t window_id, Resour
 void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
     int32_t power_need;
 
-    power_need = Cargo_GetPowerConsumptionRate(unit->unit_type);
+    power_need = Cargo_GetPowerConsumptionRate(unit->GetUnitType());
 
-    if (power_need && GameManager_PlayerTeam == unit->team && !Cargo_GetLifeConsumptionRate(unit->unit_type)) {
+    if (power_need && GameManager_PlayerTeam == unit->team && !Cargo_GetLifeConsumptionRate(unit->GetUnitType())) {
         int32_t current_power_need;
         int32_t current_value;
         int32_t base_value;
@@ -7351,7 +7353,7 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).GetComplex() == unit->GetComplex()) {
-                cargo.power = Cargo_GetPowerConsumptionRate((*it).unit_type);
+                cargo.power = Cargo_GetPowerConsumptionRate((*it).GetUnitType());
 
                 if (cargo.power >= 0) {
                     base_value += cargo.power;
@@ -7381,7 +7383,7 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
             }
         }
 
-        if (Cargo_GetPowerConsumptionRate(unit->unit_type) > 0) {
+        if (Cargo_GetPowerConsumptionRate(unit->GetUnitType()) > 0) {
             GameManager_DrawInfoDisplayRow(_(c9b3), WINDOW_STAT_ROW_3, SI_POWER, current_value, base_value, 1);
 
         } else {
@@ -7394,7 +7396,7 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
 void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
     int32_t life_need;
 
-    life_need = Cargo_GetLifeConsumptionRate(unit->unit_type);
+    life_need = Cargo_GetLifeConsumptionRate(unit->GetUnitType());
 
     if (life_need && GameManager_PlayerTeam == unit->team) {
         int32_t current_life_need;
@@ -7422,7 +7424,7 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).GetComplex() == unit->GetComplex()) {
-                cargo.life = Cargo_GetLifeConsumptionRate((*it).unit_type);
+                cargo.life = Cargo_GetLifeConsumptionRate((*it).GetUnitType());
 
                 if (cargo.life >= 0) {
                     base_value += cargo.life;
@@ -7452,7 +7454,7 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
             }
         }
 
-        if (Cargo_GetLifeConsumptionRate(unit->unit_type) > 0) {
+        if (Cargo_GetLifeConsumptionRate(unit->GetUnitType()) > 0) {
             GameManager_DrawInfoDisplayRow(_(c6fe), WINDOW_STAT_ROW_3, SI_WORK, current_value, base_value, 1);
 
         } else {
@@ -7577,7 +7579,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
             uint8_t cargo_type;
             int32_t storage_value;
 
-            cargo_type = UnitsManager_BaseUnits[unit->unit_type].cargo_type;
+            cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
             storage_value = unit_values->GetAttribute(ATTRIB_STORAGE);
 
             if (storage_value <= 4) {
@@ -7612,7 +7614,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
             GameManager_DrawInfoDisplayType2(unit);
         }
 
-        if (unit->unit_type == GREENHSE && unit->team == GameManager_PlayerTeam) {
+        if (unit->GetUnitType() == GREENHSE && unit->team == GameManager_PlayerTeam) {
             GameManager_DrawInfoDisplayType3(unit);
 
         } else {
@@ -7621,8 +7623,8 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 
         if ((unit->team == GameManager_PlayerTeam || GameManager_MaxSpy) &&
             unit_values->GetAttribute(ATTRIB_STORAGE) > 0 && (unit->flags & STATIONARY) &&
-            UnitsManager_BaseUnits[unit->unit_type].cargo_type >= CARGO_TYPE_RAW &&
-            UnitsManager_BaseUnits[unit->unit_type].cargo_type <= CARGO_TYPE_GOLD) {
+            UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type >= CARGO_TYPE_RAW &&
+            UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type <= CARGO_TYPE_GOLD) {
             Cargo materials;
             Cargo capacity;
             int32_t value{0};
@@ -7630,7 +7632,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 
             unit->GetComplex()->GetCargoInfo(materials, capacity);
 
-            switch (UnitsManager_BaseUnits[unit->unit_type].cargo_type) {
+            switch (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type) {
                 case CARGO_TYPE_RAW: {
                     value = materials.raw;
                     value_limit = capacity.raw;
@@ -7649,7 +7651,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 
             GameManager_DrawInfoDisplayRow(
                 _(d28b), WINDOW_STAT_ROW_3,
-                ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->unit_type].cargo_type * 2], value, value_limit,
+                ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type * 2], value, value_limit,
                 scaling_factor);
         }
 
@@ -7768,12 +7770,12 @@ void GameManager_MenuDeinitButtons() {
 void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
     SmartString string;
 
-    if (unit->unit_type == BULLDOZR) {
+    if (unit->GetUnitType() == BULLDOZR) {
         string.Sprintf(80, _(af4a), unit->build_time);
 
     } else if (unit->state == ORDER_STATE_UNIT_READY) {
-        BaseUnit* base_unit1 = &UnitsManager_BaseUnits[unit->unit_type];
-        BaseUnit* base_unit2 = &UnitsManager_BaseUnits[unit->GetParent()->unit_type];
+        BaseUnit* base_unit1 = &UnitsManager_BaseUnits[unit->GetUnitType()];
+        BaseUnit* base_unit2 = &UnitsManager_BaseUnits[unit->GetParent()->GetUnitType()];
 
         if (unit->flags & STATIONARY) {
             string.Sprintf(200, GameManager_EventStrings_FinishedBuilding[base_unit2->gender],
@@ -7866,7 +7868,7 @@ void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
     }
 
     if (!is_ammo_depleted && !is_ammo_low && !is_movement_exhausted && !is_damaged) {
-        if (unit->unit_type == SURVEYOR) {
+        if (unit->GetUnitType() == SURVEYOR) {
             SoundManager_PlayVoice(V_M191, V_F192);
 
         } else if (unit->orders == ORDER_MOVE_TO_ATTACK) {
@@ -7896,7 +7898,7 @@ void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
                 SoundManager_PlayVoice(V_M284, V_F284);
             }
 
-        } else if (unit->unit_type == RESEARCH && unit->orders == ORDER_POWER_ON &&
+        } else if (unit->GetUnitType() == RESEARCH && unit->orders == ORDER_POWER_ON &&
                    UnitsManager_TeamInfo[unit->team].research_topics[unit->research_topic].turns_to_complete == 0) {
             SoundManager_PlayVoice(V_M093, V_F093);
 
@@ -7912,7 +7914,7 @@ void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
     }
 
     if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING) {
-        MessageManager_DrawMessage(UnitsManager_BaseUnits[unit->unit_type].tutorial, 0, 0);
+        MessageManager_DrawMessage(UnitsManager_BaseUnits[unit->GetUnitType()].tutorial, 0, 0);
     }
 
     if (unit->orders == ORDER_BUILD || unit->orders == ORDER_CLEAR || unit->orders == ORDER_HALT_BUILDING ||
@@ -7948,7 +7950,7 @@ void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint16
             if ((*it).build_time <= (*it).GetBuildRate()) {
                 (*it).build_time = 0;
 
-                if ((*it).unit_type != BULLDOZR) {
+                if ((*it).GetUnitType() != BULLDOZR) {
                     ++counts[(*it).GetConstructedUnitType()];
                 }
 

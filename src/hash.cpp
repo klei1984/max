@@ -146,7 +146,7 @@ void MapHash::AddEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y, bool mode)
         object = list->Begin();
     }
 
-    if (!mode || unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE) {
+    if (!mode || unit->GetUnitType() == LRGTAPE || unit->GetUnitType() == SMLTAPE) {
         (*object).PushFront(unit);
     } else {
         (*object).PushBack(unit);

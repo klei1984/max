@@ -196,7 +196,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).team == team && (*it).storage < (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) &&
-                (*it).hits > 0 && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == CARGO_TYPE_RAW) {
+                (*it).hits > 0 && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
                 Complex* complex = (*it).GetComplex();
 
                 for (SmartList<UnitInfo>::Iterator building = UnitsManager_StationaryUnits.Begin();

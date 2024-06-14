@@ -176,8 +176,9 @@ bool TaskSearchDestination::Search() {
     int16_t** damage_potential_map = nullptr;
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    TransporterMap map(&*unit, 1, is_doomed ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
-                       UnitsManager_BaseUnits[unit->unit_type].land_type & SURFACE_TYPE_WATER ? INVALID_ID : AIRTRANS);
+    TransporterMap map(
+        &*unit, 1, is_doomed ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
+        UnitsManager_BaseUnits[unit->GetUnitType()].land_type & SURFACE_TYPE_WATER ? INVALID_ID : AIRTRANS);
 
     if (!is_doomed) {
         damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
@@ -281,7 +282,7 @@ void TaskSearchDestination::SearchTrySite() {
     }
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).hits > 0 && (*it).unit_type == unit->unit_type && unit != (*it) &&
+        if ((*it).team == team && (*it).hits > 0 && (*it).GetUnitType() == unit->GetUnitType() && unit != (*it) &&
             ((*it).orders == ORDER_AWAIT || (*it).orders == ORDER_SENTRY || (*it).orders == ORDER_MOVE ||
              (*it).orders == ORDER_MOVE_TO_UNIT) &&
             Access_GetDistance(&*unit, best_site) > Access_GetDistance(&*it, best_site)) {
@@ -300,7 +301,7 @@ void TaskSearchDestination::SearchTrySite() {
                 SmartPointer<UnitInfo> backup = unit;
                 unit = &*it;
 
-                log.Log("Swapping for %s at [%i,%i]", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+                log.Log("Swapping for %s at [%i,%i]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
                         unit->grid_x + 1, unit->grid_y + 1);
 
                 unit->RemoveTasks();
@@ -327,7 +328,7 @@ bool TaskSearchDestination::sub_3DFCF(UnitInfo* unit_, Point point) {
 
     if (!search_task->IsVisited(*unit_, point)) {
         ++enterable_sites;
-        result = Access_IsAccessible(unit_->unit_type, team, point.x, point.y, 1) > 0;
+        result = Access_IsAccessible(unit_->GetUnitType(), team, point.x, point.y, 1) > 0;
 
     } else {
         result = false;
@@ -341,7 +342,7 @@ void TaskSearchDestination::ResumeSearch() {
 
     if (unit) {
         if (unit->IsReadyForOrders(this) && unit->speed > 0) {
-            log.Log("Client unit: %s at [%i,%i]", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+            log.Log("Client unit: %s at [%i,%i]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
                     unit->grid_x + 1, unit->grid_y + 1);
 
             if (!is_doomed) {

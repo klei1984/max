@@ -36,7 +36,7 @@ UnitEventEmergencyStop::~UnitEventEmergencyStop() {}
 
 void UnitEventEmergencyStop::Process() {
     if (unit->hits > 0) {
-        AiLog log("Emergency stop for %s at [%i,%i].", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+        AiLog log("Emergency stop for %s at [%i,%i].", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
                   unit->grid_x + 1, unit->grid_y + 1);
 
         unit->StopMovement();

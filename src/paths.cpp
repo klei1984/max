@@ -337,7 +337,8 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
                 if (grid_x || grid_y) {
                     Access_UpdateMapStatus(unit, true);
 
-                    if (unit->unit_type == ALNMISSL || unit->unit_type == ALNTBALL || unit->unit_type == ALNABALL) {
+                    if (unit->GetUnitType() == ALNMISSL || unit->GetUnitType() == ALNTBALL ||
+                        unit->GetUnitType() == ALNABALL) {
                         unit->DrawSpriteFrame(unit->GetImageIndex() ^ 1);
                     }
                 }
@@ -506,7 +507,7 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {
 
             if (point.x >= 0 && point.x < ResourceManager_MapSize.x && point.y >= 0 &&
                 point.y < ResourceManager_MapSize.y) {
-                step_cost = Access_IsAccessible(unit->unit_type, unit->team, point.x, point.y, 0);
+                step_cost = Access_IsAccessible(unit->GetUnitType(), unit->team, point.x, point.y, 0);
 
                 if (step->x && step->y) {
                     step_cost = (step_cost * 3) / 2;
@@ -583,7 +584,7 @@ int32_t GroundPath::GetMovementCost(UnitInfo* unit) {
             grid_x += step->x;
             grid_y += step->y;
 
-            step_cost = Access_IsAccessible(unit->unit_type, unit->team, grid_x, grid_y, 0);
+            step_cost = Access_IsAccessible(unit->GetUnitType(), unit->team, grid_x, grid_y, 0);
 
             if (step->x && step->y) {
                 step_cost = (step_cost * 3) / 2;
@@ -679,7 +680,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
             } else {
                 unit->orders = ORDER_IDLE;
 
-                if (receiver->unit_type == SEATRANS || receiver->unit_type == CLNTRANS) {
+                if (receiver->GetUnitType() == SEATRANS || receiver->GetUnitType() == CLNTRANS) {
                     unit->state = ORDER_STATE_4;
 
                 } else {
@@ -703,7 +704,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
     Paths_IsOccupied(target_grid_x, target_grid_y, unit->angle, unit->team);
 
-    cost = Access_IsAccessible(unit->unit_type, unit->team, target_grid_x, target_grid_y, 0x1A);
+    cost = Access_IsAccessible(unit->GetUnitType(), unit->team, target_grid_x, target_grid_y, 0x1A);
 
     if (cost) {
         if (offset_x && offset_y) {
@@ -719,7 +720,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
                 int32_t surface_type = Access_GetModifiedSurfaceType(target_grid_x, target_grid_y);
 
-                if (unit->unit_type == CLNTRANS) {
+                if (unit->GetUnitType() == CLNTRANS) {
                     image_index = 0;
 
                     if (surface_type == SURFACE_TYPE_WATER) {
@@ -755,7 +756,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
                 }
 
                 if (image_index != unit->image_base) {
-                    if (unit->unit_type == CLNTRANS) {
+                    if (unit->GetUnitType() == CLNTRANS) {
                         unit->firing_image_base = image_index;
 
                     } else {
@@ -859,7 +860,7 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
             grid_x += path_x;
             grid_y += path_y;
 
-            cost = Access_IsAccessible(unit->unit_type, unit->team, grid_x, grid_y, 0x00);
+            cost = Access_IsAccessible(unit->GetUnitType(), unit->team, grid_x, grid_y, 0x00);
 
             if (path_x && path_y) {
                 cost = (cost * 3) / 2;
@@ -1300,7 +1301,7 @@ bool Paths_UpdateAngle(UnitInfo* unit, int32_t angle) {
 }
 
 void Paths_DrawMissile(UnitInfo* unit, int32_t position_x, int32_t position_y) {
-    if (unit->unit_type == TORPEDO || unit->unit_type == ROCKET) {
+    if (unit->GetUnitType() == TORPEDO || unit->GetUnitType() == ROCKET) {
         int32_t index;
         int32_t team;
         int32_t grid_x;
@@ -1322,7 +1323,7 @@ void Paths_DrawMissile(UnitInfo* unit, int32_t position_x, int32_t position_y) {
         scaled_x = ((position_x - unit->x) << 16) / index;
         scaled_y = ((position_y - unit->y) << 16) / index;
 
-        if (unit->unit_type == TORPEDO) {
+        if (unit->GetUnitType() == TORPEDO) {
             unit_type = TRPBUBLE;
 
         } else {
@@ -1352,14 +1353,14 @@ bool Paths_LoadUnit(UnitInfo* unit) {
     shop = Access_GetReceiverUnit(unit, unit->grid_x, unit->grid_y);
 
     if (shop) {
-        if (shop->unit_type == LANDPAD && !Access_GetUnit2(unit->grid_x, unit->grid_y, unit->team)) {
+        if (shop->GetUnitType() == LANDPAD && !Access_GetUnit2(unit->grid_x, unit->grid_y, unit->team)) {
             unit->SetParent(nullptr);
             unit->orders = ORDER_LAND;
             unit->state = ORDER_STATE_INIT;
 
             result = true;
 
-        } else if (shop->unit_type == HANGAR && unit->orders == ORDER_MOVE_TO_UNIT) {
+        } else if (shop->GetUnitType() == HANGAR && unit->orders == ORDER_MOVE_TO_UNIT) {
             const int32_t stored_units = Access_GetStoredUnitCount(shop);
             const int32_t storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
@@ -1421,7 +1422,7 @@ void Paths_FinishMove(UnitInfo* unit) {
             }
 
             if (!Paths_LoadUnit(unit)) {
-                if (unit->unit_type == AIRTRANS && unit->GetParent()) {
+                if (unit->GetUnitType() == AIRTRANS && unit->GetParent()) {
                     if (unit->storage < unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
                         if (unit->GetParent() == Access_GetTeamUnit(grid_x, grid_y, unit->team, MOBILE_LAND_UNIT)) {
                             unit->orders = ORDER_LOAD;
@@ -1500,7 +1501,7 @@ bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_di
 
     unit->max_velocity = max_velocity;
 
-    if (unit->unit_type == COMMANDO || unit->unit_type == INFANTRY) {
+    if (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) {
         unit->max_velocity >>= 1;
         unit->velocity = unit->max_velocity;
     }
@@ -1618,7 +1619,8 @@ bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t tea
 
     if (units) {
         for (auto it = units->Begin(); it != units->End(); ++it) {
-            if (((*it).unit_type == SUBMARNE || (*it).unit_type == COMMANDO || (*it).unit_type == CLNTRANS) &&
+            if (((*it).GetUnitType() == SUBMARNE || (*it).GetUnitType() == COMMANDO ||
+                 (*it).GetUnitType() == CLNTRANS) &&
                 !(*it).IsVisibleToTeam(team)) {
                 if (!(*it).AttemptSideStep(grid_x, grid_y, angle)) {
                     (*it).SpotByTeam(team);

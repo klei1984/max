@@ -154,7 +154,7 @@ void TaskRetreat::Search() {
                 field_34 = 1;
 
                 if (damage_potential_map[position.x][position.y] < unit_hits) {
-                    if (Access_IsAccessible(unit_to_retreat->unit_type, team, position.x, position.y, 0x02)) {
+                    if (Access_IsAccessible(unit_to_retreat->GetUnitType(), team, position.x, position.y, 0x02)) {
                         if (transporter_map.Search(position)) {
                             SmartPointer<TaskMove> task_move(new (std::nothrow) TaskMove(
                                 &*unit_to_retreat, this, 0, CAUTION_LEVEL_NONE, position, &TaskMoveResultCallback));

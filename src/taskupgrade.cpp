@@ -81,7 +81,7 @@ void TaskUpgrade::CreateUnit() {
 }
 
 void TaskUpgrade::IssueOrder() {
-    AiLog log("Upgrading %s.", UnitsManager_BaseUnits[target_unit->unit_type].singular_name);
+    AiLog log("Upgrading %s.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
 
     operator_unit->SetParent(&*target_unit);
 

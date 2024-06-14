@@ -58,10 +58,10 @@ void TaskActivate::Activate() {
                             }
 
                             AiLog log("Activate %s %i at [%i,%i] from %s %i at [%i,%i].",
-                                      UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name,
+                                      UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name,
                                       unit_to_activate->unit_id, unit_to_activate->grid_x + 1,
                                       unit_to_activate->grid_y + 1,
-                                      UnitsManager_BaseUnits[unit_parent->unit_type].singular_name,
+                                      UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name,
                                       unit_parent->unit_id, unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
                             if (unit_to_activate->orders != ORDER_IDLE || unit_parent->orders == ORDER_BUILD ||
@@ -82,7 +82,7 @@ void TaskActivate::Activate() {
                                     for (int32_t range = 0; range < unit_size + 1; ++range) {
                                         position += Paths_8DirPointsArray[direction];
 
-                                        if (Access_IsAccessible(unit_to_activate->unit_type, team, position.x,
+                                        if (Access_IsAccessible(unit_to_activate->GetUnitType(), team, position.x,
                                                                 position.y, 0x02)) {
                                             log.Log("Open square: [%i,%i].", position.x + 1, position.y + 1);
 
@@ -128,7 +128,7 @@ void TaskActivate::Activate() {
                                     for (int32_t range = 0; range < unit_size + 1; ++range) {
                                         position += Paths_8DirPointsArray[direction];
 
-                                        if (Access_IsAccessible(unit_to_activate->unit_type, team, position.x,
+                                        if (Access_IsAccessible(unit_to_activate->GetUnitType(), team, position.x,
                                                                 position.y, 0x01)) {
                                             log.Log("Clearing square: [%i,%i].", position.x + 1, position.y + 1);
 
@@ -145,7 +145,7 @@ void TaskActivate::Activate() {
 
                             } else {
                                 log.Log("%s is not ready for orders.",
-                                        UnitsManager_BaseUnits[unit_parent->unit_type].singular_name);
+                                        UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name);
                             }
                         }
                     }
@@ -160,9 +160,9 @@ bool TaskActivate::Task_vfunc1(UnitInfo& unit) { return unit_to_activate != unit
 char* TaskActivate::WriteStatusLog(char* buffer) const {
     if (unit_to_activate && unit_parent) {
         sprintf(buffer, "Activate %s %i at [%i,%i] from %s %i at [%i,%i].",
-                UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name, unit_to_activate->unit_id,
+                UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name, unit_to_activate->unit_id,
                 unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
-                UnitsManager_BaseUnits[unit_parent->unit_type].singular_name, unit_parent->unit_id,
+                UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name, unit_parent->unit_id,
                 unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
     } else {
@@ -221,7 +221,8 @@ bool TaskActivate::Execute(UnitInfo& unit) {
 
             if (!Access_IsInsideBounds(&bounds, &position)) {
                 AiLog log("Completed activation of %s %i.",
-                          UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name, unit_to_activate->unit_id);
+                          UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name,
+                          unit_to_activate->unit_id);
 
                 unit_to_activate->RemoveTask(this);
 
@@ -270,7 +271,8 @@ void TaskActivate::RemoveSelf() {
 
 void TaskActivate::RemoveUnit(UnitInfo& unit) {
     if (unit_to_activate == unit) {
-        AiLog log("Removing %s from Activate Unit.", UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name);
+        AiLog log("Removing %s from Activate Unit.",
+                  UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name);
 
         unit_to_activate = nullptr;
         zone = nullptr;

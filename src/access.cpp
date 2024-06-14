@@ -77,7 +77,7 @@ bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_gr
                 }
 
             } else {
-                if ((*it).unit_type == BRIDGE) {
+                if ((*it).GetUnitType() == BRIDGE) {
                     unit = (*it);
                 }
             }
@@ -140,14 +140,14 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
                                 }
 
                                 if ((unit_flags & STATIONARY) && unit_type != CNCT_4W &&
-                                    (((*it).unit_type == BRIDGE) ||
-                                     ((*it).unit_type >= LRGRUBLE && (*it).unit_type <= SMLCONES) ||
-                                     (*it).unit_type == LANDMINE || (*it).unit_type == SEAMINE)) {
+                                    (((*it).GetUnitType() == BRIDGE) ||
+                                     ((*it).GetUnitType() >= LRGRUBLE && (*it).GetUnitType() <= SMLCONES) ||
+                                     (*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE)) {
                                     return 0;
                                 }
 
                                 if ((*it).flags & STATIONARY) {
-                                    switch ((*it).unit_type) {
+                                    switch ((*it).GetUnitType()) {
                                         case ROAD: {
                                             if (unit_type == ROAD) {
                                                 return 0;
@@ -338,7 +338,7 @@ bool Access_IsSurveyorOverlayActive(UnitInfo* unit) {
     bool result;
 
     if (unit->orders != ORDER_IDLE && unit->team == GameManager_PlayerTeam) {
-        result = unit->unit_type == SURVEYOR;
+        result = unit->GetUnitType() == SURVEYOR;
     } else {
         result = false;
     }
@@ -396,7 +396,7 @@ bool Access_IsWithinAttackRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, 
     if (distance > attack_range) {
         result = false;
     } else {
-        if (unit->unit_type != SUBMARNE && unit->unit_type != CORVETTE) {
+        if (unit->GetUnitType() != SUBMARNE && unit->GetUnitType() != CORVETTE) {
             result = true;
         } else {
             distance = std::max(labs(distance_x), labs(distance_y)) * 64;
@@ -452,7 +452,7 @@ uint32_t Access_GetAttackTargetGroup(UnitInfo* unit) {
         result = TARGET_CLASS_NONE;
 
     } else {
-        switch (unit->unit_type) {
+        switch (unit->GetUnitType()) {
             case COMMANDO:
             case INFANTRY: {
                 result = TARGET_CLASS_LAND_STEALTH | TARGET_CLASS_LAND | TARGET_CLASS_WATER;
@@ -517,7 +517,7 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
     map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
     result = TARGET_CLASS_NONE;
 
-    if (unit->unit_type == CORVETTE) {
+    if (unit->GetUnitType() == CORVETTE) {
         if (++UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] == 1) {
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
@@ -535,13 +535,13 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
         }
     }
 
-    if (unit->unit_type == COMMANDO || unit->unit_type == INFANTRY) {
+    if (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) {
         if (++UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset] == 1) {
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
             if (units) {
                 for (auto it = units->Begin(); it != units->End(); ++it) {
-                    if ((*it).unit_type == COMMANDO) {
+                    if ((*it).GetUnitType() == COMMANDO) {
                         (*it).SpotByTeam(team);
 
                         if (unit->team != (*it).team) {
@@ -585,11 +585,11 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t gr
     team = unit->team;
     map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
 
-    if (unit->unit_type == CORVETTE) {
+    if (unit->GetUnitType() == CORVETTE) {
         --UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset];
     }
 
-    if (unit->unit_type == COMMANDO || unit->unit_type == INFANTRY) {
+    if (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) {
         --UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset];
     }
 
@@ -639,7 +639,7 @@ void Access_DrawUnit(UnitInfo* unit) {
                 unit->SpotByTeam(team);
             }
 
-            if (unit->unit_type == COMMANDO) {
+            if (unit->GetUnitType() == COMMANDO) {
                 if (UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset]) {
                     unit->SpotByTeam(team);
                 }
@@ -657,11 +657,11 @@ void Access_DrawUnit(UnitInfo* unit) {
 uint32_t Access_GetTargetClass(UnitInfo* unit) {
     uint32_t result;
 
-    if (unit->unit_type == COMMANDO || UnitsManager_IsUnitUnderWater(unit)) {
+    if (unit->GetUnitType() == COMMANDO || UnitsManager_IsUnitUnderWater(unit)) {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 unit->IsVisibleToTeam(team)) {
-                if (unit->unit_type == COMMANDO) {
+                if (unit->GetUnitType() == COMMANDO) {
                     result = TARGET_CLASS_LAND;
                 } else {
                     result = TARGET_CLASS_WATER;
@@ -671,7 +671,7 @@ uint32_t Access_GetTargetClass(UnitInfo* unit) {
             }
         }
 
-        if (unit->unit_type == COMMANDO) {
+        if (unit->GetUnitType() == COMMANDO) {
             result = TARGET_CLASS_LAND_STEALTH;
         } else {
             result = TARGET_CLASS_SEA_STEALTH;
@@ -694,8 +694,8 @@ uint32_t Access_GetTargetClass(UnitInfo* unit) {
 
 void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
     if (unit->orders != ORDER_DISABLE) {
-        if ((unit->unit_type == SURVEYOR || unit->unit_type == MINELAYR || unit->unit_type == SEAMNLYR ||
-             unit->unit_type == COMMANDO) &&
+        if ((unit->GetUnitType() == SURVEYOR || unit->GetUnitType() == MINELAYR || unit->GetUnitType() == SEAMNLYR ||
+             unit->GetUnitType() == COMMANDO) &&
             mode) {
             Survey_SurveyArea(unit, 1);
         }
@@ -772,7 +772,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
 
                     if (friendly_target_class & enemy_target_class) {
                         AiLog log("Access: %s at [%i,%i] spotted enemies",
-                                  UnitsManager_BaseUnits[unit->unit_type].singular_name, unit->grid_x + 1,
+                                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
                                   unit->grid_y + 1);
 
                         if (unit->GetUnitList()) {
@@ -883,7 +883,7 @@ uint8_t Access_GetModifiedSurfaceType(int32_t grid_x, int32_t grid_y) {
 
         if (units) {
             for (auto it = units->Begin(); it != units->End(); ++it) {
-                if ((*it).unit_type == WTRPLTFM || (*it).unit_type == BRIDGE) {
+                if ((*it).GetUnitType() == WTRPLTFM || (*it).GetUnitType() == BRIDGE) {
                     surface_type = SURFACE_TYPE_LAND;
                 }
             }
@@ -933,12 +933,12 @@ UnitInfo* Access_GetRemovableRubble(uint16_t team, int32_t grid_x, int32_t grid_
 
         if (units) {
             for (auto it = units->Begin(); it != units->End(); ++it) {
-                if ((*it).unit_type == SMLRUBLE) {
+                if ((*it).GetUnitType() == SMLRUBLE) {
                     unit = &*it;
                     break;
                 }
 
-                if ((*it).unit_type == LRGRUBLE) {
+                if ((*it).GetUnitType() == LRGRUBLE) {
                     for (int32_t y = (*it).grid_y; y <= (*it).grid_y + 1; ++y) {
                         for (int32_t x = (*it).grid_x; x <= (*it).grid_x + 1; ++x) {
                             if (x != grid_x || y != grid_y) {
@@ -1015,7 +1015,7 @@ UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_
 UnitInfo* Access_GetFirstMiningStation(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == MININGST) {
+        if ((*it).team == team && (*it).GetUnitType() == MININGST) {
             return &*it;
         }
     }
@@ -1155,7 +1155,7 @@ int32_t Access_GetStoredUnitCount(UnitInfo* unit) {
     SmartList<UnitInfo>* units = nullptr;
     int32_t result = 0;
 
-    if (unit->unit_type == HANGAR) {
+    if (unit->GetUnitType() == HANGAR) {
         units = &UnitsManager_MobileAirUnits;
 
     } else {
@@ -1249,7 +1249,7 @@ bool Access_IsValidNextUnit(UnitInfo* unit) {
         result = false;
 
     } else if (Access_IsWithinMovementRange(unit) ||
-               (unit->shots && Access_FindReachableSpot(unit->unit_type, unit, &grid_x, &grid_y,
+               (unit->shots && Access_FindReachableSpot(unit->GetUnitType(), unit, &grid_x, &grid_y,
                                                         unit_values->GetAttribute(ATTRIB_RANGE), 0, 1))) {
         result = true;
 
@@ -1359,7 +1359,7 @@ UnitInfo* Access_GetUnit5(int32_t grid_x, int32_t grid_y) {
 
         if (units) {
             for (auto it = units->Begin(); it != units->End(); ++it) {
-                if (((*it).flags & GROUND_COVER) || (*it).unit_type == HARVSTER) {
+                if (((*it).flags & GROUND_COVER) || (*it).GetUnitType() == HARVSTER) {
                     unit = &*it;
                     break;
                 }
@@ -1397,7 +1397,7 @@ UnitInfo* Access_GetUnit3(int32_t grid_x, int32_t grid_y, uint32_t flags) {
                             return nullptr;
                         }
 
-                    } else if (unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE) {
+                    } else if (unit->GetUnitType() == LRGTAPE || unit->GetUnitType() == SMLTAPE) {
                         unit = *it;
                     }
                 }
@@ -1418,7 +1418,7 @@ UnitInfo* Access_GetUnit1(int32_t grid_x, int32_t grid_y) {
 
         if (units) {
             for (auto it = units->Begin(); it != units->End(); ++it) {
-                if ((*it).unit_type == BRIDGE) {
+                if ((*it).GetUnitType() == BRIDGE) {
                     unit = &*it;
                     break;
                 }
@@ -1440,14 +1440,14 @@ UnitInfo* Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team) {
         if (units) {
             for (auto it = units->Begin(); it != units->End(); ++it) {
                 if ((*it).team == team && ((*it).flags & SELECTABLE) && !((*it).flags & (HOVERING | GROUND_COVER)) &&
-                    (*it).unit_type != LANDPAD && (*it).orders != ORDER_IDLE && (*it).GetId() != 0xFFFF) {
+                    (*it).GetUnitType() != LANDPAD && (*it).orders != ORDER_IDLE && (*it).GetId() != 0xFFFF) {
                     unit = &*it;
                     break;
                 }
             }
         }
 
-        if (unit && (unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE)) {
+        if (unit && (unit->GetUnitType() == LRGTAPE || unit->GetUnitType() == SMLTAPE)) {
             unit = unit->GetParent();
         }
     }
@@ -1461,7 +1461,7 @@ void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, 
 
     if (units) {
         for (auto it = units->Begin(); it != units->End(); ++it) {
-            switch ((*it).unit_type) {
+            switch ((*it).GetUnitType()) {
                 case SMLTAPE:
                 case LRGTAPE:
                 case SMLCONES:
@@ -1505,7 +1505,7 @@ void Access_DestroyGroundCovers(int32_t grid_x, int32_t grid_y) {
 
     if (units) {
         for (auto it = units->Begin(); it != units->End(); ++it) {
-            switch ((*it).unit_type) {
+            switch ((*it).GetUnitType()) {
                 case ROAD:
                 case LANDPAD:
                 case WTRPLTFM:
@@ -1536,7 +1536,7 @@ UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uin
             }
         }
 
-        if (unit && (unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE)) {
+        if (unit && (unit->GetUnitType() == LRGTAPE || unit->GetUnitType() == SMLTAPE)) {
             unit = unit->GetParent();
         }
     }
@@ -1552,7 +1552,7 @@ UnitInfo* Access_GetConstructionUtility(uint16_t team, int32_t grid_x, int32_t g
 
         if (units) {
             for (auto it = units->Begin(); it != units->End(); ++it) {
-                if ((*it).team == team && (*it).unit_type >= LRGTAPE && (*it).unit_type <= SMLCONES) {
+                if ((*it).team == team && (*it).GetUnitType() >= LRGTAPE && (*it).GetUnitType() <= SMLCONES) {
                     unit = &*it;
                     break;
                 }
@@ -1572,7 +1572,7 @@ UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint
         if (units) {
             for (auto it = units->Begin(); it != units->End(); ++it) {
                 if ((*it).team == team && ((*it).flags & flags) && (*it).orders != ORDER_IDLE &&
-                    (*it).GetId() != 0xFFFF && (*it).unit_type != LRGTAPE && (*it).unit_type != SMLTAPE &&
+                    (*it).GetId() != 0xFFFF && (*it).GetUnitType() != LRGTAPE && (*it).GetUnitType() != SMLTAPE &&
                     !((*it).flags & GROUND_COVER)) {
                     unit = *it;
                     break;
@@ -1590,7 +1590,7 @@ UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint
             }
         }
 
-        if (unit && (unit->unit_type == LRGTAPE || unit->unit_type == SMLTAPE)) {
+        if (unit && (unit->GetUnitType() == LRGTAPE || unit->GetUnitType() == SMLTAPE)) {
             unit = unit->GetParent();
         }
     }
@@ -1730,7 +1730,7 @@ bool Access_IsValidAttackTarget(UnitInfo* attacker, UnitInfo* target, Point poin
     bool result;
 
     target_flags = target->flags;
-    target_type = target->unit_type;
+    target_type = target->GetUnitType();
 
     if (!(attacker->flags & MOBILE_AIR_UNIT) || (attacker->flags & HOVERING)) {
         if ((target_flags & MOBILE_AIR_UNIT) && !(target_flags & HOVERING)) {
@@ -1739,10 +1739,10 @@ bool Access_IsValidAttackTarget(UnitInfo* attacker, UnitInfo* target, Point poin
         }
 
         if (target_type == LRGTAPE || target_type == SMLTAPE) {
-            target_type = target->GetParent()->unit_type;
+            target_type = target->GetParent()->GetUnitType();
         }
 
-        result = Access_IsValidAttackTargetEx(attacker->unit_type, target_type, target_flags, point);
+        result = Access_IsValidAttackTargetEx(attacker->GetUnitType(), target_type, target_flags, point);
 
     } else {
         result = false;
@@ -1785,7 +1785,7 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int32_t grid_x, int32_t grid_y,
         }
 
         if (result) {
-            if ((result->unit_type == LRGTAPE || result->unit_type == SMLTAPE)) {
+            if ((result->GetUnitType() == LRGTAPE || result->GetUnitType() == SMLTAPE)) {
                 result = result->GetParent();
 
             } else if (normal_unit && (result->flags & GROUND_COVER)) {
@@ -1807,7 +1807,7 @@ UnitInfo* Access_GetEnemyMineOnSentry(uint16_t team, int32_t grid_x, int32_t gri
 
         if (units) {
             for (auto it = units->Begin(); it != units->End(); ++it) {
-                if (((*it).unit_type == LANDMINE || (*it).unit_type == SEAMINE) && (*it).team != team &&
+                if (((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE) && (*it).team != team &&
                     (*it).orders == ORDER_SENTRY) {
                     unit = &*it;
                     break;
@@ -1858,28 +1858,28 @@ UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
             for (auto it = units->Begin(); it != units->End(); ++it) {
                 if ((*it).team == team && (*it).orders != ORDER_IDLE) {
                     if (flags & MOBILE_LAND_UNIT) {
-                        if (((*it).unit_type == BARRACKS || (*it).unit_type == CLNTRANS ||
-                             (*it).unit_type == SEATRANS) &&
-                            (unit->unit_type == COMMANDO || unit->unit_type == INFANTRY)) {
+                        if (((*it).GetUnitType() == BARRACKS || (*it).GetUnitType() == CLNTRANS ||
+                             (*it).GetUnitType() == SEATRANS) &&
+                            (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY)) {
                             result = &*it;
                             break;
 
-                        } else if (((*it).unit_type == DEPOT || (*it).unit_type == SEATRANS) &&
-                                   (unit->unit_type != COMMANDO && unit->unit_type != INFANTRY)) {
+                        } else if (((*it).GetUnitType() == DEPOT || (*it).GetUnitType() == SEATRANS) &&
+                                   (unit->GetUnitType() != COMMANDO && unit->GetUnitType() != INFANTRY)) {
                             result = &*it;
                             break;
                         }
                     }
 
                     if ((flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == MOBILE_SEA_UNIT) {
-                        if ((*it).unit_type == DOCK) {
+                        if ((*it).GetUnitType() == DOCK) {
                             result = &*it;
                             break;
                         }
                     }
 
                     if (flags & MOBILE_AIR_UNIT) {
-                        if ((*it).unit_type == LANDPAD || (*it).unit_type == HANGAR) {
+                        if ((*it).GetUnitType() == LANDPAD || (*it).GetUnitType() == HANGAR) {
                             result = &*it;
                             break;
                         }

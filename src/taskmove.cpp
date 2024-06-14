@@ -87,7 +87,7 @@ TaskMove::TaskMove(UnitInfo* unit, void (*result_callback_)(Task* task, UnitInfo
     passenger_destination.x = -1;
     passenger_destination.y = -1;
 
-    transporter_unit_type = unit->GetParent()->unit_type;
+    transporter_unit_type = unit->GetParent()->GetUnitType();
 
     result_callback = result_callback_;
 
@@ -146,7 +146,7 @@ Point TaskMove::GetTransporterWaypoint() const { return transport_waypoint; }
 void TaskMove::RemoveTransport() { transporter_unit_type = INVALID_ID; }
 
 void TaskMove::AddUnit(UnitInfo& unit) {
-    AiLog log("Move: add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+    AiLog log("Move: add %s.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (passenger == &unit && unit.GetTask() == this) {
         Task_RemindMoveFinished(&*passenger, true);
@@ -168,7 +168,7 @@ void TaskMove::Begin() {
 
 void TaskMove::BeginTurn() {
     if (passenger) {
-        AiLog log("Move %s: Begin Turn", UnitsManager_BaseUnits[passenger->unit_type].singular_name);
+        AiLog log("Move %s: Begin Turn", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
 
         if (passenger->orders == ORDER_IDLE && passenger->state == ORDER_STATE_4 &&
             (passenger_destination.x < 0 || passenger_destination.y < 0)) {
@@ -214,7 +214,7 @@ bool TaskMove::Execute(UnitInfo& unit) {
     bool result;
 
     if (passenger == &unit) {
-        AiLog log("Move finished for %s at [%i,%i].", UnitsManager_BaseUnits[unit.unit_type].singular_name,
+        AiLog log("Move finished for %s at [%i,%i].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
                   unit.grid_x + 1, unit.grid_y + 1);
 
         if (unit.IsReadyForOrders(this)) {
@@ -323,7 +323,7 @@ void TaskMove::RemoveSelf() {
         passenger->RemoveTask(this);
 
         AiLog log("Move (RemoveSelf): Remove %s at [%i,%i].",
-                  UnitsManager_BaseUnits[passenger->unit_type].singular_name, passenger->grid_x + 1,
+                  UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name, passenger->grid_x + 1,
                   passenger->grid_y + 1);
 
         passenger = nullptr;
@@ -337,7 +337,7 @@ void TaskMove::RemoveSelf() {
 
 void TaskMove::RemoveUnit(UnitInfo& unit) {
     if (passenger == &unit) {
-        AiLog log("Move (RemoveUnit): Remove %s at [%i,%i].", UnitsManager_BaseUnits[unit.unit_type].singular_name,
+        AiLog log("Move (RemoveUnit): Remove %s at [%i,%i].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
                   unit.grid_x + 1, unit.grid_y + 1);
 
         Finished(TASKMOVE_RESULT_CANCELLED);
@@ -362,11 +362,11 @@ void TaskMove::EventZoneCleared(Zone* zone_, bool status) {
 }
 
 void TaskMove::AttemptTransport() {
-    if (UnitsManager_BaseUnits[passenger->unit_type].land_type & SURFACE_TYPE_WATER) {
+    if (UnitsManager_BaseUnits[passenger->GetUnitType()].land_type & SURFACE_TYPE_WATER) {
         Finished(TASKMOVE_RESULT_BLOCKED);
 
     } else {
-        if ((passenger->unit_type == COMMANDO || passenger->unit_type == INFANTRY) &&
+        if ((passenger->GetUnitType() == COMMANDO || passenger->GetUnitType() == INFANTRY) &&
             (FindUnit(&UnitsManager_MobileLandSeaUnits, team, CLNTRANS) ||
              FindUnit(&UnitsManager_StationaryUnits, team, LIGHTPLT))) {
             int32_t team_id;
@@ -421,7 +421,7 @@ void TaskMove::FindWaypointUsingTransport() {
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    if (Access_IsAccessible(passenger->unit_type, team, site.x, site.y, 2) &&
+    if (Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, 2) &&
         !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
         destination_waypoint = passenger_destination;
     }
@@ -438,7 +438,7 @@ void TaskMove::FindWaypointUsingTransport() {
                 if (Access_IsInsideBounds(&bounds, &site)) {
                     keep_searching = true;
 
-                    if (Access_IsAccessible(passenger->unit_type, team, site.x, site.y, 1) &&
+                    if (Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, 1) &&
                         !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                         passenger_destination = site;
                         destination_waypoint = site;
@@ -452,7 +452,7 @@ void TaskMove::FindWaypointUsingTransport() {
 }
 
 void TaskMove::Search(bool mode) {
-    AiLog log("Move %s: find path.", UnitsManager_BaseUnits[passenger->unit_type].singular_name);
+    AiLog log("Move %s: find path.", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
 
     Point line_distance(destination_waypoint.x - passenger->grid_x, destination_waypoint.y - passenger->grid_y);
 
@@ -491,11 +491,12 @@ void TaskMove::Finished(int32_t result) {
     if (passenger) {
         const char* result_codes[] = {"success", "already in range", "blocked", "cancelled"};
 
-        AiLog log("Move %s: finished (%s)", UnitsManager_BaseUnits[passenger->unit_type].singular_name,
+        AiLog log("Move %s: finished (%s)", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name,
                   result_codes[result]);
 
-        log.Log("Move (Finished): Remove %s at [%i,%i].", UnitsManager_BaseUnits[passenger->unit_type].singular_name,
-                passenger->grid_x + 1, passenger->grid_y + 1);
+        log.Log("Move (Finished): Remove %s at [%i,%i].",
+                UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name, passenger->grid_x + 1,
+                passenger->grid_y + 1);
 
         passenger->RemoveTask(this, false);
 
@@ -516,13 +517,13 @@ void TaskMove::PathResultCallback(Task* task, PathRequest* path_request, Point d
     SmartPointer<TaskMove> move(dynamic_cast<TaskMove*>(task));
 
     if (path) {
-        move->transporter_unit_type = path_request->GetTransporter()->unit_type;
+        move->transporter_unit_type = path_request->GetTransporter()->GetUnitType();
         move->path_result = result;
 
         move->TranscribeTransportPath(destination_, path);
 
     } else {
-        if (path_request->GetTransporter()->unit_type != AIRTRANS && Builder_IsBuildable(AIRTRANS) &&
+        if (path_request->GetTransporter()->GetUnitType() != AIRTRANS && Builder_IsBuildable(AIRTRANS) &&
             (FindUnit(&UnitsManager_MobileAirUnits, move->GetTeam(), AIRTRANS) ||
              FindUnit(&UnitsManager_StationaryUnits, move->GetTeam(), AIRPLT))) {
             move->AttemptTransportType(AIRTRANS);
@@ -543,7 +544,7 @@ void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Poi
         move->path_result = result;
 
         if (path_request->GetTransporter()) {
-            move->transporter_unit_type = path_request->GetTransporter()->unit_type;
+            move->transporter_unit_type = path_request->GetTransporter()->GetUnitType();
 
         } else {
             move->transporter_unit_type = INVALID_ID;
@@ -664,7 +665,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
                 unit = Access_GetTeamUnit(site.x, site.y, move->team, unit_flags);
 
                 if (unit) {
-                    log.Log("Blocked by %s at [%i,%i].", UnitsManager_BaseUnits[unit->unit_type].singular_name,
+                    log.Log("Blocked by %s at [%i,%i].", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
                             site.x + 1, site.y + 1);
 
                     flag = true;
@@ -831,7 +832,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
         position.x += steps[i]->x;
         position.y += steps[i]->y;
 
-        if (Access_IsAccessible(passenger->unit_type, team, position.x, position.y, 0x00)) {
+        if (Access_IsAccessible(passenger->GetUnitType(), team, position.x, position.y, 0x00)) {
             if (flag1) {
                 passenger_destination = position;
                 flag1 = false;
@@ -884,7 +885,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
                         position.x += steps[i]->x;
                         position.y += steps[i]->y;
 
-                        if (!Access_IsAccessible(passenger->unit_type, team, position.x, position.y, 0x00) &&
+                        if (!Access_IsAccessible(passenger->GetUnitType(), team, position.x, position.y, 0x00) &&
                             Access_IsAccessible(BRIDGE, team, position.x, position.y, 0x00)) {
                             manager->BuildBridge(position, this);
                         }
@@ -990,7 +991,7 @@ void TaskMove::MoveAirUnit() {
                         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
                             if ((*it).flags & MOBILE_AIR_UNIT) {
                                 log.Log("Blocked by %s at [%i,%i]",
-                                        UnitsManager_BaseUnits[(*it).unit_type].singular_name, (*it).grid_x + 1,
+                                        UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
                                         (*it).grid_y + 1);
 
                                 if ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) {
@@ -1036,7 +1037,7 @@ void TaskMove::MoveAirUnit() {
                             (*it).target_grid_x == passenger_waypoint.x &&
                             (*it).target_grid_y == passenger_waypoint.y) {
                             log.Log("[%i,%i] is a destination for %s at [%i,%i].", passenger_waypoint.x + 1,
-                                    passenger_waypoint.y + 1, UnitsManager_BaseUnits[(*it).unit_type].singular_name,
+                                    passenger_waypoint.y + 1, UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name,
                                     (*it).grid_x + 1, (*it).grid_y + 1);
 
                             if (step_index) {
@@ -1084,7 +1085,7 @@ bool TaskMove::IsPathClear() {
         int32_t step_index;
 
         for (step_index = 0; step_index < planned_path.GetCount(); ++step_index) {
-            if (Access_IsAccessible(passenger->unit_type, team, planned_path[step_index]->x,
+            if (Access_IsAccessible(passenger->GetUnitType(), team, planned_path[step_index]->x,
                                     planned_path[step_index]->y, 2)) {
                 if (passenger_waypoint == *planned_path[step_index]) {
                     break;
@@ -1206,7 +1207,7 @@ bool TaskMove::FindWaypoint() {
     passenger_waypoint.y = passenger->grid_y;
 
     for (int32_t i = 0; i < planned_path.GetCount() && unit_speed > 0; ++i) {
-        step_cost = Access_IsAccessible(passenger->unit_type, team, planned_path[i]->x, planned_path[i]->y, 1);
+        step_cost = Access_IsAccessible(passenger->GetUnitType(), team, planned_path[i]->x, planned_path[i]->y, 1);
 
         if (planned_path[i]->x && planned_path[i]->y) {
             step_cost = (step_cost * 3) / 2;
@@ -1267,7 +1268,7 @@ void TaskMove::MoveUnit(GroundPath* path) {
                 site.x = position.x + steps[step_index]->x;
                 site.y = position.y + steps[step_index]->y;
 
-                step_cost = Access_IsAccessible(passenger->unit_type, team, site.x, site.y, 2);
+                step_cost = Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, 2);
 
                 if (site.x != position.x && site.y != position.y) {
                     step_cost = (step_cost * 3) / 2;
@@ -1322,7 +1323,7 @@ void TaskMove::MoveUnit(GroundPath* path) {
 
 UnitInfo* TaskMove::FindUnit(SmartList<UnitInfo>* units, uint16_t team, ResourceID unit_type) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == unit_type) {
+        if ((*it).team == team && (*it).GetUnitType() == unit_type) {
             return &*it;
         }
     }

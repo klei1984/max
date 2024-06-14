@@ -110,7 +110,7 @@ void PathsManager::Clear() {
 void PathsManager::PushFront(PathRequest &object) {
     if (request != nullptr) {
         AiLog log("Pre-empting path request for %s.",
-                  UnitsManager_BaseUnits[request->GetClient()->unit_type].singular_name);
+                  UnitsManager_BaseUnits[request->GetClient()->GetUnitType()].singular_name);
 
         requests.PushFront(*request);
 
@@ -161,7 +161,7 @@ void PathsManager::RemoveRequest(PathRequest *path_request) {
     }
 
     AiLog log("Remove path request for %s.",
-              UnitsManager_BaseUnits[protect_request->GetClient()->unit_type].singular_name);
+              UnitsManager_BaseUnits[protect_request->GetClient()->GetUnitType()].singular_name);
 
     protect_request->Cancel();
     requests.Remove(*protect_request);
@@ -171,7 +171,7 @@ void PathsManager::RemoveRequest(UnitInfo *unit) {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
         if ((*it).GetClient() == unit) {
             AiLog log("Remove path request for %s.",
-                      UnitsManager_BaseUnits[(*it).GetClient()->unit_type].singular_name);
+                      UnitsManager_BaseUnits[(*it).GetClient()->GetUnitType()].singular_name);
 
             (*it).Cancel();
             requests.Remove(it);
@@ -485,7 +485,7 @@ void PathsManager::ProcessRequest() {
 
         } else {
             AiLog log("Start Search for path for %s at [%i,%i] to [%i,%i].",
-                      UnitsManager_BaseUnits[unit->unit_type].singular_name, position.x + 1, position.y + 1,
+                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, position.x + 1, position.y + 1,
                       destination.x + 1, destination.y + 1);
 
             time_stamp = timer_get();
@@ -508,7 +508,7 @@ void PathsManager::ProcessRequest() {
                     if (Init(&*unit)) {
                         bool mode;
 
-                        if (request->GetTransporter() && request->GetTransporter()->unit_type == AIRTRANS) {
+                        if (request->GetTransporter() && request->GetTransporter()->GetUnitType() == AIRTRANS) {
                             mode = true;
 
                         } else {
@@ -549,7 +549,7 @@ void PathsManager::ProcessRequest() {
                         is_path_viable = true;
 
                     } else {
-                        if (Access_IsAccessible(unit->unit_type, unit->team, destination.x, destination.y,
+                        if (Access_IsAccessible(unit->GetUnitType(), unit->team, destination.x, destination.y,
                                                 request->GetFlags()) &&
                             !Ai_IsDangerousLocation(&*unit, destination, request->GetCautionLevel(), true)) {
                             is_path_viable = true;
@@ -577,7 +577,7 @@ void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).unit_type != CNCT_4W && ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team))) {
+        if ((*it).GetUnitType() != CNCT_4W && ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team))) {
             map[(*it).grid_x][(*it).grid_y] = 0;
 
             if ((*it).flags & BUILDING) {
@@ -622,7 +622,7 @@ void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surf
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
         if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-            switch ((*it).unit_type) {
+            switch ((*it).GetUnitType()) {
                 case BRIDGE: {
                     if (surface_type & SURFACE_TYPE_LAND) {
                         map[(*it).grid_x][(*it).grid_y] = 4;
@@ -645,8 +645,8 @@ void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surf
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
             if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-                if ((*it).unit_type == ROAD || (*it).unit_type == SMLSLAB || (*it).unit_type == LRGSLAB ||
-                    (*it).unit_type == BRIDGE) {
+                if ((*it).GetUnitType() == ROAD || (*it).GetUnitType() == SMLSLAB || (*it).GetUnitType() == LRGSLAB ||
+                    (*it).GetUnitType() == BRIDGE) {
                     map[(*it).grid_x][(*it).grid_y] = 2;
 
                     if ((*it).flags & BUILDING) {
@@ -662,7 +662,7 @@ void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surf
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
         if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-            if ((*it).unit_type == LRGTAPE || (*it).unit_type == LRGTAPE) {
+            if ((*it).GetUnitType() == LRGTAPE || (*it).GetUnitType() == LRGTAPE) {
                 map[(*it).grid_x][(*it).grid_y] = 0;
 
                 if ((*it).flags & BUILDING) {
@@ -674,11 +674,11 @@ void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surf
         }
     }
 
-    // minefields shall be processed after everything else otherwise the map would overwrite no-go zones
+    // mine fields shall be processed after everything else otherwise the map would overwrite no-go zones
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
         if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-            switch ((*it).unit_type) {
+            switch ((*it).GetUnitType()) {
                 case LANDMINE:
                 case SEAMINE: {
                     if ((*it).team != team && (*it).IsDetectedByTeam(team)) {
@@ -691,7 +691,7 @@ void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surf
 }
 
 void PathsManager_InitAccessMap(UnitInfo *unit, uint8_t **map, uint8_t flags, int32_t caution_level) {
-    AiLog log("Mark cost map for %s.", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+    AiLog log("Mark cost map for %s.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
     if (unit->flags & MOBILE_AIR_UNIT) {
         for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
@@ -701,7 +701,7 @@ void PathsManager_InitAccessMap(UnitInfo *unit, uint8_t **map, uint8_t flags, in
         PathsManager_ProcessMobileUnits(map, &UnitsManager_MobileAirUnits, unit, flags);
 
     } else {
-        int32_t surface_types = UnitsManager_BaseUnits[unit->unit_type].land_type;
+        int32_t surface_types = UnitsManager_BaseUnits[unit->GetUnitType()].land_type;
 
         for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
             memset(map[i], 0, ResourceManager_MapSize.y);
@@ -716,7 +716,7 @@ void PathsManager_InitAccessMap(UnitInfo *unit, uint8_t **map, uint8_t flags, in
         }
 
         if (surface_types & SURFACE_TYPE_WATER) {
-            if ((surface_types & SURFACE_TYPE_LAND) && unit->unit_type != SURVEYOR) {
+            if ((surface_types & SURFACE_TYPE_LAND) && unit->GetUnitType() != SURVEYOR) {
                 PathsManager_ProcessMapSurface(map, SURFACE_TYPE_WATER, 8);
 
             } else {
@@ -748,7 +748,7 @@ void PathsManager_ApplyCautionLevel(uint8_t **map, UnitInfo *unit, int32_t cauti
 
             if (unit->GetId() == 0xFFFF) {
                 damage_potential_map =
-                    AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit->unit_type, caution_level, true);
+                    AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit->GetUnitType(), caution_level, true);
 
             } else {
                 damage_potential_map = AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, true);
@@ -817,7 +817,7 @@ void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
             (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).orders != ORDER_DISABLE &&
             (*it).orders != ORDER_IDLE && (*it).hits > 0 &&
-            Access_IsValidAttackTargetType((*it).unit_type, unit->unit_type)) {
+            Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
             PathsManager_ProcessSurface(map, &*it);
         }
     }
@@ -827,7 +827,7 @@ void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
             (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).orders != ORDER_DISABLE &&
             (*it).orders != ORDER_IDLE && (*it).hits > 0 &&
-            Access_IsValidAttackTargetType((*it).unit_type, unit->unit_type)) {
+            Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
             PathsManager_ProcessSurface(map, &*it);
         }
     }
@@ -837,7 +837,7 @@ void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
             (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).orders != ORDER_DISABLE &&
             (*it).orders != ORDER_IDLE && (*it).hits > 0 &&
-            Access_IsValidAttackTargetType((*it).unit_type, unit->unit_type)) {
+            Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
             PathsManager_ProcessSurface(map, &*it);
         }
     }
@@ -847,7 +847,7 @@ void PathsManager_ProcessSurface(uint8_t **map, UnitInfo *unit) {
     int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
     Point position(unit->grid_x, unit->grid_y);
 
-    if (unit->unit_type == SUBMARNE || unit->unit_type == CORVETTE) {
+    if (unit->GetUnitType() == SUBMARNE || unit->GetUnitType() == CORVETTE) {
         ZoneWalker walker(position, range);
 
         do {

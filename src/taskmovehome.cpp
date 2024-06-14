@@ -64,7 +64,7 @@ void TaskMoveHome::PopulateTeamZones(uint8_t** map) {
 void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).unit_type == unit_type && (*it).orders != ORDER_IDLE &&
+        if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).orders != ORDER_IDLE &&
             (*it).ammo > (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
             (*it).hits == (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
             int32_t unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
@@ -72,7 +72,7 @@ void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
             if (unit_range > 0) {
                 ZoneWalker walker(Point((*it).grid_x, (*it).grid_y), unit_range);
                 int32_t damage_potential = (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) *
-                                       (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
+                                           (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
 
                 do {
                     uint8_t* map_site = &map[walker.GetGridX()][walker.GetGridY()];

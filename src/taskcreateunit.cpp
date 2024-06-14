@@ -74,7 +74,7 @@ char* TaskCreateUnit::WriteStatusLog(char* buffer) const {
 uint8_t TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
 
 void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
-    AiLog log("Task Create Unit: Add builder %s.", UnitsManager_BaseUnits[unit_.unit_type].singular_name);
+    AiLog log("Task Create Unit: Add builder %s.", UnitsManager_BaseUnits[unit_.GetUnitType()].singular_name);
 
     if (op_state == CREATE_UNIT_STATE_OBTAININING_BUILDER && (unit_.flags & STATIONARY)) {
         op_state = CREATE_UNIT_STATE_WAITING_FOR_MATERIALS;
@@ -88,7 +88,7 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
     } else if (op_state == CREATE_UNIT_STATE_FINISHED && (unit_.flags & STATIONARY)) {
         TaskManager.RemindAvailable(&unit_);
 
-    } else if (op_state != CREATE_UNIT_STATE_FINISHED && unit_type == unit_.unit_type) {
+    } else if (op_state != CREATE_UNIT_STATE_FINISHED && unit_type == unit_.GetUnitType()) {
         op_state = CREATE_UNIT_STATE_FINISHED;
 
         switch (unit_type) {
@@ -170,7 +170,7 @@ void TaskCreateUnit::EndTurn() {
 }
 
 bool TaskCreateUnit::Execute(UnitInfo& unit_) {
-    if (op_state != CREATE_UNIT_STATE_FINISHED && unit_.unit_type == unit_type) {
+    if (op_state != CREATE_UNIT_STATE_FINISHED && unit_.GetUnitType() == unit_type) {
         AddUnit(unit_);
     }
 
@@ -182,7 +182,7 @@ bool TaskCreateUnit::Execute(UnitInfo& unit_) {
 }
 
 void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
-    AiLog log("Task Create Unit: Remove %s.", UnitsManager_BaseUnits[unit_.unit_type].singular_name);
+    AiLog log("Task Create Unit: Remove %s.", UnitsManager_BaseUnits[unit_.GetUnitType()].singular_name);
 
     if (builder == unit_) {
         if (op_state <= CREATE_UNIT_STATE_BUILDING) {
@@ -222,14 +222,14 @@ void TaskCreateUnit::WaitForMaterials() {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if ((*it).team == team) {
-                        if ((*it).unit_type == MININGST) {
+                        if ((*it).GetUnitType() == MININGST) {
                             ++mining_station_count;
 
-                        } else if ((*it).unit_type == GREENHSE || (*it).unit_type == COMMTWR) {
+                        } else if ((*it).GetUnitType() == GREENHSE || (*it).GetUnitType() == COMMTWR) {
                             ++buildings_count;
 
                         } else if ((*it).orders == ORDER_BUILD && (*it).state != ORDER_STATE_UNIT_READY) {
-                            int32_t consumption = Cargo_GetPowerConsumptionRate((*it).unit_type);
+                            int32_t consumption = Cargo_GetPowerConsumptionRate((*it).GetUnitType());
 
                             if (consumption > 0) {
                                 power_consumption += consumption;
@@ -256,7 +256,8 @@ void TaskCreateUnit::WaitForMaterials() {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                          it != UnitsManager_StationaryUnits.End(); ++it) {
                         if (buildings_to_shut_down > 0) {
-                            if ((*it).team == team && (*it).unit_type == GREENHSE && (*it).orders == ORDER_POWER_ON) {
+                            if ((*it).team == team && (*it).GetUnitType() == GREENHSE &&
+                                (*it).orders == ORDER_POWER_ON) {
                                 UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                                 --buildings_to_shut_down;
@@ -270,7 +271,8 @@ void TaskCreateUnit::WaitForMaterials() {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                          it != UnitsManager_StationaryUnits.End(); ++it) {
                         if (buildings_to_shut_down > 0) {
-                            if ((*it).team == team && (*it).unit_type == COMMTWR && (*it).orders == ORDER_POWER_ON) {
+                            if ((*it).team == team && (*it).GetUnitType() == COMMTWR &&
+                                (*it).orders == ORDER_POWER_ON) {
                                 UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                                 --buildings_to_shut_down;

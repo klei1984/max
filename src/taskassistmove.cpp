@@ -38,7 +38,7 @@ TaskAssistMove::~TaskAssistMove() {}
 
 void TaskAssistMove::RequestTransport(UnitInfo* unit1, UnitInfo* unit2) {
     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
-        if (unit1->unit_type == AIRTRANS) {
+        if (unit1->GetUnitType() == AIRTRANS) {
             unit1->SetParent(unit2);
             UnitsManager_SetNewOrder(unit1, ORDER_LOAD, ORDER_STATE_INIT);
 
@@ -83,7 +83,7 @@ void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point s
 
             SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
-            if (unit1->unit_type == AIRTRANS) {
+            if (unit1->GetUnitType() == AIRTRANS) {
                 UnitsManager_SetNewOrder(unit1, ORDER_UNLOAD, ORDER_STATE_INIT);
 
             } else {
@@ -96,7 +96,7 @@ void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point s
 bool TaskAssistMove::Task_vfunc1(UnitInfo& unit) { return unit.storage == 0; }
 
 bool TaskAssistMove::IsUnitUsable(UnitInfo& unit) {
-    return unit.unit_type == AIRTRANS || unit.unit_type == SEATRANS || unit.unit_type == CLNTRANS;
+    return unit.GetUnitType() == AIRTRANS || unit.GetUnitType() == SEATRANS || unit.GetUnitType() == CLNTRANS;
 }
 
 char* TaskAssistMove::WriteStatusLog(char* buffer) const {
@@ -110,7 +110,7 @@ uint8_t TaskAssistMove::GetType() const { return TaskType_TaskAssistMove; }
 void TaskAssistMove::AddUnit(UnitInfo& unit) {
     SDL_assert(unit.team == team);
 
-    if (unit.unit_type == AIRTRANS || unit.unit_type == SEATRANS || unit.unit_type == CLNTRANS) {
+    if (unit.GetUnitType() == AIRTRANS || unit.GetUnitType() == SEATRANS || unit.GetUnitType() == CLNTRANS) {
         units.PushBack(unit);
         unit.AddTask(this);
         Task_RemindMoveFinished(&unit);
@@ -127,7 +127,7 @@ void TaskAssistMove::BeginTurn() {
         is_found = false;
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-            if ((*it).unit_type == AIRTRANS && (*it).storage == 0) {
+            if ((*it).GetUnitType() == AIRTRANS && (*it).storage == 0) {
                 is_found = true;
             }
         }
@@ -142,7 +142,7 @@ void TaskAssistMove::BeginTurn() {
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
                  it != UnitsManager_MobileAirUnits.End(); ++it) {
-                if ((*it).team == team && (*it).unit_type == AIRTRANS) {
+                if ((*it).team == team && (*it).GetUnitType() == AIRTRANS) {
                     ++unit_count_transport;
                 }
             }
@@ -170,7 +170,7 @@ void TaskAssistMove::BeginTurn() {
         is_found = false;
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-            if ((*it).unit_type == CLNTRANS && (*it).storage == 0) {
+            if ((*it).GetUnitType() == CLNTRANS && (*it).storage == 0) {
                 is_found = true;
             }
         }
@@ -179,10 +179,10 @@ void TaskAssistMove::BeginTurn() {
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                 if ((*it).team == team) {
-                    if ((*it).unit_type == INFANTRY || (*it).unit_type == COMMANDO) {
+                    if ((*it).GetUnitType() == INFANTRY || (*it).GetUnitType() == COMMANDO) {
                         ++unit_count_client;
 
-                    } else if ((*it).unit_type == CLNTRANS) {
+                    } else if ((*it).GetUnitType() == CLNTRANS) {
                         ++unit_count_transport;
                     }
                 }
@@ -226,11 +226,11 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
         if (unit.storage < unit.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) && unit.speed > 0) {
             TransporterMap map(
                 &unit, 1,
-                unit.unit_type == CLNTRANS ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE);
+                unit.GetUnitType() == CLNTRANS ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                if ((*it).team == team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).unit_type != SURVEYOR) {
+                if ((*it).team == team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).GetUnitType() != SURVEYOR) {
                     if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
                         Task_IsReadyToTakeOrders(it->Get())) {
                         if (dynamic_cast<TaskMove*>((*it).GetTask())->IsReadyForTransport() || (*it).speed == 0) {
@@ -249,7 +249,8 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
                 }
             }
 
-            if (client_unit && Access_GetDistance(&unit, client_position) <= ((unit.unit_type == AIRTRANS) ? 0 : 3)) {
+            if (client_unit &&
+                Access_GetDistance(&unit, client_position) <= ((unit.GetUnitType() == AIRTRANS) ? 0 : 3)) {
                 RequestTransport(&unit, client_unit);
 
                 result = true;
@@ -285,16 +286,17 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
         }
 
         if (client_unit) {
-            distance = (unit.unit_type == AIRTRANS) ? 0 : 3;
+            distance = (unit.GetUnitType() == AIRTRANS) ? 0 : 3;
 
             if (Access_GetDistance(&unit, client_position) <= distance) {
                 CompleteTransport(&unit, client_unit, client_position);
 
             } else {
-                SmartPointer<TaskMove> task_move = new (std::nothrow) TaskMove(
-                    &unit, this, distance,
-                    unit.unit_type == CLNTRANS ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
-                    client_position, &TaskTransport_MoveFinishedCallback);
+                SmartPointer<TaskMove> task_move =
+                    new (std::nothrow) TaskMove(&unit, this, distance,
+                                                unit.GetUnitType() == CLNTRANS ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE
+                                                                               : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
+                                                client_position, &TaskTransport_MoveFinishedCallback);
 
                 TaskManager.AppendTask(*task_move);
             }

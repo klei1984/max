@@ -186,7 +186,7 @@ void BuildUnitTypeSelector::Draw() {
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    consumption_rate = Cargo_GetRawConsumptionRate(unit->unit_type, 1);
+    consumption_rate = Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1);
 
     for (int32_t i = 0; i < max_item_count && i < unit_types.GetCount(); ++i) {
         turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit->team], *unit_types[i + page_min_index])
@@ -250,7 +250,7 @@ AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit)
     for (;;) {
         builder_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[index++]);
 
-        if (builder_unit == unit->unit_type) {
+        if (builder_unit == unit->GetUnitType()) {
             break;
         }
 
@@ -578,7 +578,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
     turns_background_x4->Write(&window);
     cost_background_x4->Write(&window);
 
-    max_build_rate = BuildMenu_GetMaxPossibleBuildRate(unit->unit_type, turns, unit->storage);
+    max_build_rate = BuildMenu_GetMaxPossibleBuildRate(unit->GetUnitType(), turns, unit->storage);
 
     if (build_rate > max_build_rate) {
         build_rate_x2->SetRestState(false);
@@ -621,10 +621,10 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
 
     ReportStats_DrawNumber(&window.buffer[cost_background_x1->GetULX() + cost_background_x1->GetWidth() +
                                           window.width * cost_background_x1->GetULY() - 1],
-                           turns * Cargo_GetRawConsumptionRate(unit->unit_type, 1), cost_background_x1->GetWidth(),
+                           turns * Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1), cost_background_x1->GetWidth(),
                            window.width, color);
 
-    if (unit->unit_type == TRAINHAL) {
+    if (unit->GetUnitType() == TRAINHAL) {
         build_rate_x2->Enable(false);
         build_rate_x4->Enable(false);
 
@@ -860,7 +860,7 @@ MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, u
     build_rate_x2 = new (std::nothrow) Button(BLD2X_U, BLD2X_D, 292, 369);
     build_rate_x4 = new (std::nothrow) Button(BLD4X_U, BLD4X_D, 292, 394);
 
-    if (unit->unit_type == ENGINEER) {
+    if (unit->GetUnitType() == ENGINEER) {
         button_path_build = new (std::nothrow) Button(BLDPTH_U, BLDPTH_D, 347, 427);
 
         button_path_build->SetCaption(_(62fa));
@@ -919,13 +919,14 @@ void MobileBuildMenu::Build() {
 
             turns_to_build = GetTurnsToBuild(unit_type);
 
-            max_build_rate = BuildMenu_GetMaxPossibleBuildRate(unit->unit_type, turns_to_build, unit->storage);
+            max_build_rate = BuildMenu_GetMaxPossibleBuildRate(unit->GetUnitType(), turns_to_build, unit->storage);
 
             if (build_rate > max_build_rate) {
                 build_rate = max_build_rate;
             }
 
-            if (build_rate == 1 && unit->storage < Cargo_GetRawConsumptionRate(unit->unit_type, 1) * turns_to_build) {
+            if (build_rate == 1 &&
+                unit->storage < Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1) * turns_to_build) {
                 MessageManager_DrawMessage(_(c529), 2, 0);
 
             } else {
@@ -981,8 +982,9 @@ void MobileBuildMenu::Build() {
         } else {
             SmartString string;
 
-            string.Sprintf(150, BuildMenu_EventStrings_InvalidSquare[UnitsManager_BaseUnits[unit->unit_type].gender],
-                           UnitsManager_BaseUnits[unit->unit_type].singular_name);
+            string.Sprintf(150,
+                           BuildMenu_EventStrings_InvalidSquare[UnitsManager_BaseUnits[unit->GetUnitType()].gender],
+                           UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             MessageManager_DrawMessage(string.GetCStr(), 1, 0);
         }

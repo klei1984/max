@@ -44,7 +44,9 @@ TaskPlaceMines::TaskPlaceMines(uint16_t team_) : Task(team_, nullptr, 0x1A00) {
 
 TaskPlaceMines::~TaskPlaceMines() {}
 
-bool TaskPlaceMines::IsUnitUsable(UnitInfo& unit) { return unit.unit_type == MINELAYR || unit.unit_type == SEAMNLYR; }
+bool TaskPlaceMines::IsUnitUsable(UnitInfo& unit) {
+    return unit.GetUnitType() == MINELAYR || unit.GetUnitType() == SEAMNLYR;
+}
 
 char* TaskPlaceMines::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Place mines");
@@ -80,7 +82,7 @@ bool TaskPlaceMines::IsNeeded() {
     bool has_sea_mine_layer = false;
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if ((*it).unit_type == MINELAYR) {
+        if ((*it).GetUnitType() == MINELAYR) {
             has_mine_layer = true;
 
         } else {
@@ -95,7 +97,7 @@ void TaskPlaceMines::AddUnit(UnitInfo& unit) {
     units.PushBack(unit);
     unit.AddTask(this);
 
-    if (unit.unit_type == MINELAYR) {
+    if (unit.GetUnitType() == MINELAYR) {
         mine_layer_count = 0;
 
     } else {
@@ -110,7 +112,7 @@ void TaskPlaceMines::BeginTurn() {
     bool has_sea_mine_layer = sea_mine_layer_count > 0;
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if ((*it).unit_type == MINELAYR) {
+        if ((*it).GetUnitType() == MINELAYR) {
             has_mine_layer = true;
 
         } else {
@@ -177,7 +179,7 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
                     int32_t minimum_distance{INT32_MAX};
                     bool is_found = false;
 
-                    if (unit.unit_type == MINELAYR) {
+                    if (unit.GetUnitType() == MINELAYR) {
                         surface_type = SURFACE_TYPE_LAND;
 
                     } else {

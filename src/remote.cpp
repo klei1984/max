@@ -613,7 +613,7 @@ void Remote_Deinit() {
 
 bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if ((*it).unit_type != MININGST) {
+        if ((*it).GetUnitType() != MININGST) {
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 Remote_P24_Signals[i] = false;
             }
@@ -989,8 +989,8 @@ void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
             (data.team < PLAYER_TEAM_MAX) ? team_names[data.team] : team_names[PLAYER_TEAM_MAX]);
 
     log.Log(" type          %s, %s",
-            (unit->unit_type < UNIT_END) ? UnitsManager_BaseUnits[unit->unit_type].singular_name : "?",
-            (data.unit_type < UNIT_END) ? UnitsManager_BaseUnits[unit->unit_type].singular_name : "?");
+            (unit->GetUnitType() < UNIT_END) ? UnitsManager_BaseUnits[unit->GetUnitType()].singular_name : "?",
+            (data.unit_type < UNIT_END) ? UnitsManager_BaseUnits[unit->GetUnitType()].singular_name : "?");
 
     log.Log(" unit id       %i, %i", unit->unit_id, data.unit_id);
     log.Log(" parent id     %X, %X", unit->GetParent() ? unit->GetParent()->GetId() : 0, data.parent_unit_id);
@@ -1713,7 +1713,7 @@ void Remote_ReceiveNetPacket_10(NetPacket& packet) {
 void Remote_SendNetPacket_11(int32_t team, Complex* complex) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetComplex() == complex && (*it).unit_type == MININGST && (*it).orders != ORDER_POWER_OFF &&
+        if ((*it).GetComplex() == complex && (*it).GetUnitType() == MININGST && (*it).orders != ORDER_POWER_OFF &&
             (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
             UnitsManager_SetNewOrder(&*it, ORDER_NEW_ALLOCATE, ORDER_STATE_INIT);
         }
@@ -2310,9 +2310,11 @@ void Remote_ReceiveNetPacket_22(NetPacket& packet) {
 void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet) {
     Remote_OrderProcessor5_Write(unit, packet);
 
+    const auto unit_type{unit->GetUnitType()};
+
     packet << unit->build_time;
     packet << unit->build_rate;
-    packet << unit->unit_type;
+    packet << unit_type;
     packet << unit->unit_id;
     packet << unit->grid_x;
     packet << unit->grid_y;

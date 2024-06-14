@@ -33,7 +33,8 @@ bool SaveLoadChecks_OrderedLists() {
     struct ListSortCompare {
         static bool GroundCoverUnits(const SmartList<UnitInfo>::Iterator& lhs,
                                      const SmartList<UnitInfo>::Iterator& rhs) {
-            return UnitInfo::GetDrawLayer(lhs->Get()->unit_type) < UnitInfo::GetDrawLayer(rhs->Get()->unit_type);
+            return UnitInfo::GetDrawLayer(lhs->Get()->GetUnitType()) <
+                   UnitInfo::GetDrawLayer(rhs->Get()->GetUnitType());
         }
 
         static bool SeaParticles(const SmartList<UnitInfo>::Iterator& lhs, const SmartList<UnitInfo>::Iterator& rhs) {
@@ -51,7 +52,7 @@ bool SaveLoadChecks_OrderedLists() {
         }
 
         static bool Explosions(const SmartList<UnitInfo>::Iterator& lhs, const SmartList<UnitInfo>::Iterator& rhs) {
-            return !((lhs->Get()->flags & EXPLODING) && lhs->Get()->unit_type != RKTSMOKE);
+            return !((lhs->Get()->flags & EXPLODING) && lhs->Get()->GetUnitType() != RKTSMOKE);
         }
     };
 
@@ -71,7 +72,7 @@ bool SaveLoadChecks_Defect11() {
          it != UnitsManager_StationaryUnits.End(); ++it) {
         SmartPointer<UnitInfo> shop(*it);
 
-        if (shop->unit_type == DEPOT || (*it).unit_type == DOCK || (*it).unit_type == HANGAR) {
+        if (shop->GetUnitType() == DEPOT || (*it).GetUnitType() == DOCK || (*it).GetUnitType() == HANGAR) {
             const int32_t stored_units = Access_GetStoredUnitCount(&*shop);
             const int32_t storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
@@ -94,9 +95,10 @@ bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit) {
     if (unit->hits > 0) {
         SmartPointer<UnitInfo> parent(unit->GetParent());
 
-        if (parent && (parent->unit_type == AIRTRANS || parent->unit_type == SEATRANS ||
-                       parent->unit_type == CLNTRANS || parent->unit_type == DEPOT || parent->unit_type == HANGAR ||
-                       parent->unit_type == DOCK || parent->unit_type == BARRACKS)) {
+        if (parent &&
+            (parent->GetUnitType() == AIRTRANS || parent->GetUnitType() == SEATRANS ||
+             parent->GetUnitType() == CLNTRANS || parent->GetUnitType() == DEPOT || parent->GetUnitType() == HANGAR ||
+             parent->GetUnitType() == DOCK || parent->GetUnitType() == BARRACKS)) {
             result = true;
         }
     }
@@ -147,7 +149,7 @@ bool SaveLoadChecks_CorrectHashMap(SmartList<UnitInfo>* units) {
 
                 if (unit->hits > 0) {
                     AiLog log("Map hash corruption detected. %s at [%i,%i] is missing.",
-                              UnitsManager_BaseUnits[unit->unit_type].singular_name, unit->grid_x + 1,
+                              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
                               unit->grid_y + 1);
 
                     Hash_MapHash.Remove(&*unit);
@@ -156,7 +158,7 @@ bool SaveLoadChecks_CorrectHashMap(SmartList<UnitInfo>* units) {
 
                 } else {
                     AiLog log("Map hash corruption detected. %s at [%i,%i] is already gone.",
-                              UnitsManager_BaseUnits[unit->unit_type].singular_name, unit->grid_x + 1,
+                              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
                               unit->grid_y + 1);
 
                     Hash_MapHash.Remove(&*unit);
@@ -166,7 +168,8 @@ bool SaveLoadChecks_CorrectHashMap(SmartList<UnitInfo>* units) {
 
             } else {
                 AiLog log("Map hash corruption detected. %s at [%i,%i] is missing.",
-                          UnitsManager_BaseUnits[unit->unit_type].singular_name, unit->grid_x + 1, unit->grid_y + 1);
+                          UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
+                          unit->grid_y + 1);
 
                 Hash_MapHash.Remove(&*unit);
                 Hash_MapHash.Add(&*unit);
@@ -194,7 +197,7 @@ bool SaveLoadChecks_Defect151() {
                         !((*hash_it).orders == ORDER_IDLE && (*hash_it).state == ORDER_STATE_BUILDING_READY)) {
                         AiLog log("Unit corruption detected. Connector at [%i,%i] overlaps with %s at [%i,%i].",
                                   (*it).grid_x + 1, (*it).grid_y + 1,
-                                  UnitsManager_BaseUnits[(*hash_it).unit_type].singular_name, (*hash_it).grid_x + 1,
+                                  UnitsManager_BaseUnits[(*hash_it).GetUnitType()].singular_name, (*hash_it).grid_x + 1,
                                   (*hash_it).grid_y + 1);
 
                         UnitsManager_DestroyUnit(&*it);
@@ -233,7 +236,7 @@ bool SaveLoadChecks_Defect183() {
 
                     if (!Access_IsInsideBounds(&bounds, &site)) {
                         AiLog log("Map hash corruption detected in pot [%i,%i]. %s is at [%i,%i].", site.x + 1,
-                                  site.y + 1, UnitsManager_BaseUnits[(*it).unit_type].singular_name, position.x + 1,
+                                  site.y + 1, UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, position.x + 1,
                                   position.y + 1);
 
                         Hash_MapHash.Remove(&*it);

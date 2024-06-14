@@ -31,7 +31,7 @@ TaskScavenge::TaskScavenge(uint16_t team_) : Task(team_, nullptr, 0x2100) { wait
 
 TaskScavenge::~TaskScavenge() {}
 
-bool TaskScavenge::IsUnitUsable(UnitInfo& unit) { return unit.unit_type == BULLDOZR; }
+bool TaskScavenge::IsUnitUsable(UnitInfo& unit) { return unit.GetUnitType() == BULLDOZR; }
 
 char* TaskScavenge::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Scavenge materials");
@@ -55,7 +55,7 @@ void TaskScavenge::BeginTurn() {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
-            if ((*it).IsVisibleToTeam(team) && ((*it).unit_type == SMLRUBLE || (*it).unit_type == LRGRUBLE) &&
+            if ((*it).IsVisibleToTeam(team) && ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE) &&
                 !Ai_IsDangerousLocation(&*dummy_unit, Point((*it).grid_x, (*it).grid_y), CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                         true)) {
                 SmartPointer<TaskObtainUnits> obtain_task(new (std::nothrow)
@@ -99,7 +99,7 @@ bool TaskScavenge::Execute(UnitInfo& unit) {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
-            if ((*it).IsVisibleToTeam(team) && ((*it).unit_type == SMLRUBLE || (*it).unit_type == LRGRUBLE)) {
+            if ((*it).IsVisibleToTeam(team) && ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE)) {
                 Point position((*it).grid_x, (*it).grid_y);
 
                 distance = Access_GetDistance(&unit, &*it);

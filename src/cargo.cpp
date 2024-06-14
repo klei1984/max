@@ -29,7 +29,7 @@ static void Cargo_ApplyUnitConsumption(const ResourceID unit_type, const int32_t
 Cargo Cargo_GetInventory(UnitInfo* const unit) {
     Cargo cargo;
 
-    switch (UnitsManager_BaseUnits[unit->unit_type].cargo_type) {
+    switch (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type) {
         case MATERIALS: {
             cargo.raw += unit->storage;
         } break;
@@ -49,7 +49,7 @@ Cargo Cargo_GetInventory(UnitInfo* const unit) {
 Cargo Cargo_GetCargoCapacity(UnitInfo* const unit) {
     Cargo cargo;
 
-    switch (UnitsManager_BaseUnits[unit->unit_type].cargo_type) {
+    switch (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type) {
         case MATERIALS: {
             cargo.raw += unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
         } break;
@@ -78,14 +78,14 @@ Cargo Cargo_GetNetProduction(UnitInfo* const unit, const bool current_order) {
         orders = unit->prior_orders;
     }
 
-    switch (unit->unit_type) {
+    switch (unit->GetUnitType()) {
         case SHIPYARD:
         case LIGHTPLT:
         case LANDPLT:
         case TRAINHAL:
         case AIRPLT: {
             if (orders == ORDER_BUILD && unit->state != ORDER_STATE_UNIT_READY) {
-                Cargo_ApplyUnitConsumption(unit->unit_type, unit->GetMaxAllowedBuildRate(), cargo);
+                Cargo_ApplyUnitConsumption(unit->GetUnitType(), unit->GetMaxAllowedBuildRate(), cargo);
             }
         } break;
 
@@ -96,7 +96,7 @@ Cargo Cargo_GetNetProduction(UnitInfo* const unit, const bool current_order) {
         case RESEARCH:
         case GREENHSE: {
             if (orders == ORDER_POWER_ON) {
-                Cargo_ApplyUnitConsumption(unit->unit_type, 1, cargo);
+                Cargo_ApplyUnitConsumption(unit->GetUnitType(), 1, cargo);
             }
 
         } break;
@@ -120,7 +120,7 @@ Cargo Cargo_GetNetProduction(UnitInfo* const unit, const bool current_order) {
                 cargo.fuel += (unit->fuel_mining * difficulty_factor) / 4;
                 cargo.free_capacity += 16 - unit->total_mining;
 
-                Cargo_ApplyUnitConsumption(unit->unit_type, 1, cargo);
+                Cargo_ApplyUnitConsumption(unit->GetUnitType(), 1, cargo);
             }
         } break;
     }
@@ -273,8 +273,8 @@ void Cargo_UpdateResourceLevels(UnitInfo* const unit, const int32_t factor) {
     SmartPointer<Complex> complex = unit->GetComplex();
 
     complex->material += unit->GetRawConsumptionRate() * factor;
-    complex->fuel += Cargo_GetFuelConsumptionRate(unit->unit_type) * factor;
-    complex->power += Cargo_GetPowerConsumptionRate(unit->unit_type) * factor;
-    complex->workers += Cargo_GetLifeConsumptionRate(unit->unit_type) * factor;
-    complex->gold += Cargo_GetGoldConsumptionRate(unit->unit_type) * factor;
+    complex->fuel += Cargo_GetFuelConsumptionRate(unit->GetUnitType()) * factor;
+    complex->power += Cargo_GetPowerConsumptionRate(unit->GetUnitType()) * factor;
+    complex->workers += Cargo_GetLifeConsumptionRate(unit->GetUnitType()) * factor;
+    complex->gold += Cargo_GetGoldConsumptionRate(unit->GetUnitType()) * factor;
 }

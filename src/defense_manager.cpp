@@ -49,7 +49,7 @@ void DefenseManager::ClearUnitsList() {
 bool DefenseManager::IsUnitUsable(UnitInfo* unit) {
     bool result;
 
-    if (weight_table.GetWeight(unit->unit_type)) {
+    if (weight_table.GetWeight(unit->GetUnitType())) {
         if (asset_value < asset_value_goal || unit->speed == 0) {
             result = true;
 
@@ -68,7 +68,8 @@ bool DefenseManager::AddUnit(UnitInfo* unit) {
     bool result;
 
     if (IsUnitUsable(unit)) {
-        auto position = unit_types->Find(&unit->unit_type);
+        auto unit_type{unit->GetUnitType()};
+        auto position = unit_types->Find(&unit_type);
         if (position != -1) {
             unit_types.Remove(position);
         }

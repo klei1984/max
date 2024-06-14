@@ -53,7 +53,7 @@ bool TaskRendezvous_SearchMap(UnitInfo* unit1, UnitInfo* unit2, Point* site, cha
             distance = TaskManager_GetDistance(position1, position2);
 
             if (!result || distance < minimum_distance) {
-                if (Access_IsAccessible(unit1->unit_type, unit1->team, position2.x, position2.y, mode)) {
+                if (Access_IsAccessible(unit1->GetUnitType(), unit1->team, position2.x, position2.y, mode)) {
                     if (transporter_map.Search(position2)) {
                         *site = position2;
                         result = true;
@@ -137,9 +137,9 @@ char* TaskRendezvous::WriteStatusLog(char* buffer) const {
         strcpy(buffer, "Completed rendezvous task.");
     } else {
         strcpy(buffer, "Bring ");
-        strcat(buffer, UnitsManager_BaseUnits[unit2->unit_type].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[unit2->GetUnitType()].singular_name);
         strcat(buffer, " and ");
-        strcat(buffer, UnitsManager_BaseUnits[unit1->unit_type].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[unit1->GetUnitType()].singular_name);
         strcat(buffer, " together.");
     }
 

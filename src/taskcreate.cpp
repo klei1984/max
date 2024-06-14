@@ -28,7 +28,7 @@ TaskCreate::TaskCreate(Task* task, uint16_t flags, ResourceID unit_type_)
 
 TaskCreate::TaskCreate(Task* task, UnitInfo* unit_) : Task(unit_->team, task, task->GetFlags()), builder(unit_) {
     if (builder->state == ORDER_STATE_UNIT_READY) {
-        unit_type = unit_->GetParent()->unit_type;
+        unit_type = unit_->GetParent()->GetUnitType();
 
     } else {
         unit_type = unit_->GetConstructedUnitType();

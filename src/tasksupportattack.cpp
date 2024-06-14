@@ -52,14 +52,14 @@ void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if (((*it).flags & unit_flags) && AiAttack_GetTargetValue(&*it) <= highest_scan) {
-            if ((*it).unit_type == CARGOSHP || (*it).unit_type == SPLYTRCK || (*it).unit_type == REPAIR) {
+            if ((*it).GetUnitType() == CARGOSHP || (*it).GetUnitType() == SPLYTRCK || (*it).GetUnitType() == REPAIR) {
                 if ((*it).IsReadyForOrders(this) && (*it).storage < 5) {
                     SmartPointer<Task> get_materials_task(new (std::nothrow) TaskGetMaterials(this, &*it, 5));
 
                     TaskManager.AppendTask(*get_materials_task);
                 }
 
-                if ((*it).unit_type == REPAIR) {
+                if ((*it).GetUnitType() == REPAIR) {
                     needs_repair_unit = true;
 
                 } else {
@@ -100,7 +100,7 @@ bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
     bool result;
 
     if (unit->IsReadyForOrders(this) && parent && unit->speed > 0) {
-        AiLog log("Support attack: give orders to %s.", UnitsManager_BaseUnits[unit->unit_type].singular_name);
+        AiLog log("Support attack: give orders to %s.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
         if (unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
             if (unit->hits < unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
@@ -177,15 +177,15 @@ void TaskSupportAttack::AddUnit(UnitInfo& unit) {
         unit.attack_site.x = 0;
         unit.attack_site.y = 0;
 
-        if (unit.unit_type == CARGOSHP || unit.unit_type == SPLYTRCK) {
+        if (unit.GetUnitType() == CARGOSHP || unit.GetUnitType() == SPLYTRCK) {
             unit_type1 = INVALID_ID;
         }
 
-        if (unit.unit_type == REPAIR) {
+        if (unit.GetUnitType() == REPAIR) {
             unit_type2 = INVALID_ID;
         }
 
-        if ((unit.unit_type == CARGOSHP || unit.unit_type == SPLYTRCK || unit.unit_type == REPAIR) &&
+        if ((unit.GetUnitType() == CARGOSHP || unit.GetUnitType() == SPLYTRCK || unit.GetUnitType() == REPAIR) &&
             unit.storage < 5) {
             SmartPointer<Task> get_materials_task(new (std::nothrow) TaskGetMaterials(this, &unit, 5));
 
@@ -212,7 +212,7 @@ void TaskSupportAttack::EndTurn() { AddReminders(); }
 bool TaskSupportAttack::Execute(UnitInfo& unit) {
     bool result;
 
-    AiLog log("Support attack: think about moving %s", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+    AiLog log("Support attack: think about moving %s", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (parent) {
         if (unit.IsReadyForOrders(this)) {

@@ -117,14 +117,14 @@ bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).unit_type].cargo_type == CARGO_TYPE_RAW) {
+        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
             raw_materials += (*it).storage;
 
-            if ((*it).unit_type == ENGINEER) {
+            if ((*it).GetUnitType() == ENGINEER) {
                 raw_materials += -15;
             }
 
-            if ((*it).unit_type == CONSTRCT) {
+            if ((*it).GetUnitType() == CONSTRCT) {
                 raw_materials += -30;
             }
         }
@@ -133,9 +133,9 @@ bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team) {
-            raw_materials -= Cargo_GetRawConsumptionRate((*it).unit_type, 1);
+            raw_materials -= Cargo_GetRawConsumptionRate((*it).GetUnitType(), 1);
 
-            if (UnitsManager_BaseUnits[(*it).unit_type].cargo_type == CARGO_TYPE_RAW) {
+            if (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
                 raw_materials += (*it).storage;
 
                 if ((*it).storage == (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
@@ -173,7 +173,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t fla
             }
 
             for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
-                if ((*it).team == team && (*it).unit_type == unit_type) {
+                if ((*it).team == team && (*it).GetUnitType() == unit_type) {
                     ++available_count;
 
                     if (!(*it).GetTask()) {
@@ -290,7 +290,7 @@ void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
 
         range = range * range;
 
-        if (Access_GetValidAttackTargetTypes(unit->unit_type) & MOBILE_LAND_UNIT) {
+        if (Access_GetValidAttackTargetTypes(unit->GetUnitType()) & MOBILE_LAND_UNIT) {
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                 if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
@@ -301,7 +301,7 @@ void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
             }
         }
 
-        if (Access_GetValidAttackTargetTypes(unit->unit_type) & MOBILE_AIR_UNIT) {
+        if (Access_GetValidAttackTargetTypes(unit->GetUnitType()) & MOBILE_AIR_UNIT) {
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
                  it != UnitsManager_MobileAirUnits.End(); ++it) {
                 if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
@@ -362,7 +362,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t 
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == task_team && (*it).unit_type == builder_type) {
+            if ((*it).team == task_team && (*it).GetUnitType() == builder_type) {
                 ++builder_count;
             }
         }
@@ -548,8 +548,8 @@ void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
 void TaskManager::FindTaskForUnit(UnitInfo* unit) {
     if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
         if (!(unit->flags & STATIONARY) || unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) ||
-            unit->unit_type == LIGHTPLT || unit->unit_type == LANDPLT || unit->unit_type == SHIPYARD ||
-            unit->unit_type == AIRPLT || unit->unit_type == TRAINHAL) {
+            unit->GetUnitType() == LIGHTPLT || unit->GetUnitType() == LANDPLT || unit->GetUnitType() == SHIPYARD ||
+            unit->GetUnitType() == AIRPLT || unit->GetUnitType() == TRAINHAL) {
             if (!unit->GetTask() && unit->hits > 0) {
                 char unit_name[300];
                 SmartPointer<TaskObtainUnits> obtain_units_task;
@@ -605,7 +605,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 for (SmartList<TaskObtainUnits>::Iterator it = unit_requests.Begin(); it != unit_requests.End(); ++it) {
                     if ((*it).GetTeam() == unit->team) {
                         if ((!obtain_units_task || (*it).DeterminePriority(task_flags) < 0) &&
-                            (*it).CountInstancesOfUnitType(unit->unit_type)) {
+                            (*it).CountInstancesOfUnitType(unit->GetUnitType())) {
                             obtain_units_task = *it;
                             task_flags = obtain_units_task->GetFlags();
                         }
@@ -618,9 +618,10 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                     return;
                 }
 
-                if (unit->unit_type == LIGHTPLT || unit->unit_type == LANDPLT || unit->unit_type == SHIPYARD ||
-                    unit->unit_type == AIRPLT || unit->unit_type == TRAINHAL || unit->unit_type == CONSTRCT ||
-                    unit->unit_type == ENGINEER) {
+                if (unit->GetUnitType() == LIGHTPLT || unit->GetUnitType() == LANDPLT ||
+                    unit->GetUnitType() == SHIPYARD || unit->GetUnitType() == AIRPLT ||
+                    unit->GetUnitType() == TRAINHAL || unit->GetUnitType() == CONSTRCT ||
+                    unit->GetUnitType() == ENGINEER) {
                     for (SmartList<TaskObtainUnits>::Iterator it = unit_requests.Begin(); it != unit_requests.End();
                          ++it) {
                         if ((*it).GetTeam() == unit->team) {
