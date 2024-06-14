@@ -191,7 +191,7 @@ bool TaskObtainUnits::IsNeeded() {
 void TaskObtainUnits::AddUnit(UnitInfo& unit) {
     int32_t index = units->Find(&unit.unit_type);
 
-    AiLog log("Obtain Units: Add %s.", UnitsManager_BaseUnits[unit.unit_type].singular_name);
+    AiLog log("Obtain Units: Add %s %i.", UnitsManager_BaseUnits[unit.unit_type].singular_name, unit.unit_id);
 
     if (CountInstancesOfUnitType(unit.unit_type)) {
         units->Remove(index);

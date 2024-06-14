@@ -1183,7 +1183,8 @@ void UnitInfo::AddTask(Task* task) {
     SmartPointer<Task> old_task(GetTask());
     char text[100];
 
-    AiLog log("Adding task to %s: %s", UnitsManager_BaseUnits[unit_type].singular_name, task->WriteStatusLog(text));
+    AiLog log("Adding task to %s %i: %s", UnitsManager_BaseUnits[unit_type].singular_name, unit_id,
+              task->WriteStatusLog(text));
 
     tasks.PushFront(*task);
 
@@ -4070,7 +4071,8 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
     SmartPointer<Task> unit_task(GetTask());
     char text[100];
 
-    AiLog log("Removing task from %s: %s", UnitsManager_BaseUnits[unit_type].singular_name, task->WriteStatusLog(text));
+    AiLog log("Removing task from %s %i: %s", UnitsManager_BaseUnits[unit_type].singular_name, unit_id,
+              task->WriteStatusLog(text));
 
     if (unit_task) {
         SmartPointer<Task> reference_task;

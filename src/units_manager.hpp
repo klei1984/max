@@ -43,6 +43,8 @@ extern SmartList<UnitInfo> UnitsManager_StationaryUnits;
 extern SmartList<UnitInfo> UnitsManager_MobileAirUnits;
 extern SmartList<UnitInfo> UnitsManager_PendingAttacks;
 
+extern const char* const UnitsManager_Orders[];
+
 extern AbstractUnit UnitsManager_AbstractUnits[UNIT_END];
 extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
 

@@ -57,8 +57,12 @@ void TaskActivate::Activate() {
                                 }
                             }
 
-                            AiLog log("Activate %s.",
-                                      UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name);
+                            AiLog log("Activate %s %i at [%i,%i] from %s %i at [%i,%i].",
+                                      UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name,
+                                      unit_to_activate->unit_id, unit_to_activate->grid_x + 1,
+                                      unit_to_activate->grid_y + 1,
+                                      UnitsManager_BaseUnits[unit_parent->unit_type].singular_name,
+                                      unit_parent->unit_id, unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
                             if (unit_to_activate->orders != ORDER_IDLE || unit_parent->orders == ORDER_BUILD ||
                                 unit_parent->orders == ORDER_AWAIT) {
@@ -111,6 +115,10 @@ void TaskActivate::Activate() {
                                                 } break;
                                             }
 
+                                            log.Log("Unit order %s state %i.",
+                                                    UnitsManager_Orders[unit_to_activate->orders],
+                                                    unit_to_activate->state);
+
                                             return;
                                         }
                                     }
@@ -150,8 +158,16 @@ void TaskActivate::Activate() {
 bool TaskActivate::Task_vfunc1(UnitInfo& unit) { return unit_to_activate != unit; }
 
 char* TaskActivate::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Activate unit");
+    if (unit_to_activate && unit_parent) {
+        sprintf(buffer, "Activate %s %i at [%i,%i] from %s %i at [%i,%i].",
+                UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name, unit_to_activate->unit_id,
+                unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
+                UnitsManager_BaseUnits[unit_parent->unit_type].singular_name, unit_parent->unit_id,
+                unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
+    } else {
+        strcpy(buffer, "Activate unit.");
+    }
     return buffer;
 }
 
@@ -204,8 +220,8 @@ bool TaskActivate::Execute(UnitInfo& unit) {
             Point position(unit_to_activate->grid_x, unit_to_activate->grid_y);
 
             if (!Access_IsInsideBounds(&bounds, &position)) {
-                AiLog log("Completed activation of %s.",
-                          UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name);
+                AiLog log("Completed activation of %s %i.",
+                          UnitsManager_BaseUnits[unit_to_activate->unit_type].singular_name, unit_to_activate->unit_id);
 
                 unit_to_activate->RemoveTask(this);
 
