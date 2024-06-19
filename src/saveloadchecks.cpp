@@ -68,8 +68,7 @@ bool SaveLoadChecks_OrderedLists() {
 bool SaveLoadChecks_Defect11() {
     bool result = false;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), end = UnitsManager_StationaryUnits.End(); it != end; ++it) {
         SmartPointer<UnitInfo> shop(*it);
 
         if (shop->GetUnitType() == DEPOT || (*it).GetUnitType() == DOCK || (*it).GetUnitType() == HANGAR) {
@@ -90,7 +89,7 @@ bool SaveLoadChecks_Defect11() {
 }
 
 bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit) {
-    bool result = false;
+    bool result{false};
 
     if (unit->hits > 0) {
         SmartPointer<UnitInfo> parent(unit->GetParent());
@@ -110,6 +109,11 @@ bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit) {
         if ((unit->flags) & BUILDING) {
             rect_init(&bounds, unit->grid_x, unit->grid_y, unit->grid_x + 2, unit->grid_y + 2);
             cell_count = 4;
+
+        } else if (unit->in_transit) {
+            rect_init(&bounds, unit->last_target.x, unit->last_target.y, unit->last_target.x + 1,
+                      unit->last_target.y + 1);
+            cell_count = 1;
 
         } else {
             rect_init(&bounds, unit->grid_x, unit->grid_y, unit->grid_x + 1, unit->grid_y + 1);
@@ -141,7 +145,7 @@ bool SaveLoadChecks_IsHashMapCorrect(UnitInfo* unit) {
 bool SaveLoadChecks_CorrectHashMap(SmartList<UnitInfo>* units) {
     bool result = false;
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
         SmartPointer<UnitInfo> unit(*it);
 
         if (!SaveLoadChecks_IsHashMapCorrect(&*unit)) {
@@ -187,8 +191,7 @@ bool SaveLoadChecks_CorrectHashMap(SmartList<UnitInfo>* units) {
 bool SaveLoadChecks_Defect151() {
     bool result = false;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), end = UnitsManager_StationaryUnits.End(); it != end; ++it) {
         if ((*it).flags & CONNECTOR_UNIT) {
             const auto units = Hash_MapHash[Point((*it).grid_x, (*it).grid_y)];
 
@@ -225,32 +228,34 @@ bool SaveLoadChecks_Defect183() {
             if (units) {
                 // the end node must be cached in case Hash_MapHash.Remove() deletes the list
                 for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                    Rect bounds;
-                    Point site(x, y);
-                    Point position((*it).grid_x, (*it).grid_y);
+                    if (!(*it).in_transit) {
+                        Rect bounds;
+                        Point site(x, y);
+                        Point position((*it).grid_x, (*it).grid_y);
 
-                    if (((*it).flags) & BUILDING) {
-                        rect_init(&bounds, position.x, position.y, position.x + 2, position.y + 2);
+                        if (((*it).flags) & BUILDING) {
+                            rect_init(&bounds, position.x, position.y, position.x + 2, position.y + 2);
 
-                    } else {
-                        rect_init(&bounds, position.x, position.y, position.x + 1, position.y + 1);
-                    }
+                        } else {
+                            rect_init(&bounds, position.x, position.y, position.x + 1, position.y + 1);
+                        }
 
-                    if (!Access_IsInsideBounds(&bounds, &site)) {
-                        AiLog log("Map hash corruption detected in pot [%i,%i]. %s is at [%i,%i].", site.x + 1,
-                                  site.y + 1, UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, position.x + 1,
-                                  position.y + 1);
+                        if (!Access_IsInsideBounds(&bounds, &site)) {
+                            AiLog log("Map hash corruption detected in pot [%i,%i]. %s is at [%i,%i].", site.x + 1,
+                                      site.y + 1, UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name,
+                                      position.x + 1, position.y + 1);
 
-                        Hash_MapHash.Remove(&*it);
-                        Access_UpdateMapStatus(&*it, false);
+                            Hash_MapHash.Remove(&*it);
+                            Access_UpdateMapStatus(&*it, false);
 
-                        (*it).grid_x = site.x;
-                        (*it).grid_y = site.y;
+                            (*it).grid_x = site.x;
+                            (*it).grid_y = site.y;
 
-                        Hash_MapHash.Remove(&*it);
-                        Access_UpdateMapStatus(&*it, false);
+                            Hash_MapHash.Remove(&*it);
+                            Access_UpdateMapStatus(&*it, false);
 
-                        result = true;
+                            result = true;
+                        }
                     }
                 }
             }
