@@ -59,7 +59,7 @@ bool UnitInfoGroup::IsRelevant(UnitInfo* unit, UnitInfoGroup* group) {
     bool result;
 
     if ((unit->IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) &&
-        (Gfx_ZoomLevel >= 8 || !(unit->flags & GROUND_COVER)) && (unit->orders != ORDER_IDLE)) {
+        (Gfx_ZoomLevel >= 8 || !(unit->flags & GROUND_COVER)) && (unit->GetOrder() != ORDER_IDLE)) {
         result = unit->IsInGroupZone(group);
     } else {
         result = false;
@@ -154,7 +154,7 @@ bool UnitInfoGroup::Populate() {
                                 }
 
                             } else if ((*it).flags & MOBILE_AIR_UNIT) {
-                                if (((*it).flags & HOVERING) || (*it).orders == ORDER_MOVE) {
+                                if (((*it).flags & HOVERING) || (*it).GetOrder() == ORDER_MOVE) {
                                     air_units_in_air.Insert((*it));
 
                                 } else {

@@ -1090,7 +1090,7 @@ int32_t ReportMenu::GetWorkingEcoSphereCount(uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == team && (*it).GetUnitType() == GREENHSE && (*it).orders == ORDER_POWER_ON) {
+            if ((*it).team == team && (*it).GetUnitType() == GREENHSE && (*it).GetOrder() == ORDER_POWER_ON) {
                 ++result;
             }
         }
@@ -1107,12 +1107,12 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
 
     width -= 40;
 
-    if (unit->orders == ORDER_BUILD || unit->orders == ORDER_CLEAR || unit->orders == ORDER_HALT_BUILDING ||
-        unit->orders == ORDER_HALT_BUILDING_2) {
+    if (unit->GetOrder() == ORDER_BUILD || unit->GetOrder() == ORDER_CLEAR || unit->GetOrder() == ORDER_HALT_BUILDING ||
+        unit->GetOrder() == ORDER_HALT_BUILDING_2) {
         if (unit->GetUnitType() == BULLDOZR) {
             string.Sprintf(80, _(138d), unit->build_time);
 
-        } else if (unit->state == ORDER_STATE_UNIT_READY) {
+        } else if (unit->GetOrderState() == ORDER_STATE_UNIT_READY) {
             string = GameManager_GetUnitStatusMessage(unit);
 
         } else {
@@ -1120,7 +1120,7 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
 
             SDL_assert(build_list.GetCount() > 0);
 
-            if (unit->orders == ORDER_HALT_BUILDING || unit->orders == ORDER_HALT_BUILDING_2) {
+            if (unit->GetOrder() == ORDER_HALT_BUILDING || unit->GetOrder() == ORDER_HALT_BUILDING_2) {
                 string.Sprintf(200, _(abea), UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
 
             } else {
@@ -1190,7 +1190,7 @@ void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
 
     for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
         if ((*it).team == GameManager_PlayerTeam && active_units[(*it).GetUnitType()] &&
-            ((*it).orders != ORDER_IDLE || (*it).state != ORDER_STATE_BUILDING_READY) &&
+            ((*it).GetOrder() != ORDER_IDLE || (*it).GetOrderState() != ORDER_STATE_BUILDING_READY) &&
             (!ReportMenu_ButtonState_DamagedUnits || (*it).hits < (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS))) {
             for (index = 0; index < units.GetCount(); ++index) {
                 if (units[index].GetUnitType() > (*it).GetUnitType()) {

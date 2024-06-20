@@ -134,7 +134,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
             TaskManager.RemindAvailable(&unit);
         }
 
-    } else if (unit.team == team && unit.orders != ORDER_IDLE) {
+    } else if (unit.team == team && unit.GetOrder() != ORDER_IDLE) {
         if (unit.GetUnitType() == LANDPLT || unit.GetUnitType() == LIGHTPLT || unit.GetUnitType() == AIRPLT ||
             unit.GetUnitType() == SHIPYARD || unit.GetUnitType() == TRAINHAL) {
             if (unit.GetComplex()->material > 10 && unit.GetComplex()->fuel > 10) {

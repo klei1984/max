@@ -828,7 +828,7 @@ bool AbstractBuildMenu::Run() {
     while (!event_click_cancel) {
         int32_t key = get_input();
 
-        if (GameManager_RequestMenuExit || unit->orders == ORDER_DISABLE || unit->team != GameManager_PlayerTeam) {
+        if (GameManager_RequestMenuExit || unit->GetOrder() == ORDER_DISABLE || unit->team != GameManager_PlayerTeam) {
             key = GNW_KB_KEY_ESCAPE;
         }
 

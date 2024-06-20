@@ -73,9 +73,9 @@ bool Task_IsReadyToTakeOrders(UnitInfo* unit) {
     bool result;
 
     if (unit->hits > 0 && GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-        if (unit->orders == ORDER_AWAIT || unit->orders == ORDER_SENTRY ||
-            (unit->orders == ORDER_MOVE && unit->state == ORDER_STATE_1) ||
-            (unit->orders == ORDER_MOVE_TO_UNIT && unit->state == ORDER_STATE_1)) {
+        if (unit->GetOrder() == ORDER_AWAIT || unit->GetOrder() == ORDER_SENTRY ||
+            (unit->GetOrder() == ORDER_MOVE && unit->GetOrderState() == ORDER_STATE_1) ||
+            (unit->GetOrder() == ORDER_MOVE_TO_UNIT && unit->GetOrderState() == ORDER_STATE_1)) {
             result = true;
 
         } else {
@@ -90,7 +90,7 @@ bool Task_IsReadyToTakeOrders(UnitInfo* unit) {
 }
 
 void Task_RemoveMovementTasks(UnitInfo* unit) {
-    if (unit->orders != ORDER_IDLE || unit->hits <= 0) {
+    if (unit->GetOrder() != ORDER_IDLE || unit->hits <= 0) {
         for (SmartList<Task>::Iterator it = unit->GetTasks().Begin(); it != unit->GetTasks().End(); ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
                 AiLog log("Move %s: removing old move task", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
@@ -298,7 +298,7 @@ int32_t Task_EstimateTurnsTillMissionEnd() {
 
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
-                    if ((*it).team == team && (*it).GetUnitType() == GREENHSE && (*it).orders == ORDER_POWER_ON) {
+                    if ((*it).team == team && (*it).GetUnitType() == GREENHSE && (*it).GetOrder() == ORDER_POWER_ON) {
                         ++count;
                     }
                 }
@@ -495,7 +495,8 @@ int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type) {
     int32_t count = 0;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
+        if ((*it).team == team && (*it).GetUnitType() == unit_type &&
+            (*it).GetOrderState() != ORDER_STATE_BUILDING_READY) {
             ++count;
         }
     }

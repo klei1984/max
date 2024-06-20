@@ -372,14 +372,16 @@ bool Ai_AreThereParticles() {
 bool Ai_AreThereMovingUnits() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).orders == ORDER_MOVE && ((*it).state == ORDER_STATE_IN_PROGRESS || (*it).state == ORDER_STATE_6)) {
+        if ((*it).GetOrder() == ORDER_MOVE &&
+            ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_6)) {
             return true;
         }
     }
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
          it != UnitsManager_MobileAirUnits.End(); ++it) {
-        if ((*it).orders == ORDER_MOVE && ((*it).state == ORDER_STATE_IN_PROGRESS || (*it).state == ORDER_STATE_6)) {
+        if ((*it).GetOrder() == ORDER_MOVE &&
+            ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_6)) {
             return true;
         }
     }

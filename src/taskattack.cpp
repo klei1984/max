@@ -707,8 +707,8 @@ bool TaskAttack::EvaluateLandAttack() {
                     (*it).ammo >= (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
                     !((*it).flags & MOBILE_AIR_UNIT) &&
                     (((*it).flags & MOBILE_SEA_UNIT) || access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) &&
-                    ((*it).orders == ORDER_AWAIT || (*it).orders == ORDER_SENTRY || (*it).orders == ORDER_MOVE ||
-                     (*it).orders == ORDER_MOVE_TO_UNIT)) {
+                    ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY ||
+                     (*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_UNIT)) {
                     bool is_relevant = false;
 
                     if ((*it).GetTask()) {
@@ -1613,7 +1613,7 @@ bool TaskAttack::IsViableLeader(UnitInfo* unit) {
 Point TaskAttack::GetLeaderDestination() {
     Point result;
 
-    if (leader->orders == ORDER_IDLE) {
+    if (leader->GetOrder() == ORDER_IDLE) {
         result = leader->attack_site;
 
     } else if (leader->speed > 0 && leader->path) {

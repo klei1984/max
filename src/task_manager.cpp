@@ -561,7 +561,8 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
 
                 if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
                     if (unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) != unit->hits ||
-                        (unit->state == ORDER_STATE_3 && unit->GetParent()->state == ORDER_STATE_UNIT_READY)) {
+                        (unit->GetOrderState() == ORDER_STATE_3 &&
+                         unit->GetParent()->GetOrderState() == ORDER_STATE_UNIT_READY)) {
                         if (!(unit->flags & STATIONARY)) {
                             SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(unit));
 

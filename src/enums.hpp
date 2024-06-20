@@ -2006,7 +2006,7 @@ enum {
 
 enum : uint8_t { NO_CARGO = 0x0, MATERIALS = 0x1, FUEL = 0x2, GOLD = 0x3 };
 
-enum : uint8_t {
+enum UnitOrderType : uint8_t {
     ORDER_AWAIT = 0x0,
     ORDER_TRANSFORM = 0x1,
     ORDER_MOVE = 0x2,
@@ -2042,7 +2042,7 @@ enum : uint8_t {
     ORDER_COUNT_MAX
 };
 
-enum : uint8_t {
+enum UnitOrderStateType : uint8_t {
     ORDER_STATE_INIT = 0x0,
     ORDER_STATE_1 = 0x1,
     ORDER_STATE_2 = 0x2,
@@ -2092,7 +2092,7 @@ enum : uint8_t {
     ORDER_STATE_46 = 0x2E,
 };
 
-enum : uint8_t {
+enum GameType : uint8_t {
     GAME_TYPE_CUSTOM = 0x0,
     GAME_TYPE_TRAINING = 0x1,
     GAME_TYPE_CAMPAIGN = 0x2,
@@ -2105,7 +2105,7 @@ enum : uint8_t {
     GAME_TYPE_MULTI_PLAYER_SCENARIO = 0x9
 };
 
-enum PlayerTeam : uint8_t {
+enum PlayerTeamType : uint8_t {
     PLAYER_TEAM_RED = 0x0,
     PLAYER_TEAM_GREEN = 0x1,
     PLAYER_TEAM_BLUE = 0x2,
@@ -2114,7 +2114,7 @@ enum PlayerTeam : uint8_t {
     PLAYER_TEAM_MAX = 0x5,
 };
 
-enum : uint8_t {
+enum PlayerType : uint8_t {
     TEAM_TYPE_NONE,
     TEAM_TYPE_PLAYER,
     TEAM_TYPE_COMPUTER,
@@ -2122,7 +2122,7 @@ enum : uint8_t {
     TEAM_TYPE_ELIMINATED,
 };
 
-enum : uint8_t {
+enum TeamClanType : uint8_t {
     TEAM_CLAN_RANDOM = 0x0,
     TEAM_CLAN_THE_CHOSEN = 0x1,
     TEAM_CLAN_CRIMSON_PATH = 0x2,
@@ -2134,7 +2134,7 @@ enum : uint8_t {
     TEAM_CLAN_AXIS_INC = 0x8,
 };
 
-enum {
+enum ExitCodeType : uint8_t {
     EXIT_CODE_NO_ERROR,
     EXIT_CODE_THANKS,
     EXIT_CODE_NO_MOUSE,
@@ -2178,7 +2178,7 @@ enum {
     CARGO_MASK = 0x1F,
 };
 
-enum {
+enum CargoType : uint8_t {
     CARGO_TYPE_NONE,
     CARGO_TYPE_RAW,
     CARGO_TYPE_FUEL,
@@ -2188,7 +2188,7 @@ enum {
     CARGO_TYPE_AIR,
 };
 
-enum {
+enum ResearchTopicType : uint8_t {
     RESEARCH_TOPIC_ATTACK,
     RESEARCH_TOPIC_SHOTS,
     RESEARCH_TOPIC_RANGE,
@@ -2223,7 +2223,7 @@ enum SfxType : uint8_t {
     SFX_TYPE_LIMIT
 };
 
-enum UnitAngle : uint8_t {
+enum UnitAngleType : uint8_t {
     UNIT_ANGLE_N,
     UNIT_ANGLE_NE,
     UNIT_ANGLE_E,
@@ -2234,7 +2234,7 @@ enum UnitAngle : uint8_t {
     UNIT_ANGLE_NW
 };
 
-enum {
+enum ConnectorDirectionType : uint16_t {
     CONNECTOR_NORTH_LEFT = 0x1,
     CONNECTOR_NORTH_RIGHT = 0x2,
     CONNECTOR_EAST_TOP = 0x4,
@@ -2246,7 +2246,7 @@ enum {
     CONNECTION_BEING_TESTED = 0x400
 };
 
-enum : uint8_t {
+enum GameStateType : uint8_t {
     GAME_STATE_0 = 0x0,
     GAME_STATE_1 = 0x1,
     GAME_STATE_2 = 0x2,
@@ -2265,7 +2265,7 @@ enum : uint8_t {
     GAME_STATE_15_FATAL_ERROR = 0xF
 };
 
-enum {
+enum CheatCodeType : uint8_t {
     CHEAT_CODE_MAXSPY = 0,
     CHEAT_CODE_MAXSURVEY = 1,
     CHEAT_CODE_MAXSTORAGE = 2,
@@ -2274,14 +2274,14 @@ enum {
     CHEAT_CODE_COUNT = 5
 };
 
-enum {
+enum CautionLevelType : uint8_t {
     CAUTION_LEVEL_NONE,
     CAUTION_LEVEL_AVOID_REACTION_FIRE,
     CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
     CAUTION_LEVEL_AVOID_ALL_DAMAGE
 };
 
-enum {
+enum AiStrategyType : uint8_t {
     AI_STRATEGY_RANDOM,
     AI_STRATEGY_DEFENSIVE,
     AI_STRATEGY_MISSILES,

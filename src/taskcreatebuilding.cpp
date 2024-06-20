@@ -78,7 +78,7 @@ TaskCreateBuilding::TaskCreateBuilding(Task* task, uint16_t flags_, ResourceID u
 
 TaskCreateBuilding::TaskCreateBuilding(UnitInfo* unit_, TaskManageBuildings* manager_)
     : TaskCreate(manager_, unit_), site(unit_->grid_x, unit_->grid_y) {
-    if (unit_->state == ORDER_STATE_UNIT_READY) {
+    if (unit_->GetOrderState() == ORDER_STATE_UNIT_READY) {
         op_state = CREATE_BUILDING_STATE_MOVING_OFF_SITE;
 
     } else {
@@ -309,7 +309,7 @@ void TaskCreateBuilding::Finish() {
     // prevent early destruction of object
     SmartPointer<Task> create_building_task(this);
 
-    if (building && building->orders != ORDER_IDLE && building->orders != ORDER_AWAIT_SCALING) {
+    if (building && building->GetOrder() != ORDER_IDLE && building->GetOrder() != ORDER_AWAIT_SCALING) {
         AddUnit(*building);
     }
 
@@ -512,7 +512,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
                   site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
         if (unit.GetUnitType() == unit_type && unit.grid_x == site.x && unit.grid_y == site.y &&
-            unit.orders != ORDER_IDLE) {
+            unit.GetOrder() != ORDER_IDLE) {
             SmartPointer<Task> create_building_task(this);
 
             op_state = CREATE_BUILDING_STATE_FINISHED;
@@ -583,7 +583,7 @@ void TaskCreateBuilding::Begin() {
 
     if (builder) {
         builder->AddTask(this);
-        if (builder->state == ORDER_STATE_UNIT_READY) {
+        if (builder->GetOrderState() == ORDER_STATE_UNIT_READY) {
             Activate();
         }
 
@@ -629,22 +629,22 @@ void TaskCreateBuilding::EndTurn() {
             } break;
 
             case CREATE_BUILDING_STATE_MOVING_TO_SITE: {
-                if (!BuildRoad() && builder->orders == ORDER_AWAIT && builder->GetTask() == this) {
+                if (!BuildRoad() && builder->GetOrder() == ORDER_AWAIT && builder->GetTask() == this) {
                     Execute(*builder);
                 }
             } break;
 
             case CREATE_BUILDING_STATE_BUILDING: {
                 if (builder->GetTask() == this) {
-                    if (builder->orders == ORDER_AWAIT) {
+                    if (builder->GetOrder() == ORDER_AWAIT) {
                         op_state = CREATE_BUILDING_STATE_MOVING_TO_SITE;
 
                         RemindTurnEnd(true);
 
-                    } else if (builder->state == ORDER_STATE_UNIT_READY && builder->GetTask() == this) {
+                    } else if (builder->GetOrderState() == ORDER_STATE_UNIT_READY && builder->GetTask() == this) {
                         Activate();
 
-                    } else if (builder->orders == ORDER_BUILD && builder->state == ORDER_STATE_11 &&
+                    } else if (builder->GetOrder() == ORDER_BUILD && builder->GetOrderState() == ORDER_STATE_11 &&
                                Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false)) {
                         MoveToSite();
                     }
@@ -652,7 +652,7 @@ void TaskCreateBuilding::EndTurn() {
             } break;
 
             case CREATE_BUILDING_STATE_FINISHED: {
-                if (builder->orders == ORDER_AWAIT && builder->GetTask() == this) {
+                if (builder->GetOrder() == ORDER_AWAIT && builder->GetTask() == this) {
                     Finish();
                 }
             } break;
@@ -813,7 +813,7 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
 
                 case CREATE_BUILDING_STATE_MOVING_OFF_SITE:
                 case CREATE_BUILDING_STATE_FINISHED: {
-                    if (builder->orders == ORDER_AWAIT) {
+                    if (builder->GetOrder() == ORDER_AWAIT) {
                         Finish();
                     }
 
@@ -877,7 +877,7 @@ void TaskCreateBuilding::EventZoneCleared(Zone* zone_, bool status) {
 bool TaskCreateBuilding::Task_vfunc28() { return op_state >= CREATE_BUILDING_STATE_BUILDING; }
 
 void TaskCreateBuilding::Activate() {
-    if (!building && builder->orders == ORDER_BUILD) {
+    if (!building && builder->GetOrder() == ORDER_BUILD) {
         building = builder->GetParent();
 
         if (building->GetTask() != this) {

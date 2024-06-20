@@ -1281,10 +1281,10 @@ void GameManager_Render() {
             }
 
             if (GameManager_SelectedUnit != nullptr) {
-                if (GameManager_SelectedUnit->state == ORDER_STATE_1 ||
-                    GameManager_SelectedUnit->state == ORDER_STATE_29 ||
-                    GameManager_SelectedUnit->state == ORDER_STATE_2 ||
-                    GameManager_SelectedUnit->orders == ORDER_BUILD) {
+                if (GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_1 ||
+                    GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_29 ||
+                    GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_2 ||
+                    GameManager_SelectedUnit->GetOrder() == ORDER_BUILD) {
                     if (GameManager_SelectedUnit->IsVisibleToTeam(GameManager_PlayerTeam)) {
                         SmartPointer<UnitValues> unit_values(GameManager_SelectedUnit->GetBaseValues());
                         UnitInfo* unit = &*GameManager_SelectedUnit;
@@ -1319,7 +1319,7 @@ void GameManager_Render() {
                     for (SmartList<UnitInfo>::Iterator it = GameManager_LockedUnits.Begin();
                          it != GameManager_LockedUnits.End(); ++it) {
                         if ((*it).team != GameManager_PlayerTeam &&
-                            ((*it).state == ORDER_STATE_1 || (*it).state == ORDER_STATE_2)) {
+                            ((*it).GetOrderState() == ORDER_STATE_1 || (*it).GetOrderState() == ORDER_STATE_2)) {
                             if ((*it).IsVisibleToTeam(GameManager_PlayerTeam)) {
                                 unit_values = (*it).GetBaseValues();
 
@@ -1582,7 +1582,7 @@ bool GameManager_SelectSite(uint16_t team) {
         if (GameManager_SelectedUnit == nullptr) {
             GameManager_SelectedUnit =
                 UnitsManager_SpawnUnit(MASTER, team, starting_position_x, starting_position_y, nullptr);
-            GameManager_SelectedUnit->orders = ORDER_IDLE;
+            GameManager_SelectedUnit->SetOrder(ORDER_IDLE);
 
             unit_values = GameManager_SelectedUnit->GetBaseValues();
             range = unit_values->GetAttribute(ATTRIB_RANGE);
@@ -1967,8 +1967,8 @@ void GameManager_AutoSelectNext(UnitInfo* unit) {
         GameManager_EnableMainMenu(unit);
 
     } else {
-        if (unit->orders == ORDER_AWAIT) {
-            unit->state = ORDER_STATE_2;
+        if (unit->GetOrder() == ORDER_AWAIT) {
+            unit->SetOrderState(ORDER_STATE_2);
         }
 
         GameManager_SelectNextUnit(1);
@@ -2217,7 +2217,7 @@ void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo>* units) {
 
 void GameManager_ResupplyUnits(uint16_t team, SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).orders != ORDER_DISABLE) {
+        if ((*it).team == team && (*it).GetOrder() != ORDER_DISABLE) {
             (*it).Resupply();
         }
     }
@@ -2767,33 +2767,33 @@ bool GameManager_ProcessPopupMenuInput(int32_t key) {
         return false;
     }
 
-    switch (GameManager_SelectedUnit->orders) {
+    switch (GameManager_SelectedUnit->GetOrder()) {
         case ORDER_SENTRY: {
         } break;
 
         case ORDER_MOVE:
         case ORDER_MOVE_TO_UNIT:
         case ORDER_MOVE_TO_ATTACK: {
-            if (GameManager_SelectedUnit->state != ORDER_STATE_1) {
+            if (GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_1) {
                 return false;
             }
         } break;
 
         case ORDER_BUILD: {
-            if (GameManager_SelectedUnit->state != ORDER_STATE_11) {
+            if (GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_11) {
                 return false;
             }
         } break;
 
         case ORDER_POWER_ON:
         case ORDER_POWER_OFF: {
-            if (GameManager_SelectedUnit->state != ORDER_STATE_1) {
+            if (GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_1) {
                 return false;
             }
         } break;
 
         case ORDER_CLEAR: {
-            if (GameManager_SelectedUnit->state != ORDER_STATE_IN_PROGRESS) {
+            if (GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_IN_PROGRESS) {
                 return false;
             }
         } break;
@@ -2849,21 +2849,21 @@ bool GameManager_ProcessPopupMenuInput(int32_t key) {
 void GameManager_PunishCheater() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).orders == ORDER_EXPLODE) {
+        if ((*it).GetOrder() == ORDER_EXPLODE) {
             return;
         }
     }
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
          it != UnitsManager_MobileAirUnits.End(); ++it) {
-        if ((*it).orders == ORDER_EXPLODE) {
+        if ((*it).GetOrder() == ORDER_EXPLODE) {
             return;
         }
     }
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).orders == ORDER_EXPLODE) {
+        if ((*it).GetOrder() == ORDER_EXPLODE) {
             return;
         }
     }
@@ -3364,12 +3364,13 @@ bool GameManager_IsUnitNextToPosition(UnitInfo* unit, int32_t grid_x, int32_t gr
 bool GameManager_IsInteractable(UnitInfo* unit) {
     bool result;
 
-    if (unit->orders == ORDER_SENTRY || unit->orders == ORDER_IDLE || unit->orders == ORDER_DISABLE ||
-        unit->orders == ORDER_EXPLODE || unit->state == ORDER_STATE_14 || unit->state == ORDER_STATE_2) {
+    if (unit->GetOrder() == ORDER_SENTRY || unit->GetOrder() == ORDER_IDLE || unit->GetOrder() == ORDER_DISABLE ||
+        unit->GetOrder() == ORDER_EXPLODE || unit->GetOrderState() == ORDER_STATE_14 ||
+        unit->GetOrderState() == ORDER_STATE_2) {
         result = false;
 
-    } else if (unit->orders == ORDER_BUILD || unit->orders == ORDER_CLEAR) {
-        result = unit->state == ORDER_STATE_25;
+    } else if (unit->GetOrder() == ORDER_BUILD || unit->GetOrder() == ORDER_CLEAR) {
+        result = unit->GetOrderState() == ORDER_STATE_25;
 
     } else if (unit->speed) {
         result = true;
@@ -3614,13 +3615,13 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
 }
 
 void GameManager_SelectBuildSite(UnitInfo* unit) {
-    while (unit->state == ORDER_STATE_6) {
+    while (unit->GetOrderState() == ORDER_STATE_6) {
         GameManager_ProcessTick(false);
     }
 
     MessageManager_ClearMessageBox();
 
-    if (unit->state == ORDER_STATE_25) {
+    if (unit->GetOrderState() == ORDER_STATE_25) {
         SoundManager_PlayVoice(V_M049, V_F050, -1);
 
         SDL_assert(GameManager_TempTape != nullptr);
@@ -3629,8 +3630,8 @@ void GameManager_SelectBuildSite(UnitInfo* unit) {
         GameManager_TempTape = nullptr;
 
         unit->GetBuildList().Clear();
-        unit->orders = unit->prior_orders;
-        unit->state = unit->prior_state;
+        unit->SetOrder(unit->GetPriorOrder());
+        unit->SetOrderState(unit->GetPriorOrderState());
 
     } else {
         unit->target_grid_x = unit->grid_x;
@@ -3647,7 +3648,7 @@ void GameManager_SelectBuildSite(UnitInfo* unit) {
 }
 
 void GameManager_ManagePlayerAction() {
-    if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit->state == ORDER_STATE_25) {
+    if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_25) {
         GameManager_SelectBuildSite(&*GameManager_SelectedUnit);
     }
 }
@@ -3660,8 +3661,8 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
     main_map_window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
     popups_window = WindowManager_GetWindow(WINDOW_POPUP_BUTTONS);
 
-    if (unit->orders != ORDER_DISABLE && GameManager_IsAtGridPosition(unit) &&
-        (!(unit->flags & MOBILE_LAND_UNIT) || unit->state != ORDER_STATE_UNIT_READY)) {
+    if (unit->GetOrder() != ORDER_DISABLE && GameManager_IsAtGridPosition(unit) &&
+        (!(unit->flags & MOBILE_LAND_UNIT) || unit->GetOrderState() != ORDER_STATE_UNIT_READY)) {
         GameManager_PopupButtons.popup_count = 0;
         unit->popup->init(unit, &GameManager_PopupButtons);
 
@@ -4272,9 +4273,10 @@ void GameManager_SetUnitOrder(int32_t order, int32_t state, UnitInfo* unit, int3
     unit->target_grid_x = grid_x;
     unit->target_grid_y = grid_y;
 
-    if (unit->orders == ORDER_MOVE || unit->orders == ORDER_MOVE_TO_UNIT || unit->orders == ORDER_MOVE_TO_ATTACK) {
-        unit->orders = unit->prior_orders;
-        unit->state = unit->prior_state;
+    if (unit->GetOrder() == ORDER_MOVE || unit->GetOrder() == ORDER_MOVE_TO_UNIT ||
+        unit->GetOrder() == ORDER_MOVE_TO_ATTACK) {
+        unit->SetOrder(unit->GetPriorOrder());
+        unit->SetOrderState(unit->GetPriorOrderState());
     }
 
     if (order == ORDER_MOVE_TO_UNIT) {
@@ -4391,20 +4393,24 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     }
 
     if (GameManager_SelectedUnit == nullptr ||
-        (GameManager_SelectedUnit->orders == ORDER_MOVE && GameManager_SelectedUnit->state != ORDER_STATE_1) ||
-        (GameManager_SelectedUnit->orders == ORDER_MOVE_TO_UNIT && GameManager_SelectedUnit->state != ORDER_STATE_1) ||
-        (GameManager_SelectedUnit->orders == ORDER_MOVE_TO_ATTACK &&
-         GameManager_SelectedUnit->state != ORDER_STATE_1) ||
-        GameManager_SelectedUnit->orders == ORDER_FIRE || GameManager_SelectedUnit->orders == ORDER_EXPLODE ||
-        GameManager_SelectedUnit->state == ORDER_STATE_14 || GameManager_SelectedUnit->orders == ORDER_DISABLE ||
-        GameManager_SelectedUnit->orders == ORDER_AWAIT_DISABLE_UNIT ||
-        GameManager_SelectedUnit->orders == ORDER_AWAIT_STEAL_UNIT || GameManager_SelectedUnit->orders == ORDER_LOAD ||
-        GameManager_SelectedUnit->orders == ORDER_AWAIT_SCALING ||
+        (GameManager_SelectedUnit->GetOrder() == ORDER_MOVE &&
+         GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_1) ||
+        (GameManager_SelectedUnit->GetOrder() == ORDER_MOVE_TO_UNIT &&
+         GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_1) ||
+        (GameManager_SelectedUnit->GetOrder() == ORDER_MOVE_TO_ATTACK &&
+         GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_1) ||
+        GameManager_SelectedUnit->GetOrder() == ORDER_FIRE || GameManager_SelectedUnit->GetOrder() == ORDER_EXPLODE ||
+        GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_14 ||
+        GameManager_SelectedUnit->GetOrder() == ORDER_DISABLE ||
+        GameManager_SelectedUnit->GetOrder() == ORDER_AWAIT_DISABLE_UNIT ||
+        GameManager_SelectedUnit->GetOrder() == ORDER_AWAIT_STEAL_UNIT ||
+        GameManager_SelectedUnit->GetOrder() == ORDER_LOAD ||
+        GameManager_SelectedUnit->GetOrder() == ORDER_AWAIT_SCALING ||
         GameManager_SelectedUnit->team != GameManager_PlayerTeam) {
         uint8_t result;
 
         if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit == team_unit &&
-            GameManager_SelectedUnit->orders != ORDER_DISABLE) {
+            GameManager_SelectedUnit->GetOrder() != ORDER_DISABLE) {
             result = CURSOR_UNIT_NO_GO;
 
         } else if (GameManager_SelectedUnit != nullptr && team_unit && GameManager_SelectedUnit->GetUnitList() &&
@@ -4437,17 +4443,17 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
         return result;
     }
 
-    if ((GameManager_SelectedUnit->orders == ORDER_BUILD ||
-         GameManager_SelectedUnit->orders == ORDER_AWAIT_TAPE_POSITIONING) &&
+    if ((GameManager_SelectedUnit->GetOrder() == ORDER_BUILD ||
+         GameManager_SelectedUnit->GetOrder() == ORDER_AWAIT_TAPE_POSITIONING) &&
         (GameManager_SelectedUnit->flags & MOBILE_LAND_UNIT)) {
         return GameManager_GetBuilderUnitCursor(&*GameManager_SelectedUnit, grid_x, grid_y, team_unit);
     }
 
-    if (GameManager_SelectedUnit->orders == ORDER_IDLE) {
+    if (GameManager_SelectedUnit->GetOrder() == ORDER_IDLE) {
         return GameManager_GetAirUnitCursor(&*GameManager_SelectedUnit, grid_x, grid_y, team_unit);
     }
 
-    if (GameManager_SelectedUnit->state == ORDER_STATE_1) {
+    if (GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_1) {
         UnitInfo* unit;
 
         unit = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
@@ -4523,13 +4529,13 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
         switch (flags) {
             case MOBILE_AIR_UNIT: {
                 if (GameManager_SelectedUnit->cursor == CURSOR_ARROW_SW &&
-                    GameManager_SelectedUnit->state == ORDER_STATE_1) {
+                    GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_1) {
                     if (GameManager_SelectedUnit->storage <
                         GameManager_SelectedUnit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
                         GameManager_Unit = Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_LAND_UNIT);
 
-                        if (GameManager_Unit && GameManager_Unit->orders != ORDER_CLEAR &&
-                            GameManager_Unit->orders != ORDER_BUILD &&
+                        if (GameManager_Unit && GameManager_Unit->GetOrder() != ORDER_CLEAR &&
+                            GameManager_Unit->GetOrder() != ORDER_BUILD &&
                             !Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, MOBILE_AIR_UNIT)) {
                             return CURSOR_LOAD;
                         }
@@ -4610,8 +4616,8 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                             case CURSOR_ARROW_NE: {
                                 if (UnitsManager_BaseUnits[GameManager_SelectedUnit->GetUnitType()].cargo_type ==
                                         UnitsManager_BaseUnits[GameManager_Unit->GetUnitType()].cargo_type &&
-                                    GameManager_Unit->orders != ORDER_CLEAR &&
-                                    GameManager_Unit->orders != ORDER_BUILD) {
+                                    GameManager_Unit->GetOrder() != ORDER_CLEAR &&
+                                    GameManager_Unit->GetOrder() != ORDER_BUILD) {
                                     return CURSOR_TRANSFER;
                                 }
                             } break;
@@ -4677,7 +4683,7 @@ void GameManager_PathBuild(UnitInfo* unit) {
 }
 
 void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2) {
-    if (unit2->orders == ORDER_DISABLE) {
+    if (unit2->GetOrder() == ORDER_DISABLE) {
         SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(d984), 1, 0);
 
@@ -4694,7 +4700,7 @@ void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2) {
 }
 
 void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2) {
-    if (unit2->orders == ORDER_DISABLE) {
+    if (unit2->GetOrder() == ORDER_DISABLE) {
         SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(7c90), 1, 0);
 
@@ -4711,7 +4717,7 @@ void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2) {
 }
 
 void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
-    if (unit2->orders == ORDER_DISABLE) {
+    if (unit2->GetOrder() == ORDER_DISABLE) {
         SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(42b7), 1, 0);
 
@@ -5087,8 +5093,8 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
     power_generator = UnitsManager_DeployUnit(POWGEN, team, mining_station->GetComplex(), power_generator_location.x,
                                               power_generator_location.y, 0);
 
-    power_generator->orders = ORDER_POWER_ON;
-    power_generator->state = ORDER_STATE_INIT;
+    power_generator->SetOrder(ORDER_POWER_ON);
+    power_generator->SetOrderState(ORDER_STATE_INIT);
 
     UnitsManager_DeployUnit(
         SMLSLAB, team, nullptr, power_generator_location.x, power_generator_location.y,
@@ -5381,14 +5387,14 @@ bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
     bool result{false};
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
-        if ((*it).orders == ORDER_FIRE || (*it).orders == ORDER_EXPLODE ||
-            ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) ||
-            ((*it).orders == ORDER_MOVE_TO_UNIT && (*it).state != ORDER_STATE_1)) {
+        if ((*it).GetOrder() == ORDER_FIRE || (*it).GetOrder() == ORDER_EXPLODE ||
+            ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_1) ||
+            ((*it).GetOrder() == ORDER_MOVE_TO_UNIT && (*it).GetOrderState() != ORDER_STATE_1)) {
             char text[200];
 
             sprintf(text, "End turn delayed because %s at [%i,%i] is %s",
                     UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1, (*it).grid_y + 1,
-                    GameManager_OrderStatusMessages[(*it).orders]);
+                    GameManager_OrderStatusMessages[(*it).GetOrder()]);
 
             MessageManager_DrawMessage(text, 0, 0);
 
@@ -5814,7 +5820,7 @@ void GameManager_ProcessKey() {
 int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2) {
     int32_t result;
 
-    if (unit1->state == ORDER_STATE_UNIT_READY) {
+    if (unit1->GetOrderState() == ORDER_STATE_UNIT_READY) {
         if (unit1->GetParent() && GameManager_IsUnitNextToPosition(unit1->GetParent(), grid_x, grid_y) &&
             Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
             result = CURSOR_UNIT_GO;
@@ -5826,7 +5832,7 @@ int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_
             result = CURSOR_UNIT_NO_GO;
         }
 
-    } else if (unit1->state == ORDER_STATE_25) {
+    } else if (unit1->GetOrderState() == ORDER_STATE_25) {
         int32_t unit_grid_x;
         int32_t unit_grid_y;
         int32_t target_grid_x;
@@ -5966,7 +5972,7 @@ int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t
         if (unit2 && (unit2->flags & MOBILE_AIR_UNIT)) {
             result = CURSOR_FRIEND;
 
-        } else if (unit1->orders == ORDER_CLEAR) {
+        } else if (unit1->GetOrder() == ORDER_CLEAR) {
             result = CURSOR_UNIT_NO_GO;
 
         } else if (GameManager_IsShiftKeyPressed) {
@@ -6014,7 +6020,8 @@ int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t
                     case CURSOR_ARROW_NE: {
                         if (UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type ==
                                 UnitsManager_BaseUnits[GameManager_Unit->GetUnitType()].cargo_type &&
-                            GameManager_Unit->orders != ORDER_CLEAR && GameManager_Unit->orders != ORDER_BUILD) {
+                            GameManager_Unit->GetOrder() != ORDER_CLEAR &&
+                            GameManager_Unit->GetOrder() != ORDER_BUILD) {
                             result = CURSOR_TRANSFER;
 
                         } else if (!(unit1->flags & STATIONARY) && (GameManager_Unit->flags & STATIONARY) &&
@@ -6100,8 +6107,9 @@ bool GameManager_IsValidTransferTarget(UnitInfo* unit1, UnitInfo* unit2) {
 bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
     bool result;
 
-    if ((unit2->flags & STATIONARY) || !(unit2->flags & ELECTRONIC_UNIT) || unit2->orders == ORDER_TRANSFORM ||
-        unit2->orders == ORDER_FIRE || unit2->orders == ORDER_EXPLODE || unit2->state == ORDER_STATE_14) {
+    if ((unit2->flags & STATIONARY) || !(unit2->flags & ELECTRONIC_UNIT) || unit2->GetOrder() == ORDER_TRANSFORM ||
+        unit2->GetOrder() == ORDER_FIRE || unit2->GetOrder() == ORDER_EXPLODE ||
+        unit2->GetOrderState() == ORDER_STATE_14) {
         result = false;
 
     } else if ((unit2->GetUnitType() == CLNTRANS || unit2->GetUnitType() == SEATRANS ||
@@ -6122,8 +6130,9 @@ bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
 bool GameManager_IsValidDisableTarget(UnitInfo* unit1, UnitInfo* unit2) {
     bool result;
 
-    if (!(unit2->flags & ELECTRONIC_UNIT) || unit2->orders == ORDER_TRANSFORM || unit2->orders == ORDER_FIRE ||
-        unit2->orders == ORDER_EXPLODE || unit2->orders == ORDER_TAKE_OFF || unit2->orders == ORDER_DISABLE) {
+    if (!(unit2->flags & ELECTRONIC_UNIT) || unit2->GetOrder() == ORDER_TRANSFORM || unit2->GetOrder() == ORDER_FIRE ||
+        unit2->GetOrder() == ORDER_EXPLODE || unit2->GetOrder() == ORDER_TAKE_OFF ||
+        unit2->GetOrder() == ORDER_DISABLE) {
         result = false;
 
     } else {
@@ -6297,7 +6306,7 @@ bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_
 
                 } else if (unit1 != unit2 && (unit1->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
                            (unit2->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
-                           unit1->state == ORDER_STATE_1 && unit2->state == ORDER_STATE_1) {
+                           unit1->GetOrderState() == ORDER_STATE_1 && unit2->GetOrderState() == ORDER_STATE_1) {
                     SmartList<UnitInfo>* units = unit1->GetUnitList();
 
                     if (!units || units->GetCount() < 10) {
@@ -6628,7 +6637,7 @@ void GameManager_ProcessInput() {
                     cursor = GameManager_GetWindowCursor(minimap_position.x, minimap_position.y);
 
                     if (cursor == CURSOR_UNIT_GO || cursor == CURSOR_WAY) {
-                        if (GameManager_SelectedUnit->state != ORDER_STATE_UNIT_READY) {
+                        if (GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_UNIT_READY) {
                             GameManager_SetUnitOrder(
                                 ORDER_MOVE, cursor == CURSOR_UNIT_GO ? ORDER_STATE_INIT : ORDER_STATE_28,
                                 &*GameManager_SelectedUnit, minimap_position.x, minimap_position.y);
@@ -6766,14 +6775,14 @@ void GameManager_ProcessInput() {
                                                         ORDER_MOVE, ORDER_STATE_INIT, &*GameManager_SelectedUnit,
                                                         GameManager_MousePosition.x, GameManager_MousePosition.y);
 
-                                                } else if (GameManager_Unit->orders == ORDER_DISABLE) {
+                                                } else if (GameManager_Unit->GetOrder() == ORDER_DISABLE) {
                                                     MessageManager_DrawMessage(_(9897), 1, 0);
 
                                                 } else if (GameManager_SelectedUnit->grid_x ==
                                                                GameManager_Unit->grid_x &&
                                                            GameManager_SelectedUnit->grid_y ==
                                                                GameManager_Unit->grid_y &&
-                                                           GameManager_Unit->state == ORDER_STATE_1) {
+                                                           GameManager_Unit->GetOrderState() == ORDER_STATE_1) {
                                                     GameManager_Unit->SetParent(&*GameManager_SelectedUnit);
                                                     UnitsManager_SetNewOrder(GameManager_Unit, ORDER_LAND,
                                                                              ORDER_STATE_INIT);
@@ -6822,7 +6831,8 @@ void GameManager_ProcessInput() {
                                                                          unit->grid_y);
                                                 GameManager_SelectedUnit->enter_mode = false;
 
-                                            } else if (GameManager_SelectedUnit->state == ORDER_STATE_UNIT_READY) {
+                                            } else if (GameManager_SelectedUnit->GetOrderState() ==
+                                                       ORDER_STATE_UNIT_READY) {
                                                 GameManager_DeinitPopupButtons(false);
                                                 GameManager_UpdateDrawBounds();
 
@@ -6998,7 +7008,7 @@ void GameManager_AdvanceFlic() {
 }
 
 void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int32_t radius, int32_t color) {
-    if (radius > 0 && unit->orders != ORDER_DISABLE) {
+    if (radius > 0 && unit->GetOrder() != ORDER_DISABLE) {
         Rect bounds;
         int32_t scaled_radius;
         int32_t unit_size;
@@ -7122,13 +7132,14 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
             sound = SFX_TYPE_IDLE;
 
-            if (unit->orders == ORDER_BUILD && (unit->state == ORDER_STATE_11 || unit->state == ORDER_STATE_1)) {
+            if (unit->GetOrder() == ORDER_BUILD &&
+                (unit->GetOrderState() == ORDER_STATE_11 || unit->GetOrderState() == ORDER_STATE_1)) {
                 sound = SFX_TYPE_BUILDING;
 
-            } else if (unit->orders == ORDER_CLEAR && unit->state == ORDER_STATE_IN_PROGRESS) {
+            } else if (unit->GetOrder() == ORDER_CLEAR && unit->GetOrderState() == ORDER_STATE_IN_PROGRESS) {
                 sound = SFX_TYPE_BUILDING;
 
-            } else if (unit->orders == ORDER_POWER_ON && unit->state == ORDER_STATE_1) {
+            } else if (unit->GetOrder() == ORDER_POWER_ON && unit->GetOrderState() == ORDER_STATE_1) {
                 sound = SFX_TYPE_BUILDING;
             }
 
@@ -7362,16 +7373,16 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
                     power_need -= cargo.power;
                 }
 
-                const bool upgrade_all = (*it).orders == ORDER_UPGRADE && (*it).state == ORDER_STATE_1;
+                const bool upgrade_all = (*it).GetOrder() == ORDER_UPGRADE && (*it).GetOrderState() == ORDER_STATE_1;
 
                 if (upgrade_all) {
-                    std::swap((*it).orders, (*it).prior_orders);
+                    (*it).SetPriorOrder((*it).SetOrder((*it).GetPriorOrder()));
                 }
 
                 cargo = Cargo_GetNetProduction(it->Get());
 
                 if (upgrade_all) {
-                    std::swap((*it).orders, (*it).prior_orders);
+                    (*it).SetPriorOrder((*it).SetOrder((*it).GetPriorOrder()));
                 }
 
                 if (cargo.power >= 0) {
@@ -7433,16 +7444,16 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
                     life_need -= cargo.life;
                 }
 
-                const bool upgrade_all = (*it).orders == ORDER_UPGRADE && (*it).state == ORDER_STATE_1;
+                const bool upgrade_all = (*it).GetOrder() == ORDER_UPGRADE && (*it).GetOrderState() == ORDER_STATE_1;
 
                 if (upgrade_all) {
-                    std::swap((*it).orders, (*it).prior_orders);
+                    (*it).SetPriorOrder((*it).SetOrder((*it).GetPriorOrder()));
                 }
 
                 cargo = Cargo_GetNetProduction(it->Get());
 
                 if (upgrade_all) {
-                    std::swap((*it).orders, (*it).prior_orders);
+                    (*it).SetPriorOrder((*it).SetOrder((*it).GetPriorOrder()));
                 }
 
                 if (cargo.life >= 0) {
@@ -7496,7 +7507,7 @@ void GameManager_DrawInfoDisplayType3(UnitInfo* unit) {
 SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
     SmartString message;
 
-    if (unit->orders == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
+    if (unit->GetOrder() == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
         if (unit->recoil_delay == 1) {
             message = _(54ba);
 
@@ -7505,9 +7516,10 @@ SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
         }
 
     } else {
-        message = GameManager_OrderStatusMessages[unit->orders];
+        message = GameManager_OrderStatusMessages[unit->GetOrder()];
 
-        if ((unit->orders == ORDER_AWAIT || unit->orders == ORDER_MOVE) && unit->team == GameManager_PlayerTeam) {
+        if ((unit->GetOrder() == ORDER_AWAIT || unit->GetOrder() == ORDER_MOVE) &&
+            unit->team == GameManager_PlayerTeam) {
             if (unit->auto_survey) {
                 message = _(2a38);
             }
@@ -7773,7 +7785,7 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
     if (unit->GetUnitType() == BULLDOZR) {
         string.Sprintf(80, _(af4a), unit->build_time);
 
-    } else if (unit->state == ORDER_STATE_UNIT_READY) {
+    } else if (unit->GetOrderState() == ORDER_STATE_UNIT_READY) {
         BaseUnit* base_unit1 = &UnitsManager_BaseUnits[unit->GetUnitType()];
         BaseUnit* base_unit2 = &UnitsManager_BaseUnits[unit->GetParent()->GetUnitType()];
 
@@ -7790,7 +7802,7 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
 
         SDL_assert(build_list.GetCount() > 0);
 
-        if (unit->orders == ORDER_HALT_BUILDING || unit->orders == ORDER_HALT_BUILDING_2) {
+        if (unit->GetOrder() == ORDER_HALT_BUILDING || unit->GetOrder() == ORDER_HALT_BUILDING_2) {
             string.Sprintf(200, _(cdf8), UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
 
         } else {
@@ -7871,34 +7883,34 @@ void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
         if (unit->GetUnitType() == SURVEYOR) {
             SoundManager_PlayVoice(V_M191, V_F192);
 
-        } else if (unit->orders == ORDER_MOVE_TO_ATTACK) {
+        } else if (unit->GetOrder() == ORDER_MOVE_TO_ATTACK) {
             SoundManager_PlayVoice(V_M196, V_F198);
 
-        } else if ((unit->orders == ORDER_AWAIT || unit->orders == ORDER_MOVE) && unit->GetLayingState() == 2) {
+        } else if ((unit->GetOrder() == ORDER_AWAIT || unit->GetOrder() == ORDER_MOVE) && unit->GetLayingState() == 2) {
             SoundManager_PlayVoice(V_M181, V_F182);
 
-        } else if ((unit->orders == ORDER_AWAIT || unit->orders == ORDER_MOVE) && unit->GetLayingState() == 1) {
+        } else if ((unit->GetOrder() == ORDER_AWAIT || unit->GetOrder() == ORDER_MOVE) && unit->GetLayingState() == 1) {
             SoundManager_PlayVoice(V_M186, V_F187);
 
-        } else if (unit->orders == ORDER_CLEAR) {
+        } else if (unit->GetOrder() == ORDER_CLEAR) {
             SoundManager_PlayVoice(V_M171, V_F171);
 
-        } else if (unit->orders == ORDER_SENTRY &&
+        } else if (unit->GetOrder() == ORDER_SENTRY &&
                    (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {
             SoundManager_PlayVoice(V_M158, V_F158);
 
-        } else if (unit->orders == ORDER_BUILD) {
-            if (unit->state == ORDER_STATE_BUILDING_READY) {
+        } else if (unit->GetOrder() == ORDER_BUILD) {
+            if (unit->GetOrderState() == ORDER_STATE_BUILDING_READY) {
                 SoundManager_PlayVoice(V_M162, V_F165);
 
-            } else if (unit->state == ORDER_STATE_UNIT_READY) {
+            } else if (unit->GetOrderState() == ORDER_STATE_UNIT_READY) {
                 SoundManager_PlayVoice(V_M166, V_F169);
 
             } else {
                 SoundManager_PlayVoice(V_M284, V_F284);
             }
 
-        } else if (unit->GetUnitType() == RESEARCH && unit->orders == ORDER_POWER_ON &&
+        } else if (unit->GetUnitType() == RESEARCH && unit->GetOrder() == ORDER_POWER_ON &&
                    UnitsManager_TeamInfo[unit->team].research_topics[unit->research_topic].turns_to_complete == 0) {
             SoundManager_PlayVoice(V_M093, V_F093);
 
@@ -7909,7 +7921,7 @@ void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
 }
 
 void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
-    if (unit->orders == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
+    if (unit->GetOrder() == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
         GameManager_DrawDisabledUnitStatusMessage(unit);
     }
 
@@ -7917,8 +7929,8 @@ void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
         MessageManager_DrawMessage(UnitsManager_BaseUnits[unit->GetUnitType()].tutorial, 0, 0);
     }
 
-    if (unit->orders == ORDER_BUILD || unit->orders == ORDER_CLEAR || unit->orders == ORDER_HALT_BUILDING ||
-        unit->orders == ORDER_HALT_BUILDING_2) {
+    if (unit->GetOrder() == ORDER_BUILD || unit->GetOrder() == ORDER_CLEAR || unit->GetOrder() == ORDER_HALT_BUILDING ||
+        unit->GetOrder() == ORDER_HALT_BUILDING_2) {
         GameManager_DrawBuilderUnitStatusMessage(unit);
     }
 }
@@ -7945,8 +7957,8 @@ void GameManager_MenuDeinitDisplayControls() {
 
 void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint16_t* counts) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).build_time && (*it).orders != ORDER_HALT_BUILDING &&
-            (*it).orders != ORDER_HALT_BUILDING_2) {
+        if ((*it).team == team && (*it).build_time && (*it).GetOrder() != ORDER_HALT_BUILDING &&
+            (*it).GetOrder() != ORDER_HALT_BUILDING_2) {
             if ((*it).build_time <= (*it).GetBuildRate()) {
                 (*it).build_time = 0;
 

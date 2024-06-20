@@ -262,7 +262,7 @@ bool TaskAssistMove::Execute(UnitInfo& unit) {
         if (unit.storage > 0) {
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                if ((*it).orders == ORDER_IDLE && (*it).GetParent() == &unit && (*it).team == team) {
+                if ((*it).GetOrder() == ORDER_IDLE && (*it).GetParent() == &unit && (*it).team == team) {
                     if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
                         TaskMove* task_move =
                             new (std::nothrow) TaskMove(it->Get(), &TaskTransport_MoveFinishedCallback);

@@ -157,11 +157,11 @@ void TaskMove::Begin() {
     Task_RemoveMovementTasks(&*passenger);
     passenger->AddTask(this);
 
-    if (passenger->orders == ORDER_IDLE) {
+    if (passenger->GetOrder() == ORDER_IDLE) {
         RemindTurnStart(true);
     }
 
-    if (transporter_unit_type == INVALID_ID && passenger->orders != ORDER_IDLE) {
+    if (transporter_unit_type == INVALID_ID && passenger->GetOrder() != ORDER_IDLE) {
         Search(true);
     }
 }
@@ -170,7 +170,7 @@ void TaskMove::BeginTurn() {
     if (passenger) {
         AiLog log("Move %s: Begin Turn", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
 
-        if (passenger->orders == ORDER_IDLE && passenger->state == ORDER_STATE_4 &&
+        if (passenger->GetOrder() == ORDER_IDLE && passenger->GetOrderState() == ORDER_STATE_4 &&
             (passenger_destination.x < 0 || passenger_destination.y < 0)) {
             SmartPointer<UnitInfo> transport(passenger->GetParent());
 
@@ -995,7 +995,7 @@ void TaskMove::MoveAirUnit() {
                                         UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
                                         (*it).grid_y + 1);
 
-                                if ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1) {
+                                if ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_1) {
                                     log.Log("Blocker is moving.");
 
                                     class RemindTurnEnd* reminder = new (std::nothrow) class RemindTurnEnd(*this);
@@ -1034,8 +1034,8 @@ void TaskMove::MoveAirUnit() {
 
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
                          it != UnitsManager_MobileAirUnits.End(); ++it) {
-                        if ((*it).orders == ORDER_MOVE && (*it).state != ORDER_STATE_1 && (*it).team == team &&
-                            (*it).target_grid_x == passenger_waypoint.x &&
+                        if ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_1 &&
+                            (*it).team == team && (*it).target_grid_x == passenger_waypoint.x &&
                             (*it).target_grid_y == passenger_waypoint.y) {
                             log.Log("[%i,%i] is a destination for %s at [%i,%i].", passenger_waypoint.x + 1,
                                     passenger_waypoint.y + 1, UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name,

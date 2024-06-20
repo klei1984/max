@@ -64,7 +64,7 @@ void TaskMoveHome::PopulateTeamZones(uint8_t** map) {
 void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).orders != ORDER_IDLE &&
+        if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).GetOrder() != ORDER_IDLE &&
             (*it).ammo > (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
             (*it).hits == (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
             int32_t unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
@@ -94,7 +94,7 @@ void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
 
 void TaskMoveHome::PopulateOccupiedSites(uint8_t** map, SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).orders != ORDER_IDLE && (&*it) != &*unit) {
+        if ((*it).GetOrder() != ORDER_IDLE && (&*it) != &*unit) {
             Point site;
             Rect bounds;
 

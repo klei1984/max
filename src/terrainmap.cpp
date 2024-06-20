@@ -69,7 +69,7 @@ void TerrainMap::Init() {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
             if ((*it).GetUnitType() == BRIDGE || (*it).GetUnitType() == WTRPLTFM) {
-                if ((*it).orders != ORDER_IDLE && (*it).hits > 0) {
+                if ((*it).GetOrder() != ORDER_IDLE && (*it).hits > 0) {
                     water_map[(*it).grid_x][(*it).grid_y] = TERRAINMAP_PATH_BLOCKED;
 
                     if ((*it).GetUnitType() == WTRPLTFM) {
@@ -81,7 +81,7 @@ void TerrainMap::Init() {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).orders != ORDER_IDLE && (*it).hits > 0 && (*it).GetUnitType() != CNCT_4W) {
+            if ((*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 && (*it).GetUnitType() != CNCT_4W) {
                 Rect bounds;
 
                 (*it).GetBounds(&bounds);

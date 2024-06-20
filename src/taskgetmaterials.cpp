@@ -129,7 +129,7 @@ void TaskGetMaterials::EventCargoTransfer(UnitInfo& unit) {
 void TaskGetMaterials::DoTransfer() {
     AiLog log("Task Get Materials: DoTransfer.");
 
-    if (source->orders != ORDER_TRANSFER) {
+    if (source->GetOrder() != ORDER_TRANSFER) {
         if (source->flags & STATIONARY) {
             Cargo materials;
             Cargo capacity;
@@ -205,7 +205,8 @@ void TaskGetMaterials::FindTruck() {
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW &&
             (*it).storage > 0 && (*it).hits > 0 &&
-            ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) && requestor != *it) {
+            ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
+            requestor != *it) {
             bool candidate_found;
 
             if ((*it).GetTask()) {

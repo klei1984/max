@@ -72,10 +72,10 @@ Cargo Cargo_GetNetProduction(UnitInfo* const unit, const bool current_order) {
     int32_t opponent;
     Cargo cargo;
 
-    orders = unit->orders;
+    orders = unit->GetOrder();
 
-    if (unit->state == ORDER_STATE_INIT && !current_order) {
-        orders = unit->prior_orders;
+    if (unit->GetOrderState() == ORDER_STATE_INIT && !current_order) {
+        orders = unit->GetPriorOrder();
     }
 
     switch (unit->GetUnitType()) {
@@ -84,7 +84,7 @@ Cargo Cargo_GetNetProduction(UnitInfo* const unit, const bool current_order) {
         case LANDPLT:
         case TRAINHAL:
         case AIRPLT: {
-            if (orders == ORDER_BUILD && unit->state != ORDER_STATE_UNIT_READY) {
+            if (orders == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_UNIT_READY) {
                 Cargo_ApplyUnitConsumption(unit->GetUnitType(), unit->GetMaxAllowedBuildRate(), cargo);
             }
         } break;

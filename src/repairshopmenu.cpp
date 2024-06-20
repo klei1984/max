@@ -844,7 +844,7 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
                         RepairShopMenu_ProcessOrders(&*unit, ORDER_ACTIVATE, true);
 
                     } else {
-                        while (unit->orders == ORDER_ACTIVATE) {
+                        while (unit->GetOrder() == ORDER_ACTIVATE) {
                             UnitsManager_ProcessOrders();
                             GameManager_ProcessState(true);
                         }
@@ -978,7 +978,7 @@ void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_ProcessOrders(UnitInfo *unit, uint8_t order, bool process_tick) {
-    while (unit->orders == order) {
+    while (unit->GetOrder() == order) {
         GameManager_ProcessState(process_tick);
     }
 

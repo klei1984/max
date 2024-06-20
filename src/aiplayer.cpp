@@ -331,8 +331,8 @@ void AiPlayer::DetermineResearchProjects() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == player_team && (*it).GetUnitType() == RESEARCH && (*it).orders == ORDER_POWER_ON &&
-            (*it).state != ORDER_STATE_INIT && (*it).research_topic != best_research_topic) {
+        if ((*it).team == player_team && (*it).GetUnitType() == RESEARCH && (*it).GetOrder() == ORDER_POWER_ON &&
+            (*it).GetOrderState() != ORDER_STATE_INIT && (*it).research_topic != best_research_topic) {
             ResearchMenu_UpdateResearchProgress(player_team, (*it).research_topic, -1);
             (*it).research_topic = best_research_topic;
             ResearchMenu_UpdateResearchProgress(player_team, (*it).research_topic, 1);
@@ -602,7 +602,7 @@ void AiPlayer::InvalidateThreatMaps() {
 
 void AiPlayer::DetermineDefenses(SmartList<UnitInfo>* units, int16_t** map) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).shots > 0 && (*it).orders != ORDER_IDLE && (*it).orders != ORDER_DISABLE) {
+        if ((*it).shots > 0 && (*it).GetOrder() != ORDER_IDLE && (*it).GetOrder() != ORDER_DISABLE) {
             int32_t unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
             if (!(*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
@@ -729,7 +729,7 @@ void AiPlayer::NormalizeThreatMap(ThreatMap* threat_map) {
 bool AiPlayer::IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, uint16_t team) {
     bool result;
 
-    if (attacker->ammo > 0 && attacker->orders != ORDER_DISABLE && attacker->orders != ORDER_IDLE &&
+    if (attacker->ammo > 0 && attacker->GetOrder() != ORDER_DISABLE && attacker->GetOrder() != ORDER_IDLE &&
         attacker->hits > 0 && Access_IsValidAttackTargetType(attacker->GetUnitType(), target_type)) {
         if (attacker->GetUnitType() != LANDMINE && attacker->GetUnitType() != SEAMINE) {
             if ((attacker->GetUnitType() != COMMANDO && attacker->GetUnitType() != SUBMARNE) ||
@@ -927,7 +927,7 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
             int16_t** active_damage_potential_map = AiPlayer_ThreatMaps[index].damage_potential_map;
 
             for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
-                if ((*it).GetUnit()->orders == ORDER_DISABLE) {
+                if ((*it).GetUnit()->GetOrder() == ORDER_DISABLE) {
                     ZoneWalker walker((*it).GetLastPosition(), 4);
 
                     do {
@@ -1985,7 +1985,8 @@ void AiPlayer::ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == player_team && (*it).orders == ORDER_BUILD && (*it).state != ORDER_STATE_UNIT_READY) {
+        if ((*it).team == player_team && (*it).GetOrder() == ORDER_BUILD &&
+            (*it).GetOrderState() != ORDER_STATE_UNIT_READY) {
             ResourceID constructed_unit_type = (*it).GetConstructedUnitType();
 
             if (unit_types->Find(&constructed_unit_type) < 0) {
@@ -1996,7 +1997,8 @@ void AiPlayer::ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == player_team && (*it).orders == ORDER_BUILD && (*it).state != ORDER_STATE_UNIT_READY) {
+        if ((*it).team == player_team && (*it).GetOrder() == ORDER_BUILD &&
+            (*it).GetOrderState() != ORDER_STATE_UNIT_READY) {
             ResourceID constructed_unit_type = (*it).GetConstructedUnitType();
 
             if (unit_types->Find(&constructed_unit_type) < 0) {
@@ -2406,7 +2408,7 @@ void AiPlayer::BeginTurn() {
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
                  it != UnitsManager_GroundCoverUnits.End(); ++it) {
-                if ((*it).team == player_team && (*it).orders != ORDER_IDLE &&
+                if ((*it).team == player_team && (*it).GetOrder() != ORDER_IDLE &&
                     ((*it).GetUnitType() == WTRPLTFM || (*it).GetUnitType() == BRIDGE)) {
                     AddBuilding(&*it);
                 }
@@ -2414,21 +2416,22 @@ void AiPlayer::BeginTurn() {
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                  it != UnitsManager_StationaryUnits.End(); ++it) {
-                if ((*it).team == player_team && (*it).orders != ORDER_IDLE) {
+                if ((*it).team == player_team && (*it).GetOrder() != ORDER_IDLE) {
                     AddBuilding(&*it);
                 }
             }
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                if ((*it).team == player_team && (*it).orders == ORDER_BUILD) {
+                if ((*it).team == player_team && (*it).GetOrder() == ORDER_BUILD) {
                     AddBuilding(&*it);
                 }
             }
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                if ((*it).team == player_team && (*it).orders == ORDER_IDLE && (*it).state == ORDER_STATE_4) {
+                if ((*it).team == player_team && (*it).GetOrder() == ORDER_IDLE &&
+                    (*it).GetOrderState() == ORDER_STATE_4) {
                     SmartPointer<Task> move(new (std::nothrow) TaskMove(&*it, &MoveFinishedCallback));
 
                     TaskManager.AppendTask(*move);
@@ -2546,7 +2549,7 @@ void AiPlayer::BeginTurn() {
                     DetermineAttack(&*it, 0x1000);
 
                 } else if (target->team == target_team || target->team == PLAYER_TEAM_ALIEN) {
-                    if ((target->GetUnitType() == CONSTRCT && target->orders == ORDER_BUILD) ||
+                    if ((target->GetUnitType() == CONSTRCT && target->GetOrder() == ORDER_BUILD) ||
                         IsKeyFacility(target->GetUnitType()) ||
                         (target->team == PLAYER_TEAM_ALIEN &&
                          (target->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)))) {
@@ -2567,8 +2570,8 @@ void AiPlayer::BeginTurn() {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == player_team && (*it).GetUnitType() == MININGST && (*it).orders != ORDER_POWER_ON &&
-                (*it).orders != ORDER_IDLE) {
+            if ((*it).team == player_team && (*it).GetUnitType() == MININGST && (*it).GetOrder() != ORDER_POWER_ON &&
+                (*it).GetOrder() != ORDER_IDLE) {
                 UnitsManager_SetNewOrder(&*it, ORDER_POWER_ON, ORDER_STATE_INIT);
             }
         }
@@ -2579,7 +2582,7 @@ void AiPlayer::BeginTurn() {
                 if ((*it).team == player_team &&
                     ((*it).GetUnitType() == COMMTWR || (*it).GetUnitType() == GREENHSE ||
                      (*it).GetUnitType() == RESEARCH) &&
-                    (*it).orders != ORDER_POWER_ON && (*it).orders != ORDER_IDLE) {
+                    (*it).GetOrder() != ORDER_POWER_ON && (*it).GetOrder() != ORDER_IDLE) {
                     UnitsManager_SetNewOrder(&*it, ORDER_POWER_ON, ORDER_STATE_INIT);
                 }
             }

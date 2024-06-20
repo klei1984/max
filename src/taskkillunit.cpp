@@ -322,8 +322,8 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
 
     for (SmartList<UnitInfo>::Iterator it = units_->Begin(); it != units_->End(); ++it) {
         if ((*it).team == team && (*it).hits > 0 && (*it).ammo > 0) {
-            if ((*it).orders == ORDER_AWAIT || (*it).orders == ORDER_SENTRY || (*it).orders == ORDER_MOVE ||
-                (*it).orders == ORDER_MOVE_TO_UNIT) {
+            if ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY || (*it).GetOrder() == ORDER_MOVE ||
+                (*it).GetOrder() == ORDER_MOVE_TO_UNIT) {
                 is_found = false;
 
                 if ((*it).GetTask()) {

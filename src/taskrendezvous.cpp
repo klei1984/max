@@ -164,9 +164,9 @@ void TaskRendezvous::BeginTurn() { EndTurn(); }
 
 void TaskRendezvous::EndTurn() {
     if (unit1 != nullptr && unit2 != nullptr) {
-        if (unit2->orders == ORDER_AWAIT && unit2->GetTask() == this && unit2->speed) {
+        if (unit2->GetOrder() == ORDER_AWAIT && unit2->GetTask() == this && unit2->speed) {
             Execute(*unit2);
-        } else if (unit1->orders == ORDER_AWAIT && unit1->GetTask() == this && unit1->speed) {
+        } else if (unit1->GetOrder() == ORDER_AWAIT && unit1->GetTask() == this && unit1->speed) {
             Execute(*unit1);
         }
     }

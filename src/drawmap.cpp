@@ -298,8 +298,9 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t ul
         UnitInfo* parent = unit->GetParent();
 
         if (parent) {
-            if ((unit->orders == ORDER_IDLE || (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY &&
-                                                (unit->flags & STATIONARY) == 0)) &&
+            if ((unit->GetOrder() == ORDER_IDLE ||
+                 (unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() == ORDER_STATE_UNIT_READY &&
+                  (unit->flags & STATIONARY) == 0)) &&
                 parent->GetUnitType() != AIRTRANS) {
                 Point point(parent->grid_x - 1, parent->grid_y + 1);
                 int32_t limit;
@@ -355,8 +356,9 @@ void DrawMap_RenderBuildMarker() {
         unit = &*GameManager_SelectedUnit;
 
         if (unit->team == GameManager_PlayerTeam &&
-            (unit->orders == ORDER_IDLE ||
-             (unit->orders == ORDER_BUILD && unit->state == ORDER_STATE_UNIT_READY && !(unit->flags & STATIONARY)))) {
+            (unit->GetOrder() == ORDER_IDLE ||
+             (unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() == ORDER_STATE_UNIT_READY &&
+              !(unit->flags & STATIONARY)))) {
             struct ImageSimpleHeader* image;
 
             --DrawMap_BuildMMarkDelayCounter;
@@ -436,7 +438,7 @@ void DrawMap_RenderBarDisplay(WindowInfo* window, int32_t ulx, int32_t uly, int3
 void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32_t width, int32_t height) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
-    if (unit->orders == ORDER_DISABLE) {
+    if (unit->GetOrder() == ORDER_DISABLE) {
         struct ImageSimpleHeader* image;
 
         image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(IL_DSBLD));
@@ -736,12 +738,12 @@ void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int32_t color) {
 void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
     char text[400];
 
-    if (unit->GetUnitType() == RESEARCH && unit->orders == ORDER_POWER_ON &&
+    if (unit->GetUnitType() == RESEARCH && unit->GetOrder() == ORDER_POWER_ON &&
         UnitsManager_TeamInfo[unit->team].research_topics[unit->research_topic].turns_to_complete == 0) {
         sprintf(text, _(e3a4), ResearchMenu_TopicLabels[unit->research_topic]);
         DrawMap_RenderTextBox(unit, text, GNW_TEXT_OUTLINE | 0x1F);
 
-    } else if (unit->state == ORDER_STATE_UNIT_READY) {
+    } else if (unit->GetOrderState() == ORDER_STATE_UNIT_READY) {
         UnitInfo* parent = unit->GetParent();
 
         if (parent) {
@@ -774,7 +776,8 @@ void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode) {
 
     if ((unit->flags & SELECTABLE) && GameManager_IsAtGridPosition(unit)) {
         if (unit->team == GameManager_PlayerTeam &&
-            (unit->state == ORDER_STATE_NEW_ORDER || unit->state == ORDER_STATE_29) && unit->path == nullptr) {
+            (unit->GetOrderState() == ORDER_STATE_NEW_ORDER || unit->GetOrderState() == ORDER_STATE_29) &&
+            unit->path == nullptr) {
             DrawMap_RenderWaitBulb(unit);
         }
 
@@ -824,7 +827,7 @@ void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) &&
-            (Gfx_ZoomLevel > 4 || !((*it).flags & GROUND_COVER)) && (*it).orders != ORDER_IDLE &&
+            (Gfx_ZoomLevel > 4 || !((*it).flags & GROUND_COVER)) && (*it).GetOrder() != ORDER_IDLE &&
             ((*it).flags & SELECTABLE) &&
             (!GameManager_DisplayButtonMinimapTnt || ((*it).flags & (HAS_FIRING_SPRITE | FIRES_MISSILES)))) {
             int32_t color;

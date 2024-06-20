@@ -48,10 +48,10 @@ bool TaskObtainUnits::IsValidCandidate(UnitInfo* unit, bool mode) {
     if (team != unit->team || unit->hits <= 0) {
         result = false;
 
-    } else if (unit->orders != ORDER_AWAIT && unit->orders != ORDER_SENTRY &&
-               (unit->orders != ORDER_MOVE || unit->state != ORDER_STATE_1) &&
-               (unit->orders != ORDER_MOVE_TO_UNIT || unit->state != ORDER_STATE_1) &&
-               (unit->orders != ORDER_MOVE_TO_ATTACK || unit->state != ORDER_STATE_1)) {
+    } else if (unit->GetOrder() != ORDER_AWAIT && unit->GetOrder() != ORDER_SENTRY &&
+               (unit->GetOrder() != ORDER_MOVE || unit->GetOrderState() != ORDER_STATE_1) &&
+               (unit->GetOrder() != ORDER_MOVE_TO_UNIT || unit->GetOrderState() != ORDER_STATE_1) &&
+               (unit->GetOrder() != ORDER_MOVE_TO_ATTACK || unit->GetOrderState() != ORDER_STATE_1)) {
         result = false;
 
     } else {
@@ -97,7 +97,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
 
     for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != list->End(); ++unit) {
         if ((*unit).GetUnitType() == unit_type) {
-            if ((*unit).orders == ORDER_BUILD &&
+            if ((*unit).GetOrder() == ORDER_BUILD &&
                 ((*unit).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {
                 speed = (*unit).build_time * (*unit).GetBaseValues()->GetAttribute(ATTRIB_SPEED) +
                         TaskManager_GetDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
@@ -244,7 +244,7 @@ void TaskObtainUnits::EndTurn() {
                 if (task) {
                     unit->RemoveTasks();
 
-                    if (unit->orders != ORDER_AWAIT) {
+                    if (unit->GetOrder() != ORDER_AWAIT) {
                         UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_CLEAR_PATH);
                     }
                 }

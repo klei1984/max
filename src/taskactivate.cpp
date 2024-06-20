@@ -39,10 +39,10 @@ void TaskActivate::Activate() {
         if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
                 if (unit_to_activate->GetTask() == this && zone == nullptr) {
-                    if (unit_to_activate->orders == ORDER_IDLE || unit_to_activate->orders == ORDER_BUILD ||
-                        unit_to_activate->orders == ORDER_AWAIT) {
+                    if (unit_to_activate->GetOrder() == ORDER_IDLE || unit_to_activate->GetOrder() == ORDER_BUILD ||
+                        unit_to_activate->GetOrder() == ORDER_AWAIT) {
                         if (unit_parent != nullptr) {
-                            if (unit_to_activate->orders == ORDER_AWAIT) {
+                            if (unit_to_activate->GetOrder() == ORDER_AWAIT) {
                                 Rect bounds;
 
                                 rect_init(&bounds, 0, 0, 0, 0);
@@ -64,8 +64,8 @@ void TaskActivate::Activate() {
                                       UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name,
                                       unit_parent->unit_id, unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
-                            if (unit_to_activate->orders != ORDER_IDLE || unit_parent->orders == ORDER_BUILD ||
-                                unit_parent->orders == ORDER_AWAIT) {
+                            if (unit_to_activate->GetOrder() != ORDER_IDLE || unit_parent->GetOrder() == ORDER_BUILD ||
+                                unit_parent->GetOrder() == ORDER_AWAIT) {
                                 Point position(unit_parent->grid_x - 1, unit_parent->grid_y);
                                 int32_t unit_size;
 
@@ -86,7 +86,7 @@ void TaskActivate::Activate() {
                                                                 position.y, 0x02)) {
                                             log.Log("Open square: [%i,%i].", position.x + 1, position.y + 1);
 
-                                            switch (unit_to_activate->orders) {
+                                            switch (unit_to_activate->GetOrder()) {
                                                 case ORDER_BUILD: {
                                                     unit_to_activate->target_grid_x = position.x;
                                                     unit_to_activate->target_grid_y = position.y;
@@ -116,8 +116,8 @@ void TaskActivate::Activate() {
                                             }
 
                                             log.Log("Unit order %s state %i.",
-                                                    UnitsManager_Orders[unit_to_activate->orders],
-                                                    unit_to_activate->state);
+                                                    UnitsManager_Orders[unit_to_activate->GetOrder()],
+                                                    unit_to_activate->GetOrderState());
 
                                             return;
                                         }
@@ -207,9 +207,9 @@ bool TaskActivate::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit_to_activate != nullptr && unit_to_activate == unit) {
-        if (unit_to_activate->orders != ORDER_IDLE && unit_to_activate->orders != ORDER_BUILD &&
-            unit_to_activate->orders != ORDER_EXPLODE && unit_to_activate->orders != ORDER_AWAIT_SCALING &&
-            unit_to_activate->state != ORDER_STATE_14) {
+        if (unit_to_activate->GetOrder() != ORDER_IDLE && unit_to_activate->GetOrder() != ORDER_BUILD &&
+            unit_to_activate->GetOrder() != ORDER_EXPLODE && unit_to_activate->GetOrder() != ORDER_AWAIT_SCALING &&
+            unit_to_activate->GetOrderState() != ORDER_STATE_14) {
             SmartPointer<Task> task(this);
             Rect bounds;
 

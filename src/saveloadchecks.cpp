@@ -199,7 +199,8 @@ bool SaveLoadChecks_Defect151() {
                 // the end node must be cached in case Hash_MapHash.Remove() deletes the list
                 for (auto hash_it = units->Begin(), hash_end = units->End(); hash_it != hash_end; ++hash_it) {
                     if (((*hash_it).flags & STATIONARY) && !((*hash_it).flags & (GROUND_COVER | CONNECTOR_UNIT)) &&
-                        !((*hash_it).orders == ORDER_IDLE && (*hash_it).state == ORDER_STATE_BUILDING_READY)) {
+                        !((*hash_it).GetOrder() == ORDER_IDLE &&
+                          (*hash_it).GetOrderState() == ORDER_STATE_BUILDING_READY)) {
                         AiLog log("Unit corruption detected. Connector at [%i,%i] overlaps with %s at [%i,%i].",
                                   (*it).grid_x + 1, (*it).grid_y + 1,
                                   UnitsManager_BaseUnits[(*hash_it).GetUnitType()].singular_name, (*hash_it).grid_x + 1,

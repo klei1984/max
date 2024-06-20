@@ -139,7 +139,7 @@ void TaskCreateUnit::BeginTurn() {
         WaitForMaterials();
     }
 
-    if (op_state == CREATE_UNIT_STATE_BUILDING && builder->state == ORDER_STATE_UNIT_READY) {
+    if (op_state == CREATE_UNIT_STATE_BUILDING && builder->GetOrderState() == ORDER_STATE_UNIT_READY) {
         op_state = CREATE_UNIT_STATE_ACTIVATING;
 
         builder->GetParent()->AddTask(this);
@@ -228,7 +228,7 @@ void TaskCreateUnit::WaitForMaterials() {
                         } else if ((*it).GetUnitType() == GREENHSE || (*it).GetUnitType() == COMMTWR) {
                             ++buildings_count;
 
-                        } else if ((*it).orders == ORDER_BUILD && (*it).state != ORDER_STATE_UNIT_READY) {
+                        } else if ((*it).GetOrder() == ORDER_BUILD && (*it).GetOrderState() != ORDER_STATE_UNIT_READY) {
                             int32_t consumption = Cargo_GetPowerConsumptionRate((*it).GetUnitType());
 
                             if (consumption > 0) {
@@ -257,7 +257,7 @@ void TaskCreateUnit::WaitForMaterials() {
                          it != UnitsManager_StationaryUnits.End(); ++it) {
                         if (buildings_to_shut_down > 0) {
                             if ((*it).team == team && (*it).GetUnitType() == GREENHSE &&
-                                (*it).orders == ORDER_POWER_ON) {
+                                (*it).GetOrder() == ORDER_POWER_ON) {
                                 UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                                 --buildings_to_shut_down;
@@ -272,7 +272,7 @@ void TaskCreateUnit::WaitForMaterials() {
                          it != UnitsManager_StationaryUnits.End(); ++it) {
                         if (buildings_to_shut_down > 0) {
                             if ((*it).team == team && (*it).GetUnitType() == COMMTWR &&
-                                (*it).orders == ORDER_POWER_ON) {
+                                (*it).GetOrder() == ORDER_POWER_ON) {
                                 UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                                 --buildings_to_shut_down;
@@ -325,7 +325,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 result = true;
 
             } else if (builder && op_state == CREATE_UNIT_STATE_BUILDING &&
-                       (builder->state != ORDER_STATE_1 ||
+                       (builder->GetOrderState() != ORDER_STATE_1 ||
                         builder->build_time != BuildMenu_GetTurnsToBuild(unit_type, team))) {
                 result = true;
 

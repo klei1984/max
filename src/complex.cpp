@@ -88,8 +88,8 @@ void Complex::GetCargoMinable(Cargo& capacity) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetComplex() == this && (*it).orders != ORDER_POWER_OFF && (*it).orders != ORDER_DISABLE &&
-            (*it).orders != ORDER_IDLE) {
+        if ((*it).GetComplex() == this && (*it).GetOrder() != ORDER_POWER_OFF && (*it).GetOrder() != ORDER_DISABLE &&
+            (*it).GetOrder() != ORDER_IDLE) {
             Cargo cargo = Cargo_GetNetProduction(it->Get());
 
             if ((*it).GetUnitType() == MININGST) {
@@ -115,8 +115,8 @@ void Complex::GetCargoMining(Cargo& materials, Cargo& capacity) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetComplex() == this && (*it).GetUnitType() == MININGST && (*it).orders != ORDER_POWER_OFF &&
-            (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
+        if ((*it).GetComplex() == this && (*it).GetUnitType() == MININGST && (*it).GetOrder() != ORDER_POWER_OFF &&
+            (*it).GetOrder() != ORDER_DISABLE && (*it).GetOrder() != ORDER_IDLE) {
             materials.gold += (*it).gold_mining;
             materials.raw += (*it).raw_mining;
             materials.fuel += (*it).fuel_mining;

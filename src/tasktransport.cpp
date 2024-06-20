@@ -44,7 +44,7 @@ void TaskTransport::AddClients(SmartList<TaskMove>* list) {
     if (unit_transporter && unit_transporter->storage) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).orders == ORDER_IDLE && unit_transporter == (*it).GetParent() && (*it).team == team) {
+            if ((*it).GetOrder() == ORDER_IDLE && unit_transporter == (*it).GetParent() && (*it).team == team) {
                 if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
                     TaskMove* task = new (std::nothrow) TaskMove(&*it, &TaskTransport_MoveFinishedCallback);
 
@@ -173,7 +173,7 @@ bool TaskTransport::ChooseNewTask() {
 
             if (move_tasks.GetCount()) {
                 for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
-                    if ((*it).GetPassenger() && (*it).GetPassenger()->orders != ORDER_IDLE &&
+                    if ((*it).GetPassenger() && (*it).GetPassenger()->GetOrder() != ORDER_IDLE &&
                         (*it).GetTransporterType() != INVALID_ID) {
                         distance = Access_GetDistance((*it).GetPassenger(), position);
 
@@ -302,7 +302,7 @@ void TaskTransport::AddClient(TaskMove* move) {
 
 void TaskTransport::RemoveClient(TaskMove* move) {
     if (move->GetPassenger()) {
-        if (move->GetPassenger()->orders != ORDER_IDLE) {
+        if (move->GetPassenger()->GetOrder() != ORDER_IDLE) {
             move->RemoveTransport();
         }
 
@@ -356,7 +356,7 @@ char* TaskTransport::WriteStatusLog(char* buffer) const {
 
     if (unit_transporter || !task_obtain_units) {
         if (task_move && task_move->GetPassenger()) {
-            if (task_move->GetPassenger()->orders == ORDER_IDLE) {
+            if (task_move->GetPassenger()->GetOrder() == ORDER_IDLE) {
                 if (unit_transporter && unit_transporter->storage > 0) {
                     char unit_name[40];
 
@@ -498,7 +498,7 @@ bool TaskTransport::Execute(UnitInfo& unit) {
                 distance = 3;
             }
 
-            if (task_move->GetPassenger()->orders == ORDER_IDLE) {
+            if (task_move->GetPassenger()->GetOrder() == ORDER_IDLE) {
                 if (unit.storage > 0) {
                     Point destination = task_move->GetDestination();
 
@@ -643,7 +643,7 @@ void TaskTransport::EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2) {
 }
 
 void TaskTransport::EventZoneCleared(Zone* zone, bool status) {
-    if (status && unit_transporter && unit_transporter->orders == ORDER_AWAIT) {
+    if (status && unit_transporter && unit_transporter->GetOrder() == ORDER_AWAIT) {
         Task_RemindMoveFinished(&*unit_transporter);
     }
 }

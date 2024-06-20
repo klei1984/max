@@ -91,6 +91,10 @@ private:
     char* name;
     uint8_t sound;
     ResourceID unit_type;
+    uint8_t orders;
+    uint8_t prior_orders;
+    uint8_t state;
+    uint8_t prior_state;
 
 public:
     /**
@@ -102,7 +106,7 @@ public:
      * Construct a particular unit type for a given team.
      *
      * \param unit_type one of the ResourceID enum values below UNIT_END
-     * \param team unit one of the PlayerTeam enum values
+     * \param team unit one of the PlayerTeamType enum values
      * \param id unit hash between 0x0000 - 0xFFFE, 0xFFFF is the invalid id
      * \param angle one of the UnitAngle enum values
      */
@@ -166,6 +170,66 @@ public:
      * \param unit_type one of the ResourceID enum values below UNIT_END
      */
     void SetUnitType(ResourceID unit_type) noexcept;
+
+    /**
+     * Get the current order of unit.
+     *
+     * \returns one of the UnitOrderType enum values.
+     */
+    [[nodiscard]] uint8_t GetOrder() const noexcept;
+
+    /**
+     * Set current order of unit. The prior order is not changed.
+     *
+     * \param order one of the UnitOrderType enum values.
+     * \returns the previous value of the current unit order.
+     */
+    uint8_t SetOrder(uint8_t order) noexcept;
+
+    /**
+     * Get the prior order of unit.
+     *
+     * \returns one of the UnitOrderType enum values.
+     */
+    [[nodiscard]] uint8_t GetPriorOrder() const noexcept;
+
+    /**
+     * Set prior order of unit. The current order is not changed.
+     *
+     * \param order one of the UnitOrderType enum values.
+     * \returns the previous value of the prior unit order.
+     */
+    uint8_t SetPriorOrder(uint8_t order) noexcept;
+
+    /**
+     * Get the current order state of unit.
+     *
+     * \returns one of the UnitOrderStateType enum values.
+     */
+    [[nodiscard]] uint8_t GetOrderState() const noexcept;
+
+    /**
+     * Set current order state of unit. The prior order state is not changed.
+     *
+     * \param order_state one of the UnitOrderStateType enum values.
+     * \returns the previous value of the current unit order state.
+     */
+    uint8_t SetOrderState(uint8_t order_state) noexcept;
+
+    /**
+     * Get the prior order state of unit.
+     *
+     * \returns one of the UnitOrderStateType enum values.
+     */
+    [[nodiscard]] uint8_t GetPriorOrderState() const noexcept;
+
+    /**
+     * Set prior order state of unit. The current order state is not changed.
+     *
+     * \param order_state one of the UnitOrderStateType enum values.
+     * \returns the previous value of the prior unit order state.
+     */
+    uint8_t SetPriorOrderState(uint8_t order_state) noexcept;
 
     static FileObject* Allocate() noexcept;
     uint16_t GetTypeIndex() const;
@@ -320,10 +384,6 @@ public:
     int16_t firing_image_base;
     int16_t connector_image_base;
     int16_t image_index_max;
-    uint8_t orders;
-    uint8_t state;
-    uint8_t prior_orders;
-    uint8_t prior_state;
     int16_t target_grid_x;
     int16_t target_grid_y;
     uint8_t build_time;

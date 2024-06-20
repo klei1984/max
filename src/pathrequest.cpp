@@ -54,10 +54,10 @@ bool PathRequest::PathRequest_Vfunc1() { return false; }
 
 void PathRequest::Cancel() {
     if (client->hits &&
-        (client->orders == ORDER_MOVE || client->orders == ORDER_MOVE_TO_UNIT ||
-         client->orders == ORDER_MOVE_TO_ATTACK) &&
-        client->state == ORDER_STATE_NEW_ORDER) {
-        UnitsManager_SetNewOrder(&*client, client->orders, ORDER_STATE_12);
+        (client->GetOrder() == ORDER_MOVE || client->GetOrder() == ORDER_MOVE_TO_UNIT ||
+         client->GetOrder() == ORDER_MOVE_TO_ATTACK) &&
+        client->GetOrderState() == ORDER_STATE_NEW_ORDER) {
+        UnitsManager_SetNewOrder(&*client, client->GetOrder(), ORDER_STATE_12);
     }
 
     Access_ProcessNewGroupOrder(&*client);
@@ -144,19 +144,19 @@ void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
 
 void PathRequest::Finish(GroundPath* path) {
     if (client->hits > 0 &&
-        (client->orders == ORDER_MOVE || client->orders == ORDER_MOVE_TO_UNIT || client->orders == ORDER_BUILD ||
-         client->orders == ORDER_MOVE_TO_ATTACK) &&
-        (client->state == ORDER_STATE_NEW_ORDER || client->state == ORDER_STATE_29)) {
-        uint8_t unit1_order_state = client->state;
+        (client->GetOrder() == ORDER_MOVE || client->GetOrder() == ORDER_MOVE_TO_UNIT ||
+         client->GetOrder() == ORDER_BUILD || client->GetOrder() == ORDER_MOVE_TO_ATTACK) &&
+        (client->GetOrderState() == ORDER_STATE_NEW_ORDER || client->GetOrderState() == ORDER_STATE_29)) {
+        uint8_t unit1_order_state = client->GetOrderState();
 
         client->path = path;
 
-        if (client->orders == ORDER_MOVE_TO_ATTACK && path != nullptr) {
+        if (client->GetOrder() == ORDER_MOVE_TO_ATTACK && path != nullptr) {
             AssignGroundPath(&*client, path);
         }
 
         if (client->path == nullptr) {
-            if (client->orders == ORDER_MOVE_TO_ATTACK) {
+            if (client->GetOrder() == ORDER_MOVE_TO_ATTACK) {
                 int32_t range = client->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                 range = range * range;
@@ -181,16 +181,16 @@ void PathRequest::Finish(GroundPath* path) {
             }
 
         } else {
-            if (client->orders == ORDER_BUILD) {
+            if (client->GetOrder() == ORDER_BUILD) {
                 if (Remote_IsNetworkGame) {
                     Remote_SendNetPacket_38(&*client);
                 }
 
                 UnitsManager_StartBuild(&*client);
 
-            } else if (client->state == ORDER_STATE_29) {
-                if (client->orders == ORDER_MOVE_TO_ATTACK) {
-                    client->state = ORDER_STATE_1;
+            } else if (client->GetOrderState() == ORDER_STATE_29) {
+                if (client->GetOrder() == ORDER_MOVE_TO_ATTACK) {
+                    client->SetOrderState(ORDER_STATE_1);
 
                 } else {
                     client->RestoreOrders();
@@ -211,7 +211,7 @@ void PathRequest::Finish(GroundPath* path) {
 
             } else {
                 client->Redraw();
-                client->state = ORDER_STATE_IN_PROGRESS;
+                client->SetOrderState(ORDER_STATE_IN_PROGRESS);
 
                 if (Remote_IsNetworkGame) {
                     Remote_SendNetPacket_38(&*client);

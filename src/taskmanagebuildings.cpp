@@ -971,8 +971,8 @@ int32_t TaskManageBuildings::GetHighestGreenHouseCount(uint16_t team_) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).GetUnitType() == CONSTRCT && (*it).orders == ORDER_BUILD && (*it).state == ORDER_STATE_11 &&
-            (*it).GetConstructedUnitType() == GREENHSE) {
+        if ((*it).GetUnitType() == CONSTRCT && (*it).GetOrder() == ORDER_BUILD &&
+            (*it).GetOrderState() == ORDER_STATE_11 && (*it).GetConstructedUnitType() == GREENHSE) {
             ++greenhouse_counts[(*it).team];
         }
     }
@@ -2144,7 +2144,7 @@ void TaskManageBuildings::AddUnit(UnitInfo& unit) {
     if (unit.flags & STATIONARY) {
         units.PushBack(unit);
 
-        if (unit.orders == ORDER_BUILD || unit.orders == ORDER_HALT_BUILDING) {
+        if (unit.GetOrder() == ORDER_BUILD || unit.GetOrder() == ORDER_HALT_BUILDING) {
             SmartPointer<TaskCreateUnit> create_unit_task(new (std::nothrow) TaskCreateUnit(&unit, this));
 
             TaskManager.AppendTask(*create_unit_task);

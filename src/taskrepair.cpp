@@ -273,7 +273,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
         if (IsInPerfectCondition()) {
             SmartPointer<Task> task;
 
-            if (target_unit->state == ORDER_STATE_3) {
+            if (target_unit->GetOrderState() == ORDER_STATE_3) {
                 task = new (std::nothrow) TaskActivate(&*target_unit, this, target_unit->GetParent());
 
                 TaskManager.AppendTask(*task);
@@ -309,7 +309,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                 }
 
             } else {
-                if (target_unit->state == ORDER_STATE_3) {
+                if (target_unit->GetOrderState() == ORDER_STATE_3) {
                     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam) {
                         log.Log("%s is inside %s.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
                                 UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
@@ -329,7 +329,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
                                 (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
                                 if (operator_unit->flags & STATIONARY) {
-                                    if (target_unit->orders == ORDER_AWAIT) {
+                                    if (target_unit->GetOrder() == ORDER_AWAIT) {
                                         // only enter repair shop if there is free capacity in it
                                         if (Access_GetStoredUnitCount(&*operator_unit) <
                                             operator_unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
@@ -453,7 +453,7 @@ void TaskRepair::SelectOperator() {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
             if ((*it).team == team && (*it).GetUnitType() == REPAIR && (*it).hits > 0 &&
-                ((*it).orders == ORDER_AWAIT || ((*it).orders == ORDER_MOVE && (*it).speed == 0)) &&
+                ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
                 if ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) {
                     distance = TaskManager_GetDistance(&*it, &*target_unit);
@@ -488,7 +488,7 @@ bool TaskRepair::IsInPerfectCondition() {
     if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
         result = false;
 
-    } else if (target_unit->state != ORDER_STATE_3 ||
+    } else if (target_unit->GetOrderState() != ORDER_STATE_3 ||
                target_unit->ammo >= target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
         result = true;
 
@@ -522,7 +522,7 @@ void TaskRepair::IssueOrder() {
         UnitsManager_SetNewOrder(&*operator_unit, ORDER_REPAIR, ORDER_STATE_INIT);
 
     } else if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) &&
-               target_unit->state == ORDER_STATE_3) {
+               target_unit->GetOrderState() == ORDER_STATE_3) {
         UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);
     }
 }

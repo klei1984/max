@@ -126,16 +126,16 @@ ProductionManager::ProductionManager(const uint16_t team, Complex* const complex
                 net_production.life += cargo.life;
             }
 
-            if ((*it).GetUnitType() == POWGEN && (*it).orders != ORDER_DISABLE) {
-                if ((*it).orders == ORDER_POWER_ON) {
+            if ((*it).GetUnitType() == POWGEN && (*it).GetOrder() != ORDER_DISABLE) {
+                if ((*it).GetOrder() == ORDER_POWER_ON) {
                     ++power_generator_active;
                 }
 
                 ++power_generator_count;
             }
 
-            if ((*it).GetUnitType() == POWERSTN && (*it).orders != ORDER_DISABLE) {
-                if ((*it).orders == ORDER_POWER_ON) {
+            if ((*it).GetUnitType() == POWERSTN && (*it).GetOrder() != ORDER_DISABLE) {
+                if ((*it).GetOrder() == ORDER_POWER_ON) {
                     ++power_station_active;
                 }
 
@@ -143,7 +143,7 @@ ProductionManager::ProductionManager(const uint16_t team, Complex* const complex
             }
 
             if ((*it).GetUnitType() == MININGST &&
-                ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_NEW_ALLOCATE)) {
+                ((*it).GetOrder() == ORDER_POWER_ON || (*it).GetOrder() == ORDER_NEW_ALLOCATE)) {
                 production_capacity.raw += std::min(static_cast<int32_t>((*it).raw_mining_max), 16);
                 production_capacity.fuel += std::min(static_cast<int32_t>((*it).fuel_mining_max), 16);
                 production_capacity.gold += std::min(static_cast<int32_t>((*it).gold_mining_max), 16);
@@ -161,8 +161,8 @@ ProductionManager::~ProductionManager() {}
 
 void ProductionManager::UpdateUnitPowerConsumption(UnitInfo* unit, uint16_t* generator_count,
                                                    uint16_t* generator_active) {
-    if (unit->orders != ORDER_DISABLE) {
-        if (unit->orders == ORDER_POWER_ON) {
+    if (unit->GetOrder() != ORDER_DISABLE) {
+        if (unit->GetOrder() == ORDER_POWER_ON) {
             if (*generator_active > 0) {
                 --*generator_active;
 
@@ -363,7 +363,8 @@ void ProductionManager::SatisfyPowerDemand(int32_t amount) {
 
 void ProductionManager::UpdateUnitLifeConsumption(UnitInfo* unit) {
     if (complex == unit->GetComplex() && Cargo_GetLifeConsumptionRate(unit->GetUnitType()) < 0 &&
-        unit->orders != ORDER_DISABLE && unit->orders != ORDER_POWER_ON && unit->state != ORDER_STATE_INIT &&
+        unit->GetOrder() != ORDER_DISABLE && unit->GetOrder() != ORDER_POWER_ON &&
+        unit->GetOrderState() != ORDER_STATE_INIT &&
         CheckPowerNeed(Cargo_GetPowerConsumptionRate(unit->GetUnitType()))) {
         int32_t life_consumption_rate = Cargo_GetLifeConsumptionRate(unit->GetUnitType());
 
@@ -379,8 +380,8 @@ void ProductionManager::UpdateUnitLifeConsumption(UnitInfo* unit) {
 bool ProductionManager::ValidateAuxilaryIndustry(UnitInfo* const unit, const bool forceful_shutoff) {
     bool result;
 
-    if (complex == unit->GetComplex() && unit->orders != ORDER_POWER_OFF && unit->orders != ORDER_DISABLE &&
-        unit->orders != ORDER_IDLE) {
+    if (complex == unit->GetComplex() && unit->GetOrder() != ORDER_POWER_OFF && unit->GetOrder() != ORDER_DISABLE &&
+        unit->GetOrder() != ORDER_IDLE) {
         Cargo production;
 
         production = Cargo_GetNetProduction(unit, true);
@@ -667,8 +668,8 @@ void ProductionManager::UpdateLifeConsumption() {
 bool ProductionManager::ValidateIndustry(UnitInfo* const unit, const bool mode) {
     bool result;
 
-    if (complex == unit->GetComplex() && unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_13 &&
-        unit->state != ORDER_STATE_46 && unit->state != ORDER_STATE_UNIT_READY &&
+    if (complex == unit->GetComplex() && unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_13 &&
+        unit->GetOrderState() != ORDER_STATE_46 && unit->GetOrderState() != ORDER_STATE_UNIT_READY &&
         Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1) > 0 && (mode || total.raw < 0)) {
         Cargo cargo = Cargo_GetNetProduction(unit, true);
 
@@ -720,8 +721,8 @@ bool ProductionManager::OptimizeMiningIndustry() {
     Cargo minimum_demand;
     bool result;
 
-    if (selected_unit && selected_unit->orders != ORDER_POWER_OFF && selected_unit->orders != ORDER_DISABLE &&
-        selected_unit->orders != ORDER_IDLE && selected_unit->GetUnitType() == MININGST) {
+    if (selected_unit && selected_unit->GetOrder() != ORDER_POWER_OFF && selected_unit->GetOrder() != ORDER_DISABLE &&
+        selected_unit->GetOrder() != ORDER_IDLE && selected_unit->GetUnitType() == MININGST) {
         mine = selected_unit;
 
         minimum_demand = Cargo_GetNetProduction(selected_unit.Get(), true);
@@ -729,8 +730,9 @@ bool ProductionManager::OptimizeMiningIndustry() {
     } else {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if (complex == (*it).GetComplex() && (*it).orders != ORDER_POWER_OFF && (*it).orders != ORDER_DISABLE &&
-                (*it).orders != ORDER_IDLE && (*it).GetUnitType() == MININGST) {
+            if (complex == (*it).GetComplex() && (*it).GetOrder() != ORDER_POWER_OFF &&
+                (*it).GetOrder() != ORDER_DISABLE && (*it).GetOrder() != ORDER_IDLE &&
+                (*it).GetUnitType() == MININGST) {
                 Cargo demand = Cargo_GetNetProduction(it->Get(), true);
 
                 if (!mine || demand.fuel < minimum_demand.fuel) {
@@ -797,7 +799,7 @@ bool ProductionManager_UpdateIndustryOrders(const uint16_t team, Complex* const 
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End() && manager.total.raw > 0; ++it) {
-        if ((*it).GetComplex() == complex && (*it).orders == ORDER_HALT_BUILDING_2 && (*it).storage == 0 &&
+        if ((*it).GetComplex() == complex && (*it).GetOrder() == ORDER_HALT_BUILDING_2 && (*it).storage == 0 &&
             Cargo_GetRawConsumptionRate((*it).GetUnitType(), (*it).GetMaxAllowedBuildRate()) <= manager.total.raw &&
             Cargo_GetLifeConsumptionRate((*it).GetUnitType()) <= manager.total.life &&
             manager.CheckPowerNeed(Cargo_GetPowerConsumptionRate((*it).GetUnitType()))) {

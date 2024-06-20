@@ -287,13 +287,13 @@ bool TaskClearZone::ExamineZones() {
                             return false;
                         }
 
-                        if (unit->orders == ORDER_AWAIT || unit->orders == ORDER_SENTRY) {
+                        if (unit->GetOrder() == ORDER_AWAIT || unit->GetOrder() == ORDER_SENTRY) {
                             ZoneSquare zone_square(site.x, site.y, unit);
 
                             zone_squares.Append(&zone_square);
 
                         } else {
-                            if ((unit->orders == ORDER_BUILD && unit->state != ORDER_STATE_UNIT_READY) ||
+                            if ((unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_UNIT_READY) ||
                                 zone->GetField30()) {
                                 zones.Erase(i);
 
@@ -355,7 +355,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
             if (unit->shots > 0 && Task_ShouldReserveShot(unit, site)) {
                 points2.Append(&site);
 
-            } else if (unit->orders == ORDER_AWAIT || unit->orders == ORDER_SENTRY) {
+            } else if (unit->GetOrder() == ORDER_AWAIT || unit->GetOrder() == ORDER_SENTRY) {
                 ZoneSquare local(site.x, site.y, unit);
 
                 zone_squares.Append(&local);

@@ -2453,7 +2453,7 @@ void UnitInfo::Move() {
             SmartPointer<UnitInfo> mine(Access_GetEnemyMineOnSentry(team, grid_x, grid_y));
 
             if (mine) {
-                mine->orders = ORDER_EXPLODE;
+                mine->SetOrder(ORDER_EXPLODE);
                 mine->state = ORDER_STATE_27;
                 mine->visible_to_team[team] = true;
 
@@ -3924,8 +3924,8 @@ void UnitInfo::SpawnNewUnit() {
                                                    0, false, true);
 
             factory_unit->SetParent(this);
-            factory_unit->orders = ORDER_IDLE;
-            factory_unit->state = ORDER_STATE_3;
+            factory_unit->SetOrder(ORDER_IDLE);
+            factory_unit->SetOrderState(ORDER_STATE_3);
             factory_unit->scaler_adjust = 4;
 
             ++UnitsManager_TeamInfo[team].stats_units_built;
@@ -3982,8 +3982,8 @@ void UnitInfo::SpawnNewUnit() {
                 Access_DestroyUtilities(position_x, position_y, false, false, false, false);
 
                 SetParent(nullptr);
-                utility_unit->orders = ORDER_AWAIT;
-                utility_unit->state = ORDER_STATE_1;
+                utility_unit->SetOrder(ORDER_AWAIT);
+                utility_unit->SetOrderState(ORDER_STATE_1);
 
                 UnitsManager_UpdateConnectors(&*utility_unit);
                 Access_UpdateMapStatus(&*utility_unit, true);
@@ -5085,8 +5085,8 @@ void UnitInfo::PrepareFire() {
 
         new_unit->SetParent(this);
 
-        new_unit->orders = ORDER_MOVE;
-        new_unit->state = ORDER_STATE_INIT;
+        new_unit->SetOrder(ORDER_MOVE);
+        new_unit->SetOrderState(ORDER_STATE_INIT);
 
         UnitsManager_AddToDelayedReactionList(this);
     }
@@ -5223,4 +5223,44 @@ void UnitInfo::SetUnitType(const ResourceID unit_type) noexcept {
     SDL_assert(unit_type < UNIT_END);
 
     this->unit_type = unit_type;
+}
+
+[[nodiscard]] uint8_t UnitInfo::GetOrder() const noexcept { return orders; }
+
+uint8_t UnitInfo::SetOrder(const uint8_t order) noexcept {
+    auto previous_order{this->orders};
+
+    this->orders = order;
+
+    return previous_order;
+}
+
+[[nodiscard]] uint8_t UnitInfo::GetPriorOrder() const noexcept { return prior_orders; }
+
+uint8_t UnitInfo::SetPriorOrder(const uint8_t order) noexcept {
+    auto previous_order{this->prior_orders};
+
+    this->prior_orders = order;
+
+    return previous_order;
+}
+
+uint8_t UnitInfo::GetOrderState() const noexcept { return state; }
+
+uint8_t UnitInfo::SetOrderState(const uint8_t order_state) noexcept {
+    auto previous_order_state{this->state};
+
+    this->state = order_state;
+
+    return previous_order_state;
+}
+
+uint8_t UnitInfo::GetPriorOrderState() const noexcept { return prior_state; }
+
+uint8_t UnitInfo::SetPriorOrderState(const uint8_t order_state) noexcept {
+    auto previous_order_state{this->prior_state};
+
+    this->prior_state = order_state;
+
+    return previous_order_state;
 }

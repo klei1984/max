@@ -283,8 +283,8 @@ void TaskSearchDestination::SearchTrySite() {
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team && (*it).hits > 0 && (*it).GetUnitType() == unit->GetUnitType() && unit != (*it) &&
-            ((*it).orders == ORDER_AWAIT || (*it).orders == ORDER_SENTRY || (*it).orders == ORDER_MOVE ||
-             (*it).orders == ORDER_MOVE_TO_UNIT) &&
+            ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY || (*it).GetOrder() == ORDER_MOVE ||
+             (*it).GetOrder() == ORDER_MOVE_TO_UNIT) &&
             Access_GetDistance(&*unit, best_site) > Access_GetDistance(&*it, best_site)) {
             bool flag = false;
 

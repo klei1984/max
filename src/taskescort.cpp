@@ -38,7 +38,7 @@
 bool TaskEscort::IssueOrders(UnitInfo* unit) {
     bool result;
 
-    if (Task_IsReadyToTakeOrders(&*target) || target->orders == ORDER_MOVE_TO_ATTACK) {
+    if (Task_IsReadyToTakeOrders(&*target) || target->GetOrder() == ORDER_MOVE_TO_ATTACK) {
         Point target_location(target->grid_x, target->grid_y);
         Point unit_location(unit->grid_x, unit->grid_y);
         Point position;

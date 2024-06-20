@@ -260,21 +260,31 @@ void Remote_ReadGameSettings(NetPacket& packet) {
 }
 
 void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet) {
-    packet << unit->orders;
-    packet << unit->state;
-    packet << unit->prior_orders;
-    packet << unit->prior_state;
+    packet << unit->GetOrder();
+    packet << unit->GetOrderState();
+    packet << unit->GetPriorOrder();
+    packet << unit->GetPriorOrderState();
     packet << unit->disabled_reaction_fire;
 }
 
 void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet) {
     UnitsManager_NewOrderWhileScaling(unit);
 
-    packet >> unit->orders;
-    packet >> unit->state;
-    packet >> unit->prior_orders;
-    packet >> unit->prior_state;
+    uint8_t order;
+    uint8_t order_state;
+    uint8_t prior_order;
+    uint8_t prior_order_state;
+
+    packet >> order;
+    packet >> order_state;
+    packet >> order_state;
+    packet >> prior_order_state;
     packet >> unit->disabled_reaction_fire;
+
+    unit->SetOrder(order);
+    unit->SetOrderState(order_state);
+    unit->SetPriorOrder(prior_order);
+    unit->SetPriorOrderState(prior_order_state);
 }
 
 void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet) {
@@ -995,14 +1005,14 @@ void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
     log.Log(" unit id       %i, %i", unit->unit_id, data.unit_id);
     log.Log(" parent id     %X, %X", unit->GetParent() ? unit->GetParent()->GetId() : 0, data.parent_unit_id);
     log.Log(" enemy id      %X, %X", unit->GetEnemy() ? unit->GetEnemy()->GetId() : 0, data.enemy_unit_id);
-    log.Log(" orders        %i, %i", unit->orders, data.orders);
-    log.Log(" order state   %i, %i", unit->state, data.state);
-    log.Log(" prior orders  %i, %i", unit->prior_orders, data.prior_orders);
-    log.Log(" prior state   %i, %i", unit->prior_state, data.prior_state);
+    log.Log(" orders        %i, %i", unit->GetOrder(), data.orders);
+    log.Log(" order state   %i, %i", unit->GetOrderState(), data.state);
+    log.Log(" prior orders  %i, %i", unit->GetPriorOrder(), data.prior_orders);
+    log.Log(" prior state   %i, %i", unit->GetPriorOrderState(), data.prior_state);
     log.Log(" grid x        %i, %i", unit->grid_x, data.grid_x);
     log.Log(" grid y        %i, %i", unit->grid_y, data.grid_y);
 
-    if (unit->orders == ORDER_BUILD || data.orders == ORDER_BUILD) {
+    if (unit->GetOrder() == ORDER_BUILD || data.orders == ORDER_BUILD) {
         log.Log(" build turns   %i, %i", unit->build_time, data.build_time);
         log.Log(" build rate    %i, %i", unit->build_rate, data.build_rate);
     }
@@ -1558,7 +1568,7 @@ void Remote_SendNetPacket_08(UnitInfo* unit) {
     packet << static_cast<uint8_t>(REMOTE_PACKET_08);
     packet << static_cast<uint16_t>(unit->GetId());
 
-    Remote_OrderProcessors[unit->orders].WritePacket(unit, packet);
+    Remote_OrderProcessors[unit->GetOrder()].WritePacket(unit, packet);
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
@@ -1579,7 +1589,7 @@ void Remote_ReceiveNetPacket_08(NetPacket& packet) {
             Remote_OrderProcessor1_Read(unit, local);
         }
 
-        Remote_OrderProcessors[unit->orders].ReadPacket(unit, packet);
+        Remote_OrderProcessors[unit->GetOrder()].ReadPacket(unit, packet);
 
     } else {
         Remote_NetErrorUnknownUnit(entity_id);
@@ -1713,8 +1723,8 @@ void Remote_ReceiveNetPacket_10(NetPacket& packet) {
 void Remote_SendNetPacket_11(int32_t team, Complex* complex) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetComplex() == complex && (*it).GetUnitType() == MININGST && (*it).orders != ORDER_POWER_OFF &&
-            (*it).orders != ORDER_DISABLE && (*it).orders != ORDER_IDLE) {
+        if ((*it).GetComplex() == complex && (*it).GetUnitType() == MININGST && (*it).GetOrder() != ORDER_POWER_OFF &&
+            (*it).GetOrder() != ORDER_DISABLE && (*it).GetOrder() != ORDER_IDLE) {
             UnitsManager_SetNewOrder(&*it, ORDER_NEW_ALLOCATE, ORDER_STATE_INIT);
         }
     }
@@ -2774,8 +2784,8 @@ void Remote_SendNetPacket_38(UnitInfo* unit) {
     packet << static_cast<uint8_t>(REMOTE_PACKET_38);
     packet << static_cast<uint16_t>(unit->GetId());
 
-    packet << unit->orders;
-    packet << unit->state;
+    packet << unit->GetOrder();
+    packet << unit->GetOrderState();
     packet << unit->target_grid_x;
     packet << unit->target_grid_y;
     packet << unit->group_speed;
@@ -2826,8 +2836,15 @@ void Remote_ReceiveNetPacket_38(NetPacket& packet) {
 
         UnitsManager_NewOrderWhileScaling(unit);
 
-        packet >> unit->orders;
-        packet >> unit->state;
+        uint8_t order;
+        uint8_t order_state;
+
+        packet >> order;
+        packet >> order_state;
+
+        unit->SetOrder(order);
+        unit->SetOrderState(order_state);
+
         packet >> unit->target_grid_x;
         packet >> unit->target_grid_y;
         packet >> unit->group_speed;

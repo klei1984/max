@@ -593,11 +593,11 @@ void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, 
     uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).orders != ORDER_IDLE && (*it).IsVisibleToTeam(team)) {
+        if ((*it).GetOrder() != ORDER_IDLE && (*it).IsVisibleToTeam(team)) {
             if ((flags & 2) || ((flags & 1) && (*it).team != team)) {
                 map[(*it).grid_x][(*it).grid_y] = 0;
 
-                if ((*it).path != nullptr && (*it).state != ORDER_STATE_1 && (&*it) != unit) {
+                if ((*it).path != nullptr && (*it).GetOrderState() != ORDER_STATE_1 && (&*it) != unit) {
                     Point position = (*it).path->GetPosition(&*it);
                     map[position.x][position.y] = 0;
                 }
@@ -815,8 +815,8 @@ void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
-            (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).orders != ORDER_DISABLE &&
-            (*it).orders != ORDER_IDLE && (*it).hits > 0 &&
+            (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).GetOrder() != ORDER_DISABLE &&
+            (*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 &&
             Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
             PathsManager_ProcessSurface(map, &*it);
         }
@@ -825,8 +825,8 @@ void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
-            (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).orders != ORDER_DISABLE &&
-            (*it).orders != ORDER_IDLE && (*it).hits > 0 &&
+            (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).GetOrder() != ORDER_DISABLE &&
+            (*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 &&
             Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
             PathsManager_ProcessSurface(map, &*it);
         }
@@ -835,8 +835,8 @@ void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
          it != UnitsManager_MobileAirUnits.End(); ++it) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
-            (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).orders != ORDER_DISABLE &&
-            (*it).orders != ORDER_IDLE && (*it).hits > 0 &&
+            (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).GetOrder() != ORDER_DISABLE &&
+            (*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 &&
             Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
             PathsManager_ProcessSurface(map, &*it);
         }

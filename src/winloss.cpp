@@ -304,7 +304,8 @@ int32_t WinLoss_CountReadyUnits(uint16_t team, ResourceID unit_type) {
     const auto& units = WinLoss_GetRelevantUnits(unit_type);
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).state != ORDER_STATE_BUILDING_READY) {
+        if ((*it).team == team && (*it).GetUnitType() == unit_type &&
+            (*it).GetOrderState() != ORDER_STATE_BUILDING_READY) {
             ++result;
         }
     }
@@ -320,7 +321,7 @@ void WinLoss_CountTotalMining(uint16_t team, int32_t* raw_mining_max, int32_t* f
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).orders == ORDER_POWER_ON) {
+        if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).GetOrder() == ORDER_POWER_ON) {
             raw_mining_max[0] += (*it).raw_mining_max;
             fuel_mining_max[0] += (*it).fuel_mining_max;
             gold_mining_max[0] += (*it).gold_mining_max;
@@ -347,7 +348,7 @@ int32_t WinLoss_GetTotalPowerConsumption(uint16_t team, ResourceID unit_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type &&
-            ((*it).orders == ORDER_POWER_ON || (*it).orders == ORDER_BUILD)) {
+            ((*it).GetOrder() == ORDER_POWER_ON || (*it).GetOrder() == ORDER_BUILD)) {
             ++result;
         }
     }
@@ -362,7 +363,7 @@ int32_t WinLoss_GetTotalMining(uint16_t team, uint8_t cargo_type) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).orders == ORDER_POWER_ON) {
+        if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).GetOrder() == ORDER_POWER_ON) {
             switch (cargo_type) {
                 case CARGO_MATERIALS: {
                     result += (*it).raw_mining;
@@ -432,7 +433,7 @@ int32_t WinLoss_GetTotalUnitsBeingConstructed(uint16_t team, ResourceID unit_typ
     }
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).orders == ORDER_BUILD && (*it).build_time != 0 &&
+        if ((*it).team == team && (*it).GetOrder() == ORDER_BUILD && (*it).build_time != 0 &&
             (*it).GetConstructedUnitType() == unit_type) {
             ++result;
         }

@@ -303,7 +303,7 @@ bool AiAttack_IsValidSabotageTarget(UnitInfo* unit, UnitInfo* target) {
     bool result;
 
     if (unit->GetUnitType() == COMMANDO && (target->flags & ELECTRONIC_UNIT) && !(target->flags & HOVERING) &&
-        (target->orders != ORDER_DISABLE || !(target->flags & STATIONARY))) {
+        (target->GetOrder() != ORDER_DISABLE || !(target->flags & STATIONARY))) {
         result = true;
 
     } else {
@@ -386,7 +386,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
 
                     attacker->target_grid_x = (dos_rand() * 101) >> 15;
 
-                    if (target->orders == ORDER_DISABLE ||
+                    if (target->GetOrder() == ORDER_DISABLE ||
                         (!(target->flags & STATIONARY) &&
                          UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_STEAL_UNIT) >=
                              ini_get_setting(INI_MAX_PERCENT))) {
@@ -574,8 +574,9 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
          it != AiPlayer_Teams[unit->team].GetSpottedUnits().End(); ++it) {
         UnitInfo* target_unit = (*it).GetUnit();
 
-        if (teams[target_unit->team] && target_unit->orders != ORDER_IDLE && target_unit->state != ORDER_STATE_14 &&
-            target_unit->hits > 0 && target_unit->orders != ORDER_EXPLODE) {
+        if (teams[target_unit->team] && target_unit->GetOrder() != ORDER_IDLE &&
+            target_unit->GetOrderState() != ORDER_STATE_14 && target_unit->hits > 0 &&
+            target_unit->GetOrder() != ORDER_EXPLODE) {
             unit_position = (*it).GetLastPosition();
             distance = Access_GetDistance(unit, unit_position);
 
@@ -585,7 +586,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                         if (!AiAttack_IsValidSabotageTarget(unit, target_unit) ||
                             (UnitsManager_GetStealthChancePercentage(unit, target_unit, ORDER_AWAIT_DISABLE_UNIT) <=
                                  85 &&
-                             target_unit->orders != ORDER_DISABLE)) {
+                             target_unit->GetOrder() != ORDER_DISABLE)) {
                             continue;
                         }
 
@@ -597,7 +598,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                          ((target_unit->GetUnitType() != COMMANDO || unit->GetUnitType() == INFANTRY ||
                            unit->GetUnitType() == COMMANDO) &&
                           (!UnitsManager_IsUnitUnderWater(target_unit) || unit->GetUnitType() == CORVETTE))) &&
-                        (target_unit->orders != ORDER_DISABLE || (target_unit->flags & STATIONARY) ||
+                        (target_unit->GetOrder() != ORDER_DISABLE || (target_unit->flags & STATIONARY) ||
                          unit->GetUnitType() == COMMANDO || ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT)) {
                         if (!target_unit->IsVisibleToTeam(unit_team) &&
                             UnitsManager_TeamInfo[unit_team]
@@ -706,7 +707,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                     result = TaskManager_word_1731C0 == 2;
 
                 } else {
-                    if (unit->orders == ORDER_MOVE_TO_ATTACK &&
+                    if (unit->GetOrder() == ORDER_MOVE_TO_ATTACK &&
                         !Access_GetAttackTarget(unit, unit->target_grid_x, unit->target_grid_y)) {
                         UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_1);
                     }
@@ -859,7 +860,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                         (unit->GetUnitType() == COMMANDO && AiAttack_CanAttack(unit, target))) {
                         result = AiAttack_EvaluateAttack(unit);
 
-                    } else if ((target->orders != ORDER_DISABLE ||
+                    } else if ((target->GetOrder() != ORDER_DISABLE ||
                                 ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT) &&
                                (AiAttack_FindAttackSupport(target, &UnitsManager_MobileAirUnits, unit_team,
                                                            CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) ||
@@ -1196,12 +1197,14 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
     return result;
 }
 
-bool AiAttack_IsReadyToMove(UnitInfo* unit) { return unit->orders == ORDER_MOVE && unit->state != ORDER_STATE_1; }
+bool AiAttack_IsReadyToMove(UnitInfo* unit) {
+    return unit->GetOrder() == ORDER_MOVE && unit->GetOrderState() != ORDER_STATE_1;
+}
 
 uint32_t AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, uint16_t team) {
     uint32_t result = 0;
 
-    if (target->ammo > 0 && target->orders != ORDER_DISABLE) {
+    if (target->ammo > 0 && target->GetOrder() != ORDER_DISABLE) {
         if (target->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 35) {
             result += 0x38;
 

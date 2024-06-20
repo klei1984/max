@@ -109,9 +109,10 @@ void TaskFrontalAttack::IssueOrders() {
             int32_t best_unit_value{0};
 
             for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
-                if ((*it).orders == ORDER_MOVE_TO_ATTACK || Access_GetDistance(&*it, spotted_unit->GetLastPosition()) <=
-                                                                (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE) *
-                                                                    (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
+                if ((*it).GetOrder() == ORDER_MOVE_TO_ATTACK ||
+                    Access_GetDistance(&*it, spotted_unit->GetLastPosition()) <=
+                        (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE) *
+                            (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
                     has_attack_target = true;
 
                 } else if ((*it).GetTask() == this || (*it).GetTask() == nullptr ||
