@@ -18,7 +18,7 @@ jobs:
          run: |
             useradd --create-home builder
             echo "builder ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers.d/builder
-            pacman -Sy --noconfirm
+            pacman -Syu --noconfirm
 
       -  name: Build
          run: |
