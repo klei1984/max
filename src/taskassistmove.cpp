@@ -87,7 +87,7 @@ void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point s
                 UnitsManager_SetNewOrder(unit1, ORDER_UNLOAD, ORDER_STATE_INIT);
 
             } else {
-                UnitsManager_SetNewOrder(unit1, ORDER_ACTIVATE, ORDER_STATE_1);
+                UnitsManager_SetNewOrder(unit1, ORDER_ACTIVATE, ORDER_STATE_EXECUTING_ORDER);
             }
         }
     }

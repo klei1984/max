@@ -838,7 +838,7 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
                     unit->target_grid_x = point.x;
                     unit->target_grid_y = point.y;
 
-                    UnitsManager_SetNewOrder(&*unit, ORDER_ACTIVATE, ORDER_STATE_1);
+                    UnitsManager_SetNewOrder(&*unit, ORDER_ACTIVATE, ORDER_STATE_EXECUTING_ORDER);
 
                     if (Remote_IsNetworkGame) {
                         RepairShopMenu_ProcessOrders(&*unit, ORDER_ACTIVATE, true);

@@ -68,8 +68,8 @@ bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_gr
 
                 if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_UNIT ||
                      (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
-                    (*it).GetOrderState() != ORDER_STATE_1 && (*it).path != nullptr && (*it).grid_x == target_grid_x &&
-                    (*it).grid_y == target_grid_y &&
+                    (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER && (*it).path != nullptr &&
+                    (*it).grid_x == target_grid_x && (*it).grid_y == target_grid_y &&
                     !(*it).path->IsInPath(grid_x - target_grid_x, grid_y - target_grid_y)) {
                     return true;
 
@@ -1056,7 +1056,7 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, uint16_t team) {
         } else {
             if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_UNIT ||
                  (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
-                (*it).GetOrderState() == ORDER_STATE_1) {
+                (*it).GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
                 if ((*it).team == team && (*it).speed > 0 && (*it).engine == 2) {
                     UnitsManager_SetNewOrder(&(*it), (*it).GetOrder(), ORDER_STATE_INIT);
                 }
@@ -1073,7 +1073,7 @@ bool Access_UpdateGroupSpeed(UnitInfo* unit) {
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
-            ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_6 ||
+            ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_IN_TRANSITION ||
              (*it).GetOrderState() == ORDER_STATE_NEW_ORDER)) {
             return false;
         }
@@ -1143,7 +1143,7 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
 
                         if (friendly->GetOrder() == ORDER_MOVE_TO_ATTACK) {
                             friendly->SetOrder(ORDER_AWAIT);
-                            friendly->SetOrderState(ORDER_STATE_1);
+                            friendly->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
                         }
 
                         if (friendly->flags & MOBILE_AIR_UNIT) {
@@ -1253,8 +1253,8 @@ bool Access_IsValidNextUnit(UnitInfo* unit) {
     bool result;
 
     if (unit->GetOrder() == ORDER_SENTRY || unit->GetOrder() == ORDER_IDLE || unit->GetOrder() == ORDER_DISABLE ||
-        unit->GetOrder() == ORDER_EXPLODE || unit->GetOrderState() == ORDER_STATE_14 ||
-        unit->GetOrderState() == ORDER_STATE_2 ||
+        unit->GetOrder() == ORDER_EXPLODE || unit->GetOrderState() == ORDER_STATE_DESTROY ||
+        unit->GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER ||
         (unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_UNIT_READY)) {
         result = false;
 
@@ -1545,7 +1545,7 @@ UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uin
             for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team != team && ((*it).IsVisibleToTeam(team) || GameManager_MaxSpy) &&
                     (*it).GetOrder() != ORDER_IDLE && ((*it).flags & flags) && (*it).GetOrder() != ORDER_EXPLODE &&
-                    (*it).GetOrderState() != ORDER_STATE_14) {
+                    (*it).GetOrderState() != ORDER_STATE_DESTROY) {
                     unit = &*it;
                     break;
                 }
@@ -1791,7 +1791,7 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int32_t grid_x, int32_t grid_y,
                     }
 
                 } else if (((*it).flags & SELECTABLE) && (*it).GetOrder() != ORDER_EXPLODE &&
-                           (*it).GetOrderState() != ORDER_STATE_14 && (*it).GetOrder() != ORDER_IDLE &&
+                           (*it).GetOrderState() != ORDER_STATE_DESTROY && (*it).GetOrder() != ORDER_IDLE &&
                            Access_IsValidAttackTarget(unit, &*it, Point(grid_x, grid_y))) {
                     if (mode) {
                         (*it).SpotByTeam(unit->team);
@@ -1952,8 +1952,8 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
     if (unit) {
         if (unit->team == GameManager_PlayerTeam &&
             (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
-            unit->GetOrderState() == ORDER_STATE_1 && unit->grid_x >= selection.ulx && unit->grid_x <= selection.lrx &&
-            unit->grid_y >= selection.uly && unit->grid_y <= selection.lry) {
+            unit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER && unit->grid_x >= selection.ulx &&
+            unit->grid_x <= selection.lrx && unit->grid_y >= selection.uly && unit->grid_y <= selection.lry) {
             parent = unit;
             unit->ClearUnitList();
             unit->AllocateUnitList();
@@ -1974,7 +1974,8 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
             UnitInfo* unit2 =
                 Access_GetTeamUnit(x, y, GameManager_PlayerTeam, MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
 
-            if (unit2 && (unit2->GetOrderState() == ORDER_STATE_1 || unit2->GetOrderState() == ORDER_STATE_2)) {
+            if (unit2 && (unit2->GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
+                          unit2->GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER)) {
                 unit2->ClearUnitList();
 
                 if (!parent) {
@@ -2032,10 +2033,10 @@ bool Access_AreTaskEventsPending() {
             if ((*it).GetOrder() == ORDER_FIRE || (*it).GetOrder() == ORDER_EXPLODE ||
                 (*it).GetOrder() == ORDER_ACTIVATE || (*it).GetOrder() == ORDER_AWAIT_TAPE_POSITIONING ||
                 (*it).GetOrder() == ORDER_AWAIT_DISABLE_UNIT || (*it).GetOrder() == ORDER_AWAIT_STEAL_UNIT ||
-                (*it).GetOrder() == ORDER_AWAIT_SCALING || (*it).GetOrderState() == ORDER_STATE_14 ||
-                ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_1) ||
-                ((*it).GetOrder() == ORDER_MOVE_TO_UNIT && (*it).GetOrderState() != ORDER_STATE_1) ||
-                ((*it).GetOrder() == ORDER_MOVE_TO_ATTACK && (*it).GetOrderState() != ORDER_STATE_1) ||
+                (*it).GetOrder() == ORDER_AWAIT_SCALING || (*it).GetOrderState() == ORDER_STATE_DESTROY ||
+                ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) ||
+                ((*it).GetOrder() == ORDER_MOVE_TO_UNIT && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) ||
+                ((*it).GetOrder() == ORDER_MOVE_TO_ATTACK && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) ||
                 (*it).GetOrderState() == ORDER_STATE_INIT) {
                 if ((*it).GetOrderState() == ORDER_STATE_NEW_ORDER && (*it).team == GameManager_PlayerTeam &&
                     !PathsManager_HasRequest(&*it)) {
@@ -2044,7 +2045,7 @@ bool Access_AreTaskEventsPending() {
                             Access_ProcessNewGroupOrder(&*it);
 
                         } else {
-                            (*it).SetOrderState(ORDER_STATE_7);
+                            (*it).SetOrderState(ORDER_STATE_ISSUING_PATH);
 
                             if (Remote_IsNetworkGame) {
                                 Remote_SendNetPacket_08(&*it);
@@ -2105,7 +2106,7 @@ bool Access_ProcessNewGroupOrder(UnitInfo* unit) {
                 unit = &*it;
 
                 if (unit->GetOrderState() == ORDER_STATE_NEW_ORDER) {
-                    unit->SetOrderState(ORDER_STATE_7);
+                    unit->SetOrderState(ORDER_STATE_ISSUING_PATH);
 
                     if (Remote_IsNetworkGame) {
                         Remote_SendNetPacket_08(unit);
@@ -2154,7 +2155,8 @@ bool Access_IsGroupOrderInterrupted(UnitInfo* unit) {
     if (units) {
         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
             if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
-                ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_6 ||
+                ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS ||
+                 (*it).GetOrderState() == ORDER_STATE_IN_TRANSITION ||
                  (*it).GetOrderState() == ORDER_STATE_NEW_ORDER)) {
                 return true;
             }

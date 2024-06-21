@@ -258,7 +258,7 @@ void AirPath::CancelMovement(UnitInfo* unit) {
 
 int32_t AirPath::GetMovementCost(UnitInfo* unit) { return (length / unit->max_velocity) * 4; }
 
-bool AirPath::Path_vfunc10(UnitInfo* unit) {
+bool AirPath::Execute(UnitInfo* unit) {
     bool team_visibility;
     SmartPointer<UnitInfo> target_unit;
 
@@ -277,7 +277,7 @@ bool AirPath::Path_vfunc10(UnitInfo* unit) {
             }
 
             if (!speed || !unit->engine) {
-                unit->SetOrderState(ORDER_STATE_1);
+                unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
                 unit->MoveFinished();
 
                 return false;
@@ -492,7 +492,7 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {
     Point position(unit->grid_x, unit->grid_y);
     int32_t speed = unit->speed;
 
-    if (unit->GetOrder() != ORDER_BUILD && unit->GetOrderState() == ORDER_STATE_1 && speed > 0) {
+    if (unit->GetOrder() != ORDER_BUILD && unit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER && speed > 0) {
         int32_t move_fraction;
         Point point;
         PathStep* step;
@@ -598,7 +598,7 @@ int32_t GroundPath::GetMovementCost(UnitInfo* unit) {
     return result;
 }
 
-bool GroundPath::Path_vfunc10(UnitInfo* unit) {
+bool GroundPath::Execute(UnitInfo* unit) {
     PathStep* step;
     int32_t angle;
     int32_t grid_x;
@@ -637,7 +637,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
     if (speed == 0 || unit->engine == 0) {
         if (unit->engine) {
-            unit->SetOrderState(ORDER_STATE_1);
+            unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
             unit->MoveFinished();
 
         } else {
@@ -675,17 +675,17 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
             SDL_assert(stored_units <= storable_units && receiver->storage == stored_units);
 
-            if (stored_units == storable_units) {
+            if (stored_units >= storable_units) {
                 unit->BlockedOnPathRequest();
 
             } else {
                 unit->SetOrder(ORDER_IDLE);
 
                 if (receiver->GetUnitType() == SEATRANS || receiver->GetUnitType() == CLNTRANS) {
-                    unit->SetOrderState(ORDER_STATE_4);
+                    unit->SetOrderState(ORDER_STATE_PREPARE_STORE);
 
                 } else {
-                    unit->SetOrderState(ORDER_STATE_3);
+                    unit->SetOrderState(ORDER_STATE_STORE);
                 }
 
                 unit->SetParent(&*receiver);
@@ -770,7 +770,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
 
             unit->MoveInTransitUnitInMapHash(target_grid_x, target_grid_y);
             unit->moved = 0;
-            unit->SetOrderState(ORDER_STATE_6);
+            unit->SetOrderState(ORDER_STATE_IN_TRANSITION);
 
             if (GameManager_SelectedUnit == unit) {
                 GameManager_UpdateInfoDisplay(unit);
@@ -779,7 +779,7 @@ bool GroundPath::Path_vfunc10(UnitInfo* unit) {
             return true;
 
         } else {
-            unit->SetOrderState(ORDER_STATE_1);
+            unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
             unit->MoveFinished();
 
             return false;
@@ -1199,7 +1199,7 @@ void BuilderPath::FileSave(SmartFileWriter& file) noexcept {
 
 int32_t BuilderPath::GetMovementCost(UnitInfo* unit) { return SHRT_MAX; }
 
-bool BuilderPath::Path_vfunc10(UnitInfo* unit) {
+bool BuilderPath::Execute(UnitInfo* unit) {
     bool result;
     int32_t direction;
 
@@ -1370,7 +1370,7 @@ bool Paths_LoadUnit(UnitInfo* unit) {
 
             if (stored_units == storable_units) {
                 unit->SetOrder(ORDER_AWAIT);
-                unit->SetOrderState(ORDER_STATE_1);
+                unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
                 if (GameManager_SelectedUnit == unit) {
                     MessageManager_DrawMessage(_(7c8d), 1, unit, Point(unit->grid_x, unit->grid_y));
@@ -1442,7 +1442,7 @@ void Paths_FinishMove(UnitInfo* unit) {
             }
 
         } else {
-            unit->SetOrderState(ORDER_STATE_1);
+            unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
             unit->path = Paths_GetAirPath(unit);
 

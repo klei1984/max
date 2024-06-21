@@ -405,7 +405,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
 
                     attacker->SetEnemy(target);
 
-                    UnitsManager_SetNewOrder(attacker, ORDER_MOVE_TO_ATTACK, ORDER_STATE_1);
+                    UnitsManager_SetNewOrder(attacker, ORDER_MOVE_TO_ATTACK, ORDER_STATE_EXECUTING_ORDER);
 
                     result = true;
                 }
@@ -575,7 +575,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
         UnitInfo* target_unit = (*it).GetUnit();
 
         if (teams[target_unit->team] && target_unit->GetOrder() != ORDER_IDLE &&
-            target_unit->GetOrderState() != ORDER_STATE_14 && target_unit->hits > 0 &&
+            target_unit->GetOrderState() != ORDER_STATE_DESTROY && target_unit->hits > 0 &&
             target_unit->GetOrder() != ORDER_EXPLODE) {
             unit_position = (*it).GetLastPosition();
             distance = Access_GetDistance(unit, unit_position);
@@ -709,7 +709,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                 } else {
                     if (unit->GetOrder() == ORDER_MOVE_TO_ATTACK &&
                         !Access_GetAttackTarget(unit, unit->target_grid_x, unit->target_grid_y)) {
-                        UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_1);
+                        UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_EXECUTING_ORDER);
                     }
 
                     if (Task_IsReadyToTakeOrders(unit)) {
@@ -1198,7 +1198,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
 }
 
 bool AiAttack_IsReadyToMove(UnitInfo* unit) {
-    return unit->GetOrder() == ORDER_MOVE && unit->GetOrderState() != ORDER_STATE_1;
+    return unit->GetOrder() == ORDER_MOVE && unit->GetOrderState() != ORDER_STATE_EXECUTING_ORDER;
 }
 
 uint32_t AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, uint16_t team) {

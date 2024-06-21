@@ -49,9 +49,9 @@ bool TaskObtainUnits::IsValidCandidate(UnitInfo* unit, bool mode) {
         result = false;
 
     } else if (unit->GetOrder() != ORDER_AWAIT && unit->GetOrder() != ORDER_SENTRY &&
-               (unit->GetOrder() != ORDER_MOVE || unit->GetOrderState() != ORDER_STATE_1) &&
-               (unit->GetOrder() != ORDER_MOVE_TO_UNIT || unit->GetOrderState() != ORDER_STATE_1) &&
-               (unit->GetOrder() != ORDER_MOVE_TO_ATTACK || unit->GetOrderState() != ORDER_STATE_1)) {
+               (unit->GetOrder() != ORDER_MOVE || unit->GetOrderState() != ORDER_STATE_EXECUTING_ORDER) &&
+               (unit->GetOrder() != ORDER_MOVE_TO_UNIT || unit->GetOrderState() != ORDER_STATE_EXECUTING_ORDER) &&
+               (unit->GetOrder() != ORDER_MOVE_TO_ATTACK || unit->GetOrderState() != ORDER_STATE_EXECUTING_ORDER)) {
         result = false;
 
     } else {

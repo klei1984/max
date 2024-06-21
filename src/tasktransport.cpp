@@ -811,7 +811,7 @@ void TaskTransport::UnloadUnit(UnitInfo* unit) {
                     UnitsManager_SetNewOrder(&*unit_transporter, ORDER_UNLOAD, ORDER_STATE_INIT);
 
                 } else {
-                    UnitsManager_SetNewOrder(&*unit_transporter, ORDER_ACTIVATE, ORDER_STATE_1);
+                    UnitsManager_SetNewOrder(&*unit_transporter, ORDER_ACTIVATE, ORDER_STATE_EXECUTING_ORDER);
                 }
             }
         }

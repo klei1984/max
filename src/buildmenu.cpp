@@ -943,7 +943,7 @@ void MobileBuildMenu::Build() {
                 }
 
                 if ((base_unit->flags & BUILDING) || event_click_path_build) {
-                    UnitsManager_SetNewOrderInt(unit, ORDER_BUILD, ORDER_STATE_25);
+                    UnitsManager_SetNewOrderInt(unit, ORDER_BUILD, ORDER_STATE_SELECT_SITE);
 
                     GameManager_TempTape = UnitsManager_SpawnUnit((base_unit->flags & BUILDING) ? LRGTAPE : SMLTAPE,
                                                                   GameManager_PlayerTeam, grid_x, grid_y, unit);
@@ -1224,7 +1224,7 @@ void FactoryBuildMenu::Build() {
         unit->BuildOrder();
 
     } else {
-        UnitsManager_SetNewOrder(unit, ORDER_HALT_BUILDING, ORDER_STATE_13);
+        UnitsManager_SetNewOrder(unit, ORDER_HALT_BUILDING, ORDER_STATE_BUILD_CANCEL);
 
         event_click_cancel = true;
     }

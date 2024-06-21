@@ -668,8 +668,8 @@ void ProductionManager::UpdateLifeConsumption() {
 bool ProductionManager::ValidateIndustry(UnitInfo* const unit, const bool mode) {
     bool result;
 
-    if (complex == unit->GetComplex() && unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_13 &&
-        unit->GetOrderState() != ORDER_STATE_46 && unit->GetOrderState() != ORDER_STATE_UNIT_READY &&
+    if (complex == unit->GetComplex() && unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_BUILD_CANCEL &&
+        unit->GetOrderState() != ORDER_STATE_BUILD_ABORT && unit->GetOrderState() != ORDER_STATE_UNIT_READY &&
         Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1) > 0 && (mode || total.raw < 0)) {
         Cargo cargo = Cargo_GetNetProduction(unit, true);
 
@@ -689,7 +689,7 @@ bool ProductionManager::ValidateIndustry(UnitInfo* const unit, const bool mode) 
             SatisfyPowerDemand(Cargo_GetPowerConsumptionRate(unit->GetUnitType()));
         }
 
-        UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_46);
+        UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_BUILD_ABORT);
 
         result = true;
 

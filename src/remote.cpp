@@ -277,7 +277,7 @@ void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet) {
 
     packet >> order;
     packet >> order_state;
-    packet >> order_state;
+    packet >> prior_order;
     packet >> prior_order_state;
     packet >> unit->disabled_reaction_fire;
 

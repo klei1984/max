@@ -325,7 +325,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 result = true;
 
             } else if (builder && op_state == CREATE_UNIT_STATE_BUILDING &&
-                       (builder->GetOrderState() != ORDER_STATE_1 ||
+                       (builder->GetOrderState() != ORDER_STATE_EXECUTING_ORDER ||
                         builder->build_time != BuildMenu_GetTurnsToBuild(unit_type, team))) {
                 result = true;
 
@@ -333,7 +333,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 AiLog log("Create %s: aborting, no longer needed.", UnitsManager_BaseUnits[unit_type].singular_name);
 
                 if (op_state == CREATE_UNIT_STATE_BUILDING && builder) {
-                    UnitsManager_SetNewOrder(&*builder, ORDER_HALT_BUILDING, ORDER_STATE_13);
+                    UnitsManager_SetNewOrder(&*builder, ORDER_HALT_BUILDING, ORDER_STATE_BUILD_CANCEL);
                 }
 
                 op_state = CREATE_UNIT_STATE_FINISHED;

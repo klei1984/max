@@ -36,7 +36,7 @@ class TaskCreateBuilding : public TaskCreate {
     SmartList<Task> tasks;
 
     void RequestBuilder();
-    void MoveToSite();
+    void AbandonSite();
     bool BuildRoad();
     void BeginBuilding();
     void Abort();

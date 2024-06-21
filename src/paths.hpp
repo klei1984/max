@@ -50,7 +50,7 @@ public:
     virtual bool IsInPath(int32_t grid_x, int32_t grid_y) const;
     virtual void CancelMovement(UnitInfo* unit);
     virtual int32_t GetMovementCost(UnitInfo* unit) = 0;
-    virtual bool Path_vfunc10(UnitInfo* unit) = 0;
+    virtual bool Execute(UnitInfo* unit) = 0;
     virtual void UpdateUnitAngle(UnitInfo* unit);
     virtual void Path_vfunc12(int32_t unknown) = 0;
     virtual void Draw(UnitInfo* unit, WindowInfo* window) = 0;
@@ -85,7 +85,7 @@ public:
     bool IsInPath(int32_t grid_x, int32_t grid_y) const;
     void CancelMovement(UnitInfo* unit);
     int32_t GetMovementCost(UnitInfo* unit);
-    bool Path_vfunc10(UnitInfo* unit);
+    bool Execute(UnitInfo* unit);
     void UpdateUnitAngle(UnitInfo* unit);
     void Path_vfunc12(int32_t unknown);
     void Draw(UnitInfo* unit, WindowInfo* window);
@@ -123,7 +123,7 @@ public:
     Point GetPosition(UnitInfo* unit) const;
     void CancelMovement(UnitInfo* unit);
     int32_t GetMovementCost(UnitInfo* unit);
-    bool Path_vfunc10(UnitInfo* unit);
+    bool Execute(UnitInfo* unit);
     void Path_vfunc12(int32_t unknown);
     void Draw(UnitInfo* unit, WindowInfo* window);
 };
@@ -142,7 +142,7 @@ public:
     void FileLoad(SmartFileReader& file) noexcept;
     void FileSave(SmartFileWriter& file) noexcept;
     int32_t GetMovementCost(UnitInfo* unit);
-    bool Path_vfunc10(UnitInfo* unit);
+    bool Execute(UnitInfo* unit);
     void Path_vfunc12(int32_t unknown);
     void Draw(UnitInfo* unit, WindowInfo* window);
 };

@@ -2431,7 +2431,7 @@ void AiPlayer::BeginTurn() {
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                 if ((*it).team == player_team && (*it).GetOrder() == ORDER_IDLE &&
-                    (*it).GetOrderState() == ORDER_STATE_4) {
+                    (*it).GetOrderState() == ORDER_STATE_PREPARE_STORE) {
                     SmartPointer<Task> move(new (std::nothrow) TaskMove(&*it, &MoveFinishedCallback));
 
                     TaskManager.AppendTask(*move);

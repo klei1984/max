@@ -57,7 +57,7 @@ void PathRequest::Cancel() {
         (client->GetOrder() == ORDER_MOVE || client->GetOrder() == ORDER_MOVE_TO_UNIT ||
          client->GetOrder() == ORDER_MOVE_TO_ATTACK) &&
         client->GetOrderState() == ORDER_STATE_NEW_ORDER) {
-        UnitsManager_SetNewOrder(&*client, client->GetOrder(), ORDER_STATE_12);
+        UnitsManager_SetNewOrder(&*client, client->GetOrder(), ORDER_STATE_PATH_REQUEST_CANCEL);
     }
 
     Access_ProcessNewGroupOrder(&*client);
@@ -146,7 +146,8 @@ void PathRequest::Finish(GroundPath* path) {
     if (client->hits > 0 &&
         (client->GetOrder() == ORDER_MOVE || client->GetOrder() == ORDER_MOVE_TO_UNIT ||
          client->GetOrder() == ORDER_BUILD || client->GetOrder() == ORDER_MOVE_TO_ATTACK) &&
-        (client->GetOrderState() == ORDER_STATE_NEW_ORDER || client->GetOrderState() == ORDER_STATE_29)) {
+        (client->GetOrderState() == ORDER_STATE_NEW_ORDER ||
+         client->GetOrderState() == ORDER_STATE_MOVE_GETTING_PATH)) {
         uint8_t unit1_order_state = client->GetOrderState();
 
         client->path = path;
@@ -162,7 +163,7 @@ void PathRequest::Finish(GroundPath* path) {
                 range = range * range;
 
                 if (Access_GetDistance(&*client, Point(client->target_grid_x, client->target_grid_y)) <= range) {
-                    UnitsManager_SetNewOrder(&*client, ORDER_MOVE_TO_ATTACK, ORDER_STATE_1);
+                    UnitsManager_SetNewOrder(&*client, ORDER_MOVE_TO_ATTACK, ORDER_STATE_EXECUTING_ORDER);
                     client->RefreshScreen();
                     Access_ProcessNewGroupOrder(&*client);
 
@@ -188,9 +189,9 @@ void PathRequest::Finish(GroundPath* path) {
 
                 UnitsManager_StartBuild(&*client);
 
-            } else if (client->GetOrderState() == ORDER_STATE_29) {
+            } else if (client->GetOrderState() == ORDER_STATE_MOVE_GETTING_PATH) {
                 if (client->GetOrder() == ORDER_MOVE_TO_ATTACK) {
-                    client->SetOrderState(ORDER_STATE_1);
+                    client->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
                 } else {
                     client->RestoreOrders();

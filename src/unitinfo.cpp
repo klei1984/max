@@ -558,9 +558,9 @@ UnitInfo::UnitInfo()
 
 UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle)
     : orders(ORDER_AWAIT),
-      state(ORDER_STATE_1),
+      state(ORDER_STATE_EXECUTING_ORDER),
       prior_orders(ORDER_AWAIT),
-      prior_state(ORDER_STATE_1),
+      prior_state(ORDER_STATE_EXECUTING_ORDER),
       laying_state(0),
       target_grid_x(0),
       target_grid_y(0),
@@ -1327,9 +1327,10 @@ void UnitInfo::UpdateUnitDrawZones() {
         position.y = y;
 
         if (flags & BUILDING) {
-            unit_size = 64;
+            unit_size = GFX_MAP_TILE_SIZE;
+
         } else {
-            unit_size = 32;
+            unit_size = GFX_MAP_TILE_SIZE / 2;
         }
 
         sprite_bounds.ulx = position.x - unit_size;
@@ -1909,15 +1910,15 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
 }
 
 void UnitInfo::SetPosition(int32_t grid_x, int32_t grid_y, bool skip_map_status_update) {
-    x = grid_x * 64 + 32;
-    y = grid_y * 64 + 32;
+    x = grid_x * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2;
+    y = grid_y * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2;
 
-    this->grid_x = x / 64;
-    this->grid_y = y / 64;
+    this->grid_x = x / GFX_MAP_TILE_SIZE;
+    this->grid_y = y / GFX_MAP_TILE_SIZE;
 
     if (flags & BUILDING) {
-        x += 31;
-        y += 31;
+        x += (GFX_MAP_TILE_SIZE / 2) - 1;
+        y += (GFX_MAP_TILE_SIZE / 2) - 1;
     }
 
     UpdateUnitDrawZones();
@@ -2008,14 +2009,14 @@ void UnitInfo::BuildOrder() {
     }
 
     orders = ORDER_AWAIT;
-    state = ORDER_STATE_1;
+    state = ORDER_STATE_EXECUTING_ORDER;
 
     UnitsManager_SetNewOrder(this, ORDER_BUILD, ORDER_STATE_INIT);
 }
 
 void UnitInfo::GetBounds(Rect* bounds) {
-    bounds->ulx = x / 64;
-    bounds->uly = y / 64;
+    bounds->ulx = x / GFX_MAP_TILE_SIZE;
+    bounds->uly = y / GFX_MAP_TILE_SIZE;
     bounds->lrx = bounds->ulx + 1;
     bounds->lry = bounds->uly + 1;
 
@@ -2059,14 +2060,14 @@ void UnitInfo::Redraw() {
         RefreshScreen();
     }
 
-    int32_t offset_x = (grid_x * 64 + 32) - x;
-    int32_t offset_y = (grid_y * 64 + 32) - y;
+    int32_t offset_x = (grid_x * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2) - x;
+    int32_t offset_y = (grid_y * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2) - y;
 
     OffsetDrawZones(offset_x, offset_y);
 
     if ((flags & MOBILE_AIR_UNIT) && (flags & HOVERING)) {
-        shadow_offset.x = -64;
-        shadow_offset.y = -64;
+        shadow_offset.x = -GFX_MAP_TILE_SIZE;
+        shadow_offset.y = -GFX_MAP_TILE_SIZE;
 
     } else {
         shadow_offset.x = 0;
@@ -2214,7 +2215,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
 
         UnitsManager_CheckIfUnitDestroyed(this);
 
-        if (hits == 0 || (orders != ORDER_EXPLODE && state != ORDER_STATE_14)) {
+        if (hits == 0 || (orders != ORDER_EXPLODE && state != ORDER_STATE_DESTROY)) {
             UnitsManager_SetNewOrderInt(this, ORDER_EXPLODE, ORDER_STATE_INIT);
         }
 
@@ -2253,7 +2254,7 @@ bool UnitInfo::ExpectAttack() {
                     Ai_SetTasksPendingFlag("moving");
                 }
 
-                result = path->Path_vfunc10(this);
+                result = path->Execute(this);
             }
 
         } else {
@@ -2269,7 +2270,7 @@ bool UnitInfo::ExpectAttack() {
 
             } else {
                 orders = ORDER_AWAIT;
-                state = ORDER_STATE_1;
+                state = ORDER_STATE_EXECUTING_ORDER;
                 result = false;
             }
         }
@@ -2286,7 +2287,7 @@ void UnitInfo::ClearBuildListAndPath() {
         state = ORDER_STATE_UNIT_READY;
     } else {
         orders = ORDER_AWAIT;
-        state = ORDER_STATE_1;
+        state = ORDER_STATE_EXECUTING_ORDER;
     }
 
     build_list.Clear();
@@ -2356,8 +2357,8 @@ void UnitInfo::Move() {
 
         int32_t unit_velocity = velocity;
 
-        if (unit_velocity + moved >= 64 - (unit_velocity / 2)) {
-            unit_velocity = 64 - moved;
+        if (unit_velocity + moved >= GFX_MAP_TILE_SIZE - (unit_velocity / 2)) {
+            unit_velocity = GFX_MAP_TILE_SIZE - moved;
 
             if (unit_type != COMMANDO && unit_type != INFANTRY) {
                 if (speed == 0 || path->IsEndStep()) {
@@ -2381,8 +2382,8 @@ void UnitInfo::Move() {
         int32_t distance_x = step_x * unit_velocity;
         int32_t distance_y = step_y * unit_velocity;
 
-        int32_t offset_x = ((x + distance_x - step_x) / 64) - grid_x;
-        int32_t offset_y = ((y + distance_y - step_y) / 64) - grid_y;
+        int32_t offset_x = ((x + distance_x - step_x) / GFX_MAP_TILE_SIZE) - grid_x;
+        int32_t offset_y = ((y + distance_y - step_y) / GFX_MAP_TILE_SIZE) - grid_y;
 
         if (offset_x || offset_y) {
             unit = MakeCopy();
@@ -2396,8 +2397,8 @@ void UnitInfo::Move() {
         OffsetDrawZones(distance_x, distance_y);
 
         if (offset_x || offset_y) {
-            grid_x = x / 64;
-            grid_y = y / 64;
+            grid_x = x / GFX_MAP_TILE_SIZE;
+            grid_y = y / GFX_MAP_TILE_SIZE;
 
             if (path) {
                 GroundPath* ground_path = dynamic_cast<GroundPath*>(&*path);
@@ -2429,7 +2430,7 @@ void UnitInfo::Move() {
             }
         }
 
-        if (moved == 64) {
+        if (moved == GFX_MAP_TILE_SIZE) {
             path->UpdateUnitAngle(this);
 
             if (orders == ORDER_BUILD && build_list.GetCount() > 0 &&
@@ -2454,7 +2455,7 @@ void UnitInfo::Move() {
 
             if (mine) {
                 mine->SetOrder(ORDER_EXPLODE);
-                mine->state = ORDER_STATE_27;
+                mine->state = ORDER_STATE_EXPLODE;
                 mine->visible_to_team[team] = true;
 
                 Ai_UnitSpotted(&*mine, team);
@@ -2485,7 +2486,7 @@ void UnitInfo::Move() {
             ExpectAttack();
         }
 
-    } while (state == ORDER_STATE_6 && !team_visibility);
+    } while (state == ORDER_STATE_IN_TRANSITION && !team_visibility);
 }
 
 void UnitInfo::AllocateUnitList() { unit_list = new SmartList<UnitInfo>(); }
@@ -3020,9 +3021,9 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
 
     UnitInfo_BuildList_FileLoad(&build_list, file);
 
-    if (state == ORDER_STATE_NEW_ORDER || state == ORDER_STATE_29 || state == ORDER_STATE_7 || state == ORDER_STATE_6 ||
-        state == ORDER_STATE_IN_PROGRESS) {
-        state = ORDER_STATE_1;
+    if (state == ORDER_STATE_NEW_ORDER || state == ORDER_STATE_MOVE_GETTING_PATH || state == ORDER_STATE_ISSUING_PATH ||
+        state == ORDER_STATE_IN_TRANSITION || state == ORDER_STATE_IN_PROGRESS) {
+        state = ORDER_STATE_EXECUTING_ORDER;
     }
 
     Init();
@@ -3249,7 +3250,7 @@ void UnitInfo::StartBuilding() {
         complex->power -= Cargo_GetPowerConsumptionRate(unit_type);
         complex->workers -= Cargo_GetLifeConsumptionRate(unit_type);
 
-        state = ORDER_STATE_1;
+        state = ORDER_STATE_EXECUTING_ORDER;
 
         if (GameManager_PlayerTeam == team) {
             GameManager_OptimizeProduction(team, &*complex, true, true);
@@ -3268,10 +3269,10 @@ void UnitInfo::StartBuilding() {
         Redraw();
 
         moved = 0;
-        state = ORDER_STATE_11;
+        state = ORDER_STATE_BUILD_IN_PROGRESS;
 
         if (unit_type == CONSTRCT) {
-            UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_34);
+            UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_TAPE_POSITIONING_INIT);
 
         } else {
             PrepareConstructionSite(unit_to_build);
@@ -3461,7 +3462,7 @@ void UnitInfo::UpdateProduction() {
 
                 if (orders == ORDER_IDLE) {
                     prior_orders = ORDER_AWAIT;
-                    prior_state = ORDER_STATE_1;
+                    prior_state = ORDER_STATE_EXECUTING_ORDER;
 
                 } else {
                     RestoreOrders();
@@ -3476,8 +3477,8 @@ void UnitInfo::UpdateProduction() {
         }
     }
 
-    if (state == ORDER_STATE_2) {
-        state = ORDER_STATE_1;
+    if (state == ORDER_STATE_READY_TO_EXECUTE_ORDER) {
+        state = ORDER_STATE_EXECUTING_ORDER;
     }
 
     if (complex) {
@@ -3698,7 +3699,7 @@ void UnitInfo::StopMovement() {
     AiLog log("%s at [%i,%i]: Emergency Stop", UnitsManager_BaseUnits[unit_type].singular_name, grid_x + 1, grid_y + 1);
 
     if (orders == ORDER_MOVE && path != nullptr) {
-        if (state == ORDER_STATE_IN_PROGRESS || state == ORDER_STATE_6) {
+        if (state == ORDER_STATE_IN_PROGRESS || state == ORDER_STATE_IN_TRANSITION) {
             path->CancelMovement(this);
 
         } else {
@@ -3737,7 +3738,8 @@ bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
 
                 result = true;
 
-            } else if (orders == ORDER_MOVE && (state == ORDER_STATE_IN_PROGRESS || state == ORDER_STATE_6)) {
+            } else if (orders == ORDER_MOVE &&
+                       (state == ORDER_STATE_IN_PROGRESS || state == ORDER_STATE_IN_TRANSITION)) {
                 result = true;
 
             } else {
@@ -3869,7 +3871,7 @@ bool UnitInfo::GetRepeatBuildState() const { return repeat_build; }
 
 void UnitInfo::SpawnNewUnit() {
     if (unit_type == BULLDOZR) {
-        while (state == ORDER_STATE_6) {
+        while (state == ORDER_STATE_IN_TRANSITION) {
             GameManager_ProcessTick(false);
         }
 
@@ -3899,13 +3901,13 @@ void UnitInfo::SpawnNewUnit() {
         DrawSpriteFrame(image_index - 8);
 
         orders = ORDER_AWAIT;
-        state = ORDER_STATE_1;
+        state = ORDER_STATE_EXECUTING_ORDER;
 
         if (GetParent()->flags & BUILDING) {
             target_grid_x = grid_x;
             target_grid_y = grid_y;
 
-            UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_36);
+            UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_TAPE_POSITIONING_DEINIT);
         }
 
         SetParent(nullptr);
@@ -3925,7 +3927,7 @@ void UnitInfo::SpawnNewUnit() {
 
             factory_unit->SetParent(this);
             factory_unit->SetOrder(ORDER_IDLE);
-            factory_unit->SetOrderState(ORDER_STATE_3);
+            factory_unit->SetOrderState(ORDER_STATE_STORE);
             factory_unit->scaler_adjust = 4;
 
             ++UnitsManager_TeamInfo[team].stats_units_built;
@@ -3983,7 +3985,7 @@ void UnitInfo::SpawnNewUnit() {
 
                 SetParent(nullptr);
                 utility_unit->SetOrder(ORDER_AWAIT);
-                utility_unit->SetOrderState(ORDER_STATE_1);
+                utility_unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
                 UnitsManager_UpdateConnectors(&*utility_unit);
                 Access_UpdateMapStatus(&*utility_unit, true);
@@ -3998,7 +4000,7 @@ void UnitInfo::SpawnNewUnit() {
 
                 } else {
                     orders = ORDER_AWAIT;
-                    state = ORDER_STATE_1;
+                    state = ORDER_STATE_EXECUTING_ORDER;
                 }
 
                 DrawSpriteFrame(angle);
@@ -4047,7 +4049,7 @@ void UnitInfo::BlockedOnPathRequest(bool mode, bool skip_notification) {
         orders = ORDER_AWAIT;
     }
 
-    state = ORDER_STATE_1;
+    state = ORDER_STATE_EXECUTING_ORDER;
 
     if (!ini_get_setting(INI_DISABLE_FIRE)) {
         delayed_reaction = true;
@@ -4183,7 +4185,7 @@ void UnitInfo::RestoreOrders() {
     if (prior_orders == orders && unit_type != COMMTWR && unit_type != MININGST && unit_type != HABITAT &&
         unit_type != POWGEN && unit_type != POWERSTN && unit_type != RESEARCH) {
         prior_orders = ORDER_AWAIT;
-        prior_state = ORDER_STATE_1;
+        prior_state = ORDER_STATE_EXECUTING_ORDER;
     }
 
     orders = prior_orders;
@@ -4466,44 +4468,44 @@ void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
 int32_t UnitInfo::GetTargetUnitAngle() {
     int32_t result;
 
-    if (state == ORDER_STATE_35) {
+    if (state == ORDER_STATE_TAPE_POSITIONING_ENTER) {
         SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(team, grid_x, grid_y));
 
         if (grid_x == utility_unit->grid_x) {
             if (grid_y == utility_unit->grid_y) {
-                result = 3;
+                result = UNIT_ANGLE_SE;
 
             } else {
-                result = 1;
+                result = UNIT_ANGLE_NE;
             }
 
         } else {
             if (grid_y == utility_unit->grid_y) {
-                result = 5;
+                result = UNIT_ANGLE_SW;
 
             } else {
-                result = 7;
+                result = UNIT_ANGLE_NW;
             }
         }
 
     } else {
-        int32_t target_x = target_grid_x * 64 + 32;
-        int32_t target_y = target_grid_y * 64 + 32;
+        int32_t target_x = target_grid_x * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2;
+        int32_t target_y = target_grid_y * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2;
 
         if (target_x > x) {
             if (target_y > y) {
-                result = 3;
+                result = UNIT_ANGLE_SE;
 
             } else {
-                result = 1;
+                result = UNIT_ANGLE_NE;
             }
 
         } else {
             if (target_y > y) {
-                result = 5;
+                result = UNIT_ANGLE_SW;
 
             } else {
-                result = 7;
+                result = UNIT_ANGLE_NW;
             }
         }
     }
@@ -4549,20 +4551,20 @@ int32_t UnitInfo::Repair(int32_t materials) {
 void UnitInfo::CancelBuilding() {
     if (flags & STATIONARY) {
         if (orders == ORDER_BUILD) {
-            if (state == ORDER_STATE_13) {
+            if (state == ORDER_STATE_BUILD_CANCEL) {
                 orders = ORDER_HALT_BUILDING;
 
             } else {
                 orders = ORDER_HALT_BUILDING_2;
             }
 
-            state = ORDER_STATE_1;
+            state = ORDER_STATE_EXECUTING_ORDER;
 
             Cargo_UpdateResourceLevels(this, 1);
 
         } else {
             orders = ORDER_AWAIT;
-            state = ORDER_STATE_1;
+            state = ORDER_STATE_EXECUTING_ORDER;
 
             build_list.Clear();
 
@@ -4589,13 +4591,13 @@ void UnitInfo::CancelBuilding() {
         moved = 0;
 
         orders = ORDER_AWAIT;
-        state = ORDER_STATE_1;
+        state = ORDER_STATE_EXECUTING_ORDER;
 
         if (unit_type == CONSTRCT || (unit_type == BULLDOZR && (GetParent()->flags & BUILDING))) {
             target_grid_x = grid_x;
             target_grid_y = grid_y;
 
-            UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_36);
+            UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_TAPE_POSITIONING_DEINIT);
 
             DrawSpriteFrame(angle);
 
@@ -4684,7 +4686,7 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
 
             complex->Transfer(-materials_cost, 0, 0);
 
-            if (GameManager_PlayerTeam == team && state != ORDER_STATE_1) {
+            if (GameManager_PlayerTeam == team && state != ORDER_STATE_EXECUTING_ORDER) {
                 char unit_mark[10];
                 SmartString message;
 
@@ -4698,7 +4700,7 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
 
             result = true;
 
-        } else if (GameManager_PlayerTeam == team && state != ORDER_STATE_1) {
+        } else if (GameManager_PlayerTeam == team && state != ORDER_STATE_EXECUTING_ORDER) {
             SmartString message;
 
             message.Sprintf(80, _(e3e0), materials_cost);
@@ -4744,13 +4746,13 @@ void UnitInfo::BusyWaitOrder() {
 void UnitInfo::PositionInTape() {
     Ai_SetTasksPendingFlag("Positioning in tape");
 
-    if (state == ORDER_STATE_34) {
+    if (state == ORDER_STATE_TAPE_POSITIONING_INIT) {
         moved = 0;
-        state = ORDER_STATE_35;
+        state = ORDER_STATE_TAPE_POSITIONING_ENTER;
 
-    } else if (state == ORDER_STATE_36) {
+    } else if (state == ORDER_STATE_TAPE_POSITIONING_DEINIT) {
         moved = 0;
-        state = ORDER_STATE_37;
+        state = ORDER_STATE_TAPE_POSITIONING_LEAVE;
     }
 
     RefreshScreen();
@@ -4766,18 +4768,18 @@ void UnitInfo::PositionInTape() {
             PrepareConstructionSite(MININGST);
             UnitsManager_ScaleUnit(this, ORDER_STATE_SHRINK);
 
-        } else if (unit_type == CONSTRCT && old_state == ORDER_STATE_35) {
+        } else if (unit_type == CONSTRCT && old_state == ORDER_STATE_TAPE_POSITIONING_ENTER) {
             PrepareConstructionSite(GetConstructedUnitType());
             Paths_UpdateAngle(this, (angle + 1) & 0x07);
             DrawSpriteFrame(image_index + 16);
 
-        } else if (old_state != ORDER_STATE_35) {
+        } else if (old_state != ORDER_STATE_TAPE_POSITIONING_ENTER) {
             SmartPointer<UnitInfo> copy = MakeCopy();
 
             Hash_MapHash.Remove(this);
 
-            grid_x = x / 64;
-            grid_y = y / 64;
+            grid_x = x / GFX_MAP_TILE_SIZE;
+            grid_y = y / GFX_MAP_TILE_SIZE;
 
             Hash_MapHash.Add(this);
 
@@ -4895,11 +4897,11 @@ bool UnitInfo::ShakeWater() {
         bobbed = false;
     }
 
-    int32_t distance = moved / 64;
+    int32_t distance = moved / GFX_MAP_TILE_SIZE;
     int32_t offset_x = 0;
     int32_t offset_y = 0;
 
-    if (moved >= distance * 64 + 32) {
+    if (moved >= distance * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2) {
         if ((moved & 0x1F) == 0) {
             offset_x = -Paths_8DirPointsArrayX[distance];
             offset_y = -Paths_8DirPointsArrayY[distance];

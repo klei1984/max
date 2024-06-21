@@ -116,7 +116,7 @@ void TaskCreateBuilding::RequestBuilder() {
     TaskManager.AppendTask(*obtain_units_task);
 }
 
-void TaskCreateBuilding::MoveToSite() {
+void TaskCreateBuilding::AbandonSite() {
     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == builder->team) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             builder->target_grid_x = builder->grid_x;
@@ -124,7 +124,7 @@ void TaskCreateBuilding::MoveToSite() {
 
             op_state = CREATE_BUILDING_STATE_MOVING_TO_SITE;
 
-            UnitsManager_SetNewOrder(&*builder, ORDER_BUILD, ORDER_STATE_13);
+            UnitsManager_SetNewOrder(&*builder, ORDER_BUILD, ORDER_STATE_BUILD_CANCEL);
         }
     }
 }
@@ -644,9 +644,9 @@ void TaskCreateBuilding::EndTurn() {
                     } else if (builder->GetOrderState() == ORDER_STATE_UNIT_READY && builder->GetTask() == this) {
                         Activate();
 
-                    } else if (builder->GetOrder() == ORDER_BUILD && builder->GetOrderState() == ORDER_STATE_11 &&
+                    } else if (builder->GetOrder() == ORDER_BUILD && builder->GetOrderState() == ORDER_STATE_BUILD_IN_PROGRESS &&
                                Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false)) {
-                        MoveToSite();
+                        AbandonSite();
                     }
                 }
             } break;

@@ -597,7 +597,7 @@ void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, 
             if ((flags & 2) || ((flags & 1) && (*it).team != team)) {
                 map[(*it).grid_x][(*it).grid_y] = 0;
 
-                if ((*it).path != nullptr && (*it).GetOrderState() != ORDER_STATE_1 && (&*it) != unit) {
+                if ((*it).path != nullptr && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER && (&*it) != unit) {
                     Point position = (*it).path->GetPosition(&*it);
                     map[position.x][position.y] = 0;
                 }

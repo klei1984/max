@@ -972,7 +972,7 @@ int32_t TaskManageBuildings::GetHighestGreenHouseCount(uint16_t team_) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).GetUnitType() == CONSTRCT && (*it).GetOrder() == ORDER_BUILD &&
-            (*it).GetOrderState() == ORDER_STATE_11 && (*it).GetConstructedUnitType() == GREENHSE) {
+            (*it).GetOrderState() == ORDER_STATE_BUILD_IN_PROGRESS && (*it).GetConstructedUnitType() == GREENHSE) {
             ++greenhouse_counts[(*it).team];
         }
     }

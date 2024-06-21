@@ -92,7 +92,7 @@ void TaskActivate::Activate() {
                                                     unit_to_activate->target_grid_y = position.y;
 
                                                     UnitsManager_SetNewOrder(&*unit_to_activate, ORDER_ACTIVATE,
-                                                                             ORDER_STATE_6);
+                                                                             ORDER_STATE_IN_TRANSITION);
                                                 } break;
 
                                                 case ORDER_IDLE: {
@@ -102,7 +102,7 @@ void TaskActivate::Activate() {
                                                     unit_parent->SetParent(&*unit_to_activate);
 
                                                     UnitsManager_SetNewOrder(&*unit_parent, ORDER_ACTIVATE,
-                                                                             ORDER_STATE_1);
+                                                                             ORDER_STATE_EXECUTING_ORDER);
 
                                                 } break;
 
@@ -209,7 +209,7 @@ bool TaskActivate::Execute(UnitInfo& unit) {
     if (unit_to_activate != nullptr && unit_to_activate == unit) {
         if (unit_to_activate->GetOrder() != ORDER_IDLE && unit_to_activate->GetOrder() != ORDER_BUILD &&
             unit_to_activate->GetOrder() != ORDER_EXPLODE && unit_to_activate->GetOrder() != ORDER_AWAIT_SCALING &&
-            unit_to_activate->GetOrderState() != ORDER_STATE_14) {
+            unit_to_activate->GetOrderState() != ORDER_STATE_DESTROY) {
             SmartPointer<Task> task(this);
             Rect bounds;
 

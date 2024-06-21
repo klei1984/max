@@ -273,7 +273,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
         if (IsInPerfectCondition()) {
             SmartPointer<Task> task;
 
-            if (target_unit->GetOrderState() == ORDER_STATE_3) {
+            if (target_unit->GetOrderState() == ORDER_STATE_STORE) {
                 task = new (std::nothrow) TaskActivate(&*target_unit, this, target_unit->GetParent());
 
                 TaskManager.AppendTask(*task);
@@ -309,7 +309,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                 }
 
             } else {
-                if (target_unit->GetOrderState() == ORDER_STATE_3) {
+                if (target_unit->GetOrderState() == ORDER_STATE_STORE) {
                     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam) {
                         log.Log("%s is inside %s.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
                                 UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
@@ -488,7 +488,7 @@ bool TaskRepair::IsInPerfectCondition() {
     if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
         result = false;
 
-    } else if (target_unit->GetOrderState() != ORDER_STATE_3 ||
+    } else if (target_unit->GetOrderState() != ORDER_STATE_STORE ||
                target_unit->ammo >= target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
         result = true;
 
@@ -522,7 +522,7 @@ void TaskRepair::IssueOrder() {
         UnitsManager_SetNewOrder(&*operator_unit, ORDER_REPAIR, ORDER_STATE_INIT);
 
     } else if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO) &&
-               target_unit->GetOrderState() == ORDER_STATE_3) {
+               target_unit->GetOrderState() == ORDER_STATE_STORE) {
         UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);
     }
 }
