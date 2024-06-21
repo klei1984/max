@@ -12,7 +12,6 @@ on:
       - master
       paths-ignore:
       - '**.md'
-      - '**.yml'
       - '**/doc'
 
    pull_request:
@@ -22,7 +21,6 @@ on:
       - reopened
       paths-ignore:
       - '**.md'
-      - '**.yml'
       - '**/doc'
 
 jobs:
