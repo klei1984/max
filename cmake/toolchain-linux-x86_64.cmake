@@ -10,6 +10,21 @@ set(CMAKE_CXX_COMPILER g++)
 
 set(CMAKE_SKIP_RPATH FALSE)
 
-set(CONFIGURE_EXTRA_ARGS --build=x86_64-linux-gnu CC=gcc CXX=g++)
+set(CONFIGURE_EXTRA_ARGS
+	--build=x86_64-pc-linux-gnu
+	CC=gcc
+	CXX=g++
+)
 
-set(MAX_CFLAGS "-Wcomments -Wignored-qualifiers -Wshadow=local -Wtype-limits -Wparentheses -Wuninitialized -Wmaybe-uninitialized -Wformat -Wformat-overflow -Wformat-truncation -Wlogical-op -Wlogical-not-parentheses -fno-eliminate-unused-debug-types")
+add_compile_options(
+	$<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>
+	-Wall
+	-Wno-switch
+	-Wno-unused-function
+	-Wno-unused-variable
+	-Wignored-qualifiers
+	-Wshadow=local
+	-Wtype-limits
+	-Wlogical-op
+	-fno-eliminate-unused-debug-types
+)

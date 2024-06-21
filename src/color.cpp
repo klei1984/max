@@ -42,7 +42,7 @@ void Color_FadeSystemPalette(uint8_t* src, uint8_t* dest, int32_t time_limit) {
     for (int32_t time_spent{0}, measured_time{1}; time_spent < time_limit; time_spent += measured_time) {
         const uint32_t time_stamp = timer_get();
 
-        for (int32_t j = 0; j < sizeof(palette); ++j) {
+        for (uint32_t j = 0; j < sizeof(palette); ++j) {
             const int32_t d = src[j] - dest[j];
 
             palette[j] = src[j] - ((time_spent * d) / time_limit);

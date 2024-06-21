@@ -220,7 +220,7 @@ ResourceID Builder_GetBuilderType(ResourceID unit_type) {
     ResourceID list_item;
     uint16_t list_size;
 
-    for (int32_t i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(uint16_t);) {
+    for (uint32_t i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(uint16_t);) {
         builder_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[i++]);
         list_size = Builder_CapabilityListNormal[i++];
 
@@ -314,7 +314,7 @@ SmartObjectArray<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type) {
     ResourceID buildable_unit;
     uint16_t list_size;
 
-    for (int32_t i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(uint16_t);) {
+    for (uint32_t i = 0; i < sizeof(Builder_CapabilityListNormal) / sizeof(uint16_t);) {
         builder_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[i++]);
         list_size = Builder_CapabilityListNormal[i++];
 

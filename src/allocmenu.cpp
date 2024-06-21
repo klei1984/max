@@ -175,7 +175,7 @@ AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWin
     buf_to_buf(&window.buffer[window.width * 70 + 174], image->width, image->height, window.width,
                &image->transparent_color, image->width);
 
-    for (int32_t i = 0; i < std::size(allocation_menu_titles); ++i) {
+    for (uint32_t i = 0; i < std::size(allocation_menu_titles); ++i) {
         Text_TextBox(window.buffer, window.width, allocation_menu_titles[i].title, allocation_menu_titles[i].bounds.ulx,
                      allocation_menu_titles[i].bounds.uly,
                      allocation_menu_titles[i].bounds.lrx - allocation_menu_titles[i].bounds.ulx,
@@ -183,7 +183,7 @@ AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWin
                      true);
     }
 
-    for (int32_t i = 0; i < std::size(allocation_menu_controls); ++i) {
+    for (uint32_t i = 0; i < std::size(allocation_menu_controls); ++i) {
         InitButton(i);
     }
 
@@ -583,7 +583,7 @@ int32_t AllocMenu::Balance(Complex *complex, int32_t cargo_type, int32_t materia
 }
 
 void AllocMenu::Deinit() {
-    for (int32_t i = 0; i < std::size(allocation_menu_controls); ++i) {
+    for (uint32_t i = 0; i < std::size(allocation_menu_controls); ++i) {
         delete buttons[i];
     }
 

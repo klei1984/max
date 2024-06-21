@@ -41,7 +41,7 @@ typedef struct key_ansi_s {
 } key_ansi_t;
 
 typedef struct key_data_s {
-    char scan_code;
+    uint8_t scan_code;
     uint16_t modifiers;
 } key_data_t;
 

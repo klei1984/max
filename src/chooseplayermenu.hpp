@@ -44,7 +44,7 @@ public:
     uint32_t event_click_done;
     uint32_t event_click_cancel;
     uint32_t game_type;
-    uint32_t key_press;
+    int32_t key_press;
     Button *buttons[CHOOSE_PLAYER_MENU_ITEM_COUNT];
     ChoosePlayerMenuItem menu_item[CHOOSE_PLAYER_MENU_ITEM_COUNT];
 

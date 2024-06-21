@@ -240,7 +240,7 @@ void TextEdit::InsertCharacter(char character) {
     }
 
     if ((mode != 1 || isdigit(character)) && (mode != 2 || isxdigit(character))) {
-        if (strlen(edited_text) < (buffer_size - 1)) {
+        if (strlen(edited_text) < static_cast<uint32_t>(buffer_size - 1)) {
             cursor_blink = false;
             DrawTillCursor();
             strncpy(text_before_cursor, edited_text, cursor_position);

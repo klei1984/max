@@ -39,7 +39,7 @@ class NetLog {
                 log.Log("Tp. packet (type %i).", packet_type);
 
             } else {
-                if (packet.GetDataSize() >= (sizeof(packet_type) + sizeof(entity_id)) &&
+                if (packet.GetDataSize() >= static_cast<int32_t>(sizeof(packet_type) + sizeof(entity_id)) &&
                     packet.Peek(sizeof(packet_type), &entity_id, sizeof(entity_id)) == sizeof(entity_id)) {
                     log.Log("Appl. packet (type %i, id %4X).", packet_type - TRANSPORT_APPL_PACKET_ID, entity_id);
                 }

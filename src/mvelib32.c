@@ -149,8 +149,8 @@ static void sndReset(void);
 static int32_t sndConfigure(int32_t unused, int32_t minimum_buffer_size, int32_t channels, int32_t sample_rate,
                             int32_t format, int32_t compression);
 static void sndSync(void);
-static void sndDecompS16(int8_t *dst, uint8_t *src, int32_t length);
-static void sndDecompM16(int8_t *dst, uint8_t *src, int32_t length);
+static void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length);
+static void sndDecompM16(uint8_t *dst, uint8_t *src, int32_t length);
 static void sndAdd(uint8_t *buffer, int32_t length);
 static void sndRelease(void);
 static void sndPause(void);
@@ -662,7 +662,7 @@ void sndSync(void) {
     }
 }
 
-void sndDecompM16(int8_t *dst, uint8_t *src, int32_t length) {
+void sndDecompM16(uint8_t *dst, uint8_t *src, int32_t length) {
     int32_t count;
     int16_t left;
 
@@ -688,7 +688,7 @@ void sndDecompM16(int8_t *dst, uint8_t *src, int32_t length) {
     }
 }
 
-void sndDecompS16(int8_t *dst, uint8_t *src, int32_t length) {
+void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length) {
     int32_t count;
     int16_t left;
     int16_t right;
@@ -1036,7 +1036,7 @@ int32_t MVE_rmPrepMovie(FILE *handle, int32_t dx, int32_t dy, int32_t track) {
     mve_rm_dy = dy;
     rm_track_bit = 1 << track;
 
-    if (!(1 << track)) {
+    if ((1 << track) == 0) {
         rm_track_bit = 1;
     }
 

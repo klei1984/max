@@ -191,7 +191,7 @@ void Searcher::EvaluateSquare(const Point position, const int32_t cost, const in
         }
 
         if (cost + best_cost <= costs_map[destination.x][destination.y]) {
-            int32_t square_count;
+            uint32_t square_count;
             int32_t loop_limit;
             int32_t index;
 

@@ -1154,7 +1154,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
             if (!Task_RetreatFromDanger(this, unit, caution_level)) {
                 if (secondary_targets[0].GetUnitSpotted()) {
                     uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
-                    char* heat_map;
+                    int8_t* heat_map;
                     int32_t minimum_distance;
                     int32_t unit_hits;
                     int32_t distance;
@@ -1283,7 +1283,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
     bool is_there_time_to_prepare = IsThereTimeToPrepare();
     int32_t surface_type;
     uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
-    char* heat_map;
+    int8_t* heat_map;
     Rect bounds;
     int32_t distance;
     int32_t minimum_distance;

@@ -496,8 +496,8 @@ Button* Gamemanager_FlicButton;
 uint8_t GameManager_CheaterTeam;
 SmartString GameManager_TextInput;
 
-char GameManager_PlayerTeam;
-char GameManager_GameState;
+uint8_t GameManager_PlayerTeam;
+uint8_t GameManager_GameState;
 uint8_t GameManager_ActiveTurnTeam;
 uint8_t GameManager_MarkerColor = 0xFF;
 uint8_t GameManager_PlayMode;
@@ -2260,7 +2260,7 @@ uint16_t GameManager_EvaluateWinner() {
 
     if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
         uint16_t highest_team_points_team = 0;
-        int32_t highest_team_points = 0;
+        uint32_t highest_team_points = 0;
 
         for (uint16_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
             if (UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_NONE &&
@@ -3120,7 +3120,7 @@ void GameManager_InitUnitsAndGameState() {
         GameManager_MultiChatTargets[i] = 1;
     }
 
-    for (int32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
+    for (uint32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
         GameManager_MenuItems[i].disabled = false;
     }
 
@@ -5297,7 +5297,7 @@ void GameManager_EnableMainMenu(UnitInfo* unit) {
     if (!GameManager_IsMainMenuEnabled && GameManager_DisplayControlsInitialized) {
         Gamemanager_FlicButton->Enable();
 
-        for (int32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
+        for (uint32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
             GameManager_MenuItems[i].button->SetRestState(GameManager_MenuItems[i].disabled);
             GameManager_MenuItems[i].button->Enable();
         }
@@ -5336,7 +5336,7 @@ void GameManager_DisableMainMenu() {
 
         Gamemanager_FlicButton->Disable();
 
-        for (int32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
+        for (uint32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
             if (GameManager_MenuItems[i].button) {
                 GameManager_MenuItems[i].button->Disable();
             }
@@ -5647,9 +5647,9 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_F7:
         case GNW_KB_KEY_F8: {
             if (GameManager_IsMainMenuEnabled) {
-                if (team_info->screen_location[key - GNW_KB_KEY_F5].x != -1) {
-                    GameManager_UpdateMainMapView(1, team_info->screen_location[key - GNW_KB_KEY_F5].x,
-                                                  team_info->screen_location[key - GNW_KB_KEY_F5].y);
+                if (team_info->screen_locations[key - GNW_KB_KEY_F5].x != -1) {
+                    GameManager_UpdateMainMapView(1, team_info->screen_locations[key - GNW_KB_KEY_F5].x,
+                                                  team_info->screen_locations[key - GNW_KB_KEY_F5].y);
                 }
             }
         } break;
@@ -5674,8 +5674,8 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_LALT_F6:
         case GNW_KB_KEY_LALT_F7:
         case GNW_KB_KEY_LALT_F8: {
-            team_info->screen_location[key - GNW_KB_KEY_LALT_F5].x = GameManager_GridCenter.x;
-            team_info->screen_location[key - GNW_KB_KEY_LALT_F5].y = GameManager_GridCenter.y;
+            team_info->screen_locations[key - GNW_KB_KEY_LALT_F5].x = GameManager_GridCenter.x;
+            team_info->screen_locations[key - GNW_KB_KEY_LALT_F5].y = GameManager_GridCenter.y;
 
             MessageManager_DrawMessage(_(7615), 0, 0);
         } break;
@@ -7695,7 +7695,7 @@ void GameManager_MenuInitButtons(bool mode) {
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = _(ea1a);
     }
 
-    for (int32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
+    for (uint32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
         delete GameManager_MenuItems[i].button;
         GameManager_MenuItems[i].button = nullptr;
 
@@ -7779,7 +7779,7 @@ void GameManager_MenuInitButtons(bool mode) {
 }
 
 void GameManager_MenuDeinitButtons() {
-    for (int32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
+    for (uint32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {
         delete GameManager_MenuItems[i].button;
         GameManager_MenuItems[i].button = nullptr;
     }
@@ -7948,7 +7948,7 @@ void GameManager_MenuDeinitDisplayControls() {
 
         GameManager_MenuDeinitButtons();
 
-        for (int32_t i = 0; i < sizeof(GameManager_MenuDisplayControls) / sizeof(struct MenuDisplayControl); ++i) {
+        for (uint32_t i = 0; i < sizeof(GameManager_MenuDisplayControls) / sizeof(struct MenuDisplayControl); ++i) {
             delete GameManager_MenuDisplayControls[i].image;
             GameManager_MenuDisplayControls[i].image = nullptr;
 

@@ -885,7 +885,7 @@ uint8_t Access_GetModifiedSurfaceType(int32_t grid_x, int32_t grid_y) {
 
     surface_type = Access_GetSurfaceType(grid_x, grid_y);
 
-    if (surface_type == SURFACE_TYPE_WATER || SURFACE_TYPE_COAST) {
+    if (surface_type == SURFACE_TYPE_WATER || surface_type == SURFACE_TYPE_COAST) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
@@ -973,7 +973,7 @@ int32_t Access_FindUnitInUnitList(UnitInfo* unit) {
 
     result = -1;
 
-    for (int32_t i = 0; i < std::size(Access_UnitsLists); ++i) {
+    for (uint32_t i = 0; i < std::size(Access_UnitsLists); ++i) {
         if (Access_UnitsLists[i]->Find(*unit) != Access_UnitsLists[i]->End()) {
             result = i;
             break;
@@ -2065,7 +2065,7 @@ bool Access_AreTaskEventsPending() {
         }
     }
 
-    for (int32_t i = 0; i < std::size(UnitsManager_DelayedAttackTargets); ++i) {
+    for (uint32_t i = 0; i < std::size(UnitsManager_DelayedAttackTargets); ++i) {
         if (UnitsManager_DelayedAttackTargets[i].GetCount()) {
             return true;
         }

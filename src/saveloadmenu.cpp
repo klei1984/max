@@ -797,7 +797,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
         file.Write(team_info->team_points);
         file.Write(team_info->number_of_objects_created);
         file.Write(team_info->unit_counters);
-        file.Write(team_info->screen_location);
+        file.Write(team_info->screen_locations);
         file.Write(team_info->score_graph, sizeof(team_info->score_graph));
 
         if (team_info->selected_unit != nullptr) {
@@ -972,7 +972,7 @@ bool SaveLoadMenu_Load(int32_t save_slot, int32_t game_file_type, bool ini_load_
                 file.Read(team_info->team_points);
                 file.Read(team_info->number_of_objects_created);
                 file.Read(team_info->unit_counters);
-                file.Read(team_info->screen_location);
+                file.Read(team_info->screen_locations);
                 file.Read(team_info->score_graph, sizeof(team_info->score_graph));
                 file.Read(selected_unit_ids[team]);
                 file.Read(team_info->zoom_level);

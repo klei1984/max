@@ -2690,7 +2690,7 @@ void Remote_ReceiveNetPacket_35(NetPacket& packet) {
 
     if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
         uint16_t source_node;
-        char team_slot;
+        uint8_t team_slot;
         bool ready_state;
         SmartString team_name;
 

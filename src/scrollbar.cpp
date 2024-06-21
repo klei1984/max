@@ -102,8 +102,8 @@ void Scrollbar::ProcessValueChange(int16_t value) {
 }
 
 Scrollbar::Scrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds, ResourceID id,
-                     int32_t key_code_increase, int32_t key_code_decrease, int32_t key_code_click_slider, int16_t scaling_factor,
-                     bool vertical)
+                     int32_t key_code_increase, int32_t key_code_decrease, int32_t key_code_click_slider,
+                     int16_t scaling_factor, bool vertical)
     : material_bar(id),
       key_code_increase(key_code_increase),
       key_code_decrease(key_code_decrease),

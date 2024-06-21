@@ -876,7 +876,7 @@ bool menu_check_end_game_conditions(int32_t global_turn, int32_t local_turn, boo
         } else {
             for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
-                    UnitsManager_TeamInfo[team].team_points >= ini_victory_limit) {
+                    static_cast<int32_t>(UnitsManager_TeamInfo[team].team_points) >= ini_victory_limit) {
                     menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
                     return true;
                 }
@@ -918,7 +918,7 @@ void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int32_t 
     }
 }
 
-void menu_draw_logo(ResourceID resource_id, int32_t time_limit) {
+void menu_draw_logo(ResourceID resource_id, uint32_t time_limit) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     uint32_t time_stamp;
 
@@ -948,7 +948,7 @@ void ReadFile(FILE* fp, T& buffer) {
 }
 
 template <typename T>
-void ReadFile(FILE* fp, T* buffer, int32_t size) {
+void ReadFile(FILE* fp, T* buffer, uint32_t size) {
     if (fread(buffer, sizeof(char), size, fp) != size) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
@@ -978,13 +978,13 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
 
         ReadFile(fp, palette);
 
-        for (int32_t i = 0; i < sizeof(palette); ++i) {
+        for (uint32_t i = 0; i < sizeof(palette); ++i) {
             palette[i] /= 4;
         }
 
         WindowManager_ColorPalette = Color_GetColorPalette();
 
-        for (int32_t i = 0; i < sizeof(palette); i += PALETTE_STRIDE) {
+        for (uint32_t i = 0; i < sizeof(palette); i += PALETTE_STRIDE) {
             palette[i / PALETTE_STRIDE] =
                 Color_MapColor(WindowManager_ColorPalette, palette[i], palette[i + 1], palette[i + 2], true);
         }
@@ -1560,7 +1560,7 @@ void menu_credits_menu_loop() {
     int32_t window_height;
     bool play;
     int32_t height_offset;
-    int32_t line_index;
+    uint32_t line_index;
     uint8_t* image_buffer_position;
     uint8_t* window_buffer_position;
     uint32_t time_stamp;
@@ -1741,7 +1741,7 @@ int32_t menu_planet_select_menu_loop() {
             event_release = false;
         }
 
-        for (int32_t i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
+        for (uint32_t i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
             if (planet_select_menu.buttons[i]) {
                 if (planet_select_menu.key == GNW_INPUT_PRESS + i) {
                     if (!event_release) {
@@ -1868,9 +1868,9 @@ int32_t menu_choose_player_menu_loop(bool game_type) {
             event_release = false;
         }
 
-        for (int32_t i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
+        for (uint32_t i = 0; i < CHOOSE_PLAYER_MENU_ITEM_COUNT; ++i) {
             if (choose_player_menu.buttons[i]) {
-                if (choose_player_menu.key_press == i + GNW_INPUT_PRESS) {
+                if (choose_player_menu.key_press == static_cast<int32_t>(i + GNW_INPUT_PRESS)) {
                     if (!event_release) {
                         choose_player_menu.buttons[i]->PlaySound();
                     }

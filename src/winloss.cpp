@@ -584,11 +584,12 @@ int32_t WinLoss_CheckWinConditions(uint16_t team, int32_t turn_counter) {
 
                     default: {
                         if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
-                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points >= ini_setting_victory_limit) {
+                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points >=
+                                static_cast<uint32_t>(ini_setting_victory_limit)) {
                                 result = VICTORY_STATE_WON;
 
                             } else if (UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_points >=
-                                       ini_setting_victory_limit) {
+                                       static_cast<uint32_t>(ini_setting_victory_limit)) {
                                 result = VICTORY_STATE_LOST;
 
                             } else {

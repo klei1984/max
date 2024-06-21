@@ -90,8 +90,8 @@ extern Button* Gamemanager_FlicButton;
 extern uint8_t GameManager_PlayMode;
 extern bool GameManager_FastMovement;
 extern uint8_t GameManager_ActiveTurnTeam;
-extern char GameManager_PlayerTeam;
-extern char GameManager_GameState;
+extern uint8_t GameManager_PlayerTeam;
+extern uint8_t GameManager_GameState;
 
 extern bool GameManager_DisplayButtonLock;
 extern bool GameManager_DisplayButtonScan;

@@ -607,7 +607,7 @@ uint8_t* Gfx_RescaleSprite(uint8_t* buffer, uint32_t* data_size, int32_t mode, i
 
     delete[] frames;
 
-    SDL_assert((decoded_image_frame - decoded_image_buffer) == *data_size);
+    SDL_assert(static_cast<uint32_t>(decoded_image_frame - decoded_image_buffer) == *data_size);
 
     return decoded_image_buffer;
 }
@@ -615,7 +615,7 @@ uint8_t* Gfx_RescaleSprite(uint8_t* buffer, uint32_t* data_size, int32_t mode, i
 void Gfx_RenderCircle(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height, int32_t xc, int32_t yc,
                       int32_t radius, int32_t color) {
 #define Gfx_RenderCirclePoint(x, y) \
-    if ((x) < width && (y) < height && (x) >= 0 && (y) >= 0) buffer[(y)*full_width + (x)] = color
+    if ((x) < width && (y) < height && (x) >= 0 && (y) >= 0) buffer[(y) * full_width + (x)] = color
 
     int32_t x = 0;
     int32_t y = radius;

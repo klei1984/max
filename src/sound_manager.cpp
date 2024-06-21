@@ -338,7 +338,7 @@ void SoundManager::InitVolumeTable() noexcept {
 
     volumes = new (std::nothrow) SoundVolume[table_size];
 
-    for (int32_t i = 0; i < table_size; ++i) {
+    for (uint32_t i = 0; i < table_size; ++i) {
         volumes[i].volume = static_cast<float>(ini_soundvol.GetUnitVolume((ResourceID)(FXS_STRT + i + 1))) / 0x7FFF;
         volumes[i].flags = -1;
     }
@@ -355,7 +355,7 @@ void SoundManager::UpdateMusic() noexcept {
     if (music && !ma_sound_is_playing(&music->sound)) {
         if (shuffle_music) {
             ResourceID resource_id;
-            int32_t index;
+            uint32_t index;
 
             /* if all tracks were played from the list, reset list state */
             for (index = 0; (index < std::size(music_playlist)) && (music_playlist[index] != true); ++index) {
@@ -562,7 +562,7 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
             int32_t grid_distance_x;
             int32_t grid_distance_y;
             int32_t loop_count;
-            int32_t sound_index;
+            uint32_t sound_index;
             int32_t volume_index;
             int32_t resource_id;
 
@@ -1138,8 +1138,8 @@ void SoundManager::LoadLoopPoints(FILE* const fp, SoundSample& sample) noexcept 
 
                                     SampleLoop sample_loop;
 
-                                    for (int32_t i = 0; i < sampler_chunk.num_sample_loops &&
-                                                        fread(&sample_loop, sizeof(sample_loop), 1, fp);
+                                    for (uint32_t i = 0; i < sampler_chunk.num_sample_loops &&
+                                                         fread(&sample_loop, sizeof(sample_loop), 1, fp);
                                          ++i) {
                                         sample.loop_point_start =
                                             (static_cast<uint64_t>(sample_loop.start) * SOUND_MANAGER_SAMPLE_RATE *

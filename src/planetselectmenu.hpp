@@ -56,8 +56,8 @@ enum PlanetType {
 class PlanetSelectMenu;
 
 struct PlanetSelectMenuItem {
-    int32_t r_value;
-    int32_t event_code;
+    uint32_t r_value;
+    uint32_t event_code;
     void (PlanetSelectMenu::*event_handler)();
 };
 

@@ -472,7 +472,7 @@ Uint32* Text_Utf8ToUcs4(const char* str) {
 
             SDL_iconv(Text_CurrentFont->cd, nullptr, nullptr, nullptr, nullptr);
 
-            if (SDL_iconv(Text_CurrentFont->cd, &src_str, &src_len, &dst_str, &dst_len) != -1) {
+            if (SDL_iconv(Text_CurrentFont->cd, &src_str, &src_len, &dst_str, &dst_len) != SDL_ICONV_ERROR) {
                 Text_AddCachedString(buffer, hash);
                 result = buffer;
 

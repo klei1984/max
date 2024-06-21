@@ -246,7 +246,7 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
             AiLog log("SDL_LockTexture failed: %s\n", SDL_GetError());
 
         } else {
-            for (uint32_t h = 0; h < bounds.h; ++h) {
+            for (int32_t h = 0; h < bounds.h; ++h) {
                 SDL_memcpy(target_pixels, source_pixels, bounds.w * sizeof(Uint32));
                 source_pixels += sdlWindowSurface->w;
                 target_pixels = &(static_cast<Uint32 *>(target_pixels)[target_pitch / sizeof(Uint32)]);

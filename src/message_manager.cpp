@@ -39,7 +39,7 @@ static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte int
 char MessageManager_MessageBuffer[MESSAGE_MANAGER_MESSAGE_BUFFER_SIZE];
 char MessageManager_TextBuffer[MESSAGE_MANAGER_TEXT_BUFFER_SIZE];
 
-int16_t MessageManager_MessageBuffer_Length;
+uint16_t MessageManager_MessageBuffer_Length;
 int16_t MessageManager_MessageBox_Width;
 int16_t MessageManager_MessageBox_Height;
 ColorIndex* MessageManager_MessageBox_BgColor;
@@ -105,7 +105,7 @@ void MessageManager_AddMessage(const char* text, ResourceID id) {
     }
 }
 
-void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Point point) {
+void MessageManager_DrawMessage(const char* text, uint8_t type, UnitInfo* unit, Point point) {
     if (text[0] != '\0') {
         MessageManager_TeamMessageLog[GameManager_PlayerTeam].PushBack(
             *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, unit, point)));
@@ -119,7 +119,7 @@ void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Poi
     }
 }
 
-void MessageManager_DrawMessage(const char* text, char type, int32_t mode, bool flag1, bool save_to_log) {
+void MessageManager_DrawMessage(const char* text, uint8_t type, int32_t mode, bool flag1, bool save_to_log) {
     if (text && *text != '\0') {
         if (mode) {
             DialogMenu dialog(text, flag1);

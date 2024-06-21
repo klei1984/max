@@ -771,8 +771,8 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                     } break;
 
                     default: {
-                        SDL_assert(key - 1002 >= 0 &&
-                                   key - 1002 < sizeof(options_menu_buttons) / sizeof(struct OptionsButton));
+                        SDL_assert(key - 1002 >= 0 && static_cast<size_t>(key - 1002) <
+                                                          sizeof(options_menu_buttons) / sizeof(struct OptionsButton));
 
                         options_menu_buttons[key - 1002].button->PlaySound();
                         event_release = false;

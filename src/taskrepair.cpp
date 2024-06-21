@@ -78,7 +78,7 @@ void TaskRepair::ChooseOperator() {
 
 void TaskRepair::DoRepairs() {
     if (target_unit->GetTask() == this ||
-        !(operator_unit->flags & (MOBILE_AIR_UNIT || MOBILE_SEA_UNIT || MOBILE_LAND_UNIT))) {
+        (operator_unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == 0) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
             (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
             AiLog log("Repair/reload %s: perform repair.",

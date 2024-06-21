@@ -256,7 +256,7 @@ void PlanetSelectMenu::AnimateWorldChange(int32_t world1, int32_t world2, bool d
             }
         }
 
-        delete window_buffer;
+        delete[] window_buffer;
     }
 
     delete[] world1_image;

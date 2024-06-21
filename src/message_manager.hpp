@@ -26,8 +26,9 @@
 #include "unitinfo.hpp"
 
 void MessageManager_AddMessage(const char* text, ResourceID id);
-void MessageManager_DrawMessage(const char* text, char type, UnitInfo* unit, Point point);
-void MessageManager_DrawMessage(const char* text, char type, int32_t mode, bool flag1 = false, bool save_to_log = false);
+void MessageManager_DrawMessage(const char* text, uint8_t type, UnitInfo* unit, Point point);
+void MessageManager_DrawMessage(const char* text, uint8_t type, int32_t mode, bool flag1 = false,
+                                bool save_to_log = false);
 void MessageManager_DrawMessageBox();
 void MessageManager_ClearMessageBox();
 void MessageManager_DrawTextMessage(WindowInfo* window, uint8_t* buffer, int32_t width, int32_t left_margin,

@@ -870,7 +870,7 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
 
         int32_t team_count = 0;
         int16_t enemies[PLAYER_TEAM_MAX];
-        char* heat_maps_stealth_sea[PLAYER_TEAM_MAX];
+        int8_t* heat_maps_stealth_sea[PLAYER_TEAM_MAX];
 
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
             if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
@@ -905,7 +905,7 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         }
 
         for (int32_t team = 0; team < team_count; ++team) {
-            char* active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_complete;
+            int8_t* active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_complete;
 
             if (risk_level == 6) {
                 active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_sea;

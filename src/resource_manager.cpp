@@ -1168,7 +1168,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     uint16_t map_layer_count = 0;
     Point map_layer_dimensions[12];
     int32_t map_minimap_count;
-    int32_t map_dimensions;
+    uint32_t map_dimensions;
     int32_t file_position;
     int32_t file_offset;
     uint16_t map_tile_count = 0;
@@ -1229,7 +1229,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     map_minimap_count = 1;
 
     if (fseek(fp, (map_minimap_count - 1) * map_dimensions, SEEK_CUR) ||
-        map_dimensions != fread(ResourceManager_Minimap, sizeof(char), map_dimensions, fp)) {
+        map_dimensions != fread(ResourceManager_Minimap, sizeof(uint8_t), map_dimensions, fp)) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
@@ -1292,9 +1292,9 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     }
 
     {
-        int32_t data_chunk_size = map_dimensions / 4;
+        uint32_t data_chunk_size = map_dimensions / 4;
 
-        for (int32_t data_offset = 0; data_offset < map_dimensions;) {
+        for (uint32_t data_offset = 0; data_offset < map_dimensions;) {
             data_chunk_size = std::min(data_chunk_size, map_dimensions - data_offset);
             if (fread(&ResourceManager_MapTileIds[data_offset], sizeof(uint16_t), data_chunk_size, fp) !=
                 data_chunk_size) {
@@ -1360,7 +1360,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
             pass_table[i] = ResourceManager_PassData[pass_table[i]];
         }
 
-        for (int32_t i = 0; i < map_dimensions; ++i) {
+        for (uint32_t i = 0; i < map_dimensions; ++i) {
             ResourceManager_MapSurfaceMap[i] = pass_table[ResourceManager_MapTileIds[i]];
         }
 
@@ -1371,7 +1371,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
     ResourceManager_CargoMap = new (std::nothrow) uint16_t[map_dimensions];
 
-    for (int32_t i = 0; i < map_dimensions; ++i) {
+    for (uint32_t i = 0; i < map_dimensions; ++i) {
         ResourceManager_CargoMap[i] = 0;
     }
 
@@ -1460,7 +1460,7 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     int32_t tile_size;
     int32_t reduced_tile_count;
     int32_t tile_index;
-    int32_t data_size;
+    uint32_t data_size;
     uint8_t *normal_tile_buffer;
     uint8_t *full_tile_buffer{nullptr};
 
@@ -1588,13 +1588,13 @@ void ResourceManager_InitClanUnitValues(uint16_t team) {
 
 void ResourceManager_InitHeatMaps(uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type) {
-        UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+        UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) int8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
         memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
 
-        UnitsManager_TeamInfo[team].heat_map_stealth_sea = new (std::nothrow) char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+        UnitsManager_TeamInfo[team].heat_map_stealth_sea = new (std::nothrow) int8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
         memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
 
-        UnitsManager_TeamInfo[team].heat_map_stealth_land = new (std::nothrow) char[GFX_MAP_SIZE * GFX_MAP_SIZE];
+        UnitsManager_TeamInfo[team].heat_map_stealth_land = new (std::nothrow) int8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
         memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
 
     } else {
@@ -1607,14 +1607,7 @@ void ResourceManager_InitHeatMaps(uint16_t team) {
 void ResourceManager_InitTeamInfo() {
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
         UnitsManager_TeamMissionSupplies[i].units.Clear();
-        UnitsManager_TeamInfo[i].selected_unit = nullptr;
-
-        memset(&UnitsManager_TeamInfo[i], 0, sizeof(CTInfo));
-        memset(UnitsManager_TeamInfo[i].markers, -1, sizeof(UnitsManager_TeamInfo[i].markers));
-        memset(UnitsManager_TeamInfo[i].unit_counters, 1, sizeof(UnitsManager_TeamInfo[i].unit_counters));
-        memset(UnitsManager_TeamInfo[i].screen_location, -1, sizeof(UnitsManager_TeamInfo[i].screen_location));
-        memset(UnitsManager_TeamInfo[i].score_graph, 0, sizeof(UnitsManager_TeamInfo[i].score_graph));
-        memset(UnitsManager_TeamInfo[i].casualties, 0, sizeof(UnitsManager_TeamInfo[i].casualties));
+        UnitsManager_TeamInfo[i].Reset();
 
         if (i < PLAYER_TEAM_MAX - 1) {
             UnitsManager_TeamInfo[i].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));

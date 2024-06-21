@@ -775,7 +775,7 @@ bool TaskManageBuildings::IsSafeSite(uint16_t** construction_map, Point site, Re
                 }
             }
 
-            SDL_assert(marker_index <= sizeof(markers) / sizeof(markers[0]));
+            SDL_assert(marker_index <= static_cast<int32_t>(sizeof(markers) / sizeof(markers[0])));
 
             if (marker_index > 1 && markers[0] == markers[marker_index - 1]) {
                 --marker_index;
@@ -941,7 +941,7 @@ bool TaskManageBuildings::IsSupremeTeam(uint16_t team_) {
     if (team_points > 0) {
         for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
             if (UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_NONE) {
-                if (team_points <= UnitsManager_TeamInfo[i].team_points) {
+                if (static_cast<uint32_t>(team_points) <= UnitsManager_TeamInfo[i].team_points) {
                     return false;
                 }
             }

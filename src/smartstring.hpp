@@ -45,18 +45,18 @@ class SmartString {
         uint16_t length{0};
 
     public:
-        StringObject(uint16_t size) noexcept : size(size), reference_count(1) {
+        StringObject(uint16_t size) noexcept : reference_count(1), size(size) {
             buffer = new (std::nothrow) char[size + 1];
             buffer[0] = '\0';
         }
 
-        StringObject(const char* const cstring) noexcept : size(strlen(cstring)), length(size), reference_count(1) {
+        StringObject(const char* const cstring) noexcept : reference_count(1), size(strlen(cstring)), length(size) {
             buffer = new (std::nothrow) char[size + 1];
             (void)strcpy(buffer, cstring);
         }
 
         StringObject(const StringObject& other) noexcept
-            : size(other.GetSize()), length(other.GetLength()), reference_count(1) {
+            : reference_count(1), size(other.GetSize()), length(other.GetLength()) {
             buffer = new (std::nothrow) char[size + 1];
             (void)strcpy(buffer, other.GetCStr());
         }
