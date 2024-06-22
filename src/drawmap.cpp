@@ -899,21 +899,17 @@ void DrawMap_RenderUnits() {
 }
 
 void DrawMap_RenderMapTile(int32_t ulx, int32_t uly, Rect bounds, uint8_t* buffer) {
-    int32_t grid_x;
-    int32_t grid_y;
-
-    grid_x = (bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-    grid_y = (bounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+    const int32_t position_x = (bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+    const int32_t position_y = (bounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
 
     Gfx_MapWindowBuffer =
-        &buffer[grid_y * WindowManager_GetWidth(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)) + grid_x];
-    Gfx_MapBigmapIileIdBufferOffset = ResourceManager_MapSize.x * uly + ulx;
+        &buffer[position_y * WindowManager_GetWidth(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)) + position_x];
 
     if (ResourceManager_DisableEnhancedGraphics) {
-        Gfx_DecodeMapTile(&bounds, GFX_MAP_TILE_SIZE / 2, 10);
+        Gfx_DecodeMapTile(&bounds, GFX_MAP_TILE_SIZE / 2, ResourceManager_MapSize.x * uly + ulx, 10);
 
     } else {
-        Gfx_DecodeMapTile(&bounds, GFX_MAP_TILE_SIZE, 12);
+        Gfx_DecodeMapTile(&bounds, GFX_MAP_TILE_SIZE, ResourceManager_MapSize.x * uly + ulx, 12);
     }
 }
 

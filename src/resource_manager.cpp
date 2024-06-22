@@ -111,8 +111,6 @@ uint8_t *ResourceManager_MapSurfaceMap;
 uint16_t *ResourceManager_CargoMap;
 uint16_t ResourceManager_MapTileCount;
 
-uint8_t ResourceManager_PassData[4] = {SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST, SURFACE_TYPE_AIR};
-
 Point ResourceManager_MapSize;
 
 const char *const ResourceManager_ResourceIdList[RESOURCE_E] = {
@@ -1346,9 +1344,9 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     }
 
     {
-        uint8_t *pass_table;
-
-        pass_table = new (std::nothrow) uint8_t[ResourceManager_MapTileCount];
+        const uint8_t ResourceManager_PassData[] = {SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST,
+                                                    SURFACE_TYPE_AIR};
+        uint8_t *pass_table{new (std::nothrow) uint8_t[ResourceManager_MapTileCount]};
 
         ResourceManager_MapSurfaceMap = new (std::nothrow) uint8_t[map_dimensions];
 
@@ -1457,54 +1455,45 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 }
 
 bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
-    int32_t tile_size;
-    int32_t reduced_tile_count;
-    int32_t tile_index;
-    uint32_t data_size;
-    uint8_t *normal_tile_buffer;
-    uint8_t *full_tile_buffer{nullptr};
-
-    tile_size = GFX_MAP_TILE_SIZE;
-
-    reduced_tile_count = (ResourceManager_MapTileCount + 7) / 8;
+    int32_t tile_size{GFX_MAP_TILE_SIZE};
+    int32_t tile_count_stride{(ResourceManager_MapTileCount + 7) / 8};
+    uint8_t *tile_data_chunk{nullptr};
 
     if (ResourceManager_DisableEnhancedGraphics) {
         tile_size /= 2;
-        full_tile_buffer = new (std::nothrow) uint8_t[reduced_tile_count * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
+        tile_data_chunk = new (std::nothrow) uint8_t[tile_count_stride * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
     }
 
     ResourceManager_MapTileBuffer = new (std::nothrow) uint8_t[ResourceManager_MapTileCount * tile_size * tile_size];
 
-    for (int32_t i = 0; i < ResourceManager_MapTileCount; i += reduced_tile_count) {
+    for (int32_t i = 0; i < ResourceManager_MapTileCount; i += tile_count_stride) {
         loadbar->SetValue(i * 50 / ResourceManager_MapTileCount + 20);
 
         if (!ResourceManager_DisableEnhancedGraphics) {
-            full_tile_buffer = &ResourceManager_MapTileBuffer[i * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
+            tile_data_chunk = &ResourceManager_MapTileBuffer[i * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE];
         }
 
-        tile_index = std::min(reduced_tile_count, ResourceManager_MapTileCount - i);
-        data_size = tile_index * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE;
+        const int32_t tile_count = std::min(tile_count_stride, ResourceManager_MapTileCount - i);
+        const uint32_t data_size = tile_count * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE;
 
-        if (data_size != fread(full_tile_buffer, sizeof(uint8_t), data_size, fp)) {
+        if (data_size != fread(tile_data_chunk, sizeof(uint8_t), data_size, fp)) {
+            delete[] tile_data_chunk;
             return false;
         }
 
         if (ResourceManager_DisableEnhancedGraphics) {
-            uint8_t *address;
-            int32_t offset;
+            uint8_t *source_address{tile_data_chunk};
+            uint8_t *destination_address{&ResourceManager_MapTileBuffer[tile_size * tile_size * i]};
 
-            address = full_tile_buffer;
-            normal_tile_buffer = &ResourceManager_MapTileBuffer[tile_size * tile_size * i];
-
-            for (int32_t j = 0; j < tile_index; ++j) {
+            for (int32_t j = 0; j < tile_count; ++j) {
                 for (int32_t k = 0; k < tile_size; ++k) {
                     for (int32_t l = 0; l < tile_size; ++l) {
-                        *normal_tile_buffer = *address;
-                        normal_tile_buffer += 1;
-                        address += 2;
+                        *destination_address = *source_address;
+                        destination_address += 1;
+                        source_address += 2;
                     }
 
-                    address += 64;
+                    source_address += 64;
                 }
             }
         }
@@ -1513,7 +1502,7 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     loadbar->SetValue(70);
 
     if (ResourceManager_DisableEnhancedGraphics) {
-        delete[] full_tile_buffer;
+        delete[] tile_data_chunk;
     }
 
     return true;

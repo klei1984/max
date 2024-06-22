@@ -45,7 +45,6 @@ uint8_t Gfx_TeamColorIndexBase;
 ColorIndex* Gfx_ColorIndices;
 uint8_t Gfx_UnitBrightnessBase;
 uint32_t Gfx_MapBrightness;
-uint32_t Gfx_MapBigmapIileIdBufferOffset;
 uint8_t* Gfx_MapWindowBuffer;
 uint32_t Gfx_ZoomLevel;
 int32_t Gfx_MapScalingFactor;
@@ -59,37 +58,10 @@ uint32_t Gfx_ScalingFactorHeight;
 int32_t Gfx_TargetScreenBufferOffset;
 uint32_t Gfx_SpriteRowIndex;
 uint8_t* Gfx_SpriteRowAddress;
-ColorIndex* Gfx_Decode_ColorMap;
 int16_t Gfx_PixelCount;
 int16_t Gfx_word_1686D6;
 int16_t Gfx_word_1686D8;
 int16_t Gfx_word_1686DA;
-uint32_t Gfx_DecodeMap_TileSize;
-Rect* Gfx_DecodeMap_Bounds;
-Rect Gfx_DecodeMap_BoundsLocal;
-int32_t Gfx_DecodeMap_DiffUlxFactor;
-int32_t Gfx_DecodeMap_DiffUlyFactor;
-int32_t Gfx_DecodeMap_dword_1686FC;
-int32_t Gfx_DecodeMap_dword_168700;
-uint8_t Gfx_DecodeMap_TileBufferQuotient;
-uint8_t Gfx_DecodeMap_TilesInViewX;
-uint8_t Gfx_DecodeMap_TilesInViewY;
-char Gfx_DecodeMap_DiffUlx;
-char Gfx_DecodeMap_DiffUly;
-char Gfx_DecodeMap_DiffLrx;
-char Gfx_DecodeMap_DiffLry;
-char Gfx_DecodeMap_byte_16870B;
-char Gfx_DecodeMap_byte_16870C;
-int16_t Gfx_DecodeMap_TilesInViewY_Index;
-int16_t Gfx_DecodeMap_TilesInViewX_Index;
-char Gfx_DecodeMap_byte_16870F;
-uint16_t* Gfx_DecodeMap_MapTileIds;
-uint8_t* Gfx_DecodeMap_MapTileBuffer;
-int32_t Gfx_DecodeMap_dword_168720;
-uint8_t* Gfx_DecodeMap_dword_168724;
-uint8_t* Gfx_DecodeMap_MainMapWindowBuffer;
-uint8_t* Gfx_DecodeMap_dword_16872C;
-int32_t Gfx_DecodeMap_MapTileZoomFactor;
 
 const Rect Gfx_DirectionCorrections[8] = {
     {1, 0, 0, 1},   {0, -1, -1, 0}, {0, 1, -1, 0}, {1, 0, 0, -1},
@@ -154,133 +126,91 @@ bool Gfx_DecodeSpriteSetup(Point point, uint8_t* buffer, int32_t divisor, Rect* 
     return result;
 }
 
-void Gfx_DecodeMapTile(Rect* bounds, uint32_t tile_size, uint8_t quotient) {
-    Gfx_DecodeMap_Bounds = bounds;
-    Gfx_DecodeMap_TileSize = tile_size;
-    Gfx_DecodeMap_TileBufferQuotient = quotient;
+void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size, const uint32_t tile_id,
+                       const uint8_t quotient) {
+    if (pixel_bounds->lry - 1 > pixel_bounds->uly && pixel_bounds->lrx - 1 > pixel_bounds->ulx) {
+        const uint32_t map_tile_zoom_factor{(((tile_size - 1) << 16) / (Gfx_ZoomLevel - 1)) + 8};
 
-    if (Gfx_DecodeMap_Bounds->lry - 1 > Gfx_DecodeMap_Bounds->uly &&
-        Gfx_DecodeMap_Bounds->lrx - 1 > Gfx_DecodeMap_Bounds->ulx) {
-        int32_t difference;
-        int32_t zoom_level;
-        int32_t factor;
-        uint8_t* map_tile_buffer;
-        int32_t tile_index;
+        const ColorIndex* color_table{&ResourceManager_ColorIndexTable13x8[(Gfx_MapBrightness & (~31)) * 8]};
 
-        tile_index = 0;
+        const Rect clipped_bounds = {.ulx = pixel_bounds->ulx & (~63),
+                                     .uly = pixel_bounds->uly & (~63),
+                                     .lrx = ((pixel_bounds->lrx - 1) & (~63)) + 63,
+                                     .lry = ((pixel_bounds->lry - 1) & (~63)) + 63};
 
-        Gfx_DecodeMap_MainMapWindowBuffer = Gfx_MapWindowBuffer;
+        const int32_t tile_count_x{(clipped_bounds.lrx - clipped_bounds.ulx) / 64 + 1};
 
-        Gfx_DecodeMap_MapTileIds = &ResourceManager_MapTileIds[Gfx_MapBigmapIileIdBufferOffset];
+        const int32_t tile_count_y{(clipped_bounds.lry - clipped_bounds.uly) / 64 + 1};
 
-        Gfx_Decode_ColorMap = &ResourceManager_ColorIndexTable13x8[(Gfx_MapBrightness & 0xFFFFFFE0) * 8];
+        const int32_t scaling_error_ulx =
+            (((pixel_bounds->ulx) << 16) / Gfx_MapScalingFactor) - ((clipped_bounds.ulx << 16) / Gfx_MapScalingFactor);
 
-        Gfx_DecodeMap_MapTileZoomFactor = (((Gfx_DecodeMap_TileSize - 1) << 16) / (Gfx_ZoomLevel - 1)) + 8;
+        const int32_t scaling_error_ulx_factor = scaling_error_ulx * map_tile_zoom_factor;
 
-        Gfx_DecodeMap_BoundsLocal.ulx = Gfx_DecodeMap_Bounds->ulx & (0xFFFFFFFF << 6);
-        Gfx_DecodeMap_BoundsLocal.uly = Gfx_DecodeMap_Bounds->uly & (0xFFFFFFFF << 6);
-        Gfx_DecodeMap_BoundsLocal.lrx = ((Gfx_DecodeMap_Bounds->lrx - 1) & (0xFFFFFFFF << 6)) + 63;
-        Gfx_DecodeMap_BoundsLocal.lry = ((Gfx_DecodeMap_Bounds->lry - 1) & (0xFFFFFFFF << 6)) + 63;
+        const int32_t scaling_error_uly =
+            (((pixel_bounds->uly) << 16) / Gfx_MapScalingFactor) - ((clipped_bounds.uly << 16) / Gfx_MapScalingFactor);
 
-        Gfx_DecodeMap_TilesInViewX = (Gfx_DecodeMap_BoundsLocal.lrx - Gfx_DecodeMap_BoundsLocal.ulx) / 64 + 1;
-        Gfx_DecodeMap_TilesInViewY = (Gfx_DecodeMap_BoundsLocal.lry - Gfx_DecodeMap_BoundsLocal.uly) / 64 + 1;
+        const int32_t scaling_error_uly_factor = scaling_error_uly * map_tile_zoom_factor;
 
-        difference = (((Gfx_DecodeMap_Bounds->ulx) << 16) / Gfx_MapScalingFactor) -
-                     ((Gfx_DecodeMap_BoundsLocal.ulx << 16) / Gfx_MapScalingFactor);
-        Gfx_DecodeMap_DiffUlx = difference;
-        Gfx_DecodeMap_DiffUlxFactor = difference * Gfx_DecodeMap_MapTileZoomFactor;
+        const int32_t scaling_error_lrx = ((clipped_bounds.lrx << 16) / Gfx_MapScalingFactor) -
+                                          (((pixel_bounds->lrx - 1) << 16) / Gfx_MapScalingFactor);
 
-        difference = (((Gfx_DecodeMap_Bounds->uly) << 16) / Gfx_MapScalingFactor) -
-                     ((Gfx_DecodeMap_BoundsLocal.uly << 16) / Gfx_MapScalingFactor);
-        Gfx_DecodeMap_DiffUly = difference;
-        Gfx_DecodeMap_DiffUlyFactor = difference * Gfx_DecodeMap_MapTileZoomFactor;
+        const int32_t scaling_error_lry = ((clipped_bounds.lry << 16) / Gfx_MapScalingFactor) -
+                                          (((pixel_bounds->lry - 1) << 16) / Gfx_MapScalingFactor);
 
-        Gfx_DecodeMap_DiffLrx = ((Gfx_DecodeMap_BoundsLocal.lrx << 16) / Gfx_MapScalingFactor) -
-                                (((Gfx_DecodeMap_Bounds->lrx - 1) << 16) / Gfx_MapScalingFactor);
+        uint8_t* map_buffer{Gfx_MapWindowBuffer};
+        int32_t tile_index{0};
 
-        Gfx_DecodeMap_DiffLry = ((Gfx_DecodeMap_BoundsLocal.lry << 16) / Gfx_MapScalingFactor) -
-                                (((Gfx_DecodeMap_Bounds->lry - 1) << 16) / Gfx_MapScalingFactor);
+        for (int32_t y{tile_count_y}; y > 0; --y) {
+            uint32_t tile_stride_y{Gfx_ZoomLevel};
+            int32_t offset_y{0};
+            uint8_t* map_address_y{map_buffer};
 
-        Gfx_DecodeMap_TilesInViewY_Index = Gfx_DecodeMap_TilesInViewY;
-
-        do {
-            Gfx_DecodeMap_TilesInViewX_Index = Gfx_DecodeMap_TilesInViewX;
-
-            zoom_level = Gfx_ZoomLevel;
-            factor = 0;
-
-            if (Gfx_DecodeMap_TilesInViewY_Index == Gfx_DecodeMap_TilesInViewY) {
-                zoom_level -= Gfx_DecodeMap_DiffUly;
-                factor = Gfx_DecodeMap_DiffUlyFactor;
+            if (y == tile_count_y) {
+                tile_stride_y -= scaling_error_uly;
+                offset_y = scaling_error_uly_factor;
             }
 
-            if (Gfx_DecodeMap_TilesInViewY_Index == 1) {
-                zoom_level -= Gfx_DecodeMap_DiffLry;
+            if (y == 1) {
+                tile_stride_y -= scaling_error_lry;
             }
 
-            Gfx_DecodeMap_byte_16870C = zoom_level;
-            Gfx_DecodeMap_dword_168700 = factor;
-            Gfx_DecodeMap_dword_168724 = Gfx_DecodeMap_MainMapWindowBuffer;
+            map_buffer = &map_buffer[WindowManager_WindowWidth * tile_stride_y];
 
-            Gfx_DecodeMap_MainMapWindowBuffer =
-                &Gfx_DecodeMap_MainMapWindowBuffer[WindowManager_WindowWidth * zoom_level];
+            for (int32_t x{tile_count_x}; x > 0; --x) {
+                uint8_t* const tile_buffer{
+                    &ResourceManager_MapTileBuffer[ResourceManager_MapTileIds[tile_id + tile_index] << quotient]};
+                uint8_t* map_tile_buffer = &tile_buffer[(offset_y >> 16) << (quotient >> 1)];
 
-            do {
-                Gfx_DecodeMap_MapTileBuffer = &ResourceManager_MapTileBuffer[Gfx_DecodeMap_MapTileIds[tile_index]
-                                                                             << Gfx_DecodeMap_TileBufferQuotient];
-                map_tile_buffer = Gfx_DecodeMap_MapTileBuffer;
+                uint32_t tile_stride_x{Gfx_ZoomLevel};
+                int32_t offset_x{0};
+                uint8_t* map_address_x{map_address_y};
 
-                Gfx_DecodeMap_dword_168720 = Gfx_DecodeMap_dword_168700;
-
-                map_tile_buffer =
-                    &map_tile_buffer[(Gfx_DecodeMap_dword_168700 >> 16) << (Gfx_DecodeMap_TileBufferQuotient >> 1)];
-
-                Gfx_DecodeMap_byte_16870F = Gfx_DecodeMap_byte_16870C;
-
-                zoom_level = Gfx_ZoomLevel;
-                factor = 0;
-
-                if (Gfx_DecodeMap_TilesInViewX_Index == Gfx_DecodeMap_TilesInViewX) {
-                    zoom_level -= Gfx_DecodeMap_DiffUlx;
-                    factor = Gfx_DecodeMap_DiffUlxFactor;
+                if (x == tile_count_x) {
+                    tile_stride_x -= scaling_error_ulx;
+                    offset_x = scaling_error_ulx_factor;
                 }
 
-                if (Gfx_DecodeMap_TilesInViewX_Index == 1) {
-                    zoom_level -= Gfx_DecodeMap_DiffLrx;
+                if (x == 1) {
+                    tile_stride_x -= scaling_error_lrx;
                 }
 
-                Gfx_DecodeMap_byte_16870B = zoom_level;
-                Gfx_DecodeMap_dword_1686FC = factor;
-                Gfx_DecodeMap_dword_16872C = Gfx_DecodeMap_dword_168724;
+                map_address_y = &map_address_y[tile_stride_x];
 
-                Gfx_DecodeMap_dword_168724 = &Gfx_DecodeMap_dword_168724[zoom_level];
-
-                do {
-                    factor = Gfx_DecodeMap_dword_1686FC;
-
-                    for (int32_t i = 0; i < Gfx_DecodeMap_byte_16870B; ++i) {
-                        Gfx_DecodeMap_dword_16872C[i] = Gfx_Decode_ColorMap[map_tile_buffer[factor >> 16]];
-                        factor += Gfx_DecodeMap_MapTileZoomFactor;
+                for (uint32_t j{0}; j < tile_stride_y; ++j) {
+                    for (uint32_t i{0}; i < tile_stride_x; ++i) {
+                        map_address_x[i + j * WindowManager_WindowWidth] =
+                            color_table[map_tile_buffer[(offset_x + i * map_tile_zoom_factor) >> 16]];
                     }
 
-                    Gfx_DecodeMap_dword_16872C = &Gfx_DecodeMap_dword_16872C[WindowManager_WindowWidth];
-                    Gfx_DecodeMap_dword_168720 += Gfx_DecodeMap_MapTileZoomFactor;
-                    map_tile_buffer = &Gfx_DecodeMap_MapTileBuffer[(Gfx_DecodeMap_dword_168720 >> 16)
-                                                                   << (Gfx_DecodeMap_TileBufferQuotient >> 1)];
-
-                    --Gfx_DecodeMap_byte_16870F;
-
-                } while (Gfx_DecodeMap_byte_16870F);
+                    map_tile_buffer = &tile_buffer[((offset_y + j * map_tile_zoom_factor) >> 16) << (quotient >> 1)];
+                }
 
                 ++tile_index;
-                --Gfx_DecodeMap_TilesInViewX_Index;
+            }
 
-            } while (Gfx_DecodeMap_TilesInViewX_Index);
-
-            tile_index += ResourceManager_MapSize.x - Gfx_DecodeMap_TilesInViewX;
-            --Gfx_DecodeMap_TilesInViewY_Index;
-
-        } while (Gfx_DecodeMap_TilesInViewY_Index);
+            tile_index += ResourceManager_MapSize.x - tile_count_x;
+        }
     }
 }
 
@@ -292,7 +222,7 @@ void Gfx_DecodeSprite() {
     int32_t ebp;
     uint8_t* row_address;
 
-    Gfx_Decode_ColorMap = &ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & 0xE0) * 8];
+    const ColorIndex* color_table{&ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & (~31)) * 8]};
 
     for (Gfx_SpriteRowIndex = Gfx_ScaledOffset.y * Gfx_ScalingFactorHeight;;
          Gfx_SpriteRowIndex += Gfx_ScalingFactorHeight) {
@@ -402,7 +332,7 @@ void Gfx_DecodeSprite() {
                     if (Gfx_TeamColorIndexBase) {
                         memset(address,
                                reinterpret_cast<uint8_t*>(
-                                   (reinterpret_cast<uintptr_t>(Gfx_Decode_ColorMap) & ~0xFF))[Gfx_TeamColorIndexBase],
+                                   (reinterpret_cast<uintptr_t>(color_table) & ~0xFF))[Gfx_TeamColorIndexBase],
                                temp);
                         offset += temp;
                     } else {
@@ -410,7 +340,7 @@ void Gfx_DecodeSprite() {
 
                         for (int32_t i = 0; i < temp; ++i) {
                             address[i] = reinterpret_cast<uint8_t*>(
-                                (reinterpret_cast<uintptr_t>(Gfx_Decode_ColorMap) & ~0xFF))[reinterpret_cast<uint8_t*>(
+                                (reinterpret_cast<uintptr_t>(color_table) & ~0xFF))[reinterpret_cast<uint8_t*>(
                                 (reinterpret_cast<uintptr_t>(Gfx_ColorIndices) & ~0xFF))[row_address[ebp >> 16]]];
                             ebp += Gfx_ScalingFactorWidth;
                         }

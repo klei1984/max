@@ -34,11 +34,12 @@
 #define GFX_SCALE_NUMERATOR (GFX_MAP_TILE_SIZE * GFX_SCALE_DENOMINATOR)
 
 bool Gfx_DecodeSpriteSetup(Point point, uint8_t* buffer, int32_t divisor, Rect* bounds);
-void Gfx_DecodeMapTile(Rect* bounds, uint32_t tile_size, uint8_t quotient);
+void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size, const uint32_t tile_id,
+                       const uint8_t quotient);
 void Gfx_DecodeSprite();
 void Gfx_DecodeShadow();
-void Gfx_RenderCircle(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height, int32_t xc, int32_t yc, int32_t radius,
-                      int32_t color);
+void Gfx_RenderCircle(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height, int32_t xc, int32_t yc,
+                      int32_t radius, int32_t color);
 uint8_t* Gfx_RescaleSprite(uint8_t* buffer, uint32_t* data_size, int32_t mode, int32_t scaling_factor);
 
 extern uint8_t* Gfx_ResourceBuffer;
@@ -47,7 +48,7 @@ extern uint8_t Gfx_TeamColorIndexBase;
 extern ColorIndex* Gfx_ColorIndices;
 extern uint8_t Gfx_UnitBrightnessBase;
 extern uint32_t Gfx_MapBrightness;
-extern uint32_t Gfx_MapBigmapIileIdBufferOffset;
+extern uint32_t Gfx_MapBigmapTileIdBufferOffset;
 extern uint8_t* Gfx_MapWindowBuffer;
 extern uint32_t Gfx_ZoomLevel;
 extern int32_t Gfx_MapScalingFactor;
