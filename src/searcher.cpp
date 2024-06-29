@@ -41,24 +41,23 @@ void Searcher_DrawMarker(int32_t angle, int32_t grid_x, int32_t grid_y, int32_t 
 
     window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
-    pixel_x = grid_x * 64 + 32;
-    pixel_y = grid_y * 64 + 32;
+    grid_x = grid_x * 64 + 32;
+    grid_y = grid_y * 64 + 32;
 
-    if (pixel_x < GameManager_MapWindowDrawBounds.lrx && pixel_x > GameManager_MapWindowDrawBounds.ulx &&
-        pixel_y < GameManager_MapWindowDrawBounds.lry && pixel_y > GameManager_MapWindowDrawBounds.uly) {
+    if (grid_x < GameManager_MapWindowDrawBounds.lrx && grid_x > GameManager_MapWindowDrawBounds.ulx &&
+        grid_y < GameManager_MapWindowDrawBounds.lry && grid_y > GameManager_MapWindowDrawBounds.uly) {
+        pixel_x = (grid_x << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+        pixel_y = (grid_y << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+
+        Paths_DrawMarker(window, angle, pixel_x, pixel_y, color);
+
+        bounds.ulx = window->window.ulx + pixel_x - (Gfx_ZoomLevel / 2);
+        bounds.uly = window->window.uly + pixel_y - (Gfx_ZoomLevel / 2);
+        bounds.lrx = bounds.ulx + Gfx_ZoomLevel;
+        bounds.lry = bounds.uly + Gfx_ZoomLevel;
+
+        win_draw_rect(window->id, &bounds);
     }
-
-    grid_x = (pixel_x << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-    grid_y = (pixel_y << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
-
-    Paths_DrawMarker(window, angle, grid_x, grid_y, color);
-
-    bounds.ulx = window->window.ulx + grid_x - (Gfx_ZoomLevel / 2);
-    bounds.uly = window->window.uly + grid_y - (Gfx_ZoomLevel / 2);
-    bounds.lrx = bounds.ulx + Gfx_ZoomLevel;
-    bounds.lry = bounds.uly + Gfx_ZoomLevel;
-
-    win_draw_rect(window->id, &bounds);
 }
 
 int32_t Searcher_EvaluateCost(const Point position, const Point new_position, const bool air_support) {
