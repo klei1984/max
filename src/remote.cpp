@@ -1844,13 +1844,13 @@ void Remote_ReceiveNetPacket_14(NetPacket& packet) {
     packet >> grid_x;
     packet >> grid_y;
 
-    bool state_backup = GameManager_UnknownFlag3;
+    bool state_backup = GameManager_QuickBuildMenuActive;
 
-    GameManager_UnknownFlag3 = true;
+    GameManager_QuickBuildMenuActive = true;
 
     GameManager_DeployUnit(entity_id, unit_type, grid_x, grid_y);
 
-    GameManager_UnknownFlag3 = state_backup;
+    GameManager_QuickBuildMenuActive = state_backup;
 }
 
 void Remote_SendNetPacket_16(const char* file_name, const char* file_title) {

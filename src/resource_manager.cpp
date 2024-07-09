@@ -765,12 +765,10 @@ int32_t ResourceManager_InitResManager() {
 uint8_t *ResourceManager_ReadResource(ResourceID id) {
     uint8_t *resource_buffer;
 
-    SDL_assert(id < RESOURCE_E);
-
     if (id == INVALID_ID) {
         resource_buffer = nullptr;
     } else {
-        SDL_assert(id > MEM_END);
+        SDL_assert(id > MEM_END && id < RESOURCE_E);
 
         if (ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
             resource_buffer = nullptr;

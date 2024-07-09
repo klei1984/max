@@ -78,7 +78,7 @@ void Access_UpdateResourcesTotal(Complex *complex);
 void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, bool remove_rubble, bool remove_connectors,
                              bool remove_road);
 void Access_DestroyGroundCovers(int32_t grid_x, int32_t grid_y);
-UnitInfo *Access_GetUnit5(int32_t grid_x, int32_t grid_y);
+UnitInfo *Access_GetQuickBuilderUnit(int32_t grid_x, int32_t grid_y);
 UnitInfo *Access_GetUnit3(int32_t grid_x, int32_t grid_y, uint32_t flags);
 UnitInfo *Access_GetUnit1(int32_t grid_x, int32_t grid_y);
 UnitInfo *Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team);

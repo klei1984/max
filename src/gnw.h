@@ -95,7 +95,7 @@ void win_delete(WinID id);
 void win_buffering(int32_t state);
 void win_border(WinID id);
 void win_set_bk_color(int32_t color);
-void win_print(WinID id, char* str, int32_t field_width, int32_t x, int32_t y, int32_t color);
+void win_print(WinID id, const char* str, int32_t field_width, int32_t x, int32_t y, int32_t color);
 void win_text(WinID id, char** list, int32_t num, int32_t field_width, int32_t x, int32_t y, int32_t color);
 void win_line(WinID id, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
 void win_box(WinID id, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, int32_t color);

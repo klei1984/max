@@ -1365,7 +1365,7 @@ bool Access_IsChildOfUnitInList(UnitInfo* unit, SmartList<UnitInfo>* list, Smart
     return *it != list->End();
 }
 
-UnitInfo* Access_GetUnit5(int32_t grid_x, int32_t grid_y) {
+UnitInfo* Access_GetQuickBuilderUnit(int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit;
 
     unit = nullptr;

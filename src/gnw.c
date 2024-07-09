@@ -447,7 +447,7 @@ void win_set_bk_color(int32_t color) {
     }
 }
 
-void win_print(WinID id, char *str, int32_t field_width, int32_t x, int32_t y, int32_t color) {
+void win_print(WinID id, const char *str, int32_t field_width, int32_t x, int32_t y, int32_t color) {
     GNW_Window *w;
     uint8_t *buf;
 

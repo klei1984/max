@@ -4126,7 +4126,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
         }
     }
 
-    if (GameManager_GameState != GAME_STATE_12 && !GameManager_UnknownFlag3 && !is_existing_unit) {
+    if (GameManager_GameState != GAME_STATE_12 && !GameManager_QuickBuildMenuActive && !is_existing_unit) {
         unit->storage = 0;
     }
 
@@ -5636,7 +5636,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     }
 
     if ((unit_flags & (BUILDING | STANDALONE)) || unit_orders == ORDER_BUILD || unit_orders == ORDER_CLEAR) {
-        if (unit_type == CONSTRCT && unit_orders == ORDER_BUILD) {
+        if (unit_type == CONSTRCT && unit_orders == ORDER_BUILD && rubble_type == SMLRUBLE) {
             SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(unit_team, unit_grid_x, unit_grid_y));
 
             unit_grid_x = utility_unit->grid_x;
