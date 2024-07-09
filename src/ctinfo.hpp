@@ -37,7 +37,7 @@ struct ScreenLocation {
 };
 
 struct CTInfo {
-    CTInfo() { Reset(); }
+    CTInfo() : heat_map_complete(nullptr), heat_map_stealth_sea(nullptr), heat_map_stealth_land(nullptr) { Reset(); }
 
     void Reset() noexcept {
         for (auto& marker : markers) {
@@ -66,8 +66,11 @@ struct CTInfo {
 
         team_units = nullptr;
         selected_unit = nullptr;
+
         zoom_level = 0;
+
         camera_position = {0, 0};
+
         display_button_range = 0;
         display_button_scan = 0;
         display_button_status = 0;
@@ -79,6 +82,7 @@ struct CTInfo {
         display_button_minimap_tnt = 0;
         display_button_grid = 0;
         display_button_survey = 0;
+
         stats_factories_built = 0;
         stats_mines_built = 0;
         stats_buildings_built = 0;
@@ -93,8 +97,13 @@ struct CTInfo {
             casualty = 0;
         }
 
+        delete[] heat_map_complete;
         heat_map_complete = nullptr;
+
+        delete[] heat_map_stealth_sea;
         heat_map_stealth_sea = nullptr;
+
+        delete[] heat_map_stealth_land;
         heat_map_stealth_land = nullptr;
     }
 

@@ -46,18 +46,35 @@ DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, GameManager_GetDia
 DrawLoadBar::~DrawLoadBar() { delete loadbar; }
 
 void DrawLoadBar::SetValue(int16_t value) {
-    int16_t length;
-
     loadbar->SetValue(value);
     loadbar->RefreshScreen();
 
-    length = 112 * value / 75;
+    if (value <= 80) {
+        int32_t length = ResourceManager_MapSize.y * value / 75;
 
-    if (length > 112) {
-        length = 112;
+        if (length > ResourceManager_MapSize.y) {
+            length = ResourceManager_MapSize.y;
+        }
+
+        const int32_t window_width{window.window.lrx - window.window.ulx + 1 - 76};
+        const int32_t window_height{window.window.lry - window.window.uly + 1 - 99};
+
+        if (ResourceManager_MapSize.x == window_width && ResourceManager_MapSize.y == window_height) {
+            buf_to_buf(ResourceManager_MinimapFov, ResourceManager_MapSize.x, length, ResourceManager_MapSize.x,
+                       &window.buffer[window.width * 21 + 37], window.width);
+
+        } else {
+            int32_t output_length = window_height * value / 75;
+
+            if (output_length > window_height) {
+                output_length = window_height;
+            }
+
+            cscale(ResourceManager_MinimapFov, ResourceManager_MapSize.x, length, ResourceManager_MapSize.x,
+                   &window.buffer[window.width * 21 + 37], window_width, output_length, window.width);
+        }
     }
 
-    buf_to_buf(ResourceManager_Minimap, 112, length, 112, &window.buffer[window.width * 21 + 37], window.width);
     win_draw_rect(window.id, &window.window);
     process_bk();
 }

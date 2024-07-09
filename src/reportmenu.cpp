@@ -501,7 +501,8 @@ void ReportMenu::Run() {
         GameManager_MenuUnitSelect(&*GameManager_SelectedUnit);
 
         if (GameManager_SelectedUnit != nullptr) {
-            GameManager_UpdateMainMapView(1, GameManager_SelectedUnit->grid_x, GameManager_SelectedUnit->grid_y);
+            GameManager_UpdateMainMapView(MAP_VIEW_CENTER, GameManager_SelectedUnit->grid_x,
+                                          GameManager_SelectedUnit->grid_y);
         }
     }
 

@@ -2295,4 +2295,11 @@ enum AiStrategyType : uint8_t {
     AI_STRATEGY_MAX
 };
 
+enum MapViewUpdateType : uint8_t {
+    MAP_VIEW_ZOOM,
+    MAP_VIEW_CENTER,
+    MAP_VIEW_SCROLL,
+    MAP_VIEW_REFRESH,
+};
+
 #endif /* ENUMS_HPP */

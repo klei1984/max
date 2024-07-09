@@ -703,6 +703,7 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
     char team_types[PLAYER_TEAM_MAX - 1];
     struct SaveFormatHeader file_header;
     uint16_t game_state;
+    const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
     if (!play_voice) {
         bool corruption_detected = SaveLoadMenu_RunPlausibilityTests();
@@ -779,9 +780,9 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
 
     ini_config.SaveSection(file, INI_OPTIONS);
 
-    file.Write(ResourceManager_MapSurfaceMap, ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint8_t));
+    file.Write(ResourceManager_MapSurfaceMap, map_cell_count * sizeof(uint8_t));
 
-    file.Write(ResourceManager_CargoMap, ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint16_t));
+    file.Write(ResourceManager_CargoMap, map_cell_count * sizeof(uint16_t));
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         CTInfo *team_info;
@@ -858,9 +859,9 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            file.Write(UnitsManager_TeamInfo[team].heat_map_complete, 112 * 112);
-            file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 112 * 112);
-            file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_land, 112 * 112);
+            file.Write(UnitsManager_TeamInfo[team].heat_map_complete, map_cell_count);
+            file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_sea, map_cell_count);
+            file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_land, map_cell_count);
         }
     }
 
@@ -951,11 +952,11 @@ bool SaveLoadMenu_Load(int32_t save_slot, int32_t game_file_type, bool ini_load_
 
             GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
 
-            file.Read(ResourceManager_MapSurfaceMap,
-                      ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint8_t));
+            const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
-            file.Read(ResourceManager_CargoMap,
-                      ResourceManager_MapSize.x * ResourceManager_MapSize.y * sizeof(uint16_t));
+            file.Read(ResourceManager_MapSurfaceMap, map_cell_count * sizeof(uint8_t));
+
+            file.Read(ResourceManager_CargoMap, map_cell_count * sizeof(uint16_t));
 
             ResourceManager_InitTeamInfo();
 
@@ -1080,18 +1081,18 @@ bool SaveLoadMenu_Load(int32_t save_slot, int32_t game_file_type, bool ini_load_
                     ResourceManager_InitHeatMaps(team);
 
                     if (team_info->team_type != TEAM_TYPE_NONE) {
-                        file.Read(team_info->heat_map_complete, 112 * 112);
-                        file.Read(team_info->heat_map_stealth_sea, 112 * 112);
-                        file.Read(team_info->heat_map_stealth_land, 112 * 112);
+                        file.Read(team_info->heat_map_complete, map_cell_count);
+                        file.Read(team_info->heat_map_stealth_sea, map_cell_count);
+                        file.Read(team_info->heat_map_stealth_land, map_cell_count);
 
                     } else {
                         char *temp_buffer;
 
-                        temp_buffer = new (std::nothrow) char[112 * 112];
+                        temp_buffer = new (std::nothrow) char[map_cell_count];
 
-                        file.Read(temp_buffer, 112 * 112);
-                        file.Read(temp_buffer, 112 * 112);
-                        file.Read(temp_buffer, 112 * 112);
+                        file.Read(temp_buffer, map_cell_count);
+                        file.Read(temp_buffer, map_cell_count);
+                        file.Read(temp_buffer, map_cell_count);
 
                         delete[] temp_buffer;
 

@@ -101,9 +101,10 @@ ColorIndex *ResourceManager_ColorIndexTable11;
 ColorIndex *ResourceManager_ColorIndexTable12;
 ColorIndex *ResourceManager_ColorIndexTable13x8;
 
-uint8_t *ResourceManager_MinimapFov;
 uint8_t *ResourceManager_Minimap;
-uint8_t *ResourceManager_Minimap2x;
+uint8_t *ResourceManager_MinimapUnits;
+uint8_t *ResourceManager_MinimapFov;
+uint8_t *ResourceManager_MinimapBgImage;
 
 uint16_t *ResourceManager_MapTileIds;
 uint8_t *ResourceManager_MapTileBuffer;
@@ -112,6 +113,11 @@ uint16_t *ResourceManager_CargoMap;
 uint16_t ResourceManager_MapTileCount;
 
 Point ResourceManager_MapSize;
+Point ResourceManager_MinimapWindowSize;
+Point ResourceManager_MinimapWindowOffset;
+double ResourceManager_MinimapWindowScale;
+uint8_t *ResourceManager_MainmapBgImage;
+int32_t ResourceManager_MainmapZoomLimit;
 
 const char *const ResourceManager_ResourceIdList[RESOURCE_E] = {
     "COMMTWR",  "POWERSTN", "POWGEN",   "BARRACKS", "SHIELDGN", "RADAR",    "ADUMP",    "FDUMP",    "GOLDSM",
@@ -362,6 +368,8 @@ static void ResourceManager_TestMouse();
 static bool ResourceManager_GetGameDataPath(std::filesystem::path &path);
 static int32_t ResourceManager_BuildResourceTable(const char *const cstr, const ResourceType type);
 static int32_t ResourceManager_BuildColorTables();
+static void ResourceManager_InitMinimapResources();
+static void ResourceManager_InitMainmapResources();
 static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
 static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values);
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
@@ -733,23 +741,15 @@ int32_t ResourceManager_InitResManager() {
             result = ResourceManager_BuildResourceTable("MAX.RES", ResourceType_GameData);
 
             if (result == EXIT_CODE_NO_ERROR) {
-                ResourceManager_MinimapFov = new (std::nothrow) uint8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
-                ResourceManager_Minimap = new (std::nothrow) uint8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
-                ResourceManager_Minimap2x = new (std::nothrow) uint8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
+                if (ResourceManager_BuildColorTables()) {
+                    Cursor_Init();
 
-                if (ResourceManager_MinimapFov && ResourceManager_Minimap && ResourceManager_Minimap2x) {
-                    if (ResourceManager_BuildColorTables()) {
-                        Cursor_Init();
-
-                        for (int16_t j = 0; j < UNIT_END; ++j) {
-                            UnitsManager_BaseUnits[j].Init(&UnitsManager_AbstractUnits[j]);
-                        }
-
-                        result = EXIT_CODE_NO_ERROR;
-
-                    } else {
-                        result = EXIT_CODE_INSUFFICIENT_MEMORY;
+                    for (int16_t j = 0; j < UNIT_END; ++j) {
+                        UnitsManager_BaseUnits[j].Init(&UnitsManager_AbstractUnits[j]);
                     }
+
+                    result = EXIT_CODE_NO_ERROR;
+
                 } else {
                     result = EXIT_CODE_INSUFFICIENT_MEMORY;
                 }
@@ -1160,13 +1160,97 @@ const char *ResourceManager_ToLowerCase(std::string &string) {
     return string.c_str();
 }
 
+void ResourceManager_InitMinimapResources() {
+    const WindowInfo *mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
+    const int32_t mmw_width{mmw->window.lrx - mmw->window.ulx + 1};
+    const int32_t mmw_height{mmw->window.lry - mmw->window.uly + 1};
+
+    delete[] ResourceManager_MinimapFov;
+    ResourceManager_MinimapFov = nullptr;
+
+    delete[] ResourceManager_Minimap;
+    ResourceManager_Minimap = nullptr;
+
+    delete[] ResourceManager_MinimapUnits;
+    ResourceManager_MinimapUnits = nullptr;
+
+    ResourceManager_MinimapFov = new (std::nothrow) uint8_t[ResourceManager_MapSize.x * ResourceManager_MapSize.y];
+    ResourceManager_Minimap = new (std::nothrow) uint8_t[ResourceManager_MapSize.x * ResourceManager_MapSize.y];
+    ResourceManager_MinimapUnits = new (std::nothrow) uint8_t[ResourceManager_MapSize.x * ResourceManager_MapSize.y];
+
+    if (ResourceManager_MinimapFov == nullptr || ResourceManager_Minimap == nullptr ||
+        ResourceManager_MinimapUnits == nullptr) {
+        ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
+    }
+
+    SDL_assert(mmw_width == mmw_height);
+
+    Point offset;
+    Point map_size{ResourceManager_MapSize};
+    double scale{1.0};
+
+    if (ResourceManager_MapSize.x != mmw_width || ResourceManager_MapSize.y != mmw_height) {
+        if (ResourceManager_MapSize.x > ResourceManager_MapSize.y) {
+            if (ResourceManager_MapSize.x == mmw_width) {
+                map_size.x = mmw_width;
+                map_size.y = ResourceManager_MapSize.y;
+                offset.y = (mmw_height - map_size.y) / 2;
+
+            } else {
+                scale = static_cast<double>(mmw_width) / ResourceManager_MapSize.x;
+
+                map_size.x = mmw_width;
+                map_size.y = ResourceManager_MapSize.y * scale;
+                offset.y = (mmw_height - map_size.y) / 2;
+            }
+
+        } else if (ResourceManager_MapSize.x == ResourceManager_MapSize.y) {
+            map_size.x = mmw_width;
+            map_size.y = mmw_height;
+            scale = static_cast<double>(mmw_width) / ResourceManager_MapSize.x;
+
+        } else {
+            if (ResourceManager_MapSize.y == mmw_height) {
+                map_size.x = ResourceManager_MapSize.x;
+                map_size.y = mmw_height;
+                offset.x = (mmw_width - map_size.x) / 2;
+
+            } else {
+                scale = static_cast<double>(mmw_height) / ResourceManager_MapSize.y;
+
+                map_size.x = ResourceManager_MapSize.x * scale;
+                map_size.y = mmw_height;
+                offset.x = (mmw_width - map_size.x) / 2;
+            }
+        }
+    }
+
+    ResourceManager_MinimapWindowSize = map_size;
+    ResourceManager_MinimapWindowOffset = offset;
+    ResourceManager_MinimapWindowScale = scale;
+}
+
+void ResourceManager_InitMainmapResources() {
+    const WindowInfo *mmw = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+    const int32_t mmw_width{mmw->window.lrx - mmw->window.ulx + 1};
+    const int32_t mmw_height{mmw->window.lry - mmw->window.uly + 1};
+
+    delete[] ResourceManager_MainmapBgImage;
+    ResourceManager_MainmapBgImage = new (std::nothrow) uint8_t[mmw_width * mmw_height];
+
+    buf_to_buf(mmw->buffer, mmw_width, mmw_height, mmw->width, ResourceManager_MainmapBgImage, mmw_width);
+
+    ResourceManager_MainmapZoomLimit = std::max(std::min(WindowManager_MapWidth / ResourceManager_MapSize.x,
+                                                         WindowManager_MapHeight / ResourceManager_MapSize.y),
+                                                4);
+}
+
 void ResourceManager_InitInGameAssets(int32_t world) {
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     int32_t progress_bar_value;
     uint16_t map_layer_count = 0;
     Point map_layer_dimensions[12];
     int32_t map_minimap_count;
-    uint32_t map_dimensions;
     int32_t file_position;
     int32_t file_offset;
     uint16_t map_tile_count = 0;
@@ -1196,9 +1280,20 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     delete[] ResourceManager_CargoMap;
     ResourceManager_CargoMap = nullptr;
 
+    delete[] ResourceManager_MinimapBgImage;
+    ResourceManager_MinimapBgImage = nullptr;
+
     SoundManager_FreeMusic();
 
     WindowManager_LoadBigImage(FRAMEPIC, window, window->width, true, false, -1, -1, false, true);
+
+    const WindowInfo *mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
+    const int32_t mmw_width{mmw->window.lrx - mmw->window.ulx + 1};
+    const int32_t mmw_height{mmw->window.lry - mmw->window.uly + 1};
+
+    ResourceManager_MinimapBgImage = new (std::nothrow) uint8_t[mmw_width * mmw_height];
+
+    buf_to_buf(mmw->buffer, mmw_width, mmw_height, mmw->width, ResourceManager_MinimapBgImage, mmw_width);
 
     GameManager_InitLandingSequenceMenu(GameManager_GameState == GAME_STATE_7_SITE_SELECT);
 
@@ -1223,15 +1318,21 @@ void ResourceManager_InitInGameAssets(int32_t world) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
-    map_dimensions = map_layer_dimensions[0].x * map_layer_dimensions[0].y;
     map_minimap_count = 1;
 
-    if (fseek(fp, (map_minimap_count - 1) * map_dimensions, SEEK_CUR) ||
-        map_dimensions != fread(ResourceManager_Minimap, sizeof(uint8_t), map_dimensions, fp)) {
+    ResourceManager_MapSize = map_layer_dimensions[map_minimap_count - 1];
+
+    ResourceManager_InitMainmapResources();
+    ResourceManager_InitMinimapResources();
+
+    const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
+
+    if (fseek(fp, (map_minimap_count - 1) * map_cell_count, SEEK_CUR) ||
+        map_cell_count != fread(ResourceManager_MinimapFov, sizeof(uint8_t), map_cell_count, fp)) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
-    memcpy(ResourceManager_MinimapFov, ResourceManager_Minimap, map_dimensions);
+    memcpy(ResourceManager_Minimap, ResourceManager_MinimapFov, map_cell_count);
 
     file_position = ftell(fp);
 
@@ -1239,7 +1340,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
-    if (fseek(fp, sizeof(uint16_t) * map_dimensions, SEEK_CUR) ||
+    if (fseek(fp, sizeof(uint16_t) * map_cell_count, SEEK_CUR) ||
         1 != fread(&map_tile_count, sizeof(uint16_t), 1, fp)) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
@@ -1268,7 +1369,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
-    file_offset = (map_layer_count - map_minimap_count) * map_dimensions;
+    file_offset = (map_layer_count - map_minimap_count) * map_cell_count;
 
     for (int32_t i = map_minimap_count; --i;) {
         file_offset += sizeof(uint16_t) * map_layer_dimensions[i].x * map_layer_dimensions[i].y;
@@ -1278,29 +1379,24 @@ void ResourceManager_InitInGameAssets(int32_t world) {
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
-    ResourceManager_MapSize.x = map_layer_dimensions[map_minimap_count - 1].x;
-    ResourceManager_MapSize.y = map_layer_dimensions[map_minimap_count - 1].y;
+    ResourceManager_MapTileIds = new (std::nothrow) uint16_t[map_cell_count];
 
-    map_dimensions = ResourceManager_MapSize.x * ResourceManager_MapSize.y;
-
-    ResourceManager_MapTileIds = new (std::nothrow) uint16_t[map_dimensions];
-
-    if (!ResourceManager_MapTileIds) {
+    if (ResourceManager_MapTileIds == nullptr) {
         ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
     }
 
     {
-        uint32_t data_chunk_size = map_dimensions / 4;
+        uint32_t data_chunk_size = map_cell_count / 4;
 
-        for (uint32_t data_offset = 0; data_offset < map_dimensions;) {
-            data_chunk_size = std::min(data_chunk_size, map_dimensions - data_offset);
+        for (uint32_t data_offset = 0; data_offset < map_cell_count;) {
+            data_chunk_size = std::min(data_chunk_size, map_cell_count - data_offset);
             if (fread(&ResourceManager_MapTileIds[data_offset], sizeof(uint16_t), data_chunk_size, fp) !=
                 data_chunk_size) {
                 ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
             }
 
             data_offset += data_chunk_size;
-            load_bar.SetValue(20 * data_offset / map_dimensions);
+            load_bar.SetValue(20 * data_offset / map_cell_count);
         }
     }
 
@@ -1348,7 +1444,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
                                                     SURFACE_TYPE_AIR};
         uint8_t *pass_table{new (std::nothrow) uint8_t[ResourceManager_MapTileCount]};
 
-        ResourceManager_MapSurfaceMap = new (std::nothrow) uint8_t[map_dimensions];
+        ResourceManager_MapSurfaceMap = new (std::nothrow) uint8_t[map_cell_count];
 
         if (ResourceManager_MapTileCount != fread(pass_table, sizeof(uint8_t), ResourceManager_MapTileCount, fp)) {
             ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
@@ -1358,7 +1454,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
             pass_table[i] = ResourceManager_PassData[pass_table[i]];
         }
 
-        for (uint32_t i = 0; i < map_dimensions; ++i) {
+        for (uint32_t i = 0; i < map_cell_count; ++i) {
             ResourceManager_MapSurfaceMap[i] = pass_table[ResourceManager_MapTileIds[i]];
         }
 
@@ -1367,9 +1463,9 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
     fclose(fp);
 
-    ResourceManager_CargoMap = new (std::nothrow) uint16_t[map_dimensions];
+    ResourceManager_CargoMap = new (std::nothrow) uint16_t[map_cell_count];
 
-    for (uint32_t i = 0; i < map_dimensions; ++i) {
+    for (uint32_t i = 0; i < map_cell_count; ++i) {
         ResourceManager_CargoMap[i] = 0;
     }
 
@@ -1577,14 +1673,16 @@ void ResourceManager_InitClanUnitValues(uint16_t team) {
 
 void ResourceManager_InitHeatMaps(uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type) {
-        UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) int8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
-        memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
+        const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
-        UnitsManager_TeamInfo[team].heat_map_stealth_sea = new (std::nothrow) int8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
-        memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
+        UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) int8_t[map_cell_count];
+        memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, map_cell_count);
 
-        UnitsManager_TeamInfo[team].heat_map_stealth_land = new (std::nothrow) int8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
-        memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, GFX_MAP_SIZE * GFX_MAP_SIZE);
+        UnitsManager_TeamInfo[team].heat_map_stealth_sea = new (std::nothrow) int8_t[map_cell_count];
+        memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, map_cell_count);
+
+        UnitsManager_TeamInfo[team].heat_map_stealth_land = new (std::nothrow) int8_t[map_cell_count];
+        memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, map_cell_count);
 
     } else {
         UnitsManager_TeamInfo[team].heat_map_complete = nullptr;

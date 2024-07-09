@@ -129,9 +129,9 @@ void Survey_RenderMarkers(uint16_t team, int32_t grid_ulx, int32_t grid_uly, int
     team_info = &UnitsManager_TeamInfo[team];
     window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
-    grid_ulx += GameManager_GridPosition.ulx - (GameManager_MapWindowDrawBounds.ulx / 64);
-    grid_uly += GameManager_GridPosition.uly - (GameManager_MapWindowDrawBounds.uly / 64);
-    grid_lrx += GameManager_GridPosition.ulx - (GameManager_MapWindowDrawBounds.ulx / 64);
+    grid_ulx += GameManager_MapView.ulx - (GameManager_MapWindowDrawBounds.ulx / 64);
+    grid_uly += GameManager_MapView.uly - (GameManager_MapWindowDrawBounds.uly / 64);
+    grid_lrx += GameManager_MapView.ulx - (GameManager_MapWindowDrawBounds.ulx / 64);
     grid_lry = grid_uly + 1;
 
     if (GameManager_MaxSurvey) {
@@ -142,10 +142,10 @@ void Survey_RenderMarkers(uint16_t team, int32_t grid_ulx, int32_t grid_uly, int
 
     mask |= team_info->team_units->hash_team_id;
 
-    for (int32_t i = std::max(GameManager_GridPosition.ulx, grid_ulx);
-         i < std::min(GameManager_GridPosition.lrx + 1, grid_lrx); ++i) {
-        for (int32_t j = std::max(GameManager_GridPosition.uly, grid_uly);
-             j < std::min(GameManager_GridPosition.lry + 1, grid_lry); ++j) {
+    for (int32_t i = std::max(GameManager_MapView.ulx, grid_ulx);
+         i < std::min(GameManager_MapView.lrx + 1, grid_lrx); ++i) {
+        for (int32_t j = std::max(GameManager_MapView.uly, grid_uly);
+             j < std::min(GameManager_MapView.lry + 1, grid_lry); ++j) {
             if (Access_GetModifiedSurfaceType(i, j) != SURFACE_TYPE_AIR &&
                 (ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i] & mask)) {
                 Survey_RenderMarker(window, i, j, ResourceManager_CargoMap[ResourceManager_MapSize.x * j + i]);

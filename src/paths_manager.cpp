@@ -37,7 +37,8 @@
 #include "zonewalker.hpp"
 
 class PathsManager {
-    static uint8_t **PathsManager_AccessMap;
+    uint8_t **access_map;
+    Point access_map_size;
 
     SmartPointer<PathRequest> request;
     SmartList<PathRequest> requests;
@@ -66,8 +67,6 @@ public:
     void ProcessRequest();
 };
 
-uint8_t **PathsManager::PathsManager_AccessMap;
-
 static PathsManager PathsManager_Instance;
 
 static void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit);
@@ -78,21 +77,15 @@ static bool PathsManager_IsProcessed(int32_t grid_x, int32_t grid_y);
 static void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit);
 static void PathsManager_ProcessSurface(uint8_t **map, UnitInfo *unit);
 
-PathsManager::PathsManager() : forward_searcher(nullptr), backward_searcher(nullptr), time_stamp(0), elapsed_time(0) {}
+PathsManager::PathsManager()
+    : access_map(nullptr),
+      access_map_size(0, 0),
+      forward_searcher(nullptr),
+      backward_searcher(nullptr),
+      time_stamp(0),
+      elapsed_time(0) {}
 
-PathsManager::~PathsManager() {
-    delete forward_searcher;
-    delete backward_searcher;
-
-    if (PathsManager_AccessMap) {
-        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
-            delete[] PathsManager_AccessMap[i];
-        }
-
-        delete[] PathsManager_AccessMap;
-        PathsManager_AccessMap = nullptr;
-    }
-}
+PathsManager::~PathsManager() { Clear(); }
 
 void PathsManager::PushBack(PathRequest &object) { requests.PushBack(object); }
 
@@ -102,6 +95,17 @@ void PathsManager::Clear() {
 
     delete backward_searcher;
     backward_searcher = nullptr;
+
+    if (access_map) {
+        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
+            delete[] access_map[i];
+        }
+
+        delete[] access_map;
+        access_map = nullptr;
+    }
+
+    access_map_size = {0, 0};
 
     request = nullptr;
     requests.Clear();
@@ -319,31 +323,42 @@ bool PathsManager_HasRequest(UnitInfo *unit) { return PathsManager_Instance.HasR
 bool PathsManager::Init(UnitInfo *unit) {
     bool result;
 
-    if (PathsManager_AccessMap == nullptr) {
-        PathsManager_AccessMap = new (std::nothrow) uint8_t *[ResourceManager_MapSize.x];
+    if (access_map_size != ResourceManager_MapSize) {
+        if (access_map) {
+            for (int32_t i = 0; i < access_map_size.x; ++i) {
+                delete[] access_map[i];
+            }
 
-        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
-            PathsManager_AccessMap[i] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
+            delete[] access_map;
+            access_map = nullptr;
+        }
+
+        access_map_size = ResourceManager_MapSize;
+
+        access_map = new (std::nothrow) uint8_t *[access_map_size.x];
+
+        for (int32_t i = 0; i < access_map_size.x; ++i) {
+            access_map[i] = new (std::nothrow) uint8_t[access_map_size.y];
         }
     }
 
-    PathsManager_InitAccessMap(unit, PathsManager_AccessMap, request->GetFlags(), request->GetCautionLevel());
+    PathsManager_InitAccessMap(unit, access_map, request->GetFlags(), request->GetCautionLevel());
 
     if (request->GetTransporter()) {
-        AccessMap access_map;
+        AccessMap local_access_map;
 
-        PathsManager_InitAccessMap(request->GetTransporter(), access_map.GetMap(), request->GetFlags(),
+        PathsManager_InitAccessMap(request->GetTransporter(), local_access_map.GetMap(), request->GetFlags(),
                                    CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
         for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
             for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
-                if (access_map.GetMapColumn(i)[j]) {
-                    if (PathsManager_AccessMap[i][j] == 0x00) {
-                        PathsManager_AccessMap[i][j] = (access_map.GetMapColumn(i)[j] * 3) | 0x80;
+                if (local_access_map.GetMapColumn(i)[j]) {
+                    if (access_map[i][j] == 0x00) {
+                        access_map[i][j] = (local_access_map.GetMapColumn(i)[j] * 3) | 0x80;
                     }
 
                 } else {
-                    PathsManager_AccessMap[i][j] |= 0x40;
+                    access_map[i][j] |= 0x40;
                 }
             }
         }
@@ -360,7 +375,7 @@ bool PathsManager::Init(UnitInfo *unit) {
         int32_t limit;
         int32_t limit2;
 
-        PathsManager_AccessMap[point1.x][point1.y] = 2;
+        access_map[point1.x][point1.y] = 2;
 
         if (request->GetBoardTransport()) {
             SmartPointer<UnitInfo> receiver_unit;
@@ -371,12 +386,12 @@ bool PathsManager::Init(UnitInfo *unit) {
                 int32_t grid_x = receiver_unit->grid_x;
                 int32_t grid_y = receiver_unit->grid_y;
 
-                PathsManager_AccessMap[grid_x][grid_y] = 2;
+                access_map[grid_x][grid_y] = 2;
 
                 if (receiver_unit->flags & BUILDING) {
-                    PathsManager_AccessMap[grid_x + 1][grid_y] = 2;
-                    PathsManager_AccessMap[grid_x][grid_y + 1] = 2;
-                    PathsManager_AccessMap[grid_x + 1][grid_y + 1] = 2;
+                    access_map[grid_x + 1][grid_y] = 2;
+                    access_map[grid_x][grid_y + 1] = 2;
+                    access_map[grid_x + 1][grid_y + 1] = 2;
                 }
             }
         }
@@ -387,7 +402,7 @@ bool PathsManager::Init(UnitInfo *unit) {
         result = false;
 
         if (minimum_distance_sqrt == 0) {
-            uint8_t value = PathsManager_AccessMap[point2.x][point2.y];
+            uint8_t value = access_map[point2.x][point2.y];
 
             if (value && !(value & 0x80)) {
                 result = true;
@@ -442,11 +457,11 @@ bool PathsManager::Init(UnitInfo *unit) {
 
             for (; j <= limit; ++j) {
                 if (limit2 >= 0) {
-                    PathsManager_AccessMap[limit2][j] = 2 | 0x40;
+                    access_map[limit2][j] = 2 | 0x40;
                 }
 
                 if (distance_x < ResourceManager_MapSize.x) {
-                    PathsManager_AccessMap[distance_x][j] = 2 | 0x40;
+                    access_map[distance_x][j] = 2 | 0x40;
                 }
             }
         }
@@ -519,11 +534,11 @@ void PathsManager::ProcessRequest() {
 
                         SmartPointer<PathRequest> path_request(request);
 
-                        PathFill path_fill(PathsManager_AccessMap);
+                        PathFill path_fill(access_map);
 
                         path_fill.Fill(position);
 
-                        if (PathsManager_AccessMap[destination.x][destination.y] & 0x20) {
+                        if (access_map[destination.x][destination.y] & 0x20) {
                             forward_searcher = new (std::nothrow) Searcher(position, destination, mode);
                             backward_searcher = new (std::nothrow) Searcher(destination, position, mode);
 
@@ -734,7 +749,7 @@ void PathsManager_InitAccessMap(UnitInfo *unit, uint8_t **map, uint8_t flags, in
     }
 }
 
-uint8_t **PathsManager_GetAccessMap() { return PathsManager::PathsManager_AccessMap; }
+uint8_t **PathsManager_GetAccessMap() { return PathsManager_Instance.access_map; }
 
 void PathsManager_ApplyCautionLevel(uint8_t **map, UnitInfo *unit, int32_t caution_level) {
     if (caution_level > 0) {

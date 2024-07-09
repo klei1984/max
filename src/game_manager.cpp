@@ -423,12 +423,13 @@ int32_t GameManager_MouseY;
 Point GameManager_MousePosition;
 Point GameManager_LastMousePosition;
 Point GameManager_LastMinimapPosition;
+bool GameManager_IsActiveMapPositionDisplay;
 Point GameManager_MousePosition2;
 Point GameManager_ScaledMousePosition;
-Rect GameManager_RenderArea;
+Rect GameManager_MultiSelectBounds;
 UnitInfo* GameManager_Unit;
 
-Rect GameManager_GridPosition;
+Rect GameManager_MapView;
 Rect GameManager_MapWindowDrawBounds;
 SmartPointer<UnitInfo> GameManager_SelectedUnit;
 SmartPointer<UnitInfo> GameManager_TempTape;
@@ -437,7 +438,7 @@ SmartPointer<UnitInfo> GameManager_UnknownUnit3;
 SmartPointer<UnitInfo> GameManager_UnitUnderMouseCursor;
 Image* GameManager_TurnTimerImageNormal;
 Image* GameManager_TurnTimerImageScaled;
-Point GameManager_GridCenter;
+Point GameManager_MapViewCenter;
 Point GameManager_GridCenterOffset;
 Point GameManager_SpottedEnemyPosition;
 SmartList<UnitInfo> GameManager_LockedUnits;
@@ -449,7 +450,7 @@ bool GameManager_MaxSpy;
 int32_t GameManager_GameFileNumber;
 int32_t GameManager_HumanPlayerCount;
 bool GameManager_RequestMenuExit;
-bool GameManager_UnknownFlag;
+bool GameManager_IsMapInitialized;
 bool GameManager_DemoMode;
 bool GameManager_IsCheater;
 bool GameManager_AllVisible;
@@ -503,6 +504,8 @@ uint8_t GameManager_MarkerColor = 0xFF;
 uint8_t GameManager_PlayMode;
 bool GameManager_FastMovement;
 uint16_t GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];
+
+uint32_t GameManager_LastZoomLevel;
 
 static Point GameManager_GridOffset;
 static int32_t GameManager_QuickScroll;
@@ -622,7 +625,7 @@ static void GameManager_SetGridOffset(int32_t grid_x_offset, int32_t grid_y_offs
 static void GameManager_ProcessInput();
 static bool GameManager_CargoSelection(uint16_t team);
 static void GameManager_UpdateTurnTimer(bool mode, int32_t turn_time);
-static void GameManager_DrawDisplayPanel(int32_t control_id, char* text, int32_t color, int32_t ulx = 0);
+static void GameManager_DrawDisplayPanel(int32_t control_id, const char* text, int32_t color, int32_t ulx = 0);
 static void GameManager_ProgressBuildState(uint16_t team);
 static void GameManager_UpdateGuiControl(uint16_t team);
 static uint16_t GameManager_GetCrc16(uint16_t data, uint16_t crc_checksum);
@@ -643,8 +646,11 @@ static void GameManager_UpdateHumanPlayerCount();
 static void GameManager_MenuAnimateDisplayControls();
 static void GameManager_ManagePlayerAction();
 static bool GameManager_InitPopupButtons(UnitInfo* unit);
-static void GameManager_GetGridCenterOffset(bool minimap_zoom_state);
+static void GameManager_UpdateGridCenterOffset();
 static void GameManager_UpdatePanelButtons(uint16_t team);
+static bool GameManager_ScrollMainMapView(int32_t& offset_x, int32_t& offset_y);
+static bool GameManager_CenterMainMapView(int32_t ulx, int32_t uly);
+static void GameManager_UpdateZoomSlider();
 static void GameManager_MenuClickLockButton(bool rest_state);
 static void GameManager_MenuClickReportButton();
 static void GameManager_MenuClickStatusButton(bool rest_state);
@@ -712,19 +718,22 @@ static void GameManager_MenuCreateFlic(ResourceID unit_type, int32_t ulx, int32_
 static void GameManager_DrawFlic(Rect* bounds);
 static void GameManager_AdvanceFlic();
 static void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int32_t radius, int32_t color);
-static void GameManager_Render();
+static void GameManager_RenderMap();
 static void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo>* units);
 static void GameManager_ResupplyUnits(uint16_t team, SmartList<UnitInfo>* units);
 static void GameManager_ManageEconomy(uint16_t team);
 static Point GameManager_GetStartPositionMiningStation(uint16_t team);
 static Point GameManager_GetStartingPositionPowerGenerator(Point point, uint16_t team);
-static int32_t GameManager_DetermineZoomLimit();
 static float GameManager_GetScrollRateLimit();
 static float GameManager_UpdateScrollRateLimit();
 static Point GameManager_GetMinimapPosition();
 static void GameManager_TeamTurnTurnBased(int32_t& game_state);
 static void GameManager_TeamTurnConcurrent(int32_t& game_state);
 static bool GameManager_TeamTurnFinish(uint32_t turn_counter, uint16_t team_winner);
+static void GameManager_RenderScanRangeIndicators();
+static void GameManager_RenderSurveyIndicator(DrawMapBuffer* drawmap);
+static void GameManager_RenderMultiSelectIndicator();
+static void GameManager_RenderMinimap();
 
 void GameManager_TeamTurnTurnBased(int32_t& game_state) {
     bool enable_autosave;
@@ -1176,7 +1185,169 @@ void GameManager_GetScaledMessageBoxBounds(Rect* bounds) {
                   bounds->uly;
 }
 
-void GameManager_Render() {
+void GameManager_RenderScanRangeIndicators() {
+    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+
+    if (GameManager_SelectedUnit != nullptr) {
+        if (GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
+            GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_MOVE_GETTING_PATH ||
+            GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER ||
+            GameManager_SelectedUnit->GetOrder() == ORDER_BUILD) {
+            if (GameManager_SelectedUnit->IsVisibleToTeam(GameManager_PlayerTeam)) {
+                SmartPointer<UnitValues> unit_values(GameManager_SelectedUnit->GetBaseValues());
+                UnitInfo* unit = &*GameManager_SelectedUnit;
+                if (unit->team == GameManager_PlayerTeam && unit->path != nullptr) {
+                    unit->path->Draw(unit, window);
+                }
+                if (GameManager_DisplayButtonRange) {
+                    int32_t color;
+                    if (Access_GetValidAttackTargetTypes(unit->GetUnitType()) & MOBILE_AIR_UNIT) {
+                        color = COLOR_CHROME_YELLOW;
+                    } else {
+                        color = COLOR_RED;
+                    }
+                    GameManager_DrawCircle(unit, window, unit_values->GetAttribute(ATTRIB_RANGE), color);
+                }
+                if (GameManager_DisplayButtonScan) {
+                    GameManager_DrawCircle(unit, window, unit_values->GetAttribute(ATTRIB_SCAN), COLOR_YELLOW);
+                }
+            }
+        }
+        if (GameManager_DisplayButtonLock && (GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
+            GameManager_LockedUnits.GetCount()) {
+            SmartPointer<UnitValues> unit_values;
+            for (SmartList<UnitInfo>::Iterator it = GameManager_LockedUnits.Begin();
+                 it != GameManager_LockedUnits.End(); ++it) {
+                if ((*it).team != GameManager_PlayerTeam &&
+                    ((*it).GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
+                     (*it).GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER)) {
+                    if ((*it).IsVisibleToTeam(GameManager_PlayerTeam)) {
+                        unit_values = (*it).GetBaseValues();
+                        if (GameManager_DisplayButtonRange) {
+                            int32_t color;
+                            if (Access_GetValidAttackTargetTypes((*it).GetUnitType()) & MOBILE_AIR_UNIT) {
+                                color = COLOR_CHROME_YELLOW;
+                            } else {
+                                color = COLOR_RED;
+                            }
+                            GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_RANGE), color);
+                        }
+                        if (GameManager_DisplayButtonScan) {
+                            GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_SCAN), COLOR_YELLOW);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void GameManager_RenderSurveyIndicator(DrawMapBuffer* drawmap) {
+    if (GameManager_DisplayButtonSurvey || GameManager_IsSurveyorSelected) {
+        DrawMap_RenderSurveyDisplay(drawmap);
+    }
+}
+
+void GameManager_RenderMultiSelectIndicator() {
+    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+
+    int32_t map_ulx{(GameManager_MultiSelectBounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
+                    Gfx_MapWindowUlx};
+    int32_t map_uly{(GameManager_MultiSelectBounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
+                    Gfx_MapWindowUly};
+    int32_t map_lrx{(GameManager_MultiSelectBounds.lrx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
+                    Gfx_MapWindowUlx};
+    int32_t map_lry{(GameManager_MultiSelectBounds.lry * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
+                    Gfx_MapWindowUly};
+
+    if (GameManager_MultiSelectBounds.ulx <= GameManager_MapWindowDrawBounds.lrx &&
+        GameManager_MultiSelectBounds.lrx >= GameManager_MapWindowDrawBounds.ulx &&
+        GameManager_MultiSelectBounds.uly <= GameManager_MapWindowDrawBounds.lry &&
+        GameManager_MultiSelectBounds.lry >= GameManager_MapWindowDrawBounds.uly) {
+        int32_t map_ulx2{std::max(map_ulx, 0)};
+        int32_t map_uly2{std::max(map_uly, 0)};
+        int32_t map_lrx2{std::min(map_lrx, WindowManager_MapWidth - 1)};
+        int32_t map_lry2{std::min(map_lry, WindowManager_MapHeight - 1)};
+
+        if (GameManager_MultiSelectBounds.uly >= GameManager_MapWindowDrawBounds.uly &&
+            GameManager_MultiSelectBounds.uly <= GameManager_MapWindowDrawBounds.lry) {
+            draw_line(window->buffer, window->width, map_ulx2, map_uly, map_lrx2, map_uly, COLOR_YELLOW);
+        }
+        if (GameManager_MultiSelectBounds.lrx >= GameManager_MapWindowDrawBounds.ulx &&
+            GameManager_MultiSelectBounds.lrx <= GameManager_MapWindowDrawBounds.lrx) {
+            draw_line(window->buffer, window->width, map_lrx, map_uly2, map_lrx, map_lry2, COLOR_YELLOW);
+        }
+        if (GameManager_MultiSelectBounds.lry >= GameManager_MapWindowDrawBounds.uly &&
+            GameManager_MultiSelectBounds.lry <= GameManager_MapWindowDrawBounds.lry) {
+            draw_line(window->buffer, window->width, map_ulx2, map_lry, map_lrx2, map_lry, COLOR_YELLOW);
+        }
+        if (GameManager_MultiSelectBounds.ulx >= GameManager_MapWindowDrawBounds.ulx &&
+            GameManager_MultiSelectBounds.ulx <= GameManager_MapWindowDrawBounds.lrx) {
+            draw_line(window->buffer, window->width, map_ulx, map_uly2, map_ulx, map_lry2, COLOR_YELLOW);
+        }
+    }
+}
+
+void GameManager_RenderMinimap() {
+    if (GameManager_RenderMinimapDisplay) {
+        WindowInfo* mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
+        const int32_t mmw_width{mmw->window.lrx - mmw->window.ulx + 1};
+        const int32_t mmw_height{mmw->window.lry - mmw->window.uly + 1};
+        Point map_size{ResourceManager_MapSize};
+        const int32_t map_view_width{GameManager_MapView.lrx - GameManager_MapView.ulx + 1};
+        const int32_t map_view_height{GameManager_MapView.lry - GameManager_MapView.uly + 1};
+
+        buf_to_buf(ResourceManager_MinimapBgImage, mmw_width, mmw_height, mmw_width, mmw->buffer, mmw->width);
+
+        if (map_size.x == ResourceManager_MinimapWindowSize.x && map_size.y == ResourceManager_MinimapWindowSize.y) {
+            buf_to_buf(ResourceManager_MinimapUnits, map_size.x, map_size.y, map_size.x, mmw->buffer, mmw->width);
+
+        } else {
+            cscale(ResourceManager_MinimapUnits, map_size.x, map_size.y, map_size.x,
+                   &mmw->buffer[ResourceManager_MinimapWindowOffset.y * mmw->width +
+                                ResourceManager_MinimapWindowOffset.x],
+                   mmw_width - ResourceManager_MinimapWindowOffset.x * 2,
+                   mmw_height - ResourceManager_MinimapWindowOffset.y * 2, mmw->width);
+        }
+
+        draw_box(
+            &mmw->buffer[ResourceManager_MinimapWindowOffset.y * mmw->width + ResourceManager_MinimapWindowOffset.x],
+            mmw->width, GameManager_MapView.ulx * ResourceManager_MinimapWindowScale,
+            GameManager_MapView.uly * ResourceManager_MinimapWindowScale,
+            (static_cast<double>(GameManager_MapView.lrx) + 0.9) * ResourceManager_MinimapWindowScale,
+            (static_cast<double>(GameManager_MapView.lry) + 0.9) * ResourceManager_MinimapWindowScale, COLOR_RED);
+
+        if (GameManager_DisplayButtonMinimap2x) {
+            uint8_t* minimap2x = new (std::nothrow) uint8_t[mmw_width * mmw_height];
+            Point minimap_view_offset;
+
+            minimap_view_offset.x = ResourceManager_MinimapWindowOffset.x / 2 +
+                                    GameManager_GridCenterOffset.x * ResourceManager_MinimapWindowScale;
+            minimap_view_offset.y = ResourceManager_MinimapWindowOffset.y / 2 +
+                                    GameManager_GridCenterOffset.y * ResourceManager_MinimapWindowScale;
+
+            uint8_t* address = &mmw->buffer[minimap_view_offset.y * mmw->width + minimap_view_offset.x];
+
+            for (int32_t y = 0; y < (mmw_height / 2); ++y) {
+                for (int32_t x = 0; x < (mmw_width / 2); ++x) {
+                    minimap2x[(2 * y) * mmw_width + 2 * x] = address[y * mmw->width + x];
+                    minimap2x[(2 * y) * mmw_width + 2 * x + 1] = address[y * mmw->width + x];
+                }
+
+                memcpy(&minimap2x[(2 * y + 1) * mmw_width], &minimap2x[(2 * y) * mmw_width], mmw_width);
+            }
+
+            buf_to_buf(minimap2x, mmw_width, mmw_height, mmw_width, mmw->buffer, mmw->width);
+
+            delete[] minimap2x;
+        }
+
+        win_draw_rect(mmw->id, &mmw->window);
+        GameManager_RenderMinimapDisplay = false;
+    }
+}
+
+void GameManager_RenderMap() {
     bool is_message_box_active;
 
     if (ResourceManager_MapTileIds == nullptr || GameManager_DisableMapRendering) {
@@ -1184,7 +1355,7 @@ void GameManager_Render() {
     }
 
     if (GameManager_GridOffset.x || GameManager_GridOffset.y) {
-        GameManager_UpdateMainMapView(2, GameManager_GridOffset.x, GameManager_GridOffset.y);
+        GameManager_UpdateMainMapView(MAP_VIEW_SCROLL, GameManager_GridOffset.x, GameManager_GridOffset.y);
 
         GameManager_GridOffset.x = 0;
         GameManager_GridOffset.y = 0;
@@ -1203,15 +1374,13 @@ void GameManager_Render() {
                 GameManager_RenderMinimapDisplay = false;
 
             } else {
-                WindowInfo* window = WindowManager_GetWindow(WINDOW_MINIMAP);
-
-                buf_to_buf(ResourceManager_Minimap, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer,
-                           window->width);
+                memcpy(ResourceManager_MinimapUnits, ResourceManager_MinimapFov,
+                       ResourceManager_MapSize.x * ResourceManager_MapSize.y);
             }
         }
 
         if (GameManager_RenderEnable) {
-            Rect bounds = GameManager_RenderArea;
+            Rect bounds = GameManager_MultiSelectBounds;
             WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
             int32_t width;
             int32_t height;
@@ -1223,15 +1392,19 @@ void GameManager_Render() {
                 (((GameManager_MousePosition2.y - window->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                 GameManager_MapWindowDrawBounds.uly;
 
-            GameManager_RenderArea.ulx = std::min(static_cast<int32_t>(GameManager_ScaledMousePosition.x), width);
-            GameManager_RenderArea.uly = std::min(static_cast<int32_t>(GameManager_ScaledMousePosition.y), height);
-            GameManager_RenderArea.lrx = std::max(static_cast<int32_t>(GameManager_ScaledMousePosition.x), width);
-            GameManager_RenderArea.lry = std::max(static_cast<int32_t>(GameManager_ScaledMousePosition.y), height);
+            GameManager_MultiSelectBounds.ulx =
+                std::min(static_cast<int32_t>(GameManager_ScaledMousePosition.x), width);
+            GameManager_MultiSelectBounds.uly =
+                std::min(static_cast<int32_t>(GameManager_ScaledMousePosition.y), height);
+            GameManager_MultiSelectBounds.lrx =
+                std::max(static_cast<int32_t>(GameManager_ScaledMousePosition.x), width);
+            GameManager_MultiSelectBounds.lry =
+                std::max(static_cast<int32_t>(GameManager_ScaledMousePosition.y), height);
 
-            bounds.ulx = std::min(bounds.ulx, GameManager_RenderArea.ulx);
-            bounds.uly = std::min(bounds.uly, GameManager_RenderArea.uly);
-            bounds.lrx = std::max(bounds.lrx, GameManager_RenderArea.lrx);
-            bounds.lry = std::max(bounds.lry, GameManager_RenderArea.lry);
+            bounds.ulx = std::min(bounds.ulx, GameManager_MultiSelectBounds.ulx);
+            bounds.uly = std::min(bounds.uly, GameManager_MultiSelectBounds.uly);
+            bounds.lrx = std::max(bounds.lrx, GameManager_MultiSelectBounds.lrx);
+            bounds.lry = std::max(bounds.lry, GameManager_MultiSelectBounds.lry);
 
             GameManager_AddDrawBounds(&bounds);
 
@@ -1256,8 +1429,6 @@ void GameManager_Render() {
 
         DrawMap_RenderMapTiles(&drawmap, GameManager_DisplayButtonGrid);
 
-        WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
-
         if (GameManager_HumanPlayerCount && GameManager_GameState == GAME_STATE_11 &&
             GameManager_ActiveTurnTeam != GameManager_PlayerTeam) {
             DrawMap_RedrawDirtyZones();
@@ -1276,130 +1447,16 @@ void GameManager_Render() {
 
             DrawMap_RenderUnits();
 
-            if (GameManager_DisplayButtonSurvey || GameManager_IsSurveyorSelected) {
-                DrawMap_RenderSurveyDisplay(&drawmap);
-            }
+            GameManager_RenderSurveyIndicator(&drawmap);
 
-            if (GameManager_SelectedUnit != nullptr) {
-                if (GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
-                    GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_MOVE_GETTING_PATH ||
-                    GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER ||
-                    GameManager_SelectedUnit->GetOrder() == ORDER_BUILD) {
-                    if (GameManager_SelectedUnit->IsVisibleToTeam(GameManager_PlayerTeam)) {
-                        SmartPointer<UnitValues> unit_values(GameManager_SelectedUnit->GetBaseValues());
-                        UnitInfo* unit = &*GameManager_SelectedUnit;
-
-                        if (unit->team == GameManager_PlayerTeam && unit->path != nullptr) {
-                            unit->path->Draw(unit, window);
-                        }
-
-                        if (GameManager_DisplayButtonRange) {
-                            int32_t color;
-
-                            if (Access_GetValidAttackTargetTypes(unit->GetUnitType()) & MOBILE_AIR_UNIT) {
-                                color = COLOR_CHROME_YELLOW;
-                            } else {
-                                color = COLOR_RED;
-                            }
-
-                            GameManager_DrawCircle(unit, window, unit_values->GetAttribute(ATTRIB_RANGE), color);
-                        }
-
-                        if (GameManager_DisplayButtonScan) {
-                            GameManager_DrawCircle(unit, window, unit_values->GetAttribute(ATTRIB_SCAN), COLOR_YELLOW);
-                        }
-                    }
-                }
-
-                if (GameManager_DisplayButtonLock &&
-                    (GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
-                    GameManager_LockedUnits.GetCount()) {
-                    SmartPointer<UnitValues> unit_values;
-
-                    for (SmartList<UnitInfo>::Iterator it = GameManager_LockedUnits.Begin();
-                         it != GameManager_LockedUnits.End(); ++it) {
-                        if ((*it).team != GameManager_PlayerTeam &&
-                            ((*it).GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
-                             (*it).GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER)) {
-                            if ((*it).IsVisibleToTeam(GameManager_PlayerTeam)) {
-                                unit_values = (*it).GetBaseValues();
-
-                                if (GameManager_DisplayButtonRange) {
-                                    int32_t color;
-
-                                    if (Access_GetValidAttackTargetTypes((*it).GetUnitType()) & MOBILE_AIR_UNIT) {
-                                        color = COLOR_CHROME_YELLOW;
-                                    } else {
-                                        color = COLOR_RED;
-                                    }
-
-                                    GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_RANGE),
-                                                           color);
-                                }
-
-                                if (GameManager_DisplayButtonScan) {
-                                    GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_SCAN),
-                                                           COLOR_YELLOW);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            GameManager_RenderScanRangeIndicators();
 
             if (is_message_box_active) {
                 MessageManager_DrawMessageBox();
             }
 
             if (GameManager_RenderState == 2) {
-                int32_t map_ulx;
-                int32_t map_uly;
-                int32_t map_lrx;
-                int32_t map_lry;
-
-                map_ulx =
-                    (GameManager_RenderArea.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-                map_uly =
-                    (GameManager_RenderArea.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
-                map_lrx =
-                    (GameManager_RenderArea.lrx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-                map_lry =
-                    (GameManager_RenderArea.lry * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
-
-                if (GameManager_RenderArea.ulx <= GameManager_MapWindowDrawBounds.lrx &&
-                    GameManager_RenderArea.lrx >= GameManager_MapWindowDrawBounds.ulx &&
-                    GameManager_RenderArea.uly <= GameManager_MapWindowDrawBounds.lry &&
-                    GameManager_RenderArea.lry >= GameManager_MapWindowDrawBounds.uly) {
-                    int32_t map_ulx2;
-                    int32_t map_uly2;
-                    int32_t map_lrx2;
-                    int32_t map_lry2;
-
-                    map_ulx2 = std::max(map_ulx, 0);
-                    map_uly2 = std::max(map_uly, 0);
-                    map_lrx2 = std::min(map_lrx, WindowManager_MapWidth - 1);
-                    map_lry2 = std::min(map_lry, WindowManager_MapHeight - 1);
-
-                    if (GameManager_RenderArea.uly >= GameManager_MapWindowDrawBounds.uly &&
-                        GameManager_RenderArea.uly <= GameManager_MapWindowDrawBounds.lry) {
-                        draw_line(window->buffer, window->width, map_ulx2, map_uly, map_lrx2, map_uly, COLOR_YELLOW);
-                    }
-
-                    if (GameManager_RenderArea.lrx >= GameManager_MapWindowDrawBounds.ulx &&
-                        GameManager_RenderArea.lrx <= GameManager_MapWindowDrawBounds.lrx) {
-                        draw_line(window->buffer, window->width, map_lrx, map_uly2, map_lrx, map_lry2, COLOR_YELLOW);
-                    }
-
-                    if (GameManager_RenderArea.lry >= GameManager_MapWindowDrawBounds.uly &&
-                        GameManager_RenderArea.lry <= GameManager_MapWindowDrawBounds.lry) {
-                        draw_line(window->buffer, window->width, map_ulx2, map_lry, map_lrx2, map_lry, COLOR_YELLOW);
-                    }
-
-                    if (GameManager_RenderArea.ulx >= GameManager_MapWindowDrawBounds.ulx &&
-                        GameManager_RenderArea.ulx <= GameManager_MapWindowDrawBounds.lrx) {
-                        draw_line(window->buffer, window->width, map_ulx, map_uly2, map_ulx, map_lry2, COLOR_YELLOW);
-                    }
-                }
+                GameManager_RenderMultiSelectIndicator();
             }
 
             DrawMap_RedrawDirtyZones();
@@ -1407,51 +1464,7 @@ void GameManager_Render() {
             GameManager_RenderFlag1 = false;
             GameManager_RenderFlag2 = false;
 
-            if (GameManager_RenderMinimapDisplay) {
-                window = WindowManager_GetWindow(WINDOW_MINIMAP);
-                const int32_t window_width = (window->window.lrx - window->window.ulx + 1);
-                const int32_t window_height = (window->window.lry - window->window.uly + 1);
-
-                draw_box(window->buffer, window->width, GameManager_GridPosition.ulx, GameManager_GridPosition.uly,
-                         GameManager_GridPosition.lrx, GameManager_GridPosition.lry, COLOR_RED);
-
-                if (GameManager_DisplayButtonMinimap2x) {
-                    uint8_t* buffer;
-
-                    buffer =
-                        &window
-                             ->buffer[GameManager_GridCenterOffset.y * window->width + GameManager_GridCenterOffset.x];
-
-                    for (int32_t y = 0; y < (GFX_MAP_SIZE / 2); ++y) {
-                        for (int32_t x = 0; x < (GFX_MAP_SIZE / 2); ++x) {
-                            ResourceManager_Minimap2x[(2 * y) * GFX_MAP_SIZE + 2 * x] = buffer[y * window->width + x];
-                            ResourceManager_Minimap2x[(2 * y) * GFX_MAP_SIZE + 2 * x + 1] =
-                                buffer[y * window->width + x];
-                        }
-
-                        memcpy(&ResourceManager_Minimap2x[(2 * y + 1) * GFX_MAP_SIZE],
-                               &ResourceManager_Minimap2x[(2 * y) * GFX_MAP_SIZE], GFX_MAP_SIZE);
-                    }
-
-                    buf_to_buf(ResourceManager_Minimap2x, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer,
-                               window->width);
-                }
-
-                if (window_width != GFX_MAP_SIZE || window_height != GFX_MAP_SIZE) {
-                    uint8_t* buffer = new (std::nothrow) uint8_t[GFX_MAP_SIZE * GFX_MAP_SIZE];
-
-                    buf_to_buf(window->buffer, GFX_MAP_SIZE, GFX_MAP_SIZE, window->width, buffer, GFX_MAP_SIZE);
-
-                    cscale(buffer, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer, window_width,
-                           window_height, window->width);
-
-                    delete[] buffer;
-                }
-
-                win_draw_rect(window->id, &window->window);
-
-                GameManager_RenderMinimapDisplay = false;
-            }
+            GameManager_RenderMinimap();
         }
     }
 }
@@ -1476,15 +1489,13 @@ bool GameManager_PlayerMissionSetup(uint16_t team) {
 
     mouse_show();
 
-    GameManager_UnknownFlag = 1;
-
     GameManager_PlayerTeam = team;
     GameManager_ActiveTurnTeam = team;
 
     ini_set_setting(INI_PLAYER_CLAN, UnitsManager_TeamInfo[team].team_clan);
 
-    if (ResourceManager_MapTileIds) {
-        GameManager_UpdateMainMapView(0, 4, 0, false);
+    if (GameManager_IsMapInitialized) {
+        GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0, false);
         GameManager_ProcessTick(1);
     }
 
@@ -1501,7 +1512,7 @@ bool GameManager_PlayerMissionSetup(uint16_t team) {
             UnitsManager_AddDefaultMissionLoadout(team);
         }
 
-        if (!ResourceManager_MapTileIds) {
+        if (!GameManager_IsMapInitialized) {
             GameManager_InitMap();
         }
 
@@ -1742,11 +1753,15 @@ int32_t GameManager_CheckLandingZones(uint16_t team1, uint16_t team2) {
 
 void GameManager_InitMap() {
     mouse_hide();
-    ResourceManager_InitInGameAssets(ini_get_setting(INI_WORLD));
-    GameManager_UpdateMainMapView(0, 4, 0, false);
+
+    GameManager_LastZoomLevel = 0;
+    Gfx_ZoomLevel = 0;
+
+    GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0, false);
     GameManager_ProcessTick(1);
     mouse_show();
-    GameManager_UnknownFlag = 1;
+
+    GameManager_IsMapInitialized = true;
 }
 
 void GameManager_SelectNextUnit(int32_t seek_direction) {
@@ -1762,8 +1777,8 @@ void GameManager_SelectNextUnit(int32_t seek_direction) {
     }
 
     if (unit) {
-        if (!GameManager_IsAtGridPosition(unit)) {
-            GameManager_UpdateMainMapView(1, unit->grid_x, unit->grid_y);
+        if (!GameManager_IsInsideMapView(unit)) {
+            GameManager_UpdateMainMapView(MAP_VIEW_CENTER, unit->grid_x, unit->grid_y);
         }
 
         GameManager_MenuUnitSelect(unit);
@@ -1802,42 +1817,41 @@ bool GameManager_UpdateMapDrawBounds(int32_t ulx, int32_t uly) {
         ++height_pixels;
     }
 
-    if (ulx + width_pixels >= GFX_MAP_SIZE * GFX_MAP_TILE_SIZE) {
-        ulx = GFX_MAP_SIZE * GFX_MAP_TILE_SIZE - width_pixels;
+    if (ulx + width_pixels >= ResourceManager_MapSize.x * GFX_MAP_TILE_SIZE) {
+        ulx = ResourceManager_MapSize.x * GFX_MAP_TILE_SIZE - width_pixels;
     }
 
-    if (uly + height_pixels >= GFX_MAP_SIZE * GFX_MAP_TILE_SIZE) {
-        uly = GFX_MAP_SIZE * GFX_MAP_TILE_SIZE - height_pixels;
+    if (uly + height_pixels >= ResourceManager_MapSize.y * GFX_MAP_TILE_SIZE) {
+        uly = ResourceManager_MapSize.y * GFX_MAP_TILE_SIZE - height_pixels;
     }
 
     if (ulx == GameManager_MapWindowDrawBounds.ulx && uly == GameManager_MapWindowDrawBounds.uly &&
         width_pixels == width && height_pixels == height) {
         result = false;
+
     } else {
         GameManager_MapWindowDrawBounds.ulx = ulx;
         GameManager_MapWindowDrawBounds.uly = uly;
         GameManager_MapWindowDrawBounds.lrx = ulx + width_pixels - 1;
         GameManager_MapWindowDrawBounds.lry = uly + height_pixels - 1;
 
+        GameManager_MapWindowDrawBounds.ulx = std::max(0, GameManager_MapWindowDrawBounds.ulx);
+        GameManager_MapWindowDrawBounds.uly = std::max(0, GameManager_MapWindowDrawBounds.uly);
+        GameManager_MapWindowDrawBounds.lrx = std::max(0, GameManager_MapWindowDrawBounds.lrx);
+        GameManager_MapWindowDrawBounds.lry = std::max(0, GameManager_MapWindowDrawBounds.lry);
+
         Gfx_MapWindowUlx = (GameManager_MapWindowDrawBounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor;
         Gfx_MapWindowUly = (GameManager_MapWindowDrawBounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor;
 
-        GameManager_GridPosition.ulx = GameManager_MapWindowDrawBounds.ulx / GFX_MAP_TILE_SIZE;
-        GameManager_GridPosition.uly = GameManager_MapWindowDrawBounds.uly / GFX_MAP_TILE_SIZE;
-        GameManager_GridPosition.lrx = GameManager_MapWindowDrawBounds.lrx / GFX_MAP_TILE_SIZE;
-        GameManager_GridPosition.lry = GameManager_MapWindowDrawBounds.lry / GFX_MAP_TILE_SIZE;
+        GameManager_MapView.ulx = GameManager_MapWindowDrawBounds.ulx / GFX_MAP_TILE_SIZE;
+        GameManager_MapView.uly = GameManager_MapWindowDrawBounds.uly / GFX_MAP_TILE_SIZE;
+        GameManager_MapView.lrx = GameManager_MapWindowDrawBounds.lrx / GFX_MAP_TILE_SIZE;
+        GameManager_MapView.lry = GameManager_MapWindowDrawBounds.lry / GFX_MAP_TILE_SIZE;
 
         result = true;
     }
 
     return result;
-}
-
-int32_t GameManager_DetermineZoomLimit() {
-    int32_t count = std::max(WindowManager_MapWidth, WindowManager_MapHeight);
-    int32_t limit = (count + GFX_MAP_SIZE - 1) / GFX_MAP_SIZE;
-
-    return limit;
 }
 
 float GameManager_GetScrollRateLimit() { return GameManager_ScrollRateLimit; }
@@ -1858,101 +1872,123 @@ float GameManager_UpdateScrollRateLimit() {
     return GameManager_ScrollRateLimit;
 }
 
+bool GameManager_ScrollMainMapView(int32_t& offset_x, int32_t& offset_y) {
+    bool result;
+    GameManager_ScrollRate += GameManager_GridStepLevel * GameManager_GetScrollRateLimit();
+    const int32_t step_level = GameManager_ScrollRate;
+
+    offset_x = offset_x * step_level + GameManager_MapWindowDrawBounds.ulx;
+    offset_y = offset_y * step_level + GameManager_MapWindowDrawBounds.uly;
+
+    const auto last_map_view_ulx = GameManager_MapView.ulx;
+    const auto last_map_view_uly = GameManager_MapView.uly;
+
+    GameManager_ScrollRate -= step_level;
+    GameManager_GridStepOffset += step_level;
+
+    if (GameManager_UpdateMapDrawBounds(offset_x, offset_y)) {
+        GameManager_MapViewCenter.x += GameManager_MapView.ulx - last_map_view_ulx;
+        GameManager_MapViewCenter.y += GameManager_MapView.uly - last_map_view_uly;
+
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+bool GameManager_CenterMainMapView(int32_t ulx, int32_t uly) {
+    ulx = std::min(ResourceManager_MapSize.x - 4, std::max(ulx, (WindowManager_MapWidth / GFX_MAP_TILE_SIZE) / 2));
+    uly = std::min(ResourceManager_MapSize.y - 4, std::max(uly, (WindowManager_MapHeight / GFX_MAP_TILE_SIZE) / 2));
+
+    if (GameManager_MapViewCenter.x == ulx && GameManager_MapViewCenter.y == uly) {
+        return false;
+    }
+
+    GameManager_MapViewCenter.x = ulx;
+    GameManager_MapViewCenter.y = uly;
+
+    ulx = (GameManager_MapViewCenter.x * GFX_MAP_TILE_SIZE) + GFX_MAP_TILE_SIZE / 2;
+    uly = (GameManager_MapViewCenter.y * GFX_MAP_TILE_SIZE) + GFX_MAP_TILE_SIZE / 2;
+
+    ulx -= (((WindowManager_MapWidth * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) / 2);
+    uly -= (((WindowManager_MapHeight * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) / 2);
+
+    return GameManager_UpdateMapDrawBounds(ulx, uly);
+}
+
+bool GameManager_ZoomMainMapView(int32_t zoom_level, bool mode) {
+    zoom_level = std::min(64, std::max(ResourceManager_MainmapZoomLimit, zoom_level));
+
+    if ((Gfx_ZoomLevel == static_cast<uint32_t>(zoom_level)) && !mode) {
+        return false;
+    }
+
+    Gfx_ZoomLevel = zoom_level;
+    Gfx_MapScalingFactor = GFX_SCALE_NUMERATOR / Gfx_ZoomLevel;
+
+    GameManager_UpdateZoomSlider();
+
+    GameManager_QuickScroll = ini_get_setting(INI_QUICK_SCROLL);
+
+    if (GameManager_QuickScroll < 4) {
+        GameManager_QuickScroll = 16;
+        ini_set_setting(INI_QUICK_SCROLL, GameManager_QuickScroll);
+    }
+
+    GameManager_QuickScroll = (Gfx_MapScalingFactor * GameManager_QuickScroll) / GFX_SCALE_DENOMINATOR;
+
+    GameManager_GridStepLevel = GameManager_QuickScroll;
+    GameManager_GridStepOffset = 0;
+
+    const Point last_center{GameManager_MapViewCenter};
+
+    GameManager_MapViewCenter.x = 0;
+    GameManager_MapViewCenter.y = 0;
+
+    return GameManager_CenterMainMapView(last_center.x, last_center.y);
+}
+
+void GameManager_UpdateZoomSlider() {
+    if (GameManager_GameState != GAME_STATE_7_SITE_SELECT) {
+        WindowInfo* window{WindowManager_GetWindow(WINDOW_ZOOM_SLIDER_WINDOW)};
+        const int32_t width = (25 + 3) * WindowManager_GetScale();
+        const int32_t offset =
+            ((window->window.lrx - window->window.ulx - width) * (64 - Gfx_ZoomLevel)) / 60 + width / 2;
+
+        WindowManager_LoadSimpleImage(ZOOMPNL1, window->window.ulx, window->window.uly, false);
+        WindowManager_LoadSimpleImage(ZOOMPTR, offset + window->window.ulx, window->window.uly + 1, true);
+
+        win_draw_rect(window->id, &window->window);
+    }
+}
+
 void GameManager_UpdateMainMapView(int32_t mode, int32_t ulx, int32_t uly, bool flag) {
     GameManager_UpdateScrollRateLimit();
 
-    if (mode == 2) {
-        GameManager_ScrollRate += GameManager_GridStepLevel * GameManager_GetScrollRateLimit();
-        const int32_t step_level = GameManager_ScrollRate;
-
-        int32_t grid_ulx = GameManager_GridPosition.ulx;
-        int32_t grid_uly = GameManager_GridPosition.uly;
-
-        GameManager_ScrollRate -= step_level;
-
-        ulx = ulx * step_level + GameManager_MapWindowDrawBounds.ulx;
-
-        uly = uly * step_level + GameManager_MapWindowDrawBounds.uly;
-
-        GameManager_GridStepOffset += step_level;
-
-        if (GameManager_UpdateMapDrawBounds(ulx, uly)) {
-            GameManager_GridCenter.x += GameManager_GridPosition.ulx - grid_ulx;
-            GameManager_GridCenter.y += GameManager_GridPosition.uly - grid_uly;
-
-        } else {
-            return;
-        }
-
-    } else if (mode == 0 || mode == 1) {
-        if (mode == 0) {
-            uint32_t new_zoom_level = std::min(64, std::max(GameManager_DetermineZoomLimit(), ulx));
-
-            if (Gfx_ZoomLevel == new_zoom_level && !flag) {
+    switch (mode) {
+        case MAP_VIEW_ZOOM: {
+            if (!GameManager_ZoomMainMapView(ulx, flag)) {
                 return;
             }
+        } break;
 
-            Gfx_ZoomLevel = new_zoom_level;
-
-            if (GameManager_GameState != GAME_STATE_7_SITE_SELECT) {
-                WindowInfo* window;
-
-                window = WindowManager_GetWindow(WINDOW_ZOOM_SLIDER_WINDOW);
-                WindowManager_LoadSimpleImage(ZOOMPNL1, window->window.ulx, window->window.uly, false);
-
-                const double scale = WindowManager_GetScale();
-                const int32_t width = (25 + 3) * scale;
-                const int32_t offset =
-                    ((window->window.lrx - window->window.ulx - width) * (64 - Gfx_ZoomLevel)) / 60 + width / 2;
-
-                WindowManager_LoadSimpleImage(ZOOMPTR, offset + window->window.ulx, window->window.uly + 1, true);
-
-                win_draw_rect(window->id, &window->window);
+        case MAP_VIEW_CENTER: {
+            if (!GameManager_CenterMainMapView(ulx, uly)) {
+                return;
             }
+        } break;
 
-            Gfx_MapScalingFactor = GFX_SCALE_NUMERATOR / Gfx_ZoomLevel;
-
-            GameManager_QuickScroll = ini_get_setting(INI_QUICK_SCROLL);
-
-            if (GameManager_QuickScroll < 4) {
-                GameManager_QuickScroll = 16;
-                ini_set_setting(INI_QUICK_SCROLL, GameManager_QuickScroll);
+        case MAP_VIEW_SCROLL: {
+            if (!GameManager_ScrollMainMapView(ulx, uly)) {
+                return;
             }
-
-            GameManager_QuickScroll = (Gfx_MapScalingFactor * GameManager_QuickScroll) / GFX_SCALE_DENOMINATOR;
-
-            GameManager_GridStepLevel = GameManager_QuickScroll;
-            GameManager_GridStepOffset = 0;
-
-            ulx = GameManager_GridCenter.x;
-            uly = GameManager_GridCenter.y;
-
-            GameManager_GridCenter.x = 0;
-            GameManager_GridCenter.y = 0;
-        }
-
-        ulx = std::min(ResourceManager_MapSize.x - 4, std::max(ulx, (WindowManager_MapWidth / GFX_MAP_TILE_SIZE) / 2));
-        uly = std::min(ResourceManager_MapSize.y - 4, std::max(uly, (WindowManager_MapHeight / GFX_MAP_TILE_SIZE) / 2));
-
-        if (GameManager_GridCenter.x == ulx && GameManager_GridCenter.y == uly) {
-            return;
-        }
-
-        GameManager_GridCenter.x = ulx;
-        GameManager_GridCenter.y = uly;
-
-        ulx = (GameManager_GridCenter.x * GFX_MAP_TILE_SIZE) + GFX_MAP_TILE_SIZE / 2;
-        uly = (GameManager_GridCenter.y * GFX_MAP_TILE_SIZE) + GFX_MAP_TILE_SIZE / 2;
-
-        ulx -= (((WindowManager_MapWidth * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) / 2);
-        uly -= (((WindowManager_MapHeight * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) / 2);
-
-        if (!GameManager_UpdateMapDrawBounds(ulx, uly)) {
-            return;
-        }
+        } break;
     }
 
-    GameManager_GetGridCenterOffset(GameManager_DisplayButtonMinimap2x);
+    GameManager_UpdateGridCenterOffset();
     GameManager_DeinitPopupButtons(false);
     GameManager_UpdateDrawBounds();
 
@@ -2097,7 +2133,7 @@ void GameManager_GameSetup(int32_t game_state) {
         while (zoom_level <= max_zoom_level) {
             timestamp = timer_get();
 
-            GameManager_UpdateMainMapView(0, zoom_level, 0, false);
+            GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, zoom_level, 0, false);
             GameManager_ProcessTick(false);
 
             while ((timer_get() - timestamp) < TIMER_FPS_TO_MS(48)) {
@@ -2121,11 +2157,11 @@ void GameManager_GameSetup(int32_t game_state) {
 
         GameManager_LandingSequence.OpenPanel();
         GameManager_UpdateHumanPlayerCount();
-        GameManager_UpdateMainMapView(0, 4, 0, false);
+        GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0, false);
 
         unit = GameManager_GetFirstRelevantUnit(GameManager_PlayerTeam);
 
-        GameManager_UpdateMainMapView(1, unit->grid_x, unit->grid_y);
+        GameManager_UpdateMainMapView(MAP_VIEW_CENTER, unit->grid_x, unit->grid_y);
         GameManager_ProcessTick(true);
     }
 
@@ -2144,8 +2180,6 @@ void GameManager_GameSetup(int32_t game_state) {
     mouse_hide();
     mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     mouse_show();
-
-    GameManager_UnknownFlag = true;
 }
 
 void GameManager_GameLoopCleanup() {
@@ -2406,7 +2440,7 @@ void GameManager_UpdateTurnTimer(bool mode, int32_t turn_time) {
     GameManager_RequestMenuExit = false;
 }
 
-void GameManager_DrawDisplayPanel(int32_t control_id, char* text, int32_t color, int32_t ulx) {
+void GameManager_DrawDisplayPanel(int32_t control_id, const char* text, int32_t color, int32_t ulx) {
     if (GameManager_DisplayControlsInitialized) {
         struct MenuDisplayControl* control = &GameManager_MenuDisplayControls[control_id];
         struct ImageSimpleHeader* image =
@@ -2450,13 +2484,24 @@ void GameManager_UpdateGuiControl(uint16_t team) {
         SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
     }
 
-    GameManager_UpdateMainMapView(0, 4, 0, true);
+    GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0);
     GameManager_ProcessTick(true);
     Access_UpdateMinimapFogOfWar(team, false, true);
 
     window = WindowManager_GetWindow(WINDOW_MINIMAP);
 
-    buf_to_buf(ResourceManager_Minimap, GFX_MAP_SIZE, GFX_MAP_SIZE, GFX_MAP_SIZE, window->buffer, window->width);
+    const int32_t window_width{window->window.lrx - window->window.ulx + 1};
+    const int32_t window_height{window->window.lry - window->window.uly + 1};
+
+    if (ResourceManager_MapSize.x == window_width && ResourceManager_MapSize.y == window_height) {
+        buf_to_buf(ResourceManager_MinimapFov, ResourceManager_MapSize.x, ResourceManager_MapSize.y,
+                   ResourceManager_MapSize.x, window->buffer, window->width);
+
+    } else {
+        cscale(ResourceManager_MinimapFov, ResourceManager_MapSize.x, ResourceManager_MapSize.y,
+               ResourceManager_MapSize.x, window->buffer, window_width, window_height, window->width);
+    }
+
     win_draw_rect(window->id, &window->window);
 
     sprintf(message, _(c2eb), menu_team_names[team]);
@@ -2683,20 +2728,20 @@ bool GameManager_AreTeamsFinishedTurn() {
     return true;
 }
 
-bool GameManager_IsAtGridPosition(UnitInfo* unit) {
+bool GameManager_IsInsideMapView(UnitInfo* unit) {
     bool result;
 
     if (unit->flags & BUILDING) {
-        if (unit->grid_x <= GameManager_GridPosition.lrx && unit->grid_y <= GameManager_GridPosition.lry &&
-            unit->grid_x + 1 >= GameManager_GridPosition.ulx && unit->grid_y + 1 >= GameManager_GridPosition.uly) {
+        if (unit->grid_x <= GameManager_MapView.lrx && unit->grid_y <= GameManager_MapView.lry &&
+            unit->grid_x + 1 >= GameManager_MapView.ulx && unit->grid_y + 1 >= GameManager_MapView.uly) {
             result = true;
 
         } else {
             result = false;
         }
 
-    } else if (unit->grid_x <= GameManager_GridPosition.lrx && unit->grid_y <= GameManager_GridPosition.lry &&
-               unit->grid_x >= GameManager_GridPosition.ulx && unit->grid_y >= GameManager_GridPosition.uly) {
+    } else if (unit->grid_x <= GameManager_MapView.lrx && unit->grid_y <= GameManager_MapView.lry &&
+               unit->grid_x >= GameManager_MapView.ulx && unit->grid_y >= GameManager_MapView.uly) {
         result = true;
 
     } else {
@@ -3150,7 +3195,6 @@ void GameManager_InitUnitsAndGameState() {
     GameManager_DisplayButtonMinimapTnt = false;
 
     GameManager_HumanPlayerCount = 0;
-    GameManager_UnknownFlag = true;
     GameManager_RequestMenuExit = false;
 
     GameManager_SiteSelectReleaseEvent = false;
@@ -3173,8 +3217,8 @@ void GameManager_InitUnitsAndGameState() {
 
     GameManager_TurnCounter = 1;
 
-    GameManager_GridCenter.x = 0;
-    GameManager_GridCenter.y = 0;
+    GameManager_MapViewCenter.x = 0;
+    GameManager_MapViewCenter.y = 0;
 
     GameManager_SelectedUnit = nullptr;
 
@@ -3194,12 +3238,15 @@ void GameManager_InitUnitsAndGameState() {
 
 bool GameManager_InitGame() {
     GameManager_GameFileNumber = 0;
+    GameManager_IsMapInitialized = false;
 
     if (Remote_IsNetworkGame) {
         dos_srand(time(nullptr));
     } else {
         ResourceManager_InitTeamInfo();
     }
+
+    ResourceManager_InitInGameAssets(ini_get_setting(INI_WORLD));
 
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         UnitsManager_TeamInfo[i].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
@@ -3227,7 +3274,7 @@ bool GameManager_InitGame() {
                 GameManager_PlayerTeam = i;
             }
 
-            if (!ResourceManager_MapTileIds) {
+            if (!GameManager_IsMapInitialized) {
                 GameManager_InitMap();
             }
 
@@ -3244,7 +3291,7 @@ bool GameManager_InitGame() {
 
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_NONE) {
-            if (!ResourceManager_MapTileIds) {
+            if (!GameManager_IsMapInitialized) {
                 GameManager_InitMap();
             }
 
@@ -3252,8 +3299,8 @@ bool GameManager_InitGame() {
         }
     }
 
-    GameManager_GridCenter = UnitsManager_TeamMissionSupplies[GameManager_PlayerTeam].starting_position;
-    UnitsManager_TeamInfo[GameManager_PlayerTeam].camera_position = GameManager_GridCenter;
+    GameManager_MapViewCenter = UnitsManager_TeamMissionSupplies[GameManager_PlayerTeam].starting_position;
+    UnitsManager_TeamInfo[GameManager_PlayerTeam].camera_position = GameManager_MapViewCenter;
 
     return true;
 }
@@ -3501,10 +3548,10 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
     }
 
     if (load_successful) {
-        GameManager_UpdateMainMapView(0, 4, 0, true);
+        GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0);
 
     } else {
-        GameManager_UpdateMainMapView(0, Gfx_ZoomLevel, 0, true);
+        GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, Gfx_ZoomLevel, 0);
     }
 
     GameManager_MenuAnimateDisplayControls();
@@ -3551,7 +3598,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
             sprintf(text, GameManager_EventStrings_EnemySpotted[UnitsManager_BaseUnits[unit->GetUnitType()].gender],
                     UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
-            if (!GameManager_IsAtGridPosition(unit) && timer_elapsed_time(GameManager_NotifyTimeout) > 5000) {
+            if (!GameManager_IsInsideMapView(unit) && timer_elapsed_time(GameManager_NotifyTimeout) > 5000) {
                 resource_id1 = V_M070;
                 resource_id2 = V_F071;
             }
@@ -3563,11 +3610,11 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
         case 1: {
             sprintf(text, unit->hits ? _(fd20) : _(73cc), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
-            if (unit->hits && !GameManager_IsAtGridPosition(unit)) {
+            if (unit->hits && !GameManager_IsInsideMapView(unit)) {
                 resource_id1 = V_M229;
                 resource_id2 = V_F232;
 
-            } else if (!GameManager_IsAtGridPosition(unit)) {
+            } else if (!GameManager_IsInsideMapView(unit)) {
                 GameManager_UnknownUnit3 = nullptr;
 
                 resource_id1 = V_M234;
@@ -3662,7 +3709,7 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
     main_map_window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
     popups_window = WindowManager_GetWindow(WINDOW_POPUP_BUTTONS);
 
-    if (unit->GetOrder() != ORDER_DISABLE && GameManager_IsAtGridPosition(unit) &&
+    if (unit->GetOrder() != ORDER_DISABLE && GameManager_IsInsideMapView(unit) &&
         (!(unit->flags & MOBILE_LAND_UNIT) || unit->GetOrderState() != ORDER_STATE_UNIT_READY)) {
         GameManager_PopupButtons.popup_count = 0;
         unit->popup->init(unit, &GameManager_PopupButtons);
@@ -3752,42 +3799,43 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
 
 void GameManager_DeinitPopupButtons(bool clear_mouse_events) {
     if (GameManager_PopupButtons.popup_count) {
-        WindowInfo* window1;
-        WindowInfo* window2;
+        WindowInfo* popups;
+        WindowInfo* main_map;
+        WindowInfo* main_window;
         Image* image;
         Rect bounds;
 
-        window1 = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+        main_window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
         image = new (std::nothrow) Image(GameManager_PopupButtons.ulx, GameManager_PopupButtons.uly,
                                          GameManager_PopupButtons.width, GameManager_PopupButtons.height);
 
-        image->Copy(window1);
+        image->Copy(main_window);
 
         for (int32_t i = 0; i < GameManager_PopupButtons.popup_count; ++i) {
             delete GameManager_PopupButtons.buttons[i];
         }
 
-        image->Write(window1);
+        image->Write(main_window);
         delete image;
 
-        window2 = WindowManager_GetWindow(WINDOW_MAIN_MAP);
-        window1 = WindowManager_GetWindow(WINDOW_POPUP_BUTTONS);
+        main_map = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+        popups = WindowManager_GetWindow(WINDOW_POPUP_BUTTONS);
 
-        bounds.ulx = (((window1->window.ulx - window2->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
+        bounds.ulx = (((popups->window.ulx - main_map->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                      GameManager_MapWindowDrawBounds.ulx;
-        bounds.uly = (((window1->window.uly - window2->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
+        bounds.uly = (((popups->window.uly - main_map->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                      GameManager_MapWindowDrawBounds.uly;
         bounds.lrx =
-            (((window1->window.lrx - window2->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) + bounds.ulx;
+            (((popups->window.lrx - main_map->window.ulx) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) + bounds.ulx;
         bounds.lry =
-            (((window1->window.lry - window2->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) + bounds.uly;
+            (((popups->window.lry - main_map->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) + bounds.uly;
 
         GameManager_AddDrawBounds(&bounds);
 
-        window1->window.ulx = -1;
-        window1->window.uly = -1;
-        window1->window.lrx = -1;
-        window1->window.lry = -1;
+        popups->window.ulx = -1;
+        popups->window.uly = -1;
+        popups->window.lrx = -1;
+        popups->window.lry = -1;
 
         GameManager_PopupButtons.popup_count = 0;
 
@@ -3797,29 +3845,26 @@ void GameManager_DeinitPopupButtons(bool clear_mouse_events) {
     }
 }
 
-void GameManager_GetGridCenterOffset(bool minimap_zoom_state) {
-    if (minimap_zoom_state) {
-        if (GameManager_GridCenter.x <= GameManager_GridCenterOffset.x) {
-            GameManager_GridCenterOffset.x -= 4;
+void GameManager_UpdateGridCenterOffset() {
+    if (GameManager_MapViewCenter.x <= GameManager_GridCenterOffset.x) {
+        GameManager_GridCenterOffset.x -= 4;
 
-        } else if (GameManager_GridCenter.x >= GameManager_GridCenterOffset.x + 55) {
-            GameManager_GridCenterOffset.x += 4;
-        }
-
-        if (GameManager_GridCenter.y <= GameManager_GridCenterOffset.y) {
-            GameManager_GridCenterOffset.y -= 4;
-
-        } else if (GameManager_GridCenter.y >= GameManager_GridCenterOffset.y + 55) {
-            GameManager_GridCenterOffset.y += 4;
-        }
-
-    } else {
-        GameManager_GridCenterOffset.x = GameManager_GridCenter.x - 28;
-        GameManager_GridCenterOffset.y = GameManager_GridCenter.y - 28;
+    } else if (GameManager_MapViewCenter.x >= GameManager_GridCenterOffset.x + (ResourceManager_MapSize.x / 2 - 1)) {
+        GameManager_GridCenterOffset.x += 4;
     }
 
-    GameManager_GridCenterOffset.x = std::min(56, std::max(0, static_cast<int32_t>(GameManager_GridCenterOffset.x)));
-    GameManager_GridCenterOffset.y = std::min(56, std::max(0, static_cast<int32_t>(GameManager_GridCenterOffset.y)));
+    if (GameManager_MapViewCenter.y <= GameManager_GridCenterOffset.y) {
+        GameManager_GridCenterOffset.y -= 4;
+
+    } else if (GameManager_MapViewCenter.y >= GameManager_GridCenterOffset.y + (ResourceManager_MapSize.y / 2 - 1)) {
+        GameManager_GridCenterOffset.y += 4;
+    }
+
+    GameManager_GridCenterOffset.x =
+        std::min((ResourceManager_MapSize.x / 2), std::max(0, static_cast<int32_t>(GameManager_GridCenterOffset.x)));
+
+    GameManager_GridCenterOffset.y =
+        std::min((ResourceManager_MapSize.y / 2), std::max(0, static_cast<int32_t>(GameManager_GridCenterOffset.y)));
 }
 
 void GameManager_UpdatePanelButtons(uint16_t team) {
@@ -3829,8 +3874,8 @@ void GameManager_UpdatePanelButtons(uint16_t team) {
 
     Gfx_ZoomLevel = team_info->zoom_level;
 
-    GameManager_UpdateMainMapView(0, Gfx_ZoomLevel, 0);
-    GameManager_UpdateMainMapView(1, team_info->camera_position.x, team_info->camera_position.y);
+    GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, Gfx_ZoomLevel, 0);
+    GameManager_UpdateMainMapView(MAP_VIEW_CENTER, team_info->camera_position.x, team_info->camera_position.y);
 
     if (team_info->selected_unit != nullptr && team_info->selected_unit->hits) {
         GameManager_MenuUnitSelect(&*team_info->selected_unit);
@@ -3960,14 +4005,13 @@ void GameManager_MenuClickFindButton() {
     GameManager_MenuItems[MENU_GUI_ITEM_CENTER_BUTTON].button->SetRestState(false);
 
     if (GameManager_SelectedUnit != nullptr) {
-        GameManager_UpdateMainMapView(1, GameManager_SelectedUnit->grid_x, GameManager_SelectedUnit->grid_y);
+        GameManager_UpdateMainMapView(MAP_VIEW_CENTER, GameManager_SelectedUnit->grid_x,
+                                      GameManager_SelectedUnit->grid_y);
     } else {
         GameManager_SelectNextUnit(1);
     }
 
-    if (GameManager_DisplayButtonMinimap2x) {
-        GameManager_GetGridCenterOffset(false);
-    }
+    GameManager_UpdateGridCenterOffset();
 }
 
 void GameManager_MenuClickScanButton(bool rest_state) {
@@ -4235,7 +4279,7 @@ bool GameManager_HandleProximityOverlaps() {
                 GameManager_PlayerTeam = team;
                 GameManager_ActiveTurnTeam = team;
 
-                GameManager_UpdateMainMapView(0, 4, 0, false);
+                GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0, false);
                 GameManager_ProcessTick(true);
                 GameManager_DrawSelectSiteMessage(team);
 
@@ -4337,6 +4381,11 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     GameManager_MousePosition.x = grid_x;
     GameManager_MousePosition.y = grid_y;
 
+    if (GameManager_MousePosition.x >= ResourceManager_MapSize.x ||
+        GameManager_MousePosition.y >= ResourceManager_MapSize.y) {
+        return CURSOR_HAND;
+    }
+
     if ((GameManager_GameState == GAME_STATE_9_END_TURN && GameManager_PlayMode != PLAY_MODE_SIMULTANEOUS_MOVES) ||
         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type != TEAM_TYPE_PLAYER) {
         uint8_t result;
@@ -4360,6 +4409,10 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
 
         if (GameManager_IsValidStartingPosition(grid_x, grid_y)) {
             result = CURSOR_UNIT_GO;
+
+        } else if (GameManager_MousePosition.x >= ResourceManager_MapSize.x ||
+                   GameManager_MousePosition.y >= ResourceManager_MapSize.y) {
+            result = CURSOR_HAND;
 
         } else {
             result = CURSOR_UNIT_NO_GO;
@@ -5238,7 +5291,7 @@ bool GameManager_ProcessTick(bool render_screen) {
             UnitsManager_ProcessOrders();
         }
 
-        GameManager_Render();
+        GameManager_RenderMap();
 
         if (GameManager_GameState != GAME_STATE_11 && !UnitsManager_OrdersPending) {
             TickTimer_UpdateTimeLimit();
@@ -5258,7 +5311,7 @@ bool GameManager_ProcessTick(bool render_screen) {
 
     } else {
         if (render_screen || GameManager_RenderEnable || GameManager_GridOffset.x || GameManager_GridOffset.y) {
-            GameManager_Render();
+            GameManager_RenderMap();
         }
 
         if (Remote_IsNetworkGame) {
@@ -5278,8 +5331,8 @@ void GameManager_GuiSwitchTeam(uint16_t team) {
 
     team_info->selected_unit = GameManager_SelectedUnit;
     team_info->zoom_level = Gfx_ZoomLevel;
-    team_info->camera_position.x = GameManager_GridCenter.x;
-    team_info->camera_position.y = GameManager_GridCenter.y;
+    team_info->camera_position.x = GameManager_MapViewCenter.x;
+    team_info->camera_position.y = GameManager_MapViewCenter.y;
     team_info->display_button_range = GameManager_DisplayButtonRange;
     team_info->display_button_scan = GameManager_DisplayButtonScan;
     team_info->display_button_status = GameManager_DisplayButtonStatus;
@@ -5469,13 +5522,13 @@ void GameManager_ProcessKey() {
 
                 Ai_SelectStartingPosition(GameManager_ActiveTurnTeam);
 
-                GameManager_GridCenter.x =
+                GameManager_MapViewCenter.x =
                     UnitsManager_TeamMissionSupplies[GameManager_ActiveTurnTeam].starting_position.x;
-                GameManager_GridCenter.y =
+                GameManager_MapViewCenter.y =
                     UnitsManager_TeamMissionSupplies[GameManager_ActiveTurnTeam].starting_position.y;
 
-                UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].camera_position.x = GameManager_GridCenter.x;
-                UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].camera_position.y = GameManager_GridCenter.y;
+                UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].camera_position.x = GameManager_MapViewCenter.x;
+                UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].camera_position.y = GameManager_MapViewCenter.y;
 
                 UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].zoom_level = 64;
 
@@ -5527,13 +5580,13 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_KP_PLUS:
         case GNW_KB_KEY_EQUALS: {
             if (GameManager_IsMainMenuEnabled) {
-                GameManager_UpdateMainMapView(0, Gfx_ZoomLevel + 1, 0, false);
+                GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, Gfx_ZoomLevel + 1, 0, false);
             }
         } break;
 
         case GNW_KB_KEY_KP_MINUS: {
             if (GameManager_IsMainMenuEnabled) {
-                GameManager_UpdateMainMapView(0, Gfx_ZoomLevel - 1, 0, false);
+                GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, Gfx_ZoomLevel - 1, 0, false);
             }
         } break;
 
@@ -5599,7 +5652,7 @@ void GameManager_ProcessKey() {
                  UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) &&
                 GameManager_SpottedEnemyPosition.x != -1) {
                 GameManager_ManagePlayerAction();
-                GameManager_UpdateMainMapView(1, GameManager_SpottedEnemyPosition.x,
+                GameManager_UpdateMainMapView(MAP_VIEW_CENTER, GameManager_SpottedEnemyPosition.x,
                                               GameManager_SpottedEnemyPosition.y);
 
                 if (GameManager_UnknownUnit3 != nullptr &&
@@ -5648,7 +5701,7 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_F8: {
             if (GameManager_IsMainMenuEnabled) {
                 if (team_info->screen_locations[key - GNW_KB_KEY_F5].x != -1) {
-                    GameManager_UpdateMainMapView(1, team_info->screen_locations[key - GNW_KB_KEY_F5].x,
+                    GameManager_UpdateMainMapView(MAP_VIEW_CENTER, team_info->screen_locations[key - GNW_KB_KEY_F5].x,
                                                   team_info->screen_locations[key - GNW_KB_KEY_F5].y);
                 }
             }
@@ -5674,8 +5727,8 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_LALT_F6:
         case GNW_KB_KEY_LALT_F7:
         case GNW_KB_KEY_LALT_F8: {
-            team_info->screen_locations[key - GNW_KB_KEY_LALT_F5].x = GameManager_GridCenter.x;
-            team_info->screen_locations[key - GNW_KB_KEY_LALT_F5].y = GameManager_GridCenter.y;
+            team_info->screen_locations[key - GNW_KB_KEY_LALT_F5].x = GameManager_MapViewCenter.x;
+            team_info->screen_locations[key - GNW_KB_KEY_LALT_F5].y = GameManager_MapViewCenter.y;
 
             MessageManager_DrawMessage(_(7615), 0, 0);
         } break;
@@ -6466,10 +6519,10 @@ void GameManager_ProcessInput() {
                 (((GameManager_MouseY - window->window.uly) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR) +
                 GameManager_MapWindowDrawBounds.uly;
 
-            GameManager_RenderArea.ulx = GameManager_ScaledMousePosition.x;
-            GameManager_RenderArea.lrx = GameManager_ScaledMousePosition.x;
-            GameManager_RenderArea.uly = GameManager_ScaledMousePosition.y;
-            GameManager_RenderArea.lry = GameManager_ScaledMousePosition.y;
+            GameManager_MultiSelectBounds.ulx = GameManager_ScaledMousePosition.x;
+            GameManager_MultiSelectBounds.lrx = GameManager_ScaledMousePosition.x;
+            GameManager_MultiSelectBounds.uly = GameManager_ScaledMousePosition.y;
+            GameManager_MultiSelectBounds.lry = GameManager_ScaledMousePosition.y;
 
             GameManager_RenderState = 1;
         }
@@ -6497,7 +6550,7 @@ void GameManager_ProcessInput() {
 
         if (GameManager_RenderState) {
             if (GameManager_RenderState == 2) {
-                Access_MultiSelect(&*GameManager_SelectedUnit, &GameManager_RenderArea);
+                Access_MultiSelect(&*GameManager_SelectedUnit, &GameManager_MultiSelectBounds);
                 GameManager_UpdateDrawBounds();
             }
 
@@ -6547,7 +6600,15 @@ void GameManager_ProcessInput() {
     if (window_index == WINDOW_MAIN_MAP) {
         if (GameManager_MousePosition.x != GameManager_LastMousePosition.x ||
             GameManager_MousePosition.y != GameManager_LastMousePosition.y) {
-            GameManager_DrawMouseCoordinates(GameManager_MousePosition.x + 1, GameManager_MousePosition.y + 1);
+            if (GameManager_MousePosition.x < ResourceManager_MapSize.x &&
+                GameManager_MousePosition.y < ResourceManager_MapSize.y) {
+                GameManager_DrawMouseCoordinates(GameManager_MousePosition.x + 1, GameManager_MousePosition.y + 1);
+                GameManager_IsActiveMapPositionDisplay = true;
+
+            } else {
+                GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_COORDINATES, " ", 0xA2, 21);
+                GameManager_IsActiveMapPositionDisplay = false;
+            }
 
             if (GameManager_UnknownFlag3) {
                 UnitsManager_MoveUnit(&*GameManager_UnknownUnit2, GameManager_MousePosition.x,
@@ -6561,12 +6622,36 @@ void GameManager_ProcessInput() {
     } else if (window_index == WINDOW_MINIMAP) {
         Point minimap_position = GameManager_GetMinimapPosition();
 
-        if (minimap_position.x != GameManager_LastMinimapPosition.x ||
-            minimap_position.y != GameManager_LastMinimapPosition.y) {
-            GameManager_DrawMouseCoordinates(minimap_position.x + 1, minimap_position.y + 1);
+        if (minimap_position.x != -1 && minimap_position.y != -1) {
+            if (minimap_position.x != GameManager_LastMinimapPosition.x ||
+                minimap_position.y != GameManager_LastMinimapPosition.y) {
+                if (minimap_position.x < ResourceManager_MapSize.x && minimap_position.y < ResourceManager_MapSize.y) {
+                    GameManager_DrawMouseCoordinates(minimap_position.x + 1, minimap_position.y + 1);
+                    GameManager_IsActiveMapPositionDisplay = true;
 
-            GameManager_LastMinimapPosition.x = minimap_position.x;
-            GameManager_LastMinimapPosition.y = minimap_position.y;
+                } else {
+                    GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_COORDINATES, " ", 0xA2, 21);
+                    GameManager_IsActiveMapPositionDisplay = false;
+                }
+
+                GameManager_LastMinimapPosition.x = minimap_position.x;
+                GameManager_LastMinimapPosition.y = minimap_position.y;
+            }
+
+        } else {
+            if (GameManager_IsActiveMapPositionDisplay) {
+                GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_COORDINATES, " ", 0xA2, 21);
+                GameManager_IsActiveMapPositionDisplay = false;
+            }
+        }
+
+    } else {
+        if (GameManager_IsActiveMapPositionDisplay) {
+            GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_COORDINATES, " ", 0xA2, 21);
+            GameManager_IsActiveMapPositionDisplay = false;
+
+            GameManager_LastMousePosition.x = -1;
+            GameManager_LastMousePosition.y = -1;
         }
     }
 
@@ -6593,7 +6678,7 @@ void GameManager_ProcessInput() {
 
             case WINDOW_ZOOM_PLUS_BUTTON: {
                 if (GameManager_MouseButtons & MOUSE_RELEASE_LEFT) {
-                    GameManager_UpdateMainMapView(0, Gfx_ZoomLevel + 10, 0, false);
+                    GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, Gfx_ZoomLevel + 10, 0, false);
                 }
             } break;
 
@@ -6617,32 +6702,34 @@ void GameManager_ProcessInput() {
 
                     slider_offset = 64 - ((GameManager_MouseX * 60) / slider_offset);
 
-                    GameManager_UpdateMainMapView(0, slider_offset, 0, 0);
+                    GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, slider_offset, 0, 0);
                 }
             } break;
 
             case WINDOW_ZOOM_MINUS_BUTTON: {
                 if (GameManager_MouseButtons & MOUSE_RELEASE_LEFT) {
-                    GameManager_UpdateMainMapView(0, Gfx_ZoomLevel - 10, 0, false);
+                    GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, Gfx_ZoomLevel - 10, 0, false);
                 }
             } break;
 
             case WINDOW_MINIMAP: {
                 Point minimap_position = GameManager_GetMinimapPosition();
 
-                if (GameManager_MouseButtons & (MOUSE_PRESS_LEFT | MOUSE_RELEASE_LEFT)) {
-                    GameManager_UpdateMainMapView(1, minimap_position.x, minimap_position.y);
+                if (minimap_position.x != -1 && minimap_position.y != -1) {
+                    if (GameManager_MouseButtons & (MOUSE_PRESS_LEFT | MOUSE_RELEASE_LEFT)) {
+                        GameManager_UpdateMainMapView(MAP_VIEW_CENTER, minimap_position.x, minimap_position.y);
 
-                } else if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
-                    uint8_t cursor;
+                    } else if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
+                        uint8_t cursor;
 
-                    cursor = GameManager_GetWindowCursor(minimap_position.x, minimap_position.y);
+                        cursor = GameManager_GetWindowCursor(minimap_position.x, minimap_position.y);
 
-                    if (cursor == CURSOR_UNIT_GO || cursor == CURSOR_WAY) {
-                        if (GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_UNIT_READY) {
-                            GameManager_SetUnitOrder(
-                                ORDER_MOVE, cursor == CURSOR_UNIT_GO ? ORDER_STATE_INIT : ORDER_STATE_MOVE_INIT,
-                                &*GameManager_SelectedUnit, minimap_position.x, minimap_position.y);
+                        if (cursor == CURSOR_UNIT_GO || cursor == CURSOR_WAY) {
+                            if (GameManager_SelectedUnit->GetOrderState() != ORDER_STATE_UNIT_READY) {
+                                GameManager_SetUnitOrder(
+                                    ORDER_MOVE, cursor == CURSOR_UNIT_GO ? ORDER_STATE_INIT : ORDER_STATE_MOVE_INIT,
+                                    &*GameManager_SelectedUnit, minimap_position.x, minimap_position.y);
+                            }
                         }
                     }
                 }
@@ -6651,267 +6738,278 @@ void GameManager_ProcessInput() {
 
             case WINDOW_MAIN_MAP: {
                 if (!(GameManager_MouseButtons & (MOUSE_PRESS_LEFT | MOUSE_PRESS_RIGHT))) {
-                    SoundManager_PlaySfx(KCARG0);
+                    if (GameManager_MousePosition.x < ResourceManager_MapSize.x &&
+                        GameManager_MousePosition.y < ResourceManager_MapSize.y) {
+                        SoundManager_PlaySfx(KCARG0);
 
-                    if (MessageManager_MessageBox_IsActive) {
-                        MessageManager_ClearMessageBox();
-                    }
-
-                    if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
-                        UnitsManager_TeamMissionSupplies[GameManager_ActiveTurnTeam].starting_position =
-                            GameManager_MousePosition;
-                        UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].camera_position = GameManager_MousePosition;
-                        UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].zoom_level = 64;
-
-                        if (Cursor_GetCursor() == CURSOR_UNIT_GO) {
-                            GameManager_GameState = GAME_STATE_13;
-                            SoundManager_PlaySfx(NDONE0);
-
-                        } else {
-                            SoundManager_PlaySfx(NCANC0);
+                        if (MessageManager_MessageBox_IsActive) {
+                            MessageManager_ClearMessageBox();
                         }
 
-                    } else {
-                        UnitInfo* unit = Access_GetTeamUnit(GameManager_MousePosition.x, GameManager_MousePosition.y,
-                                                            GameManager_PlayerTeam, SELECTABLE);
+                        if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
+                            UnitsManager_TeamMissionSupplies[GameManager_ActiveTurnTeam].starting_position =
+                                GameManager_MousePosition;
+                            UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].camera_position =
+                                GameManager_MousePosition;
+                            UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].zoom_level = 64;
 
-                        if (GameManager_UnknownFlag3) {
-                            if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
-                                if (!unit) {
-                                    unit = Access_GetUnit5(GameManager_MousePosition.x, GameManager_MousePosition.y);
-                                }
-
-                                if (unit) {
-                                    UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_BUILD_CLEARING);
-                                }
+                            if (Cursor_GetCursor() == CURSOR_UNIT_GO) {
+                                GameManager_GameState = GAME_STATE_13;
+                                SoundManager_PlaySfx(NDONE0);
 
                             } else {
-                                if (UnitsManager_MoveUnitAndParent(&*GameManager_UnknownUnit2,
-                                                                   GameManager_MousePosition.x,
-                                                                   GameManager_MousePosition.y)) {
-                                    if (Remote_IsNetworkGame) {
-                                        Remote_SendNetPacket_14(GameManager_PlayerTeam, GameManager_UnitType,
-                                                                GameManager_MousePosition.x,
-                                                                GameManager_MousePosition.y);
-                                    }
-
-                                    GameManager_DeployUnit(GameManager_PlayerTeam, GameManager_UnitType,
-                                                           GameManager_MousePosition.x, GameManager_MousePosition.y);
-                                }
+                                SoundManager_PlaySfx(NCANC0);
                             }
 
                         } else {
-                            UnitInfo* unit2 = Access_GetEnemyUnit(GameManager_PlayerTeam, GameManager_MousePosition.x,
-                                                                  GameManager_MousePosition.y, SELECTABLE);
+                            UnitInfo* unit =
+                                Access_GetTeamUnit(GameManager_MousePosition.x, GameManager_MousePosition.y,
+                                                   GameManager_PlayerTeam, SELECTABLE);
 
-                            if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
-                                GameManager_ManagePlayerAction();
-
-                                if (GameManager_SelectedUnit != nullptr &&
-                                    (GameManager_SelectedUnit == unit || GameManager_SelectedUnit == unit2)) {
-                                    UnitStats_Menu(&*GameManager_SelectedUnit);
-
-                                } else if (unit) {
-                                    GameManager_UnitSelect(unit);
-
-                                } else if (unit2) {
-                                    if (GameManager_DisplayButtonLock) {
-                                        if (GameManager_LockedUnits.Remove(*unit2)) {
-                                            GameManager_UpdateDrawBounds();
-                                        }
-
-                                        GameManager_LockedUnits.PushBack(*unit2);
+                            if (GameManager_UnknownFlag3) {
+                                if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
+                                    if (!unit) {
+                                        unit =
+                                            Access_GetUnit5(GameManager_MousePosition.x, GameManager_MousePosition.y);
                                     }
 
-                                    GameManager_UnitSelectOther(&*GameManager_SelectedUnit, unit2,
-                                                                GameManager_MousePosition.x,
-                                                                GameManager_MousePosition.y);
+                                    if (unit) {
+                                        UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_BUILD_CLEARING);
+                                    }
 
-                                } else if (GameManager_SelectedUnit != nullptr) {
-                                    GameManager_SelectedUnit->targeting_mode = 0;
-                                    GameManager_SelectedUnit->enter_mode = 0;
-                                    GameManager_SelectedUnit->cursor = CURSOR_HIDDEN;
+                                } else {
+                                    if (UnitsManager_MoveUnitAndParent(&*GameManager_UnknownUnit2,
+                                                                       GameManager_MousePosition.x,
+                                                                       GameManager_MousePosition.y)) {
+                                        if (Remote_IsNetworkGame) {
+                                            Remote_SendNetPacket_14(GameManager_PlayerTeam, GameManager_UnitType,
+                                                                    GameManager_MousePosition.x,
+                                                                    GameManager_MousePosition.y);
+                                        }
 
-                                    GameManager_UpdateInfoDisplay(&*GameManager_SelectedUnit);
+                                        GameManager_DeployUnit(GameManager_PlayerTeam, GameManager_UnitType,
+                                                               GameManager_MousePosition.x,
+                                                               GameManager_MousePosition.y);
+                                    }
                                 }
 
                             } else {
-                                switch (Cursor_GetCursor()) {
-                                    case CURSOR_REPAIR: {
-                                        if (GameManager_UpdateSelection(&*GameManager_SelectedUnit, GameManager_Unit,
-                                                                        GameManager_MousePosition.x,
-                                                                        GameManager_MousePosition.y)) {
-                                            GameManager_RepairUnit(&*GameManager_SelectedUnit, GameManager_Unit);
+                                UnitInfo* unit2 =
+                                    Access_GetEnemyUnit(GameManager_PlayerTeam, GameManager_MousePosition.x,
+                                                        GameManager_MousePosition.y, SELECTABLE);
+
+                                if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
+                                    GameManager_ManagePlayerAction();
+
+                                    if (GameManager_SelectedUnit != nullptr &&
+                                        (GameManager_SelectedUnit == unit || GameManager_SelectedUnit == unit2)) {
+                                        UnitStats_Menu(&*GameManager_SelectedUnit);
+
+                                    } else if (unit) {
+                                        GameManager_UnitSelect(unit);
+
+                                    } else if (unit2) {
+                                        if (GameManager_DisplayButtonLock) {
+                                            if (GameManager_LockedUnits.Remove(*unit2)) {
+                                                GameManager_UpdateDrawBounds();
+                                            }
+
+                                            GameManager_LockedUnits.PushBack(*unit2);
                                         }
-                                    } break;
 
-                                    case CURSOR_TRANSFER: {
-                                        if (GameManager_UpdateSelection(&*GameManager_SelectedUnit, GameManager_Unit,
-                                                                        GameManager_MousePosition.x,
-                                                                        GameManager_MousePosition.y)) {
-                                            GameManager_TransferCargo(&*GameManager_SelectedUnit, GameManager_Unit);
-                                        }
-                                    } break;
+                                        GameManager_UnitSelectOther(&*GameManager_SelectedUnit, unit2,
+                                                                    GameManager_MousePosition.x,
+                                                                    GameManager_MousePosition.y);
 
-                                    case CURSOR_FUEL: {
-                                    } break;
+                                    } else if (GameManager_SelectedUnit != nullptr) {
+                                        GameManager_SelectedUnit->targeting_mode = 0;
+                                        GameManager_SelectedUnit->enter_mode = 0;
+                                        GameManager_SelectedUnit->cursor = CURSOR_HIDDEN;
 
-                                    case CURSOR_RELOAD: {
-                                        if (GameManager_UpdateSelection(&*GameManager_SelectedUnit, GameManager_Unit,
-                                                                        GameManager_MousePosition.x,
-                                                                        GameManager_MousePosition.y)) {
-                                            GameManager_ReloadUnit(&*GameManager_SelectedUnit, GameManager_Unit);
-                                        }
-                                    } break;
+                                        GameManager_UpdateInfoDisplay(&*GameManager_SelectedUnit);
+                                    }
 
-                                    case CURSOR_LOAD: {
-                                        if (GameManager_UpdateSelection(&*GameManager_SelectedUnit, GameManager_Unit,
-                                                                        GameManager_MousePosition.x,
-                                                                        GameManager_MousePosition.y)) {
-                                            if (GameManager_SelectedUnit->storage <
-                                                GameManager_SelectedUnit->GetBaseValues()->GetAttribute(
-                                                    ATTRIB_STORAGE)) {
-                                                if (GameManager_SelectedUnit->GetUnitType() == AIRTRANS) {
-                                                    GameManager_SelectedUnit->SetParent(GameManager_Unit);
-                                                    GameManager_SetUnitOrder(
-                                                        ORDER_MOVE, ORDER_STATE_INIT, &*GameManager_SelectedUnit,
-                                                        GameManager_MousePosition.x, GameManager_MousePosition.y);
+                                } else {
+                                    switch (Cursor_GetCursor()) {
+                                        case CURSOR_REPAIR: {
+                                            if (GameManager_UpdateSelection(
+                                                    &*GameManager_SelectedUnit, GameManager_Unit,
+                                                    GameManager_MousePosition.x, GameManager_MousePosition.y)) {
+                                                GameManager_RepairUnit(&*GameManager_SelectedUnit, GameManager_Unit);
+                                            }
+                                        } break;
 
-                                                } else if (GameManager_Unit->GetOrder() == ORDER_DISABLE) {
-                                                    MessageManager_DrawMessage(_(9897), 1, 0);
+                                        case CURSOR_TRANSFER: {
+                                            if (GameManager_UpdateSelection(
+                                                    &*GameManager_SelectedUnit, GameManager_Unit,
+                                                    GameManager_MousePosition.x, GameManager_MousePosition.y)) {
+                                                GameManager_TransferCargo(&*GameManager_SelectedUnit, GameManager_Unit);
+                                            }
+                                        } break;
 
-                                                } else if (GameManager_SelectedUnit->grid_x ==
-                                                               GameManager_Unit->grid_x &&
-                                                           GameManager_SelectedUnit->grid_y ==
-                                                               GameManager_Unit->grid_y &&
-                                                           GameManager_Unit->GetOrderState() ==
-                                                               ORDER_STATE_EXECUTING_ORDER) {
-                                                    GameManager_Unit->SetParent(&*GameManager_SelectedUnit);
-                                                    UnitsManager_SetNewOrder(GameManager_Unit, ORDER_LAND,
-                                                                             ORDER_STATE_INIT);
+                                        case CURSOR_FUEL: {
+                                        } break;
 
-                                                } else {
-                                                    GameManager_SetUnitOrder(ORDER_MOVE_TO_UNIT, ORDER_STATE_INIT,
-                                                                             GameManager_Unit,
-                                                                             GameManager_SelectedUnit->grid_x,
-                                                                             GameManager_SelectedUnit->grid_y);
+                                        case CURSOR_RELOAD: {
+                                            if (GameManager_UpdateSelection(
+                                                    &*GameManager_SelectedUnit, GameManager_Unit,
+                                                    GameManager_MousePosition.x, GameManager_MousePosition.y)) {
+                                                GameManager_ReloadUnit(&*GameManager_SelectedUnit, GameManager_Unit);
+                                            }
+                                        } break;
+
+                                        case CURSOR_LOAD: {
+                                            if (GameManager_UpdateSelection(
+                                                    &*GameManager_SelectedUnit, GameManager_Unit,
+                                                    GameManager_MousePosition.x, GameManager_MousePosition.y)) {
+                                                if (GameManager_SelectedUnit->storage <
+                                                    GameManager_SelectedUnit->GetBaseValues()->GetAttribute(
+                                                        ATTRIB_STORAGE)) {
+                                                    if (GameManager_SelectedUnit->GetUnitType() == AIRTRANS) {
+                                                        GameManager_SelectedUnit->SetParent(GameManager_Unit);
+                                                        GameManager_SetUnitOrder(
+                                                            ORDER_MOVE, ORDER_STATE_INIT, &*GameManager_SelectedUnit,
+                                                            GameManager_MousePosition.x, GameManager_MousePosition.y);
+
+                                                    } else if (GameManager_Unit->GetOrder() == ORDER_DISABLE) {
+                                                        MessageManager_DrawMessage(_(9897), 1, 0);
+
+                                                    } else if (GameManager_SelectedUnit->grid_x ==
+                                                                   GameManager_Unit->grid_x &&
+                                                               GameManager_SelectedUnit->grid_y ==
+                                                                   GameManager_Unit->grid_y &&
+                                                               GameManager_Unit->GetOrderState() ==
+                                                                   ORDER_STATE_EXECUTING_ORDER) {
+                                                        GameManager_Unit->SetParent(&*GameManager_SelectedUnit);
+                                                        UnitsManager_SetNewOrder(GameManager_Unit, ORDER_LAND,
+                                                                                 ORDER_STATE_INIT);
+
+                                                    } else {
+                                                        GameManager_SetUnitOrder(ORDER_MOVE_TO_UNIT, ORDER_STATE_INIT,
+                                                                                 GameManager_Unit,
+                                                                                 GameManager_SelectedUnit->grid_x,
+                                                                                 GameManager_SelectedUnit->grid_y);
+                                                    }
                                                 }
                                             }
-                                        }
-                                    } break;
+                                        } break;
 
-                                    case CURSOR_FRIEND: {
-                                        if (GameManager_UpdateSelection(&*GameManager_SelectedUnit, unit,
-                                                                        GameManager_MousePosition.x,
-                                                                        GameManager_MousePosition.y)) {
-                                            GameManager_ClickUnit(&*GameManager_SelectedUnit, unit,
-                                                                  GameManager_MousePosition.x,
-                                                                  GameManager_MousePosition.y);
-                                        }
-                                    } break;
-
-                                    case CURSOR_ENEMY: {
-                                        GameManager_SelectedUnit->target_grid_x = GameManager_MousePosition.x;
-                                        GameManager_SelectedUnit->target_grid_y = GameManager_MousePosition.y;
-
-                                        GameManager_SetUnitOrder(ORDER_MOVE_TO_ATTACK, ORDER_STATE_EXECUTING_ORDER,
-                                                                 &*GameManager_SelectedUnit,
-                                                                 GameManager_MousePosition.x,
-                                                                 GameManager_MousePosition.y);
-                                    } break;
-
-                                    case CURSOR_FAR_TARGET: {
-                                        GameManager_SetUnitOrder(
-                                            ORDER_MOVE_TO_ATTACK, ORDER_STATE_INIT, &*GameManager_SelectedUnit,
-                                            GameManager_MousePosition.x, GameManager_MousePosition.y);
-                                    } break;
-
-                                    case CURSOR_UNIT_GO:
-                                    case CURSOR_WAY: {
-                                        if (GameManager_SelectedUnit != nullptr) {
-                                            if (GameManager_SelectedUnit->enter_mode) {
-                                                GameManager_SetUnitOrder(ORDER_MOVE_TO_UNIT, ORDER_STATE_INIT,
-                                                                         &*GameManager_SelectedUnit, unit->grid_x,
-                                                                         unit->grid_y);
-                                                GameManager_SelectedUnit->enter_mode = false;
-
-                                            } else if (GameManager_SelectedUnit->GetOrderState() ==
-                                                       ORDER_STATE_UNIT_READY) {
-                                                GameManager_DeinitPopupButtons(false);
-                                                GameManager_UpdateDrawBounds();
-
-                                                GameManager_SelectedUnit->target_grid_x = GameManager_MousePosition.x;
-                                                GameManager_SelectedUnit->target_grid_y = GameManager_MousePosition.y;
-
-                                                UnitsManager_SetNewOrder(&*GameManager_SelectedUnit, ORDER_ACTIVATE,
-                                                                         ORDER_STATE_IN_TRANSITION);
-
-                                            } else {
-                                                GameManager_SetUnitOrder(
-                                                    ORDER_MOVE,
-                                                    Cursor_GetCursor() == CURSOR_UNIT_GO ? ORDER_STATE_INIT
-                                                                                         : ORDER_STATE_MOVE_INIT,
-                                                    &*GameManager_SelectedUnit, GameManager_MousePosition.x,
-                                                    GameManager_MousePosition.y);
+                                        case CURSOR_FRIEND: {
+                                            if (GameManager_UpdateSelection(&*GameManager_SelectedUnit, unit,
+                                                                            GameManager_MousePosition.x,
+                                                                            GameManager_MousePosition.y)) {
+                                                GameManager_ClickUnit(&*GameManager_SelectedUnit, unit,
+                                                                      GameManager_MousePosition.x,
+                                                                      GameManager_MousePosition.y);
                                             }
-                                        }
-                                    } break;
+                                        } break;
 
-                                    case CURSOR_UNIT_NO_GO: {
-                                        GameManager_ManagePlayerAction();
+                                        case CURSOR_ENEMY: {
+                                            GameManager_SelectedUnit->target_grid_x = GameManager_MousePosition.x;
+                                            GameManager_SelectedUnit->target_grid_y = GameManager_MousePosition.y;
 
-                                        if (GameManager_SelectedUnit != nullptr) {
-                                            GameManager_SelectedUnit->enter_mode = false;
-                                            GameManager_SelectedUnit->targeting_mode = false;
-                                        }
+                                            GameManager_SetUnitOrder(ORDER_MOVE_TO_ATTACK, ORDER_STATE_EXECUTING_ORDER,
+                                                                     &*GameManager_SelectedUnit,
+                                                                     GameManager_MousePosition.x,
+                                                                     GameManager_MousePosition.y);
+                                        } break;
 
-                                        if (unit) {
-                                            GameManager_UnitSelect(unit);
+                                        case CURSOR_FAR_TARGET: {
+                                            GameManager_SetUnitOrder(
+                                                ORDER_MOVE_TO_ATTACK, ORDER_STATE_INIT, &*GameManager_SelectedUnit,
+                                                GameManager_MousePosition.x, GameManager_MousePosition.y);
+                                        } break;
 
-                                        } else if ((GameManager_SelectedUnit != nullptr &&
-                                                    GameManager_SelectedUnit == unit2) ||
-                                                   unit2) {
-                                            if (GameManager_DisplayButtonLock) {
-                                                if (GameManager_LockedUnits.Remove(*unit2)) {
+                                        case CURSOR_UNIT_GO:
+                                        case CURSOR_WAY: {
+                                            if (GameManager_SelectedUnit != nullptr) {
+                                                if (GameManager_SelectedUnit->enter_mode) {
+                                                    GameManager_SetUnitOrder(ORDER_MOVE_TO_UNIT, ORDER_STATE_INIT,
+                                                                             &*GameManager_SelectedUnit, unit->grid_x,
+                                                                             unit->grid_y);
+                                                    GameManager_SelectedUnit->enter_mode = false;
+
+                                                } else if (GameManager_SelectedUnit->GetOrderState() ==
+                                                           ORDER_STATE_UNIT_READY) {
+                                                    GameManager_DeinitPopupButtons(false);
                                                     GameManager_UpdateDrawBounds();
 
+                                                    GameManager_SelectedUnit->target_grid_x =
+                                                        GameManager_MousePosition.x;
+                                                    GameManager_SelectedUnit->target_grid_y =
+                                                        GameManager_MousePosition.y;
+
+                                                    UnitsManager_SetNewOrder(&*GameManager_SelectedUnit, ORDER_ACTIVATE,
+                                                                             ORDER_STATE_IN_TRANSITION);
+
                                                 } else {
-                                                    GameManager_LockedUnits.PushBack(*unit2);
+                                                    GameManager_SetUnitOrder(
+                                                        ORDER_MOVE,
+                                                        Cursor_GetCursor() == CURSOR_UNIT_GO ? ORDER_STATE_INIT
+                                                                                             : ORDER_STATE_MOVE_INIT,
+                                                        &*GameManager_SelectedUnit, GameManager_MousePosition.x,
+                                                        GameManager_MousePosition.y);
                                                 }
-
-                                            } else if (GameManager_SelectedUnit != unit2) {
-                                                GameManager_UnitSelectOther(&*GameManager_SelectedUnit, unit2,
-                                                                            GameManager_MousePosition.x,
-                                                                            GameManager_MousePosition.y);
                                             }
-                                        }
-                                    } break;
+                                        } break;
 
-                                    case CURSOR_GROUP: {
-                                    } break;
+                                        case CURSOR_UNIT_NO_GO: {
+                                            GameManager_ManagePlayerAction();
 
-                                    case CURSOR_ACTIVATE: {
-                                        UnitInfo* parent = GameManager_SelectedUnit->GetParent();
+                                            if (GameManager_SelectedUnit != nullptr) {
+                                                GameManager_SelectedUnit->enter_mode = false;
+                                                GameManager_SelectedUnit->targeting_mode = false;
+                                            }
 
-                                        parent->target_grid_x = GameManager_MousePosition.x;
-                                        parent->target_grid_y = GameManager_MousePosition.y;
+                                            if (unit) {
+                                                GameManager_UnitSelect(unit);
 
-                                        parent->SetParent(&*GameManager_SelectedUnit);
+                                            } else if ((GameManager_SelectedUnit != nullptr &&
+                                                        GameManager_SelectedUnit == unit2) ||
+                                                       unit2) {
+                                                if (GameManager_DisplayButtonLock) {
+                                                    if (GameManager_LockedUnits.Remove(*unit2)) {
+                                                        GameManager_UpdateDrawBounds();
 
-                                        UnitsManager_SetNewOrder(parent, ORDER_ACTIVATE, ORDER_STATE_EXECUTING_ORDER);
-                                    } break;
+                                                    } else {
+                                                        GameManager_LockedUnits.PushBack(*unit2);
+                                                    }
 
-                                    case CURSOR_MAP2: {
-                                        GameManager_PathBuild(&*GameManager_SelectedUnit);
-                                    } break;
+                                                } else if (GameManager_SelectedUnit != unit2) {
+                                                    GameManager_UnitSelectOther(&*GameManager_SelectedUnit, unit2,
+                                                                                GameManager_MousePosition.x,
+                                                                                GameManager_MousePosition.y);
+                                                }
+                                            }
+                                        } break;
 
-                                    case CURSOR_STEAL: {
-                                        GameManager_StealUnit(&*GameManager_SelectedUnit, unit2);
-                                    } break;
+                                        case CURSOR_GROUP: {
+                                        } break;
 
-                                    case CURSOR_DISABLE: {
-                                        GameManager_DisableUnit(&*GameManager_SelectedUnit, unit2);
-                                    } break;
+                                        case CURSOR_ACTIVATE: {
+                                            UnitInfo* parent = GameManager_SelectedUnit->GetParent();
+
+                                            parent->target_grid_x = GameManager_MousePosition.x;
+                                            parent->target_grid_y = GameManager_MousePosition.y;
+
+                                            parent->SetParent(&*GameManager_SelectedUnit);
+
+                                            UnitsManager_SetNewOrder(parent, ORDER_ACTIVATE,
+                                                                     ORDER_STATE_EXECUTING_ORDER);
+                                        } break;
+
+                                        case CURSOR_MAP2: {
+                                            GameManager_PathBuild(&*GameManager_SelectedUnit);
+                                        } break;
+
+                                        case CURSOR_STEAL: {
+                                            GameManager_StealUnit(&*GameManager_SelectedUnit, unit2);
+                                        } break;
+
+                                        case CURSOR_DISABLE: {
+                                            GameManager_DisableUnit(&*GameManager_SelectedUnit, unit2);
+                                        } break;
+                                    }
                                 }
                             }
                         }
@@ -8128,18 +8226,49 @@ void GameManager_DrawProximityZones() {
 
 Point GameManager_GetMinimapPosition() {
     const double scale = WindowManager_GetScale();
+    double map_scale;
     WindowInfo* minimap = WindowManager_GetWindow(WINDOW_MINIMAP);
     Point minimap_position;
-
-    minimap_position.x = (GameManager_MouseX - minimap->window.ulx) / scale;
-    minimap_position.y = (GameManager_MouseY - minimap->window.uly) / scale;
-
-    minimap_position.x = std::min(ResourceManager_MapSize.x - 1, std::max<int32_t>(0, minimap_position.x));
-    minimap_position.y = std::min(ResourceManager_MapSize.y - 1, std::max<int32_t>(0, minimap_position.y));
+    constexpr int32_t minimap_slot_size{112};
+    Rect minimap_bounds;
+    Point mouse_position{GameManager_MouseX, GameManager_MouseY};
+    Point window_offset{ResourceManager_MinimapWindowOffset};
 
     if (GameManager_DisplayButtonMinimap2x) {
-        minimap_position.x = (minimap_position.x / 2) + GameManager_GridCenterOffset.x;
-        minimap_position.y = (minimap_position.y / 2) + GameManager_GridCenterOffset.y;
+        window_offset.x /= 2;
+        window_offset.y /= 2;
+    }
+
+    minimap_bounds.ulx = minimap->window.ulx + ResourceManager_MinimapWindowOffset.x;
+    minimap_bounds.uly = minimap->window.uly + ResourceManager_MinimapWindowOffset.y;
+    minimap_bounds.lrx = minimap_bounds.ulx + ResourceManager_MinimapWindowSize.x + 1;
+    minimap_bounds.lry = minimap_bounds.uly + ResourceManager_MinimapWindowSize.y + 1;
+
+    if (Access_IsInsideBounds(&minimap_bounds, &mouse_position)) {
+        minimap_position.x = (GameManager_MouseX - minimap->window.ulx - ResourceManager_MinimapWindowOffset.x) / scale;
+        minimap_position.y = (GameManager_MouseY - minimap->window.uly - ResourceManager_MinimapWindowOffset.y) / scale;
+
+        if (ResourceManager_MapSize.x >= ResourceManager_MapSize.y) {
+            map_scale = ResourceManager_MapSize.x / static_cast<double>(minimap_slot_size);
+
+        } else {
+            map_scale = ResourceManager_MapSize.y / static_cast<double>(minimap_slot_size);
+        }
+
+        minimap_position.x *= map_scale;
+        minimap_position.y *= map_scale;
+
+        minimap_position.x = std::min(ResourceManager_MapSize.x - 1, std::max<int32_t>(0, minimap_position.x));
+        minimap_position.y = std::min(ResourceManager_MapSize.y - 1, std::max<int32_t>(0, minimap_position.y));
+
+        if (GameManager_DisplayButtonMinimap2x) {
+            minimap_position.x = (minimap_position.x / 2) + GameManager_GridCenterOffset.x;
+            minimap_position.y = (minimap_position.y / 2) + GameManager_GridCenterOffset.y;
+        }
+
+    } else {
+        minimap_position.x = -1;
+        minimap_position.y = -1;
     }
 
     return minimap_position;

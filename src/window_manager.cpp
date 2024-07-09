@@ -222,18 +222,16 @@ void WindowManager_ScaleWindows() {
         const int32_t map_top = window_top * scale;
         const int32_t map_bottom = window_bottom * scale;
         const int32_t map_width = screen_width - map_left - map_right;
-        const int32_t map_tile_count_x = map_width / GFX_MAP_TILE_SIZE;
         const int32_t map_height = screen_height - map_top - map_bottom;
-        const int32_t map_tile_count_y = map_height / GFX_MAP_TILE_SIZE;
 
-        wmap->window.ulx = (map_width - map_tile_count_x * GFX_MAP_TILE_SIZE) / 2 + map_left;
-        wmap->window.uly = (map_height - map_tile_count_y * GFX_MAP_TILE_SIZE) / 2 + map_top;
-        wmap->window.lrx = wmap->window.ulx + GFX_MAP_TILE_SIZE * map_tile_count_x - 1;
-        wmap->window.lry = wmap->window.uly + GFX_MAP_TILE_SIZE * map_tile_count_y - 1;
+        wmap->window.ulx = map_left;
+        wmap->window.uly = map_top;
+        wmap->window.lrx = map_left + map_width - 1;
+        wmap->window.lry = map_top + map_height - 1;
         wmap->buffer = &screen->buffer[screen->width * wmap->window.uly + wmap->window.ulx];
 
-        WindowManager_MapWidth = map_tile_count_x * GFX_MAP_TILE_SIZE;
-        WindowManager_MapHeight = map_tile_count_y * GFX_MAP_TILE_SIZE;
+        WindowManager_MapWidth = map_width;
+        WindowManager_MapHeight = map_height;
 
         WindowInfo *const wpt = &windows[WINDOW_INTERFACE_PANEL_TOP];
         WindowInfo *const wpb = &windows[WINDOW_INTERFACE_PANEL_BOTTOM];

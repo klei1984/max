@@ -379,7 +379,15 @@ void NetworkMenu::Init() {
         player_node = 0;
     }
 
+    minimap_bg_image = new (std::nothrow) Image(
+        WindowManager_ScaleUlx(window, network_menu_titles[MENU_ITEM_MAP_PICT].bounds.ulx),
+        WindowManager_ScaleUly(window, network_menu_titles[MENU_ITEM_MAP_PICT].bounds.uly),
+        network_menu_titles[MENU_ITEM_MAP_PICT].bounds.lrx - network_menu_titles[MENU_ITEM_MAP_PICT].bounds.ulx + 1,
+        network_menu_titles[MENU_ITEM_MAP_PICT].bounds.lry - network_menu_titles[MENU_ITEM_MAP_PICT].bounds.uly + 1);
+
+    minimap_bg_image->Copy(window);
     minimap_world_index = -1;
+
     DrawScreen();
     Remote_RegisterMenu(this);
 
@@ -401,6 +409,8 @@ void NetworkMenu::Deinit() {
     for (int32_t i = 0; i < NETWORK_MENU_IMAGE_COUNT; ++i) {
         delete images[i];
     }
+
+    delete minimap_bg_image;
 }
 
 void NetworkMenu::EventEditPlayerName() {
@@ -619,14 +629,14 @@ void NetworkMenu::DrawScreen() {
     }
 
     if (host_node && minimap_world_index != ini_world_index) {
-        uint8_t *buffer_position;
-
+        minimap_bg_image->Write(window);
         minimap_world_index = ini_world_index;
 
-        buffer_position =
+        auto buffer_position =
             &window->buffer[WindowManager_ScaleUlx(window, network_menu_titles[MENU_ITEM_MAP_PICT].bounds.ulx) +
                             WindowManager_ScaleUly(window, network_menu_titles[MENU_ITEM_MAP_PICT].bounds.uly) *
                                 window->width];
+
         Menu_LoadPlanetMinimap(minimap_world_index, buffer_position, window->width);
     }
 

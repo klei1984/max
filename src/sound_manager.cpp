@@ -190,7 +190,6 @@ private:
     SoundGroup* sfx_group{nullptr};
     bool is_audio_enabled{false};
     SoundVolume* volumes{nullptr};
-    Point map_size{112, 112};
 
     ResourceID current_music_played{INVALID_ID};
     ResourceID last_music_played{INVALID_ID};
@@ -626,8 +625,8 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
             job->loop_count = loop_count;
             job->sound = sound;
 
-            grid_center_x = (GameManager_GridPosition.ulx + GameManager_GridPosition.lrx) / 2;
-            grid_center_y = (GameManager_GridPosition.uly + GameManager_GridPosition.lry) / 2;
+            grid_center_x = (GameManager_MapView.ulx + GameManager_MapView.lrx) / 2;
+            grid_center_y = (GameManager_MapView.uly + GameManager_MapView.lry) / 2;
 
             grid_offset_x = job->grid_x - grid_center_x;
             grid_offset_y = job->grid_y - grid_center_y;
@@ -637,7 +636,7 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
 
             job->volume_2 = volumes[volume_index].volume;
             job->volume_1 = job->volume_2 - job->volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                std::max(map_size.x, map_size.y);
+                                                std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
             job->panning = GetPanning(grid_distance_x, (job->grid_x - grid_center_x) < 0);
 
@@ -650,8 +649,8 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
 }
 
 void SoundManager::UpdateSfxPosition() noexcept {
-    const int32_t grid_center_x = (GameManager_GridPosition.ulx + GameManager_GridPosition.lrx) / 2;
-    const int32_t grid_center_y = (GameManager_GridPosition.uly + GameManager_GridPosition.lry) / 2;
+    const int32_t grid_center_x = (GameManager_MapView.ulx + GameManager_MapView.lrx) / 2;
+    const int32_t grid_center_y = (GameManager_MapView.uly + GameManager_MapView.lry) / 2;
 
     for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end; ++it) {
         if (ma_sound_is_playing(&(*it).sound) && (*it).type <= JOB_TYPE_SFX1) {
@@ -664,7 +663,7 @@ void SoundManager::UpdateSfxPosition() noexcept {
             ma_sound_set_pan(&(*it).sound, GetPanning(grid_distance_x, grid_offset_x < 0));
 
             float sound_level = (*it).volume_2 - (*it).volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                     std::max(map_size.x, map_size.y);
+                                                     std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
             ma_sound_set_volume(&(*it).sound, sound_level);
         }
@@ -676,8 +675,8 @@ void SoundManager::UpdateSfxPosition(UnitInfo* const unit) noexcept {
         sfx->grid_x = unit->grid_x;
         sfx->grid_y = unit->grid_y;
 
-        const int32_t grid_center_x = (GameManager_GridPosition.ulx + GameManager_GridPosition.lrx) / 2;
-        const int32_t grid_center_y = (GameManager_GridPosition.uly + GameManager_GridPosition.lry) / 2;
+        const int32_t grid_center_x = (GameManager_MapView.ulx + GameManager_MapView.lrx) / 2;
+        const int32_t grid_center_y = (GameManager_MapView.uly + GameManager_MapView.lry) / 2;
 
         const int32_t grid_offset_x = sfx->grid_x - grid_center_x;
         const int32_t grid_offset_y = sfx->grid_y - grid_center_y;
@@ -688,7 +687,7 @@ void SoundManager::UpdateSfxPosition(UnitInfo* const unit) noexcept {
         ma_sound_set_pan(&sfx->sound, GetPanning(grid_distance_x, grid_offset_x < 0));
 
         float sound_level = sfx->volume_2 - sfx->volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                std::max(map_size.x, map_size.y);
+                                                std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
         ma_sound_set_volume(&sfx->sound, sound_level);
     }

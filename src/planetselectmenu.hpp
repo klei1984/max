@@ -25,6 +25,7 @@
 #include "button.hpp"
 
 #define PLANET_SELECT_MENU_ITEM_COUNT 12
+#define PLANET_SELECT_MENU_MAP_SLOT_COUNT 6
 
 enum PlanetType {
     PLANET_SNOWCRAB,
@@ -79,6 +80,7 @@ public:
     Image *image3;
     Button *buttons[PLANET_SELECT_MENU_ITEM_COUNT];
     PlanetSelectMenuItem menu_item[PLANET_SELECT_MENU_ITEM_COUNT];
+    Image *minimap_bg_images[PLANET_SELECT_MENU_MAP_SLOT_COUNT];
 
     void Init();
     void Deinit();

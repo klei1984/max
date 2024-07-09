@@ -4025,8 +4025,8 @@ void UnitInfo::FollowUnit() {
     if (ini_get_setting(INI_FOLLOW_UNIT) && GameManager_SelectedUnit == this) {
         if (GameManager_PlayMode == PLAY_MODE_TURN_BASED || GameManager_PlayerTeam == team ||
             UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn) {
-            if (visible_to_team[GameManager_PlayerTeam] && !GameManager_IsAtGridPosition(this)) {
-                GameManager_UpdateMainMapView(1, grid_x, grid_y);
+            if (visible_to_team[GameManager_PlayerTeam] && !GameManager_IsInsideMapView(this)) {
+                GameManager_UpdateMainMapView(MAP_VIEW_CENTER, grid_x, grid_y);
             }
         }
     }

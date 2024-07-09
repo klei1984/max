@@ -308,7 +308,7 @@ void MessageLogEntry::Select() {
         if (unit != nullptr && unit->hits > 0 && unit->IsVisibleToTeam(GameManager_PlayerTeam)) {
             GameManager_MenuUnitSelect(&*unit);
         } else {
-            GameManager_UpdateMainMapView(1, point.x, point.y);
+            GameManager_UpdateMainMapView(MAP_VIEW_CENTER, point.x, point.y);
         }
     }
 }

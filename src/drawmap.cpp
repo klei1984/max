@@ -197,18 +197,22 @@ void Drawmap_UpdateDirtyZones(Rect* bounds) {
     if (Gfx_MapScalingFactor) {
         if (local.ulx < GameManager_MapWindowDrawBounds.ulx) {
             local.ulx = GameManager_MapWindowDrawBounds.ulx;
+            GameManager_LastZoomLevel = 0;
         }
 
         if (local.uly < GameManager_MapWindowDrawBounds.uly) {
             local.uly = GameManager_MapWindowDrawBounds.uly;
+            GameManager_LastZoomLevel = 0;
         }
 
         if (local.lrx > GameManager_MapWindowDrawBounds.lrx) {
             local.lrx = GameManager_MapWindowDrawBounds.lrx + 1;
+            GameManager_LastZoomLevel = 0;
         }
 
         if (local.lry > GameManager_MapWindowDrawBounds.lry) {
             local.lry = GameManager_MapWindowDrawBounds.lry + 1;
+            GameManager_LastZoomLevel = 0;
         }
 
         if (local.lrx > local.ulx && local.lry > local.uly) {
@@ -774,7 +778,7 @@ void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode) {
         unit->Render(group->GetBounds2());
     }
 
-    if ((unit->flags & SELECTABLE) && GameManager_IsAtGridPosition(unit)) {
+    if ((unit->flags & SELECTABLE) && GameManager_IsInsideMapView(unit)) {
         if (unit->team == GameManager_PlayerTeam &&
             (unit->GetOrderState() == ORDER_STATE_NEW_ORDER ||
              unit->GetOrderState() == ORDER_STATE_MOVE_GETTING_PATH) &&
@@ -822,18 +826,12 @@ void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode) {
 }
 
 void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
-    WindowInfo* window;
-
-    window = WindowManager_GetWindow(WINDOW_MINIMAP);
-
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if (((*it).IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) &&
             (Gfx_ZoomLevel > 4 || !((*it).flags & GROUND_COVER)) && (*it).GetOrder() != ORDER_IDLE &&
             ((*it).flags & SELECTABLE) &&
             (!GameManager_DisplayButtonMinimapTnt || ((*it).flags & (HAS_FIRING_SPRITE | FIRES_MISSILES)))) {
             int32_t color;
-            int32_t grid_x;
-            int32_t grid_y;
 
             if ((*it).flags & HASH_TEAM_RED) {
                 color = COLOR_RED;
@@ -851,25 +849,23 @@ void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
                 color = COLOR_YELLOW;
             }
 
-            grid_x = (*it).grid_x;
-            grid_y = (*it).grid_y;
+            const int32_t grid_x{(*it).grid_x};
+            const int32_t grid_y{(*it).grid_y};
 
-            if (GameManager_DisplayButtonMinimap2x && !((*it).flags & BUILDING)) {
-                window->buffer[grid_y * window->width + grid_x] = color;
+            if ((*it).flags & BUILDING) {
+                SDL_assert(grid_x >= 0 && grid_x + 1 < ResourceManager_MapSize.x);
+                SDL_assert(grid_y >= 0 && grid_y + 1 < ResourceManager_MapSize.y);
+
+                ResourceManager_MinimapUnits[grid_y * ResourceManager_MapSize.x + grid_x] = color;
+                ResourceManager_MinimapUnits[grid_y * ResourceManager_MapSize.x + grid_x + 1] = color;
+                ResourceManager_MinimapUnits[(grid_y + 1) * ResourceManager_MapSize.x + grid_x] = color;
+                ResourceManager_MinimapUnits[(grid_y + 1) * ResourceManager_MapSize.x + grid_x + 1] = color;
 
             } else {
-                if (grid_x > 110) {
-                    grid_x = 110;
-                }
+                SDL_assert(grid_x >= 0 && grid_x < ResourceManager_MapSize.x);
+                SDL_assert(grid_y >= 0 && grid_y < ResourceManager_MapSize.y);
 
-                if (grid_y > 110) {
-                    grid_y = 110;
-                }
-
-                window->buffer[grid_y * window->width + grid_x] = color;
-                window->buffer[grid_y * window->width + grid_x + 1] = color;
-                window->buffer[(grid_y + 1) * window->width + grid_x] = color;
-                window->buffer[(grid_y + 1) * window->width + grid_x + 1] = color;
+                ResourceManager_MinimapUnits[grid_y * ResourceManager_MapSize.x + grid_x] = color;
             }
         }
     }
@@ -919,25 +915,21 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
     index = DrawMap_DirtyRectangles.GetCount();
 
     if (index > 0) {
-        WindowInfo* window;
+        WindowInfo* window{WindowManager_GetWindow(WINDOW_MAIN_MAP)};
         Rect dirty;
-        Rect bounds;
-        Rect bounds2;
         Point point;
         uint8_t** buffer;
-
-        window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
         --index;
         dirty = *DrawMap_DirtyRectangles[index];
 
         for (--index; index >= 0; --index) {
-            bounds = *DrawMap_DirtyRectangles[index];
+            Rect pixel_bounds = *DrawMap_DirtyRectangles[index];
 
-            dirty.ulx = std::min(dirty.ulx, bounds.ulx);
-            dirty.uly = std::min(dirty.uly, bounds.uly);
-            dirty.lrx = std::max(dirty.lrx, bounds.lrx);
-            dirty.lry = std::max(dirty.lry, bounds.lry);
+            dirty.ulx = std::min(dirty.ulx, pixel_bounds.ulx);
+            dirty.uly = std::min(dirty.uly, pixel_bounds.uly);
+            dirty.lrx = std::max(dirty.lrx, pixel_bounds.lrx);
+            dirty.lry = std::max(dirty.lry, pixel_bounds.lry);
         }
 
         dirty.ulx /= GFX_MAP_TILE_SIZE;
@@ -952,50 +944,57 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
         buffer = drawmap->GetBuffer();
 
         for (int32_t i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
-            bounds = *DrawMap_DirtyRectangles[i];
-            bounds2 = bounds;
+            Rect pixel_bounds = *DrawMap_DirtyRectangles[i];
+            Rect grid_bounds;
 
-            bounds.ulx /= GFX_MAP_TILE_SIZE;
-            bounds.uly /= GFX_MAP_TILE_SIZE;
-            bounds.lrx = std::min((bounds.lrx + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, dirty.lrx);
-            bounds.lry = std::min((bounds.lry + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE, dirty.lry);
+            grid_bounds.ulx = pixel_bounds.ulx / GFX_MAP_TILE_SIZE;
+            grid_bounds.uly = pixel_bounds.uly / GFX_MAP_TILE_SIZE;
+            grid_bounds.lrx = (pixel_bounds.lrx + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE;
+            grid_bounds.lry = (pixel_bounds.lry + GFX_MAP_TILE_SIZE - 1) / GFX_MAP_TILE_SIZE;
 
-            for (point.x = bounds.ulx; point.x < bounds.lrx; ++point.x) {
-                memset(&buffer[point.x - dirty.ulx][bounds.uly - dirty.uly], 1, bounds.lry - bounds.uly);
+            grid_bounds.lrx = std::min(grid_bounds.lrx, dirty.lrx);
+            grid_bounds.lry = std::min(grid_bounds.lry, dirty.lry);
+
+            for (point.x = grid_bounds.ulx; point.x < grid_bounds.lrx; ++point.x) {
+                memset(&buffer[point.x - dirty.ulx][grid_bounds.uly - dirty.uly], 1, grid_bounds.lry - grid_bounds.uly);
             }
 
-            DrawMap_RenderMapTile(bounds.ulx, bounds.uly, bounds2, window->buffer);
+            DrawMap_RenderMapTile(grid_bounds.ulx, grid_bounds.uly, pixel_bounds, window->buffer);
 
             if (display_button_grid) {
-                bounds2.ulx = (bounds2.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-                bounds2.uly = (bounds2.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
-                bounds2.lrx = ((bounds2.lrx - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-                bounds2.lry = ((bounds2.lry - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+                pixel_bounds.ulx = (pixel_bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+                pixel_bounds.uly = (pixel_bounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+                pixel_bounds.lrx =
+                    ((pixel_bounds.lrx - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+                pixel_bounds.lry =
+                    ((pixel_bounds.lry - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
 
-                int32_t width = bounds.lrx - bounds.ulx;
-                int32_t height = bounds.lry - bounds.uly;
+                int32_t width = grid_bounds.lrx - grid_bounds.ulx;
+                int32_t height = grid_bounds.lry - grid_bounds.uly;
 
-                bounds.ulx = ((bounds.ulx * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
-                             Gfx_MapWindowUlx;
-                bounds.uly = ((bounds.uly * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
-                             Gfx_MapWindowUly;
+                int32_t position_x =
+                    ((grid_bounds.ulx * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
+                    Gfx_MapWindowUlx;
+                int32_t position_y =
+                    ((grid_bounds.uly * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
+                    Gfx_MapWindowUly;
 
                 for (int32_t j = 0; j < width; ++j) {
-                    if (bounds.ulx >= bounds2.ulx && bounds.ulx <= bounds2.lrx) {
-                        draw_line(window->buffer, window->width, bounds.ulx, bounds2.uly, bounds.ulx, bounds2.lry,
-                                  0x25);
+                    if (position_x >= pixel_bounds.ulx && position_x <= pixel_bounds.lrx) {
+                        draw_line(window->buffer, window->width, position_x, pixel_bounds.uly, position_x,
+                                  pixel_bounds.lry, 0x25);
                     }
 
-                    bounds.ulx += Gfx_ZoomLevel;
+                    position_x += Gfx_ZoomLevel;
                 }
 
                 for (int32_t j = 0; j < height; ++j) {
-                    if (bounds.uly >= bounds2.uly && bounds.uly <= bounds2.lry) {
-                        draw_line(window->buffer, window->width, bounds2.ulx, bounds.uly, bounds2.lrx, bounds.uly,
-                                  0x25);
+                    if (position_y >= pixel_bounds.uly && position_y <= pixel_bounds.lry) {
+                        draw_line(window->buffer, window->width, pixel_bounds.ulx, position_y, pixel_bounds.lrx,
+                                  position_y, 0x25);
                     }
 
-                    bounds.uly += Gfx_ZoomLevel;
+                    position_y += Gfx_ZoomLevel;
                 }
             }
         }
@@ -1036,7 +1035,7 @@ void DrawMap_RenderSurveyDisplay(DrawMapBuffer* drawmap) {
 }
 
 void DrawMap_RedrawDirtyZones() {
-    WindowInfo window = *WindowManager_GetWindow(WINDOW_MAIN_MAP);
+    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
     Rect bounds;
 
     if (GameManager_SelectedUnit != nullptr) {
@@ -1051,20 +1050,62 @@ void DrawMap_RedrawDirtyZones() {
         bounds.lrx = ((bounds.lrx - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
         bounds.lry = ((bounds.lry - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
 
-        bounds.ulx += window.window.ulx;
-        bounds.uly += window.window.uly;
-        bounds.lrx += window.window.ulx;
-        bounds.lry += window.window.uly;
+        bounds.ulx += window->window.ulx;
+        bounds.uly += window->window.uly;
+        bounds.lrx += window->window.ulx;
+        bounds.lry += window->window.uly;
 
         SDL_assert(bounds.ulx >= 0 && bounds.uly >= 0 &&
                    bounds.lrx < WindowManager_GetWidth(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)) &&
                    bounds.lry < WindowManager_GetHeight(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)));
         SDL_assert(bounds.ulx <= bounds.lrx && bounds.uly <= bounds.lry);
 
-        win_draw_rect(window.id, &bounds);
+        win_draw_rect(window->id, &bounds);
     }
 
     DrawMap_DirtyRectangles.Clear();
+
+    const int32_t map_width = ResourceManager_MapSize.x * Gfx_ZoomLevel;
+    const int32_t map_height = ResourceManager_MapSize.y * Gfx_ZoomLevel;
+
+    if (GameManager_LastZoomLevel != Gfx_ZoomLevel) {
+        if (WindowManager_MapWidth > map_width) {
+            bounds.ulx = map_width;
+            bounds.uly = 0;
+            bounds.lrx = WindowManager_MapWidth - 1;
+            bounds.lry = WindowManager_MapHeight - 1;
+
+            buf_to_buf(&ResourceManager_MainmapBgImage[map_width], WindowManager_MapWidth - map_width,
+                       WindowManager_MapHeight, WindowManager_MapWidth, &window->buffer[bounds.ulx], window->width);
+
+            bounds.ulx += window->window.ulx;
+            bounds.uly += window->window.uly;
+            bounds.lrx += window->window.ulx;
+            bounds.lry += window->window.uly;
+
+            win_draw_rect(window->id, &bounds);
+        }
+
+        if (WindowManager_MapHeight > map_height) {
+            bounds.ulx = 0;
+            bounds.uly = map_height;
+            bounds.lrx = WindowManager_MapWidth - 1;
+            bounds.lry = WindowManager_MapHeight - 1;
+
+            buf_to_buf(&ResourceManager_MainmapBgImage[map_height * WindowManager_MapWidth], WindowManager_MapWidth,
+                       WindowManager_MapHeight - map_height, WindowManager_MapWidth,
+                       &window->buffer[bounds.uly * window->width], window->width);
+
+            bounds.ulx += window->window.ulx;
+            bounds.uly += window->window.uly;
+            bounds.lrx += window->window.ulx;
+            bounds.lry += window->window.uly;
+
+            win_draw_rect(window->id, &bounds);
+        }
+
+        GameManager_LastZoomLevel = Gfx_ZoomLevel;
+    }
 }
 
 bool DrawMap_IsInsideBounds(Rect* bounds) {

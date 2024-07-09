@@ -84,6 +84,7 @@ public:
     char multi_scenario_id;
     uint32_t rng_seed;
     int16_t minimap_world_index;
+    Image *minimap_bg_image;
     uint8_t ini_world_index;
     char ini_play_mode;
     int16_t ini_timer;

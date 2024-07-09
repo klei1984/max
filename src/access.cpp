@@ -317,7 +317,7 @@ void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units) {
 }
 
 void Access_InitStealthMaps() {
-    int32_t heat_map_size;
+    const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
     Access_InitUnitStealthStatus(UnitsManager_GroundCoverUnits);
     Access_InitUnitStealthStatus(UnitsManager_MobileLandSeaUnits);
@@ -325,13 +325,11 @@ void Access_InitStealthMaps() {
     Access_InitUnitStealthStatus(UnitsManager_ParticleUnits);
     Access_InitUnitStealthStatus(UnitsManager_StationaryUnits);
 
-    heat_map_size = ResourceManager_MapSize.x * ResourceManager_MapSize.y;
-
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, heat_map_size);
-            memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, heat_map_size);
-            memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, heat_map_size);
+            memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, map_cell_count);
+            memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, map_cell_count);
+            memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, map_cell_count);
         }
     }
 }
@@ -557,11 +555,13 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
         }
     }
 
-    if (++UnitsManager_TeamInfo[team].heat_map_complete[map_offset] == 1) {
+    ++UnitsManager_TeamInfo[team].heat_map_complete[map_offset];
+
+    if (UnitsManager_TeamInfo[team].heat_map_complete[map_offset] == 1) {
         Ai_SetInfoMapPoint(Point(grid_x, grid_y), team);
 
         if (team == GameManager_PlayerTeam) {
-            ResourceManager_Minimap[map_offset] = ResourceManager_MinimapFov[map_offset];
+            ResourceManager_MinimapFov[map_offset] = ResourceManager_Minimap[map_offset];
         }
 
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
@@ -598,12 +598,18 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t gr
         --UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset];
     }
 
-    if (!--UnitsManager_TeamInfo[team].heat_map_complete[map_offset]) {
+    --UnitsManager_TeamInfo[team].heat_map_complete[map_offset];
+
+    SDL_assert(UnitsManager_TeamInfo[team].heat_map_complete[map_offset] >= 0);
+    SDL_assert(UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset] >= 0);
+    SDL_assert(UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] >= 0);
+
+    if (0 == UnitsManager_TeamInfo[team].heat_map_complete[map_offset]) {
         Ai_UpdateMineMap(Point(grid_x, grid_y), team);
 
         if (team == GameManager_PlayerTeam) {
-            ResourceManager_Minimap[map_offset] =
-                ResourceManager_ColorIndexTable12[ResourceManager_MinimapFov[map_offset]];
+            ResourceManager_MinimapFov[map_offset] =
+                ResourceManager_ColorIndexTable12[ResourceManager_Minimap[map_offset]];
         }
 
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
@@ -628,7 +634,7 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t gr
 }
 
 void Access_DrawUnit(UnitInfo* unit) {
-    int32_t map_offset;
+    const int32_t map_offset{ResourceManager_MapSize.x * unit->grid_y + unit->grid_x};
 
     if (GameManager_AllVisible) {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
@@ -637,8 +643,6 @@ void Access_DrawUnit(UnitInfo* unit) {
             }
         }
     }
-
-    map_offset = ResourceManager_MapSize.x * unit->grid_y + unit->grid_x;
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
@@ -833,12 +837,14 @@ void Access_UpdateVisibilityStatus(bool all_visible) {
 }
 
 void Access_UpdateMinimapFogOfWar(uint16_t team, bool all_visible, bool ignore_team_heat_map) {
-    memcpy(ResourceManager_Minimap, ResourceManager_MinimapFov, 112 * 112);
+    const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
+
+    memcpy(ResourceManager_MinimapFov, ResourceManager_Minimap, map_cell_count);
 
     if (!all_visible) {
-        for (int32_t i = 0; i < 112 * 112; ++i) {
+        for (uint32_t i = 0; i < map_cell_count; ++i) {
             if (UnitsManager_TeamInfo[team].heat_map_complete[i] == 0 || ignore_team_heat_map) {
-                ResourceManager_Minimap[i] = ResourceManager_ColorIndexTable12[ResourceManager_Minimap[i]];
+                ResourceManager_MinimapFov[i] = ResourceManager_ColorIndexTable12[ResourceManager_MinimapFov[i]];
             }
         }
     }

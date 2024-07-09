@@ -90,9 +90,10 @@ extern ColorIndex *ResourceManager_ColorIndexTable11;
 extern ColorIndex *ResourceManager_ColorIndexTable12;
 extern ColorIndex *ResourceManager_ColorIndexTable13x8;
 
-extern uint8_t *ResourceManager_MinimapFov;
 extern uint8_t *ResourceManager_Minimap;
-extern uint8_t *ResourceManager_Minimap2x;
+extern uint8_t *ResourceManager_MinimapUnits;
+extern uint8_t *ResourceManager_MinimapFov;
+extern uint8_t *ResourceManager_MinimapBgImage;
 
 extern uint16_t *ResourceManager_MapTileIds;
 extern uint8_t *ResourceManager_MapTileBuffer;
@@ -100,6 +101,11 @@ extern uint8_t *ResourceManager_MapSurfaceMap;
 extern uint16_t *ResourceManager_CargoMap;
 
 extern Point ResourceManager_MapSize;
+extern Point ResourceManager_MinimapWindowSize;
+extern Point ResourceManager_MinimapWindowOffset;
+extern double ResourceManager_MinimapWindowScale;
+extern uint8_t *ResourceManager_MainmapBgImage;
+extern int32_t ResourceManager_MainmapZoomLimit;
 
 bool ResourceManager_GetBasePath(std::filesystem::path &path);
 bool ResourceManager_GetPrefPath(std::filesystem::path &path);

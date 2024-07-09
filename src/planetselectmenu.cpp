@@ -106,6 +106,8 @@ void PlanetSelectMenu::DrawMaps(int32_t draw_to_screen) {
     for (int32_t i = world_first; i < world_last; ++i) {
         process_bk();
 
+        minimap_bg_images[i % PLANET_SELECT_MENU_MAP_SLOT_COUNT]->Write(window);
+
         buffer_position =
             &window->buffer[WindowManager_ScaleOffset(window, planet_select_menu_controls[menu_item_index].bounds.ulx,
                                                       planet_select_menu_controls[menu_item_index].bounds.uly)];
@@ -282,6 +284,15 @@ void PlanetSelectMenu::Init() {
 
     WindowManager_LoadBigImage(PLANETSE, window, window->width, false, false, -1, -1, true);
 
+    for (int32_t i = 0; i < PLANET_SELECT_MENU_MAP_SLOT_COUNT; ++i) {
+        const auto bounds = &planet_select_menu_controls[i].bounds;
+
+        minimap_bg_images[i] = new (std::nothrow)
+            Image(WindowManager_ScaleUlx(window, bounds->ulx), WindowManager_ScaleUly(window, bounds->uly),
+                  bounds->lrx - bounds->ulx + 1, bounds->lry - bounds->uly + 1);
+        minimap_bg_images[i]->Copy(window);
+    }
+
     DrawMaps(false);
     DrawTexts();
 
@@ -291,6 +302,10 @@ void PlanetSelectMenu::Init() {
 void PlanetSelectMenu::Deinit() {
     for (int32_t i = 0; i < PLANET_SELECT_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
+    }
+
+    for (int32_t i = 0; i < PLANET_SELECT_MENU_MAP_SLOT_COUNT; ++i) {
+        delete minimap_bg_images[i];
     }
 
     delete image1;

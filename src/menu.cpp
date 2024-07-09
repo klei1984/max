@@ -32,6 +32,7 @@
 #include "game_manager.hpp"
 #include "gameconfigmenu.hpp"
 #include "gamesetupmenu.hpp"
+#include "gfx.hpp"
 #include "inifile.hpp"
 #include "localization.hpp"
 #include "movie.hpp"
@@ -963,18 +964,26 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
         Point map_dimensions;
         int16_t map_tile_count;
         Color palette[PALETTE_STRIDE * PALETTE_SIZE];
+        constexpr int32_t minimap_slot_size{112};
 
         ReadFile(fp, map_type);
         ReadFile(fp, map_dimensions);
 
+        int32_t off_x{0};
+        int32_t off_y{0};
+        int32_t map_dim_x{map_dimensions.x};
+        int32_t map_dim_y{map_dimensions.y};
+
+        uint8_t* minimap{new (std::nothrow) uint8_t[map_dimensions.x * map_dimensions.y]};
+
         for (int32_t i = 0; i < map_dimensions.x; ++i) {
-            ReadFile(fp, &buffer[width * i], map_dimensions.y);
+            ReadFile(fp, &minimap[map_dimensions.y * i], map_dimensions.y);
         }
 
         fseek(fp, map_dimensions.x * map_dimensions.y * 2, SEEK_CUR);
 
         ReadFile(fp, map_tile_count);
-        fseek(fp, map_tile_count * 64 * 64, SEEK_CUR);
+        fseek(fp, map_tile_count * GFX_MAP_TILE_SIZE * GFX_MAP_TILE_SIZE, SEEK_CUR);
 
         ReadFile(fp, palette);
 
@@ -989,14 +998,62 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
                 Color_MapColor(WindowManager_ColorPalette, palette[i], palette[i + 1], palette[i + 2], true);
         }
 
-        for (int32_t i = 0; i < map_dimensions.x; ++i) {
-            for (int32_t j = 0; j < map_dimensions.y; ++j) {
-                buffer[i * width + j] = palette[buffer[i * width + j]];
+        if (map_dimensions.x == minimap_slot_size && map_dimensions.y == minimap_slot_size) {
+            buf_to_buf(minimap, map_dimensions.x, map_dimensions.y, map_dimensions.x, buffer, width);
+
+        } else {
+            if (map_dimensions.x > map_dimensions.y) {
+                if (map_dimensions.x == minimap_slot_size) {
+                    map_dim_x = minimap_slot_size;
+                    map_dim_y = map_dimensions.y;
+                    off_y = (minimap_slot_size - map_dim_y) / 2;
+
+                } else {
+                    const float scale{static_cast<float>(minimap_slot_size) / map_dimensions.x};
+
+                    map_dim_x = minimap_slot_size;
+                    map_dim_y = map_dimensions.y * scale;
+                    off_y = (minimap_slot_size - map_dim_y) / 2;
+                }
+
+            } else if (map_dimensions.x == map_dimensions.y) {
+                map_dim_x = minimap_slot_size;
+                map_dim_y = minimap_slot_size;
+
+            } else {
+                if (map_dimensions.y == minimap_slot_size) {
+                    map_dim_x = map_dimensions.x;
+                    map_dim_y = minimap_slot_size;
+                    off_x = (minimap_slot_size - map_dim_x) / 2;
+
+                } else {
+                    const float scale{static_cast<float>(minimap_slot_size) / map_dimensions.y};
+
+                    map_dim_x = map_dimensions.x * scale;
+                    map_dim_y = minimap_slot_size;
+                    off_x = (minimap_slot_size - map_dim_x) / 2;
+                }
+            }
+
+//            for (int32_t y = 0; y < minimap_slot_size; ++y) {
+//                memset(&buffer[y * width], COLOR_BLACK, minimap_slot_size);
+//            }
+
+            cscale(minimap, map_dimensions.x, map_dimensions.y, map_dimensions.x, &buffer[off_y * width + off_x],
+                   minimap_slot_size - off_x * 2, minimap_slot_size - off_y * 2, width);
+        }
+
+        for (int32_t x = 0; x < minimap_slot_size - off_x * 2; ++x) {
+            for (int32_t y = 0; y < minimap_slot_size - off_y * 2; ++y) {
+                const int32_t offset{(y + off_y) * width + (x + off_x)};
+
+                buffer[offset] = palette[buffer[offset]];
             }
         }
 
-        fclose(fp);
         result = true;
+
+        fclose(fp);
 
     } else {
         result = false;

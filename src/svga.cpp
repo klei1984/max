@@ -27,7 +27,7 @@
 
 #define SVGA_DEFAULT_WIDTH (640)
 #define SVGA_DEFAULT_HEIGHT (480)
-#define SVGA_DEFAULT_REFRESH_RATE (60)
+#define SVGA_DEFAULT_REFRESH_RATE (30)
 
 static Uint32 Svga_SetupDisplayMode(SDL_Rect *bounds);
 static void Svga_CorrectAspectRatio(SDL_DisplayMode *display_mode);
@@ -286,7 +286,7 @@ int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y) {
 }
 
 void Svga_RefreshSystemPalette(bool force) {
-    if (force || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(Svga_DisplayRefreshRate))) {
+    if (force || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(SVGA_DEFAULT_REFRESH_RATE))) {
         Svga_RenderTimer = timer_get();
         Svga_PaletteChanged = true;
 
