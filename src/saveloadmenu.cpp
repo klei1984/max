@@ -543,10 +543,10 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
                     }
                 } break;
 
-#if defined(MAX_SAVE_TYPE_CONVERSION)
+#if !defined(NDEBUG)
                 case GNW_KB_KEY_F1:
                 case GNW_KB_KEY_F2: {
-                    save_file_type += key == GNW_KB_KEY_F1 ? 1 : -1;
+                    save_file_type += (key == GNW_KB_KEY_F1) ? 1 : -1;
 
                     if (save_file_type > GAME_TYPE_MULTI_PLAYER_SCENARIO) {
                         save_file_type = GAME_TYPE_CUSTOM;
@@ -563,7 +563,7 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
                                       SaveLoadMenu_FirstSaveSlotOnPage, false);
                     save_slot_index = -1;
                 } break;
-#endif /* defined(MAX_SAVE_TYPE_CONVERSION) */
+#endif /* !defined(NDEBUG) */
 
                 case 1022: {
                     SaveLoadMenu_PlaySfx(FSAVE);
