@@ -28,18 +28,18 @@
 
 struct __attribute__((packed)) SaveFormatHeader {
     uint16_t version;
-    char save_game_type;
+    uint8_t save_game_type;
     char save_name[30];
-    char world;
+    uint8_t world;
     uint16_t mission_index;
     char team_name[4][30];
-    char team_type[5];
-    char team_clan[5];
+    uint8_t team_type[5];
+    uint8_t team_clan[5];
     uint32_t rng_seed;
-    char opponent;
+    int8_t opponent;
     uint16_t turn_timer_time;
     uint16_t endturn_time;
-    char play_mode;
+    int8_t play_mode;
 };
 
 extern const char* SaveLoadMenu_SaveFileTypes[];
