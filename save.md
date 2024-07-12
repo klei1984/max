@@ -6,7 +6,7 @@ permalink: /save/
 
 ## Preface
 
-The article documents the binary game save file format of M.A.X. v1.04.
+The article documents the binary game save file format of M.A.X. v1.04 (Save File Format Version V70).
 
 ## Overview
 
@@ -34,7 +34,8 @@ In short, game save files are located at the installation folder where the M.A.X
 
 A few trivial examples:<br>
 `c:\Program Files (x86)\GOG Galaxy\Games\MAX\`<br>
-`c:\Program Files (x86)\Steam\steamapps\common\M.A.X. Mechanized Assault & Exploration\max\`
+`c:\Program Files (x86)\Steam\steamapps\common\M.A.X. Mechanized Assault & Exploration\max\`<br>
+`c:\Program Files\Epic Games\MAX\max`
 
 ## Save File Format
 
@@ -95,21 +96,21 @@ enum PlanetType : unsigned char
   Bottleneck
 };
 
-struct __attribute__((packed)) Header
+struct __attribute__((packed)) SaveFormatHeader
 {
-  short version;
-  FileType save_file_type;
+  unsigned short version;
+  FileType save_game_type;
   char save_game_name[30];
   PlanetType planet;
-  short mission_index;
+  unsigned short mission_index;
   char team_name[4][30];
-  char team_type[5];
-  char team_clan[5];
+  TeamType team_type[5];
+  TeamClan team_clan[5];
   unsigned int rng_seed;
-  char opponent;
-  short turn_timer;
-  short endturn;
-  char play_mode;
+  OpponentType opponent;
+  unsigned short turn_timer_time;
+  unsigned short endturn_time;
+  PlayMode play_mode;
 };
 ~~~
 
@@ -127,6 +128,8 @@ struct __attribute__((packed)) Header
 | 1997-01-08 | M.A.X. 1 Retail (patch)      | V1.03       | V70 |
 | 1997-01-16 | M.A.X. 1 Interactive Demo    | V1.03a Demo | V70 |
 | 1997-03-26 | M.A.X. 1 Retail (patch)      | V1.04       | **V70** |
+| 1998-01-16 | M.A.X. 2 Alpha Demo          | V.091 Alpha | V101 |
+| 1998-05-26 | M.A.X. 2 BETA Demo           | V.161 Beta  | V130 |
 | 1998-05-26 | M.A.X. 2 BETA Demo           | V.161 Beta  | V130 |
 | 1998-06-17 | M.A.X. 2 Retail (CD)         | V1.0        | V135 |
 | 1998-06-19 | M.A.X. 2 Retail (CD)         | V1.1        | V137 |
@@ -140,7 +143,7 @@ struct __attribute__((packed)) Header
 <br>
 \*\* The version number is taken from the game executable.
 
-***save_file_type***: Type of game save file.
+***save_game_type***: Type of game save file.
 
 | Type Index | Save File Type | File Extensions** |
 |:-----:|:-----:|:-----:|
@@ -193,13 +196,13 @@ struct __attribute__((packed)) Header
 
 ***mission_index***: Index of the mission. This field determines the victory and loss conditions of training missions, campaign games and single player scenarios or stand alone missions. The rules are hardcoded by the game executable. Valid indices start from 1 as 0 means generic custom game rules apply. See *[victory conditions](#cross_ref02)* section.
 
-***team_name***: Array of null terminated strings. Each player's name. Order of teams: red, green, blue, gray.
+***team_name***: Array of null terminated strings. Each player's name. Order of teams: red, green, blue, gray. Note that the size of the strings are limited to 30 bytes including the delimiter so special care must be taken for UTF-8 encoded grapheme clusters.
 
 ***team_type***: Array defining the type of players. In single player games only one *HUMAN_TEAM* can be defined, the player. In a self running demo game, attract mode of main menu, there are only *COMPUTER_TEAM*s. In a multi player game every opponent is a human *REMOTE_TEAM*. Terminated opponents are *ELIMINATED_TEAM*s.
 
 <a name="cross_ref03"></a>
 ~~~ c
-enum TeamType : char
+enum TeamType : unsigned char
 {
   TEAM_TYPE_NONE = 0,
   TEAM_TYPE_HUMAN = 1,
@@ -213,7 +216,7 @@ enum TeamType : char
 
 <a name="cross_ref04"></a>
 ~~~ c
-enum TeamClan : char
+enum TeamClan : unsigned char
 {
   TEAM_CLAN_THE_CHOSEN = 1,
   TEAM_CLAN_CRIMSON_PATH = 2,
@@ -232,7 +235,7 @@ enum TeamClan : char
 ***opponent***: Difficulty level of *TEAM_TYPE_COMPUTER* teams.
 
 ~~~ c
-enum OpponentType : char
+enum OpponentType : unsigned char
 {
   CLUELESS = 0,
   APPRENTICE = 1,
@@ -244,7 +247,7 @@ enum OpponentType : char
 ~~~
 
 <a name="cross_ref05"></a>
-***turn_timer*** and ***endturn***: Timer values are in seconds. 0 means infinite.
+***turn_timer_time*** and ***endturn_time***: Timer values are in seconds. 0 means infinite.
 
 The Game Clock works somewhat like a chess timer. Two timer values are of significance: the Turn Timer, and the End Turn Timer. As each new turn is started, the Turn Timer resets and starts to count-down to zero. The default Turn time is 180 seconds, or three minutes. This is the time available for each turn. When the timer gets to zero, the turn ends automatically, and the next turn starts. You may click the End Turn button when you are finished with each turn to reset the timer and start a new turn. After clicking End Turn, the End Turn Timer starts counting down to allow your opponent(s) the opportunity to finish their turns. The default End Turn time is 45 seconds [\[2\]](#ref2).
 
@@ -252,7 +255,7 @@ The Game Clock works somewhat like a chess timer. Two timer values are of signif
 ***play_mode***: M.A.X. can be played in standard Turn-Based mode or in Concurrent mode, in which players take their turns simultaneously as in a realtime game [\[2\]](#ref2).
 
 ~~~ c
-enum PlayMode : char
+enum PlayMode : unsigned char
 {
   PLAY_MODE_TURN_BASED = 0,
   PLAY_MODE_SIMULTANEOUS_MOVES = 1
@@ -293,17 +296,177 @@ There are corner cases that are not handled well. For example if the *constructi
 
 We could rationalize that in case we have working eco-spheres our victory points may still be increasing passively even if we have no military power and we cannot build anything at all. The game play would be rather boring, but maybe just a few turns are remaining till victory conditions are met.
 
-It is also strange why stealth units do not count towards military power while fighters (airplane) do. It is true that most buildings have higher armor rating than the attack power of infiltrators, but they could steal mobile enemy or neutral (alien) military units. On a map like Sandspit there is a high chance that a few submarines could destroy some enemy eco-spheres or could protect their own ones that could considerably affect victory points.
+It is also strange why stealth units do not count towards military power while fighters (airplane) do. It is true that most buildings have higher armor rating than the attack power of infiltrators, but they could steal mobile enemy or neutral (alien) military units. On a map like Sandspit there is a high chance that a few submarines could destroy some enemy eco-spheres or could protect their own ones that could considerably affect victory points. We could rationalize that the losing team would be able to play hide and seek to troll the winning team which would not add to desired game play experience.
 
 #### Training Missions
 
+All tutorial missions that are not explicitly listed below use generic rules. Generic loss conditions always apply unless stated otherwise.
+
+**Training Mission 1**
+
+*Victory Conditions:* Red Team has count `Raw Materials > 0` and `Fuel > 0` and `UNIT_TYPE_FUEL_TANK > 0`.
+
+*Loss Conditions:* Red Team has count `UNIT_TYPE_MINING_STATION == 0` or `UNIT_TYPE_ENGINEER == 0`. The generic loss conditions do not apply for this mission for any of the teams.
+
+**Training Mission 2**
+
+*Victory Conditions:* Red Team has count `UNIT_TYPE_LIGHT_VEHICLE_PLANT > 0` and `UNIT_TYPE_GUN_TURRET > 0`.
+
+*Loss Conditions:* Red Team has count (`UNIT_TYPE_ENGINEER == 0` and `UNIT_TYPE_GUN_TURRET == 0`) or (`UNIT_TYPE_CONSTRUCTOR == 0` and `UNIT_TYPE_LIGHT_VEHICLE_PLANT = 0`).
+
+**Training Mission 3**
+
+*Victory Conditions:* Red Team has count `UNIT_TYPE_HEAVY_VEHICLE_PLANT > 0`, `UNIT_TYPE_SCOUT > 2`.
+
+*Loss Conditions:* Red Team has count (`UNIT_TYPE_LIGHT_VEHICLE_PLANT == 0` and `UNIT_TYPE_SCOUT < 3`) or `UNIT_TYPE_MINING_STATION == 0` or (`UNIT_TYPE_CONSTRUCTOR == 0` and `UNIT_TYPE_HEAVY_VEHICLE_PLANT = 0`).
+
+**Training Mission 4**
+
+*Victory Conditions:* Red Team has `Total Raw Materials Mining > 21`.
+
+*Loss Conditions:* Red Team has count `Total Raw Materials Mining < 22` and ((`UNIT_TYPE_CONSTRUCTOR == 0` or `UNIT_TYPE_MINING_STATION == 0`).
+
+**Training Mission 5**
+
+*Victory Conditions:* Green Team has count `UNIT_TYPE_MINING_STATION == 0`.
+
+*Loss Conditions:* This mission has no unique loss conditions.
+
+**Training Mission 6**
+
+*Victory Conditions:* Red Team has count `UNIT_TYPE_GUN_TURRET > 0` under construction at end of turn.
+
+*Loss Conditions:* This mission has no unique loss conditions.
+
+**Training Mission 7**
+
+*Victory Conditions:* Red Team `total power consumption of all UNIT_TYPE_LIGHT_VEHICLE_PLANT and UNIT_TYPE_HEAVY_VEHICLE_PLANT units > 1` and `total Fuel mining - total Fuel consumption > 0`.
+
+*Loss Conditions:* Red Team has count `UNIT_TYPE_LIGHT_VEHICLE_PLANT + UNIT_TYPE_HEAVY_VEHICLE_PLANT < 2` or `UNIT_TYPE_MINING_STATION == 0`.
+
+**Training Mission 8**
+
+*Victory Conditions:* Red Team has count `Gold > 0`.
+
+*Loss Conditions:* This mission has no unique loss conditions.
+
+**Training Mission 9**
+
+*Victory Conditions:* Red Team has count `Upgraded UNIT_TYPE_TANK > 0`.
+
+*Loss Conditions:* This mission has no unique loss conditions.
+
+**Training Mission 10**
+
+*Victory Conditions:* Red Team has `Team Points > 0`.
+
+*Loss Conditions:* This mission has no unique loss conditions.
+
+**Training Mission 11**
+
+*Victory Conditions:* Read Team has at least one `UNIT_TYPE_INFILTRATOR` with `Experience > 0`.
+
+*Loss Conditions:* Red Team has count `UNIT_TYPE_MINING_STATION == 0` or `UNIT_TYPE_TRAINING_HALL == 0` or `UNIT_TYPE_HABITAT == 0`.
+
+**Training Mission 12**
+
+*Victory Conditions:* Red Team has count `UNIT_TYPE_LAND_MINE > 0` and Green Team has casualties count `UNIT_TYPE_LAND_MINE > 0`.
+
+*Loss Conditions:* This mission has no unique loss conditions.
+
+**Training Mission 13**
+
+*Victory Conditions:* Red Team has count `UNIT_TYPE_TANK > 2` and count of `Damaged UNIT_TYPE_TANK == 0`.
+
+*Loss Conditions:* Red Team has count (`UNIT_TYPE_TANK < 3` or `Damaged UNIT_TYPE_TANK > 0`) and casualties count `UNIT_TYPE_TANK > 0`.
+
+**Training Mission 14**
+
+*Victory Conditions:* Red Team has count `UNIT_TYPE_TANK > 2` and count of `Missing Ammo UNIT_TYPE_TANK == 0`.
+
+*Loss Conditions:* Red Team has count (`UNIT_TYPE_TANK < 3` or `Missing Ammo UNIT_TYPE_TANK > 0`) and casualties count `UNIT_TYPE_TANK > 0`.
+
+**Training Mission 15**
+
+*Victory Conditions:* Red Team has `Armor Research Level > 0`.
+
+*Loss Conditions:* Red Team has count `UNIT_TYPE_RESEARCH_CENTER == 0`.
+
 #### Stand Alone Missions
+
+All scenario missions that are not explicitly listed below use generic rules. Generic loss conditions always apply unless stated otherwise.
+
+**Scenario Mission 9**
+
+*Victory Conditions:* Red Team `Team Points` > Green Team `Team Points`.
+
+*Loss Conditions:* This mission has no unique loss conditions.
+
+**Scenario Mission 18**
+
+*Victory Conditions:* Green Team has count `UNIT_TYPE_RESEARCH_CENTER == 0`.
+
+*Loss Conditions:* This mission has no unique loss conditions.
+
+**Scenario Mission 20**
+
+*Victory Conditions:* As long as Red Team has forecasted `Team Points` >= Green Team `Team Points` generic rules apply. Forecasted Team Points is the sum of earned Team Points plus Team owned `UNIT_TYPE_ECOSPHERE` count.
+
+*Loss Conditions:* Red Team has forecasted `Team Points` < Green Team `Team Points`.
+
+**Scenario Mission 24**
+
+*Victory Conditions:* Green Team has count `UNIT_TYPE_ECOSPHERE == 0`.
+
+*Loss Conditions:* This mission has no unique loss conditions.
 
 #### Campaign Game
 
-***Mission 1 - Islands in the Sun***
+Generic loss conditions always apply unless stated otherwise.
 
-TODO
+**Campaign Mission 1**
+
+*Victory Conditions:* Green Team has count `UNIT_TYPE_ECOSPHERE == 0`.
+
+*Loss Conditions:* Green Team has count `UNIT_TYPE_RESEARCH_CENTER == 0`.
+
+**Campaign Mission 2**
+
+*Victory Conditions:* `Turn Counter == 30.`
+
+*Loss Conditions:* Red Team has casualties count `UNIT_TYPE_RESEARCH_CENTER > 0`.
+
+**Campaign Mission 3**
+
+*Victory Conditions:* Red Team has count `UNIT_TYPE_SUPPLY_TRUCK > 1`.
+
+*Loss Conditions:* Red Team plus Green Team has count total `UNIT_TYPE_SUPPLY_TRUCK < 2` or Red Team has count `UNIT_TYPE_INFILTRATOR == 0`.
+
+**Campaign Missions 4, 5 and 9**
+
+*Victory Conditions:* Green Team has count `UNIT_TYPE_ECOSPHERE == 0`.
+
+*Loss Conditions:* These missions have no unique loss conditions.
+
+**Campaign Mission 8**
+
+*Victory Conditions:* Red Team has count total `UNIT_TYPE_ALIEN_* > 3` when `Turn Counter == Turn Limit (100)`.
+
+*Loss Conditions:* Red Team has count total `UNIT_TYPE_ALIEN_* < 4` or casualties count `UNIT_TYPE_RESEARCH_CENTER > 0`.
+
+All campaign missions that are not explicitly listed above use the following rules:
+
+**Team Points Based Missions**
+
+*Victory Conditions:* Red Team `Team Points` reaches `Team Points Limit`.
+
+*Loss Conditions:* Green Team `Team Points` reaches `Team Points Limit`.
+
+**Turn Limit Based Missions**
+
+*Victory Conditions:* Red Team `Turn Counter == Turn Limit`.
+
+*Loss Conditions:* These missions have no unique loss conditions.
 
 ### Options Section of INI settings
 
@@ -330,18 +493,18 @@ The above settings are stored as follows:
 ~~~ c
 struct __attribute__((packed)) IniOptions
 {
-  int world;
-  int turn_timer;
-  int endturn;
-  int start_gold;
-  int play_mode;
-  int victory_type;
-  int victory_limit;
-  int opponent;
-  int raw_resource;
-  int fuel_resource;
-  int gold_resource;
-  int alien_derelicts;
+  signed int world;
+  signed int turn_timer;
+  signed int endturn;
+  signed int start_gold;
+  signed int play_mode;
+  signed int victory_type;
+  signed int victory_limit;
+  signed int opponent;
+  signed int raw_resource;
+  signed int fuel_resource;
+  signed int gold_resource;
+  signed int alien_derelicts;
 };
 ~~~
 
@@ -351,7 +514,7 @@ In case of campaign, single and multi player scenario games the ***opponent***, 
 
 ***turn_timer*** and ***endturn***: See *[reference](#cross_ref05)*.
 
-***start_gold***: This is the starting credit ranging from 0 to 250 credits.
+***start_gold***: This is the starting credits ranging from 0 to 250 credits.
 
 ***play_mode***: See *[reference](#cross_ref06)*.
 
@@ -380,7 +543,7 @@ The valid value range is 0 to 2 representing None, Rare and Common settings.
 M.A.X. uses a top-down square grid or tile map system. The coordinate system is based on a standard x,y grid, with coordinate 0,0 at the top left of the map. X-coordinate measures from left to right and Y-coordinates from top to bottom [\[2\]](#ref2).
 
 ~~~ c
-enum SurfaceType : char
+enum SurfaceType : unsigned char
 {
   SURFACE_TYPE_LAND = 1,
   SURFACE_TYPE_WATER = 2,
@@ -391,7 +554,7 @@ enum SurfaceType : char
 enum SurfaceType SurfaceMap[x][y];
 ~~~
 
-In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `SurfaceMap[x][y]`.
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `SurfaceMap[x][y]`. Note that map dimensions are specified by the world (WRL) file format.
 
 Each element in the above array defines the accessibility property of the associated grid map cell. For example if a cell can only be crossed by air units, then the surface type is *SURFACE_TYPE_AIR*.
 
@@ -414,7 +577,7 @@ TEAM_VISIBILITY_MASK 0x1C00
 short GridResourceMapEntry[x][y];
 ~~~
 
-In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `GridResourceMapEntry[x][y]`.
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `GridResourceMapEntry[x][y]`. Note that map dimensions are specified by the world (WRL) file format.
 
 <img src="{{ site.baseurl }}/assets/images/bitfield_save_rmap_entry.svg" alt="Resource Map Entry Bitfield">
 
@@ -431,8 +594,8 @@ Example: the 16 bit value of 0x208C means 12 raw materials visible by red team o
 ~~~ c
 struct __attribute__((packed)) Point
 {
-  short x;
-  short y;
+  signed short x;
+  signed short y;
 };
 
 struct __attribute__((packed)) ResearchTopicInfo
@@ -444,42 +607,42 @@ struct __attribute__((packed)) ResearchTopicInfo
 
 struct __attribute__((packed)) ScreenLocation
 {
-  char x;
-  char y;
+  signed char x;
+  signed char y;
 };
 
 struct __attribute__((packed)) TeamInfo
 {
   Point markers[10];
   TeamType team_type;
-  char field_41;
+  bool finished_turn;
   TeamClan team_clan;
   ResearchTopicInfo research_topics[8];
-  unsigned int victory_points;
-  unsigned short last_unit_id;
-  char unit_counters[93];
-  ScreenLocation screen_location[6];
-  short score_graph[50];
+  unsigned int team_points;
+  unsigned short number_of_objects_created;
+  unsigned char unit_counters[93];
+  ScreenLocation camera_positions[6];
+  signed short score_graph[50];
   unsigned short selected_unit;
   unsigned short zoom_level;
-  Point screen_position;
-  char gui_button_state_range;
-  char gui_button_state_scan;
-  char gui_button_state_status;
-  char gui_button_state_colors;
-  char gui_button_state_hits;
-  char gui_button_state_ammo;
-  char gui_button_state_minimap_2x;
-  char gui_button_state_minimap_tnt;
-  char gui_button_state_grid;
-  char gui_button_state_names;
-  char gui_button_state_survey;
-  short stats_factories_built;
-  short stats_mines_built;
-  short stats_buildings_built;
-  short stats_units_built;
+  Point camera_position;
+  signed char display_button_range;
+  signed char display_button_scan;
+  signed char display_button_status;
+  signed char display_button_colors;
+  signed char display_button_hits;
+  signed char display_button_ammo;
+  signed char display_button_minimap_2x;
+  signed char display_button_minimap_tnt;
+  signed char display_button_grid;
+  signed char display_button_names;
+  signed char display_button_survey;
+  signed short stats_factories_built;
+  signed short stats_mines_built;
+  signed short stats_buildings_built;
+  signed short stats_units_built;
   unsigned short casualties[93];
-  short stats_gold_spent_on_upgrades;
+  signed short stats_gold_spent_on_upgrades;
 };
 ~~~
 
@@ -489,14 +652,14 @@ Four instances of the `TeamInfo` structure are written to the save file represen
 
 ***team_type***: Type of the given team. See *[TeamType](#cross_ref03)* type.
 
-***field_41***: TODO
+***finished_turn***: Indicates whether a team is ready to progress to the next game turn.
 
 ***team_clan***: Clan of the given team. See *[TeamClan](#cross_ref04)* type.
 
 ***research_topics***: There are 8 research topics. The *research_level* field defines the number of research cycles already finished.  The *turns_to_complete* field defines the number of turns required to complete a given research cycle if a single research center would be assigned to work on the topic. If the value is 0 it means the next level's research is not yet started. The formula for the actual turns required is as follows: `turns = ceil(turns_to_complete / allocation);`. The *allocation* field defines the number of research centers allocated to a given topic.
 
 ~~~ c
-enum ResearchTopic : char
+enum ResearchTopic : unsigned char
 {
   RESEARCH_TOPIC_ATTACK = 0,
   RESEARCH_TOPIC_SHOTS = 1,
@@ -509,27 +672,27 @@ enum ResearchTopic : char
 };
 ~~~
 
-***victory_points***: Number of victory points acquired for operating eco-spheres.
+***team_points***: Number of victory points acquired for operating eco-spheres.
 
-***last_unit_id***: The valid value range is 1 to 8191. Unit hash identifiers are derived from this counter's value.
+***number_of_objects_created***: The valid value range is 1 to 8191. Unit hash identifiers are derived from this counter's value.
 
 ***unit_counters***: There are 93 different types of units in the game. Each array element represents a given type of unit. The value is used to derive basic unit names to newly created units. For example if a team has 10 tanks then `unit_counters[UNIT_TYPE_TANK] = 11` as the next unit index will be 11. The array elements are initialized to 1. The 10th tank would get the basic unit name *MK 1 TANK 10*. The counter could easily overflow during a long game which means that multiple units could have the exact same name. In case of an overflow index 0 is skipped.
 
-***screen_location***: {x, y} coordinates of the previously saved screen locations. The array has 6 elements which is odd as only four function keys can be used to set or recall locations using F5 to F8. Array elements are initialized to {-1, -1} or simply 0xFF, 0xFF. See chapter *Setting Locations* in [\[2\]](#ref2) for further details on the feature.
+***camera_positions***: {x, y} coordinates of the previously saved screen locations. The array has 6 elements which is odd as only four function keys can be used to set or recall locations using F5 to F8. Array elements are initialized to {-1, -1} or simply 0xFF, 0xFF. See chapter *Setting Locations* in [\[2\]](#ref2) for further details on the feature.
 
 ***score_graph***: The score report presents a graph of each teams point totals over a period of the last 50 turns [\[2\]](#ref2).
 
 ***selected_unit***: Default value is 0xFFFF which means no unit is selected. Otherwise the value is set to the hash ID of the selected unit. Not every *UnitInfo* object gets a hash ID, in cases the default 0xFFFF could also be used.
 
-The hash ID is derived from the *last_unit_id* field and the unit's *team index*. Mind that there are 5 teams actually. All neutral alien derelicts related units belong to the fifth team.
+The hash ID is derived from the *number_of_objects_created* field and the unit's *team index*. Mind that there are 5 teams actually. All neutral alien derelicts related units belong to the fifth team.
 
 <img src="{{ site.baseurl }}/assets/images/bitfield_unit_hash_id.svg" alt="Unit Hash ID Bitfield">
 
 ***zoom_level***: Resolution of the main map display window. The minimum value is 4, maximum is 64. Zoom level 64 is pixel perfect 1:1 resolution.
 
-***screen_position***: {x, y} grid coordinates to be used as the center of the screen if possible. The valid value range for the coordinates is 0 to 111.
+***camera_position***: {x, y} grid coordinates to be used as the center of the screen if possible. The valid value range for the coordinates is 0 to 111.
 
-***gui_button_state_xyz***: Each of the display buttons are toggles which activate a visual display of some kind on the map display window [\[2\]](#ref2). 0 means the toggle is off, any other value means on.
+***display_button_xyz***: Each of the display buttons toggle the activation state of a visual display of some kind on the tactical map display window [\[2\]](#ref2). 0 means the toggle is off, any other value means on.
 
 ***stats_factories_built***: Number of factory buildings built by the team during the game. The statistic is displayed on the game over screen.
 
@@ -546,7 +709,7 @@ The hash ID is derived from the *last_unit_id* field and the unit's *team index*
 ### Game Manager State
 
 ~~~ c
-enum TeamIndex : char
+enum TeamIndex : unsigned char
 {
   TEAM_INDEX_RED = 0,
   TEAM_INDEX_GREEN = 1,
@@ -558,27 +721,25 @@ struct __attribute__((packed)) GameManagerState
 {
   TeamIndex active_turn_team;
   TeamIndex player_team;
-  int turn_counter;
-  short game_state;
-  short turn_timer;
+  signed int turn_counter;
+  unsigned short game_state;
+  unsigned short turn_timer;
 };
 ~~~
 
-***active_turn_team***:
+***active_turn_team***: Team that is in control of the game UI. The value has relevance in concurrent play mode too.
 
-***player_team***:
+***player_team***: Player team. In single player mode this is normally a human player, but if only computers are playing against each other, then this is set to the lowest team index in play. In hot seat mode this is the active human player.
 
-***turn_counter***:
+***turn_counter***: Turn Counter value displayed on screen representing the current game turn.
 
-***game_state***: 
+***game_state***: There are 16 different game states. Many of them are transient states. They are not fully deciphered yet.
 
-***turn_timer***: 
-
-TODO
+***turn_timer***: Turn Timer value displayed on screen representing the current turn's remaining time.
 
 ### Preferences Section of INI settings
 
-M.A.X. v1.04 defines the following INI configuration settings within the PREFERENCES section. The numeric values are just default values. These settings are all numeric so they are stored as 32 bit integers. An alphanumeric setting would be stored as a null terminated string always on 30 bytes.
+M.A.X. v1.04 defines the following INI configuration settings within the PREFERENCES section. The numeric values are just default values. These settings are all numeric so they are stored as 32 bit integers. An alphanumeric setting would be stored as a null terminated string always on 30 bytes including the delimiter so special care must be taken for UTF-8 encoded grapheme clusters.
 
 ~~~ c
 [PREFERENCES]
@@ -596,13 +757,13 @@ The above settings are stored as follows:
 ~~~ c
 struct __attribute__((packed)) IniPreferences
 {
-  int effects;
-  int click_scroll;
-  int quick_scroll;
-  int fast_movement;
-  int follow_unit;
-  int auto_select;
-  int enemy_halt;
+  signed int effects;
+  signed int click_scroll;
+  signed int quick_scroll;
+  signed int fast_movement;
+  signed int follow_unit;
+  signed int auto_select;
+  signed int enemy_halt;
 };
 ~~~
 
@@ -698,7 +859,7 @@ Four instances of the `TeamUnits` structure are written to the save file represe
 Even though there are 6 *UnitInfo* object lists, only 5 of them are saved.
 
 ~~~ c
-enum UnitType : short
+enum UnitType : unsigned short
 {
   UNIT_TYPE_GOLD_REFINERY = 0,
   UNIT_TYPE_POWER_STATION = 1,
@@ -795,51 +956,102 @@ enum UnitType : short
   UNIT_TYPE_DEAD_WALDO = 92
 };
 
-enum OrderType : short
+enum OrderType : unsigned char
 {
-  ORDER_TYPE_AWAITING = 0x0,
-  ORDER_TYPE_TRANSFORMING = 0x1,
-  ORDER_TYPE_MOVING = 0x2,
-  ORDER_TYPE_FIRING = 0x3,
-  ORDER_TYPE_ORDER_BUILDING = 0x4,
-  ORDER_TYPE_ACTIVATE_ORDER = 0x5,
-  ORDER_TYPE_NEW_ALLOCATE_ORDER = 0x6,
+  ORDER_TYPE_AWAIT = 0x0,
+  ORDER_TYPE_TRANSFORM = 0x1,
+  ORDER_TYPE_MOVE = 0x2,
+  ORDER_TYPE_FIRE = 0x3,
+  ORDER_TYPE_BUILD = 0x4,
+  ORDER_TYPE_ACTIVATE = 0x5,
+  ORDER_TYPE_NEW_ALLOCATE = 0x6,
   ORDER_TYPE_POWER_ON = 0x7,
   ORDER_TYPE_POWER_OFF = 0x8,
-  ORDER_TYPE_EXPLODING = 0x9,
-  ORDER_TYPE_UNLOADING = 0xA,
-  ORDER_TYPE_CLEARING = 0xB,
+  ORDER_TYPE_EXPLODE = 0x9,
+  ORDER_TYPE_UNLOAD = 0xA,
+  ORDER_TYPE_CLEAR = 0xB,
   ORDER_TYPE_SENTRY = 0xC,
-  ORDER_TYPE_LANDING = 0xD,
-  ORDER_TYPE_TAKING_OFF = 0xE,
-  ORDER_TYPE_LOADING = 0xF,
+  ORDER_TYPE_LAND = 0xD,
+  ORDER_TYPE_TAKE_OFF = 0xE,
+  ORDER_TYPE_LOAD = 0xF,
   ORDER_TYPE_IDLE = 0x10,
-  ORDER_TYPE_REPAIRING = 0x11,
-  ORDER_TYPE_REFUELING = 0x12,
-  ORDER_TYPE_RELOADING = 0x13,
-  ORDER_TYPE_TRANSFERRING = 0x14,
-  ORDER_TYPE_AWAITING_21 = 0x15,
-  ORDER_TYPE_AWAITING_22 = 0x16,
-  ORDER_TYPE_AWAITING_23 = 0x17,
-  ORDER_TYPE_AWAITING_24 = 0x18,
-  ORDER_TYPE_AWAITING_25 = 0x19,
-  ORDER_TYPE_DISABLED = 0x1A,
-  ORDER_TYPE_MOVING_27 = 0x1B,
-  ORDER_TYPE_REPAIRING_28 = 0x1C,
-  ORDER_TYPE_TRANSFERRING_29 = 0x1D,
-  ORDER_TYPE_ATTACKING = 0x1E,
-  ORDER_TYPE_BUILDING_HALTED = 0x1F
+  ORDER_TYPE_REPAIR = 0x11,
+  ORDER_TYPE_REFUEL = 0x12,
+  ORDER_TYPE_RELOAD = 0x13,
+  ORDER_TYPE_TRANSFER = 0x14,
+  ORDER_TYPE_HALT_BUILDING = 0x15,
+  ORDER_TYPE_AWAIT_SCALING = 0x16,
+  ORDER_TYPE_AWAIT_TAPE_POSITIONING = 0x17,
+  ORDER_TYPE_AWAIT_STEAL_UNIT = 0x18,
+  ORDER_TYPE_AWAIT_DISABLE_UNIT = 0x19,
+  ORDER_TYPE_DISABLE = 0x1A,
+  ORDER_TYPE_MOVE_TO_UNIT = 0x1B,
+  ORDER_TYPE_UPGRADE = 0x1C,
+  ORDER_TYPE_LAY_MINE = 0x1D,
+  ORDER_TYPE_MOVE_TO_ATTACK = 0x1E,
+  ORDER_TYPE_HALT_BUILDING_2 = 0x1F
+};
+
+enum OrderStateType : unsigned char
+{
+  ORDER_STATE_INIT = 0x0,
+  ORDER_STATE_EXECUTING_ORDER = 0x1,
+  ORDER_STATE_READY_TO_EXECUTE_ORDER = 0x2,
+  ORDER_STATE_STORE = 0x3,
+  ORDER_STATE_PREPARE_STORE = 0x4,
+  ORDER_STATE_IN_PROGRESS = 0x5,
+  ORDER_STATE_IN_TRANSITION = 0x6,
+  ORDER_STATE_ISSUING_PATH = 0x7,
+  ORDER_STATE_READY_TO_FIRE = 0x8,
+  ORDER_STATE_FIRE_IN_PROGRESS = 0x9,
+  ORDER_STATE_10 = 0xA,
+  ORDER_STATE_BUILD_IN_PROGRESS = 0xB,
+  ORDER_STATE_PATH_REQUEST_CANCEL = 0xC,
+  ORDER_STATE_BUILD_CANCEL = 0xD,
+  ORDER_STATE_DESTROY = 0xE,
+  ORDER_STATE_LOADING_IN_PROGRESS = 0xF,
+  ORDER_STATE_FINISH_LOADING = 0x10,
+  ORDER_STATE_UNLOADING_IN_PROGRESS = 0x11,
+  ORDER_STATE_FINISH_UNLOADING = 0x12,
+  ORDER_STATE_FINISH_LANDING = 0x13,
+  ORDER_STATE_FINISH_TAKE_OFF = 0x14,
+  ORDER_STATE_21 = 0x15,
+  ORDER_STATE_PROGRESS_TRANSFORMING = 0x16,
+  ORDER_STATE_FINISH_TRANSFORMING = 0x17,
+  ORDER_STATE_CLEAR_PATH = 0x18,
+  ORDER_STATE_SELECT_SITE = 0x19,
+  ORDER_STATE_BUILD_CLEARING = 0x1A,
+  ORDER_STATE_EXPLODE = 0x1B,
+  ORDER_STATE_MOVE_INIT = 0x1C,
+  ORDER_STATE_MOVE_GETTING_PATH = 0x1D,
+  ORDER_STATE_BUILDING_READY = 0x1E,
+  ORDER_STATE_UNIT_READY = 0x1F,
+  ORDER_STATE_EXPAND = 0x20,
+  ORDER_STATE_SHRINK = 0x21,
+  ORDER_STATE_TAPE_POSITIONING_INIT = 0x22,
+  ORDER_STATE_TAPE_POSITIONING_ENTER = 0x23,
+  ORDER_STATE_TAPE_POSITIONING_DEINIT = 0x24,
+  ORDER_STATE_TAPE_POSITIONING_LEAVE = 0x25,
+  ORDER_STATE_ELEVATE = 0x26,
+  ORDER_STATE_LOWER = 0x27,
+  ORDER_STATE_ATTACK_PENDING = 0x28,
+  ORDER_STATE_ATTACK_BEGINNING = 0x29,
+  ORDER_STATE_NEW_ORDER = 0x2A,
+  ORDER_STATE_INACTIVE = 0x2B,
+  ORDER_STATE_PLACING_MINES = 0x2C,
+  ORDER_STATE_REMOVING_MINES = 0x2D,
+  ORDER_STATE_BUILD_ABORT = 0x2E,
 };
 
 struct __attribute__((packed)) Rect
 {
-  int ulx;
-  int uly;
-  int lrx;
-  int lry;
+  signed int ulx;
+  signed int uly;
+  signed int lrx;
+  signed int lry;
 };
 
-enum ClassType : short
+enum ClassType : unsigned char
 {
   CLASS_TYPE_AIR_PATH = 1,
   CLASS_TYPE_BUILDER_PATH = 2,
@@ -848,8 +1060,8 @@ enum ClassType : short
 
 struct __attribute__((packed)) PathStep
 {
-  char x;
-  char y;
+  signed char x;
+  signed char y;
 };
 
 struct __attribute__((packed)) Path
@@ -868,16 +1080,16 @@ struct __attribute__((packed)) Path
       unsigned char angle;
       Point pixel_start;
       Point pixel_end;
-      int x_step;
-      int y_step;
-      int delta_x;
-      int delta_y;
+      signed int x_step;
+      signed int y_step;
+      signed int delta_x;
+      signed int delta_y;
     }
     else if (class_type == CLASS_TYPE_GROUND_PATH)
     {
       Point pixel_end;
-      short index;
-      short steps_count;
+      signed short index;
+      signed short steps_count;
       PathStep steps[steps_count];
     }
     else if (class_type == CLASS_TYPE_BUILDER_PATH)
@@ -921,7 +1133,7 @@ struct __attribute__((packed)) UnitInfo
     char name[name_length];
     Point shadow_offset;
     TeamIndex team;
-    unsigned char name_index;
+    unsigned char unit_id;
     unsigned char brightness;
     unsigned char angle;
     unsigned char visible_to_team[5];
@@ -933,20 +1145,20 @@ struct __attribute__((packed)) UnitInfo
     Rect sprite_bounds;
     Rect shadow_bounds;
     unsigned char turret_angle;
-    char turret_offset_x;
-    char turret_offset_y;
-    unsigned short total_images;
-    unsigned short image_base;
-    unsigned short turret_image_base;
-    unsigned short firing_image_base;
-    unsigned short connector_image_base;
-    unsigned short image_index;
-    unsigned short turret_image_index;
-    unsigned short image_index_max;
+    signed char turret_offset_x;
+    signed char turret_offset_y;
+    signed short total_images;
+    signed short image_base;
+    signed short turret_image_base;
+    signed short firing_image_base;
+    signed short connector_image_base;
+    signed short image_index;
+    signed short turret_image_index;
+    signed short image_index_max;
     OrderType orders;
-    unsigned char state;
+    OrderStateType state;
     OrderType prior_orders;
-    unsigned char prior_state;
+    OrderStateType prior_state;
     unsigned char laying_state;
     Point target_grid;
     unsigned char build_time;
@@ -961,28 +1173,28 @@ struct __attribute__((packed)) UnitInfo
     unsigned char speed;
     unsigned char shots;
     unsigned char move_and_fire;
-    unsigned short storage;
+    signed short storage;
     unsigned char ammo;
     unsigned char targeting_mode;
     unsigned char enter_mode;
     unsigned char cursor;
-    unsigned char recoil_delay;
+    signed char recoil_delay;
     unsigned char delayed_reaction;
-    unsigned char damaged_this_turn;
+    bool damaged_this_turn;
     unsigned char research_topic;
     unsigned char moved;
-    unsigned char bobbed;
+    bool bobbed;
     unsigned char shake_effect_state;
     unsigned char engine;
     unsigned char weapon;
     unsigned char comm;
     unsigned char fuel_distance;
     unsigned char move_fraction;
-    unsigned char energized;
+    bool energized;
     unsigned char repeat_build;
     unsigned short build_rate;
-    unsigned char disabled_reaction_fire;
-    unsigned char auto_survey;
+    bool disabled_reaction_fire;
+    bool auto_survey;
     unsigned int field_221;
     Path path;
     unsigned short connectors;
@@ -1043,7 +1255,7 @@ struct __attribute__((packed)) TeamHeatMaps
 };
 ~~~
 
-In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `heatmap_`xyz.
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in `heatmap_xyz[x][y]`. Note that map dimensions are specified by the world (WRL) file format.
 
 Heat maps are only emitted for valid teams.
 
@@ -1052,7 +1264,7 @@ Heat maps are only emitted for valid teams.
 ~~~c
 struct __attribute__((packed)) MessageLog
 {
-  short length;
+  unsigned short length;
   char text[length];
   UnitInfo unit;
   Point coordinates;
@@ -1072,7 +1284,7 @@ struct __attribute__((packed)) MessageLogList
 ### Serialized AI Team Objects
 
 ~~~c
-enum TeamIndex16 : short
+enum TeamIndex16 : unsigned short
 {
   TEAM_INDEX_RED = 0,
   TEAM_INDEX_GREEN = 1,
@@ -1080,59 +1292,73 @@ enum TeamIndex16 : short
   TEAM_INDEX_GRAY = 3
 };
 
-struct __attribute__((packed)) AiMap
+enum AiStrategyType : uint8_t
+{
+  AI_STRATEGY_RANDOM,
+  AI_STRATEGY_DEFENSIVE,
+  AI_STRATEGY_MISSILES,
+  AI_STRATEGY_AIR,
+  AI_STRATEGY_SEA,
+  AI_STRATEGY_SCOUT_HORDE,
+  AI_STRATEGY_TANK_HORDE,
+  AI_STRATEGY_FAST_ATTACK,
+  AI_STRATEGY_COMBINED_ARMS,
+  AI_STRATEGY_ESPIONAGE
+};
+
+struct __attribute__((packed)) SpottedUnit
 {
   UnitInfo unit;
   TeamIndex16 team;
   bool visible_to_team;
-  Point point;
+  Point last_position;
 };
 
-struct __attribute__((packed)) AiMapList
+struct __attribute__((packed)) SpottedUnitList
 {
-  unsigned short ai_map_count;
-  AiMap objects[ai_map_count];
+  unsigned short spotted_units_count;
+  SpottedUnit objects[spotted_units_count];
 };
 
 struct __attribute__((packed)) AiPlayer
 {
-  TeamIndex16 team;
-  AiStrategy strategy;
-  short field_3;
-  short field_5;
-  short field_7;
+  TeamIndex16 player_team;
+  AiStrategyType strategy;
+  signed short field_3;
+  signed short field_5;
+  signed short field_7;
   TeamIndex16 target_team;
-  AiMapList map_list;
-  unsigned short has_info_map;
+  SpottedUnitList map_list;
+  unsigned short info_map_item_count;
   
-  if (has_info_map)
+  if (info_map_item_count)
   {
-  	unsigned char info_map[x][y];
+    unsigned char info_map[x][y];
   }
   
-  unsigned short has_mine_map;
+  unsigned short mine_map_item_count;
   
-  if (has_mine_map)
+  if (mine_map_item_count)
   {
-    unsigned char mine_map[x][y];
+    signed char mine_map[x][y];
   }
   
   Point target_location;
 };
 ~~~
 
-In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in the above xyz maps.
+In M.A.X. the grid map size is always 112 x 112 tiles so `x = y = 112;` in the above xyz maps. Note that map dimensions are specified by the world (WRL) file format.
 
 ### Complete Save File
 
 ~~~c
 struct __attribute__((packed)) SaveFile
 {
-  short version;
-  FileType save_file_type;
+  unsigned short version;
+  FileType save_game_type;
   char save_game_name[30];
   PlanetType planet;
-  short mission_index;
+  unsigned short mission_index;
   char team_name_red[30];
   char team_name_green[30];
   char team_name_blue[30];
@@ -1149,8 +1375,8 @@ struct __attribute__((packed)) SaveFile
   TeamClan team_clan_alien;
   unsigned int rng_seed;
   OpponentType opponent;
-  short turn_timer;
-  short endturn;
+  unsigned short turn_timer_time;
+  unsigned short endturn_time;
   PlayMode play_mode;
   IniOptions options;
   SurfaceType surface_map[112*112];
@@ -1162,7 +1388,7 @@ struct __attribute__((packed)) SaveFile
   TeamIndex active_turn_team;
   TeamIndex player_team;
   int turn_counter;
-  short game_state;
+  unsigned short game_state;
   unsigned short turn_timer;
   IniPreferences preferences;
   TeamUnits team_units_red;
