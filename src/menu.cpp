@@ -1035,10 +1035,6 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
                 }
             }
 
-//            for (int32_t y = 0; y < minimap_slot_size; ++y) {
-//                memset(&buffer[y * width], COLOR_BLACK, minimap_slot_size);
-//            }
-
             cscale(minimap, map_dimensions.x, map_dimensions.y, map_dimensions.x, &buffer[off_y * width + off_x],
                    minimap_slot_size - off_x * 2, minimap_slot_size - off_y * 2, width);
         }
