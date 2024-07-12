@@ -197,7 +197,7 @@ void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size,
 
                 map_address_y = &map_address_y[tile_stride_x];
 
-                for (uint32_t j{0}; j < tile_stride_y; ++j) {
+                for (uint32_t j{1}; j <= tile_stride_y; ++j) {
                     for (uint32_t i{0}; i < tile_stride_x; ++i) {
                         map_address_x[i + j * WindowManager_WindowWidth] =
                             color_table[map_tile_buffer[(offset_x + i * map_tile_zoom_factor) >> 16]];
