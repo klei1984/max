@@ -56,12 +56,6 @@ uint16_t Gfx_ScaledHeight;
 uint32_t Gfx_ScalingFactorWidth;
 uint32_t Gfx_ScalingFactorHeight;
 int32_t Gfx_TargetScreenBufferOffset;
-uint32_t Gfx_SpriteRowIndex;
-uint8_t* Gfx_SpriteRowAddress;
-int16_t Gfx_PixelCount;
-int16_t Gfx_word_1686D6;
-int16_t Gfx_word_1686D8;
-int16_t Gfx_word_1686DA;
 
 const Rect Gfx_DirectionCorrections[8] = {
     {1, 0, 0, 1},   {0, -1, -1, 0}, {0, 1, -1, 0}, {1, 0, 0, -1},
@@ -214,24 +208,19 @@ void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size,
 }
 
 void Gfx_DecodeSprite() {
-    uint32_t offset;
-    const uint8_t row_delimiter = 0xFF;
-    int32_t transparent_count;
-    int32_t pixel_count;
-    int32_t ebp;
-    uint8_t* row_address;
-
     const ColorIndex* color_table{&ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & (~31)) * 8]};
 
-    for (Gfx_SpriteRowIndex = Gfx_ScaledOffset.y * Gfx_ScalingFactorHeight;;
+    for (uint32_t Gfx_SpriteRowIndex = Gfx_ScaledOffset.y * Gfx_ScalingFactorHeight;;
          Gfx_SpriteRowIndex += Gfx_ScalingFactorHeight) {
-        Gfx_SpriteRowAddress = &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> GFX_SCALE_BASE]];
-
-        offset = Gfx_TargetScreenBufferOffset;
-        Gfx_PixelCount = 0;
-        Gfx_word_1686D6 = 0;
-        Gfx_word_1686D8 = Gfx_ScaledOffset.x;
-        Gfx_word_1686DA = Gfx_ScaledWidth;
+        uint8_t* Gfx_SpriteRowAddress =
+            &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> GFX_SCALE_BASE]];
+        uint32_t offset = Gfx_TargetScreenBufferOffset;
+        int16_t Gfx_PixelCount = 0;
+        int16_t Gfx_word_1686D6 = 0;
+        int16_t Gfx_word_1686D8 = Gfx_ScaledOffset.x;
+        int16_t Gfx_word_1686DA = Gfx_ScaledWidth;
+        constexpr uint8_t row_delimiter = 0xFF;
+        int32_t ebp;
 
         for (;;) {
             if (*Gfx_SpriteRowAddress == row_delimiter) {
@@ -245,11 +234,10 @@ void Gfx_DecodeSprite() {
 
             } else {
                 int32_t temp;
+                const int32_t transparent_count = *Gfx_SpriteRowAddress++;
+                const int32_t pixel_count = *Gfx_SpriteRowAddress++;
 
-                transparent_count = *Gfx_SpriteRowAddress++;
-                pixel_count = *Gfx_SpriteRowAddress++;
-
-                row_address = Gfx_SpriteRowAddress;
+                uint8_t* row_address = Gfx_SpriteRowAddress;
                 Gfx_SpriteRowAddress += pixel_count;
                 Gfx_PixelCount += transparent_count;
 
@@ -360,14 +348,14 @@ void Gfx_DecodeShadow() {
     int32_t rescaled_pixel_count;
     uint8_t shadow_count = 0;
 
-    for (Gfx_SpriteRowIndex = Gfx_ScalingFactorHeight * Gfx_ScaledOffset.y; Gfx_ScaledHeight;
+    for (uint32_t Gfx_SpriteRowIndex = Gfx_ScalingFactorHeight * Gfx_ScaledOffset.y; Gfx_ScaledHeight;
          Gfx_SpriteRowIndex += Gfx_ScalingFactorHeight) {
         buffer = &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> GFX_SCALE_BASE]];
         offset = Gfx_TargetScreenBufferOffset;
-        Gfx_PixelCount = 0;
-        Gfx_word_1686D6 = 0;
-        Gfx_word_1686D8 = Gfx_ScaledOffset.x;
-        Gfx_word_1686DA = Gfx_ScaledWidth;
+        int16_t Gfx_PixelCount = 0;
+        int16_t Gfx_word_1686D6 = 0;
+        int16_t Gfx_word_1686D8 = Gfx_ScaledOffset.x;
+        int16_t Gfx_word_1686DA = Gfx_ScaledWidth;
 
         for (;;) {
             if (buffer[0] == 0xFF) {
