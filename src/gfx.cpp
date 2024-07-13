@@ -87,10 +87,10 @@ bool Gfx_DecodeSpriteSetup(Point point, uint8_t* buffer, int32_t divisor, Rect* 
     scaled_bounds.lrx = scaled_bounds.ulx + ((width * 2) / divisor);
     scaled_bounds.lry = scaled_bounds.uly + ((height * 2) / divisor);
 
-    scaled_bounds.ulx = ((scaled_bounds.ulx << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx;
-    scaled_bounds.uly = ((scaled_bounds.uly << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly;
-    scaled_bounds.lrx = (((scaled_bounds.lrx - 1) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUlx + 1;
-    scaled_bounds.lry = (((scaled_bounds.lry - 1) << 16) / Gfx_MapScalingFactor) - Gfx_MapWindowUly + 1;
+    scaled_bounds.ulx = Gfx_ScaleInt32(scaled_bounds.ulx) - Gfx_MapWindowUlx;
+    scaled_bounds.uly = Gfx_ScaleInt32(scaled_bounds.uly) - Gfx_MapWindowUly;
+    scaled_bounds.lrx = Gfx_ScaleInt32(scaled_bounds.lrx - 1) - Gfx_MapWindowUlx + 1;
+    scaled_bounds.lry = Gfx_ScaleInt32(scaled_bounds.lry - 1) - Gfx_MapWindowUly + 1;
 
     target_bounds.ulx = std::max(scaled_bounds.ulx, bounds->ulx);
     target_bounds.uly = std::max(scaled_bounds.uly, bounds->uly);
@@ -99,6 +99,7 @@ bool Gfx_DecodeSpriteSetup(Point point, uint8_t* buffer, int32_t divisor, Rect* 
 
     if (target_bounds.ulx >= target_bounds.lrx || target_bounds.uly >= target_bounds.lry) {
         result = false;
+
     } else {
         Gfx_ScaledWidth = scaled_bounds.lrx - scaled_bounds.ulx;
         Gfx_ScaledHeight = scaled_bounds.lry - scaled_bounds.uly;
@@ -111,8 +112,8 @@ bool Gfx_DecodeSpriteSetup(Point point, uint8_t* buffer, int32_t divisor, Rect* 
             Gfx_ScaledHeight = 2;
         }
 
-        Gfx_ScalingFactorWidth = (((width - 1) << 16) / (Gfx_ScaledWidth - 1)) + 8;
-        Gfx_ScalingFactorHeight = (((height - 1) << 16) / (Gfx_ScaledHeight - 1)) + 8;
+        Gfx_ScalingFactorWidth = (((width - 1) << GFX_SCALE_BASE) / (Gfx_ScaledWidth - 1)) + 8;
+        Gfx_ScalingFactorHeight = (((height - 1) << GFX_SCALE_BASE) / (Gfx_ScaledHeight - 1)) + 8;
         Gfx_ScaledOffset.x = target_bounds.ulx - scaled_bounds.ulx;
         Gfx_ScaledOffset.y = target_bounds.uly - scaled_bounds.uly;
         Gfx_ScaledWidth = target_bounds.lrx - target_bounds.ulx;
@@ -126,10 +127,10 @@ bool Gfx_DecodeSpriteSetup(Point point, uint8_t* buffer, int32_t divisor, Rect* 
     return result;
 }
 
-void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size, const uint32_t tile_id,
+void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size, const uint32_t tile_base,
                        const uint8_t quotient) {
     if (pixel_bounds->lry - 1 > pixel_bounds->uly && pixel_bounds->lrx - 1 > pixel_bounds->ulx) {
-        const uint32_t map_tile_zoom_factor{(((tile_size - 1) << 16) / (Gfx_ZoomLevel - 1)) + 8};
+        const uint32_t map_tile_zoom_factor{(((tile_size - 1) << GFX_SCALE_BASE) / (Gfx_ZoomLevel - 1)) + 8};
 
         const ColorIndex* color_table{&ResourceManager_ColorIndexTable13x8[(Gfx_MapBrightness & (~31)) * 8]};
 
@@ -142,24 +143,20 @@ void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size,
 
         const int32_t tile_count_y{(clipped_bounds.lry - clipped_bounds.uly) / 64 + 1};
 
-        const int32_t scaling_error_ulx =
-            (((pixel_bounds->ulx) << 16) / Gfx_MapScalingFactor) - ((clipped_bounds.ulx << 16) / Gfx_MapScalingFactor);
+        const int32_t scaling_error_ulx = Gfx_ScaleInt32(pixel_bounds->ulx) - Gfx_ScaleInt32(clipped_bounds.ulx);
 
         const int32_t scaling_error_ulx_factor = scaling_error_ulx * map_tile_zoom_factor;
 
-        const int32_t scaling_error_uly =
-            (((pixel_bounds->uly) << 16) / Gfx_MapScalingFactor) - ((clipped_bounds.uly << 16) / Gfx_MapScalingFactor);
+        const int32_t scaling_error_uly = Gfx_ScaleInt32(pixel_bounds->uly) - Gfx_ScaleInt32(clipped_bounds.uly);
 
         const int32_t scaling_error_uly_factor = scaling_error_uly * map_tile_zoom_factor;
 
-        const int32_t scaling_error_lrx = ((clipped_bounds.lrx << 16) / Gfx_MapScalingFactor) -
-                                          (((pixel_bounds->lrx - 1) << 16) / Gfx_MapScalingFactor);
+        const int32_t scaling_error_lrx = Gfx_ScaleInt32(clipped_bounds.lrx) - Gfx_ScaleInt32(pixel_bounds->lrx - 1);
 
-        const int32_t scaling_error_lry = ((clipped_bounds.lry << 16) / Gfx_MapScalingFactor) -
-                                          (((pixel_bounds->lry - 1) << 16) / Gfx_MapScalingFactor);
+        const int32_t scaling_error_lry = Gfx_ScaleInt32(clipped_bounds.lry) - Gfx_ScaleInt32(pixel_bounds->lry - 1);
 
         uint8_t* map_buffer{Gfx_MapWindowBuffer};
-        int32_t tile_index{0};
+        int32_t tile_position{0};
 
         for (int32_t y{tile_count_y}; y > 0; --y) {
             uint32_t tile_stride_y{Gfx_ZoomLevel};
@@ -179,8 +176,8 @@ void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size,
 
             for (int32_t x{tile_count_x}; x > 0; --x) {
                 uint8_t* const tile_buffer{
-                    &ResourceManager_MapTileBuffer[ResourceManager_MapTileIds[tile_id + tile_index] << quotient]};
-                uint8_t* map_tile_buffer = &tile_buffer[(offset_y >> 16) << (quotient >> 1)];
+                    &ResourceManager_MapTileBuffer[ResourceManager_MapTileIds[tile_base + tile_position] << quotient]};
+                uint8_t* map_tile_buffer = &tile_buffer[(offset_y >> GFX_SCALE_BASE) << (quotient >> 1)];
 
                 uint32_t tile_stride_x{Gfx_ZoomLevel};
                 int32_t offset_x{0};
@@ -197,19 +194,21 @@ void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size,
 
                 map_address_y = &map_address_y[tile_stride_x];
 
-                for (uint32_t j{1}; j <= tile_stride_y; ++j) {
+                for (uint32_t j{0}; j < tile_stride_y; ++j) {
                     for (uint32_t i{0}; i < tile_stride_x; ++i) {
-                        map_address_x[i + j * WindowManager_WindowWidth] =
-                            color_table[map_tile_buffer[(offset_x + i * map_tile_zoom_factor) >> 16]];
+                        map_address_x[i] =
+                            color_table[map_tile_buffer[(offset_x + i * map_tile_zoom_factor) >> GFX_SCALE_BASE]];
                     }
 
-                    map_tile_buffer = &tile_buffer[((offset_y + j * map_tile_zoom_factor) >> 16) << (quotient >> 1)];
+                    map_address_x = &map_address_x[WindowManager_WindowWidth];
+                    map_tile_buffer = &tile_buffer[((offset_y + (j + 1) * map_tile_zoom_factor) >> GFX_SCALE_BASE)
+                                                   << (quotient >> 1)];
                 }
 
-                ++tile_index;
+                ++tile_position;
             }
 
-            tile_index += ResourceManager_MapSize.x - tile_count_x;
+            tile_position += ResourceManager_MapSize.x - tile_count_x;
         }
     }
 }
@@ -226,7 +225,7 @@ void Gfx_DecodeSprite() {
 
     for (Gfx_SpriteRowIndex = Gfx_ScaledOffset.y * Gfx_ScalingFactorHeight;;
          Gfx_SpriteRowIndex += Gfx_ScalingFactorHeight) {
-        Gfx_SpriteRowAddress = &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> 16]];
+        Gfx_SpriteRowAddress = &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> GFX_SCALE_BASE]];
 
         offset = Gfx_TargetScreenBufferOffset;
         Gfx_PixelCount = 0;
@@ -255,7 +254,7 @@ void Gfx_DecodeSprite() {
                 Gfx_PixelCount += transparent_count;
 
                 if (Gfx_PixelCount) {
-                    temp = (((Gfx_PixelCount << 16) / Gfx_ScalingFactorWidth) + 1) - Gfx_word_1686D6;
+                    temp = (((Gfx_PixelCount << GFX_SCALE_BASE) / Gfx_ScalingFactorWidth) + 1) - Gfx_word_1686D6;
                     Gfx_word_1686D6 += temp;
 
                     if (Gfx_word_1686D8) {
@@ -302,7 +301,7 @@ void Gfx_DecodeSprite() {
                 row_address -= Gfx_PixelCount;
                 Gfx_PixelCount += pixel_count;
                 ebp = Gfx_word_1686D6;
-                temp = (((Gfx_PixelCount << 16) / Gfx_ScalingFactorWidth) + 1) - ebp;
+                temp = (((Gfx_PixelCount << GFX_SCALE_BASE) / Gfx_ScalingFactorWidth) + 1) - ebp;
                 Gfx_word_1686D6 += temp;
 
                 if (Gfx_word_1686D8) {
@@ -340,8 +339,9 @@ void Gfx_DecodeSprite() {
 
                         for (int32_t i = 0; i < temp; ++i) {
                             address[i] = reinterpret_cast<uint8_t*>(
-                                (reinterpret_cast<uintptr_t>(color_table) & ~0xFF))[reinterpret_cast<uint8_t*>(
-                                (reinterpret_cast<uintptr_t>(Gfx_ColorIndices) & ~0xFF))[row_address[ebp >> 16]]];
+                                (reinterpret_cast<uintptr_t>(color_table) &
+                                 ~0xFF))[reinterpret_cast<uint8_t*>((reinterpret_cast<uintptr_t>(Gfx_ColorIndices) &
+                                                                     ~0xFF))[row_address[ebp >> GFX_SCALE_BASE]]];
                             ebp += Gfx_ScalingFactorWidth;
                         }
 
@@ -362,7 +362,7 @@ void Gfx_DecodeShadow() {
 
     for (Gfx_SpriteRowIndex = Gfx_ScalingFactorHeight * Gfx_ScaledOffset.y; Gfx_ScaledHeight;
          Gfx_SpriteRowIndex += Gfx_ScalingFactorHeight) {
-        buffer = &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> 16]];
+        buffer = &Gfx_ResourceBuffer[Gfx_SpriteRowAddresses[Gfx_SpriteRowIndex >> GFX_SCALE_BASE]];
         offset = Gfx_TargetScreenBufferOffset;
         Gfx_PixelCount = 0;
         Gfx_word_1686D6 = 0;
@@ -379,7 +379,8 @@ void Gfx_DecodeShadow() {
             buffer = &buffer[2];
 
             if (Gfx_PixelCount) {
-                rescaled_pixel_count = (Gfx_PixelCount << 16) / Gfx_ScalingFactorWidth + 1 - Gfx_word_1686D6;
+                rescaled_pixel_count =
+                    (Gfx_PixelCount << GFX_SCALE_BASE) / Gfx_ScalingFactorWidth + 1 - Gfx_word_1686D6;
                 Gfx_word_1686D6 += rescaled_pixel_count;
 
                 if (Gfx_word_1686D8 != 0) {
@@ -410,7 +411,7 @@ void Gfx_DecodeShadow() {
 
             Gfx_PixelCount += shadow_count;
 
-            rescaled_pixel_count = (Gfx_PixelCount << 16) / Gfx_ScalingFactorWidth + 1 - Gfx_word_1686D6;
+            rescaled_pixel_count = (Gfx_PixelCount << GFX_SCALE_BASE) / Gfx_ScalingFactorWidth + 1 - Gfx_word_1686D6;
             Gfx_word_1686D6 += rescaled_pixel_count;
 
             if (Gfx_word_1686D8 != 0) {

@@ -31,8 +31,10 @@
 #define GFX_SCALE_DENOMINATOR (1 << GFX_SCALE_BASE)
 #define GFX_SCALE_NUMERATOR (GFX_MAP_TILE_SIZE * GFX_SCALE_DENOMINATOR)
 
+#define Gfx_ScaleInt32(param) (((param) << GFX_SCALE_BASE) / Gfx_MapScalingFactor)
+
 bool Gfx_DecodeSpriteSetup(Point point, uint8_t* buffer, int32_t divisor, Rect* bounds);
-void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size, const uint32_t tile_id,
+void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size, const uint32_t tile_base,
                        const uint8_t quotient);
 void Gfx_DecodeSprite();
 void Gfx_DecodeShadow();
