@@ -122,34 +122,58 @@ Not supported.
 
 Ready to use M.A.X. Port guided installers are available for 32 bit and 64 bit Windows operating systems on the [Download](download.md) page.
 
-
 Portable packages that require no administrative privileges to install are also available at the same location. Finally M.A.X. Port can also be built by the end users using the source code found at the same location, using the following [guide](build.md).
 
-tbd.
+<br>
+*Microsoft Defender SmartScreen [\[1\]](#ref1) may block the application and its installer from running as the executables are not signed by a Microsoft-approved certifate authority. Microsoft's tool may determine whether a downloaded application or application installer is potentially malicious by:*
+- *Checking downloaded files against a list of reported malicious software sites and programs known to be unsafe. If it finds a match, Microsoft Defender SmartScreen shows a warning to let the user know that the site might be malicious.*
+- *Checking downloaded files against a list of files that are well known and downloaded frequently. If the file isn't on that list, Microsoft Defender SmartScreen shows a warning, advising caution.*
+<br><br>
+
+
+The guide assumes a Windows 10 operating system and will use as example NSIS installer name `max-port-0.7.0-Windows_x86_64.exe`. The original M.A.X. game data is assumed to be installed from the GOG.com catalogue to `c:\Program Files (x86)\GOG Galaxy\Games\MAX`.
+
+1. Download the corresponding installer from the [Download](download.md) page using your preferred Web browser application.
+2. The installer is not signed by a certificate authority. In case the Microsoft Defender SmartScreen tool opens a new window with title `Windows protected your PC`, left click on `More info` and then left click on `Run anyway` on that window. Alternatively right click on the installer's executable and on the General tab check the `Unblock` checkbox in the `Security` section.
+3. As the installer is not signed by a certificate authority the Publisher of the installer is identified by Microsoft as an Unknown source. In case the Microsoft Defender SmartScreen tool opens a new window with title `Do you want to allow this app from an unknown publisher to make changes to your device?`, left click on the `Yes` button to enable the installer to run.
+4. Follow the on screen guide of the installer tool. The first few screens are trivial. On the Welcome screen, left click on `Next` button. On the License Agreement screen read the agreement and left click on `I Agree` button in case the license terms are acceptable for you otherwise exit the installer by left clicking on the `Cancel` button.
+5. On the Choose Install Location screen configure where to install the application. This example will use the default location of the 64 bit version which is `C:\Program Files\M.A.X. Port`. Note that the install location of the application is independent from the location of the original M.A.X. game data. They can be the same locations, but could be different too. When ready, left click on `Next` button.
+6. On the Choose Start Menu Folder screen the location of shortcuts in the start menu can be selected or the feature can be disabled completely. In case the feature gets disabled a desktop icon is not created either. When ready, left click on `Next` button.
+7. On the Configure Game Settings screen select the location of the original M.A.X. game data. In this example the location is `c:\Program Files (x86)\GOG Galaxy\Games\MAX`. This folder holds original M.A.X. files like `MAX.RES` or `MAXINT.MVE`. The `Install` button is disabled as long as a valid M.A.X. game data folder is not configured. To proceed with the installation left click on `Install` button. There is one more configuration setting on this screen. If the checkbox is checked the game will store user data like saved game files, screenshots, log files and the `settings.ini` configuration file in the install location of the application which is `C:\Program Files\M.A.X. Port` in this example.<br><br>*It is recommended to leave the checkbox unchecked in which case user data is saved into the user specific roaming application data folder. Note that if there are existing saved game files in the original M.A.X. game data folder, then they are copied to the user specific roaming application data folder. Note that game settings are not transferred from the original M.A.X. game data folder. E.g. the campaign game progress is not taken over. Note that under Program Files and similar Windows folders the user may not have administrative privileges to write or modify files after installation without running M.A.X. Port with administrative privileges which is not recommended so in case the game is installed under Program Files or similar make sure to remove the check mark from the checkbox to save user data to the user specific application data folder. To find the user specific roaming application data folder location open the Windows Run dialog, keyboard shortcut is `Windows + R`, type in `"%appdata%"` and left click on `OK` button. An example location on Windows 10 would be `C:\Users\<user name>\AppData\Roaming\M.A.X. Port` where \<user name\> is the logged in operating system user's account name.*<br><br>
+8. After the installation process is complete left click on `Finish` button which closes the installer application.
+9. To Uninstall M.A.X. Port use the standard Windows procedure. E.g. on Windows 10 navigate to `Apps & Features` dialog, search for a list entry called `M.A.X. Port`, select the entry and then left click on `Uninstall` button. This will open the uninstaller application of M.A.X. Port. There you need to follow the on screen guide of the uninstaller application.
 
 **Linux step by step guide**
 
 ***Ubuntu 64 bit (x86-64, amd64) using Deb package***
 
-The guide will use as example Deb package name `max-port_0.7.0-1_x86-64.deb`. The original M.A.X. game data is assumed to be copied to `~/MAX` in previous steps.
+The guide will use as example Deb package name `max-port_0.7.0-1_x86-64.deb`. The original M.A.X. game data is assumed to be extracted from the GOG.com offline Windows installer to `~/MAX` in previous steps. The package is compliant to v0.8 of the XDG Base Directory Specification [\[2\]](#ref2).
 
 1. Download the corresponding package from the [Download](download.md) page using your preferred Web browser application.
 2. Open a terminal window. On some Linux distributions the keyboard shortcut is `Ctrl + Alt + T`.
 3. Navigate to the download location of the downloaded Deb package.
-4. In case a previous install of the `max-port` package is installed on the system, remove it using command `sudo apt remove -y max-port`.
+4. In case a previous version of the `max-port` package is installed on the system, remove it using command `sudo apt remove -y max-port`.
 5. Install the package with command `sudo apt install -y ./max-port_0.7.0-1_x86-64.deb`.
-6. The game can be started with the `max-port` command, or with the `M.A.X. Port` desktop icon.
-7. On the first run by the given user the game needs to be configured.
-tbd.
+6. After the installation process is complete the game can be started with the `max-port` command, or with the `M.A.X. Port` desktop icon.
+7. On the first run by the given user the game needs to be configured unless appropriate resources are found by the configuration tool. The configuration tool uses a terminal window and a text interface dialog. Use the `Arrow` keys to navigate in the menus and press the `Enter` key to proceed to the next configuration setting or the `Escape (ESC)` key to exit from the configuration tool.
+8. The first configuration dialog window prompts the user to select the language of the configuration interface. Note that this is not setting the game language itself or changing the active keyboard locale. Press `Enter` to proceed to the next dialog window after a selection is made.
+9. The next configuration dialog window asks whether to use "portable mode". In the case of portable mode, the game stores user data like saved game files, screenshots, log files and the `settings.ini` configuration file in the same location where the configuration script is located. In non portable mode the game stores user data at `$XDG_DATA_HOME/max-port`. Unless specified explicitly by the operating system or the user, the `$XDG_DATA_HOME` environment variable will be set to `$HOME/.local/share` so user data would be saved to `$HOME/.local/share/max-port` where `$HOME` is the currently logged in operating system user's home folder. It is strongly recommended to disable portable mode when the user installs the game via a package manager so select the `No` option and press `Enter` to proceed. Rationale: it makes no sense to install the game via a package manager following the XDG Base Directory Specification just to violate the same by instructing the game to put user data to a location that is designated read-only.
+10. The next configuration dialog window asks for the location of the original M.A.X. game data files. The given guide uses the example location `~/MAX`, but that notation will not be recognized by the configuration tool so the full path needs to be typed in like `/home/<user name>/MAX`. Note that if there are existing saved game files in the original M.A.X. game data folder, then they are copied to the previously configured user data location. Press `Enter` to conclude the configuration and to start the game. Note that if the provided path is not found or it does not contain mandatory original M.A.X. assets, the configuration tool will not leave the given configuration dialog window.
+11. To uninstall M.A.X. Port, follow the instructions from step 4. Note that the operating system's package manager will not remove user data. E.g. files stored in `$XDG_DATA_HOME/max-port`, in the case of a non portable mode configuration, will stay intact and should be removed manually by the user.
 
 ***Ubuntu 64 bit (x86-64, amd64) using Flatpak package***
 
-The guide will use as example Flatpak package name `max-port_0.7.0-1_x86-64.flatpak`. The original M.A.X. game data is assumed to be copied to `~/MAX` in previous steps.
+The guide will use as example Flatpak package name `max-port_0.7.0-1_x86-64.flatpak`. The original M.A.X. game data is assumed to be copied to `~/MAX` in previous steps. Make sure that the Flatpak tool is available on the system. There are guidelines on the Internet on how to install the tool.
 
 1. Download the corresponding package from the [Download](download.md) page using your preferred Web browser application.
 2. Open a terminal window. On some Linux distributions the keyboard shortcut is `Ctrl + Alt + T`.
 3. Navigate to the download location of the downloaded Flatpak package.
-tbd.
+4. Install the package with command `flatpak install max-port_0.7.0-1_x86-64.flatpak`. This will also install all required platform dependencies.
+5. After the installation process is complete the game can be started with the `flatpak run io.github.max-port` command, or with the `M.A.X. Port` desktop icon.
+6. On the first run the game needs to be configured unless appropriate resources are found by the configuration tool. The configuration tool uses a terminal window and a text interface dialog. Use the `Arrow` keys to navigate in the menus and press the `Enter` key to proceed to the next configuration setting or the `Escape (ESC)` key to exit from the configuration tool.
+7. The first configuration dialog window prompts the user to select the language of the configuration interface. Note that this is not setting the game language itself or changing the active keyboard locale. Press `Enter` to proceed to the next dialog window after a selection is made.
+8. The next configuration dialog window asks for the location of the original M.A.X. game data files that is expected to be at a well defined location within the environment that Flatpak grants access to for the game. E.g. the tool will show a viable path similar to `home/<user name>/.var/app/io.github.max-port/data/max-port/MAX` and the user is expected to copy the original M.A.X. game data files there. E.g. create the missing destination folders with command `mkdir -p ~/.var/app/io.github.max-port/data/max-port/MAX` and then copy the original M.A.X. game data with command `cp -r ~/MAX ~/.var/app/io.github.max-port/data/max-port/`. Press `Enter` to conclude the configuration and to start the game. Note that if the provided path is not found or it does not contain mandatory original M.A.X. assets, the configuration tool will not leave the given configuration dialog window.
+9. To uninstall M.A.X. Port, run command `flatpak remove io.github.max-port`. Note that Flatpak will not remove user data. The `io.github.max-port` folder inside `/home/<user data>/.var/app/` should be removed manually by the user.
 
 ***Arch Linux 64 bit (x86-64, amd64) using pkg.tar.zst binary package***
 
@@ -158,8 +182,92 @@ The guide will use as example binary package name `max-port_0.7.0-1_x86-64.pkg.t
 1. Download the corresponding package from the [Download](download.md) page using your preferred Web browser application.
 2. Open a terminal window.
 3. Navigate to the download location of the downloaded binary package.
-tbd.
+4. In case a previous version of the `max-port` package is installed on the system, remove it using command `sudo pacman -R max-port`.
+5. Install the package with command `sudo pacman -U ./max-port_0.7.0-1_x86-64.pkg.tar.zst`.
+6. After the installation process is complete the game can be started with the `max-port` command, or with the `M.A.X. Port` desktop icon under the Games category.
+7. On the first run by the given user the game needs to be configured unless appropriate resources are found by the configuration tool. The configuration tool uses a terminal window and a text interface dialog. Use the `Arrow` keys to navigate in the menus and press the `Enter` key to proceed to the next configuration setting or the `Escape (ESC)` key to exit from the configuration tool. On certain systems the desktop icon may not start the configuration tool in that case use the `max-port` command from the console window and configure the game from there. After the configuration is finished, the desktop icon should work.
+8. The first configuration dialog window prompts the user to select the language of the configuration interface. Note that this is not setting the game language itself or changing the active keyboard locale. Press `Enter` to proceed to the next dialog window after a selection is made.
+9. The next configuration dialog window asks whether to use "portable mode". In the case of portable mode, the game stores user data like saved game files, screenshots, log files and the `settings.ini` configuration file in the same location where the configuration script is located. In non portable mode the game stores user data at `$XDG_DATA_HOME/max-port`. Unless specified explicitly by the operating system or the user, the `$XDG_DATA_HOME` environment variable will be set to `$HOME/.local/share` so user data would be saved to `$HOME/.local/share/max-port` where `$HOME` is the currently logged in operating system user's home folder. It is strongly recommended to disable portable mode when the user installs the game via a package manager so select the `No` option and press `Enter` to proceed. Rationale: it makes no sense to install the game via a package manager following the XDG Base Directory Specification just to violate the same by instructing the game to put user data to a location that is designated read-only.
+10. The next configuration dialog window asks for the location of the original M.A.X. game data files. The given guide uses the example location `~/MAX`, but that notation will not be recognized by the configuration tool so the full path needs to be typed in like `/home/<user name>/MAX`. Note that if there are existing saved game files in the original M.A.X. game data folder, then they are copied to the previously configured user data location. Press `Enter` to conclude the configuration and to start the game. Note that if the provided path is not found or it does not contain mandatory original M.A.X. assets, the configuration tool will not leave the given configuration dialog window.
+11. To uninstall M.A.X. Port, follow the instructions from step 4. Note that the operating system's package manager will not remove user data. E.g. files stored in `$XDG_DATA_HOME/max-port`, in the case of a non portable mode configuration, will stay intact and should be removed manually by the user.
+
+### Configuration of M.A.X. Port
+
+Various game settings can only be configured via the `settings.ini` configuration file. The following section documents the ini parameters that are relevant for end users. Note that there are many parameters that should not be tampered with unless the user wants to break the game.
+
+Location of the `settings.ini` configuration file depends on the operating system and the mode of installation. In general the file can be found where "user data" are located based on the above guidelines. E.g. on Windows it may be located at `C:\Users\<user name>\AppData\Roaming\M.A.X. Port/settings.ini` or on Linux it may be found at `$XDG_DATA_HOME/max-port/settings.ini` or at `$HOME/.var/app/io.github.max-port/data/max-port/settings.ini`.
+
+It is important that the ini file uses Windows line delimiters (`\r\n` or `CR LF` ) and UTF-8 encoding, thus it must be edited by a text editor that properly recognises such text file properties.
+
+***[SETUP] section***
+
+**language** Set the game's language. The game data folder contains `lang_<language code>.ini` parameter files. E.g. to select `lang_english.ini` set the value of this ini parameter to `english`. It is very important to use the language specific original M.A.X. game data files. This means that to set `language=spanish`, the user must have the Spanish version of the original game (CD-ROM serial number CD-ICD-082-SP).
+
+Warning: if the configured language and the language of the MAX.RES file does not match, then initial Clan Upgrades will not work and other game anomalies could occur too.<br>
+Warning: the in-game help system, game tips, planet and mission descriptions do not encode text in UTF-8 format and will not render correctly for non US ASCII characters. Currently it is up to the end users to convert all the original resource files to UTF-8 encoded variants.
+Warning: certain game sub systems do not fully support UTF-8 encoded text rendering and text input does not support any non US ASCII characters.
+
+Recommended (default) value: `english`.
+
+**game_data** Full normalized path to original M.A.X. game data. The files at the configured location are handled as read-only. Normally the ini parameter is configured once during installation. If the parameter is incorrectly set the game will not work.
+
+***[GRAPHICS_SETTINGS] section***
+
+**display_index** Index of monitor screen. The index starts from 0.
+
+**screen_mode** Sets the display mode of the game.
+- 0 - Windowed
+- 1 - Full Screen
+- 2 - Borderless Full Screen (default)
+
+**scale_quality**
+- 0 - Nearest neighbor. Crisp, looks good on CRT monitors.
+- 1 - Linear interpolation. Smoother graphics, aliasing artifacts are not that visible (default).
+- 2 - Best. Smooth graphics, no aliasing artifacts.
+
+Note: SDL2 may override the configured parameter value.
+
+**window_width & window_height**
+
+| Width | Height | Aspect ratio | Tactical map size | Notes |
+|-------|--------|---------|---------|---------|
+| 640 | 480 | 4:3 (1.33:1) | 7 x 7 tiles | Near pixel perfect original M.A.X. screen resolution. Text is rendered using original expected font size. |
+| 853 | 480 | 16:9 (1.78:1)| 10 x 7 tiles | Near pixel perfect original M.A.X. screen resolution in widescreen mode. Text is rendered using original expected font size. |
+| 768 | 480 | 16:10 (1.6:1) | 9 x 7 tiles | Near pixel perfect original M.A.X. screen resolution in widescreen mode. Text is rendered using original expected font size. |
+| 1440 | 1080 | 4:3 (1.33:1) | 16 x 15 tiles | Full HD standard mode. |
+| 1920 | 1080 | 16:9 (1.78:1) | 23 x 15 tiles | Full HD widescreen mode. |
+
+Note: if automatic aspect ratio correction is enabled, then one of the configured dimensions may be overridden by the game. E.g. on a monitor with 16:9 aspect ratio the configuration of 640 x 480 (AR 4:3) resolution will be overridden to match the 16:9 aspect ratio. The auto aspect ratio correction feature can be disabled.<br>
+Note: if the display mode is windowed, then the application window size is set to the configured value. If it is full screen, then the monitor's resolution is attempted to be changed to the configured value. In borderless mode the game's internal resolution is set to the configured value and SDL2 scales the internal resolution to match the monitor's configured resolution using a scaling method requested  by the scale quality setting.
+Warning: certain uncommon resolutions may crash the game.
+
+Recommended (default) value: `640 x 480`.
+
+**disable_ar_correction**
+- 0 - Auto aspect ratio correction is enabled (default).
+- 1 - Auto aspect ratio correction is disabled.
+
+**dialog_center_mode**
+- 0 - Center in-game popup windows to middle of tactical map.
+- 1 - Center in-game popup windows to middle of game screen.
+
+***[NETWORK_SETTINGS] section***
+
+M.A.X. Port implements an input-synchronous, lockstep peer-to-peer networking model. One player takes the application protocol layer role of a game host while up to three other players become clients. The Host as well as the Clients need to set the same `host_address` and `host_port` parameter value. It is up to the users to figure out how their networking hardware and operating system works, but the game supports UPNP NAT to aid the users.
+
+Warning: The implemented networking model is not robust against hugh network latencies.<br>
+Warning: Network play is not thoroughly tested.
+
+**transport** Transport protocol layer implementation of the networking module. Only supported value is `udp_default`.
+
+**host_address** IP address of the user that is hosting a network game. The default value is a dummy value, it is set to `127.0.0.1` which is the localhost address that clients will not be able to connect to. The users need to set this to the public IP address of the host computer.
+
+**host_port** Network port number of the host. If the transport protocol layer uses UDP protocol, then this is a UDP port. The default value is 31554 (UDP port).
 
 ### Compatibility with Interactive Demo versions of M.A.X.
 
 Interplay published several versions of the M.A.X. demo. Version 1.03a of the demo is **marginally** compatible with M.A.X. Port. Missing resources like audio files, unit sprites or images will simply not play or render.
+
+## References
+<a name="ref1"></a>\[1\] [Microsoft Defender SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen/)<br>
+<a name="ref2"></a>\[2\] [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-0.8.html)<br>
