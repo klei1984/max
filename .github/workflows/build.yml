@@ -176,6 +176,7 @@ jobs:
             cpack --config CPackConfig.cmake
             cpack --config CPackSourceConfig.cmake
             mkdir -p Artifacts/WindowsXP-x86
+            cp *-win32.exe Artifacts/WindowsXP-x86/
             cp *-win32.7z Artifacts/WindowsXP-x86/
             cp *-Source.7z Artifacts/WindowsXP-x86/
             7z a -mx9 -bd max-port-win32-symbols.7z max.debug
