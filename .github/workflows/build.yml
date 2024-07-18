@@ -133,6 +133,59 @@ jobs:
             name: ${{github.job}}
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
 
+   WindowsXP-x64:
+      name: Windows XP x64
+      runs-on: ubuntu-latest
+      container: ubuntu:23.10
+
+      steps:
+      -  name: Set build configuration
+         id: build_configuration
+         run: |
+            BUILD_TYPE=${{github.event.inputs.build_type}}
+            echo "build_type=${BUILD_TYPE:-"Debug"}" >> $GITHUB_OUTPUT
+
+      -  name: Setup Dependencies
+         run: |
+            apt update -y && apt install -y sudo
+            sudo apt-get install -y ca-certificates gpg wget
+            test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+            wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+            echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+            sudo apt-get update -y
+            test -f /usr/share/doc/kitware-archive-keyring/copyright ||
+            sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
+            sudo apt-get install kitware-archive-keyring
+            sudo apt-get install -y file build-essential binutils-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-x86-64 ninja-build cmake nsis gettext p7zip-full libsdl2-dev
+
+      -  name: Checkout
+         uses: actions/checkout@v4
+
+      -  name: Build
+         run: |-
+            mkdir ${{steps.build_configuration.outputs.build_type}}
+            cd ${{steps.build_configuration.outputs.build_type}}
+            cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-cross-mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE=${{steps.build_configuration.outputs.build_type}} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="c:/Program Files/M.A.X. Port" ..
+            cmake --build . --parallel
+
+      -  name: Package
+         run: |
+            cd ${{steps.build_configuration.outputs.build_type}}
+            cpack --config CPackConfig.cmake
+            cpack --config CPackSourceConfig.cmake
+            mkdir -p Artifacts/WindowsXP-x64
+            cp *-win64.exe Artifacts/WindowsXP-x64/
+            cp *-win64.7z Artifacts/WindowsXP-x64/
+            cp *-Source.7z Artifacts/WindowsXP-x64/
+            7z a -mx9 -bd max-port-win64-symbols.7z max.debug
+            cp max-port-win64-symbols.7z Artifacts/WindowsXP-x64/
+
+      -  name: Upload Artifacts
+         uses: actions/upload-artifact@v4
+         with:
+            name: ${{github.job}}
+            path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
+
    WindowsXP-x86:
       name: Windows XP x86
       runs-on: ubuntu-latest
@@ -158,7 +211,7 @@ jobs:
             test -f /usr/share/doc/kitware-archive-keyring/copyright ||
             sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
             sudo apt-get install kitware-archive-keyring
-            sudo apt-get install -y file build-essential binutils-mingw-w64-i686 g++-mingw-w64-i686 gcc-mingw-w64-i686 ninja-build:i386 cmake nsis gettext p7zip-full
+            sudo apt-get install -y file build-essential binutils-mingw-w64-i686 g++-mingw-w64-i686 gcc-mingw-w64-i686 ninja-build:i386 cmake nsis gettext p7zip-full libsdl2-dev:i386
 
       -  name: Checkout
          uses: actions/checkout@v4
@@ -167,7 +220,7 @@ jobs:
          run: |-
             mkdir ${{steps.build_configuration.outputs.build_type}}
             cd ${{steps.build_configuration.outputs.build_type}}
-            cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-cross-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=${{steps.build_configuration.outputs.build_type}} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
+            cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-cross-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=${{steps.build_configuration.outputs.build_type}} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="c:/Program Files/M.A.X. Port" ..
             cmake --build . --parallel
 
       -  name: Package
@@ -210,7 +263,7 @@ jobs:
 
       -  name: Setup Dependencies
          run: |
-            pacman -S --noconfirm git mingw-w64-x86_64-toolchain p7zip mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-nsis mingw-w64-x86_64-gettext make
+            pacman -S --noconfirm git mingw-w64-x86_64-toolchain p7zip mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-nsis mingw-w64-x86_64-gettext make mingw-w64-x86_64-SDL2
 
       -  name: Checkout
          uses: actions/checkout@v4
@@ -219,7 +272,7 @@ jobs:
          run: |-
             mkdir ${{steps.build_configuration.outputs.build_type}}
             cd ${{steps.build_configuration.outputs.build_type}}
-            cmake -G "MSYS Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE=${{steps.build_configuration.outputs.build_type}} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
+            cmake -G "MSYS Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE=${{steps.build_configuration.outputs.build_type}} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="c:/Program Files/M.A.X. Port" ..
             cmake --build . --parallel
 
       -  name: Test
@@ -267,7 +320,7 @@ jobs:
 
       -  name: Setup Dependencies
          run: |
-            pacman -S --noconfirm git mingw-w64-i686-toolchain p7zip mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-nsis mingw-w64-i686-gettext make
+            pacman -S --noconfirm git mingw-w64-i686-toolchain p7zip mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-nsis mingw-w64-i686-gettext make mingw-w64-i686-SDL2
 
       -  name: Checkout
          uses: actions/checkout@v4
@@ -276,7 +329,7 @@ jobs:
          run: |-
             mkdir ${{steps.build_configuration.outputs.build_type}}
             cd ${{steps.build_configuration.outputs.build_type}}
-            cmake -G "MSYS Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=${{steps.build_configuration.outputs.build_type}} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ..
+            cmake -G "MSYS Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-mingw-w64-i686.cmake -DCMAKE_BUILD_TYPE=${{steps.build_configuration.outputs.build_type}} -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="c:/Program Files (x86)/M.A.X. Port" ..
             cmake --build . --parallel
 
       -  name: Test

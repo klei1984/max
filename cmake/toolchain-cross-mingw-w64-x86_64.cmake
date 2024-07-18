@@ -6,7 +6,7 @@ set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(PREFIX /usr)
-set(TOOLSET "i686-w64-mingw32")
+set(TOOLSET "x86_64-w64-mingw32")
 
 set(MAX_BUILD_TESTS OFF)
 
@@ -26,14 +26,10 @@ set(CONFIGURE_EXTRA_ARGS
 	--build=x86_64-linux
 	CC=${CMAKE_C_COMPILER}
 	CXX=${CMAKE_CXX_COMPILER}
-	CFLAGS=-m32
-	CXXFLAGS=-m32
-	LDFLAGS=-m32
 )
 
 add_compile_options(
 	-DCROSS
-	-m32
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>
 	-Wall
 	-Wno-switch
