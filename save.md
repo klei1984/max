@@ -130,7 +130,6 @@ struct __attribute__((packed)) SaveFormatHeader
 | 1997-03-26 | M.A.X. 1 Retail (patch)      | V1.04       | **V70** |
 | 1998-01-16 | M.A.X. 2 Alpha Demo          | V.091 Alpha | V101 |
 | 1998-05-26 | M.A.X. 2 BETA Demo           | V.161 Beta  | V130 |
-| 1998-05-26 | M.A.X. 2 BETA Demo           | V.161 Beta  | V130 |
 | 1998-06-17 | M.A.X. 2 Retail (CD)         | V1.0        | V135 |
 | 1998-06-19 | M.A.X. 2 Retail (CD)         | V1.1        | V137 |
 | 1998-06-29 | M.A.X. 2 Retail (CD)         | V1.2        | V137 |

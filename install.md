@@ -204,7 +204,7 @@ It is important that the ini file uses Windows line delimiters (`\r\n` or `CR LF
 **language** Set the game's language. The game data folder contains `lang_<language code>.ini` parameter files. E.g. to select `lang_english.ini` set the value of this ini parameter to `english`. It is very important to use the language specific original M.A.X. game data files. This means that to set `language=spanish`, the user must have the Spanish version of the original game (CD-ROM serial number CD-ICD-082-SP).
 
 Warning: if the configured language and the language of the MAX.RES file does not match, then initial Clan Upgrades will not work and other game anomalies could occur too.<br>
-Warning: the in-game help system, game tips, planet and mission descriptions do not encode text in UTF-8 format and will not render correctly for non US ASCII characters. Currently it is up to the end users to convert all the original resource files to UTF-8 encoded variants.
+Warning: the in-game help system, game tips, planet and mission descriptions do not encode text in UTF-8 format and will not render correctly for non US ASCII characters. Currently it is up to the end users to convert all the original resource files to UTF-8 encoded variants.<br>
 Warning: certain game sub systems do not fully support UTF-8 encoded text rendering and text input does not support any non US ASCII characters.
 
 Recommended (default) value: `english`.
