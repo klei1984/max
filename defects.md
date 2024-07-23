@@ -495,13 +495,14 @@ The proposed defect fix will not instantiate a ground path if the determinted pa
     <source src="{{ site.baseurl }}/assets/clips/defect_135.mp4" type="video/mp4">
     </video>
 
-136. It is possible to obtain near infinite speed points for air units moving in groups which could be used as an exploit.
+136. **[Fixed]** It is possible to obtain near infinite speed points for air units moving in groups which could be used as an exploit.
 <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_136.mp4" type="video/mp4">
     </video>
 <br>
-The defect is closely related to the group command and to partial speed points stored for later use to compensate for earlier non-integer movement costs. Even though the unit statistics screen indicates that there are always maximum speed points left after the issue occurs, in reality the speed or group_speed member of the UnitInfo object underflows to -1 which is stored as 0xFF in the `unsigned char` containers. So in fact the player that exploits the issue gains additional 255+ speed points to move the affected units around. The issue is potentially reproducible using ground and sea units as well but there it is much more difficult due to the more sophisticated movement cost calculations.
+Even though the unit statistics screen indicates that there are always maximum speed points left after the issue occurs, in reality the `speed` member of the `UnitInfo` class object underflows to -1 which is stored as 0xFF in the `unsigned char` containers. So in fact the player that exploits the issue gains additional 255 speed points to move the affected units around.<br>
+The defect is related to group movement of air units and the way euclidean distance is used by air units to move in a straight line ignoring grid cell boundaries. There is a derived member function (cseg01:000B8CCD) of the AirPath class that performs unit movement in a loop until the euclidean distance from destination becomes zero or till group movement speed points run out. Problem is that in corner cases a unit's speed points could become 0 while the group speed is still corresponding to a none zero speed value as another air path related function (cseg01:000B9138) could determine that the target grid distance or movement cost could be bigger than the speed points remaining. In this case the algorithm saves the fraction of speed points left and sets the unit speed to 0 but does not check whether the unit was moving in a group leaving the group speed limit unchanged so the earlier class member function underflows to -1 speed points as it is working on the basis of group speed instead of speed. The proposed defect fix is to change the group speed to the value that corresponds to the speed value of 0 inside the latter function.
 
 137. Most hand crafted missions store incorrect unit counter values in team info structures. This causes summary reports at the end of missions to show incorrect unit statistics. For example campaign mission 3 unit counters indicate that at some point the designers gave the red team 9 armoured personnel carriers and 17 infiltrators before they changed their minds.
 
