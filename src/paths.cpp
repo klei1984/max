@@ -44,8 +44,8 @@ static int32_t Paths_GetAngle(int32_t x, int32_t y);
 static void Paths_DrawMissile(UnitInfo* unit, int32_t position_x, int32_t position_y);
 static bool Paths_LoadUnit(UnitInfo* unit);
 static void Paths_FinishMove(UnitInfo* unit);
-static void Paths_TakeStep(UnitInfo* unit, int32_t cost, int32_t param);
-static bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_diagonal_step);
+static void Paths_TakeStep(UnitInfo* unit, int32_t cost);
+static bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, bool is_diagonal_step);
 
 static uint16_t Paths_AirPath_TypeIndex;
 static RegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
@@ -272,11 +272,11 @@ bool AirPath::Execute(UnitInfo* unit) {
         if (unit->flags & MOBILE_AIR_UNIT) {
             int32_t speed = unit->speed;
 
-            if (unit->group_speed) {
+            if (unit->group_speed > 0) {
                 speed = unit->group_speed - 1;
             }
 
-            if (!speed || !unit->engine) {
+            if (speed == 0 || unit->engine == 0) {
                 unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
                 unit->MoveFinished();
 
@@ -356,7 +356,7 @@ bool AirPath::Execute(UnitInfo* unit) {
                 unit->FollowUnit();
 
                 if ((length % unit->max_velocity) == 0) {
-                    Paths_TakeStep(unit, 1, 2);
+                    Paths_TakeStep(unit, 1);
 
                     if (GameManager_SelectedUnit == unit) {
                         GameManager_UpdateInfoDisplay(unit);
@@ -715,7 +715,7 @@ bool GroundPath::Execute(UnitInfo* unit) {
             is_diagonal_step = false;
         }
 
-        if (Paths_CalculateStep(unit, cost, 2, is_diagonal_step)) {
+        if (Paths_CalculateStep(unit, cost, is_diagonal_step)) {
             if ((unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                 int32_t image_index;
 
@@ -1146,6 +1146,10 @@ AirPath* Paths_GetAirPath(UnitInfo* unit) {
             if (steps_distance == 0 || distance == 0) {
                 unit->speed = 0;
 
+                if (unit->group_speed > 1) {
+                    unit->group_speed = 1;
+                }
+
                 distance_x = end_x - grid_x;
                 distance_y = end_y - grid_y;
 
@@ -1400,13 +1404,10 @@ bool Paths_LoadUnit(UnitInfo* unit) {
 }
 
 void Paths_FinishMove(UnitInfo* unit) {
-    int32_t grid_x;
-    int32_t grid_y;
+    int32_t grid_x = unit->grid_x;
+    int32_t grid_y = unit->grid_y;
 
     GameManager_RenderMinimapDisplay = true;
-
-    grid_x = unit->grid_x;
-    grid_y = unit->grid_y;
 
     if (unit->flags & MISSILE_UNIT) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
@@ -1451,23 +1452,15 @@ void Paths_FinishMove(UnitInfo* unit) {
     }
 }
 
-void Paths_TakeStep(UnitInfo* unit, int32_t cost, int32_t param) {
-    int32_t group_speed;
-    UnitValues* base_values;
-
+void Paths_TakeStep(UnitInfo* unit, int32_t cost) {
     if (GameManager_RealTime) {
-        param = 0;
         cost = 0;
     }
-
-    param = 0;
-
-    SDL_assert(unit->speed >= cost);
 
     unit->speed -= cost;
 
     if (unit->group_speed) {
-        group_speed = unit->group_speed - cost;
+        int32_t group_speed = unit->group_speed - cost;
 
         if (group_speed < 1) {
             group_speed = 1;
@@ -1476,12 +1469,11 @@ void Paths_TakeStep(UnitInfo* unit, int32_t cost, int32_t param) {
         unit->group_speed = group_speed;
     }
 
-    base_values = unit->GetBaseValues();
+    auto base_values = unit->GetBaseValues();
 
     if (!base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-        int32_t shots;
-
-        shots = (base_values->GetAttribute(ATTRIB_ROUNDS) * unit->speed) / base_values->GetAttribute(ATTRIB_SPEED);
+        int32_t shots =
+            (base_values->GetAttribute(ATTRIB_ROUNDS) * unit->speed) / base_values->GetAttribute(ATTRIB_SPEED);
 
         if (shots < unit->shots) {
             unit->shots = shots;
@@ -1489,7 +1481,7 @@ void Paths_TakeStep(UnitInfo* unit, int32_t cost, int32_t param) {
     }
 }
 
-bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_diagonal_step) {
+bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, bool is_diagonal_step) {
     int32_t max_velocity;
     int32_t normalized_cost;
     bool result;
@@ -1517,10 +1509,7 @@ bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_di
 
     if (is_diagonal_step) {
         cost = (cost * 3) / 2;
-        param = (param * 3) / 2;
     }
-
-    param = 0;
 
     if (unit->move_fraction > cost) {
         unit->move_fraction = cost;
@@ -1531,8 +1520,6 @@ bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_di
     normalized_cost = (cost + 3) / 4;
 
     if (normalized_cost > unit->speed) {
-        SDL_assert((sizeof(unit->move_fraction) << 8) > (unit->speed * 4));
-
         unit->move_fraction = unit->speed * 4;
         unit->speed = 0;
 
@@ -1543,7 +1530,7 @@ bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, int32_t param, bool is_di
         result = false;
 
     } else {
-        Paths_TakeStep(unit, normalized_cost, param);
+        Paths_TakeStep(unit, normalized_cost);
 
         unit->move_fraction = (normalized_cost * 4) - cost;
 

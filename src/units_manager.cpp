@@ -131,7 +131,7 @@ static void UnitsManager_PowerDownUnit(UnitInfo* unit);
 static void UnitsManager_Animate(UnitInfo* unit);
 static void UnitsManager_DeployMasterBuilder(UnitInfo* unit);
 static bool UnitsManager_PursueEnemy(UnitInfo* unit);
-static bool UnitsManager_UpdateAttackMoves(UnitInfo* unit);
+static bool UnitsManager_InitUnitMove(UnitInfo* unit);
 static void UnitsManager_Store(UnitInfo* unit);
 static bool UnitsManager_AimAtTarget(UnitInfo* unit);
 static void UnitsManager_BuildClearing(UnitInfo* unit, bool mode);
@@ -154,7 +154,7 @@ static bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2);
 static bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2);
 static bool UnitsManager_IsReactionPending(SmartList<UnitInfo>* units, UnitInfo* unit);
 static AirPath* UnitsManager_GetMissilePath(UnitInfo* unit);
-static void UnitsManager_UpdateAttackPaths(UnitInfo* unit);
+static void UnitsManager_InitUnitPath(UnitInfo* unit);
 static bool UnitsManager_IsAttackScheduled();
 static Point UnitsManager_GetAttackPosition(UnitInfo* unit1, UnitInfo* unit2);
 static bool UnitsManager_CheckDelayedReactions(uint16_t team);
@@ -4391,7 +4391,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
         } break;
 
         case ORDER_STATE_IN_PROGRESS: {
-            if (unit->ExpectAttack()) {
+            if (unit->ExecuteMove()) {
                 Ai_SetTasksPendingFlag("Moving");
                 unit->Move();
             }
@@ -4416,8 +4416,8 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
                 }
             }
 
-            if (UnitsManager_UpdateAttackMoves(unit)) {
-                if (unit->ExpectAttack()) {
+            if (UnitsManager_InitUnitMove(unit)) {
+                if (unit->ExecuteMove()) {
                     Ai_SetTasksPendingFlag("Moving");
                     unit->Move();
                 }
@@ -4538,7 +4538,7 @@ void UnitsManager_ProcessOrderBuild(UnitInfo* unit) {
         } break;
 
         case ORDER_STATE_IN_PROGRESS: {
-            if (unit->ExpectAttack()) {
+            if (unit->ExecuteMove()) {
                 Ai_SetTasksPendingFlag("Moving");
 
                 unit->Move();
@@ -5449,9 +5449,9 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
     return result;
 }
 
-bool UnitsManager_UpdateAttackMoves(UnitInfo* unit) {
+bool UnitsManager_InitUnitMove(UnitInfo* unit) {
     unit->RefreshScreen();
-    UnitsManager_UpdateAttackPaths(unit);
+    UnitsManager_InitUnitPath(unit);
 
     if (unit->GetOrderState() == ORDER_STATE_INIT) {
         unit->FollowUnit();
@@ -6643,7 +6643,7 @@ AirPath* UnitsManager_GetMissilePath(UnitInfo* unit) {
     return result;
 }
 
-void UnitsManager_UpdateAttackPaths(UnitInfo* unit) {
+void UnitsManager_InitUnitPath(UnitInfo* unit) {
     unit->path = nullptr;
 
     if (unit->flags & MISSILE_UNIT) {

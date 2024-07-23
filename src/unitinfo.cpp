@@ -2234,7 +2234,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
     }
 }
 
-bool UnitInfo::ExpectAttack() {
+bool UnitInfo::ExecuteMove() {
     bool result;
 
     RefreshScreen();
@@ -2483,7 +2483,7 @@ void UnitInfo::Move() {
         }
 
         if (state == ORDER_STATE_IN_PROGRESS && !team_visibility) {
-            ExpectAttack();
+            ExecuteMove();
         }
 
     } while (state == ORDER_STATE_IN_TRANSITION && !team_visibility);

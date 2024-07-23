@@ -268,7 +268,7 @@ public:
     void SetPosition(int32_t grid_x, int32_t grid_y, bool skip_map_status_update);
     void RemoveDelayedTasks();
     void AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t direction);
-    bool ExpectAttack();
+    bool ExecuteMove();
     void ClearBuildListAndPath();
     void Move();
     void AllocateUnitList();
