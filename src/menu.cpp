@@ -62,21 +62,18 @@ struct MenuButton {
 #define ATTRACT_MODE_TIMEOUT (60000)
 
 #define MENU_BUTTON_DEF(is_big, ulx, uly, label, r_value, sfx) \
-    { nullptr, (is_big), (ulx), (uly), (label), (r_value), (sfx) }
+    {nullptr, (is_big), (ulx), (uly), (label), (r_value), (sfx)}
 
 struct CreditsLine {
     uint16_t color;
     const char* text;
 };
 
-#define CREDITS_SEPARATOR \
-    { (0x00), ("") }
+#define CREDITS_SEPARATOR {(0x00), ("")}
 
-#define CREDITS_TITLE(text) \
-    { (0xFF), (text) }
+#define CREDITS_TITLE(text) {(0xFF), (text)}
 
-#define CREDITS_TEXT(text) \
-    { (0x04), (text) }
+#define CREDITS_TEXT(text) {(0x04), (text)}
 
 static void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode);
 static void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_turn, bool mode);
@@ -1617,6 +1614,8 @@ void menu_credits_menu_loop() {
     uint8_t* image_buffer_position;
     uint8_t* window_buffer_position;
     uint32_t time_stamp;
+    constexpr int32_t scroll_rate{9};
+    uint32_t scroll_speed{100};
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     Cursor_SetCursor(CURSOR_HIDDEN);
@@ -1674,9 +1673,27 @@ void menu_credits_menu_loop() {
         win_draw_rect(window->id, &bounds);
 
         time_stamp = timer_get();
-        while (timer_elapsed_time(time_stamp) < TIMER_FPS_TO_MS(100)) {
-            if (get_input() != -1) {
-                play = 0;
+        while (timer_elapsed_time(time_stamp) < TIMER_FPS_TO_MS(scroll_speed)) {
+            auto key = get_input();
+
+            if (key != -1) {
+                switch (key) {
+                    case GNW_KB_KEY_KP_MINUS: {
+                        if (scroll_speed >= scroll_rate) {
+                            scroll_speed -= scroll_rate;
+                        }
+                    } break;
+
+                    case GNW_KB_KEY_KP_PLUS: {
+                        if (scroll_speed < 1000) {
+                            scroll_speed += scroll_rate;
+                        }
+                    } break;
+
+                    default: {
+                        play = 0;
+                    } break;
+                }
             }
         }
 
