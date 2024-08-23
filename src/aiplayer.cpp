@@ -584,19 +584,9 @@ void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point pos
     }
 }
 
-void AiPlayer::InvalidateThreatMap(UnitInfo* unit) {
-    for (auto& map : AiPlayer_ThreatMaps) {
-        if (map.team == unit->team && map.risk_level == ThreatMap::GetRiskLevel(unit)) {
-            map.SetRiskLevel(0);
-        }
-    }
-}
-
 void AiPlayer::InvalidateThreatMaps() {
     for (auto& map : AiPlayer_ThreatMaps) {
-        if (map.team == player_team) {
-            map.SetRiskLevel(0);
-        }
+        map.SetRiskLevel(0);
     }
 }
 
