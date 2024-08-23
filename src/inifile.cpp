@@ -118,6 +118,7 @@ static const IniKey ini_keys_table[] = {
     {"alt_movie_res", "0", INI_NUMERIC},
     {"language", "english", INI_STRING},
     {"game_data", "", INI_STRING},
+    {"cheating_computer", "3", INI_NUMERIC},
 
     /// Keep original layout for v1.04 save game compatibility
     {"OPTIONS", nullptr, INI_SECTION},

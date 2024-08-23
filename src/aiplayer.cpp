@@ -818,7 +818,8 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         }
 
         if (is_for_attacking) {
-            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_MASTER) {
+            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_MASTER &&
+                ini_get_setting(INI_CHEATING_COMPUTER) >= COMPUTER_CHEATING_LEVEL_SHAMELESS) {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
@@ -1731,10 +1732,10 @@ void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orde
 SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
     SmartObjectArray<BuildOrder> build_orders;
 
-    if (target_team < PLAYER_TEAM_RED) {
+    if (!!IsTargetTeamDefined()) {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (team != player_team) {
-                if (target_team < PLAYER_TEAM_RED ||
+                if (!IsTargetTeamDefined() ||
                     (UnitsManager_TeamInfo[team].team_points > UnitsManager_TeamInfo[target_team].team_points &&
                      (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                       UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED))) {
@@ -1744,7 +1745,7 @@ SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
         }
     }
 
-    if (target_team >= PLAYER_TEAM_RED) {
+    if (IsTargetTeamDefined()) {
         if (mode) {
             switch (strategy) {
                 case AI_STRATEGY_MISSILES:
@@ -2242,28 +2243,24 @@ void AiPlayer::AddMilitaryUnit(UnitInfo* unit) {
     }
 }
 
-void AiPlayer::BeginTurn() {
-    if (UnitsManager_TeamInfo[player_team].team_type == TEAM_TYPE_COMPUTER) {
-        InvalidateThreatMaps();
+bool AiPlayer::IsTargetTeamDefined() const { return (target_team >= PLAYER_TEAM_RED && target_team < PLAYER_TEAM_MAX); }
 
-        field_16 = 0;
+bool AiPlayer::IsTargetTeam(const uint8_t team) const {
+    bool result;
 
-        transport_orders.Clear();
+    if (ini_get_setting(INI_CHEATING_COMPUTER) >= COMPUTER_CHEATING_LEVEL_INSUFFERABLE) {
+        result = (team == target_team);
 
-        if (GameManager_PlayMode == PLAY_MODE_TURN_BASED) {
-            const char* team_colors[PLAYER_TEAM_MAX - 1] = {_(ba19), _(d486), _(ec7d), _(0d5a)};
-            char message[80];
+    } else {
+        result = (team != player_team) && (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) &&
+                 (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED);
+    }
 
-            sprintf(message, _(2ab8), team_colors[player_team]);
+    return result;
+}
 
-            MessageManager_DrawMessage(message, 0, 0);
-        }
-
-        Point position = GetTeamClusterCoordinates(player_team);
-
-        DetermineTargetLocation(position);
-        UpdatePriorityTasks();
-
+void AiPlayer::DetermineTargetTeam() {
+    if (ini_get_setting(INI_CHEATING_COMPUTER) >= COMPUTER_CHEATING_LEVEL_SHAMELESS) {
         int32_t player_team_points = UnitsManager_TeamInfo[player_team].team_points;
         int32_t team_building_counts[PLAYER_TEAM_MAX];
         int32_t target_team_points;
@@ -2276,7 +2273,7 @@ void AiPlayer::BeginTurn() {
             ++team_building_counts[(*it).team];
         }
 
-        if (target_team >= PLAYER_TEAM_RED) {
+        if (IsTargetTeamDefined()) {
             target_team_points = UnitsManager_TeamInfo[target_team].team_points;
 
             if (UnitsManager_TeamInfo[target_team].team_type != TEAM_TYPE_COMPUTER) {
@@ -2303,7 +2300,7 @@ void AiPlayer::BeginTurn() {
                     }
                 }
 
-                if (target_team < PLAYER_TEAM_RED || target_team_points < enemy_team_points ||
+                if (!IsTargetTeamDefined() || target_team_points < enemy_team_points ||
                     (target_team_points == enemy_team_points &&
                      team_building_counts[target_team] < team_building_counts[team])) {
                     target_team = team;
@@ -2311,6 +2308,45 @@ void AiPlayer::BeginTurn() {
                 }
             }
         }
+
+    } else {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (team != player_team) {
+                if (!IsTargetTeamDefined() ||
+                    (UnitsManager_TeamInfo[team].team_points > UnitsManager_TeamInfo[target_team].team_points &&
+                     (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                      UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED))) {
+                    target_team = team;
+                }
+            }
+        }
+    }
+}
+
+void AiPlayer::BeginTurn() {
+    if (UnitsManager_TeamInfo[player_team].team_type == TEAM_TYPE_COMPUTER) {
+        InvalidateThreatMaps();
+
+        field_16 = 0;
+
+        transport_orders.Clear();
+
+        if (GameManager_PlayMode == PLAY_MODE_TURN_BASED) {
+            const char* team_colors[PLAYER_TEAM_MAX - 1] = {_(ba19), _(d486), _(ec7d), _(0d5a)};
+            char message[80];
+
+            sprintf(message, _(2ab8), team_colors[player_team]);
+
+            MessageManager_DrawMessage(message, 0, 0);
+        }
+
+        Point position = GetTeamClusterCoordinates(player_team);
+
+        DetermineTargetLocation(position);
+
+        UpdatePriorityTasks();
+
+        DetermineTargetTeam();
 
         if (need_init) {
             task_1 = new (std::nothrow) TaskCheckAssaults(player_team);
@@ -2484,7 +2520,8 @@ void AiPlayer::BeginTurn() {
                 }
             }
 
-            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
+            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT &&
+                ini_get_setting(INI_CHEATING_COMPUTER) >= COMPUTER_CHEATING_LEVEL_TOLERABLE) {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if ((*it).team != player_team &&
@@ -2495,7 +2532,7 @@ void AiPlayer::BeginTurn() {
             }
 
             for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
-                if (IsKeyFacility((*it).GetUnit()->GetUnitType()) && (*it).GetUnit()->team == target_team) {
+                if (IsKeyFacility((*it).GetUnit()->GetUnitType()) && IsTargetTeam((*it).GetUnit()->team)) {
                     DetermineAttack(&*it, 0x1F00);
                 }
             }
@@ -2548,7 +2585,7 @@ void AiPlayer::BeginTurn() {
                 if (AiAttack_IsWithinReach(target, player_team, teams)) {
                     DetermineAttack(&*it, 0x1000);
 
-                } else if (target->team == target_team || target->team == PLAYER_TEAM_ALIEN) {
+                } else if (IsTargetTeam(target->team) || target->team == PLAYER_TEAM_ALIEN) {
                     if ((target->GetUnitType() == CONSTRCT && target->GetOrder() == ORDER_BUILD) ||
                         IsKeyFacility(target->GetUnitType()) ||
                         (target->team == PLAYER_TEAM_ALIEN &&
@@ -4041,11 +4078,11 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
             }
 
             if ((IsKeyFacility(unit->GetUnitType()) || (!is_key_facility && unit->GetUnitType() == CONSTRCT)) &&
-                unit->team == target_team) {
+                IsTargetTeam(unit->team)) {
                 DetermineAttack(&*spotted_unit2, 0x1F00);
 
             } else if (!is_key_facility && unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0) {
-                if (unit->team == target_team) {
+                if (IsTargetTeam(unit->team)) {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                          it != UnitsManager_StationaryUnits.End(); ++it) {
                         if ((*it).team == unit->team && IsKeyFacility((*it).GetUnitType()) &&

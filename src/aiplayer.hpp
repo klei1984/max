@@ -123,7 +123,7 @@ class AiPlayer {
     bool IsDemoMode();
     void RegisterIdleUnits();
     static int32_t GetTotalProjectedDamage(UnitInfo* unit, int32_t caution_level, uint16_t team,
-                                       SmartList<UnitInfo>* units);
+                                           SmartList<UnitInfo>* units);
     static void UpdateMap(int16_t** map, Point position, int32_t range, int32_t damage_potential, bool normalize);
     static void UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point position, int32_t range, int32_t attack,
                                  int32_t shots, int32_t& ammo, bool normalize);
@@ -170,6 +170,9 @@ public:
     Task* FindManager(Point site);
     SmartList<SpottedUnit>& GetSpottedUnits();
     void AddMilitaryUnit(UnitInfo* unit);
+    bool IsTargetTeamDefined() const;
+    bool IsTargetTeam(const uint8_t team) const;
+    void DetermineTargetTeam();
     void BeginTurn();
     void GuessEnemyAttackDirections();
     void PlanMinefields();

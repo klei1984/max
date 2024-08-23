@@ -2295,6 +2295,13 @@ enum AiStrategyType : uint8_t {
     AI_STRATEGY_MAX
 };
 
+enum ComputerCheatingLevel : uint8_t {
+    COMPUTER_CHEATING_LEVEL_NONE,
+    COMPUTER_CHEATING_LEVEL_TOLERABLE,
+    COMPUTER_CHEATING_LEVEL_SHAMELESS,
+    COMPUTER_CHEATING_LEVEL_INSUFFERABLE
+};
+
 enum MapViewUpdateType : uint8_t {
     MAP_VIEW_ZOOM,
     MAP_VIEW_CENTER,
