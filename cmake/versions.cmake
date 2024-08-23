@@ -1,7 +1,7 @@
-set(FREETYPE_VERSION 2.13.2)
+set(FREETYPE_VERSION 2.13.3)
 set(FREETYPE_FILE freetype-${FREETYPE_VERSION}.tar.gz)
 set(FREETYPE_URI http://prdownloads.sourceforge.net/freetype/${FREETYPE_FILE})
-set(FREETYPE_HASH d99447cf00c5f2679918f66f2b5771f6)
+set(FREETYPE_HASH ac1f0b517f62bd40d50bc995faa5741d)
 set(FREETYPE_HASH_TYPE MD5)
 
 set(MINIAUDIO_VERSION 0.11.21)
@@ -10,10 +10,10 @@ set(MINIAUDIO_URI https://github.com/mackron/miniaudio/archive/refs/tags/${MINIA
 set(MINIAUDIO_HASH 475c0655c49109a4da647a4dcc1042ac)
 set(MINIAUDIO_HASH_TYPE MD5)
 
-set(SDL2_VERSION 2.30.4)
+set(SDL2_VERSION 2.30.6)
 set(SDL2_FILE SDL2-${SDL2_VERSION}.tar.gz)
 set(SDL2_URI https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/${SDL2_FILE})
-set(SDL2_HASH 89166c920ab657476bf80f6112cd7028)
+set(SDL2_HASH ab12cc1cf58a5dd25e69c924acb93402)
 set(SDL2_HASH_TYPE MD5)
 
 set(ENET_VERSION 1.3.18)
