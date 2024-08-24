@@ -60,7 +60,7 @@ enum OptionsType {
 };
 
 #define OPTIONS_BUTTON_DEF(type, caption, ini_param_index, ulx, range_min, range_max) \
-    { (type), (caption), (ini_param_index), (ulx), (range_min), (range_max), nullptr, nullptr, nullptr, 0, 0 }
+    {(type), (caption), (ini_param_index), (ulx), (range_min), (range_max), nullptr, nullptr, nullptr, 0, 0}
 
 static struct OptionsButton options_menu_buttons[] = {
     OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_SETUP, 0, 0, 0),
@@ -460,9 +460,11 @@ void OptionsMenu::Init() {
     if (bg_image == PREFSPIC) {
         window_uly = 20;
 
+#if !defined(NDEBUG)
         if (ini_get_setting(INI_DEBUG)) {
             window_uly = 0;
         }
+#endif /* !defined(NDEBUG) */
 
     } else {
         window_uly = -20;
@@ -473,12 +475,14 @@ void OptionsMenu::Init() {
         ini_param_index = options_menu_buttons[i].ini_param_index;
 
         if (ini_param_index != INI_ENHANCED_GRAPHICS || bg_image == SETUPPIC) {
+#if !defined(NDEBUG)
             if (ini_get_setting(INI_DEBUG)) {
                 if (ini_param_index == INI_PLAY_MODE || ini_param_index == INI_OPPONENT ||
                     ini_param_index == INI_VICTORY_LIMIT) {
                     continue;
                 }
             }
+#endif /* !defined(NDEBUG) */
 
             if (window_ulx == 25) {
                 window_uly += 20;
@@ -512,7 +516,14 @@ void OptionsMenu::Init() {
                     return;
                 }
 
-                if (!ini_param_index && !ini_get_setting(INI_DEBUG)) {
+                if (ini_param_index
+#if !defined(NDEBUG)
+                    || ini_get_setting(INI_DEBUG)
+#endif /* !defined(NDEBUG) */
+                ) {
+                    ;
+
+                } else {
                     button_count = i;
                     return;
                 }
