@@ -110,7 +110,7 @@ uint8_t TaskAssistMove::GetType() const { return TaskType_TaskAssistMove; }
 void TaskAssistMove::AddUnit(UnitInfo& unit) {
     SDL_assert(unit.team == team);
 
-    if (unit.GetUnitType() == AIRTRANS || unit.GetUnitType() == SEATRANS || unit.GetUnitType() == CLNTRANS) {
+    if (IsUnitUsable(unit)) {
         units.PushBack(unit);
         unit.AddTask(this);
         Task_RemindMoveFinished(&unit);
