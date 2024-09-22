@@ -373,10 +373,10 @@ void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index, uin
     button_slider->SetPFunc(&ResearchMenu_OnClick_Slider, reinterpret_cast<intptr_t>(this));
     button_slider->RegisterButton(window.id);
 
-    image_labs_count_bg = new (std::nothrow) Image(38, uly_slider + 3, 21, 10);
+    image_labs_count_bg = new (std::nothrow) Image(28, uly_slider + 3, 32, 10);
     image_labs_count_bg->Copy(&window);
 
-    image_turns_bg = new (std::nothrow) Image(296, uly_slider + 3, 35, 10);
+    image_turns_bg = new (std::nothrow) Image(293, uly_slider + 3, 40, 10);
     image_turns_bg->Copy(&window);
 
     image_labs_slider_bg = new (std::nothrow) Image(91, uly_slider, 48, 17);
@@ -395,8 +395,8 @@ void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index, uin
     string.Sprintf(10, "+%i%%",
                    UnitsManager_TeamInfo[research_menu->GetTeam()].research_topics[topic_index].research_level * 10);
 
-    Text_Blit(&window.buffer[(276 + (uly_slider + 3) * window.width) - Text_GetWidth(string.GetCStr())],
-              string.GetCStr(), 35, window.width, 0xA2);
+    Text_Blit(&window.buffer[(278 + (uly_slider + 3) * window.width) - Text_GetWidth(string.GetCStr())],
+              string.GetCStr(), 40, window.width, 0xA2);
 
     RefreshScreen(false);
 }

@@ -330,9 +330,20 @@ void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_ty
 }
 
 void ReportStats_DrawNumber(uint8_t* buffer, int32_t number, int32_t width, int32_t full, int32_t color) {
+    constexpr int32_t kilo{1000L};
+    constexpr int32_t mega{1000000L};
     char text_buffer[10];
 
-    snprintf(text_buffer, sizeof(text_buffer), "%i", number);
+    if (number > mega) {
+        snprintf(text_buffer, sizeof(text_buffer), "%.1fM", static_cast<float>(number) / mega);
+
+    } else if (number > kilo) {
+        snprintf(text_buffer, sizeof(text_buffer), "%.1fk", static_cast<float>(number) / kilo);
+
+    } else {
+        snprintf(text_buffer, sizeof(text_buffer), "%i", number);
+    }
+
     ReportStats_DrawText(buffer, text_buffer, width, full, color);
 }
 
