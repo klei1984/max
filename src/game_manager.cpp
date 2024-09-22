@@ -63,18 +63,16 @@
 #include "window_manager.hpp"
 
 #define MENU_QUICK_BUILD_GUI_ITEM_DEF(id1, id2, ulx, uly, width, height, r_value) \
-    { (r_value), (id1), (id2), (ulx), (uly), (width), (height), (0), (0) }
+    {(r_value), (id1), (id2), (ulx), (uly), (width), (height), (0), (0)}
 
 #define MENU_QUICK_BUILD_UNIT_SLOTS (6)
 
-#define MENU_GUI_ITEM_DEF(id, gfx, label, button, state, sfx) \
-    { (id), (gfx), (label), (button), (state), (sfx) }
+#define MENU_GUI_ITEM_DEF(id, gfx, label, button, state, sfx) {(id), (gfx), (label), (button), (state), (sfx)}
 
 #define MENU_DISPLAY_CONTROL_DEF(wid, rid, u1, button, u2, u3, image) \
-    { (wid), (rid), (u1), (button), (u2), (u3), (image) }
+    {(wid), (rid), (u1), (button), (u2), (u3), (image)}
 
-#define COLOR_CYCLE_DATA(arg1, arg2, arg3, arg4, arg5) \
-    { (arg1), (arg2), (arg3), (arg4), (arg5) }
+#define COLOR_CYCLE_DATA(arg1, arg2, arg3, arg4, arg5) {(arg1), (arg2), (arg3), (arg4), (arg5)}
 
 #define MENU_GUI_ITEM_FILES_BUTTON 0
 #define MENU_GUI_ITEM_PREFS_BUTTON 1
@@ -6822,8 +6820,8 @@ void GameManager_ProcessInput() {
                             if (GameManager_QuickBuildMenuActive) {
                                 if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
                                     if (!unit) {
-                                        unit =
-                                            Access_GetQuickBuilderUnit(GameManager_MousePosition.x, GameManager_MousePosition.y);
+                                        unit = Access_GetQuickBuilderUnit(GameManager_MousePosition.x,
+                                                                          GameManager_MousePosition.y);
                                     }
 
                                     if (unit) {
