@@ -2113,18 +2113,19 @@ void AiPlayer::ChooseInitialUpgrades(int32_t team_gold) {
 
 void AiPlayer::UpgradeUnitType() {
     if (build_order.unit_type != INVALID_ID) {
-        SmartPointer<UnitValues> unit_vales(
+        SmartPointer<UnitValues> unit_values(
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], build_order.unit_type));
-
-        unit_vales = new (std::nothrow) UnitValues(*unit_vales);
-
-        unit_vales->UpdateVersion();
-        unit_vales->SetUnitsBuilt(0);
-
-        unit_vales->GetAttributeAddress(build_order.primary_attribute)[0] +=
+        auto upgrade_level =
             TeamUnits_UpgradeOffsetFactor(player_team, build_order.unit_type, build_order.primary_attribute);
 
-        UnitsManager_TeamInfo[player_team].team_units->SetCurrentUnitValues(build_order.unit_type, *unit_vales);
+        unit_values = new (std::nothrow) UnitValues(*unit_values);
+
+        unit_values->UpdateVersion();
+        unit_values->SetUnitsBuilt(0);
+
+        unit_values->AddAttribute(build_order.primary_attribute, upgrade_level);
+
+        UnitsManager_TeamInfo[player_team].team_units->SetCurrentUnitValues(build_order.unit_type, *unit_values);
 
         if (Remote_IsNetworkGame) {
             Remote_SendNetPacket_10(player_team, build_order.unit_type);
