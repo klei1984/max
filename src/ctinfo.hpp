@@ -26,9 +26,9 @@
 #include "unitinfo.hpp"
 
 struct ResearchTopic {
-    uint32_t research_level;
+    int32_t research_level;
     int32_t turns_to_complete;
-    uint32_t allocation;
+    int32_t allocation;
 };
 
 struct ScreenLocation {
