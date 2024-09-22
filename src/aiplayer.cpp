@@ -2118,6 +2118,15 @@ void AiPlayer::UpgradeUnitType() {
         auto upgrade_level =
             TeamUnits_UpgradeOffsetFactor(player_team, build_order.unit_type, build_order.primary_attribute);
 
+        if (build_order.primary_attribute == RESEARCH_TOPIC_HITS ||
+            build_order.primary_attribute == RESEARCH_TOPIC_SPEED) {
+            auto current_level = unit_values->GetAttribute(build_order.primary_attribute);
+
+            if (current_level + upgrade_level > UINT8_MAX) {
+                upgrade_level = UINT8_MAX - current_level;
+            }
+        }
+
         unit_values = new (std::nothrow) UnitValues(*unit_values);
 
         unit_values->UpdateVersion();
@@ -4644,6 +4653,18 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
     build_order.unit_type = INVALID_ID;
 
     for (int32_t i = 0; i < build_orders1.GetCount(); ++i) {
+        if (build_orders1[i]->primary_attribute == RESEARCH_TOPIC_HITS ||
+            build_orders1[i]->primary_attribute == RESEARCH_TOPIC_SPEED) {
+            SmartPointer<UnitValues> unit_values =
+                UnitsManager_TeamInfo[player_team].team_units->GetCurrentUnitValues(build_orders1[i]->unit_type);
+
+            auto current_level = unit_values->GetAttribute(build_orders1[i]->primary_attribute);
+
+            if (current_level == UINT8_MAX) {
+                continue;
+            }
+        }
+
         int32_t new_upgrade_cost =
             TeamUnits_GetUpgradeCost(player_team, build_orders1[i]->unit_type, build_orders1[i]->primary_attribute);
 
@@ -4656,6 +4677,18 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
     int32_t factor = 2;
 
     for (int32_t i = 0; i < build_orders2.GetCount(); ++i) {
+        if (build_orders2[i]->primary_attribute == RESEARCH_TOPIC_HITS ||
+            build_orders2[i]->primary_attribute == RESEARCH_TOPIC_SPEED) {
+            SmartPointer<UnitValues> unit_values =
+                UnitsManager_TeamInfo[player_team].team_units->GetCurrentUnitValues(build_orders2[i]->unit_type);
+
+            auto current_level = unit_values->GetAttribute(build_orders2[i]->primary_attribute);
+
+            if (current_level == UINT8_MAX) {
+                continue;
+            }
+        }
+
         int32_t new_upgrade_cost =
             TeamUnits_GetUpgradeCost(player_team, build_orders2[i]->unit_type, build_orders2[i]->primary_attribute);
 

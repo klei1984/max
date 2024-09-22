@@ -158,11 +158,11 @@ void TeamUnits::Init() {
 
                 position = 0;
                 unitvalues->SetAttribute(ATTRIB_TURNS, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_HITS, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_HITS, std::min(GetParam(buffer, &position), UINT8_MAX));
                 unitvalues->SetAttribute(ATTRIB_ARMOR, GetParam(buffer, &position));
                 unitvalues->SetAttribute(ATTRIB_ATTACK, GetParam(buffer, &position));
                 unitvalues->SetAttribute(ATTRIB_MOVE_AND_FIRE, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_SPEED, GetParam(buffer, &position));
+                unitvalues->SetAttribute(ATTRIB_SPEED, std::min(GetParam(buffer, &position), UINT8_MAX));
                 unitvalues->SetAttribute(ATTRIB_FUEL, GetParam(buffer, &position));
                 unitvalues->SetAttribute(ATTRIB_RANGE, GetParam(buffer, &position));
                 unitvalues->SetAttribute(ATTRIB_ROUNDS, GetParam(buffer, &position));

@@ -2088,6 +2088,7 @@ void UnitInfo::GainExperience(int32_t experience) {
         if (storage >= 15) {
             int32_t upgrade_topic;
             int32_t upgrade_cost;
+            int32_t upgrade_level;
             bool is_upgraded;
 
             SmartPointer<UnitValues> unit_values =
@@ -2101,17 +2102,37 @@ void UnitInfo::GainExperience(int32_t experience) {
             upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
 
             while (upgrade_cost <= storage) {
+                upgrade_level = TeamUnits_UpgradeOffsetFactor(team, unit_type, upgrade_topic);
+
+                if (upgrade_topic == RESEARCH_TOPIC_HITS || upgrade_topic == RESEARCH_TOPIC_SPEED) {
+                    auto current_level = base_values->GetAttribute(upgrade_topic);
+
+                    if (current_level == UINT8_MAX) {
+                        upgrade_topic = ExpResearchTopics[(dos_rand() * sizeof(ExpResearchTopics)) >> 15];
+                        upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
+
+                        continue;
+                    }
+
+                    if (current_level + upgrade_level > UINT8_MAX) {
+                        upgrade_cost = static_cast<float>(upgrade_cost) * static_cast<float>(upgrade_level) /
+                                           (UINT8_MAX - current_level) +
+                                       0.5f;
+                        upgrade_level = UINT8_MAX - current_level;
+                    }
+                }
+
                 storage -= upgrade_cost;
 
                 if (!is_upgraded) {
                     base_values = new UnitValues(*base_values);
+                    is_upgraded = true;
                 }
 
-                base_values->AddAttribute(upgrade_topic, TeamUnits_UpgradeOffsetFactor(team, unit_type, upgrade_topic));
+                base_values->AddAttribute(upgrade_topic, upgrade_level);
 
                 upgrade_topic = ExpResearchTopics[(dos_rand() * sizeof(ExpResearchTopics)) >> 15];
                 upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
-                is_upgraded = true;
             }
 
             if (is_upgraded) {
