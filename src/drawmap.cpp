@@ -452,7 +452,7 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32
                                             true, window);
         }
 
-    } else if (unit->speed || unit->shots) {
+    } else if (unit->speed || unit->shots > 0) {
         struct ImageSimpleHeader* image_speed;
         struct ImageSimpleHeader* image_shots;
 
@@ -472,7 +472,7 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32
         }
 
         if (width >= 0) {
-            if (unit->shots) {
+            if (unit->shots > 0) {
                 image_shots = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(IL_SHOTS));
 
                 if (image_shots->height > height - uly) {
@@ -484,7 +484,7 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32
         }
 
         if (width >= 0) {
-            if (unit->shots && unit->speed) {
+            if (unit->shots > 0 && unit->speed) {
                 width /= 3;
 
             } else {
@@ -498,7 +498,7 @@ void DrawMap_RenderStatusDisplay(UnitInfo* unit, int32_t ulx, int32_t uly, int32
                 width = width * 2 + image_speed->width;
             }
 
-            if (unit->shots) {
+            if (unit->shots > 0) {
                 WindowManager_DecodeSimpleImage(image_shots, width + ulx, height - image_shots->height - 1, true,
                                                 window);
             }

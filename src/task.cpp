@@ -105,7 +105,7 @@ void Task_RemoveMovementTasks(UnitInfo* unit) {
 bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
     bool result;
 
-    if (unit->shots && !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+    if (unit->shots > 0 && !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
         int32_t unit_range = 0;
         bool relevant_teams[PLAYER_TEAM_MAX - 1];
         int32_t team;
@@ -521,7 +521,7 @@ int32_t Task::GetCautionLevel(UnitInfo& unit) {
 
     if (unit.base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
         ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
-        if (unit.shots) {
+        if (unit.shots > 0) {
             result = CAUTION_LEVEL_AVOID_REACTION_FIRE;
         } else {
             result = CAUTION_LEVEL_AVOID_ALL_DAMAGE;

@@ -264,10 +264,13 @@ uint8_t* UnitStats_DrawMilitary(uint8_t* buffer, int32_t screen_width, UnitValue
 
     buffer = &buffer[screen_width * 19];
 
-    if (unit_values1->GetAttribute(ATTRIB_ROUNDS)) {
-        UnitStats_DrawText(buffer, screen_width, _(5e40), image_width, unit_values2->GetAttribute(ATTRIB_ROUNDS), true);
-        UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_SHOTS, I_SHOTS,
-                            unit_values1->GetAttribute(ATTRIB_ROUNDS), unit_values2->GetAttribute(ATTRIB_ROUNDS));
+    if (unit_values1->GetAttribute(ATTRIB_ROUNDS) > 0) {
+        UnitStats_DrawText(buffer, screen_width, _(5e40), image_width,
+                           std::min(unit_values2->GetAttribute(ATTRIB_ROUNDS), unit_values2->GetAttribute(ATTRIB_AMMO)),
+                           true);
+        UnitStats_DrawIcons(
+            &buffer[76], screen_width, image_width - 76, I_SHOTS, I_SHOTS, unit_values1->GetAttribute(ATTRIB_ROUNDS),
+            std::min(unit_values2->GetAttribute(ATTRIB_ROUNDS), unit_values2->GetAttribute(ATTRIB_AMMO)));
 
         buffer = &buffer[screen_width * 19];
     }

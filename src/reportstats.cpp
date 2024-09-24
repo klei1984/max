@@ -549,8 +549,9 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
 
         ReportStats_DrawRowEx(_(50c9), id, bounds, 2, SI_SPEED, EI_SPEED, unit->speed,
                               unit_values->GetAttribute(ATTRIB_SPEED), 1, true);
-        ReportStats_DrawRowEx(_(27e1), id, bounds, 3, SI_SHOTS, EI_SHOTS, unit->shots,
-                              unit_values->GetAttribute(ATTRIB_ROUNDS), 1, false);
+        ReportStats_DrawRowEx(
+            _(27e1), id, bounds, 3, SI_SHOTS, EI_SHOTS, unit->shots,
+            std::min(unit_values->GetAttribute(ATTRIB_ROUNDS), unit_values->GetAttribute(ATTRIB_AMMO)), 1, false);
 
         if (!unit_values->GetAttribute(ATTRIB_STORAGE)) {
             ReportStats_DrawCommonUnit(unit, id, bounds);

@@ -698,7 +698,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (unit->ammo || (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == unit->team)) {
-            if (unit->shots || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+            if (unit->shots > 0 || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                 if (unit->delayed_reaction || TaskManager_word_1731C0 == 2) {
                     SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
 
@@ -716,7 +716,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                         SmartPointer<SpottedUnit> spotted_unit;
                         int32_t attack_radius;
 
-                        if (unit->shots) {
+                        if (unit->shots > 0) {
                             attack_radius = unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS) / 2;
 
                         } else {

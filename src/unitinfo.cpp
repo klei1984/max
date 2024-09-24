@@ -3256,7 +3256,7 @@ void UnitInfo::Attack(int32_t grid_x, int32_t grid_y) {
         enemy->AttackUnit(this, 0, target_angle);
     }
 
-    if (!shots) {
+    if (shots == 0) {
         targeting_mode = 0;
     }
 }

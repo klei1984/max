@@ -3460,8 +3460,8 @@ bool GameManager_IsInteractable(UnitInfo* unit) {
         int16_t grid_y = unit->grid_y;
         SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
 
-        if (unit->shots && Access_FindReachableSpot(unit_type, unit, &grid_x, &grid_y,
-                                                    unit_values->GetAttribute(ATTRIB_RANGE), 0, 1)) {
+        if (unit->shots > 0 && Access_FindReachableSpot(unit_type, unit, &grid_x, &grid_y,
+                                                        unit_values->GetAttribute(ATTRIB_RANGE), 0, 1)) {
             result = true;
 
         } else if ((unit_type == SPLYTRCK || unit_type == CARGOSHP || unit_type == FUELTRCK || unit_type == GOLDTRCK ||
@@ -4335,7 +4335,7 @@ void GameManager_SetUnitOrder(int32_t order, int32_t state, UnitInfo* unit, int3
             unit->path = nullptr;
 
         } else {
-            if (unit->shots) {
+            if (unit->shots > 0) {
                 unit->target_grid_x = grid_x;
                 unit->target_grid_y = grid_y;
 
@@ -4851,7 +4851,7 @@ void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2) {
     unit2 = Access_GetAttackTarget(unit1, unit2->grid_x, unit2->grid_y);
 
     if (unit2) {
-        if (unit1->shots) {
+        if (unit1->shots > 0) {
             unit1->SetParent(unit2);
             unit1->target_grid_x = (dos_rand() * 101) >> 15;
 
@@ -4867,7 +4867,7 @@ void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
     unit2 = Access_GetAttackTarget(unit1, unit2->grid_x, unit2->grid_y);
 
     if (unit2) {
-        if (unit1->shots) {
+        if (unit1->shots > 0) {
             unit1->SetParent(unit2);
             unit1->target_grid_x = (dos_rand() * 101) >> 15;
 
@@ -7775,8 +7775,9 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
         GameManager_DrawInfoDisplayRow(_(c372), WINDOW_STAT_ROW_3, SI_SPEED, unit->speed,
                                        unit_values->GetAttribute(ATTRIB_SPEED), 1);
 
-        GameManager_DrawInfoDisplayRow(_(2bce), WINDOW_STAT_ROW_4, SI_SHOTS, unit->shots,
-                                       unit_values->GetAttribute(ATTRIB_ROUNDS), 1);
+        GameManager_DrawInfoDisplayRow(
+            _(2bce), WINDOW_STAT_ROW_4, SI_SHOTS, unit->shots,
+            std::min(unit_values->GetAttribute(ATTRIB_ROUNDS), unit_values->GetAttribute(ATTRIB_AMMO)), 1);
 
         if (unit_values->GetAttribute(ATTRIB_STORAGE) == 0) {
             GameManager_DrawInfoDisplayType2(unit);

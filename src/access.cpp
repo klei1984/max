@@ -1265,8 +1265,8 @@ bool Access_IsValidNextUnit(UnitInfo* unit) {
         result = false;
 
     } else if (Access_IsWithinMovementRange(unit) ||
-               (unit->shots && Access_FindReachableSpot(unit->GetUnitType(), unit, &grid_x, &grid_y,
-                                                        unit_values->GetAttribute(ATTRIB_RANGE), 0, 1))) {
+               (unit->shots > 0 && Access_FindReachableSpot(unit->GetUnitType(), unit, &grid_x, &grid_y,
+                                                            unit_values->GetAttribute(ATTRIB_RANGE), 0, 1))) {
         result = true;
 
     } else {

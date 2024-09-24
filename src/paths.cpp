@@ -914,7 +914,7 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
                 Paths_DrawMarker(window, angle, scaled_grid_x, scaled_grid_y, color);
 
-                if (i > index && unit->shots != 0 && unit_speed >= 0) {
+                if (i > index && unit->shots > 0 && unit_speed >= 0) {
                     if (unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                         shots = unit->shots;
 

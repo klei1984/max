@@ -103,7 +103,7 @@ RemindAttack::RemindAttack(UnitInfo& unit) : unit(unit) {}
 RemindAttack::~RemindAttack() {}
 
 void RemindAttack::Execute() {
-    if (unit->hits && unit->shots && UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
+    if (unit->hits && unit->shots > 0 && UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
         if (unit->GetTask()) {
             char buffer[500];
 
