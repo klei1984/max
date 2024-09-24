@@ -123,6 +123,8 @@ void ResearchMenu_UpdateResearchProgress(uint16_t team, int32_t research_topic, 
 
     topic->allocation += allocation;
 
+    SDL_assert(topic->allocation >= 0);
+
     if (topic->allocation && topic->turns_to_complete == 0) {
         topic->turns_to_complete = turns_to_complete;
     }
@@ -225,7 +227,7 @@ void ResearchMenu_NewTurn(uint16_t team) {
     for (int32_t i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
         topic = &UnitsManager_TeamInfo[team].research_topics[i];
 
-        if (topic->allocation) {
+        if (topic->allocation > 0) {
             topic->turns_to_complete -= topic->allocation;
 
             if (topic->turns_to_complete <= 0) {
