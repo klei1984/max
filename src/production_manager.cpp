@@ -434,7 +434,14 @@ bool ProductionManager::ValidateAuxilaryIndustry(UnitInfo* const unit, const boo
                     SatisfyPowerDemand(-production.power);
                 }
 
-                UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
+                if (unit->GetOrder() == ORDER_POWER_ON && unit->GetOrderState() == ORDER_STATE_INIT &&
+                    unit->GetPriorOrder() == ORDER_POWER_OFF &&
+                    unit->GetPriorOrderState() == ORDER_STATE_EXECUTING_ORDER) {
+                    UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_EXECUTING_ORDER);
+
+                } else {
+                    UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
+                }
 
                 result = true;
 
@@ -668,9 +675,10 @@ void ProductionManager::UpdateLifeConsumption() {
 bool ProductionManager::ValidateIndustry(UnitInfo* const unit, const bool mode) {
     bool result;
 
-    if (complex == unit->GetComplex() && unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_BUILD_CANCEL &&
-        unit->GetOrderState() != ORDER_STATE_BUILD_ABORT && unit->GetOrderState() != ORDER_STATE_UNIT_READY &&
-        Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1) > 0 && (mode || total.raw < 0)) {
+    if (complex == unit->GetComplex() && unit->GetOrder() == ORDER_BUILD &&
+        unit->GetOrderState() != ORDER_STATE_BUILD_CANCEL && unit->GetOrderState() != ORDER_STATE_BUILD_ABORT &&
+        unit->GetOrderState() != ORDER_STATE_UNIT_READY && Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1) > 0 &&
+        (mode || total.raw < 0)) {
         Cargo cargo = Cargo_GetNetProduction(unit, true);
 
         if (cargo.life < 0 && total.life < 0) {
