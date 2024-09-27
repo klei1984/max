@@ -159,7 +159,7 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
 
             if (info_map) {
                 if (info_map[unit.grid_x][unit.grid_y] & 2) {
-                    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+                    if (GameManager_IsActiveTurn(team)) {
                         UnitsManager_SetNewOrder(&unit, ORDER_LAY_MINE, ORDER_STATE_PLACING_MINES);
 
                         info_map[unit.grid_x][unit.grid_y] &= ~0x02;

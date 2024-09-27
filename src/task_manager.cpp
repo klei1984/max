@@ -251,7 +251,7 @@ void TaskManager::CheckComputerReactions() {
             AiLog log("Checking computer reactions");
 
             for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-                if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == (*it).GetTeam()) {
+                if (GameManager_IsActiveTurn((*it).GetTeam())) {
                     if ((*it).CheckReactions()) {
                         return;
                     }
@@ -260,8 +260,8 @@ void TaskManager::CheckComputerReactions() {
 
             if (TaskManager_word_1731C0 == 0) {
                 for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-                    if ((GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == (*it).team) &&
-                        (*it).hits > 0 && (*it).speed > 0 && Task_IsReadyToTakeOrders(&*it) &&
+                    if (GameManager_IsActiveTurn((*it).team) && (*it).hits > 0 && (*it).speed > 0 &&
+                        Task_IsReadyToTakeOrders(&*it) &&
                         UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER) {
                         if ((*it).GetTask()) {
                             Task_RetreatFromDanger((*it).GetTask(), &*it, Ai_DetermineCautionLevel(&*it));

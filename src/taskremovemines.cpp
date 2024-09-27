@@ -58,7 +58,7 @@ bool TaskRemoveMines::Execute(UnitInfo& unit_) {
                     result = DumpMaterials(&unit_);
 
                 } else if (target->grid_x == unit_.grid_x && target->grid_y == unit_.grid_y) {
-                    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+                    if (GameManager_IsActiveTurn(team)) {
                         UnitsManager_SetNewOrder(&unit_, ORDER_LAY_MINE, ORDER_STATE_REMOVING_MINES);
                         target = nullptr;
                     }

@@ -200,7 +200,7 @@ bool TaskCreateUnit::Task_vfunc28() { return op_state >= CREATE_UNIT_STATE_BUILD
 void TaskCreateUnit::WaitForMaterials() {
     SDL_assert(op_state == CREATE_UNIT_STATE_WAITING_FOR_MATERIALS);
 
-    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+    if (GameManager_IsActiveTurn(team)) {
         Cargo materials;
         Cargo capacity;
 
@@ -317,7 +317,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
     bool result;
 
     if (op_state <= CREATE_UNIT_STATE_BUILDING) {
-        if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+        if (GameManager_IsActiveTurn(team)) {
             if (Task_EstimateTurnsTillMissionEnd() >
                     UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)
                         ->GetAttribute(ATTRIB_TURNS) &&

@@ -8489,3 +8489,7 @@ void GameManager_QuickBuildMenu() {
 
     win_delete(window->id);
 }
+
+bool GameManager_IsActiveTurn(uint16_t team) {
+    return (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
+}

@@ -36,8 +36,8 @@ TaskActivate::~TaskActivate() {}
 
 void TaskActivate::Activate() {
     if (unit_to_activate != nullptr) {
-        if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
-            if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+            if (GameManager_IsActiveTurn(team)) {
                 if (unit_to_activate->GetTask() == this && zone == nullptr) {
                     if (unit_to_activate->GetOrder() == ORDER_IDLE || unit_to_activate->GetOrder() == ORDER_BUILD ||
                         unit_to_activate->GetOrder() == ORDER_AWAIT) {

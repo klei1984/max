@@ -316,7 +316,7 @@ bool AiAttack_IsValidSabotageTarget(UnitInfo* unit, UnitInfo* target) {
 bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
     bool result;
 
-    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == attacker->team) {
+    if (GameManager_IsActiveTurn(attacker->team)) {
         if (attacker->delayed_reaction || TaskManager_word_1731C0 == 2) {
             SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(attacker));
 
@@ -443,8 +443,7 @@ bool AiAttack_CanAttack(UnitInfo* attacker, UnitInfo* target) {
 bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, uint16_t team, int32_t caution_level) {
     bool result = false;
 
-    if (unit->IsVisibleToTeam(team) &&
-        (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team)) {
+    if (unit->IsVisibleToTeam(team) && GameManager_IsActiveTurn(team)) {
         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
             if ((*it).team == team && (*it).shots > 0 && Task_IsReadyToTakeOrders(&*it) &&
                 AiAttack_CanAttack(&*it, unit)) {
@@ -697,7 +696,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
     bool result;
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-        if (unit->ammo || (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == unit->team)) {
+        if (unit->ammo || GameManager_IsActiveTurn(unit->team)) {
             if (unit->shots > 0 || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                 if (unit->delayed_reaction || TaskManager_word_1731C0 == 2) {
                     SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));

@@ -50,6 +50,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit);
 void GameManager_FillOrRestoreWindow(uint8_t id, int32_t color, bool redraw);
 void GameManager_UpdateInfoDisplay(UnitInfo* unit);
 bool GameManager_IsInsideMapView(UnitInfo* unit);
+bool GameManager_IsActiveTurn(uint16_t team);
 bool GameManager_OptimizeProduction(uint16_t team, Complex* complex, bool is_player_team, bool mode);
 void GameManager_SelectNextUnit(int32_t seek_direction);
 bool GameManager_UpdateMapDrawBounds(int32_t ulx, int32_t uly);

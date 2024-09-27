@@ -79,36 +79,38 @@ void TaskRepair::ChooseOperator() {
 void TaskRepair::DoRepairs() {
     if (target_unit->GetTask() == this ||
         (operator_unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == 0) {
-        if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
-            (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
-            AiLog log("Repair/reload %s: perform repair.",
-                      UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
+        if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+            if (GameManager_IsActiveTurn(team)) {
+                AiLog log("Repair/reload %s: perform repair.",
+                          UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
 
-            if (operator_unit->flags & STATIONARY) {
-                Cargo materials;
-                Cargo capacity;
+                if (operator_unit->flags & STATIONARY) {
+                    Cargo materials;
+                    Cargo capacity;
 
-                operator_unit->GetComplex()->GetCargoInfo(materials, capacity);
+                    operator_unit->GetComplex()->GetCargoInfo(materials, capacity);
 
-                if (materials.raw > 0) {
+                    if (materials.raw > 0) {
+                        if (Task_IsReadyToTakeOrders(&*operator_unit)) {
+                            IssueOrder();
+                        }
+
+                    } else {
+                        log.Log("%s has no material.",
+                                UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+                    }
+
+                } else if (operator_unit->storage > 0) {
                     if (Task_IsReadyToTakeOrders(&*operator_unit)) {
                         IssueOrder();
                     }
 
-                } else {
-                    log.Log("%s has no material.", UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+                } else if (operator_unit->GetTask() == this) {
+                    SmartPointer<Task> task(new (std::nothrow)
+                                                TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
+
+                    TaskManager.AppendTask(*task);
                 }
-
-            } else if (operator_unit->storage > 0) {
-                if (Task_IsReadyToTakeOrders(&*operator_unit)) {
-                    IssueOrder();
-                }
-
-            } else if (operator_unit->GetTask() == this) {
-                SmartPointer<Task> task(new (std::nothrow)
-                                            TaskGetMaterials(this, &*operator_unit, GetTurnsToComplete()));
-
-                TaskManager.AppendTask(*task);
             }
         }
     }
@@ -310,7 +312,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
 
             } else {
                 if (target_unit->GetOrderState() == ORDER_STATE_STORE) {
-                    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam) {
+                    if (GameManager_IsActiveTurn(team)) {
                         log.Log("%s is inside %s.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
                                 UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
 
@@ -326,8 +328,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                             log.Log("Adjacent to %s.",
                                     UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
 
-                            if (GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
-                                (GameManager_PlayMode != PLAY_MODE_TURN_BASED || team == GameManager_ActiveTurnTeam)) {
+                            if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && GameManager_IsActiveTurn(team)) {
                                 if (operator_unit->flags & STATIONARY) {
                                     if (target_unit->GetOrder() == ORDER_AWAIT) {
                                         // only enter repair shop if there is free capacity in it

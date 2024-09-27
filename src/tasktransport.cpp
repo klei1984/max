@@ -709,13 +709,11 @@ void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
 bool TaskTransport::LoadUnit(UnitInfo* unit) {
     bool result;
 
-    if (unit_transporter && unit_transporter->IsReadyForOrders(this) &&
-        (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team)) {
+    if (unit_transporter && unit_transporter->IsReadyForOrders(this) && GameManager_IsActiveTurn(team)) {
         AiLog log("Transport: Load %s on %s.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
                   UnitsManager_BaseUnits[unit_transporter->GetUnitType()].singular_name);
 
-        if (Task_IsReadyToTakeOrders(unit) &&
-            (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team)) {
+        if (Task_IsReadyToTakeOrders(unit) && GameManager_IsActiveTurn(team)) {
             int32_t distance = TaskManager_GetDistance(unit, &*unit_transporter);
 
             if (unit_transporter->GetUnitType() == AIRTRANS && distance > 0) {
@@ -732,7 +730,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
             } else if (unit_transporter->GetUnitType() == AIRTRANS) {
                 unit_transporter->SetParent(unit);
 
-                SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
+                SDL_assert(GameManager_IsActiveTurn(team));
 
                 UnitsManager_SetNewOrder(&*unit_transporter, ORDER_LOAD, ORDER_STATE_INIT);
 
@@ -742,7 +740,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
                 unit->target_grid_x = unit_transporter->grid_x;
                 unit->target_grid_y = unit_transporter->grid_y;
 
-                SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
+                SDL_assert(GameManager_IsActiveTurn(team));
 
                 SmartPointer<GroundPath> path =
                     new (std::nothrow) GroundPath(unit_transporter->grid_x, unit_transporter->grid_y);
@@ -781,7 +779,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
 void TaskTransport::UnloadUnit(UnitInfo* unit) {
     AiLog log("Transport: Unload %s.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
-    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+    if (GameManager_IsActiveTurn(team)) {
         Point destination = task_move->GetDestination();
 
         if (destination.x >= 0 && unit_transporter == unit->GetParent()) {
@@ -805,7 +803,7 @@ void TaskTransport::UnloadUnit(UnitInfo* unit) {
 
                 unit_transporter->SetParent(unit);
 
-                SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
+                SDL_assert(GameManager_IsActiveTurn(team));
 
                 if (unit_transporter->GetUnitType() == AIRTRANS) {
                     UnitsManager_SetNewOrder(&*unit_transporter, ORDER_UNLOAD, ORDER_STATE_INIT);

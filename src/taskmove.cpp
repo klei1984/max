@@ -966,7 +966,7 @@ void TaskMove::MoveAirUnit() {
     if (passenger->IsReadyForOrders(this)) {
         AiLog log("Move air unit.");
 
-        if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+        if (GameManager_IsActiveTurn(team)) {
             SmartPointer<UnitInfo> unit;
             bool flag = false;
             int32_t step_index;
@@ -995,7 +995,8 @@ void TaskMove::MoveAirUnit() {
                                         UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
                                         (*it).grid_y + 1);
 
-                                if ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
+                                if ((*it).GetOrder() == ORDER_MOVE &&
+                                    (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
                                     log.Log("Blocker is moving.");
 
                                     class RemindTurnEnd* reminder = new (std::nothrow) class RemindTurnEnd(*this);
@@ -1250,8 +1251,7 @@ bool TaskMove::FindWaypoint() {
 }
 
 void TaskMove::MoveUnit(GroundPath* path) {
-    if (passenger->IsReadyForOrders(this) && path &&
-        (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team)) {
+    if (passenger->IsReadyForOrders(this) && path && GameManager_IsActiveTurn(team)) {
         AiLog log("Moving unit to [%i,%i].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
         if (caution_level > CAUTION_LEVEL_NONE && Task_ShouldReserveShot(&*passenger, passenger_waypoint)) {

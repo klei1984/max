@@ -4288,19 +4288,22 @@ void UnitsManager_ClearPins(SmartList<UnitInfo>* units) {
 }
 
 void UnitsManager_PerformAutoSurvey(UnitInfo* unit) {
-    if (unit->auto_survey && unit->speed && GameManager_PlayMode != PLAY_MODE_UNKNOWN &&
-        (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == unit->team)) {
-        if (!Remote_IsNetworkGame || !UnitsManager_TeamInfo[unit->team].finished_turn) {
-            if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER ||
-                UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_REMOTE) {
-                unit->auto_survey = false;
+    if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (GameManager_IsActiveTurn(unit->team)) {
+            if (unit->auto_survey && unit->speed) {
+                if (!Remote_IsNetworkGame || !UnitsManager_TeamInfo[unit->team].finished_turn) {
+                    if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER ||
+                        UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_REMOTE) {
+                        unit->auto_survey = false;
 
-            } else {
-                if (!unit->GetTask()) {
-                    Ai_EnableAutoSurvey(unit);
+                    } else {
+                        if (!unit->GetTask()) {
+                            Ai_EnableAutoSurvey(unit);
+                        }
+
+                        unit->ScheduleDelayedTasks(false);
+                    }
                 }
-
-                unit->ScheduleDelayedTasks(false);
             }
         }
     }

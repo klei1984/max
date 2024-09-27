@@ -67,8 +67,7 @@ void TaskAutoSurvey::Begin() { unit->AddTask(this); }
 bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
     bool result;
 
-    if (unit == unit_ && unit->IsReadyForOrders(this) &&
-        (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) && unit->speed > 0) {
+    if (unit == unit_ && unit->IsReadyForOrders(this) && GameManager_IsActiveTurn(team) && unit->speed > 0) {
         AiLog log("Auto survey: Move %s at [%i,%i]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
                   unit->grid_x + 1, unit->grid_y + 1);
 

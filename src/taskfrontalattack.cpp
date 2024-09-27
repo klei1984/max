@@ -74,7 +74,7 @@ void TaskFrontalAttack::IssueOrders() {
             }
         }
 
-        if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+        if (GameManager_IsActiveTurn(team)) {
             for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
                 if (Task_IsReadyToTakeOrders(&*it)) {
                     if ((*it).speed == 0 || Access_GetDistance(&*it, spotted_unit->GetLastPosition()) <=

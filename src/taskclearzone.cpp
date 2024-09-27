@@ -39,7 +39,7 @@ void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Poi
     AiLog log("Clear zone: path result.");
 
     if (path && (!clear_zone->moving_unit || clear_zone->moving_unit->IsReadyForOrders(clear_zone)) &&
-        (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == clear_zone->team)) {
+        GameManager_IsActiveTurn(clear_zone->team)) {
         SDL_assert(clear_zone->moving_unit != nullptr);
 
         clear_zone->state = CLEARZONE_STATE_MOVING_UNIT;
@@ -152,8 +152,8 @@ void TaskClearZone::BeginTurn() {
 void TaskClearZone::EndTurn() {
     AiLog log("Clear Zone: End Turn.");
 
-    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
-        if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+    if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (GameManager_IsActiveTurn(team)) {
             if (state != CLEARZONE_STATE_EXAMINING_ZONES && state != CLEARZONE_STATE_WAITING_FOR_PATH) {
                 if (state == CLEARZONE_STATE_MOVING_UNIT) {
                     state = CLEARZONE_STATE_WAITING;

@@ -98,7 +98,7 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
 
             if (unit_.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) != unit_.storage) {
                 if (unit_.grid_x == target->grid_x && unit_.grid_y == target->grid_y) {
-                    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+                    if (GameManager_IsActiveTurn(team)) {
                         unit_.SetParent(&*target);
 
                         unit_.build_time = (target->flags & BUILDING) ? 4 : 1;
@@ -203,7 +203,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                      building != UnitsManager_StationaryUnits.End(); ++building) {
                     if ((*building).GetComplex() == complex) {
                         if (Task_IsAdjacent(building->Get(), unit_->grid_x, unit_->grid_y)) {
-                            if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+                            if (GameManager_IsActiveTurn(team)) {
                                 unit_->target_grid_x =
                                     std::min(static_cast<int32_t>(unit_->storage),
                                              (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - (*it).storage);

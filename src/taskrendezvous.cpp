@@ -175,37 +175,38 @@ void TaskRendezvous::EndTurn() {
 bool TaskRendezvous::Execute(UnitInfo& unit) {
     bool result = false;
 
-    if ((GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) &&
-        GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-        if (unit1 && unit2 && (unit1 == unit || unit2 == unit)) {
-            if (unit1->GetTask() == this || unit1->GetTask() == nullptr ||
-                unit1->GetTask()->GetType() == TaskType_TaskMove) {
-                if (Task_IsAdjacent(&*unit2, unit1->grid_x, unit1->grid_y)) {
-                    Finish(TASKMOVE_RESULT_SUCCESS);
+    if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (GameManager_IsActiveTurn(team)) {
+            if (unit1 && unit2 && (unit1 == unit || unit2 == unit)) {
+                if (unit1->GetTask() == this || unit1->GetTask() == nullptr ||
+                    unit1->GetTask()->GetType() == TaskType_TaskMove) {
+                    if (Task_IsAdjacent(&*unit2, unit1->grid_x, unit1->grid_y)) {
+                        Finish(TASKMOVE_RESULT_SUCCESS);
 
-                } else if (unit2->speed && unit2->IsReadyForOrders(this)) {
-                    if (unit1->IsReadyForOrders(this) &&
-                        !Task_RetreatFromDanger(this, &*unit2, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
-                        Point destination;
+                    } else if (unit2->speed && unit2->IsReadyForOrders(this)) {
+                        if (unit1->IsReadyForOrders(this) &&
+                            !Task_RetreatFromDanger(this, &*unit2, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
+                            Point destination;
 
-                        if (TaskRendezvous_SearchLocation(&*unit2, &*unit1, &destination)) {
-                            SmartPointer<TaskMove> move_task(
-                                new (std::nothrow) TaskMove(&*unit2, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
-                                                            destination, &SecondaryMoveFinishedCallback));
+                            if (TaskRendezvous_SearchLocation(&*unit2, &*unit1, &destination)) {
+                                SmartPointer<TaskMove> move_task(
+                                    new (std::nothrow) TaskMove(&*unit2, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
+                                                                destination, &SecondaryMoveFinishedCallback));
 
-                            move_task->SetField68(!(unit1->flags & STATIONARY));
+                                move_task->SetField68(!(unit1->flags & STATIONARY));
 
-                            TaskManager.AppendTask(*move_task);
+                                TaskManager.AppendTask(*move_task);
 
-                        } else {
-                            SecondaryMoveFinishedCallback(this, &*unit2, TASKMOVE_RESULT_BLOCKED);
+                            } else {
+                                SecondaryMoveFinishedCallback(this, &*unit2, TASKMOVE_RESULT_BLOCKED);
+                            }
+
+                            result = true;
                         }
 
-                        result = true;
+                    } else {
+                        SecondaryMoveFinishedCallback(this, &*unit2, TASKMOVE_RESULT_BLOCKED);
                     }
-
-                } else {
-                    SecondaryMoveFinishedCallback(this, &*unit2, TASKMOVE_RESULT_BLOCKED);
                 }
             }
         }

@@ -158,7 +158,7 @@ void TaskGetMaterials::DoTransfer() {
 
         source->SetParent(requestor.Get());
 
-        SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
+        SDL_assert(GameManager_IsActiveTurn(team));
 
         log.Log("Order %i materials from %s at [%i,%i] for %s at [%i,%i] holding %i materials.", source->target_grid_x,
                 UnitsManager_BaseUnits[source->GetUnitType()].singular_name, source->grid_x + 1, source->grid_y + 1,

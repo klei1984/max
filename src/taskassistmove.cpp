@@ -37,7 +37,7 @@ TaskAssistMove::TaskAssistMove(uint16_t team_) : Task(team_, nullptr, 0x2800) {}
 TaskAssistMove::~TaskAssistMove() {}
 
 void TaskAssistMove::RequestTransport(UnitInfo* unit1, UnitInfo* unit2) {
-    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+    if (GameManager_IsActiveTurn(team)) {
         if (unit1->GetUnitType() == AIRTRANS) {
             unit1->SetParent(unit2);
             UnitsManager_SetNewOrder(unit1, ORDER_LOAD, ORDER_STATE_INIT);
@@ -67,7 +67,7 @@ void TaskAssistMove::RequestTransport(UnitInfo* unit1, UnitInfo* unit2) {
 }
 
 void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site) {
-    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+    if (GameManager_IsActiveTurn(team)) {
         if (Access_GetTeamUnit(site.x, site.y, team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
             SmartPointer<Zone> zone = new (std::nothrow) Zone(unit2, this);
 
@@ -80,8 +80,6 @@ void TaskAssistMove::CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point s
             unit1->target_grid_y = site.y;
 
             unit1->SetParent(unit2);
-
-            SDL_assert(GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team);
 
             if (unit1->GetUnitType() == AIRTRANS) {
                 UnitsManager_SetNewOrder(unit1, ORDER_UNLOAD, ORDER_STATE_INIT);

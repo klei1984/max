@@ -117,8 +117,8 @@ void TaskCreateBuilding::RequestBuilder() {
 }
 
 void TaskCreateBuilding::AbandonSite() {
-    if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == builder->team) {
-        if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+    if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
+        if (GameManager_IsActiveTurn(builder->team)) {
             builder->target_grid_x = builder->grid_x;
             builder->target_grid_y = builder->grid_y;
 
@@ -135,7 +135,7 @@ bool TaskCreateBuilding::BuildRoad() {
     if (builder->GetUnitType() == ENGINEER && Task_IsReadyToTakeOrders(&*builder) && builder->speed == 0 &&
         (builder->grid_x != site.x || builder->grid_y != site.y)) {
         if (ini_get_setting(INI_OPPONENT) >= MASTER || builder->storage >= 26) {
-            if (GameManager_PlayMode != PLAY_MODE_TURN_BASED || GameManager_ActiveTurnTeam == team) {
+            if (GameManager_IsActiveTurn(team)) {
                 if (builder->storage >= 2 && Access_IsAccessible(ROAD, team, builder->grid_x, builder->grid_y, 1)) {
                     SmartObjectArray<ResourceID> build_list = builder->GetBuildList();
                     ResourceID unit_type_ = ROAD;
@@ -196,8 +196,7 @@ void TaskCreateBuilding::BeginBuilding() {
                                     if (!Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
                                                                 false)) {
                                         if (CheckMaterials()) {
-                                            if (GameManager_PlayMode != PLAY_MODE_TURN_BASED ||
-                                                GameManager_ActiveTurnTeam == team) {
+                                            if (GameManager_IsActiveTurn(team)) {
                                                 build_list.Clear();
 
                                                 build_list.PushBack(&unit_type);
@@ -644,7 +643,8 @@ void TaskCreateBuilding::EndTurn() {
                     } else if (builder->GetOrderState() == ORDER_STATE_UNIT_READY && builder->GetTask() == this) {
                         Activate();
 
-                    } else if (builder->GetOrder() == ORDER_BUILD && builder->GetOrderState() == ORDER_STATE_BUILD_IN_PROGRESS &&
+                    } else if (builder->GetOrder() == ORDER_BUILD &&
+                               builder->GetOrderState() == ORDER_STATE_BUILD_IN_PROGRESS &&
                                Ai_IsDangerousLocation(&*builder, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false)) {
                         AbandonSite();
                     }
