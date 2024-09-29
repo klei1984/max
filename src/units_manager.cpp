@@ -5560,7 +5560,9 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         UnitsManager_RemoveConnections(unit);
 
         if (unit->GetUnitType() == RESEARCH) {
-            ResearchMenu_UpdateResearchProgress(unit->team, unit->research_topic, -1);
+            if (unit->GetOrder() == ORDER_POWER_ON && unit->GetOrderState() != ORDER_STATE_INIT) {
+                ResearchMenu_UpdateResearchProgress(unit->team, unit->research_topic, -1);
+            }
         }
 
         if (unit->GetUnitType() == GREENHSE) {
