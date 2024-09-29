@@ -55,12 +55,12 @@ char* TaskPlaceMines::WriteStatusLog(char* buffer) const {
 }
 
 Rect* TaskPlaceMines::GetBounds(Rect* bounds) {
-    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[team].GetInfoMap();
 
     if (info_map) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                if (info_map[x][y] & 2) {
+                if (info_map[x][y] & INFO_MAP_MINE_FIELD) {
                     bounds->ulx = x;
                     bounds->uly = y;
                     bounds->lrx = x + 1;
@@ -155,14 +155,14 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
             result = true;
 
         } else if (unit.storage > 0) {
-            uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+            auto info_map = AiPlayer_Teams[team].GetInfoMap();
 
             if (info_map) {
-                if (info_map[unit.grid_x][unit.grid_y] & 2) {
+                if (info_map[unit.grid_x][unit.grid_y] & INFO_MAP_MINE_FIELD) {
                     if (GameManager_IsActiveTurn(team)) {
                         UnitsManager_SetNewOrder(&unit, ORDER_LAY_MINE, ORDER_STATE_PLACING_MINES);
 
-                        info_map[unit.grid_x][unit.grid_y] &= ~0x02;
+                        info_map[unit.grid_x][unit.grid_y] &= ~INFO_MAP_MINE_FIELD;
                     }
 
                     result = true;

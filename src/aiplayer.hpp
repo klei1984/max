@@ -42,6 +42,8 @@ struct BuildOrder {
 };
 
 class AiPlayer {
+    static constexpr uint8_t AttackTaskLimit{3};
+
     uint16_t player_team;
     uint8_t strategy;
     int16_t field_3;
@@ -56,16 +58,14 @@ class AiPlayer {
     SmartPointer<TaskClearZone> task_clear_ground_zone;
     SmartPointer<TaskClearZone> task_clear_air_zone;
 
-    SmartPointer<Task> task_1;
-    SmartPointer<Task> defense_reserve_task;
-    SmartPointer<Task> task_3;
-    SmartPointer<Task> task_4;
-
     SmartList<Task> task_list;
 
+    SmartPointer<Task> check_assaults_task;
+    SmartPointer<Task> defense_reserve_task;
+    SmartPointer<Task> find_mines_task;
+    SmartPointer<Task> place_mines_task;
     SmartPointer<TaskAttackReserve> attack_reserve_task;
-
-    SmartPointer<Task> task_array[3];
+    SmartPointer<Task> attack_tasks[AttackTaskLimit];
 
     SmartList<SpottedUnit> spotted_units;
 

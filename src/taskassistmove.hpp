@@ -25,10 +25,10 @@
 #include "task.hpp"
 
 class TaskAssistMove : public Task {
-    SmartList<UnitInfo> units;
+    SmartList<UnitInfo> transporters;
 
-    void RequestTransport(UnitInfo* unit1, UnitInfo* unit2);
-    void CompleteTransport(UnitInfo* unit1, UnitInfo* unit2, Point site);
+    void RequestTransport(UnitInfo* transporter, UnitInfo* client);
+    void CompleteTransport(UnitInfo* transporter, UnitInfo* client, Point site);
 
 public:
     TaskAssistMove(uint16_t team);

@@ -96,7 +96,7 @@ bool AiAttack_DecideDesperationAttack(UnitInfo* attacker, UnitInfo* target) {
 
 bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site, int32_t* projected_damage,
                                    int32_t caution_level) {
-    uint8_t** info_map = AiPlayer_Teams[unit1->team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[unit1->team].GetInfoMap();
     Point position;
     bool result = false;
     int16_t** damage_potential_map = AiPlayer_Teams[unit1->team].GetDamagePotentialMap(unit1, caution_level, true);
@@ -146,7 +146,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
                     distance = TaskManager_GetDistance(position.x - unit1->grid_x, position.y - unit1->grid_y);
 
                     if (damage_potential < *projected_damage || distance < minimum_distance) {
-                        if (!info_map || !(info_map[position.x][position.y] & 8)) {
+                        if (!info_map || !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE)) {
                             if (Access_IsAccessible(unit1->GetUnitType(), unit1->team, position.x, position.y, 2)) {
                                 *projected_damage = damage_potential;
                                 *site = position;
@@ -167,7 +167,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
 bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int32_t* projected_damage,
                                     int32_t caution_level, int32_t range, bool mode) {
     ZoneWalker walker(target, range);
-    uint8_t** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[unit->team].GetInfoMap();
     int16_t** damage_potential_map;
     bool result = false;
     int32_t distance1 = range;
@@ -228,7 +228,7 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
                 if (is_better) {
                     is_better = false;
 
-                    if (!info_map || !(info_map[walker.GetGridX()][walker.GetGridY()] & 8)) {
+                    if (!info_map || !(info_map[walker.GetGridX()][walker.GetGridY()] & INFO_MAP_CLEAR_OUT_ZONE)) {
                         if (Access_IsAccessible(unit->GetUnitType(), unit->team, walker.GetGridX(), walker.GetGridY(),
                                                 2)) {
                             is_better = !mode || transporter_map.Search(*walker.GetCurrentLocation());
@@ -1127,7 +1127,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
 
     if (leader) {
         Point target_location;
-        uint8_t** info_map = AiPlayer_Teams[unit->team].GetInfoMap();
+        auto info_map = AiPlayer_Teams[unit->team].GetInfoMap();
         Point unit_position(unit->grid_x, unit->grid_y);
         ResourceID transporter_type = INVALID_ID;
 
@@ -1163,7 +1163,8 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
                                                                unit_position.y - leader->grid_y) /
                                        2;
 
-                            if (distance < range && (!info_map || !(info_map[unit_position.x][unit_position.y] & 8))) {
+                            if (distance < range &&
+                                (!info_map || !(info_map[unit_position.x][unit_position.y] & INFO_MAP_CLEAR_OUT_ZONE))) {
                                 if (map.Search(unit_position) &&
                                     Access_IsAccessible(unit->GetUnitType(), unit->team, unit_position.x,
                                                         unit_position.y, 0x02)) {

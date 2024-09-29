@@ -156,7 +156,7 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
         {
             Point destination(unit->grid_x, unit->grid_y);
             Point site;
-            uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+            auto info_map = AiPlayer_Teams[team].GetInfoMap();
             int32_t safety;
             int32_t maximum_safety = map1.GetMapColumn(unit->grid_x)[unit->grid_y];
             int32_t distance;
@@ -169,7 +169,7 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
                     safety = map1.GetMapColumn(site.x)[site.y];
 
                     if (safety >= maximum_safety && map2.GetMapColumn(site.x)[site.y] > 0) {
-                        if (!(info_map[site.x][site.y] & 8)) {
+                        if (!(info_map[site.x][site.y] & INFO_MAP_CLEAR_OUT_ZONE)) {
                             distance = TaskManager_GetDistance(unit->grid_x - site.x, unit->grid_y - site.y);
 
                             if (safety > maximum_safety || distance < minimum_distance) {

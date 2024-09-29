@@ -2309,4 +2309,12 @@ enum MapViewUpdateType : uint8_t {
     MAP_VIEW_REFRESH,
 };
 
+enum InfoMapType : uint8_t {
+    INFO_MAP_NO_INFO = 0x00,
+    INFO_MAP_EXPLORED = 0x01,
+    INFO_MAP_MINE_FIELD = 0x02,
+    INFO_MAP_UNKNOWN = 0x04,
+    INFO_MAP_CLEAR_OUT_ZONE = 0x08,
+};
+
 #endif /* ENUMS_HPP */

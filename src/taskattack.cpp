@@ -1117,7 +1117,7 @@ bool TaskAttack::IsThereTimeToPrepare() {
 bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t caution_level) {
     Point target_position(unit->grid_x, unit->grid_y);
     Point position;
-    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[team].GetInfoMap();
     int16_t** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(unit, caution_level, false);
     Rect bounds;
     ResourceID transporter = INVALID_ID;
@@ -1194,8 +1194,8 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                                         (TaskManager_GetDistance(unit->grid_x - position.x, unit->grid_y - position.y) /
                                          4);
 
-                                    if (distance < minimum_distance && !(info_map[position.x][position.y] & 8) &&
-                                        map.Search(position)) {
+                                    if (distance < minimum_distance &&
+                                        !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) && map.Search(position)) {
                                         if ((!(access_flags & MOBILE_LAND_UNIT) ||
                                              Access_GetModifiedSurfaceType(position.x, position.y) !=
                                                  SURFACE_TYPE_WATER) &&
@@ -1632,7 +1632,7 @@ Point TaskAttack::GetLeaderDestination() {
 
 void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
     AccessMap access_map;
-    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[team].GetInfoMap();
     int32_t caution_level = unit->ammo > 0 ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE;
 
     PathsManager_InitAccessMap(unit, access_map.GetMap(), 0x01, caution_level);
@@ -1700,7 +1700,7 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
             for (int32_t j = 0; j < limit; ++j) {
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                     position.y < ResourceManager_MapSize.y && access_map.GetMapColumn(position.x)[position.y] > 0 &&
-                    (!info_map || !(info_map[position.x][position.y] & 8))) {
+                    (!info_map || !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE))) {
                     distance =
                         50 * TaskManager_GetDistance(position, destination) + TaskManager_GetDistance(position, site);
 

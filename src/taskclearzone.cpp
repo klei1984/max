@@ -233,7 +233,7 @@ bool TaskClearZone::ExamineZones() {
     zone_squares.Clear();
     points2.Clear();
 
-    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[team].GetInfoMap();
 
     if (info_map) {
         for (int32_t i = 0; i < zones.GetCount(); ++i) {
@@ -242,7 +242,7 @@ bool TaskClearZone::ExamineZones() {
             for (int32_t j = 0; j < zone->points.GetCount(); ++j) {
                 site = *zone->points[j];
 
-                info_map[site.x][site.y] &= ~0x08;
+                info_map[site.x][site.y] &= ~INFO_MAP_CLEAR_OUT_ZONE;
             }
         }
     }
@@ -256,7 +256,7 @@ bool TaskClearZone::ExamineZones() {
             site = *zone->points[j];
 
             if (info_map) {
-                info_map[site.x][site.y] |= 0x08;
+                info_map[site.x][site.y] |= INFO_MAP_CLEAR_OUT_ZONE;
             }
 
             UnitInfo* unit = Access_GetTeamUnit(site.x, site.y, team, unit_flags);
@@ -482,7 +482,7 @@ void TaskClearZone::SearchMap() {
 }
 
 void TaskClearZone::AddZone(Zone* zone) {
-    uint8_t** map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[team].GetInfoMap();
 
     AiLog log("Clear Zone: Add Zone for %s at [%i,%i].",
               UnitsManager_BaseUnits[zone->unit->GetUnitType()].singular_name, zone->unit->grid_x + 1,
@@ -490,9 +490,9 @@ void TaskClearZone::AddZone(Zone* zone) {
 
     zones.Insert(zone);
 
-    if (map) {
+    if (info_map) {
         for (int32_t i = 0; i < zone->points.GetCount(); ++i) {
-            map[zone->points[i]->x][zone->points[i]->y] |= 0x08;
+            info_map[zone->points[i]->x][zone->points[i]->y] |= INFO_MAP_CLEAR_OUT_ZONE;
         }
     }
 

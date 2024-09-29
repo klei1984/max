@@ -518,7 +518,9 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
     result = TARGET_CLASS_NONE;
 
     if (unit->GetUnitType() == CORVETTE) {
-        if (++UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] == 1) {
+        ++UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset];
+
+        if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] == 1) {
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
             if (units) {
@@ -537,7 +539,9 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
     }
 
     if (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) {
-        if (++UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset] == 1) {
+        ++UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset];
+
+        if (UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset] == 1) {
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
             if (units) {

@@ -204,65 +204,68 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_flags) {
             AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), player_team) + task_flags + 0xFA;
         int32_t task_index;
 
-        for (task_index = 0; task_index < 3 && task_array[task_index]; ++task_index) {
+        for (task_index = 0; task_index < AttackTaskLimit && attack_tasks[task_index]; ++task_index) {
         }
 
-        if (task_index == 3) {
-            for (--task_index; task_index >= 0 && task_array[task_index]->DeterminePriority(target_task_flags) <= 0;
+        if (task_index == AttackTaskLimit) {
+            for (--task_index; task_index >= 0 && attack_tasks[task_index]->DeterminePriority(target_task_flags) <= 0;
                  --task_index) {
             }
         }
 
         if (task_index >= 0) {
-            if (task_array[task_index]) {
-                task_array[task_index]->RemoveSelf();
-            }
-
             // expert and tougher computer players capture alien units
             if (spotted_unit->GetUnit()->team == PLAYER_TEAM_ALIEN &&
                 ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
                 if (TaskMove::FindUnit(&UnitsManager_MobileLandSeaUnits, player_team, COMMANDO)) {
-                    task_array[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
-                    TaskManager.AppendTask(*task_array[task_index]);
+                    if (attack_tasks[task_index]) {
+                        attack_tasks[task_index]->RemoveSelf();
+                    }
+
+                    attack_tasks[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
+                    TaskManager.AppendTask(*attack_tasks[task_index]);
                 }
 
             } else {
-                task_array[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
-                TaskManager.AppendTask(*task_array[task_index]);
+                if (attack_tasks[task_index]) {
+                    attack_tasks[task_index]->RemoveSelf();
+                }
+
+                attack_tasks[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
+                TaskManager.AppendTask(*attack_tasks[task_index]);
             }
         }
     }
 }
 
 void AiPlayer::UpdatePriorityTasks() {
-    for (int32_t i = 0; i < 3; ++i) {
-        task_array[i] = nullptr;
+    for (int32_t i = 0; i < AttackTaskLimit; ++i) {
+        attack_tasks[i] = nullptr;
     }
 
-    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
-         ++it) {
+    for (auto it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End(); ++it) {
         if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskAttack) {
             uint16_t task_flags = (*it).GetFlags();
             int32_t task_index;
 
-            for (task_index = 0;
-                 task_index < 3 && task_array[task_index] && task_array[task_index]->DeterminePriority(task_flags) <= 0;
+            for (task_index = 0; task_index < AttackTaskLimit && attack_tasks[task_index] &&
+                                 attack_tasks[task_index]->DeterminePriority(task_flags) <= 0;
                  ++task_index) {
             }
 
-            if (task_index == 3) {
+            if (task_index == AttackTaskLimit) {
                 (*it).RemoveSelf();
 
             } else {
-                if (task_array[2]) {
-                    task_array[2]->RemoveSelf();
+                if (attack_tasks[AttackTaskLimit - 1]) {
+                    attack_tasks[AttackTaskLimit - 1]->RemoveSelf();
                 }
 
-                for (int32_t i = 2; i > task_index; --i) {
-                    task_array[i] = task_array[i - 1];
+                for (int32_t i = AttackTaskLimit - 1; i > task_index; --i) {
+                    attack_tasks[i] = attack_tasks[i - 1];
                 }
 
-                task_array[task_index] = (*it);
+                attack_tasks[task_index] = (*it);
             }
         }
     }
@@ -390,7 +393,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map)
             }
 
             if (surface_type == Access_GetSurfaceType(site.x, site.y)) {
-                info_map[site.x][site.y] |= 0x04;
+                info_map[site.x][site.y] |= INFO_MAP_UNKNOWN;
             }
         }
 
@@ -416,7 +419,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map)
             }
 
             if (surface_type == Access_GetSurfaceType(site.x, site.y)) {
-                info_map[site.x][site.y] |= 0x04;
+                info_map[site.x][site.y] |= INFO_MAP_UNKNOWN;
             }
         }
     }
@@ -1116,10 +1119,10 @@ void AiPlayer::MineSpotted(UnitInfo* unit) {
         AddThreatToMineMap(position.x - 3, position.y + 3, 6, base_attack, 2);
         AddThreatToMineMap(position.x - 4, position.y + 4, 8, base_attack, 1);
 
-        if (!task_3) {
-            task_3 = new (std::nothrow) TaskFindMines(player_team, position);
+        if (!find_mines_task) {
+            find_mines_task = new (std::nothrow) TaskFindMines(player_team, position);
 
-            TaskManager.AppendTask(*task_3);
+            TaskManager.AppendTask(*find_mines_task);
         }
     }
 }
@@ -2151,6 +2154,7 @@ AiPlayer::~AiPlayer() {
         }
 
         delete[] info_map;
+        info_map = nullptr;
     }
 
     if (mine_map) {
@@ -2159,6 +2163,7 @@ AiPlayer::~AiPlayer() {
         }
 
         delete[] mine_map;
+        mine_map = nullptr;
     }
 }
 
@@ -2349,9 +2354,11 @@ void AiPlayer::BeginTurn() {
         DetermineTargetTeam();
 
         if (need_init) {
-            task_1 = new (std::nothrow) TaskCheckAssaults(player_team);
+            SDL_assert(check_assaults_task == nullptr);
 
-            TaskManager.AppendTask(*task_1);
+            check_assaults_task = new (std::nothrow) TaskCheckAssaults(player_team);
+
+            TaskManager.AppendTask(*check_assaults_task);
 
             if (strategy == AI_STRATEGY_RANDOM) {
                 switch (UnitsManager_TeamInfo[player_team].team_clan) {
@@ -2403,7 +2410,7 @@ void AiPlayer::BeginTurn() {
                 for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
                     info_map[i] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
 
-                    memset(info_map[i], 0, ResourceManager_MapSize.y);
+                    memset(info_map[i], INFO_MAP_NO_INFO, ResourceManager_MapSize.y);
                 }
             }
 
@@ -2420,7 +2427,7 @@ void AiPlayer::BeginTurn() {
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                     if (UnitsManager_TeamInfo[player_team].heat_map_complete[y * ResourceManager_MapSize.x + x]) {
-                        info_map[x][y] = 1;
+                        info_map[x][y] = INFO_MAP_EXPLORED;
                     }
                 }
             }
@@ -2537,7 +2544,7 @@ void AiPlayer::BeginTurn() {
                 }
             }
 
-            if (!task_3) {
+            if (!find_mines_task) {
                 bool is_found = false;
                 int32_t grid_x;
                 int32_t grid_y;
@@ -2551,9 +2558,9 @@ void AiPlayer::BeginTurn() {
                 }
 
                 if (is_found) {
-                    task_3 = new (std::nothrow) TaskFindMines(player_team, Point(grid_x, grid_y));
+                    find_mines_task = new (std::nothrow) TaskFindMines(player_team, Point(grid_x, grid_y));
 
-                    TaskManager.AppendTask(*task_3);
+                    TaskManager.AppendTask(*find_mines_task);
                 }
             }
 
@@ -2702,7 +2709,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
 
         for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
             for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
-                info_map[site.x][site.y] &= 0xFB;
+                info_map[site.x][site.y] &= ~INFO_MAP_UNKNOWN;
             }
         }
 
@@ -2888,7 +2895,7 @@ void AiPlayer::PlanMinefields() {
                 if (access_map.GetMapColumn(x)[y]) {
                     ++counter1;
 
-                    if (info_map[x][y] & 0x02) {
+                    if (info_map[x][y] & INFO_MAP_MINE_FIELD) {
                         ++counter2;
 
                         access_map.GetMapColumn(x)[y] = 0x00;
@@ -2905,7 +2912,7 @@ void AiPlayer::PlanMinefields() {
                 if (access_map.GetMapColumn((*it).grid_x)[(*it).grid_y]) {
                     ++counter3;
 
-                    info_map[(*it).grid_x][(*it).grid_y] &= ~0x02;
+                    info_map[(*it).grid_x][(*it).grid_y] &= ~INFO_MAP_MINE_FIELD;
                     access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] = 0x00;
                 }
             }
@@ -2924,7 +2931,7 @@ void AiPlayer::PlanMinefields() {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y && probability; ++y) {
                     if (access_map.GetMapColumn(x)[y]) {
                         if (((dos_rand() * counter1) >> 15) + 1 <= probability) {
-                            info_map[x][y] |= 0x02;
+                            info_map[x][y] |= INFO_MAP_MINE_FIELD;
                             --probability;
                         }
 
@@ -2933,9 +2940,9 @@ void AiPlayer::PlanMinefields() {
                 }
             }
 
-            if (!task_4) {
-                task_4 = (new (std::nothrow) TaskPlaceMines(player_team));
-                TaskManager.AppendTask(*task_4);
+            if (!place_mines_task) {
+                place_mines_task = (new (std::nothrow) TaskPlaceMines(player_team));
+                TaskManager.AppendTask(*place_mines_task);
             }
         }
     }
@@ -3022,8 +3029,6 @@ void AiPlayer::Init(uint16_t team) {
     target_team = -1;
     field_5 = -1;
     field_7 = -1;
-    task_3 = nullptr;
-    task_4 = nullptr;
 
     if (info_map) {
         for (int32_t x = 0; x < dimension_x; ++x) {
@@ -3057,14 +3062,18 @@ void AiPlayer::Init(uint16_t team) {
 
     task_list.Clear();
 
+    find_mines_task = nullptr;
+    place_mines_task = nullptr;
+
     task_clear_ground_zone = nullptr;
     task_clear_air_zone = nullptr;
-    task_1 = nullptr;
+
+    check_assaults_task = nullptr;
     attack_reserve_task = nullptr;
     defense_reserve_task = nullptr;
 
-    for (int32_t i = 0; i < 3; ++i) {
-        task_array[i] = nullptr;
+    for (int32_t i = 0; i < AttackTaskLimit; ++i) {
+        attack_tasks[i] = nullptr;
     }
 
     int32_t opponent = ini_get_setting(INI_OPPONENT);
@@ -3845,7 +3854,7 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, uint16_t flag
 
 void AiPlayer::SetInfoMapPoint(Point site) {
     if (info_map) {
-        info_map[site.x][site.y] |= 0x01;
+        info_map[site.x][site.y] |= INFO_MAP_EXPLORED;
     }
 }
 
@@ -3883,10 +3892,10 @@ void AiPlayer::FindMines(UnitInfo* unit) {
 
         mine_map[position.x][position.y] = (attack + mine_map[position.x][position.y]) / 2;
 
-        if (!task_3) {
-            task_3 = new (std::nothrow) TaskFindMines(player_team, position);
+        if (!find_mines_task) {
+            find_mines_task = new (std::nothrow) TaskFindMines(player_team, position);
 
-            TaskManager.AppendTask(*task_3);
+            TaskManager.AppendTask(*find_mines_task);
         }
     }
 }
@@ -4626,7 +4635,7 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
             file.Read(info_map[x], ResourceManager_MapSize.y);
 
             for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                info_map[x][y] &= 0x03;
+                info_map[x][y] &= (INFO_MAP_EXPLORED | INFO_MAP_MINE_FIELD);
             }
         }
     }

@@ -42,7 +42,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
         Point target_location(target->grid_x, target->grid_y);
         Point unit_location(unit->grid_x, unit->grid_y);
         Point position;
-        uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+        auto info_map = AiPlayer_Teams[team].GetInfoMap();
         int16_t** damage_potential_map =
             AiPlayer_Teams[team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false);
         Rect bounds;
@@ -87,7 +87,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
                                 (TaskManager_GetDistance(unit->grid_x - position.x, unit->grid_y - position.y) / 4) +
                                 TaskManager_GetDistance(position, target_location) / 2;
 
-                            if (distance < minimum_distance && !(info_map[position.x][position.y] & 8) &&
+                            if (distance < minimum_distance && !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) &&
                                 transporter_map.Search(position) &&
                                 Access_IsAccessible(unit->GetUnitType(), team, position.x, position.y, 0x02)) {
                                 unit_location = position;

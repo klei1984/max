@@ -84,7 +84,7 @@ bool TaskExplore::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.IsReadyForOrders(this) && unit.speed) {
-        AiLog log("Exlore: Move Finished");
+        AiLog log("Explore: Move Finished");
 
         FindDestination(unit, unit.GetBaseValues()->GetAttribute(ATTRIB_SCAN));
 
@@ -104,7 +104,7 @@ void TaskExplore::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
 }
 
 bool TaskExplore::IsVisited(UnitInfo& unit, Point point) {
-    uint8_t** info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[team].GetInfoMap();
 
     if (unit.GetUnitType() == FASTBOAT || unit.GetUnitType() == SUBMARNE) {
         if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * point.y + point.x] != SURFACE_TYPE_WATER) {
@@ -115,7 +115,7 @@ bool TaskExplore::IsVisited(UnitInfo& unit, Point point) {
         return true;
     }
 
-    return info_map && (info_map[point.x][point.y] & 0x1);
+    return info_map && (info_map[point.x][point.y] & INFO_MAP_EXPLORED);
 }
 
 void TaskExplore::ObtainUnit() {
