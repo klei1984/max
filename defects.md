@@ -4,11 +4,9 @@ title: Defects
 permalink: /defects/
 ---
 
-The article maintains a comprehensive list of game defects that is present in the original M.A.X. v1.04 (English) runtime.
+The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Last updated: 2024-07-19.
-
-Status: Fixed 131 / 219 (59.8%) original M.A.X. defects in M.A.X. Port.
+Status (last updated 2024-09-29): Fixed 137 / 225 (60.9%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -790,3 +788,11 @@ As the video clip demonstrates there are at least four more odd behaviors:
 Computer players execute a complex class method (cseg01:0005B2EF) at the beginning of each turn and if ten or more fuel is stored in fuel storage units, then all currently powered off non critical stationary buildings are attempted to be turned back on. The algorithm does not check which complex has the fuel reserves or whether there are power generators or power stations that could be turned on within the complex.
 There is a corner case where units are requested to be turned back on, with order ORDER_POWER_ON in order state ORDER_STATE_INIT, and they are eventually shut off again in the process even though they were not even on in the first place which means that certain events that shall only be executed once a unit is changing operating state from on to off are incorrectly triggered.
 For example the computer player requests all currently powered off research centers, having order ORDER_POWER_OFF and order state ORDER_STATE_EXECUTING_ORDER, to be powered back on again at the beginning of a new turn by issuing order ORDER_POWER_ON and order state ORDER_STATE_INIT. Then the method from before checks whether there is sufficient power to turn on one of the affected research centers and it finds that no it is not possible so it orders some or all of the research centers to get turned off again including the one that is getting turned on right now by issuing order ORDER_POWER_OFF and order state ORDER_STATE_INIT again. Why can the plausibility test method qualify the affected research centers for an order to power off? Because they currently do not have order ORDER_POWER_OFF as the computer player changed their order in the beginning of the turn to be ORDER_POWER_ON and those orders are not yet processed for most of the affected units. All this means that an already powered off research center can get a new order to power on and before that order gets served the unit can get another order to get powered off again in which case the research topic allocation of the affected research center will be decremented incorrectly, eventually reaching a negative allocation. Unit orders shall not be allowed to change orders and order states inconsistently like this. The proposed defect fix is to make the plasuibility testing method more robust against the corner case. A more appropriate, but complex change would be to move all unit order and order state transition management into the UnitInfo class itself and only allow manager classes to request operations on UnitInfo objects via an encapsulated abstract API level.
+
+225. **[Fixed]** There is a function (cseg01:001007BF) to remove a destroyed (exploding) unit. When a research center is destroyed the function does not check whether it was powered on, it just unconditionally calls the topic allocation manager function (cseg01:000D322D) to decrement the allocation counter even if the research center was powered off already. In corner cases when allocation becomes negative this means that the turns to complete value actually increases due to subtraction of a negative value from it. This issue affects both human and computer players. The proposed defect fix is to only call the allocation manager function if the destroyed research center is powered on.
+<br>
+	<video class="embed-video" preload="metadata" controls loop muted playsinline>
+	<source src="{{ site.baseurl }}/assets/clips/defect_225.mp4" type="video/mp4">
+	</video>
+<br>
+<br>
