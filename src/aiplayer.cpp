@@ -3812,7 +3812,7 @@ int32_t AiPlayer::GetDamagePotential(UnitInfo* unit, Point site, int32_t caution
 void AiPlayer::ClearZone(Zone* zone) {
     if (zone->unit->flags & MOBILE_AIR_UNIT) {
         if (!task_clear_air_zone) {
-            task_clear_air_zone = new (std::nothrow) TaskClearZone(player_team, 0x40);
+            task_clear_air_zone = new (std::nothrow) TaskClearZone(player_team, MOBILE_AIR_UNIT);
 
             TaskManager.AppendTask(*task_clear_air_zone);
         }
@@ -3821,7 +3821,7 @@ void AiPlayer::ClearZone(Zone* zone) {
 
     } else {
         if (!task_clear_ground_zone) {
-            task_clear_ground_zone = new (std::nothrow) TaskClearZone(player_team, 0x180);
+            task_clear_ground_zone = new (std::nothrow) TaskClearZone(player_team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
             TaskManager.AppendTask(*task_clear_ground_zone);
         }
 
