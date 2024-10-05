@@ -2091,7 +2091,7 @@ Point GameManager_GetStartingPositionPowerGenerator(Point point, uint16_t team) 
         for (int32_t i = 0; i < 2; ++i) {
             point += Paths_8DirPointsArray[direction];
 
-            if (Access_IsAccessible(POWGEN, team, point.x, point.y, 0x02)) {
+            if (Access_IsAccessible(POWGEN, team, point.x, point.y, AccessModifier_SameClassBlocks)) {
                 return point;
             }
         }
@@ -5928,7 +5928,8 @@ int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_
 
     if (unit1->GetOrderState() == ORDER_STATE_UNIT_READY) {
         if (unit1->GetParent() && GameManager_IsUnitNextToPosition(unit1->GetParent(), grid_x, grid_y) &&
-            Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
+            Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y,
+                                AccessModifier_SameClassBlocks)) {
             result = CURSOR_UNIT_GO;
 
         } else if (unit2) {
@@ -6037,7 +6038,8 @@ int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t gr
     parent = unit1->GetParent();
 
     if (GameManager_IsUnitNextToPosition(parent, grid_x, grid_y) &&
-        Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
+        Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y,
+                            AccessModifier_SameClassBlocks)) {
         if ((unit1->flags & MOBILE_AIR_UNIT) && parent->grid_x <= grid_x && (parent->grid_x) + 1 >= grid_x &&
             parent->grid_y <= grid_y && (parent->grid_y) + 1 >= grid_y) {
             result = CURSOR_FRIEND;
@@ -6074,7 +6076,8 @@ UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type)
 int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2) {
     int32_t result;
 
-    if (Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y, 0x02)) {
+    if (Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y,
+                            AccessModifier_SameClassBlocks)) {
         if (unit2 && (unit2->flags & MOBILE_AIR_UNIT)) {
             result = CURSOR_FRIEND;
 

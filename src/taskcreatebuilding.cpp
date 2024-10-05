@@ -136,7 +136,8 @@ bool TaskCreateBuilding::BuildRoad() {
         (builder->grid_x != site.x || builder->grid_y != site.y)) {
         if (ini_get_setting(INI_OPPONENT) >= MASTER || builder->storage >= 26) {
             if (GameManager_IsActiveTurn(team)) {
-                if (builder->storage >= 2 && Access_IsAccessible(ROAD, team, builder->grid_x, builder->grid_y, 1)) {
+                if (builder->storage >= 2 && Access_IsAccessible(ROAD, team, builder->grid_x, builder->grid_y,
+                                                                 AccessModifier_EnemySameClassBlocks)) {
                     SmartObjectArray<ResourceID> build_list = builder->GetBuildList();
                     ResourceID unit_type_ = ROAD;
 
@@ -187,7 +188,7 @@ void TaskCreateBuilding::BeginBuilding() {
 
         if (Task_EstimateTurnsTillMissionEnd() >=
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
-            if (Access_IsAccessible(unit_type, team, site.x, site.y, 1)) {
+            if (Access_IsAccessible(unit_type, team, site.x, site.y, AccessModifier_EnemySameClassBlocks)) {
                 if (!parent || parent->IsNeeded()) {
                     if (builder->GetTask() == this) {
                         if (!RequestWaterPlatform()) {

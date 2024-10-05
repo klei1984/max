@@ -249,7 +249,7 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int32_t caution_level) {
                 do {
                     if (damage_potential_map[walker.GetGridX()][walker.GetGridY()] < unit_hits &&
                         Access_IsAccessible(unit->GetUnitType(), unit->team, walker.GetGridX(), walker.GetGridY(),
-                                            0x02)) {
+                                            AccessModifier_SameClassBlocks)) {
                         return false;
                     }
                 } while (walker.FindNext());

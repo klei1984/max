@@ -87,9 +87,11 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
                                 (TaskManager_GetDistance(unit->grid_x - position.x, unit->grid_y - position.y) / 4) +
                                 TaskManager_GetDistance(position, target_location) / 2;
 
-                            if (distance < minimum_distance && !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) &&
+                            if (distance < minimum_distance &&
+                                !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) &&
                                 transporter_map.Search(position) &&
-                                Access_IsAccessible(unit->GetUnitType(), team, position.x, position.y, 0x02)) {
+                                Access_IsAccessible(unit->GetUnitType(), team, position.x, position.y,
+                                                    AccessModifier_SameClassBlocks)) {
                                 unit_location = position;
                                 minimum_distance = distance;
                             }

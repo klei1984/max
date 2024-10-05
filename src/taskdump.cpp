@@ -115,9 +115,11 @@ void TaskDump::Search() {
         if (Access_IsInsideBounds(&bounds, &destination)) {
             keep_searching = true;
 
-            if (Access_IsAccessible(passenger->GetUnitType(), team, destination.x, destination.y, 0x01)) {
+            if (Access_IsAccessible(passenger->GetUnitType(), team, destination.x, destination.y,
+                                    AccessModifier_EnemySameClassBlocks)) {
                 if (!Ai_IsDangerousLocation(&*passenger, destination, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
-                    TaskPathRequest* request = new (std::nothrow) TaskPathRequest(&*transporter_unit, 1, destination);
+                    TaskPathRequest* request = new (std::nothrow)
+                        TaskPathRequest(&*transporter_unit, AccessModifier_EnemySameClassBlocks, destination);
 
                     request->SetMinimumDistance(minimum_distance);
                     request->SetCautionLevel(CAUTION_LEVEL_AVOID_ALL_DAMAGE);

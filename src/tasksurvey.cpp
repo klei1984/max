@@ -85,7 +85,8 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
 
                         if (!location_found || distance < minimum_distance) {
                             if (damage_potential_map[site.x][site.y] <= 0) {
-                                if (Access_IsAccessible(SURVEYOR, team, site.x, site.y, 1)) {
+                                if (Access_IsAccessible(SURVEYOR, team, site.x, site.y,
+                                                        AccessModifier_EnemySameClassBlocks)) {
                                     for (int32_t index_x = site.x - 1; index_x <= site.x + 1; ++index_x) {
                                         for (int32_t index_y = site.y - 1; index_y <= site.y + 1; ++index_y) {
                                             cargo_at_site =

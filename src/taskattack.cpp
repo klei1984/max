@@ -1195,12 +1195,13 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                                          4);
 
                                     if (distance < minimum_distance &&
-                                        !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) && map.Search(position)) {
+                                        !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) &&
+                                        map.Search(position)) {
                                         if ((!(access_flags & MOBILE_LAND_UNIT) ||
                                              Access_GetModifiedSurfaceType(position.x, position.y) !=
                                                  SURFACE_TYPE_WATER) &&
                                             Access_IsAccessible(unit->GetUnitType(), team, position.x, position.y,
-                                                                0x02)) {
+                                                                AccessModifier_SameClassBlocks)) {
                                             target_position = position;
                                             minimum_distance = distance;
                                         }
@@ -1355,7 +1356,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
                     if (distance < minimum_distance &&
                         (!access_flags || Access_GetModifiedSurfaceType(site.x, site.y) != SURFACE_TYPE_WATER) &&
-                        Access_IsAccessible(unit->GetUnitType(), team, site.x, site.y, 0x02)) {
+                        Access_IsAccessible(unit->GetUnitType(), team, site.x, site.y, AccessModifier_SameClassBlocks)) {
                         best_site = site;
                         minimum_distance = distance;
                     }

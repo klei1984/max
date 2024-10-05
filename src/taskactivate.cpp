@@ -83,7 +83,7 @@ void TaskActivate::Activate() {
                                         position += Paths_8DirPointsArray[direction];
 
                                         if (Access_IsAccessible(unit_to_activate->GetUnitType(), team, position.x,
-                                                                position.y, 0x02)) {
+                                                                position.y, AccessModifier_SameClassBlocks)) {
                                             log.Log("Open square: [%i,%i].", position.x + 1, position.y + 1);
 
                                             switch (unit_to_activate->GetOrder()) {
@@ -129,7 +129,7 @@ void TaskActivate::Activate() {
                                         position += Paths_8DirPointsArray[direction];
 
                                         if (Access_IsAccessible(unit_to_activate->GetUnitType(), team, position.x,
-                                                                position.y, 0x01)) {
+                                                                position.y, AccessModifier_EnemySameClassBlocks)) {
                                             log.Log("Clearing square: [%i,%i].", position.x + 1, position.y + 1);
 
                                             zone = new (std::nothrow) Zone(&*unit_to_activate, this);

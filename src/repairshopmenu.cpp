@@ -672,7 +672,7 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
 
     if (repairshop->GetUnitType() == AIRTRANS) {
         if (Access_IsAccessible(target_unit->GetUnitType(), target_unit->team, repairshop->grid_x, repairshop->grid_y,
-                                2)) {
+                                AccessModifier_SameClassBlocks)) {
             repairshop->SetParent(target_unit);
             UnitsManager_SetNewOrder(&*repairshop, ORDER_UNLOAD, ORDER_STATE_INIT);
             GameManager_EnableMainMenu(&*repairshop);
@@ -829,7 +829,8 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
             if (Access_IsInsideBounds(&bounds, &point)) {
                 SmartList<UnitInfo>::Iterator it = units.Begin();
 
-                for (; it != units.End() && !Access_IsAccessible((*it).GetUnitType(), (*it).team, point.x, point.y, 2);
+                for (; it != units.End() && !Access_IsAccessible((*it).GetUnitType(), (*it).team, point.x, point.y,
+                                                                 AccessModifier_SameClassBlocks);
                      ++it) {
                 }
 

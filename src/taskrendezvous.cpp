@@ -33,7 +33,8 @@ static bool TaskRendezvous_SearchLocation(UnitInfo* unit1, UnitInfo* unit2, Poin
 static bool TaskRendezvous_SearchMap(UnitInfo* unit1, UnitInfo* unit2, Point* site, char mode);
 
 bool TaskRendezvous_SearchLocation(UnitInfo* unit1, UnitInfo* unit2, Point* site) {
-    return TaskRendezvous_SearchMap(unit1, unit2, site, 2) || TaskRendezvous_SearchMap(unit1, unit2, site, 1);
+    return TaskRendezvous_SearchMap(unit1, unit2, site, AccessModifier_SameClassBlocks) ||
+           TaskRendezvous_SearchMap(unit1, unit2, site, AccessModifier_EnemySameClassBlocks);
 }
 
 bool TaskRendezvous_SearchMap(UnitInfo* unit1, UnitInfo* unit2, Point* site, char mode) {

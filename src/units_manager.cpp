@@ -3004,52 +3004,52 @@ bool UnitsManager_FindValidPowerGeneratorPosition(uint16_t team, int16_t* grid_x
     *grid_x -= 1;
     *grid_y += 1;
 
-    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
         return true;
     }
 
     *grid_x += 3;
 
-    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
         return true;
     }
 
     *grid_x -= 3;
     *grid_y -= 1;
 
-    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
         return true;
     }
 
     *grid_x += 3;
 
-    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
         return true;
     }
 
     *grid_x -= 2;
     *grid_y -= 1;
 
-    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
         return true;
     }
 
     *grid_x += 1;
 
-    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
         return true;
     }
 
     *grid_x -= 1;
     *grid_y += 3;
 
-    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
         return true;
     }
 
     *grid_x += 1;
 
-    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, 2)) {
+    if (Access_IsAccessible(POWGEN, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
         return true;
     }
 
@@ -3276,7 +3276,7 @@ uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t 
             result = 0;
 
         } else {
-            result = Access_IsAccessible(unit_type, unit->team, grid_x, grid_y, 0x2);
+            result = Access_IsAccessible(unit_type, unit->team, grid_x, grid_y, AccessModifier_SameClassBlocks);
         }
     }
 
@@ -6671,7 +6671,7 @@ void UnitsManager_InitUnitPath(UnitInfo* unit) {
                     }
 
                 } else {
-                    if (Paths_RequestPath(unit, 0x02)) {
+                    if (Paths_RequestPath(unit, AccessModifier_SameClassBlocks)) {
                         unit->SetOrderState(ORDER_STATE_MOVE_GETTING_PATH);
                     }
                 }
@@ -6685,7 +6685,7 @@ void UnitsManager_InitUnitPath(UnitInfo* unit) {
                         unit->path = Paths_GetAirPath(unit);
 
                     } else {
-                        if (Paths_RequestPath(unit, 0x02)) {
+                        if (Paths_RequestPath(unit, AccessModifier_SameClassBlocks)) {
                             unit->SetOrderState(ORDER_STATE_NEW_ORDER);
                         }
                     }

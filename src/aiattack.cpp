@@ -147,7 +147,8 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
 
                     if (damage_potential < *projected_damage || distance < minimum_distance) {
                         if (!info_map || !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE)) {
-                            if (Access_IsAccessible(unit1->GetUnitType(), unit1->team, position.x, position.y, 2)) {
+                            if (Access_IsAccessible(unit1->GetUnitType(), unit1->team, position.x, position.y,
+                                                    AccessModifier_SameClassBlocks)) {
                                 *projected_damage = damage_potential;
                                 *site = position;
                                 minimum_distance = distance;
@@ -230,7 +231,7 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
 
                     if (!info_map || !(info_map[walker.GetGridX()][walker.GetGridY()] & INFO_MAP_CLEAR_OUT_ZONE)) {
                         if (Access_IsAccessible(unit->GetUnitType(), unit->team, walker.GetGridX(), walker.GetGridY(),
-                                                2)) {
+                                                AccessModifier_SameClassBlocks)) {
                             is_better = !mode || transporter_map.Search(*walker.GetCurrentLocation());
                         }
                     }
@@ -1163,11 +1164,11 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
                                                                unit_position.y - leader->grid_y) /
                                        2;
 
-                            if (distance < range &&
-                                (!info_map || !(info_map[unit_position.x][unit_position.y] & INFO_MAP_CLEAR_OUT_ZONE))) {
+                            if (distance < range && (!info_map || !(info_map[unit_position.x][unit_position.y] &
+                                                                    INFO_MAP_CLEAR_OUT_ZONE))) {
                                 if (map.Search(unit_position) &&
                                     Access_IsAccessible(unit->GetUnitType(), unit->team, unit_position.x,
-                                                        unit_position.y, 0x02)) {
+                                                        unit_position.y, AccessModifier_SameClassBlocks)) {
                                     target_location = unit_position;
                                     range = distance;
                                 }

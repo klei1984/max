@@ -609,7 +609,8 @@ void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, 
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).GetOrder() != ORDER_IDLE && (*it).IsVisibleToTeam(team)) {
-            if ((flags & 2) || ((flags & 1) && (*it).team != team)) {
+            if ((flags & AccessModifier_SameClassBlocks) ||
+                ((flags & AccessModifier_EnemySameClassBlocks) && (*it).team != team)) {
                 map[(*it).grid_x][(*it).grid_y] = 0;
 
                 if ((*it).path != nullptr && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER && (&*it) != unit) {

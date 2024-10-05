@@ -2455,7 +2455,7 @@ void UnitInfo::Move() {
             path->UpdateUnitAngle(this);
 
             if (orders == ORDER_BUILD && build_list.GetCount() > 0 &&
-                Access_IsAccessible(*build_list[0], team, grid_x, grid_y, 0x01)) {
+                Access_IsAccessible(*build_list[0], team, grid_x, grid_y, AccessModifier_EnemySameClassBlocks)) {
                 Build();
 
             } else {
@@ -3783,7 +3783,8 @@ bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
                         }
 
                         if (best_cost == 0 || unit_angle > best_angle) {
-                            step_cost = Access_IsAccessible(unit_type, team, position.x, position.y, 0x02);
+                            step_cost = Access_IsAccessible(unit_type, team, position.x, position.y,
+                                                            AccessModifier_SameClassBlocks);
 
                             if (direction & 0x01) {
                                 step_cost = (step_cost * 3) / 2;
@@ -4417,7 +4418,8 @@ void UnitInfo::StepMoveUnit(Point position) {
 
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                     position.y < ResourceManager_MapSize.y &&
-                    Access_IsAccessible(unit_type, team, position.x, position.y, 0x12)) {
+                    Access_IsAccessible(unit_type, team, position.x, position.y,
+                                        AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks)) {
                     SmartPointer<UnitInfo> unit_copy = MakeCopy();
 
                     RemoveInTransitUnitFromMapHash();

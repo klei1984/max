@@ -308,9 +308,6 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t ul
                 parent->GetUnitType() != AIRTRANS) {
                 Point point(parent->grid_x - 1, parent->grid_y + 1);
                 int32_t limit;
-                uint32_t flags;
-
-                flags = 0x2;
 
                 if (parent->flags & BUILDING) {
                     ++point.y;
@@ -324,7 +321,8 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t ul
                     for (int32_t j = 0; j < limit; ++j) {
                         point += Paths_8DirPointsArray[i];
 
-                        if (Access_IsAccessible(unit->GetUnitType(), GameManager_PlayerTeam, point.x, point.y, flags)) {
+                        if (Access_IsAccessible(unit->GetUnitType(), GameManager_PlayerTeam, point.x, point.y,
+                                                AccessModifier_SameClassBlocks)) {
                             callback(point.x, point.y);
                         }
                     }

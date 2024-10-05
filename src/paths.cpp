@@ -508,7 +508,8 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {
 
             if (point.x >= 0 && point.x < ResourceManager_MapSize.x && point.y >= 0 &&
                 point.y < ResourceManager_MapSize.y) {
-                step_cost = Access_IsAccessible(unit->GetUnitType(), unit->team, point.x, point.y, 0);
+                step_cost =
+                    Access_IsAccessible(unit->GetUnitType(), unit->team, point.x, point.y, AccessModifier_NoModifiers);
 
                 if (step->x && step->y) {
                     step_cost = (step_cost * 3) / 2;
@@ -585,7 +586,7 @@ int32_t GroundPath::GetMovementCost(UnitInfo* unit) {
             grid_x += step->x;
             grid_y += step->y;
 
-            step_cost = Access_IsAccessible(unit->GetUnitType(), unit->team, grid_x, grid_y, 0);
+            step_cost = Access_IsAccessible(unit->GetUnitType(), unit->team, grid_x, grid_y, AccessModifier_NoModifiers);
 
             if (step->x && step->y) {
                 step_cost = (step_cost * 3) / 2;
@@ -705,7 +706,9 @@ bool GroundPath::Execute(UnitInfo* unit) {
 
     Paths_IsOccupied(target_grid_x, target_grid_y, unit->angle, unit->team);
 
-    cost = Access_IsAccessible(unit->GetUnitType(), unit->team, target_grid_x, target_grid_y, 0x1A);
+    cost = Access_IsAccessible(
+        unit->GetUnitType(), unit->team, target_grid_x, target_grid_y,
+        AccessModifier_IgnoreVisibility | AccessModifier_MovesUnderBridge | AccessModifier_SameClassBlocks);
 
     if (cost) {
         if (offset_x && offset_y) {
@@ -795,7 +798,8 @@ bool GroundPath::Execute(UnitInfo* unit) {
                 (GameManager_GameState == GAME_STATE_9_END_TURN && GameManager_TurnTimerValue == 0)) {
                 unit->BlockedOnPathRequest();
 
-            } else if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_REMOTE || Paths_RequestPath(unit, 2)) {
+            } else if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_REMOTE ||
+                       Paths_RequestPath(unit, AccessModifier_SameClassBlocks)) {
                 unit->SetOrderState(ORDER_STATE_NEW_ORDER);
             }
         }
@@ -862,7 +866,7 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
             grid_x += path_x;
             grid_y += path_y;
 
-            cost = Access_IsAccessible(unit->GetUnitType(), unit->team, grid_x, grid_y, 0x00);
+            cost = Access_IsAccessible(unit->GetUnitType(), unit->team, grid_x, grid_y, AccessModifier_NoModifiers);
 
             if (path_x && path_y) {
                 cost = (cost * 3) / 2;

@@ -110,7 +110,7 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         result = 4;
 
-        if (!(flags & 0x20)) {
+        if (!(flags & AccessModifier_IgnoreSurfaceClass)) {
             uint8_t surface_type = Access_GetModifiedSurfaceType(grid_x, grid_y);
 
             if ((surface_type & SURFACE_TYPE_WATER) && (unit_flags & MOBILE_LAND_UNIT) && unit_type != SURVEYOR) {
@@ -122,17 +122,19 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
             if (units) {
                 // the end node must be cached in case Hash_MapHash.Remove() deletes the list
                 for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                    if ((*it).IsVisibleToTeam(team) || (flags & 0x10) ||
+                    if ((*it).IsVisibleToTeam(team) || (flags & AccessModifier_IgnoreVisibility) ||
                         ((*it).IsDetectedByTeam(team) && ((*it).flags & STATIONARY))) {
                         if ((*it).GetOrder() != ORDER_IDLE || ((*it).flags & STATIONARY)) {
                             if (unit_flags & MOBILE_AIR_UNIT) {
-                                if ((flags & 0x02) || ((flags & 0x01) && (*it).team != team)) {
+                                if ((flags & AccessModifier_SameClassBlocks) ||
+                                    ((flags & AccessModifier_EnemySameClassBlocks) && (*it).team != team)) {
                                     if ((*it).flags & MOBILE_AIR_UNIT) {
                                         return 0;
                                     }
                                 }
                             } else {
-                                if ((flags & 0x02) || ((flags & 0x01) && (*it).team != team)) {
+                                if ((flags & AccessModifier_SameClassBlocks) ||
+                                    ((flags & AccessModifier_EnemySameClassBlocks) && (*it).team != team)) {
                                     if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                                         return 0;
                                     }
@@ -162,7 +164,8 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
                                             if (unit_flags & MOBILE_LAND_UNIT) {
                                                 result = 2;
 
-                                                if ((*it).IsBridgeElevated() && (flags & 0x8)) {
+                                                if ((*it).IsBridgeElevated() &&
+                                                    (flags & AccessModifier_MovesUnderBridge)) {
                                                     surface_type = SURFACE_TYPE_WATER;
 
                                                 } else {
@@ -170,7 +173,8 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
                                                 }
 
                                             } else {
-                                                if (!(*it).IsBridgeElevated() && (flags & 0x08)) {
+                                                if (!(*it).IsBridgeElevated() &&
+                                                    (flags & AccessModifier_MovesUnderBridge)) {
                                                     surface_type = SURFACE_TYPE_LAND;
 
                                                 } else {
@@ -236,6 +240,7 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
                 result = 0;
             }
         }
+
     } else {
         result = 0;
     }
@@ -282,7 +287,7 @@ bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, int16_t* 
             *grid_y < ResourceManager_MapSize.y) {
             switch (mode) {
                 case 0: {
-                    if (Access_IsAccessible(unit_type, unit->team, *grid_x, *grid_y, 0x02)) {
+                    if (Access_IsAccessible(unit_type, unit->team, *grid_x, *grid_y, AccessModifier_SameClassBlocks)) {
                         return true;
                     }
                 } break;
@@ -954,7 +959,7 @@ UnitInfo* Access_GetRemovableRubble(uint16_t team, int32_t grid_x, int32_t grid_
                     for (int32_t y = (*it).grid_y; y <= (*it).grid_y + 1; ++y) {
                         for (int32_t x = (*it).grid_x; x <= (*it).grid_x + 1; ++x) {
                             if (x != grid_x || y != grid_y) {
-                                if (!Access_IsAccessible(BULLDOZR, team, x, y, 2)) {
+                                if (!Access_IsAccessible(BULLDOZR, team, x, y, AccessModifier_SameClassBlocks)) {
                                     return nullptr;
                                 }
                             }
@@ -1120,7 +1125,7 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
                         friendly->target_grid_y = unit->target_grid_y;
                         friendly->SetEnemy(enemy);
                         UnitsManager_SetNewOrder(friendly, ORDER_MOVE_TO_ATTACK, ORDER_STATE_NEW_ORDER);
-                        Paths_RequestPath(friendly, 2);
+                        Paths_RequestPath(friendly, AccessModifier_SameClassBlocks);
                     }
 
                 } else {
@@ -1153,7 +1158,7 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
                             UnitsManager_SetNewOrder(friendly, ORDER_MOVE, ORDER_STATE_NEW_ORDER);
                             UnitsManager_Unit = friendly;
 
-                        } else if (Paths_RequestPath(friendly, 1)) {
+                        } else if (Paths_RequestPath(friendly, AccessModifier_EnemySameClassBlocks)) {
                             UnitsManager_SetNewOrder(friendly, ORDER_MOVE, ORDER_STATE_NEW_ORDER);
                         }
                     }
@@ -2059,7 +2064,7 @@ bool Access_AreTaskEventsPending() {
                         Access_ProcessGroupAirPath(&*it);
 
                     } else {
-                        Paths_RequestPath(&*it, 2);
+                        Paths_RequestPath(&*it, AccessModifier_SameClassBlocks);
                     }
                 }
 

@@ -328,7 +328,8 @@ bool TaskSearchDestination::sub_3DFCF(UnitInfo* unit_, Point point) {
 
     if (!search_task->IsVisited(*unit_, point)) {
         ++enterable_sites;
-        result = Access_IsAccessible(unit_->GetUnitType(), team, point.x, point.y, 1) > 0;
+        result =
+            Access_IsAccessible(unit_->GetUnitType(), team, point.x, point.y, AccessModifier_EnemySameClassBlocks) > 0;
 
     } else {
         result = false;

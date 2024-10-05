@@ -307,7 +307,8 @@ bool TaskClearZone::ExamineZones() {
                     }
 
                 } else {
-                    if (Access_IsAccessible(zone->unit->GetUnitType(), team, site.x, site.y, 0x02)) {
+                    if (Access_IsAccessible(zone->unit->GetUnitType(), team, site.x, site.y,
+                                            AccessModifier_SameClassBlocks)) {
                         points1.Append(&site);
 
                     } else {
@@ -364,7 +365,8 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                 points2.Append(&site);
             }
 
-        } else if (Access_IsAccessible(zone_square->unit->GetUnitType(), team, site.x, site.y, 0x02)) {
+        } else if (Access_IsAccessible(zone_square->unit->GetUnitType(), team, site.x, site.y,
+                                       AccessModifier_SameClassBlocks)) {
             bool is_found = false;
 
             for (int32_t i = 0; i < points1.GetCount(); ++i) {
@@ -428,7 +430,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                         state = CLEARZONE_STATE_WAITING_FOR_PATH;
 
                         SmartPointer<TaskPathRequest> path_request =
-                            new (std::nothrow) TaskPathRequest(&*moving_unit, 2, site);
+                            new (std::nothrow) TaskPathRequest(&*moving_unit, AccessModifier_SameClassBlocks, site);
 
                         path_request->SetOptimizeFlag(false);
 

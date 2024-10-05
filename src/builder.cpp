@@ -283,7 +283,7 @@ bool Builder_IssueBuildOrder(UnitInfo *unit, int16_t *grid_x, int16_t *grid_y, R
                      Builder_IsAccessible(team, unit_type, *grid_x, ++*grid_y);
 
         } else {
-            result = Access_IsAccessible(unit_type, team, *grid_x, *grid_y, 2);
+            result = Access_IsAccessible(unit_type, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks);
         }
 
         Hash_MapHash.Add(unit);
@@ -297,10 +297,10 @@ bool Builder_IsAccessible(uint16_t team, ResourceID unit_type, int32_t grid_x, i
 
     if (grid_x >= 0 && grid_y >= 0 && grid_x <= ResourceManager_MapSize.x - 2 &&
         grid_y <= ResourceManager_MapSize.x - 2) {
-        result = Access_IsAccessible(unit_type, team, grid_x, grid_y, 2) &&
-                 Access_IsAccessible(unit_type, team, grid_x + 1, grid_y, 2) &&
-                 Access_IsAccessible(unit_type, team, grid_x, grid_y + 1, 2) &&
-                 Access_IsAccessible(unit_type, team, grid_x + 1, grid_y + 1, 2);
+        result = Access_IsAccessible(unit_type, team, grid_x, grid_y, AccessModifier_SameClassBlocks) &&
+                 Access_IsAccessible(unit_type, team, grid_x + 1, grid_y, AccessModifier_SameClassBlocks) &&
+                 Access_IsAccessible(unit_type, team, grid_x, grid_y + 1, AccessModifier_SameClassBlocks) &&
+                 Access_IsAccessible(unit_type, team, grid_x + 1, grid_y + 1, AccessModifier_SameClassBlocks);
     } else {
         result = 0;
     }

@@ -2317,4 +2317,14 @@ enum InfoMapType : uint8_t {
     INFO_MAP_CLEAR_OUT_ZONE = 0x08,
 };
 
+enum AccessModifierType : uint8_t {
+    AccessModifier_NoModifiers = 0x00,
+    AccessModifier_EnemySameClassBlocks = 0x01,
+    AccessModifier_SameClassBlocks = 0x02,
+    AccessModifier_Unused = 0x04,
+    AccessModifier_MovesUnderBridge = 0x08,
+    AccessModifier_IgnoreVisibility = 0x10,
+    AccessModifier_IgnoreSurfaceClass = 0x20
+};
+
 #endif /* ENUMS_HPP */

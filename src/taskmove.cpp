@@ -255,8 +255,8 @@ bool TaskMove::Execute(UnitInfo& unit) {
                                 } else if (!zone) {
                                     log.Log("Find Direct path.");
 
-                                    PathRequest* request =
-                                        new (std::nothrow) TaskPathRequest(&*passenger, 2, passenger_waypoint);
+                                    PathRequest* request = new (std::nothrow)
+                                        TaskPathRequest(&*passenger, AccessModifier_SameClassBlocks, passenger_waypoint);
 
                                     request->SetMaxCost(passenger->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 4);
                                     request->SetCautionLevel(caution_level);
@@ -402,7 +402,8 @@ void TaskMove::AttemptTransport() {
 void TaskMove::AttemptTransportType(ResourceID unit_type) {
     AiLog log("Attempt %s.", UnitsManager_BaseUnits[unit_type].singular_name);
 
-    PathRequest* request = new (std::nothrow) TaskPathRequest(&*passenger, 0, destination_waypoint);
+    PathRequest* request =
+        new (std::nothrow) TaskPathRequest(&*passenger, AccessModifier_NoModifiers, destination_waypoint);
 
     request->SetMinimumDistance(minimum_distance);
     request->SetCautionLevel(caution_level);
@@ -421,7 +422,7 @@ void TaskMove::FindWaypointUsingTransport() {
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    if (Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, 2) &&
+    if (Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, AccessModifier_SameClassBlocks) &&
         !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
         destination_waypoint = passenger_destination;
     }
@@ -438,7 +439,8 @@ void TaskMove::FindWaypointUsingTransport() {
                 if (Access_IsInsideBounds(&bounds, &site)) {
                     keep_searching = true;
 
-                    if (Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, 1) &&
+                    if (Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y,
+                                            AccessModifier_EnemySameClassBlocks) &&
                         !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                         passenger_destination = site;
                         destination_waypoint = site;
@@ -457,7 +459,8 @@ void TaskMove::Search(bool mode) {
     Point line_distance(destination_waypoint.x - passenger->grid_x, destination_waypoint.y - passenger->grid_y);
 
     if (line_distance.x * line_distance.x + line_distance.y * line_distance.y > minimum_distance) {
-        TaskPathRequest* request = new (std::nothrow) TaskPathRequest(&*passenger, 1, destination_waypoint);
+        TaskPathRequest* request =
+            new (std::nothrow) TaskPathRequest(&*passenger, AccessModifier_EnemySameClassBlocks, destination_waypoint);
         int32_t distance;
 
         path_result = TASKMOVE_RESULT_SUCCESS;
@@ -571,8 +574,8 @@ void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Poi
 
     } else if (path_request->GetCautionLevel() != move->caution_level) {
         SmartPointer<Task> find_path;
-        PathRequest* request =
-            new (std::nothrow) TaskPathRequest(path_request->GetClient(), 1, path_request->GetDestination());
+        PathRequest* request = new (std::nothrow) TaskPathRequest(
+            path_request->GetClient(), AccessModifier_EnemySameClassBlocks, path_request->GetDestination());
 
         request->SetMinimumDistance(move->minimum_distance);
         request->SetCautionLevel(move->caution_level);
@@ -598,8 +601,8 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
             if (move->caution_level > CAUTION_LEVEL_NONE && (move->passenger->flags & MOBILE_AIR_UNIT)) {
                 log.Log("Adjusting path.");
 
-                AdjustRequest* request =
-                    new (std::nothrow) AdjustRequest(&*move->passenger, 2, move->passenger_waypoint, path);
+                AdjustRequest* request = new (std::nothrow)
+                    AdjustRequest(&*move->passenger, AccessModifier_SameClassBlocks, move->passenger_waypoint, path);
 
                 SmartPointer<Task> find_path(
                     new (std::nothrow) TaskFindPath(&*move, request, &ActualPathResultCallback, &PathCancelCallback));
@@ -613,7 +616,8 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
         } else {
             log.Log("Looking for alternate path.");
 
-            PathRequest* request = new (std::nothrow) TaskPathRequest(&*move->passenger, 1, move->passenger_waypoint);
+            PathRequest* request = new (std::nothrow)
+                TaskPathRequest(&*move->passenger, AccessModifier_EnemySameClassBlocks, move->passenger_waypoint);
 
             request->SetMaxCost(move->passenger->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 4);
             request->SetCautionLevel(move->caution_level);
@@ -832,7 +836,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
         position.x += steps[i]->x;
         position.y += steps[i]->y;
 
-        if (Access_IsAccessible(passenger->GetUnitType(), team, position.x, position.y, 0x00)) {
+        if (Access_IsAccessible(passenger->GetUnitType(), team, position.x, position.y, AccessModifier_NoModifiers)) {
             if (flag1) {
                 passenger_destination = position;
                 flag1 = false;
@@ -885,8 +889,9 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
                         position.x += steps[i]->x;
                         position.y += steps[i]->y;
 
-                        if (!Access_IsAccessible(passenger->GetUnitType(), team, position.x, position.y, 0x00) &&
-                            Access_IsAccessible(BRIDGE, team, position.x, position.y, 0x00)) {
+                        if (!Access_IsAccessible(passenger->GetUnitType(), team, position.x, position.y,
+                                                 AccessModifier_NoModifiers) &&
+                            Access_IsAccessible(BRIDGE, team, position.x, position.y, AccessModifier_NoModifiers)) {
                             manager->BuildBridge(position, this);
                         }
                     }
@@ -1088,7 +1093,7 @@ bool TaskMove::IsPathClear() {
 
         for (step_index = 0; step_index < planned_path.GetCount(); ++step_index) {
             if (Access_IsAccessible(passenger->GetUnitType(), team, planned_path[step_index]->x,
-                                    planned_path[step_index]->y, 2)) {
+                                    planned_path[step_index]->y, AccessModifier_SameClassBlocks)) {
                 if (passenger_waypoint == *planned_path[step_index]) {
                     break;
                 }
@@ -1209,7 +1214,8 @@ bool TaskMove::FindWaypoint() {
     passenger_waypoint.y = passenger->grid_y;
 
     for (int32_t i = 0; i < planned_path.GetCount() && unit_speed > 0; ++i) {
-        step_cost = Access_IsAccessible(passenger->GetUnitType(), team, planned_path[i]->x, planned_path[i]->y, 1);
+        step_cost = Access_IsAccessible(passenger->GetUnitType(), team, planned_path[i]->x, planned_path[i]->y,
+                                        AccessModifier_EnemySameClassBlocks);
 
         if (planned_path[i]->x && planned_path[i]->y) {
             step_cost = (step_cost * 3) / 2;
@@ -1269,7 +1275,8 @@ void TaskMove::MoveUnit(GroundPath* path) {
                 site.x = position.x + steps[step_index]->x;
                 site.y = position.y + steps[step_index]->y;
 
-                step_cost = Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, 2);
+                step_cost =
+                    Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, AccessModifier_SameClassBlocks);
 
                 if (site.x != position.x && site.y != position.y) {
                     step_cost = (step_cost * 3) / 2;
