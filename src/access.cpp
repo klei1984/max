@@ -104,9 +104,6 @@ bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_gr
 uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags) {
     uint32_t unit_flags;
     uint32_t result;
-    bool debug_flag;
-
-    debug_flag = false;
 
     unit_flags = UnitsManager_BaseUnits[unit_type].flags;
 
@@ -233,10 +230,6 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
                         }
                     }
                 }
-            }
-
-            if (debug_flag) {
-                result = 8;
             }
 
             if (!(UnitsManager_BaseUnits[unit_type].land_type & surface_type)) {

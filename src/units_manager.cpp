@@ -5912,17 +5912,17 @@ void UnitsManager_ProgressUnloading(UnitInfo* unit) {
             SoundManager_PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_END, true);
         }
 
-        SmartPointer<UnitInfo> parent(unit->GetParent());
+        SmartPointer<UnitInfo> client(unit->GetParent());
 
-        UnitsManager_UpdateMapHash(&*parent, unit->grid_x, unit->grid_y);
+        UnitsManager_UpdateMapHash(client.Get(), unit->grid_x, unit->grid_y);
 
-        parent->RestoreOrders();
+        client->RestoreOrders();
 
-        Access_UpdateMapStatus(&*parent, true);
+        Access_UpdateMapStatus(client.Get(), true);
 
-        UnitsManager_ScaleUnit(&*parent, ORDER_STATE_EXPAND);
+        UnitsManager_ScaleUnit(client.Get(), ORDER_STATE_EXPAND);
 
-        if (UnitsManager_TeamInfo[parent->team].team_type == TEAM_TYPE_PLAYER) {
+        if (UnitsManager_TeamInfo[client->team].team_type == TEAM_TYPE_PLAYER) {
             GameManager_RenderMinimapDisplay = true;
         }
 
