@@ -1357,7 +1357,7 @@ UnitInfo* Access_SeekNextUnit(uint16_t team, UnitInfo* unit, bool seek_direction
     return result;
 }
 
-bool Access_IsChildOfUnitInList(UnitInfo* unit, SmartList<UnitInfo>* list, SmartList<UnitInfo>::Iterator* it) {
+bool Access_IsHeldByUnit(UnitInfo* unit, SmartList<UnitInfo>* list, SmartList<UnitInfo>::Iterator* it) {
     for (; *it != list->End(); ++*it) {
         if ((*(*it)).GetOrder() == ORDER_IDLE && (*(*it)).GetParent() == unit) {
             break;

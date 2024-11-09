@@ -5622,11 +5622,11 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         units = &UnitsManager_MobileLandSeaUnits;
     }
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); Access_IsChildOfUnitInList(unit, units, &it);
+    for (SmartList<UnitInfo>::Iterator it = units->Begin(); Access_IsHeldByUnit(unit, units, &it);
          UnitsManager_DestroyUnit(it->Get())) {
         if ((*it).GetUnitType() == SEATRANS || (*it).GetUnitType() == AIRTRANS || (*it).GetUnitType() == CLNTRANS) {
             for (SmartList<UnitInfo>::Iterator it2 = UnitsManager_MobileLandSeaUnits.Begin();
-                 Access_IsChildOfUnitInList(it->Get(), &UnitsManager_MobileLandSeaUnits, &it2);
+                 Access_IsHeldByUnit(it->Get(), &UnitsManager_MobileLandSeaUnits, &it2);
                  UnitsManager_DestroyUnit(it2->Get())) {
                 ++UnitsManager_TeamInfo[(*it2).team].casualties[(*it2).GetUnitType()];
             }

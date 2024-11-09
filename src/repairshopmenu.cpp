@@ -528,13 +528,13 @@ RepairShopMenu::RepairShopMenu(UnitInfo *unit)
 
     if (unit->GetUnitType() == HANGAR) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-             Access_IsChildOfUnitInList(unit, &UnitsManager_MobileAirUnits, &it); ++it) {
+             Access_IsHeldByUnit(unit, &UnitsManager_MobileAirUnits, &it); ++it) {
             units.PushBack(*it);
         }
 
     } else {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-             Access_IsChildOfUnitInList(unit, &UnitsManager_MobileLandSeaUnits, &it); ++it) {
+             Access_IsHeldByUnit(unit, &UnitsManager_MobileLandSeaUnits, &it); ++it) {
             units.PushBack(*it);
         }
     }
