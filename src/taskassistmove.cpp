@@ -67,28 +67,7 @@ void TaskAssistMove::RequestTransport(UnitInfo* transporter, UnitInfo* client) {
 }
 
 void TaskAssistMove::CompleteTransport(UnitInfo* transporter, UnitInfo* client, Point site) {
-    if (GameManager_IsActiveTurn(team)) {
-        if (Access_GetTeamUnit(site.x, site.y, team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
-            SmartPointer<Zone> zone = new (std::nothrow) Zone(client, this);
-
-            zone->Add(&site);
-
-            AiPlayer_Teams[team].ClearZone(&*zone);
-
-        } else {
-            transporter->target_grid_x = site.x;
-            transporter->target_grid_y = site.y;
-
-            transporter->SetParent(client);
-
-            if (transporter->GetUnitType() == AIRTRANS) {
-                UnitsManager_SetNewOrder(transporter, ORDER_UNLOAD, ORDER_STATE_INIT);
-
-            } else {
-                UnitsManager_SetNewOrder(transporter, ORDER_ACTIVATE, ORDER_STATE_EXECUTING_ORDER);
-            }
-        }
-    }
+    TaskTransport_FinishTransport(this, transporter, client, site);
 }
 
 bool TaskAssistMove::Task_vfunc1(UnitInfo& unit) { return unit.storage == 0; }

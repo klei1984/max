@@ -154,6 +154,11 @@ void Paths_DrawMarker(WindowInfo* window, int32_t angle, int32_t grid_x, int32_t
 void Paths_DrawShots(WindowInfo* window, int32_t grid_x, int32_t grid_y, int32_t shots);
 bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t team);
 
+void Paths_ReserveSite(const Point site) noexcept;
+void Paths_RemoveSiteReservation(const Point site) noexcept;
+void Paths_ClearSiteReservations() noexcept;
+[[nodiscard]] bool Paths_IsSiteReserved(const Point site) noexcept;
+
 extern const Point Paths_8DirPointsArray[8];
 extern const int16_t Paths_8DirPointsArrayX[8];
 extern const int16_t Paths_8DirPointsArrayY[8];

@@ -489,30 +489,24 @@ bool TaskTransport::Execute(UnitInfo& unit) {
             result = true;
 
         } else if (ChooseNewTask()) {
-            int32_t distance;
-
-            if (transporter_unit_type == AIRTRANS) {
-                distance = 0;
-
-            } else {
-                distance = 3;
-            }
+            int32_t distance = (transporter_unit_type == AIRTRANS) ? 0 : 3;
 
             if (task_move->GetPassenger()->GetOrder() == ORDER_IDLE) {
                 if (unit.storage > 0) {
-                    Point destination = task_move->GetDestination();
+                    const Point destination = task_move->GetDestination();
 
-                    if (destination.x >= 0) {
-                        if (TaskManager_GetDistance(Point(unit_transporter->grid_x, unit_transporter->grid_y),
-                                                    task_move->GetDestination()) > distance) {
-                            SmartPointer<Task> move = new (std::nothrow)
-                                TaskMove(&*unit_transporter, this, distance, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
-                                         task_move->GetDestination(), &MoveFinishedCallback2);
-
-                            TaskManager.AppendTask(*move);
+                    if (destination.x >= 0 && destination.y >= 0) {
+                        if (Access_GetDistance(unit_transporter.Get(), destination) <= distance) {
+                            UnloadUnit(task_move->GetPassenger());
 
                         } else {
-                            UnloadUnit(task_move->GetPassenger());
+                            SmartPointer<Task> move = new (std::nothrow) TaskMove(
+                                &*unit_transporter, this, distance,
+                                unit_transporter->GetUnitType() == CLNTRANS ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE
+                                                                            : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
+                                destination, &MoveFinishedCallback2);
+
+                            TaskManager.AppendTask(*move);
                         }
 
                         result = true;
@@ -706,6 +700,45 @@ void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
     }
 }
 
+void TaskTransport_FinishTransport(Task* const task, UnitInfo* const transporter, UnitInfo* const client, Point site) {
+    if (GameManager_IsActiveTurn(task->GetTeam())) {
+        AiLog log("TaskAssistMove: Unload %s.", UnitsManager_BaseUnits[client->GetUnitType()].singular_name);
+
+        auto unit_in_the_way = Access_GetTeamUnit(site.x, site.y, task->GetTeam(), MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
+
+        if (unit_in_the_way) {
+            if (Task_IsReadyToTakeOrders(unit_in_the_way)) {
+                SmartPointer<Zone> zone = new (std::nothrow) Zone(client, task);
+
+                log.Log("Must clear landing zone first.");
+
+                zone->Add(&site);
+
+                AiPlayer_Teams[task->GetTeam()].ClearZone(zone.Get());
+            }
+
+        } else if (Access_IsAccessible(client->GetUnitType(), task->GetTeam(), site.x, site.y,
+                                       AccessModifier_SameClassBlocks)) {
+            transporter->target_grid_x = site.x;
+            transporter->target_grid_y = site.y;
+
+            transporter->SetParent(client);
+
+            if (transporter->GetUnitType() == AIRTRANS) {
+                UnitsManager_SetNewOrder(transporter, ORDER_UNLOAD, ORDER_STATE_INIT);
+
+            } else {
+                UnitsManager_SetNewOrder(transporter, ORDER_ACTIVATE, ORDER_STATE_EXECUTING_ORDER);
+            }
+
+        } else {
+            SDL_assert(client->GetTask()->GetType() == TaskType_TaskMove);
+
+            dynamic_cast<TaskMove*>(client->GetTask())->SetDestination(Point(-1, -1));
+        }
+    }
+}
+
 bool TaskTransport::LoadUnit(UnitInfo* unit) {
     bool result;
 
@@ -776,44 +809,8 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
     return result;
 }
 
-void TaskTransport::UnloadUnit(UnitInfo* unit) {
-    AiLog log("Transport: Unload %s.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
-
-    if (GameManager_IsActiveTurn(team)) {
-        Point destination = task_move->GetDestination();
-
-        if (destination.x >= 0 && unit_transporter == unit->GetParent()) {
-            UnitInfo* unit_in_the_way =
-                Access_GetTeamUnit(destination.x, destination.y, team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
-
-            if (unit_in_the_way) {
-                SmartPointer<Zone> zone = new (std::nothrow) Zone(unit, this);
-
-                log.Log("Must clear landing zone first.");
-
-                zone->Add(&destination);
-
-                if (Task_IsReadyToTakeOrders(unit_in_the_way)) {
-                    AiPlayer_Teams[team].ClearZone(&*zone);
-                }
-
-            } else {
-                unit_transporter->target_grid_x = destination.x;
-                unit_transporter->target_grid_y = destination.y;
-
-                unit_transporter->SetParent(unit);
-
-                SDL_assert(GameManager_IsActiveTurn(team));
-
-                if (unit_transporter->GetUnitType() == AIRTRANS) {
-                    UnitsManager_SetNewOrder(&*unit_transporter, ORDER_UNLOAD, ORDER_STATE_INIT);
-
-                } else {
-                    UnitsManager_SetNewOrder(&*unit_transporter, ORDER_ACTIVATE, ORDER_STATE_EXECUTING_ORDER);
-                }
-            }
-        }
-    }
+void TaskTransport::UnloadUnit(UnitInfo* client) {
+    TaskTransport_FinishTransport(this, unit_transporter.Get(), client, task_move->GetDestination());
 }
 
 ResourceID TaskTransport::GetTransporterType() const { return transporter_unit_type; }

@@ -316,7 +316,10 @@ void PathsManager_PushFront(PathRequest &object) { PathsManager_Instance.PushFro
 
 void PathsManager_EvaluateTiles() { PathsManager_Instance.EvaluateTiles(); }
 
-void PathsManager_Clear() { PathsManager_Instance.Clear(); }
+void PathsManager_Clear() {
+    PathsManager_Instance.Clear();
+    Paths_ClearSiteReservations();
+}
 
 bool PathsManager_HasRequest(UnitInfo *unit) { return PathsManager_Instance.HasRequest(unit); }
 

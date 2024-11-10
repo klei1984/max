@@ -4701,11 +4701,14 @@ void UnitsManager_ProcessOrderUnload(UnitInfo* unit) {
             unit->moved = 0;
             unit->SetOrderState(ORDER_STATE_UNLOADING_IN_PROGRESS);
 
-            if (Paths_IsOccupied(unit->grid_x, unit->grid_y, 0, unit->team)) {
+            const Point site{unit->grid_x, unit->grid_y};
+
+            if (Paths_IsSiteReserved(site) || Paths_IsOccupied(unit->grid_x, unit->grid_y, 0, unit->team)) {
                 unit->SetOrder(ORDER_AWAIT);
                 unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
             } else {
+                Paths_ReserveSite(site);
                 UnitsManager_ProgressUnloading(unit);
             }
         } break;
@@ -5933,6 +5936,10 @@ void UnitsManager_ProgressUnloading(UnitInfo* unit) {
         unit->moved = 0;
 
         unit->SetOrderState(ORDER_STATE_FINISH_UNLOADING);
+
+        const Point site{client->grid_x, client->grid_y};
+
+        Paths_RemoveSiteReservation(site);
 
         if (GameManager_SelectedUnit == unit) {
             GameManager_UpdateInfoDisplay(unit);

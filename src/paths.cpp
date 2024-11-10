@@ -47,6 +47,8 @@ static void Paths_FinishMove(UnitInfo* unit);
 static void Paths_TakeStep(UnitInfo* unit, int32_t cost);
 static bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, bool is_diagonal_step);
 
+SmartObjectArray<Point> Paths_SiteReservations;
+
 static uint16_t Paths_AirPath_TypeIndex;
 static RegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
 
@@ -586,7 +588,8 @@ int32_t GroundPath::GetMovementCost(UnitInfo* unit) {
             grid_x += step->x;
             grid_y += step->y;
 
-            step_cost = Access_IsAccessible(unit->GetUnitType(), unit->team, grid_x, grid_y, AccessModifier_NoModifiers);
+            step_cost =
+                Access_IsAccessible(unit->GetUnitType(), unit->team, grid_x, grid_y, AccessModifier_NoModifiers);
 
             if (step->x && step->y) {
                 step_cost = (step_cost * 3) / 2;
@@ -1626,3 +1629,19 @@ bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t tea
 
     return false;
 }
+
+void Paths_ReserveSite(const Point site) noexcept { Paths_SiteReservations.PushBack(&site); }
+
+void Paths_RemoveSiteReservation(const Point site) noexcept {
+    const int32_t position{Paths_SiteReservations->Find(&site)};
+
+    SDL_assert(position != -1);
+
+    if (position != -1) {
+        Paths_SiteReservations.Remove(position);
+    }
+}
+
+void Paths_ClearSiteReservations() noexcept { Paths_SiteReservations.Clear(); }
+
+[[nodiscard]] bool Paths_IsSiteReserved(const Point site) noexcept { return Paths_SiteReservations->Find(&site) != -1; }

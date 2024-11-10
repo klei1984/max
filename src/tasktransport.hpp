@@ -72,5 +72,6 @@ public:
 
 bool TaskTransport_Search(UnitInfo* transporter, UnitInfo* client, TransporterMap* map);
 void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
+void TaskTransport_FinishTransport(Task* const task, UnitInfo* const transporter, UnitInfo* const client, Point site);
 
 #endif /* TASKTRANSPORT_HPP */
