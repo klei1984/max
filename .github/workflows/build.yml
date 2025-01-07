@@ -136,7 +136,7 @@ jobs:
    WindowsXP-x64:
       name: Windows XP x64
       runs-on: ubuntu-latest
-      container: ubuntu:23.10
+      container: ubuntu:22.04
 
       steps:
       -  name: Set build configuration
@@ -189,7 +189,7 @@ jobs:
    WindowsXP-x86:
       name: Windows XP x86
       runs-on: ubuntu-latest
-      container: ubuntu:23.10
+      container: ubuntu:22.04
 
       steps:
       -  name: Set build configuration
