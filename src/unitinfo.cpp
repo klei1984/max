@@ -2485,7 +2485,7 @@ void UnitInfo::Move() {
                     orders = ORDER_AWAIT;
                 }
 
-                BlockedOnPathRequest();
+                BlockedOnPathRequest(true, true);
 
                 return;
             }
