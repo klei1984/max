@@ -66,7 +66,7 @@ jobs:
             tar zxf Linux-x64/max-port-*-Source.tar.gz --directory=Debian/Linux-x64
             cd Debian/Linux-x64/max-port-*-Source
             sh cmake/scripts/linux/get-dependencies cmake/versions.cmake
-            debmake --tar --monoarch --invoke debuild
+            debmake --tar --monoarch --invoke "debuild -us -uc"
             cp ../max-port_*_amd64.deb ../../../${{steps.build_configuration.outputs.build_type}}/Artifacts/Linux-x64/
             cp ../max-port-dbgsym_*_amd64.ddeb ../../../${{steps.build_configuration.outputs.build_type}}/Artifacts/Linux-x64/
 
