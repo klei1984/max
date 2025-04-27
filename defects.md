@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Status (last updated 2024-09-29): Fixed 137 / 225 (60.9%) original M.A.X. defects in M.A.X. Port.
+Status (last updated 2025-04-27): Fixed 138 / 228 (60.5%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 

@@ -211,6 +211,14 @@ Recommended (default) value: `english`.
 
 **game_data** Full normalized path to original M.A.X. game data. The files at the configured location are handled as read-only. Normally the ini parameter is configured once during installation. If the parameter is incorrectly set the game will not work.
 
+**cheating_computer** Ini parameter to configure level of computer cheating. The original M.A.X. v1.04 patch introduced several hacks to "Improve computer AI in single player modes.". The new option allows users to disable those hacks.
+
+Supported parameter values:
+- 0 - All hacks are disabled.
+- 1 - Expert and higher difficulty level computers learn location of all mining station and eco-sphere on game start and game (re)load.
+- 2 - In addition to the previous point, Master and higher difficulty level computers learn location of all units at the beginning of each turn. On all difficulty levels computers select mainly non computer players to be their arch enemies.
+- 3 - (default) In addition to the previous point, normally computers only attack players that are selected as their arch enemies.
+
 ***[GRAPHICS_SETTINGS] section***
 
 **display_index** Index of monitor screen. The index starts from 0.
