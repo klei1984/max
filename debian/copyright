@@ -4,7 +4,7 @@ Upstream-Contact: M.A.X. Port Team <maxport@maxport.org>
 Source: https://klei1984.github.io/max/download/
 
 Files: *
-Copyright: 2020-2024 M.A.X. Port Team
+Copyright: 2020-2025 M.A.X. Port Team
 License: MIT
 
 Files: dependencies/freetype-2.13.2.tar.gz
@@ -13,23 +13,23 @@ License: FTL
  See license file at https://gitlab.freedesktop.org/freetype/freetype/-/blob/
                      920c5502cc3ddda88f6c7d85ee834ac611bb11cc/docs/FTL.TXT
 
-Files: dependencies/miniaudio-0.11.21.tar.gz
+Files: dependencies/miniaudio-0.11.22.tar.gz
 Copyright: 2023 David Reid
 License: MIT-0
 
-Files: dependencies/SDL2-2.30.2.tar.gz
+Files: dependencies/SDL2-2.32.4.tar.gz
 Copyright: 1997-2023 Sam Lantinga <slouken@libsdl.org>
 License: Zlib
 
-Files: dependencies/enet-1.3.17.tar.gz
+Files: dependencies/enet-1.3.18.tar.gz
 Copyright: 2002-2020 Lee Salzman
 License: MIT
 
-Files: dependencies/googletest-1.14.0.tar.gz
+Files: dependencies/googletest-1.16.0.tar.gz
 Copyright: 2008 Google Inc.
 License: BSD-3-clause
 
-Files: dependencies/miniupnpc_2_2_7.tar.gz
+Files: dependencies/miniupnpc_2_3_2.tar.gz
 Copyright: 2005-2024 Thomas BERNARD
 License: BSD-3-clause
 

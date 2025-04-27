@@ -22,11 +22,6 @@
 #ifndef VERSION_HPP
 #define VERSION_HPP
 
-#if !defined(GAME_VERSION_STRING)
-#define GAME_VERSION_STRING ""
-#warning "Game version string is not set by CMake."
-#endif
-
 #if !defined(GAME_VERSION_MAJOR)
 #define GAME_VERSION_MAJOR 0
 #warning "Game major version number is not set by CMake."
@@ -49,5 +44,12 @@
 #define GAME_VERSION_GET_PATCH(version) (((version) >> 0) & 0xFF)
 
 #define GAME_VERSION GAME_VERSION_CREATE(GAME_VERSION_MAJOR, GAME_VERSION_MINOR, GAME_VERSION_PATCH)
+
+#define GAME_VERSION_TO_STR_HELPER(x) #x
+#define GAME_VERSION_TO_STR(x) GAME_VERSION_TO_STR_HELPER(x)
+
+#define GAME_VERSION_STRING                                                                                          \
+    "v" GAME_VERSION_TO_STR(GAME_VERSION_MAJOR) "." GAME_VERSION_TO_STR(GAME_VERSION_MINOR) "." GAME_VERSION_TO_STR( \
+        GAME_VERSION_PATCH)
 
 #endif /* VERSION_HPP */

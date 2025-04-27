@@ -30,13 +30,9 @@
 #include "gnw.h"
 #include "inifile.hpp"
 #include "localization.hpp"
+#include "miniaudio.h"
 #include "mvelib32.h"
 #include "resource_manager.hpp"
-
-#define MA_NO_FLAC
-#define MA_NO_MP3
-#define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
 
 #define SOUND_MANAGER_SAMPLE_RATE (48000)
 #define SOUND_MANAGER_CHANNELS (2)
@@ -1053,7 +1049,7 @@ int32_t SoundManager::LoadSound(SoundJob& job, SoundSample& sample) noexcept {
     ResourceType type;
     std::filesystem::path filepath;
 
-    MA_ZERO_OBJECT(&sample.sound);
+    SDL_memset(&sample.sound, 0, sizeof(sample.sound));
 
     if (JOB_TYPE_MUSIC == job.type) {
         type = ResourceType_Music;

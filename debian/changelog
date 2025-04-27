@@ -1,3 +1,29 @@
+max-port (0.7.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Corrected regressions from defect fixes 184, 215.
+    - In multiplayer an asynchronous path blocked application layer network
+      packet could interfere with unit reaction to mines at remote side.
+  * Fixed defects 136, 220, 221, 222, 223, 224, 225:
+    - Eliminated infinite speed points exploit.
+    - Air transporters were able to unload land units onto the sea surface.
+    - Air transporters were able to unload units on top of each other.
+    - Personnel carriers used too restrictive caution levels.
+    - The research topic allocation manager could corrupt allocations.
+    - Unit statistics could show higher maximum shots than maximum ammunition.
+    - Certain unit stats were able to overflow their maximum storage limits.
+  * Improved research topic window text layout and rendering big numbers.
+  * Changed research topic attributes to signed values.
+  * In corner cases computer players did not assign TaskRepair tasks to units.
+    stored in repair shops.
+  * Corrected a SmartList iterator crash caused by a regression.
+  * Disabled inactive in-game debug menus in release builds.
+  * Corrected a ThreatMap invalidation regression.
+  * Updated dependencies (SDL2 v2.32.4, miniaudio v0.11.22, miniupnpc v2.3.2).
+  * Added ability to change scroll speed of credits using the + and - keys.
+
+ -- M.A.X. Port Team <maxport@maxport.org>  Sun, 27 Apr 2025 9:15:00 +0200
+
 max-port (0.7.0-1) UNRELEASED; urgency=low
 
   * Initial release. Closes: #nnnn

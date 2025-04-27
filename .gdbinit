@@ -11,6 +11,8 @@ skip -file smartlist.hpp
 skip -file point.hpp
 skip -file ailog.cpp
 
+python import gdb.printing
+
 python
 class RegisterControl(gdb.printing.PrettyPrinter):
     def __init__(self, typename, printer):

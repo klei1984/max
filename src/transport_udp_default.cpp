@@ -65,7 +65,7 @@ static constexpr uint32_t TransportUdpDefault_Channels = TRANSPORT_CHANNEL_COUNT
 #if defined(MAX_ENABLE_UPNP)
 static constexpr uint32_t TransportUdpDefault_UpnpDeviceResponseTimeout = 3000;
 
-static_assert(MINIUPNPC_API_VERSION == 17, "API changes of MINIUPNP library shall be reviewed.");
+static_assert(MINIUPNPC_API_VERSION == 20, "API changes of MINIUPNP library shall be reviewed.");
 #endif
 
 static_assert(sizeof(NetAddress::host) == sizeof(ENetAddress::host));
@@ -590,22 +590,23 @@ void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const cont
         struct UPNPUrls UpnpUrls;
         struct IGDdatas UpnpIgdData;
 
-        char network_address[64];
+        char lan_address[64];
+        char wan_address[64];
 
         SDL_memset(&UpnpUrls, 0, sizeof(struct UPNPUrls));
         SDL_memset(&UpnpIgdData, 0, sizeof(struct IGDdatas));
 
-        const int igd_search_result =
-            UPNP_GetValidIGD(device_list, &UpnpUrls, &UpnpIgdData, network_address, sizeof(network_address));
+        const int igd_search_result = UPNP_GetValidIGD(device_list, &UpnpUrls, &UpnpIgdData, lan_address,
+                                                       sizeof(lan_address), wan_address, sizeof(wan_address));
+
+        context->UpnpDevice.ExternalAddress = wan_address;
 
         switch (igd_search_result) {
             case 1:
             case 2: {
-                char ip_string[40];
-
                 context->UpnpDevice.ControlUrl = UpnpUrls.controlURL;
                 context->UpnpDevice.ServiceType = UpnpIgdData.first.servicetype;
-                context->UpnpDevice.HostAddress = network_address;
+                context->UpnpDevice.HostAddress = lan_address;
 
                 context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_OK;
 
@@ -615,8 +616,8 @@ void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const cont
 
                 if (UPNPCOMMAND_SUCCESS == UPNP_GetExternalIPAddress(context->UpnpDevice.ControlUrl.GetCStr(),
                                                                      context->UpnpDevice.ServiceType.GetCStr(),
-                                                                     ip_string)) {
-                    context->UpnpDevice.ExternalAddress = ip_string;
+																	 wan_address)) {
+                    context->UpnpDevice.ExternalAddress = wan_address;
                 }
             } break;
 

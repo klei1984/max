@@ -18,16 +18,15 @@ FetchContent_Declare(
 	OVERRIDE_FIND_PACKAGE
 )
 
+set(MINIAUDIO_NO_LIBVORBIS ON)
+set(MINIAUDIO_NO_LIBOPUS ON)
+set(MINIAUDIO_NO_ENCODING ON)
+set(MINIAUDIO_NO_FLAC ON)
+set(MINIAUDIO_NO_MP3 ON)
+set(MINIAUDIO_NO_GENERATION ON)
+
 FetchContent_MakeAvailable(MINIAUDIO)
 
-set(MINIAUDIO_BINARY_DIR ${PROJECT_BINARY_DIR}/_deps/miniaudio-build)
-set(MINIAUDIO_SOURCE_DIR ${PROJECT_BINARY_DIR}/_deps/miniaudio-src)
-
-file(COPY ${MINIAUDIO_SOURCE_DIR}/miniaudio.h DESTINATION ${MINIAUDIO_BINARY_DIR}/include)
-
-add_library(Miniaudio INTERFACE)
-set_property(TARGET Miniaudio APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${MINIAUDIO_BINARY_DIR}/include")
-
 if(NOT TARGET Miniaudio::Miniaudio)
-	add_library(Miniaudio::Miniaudio ALIAS Miniaudio)
+	add_library(Miniaudio::Miniaudio ALIAS miniaudio)
 endif()
