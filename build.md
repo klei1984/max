@@ -4,6 +4,11 @@ title: Build Instructions
 permalink: /build/
 ---
 
+<h3 class="no-toc">Table of Contents</h3>
+
+* TOC
+{:toc}
+
 ## How to build M.A.X. Port
 
 The article documents the build instructions for M.A.X. Port v0.7.x. To actually run the game please read relevant sections of the [Installation Guideline](install.md).

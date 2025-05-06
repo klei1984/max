@@ -462,7 +462,6 @@ Amazing M.A.X. 2 trailer
 <a name="ref7"></a>\[7\] Electronic Games magazine - March 1994, page 71<br>
 <a name="ref8"></a>\[8\] Computer Gaming World - July 1994, page 17<br>
 <a name="ref9"></a>\[9\] PC GAMER - February 1995, page 33<br>
-<a name="ref10"></a>\[10\] [Supreme Court Case Decisions 2002](https://law.justia.com/cases/south-dakota/supreme-court/2002/1063.html)<br>
 <a name="ref11"></a>\[11\] Secret Service magazine Cover CD #38 - September, 1996<br>
 <a name="ref12"></a>\[12\] PC Games magazine Cover CD - December, 1996<br>
 <a name="ref13"></a>\[13\] Secret Service magazine Cover CD #40 - November, 1996<br>

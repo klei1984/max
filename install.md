@@ -4,6 +4,11 @@ title: Installation Guideline
 permalink: /install/
 ---
 
+<h3 class="no-toc">Table of Contents</h3>
+
+* TOC
+{:toc}
+
 ## How to play M.A.X. Port
 
 M.A.X. Port requires the original M.A.X. game data files to work. Therefore the first step is to make the original game files available on your computer. Then [Download](download.md) M.A.X. Port or [build](build.md) the runtime using the source code. Finally install and configure M.A.X. Port.

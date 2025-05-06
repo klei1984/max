@@ -10,7 +10,8 @@ tag: 0.7.1
 
 ### Current Release: v{{ page.release }} ({{ page.releaseDate }})
 
-Read the [Installation Guideline](install.md) on how to use.
+Read the [Installation Guideline](install.md) on how to use.<br>
+Read the [FAQ](faq.md) if in doubt.
 
 - <img style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows installer 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86_64.exe)**
 - <img style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows 7-Zip file 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86_64.7z)**
@@ -36,4 +37,4 @@ Read the [Build Instructions](build.md) on how to build.
 
 ### Previous Releases
 
-Download previous releases from [GitHub](https://github.com/klei1984/max/releases)
+Download previous releases from [GitHub](https://github.com/klei1984/max/releases).

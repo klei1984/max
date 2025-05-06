@@ -4,6 +4,11 @@ title: Save File Format
 permalink: /save/
 ---
 
+<h3 class="no-toc">Table of Contents</h3>
+
+* TOC
+{:toc}
+
 ## Preface
 
 The article documents the binary game save file format of M.A.X. v1.04 (Save File Format Version V70).

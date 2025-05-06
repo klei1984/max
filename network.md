@@ -4,6 +4,11 @@ title: Networking
 permalink: /network/
 ---
 
+<h3 class="no-toc">Table of Contents</h3>
+
+* TOC
+{:toc}
+
 ## Preface
 
 The article tries to document the network communication related aspects of M.A.X. that could either

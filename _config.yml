@@ -15,7 +15,7 @@ header_pages:
   "About": about.md
   "Evolution": evolution.md
   "Roadmap": roadmap.md
-  "Articles":
+  "Articles ▼":
     - "Installation Guideline": install.md
     - "Frequently Asked Questions": faq.md
     - "Build Instructions": build.md
