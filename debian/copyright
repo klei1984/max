@@ -14,15 +14,15 @@ License: FTL
                      920c5502cc3ddda88f6c7d85ee834ac611bb11cc/docs/FTL.TXT
 
 Files: dependencies/miniaudio-0.11.22.tar.gz
-Copyright: 2023 David Reid
+Copyright: 2025 David Reid
 License: MIT-0
 
 Files: dependencies/SDL2-2.32.4.tar.gz
-Copyright: 1997-2023 Sam Lantinga <slouken@libsdl.org>
+Copyright: 1997-2025 Sam Lantinga <slouken@libsdl.org>
 License: Zlib
 
 Files: dependencies/enet-1.3.18.tar.gz
-Copyright: 2002-2020 Lee Salzman
+Copyright: 2002-2024 Lee Salzman
 License: MIT
 
 Files: dependencies/googletest-1.16.0.tar.gz
@@ -30,7 +30,7 @@ Copyright: 2008 Google Inc.
 License: BSD-3-clause
 
 Files: dependencies/miniupnpc_2_3_2.tar.gz
-Copyright: 2005-2024 Thomas BERNARD
+Copyright: 2005-2025 Thomas BERNARD
 License: BSD-3-clause
 
 License: MIT
