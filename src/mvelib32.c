@@ -22,9 +22,6 @@
 #include "mvelib32.h"
 
 #include "gnw.h"
-
-#define MA_NO_FLAC
-#define MA_NO_MP3
 #include "miniaudio.h"
 
 #define MVE_SND_FORMAT_MONO 1
