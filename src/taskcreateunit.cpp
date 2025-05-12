@@ -217,7 +217,6 @@ void TaskCreateUnit::WaitForMaterials() {
                 int32_t buildings_count = 0;
                 int32_t power_consumption = 0;
                 int32_t required_mining_stations;
-                int32_t buildings_to_shut_down;
 
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -247,44 +246,56 @@ void TaskCreateUnit::WaitForMaterials() {
                 required_mining_stations -= power_consumption;
 
                 if (buildings_count >= required_mining_stations) {
-                    if (buildings_count == 0) {
-                        return;
-                    }
+                    if (buildings_count > 0) {
+                        auto buildings_to_shut_down = buildings_count - required_mining_stations + 1;
 
-                    buildings_to_shut_down = buildings_count - required_mining_stations + 1;
+                        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+                             it != UnitsManager_StationaryUnits.End(); ++it) {
+                            if (buildings_to_shut_down > 0) {
+                                if ((*it).team == team && (*it).GetUnitType() == GREENHSE &&
+                                    (*it).GetOrder() == ORDER_POWER_ON) {
+                                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                         it != UnitsManager_StationaryUnits.End(); ++it) {
-                        if (buildings_to_shut_down > 0) {
-                            if ((*it).team == team && (*it).GetUnitType() == GREENHSE &&
-                                (*it).GetOrder() == ORDER_POWER_ON) {
-                                UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
+                                    --buildings_to_shut_down;
+                                }
 
-                                --buildings_to_shut_down;
+                            } else {
+                                break;
                             }
-
-                        } else {
-                            break;
                         }
-                    }
 
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                         it != UnitsManager_StationaryUnits.End(); ++it) {
-                        if (buildings_to_shut_down > 0) {
-                            if ((*it).team == team && (*it).GetUnitType() == COMMTWR &&
-                                (*it).GetOrder() == ORDER_POWER_ON) {
-                                UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
+                        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+                             it != UnitsManager_StationaryUnits.End(); ++it) {
+                            if (buildings_to_shut_down > 0) {
+                                if ((*it).team == team && (*it).GetUnitType() == COMMTWR &&
+                                    (*it).GetOrder() == ORDER_POWER_ON) {
+                                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
-                                --buildings_to_shut_down;
+                                    --buildings_to_shut_down;
+                                }
+
+                            } else {
+                                break;
                             }
-
-                        } else {
-                            break;
                         }
-                    }
 
-                    if (buildings_to_shut_down > 0) {
-                        return;
+                        if (buildings_to_shut_down > 0) {
+                            return;
+                        }
+
+                    } else {
+                        Cargo mining_production;
+                        Cargo mining_capacity;
+
+                        /* consider corner case where there is plenty of available raw materials but there are no fuel
+                         * reserves even if production capacity is available */
+
+                        builder->GetComplex()->GetCargoMining(mining_production, mining_capacity);
+
+                        if (materials.raw < (capacity.raw / 2) || materials.fuel != 0 ||
+                            mining_capacity.fuel == mining_production.fuel) {
+                            return;
+                        }
                     }
                 }
             }
