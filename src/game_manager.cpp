@@ -641,7 +641,8 @@ static bool GameManager_IsUnitNotInAir(UnitInfo* unit);
 static UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type);
 static int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
 static bool GameManager_IsValidTransferTarget(UnitInfo* unit1, UnitInfo* unit2);
-static void GameManager_SetUnitOrder(int32_t order, int32_t state, UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+static void GameManager_SetUnitOrder(const UnitOrderType, const UnitOrderStateType state, UnitInfo* unit,
+                                     int32_t grid_x, int32_t grid_y);
 static bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2);
 static bool GameManager_IsValidDisableTarget(UnitInfo* unit1, UnitInfo* unit2);
 static int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
@@ -4324,7 +4325,8 @@ bool GameManager_HandleProximityOverlaps() {
     return true;
 }
 
-void GameManager_SetUnitOrder(int32_t order, int32_t state, UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+void GameManager_SetUnitOrder(const UnitOrderType order, const UnitOrderStateType state, UnitInfo* unit, int32_t grid_x,
+                              int32_t grid_y) {
     GameManager_DeinitPopupButtons(false);
 
     if (order == ORDER_MOVE_TO_ATTACK) {

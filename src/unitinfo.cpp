@@ -5250,9 +5250,9 @@ void UnitInfo::SetUnitType(const ResourceID unit_type) noexcept {
     this->unit_type = unit_type;
 }
 
-[[nodiscard]] uint8_t UnitInfo::GetOrder() const noexcept { return orders; }
+[[nodiscard]] UnitOrderType UnitInfo::GetOrder() const noexcept { return orders; }
 
-uint8_t UnitInfo::SetOrder(const uint8_t order) noexcept {
+UnitOrderType UnitInfo::SetOrder(const UnitOrderType order) noexcept {
     auto previous_order{this->orders};
 
     this->orders = order;
@@ -5260,9 +5260,9 @@ uint8_t UnitInfo::SetOrder(const uint8_t order) noexcept {
     return previous_order;
 }
 
-[[nodiscard]] uint8_t UnitInfo::GetPriorOrder() const noexcept { return prior_orders; }
+[[nodiscard]] UnitOrderType UnitInfo::GetPriorOrder() const noexcept { return prior_orders; }
 
-uint8_t UnitInfo::SetPriorOrder(const uint8_t order) noexcept {
+UnitOrderType UnitInfo::SetPriorOrder(const UnitOrderType order) noexcept {
     auto previous_order{this->prior_orders};
 
     this->prior_orders = order;
@@ -5270,9 +5270,9 @@ uint8_t UnitInfo::SetPriorOrder(const uint8_t order) noexcept {
     return previous_order;
 }
 
-uint8_t UnitInfo::GetOrderState() const noexcept { return state; }
+UnitOrderStateType UnitInfo::GetOrderState() const noexcept { return state; }
 
-uint8_t UnitInfo::SetOrderState(const uint8_t order_state) noexcept {
+UnitOrderStateType UnitInfo::SetOrderState(const UnitOrderStateType order_state) noexcept {
     auto previous_order_state{this->state};
 
     this->state = order_state;
@@ -5280,9 +5280,9 @@ uint8_t UnitInfo::SetOrderState(const uint8_t order_state) noexcept {
     return previous_order_state;
 }
 
-uint8_t UnitInfo::GetPriorOrderState() const noexcept { return prior_state; }
+UnitOrderStateType UnitInfo::GetPriorOrderState() const noexcept { return prior_state; }
 
-uint8_t UnitInfo::SetPriorOrderState(const uint8_t order_state) noexcept {
+UnitOrderStateType UnitInfo::SetPriorOrderState(const UnitOrderStateType order_state) noexcept {
     auto previous_order_state{this->prior_state};
 
     this->prior_state = order_state;

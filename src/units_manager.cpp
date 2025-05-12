@@ -3681,7 +3681,7 @@ void UnitsManager_TestBustedCommando(UnitInfo* unit) {
     }
 }
 
-void UnitsManager_ScaleUnit(UnitInfo* unit, int32_t state) {
+void UnitsManager_ScaleUnit(UnitInfo* unit, const UnitOrderStateType state) {
     if (GameManager_PlayerTeam == unit->team) {
         SoundManager_PlaySfx(unit, state == ORDER_STATE_EXPAND ? SFX_TYPE_EXPAND : SFX_TYPE_SHRINK);
     }
@@ -3768,7 +3768,7 @@ void UnitsManager_ProcessOrders() {
     UnitsManager_byte_17947D = UnitsManager_EffectCounter;
 }
 
-void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state) {
+void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, const UnitOrderStateType state) {
     if (unit->GetOrder() != ORDER_EXPLODE && unit->GetOrderState() != ORDER_STATE_DESTROY) {
         bool delete_path = false;
 
@@ -3805,7 +3805,7 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state) {
     }
 }
 
-void UnitsManager_SetNewOrder(UnitInfo* unit, int32_t order, int32_t state) {
+void UnitsManager_SetNewOrder(UnitInfo* unit, const UnitOrderType order, const UnitOrderStateType state) {
     UnitsManager_SetNewOrderInt(unit, order, state);
 
     if (Remote_IsNetworkGame) {

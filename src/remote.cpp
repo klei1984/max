@@ -270,10 +270,10 @@ void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet) {
 void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet) {
     UnitsManager_NewOrderWhileScaling(unit);
 
-    uint8_t order;
-    uint8_t order_state;
-    uint8_t prior_order;
-    uint8_t prior_order_state;
+    UnitOrderType order;
+    UnitOrderStateType order_state;
+    UnitOrderType prior_order;
+    UnitOrderStateType prior_order_state;
 
     packet >> order;
     packet >> order_state;
@@ -2836,8 +2836,8 @@ void Remote_ReceiveNetPacket_38(NetPacket& packet) {
 
         UnitsManager_NewOrderWhileScaling(unit);
 
-        uint8_t order;
-        uint8_t order_state;
+        UnitOrderType order;
+        UnitOrderStateType order_state;
 
         packet >> order;
         packet >> order_state;

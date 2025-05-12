@@ -78,8 +78,8 @@ SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, uint16_t tea
 void UnitsManager_ProcessOrders();
 void UnitsManager_NewOrderWhileScaling(UnitInfo* unit);
 void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit);
-void UnitsManager_SetNewOrderInt(UnitInfo* unit, int32_t order, int32_t state);
-void UnitsManager_SetNewOrder(UnitInfo* unit, int32_t order, int32_t state);
+void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, const UnitOrderStateType state);
+void UnitsManager_SetNewOrder(UnitInfo* unit, const UnitOrderType order, const UnitOrderStateType state);
 void UnitsManager_MoveUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 void UnitsManager_SetInitialMining(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
@@ -96,7 +96,7 @@ int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y);
 void UnitsManager_AddToDelayedReactionList(UnitInfo* unit);
 void UnitsManager_DrawBustedCommando(UnitInfo* unit);
 void UnitsManager_TestBustedCommando(UnitInfo* unit);
-void UnitsManager_ScaleUnit(UnitInfo* unit, int32_t state);
+void UnitsManager_ScaleUnit(UnitInfo* unit, const UnitOrderStateType state);
 int32_t UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int32_t attack_potential);
 
 #endif /* UNITS_MANAGER_HPP */
