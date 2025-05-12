@@ -22,6 +22,7 @@
 #include "localization.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <memory>
 
@@ -128,8 +129,19 @@ const char* Localization::GetText(const char* key) {
         Localization_Locale = std::make_unique<Localization>(Localization());
 
         if (!Localization_Locale->Load()) {
+            std::filesystem::path prefpath;
             std::ios_base::Init init;  /// required to initialize standard streams in time
-            std::cerr << "\nThe localization file configured in settings.ini is not found!\n\n";
+            std::string message{"\nThe localization file configured in settings.ini is not found!\n\n"};
+
+            std::cerr << message;
+
+            if (ResourceManager_GetPrefPath(prefpath)) {
+                auto filepath = (prefpath / "stdout.txt").lexically_normal();
+                auto logfile = std::make_unique<std::ofstream>(filepath.string().c_str(), std::ofstream::trunc);
+
+                *logfile << message;
+            }
+
             std::exit(1);
         }
     }
