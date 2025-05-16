@@ -164,3 +164,15 @@ void AiLog_Close() {
 
     SDL_UnlockMutex(AiLog::AiLog_Mutex);
 }
+
+[[nodiscard]] bool AiLog_IsEnabled() noexcept {
+    AiLog::AiLog_InitMutex();
+
+    SDL_LockMutex(AiLog::AiLog_Mutex);
+
+    auto result{AiLog::AiLog_File.is_open()};
+
+    SDL_UnlockMutex(AiLog::AiLog_Mutex);
+
+    return result;
+}

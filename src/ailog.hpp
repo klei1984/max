@@ -41,6 +41,7 @@ class AiLog {
 
     friend void AiLog_Open();
     friend void AiLog_Close();
+    friend bool AiLog_IsEnabled() noexcept;
 
 public:
     AiLog(const char *format, ...);
@@ -52,5 +53,6 @@ public:
 
 void AiLog_Open();
 void AiLog_Close();
+[[nodiscard]] bool AiLog_IsEnabled() noexcept;
 
 #endif /* AILOG_HPP */

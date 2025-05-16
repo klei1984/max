@@ -481,19 +481,21 @@ void TaskManager::BeginTurn(uint16_t team) {
         }
     }
 
-    uint16_t reminders[REMINDER_TYPE_COUNT];
+    if (AiLog_IsEnabled()) {
+        uint16_t reminders[REMINDER_TYPE_COUNT];
 
-    memset(reminders, 0, sizeof(reminders));
+        memset(reminders, 0, sizeof(reminders));
 
-    for (SmartList<Reminder>::Iterator it = normal_reminders.Begin(); it != normal_reminders.End(); ++it) {
-        ++reminders[(*it).GetType()];
+        for (SmartList<Reminder>::Iterator it = normal_reminders.Begin(); it != normal_reminders.End(); ++it) {
+            ++reminders[(*it).GetType()];
+        }
+
+        log.Log("Turn start reminders: %i", reminders[REMINDER_TYPE_TURN_START]);
+        log.Log("Turn end reminders: %i", reminders[REMINDER_TYPE_TURN_END]);
+        log.Log("Available reminders: %i", reminders[REMINDER_TYPE_AVAILABLE]);
+        log.Log("Move reminders: %i", reminders[REMINDER_TYPE_MOVE]);
+        log.Log("Attack reminders: %i", reminders[REMINDER_TYPE_ATTACK]);
     }
-
-    log.Log("Turn start reminders: %i", reminders[REMINDER_TYPE_TURN_START]);
-    log.Log("Turn end reminders: %i", reminders[REMINDER_TYPE_TURN_END]);
-    log.Log("Available reminders: %i", reminders[REMINDER_TYPE_AVAILABLE]);
-    log.Log("Move reminders: %i", reminders[REMINDER_TYPE_MOVE]);
-    log.Log("Attack reminders: %i", reminders[REMINDER_TYPE_ATTACK]);
 }
 
 void TaskManager::EndTurn(uint16_t team) {
@@ -555,7 +557,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 SmartPointer<TaskObtainUnits> obtain_units_task;
                 uint16_t task_flags{UINT16_MAX};
 
-                {
+                if (AiLog_IsEnabled()) {
                     char unit_name[300];
 
                     unit->GetDisplayName(unit_name, sizeof(unit_name));
