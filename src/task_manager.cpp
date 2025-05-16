@@ -28,6 +28,7 @@
 #include "builder.hpp"
 #include "inifile.hpp"
 #include "reminders.hpp"
+#include "taskactivate.hpp"
 #include "taskcreateunit.hpp"
 #include "taskreload.hpp"
 #include "taskrepair.hpp"
@@ -551,13 +552,40 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
             unit->GetUnitType() == LIGHTPLT || unit->GetUnitType() == LANDPLT || unit->GetUnitType() == SHIPYARD ||
             unit->GetUnitType() == AIRPLT || unit->GetUnitType() == TRAINHAL) {
             if (!unit->GetTask() && unit->hits > 0) {
-                char unit_name[300];
                 SmartPointer<TaskObtainUnits> obtain_units_task;
                 uint16_t task_flags{UINT16_MAX};
 
-                unit->GetDisplayName(unit_name, sizeof(unit_name));
+                {
+                    char unit_name[300];
 
-                AiLog log("Task manager: find a task for %s.", unit_name);
+                    unit->GetDisplayName(unit_name, sizeof(unit_name));
+
+                    AiLog log("Task manager: find a task for %s.", unit_name);
+                }
+
+                {
+                    /* in case a builder unit is blocked from activating another unit is disabled
+                     * make sure to restore operating states in a way to be able to continue the
+                     * requested activation later
+                     */
+                    auto client{unit->GetParent()};
+
+                    if (client) {
+                        auto client_task{client->GetTask()};
+
+                        if (client_task && client_task->GetType() == TaskType_TaskActivate) {
+                            auto activate_task{dynamic_cast<TaskActivate*>(client_task)};
+
+                            if (activate_task->GetContainer() == unit) {
+                                if (unit->GetOrder() == ORDER_HALT_BUILDING_2) {
+                                    UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_UNIT_READY);
+                                }
+
+                                return;
+                            }
+                        }
+                    }
+                }
 
                 if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
                     if (unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) != unit->hits ||

@@ -46,6 +46,9 @@ public:
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
     void EventZoneCleared(Zone* zone, bool status);
+
+    [[nodiscard]] const UnitInfo* GetContainer() const noexcept;
+    [[nodiscard]] const UnitInfo* GetPayload() const noexcept;
 };
 
 #endif /* TASKACTIVATE_HPP */

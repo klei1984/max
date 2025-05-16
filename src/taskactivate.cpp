@@ -289,3 +289,7 @@ void TaskActivate::EventZoneCleared(Zone* zone_, bool status) {
         Activate();
     }
 }
+
+const UnitInfo* TaskActivate::GetContainer() const noexcept { return unit_parent.Get(); }
+
+const UnitInfo* TaskActivate::GetPayload() const noexcept { return unit_to_activate.Get(); }
