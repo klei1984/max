@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Status (last updated 2025-05-12): Fixed 141 / 228 (61.8%) original M.A.X. defects in M.A.X. Port.
+Fixed 142 / 231 (61.4%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -164,11 +164,11 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 49. The resource levels panel of the game options menu allows to configure the amount of alien derelicts. The built-in help entry for the panel does not explain the meaning of alien derelicts indicating that the English help is older than the concept of alien derelicts. Additionally the "Alien Derelicts" caption is the only one without a colon within the panel.
 
-50. **[FIXED]** The built-in help menu's popup window supports rendering multiple pages of text. If more than one page is needed to display the help entry arrow buttons are added to the window. The up arrow registers an sfx, the down arrow does not (cseg01:000A53E9). Interestingly neither is played by the game for some reason.
+50. **[Fixed]** The built-in help menu's popup window supports rendering multiple pages of text. If more than one page is needed to display the help entry arrow buttons are added to the window. The up arrow registers an sfx, the down arrow does not (cseg01:000A53E9). Interestingly neither is played by the game for some reason.
 
-51. **[FIXED]** The game setup menu allocates char buffers to hold mission titles using new char[], but deletes (cseg01:000B12B5) the buffers using the delete operator instead of the delete[] operator which is undefined behavior.
+51. **[Fixed]** The game setup menu allocates char buffers to hold mission titles using new char[], but deletes (cseg01:000B12B5) the buffers using the delete operator instead of the delete[] operator which is undefined behavior.
 
-52. **[FIXED]** The event handler of the scroll up button (cseg01:000B1035) on mission selection screens tests against an uninitialized local (stack) variable. In the extremely unlikely case when the test would pass the function does nothing to the GameSetupMenu class object's state as the function prematurely exits.
+52. **[Fixed]** The event handler of the scroll up button (cseg01:000B1035) on mission selection screens tests against an uninitialized local (stack) variable. In the extremely unlikely case when the test would pass the function does nothing to the GameSetupMenu class object's state as the function prematurely exits.
 
 53. If a multiplayer game desyncs on the beginning of the first round before a new autosave is made, thus no autosave exists for the given game session, the game still asks whether players, any of them, wants to reload the last save.
 
@@ -182,13 +182,13 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 58. If a high-tech unit is captured, and then it gets upgraded in the depot, the unit would lose any of its superior unit values. For example if an enemy tank had 34 attack power and the player's own latest tank upgrades would only grant 20 attack power to an upgraded tank then the captured tank would lose the 34 attack power and would get the inferior 20 "as an upgrade". This behavior was considered to be a defect in M.A.X. 2 back in March, 1998.
 
-59. **[FIXED]** The SaveSlot class has two image resources, FILEx_UP and FILEx_DN. The save load menu init function (cseg01:000D7A19) allocates memory for the images' data. The buffer size is determined for both images, but the allocation uses the size of FILEx_UP data for both. As both images have the same dimensions this defect does not cause any issues.
+59. **[Fixed]** The SaveSlot class has two image resources, FILEx_UP and FILEx_DN. The save load menu init function (cseg01:000D7A19) allocates memory for the images' data. The buffer size is determined for both images, but the allocation uses the size of FILEx_UP data for both. As both images have the same dimensions this defect does not cause any issues.
 
-60. **[FIXED]** The function (cseg01:000C9093) which builds network packet 13 (update RNG seed) forgets to set the packet header's *entity_id* field so the previously configured packet's field value is used.
+60. **[Fixed]** The function (cseg01:000C9093) which builds network packet 13 (update RNG seed) forgets to set the packet header's *entity_id* field so the previously configured packet's field value is used.
 
 61. If an IPX client exits abnormally while it is in an IPX network lobby the host and its other peers will not be able to proceed with their game creation process. The only way to continue game creation is to exit the lobby by the host and start the connection process again from scratch. Adding a visual marker for ready state and adding the ability for the host to kick an unresponsive client could resolve the issue.
 
-62. **[FIXED]** The ButtonManager class (cseg01:00089450) allocates ButtonID buffers with new[] but deletes the buffer with free which is undefined behavior. It worked under Watcom 10.x compiler.
+62. **[Fixed]** The ButtonManager class (cseg01:00089450) allocates ButtonID buffers with new[] but deletes the buffer with free which is undefined behavior. It worked under Watcom 10.x compiler.
 
 63. The AI misbehaves when a hidden infiltrator steps aside, but doing so reveals its presence to the enemy.
     <br>
@@ -817,3 +817,21 @@ As the video clip demonstrates there are several odd behaviors when the game is 
 - exit to menu via ESC or ALT+X do not work
 <br>
 Depending on the projectiles' unit order states a saved game might allow units to move on load, but do not allow them to attack anymore as the parent unit of the projectile is locked into attack state.
+
+229. **[Fixed]** When a factory finishes building a unit it attempts to activate it. When all grid cell positions around the factory is blocked the factory gets blocked too. The factory is owned by a TaskCreateUnit task that requested the production of the newly built unit. The factory has order ORDER_BUILD and order state ORDER_STATE_BUILDING_READY. The task has CREATE_UNIT_STATE_ACTIVATING state. The manufactured unit is already spawned at the grid cell what is the top left position of the factory, but it is not visible, and it is owned by a TaskActivate task. When the infiltrator disables the factory (cseg01:000FCE8F) it updates both the previous order and the current order of it. The previous or old order becomes ORDER_HALT_BUILDING_2 and the new order becomes ORDER_DISABLE. The order states are updated as well and at the same time the factory gets stripped of all tasks it had. When the disabled state elapses the factory removes the ORDER_DISABLE order and restores ORDER_HALT_BUILDING_2. The task manager (cseg01:00045466) checks every turn whether there are idling units having no tasks and finds that now the factory has no tasks assigned. Typically the factory will be assigned a new TaskCreateUnit task to build something new even though in this case the previously produced unit is still waiting to be activated from the factory. It is clear that in normal circumstances the factory does not start to build something new while the previous is still waiting to be activated so this should not be allowed after a factory recovers from being disabled either.
+<br>
+	<video class="embed-video" preload="metadata" controls loop muted playsinline>
+	<source src="{{ site.baseurl }}/assets/clips/defect_229.mp4" type="video/mp4">
+	</video>
+<br>
+ The proposed defect fix is to check whether the factory has a parent unit, the last built unit waiting to be activated, which is assigned a TaskActivateTask which has a builder unit associated with it that is the factory in question and in such a case do not assign the factory a new task, instead restore its orders that factories would normally have in these circumstances.
+
+230. The tileset of Ultima Thule (MD5 hash 39fb184442e026d919a6ba89cd7e1612 \*SNOW_5.WRL) misses a tile art at grid cell position \[055,066\]. When the tile is added back to the set the pass table of the planet should be updated too.
+<br>
+	<img src="{{ site.baseurl }}/assets/images/defect_230.png" alt="defect 230" width="480">
+<br>
+
+231. The tilemap of Ice Berg (MD5 hash bddc3f12fc856009ba539b82303ae46a \*SNOW_3.WRL) places a wrong tile art at cell position \[057,057\]. Tile 55 needs to be set for the tilemap position.
+<br>
+	<img src="{{ site.baseurl }}/assets/images/defect_231.png" alt="defect 231" width="480">
+<br>
