@@ -48,7 +48,7 @@ sad story.
 
 At the time my biggest achievement was to figure out the **potentially** accurate formula for research centers.
 
-<img src="{{ site.baseurl }}/assets/images/rctc.jpg" alt="Research Center Formula">
+<img class="formula" src="{{ site.baseurl }}/assets/images/rctc.svg" alt="Research Center Formula">
 
 But nobody seemed to care much from the community.
 

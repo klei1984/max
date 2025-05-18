@@ -1,8 +1,8 @@
-<div style="float: {{ include.align }}; {% if include.align == "right" %} margin-left: 3em {% else %} margin-right: 3em {% endif %};margin-bottom: 3em; max-width:500px; border:1px solid white">
+<div class="max-note-container align-{{ include.align }}">
   <div>
     <img src="{{ site.baseurl }}/assets/images/{{ include.image }}" alt="">
   </div>
-  <div style="color:gray; font-size: 80%; text-align: {{ include.align }};">
+  <div class="max-note-caption align-{{ include.align }}">
     <b>{{ include.title }}</b>
     {{ include.description | markdownify }}
   </div>

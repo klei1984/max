@@ -1,3 +1,6 @@
+$border-color-01: #e8e8e8 !default;
+$download-button-color: #9d1e1c !default;
+
 .main-content {
   padding-bottom: 50px;
 }
@@ -13,23 +16,19 @@ footer.footer-min {
 }
 
 .text-muted {
-    color:
-    #777;
+    color: #777;
 }
 
 .legend-done {
-    color:
-    Green;
+    color: Green;
 }
 
 .legend-close {
-    color:
-    Olive;
+    color: Olive;
 }
 
 .legend-inwork {
-    color:
-    Orange;
+    color: Orange;
 }
 
 .embed-container {
@@ -102,7 +101,7 @@ input:checked ~ .dropdown-trigger {
 }
 
 li.nav-item:last-child > a {
-  color: #9d1e1c;
+  color: $download-button-color;
   font-weight:600;
 }
 
@@ -141,5 +140,218 @@ li.nav-item:last-child > a {
     input ~ .dropdown-trigger {
       position: absolute;
     }
+  }
+}
+
+.max-note-container {
+  margin-bottom: 3em;
+  max-width: 500px;
+  border: 1px $border-color-01;
+  float: left;
+}
+
+.max-note-container.align-right {
+  float: right;
+  margin-left: 3em;
+}
+
+.max-note-container.align-left {
+  float: left;
+  margin-right: 3em;
+}
+
+.max-note-caption {
+  color: $grey-color;
+  font-size: 80%;
+  text-align: left;
+}
+
+.max-note-caption.align-right {
+  text-align: right;
+}
+
+.max-note-caption.align-left {
+  text-align: left;
+}
+
+.max-video-block {
+  float: right;
+  margin-left: 3em;
+  margin-bottom: 3em;
+  border: 1px $border-color-01;
+}
+
+.max-video-wrapper {
+  text-align: center;
+  margin: 0 auto;
+}
+
+.max-embed-video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.max-video-caption {
+  color: $grey-color;
+  font-size: 80%;
+  text-align: right;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  $text-color: #eaeaea;
+  $background-color: #18181a;
+  $brand-color: #80bfff;
+  $brand-color-light: #2d3a4e;
+  $brand-color-dark: #1a2330;
+  $site-title-color: #eaeaea;
+  $code-background-color: #191924;
+  $border-color-01: #333;
+  $border-color-02: #444;
+  $grey-color: #888;
+  $grey-color-light: #333;
+  $grey-color-dark: #191924;
+  $footer-background-color: #23232a;
+  $table-background-color: #1d1d22;
+  $blockquote-background-color: #21212b;
+  $blockquote-border-color: #444;
+  $download-button-color: #9d1e1c;
+
+  html, body {
+    background: $background-color !important;
+    color: $text-color !important;
+  }
+
+  a {
+    color: $brand-color !important;
+  }
+
+  a:visited {
+    color: #b0a0ff !important;
+  }
+
+  a:hover, a:focus, a:active {
+    color: #5fb0ff !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: $text-color !important;
+  }
+
+  .site-title, .site-title:visited {
+    color: $site-title-color !important;
+  }
+
+  .site-nav .page-link {
+    color: $text-color !important;
+  }
+
+  .site-header, post-header, .site-nav {
+    background: $footer-background-color !important;
+    color: $text-color !important;
+    border-bottom: 1px solid $border-color-01 !important;
+  }
+
+  .site-footer {
+    background: $footer-background-color !important;
+    color: $text-color !important;
+    border-top: 1px solid $border-color-01 !important;
+  }
+
+  .post, .page-content {
+    background: $footer-background-color !important;
+    color: $text-color !important;
+    border-color: $border-color-01 !important;
+  }
+
+  code, pre {
+    background: $code-background-color !important;
+    color: $text-color !important;
+    border: 1px solid $border-color-01 !important;
+  }
+
+  blockquote {
+    background: $table-background-color !important;
+    color: #c7c7c7 !important;
+    border-left: 4px solid $blockquote-border-color !important;
+  }
+
+  hr {
+    border-color: $border-color-02 !important;
+  }
+
+  .highlight {
+    background: $code-background-color !important;
+  }
+
+  .site-nav .nav-list,
+  .site-nav .nav-list > .nav-item > .nav-link {
+    color: $text-color !important;
+  }
+
+  footer.footer-min {
+    background-color: $footer-background-color !important;
+    border-top: 1px solid $border-color-01 !important;
+    color: $text-color !important;
+  }
+
+  .text-muted {
+    color: $grey-color !important;
+  }
+
+  .legend-done {
+    color: #7fff7f !important;
+  }
+
+  .legend-close {
+    color: #c0c07f !important;
+  }
+
+  .legend-inwork {
+    color: #ffc04d !important;
+  }
+
+  input:checked ~ .dropdown-trigger,
+  .dropdown-trigger {
+    background-color: $background-color !important;
+    border: 1px solid $border-color-01 !important;
+    color: $text-color !important;
+  }
+
+  .dropdown-trigger > .nav-link {
+    color: $text-color !important;
+  }
+
+  img.formula {
+    filter: invert(100%);
+  }
+
+  table {
+    background: $table-background-color !important;
+    color: $text-color !important;
+    border-color: $border-color-01 !important;
+  }
+
+  thead, thead tr, th {
+    background-color: $footer-background-color !important;
+    color: $text-color !important;
+  }
+
+  th, td {
+    border-color: $border-color-01 !important;
+  }
+
+  table tr:nth-child(2n) {
+    background-color: $footer-background-color !important;
+  }
+
+  table tr:nth-child(2n+1) {
+    background-color: $table-background-color !important;
+  }
+
+  .site-nav .nav-list > li.nav-item.page-link:last-child > a.nav-link {
+    color: $download-button-color !important;
+    font-weight:600 !important;
   }
 }
