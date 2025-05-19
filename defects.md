@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 142 / 231 (61.4%) original M.A.X. defects in M.A.X. Port.
+Fixed 143 / 232 (61.6%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -809,7 +809,6 @@ For example the computer player requests all currently powered off research cent
 	<source src="{{ site.baseurl }}/assets/clips/defect_228.mp4" type="video/mp4">
 	</video>
 <br>
-<br>
 As the video clip demonstrates there are several odd behaviors when the game is saved while a projectile was moving towards its destination:
 - on load the projectile will stand still in air
 - units cannot calculate paths
@@ -824,7 +823,7 @@ Depending on the projectiles' unit order states a saved game might allow units t
 	<source src="{{ site.baseurl }}/assets/clips/defect_229.mp4" type="video/mp4">
 	</video>
 <br>
- The proposed defect fix is to check whether the factory has a parent unit, the last built unit waiting to be activated, which is assigned a TaskActivateTask which has a builder unit associated with it that is the factory in question and in such a case do not assign the factory a new task, instead restore its orders that factories would normally have in these circumstances.
+The proposed defect fix is to check whether the factory has a parent unit, the last built unit waiting to be activated, which is assigned a TaskActivateTask which has a builder unit associated with it that is the factory in question and in such a case do not assign the factory a new task, instead restore its orders that factories would normally have in these circumstances.
 
 230. The tileset of Ultima Thule (MD5 hash 39fb184442e026d919a6ba89cd7e1612 \*SNOW_5.WRL) misses a tile art at grid cell position \[055,066\]. When the tile is added back to the set the pass table of the planet should be updated too.
 <br>
@@ -834,4 +833,18 @@ Depending on the projectiles' unit order states a saved game might allow units t
 231. The tilemap of Ice Berg (MD5 hash bddc3f12fc856009ba539b82303ae46a \*SNOW_3.WRL) places a wrong tile art at cell position \[057,057\]. Tile 55 needs to be set for the tilemap position.
 <br>
 	<img src="{{ site.baseurl }}/assets/images/defect_231.png" alt="defect 231" width="480">
+<br>
+
+232. **[Fixed]** When a factory finishes building a unit a TaskActivate task is created that tries to find a free grid cell position around the factory where the unit can be activated. In case there are no free locations the task searches for friendly units that obstruct the way and tells the first one found to clear out (cseg01:00053ED0). Until the unit in the way moves the same function is not searching for free locations anymore. There are corner cases where this behavior creates soft lock situations.
+<br>
+	<video class="embed-video" preload="metadata" controls loop muted playsinline>
+	<source src="{{ site.baseurl }}/assets/clips/defect_232.mp4" type="video/mp4">
+	</video>
+<br>
+The video clip demonstrates that the repair unit of the green computer cannot move as it is a land unit while infiltrators can move around using shore tiles. When the light vehicle plant finishes manufacturing an engineer there are no free grid cell locations, but the friendly repair unit is obstructing so it is commanded to clear out from the zone that the unit cannot execute as there are no free land grid cells around it. Moving out of the way with the infiltrators after this event does not help as the TaskActivate task does not check free grid cell locations anymore. As soon as the friendly unit is lost and the clear zone command becomes obsolete the TaskActivate task searches for free locations again and immediately finds that there is a way. There is another related issue that the TaskActivate task is only issuing a clear out zone command for the first friendly unit found and in cases where there would be more friendlies and only the first one is unable to move the algorithm would soft lock again. 
+<br>
+Proposed defect fix:
+- Always search for free grid cell locations irrespective of previously requested clear out zone commands.
+- In case a free grid cell is found mark an existing Zone object as unimportant.
+- Always add all unique obstructed locations and try any of them until one succeeds.
 <br>
