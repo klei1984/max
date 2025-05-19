@@ -34,7 +34,7 @@ extern "C" {
 
 class Zone : public SmartObject {
     SmartPointer<Task> task;
-    bool field_30;
+    bool is_unimportant;
 
 public:
     Zone(UnitInfo* unit, Task* task);
@@ -43,9 +43,9 @@ public:
 
     void Add(Point* point);
     void Add(Rect* bounds);
-    void Finished(bool mode);
-    bool GetField30() const;
-    void SetField30(bool value);
+    void Finished(const bool status);
+    bool IsImportant() const;
+    void SetImportance(bool value);
 
     ObjectArray<Point> points;
     SmartPointer<UnitInfo> unit;
@@ -56,7 +56,7 @@ struct ZoneSquare {
     UnitInfo* unit;
 
     ZoneSquare();
-    ZoneSquare(int32_t grid_x, int32_t grid_y, UnitInfo* unit);
+    ZoneSquare(const int32_t grid_x, const int32_t grid_y, UnitInfo* const unit);
 };
 
 #endif /* ZONE_HPP */

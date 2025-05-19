@@ -38,7 +38,7 @@ void TaskActivate::Activate() {
     if (unit_to_activate != nullptr) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             if (GameManager_IsActiveTurn(team)) {
-                if (unit_to_activate->GetTask() == this && zone == nullptr) {
+                if (unit_to_activate->GetTask() == this) {
                     if (unit_to_activate->GetOrder() == ORDER_IDLE || unit_to_activate->GetOrder() == ORDER_BUILD ||
                         unit_to_activate->GetOrder() == ORDER_AWAIT) {
                         if (unit_parent != nullptr) {
@@ -91,7 +91,7 @@ void TaskActivate::Activate() {
                                                     unit_to_activate->target_grid_x = position.x;
                                                     unit_to_activate->target_grid_y = position.y;
 
-                                                    UnitsManager_SetNewOrder(&*unit_to_activate, ORDER_ACTIVATE,
+                                                    UnitsManager_SetNewOrder(unit_to_activate.Get(), ORDER_ACTIVATE,
                                                                              ORDER_STATE_IN_TRANSITION);
                                                 } break;
 
@@ -99,9 +99,9 @@ void TaskActivate::Activate() {
                                                     unit_parent->target_grid_x = position.x;
                                                     unit_parent->target_grid_y = position.y;
 
-                                                    unit_parent->SetParent(&*unit_to_activate);
+                                                    unit_parent->SetParent(unit_to_activate.Get());
 
-                                                    UnitsManager_SetNewOrder(&*unit_parent, ORDER_ACTIVATE,
+                                                    UnitsManager_SetNewOrder(unit_parent.Get(), ORDER_ACTIVATE,
                                                                              ORDER_STATE_EXECUTING_ORDER);
 
                                                 } break;
@@ -110,7 +110,7 @@ void TaskActivate::Activate() {
                                                     unit_to_activate->target_grid_x = position.x;
                                                     unit_to_activate->target_grid_y = position.y;
 
-                                                    UnitsManager_SetNewOrder(&*unit_to_activate, ORDER_MOVE,
+                                                    UnitsManager_SetNewOrder(unit_to_activate.Get(), ORDER_MOVE,
                                                                              ORDER_STATE_INIT);
                                                 } break;
                                             }
@@ -119,26 +119,36 @@ void TaskActivate::Activate() {
                                                     UnitsManager_Orders[unit_to_activate->GetOrder()],
                                                     unit_to_activate->GetOrderState());
 
+                                            /* abort zone clearing if it was requested */
+                                            if (zone) {
+                                                zone->SetImportance(false);
+                                                zone = nullptr;
+                                            }
+
                                             return;
                                         }
                                     }
                                 }
 
+                                /* request to clear out at least one friendly unit */
                                 for (int32_t direction = 0; direction < 8; direction += 2) {
                                     for (int32_t range = 0; range < unit_size + 1; ++range) {
                                         position += Paths_8DirPointsArray[direction];
 
                                         if (Access_IsAccessible(unit_to_activate->GetUnitType(), team, position.x,
                                                                 position.y, AccessModifier_EnemySameClassBlocks)) {
-                                            log.Log("Clearing square: [%i,%i].", position.x + 1, position.y + 1);
+                                            if (zone == nullptr) {
+                                                zone = new (std::nothrow) Zone(unit_to_activate.Get(), this);
 
-                                            zone = new (std::nothrow) Zone(&*unit_to_activate, this);
+                                                AiPlayer_Teams[team].ClearZone(zone.Get());
 
-                                            zone->Add(&position);
+                                                zone->SetImportance(false);
+                                            }
 
-                                            AiPlayer_Teams[team].ClearZone(&*zone);
-
-                                            return;
+                                            if (zone->points.Find(&position) == -1) {
+                                                log.Log("Clearing square: [%i,%i].", position.x + 1, position.y + 1);
+                                                zone->Add(&position);
+                                            }
                                         }
                                     }
                                 }
@@ -187,8 +197,8 @@ Rect* TaskActivate::GetBounds(Rect* bounds) {
 uint8_t TaskActivate::GetType() const { return TaskType_TaskActivate; }
 
 void TaskActivate::AddUnit(UnitInfo& unit) {
-    if (&*unit_to_activate == &unit) {
-        Task_RemindMoveFinished(&*unit_to_activate, true);
+    if (unit_to_activate == &unit) {
+        Task_RemindMoveFinished(unit_to_activate.Get(), true);
     }
 }
 
@@ -231,7 +241,7 @@ bool TaskActivate::Execute(UnitInfo& unit) {
                 }
 
                 if (!unit_to_activate->GetTask()) {
-                    TaskManager.RemindAvailable(&*unit_to_activate);
+                    TaskManager.RemindAvailable(unit_to_activate.Get());
                 }
 
                 unit_to_activate = nullptr;

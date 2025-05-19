@@ -279,7 +279,7 @@ bool TaskClearZone::ExamineZones() {
                         points2.Append(&site);
 
                     } else {
-                        if (zone->GetField30() && unit->speed < 2) {
+                        if (zone->IsImportant() && unit->speed < 2) {
                             zones.Erase(i);
 
                             zone->Finished(false);
@@ -294,7 +294,7 @@ bool TaskClearZone::ExamineZones() {
 
                         } else {
                             if ((unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_UNIT_READY) ||
-                                zone->GetField30()) {
+                                zone->IsImportant()) {
                                 zones.Erase(i);
 
                                 zone->Finished(false);

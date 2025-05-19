@@ -24,9 +24,9 @@
 #include "task.hpp"
 #include "unitinfo.hpp"
 
-Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), field_30(false) {}
+Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), is_unimportant(false) {}
 
-Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), field_30(false) { Add(bounds); }
+Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), is_unimportant(false) { Add(bounds); }
 
 Zone::~Zone() {}
 
@@ -42,12 +42,13 @@ void Zone::Add(Rect* bounds) {
     }
 }
 
-void Zone::Finished(bool mode) { task->EventZoneCleared(this, mode); }
+void Zone::Finished(const bool status) { task->EventZoneCleared(this, status); }
 
-bool Zone::GetField30() const { return field_30; }
+bool Zone::IsImportant() const { return !is_unimportant; }
 
-void Zone::SetField30(bool value) { field_30 = value; }
+void Zone::SetImportance(bool value) { is_unimportant = !value; }
 
 ZoneSquare::ZoneSquare() : point(0, 0), unit(nullptr) {}
 
-ZoneSquare::ZoneSquare(int32_t grid_x, int32_t grid_y, UnitInfo* unit) : point(grid_x, grid_y), unit(unit) {}
+ZoneSquare::ZoneSquare(const int32_t grid_x, const int32_t grid_y, UnitInfo* const unit)
+    : point(grid_x, grid_y), unit(unit) {}

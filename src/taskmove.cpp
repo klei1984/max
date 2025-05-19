@@ -686,7 +686,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
 
             if (flag) {
                 move->zone = local_zone;
-                move->zone->SetField30(move->field_69);
+                move->zone->SetImportance(move->field_69);
 
                 AiPlayer_Teams[move->team].ClearZone(&*local_zone);
 
@@ -1017,7 +1017,7 @@ void TaskMove::MoveAirUnit() {
                                         zone = new (std::nothrow) Zone(&*passenger, this);
 
                                         zone->Add(&passenger_waypoint);
-                                        zone->SetField30(field_69);
+                                        zone->SetImportance(field_69);
 
                                         AiPlayer_Teams[team].ClearZone(&*zone);
                                     }
