@@ -134,5 +134,6 @@ void ResourceManager_InitClanUnitValues(uint16_t team);
 void ResourceManager_InitHeatMaps(uint16_t team);
 void ResourceManager_InitTeamInfo();
 uint8_t *ResourceManager_GetBuffer(ResourceID id);
+std::string ResourceManager_Sha256(const ResourceID world);
 
 #endif /* RESOURCE_MANAGER_HPP */

@@ -21,10 +21,8 @@
 
 #include "resource_manager.hpp"
 
-#include <filesystem>
 #include <fstream>
 #include <memory>
-#include <sstream>
 #include <string>
 
 #include "access.hpp"
@@ -39,6 +37,7 @@
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "screendump.h"
+#include "sha2.h"
 #include "sound_manager.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
@@ -375,6 +374,7 @@ static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, 
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
 static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority,
                                              const char *message);
+static inline void ResourceManager_FixWorldFiles(const ResourceID world);
 
 static inline std::filesystem::path ResourceManager_GetResourcePath(ResourceType type) {
     auto path{ResourceManager_FilePathGameData};
@@ -1546,6 +1546,8 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
         load_bar.SetValue(progress_bar_value);
     }
+
+    ResourceManager_FixWorldFiles(static_cast<ResourceID>(world));
 }
 
 bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
@@ -1741,4 +1743,58 @@ void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPrior
     }
 
     *ResourceManager_LogFile << message;
+}
+
+std::string ResourceManager_Sha256(const ResourceID world) {
+    constexpr size_t BLOCK_SIZE{4096};
+
+    auto fp{ResourceManager_OpenFileResource(static_cast<ResourceID>(world), ResourceType_GameData)};
+    char hex_digest[SHA256_DIGEST_SIZE * 2 + sizeof('\0')];
+    uint8_t data[BLOCK_SIZE];
+    uint8_t digest[SHA256_DIGEST_SIZE];
+    sha256_ctx ctx;
+    size_t data_read;
+
+    if (!fp) {
+        ResourceManager_ExitGame(EXIT_CODE_WRL_FILE_OPEN_ERROR);
+    }
+
+    sha256_init(&ctx);
+
+    while ((data_read = fread(data, sizeof(uint8_t), sizeof(data), fp)) != 0) {
+        sha256_update(&ctx, data, data_read);
+    }
+
+    sha256_final(&ctx, digest);
+
+    for (size_t i = 0; i < sizeof(digest); ++i) {
+        sprintf(hex_digest + (i * 2), "%02x", digest[i]);
+    }
+
+    hex_digest[sizeof(hex_digest) - 1] = '\0';
+
+    fclose(fp);
+
+    return hex_digest;
+}
+
+void ResourceManager_FixWorldFiles(const ResourceID world) {
+    switch (world) {
+        case GREEN_4: {
+            /* fix tile 190 pass table info */
+            constexpr uint16_t tile_190{190};
+
+            const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
+            const std::string reference{"dbcfc4495334640776e6a0b1776651f904583aa87f193a43436e6b1f04635241"};
+            auto hash{ResourceManager_Sha256(world)};
+
+            if (reference == hash) {
+                for (uint32_t i = 0; i < map_cell_count; ++i) {
+                    if (ResourceManager_MapTileIds[i] == tile_190) {
+                        ResourceManager_MapSurfaceMap[i] = SURFACE_TYPE_LAND;
+                    }
+                }
+            }
+        } break;
+    }
 }

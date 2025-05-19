@@ -17,7 +17,7 @@ Files: dependencies/miniaudio-0.11.22.tar.gz
 Copyright: 2025 David Reid
 License: MIT-0
 
-Files: dependencies/SDL2-2.32.4.tar.gz
+Files: dependencies/SDL2-2.32.6.tar.gz
 Copyright: 1997-2025 Sam Lantinga <slouken@libsdl.org>
 License: Zlib
 
@@ -31,6 +31,10 @@ License: BSD-3-clause
 
 Files: dependencies/miniupnpc_2_3_2.tar.gz
 Copyright: 2005-2025 Thomas BERNARD
+License: BSD-3-clause
+
+Files: dependencies/sha2-b90991f90967a46d0955dc981e9e3cd53c13b061.tar.gz
+Copyright: 2005-2023 Olivier Gay
 License: BSD-3-clause
 
 License: MIT

@@ -31,12 +31,17 @@ GTEST_VERSION=$(sed -nr 's/set\(GTEST_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $
 GTEST_FILE=$(eval echo $(sed -nr 's/set\(GTEST_FILE (.*)\)/\1/p' $maxport_configfile))
 GTEST_URI=$(eval echo $(sed -nr 's/set\(GTEST_URI (.*)\)/\1/p' $maxport_configfile))
 
+SHA2_VERSION=$(sed -nr 's/set\(SHA2_VERSION ([a-z0-9]+)\)/\1/p' $maxport_configfile)
+SHA2_FILE=$(eval echo $(sed -nr 's/set\(SHA2_FILE (.*)\)/\1/p' $maxport_configfile))
+SHA2_URI=$(eval echo $(sed -nr 's/set\(SHA2_URI (.*)\)/\1/p' $maxport_configfile))
+
 wget --no-clobber --quiet --output-document="dependencies/$FREETYPE_FILE" "$FREETYPE_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$MINIAUDIO_FILE" "$MINIAUDIO_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$SDL2_FILE" "$SDL2_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$ENET_FILE" "$ENET_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$MINIUPNP_FILE" "$MINIUPNP_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$GTEST_FILE" "$GTEST_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$SHA2_FILE" "$SHA2_URI" | true
 
 if [ -x dos2unix ] && [ -x md5sum ]; then
   dos2unix --quiet "dependencies/dependencies.md5"
