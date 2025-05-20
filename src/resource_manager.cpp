@@ -1782,7 +1782,7 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
     switch (world) {
         case GREEN_4: {
             /* fix tile 190 pass table info */
-            constexpr uint16_t tile_190{190};
+            constexpr uint16_t tile_190{190u};
 
             const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
             const std::string reference{"dbcfc4495334640776e6a0b1776651f904583aa87f193a43436e6b1f04635241"};
@@ -1796,5 +1796,18 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
                 }
             }
         } break;
+        case SNOW_3: {
+            /* fix tile at grid cell position 057,057 in tile id map */
+            constexpr uint16_t tile_55{55u};
+            constexpr uint16_t grid_x_57{56u};
+            constexpr uint16_t grid_y_57{56u};
+
+            const std::string reference{"a625d409ca1d5cd24cdeed165813e5b79c538b123491791016372492f5106801"};
+            auto hash{ResourceManager_Sha256(world)};
+
+            if (reference == hash) {
+                ResourceManager_MapTileIds[ResourceManager_MapSize.x * grid_y_57 + grid_x_57] = tile_55;
+            }
+        }
     }
 }
