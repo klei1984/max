@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 144 / 232 (62.0%) original M.A.X. defects in M.A.X. Port.
+Fixed 146 / 232 (62.9%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -825,12 +825,12 @@ Depending on the projectiles' unit order states a saved game might allow units t
 <br>
 The proposed defect fix is to check whether the factory has a parent unit, the last built unit waiting to be activated, which is assigned a TaskActivateTask which has a builder unit associated with it that is the factory in question and in such a case do not assign the factory a new task, instead restore its orders that factories would normally have in these circumstances.
 
-230. The tileset of Ultima Thule (MD5 hash 39fb184442e026d919a6ba89cd7e1612 \*SNOW_5.WRL) misses a tile art at grid cell position \[055,066\]. When the tile is added back to the set the pass table of the planet should be updated too.
+230. **[Fixed]** The tileset of Ultima Thule (MD5 hash 39fb184442e026d919a6ba89cd7e1612 \*SNOW_5.WRL) misses a tile art at grid cell position \[055,066\]. When the tile is added back to the set the pass table of the planet should be updated too.
 <br>
 	<img src="{{ site.baseurl }}/assets/images/defect_230.png" alt="defect 230" width="480">
 <br>
 
-231. The tilemap of Ice Berg (MD5 hash bddc3f12fc856009ba539b82303ae46a \*SNOW_3.WRL) places a wrong tile art at cell position \[057,057\]. Tile 55 needs to be set for the tilemap position.
+231. **[Fixed]** The tilemap of Ice Berg (MD5 hash bddc3f12fc856009ba539b82303ae46a \*SNOW_3.WRL) places a wrong tile art at cell position \[057,057\]. Tile 55 needs to be set for the tilemap position.
 <br>
 	<img src="{{ site.baseurl }}/assets/images/defect_231.png" alt="defect 231" width="480">
 <br>
