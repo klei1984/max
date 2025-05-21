@@ -589,6 +589,26 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                     }
                 }
 
+                {
+                    /* in case a taskless payload unit is waiting to be activated by a container unit
+                     * do not assign it any tasks to be able to continue the requested activation later
+                     */
+                    if (unit->GetOrder() == ORDER_IDLE && unit->GetOrderState() == ORDER_STATE_STORE) {
+                        auto container{unit->GetParent()};
+
+                        if (container && container->GetParent() == unit) {
+                            Rect bounds;
+                            auto position{Point(unit->grid_x, unit->grid_y)};
+
+                            container->GetBounds(&bounds);
+
+                            if (Access_IsInsideBounds(&bounds, &position)) {
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
                     if (unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) != unit->hits ||
                         (unit->GetOrderState() == ORDER_STATE_STORE &&
