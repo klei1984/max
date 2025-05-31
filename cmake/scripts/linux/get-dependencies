@@ -35,6 +35,22 @@ SHA2_VERSION=$(sed -nr 's/set\(SHA2_VERSION ([a-z0-9]+)\)/\1/p' $maxport_configf
 SHA2_FILE=$(eval echo $(sed -nr 's/set\(SHA2_FILE (.*)\)/\1/p' $maxport_configfile))
 SHA2_URI=$(eval echo $(sed -nr 's/set\(SHA2_URI (.*)\)/\1/p' $maxport_configfile))
 
+JSON_VERSION=$(sed -nr 's/set\(JSON_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+JSON_FILE=$(eval echo $(sed -nr 's/set\(JSON_FILE (.*)\)/\1/p' $maxport_configfile))
+JSON_URI=$(eval echo $(sed -nr 's/set\(JSON_URI (.*)\)/\1/p' $maxport_configfile))
+
+JSONSCHEMA_VERSION=$(sed -nr 's/set\(JSONSCHEMA_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+JSONSCHEMA_FILE=$(eval echo $(sed -nr 's/set\(JSONSCHEMA_FILE (.*)\)/\1/p' $maxport_configfile))
+JSONSCHEMA_URI=$(eval echo $(sed -nr 's/set\(JSONSCHEMA_URI (.*)\)/\1/p' $maxport_configfile))
+
+UTF8PROC_VERSION=$(sed -nr 's/set\(UTF8PROC_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+UTF8PROC_FILE=$(eval echo $(sed -nr 's/set\(UTF8PROC_FILE (.*)\)/\1/p' $maxport_configfile))
+UTF8PROC_URI=$(eval echo $(sed -nr 's/set\(UTF8PROC_URI (.*)\)/\1/p' $maxport_configfile))
+
+LUA_VERSION=$(sed -nr 's/set\(LUA_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+LUA_FILE=$(eval echo $(sed -nr 's/set\(LUA_FILE (.*)\)/\1/p' $maxport_configfile))
+LUA_URI=$(eval echo $(sed -nr 's/set\(LUA_URI (.*)\)/\1/p' $maxport_configfile))
+
 wget --no-clobber --quiet --output-document="dependencies/$FREETYPE_FILE" "$FREETYPE_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$MINIAUDIO_FILE" "$MINIAUDIO_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$SDL2_FILE" "$SDL2_URI" | true
@@ -42,6 +58,10 @@ wget --no-clobber --quiet --output-document="dependencies/$ENET_FILE" "$ENET_URI
 wget --no-clobber --quiet --output-document="dependencies/$MINIUPNP_FILE" "$MINIUPNP_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$GTEST_FILE" "$GTEST_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$SHA2_FILE" "$SHA2_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$JSON_FILE" "$JSON_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$JSONSCHEMA_FILE" "$JSONSCHEMA_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$UTF8PROC_FILE" "$UTF8PROC_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$LUA_FILE" "$LUA_URI" | true
 
 if [ -x dos2unix ] && [ -x md5sum ]; then
   dos2unix --quiet "dependencies/dependencies.md5"

@@ -1,0 +1,31 @@
+include(versions)
+include(FetchContent)
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${JSONSCHEMA_FILE})
+	file(${JSONSCHEMA_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${JSONSCHEMA_FILE} JSONSCHEMA_FILE_HASH)
+
+	if(${JSONSCHEMA_FILE_HASH} STREQUAL ${JSONSCHEMA_HASH})
+		set(JSONSCHEMA_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${JSONSCHEMA_FILE})
+	endif()
+endif()
+
+find_package(Patch)
+
+if(NOT Patch_FOUND)
+	message(FATAL_ERROR "Patch tool is required.")
+endif()
+
+set(JSONSCHEMA_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/patches/jsonschema.patch)
+
+FetchContent_Declare(
+	JSONSCHEMA
+	TIMEOUT 60
+	URL ${JSONSCHEMA_URI}
+	URL_HASH ${JSONSCHEMA_HASH_TYPE}=${JSONSCHEMA_HASH}
+	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+	OVERRIDE_FIND_PACKAGE
+	PATCH_COMMAND ${JSONSCHEMA_PATCH}
+	UPDATE_DISCONNECTED TRUE
+)
+
+FetchContent_MakeAvailable(JSONSCHEMA)

@@ -1,0 +1,285 @@
+diff --git CMakeLists.txt CMakeLists.txt
+new file mode 100644
+index 0000000..d55d620
+--- /dev/null
++++ CMakeLists.txt
+@@ -0,0 +1,155 @@
++cmake_minimum_required(VERSION 3.15)
++project(lua VERSION 5.4.7 LANGUAGES C)
++
++option(BUILD_SHARED_LIBS "Build shared libraries" ON)
++option(LUA_BUILD_STATIC "Always build a static library in addition to shared" ON)
++
++set(LUA_ENABLE_INSTALL OFF)
++
++if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR DEFINED CPACK_PACKAGE_NAME)
++    set(LUA_ENABLE_INSTALL ON)
++endif()
++
++set(LUA_DEFINES "")
++
++if(EMSCRIPTEN)
++    list(APPEND LUA_DEFINES LUA_USE_POSIX)
++elseif(UNIX AND NOT APPLE)
++    list(APPEND LUA_DEFINES LUA_USE_LINUX LUA_USE_READLINE)
++elseif(APPLE)
++    list(APPEND LUA_DEFINES LUA_USE_MACOSX)
++elseif(WIN32)
++    list(APPEND LUA_DEFINES LUA_USE_WINDOWS)
++endif()
++
++set(LUA_SRC
++    lapi.c
++    lauxlib.c
++    lbaselib.c
++    lcode.c
++    lcorolib.c
++    lctype.c
++    # ldblib.c
++    ldebug.c
++    ldo.c
++    ldump.c
++    lfunc.c
++    lgc.c
++    linit.c
++    # liolib.c
++    llex.c
++    lmathlib.c
++    lmem.c
++    # loadlib.c
++    lobject.c
++    lopcodes.c
++    # loslib.c
++    lparser.c
++    lstate.c
++    lstring.c
++    lstrlib.c
++    ltable.c
++    ltablib.c
++    ltm.c
++    lundump.c
++    lutf8lib.c
++    lvm.c
++    lzio.c
++)
++
++set(LUA_PUBLIC_HEADERS
++    lua.h
++    lualib.h
++    lauxlib.h
++)
++
++set(LUA_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
++list(TRANSFORM LUA_SRC PREPEND "${LUA_SRC_DIR}/")
++list(TRANSFORM LUA_PUBLIC_HEADERS PREPEND "${LUA_SRC_DIR}/")
++
++if(BUILD_SHARED_LIBS)
++    add_library(lua_shared SHARED ${LUA_SRC})
++    set_target_properties(lua_shared PROPERTIES OUTPUT_NAME "lua")
++    target_include_directories(lua_shared PUBLIC
++        $<BUILD_INTERFACE:${LUA_SRC_DIR}>
++        $<INSTALL_INTERFACE:include>
++    )
++
++    target_compile_definitions(lua_shared PRIVATE ${LUA_DEFINES})
++    set_target_properties(lua_shared PROPERTIES
++        C_STANDARD 99
++        C_EXTENSIONS OFF
++        POSITION_INDEPENDENT_CODE ON
++    )
++
++    add_library(lua::shared ALIAS lua_shared)
++endif()
++
++# Static library
++if(LUA_BUILD_STATIC)
++    add_library(lua_static STATIC ${LUA_SRC})
++    set_target_properties(lua_static PROPERTIES OUTPUT_NAME "lua")
++    target_include_directories(lua_static PUBLIC
++        $<BUILD_INTERFACE:${LUA_SRC_DIR}>
++        $<INSTALL_INTERFACE:include>
++    )
++
++    target_compile_definitions(lua_static PRIVATE ${LUA_DEFINES})
++    set_target_properties(lua_static PROPERTIES
++        C_STANDARD 99
++        C_EXTENSIONS OFF
++        POSITION_INDEPENDENT_CODE ON
++    )
++
++    add_library(lua::static ALIAS lua_static)
++endif()
++
++if(LUA_ENABLE_INSTALL)
++    include(GNUInstallDirs)
++
++    if(BUILD_SHARED_LIBS)
++        install(TARGETS lua_shared
++            EXPORT luaTargets
++            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
++        )
++    endif()
++
++    if(LUA_BUILD_STATIC)
++        install(TARGETS lua_static
++            EXPORT luaTargets
++            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
++        )
++    endif()
++
++    install(FILES ${LUA_PUBLIC_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++
++    install(EXPORT luaTargets
++        FILE luaTargets.cmake
++        NAMESPACE lua::
++        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/lua
++    )
++
++    include(CMakePackageConfigHelpers)
++
++    write_basic_package_version_file(
++        "${CMAKE_CURRENT_BINARY_DIR}/luaConfigVersion.cmake"
++        VERSION ${PROJECT_VERSION}
++        COMPATIBILITY AnyNewerVersion
++    )
++
++    configure_package_config_file(
++        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/luaConfig.cmake.in"
++        "${CMAKE_CURRENT_BINARY_DIR}/luaConfig.cmake"
++        INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/lua"
++    )
++
++    install(
++        FILES
++        "${CMAKE_CURRENT_BINARY_DIR}/luaConfig.cmake"
++        "${CMAKE_CURRENT_BINARY_DIR}/luaConfigVersion.cmake"
++        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/lua"
++    )
++endif()
+diff --git cmake/luaConfig.cmake.in cmake/luaConfig.cmake.in
+new file mode 100644
+index 0000000..9ffbef8
+--- /dev/null
++++ cmake/luaConfig.cmake.in
+@@ -0,0 +1,3 @@
++@PACKAGE_INIT@
++
++include("${CMAKE_CURRENT_LIST_DIR}/luaTargets.cmake")
+\ No newline at end of file
+diff --git lua.patch lua.patch
+new file mode 100644
+index 0000000..a7b4f8e
+--- /dev/null
++++ lua.patch
+@@ -0,0 +1,54 @@
++diff --git src/linit.c src/linit.c
++index 69808f8..c1ec03b 100644
++--- src/linit.c
+++++ src/linit.c
++@@ -41,15 +41,15 @@
++ */
++ static const luaL_Reg loadedlibs[] = {
++   {LUA_GNAME, luaopen_base},
++-  {LUA_LOADLIBNAME, luaopen_package},
+++/*  {LUA_LOADLIBNAME, luaopen_package}, */
++   {LUA_COLIBNAME, luaopen_coroutine},
++   {LUA_TABLIBNAME, luaopen_table},
++-  {LUA_IOLIBNAME, luaopen_io},
++-  {LUA_OSLIBNAME, luaopen_os},
+++/*  {LUA_IOLIBNAME, luaopen_io}, */
+++/*  {LUA_OSLIBNAME, luaopen_os}, */
++   {LUA_STRLIBNAME, luaopen_string},
++   {LUA_MATHLIBNAME, luaopen_math},
++   {LUA_UTF8LIBNAME, luaopen_utf8},
++-  {LUA_DBLIBNAME, luaopen_debug},
+++/*  {LUA_DBLIBNAME, luaopen_debug}, */
++   {NULL, NULL}
++ };
++ 
++diff --git src/luaconf.h src/luaconf.h
++index 33bb580..ac26587 100644
++--- src/luaconf.h
+++++ src/luaconf.h
++@@ -36,25 +36,9 @@
++ ** =====================================================================
++ */
++ 
++-/*
++-@@ LUA_USE_C89 controls the use of non-ISO-C89 features.
++-** Define it if you want Lua to avoid the use of a few C99 features
++-** or Windows-specific features on Windows.
++-*/
++-/* #define LUA_USE_C89 */
++-
++-
++-/*
++-** By default, Lua on Windows use (some) specific Windows features
++-*/
++-#if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
++-#define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
++-#endif
++-
++ 
++ #if defined(LUA_USE_WINDOWS)
++ #define LUA_DL_DLL	/* enable support for DLL */
++-#define LUA_USE_C89	/* broadly, Windows is C89 */
++ #endif
++ 
++ 
+diff --git src/linit.c src/linit.c
+index 69808f8..c1ec03b 100644
+--- src/linit.c
++++ src/linit.c
+@@ -41,15 +41,15 @@
+ */
+ static const luaL_Reg loadedlibs[] = {
+   {LUA_GNAME, luaopen_base},
+-  {LUA_LOADLIBNAME, luaopen_package},
++/*  {LUA_LOADLIBNAME, luaopen_package}, */
+   {LUA_COLIBNAME, luaopen_coroutine},
+   {LUA_TABLIBNAME, luaopen_table},
+-  {LUA_IOLIBNAME, luaopen_io},
+-  {LUA_OSLIBNAME, luaopen_os},
++/*  {LUA_IOLIBNAME, luaopen_io}, */
++/*  {LUA_OSLIBNAME, luaopen_os}, */
+   {LUA_STRLIBNAME, luaopen_string},
+   {LUA_MATHLIBNAME, luaopen_math},
+   {LUA_UTF8LIBNAME, luaopen_utf8},
+-  {LUA_DBLIBNAME, luaopen_debug},
++/*  {LUA_DBLIBNAME, luaopen_debug}, */
+   {NULL, NULL}
+ };
+ 
+diff --git src/luaconf.h src/luaconf.h
+index 33bb580..ac26587 100644
+--- src/luaconf.h
++++ src/luaconf.h
+@@ -36,25 +36,9 @@
+ ** =====================================================================
+ */
+ 
+-/*
+-@@ LUA_USE_C89 controls the use of non-ISO-C89 features.
+-** Define it if you want Lua to avoid the use of a few C99 features
+-** or Windows-specific features on Windows.
+-*/
+-/* #define LUA_USE_C89 */
+-
+-
+-/*
+-** By default, Lua on Windows use (some) specific Windows features
+-*/
+-#if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
+-#define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
+-#endif
+-
+ 
+ #if defined(LUA_USE_WINDOWS)
+ #define LUA_DL_DLL	/* enable support for DLL */
+-#define LUA_USE_C89	/* broadly, Windows is C89 */
+ #endif
+ 
+ 

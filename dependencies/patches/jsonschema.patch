@@ -1,0 +1,26 @@
+diff --git src/json-patch.cpp src/json-patch.cpp
+index 3203543..490d17e 100644
+--- src/json-patch.cpp
++++ src/json-patch.cpp
+@@ -4,7 +4,7 @@
+ 
+ namespace
+ {
+-
++using namespace nlohmann::literals;
+ // originally from http://jsonpatch.com/, http://json.schemastore.org/json-patch
+ // with fixes
+ const nlohmann::json patch_schema = R"patch({
+diff --git src/json-validator.cpp src/json-validator.cpp
+index 1fd0de1..119d1bf 100644
+--- src/json-validator.cpp
++++ src/json-validator.cpp
+@@ -875,7 +875,7 @@ class numeric : public schema
+ 
+ 	void validate(const json::json_pointer &ptr, const json &instance, json_patch &, error_handler &e) const override
+ 	{
+-		T value = instance; // conversion of json to value_type
++		T value = instance.get<T>(); // conversion of json to value_type
+ 
+ 		if (multipleOf_.first && value != 0) // zero is multiple of everything
+ 			if (violates_multiple_of(value))
