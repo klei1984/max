@@ -54,7 +54,7 @@ set(JSONSCHEMA_HASH_TYPE MD5)
 
 set(UTF8PROC_VERSION 2.10.0)
 set(UTF8PROC_FILE utf8proc-${UTF8PROC_VERSION}.tar.gz)
-set(UTF8PROC_URI https://github.com/JuliaStrings/utf8proc/archive/refs/tags/${UTF8PROC_VERSION}.tar.gz)
+set(UTF8PROC_URI https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v${UTF8PROC_VERSION}.tar.gz)
 set(UTF8PROC_HASH faa0bbe8f5763da45f2dfb5f863f0400)
 set(UTF8PROC_HASH_TYPE MD5)
 
