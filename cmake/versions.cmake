@@ -48,7 +48,7 @@ set(JSON_HASH_TYPE MD5)
 
 set(JSONSCHEMA_VERSION 2.3.0)
 set(JSONSCHEMA_FILE json-schema-validator-${JSONSCHEMA_VERSION}.tar.gz)
-set(JSONSCHEMA_URI https://github.com/pboettch/json-schema-validator/archive/refs/tags/v${JSONSCHEMA_VERSION}.tar.gz)
+set(JSONSCHEMA_URI https://github.com/pboettch/json-schema-validator/archive/refs/tags/${JSONSCHEMA_VERSION}.tar.gz)
 set(JSONSCHEMA_HASH a6fbc02a604988c1f75139c28cd768f8)
 set(JSONSCHEMA_HASH_TYPE MD5)
 
