@@ -1,4 +1,5 @@
 set disassembly-flavor intel
+skip -rfunction '^std::'
 skip -file smartpointer.hpp
 skip -file smartobjectarray.hpp
 skip -file smartstring.hpp
@@ -11,9 +12,14 @@ skip -file smartlist.hpp
 skip -file point.hpp
 skip -file ailog.cpp
 
-python import gdb.printing
-
 python
+import sys
+import gdb.printing
+
+sys.path.insert(0, sys.path[0] + '/../../gcc-14.2.0/python')
+from libstdcxx.v6.printers import register_libstdcxx_printers
+register_libstdcxx_printers (None)
+
 class RegisterControl(gdb.printing.PrettyPrinter):
     def __init__(self, typename, printer):
         super().__init__(typename)
