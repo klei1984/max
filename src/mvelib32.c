@@ -2321,7 +2321,7 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                             buffer += 2;
                             value1 = byte | (byte << 16);
                             value2 = value1;
-                            value2 = _rotl(value2, 8);
+                            value2 = (value2 << 8) | (value2 >> (32 - 8));
                         }
 
                         for (int32_t i = 0; i < 4; ++i) {
