@@ -68,7 +68,7 @@ ButtonID win_register_button(WinID id, int32_t ulx, int32_t uly, int32_t width, 
 }
 
 ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, intptr_t on_value, intptr_t off_value,
-                                  intptr_t p_value, intptr_t r_value, char* name, int32_t flags) {
+                                  intptr_t p_value, intptr_t r_value, const char* name, int32_t flags) {
     ButtonID result;
     int32_t width;
     int32_t length;

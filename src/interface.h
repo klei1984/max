@@ -56,7 +56,7 @@ int32_t win_output(char* title, char** list, int32_t num, int32_t ulx, int32_t u
 int32_t win_yes_no(char* question, int32_t ulx, int32_t uly, int32_t color);
 int32_t win_msg(char* msg, int32_t ulx, int32_t uly, int32_t color);
 int32_t win_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_t color);
-int32_t win_debug(char* str);
+int32_t win_debug(const char* str);
 int32_t win_register_menu_bar(WinID wid, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t fore_color,
                               int32_t back_color);
 int32_t win_register_menu_pulldown(WinID wid, int32_t offx, char* name, int32_t value, int32_t num, char** list,

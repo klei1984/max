@@ -328,6 +328,8 @@ void mouse_info(void) {
         int delta_x;
         int delta_y;
 
+        SDL_PumpEvents();
+
         if (SDL_GetRelativeMouseMode()) {
             button_bitmask = SDL_GetRelativeMouseState(&delta_x, &delta_y);
 

@@ -33,6 +33,16 @@ extern "C" {
 #define PALETTE_SIZE 256
 #define PALETTE_STRIDE 3
 
+#define COLOR_0 0x00
+#define COLOR_1 0x01
+#define COLOR_2 0x02
+#define COLOR_3 0x03
+#define COLOR_4 0x04
+#define COLOR_5 0x05
+#define COLOR_6 0x06
+#define COLOR_7 0x07
+#define COLOR_8 0x08
+
 #define COLOR_BLACK 0x00
 #define COLOR_RED 0x01
 #define COLOR_GREEN 0x02

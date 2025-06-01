@@ -38,7 +38,7 @@ static WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly
                               Rect* r);
 static int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t fcolor, int32_t bcolor,
                                  GNW_Menu* m, int32_t num_pd);
-static void win_debug_delete(ButtonID bid, int32_t button_value);
+static void win_debug_delete(ButtonID bid, intptr_t button_value);
 static int32_t find_first_letter(int32_t c, char** list, int32_t num);
 static int32_t calc_max_field_chars_wcursor(int32_t min, int32_t max);
 static int32_t get_num_i(WinID id, int32_t* value, int32_t max_chars_wcursor, char clear, char allow_negative,
@@ -212,16 +212,99 @@ int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t f
     return -1;
 }
 
-int32_t win_debug(char* str) {
-    /* not implemented yet as M.A.X. does not use it */
-    SDL_assert(0);
+int32_t win_debug(const char* str) {
+    if (GNW_win_init_flag) {
+        int32_t text_width;
+        int32_t text_height = Text_GetHeight();
 
-    return -1;
+        if (wd == -1) {
+            wd = win_add(80, 80, 300, 192, 0x100 | COLOR_BLACK, 0x04);
+
+            if (wd != -1) {
+                ButtonID button_id;
+                uint8_t* buffer;
+
+                win_border(wd);
+
+                buffer = GNW_find(wd)->buf;
+
+                win_fill(wd, 8, 8, 282 + 2, text_height, 0x100 | COLOR_1);
+
+                text_width = Text_GetWidth(str);
+
+                win_print(wd, str, 0, (300 - text_width) / 2, 8, GNW_TEXT_FILL_WINDOW | 0x100 | COLOR_4);
+
+                draw_shaded_box(buffer, 300, 8, 8, 282 + 9, text_height + 8, Color_RGB2Color(GNW_wcolor[2]),
+                                Color_RGB2Color(GNW_wcolor[1]));
+
+                win_fill(wd, 9, 26, 282, 135, 0x100 | COLOR_1);
+
+                draw_shaded_box(buffer, 300, 8, 25, 291, text_height + 145, Color_RGB2Color(GNW_wcolor[2]),
+                                Color_RGB2Color(GNW_wcolor[1]));
+
+                currx = 9;
+                curry = 26;
+
+                button_id = win_register_text_button(wd, (300 - Text_GetWidth("Close")) / 2, 184 - text_height - 6, -1,
+                                                     -1, -1, -1, "Close", 0);
+
+                win_register_button_func(button_id, NULL, NULL, NULL, win_debug_delete);
+
+                win_register_button(wd, 8, 8, 282 + 2, text_height, -1, -1, -1, -1, 0, 0, 0, 0x10);
+
+            } else {
+                return -1;
+            }
+        }
+
+        if (*str) {
+            char character[2];
+
+            character[1] = '\0';
+
+            do {
+                int32_t glyph_width = Text_GetGlyphWidth(*str);
+
+                if (*str == '\n' || currx + glyph_width > 282 + 9) {
+                    currx = 9;
+                    curry += text_height;
+                }
+
+                while (160 - curry < text_height) {
+                    uint8_t* buffer = GNW_find(wd)->buf;
+
+                    buf_to_buf(&buffer[300 * (26 + text_height) + 9], 282, 134 - text_height - 1, 300,
+                               &buffer[300 * 26], 300);
+
+                    curry -= text_height;
+
+                    win_fill(wd, 9, curry, 282, text_height, 0x100 | COLOR_1);
+                }
+
+                if (*str != '\n') {
+                    character[0] = *str;
+
+                    win_print(wd, character, 0, currx, curry, GNW_TEXT_FILL_WINDOW | 0x100 | COLOR_4);
+
+                    currx += glyph_width + Text_GetSpacing();
+                }
+
+            } while (*++str);
+        }
+
+        win_draw(wd);
+
+        return 0;
+
+    } else {
+        return -1;
+    }
 }
 
-void win_debug_delete(ButtonID bid, int32_t button_value) {
-    /* not implemented yet as M.A.X. does not use it */
-    SDL_assert(0);
+void win_debug_delete(ButtonID bid, intptr_t button_value) {
+    win_delete(wd);
+
+    wd = -1;
 }
 
 int32_t win_register_menu_bar(WinID wid, int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t fore_color,

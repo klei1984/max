@@ -519,7 +519,8 @@ void win_text(WinID id, char **list, int32_t num, int32_t field_width, int32_t x
                 win_print(id, list[i], field_width, x, y, color);
             } else if (field_width) {
                 draw_line(buf, full, 0, height / 2, field_width - 1, height / 2, Color_RGB2Color(GNW_wcolor[2]));
-                draw_line(buf, full, 0, height / 2 + 1, field_width - 1, height / 2 + 1, Color_RGB2Color(GNW_wcolor[1]));
+                draw_line(buf, full, 0, height / 2 + 1, field_width - 1, height / 2 + 1,
+                          Color_RGB2Color(GNW_wcolor[1]));
             }
 
             i++;
@@ -948,7 +949,7 @@ void win_drag(WinID id) {
 
         mouse_info();
 
-        while (!((mouse_get_buttons() & 0x30))) {
+        while (!(mouse_get_buttons() & (MOUSE_RELEASE_LEFT | MOUSE_RELEASE_RIGHT))) {
             if (dx || dy) {
                 w->w.ulx += dx;
                 w->w.uly += dy;

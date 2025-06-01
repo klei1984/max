@@ -72,7 +72,7 @@ ButtonID win_register_button(WinID id, int32_t ulx, int32_t uly, int32_t width, 
                              intptr_t off_value, intptr_t p_value, intptr_t r_value, uint8_t* up, uint8_t* down,
                              uint8_t* hover, uint32_t flags);
 ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, intptr_t on_value, intptr_t off_value,
-                                  intptr_t p_value, intptr_t r_value, char* name, int32_t flags);
+                                  intptr_t p_value, intptr_t r_value, const char* name, int32_t flags);
 int32_t win_register_button_disable(ButtonID bid, uint8_t* disabled_up, uint8_t* disabled_down,
                                     uint8_t* disabled_hover);
 int32_t win_register_button_image(ButtonID bid, uint8_t* up, uint8_t* down, uint8_t* hover, int32_t draw);
