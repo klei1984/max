@@ -40,22 +40,7 @@ static int32_t num_windows;
 
 uint8_t *GNW_texture;
 int32_t GNW_win_init_flag;
-ColorRGB GNW_wcolor[6];
-
-static inline int32_t GetRGBColor(int32_t r, int32_t g, int32_t b) {
-    return ((r & 0x1F) << 10) | ((g & 0x1F) << 5) | ((b & 0x1F) << 0);
-}
-
-static inline int32_t GNW_IsRGBColor(int32_t color) { return (color & (GNW_TEXT_RGB_MASK & (~GNW_TEXT_COLOR_MASK))); }
-
-static inline int32_t GNW_WinRGB2Color(int32_t color) {
-    if (GNW_IsRGBColor(color)) {
-        return (color & GNW_TEXT_CONTROL_MASK) | Color_RGB2Color(GNW_wcolor[(color & GNW_TEXT_RGB_MASK) >> 8]);
-
-    } else {
-        return color;
-    }
-}
+ColorRGB GNW_wcolor[GNW_WCOLOR_COUNT];
 
 int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
     uint8_t *pal;

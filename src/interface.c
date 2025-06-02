@@ -48,12 +48,6 @@ static void tm_kill_msg(void);
 static void tm_kill_out_of_order(int32_t queue_index);
 static void tm_click_response(ButtonID b_id, int32_t b_value);
 static int32_t tm_index_active(int32_t queue_index);
-
-int32_t win_list_select(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly,
-                        int32_t color) {
-    return win_list_select_at(title, list, num, select_func, ulx, uly, color, 0);
-}
-
 static tm_location_item tm_location[5];
 static int32_t tm_text_x;
 static int32_t tm_h;
@@ -68,6 +62,30 @@ static int32_t currx;
 static int32_t tm_watch_active;
 
 static WinID wd = -1;
+
+int32_t GetRGBColor(int32_t r, int32_t g, int32_t b) {
+    return ((r & 0x1F) << 10) | ((g & 0x1F) << 5) | ((b & 0x1F) << 0);
+}
+
+int32_t GNW_IsRGBColor(int32_t color) { return (color & (GNW_TEXT_RGB_MASK & (~GNW_TEXT_COLOR_MASK))); }
+
+int32_t GNW_WinRGB2Color(int32_t color) {
+    if (GNW_IsRGBColor(color)) {
+        ColorRGB wcolor = (color & GNW_TEXT_RGB_MASK) - 0x100;
+
+        SDL_assert(wcolor < GNW_WCOLOR_COUNT);
+
+        return (color & GNW_TEXT_CONTROL_MASK) | Color_RGB2Color(GNW_wcolor[wcolor]);
+
+    } else {
+        return color;
+    }
+}
+
+int32_t win_list_select(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly,
+                        int32_t color) {
+    return win_list_select_at(title, list, num, select_func, ulx, uly, color, 0);
+}
 
 int32_t win_list_select_at(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly,
                            int32_t color, int32_t start) {
@@ -204,12 +222,188 @@ WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32
     return result;
 }
 
+void swap_pulldown(GNW_Menu* m, int32_t num_pd) {
+    if (m) {
+        uint8_t* buffer = GNW_find(m->wid)->buf;
+        int32_t ulx = m->pd[num_pd].r.ulx;
+        int32_t uly = m->pd[num_pd].r.uly;
+        int32_t width = m->pd[num_pd].r.lrx - ulx + 1;
+        int32_t height = m->pd[num_pd].r.lry - uly + 1;
+        int32_t stride = win_width(m->wid);
+        int32_t c1 = GNW_WinRGB2Color(m->fcolor);
+        int32_t c2 = GNW_WinRGB2Color(m->bcolor);
+        swap_color_buf(&buffer[ulx + stride * uly], width, height, stride, c1, c2);
+        win_draw_rect(m->wid, &m->pd[num_pd].r);
+    }
+}
+
 int32_t process_pull_down(WinID id, Rect* r, char** list, int32_t num, int32_t fcolor, int32_t bcolor, GNW_Menu* m,
                           int32_t num_pd) {
-    /* not implemented yet as M.A.X. does not use it */
-    SDL_assert(0);
+    int32_t key_press = -1;
+    int32_t position = -1;
+    int32_t ref_mouse_x, ref_mouse_y, mouse_x, mouse_y;
 
-    return -1;
+    swap_pulldown(m, num_pd);
+
+    {
+        uint8_t* buffer = GNW_find(id)->buf;
+
+        int32_t width = r->lrx - r->ulx + 1;
+        int32_t height = r->lry - r->uly + 1;
+
+        mouse_get_position(&ref_mouse_x, &ref_mouse_y);
+
+        do {
+            key_press = get_input();
+
+            if (key_press != -1) {
+                break;
+            }
+
+            mouse_get_position(&mouse_x, &mouse_y);
+        } while (ref_mouse_x - 4 <= mouse_x && ref_mouse_x + 4 >= mouse_x && ref_mouse_y - 4 <= mouse_y &&
+                 ref_mouse_y + 4 >= mouse_y);
+
+        for (;;) {
+            mouse_get_position(&mouse_x, &mouse_y);
+
+            if (key_press == -2) {
+                if (m) {
+                    if (mouse_click_in(m->m.ulx, m->m.uly, m->m.lrx, m->m.lry)) {
+                        int32_t index;
+
+                        for (index = 0; index < m->num_pds && !mouse_click_in(m->pd[index].r.ulx, m->pd[index].r.uly,
+                                                                              m->pd[index].r.lrx, m->pd[index].r.lry);
+                             ++index) {
+                            ; /* nothing to do */
+                        }
+
+                        if (index < m->num_pds && index != num_pd) {
+                            win_delete(id);
+                            swap_pulldown(m, num_pd);
+
+                            key_press = -2 - index;
+
+                            return key_press;
+                        }
+                    }
+                }
+            }
+
+            if (((mouse_get_buttons() & MOUSE_RELEASE_LEFT) != 0) ||
+                ((mouse_get_buttons() & MOUSE_PRESS_LEFT) != 0 && (mouse_get_buttons() & MOUSE_LONG_PRESS_LEFT) == 0)) {
+                break;
+            }
+
+            switch (key_press) {
+                case GNW_KB_KEY_ESCAPE: {
+                    win_delete(id);
+                    swap_pulldown(m, num_pd);
+
+                    return -1;
+                } break;
+
+                case GNW_KB_KEY_RETURN: {
+                    win_delete(id);
+                    swap_pulldown(m, num_pd);
+
+                    return position;
+                } break;
+
+                case GNW_KB_KEY_LEFT: {
+                    if (m && num_pd > 0) {
+                        win_delete(id);
+                        swap_pulldown(m, num_pd);
+
+                        return -2 - (num_pd - 1);
+                    }
+                } break;
+
+                case GNW_KB_KEY_RIGHT: {
+                    if (m && m->num_pds - 1 > num_pd) {
+                        win_delete(id);
+                        swap_pulldown(m, num_pd);
+
+                        return -2 - (num_pd + 1);
+                    }
+                } break;
+
+                case GNW_KB_KEY_UP: {
+                    do {
+                        if (position <= 0) {
+                            break;
+                        }
+
+                        --position;
+
+                    } while (!*list[position]);
+
+                    key_press = -3;
+                } break;
+
+                case GNW_KB_KEY_DOWN: {
+                    do {
+                        if (num - 1 <= position) {
+                            break;
+                        }
+
+                        ++position;
+
+                    } while (!*list[position]);
+
+                    key_press = -3;
+                } break;
+
+                case -3: {
+                    win_fill(id, 2, 8, width - 4, height - 16, bcolor);
+                    win_text(id, list, num, width - 4, 2, 8, fcolor);
+
+                    if (position != -1) {
+                        lighten_buf(&buffer[(position * Text_GetHeight() + 8) * width + 2], width - 4, Text_GetHeight(),
+                                    width);
+                    }
+
+                    win_draw(id);
+                } break;
+
+                default: {
+                    if (mouse_x != ref_mouse_x || mouse_y != ref_mouse_y) {
+                        if (mouse_click_in(r->ulx, r->uly + 8, r->lrx, r->lry - 9)) {
+                            key_press = (mouse_y - r->uly - 8) / Text_GetHeight();
+
+                            if (key_press != -1) {
+                                if (*list[key_press]) {
+                                    position = key_press;
+
+                                } else {
+                                    position = -1;
+                                }
+
+                                key_press = -3;
+                            }
+
+                            ref_mouse_x = mouse_x;
+                            ref_mouse_y = mouse_y;
+                        }
+                    }
+                } break;
+            }
+
+            key_press = get_input();
+        }
+
+        if (mouse_click_in(r->ulx, r->uly + 8, r->lrx, r->lry - 9)) {
+            key_press = position;
+
+        } else {
+            key_press = -1;
+        }
+    }
+
+    win_delete(id);
+    swap_pulldown(m, num_pd);
+
+    return key_press;
 }
 
 int32_t win_debug(const char* str) {
@@ -228,16 +422,16 @@ int32_t win_debug(const char* str) {
 
                 buffer = GNW_find(wd)->buf;
 
-                win_fill(wd, 8, 8, 282 + 2, text_height, 0x100 | COLOR_1);
+                win_fill(wd, 8, 8, 282 + 2, text_height, 0x100 | GNW_WCOLOR_1);
 
-                text_width = Text_GetWidth(str);
+                text_width = Text_GetWidth("Debug");
 
-                win_print(wd, str, 0, (300 - text_width) / 2, 8, GNW_TEXT_FILL_WINDOW | 0x100 | COLOR_4);
+                win_print(wd, "Debug", 0, (300 - text_width) / 2, 8, GNW_TEXT_FILL_WINDOW | 0x100 | GNW_WCOLOR_4);
 
                 draw_shaded_box(buffer, 300, 8, 8, 282 + 9, text_height + 8, Color_RGB2Color(GNW_wcolor[2]),
                                 Color_RGB2Color(GNW_wcolor[1]));
 
-                win_fill(wd, 9, 26, 282, 135, 0x100 | COLOR_1);
+                win_fill(wd, 9, 26, 282, 135, 0x100 | GNW_WCOLOR_1);
 
                 draw_shaded_box(buffer, 300, 8, 25, 291, text_height + 145, Color_RGB2Color(GNW_wcolor[2]),
                                 Color_RGB2Color(GNW_wcolor[1]));
@@ -278,13 +472,13 @@ int32_t win_debug(const char* str) {
 
                     curry -= text_height;
 
-                    win_fill(wd, 9, curry, 282, text_height, 0x100 | COLOR_1);
+                    win_fill(wd, 9, curry, 282, text_height, 0x100 | GNW_WCOLOR_1);
                 }
 
                 if (*str != '\n') {
                     character[0] = *str;
 
-                    win_print(wd, character, 0, currx, curry, GNW_TEXT_FILL_WINDOW | 0x100 | COLOR_4);
+                    win_print(wd, character, 0, currx, curry, GNW_TEXT_FILL_WINDOW | 0x100 | GNW_WCOLOR_4);
 
                     currx += glyph_width + Text_GetSpacing();
                 }

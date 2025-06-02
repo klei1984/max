@@ -27,6 +27,14 @@
 
 #include "rect.h"
 
+#define GNW_WCOLOR_0 0x00
+#define GNW_WCOLOR_1 0x01
+#define GNW_WCOLOR_2 0x02
+#define GNW_WCOLOR_3 0x03
+#define GNW_WCOLOR_4 0x04
+#define GNW_WCOLOR_5 0x05
+#define GNW_WCOLOR_COUNT 6u
+
 typedef int32_t WinID;
 typedef uint32_t TOCKS;
 
@@ -46,6 +54,10 @@ struct WindowInfo {
 typedef struct WindowInfo WindowInfo;
 
 typedef void (*SelectFunc)(char**, int32_t);
+
+int32_t GetRGBColor(int32_t r, int32_t g, int32_t b);
+int32_t GNW_IsRGBColor(int32_t color);
+int32_t GNW_WinRGB2Color(int32_t color);
 
 int32_t win_list_select(char* title, char** list, int32_t num, SelectFunc select_func, int32_t ulx, int32_t uly,
                         int32_t color);
