@@ -30,11 +30,11 @@ Window::Window(int16_t ulx, int16_t uly, int16_t width, int16_t height)
       uly(uly),
       width(width),
       height(height),
-      flags(0),
+      flags(WINDOW_NO_FLAGS),
       resource_id(INVALID_ID),
       palette_from_image(false) {}
 
-Window::Window(ResourceID id) : window_id(0), flags(0), resource_id(id), palette_from_image(false) {
+Window::Window(ResourceID id) : window_id(0), flags(WINDOW_NO_FLAGS), resource_id(id), palette_from_image(false) {
     struct ImageBigHeader image_header;
     int32_t result;
 
@@ -48,7 +48,7 @@ Window::Window(ResourceID id) : window_id(0), flags(0), resource_id(id), palette
 }
 
 Window::Window(ResourceID id, uint8_t win_id)
-    : window_id(0), flags(0), resource_id(id), palette_from_image(false) {
+    : window_id(0), flags(WINDOW_NO_FLAGS), resource_id(id), palette_from_image(false) {
     struct ImageBigHeader image_header;
     WindowInfo* window;
     int32_t result;

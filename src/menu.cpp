@@ -702,7 +702,7 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
 
         GameManager_DeinitPopupButtons(false);
 
-        window.SetFlags(0x10);
+        window.SetFlags(WINDOW_MODAL);
 
         Text_SetFont(GNW_TEXT_FONT_1);
 
@@ -1088,7 +1088,7 @@ void menu_draw_campaign_mission_briefing_screen() {
         Button* button_end_ok;
         bool exit_loop;
 
-        briefing_window.SetFlags(0x10);
+        briefing_window.SetFlags(WINDOW_MODAL);
         Cursor_SetCursor(CURSOR_HAND);
         briefing_window.SetPaletteMode(true);
         briefing_window.Add();

@@ -466,7 +466,7 @@ void HelpMenu_Menu(HelpSectionId section_id, int32_t window_index, bool mode) {
     WinID window_id;
 
     Cursor_SetCursor(CURSOR_HELP);
-    window_id = win_add(0, 0, 1, 1, COLOR_BLACK, 0x10);
+    window_id = win_add(0, 0, 1, 1, COLOR_BLACK, WINDOW_MODAL);
     MouseEvent::Clear();
 
     while (get_input() != GNW_KB_KEY_CTRL_ESCAPE) {

@@ -35,7 +35,7 @@ OKCancelMenu::OKCancelMenu(const char* caption)
       event_release(false) {
     Cursor_SetCursor(CURSOR_HAND);
     Text_SetFont(GNW_TEXT_FONT_5);
-    SetFlags(0x10);
+    SetFlags(WINDOW_MODAL);
 
     Add();
     FillWindowInfo(&window);

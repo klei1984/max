@@ -33,7 +33,7 @@ DesyncMenu::DesyncMenu()
     : Window(HELPFRAM, WINDOW_MAIN_MAP), event_click_restart(false), event_click_quit(false), event_release(false) {
     Cursor_SetCursor(CURSOR_HAND);
     Text_SetFont(GNW_TEXT_FONT_5);
-    SetFlags(0x10);
+    SetFlags(WINDOW_MODAL);
 
     Add();
     FillWindowInfo(&window);

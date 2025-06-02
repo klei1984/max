@@ -26,11 +26,9 @@
 #include "helpmenu.hpp"
 #include "resource_manager.hpp"
 
-#define WINDOW_RECT(ulx, uly, lrx, lry) \
-    { ulx, uly, lrx, lry }
+#define WINDOW_RECT(ulx, uly, lrx, lry) {ulx, uly, lrx, lry}
 
-#define WINDOW_ITEM(rect, unknown, id, buffer, name) \
-    { rect, unknown, id, buffer }
+#define WINDOW_ITEM(rect, unknown, id, buffer, name) {rect, unknown, id, buffer}
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
@@ -516,7 +514,7 @@ int32_t WindowManager_Init() {
     WindowManager_WindowWidth = Svga_GetScreenWidth();
     WindowManager_WindowHeight = Svga_GetScreenHeight();
 
-    wid = win_add(0, 0, WindowManager_WindowWidth, WindowManager_WindowHeight, COLOR_BLACK, 2);
+    wid = win_add(0, 0, WindowManager_WindowWidth, WindowManager_WindowHeight, COLOR_BLACK, WINDOW_DONT_MOVE_TOP);
 
     if (wid == -1) {
         result = EXIT_CODE_INSUFFICIENT_MEMORY;

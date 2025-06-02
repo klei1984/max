@@ -113,7 +113,7 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
 
         length = 5 * Text_GetHeight() + 16;
 
-        id = win_add(x, y, width, length, 256, 20);
+        id = win_add(x, y, width, length, 256, WINDOW_MODAL | WINDOW_MOVE_ON_TOP);
 
         if (id == -1) {
             retval = -1;
@@ -123,12 +123,13 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
             buf = GNW_find(id)->buf;
 
             buf_fill(&buf[(Text_GetHeight() + 14) * width + 14], width - 28, Text_GetHeight() + 2, width,
-                     Color_RGB2Color(GNW_wcolor[0]));
+                     Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_0]));
 
-            Text_Blit(&buf[8 * width + 8], title, width, width, Color_RGB2Color(GNW_wcolor[4]));
+            Text_Blit(&buf[8 * width + 8], title, width, width, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_4]));
 
             draw_shaded_box(buf, width, 14, Text_GetHeight() + 14, width - 14, 2 * Text_GetHeight() + 16,
-                            Color_RGB2Color(GNW_wcolor[2]), Color_RGB2Color(GNW_wcolor[1]));
+                            Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
+                            Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
 
             win_register_text_button(id, width / 2 - 72, length - 8 - Text_GetHeight() - 6, -1, -1, -1, 13, "Done", 0);
 
@@ -136,8 +137,9 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
 
             win_draw(id);
 
-            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16, Color_RGB2Color(GNW_wcolor[3]),
-                                   Color_RGB2Color(GNW_wcolor[0]));
+            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16,
+                                   Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_3]),
+                                   Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_0]));
 
             win_delete(id);
         }
@@ -175,12 +177,12 @@ int32_t win_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32_
     WinID id;
 
     if (GNW_win_init_flag) {
-        id = create_pull_down(list, num, ulx, uly, color, Color_RGB2Color(GNW_wcolor[0]), &r);
+        id = create_pull_down(list, num, ulx, uly, color, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_0]), &r);
 
         if (id == -1) {
             result = -1;
         } else {
-            result = process_pull_down(id, &r, list, num, color, Color_RGB2Color(GNW_wcolor[0]), 0, -1);
+            result = process_pull_down(id, &r, list, num, color, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_0]), 0, -1);
         }
     } else {
         result = -1;
@@ -199,7 +201,7 @@ WinID create_pull_down(char** list, int32_t num, int32_t ulx, int32_t uly, int32
     width = win_width_needed(list, num) + 4;
 
     if (length >= 2 && width >= 2) {
-        id = win_add(ulx, uly, width, length, bcolor, 20);
+        id = win_add(ulx, uly, width, length, bcolor, WINDOW_MODAL | WINDOW_MOVE_ON_TOP);
 
         if (id == -1) {
             result = -1;
@@ -412,7 +414,7 @@ int32_t win_debug(const char* str) {
         int32_t text_height = Text_GetHeight();
 
         if (wd == -1) {
-            wd = win_add(80, 80, 300, 192, 0x100 | COLOR_BLACK, 0x04);
+            wd = win_add(80, 80, 300, 192, GNW_WCOLOR_0, WINDOW_MODAL | WINDOW_MOVE_ON_TOP);
 
             if (wd != -1) {
                 ButtonID button_id;
@@ -422,19 +424,21 @@ int32_t win_debug(const char* str) {
 
                 buffer = GNW_find(wd)->buf;
 
-                win_fill(wd, 8, 8, 282 + 2, text_height, 0x100 | GNW_WCOLOR_1);
+                win_fill(wd, 8, 8, 282 + 2, text_height, GNW_WCOLOR_1);
 
                 text_width = Text_GetWidth("Debug");
 
-                win_print(wd, "Debug", 0, (300 - text_width) / 2, 8, GNW_TEXT_FILL_WINDOW | 0x100 | GNW_WCOLOR_4);
+                win_print(wd, "Debug", 0, (300 - text_width) / 2, 8, GNW_TEXT_FILL_WINDOW | GNW_WCOLOR_4);
 
-                draw_shaded_box(buffer, 300, 8, 8, 282 + 9, text_height + 8, Color_RGB2Color(GNW_wcolor[2]),
-                                Color_RGB2Color(GNW_wcolor[1]));
+                draw_shaded_box(buffer, 300, 8, 8, 282 + 9, text_height + 8,
+                                Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
+                                Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
 
-                win_fill(wd, 9, 26, 282, 135, 0x100 | GNW_WCOLOR_1);
+                win_fill(wd, 9, 26, 282, 135, GNW_WCOLOR_1);
 
-                draw_shaded_box(buffer, 300, 8, 25, 291, text_height + 145, Color_RGB2Color(GNW_wcolor[2]),
-                                Color_RGB2Color(GNW_wcolor[1]));
+                draw_shaded_box(buffer, 300, 8, 25, 291, text_height + 145,
+                                Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
+                                Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
 
                 currx = 9;
                 curry = 26;
@@ -472,13 +476,13 @@ int32_t win_debug(const char* str) {
 
                     curry -= text_height;
 
-                    win_fill(wd, 9, curry, 282, text_height, 0x100 | GNW_WCOLOR_1);
+                    win_fill(wd, 9, curry, 282, text_height, GNW_WCOLOR_1);
                 }
 
                 if (*str != '\n') {
                     character[0] = *str;
 
-                    win_print(wd, character, 0, currx, curry, GNW_TEXT_FILL_WINDOW | 0x100 | GNW_WCOLOR_4);
+                    win_print(wd, character, 0, currx, curry, GNW_TEXT_FILL_WINDOW | GNW_WCOLOR_4);
 
                     currx += glyph_width + Text_GetSpacing();
                 }

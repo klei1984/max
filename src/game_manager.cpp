@@ -8371,7 +8371,7 @@ void GameManager_QuickBuildMenu() {
     constexpr uint16_t window_height{345};
 
     window->id = win_add(main_map_window->window.ulx + 20, main_map_window->window.uly + 20, window_width,
-                         window_height, COLOR_BLACK, 0);
+                         window_height, COLOR_BLACK, WINDOW_NO_FLAGS);
     window->buffer = win_get_buf(window->id);
 
     if (WindowManager_LoadBigImage(QWKBUILD, window, window_width, false)) {

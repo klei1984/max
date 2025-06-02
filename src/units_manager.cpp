@@ -2100,7 +2100,7 @@ bool UnitsManager_SelfDestructMenu() {
 
     Cursor_SetCursor(CURSOR_HAND);
     Text_SetFont(GNW_TEXT_FONT_5);
-    destruct_window.SetFlags(0x10);
+    destruct_window.SetFlags(WINDOW_MODAL);
 
     destruct_window.Add();
     destruct_window.FillWindowInfo(&window);

@@ -149,7 +149,7 @@ DialogMenu::DialogMenu(const char* caption, bool mode)
       center_align_text(mode) {
     Cursor_SetCursor(CURSOR_HAND);
     Text_SetFont(GNW_TEXT_FONT_5);
-    SetFlags(0x10);
+    SetFlags(WINDOW_MODAL);
     Add();
     FillWindowInfo(&window);
 

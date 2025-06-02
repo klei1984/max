@@ -276,7 +276,7 @@ WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t c
 
                 w->id = id;
 
-                if (flags & 1) {
+                if (flags & WINDOW_USE_DEFAULTS) {
                     flags |= window_flags;
                 }
 
@@ -311,7 +311,7 @@ WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t c
 
                 w->flags = flags;
 
-                if (!(flags & 0x04)) {
+                if (!(flags & WINDOW_MOVE_ON_TOP)) {
                     for (i = num_windows - 2; (i > 0) && (window[i]->flags & 4); i--) {
                         ;
                     }

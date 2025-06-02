@@ -27,13 +27,26 @@
 
 #include "rect.h"
 
-#define GNW_WCOLOR_0 0x00
-#define GNW_WCOLOR_1 0x01
-#define GNW_WCOLOR_2 0x02
-#define GNW_WCOLOR_3 0x03
-#define GNW_WCOLOR_4 0x04
-#define GNW_WCOLOR_5 0x05
+#define GNW_WCOLOR_0 0x100
+#define GNW_WCOLOR_1 0x101
+#define GNW_WCOLOR_2 0x102
+#define GNW_WCOLOR_3 0x103
+#define GNW_WCOLOR_4 0x104
+#define GNW_WCOLOR_5 0x105
 #define GNW_WCOLOR_COUNT 6u
+
+enum {
+    WINDOW_NO_FLAGS = 0x00,
+    WINDOW_USE_DEFAULTS = 0x01,
+    WINDOW_DONT_MOVE_TOP = 0x02,
+    WINDOW_MOVE_ON_TOP = 0x04,
+    WINDOW_HIDDEN = 0x08,
+    WINDOW_MODAL = 0x10,
+    WINDOW_TRANSPARENT = 0x20,
+    WINDOW_FLAG_0x40 = 0x40,
+    WINDOW_DRAGGABLE_BY_BACKGROUND = 0x80,
+    WINDOW_MANAGED = 0x100,
+};
 
 typedef int32_t WinID;
 typedef uint32_t TOCKS;

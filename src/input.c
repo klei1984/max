@@ -598,7 +598,7 @@ WinID default_pause_window(void) {
     length = 3 * Text_GetHeight() + 16;
 
     id = win_add((scr_size.lrx - scr_size.ulx + 1 - width) / 2, (scr_size.lry - scr_size.uly + 1 - length) / 2, width,
-                 length, 256, 20);
+                 length, 256, WINDOW_MODAL | WINDOW_MOVE_ON_TOP);
 
     if (id == -1) {
         result = -1;
