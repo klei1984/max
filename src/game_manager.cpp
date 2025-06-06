@@ -4541,15 +4541,16 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     }
 
     if (GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
-        UnitInfo* unit;
+        UnitInfo* enemy;
 
-        unit = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
+        enemy = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
 
-        if (unit && unit->GetUnitType() != CNCT_4W &&
-            (!(unit->flags & GROUND_COVER) || unit->GetUnitType() == LANDMINE || unit->GetUnitType() == SEAMINE)) {
+        if (enemy && enemy->GetUnitType() != CNCT_4W &&
+            (!(enemy->flags & GROUND_COVER) || enemy->GetUnitType() == LANDMINE || enemy->GetUnitType() == SEAMINE) &&
+            Access_IsValidAttackTarget(GameManager_SelectedUnit.Get(), enemy)) {
             uint8_t result;
 
-            result = GameManager_GetMilitaryCursor(unit, grid_x, grid_y);
+            result = GameManager_GetMilitaryCursor(enemy, grid_x, grid_y);
 
             if (result != CURSOR_UNIT_NO_GO || !team_unit) {
                 return result;
