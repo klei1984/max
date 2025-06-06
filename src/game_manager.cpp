@@ -6039,7 +6039,7 @@ int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t gr
 
     parent = unit1->GetParent();
 
-    if (GameManager_IsUnitNextToPosition(parent, grid_x, grid_y) &&
+    if (parent != nullptr && GameManager_IsUnitNextToPosition(parent, grid_x, grid_y) &&
         Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y,
                             AccessModifier_SameClassBlocks)) {
         if ((unit1->flags & MOBILE_AIR_UNIT) && parent->grid_x <= grid_x && (parent->grid_x) + 1 >= grid_x &&
