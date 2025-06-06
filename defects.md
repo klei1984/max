@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 150 / 234 (64.1%) original M.A.X. defects in M.A.X. Port.
+Fixed 151 / 234 (64.5%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -113,12 +113,12 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 31. **[Fixed]** The game implements a set of wrapper functions for file operations like fopen, fread, fseek. On the other hand there are no wrappers for fclose, ftell, fwrite and so on. This is not actually a defect, but a strange design decision as the wrappers add no functionality at all and the game uses them inconsistently all around. The reimplementation removes the wrappers.
 
-32. The default mouse action for a non anti air land unit is to attack a neutral bridge if an enemy flying entity is located in the cell.
+32. **[Fixed]** The default mouse action for a non anti air land unit is to attack a neutral bridge if an enemy flying entity is located in the cell.
     <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_32.mp4" type="video/mp4">
     </video>
-    The video clip demonstrates that the cell below the enemy air transport is free to unload a land unit, but moving a stealth unit back to the free cell is not possible as the default action for the cell is to attack instead of move. For a cell where a neutral bridge is present only the default action is to allow movement there. As an infiltrator cannot attack a flying target and the bridge is a neutral entity the default action for such a cell should be to allow movment there, but the game incorrectly interprets the situation that the default action should be the attack.
+    The video clip demonstrates that the cell below the enemy air transport is free to unload a land unit, but moving a stealth unit back to the free cell is not possible as the default action for the cell is to attack instead of move. For a cell where only a neutral bridge is present the default action is to allow movement there. As an infiltrator cannot attack a flying target and the bridge is a neutral entity the default action for such a cell should be to allow movment there, but the game incorrectly interprets the situation that the default action should be the attack. The proposed defect fix is to test whether the selected friendly unit is able to attack the enemy, non neutral,  unit type found at the target cell.
 
 33. If a cell is occupied by an enemy land unit and an enemy air unit, possibly sea unit works as well, the game does not allow selection of the air unit. In case a cell is occupied by a neutral bridge and an enemy air unit, the air unit is selectable while the neutral bridge is not. This is more of a limitation or problem instead of a defect, but it should be solved.
 
