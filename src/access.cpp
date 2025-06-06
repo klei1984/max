@@ -1965,7 +1965,8 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
             (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
             unit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER && unit->grid_x >= selection.ulx &&
             unit->grid_x <= selection.lrx && unit->grid_y >= selection.uly && unit->grid_y <= selection.lry &&
-            unit->recoil_delay <= 0) {
+            !(unit->GetOrder() == ORDER_DISABLE ||
+              (unit->GetOrder() == ORDER_IDLE && unit->GetPriorOrder() == ORDER_DISABLE))) {
             parent = unit;
             unit->ClearUnitList();
             unit->AllocateUnitList();
@@ -1989,7 +1990,8 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
             if (unit2 &&
                 (unit2->GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
                  unit2->GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER) &&
-                unit2->recoil_delay <= 0) {
+                !(unit2->GetOrder() == ORDER_DISABLE ||
+                  (unit2->GetOrder() == ORDER_IDLE && unit2->GetPriorOrder() == ORDER_DISABLE))) {
                 unit2->ClearUnitList();
 
                 if (!parent) {

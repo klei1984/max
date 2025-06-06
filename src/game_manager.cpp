@@ -6411,7 +6411,12 @@ bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_
                 GameManager_PlayMode == PLAY_MODE_SIMULTANEOUS_MOVES) &&
                UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_PLAYER) {
         if (GameManager_IsShiftKeyPressed && unit1 && unit2) {
-            if (unit2->team == GameManager_PlayerTeam) {
+            if (unit2->team == GameManager_PlayerTeam &&
+                !(unit2->GetOrder() == ORDER_DISABLE ||
+                  (unit2->GetOrder() == ORDER_IDLE && unit2->GetPriorOrder() == ORDER_DISABLE)) &&
+                unit1->team == GameManager_PlayerTeam &&
+                !(unit1->GetOrder() == ORDER_DISABLE ||
+                  (unit1->GetOrder() == ORDER_IDLE && unit1->GetPriorOrder() == ORDER_DISABLE))) {
                 if (unit2->GetFirstFromUnitList() == unit1) {
                     unit2->ClearUnitList();
 
