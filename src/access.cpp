@@ -1124,6 +1124,9 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
                         friendly->target_grid_x = unit->target_grid_x;
                         friendly->target_grid_y = unit->target_grid_y;
                         friendly->SetEnemy(enemy);
+
+                        SDL_assert(friendly->GetBaseValues()->GetAttribute(ATTRIB_SPEED) > 0);
+
                         UnitsManager_SetNewOrder(friendly, ORDER_MOVE_TO_ATTACK, ORDER_STATE_NEW_ORDER);
                         Paths_RequestPath(friendly, AccessModifier_SameClassBlocks);
                     }
@@ -1961,7 +1964,8 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
         if (unit->team == GameManager_PlayerTeam &&
             (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
             unit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER && unit->grid_x >= selection.ulx &&
-            unit->grid_x <= selection.lrx && unit->grid_y >= selection.uly && unit->grid_y <= selection.lry) {
+            unit->grid_x <= selection.lrx && unit->grid_y >= selection.uly && unit->grid_y <= selection.lry &&
+            unit->recoil_delay <= 0) {
             parent = unit;
             unit->ClearUnitList();
             unit->AllocateUnitList();
@@ -1982,8 +1986,10 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
             UnitInfo* unit2 =
                 Access_GetTeamUnit(x, y, GameManager_PlayerTeam, MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
 
-            if (unit2 && (unit2->GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
-                          unit2->GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER)) {
+            if (unit2 &&
+                (unit2->GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
+                 unit2->GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER) &&
+                unit2->recoil_delay <= 0) {
                 unit2->ClearUnitList();
 
                 if (!parent) {
@@ -2005,7 +2011,7 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds) {
         }
     }
 
-    if (unit_count) {
+    if (unit_count > 0) {
         if (unit_count == 1) {
             parent->ClearUnitList();
 
