@@ -624,7 +624,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       connectors(0),
       shake_effect_state(0),
       base_values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)),
-      build_rate(0),
+      build_rate(1),
       repeat_build(0),
       energized(false),
       id(id),
