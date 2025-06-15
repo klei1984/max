@@ -895,6 +895,7 @@ bool menu_check_end_game_conditions(int32_t global_turn, int32_t local_turn, boo
                     } else {
                         GameManager_GameState = game_state;
                         UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
+                        ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_ELIMINATED);
                     }
                 }
             }
