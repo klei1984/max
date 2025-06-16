@@ -731,6 +731,7 @@ void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int
             SoundManager_PlayMusic(WINR_MSC, false);
 
         } else {
+            SoundManager_PlayVoice(V_M010, V_F010);
             SoundManager_PlayMusic(LOSE_MSC, false);
         }
 
