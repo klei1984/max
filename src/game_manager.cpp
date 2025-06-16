@@ -758,7 +758,7 @@ static float GameManager_UpdateScrollRateLimit();
 static Point GameManager_GetMinimapPosition();
 static void GameManager_TeamTurnTurnBased(int32_t& game_state);
 static void GameManager_TeamTurnConcurrent(int32_t& game_state);
-static bool GameManager_TeamTurnFinish(uint32_t turn_counter, uint16_t team_winner);
+static bool GameManager_TeamTurnFinish(uint32_t turn_counter_session_start, uint16_t team_winner);
 static void GameManager_RenderScanRangeIndicators();
 static void GameManager_RenderSurveyIndicator(DrawMapBuffer* drawmap);
 static void GameManager_RenderMultiSelectIndicator();
@@ -899,7 +899,7 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
     }
 }
 
-bool GameManager_TeamTurnFinish(uint32_t turn_counter, uint16_t team_winner) {
+bool GameManager_TeamTurnFinish(uint32_t turn_counter_session_start, uint16_t team_winner) {
     bool result{false};
 
     if (GameManager_GameState == GAME_STATE_9_END_TURN) {
@@ -909,7 +909,7 @@ bool GameManager_TeamTurnFinish(uint32_t turn_counter, uint16_t team_winner) {
 
         log.Log("Checking victory conditions.");
 
-        if (menu_check_end_game_conditions(GameManager_TurnCounter, turn_counter, GameManager_DemoMode)) {
+        if (menu_check_end_game_conditions(GameManager_TurnCounter, turn_counter_session_start, GameManager_DemoMode)) {
             result = true;
 
         } else {
@@ -929,7 +929,7 @@ bool GameManager_TeamTurnFinish(uint32_t turn_counter, uint16_t team_winner) {
 }
 
 void GameManager_GameLoop(int32_t game_state) {
-    uint32_t turn_counter;
+    uint32_t turn_counter_session_start;
     uint16_t team_winner;
 
     if (game_state == GAME_STATE_10 && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_DEMO) {
@@ -943,7 +943,7 @@ void GameManager_GameLoop(int32_t game_state) {
 
     GameManager_GameSetup(game_state);
 
-    turn_counter = GameManager_TurnCounter;
+    turn_counter_session_start = GameManager_TurnCounter;
 
     while (GameManager_GameState == GAME_STATE_8_IN_GAME) {
         team_winner = GameManager_EvaluateWinner();
@@ -956,7 +956,7 @@ void GameManager_GameLoop(int32_t game_state) {
             GameManager_TeamTurnTurnBased(game_state);
         }
 
-        if (GameManager_TeamTurnFinish(turn_counter, team_winner)) {
+        if (GameManager_TeamTurnFinish(turn_counter_session_start, team_winner)) {
             break;
         }
     }

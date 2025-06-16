@@ -75,8 +75,10 @@ struct CreditsLine {
 
 #define CREDITS_TEXT(text) {(0x04), (text)}
 
-static void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode);
-static void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_turn, bool mode);
+static void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode,
+                                       int32_t victory_status);
+static void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int32_t global_turn, bool mode,
+                              int32_t victory_status);
 
 static ResourceID menu_portrait_id;
 
@@ -413,12 +415,12 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
     }
 }
 
-void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode) {
+void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode,
+                                int32_t victory_status) {
     int32_t ulx;
     int32_t lrx;
     uint16_t visible_team;
     FontColor team_fonts[PLAYER_TEAM_MAX - 1] = {{165, 230, 199}, {165, 238, 199}, {165, 245, 199}, {165, 214, 199}};
-    int32_t victory_status;
 
     if (Remote_IsNetworkGame || mode) {
         Text_TextLine(window, _(71f1), 100, 10, 440, true, Fonts_BrightSilverColor);
@@ -450,8 +452,6 @@ void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t glo
 
     ulx = 80;
     visible_team = PLAYER_TEAM_RED;
-
-    victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
@@ -630,8 +630,8 @@ void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t glo
     }
 }
 
-void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_turn, bool mode) {
-    int32_t victory_status;
+void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int32_t global_turn, bool mode,
+                       int32_t victory_status) {
     bool is_winner;
     int32_t bg_image_id;
     Color* palette;
@@ -639,10 +639,8 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
 
     SoundManager_PlayVoice(V_START, V_END, -1);
 
-    victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
-
     if (victory_status == VICTORY_STATE_GENERIC) {
-        is_winner = teams[GameManager_PlayerTeam] == 1;
+        is_winner = teams_in_play[GameManager_PlayerTeam] == 1;
 
     } else {
         is_winner = victory_status == VICTORY_STATE_WON;
@@ -716,16 +714,16 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
             team_places[team] = 0;
         }
 
-        for (int32_t i = 0; i < teams_in_play - 1; ++i) {
-            for (int32_t j = i + 1; j < teams_in_play; ++j) {
-                if (WinLoss_DetermineWinner(teams[i], teams[j]) < 0) {
-                    std::swap(teams[i], teams[j]);
+        for (int32_t i = 0; i < teams_in_play_count - 1; ++i) {
+            for (int32_t j = i + 1; j < teams_in_play_count; ++j) {
+                if (WinLoss_DetermineWinner(teams_in_play[i], teams_in_play[j]) < 0) {
+                    std::swap(teams_in_play[i], teams_in_play[j]);
                 }
             }
         }
 
-        for (int32_t i = 0; i < teams_in_play; ++i) {
-            team_places[teams[i]] = i + 1;
+        for (int32_t i = 0; i < teams_in_play_count; ++i) {
+            team_places[teams_in_play[i]] = i + 1;
         }
 
         if (is_winner) {
@@ -741,7 +739,7 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
             Text_TypeWriter_TextBoxMultiLineWrapText(&window_info, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
 
         } else {
-            menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
+            menu_draw_game_over_screen(&window_info, team_places, global_turn, mode, victory_status);
         }
 
         Text_SetFont(GNW_TEXT_FONT_5);
@@ -781,7 +779,7 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
                                                                  400, 0);
 
                     } else {
-                        menu_draw_game_over_screen(&window_info, team_places, global_turn, mode);
+                        menu_draw_game_over_screen(&window_info, team_places, global_turn, mode, victory_status);
                     }
                 } break;
             }
@@ -811,100 +809,97 @@ void menu_wrap_up_game(uint16_t* teams, int32_t teams_in_play, int32_t global_tu
     }
 }
 
-bool menu_check_end_game_conditions(int32_t global_turn, int32_t local_turn, bool is_demo_mode) {
+bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_session_start, bool is_demo_mode) {
     int32_t ini_victory_limit;
     int32_t team_count;
-    int32_t teams_in_play;
+    int32_t teams_in_play_count;
     int32_t human_teams_in_play;
     int32_t non_computer_teams_count;
-    uint16_t team_places[PLAYER_TEAM_MAX - 1];
     int32_t victory_status;
-    bool result;
+    uint16_t teams_in_play[PLAYER_TEAM_MAX - 1];
+    bool teams_alive[PLAYER_TEAM_MAX - 1];
     char game_state;
-    bool is_network_game;
 
     ini_victory_limit = ini_setting_victory_limit;
     team_count = 0;
-    teams_in_play = 0;
+    teams_in_play_count = 0;
     human_teams_in_play = 0;
     non_computer_teams_count = 0;
 
-    if (is_demo_mode && (global_turn - local_turn >= 5)) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        teams_alive[team] = WinLoss_CheckLossConditions(team);
+    }
+
+    victory_status = WinLoss_CheckWinConditions(turn_counter);
+
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ++team_count;
+
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
+                ++non_computer_teams_count;
+            }
+
+            if (teams_alive[team] && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
+                    ++human_teams_in_play;
+                }
+
+                teams_in_play[teams_in_play_count] = team;
+                ++teams_in_play_count;
+            }
+        }
+    }
+
+    if (is_demo_mode && (turn_counter - turn_counter_session_start >= 5)) {
         GameManager_GameState = GAME_STATE_3_MAIN_MENU;
-        result = true;
+        return true;
+
+    } else if (victory_status == VICTORY_STATE_WON || victory_status == VICTORY_STATE_LOST ||
+               (victory_status != VICTORY_STATE_PENDING && teams_in_play_count == 1 && team_count > 1) ||
+               teams_in_play_count == 0 || (human_teams_in_play == 0 && non_computer_teams_count > 0)) {
+        menu_wrap_up_game(teams_in_play, teams_in_play_count, turn_counter, true, victory_status);
+        return true;
+
+    } else if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
+        if (turn_counter == (ini_victory_limit - 10) && non_computer_teams_count > 0) {
+            DialogMenu_Menu(_(4556));
+
+        } else if (ini_victory_limit <= turn_counter) {
+            menu_wrap_up_game(teams_in_play, teams_in_play_count, turn_counter, true, victory_status);
+            return true;
+        }
 
     } else {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                ++team_count;
-
-                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
-                    ++non_computer_teams_count;
-                }
-
-                if (WinLoss_CheckLossConditions(team) &&
-                    UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
-                    if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
-                        ++human_teams_in_play;
-                    }
-
-                    team_places[teams_in_play] = team;
-                    ++teams_in_play;
-                }
-            }
-        }
-
-        victory_status = WinLoss_CheckWinConditions(PLAYER_TEAM_RED, global_turn);
-
-        if (victory_status == VICTORY_STATE_WON || victory_status == VICTORY_STATE_LOST ||
-            (victory_status != VICTORY_STATE_PENDING && teams_in_play == 1 && team_count > 1) || teams_in_play == 0 ||
-            (human_teams_in_play == 0 && non_computer_teams_count > 0)) {
-            menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
-            return true;
-
-        } else if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
-            if (global_turn == (ini_victory_limit - 10) && non_computer_teams_count > 0) {
-                DialogMenu_Menu(_(4556));
-
-            } else if (ini_victory_limit <= global_turn) {
-                menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                static_cast<int32_t>(UnitsManager_TeamInfo[team].team_points) >= ini_victory_limit) {
+                menu_wrap_up_game(teams_in_play, teams_in_play_count, turn_counter, true, victory_status);
                 return true;
             }
-
-        } else {
-            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
-                    static_cast<int32_t>(UnitsManager_TeamInfo[team].team_points) >= ini_victory_limit) {
-                    menu_wrap_up_game(team_places, teams_in_play, global_turn, true);
-                    return true;
-                }
-            }
         }
-
-        if (victory_status == VICTORY_STATE_GENERIC) {
-            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER && !WinLoss_CheckLossConditions(team)) {
-                    game_state = GameManager_GameState;
-                    is_network_game = Remote_IsNetworkGame;
-
-                    menu_wrap_up_game(team_places, teams_in_play, global_turn, false);
-
-                    if (is_network_game) {
-                        return true;
-
-                    } else {
-                        GameManager_GameState = game_state;
-                        UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
-                        ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_ELIMINATED);
-                    }
-                }
-            }
-        }
-
-        result = false;
     }
 
-    return result;
+    if (victory_status == VICTORY_STATE_GENERIC) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER && !teams_alive[team]) {
+                game_state = GameManager_GameState;
+
+                menu_wrap_up_game(teams_in_play, teams_in_play_count, turn_counter, false, victory_status);
+
+                if (Remote_IsNetworkGame) {
+                    return true;
+
+                } else {
+                    GameManager_GameState = game_state;
+                    UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
+                    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_ELIMINATED);
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int32_t color, bool horizontal_align,
