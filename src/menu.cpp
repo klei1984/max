@@ -636,15 +636,32 @@ void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int
     int32_t bg_image_id;
     Color* palette;
     SmartString mission_briefing;
+    uint16_t team_places[PLAYER_TEAM_MAX - 1];
 
-    SoundManager_PlayVoice(V_START, V_END, -1);
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        team_places[team] = 0;
+    }
+
+    for (int32_t i = 0; i < teams_in_play_count - 1; ++i) {
+        for (int32_t j = i + 1; j < teams_in_play_count; ++j) {
+            if (WinLoss_DetermineWinner(teams_in_play[i], teams_in_play[j]) < 0) {
+                std::swap(teams_in_play[i], teams_in_play[j]);
+            }
+        }
+    }
+
+    for (int32_t i = 0; i < teams_in_play_count; ++i) {
+        team_places[teams_in_play[i]] = i + 1;
+    }
 
     if (victory_status == VICTORY_STATE_GENERIC) {
-        is_winner = teams_in_play[GameManager_PlayerTeam] == 1;
+        is_winner = team_places[GameManager_PlayerTeam] == 1;
 
     } else {
         is_winner = victory_status == VICTORY_STATE_WON;
     }
+
+    SoundManager_PlayVoice(V_START, V_END, -1);
 
     if (Remote_IsNetworkGame) {
         Remote_WaitBeginTurnAcknowledge();
@@ -686,7 +703,6 @@ void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int
     {
         Window window(menu_briefing_backgrounds[bg_image_id]);
         WindowInfo window_info;
-        uint16_t team_places[PLAYER_TEAM_MAX - 1];
         Button* button_end;
         bool exit_loop;
         int32_t key;
@@ -709,22 +725,6 @@ void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int
         window.SetPaletteMode(true);
         window.Add();
         window.FillWindowInfo(&window_info);
-
-        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            team_places[team] = 0;
-        }
-
-        for (int32_t i = 0; i < teams_in_play_count - 1; ++i) {
-            for (int32_t j = i + 1; j < teams_in_play_count; ++j) {
-                if (WinLoss_DetermineWinner(teams_in_play[i], teams_in_play[j]) < 0) {
-                    std::swap(teams_in_play[i], teams_in_play[j]);
-                }
-            }
-        }
-
-        for (int32_t i = 0; i < teams_in_play_count; ++i) {
-            team_places[teams_in_play[i]] = i + 1;
-        }
 
         if (is_winner) {
             SoundManager_PlayVoice(V_M283, V_F283);
