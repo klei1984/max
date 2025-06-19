@@ -26,8 +26,7 @@
 
 enum { VICTORY_STATE_GENERIC = 0, VICTORY_STATE_PENDING = 1, VICTORY_STATE_WON = 2, VICTORY_STATE_LOST = 3 };
 
-bool WinLoss_CheckLossConditions(uint16_t team);
 int32_t WinLoss_DetermineWinner(uint16_t team1, uint16_t team2);
-int32_t WinLoss_CheckWinConditions(int32_t turn_counter);
+int32_t WinLoss_CheckWinConditions(uint16_t team, int32_t turn_counter);
 
 #endif /* WINLOSS_HPP */
