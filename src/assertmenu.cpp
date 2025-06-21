@@ -36,17 +36,16 @@ AssertMenu::AssertMenu(const char* caption)
       event_release(false),
       show_cursor_state(!mouse_hidden()) {
     Cursor_SetCursor(CURSOR_HAND);
-
-    if (!show_cursor_state) {
-        mouse_set_position(WindowManager_GetWidth(&window) / 2, WindowManager_GetHeight(&window) / 2);
-        mouse_show();
-    }
-
     Text_SetFont(GNW_TEXT_FONT_5);
     SetFlags(WINDOW_MODAL);
 
     Add();
     FillWindowInfo(&window);
+
+    if (!show_cursor_state) {
+        mouse_set_position(WindowManager_GetWidth(&window) / 2, WindowManager_GetHeight(&window) / 2);
+        mouse_show();
+    }
 
     button_ignore = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 45, 193);
     button_ignore->SetCaption("Ignore", 2, 2);
