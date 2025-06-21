@@ -37,6 +37,8 @@ enum ScriptType : uint8_t {
 
 using ScriptParameters = std::vector<std::variant<bool, size_t, double, std::string>>;
 
+void Init();
+
 bool TestScript(const std::string script, std::string* error = nullptr);
 bool RunScript(void* const handle, const std::string script, const ScriptParameters& args, ScriptParameters& results,
                std::string* error = nullptr);

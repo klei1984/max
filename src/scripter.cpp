@@ -23,7 +23,6 @@
 
 #include <SDL.h>
 
-#include <mutex>
 #include <unordered_map>
 
 #include "lua.hpp"
@@ -47,10 +46,10 @@ using MaxRegistryFunctionMapType = std::unordered_map<MaxRegistryKeyType, MaxReg
 constexpr size_t MinimumTimeBudget = 1000;
 
 static MaxRegistryType MaxRegistry;
-static std::mutex MaxRegistryMutex;
+static SDL_mutex* MaxRegistryMutex;
 
 static MaxRegistryFunctionMapType MaxRegistryFunctions;
-static std::mutex MaxRegistryFunctionsMutex;
+static SDL_mutex* MaxRegistryFunctionsMutex;
 
 static inline SmartList<UnitInfo>& GetRelevantUnits(ResourceID unit_type);
 static lua_Integer HasMaterials(const lua_Integer team, const lua_Integer cargo_type);
@@ -522,6 +521,24 @@ static inline void MaxRegistryToLuaValue(lua_State* lua, const MaxRegistryValueT
     }
 }
 
+void Init() {
+    if (MaxRegistryMutex == nullptr) {
+        MaxRegistryMutex = SDL_CreateMutex();
+
+        if (MaxRegistryMutex == nullptr) {
+            ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
+        }
+    }
+
+    if (MaxRegistryFunctionsMutex == nullptr) {
+        MaxRegistryFunctionsMutex = SDL_CreateMutex();
+
+        if (MaxRegistryFunctionsMutex == nullptr) {
+            ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
+        }
+    }
+}
+
 static int MaxRegistryTableIndex(lua_State* lua) {
     auto key = lua_tostring(lua, 2);
 
@@ -532,7 +549,7 @@ static int MaxRegistryTableIndex(lua_State* lua) {
     }
 
     {
-        std::lock_guard<std::mutex> lock(MaxRegistryMutex);
+        SDL_LockMutex(MaxRegistryMutex);
 
         auto it = MaxRegistry.find(key);
 
@@ -542,6 +559,8 @@ static int MaxRegistryTableIndex(lua_State* lua) {
         } else {
             lua_pushnil(lua);
         }
+
+        SDL_UnlockMutex(MaxRegistryMutex);
     }
 
     return 1;
@@ -555,19 +574,22 @@ static int MaxRegistryTableAddRemove(lua_State* lua) {
     }
 
     {
-        std::lock_guard<std::mutex> lock(MaxRegistryFunctionsMutex);
+        SDL_LockMutex(MaxRegistryFunctionsMutex);
 
         auto it = MaxRegistryFunctions.find(key);
 
         if (it != MaxRegistryFunctions.end()) {
+            SDL_UnlockMutex(MaxRegistryFunctionsMutex);
             return 0;
         }
+
+        SDL_UnlockMutex(MaxRegistryFunctionsMutex);
     }
 
     auto value = MaxRegistryFromLuaValue(lua, 3);
 
     {
-        std::lock_guard<std::mutex> lock(MaxRegistryMutex);
+        SDL_LockMutex(MaxRegistryMutex);
 
         if (std::holds_alternative<std::monostate>(value)) {
             MaxRegistry.erase(key);
@@ -575,6 +597,8 @@ static int MaxRegistryTableAddRemove(lua_State* lua) {
         } else {
             MaxRegistry[key] = value;
         }
+
+        SDL_UnlockMutex(MaxRegistryMutex);
     }
 
     return 0;
@@ -592,30 +616,38 @@ void RegisterMaxRegistry(lua_State* lua) {
 }
 
 void MaxRegistryRegister(const std::string key, MaxRegistryFunctionType fn) {
-    std::lock_guard<std::mutex> lock(MaxRegistryFunctionsMutex);
+    SDL_LockMutex(MaxRegistryFunctionsMutex);
 
     MaxRegistryFunctions[key] = fn;
+
+    SDL_UnlockMutex(MaxRegistryFunctionsMutex);
 }
 
 void MaxRegistryRemove(const std::string key) {
-    std::lock_guard<std::mutex> lock1(MaxRegistryFunctionsMutex);
-    std::lock_guard<std::mutex> lock2(MaxRegistryMutex);
+    SDL_LockMutex(MaxRegistryFunctionsMutex);
+    SDL_LockMutex(MaxRegistryMutex);
 
     MaxRegistryFunctions.erase(key);
     MaxRegistry.erase(key);
+
+    SDL_UnlockMutex(MaxRegistryMutex);
+    SDL_UnlockMutex(MaxRegistryFunctionsMutex);
 }
 
 void MaxRegistryReset() {
-    std::lock_guard<std::mutex> lock1(MaxRegistryFunctionsMutex);
-    std::lock_guard<std::mutex> lock2(MaxRegistryMutex);
+    SDL_LockMutex(MaxRegistryFunctionsMutex);
+    SDL_LockMutex(MaxRegistryMutex);
 
     MaxRegistryFunctions.clear();
     MaxRegistry.clear();
+
+    SDL_UnlockMutex(MaxRegistryMutex);
+    SDL_UnlockMutex(MaxRegistryFunctionsMutex);
 }
 
 void MaxRegistryUpdate() {
-    std::lock_guard<std::mutex> lock1(MaxRegistryFunctionsMutex);
-    std::lock_guard<std::mutex> lock2(MaxRegistryMutex);
+    SDL_LockMutex(MaxRegistryFunctionsMutex);
+    SDL_LockMutex(MaxRegistryMutex);
 
     for (const auto& [key, fn] : MaxRegistryFunctions) {
         auto value = fn();
@@ -638,6 +670,9 @@ void MaxRegistryUpdate() {
             } break;
         }
     }
+
+    SDL_UnlockMutex(MaxRegistryMutex);
+    SDL_UnlockMutex(MaxRegistryFunctionsMutex);
 }
 
 void* CreateContext(const ScriptType type) {

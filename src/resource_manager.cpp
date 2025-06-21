@@ -38,6 +38,7 @@
 #include "message_manager.hpp"
 #include "missionregistry.hpp"
 #include "screendump.h"
+#include "scripter.hpp"
 #include "sha2.h"
 #include "sound_manager.hpp"
 #include "units_manager.hpp"
@@ -632,6 +633,7 @@ void ResourceManager_InitPaths() {
 
 void ResourceManager_InitResources() {
     ResourceManager_InitSDL();
+    Scripter::Init();
     ResourceManager_InitPaths();
     ResourceManager_TestMemory();
     ResourceManager_TestDiskSpace();
