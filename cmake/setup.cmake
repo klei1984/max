@@ -29,7 +29,7 @@ if(Git_FOUND)
 			# format: unknown - custom build
 			set(GAME_VERSION_MAJOR "0")
 			set(GAME_VERSION_MINOR "7")
-			set(GAME_VERSION_PATCH "1")
+			set(GAME_VERSION_PATCH "2")
 			set(GAME_VERSION_USE_BUILD_TIME TRUE)
 		endif()
 	endif()
@@ -37,7 +37,7 @@ else()
 	# format: no source control - custom build
 	set(GAME_VERSION_MAJOR "0")
 	set(GAME_VERSION_MINOR "7")
-	set(GAME_VERSION_PATCH "1")
+	set(GAME_VERSION_PATCH "2")
 	set(GAME_VERSION_USE_BUILD_TIME TRUE)
 endif()
 

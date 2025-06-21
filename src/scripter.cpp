@@ -345,7 +345,7 @@ static int LuaPrintRedirect(lua_State* lua) {
         if (lua_pcall(lua, 1, 1, 0) != LUA_OK) {
             const char* error = lua_tostring(lua, -1);
 
-            SDL_Log((std::string("Script error: ") + error).c_str());
+            SDL_Log("%s", (std::string("Script error: ") + error).c_str());
 
             lua_pop(lua, 1);
         }

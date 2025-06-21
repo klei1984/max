@@ -481,7 +481,7 @@ bool Mission::LoadBuffer(const std::string& script) {
         result = true;
 
     } catch (const json::parse_error& e) {
-        SDL_Log((std::string("JSON parse error: ") + e.what()).c_str());
+        SDL_Log("%s", (std::string("JSON parse error: ") + e.what()).c_str());
     }
 
     return result;
