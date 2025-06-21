@@ -35,6 +35,42 @@ ${SetLangString} GameDataDir ENGLISH ${GameDataDirString_GameDataDir}
 ${SetLangString} Help ENGLISH ${GameDataDirString_Help}
 ${SetLangString} Portable ENGLISH ${GameDataDirString_Portable}
 
+${SetLangString} Title GERMAN "Spieleinstellungen konfigurieren"
+${SetLangString} Description GERMAN "Wählen Sie den Speicherort der Originalspiel-Dateien."
+${SetLangString} GameDataDir GERMAN "Ordner für Spieldaten"
+${SetLangString} Help GERMAN "Bitte wählen Sie das CD-ROM-Laufwerk bei einer originalen M.A.X. CD-ROM aus, oder das Stammverzeichnis einer bestehenden M.A.X. Vollinstallation. $(^ClickInstall)"
+${SetLangString} Portable GERMAN "Speichern Sie alle Benutzerdaten im selben Ordner wie die Spielanwendung."
+
+${SetLangString} Title FRENCH "Configurer les paramètres du jeu"
+${SetLangString} Description FRENCH "Sélectionnez l'emplacement des fichiers originaux du jeu."
+${SetLangString} GameDataDir FRENCH "Dossier des données du jeu"
+${SetLangString} Help FRENCH "Veuillez sélectionner le lecteur CD-ROM si vous avez un CD-ROM original de M.A.X., ou le dossier racine d'une installation complète existante de M.A.X. $(^ClickInstall)"
+${SetLangString} Portable FRENCH "Enregistrer toutes les données utilisateur dans le même dossier que l’exécutable du jeu."
+
+${SetLangString} Title SPANISH "Configurar ajustes del juego"
+${SetLangString} Description SPANISH "Seleccione la ubicación de los archivos originales del juego."
+${SetLangString} GameDataDir SPANISH "Carpeta de datos del juego"
+${SetLangString} Help SPANISH "Por favor, seleccione la unidad de CD-ROM si tiene el CD-ROM original de M.A.X., o la carpeta raíz de una instalación completa existente de M.A.X. $(^ClickInstall)"
+${SetLangString} Portable SPANISH "Guardar todos los datos de usuario en la misma carpeta que contiene el ejecutable del juego."
+
+${SetLangString} Title ITALIAN "Configura le impostazioni di gioco"
+${SetLangString} Description ITALIAN "Seleziona la posizione dei file originali del gioco."
+${SetLangString} GameDataDir ITALIAN "Cartella dei dati di gioco"
+${SetLangString} Help ITALIAN "Seleziona l'unità CD-ROM in caso di CD-ROM originale di M.A.X., o la cartella principale di un’installazione completa di M.A.X. $(^ClickInstall)"
+${SetLangString} Portable ITALIAN "Salva tutti i dati utente nella stessa cartella che contiene l'eseguibile del gioco."
+
+${SetLangString} Title POLISH "Konfiguruj ustawienia gry"
+${SetLangString} Description POLISH "Wybierz lokalizację oryginalnych plików gry."
+${SetLangString} GameDataDir POLISH "Folder danych gry"
+${SetLangString} Help POLISH "Wybierz napęd CD-ROM w przypadku oryginalnego CD-ROM M.A.X., lub folder główny istniejącej pełnej instalacji M.A.X. $(^ClickInstall)"
+${SetLangString} Portable POLISH "Zapisz wszystkie dane użytkownika w tym samym folderze co plik wykonywalny gry."
+
+${SetLangString} Title RUSSIAN "Настройка параметров игры"
+${SetLangString} Description RUSSIAN "Выберите расположение оригинальных файлов игры."
+${SetLangString} GameDataDir RUSSIAN "Папка игровых данных"
+${SetLangString} Help RUSSIAN "Пожалуйста, выберите привод CD-ROM для оригинального диска M.A.X., или корневую папку существующей полной установки M.A.X. $(^ClickInstall)"
+${SetLangString} Portable RUSSIAN "Сохранить все пользовательские данные в той же папке, что и исполняемый файл игры."
+
 ${SetLangString} Title HUNGARIAN "Játékbeállítások konfigurálása"
 ${SetLangString} Description HUNGARIAN "Válassza ki az eredeti játékelemek mappáját."
 ${SetLangString} GameDataDir HUNGARIAN "Eredeti játékelemek helye"

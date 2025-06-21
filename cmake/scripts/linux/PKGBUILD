@@ -3,7 +3,7 @@
 
 # Maintainer: M.A.X. Port Team <maxport@maxport.org>
 pkgname="max-port"
-pkgver=0.7.1
+pkgver=0.7.2
 pkgrel=1
 pkgdesc="conquer and plunder-type turn-based sci-fi strategy game"
 arch=("${CARCH}")

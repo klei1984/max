@@ -1,3 +1,54 @@
+max-port (0.7.2-1) unstable; urgency=medium
+
+  * New upstream release.
+
+  * Fixed defects: 32, 72, 100, 198, 202, 219, 229, 230, 231, 232, 233, 234,
+    235:
+    - Improved context aware mouse pointer handling.
+    - Winning missions randomly played music dedicated for defeat and skipped
+      the `Mission Successful!` voice message.
+    - It was possible to reactivate disabled units.
+    - It was possible to move around enemy units.
+    - The Sanctuary map marks tile 190 as blocked while based on the tile art
+      it should be passable land. A new game needs to be started for the fix
+      to take effect.
+    - In corner cases computers were unable to start production even if they
+      had the materials to do so.
+    - Computers were able to upgrade units that were waiting for initial
+      activation from factories which led to various glitches or crashes.
+    - In corner cases computers were able to restart unit construction even if
+      a previously constructed unit was waiting initial activation.
+    - In corner cases computers were unable to activate units even if it would
+      have been possible to do so.
+    - The tileset of Ultima Thule missed a tile art at grid cell position
+      [055,066]. The tile is added back. A new game needs to be started for
+      part of the fix to take effect.
+    - The tilemap of Ice Berg places a wrong tile art at cell position
+      [057,057].
+    - The game could crash in a corner case when the player uses both mouse and
+      keyboard to select a starting location on the map.
+    - Missions that were originally made with the quick build developer feature
+      incorrectly set the disabled state turn counter for deployed units that
+      could lead to various glitches.
+    - In corner cases opening the in-game Preferences window in hot seat games
+      could reopen the game over screen for already defeated players.
+
+  * Corrected reimplementation issues:
+    - Corrected GNW UI wide color support.
+    - Fixed a potential random crash in case of early assertion hits.
+
+  * Reimplementation changes:
+    - Updated SDL2 library to v2.32.6.
+    - Added source patch to miniaudio 0.11.22 to fix audio loop point support.
+    - Added JSON, JSON Schema, utf8proc and LUA dependencies.
+    - Added new modules in preparation to support new missions.
+    - Implemented process_pull_down, win_debug and win_debug_delete GNW
+      features, removed two assertions.
+    - Added assertion test to catch buildings with move orders.
+    - Refactored various modules.
+
+ -- M.A.X. Port Team <maxport@maxport.org>  Sat, 21 Jun 2025 22:10:00 +0200
+
 max-port (0.7.1-1) unstable; urgency=medium
 
   * New upstream release.
