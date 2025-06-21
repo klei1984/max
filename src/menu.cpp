@@ -75,10 +75,9 @@ struct CreditsLine {
 
 #define CREDITS_TEXT(text) {(0x04), (text)}
 
-static void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode,
-                                       int32_t victory_status);
-static void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int32_t global_turn, bool mode,
-                              int32_t victory_status);
+static void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_places, int32_t turn_counter,
+                                       bool mode, int32_t victory_status);
+static void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter, bool mode);
 
 static ResourceID menu_portrait_id;
 
@@ -415,7 +414,7 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
     }
 }
 
-void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t global_turn, bool mode,
+void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_places, int32_t turn_counter, bool mode,
                                 int32_t victory_status) {
     int32_t ulx;
     int32_t lrx;
@@ -464,8 +463,9 @@ void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t glo
                     window, SmartString().Sprintf(12, "%i", UnitsManager_TeamInfo[team].team_points).GetCStr(), ulx,
                     116, lrx - ulx, 2);
 
-                if (mode || teams[team] == 0) {
-                    Text_TypeWriter_TextBox(window, menu_game_over_screen_places[teams[team]], ulx, 132, lrx - ulx, 2);
+                if (mode || team_places[team] == 0) {
+                    Text_TypeWriter_TextBox(window, menu_game_over_screen_places[team_places[team]], ulx, 132,
+                                            lrx - ulx, 2);
                 }
 
             } else if (team == PLAYER_TEAM_RED) {
@@ -630,35 +630,17 @@ void menu_draw_game_over_screen(WindowInfo* window, uint16_t* teams, int32_t glo
     }
 }
 
-void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int32_t global_turn, bool mode,
-                       int32_t victory_status) {
+void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter, bool mode) {
     bool is_winner;
     int32_t bg_image_id;
     Color* palette;
     SmartString mission_briefing;
-    uint16_t team_places[PLAYER_TEAM_MAX - 1];
 
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        team_places[team] = 0;
-    }
-
-    for (int32_t i = 0; i < teams_in_play_count - 1; ++i) {
-        for (int32_t j = i + 1; j < teams_in_play_count; ++j) {
-            if (WinLoss_DetermineWinner(teams_in_play[i], teams_in_play[j]) < 0) {
-                std::swap(teams_in_play[i], teams_in_play[j]);
-            }
-        }
-    }
-
-    for (int32_t i = 0; i < teams_in_play_count; ++i) {
-        team_places[teams_in_play[i]] = i + 1;
-    }
-
-    if (victory_status == VICTORY_STATE_GENERIC) {
-        is_winner = team_places[GameManager_PlayerTeam] == 1;
+    if (status.team_status[GameManager_PlayerTeam] == VICTORY_STATE_GENERIC) {
+        is_winner = status.team_rank[GameManager_PlayerTeam] == 1;
 
     } else {
-        is_winner = victory_status == VICTORY_STATE_WON;
+        is_winner = status.team_status[GameManager_PlayerTeam] == VICTORY_STATE_WON;
     }
 
     SoundManager_PlayVoice(V_START, V_END, -1);
@@ -747,7 +729,8 @@ void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int
             Text_TypeWriter_TextBoxMultiLineWrapText(&window_info, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
 
         } else {
-            menu_draw_game_over_screen(&window_info, team_places, global_turn, mode, victory_status);
+            menu_draw_game_over_screen(&window_info, status.team_rank, turn_counter, mode,
+                                       status.team_status[GameManager_PlayerTeam]);
         }
 
         Text_SetFont(GNW_TEXT_FONT_5);
@@ -787,7 +770,8 @@ void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int
                                                                  400, 0);
 
                     } else {
-                        menu_draw_game_over_screen(&window_info, team_places, global_turn, mode, victory_status);
+                        menu_draw_game_over_screen(&window_info, status.team_rank, turn_counter, mode,
+                                                   status.team_status[GameManager_PlayerTeam]);
                     }
                 } break;
             }
@@ -818,40 +802,9 @@ void menu_wrap_up_game(uint16_t* teams_in_play, int32_t teams_in_play_count, int
 }
 
 bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_session_start, bool is_demo_mode) {
-    int32_t team_count;
-    int32_t teams_in_play_count;
-    int32_t human_teams_in_play;
-    int32_t non_computer_teams_count;
-    uint16_t teams_in_play[PLAYER_TEAM_MAX - 1];
-    int32_t victory_status[PLAYER_TEAM_MAX - 1];
     char game_state;
 
-    team_count = 0;
-    teams_in_play_count = 0;
-    human_teams_in_play = 0;
-    non_computer_teams_count = 0;
-
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        victory_status[team] = WinLoss_CheckWinConditions(team, turn_counter);
-
-        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            ++team_count;
-
-            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
-                ++non_computer_teams_count;
-            }
-
-            if (victory_status[team] != VICTORY_STATE_LOST &&
-                UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
-                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
-                    ++human_teams_in_play;
-                }
-
-                teams_in_play[teams_in_play_count] = team;
-                ++teams_in_play_count;
-            }
-        }
-    }
+    WinLoss_Status status = WinLoss_EvaluateStatus(turn_counter);
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_NONE) {
@@ -862,41 +815,45 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
             GameManager_GameState = GAME_STATE_3_MAIN_MENU;
             return true;
 
-        } else if (victory_status[GameManager_PlayerTeam] == VICTORY_STATE_WON ||
-                   victory_status[GameManager_PlayerTeam] == VICTORY_STATE_LOST ||
-                   (victory_status[GameManager_PlayerTeam] != VICTORY_STATE_PENDING && teams_in_play_count == 1 &&
-                    team_count > 1) ||
-                   teams_in_play_count == 0 || (human_teams_in_play == 0 && non_computer_teams_count > 0)) {
-            menu_wrap_up_game(teams_in_play, teams_in_play_count, turn_counter, true,
-                              victory_status[GameManager_PlayerTeam]);
+        } else if (
+            /* are single player scenario victory conditions met? */
+            status.team_status[GameManager_PlayerTeam] == VICTORY_STATE_WON ||
+
+            /* are single player scenario defeat conditions met? */
+            status.team_status[GameManager_PlayerTeam] == VICTORY_STATE_LOST ||
+
+            /* is last team standing in general single player mission? */
+            (status.team_status[GameManager_PlayerTeam] != VICTORY_STATE_PENDING && status.teams_in_play == 1 &&
+             status.teams_total > 1) ||
+
+            /* is no team standing? */
+            (status.teams_in_play == 0) ||
+
+            /* are all teams that were humans defeated? */
+            (status.teams_humans_in_play == 0 && status.teams_non_computers > 0) ||
+
+            /* is turns limit reached? */
+            ((ini_setting_victory_type == VICTORY_TYPE_DURATION) && (ini_setting_victory_limit <= turn_counter)) ||
+
+            /*is team score limit reached? */
+            ((UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) &&
+             (static_cast<int32_t>(UnitsManager_TeamInfo[team].team_points) >= ini_setting_victory_limit))) {
+            menu_wrap_up_game(status, turn_counter, true);
             return true;
+        }
 
-        } else if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
-            if (turn_counter == (ini_setting_victory_limit - 10) && non_computer_teams_count > 0) {
+        if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
+            if (turn_counter == (ini_setting_victory_limit - 10) && status.teams_non_computers > 0) {
                 DialogMenu_Menu(_(4556));
-
-            } else if (ini_setting_victory_limit <= turn_counter) {
-                menu_wrap_up_game(teams_in_play, teams_in_play_count, turn_counter, true,
-                                  victory_status[GameManager_PlayerTeam]);
-                return true;
-            }
-
-        } else {
-            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
-                static_cast<int32_t>(UnitsManager_TeamInfo[team].team_points) >= ini_setting_victory_limit) {
-                menu_wrap_up_game(teams_in_play, teams_in_play_count, turn_counter, true,
-                                  victory_status[GameManager_PlayerTeam]);
-                return true;
             }
         }
 
-        if (victory_status[GameManager_PlayerTeam] == VICTORY_STATE_GENERIC) {
+        if (status.team_status[GameManager_PlayerTeam] == VICTORY_STATE_GENERIC) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER &&
-                victory_status[team] == VICTORY_STATE_LOST) {
+                status.team_status[team] == VICTORY_STATE_LOST) {
                 game_state = GameManager_GameState;
 
-                menu_wrap_up_game(teams_in_play, teams_in_play_count, turn_counter, false,
-                                  victory_status[GameManager_PlayerTeam]);
+                menu_wrap_up_game(status, turn_counter, false);
 
                 if (Remote_IsNetworkGame) {
                     return true;

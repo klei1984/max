@@ -64,6 +64,8 @@ struct ImageMultiHeader {
     struct ImageMultiFrameHeader *frames[];
 };
 
+extern const uint8_t ResourceManager_GenericTable[32];
+
 extern std::filesystem::path ResourceManager_FilePathGameData;
 extern std::filesystem::path ResourceManager_FilePathGameBase;
 extern std::filesystem::path ResourceManager_FilePathGamePref;

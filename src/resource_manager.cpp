@@ -36,6 +36,7 @@
 #include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
+#include "missionregistry.hpp"
 #include "screendump.h"
 #include "sha2.h"
 #include "sound_manager.hpp"
@@ -71,6 +72,7 @@ static constexpr int32_t ResourceManager_MinimumMemoryEnhancedGfx = 13;
 static constexpr int32_t ResourceManager_MinimumDiskSpace = 1024 * 1024;
 
 static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
+static std::unique_ptr<MissionRegistry> ResourceManager_MissionRegistry;
 
 FILE *res_file_handle_array[2];
 struct res_index *ResourceManager_ResItemTable;
@@ -333,8 +335,14 @@ const char *const ResourceManager_ResourceIdList[RESOURCE_E] = {
     "DSRT_PIC", "STAR_PIC", "WORLD_S",  "SNOW_1",   "SNOW_2",   "SNOW_3",   "SNOW_4",   "SNOW_5",   "SNOW_6",
     "CRATER_1", "CRATER_2", "CRATER_3", "CRATER_4", "CRATER_5", "CRATER_6", "GREEN_1",  "GREEN_2",  "GREEN_3",
     "GREEN_4",  "GREEN_5",  "GREEN_6",  "DESERT_1", "DESERT_2", "DESERT_3", "DESERT_4", "DESERT_5", "DESERT_6",
-    "WORLD_E",  "FONT_S",   "FONT_1",   "FONT_2",   "FONT_5",   "FONT_E",
+    "WORLD_E",  "FONT_S",   "FONT_1",   "FONT_2",   "FONT_5",   "FONT_E",   "SCRIPT_S", "SC_SCHEM", "SC_T0001",
+    "SC_T0002", "SC_T0003", "SC_T0004", "SC_T0005", "SC_T0006", "SC_T0007", "SC_T0008", "SC_T0009", "SC_T0010",
+    "SC_T0011", "SC_T0012", "SC_T0013", "SC_T0014", "SC_T0015", "SCRIPT_E",
 };
+
+const uint8_t ResourceManager_GenericTable[32] = {0x6c, 0x57, 0x36, 0xe6, 0x81, 0xe0, 0x72, 0x8a, 0xd3, 0xd9, 0xff,
+                                                  0x54, 0x48, 0x3a, 0xcd, 0x75, 0xd5, 0x0d, 0xe9, 0xe7, 0x7a, 0x57,
+                                                  0xae, 0xeb, 0x61, 0x16, 0xb0, 0x35, 0x55, 0x62, 0xed, 0xd1};
 
 std::filesystem::path ResourceManager_FilePathGameData;
 std::filesystem::path ResourceManager_FilePathGameBase;
@@ -362,6 +370,7 @@ static void ResourceManager_InitSDL();
 static void ResourceManager_TestMemory();
 static void ResourceManager_TestDiskSpace();
 static void ResourceManager_InitInternals();
+static void ResourceManager_InitMissionRegistry();
 static int32_t ResourceManager_InitResManager();
 static void ResourceManager_TestMouse();
 static bool ResourceManager_GetGameDataPath(std::filesystem::path &path);
@@ -628,6 +637,7 @@ void ResourceManager_InitResources() {
     ResourceManager_TestDiskSpace();
     ResourceManager_InitInternals();
     ResourceManager_TestMouse();
+    ResourceManager_InitMissionRegistry();
 }
 
 void ResourceManager_InitSDL() {
@@ -2125,4 +2135,10 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
             }
         } break;
     }
+}
+
+void ResourceManager_InitMissionRegistry() {
+    auto registry = std::make_unique<MissionRegistry>(ResourceManager_FilePathGamePref);
+
+    ResourceManager_MissionRegistry = std::move(registry);
 }

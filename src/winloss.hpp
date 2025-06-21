@@ -24,9 +24,26 @@
 
 #include <cstdint>
 
-enum { VICTORY_STATE_GENERIC = 0, VICTORY_STATE_PENDING = 1, VICTORY_STATE_WON = 2, VICTORY_STATE_LOST = 3 };
+#include "enums.hpp"
 
-int32_t WinLoss_DetermineWinner(uint16_t team1, uint16_t team2);
-int32_t WinLoss_CheckWinConditions(uint16_t team, int32_t turn_counter);
+enum WinLossState {
+    VICTORY_STATE_GENERIC = 0,
+    VICTORY_STATE_PENDING = 1,
+    VICTORY_STATE_WON = 2,
+    VICTORY_STATE_LOST = 3
+};
+
+struct WinLoss_Status {
+    int32_t mission_type;
+    int32_t team_type[PLAYER_TEAM_MAX];
+    int32_t team_status[PLAYER_TEAM_MAX];
+    int32_t team_rank[PLAYER_TEAM_MAX];
+    int32_t teams_total;
+    int32_t teams_in_play;
+    int32_t teams_humans_in_play;
+    int32_t teams_non_computers;
+};
+
+WinLoss_Status WinLoss_EvaluateStatus(const int32_t turn_counter);
 
 #endif /* WINLOSS_HPP */

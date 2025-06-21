@@ -171,6 +171,10 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/aiattack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/aiplayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ticktimer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/scripter.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/mission.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/missionregistry.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/winlosshandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 

@@ -21,6 +21,8 @@
 
 #include "winloss.hpp"
 
+#include <utility>
+
 #include "game_manager.hpp"
 #include "inifile.hpp"
 #include "units_manager.hpp"
@@ -244,20 +246,6 @@ int32_t WinLoss_GetTotalWorthOfAssets(uint16_t team) {
            WinLoss_GetWorthOfAssets(team, &UnitsManager_StationaryUnits);
 }
 
-int32_t WinLoss_DetermineWinner(uint16_t team1, uint16_t team2) {
-    int32_t result;
-
-    if (UnitsManager_TeamInfo[team1].team_points < UnitsManager_TeamInfo[team2].team_points) {
-        result = -1;
-    } else if (UnitsManager_TeamInfo[team2].team_points < UnitsManager_TeamInfo[team1].team_points) {
-        result = 1;
-    } else {
-        result = WinLoss_GetTotalWorthOfAssets(team1) - WinLoss_GetTotalWorthOfAssets(team2);
-    }
-
-    return result;
-}
-
 SmartList<UnitInfo>& WinLoss_GetRelevantUnits(ResourceID unit_type) {
     uint32_t flags;
 
@@ -461,420 +449,467 @@ int32_t WinLoss_CountUnitsThatUsedAmmo(uint16_t team, ResourceID unit_type) {
     return result;
 }
 
-int32_t WinLoss_CheckWinConditions(uint16_t team, int32_t turn_counter) {
-    int32_t result;
+WinLoss_Status WinLoss_EvaluateStatus(const int32_t turn_counter) {
+    WinLoss_Status status = {0};
+    uint16_t teams_in_play[PLAYER_TEAM_MAX] = {0};
 
-    if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING && GameManager_GameFileNumber == 1 &&
-        team == PLAYER_TEAM_RED) {
-        result = VICTORY_STATE_PENDING;
+    status.mission_type = ini_get_setting(INI_GAME_FILE_TYPE);
 
-    } else if (WinLoss_HasAttackPower(team, &UnitsManager_MobileLandSeaUnits) ||
-               WinLoss_HasAttackPower(team, &UnitsManager_MobileAirUnits) ||
-               WinLoss_HasAttackPower(team, &UnitsManager_StationaryUnits) || WinLoss_CanRebuildComplex(team) ||
-               WinLoss_CanRebuildBuilders(team)) {
-        result = VICTORY_STATE_PENDING;
-
-    } else {
-        result = VICTORY_STATE_LOST;
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        status.team_type[team] = UnitsManager_TeamInfo[team].team_type;
     }
 
-    if (team != PLAYER_TEAM_RED) {
-        if (result != VICTORY_STATE_LOST) {
-            result = VICTORY_STATE_GENERIC;
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (status.mission_type == GAME_TYPE_TRAINING && GameManager_GameFileNumber == 1 && team == PLAYER_TEAM_RED) {
+            status.team_status[team] = VICTORY_STATE_PENDING;
+
+        } else if (WinLoss_HasAttackPower(team, &UnitsManager_MobileLandSeaUnits) ||
+                   WinLoss_HasAttackPower(team, &UnitsManager_MobileAirUnits) ||
+                   WinLoss_HasAttackPower(team, &UnitsManager_StationaryUnits) || WinLoss_CanRebuildComplex(team) ||
+                   WinLoss_CanRebuildBuilders(team)) {
+            status.team_status[team] = VICTORY_STATE_PENDING;
+
+        } else {
+            status.team_status[team] = VICTORY_STATE_LOST;
         }
 
-    } else if (result != VICTORY_STATE_LOST) {
-        switch (ini_get_setting(INI_GAME_FILE_TYPE)) {
-            case GAME_TYPE_CAMPAIGN: {
-                switch (GameManager_GameFileNumber) {
-                    case CAMPAIGN_MISSION_1: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, RESEARCH) == 0) {
-                            result = VICTORY_STATE_LOST;
+        if (team != PLAYER_TEAM_RED) {
+            if (status.team_status[team] != VICTORY_STATE_LOST) {
+                status.team_status[team] = VICTORY_STATE_GENERIC;
+            }
 
-                        } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, GREENHSE)) {
-                            result = VICTORY_STATE_PENDING;
+        } else if (status.team_status[team] != VICTORY_STATE_LOST) {
+            switch (status.mission_type) {
+                case GAME_TYPE_CAMPAIGN: {
+                    switch (GameManager_GameFileNumber) {
+                        case CAMPAIGN_MISSION_1: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, RESEARCH) == 0) {
+                                status.team_status[team] = VICTORY_STATE_LOST;
 
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case CAMPAIGN_MISSION_2: {
-                        if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].casualties[RESEARCH] > 0) {
-                            result = VICTORY_STATE_LOST;
-
-                        } else if (turn_counter < ini_setting_victory_limit) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case CAMPAIGN_MISSION_3: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, SPLYTRCK) +
-                                WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, SPLYTRCK) <
-                            2) {
-                            result = VICTORY_STATE_LOST;
-
-                        } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, SPLYTRCK) >= 2) {
-                            result = VICTORY_STATE_WON;
-
-                        } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, COMMANDO)) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_LOST;
-                        }
-                    } break;
-
-                    case CAMPAIGN_MISSION_4:
-                    case CAMPAIGN_MISSION_5:
-                    case CAMPAIGN_MISSION_9: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, GREENHSE)) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case CAMPAIGN_MISSION_8: {
-                        if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].casualties[RESEARCH] > 0) {
-                            result = VICTORY_STATE_LOST;
-
-                        } else {
-                            int32_t alien_mobile_units_count;
-
-                            alien_mobile_units_count = WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNPLANE);
-                            alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNTANK);
-                            alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNASGUN);
-                            alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, JUGGRNT);
-
-                            alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, ALNPLANE);
-                            alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, ALNTANK);
-                            alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, ALNASGUN);
-                            alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, JUGGRNT);
-
-                            if (alien_mobile_units_count < 4) {
-                                result = VICTORY_STATE_LOST;
-
-                            } else if (turn_counter < ini_setting_victory_limit) {
-                                result = VICTORY_STATE_PENDING;
+                            } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, GREENHSE)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
 
                             } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case CAMPAIGN_MISSION_2: {
+                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].casualties[RESEARCH] > 0) {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+
+                            } else if (turn_counter < ini_setting_victory_limit) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case CAMPAIGN_MISSION_3: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, SPLYTRCK) +
+                                    WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, SPLYTRCK) <
+                                2) {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+
+                            } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, SPLYTRCK) >= 2) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, COMMANDO)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+                            }
+                        } break;
+
+                        case CAMPAIGN_MISSION_4:
+                        case CAMPAIGN_MISSION_5:
+                        case CAMPAIGN_MISSION_9: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, GREENHSE)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case CAMPAIGN_MISSION_8: {
+                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].casualties[RESEARCH] > 0) {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+
+                            } else {
+                                int32_t alien_mobile_units_count;
+
                                 alien_mobile_units_count = WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNPLANE);
                                 alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNTANK);
                                 alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNASGUN);
                                 alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, JUGGRNT);
 
-                                if (alien_mobile_units_count >= 4) {
-                                    result = VICTORY_STATE_WON;
+                                alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, ALNPLANE);
+                                alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, ALNTANK);
+                                alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, ALNASGUN);
+                                alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, JUGGRNT);
+
+                                if (alien_mobile_units_count < 4) {
+                                    status.team_status[team] = VICTORY_STATE_LOST;
+
+                                } else if (turn_counter < ini_setting_victory_limit) {
+                                    status.team_status[team] = VICTORY_STATE_PENDING;
 
                                 } else {
-                                    result = VICTORY_STATE_LOST;
+                                    alien_mobile_units_count = WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNPLANE);
+                                    alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNTANK);
+                                    alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ALNASGUN);
+                                    alien_mobile_units_count += WinLoss_CountReadyUnits(PLAYER_TEAM_RED, JUGGRNT);
+
+                                    if (alien_mobile_units_count >= 4) {
+                                        status.team_status[team] = VICTORY_STATE_WON;
+
+                                    } else {
+                                        status.team_status[team] = VICTORY_STATE_LOST;
+                                    }
                                 }
                             }
-                        }
-                    } break;
+                        } break;
 
-                    default: {
-                        if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
-                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points >=
-                                static_cast<uint32_t>(ini_setting_victory_limit)) {
-                                result = VICTORY_STATE_WON;
+                        default: {
+                            if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
+                                if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points >=
+                                    static_cast<uint32_t>(ini_setting_victory_limit)) {
+                                    status.team_status[team] = VICTORY_STATE_WON;
 
-                            } else if (UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_points >=
-                                       static_cast<uint32_t>(ini_setting_victory_limit)) {
-                                result = VICTORY_STATE_LOST;
+                                } else if (UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_points >=
+                                           static_cast<uint32_t>(ini_setting_victory_limit)) {
+                                    status.team_status[team] = VICTORY_STATE_LOST;
+
+                                } else {
+                                    status.team_status[team] = VICTORY_STATE_PENDING;
+                                }
+
+                            } else if (turn_counter < ini_setting_victory_limit) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
 
                             } else {
-                                result = VICTORY_STATE_PENDING;
+                                status.team_status[team] = VICTORY_STATE_WON;
                             }
+                        } break;
+                    }
+                } break;
 
-                        } else if (turn_counter < ini_setting_victory_limit) {
-                            result = VICTORY_STATE_PENDING;
+                case GAME_TYPE_TRAINING: {
+                    switch (GameManager_GameFileNumber) {
+                        case TRAINING_MISSION_1: {
+                            if (WinLoss_HasMaterials(PLAYER_TEAM_RED, CARGO_TYPE_RAW) < 1 ||
+                                WinLoss_HasMaterials(PLAYER_TEAM_RED, CARGO_TYPE_FUEL) < 1 ||
+                                WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ADUMP) <= 0) {
+                                if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST) &&
+                                    WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ENGINEER)) {
+                                    status.team_status[team] = VICTORY_STATE_PENDING;
 
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
+                                } else {
+                                    status.team_status[team] = VICTORY_STATE_LOST;
+                                }
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_2: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LIGHTPLT) > 0 &&
+                                WinLoss_CountReadyUnits(PLAYER_TEAM_RED, GUNTURRT) > 0) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else if ((WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ENGINEER) ||
+                                        WinLoss_CountReadyUnits(PLAYER_TEAM_RED, GUNTURRT)) &&
+                                       (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, CONSTRCT) ||
+                                        WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LIGHTPLT))) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_3: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LANDPLT) > 0 &&
+                                WinLoss_CountReadyUnits(PLAYER_TEAM_RED, SCOUT) > 2) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else if ((WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LIGHTPLT) > 0 ||
+                                        WinLoss_CountReadyUnits(PLAYER_TEAM_RED, SCOUT) > 2) &&
+                                       WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST) &&
+                                       (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, CONSTRCT) ||
+                                        WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LANDPLT))) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_4: {
+                            int32_t raw_mining_max;
+                            int32_t fuel_mining_max;
+                            int32_t gold_mining_max;
+
+                            WinLoss_CountTotalMining(PLAYER_TEAM_RED, &raw_mining_max, &fuel_mining_max,
+                                                     &gold_mining_max);
+
+                            if (raw_mining_max < 22) {
+                                if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, CONSTRCT) &&
+                                    WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST)) {
+                                    status.team_status[team] = VICTORY_STATE_PENDING;
+
+                                } else {
+                                    status.team_status[team] = VICTORY_STATE_LOST;
+                                }
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_5: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, MININGST)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_6: {
+                            if (WinLoss_GetTotalUnitsBeingConstructed(PLAYER_TEAM_RED, GUNTURRT) > 0) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_7: {
+                            if (WinLoss_GetTotalPowerConsumption(PLAYER_TEAM_RED, LIGHTPLT) +
+                                        WinLoss_GetTotalPowerConsumption(PLAYER_TEAM_RED, LANDPLT) >
+                                    1 &&
+                                (WinLoss_GetTotalMining(PLAYER_TEAM_RED, CARGO_FUEL) -
+                                     WinLoss_GetTotalConsumption(PLAYER_TEAM_RED, CARGO_FUEL) >
+                                 0)) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LIGHTPLT) +
+                                               WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LANDPLT) >
+                                           1 &&
+                                       WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_8: {
+                            if (WinLoss_HasMaterials(PLAYER_TEAM_RED, CARGO_TYPE_GOLD) > 0) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_9: {
+                            if (WinLoss_HasAtLeastOneUpgradedTank(PLAYER_TEAM_RED)) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_10: {
+                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points > 0) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_11: {
+                            if (WinLoss_HasInfiltratorExperience(PLAYER_TEAM_RED)) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, TRAINHAL) &&
+                                       WinLoss_CountReadyUnits(PLAYER_TEAM_RED, HABITAT) &&
+                                       WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_12: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LANDMINE) > 0 &&
+                                UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].casualties[LANDMINE] > 0) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_13: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, TANK) < 3 ||
+                                WinLoss_CountDamangedUnits(PLAYER_TEAM_RED, TANK)) {
+                                if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].casualties[TANK] <= 0) {
+                                    status.team_status[team] = VICTORY_STATE_PENDING;
+
+                                } else {
+                                    status.team_status[team] = VICTORY_STATE_LOST;
+                                }
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_14: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, TANK) < 3 ||
+                                WinLoss_CountUnitsThatUsedAmmo(PLAYER_TEAM_RED, TANK)) {
+                                if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].casualties[TANK] <= 0) {
+                                    status.team_status[team] = VICTORY_STATE_PENDING;
+
+                                } else {
+                                    status.team_status[team] = VICTORY_STATE_LOST;
+                                }
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case TRAINING_MISSION_15: {
+                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED]
+                                    .research_topics[RESEARCH_TOPIC_ARMOR]
+                                    .research_level > 0) {
+                                status.team_status[team] = VICTORY_STATE_WON;
+
+                            } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, RESEARCH)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+                            }
+                        } break;
+
+                        default: {
+                            status.team_status[team] = VICTORY_STATE_GENERIC;
+                        } break;
+                    }
+                } break;
+
+                case GAME_TYPE_SCENARIO: {
+                    switch (GameManager_GameFileNumber) {
+                        case SCENARIO_MISSION_9: {
+                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points <=
+                                UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_points) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case SCENARIO_MISSION_18: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, RESEARCH)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        case SCENARIO_MISSION_20: {
+                            int32_t red_max_team_points_forecast;
+                            int32_t green_max_team_points_forecast;
+
+                            red_max_team_points_forecast = ((ini_setting_victory_limit - turn_counter) *
+                                                            WinLoss_CountReadyUnits(PLAYER_TEAM_RED, GREENHSE)) +
+                                                           UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points;
+
+                            green_max_team_points_forecast = ((ini_setting_victory_limit - turn_counter) *
+                                                              WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, GREENHSE)) +
+                                                             UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_points;
+
+                            if (red_max_team_points_forecast >= green_max_team_points_forecast) {
+                                status.team_status[team] = VICTORY_STATE_GENERIC;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_LOST;
+                            }
+                        } break;
+
+                        case SCENARIO_MISSION_24: {
+                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, GREENHSE)) {
+                                status.team_status[team] = VICTORY_STATE_PENDING;
+
+                            } else {
+                                status.team_status[team] = VICTORY_STATE_WON;
+                            }
+                        } break;
+
+                        default: {
+                            status.team_status[team] = VICTORY_STATE_GENERIC;
+                        } break;
+                    }
+                } break;
+
+                default: {
+                    status.team_status[team] = VICTORY_STATE_GENERIC;
+                } break;
+            }
+        }
+
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+            ++status.teams_total;
+
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
+                ++status.teams_non_computers;
+            }
+
+            if (status.team_status[team] != VICTORY_STATE_LOST &&
+                UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
+                    ++status.teams_humans_in_play;
                 }
-            } break;
 
-            case GAME_TYPE_TRAINING: {
-                switch (GameManager_GameFileNumber) {
-                    case TRAINING_MISSION_1: {
-                        if (WinLoss_HasMaterials(PLAYER_TEAM_RED, CARGO_TYPE_RAW) < 1 ||
-                            WinLoss_HasMaterials(PLAYER_TEAM_RED, CARGO_TYPE_FUEL) < 1 ||
-                            WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ADUMP) <= 0) {
-                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST) &&
-                                WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ENGINEER)) {
-                                result = VICTORY_STATE_PENDING;
-
-                            } else {
-                                result = VICTORY_STATE_LOST;
-                            }
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_2: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LIGHTPLT) > 0 &&
-                            WinLoss_CountReadyUnits(PLAYER_TEAM_RED, GUNTURRT) > 0) {
-                            result = VICTORY_STATE_WON;
-
-                        } else if ((WinLoss_CountReadyUnits(PLAYER_TEAM_RED, ENGINEER) ||
-                                    WinLoss_CountReadyUnits(PLAYER_TEAM_RED, GUNTURRT)) &&
-                                   (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, CONSTRCT) ||
-                                    WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LIGHTPLT))) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_LOST;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_3: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LANDPLT) > 0 &&
-                            WinLoss_CountReadyUnits(PLAYER_TEAM_RED, SCOUT) > 2) {
-                            result = VICTORY_STATE_WON;
-
-                        } else if ((WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LIGHTPLT) > 0 ||
-                                    WinLoss_CountReadyUnits(PLAYER_TEAM_RED, SCOUT) > 2) &&
-                                   WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST) &&
-                                   (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, CONSTRCT) ||
-                                    WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LANDPLT))) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_LOST;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_4: {
-                        int32_t raw_mining_max;
-                        int32_t fuel_mining_max;
-                        int32_t gold_mining_max;
-
-                        WinLoss_CountTotalMining(PLAYER_TEAM_RED, &raw_mining_max, &fuel_mining_max, &gold_mining_max);
-
-                        if (raw_mining_max < 22) {
-                            if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, CONSTRCT) &&
-                                WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST)) {
-                                result = VICTORY_STATE_PENDING;
-
-                            } else {
-                                result = VICTORY_STATE_LOST;
-                            }
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_5: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, MININGST)) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_6: {
-                        if (WinLoss_GetTotalUnitsBeingConstructed(PLAYER_TEAM_RED, GUNTURRT) > 0) {
-                            result = VICTORY_STATE_WON;
-
-                        } else {
-                            result = VICTORY_STATE_PENDING;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_7: {
-                        if (WinLoss_GetTotalPowerConsumption(PLAYER_TEAM_RED, LIGHTPLT) +
-                                    WinLoss_GetTotalPowerConsumption(PLAYER_TEAM_RED, LANDPLT) >
-                                1 &&
-                            (WinLoss_GetTotalMining(PLAYER_TEAM_RED, CARGO_FUEL) -
-                                 WinLoss_GetTotalConsumption(PLAYER_TEAM_RED, CARGO_FUEL) >
-                             0)) {
-                            result = VICTORY_STATE_WON;
-
-                        } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LIGHTPLT) +
-                                           WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LANDPLT) >
-                                       1 &&
-                                   WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST)) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_LOST;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_8: {
-                        if (WinLoss_HasMaterials(PLAYER_TEAM_RED, CARGO_TYPE_GOLD) > 0) {
-                            result = VICTORY_STATE_WON;
-
-                        } else {
-                            result = VICTORY_STATE_PENDING;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_9: {
-                        if (WinLoss_HasAtLeastOneUpgradedTank(PLAYER_TEAM_RED)) {
-                            result = VICTORY_STATE_WON;
-
-                        } else {
-                            result = VICTORY_STATE_PENDING;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_10: {
-                        if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points > 0) {
-                            result = VICTORY_STATE_WON;
-
-                        } else {
-                            result = VICTORY_STATE_PENDING;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_11: {
-                        if (WinLoss_HasInfiltratorExperience(PLAYER_TEAM_RED)) {
-                            result = VICTORY_STATE_WON;
-
-                        } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, TRAINHAL) &&
-                                   WinLoss_CountReadyUnits(PLAYER_TEAM_RED, HABITAT) &&
-                                   WinLoss_CountReadyUnits(PLAYER_TEAM_RED, MININGST)) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_LOST;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_12: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, LANDMINE) > 0 &&
-                            UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].casualties[LANDMINE] > 0) {
-                            result = VICTORY_STATE_WON;
-
-                        } else {
-                            result = VICTORY_STATE_PENDING;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_13: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, TANK) < 3 ||
-                            WinLoss_CountDamangedUnits(PLAYER_TEAM_RED, TANK)) {
-                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].casualties[TANK] <= 0) {
-                                result = VICTORY_STATE_PENDING;
-
-                            } else {
-                                result = VICTORY_STATE_LOST;
-                            }
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_14: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, TANK) < 3 ||
-                            WinLoss_CountUnitsThatUsedAmmo(PLAYER_TEAM_RED, TANK)) {
-                            if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].casualties[TANK] <= 0) {
-                                result = VICTORY_STATE_PENDING;
-
-                            } else {
-                                result = VICTORY_STATE_LOST;
-                            }
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case TRAINING_MISSION_15: {
-                        if (UnitsManager_TeamInfo[PLAYER_TEAM_RED]
-                                .research_topics[RESEARCH_TOPIC_ARMOR]
-                                .research_level > 0) {
-                            result = VICTORY_STATE_WON;
-
-                        } else if (WinLoss_CountReadyUnits(PLAYER_TEAM_RED, RESEARCH)) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_LOST;
-                        }
-                    } break;
-
-                    default: {
-                        result = VICTORY_STATE_GENERIC;
-                    } break;
-                }
-            } break;
-
-            case GAME_TYPE_SCENARIO: {
-                switch (GameManager_GameFileNumber) {
-                    case SCENARIO_MISSION_9: {
-                        if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points <=
-                            UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_points) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case SCENARIO_MISSION_18: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, RESEARCH)) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    case SCENARIO_MISSION_20: {
-                        int32_t red_max_team_points_forecast;
-                        int32_t green_max_team_points_forecast;
-
-                        red_max_team_points_forecast = ((ini_setting_victory_limit - turn_counter) *
-                                                        WinLoss_CountReadyUnits(PLAYER_TEAM_RED, GREENHSE)) +
-                                                       UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points;
-
-                        green_max_team_points_forecast = ((ini_setting_victory_limit - turn_counter) *
-                                                          WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, GREENHSE)) +
-                                                         UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_points;
-
-                        if (red_max_team_points_forecast >= green_max_team_points_forecast) {
-                            result = VICTORY_STATE_GENERIC;
-
-                        } else {
-                            result = VICTORY_STATE_LOST;
-                        }
-                    } break;
-
-                    case SCENARIO_MISSION_24: {
-                        if (WinLoss_CountReadyUnits(PLAYER_TEAM_GREEN, GREENHSE)) {
-                            result = VICTORY_STATE_PENDING;
-
-                        } else {
-                            result = VICTORY_STATE_WON;
-                        }
-                    } break;
-
-                    default: {
-                        result = VICTORY_STATE_GENERIC;
-                    } break;
-                }
-            } break;
-
-            default: {
-                result = VICTORY_STATE_GENERIC;
-            } break;
+                teams_in_play[status.teams_in_play] = team;
+                ++status.teams_in_play;
+            }
         }
     }
 
-    return result;
+    for (int32_t i = 0; i < status.teams_in_play - 1; ++i) {
+        for (int32_t j = i + 1; j < status.teams_in_play; ++j) {
+            if (UnitsManager_TeamInfo[teams_in_play[i]].team_points <
+                UnitsManager_TeamInfo[teams_in_play[j]].team_points) {
+                std::swap(teams_in_play[i], teams_in_play[j]);
+
+            } else if (UnitsManager_TeamInfo[teams_in_play[j]].team_points ==
+                       UnitsManager_TeamInfo[teams_in_play[i]].team_points) {
+                if (WinLoss_GetTotalWorthOfAssets(teams_in_play[i]) - WinLoss_GetTotalWorthOfAssets(teams_in_play[j]) <
+                    0) {
+                    std::swap(teams_in_play[i], teams_in_play[j]);
+                }
+            }
+        }
+    }
+
+    for (int32_t i = 0; i < status.teams_in_play; ++i) {
+        status.team_rank[teams_in_play[i]] = i + 1;
+    }
+
+    return status;
 }
