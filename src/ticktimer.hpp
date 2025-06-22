@@ -22,7 +22,9 @@
 #ifndef TICKTIMER_HPP
 #define TICKTIMER_HPP
 
+#if __cplusplus < 201703L
 #include <cstdbool>
+#endif
 #include <cstdint>
 
 [[nodiscard]] bool TickTimer_HaveTimeToThink() noexcept;
