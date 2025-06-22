@@ -22,7 +22,6 @@
 #ifndef TICKTIMER_HPP
 #define TICKTIMER_HPP
 
-#include <cstdbool>
 #include <cstdint>
 
 [[nodiscard]] bool TickTimer_HaveTimeToThink() noexcept;
