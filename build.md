@@ -143,7 +143,8 @@ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-linux-i686.cmake -DCMAKE_BUILD_T
 And finally we can build and install the application. The installation step may require administrative privileges to install software under `/usr/local`.
 
 ```
-sudo cmake --build . --parallel --target install
+cmake --build . --parallel
+sudo cmake --install .
 ```
 
 After the installation process is complete the game can be started with the `max-port` command from the terminal window, or with the `M.A.X. Port` desktop icon from the Apps menu. To configure and actually run the game please read relevant sections of the [Installation Guideline](install.md).
@@ -208,7 +209,8 @@ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-linux-x86_64.cmake -DCMAKE_BUILD
 And finally we can build and install the application. The installation step may require administrative privileges to install software under `/usr/local`.
 
 ```
-sudo cmake --build . --parallel --target install
+cmake --build . --parallel
+sudo cmake --install .
 ```
 
 After the installation process is complete the game can be started with the `max-port` command from the terminal window, or with the `M.A.X. Port` desktop icon from the Apps menu. To configure and actually run the game please read relevant sections of the [Installation Guideline](install.md).
