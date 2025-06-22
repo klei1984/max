@@ -146,7 +146,9 @@ if(UNIX)
 				"^libSDL2.*$"
 				"^libfreetype.*$"
 				"^libminiupnpc.*$"
+				"^libnlohmann_json.*$"
 				"^libnlohmann_json_schema_validator.*$"
+				"^liblua.*$"
 		)
 
 		if(DEPS_CONFLICTING_FILENAMES)
