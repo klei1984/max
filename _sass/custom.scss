@@ -355,3 +355,11 @@ li.nav-item:last-child > a {
     font-weight:600 !important;
   }
 }
+
+img.themed-svg {
+  filter: none;
+
+  @media (prefers-color-scheme: dark) {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}

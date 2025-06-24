@@ -3,9 +3,9 @@ layout: page
 permalink: /download/
 title: Downloads
 dl_url: https://github.com/klei1984/max/releases/download
-release: 0.7.1
-releaseDate: 2025-04-27
-tag: 0.7.1
+release: 0.7.2
+releaseDate: 2025-06-24
+tag: 0.7.2
 ---
 
 ### Current Release: v{{ page.release }} ({{ page.releaseDate }})
@@ -13,22 +13,21 @@ tag: 0.7.1
 Read the [Installation Guideline](install.md) on how to use.<br>
 Read the [FAQ](faq.md) if in doubt.
 
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows installer 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86_64.exe)**
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows 7-Zip file 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86_64.7z)**
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows installer 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86.exe)**
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows 7-Zip file 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86.7z)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows installer 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86_64.exe)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows 7-Zip file 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86_64.7z)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows installer 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86.exe)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows 7-Zip file 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Windows_x86.7z)**
 
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/windows_xp.svg" width="22px" height="22px"/> &ensp; **[Windows XP installer 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86_64.exe)**
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/windows_xp.svg" width="22px" height="22px"/> &ensp; **[Windows XP 7-Zip file 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86_64.7z)**
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/windows_xp.svg" width="22px" height="22px"/> &ensp; **[Windows XP installer 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86.exe)**
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/windows_xp.svg" width="22px" height="22px"/> &ensp; **[Windows XP 7-Zip file 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86.7z)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows_xp.svg" width="22px" height="22px"/> &ensp; **[Windows XP installer 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86_64.exe)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows_xp.svg" width="22px" height="22px"/> &ensp; **[Windows XP 7-Zip file 64 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86_64.7z)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows_xp.svg" width="22px" height="22px"/> &ensp; **[Windows XP installer 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86.exe)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows_xp.svg" width="22px" height="22px"/> &ensp; **[Windows XP 7-Zip file 32 bit]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-WindowsXP_x86.7z)**
 
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/linux.svg" width="22px" height="22px"/> &ensp; **[Linux DEB package 64 bit for x86-64 systems]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86_64.deb)**
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/linux.svg" width="22px" height="22px"/> &ensp; **Linux DEB package 32 bit for x86 systems**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/linux.svg" width="22px" height="22px"/> &ensp; **[Linux DEB package 64 bit for x86-64 systems]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86_64.deb)**
 
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/flatpak.svg" width="22px" height="22px"/> &ensp; **[Linux Flatpak package 64 bit for x86-64 systems]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86_64.flatpak)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/flatpak.svg" width="22px" height="22px"/> &ensp; **[Linux Flatpak package 64 bit for x86-64 systems]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86_64.flatpak)**
 
-- <img style="float: left" src="{{ site.baseurl }}/assets/images/arch_linux.svg" width="22px" height="22px"/> &ensp; **[Arch Linux package 64 bit for x86-64 systems]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86_64.pkg.tar.zst)**
+- <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/arch_linux.svg" width="22px" height="22px"/> &ensp; **[Arch Linux package 64 bit for x86-64 systems]({{ page.dl_url }}/v{{ page.release }}/max-port-{{ page.tag }}-Linux_x86_64.pkg.tar.zst)**
 
 Read the [Build Instructions](build.md) on how to build.
 
