@@ -15,8 +15,14 @@ skip -file ailog.cpp
 python
 import sys
 import gdb.printing
+import subprocess
 
-sys.path.insert(0, sys.path[0] + '/../../gcc-14.2.0/python')
+try:
+    gcc_version = subprocess.check_output(['gcc', '-dumpfullversion'], encoding='utf-8').strip()
+except Exception:
+    gcc_version = subprocess.check_output(['gcc', '-dumpversion'], encoding='utf-8').strip()
+
+sys.path.insert(0, sys.path[0] + '/../../gcc-' + gcc_version + '/python')
 from libstdcxx.v6.printers import register_libstdcxx_printers
 register_libstdcxx_printers (None)
 
