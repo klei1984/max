@@ -723,158 +723,159 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
 
     if (file.Open(filepath.string().c_str())) {
         GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
-    }
 
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        team_types[team] = UnitsManager_TeamInfo[team].team_type;
-    }
-
-    memset(&file_header, 0, sizeof(file_header));
-
-    file_header.version = MAX_SAVE_FILE_FORMAT_VERSION;
-    file_header.save_game_type = ini_get_setting(INI_GAME_FILE_TYPE);
-
-    strcpy(file_header.save_name, save_name);
-
-    file_header.world = ini_get_setting(INI_WORLD);
-    file_header.mission_index = GameManager_GameFileNumber;
-    file_header.opponent = ini_get_setting(INI_OPPONENT);
-    file_header.turn_timer_time = ini_get_setting(INI_TIMER);
-    file_header.endturn_time = ini_get_setting(INI_ENDTURN);
-    file_header.play_mode = ini_get_setting(INI_PLAY_MODE);
-
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if ((file_header.save_game_type == GAME_TYPE_TRAINING || file_header.save_game_type == GAME_TYPE_SCENARIO ||
-             file_header.save_game_type == GAME_TYPE_CAMPAIGN) &&
-            team != PLAYER_TEAM_RED && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER) {
-            UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_COMPUTER;
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            team_types[team] = UnitsManager_TeamInfo[team].team_type;
         }
 
-        if (file_header.save_game_type == GAME_TYPE_DEMO && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_COMPUTER;
+        memset(&file_header, 0, sizeof(file_header));
+
+        file_header.version = MAX_SAVE_FILE_FORMAT_VERSION;
+        file_header.save_game_type = ini_get_setting(INI_GAME_FILE_TYPE);
+
+        strcpy(file_header.save_name, save_name);
+
+        file_header.world = ini_get_setting(INI_WORLD);
+        file_header.mission_index = GameManager_GameFileNumber;
+        file_header.opponent = ini_get_setting(INI_OPPONENT);
+        file_header.turn_timer_time = ini_get_setting(INI_TIMER);
+        file_header.endturn_time = ini_get_setting(INI_ENDTURN);
+        file_header.play_mode = ini_get_setting(INI_PLAY_MODE);
+
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if ((file_header.save_game_type == GAME_TYPE_TRAINING || file_header.save_game_type == GAME_TYPE_SCENARIO ||
+                 file_header.save_game_type == GAME_TYPE_CAMPAIGN) &&
+                team != PLAYER_TEAM_RED && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER) {
+                UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_COMPUTER;
+            }
+
+            if (file_header.save_game_type == GAME_TYPE_DEMO &&
+                UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_COMPUTER;
+            }
+
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team),
+                                          file_header.team_name[team], sizeof(file_header.team_name[team]));
+                if (!strlen(file_header.team_name[team])) {
+                    strcpy(file_header.team_name[team], menu_team_names[team]);
+                }
+            }
+
+            file_header.team_type[team] = UnitsManager_TeamInfo[team].team_type;
+            file_header.team_clan[team] = UnitsManager_TeamInfo[team].team_clan;
         }
 
-        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), file_header.team_name[team],
-                                      sizeof(file_header.team_name[team]));
-            if (!strlen(file_header.team_name[team])) {
-                strcpy(file_header.team_name[team], menu_team_names[team]);
+        if (Remote_IsNetworkGame) {
+            file_header.rng_seed = Remote_RngSeed;
+        } else {
+            file_header.rng_seed = time(nullptr);
+        }
+
+        for (int32_t i = 0, limit = strlen(file_name); i < limit; ++i) {
+            file_header.rng_seed += file_name[i];
+        }
+
+        file.Write(file_header);
+
+        ini_config.SaveSection(file, INI_OPTIONS);
+
+        file.Write(ResourceManager_MapSurfaceMap, map_cell_count * sizeof(uint8_t));
+
+        file.Write(ResourceManager_CargoMap, map_cell_count * sizeof(uint16_t));
+
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            CTInfo *team_info;
+            uint16_t unit_id;
+
+            team_info = &UnitsManager_TeamInfo[team];
+
+            file.Write(team_info->markers);
+            file.Write(team_info->team_type);
+            file.Write(team_info->finished_turn);
+            file.Write(team_info->team_clan);
+            file.Write(team_info->research_topics);
+            file.Write(team_info->team_points);
+            file.Write(team_info->number_of_objects_created);
+            file.Write(team_info->unit_counters);
+            file.Write(team_info->screen_locations);
+            file.Write(team_info->score_graph, sizeof(team_info->score_graph));
+
+            if (team_info->selected_unit != nullptr) {
+                unit_id = team_info->selected_unit->GetId();
+            } else {
+                unit_id = 0xFFFF;
+            }
+
+            file.Write(unit_id);
+
+            file.Write(team_info->zoom_level);
+            file.Write(team_info->camera_position.x);
+            file.Write(team_info->camera_position.y);
+            file.Write(team_info->display_button_range);
+            file.Write(team_info->display_button_scan);
+            file.Write(team_info->display_button_status);
+            file.Write(team_info->display_button_colors);
+            file.Write(team_info->display_button_hits);
+            file.Write(team_info->display_button_ammo);
+            file.Write(team_info->display_button_names);
+            file.Write(team_info->display_button_minimap_2x);
+            file.Write(team_info->display_button_minimap_tnt);
+            file.Write(team_info->display_button_grid);
+            file.Write(team_info->display_button_survey);
+            file.Write(team_info->stats_factories_built);
+            file.Write(team_info->stats_mines_built);
+            file.Write(team_info->stats_buildings_built);
+            file.Write(team_info->stats_units_built);
+            file.Write(team_info->casualties);
+            file.Write(team_info->stats_gold_spent_on_upgrades);
+        }
+
+        file.Write(GameManager_ActiveTurnTeam);
+        file.Write(GameManager_PlayerTeam);
+        file.Write(GameManager_TurnCounter);
+
+        game_state = GameManager_GameState;
+        file.Write(game_state);
+
+        uint16_t timer_value = GameManager_TurnTimerValue;
+        file.Write(timer_value);
+
+        ini_config.SaveSection(file, INI_PREFERENCES);
+
+        ResourceManager_TeamUnitsRed.FileSave(file);
+        ResourceManager_TeamUnitsGreen.FileSave(file);
+        ResourceManager_TeamUnitsBlue.FileSave(file);
+        ResourceManager_TeamUnitsGray.FileSave(file);
+
+        SmartList_UnitInfo_FileSave(UnitsManager_GroundCoverUnits, file);
+        SmartList_UnitInfo_FileSave(UnitsManager_MobileLandSeaUnits, file);
+        SmartList_UnitInfo_FileSave(UnitsManager_StationaryUnits, file);
+        SmartList_UnitInfo_FileSave(UnitsManager_MobileAirUnits, file);
+        SmartList_UnitInfo_FileSave(UnitsManager_ParticleUnits, file);
+
+        Hash_UnitHash.FileSave(file);
+        Hash_MapHash.FileSave(file);
+
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
+                file.Write(UnitsManager_TeamInfo[team].heat_map_complete, map_cell_count);
+                file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_sea, map_cell_count);
+                file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_land, map_cell_count);
             }
         }
 
-        file_header.team_type[team] = UnitsManager_TeamInfo[team].team_type;
-        file_header.team_clan[team] = UnitsManager_TeamInfo[team].team_clan;
-    }
+        MessageManager_SaveMessageLogs(file);
+        Ai_FileSave(file);
+        file.Close();
 
-    if (Remote_IsNetworkGame) {
-        file_header.rng_seed = Remote_RngSeed;
-    } else {
-        file_header.rng_seed = time(nullptr);
-    }
-
-    for (int32_t i = 0, limit = strlen(file_name); i < limit; ++i) {
-        file_header.rng_seed += file_name[i];
-    }
-
-    file.Write(file_header);
-
-    ini_config.SaveSection(file, INI_OPTIONS);
-
-    file.Write(ResourceManager_MapSurfaceMap, map_cell_count * sizeof(uint8_t));
-
-    file.Write(ResourceManager_CargoMap, map_cell_count * sizeof(uint16_t));
-
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        CTInfo *team_info;
-        uint16_t unit_id;
-
-        team_info = &UnitsManager_TeamInfo[team];
-
-        file.Write(team_info->markers);
-        file.Write(team_info->team_type);
-        file.Write(team_info->finished_turn);
-        file.Write(team_info->team_clan);
-        file.Write(team_info->research_topics);
-        file.Write(team_info->team_points);
-        file.Write(team_info->number_of_objects_created);
-        file.Write(team_info->unit_counters);
-        file.Write(team_info->screen_locations);
-        file.Write(team_info->score_graph, sizeof(team_info->score_graph));
-
-        if (team_info->selected_unit != nullptr) {
-            unit_id = team_info->selected_unit->GetId();
-        } else {
-            unit_id = 0xFFFF;
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            UnitsManager_TeamInfo[team].team_type = team_types[team];
         }
 
-        file.Write(unit_id);
-
-        file.Write(team_info->zoom_level);
-        file.Write(team_info->camera_position.x);
-        file.Write(team_info->camera_position.y);
-        file.Write(team_info->display_button_range);
-        file.Write(team_info->display_button_scan);
-        file.Write(team_info->display_button_status);
-        file.Write(team_info->display_button_colors);
-        file.Write(team_info->display_button_hits);
-        file.Write(team_info->display_button_ammo);
-        file.Write(team_info->display_button_names);
-        file.Write(team_info->display_button_minimap_2x);
-        file.Write(team_info->display_button_minimap_tnt);
-        file.Write(team_info->display_button_grid);
-        file.Write(team_info->display_button_survey);
-        file.Write(team_info->stats_factories_built);
-        file.Write(team_info->stats_mines_built);
-        file.Write(team_info->stats_buildings_built);
-        file.Write(team_info->stats_units_built);
-        file.Write(team_info->casualties);
-        file.Write(team_info->stats_gold_spent_on_upgrades);
-    }
-
-    file.Write(GameManager_ActiveTurnTeam);
-    file.Write(GameManager_PlayerTeam);
-    file.Write(GameManager_TurnCounter);
-
-    game_state = GameManager_GameState;
-    file.Write(game_state);
-
-    uint16_t timer_value = GameManager_TurnTimerValue;
-    file.Write(timer_value);
-
-    ini_config.SaveSection(file, INI_PREFERENCES);
-
-    ResourceManager_TeamUnitsRed.FileSave(file);
-    ResourceManager_TeamUnitsGreen.FileSave(file);
-    ResourceManager_TeamUnitsBlue.FileSave(file);
-    ResourceManager_TeamUnitsGray.FileSave(file);
-
-    SmartList_UnitInfo_FileSave(UnitsManager_GroundCoverUnits, file);
-    SmartList_UnitInfo_FileSave(UnitsManager_MobileLandSeaUnits, file);
-    SmartList_UnitInfo_FileSave(UnitsManager_StationaryUnits, file);
-    SmartList_UnitInfo_FileSave(UnitsManager_MobileAirUnits, file);
-    SmartList_UnitInfo_FileSave(UnitsManager_ParticleUnits, file);
-
-    Hash_UnitHash.FileSave(file);
-    Hash_MapHash.FileSave(file);
-
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            file.Write(UnitsManager_TeamInfo[team].heat_map_complete, map_cell_count);
-            file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_sea, map_cell_count);
-            file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_land, map_cell_count);
+        if (play_voice) {
+            SoundManager_PlayVoice(V_M013, V_F013);
         }
-    }
-
-    MessageManager_SaveMessageLogs(file);
-    Ai_FileSave(file);
-    file.Close();
-
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        UnitsManager_TeamInfo[team].team_type = team_types[team];
-    }
-
-    if (play_voice) {
-        SoundManager_PlayVoice(V_M013, V_F013);
     }
 }
 
