@@ -4073,7 +4073,7 @@ void GameManager_MenuClickChatGoalButton() {
 
         if (fp) {
             int32_t text_size;
-            const char* mission_title;
+            const char* mission_title = "";
             int32_t mission_title_size;
 
             fseek(fp, 0, SEEK_END);
@@ -4085,7 +4085,7 @@ void GameManager_MenuClickChatGoalButton() {
             } else if (game_file_type == GAME_TYPE_SCENARIO) {
                 mission_title = SaveLoadMenu_ScenarioTitles[GameManager_GameFileNumber - 1];
 
-            } else {
+            } else if (game_file_type == GAME_TYPE_CAMPAIGN) {
                 mission_title = SaveLoadMenu_CampaignTitles[GameManager_GameFileNumber - 1];
             }
 
@@ -4228,24 +4228,24 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
         sprintf(file_name, "save%i.%s", SaveLoadMenu_SaveSlot, SaveLoadMenu_SaveFileTypes[save_type]);
         ResourceManager_ToUpperCase(file_name);
 
-        SaveLoadMenu_GetSavedGameInfo(SaveLoadMenu_SaveSlot, save_type, save_file_header, false);
+        if (SaveLoad_GetSaveFileInfo(SaveLoadMenu_SaveSlot, save_type, save_file_header, false)) {
+            string.Sprintf(200, save_load_mode ? _(e285) : _(470e), file_name, save_file_header.save_name);
 
-        string.Sprintf(200, save_load_mode ? _(e285) : _(470e), file_name, save_file_header.save_name);
+            if (OKCancelMenu_Menu(string.GetCStr())) {
+                if (save_load_mode) {
+                    if (Remote_IsNetworkGame) {
+                        Remote_SendNetPacket_16(file_name, save_file_header.save_name);
+                    }
 
-        if (OKCancelMenu_Menu(string.GetCStr())) {
-            if (save_load_mode) {
-                if (Remote_IsNetworkGame) {
-                    Remote_SendNetPacket_16(file_name, save_file_header.save_name);
+                    SaveLoadMenu_Save(file_name, save_file_header.save_name, true);
+                    MessageManager_DrawMessage(_(f640), 1, 0);
+
+                } else {
+                    Color* palette_buffer;
+
+                    palette_buffer = GameManager_MenuFadeOut();
+                    GameManager_LoadGame(SaveLoadMenu_SaveSlot, palette_buffer);
                 }
-
-                SaveLoadMenu_Save(file_name, save_file_header.save_name, true);
-                MessageManager_DrawMessage(_(f640), 1, 0);
-
-            } else {
-                Color* palette_buffer;
-
-                palette_buffer = GameManager_MenuFadeOut();
-                GameManager_LoadGame(SaveLoadMenu_SaveSlot, palette_buffer);
             }
         }
 
