@@ -476,7 +476,7 @@ void NetworkMenu::EventMapButton() {
 void NetworkMenu::EventLoadButton() {
     int32_t save_slot;
     int32_t game_file_type;
-    SaveFileInfo save_file_header;
+    SaveFileInfo save_file_info;
 
     DeleteButtons();
 
@@ -493,18 +493,18 @@ void NetworkMenu::EventLoadButton() {
         ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
         ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI);
 
-        if (SaveLoad_GetSaveFileInfo(save_slot, GAME_TYPE_MULTI, save_file_header)) {
+        if (SaveLoad_GetSaveFileInfo(save_slot, GAME_TYPE_MULTI, save_file_info)) {
             SaveLoad_LoadIniOptions(save_slot, GAME_TYPE_MULTI);
 
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-                team_clans[i] = save_file_header.team_clan[i];
+                team_clans[i] = save_file_info.team_clan[i];
             }
 
             ReadIniSettings(GAME_STATE_10);
-            UpdateSaveSettings(&save_file_header);
+            UpdateSaveSettings(&save_file_info);
 
             Reinit(true);
-            NetSync(save_file_header);
+            NetSync(save_file_info);
             DrawScreen();
 
         } else {
@@ -519,7 +519,7 @@ void NetworkMenu::EventLoadButton() {
 void NetworkMenu::EventScenarioButton() {
     int32_t team_index;
     int32_t ini_game_file_number;
-    SaveFileInfo save_file_header;
+    SaveFileInfo save_file_info;
 
     DeleteButtons();
 
@@ -528,7 +528,7 @@ void NetworkMenu::EventScenarioButton() {
         ini_game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
         multi_scenario_id = ini_game_file_number;
 
-        if (SaveLoad_GetSaveFileInfo(ini_game_file_number, GAME_TYPE_MULTI_PLAYER_SCENARIO, save_file_header)) {
+        if (SaveLoad_GetSaveFileInfo(ini_game_file_number, GAME_TYPE_MULTI_PLAYER_SCENARIO, save_file_info)) {
             SaveLoad_LoadIniOptions(ini_game_file_number, GAME_TYPE_MULTI_PLAYER_SCENARIO);
 
             ini_set_setting(INI_PLAY_MODE, ini_play_mode);
@@ -536,11 +536,11 @@ void NetworkMenu::EventScenarioButton() {
             ini_set_setting(INI_ENDTURN, ini_endturn);
 
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-                team_clans[i] = save_file_header.team_clan[i];
+                team_clans[i] = save_file_info.team_clan[i];
             }
 
             ReadIniSettings(GAME_STATE_10);
-            UpdateSaveSettings(&save_file_header);
+            UpdateSaveSettings(&save_file_info);
 
             Reinit(true);
             NetSync(team_index);
@@ -746,21 +746,21 @@ void NetworkMenu::ResetJar(int32_t team) {
     team_jar_in_use[team] = false;
 }
 
-void NetworkMenu::UpdateSaveSettings(struct SaveFileInfo *save_file_header) {
-    if (save_file_header) {
+void NetworkMenu::UpdateSaveSettings(struct SaveFileInfo *save_file_info) {
+    if (save_file_info) {
         is_multi_scenario = true;
 
         for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-            SDL_utf8strlcpy(default_team_names[i], save_file_header->team_names[i].c_str(), 30);
+            SDL_utf8strlcpy(default_team_names[i], save_file_info->team_names[i].c_str(), 30);
 
-            if (!strlen(default_team_names[i]) && (save_file_header->team_type[i] == TEAM_TYPE_PLAYER ||
-                                                   save_file_header->team_type[i] == TEAM_TYPE_REMOTE)) {
+            if (!strlen(default_team_names[i]) && (save_file_info->team_type[i] == TEAM_TYPE_PLAYER ||
+                                                   save_file_info->team_type[i] == TEAM_TYPE_REMOTE)) {
                 strcpy(default_team_names[i], _(0cb7));
             }
         }
 
-        rng_seed = save_file_header->rng_seed;
-        SDL_utf8strlcpy(world_name, save_file_header->save_name.c_str(), 30);
+        rng_seed = save_file_info->rng_seed;
+        SDL_utf8strlcpy(world_name, save_file_info->save_name.c_str(), 30);
 
     } else {
         is_multi_scenario = false;
@@ -786,7 +786,7 @@ void NetworkMenu::SetClans(int32_t team_clan) {
 }
 
 int32_t NetworkMenu::SetupScenario(int32_t mode) {
-    SaveFileInfo save_file_header;
+    SaveFileInfo save_file_info;
     int32_t result;
 
     if (!is_multi_scenario) {
@@ -802,21 +802,21 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
 
     ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI);
 
-    if (SaveLoad_GetSaveFileInfo(multi_scenario_id, GAME_TYPE_MULTI, save_file_header)) {
+    if (SaveLoad_GetSaveFileInfo(multi_scenario_id, GAME_TYPE_MULTI, save_file_info)) {
         SaveLoad_LoadIniOptions(multi_scenario_id, GAME_TYPE_MULTI);
 
-        if (rng_seed != save_file_header.rng_seed) {
+        if (rng_seed != save_file_info.rng_seed) {
             ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI_PLAYER_SCENARIO);
 
-            if (SaveLoad_GetSaveFileInfo(multi_scenario_id, GAME_TYPE_MULTI_PLAYER_SCENARIO, save_file_header)) {
+            if (SaveLoad_GetSaveFileInfo(multi_scenario_id, GAME_TYPE_MULTI_PLAYER_SCENARIO, save_file_info)) {
                 SaveLoad_LoadIniOptions(multi_scenario_id, GAME_TYPE_MULTI_PLAYER_SCENARIO);
 
             } else {
-                save_file_header.rng_seed = rng_seed ^ rng_seed;
+                save_file_info.rng_seed = rng_seed ^ rng_seed;
             }
         }
 
-        if (rng_seed == save_file_header.rng_seed) {
+        if (rng_seed == save_file_info.rng_seed) {
             is_incompatible_save_file = false;
 
             if (is_map_changed) {
@@ -828,11 +828,11 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
             }
 
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-                team_clans[i] = save_file_header.team_clan[i];
+                team_clans[i] = save_file_info.team_clan[i];
             }
 
             if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI) {
-                NetSync(save_file_header);
+                NetSync(save_file_info);
 
             } else {
                 int32_t player_team_local;
@@ -981,10 +981,10 @@ void NetworkMenu::NetSync(int32_t team) {
     }
 }
 
-void NetworkMenu::NetSync(struct SaveFileInfo &save_file_header) {
+void NetworkMenu::NetSync(struct SaveFileInfo &save_file_info) {
     int32_t index;
 
-    for (index = 0; index < 3 && save_file_header.team_type[index] != TEAM_TYPE_PLAYER; ++index) {
+    for (index = 0; index < 3 && save_file_info.team_type[index] != TEAM_TYPE_PLAYER; ++index) {
     }
 
     NetSync(index);

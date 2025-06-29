@@ -293,7 +293,7 @@ void GameSetupMenu::DrawMissionList() {
 
     for (int32_t i = 0; i < GAME_SETUP_MENU_MISSION_COUNT; ++i) {
         GameSetupMenuControlItem* control;
-        SaveFileInfo save_file_header;
+        SaveFileInfo save_file_info;
 
         control = &game_setup_menu_controls[i];
 
@@ -313,11 +313,11 @@ void GameSetupMenu::DrawMissionList() {
             ini_get_setting(INI_LAST_CAMPAIGN) < (game_index_first_on_page + i)) {
             buttons[i]->Disable();
 
-        } else if (SaveLoad_GetSaveFileInfo(game_index_first_on_page + i, game_file_type, save_file_header)) {
+        } else if (SaveLoad_GetSaveFileInfo(game_index_first_on_page + i, game_file_type, save_file_info)) {
             ++game_count;
 
             menu_setup_menu_mission_titles[i] = new (std::nothrow) char[30];
-            SDL_utf8strlcpy(menu_setup_menu_mission_titles[i], save_file_header.save_name.c_str(), 30);
+            SDL_utf8strlcpy(menu_setup_menu_mission_titles[i], save_file_info.save_name.c_str(), 30);
 
             DrawSaveFileTitle(i, COLOR_GREEN);
             buttons[i]->Enable();
@@ -461,12 +461,12 @@ int32_t GameSetupMenu::FindNextValidFile(int32_t game_slot) {
     if (game_file_type == GAME_TYPE_CAMPAIGN && ini_get_setting(INI_LAST_CAMPAIGN) < game_slot) {
         result = false;
     } else {
-        SaveFileInfo save_file_header;
+        SaveFileInfo save_file_info;
 
         result = false;
 
         for (int32_t i = game_slot; i < game_slot + GAME_SETUP_MENU_MISSION_COUNT; ++i) {
-            if (SaveLoad_GetSaveFileInfo(i, game_file_type, save_file_header)) {
+            if (SaveLoad_GetSaveFileInfo(i, game_file_type, save_file_info)) {
                 result = true;
                 break;
             }

@@ -31,6 +31,7 @@
 #include "smartfile.hpp"
 #include "units_manager.hpp"
 
+/// \todo
 extern const char *menu_team_names[];
 extern const char *SaveLoadMenu_TutorialTitles[];
 extern const char *SaveLoadMenu_ScenarioTitles[];
@@ -43,6 +44,14 @@ extern uint8_t SaveLoadMenu_GameState;
 static void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team);
 static std::filesystem::path SaveLoad_GetFilePath(const int32_t save_slot, const int32_t game_file_type,
                                                   std::string *file_name = nullptr);
+static bool SaveLoad_LoadIniOptionsV70(SmartFileReader &file);
+static bool SaveLoad_LoadIniOptionsV71(SmartFileReader &file);
+static bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_header);
+static bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_header);
+static bool SaveLoad_LoadFormatV70(SmartFileReader &file, int32_t save_slot, bool is_remote_game, bool ini_load_mode,
+                                   int32_t game_file_type);
+static bool SaveLoad_LoadFormatV71(SmartFileReader &file, int32_t save_slot, bool is_remote_game, bool ini_load_mode,
+                                   int32_t game_file_type);
 
 void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team) {
     for (auto it = units.Begin(); it != units.End(); ++it) {
@@ -50,6 +59,34 @@ void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team) {
             UnitsManager_DestroyUnit(&*it);
         }
     }
+}
+
+bool SaveLoad_LoadIniOptionsV70(SmartFileReader &file) {
+    bool result;
+
+    uint8_t buffer[176];
+
+    file.Read(buffer);
+
+    ini_config.LoadSection(file, INI_OPTIONS, true);
+
+    result = true;
+
+    return result;
+}
+
+bool SaveLoad_LoadIniOptionsV71(SmartFileReader &file) {
+    bool result;
+
+    uint8_t buffer[176];
+
+    file.Read(buffer);
+
+    ini_config.LoadSection(file, INI_OPTIONS, true);
+
+    result = true;
+
+    return result;
 }
 
 bool SaveLoad_LoadIniOptions(const int32_t save_slot, const int32_t game_file_type) {
@@ -60,17 +97,11 @@ bool SaveLoad_LoadIniOptions(const int32_t save_slot, const int32_t game_file_ty
     if (file.Open(filepath.string().c_str())) {
         switch (file.GetFormat()) {
             case SmartFileFormat::V70: {
-                uint8_t buffer[176];
-
-                file.Read(buffer);
-
-                ini_config.LoadSection(file, INI_OPTIONS, true);
-
-                result = true;
+                result = SaveLoad_LoadIniOptionsV70(file);
             } break;
 
             case SmartFileFormat::V71: {
-                result = false;
+                result = SaveLoad_LoadIniOptionsV71(file);
             } break;
 
             default: {
@@ -111,8 +142,118 @@ std::filesystem::path SaveLoad_GetFilePath(const int32_t save_slot, const int32_
     return filepath;
 }
 
+bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_header) {
+    bool result;
+
+    uint16_t version;
+    uint8_t save_game_type;
+    char save_name[30];
+    uint8_t world;
+    uint16_t mission_index;
+    char team_names[4][30];
+    uint8_t team_type[5];
+    uint8_t team_clan[5];
+    uint32_t rng_seed;
+    int8_t opponent;
+    uint16_t turn_timer_time;
+    uint16_t endturn_time;
+    int8_t play_mode;
+
+    file.Read(version);
+    file.Read(save_game_type);
+    file.Read(save_name);
+    file.Read(world);
+    file.Read(mission_index);
+    file.Read(team_names);
+    file.Read(team_type);
+    file.Read(team_clan);
+    file.Read(rng_seed);
+    file.Read(opponent);
+    file.Read(turn_timer_time);
+    file.Read(endturn_time);
+    file.Read(play_mode);
+
+    save_file_header.version = version;
+    save_file_header.save_game_type = save_game_type;
+    save_file_header.save_name = save_name;
+
+    /// \todo
+    // save_file_header.mission = mission_index;
+    // save_file_header.world = world;
+
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 2; ++team) {
+        save_file_header.team_names[team] = team_names[team];
+    }
+
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        save_file_header.team_type[team] = team_type[team];
+        save_file_header.team_clan[team] = team_clan[team];
+    }
+
+    save_file_header.rng_seed = rng_seed;
+
+    result = true;
+
+    return result;
+}
+
+bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_header) {
+    bool result;
+
+    uint16_t version;
+    uint8_t save_game_type;
+    char save_name[30];
+    uint8_t world;
+    uint16_t mission_index;
+    char team_names[4][30];
+    uint8_t team_type[5];
+    uint8_t team_clan[5];
+    uint32_t rng_seed;
+    int8_t opponent;
+    uint16_t turn_timer_time;
+    uint16_t endturn_time;
+    int8_t play_mode;
+
+    file.Read(version);
+    file.Read(save_game_type);
+    file.Read(save_name);
+    file.Read(world);
+    file.Read(mission_index);
+    file.Read(team_names);
+    file.Read(team_type);
+    file.Read(team_clan);
+    file.Read(rng_seed);
+    file.Read(opponent);
+    file.Read(turn_timer_time);
+    file.Read(endturn_time);
+    file.Read(play_mode);
+
+    save_file_header.version = version;
+    save_file_header.save_game_type = save_game_type;
+    save_file_header.save_name = save_name;
+
+    /// \todo
+    // save_file_header.mission = mission_index;
+    // save_file_header.world = world;
+
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 2; ++team) {
+        save_file_header.team_names[team] = team_names[team];
+    }
+
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        save_file_header.team_type[team] = team_type[team];
+        save_file_header.team_clan[team] = team_clan[team];
+    }
+
+    save_file_header.rng_seed = rng_seed;
+
+    result = true;
+
+    return result;
+}
+
 bool SaveLoad_GetSaveFileInfo(const int32_t save_slot, const int32_t game_file_type,
-                              struct SaveFileInfo &save_file_header) {
+                              struct SaveFileInfo &save_file_info) {
     SmartFileReader file;
     std::string file_name;
     bool result;
@@ -121,58 +262,11 @@ bool SaveLoad_GetSaveFileInfo(const int32_t save_slot, const int32_t game_file_t
     if (file.Open(filepath.string().c_str())) {
         switch (file.GetFormat()) {
             case SmartFileFormat::V70: {
-                uint16_t version;
-                uint8_t save_game_type;
-                char save_name[30];
-                uint8_t world;
-                uint16_t mission_index;
-                char team_names[4][30];
-                uint8_t team_type[5];
-                uint8_t team_clan[5];
-                uint32_t rng_seed;
-                int8_t opponent;
-                uint16_t turn_timer_time;
-                uint16_t endturn_time;
-                int8_t play_mode;
-
-                file.Read(version);
-                file.Read(save_game_type);
-                file.Read(save_name);
-                file.Read(world);
-                file.Read(mission_index);
-                file.Read(team_names);
-                file.Read(team_type);
-                file.Read(team_clan);
-                file.Read(rng_seed);
-                file.Read(opponent);
-                file.Read(turn_timer_time);
-                file.Read(endturn_time);
-                file.Read(play_mode);
-
-                save_file_header.version = version;
-                save_file_header.save_game_type = save_game_type;
-                save_file_header.save_name = save_name;
-
-                /// \todo
-                // save_file_header.mission = mission_index;
-                // save_file_header.world = world;
-
-                for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 2; ++team) {
-                    save_file_header.team_names[team] = team_names[team];
-                }
-
-                for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-                    save_file_header.team_type[team] = team_type[team];
-                    save_file_header.team_clan[team] = team_clan[team];
-                }
-
-                save_file_header.rng_seed = rng_seed;
-
-                result = true;
+                result = SaveLoad_GetSaveFileInfoV70(file, save_file_info);
             } break;
 
             case SmartFileFormat::V71: {
-                result = false;
+                result = SaveLoad_GetSaveFileInfoV71(file, save_file_info);
             } break;
 
             default: {
@@ -180,23 +274,23 @@ bool SaveLoad_GetSaveFileInfo(const int32_t save_slot, const int32_t game_file_t
             } break;
         }
 
-        save_file_header.file_name = file_name;
+        save_file_info.file_name = file_name;
 
         switch (game_file_type) {
             case GAME_TYPE_TRAINING: {
-                save_file_header.save_name = SaveLoadMenu_TutorialTitles[save_slot - 1];
+                save_file_info.save_name = SaveLoadMenu_TutorialTitles[save_slot - 1];
             } break;
 
             case GAME_TYPE_SCENARIO: {
-                save_file_header.save_name = SaveLoadMenu_ScenarioTitles[save_slot - 1];
+                save_file_info.save_name = SaveLoadMenu_ScenarioTitles[save_slot - 1];
             } break;
 
             case GAME_TYPE_CAMPAIGN: {
-                save_file_header.save_name = SaveLoadMenu_CampaignTitles[save_slot - 1];
+                save_file_info.save_name = SaveLoadMenu_CampaignTitles[save_slot - 1];
             } break;
 
             case GAME_TYPE_MULTI_PLAYER_SCENARIO: {
-                save_file_header.save_name = SmartString().Sprintf(100, "%s #%i", _(2954), save_slot).GetCStr();
+                save_file_info.save_name = SmartString().Sprintf(100, "%s #%i", _(2954), save_slot).GetCStr();
             } break;
         }
 
@@ -218,7 +312,7 @@ bool SaveLoad_GetSaveFileInfo(const int32_t save_slot, const int32_t game_file_t
         } break;
 
         case static_cast<uint32_t>(SmartFileFormat::V71): {
-            result = false;
+            result = true;
         } break;
 
         default: {
@@ -663,6 +757,278 @@ bool SaveLoad_LoadFormatV70(SmartFileReader &file, int32_t save_slot, bool is_re
     return result;
 }
 
+bool SaveLoad_LoadFormatV71(SmartFileReader &file, int32_t save_slot, bool is_remote_game, bool ini_load_mode,
+                            int32_t game_file_type) {
+    bool result;
+    bool save_load_flag;
+    uint16_t version;
+    uint8_t save_game_type;
+    char save_name[30];
+    uint8_t world;
+    uint16_t mission_index;
+    char team_names[4][30];
+    uint8_t team_type[5];
+    uint8_t team_clan[5];
+    uint32_t rng_seed;
+    int8_t opponent;
+    uint16_t turn_timer_time;
+    uint16_t endturn_time;
+    int8_t play_mode;
+
+    file.Read(version);
+    file.Read(save_game_type);
+    file.Read(save_name);
+    file.Read(world);
+    file.Read(mission_index);
+    file.Read(team_names);
+    file.Read(team_type);
+    file.Read(team_clan);
+    file.Read(rng_seed);
+    file.Read(opponent);
+    file.Read(turn_timer_time);
+    file.Read(endturn_time);
+    file.Read(play_mode);
+
+    if (save_game_type != GAME_TYPE_CAMPAIGN) {
+        SaveLoadMenu_SaveSlot = save_slot;
+    }
+
+    int32_t backup_start_gold;
+    int32_t backup_raw_resource;
+    int32_t backup_fuel_resource;
+    int32_t backup_gold_resource;
+    int32_t backup_alien_derelicts;
+    uint16_t selected_unit_ids[PLAYER_TEAM_MAX - 1];
+    uint16_t game_state;
+
+    if (!is_remote_game) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_names[team]);
+        }
+    }
+
+    GameManager_GameFileNumber = mission_index;
+
+    ResourceManager_InitInGameAssets(world);
+
+    ini_set_setting(INI_GAME_FILE_TYPE, save_game_type);
+
+    opponent = ini_get_setting(INI_OPPONENT);
+    turn_timer_time = ini_get_setting(INI_TIMER);
+    endturn_time = ini_get_setting(INI_ENDTURN);
+    play_mode = ini_get_setting(INI_PLAY_MODE);
+    backup_start_gold = ini_get_setting(INI_START_GOLD);
+    backup_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
+    backup_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
+    backup_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
+    backup_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
+
+    ini_config.LoadSection(file, INI_OPTIONS, ini_load_mode);
+
+    if (game_file_type == GAME_TYPE_TRAINING || game_file_type == GAME_TYPE_CAMPAIGN ||
+        game_file_type == GAME_TYPE_SCENARIO || game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+        ini_set_setting(INI_OPPONENT, opponent);
+        ini_set_setting(INI_TIMER, turn_timer_time);
+        ini_set_setting(INI_ENDTURN, endturn_time);
+        ini_set_setting(INI_PLAY_MODE, play_mode);
+        ini_set_setting(INI_START_GOLD, backup_start_gold);
+        ini_set_setting(INI_RAW_RESOURCE, backup_raw_resource);
+        ini_set_setting(INI_FUEL_RESOURCE, backup_fuel_resource);
+        ini_set_setting(INI_GOLD_RESOURCE, backup_gold_resource);
+        ini_set_setting(INI_ALIEN_DERELICTS, backup_alien_derelicts);
+    }
+
+    GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
+
+    const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
+
+    file.Read(ResourceManager_MapSurfaceMap, map_cell_count * sizeof(uint8_t));
+    file.Read(ResourceManager_CargoMap, map_cell_count * sizeof(uint16_t));
+
+    ResourceManager_InitTeamInfo();
+
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        CTInfo *team_info;
+
+        team_info = &UnitsManager_TeamInfo[team];
+
+        file.Read(team_info->markers);
+        file.Read(team_info->team_type);
+        file.Read(team_info->finished_turn);
+        file.Read(team_info->team_clan);
+        file.Read(team_info->research_topics);
+        file.Read(team_info->team_points);
+        file.Read(team_info->number_of_objects_created);
+        file.Read(team_info->unit_counters);
+        file.Read(team_info->screen_locations);
+        file.Read(team_info->score_graph, sizeof(team_info->score_graph));
+        file.Read(selected_unit_ids[team]);
+        file.Read(team_info->zoom_level);
+        file.Read(team_info->camera_position.x);
+        file.Read(team_info->camera_position.y);
+        file.Read(team_info->display_button_range);
+        file.Read(team_info->display_button_scan);
+        file.Read(team_info->display_button_status);
+        file.Read(team_info->display_button_colors);
+        file.Read(team_info->display_button_hits);
+        file.Read(team_info->display_button_ammo);
+        file.Read(team_info->display_button_names);
+        file.Read(team_info->display_button_minimap_2x);
+        file.Read(team_info->display_button_minimap_tnt);
+        file.Read(team_info->display_button_grid);
+        file.Read(team_info->display_button_survey);
+        file.Read(team_info->stats_factories_built);
+        file.Read(team_info->stats_mines_built);
+        file.Read(team_info->stats_buildings_built);
+        file.Read(team_info->stats_units_built);
+        file.Read(team_info->casualties);
+        file.Read(team_info->stats_gold_spent_on_upgrades);
+    }
+
+    file.Read(GameManager_ActiveTurnTeam);
+    file.Read(GameManager_PlayerTeam);
+    file.Read(GameManager_TurnCounter);
+    file.Read(game_state);
+
+    SaveLoadMenu_GameState = game_state;
+
+    file.Read(SaveLoadMenu_TurnTimer);
+
+    ini_config.LoadSection(file, INI_PREFERENCES, true);
+
+    ResourceManager_TeamUnitsRed.FileLoad(file);
+    ResourceManager_TeamUnitsGreen.FileLoad(file);
+    ResourceManager_TeamUnitsBlue.FileLoad(file);
+    ResourceManager_TeamUnitsGray.FileLoad(file);
+
+    UnitsManager_InitPopupMenus();
+
+    SmartList_UnitInfo_FileLoad(UnitsManager_GroundCoverUnits, file);
+    SmartList_UnitInfo_FileLoad(UnitsManager_MobileLandSeaUnits, file);
+    SmartList_UnitInfo_FileLoad(UnitsManager_StationaryUnits, file);
+    SmartList_UnitInfo_FileLoad(UnitsManager_MobileAirUnits, file);
+    SmartList_UnitInfo_FileLoad(UnitsManager_ParticleUnits, file);
+
+    Hash_UnitHash.FileLoad(file);
+    Hash_MapHash.FileLoad(file);
+
+    UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_units = &ResourceManager_TeamUnitsRed;
+    UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_units = &ResourceManager_TeamUnitsGreen;
+    UnitsManager_TeamInfo[PLAYER_TEAM_BLUE].team_units = &ResourceManager_TeamUnitsBlue;
+    UnitsManager_TeamInfo[PLAYER_TEAM_GRAY].team_units = &ResourceManager_TeamUnitsGray;
+
+    save_load_flag = true;
+
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        CTInfo *team_info;
+        char team_name[30];
+
+        team_info = &UnitsManager_TeamInfo[team];
+
+        if (team_info->team_type != TEAM_TYPE_NONE) {
+            if (is_remote_game) {
+                team_info->team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
+
+                if (team_info->team_type == TEAM_TYPE_PLAYER) {
+                    GameManager_PlayerTeam = team;
+                    ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name,
+                                              sizeof(team_name));
+                    ini_config.SetStringValue(INI_PLAYER_NAME, team_name);
+                }
+
+            } else if (game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+                team_info->team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
+
+                if (save_load_flag && team_info->team_type == TEAM_TYPE_PLAYER) {
+                    GameManager_PlayerTeam = team;
+                    save_load_flag = false;
+                }
+
+            } else {
+                switch (team_info->team_type) {
+                    case TEAM_TYPE_PLAYER: {
+                        if (game_file_type != GAME_TYPE_HOT_SEAT) {
+                            ini_config.GetStringValue(INI_PLAYER_NAME, team_name, sizeof(team_name));
+                            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name);
+                        }
+                    } break;
+
+                    case TEAM_TYPE_COMPUTER: {
+                        ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team),
+                                                  menu_team_names[team]);
+                    } break;
+
+                    case TEAM_TYPE_REMOTE: {
+                        team_info->team_type = TEAM_TYPE_PLAYER;
+                    } break;
+                }
+            }
+
+            ResourceManager_InitHeatMaps(team);
+
+            if (team_info->team_type != TEAM_TYPE_NONE) {
+                file.Read(team_info->heat_map_complete, map_cell_count);
+                file.Read(team_info->heat_map_stealth_sea, map_cell_count);
+                file.Read(team_info->heat_map_stealth_land, map_cell_count);
+
+            } else {
+                char *temp_buffer;
+
+                temp_buffer = new (std::nothrow) char[map_cell_count];
+
+                file.Read(temp_buffer, map_cell_count);
+                file.Read(temp_buffer, map_cell_count);
+                file.Read(temp_buffer, map_cell_count);
+
+                delete[] temp_buffer;
+
+                SaveLoad_TeamClearUnitList(UnitsManager_GroundCoverUnits, team);
+                SaveLoad_TeamClearUnitList(UnitsManager_MobileLandSeaUnits, team);
+                SaveLoad_TeamClearUnitList(UnitsManager_StationaryUnits, team);
+                SaveLoad_TeamClearUnitList(UnitsManager_MobileAirUnits, team);
+                SaveLoad_TeamClearUnitList(UnitsManager_ParticleUnits, team);
+
+                if (team == UnitsManager_DelayedReactionsTeam) {
+                    ++UnitsManager_DelayedReactionsTeam;
+                }
+            }
+
+        } else {
+            ResourceManager_InitHeatMaps(team);
+        }
+
+        ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), team_info->team_type);
+    }
+
+    ResourceManager_InitHeatMaps(PLAYER_TEAM_ALIEN);
+
+    MessageManager_LoadMessageLogs(file);
+
+    if (game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+        Ai_Init();
+
+    } else {
+        Ai_FileLoad(file);
+    }
+
+    file.Close();
+
+    GameManager_SelectedUnit = nullptr;
+
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (selected_unit_ids[team] != 0xFFFF) {
+            UnitsManager_TeamInfo[team].selected_unit = Hash_UnitHash[selected_unit_ids[team]];
+
+        } else {
+            UnitsManager_TeamInfo[team].selected_unit = nullptr;
+        }
+    }
+
+    result = true;
+
+    return result;
+}
+
 bool SaveLoad_Load(const std::filesystem::path &filepath, int32_t save_slot, int32_t game_file_type, bool ini_load_mode,
                    bool is_remote_game) {
     bool result;
@@ -675,7 +1041,7 @@ bool SaveLoad_Load(const std::filesystem::path &filepath, int32_t save_slot, int
             } break;
 
             case SmartFileFormat::V71: {
-                result = false;
+                result = SaveLoad_LoadFormatV71(file, save_slot, is_remote_game, ini_load_mode, game_file_type);
             } break;
 
             default: {
