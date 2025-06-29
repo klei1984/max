@@ -47,12 +47,12 @@ class NetworkMenu {
     void SetButtonState(int32_t button_index, bool state);
     void ReadIniSettings(int32_t game_state);
     void DrawTextLine(int32_t line_index, char *text, int32_t height, bool horizontal_align);
-    void UpdateSaveSettings(struct SaveFormatHeader *save_file_header);
+    void UpdateSaveSettings(struct SaveFileInfo *save_file_header);
     void SetClans(int32_t team_clan);
     void UpdateMenuButtonStates();
     int32_t IsAllowedToStartGame();
     void NetSync(int32_t player_team);
-    void NetSync(struct SaveFormatHeader &save_file_header);
+    void NetSync(struct SaveFileInfo &save_file_header);
     TextEdit *CreateTextEdit(int32_t index);
     void DrawTextWindow();
     void DrawJars();

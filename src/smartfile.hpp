@@ -28,9 +28,20 @@
 #include "smartarray.hpp"
 #include "smartlist.hpp"
 
+enum class SmartFileFormat : uint16_t {
+    UNSPECIFIED = 0,
+    V70 = 70,
+    V71 = 71,
+    LATEST = 71,
+    UNSUPPORTED = 0xFFFF,
+};
+
 class SmartFileReader {
+    uint16_t m_format;
+
     void LoadObject(FileObject& object) noexcept;
     [[nodiscard]] uint16_t ReadIndex() noexcept;
+    void SetFormat(const uint16_t format) noexcept;
 
 protected:
     FILE* file{nullptr};
@@ -48,9 +59,12 @@ public:
     bool Read(T& buffer) noexcept;
     [[nodiscard]] uint16_t ReadObjectCount() noexcept;
     [[nodiscard]] FileObject* ReadObject() noexcept;
+    [[nodiscard]] SmartFileFormat GetFormat() noexcept;
 };
 
 class SmartFileWriter {
+    uint16_t m_format;
+
     void SaveObject(FileObject* object) noexcept;
     void WriteIndex(uint16_t index) noexcept;
 
@@ -72,6 +86,8 @@ public:
     bool Write(const T& buffer) noexcept;
     void WriteObjectCount(uint16_t count) noexcept;
     void WriteObject(FileObject* object) noexcept;
+    [[nodiscard]] SmartFileFormat GetFormat() noexcept;
+    [[nodiscard]] bool SetFormat(const uint16_t format) noexcept;
 };
 
 template <typename T>

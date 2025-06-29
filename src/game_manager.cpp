@@ -4218,7 +4218,7 @@ void GameManager_FlicButtonRFunction(ButtonID bid, intptr_t value) {
 
 void GameManager_SaveLoadGame(bool save_load_mode) {
     if (SaveLoadMenu_SaveSlot != -1) {
-        struct SaveFormatHeader save_file_header;
+        struct SaveFileInfo save_file_info;
         char file_name[16];
         int32_t save_type;
         SmartString string;
@@ -4228,16 +4228,16 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
         sprintf(file_name, "save%i.%s", SaveLoadMenu_SaveSlot, SaveLoadMenu_SaveFileTypes[save_type]);
         ResourceManager_ToUpperCase(file_name);
 
-        if (SaveLoad_GetSaveFileInfo(SaveLoadMenu_SaveSlot, save_type, save_file_header, false)) {
-            string.Sprintf(200, save_load_mode ? _(e285) : _(470e), file_name, save_file_header.save_name);
+        if (SaveLoad_GetSaveFileInfo(SaveLoadMenu_SaveSlot, save_type, save_file_info)) {
+            string.Sprintf(200, save_load_mode ? _(e285) : _(470e), file_name, save_file_info.save_name.c_str());
 
             if (OKCancelMenu_Menu(string.GetCStr())) {
                 if (save_load_mode) {
                     if (Remote_IsNetworkGame) {
-                        Remote_SendNetPacket_16(file_name, save_file_header.save_name);
+                        Remote_SendNetPacket_16(file_name, save_file_info.save_name.c_str());
                     }
 
-                    SaveLoadMenu_Save(file_name, save_file_header.save_name, true);
+                    SaveLoadMenu_Save(file_name, save_file_info.save_name.c_str(), true);
                     MessageManager_DrawMessage(_(f640), 1, 0);
 
                 } else {

@@ -42,7 +42,7 @@ struct GameSetupMenuControlItem {
 };
 
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 #define GAME_SETUP_MENU_MISSION_COUNT 12
 
@@ -293,7 +293,7 @@ void GameSetupMenu::DrawMissionList() {
 
     for (int32_t i = 0; i < GAME_SETUP_MENU_MISSION_COUNT; ++i) {
         GameSetupMenuControlItem* control;
-        SaveFormatHeader save_file_header;
+        SaveFileInfo save_file_header;
 
         control = &game_setup_menu_controls[i];
 
@@ -312,19 +312,20 @@ void GameSetupMenu::DrawMissionList() {
         if (game_file_type == GAME_TYPE_CAMPAIGN &&
             ini_get_setting(INI_LAST_CAMPAIGN) < (game_index_first_on_page + i)) {
             buttons[i]->Disable();
-        } else if (!SaveLoadMenu_GetSavedGameInfo(game_index_first_on_page + i, game_file_type, save_file_header,
-                                                  false)) {
-            buttons[i]->Disable();
-        } else {
+
+        } else if (SaveLoad_GetSaveFileInfo(game_index_first_on_page + i, game_file_type, save_file_header)) {
             ++game_count;
 
             menu_setup_menu_mission_titles[i] = new (std::nothrow) char[30];
-            strcpy(menu_setup_menu_mission_titles[i], save_file_header.save_name);
+            SDL_utf8strlcpy(menu_setup_menu_mission_titles[i], save_file_header.save_name.c_str(), 30);
 
             DrawSaveFileTitle(i, COLOR_GREEN);
             buttons[i]->Enable();
 
             process_bk();
+
+        } else {
+            buttons[i]->Disable();
         }
     }
 }
@@ -460,12 +461,12 @@ int32_t GameSetupMenu::FindNextValidFile(int32_t game_slot) {
     if (game_file_type == GAME_TYPE_CAMPAIGN && ini_get_setting(INI_LAST_CAMPAIGN) < game_slot) {
         result = false;
     } else {
-        SaveFormatHeader save_file_header;
+        SaveFileInfo save_file_header;
 
         result = false;
 
         for (int32_t i = game_slot; i < game_slot + GAME_SETUP_MENU_MISSION_COUNT; ++i) {
-            if (SaveLoadMenu_GetSavedGameInfo(i, game_file_type, save_file_header, false)) {
+            if (SaveLoad_GetSaveFileInfo(i, game_file_type, save_file_header)) {
                 result = true;
                 break;
             }

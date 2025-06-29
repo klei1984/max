@@ -175,6 +175,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/mission.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/missionregistry.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/winlosshandler.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/saveload.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 

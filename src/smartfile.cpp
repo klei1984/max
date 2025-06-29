@@ -23,16 +23,47 @@
 
 #include "registerarray.hpp"
 
-SmartFileReader::SmartFileReader() noexcept = default;
+SmartFileReader::SmartFileReader() noexcept : m_format(static_cast<uint16_t>(SmartFileFormat::UNSPECIFIED)) {};
 
-SmartFileReader::SmartFileReader(const char* const path) noexcept { Open(path); }
+SmartFileReader::SmartFileReader(const char* const path) noexcept
+    : m_format(static_cast<uint16_t>(SmartFileFormat::UNSPECIFIED)) {
+    Open(path);
+}
 
 SmartFileReader::~SmartFileReader() noexcept { Close(); }
+
+void SmartFileReader::SetFormat(const uint16_t format) noexcept {
+    switch (format) {
+        case static_cast<uint16_t>(SmartFileFormat::V70): {
+            m_format = static_cast<uint16_t>(SmartFileFormat::V70);
+        } break;
+
+        case static_cast<uint16_t>(SmartFileFormat::V71): {
+            m_format = static_cast<uint16_t>(SmartFileFormat::V71);
+        } break;
+
+        default: {
+            m_format = static_cast<uint16_t>(SmartFileFormat::UNSUPPORTED);
+        } break;
+    }
+}
 
 bool SmartFileReader::Open(const char* const path) noexcept {
     Close();
 
     file = fopen(path, "rb");
+
+    if (file) {
+        uint16_t format;
+
+        if (fread(&format, sizeof(format), 1, file) != 1) {
+            format = static_cast<uint16_t>(SmartFileFormat::UNSPECIFIED);
+        }
+
+        fseek(file, 0, SEEK_SET);
+
+        SetFormat(format);
+    }
 
     return file != nullptr;
 }
@@ -93,9 +124,10 @@ void SmartFileReader::LoadObject(FileObject& object) noexcept {
     return object;
 }
 
-SmartFileWriter::SmartFileWriter() noexcept = default;
+SmartFileWriter::SmartFileWriter() noexcept : m_format(static_cast<uint16_t>(SmartFileFormat::LATEST)) {};
 
-SmartFileWriter::SmartFileWriter(const char* const path) noexcept : file(fopen(path, "wb")) {}
+SmartFileWriter::SmartFileWriter(const char* const path) noexcept
+    : m_format(static_cast<uint16_t>(SmartFileFormat::LATEST)), file(fopen(path, "wb")) {}
 
 SmartFileWriter::~SmartFileWriter() noexcept { Close(); }
 
@@ -158,4 +190,28 @@ void SmartFileWriter::WriteObject(FileObject* const object) noexcept {
             SaveObject(object);
         }
     }
+}
+
+SmartFileFormat SmartFileReader::GetFormat() noexcept { return static_cast<SmartFileFormat>(m_format); }
+
+SmartFileFormat SmartFileWriter::GetFormat() noexcept { return static_cast<SmartFileFormat>(m_format); }
+
+[[nodiscard]] bool SmartFileWriter::SetFormat(const uint16_t format) noexcept {
+    bool result = true;
+
+    switch (format) {
+        case static_cast<uint16_t>(SmartFileFormat::V70): {
+            m_format = static_cast<uint16_t>(SmartFileFormat::V70);
+        } break;
+
+        case static_cast<uint16_t>(SmartFileFormat::V71): {
+            m_format = static_cast<uint16_t>(SmartFileFormat::V71);
+        } break;
+
+        default: {
+            result = false;
+        } break;
+    }
+
+    return result;
 }

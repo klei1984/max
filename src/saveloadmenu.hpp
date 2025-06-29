@@ -24,23 +24,7 @@
 
 #include <cstdint>
 
-#define MAX_SAVE_FILE_FORMAT_VERSION 70
-
-struct __attribute__((packed)) SaveFormatHeader {
-    uint16_t version;
-    uint8_t save_game_type;
-    char save_name[30];
-    uint8_t world;
-    uint16_t mission_index;
-    char team_name[4][30];
-    uint8_t team_type[5];
-    uint8_t team_clan[5];
-    uint32_t rng_seed;
-    int8_t opponent;
-    uint16_t turn_timer_time;
-    uint16_t endturn_time;
-    int8_t play_mode;
-};
+#include "saveload.hpp"
 
 extern const char* SaveLoadMenu_SaveFileTypes[];
 extern const char* SaveLoadMenu_TutorialTitles[];
@@ -50,8 +34,6 @@ extern const char* SaveLoadMenu_CampaignTitles[];
 extern int32_t SaveLoadMenu_SaveSlot;
 extern uint8_t SaveLoadMenu_GameState;
 
-int32_t SaveLoadMenu_GetSavedGameInfo(int32_t save_slot, int32_t game_file_type,
-                                      struct SaveFormatHeader& save_file_header, bool load_ini_options = true);
 void SaveLoadMenu_CreateBackup(const char* file_name);
 int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed);
 void SaveLoadMenu_Save(const char* file_name, const char* save_name, bool play_voice, bool backup = false);

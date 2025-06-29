@@ -1965,7 +1965,7 @@ int32_t menu_choose_player_menu_loop(bool game_type) {
 
 int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
     GameSetupMenu game_setup_menu;
-    SaveFormatHeader save_file_header;
+    SaveFileInfo save_file_header;
     bool palette_from_image;
     bool event_release;
     int32_t result;
@@ -2062,13 +2062,13 @@ int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
                 }
 
                 if (game_setup_menu.game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                    SaveLoadMenu_GetSavedGameInfo(GameManager_GameFileNumber, ini_get_setting(INI_GAME_FILE_TYPE),
-                                                  save_file_header, false);
-
-                    ini_set_setting(INI_RED_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_RED]);
-                    ini_set_setting(INI_GREEN_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_GREEN]);
-                    ini_set_setting(INI_BLUE_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_BLUE]);
-                    ini_set_setting(INI_GRAY_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_GRAY]);
+                    if (SaveLoad_GetSaveFileInfo(GameManager_GameFileNumber, ini_get_setting(INI_GAME_FILE_TYPE),
+                                                 save_file_header)) {
+                        ini_set_setting(INI_RED_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_RED]);
+                        ini_set_setting(INI_GREEN_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_GREEN]);
+                        ini_set_setting(INI_BLUE_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_BLUE]);
+                        ini_set_setting(INI_GRAY_TEAM_CLAN, save_file_header.team_clan[PLAYER_TEAM_GRAY]);
+                    }
 
                     if (menu_choose_player_menu_loop(flag2)) {
                         GameManager_GameLoop(GAME_STATE_10);
