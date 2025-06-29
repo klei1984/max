@@ -27,7 +27,9 @@
 #include "aiplayer.hpp"
 #include "builder.hpp"
 #include "inifile.hpp"
+#include "missionmanager.hpp"
 #include "reminders.hpp"
+#include "resource_manager.hpp"
 #include "taskactivate.hpp"
 #include "taskcreateunit.hpp"
 #include "taskreload.hpp"
@@ -341,10 +343,10 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t 
     if (Task_EstimateTurnsTillMissionEnd() >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
         uint16_t unit_counters[UNIT_END];
-        ResourceID builder_type;
+        const auto builder_type = Builder_GetBuilderType(unit_type);
         int32_t builder_count;
         int32_t buildable_count;
-        int32_t units_count;
+        int32_t unit_count;
 
         memset(unit_counters, 0, sizeof(unit_counters));
 
@@ -356,10 +358,8 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t 
             }
         }
 
-        builder_type = Builder_GetBuilderType(unit_type);
         builder_count = 0;
-        units_count = 0;
-        SmartObjectArray<ResourceID> unit_selection = Builder_GetBuildableUnits(builder_type);
+        unit_count = 0;
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -368,11 +368,11 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t 
             }
         }
 
-        for (int32_t i = 0; i < unit_selection.GetCount(); ++i) {
-            units_count += unit_counters[*unit_selection[i]];
+        for (const auto unit : Builder_GetBuildableUnits(builder_type)) {
+            unit_count += unit_counters[unit];
         }
 
-        buildable_count = (builder_count * 2 + 1) - units_count;
+        buildable_count = (builder_count * 2 + 1) - unit_count;
 
         if (buildable_count > requested_amount) {
             buildable_count = requested_amount;

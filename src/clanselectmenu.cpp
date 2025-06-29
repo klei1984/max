@@ -37,19 +37,19 @@ struct ClanSelectMenuControlItem {
 };
 
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 static struct MenuTitleItem clan_select_menu_screen_title = {{230, 6, 410, 26}, _(897f)};
 static struct MenuTitleItem clan_select_menu_screen_text[] = {
-    MENU_TITLE_ITEM_DEF(41, 350, 610, 409, nullptr),
-    MENU_TITLE_ITEM_DEF(330, 350, 610, 409, nullptr),
+    MENU_TITLE_ITEM_DEF(41, 350, 610, 409, ""),
+    MENU_TITLE_ITEM_DEF(330, 350, 610, 409, ""),
 };
 
 static struct MenuTitleItem clan_select_menu_clan_icons[] = {
-    MENU_TITLE_ITEM_DEF(32, 140, 142, 160, nullptr),  MENU_TITLE_ITEM_DEF(188, 140, 298, 160, nullptr),
-    MENU_TITLE_ITEM_DEF(344, 140, 454, 160, nullptr), MENU_TITLE_ITEM_DEF(497, 140, 607, 160, nullptr),
-    MENU_TITLE_ITEM_DEF(32, 290, 142, 310, nullptr),  MENU_TITLE_ITEM_DEF(188, 290, 298, 310, nullptr),
-    MENU_TITLE_ITEM_DEF(344, 290, 454, 310, nullptr), MENU_TITLE_ITEM_DEF(497, 290, 607, 310, nullptr),
+    MENU_TITLE_ITEM_DEF(32, 140, 142, 160, ""),  MENU_TITLE_ITEM_DEF(188, 140, 298, 160, ""),
+    MENU_TITLE_ITEM_DEF(344, 140, 454, 160, ""), MENU_TITLE_ITEM_DEF(497, 140, 607, 160, ""),
+    MENU_TITLE_ITEM_DEF(32, 290, 142, 310, ""),  MENU_TITLE_ITEM_DEF(188, 290, 298, 310, ""),
+    MENU_TITLE_ITEM_DEF(344, 290, 454, 310, ""), MENU_TITLE_ITEM_DEF(497, 290, 607, 310, ""),
 };
 
 static struct ClanSelectMenuControlItem clan_select_menu_controls[] = {

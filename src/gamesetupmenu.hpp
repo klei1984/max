@@ -23,6 +23,7 @@
 #define GAMESETUPMENU_HPP
 
 #include "button.hpp"
+#include "missionmanager.hpp"
 #include "smartstring.hpp"
 
 #define GAME_SETUP_MENU_ITEM_COUNT 19
@@ -51,14 +52,16 @@ public:
     int32_t key;
     Button *buttons[GAME_SETUP_MENU_ITEM_COUNT];
     GameSetupMenuItem menu_item[GAME_SETUP_MENU_ITEM_COUNT];
+    std::string mission_titles[GAME_SETUP_MENU_ITEM_COUNT];
     int32_t game_index_first_on_page;
     int32_t game_count;
     int32_t game_file_number;
-    int32_t game_file_type;
     SmartString *strings;
     int32_t string_row_count;
     int16_t string_row_index;
     int16_t rows_per_page;
+
+    MissionCategory m_mission_category;
 
     void Init(int32_t palette_from_image);
     void Deinit();
@@ -69,6 +72,8 @@ public:
     void EventCancel();
     void EventHelp();
     void EventStart();
+    MissionCategory GetMissionCategory() const;
+    void SetMissionCategory(const MissionCategory mission_category);
 };
 
 #endif /* GAMESETUPMENU_HPP */

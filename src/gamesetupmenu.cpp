@@ -27,6 +27,7 @@
 #include "inifile.hpp"
 #include "localization.hpp"
 #include "menu.hpp"
+#include "missionmanager.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
 #include "text.hpp"
@@ -47,8 +48,8 @@ struct GameSetupMenuControlItem {
 #define GAME_SETUP_MENU_MISSION_COUNT 12
 
 static struct MenuTitleItem game_setup_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(400, 174, 580, 195, nullptr),
-    MENU_TITLE_ITEM_DEF(354, 215, 620, 416, nullptr),
+    MENU_TITLE_ITEM_DEF(400, 174, 580, 195, ""),
+    MENU_TITLE_ITEM_DEF(354, 215, 620, 416, ""),
 };
 
 static struct GameSetupMenuControlItem game_setup_menu_controls[] = {
@@ -72,8 +73,6 @@ static struct GameSetupMenuControlItem game_setup_menu_controls[] = {
     MENU_CONTROL_DEF(312, 438, 0, 0, MNUBTN5U, _(da8e), GNW_KB_KEY_SHIFT_DIVIDE, &GameSetupMenu::EventHelp, NHELP0),
     MENU_CONTROL_DEF(361, 438, 0, 0, MNUBTN6U, _(f0a3), GNW_KB_KEY_RETURN, &GameSetupMenu::EventStart, NDONE0),
 };
-
-static char* menu_setup_menu_mission_titles[GAME_SETUP_MENU_MISSION_COUNT];
 
 static void GameSetupMenu_LoadSubtitleControl(WindowInfo* window) {
     WindowManager_LoadSimpleImage(SUBTITLE, WindowManager_ScaleUlx(window, 400), WindowManager_ScaleUly(window, 174),
@@ -99,7 +98,7 @@ void GameSetupMenu::ButtonInit(int32_t index) {
             return;
         }
 
-        menu_setup_menu_mission_titles[index] = nullptr;
+        mission_titles[index].clear();
 
         buttons[index] = new (std::nothrow) Button(
             WindowManager_ScaleUlx(window, control->bounds.ulx), WindowManager_ScaleUly(window, control->bounds.uly),
@@ -140,17 +139,21 @@ void GameSetupMenu::Init(int32_t palette_from_image) {
     mouse_hide();
     WindowManager_LoadBigImage(MAINPIC, window, window->width, palette_from_image, false, -1, -1, true);
 
-    switch (game_file_type) {
-        case GAME_TYPE_TRAINING:
+    switch (m_mission_category) {
+        case MISSION_CATEGORY_TRAINING:
             draw_menu_title(window, _(9b46));
             break;
 
-        case GAME_TYPE_SCENARIO:
+        case MISSION_CATEGORY_SCENARIO:
             draw_menu_title(window, _(5d49));
             break;
 
-        case GAME_TYPE_CAMPAIGN:
+        case MISSION_CATEGORY_CAMPAIGN:
             draw_menu_title(window, _(385b));
+            break;
+
+        case MISSION_CATEGORY_MULTI_PLAYER_SCENARIO:
+            draw_menu_title(window, _(f27a));
             break;
 
         default:
@@ -175,10 +178,6 @@ void GameSetupMenu::Init(int32_t palette_from_image) {
 void GameSetupMenu::Deinit() {
     for (int32_t i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
         delete buttons[i];
-    }
-
-    for (int32_t i = 0; i < GAME_SETUP_MENU_MISSION_COUNT; ++i) {
-        delete[] menu_setup_menu_mission_titles[i];
     }
 
     delete[] strings;
@@ -267,16 +266,16 @@ void GameSetupMenu::EventBriefingButton() {
 void GameSetupMenu::EventCancel() { event_click_cancel = true; }
 
 void GameSetupMenu::EventHelp() {
-    switch (game_file_type) {
-        case GAME_TYPE_TRAINING: {
+    switch (m_mission_category) {
+        case MISSION_CATEGORY_TRAINING: {
             HelpMenu_Menu(HELPMENU_TRAINING_MENU_SETUP, WINDOW_MAIN_WINDOW);
         } break;
 
-        case GAME_TYPE_SCENARIO: {
+        case MISSION_CATEGORY_SCENARIO: {
             HelpMenu_Menu(HELPMENU_STAND_ALONE_MENU_SETUP, WINDOW_MAIN_WINDOW);
         } break;
 
-        case GAME_TYPE_CAMPAIGN: {
+        case MISSION_CATEGORY_CAMPAIGN: {
             HelpMenu_Menu(HELPMENU_CAMPAIGN_MENU, WINDOW_MAIN_WINDOW);
         } break;
 
@@ -287,13 +286,17 @@ void GameSetupMenu::EventHelp() {
 }
 
 void GameSetupMenu::DrawMissionList() {
+    const size_t ini_last_campaign = ini_get_setting(INI_LAST_CAMPAIGN);
+
     menu_draw_menu_portrait_frame(window);
 
     game_count = 0;
 
+    const auto& missions = ResourceManager_GetMissionManager()->GetMissions(m_mission_category);
+
     for (int32_t i = 0; i < GAME_SETUP_MENU_MISSION_COUNT; ++i) {
         GameSetupMenuControlItem* control;
-        SaveFileInfo save_file_info;
+        const size_t mission_index = game_index_first_on_page + i - 1;
 
         control = &game_setup_menu_controls[i];
 
@@ -304,20 +307,15 @@ void GameSetupMenu::DrawMissionList() {
                       WindowManager_ScaleLry(window, control->bounds.uly, control->bounds.lry), COLOR_GREEN);
         }
 
-        if (menu_setup_menu_mission_titles[i]) {
-            delete[] menu_setup_menu_mission_titles[i];
-            menu_setup_menu_mission_titles[i] = nullptr;
-        }
+        mission_titles[i].clear();
 
-        if (game_file_type == GAME_TYPE_CAMPAIGN &&
-            ini_get_setting(INI_LAST_CAMPAIGN) < (game_index_first_on_page + i)) {
+        if (m_mission_category == MISSION_CATEGORY_CAMPAIGN && (ini_last_campaign < mission_index)) {
             buttons[i]->Disable();
 
-        } else if (SaveLoad_GetSaveFileInfo(game_index_first_on_page + i, game_file_type, save_file_info)) {
+        } else if (mission_index < missions.size()) {
             ++game_count;
 
-            menu_setup_menu_mission_titles[i] = new (std::nothrow) char[30];
-            SDL_utf8strlcpy(menu_setup_menu_mission_titles[i], save_file_info.save_name.c_str(), 30);
+            mission_titles[i] = missions[game_index_first_on_page + i - 1]->GetTitle();
 
             DrawSaveFileTitle(i, COLOR_GREEN);
             buttons[i]->Enable();
@@ -331,11 +329,6 @@ void GameSetupMenu::DrawMissionList() {
 }
 
 void GameSetupMenu::LoadMissionDescription() {
-    SmartString string;
-    SmartString filename;
-    int32_t width;
-    int32_t height;
-
     if (strings) {
         delete[] strings;
         strings = nullptr;
@@ -344,62 +337,44 @@ void GameSetupMenu::LoadMissionDescription() {
     }
 
     if (game_count) {
-        if (game_file_type == GAME_TYPE_CAMPAIGN && game_file_number > game_count) {
+        if (m_mission_category == MISSION_CATEGORY_CAMPAIGN && game_file_number > game_count) {
             game_file_number = game_count;
         }
     }
 
-    filename.Sprintf(20, "descr%i.%s", game_file_number, SaveLoadMenu_SaveFileTypes[game_file_type]);
-
-    auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_Text)};
-
-    if (fp) {
-        fseek(fp, 0, SEEK_END);
-        int32_t text_size = ftell(fp);
-
-        auto text = std::make_unique<char[]>(text_size + 1);
-
-        text.get()[text_size] = '\0';
-
-        fseek(fp, 0, SEEK_SET);
-        fread(text.get(), sizeof(char), text_size, fp);
-
-        fclose(fp);
-
-        string = text.get();
-    }
-
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    width = game_setup_menu_titles[1].bounds.lrx - game_setup_menu_titles[1].bounds.ulx;
-    height = game_setup_menu_titles[1].bounds.lry - game_setup_menu_titles[1].bounds.uly;
+    const int32_t width = game_setup_menu_titles[1].bounds.lrx - game_setup_menu_titles[1].bounds.ulx;
+    const int32_t height = game_setup_menu_titles[1].bounds.lry - game_setup_menu_titles[1].bounds.uly;
 
     rows_per_page = height / Text_GetHeight();
 
-    if (string.GetLength()) {
-        strings = Text_SplitText(string.GetCStr(), rows_per_page * 3, width, &string_row_count);
+    const auto& missions = ResourceManager_GetMissionManager()->GetMissions(m_mission_category);
+    const size_t mission_index = game_file_number - 1;
+
+    if (mission_index < missions.size()) {
+        const auto description = missions[mission_index]->GetDescription();
+
+        if (description.length() > 0) {
+            strings = Text_SplitText(description.c_str(), rows_per_page * 3, width, &string_row_count);
+        }
     }
 }
 
 void GameSetupMenu::DrawMissionDescription() {
-    static char text[40];
-
     GameSetupMenu_LoadSubtitleControl(window);
     GameSetupMenu_DrawBigInfoPanel(window);
 
     if (game_count) {
-        int32_t game_slot;
-
-        game_slot = game_file_number - game_index_first_on_page;
+        const auto& missions = ResourceManager_GetMissionManager()->GetMissions(m_mission_category);
 
         if (game_file_number >= game_index_first_on_page &&
             game_file_number < (game_index_first_on_page + GAME_SETUP_MENU_MISSION_COUNT)) {
-            DrawSaveFileTitle(game_slot, 0x4);
-            strcpy(text, menu_setup_menu_mission_titles[game_slot]);
+            DrawSaveFileTitle(game_file_number - game_index_first_on_page, COLOR_YELLOW);
         }
 
         Text_SetFont(GNW_TEXT_FONT_5);
-        game_setup_menu_titles[0].title = text;
+        game_setup_menu_titles[0].title = missions[game_file_number - 1]->GetTitle();
         menu_draw_menu_title(window, &game_setup_menu_titles[0], COLOR_GREEN, true, true);
         DrawDescriptionPanel();
     }
@@ -409,11 +384,11 @@ void GameSetupMenu::DrawMissionDescription() {
 
 void GameSetupMenu::DrawSaveFileTitle(int32_t game_slot, int32_t color) {
     GameSetupMenuControlItem* control;
-    char text[40];
+    char text[200];
 
     control = &game_setup_menu_controls[game_slot];
 
-    sprintf(text, "%i. %s", game_index_first_on_page + game_slot, menu_setup_menu_mission_titles[game_slot]);
+    sprintf(text, "%i. %s", game_index_first_on_page + game_slot, mission_titles[game_slot].c_str());
 
     Text_TextBox(window->buffer, window->width, text, WindowManager_ScaleUlx(window, control->bounds.ulx),
                  WindowManager_ScaleUly(window, control->bounds.uly), control->bounds.lrx - control->bounds.ulx,
@@ -458,15 +433,16 @@ void GameSetupMenu::DrawDescriptionPanel() {
 int32_t GameSetupMenu::FindNextValidFile(int32_t game_slot) {
     int32_t result;
 
-    if (game_file_type == GAME_TYPE_CAMPAIGN && ini_get_setting(INI_LAST_CAMPAIGN) < game_slot) {
+    if (m_mission_category == MISSION_CATEGORY_CAMPAIGN && ini_get_setting(INI_LAST_CAMPAIGN) < game_slot) {
         result = false;
+
     } else {
-        SaveFileInfo save_file_info;
-
         result = false;
 
-        for (int32_t i = game_slot; i < game_slot + GAME_SETUP_MENU_MISSION_COUNT; ++i) {
-            if (SaveLoad_GetSaveFileInfo(i, game_file_type, save_file_info)) {
+        for (int32_t i = game_slot; i < (game_slot + GAME_SETUP_MENU_MISSION_COUNT); ++i) {
+            const auto& missions = ResourceManager_GetMissionManager()->GetMissions(m_mission_category);
+
+            if ((i - 1) > 0 && ((i - 1) < static_cast<int32_t>(missions.size()))) {
                 result = true;
                 break;
             }
@@ -522,4 +498,10 @@ void GameSetupMenu::EventStart() {
     } else {
         event_click_cancel = true;
     }
+}
+
+MissionCategory GameSetupMenu::GetMissionCategory() const { return m_mission_category; }
+
+void GameSetupMenu::SetMissionCategory(const MissionCategory mission_category) {
+    m_mission_category = mission_category;
 }

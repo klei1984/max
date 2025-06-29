@@ -19,24 +19,5 @@
  * SOFTWARE.
  */
 
-#ifndef WINLOSSHANDLER_HPP
-#define WINLOSSHANDLER_HPP
+#include "campaign.hpp"
 
-#include <cstdint>
-#include <string>
-
-#include "mission.hpp"
-
-class WinLossHandler {
-    std::string m_script{"return MAX_VICTORY_STATE.GENERIC"};
-    void* m_interpreter{nullptr};
-
-public:
-    WinLossHandler();
-    virtual ~WinLossHandler();
-
-    [[nodiscard]] bool LoadScript(const Mission& mission);
-    [[nodiscard]] bool TestWinLossConditions(const size_t team, WinLossState& state);
-};
-
-#endif /* WINLOSSHANDLER_HPP */

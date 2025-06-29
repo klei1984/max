@@ -35,11 +35,13 @@
 #include "gfx.hpp"
 #include "inifile.hpp"
 #include "localization.hpp"
+#include "missionmanager.hpp"
 #include "movie.hpp"
 #include "okcancelmenu.hpp"
 #include "optionsmenu.hpp"
 #include "planetselectmenu.hpp"
 #include "remote.hpp"
+#include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
 #include "smartstring.hpp"
 #include "sound_manager.hpp"
@@ -78,6 +80,7 @@ struct CreditsLine {
 static void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_places, int32_t turn_counter,
                                        bool mode, int32_t victory_status);
 static void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter, bool mode);
+static int32_t play_attract_demo(const int32_t save_slot);
 
 static ResourceID menu_portrait_id;
 
@@ -361,9 +364,7 @@ const char* menu_planet_names[] = {_(e43b), _(f588), _(c78b), _(895d), _(5f5f), 
                                    _(4bb8), _(f408), _(0935), _(7303), _(94ef), _(c46c), _(48ac), _(275a),
                                    _(ea47), _(fcf0), _(6426), _(7ea8), _(386d), _(41e5), _(bbcb), _(ba99)};
 
-static const char* save_file_extensions[] = {"dmo", "dbg", "txt", "sce", "mps"};
-
-const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d)};
+const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
 static const ResourceID menu_briefing_backgrounds[] = {ENDGAME1, ENDGAME2, ENDGAME3, ENDGAME4, ENDGAME5,
                                                        ENDGAME6, ENDGAME7, ENDGAME8, ENDGAME9};
@@ -632,7 +633,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
 
 void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter, bool mode) {
     bool is_winner;
-    int32_t bg_image_id;
+    ResourceID bg_image_id;
     Color* palette;
     SmartString mission_briefing;
 
@@ -650,40 +651,42 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
         Remote_LeaveGame(GameManager_PlayerTeam, !mode);
     }
 
-    bg_image_id = (dos_rand() * 9) >> 15;
-
     Text_TypeWriter_CharacterTimeMs = 50;
 
     palette = GameManager_MenuFadeOut();
 
-    if (is_winner && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CAMPAIGN) {
-        SmartString filename;
+    int32_t image_index = (dos_rand() * 9) >> 15;
 
-        filename.Sprintf(20, "win%i.cam", GameManager_GameFileNumber);
+    bg_image_id = menu_briefing_backgrounds[image_index];
 
-        auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_Text)};
+    if (is_winner) {
+        const auto mission = ResourceManager_GetMissionManager()->GetMission();
 
-        if (fp) {
-            fseek(fp, 0, SEEK_END);
-            int32_t text_size = ftell(fp);
+        if (mission && mission->HasVictoryInfo()) {
+            Mission::Story story;
 
-            auto text = std::make_unique<char[]>(text_size + 1);
+            if (mission->GetVictoryInfo(story)) {
+                if (std::holds_alternative<std::vector<ResourceID>>(story.background)) {
+                    const auto bg_images = std::get<std::vector<ResourceID>>(story.background);
 
-            text.get()[text_size] = '\0';
+                    image_index = (dos_rand() * bg_images.size()) >> 15;
 
-            fseek(fp, 0, SEEK_SET);
-            fread(text.get(), sizeof(char), text_size, fp);
+                    bg_image_id = bg_images[image_index];
 
-            fclose(fp);
+                } else if (std::holds_alternative<std::vector<std::filesystem::path>>(story.background)) {
+                    /// \todo
+                }
 
-            mission_briefing = text.get();
+                mission_briefing = story.text.c_str();
 
-            Text_TypeWriter_CharacterTimeMs = 10;
+                Text_TypeWriter_CharacterTimeMs = 10;
+            }
         }
     }
 
     {
-        Window window(menu_briefing_backgrounds[bg_image_id]);
+        const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+        Window window(bg_image_id);
         WindowInfo window_info;
         Button* button_end;
         bool exit_loop;
@@ -715,7 +718,7 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
             SoundManager_PlayMusic(LOSE_MSC, false);
         }
 
-        if (ini_get_setting(INI_GAME_FILE_TYPE) != GAME_TYPE_HOT_SEAT) {
+        if (mission_category != MISSION_CATEGORY_HOT_SEAT) {
             if (is_winner) {
                 SoundManager_PlayVoice(V_M283, V_F283);
 
@@ -757,23 +760,6 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
                 case GNW_KB_KEY_RETURN: {
                     exit_loop = true;
                 } break;
-
-                case GNW_KB_KEY_SPACE: {
-                    bg_image_id = (bg_image_id + 1) % 9;
-
-                    WindowManager_LoadBigImage(menu_briefing_backgrounds[bg_image_id], &window_info, window_info.width,
-                                               true, false, -1, -1, true);
-
-                    if (mission_briefing.GetLength() > 0) {
-                        win_draw(window_info.id);
-                        Text_TypeWriter_TextBoxMultiLineWrapText(&window_info, mission_briefing.GetCStr(), 20, 20, 600,
-                                                                 400, 0);
-
-                    } else {
-                        menu_draw_game_over_screen(&window_info, status.team_rank, turn_counter, mode,
-                                                   status.team_status[GameManager_PlayerTeam]);
-                    }
-                } break;
             }
 
             while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
@@ -790,14 +776,33 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
 
     GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
-    if (is_winner && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CAMPAIGN) {
-        ini_set_setting(INI_GAME_FILE_NUMBER, GameManager_GameFileNumber + 1);
+    if (is_winner) {
+        const auto mission = ResourceManager_GetMissionManager()->GetMission();
 
-        if (ini_get_setting(INI_LAST_CAMPAIGN) < GameManager_GameFileNumber + 1) {
-            ini_set_setting(INI_LAST_CAMPAIGN, GameManager_GameFileNumber + 1);
+        if (mission && mission->GetCategory() == MISSION_CATEGORY_CAMPAIGN) {
+            const auto& missions = ResourceManager_GetMissionManager()->GetMissions(MISSION_CATEGORY_CAMPAIGN);
+
+            for (auto it = missions.begin(); it != missions.end(); ++it) {
+                if (it->get() == mission.get()) {
+                    auto next_it = std::next(it);
+
+                    if (next_it != missions.end()) {
+                        const auto mission_index = std::distance(missions.begin(), next_it);
+                        const auto hash = next_it->get()->GetMissionHashes()[0];
+
+                        ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_CAMPAIGN, hash);
+
+                        if (ini_get_setting(INI_LAST_CAMPAIGN) < mission_index) {
+                            ini_set_setting(INI_LAST_CAMPAIGN, mission_index);
+                        }
+
+                        ini_config.Save();
+                    }
+
+                    break;
+                }
+            }
         }
-
-        ini_config.Save();
     }
 }
 
@@ -806,8 +811,8 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
 
     WinLoss_Status status = WinLoss_EvaluateStatus(turn_counter);
 
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_NONE) {
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+        if (team == PLAYER_TEAM_ALIEN || UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_NONE) {
             continue;
         }
 
@@ -836,9 +841,11 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
             ((ini_setting_victory_type == VICTORY_TYPE_DURATION) && (ini_setting_victory_limit <= turn_counter)) ||
 
             /*is team score limit reached? */
-            ((UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) &&
+            ((ini_setting_victory_type == VICTORY_TYPE_SCORE) &&
+             (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) &&
              (static_cast<int32_t>(UnitsManager_TeamInfo[team].team_points) >= ini_setting_victory_limit))) {
             menu_wrap_up_game(status, turn_counter, true);
+
             return true;
         }
 
@@ -872,11 +879,12 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
 
 void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int32_t color, bool horizontal_align,
                           bool vertical_align) {
-    if (menu_item->title && strlen(menu_item->title)) {
-        Text_TextBox(
-            window->buffer, window->width, menu_item->title, WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
-            WindowManager_ScaleUly(window, menu_item->bounds.uly), menu_item->bounds.lrx - menu_item->bounds.ulx,
-            menu_item->bounds.lry - menu_item->bounds.uly, color, horizontal_align, vertical_align);
+    if (menu_item->title.length() > 0) {
+        Text_TextBox(window->buffer, window->width, menu_item->title.c_str(),
+                     WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
+                     WindowManager_ScaleUly(window, menu_item->bounds.uly),
+                     menu_item->bounds.lrx - menu_item->bounds.ulx, menu_item->bounds.lry - menu_item->bounds.uly,
+                     color, horizontal_align, vertical_align);
     }
 }
 
@@ -1020,89 +1028,87 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
 }
 
 void menu_draw_campaign_mission_briefing_screen() {
-    int32_t image_index;
-    SmartString filename;
-    SmartString mission_briefing;
-    WindowInfo window;
+    const auto mission = ResourceManager_GetMissionManager()->GetMission();
 
-    image_index = (dos_rand() * 9) >> 15;
+    if (mission && mission->HasIntroInfo()) {
+        ResourceID bg_image_id;
+        SmartString mission_briefing;
+        int32_t image_index = (dos_rand() * 9) >> 15;
+        Mission::Story story;
 
-    Text_TypeWriter_CharacterTimeMs = 10;
+        bg_image_id = menu_briefing_backgrounds[image_index];
 
-    filename.Sprintf(20, "intro%i.cam", GameManager_GameFileNumber);
+        if (mission->GetIntroInfo(story)) {
+            if (std::holds_alternative<std::vector<ResourceID>>(story.background)) {
+                const auto bg_images = std::get<std::vector<ResourceID>>(story.background);
 
-    auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_Text)};
+                image_index = (dos_rand() * bg_images.size()) >> 15;
 
-    if (fp) {
-        fseek(fp, 0, SEEK_END);
-        int32_t text_size = ftell(fp);
-
-        auto text = std::make_unique<char[]>(text_size + 1);
-
-        text.get()[text_size] = '\0';
-
-        fseek(fp, 0, SEEK_SET);
-        fread(text.get(), sizeof(char), text_size, fp);
-
-        fclose(fp);
-
-        mission_briefing = text.get();
-
-        Window briefing_window(menu_briefing_backgrounds[image_index]);
-        Button* button_end_ok;
-        bool exit_loop;
-
-        briefing_window.SetFlags(WINDOW_MODAL);
-        Cursor_SetCursor(CURSOR_HAND);
-        briefing_window.SetPaletteMode(true);
-        briefing_window.Add();
-        briefing_window.FillWindowInfo(&window);
-
-        win_draw(window.id);
-        Text_SetFont(GNW_TEXT_FONT_1);
-
-        Text_TypeWriter_TextBoxMultiLineWrapText(&window, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
-        Text_TypeWriter_CharacterTimeMs = 0;
-
-        Text_SetFont(GNW_TEXT_FONT_5);
-        button_end_ok = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
-        button_end_ok->SetCaption(_(ccca));
-
-        Text_SetFont(GNW_TEXT_FONT_1);
-        button_end_ok->SetRValue(GNW_KB_KEY_ESCAPE);
-        button_end_ok->RegisterButton(window.id);
-
-        win_draw(window.id);
-
-        exit_loop = false;
-
-        do {
-            int32_t key;
-
-            key = get_input();
-
-            switch (key) {
-                case GNW_KB_KEY_RETURN:
-                case GNW_KB_KEY_ESCAPE: {
-                    exit_loop = true;
-                } break;
-
-                case GNW_KB_KEY_SPACE: {
-                    image_index = (image_index + 1) % 9;
-
-                    WindowManager_LoadBigImage(menu_briefing_backgrounds[image_index], &window, window.width, true,
-                                               false, -1, -1, true);
-
-                    Text_SetFont(GNW_TEXT_FONT_1);
-
-                    Text_TypeWriter_TextBoxMultiLineWrapText(&window, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
-                    win_draw(window.id);
-                } break;
+                bg_image_id = bg_images[image_index];
             }
 
-        } while (!exit_loop);
+            mission_briefing = story.text.c_str();
 
-        delete button_end_ok;
+            Text_TypeWriter_CharacterTimeMs = 10;
+
+            {
+                WindowInfo window;
+                Window briefing_window(bg_image_id);
+                Button* button_end_ok;
+                bool exit_loop;
+
+                briefing_window.SetFlags(WINDOW_MODAL);
+                Cursor_SetCursor(CURSOR_HAND);
+                briefing_window.SetPaletteMode(true);
+                briefing_window.Add();
+                briefing_window.FillWindowInfo(&window);
+
+                win_draw(window.id);
+                Text_SetFont(GNW_TEXT_FONT_1);
+
+                Text_TypeWriter_TextBoxMultiLineWrapText(&window, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
+
+                Text_TypeWriter_CharacterTimeMs = 0;
+
+                Text_SetFont(GNW_TEXT_FONT_5);
+                button_end_ok = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
+                button_end_ok->SetCaption(_(ccca));
+
+                Text_SetFont(GNW_TEXT_FONT_1);
+                button_end_ok->SetRValue(GNW_KB_KEY_ESCAPE);
+                button_end_ok->RegisterButton(window.id);
+
+                win_draw(window.id);
+
+                exit_loop = false;
+
+                do {
+                    int32_t key;
+
+                    key = get_input();
+
+                    switch (key) {
+                        case GNW_KB_KEY_RETURN:
+                        case GNW_KB_KEY_ESCAPE: {
+                            exit_loop = true;
+                        } break;
+                    }
+
+                } while (!exit_loop);
+
+                delete button_end_ok;
+            }
+
+            if (std::holds_alternative<std::vector<ResourceID>>(story.video)) {
+                const auto videos = std::get<std::vector<ResourceID>>(story.video);
+
+                for (const auto& video : videos) {
+                    if (video != INVALID_ID) {
+                        Movie_Play(video);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1482,74 +1488,75 @@ void menu_delete_menu_buttons() {
     }
 }
 
-int32_t play_attract_demo(int32_t save_slot) {
-    SmartString filename;
+int32_t play_attract_demo(const int32_t save_slot) {
     int32_t result;
 
-    filename.Sprintf(20, "save%i.%s", save_slot, save_file_extensions[0]);
+    if (ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_DEMO, save_slot - 1)) {
+        const auto filename = SaveLoad_GetSaveFileName(MISSION_CATEGORY_DEMO, save_slot);
 
-    auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_GameData)};
+        auto fp{ResourceManager_OpenFileResource(filename.c_str(), ResourceType_GameData)};
 
-    if (fp) {
-        int32_t backup_opponent;
-        int32_t backup_timer;
-        int32_t backup_endturn;
-        int32_t backup_play_mode;
-        int32_t backup_start_gold;
-        int32_t backup_raw_resource;
-        int32_t backup_fuel_resource;
-        int32_t backup_gold_resource;
-        int32_t backup_alien_derelicts;
+        if (fp) {
+            int32_t backup_opponent;
+            int32_t backup_timer;
+            int32_t backup_endturn;
+            int32_t backup_play_mode;
+            int32_t backup_start_gold;
+            int32_t backup_raw_resource;
+            int32_t backup_fuel_resource;
+            int32_t backup_gold_resource;
+            int32_t backup_alien_derelicts;
 
-        char backup_player_name[30];
-        char backup_red_team_name[30];
-        char backup_green_team_name[30];
-        char backup_blue_team_name[30];
-        char backup_gray_team_name[30];
+            char backup_player_name[30];
+            char backup_red_team_name[30];
+            char backup_green_team_name[30];
+            char backup_blue_team_name[30];
+            char backup_gray_team_name[30];
 
-        fclose(fp);
+            fclose(fp);
 
-        backup_opponent = ini_get_setting(INI_OPPONENT);
-        backup_timer = ini_get_setting(INI_TIMER);
-        backup_endturn = ini_get_setting(INI_ENDTURN);
-        backup_play_mode = ini_get_setting(INI_PLAY_MODE);
-        backup_start_gold = ini_get_setting(INI_START_GOLD);
-        backup_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
-        backup_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
-        backup_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
-        backup_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
+            backup_opponent = ini_get_setting(INI_OPPONENT);
+            backup_timer = ini_get_setting(INI_TIMER);
+            backup_endturn = ini_get_setting(INI_ENDTURN);
+            backup_play_mode = ini_get_setting(INI_PLAY_MODE);
+            backup_start_gold = ini_get_setting(INI_START_GOLD);
+            backup_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
+            backup_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
+            backup_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
+            backup_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
 
-        ini_config.GetStringValue(INI_PLAYER_NAME, backup_player_name, 30);
-        ini_config.GetStringValue(INI_RED_TEAM_NAME, backup_red_team_name, 30);
-        ini_config.GetStringValue(INI_GREEN_TEAM_NAME, backup_green_team_name, 30);
-        ini_config.GetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name, 30);
-        ini_config.GetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name, 30);
+            ini_config.GetStringValue(INI_PLAYER_NAME, backup_player_name, 30);
+            ini_config.GetStringValue(INI_RED_TEAM_NAME, backup_red_team_name, 30);
+            ini_config.GetStringValue(INI_GREEN_TEAM_NAME, backup_green_team_name, 30);
+            ini_config.GetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name, 30);
+            ini_config.GetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name, 30);
 
-        ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
-        ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_DEMO);
+            GameManager_GameLoop(GAME_STATE_10);
 
-        GameManager_GameLoop(GAME_STATE_10);
+            ini_set_setting(INI_OPPONENT, backup_opponent);
+            ini_set_setting(INI_TIMER, backup_timer);
+            ini_set_setting(INI_ENDTURN, backup_endturn);
+            ini_set_setting(INI_PLAY_MODE, backup_play_mode);
+            ini_set_setting(INI_START_GOLD, backup_start_gold);
+            ini_set_setting(INI_RAW_RESOURCE, backup_raw_resource);
+            ini_set_setting(INI_FUEL_RESOURCE, backup_fuel_resource);
+            ini_set_setting(INI_GOLD_RESOURCE, backup_gold_resource);
+            ini_set_setting(INI_ALIEN_DERELICTS, backup_alien_derelicts);
 
-        ini_set_setting(INI_OPPONENT, backup_opponent);
-        ini_set_setting(INI_TIMER, backup_timer);
-        ini_set_setting(INI_ENDTURN, backup_endturn);
-        ini_set_setting(INI_PLAY_MODE, backup_play_mode);
-        ini_set_setting(INI_START_GOLD, backup_start_gold);
-        ini_set_setting(INI_RAW_RESOURCE, backup_raw_resource);
-        ini_set_setting(INI_FUEL_RESOURCE, backup_fuel_resource);
-        ini_set_setting(INI_GOLD_RESOURCE, backup_gold_resource);
-        ini_set_setting(INI_ALIEN_DERELICTS, backup_alien_derelicts);
+            ini_config.SetStringValue(INI_PLAYER_NAME, backup_player_name);
+            ini_config.SetStringValue(INI_RED_TEAM_NAME, backup_red_team_name);
+            ini_config.SetStringValue(INI_GREEN_TEAM_NAME, backup_green_team_name);
+            ini_config.SetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name);
+            ini_config.SetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name);
 
-        ini_config.SetStringValue(INI_PLAYER_NAME, backup_player_name);
-        ini_config.SetStringValue(INI_RED_TEAM_NAME, backup_red_team_name);
-        ini_config.SetStringValue(INI_GREEN_TEAM_NAME, backup_green_team_name);
-        ini_config.SetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name);
-        ini_config.SetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name);
+            result = 1;
 
-        result = 1;
+        } else {
+            result = 0;
+        }
 
     } else {
-        result = 0;
+        result = false;
     }
 
     return result;
@@ -1880,11 +1887,11 @@ int32_t menu_options_menu_loop(int32_t game_mode) {
     return result;
 }
 
-int32_t menu_choose_player_menu_loop(bool game_type) {
+int32_t menu_choose_player_menu_loop(bool is_single_player) {
     ChoosePlayerMenu choose_player_menu;
     bool event_release;
 
-    if (game_type) {
+    if (is_single_player) {
         ini_set_setting(INI_RED_TEAM_PLAYER, TEAM_TYPE_PLAYER);
         ini_set_setting(INI_GREEN_TEAM_PLAYER, TEAM_TYPE_COMPUTER);
     } else {
@@ -1897,7 +1904,7 @@ int32_t menu_choose_player_menu_loop(bool game_type) {
 
     event_release = false;
 
-    choose_player_menu.game_type = game_type;
+    choose_player_menu.is_single_player = is_single_player;
     choose_player_menu.Init();
     choose_player_menu.event_click_done = false;
 
@@ -1951,10 +1958,10 @@ int32_t menu_choose_player_menu_loop(bool game_type) {
 
         team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
 
-        if (game_type && team_type == TEAM_TYPE_PLAYER) {
+        if (is_single_player && team_type == TEAM_TYPE_PLAYER) {
             ini_config.GetStringValue(INI_PLAYER_NAME, buffer, sizeof(buffer));
             ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i), buffer);
-            game_type = 0;
+            is_single_player = false;
         } else {
             ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i), menu_team_names[i]);
         }
@@ -1963,7 +1970,7 @@ int32_t menu_choose_player_menu_loop(bool game_type) {
     return true;
 }
 
-int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
+int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, const bool is_single_player) {
     GameSetupMenu game_setup_menu;
     SaveFileInfo save_file_info;
     bool palette_from_image;
@@ -1971,9 +1978,9 @@ int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
     int32_t result;
 
     palette_from_image = false;
-    game_setup_menu.game_file_type = game_file_type;
+    game_setup_menu.SetMissionCategory(mission_category);
 
-    if (game_file_type == GAME_TYPE_CAMPAIGN) {
+    if (mission_category == MISSION_CATEGORY_CAMPAIGN) {
         ini_set_setting(INI_GAME_FILE_NUMBER, ini_get_setting(INI_LAST_CAMPAIGN));
     } else {
         ini_set_setting(INI_GAME_FILE_NUMBER, 1);
@@ -2046,23 +2053,20 @@ int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
             break;
         }
 
-        GameManager_GameFileNumber = game_setup_menu.game_file_number;
+        if (!ResourceManager_GetMissionManager()->LoadMission(game_setup_menu.m_mission_category,
+                                                              game_setup_menu.game_file_number - 1)) {
+            result = false;
+            break;
+        }
 
-        ini_set_setting(INI_GAME_FILE_NUMBER, GameManager_GameFileNumber);
-        ini_set_setting(INI_GAME_FILE_TYPE, game_setup_menu.game_file_type);
-
-        if (game_setup_menu.game_file_type != GAME_TYPE_MULTI_PLAYER_SCENARIO || flag1) {
+        if (game_setup_menu.GetMissionCategory() != MISSION_CATEGORY_MULTI_PLAYER_SCENARIO || flag1) {
             if (menu_options_menu_loop(2)) {
-                if (game_setup_menu.game_file_type == GAME_TYPE_CAMPAIGN) {
+                if (game_setup_menu.GetMissionCategory() == MISSION_CATEGORY_CAMPAIGN) {
                     menu_draw_campaign_mission_briefing_screen();
                 }
 
-                if (GameManager_GameFileNumber == 1 && game_setup_menu.game_file_type == GAME_TYPE_CAMPAIGN) {
-                    Movie_Play(DEMO2FLC);
-                }
-
-                if (game_setup_menu.game_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                    if (SaveLoad_GetSaveFileInfo(GameManager_GameFileNumber, ini_get_setting(INI_GAME_FILE_TYPE),
+                if (game_setup_menu.GetMissionCategory() == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
+                    if (SaveLoad_GetSaveFileInfo(game_setup_menu.GetMissionCategory(), game_setup_menu.game_file_number,
                                                  save_file_info)) {
                         ini_set_setting(INI_RED_TEAM_CLAN, save_file_info.team_clan[PLAYER_TEAM_RED]);
                         ini_set_setting(INI_GREEN_TEAM_CLAN, save_file_info.team_clan[PLAYER_TEAM_GREEN]);
@@ -2070,7 +2074,7 @@ int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
                         ini_set_setting(INI_GRAY_TEAM_CLAN, save_file_info.team_clan[PLAYER_TEAM_GRAY]);
                     }
 
-                    if (menu_choose_player_menu_loop(flag2)) {
+                    if (menu_choose_player_menu_loop(is_single_player)) {
                         GameManager_GameLoop(GAME_STATE_10);
                         palette_from_image = true;
                     } else {
@@ -2096,15 +2100,14 @@ int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1, bool flag2) {
     return result;
 }
 
-int32_t menu_custom_game_menu(bool game_type) {
-    int32_t result;
-    bool enter_options_menu;
-    bool enter_planet_select_menu;
-    bool player_menu_passed;
+int32_t menu_custom_game_menu(const bool is_single_player) {
+    bool enter_options_menu = true;
+    bool enter_planet_select_menu = true;
+    bool player_menu_passed = false;
 
-    enter_options_menu = true;
-    enter_planet_select_menu = true;
-    player_menu_passed = false;
+    if (!ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_CUSTOM, "MISSION_CATEGORY_CUSTOM")) {
+        return false;
+    }
 
     do {
         if (enter_options_menu) {
@@ -2128,7 +2131,7 @@ int32_t menu_custom_game_menu(bool game_type) {
             ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i), ini_get_setting(INI_PLAYER_CLAN));
         }
 
-        player_menu_passed = menu_choose_player_menu_loop(game_type);
+        player_menu_passed = menu_choose_player_menu_loop(is_single_player);
 
         if (!player_menu_passed) {
             enter_planet_select_menu = true;
@@ -2179,7 +2182,7 @@ int32_t menu_new_game_menu_loop() {
                 case GNW_KB_KEY_SHIFT_T: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_Menu(GAME_TYPE_TRAINING)) {
+                    if (GameSetupMenu_Menu(MISSION_CATEGORY_TRAINING)) {
                         key = 9000;
                     }
 
@@ -2190,7 +2193,7 @@ int32_t menu_new_game_menu_loop() {
                 case GNW_KB_KEY_SHIFT_S: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_Menu(GAME_TYPE_SCENARIO)) {
+                    if (GameSetupMenu_Menu(MISSION_CATEGORY_SCENARIO)) {
                         key = 9000;
                     }
 
@@ -2200,7 +2203,6 @@ int32_t menu_new_game_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_U: {
                     menu_delete_menu_buttons();
-                    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
                     if (menu_custom_game_menu(true)) {
                         key = 9000;
                     }
@@ -2211,8 +2213,7 @@ int32_t menu_new_game_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_M: {
                     menu_delete_menu_buttons();
-                    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
-                    if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
+                    if (GameSetupMenu_Menu(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO)) {
                         key = 9000;
                     }
 
@@ -2222,7 +2223,7 @@ int32_t menu_new_game_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_A: {
                     menu_delete_menu_buttons();
-                    if (GameSetupMenu_Menu(GAME_TYPE_CAMPAIGN)) {
+                    if (GameSetupMenu_Menu(MISSION_CATEGORY_CAMPAIGN)) {
                         key = 9000;
                     }
 
@@ -2283,6 +2284,8 @@ int32_t menu_new_game_menu_loop() {
                 } break;
             }
         }
+
+        ResourceManager_GetMissionManager().get()->ResetMission();
     }
 
     return key == 9000;
@@ -2342,7 +2345,6 @@ int32_t menu_multiplayer_menu_loop() {
         menu_draw_menu_portrait(window, menu_portrait_id, false);
         menu_draw_main_menu_buttons(network_game_menu_buttons,
                                     sizeof(network_game_menu_buttons) / sizeof(struct MenuButton));
-        ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI);
         palette_from_image = 0;
         mouse_show();
 
@@ -2359,7 +2361,6 @@ int32_t menu_multiplayer_menu_loop() {
                 case GNW_KB_KEY_SHIFT_L: {
                     int32_t game_file_number;
                     menu_delete_menu_buttons();
-                    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_HOT_SEAT);
                     game_file_number = SaveLoadMenu_MenuLoop(false);
 
                     if (game_file_number) {
@@ -2377,7 +2378,7 @@ int32_t menu_multiplayer_menu_loop() {
                 case GNW_KB_KEY_SHIFT_T: {
                     menu_delete_menu_buttons();
 
-                    if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO, true, false)) {
+                    if (GameSetupMenu_Menu(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, true, false)) {
                         key = 9000;
                     }
 
@@ -2391,7 +2392,6 @@ int32_t menu_multiplayer_menu_loop() {
 
                 case GNW_KB_KEY_SHIFT_O: {
                     menu_delete_menu_buttons();
-                    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_HOT_SEAT);
 
                     if (menu_custom_game_menu(false)) {
                         key = 9000;
@@ -2473,14 +2473,15 @@ void main_menu() {
     int16_t palette_from_image;
     bool exit_loop;
     bool event_release;
-    int32_t save_slot;
-    int32_t old_save_slot;
     int32_t last_mouse_x;
     int32_t last_mouse_y;
 
+    uint32_t attract_demo_index = 1u;
+    uint32_t attract_demo_count = ResourceManager_GetMissionManager()->GetMissions(MISSION_CATEGORY_DEMO).size();
+    uint32_t attract_demo_old_index = 0u;
+
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     palette_from_image = 1;
-    save_slot = 1;
     mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     menu_portrait_id = INVALID_ID;
     dos_srand(time(nullptr));
@@ -2504,22 +2505,23 @@ void main_menu() {
         Cursor_SetCursor(CURSOR_HAND);
         mouse_show();
         palette_from_image = 0;
-        ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
 
         exit_loop = false;
 
         while (!exit_loop) {
             if (timer_elapsed_time(time_stamp) > ATTRACT_MODE_TIMEOUT) {
-                old_save_slot = save_slot;
+                attract_demo_old_index = attract_demo_index;
                 menu_delete_menu_buttons();
 
                 do {
-                    palette_from_image = play_attract_demo(save_slot);
-                    ++save_slot;
-                    if (save_slot == 10) {
-                        save_slot = 1;
+                    palette_from_image = play_attract_demo(attract_demo_index);
+                    ++attract_demo_index;
+
+                    if (attract_demo_index > attract_demo_count) {
+                        attract_demo_index = 1;
                     }
-                } while (!palette_from_image && old_save_slot != save_slot);
+
+                } while (!palette_from_image && attract_demo_old_index != attract_demo_index);
 
                 break;
 

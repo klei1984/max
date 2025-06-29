@@ -26,6 +26,7 @@
 #include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
+#include "missionmanager.hpp"
 #include "window_manager.hpp"
 
 struct ChoosePlayerMenuControlItem {
@@ -38,10 +39,10 @@ struct ChoosePlayerMenuControlItem {
 };
 
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 static struct MenuTitleItem choose_player_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, nullptr),  MENU_TITLE_ITEM_DEF(61, 31, 141, 51, _(5985)),
+    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, ""),       MENU_TITLE_ITEM_DEF(61, 31, 141, 51, _(5985)),
     MENU_TITLE_ITEM_DEF(162, 31, 241, 51, _(9ffa)), MENU_TITLE_ITEM_DEF(272, 31, 351, 51, _(76ed)),
     MENU_TITLE_ITEM_DEF(380, 31, 459, 51, _(dc93)), MENU_TITLE_ITEM_DEF(497, 31, 576, 51, _(bda5)),
 };
@@ -122,7 +123,7 @@ void ChoosePlayerMenu::Deinit() {
 }
 
 void ChoosePlayerMenu::EventSelectHuman() {
-    if (game_type) {
+    if (is_single_player) {
         for (int32_t i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
             if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i)) == TEAM_TYPE_PLAYER) {
                 ButtonSetState(i, 0);
@@ -157,7 +158,7 @@ void ChoosePlayerMenu::EventSelectClan() {
 void ChoosePlayerMenu::EventCancel() { event_click_cancel = true; }
 
 void ChoosePlayerMenu::EventHelp() {
-    HelpMenu_Menu(game_type == 0 ? HELPMENU_HOT_SEAT_SETUP : HELPMENU_NEW_GAME_SETUP, WINDOW_MAIN_WINDOW);
+    HelpMenu_Menu(is_single_player == false ? HELPMENU_HOT_SEAT_SETUP : HELPMENU_NEW_GAME_SETUP, WINDOW_MAIN_WINDOW);
 }
 
 void ChoosePlayerMenu::ButtonInit(int32_t index, int32_t mode) {
@@ -175,11 +176,13 @@ void ChoosePlayerMenu::ButtonInit(int32_t index, int32_t mode) {
         clan_logo_id = CLN0LOGO;
 
         if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + index - 12)) == TEAM_TYPE_PLAYER) {
-            if (ini_get_setting(INI_GAME_FILE_TYPE) != GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+            const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+
+            if (mission_category != MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
                 image_id = control->image_id;
             }
 
-            if (game_type || ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+            if (is_single_player || mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
                 clan_logo_id = static_cast<ResourceID>(
                     CLN0LOGO + ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + index - 12)));
             }
@@ -222,6 +225,8 @@ void ChoosePlayerMenu::ButtonInit(int32_t index, int32_t mode) {
 }
 
 void ChoosePlayerMenu::UpdateButtons() {
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+
     char buffer[100];
 
     for (int32_t i = 12; i < 16; ++i) {
@@ -232,7 +237,7 @@ void ChoosePlayerMenu::UpdateButtons() {
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    if (game_type) {
+    if (is_single_player) {
         strcpy(buffer, _(5512));
     } else {
         strcpy(buffer, _(55c8));
@@ -249,7 +254,7 @@ void ChoosePlayerMenu::UpdateButtons() {
 
         if (i >= 12 && i < 16 &&
             (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i - 12)) != TEAM_TYPE_PLAYER ||
-             ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI_PLAYER_SCENARIO)) {
+             mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO)) {
             buttons[i]->Disable();
         }
     }
@@ -276,7 +281,7 @@ void ChoosePlayerMenu::EventDone() {
         }
     }
 
-    if (game_type) {
+    if (is_single_player) {
         if (human_player_count + computer_player_count < 2) {
             MessageManager_DrawMessage(_(bc94), 0, 1);
         } else {

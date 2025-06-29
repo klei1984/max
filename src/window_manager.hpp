@@ -22,8 +22,7 @@
 #ifndef WINDOW_MANAGER_HPP
 #define WINDOW_MANAGER_HPP
 
-#include "enums.hpp"
-#include "gnw.h"
+#include "resource_manager.hpp"
 
 enum {
     WINDOW_MAIN_WINDOW,
@@ -102,13 +101,15 @@ void WindowManager_ClearWindow();
 void WindowManager_FadeOut(int32_t time_limit);
 void WindowManager_FadeIn(int32_t time_limit);
 void WindowManager_LoadPalette(ResourceID id);
-void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer, int32_t ulx, int32_t uly, int32_t pitch);
+void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer, int32_t ulx, int32_t uly,
+                                  int32_t pitch);
 int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int16_t pitch, bool palette_from_image,
-                               bool draw_to_screen = true, int32_t ulx = -1, int32_t uly = -1, bool center_align = false,
-                               bool rescale = false);
+                                   bool draw_to_screen = true, int32_t ulx = -1, int32_t uly = -1,
+                                   bool center_align = false, bool rescale = false);
 void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int32_t ulx, int32_t uly, bool has_transparency,
                                      WindowInfo *w);
-void WindowManager_LoadSimpleImage(ResourceID id, int32_t ulx, int32_t uly, bool has_transparency, WindowInfo *w = nullptr);
+void WindowManager_LoadSimpleImage(ResourceID id, int32_t ulx, int32_t uly, bool has_transparency,
+                                   WindowInfo *w = nullptr);
 struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHeader *image, int32_t scaling_factor);
 void WindowManager_ScaleResources();
 int32_t WindowManager_GetWidth(WindowInfo *w);

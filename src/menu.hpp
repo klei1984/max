@@ -22,12 +22,12 @@
 #ifndef MENU_HPP
 #define MENU_HPP
 
-#include "enums.hpp"
-#include "gnw.h"
+#include "missionmanager.hpp"
+#include "resource_manager.hpp"
 
 struct MenuTitleItem {
     Rect bounds;
-    const char* title;
+    std::string title;
 };
 
 #define MENU_TITLE_ITEM_DEF(ulx, uly, lrx, lry, text) {{(ulx), (uly), (lrx), (lry)}, (text)}
@@ -55,7 +55,8 @@ void draw_menu_title(WindowInfo* window, const char* caption);
 
 int32_t menu_options_menu_loop(int32_t game_mode);
 void menu_preferences_window(uint16_t team);
-int32_t GameSetupMenu_Menu(int32_t game_file_type, bool flag1 = true, bool flag2 = true);
+int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1 = true,
+                           const bool is_single_player = true);
 bool OKCancelMenu_Menu(const char* caption);
 void DialogMenu_Menu(const char* label);
 bool DesyncMenu_Menu();

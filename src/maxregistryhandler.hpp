@@ -19,24 +19,20 @@
  * SOFTWARE.
  */
 
-#ifndef WINLOSSHANDLER_HPP
-#define WINLOSSHANDLER_HPP
+#ifndef MAXREGISTRYHANDLER_HPP
+#define MAXREGISTRYHANDLER_HPP
 
-#include <cstdint>
-#include <string>
-
+#include "campaign.hpp"
 #include "mission.hpp"
 
-class WinLossHandler {
-    std::string m_script{"return MAX_VICTORY_STATE.GENERIC"};
-    void* m_interpreter{nullptr};
+namespace MaxRegistryHandler {
 
-public:
-    WinLossHandler();
-    virtual ~WinLossHandler();
+void Init();
+void LoadMission(const Mission& mission);
+void LoadCampaign(const Campaign& campaign);
+void Reset();
+void Update();
 
-    [[nodiscard]] bool LoadScript(const Mission& mission);
-    [[nodiscard]] bool TestWinLossConditions(const size_t team, WinLossState& state);
-};
+}  // namespace MaxRegistryHandler
 
-#endif /* WINLOSSHANDLER_HPP */
+#endif /* MAXREGISTRYHANDLER_HPP */

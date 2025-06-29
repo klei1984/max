@@ -21,6 +21,9 @@
 
 #include "smartfile.hpp"
 
+#include <SDL.h>
+
+#include "localization.hpp"
 #include "registerarray.hpp"
 
 SmartFileReader::SmartFileReader() noexcept : m_format(static_cast<uint16_t>(SmartFileFormat::UNSPECIFIED)) {};
@@ -127,14 +130,18 @@ void SmartFileReader::LoadObject(FileObject& object) noexcept {
 SmartFileWriter::SmartFileWriter() noexcept : m_format(static_cast<uint16_t>(SmartFileFormat::LATEST)) {};
 
 SmartFileWriter::SmartFileWriter(const char* const path) noexcept
-    : m_format(static_cast<uint16_t>(SmartFileFormat::LATEST)), file(fopen(path, "wb")) {}
+    : m_format(static_cast<uint16_t>(SmartFileFormat::LATEST)) {
+    Open(path);
+}
 
 SmartFileWriter::~SmartFileWriter() noexcept { Close(); }
 
 bool SmartFileWriter::Open(const char* const path) noexcept {
     Close();
 
-    file = fopen(path, "wb");
+    filepath = std::filesystem::path(path).lexically_normal();
+
+    file = fopen(filepath.string().c_str(), "wb");
 
     return file != nullptr;
 }
@@ -154,6 +161,24 @@ bool SmartFileWriter::Close() noexcept {
     }
 
     return result;
+}
+
+void SmartFileWriter::Delete() noexcept {
+    Close();
+
+    if (!filepath.empty()) {
+        if (std::filesystem::exists(filepath)) {
+            std::error_code ec;
+
+            std::filesystem::remove(filepath, ec);
+
+            if (ec) {
+                SDL_Log("%s", ec.message().c_str());
+            }
+        }
+
+        filepath.clear();
+    }
 }
 
 bool SmartFileWriter::Write(const void* const buffer, const size_t size) noexcept {

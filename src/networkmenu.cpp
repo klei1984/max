@@ -30,6 +30,7 @@
 #include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
+#include "missionmanager.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "text.hpp"
@@ -74,13 +75,13 @@ struct NetworkMenuControlItem {
 #define MENU_CONTROL_START_BUTTON 23
 
 static struct MenuTitleItem network_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(42, 48, 134, 61, _(4869)),    MENU_TITLE_ITEM_DEF(42, 71, 185, 84, nullptr),
-    MENU_TITLE_ITEM_DEF(359, 28, 568, 188, _(5939)),  MENU_TITLE_ITEM_DEF(59, 131, 149, 143, nullptr),
-    MENU_TITLE_ITEM_DEF(191, 131, 285, 143, nullptr), MENU_TITLE_ITEM_DEF(59, 249, 149, 260, nullptr),
-    MENU_TITLE_ITEM_DEF(191, 249, 285, 260, nullptr), MENU_TITLE_ITEM_DEF(150, 377, 617, 392, nullptr),
-    MENU_TITLE_ITEM_DEF(150, 408, 617, 423, nullptr), MENU_TITLE_ITEM_DEF(75, 160, 132, 231, nullptr),
-    MENU_TITLE_ITEM_DEF(208, 160, 263, 231, nullptr), MENU_TITLE_ITEM_DEF(75, 278, 132, 349, nullptr),
-    MENU_TITLE_ITEM_DEF(208, 278, 263, 349, nullptr), MENU_TITLE_ITEM_DEF(355, 228, 469, 342, nullptr),
+    MENU_TITLE_ITEM_DEF(42, 48, 134, 61, _(4869)),   MENU_TITLE_ITEM_DEF(42, 71, 185, 84, ""),
+    MENU_TITLE_ITEM_DEF(359, 28, 568, 188, _(5939)), MENU_TITLE_ITEM_DEF(59, 131, 149, 143, ""),
+    MENU_TITLE_ITEM_DEF(191, 131, 285, 143, ""),     MENU_TITLE_ITEM_DEF(59, 249, 149, 260, ""),
+    MENU_TITLE_ITEM_DEF(191, 249, 285, 260, ""),     MENU_TITLE_ITEM_DEF(150, 377, 617, 392, ""),
+    MENU_TITLE_ITEM_DEF(150, 408, 617, 423, ""),     MENU_TITLE_ITEM_DEF(75, 160, 132, 231, ""),
+    MENU_TITLE_ITEM_DEF(208, 160, 263, 231, ""),     MENU_TITLE_ITEM_DEF(75, 278, 132, 349, ""),
+    MENU_TITLE_ITEM_DEF(208, 278, 263, 349, ""),     MENU_TITLE_ITEM_DEF(355, 228, 469, 342, ""),
 };
 
 static struct NetworkMenuControlItem network_menu_controls[] = {
@@ -474,27 +475,20 @@ void NetworkMenu::EventMapButton() {
 }
 
 void NetworkMenu::EventLoadButton() {
-    int32_t save_slot;
-    int32_t game_file_type;
     SaveFileInfo save_file_info;
+    int32_t save_slot;
 
     DeleteButtons();
 
-    game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
-    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI);
-
     save_slot = SaveLoadMenu_MenuLoop(false);
-
-    ini_set_setting(INI_GAME_FILE_TYPE, game_file_type);
 
     if (save_slot) {
         multi_scenario_id = save_slot;
 
         ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
-        ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI);
 
-        if (SaveLoad_GetSaveFileInfo(save_slot, GAME_TYPE_MULTI, save_file_info)) {
-            SaveLoad_LoadIniOptions(save_slot, GAME_TYPE_MULTI);
+        if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI, save_slot, save_file_info)) {
+            SaveLoad_LoadIniOptions(MISSION_CATEGORY_MULTI, save_slot);
 
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 team_clans[i] = save_file_info.team_clan[i];
@@ -523,13 +517,13 @@ void NetworkMenu::EventScenarioButton() {
 
     DeleteButtons();
 
-    if (GameSetupMenu_Menu(GAME_TYPE_MULTI_PLAYER_SCENARIO, false)) {
+    if (GameSetupMenu_Menu(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, false)) {
         team_index = player_team;
         ini_game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
         multi_scenario_id = ini_game_file_number;
 
-        if (SaveLoad_GetSaveFileInfo(ini_game_file_number, GAME_TYPE_MULTI_PLAYER_SCENARIO, save_file_info)) {
-            SaveLoad_LoadIniOptions(ini_game_file_number, GAME_TYPE_MULTI_PLAYER_SCENARIO);
+        if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, ini_game_file_number, save_file_info)) {
+            SaveLoad_LoadIniOptions(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, ini_game_file_number);
 
             ini_set_setting(INI_PLAY_MODE, ini_play_mode);
             ini_set_setting(INI_TIMER, ini_timer);
@@ -759,7 +753,7 @@ void NetworkMenu::UpdateSaveSettings(struct SaveFileInfo *save_file_info) {
             }
         }
 
-        rng_seed = save_file_info->rng_seed;
+        rng_seed = save_file_info->random_seed;
         SDL_utf8strlcpy(world_name, save_file_info->save_name.c_str(), 30);
 
     } else {
@@ -800,24 +794,21 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
         return false;
     }
 
-    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI);
+    if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI, multi_scenario_id, save_file_info)) {
+        SaveLoad_LoadIniOptions(MISSION_CATEGORY_MULTI, multi_scenario_id);
 
-    if (SaveLoad_GetSaveFileInfo(multi_scenario_id, GAME_TYPE_MULTI, save_file_info)) {
-        SaveLoad_LoadIniOptions(multi_scenario_id, GAME_TYPE_MULTI);
-
-        if (rng_seed != save_file_info.rng_seed) {
-            ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_MULTI_PLAYER_SCENARIO);
-
-            if (SaveLoad_GetSaveFileInfo(multi_scenario_id, GAME_TYPE_MULTI_PLAYER_SCENARIO, save_file_info)) {
-                SaveLoad_LoadIniOptions(multi_scenario_id, GAME_TYPE_MULTI_PLAYER_SCENARIO);
+        if (rng_seed != save_file_info.random_seed) {
+            if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, multi_scenario_id, save_file_info)) {
+                SaveLoad_LoadIniOptions(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, multi_scenario_id);
 
             } else {
-                save_file_info.rng_seed = rng_seed ^ rng_seed;
+                save_file_info.random_seed = rng_seed ^ rng_seed;
             }
         }
 
-        if (rng_seed == save_file_info.rng_seed) {
+        if (rng_seed == save_file_info.random_seed) {
             is_incompatible_save_file = false;
+            const auto mission_category = ResourceManager_GetMissionManager().get()->GetMission()->GetCategory();
 
             if (is_map_changed) {
                 for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
@@ -831,7 +822,7 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
                 team_clans[i] = save_file_info.team_clan[i];
             }
 
-            if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_MULTI) {
+            if (mission_category == MISSION_CATEGORY_MULTI) {
                 NetSync(save_file_info);
 
             } else {
@@ -1080,19 +1071,19 @@ void NetworkMenu::DrawTextWindow() {
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, _(d895), game_config_menu_items[47 + ini_raw_resource].title);
+    sprintf(text, _(d895), game_config_menu_items[47 + ini_raw_resource].title.c_str());
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, _(85cd), game_config_menu_items[50 + ini_fuel_resource].title);
+    sprintf(text, _(85cd), game_config_menu_items[50 + ini_fuel_resource].title.c_str());
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, _(d46a), game_config_menu_items[53 + ini_gold_resource].title);
+    sprintf(text, _(d46a), game_config_menu_items[53 + ini_gold_resource].title.c_str());
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, _(dd95), game_config_menu_items[56 + ini_alien_derelicts].title);
+    sprintf(text, _(dd95), game_config_menu_items[56 + ini_alien_derelicts].title.c_str());
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 

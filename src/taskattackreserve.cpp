@@ -142,7 +142,8 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 WeightTable table = AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 3);
 
                 for (int32_t i = 0; i < table.GetCount(); ++i) {
-                    if (Builder_GetBuilderType(table[i].unit_type) != unit.GetUnitType() ||
+                    const auto builder_type = Builder_GetBuilderType(table[i].unit_type);
+                    if (builder_type == INVALID_ID || builder_type != unit.GetUnitType() ||
                         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
                                 ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end) {
                         table[i].weight = 0;
@@ -194,17 +195,18 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 
                     unit_type = Builder_GetBuilderType(table[i].unit_type);
 
-                    if (unit_type != unit.GetUnitType() && Builder_GetBuilderType(unit_type) != unit.GetUnitType()) {
+                    if (unit_type == INVALID_ID ||
+                        (unit_type != unit.GetUnitType() && Builder_GetBuilderType(unit_type) != unit.GetUnitType())) {
                         table[i].weight = 0;
                     }
 
                     if (builders_needed) {
-                        ResourceID builder = Builder_GetBuilderType(table[i].unit_type);
+                        const auto builder_type = Builder_GetBuilderType(table[i].unit_type);
 
-                        if (builder != INVALID_ID &&
+                        if (builder_type != INVALID_ID &&
                             (UnitsManager_BaseUnits[table[i].unit_type].flags &
                              (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
-                            unit_types[builder] > 0) {
+                            unit_types[builder_type] > 0) {
                             table[i].weight = 0;
                         }
                     }
@@ -213,13 +215,15 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 unit_type = table.RollUnitType();
 
                 if (unit_type != INVALID_ID) {
-                    ResourceID builder = Builder_GetBuilderType(unit_type);
+                    const auto builder_type = Builder_GetBuilderType(unit_type);
 
-                    if (builder != unit.GetUnitType()) {
-                        unit_type = builder;
+                    if (builder_type != unit.GetUnitType()) {
+                        unit_type = builder_type;
                     }
 
-                    AiPlayer_Teams[team].CreateBuilding(unit_type, site, this);
+                    if (unit_type != INVALID_ID) {
+                        AiPlayer_Teams[team].CreateBuilding(unit_type, site, this);
+                    }
                 }
             }
         }

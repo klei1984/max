@@ -1,0 +1,104 @@
+/* Copyright (c) 2025 M.A.X. Port Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#include "missionmanager.hpp"
+
+#include "maxregistryhandler.hpp"
+#include "resource_manager.hpp"
+
+std::unique_ptr<MissionRegistry> MissionManager::m_missionregistry;
+
+MissionManager::MissionManager() {
+    if (!m_missionregistry) {
+        m_missionregistry = std::make_unique<MissionRegistry>(ResourceManager_FilePathGamePref);
+    }
+}
+
+MissionManager::~MissionManager() {}
+
+bool MissionManager::LoadMission(const MissionCategory category, const std::string hash) {
+    m_mission = m_missionregistry->GetMission(category, hash);
+
+    if (m_mission) {
+        MaxRegistryHandler::Init();
+
+        m_mission->Setlanguage(m_language);
+
+        m_gameruleshandler = std::make_unique<GameRulesHandler>();
+
+        if (m_gameruleshandler) {
+            if (!m_gameruleshandler->LoadScript(*m_mission)) {
+                m_gameruleshandler.reset();
+                m_mission.reset();
+            }
+
+        } else {
+            m_mission.reset();
+        }
+
+        m_winlosshandler = std::make_unique<WinLossHandler>();
+
+        if (m_winlosshandler) {
+            if (!m_winlosshandler->LoadScript(*m_mission)) {
+                m_gameruleshandler.reset();
+                m_winlosshandler.reset();
+                m_mission.reset();
+            }
+
+        } else {
+            m_gameruleshandler.reset();
+            m_mission.reset();
+        }
+    }
+
+    return m_mission ? true : false;
+}
+
+bool MissionManager::LoadMission(const MissionCategory category, const uint32_t index) {
+    const auto& missions = m_missionregistry->GetMissions(category);
+    bool result;
+
+    if (missions.size() > index) {
+        result = LoadMission(category, missions[index]->GetMissionHashes()[0]);
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+const std::unique_ptr<GameRulesHandler>& MissionManager::GetGameRulesHandler() const { return m_gameruleshandler; }
+
+const std::unique_ptr<WinLossHandler>& MissionManager::GetWinLossHandler() const { return m_winlosshandler; }
+
+const std::shared_ptr<Mission> MissionManager::GetMission() const { return m_mission; }
+
+void MissionManager::ResetMission() {
+    m_mission.reset();
+    MaxRegistryHandler::Reset();
+}
+
+const std::vector<std::shared_ptr<Mission>>& MissionManager::GetMissions(const MissionCategory category) noexcept {
+    return m_missionregistry->GetMissions(category);
+}
+
+void MissionManager::HandleMissionStateChanges() { MaxRegistryHandler::Update(); }

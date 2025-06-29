@@ -29,6 +29,9 @@
 #include "enums.hpp"
 #include "gnw.h"
 #include "point.hpp"
+#include "resourcetable.hpp"
+
+class MissionManager;
 
 struct __attribute__((packed)) ImageSimpleHeader {
     int16_t width;
@@ -120,6 +123,7 @@ uint32_t ResourceManager_GetResourceSize(ResourceID id);
 int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer);
 int32_t ResourceManager_GetResourceFileID(ResourceID id);
 const char *ResourceManager_GetResourceID(ResourceID id);
+ResourceID ResourceManager_GetResourceID(std::string id);
 void ResourceManager_Realloc(ResourceID id, uint8_t *buffer, int32_t data_size);
 FILE *ResourceManager_GetFileHandle(ResourceID id);
 FILE *ResourceManager_OpenFileResource(const char *const cstr, const ResourceType type, const char *const mode = "rb",
@@ -137,5 +141,6 @@ void ResourceManager_InitHeatMaps(uint16_t team);
 void ResourceManager_InitTeamInfo();
 uint8_t *ResourceManager_GetBuffer(ResourceID id);
 std::string ResourceManager_Sha256(const ResourceID world);
+std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
 
 #endif /* RESOURCE_MANAGER_HPP */

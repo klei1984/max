@@ -127,7 +127,7 @@ struct AllocMenuControlItem {
 };
 
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 static struct AllocMenuControlItem allocation_menu_controls[ALLOCATION_MENU_CONTROL_ITEM_COUNT] = {
     MENU_CONTROL_DEF(139, 70, 0, 0, LFARO_OF, nullptr, 1002, nullptr, KCARG0),
@@ -176,8 +176,8 @@ AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWin
                &image->transparent_color, image->width);
 
     for (uint32_t i = 0; i < std::size(allocation_menu_titles); ++i) {
-        Text_TextBox(window.buffer, window.width, allocation_menu_titles[i].title, allocation_menu_titles[i].bounds.ulx,
-                     allocation_menu_titles[i].bounds.uly,
+        Text_TextBox(window.buffer, window.width, allocation_menu_titles[i].title.c_str(),
+                     allocation_menu_titles[i].bounds.ulx, allocation_menu_titles[i].bounds.uly,
                      allocation_menu_titles[i].bounds.lrx - allocation_menu_titles[i].bounds.ulx,
                      allocation_menu_titles[i].bounds.lry - allocation_menu_titles[i].bounds.uly, COLOR_GREEN, true,
                      true);

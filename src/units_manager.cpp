@@ -3094,7 +3094,7 @@ bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int32_t grid_x, int32
             Hash_MapHash.Remove(&*GameManager_TempTape);
         }
 
-        result = Builder_IsAccessible(unit->team, MININGST, grid_x, grid_y);
+        result = UnitsManager_IsAccessible(unit->team, MININGST, grid_x, grid_y);
 
         if (GameManager_TempTape != nullptr) {
             Hash_MapHash.Add(&*GameManager_TempTape);
@@ -3269,7 +3269,7 @@ uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t 
     }
 
     if (UnitsManager_BaseUnits[unit->GetUnitType()].flags & BUILDING) {
-        result = Builder_IsAccessible(unit->team, unit_type, grid_x, grid_y);
+        result = UnitsManager_IsAccessible(unit->team, unit_type, grid_x, grid_y);
 
     } else {
         if (Access_GetModifiedSurfaceType(grid_x, grid_y) == SURFACE_TYPE_AIR) {
@@ -6855,6 +6855,52 @@ int32_t UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int32
 
     } else {
         result = attacker_attack - target_armor;
+    }
+
+    return result;
+}
+
+bool UnitsManager_IsAccessible(uint16_t team, ResourceID unit_type, int32_t grid_x, int32_t grid_y) {
+    bool result;
+
+    if (grid_x >= 0 && grid_y >= 0 && grid_x <= ResourceManager_MapSize.x - 2 &&
+        grid_y <= ResourceManager_MapSize.x - 2) {
+        result = Access_IsAccessible(unit_type, team, grid_x, grid_y, AccessModifier_SameClassBlocks) &&
+                 Access_IsAccessible(unit_type, team, grid_x + 1, grid_y, AccessModifier_SameClassBlocks) &&
+                 Access_IsAccessible(unit_type, team, grid_x, grid_y + 1, AccessModifier_SameClassBlocks) &&
+                 Access_IsAccessible(unit_type, team, grid_x + 1, grid_y + 1, AccessModifier_SameClassBlocks);
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
+bool UnitsManager_IssueBuildOrder(UnitInfo* unit, int16_t* grid_x, int16_t* grid_y, ResourceID unit_type) {
+    BaseUnit* base_unit;
+    bool result;
+    uint16_t team;
+
+    base_unit = &UnitsManager_BaseUnits[unit_type];
+    team = unit->team;
+
+    if (unit->flags & STATIONARY) {
+        result = true;
+
+    } else {
+        Hash_MapHash.Remove(unit);
+
+        if (base_unit->flags & BUILDING) {
+            result = UnitsManager_IsAccessible(team, unit_type, *grid_x, *grid_y) ||
+                     UnitsManager_IsAccessible(team, unit_type, *grid_x, --*grid_y) ||
+                     UnitsManager_IsAccessible(team, unit_type, --*grid_x, *grid_y) ||
+                     UnitsManager_IsAccessible(team, unit_type, *grid_x, ++*grid_y);
+
+        } else {
+            result = Access_IsAccessible(unit_type, team, *grid_x, *grid_y, AccessModifier_SameClassBlocks);
+        }
+
+        Hash_MapHash.Add(unit);
     }
 
     return result;

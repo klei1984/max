@@ -2356,7 +2356,7 @@ void UnitInfo::Build() {
     orders = ORDER_BUILD;
 
     if (path != nullptr) {
-        if (Builder_IssueBuildOrder(this, &grid_x, &grid_y, build_unit_type)) {
+        if (UnitsManager_IssueBuildOrder(this, &grid_x, &grid_y, build_unit_type)) {
             target_grid_x = grid_x;
             target_grid_y = grid_y;
 

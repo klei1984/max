@@ -110,7 +110,6 @@ static const IniKey ini_keys_table[] = {
     {"disable_voice", "0", INI_NUMERIC},
     {"auto_save", "1", INI_NUMERIC},
     {"game_file_number", "1", INI_NUMERIC},
-    {"game_file_type", "0", INI_NUMERIC},
     {"demo_turns", "0", INI_NUMERIC},
     {"enhanced_graphics", "1", INI_NUMERIC},
     {"last_campaign", "1", INI_NUMERIC},
@@ -120,7 +119,6 @@ static const IniKey ini_keys_table[] = {
     {"game_data", "", INI_STRING},
     {"cheating_computer", "3", INI_NUMERIC},
 
-    /// Keep original layout for v1.04 save game compatibility
     {"OPTIONS", nullptr, INI_SECTION},
     {"world", "0", INI_NUMERIC},
     {"timer", "180", INI_NUMERIC},
@@ -135,7 +133,6 @@ static const IniKey ini_keys_table[] = {
     {"gold_resource", "1", INI_NUMERIC},
     {"alien_derelicts", "0", INI_NUMERIC},
 
-    /// Keep original layout for v1.04 save game compatibility
     {"PREFERENCES", nullptr, INI_SECTION},
     {"effects", "1", INI_NUMERIC},
     {"click_scroll", "1", INI_NUMERIC},
@@ -150,14 +147,17 @@ static const IniKey ini_keys_table[] = {
     {"green_team_name", "Player 2", INI_STRING},
     {"blue_team_name", "Player 3", INI_STRING},
     {"gray_team_name", "Player 4", INI_STRING},
+    {"alien_team_name", " ", INI_STRING},
     {"red_team_player", "1", INI_NUMERIC},
     {"green_team_player", "2", INI_NUMERIC},
     {"blue_team_player", "0", INI_NUMERIC},
     {"gray_team_player", "0", INI_NUMERIC},
+    {"alien_team_player", "0", INI_NUMERIC},
     {"red_team_clan", "0", INI_NUMERIC},
     {"green_team_clan", "0", INI_NUMERIC},
     {"blue_team_clan", "0", INI_NUMERIC},
     {"gray_team_clan", "0", INI_NUMERIC},
+    {"alien_team_clan", "0", INI_NUMERIC},
 
     {"AUDIO_SETTINGS", nullptr, INI_SECTION},
     {"audio_device_name", "None", INI_STRING},

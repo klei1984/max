@@ -27,28 +27,28 @@ WinLossHandler::WinLossHandler() {}
 
 WinLossHandler::~WinLossHandler() {}
 
-bool WinLossHandler::LoadScripts(const Mission& mission) {
+bool WinLossHandler::LoadScript(const Mission& mission) {
+    bool result;
+
     if (m_interpreter) {
+        m_script = "return MAX_VICTORY_STATE.GENERIC";
         Scripter::DestroyContext(m_interpreter);
-
-        if (mission.HasVictoryConditions()) {
-            m_win_script = mission.GetVictoryConditions();
-
-        } else {
-            m_win_script = "return false";
-        }
-
-        if (mission.HasDefeatConditions()) {
-            m_loss_script = mission.GetDefeatConditions();
-
-        } else {
-            m_loss_script = "return false";
-        }
-
-        m_interpreter = Scripter::CreateContext(Scripter::WINLOSS_CONDITIONS);
     }
 
-    return (m_interpreter != nullptr);
+    m_interpreter = Scripter::CreateContext(Scripter::WINLOSS_CONDITIONS);
+
+    if (m_interpreter) {
+        if (mission.HasWinLossConditions()) {
+            m_script = mission.GetWinLossConditions();
+        }
+
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 template <typename T>
@@ -58,44 +58,31 @@ static inline T WinLossHandler_GetElement(Scripter::ScriptParameters parameters,
     return std::get<T>(parameters[index]);
 }
 
-bool WinLossHandler::TestWinCriteria(const size_t team) {
+bool WinLossHandler::TestWinLossConditions(const size_t team, WinLossState& state) {
     Scripter::ScriptParameters results;
     std::string error;
     bool result;
 
-    results.push_back(static_cast<bool>(false));
+    SDL_assert(m_interpreter);
 
-    if (Scripter::RunScript(m_interpreter, m_win_script, {team}, results, &error)) {
-        SDL_assert(results.size() == 1);
+    if (m_interpreter) {
+        results.push_back(static_cast<size_t>(VICTORY_STATE_GENERIC));
 
-        result = WinLossHandler_GetElement<bool>(results, 0);
+        if (Scripter::RunScript(m_interpreter, m_script, {team}, results, &error)) {
+            SDL_assert(results.size() == 1);
 
-    } else {
-        SDL_Log("%s", error.c_str());
-        SDL_assert(0);
+            state = static_cast<WinLossState>(WinLossHandler_GetElement<size_t>(results, 0));
 
-        result = false;
-    }
+            result = true;
 
-    return result;
-}
+        } else {
+            SDL_Log("\n%s\n", error.c_str());
+            SDL_assert(0);
 
-bool WinLossHandler::TestLossCriteria(const size_t team) {
-    Scripter::ScriptParameters results;
-    std::string error;
-    bool result;
-
-    results.push_back(static_cast<bool>(false));
-
-    if (Scripter::RunScript(m_interpreter, m_win_script, {team}, results, &error)) {
-        SDL_assert(results.size() == 1);
-
-        result = WinLossHandler_GetElement<bool>(results, 0);
+            result = false;
+        }
 
     } else {
-        SDL_Log("%s", error.c_str());
-        SDL_assert(0);
-
         result = false;
     }
 

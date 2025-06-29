@@ -76,7 +76,6 @@ extern SmartList<UnitInfo> GameManager_LockedUnits;
 extern int32_t GameManager_TurnCounter;
 extern int32_t GameManager_TurnTimerValue;
 extern bool GameManager_MaxSpy;
-extern int32_t GameManager_GameFileNumber;
 extern int32_t GameManager_HumanPlayerCount;
 extern bool GameManager_AllVisible;
 extern bool GameManager_RealTime;

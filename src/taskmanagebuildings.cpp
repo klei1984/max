@@ -28,6 +28,7 @@
 #include "builder.hpp"
 #include "buildmenu.hpp"
 #include "inifile.hpp"
+#include "missionmanager.hpp"
 #include "mouseevent.hpp"
 #include "resource_manager.hpp"
 #include "sitemarker.hpp"
@@ -2351,10 +2352,9 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
                 }
             }
 
-            ResourceID builder_type = Builder_GetBuilderType(unit_type);
+            const auto builder_type = Builder_GetBuilderType(unit_type);
             int32_t builder_count = 0;
             int32_t unit_count = 0;
-            SmartObjectArray<ResourceID> buildable_units = Builder_GetBuildableUnits(builder_type);
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
@@ -2363,8 +2363,8 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
                 }
             }
 
-            for (int32_t i = 0; i < buildable_units.GetCount(); ++i) {
-                unit_count += unit_counters[*buildable_units[i]];
+            for (const auto unit : Builder_GetBuildableUnits(builder_type)) {
+                unit_count += unit_counters[unit];
             }
 
             if (builder_count * 2 + 1 > unit_count) {

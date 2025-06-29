@@ -22,7 +22,7 @@
 #ifndef CARGO_HPP
 #define CARGO_HPP
 
-#include "enums.hpp"
+#include "resource_manager.hpp"
 
 class UnitInfo;
 

@@ -25,18 +25,20 @@
 #include <array>
 #include <filesystem>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "mission.hpp"
 
 class MissionRegistry {
-    std::array<std::vector<std::unique_ptr<Mission>>, MISSION_CATEGORY_COUNT> m_categories;
+    std::array<std::vector<std::shared_ptr<Mission>>, MISSION_CATEGORY_COUNT> m_categories;
 
 public:
     MissionRegistry(const std::filesystem::path& root);
-    ~MissionRegistry();
+    virtual ~MissionRegistry();
 
-    const std::vector<std::unique_ptr<Mission>>& GetMissions(const MissionCategory category) noexcept;
+    const std::vector<std::shared_ptr<Mission>>& GetMissions(const MissionCategory category) noexcept;
+    std::shared_ptr<Mission> GetMission(const MissionCategory category, const std::string hash) noexcept;
 };
 
 #endif /* MISSIONREGISTRY_H */

@@ -26,10 +26,6 @@
 
 ResourceID Builder_GetBuilderType(ResourceID unit_type);
 bool Builder_IsBuildable(ResourceID unit_type);
-bool Builder_IssueBuildOrder(UnitInfo *unit, int16_t *grid_x, int16_t *grid_y, ResourceID unit_type);
-bool Builder_IsAccessible(uint16_t team, ResourceID unit_type, int32_t grid_x, int32_t grid_y);
-SmartObjectArray<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type);
-
-extern uint16_t Builder_CapabilityListNormal[];
+std::vector<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type);
 
 #endif /* BUILDER_HPP */

@@ -22,9 +22,7 @@
 #ifndef TASKS_HPP
 #define TASKS_HPP
 
-#include "enums.hpp"
-#include "gnw.h"
-#include "point.hpp"
+#include "resource_manager.hpp"
 #include "smartobjectarray.hpp"
 #include "smartpointer.hpp"
 #include "zone.hpp"

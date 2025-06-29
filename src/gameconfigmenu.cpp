@@ -38,7 +38,7 @@ struct GameConfigMenuControlItem {
 };
 
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 struct MenuTitleItem game_config_menu_items[] = {
     MENU_TITLE_ITEM_DEF(230, 5, 409, 25, _(8448)),    MENU_TITLE_ITEM_DEF(19, 50, 199, 70, _(de1b)),
@@ -74,8 +74,8 @@ struct MenuTitleItem game_config_menu_items[] = {
     MENU_TITLE_ITEM_DEF(529, 285, 633, 305, _(9689)), MENU_TITLE_ITEM_DEF(447, 305, 507, 320, _(f5d6)),
     MENU_TITLE_ITEM_DEF(447, 325, 507, 340, _(9427)), MENU_TITLE_ITEM_DEF(447, 345, 507, 360, _(d1d8)),
     MENU_TITLE_ITEM_DEF(551, 305, 611, 320, _(76b7)), MENU_TITLE_ITEM_DEF(551, 325, 611, 340, _(b459)),
-    MENU_TITLE_ITEM_DEF(551, 345, 611, 360, _(4065)), MENU_TITLE_ITEM_DEF(447, 370, 507, 390, nullptr),
-    MENU_TITLE_ITEM_DEF(551, 370, 611, 390, nullptr), MENU_TITLE_ITEM_DEF(447, 390, 507, 410, _(a07a)),
+    MENU_TITLE_ITEM_DEF(551, 345, 611, 360, _(4065)), MENU_TITLE_ITEM_DEF(447, 370, 507, 390, ""),
+    MENU_TITLE_ITEM_DEF(551, 370, 611, 390, ""),      MENU_TITLE_ITEM_DEF(447, 390, 507, 410, _(a07a)),
     MENU_TITLE_ITEM_DEF(551, 390, 611, 410, _(7015)),
 };
 
@@ -139,8 +139,8 @@ static const char* game_config_menu_difficulty_descriptions[] = {
 
 static void DrawCaption(WindowInfo* window, MenuTitleItem* menu_item, FontColor color = Fonts_BrightYellowColor,
                         bool horizontal_align = false) {
-    if (menu_item->title && menu_item->title[0] != '\0') {
-        Text_TextBox(window, menu_item->title, WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
+    if (menu_item->title.length() > 0) {
+        Text_TextBox(window, menu_item->title.c_str(), WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
                      WindowManager_ScaleUly(window, menu_item->bounds.uly),
                      menu_item->bounds.lrx - menu_item->bounds.ulx, menu_item->bounds.lry - menu_item->bounds.uly,
                      horizontal_align, true, color);
@@ -235,13 +235,13 @@ void GameConfigMenu::EventComputerOpponent() {
 }
 
 void GameConfigMenu::EventTurnTimer() {
-    ini_set_setting(INI_TIMER, strtol(game_config_menu_items[key + 9].title, nullptr, 10));
+    ini_set_setting(INI_TIMER, strtol(game_config_menu_items[key + 9].title.c_str(), nullptr, 10));
     DrawPanelTurnTimers();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventEndturn() {
-    ini_set_setting(INI_ENDTURN, strtol(game_config_menu_items[key + 9].title, nullptr, 10));
+    ini_set_setting(INI_ENDTURN, strtol(game_config_menu_items[key + 9].title.c_str(), nullptr, 10));
     DrawPanelTurnTimers();
     win_draw(window->id);
 }
@@ -253,7 +253,7 @@ void GameConfigMenu::EventPlayMode() {
 }
 
 void GameConfigMenu::EventStartingCredit() {
-    ini_set_setting(INI_START_GOLD, strtol(game_config_menu_items[key + 15].title, nullptr, 10));
+    ini_set_setting(INI_START_GOLD, strtol(game_config_menu_items[key + 15].title.c_str(), nullptr, 10));
     DrawPanelStartingCredit();
     win_draw(window->id);
 }
@@ -468,7 +468,7 @@ void GameConfigMenu::DrawPanelTurnTimers() {
     timer_setting = ini_get_setting(INI_TIMER);
 
     for (timer_index = 6; timer_index > 0; --timer_index) {
-        timer_value = strtol(game_config_menu_items[timer_index + 15].title, nullptr, 10);
+        timer_value = strtol(game_config_menu_items[timer_index + 15].title.c_str(), nullptr, 10);
 
         if (timer_setting >= timer_value) {
             break;
@@ -478,7 +478,7 @@ void GameConfigMenu::DrawPanelTurnTimers() {
     endturn_setting = ini_get_setting(INI_ENDTURN);
 
     for (endturn_index = 6; endturn_index > 0; --endturn_index) {
-        endturn_value = strtol(game_config_menu_items[endturn_index + 22].title, nullptr, 10);
+        endturn_value = strtol(game_config_menu_items[endturn_index + 22].title.c_str(), nullptr, 10);
 
         if (endturn_setting >= endturn_value) {
             break;
@@ -508,7 +508,7 @@ void GameConfigMenu::DrawPanelStartingCredit() {
     starting_credits = ini_get_setting(INI_START_GOLD);
 
     for (index = 5; index > 0; --index) {
-        credits = strtol(game_config_menu_items[index + 37].title, nullptr, 10);
+        credits = strtol(game_config_menu_items[index + 37].title.c_str(), nullptr, 10);
 
         if (starting_credits >= credits) {
             break;
@@ -546,10 +546,10 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
     snprintf(text, 30, "%d", victory_limit);
 
     if (ini_get_setting(INI_VICTORY_TYPE)) {
-        game_config_menu_items[67].title = nullptr;
+        game_config_menu_items[67].title.clear();
 
         if (field_867) {
-            game_config_menu_items[68].title = nullptr;
+            game_config_menu_items[68].title.clear();
         } else {
             game_config_menu_items[68].title = text;
         }
@@ -565,10 +565,10 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
         }
 
     } else {
-        game_config_menu_items[68].title = nullptr;
+        game_config_menu_items[68].title.clear();
 
         if (field_867) {
-            game_config_menu_items[67].title = nullptr;
+            game_config_menu_items[67].title.clear();
         } else {
             game_config_menu_items[67].title = text;
         }

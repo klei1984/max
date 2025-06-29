@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <unordered_map>
 
 #include "nlohmann/json-schema.hpp"
 #include "nlohmann/json.hpp"
@@ -37,8 +36,8 @@ using json = nlohmann::json;
 using validator = nlohmann::json_schema::json_validator;
 
 struct Resource {
-    std::filesystem::path file;
-    ResourceID id;
+    std::vector<std::filesystem::path> file;
+    std::vector<ResourceID> id;
 };
 
 struct Media {
@@ -92,6 +91,7 @@ struct GameMusic {
 };
 
 struct MissionObject {
+    std::string script;
     std::string author;
     std::string copyright;
     std::string license;
@@ -103,8 +103,7 @@ struct MissionObject {
     std::optional<StoryBlock> intro;
     std::optional<StoryBlock> victory;
     std::optional<StoryBlock> defeat;
-    std::optional<ScriptBlock> victory_conditions;
-    std::optional<ScriptBlock> defeat_conditions;
+    std::optional<ScriptBlock> winloss_conditions;
     std::optional<ScriptBlock> game_rules;
     std::optional<std::vector<GameEvent>> game_events;
     std::optional<GameMusic> game_music;
@@ -127,7 +126,7 @@ static inline Mission::ResourceType Mission_GetOptionalMedia(const std::optional
         }
 
     } else {
-        resource = INVALID_ID;
+        resource = std::vector<ResourceID>{INVALID_ID};
     }
 
     return resource;
@@ -149,7 +148,7 @@ static inline Mission::ResourceType Mission_GetOptionalMedia(
         }
 
     } else {
-        resource = INVALID_ID;
+        resource = std::vector<ResourceID>{INVALID_ID};
     }
 
     return resource;
@@ -172,6 +171,7 @@ static inline bool Mission_GetOptionalStory(Mission::Story& story, const std::op
 
 static inline void Mission_ProcessCategory(const json& j, MissionObject& m) {
     const std::unordered_map<std::string, MissionCategory> map = {
+        {"Custom", MISSION_CATEGORY_CUSTOM},
         {"Training", MISSION_CATEGORY_TRAINING},
         {"Campaign", MISSION_CATEGORY_CAMPAIGN},
         {"Demo", MISSION_CATEGORY_DEMO},
@@ -240,28 +240,37 @@ static inline bool Mission_TestMediaFile(const std::filesystem::path& path) {
 
 static inline void Mission_ProcessMission(const json& j, MissionObject& m) {
     std::string file;
-    std::string hash;
+    std::vector<std::string> hash;
     std::filesystem::path path;
 
+    if (m.category == MISSION_CATEGORY_CUSTOM) {
+        m.hash.push_back("MISSION_CATEGORY_CUSTOM");
+
+        return;
+    }
+
     j.at("mission").get_to(file);
-    j.at("hash").get_to(m.hash);
+    j.at("hash").get_to(hash);
 
     path = ResourceManager_FilePathGameData / file;
 
-    if (Mission_TestMissionFile(path, m.hash)) {
+    if (Mission_TestMissionFile(path, hash)) {
         m.mission = path;
+        m.hash = hash;
 
     } else {
         path = ResourceManager_FilePathGameBase / file;
 
-        if (Mission_TestMissionFile(path, m.hash)) {
+        if (Mission_TestMissionFile(path, hash)) {
             m.mission = path;
+            m.hash = hash;
 
         } else {
             path = ResourceManager_FilePathGamePref / file;
 
-            if (Mission_TestMissionFile(path, m.hash)) {
+            if (Mission_TestMissionFile(path, hash)) {
                 m.mission = path;
+                m.hash = hash;
 
             } else {
                 throw std::runtime_error((std::string("Invalid mission file: ") + file).c_str());
@@ -291,52 +300,60 @@ void from_json(const json& j, ScriptBlock& m) {
 
 void from_json(const json& j, Resource& m) {
     if (j.contains("file")) {
-        std::string file;
+        std::vector<std::string> files;
         std::filesystem::path path;
 
-        j.at("file").get_to(file);
+        m.id = std::vector<ResourceID>{INVALID_ID};
 
-        path = ResourceManager_FilePathGameData / file;
+        j.at("file").get_to(files);
 
-        m.id = INVALID_ID;
-
-        if (Mission_TestMediaFile(path)) {
-            m.file = path;
-
-        } else {
-            path = ResourceManager_FilePathGameBase / file;
+        for (const auto& file : files) {
+            path = ResourceManager_FilePathGameData / file;
 
             if (Mission_TestMediaFile(path)) {
-                m.file = path;
+                m.file.push_back(path);
 
             } else {
-                path = ResourceManager_FilePathGamePref / file;
+                path = ResourceManager_FilePathGameBase / file;
 
                 if (Mission_TestMediaFile(path)) {
-                    m.file = path;
+                    m.file.push_back(path);
 
                 } else {
-                    throw std::runtime_error((std::string("Invalid media file: ") + file).c_str());
+                    path = ResourceManager_FilePathGamePref / file;
+
+                    if (Mission_TestMediaFile(path)) {
+                        m.file.push_back(path);
+
+                    } else {
+                        throw std::runtime_error((std::string("Invalid media files: ") + file).c_str());
+                    }
                 }
             }
         }
 
+        if (m.file.size() == 0) {
+            throw std::runtime_error("No valid media files found.");
+        }
+
     } else if (j.contains("id")) {
-        std::string id;
-        size_t index;
+        std::vector<std::string> ids;
 
-        j.at("id").get_to(id);
+        j.at("id").get_to(ids);
 
-        for (index = 0; index < RESOURCE_E; ++index) {
-            if (id == ResourceManager_GetResourceID(static_cast<ResourceID>(index))) {
-                m.id = static_cast<ResourceID>(index);
-                m.file = "";
-                break;
+        for (const auto& id : ids) {
+            const auto resource_id = ResourceManager_GetResourceID(id);
+
+            if (resource_id != INVALID_ID) {
+                m.id.push_back(resource_id);
+
+            } else {
+                throw std::runtime_error((std::string("Invalid media resource: ") + id).c_str());
             }
         }
 
-        if (index == RESOURCE_E) {
-            throw std::runtime_error((std::string("Invalid media resource: ") + id).c_str());
+        if (m.id.size() == 0) {
+            throw std::runtime_error("No valid media resource found.");
         }
     }
 }
@@ -385,12 +402,8 @@ void from_json(const json& j, MissionObject& m) {
         m.defeat = j.at("defeat").get<StoryBlock>();
     }
 
-    if (j.contains("victory_conditions")) {
-        m.victory_conditions = j.at("victory_conditions").get<ScriptBlock>();
-    }
-
-    if (j.contains("defeat_conditions")) {
-        m.defeat_conditions = j.at("defeat_conditions").get<ScriptBlock>();
+    if (j.contains("winloss_conditions")) {
+        m.winloss_conditions = j.at("winloss_conditions").get<ScriptBlock>();
     }
 
     if (j.contains("game_rules")) {
@@ -430,19 +443,27 @@ bool Mission::GetDefeatInfo(Story& story) const {
     return Mission_GetOptionalStory(story, m_mission->defeat, m_language);
 }
 
-bool Mission::HasVictoryConditions() const { return m_mission->victory_conditions.has_value(); }
+bool Mission::HasWinLossConditions() const { return m_mission->winloss_conditions.has_value(); }
 
-std::string Mission::GetVictoryConditions() const {
-    return (m_mission->victory_conditions.has_value()) ? m_mission->victory_conditions.value().script : "return false";
-}
-
-bool Mission::HasDefeatConditions() const { return m_mission->defeat_conditions.has_value(); }
-
-std::string Mission::GetDefeatConditions() const {
-    return (m_mission->defeat_conditions.has_value()) ? m_mission->defeat_conditions.value().script : "return false";
+std::string Mission::GetWinLossConditions() const {
+    return (m_mission->winloss_conditions.has_value()) ? m_mission->winloss_conditions.value().script : "return false";
 }
 
 bool Mission::HasGameRules() const { return m_mission->game_rules.has_value(); }
+
+std::string Mission::GetScript() const { return m_mission->script; }
+
+std::unique_ptr<std::vector<uint8_t>> Mission::GetBinaryScript() const {
+    auto buffer = std::make_unique<std::vector<uint8_t>>(m_mission->script.size());
+
+    if (buffer) {
+        for (size_t i = 0; i < buffer->size(); ++i) {
+            (*buffer)[i] = (*buffer)[i] ^ ResourceManager_GenericTable[i % sizeof(ResourceManager_GenericTable)];
+        }
+    }
+
+    return buffer;
+}
 
 std::string Mission::GetGameRules() const {
     return (m_mission->game_rules.has_value()) ? m_mission->game_rules.value().script : "return false";
@@ -478,13 +499,30 @@ bool Mission::LoadBuffer(const std::string& script) {
 
         *m_mission = jscript.get<MissionObject>();
 
+        m_mission->script = jscript.dump();
+
         result = true;
 
     } catch (const json::parse_error& e) {
-        SDL_Log("%s", (std::string("JSON parse error: ") + e.what()).c_str());
+        SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
+
+    } catch (const std::exception& e) {
+        SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
     }
 
     return result;
+}
+
+[[nodiscard]] bool Mission::LoadBinaryBuffer(const std::vector<uint8_t>& script) {
+    auto decoded_script = script;
+
+    for (size_t i = 0; i < decoded_script.size(); ++i) {
+        decoded_script[i] = decoded_script[i] ^ ResourceManager_GenericTable[i % sizeof(ResourceManager_GenericTable)];
+    }
+
+    std::string jscript(decoded_script.begin(), decoded_script.end());
+
+    return LoadBuffer(jscript);
 }
 
 bool Mission::LoadFile(const std::string& path) {
@@ -498,4 +536,10 @@ bool Mission::LoadFile(const std::string& path) {
     }
 
     return result;
+}
+
+const std::vector<std::string> Mission::GetMissionHashes() const { return m_mission->hash; }
+
+bool Mission::IdentifyMission(const std::string hash) const {
+    return std::find(m_mission->hash.begin(), m_mission->hash.end(), hash) != m_mission->hash.end();
 }

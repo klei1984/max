@@ -23,13 +23,17 @@
 #define MISSION_HPP
 
 #include <variant>
+#include <vector>
 
 #include "resource_manager.hpp"
 struct MissionObject;
 
 enum MissionCategory {
+    MISSION_CATEGORY_CUSTOM,
     MISSION_CATEGORY_TRAINING,
     MISSION_CATEGORY_CAMPAIGN,
+    MISSION_CATEGORY_HOT_SEAT,
+    MISSION_CATEGORY_MULTI,
     MISSION_CATEGORY_DEMO,
     MISSION_CATEGORY_SCENARIO,
     MISSION_CATEGORY_MULTI_PLAYER_SCENARIO,
@@ -43,7 +47,7 @@ class Mission {
     [[nodiscard]] std::string LoadSchema();
 
 public:
-    using ResourceType = std::variant<ResourceID, std::filesystem::path>;
+    using ResourceType = std::variant<std::vector<ResourceID>, std::vector<std::filesystem::path>>;
 
     struct Story {
         std::string text;
@@ -59,12 +63,18 @@ public:
 
     [[nodiscard]] bool LoadFile(const std::string& path);
     [[nodiscard]] bool LoadBuffer(const std::string& script);
+    [[nodiscard]] bool LoadBinaryBuffer(const std::vector<uint8_t>& script);
     void Setlanguage(const std::string& language);
 
     [[nodiscard]] std::string GetTitle() const;
     [[nodiscard]] MissionCategory GetCategory() const;
     [[nodiscard]] std::string GetDescription() const;
+    [[nodiscard]] const std::vector<std::string> GetMissionHashes() const;
     [[nodiscard]] std::filesystem::path GetMission() const;
+    [[nodiscard]] std::string GetScript() const;
+    [[nodiscard]] std::unique_ptr<std::vector<uint8_t>> GetBinaryScript() const;
+
+    [[nodiscard]] bool IdentifyMission(const std::string hash) const;
 
     [[nodiscard]] bool HasIntroInfo() const;
     [[nodiscard]] bool GetIntroInfo(Story& story) const;
@@ -75,11 +85,8 @@ public:
     [[nodiscard]] bool HasDefeatInfo() const;
     [[nodiscard]] bool GetDefeatInfo(Story& story) const;
 
-    [[nodiscard]] bool HasVictoryConditions() const;
-    [[nodiscard]] std::string GetVictoryConditions() const;
-
-    [[nodiscard]] bool HasDefeatConditions() const;
-    [[nodiscard]] std::string GetDefeatConditions() const;
+    [[nodiscard]] bool HasWinLossConditions() const;
+    [[nodiscard]] std::string GetWinLossConditions() const;
 
     [[nodiscard]] bool HasGameRules() const;
     [[nodiscard]] std::string GetGameRules() const;

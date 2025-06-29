@@ -24,30 +24,30 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <variant>
 
-constexpr size_t SaveLoad_HashSize{64u};
-constexpr size_t SaveLoad_TeamCount{5u};
+#include "enums.hpp"
+#include "mission.hpp"
 
 struct SaveFileInfo {
+    std::string mission;
+    std::string world;
     std::string save_name;
     std::string file_name;
-    std::string team_names[SaveLoad_TeamCount];
+    std::string team_names[PLAYER_TEAM_MAX];
     uint32_t version;
-    uint32_t save_game_type;
-    uint32_t team_type[SaveLoad_TeamCount];
-    uint32_t team_clan[SaveLoad_TeamCount];
-    uint32_t rng_seed;
-    uint8_t mission[SaveLoad_HashSize];
-    uint8_t world[SaveLoad_HashSize];
+    uint32_t save_file_type;
+    uint32_t team_type[PLAYER_TEAM_MAX];
+    uint32_t team_clan[PLAYER_TEAM_MAX];
+    uint32_t random_seed;
 };
 
-bool SaveLoad_LoadIniOptions(const int32_t save_slot, const int32_t game_file_type);
-bool SaveLoad_GetSaveFileInfo(const int32_t save_slot, const int32_t game_file_type,
-                              struct SaveFileInfo &save_file_header);
+bool SaveLoad_LoadIniOptions(const MissionCategory mission_category, const int32_t save_slot);
+bool SaveLoad_GetSaveFileInfo(const MissionCategory mission_category, const int32_t save_slot,
+                              struct SaveFileInfo &save_file_info);
 [[nodiscard]] bool SaveLoad_IsSaveFileFormatSupported(const uint32_t format_version);
-void SaveLoad_Save(const std::filesystem::path &filepath, const char *const save_name, const uint32_t rng_seed);
-bool SaveLoad_Load(const std::filesystem::path &filepath, int32_t save_slot, int32_t game_file_type, bool ini_load_mode,
-                   bool is_remote_game);
+bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save_name, const uint32_t rng_seed);
+bool SaveLoad_Load(const std::filesystem::path &filepath, const MissionCategory mission_category,
+                   const int32_t save_slot, bool ini_load_mode, bool is_remote_game);
+std::string SaveLoad_GetSaveFileName(const MissionCategory mission_category, const uint32_t save_slot);
 
 #endif /* SAVELOAD_HPP */

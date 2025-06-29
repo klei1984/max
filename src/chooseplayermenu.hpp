@@ -43,10 +43,10 @@ public:
     WindowInfo *window;
     uint32_t event_click_done;
     uint32_t event_click_cancel;
-    uint32_t game_type;
     int32_t key_press;
     Button *buttons[CHOOSE_PLAYER_MENU_ITEM_COUNT];
     ChoosePlayerMenuItem menu_item[CHOOSE_PLAYER_MENU_ITEM_COUNT];
+    bool is_single_player;
 
     void Init();
     void Deinit();

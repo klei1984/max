@@ -22,7 +22,6 @@
 #ifndef BUTTON_HPP
 #define BUTTON_HPP
 
-#include "enums.hpp"
 #include "fonts.hpp"
 #include "image.hpp"
 

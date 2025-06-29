@@ -107,13 +107,20 @@ int32_t TaskCreateBuilding::EstimateBuildTime() {
 void TaskCreateBuilding::RequestBuilder() {
     AiLog log("Task Create Building: Request Builder");
 
-    SmartPointer<TaskObtainUnits> obtain_units_task(new (std::nothrow) TaskObtainUnits(this, site));
+    const auto builder_type = Builder_GetBuilderType(unit_type);
 
     op_state = CREATE_BUILDING_STATE_GETTING_BUILDER;
 
-    obtain_units_task->AddUnit(Builder_GetBuilderType(unit_type));
+    if (builder_type != INVALID_ID) {
+        SmartPointer<TaskObtainUnits> obtain_units_task(new (std::nothrow) TaskObtainUnits(this, site));
 
-    TaskManager.AppendTask(*obtain_units_task);
+        obtain_units_task->AddUnit(builder_type);
+
+        TaskManager.AppendTask(*obtain_units_task);
+
+    } else {
+        RemoveSelf();
+    }
 }
 
 void TaskCreateBuilding::AbandonSite() {

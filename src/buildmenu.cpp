@@ -30,6 +30,7 @@
 #include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
+#include "missionmanager.hpp"
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "resource_manager.hpp"
@@ -213,11 +214,6 @@ void BuildUnitTypeSelector::Draw() {
 
 AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit)
     : Window(resource_id, GameManager_GetDialogWindowCenterMode()), unit(unit) {
-    ResourceID builder_unit;
-    ResourceID buildable_unit;
-    int32_t list_size;
-    int32_t index = 0;
-
     event_success = false;
     event_click_cancel = false;
     event_click_path_build = false;
@@ -247,24 +243,8 @@ AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit)
 
     build_rate = unit->GetBuildRate();
 
-    for (;;) {
-        builder_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[index++]);
-
-        if (builder_unit == unit->GetUnitType()) {
-            break;
-        }
-
-        index += Builder_CapabilityListNormal[index] + 1;
-    }
-
-    list_size = Builder_CapabilityListNormal[index++];
-
-    for (int32_t j = 0; j < list_size; ++j) {
-        buildable_unit = static_cast<ResourceID>(Builder_CapabilityListNormal[index++]);
-
-        if (Builder_IsBuildable(buildable_unit)) {
-            unit_types.PushBack(&buildable_unit);
-        }
+    for (const auto buildable_unit : Builder_GetBuildableUnits(unit->GetUnitType())) {
+        unit_types.PushBack(&buildable_unit);
     }
 
     Add(true);
@@ -898,6 +878,7 @@ MobileBuildMenu::~MobileBuildMenu() {}
 
 void MobileBuildMenu::Build() {
     ResourceID unit_type;
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
     unit_type = selector->GetLast();
 
@@ -910,7 +891,7 @@ void MobileBuildMenu::Build() {
         grid_x = unit->grid_x;
         grid_y = unit->grid_y;
 
-        if (Builder_IssueBuildOrder(unit, &grid_x, &grid_y, unit_type)) {
+        if (UnitsManager_IssueBuildOrder(unit, &grid_x, &grid_y, unit_type)) {
             BaseUnit *base_unit;
             int32_t turns_to_build;
             int32_t max_build_rate;
@@ -950,7 +931,7 @@ void MobileBuildMenu::Build() {
 
                     MessageManager_DrawMessage(_(06cb), 0, 0);
 
-                    if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING) {
+                    if (mission_category == MISSION_CATEGORY_TRAINING) {
                         SoundManager_PlayVoice(V_M049, V_F050);
                     }
 
@@ -968,7 +949,8 @@ void MobileBuildMenu::Build() {
                     string.Sprintf(250, BuildMenu_EventStrings_Available1[base_unit->gender], base_unit->singular_name,
                                    UnitsManager_TeamInfo[unit->team].unit_counters[unit_type], turns_to_build);
 
-                    if (GameManager_GameFileNumber == 1 && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING) {
+                    if (ResourceManager_GetMissionManager()->GetMission()->IdentifyMission(
+                            "24c19a1201ad24cfdc0c4cfc158596a505284992e57b34d65f2ddc2b243ce549")) {
                         string += _(6682);
                     }
 

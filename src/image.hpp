@@ -22,8 +22,7 @@
 #ifndef IMAGE_HPP
 #define IMAGE_HPP
 
-#include "enums.hpp"
-#include "gnw.h"
+#include "resource_manager.hpp"
 
 class Image {
     uint8_t *data;

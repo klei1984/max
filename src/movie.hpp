@@ -22,7 +22,7 @@
 #ifndef MOVIE_HPP
 #define MOVIE_HPP
 
-#include "enums.hpp"
+#include "resource_manager.hpp"
 
 extern "C" {
 int32_t Movie_PlayOemLogo(void);

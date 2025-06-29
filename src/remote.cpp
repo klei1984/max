@@ -474,8 +474,6 @@ void Remote_ResponseTimeout(uint16_t team, bool mode) {
         }
     }
 
-    ini_set_setting(INI_GAME_FILE_TYPE, GAME_TYPE_CUSTOM);
-
     Remote_IsNetworkGame = false;
 }
 
@@ -1926,7 +1924,6 @@ void Remote_SendNetPacket_17() {
 
     world = ini_get_setting(INI_WORLD);
     game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
-    game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
     play_mode = ini_get_setting(INI_PLAY_MODE);
     all_visible = ini_get_setting(INI_ALL_VISIBLE);
     quick_build = ini_get_setting(INI_QUICK_BUILD);
@@ -2150,7 +2147,6 @@ void Remote_ReceiveNetPacket_17(NetPacket& packet) {
 
         ini_set_setting(INI_WORLD, world);
         ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
-        ini_set_setting(INI_GAME_FILE_TYPE, game_file_type);
 
     } else {
         if (GameManager_AllVisible != all_visible) {

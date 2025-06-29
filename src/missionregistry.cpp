@@ -26,7 +26,7 @@
 #include <algorithm>
 
 MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
-    for (int32_t id = SCRIPT_S + 2; id < SCRIPT_E; ++id) {
+    for (int32_t id = SC_MIS_S; id < SC_MIS_E; ++id) {
         uint32_t file_size = ResourceManager_GetResourceSize(static_cast<ResourceID>(id));
         uint8_t* file_base = ResourceManager_ReadResource(static_cast<ResourceID>(id));
 
@@ -37,7 +37,7 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
 
             std::string script(reinterpret_cast<const char*>(file_base), file_size);
 
-            auto mission = std::make_unique<Mission>("en-US");
+            auto mission = std::make_shared<Mission>("en-US");
 
             if (mission->LoadBuffer(script)) {
                 m_categories[mission->GetCategory()].push_back(std::move(mission));
@@ -49,7 +49,7 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
 
     for (auto& category : m_categories) {
         std::sort(category.begin(), category.end(),
-                  [](const std::unique_ptr<Mission>& a, const std::unique_ptr<Mission>& b) {
+                  [](const std::shared_ptr<Mission>& a, const std::shared_ptr<Mission>& b) {
                       return a->GetTitle() < b->GetTitle();
                   });
     }
@@ -58,7 +58,7 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
         for (const auto& entry : std::filesystem::recursive_directory_iterator(root)) {
             if (entry.is_regular_file() && entry.path().extension() == ".json") {
                 if (entry.path().filename().string().ends_with(".mission.json")) {
-                    auto mission = std::make_unique<Mission>("en-US");
+                    auto mission = std::make_shared<Mission>("en-US");
 
                     if (mission->LoadFile(entry.path().string())) {
                         m_categories[mission->GetCategory()].push_back(std::move(mission));
@@ -68,12 +68,24 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
         }
 
     } else {
-        SDL_Log("Invalid folder path to mission descriptors: %s", root.string().c_str());
+        SDL_Log("\nInvalid folder path to mission descriptors: %s\n", root.string().c_str());
     }
 }
 
 MissionRegistry::~MissionRegistry() {}
 
-const std::vector<std::unique_ptr<Mission>>& MissionRegistry::GetMissions(const MissionCategory category) noexcept {
+const std::vector<std::shared_ptr<Mission>>& MissionRegistry::GetMissions(const MissionCategory category) noexcept {
     return m_categories[category];
+}
+
+std::shared_ptr<Mission> MissionRegistry::GetMission(const MissionCategory category, const std::string hash) noexcept {
+    for (const auto& mission : GetMissions(category)) {
+        for (const auto& mission_hash : mission->GetMissionHashes()) {
+            if (mission_hash == hash) {
+                return mission;
+            }
+        }
+    }
+
+    return {};
 }

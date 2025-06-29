@@ -38,11 +38,11 @@ struct PlanetSelectMenuControlItem {
 };
 
 #define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    { {(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx) }
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 static struct MenuTitleItem planet_select_menu_screen_title = {{230, 6, 410, 26}, _(f7c8)};
-static struct MenuTitleItem planet_select_menu_planet_name = {{16, 61, 165, 80}, nullptr};
-static struct MenuTitleItem planet_select_menu_planet_description = {{41, 350, 600, 409}, nullptr};
+static struct MenuTitleItem planet_select_menu_planet_name = {{16, 61, 165, 80}, ""};
+static struct MenuTitleItem planet_select_menu_planet_description = {{41, 350, 600, 409}, ""};
 
 static struct PlanetSelectMenuControlItem planet_select_menu_controls[] = {
     MENU_CONTROL_DEF(192, 51, 303, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),

@@ -23,8 +23,7 @@
 #define TRANSPORTERMAP_HPP
 
 #include "accessmap.hpp"
-#include "enums.hpp"
-#include "point.hpp"
+#include "resource_manager.hpp"
 #include "smartpointer.hpp"
 
 class UnitInfo;

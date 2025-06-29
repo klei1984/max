@@ -26,13 +26,6 @@
 
 #include "enums.hpp"
 
-enum WinLossState {
-    VICTORY_STATE_GENERIC = 0,
-    VICTORY_STATE_PENDING = 1,
-    VICTORY_STATE_WON = 2,
-    VICTORY_STATE_LOST = 3
-};
-
 struct WinLoss_Status {
     int32_t mission_type;
     int32_t team_type[PLAYER_TEAM_MAX];

@@ -21,7 +21,6 @@
 
 #include "color.h"
 
-#include "gnw.h"
 #include "resource_manager.hpp"
 
 static constexpr uint32_t RGB555_COLOR_COUNT{1 << 15};

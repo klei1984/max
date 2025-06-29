@@ -1,4 +1,5 @@
 set disassembly-flavor intel
+set print elements 0
 skip -rfunction '^std::'
 skip -file smartpointer.hpp
 skip -file smartobjectarray.hpp

@@ -35,7 +35,8 @@ enum ScriptType : uint8_t {
     GAME_MUSIC,
 };
 
-using ScriptParameters = std::vector<std::variant<bool, size_t, double, std::string>>;
+using ScriptTable = std::vector<std::variant<bool, size_t, double, std::string>>;
+using ScriptParameters = std::vector<std::variant<bool, size_t, double, std::string, ScriptTable>>;
 
 void Init();
 

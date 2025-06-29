@@ -40,6 +40,7 @@
 #include "menu.hpp"
 #include "menulandingsequence.hpp"
 #include "message_manager.hpp"
+#include "missionmanager.hpp"
 #include "mouseevent.hpp"
 #include "movie.hpp"
 #include "paths.hpp"
@@ -462,7 +463,6 @@ uint32_t GameManager_ArrowKeyFlags;
 int32_t GameManager_TurnTimerValue;
 uint32_t GameManager_FlicFrameTimeStamp;
 bool GameManager_MaxSpy;
-int32_t GameManager_GameFileNumber;
 int32_t GameManager_HumanPlayerCount;
 bool GameManager_RequestMenuExit;
 bool GameManager_IsMapInitialized;
@@ -699,7 +699,7 @@ static void GameManager_MenuClickChatGoalButton();
 static void GameManager_MenuClickPreferencesButton();
 static void GameManager_MenuClickFileButton(bool is_saving_allowed);
 static void GameManager_MenuClickGridButton(bool rest_state);
-static void GameManager_MenuClickEndTurnButton(bool state);
+static void GameManager_MenuClickEndTurnButton(bool rest_state);
 static void GameManager_MenuClickSurveyButton(bool rest_state);
 
 static void GameManager_SaveLoadGame(bool save_load_mode);
@@ -932,7 +932,9 @@ void GameManager_GameLoop(int32_t game_state) {
     uint32_t turn_counter_session_start;
     uint16_t team_winner;
 
-    if (game_state == GAME_STATE_10 && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_DEMO) {
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+
+    if (game_state == GAME_STATE_10 && mission_category == MISSION_CATEGORY_DEMO) {
         GameManager_DemoMode = true;
 
     } else {
@@ -2104,6 +2106,7 @@ Point GameManager_GetStartingPositionPowerGenerator(Point point, uint16_t team) 
 }
 
 void GameManager_GameSetup(int32_t game_state) {
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     int32_t zoom_level;
     int32_t max_zoom_level;
@@ -2134,21 +2137,23 @@ void GameManager_GameSetup(int32_t game_state) {
 
         MouseEvent::Clear();
 
-        if (GameManager_PlayScenarioIntro && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_CUSTOM) {
-            Color* palette;
+        if (mission_category == MISSION_CATEGORY_CUSTOM) {
+            if (GameManager_PlayScenarioIntro) {
+                Color* palette;
 
-            GameManager_LandingSequence.DeleteButtons();
-            palette = GameManager_MenuFadeOut(250);
-            Movie_Play(DEMO1FLC);
-            memcpy(WindowManager_ColorPalette, palette, PALETTE_STRIDE * PALETTE_SIZE);
+                GameManager_LandingSequence.DeleteButtons();
+                palette = GameManager_MenuFadeOut(250);
+                Movie_Play(DEMO1FLC);
+                memcpy(WindowManager_ColorPalette, palette, PALETTE_STRIDE * PALETTE_SIZE);
 
-            delete[] palette;
+                delete[] palette;
 
-            WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, false, true);
-            GameManager_ProcessTick(true);
-            WindowManager_FadeIn(100);
+                WindowManager_LoadBigImage(FRAMEPIC, window, window->width, false, true, -1, -1, false, true);
+                GameManager_ProcessTick(true);
+                WindowManager_FadeIn(100);
 
-            GameManager_PlayScenarioIntro = false;
+                GameManager_PlayScenarioIntro = false;
+            }
         }
 
         GameManager_GameState = GAME_STATE_11;
@@ -2174,12 +2179,9 @@ void GameManager_GameSetup(int32_t game_state) {
         }
 
     } else {
-        UnitInfo* unit;
-
         GameManager_GameState = GAME_STATE_10;
 
-        if (!SaveLoadMenu_Load(ini_get_setting(INI_GAME_FILE_NUMBER), ini_get_setting(INI_GAME_FILE_TYPE),
-                               !Remote_IsNetworkGame)) {
+        if (!SaveLoadMenu_Load(ini_get_setting(INI_GAME_FILE_NUMBER), mission_category, !Remote_IsNetworkGame)) {
             GameManager_GameState = GAME_STATE_3_MAIN_MENU;
             return;
         }
@@ -2190,7 +2192,7 @@ void GameManager_GameSetup(int32_t game_state) {
         GameManager_UpdateHumanPlayerCount();
         GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0, false);
 
-        unit = GameManager_GetFirstRelevantUnit(GameManager_PlayerTeam);
+        const auto unit = GameManager_GetFirstRelevantUnit(GameManager_PlayerTeam);
 
         GameManager_UpdateMainMapView(MAP_VIEW_CENTER, unit->grid_x, unit->grid_y);
         GameManager_ProcessTick(true);
@@ -2638,6 +2640,7 @@ bool GameManager_CheckDesync() {
 
 void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosave) {
     int32_t ini_timer_setting;
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
     GameManager_ActiveTurnTeam = team;
 
@@ -2717,24 +2720,19 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
 
     GameManager_UpdateTurnTimer(true, ini_timer_setting);
 
-    if (game_state == GAME_STATE_10 && ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING &&
+    if (game_state == GAME_STATE_10 && mission_category == MISSION_CATEGORY_TRAINING &&
         GameManager_SelectedUnit != nullptr) {
         GameManager_DrawUnitStatusMessage(&*GameManager_SelectedUnit);
     }
 
     if (GameManager_CheckDesync()) {
-        int32_t game_file_type;
-
-        game_file_type = SaveLoadMenu_GetGameFileType();
-
-        if (enable_autosave && game_file_type != GAME_TYPE_DEMO && ini_get_setting(INI_AUTO_SAVE)) {
-            char file_name[16];
+        if (enable_autosave && mission_category != MISSION_CATEGORY_DEMO && ini_get_setting(INI_AUTO_SAVE)) {
             char log_message[30];
+            const auto file_name = SaveLoad_GetSaveFileName(mission_category, 10);
 
-            sprintf(file_name, "save10.%s", SaveLoadMenu_SaveFileTypes[game_file_type]);
-            sprintf(log_message, _(263f), GameManager_TurnCounter);
+            snprintf(log_message, sizeof(log_message), _(263f), GameManager_TurnCounter);
 
-            SaveLoadMenu_Save(file_name, log_message, false, true);
+            SaveLoadMenu_Save(file_name.c_str(), log_message, false, true);
         }
 
         if (GameManager_ActiveTurnTeam == GameManager_PlayerTeam) {
@@ -3269,7 +3267,6 @@ void GameManager_InitUnitsAndGameState() {
 }
 
 bool GameManager_InitGame() {
-    GameManager_GameFileNumber = 0;
     GameManager_IsMapInitialized = false;
 
     if (Remote_IsNetworkGame) {
@@ -3525,7 +3522,6 @@ void GameManager_MenuAnimateDisplayControls() {
 bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     bool load_successful;
-    int32_t game_file_type;
 
     WindowManager_FadeOut(0);
     GameManager_FillOrRestoreWindow(WINDOW_MAIN_WINDOW, COLOR_BLACK, true);
@@ -3535,6 +3531,8 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
     load_successful = false;
 
     if (save_slot) {
+        const auto mission_category = ResourceManager_GetMissionManager().get()->GetMission()->GetCategory();
+
         if (GameManager_SelectedUnit != nullptr) {
             SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
         }
@@ -3543,8 +3541,6 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
         GameManager_PlayFlic = false;
         GameManager_GameState = GAME_STATE_10;
-
-        game_file_type = SaveLoadMenu_GetGameFileType();
 
         UnitsManager_GroundCoverUnits.Clear();
         UnitsManager_MobileLandSeaUnits.Clear();
@@ -3561,7 +3557,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
         GameManager_LockedUnits.Clear();
 
-        load_successful = SaveLoadMenu_Load(save_slot, game_file_type, true);
+        load_successful = SaveLoadMenu_Load(save_slot, mission_category, true);
 
         if (load_successful) {
             if (Remote_IsNetworkGame) {
@@ -4061,48 +4057,14 @@ void GameManager_MenuClickChatGoalButton() {
         ChatMenu_Menu(GameManager_PlayerTeam);
         GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
 
-    } else if (GameManager_GameFileNumber) {
-        int32_t game_file_type;
-        SmartString filename;
+    } else {
+        auto mission = ResourceManager_GetMissionManager().get()->GetMission().get();
 
-        game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
+        if (mission) {
+            const auto mission_category = mission->GetCategory();
+            std::string mission_goal = mission->GetTitle() + "\n\n" + mission->GetDescription();
 
-        filename.Sprintf(20, "descr%i.%s", GameManager_GameFileNumber, SaveLoadMenu_SaveFileTypes[game_file_type]);
-
-        auto fp{ResourceManager_OpenFileResource(filename.GetCStr(), ResourceType_Text)};
-
-        if (fp) {
-            int32_t text_size;
-            const char* mission_title = "";
-            int32_t mission_title_size;
-
-            fseek(fp, 0, SEEK_END);
-            text_size = ftell(fp);
-
-            if (game_file_type == GAME_TYPE_TRAINING) {
-                mission_title = SaveLoadMenu_TutorialTitles[GameManager_GameFileNumber - 1];
-
-            } else if (game_file_type == GAME_TYPE_SCENARIO) {
-                mission_title = SaveLoadMenu_ScenarioTitles[GameManager_GameFileNumber - 1];
-
-            } else if (game_file_type == GAME_TYPE_CAMPAIGN) {
-                mission_title = SaveLoadMenu_CampaignTitles[GameManager_GameFileNumber - 1];
-            }
-
-            mission_title_size = strlen(mission_title) + 2;
-
-            auto text = std::make_unique<char[]>(text_size + mission_title_size + 5);
-
-            memset(text.get(), '\0', text_size + mission_title_size + 5);
-
-            strcpy(text.get(), mission_title);
-            strcat(text.get(), "\n\n");
-
-            fseek(fp, 0, SEEK_SET);
-            fread(&text.get()[mission_title_size], sizeof(char), text_size, fp);
-            fclose(fp);
-
-            MessageManager_DrawMessage(text.get(), 0, 1);
+            MessageManager_DrawMessage(mission_goal.c_str(), 0, 1);
         }
     }
 }
@@ -4218,26 +4180,24 @@ void GameManager_FlicButtonRFunction(ButtonID bid, intptr_t value) {
 
 void GameManager_SaveLoadGame(bool save_load_mode) {
     if (SaveLoadMenu_SaveSlot != -1) {
-        struct SaveFileInfo save_file_info;
-        char file_name[16];
-        int32_t save_type;
+        SaveFileInfo save_file_info;
         SmartString string;
 
-        save_type = SaveLoadMenu_GetGameFileType();
+        const auto mission_category = ResourceManager_GetMissionManager().get()->GetMission()->GetCategory();
 
-        sprintf(file_name, "save%i.%s", SaveLoadMenu_SaveSlot, SaveLoadMenu_SaveFileTypes[save_type]);
-        ResourceManager_ToUpperCase(file_name);
+        const auto file_name = SaveLoad_GetSaveFileName(mission_category, SaveLoadMenu_SaveSlot);
 
-        if (SaveLoad_GetSaveFileInfo(SaveLoadMenu_SaveSlot, save_type, save_file_info)) {
-            string.Sprintf(200, save_load_mode ? _(e285) : _(470e), file_name, save_file_info.save_name.c_str());
+        if (SaveLoad_GetSaveFileInfo(mission_category, SaveLoadMenu_SaveSlot, save_file_info)) {
+            string.Sprintf(200, save_load_mode ? _(e285) : _(470e), file_name.c_str(),
+                           save_file_info.save_name.c_str());
 
             if (OKCancelMenu_Menu(string.GetCStr())) {
                 if (save_load_mode) {
                     if (Remote_IsNetworkGame) {
-                        Remote_SendNetPacket_16(file_name, save_file_info.save_name.c_str());
+                        Remote_SendNetPacket_16(file_name.c_str(), save_file_info.save_name.c_str());
                     }
 
-                    SaveLoadMenu_Save(file_name, save_file_info.save_name.c_str(), true);
+                    SaveLoadMenu_Save(file_name.c_str(), save_file_info.save_name.c_str(), true);
                     MessageManager_DrawMessage(_(f640), 1, 0);
 
                 } else {
@@ -7846,12 +7806,15 @@ void GameManager_MenuInitButtons(bool mode) {
     int32_t r_value;
     int32_t p_value;
     uint32_t flags;
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
     window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
 
-    if (GameManager_GameFileNumber && !Remote_IsNetworkGame) {
+    if ((mission_category != MISSION_CATEGORY_CUSTOM) && (mission_category != MISSION_CATEGORY_DEMO) &&
+        !Remote_IsNetworkGame) {
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].gfx = GOAL_OFF;
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = _(cdbf);
+
     } else {
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].gfx = CHAT_OFF;
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = _(ea1a);
@@ -8089,11 +8052,13 @@ void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
 }
 
 void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+
     if (unit->GetOrder() == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
         GameManager_DrawDisabledUnitStatusMessage(unit);
     }
 
-    if (ini_get_setting(INI_GAME_FILE_TYPE) == GAME_TYPE_TRAINING) {
+    if (mission_category == MISSION_CATEGORY_TRAINING) {
         MessageManager_DrawMessage(UnitsManager_BaseUnits[unit->GetUnitType()].tutorial, 0, 0);
     }
 

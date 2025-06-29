@@ -35,6 +35,7 @@
 #include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
+#include "missionmanager.hpp"
 #include "mouseevent.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
@@ -59,7 +60,7 @@ public:
     char file_name[15];
     char save_name[30];
     char in_use;
-    char game_file_type;
+    uint32_t save_file_type;
     TextEdit *text_edit;
 
     SaveSlot();
@@ -76,7 +77,6 @@ public:
     void DrawSaveSlot(int32_t game_file_type);
 };
 
-const char *SaveLoadMenu_SaveFileTypes[] = {"dta", "tra", "cam", "hot", "mlt", "dmo", "dbg", "txt", "sce", "mps"};
 const char *SaveLoadMenu_SaveTypeTitles[] = {_(494c), _(8b45), _(2682), _(4bf8), _(dea8),
                                              _(8a2c), _(1a03), _(7198), _(2fcb), _(3bc3)};
 
@@ -106,7 +106,7 @@ static void SaveLoadMenu_DrawSaveSlotResource(uint8_t *image, int32_t width, Res
 static Button *SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int32_t ulx, int32_t uly,
                                          const char *caption, int32_t r_value);
 static void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], Flic **flc,
-                              bool is_saving_allowed, int32_t save_file_type, int32_t first_slot_on_page, bool mode);
+                              bool is_saving_allowed, int32_t first_slot_on_page, bool mode);
 static void SaveLoadMenu_PlaySfx(ResourceID id);
 static void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int32_t *save_slot_index, int32_t key,
                                             int32_t is_saving_allowed);
@@ -166,7 +166,8 @@ void SaveLoadMenu_DrawSaveSlotResource(uint8_t *image, int32_t width, ResourceID
 void SaveLoadMenu_PlaySfx(ResourceID id) { SoundManager_PlaySfx(id); }
 
 void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], Flic **flc, bool is_saving_allowed,
-                       int32_t save_file_type, int32_t first_slot_on_page, bool mode) {
+                       int32_t first_slot_on_page, bool mode) {
+    const auto mission_category = ResourceManager_GetMissionManager().get()->GetMission()->GetCategory();
     WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     uint8_t save_game_type;
     ImageSimpleHeader *image_up;
@@ -191,19 +192,17 @@ void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], 
     for (int32_t i = 0; i < num_buttons; ++i) {
         struct SaveFileInfo save_file_info;
 
-        save_game_type = ini_get_setting(INI_GAME_FILE_TYPE);
-
-        if (SaveLoad_GetSaveFileInfo(first_slot_on_page + i, save_file_type, save_file_info)) {
+        if (SaveLoad_GetSaveFileInfo(mission_category, first_slot_on_page + i, save_file_info)) {
             slots[i].in_use = SaveLoad_IsSaveFileFormatSupported(save_file_info.version);
             SDL_utf8strlcpy(slots[i].file_name, save_file_info.file_name.c_str(), sizeof(slots[i].file_name));
             SDL_utf8strlcpy(slots[i].save_name, save_file_info.save_name.c_str(), sizeof(slots[i].save_name));
-            slots[i].game_file_type = save_file_info.save_game_type;
+            slots[i].save_file_type = save_file_info.save_file_type;
 
         } else {
             slots[i].in_use = false;
             slots[i].file_name[0] = '\0';
             slots[i].save_name[0] = '\0';
-            slots[i].game_file_type = save_game_type;
+            slots[i].save_file_type = mission_category;
         }
 
         image_up =
@@ -239,7 +238,7 @@ void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], 
         slots[i].width = image_up->width;
         slots[i].height = image_up->height;
 
-        slots[i].DrawSaveSlot(slots[i].game_file_type);
+        slots[i].DrawSaveSlot(slots[i].save_file_type);
 
         slots[i].bid =
             win_register_button(window->id, slots[i].ulx, slots[i].uly, image_up->width, image_up->height, -1, -1,
@@ -285,37 +284,6 @@ void SaveLoadMenu_Init(SaveSlot *slots, int32_t num_buttons, Button *buttons[], 
     mouse_show();
 }
 
-int32_t SaveLoadMenu_GetGameFileType() {
-    int32_t game_file_type;
-    int32_t result;
-
-    game_file_type = ini_get_setting(INI_GAME_FILE_TYPE);
-
-    switch (game_file_type) {
-        case GAME_TYPE_TRAINING:
-        case GAME_TYPE_CAMPAIGN:
-        case GAME_TYPE_SCENARIO: {
-            result = 0; /* dta */
-        } break;
-
-        case GAME_TYPE_MULTI_PLAYER_SCENARIO: {
-            if (Remote_IsNetworkGame) {
-                result = 4; /* mlt */
-            } else if (GameManager_HumanPlayerCount) {
-                result = 3; /* hot */
-            } else {
-                result = 0; /* dta */
-            }
-        } break;
-
-        default: {
-            result = game_file_type;
-        } break;
-    }
-
-    return result;
-}
-
 void SaveLoadMenu_EventLoadSlotClick(SaveSlot *slots, int32_t *save_slot_index, int32_t key,
                                      int32_t is_saving_allowed) {
     SaveLoadMenu_PlaySfx(KCARG0);
@@ -353,11 +321,11 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
     Flic *flc;
     int32_t result;
     int32_t save_slot_index;
-    int32_t save_file_type;
     uint32_t time_stamp;
     bool exit_loop;
     int32_t key;
     const int32_t slot_count = sizeof(slots) / sizeof(SaveSlot);
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
     result = 0;
     flc = nullptr;
@@ -367,10 +335,7 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
         SaveLoadMenu_SaveSlotTextEditBuffer[0] = '\0';
     }
 
-    save_file_type = SaveLoadMenu_GetGameFileType();
-
-    SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, save_file_type,
-                      SaveLoadMenu_FirstSaveSlotOnPage, true);
+    SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, SaveLoadMenu_FirstSaveSlotOnPage, true);
 
     time_stamp = timer_get();
     exit_loop = false;
@@ -442,33 +407,11 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
                             SaveLoadMenu_FirstSaveSlotOnPage += slot_count;
                         }
 
-                        SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, save_file_type,
+                        SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed,
                                           SaveLoadMenu_FirstSaveSlotOnPage, false);
                         save_slot_index = -1;
                     }
                 } break;
-
-#if !defined(NDEBUG)
-                case GNW_KB_KEY_F1:
-                case GNW_KB_KEY_F2: {
-                    save_file_type += (key == GNW_KB_KEY_F1) ? 1 : -1;
-
-                    if (save_file_type > GAME_TYPE_MULTI_PLAYER_SCENARIO) {
-                        save_file_type = GAME_TYPE_CUSTOM;
-                    }
-
-                    if (save_file_type < GAME_TYPE_CUSTOM) {
-                        save_file_type = GAME_TYPE_MULTI_PLAYER_SCENARIO;
-                    }
-
-                    ini_set_setting(INI_GAME_FILE_TYPE, save_file_type);
-                    SaveLoadMenu_FirstSaveSlotOnPage = 1;
-
-                    SaveLoadMenu_Init(slots, slot_count, buttons, &flc, is_saving_allowed, save_file_type,
-                                      SaveLoadMenu_FirstSaveSlotOnPage, false);
-                    save_slot_index = -1;
-                } break;
-#endif /* !defined(NDEBUG) */
 
                 case 1022: {
                     SaveLoadMenu_PlaySfx(FSAVE);
@@ -481,12 +424,13 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
                             Remote_SendNetPacket_16(slots[save_slot_index].file_name, slots[save_slot_index].save_name);
                         }
 
-                        if (save_file_type == GAME_TYPE_TRAINING || save_file_type == GAME_TYPE_SCENARIO ||
-                            save_file_type == GAME_TYPE_CAMPAIGN || save_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+                        if (mission_category == MISSION_CATEGORY_TRAINING ||
+                            mission_category == MISSION_CATEGORY_SCENARIO ||
+                            mission_category == MISSION_CATEGORY_CAMPAIGN ||
+                            mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
                             GameManager_TurnCounter = 1;
-                            GameManager_GameFileNumber = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
 
-                            if (save_file_type == GAME_TYPE_MULTI_PLAYER_SCENARIO) {
+                            if (mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
                                 for (int32_t i = 0; i < 4; ++i) {
                                     if (UnitsManager_TeamInfo[i].team_type) {
                                         ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i),
@@ -498,7 +442,7 @@ int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed) {
 
                         SaveLoadMenu_Save(slots[save_slot_index].file_name, slots[save_slot_index].save_name, true);
                         slots[save_slot_index].in_use = true;
-                        slots[save_slot_index].DrawSaveSlot(slots[save_slot_index].game_file_type);
+                        slots[save_slot_index].DrawSaveSlot(slots[save_slot_index].save_file_type);
                         win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
                         SaveLoadMenu_SaveSlot = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
                     }
@@ -639,34 +583,33 @@ void SaveLoadMenu_Save(const char *file_name, const char *save_name, bool play_v
         rng_seed += file_name[i];
     }
 
-    SaveLoad_Save(filepath, save_name, rng_seed);
+    if (SaveLoad_Save(filepath, save_name, rng_seed)) {
+        if (play_voice) {
+            SoundManager_PlayVoice(V_M013, V_F013);
+        }
+    }
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         UnitsManager_TeamInfo[team].team_type = team_types[team];
     }
-
-    if (play_voice) {
-        SoundManager_PlayVoice(V_M013, V_F013);
-    }
 }
 
-bool SaveLoadMenu_Load(int32_t save_slot, int32_t game_file_type, bool ini_load_mode) {
-    SmartString filename;
+bool SaveLoadMenu_Load(const int32_t save_slot, const MissionCategory mission_category, const bool ini_load_mode) {
     std::filesystem::path filepath;
     bool result;
 
-    filename.Sprintf(20, "save%i.%s", save_slot, SaveLoadMenu_SaveFileTypes[game_file_type]).Toupper();
+    const auto filename = SaveLoad_GetSaveFileName(mission_category, save_slot);
 
-    if (game_file_type != GAME_TYPE_TRAINING && game_file_type != GAME_TYPE_CAMPAIGN &&
-        game_file_type != GAME_TYPE_SCENARIO && game_file_type != GAME_TYPE_MULTI_PLAYER_SCENARIO &&
-        game_file_type != GAME_TYPE_DEMO) {
-        filepath = (ResourceManager_FilePathGamePref / filename.GetCStr()).lexically_normal();
+    if (mission_category != MISSION_CATEGORY_TRAINING && mission_category != MISSION_CATEGORY_CAMPAIGN &&
+        mission_category != MISSION_CATEGORY_SCENARIO && mission_category != MISSION_CATEGORY_MULTI_PLAYER_SCENARIO &&
+        mission_category != MISSION_CATEGORY_DEMO) {
+        filepath = (ResourceManager_FilePathGamePref / filename.c_str()).lexically_normal();
 
     } else {
-        filepath = (ResourceManager_FilePathGameData / filename.GetCStr()).lexically_normal();
+        filepath = (ResourceManager_FilePathGameData / filename.c_str()).lexically_normal();
     }
 
-    if (SaveLoad_Load(filepath, save_slot, game_file_type, ini_load_mode, Remote_IsNetworkGame)) {
+    if (SaveLoad_Load(filepath, mission_category, save_slot, ini_load_mode, Remote_IsNetworkGame)) {
         GameManager_UpdateDrawBounds();
         Access_UpdateVisibilityStatus(GameManager_AllVisible);
         SaveLoadMenu_Flag = false;
@@ -693,7 +636,7 @@ SaveSlot::SaveSlot() {
     file_name[0] = '\0';
     save_name[0] = '\0';
     in_use = false;
-    game_file_type = 0;
+    save_file_type = 0;
     text_edit = nullptr;
 }
 

@@ -22,8 +22,7 @@
 #ifndef FLICSMGR_HPP
 #define FLICSMGR_HPP
 
-#include "enums.hpp"
-#include "gnw.h"
+#include "resource_manager.hpp"
 
 #define FLICSMGR_FLIC_SIZE (128)
 

@@ -22,8 +22,7 @@
 #ifndef TEAMMISSIONSUPPLIES_HPP
 #define TEAMMISSIONSUPPLIES_HPP
 
-#include "enums.hpp"
-#include "point.hpp"
+#include "resource_manager.hpp"
 #include "smartobjectarray.hpp"
 
 class TeamMissionSupplies {

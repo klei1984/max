@@ -29,6 +29,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/units_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/teamunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/window_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/resourcetable.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/resource_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/menulandingsequence.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/game_manager.cpp
@@ -172,9 +173,12 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/aiplayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ticktimer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scripter.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/maxregistryhandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mission.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/missionregistry.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gameruleshandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/winlosshandler.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/missionmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/saveload.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )

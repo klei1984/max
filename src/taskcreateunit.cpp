@@ -156,12 +156,19 @@ void TaskCreateUnit::EndTurn() {
     AiLog log("Create %s: End Turn.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (op_state == CREATE_UNIT_STATE_INITIALIZING) {
-        SmartPointer<TaskObtainUnits> task_obtain_units = new (std::nothrow) TaskObtainUnits(this, site);
-        op_state = CREATE_UNIT_STATE_OBTAININING_BUILDER;
+        const auto builder_type = Builder_GetBuilderType(unit_type);
 
-        task_obtain_units->AddUnit(Builder_GetBuilderType(unit_type));
+        if (builder_type != INVALID_ID) {
+            SmartPointer<TaskObtainUnits> task_obtain_units = new (std::nothrow) TaskObtainUnits(this, site);
+            op_state = CREATE_UNIT_STATE_OBTAININING_BUILDER;
 
-        TaskManager.AppendTask(*task_obtain_units);
+            task_obtain_units->AddUnit(builder_type);
+
+            TaskManager.AppendTask(*task_obtain_units);
+
+        } else {
+            RemoveSelf();
+        }
     }
 
     if (op_state != CREATE_UNIT_STATE_FINISHED) {

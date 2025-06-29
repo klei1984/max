@@ -19,24 +19,37 @@
  * SOFTWARE.
  */
 
-#ifndef WINLOSSHANDLER_HPP
-#define WINLOSSHANDLER_HPP
+#ifndef MISSIONMANAGER_HPP
+#define MISSIONMANAGER_HPP
 
-#include <cstdint>
+#include <memory>
 #include <string>
 
-#include "mission.hpp"
+#include "gameruleshandler.hpp"
+#include "missionregistry.hpp"
+#include "winlosshandler.hpp"
 
-class WinLossHandler {
-    std::string m_script{"return MAX_VICTORY_STATE.GENERIC"};
-    void* m_interpreter{nullptr};
+class MissionManager {
+    static std::unique_ptr<MissionRegistry> m_missionregistry;
+
+    std::string m_language{"en-US"};
+    std::shared_ptr<Mission> m_mission;
+    std::unique_ptr<GameRulesHandler> m_gameruleshandler;
+    std::unique_ptr<WinLossHandler> m_winlosshandler;
 
 public:
-    WinLossHandler();
-    virtual ~WinLossHandler();
+    MissionManager();
+    virtual ~MissionManager();
 
-    [[nodiscard]] bool LoadScript(const Mission& mission);
-    [[nodiscard]] bool TestWinLossConditions(const size_t team, WinLossState& state);
+    bool LoadMission(const MissionCategory category, const std::string hash);
+    bool LoadMission(const MissionCategory category, const uint32_t index);
+
+    const std::unique_ptr<GameRulesHandler>& GetGameRulesHandler() const;
+    const std::unique_ptr<WinLossHandler>& GetWinLossHandler() const;
+    const std::shared_ptr<Mission> GetMission() const;
+    void HandleMissionStateChanges();
+    void ResetMission();
+    const std::vector<std::shared_ptr<Mission>>& GetMissions(const MissionCategory category) noexcept;
 };
 
-#endif /* WINLOSSHANDLER_HPP */
+#endif /* MISSIONMANAGER_HPP */

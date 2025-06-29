@@ -19,24 +19,27 @@
  * SOFTWARE.
  */
 
-#ifndef WINLOSSHANDLER_HPP
-#define WINLOSSHANDLER_HPP
+#ifndef BUILDHANDLER_HPP
+#define BUILDHANDLER_HPP
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "mission.hpp"
 
-class WinLossHandler {
-    std::string m_script{"return MAX_VICTORY_STATE.GENERIC"};
+class GameRulesHandler {
+    std::string m_game_rules_script{""};
     void* m_interpreter{nullptr};
 
 public:
-    WinLossHandler();
-    virtual ~WinLossHandler();
+    GameRulesHandler();
+    virtual ~GameRulesHandler();
 
     [[nodiscard]] bool LoadScript(const Mission& mission);
-    [[nodiscard]] bool TestWinLossConditions(const size_t team, WinLossState& state);
+    [[nodiscard]] ResourceID GetBuilderType(const ResourceID unit_type);
+    [[nodiscard]] bool IsBuildable(const ResourceID unit_type);
+    [[nodiscard]] std::vector<ResourceID> GetBuildableUnits(const ResourceID unit_type);
 };
 
-#endif /* WINLOSSHANDLER_HPP */
+#endif /* BUILDHANDLER_HPP */

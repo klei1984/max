@@ -22,9 +22,8 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include "enums.hpp"
 #include "events.hpp"
-#include "gnw.h"
+#include "resource_manager.hpp"
 
 class Window {
 protected:

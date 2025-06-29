@@ -139,10 +139,12 @@ void DefenseManager::MaintainDefences(Task* task) {
 
 void DefenseManager::EvaluateNeeds(int32_t* unit_counts) {
     for (int32_t i = 0; i < unit_types.GetCount(); ++i) {
-        ResourceID unit_type = Builder_GetBuilderType(*unit_types[i]);
+        auto unit_type = Builder_GetBuilderType(*unit_types[i]);
 
-        if (unit_counts[unit_type] > 0) {
-            --unit_counts[unit_type];
+        if (unit_type != INVALID_ID) {
+            if (unit_counts[unit_type] > 0) {
+                --unit_counts[unit_type];
+            }
         }
     }
 }
@@ -162,35 +164,41 @@ void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* ta
 
         for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
             UnitValues* unit_values = team_units->GetCurrentUnitValues(weight_table[i].unit_type);
+            const auto builder_type = Builder_GetBuilderType(weight_table[i].unit_type);
 
             if (unit_values->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
                 unit_values->GetAttribute(ATTRIB_SPEED) == 0 ||
                 (UnitsManager_BaseUnits[weight_table[i].unit_type].flags & REGENERATING_UNIT) ||
-                unit_counts[Builder_GetBuilderType(weight_table[i].unit_type)] == 0) {
+                builder_type == INVALID_ID || unit_counts[builder_type] == 0) {
                 table[i].weight = 0;
             }
         }
 
         while (asset_value + build_costs < asset_value_goal) {
-            ResourceID unit_type = table.RollUnitType();
+            auto unit_type = table.RollUnitType();
 
             if (unit_type != INVALID_ID) {
-                ResourceID builder_type = Builder_GetBuilderType(unit_type);
+                const auto builder_type = Builder_GetBuilderType(unit_type);
 
-                --unit_counts[builder_type];
+                if (builder_type != INVALID_ID) {
+                    --unit_counts[builder_type];
 
-                if (unit_counts[builder_type] == 0) {
-                    for (int32_t i = 0; i < table.GetCount(); ++i) {
-                        if (table[i].weight && Builder_GetBuilderType(table[i].unit_type) == builder_type) {
-                            table[i].weight = 0;
+                    if (unit_counts[builder_type] == 0) {
+                        for (int32_t i = 0; i < table.GetCount(); ++i) {
+                            if (table[i].weight && Builder_GetBuilderType(table[i].unit_type) == builder_type) {
+                                table[i].weight = 0;
+                            }
                         }
                     }
+
+                    build_costs += Ai_GetNormalRateBuildCost(unit_type, task->GetTeam());
+                    unit_types.PushBack(&unit_type);
+
+                    task->AddUnit(unit_type);
+
+                } else {
+                    table[unit_type].weight = 0;
                 }
-
-                build_costs += Ai_GetNormalRateBuildCost(unit_type, task->GetTeam());
-                unit_types.PushBack(&unit_type);
-
-                task->AddUnit(unit_type);
 
             } else {
                 return;

@@ -22,7 +22,7 @@
 #ifndef UNITWEIGHT_HPP
 #define UNITWEIGHT_HPP
 
-#include "enums.hpp"
+#include "resource_manager.hpp"
 #include "smartobjectarray.hpp"
 
 class UnitWeight {

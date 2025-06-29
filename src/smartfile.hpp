@@ -23,6 +23,9 @@
 #define SMARTFILE_HPP
 
 #include <cstdio>
+#include <filesystem>
+#include <string>
+#include <vector>
 
 #include "fileobject.hpp"
 #include "smartarray.hpp"
@@ -57,12 +60,15 @@ public:
     bool Read(void* buffer, size_t size) noexcept;
     template <typename T>
     bool Read(T& buffer) noexcept;
+    bool Read(std::string& text) noexcept;
+    bool Read(std::vector<uint8_t>& buffer) noexcept;
     [[nodiscard]] uint16_t ReadObjectCount() noexcept;
     [[nodiscard]] FileObject* ReadObject() noexcept;
     [[nodiscard]] SmartFileFormat GetFormat() noexcept;
 };
 
 class SmartFileWriter {
+    std::filesystem::path filepath;
     uint16_t m_format;
 
     void SaveObject(FileObject* object) noexcept;
@@ -81,9 +87,12 @@ public:
 
     bool Open(const char* path) noexcept;
     bool Close() noexcept;
+    void Delete() noexcept;
     bool Write(const void* buffer, size_t size) noexcept;
     template <typename T>
     bool Write(const T& buffer) noexcept;
+    bool Write(const std::string& string) noexcept;
+    bool Write(const std::vector<uint8_t>& buffer) noexcept;
     void WriteObjectCount(uint16_t count) noexcept;
     void WriteObject(FileObject* object) noexcept;
     [[nodiscard]] SmartFileFormat GetFormat() noexcept;
@@ -98,6 +107,87 @@ inline bool SmartFileReader::Read(T& buffer) noexcept {
 template <typename T>
 inline bool SmartFileWriter::Write(const T& buffer) noexcept {
     return Write(&buffer, sizeof(T));
+}
+
+inline bool SmartFileReader::Read(std::string& text) noexcept {
+    uint32_t length;
+    bool result{false};
+
+    if (Read(length)) {
+        if (length) {
+            char buffer[length];
+
+            if (Read(buffer, length)) {
+                text = std::string(buffer, length);
+                result = true;
+
+            } else {
+                text = "";
+            }
+
+        } else {
+            text = "";
+
+            result = true;
+        }
+    }
+
+    return result;
+}
+
+inline bool SmartFileWriter::Write(const std::string& text) noexcept {
+    uint32_t length = text.length();
+    bool result{false};
+
+    if (Write(length)) {
+        if (length) {
+            if (Write(text.c_str(), length)) {
+                result = true;
+            }
+        }
+    }
+
+    return result;
+}
+
+inline bool SmartFileReader::Read(std::vector<uint8_t>& buffer) noexcept {
+    uint32_t length;
+    bool result{false};
+
+    if (Read(length)) {
+        if (length) {
+            buffer.resize(length);
+
+            if (Read(buffer.data(), buffer.size())) {
+                result = true;
+
+            } else {
+                buffer.clear();
+            }
+
+        } else {
+            buffer.clear();
+
+            result = true;
+        }
+    }
+
+    return result;
+}
+
+inline bool SmartFileWriter::Write(const std::vector<uint8_t>& buffer) noexcept {
+    uint32_t length = buffer.size();
+    bool result{false};
+
+    if (Write(length)) {
+        if (length) {
+            if (Write(buffer.data(), length)) {
+                result = true;
+            }
+        }
+    }
+
+    return result;
 }
 
 #endif /* SMARTFILE_HPP */
