@@ -1,10 +1,18 @@
-#!/bin/sh -e
-# Copyright: 2024 M.A.X. Port Team
+#!/bin/env bash
+# Copyright: 2024-2025 M.A.X. Port Team
 # License: MIT
+
+#set up some safety
+set -euo pipefail
 
 # Set default values for referenced XDG environment variables if they are unset
 : "${XDG_DATA_HOME:="$HOME/.local/share"}"
 : "${XDG_DATA_DIRS:="/usr/local/share:/usr/share"}"
+
+# define directories to avoid script failures
+maxport_prefs_dir=""
+maxport_base_dir=""
+maxport_game_data_dir=""
 
 # Look for max-port preferences folder
 if [ -f "$XDG_DATA_HOME/max-port/settings.ini" ]; then
@@ -18,9 +26,7 @@ else
 fi
 
 # Look for game base folder
-maxport_base_dir=""
-
-for dir in $(echo "$XDG_DATA_DIRS" | sed "s/:/ /g"); do
+for dir in ${XDG_DATA_DIRS//:/ /g}; do
   if [ -f "$dir/max-port/PATCHES.RES" ] || [ -f "$dir/max-port/patches.res" ]; then
     maxport_base_dir="$dir/max-port"
     break
@@ -39,11 +45,13 @@ if ! [ -f "$maxport_base_dir/PATCHES.RES" ] && ! [ -f "$maxport_base_dir/patches
   fi
 fi
 
+set +e
 # Read game data folder location from ini file
 maxport_game_data_dir=$(grep '^\[SETUP\]' --after-context=2048 \
-"$maxport_prefs_dir/settings.ini" 2>/dev/null | tail -n +2  | grep --before-context=2048 \
-'^\[' | head -n -1 | grep '^game_data' | cut -d '=' -f 2)
+  "$maxport_prefs_dir/settings.ini" 2>/dev/null | tail -n +2 | grep --before-context=2048 \
+  '^\[' | head -n -1 | grep '^game_data' | cut -d '=' -f 2)
 
+set -e
 # Remove carriage return from path
 maxport_game_data_dir=${maxport_game_data_dir%?}
 
@@ -52,123 +60,51 @@ if [ -f "$maxport_game_data_dir/MAX.RES" ] || [ -f "$maxport_game_data_dir/max.r
 elif [ -f "./MAX.RES" ] || [ -f "./max.res" ]; then
   maxport_game_data_dir="."
 else
-  # Set up UI colors
-  export NEWT_COLORS='
-  root=blue,blue
-  window=white,lightgray
-  border=black,lightgray
-  shadow=white,black
-  title=black,'
-
-  # Strings
-  maxport_caption_ok_en="Ok"
-  maxport_caption_ok_hu="Oké"
-
-  maxport_caption_cancel_en="Cancel"
-  maxport_caption_cancel_hu="Mégse"
-
-  maxport_caption_yes_en="Yes"
-  maxport_caption_yes_hu="Igen"
-
-  maxport_caption_no_en="No"
-  maxport_caption_no_hu="Nem"
-
-  maxport_caption_config_title_en="M.A.X. Port Configuration"
-  maxport_caption_config_title_hu="M.A.X. Port Konfiguráció"
-
-  maxport_caption_language_en="Select Language"
-  maxport_caption_language_hu="Nyelv Kiválasztása"
-
-  maxport_caption_is_portable_en="Portable installation?\n\n  Portable mode saves all user data into the same folder that contains\n  the game executable."
-  maxport_caption_is_portable_hu="Hordozható telepítés?\n\n  A hordozható mód az összes felhasználói adatot ugyanabba a mappába\n  menti ami a játék futtatható állományát tartalmazza."
-
-  maxport_caption_game_data_en="Select location of original game assets.\n\n  Please select the CD-ROM drive in case of an original M.A.X. CD-ROM,\n  or the root folder of an existing M.A.X. full installation."
-  maxport_caption_game_data_hu="Válassza ki az eredeti játékelemek mappáját.\n\n  Eredeti M.A.X. CD-ROM esetén válassza ki a CD-ROM meghajtót.\n  Telepített eredeti M.A.X. játék esetén válassza ki a meglévő\n  telepítés gyökérmappáját."
-
-  # Get Language
-  maxport_selected_language=$(whiptail --title "$maxport_caption_config_title_en" \
-  --menu "$maxport_caption_language_en" --default-item "English" --nocancel \
-  --ok-button="$maxport_caption_ok_en" 10 78 3 \
-  "English" "" \
-  "Magyar" "" \
-  3>&1 1>&2 2>&3)
-
-  case "$maxport_selected_language" in
-    *"Magyar"*)
-      maxport_caption_ok="$maxport_caption_ok_hu"
-      maxport_caption_cancel="$maxport_caption_cancel_hu"
-      maxport_caption_yes="$maxport_caption_yes_hu"
-      maxport_caption_no="$maxport_caption_no_hu"
-      maxport_caption_config_title="$maxport_caption_config_title_hu"
-      maxport_caption_language="$maxport_caption_language_hu"
-      maxport_caption_is_portable="$maxport_caption_is_portable_hu"
-      maxport_caption_game_data="$maxport_caption_game_data_hu"
-    ;;
-
-    *)
-      maxport_caption_ok="$maxport_caption_ok_en"
-      maxport_caption_cancel="$maxport_caption_cancel_en"
-      maxport_caption_yes="$maxport_caption_yes_en"
-      maxport_caption_no="$maxport_caption_no_en"
-      maxport_caption_config_title="$maxport_caption_config_title_en"
-      maxport_caption_language="$maxport_caption_language_en"
-      maxport_caption_is_portable="$maxport_caption_is_portable_en"
-      maxport_caption_game_data="$maxport_caption_game_data_en"
-    ;;
-  esac
-
-  # Use portable mode?
-  if [ "$FLATPAK_ID" = "io.github.max-port" ]; then
-    maxport_prefs_dir="$XDG_DATA_HOME/max-port"
-  elif [ "$maxport_prefs_dir" = "." ] || [ "$maxport_prefs_dir" = "" ]; then
-    if whiptail --title "$maxport_caption_config_title" --yesno "$maxport_caption_is_portable" \
-      --yes-button="$maxport_caption_yes" --no-button="$maxport_caption_no" 10 78 3>&1 1>&2 2>&3
-    then
-      maxport_prefs_dir="."
-    elif [ "$?" = "1" ]; then
-      maxport_prefs_dir="$XDG_DATA_HOME/max-port"
-    else
-      exit 0
+  installer_cmd_prefix=()
+  _preferred_terms=()
+  _wayland_terms=()
+  set +u # Disable abort on unset, this is by design here
+  if [[ -n "$DISPLAY" ]] || [[ "$WAYLAND_DISPLAY" ]]; then
+    # do best-effort to spawn an available terminal since there is no standard
+    # mechanism to know the system terminal on Linux (yet/still?)
+    # Desktop Environment-specific terminal emulators; place first when in one
+    if [[ $XDG_CURRENT_DESKTOP == "KDE" ]]; then
+      _preferred_terms+=("konsole")
+    elif [[ $XDG_CURRENT_DESKTOP == "GNOME" ]]; then
+      _preferred_terms=("gnome-terminal terminal")
+    elif [[ $DESKTOP_SESSION == "bspwm" ]]; then
+      true
     fi
-  fi
-
-  # Find original game data
-  if [ "$FLATPAK_ID" = "io.github.max-port" ]; then
-    maxport_game_data_dir="$XDG_DATA_HOME/max-port/MAX"
-  else
-    maxport_game_data_dir="/media/user/cdrom"
-  fi
-
-  while true
-  do
-    maxport_game_data_dir=$(whiptail --title "$maxport_caption_config_title" \
-    --inputbox "$maxport_caption_game_data" --ok-button="$maxport_caption_ok" \
-    --cancel-button="$maxport_caption_cancel" 10 78 \
-    "$maxport_game_data_dir" 3>&1 1>&2 2>&3)
-
-    if [ "$?" != "0" ]; then
-      exit 0
-    fi
-
-    if [ -f "$maxport_game_data_dir/MAX.RES" ] || [ -f "$maxport_game_data_dir/max.res" ]; then
-      break
-    fi
-  done
-
-  # Update ini configuration file
-  if ! [ -f "$maxport_prefs_dir/settings.ini" ]; then
-    if [ -f "$maxport_base_dir/settings.ini" ]; then
-      if ! [ -d "$maxport_prefs_dir" ]; then
-        mkdir -p "$maxport_prefs_dir"
+    term_list=(
+      "$TERMINAL" x-terminal-emulator "${_preferred_terms[*]}" "${_wayland_terms[*]}"
+      ghostty kitty alacritty xst st qterminal wezterm ptyxis urxvt terminology kermit k3rmit lxterminal termite tilda xfce4-terminal terminator lilyterm konsole gnome-terminal Eterm eterm aterm guake terminix io.elementary.terminal mate-terminal tilix uxterm xterm roxterm cool-retro-term hyper
+    )
+    set -u
+    for newterm in "${term_list[@]}"; do
+      echo "Graphical environment detected, testing terminal emulators"
+      echo >&2 "Testing '$newterm'"
+      if [[ -z "$newterm" ]]; then continue; fi
+      if command -v "$newterm" >/dev/null; then
+        if [[ $newterm == "urxvt" ]]; then
+          # Try to use client/daemon instead of standalone
+          if command -v urxvtc >/dev/null; then
+            if ! pgrep -a urxvtd; then
+              urxvtd &
+              disown
+            fi
+            newterm=urxvtc
+          fi
+        fi
+        # TODO: Handle -e/-x differences across terminals
+        installer_cmd_prefix+=("$newterm" "-e")
+        break
       fi
-      cp -n "$maxport_base_dir/settings.ini" "$maxport_prefs_dir" 2>/dev/null
-    fi
+    done
   fi
-
-    if [ -f "$maxport_prefs_dir/settings.ini" ]; then
-      # Preserve original DOS line endinds
-      sed -bi'' "/^\[SETUP]/,/^\[/{s+^game_data[[:space:]]*=.*\r+game_data=$maxport_game_data_dir\r+}" "$maxport_prefs_dir/settings.ini"
-    fi
+  set -u
+  export maxport_game_data_dir maxport_base_dir maxport_prefs_dir XDG_DATA_HOME XDG_DATA_DIRSi
+  # shellcheck disable=SC2048 # IGNORE: Splitting here is intentional
+  ${installer_cmd_prefix[*]} "${maxport_base_dir}/max-port-installer"
 fi
 
 # Copy existing saved game files to preferences folder

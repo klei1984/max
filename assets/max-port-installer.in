@@ -1,0 +1,154 @@
+#!/bin/env bash
+# Copyright: 2024-2025 M.A.X. Port Team
+# License: MIT
+
+# Set up variables to prevent unbound variable errors
+_flatpak_id=${FLATPAK_ID:-""}
+
+#set up some safety
+set -euo pipefail
+
+# Check for required commands and print error if not found
+dependencies=("whiptail")
+for dep in "${dependencies[@]}"; do
+  if ! command -v "$dep"; then
+    echo "ERROR: $(basename "$0") requires $dep"
+    exit 1
+  fi
+done
+
+# Set up variables to prevent unbound variable errors
+_flatpak_id=${FLATPAK_ID:-""}
+
+# Set up UI colors
+export NEWT_COLORS='
+  root=blue,blue
+  window=white,lightgray
+  border=black,lightgray
+  shadow=white,black
+  title=black,'
+
+# Strings
+maxport_caption_ok_en="Ok"
+maxport_caption_ok_hu="Oké"
+
+maxport_caption_cancel_en="Cancel"
+maxport_caption_cancel_hu="Mégse"
+
+maxport_caption_yes_en="Yes"
+maxport_caption_yes_hu="Igen"
+
+maxport_caption_no_en="No"
+maxport_caption_no_hu="Nem"
+
+maxport_caption_config_title_en="M.A.X. Port Configuration"
+maxport_caption_config_title_hu="M.A.X. Port Konfiguráció"
+
+maxport_caption_language_en="Select Language"
+maxport_caption_language_hu="Nyelv Kiválasztása"
+
+maxport_caption_is_portable_en="Portable installation?\n\n  Portable mode saves all user data into the same folder that contains\n  the game executable."
+maxport_caption_is_portable_hu="Hordozható telepítés?\n\n  A hordozható mód az összes felhasználói adatot ugyanabba a mappába\n  menti ami a játék futtatható állományát tartalmazza."
+
+maxport_caption_game_data_en="Select location of original game assets.\n\n  Please select the CD-ROM drive in case of an original M.A.X. CD-ROM,\n  or the root folder of an existing M.A.X. full installation."
+maxport_caption_game_data_hu="Válassza ki az eredeti játékelemek mappáját.\n\n  Eredeti M.A.X. CD-ROM esetén válassza ki a CD-ROM meghajtót.\n  Telepített eredeti M.A.X. játék esetén válassza ki a meglévő\n  telepítés gyökérmappáját."
+
+# Get Language
+maxport_selected_language=$(whiptail --title "$maxport_caption_config_title_en" \
+  --menu "$maxport_caption_language_en" --default-item "English" --nocancel \
+  --ok-button="$maxport_caption_ok_en" 10 78 3 \
+  "English" "" \
+  "Magyar" "" \
+  3>&1 1>&2 2>&3)
+
+case "$maxport_selected_language" in
+*"Magyar"*)
+  maxport_caption_ok="$maxport_caption_ok_hu"
+  maxport_caption_cancel="$maxport_caption_cancel_hu"
+  maxport_caption_yes="$maxport_caption_yes_hu"
+  maxport_caption_no="$maxport_caption_no_hu"
+  maxport_caption_config_title="$maxport_caption_config_title_hu"
+  maxport_caption_language="$maxport_caption_language_hu"
+  maxport_caption_is_portable="$maxport_caption_is_portable_hu"
+  maxport_caption_game_data="$maxport_caption_game_data_hu"
+  ;;
+
+*)
+  maxport_caption_ok="$maxport_caption_ok_en"
+  maxport_caption_cancel="$maxport_caption_cancel_en"
+  maxport_caption_yes="$maxport_caption_yes_en"
+  maxport_caption_no="$maxport_caption_no_en"
+  maxport_caption_config_title="$maxport_caption_config_title_en"
+  maxport_caption_language="$maxport_caption_language_en"
+  maxport_caption_is_portable="$maxport_caption_is_portable_en"
+  maxport_caption_game_data="$maxport_caption_game_data_en"
+  ;;
+esac
+
+set +u
+# Use portable mode?
+if [ "$_flatpak_id" = "io.github.max-port" ]; then
+  maxport_prefs_dir="$XDG_DATA_HOME/max-port"
+elif [ "$maxport_prefs_dir" = "." ] || [ "$maxport_prefs_dir" = "" ]; then
+  if whiptail --title "$maxport_caption_config_title" --yesno "$maxport_caption_is_portable" \
+    --yes-button="$maxport_caption_yes" --no-button="$maxport_caption_no" 10 78 3>&1 1>&2 2>&3; then
+    maxport_prefs_dir="."
+  elif [ "$?" = "1" ]; then
+    maxport_prefs_dir="$XDG_DATA_HOME/max-port"
+  else
+    exit 0
+  fi
+fi
+set -u
+# Find original game data
+if [ "$_flatpak_id" = "io.github.max-port" ]; then
+  maxport_game_data_dir="$XDG_DATA_HOME/max-port/MAX"
+else
+  maxport_game_data_dir="/media/user/cdrom/max"
+fi
+
+while true; do
+  maxport_game_data_dir=$(whiptail --title "$maxport_caption_config_title" \
+    --inputbox "$maxport_caption_game_data" --ok-button="$maxport_caption_ok" \
+    --cancel-button="$maxport_caption_cancel" 10 78 \
+    "$maxport_game_data_dir" 3>&1 1>&2 2>&3)
+
+  if [ "$?" != "0" ]; then
+    exit 0
+  fi
+
+  if [ -f "$maxport_game_data_dir/MAX.RES" ] || [ -f "$maxport_game_data_dir/max.res" ]; then
+    break
+  fi
+  echo "Something went wrong, retrying..."
+  echo "maxport_game_data_dir = $maxport_game_data_dir"
+  sleep 5
+done
+
+maxport_base_dir=${maxport_base_dir:-''}
+
+# assign variable if running the installer directly
+if [[ -z "$maxport_base_dir" ]]; then
+  # Look for game base folder
+  for dir in ${XDG_DATA_DIRS//:/ /g}; do
+    if [ -f "$dir/max-port/PATCHES.RES" ] || [ -f "$dir/max-port/patches.res" ]; then
+      maxport_base_dir="$dir/max-port"
+      break
+    fi
+  done
+fi
+
+# Update ini configuration file
+if ! [ -f "$maxport_prefs_dir/settings.ini" ]; then
+  if [ -f "$maxport_base_dir/settings.ini" ]; then
+    if ! [ -d "$maxport_prefs_dir" ]; then
+      mkdir -p "$maxport_prefs_dir"
+    fi
+    cp -n "$maxport_base_dir/settings.ini" "$maxport_prefs_dir" 2>/dev/null
+  fi
+fi
+
+if [ -f "$maxport_prefs_dir/settings.ini" ]; then
+  # Preserve original DOS line endinds
+  sed -bi'' "/^\[SETUP]/,/^\[/{s+^game_data[[:space:]]*=.*\r+game_data=$maxport_game_data_dir\r+}" "$maxport_prefs_dir/settings.ini"
+fi
