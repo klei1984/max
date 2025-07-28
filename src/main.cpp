@@ -25,16 +25,23 @@
 #include "sound_manager.hpp"
 
 int main(int argc, char* argv[]) {
-    ResourceManager_InitResources();
+    try {
+        ResourceManager_InitResources();
 
-    if (Movie_PlayIntro()) {
-        menu_draw_logo(ILOGO, 3000);
+        if (Movie_PlayIntro()) {
+            menu_draw_logo(ILOGO, 3000);
+        }
+
+        SoundManager_PlayMusic(MAIN_MSC, false);
+        menu_draw_logo(MLOGO, 3000);
+
+        main_menu();
+
+    } catch (std::exception& e) {
+        SDL_Log("\n%s\n", (std::string("Unhandled exception: ") + e.what()).c_str());
+
+        ResourceManager_Exit();
     }
-
-    SoundManager_PlayMusic(MAIN_MSC, false);
-    menu_draw_logo(MLOGO, 3000);
-
-    main_menu();
 
     return EXIT_SUCCESS;
 }

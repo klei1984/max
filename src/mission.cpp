@@ -383,6 +383,7 @@ void from_json(const json& j, StoryBlock& m) {
 void from_json(const json& j, MissionObject& m) {
     j.at("author").get_to(m.author);
     j.at("copyright").get_to(m.copyright);
+    j.at("license").get_to(m.license);
 
     Mission_ProcessCategory(j, m);
     Mission_ProcessMission(j, m);
@@ -427,6 +428,20 @@ std::string Mission::GetDescription() const { return Mission_GetText(m_mission->
 
 std::filesystem::path Mission::GetMission() const { return m_mission->mission; }
 
+bool Mission::SetMission(std::filesystem::path path) {
+    bool result;
+
+    if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path)) {
+        m_mission->mission = path;
+        result = true;
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
 bool Mission::HasIntroInfo() const { return m_mission->intro.has_value(); }
 
 bool Mission::GetIntroInfo(Story& story) const { return Mission_GetOptionalStory(story, m_mission->intro, m_language); }
@@ -458,7 +473,8 @@ std::unique_ptr<std::vector<uint8_t>> Mission::GetBinaryScript() const {
 
     if (buffer) {
         for (size_t i = 0; i < buffer->size(); ++i) {
-            (*buffer)[i] = (*buffer)[i] ^ ResourceManager_GenericTable[i % sizeof(ResourceManager_GenericTable)];
+            (*buffer)[i] =
+                m_mission->script[i] ^ ResourceManager_GenericTable[i % sizeof(ResourceManager_GenericTable)];
         }
     }
 

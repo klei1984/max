@@ -71,6 +71,7 @@ public:
     [[nodiscard]] std::string GetDescription() const;
     [[nodiscard]] const std::vector<std::string> GetMissionHashes() const;
     [[nodiscard]] std::filesystem::path GetMission() const;
+    bool SetMission(std::filesystem::path path);
     [[nodiscard]] std::string GetScript() const;
     [[nodiscard]] std::unique_ptr<std::vector<uint8_t>> GetBinaryScript() const;
 

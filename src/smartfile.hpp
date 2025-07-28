@@ -144,6 +144,9 @@ inline bool SmartFileWriter::Write(const std::string& text) noexcept {
             if (Write(text.c_str(), length)) {
                 result = true;
             }
+
+        } else {
+            result = true;
         }
     }
 

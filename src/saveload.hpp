@@ -29,13 +29,15 @@
 #include "mission.hpp"
 
 struct SaveFileInfo {
+    std::filesystem::path file_path;
+    std::vector<uint8_t> script;
     std::string mission;
     std::string world;
     std::string save_name;
     std::string file_name;
     std::string team_names[PLAYER_TEAM_MAX];
     uint32_t version;
-    uint32_t save_file_type;
+    uint32_t save_file_category;
     uint32_t team_type[PLAYER_TEAM_MAX];
     uint32_t team_clan[PLAYER_TEAM_MAX];
     uint32_t random_seed;
@@ -46,8 +48,9 @@ bool SaveLoad_GetSaveFileInfo(const MissionCategory mission_category, const int3
                               struct SaveFileInfo &save_file_info);
 [[nodiscard]] bool SaveLoad_IsSaveFileFormatSupported(const uint32_t format_version);
 bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save_name, const uint32_t rng_seed);
-bool SaveLoad_Load(const std::filesystem::path &filepath, const MissionCategory mission_category,
-                   const int32_t save_slot, bool ini_load_mode, bool is_remote_game);
+bool SaveLoad_Load(const std::filesystem::path &filepath, const MissionCategory mission_category, bool ini_load_mode,
+                   bool is_remote_game);
 std::string SaveLoad_GetSaveFileName(const MissionCategory mission_category, const uint32_t save_slot);
+[[nodiscard]] MissionCategory SaveLoad_GetSaveFileCategory(const MissionCategory mission_category);
 
 #endif /* SAVELOAD_HPP */

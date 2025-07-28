@@ -81,6 +81,7 @@ static void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const 
                                        bool mode, int32_t victory_status);
 static void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter, bool mode);
 static int32_t play_attract_demo(const int32_t save_slot);
+static void menu_draw_mission_story_screen(const Mission::Story& story);
 
 static ResourceID menu_portrait_id;
 
@@ -629,13 +630,55 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
 
         delete[] image;
     }
+
+    {
+        Button* button_end;
+        bool exit_loop;
+        int32_t key;
+
+        Text_SetFont(GNW_TEXT_FONT_5);
+
+        button_end = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
+        button_end->SetCaption(_(5653));
+
+        Text_SetFont(GNW_TEXT_FONT_1);
+
+        button_end->SetRValue(GNW_KB_KEY_ESCAPE);
+        button_end->RegisterButton(window->id);
+
+        win_draw(window->id);
+
+        exit_loop = false;
+
+        do {
+            uint32_t time_stamp = timer_get();
+
+            key = get_input();
+
+            switch (key) {
+                case GNW_KB_KEY_ESCAPE:
+                case GNW_KB_KEY_RETURN: {
+                    exit_loop = true;
+                } break;
+            }
+
+            while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
+            }
+
+            win_draw(window->id);
+
+        } while (!exit_loop);
+
+        delete button_end;
+    }
 }
 
 void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter, bool mode) {
+    const auto mission = ResourceManager_GetMissionManager()->GetMission();
+    const auto mission_category = mission->GetCategory();
     bool is_winner;
     ResourceID bg_image_id;
     Color* palette;
-    SmartString mission_briefing;
 
     if (status.team_status[GameManager_PlayerTeam] == VICTORY_STATE_GENERIC) {
         is_winner = status.team_rank[GameManager_PlayerTeam] == 1;
@@ -659,39 +702,7 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
 
     bg_image_id = menu_briefing_backgrounds[image_index];
 
-    if (is_winner) {
-        const auto mission = ResourceManager_GetMissionManager()->GetMission();
-
-        if (mission && mission->HasVictoryInfo()) {
-            Mission::Story story;
-
-            if (mission->GetVictoryInfo(story)) {
-                if (std::holds_alternative<std::vector<ResourceID>>(story.background)) {
-                    const auto bg_images = std::get<std::vector<ResourceID>>(story.background);
-
-                    image_index = (dos_rand() * bg_images.size()) >> 15;
-
-                    bg_image_id = bg_images[image_index];
-
-                } else if (std::holds_alternative<std::vector<std::filesystem::path>>(story.background)) {
-                    /// \todo
-                }
-
-                mission_briefing = story.text.c_str();
-
-                Text_TypeWriter_CharacterTimeMs = 10;
-            }
-        }
-    }
-
     {
-        const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
-        Window window(bg_image_id);
-        WindowInfo window_info;
-        Button* button_end;
-        bool exit_loop;
-        int32_t key;
-
         GameManager_WrapUpGame = true;
         GameManager_RequestMenuExit = false;
 
@@ -700,6 +711,9 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
         SoundManager_FreeAllSamples();
 
         GameManager_DeinitPopupButtons(false);
+
+        Window window(bg_image_id);
+        WindowInfo window_info;
 
         window.SetFlags(WINDOW_MODAL);
 
@@ -727,49 +741,27 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
             }
         }
 
-        if (mission_briefing.GetLength() > 0) {
-            win_draw(window_info.id);
-            Text_TypeWriter_TextBoxMultiLineWrapText(&window_info, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
+        menu_draw_game_over_screen(&window_info, status.team_rank, turn_counter, mode,
+                                   status.team_status[GameManager_PlayerTeam]);
+    }
+
+    if (mission) {
+        Mission::Story story;
+
+        if (is_winner) {
+            if (mission->HasVictoryInfo()) {
+                if (mission->GetVictoryInfo(story)) {
+                    menu_draw_mission_story_screen(story);
+                }
+            }
 
         } else {
-            menu_draw_game_over_screen(&window_info, status.team_rank, turn_counter, mode,
-                                       status.team_status[GameManager_PlayerTeam]);
+            if (mission->HasDefeatInfo()) {
+                if (mission->GetDefeatInfo(story)) {
+                    menu_draw_mission_story_screen(story);
+                }
+            }
         }
-
-        Text_SetFont(GNW_TEXT_FONT_5);
-
-        button_end = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
-        button_end->SetCaption(_(5653));
-
-        Text_SetFont(GNW_TEXT_FONT_1);
-
-        button_end->SetRValue(GNW_KB_KEY_ESCAPE);
-        button_end->RegisterButton(window_info.id);
-
-        win_draw(window_info.id);
-
-        exit_loop = false;
-
-        do {
-            uint32_t time_stamp = timer_get();
-
-            key = get_input();
-
-            switch (key) {
-                case GNW_KB_KEY_ESCAPE:
-                case GNW_KB_KEY_RETURN: {
-                    exit_loop = true;
-                } break;
-            }
-
-            while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
-            }
-
-            win_draw(window_info.id);
-
-        } while (!exit_loop);
-
-        delete button_end;
     }
 
     GameManager_LoadGame(0, palette);
@@ -777,9 +769,7 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
     GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
     if (is_winner) {
-        const auto mission = ResourceManager_GetMissionManager()->GetMission();
-
-        if (mission && mission->GetCategory() == MISSION_CATEGORY_CAMPAIGN) {
+        if (mission_category == MISSION_CATEGORY_CAMPAIGN) {
             const auto& missions = ResourceManager_GetMissionManager()->GetMissions(MISSION_CATEGORY_CAMPAIGN);
 
             for (auto it = missions.begin(); it != missions.end(); ++it) {
@@ -1027,88 +1017,86 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
     return result;
 }
 
-void menu_draw_campaign_mission_briefing_screen() {
-    const auto mission = ResourceManager_GetMissionManager()->GetMission();
+void menu_draw_mission_story_screen(const Mission::Story& story) {
+    ResourceID bg_image_id;
+    int32_t image_index = (dos_rand() * 9) >> 15;
 
-    if (mission && mission->HasIntroInfo()) {
-        ResourceID bg_image_id;
-        SmartString mission_briefing;
-        int32_t image_index = (dos_rand() * 9) >> 15;
-        Mission::Story story;
+    bg_image_id = menu_briefing_backgrounds[image_index];
 
-        bg_image_id = menu_briefing_backgrounds[image_index];
+    if (std::holds_alternative<std::vector<ResourceID>>(story.background)) {
+        const auto bg_images = std::get<std::vector<ResourceID>>(story.background);
 
-        if (mission->GetIntroInfo(story)) {
-            if (std::holds_alternative<std::vector<ResourceID>>(story.background)) {
-                const auto bg_images = std::get<std::vector<ResourceID>>(story.background);
+        image_index = (dos_rand() * bg_images.size()) >> 15;
 
-                image_index = (dos_rand() * bg_images.size()) >> 15;
+        bg_image_id = bg_images[image_index];
 
-                bg_image_id = bg_images[image_index];
+    } else if (std::holds_alternative<std::vector<std::filesystem::path>>(story.background)) {
+        /// \todo
+    }
+
+    Text_TypeWriter_CharacterTimeMs = 10;
+
+    if (story.text.size() > 0) {
+        WindowInfo window;
+        Window briefing_window(bg_image_id);
+        Button* button_end_ok;
+        bool exit_loop;
+
+        briefing_window.SetFlags(WINDOW_MODAL);
+        Cursor_SetCursor(CURSOR_HAND);
+        briefing_window.SetPaletteMode(true);
+        briefing_window.Add();
+        briefing_window.FillWindowInfo(&window);
+
+        win_draw(window.id);
+        Text_SetFont(GNW_TEXT_FONT_1);
+
+        Text_TypeWriter_TextBoxMultiLineWrapText(&window, story.text.c_str(), 20, 20, 600, 400, 0);
+
+        Text_TypeWriter_CharacterTimeMs = 0;
+
+        Text_SetFont(GNW_TEXT_FONT_5);
+        button_end_ok = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
+        button_end_ok->SetCaption(_(ccca));
+
+        Text_SetFont(GNW_TEXT_FONT_1);
+        button_end_ok->SetRValue(GNW_KB_KEY_ESCAPE);
+        button_end_ok->RegisterButton(window.id);
+
+        win_draw(window.id);
+
+        exit_loop = false;
+
+        do {
+            const auto key = get_input();
+            const auto time_stamp = timer_get();
+
+            switch (key) {
+                case GNW_KB_KEY_RETURN:
+                case GNW_KB_KEY_ESCAPE: {
+                    exit_loop = true;
+                } break;
             }
 
-            mission_briefing = story.text.c_str();
-
-            Text_TypeWriter_CharacterTimeMs = 10;
-
-            {
-                WindowInfo window;
-                Window briefing_window(bg_image_id);
-                Button* button_end_ok;
-                bool exit_loop;
-
-                briefing_window.SetFlags(WINDOW_MODAL);
-                Cursor_SetCursor(CURSOR_HAND);
-                briefing_window.SetPaletteMode(true);
-                briefing_window.Add();
-                briefing_window.FillWindowInfo(&window);
-
-                win_draw(window.id);
-                Text_SetFont(GNW_TEXT_FONT_1);
-
-                Text_TypeWriter_TextBoxMultiLineWrapText(&window, mission_briefing.GetCStr(), 20, 20, 600, 400, 0);
-
-                Text_TypeWriter_CharacterTimeMs = 0;
-
-                Text_SetFont(GNW_TEXT_FONT_5);
-                button_end_ok = new (std::nothrow) Button(ENDOK_U, ENDOK_D, 293, 458);
-                button_end_ok->SetCaption(_(ccca));
-
-                Text_SetFont(GNW_TEXT_FONT_1);
-                button_end_ok->SetRValue(GNW_KB_KEY_ESCAPE);
-                button_end_ok->RegisterButton(window.id);
-
-                win_draw(window.id);
-
-                exit_loop = false;
-
-                do {
-                    int32_t key;
-
-                    key = get_input();
-
-                    switch (key) {
-                        case GNW_KB_KEY_RETURN:
-                        case GNW_KB_KEY_ESCAPE: {
-                            exit_loop = true;
-                        } break;
-                    }
-
-                } while (!exit_loop);
-
-                delete button_end_ok;
+            while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
             }
 
-            if (std::holds_alternative<std::vector<ResourceID>>(story.video)) {
-                const auto videos = std::get<std::vector<ResourceID>>(story.video);
+        } while (!exit_loop);
 
-                for (const auto& video : videos) {
-                    if (video != INVALID_ID) {
-                        Movie_Play(video);
-                    }
-                }
+        delete button_end_ok;
+    }
+
+    if (std::holds_alternative<std::vector<ResourceID>>(story.video)) {
+        const auto videos = std::get<std::vector<ResourceID>>(story.video);
+
+        for (const auto& video : videos) {
+            if (video != INVALID_ID) {
+                Movie_Play(video);
             }
         }
+
+    } else if (std::holds_alternative<std::vector<std::filesystem::path>>(story.video)) {
+        /// \todo
     }
 }
 
@@ -2061,8 +2049,16 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
 
         if (game_setup_menu.GetMissionCategory() != MISSION_CATEGORY_MULTI_PLAYER_SCENARIO || flag1) {
             if (menu_options_menu_loop(2)) {
-                if (game_setup_menu.GetMissionCategory() == MISSION_CATEGORY_CAMPAIGN) {
-                    menu_draw_campaign_mission_briefing_screen();
+                {
+                    const auto mission = ResourceManager_GetMissionManager()->GetMission();
+
+                    if (mission && mission->HasIntroInfo()) {
+                        Mission::Story story;
+
+                        if (mission->GetIntroInfo(story)) {
+                            menu_draw_mission_story_screen(story);
+                        }
+                    }
                 }
 
                 if (game_setup_menu.GetMissionCategory() == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
@@ -2359,12 +2355,12 @@ int32_t menu_multiplayer_menu_loop() {
 
             switch (key) {
                 case GNW_KB_KEY_SHIFT_L: {
-                    int32_t game_file_number;
                     menu_delete_menu_buttons();
-                    game_file_number = SaveLoadMenu_MenuLoop(false);
 
-                    if (game_file_number) {
-                        ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
+                    auto save_slot = SaveLoadMenu_MenuLoop(MISSION_CATEGORY_CUSTOM, false);
+
+                    if (save_slot) {
+                        ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
                         GameManager_GameLoop(GAME_STATE_10);
 
                         key = 9000;
@@ -2547,13 +2543,12 @@ void main_menu() {
 
                 switch (key) {
                     case GNW_KB_KEY_SHIFT_L: {
-                        int32_t game_file_number;
-
                         menu_delete_menu_buttons();
-                        game_file_number = SaveLoadMenu_MenuLoop(false);
 
-                        if (game_file_number) {
-                            ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
+                        auto save_slot = SaveLoadMenu_MenuLoop(MISSION_CATEGORY_CUSTOM, false);
+
+                        if (save_slot) {
+                            ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
 
                             GameManager_GameLoop(GAME_STATE_10);
 

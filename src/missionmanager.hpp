@@ -37,12 +37,15 @@ class MissionManager {
     std::unique_ptr<GameRulesHandler> m_gameruleshandler;
     std::unique_ptr<WinLossHandler> m_winlosshandler;
 
+    void SetupMission();
+
 public:
     MissionManager();
     virtual ~MissionManager();
 
     bool LoadMission(const MissionCategory category, const std::string hash);
     bool LoadMission(const MissionCategory category, const uint32_t index);
+    bool LoadMission(std::shared_ptr<Mission> m_mission);
 
     const std::unique_ptr<GameRulesHandler>& GetGameRulesHandler() const;
     const std::unique_ptr<WinLossHandler>& GetWinLossHandler() const;

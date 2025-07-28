@@ -35,8 +35,7 @@ extern int32_t SaveLoadMenu_SaveSlot;
 extern uint8_t SaveLoadMenu_GameState;
 
 void SaveLoadMenu_CreateBackup(const char* file_name);
-int32_t SaveLoadMenu_MenuLoop(int32_t is_saving_allowed);
+int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool is_saving_allowed);
 void SaveLoadMenu_Save(const char* file_name, const char* save_name, bool play_voice, bool backup = false);
-bool SaveLoadMenu_Load(const int32_t save_slot, const MissionCategory mission_category, const bool ini_load_mode);
 
 #endif /* SAVELOADMENU_HPP */

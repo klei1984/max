@@ -34,40 +34,37 @@ MissionManager::MissionManager() {
 
 MissionManager::~MissionManager() {}
 
-bool MissionManager::LoadMission(const MissionCategory category, const std::string hash) {
-    m_mission = m_missionregistry->GetMission(category, hash);
-
+void MissionManager::SetupMission() {
     if (m_mission) {
         MaxRegistryHandler::Init();
-
         m_mission->Setlanguage(m_language);
-
         m_gameruleshandler = std::make_unique<GameRulesHandler>();
-
         if (m_gameruleshandler) {
             if (!m_gameruleshandler->LoadScript(*m_mission)) {
                 m_gameruleshandler.reset();
                 m_mission.reset();
             }
-
         } else {
             m_mission.reset();
         }
-
         m_winlosshandler = std::make_unique<WinLossHandler>();
-
         if (m_winlosshandler) {
             if (!m_winlosshandler->LoadScript(*m_mission)) {
                 m_gameruleshandler.reset();
                 m_winlosshandler.reset();
                 m_mission.reset();
             }
-
         } else {
             m_gameruleshandler.reset();
             m_mission.reset();
         }
     }
+}
+
+bool MissionManager::LoadMission(const MissionCategory category, const std::string hash) {
+    m_mission = m_missionregistry->GetMission(category, hash);
+
+    SetupMission();
 
     return m_mission ? true : false;
 }
@@ -84,6 +81,14 @@ bool MissionManager::LoadMission(const MissionCategory category, const uint32_t 
     }
 
     return result;
+}
+
+bool MissionManager::LoadMission(std::shared_ptr<Mission> mission) {
+    m_mission = mission;
+
+    SetupMission();
+
+    return m_mission ? true : false;
 }
 
 const std::unique_ptr<GameRulesHandler>& MissionManager::GetGameRulesHandler() const { return m_gameruleshandler; }

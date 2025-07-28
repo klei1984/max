@@ -39,7 +39,7 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
 
             auto mission = std::make_shared<Mission>("en-US");
 
-            if (mission->LoadBuffer(script)) {
+            if (mission && mission->LoadBuffer(script)) {
                 m_categories[mission->GetCategory()].push_back(std::move(mission));
             }
         }

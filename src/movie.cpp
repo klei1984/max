@@ -209,7 +209,4 @@ int32_t Movie_PlayOemLogo(void) { return movie_run(LOGOFLIC); }
 
 int32_t Movie_PlayIntro(void) { return movie_run(INTROFLC); }
 
-int32_t Movie_Play(ResourceID resource_id) {
-    WindowManager_ClearWindow();
-    return movie_run(resource_id);
-}
+int32_t Movie_Play(ResourceID resource_id) { return movie_run(resource_id); }

@@ -117,6 +117,7 @@ bool ResourceManager_GetPrefPath(std::filesystem::path &path);
 void ResourceManager_InitPaths();
 void ResourceManager_InitResources();
 void ResourceManager_ExitGame(int32_t error_code);
+void ResourceManager_Exit();
 uint8_t *ResourceManager_ReadResource(ResourceID id);
 uint8_t *ResourceManager_LoadResource(ResourceID id);
 uint32_t ResourceManager_GetResourceSize(ResourceID id);
@@ -142,5 +143,17 @@ void ResourceManager_InitTeamInfo();
 uint8_t *ResourceManager_GetBuffer(ResourceID id);
 std::string ResourceManager_Sha256(const ResourceID world);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
+
+class ResourceManager_MutexLock {
+private:
+    SDL_mutex *m_mutex;
+
+public:
+    explicit ResourceManager_MutexLock(SDL_mutex *mutex) : m_mutex(mutex) { SDL_LockMutex(m_mutex); }
+    virtual ~ResourceManager_MutexLock() { SDL_UnlockMutex(m_mutex); }
+};
+
+[[nodiscard]] SDL_mutex *ResourceManager_CreateMutex();
+void ResourceManager_DestroyMutexes();
 
 #endif /* RESOURCE_MANAGER_HPP */

@@ -21,6 +21,7 @@
 
 #include "resource_manager.hpp"
 
+#include <format>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -76,6 +77,7 @@ static constexpr int32_t ResourceManager_MinimumDiskSpace = 1024 * 1024;
 static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
 static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
+static std::unique_ptr<std::vector<SDL_mutex *>> ResourceManager_SDLMutexes;
 
 FILE *res_file_handle_array[2];
 struct res_index *ResourceManager_ResItemTable;
@@ -165,6 +167,7 @@ static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, 
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
 static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority,
                                              const char *message);
+static void ResourceManager_LogOutputFlush();
 static inline void ResourceManager_FixWorldFiles(const ResourceID world);
 static void ResourceManager_InitMissionManager();
 
@@ -390,19 +393,22 @@ void ResourceManager_InitPaths() {
     if (!ResourceManager_GetBasePath(ResourceManager_FilePathGameBase)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(2690), nullptr);
         SDL_Log("%s", _(2690));
-        exit(1);
+
+        ResourceManager_Exit();
     }
 
     if (!ResourceManager_GetPrefPath(ResourceManager_FilePathGamePref)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(416b), nullptr);
         SDL_Log("%s", _(416b));
-        exit(1);
+
+        ResourceManager_Exit();
     }
 
     if (!ResourceManager_GetGameDataPath(ResourceManager_FilePathGameData)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(0f72), nullptr);
         SDL_Log("%s", _(0f72));
-        exit(1);
+
+        ResourceManager_Exit();
     }
 
     ResourceManager_FilePathVoice = ResourceManager_FilePathGameData;
@@ -430,10 +436,9 @@ void ResourceManager_InitSDL() {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         SDL_Log("%s", _(438a));
         SDL_Log("%s", SDL_GetError());
-        exit(1);
-    }
 
-    atexit(SDL_Quit);
+        ResourceManager_Exit();
+    }
 }
 
 void ResourceManager_TestMemory() {
@@ -447,7 +452,8 @@ void ResourceManager_TestMemory() {
 
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), message.GetCStr(), nullptr);
         SDL_Log("%s", message.GetCStr());
-        exit(1);
+
+        ResourceManager_Exit();
     }
 }
 
@@ -505,10 +511,18 @@ void ResourceManager_ExitGame(int32_t error_code) {
         menu_draw_exit_logos();
     }
 
+    SDL_Log("%s", ResourceManager_ErrorCodes[error_code]);
+
+    ResourceManager_Exit();
+}
+
+void ResourceManager_Exit() {
     SoundManager_Deinit();
     win_exit();
     Svga_Deinit();
-    SDL_Log("%s", ResourceManager_ErrorCodes[error_code]);
+    ResourceManager_DestroyMutexes();
+    SDL_Quit();
+
     exit(0);
 }
 
@@ -1537,13 +1551,19 @@ uint8_t *ResourceManager_GetBuffer(ResourceID id) {
 }
 
 SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata) {
-    char caption[500];
+    SDL_AssertState result;
 
-    snprintf(caption, sizeof(caption), "Assertion failure at %s (%s:%d), triggered %u %s: '%s'.", data->function,
-             data->filename, data->linenum, data->trigger_count, (data->trigger_count == 1) ? "time" : "times",
-             data->condition);
+    const auto caption =
+        std::format("Assertion failure at {} ({}:{}), triggered {} {}: '{}'.\n", data->function, data->filename,
+                    data->linenum, data->trigger_count, (data->trigger_count == 1) ? "time" : "times", data->condition);
 
-    return static_cast<SDL_AssertState>(AssertMenu(caption).Run());
+    result = static_cast<SDL_AssertState>(AssertMenu(caption.c_str()).Run());
+
+    if (result == SDL_ASSERTION_BREAK || result == SDL_ASSERTION_ABORT) {
+        ResourceManager_LogOutputFlush();
+    }
+
+    return result;
 }
 
 void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority, const char *message) {
@@ -1553,7 +1573,17 @@ void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPrior
         ResourceManager_LogFile = std::make_unique<std::ofstream>(filepath.string().c_str(), std::ofstream::trunc);
     }
 
-    *ResourceManager_LogFile << message;
+    if (ResourceManager_LogFile && ResourceManager_LogFile->is_open()) {
+        *ResourceManager_LogFile << message;
+    }
+}
+
+void ResourceManager_LogOutputFlush() {
+    if (ResourceManager_LogFile && ResourceManager_LogFile->is_open()) {
+        *ResourceManager_LogFile << std::endl;
+
+        ResourceManager_LogFile->flush();
+    }
 }
 
 std::string ResourceManager_Sha256(const ResourceID world) {
@@ -1941,3 +1971,31 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
 void ResourceManager_InitMissionManager() { ResourceManager_MissionManager = std::make_shared<MissionManager>(); }
 
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return ResourceManager_MissionManager; }
+
+[[nodiscard]] SDL_mutex *ResourceManager_CreateMutex() {
+    if (!ResourceManager_SDLMutexes) {
+        ResourceManager_SDLMutexes = std::make_unique<std::vector<SDL_mutex *>>();
+
+        if (!ResourceManager_SDLMutexes) {
+            ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
+        }
+    }
+
+    auto mutex = SDL_CreateMutex();
+
+    if (mutex) {
+        ResourceManager_SDLMutexes->push_back(mutex);
+    }
+
+    return mutex;
+}
+
+void ResourceManager_DestroyMutexes() {
+    for (SDL_mutex *&mutex : *ResourceManager_SDLMutexes) {
+        SDL_DestroyMutex(mutex);
+
+        mutex = nullptr;
+    }
+
+    ResourceManager_SDLMutexes->clear();
+}

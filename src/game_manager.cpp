@@ -22,6 +22,7 @@
 #include "game_manager.hpp"
 
 #include <ctime>
+#include <format>
 
 #include "access.hpp"
 #include "ai.hpp"
@@ -2106,7 +2107,6 @@ Point GameManager_GetStartingPositionPowerGenerator(Point point, uint16_t team) 
 }
 
 void GameManager_GameSetup(int32_t game_state) {
-    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     int32_t zoom_level;
     int32_t max_zoom_level;
@@ -2129,6 +2129,8 @@ void GameManager_GameSetup(int32_t game_state) {
     PathsManager_Clear();
 
     if (game_state == GAME_STATE_6) {
+        const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+
         GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 
         if (!GameManager_InitGame()) {
@@ -2179,9 +2181,21 @@ void GameManager_GameSetup(int32_t game_state) {
         }
 
     } else {
+        const auto mission = ResourceManager_GetMissionManager().get()->GetMission();
+        const auto mission_category = mission->GetCategory();
+        const auto filepath = mission->GetMission();
+
         GameManager_GameState = GAME_STATE_10;
 
-        if (!SaveLoadMenu_Load(ini_get_setting(INI_GAME_FILE_NUMBER), mission_category, !Remote_IsNetworkGame)) {
+        if (mission_category != MISSION_CATEGORY_CAMPAIGN) {
+            SaveLoadMenu_SaveSlot = ini_get_setting(INI_GAME_FILE_NUMBER);
+        }
+
+        if (SaveLoad_Load(filepath, mission_category, !Remote_IsNetworkGame, Remote_IsNetworkGame)) {
+            GameManager_UpdateDrawBounds();
+            Access_UpdateVisibilityStatus(GameManager_AllVisible);
+
+        } else {
             GameManager_GameState = GAME_STATE_3_MAIN_MENU;
             return;
         }
@@ -2728,7 +2742,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
     if (GameManager_CheckDesync()) {
         if (enable_autosave && mission_category != MISSION_CATEGORY_DEMO && ini_get_setting(INI_AUTO_SAVE)) {
             char log_message[30];
-            const auto file_name = SaveLoad_GetSaveFileName(mission_category, 10);
+            const auto file_name = SaveLoad_GetSaveFileName(SaveLoad_GetSaveFileCategory(mission_category), 10);
 
             snprintf(log_message, sizeof(log_message), _(263f), GameManager_TurnCounter);
 
@@ -3531,8 +3545,6 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
     load_successful = false;
 
     if (save_slot) {
-        const auto mission_category = ResourceManager_GetMissionManager().get()->GetMission()->GetCategory();
-
         if (GameManager_SelectedUnit != nullptr) {
             SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
         }
@@ -3557,7 +3569,25 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
         GameManager_LockedUnits.Clear();
 
-        load_successful = SaveLoadMenu_Load(save_slot, mission_category, true);
+        {
+            const auto mission = ResourceManager_GetMissionManager()->GetMission();
+            const auto mission_category = mission->GetCategory();
+            const auto filepath = mission->GetMission();
+
+            if (mission_category != MISSION_CATEGORY_CAMPAIGN) {
+                SaveLoadMenu_SaveSlot = save_slot;
+            }
+
+            if (SaveLoad_Load(filepath, mission_category, true, Remote_IsNetworkGame)) {
+                GameManager_UpdateDrawBounds();
+                Access_UpdateVisibilityStatus(GameManager_AllVisible);
+
+                load_successful = true;
+
+            } else {
+                load_successful = false;
+            }
+        }
 
         if (load_successful) {
             if (Remote_IsNetworkGame) {
@@ -4058,11 +4088,11 @@ void GameManager_MenuClickChatGoalButton() {
         GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
 
     } else {
-        auto mission = ResourceManager_GetMissionManager().get()->GetMission().get();
+        const auto mission = ResourceManager_GetMissionManager().get()->GetMission();
+        const auto mission_category = mission->GetCategory();
 
-        if (mission) {
-            const auto mission_category = mission->GetCategory();
-            std::string mission_goal = mission->GetTitle() + "\n\n" + mission->GetDescription();
+        if (mission->GetDescription().length()) {
+            const auto mission_goal = std::format("{}\n\n{}", mission->GetTitle(), mission->GetDescription());
 
             MessageManager_DrawMessage(mission_goal.c_str(), 0, 1);
         }
@@ -4098,9 +4128,6 @@ void GameManager_MenuClickPreferencesButton() {
 }
 
 void GameManager_MenuClickFileButton(bool is_saving_allowed) {
-    Color* palette_buffer;
-    int32_t save_slot;
-
     if (GameManager_QuickBuildMenuActive) {
         UnitsManager_DestroyUnit(&*GameManager_QuickBuilderUnit);
         GameManager_QuickBuildMenuActive = false;
@@ -4110,9 +4137,15 @@ void GameManager_MenuClickFileButton(bool is_saving_allowed) {
     GameManager_ManagePlayerAction();
 
     GameManager_MenuItems[MENU_GUI_ITEM_FILES_BUTTON].button->SetRestState(false);
-    palette_buffer = GameManager_MenuFadeOut();
+
+    auto palette_buffer = GameManager_MenuFadeOut();
+
     Cursor_SetCursor(CURSOR_HAND);
-    save_slot = SaveLoadMenu_MenuLoop(is_saving_allowed);
+
+    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+
+    auto save_slot = SaveLoadMenu_MenuLoop(mission_category, is_saving_allowed);
+
     GameManager_LoadGame(save_slot, palette_buffer);
 }
 
@@ -4184,10 +4217,11 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
         SmartString string;
 
         const auto mission_category = ResourceManager_GetMissionManager().get()->GetMission()->GetCategory();
+        const auto save_file_category = SaveLoad_GetSaveFileCategory(mission_category);
 
-        const auto file_name = SaveLoad_GetSaveFileName(mission_category, SaveLoadMenu_SaveSlot);
+        const auto file_name = SaveLoad_GetSaveFileName(save_file_category, SaveLoadMenu_SaveSlot);
 
-        if (SaveLoad_GetSaveFileInfo(mission_category, SaveLoadMenu_SaveSlot, save_file_info)) {
+        if (SaveLoad_GetSaveFileInfo(save_file_category, SaveLoadMenu_SaveSlot, save_file_info)) {
             string.Sprintf(200, save_load_mode ? _(e285) : _(470e), file_name.c_str(),
                            save_file_info.save_name.c_str());
 
