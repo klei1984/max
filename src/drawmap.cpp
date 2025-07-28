@@ -706,6 +706,7 @@ void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int32_t color) {
     text_area.lry = text_area.uly + (unit_size * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - 8;
 
     if (text_area.ulx < text_area.lrx && text_area.uly < text_area.lry) {
+        const auto font_index = Text_GetFont();
         uint32_t zoom_level;
 
         zoom_level = Gfx_ZoomLevel;
@@ -734,6 +735,8 @@ void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int32_t color) {
         }
 
         Text_AutofitTextBox(window->buffer, window->width, text, &text_area, &draw_area, color, true);
+
+        Text_SetFont(font_index);
     }
 }
 
