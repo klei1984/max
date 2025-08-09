@@ -402,8 +402,8 @@ struct ResourceAllocator {
                 point2.y =
                     (((mixed_resource_seperation_min * 2 + 1) * dos_rand()) >> 15) - mixed_resource_seperation_min + j;
 
-                Optimize(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
-                Optimize(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
+                this->Optimize(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
+                allocator->Optimize(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
             }
 
             flag = !flag;
