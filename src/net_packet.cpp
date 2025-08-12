@@ -114,6 +114,20 @@ NetPacket& operator<<(NetPacket& packet, const SmartString& string) noexcept {
     return packet;
 }
 
+NetPacket& operator<<(NetPacket& packet, std::string& string) noexcept {
+    uint32_t length = string.size();
+    packet.Write(&length, sizeof(length));
+    packet.Write(string.c_str(), length);
+    return packet;
+}
+
+NetPacket& operator<<(NetPacket& packet, const std::string& string) noexcept {
+    uint32_t length = string.size();
+    packet.Write(&length, sizeof(length));
+    packet.Write(string.c_str(), length);
+    return packet;
+}
+
 void NetPacket::AddAddress(NetAddress& address) noexcept { addresses.PushBack(&address); }
 
 [[nodiscard]] NetAddress& NetPacket::GetAddress(uint16_t index) const noexcept { return *addresses[index]; }
@@ -129,6 +143,51 @@ NetPacket& operator>>(NetPacket& packet, SmartString& string) noexcept {
     packet.Read(text_buffer, length);
     string = text_buffer;
     delete[] text_buffer;
+    return packet;
+}
+
+NetPacket& operator>>(NetPacket& packet, std::string& string) noexcept {
+    uint32_t length;
+    packet.Read(&length, sizeof(length));
+    if (length) {
+        char* text_buffer = new (std::nothrow) char[length];
+        packet.Read(text_buffer, length);
+        string.assign(text_buffer, length);
+        delete[] text_buffer;
+
+    } else {
+        string.clear();
+    }
+    return packet;
+}
+
+NetPacket& operator<<(NetPacket& packet, const std::vector<std::string>& strings) noexcept {
+    uint32_t count = strings.size();
+    packet << count;
+    for (const auto& string : strings) {
+        packet << string;
+    }
+    return packet;
+}
+
+NetPacket& operator<<(NetPacket& packet, std::vector<std::string>& strings) noexcept {
+    uint32_t count = strings.size();
+    packet << count;
+    for (const auto& string : strings) {
+        packet << string;
+    }
+    return packet;
+}
+
+NetPacket& operator>>(NetPacket& packet, std::vector<std::string>& strings) noexcept {
+    uint32_t count;
+    strings.clear();
+    packet >> count;
+    for (uint32_t i = 0; i < count; ++i) {
+        std::string string;
+        packet >> string;
+        strings.push_back(string);
+    }
     return packet;
 }
 

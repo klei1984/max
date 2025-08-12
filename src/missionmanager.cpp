@@ -37,7 +37,7 @@ MissionManager::~MissionManager() {}
 void MissionManager::SetupMission() {
     if (m_mission) {
         MaxRegistryHandler::Init();
-        m_mission->Setlanguage(m_language);
+        m_mission->SetLanguage(m_language);
         m_gameruleshandler = std::make_unique<GameRulesHandler>();
         if (m_gameruleshandler) {
             if (!m_gameruleshandler->LoadScript(*m_mission)) {
@@ -62,7 +62,7 @@ void MissionManager::SetupMission() {
 }
 
 bool MissionManager::LoadMission(const MissionCategory category, const std::string hash) {
-    m_mission = m_missionregistry->GetMission(category, hash);
+    m_mission = FindMission(category, hash);
 
     SetupMission();
 
@@ -97,13 +97,74 @@ const std::unique_ptr<WinLossHandler>& MissionManager::GetWinLossHandler() const
 
 const std::shared_ptr<Mission> MissionManager::GetMission() const { return m_mission; }
 
+const std::shared_ptr<Mission> MissionManager::FindMission(const MissionCategory category,
+                                                           const std::string hash) const {
+    return m_missionregistry->GetMission(category, hash);
+}
+
 void MissionManager::ResetMission() {
     m_mission.reset();
     MaxRegistryHandler::Reset();
 }
 
-const std::vector<std::shared_ptr<Mission>>& MissionManager::GetMissions(const MissionCategory category) noexcept {
+const std::vector<std::shared_ptr<Mission>>& MissionManager::GetMissions(
+    const MissionCategory category) const noexcept {
     return m_missionregistry->GetMissions(category);
 }
 
+int32_t MissionManager::GetMissionIndex(const MissionCategory category, const std::vector<std::string>& hashes) const {
+    auto result = MissionManager::InvalidID;
+
+    for (const std::string& hash : hashes) {
+        const auto mission = FindMission(category, hash);
+
+        if (mission) {
+            result = GetMissionIndex(mission);
+            break;
+        }
+    }
+
+    return result;
+}
+
+int32_t MissionManager::GetMissionIndex(const MissionCategory category, const std::string hash) const {
+    const auto mission = FindMission(category, hash);
+
+    return GetMissionIndex(mission);
+}
+
+int32_t MissionManager::GetMissionIndex(const std::shared_ptr<Mission> mission) const {
+    auto result = MissionManager::InvalidID;
+
+    if (mission) {
+        const auto mission_category = mission->GetCategory();
+        const auto& missions = GetMissions(mission_category);
+
+        for (auto it = missions.begin(); it != missions.end(); ++it) {
+            if (it->get() == mission.get()) {
+                result = std::distance(missions.begin(), it);
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
 void MissionManager::HandleMissionStateChanges() { MaxRegistryHandler::Update(); }
+
+void MissionManager::SetLanguage(const std::string language) {
+    m_language = language;
+
+    if (m_mission) {
+        m_mission->SetLanguage(m_language);
+    }
+
+    for (uint32_t i = MISSION_CATEGORY_CUSTOM; i < MISSION_CATEGORY_COUNT; ++i) {
+        const auto& missions = GetMissions(static_cast<MissionCategory>(i));
+
+        for (auto it = missions.begin(); it != missions.end(); ++it) {
+            it->get()->SetLanguage(m_language);
+        }
+    }
+}

@@ -1968,7 +1968,11 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
     }
 }
 
-void ResourceManager_InitMissionManager() { ResourceManager_MissionManager = std::make_shared<MissionManager>(); }
+void ResourceManager_InitMissionManager() {
+    ResourceManager_MissionManager = std::make_shared<MissionManager>();
+
+    ResourceManager_MissionManager->SetLanguage(Localization::GetLanguage());
+}
 
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return ResourceManager_MissionManager; }
 

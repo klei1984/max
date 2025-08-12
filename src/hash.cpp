@@ -295,6 +295,9 @@ void UnitHash::FileLoad(SmartFileReader& file) {
     delete[] list;
 
     file.Read(hash_size);
+
+    SDL_assert(hash_size > 0);
+
     list = new (std::nothrow) SmartList<UnitInfo>[hash_size];
 
     for (int32_t index = 0; index < hash_size; ++index) {

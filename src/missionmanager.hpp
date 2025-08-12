@@ -43,6 +43,8 @@ public:
     MissionManager();
     virtual ~MissionManager();
 
+    static constexpr int32_t InvalidID = -1;
+
     bool LoadMission(const MissionCategory category, const std::string hash);
     bool LoadMission(const MissionCategory category, const uint32_t index);
     bool LoadMission(std::shared_ptr<Mission> m_mission);
@@ -50,9 +52,14 @@ public:
     const std::unique_ptr<GameRulesHandler>& GetGameRulesHandler() const;
     const std::unique_ptr<WinLossHandler>& GetWinLossHandler() const;
     const std::shared_ptr<Mission> GetMission() const;
+    const std::shared_ptr<Mission> FindMission(const MissionCategory category, const std::string hash) const;
     void HandleMissionStateChanges();
     void ResetMission();
-    const std::vector<std::shared_ptr<Mission>>& GetMissions(const MissionCategory category) noexcept;
+    const std::vector<std::shared_ptr<Mission>>& GetMissions(const MissionCategory category) const noexcept;
+    int32_t GetMissionIndex(const MissionCategory category, const std::vector<std::string>& hashes) const;
+    int32_t GetMissionIndex(const MissionCategory category, const std::string hash) const;
+    int32_t GetMissionIndex(const std::shared_ptr<Mission> mission) const;
+    void SetLanguage(const std::string language);
 };
 
 #endif /* MISSIONMANAGER_HPP */

@@ -782,6 +782,8 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
 
                         ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_CAMPAIGN, hash);
 
+                        ini_set_setting(INI_GAME_FILE_NUMBER, mission_index);
+
                         if (ini_get_setting(INI_LAST_CAMPAIGN) < mission_index) {
                             ini_set_setting(INI_LAST_CAMPAIGN, mission_index);
                         }
@@ -2047,6 +2049,8 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
             break;
         }
 
+        ini_set_setting(INI_GAME_FILE_NUMBER, game_setup_menu.game_file_number);
+
         if (game_setup_menu.GetMissionCategory() != MISSION_CATEGORY_MULTI_PLAYER_SCENARIO || flag1) {
             if (menu_options_menu_loop(2)) {
                 {
@@ -2101,8 +2105,15 @@ int32_t menu_custom_game_menu(const bool is_single_player) {
     bool enter_planet_select_menu = true;
     bool player_menu_passed = false;
 
-    if (!ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_CUSTOM, "MISSION_CATEGORY_CUSTOM")) {
-        return false;
+    if (is_single_player) {
+        if (!ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_CUSTOM, "MISSION_CATEGORY_CUSTOM")) {
+            return false;
+        }
+
+    } else {
+        if (!ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_HOT_SEAT, "MISSION_CATEGORY_HOT_SEAT")) {
+            return false;
+        }
     }
 
     do {
@@ -2310,6 +2321,8 @@ int32_t menu_network_game_menu(bool is_host_mode) {
 
         GameManager_GameLoop(GameManager_GameState);
 
+        ResourceManager_GetMissionManager()->ResetMission();
+
         result = true;
 
     } else {
@@ -2357,7 +2370,7 @@ int32_t menu_multiplayer_menu_loop() {
                 case GNW_KB_KEY_SHIFT_L: {
                     menu_delete_menu_buttons();
 
-                    auto save_slot = SaveLoadMenu_MenuLoop(MISSION_CATEGORY_CUSTOM, false);
+                    auto save_slot = SaveLoadMenu_MenuLoop(MISSION_CATEGORY_HOT_SEAT, false);
 
                     if (save_slot) {
                         ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);

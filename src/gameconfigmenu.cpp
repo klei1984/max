@@ -21,6 +21,8 @@
 
 #include "gameconfigmenu.hpp"
 
+#include <format>
+
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "localization.hpp"
@@ -535,7 +537,6 @@ void GameConfigMenu::DrawPanelResourceLevels() {
 void GameConfigMenu::DrawPanelVictoryCondition() {
     int32_t menu_index;
     int32_t victory_limit;
-    char text[30];
 
     DrawBgPanel(6);
 
@@ -543,7 +544,8 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
     DrawCaption(window, &game_config_menu_items[60], Fonts_BrightYellowColor, true);
 
     victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
-    snprintf(text, 30, "%d", victory_limit);
+
+    const auto text = std::format("{}", victory_limit);
 
     if (ini_get_setting(INI_VICTORY_TYPE)) {
         game_config_menu_items[67].title.clear();

@@ -81,7 +81,7 @@ public:
     uint16_t team_nodes[TRANSPORT_MAX_TEAM_COUNT];
     int16_t team_clans[TRANSPORT_MAX_TEAM_COUNT];
     char team_jar_in_use[TRANSPORT_MAX_TEAM_COUNT];
-    char multi_scenario_id;
+    int32_t multi_scenario_id;
     uint32_t rng_seed;
     int16_t minimap_world_index;
     Image *minimap_bg_image;
@@ -103,7 +103,7 @@ public:
     char world_name[30];
     char default_team_names[TRANSPORT_MAX_TEAM_COUNT][30];
     char team_names[TRANSPORT_MAX_TEAM_COUNT][30];
-    char text_buffer[120];
+    char text_buffer[150];
     char chat_input_buffer[150];
     char chat_message_buffer[150];
 

@@ -56,6 +56,14 @@ public:
     friend NetPacket& operator<<(NetPacket& packet, SmartString& string) noexcept;
     friend NetPacket& operator>>(NetPacket& packet, SmartString& string) noexcept;
 
+    friend NetPacket& operator<<(NetPacket& packet, const std::string& string) noexcept;
+    friend NetPacket& operator<<(NetPacket& packet, std::string& string) noexcept;
+    friend NetPacket& operator>>(NetPacket& packet, std::string& string) noexcept;
+
+    friend NetPacket& operator<<(NetPacket& packet, const std::vector<std::string>& strings) noexcept;
+    friend NetPacket& operator<<(NetPacket& packet, std::vector<std::string>& strings) noexcept;
+    friend NetPacket& operator>>(NetPacket& packet, std::vector<std::string>& strings) noexcept;
+
     friend bool operator==(NetPacket& left, NetPacket& right) noexcept;
     friend bool operator!=(NetPacket& left, NetPacket& right) noexcept;
 

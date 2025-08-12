@@ -246,4 +246,5 @@
         {"60f3", INI_STRING}, {"1b93", INI_STRING}, {"5a01", INI_STRING}, {"eb57", INI_STRING}, {"360a", INI_STRING},  \
         {"16f4", INI_STRING}, {"7101", INI_STRING}, {"c366", INI_STRING}, {"36f9", INI_STRING}, {"2690", INI_STRING},  \
         {"416b", INI_STRING}, {"0f72", INI_STRING}, {"438a", INI_STRING}, {"d0a2", INI_STRING}, {"efb0", INI_STRING},  \
-        {"cf05", INI_STRING}, {"b7f4", INI_STRING}, {"3889", INI_STRING}, {"37d9", INI_STRING}, {"6a9c", INI_STRING},
+        {"cf05", INI_STRING}, {"b7f4", INI_STRING}, {"3889", INI_STRING}, {"37d9", INI_STRING}, {"6a9c", INI_STRING},  \
+        {"17ee", INI_STRING},

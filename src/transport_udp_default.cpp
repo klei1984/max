@@ -115,8 +115,8 @@ static inline bool TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDe
                                                            ENetPeer* const peer);
 static inline bool TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
                                                                ENetPeer* const peer);
-static inline void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const context,
-                                                    ENetPeer* const peer);
+static inline void TransportUdpDefault_RemovePeer(struct TransportUdpDefault_Context* const context,
+                                                  ENetPeer* const peer);
 static inline void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const context);
 static inline void TransportUdpDefault_ConnectRemotePeer(struct TransportUdpDefault_Context* const context,
                                                          NetPacket& packet);
@@ -395,7 +395,7 @@ bool TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Cont
     return result;
 }
 
-void TransportUdpDefault_RemoveClient(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
+void TransportUdpDefault_RemovePeer(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
     auto position = context->Peers->Find(&peer);
 
     if (position != -1) {
@@ -427,7 +427,7 @@ void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const
                 } break;
 
                 case ENET_EVENT_TYPE_DISCONNECT: {
-                    TransportUdpDefault_RemoveClient(context, event.peer);
+                    TransportUdpDefault_RemovePeer(context, event.peer);
                 } break;
             }
         }
@@ -435,7 +435,12 @@ void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const
         if (time_stamp < SDL_GetTicks()) {
             for (auto i = 0; i < peers.GetCount(); ++i) {
                 enet_peer_disconnect_now(*peers[i], 0);
-                TransportUdpDefault_RemoveClient(context, *peers[i]);
+                if (context->NetRole == TRANSPORT_SERVER) {
+                    TransportUdpDefault_RemovePeer(context, *peers[i]);
+
+                } else {
+                    TransportUdpDefault_RemoveRemotePeer(context, *peers[i]);
+                }
             }
         }
     }
@@ -616,7 +621,7 @@ void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const cont
 
                 if (UPNPCOMMAND_SUCCESS == UPNP_GetExternalIPAddress(context->UpnpDevice.ControlUrl.GetCStr(),
                                                                      context->UpnpDevice.ServiceType.GetCStr(),
-																	 wan_address)) {
+                                                                     wan_address)) {
                     context->UpnpDevice.ExternalAddress = wan_address;
                 }
             } break;
@@ -733,7 +738,7 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
                     } break;
 
                     case ENET_EVENT_TYPE_DISCONNECT: {
-                        TransportUdpDefault_RemoveClient(context, event.peer);
+                        TransportUdpDefault_RemovePeer(context, event.peer);
                     } break;
                 }
             }

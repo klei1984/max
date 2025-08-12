@@ -22,6 +22,7 @@
 #include "networkmenu.hpp"
 
 #include <ctime>
+#include <format>
 
 #include "game_manager.hpp"
 #include "gameconfigmenu.hpp"
@@ -121,6 +122,8 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
 
     network_menu.is_host_mode = is_host_mode;
     network_menu.Init();
+
+    ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_MULTI, "MISSION_CATEGORY_MULTI");
 
     do {
         if (!network_menu.is_host_mode) {
@@ -347,20 +350,14 @@ void NetworkMenu::Init() {
 
     ini_config.GetStringValue(INI_PLAYER_NAME, player_name, 30);
 
-    network_menu_titles[MENU_ITEM_NAME_FIELD].title = player_name;
-
     for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         team_nodes[i] = 0;
         team_names[i][0] = '\0';
         team_jar_in_use[i] = 0;
-        network_menu_titles[MENU_ITEM_TEXT_WINDOW + i].title = team_names[i];
     }
 
     chat_input_buffer[0] = '\0';
-    network_menu_titles[MENU_ITEM_CHAT_BAR_ONE].title = chat_input_buffer;
-
     chat_message_buffer[0] = '\0';
-    network_menu_titles[MENU_ITEM_CHAT_BAR_TWO].title = chat_message_buffer;
 
     text_edit1 = CreateTextEdit(0);
     text_edit2 = CreateTextEdit(18);
@@ -467,6 +464,7 @@ void NetworkMenu::EventMapButton() {
         ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
         ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
         ReadIniSettings(GAME_STATE_6);
+        ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_MULTI, "MISSION_CATEGORY_MULTI");
         UpdateSaveSettings(nullptr);
         SetClans(ini_get_setting(INI_PLAYER_CLAN));
     }
@@ -487,9 +485,7 @@ void NetworkMenu::EventLoadButton() {
 
         ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
 
-        if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI, save_slot, save_file_info)) {
-            SaveLoad_LoadIniOptions(MISSION_CATEGORY_MULTI, save_slot);
-
+        if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI, save_slot, save_file_info, true)) {
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 team_clans[i] = save_file_info.team_clan[i];
             }
@@ -511,19 +507,17 @@ void NetworkMenu::EventLoadButton() {
 }
 
 void NetworkMenu::EventScenarioButton() {
-    int32_t team_index;
-    int32_t ini_game_file_number;
-    SaveFileInfo save_file_info;
-
     DeleteButtons();
 
     if (GameSetupMenu_Menu(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, false)) {
-        team_index = player_team;
-        ini_game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
-        multi_scenario_id = ini_game_file_number;
+        const auto team_index = player_team;
+        const auto save_slot = ini_get_setting(INI_GAME_FILE_NUMBER);
+        SaveFileInfo save_file_info;
 
-        if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, ini_game_file_number, save_file_info)) {
-            SaveLoad_LoadIniOptions(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, ini_game_file_number);
+        multi_scenario_id = save_slot;
+
+        if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, save_slot, save_file_info, true)) {
+            save_file_info.save_name = std::format("{} #{}", _(2954), save_slot);
 
             ini_set_setting(INI_PLAY_MODE, ini_play_mode);
             ini_set_setting(INI_TIMER, ini_timer);
@@ -665,6 +659,8 @@ void NetworkMenu::DrawScreen() {
 void NetworkMenu::InitPlayerPanel() {
     images[1]->Write(window);
 
+    network_menu_titles[MENU_ITEM_NAME_FIELD].title = player_name;
+
     menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_NAME_LABEL], 0xA2);
     menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_NAME_FIELD], 0xA2, true);
 
@@ -794,57 +790,36 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
         return false;
     }
 
-    if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI, multi_scenario_id, save_file_info)) {
-        SaveLoad_LoadIniOptions(MISSION_CATEGORY_MULTI, multi_scenario_id);
+    {
+        auto file_exists = SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI, multi_scenario_id, save_file_info, true);
 
-        if (rng_seed != save_file_info.random_seed) {
-            if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, multi_scenario_id, save_file_info)) {
-                SaveLoad_LoadIniOptions(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, multi_scenario_id);
+        if (file_exists && rng_seed == save_file_info.random_seed) {
+            /// \todo language
+            auto mission = std::make_shared<Mission>("en-US");
 
-            } else {
-                save_file_info.random_seed = rng_seed ^ rng_seed;
-            }
-        }
-
-        if (rng_seed == save_file_info.random_seed) {
-            is_incompatible_save_file = false;
-            const auto mission_category = ResourceManager_GetMissionManager().get()->GetMission()->GetCategory();
-
-            if (is_map_changed) {
-                for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-                    ResetJar(i);
+            if (mission && mission->LoadBinaryBuffer(save_file_info.script)) {
+                if (ResourceManager_GetMissionManager()->LoadMission(mission)) {
+                    ResourceManager_GetMissionManager()->GetMission()->SetMission(save_file_info.file_path);
                 }
 
-                is_map_changed = false;
+                is_incompatible_save_file = false;
             }
-
-            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-                team_clans[i] = save_file_info.team_clan[i];
-            }
-
-            if (mission_category == MISSION_CATEGORY_MULTI) {
-                NetSync(save_file_info);
-
-            } else {
-                int32_t player_team_local;
-
-                player_team_local = player_team;
-
-                if (player_team_local == -1) {
-                    player_team_local = 0;
-                }
-
-                NetSync(player_team_local);
-            }
-
-            result = true;
 
         } else {
-            is_incompatible_save_file = true;
-        }
+            file_exists = SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, multi_scenario_id,
+                                                   save_file_info, true);
 
-    } else {
-        is_incompatible_save_file = true;
+            if (file_exists && rng_seed == save_file_info.random_seed) {
+                if (ResourceManager_GetMissionManager()->LoadMission(
+                        static_cast<MissionCategory>(save_file_info.save_file_category), multi_scenario_id - 1)) {
+                }
+
+                is_incompatible_save_file = false;
+
+            } else {
+                is_incompatible_save_file = true;
+            }
+        }
     }
 
     if (is_incompatible_save_file) {
@@ -853,6 +828,38 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
         client_state = 0;
 
         result = false;
+
+    } else {
+        const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+
+        if (is_map_changed) {
+            for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+                ResetJar(i);
+            }
+
+            is_map_changed = false;
+        }
+
+        for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
+            team_clans[i] = save_file_info.team_clan[i];
+        }
+
+        if (mission_category == MISSION_CATEGORY_MULTI) {
+            NetSync(save_file_info);
+
+        } else {
+            int32_t player_team_local;
+
+            player_team_local = player_team;
+
+            if (player_team_local == -1) {
+                player_team_local = 0;
+            }
+
+            NetSync(player_team_local);
+        }
+
+        result = true;
     }
 
     return result;
@@ -1038,20 +1045,20 @@ void NetworkMenu::DrawTextWindow() {
     ++line_index;
 
     if (is_multi_scenario) {
-        sprintf(text, _(b764), world_name);
+        sprintf(text, _(b764), menu_planet_names[ini_world_index]);
         DrawTextLine(line_index, text, height, false);
         ++line_index;
 
-        sprintf(text, _(6c04), "");
+        sprintf(text, _(6c04), world_name);
         DrawTextLine(line_index, text, height, false);
         ++line_index;
 
     } else {
-        sprintf(text, _(c56b), menu_planet_names[ini_world_index]);
+        sprintf(text, _(c56b), world_name);
         DrawTextLine(line_index, text, height, false);
         ++line_index;
 
-        sprintf(text, _(1c1d), world_name);
+        sprintf(text, _(1c1d), "");
         DrawTextLine(line_index, text, height, false);
         ++line_index;
     }
@@ -1137,6 +1144,8 @@ void NetworkMenu::DrawJars() {
             buttons[button_index] = nullptr;
 
         } else {
+            network_menu_titles[MENU_ITEM_TEXT_WINDOW + i].title = team_names[i];
+
             menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_TEXT_WINDOW + i], 0xA2, false);
 
             if (!buttons[button_index]) {
@@ -1157,9 +1166,15 @@ void NetworkMenu::DrawJars() {
     }
 
     images[7]->Write(window);
+
+    network_menu_titles[MENU_ITEM_CHAT_BAR_ONE].title = chat_input_buffer;
+
     menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_CHAT_BAR_ONE], 0xA2, true);
 
     images[8]->Write(window);
+
+    network_menu_titles[MENU_ITEM_CHAT_BAR_TWO].title = chat_message_buffer;
+
     menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_CHAT_BAR_TWO], 0x2);
 
     SetButtonState(MENU_CONTROL_CHAT_BAR_ONE, true);
@@ -1245,12 +1260,18 @@ void NetworkMenu::LeaveEditField() {
             }
 
             images[1]->Write(window);
+
+            network_menu_titles[MENU_ITEM_NAME_FIELD].title = player_name;
+
             menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_NAME_FIELD], 0xA2, true);
             ini_config.SetStringValue(INI_PLAYER_NAME, player_name);
 
             if (player_team != -1) {
                 images[3 + player_team]->Write(window);
                 strcpy(team_names[player_team], player_name);
+
+                network_menu_titles[MENU_ITEM_TEXT_WINDOW + player_team].title = team_names[player_team];
+
                 menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_TEXT_WINDOW + player_team], 0xA2, false);
 
                 Remote_SendNetPacket_36();
@@ -1263,6 +1284,9 @@ void NetworkMenu::LeaveEditField() {
 
             images[7]->Write(window);
             strcpy(chat_input_buffer, text_buffer);
+
+            network_menu_titles[MENU_ITEM_CHAT_BAR_ONE].title = chat_input_buffer;
+
             menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_CHAT_BAR_ONE], 0xA2, true);
 
             Remote_SendNetPacket_33();

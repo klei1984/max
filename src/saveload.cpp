@@ -43,10 +43,10 @@ extern uint8_t SaveLoadMenu_GameState;
 static void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team);
 static std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_category, const int32_t save_slot,
                                                   std::string *file_name = nullptr);
-static bool SaveLoad_LoadIniOptionsV70(SmartFileReader &file);
-static bool SaveLoad_LoadIniOptionsV71(SmartFileReader &file);
-static bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_info);
-static bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_info);
+static bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_info,
+                                        const bool load_options);
+static bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_info,
+                                        const bool load_options);
 static bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission_category, bool is_remote_game,
                                    bool ini_load_mode);
 static bool SaveLoad_LoadFormatV71(SmartFileReader &file, const MissionCategory mission_category, bool is_remote_game,
@@ -62,63 +62,6 @@ void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team) {
             UnitsManager_DestroyUnit(&*it);
         }
     }
-}
-
-bool SaveLoad_LoadIniOptionsV70(SmartFileReader &file) {
-    bool result;
-
-    uint8_t buffer[176];
-
-    file.Read(buffer);
-
-    ini_config.LoadSection(file, INI_OPTIONS, true);
-
-    result = true;
-
-    return result;
-}
-
-bool SaveLoad_LoadIniOptionsV71(SmartFileReader &file) {
-    bool result;
-
-    uint8_t buffer[176];
-
-    file.Read(buffer);
-
-    ini_config.LoadSection(file, INI_OPTIONS, true);
-
-    result = true;
-
-    return result;
-}
-
-bool SaveLoad_LoadIniOptions(const MissionCategory mission_category, const int32_t save_slot) {
-    SmartFileReader file;
-    auto filepath = SaveLoad_GetFilePath(mission_category, save_slot);
-    bool result;
-
-    if (file.Open(filepath.string().c_str())) {
-        switch (file.GetFormat()) {
-            case SmartFileFormat::V70: {
-                result = SaveLoad_LoadIniOptionsV70(file);
-            } break;
-
-            case SmartFileFormat::V71: {
-                result = SaveLoad_LoadIniOptionsV71(file);
-            } break;
-
-            default: {
-                result = false;
-            } break;
-        }
-
-        file.Close();
-
-    } else {
-        result = false;
-    }
-
-    return result;
 }
 
 std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_category, const int32_t save_slot,
@@ -141,20 +84,19 @@ std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_categor
     return filepath;
 }
 
-bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_info) {
+bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_info, const bool load_options) {
     std::string mission_hash;
     uint32_t save_file_category;
     uint32_t rng_seed;
     uint16_t version;
     uint16_t mission_index;
-    uint16_t turn_timer_time;
-    uint16_t endturn_time;
     char save_name[30];
     char team_names[4][30];
     uint8_t save_game_type;
     uint8_t world_index;
     uint8_t team_type[5];
     uint8_t team_clan[5];
+
     bool result;
 
     try {
@@ -179,6 +121,20 @@ bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &sav
         file.Read(team_type);
         file.Read(team_clan);
         file.Read(rng_seed);
+
+        if (load_options) {
+            uint8_t play_mode;
+            uint8_t opponent;
+            uint16_t turn_timer_time;
+            uint16_t endturn_time;
+
+            file.Read(play_mode);
+            file.Read(opponent);
+            file.Read(turn_timer_time);
+            file.Read(endturn_time);
+
+            ini_config.LoadSection(file, INI_OPTIONS, true);
+        }
 
         save_file_info.version = version;
         save_file_info.save_file_category = save_file_category;
@@ -208,7 +164,7 @@ bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &sav
     return result;
 }
 
-bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_info) {
+bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_info, const bool load_options) {
     bool result;
 
     uint32_t version;
@@ -258,6 +214,18 @@ bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &sav
 
         file.Read(random_seed);
 
+        if (load_options) {
+            uint32_t turn_timer_time;
+            uint32_t endturn_time;
+            uint32_t game_play_mode;
+
+            file.Read(turn_timer_time);
+            file.Read(endturn_time);
+            file.Read(game_play_mode);
+
+            ini_config.LoadSection(file, INI_OPTIONS, true);
+        }
+
         save_file_info.version = version;
         save_file_info.script = binary_script;
         save_file_info.save_file_category = save_file_category;
@@ -284,20 +252,25 @@ bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &sav
 }
 
 bool SaveLoad_GetSaveFileInfo(const MissionCategory mission_category, const int32_t save_slot,
-                              struct SaveFileInfo &save_file_info) {
-    SmartFileReader file;
-    std::string file_name;
-    bool result;
-    auto file_path = SaveLoad_GetFilePath(mission_category, save_slot, &file_name);
+                              struct SaveFileInfo &save_file_info, const bool load_options) {
+    auto filepath = SaveLoad_GetFilePath(mission_category, save_slot);
 
-    if (file.Open(file_path.string().c_str())) {
+    return SaveLoad_GetSaveFileInfo(filepath, save_file_info, load_options);
+}
+
+bool SaveLoad_GetSaveFileInfo(const std::filesystem::path &filepath, struct SaveFileInfo &save_file_info,
+                              const bool load_options) {
+    SmartFileReader file;
+    bool result;
+
+    if (file.Open(filepath.string().c_str())) {
         switch (file.GetFormat()) {
             case SmartFileFormat::V70: {
-                result = SaveLoad_GetSaveFileInfoV70(file, save_file_info);
+                result = SaveLoad_GetSaveFileInfoV70(file, save_file_info, load_options);
             } break;
 
             case SmartFileFormat::V71: {
-                result = SaveLoad_GetSaveFileInfoV71(file, save_file_info);
+                result = SaveLoad_GetSaveFileInfoV71(file, save_file_info, load_options);
             } break;
 
             default: {
@@ -307,8 +280,8 @@ bool SaveLoad_GetSaveFileInfo(const MissionCategory mission_category, const int3
 
         file.Close();
 
-        save_file_info.file_name = file_name;
-        save_file_info.file_path = file_path;
+        save_file_info.file_name = filepath.filename().string();
+        save_file_info.file_path = filepath;
 
     } else {
         result = false;
@@ -1563,15 +1536,7 @@ std::string SaveLoad_GetSaveFileName(const MissionCategory mission_category, con
         } break;
 
         case MISSION_CATEGORY_MULTI_PLAYER_SCENARIO: {
-            if (Remote_IsNetworkGame) {
-                extension = "mlt";
-
-            } else if (GameManager_HumanPlayerCount > 0) {
-                extension = "hot";
-
-            } else {
-                extension = "dta";
-            }
+            extension = "mps";
         } break;
 
         default: {

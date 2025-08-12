@@ -29,8 +29,9 @@
 class Localization {
 private:
     std::map<std::string, std::string> strings;
+    std::string m_language;
 
-    std::string GetLanguage() const;
+    std::string ReadLanguage() const;
     int32_t Load();
 
 public:
@@ -38,6 +39,7 @@ public:
     ~Localization();
 
     static const char* GetText(const char* key);
+    static std::string GetLanguage();
 };
 
 inline const char* operator"" _loc(const char* string, size_t) { return Localization::GetText(string); }

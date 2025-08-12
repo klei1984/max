@@ -12,6 +12,9 @@ skip -file registerarray.hpp
 skip -file smartlist.hpp
 skip -file point.hpp
 skip -file ailog.cpp
+skip regex std::.*
+skip regex __gnu_cxx::.*
+skip regex __cxxabiv1::.*
 
 python
 import sys

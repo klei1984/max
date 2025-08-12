@@ -220,27 +220,12 @@ void ClanSelectMenu::SelectMenuItems() {
 }
 
 void ClanSelectMenu::DrawClanUpgrades(const char* text, int32_t index, int32_t color) {
-    char buffer[500];
-    int32_t position;
-    int32_t limit1;
-    int32_t limit2;
+    const int32_t position = (index / 5) ? 1 : 0;
+    const int32_t limit1 = index % 5;
+    const int32_t limit2 = 5 - limit1;
 
-    position = (index / 5) ? 1 : 0;
-    buffer[0] = '\0';
-    limit1 = index % 5;
-    limit2 = 5 - limit1;
+    clan_select_menu_screen_text[position].title = std::string(limit1, '\n') + text + std::string(limit2, '\n');
 
-    for (int32_t i = 0; i < limit1; ++i) {
-        strcat(buffer, "\n");
-    }
-
-    strcat(buffer, text);
-
-    for (int32_t i = 0; i < limit2; ++i) {
-        strcat(buffer, "\n");
-    }
-
-    clan_select_menu_screen_text[position].title = buffer;
     menu_draw_menu_title(window, &clan_select_menu_screen_text[position], color | GNW_TEXT_OUTLINE, false);
 }
 

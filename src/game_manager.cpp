@@ -2181,7 +2181,7 @@ void GameManager_GameSetup(int32_t game_state) {
         }
 
     } else {
-        const auto mission = ResourceManager_GetMissionManager().get()->GetMission();
+        const auto mission = ResourceManager_GetMissionManager()->GetMission();
         const auto mission_category = mission->GetCategory();
         const auto filepath = mission->GetMission();
 
@@ -7840,18 +7840,18 @@ void GameManager_MenuInitButtons(bool mode) {
     int32_t r_value;
     int32_t p_value;
     uint32_t flags;
-    const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+    const auto mission = ResourceManager_GetMissionManager()->GetMission();
+    const auto mission_description = mission->GetDescription();
 
     window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
 
-    if ((mission_category != MISSION_CATEGORY_CUSTOM) && (mission_category != MISSION_CATEGORY_DEMO) &&
-        !Remote_IsNetworkGame) {
-        GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].gfx = GOAL_OFF;
-        GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = _(cdbf);
-
-    } else {
+    if (mission_description.empty() || Remote_IsNetworkGame) {
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].gfx = CHAT_OFF;
         GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = _(ea1a);
+
+    } else {
+        GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].gfx = GOAL_OFF;
+        GameManager_MenuItems[MENU_GUI_ITEM_CHAT_BUTTON].label = _(cdbf);
     }
 
     for (uint32_t i = 0; i < sizeof(GameManager_MenuItems) / sizeof(struct MenuGuiItem); ++i) {

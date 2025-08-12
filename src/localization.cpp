@@ -46,14 +46,14 @@ struct IniKey {
 
 static const IniKey Localization_IniKeysTable[] = {LOCALIZATION_INI_MAP};
 
-Localization::Localization() {}
+Localization::Localization() : m_language{"en-US"} {}
 
 Localization::~Localization() {}
 
-std::string Localization::GetLanguage() const {
+std::string Localization::ReadLanguage() const {
     auto buffer = std::make_unique<char[]>(LOCALIZATION_BUFFER_SIZE);
     Ini_descriptor ini;
-    std::string result("english");
+    std::string result("en-US");
     std::filesystem::path prefpath;
 
     if (ResourceManager_GetPrefPath(prefpath)) {
@@ -78,7 +78,9 @@ int32_t Localization::Load() {
     std::filesystem::path filepath;
 
     if (ResourceManager_GetBasePath(basepath)) {
-        filepath = basepath / (std::string("lang_") + GetLanguage() + ".ini");
+        m_language = ReadLanguage();
+
+        filepath = basepath / (std::string("lang_") + m_language + ".ini");
     }
 
     Ini_descriptor ini;
@@ -153,3 +155,5 @@ const char* Localization::GetText(const char* key) {
         return key;
     }
 }
+
+std::string Localization::GetLanguage() { return Localization_Locale->m_language; }

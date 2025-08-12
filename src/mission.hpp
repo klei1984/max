@@ -64,7 +64,7 @@ public:
     [[nodiscard]] bool LoadFile(const std::string& path);
     [[nodiscard]] bool LoadBuffer(const std::string& script);
     [[nodiscard]] bool LoadBinaryBuffer(const std::vector<uint8_t>& script);
-    void Setlanguage(const std::string& language);
+    void SetLanguage(const std::string& language);
 
     [[nodiscard]] std::string GetTitle() const;
     [[nodiscard]] MissionCategory GetCategory() const;

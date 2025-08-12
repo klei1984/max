@@ -227,8 +227,6 @@ void ChoosePlayerMenu::ButtonInit(int32_t index, int32_t mode) {
 void ChoosePlayerMenu::UpdateButtons() {
     const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
-    char buffer[100];
-
     for (int32_t i = 12; i < 16; ++i) {
         delete buttons[i];
 
@@ -237,13 +235,7 @@ void ChoosePlayerMenu::UpdateButtons() {
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    if (is_single_player) {
-        strcpy(buffer, _(5512));
-    } else {
-        strcpy(buffer, _(55c8));
-    }
-
-    choose_player_menu_titles[0].title = buffer;
+    choose_player_menu_titles[0].title = is_single_player ? _(5512) : _(55c8);
 
     for (int32_t i = 0; i < 6; ++i) {
         menu_draw_menu_title(window, &choose_player_menu_titles[i], COLOR_GREEN, true);

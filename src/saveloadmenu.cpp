@@ -77,8 +77,7 @@ public:
     void DrawSaveSlot(int32_t game_file_type);
 };
 
-const char *SaveLoadMenu_SaveTypeTitles[] = {_(494c), _(8b45), _(2682), _(4bf8), _(dea8),
-                                             _(8a2c), _(1a03), _(7198), _(2fcb), _(3bc3)};
+const char *SaveLoadMenu_SaveTypeTitles[] = {_(494c), _(8b45), _(2682), _(4bf8), _(dea8), _(8a2c), _(2fcb), _(3bc3)};
 
 static int32_t SaveLoadMenu_FirstSaveSlotOnPage = 1;
 int32_t SaveLoadMenu_SaveSlot;
@@ -471,6 +470,12 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
 
                                     if (save_file_info.save_file_category == MISSION_CATEGORY_CUSTOM) {
                                         hash = "MISSION_CATEGORY_CUSTOM";
+
+                                    } else if (save_file_info.save_file_category == MISSION_CATEGORY_HOT_SEAT) {
+                                        hash = "MISSION_CATEGORY_HOT_SEAT";
+
+                                    } else if (save_file_info.save_file_category == MISSION_CATEGORY_MULTI) {
+                                        hash = "MISSION_CATEGORY_MULTI";
 
                                     } else {
                                         hash = save_file_info.mission;

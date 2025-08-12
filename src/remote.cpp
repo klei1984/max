@@ -42,6 +42,7 @@
 #include "window_manager.hpp"
 
 #define REMOTE_RESPONSE_TIMEOUT 30000
+#define REMOTE_RESPONSE_PENDING 3000
 #define REMOTE_PING_TIME_PERIOD 3000
 
 enum {
@@ -99,6 +100,7 @@ bool Remote_IsNetworkGame;
 bool Remote_UpdatePauseTimer;
 bool Remote_UnpauseGameEvent;
 bool Remote_SendSynchFrame;
+bool Remote_TimeoutPendingActive;
 uint32_t Remote_PauseTimeStamp;
 uint32_t Remote_TimeoutTimeStamp;
 uint32_t Remote_RngSeed;
@@ -123,7 +125,10 @@ static OrderProcessor Remote_OrderProcessors[ORDER_COUNT_MAX];
 static uint16_t Remote_GenerateEntityId();
 static void Remote_UpdateEntityId(NetAddress& address, uint16_t entity_id);
 
-static void Remote_WriteGameSettings(NetPacket& packet);
+static void Remote_NotifyTimeout(bool main_menu_state);
+static void Remote_ClearNotifyTimeout(bool main_menu_state);
+
+static void Remote_WriteGameSettings(NetPacket& packet, const std::shared_ptr<Mission> mission);
 static void Remote_ReadGameSettings(NetPacket& packet);
 
 static void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet);
@@ -217,7 +222,34 @@ void Remote_UpdateEntityId(NetAddress& address, uint16_t entity_id) {
     }
 }
 
-void Remote_WriteGameSettings(NetPacket& packet) {
+void Remote_WriteGameSettings(NetPacket& packet, const std::shared_ptr<Mission> mission) {
+    SDL_assert(mission);
+
+    uint32_t mission_category = mission->GetCategory();
+    const auto extension = mission->GetMission().extension();
+
+    if ((extension == ".mlt" || extension == ".MLT") && (mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO)) {
+        mission_category = MISSION_CATEGORY_MULTI;
+    }
+
+    switch (mission_category) {
+        case MISSION_CATEGORY_MULTI: {
+            packet << mission_category;
+            packet << Remote_NetworkMenu->multi_scenario_id;
+        } break;
+
+        case MISSION_CATEGORY_MULTI_PLAYER_SCENARIO: {
+            const std::vector<std::string> mission_hashes = mission->GetMissionHashes();
+
+            packet << mission_category;
+            packet << mission_hashes;
+        } break;
+
+        default: {
+            SDL_assert(0);
+        } break;
+    }
+
     packet << Remote_NetworkMenu->world_name;
     packet << Remote_NetworkMenu->ini_world_index;
     packet << Remote_NetworkMenu->ini_play_mode;
@@ -234,11 +266,39 @@ void Remote_WriteGameSettings(NetPacket& packet) {
     packet << Remote_NetworkMenu->is_map_changed;
     packet << Remote_NetworkMenu->is_multi_scenario;
     packet << Remote_NetworkMenu->default_team_names;
-    packet << Remote_NetworkMenu->multi_scenario_id;
     packet << Remote_NetworkMenu->rng_seed;
 }
 
 void Remote_ReadGameSettings(NetPacket& packet) {
+    uint32_t mission_category;
+
+    packet >> mission_category;
+
+    switch (mission_category) {
+        case MISSION_CATEGORY_MULTI: {
+            packet >> Remote_NetworkMenu->multi_scenario_id;
+        } break;
+
+        case MISSION_CATEGORY_MULTI_PLAYER_SCENARIO: {
+            std::vector<std::string> mission_hashes;
+
+            packet >> mission_hashes;
+
+            const auto mission_index = ResourceManager_GetMissionManager()->GetMissionIndex(
+                static_cast<MissionCategory>(mission_category), mission_hashes);
+
+            if (mission_index != MissionManager::InvalidID) {
+                Remote_NetworkMenu->multi_scenario_id = mission_index + 1;
+            } else {
+                Remote_NetworkMenu->multi_scenario_id = 0;
+            }
+        } break;
+
+        default: {
+            SDL_assert(0);
+        } break;
+    }
+
     packet >> Remote_NetworkMenu->world_name;
     packet >> Remote_NetworkMenu->ini_world_index;
     packet >> Remote_NetworkMenu->ini_play_mode;
@@ -255,7 +315,6 @@ void Remote_ReadGameSettings(NetPacket& packet) {
     packet >> Remote_NetworkMenu->is_map_changed;
     packet >> Remote_NetworkMenu->is_multi_scenario;
     packet >> Remote_NetworkMenu->default_team_names;
-    packet >> Remote_NetworkMenu->multi_scenario_id;
     packet >> Remote_NetworkMenu->rng_seed;
 }
 
@@ -1099,6 +1158,41 @@ int32_t Remote_CheckUnpauseEvent() {
     return Remote_UnpauseGameEvent;
 }
 
+void Remote_NotifyTimeout(bool main_menu_state) {
+    if (timer_elapsed_time(Remote_TimeoutTimeStamp) > REMOTE_RESPONSE_PENDING) {
+        if (!Remote_TimeoutPendingActive) {
+            const auto window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
+            Remote_TimeoutPendingActive = true;
+
+            if (main_menu_state) {
+                GameManager_DisableMainMenu();
+            }
+
+            Cursor_SetCursor(CURSOR_UNIT_NO_GO);
+            MessageManager_ClearMessageBox();
+            win_draw_rect(window->id, &window->window);
+            MessageManager_DrawMessage(_(17ee), 2, 0);
+            MessageManager_DrawMessageBox();
+            win_draw_rect(window->id, &window->window);
+        }
+
+        GNW_process_message();
+    }
+}
+
+void Remote_ClearNotifyTimeout(bool main_menu_state) {
+    if (Remote_TimeoutPendingActive) {
+        Remote_TimeoutPendingActive = false;
+        MessageManager_ClearMessageBox();
+        const auto window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
+        win_draw_rect(window->id, &window->window);
+    }
+
+    if (main_menu_state) {
+        GameManager_EnableMainMenu(nullptr);
+    }
+}
+
 void Remote_Synchronize(bool async_mode) {
     Remote_ProcessNetPackets();
 
@@ -1111,6 +1205,7 @@ void Remote_Synchronize(bool async_mode) {
     } else {
         uint32_t time_stamp = timer_get();
         bool stay_in_loop = true;
+        bool main_menu_state = GameManager_IsMainMenuEnabled;
 
         while (stay_in_loop && Remote_IsNetworkGame) {
             Remote_ProcessNetPackets();
@@ -1128,18 +1223,23 @@ void Remote_Synchronize(bool async_mode) {
                 if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE) {
                     if (((Remote_FrameSyncCounter2 - 1) & 0x3F) == Remote_FrameSyncCounter2values[team]) {
                         if (timer_elapsed_time(Remote_TimeoutTimeStamp) > REMOTE_RESPONSE_TIMEOUT) {
+                            Remote_TimeoutPendingActive = false;
                             Remote_ResponseTimeout(team, true);
                             break;
 
                         } else {
                             stay_in_loop = true;
                         }
+
+                        Remote_NotifyTimeout(main_menu_state);
                     }
                 }
             }
 
             if (stay_in_loop && async_mode) {
                 Remote_TimeoutTimeStamp = timer_get();
+
+                Remote_ClearNotifyTimeout(main_menu_state);
 
                 return;
             }
@@ -1148,6 +1248,8 @@ void Remote_Synchronize(bool async_mode) {
         Remote_FrameSyncCounter2 = (Remote_FrameSyncCounter2 + 1) & 0x3F;
         Remote_TimeoutTimeStamp = timer_get();
         Remote_SendSynchFrame = true;
+
+        Remote_ClearNotifyTimeout(main_menu_state);
     }
 }
 
@@ -1884,7 +1986,6 @@ void Remote_SendNetPacket_17() {
 
     int32_t world;
     int32_t game_file_number;
-    int32_t game_file_type;
     int32_t play_mode;
     int32_t all_visible;
     int32_t quick_build;
@@ -1967,7 +2068,6 @@ void Remote_SendNetPacket_17() {
     packet << GameManager_GameState;
     packet << world;
     packet << game_file_number;
-    packet << game_file_type;
     packet << play_mode;
     packet << all_visible;
     packet << quick_build;
@@ -2016,7 +2116,6 @@ void Remote_ReceiveNetPacket_17(NetPacket& packet) {
     char game_state;
     int32_t world;
     int32_t game_file_number;
-    int32_t game_file_type;
     int32_t play_mode;
     int32_t all_visible;
     int32_t quick_build;
@@ -2062,7 +2161,6 @@ void Remote_ReceiveNetPacket_17(NetPacket& packet) {
     packet >> game_state;
     packet >> world;
     packet >> game_file_number;
-    packet >> game_file_type;
     packet >> play_mode;
     packet >> all_visible;
     packet >> quick_build;
@@ -2188,7 +2286,7 @@ void Remote_ReceiveNetPacket_18(NetPacket& packet) {
     SmartString message_text;
     SmartString message(team_name);
 
-    packet >> message;
+    packet >> message_text;
 
     message += ": ";
     message += message_text;
@@ -2484,29 +2582,36 @@ void Remote_ReceiveNetPacket_29(NetPacket& packet) {
 }
 
 void Remote_SendNetPacket_30(NetAddress& address) {
-    NetPacket packet;
-    NetNode* node;
+    const auto mission = ResourceManager_GetMissionManager()->GetMission();
 
-    node = Remote_Nodes.Find(address);
+    if (mission) {
+        NetPacket packet;
+        NetNode* node;
 
-    packet << static_cast<uint8_t>(REMOTE_PACKET_30);
-    packet << node->entity_id;
+        node = Remote_Nodes.Find(address);
 
-    packet << Remote_NetworkMenu->player_node;
-    packet << Remote_NetworkMenu->team_nodes;
-    packet << Remote_NetworkMenu->team_names;
+        packet << static_cast<uint8_t>(REMOTE_PACKET_30);
+        packet << node->entity_id;
 
-    packet << Remote_Nodes.GetCount();
+        packet << Remote_NetworkMenu->player_node;
+        packet << Remote_NetworkMenu->team_nodes;
+        packet << Remote_NetworkMenu->team_names;
 
-    for (int32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
-        packet << *Remote_Nodes[i];
+        packet << Remote_Nodes.GetCount();
+
+        for (int32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
+            packet << *Remote_Nodes[i];
+        }
+
+        Remote_WriteGameSettings(packet, mission);
+
+        packet.AddAddress(address);
+
+        Remote_TransmitPacket(packet, REMOTE_UNICAST);
+
+    } else {
+        SDL_assert(0);
     }
-
-    Remote_WriteGameSettings(packet);
-
-    packet.AddAddress(address);
-
-    Remote_TransmitPacket(packet, REMOTE_UNICAST);
 }
 
 void Remote_ReceiveNetPacket_30(NetPacket& packet) {
@@ -2752,14 +2857,21 @@ void Remote_ReceiveNetPacket_36(NetPacket& packet) {
 }
 
 void Remote_SendNetPacket_37() {
-    NetPacket packet;
+    const auto mission = ResourceManager_GetMissionManager()->GetMission();
 
-    packet << static_cast<uint8_t>(REMOTE_PACKET_37);
-    packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
+    if (mission) {
+        NetPacket packet;
 
-    Remote_WriteGameSettings(packet);
+        packet << static_cast<uint8_t>(REMOTE_PACKET_37);
+        packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
 
-    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+        Remote_WriteGameSettings(packet, mission);
+
+        Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+
+    } else {
+        SDL_assert(0);
+    }
 }
 
 void Remote_ReceiveNetPacket_37(NetPacket& packet) {

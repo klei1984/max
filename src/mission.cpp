@@ -174,6 +174,8 @@ static inline void Mission_ProcessCategory(const json& j, MissionObject& m) {
         {"Custom", MISSION_CATEGORY_CUSTOM},
         {"Training", MISSION_CATEGORY_TRAINING},
         {"Campaign", MISSION_CATEGORY_CAMPAIGN},
+        {"Hot-seat", MISSION_CATEGORY_HOT_SEAT},
+        {"Multiplayer", MISSION_CATEGORY_MULTI},
         {"Demo", MISSION_CATEGORY_DEMO},
         {"Single Player Scenario", MISSION_CATEGORY_SCENARIO},
         {"Multiplayer Scenario", MISSION_CATEGORY_MULTI_PLAYER_SCENARIO}};
@@ -245,6 +247,16 @@ static inline void Mission_ProcessMission(const json& j, MissionObject& m) {
 
     if (m.category == MISSION_CATEGORY_CUSTOM) {
         m.hash.push_back("MISSION_CATEGORY_CUSTOM");
+
+        return;
+
+    } else if (m.category == MISSION_CATEGORY_HOT_SEAT) {
+        m.hash.push_back("MISSION_CATEGORY_HOT_SEAT");
+
+        return;
+
+    } else if (m.category == MISSION_CATEGORY_MULTI) {
+        m.hash.push_back("MISSION_CATEGORY_MULTI");
 
         return;
     }
@@ -418,7 +430,7 @@ Mission::Mission(const std::string& language) : m_language(language), m_mission(
 
 Mission::~Mission() {}
 
-void Mission::Setlanguage(const std::string& tag) { m_language = tag; }
+void Mission::SetLanguage(const std::string& tag) { m_language = tag; }
 
 std::string Mission::GetTitle() const { return Mission_GetText(m_mission->title, m_language); }
 
