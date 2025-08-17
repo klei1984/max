@@ -6,9 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2024-06-01.
-
-Reimplementation status: 5704 / 5704 (100%) functions.
+Last updated: 2025-08-17.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -213,10 +211,9 @@ The massive amount of polymorphism that is involved with all the custom object c
   Verify the correctness of the reimplemented C++ modules (fix reimplementation issues).
   </span>
 
-### 7 Localization
+### 7 Support multiple languages
 M.A.X. utilizes GNW's raster font manager and implements six fonts, but uses only three of them. The raster fonts' em size is optimized for 640 x 480 screen resolution. The fonts are encoded according to code page 437. Half of the glyphs are not implemented from the code page while others are not recognizable. The fonts themselves are monochromatic and support no opacity contrary to some of the fonts that Fallout used.
-To support as many languages as possible and eventually high DPI displays and much higher resolutions the FreeType library is used for text rendering. Three new TrueType fonts are created and the font manager is redesigned to work with unicode vector fonts while keeping the ability to draw multi color shaded glyphs via GNW’s Text API to keep that old genuine look and feel. To be able to support multiple languages a locale manager is realized and language dependent texts are externalized as they are all hard coded within the source code.
-In-game hints, in-game help and some other text, like mission briefings or planet descriptions, are handled by the game on a per use case basis. For example all missions and planets are hard coded. It is not possible to just add new planets that the game would recognize. Scenarios are just saved games that store chat and other system messages using the locale that was active at the time of creation. Solving these problems and supporting multiple voice overs are out of the scope of this work package.
+To support as many languages as possible and eventually high DPI displays and much higher resolutions the FreeType library is used in combination with utf8proc for text rendering. Three new TrueType fonts are created and the font manager is redesigned to work with unicode vector fonts while keeping the ability to draw multi color shaded glyphs via GNW’s Text API to keep that old genuine look and feel. To be able to support multiple languages a locale manager is realized and language dependent texts are externalized as they are all hard coded within the source code. In-game hints, in-game help and some other text, like mission briefings or planet descriptions, are handled by the game on a per use case basis. For example all mission and planet descriptions are hard coded. It is not possible to just add new planets that the game would recognize. Scenarios are just saved games that store chat and other system messages using the locale that was active at the time of creation.
 
 - <span class="legend-done">
   Support TrueType fonts
@@ -226,16 +223,16 @@ In-game hints, in-game help and some other text, like mission briefings or plane
   </span>
 - Support keyboard locales
 - Support custom key bindings
-- <span class="legend-done">
+- <span class="legend-inwork">
   Support multiple languages
   </span>
 - Support subtitles in MVE video clips
-- <span class="legend-done">
+- <span class="legend-inwork">
   Externalize hard coded language dependent text
   </span>
 - Develop translation tools
 
-### 8 Code cleanup
+### 8 Improve code quality
 - <span class="legend-inwork">
   Setup workflows to improve code quality
   </span>
@@ -258,27 +255,107 @@ In-game hints, in-game help and some other text, like mission briefings or plane
   Refactor MVE player to eliminate self modifying code from it
   </span>
 
-### 9 - and beyond
+### 9 Support multiple operating systems
+Each operating system expects user specific files to be stored in a specific location following an OS distributor specific folder structure and file system standard. Each operating system has unique file system quirks that makes interoperability difficult. For example CD-ROMs could be mounted using ISO 9660 extensions like Rock Ridge, Joilet. One file system is case sensitive another is case insensitive. One supports utf8 encoded object names, another does not.
+
+- <span class="legend-inwork">
+  Support OS specific line delimiters
+  </span>
+- <span class="legend-inwork">
+  Support long file system paths and utf8 file names
+  </span>
+- <span class="legend-done">
+  Support OS specific save game locations
+  </span>
+- <span class="legend-close">
+  Support both 32 and 64 bit builds
+  </span>
+- <span class="legend-close">
+  Support game install from original media
+  </span>
+
+### 10 Support sandboxed scripting
+Many missions have hard coded game rules, while configurability of normal custom missions is lacking. Main goal is to establish the framework to allow mission specific win & loss conditions, build and manufacturing capability lists, music scheduling and generation of in-game events.
+
+- <span class="legend-close">
+  Integrate a lua interpreter
+  </span>
+- <span class="legend-close">
+  Expose interfaces to instanced lua contexts
+  </span>
+- Document the scripting engine capabilities in a programmer's manual
+
+### 11 Support more missions
+The list of missions and their game rules are all hard coded into the game executables. The English executable hardcodes English mission descriptions as each original MS-DOS executable used their own language specific MS-DOS code pages in text files. Main goal of this work package is to allow content creators to add new missions and to expand the versatility of missions via scripting and story telling.
+
+- <span class="legend-inwork">
+  Support arbitrary number of save game slots (9999 to be more precise)
+  </span>
+- <span class="legend-close">
+  Support arbitrary number of missions
+  </span>
+- <span class="legend-close">
+  Generalize and externalize mission win & loss conditions
+  </span>
+- <span class="legend-close">
+  Generalize and externalize mission construction and manufacturing capability rules
+  </span>
+- <span class="legend-close">
+  Externalize mission briefings
+  </span>
+- <span class="legend-close">
+  Refactor user interfaces as necessary
+  </span>
+
+### 12 Support more worlds
+The list of worlds and their descriptions are all hard coded into the game executables. The MS-DOS version only supports map sizes of 112 by 112 grid cells. The color schemes are hard coded for the four tile sets. The palette color animation cycles and timings are all common and hardcoded. WRL files self contain the tile set and the system palette.
+
+- <span class="legend-done">
+  Support arbitrary map sizes (within sane limits)
+  </span>
+- Support arbitrary number of world tile sets
+- Generalize and externalize world color palette animation rules
+- Externalize world titles, descriptions and similar text
+- Introduce a new world file format
+- Refactor user interfaces as necessary
+
+### 13 Update the save file format to version 71
+- <span class="legend-inwork">
+  Develop new save file format
+  </span>
+- <span class="legend-inwork">
+  Fix original defects caused by save file format version 70 quirks and limitations
+  </span>
+- <span class="legend-inwork">
+  Fix original defects in original missions that were produced with save file format version 70
+  </span>
+- <span class="legend-inwork">
+  Expand parameter limits to allow "infinite" progressions
+  </span>
+- Remove language dependencies from the message manager database
+
+### 14 Replace the GNW engine
+GNW is a 30 years old technology. Goal is to make the graphical user interfaces high DPI aware, support sane monitor aspect ratios out of the box, be highly flexible, preferably scriptable and render the assets using a modern GPU render pipeline. The game has two distinct rendering modes. System menus, and in-game menus with tactical map rendering.
+
+- Switch to SDL3 backend
+- Integrate the RmlUI library
+- Develop GL 3.3 and GLES 3.0 rendering pipelines and relevant shaders
+- Reimplement and redesign system menus
+- Reimplement and redesign in-game menus and tactical map rendering
+- Remove the GNW engine
+
+### 15 Support more campaigns
+The M.A.X. 1 campaign is very short and the campaign progression is linear. Main goals are to be able to add new campaigns, to make use of the extended game rules for missions, and to add branching to campaign progression.
+
+- Support arbitrary number of campaigns
+- Generalize and externalize campaign briefings
+- Generalize and externalize campaign specific mission and progression rules
+- Refactor user interfaces as necessary
+
+### 16 - and beyond
 To be defined
 
 {% comment %}
-Cross-platform
-- support OS specific line delimiters
-- support long file system paths and utf8 file names
-- support OS specific save game locations
-- <span class="legend-done">
-  support both 32 and 64 bit builds
-  </span>
-- support game install from original CD-ROMs (reimplement the MS-DOS installer)
-
-Scenario and campaign editor
-- support arbitrary number of save game slots
-- support arbitrary number of missions (generalize and externalize mission win & loss conditions)
-- support arbitrary number of map tile sets
-- support arbitrary map sizes
-- add built-in pseudo random map generator
-- add built-in scenario and campaign editor
-
 Asset development
 - support a high fidelity, lossless audio format that supports loop points (e.g. FLAC with RIFF chunks)
 - complete the GIMP plugin
@@ -293,6 +370,8 @@ Quality of life improvements
 - calibrate monitor brightness
 
 New features
+- add built-in pseudo random map generator
+- add built-in scenario and campaign editor
 - support various CRT shaders
 - improve computer players
 - support multiplayer (remote) games against computer players
