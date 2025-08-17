@@ -5567,7 +5567,9 @@ void GameManager_ProcessKey() {
                 return;
             }
 
-            if (GameManager_IsMainMenuEnabled && !UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn) {
+            if (GameManager_IsMainMenuEnabled && !UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn &&
+                (GameManager_PlayMode != PLAY_MODE_TURN_BASED ||
+                 GameManager_ActiveTurnTeam == GameManager_PlayerTeam)) {
                 SoundManager_PlaySfx(MBUTT0);
                 GameManager_ResetRenderState();
 
