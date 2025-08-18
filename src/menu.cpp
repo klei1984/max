@@ -1971,7 +1971,18 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
     game_setup_menu.SetMissionCategory(mission_category);
 
     if (mission_category == MISSION_CATEGORY_CAMPAIGN) {
-        ini_set_setting(INI_GAME_FILE_NUMBER, ini_get_setting(INI_LAST_CAMPAIGN));
+        int32_t mission_count = ResourceManager_GetMissionManager()->GetMissions(MISSION_CATEGORY_CAMPAIGN).size();
+        int32_t last_campaign = ini_get_setting(INI_LAST_CAMPAIGN);
+
+        if (last_campaign > mission_count) {
+            ini_set_setting(INI_LAST_CAMPAIGN, mission_count);
+            ini_config.Save();
+
+            last_campaign = mission_count;
+        }
+
+        ini_set_setting(INI_GAME_FILE_NUMBER, last_campaign);
+
     } else {
         ini_set_setting(INI_GAME_FILE_NUMBER, 1);
     }
