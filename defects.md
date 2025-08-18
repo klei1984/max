@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 156 / 239 (65.2%) original M.A.X. defects in M.A.X. Port.
+Fixed 157 / 240 (65.4%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -875,3 +875,5 @@ Proposed defect fix:
 238. **[Fixed]** There is a function (cseg01:000B417F) to verify whether a multiplayer scenario is the same on both peers computers. The function first checks whether the scenario is an ongoing scenario mission's save file, then goes on to check the scenario mission file itself for compatibility. In case the save file is not found an uninitialized structure field is read and compared by the function abainst the host's comparable field value. The field holds a 32 bit pseudo random number while the uninitialized structure allocated on the stack is basically a random number. In very rare corner cases the two values could match.
 
 239. **[Fixed]** There is a function (cseg01:000962D9) that ends a player's turn when the Enter key is pressed. In turn based networked multiplayer games the inactive player can end the active player's turn this way as the function does not check whether the acting player is the active turn player in turn based mode.
+
+240. **[Fixed]** There is an ini configuration setting called `last_campaign`. If the value is set above the number of list items that the in-game campaign menu can show, then the list, the GUI controls, and keyboard based list navigation breaks. The proposed defect fix is to plausibility check and limit the value.
