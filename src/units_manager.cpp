@@ -696,7 +696,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* singular name   */ _(eebb),
         /* plural name     */ _(27ca),
         /* description */
-        _(0c63),
+        _(5250),
         /* tutorial description (optional) */
         _(381d)),
     AbstractUnit(
@@ -1530,7 +1530,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* singular name   */ _(ad96),
         /* plural name     */ _(461c),
         /* description */
-        _(9e7c)
+        _(8061)
         /* tutorial description (optional) */
         ),
     AbstractUnit(
@@ -1727,7 +1727,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* singular name   */ _(62eb),
         /* plural name     */ _(a8d9),
         /* description */
-        _(2e66)
+        _(ca13)
         /* tutorial description (optional) */
         ),
     AbstractUnit(

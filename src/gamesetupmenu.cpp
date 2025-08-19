@@ -309,7 +309,7 @@ void GameSetupMenu::DrawMissionList() {
 
         mission_titles[i].clear();
 
-        if (m_mission_category == MISSION_CATEGORY_CAMPAIGN && (ini_last_campaign < mission_index)) {
+        if (m_mission_category == MISSION_CATEGORY_CAMPAIGN && (ini_last_campaign <= mission_index)) {
             buttons[i]->Disable();
 
         } else if (mission_index < missions.size()) {

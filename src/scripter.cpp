@@ -210,7 +210,7 @@ static int LuaCountReadyUnits(lua_State* lua) {
         return luaL_error(lua, "[max_count_ready_units] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_count_ready_units] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 
@@ -510,7 +510,7 @@ static int LuaGetTotalUnitsBeingConstructed(lua_State* lua) {
         return luaL_error(lua, "[max_get_total_units_being_constructed] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_get_total_units_being_constructed] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 
@@ -550,7 +550,7 @@ static int LuaGetTotalPowerConsumption(lua_State* lua) {
         return luaL_error(lua, "[max_get_total_power_consumption] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_get_total_power_consumption] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 
@@ -572,15 +572,15 @@ static lua_Integer GetTotalMining(const lua_Integer team, const lua_Integer carg
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).GetOrder() == ORDER_POWER_ON) {
             switch (cargo_type) {
-                case CARGO_MATERIALS: {
+                case CARGO_TYPE_RAW: {
                     result += (*it).raw_mining;
                 } break;
 
-                case CARGO_FUEL: {
+                case CARGO_TYPE_FUEL: {
                     result += (*it).fuel_mining;
                 } break;
 
-                case CARGO_GOLD: {
+                case CARGO_TYPE_GOLD: {
                     result += (*it).gold_mining;
                 } break;
             }
@@ -625,19 +625,19 @@ static lua_Integer GetTotalConsumption(const lua_Integer team, const lua_Integer
             cargo = Cargo_GetNetProduction(it->Get());
 
             switch (cargo_type) {
-                case CARGO_MATERIALS: {
+                case CARGO_TYPE_RAW: {
                     if (cargo.raw < 0) {
                         result -= cargo.raw;
                     }
                 } break;
 
-                case CARGO_FUEL: {
+                case CARGO_TYPE_FUEL: {
                     if (cargo.fuel < 0) {
                         result -= cargo.fuel;
                     }
                 } break;
 
-                case CARGO_GOLD: {
+                case CARGO_TYPE_GOLD: {
                     if (cargo.gold < 0) {
                         result -= cargo.gold;
                     }
@@ -703,7 +703,7 @@ static int LuaHasUnitAboveMarkLevel(lua_State* lua) {
         return luaL_error(lua, "[max_has_unit_above_mark_level] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_has_unit_above_mark_level] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 
@@ -742,7 +742,7 @@ static int LuaHasUnitExperience(lua_State* lua) {
         return luaL_error(lua, "[max_has_unit_experience] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_has_unit_experience] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 
@@ -773,7 +773,7 @@ static int LuaCountCasualties(lua_State* lua) {
         return luaL_error(lua, "[max_count_casualties] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_count_casualties] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 
@@ -812,7 +812,7 @@ static int LuaCountDamangedUnits(lua_State* lua) {
         return luaL_error(lua, "[max_count_damaged_units] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_count_damaged_units] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 
@@ -858,7 +858,7 @@ static int LuaCountUnitsAboveAttribLevel(lua_State* lua) {
         return luaL_error(lua, "[max_count_units_above_attrib_level] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_count_units_above_attrib_level] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 
@@ -932,7 +932,7 @@ static int LuaCountUnitsWithReducedAttrib(lua_State* lua) {
         return luaL_error(lua, "[max_count_units_with_reduced_attrib] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (unit_type > UNIT_END or unit_type < UNIT_START) {
+    if (unit_type >= UNIT_END or unit_type < UNIT_START) {
         return luaL_error(lua, "[max_count_units_with_reduced_attrib] Error: Invalid MAX_UNIT (%d)", unit_type);
     }
 

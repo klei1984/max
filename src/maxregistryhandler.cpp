@@ -48,15 +48,15 @@ void MaxRegistryHandler::Init() {
     });
 
     Scripter::MaxRegistryRegister("TeamScoreVictoryLimit", []() -> std::variant<bool, size_t, double, std::string> {
-        const auto victory_type = ini_get_setting(INI_VICTORY_TYPE);
-        const auto victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+        const auto victory_type = ini_setting_victory_type;
+        const auto victory_limit = ini_setting_victory_limit;
 
         return static_cast<size_t>((victory_type == VICTORY_TYPE_SCORE) ? victory_limit : -1);
     });
 
     Scripter::MaxRegistryRegister("TeamTurnVictoryLimit", []() -> std::variant<bool, size_t, double, std::string> {
-        const auto victory_type = ini_get_setting(INI_VICTORY_TYPE);
-        const auto victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+        const auto victory_type = ini_setting_victory_type;
+        const auto victory_limit = ini_setting_victory_limit;
 
         return static_cast<size_t>((victory_type == VICTORY_TYPE_DURATION) ? victory_limit : -1);
     });

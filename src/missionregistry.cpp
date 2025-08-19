@@ -26,7 +26,9 @@
 #include <algorithm>
 
 MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
-    for (int32_t id = SC_MIS_S; id < SC_MIS_E; ++id) {
+    std::array<size_t, MISSION_CATEGORY_COUNT> resource_end_indexes{};
+
+    for (uint32_t id = SC_MIS_S; id < SC_MIS_E; ++id) {
         uint32_t file_size = ResourceManager_GetResourceSize(static_cast<ResourceID>(id));
         uint8_t* file_base = ResourceManager_ReadResource(static_cast<ResourceID>(id));
 
@@ -47,11 +49,8 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
         delete[] file_base;
     }
 
-    for (auto& category : m_categories) {
-        std::sort(category.begin(), category.end(),
-                  [](const std::shared_ptr<Mission>& a, const std::shared_ptr<Mission>& b) {
-                      return a->GetTitle() < b->GetTitle();
-                  });
+    for (uint32_t i = 0; i < MISSION_CATEGORY_COUNT; ++i) {
+        resource_end_indexes[i] = m_categories[i].size();
     }
 
     if (std::filesystem::exists(root) && std::filesystem::is_directory(root)) {
@@ -69,6 +68,16 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
 
     } else {
         SDL_Log("\nInvalid folder path to mission descriptors: %s\n", root.string().c_str());
+    }
+
+    for (uint32_t i = 0; i < MISSION_CATEGORY_COUNT; ++i) {
+        auto& category = m_categories[i];
+        if (category.size() > resource_end_indexes[i]) {
+            std::sort(category.begin() + resource_end_indexes[i], category.end(),
+                      [](const std::shared_ptr<Mission>& a, const std::shared_ptr<Mission>& b) {
+                          return a->GetTitle() < b->GetTitle();
+                      });
+        }
     }
 }
 

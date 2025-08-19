@@ -358,8 +358,8 @@ static const struct CreditsLine menu_credits_lines[] = {
 };
 
 const char* menu_planet_descriptions[] = {_(1471), _(c336), _(f40f), _(6c6c), _(8d9a), _(cb1d), _(5195), _(012c),
-                                          _(323e), _(2385), _(6f14), _(708f), _(6903), _(4d80), _(ae4e), _(d0a4),
-                                          _(fdd7), _(0ac0), _(5f4b), _(8475), _(cffe), _(7842), _(da7e), _(6517)};
+                                          _(323e), _(57a1), _(6da3), _(708f), _(6903), _(4d80), _(ae4e), _(d0a4),
+                                          _(fdd7), _(0ac0), _(5f4b), _(8475), _(cffe), _(7842), _(dfdd), _(6517)};
 
 const char* menu_planet_names[] = {_(e43b), _(f588), _(c78b), _(895d), _(5f5f), _(e7b2), _(f3fe), _(8524),
                                    _(4bb8), _(f408), _(0935), _(7303), _(94ef), _(c46c), _(48ac), _(275a),
@@ -782,10 +782,10 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
 
                         ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_CAMPAIGN, hash);
 
-                        ini_set_setting(INI_GAME_FILE_NUMBER, mission_index);
+                        ini_set_setting(INI_GAME_FILE_NUMBER, mission_index + 1);
 
-                        if (ini_get_setting(INI_LAST_CAMPAIGN) < mission_index) {
-                            ini_set_setting(INI_LAST_CAMPAIGN, mission_index);
+                        if (ini_get_setting(INI_LAST_CAMPAIGN) < mission_index + 1) {
+                            ini_set_setting(INI_LAST_CAMPAIGN, mission_index + 1);
                         }
 
                         ini_config.Save();
@@ -843,7 +843,9 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
 
         if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
             if (turn_counter == (ini_setting_victory_limit - 10) && status.teams_non_computers > 0) {
-                DialogMenu_Menu(_(4556));
+                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER) {
+                    DialogMenu_Menu(_(4556));
+                }
             }
         }
 
