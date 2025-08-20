@@ -52,10 +52,10 @@ protected:
 
 public:
     SmartFileReader() noexcept;
-    explicit SmartFileReader(const char* path) noexcept;
+    explicit SmartFileReader(const std::string& path) noexcept;
     ~SmartFileReader() noexcept;
 
-    bool Open(const char* path) noexcept;
+    bool Open(const std::string& path) noexcept;
     bool Close() noexcept;
     bool Read(void* buffer, size_t size) noexcept;
     template <typename T>
@@ -82,10 +82,10 @@ protected:
 
 public:
     SmartFileWriter() noexcept;
-    explicit SmartFileWriter(const char* path) noexcept;
+    explicit SmartFileWriter(const std::string& path) noexcept;
     ~SmartFileWriter() noexcept;
 
-    bool Open(const char* path) noexcept;
+    bool Open(const std::string& path) noexcept;
     bool Close() noexcept;
     void Delete() noexcept;
     bool Write(const void* buffer, size_t size) noexcept;

@@ -28,7 +28,7 @@
 
 SmartFileReader::SmartFileReader() noexcept : m_format(static_cast<uint16_t>(SmartFileFormat::UNSPECIFIED)) {};
 
-SmartFileReader::SmartFileReader(const char* const path) noexcept
+SmartFileReader::SmartFileReader(const std::string& path) noexcept
     : m_format(static_cast<uint16_t>(SmartFileFormat::UNSPECIFIED)) {
     Open(path);
 }
@@ -51,10 +51,10 @@ void SmartFileReader::SetFormat(const uint16_t format) noexcept {
     }
 }
 
-bool SmartFileReader::Open(const char* const path) noexcept {
+bool SmartFileReader::Open(const std::string& path) noexcept {
     Close();
 
-    file = fopen(path, "rb");
+    file = fopen(path.c_str(), "rb");
 
     if (file) {
         uint16_t format;
@@ -129,14 +129,14 @@ void SmartFileReader::LoadObject(FileObject& object) noexcept {
 
 SmartFileWriter::SmartFileWriter() noexcept : m_format(static_cast<uint16_t>(SmartFileFormat::LATEST)) {};
 
-SmartFileWriter::SmartFileWriter(const char* const path) noexcept
+SmartFileWriter::SmartFileWriter(const std::string& path) noexcept
     : m_format(static_cast<uint16_t>(SmartFileFormat::LATEST)) {
     Open(path);
 }
 
 SmartFileWriter::~SmartFileWriter() noexcept { Close(); }
 
-bool SmartFileWriter::Open(const char* const path) noexcept {
+bool SmartFileWriter::Open(const std::string& path) noexcept {
     Close();
 
     filepath = std::filesystem::path(path).lexically_normal();

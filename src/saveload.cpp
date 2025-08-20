@@ -263,7 +263,7 @@ bool SaveLoad_GetSaveFileInfo(const std::filesystem::path &filepath, struct Save
     SmartFileReader file;
     bool result;
 
-    if (file.Open(filepath.string().c_str())) {
+    if (file.Open(filepath.string())) {
         switch (file.GetFormat()) {
             case SmartFileFormat::V70: {
                 result = SaveLoad_GetSaveFileInfoV70(file, save_file_info, load_options);
@@ -317,7 +317,7 @@ bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save
     SmartFileWriter file;
     const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
-    if (file.Open(filepath.string().c_str())) {
+    if (file.Open(filepath.string())) {
         bool error{false};
 
         // save file format version
@@ -1479,7 +1479,7 @@ bool SaveLoad_Load(const std::filesystem::path &filepath, const MissionCategory 
     bool result;
     SmartFileReader file;
 
-    if (file.Open(filepath.string().c_str())) {
+    if (file.Open(filepath.string())) {
         switch (file.GetFormat()) {
             case SmartFileFormat::V70: {
                 result = SaveLoad_LoadFormatV70(file, mission_category, is_remote_game, ini_load_mode);
