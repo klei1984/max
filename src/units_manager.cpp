@@ -1508,7 +1508,7 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(ba90),
+        /* singular name   */ _(38df),
         /* plural name     */ _(6b15),
         /* description */
         _(cc81)

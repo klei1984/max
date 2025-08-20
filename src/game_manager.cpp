@@ -5474,9 +5474,8 @@ bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
             ((*it).GetOrder() == ORDER_MOVE_TO_UNIT && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER)) {
             char text[200];
 
-            sprintf(text, "End turn delayed because %s at [%i,%i] is %s",
-                    UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1, (*it).grid_y + 1,
-                    GameManager_OrderStatusMessages[(*it).GetOrder()]);
+            sprintf(text, _(dcc6), UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
+                    (*it).grid_y + 1, GameManager_OrderStatusMessages[(*it).GetOrder()]);
 
             MessageManager_DrawMessage(text, 0, 0);
 

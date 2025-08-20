@@ -408,7 +408,7 @@ uint8_t* UnitStats_DrawCommon(uint8_t* buffer, int32_t screen_width, UnitValues*
     }
 
     if (unit_values1->GetAttribute(ATTRIB_HITS)) {
-        UnitStats_DrawText(buffer, screen_width, _(be42), image_width, unit_values2->GetAttribute(ATTRIB_HITS), true);
+        UnitStats_DrawText(buffer, screen_width, _(6e4e), image_width, unit_values2->GetAttribute(ATTRIB_HITS), true);
         UnitStats_DrawIcons(&buffer[76], screen_width, image_width - 76, I_HITS, I_HITS,
                             unit_values1->GetAttribute(ATTRIB_HITS), unit_values2->GetAttribute(ATTRIB_HITS));
         buffer = &buffer[screen_width * 19];
