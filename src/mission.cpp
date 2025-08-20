@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 #include "nlohmann/json-schema.hpp"
 #include "nlohmann/json.hpp"

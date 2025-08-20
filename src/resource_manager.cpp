@@ -44,6 +44,7 @@
 #include "sha2.h"
 #include "sound_manager.hpp"
 #include "units_manager.hpp"
+#include "utf8.hpp"
 #include "window_manager.hpp"
 
 #define INIFILE_BUFFER_SIZE 2048
@@ -719,30 +720,24 @@ FILE *ResourceManager_GetFileHandle(ResourceID id) {
     return fp;
 }
 
-FILE *ResourceManager_OpenFileResource(const char *const cstr, const ResourceType type, const char *const mode,
+FILE *ResourceManager_OpenFileResource(const std::string &string, const ResourceType type, const char *const mode,
                                        std::filesystem::path *path) {
-    auto buffer = std::make_unique<char[]>(strlen(cstr) + 1);
     FILE *handle{nullptr};
-
-    strcpy(buffer.get(), cstr);
-
-    ResourceManager_ToLowerCase(buffer.get());
-
+    auto filename = ResourceManager_StringToLowerCase(string);
     auto pathprefix = ResourceManager_GetResourcePath(type);
-    auto filepath = pathprefix / buffer.get();
+    auto filepath = (pathprefix / filename).lexically_normal();
 
-    handle = fopen(filepath.lexically_normal().string().c_str(), mode);
+    handle = fopen(filepath.string().c_str(), mode);
 
     if (!handle) {
-        ResourceManager_ToUpperCase(buffer.get());
+        filename = ResourceManager_StringToUpperCase(string);
+        filepath = (pathprefix / filename).lexically_normal();
 
-        filepath = pathprefix / buffer.get();
-
-        handle = fopen(filepath.lexically_normal().string().c_str(), mode);
+        handle = fopen(filepath.string().c_str(), mode);
     }
 
     if (handle && path) {
-        *path = filepath.lexically_normal();
+        *path = filepath;
     }
 
     return handle;
@@ -955,33 +950,9 @@ int32_t ResourceManager_BuildResourceTable(const char *const cstr, const Resourc
     return result;
 }
 
-const char *ResourceManager_ToUpperCase(char *cstr) {
-    for (char *cstring = cstr; *cstring; ++cstring) {
-        *cstring = toupper(*cstring);
-    }
+std::string ResourceManager_StringToUpperCase(const std::string &string) { return utf8_toupper_str(string); }
 
-    return cstr;
-}
-
-const char *ResourceManager_ToUpperCase(std::string &string) {
-    for (auto &c : string) c = toupper(c);
-
-    return string.c_str();
-}
-
-const char *ResourceManager_ToLowerCase(char *cstr) {
-    for (char *cstring = cstr; *cstring; ++cstring) {
-        *cstring = tolower(*cstring);
-    }
-
-    return cstr;
-}
-
-const char *ResourceManager_ToLowerCase(std::string &string) {
-    for (auto &c : string) c = tolower(c);
-
-    return string.c_str();
-}
+std::string ResourceManager_StringToLowerCase(const std::string &string) { return utf8_tolower_str(string); }
 
 void ResourceManager_InitMinimapResources() {
     const WindowInfo *mmw = WindowManager_GetWindow(WINDOW_MINIMAP);

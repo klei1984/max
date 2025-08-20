@@ -1011,13 +1011,11 @@ bool SoundManager::PlayMusic(const ResourceID id) noexcept {
             result = true;
 
         } else {
-            char* const filename = reinterpret_cast<char*>(ResourceManager_ReadResource(id));
+            std::filesystem::path filepath;
+            FILE* handle = ResourceManager_OpenFileResource(id, ResourceType_Music, "rb", &filepath);
 
-            if (filename) {
-                ResourceManager_ToUpperCase(filename);
-                const auto filepath =
-                    (std::filesystem::path(ResourceManager_FilePathMusic) / filename).lexically_normal();
-                delete[] filename;
+            if (handle) {
+                fclose(handle);
 
                 SmartPointer<SoundSample> new_sample(new (std::nothrow) SoundSample);
 

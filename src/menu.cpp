@@ -1490,7 +1490,7 @@ int32_t play_attract_demo(const int32_t save_slot) {
     if (ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_DEMO, save_slot - 1)) {
         const auto filename = SaveLoad_GetSaveFileName(MISSION_CATEGORY_DEMO, save_slot);
 
-        auto fp{ResourceManager_OpenFileResource(filename.c_str(), ResourceType_GameData)};
+        auto fp{ResourceManager_OpenFileResource(filename, ResourceType_GameData)};
 
         if (fp) {
             int32_t backup_opponent;
