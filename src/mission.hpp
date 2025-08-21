@@ -91,6 +91,8 @@ public:
 
     [[nodiscard]] bool HasGameRules() const;
     [[nodiscard]] std::string GetGameRules() const;
+
+    [[nodiscard]] static std::string Mission_Sha256(const std::filesystem::path& path);
 };
 
 #endif /* MISSION_HPP */

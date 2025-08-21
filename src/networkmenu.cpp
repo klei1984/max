@@ -348,7 +348,13 @@ void NetworkMenu::Init() {
         buttons[i] = nullptr;
     }
 
-    ini_config.GetStringValue(INI_PLAYER_NAME, player_name, 30);
+    {
+        char ini_player_name[30];
+
+        ini_config.GetStringValue(INI_PLAYER_NAME, ini_player_name, sizeof(ini_player_name));
+
+        player_name = ini_player_name;
+    }
 
     for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         team_nodes[i] = 0;
@@ -412,7 +418,7 @@ void NetworkMenu::Deinit() {
 }
 
 void NetworkMenu::EventEditPlayerName() {
-    strcpy(text_buffer, player_name);
+    SDL_strlcpy(text_buffer, player_name.c_str(), sizeof(text_buffer));
 
     text_edit3 = text_edit1;
     text_edit3->SetEditedText(text_buffer);
@@ -561,7 +567,7 @@ void NetworkMenu::EventSetJar() {
             --remote_player_count;
         }
 
-        strcpy(team_names[team_index], player_name);
+        SDL_strlcpy(team_names[team_index], player_name.c_str(), sizeof(team_names[team_index]));
         team_nodes[team_index] = player_node;
         team_jar_in_use[team_index] = true;
 
@@ -791,6 +797,8 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
     }
 
     {
+        is_incompatible_save_file = true;
+
         auto file_exists = SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI, multi_scenario_id, save_file_info, true);
 
         if (file_exists && rng_seed == save_file_info.random_seed) {
@@ -800,24 +808,42 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
             if (mission && mission->LoadBinaryBuffer(save_file_info.script)) {
                 if (ResourceManager_GetMissionManager()->LoadMission(mission)) {
                     ResourceManager_GetMissionManager()->GetMission()->SetMission(save_file_info.file_path);
+
+                    is_incompatible_save_file = false;
                 }
-
-                is_incompatible_save_file = false;
             }
+        }
 
-        } else {
+        if (is_incompatible_save_file) {
             file_exists = SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, multi_scenario_id,
                                                    save_file_info, true);
 
             if (file_exists && rng_seed == save_file_info.random_seed) {
                 if (ResourceManager_GetMissionManager()->LoadMission(
                         static_cast<MissionCategory>(save_file_info.save_file_category), multi_scenario_id - 1)) {
+                    is_incompatible_save_file = false;
                 }
+            }
+        }
 
-                is_incompatible_save_file = false;
+        if (is_incompatible_save_file) {
+            const auto file_list = ResourceManager_GetFileList(ResourceManager_FilePathGameData, ".mts");
 
-            } else {
-                is_incompatible_save_file = true;
+            for (const auto &file_path : file_list) {
+                file_exists = SaveLoad_GetSaveFileInfo(file_path, save_file_info, true);
+
+                if (file_exists && rng_seed == save_file_info.random_seed) {
+                    const auto mission_hash = Mission::Mission_Sha256(file_path);
+
+                    if (ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO,
+                                                                         mission_hash)) {
+                        ResourceManager_GetMissionManager()->GetMission()->SetMission(file_path);
+
+                        is_incompatible_save_file = false;
+                    }
+
+                    break;
+                }
             }
         }
     }
@@ -945,13 +971,11 @@ void NetworkMenu::NetSync(int32_t team) {
     }
 
     if (game_found) {
-        int32_t index;
-
-        index = TRANSPORT_MAX_TEAM_COUNT;
+        int32_t index = TRANSPORT_MAX_TEAM_COUNT;
 
         if (is_multi_scenario) {
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-                if (!stricmp(player_name, default_team_names[i]) && !team_nodes[i]) {
+                if (!stricmp(player_name.c_str(), default_team_names[i]) && !team_nodes[i]) {
                     index = i;
                     break;
                 }
@@ -1253,10 +1277,10 @@ void NetworkMenu::LeaveEditField() {
         text_edit3->LeaveTextEditField();
 
         if (text_edit1 == text_edit3) {
-            strcpy(player_name, text_buffer);
+            player_name = text_buffer;
 
-            if (!strlen(player_name)) {
-                strcpy(player_name, _(0cb7));
+            if (player_name.empty()) {
+                player_name = _(0cb7);
             }
 
             images[1]->Write(window);
@@ -1264,11 +1288,18 @@ void NetworkMenu::LeaveEditField() {
             network_menu_titles[MENU_ITEM_NAME_FIELD].title = player_name;
 
             menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_NAME_FIELD], 0xA2, true);
-            ini_config.SetStringValue(INI_PLAYER_NAME, player_name);
+
+            {
+                char ini_player_name[30];
+
+                SDL_strlcpy(ini_player_name, player_name.c_str(), sizeof(ini_player_name));
+
+                ini_config.SetStringValue(INI_PLAYER_NAME, ini_player_name);
+            }
 
             if (player_team != -1) {
                 images[3 + player_team]->Write(window);
-                strcpy(team_names[player_team], player_name);
+                SDL_strlcpy(team_names[player_team], player_name.c_str(), sizeof(team_names[player_team]));
 
                 network_menu_titles[MENU_ITEM_TEXT_WINDOW + player_team].title = team_names[player_team];
 

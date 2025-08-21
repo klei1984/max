@@ -194,7 +194,7 @@ static inline void Mission_ProcessCategory(const json& j, MissionObject& m) {
     m.category = it->second;
 }
 
-static inline std::string Mission_Sha256(const std::filesystem::path& path) {
+[[nodiscard]] std::string Mission::Mission_Sha256(const std::filesystem::path& path) {
     constexpr size_t BLOCK_SIZE = 4096;
 
     uint8_t buffer[BLOCK_SIZE];
@@ -234,7 +234,7 @@ static inline std::string Mission_Sha256(const std::filesystem::path& path) {
 
 static inline bool Mission_TestMissionFile(const std::filesystem::path& path, const std::vector<std::string>& hashes) {
     return std::filesystem::exists(path) && std::filesystem::is_regular_file(path) &&
-           std::find(hashes.begin(), hashes.end(), Mission_Sha256(path)) != hashes.end();
+           std::find(hashes.begin(), hashes.end(), Mission::Mission_Sha256(path)) != hashes.end();
 }
 
 static inline bool Mission_TestMediaFile(const std::filesystem::path& path) {

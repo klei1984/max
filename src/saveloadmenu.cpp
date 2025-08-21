@@ -79,6 +79,8 @@ public:
 
 const char *SaveLoadMenu_SaveTypeTitles[] = {_(494c), _(8b45), _(2682), _(4bf8), _(dea8), _(8a2c), _(2fcb), _(3bc3)};
 
+static constexpr int32_t SaveLoadMenu_SaveSlotLimit = 991L;
+
 static int32_t SaveLoadMenu_FirstSaveSlotOnPage = 1;
 int32_t SaveLoadMenu_SaveSlot;
 uint8_t SaveLoadMenu_GameState;
@@ -368,7 +370,8 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                     SaveLoadMenu_PlaySfx(KCARG0);
 
                     if ((key != GNW_KB_KEY_PAGEUP || SaveLoadMenu_FirstSaveSlotOnPage != 1) &&
-                        (key != GNW_KB_KEY_PAGEDOWN || SaveLoadMenu_FirstSaveSlotOnPage != 91)) {
+                        (key != GNW_KB_KEY_PAGEDOWN ||
+                         SaveLoadMenu_FirstSaveSlotOnPage != (SaveLoadMenu_SaveSlotLimit))) {
                         int32_t button_max_index;
 
                         if (is_saving_allowed) {

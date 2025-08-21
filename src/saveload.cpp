@@ -22,6 +22,7 @@
 #include "saveload.hpp"
 
 #include <format>
+#include <stdexcept>
 
 #include "ai.hpp"
 #include "game_manager.hpp"

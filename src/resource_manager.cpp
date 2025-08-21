@@ -1974,3 +1974,22 @@ void ResourceManager_DestroyMutexes() {
 
     ResourceManager_SDLMutexes->clear();
 }
+
+std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path &folder,
+                                                               const std::string &extension) {
+    std::vector<std::filesystem::path> file_list;
+
+    for (const auto &entry : std::filesystem::directory_iterator(folder)) {
+        if (entry.is_regular_file()) {
+            auto file_extension = entry.path().extension().string();
+
+            file_extension = utf8_tolower_str(file_extension);
+
+            if (file_extension == extension) {
+                file_list.push_back(std::filesystem::path(entry.path()).lexically_normal());
+            }
+        }
+    }
+
+    return file_list;
+}

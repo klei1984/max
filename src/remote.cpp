@@ -470,7 +470,13 @@ int32_t Remote_SetupPlayers() {
 
     UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type = TEAM_TYPE_PLAYER;
 
-    ini_config.SetStringValue(INI_PLAYER_NAME, Remote_NetworkMenu->player_name);
+    {
+        char ini_player_name[30];
+
+        SDL_strlcpy(ini_player_name, Remote_NetworkMenu->player_name.c_str(), sizeof(ini_player_name));
+
+        ini_config.SetStringValue(INI_PLAYER_NAME, ini_player_name);
+    }
 
     int32_t player_clan = ini_get_setting(INI_PLAYER_CLAN);
 
@@ -482,7 +488,8 @@ int32_t Remote_SetupPlayers() {
 
     for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
         if (Remote_NetworkMenu->team_nodes[team] > 4) {
-            ini_config.SetStringValue(INI_RED_TEAM_NAME, Remote_NetworkMenu->team_names[team]);
+            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team),
+                                      Remote_NetworkMenu->team_names[team]);
 
             if (Remote_NetworkMenu->team_nodes[team] != Remote_NetworkMenu->player_node) {
                 ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_REMOTE);
@@ -493,6 +500,7 @@ int32_t Remote_SetupPlayers() {
 
         } else {
             ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_NONE);
+            UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_NONE;
         }
     }
 
@@ -2722,9 +2730,7 @@ void Remote_SendNetPacket_33() {
         packet << static_cast<uint8_t>(REMOTE_PACKET_33);
         packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
 
-        SmartString string(Remote_NetworkMenu->player_name);
-        string += ": ";
-        string += Remote_NetworkMenu->chat_input_buffer;
+        const std::string string = Remote_NetworkMenu->player_name + ": " + Remote_NetworkMenu->chat_input_buffer;
 
         packet << string;
 
@@ -2738,11 +2744,11 @@ void Remote_ReceiveNetPacket_33(NetPacket& packet) {
     packet >> entity_id;
 
     if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
-        SmartString string;
+        std::string string;
 
         packet >> string;
 
-        SDL_utf8strlcpy(Remote_NetworkMenu->chat_message_buffer, string.GetCStr(),
+        SDL_utf8strlcpy(Remote_NetworkMenu->chat_message_buffer, string.c_str(),
                         sizeof(Remote_NetworkMenu->chat_message_buffer));
 
         Remote_NetworkMenu->is_gui_update_needed = true;
@@ -2771,6 +2777,7 @@ void Remote_ReceiveNetPacket_34(NetPacket& packet) {
 void Remote_SendNetPacket_35() {
     if (Remote_Nodes.GetCount()) {
         NetPacket packet;
+        const std::string team_name = Remote_NetworkMenu->player_name;
 
         packet << static_cast<uint8_t>(REMOTE_PACKET_35);
         packet << static_cast<uint16_t>(Remote_NetworkMenu->host_node);
@@ -2778,7 +2785,7 @@ void Remote_SendNetPacket_35() {
         packet << Remote_NetworkMenu->player_node;
         packet << Remote_NetworkMenu->player_team;
         packet << (Remote_NetworkMenu->client_state == 2);
-        packet << SmartString(Remote_NetworkMenu->player_name);
+        packet << team_name;
 
         Remote_TransmitPacket(packet, REMOTE_MULTICAST);
     }
@@ -2793,7 +2800,7 @@ void Remote_ReceiveNetPacket_35(NetPacket& packet) {
         uint16_t source_node;
         uint8_t team_slot;
         bool ready_state;
-        SmartString team_name;
+        std::string team_name;
 
         packet >> source_node;
 
@@ -2812,7 +2819,7 @@ void Remote_ReceiveNetPacket_35(NetPacket& packet) {
 
         packet >> team_name;
 
-        strcpy(Remote_NetworkMenu->team_names[team_slot], team_name.GetCStr());
+        strcpy(Remote_NetworkMenu->team_names[team_slot], team_name.c_str());
         ++Remote_NetworkMenu->remote_player_count;
 
         Remote_NetworkMenu->is_gui_update_needed = true;
@@ -2833,7 +2840,7 @@ void Remote_SendNetPacket_36() {
 void Remote_ReceiveNetPacket_36(NetPacket& packet) {
     if (Remote_GameState == 1) {
         uint16_t entity_id;
-        char player_name[30];
+        std::string player_name;
         NetNode* host_node;
 
         packet >> entity_id;
@@ -2841,14 +2848,15 @@ void Remote_ReceiveNetPacket_36(NetPacket& packet) {
 
         host_node = Remote_Hosts.Find(entity_id);
         if (host_node) {
-            strcpy(host_node->name, player_name);
+            SDL_strlcpy(host_node->name, player_name.c_str(), sizeof(host_node->name));
 
             Remote_NetworkMenu->is_gui_update_needed = true;
         }
 
         for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             if (Remote_NetworkMenu->team_nodes[i] == entity_id) {
-                strcpy(Remote_NetworkMenu->team_names[i], player_name);
+                SDL_strlcpy(Remote_NetworkMenu->team_names[i], player_name.c_str(),
+                            sizeof(Remote_NetworkMenu->team_names[i]));
 
                 Remote_NetworkMenu->is_gui_update_needed = true;
             }
@@ -3081,13 +3089,14 @@ void Remote_ReceiveNetPacket_43(NetPacket& packet) {
 
 void Remote_SendNetPacket_44(NetAddress& address) {
     NetPacket packet;
+    const std::string host_name = Remote_NetworkMenu->player_name;
 
     packet.AddAddress(address);
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_44);
     packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
     packet << static_cast<uint32_t>(GAME_VERSION);
-    packet << SmartString(Remote_NetworkMenu->player_name);
+    packet << host_name;
 
     Remote_TransmitPacket(packet, REMOTE_UNICAST);
 }
@@ -3104,12 +3113,12 @@ void Remote_ReceiveNetPacket_44(NetPacket& packet) {
             packet >> game_version;
             if (game_version == GAME_VERSION) {
                 NetNode host_node;
-                SmartString host_name;
+                std::string host_name;
 
                 packet >> host_name;
                 host_node.address = packet.GetAddress(REMOTE_RECEIVED_ADDRESS);
                 host_node.entity_id = entity_id;
-                strcpy(host_node.name, host_name.GetCStr());
+                SDL_strlcpy(host_node.name, host_name.c_str(), sizeof(host_node.name));
                 host_node.is_host = true;
 
                 Remote_Hosts.Add(host_node);

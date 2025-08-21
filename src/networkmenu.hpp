@@ -99,7 +99,7 @@ public:
     int16_t ini_victory_limit;
     char is_map_changed;
     char is_multi_scenario;
-    char player_name[30];
+    std::string player_name;
     char world_name[30];
     char default_team_names[TRANSPORT_MAX_TEAM_COUNT][30];
     char team_names[TRANSPORT_MAX_TEAM_COUNT][30];

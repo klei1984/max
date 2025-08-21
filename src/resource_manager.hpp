@@ -25,6 +25,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <string>
+#include <vector>
 
 #include "enums.hpp"
 #include "gnw.h"
@@ -153,5 +154,6 @@ public:
 
 [[nodiscard]] SDL_mutex *ResourceManager_CreateMutex();
 void ResourceManager_DestroyMutexes();
-
+std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path &folder,
+                                                               const std::string &extension);
 #endif /* RESOURCE_MANAGER_HPP */
