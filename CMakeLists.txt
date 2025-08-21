@@ -149,6 +149,7 @@ if(UNIX)
 				"^libnlohmann_json.*$"
 				"^libnlohmann_json_schema_validator.*$"
 				"^liblua.*$"
+				"^libutf8proc.*$"
 		)
 
 		if(DEPS_CONFLICTING_FILENAMES)

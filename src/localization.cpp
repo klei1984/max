@@ -34,17 +34,17 @@
 
 static std::unique_ptr<Localization> Localization_Locale;
 
-enum IniKeyValueType_e {
+enum LocKeyValueType_e {
     INI_SECTION = 0x1,
     INI_STRING = 0x4,
 };
 
-struct IniKey {
+struct LocKey {
     const char* const name;
-    const IniKeyValueType_e type;
+    const LocKeyValueType_e type;
 };
 
-static const IniKey Localization_IniKeysTable[] = {LOCALIZATION_INI_MAP};
+static const LocKey Localization_IniKeysTable[] = {LOCALIZATION_INI_MAP};
 
 Localization::Localization() : m_language{"en-US"} {}
 
@@ -94,7 +94,7 @@ int32_t Localization::Load() {
     strings.clear();
 
     auto buffer = std::make_unique<char[]>(LOCALIZATION_BUFFER_SIZE);
-    const IniKey* section_entry = nullptr;
+    const LocKey* section_entry = nullptr;
 
     for (const auto& entry : Localization_IniKeysTable) {
         if (entry.type & INI_SECTION) {

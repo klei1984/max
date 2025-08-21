@@ -27,7 +27,7 @@ jobs:
    Linux-x64:
       name: Linux x64
       runs-on: ubuntu-latest
-      container: ubuntu:22.04
+      container: ubuntu:24.04
 
       steps:
       -  name: Set build configuration
@@ -92,7 +92,7 @@ jobs:
    Linux-x86:
       name: Linux x86
       runs-on: ubuntu-latest
-      container: ubuntu:22.04
+      container: ubuntu:24.04
 
       steps:
       -  name: Set build configuration
@@ -158,7 +158,7 @@ jobs:
    WindowsXP-x64:
       name: Windows XP x64
       runs-on: ubuntu-latest
-      container: ubuntu:22.04
+      container: ubuntu:24.04
 
       steps:
       -  name: Set build configuration
@@ -222,7 +222,7 @@ jobs:
    WindowsXP-x86:
       name: Windows XP x86
       runs-on: ubuntu-latest
-      container: ubuntu:22.04
+      container: ubuntu:24.04
 
       steps:
       -  name: Set build configuration
@@ -408,7 +408,7 @@ jobs:
    Linux-deb-x64:
       name: Linux Debian x64
       runs-on: ubuntu-latest
-      container: ubuntu:22.04
+      container: ubuntu:24.04
       needs: Linux-x64
 
       steps:
@@ -549,7 +549,7 @@ jobs:
       name: Linux Flatpak x64
       runs-on: ubuntu-latest
       container:
-         image: ubuntu:22.04
+         image: ubuntu:24.04
          options: --privileged
       needs: Linux-x64
       steps:
