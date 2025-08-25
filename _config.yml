@@ -19,6 +19,7 @@ header_pages:
     - "Installation Guideline": install.md
     - "Frequently Asked Questions": faq.md
     - "Build Instructions": build.md
+    - "Scripting Manual": scripting.md
     - "Patching Up MS-DOS Versions": fixdos.md
     - "Development Environments": devenv.md
     - "Documentation": documentation.md

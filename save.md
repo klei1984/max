@@ -21,11 +21,11 @@ During its development M.A.X. supported two save file formats. There is a human 
 
 With this information it also technically becomes possible to develop a scenario editor for the original game, but certain limitations apply.
 
-Training missions, scenarios and even the campaign games are normal game save files. In theory this means that one can develop additional missions for the game. But unfortunately M.A.X. hardcodes mission goals, or victory and loss conditions, and thus the number of supported scenarios, campaign and training missions.
+Training missions, scenarios and even the campaign games are normal game save files. In theory this means that one can develop additional missions for the game. But unfortunately M.A.X. hard codes mission goals, or victory and loss conditions, and thus the number of supported scenarios, campaign and training missions.
 
 For example campaign game #2 is lost as soon as the player loses a research center or won as soon as the victory turns limit configured within the save file is reached. One can change the victory turns limit which is 30 turns currently, but there is no way to change the loss condition.
 
-Without reimplementing and externalizing hardcoded missions specific aspects of the game many constraints apply to what kind of missions, scenarios an enthusiast could create in a hypothetical scenario editor.
+Without reimplementing and externalizing hard coded missions specific aspects of the game many constraints apply to what kind of missions, scenarios an enthusiast could create in a hypothetical scenario editor.
 
 Nevertheless the first step to do is the specification of the original binary game save file format.
 
@@ -198,7 +198,7 @@ struct __attribute__((packed)) SaveFormatHeader
 | 22 | Flash Point | Barren **Desert** world |
 | 23 | Bottleneck | Barren **Desert** world |
 
-***mission_index***: Index of the mission. This field determines the victory and loss conditions of training missions, campaign games and single player scenarios or stand alone missions. The rules are hardcoded by the game executable. Valid indices start from 1 as 0 means generic custom game rules apply. See *[victory conditions](#cross_ref02)* section.
+***mission_index***: Index of the mission. This field determines the victory and loss conditions of training missions, campaign games and single player scenarios or stand alone missions. The rules are hard coded by the game executable. Valid indices start from 1 as 0 means generic custom game rules apply. See *[victory conditions](#cross_ref02)* section.
 
 ***team_name***: Array of null terminated strings. Each player's name. Order of teams: red, green, blue, gray. Note that the size of the strings are limited to 30 bytes including the delimiter so special care must be taken for UTF-8 encoded grapheme clusters.
 

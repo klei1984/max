@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 157 / 240 (65.4%) original M.A.X. defects in M.A.X. Port.
+Fixed 159 / 242 (65.7%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -877,3 +877,7 @@ Proposed defect fix:
 239. **[Fixed]** There is a function (cseg01:000962D9) that ends a player's turn when the Enter key is pressed. In turn based networked multiplayer games the inactive player can end the active player's turn this way as the function does not check whether the acting player is the active turn player in turn based mode.
 
 240. **[Fixed]** There is an ini configuration setting called `last_campaign`. If the value is set above the number of list items that the in-game campaign menu can show, then the list, the GUI controls, and keyboard based list navigation breaks. The proposed defect fix is to plausibility check and limit the value.
+
+241. **[Fixed]** There is a typo in the unit description of infantry. `inflitrators` -> `infiltrators`.
+
+242. **[Fixed]** The Mobile Anti Aircraft unit's name is used inconsistently in various descriptions. The light vehicle plant description says `mobile anti-aircraft`, the unit refers to itself as `mobile anti aircraft`, the description of Ground Attack Planes use the term `antiaircraft`.

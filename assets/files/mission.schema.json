@@ -1,0 +1,221 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"type": "string"
+		},
+		"author": {
+			"type": "string"
+		},
+		"copyright": {
+			"type": "string"
+		},
+		"license": {
+			"type": "string"
+		},
+		"category": {
+			"type": "string",
+			"enum": [
+				"Custom",
+				"Training",
+				"Campaign",
+				"Hot-seat",
+				"Multiplayer",
+				"Demo",
+				"Single Player Scenario",
+				"Multiplayer Scenario"
+			]
+		},
+		"mission": {
+			"type": "string"
+		},
+		"hash": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"pattern": "^[a-f0-9]{64}$"
+			}
+		},
+		"title": {
+			"type": "object",
+			"properties": {
+				"text": {
+					"type": "object",
+					"patternProperties": {
+						"^[a-z]{2,3}(-[A-Z]{2})?$": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		},
+		"description": {
+			"type": "object",
+			"properties": {
+				"text": {
+					"type": "object",
+					"patternProperties": {
+						"^[a-z]{2,3}(-[A-Z]{2})?$": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		},
+		"intro": {
+			"$ref": "#/definitions/narrative_block"
+		},
+		"victory": {
+			"$ref": "#/definitions/narrative_block"
+		},
+		"defeat": {
+			"$ref": "#/definitions/narrative_block"
+		},
+		"winloss_conditions": {
+			"type": "string"
+		},
+		"game_rules": {
+			"type": "string"
+		},
+		"game_events": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"message": {
+						"type": "object",
+						"properties": {
+							"text": {
+								"type": "object",
+								"patternProperties": {
+									"^[a-z]{2,3}(-[A-Z]{2})?$": {
+										"type": "string"
+									}
+								},
+								"additionalProperties": false
+							},
+							"voice": {
+								"type": "object",
+								"patternProperties": {
+									"^[a-z]{2,3}(-[A-Z]{2})?$": {
+										"$ref": "#/definitions/media"
+									}
+								},
+								"additionalProperties": false
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"required": [
+		"$schema",
+		"author",
+		"copyright",
+		"license",
+		"category",
+		"title",
+		"description"
+	],
+	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"category": {
+						"enum": ["Custom", "Hot-seat", "Multiplayer"]
+					}
+				}
+			},
+			"then": {
+				"not": {
+					"required": [
+						"hash",
+						"mission"
+					]
+				},
+				"properties": {
+					"hash": false,
+					"mission": false
+				}
+			},
+			"else": {
+				"required": [
+					"hash",
+					"mission"
+				]
+			}
+		}
+	],
+	"definitions": {
+		"media": {
+			"type": "object",
+			"properties": {
+				"copyright": {
+					"type": "string"
+				},
+				"license": {
+					"type": "string"
+				},
+				"resource": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"file": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"anyOf": [
+						{
+							"required": [
+								"id"
+							]
+						},
+						{
+							"required": [
+								"file"
+							]
+						}
+					]
+				}
+			},
+			"required": [
+				"resource"
+			]
+		},
+		"narrative_block": {
+			"type": "object",
+			"properties": {
+				"text": {
+					"type": "object",
+					"patternProperties": {
+						"^[a-z]{2,3}(-[A-Z]{2})?$": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false
+				},
+				"video": {
+					"type": "object",
+					"patternProperties": {
+						"^[a-z]{2,3}(-[A-Z]{2})?$": {
+							"$ref": "#/definitions/media"
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		}
+	}
+}
