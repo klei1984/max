@@ -140,7 +140,7 @@ Example script from standard campaign mission 1:
 <details>
 <summary>Click to Open / Close Lua script file</summary>
 {% highlight lua %}
-{% include_relative {{ site.baseurl }}/assets/files/campaign0001.mission.json %}
+{% include_relative assets/files/campaign0001.mission.json %}
 {% endhighlight %}
 </details>
 <br>
@@ -231,7 +231,7 @@ The default builder capability list and related functions:
 <details>
 <summary>Click to Open/Close Lua script file</summary>
 {% highlight lua %}
-{% include_relative {{ site.baseurl }}/assets/files/default.game_rules.lua %}
+{% include_relative assets/files/default.game_rules.lua %}
 {% endhighlight %}
 </details>
 <br>
@@ -321,7 +321,7 @@ Example script from standard campaign mission 1:
 <details>
 <summary>Click to Open/Close JSON file</summary>
 {% highlight json %}
-{% include_relative {{ site.baseurl }}/assets/files/campaign0001.mission.json %}
+{% include_relative assets/files/campaign0001.mission.json %}
 {% endhighlight %}
 </details>
 <br>
@@ -457,7 +457,7 @@ The `game_music` field is optional. The field value is a string that represents 
 <details>
 <summary>Click to Open/Close JSON Schema file</summary>
 {% highlight json %}
-{% include_relative {{ site.baseurl }}/assets/files/mission.schema.json %}
+{% include_relative assets/files/mission.schema.json %}
 {% endhighlight %}
 </details>
 <br>
