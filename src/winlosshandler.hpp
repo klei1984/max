@@ -36,7 +36,7 @@ public:
     virtual ~WinLossHandler();
 
     [[nodiscard]] bool LoadScript(const Mission& mission);
-    [[nodiscard]] bool TestWinLossConditions(const size_t team, WinLossState& state);
+    [[nodiscard]] bool TestWinLossConditions(const int64_t team, WinLossState& state);
 };
 
 #endif /* WINLOSSHANDLER_HPP */

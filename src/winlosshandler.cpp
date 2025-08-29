@@ -52,13 +52,13 @@ bool WinLossHandler::LoadScript(const Mission& mission) {
 }
 
 template <typename T>
-static inline T WinLossHandler_GetElement(Scripter::ScriptParameters parameters, size_t index) {
+static inline T WinLossHandler_GetElement(Scripter::ScriptParameters parameters, int64_t index) {
     SDL_assert(std::holds_alternative<T>(parameters[index]));
 
     return std::get<T>(parameters[index]);
 }
 
-bool WinLossHandler::TestWinLossConditions(const size_t team, WinLossState& state) {
+bool WinLossHandler::TestWinLossConditions(const int64_t team, WinLossState& state) {
     Scripter::ScriptParameters results;
     std::string error;
     bool result;
@@ -66,12 +66,12 @@ bool WinLossHandler::TestWinLossConditions(const size_t team, WinLossState& stat
     SDL_assert(m_interpreter);
 
     if (m_interpreter) {
-        results.push_back(static_cast<size_t>(VICTORY_STATE_GENERIC));
+        results.push_back(static_cast<int64_t>(VICTORY_STATE_GENERIC));
 
         if (Scripter::RunScript(m_interpreter, m_script, {team}, results, &error)) {
             SDL_assert(results.size() == 1);
 
-            state = static_cast<WinLossState>(WinLossHandler_GetElement<size_t>(results, 0));
+            state = static_cast<WinLossState>(WinLossHandler_GetElement<int64_t>(results, 0));
 
             result = true;
 

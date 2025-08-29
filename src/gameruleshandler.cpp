@@ -67,8 +67,8 @@ bool GameRulesHandler::LoadScript(const Mission& mission) {
 }
 
 ResourceID GameRulesHandler::GetBuilderType(const ResourceID unit_type) {
-    Scripter::ScriptParameters args{static_cast<size_t>(unit_type)};
-    Scripter::ScriptParameters results{static_cast<size_t>(0)};
+    Scripter::ScriptParameters args{static_cast<int64_t>(unit_type)};
+    Scripter::ScriptParameters results{static_cast<int64_t>(0)};
     std::string error;
     ResourceID result{INVALID_ID};
 
@@ -77,7 +77,7 @@ ResourceID GameRulesHandler::GetBuilderType(const ResourceID unit_type) {
     if (m_interpreter) {
         if (Scripter::RunScript(m_interpreter, "return max_get_builder_type(...)", args, results, &error)) {
             if (results.size() == 1) {
-                auto builder_type = static_cast<ResourceID>(std::get<size_t>(results[0]));
+                auto builder_type = static_cast<ResourceID>(std::get<int64_t>(results[0]));
 
                 switch (builder_type) {
                     case CONSTRCT:
@@ -101,7 +101,7 @@ ResourceID GameRulesHandler::GetBuilderType(const ResourceID unit_type) {
 }
 
 bool GameRulesHandler::IsBuildable(const ResourceID unit_type) {
-    Scripter::ScriptParameters args{static_cast<size_t>(unit_type)};
+    Scripter::ScriptParameters args{static_cast<int64_t>(unit_type)};
     Scripter::ScriptParameters results{false};
     std::string error;
     ResourceID result{false};
@@ -125,7 +125,7 @@ bool GameRulesHandler::IsBuildable(const ResourceID unit_type) {
 std::vector<ResourceID> GameRulesHandler::GetBuildableUnits(const ResourceID unit_type) {
     std::vector<ResourceID> result;
 
-    Scripter::ScriptParameters args{static_cast<size_t>(unit_type)};
+    Scripter::ScriptParameters args{static_cast<int64_t>(unit_type)};
     Scripter::ScriptParameters results{Scripter::ScriptTable{}};
     std::string error;
 
@@ -137,7 +137,7 @@ std::vector<ResourceID> GameRulesHandler::GetBuildableUnits(const ResourceID uni
                 const auto table = std::get<Scripter::ScriptTable>(results[0]);
 
                 for (const auto& value : table) {
-                    const ResourceID buildable_unit_type = static_cast<ResourceID>(std::get<size_t>(value));
+                    const ResourceID buildable_unit_type = static_cast<ResourceID>(std::get<int64_t>(value));
 
                     result.push_back(buildable_unit_type);
                 }

@@ -35,19 +35,19 @@ enum ScriptType : uint8_t {
     GAME_MUSIC,
 };
 
-using ScriptTable = std::vector<std::variant<bool, size_t, double, std::string>>;
-using ScriptParameters = std::vector<std::variant<bool, size_t, double, std::string, ScriptTable>>;
+using ScriptTable = std::vector<std::variant<bool, int64_t, double, std::string>>;
+using ScriptParameters = std::vector<std::variant<bool, int64_t, double, std::string, ScriptTable>>;
 
 void Init();
 
 bool TestScript(const std::string script, std::string* error = nullptr);
 bool RunScript(void* const handle, const std::string script, const ScriptParameters& args, ScriptParameters& results,
                std::string* error = nullptr);
-bool SetTimeBudget(void* const handle, const size_t time_budget = 0);
+bool SetTimeBudget(void* const handle, const int64_t time_budget = 0);
 void* CreateContext(const ScriptType type);
 void DestroyContext(void* handle);
 
-using MaxRegistryFunctionType = std::variant<bool, size_t, double, std::string> (*)();
+using MaxRegistryFunctionType = std::variant<bool, int64_t, double, std::string> (*)();
 
 void MaxRegistryRegister(const std::string key, MaxRegistryFunctionType fn);
 void MaxRegistryRemove(const std::string key);

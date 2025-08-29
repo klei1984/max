@@ -31,38 +31,38 @@ namespace MaxRegistryHandler {}
 void MaxRegistryHandler::Init() {
     Reset();
 
-    Scripter::MaxRegistryRegister("RedTeamPoints", []() -> std::variant<bool, size_t, double, std::string> {
+    Scripter::MaxRegistryRegister("RedTeamPoints", []() -> std::variant<bool, int64_t, double, std::string> {
         return UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_points;
     });
 
-    Scripter::MaxRegistryRegister("GreenTeamPoints", []() -> std::variant<bool, size_t, double, std::string> {
+    Scripter::MaxRegistryRegister("GreenTeamPoints", []() -> std::variant<bool, int64_t, double, std::string> {
         return UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_points;
     });
 
-    Scripter::MaxRegistryRegister("BlueTeamPoints", []() -> std::variant<bool, size_t, double, std::string> {
+    Scripter::MaxRegistryRegister("BlueTeamPoints", []() -> std::variant<bool, int64_t, double, std::string> {
         return UnitsManager_TeamInfo[PLAYER_TEAM_BLUE].team_points;
     });
 
-    Scripter::MaxRegistryRegister("GrayTeamPoints", []() -> std::variant<bool, size_t, double, std::string> {
+    Scripter::MaxRegistryRegister("GrayTeamPoints", []() -> std::variant<bool, int64_t, double, std::string> {
         return UnitsManager_TeamInfo[PLAYER_TEAM_GRAY].team_points;
     });
 
-    Scripter::MaxRegistryRegister("TeamScoreVictoryLimit", []() -> std::variant<bool, size_t, double, std::string> {
+    Scripter::MaxRegistryRegister("TeamScoreVictoryLimit", []() -> std::variant<bool, int64_t, double, std::string> {
         const auto victory_type = ini_setting_victory_type;
         const auto victory_limit = ini_setting_victory_limit;
 
-        return static_cast<size_t>((victory_type == VICTORY_TYPE_SCORE) ? victory_limit : -1);
+        return static_cast<int64_t>((victory_type == VICTORY_TYPE_SCORE) ? victory_limit : -1);
     });
 
-    Scripter::MaxRegistryRegister("TeamTurnVictoryLimit", []() -> std::variant<bool, size_t, double, std::string> {
+    Scripter::MaxRegistryRegister("TeamTurnVictoryLimit", []() -> std::variant<bool, int64_t, double, std::string> {
         const auto victory_type = ini_setting_victory_type;
         const auto victory_limit = ini_setting_victory_limit;
 
-        return static_cast<size_t>((victory_type == VICTORY_TYPE_DURATION) ? victory_limit : -1);
+        return static_cast<int64_t>((victory_type == VICTORY_TYPE_DURATION) ? victory_limit : -1);
     });
 
-    Scripter::MaxRegistryRegister("TeamTurnValue", []() -> std::variant<bool, size_t, double, std::string> {
-        return static_cast<size_t>(GameManager_TurnCounter);
+    Scripter::MaxRegistryRegister("TeamTurnValue", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(GameManager_TurnCounter);
     });
 
     Update();

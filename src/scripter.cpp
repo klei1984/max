@@ -29,6 +29,9 @@
 #include "resource_manager.hpp"
 #include "units_manager.hpp"
 
+static_assert(sizeof(lua_Integer) == sizeof(int64_t) && sizeof(int64_t) == 8,
+              "LUA_64BITS must be on and int64_t must be 64 bits.");
+
 namespace Scripter {
 
 struct Context {
@@ -43,7 +46,7 @@ using MaxRegistryType = std::unordered_map<MaxRegistryKeyType, MaxRegistryValueT
 
 using MaxRegistryFunctionMapType = std::unordered_map<MaxRegistryKeyType, MaxRegistryFunctionType>;
 
-constexpr size_t MinimumTimeBudget = 1000;
+constexpr int64_t MinimumTimeBudget = 1000LL;
 
 static MaxRegistryType MaxRegistry;
 static SDL_mutex* MaxRegistryMutex;
@@ -1078,7 +1081,7 @@ bool RunScript(void* const handle, const std::string script, const ScriptParamet
 
 static void TimoutHook(lua_State* lua, lua_Debug* ar) { (void)luaL_error(lua, "Script ran out of time budget"); }
 
-bool SetTimeBudget(void* const handle, const size_t time_budget) {
+bool SetTimeBudget(void* const handle, const int64_t time_budget) {
     auto context = static_cast<Context*>(handle);
     bool result;
 
@@ -1165,7 +1168,7 @@ static inline void ScriptLuaValuesToResults(lua_State* lua, ScriptParameters& re
             } break;
 
             case 1: {
-                result = static_cast<size_t>(lua_tointeger(lua, index));
+                result = static_cast<int64_t>(lua_tointeger(lua, index));
             } break;
 
             case 2: {
@@ -1179,17 +1182,17 @@ static inline void ScriptLuaValuesToResults(lua_State* lua, ScriptParameters& re
             case 4: {
                 if (lua_istable(lua, index)) {
                     ScriptTable table;
-                    size_t length;
+                    int64_t length;
 
                     lua_len(lua, index);
 
-                    length = static_cast<size_t>(lua_tointeger(lua, -1));
+                    length = static_cast<int64_t>(lua_tointeger(lua, -1));
 
                     lua_pop(lua, 1);
 
                     table.reserve(length);
 
-                    for (size_t i = 1; i <= length; ++i) {
+                    for (int64_t i = 1; i <= length; ++i) {
                         lua_rawgeti(lua, index, i);
 
                         switch (lua_type(lua, -1)) {
@@ -1199,7 +1202,7 @@ static inline void ScriptLuaValuesToResults(lua_State* lua, ScriptParameters& re
 
                             case LUA_TNUMBER: {
                                 if (lua_isinteger(lua, -1)) {
-                                    table.push_back(static_cast<size_t>(lua_tointeger(lua, -1)));
+                                    table.push_back(static_cast<int64_t>(lua_tointeger(lua, -1)));
                                 } else {
                                     table.push_back(static_cast<double>(lua_tonumber(lua, -1)));
                                 }
@@ -1280,7 +1283,7 @@ static inline void ScriptArgsToLuaValues(lua_State* lua, const ScriptParameters&
             } break;
 
             case 1: {
-                lua_pushinteger(lua, std::get<size_t>(arg));
+                lua_pushinteger(lua, std::get<int64_t>(arg));
             } break;
 
             case 2: {
@@ -1307,7 +1310,7 @@ static inline void ScriptArgsToLuaValues(lua_State* lua, const ScriptParameters&
                         } break;
 
                         case 1: {
-                            lua_pushinteger(lua, std::get<size_t>(value));
+                            lua_pushinteger(lua, std::get<int64_t>(value));
                         } break;
 
                         case 2: {
@@ -1373,7 +1376,7 @@ static std::string LoadDefaultBuildRules() {
 
     SDL_assert(file_size && file_base);
 
-    for (size_t i = 0; i < file_size; ++i) {
+    for (int64_t i = 0; i < file_size; ++i) {
         file_base[i] = file_base[i] ^ ResourceManager_GenericTable[i % sizeof(ResourceManager_GenericTable)];
     }
 
@@ -1506,7 +1509,7 @@ void MaxRegistryUpdate() {
             } break;
 
             case 1: {
-                MaxRegistry[key] = static_cast<lua_Integer>(std::get<size_t>(value));
+                MaxRegistry[key] = static_cast<lua_Integer>(std::get<int64_t>(value));
             } break;
 
             case 2: {
