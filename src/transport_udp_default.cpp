@@ -55,7 +55,7 @@ enum {
     TRANSPORT_CHANNEL_COUNT,
 };
 
-static constexpr uint16_t TransportUdpDefault_ProtocolVersionId = 0x0001;
+static constexpr uint16_t TransportUdpDefault_ProtocolVersionId = 0x0002;
 static constexpr uint16_t TransportUdpDefault_DefaultHostPort = 31554;
 static constexpr uint32_t TransportUdpDefault_ServiceTickPeriod = 10;
 static constexpr uint32_t TransportUdpDefault_DisconnectResponseTimeout = 3000;
