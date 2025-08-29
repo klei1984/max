@@ -1575,8 +1575,8 @@ void* CreateContext(const ScriptType type) {
                 MaxEnumType fields(LOGOFLIC - FXS_END);
 
                 for (int32_t i = 0; i < LOGOFLIC - FXS_END; ++i) {
-                    fields[i] = {ResourceManager_GetResourceID(static_cast<ResourceID>(LOGOFLIC + 1 + i)),
-                                 LOGOFLIC + 1 + i};
+                    fields[i] = {ResourceManager_GetResourceID(static_cast<ResourceID>(FXS_END + 1 + i)),
+                                 FXS_END + 1 + i};
                 }
 
                 AddEnum(lua, "MAX_MUSIC", fields);
