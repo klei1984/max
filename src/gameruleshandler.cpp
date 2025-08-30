@@ -43,6 +43,8 @@ bool GameRulesHandler::LoadScript(const Mission& mission) {
             Scripter::ScriptParameters results;
             std::string error;
 
+            (void)Scripter::SetTimeBudget(m_interpreter);
+
             m_game_rules_script = mission.GetGameRules();
 
             if (Scripter::RunScript(m_interpreter, m_game_rules_script, arguments, results, &error)) {

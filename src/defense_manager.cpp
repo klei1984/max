@@ -106,7 +106,7 @@ bool DefenseManager::RemoveUnit(UnitInfo* unit) {
 void DefenseManager::AddRule(ResourceID unit_type, int32_t weight) {
     if (Builder_IsBuildable(unit_type)) {
         UnitWeight unit_weight(unit_type, weight);
-
+        SDL_assert(unit_weight.unit_type != INVALID_ID);
         weight_table.PushBack(unit_weight);
     }
 }
@@ -163,6 +163,8 @@ void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* ta
         }
 
         for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
+            SDL_assert(weight_table[i].unit_type != INVALID_ID);
+
             UnitValues* unit_values = team_units->GetCurrentUnitValues(weight_table[i].unit_type);
             const auto builder_type = Builder_GetBuilderType(weight_table[i].unit_type);
 

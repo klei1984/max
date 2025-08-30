@@ -37,6 +37,8 @@ namespace Scripter {
 struct Context {
     lua_State* m_lua;
     uint8_t m_type;
+    uint64_t m_timestamp;
+    uint64_t m_timebudget;
 };
 
 using MaxEnumType = std::vector<std::pair<const char*, int>>;
@@ -46,7 +48,8 @@ using MaxRegistryType = std::unordered_map<MaxRegistryKeyType, MaxRegistryValueT
 
 using MaxRegistryFunctionMapType = std::unordered_map<MaxRegistryKeyType, MaxRegistryFunctionType>;
 
-constexpr int64_t MinimumTimeBudget = 1000LL;
+constexpr uint64_t TimeBudgetMinimum = 10uLL;
+constexpr uint64_t TimeBudgetTickRate = 1000uLL;
 
 static MaxRegistryType MaxRegistry;
 static SDL_mutex* MaxRegistryMutex;
@@ -1044,6 +1047,8 @@ bool RunScript(void* const handle, const std::string script, const ScriptParamet
 
             ScriptArgsToLuaValues(context->m_lua, args);
 
+            context->m_timestamp = SDL_GetTicks64();
+
             if (lua_pcall(context->m_lua, args.size(), results.size(), 0) != LUA_OK) {
                 std::string local_error = lua_tostring(context->m_lua, -1);
                 lua_pop(context->m_lua, 1);
@@ -1079,15 +1084,26 @@ bool RunScript(void* const handle, const std::string script, const ScriptParamet
     return local_result;
 }
 
-static void TimoutHook(lua_State* lua, lua_Debug* ar) { (void)luaL_error(lua, "Script ran out of time budget"); }
+static void TimoutHook(lua_State* lua, lua_Debug* ar) {
+    Context* const context = *static_cast<Context**>(lua_getextraspace(lua));
+    const auto timestamp = SDL_GetTicks64();
 
-bool SetTimeBudget(void* const handle, const int64_t time_budget) {
+    SDL_assert(context and context->m_lua == lua);
+
+    if ((timestamp - context->m_timestamp) > context->m_timebudget) {
+        (void)luaL_error(lua, "Script ran out of time budget");
+    }
+}
+
+bool SetTimeBudget(void* const handle, const uint64_t time_budget) {
     auto context = static_cast<Context*>(handle);
     bool result;
 
     if (context and context->m_lua) {
-        lua_sethook(context->m_lua, TimoutHook, LUA_MASKCOUNT,
-                    (time_budget > MinimumTimeBudget) ? time_budget : MinimumTimeBudget);
+        context->m_timebudget = (time_budget > TimeBudgetMinimum) ? time_budget : TimeBudgetMinimum;
+        context->m_timestamp = 0uLL;
+
+        lua_sethook(context->m_lua, TimoutHook, LUA_MASKCOUNT, TimeBudgetTickRate);
 
         result = true;
 
@@ -1550,6 +1566,8 @@ void* CreateContext(const ScriptType type) {
 
             context->m_lua = lua;
             context->m_type = type;
+            context->m_timebudget = 0uLL;
+            context->m_timestamp = 0uLL;
 
             {
                 MaxEnumType fields(UNIT_END + 1);
@@ -1711,6 +1729,8 @@ void* CreateContext(const ScriptType type) {
                     }
                 }
             }
+
+            *static_cast<Context**>(lua_getextraspace(lua)) = context;
 
             result = context;
 

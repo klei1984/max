@@ -39,6 +39,8 @@ bool WinLossHandler::LoadScript(const Mission& mission) {
 
     if (m_interpreter) {
         if (mission.HasWinLossConditions()) {
+            (void)Scripter::SetTimeBudget(m_interpreter);
+
             m_script = mission.GetWinLossConditions();
         }
 

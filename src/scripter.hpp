@@ -43,7 +43,7 @@ void Init();
 bool TestScript(const std::string script, std::string* error = nullptr);
 bool RunScript(void* const handle, const std::string script, const ScriptParameters& args, ScriptParameters& results,
                std::string* error = nullptr);
-bool SetTimeBudget(void* const handle, const int64_t time_budget = 0);
+bool SetTimeBudget(void* const handle, const uint64_t time_budget = 0uLL);
 void* CreateContext(const ScriptType type);
 void DestroyContext(void* handle);
 
