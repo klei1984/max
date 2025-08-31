@@ -232,6 +232,34 @@ static inline void Mission_ProcessCategory(const json& j, MissionObject& m) {
     return hex.str();
 }
 
+static inline bool Mission_IsWithinBasePath(const std::filesystem::path& base_path,
+                                            const std::filesystem::path& media_path, std::filesystem::path& path) {
+    try {
+        const auto normalized_base_path = std::filesystem::weakly_canonical(base_path);
+        const auto normalized_media_path = media_path.lexically_normal();
+        const auto combined_path = normalized_base_path / normalized_media_path;
+        const auto normalized_combined_path = std::filesystem::weakly_canonical(combined_path);
+        const auto relative_media_path = std::filesystem::relative(normalized_combined_path, normalized_base_path);
+
+        if (relative_media_path.empty()) {
+            return false;
+        }
+
+        auto it = relative_media_path.begin();
+
+        if (it != relative_media_path.end() && *it == "..") {
+            return false;
+        }
+
+        path = normalized_combined_path;
+
+        return true;
+
+    } catch (const std::filesystem::filesystem_error&) {
+        return false;
+    }
+}
+
 static inline bool Mission_TestMissionFile(const std::filesystem::path& path, const std::vector<std::string>& hashes) {
     return std::filesystem::exists(path) && std::filesystem::is_regular_file(path) &&
            std::find(hashes.begin(), hashes.end(), Mission::Mission_Sha256(path)) != hashes.end();
@@ -241,7 +269,7 @@ static inline bool Mission_TestMediaFile(const std::filesystem::path& path) {
     return std::filesystem::exists(path) && std::filesystem::is_regular_file(path);
 }
 
-static inline void Mission_ProcessMission(const json& j, MissionObject& m) {
+static void Mission_ProcessMission(const json& j, MissionObject& m) {
     std::string file;
     std::vector<std::string> hash;
     std::filesystem::path path;
@@ -265,23 +293,19 @@ static inline void Mission_ProcessMission(const json& j, MissionObject& m) {
     j.at("mission").get_to(file);
     j.at("hash").get_to(hash);
 
-    path = ResourceManager_FilePathGameData / file;
-
-    if (Mission_TestMissionFile(path, hash)) {
+    if (Mission_IsWithinBasePath(ResourceManager_FilePathGameData, file, path) && Mission_TestMissionFile(path, hash)) {
         m.mission = path;
         m.hash = hash;
 
     } else {
-        path = ResourceManager_FilePathGameBase / file;
-
-        if (Mission_TestMissionFile(path, hash)) {
+        if (Mission_IsWithinBasePath(ResourceManager_FilePathGameBase, file, path) &&
+            Mission_TestMissionFile(path, hash)) {
             m.mission = path;
             m.hash = hash;
 
         } else {
-            path = ResourceManager_FilePathGamePref / file;
-
-            if (Mission_TestMissionFile(path, hash)) {
+            if (Mission_IsWithinBasePath(ResourceManager_FilePathGamePref, file, path) &&
+                Mission_TestMissionFile(path, hash)) {
                 m.mission = path;
                 m.hash = hash;
 
@@ -321,21 +345,17 @@ void from_json(const json& j, Resource& m) {
         j.at("file").get_to(files);
 
         for (const auto& file : files) {
-            path = ResourceManager_FilePathGameData / file;
-
-            if (Mission_TestMediaFile(path)) {
+            if (Mission_IsWithinBasePath(ResourceManager_FilePathGameData, file, path) && Mission_TestMediaFile(path)) {
                 m.file.push_back(path);
 
             } else {
-                path = ResourceManager_FilePathGameBase / file;
-
-                if (Mission_TestMediaFile(path)) {
+                if (Mission_IsWithinBasePath(ResourceManager_FilePathGameBase, file, path) &&
+                    Mission_TestMediaFile(path)) {
                     m.file.push_back(path);
 
                 } else {
-                    path = ResourceManager_FilePathGamePref / file;
-
-                    if (Mission_TestMediaFile(path)) {
+                    if (Mission_IsWithinBasePath(ResourceManager_FilePathGamePref, file, path) &&
+                        Mission_TestMediaFile(path)) {
                         m.file.push_back(path);
 
                     } else {
