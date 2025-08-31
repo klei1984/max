@@ -62,7 +62,7 @@ The ability to load packages is removed. In addition, the following Lua standard
 
 The basic library's `print()` function is redirected to `stdout.txt` which is saved latest on application exit to the folder `FilePathGamePref`. If Lua scripts encounter runtime errors they are aborted. Typically diagnostic messages would be shown to users and they would be saved to `stdout.txt` as well.
 
-Each script runs on a time budget which is expressed in Lua VM instructions. The limit is set to 1000 instructions.
+Each script runs on a time budget which is expressed in milliseconds. The limit is set to 10 milliseconds.
 
 ### Script Contexts
 
@@ -273,12 +273,12 @@ JSON descriptor files have complex structures that are validated against JSON sc
 JSON script files are read by the application from the `FilePathGamePref` file system path. These files hold mandatory and optional fields, also called name:value or key:value pairs. Fields in JSON scripts are structured hierarchically. The following example shows the description field which is a JSON object that holds a single property, or subfield called text, that holds a collection of properties or subfields. In short a mission `description` is a `text` block that supports multiple locale aware languages to be specified.
 
 ```json
-    "description": {
-        "text": {
-            "en-US": "Long multi line text block. To start a new line use the \n escape sequence.",
-            "fr-FR": "..."
-        }
-    }
+"description": {
+	"text": {
+		"en-US": "Long multi line text block. To start a new line use the \n escape sequence.",
+		"fr-FR": "..."
+	}
+}
 ```
 
 Most fields that represent human language related media like text, audio or video have subfields for language tags. Language tags follow the IETF BCP 47 [\[5\]](#ref5) format. The first part (e.g., `en`) is the ISO 639-1 language code (English). The second part (e.g., `US`) is the ISO 3166-1 country code (United States). I.e. `en-US` means English as used in the United States. Other examples: `de-DE` (German-Germany), `fr-FR` (French-France). This allows media contents to provide localized regional variants.
@@ -372,11 +372,11 @@ The `mission` field MUST be set for all non pseudo categories. If the field is d
 Examples:
 
 ```json
-    "mission": "SAVE1.TRA",
-    "mission": "mission1.tra",
-    "mission": "scenario_pack/scenario1.sce",
-    "mission": "campaign2/mission1/mission1.cam",
-    "mission": "./demo_100.dmo",
+"mission": "SAVE1.TRA",
+"mission": "mission1.tra",
+"mission": "scenario_pack/scenario1.sce",
+"mission": "campaign2/mission1/mission1.cam",
+"mission": "./demo_100.dmo",
 ```
 
 The JSON schema does not validate whether the referenced file is a supported save file format, but it does verify that the path exists and the file is a normal file system file instead of a symbolic link or similar. The application may or may not support multiple save file format versions. M.A.X. v1.04 uses binary save file format version V70. M.A.X. Port introduces save file format version V71 or newer versions to overcome design limitations and to fix defects.
@@ -403,10 +403,10 @@ The hash value is calculated over the complete file. Various retail M.A.X. CD-RO
 Example:
 
 ```json
-	"hash": [
-		"a5104619925d10fa1c6a361ffee06a3a8d1c3f93a42d4540d4c5edf7b23673c3",
-		"1d9da84128776d1bc264f26f1381d19c16dead2c0af9bba9dfe9433853a8f00e"
-	],
+"hash": [
+	"a5104619925d10fa1c6a361ffee06a3a8d1c3f93a42d4540d4c5edf7b23673c3",
+	"1d9da84128776d1bc264f26f1381d19c16dead2c0af9bba9dfe9433853a8f00e"
+],
 ```
 
 #### Title Field
@@ -428,13 +428,53 @@ Notes: <Short mission briefing. Explain what is going on.>\n\n
 
 #### Intro/Victory/Defeat Fields
 
-These fields are optional narrative elements that are most useful in case of story driven campaigns. These scenes use one of the `background` images specified or a random one to render a full screen background and print the `text` field value using a typewriter effect in front. The music played during the scenes can be configured. If the `music` field is not available, then music that was playing at the time of loading the scene is left uninterrupted. After the scene the optional animation configured by the `video` field is played. Video animations interrupt, reset music playback.
+These fields are optional narrative elements that are most useful in case of story driven campaigns. These scenes use render a full screen background image and print the `text` field value using a typewriter effect in front. Music is played in the background.
 
 The `intro` field can be used for detailed mission briefing or story telling, the scene is shown before the mission starts.
 
 The `victory` field can be used for mission debriefing in case of victory. The scene is not shown if the player lost the mission.
 
 The `defeat` field can be used for mission debriefing in case of defeat. The scene is not shown if the player won the mission.
+
+Each narrative element must define a `text` subfield which holds one or more language tag fields. The `en-US` language tag field key is mandatory. Narrative elements can hold optional media subfields called `background`, `music`, and `video`. If defined, they must contain a `resource` subfield.
+
+```json
+"<media type>": {
+	"copyright": "...",
+	"license": "...",
+	"resource": {
+		"id": [
+			...
+		],
+		"file": [
+			...
+		]
+	}
+```
+
+The `resource` subfields define assets to be used by the media fields of narrative elements. Either the `id` or `file` array subfields can be defined, not both.
+
+```json
+"resource": {
+	"id": [
+		"RESOURCEn",
+		"...",
+		"RESOURCEm"
+	]
+}
+```
+
+```json
+"resource": {
+	"file": [
+		"./MUSICn.WAV",
+		"...",
+		"./MUSICm.WAV"
+	]
+}
+```
+
+If multiple `background` media type assets are defined, one is selected randomly. If no `background` is defined a random one is used automatically from the default set. If multiple `music` media type assets are defined, one is selected randomly. If no `music` is defined, then music that was playing at the time of loading the scene is left uninterrupted. After the scene the optional animations configured by the `video` field are played in the order they are defined. Video animations interrupt, reset music playback.
 
 #### Victory Conditions Field
 
