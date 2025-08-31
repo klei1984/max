@@ -74,7 +74,7 @@ bool MissionManager::LoadMission(const MissionCategory category, const uint32_t 
     bool result;
 
     if (missions.size() > index) {
-        result = LoadMission(category, missions[index]->GetMissionHashes()[0]);
+        result = LoadMission(missions[index]);
 
     } else {
         result = false;

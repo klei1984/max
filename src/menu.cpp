@@ -1027,6 +1027,7 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
 
 void menu_draw_mission_story_screen(const Mission::Story& story) {
     ResourceID bg_image_id;
+    ResourceID bg_music_id = INVALID_ID;
     int32_t image_index = (dos_rand() * 9) >> 15;
 
     bg_image_id = menu_briefing_backgrounds[image_index];
@@ -1042,6 +1043,17 @@ void menu_draw_mission_story_screen(const Mission::Story& story) {
         /// \todo
     }
 
+    if (std::holds_alternative<std::vector<ResourceID>>(story.music)) {
+        const auto bg_music = std::get<std::vector<ResourceID>>(story.music);
+
+        int32_t music_index = (dos_rand() * bg_music.size()) >> 15;
+
+        bg_music_id = bg_music[music_index];
+
+    } else if (std::holds_alternative<std::vector<std::filesystem::path>>(story.music)) {
+        /// \todo
+    }
+
     Text_TypeWriter_CharacterTimeMs = 10;
 
     if (story.text.size() > 0) {
@@ -1049,6 +1061,10 @@ void menu_draw_mission_story_screen(const Mission::Story& story) {
         Window briefing_window(bg_image_id);
         Button* button_end_ok;
         bool exit_loop;
+
+        if (bg_music_id != INVALID_ID) {
+            SoundManager_PlayMusic(bg_music_id, false);
+        }
 
         briefing_window.SetFlags(WINDOW_MODAL);
         Cursor_SetCursor(CURSOR_HAND);
