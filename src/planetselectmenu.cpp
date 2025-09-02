@@ -362,6 +362,6 @@ void PlanetSelectMenu::EventRandom() {
 
 void PlanetSelectMenu::EventCancel() { event_click_cancel = true; }
 
-void PlanetSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_PLANET_SETUP, WINDOW_MAIN_WINDOW); }
+void PlanetSelectMenu::EventHelp() { HelpMenu_Menu("PLANET_SETUP", WINDOW_MAIN_WINDOW); }
 
 void PlanetSelectMenu::EventDone() { event_click_done = true; }

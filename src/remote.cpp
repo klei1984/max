@@ -1414,7 +1414,7 @@ int32_t Remote_SiteSelectMenu() {
                 } break;
 
                 case GNW_KB_KEY_SHIFT_DIVIDE: {
-                    HelpMenu_Menu(HELPMENU_SITE_SELECT_SETUP, WINDOW_MAIN_MAP);
+                    HelpMenu_Menu("SITE_SELECT_SETUP", WINDOW_MAIN_MAP);
                 } break;
             }
         }

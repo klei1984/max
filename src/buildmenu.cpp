@@ -308,7 +308,7 @@ bool AbstractBuildMenu::ProcessKey(int32_t key) {
 
         case GNW_KB_KEY_SHIFT_DIVIDE:
         case 1100: {
-            HelpMenu_Menu(HELPMENU_CONSTRUCTOR_BUILD_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("CONSTRUCTOR_BUILD_SETUP", WINDOW_MAIN_WINDOW);
         } break;
 
         case GNW_KB_KEY_ESCAPE: {
@@ -1091,7 +1091,7 @@ bool FactoryBuildMenu::ProcessKey(int32_t key) {
 
         case GNW_KB_KEY_SHIFT_DIVIDE:
         case 1100: {
-            HelpMenu_Menu(HELPMENU_FACTORY_BUILD_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("FACTORY_BUILD_SETUP", WINDOW_MAIN_WINDOW);
         } break;
 
         default: {

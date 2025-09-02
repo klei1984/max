@@ -130,7 +130,7 @@ void ClanSelectMenu::EventRandom() {
 
 void ClanSelectMenu::EventCancel() { event_click_done_cancel_random = true; }
 
-void ClanSelectMenu::EventHelp() { HelpMenu_Menu(HELPMENU_CLAN_SETUP, WINDOW_MAIN_WINDOW); }
+void ClanSelectMenu::EventHelp() { HelpMenu_Menu("CLAN_SETUP", WINDOW_MAIN_WINDOW); }
 
 void ClanSelectMenu::ButtonInit(int32_t index, int32_t mode) {
     struct ClanSelectMenuControlItem* control = &clan_select_menu_controls[index];

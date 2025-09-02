@@ -25,6 +25,7 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
+#include "help.hpp"
 #include "localization.hpp"
 #include "menu.hpp"
 #include "mouseevent.hpp"
@@ -36,56 +37,36 @@
 #include "unitstats.hpp"
 #include "window_manager.hpp"
 
-const char* help_menu_sections[] = {
-    "NEW_GAME_SETUP",    "CLAN_SETUP",        "PLANET_SETUP",        "MULTI_PLAYER_SETUP",
-    "STATS_SETUP",       "UPGRADES_SETUP",    "CARGO_SETUP",         "LOAD_SETUP",
-    "SAVELOAD_SETUP",    "GAME_SCREEN_SETUP", "ALLOCATE_SETUP",      "DEPOT_SETUP",
-    "HANGAR_SETUP",      "DOCK_SETUP",        "TRANSPORT_SETUP",     "TRANSFER_SETUP",
-    "SITE_SELECT_SETUP", "RESEARCH_SETUP",    "FACTORY_BUILD_SETUP", "CONSTRUCTOR_BUILD_SETUP",
-    "SERIAL_MENU_SETUP", "MODEM_MENU_SETUP",  "CHAT_MENU_SETUP",     "PREFS_MENU_SETUP",
-    "SETUP_MENU_SETUP",  "HOT_SEAT_SETUP",    "TRAINING_MENU_SETUP", "STAND_ALONE_MENU_SETUP",
-    "OPTIONS_SETUP",     "REPORTS_SETUP",     "CAMPAIGN_MENU",       "MULTI_SCENARIO_MENU",
-    "BARRACKS_SETUP",
-};
-
 const char* help_menu_keyboard_reference = _(ceb6);
 
-HelpMenu::HelpMenu(uint8_t section, int32_t cursor_x, int32_t cursor_y, int32_t window_id)
+static inline void HelpMenu_ScaleCursor(const std::string& section, const int32_t window_id, int32_t& cursor_x,
+                                        int32_t& cursor_y);
+
+HelpMenu::HelpMenu(const std::string& section, int32_t cursor_x, int32_t cursor_y, const int32_t window_id)
     : Window(HELPFRAM, window_id),
-      section(section),
-      help_cache_use_count(0),
       button_done(nullptr),
       button_keys(nullptr),
       button_up(nullptr),
       button_down(nullptr),
       strings(nullptr),
+      rows_per_page(0),
       string_row_index(0),
       string_row_count(0),
       canvas(nullptr),
       event_click_cancel(false),
       event_click_help(false),
+      event_click_done(false),
       keys_mode(false),
       window_id(window_id) {
-    bool entry_loaded;
+    HelpMenu_ScaleCursor(section, window_id, cursor_x, cursor_y);
 
-    entry_loaded = false;
-    file_size = ResourceManager_GetResourceSize(HELP_ENG);
-    file = ResourceManager_GetFileHandle(HELP_ENG);
+    text = ResourceManager_GetHelpEntry(section, cursor_x, cursor_y);
 
-    if (file) {
-        WindowManager_ScaleCursor(section, window_id, cursor_x, cursor_y);
+    if (text.empty()) {
+        event_click_help = true;
+        event_click_cancel = true;
 
-        if (SeekSection() && SeekEntry(cursor_x, cursor_y)) {
-            if (!ReadEntry()) {
-                event_click_cancel = true;
-                return;
-            }
-
-            entry_loaded = true;
-        }
-    }
-
-    if (entry_loaded) {
+    } else {
         Cursor_SetCursor(CURSOR_HAND);
         Text_SetFont(GNW_TEXT_FONT_5);
         Add();
@@ -94,7 +75,7 @@ HelpMenu::HelpMenu(uint8_t section, int32_t cursor_x, int32_t cursor_y, int32_t 
         canvas = new (std::nothrow) Image(0, 0, window.window.lrx, window.window.lry);
         canvas->Copy(&window);
 
-        if (section == HELPMENU_GAME_SCREEN_SETUP) {
+        if (section == "GAME_SCREEN_SETUP") {
             button_done = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 85, 193);
             button_keys = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 155, 193);
 
@@ -113,12 +94,7 @@ HelpMenu::HelpMenu(uint8_t section, int32_t cursor_x, int32_t cursor_y, int32_t 
         button_done->SetSfx(NDONE0);
         button_done->RegisterButton(window.id);
 
-        help_cache_index = 0;
-        ProcessText(help_cache[help_cache_index]);
-
-    } else {
-        event_click_help = true;
-        event_click_cancel = true;
+        ProcessText(text);
     }
 }
 
@@ -129,146 +105,19 @@ HelpMenu::~HelpMenu() {
     delete button_down;
     delete canvas;
     delete[] strings;
-
-    while (help_cache_use_count) {
-        delete help_cache[--help_cache_use_count];
-    }
 }
 
-void HelpMenu::GetHotZone(const char* chunk, Rect* hot_zone) const {
-    while (*chunk != '{') {
-        chunk++;
-    }
-
-    chunk++;
-
-    hot_zone->ulx = strtol(chunk, nullptr, 10);
-
-    while (*chunk != ',') {
-        chunk++;
-    }
-
-    chunk++;
-
-    hot_zone->uly = strtol(chunk, nullptr, 10);
-
-    while (*chunk != ',') {
-        chunk++;
-    }
-
-    chunk++;
-
-    hot_zone->lrx = strtol(chunk, nullptr, 10);
-
-    while (*chunk != ',') {
-        chunk++;
-    }
-
-    chunk++;
-
-    hot_zone->lry = strtol(chunk, nullptr, 10);
-}
-
-int32_t HelpMenu::ReadNextChunk() {
-    int32_t result;
-    int32_t size;
-
-    if (file_size > 0) {
-        size = file_size + 1;
-        if (size > 1000) {
-            size = 1000;
-        }
-
-        if (fgets(buffer, size, file)) {
-            file_size -= strlen(buffer);
-            result = true;
-
-        } else {
-            result = false;
-        }
-
-    } else {
-        result = false;
-    }
-
-    return result;
-}
-
-int32_t HelpMenu::SeekSection() {
-    do {
-        if (!ReadNextChunk()) {
-            return 0;
-        }
-
-    } while (!strstr(buffer, help_menu_sections[section]));
-
-    return 1;
-}
-
-int32_t HelpMenu::SeekEntry(int32_t cursor_x, int32_t cursor_y) {
-    Rect hot_zone;
-
-    for (;;) {
-        if (!ReadNextChunk()) {
-            return 0;
-        }
-
-        if (strstr(buffer, "[")) {
-            return 0;
-        }
-
-        if (strstr(buffer, "{")) {
-            GetHotZone(buffer, &hot_zone);
-
-            if (cursor_x >= hot_zone.ulx && cursor_x <= hot_zone.lrx && cursor_y >= hot_zone.uly &&
-                cursor_y <= hot_zone.lry) {
-                break;
-            }
-        }
-    }
-
-    return 1;
-}
-
-int32_t HelpMenu::ReadEntry() {
-    char* text;
-
-    for (;;) {
-        text = new (std::nothrow) char[5000];
-        if (text) {
-            help_cache[help_cache_use_count] = text;
-            ++help_cache_use_count;
-
-            text[0] = '\0';
-
-            for (;;) {
-                if (!ReadNextChunk() || strstr(buffer, "[") || strstr(buffer, "{")) {
-                    return help_cache[help_cache_use_count - 1] != text;
-                } else if (strstr(buffer, "\\p")) {
-                    break;
-                } else {
-                    strcat(text, buffer);
-                    text += strlen(buffer) - 2;
-                    text[0] = '\0';
-                }
-            };
-
-        } else {
-            return false;
-        }
-    }
-}
-
-void HelpMenu::ProcessText(const char* text) {
+void HelpMenu::ProcessText(const std::string& string) {
     if (strings) {
         delete[] strings;
+        strings = nullptr;
     }
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
     rows_per_page = 160 / Text_GetHeight();
 
-    strings = Text_SplitText(text, rows_per_page * 10, 265, &string_row_count);
+    strings = Text_SplitText(string.c_str(), rows_per_page * 10, 265, &string_row_count);
 
     if (string_row_count <= rows_per_page) {
         delete button_up;
@@ -276,6 +125,7 @@ void HelpMenu::ProcessText(const char* text) {
 
         button_up = nullptr;
         button_down = nullptr;
+
     } else if (!button_up && !button_down) {
         button_up = new (std::nothrow) Button(BLDUP__U, BLDUP__D, 20, 197);
 
@@ -400,7 +250,7 @@ bool HelpMenu::ProcessKey(int32_t key) {
             if (keys_mode) {
                 ProcessText(help_menu_keyboard_reference);
             } else {
-                ProcessText(help_cache[help_cache_index]);
+                ProcessText(text);
             }
 
         } break;
@@ -461,12 +311,13 @@ bool HelpMenu::Run(int32_t mode) {
     return event_click_help;
 }
 
-void HelpMenu_Menu(HelpSectionId section_id, int32_t window_index, bool mode) {
+void HelpMenu_Menu(const std::string& section, const int32_t window_index, const bool mode) {
     MouseEvent mouse_event;
-    WinID window_id;
 
     Cursor_SetCursor(CURSOR_HELP);
-    window_id = win_add(0, 0, 1, 1, COLOR_BLACK, WINDOW_MODAL);
+
+    auto window_id = win_add(0, 0, 1, 1, COLOR_BLACK, WINDOW_MODAL);
+
     MouseEvent::Clear();
 
     while (get_input() != GNW_KB_KEY_CTRL_ESCAPE) {
@@ -478,13 +329,12 @@ void HelpMenu_Menu(HelpSectionId section_id, int32_t window_index, bool mode) {
             if (mouse_event.buttons & MOUSE_RELEASE_LEFT) {
                 SoundManager_PlaySfx(KCARG0);
 
-                if (section_id == HELPMENU_GAME_SCREEN_SETUP &&
-                    HelpMenu_UnitReport(mouse_event.point.x, mouse_event.point.y)) {
+                if (section == "GAME_SCREEN_SETUP" && HelpMenu_UnitReport(mouse_event.point.x, mouse_event.point.y)) {
                     break;
                 }
 
                 {
-                    HelpMenu help_menu(section_id, mouse_event.point.x, mouse_event.point.y, window_index);
+                    HelpMenu help_menu(section, mouse_event.point.x, mouse_event.point.y, window_index);
 
                     if (!help_menu.Run(mode)) {
                         break;
@@ -555,4 +405,65 @@ bool HelpMenu_UnitReport(int32_t mouse_x, int32_t mouse_y) {
     }
 
     return result;
+}
+
+void HelpMenu_ScaleCursor(const std::string& section, const int32_t window_id, int32_t& cursor_x, int32_t& cursor_y) {
+    if (window_id == WINDOW_MAIN_WINDOW || (window_id == WINDOW_MAIN_MAP && (section == "REPORTS_SETUP"))) {
+        WindowInfo* const window = WindowManager_GetWindow(GameManager_GetDialogWindowCenterMode());
+
+        cursor_x -= ((window->window.lrx + window->window.ulx + 1) - WINDOW_WIDTH) / 2;
+        cursor_y -= ((window->window.lry + window->window.uly + 1) - WINDOW_HEIGHT) / 2;
+
+    } else if (window_id == WINDOW_MAIN_MAP) {
+        const auto wcd = WindowManager_GetWindow(WINDOW_COORDINATES_DISPLAY);
+        const auto wud = WindowManager_GetWindow(WINDOW_UNIT_DESCRIPTION_DISPLAY);
+        const auto wtc = WindowManager_GetWindow(WINDOW_TURN_COUNTER_DISPLAY);
+        const auto web = WindowManager_GetWindow(WINDOW_ENDTURN_BUTTON);
+        const auto wtt = WindowManager_GetWindow(WINDOW_TURN_TIMER_DISPLAY);
+
+        const double scale = WindowManager_GetScale();
+
+        Rect top_instrument = {static_cast<int32_t>(wtt->window.lrx + 5 * scale), wtt->window.uly,
+                               static_cast<int32_t>(wtt->window.lrx + 25 * scale), wtt->window.lry};
+        Point position = {cursor_x, cursor_y};
+
+        if (Access_IsInsideBounds(&wcd->window, &position)) {
+            const int32_t offset = (((wcd->window.lrx - wcd->window.ulx) * 20) / 100) + wcd->window.ulx;
+            if (cursor_x < offset) {
+                cursor_x = 250;
+                cursor_y = 473;
+
+            } else {
+                cursor_x = 297;
+                cursor_y = 473;
+            }
+
+        } else if (Access_IsInsideBounds(&wud->window, &position)) {
+            cursor_x = 448;
+            cursor_y = 473;
+
+        } else if (Access_IsInsideBounds(&wtc->window, &position)) {
+            cursor_x = 498;
+            cursor_y = 11;
+
+        } else if (Access_IsInsideBounds(&wtt->window, &position)) {
+            cursor_x = 565;
+            cursor_y = 11;
+
+        } else if (Access_IsInsideBounds(&web->window, &position)) {
+            cursor_x = 426;
+            cursor_y = 11;
+
+        } else if (Access_IsInsideBounds(&top_instrument, &position)) {
+            cursor_x = 610;
+            cursor_y = 11;
+
+        } else {
+            cursor_x /= scale;
+            cursor_y /= scale;
+        }
+
+    } else {
+        SDL_assert(0);
+    }
 }

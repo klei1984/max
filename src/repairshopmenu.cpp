@@ -578,23 +578,23 @@ void RepairShopMenu::Run() {
         } else if (key == GNW_KB_KEY_SHIFT_DIVIDE) {
             switch (repairshop->GetUnitType()) {
                 case HANGAR: {
-                    HelpMenu_Menu(HELPMENU_HANGAR_SETUP, WINDOW_MAIN_WINDOW);
+                    HelpMenu_Menu("HANGAR_SETUP", WINDOW_MAIN_WINDOW);
                 } break;
 
                 case DOCK: {
-                    HelpMenu_Menu(HELPMENU_DOCK_SETUP, WINDOW_MAIN_WINDOW);
+                    HelpMenu_Menu("DOCK_SETUP", WINDOW_MAIN_WINDOW);
                 } break;
 
                 case DEPOT: {
-                    HelpMenu_Menu(HELPMENU_DEPOT_SETUP, WINDOW_MAIN_WINDOW);
+                    HelpMenu_Menu("DEPOT_SETUP", WINDOW_MAIN_WINDOW);
                 } break;
 
                 case BARRACKS: {
-                    HelpMenu_Menu(HELPMENU_BARRACKS_SETUP, WINDOW_MAIN_WINDOW);
+                    HelpMenu_Menu("BARRACKS_SETUP", WINDOW_MAIN_WINDOW);
                 } break;
 
                 default: {
-                    HelpMenu_Menu(HELPMENU_TRANSFER_SETUP, WINDOW_MAIN_WINDOW);
+                    HelpMenu_Menu("TRANSFER_SETUP", WINDOW_MAIN_WINDOW);
                 } break;
             }
         }
@@ -957,23 +957,23 @@ void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value) {
 
     switch (shop->repairshop->GetUnitType()) {
         case HANGAR: {
-            HelpMenu_Menu(HELPMENU_HANGAR_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("HANGAR_SETUP", WINDOW_MAIN_WINDOW);
         } break;
 
         case DOCK: {
-            HelpMenu_Menu(HELPMENU_DOCK_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("DOCK_SETUP", WINDOW_MAIN_WINDOW);
         } break;
 
         case DEPOT: {
-            HelpMenu_Menu(HELPMENU_DEPOT_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("DEPOT_SETUP", WINDOW_MAIN_WINDOW);
         } break;
 
         case BARRACKS: {
-            HelpMenu_Menu(HELPMENU_BARRACKS_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("BARRACKS_SETUP", WINDOW_MAIN_WINDOW);
         } break;
 
         default: {
-            HelpMenu_Menu(HELPMENU_TRANSFER_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("TRANSFER_SETUP", WINDOW_MAIN_WINDOW);
         } break;
     }
 }

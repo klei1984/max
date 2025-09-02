@@ -319,9 +319,7 @@ static void Mission_ProcessMission(const json& j, MissionObject& m) {
 void from_json(const json& j, TextBlock& m) {
     j.at("text").get_to(m.text);
 
-    auto it = m.text.find("en-US");
-
-    if (it == m.text.end()) {
+    if (m.text.find("en-US") == m.text.end()) {
         throw std::runtime_error("No default language in text block");
     }
 }

@@ -158,7 +158,7 @@ void ChoosePlayerMenu::EventSelectClan() {
 void ChoosePlayerMenu::EventCancel() { event_click_cancel = true; }
 
 void ChoosePlayerMenu::EventHelp() {
-    HelpMenu_Menu(is_single_player == false ? HELPMENU_HOT_SEAT_SETUP : HELPMENU_NEW_GAME_SETUP, WINDOW_MAIN_WINDOW);
+    HelpMenu_Menu(is_single_player == false ? "HOT_SEAT_SETUP" : "NEW_GAME_SETUP", WINDOW_MAIN_WINDOW);
 }
 
 void ChoosePlayerMenu::ButtonInit(int32_t index, int32_t mode) {

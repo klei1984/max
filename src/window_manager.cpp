@@ -30,9 +30,6 @@
 
 #define WINDOW_ITEM(rect, unknown, id, buffer, name) {rect, unknown, id, buffer}
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
-
 static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
 static void WindowManager_ScaleWindows();
 static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int16_t pitch,
@@ -907,22 +904,4 @@ int32_t WindowManager_ScaleLry(WindowInfo *w, int32_t uly, int32_t lry) {
 
 int32_t WindowManager_ScaleOffset(WindowInfo *w, int32_t ulx, int32_t uly) {
     return w->width * WindowManager_ScaleUly(w, uly) + WindowManager_ScaleUlx(w, ulx);
-}
-
-void WindowManager_ScaleCursor(int32_t help_id, int32_t window_id, int32_t &cursor_x, int32_t &cursor_y) {
-    if (window_id == WINDOW_MAIN_WINDOW || (window_id == WINDOW_MAIN_MAP && (help_id == HELPMENU_REPORTS_SETUP))) {
-        WindowInfo *const window = WindowManager_GetWindow(GameManager_GetDialogWindowCenterMode());
-
-        cursor_x -= ((window->window.lrx + window->window.ulx + 1) - WINDOW_WIDTH) / 2;
-        cursor_y -= ((window->window.lry + window->window.uly + 1) - WINDOW_HEIGHT) / 2;
-
-    } else if (window_id == WINDOW_MAIN_MAP) {
-        const double scale = WindowManager_GetScale();
-
-        cursor_x /= scale;
-        cursor_y /= scale;
-
-    } else {
-        SDL_assert(0);
-    }
 }

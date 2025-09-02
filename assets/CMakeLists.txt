@@ -7,6 +7,7 @@ install(FILES "lang_de-DE.ini" DESTINATION ${GAME_INSTALL_PATH})
 install(FILES "lang_it-IT.ini" DESTINATION ${GAME_INSTALL_PATH})
 install(FILES "lang_es-ES.ini" DESTINATION ${GAME_INSTALL_PATH})
 install(FILES "lang_ru-RU.ini" DESTINATION ${GAME_INSTALL_PATH})
+install(FILES "help.json" DESTINATION ${GAME_INSTALL_PATH})
 
 if(MINGW)
 	install(FILES ".portable" DESTINATION ${GAME_INSTALL_PATH})

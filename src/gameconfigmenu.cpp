@@ -389,7 +389,7 @@ void GameConfigMenu::EventCancel() {
     event_click_cancel = true;
 }
 
-void GameConfigMenu::EventHelp() { HelpMenu_Menu(HELPMENU_OPTIONS_SETUP, WINDOW_MAIN_WINDOW); }
+void GameConfigMenu::EventHelp() { HelpMenu_Menu("OPTIONS_SETUP", WINDOW_MAIN_WINDOW); }
 
 void GameConfigMenu::ButtonInit(int32_t index) {
     GameConfigMenuControlItem* control;

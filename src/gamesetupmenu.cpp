@@ -268,19 +268,19 @@ void GameSetupMenu::EventCancel() { event_click_cancel = true; }
 void GameSetupMenu::EventHelp() {
     switch (m_mission_category) {
         case MISSION_CATEGORY_TRAINING: {
-            HelpMenu_Menu(HELPMENU_TRAINING_MENU_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("TRAINING_MENU_SETUP", WINDOW_MAIN_WINDOW);
         } break;
 
         case MISSION_CATEGORY_SCENARIO: {
-            HelpMenu_Menu(HELPMENU_STAND_ALONE_MENU_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("STAND_ALONE_MENU_SETUP", WINDOW_MAIN_WINDOW);
         } break;
 
         case MISSION_CATEGORY_CAMPAIGN: {
-            HelpMenu_Menu(HELPMENU_CAMPAIGN_MENU, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("CAMPAIGN_MENU", WINDOW_MAIN_WINDOW);
         } break;
 
         default: {
-            HelpMenu_Menu(HELPMENU_MULTI_SCENARIO_MENU, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("MULTI_SCENARIO_MENU", WINDOW_MAIN_WINDOW);
         } break;
     }
 }

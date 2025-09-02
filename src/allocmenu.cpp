@@ -718,7 +718,7 @@ void AllocMenu::Run() {
 
             case GNW_KB_KEY_SHIFT_DIVIDE:
             case 1000: {
-                HelpMenu_Menu(HELPMENU_ALLOCATE_SETUP, WINDOW_MAIN_WINDOW);
+                HelpMenu_Menu("ALLOCATE_SETUP", WINDOW_MAIN_WINDOW);
             } break;
 
             case 1001: {

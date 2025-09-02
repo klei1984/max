@@ -4041,11 +4041,11 @@ void GameManager_MenuClickMinimapTntButton(bool rest_state) {
 
 void GameManager_MenuClickHelpButton() {
     if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
-        HelpMenu_Menu(HELPMENU_SITE_SELECT_SETUP, WINDOW_MAIN_MAP);
+        HelpMenu_Menu("SITE_SELECT_SETUP", WINDOW_MAIN_MAP);
     } else {
         GameManager_MenuItems[MENU_GUI_ITEM_HELP_BUTTON].button->SetRestState(false);
 
-        HelpMenu_Menu(HELPMENU_GAME_SCREEN_SETUP, WINDOW_MAIN_MAP);
+        HelpMenu_Menu("GAME_SCREEN_SETUP", WINDOW_MAIN_MAP);
     }
 }
 

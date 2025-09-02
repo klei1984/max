@@ -552,7 +552,7 @@ void UnitStatsMenu::Run() {
             }
 
             if (key == 1000 || key == '?') {
-                HelpMenu_Menu(HELPMENU_STATS_SETUP, WINDOW_MAIN_WINDOW);
+                HelpMenu_Menu("STATS_SETUP", WINDOW_MAIN_WINDOW);
             }
 
             if (task_debugger && key >= 0) {

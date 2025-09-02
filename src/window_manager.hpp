@@ -24,6 +24,9 @@
 
 #include "resource_manager.hpp"
 
+#define WINDOW_WIDTH 640
+#define WINDOW_HEIGHT 480
+
 enum {
     WINDOW_MAIN_WINDOW,
     WINDOW_POPUP_BUTTONS,
@@ -120,6 +123,5 @@ int32_t WindowManager_ScaleLrx(WindowInfo *w, int32_t ulx, int32_t lrx);
 int32_t WindowManager_ScaleLry(WindowInfo *w, int32_t uly, int32_t lry);
 int32_t WindowManager_ScaleOffset(WindowInfo *w, int32_t ulx, int32_t uly);
 double WindowManager_GetScale();
-void WindowManager_ScaleCursor(int32_t help_id, int32_t window_id, int32_t &cursor_x, int32_t &cursor_y);
 
 #endif /* WINDOW_MANAGER_HPP */

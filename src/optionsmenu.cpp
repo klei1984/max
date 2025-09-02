@@ -553,9 +553,9 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
             if (text_edit) {
                 text_edit->ProcessKeyPress(key);
             } else if (bg_image == SETUPPIC) {
-                HelpMenu_Menu(HELPMENU_SETUP_MENU_SETUP, WINDOW_MAIN_WINDOW, false);
+                HelpMenu_Menu("SETUP_MENU_SETUP", WINDOW_MAIN_WINDOW, false);
             } else {
-                HelpMenu_Menu(HELPMENU_PREFS_MENU_SETUP, WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
+                HelpMenu_Menu("PREFS_MENU_SETUP", WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
             }
 
         } break;

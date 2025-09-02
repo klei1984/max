@@ -165,7 +165,7 @@ bool ChatMenu::ProcessKey(int32_t key) {
         } break;
 
         case 1000: {
-            HelpMenu_Menu(HELPMENU_CHAT_MENU_SETUP, WINDOW_MAIN_MAP);
+            HelpMenu_Menu("CHAT_MENU_SETUP", WINDOW_MAIN_MAP);
         } break;
 
         case 1001 + PLAYER_TEAM_RED:

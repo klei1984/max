@@ -548,9 +548,7 @@ void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value) {
     }
 }
 
-void ResearchMenu_OnClick_Help(ButtonID bid, intptr_t value) {
-    HelpMenu_Menu(HELPMENU_RESEARCH_SETUP, WINDOW_MAIN_MAP);
-}
+void ResearchMenu_OnClick_Help(ButtonID bid, intptr_t value) { HelpMenu_Menu("RESEARCH_SETUP", WINDOW_MAIN_MAP); }
 
 void ResearchMenu_OnClick_Cancel(ButtonID bid, intptr_t value) {
     ResearchMenu *control;

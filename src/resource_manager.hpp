@@ -141,6 +141,8 @@ void ResourceManager_InitHeatMaps(uint16_t team);
 void ResourceManager_InitTeamInfo();
 uint8_t *ResourceManager_GetBuffer(ResourceID id);
 std::string ResourceManager_Sha256(const ResourceID world);
+std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,
+                                         const int32_t position_y);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
 
 class ResourceManager_MutexLock {

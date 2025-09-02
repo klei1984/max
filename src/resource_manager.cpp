@@ -34,6 +34,7 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "hash.hpp"
+#include "help.hpp"
 #include "inifile.hpp"
 #include "localization.hpp"
 #include "menu.hpp"
@@ -77,6 +78,7 @@ static constexpr int32_t ResourceManager_MinimumDiskSpace = 1024 * 1024;
 
 static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
 static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
+static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
 static std::unique_ptr<std::vector<SDL_mutex *>> ResourceManager_SDLMutexes;
 
@@ -170,6 +172,7 @@ static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_L
                                              const char *message);
 static void ResourceManager_LogOutputFlush();
 static inline void ResourceManager_FixWorldFiles(const ResourceID world);
+static void ResourceManager_InitHelpManager();
 static void ResourceManager_InitMissionManager();
 
 static inline std::filesystem::path ResourceManager_GetResourcePath(ResourceType type) {
@@ -427,6 +430,7 @@ void ResourceManager_InitResources() {
     ResourceManager_TestMemory();
     ResourceManager_TestDiskSpace();
     ResourceManager_InitInternals();
+    ResourceManager_InitHelpManager();
     ResourceManager_InitMissionManager();
     ResourceManager_TestMouse();
 }
@@ -1937,6 +1941,25 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
             }
         } break;
     }
+}
+
+void ResourceManager_InitHelpManager() {
+    const auto path = ResourceManager_FilePathGameBase / "help.json";
+
+    ResourceManager_HelpManager = std::make_shared<Help>();
+    (void)ResourceManager_HelpManager->LoadFile(path.lexically_normal().string());
+    ResourceManager_HelpManager->SetLanguage(Localization::GetLanguage());
+}
+
+std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,
+                                         const int32_t position_y) {
+    std::string result;
+
+    if (ResourceManager_HelpManager) {
+        (void)ResourceManager_HelpManager->GetEntry(section, position_x, position_y, result);
+    }
+
+    return result;
 }
 
 void ResourceManager_InitMissionManager() {

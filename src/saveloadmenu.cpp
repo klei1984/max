@@ -446,9 +446,9 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                 case 1021: {
                     SaveLoadMenu_PlaySfx(FHELP);
                     if (is_saving_allowed) {
-                        HelpMenu_Menu(HELPMENU_SAVELOAD_SETUP, WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
+                        HelpMenu_Menu("SAVELOAD_SETUP", WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
                     } else {
-                        HelpMenu_Menu(HELPMENU_LOAD_SETUP, WINDOW_MAIN_WINDOW);
+                        HelpMenu_Menu("LOAD_SETUP", WINDOW_MAIN_WINDOW);
                     }
                 } break;
 
@@ -526,9 +526,9 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
 
                 case GNW_KB_KEY_SHIFT_DIVIDE: {
                     if (is_saving_allowed) {
-                        HelpMenu_Menu(HELPMENU_SAVELOAD_SETUP, WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
+                        HelpMenu_Menu("SAVELOAD_SETUP", WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
                     } else {
-                        HelpMenu_Menu(HELPMENU_LOAD_SETUP, WINDOW_MAIN_WINDOW);
+                        HelpMenu_Menu("LOAD_SETUP", WINDOW_MAIN_WINDOW);
                     }
                 } break;
 

@@ -180,6 +180,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/winlosshandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/missionmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/campaign.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/help.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/saveload.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/utf8.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp

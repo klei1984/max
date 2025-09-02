@@ -111,7 +111,7 @@ bool TransferMenu::ProcessKey(int32_t key) {
         event_click_done = true;
 
     } else if (key == GNW_KB_KEY_SHIFT_DIVIDE) {
-        HelpMenu_Menu(HELPMENU_TRANSFER_SETUP, WINDOW_MAIN_MAP);
+        HelpMenu_Menu("TRANSFER_SETUP", WINDOW_MAIN_MAP);
 
     } else if (key == GNW_KB_KEY_LALT_P) {
         PauseMenu_Menu();

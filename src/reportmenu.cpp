@@ -445,7 +445,7 @@ void ReportMenu::Run() {
 
         switch (key) {
             case GNW_KB_KEY_SHIFT_DIVIDE: {
-                HelpMenu_Menu(HELPMENU_REPORTS_SETUP, WINDOW_MAIN_WINDOW);
+                HelpMenu_Menu("REPORTS_SETUP", WINDOW_MAIN_WINDOW);
             } break;
 
             case GNW_KB_KEY_UP: {
@@ -1733,4 +1733,4 @@ void ReportMenu_OnClick_Down(ButtonID bid, intptr_t value) {
     }
 }
 
-void ReportMenu_OnClick_Help(ButtonID bid, intptr_t value) { HelpMenu_Menu(HELPMENU_REPORTS_SETUP, WINDOW_MAIN_MAP); }
+void ReportMenu_OnClick_Help(ButtonID bid, intptr_t value) { HelpMenu_Menu("REPORTS_SETUP", WINDOW_MAIN_MAP); }

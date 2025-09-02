@@ -120,7 +120,7 @@ bool UpgradeMenu::ProcessKey(int32_t key) {
 
         case 1001:
         case GNW_KB_KEY_SHIFT_DIVIDE: {
-            HelpMenu_Menu(HELPMENU_UPGRADES_SETUP, WINDOW_MAIN_WINDOW);
+            HelpMenu_Menu("UPGRADES_SETUP", WINDOW_MAIN_WINDOW);
             result = true;
         } break;
 
