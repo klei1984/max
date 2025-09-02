@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 159 / 242 (65.7%) original M.A.X. defects in M.A.X. Port.
+Fixed 164 / 244 (67.2%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -77,7 +77,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 <br>
     <img src="{{ site.baseurl }}/assets/images/defect_14.jpg" alt="defect 14" width="740"> 
 
-15. The in-game help mouse spot for the map coordinate display holder arm is at the old top left location. The arm was on top in the old v1.00 interactive demo and was moved to the bottom later. The developers forgot to move the hot spot with the art to its new location. The defect can only be fixed if asset HELP_ENG is updated.
+15. **[Fixed]** The in-game help mouse spot for the map coordinate display holder arm is at the old top left location. The arm was on top in the old v1.00 interactive demo and was moved to the bottom later. The developers forgot to move the hot spot with the art to its new location.
 <br>
     <img src="{{ site.baseurl }}/assets/images/defect_15.jpg" alt="defect 14" width="740"> 
 
@@ -581,9 +581,9 @@ The pseudo code does not use pointer arithmetic for better clarity. Obviously th
 <br>
 This is a good example for a complex soft lock situation.
 
-159. The English in-game help entry for TOPICS_ICONS within the RESEARCH_SETUP group contains a typo. "appropreiate" -> appropriate.
+159. **[Fixed]** The English in-game help entry for TOPICS_ICONS within the RESEARCH_SETUP group contains a typo. "appropreiate" -> appropriate.
 
-160. The English in-game help entries UPGRADE_1 to UPGRADE_4 within the HANGAR_SETUP group are copy pasted from the repair help menu entries.
+160. **[Fixed]** The English in-game help entries UPGRADE_1 to UPGRADE_4 within the HANGAR_SETUP group are copy pasted from the repair help menu entries.
 
 161. In case an enemy infiltrator is visible only due to cheat code and the unit stands on a friendly road or similar ground cover class unit, it is not possible to select the enemy infiltrator. It is assumed that cheaters are not intentionally penalized by the game in single player modes, thus the behavior is considered to be a defect.
 
@@ -881,3 +881,7 @@ Proposed defect fix:
 241. **[Fixed]** There is a typo in the unit description of infantry. `inflitrators` -> `infiltrators`.
 
 242. **[Fixed]** The Mobile Anti Aircraft unit's name is used inconsistently in various descriptions. The light vehicle plant description says `mobile anti-aircraft`, the unit refers to itself as `mobile anti aircraft`, the description of Ground Attack Planes use the term `antiaircraft`.
+
+243. **[Fixed]** The French in-game help menu string table has several defects. The `UNIT_DESCRIPTION` field in the `GAME_SCREEN_SETUP` group misses the closing bracket from the screen coordinates section. The `CANCEL_BUTTON` field is missing from the `ALLOCATE_SETUP` group. The `ENEMY_SPOTTED` and `QUICK_SCROLL` fields are translated in the `PREFS_MENU_SETUP` group even though that was forbidden. The `BRIEFING_WINDOW` field is missing from the `TRAINING_MENU_SETUP` group. The `ALLOCATE_LABEL` in the `ALLOCATE_SETUP` group misses the comma after the uy coordinate from the screen coordinates section. The `TRANSPORT_SETUP` group defines three fields that are not supposed to called `RAW_LABEL`, `RAW_TUBE` and `UPGRADE_ALL`. The Italian in-game help menu string table has several defects. The `UP_DOWN_SAVELOAD` field is missing from the `SAVELOAD_SETUP` group. The `ENEMY_SPOTTED` and `QUICK_SCROLL` fields are translated in the `PREFS_MENU_SETUP` group even though that was forbidden. The `BARRACKS_SETUP` group is missing with all of its 46 fields. The Spanish in-game help menu string table has several defects. The `UNIT_DESCRIPTION` field in the `GAME_SCREEN_SETUP` group misses the closing bracket from the screen coordinates section. The `DEC_FUEL_BUTTON` field in the `ALLOCATE_SETUP` group misses the closing bracket from the screen coordinates section.
+
+244. **[Fixed]** The English in-game help menu string table has several typos. `recieved` -> `received`. `Proceding the vehicle's name is it's version number.` -> `Preceding the vehicle's name is its version number.`. `To selected an enemy unit simply click on it when this button is depressed. Clicking on an enemy unit already selected will deselected that unit.` -> `To select an enemy unit simply click on it when this button is depressed. Clicking on an enemy unit already selected will deselect that unit.`. `The first number show the amount of ` -> `The first number shows the amount of `. `transfered` -> `transferred`. `This the Modem Setup Menu` -> `This is the Modem Setup Menu`. `This the Serial` -> `This is the`. `The "Auto-Save" feature automatically saves your game at the begining of every turn.` -> `beginning`. `This the Training Menu` -> `This is the`. `This the Mission Window` -> `This is the` multiple cases. `Each level, when clicked, will display information about that opponents abilities.` -> `opponent's`. `Upgrades, which effect one type of unit at a time, technology gained by research can effect the attributes of many or all your units at the same time.` -> `affect`. `'Armor' relates to the strength and quality of the units armor plating.` -> `unit's` multiple cases. `This window displays the plane that is currently occuping this hangar bay.` -> `occupying`. `Click the UPGRADE button to upgrade a unit to current technology levels a unit.` -> `Click the UPGRADE button to upgrade a unit to current technology levels.`. `Each unit loaded into the Dock occupys one bay.` -> `occupies` 6 cases. `Click on the "Repair" button and the unit with be repaired.` -> `will be repaired`. `The SCORE Report displays a graph of each teams present score` -> `The SCORE Report displays a graph of each team's present score`. `Clicking the Score button presents a graph dipicting each teams score.` -> `depicting each team's`. `The INCLUDE buttons are filters effecting which types of units are included` -> `affecting`.
