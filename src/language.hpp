@@ -22,6 +22,7 @@
 #ifndef LANGUAGE_HPP
 #define LANGUAGE_HPP
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -42,7 +43,7 @@ public:
     [[nodiscard]] bool LoadFile(const std::string& path);
     void SetLanguage(const std::string& language);
 
-    [[nodiscard]] bool GetEntry(const std::string& key, std::string& text);
+    [[nodiscard]] bool GetEntry(const uint32_t key, std::string& text);
 };
 
 #endif /* LANGUAGE_HPP */

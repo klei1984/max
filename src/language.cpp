@@ -36,11 +36,11 @@ using json = nlohmann::json;
 using validator = nlohmann::json_schema::json_validator;
 
 struct LangObject {
-    std::unordered_map<std::string, std::unordered_map<std::string, std::string>> entries;
+    std::unordered_map<uint32_t, std::unordered_map<std::string, std::string>> entries;
 };
 
 void from_json(const json& j, LangObject& l) {
-    for (auto& [uuid, value] : j["language"].items()) {
+    for (auto& [uuid_string, value] : j["language"].items()) {
         std::unordered_map<std::string, std::string> translations;
 
         for (auto& [lang_tag, text] : value.items()) {
@@ -48,8 +48,10 @@ void from_json(const json& j, LangObject& l) {
         }
 
         if (translations.find("en-US") == translations.end()) {
-            throw std::runtime_error("No default language in language entry: " + uuid);
+            throw std::runtime_error("No default language in language entry: " + uuid_string);
         }
+
+        uint32_t uuid = static_cast<uint32_t>(std::stoul(uuid_string, nullptr, 16));
 
         l.entries[uuid] = std::move(translations);
     }
@@ -110,7 +112,7 @@ bool Language::LoadFile(const std::string& path) {
     return result;
 }
 
-bool Language::GetEntry(const std::string& key, std::string& text) {
+bool Language::GetEntry(const uint32_t key, std::string& text) {
     bool result{false};
 
     if (m_lang) {
