@@ -53,6 +53,10 @@ void from_json(const json& j, LangObject& l) {
 
         uint32_t uuid = static_cast<uint32_t>(std::stoul(uuid_string, nullptr, 16));
 
+        if (l.entries.find(uuid) != l.entries.end()) {
+            throw std::runtime_error("Duplicate key in language entries: " + uuid_string);
+        }
+
         l.entries[uuid] = std::move(translations);
     }
 }
