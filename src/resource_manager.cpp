@@ -36,6 +36,7 @@
 #include "hash.hpp"
 #include "help.hpp"
 #include "inifile.hpp"
+#include "language.hpp"
 #include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
@@ -78,9 +79,11 @@ static constexpr int32_t ResourceManager_MinimumDiskSpace = 1024 * 1024;
 
 static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
 static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
+static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
 static std::unique_ptr<std::vector<SDL_mutex *>> ResourceManager_SDLMutexes;
+static std::string ResourceManager_SystemLocale{"en-US"};
 
 FILE *res_file_handle_array[2];
 struct res_index *ResourceManager_ResItemTable;
@@ -158,10 +161,12 @@ static void ResourceManager_InitSDL();
 static void ResourceManager_TestMemory();
 static void ResourceManager_TestDiskSpace();
 static void ResourceManager_InitInternals();
+static void ResourceManager_InitResourceHandler();
+static void ResourceManager_PreloadPatches();
 static int32_t ResourceManager_InitResManager();
 static void ResourceManager_TestMouse();
 static bool ResourceManager_GetGameDataPath(std::filesystem::path &path);
-static int32_t ResourceManager_BuildResourceTable(const char *const cstr, const ResourceType type);
+static int32_t ResourceManager_BuildResourceTable(const std::filesystem::path filepath);
 static int32_t ResourceManager_BuildColorTables();
 static void ResourceManager_InitMinimapResources();
 static void ResourceManager_InitMainmapResources();
@@ -172,10 +177,12 @@ static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_L
                                              const char *message);
 static void ResourceManager_LogOutputFlush();
 static inline void ResourceManager_FixWorldFiles(const ResourceID world);
+static void Resourcemanager_InitLocale();
+static void ResourceManager_InitLanguageManager();
 static void ResourceManager_InitHelpManager();
 static void ResourceManager_InitMissionManager();
 
-static inline std::filesystem::path ResourceManager_GetResourcePath(ResourceType type) {
+static inline std::filesystem::path ResourceManager_GetFileResourcePathPrefix(ResourceType type) {
     auto path{ResourceManager_FilePathGameData};
 
     switch (type) {
@@ -424,6 +431,10 @@ void ResourceManager_InitPaths() {
 }
 
 void ResourceManager_InitResources() {
+    Resourcemanager_InitLocale();
+    ResourceManager_InitResourceHandler();
+    ResourceManager_PreloadPatches();
+    ResourceManager_InitLanguageManager();
     ResourceManager_InitSDL();
     Scripter::Init();
     ResourceManager_InitPaths();
@@ -531,45 +542,58 @@ void ResourceManager_Exit() {
     exit(0);
 }
 
+void ResourceManager_InitResourceHandler() {
+    ResourceManager_ResMetaTable = new (std::nothrow) GameResourceMeta[RESOURCE_E];
+    ResourceManager_ResFileCount = 0;
+    ResourceManager_ResItemCount = 0;
+
+    if (ResourceManager_ResMetaTable) {
+        for (int32_t i = 0; i < RESOURCE_E; ++i) {
+            ResourceManager_ResMetaTable[i].resource_buffer = nullptr;
+            ResourceManager_ResMetaTable[i].res_file_item_index = INVALID_ID;
+            ResourceManager_ResMetaTable[i].res_file_id = 0;
+        }
+
+    } else {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Insufficient memory for resource tables.",
+                                 nullptr);
+        exit(EXIT_FAILURE);
+    }
+}
+
+void ResourceManager_PreloadPatches() {
+    std::filesystem::path path{"./"};
+
+    if (!ResourceManager_GetBasePath(path)) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Failed to obtain application base directory.",
+                                 nullptr);
+        exit(EXIT_FAILURE);
+    }
+
+    if (ResourceManager_BuildResourceTable((path / "PATCHES.RES").lexically_normal()) != EXIT_CODE_NO_ERROR) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Failed to load PATCHES.RES.", nullptr);
+        exit(EXIT_FAILURE);
+    }
+}
+
 int32_t ResourceManager_InitResManager() {
     int32_t result;
 
-    ResourceManager_ResMetaTable = new (std::nothrow) GameResourceMeta[RESOURCE_E];
+    result = ResourceManager_BuildResourceTable((ResourceManager_FilePathGameData / "MAX.RES").lexically_normal());
 
-    if (ResourceManager_ResMetaTable) {
-        for (int32_t i = 0; i < RESOURCE_E; i++) {
-            ResourceManager_ResMetaTable[i].resource_buffer = nullptr;
-            ResourceManager_ResMetaTable[i].res_file_item_index = INVALID_ID;
-        }
+    if (result == EXIT_CODE_NO_ERROR) {
+        if (ResourceManager_BuildColorTables()) {
+            Cursor_Init();
 
-        ResourceManager_ResItemCount = 0;
-
-        result = ResourceManager_BuildResourceTable("PATCHES.RES", ResourceType_GameBase);
-
-        if (result == EXIT_CODE_RES_FILE_NOT_FOUND) {
-            result = ResourceManager_BuildResourceTable("PATCHES.RES", ResourceType_GameData);
-        }
-
-        if (result == EXIT_CODE_NO_ERROR || result == EXIT_CODE_RES_FILE_NOT_FOUND) {
-            result = ResourceManager_BuildResourceTable("MAX.RES", ResourceType_GameData);
-
-            if (result == EXIT_CODE_NO_ERROR) {
-                if (ResourceManager_BuildColorTables()) {
-                    Cursor_Init();
-
-                    for (int16_t j = 0; j < UNIT_END; ++j) {
-                        UnitsManager_BaseUnits[j].Init(&UnitsManager_AbstractUnits[j]);
-                    }
-
-                    result = EXIT_CODE_NO_ERROR;
-
-                } else {
-                    result = EXIT_CODE_INSUFFICIENT_MEMORY;
-                }
+            for (int16_t j = 0; j < UNIT_END; ++j) {
+                UnitsManager_BaseUnits[j].Init(&UnitsManager_AbstractUnits[j]);
             }
+
+            result = EXIT_CODE_NO_ERROR;
+
+        } else {
+            result = EXIT_CODE_INSUFFICIENT_MEMORY;
         }
-    } else {
-        result = EXIT_CODE_INSUFFICIENT_MEMORY;
     }
 
     return result;
@@ -578,13 +602,14 @@ int32_t ResourceManager_InitResManager() {
 uint8_t *ResourceManager_ReadResource(ResourceID id) {
     uint8_t *resource_buffer;
 
-    if (id == INVALID_ID) {
+    if (id < MEM_END && id >= RESOURCE_E) {
         resource_buffer = nullptr;
-    } else {
-        SDL_assert(id > MEM_END && id < RESOURCE_E);
 
-        if (ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
+    } else {
+        if (ResourceManager_ResMetaTable == nullptr ||
+            ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
             resource_buffer = nullptr;
+
         } else {
             FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
             int32_t data_size =
@@ -652,7 +677,8 @@ uint8_t *ResourceManager_LoadResource(ResourceID id) {
 uint32_t ResourceManager_GetResourceSize(ResourceID id) {
     uint32_t data_size;
 
-    if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
+    if (id == INVALID_ID || ResourceManager_ResMetaTable == nullptr ||
+        ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         data_size = 0;
     } else {
         data_size = ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_size;
@@ -724,21 +750,30 @@ FILE *ResourceManager_GetFileHandle(ResourceID id) {
     return fp;
 }
 
-FILE *ResourceManager_OpenFileResource(const std::string &string, const ResourceType type, const char *const mode,
-                                       std::filesystem::path *path) {
-    FILE *handle{nullptr};
+std::filesystem::path ResourceManager_GetFileResourcePath(const std::string &string, const ResourceType type) {
     auto filename = ResourceManager_StringToLowerCase(string);
-    auto pathprefix = ResourceManager_GetResourcePath(type);
+    auto pathprefix = ResourceManager_GetFileResourcePathPrefix(type);
     auto filepath = (pathprefix / filename).lexically_normal();
+    std::error_code ec;
 
-    handle = fopen(filepath.string().c_str(), mode);
-
-    if (!handle) {
+    if (!std::filesystem::exists(filepath, ec) || ec) {
         filename = ResourceManager_StringToUpperCase(string);
         filepath = (pathprefix / filename).lexically_normal();
 
-        handle = fopen(filepath.string().c_str(), mode);
+        if (!std::filesystem::exists(filepath, ec) || ec) {
+            filepath = string;
+        }
     }
+
+    return filepath;
+}
+
+FILE *ResourceManager_OpenFileResource(const std::string &string, const ResourceType type, const char *const mode,
+                                       std::filesystem::path *path) {
+    FILE *handle{nullptr};
+    auto filepath = ResourceManager_GetFileResourcePath(string, type);
+
+    handle = fopen(filepath.string().c_str(), mode);
 
     if (handle && path) {
         *path = filepath;
@@ -898,12 +933,12 @@ int32_t ResourceManager_BuildColorTables() {
     return result;
 }
 
-int32_t ResourceManager_BuildResourceTable(const char *const cstr, const ResourceType type) {
+int32_t ResourceManager_BuildResourceTable(const std::filesystem::path filepath) {
     int32_t result;
     FILE *fp;
     struct res_header header;
 
-    fp = ResourceManager_OpenFileResource(cstr, type);
+    fp = fopen(filepath.string().c_str(), "rb");
 
     res_file_handle_array[ResourceManager_ResFileCount] = fp;
 
@@ -1943,12 +1978,60 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
     }
 }
 
+void Resourcemanager_InitLocale() {
+    auto locales = SDL_GetPreferredLocales();
+
+    if (locales) {
+        for (int i = 0; locales[i].language; i++) {
+            if (locales[i].language && locales[i].country) {
+                ResourceManager_SystemLocale = std::format("{}-{}", locales[i].language, locales[i].country);
+
+                break;
+            }
+        }
+
+        SDL_free(locales);
+    }
+}
+
+void ResourceManager_InitLanguageManager() {
+    std::filesystem::path path{"./"};
+
+    if (!ResourceManager_GetBasePath(path)) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Failed to obtain application base directory.",
+                                 nullptr);
+        exit(EXIT_FAILURE);
+    }
+
+    ResourceManager_LanguageManager = std::make_shared<Language>();
+    if (ResourceManager_LanguageManager &&
+        ResourceManager_LanguageManager->LoadFile((path / "language.json").lexically_normal().string())) {
+        ResourceManager_LanguageManager->SetLanguage(ResourceManager_SystemLocale);
+
+    } else {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Failed to load `language.json` asset.",
+                                 nullptr);
+        exit(EXIT_FAILURE);
+    }
+}
+
+std::string ResourceManager_GetlanguageEntry(const uint32_t key) {
+    std::string result;
+
+    if (ResourceManager_LanguageManager && ResourceManager_LanguageManager->GetEntry(key, result)) {
+    } else {
+        result = std::to_string(key);
+    }
+
+    return result;
+}
+
 void ResourceManager_InitHelpManager() {
     const auto path = ResourceManager_FilePathGameBase / "help.json";
 
     ResourceManager_HelpManager = std::make_shared<Help>();
     (void)ResourceManager_HelpManager->LoadFile(path.lexically_normal().string());
-    ResourceManager_HelpManager->SetLanguage(Localization::GetLanguage());
+    ResourceManager_HelpManager->SetLanguage(ResourceManager_SystemLocale);
 }
 
 std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,
@@ -1965,7 +2048,7 @@ std::string ResourceManager_GetHelpEntry(const std::string &section, const int32
 void ResourceManager_InitMissionManager() {
     ResourceManager_MissionManager = std::make_shared<MissionManager>();
 
-    ResourceManager_MissionManager->SetLanguage(Localization::GetLanguage());
+    ResourceManager_MissionManager->SetLanguage(ResourceManager_SystemLocale);
 }
 
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return ResourceManager_MissionManager; }
