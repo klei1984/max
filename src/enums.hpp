@@ -24,17 +24,7 @@
 
 #include <cstdint>
 
-enum ResourceType : uint8_t {
-    ResourceType_GameBase,
-    ResourceType_GamePref,
-    ResourceType_GameData,
-    ResourceType_Voice,
-    ResourceType_Movie,
-    ResourceType_Text,
-    ResourceType_Flic,
-    ResourceType_Sfx,
-    ResourceType_Music,
-};
+enum ResourceType : uint8_t { ResourceType_GameBase, ResourceType_GamePref, ResourceType_GameData };
 
 enum {
     GROUND_COVER = 0x1,

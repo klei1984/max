@@ -395,7 +395,7 @@ char flicsmgr_read(Flic *flc) {
 }
 
 char flicsmgr_load(ResourceID id, Flic *flc) {
-    flc->fp = ResourceManager_OpenFileResource(id, ResourceType_Flic);
+    flc->fp = ResourceManager_OpenFileResource(id, ResourceType_GameData);
 
     if (!flc->fp) {
         return 0;

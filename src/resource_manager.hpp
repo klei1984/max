@@ -73,12 +73,6 @@ extern const uint8_t ResourceManager_GenericTable[32];
 extern std::filesystem::path ResourceManager_FilePathGameData;
 extern std::filesystem::path ResourceManager_FilePathGameBase;
 extern std::filesystem::path ResourceManager_FilePathGamePref;
-extern std::filesystem::path ResourceManager_FilePathMovie;
-extern std::filesystem::path ResourceManager_FilePathText;
-extern std::filesystem::path ResourceManager_FilePathFlic;
-extern std::filesystem::path ResourceManager_FilePathVoice;
-extern std::filesystem::path ResourceManager_FilePathSfx;
-extern std::filesystem::path ResourceManager_FilePathMusic;
 
 extern bool ResourceManager_DisableEnhancedGraphics;
 

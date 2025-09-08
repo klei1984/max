@@ -75,7 +75,7 @@ struct GameResourceMeta {
 
 static constexpr int32_t ResourceManager_MinimumMemory = 6;
 static constexpr int32_t ResourceManager_MinimumMemoryEnhancedGfx = 13;
-static constexpr int32_t ResourceManager_MinimumDiskSpace = 1024 * 1024;
+static constexpr uintmax_t ResourceManager_MinimumDiskSpace = 1024 * 1024;
 
 static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
 static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
@@ -138,12 +138,6 @@ const uint8_t ResourceManager_GenericTable[32] = {0x6c, 0x57, 0x36, 0xe6, 0x81, 
 std::filesystem::path ResourceManager_FilePathGameData;
 std::filesystem::path ResourceManager_FilePathGameBase;
 std::filesystem::path ResourceManager_FilePathGamePref;
-std::filesystem::path ResourceManager_FilePathMovie;
-std::filesystem::path ResourceManager_FilePathText;
-std::filesystem::path ResourceManager_FilePathFlic;
-std::filesystem::path ResourceManager_FilePathVoice;
-std::filesystem::path ResourceManager_FilePathSfx;
-std::filesystem::path ResourceManager_FilePathMusic;
 
 bool ResourceManager_DisableEnhancedGraphics;
 
@@ -163,6 +157,7 @@ static void ResourceManager_TestDiskSpace();
 static void ResourceManager_InitInternals();
 static void ResourceManager_InitResourceHandler();
 static void ResourceManager_PreloadPatches();
+static void ResourceManager_LoadMaxResources();
 static int32_t ResourceManager_InitResManager();
 static void ResourceManager_TestMouse();
 static bool ResourceManager_GetGameDataPath(std::filesystem::path &path);
@@ -196,30 +191,6 @@ static inline std::filesystem::path ResourceManager_GetFileResourcePathPrefix(Re
 
         case ResourceType_GameData: {
             path = ResourceManager_FilePathGameData;
-        } break;
-
-        case ResourceType_Voice: {
-            path = ResourceManager_FilePathVoice;
-        } break;
-
-        case ResourceType_Movie: {
-            path = ResourceManager_FilePathMovie;
-        } break;
-
-        case ResourceType_Text: {
-            path = ResourceManager_FilePathText;
-        } break;
-
-        case ResourceType_Flic: {
-            path = ResourceManager_FilePathFlic;
-        } break;
-
-        case ResourceType_Sfx: {
-            path = ResourceManager_FilePathSfx;
-        } break;
-
-        case ResourceType_Music: {
-            path = ResourceManager_FilePathMusic;
         } break;
     }
 
@@ -403,43 +374,38 @@ bool ResourceManager_GetGameDataPath(std::filesystem::path &path) {
 void ResourceManager_InitPaths() {
     if (!ResourceManager_GetBasePath(ResourceManager_FilePathGameBase)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(2690), nullptr);
-        SDL_Log("%s", _(2690));
-
-        ResourceManager_Exit();
+        exit(EXIT_FAILURE);
     }
 
     if (!ResourceManager_GetPrefPath(ResourceManager_FilePathGamePref)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(416b), nullptr);
-        SDL_Log("%s", _(416b));
-
-        ResourceManager_Exit();
+        exit(EXIT_FAILURE);
     }
 
     if (!ResourceManager_GetGameDataPath(ResourceManager_FilePathGameData)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(0f72), nullptr);
-        SDL_Log("%s", _(0f72));
-
-        ResourceManager_Exit();
+        exit(EXIT_FAILURE);
     }
-
-    ResourceManager_FilePathVoice = ResourceManager_FilePathGameData;
-    ResourceManager_FilePathMovie = ResourceManager_FilePathGameData;
-    ResourceManager_FilePathText = ResourceManager_FilePathGameData;
-    ResourceManager_FilePathFlic = ResourceManager_FilePathGameData;
-    ResourceManager_FilePathSfx = ResourceManager_FilePathGameData;
-    ResourceManager_FilePathMusic = ResourceManager_FilePathGameData;
 }
 
 void ResourceManager_InitResources() {
+    // nothing is available
     Resourcemanager_InitLocale();
     ResourceManager_InitResourceHandler();
     ResourceManager_PreloadPatches();
+    // resources from patches are available
     ResourceManager_InitLanguageManager();
-    ResourceManager_InitSDL();
-    Scripter::Init();
+    // localized strings are available
     ResourceManager_InitPaths();
+    // resource file system paths are available
+    ResourceManager_InitSDL();
+    // SDL video sub-system and logging are available
     ResourceManager_TestMemory();
     ResourceManager_TestDiskSpace();
+    // tested RAM and NVM space
+    ResourceManager_LoadMaxResources();
+    // MAX resources are available
+    Scripter::Init();
     ResourceManager_InitInternals();
     ResourceManager_InitHelpManager();
     ResourceManager_InitMissionManager();
@@ -450,18 +416,20 @@ void ResourceManager_InitSDL() {
     SDL_LogSetOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(438a), nullptr);
         SDL_Log("%s", _(438a));
         SDL_Log("%s", SDL_GetError());
 
-        ResourceManager_Exit();
+        SDL_Quit();
+        exit(EXIT_FAILURE);
     }
 }
 
 void ResourceManager_TestMemory() {
-    int32_t memory;
+    const int32_t memory = SDL_GetSystemRAM();
 
-    memory = SDL_GetSystemRAM();
     if (memory < ResourceManager_MinimumMemory) {
+        /// \todo Convert to std::vformat()
         SmartString message;
 
         message.Sprintf(200, _(d0a2), ResourceManager_MinimumMemory, memory);
@@ -469,7 +437,8 @@ void ResourceManager_TestMemory() {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), message.GetCStr(), nullptr);
         SDL_Log("%s", message.GetCStr());
 
-        ResourceManager_Exit();
+        SDL_Quit();
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -478,6 +447,7 @@ void ResourceManager_TestDiskSpace() {
     const auto info = std::filesystem::space(ResourceManager_FilePathGamePref, ec);
 
     if (!ec && info.available < ResourceManager_MinimumDiskSpace) {
+        /// \todo Convert to std::vformat()
         SmartString message;
 
         message.Sprintf(200, _(efb0), static_cast<float>(ResourceManager_MinimumDiskSpace) / (1024 * 1024));
@@ -576,24 +546,32 @@ void ResourceManager_PreloadPatches() {
     }
 }
 
+void ResourceManager_LoadMaxResources() {
+    if (ResourceManager_BuildResourceTable((ResourceManager_FilePathGameData / "MAX.RES").lexically_normal()) !=
+        EXIT_CODE_NO_ERROR) {
+        /// \todo Convert to translated string
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Failed to load MAX.RES.", nullptr);
+        SDL_Log("%s", "Failed to load MAX.RES.");
+
+        SDL_Quit();
+        exit(EXIT_FAILURE);
+    }
+}
+
 int32_t ResourceManager_InitResManager() {
     int32_t result;
 
-    result = ResourceManager_BuildResourceTable((ResourceManager_FilePathGameData / "MAX.RES").lexically_normal());
+    if (ResourceManager_BuildColorTables()) {
+        Cursor_Init();
 
-    if (result == EXIT_CODE_NO_ERROR) {
-        if (ResourceManager_BuildColorTables()) {
-            Cursor_Init();
-
-            for (int16_t j = 0; j < UNIT_END; ++j) {
-                UnitsManager_BaseUnits[j].Init(&UnitsManager_AbstractUnits[j]);
-            }
-
-            result = EXIT_CODE_NO_ERROR;
-
-        } else {
-            result = EXIT_CODE_INSUFFICIENT_MEMORY;
+        for (int16_t j = 0; j < UNIT_END; ++j) {
+            UnitsManager_BaseUnits[j].Init(&UnitsManager_AbstractUnits[j]);
         }
+
+        result = EXIT_CODE_NO_ERROR;
+
+    } else {
+        result = EXIT_CODE_INSUFFICIENT_MEMORY;
     }
 
     return result;

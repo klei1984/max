@@ -130,7 +130,7 @@ int32_t movie_run(ResourceID resource_id) {
 
     WindowManager_ClearWindow();
 
-    auto fp{ResourceManager_OpenFileResource(resource_id, ResourceType_Movie)};
+    auto fp{ResourceManager_OpenFileResource(resource_id, ResourceType_GameData)};
 
     if (fp) {
         palette = Color_GetSystemPalette();

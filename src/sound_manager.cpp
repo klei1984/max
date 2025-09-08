@@ -590,7 +590,7 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const int32_t sound, const bool
             if (volumes[resource_id - GEN_IDLE].flags == -1) {
                 volumes[volume_index].flags = 1;
 
-                auto fp{ResourceManager_OpenFileResource(static_cast<ResourceID>(resource_id), ResourceType_Sfx)};
+                auto fp{ResourceManager_OpenFileResource(static_cast<ResourceID>(resource_id), ResourceType_GameData)};
 
                 if (fp) {
                     volumes[volume_index].flags = 0;
@@ -1012,7 +1012,7 @@ bool SoundManager::PlayMusic(const ResourceID id) noexcept {
 
         } else {
             std::filesystem::path filepath;
-            FILE* handle = ResourceManager_OpenFileResource(id, ResourceType_Music, "rb", &filepath);
+            FILE* handle = ResourceManager_OpenFileResource(id, ResourceType_GameData, "rb", &filepath);
 
             if (handle) {
                 fclose(handle);
@@ -1044,28 +1044,24 @@ int32_t SoundManager::LoadSound(SoundJob& job, SoundSample& sample) noexcept {
     int32_t result;
     ma_sound_group* group;
     ma_uint32 flags;
-    ResourceType type;
     std::filesystem::path filepath;
 
     SDL_memset(&sample.sound, 0, sizeof(sample.sound));
 
     if (JOB_TYPE_MUSIC == job.type) {
-        type = ResourceType_Music;
         group = music_group->GetGroup();
         flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_STREAM;
 
     } else if (JOB_TYPE_VOICE == job.type) {
-        type = ResourceType_Voice;
         group = voice_group->GetGroup();
         flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
 
     } else {
-        type = ResourceType_Sfx;
         group = sfx_group->GetGroup();
         flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
     }
 
-    auto fp{ResourceManager_OpenFileResource(job.id, type, "rb", &filepath)};
+    auto fp{ResourceManager_OpenFileResource(job.id, ResourceType_GameData, "rb", &filepath)};
 
     if (fp) {
         LoadLoopPoints(fp, sample);
