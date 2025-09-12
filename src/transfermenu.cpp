@@ -27,7 +27,6 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "reportstats.hpp"
 #include "text.hpp"

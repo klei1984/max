@@ -31,7 +31,6 @@
 #include "gfx.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "paths_manager.hpp"

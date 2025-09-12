@@ -23,7 +23,6 @@
 
 #include "cargomenu.hpp"
 #include "game_manager.hpp"
-#include "localization.hpp"
 #include "reportstats.hpp"
 #include "smartstring.hpp"
 #include "text.hpp"

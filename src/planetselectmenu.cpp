@@ -23,45 +23,9 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
-
-struct PlanetSelectMenuControlItem {
-    Rect bounds;
-    ResourceID image_id;
-    const char* label;
-    int32_t event_code;
-    void (PlanetSelectMenu::*event_handler)();
-    ResourceID sfx;
-};
-
-#define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
-
-static struct MenuTitleItem planet_select_menu_screen_title = {{230, 6, 410, 26}, _(f7c8)};
-static struct MenuTitleItem planet_select_menu_planet_name = {{16, 61, 165, 80}, ""};
-static struct MenuTitleItem planet_select_menu_planet_description = {{41, 350, 600, 409}, ""};
-
-static struct PlanetSelectMenuControlItem planet_select_menu_controls[] = {
-    MENU_CONTROL_DEF(192, 51, 303, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(330, 51, 441, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(469, 51, 580, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(192, 189, 303, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(330, 189, 441, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(469, 189, 580, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
-    MENU_CONTROL_DEF(60, 248, 0, 0, MNULAROU, nullptr, 0, &PlanetSelectMenu::EventWorld, PSELW0),
-    MENU_CONTROL_DEF(92, 248, 0, 0, MNURAROU, nullptr, 0, &PlanetSelectMenu::EventWorld, PSELW0),
-    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN4U, _(67bc), 0, &PlanetSelectMenu::EventRandom, PDONE0),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(9d35), GNW_KB_KEY_SHIFT_ESCAPE, &PlanetSelectMenu::EventCancel,
-                     PCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(8a8d), GNW_KB_KEY_SHIFT_DIVIDE, &PlanetSelectMenu::EventHelp, PHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(bf2c), GNW_KB_KEY_SHIFT_RETURN, &PlanetSelectMenu::EventDone, PDONE0),
-};
-
-static_assert(PLANET_SELECT_MENU_ITEM_COUNT ==
-              sizeof(planet_select_menu_controls) / sizeof(PlanetSelectMenuControlItem));
 
 void PlanetSelectMenu::ButtonInit(int32_t index) {
     struct PlanetSelectMenuControlItem* control = &planet_select_menu_controls[index];
@@ -142,6 +106,14 @@ void PlanetSelectMenu::DrawMaps(int32_t draw_to_screen) {
 
 void PlanetSelectMenu::DrawTexts() {
     Rect* bounds;
+
+    const char* menu_planet_descriptions[] = {_(1471), _(c336), _(f40f), _(6c6c), _(8d9a), _(cb1d), _(5195), _(012c),
+                                              _(323e), _(57a1), _(6da3), _(708f), _(6903), _(4d80), _(ae4e), _(d0a4),
+                                              _(fdd7), _(0ac0), _(5f4b), _(8475), _(cffe), _(7842), _(dfdd), _(6517)};
+
+    const char* menu_planet_names[] = {_(e43b), _(f588), _(c78b), _(895d), _(5f5f), _(e7b2), _(f3fe), _(8524),
+                                       _(4bb8), _(f408), _(0935), _(7303), _(94ef), _(c46c), _(48ac), _(275a),
+                                       _(ea47), _(fcf0), _(6426), _(7ea8), _(386d), _(41e5), _(bbcb), _(ba99)};
 
     Text_SetFont(GNW_TEXT_FONT_5);
 

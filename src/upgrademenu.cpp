@@ -23,7 +23,6 @@
 
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "remote.hpp"
 #include "text.hpp"

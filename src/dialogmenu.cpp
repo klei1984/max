@@ -23,7 +23,6 @@
 
 #include "cursor.hpp"
 #include "game_manager.hpp"
-#include "localization.hpp"
 #include "remote.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"

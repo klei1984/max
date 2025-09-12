@@ -27,7 +27,6 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
@@ -38,6 +37,10 @@
 #include "window_manager.hpp"
 
 #define ALLOCATION_MENU_CONTROL_ITEM_COUNT 11
+#define ALLOCATION_MENU_TITLE_COUNT 10
+
+#define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 struct Allocator {
     uint32_t field_0;
@@ -84,6 +87,15 @@ struct CargoBarData {
     void Draw();
 };
 
+struct AllocMenuControlItem {
+    Rect bounds;
+    ResourceID image_id;
+    const char *label;
+    int32_t event_code;
+    void *event_handler;
+    ResourceID sfx;
+};
+
 class AllocMenu : public Window {
     WindowInfo window;
     uint8_t *cargo_bars_buffer;
@@ -97,6 +109,28 @@ class AllocMenu : public Window {
     Cargo usage;
     Cargo complex_materials;
     Cargo complex_capacity;
+
+    struct AllocMenuControlItem allocation_menu_controls[ALLOCATION_MENU_CONTROL_ITEM_COUNT] = {
+        MENU_CONTROL_DEF(139, 70, 0, 0, LFARO_OF, nullptr, 1002, nullptr, KCARG0),
+        MENU_CONTROL_DEF(421, 70, 0, 0, RTARO_OF, nullptr, 1001, nullptr, KCARG0),
+        MENU_CONTROL_DEF(139, 190, 0, 0, LFARO_OF, nullptr, 1005, nullptr, KCARG0),
+        MENU_CONTROL_DEF(421, 190, 0, 0, RTARO_OF, nullptr, 1004, nullptr, KCARG0),
+        MENU_CONTROL_DEF(139, 310, 0, 0, LFARO_OF, nullptr, 1008, nullptr, KCARG0),
+        MENU_CONTROL_DEF(421, 310, 0, 0, RTARO_OF, nullptr, 1007, nullptr, KCARG0),
+        MENU_CONTROL_DEF(174, 70, 440, 99, INVALID_ID, nullptr, 1003, nullptr, KCARG0),
+        MENU_CONTROL_DEF(174, 190, 440, 219, INVALID_ID, nullptr, 1006, nullptr, KCARG0),
+        MENU_CONTROL_DEF(174, 310, 440, 339, INVALID_ID, nullptr, 1009, nullptr, KCARG0),
+        MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(eb74), 1000, nullptr, NHELP0),
+        MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(40c7), GNW_KB_KEY_RETURN, nullptr, NDONE0),
+    };
+
+    const struct MenuTitleItem allocation_menu_titles[ALLOCATION_MENU_TITLE_COUNT] = {
+        MENU_TITLE_ITEM_DEF(230, 6, 410, 26, _(c771)),   MENU_TITLE_ITEM_DEF(42, 74, 120, 93, _(8481)),
+        MENU_TITLE_ITEM_DEF(42, 111, 120, 130, _(1e19)), MENU_TITLE_ITEM_DEF(42, 148, 120, 167, _(5ae6)),
+        MENU_TITLE_ITEM_DEF(42, 194, 120, 213, _(a80f)), MENU_TITLE_ITEM_DEF(42, 231, 120, 250, _(5432)),
+        MENU_TITLE_ITEM_DEF(42, 268, 120, 287, _(04dd)), MENU_TITLE_ITEM_DEF(42, 315, 120, 333, _(dff1)),
+        MENU_TITLE_ITEM_DEF(42, 353, 120, 370, _(e187)), MENU_TITLE_ITEM_DEF(42, 389, 120, 407, _(89a3)),
+    };
 
     void Deinit();
     void InitButton(int32_t index);
@@ -115,40 +149,6 @@ public:
     ~AllocMenu();
 
     void Run();
-};
-
-struct AllocMenuControlItem {
-    Rect bounds;
-    ResourceID image_id;
-    const char *label;
-    int32_t event_code;
-    void *event_handler;
-    ResourceID sfx;
-};
-
-#define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
-
-static struct AllocMenuControlItem allocation_menu_controls[ALLOCATION_MENU_CONTROL_ITEM_COUNT] = {
-    MENU_CONTROL_DEF(139, 70, 0, 0, LFARO_OF, nullptr, 1002, nullptr, KCARG0),
-    MENU_CONTROL_DEF(421, 70, 0, 0, RTARO_OF, nullptr, 1001, nullptr, KCARG0),
-    MENU_CONTROL_DEF(139, 190, 0, 0, LFARO_OF, nullptr, 1005, nullptr, KCARG0),
-    MENU_CONTROL_DEF(421, 190, 0, 0, RTARO_OF, nullptr, 1004, nullptr, KCARG0),
-    MENU_CONTROL_DEF(139, 310, 0, 0, LFARO_OF, nullptr, 1008, nullptr, KCARG0),
-    MENU_CONTROL_DEF(421, 310, 0, 0, RTARO_OF, nullptr, 1007, nullptr, KCARG0),
-    MENU_CONTROL_DEF(174, 70, 440, 99, INVALID_ID, nullptr, 1003, nullptr, KCARG0),
-    MENU_CONTROL_DEF(174, 190, 440, 219, INVALID_ID, nullptr, 1006, nullptr, KCARG0),
-    MENU_CONTROL_DEF(174, 310, 440, 339, INVALID_ID, nullptr, 1009, nullptr, KCARG0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(eb74), 1000, nullptr, NHELP0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(40c7), GNW_KB_KEY_RETURN, nullptr, NDONE0),
-};
-
-static const struct MenuTitleItem allocation_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(230, 6, 410, 26, _(c771)),   MENU_TITLE_ITEM_DEF(42, 74, 120, 93, _(8481)),
-    MENU_TITLE_ITEM_DEF(42, 111, 120, 130, _(1e19)), MENU_TITLE_ITEM_DEF(42, 148, 120, 167, _(5ae6)),
-    MENU_TITLE_ITEM_DEF(42, 194, 120, 213, _(a80f)), MENU_TITLE_ITEM_DEF(42, 231, 120, 250, _(5432)),
-    MENU_TITLE_ITEM_DEF(42, 268, 120, 287, _(04dd)), MENU_TITLE_ITEM_DEF(42, 315, 120, 333, _(dff1)),
-    MENU_TITLE_ITEM_DEF(42, 353, 120, 370, _(e187)), MENU_TITLE_ITEM_DEF(42, 389, 120, 407, _(89a3)),
 };
 
 AllocMenu::AllocMenu(UnitInfo *unit) : Window(ALLOCFRM, GameManager_GetDialogWindowCenterMode()), unit(unit) {

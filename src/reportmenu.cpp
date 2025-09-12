@@ -24,7 +24,6 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
@@ -76,8 +75,6 @@ static bool ReportMenu_ButtonState_CombatUnits = false;
 static bool ReportMenu_ButtonState_DamagedUnits = false;
 static bool ReportMenu_ButtonState_StealthyUnits = false;
 
-static const char *ReportMenu_TeamNames[PLAYER_TEAM_MAX] = {_(a18e), _(f3cd), _(2b0e), _(7e3b), ""};
-
 static const ColorIndex ReportMenu_TeamColors[PLAYER_TEAM_MAX] = {COLOR_RED, COLOR_GREEN, COLOR_BLUE, 0xA9, 0xFF};
 
 class MessageLine : public SmartObject {
@@ -94,6 +91,7 @@ public:
 
 class ReportMenu : public Window {
     char radio_button_index;
+    const char *ReportMenu_TeamNames[PLAYER_TEAM_MAX] = {_(a18e), _(f3cd), _(2b0e), _(7e3b), ""};
 
     SmartArray<UnitInfo> units;
     SmartObjectArray<ResourceID> unit_types;

@@ -135,7 +135,7 @@ void ResourceManager_InitHeatMaps(uint16_t team);
 void ResourceManager_InitTeamInfo();
 uint8_t *ResourceManager_GetBuffer(ResourceID id);
 std::string ResourceManager_Sha256(const ResourceID world);
-std::string ResourceManager_GetlanguageEntry(const uint32_t key);
+const std::string &ResourceManager_GetLanguageEntry(const uint32_t key);
 std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,
                                          const int32_t position_y);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
@@ -153,4 +153,7 @@ public:
 void ResourceManager_DestroyMutexes();
 std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path &folder,
                                                                const std::string &extension);
+
+#define _(key) ResourceManager_GetLanguageEntry(0x##key).c_str()
+
 #endif /* RESOURCE_MANAGER_HPP */

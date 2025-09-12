@@ -28,7 +28,6 @@
 #include "circumferencewalker.hpp"
 #include "continent.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
 #include "researchmenu.hpp"

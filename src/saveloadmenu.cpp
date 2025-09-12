@@ -32,7 +32,6 @@
 #include "hash.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
@@ -47,7 +46,12 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
+#define SAVESLOT_MENU_TITLE_COUNT 8
+
 class SaveSlot {
+    const char *SaveLoadMenu_SaveTypeTitles[SAVESLOT_MENU_TITLE_COUNT] = {_(494c), _(8b45), _(2682), _(4bf8),
+                                                                          _(dea8), _(8a2c), _(2fcb), _(3bc3)};
+
 public:
     WinID wid;
     int32_t ulx;
@@ -76,8 +80,6 @@ public:
     void AcceptEditedText();
     void DrawSaveSlot(int32_t game_file_type);
 };
-
-const char *SaveLoadMenu_SaveTypeTitles[] = {_(494c), _(8b45), _(2682), _(4bf8), _(dea8), _(8a2c), _(2fcb), _(3bc3)};
 
 static constexpr int32_t SaveLoadMenu_SaveSlotLimit = 991L;
 
@@ -306,6 +308,7 @@ void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot *slots, int32_t save_slot_inde
 }
 
 int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool is_saving_allowed) {
+    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
     SaveSlot slots[10];
     Button *buttons[7];
     Flic *flc;

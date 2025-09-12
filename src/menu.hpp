@@ -32,10 +32,6 @@ struct MenuTitleItem {
 
 #define MENU_TITLE_ITEM_DEF(ulx, uly, lrx, lry, text) {{(ulx), (uly), (lrx), (lry)}, (text)}
 
-extern const char* menu_planet_descriptions[];
-extern const char* menu_planet_names[];
-extern const char* menu_team_names[];
-
 bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_session_start, bool is_demo_mode);
 
 void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int32_t color, bool horizontal_align = false,

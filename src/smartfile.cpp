@@ -23,7 +23,6 @@
 
 #include <SDL.h>
 
-#include "localization.hpp"
 #include "registerarray.hpp"
 
 SmartFileReader::SmartFileReader() noexcept : m_format(static_cast<uint16_t>(SmartFileFormat::UNSPECIFIED)) {};

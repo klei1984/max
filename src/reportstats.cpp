@@ -25,7 +25,6 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"

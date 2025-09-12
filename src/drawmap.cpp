@@ -24,7 +24,6 @@
 #include "access.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
-#include "localization.hpp"
 #include "researchmenu.hpp"
 #include "survey.hpp"
 #include "text.hpp"
@@ -43,8 +42,6 @@ static struct ImageSimpleHeader* DrawMap_BuildMarkImage;
 static int32_t DrawMap_BuildMMarkDelayCounter = 1;
 static int32_t DrawMap_BuildMarkImageIndex;
 static ResourceID DrawMap_BuildMarkImages[] = {BLDMRK1, BLDMRK2, BLDMRK3, BLDMRK4, BLDMRK5};
-
-static const char* const DrawMap_UnitCompletionLabels[] = {_(d7d0), _(2ec0), _(7c23)};
 
 static int32_t DrawMap_GetSideOverlap(int32_t lr1, int32_t ul1, int32_t lr2, int32_t ul2);
 static void Drawmap_AddDirtyZone(Rect* bounds1, Rect* bounds2, int32_t horizontal_side, int32_t vertical_side);
@@ -742,6 +739,9 @@ void DrawMap_RenderTextBox(UnitInfo* unit, char* text, int32_t color) {
 
 void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
     char text[400];
+    const char* const ResearchMenu_TopicLabels[] = {_(4cd5), _(7382), _(86bc), _(a592),
+                                                    _(07f9), _(5857), _(920c), _(dbae)};
+    const char* const DrawMap_UnitCompletionLabels[] = {_(d7d0), _(2ec0), _(7c23)};
 
     if (unit->GetUnitType() == RESEARCH && unit->GetOrder() == ORDER_POWER_ON &&
         UnitsManager_TeamInfo[unit->team].research_topics[unit->research_topic].turns_to_complete == 0) {

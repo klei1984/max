@@ -28,7 +28,6 @@
 #include "game_manager.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
 #include "missionregistry.hpp"
@@ -312,6 +311,7 @@ bool SaveLoad_GetSaveFileInfo(const std::filesystem::path &filepath, struct Save
 }
 
 bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save_name, const uint32_t rng_seed) {
+    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
     bool result{false};
     const auto mission = ResourceManager_GetMissionManager().get()->GetMission();
     const auto mission_category = mission->GetCategory();
@@ -645,6 +645,7 @@ bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save
 
 bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission_category, bool is_remote_game,
                             bool ini_load_mode) {
+    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
     bool result;
     bool save_load_flag;
     uint16_t version;
@@ -909,6 +910,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission
 
 bool SaveLoad_LoadFormatV71(SmartFileReader &file, const MissionCategory mission_category, bool is_remote_game,
                             bool ini_load_mode) {
+    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
     bool result;
     bool save_load_flag;
     uint32_t version;

@@ -23,7 +23,6 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"

@@ -28,26 +28,12 @@
 #include "gameconfigmenu.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
-#include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
-
-struct NetworkMenuControlItem {
-    Rect bounds;
-    ResourceID image_id;
-    const char *label;
-    int32_t event_code;
-    void (NetworkMenu::*event_handler)();
-    ResourceID sfx;
-};
-
-#define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 #define MENU_ITEM_NAME_LABEL 0
 #define MENU_ITEM_NAME_FIELD 1
@@ -74,43 +60,6 @@ struct NetworkMenuControlItem {
 #define MENU_CONTROL_HELP_BUTTON 21
 #define MENU_CONTROL_READY_BUTTON 22
 #define MENU_CONTROL_START_BUTTON 23
-
-static struct MenuTitleItem network_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(42, 48, 134, 61, _(4869)),   MENU_TITLE_ITEM_DEF(42, 71, 185, 84, ""),
-    MENU_TITLE_ITEM_DEF(359, 28, 568, 188, _(5939)), MENU_TITLE_ITEM_DEF(59, 131, 149, 143, ""),
-    MENU_TITLE_ITEM_DEF(191, 131, 285, 143, ""),     MENU_TITLE_ITEM_DEF(59, 249, 149, 260, ""),
-    MENU_TITLE_ITEM_DEF(191, 249, 285, 260, ""),     MENU_TITLE_ITEM_DEF(150, 377, 617, 392, ""),
-    MENU_TITLE_ITEM_DEF(150, 408, 617, 423, ""),     MENU_TITLE_ITEM_DEF(75, 160, 132, 231, ""),
-    MENU_TITLE_ITEM_DEF(208, 160, 263, 231, ""),     MENU_TITLE_ITEM_DEF(75, 278, 132, 349, ""),
-    MENU_TITLE_ITEM_DEF(208, 278, 263, 349, ""),     MENU_TITLE_ITEM_DEF(355, 228, 469, 342, ""),
-};
-
-static struct NetworkMenuControlItem network_menu_controls[] = {
-    MENU_CONTROL_DEF(42, 71, 185, 84, INVALID_ID, nullptr, 0, &NetworkMenu::EventEditPlayerName, MENUOP),
-    MENU_CONTROL_DEF(211, 25, 0, 0, M_CLAN_U, nullptr, 0, &NetworkMenu::EventSelectClan, MENUOP),
-    MENU_CONTROL_DEF(359, 28, 568, 48, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(359, 48, 568, 68, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(359, 68, 568, 88, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(359, 88, 568, 108, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(359, 108, 568, 128, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(359, 128, 568, 148, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(359, 148, 568, 168, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(359, 168, 568, 188, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
-    MENU_CONTROL_DEF(516, 232, 0, 0, SBLNK_UP, _(119e), 0, &NetworkMenu::EventMapButton, MENUOP),
-    MENU_CONTROL_DEF(516, 268, 0, 0, SBLNK_UP, _(8a6b), 0, &NetworkMenu::EventLoadButton, MENUOP),
-    MENU_CONTROL_DEF(516, 304, 0, 0, SBLNK_UP, _(72fa), 0, &NetworkMenu::EventScenarioButton, MENUOP),
-    MENU_CONTROL_DEF(75, 160, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
-    MENU_CONTROL_DEF(208, 160, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
-    MENU_CONTROL_DEF(75, 278, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
-    MENU_CONTROL_DEF(208, 278, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
-    MENU_CONTROL_DEF(33, 369, 0, 0, SBLNK_UP, _(1baf), 0, &NetworkMenu::EventChat, MENUOP),
-    MENU_CONTROL_DEF(150, 377, 617, 392, INVALID_ID, 0, 0, &NetworkMenu::EventChat, MENUOP),
-    MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, _(d0db), 0, &NetworkMenu::EventOptions, MENUOP),
-    MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(808a), GNW_KB_KEY_ESCAPE, &NetworkMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(0b5a), GNW_KB_KEY_SHIFT_DIVIDE, &NetworkMenu::EventHelp, MENUOP),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(5fa7), GNW_KB_KEY_RETURN, &NetworkMenu::EventReady, NDONE0),
-    MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(e4bb), GNW_KB_KEY_RETURN, &NetworkMenu::EventStart, NDONE0),
-};
 
 bool NetworkMenu_MenuLoop(bool is_host_mode) {
     NetworkMenu network_menu;
@@ -1102,19 +1051,19 @@ void NetworkMenu::DrawTextWindow() {
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, _(d895), game_config_menu_items[47 + ini_raw_resource].title.c_str());
+    sprintf(text, _(d895), network_config_menu_items[ini_raw_resource].title.c_str());
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, _(85cd), game_config_menu_items[50 + ini_fuel_resource].title.c_str());
+    sprintf(text, _(85cd), network_config_menu_items[ini_fuel_resource].title.c_str());
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, _(d46a), game_config_menu_items[53 + ini_gold_resource].title.c_str());
+    sprintf(text, _(d46a), network_config_menu_items[ini_gold_resource].title.c_str());
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 
-    sprintf(text, _(dd95), game_config_menu_items[56 + ini_alien_derelicts].title.c_str());
+    sprintf(text, _(dd95), network_config_menu_items[ini_alien_derelicts].title.c_str());
     DrawTextLine(line_index, text, height, false);
     ++line_index;
 

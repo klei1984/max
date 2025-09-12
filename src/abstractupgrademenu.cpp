@@ -28,7 +28,6 @@
 #include "cursor.hpp"
 #include "flicsmgr.hpp"
 #include "game_manager.hpp"
-#include "localization.hpp"
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "researchmenu.hpp"

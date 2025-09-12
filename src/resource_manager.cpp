@@ -37,7 +37,6 @@
 #include "help.hpp"
 #include "inifile.hpp"
 #include "language.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
@@ -140,10 +139,6 @@ std::filesystem::path ResourceManager_FilePathGameBase;
 std::filesystem::path ResourceManager_FilePathGamePref;
 
 bool ResourceManager_DisableEnhancedGraphics;
-
-const char *const ResourceManager_ErrorCodes[] = {"",      _(1347), _(c164), _(c116), _(9edb), _(6bc6),
-                                                  _(5ced), _(3b69), _(c499), _(4afd), _(bc1c), _(908e),
-                                                  _(b2b3), _(00a7), _(eb11), _(3004), _(07f8)};
 
 TeamUnits ResourceManager_TeamUnitsRed;
 TeamUnits ResourceManager_TeamUnitsGreen;
@@ -493,6 +488,10 @@ void ResourceManager_TestMouse() {
 }
 
 void ResourceManager_ExitGame(int32_t error_code) {
+    const char *const ResourceManager_ErrorCodes[] = {"",      _(1347), _(c164), _(c116), _(9edb), _(6bc6),
+                                                      _(5ced), _(3b69), _(c499), _(4afd), _(bc1c), _(908e),
+                                                      _(b2b3), _(00a7), _(eb11), _(3004), _(07f8)};
+
     if ((error_code == EXIT_CODE_NO_ERROR) || (error_code == EXIT_CODE_THANKS)) {
         menu_draw_exit_logos();
     }
@@ -560,6 +559,8 @@ void ResourceManager_LoadMaxResources() {
 
 int32_t ResourceManager_InitResManager() {
     int32_t result;
+
+    UnitsManager_InitAbstractUnits();
 
     if (ResourceManager_BuildColorTables()) {
         Cursor_Init();
@@ -1993,15 +1994,10 @@ void ResourceManager_InitLanguageManager() {
     }
 }
 
-std::string ResourceManager_GetlanguageEntry(const uint32_t key) {
-    std::string result;
+const std::string &ResourceManager_GetLanguageEntry(const uint32_t key) {
+    SDL_assert(ResourceManager_LanguageManager);
 
-    if (ResourceManager_LanguageManager && ResourceManager_LanguageManager->GetEntry(key, result)) {
-    } else {
-        result = std::to_string(key);
-    }
-
-    return result;
+    return ResourceManager_LanguageManager->GetEntry(key);
 }
 
 void ResourceManager_InitHelpManager() {

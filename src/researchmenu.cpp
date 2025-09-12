@@ -25,7 +25,6 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "resource_manager.hpp"
@@ -99,8 +98,6 @@ public:
     void UpdateTopics(int32_t difference);
     void Run();
 };
-
-const char *const ResearchMenu_TopicLabels[] = {_(4cd5), _(7382), _(86bc), _(a592), _(07f9), _(5857), _(920c), _(dbae)};
 
 const ResourceID ResearchMenu_TopicIcons[] = {I_HRDATK, I_SHOTS, I_RANGE, I_ARMOR, I_HITS, I_SPEED, I_SCAN, I_GOLD};
 
@@ -353,6 +350,8 @@ void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index, uin
     int32_t uly_slider;
     uint8_t *icon;
     struct ImageSimpleHeader *image;
+    const char *const ResearchMenu_TopicLabels[] = {_(4cd5), _(7382), _(86bc), _(a592),
+                                                    _(07f9), _(5857), _(920c), _(dbae)};
 
     research_menu = menu;
     topic_index = research_topic_index;

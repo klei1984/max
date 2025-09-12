@@ -37,7 +37,6 @@
 #include "hash.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "menulandingsequence.hpp"
 #include "message_manager.hpp"
@@ -411,21 +410,6 @@ struct ResourceAllocator {
     }
 };
 
-const char* const GameManager_OrderStatusMessages[] = {
-    _(1f51), _(e96b), _(8dac), _(1d99), _(87c5), _(0010), _(2200), _(feff), _(2c8d), _(ce0f), _(dfe7),
-    _(0664), _(5ece), _(68b7), _(6553), _(dc38), _(ab01), _(e2c5), _(1469), _(a4b3), _(5e16), _(6172),
-    _(7bcd), _(5f83), _(8115), _(e843), _(7508), _(d80d), _(85f8), _(1925), _(bc06), _(c331)};
-
-const char* const GameManager_EventStrings_FinishedBuilding[] = {_(1200), _(74d3), _(8c62)};
-
-const char* const GameManager_EventStrings_FinishedConstruction[] = {_(276c), _(d82e), _(01d0)};
-
-const char* const GameManager_EventStrings_NewSingular[] = {_(c64e), _(8d3e), _(9df3)};
-
-const char* const GameManager_EventStrings_NewPlural[] = {_(5e9c), _(6fe5), _(2488)};
-
-const char* const GameManager_EventStrings_EnemySpotted[] = {_(a2a6), _(7ccc), _(1f7a)};
-
 const char* const GameManager_CheatCodes[CHEAT_CODE_COUNT] = {"[MAXSPY]", "[MAXSURVEY]", "[MAXSTORAGE]", "[MAXAMMO]",
                                                               "[MAXSUPER]"};
 
@@ -568,30 +552,30 @@ static struct QuickBuildMenuGuiItem GameManager_QuickBuildMenuItems[] = {
 };
 
 static struct MenuGuiItem GameManager_MenuItems[] = {
-    MENU_GUI_ITEM_DEF(WINDOW_FILES_BUTTON, FILES_OF, _(abc7), nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_PREFS_BUTTON, PREF_OFF, _(6696), nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_FILES_BUTTON, FILES_OF, nullptr, nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_PREFS_BUTTON, PREF_OFF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_PLAY_BUTTON, PLAY_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_PAUSE_BUTTON, PAUSE_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_CENTER_BUTTON, FIND_OFF, nullptr, nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_PRE_BUTTON, PREV_OF, _(7391), nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_DONE_BUTTON, UDONE_OF, _(e2e9), nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_NXT_BUTTON, NEXT_OF, _(1ff5), nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_PRE_BUTTON, PREV_OF, nullptr, nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_DONE_BUTTON, UDONE_OF, nullptr, nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_NXT_BUTTON, NEXT_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_HELP_BUTTON, HELP_OF, nullptr, nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_REPORTS_BUTTON, REPT_OFF, _(dacc), nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_CHAT_BUTTON, CHAT_OFF, _(460b), nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_SURVEY_BUTTON, SURV_OFF, _(211b), nullptr, false, ISURV0),
-    MENU_GUI_ITEM_DEF(WINDOW_STATUS_BUTTON, STAT_OFF, _(920e), nullptr, false, ISTAT0),
-    MENU_GUI_ITEM_DEF(WINDOW_COLORS_BUTTON, COLOR_OF, _(88c4), nullptr, false, ICOLO0),
-    MENU_GUI_ITEM_DEF(WINDOW_HITS_BUTTON, HITS_OF, _(5995), nullptr, false, IHITS0),
-    MENU_GUI_ITEM_DEF(WINDOW_AMMO_BUTTON, AMMO_OF, _(7429), nullptr, false, IAMMO0),
-    MENU_GUI_ITEM_DEF(WINDOW_RANGE_BUTTON, RANG_OFF, _(5de7), nullptr, false, IRANG0),
-    MENU_GUI_ITEM_DEF(WINDOW_SCAN_BUTTON, VISN_OFF, _(ea1c), nullptr, false, IVISI0),
-    MENU_GUI_ITEM_DEF(WINDOW_GRID_BUTTON, GRID_OFF, _(0d7d), nullptr, false, IGRID0),
-    MENU_GUI_ITEM_DEF(WINDOW_NAME_BUTTON, NAMES_UP, _(c3b2), nullptr, false, INAME0),
+    MENU_GUI_ITEM_DEF(WINDOW_REPORTS_BUTTON, REPT_OFF, nullptr, nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_CHAT_BUTTON, CHAT_OFF, nullptr, nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_SURVEY_BUTTON, SURV_OFF, nullptr, nullptr, false, ISURV0),
+    MENU_GUI_ITEM_DEF(WINDOW_STATUS_BUTTON, STAT_OFF, nullptr, nullptr, false, ISTAT0),
+    MENU_GUI_ITEM_DEF(WINDOW_COLORS_BUTTON, COLOR_OF, nullptr, nullptr, false, ICOLO0),
+    MENU_GUI_ITEM_DEF(WINDOW_HITS_BUTTON, HITS_OF, nullptr, nullptr, false, IHITS0),
+    MENU_GUI_ITEM_DEF(WINDOW_AMMO_BUTTON, AMMO_OF, nullptr, nullptr, false, IAMMO0),
+    MENU_GUI_ITEM_DEF(WINDOW_RANGE_BUTTON, RANG_OFF, nullptr, nullptr, false, IRANG0),
+    MENU_GUI_ITEM_DEF(WINDOW_SCAN_BUTTON, VISN_OFF, nullptr, nullptr, false, IVISI0),
+    MENU_GUI_ITEM_DEF(WINDOW_GRID_BUTTON, GRID_OFF, nullptr, nullptr, false, IGRID0),
+    MENU_GUI_ITEM_DEF(WINDOW_NAME_BUTTON, NAMES_UP, nullptr, nullptr, false, INAME0),
     MENU_GUI_ITEM_DEF(WINDOW_LOCK_BUTTON, LOCK_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_2X_MINIMAP, MIN2X_OF, nullptr, nullptr, false, MENUOP),
     MENU_GUI_ITEM_DEF(WINDOW_TNT_MINIMAP, MINFL_OF, nullptr, nullptr, false, MENUOP),
-    MENU_GUI_ITEM_DEF(WINDOW_ENDTURN_BUTTON, ENDTRN_U, _(6af6), nullptr, false, MENUOP),
+    MENU_GUI_ITEM_DEF(WINDOW_ENDTURN_BUTTON, ENDTRN_U, nullptr, nullptr, false, MENUOP),
 };
 
 static Point GameManager_MenuItemLabelOffsets[] = {
@@ -932,6 +916,26 @@ bool GameManager_TeamTurnFinish(uint32_t turn_counter_session_start, uint16_t te
 void GameManager_GameLoop(int32_t game_state) {
     uint32_t turn_counter_session_start;
     uint16_t team_winner;
+
+    {
+        GameManager_MenuItems[0].label = _(abc7);
+        GameManager_MenuItems[1].label = _(6696);
+        GameManager_MenuItems[5].label = _(7391);
+        GameManager_MenuItems[6].label = _(e2e9);
+        GameManager_MenuItems[7].label = _(1ff5);
+        GameManager_MenuItems[9].label = _(dacc);
+        GameManager_MenuItems[10].label = _(460b);
+        GameManager_MenuItems[11].label = _(211b);
+        GameManager_MenuItems[12].label = _(920e);
+        GameManager_MenuItems[13].label = _(88c4);
+        GameManager_MenuItems[14].label = _(5995);
+        GameManager_MenuItems[15].label = _(7429);
+        GameManager_MenuItems[16].label = _(5de7);
+        GameManager_MenuItems[17].label = _(ea1c);
+        GameManager_MenuItems[18].label = _(0d7d);
+        GameManager_MenuItems[19].label = _(c3b2);
+        GameManager_MenuItems[23].label = _(6af6);
+    }
 
     const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
@@ -1506,6 +1510,7 @@ void GameManager_RenderMap() {
 bool GameManager_CargoSelection(uint16_t team) {
     CargoMenu cargo_menu(team);
     char message[200];
+    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     if (GameManager_HumanPlayerCount) {
         sprintf(message, _(df78), menu_team_names[team]);
@@ -1570,6 +1575,7 @@ bool GameManager_PlayerMissionSetup(uint16_t team) {
 
 void GameManager_DrawSelectSiteMessage(uint16_t team) {
     SmartString string;
+    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     string = menu_team_names[team];
     string += ":\n";
@@ -2511,6 +2517,7 @@ void GameManager_DrawDisplayPanel(int32_t control_id, const char* text, int32_t 
 void GameManager_UpdateGuiControl(uint16_t team) {
     WindowInfo* window;
     char message[200];
+    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     GameManager_UpdateTurnTimer(false, 0);
     GameManager_MenuClickSurveyButton(false);
@@ -3640,6 +3647,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 }
 
 void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
+    const char* const GameManager_EventStrings_EnemySpotted[] = {_(a2a6), _(7ccc), _(1f7a)};
     ResourceID resource_id1;
     ResourceID resource_id2;
     char text[300];
@@ -5467,6 +5475,10 @@ bool GameManager_ProcessTextInput(int32_t key) {
 
 bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
     bool result{false};
+    const char* const GameManager_OrderStatusMessages[] = {
+        _(1f51), _(e96b), _(8dac), _(1d99), _(87c5), _(0010), _(2200), _(feff), _(2c8d), _(ce0f), _(dfe7),
+        _(0664), _(5ece), _(68b7), _(6553), _(dc38), _(ab01), _(e2c5), _(1469), _(a4b3), _(5e16), _(6172),
+        _(7bcd), _(5f83), _(8115), _(e843), _(7508), _(d80d), _(85f8), _(1925), _(bc06), _(c331)};
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).GetOrder() == ORDER_FIRE || (*it).GetOrder() == ORDER_EXPLODE ||
@@ -7668,6 +7680,10 @@ void GameManager_DrawInfoDisplayType3(UnitInfo* unit) {
 
 SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
     SmartString message;
+    const char* const GameManager_OrderStatusMessages[] = {
+        _(1f51), _(e96b), _(8dac), _(1d99), _(87c5), _(0010), _(2200), _(feff), _(2c8d), _(ce0f), _(dfe7),
+        _(0664), _(5ece), _(68b7), _(6553), _(dc38), _(ab01), _(e2c5), _(1469), _(a4b3), _(5e16), _(6172),
+        _(7bcd), _(5f83), _(8115), _(e843), _(7508), _(d80d), _(85f8), _(1925), _(bc06), _(c331)};
 
     if (unit->GetOrder() == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
         if (unit->recoil_delay == 1) {
@@ -7947,6 +7963,8 @@ void GameManager_MenuDeinitButtons() {
 
 void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
     SmartString string;
+    const char* const GameManager_EventStrings_FinishedBuilding[] = {_(1200), _(74d3), _(8c62)};
+    const char* const GameManager_EventStrings_FinishedConstruction[] = {_(276c), _(d82e), _(01d0)};
 
     if (unit->GetUnitType() == BULLDOZR) {
         string.Sprintf(80, _(af4a), unit->build_time);
@@ -8151,6 +8169,8 @@ char* GameManager_PrependMessageChunk(const char* chunk, char* message) {
 }
 
 void GameManager_ReportNewUnitsMessage(uint16_t* counts) {
+    const char* const GameManager_EventStrings_NewSingular[] = {_(c64e), _(8d3e), _(9df3)};
+    const char* const GameManager_EventStrings_NewPlural[] = {_(5e9c), _(6fe5), _(2488)};
     int32_t unit_count;
     int32_t different_type_count;
     bool flag;

@@ -23,6 +23,7 @@
 #define PLANETSELECTMENU_HPP
 
 #include "button.hpp"
+#include "menu.hpp"
 
 #define PLANET_SELECT_MENU_ITEM_COUNT 12
 #define PLANET_SELECT_MENU_MAP_SLOT_COUNT 6
@@ -62,7 +63,41 @@ struct PlanetSelectMenuItem {
     void (PlanetSelectMenu::*event_handler)();
 };
 
+struct PlanetSelectMenuControlItem {
+    Rect bounds;
+    ResourceID image_id;
+    const char *label;
+    int32_t event_code;
+    void (PlanetSelectMenu::*event_handler)();
+    ResourceID sfx;
+};
+
+#define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
+
 class PlanetSelectMenu {
+    struct MenuTitleItem planet_select_menu_screen_title = {{230, 6, 410, 26}, _(f7c8)};
+    struct MenuTitleItem planet_select_menu_planet_name = {{16, 61, 165, 80}, ""};
+    struct MenuTitleItem planet_select_menu_planet_description = {{41, 350, 600, 409}, ""};
+
+    struct PlanetSelectMenuControlItem planet_select_menu_controls[PLANET_SELECT_MENU_ITEM_COUNT] = {
+        MENU_CONTROL_DEF(192, 51, 303, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+        MENU_CONTROL_DEF(330, 51, 441, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+        MENU_CONTROL_DEF(469, 51, 580, 162, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+        MENU_CONTROL_DEF(192, 189, 303, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+        MENU_CONTROL_DEF(330, 189, 441, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+        MENU_CONTROL_DEF(469, 189, 580, 300, INVALID_ID, nullptr, 0, &PlanetSelectMenu::EventPlanet, PSELM0),
+        MENU_CONTROL_DEF(60, 248, 0, 0, MNULAROU, nullptr, 0, &PlanetSelectMenu::EventWorld, PSELW0),
+        MENU_CONTROL_DEF(92, 248, 0, 0, MNURAROU, nullptr, 0, &PlanetSelectMenu::EventWorld, PSELW0),
+        MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN4U, _(67bc), 0, &PlanetSelectMenu::EventRandom, PDONE0),
+        MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(9d35), GNW_KB_KEY_SHIFT_ESCAPE, &PlanetSelectMenu::EventCancel,
+                         PCANC0),
+        MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(8a8d), GNW_KB_KEY_SHIFT_DIVIDE, &PlanetSelectMenu::EventHelp,
+                         PHELP0),
+        MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(bf2c), GNW_KB_KEY_SHIFT_RETURN, &PlanetSelectMenu::EventDone,
+                         PDONE0),
+    };
+
     void ButtonInit(int32_t index);
     void DrawMaps(int32_t draw_to_screen);
     void DrawTexts();

@@ -27,7 +27,6 @@
 #include <cstring>
 
 #include "gnw.h"
-#include "localization.hpp"
 #include "resource_manager.hpp"
 #include "units_manager.hpp"
 

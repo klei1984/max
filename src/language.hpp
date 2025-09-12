@@ -27,11 +27,13 @@
 #include <string>
 #include <vector>
 
-struct LangObject;
+struct LanguageObject;
 
 class Language {
-    std::string m_language;
-    std::unique_ptr<LangObject> m_lang;
+    std::string m_language{"en-US"};
+    std::string m_empty{""};
+    std::string m_error{"error"};
+    std::unique_ptr<LanguageObject> m_languageobject;
 
     [[nodiscard]] std::string LoadSchema();
 
@@ -43,7 +45,7 @@ public:
     [[nodiscard]] bool LoadFile(const std::string& path);
     void SetLanguage(const std::string& language);
 
-    [[nodiscard]] bool GetEntry(const uint32_t key, std::string& text);
+    [[nodiscard]] const std::string& GetEntry(const uint32_t key);
 };
 
 #endif /* LANGUAGE_HPP */

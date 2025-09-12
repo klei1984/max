@@ -29,7 +29,6 @@
 #include "gfx.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "message_manager.hpp"
 #include "net_packet.hpp"
 #include "paths_manager.hpp"

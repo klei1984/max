@@ -31,7 +31,6 @@
 #include "drawmap.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "message_manager.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
@@ -221,8 +220,10 @@ const char* const UnitsManager_Orders[] = {
     "Repairing",  "Transferring", "Attacking", "Building Halted",
 };
 
-AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
-    AbstractUnit(
+std::vector<AbstractUnit> UnitsManager_AbstractUnits;
+
+void UnitsManager_InitAbstractUnits() {
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ COMMTWR,
         /* shadow          */ S_COMMTW,
@@ -240,8 +241,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(9ed6)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ POWERSTN,
         /* shadow          */ S_POWERS,
@@ -259,8 +261,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(1a05)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE | REQUIRES_SLAB,
         /* sprite          */ POWGEN,
         /* shadow          */ S_POWGEN,
@@ -278,8 +281,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(7ed6),
         /* tutorial description (optional) */
-        _(fbcd)),
-    AbstractUnit(
+        _(fbcd));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ BARRACKS,
         /* shadow          */ S_BARRAC,
@@ -297,8 +301,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(5a81)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | REQUIRES_SLAB,
         /* sprite          */ SHIELDGN,
         /* shadow          */ S_SHIELD,
@@ -316,8 +321,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(4582)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ ANIMATED | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
             REQUIRES_SLAB,
         /* sprite          */ RADAR,
@@ -336,8 +342,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(a5d2)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
         /* sprite          */ ADUMP,
         /* shadow          */ S_ADUMP,
@@ -355,8 +362,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(53b3),
         /* tutorial description (optional) */
-        _(656d)),
-    AbstractUnit(
+        _(656d));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
         /* sprite          */ FDUMP,
         /* shadow          */ S_FDUMP,
@@ -374,8 +382,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(e1a5),
         /* tutorial description (optional) */
-        _(75d4)),
-    AbstractUnit(
+        _(75d4));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
         /* sprite          */ GOLDSM,
         /* shadow          */ S_GOLDSM,
@@ -393,8 +402,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(760c),
         /* tutorial description (optional) */
-        _(8672)),
-    AbstractUnit(
+        _(8672));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ DEPOT,
         /* shadow          */ S_DEPOT,
@@ -412,8 +422,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(a135),
         /* tutorial description (optional) */
-        _(731e)),
-    AbstractUnit(
+        _(731e));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ HANGAR,
         /* shadow          */ S_HANGAR,
@@ -431,8 +442,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(42ec)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE,
         /* sprite          */ DOCK,
         /* shadow          */ S_DOCK,
@@ -450,8 +462,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(1c3b)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ CONNECTOR_UNIT | STATIONARY | UPGRADABLE | SELECTABLE,
         /* sprite          */ CNCT_4W,
         /* shadow          */ S_CNCT4W,
@@ -469,8 +482,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(c971),
         /* tutorial description (optional) */
-        _(9736)),
-    AbstractUnit(
+        _(9736));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | BUILDING | STATIONARY,
         /* sprite          */ LRGRUBLE,
         /* shadow          */ S_LRGRBL,
@@ -488,8 +502,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY,
         /* sprite          */ SMLRUBLE,
         /* shadow          */ S_SMLRBL,
@@ -507,8 +522,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | BUILDING | STATIONARY | SELECTABLE,
         /* sprite          */ LRGTAPE,
         /* shadow          */ INVALID_ID,
@@ -526,8 +542,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY | SELECTABLE,
         /* sprite          */ SMLTAPE,
         /* shadow          */ INVALID_ID,
@@ -545,8 +562,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | BUILDING | STATIONARY,
         /* sprite          */ LRGSLAB,
         /* shadow          */ S_LRGSLA,
@@ -564,8 +582,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY,
         /* sprite          */ SMLSLAB,
         /* shadow          */ S_SMLSLA,
@@ -583,8 +602,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | BUILDING | STATIONARY,
         /* sprite          */ LRGCONES,
         /* shadow          */ S_LRGCON,
@@ -602,8 +622,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY,
         /* sprite          */ SMLCONES,
         /* shadow          */ S_SMLCON,
@@ -621,8 +642,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY | SELECTABLE,
         /* sprite          */ ROAD,
         /* shadow          */ S_ROAD,
@@ -640,8 +662,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(4d4a)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE,
         /* sprite          */ LANDPAD,
         /* shadow          */ S_LANDPA,
@@ -659,8 +682,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(2627)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE,
         /* sprite          */ SHIPYARD,
         /* shadow          */ S_SHIPYA,
@@ -678,8 +702,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(29b9)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE |
             REQUIRES_SLAB,
         /* sprite          */ LIGHTPLT,
@@ -698,8 +723,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(5250),
         /* tutorial description (optional) */
-        _(381d)),
-    AbstractUnit(
+        _(381d));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE |
             REQUIRES_SLAB,
         /* sprite          */ LANDPLT,
@@ -718,8 +744,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(e9d2),
         /* tutorial description (optional) */
-        _(70ae)),
-    AbstractUnit(
+        _(70ae));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | REQUIRES_SLAB,
         /* sprite          */ SUPRTPLT,
         /* shadow          */ S_SUPRTP,
@@ -737,8 +764,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE |
             REQUIRES_SLAB,
         /* sprite          */ AIRPLT,
@@ -757,8 +785,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(784f)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ HABITAT,
         /* shadow          */ S_HABITA,
@@ -776,8 +805,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(73ae)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ RESEARCH,
         /* shadow          */ S_RESEAR,
@@ -795,8 +825,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(fa10)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ GREENHSE,
         /* shadow          */ S_GREENH,
@@ -814,8 +845,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(6182)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | REQUIRES_SLAB,
         /* sprite          */ RECCENTR,
         /* shadow          */ S_RECCEN,
@@ -833,8 +865,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ TRAINHAL,
         /* shadow          */ S_TRAINH,
@@ -852,8 +885,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(c11b)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE,
         /* sprite          */ WTRPLTFM,
         /* shadow          */ S_WTRPLT,
@@ -871,8 +905,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(75fb)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
             REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
         /* sprite          */ GUNTURRT,
@@ -891,8 +926,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(6fae),
         /* tutorial description (optional) */
-        _(0fc3)),
-    AbstractUnit(
+        _(0fc3));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
             REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
         /* sprite          */ ANTIAIR,
@@ -911,8 +947,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(5282)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
             REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
         /* sprite          */ ARTYTRRT,
@@ -931,8 +968,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(96b3)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
             SELECTABLE | STANDALONE | REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
         /* sprite          */ ANTIMSSL,
@@ -951,8 +989,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(d8d2)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE,
         /* sprite          */ BLOCK,
         /* shadow          */ S_BLOCK,
@@ -970,8 +1009,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(c75e)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE,
         /* sprite          */ BRIDGE,
         /* shadow          */ S_BRIDGE,
@@ -989,8 +1029,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(0886)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
         /* sprite          */ MININGST,
         /* shadow          */ S_MINING,
@@ -1008,8 +1049,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(0777),
         /* tutorial description (optional) */
-        _(5a0e)),
-    AbstractUnit(
+        _(5a0e));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ LANDMINE,
         /* shadow          */ S_LANDMI,
@@ -1027,8 +1069,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(3b31)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ SEAMINE,
         /* shadow          */ INVALID_ID,
@@ -1046,8 +1089,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(470d)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ EXPLODING | ANIMATED | STATIONARY,
         /* sprite          */ LNDEXPLD,
         /* shadow          */ INVALID_ID,
@@ -1065,8 +1109,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ EXPLODING | ANIMATED | STATIONARY,
         /* sprite          */ AIREXPLD,
         /* shadow          */ INVALID_ID,
@@ -1084,8 +1129,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ EXPLODING | ANIMATED | STATIONARY,
         /* sprite          */ SEAEXPLD,
         /* shadow          */ INVALID_ID,
@@ -1103,8 +1149,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ EXPLODING | ANIMATED | STATIONARY,
         /* sprite          */ BLDEXPLD,
         /* shadow          */ INVALID_ID,
@@ -1122,8 +1169,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ EXPLODING | ANIMATED | STATIONARY,
         /* sprite          */ HITEXPLD,
         /* shadow          */ INVALID_ID,
@@ -1141,8 +1189,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ MASTER,
         /* shadow          */ S_MASTER,
@@ -1160,8 +1209,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(b66a)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ CONSTRCT,
@@ -1180,8 +1230,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(d28e),
         /* tutorial description (optional) */
-        _(aafe)),
-    AbstractUnit(
+        _(aafe));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ SCOUT,
@@ -1200,8 +1251,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(b2bb),
         /* tutorial description (optional) */
-        _(1ccb)),
-    AbstractUnit(
+        _(1ccb));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
             TURRET_SPRITE | SENTRY_UNIT,
         /* sprite          */ TANK,
@@ -1220,8 +1272,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(d58b),
         /* tutorial description (optional) */
-        _(809e)),
-    AbstractUnit(
+        _(809e));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
             SENTRY_UNIT,
         /* sprite          */ ARTILLRY,
@@ -1240,8 +1293,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(3a41)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ ROCKTLCH,
@@ -1260,8 +1314,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(03cb)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ MISSLLCH,
@@ -1280,8 +1335,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(0aa6)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
             TURRET_SPRITE | SENTRY_UNIT,
         /* sprite          */ SP_FLAK,
@@ -1300,8 +1356,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(051d)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ MINELAYR,
         /* shadow          */ S_MINELA,
@@ -1319,8 +1376,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(45c2)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE |
             SENTRY_UNIT,
         /* sprite          */ SURVEYOR,
@@ -1339,8 +1397,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(f3a3),
         /* tutorial description (optional) */
-        _(d2c2)),
-    AbstractUnit(
+        _(d2c2));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT |
             SPINNING_TURRET,
         /* sprite          */ SCANNER,
@@ -1359,8 +1418,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(2643)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ SPLYTRCK,
         /* shadow          */ S_SPLYTR,
@@ -1378,8 +1438,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(d932)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ GOLDTRCK,
         /* shadow          */ S_GOLDTR,
@@ -1397,8 +1458,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(65cf)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ ENGINEER,
@@ -1417,8 +1479,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(52b5),
         /* tutorial description (optional) */
-        _(3fec)),
-    AbstractUnit(
+        _(3fec));
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ BULLDOZR,
         /* shadow          */ S_BULLDO,
@@ -1436,8 +1499,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(3876)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ REPAIR,
         /* shadow          */ S_REPAIR,
@@ -1455,8 +1519,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(8fdf)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ FUELTRCK,
         /* shadow          */ S_FUELTR,
@@ -1474,8 +1539,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(f5be)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE |
             SENTRY_UNIT,
         /* sprite          */ CLNTRANS,
@@ -1494,8 +1560,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(a28a)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ COMMANDO,
         /* shadow          */ S_COMMAN,
@@ -1513,8 +1580,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(cc81)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ INFANTRY,
         /* shadow          */ S_INFANT,
@@ -1532,8 +1600,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(8061)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
             TURRET_SPRITE | SENTRY_UNIT,
         /* sprite          */ FASTBOAT,
@@ -1552,8 +1621,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(365d)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ CORVETTE,
@@ -1572,8 +1642,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(916e)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
             TURRET_SPRITE | SENTRY_UNIT,
         /* sprite          */ BATTLSHP,
@@ -1592,8 +1663,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(fe06)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
             SENTRY_UNIT,
         /* sprite          */ SUBMARNE,
@@ -1612,8 +1684,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(06b2)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ SEATRANS,
         /* shadow          */ S_SEATRA,
@@ -1631,8 +1704,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(f368)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ MSSLBOAT,
@@ -1651,8 +1725,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(ac8d)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ SEAMNLYR,
         /* shadow          */ S_SEAMNL,
@@ -1670,8 +1745,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(24e7)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ CARGOSHP,
         /* shadow          */ S_CARGOS,
@@ -1689,8 +1765,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(2a9f)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_AIR_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ FIGHTER,
@@ -1709,8 +1786,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(71d6)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_AIR_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
             SELECTABLE | SENTRY_UNIT,
         /* sprite          */ BOMBER,
@@ -1729,8 +1807,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(ca13)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_AIR_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
         /* sprite          */ AIRTRANS,
         /* shadow          */ S_AIRTRA,
@@ -1748,8 +1827,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(60d7)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_AIR_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT |
             SPINNING_TURRET,
         /* sprite          */ AWAC,
@@ -1768,8 +1848,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(9b5d)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
             SENTRY_UNIT | REGENERATING_UNIT,
         /* sprite          */ JUGGRNT,
@@ -1788,8 +1869,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(9f7c)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
             TURRET_SPRITE | SENTRY_UNIT | REGENERATING_UNIT,
         /* sprite          */ ALNTANK,
@@ -1808,8 +1890,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(91b3)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
             SENTRY_UNIT | REGENERATING_UNIT,
         /* sprite          */ ALNASGUN,
@@ -1828,8 +1911,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(0a15)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_AIR_UNIT | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
             SENTRY_UNIT | REGENERATING_UNIT,
         /* sprite          */ ALNPLANE,
@@ -1848,8 +1932,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         _(0f27)
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MISSILE_UNIT,
         /* sprite          */ ROCKET,
         /* shadow          */ INVALID_ID,
@@ -1867,8 +1952,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | MISSILE_UNIT,
         /* sprite          */ TORPEDO,
         /* shadow          */ INVALID_ID,
@@ -1886,8 +1972,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MISSILE_UNIT,
         /* sprite          */ ALNMISSL,
         /* shadow          */ INVALID_ID,
@@ -1905,8 +1992,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MISSILE_UNIT,
         /* sprite          */ ALNTBALL,
         /* shadow          */ INVALID_ID,
@@ -1924,8 +2012,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MISSILE_UNIT,
         /* sprite          */ ALNABALL,
         /* shadow          */ INVALID_ID,
@@ -1943,8 +2032,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ EXPLODING | ANIMATED | MISSILE_UNIT,
         /* sprite          */ RKTSMOKE,
         /* shadow          */ INVALID_ID,
@@ -1962,8 +2052,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | EXPLODING | ANIMATED | MISSILE_UNIT,
         /* sprite          */ TRPBUBLE,
         /* shadow          */ INVALID_ID,
@@ -1981,8 +2072,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY,
         /* sprite          */ HARVSTER,
         /* shadow          */ S_HARVST,
@@ -2000,8 +2092,9 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        ),
-    AbstractUnit(
+    );
+
+    UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY,
         /* sprite          */ WALDO,
         /* shadow          */ INVALID_ID,
@@ -2019,17 +2112,14 @@ AbstractUnit UnitsManager_AbstractUnits[UNIT_END] = {
         /* description */
         ""
         /* tutorial description (optional) */
-        )};
+    );
+}
 
 CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
 struct PopupFunctions UnitsManager_PopupCallbacks[POPUP_MENU_TYPE_COUNT];
 
 TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
-
-static const char* const UnitsManager_BuildTimeEstimates[] = {_(360a), _(16f4), _(7101)};
-
-static const char* const UnitsManager_ReactionsToEnemy[] = {_(1b93), _(5a01), _(eb57)};
 
 bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
     Button* button_destruct;
@@ -3332,6 +3422,7 @@ void UnitsManager_StartBuild(UnitInfo* unit) {
     unit->BuildOrder();
 
     {
+        const char* const UnitsManager_BuildTimeEstimates[] = {_(360a), _(16f4), _(7101)};
         SmartString string;
         SmartObjectArray<ResourceID> build_list;
         ResourceID unit_type;
@@ -6602,6 +6693,7 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
         unit1->target_grid_y = unit2->grid_y;
 
         if (GameManager_PlayerTeam == unit1->team) {
+            const char* const UnitsManager_ReactionsToEnemy[] = {_(1b93), _(5a01), _(eb57)};
             BaseUnit* base_unit = &UnitsManager_BaseUnits[unit2->GetUnitType()];
             Point position(unit1->grid_x, unit1->grid_y);
             SmartString message;

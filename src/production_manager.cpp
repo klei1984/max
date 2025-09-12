@@ -23,7 +23,6 @@
 
 #include "access.hpp"
 #include "allocmenu.hpp"
-#include "localization.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
 #include "units_manager.hpp"

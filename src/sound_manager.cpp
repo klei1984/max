@@ -29,7 +29,6 @@
 #include "game_manager.hpp"
 #include "gnw.h"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "miniaudio.h"
 #include "mvelib32.h"
 #include "resource_manager.hpp"

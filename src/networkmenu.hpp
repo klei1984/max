@@ -23,13 +23,20 @@
 #define NETWORKMENU_HPP
 
 #include "button.hpp"
+#include "menu.hpp"
 #include "saveloadmenu.hpp"
 #include "textedit.hpp"
 #include "transport.hpp"
 
+#define NETWORK_MENU_PLANET_ITEM_COUNT 24
 #define NETWORK_MENU_ITEM_COUNT 24
+#define NETWORK_MENU_CONFIG_COUNT 4
+#define NETWORK_MENU_TITLE_COUNT 14
 #define NETWORK_MENU_IMAGE_COUNT 14
 #define NETWORK_MAX_HOSTS_PER_PAGE 8
+
+#define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
+    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 class NetworkMenu;
 
@@ -39,7 +46,64 @@ struct NetworkMenuItem {
     void (NetworkMenu::*event_handler)();
 };
 
+struct NetworkMenuControlItem {
+    Rect bounds;
+    ResourceID image_id;
+    const char *label;
+    int32_t event_code;
+    void (NetworkMenu::*event_handler)();
+    ResourceID sfx;
+};
+
 class NetworkMenu {
+    const char *menu_planet_names[NETWORK_MENU_PLANET_ITEM_COUNT] = {
+        _(e43b), _(f588), _(c78b), _(895d), _(5f5f), _(e7b2), _(f3fe), _(8524), _(4bb8), _(f408), _(0935), _(7303),
+        _(94ef), _(c46c), _(48ac), _(275a), _(ea47), _(fcf0), _(6426), _(7ea8), _(386d), _(41e5), _(bbcb), _(ba99)};
+
+    struct MenuTitleItem network_menu_titles[NETWORK_MENU_TITLE_COUNT] = {
+        MENU_TITLE_ITEM_DEF(42, 48, 134, 61, _(4869)),   MENU_TITLE_ITEM_DEF(42, 71, 185, 84, ""),
+        MENU_TITLE_ITEM_DEF(359, 28, 568, 188, _(5939)), MENU_TITLE_ITEM_DEF(59, 131, 149, 143, ""),
+        MENU_TITLE_ITEM_DEF(191, 131, 285, 143, ""),     MENU_TITLE_ITEM_DEF(59, 249, 149, 260, ""),
+        MENU_TITLE_ITEM_DEF(191, 249, 285, 260, ""),     MENU_TITLE_ITEM_DEF(150, 377, 617, 392, ""),
+        MENU_TITLE_ITEM_DEF(150, 408, 617, 423, ""),     MENU_TITLE_ITEM_DEF(75, 160, 132, 231, ""),
+        MENU_TITLE_ITEM_DEF(208, 160, 263, 231, ""),     MENU_TITLE_ITEM_DEF(75, 278, 132, 349, ""),
+        MENU_TITLE_ITEM_DEF(208, 278, 263, 349, ""),     MENU_TITLE_ITEM_DEF(355, 228, 469, 342, ""),
+    };
+
+    struct NetworkMenuControlItem network_menu_controls[NETWORK_MENU_ITEM_COUNT] = {
+        MENU_CONTROL_DEF(42, 71, 185, 84, INVALID_ID, nullptr, 0, &NetworkMenu::EventEditPlayerName, MENUOP),
+        MENU_CONTROL_DEF(211, 25, 0, 0, M_CLAN_U, nullptr, 0, &NetworkMenu::EventSelectClan, MENUOP),
+        MENU_CONTROL_DEF(359, 28, 568, 48, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
+        MENU_CONTROL_DEF(359, 48, 568, 68, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
+        MENU_CONTROL_DEF(359, 68, 568, 88, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
+        MENU_CONTROL_DEF(359, 88, 568, 108, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
+        MENU_CONTROL_DEF(359, 108, 568, 128, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
+        MENU_CONTROL_DEF(359, 128, 568, 148, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
+        MENU_CONTROL_DEF(359, 148, 568, 168, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
+        MENU_CONTROL_DEF(359, 168, 568, 188, INVALID_ID, nullptr, 0, &NetworkMenu::EventTextWindow, MENUOP),
+        MENU_CONTROL_DEF(516, 232, 0, 0, SBLNK_UP, _(119e), 0, &NetworkMenu::EventMapButton, MENUOP),
+        MENU_CONTROL_DEF(516, 268, 0, 0, SBLNK_UP, _(8a6b), 0, &NetworkMenu::EventLoadButton, MENUOP),
+        MENU_CONTROL_DEF(516, 304, 0, 0, SBLNK_UP, _(72fa), 0, &NetworkMenu::EventScenarioButton, MENUOP),
+        MENU_CONTROL_DEF(75, 160, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
+        MENU_CONTROL_DEF(208, 160, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
+        MENU_CONTROL_DEF(75, 278, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
+        MENU_CONTROL_DEF(208, 278, 0, 0, CH_NON_U, nullptr, 0, &NetworkMenu::EventSetJar, MENUOP),
+        MENU_CONTROL_DEF(33, 369, 0, 0, SBLNK_UP, _(1baf), 0, &NetworkMenu::EventChat, MENUOP),
+        MENU_CONTROL_DEF(150, 377, 617, 392, INVALID_ID, 0, 0, &NetworkMenu::EventChat, MENUOP),
+        MENU_CONTROL_DEF(243, 438, 0, 0, MNUBTN3U, _(d0db), 0, &NetworkMenu::EventOptions, MENUOP),
+        MENU_CONTROL_DEF(354, 438, 0, 0, MNUBTN4U, _(808a), GNW_KB_KEY_ESCAPE, &NetworkMenu::EventCancel, NCANC0),
+        MENU_CONTROL_DEF(465, 438, 0, 0, MNUBTN5U, _(0b5a), GNW_KB_KEY_SHIFT_DIVIDE, &NetworkMenu::EventHelp, MENUOP),
+        MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(5fa7), GNW_KB_KEY_RETURN, &NetworkMenu::EventReady, NDONE0),
+        MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(e4bb), GNW_KB_KEY_RETURN, &NetworkMenu::EventStart, NDONE0),
+    };
+
+    struct MenuTitleItem network_config_menu_items[NETWORK_MENU_CONFIG_COUNT] = {
+        MENU_TITLE_ITEM_DEF(229, 385, 409, 397, _(48bd)),
+        MENU_TITLE_ITEM_DEF(351, 292, 413, 304, _(dca9)),
+        MENU_TITLE_ITEM_DEF(351, 327, 413, 339, _(eac9)),
+        MENU_TITLE_ITEM_DEF(351, 362, 413, 374, _(0c4a)),
+    };
+
     void ButtonInit(int32_t index);
     void DeleteButtons();
     void Reinit(int32_t palette_from_image);
@@ -85,18 +149,18 @@ public:
     uint32_t rng_seed;
     int16_t minimap_world_index;
     Image *minimap_bg_image;
-    uint8_t ini_world_index;
-    char ini_play_mode;
-    int16_t ini_timer;
-    int16_t ini_endturn;
-    char ini_opponent;
-    int16_t ini_start_gold;
-    char ini_raw_resource;
-    char ini_fuel_resource;
-    char ini_gold_resource;
-    char ini_alien_derelicts;
-    char ini_victory_type;
-    int16_t ini_victory_limit;
+    int32_t ini_world_index;
+    int32_t ini_play_mode;
+    int32_t ini_timer;
+    int32_t ini_endturn;
+    int32_t ini_opponent;
+    int32_t ini_start_gold;
+    int32_t ini_raw_resource;
+    int32_t ini_fuel_resource;
+    int32_t ini_gold_resource;
+    int32_t ini_alien_derelicts;
+    int32_t ini_victory_type;
+    int32_t ini_victory_limit;
     char is_map_changed;
     char is_multi_scenario;
     std::string player_name;

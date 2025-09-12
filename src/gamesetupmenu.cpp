@@ -25,7 +25,6 @@
 
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "missionmanager.hpp"
 #include "resource_manager.hpp"
@@ -33,46 +32,7 @@
 #include "text.hpp"
 #include "window_manager.hpp"
 
-struct GameSetupMenuControlItem {
-    Rect bounds;
-    ResourceID image_id;
-    const char* label;
-    int32_t event_code;
-    void (GameSetupMenu::*event_handler)();
-    ResourceID sfx;
-};
-
-#define MENU_CONTROL_DEF(ulx, uly, lrx, lry, image_id, label, event_code, event_handler, sfx) \
-    {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
-
 #define GAME_SETUP_MENU_MISSION_COUNT 12
-
-static struct MenuTitleItem game_setup_menu_titles[] = {
-    MENU_TITLE_ITEM_DEF(400, 174, 580, 195, ""),
-    MENU_TITLE_ITEM_DEF(354, 215, 620, 416, ""),
-};
-
-static struct GameSetupMenuControlItem game_setup_menu_controls[] = {
-    MENU_CONTROL_DEF(18, 184, 312, 203, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 204, 312, 223, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 224, 312, 243, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 244, 312, 263, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 264, 312, 283, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 284, 312, 303, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 304, 312, 323, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 324, 312, 343, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 344, 312, 363, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 364, 312, 383, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 384, 312, 403, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(18, 404, 312, 423, INVALID_ID, nullptr, 0, &GameSetupMenu::EventSelectItem, MBUTT0),
-    MENU_CONTROL_DEF(16, 438, 0, 0, MNUUAROU, nullptr, 0, &GameSetupMenu::EventScrollButton, MBUTT0),
-    MENU_CONTROL_DEF(48, 438, 0, 0, MNUDAROU, nullptr, 0, &GameSetupMenu::EventScrollButton, MBUTT0),
-    MENU_CONTROL_DEF(563, 438, 0, 0, MNUUAROU, nullptr, 0, &GameSetupMenu::EventBriefingButton, MBUTT0),
-    MENU_CONTROL_DEF(596, 438, 0, 0, MNUDAROU, nullptr, 0, &GameSetupMenu::EventBriefingButton, MBUTT0),
-    MENU_CONTROL_DEF(200, 438, 0, 0, MNUBTN4U, _(639d), GNW_KB_KEY_ESCAPE, &GameSetupMenu::EventCancel, NCANC0),
-    MENU_CONTROL_DEF(312, 438, 0, 0, MNUBTN5U, _(da8e), GNW_KB_KEY_SHIFT_DIVIDE, &GameSetupMenu::EventHelp, NHELP0),
-    MENU_CONTROL_DEF(361, 438, 0, 0, MNUBTN6U, _(f0a3), GNW_KB_KEY_RETURN, &GameSetupMenu::EventStart, NDONE0),
-};
 
 static void GameSetupMenu_LoadSubtitleControl(WindowInfo* window) {
     WindowManager_LoadSimpleImage(SUBTITLE, WindowManager_ScaleUlx(window, 400), WindowManager_ScaleUly(window, 174),

@@ -22,7 +22,6 @@
 #include "menulandingsequence.hpp"
 
 #include "game_manager.hpp"
-#include "localization.hpp"
 #include "sound_manager.hpp"
 #include "window_manager.hpp"
 

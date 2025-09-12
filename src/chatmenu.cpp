@@ -26,7 +26,6 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"

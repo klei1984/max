@@ -35,11 +35,11 @@
 using json = nlohmann::json;
 using validator = nlohmann::json_schema::json_validator;
 
-struct LangObject {
+struct LanguageObject {
     std::unordered_map<uint32_t, std::unordered_map<std::string, std::string>> entries;
 };
 
-void from_json(const json& j, LangObject& l) {
+void from_json(const json& j, LanguageObject& l) {
     for (auto& [uuid_string, value] : j["language"].items()) {
         std::unordered_map<std::string, std::string> translations;
 
@@ -61,9 +61,10 @@ void from_json(const json& j, LangObject& l) {
     }
 }
 
-Language::Language() : m_language("en-US"), m_lang(std::make_unique<LangObject>()) {}
+Language::Language() : m_languageobject(std::make_unique<LanguageObject>()) {}
 
-Language::Language(const std::string& language) : m_language(language), m_lang(std::make_unique<LangObject>()) {}
+Language::Language(const std::string& language)
+    : m_language(language), m_languageobject(std::make_unique<LanguageObject>()) {}
 
 Language::~Language() {}
 
@@ -101,7 +102,7 @@ bool Language::LoadFile(const std::string& path) {
             validator.set_root_schema(jschema);
             validator.validate(jscript);
 
-            *m_lang = jscript.get<LangObject>();
+            *m_languageobject = jscript.get<LanguageObject>();
 
             result = true;
 
@@ -116,30 +117,30 @@ bool Language::LoadFile(const std::string& path) {
     return result;
 }
 
-bool Language::GetEntry(const uint32_t key, std::string& text) {
-    bool result{false};
+const std::string& Language::GetEntry(const uint32_t key) {
+    if (key == 0xffff) {
+        return m_empty;
+    }
 
-    if (m_lang) {
-        auto it = m_lang->entries.find(key);
+    if (m_languageobject) {
+        auto it = m_languageobject->entries.find(key);
 
-        if (it != m_lang->entries.end()) {
+        if (it != m_languageobject->entries.end()) {
             const auto& translations = it->second;
             auto lang_it = translations.find(m_language);
 
             if (lang_it != translations.end() && !lang_it->second.empty()) {
-                text = lang_it->second;
-                result = true;
+                return lang_it->second;
 
             } else {
                 auto default_it = translations.find("en-US");
 
                 if (default_it != translations.end()) {
-                    text = default_it->second;
-                    result = true;
+                    return default_it->second;
                 }
             }
         }
     }
 
-    return result;
+    return m_error;
 }

@@ -28,7 +28,6 @@
 #include "hash.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
@@ -511,6 +510,7 @@ int32_t Remote_SetupPlayers() {
 
 void Remote_ResponseTimeout(uint16_t team, bool mode) {
     char message[100];
+    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_ELIMINATED);
 
@@ -1604,6 +1604,7 @@ void Remote_ReceiveNetPacket_05(NetPacket& packet) {
 
 void Remote_ReceiveNetPacket_06(NetPacket& packet) {
     uint16_t entity_id;
+    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     packet >> entity_id;
 

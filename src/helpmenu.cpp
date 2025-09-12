@@ -26,7 +26,6 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "help.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "mouseevent.hpp"
 #include "remote.hpp"
@@ -36,8 +35,6 @@
 #include "units_manager.hpp"
 #include "unitstats.hpp"
 #include "window_manager.hpp"
-
-const char* help_menu_keyboard_reference = _(ceb6);
 
 static inline void HelpMenu_ScaleCursor(const std::string& section, const int32_t window_id, int32_t& cursor_x,
                                         int32_t& cursor_y);
@@ -248,7 +245,7 @@ bool HelpMenu::ProcessKey(int32_t key) {
             string_row_index = 0;
 
             if (keys_mode) {
-                ProcessText(help_menu_keyboard_reference);
+                ProcessText(_(ceb6));
             } else {
                 ProcessText(text);
             }

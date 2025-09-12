@@ -26,16 +26,13 @@
 
 #include <map>
 
-#include "localization.hpp"
 #include "point.hpp"
 #include "resource_manager.hpp"
 #include "sound_manager.hpp"
 
 #define TEXT_FONT_MANAGER_COUNT 10
-#define TEXT_FONT_META(id, height) \
-    { (id), (height) }
-#define TEXT_DEFAULT_GLYPH \
-    { nullptr, 0, 0, 0, 0, 0, 0 }
+#define TEXT_FONT_META(id, height) {(id), (height)}
+#define TEXT_DEFAULT_GLYPH {nullptr, 0, 0, 0, 0, 0, 0}
 #define TEXT_GLYPH_METRICS_SCALE (64)
 #define TEXT_CACHE_ENTRIES (30)
 

@@ -27,7 +27,6 @@
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
 #include "inifile.hpp"
-#include "localization.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
@@ -139,12 +138,6 @@ public:
     void Build();
     bool Select(UnitTypeSelector *type_selector, bool mode);
 };
-
-const char *const BuildMenu_EventStrings_InvalidSquare[] = {_(1031), _(05fa), _(ff73)};
-
-const char *const BuildMenu_EventStrings_Available1[] = {_(fa62), _(9eb5), _(01fa)};
-
-const char *const BuildMenu_EventStrings_Available2[] = {_(c4e7), _(803c), _(3346)};
 
 bool AbstractBuildMenu::button_description_rest_state = true;
 
@@ -879,6 +872,8 @@ MobileBuildMenu::~MobileBuildMenu() {}
 void MobileBuildMenu::Build() {
     ResourceID unit_type;
     const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
+    const char *const BuildMenu_EventStrings_InvalidSquare[] = {_(1031), _(05fa), _(ff73)};
+    const char *const BuildMenu_EventStrings_Available1[] = {_(fa62), _(9eb5), _(01fa)};
 
     unit_type = selector->GetLast();
 
@@ -1173,6 +1168,7 @@ int32_t FactoryBuildMenu::GetTurnsToBuild(ResourceID unit_type) {
 }
 
 void FactoryBuildMenu::Build() {
+    const char *const BuildMenu_EventStrings_Available2[] = {_(c4e7), _(803c), _(3346)};
     SmartObjectArray<ResourceID> build_list = unit->GetBuildList();
 
     build_list->Clear();
