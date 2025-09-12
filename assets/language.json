@@ -34,20 +34,20 @@
 			"ru-RU": "Бенз"
 		},
 		"b9d9": {
-			"en-US": "More %s needed, %s turned off.\\n",
-			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\\n",
-			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\\n",
-			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\\n",
-			"es-ES": "Se necesitan más %s, %s desactivados.\\n",
-			"ru-RU": "Больше %s нужно, %s выключен.\\n"
+			"en-US": "More %s needed, %s turned off.\n",
+			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\n",
+			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\n",
+			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\n",
+			"es-ES": "Se necesitan más %s, %s desactivados.\n",
+			"ru-RU": "Больше %s нужно, %s выключен.\n"
 		},
 		"cdcc": {
-			"en-US": "Cannot turn %s on, %s needed.\\n",
-			"fr-FR": "Impossible d'activer %s, besoin d'%s.\\n",
-			"de-DE": "Kann %s nicht einschalten, %s benötigt.\\n",
-			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\\n",
-			"es-ES": "Imposible activar %s, se necesitan %s.\\n",
-			"ru-RU": "Не включается %s , %s нужно.\\n"
+			"en-US": "Cannot turn %s on, %s needed.\n",
+			"fr-FR": "Impossible d'activer %s, besoin d'%s.\n",
+			"de-DE": "Kann %s nicht einschalten, %s benötigt.\n",
+			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\n",
+			"es-ES": "Imposible activar %s, se necesitan %s.\n",
+			"ru-RU": "Не включается %s , %s нужно.\n"
 		},
 		"07d7": {
 			"en-US": "power",
@@ -58,28 +58,28 @@
 			"ru-RU": "энерг"
 		},
 		"d25b": {
-			"en-US": "More %s needed, %s turned on.\\n",
-			"fr-FR": "Besoin de plus d'(de)%s, activation d'(de)%s.\\n",
-			"de-DE": "Mehr %s benötigt, %s eingeschaltet.\\n",
-			"it-IT": "Occorre altro %s, %s attivato(a)\\a (i,eie).\\n",
-			"es-ES": "Se necesitan más %s, %s activados.\\n",
-			"ru-RU": "Больше %s нужно,%s включен.\\n"
+			"en-US": "More %s needed, %s turned on.\n",
+			"fr-FR": "Besoin de plus d'(de)%s, activation d'(de)%s.\n",
+			"de-DE": "Mehr %s benötigt, %s eingeschaltet.\n",
+			"it-IT": "Occorre altro %s, %s attivato(a)\\a (i,eie).\n",
+			"es-ES": "Se necesitan más %s, %s activados.\n",
+			"ru-RU": "Больше %s нужно,%s включен.\n"
 		},
 		"cfb8": {
-			"en-US": "Cannot turn %s off, other buildings need %s.\\n",
-			"fr-FR": "Impossible d'arrêter %s, les autres installations ont besoin de %s.\\n",
-			"de-DE": "Kann %s nicht ausschalten, andere Bauwerke benötigen %s.\\n",
-			"it-IT": "Impossibile disattivare %sfinché altri edifici hanno bisogno di %s.\\n",
-			"es-ES": "Imposible desactivar %s, otras instalaciónes necesitan %s.\\n",
-			"ru-RU": "Не выключается %s ,строениям нужно %s.\\n"
+			"en-US": "Cannot turn %s off, other buildings need %s.\n",
+			"fr-FR": "Impossible d'arrêter %s, les autres installations ont besoin de %s.\n",
+			"de-DE": "Kann %s nicht ausschalten, andere Bauwerke benötigen %s.\n",
+			"it-IT": "Impossibile disattivare %sfinché altri edifici hanno bisogno di %s.\n",
+			"es-ES": "Imposible desactivar %s, otras instalaciónes necesitan %s.\n",
+			"ru-RU": "Не выключается %s ,строениям нужно %s.\n"
 		},
 		"b441": {
-			"en-US": "Adjustments made:\\n",
-			"fr-FR": "Ajustements effectués:\\n",
-			"de-DE": "Vorgenommene Einstellungen:\\n",
-			"it-IT": "Messe a punto effettuatae:\\n",
-			"es-ES": "Ajustes efectuados:\\n",
-			"ru-RU": "Сделано:\\n"
+			"en-US": "Adjustments made:\n",
+			"fr-FR": "Ajustements effectués:\n",
+			"de-DE": "Vorgenommene Einstellungen:\n",
+			"it-IT": "Messe a punto effettuatae:\n",
+			"es-ES": "Ajustes efectuados:\n",
+			"ru-RU": "Сделано:\n"
 		},
 		"ff10": {
 			"en-US": "fuel",
@@ -90,12 +90,12 @@
 			"ru-RU": "Бенз"
 		},
 		"0aea": {
-			"en-US": "Cannot turn %s on, %s needed.\\n",
-			"fr-FR": "Impossible d'activer %s, besoin d'%s.\\n",
-			"de-DE": "Kann %s nicht einschalten, %s benötigt.\\n",
-			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\\n",
-			"es-ES": "Imposible activar %s, se necesitan %s.\\n",
-			"ru-RU": "Не включается %s , %s нужно.\\n"
+			"en-US": "Cannot turn %s on, %s needed.\n",
+			"fr-FR": "Impossible d'activer %s, besoin d'%s.\n",
+			"de-DE": "Kann %s nicht einschalten, %s benötigt.\n",
+			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\n",
+			"es-ES": "Imposible activar %s, se necesitan %s.\n",
+			"ru-RU": "Не включается %s , %s нужно.\n"
 		},
 		"ed57": {
 			"en-US": "workers",
@@ -106,20 +106,20 @@
 			"ru-RU": "Рабочие"
 		},
 		"0a4b": {
-			"en-US": "More %s needed, %s turned on.\\n",
-			"fr-FR": "Besoin de plus d'(de)%s, activation d'(de)%s.\\n",
-			"de-DE": "Mehr %s benötigt, %s eingeschaltet.\\n",
-			"it-IT": "Occorre altro %s, %s attivato(a)\\a (i,eie).\\n",
-			"es-ES": "Se necesitan más %s, %s activados.\\n",
-			"ru-RU": "Больше %s нужно,%s включен.\\n"
+			"en-US": "More %s needed, %s turned on.\n",
+			"fr-FR": "Besoin de plus d'(de)%s, activation d'(de)%s.\n",
+			"de-DE": "Mehr %s benötigt, %s eingeschaltet.\n",
+			"it-IT": "Occorre altro %s, %s attivato(a)\\a (i,eie).\n",
+			"es-ES": "Se necesitan más %s, %s activados.\n",
+			"ru-RU": "Больше %s нужно,%s включен.\n"
 		},
 		"5fd6": {
-			"en-US": "Cannot turn %s off, other buildings need %s.\\n",
-			"fr-FR": "Impossible d'arrêter %s, les autres installations ont besoin de %s.\\n",
-			"de-DE": "Kann %s nicht ausschalten, andere Bauwerke benötigen %s.\\n",
-			"it-IT": "Impossibile disattivare %sfinché altri edifici hanno bisogno di %s.\\n",
-			"es-ES": "Imposible desactivar %s, otras instalaciónes necesitan %s.\\n",
-			"ru-RU": "Не выключается %s ,строениям нужно %s.\\n"
+			"en-US": "Cannot turn %s off, other buildings need %s.\n",
+			"fr-FR": "Impossible d'arrêter %s, les autres installations ont besoin de %s.\n",
+			"de-DE": "Kann %s nicht ausschalten, andere Bauwerke benötigen %s.\n",
+			"it-IT": "Impossibile disattivare %sfinché altri edifici hanno bisogno di %s.\n",
+			"es-ES": "Imposible desactivar %s, otras instalaciónes necesitan %s.\n",
+			"ru-RU": "Не выключается %s ,строениям нужно %s.\n"
 		},
 		"0579": {
 			"en-US": "workers",
@@ -130,20 +130,20 @@
 			"ru-RU": "Рабочие"
 		},
 		"7516": {
-			"en-US": "More %s needed, %s turned off.\\n",
-			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\\n",
-			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\\n",
-			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\\n",
-			"es-ES": "Se necesitan más %s, %s desactivados.\\n",
-			"ru-RU": "Больше %s нужно, %s выключен.\\n"
+			"en-US": "More %s needed, %s turned off.\n",
+			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\n",
+			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\n",
+			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\n",
+			"es-ES": "Se necesitan más %s, %s desactivados.\n",
+			"ru-RU": "Больше %s нужно, %s выключен.\n"
 		},
 		"d139": {
-			"en-US": "Cannot turn %s on, %s needed.\\n",
-			"fr-FR": "Impossible d'activer %s, besoin d'%s.\\n",
-			"de-DE": "Kann %s nicht einschalten, %s benötigt.\\n",
-			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\\n",
-			"es-ES": "Imposible activar %s, se necesitan %s.\\n",
-			"ru-RU": "Не включается %s , %s нужно.\\n"
+			"en-US": "Cannot turn %s on, %s needed.\n",
+			"fr-FR": "Impossible d'activer %s, besoin d'%s.\n",
+			"de-DE": "Kann %s nicht einschalten, %s benötigt.\n",
+			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\n",
+			"es-ES": "Imposible activar %s, se necesitan %s.\n",
+			"ru-RU": "Не включается %s , %s нужно.\n"
 		},
 		"57f8": {
 			"en-US": "power",
@@ -154,20 +154,20 @@
 			"ru-RU": "энерг"
 		},
 		"9665": {
-			"en-US": "More %s needed, %s turned off.\\n",
-			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\\n",
-			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\\n",
-			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\\n",
-			"es-ES": "Se necesitan más %s, %s desactivados.\\n",
-			"ru-RU": "Больше %s нужно, %s выключен.\\n"
+			"en-US": "More %s needed, %s turned off.\n",
+			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\n",
+			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\n",
+			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\n",
+			"es-ES": "Se necesitan más %s, %s desactivados.\n",
+			"ru-RU": "Больше %s нужно, %s выключен.\n"
 		},
 		"87e8": {
-			"en-US": "Cannot turn %s on, %s needed.\\n",
-			"fr-FR": "Impossible d'activer %s, besoin d'%s.\\n",
-			"de-DE": "Kann %s nicht einschalten, %s benötigt.\\n",
-			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\\n",
-			"es-ES": "Imposible activar %s, se necesitan %s.\\n",
-			"ru-RU": "Не включается %s , %s нужно.\\n"
+			"en-US": "Cannot turn %s on, %s needed.\n",
+			"fr-FR": "Impossible d'activer %s, besoin d'%s.\n",
+			"de-DE": "Kann %s nicht einschalten, %s benötigt.\n",
+			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\n",
+			"es-ES": "Imposible activar %s, se necesitan %s.\n",
+			"ru-RU": "Не включается %s , %s нужно.\n"
 		},
 		"61e6": {
 			"en-US": "raw material",
@@ -178,20 +178,20 @@
 			"ru-RU": "сырье"
 		},
 		"ac9d": {
-			"en-US": "More %s needed, %s turned off.\\n",
-			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\\n",
-			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\\n",
-			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\\n",
-			"es-ES": "Se necesitan más %s, %s desactivados.\\n",
-			"ru-RU": "Больше %s нужно, %s выключен.\\n"
+			"en-US": "More %s needed, %s turned off.\n",
+			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\n",
+			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\n",
+			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\n",
+			"es-ES": "Se necesitan más %s, %s desactivados.\n",
+			"ru-RU": "Больше %s нужно, %s выключен.\n"
 		},
 		"5f9a": {
-			"en-US": "Cannot turn %s on, %s needed.\\n",
-			"fr-FR": "Impossible d'activer %s, besoin d'%s.\\n",
-			"de-DE": "Kann %s nicht einschalten, %s benötigt.\\n",
-			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\\n",
-			"es-ES": "Imposible activar %s, se necesitan %s.\\n",
-			"ru-RU": "Не включается %s , %s нужно.\\n"
+			"en-US": "Cannot turn %s on, %s needed.\n",
+			"fr-FR": "Impossible d'activer %s, besoin d'%s.\n",
+			"de-DE": "Kann %s nicht einschalten, %s benötigt.\n",
+			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\n",
+			"es-ES": "Imposible activar %s, se necesitan %s.\n",
+			"ru-RU": "Не включается %s , %s нужно.\n"
 		},
 		"5f24": {
 			"en-US": "power",
@@ -202,20 +202,20 @@
 			"ru-RU": "энерг"
 		},
 		"b8fe": {
-			"en-US": "More %s needed, %s turned off.\\n",
-			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\\n",
-			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\\n",
-			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\\n",
-			"es-ES": "Se necesitan más %s, %s desactivados.\\n",
-			"ru-RU": "Больше %s нужно, %s выключен.\\n"
+			"en-US": "More %s needed, %s turned off.\n",
+			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\n",
+			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\n",
+			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\n",
+			"es-ES": "Se necesitan más %s, %s desactivados.\n",
+			"ru-RU": "Больше %s нужно, %s выключен.\n"
 		},
 		"2ff7": {
-			"en-US": "Cannot turn %s on, %s needed.\\n",
-			"fr-FR": "Impossible d'activer %s, besoin d'%s.\\n",
-			"de-DE": "Kann %s nicht einschalten, %s benötigt.\\n",
-			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\\n",
-			"es-ES": "Imposible activar %s, se necesitan %s.\\n",
-			"ru-RU": "Не включается %s , %s нужно.\\n"
+			"en-US": "Cannot turn %s on, %s needed.\n",
+			"fr-FR": "Impossible d'activer %s, besoin d'%s.\n",
+			"de-DE": "Kann %s nicht einschalten, %s benötigt.\n",
+			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\n",
+			"es-ES": "Imposible activar %s, se necesitan %s.\n",
+			"ru-RU": "Не включается %s , %s нужно.\n"
 		},
 		"9c91": {
 			"en-US": "raw material",
@@ -290,76 +290,76 @@
 			"ru-RU": "энерг"
 		},
 		"b215": {
-			"en-US": "More %s needed, %s turned off.\\n",
-			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\\n",
-			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\\n",
-			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\\n",
-			"es-ES": "Se necesitan más %s, %s desactivados.\\n",
-			"ru-RU": "Больше %s нужно, %s выключен.\\n"
+			"en-US": "More %s needed, %s turned off.\n",
+			"fr-FR": "Besoin de plus d'(de)%s, arrêt d'(de)%s.\n",
+			"de-DE": "Mehr %s benötigt, %s ausgeschaltet.\n",
+			"it-IT": "Occorre altro %s, %s disattivato(a)\\a (i,eie).\n",
+			"es-ES": "Se necesitan más %s, %s desactivados.\n",
+			"ru-RU": "Больше %s нужно, %s выключен.\n"
 		},
 		"961d": {
-			"en-US": "Cannot turn %s on, %s needed.\\n",
-			"fr-FR": "Impossible d'activer %s, besoin d'%s.\\n",
-			"de-DE": "Kann %s nicht einschalten, %s benötigt.\\n",
-			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\\n",
-			"es-ES": "Imposible activar %s, se necesitan %s.\\n",
-			"ru-RU": "Не включается %s , %s нужно.\\n"
+			"en-US": "Cannot turn %s on, %s needed.\n",
+			"fr-FR": "Impossible d'activer %s, besoin d'%s.\n",
+			"de-DE": "Kann %s nicht einschalten, %s benötigt.\n",
+			"it-IT": "Impossibile avviare %s, occorre (ono)  %s .\n",
+			"es-ES": "Imposible activar %s, se necesitan %s.\n",
+			"ru-RU": "Не включается %s , %s нужно.\n"
 		},
 		"3226": {
-			"en-US": "Adjustments made:\\n",
-			"fr-FR": "Ajustements effectués:\\n",
-			"de-DE": "Vorgenommene Einstellungen:\\n",
-			"it-IT": "Messe a punto effettuatae:\\n",
-			"es-ES": "Ajustes efectuados:\\n",
-			"ru-RU": "Сделано:\\n"
+			"en-US": "Adjustments made:\n",
+			"fr-FR": "Ajustements effectués:\n",
+			"de-DE": "Vorgenommene Einstellungen:\n",
+			"it-IT": "Messe a punto effettuatae:\n",
+			"es-ES": "Ajustes efectuados:\n",
+			"ru-RU": "Сделано:\n"
 		},
 		"61fa": {
-			"en-US": "Raw material mining increased to %i.\\n",
-			"fr-FR": "Extraction de minerai augmentée à %i.\\n",
-			"de-DE": "Rohstoffgewinnung auf %i gesteigert.\\n",
-			"it-IT": "Produzione di materia prima aumentata a %i.\\n",
-			"es-ES": "Extracción de materia prima incrementada a %i.\\n",
-			"ru-RU": "Добыча сырья увеличилась до %i.\\n"
+			"en-US": "Raw material mining increased to %i.\n",
+			"fr-FR": "Extraction de minerai augmentée à %i.\n",
+			"de-DE": "Rohstoffgewinnung auf %i gesteigert.\n",
+			"it-IT": "Produzione di materia prima aumentata a %i.\n",
+			"es-ES": "Extracción de materia prima incrementada a %i.\n",
+			"ru-RU": "Добыча сырья увеличилась до %i.\n"
 		},
 		"3d58": {
-			"en-US": "Raw material mining reduced to %i.\\n",
-			"fr-FR": "Extraction de minerai réduite à %i.\\n",
-			"de-DE": "Rohstoffgewinnung auf %i reduziert.\\n",
-			"it-IT": "Produzione di materia prima ridotta a %i.\\n",
-			"es-ES": "Extracción de materia prima reducida a %i.\\n",
-			"ru-RU": "Добыча сырья уменьшилась до %i.\\n"
+			"en-US": "Raw material mining reduced to %i.\n",
+			"fr-FR": "Extraction de minerai réduite à %i.\n",
+			"de-DE": "Rohstoffgewinnung auf %i reduziert.\n",
+			"it-IT": "Produzione di materia prima ridotta a %i.\n",
+			"es-ES": "Extracción de materia prima reducida a %i.\n",
+			"ru-RU": "Добыча сырья уменьшилась до %i.\n"
 		},
 		"1dfe": {
-			"en-US": "Fuel mining increased to %i.\\n",
-			"fr-FR": "Extraction de carburant augmentée à %i.\\n",
-			"de-DE": "Treibstoffgewinnung auf %i gesteigert.\\n",
-			"it-IT": "Produzione di combustibile aumentata a %i.\\n",
-			"es-ES": "Extracción de combustible incrementada a %i.\\n",
-			"ru-RU": "Добыча бенз.возросла до %i.\\n"
+			"en-US": "Fuel mining increased to %i.\n",
+			"fr-FR": "Extraction de carburant augmentée à %i.\n",
+			"de-DE": "Treibstoffgewinnung auf %i gesteigert.\n",
+			"it-IT": "Produzione di combustibile aumentata a %i.\n",
+			"es-ES": "Extracción de combustible incrementada a %i.\n",
+			"ru-RU": "Добыча бенз.возросла до %i.\n"
 		},
 		"f957": {
-			"en-US": "Fuel mining reduced to %i.\\n",
-			"fr-FR": "Extraction de carburant réduite à %i.\\n",
-			"de-DE": "Treibstoffgewinnung auf %i reduziert.\\n",
-			"it-IT": "Produzione di combustibile ridotta a %i.\\n",
-			"es-ES": "Extracción de combustible reducida a %i.\\n",
-			"ru-RU": "Добыча бензина упала до %i\\n"
+			"en-US": "Fuel mining reduced to %i.\n",
+			"fr-FR": "Extraction de carburant réduite à %i.\n",
+			"de-DE": "Treibstoffgewinnung auf %i reduziert.\n",
+			"it-IT": "Produzione di combustibile ridotta a %i.\n",
+			"es-ES": "Extracción de combustible reducida a %i.\n",
+			"ru-RU": "Добыча бензина упала до %i\n"
 		},
 		"17c7": {
-			"en-US": "Gold mining increased to %i.\\n",
-			"fr-FR": "Extraction d'or augmentée à %i.\\n",
-			"de-DE": "Goldgewinnung auf %i gesteigert.\\n",
+			"en-US": "Gold mining increased to %i.\n",
+			"fr-FR": "Extraction d'or augmentée à %i.\n",
+			"de-DE": "Goldgewinnung auf %i gesteigert.\n",
 			"it-IT": "Produzione di oro aumentata a %i.n",
-			"es-ES": "Extracción de oro incrementada a %i.\\n",
-			"ru-RU": "Добыча золота возросла да %i\\n"
+			"es-ES": "Extracción de oro incrementada a %i.\n",
+			"ru-RU": "Добыча золота возросла да %i\n"
 		},
 		"1226": {
-			"en-US": "Gold mining reduced to %i.\\n",
-			"fr-FR": "Extraction d'or réduite à %i.\\n",
-			"de-DE": "Goldgewinnung auf %i reduziert.\\n",
-			"it-IT": "Produzione di oro ridotta a %i.\\n",
-			"es-ES": "Extracción de oro reducida a %i.\\n",
-			"ru-RU": "Добыча золота упала до %i.\\n"
+			"en-US": "Gold mining reduced to %i.\n",
+			"fr-FR": "Extraction d'or réduite à %i.\n",
+			"de-DE": "Goldgewinnung auf %i reduziert.\n",
+			"it-IT": "Produzione di oro ridotta a %i.\n",
+			"es-ES": "Extracción de oro reducida a %i.\n",
+			"ru-RU": "Добыча золота упала до %i.\n"
 		},
 		"2ab8": {
 			"en-US": "%s Computer Turn.",
@@ -482,12 +482,12 @@
 			"ru-RU": "Цена"
 		},
 		"c529": {
-			"en-US": "WARNING:\\ninsufficient material in storage\\nto start construction.",
-			"fr-FR": "ATTENTION:\\nMatériaux en réserve insuffisant\\npour commencer une construction.",
-			"de-DE": "WARNUNG:\\nNicht genügend Material auf Lager\\num mit dem Bauen zu beginnen.",
-			"it-IT": "ATTENZIONE:\\nmateriale insufficiente in magazzino\\nper iniziare costruzione.",
-			"es-ES": "PRECAUCION:\\nInsuficiente material almacenado\\npara comenzar la construcción.",
-			"ru-RU": "ТРЕВОГА:\\nнедостаток материалов в хранилище\\nдля производства."
+			"en-US": "WARNING:\ninsufficient material in storage\nto start construction.",
+			"fr-FR": "ATTENTION:\nMatériaux en réserve insuffisant\npour commencer une construction.",
+			"de-DE": "WARNUNG:\nNicht genügend Material auf Lager\num mit dem Bauen zu beginnen.",
+			"it-IT": "ATTENZIONE:\nmateriale insufficiente in magazzino\nper iniziare costruzione.",
+			"es-ES": "PRECAUCION:\nInsuficiente material almacenado\npara comenzar la construcción.",
+			"ru-RU": "ТРЕВОГА:\nнедостаток материалов в хранилище\nдля производства."
 		},
 		"06cb": {
 			"en-US": "Position tape and click inside it to begin building.",
@@ -498,11 +498,11 @@
 			"ru-RU": "Щелкните внутри для начала строительства."
 		},
 		"6682": {
-			"en-US": "\\nAt this point you might wish to click the 'End Turn' button several times, so the Engineer will finish building.",
-			"fr-FR": "\\nMaintenant, vous pouvez, si vous le souhaitez, cliquer sur la touche 'Fin du Tour' plusieurs fois pour que l'engin du Génie puisse finir sa construction.",
-			"de-DE": "\\nAn diesem Punkt sollten Sie eventuell mehrmals, auf den Beenden-Button klicken, so daß das Pionier-Fahrzeug den Bau  beendet.",
+			"en-US": "\nAt this point you might wish to click the 'End Turn' button several times, so the Engineer will finish building.",
+			"fr-FR": "\nMaintenant, vous pouvez, si vous le souhaitez, cliquer sur la touche 'Fin du Tour' plusieurs fois pour que l'engin du Génie puisse finir sa construction.",
+			"de-DE": "\nAn diesem Punkt sollten Sie eventuell mehrmals, auf den Beenden-Button klicken, so daß das Pionier-Fahrzeug den Bau  beendet.",
 			"it-IT": "A questo punto potresti desiderare di cliccare diverse volte il pulsante del 'Turno Finale', così l'Ingegnere terminerà la costruzione.",
-			"es-ES": "\\nAhora, si así lo deseas, puedes hacer clic varias veces en el botón `Fin de turno', para que el ingeniero termine su construcción.",
+			"es-ES": "\nAhora, si así lo deseas, puedes hacer clic varias veces en el botón `Fin de turno', para que el ingeniero termine su construcción.",
 			"ru-RU": "После того как вы несколько раз закончите ход Инженеры закончат строительство."
 		},
 		"e2d0": {
@@ -698,44 +698,44 @@
 			"ru-RU": "Ресурс"
 		},
 		"64fd": {
-			"en-US": "\\n(Empty)",
-			"fr-FR": "\\n(Vide)",
-			"de-DE": "\\n(Leer)",
-			"it-IT": "\\n(Vuoto)",
-			"es-ES": "\\n(Vacío)",
-			"ru-RU": "\\n(Пуст.)"
+			"en-US": "\n(Empty)",
+			"fr-FR": "\n(Vide)",
+			"de-DE": "\n(Leer)",
+			"it-IT": "\n(Vuoto)",
+			"es-ES": "\n(Vacío)",
+			"ru-RU": "\n(Пуст.)"
 		},
 		"ed1b": {
-			"en-US": "\\n(Full)",
-			"fr-FR": "\\n(Plein)",
-			"de-DE": "\\n(Voll)",
-			"it-IT": "\\n(Pieno)",
-			"es-ES": "\\n(Lleno)",
-			"ru-RU": "\\n(Полн)"
+			"en-US": "\n(Full)",
+			"fr-FR": "\n(Plein)",
+			"de-DE": "\n(Voll)",
+			"it-IT": "\n(Pieno)",
+			"es-ES": "\n(Lleno)",
+			"ru-RU": "\n(Полн)"
 		},
 		"2683": {
-			"en-US": "\\n(%i Fuel)",
-			"fr-FR": "\\n(%i Carb.)",
-			"de-DE": "\\n(%i Treibst.)",
-			"it-IT": "\\n(%i Comb.)",
-			"es-ES": "\\n(%i Comb.)",
-			"ru-RU": "\\n(%i Бенз)"
+			"en-US": "\n(%i Fuel)",
+			"fr-FR": "\n(%i Carb.)",
+			"de-DE": "\n(%i Treibst.)",
+			"it-IT": "\n(%i Comb.)",
+			"es-ES": "\n(%i Comb.)",
+			"ru-RU": "\n(%i Бенз)"
 		},
 		"0dfd": {
-			"en-US": "\\n(%i Gold)",
-			"fr-FR": "\\n(%i Or)",
-			"de-DE": "\\n(%i Gold)",
-			"it-IT": "\\n(%i Oro)",
-			"es-ES": "\\n(%i Oro)",
-			"ru-RU": "\\n(%i Зол.)"
+			"en-US": "\n(%i Gold)",
+			"fr-FR": "\n(%i Or)",
+			"de-DE": "\n(%i Gold)",
+			"it-IT": "\n(%i Oro)",
+			"es-ES": "\n(%i Oro)",
+			"ru-RU": "\n(%i Зол.)"
 		},
 		"b0e8": {
-			"en-US": "\\n(%i Mat.)",
-			"fr-FR": "\\n(%i Mat.)",
-			"de-DE": "\\n(%i Rohstoff)",
-			"it-IT": "\\n(%i Mat.)",
-			"es-ES": "\\n(%i Mat.)",
-			"ru-RU": "\\n(%i Сырь)"
+			"en-US": "\n(%i Mat.)",
+			"fr-FR": "\n(%i Mat.)",
+			"de-DE": "\n(%i Rohstoff)",
+			"it-IT": "\n(%i Mat.)",
+			"es-ES": "\n(%i Mat.)",
+			"ru-RU": "\n(%i Сырь)"
 		},
 		"4d73": {
 			"en-US": "Delete",
@@ -1154,132 +1154,132 @@
 			"ru-RU": "Окей"
 		},
 		"1347": {
-			"en-US": "\\nThanks for playing M.A.X.!\\n\\n",
-			"fr-FR": "\\nMerci d'avoir jouer M.A.X.!\\n\\n",
-			"de-DE": "\\nVielen Dank, daß Sie M.A.X. gespielt haben!\\n\\n",
-			"it-IT": "\\nGrazie per aver giocato M.A.X.!\\n\\n",
-			"es-ES": "\\n¡Gracias por jugar a M.A.X.!\\n\\n",
-			"ru-RU": "\\nСпасибо за игру в M.A.X.!\\n\\n"
+			"en-US": "\nThanks for playing M.A.X.!\n\n",
+			"fr-FR": "\nMerci d'avoir jouer M.A.X.!\n\n",
+			"de-DE": "\nVielen Dank, daß Sie M.A.X. gespielt haben!\n\n",
+			"it-IT": "\nGrazie per aver giocato M.A.X.!\n\n",
+			"es-ES": "\n¡Gracias por jugar a M.A.X.!\n\n",
+			"ru-RU": "\nСпасибо за игру в M.A.X.!\n\n"
 		},
 		"c164": {
-			"en-US": "\\nNo mouse driver found.\\n\\n",
-			"fr-FR": "\\nGestionnaire de souris introuvable.\\n\\n",
-			"de-DE": "\\nKeine Maustreiber gefunden.\\n\\n",
-			"it-IT": "\\nNon è stato trovato alcun driver per mouse.\\n\\n",
-			"es-ES": "\\nNo se ha encontrado el controlador del ratón.\\n\\n",
-			"ru-RU": "\\nМышь не найдена.\\n\\n"
+			"en-US": "\nNo mouse driver found.\n\n",
+			"fr-FR": "\nGestionnaire de souris introuvable.\n\n",
+			"de-DE": "\nKeine Maustreiber gefunden.\n\n",
+			"it-IT": "\nNon è stato trovato alcun driver per mouse.\n\n",
+			"es-ES": "\nNo se ha encontrado el controlador del ratón.\n\n",
+			"ru-RU": "\nМышь не найдена.\n\n"
 		},
 		"c116": {
-			"en-US": "\\nNot enough memory for buffers.\\n\\n",
-			"fr-FR": "\\nMémoire insuffisante pour les tampons.\\n\\n",
-			"de-DE": "\\nNicht genug Speicher für Puffer\\n\\n",
-			"it-IT": "\\nNon c'è memoria sufficiente per i buffer.\\n\\n",
-			"es-ES": "\\nNo hay suficiente memoria para los búfers.\\n\\n",
-			"ru-RU": "\\nНет памяти для буферов.\\n\\n"
+			"en-US": "\nNot enough memory for buffers.\n\n",
+			"fr-FR": "\nMémoire insuffisante pour les tampons.\n\n",
+			"de-DE": "\nNicht genug Speicher für Puffer\n\n",
+			"it-IT": "\nNon c'è memoria sufficiente per i buffer.\n\n",
+			"es-ES": "\nNo hay suficiente memoria para los búfers.\n\n",
+			"ru-RU": "\nНет памяти для буферов.\n\n"
 		},
 		"9edb": {
-			"en-US": "\\nSound card not found.\\n\\n",
-			"fr-FR": "\\nCarte son introuvable.\\n\\n",
-			"de-DE": "\\nSound-Karte nicht gefunden.\\n\\n",
-			"it-IT": "\\nNon è stata trovata la scheda audio.\\n\\n",
-			"es-ES": "\\nNo se ha encontrado la tarjeta de sonido.\\n\\n",
-			"ru-RU": "\\nЗвук не инициализир.\\n\\n"
+			"en-US": "\nSound card not found.\n\n",
+			"fr-FR": "\nCarte son introuvable.\n\n",
+			"de-DE": "\nSound-Karte nicht gefunden.\n\n",
+			"it-IT": "\nNon è stata trovata la scheda audio.\n\n",
+			"es-ES": "\nNo se ha encontrado la tarjeta de sonido.\n\n",
+			"ru-RU": "\nЗвук не инициализир.\n\n"
 		},
 		"6bc6": {
-			"en-US": "\\nScreen Init failed.\\n\\n",
-			"fr-FR": "\\nEchec Initialisation Ecran.\\n\\n",
-			"de-DE": "\\nScreen Init. gescheitert.\\n\\n",
-			"it-IT": "\\nFallita inizializzazione video.\\n\\n",
-			"es-ES": "\\nFallo en la inicialización de la pantalla.\\n\\n",
-			"ru-RU": "\\nВидеоадаптер сдох.\\n\\n"
+			"en-US": "\nScreen Init failed.\n\n",
+			"fr-FR": "\nEchec Initialisation Ecran.\n\n",
+			"de-DE": "\nScreen Init. gescheitert.\n\n",
+			"it-IT": "\nFallita inizializzazione video.\n\n",
+			"es-ES": "\nFallo en la inicialización de la pantalla.\n\n",
+			"ru-RU": "\nВидеоадаптер сдох.\n\n"
 		},
 		"5ced": {
-			"en-US": "\\nUnable to find game resource file.\\n\\n",
-			"fr-FR": "\\nImpossible de trouver le fichier ressource du jeu.\\n\\n",
-			"de-DE": "\\nKann Resource-Datei des Spiels nicht finden.\\n\\n",
-			"it-IT": "\\nImpossibile trovare il file risorse del gioco.\\n\\n",
-			"es-ES": "\\n Imposible encontrar el archivo de recursos del juego.\\n\\n",
-			"ru-RU": "\\nРесурсы, где вы!!!!!\\n\\n"
+			"en-US": "\nUnable to find game resource file.\n\n",
+			"fr-FR": "\nImpossible de trouver le fichier ressource du jeu.\n\n",
+			"de-DE": "\nKann Resource-Datei des Spiels nicht finden.\n\n",
+			"it-IT": "\nImpossibile trovare il file risorse del gioco.\n\n",
+			"es-ES": "\n Imposible encontrar el archivo de recursos del juego.\n\n",
+			"ru-RU": "\nРесурсы, где вы!!!!!\n\n"
 		},
 		"3b69": {
-			"en-US": "\\nError reading resource file.\\n\\n",
-			"fr-FR": "\\nErreur de lecture du fichier ressource.\\n\\n",
-			"de-DE": "\\nFehler beim Lesen der Resource-Datei.\\n\\n",
-			"it-IT": "\\nErrore di lettura del file risorse.\\n\\n",
-			"es-ES": "\\nError en la lectura del archivo de recursos.\\n\\n",
-			"ru-RU": "\\nНе могу прочитать мои файлы!\\n\\n"
+			"en-US": "\nError reading resource file.\n\n",
+			"fr-FR": "\nErreur de lecture du fichier ressource.\n\n",
+			"de-DE": "\nFehler beim Lesen der Resource-Datei.\n\n",
+			"it-IT": "\nErrore di lettura del file risorse.\n\n",
+			"es-ES": "\nError en la lectura del archivo de recursos.\n\n",
+			"ru-RU": "\nНе могу прочитать мои файлы!\n\n"
 		},
 		"c499": {
-			"en-US": "\\nInvalid resource file ID.\\n\\n",
-			"fr-FR": "\\nIdentification du fichier ressource erronée.\\n\\n",
-			"de-DE": "\\nUngültiges ID der Resource-Datei.\\n\\n",
-			"it-IT": "\\nID del file risorse non valido.\\n\\n",
-			"es-ES": "\\nIdentificación errónea del archivo de recursos.\\n\\n",
-			"ru-RU": "\\nПлохой у вас ресурс.\\n\\n"
+			"en-US": "\nInvalid resource file ID.\n\n",
+			"fr-FR": "\nIdentification du fichier ressource erronée.\n\n",
+			"de-DE": "\nUngültiges ID der Resource-Datei.\n\n",
+			"it-IT": "\nID del file risorse non valido.\n\n",
+			"es-ES": "\nIdentificación errónea del archivo de recursos.\n\n",
+			"ru-RU": "\nПлохой у вас ресурс.\n\n"
 		},
 		"4afd": {
-			"en-US": "\\nInvalid Directory name.\\n\\n",
-			"fr-FR": "\\nNom de Répertoire erroné.\\n\\n",
-			"de-DE": "\\nUngültiger Verzeichnis-Name.\\n\\n",
-			"it-IT": "\\n Nome della Directory non valido.\\n\\n",
-			"es-ES": "\\nNombre de directorio incorrecto.\\n\\n",
-			"ru-RU": "\\nНу и имя у директории..\\n\\n"
+			"en-US": "\nInvalid Directory name.\n\n",
+			"fr-FR": "\nNom de Répertoire erroné.\n\n",
+			"de-DE": "\nUngültiger Verzeichnis-Name.\n\n",
+			"it-IT": "\n Nome della Directory non valido.\n\n",
+			"es-ES": "\nNombre de directorio incorrecto.\n\n",
+			"ru-RU": "\nНу и имя у директории..\n\n"
 		},
 		"bc1c": {
-			"en-US": "\\nInvalid script file.\\n\\n",
-			"fr-FR": "\\nFichier script erroné.\\n\\n",
-			"de-DE": "\\nUngültige Script-Datei.\\n\\n",
-			"it-IT": "\\nFile di istruzioni non valido.\\n\\n",
-			"es-ES": "\\nArchivo de script erróneo.\\n\\n",
-			"ru-RU": "\\nСкрипт инвалидный.\\n\\n"
+			"en-US": "\nInvalid script file.\n\n",
+			"fr-FR": "\nFichier script erroné.\n\n",
+			"de-DE": "\nUngültige Script-Datei.\n\n",
+			"it-IT": "\nFile di istruzioni non valido.\n\n",
+			"es-ES": "\nArchivo de script erróneo.\n\n",
+			"ru-RU": "\nСкрипт инвалидный.\n\n"
 		},
 		"908e": {
-			"en-US": "\\nError reading script file.\\n\\n",
-			"fr-FR": "\\nErreur de lecture du fichier script.\\n\\n",
-			"de-DE": "\\nFehler beim Lesen der Script-Datei.\\n\\n",
-			"it-IT": "\\nErrore di lettura del file di istruzioni.\\n\\n",
-			"es-ES": "\\nError en la lectura del archivo de script.\\n\\n",
-			"ru-RU": "\\nСкрипт полуинвалидный.\\n\\n"
+			"en-US": "\nError reading script file.\n\n",
+			"fr-FR": "\nErreur de lecture du fichier script.\n\n",
+			"de-DE": "\nFehler beim Lesen der Script-Datei.\n\n",
+			"it-IT": "\nErrore di lettura del file di istruzioni.\n\n",
+			"es-ES": "\nError en la lectura del archivo de script.\n\n",
+			"ru-RU": "\nСкрипт полуинвалидный.\n\n"
 		},
 		"b2b3": {
-			"en-US": "\\nM.A.X. INI not found.\\n\\n",
-			"fr-FR": "\\nM.A.X. INI introuvable.\\n\\n",
-			"de-DE": "\\nM.A.X. INI nicht gefunden. \\n\\n",
-			"it-IT": "\\nM.A.X. INI non trovato.\\n\\n",
-			"es-ES": "\\nNo se ha encontrado M.A.X. INI. \\n\\n",
-			"ru-RU": "\\nМандер.ини не найду.\\n\\n"
+			"en-US": "\nM.A.X. INI not found.\n\n",
+			"fr-FR": "\nM.A.X. INI introuvable.\n\n",
+			"de-DE": "\nM.A.X. INI nicht gefunden. \n\n",
+			"it-IT": "\nM.A.X. INI non trovato.\n\n",
+			"es-ES": "\nNo se ha encontrado M.A.X. INI. \n\n",
+			"ru-RU": "\nМандер.ини не найду.\n\n"
 		},
 		"00a7": {
-			"en-US": "\\nPlease insert the M.A.X. CD and try again.\\n\\n",
-			"fr-FR": "\\nIntroduisez le CD M.A.X. et recommencez.\\n\\n",
-			"de-DE": "\\nBitte legen Sie die M.A.X. CD-Rom ein, und versuchen Sie es erneut.\\n\\n",
-			"it-IT": "\\nInserisci il CD di M.A.X. e riprova.\\n\\n",
-			"es-ES": "\\nIntroduce el CD de M.A.X. e inténtalo de nuevo.\\n\\n",
-			"ru-RU": "\\nВставьте диск M.A.X. и попробуйте еще.\\n\\n"
+			"en-US": "\nPlease insert the M.A.X. CD and try again.\n\n",
+			"fr-FR": "\nIntroduisez le CD M.A.X. et recommencez.\n\n",
+			"de-DE": "\nBitte legen Sie die M.A.X. CD-Rom ein, und versuchen Sie es erneut.\n\n",
+			"it-IT": "\nInserisci il CD di M.A.X. e riprova.\n\n",
+			"es-ES": "\nIntroduce el CD de M.A.X. e inténtalo de nuevo.\n\n",
+			"ru-RU": "\nВставьте диск M.A.X. и попробуйте еще.\n\n"
 		},
 		"eb11": {
-			"en-US": "\\nTo play M.A.X. type MAX\\n\\n",
-			"fr-FR": "\\nPour jouer à M.A.X. tapez MAX\\n\\n",
-			"de-DE": "\\nUm M.A.X. zu spielen, geben Sie MAX ein\\n\\n",
-			"it-IT": "\\nPer giocare a M.A.X. digita MAX\\n",
-			"es-ES": "\\nPara jugar a  M.A.X. teclea MAX\\n\\n",
-			"ru-RU": "\\nДля игры наберите  MC\\n\\n"
+			"en-US": "\nTo play M.A.X. type MAX\n\n",
+			"fr-FR": "\nPour jouer à M.A.X. tapez MAX\n\n",
+			"de-DE": "\nUm M.A.X. zu spielen, geben Sie MAX ein\n\n",
+			"it-IT": "\nPer giocare a M.A.X. digita MAX\n",
+			"es-ES": "\nPara jugar a  M.A.X. teclea MAX\n\n",
+			"ru-RU": "\nДля игры наберите  MC\n\n"
 		},
 		"3004": {
-			"en-US": "\\nThis Version has Expired.\\n\\n",
-			"fr-FR": "\\nCette Version n'est plus Valide.\\n\\n",
-			"de-DE": "\\nDiese Version ist nicht mehr gültig.\\n\\n",
-			"it-IT": "\\nQuesta Versione è Scaduta.\\n\\n",
-			"es-ES": "\\nEsta versión ya no es válida.\\n\\n",
-			"ru-RU": "\\nСтарая версия.\\n\\n"
+			"en-US": "\nThis Version has Expired.\n\n",
+			"fr-FR": "\nCette Version n'est plus Valide.\n\n",
+			"de-DE": "\nDiese Version ist nicht mehr gültig.\n\n",
+			"it-IT": "\nQuesta Versione è Scaduta.\n\n",
+			"es-ES": "\nEsta versión ya no es válida.\n\n",
+			"ru-RU": "\nСтарая версия.\n\n"
 		},
 		"07f8": {
-			"en-US": "\\nToo many files open or .WRL file not found.\\n\\n",
-			"fr-FR": "\\nTrop de fichiers ouverts ou fichier .WRL introuvable.\\n\\n",
-			"de-DE": "\\nZu viele Dateien geöffnet oder .WRL-Datei nicht gefunden.\\n\\n",
-			"it-IT": "\\nAperti troppi file o file .WRL non trovato.\\n\\n",
-			"es-ES": "\\nDemasiados archivos abiertos, o archivo .WRL no encontrado.\\n\\n",
-			"ru-RU": "\\nСлишком много файлов у вас.\\n\\n"
+			"en-US": "\nToo many files open or .WRL file not found.\n\n",
+			"fr-FR": "\nTrop de fichiers ouverts ou fichier .WRL introuvable.\n\n",
+			"de-DE": "\nZu viele Dateien geöffnet oder .WRL-Datei nicht gefunden.\n\n",
+			"it-IT": "\nAperti troppi file o file .WRL non trovato.\n\n",
+			"es-ES": "\nDemasiados archivos abiertos, o archivo .WRL no encontrado.\n\n",
+			"ru-RU": "\nСлишком много файлов у вас.\n\n"
 		},
 		"aeb0": {
 			"en-US": "End Turn",
@@ -1314,12 +1314,12 @@
 			"ru-RU": "Построенg %s, за время  %i."
 		},
 		"ee24": {
-			"en-US": "Currently building: %s.\\nTurns to completion: %i.",
-			"fr-FR": "Actuellement en construction: %s.\\nTours avant achèvement: %i.",
+			"en-US": "Currently building: %s.\nTurns to completion: %i.",
+			"fr-FR": "Actuellement en construction: %s.\nTours avant achèvement: %i.",
 			"de-DE": "Beim Bau: %s. Runden:  %i.",
-			"it-IT": "In fase di costruzione: %s.\\nTurni necessari per il completamento: %i.",
-			"es-ES": "Construyendo actualmente: %s.\\nTurnos para la terminación: %i.",
-			"ru-RU": "Строится : %s.\\nОсталось %i ходов."
+			"it-IT": "In fase di costruzione: %s.\nTurni necessari per il completamento: %i.",
+			"es-ES": "Construyendo actualmente: %s.\nTurnos para la terminación: %i.",
+			"ru-RU": "Строится : %s.\nОсталось %i ходов."
 		},
 		"bda4": {
 			"en-US": "Turns to repair unit: %i.",
@@ -1378,12 +1378,12 @@
 			"ru-RU": "доступен сейчас."
 		},
 		"9733": {
-			"en-US": "Begin turn %i.\\n",
-			"fr-FR": "Début du tour %i. \\n",
-			"de-DE": "Beginnen Sie Runde %i\\n",
-			"it-IT": "Inizia il turno %i.\\n",
-			"es-ES": "Comienzo del turno %i.\\n",
-			"ru-RU": "начало хода %i\\n"
+			"en-US": "Begin turn %i.\n",
+			"fr-FR": "Début du tour %i. \n",
+			"de-DE": "Beginnen Sie Runde %i\n",
+			"it-IT": "Inizia il turno %i.\n",
+			"es-ES": "Comienzo del turno %i.\n",
+			"ru-RU": "начало хода %i\n"
 		},
 		"fd20": {
 			"en-US": "%s under attack!",
@@ -1450,20 +1450,20 @@
 			"ru-RU": "End turn delayed because %s at [%i,%i] is %s"
 		},
 		"e285": {
-			"en-US": "OK to save file?\\n%s\\n\"%s\"",
-			"fr-FR": "OK pour sauvegarder le fichier?\\n%s\\n\"%s\"",
-			"de-DE": "OK, Datei zu speichern \\n%s\"%s\"",
-			"it-IT": "Vuoi salvare il file?\\n%s\\n\"%s\"",
-			"es-ES": "¿Estás seguro de que quieres guardar el archivo?\\n%s\\n\"%s\"",
-			"ru-RU": "Сохранить файл ?\\n%s\\n\\\"%s\\\""
+			"en-US": "OK to save file?\n%s\n\"%s\"",
+			"fr-FR": "OK pour sauvegarder le fichier?\n%s\n\"%s\"",
+			"de-DE": "OK, Datei zu speichern \n%s\"%s\"",
+			"it-IT": "Vuoi salvare il file?\n%s\n\"%s\"",
+			"es-ES": "¿Estás seguro de que quieres guardar el archivo?\n%s\n\"%s\"",
+			"ru-RU": "Сохранить файл ?\n%s\n\\\"%s\\\""
 		},
 		"470e": {
-			"en-US": "OK to load file?\\n%s\\n\"%s\"",
-			"fr-FR": "OK pour charger le fichier?\\n%s\\n\"%s\"",
-			"de-DE": "OK, Datei zu laden \\n%s\\n\"%s\"",
-			"it-IT": "Vuoi caricare il file?\\n%s\\n\"%s\"",
-			"es-ES": "¿Estás seguro de que quieres abrir el archivo?\\n%s\\n\"%s\"",
-			"ru-RU": "Загрузить файл?\\n%s\\n\\\"%s\\\""
+			"en-US": "OK to load file?\n%s\n\"%s\"",
+			"fr-FR": "OK pour charger le fichier?\n%s\n\"%s\"",
+			"de-DE": "OK, Datei zu laden \n%s\n\"%s\"",
+			"it-IT": "Vuoi caricare il file?\n%s\n\"%s\"",
+			"es-ES": "¿Estás seguro de que quieres abrir el archivo?\n%s\n\"%s\"",
+			"ru-RU": "Загрузить файл?\n%s\n\\\"%s\\\""
 		},
 		"f640": {
 			"en-US": "Game saved.",
@@ -1634,12 +1634,12 @@
 			"ru-RU": "Нельзя этого делать."
 		},
 		"df78": {
-			"en-US": "%s:\\nBegin cargo selection.",
-			"fr-FR": "%s: \\nCommencer la sélection du chargmt.",
-			"de-DE": "%s:\\nStarte Auswahl der Ladung.",
-			"it-IT": "%s:\\nInizia selezione del carico.",
-			"es-ES": "%s:\\nComenzar la selección de la carga.",
-			"ru-RU": "%s:\\nВыберите груз."
+			"en-US": "%s:\nBegin cargo selection.",
+			"fr-FR": "%s: \nCommencer la sélection du chargmt.",
+			"de-DE": "%s:\nStarte Auswahl der Ladung.",
+			"it-IT": "%s:\nInizia selezione del carico.",
+			"es-ES": "%s:\nComenzar la selección de la carga.",
+			"ru-RU": "%s:\nВыберите груз."
 		},
 		"851c": {
 			"en-US": "Select starting location.",
@@ -1658,11 +1658,11 @@
 			"ru-RU": "ТРЕВОГА: Это зарещено! Выберите снова."
 		},
 		"5cb4": {
-			"en-US": "Notice: Proximity zones overlap! Select again or\\nclick inside red circle to remain at current location.",
-			"fr-FR": "Avis: \\nles zones de proximité se chevauchent! Faites un nouveau choix ou\\ncliquez à l'intérieur du cercle rouge pour rester sur l'emplacement actuel.",
-			"de-DE": "Beachten Sie: Nachbarzonen überschneiden sich! Wählen Sie erneut oder\\nklicken Sie in den roten Kreis, um auf der aktuellen Position zu bleiben.",
-			"it-IT": "Avviso: Sovrapposizione di zone contigue!\\nScegli di nuovo o\\n clicca all'interno del cerchio\\nrosso per rimanere nell'attuale posizione.",
-			"es-ES": "¡AVISO! Las zonas de proximidad se superponen. Repite la selección o\\nhaz clic dentro del círculo rojo para permanecer en la posición actual.",
+			"en-US": "Notice: Proximity zones overlap! Select again or\nclick inside red circle to remain at current location.",
+			"fr-FR": "Avis: \nles zones de proximité se chevauchent! Faites un nouveau choix ou\ncliquez à l'intérieur du cercle rouge pour rester sur l'emplacement actuel.",
+			"de-DE": "Beachten Sie: Nachbarzonen überschneiden sich! Wählen Sie erneut oder\nklicken Sie in den roten Kreis, um auf der aktuellen Position zu bleiben.",
+			"it-IT": "Avviso: Sovrapposizione di zone contigue!\nScegli di nuovo o\n clicca all'interno del cerchio\nrosso per rimanere nell'attuale posizione.",
+			"es-ES": "¡AVISO! Las zonas de proximidad se superponen. Repite la selección o\nhaz clic dentro del círculo rojo para permanecer en la posición actual.",
 			"ru-RU": "ТРЕВОГА: Это зарещено! Выберите снова."
 		},
 		"dfe1": {
@@ -1674,12 +1674,12 @@
 			"ru-RU": "Выберите положение."
 		},
 		"c2eb": {
-			"en-US": "%s:\\nBegin turn.",
-			"fr-FR": "%s\\n:Début du tour.",
-			"de-DE": "%s:\\nStarte Runde.",
+			"en-US": "%s:\nBegin turn.",
+			"fr-FR": "%s\n:Début du tour.",
+			"de-DE": "%s:\nStarte Runde.",
 			"it-IT": "%s:Inizia turno.",
-			"es-ES": "%s:\\nComienzo del turno.",
-			"ru-RU": "%s:\\nНачало хода"
+			"es-ES": "%s:\nComienzo del turno.",
+			"ru-RU": "%s:\nНачало хода"
 		},
 		"df36": {
 			"en-US": "Auto-save file not found. Unable to continue with this game.",
@@ -2506,28 +2506,28 @@
 			"ru-RU": "Все."
 		},
 		"ceb6": {
-			"en-US": "Enter: End Turn\\n\\nF: Find Selected Unit. Currently selected unit will be centered on screen.\\n\\n-,+: Zoom In, Out\\n\\nG: Turns on Grid Display\\n\\nF1: Centers on Tagged Unit\\n\\nArrow Keys: Scrolls the map\\n\\nALT-P: Pause the game\\n\\nALT-F: Opens the Load/Save Game Menu\\n\\nALT-L: Use to quick load a game\\n\\nALT-S: Use to quick save a game\\n\\nALT-X: Exits the Game to the Main Menu\\n\\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Saves the current window position\\n\\nF5, F6, F7, F8: Jumps to a previously saved window position\\n\\n?: Initiates HELP mode.  The cursor changes to a question mark, clicking on screen items will display help text.\\n\\nALT-C: Saves a screen shot of the game in PCX format.\\n\\nShift: Hold the Shift key while selecting units to create groups.\\n\\nShift-Done: Holding the Shift key while clicking on the Done button will start in motion all units that are waiting to move along a path.\\n\\nHot keys for unit commands:\\n\\nPress 1 for these functions:\\n...Activate\\n...Allocate\\n...Auto-Survey\\n...Build\\n...Buy Upgrade\\n...Disable\\n...Place Mines\\n...Reload\\n...Repair\\n...Research\\n\\nPress 2 for these functions:\\n...Load\\n...Start\\n...Steal\\n\\nPress 3 for these functions:\\n...Attack\\n...Transfer\\n\\nPress 4 for the Manual function.\\n\\nPress 5 for these functions:\\n...Enter\\n...Upgrade\\n\\nPress 6 for the Upgrade All function.\\n\\nPress 7 for the Stop function.\\n\\nPress 8 for the Sentry function.\\n\\nPress 9 for the Done function.\\n\\nPress 0 for the Remove function.\\n",
-			"fr-FR": "Entrée: Fin de Tour\\n\\nF: Trouvez l'Unité sélectionnée. L'unité actuellement sélectionnée sera centrée sur l'écran.\\n\\n-,+: Zoom In, Out\\n\\nG: Active l'Affichage Grille\\n\\nF1: Centre sur l'unité visée\\n\\nTouches fléchées: fait défiler la carte \\n\\nALT-P: Met le jeu en pause\\n\\nALT-F: Ouvre le Menu de Jeu Charger/Sauv.\\n\\nALT-L: A utiliser pour charger rapidement un jeu\\n\\nALT-S: A utiliser pour sauvegarder rapidement un jeu\\n\\nALT-X: Quitte le jeu pour aller dans le menu Principal\\n\\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Sauvegarde la position de fenêtre actuelle\\n\\nF5, F6, F7, F8: Va en position d'une fenêtre précédemment sauvegardée\\n\\n?:Amorce le Mode Aide. Le curseur se transforme en point d'interrogation. En cliquant sur les objets de l'écran, on affichera le texte d'aide.\\n\\nALT-C: sauvegarde une prise d'écran de jeu en format PCX.\\n\\nMaj: Maintenez la touche Maj pendant que vous sélectionnez des unités pour créer des groupes.\\n\\nMaj-Fait: Maintenir la touche Maj en cliquant sur Fait déclenche le mouvement des unités qui attendent de se déplacer.\\n\\nTouches-raccourci pour les commandes d'unités:\\n\\nAppuyez sur 1 pour ces fonctions:\\n...Activer\\n...Affecter\\n...Auto-Surveillance\\n...Construire\\n...Acheter mise à jour\\n...Désactiver\\n...Placer des mines\\n...Recharger...Réparer\\n...Rechercher\\n\\nAppuyez sur 2 pour ces fonctions:\\n...Charger\\n...Démarrern...Voler\\n\\n Appuyez sur 3 pour ces fonctions:\\n...Attaquer\\n...Transférer\\n\\n Appuyez sur 4 pour les fonctions manuelles.\\n\\n Appuyez sur 5 pour ces fonctions:\\n...Entrer\\n...Mise à jour\\n\\n Appuyez sur 6 pour la  fonction Mise à jour totale.\\n\\nAppuyez sur 7 pour la fonction Arrêt.\\n\\n Appuyez sur 7 pour la fonction Sentinelle.\\n\\n Appuyez sur 9 pour la fonction Fait\\n\\n Appuyez sur 0 pour la fonction Retirer.\\n",
-			"de-DE": "Eingabe: Runden-Ende \\n\\nF: Finde ausgewählte Einheit. Ausgewählte Einheit wird auf dem Bildschirm zentriert.\\n\\n-,+: Zoom herein, heraus\\n\\nG: Schaltet Raster ein\\n\\nF1: Zentriert Markierte Einheit\\n\\nPfeiltasten: Scrollen die Karte\\n\\nALT-P: Spielpause\\n\\nALT-F: Öffnet das Laden/Speichern-Menü\\n\\nALT-L: Spielstand schnell laden\\n\\nALT-S: Spielstand schnell speichern\\n\\nALT-X: Beendet das Spiel zum Hauptmenü\\n\\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Speichert die aktuelle Fensterposition\\n\\nF5, F6, F7, F8: Lädt eine abgespeicherte Fensterposition\\n\\n?: Startet Hilfe-Modus. Der Cursor wird zu einem Fragezeichen, klicken auf Bildschirmelementen zeigt Hilfstext.\\n\\nALT-C: Speichert ein Bildschirmfoto im PCX-Format.\\n\\nShift: Halten der Shift-Taste läßt Einheiten zu Gruppen auswählen.\\n\\nShift-Erledigt: Das Halten der Shift-Taste während des Klickens auf den Button Erledigt setzt alle Einheiten in Bewegung, die darauf warten, sich einen Pfad entlangzubewegen.\\n\\nTastaturbefehle für Kommandos der Einheiten:\\n\\nDrücken Sie 1 für diese Funktionen:\\n...Aktivieren\\n...Verteilen\\n...Auto-Vermessen\\n...Bauen\\n...Upgrade kaufen\\n...Deaktivieren\\n...Minen plazieren\\n...Neu laden\\n...Reparieren\\n...Forschen\\n\\nDrücken Sie 2 für diese Funktionen:\\n...Laden\\n...Starten\\n...Stehlen\\n\\nDrücken Sie 3 für diese Funktionen:\\n...Angreifen\\n...Transferieren\\n\\nDrücken Sie 4 für die manuelle Funktion.\\n\\nDrücken Sie 5 für diese Funktionen:\\n...Hinein\\n...Upgrade\\n\\nDrücken Sie 6 für die Funktion Alles Aufrüsten.\\n\\nDrücken Sie 7 für die Funktion Stop.\\n\\nDrücken Sie 8 für die Funktion Wache.\\n\\nDrücken Sie 9 für die Funktion Erledigt.\\n\\nDrücken Sie 0 für die Funktion Entfernen.\\n",
-			"it-IT": "Enter: Fine turno\\n\\nF: Trova Unità Selezionata. L'unità correntemente selezionata verrà posizionata al centro dello schermo.\\n\\n-,+: Zoom In, Out\\n\\nG: Attiva la visualizzazione della Griglia \\n\\nF1: Centra l'unità selezionata\\n\\nTasti Freccia: Attivano lo scorrimento della Mappa\\n\\nALT-P: Sospende momentaneamente il gioco\\n\\nALT-F: Apre Il Menu Carica/Salva Gioco\\n\\nALT-L: Serve per il caricamento rapido di un gioco\\n\\nALT-S: Serve per il salvataggio rapido di un gioco\\n\\nALT-X: Fa uscire dal Gioco e porta al Menu Principale\\n\\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Salva la posizione della finestra corrente\\n\\nF5, F6, F7, F8: Porta alla posizione di una finestra precedentemente salvata\\n\\n?: Avvia la modalità HELP.  Il cursore assume la forma di un punto interrogativo, cliccando sugli oggetti dello schermo verrà visualizzato il testo d'aiuto. \\nALT-C: Salva una schermata del gioco in formato PCX.\\n\\nTasto Maiuscole: Tieni premuto il tasto delle maiuscole mentre selezioni le unità per creare i gruppi.\\n\\nMaiuscolo-Fatto: Tenendo premuto il tasto delle maiuscole mentre si clicca sul bottone Fatto si metteranno in moto tutte le unità in attesa di muoversi lungo un percorso.\\n\\nTasti rapidi per comandi unità:\\n\\nPremere 1 per queste funzioni:\\n...Activa\\n...Alloca\\n...Auto-Ricognizione\\n...Costruisci\\n...Acquista Aggiornamento\\n...Disattiva\\n...Colloca Mine\\n...Ricarica\\n...Ripara\\n...Ricerca\\n\\nPremi 2 per qeuste funzioni:\\n...Carica\\n...Avvia\\n...Ruba\\n\\nPremi 3 per queste funzioni:\\n...Attacca\\n...Trasferisci\\n\\nPremi 4 per la funzione Manuale.\\n\\nPremi 5 per queste funzioni:\\n...Inserisci\\n...Aggiorna\\n\\nPremi 6 per Aggiorna Tutte le Funzioni.\\n\\nPremi 7 per la funzione Stop.\\n\\nPremi 8 per la funzione Guardia.\\n\\nPremi 9 per la funzione Fatto.\\n\\nPremi 0 per la funzione Rimuovi.\\n",
-			"es-ES": "Intro: Fin de turno\\n\\nF: Encontrar la unidad seleccionada. La unidad seleccionada actualmente aparecerá centrada en la pantalla.\\n\\n-,+: Zoom dentro, fuera\\n\\nG: Activa la cuadrícula\\n\\nF1: Centra la imagen en la unidad seleccionada\\n\\nTeclas de flecha: Desplazan el mapa\\n\\nALT-P: Detener el juego\\n\\nALT-F: Abre el menú Guardar/Abrir\\n\\nALT-L: Apertura rápida de una partida\\n\\nALT-S: Guardado rápido de una partida\\n\\nALT-X: Salida del juego al menú principal\\n\\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Guarda la posición actual de la pantalla\\n\\nF5, F6, F7, F8: Salta a una posición de la pantalla guardada previamente\\n\\n?: Activa el modo de AYUDA.  El cursor se convierte en una interrogación con la que se puede hacer clic en los distintos objetos de la pantalla para mostrar el texto de ayuda .\\n\\nALT-C: Se captura la imagen de la pantalla y se guarda en formato PCX.\\n\\nMayús: Mantén pulsada la tecla Mayús al seleccionar unidades, con el fin de agruparlas.\\n\\nMayús-Hecho: Si se mantiene pulsada la tecla Mayús mientras se hace clic en el botón Hecho, todas las unidades que estén esperando a seguir un camino se pondrán en movimiento.\\n\\nTeclas de atajo para dar ordenes a las unidades:\\n\\nPulsa 1 para las siguientes funciones:\\n...Activar\\n...Situar\\n...Rastrear automáticamente\\n...Construir\\n...Comprar mejora\\n...Desactivar\\n...Colocar minas\\n...Recargar\\n...Reparar\\n...Investigar\\n\\nPulsa 2 para las siguientes funciones:\\n...Cargar\\n...Comenzar\\n...Robar\\n\\nPulsa 3 para las siguientes funciones:\\n...Atacar\\n...Transferir\\n\\nPulsa 4 para la función Manual.\\n\\nPulsa 5 para las siguientes funciones:\\n...Entrar\\n...Mejorar\\n\\nPulsa 6 para la función Mejorar todo.\\n\\nPulsa 7 para la función Detener.\\n\\nPulse 8 para la función En guardia.\\n\\nPulse 9 para la función Hecho.\\n\\nPulse 0 para la función Quitar.\\n",
-			"ru-RU": "Enter: End Turn\\n\\nF: Find Selected Unit. Currently selected unit will be centered on screen.\\n\\n-,+: Zoom In, Out\\n\\nG: Turns on Grid Display\\n\\nF1: Centers on Tagged Unit\\n\\nArrow Keys: Scrolls the map\\n\\nALT-P: Pause the game\\n\\nALT-F: Opens the Load/Save Game Menu\\n\\nALT-L: Use to quick load a game\\n\\nALT-S: Use to quick save a game\\n\\nALT-X: Exits the Game to the Main Menu\\n\\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Saves the current window position\\n\\nF5, F6, F7, F8: Jumps to a previously saved window position\\n\\n?: Initiates HELP mode.  The cursor changes to a question mark, clicking on screen items will display help text.\\n\\nALT-C: Saves a screen shot of the game in PCX format.\\n\\nShift: Hold the Shift key while selecting units to create groups.\\n\\nShift-Done: Holding the Shift key while clicking on the Done button will start in motion all units that are waiting to move along a path.\\n\\nHot keys for unit commands:\\n\\nPress 1 for these functions:\\n...Activate\\n...Allocate\\n...Auto-Survey\\n...Build\\n...Buy Upgrade\\n...Disable\\n...Place Mines\\n...Reload\\n...Repair\\n...Research\\n\\nPress 2 for these functions:\\n...Load\\n...Start\\n...Steal\\n\\nPress 3 for these functions:\\n...Attack\\n...Transfer\\n\\nPress 4 for the Manual function.\\n\\nPress 5 for these functions:\\n...Enter\\n...Upgrade\\n\\nPress 6 for the Upgrade All function.\\n\\nPress 7 for the Stop function.\\n\\nPress 8 for the Sentry function.\\n\\nPress 9 for the Done function.\\n\\nPress 0 for the Remove function.\\n"
+			"en-US": "Enter: End Turn\n\nF: Find Selected Unit. Currently selected unit will be centered on screen.\n\n-,+: Zoom In, Out\n\nG: Turns on Grid Display\n\nF1: Centers on Tagged Unit\n\nArrow Keys: Scrolls the map\n\nALT-P: Pause the game\n\nALT-F: Opens the Load/Save Game Menu\n\nALT-L: Use to quick load a game\n\nALT-S: Use to quick save a game\n\nALT-X: Exits the Game to the Main Menu\n\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Saves the current window position\n\nF5, F6, F7, F8: Jumps to a previously saved window position\n\n?: Initiates HELP mode.  The cursor changes to a question mark, clicking on screen items will display help text.\n\nALT-C: Saves a screen shot of the game in PCX format.\n\nShift: Hold the Shift key while selecting units to create groups.\n\nShift-Done: Holding the Shift key while clicking on the Done button will start in motion all units that are waiting to move along a path.\n\nHot keys for unit commands:\n\nPress 1 for these functions:\n...Activate\n...Allocate\n...Auto-Survey\n...Build\n...Buy Upgrade\n...Disable\n...Place Mines\n...Reload\n...Repair\n...Research\n\nPress 2 for these functions:\n...Load\n...Start\n...Steal\n\nPress 3 for these functions:\n...Attack\n...Transfer\n\nPress 4 for the Manual function.\n\nPress 5 for these functions:\n...Enter\n...Upgrade\n\nPress 6 for the Upgrade All function.\n\nPress 7 for the Stop function.\n\nPress 8 for the Sentry function.\n\nPress 9 for the Done function.\n\nPress 0 for the Remove function.\n",
+			"fr-FR": "Entrée: Fin de Tour\n\nF: Trouvez l'Unité sélectionnée. L'unité actuellement sélectionnée sera centrée sur l'écran.\n\n-,+: Zoom In, Out\n\nG: Active l'Affichage Grille\n\nF1: Centre sur l'unité visée\n\nTouches fléchées: fait défiler la carte \n\nALT-P: Met le jeu en pause\n\nALT-F: Ouvre le Menu de Jeu Charger/Sauv.\n\nALT-L: A utiliser pour charger rapidement un jeu\n\nALT-S: A utiliser pour sauvegarder rapidement un jeu\n\nALT-X: Quitte le jeu pour aller dans le menu Principal\n\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Sauvegarde la position de fenêtre actuelle\n\nF5, F6, F7, F8: Va en position d'une fenêtre précédemment sauvegardée\n\n?:Amorce le Mode Aide. Le curseur se transforme en point d'interrogation. En cliquant sur les objets de l'écran, on affichera le texte d'aide.\n\nALT-C: sauvegarde une prise d'écran de jeu en format PCX.\n\nMaj: Maintenez la touche Maj pendant que vous sélectionnez des unités pour créer des groupes.\n\nMaj-Fait: Maintenir la touche Maj en cliquant sur Fait déclenche le mouvement des unités qui attendent de se déplacer.\n\nTouches-raccourci pour les commandes d'unités:\n\nAppuyez sur 1 pour ces fonctions:\n...Activer\n...Affecter\n...Auto-Surveillance\n...Construire\n...Acheter mise à jour\n...Désactiver\n...Placer des mines\n...Recharger...Réparer\n...Rechercher\n\nAppuyez sur 2 pour ces fonctions:\n...Charger\n...Démarrern...Voler\n\n Appuyez sur 3 pour ces fonctions:\n...Attaquer\n...Transférer\n\n Appuyez sur 4 pour les fonctions manuelles.\n\n Appuyez sur 5 pour ces fonctions:\n...Entrer\n...Mise à jour\n\n Appuyez sur 6 pour la  fonction Mise à jour totale.\n\nAppuyez sur 7 pour la fonction Arrêt.\n\n Appuyez sur 7 pour la fonction Sentinelle.\n\n Appuyez sur 9 pour la fonction Fait\n\n Appuyez sur 0 pour la fonction Retirer.\n",
+			"de-DE": "Eingabe: Runden-Ende \n\nF: Finde ausgewählte Einheit. Ausgewählte Einheit wird auf dem Bildschirm zentriert.\n\n-,+: Zoom herein, heraus\n\nG: Schaltet Raster ein\n\nF1: Zentriert Markierte Einheit\n\nPfeiltasten: Scrollen die Karte\n\nALT-P: Spielpause\n\nALT-F: Öffnet das Laden/Speichern-Menü\n\nALT-L: Spielstand schnell laden\n\nALT-S: Spielstand schnell speichern\n\nALT-X: Beendet das Spiel zum Hauptmenü\n\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Speichert die aktuelle Fensterposition\n\nF5, F6, F7, F8: Lädt eine abgespeicherte Fensterposition\n\n?: Startet Hilfe-Modus. Der Cursor wird zu einem Fragezeichen, klicken auf Bildschirmelementen zeigt Hilfstext.\n\nALT-C: Speichert ein Bildschirmfoto im PCX-Format.\n\nShift: Halten der Shift-Taste läßt Einheiten zu Gruppen auswählen.\n\nShift-Erledigt: Das Halten der Shift-Taste während des Klickens auf den Button Erledigt setzt alle Einheiten in Bewegung, die darauf warten, sich einen Pfad entlangzubewegen.\n\nTastaturbefehle für Kommandos der Einheiten:\n\nDrücken Sie 1 für diese Funktionen:\n...Aktivieren\n...Verteilen\n...Auto-Vermessen\n...Bauen\n...Upgrade kaufen\n...Deaktivieren\n...Minen plazieren\n...Neu laden\n...Reparieren\n...Forschen\n\nDrücken Sie 2 für diese Funktionen:\n...Laden\n...Starten\n...Stehlen\n\nDrücken Sie 3 für diese Funktionen:\n...Angreifen\n...Transferieren\n\nDrücken Sie 4 für die manuelle Funktion.\n\nDrücken Sie 5 für diese Funktionen:\n...Hinein\n...Upgrade\n\nDrücken Sie 6 für die Funktion Alles Aufrüsten.\n\nDrücken Sie 7 für die Funktion Stop.\n\nDrücken Sie 8 für die Funktion Wache.\n\nDrücken Sie 9 für die Funktion Erledigt.\n\nDrücken Sie 0 für die Funktion Entfernen.\n",
+			"it-IT": "Enter: Fine turno\n\nF: Trova Unità Selezionata. L'unità correntemente selezionata verrà posizionata al centro dello schermo.\n\n-,+: Zoom In, Out\n\nG: Attiva la visualizzazione della Griglia \n\nF1: Centra l'unità selezionata\n\nTasti Freccia: Attivano lo scorrimento della Mappa\n\nALT-P: Sospende momentaneamente il gioco\n\nALT-F: Apre Il Menu Carica/Salva Gioco\n\nALT-L: Serve per il caricamento rapido di un gioco\n\nALT-S: Serve per il salvataggio rapido di un gioco\n\nALT-X: Fa uscire dal Gioco e porta al Menu Principale\n\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Salva la posizione della finestra corrente\n\nF5, F6, F7, F8: Porta alla posizione di una finestra precedentemente salvata\n\n?: Avvia la modalità HELP.  Il cursore assume la forma di un punto interrogativo, cliccando sugli oggetti dello schermo verrà visualizzato il testo d'aiuto. \nALT-C: Salva una schermata del gioco in formato PCX.\n\nTasto Maiuscole: Tieni premuto il tasto delle maiuscole mentre selezioni le unità per creare i gruppi.\n\nMaiuscolo-Fatto: Tenendo premuto il tasto delle maiuscole mentre si clicca sul bottone Fatto si metteranno in moto tutte le unità in attesa di muoversi lungo un percorso.\n\nTasti rapidi per comandi unità:\n\nPremere 1 per queste funzioni:\n...Activa\n...Alloca\n...Auto-Ricognizione\n...Costruisci\n...Acquista Aggiornamento\n...Disattiva\n...Colloca Mine\n...Ricarica\n...Ripara\n...Ricerca\n\nPremi 2 per qeuste funzioni:\n...Carica\n...Avvia\n...Ruba\n\nPremi 3 per queste funzioni:\n...Attacca\n...Trasferisci\n\nPremi 4 per la funzione Manuale.\n\nPremi 5 per queste funzioni:\n...Inserisci\n...Aggiorna\n\nPremi 6 per Aggiorna Tutte le Funzioni.\n\nPremi 7 per la funzione Stop.\n\nPremi 8 per la funzione Guardia.\n\nPremi 9 per la funzione Fatto.\n\nPremi 0 per la funzione Rimuovi.\n",
+			"es-ES": "Intro: Fin de turno\n\nF: Encontrar la unidad seleccionada. La unidad seleccionada actualmente aparecerá centrada en la pantalla.\n\n-,+: Zoom dentro, fuera\n\nG: Activa la cuadrícula\n\nF1: Centra la imagen en la unidad seleccionada\n\nTeclas de flecha: Desplazan el mapa\n\nALT-P: Detener el juego\n\nALT-F: Abre el menú Guardar/Abrir\n\nALT-L: Apertura rápida de una partida\n\nALT-S: Guardado rápido de una partida\n\nALT-X: Salida del juego al menú principal\n\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Guarda la posición actual de la pantalla\n\nF5, F6, F7, F8: Salta a una posición de la pantalla guardada previamente\n\n?: Activa el modo de AYUDA.  El cursor se convierte en una interrogación con la que se puede hacer clic en los distintos objetos de la pantalla para mostrar el texto de ayuda .\n\nALT-C: Se captura la imagen de la pantalla y se guarda en formato PCX.\n\nMayús: Mantén pulsada la tecla Mayús al seleccionar unidades, con el fin de agruparlas.\n\nMayús-Hecho: Si se mantiene pulsada la tecla Mayús mientras se hace clic en el botón Hecho, todas las unidades que estén esperando a seguir un camino se pondrán en movimiento.\n\nTeclas de atajo para dar ordenes a las unidades:\n\nPulsa 1 para las siguientes funciones:\n...Activar\n...Situar\n...Rastrear automáticamente\n...Construir\n...Comprar mejora\n...Desactivar\n...Colocar minas\n...Recargar\n...Reparar\n...Investigar\n\nPulsa 2 para las siguientes funciones:\n...Cargar\n...Comenzar\n...Robar\n\nPulsa 3 para las siguientes funciones:\n...Atacar\n...Transferir\n\nPulsa 4 para la función Manual.\n\nPulsa 5 para las siguientes funciones:\n...Entrar\n...Mejorar\n\nPulsa 6 para la función Mejorar todo.\n\nPulsa 7 para la función Detener.\n\nPulse 8 para la función En guardia.\n\nPulse 9 para la función Hecho.\n\nPulse 0 para la función Quitar.\n",
+			"ru-RU": "Enter: End Turn\n\nF: Find Selected Unit. Currently selected unit will be centered on screen.\n\n-,+: Zoom In, Out\n\nG: Turns on Grid Display\n\nF1: Centers on Tagged Unit\n\nArrow Keys: Scrolls the map\n\nALT-P: Pause the game\n\nALT-F: Opens the Load/Save Game Menu\n\nALT-L: Use to quick load a game\n\nALT-S: Use to quick save a game\n\nALT-X: Exits the Game to the Main Menu\n\nALT-F5, ALT-F6, ALT-F7, ALT-F8: Saves the current window position\n\nF5, F6, F7, F8: Jumps to a previously saved window position\n\n?: Initiates HELP mode.  The cursor changes to a question mark, clicking on screen items will display help text.\n\nALT-C: Saves a screen shot of the game in PCX format.\n\nShift: Hold the Shift key while selecting units to create groups.\n\nShift-Done: Holding the Shift key while clicking on the Done button will start in motion all units that are waiting to move along a path.\n\nHot keys for unit commands:\n\nPress 1 for these functions:\n...Activate\n...Allocate\n...Auto-Survey\n...Build\n...Buy Upgrade\n...Disable\n...Place Mines\n...Reload\n...Repair\n...Research\n\nPress 2 for these functions:\n...Load\n...Start\n...Steal\n\nPress 3 for these functions:\n...Attack\n...Transfer\n\nPress 4 for the Manual function.\n\nPress 5 for these functions:\n...Enter\n...Upgrade\n\nPress 6 for the Upgrade All function.\n\nPress 7 for the Stop function.\n\nPress 8 for the Sentry function.\n\nPress 9 for the Done function.\n\nPress 0 for the Remove function.\n"
 		},
 		"f3e3": {
-			"en-US": "\\nM.A.X. INI File not found..  Using Defaults...\\n",
-			"fr-FR": "\\nFichier M.A.X. INI introuvable…Utilisation des valeurs par Défaut...\\n",
-			"de-DE": "\\nM.A.X. INI Datei nicht gefunden..  Voreinstellungen benutzen_\\n",
-			"it-IT": "\\nM.A.X. INI non trovato... Utilizzo valori di default...\\n",
-			"es-ES": "\\nNo se encuentra el archivo M.A.X. INI.. Usando valores predeterminados...\\n",
-			"ru-RU": "\\nМЭНДЕР.INI не найден..Взят по умолчанию..\\n"
+			"en-US": "\nM.A.X. INI File not found..  Using Defaults...\n",
+			"fr-FR": "\nFichier M.A.X. INI introuvable…Utilisation des valeurs par Défaut...\n",
+			"de-DE": "\nM.A.X. INI Datei nicht gefunden..  Voreinstellungen benutzen_\n",
+			"it-IT": "\nM.A.X. INI non trovato... Utilizzo valori di default...\n",
+			"es-ES": "\nNo se encuentra el archivo M.A.X. INI.. Usando valores predeterminados...\n",
+			"ru-RU": "\nМЭНДЕР.INI не найден..Взят по умолчанию..\n"
 		},
 		"db0c": {
-			"en-US": "\\nUnable to Write File..  Disk Full?\\n",
-			"fr-FR": "\\nImpossible d'écrire le fichier. Disque saturé?\\n",
-			"de-DE": "\\nNicht möglich, Datei zu schreiben..  Festplatte voll?\\n",
-			"it-IT": "\\nImpossibile scrivere il file... disco pieno?\\n",
-			"es-ES": "\\nImposible escribir el archivo.. Es posible que el disco esté lleno.\\n",
-			"ru-RU": "\\nФайл не пишется... К чему бы это?\\n"
+			"en-US": "\nUnable to Write File..  Disk Full?\n",
+			"fr-FR": "\nImpossible d'écrire le fichier. Disque saturé?\n",
+			"de-DE": "\nNicht möglich, Datei zu schreiben..  Festplatte voll?\n",
+			"it-IT": "\nImpossibile scrivere il file... disco pieno?\n",
+			"es-ES": "\nImposible escribir el archivo.. Es posible que el disco esté lleno.\n",
+			"ru-RU": "\nФайл не пишется... К чему бы это?\n"
 		},
 		"7f53": {
 			"en-US": "No clan chosen - computer will choose a clan at random.",
@@ -2668,7 +2668,7 @@
 		"06ec": {
 			"en-US": "There must be at least two human players to begin a hot seat game.",
 			"fr-FR": "Il faut au moins deux joueurs humains pour commencer un jeu en direct.",
-			"de-DE": "Es werden mindestens 2 Spieler benötigt, um ein Hot-Seat-Spiel zu\\nbeginnen.",
+			"de-DE": "Es werden mindestens 2 Spieler benötigt, um ein Hot-Seat-Spiel zu\nbeginnen.",
 			"it-IT": "Ci devono essere almeno due giocatori umani per iniziare un gioco In Diretta.",
 			"es-ES": "Debe haber por lo menos dos jugadores humanos para dar comienzo a un juego en directo.",
 			"ru-RU": "Должно быть хоть 2 игрока для начала игры."
@@ -3586,195 +3586,195 @@
 			"ru-RU": "своих инсталляционных программ."
 		},
 		"1471": {
-			"en-US": "This world is named for the shape of its only landmass. If participants on this world are placed too close together, a production strategy is unlikely to work.\\nNumber of Participants: Two to three participants is preferable.\\nGame Time: Games on this land mass can be very short unless the combatants are well separated.",
-			"fr-FR": "Ce monde a le nom de sa masse continentale. Pour ce monde, si les joueurs sont trop rapprochés, une stratégie production risque d'échouer.\\nNombre de participants: deux à trois préférable.\\nTemps de jeu: les jeux  peuvent être très courts sauf si les participants sont très séparés.",
-			"de-DE": "Diese Welt wurde nach der Form ihrer Landmasse benannt. Wenn Teilnehmer auf dieser Welt zu dicht stehen, funktioniert die Strategie u.U. nicht. Teilnehmerzahl: am besten 2-3 Teilnehmer.\\nSpieldauer: Spiele auf dieser Landmasse können sehr kurz sein, wenn die Kämpfer zu dicht stehen.",
-			"it-IT": "Questo mondo è così chiamato per la forma della sua unica terra emersa. Se i concorrenti vengono posizionati troppo vicino è improbabile che una strategia di produzione funzioni.\\nNumero dei Partecipanti: ne sono consigliati 2 o 3 partecipanti.\\nTempo del Gioco: i Giochi su questa terra emersa possono essere molto brevi.",
-			"es-ES": "Este mundo debe su nombre a la forma de su única masa continental. Si los participantes se colocan demasiado cerca entre sí, es poco probable que funcionen las estrategias de producción.\\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\\nTiempo de juego: Los juegos en esta extensión de tierra suelen ser cortos.",
+			"en-US": "This world is named for the shape of its only landmass. If participants on this world are placed too close together, a production strategy is unlikely to work.\nNumber of Participants: Two to three participants is preferable.\nGame Time: Games on this land mass can be very short unless the combatants are well separated.",
+			"fr-FR": "Ce monde a le nom de sa masse continentale. Pour ce monde, si les joueurs sont trop rapprochés, une stratégie production risque d'échouer.\nNombre de participants: deux à trois préférable.\nTemps de jeu: les jeux  peuvent être très courts sauf si les participants sont très séparés.",
+			"de-DE": "Diese Welt wurde nach der Form ihrer Landmasse benannt. Wenn Teilnehmer auf dieser Welt zu dicht stehen, funktioniert die Strategie u.U. nicht. Teilnehmerzahl: am besten 2-3 Teilnehmer.\nSpieldauer: Spiele auf dieser Landmasse können sehr kurz sein, wenn die Kämpfer zu dicht stehen.",
+			"it-IT": "Questo mondo è così chiamato per la forma della sua unica terra emersa. Se i concorrenti vengono posizionati troppo vicino è improbabile che una strategia di produzione funzioni.\nNumero dei Partecipanti: ne sono consigliati 2 o 3 partecipanti.\nTempo del Gioco: i Giochi su questa terra emersa possono essere molto brevi.",
+			"es-ES": "Este mundo debe su nombre a la forma de su única masa continental. Si los participantes se colocan demasiado cerca entre sí, es poco probable que funcionen las estrategias de producción.\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\nTiempo de juego: Los juegos en esta extensión de tierra suelen ser cortos.",
 			"ru-RU": "Этот мир назван так из за формы своего материка.Игра здесь будет короткой."
 		},
 		"c336": {
-			"en-US": "This area is likely to need a full deployment of land, sea, and air forces. A force starting on the same land mass as another might abandon their base camp and striking out for another land mass to start over.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: Games in this area are likely to be long.",
-			"fr-FR": "Un déploiement terre, mer, air est nécessaire. Une force partant sur le même continent qu'une autre pourrait abandonner son camp et échouer sur un autre continent pour recommencer.\\nNombre de participants: 2 à 4.\\nTemps de jeu: dans ce monde peuvent être longs.",
-			"de-DE": "Dieses Gebiet braucht vollen Einsatz von Land-, See, und Luftarmeen. Eine Armee, die auf derselben Landmasse wie eine andere startet, sollte das Hauptlager verlassen und auf eine andere Landmasse ziehen, um zu starten.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Spiele auf dieser Landmasse dauern recht lang.",
-			"it-IT": "Quest'area probabilmente necessita di un completo spiegamento di forze di terra, navali e aeree. Una forza che inizia sulla terra emersa stessa con un'altra potrebbe abbandonare il proprio campo base e guadagnarne un'altra per ricominciare daccapo.\\nNumero di Partecipanti: possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: I Giochi in questa zona potrebbero diventare lunghi.",
-			"es-ES": "Aquí se necesita un despliegue completo de las fuerzas de tierra, mar y aire. Una fuerza que empiece en el mismo continente que otra puede abandonar su base e ir a otro continente donde empezar de nuevo.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores .\\nTiempo de juego: En esta zona las partidas suelen durar mucho.",
+			"en-US": "This area is likely to need a full deployment of land, sea, and air forces. A force starting on the same land mass as another might abandon their base camp and striking out for another land mass to start over.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Games in this area are likely to be long.",
+			"fr-FR": "Un déploiement terre, mer, air est nécessaire. Une force partant sur le même continent qu'une autre pourrait abandonner son camp et échouer sur un autre continent pour recommencer.\nNombre de participants: 2 à 4.\nTemps de jeu: dans ce monde peuvent être longs.",
+			"de-DE": "Dieses Gebiet braucht vollen Einsatz von Land-, See, und Luftarmeen. Eine Armee, die auf derselben Landmasse wie eine andere startet, sollte das Hauptlager verlassen und auf eine andere Landmasse ziehen, um zu starten.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Spiele auf dieser Landmasse dauern recht lang.",
+			"it-IT": "Quest'area probabilmente necessita di un completo spiegamento di forze di terra, navali e aeree. Una forza che inizia sulla terra emersa stessa con un'altra potrebbe abbandonare il proprio campo base e guadagnarne un'altra per ricominciare daccapo.\nNumero di Partecipanti: possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: I Giochi in questa zona potrebbero diventare lunghi.",
+			"es-ES": "Aquí se necesita un despliegue completo de las fuerzas de tierra, mar y aire. Una fuerza que empiece en el mismo continente que otra puede abandonar su base e ir a otro continente donde empezar de nuevo.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores .\nTiempo de juego: En esta zona las partidas suelen durar mucho.",
 			"ru-RU": "Игра здесь будет долгой."
 		},
 		"f40f": {
-			"en-US": "These chunks of ice poking up out of the frozen sea are widely enough separated that participants should have plenty of time to build up naval and air forces to pursue their goals.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: Games in this area are likely to be long.",
-			"fr-FR": "Ces icebergs sont suffisamment séparés pour que les participants aient tout le temps de construire marine et aviation pour réaliser leurs objectifs.\\nNombre de participants: 2 à 4.\\nTemps de jeu: dans cette zone peuvent être longs.",
-			"de-DE": "Diese aus dem Meer ragende Eisklötze sind weit genug auseinander, so daß Teilnehmer genug Zeit haben sollten, um See und Luftarmeen aufzubauen, um ihre Ziele zu erreichen.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Spiele in diesem Gebiet dauern recht lange.",
-			"it-IT": "Questi 'Iceberg' hanno talmente una distanza tra loro da dare ai partecipanti tempo di costruire forze aeree e navali per raggiungere i propri obiettivi.\\nNumero di Partecipanti: possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: i Giochi in questa zona potrebbero diventare lunghi.",
-			"es-ES": "La distancia entre estos icebergs que salen del mar congelado es suficiente para que los participantes tengan tiempo de poner a punto unas fuerzas aéreas y navales que faciliten sus objetivos.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: En esta zona las partidas suelen durar mucho.",
+			"en-US": "These chunks of ice poking up out of the frozen sea are widely enough separated that participants should have plenty of time to build up naval and air forces to pursue their goals.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Games in this area are likely to be long.",
+			"fr-FR": "Ces icebergs sont suffisamment séparés pour que les participants aient tout le temps de construire marine et aviation pour réaliser leurs objectifs.\nNombre de participants: 2 à 4.\nTemps de jeu: dans cette zone peuvent être longs.",
+			"de-DE": "Diese aus dem Meer ragende Eisklötze sind weit genug auseinander, so daß Teilnehmer genug Zeit haben sollten, um See und Luftarmeen aufzubauen, um ihre Ziele zu erreichen.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Spiele in diesem Gebiet dauern recht lange.",
+			"it-IT": "Questi 'Iceberg' hanno talmente una distanza tra loro da dare ai partecipanti tempo di costruire forze aeree e navali per raggiungere i propri obiettivi.\nNumero di Partecipanti: possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: i Giochi in questa zona potrebbero diventare lunghi.",
+			"es-ES": "La distancia entre estos icebergs que salen del mar congelado es suficiente para que los participantes tengan tiempo de poner a punto unas fuerzas aéreas y navales que faciliten sus objetivos.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: En esta zona las partidas suelen durar mucho.",
 			"ru-RU": "Игра здесь будет долгой."
 		},
 		"6c6c": {
-			"en-US": "This single land mass with surrounding islands is so small that two participants starting on the mass makes immediate contact with the enemy very likely. Start on one of the outlying islands to gain plenty of time for force increase.\\nNumber of Participants: Two to three participants is preferable.\\nGame Time: Games in this area can be very short.",
-			"fr-FR": "Ce continent isolé entouré d'îles est si petit que deux participants risquent d'être immédiatement en contact avec l'ennemi, commencez sur l'île voisine pour avoir le temps de développer votre force.\\nNombre de participants: 2 à 3 préférable.\\nTemps de jeu: dans cette zone peuvent être très courts.",
-			"de-DE": "Diese von Inseln umgebene Landmasse ist so klein, daß, wenn zwei Teilnehmer dort starten, der sofortige Kontakt mit dem Feind sehr wahrscheinlich ist. Starten Sie auf einer der vorgelagerten Inseln, um Zeit zum Aufbau der Armee zu gewinnen.\\nTeilnehmerzahl: am besten 2-3 Teilnehmer. Spieldauer: Spiele in diesem Gebiet können sehr kurz sein.",
-			"it-IT": "Questa unica massa di terra emersa con le isole circostanti è cosí piccola che 2 partecipanti inizianti su di essa avranno probabilmente un immediato contatto con il nemico.\\nNumero di Partecipanti: ne sono consigliati 2 o 3.\\nTempo di Gioco: i Giochi in questa zona possono essere molto brevi.",
-			"es-ES": "Este continente rodeado de islas es tan pequeño que es probable que dos participantes que empiecen aquí hagancontacto inmediato con el enemigo. Empieza en una de las islas periféricas para tener tiempo de desarrollar tus fuerzas.\\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\\nTiempo de juego: En esta zona las partidas suelen durar poco.",
+			"en-US": "This single land mass with surrounding islands is so small that two participants starting on the mass makes immediate contact with the enemy very likely. Start on one of the outlying islands to gain plenty of time for force increase.\nNumber of Participants: Two to three participants is preferable.\nGame Time: Games in this area can be very short.",
+			"fr-FR": "Ce continent isolé entouré d'îles est si petit que deux participants risquent d'être immédiatement en contact avec l'ennemi, commencez sur l'île voisine pour avoir le temps de développer votre force.\nNombre de participants: 2 à 3 préférable.\nTemps de jeu: dans cette zone peuvent être très courts.",
+			"de-DE": "Diese von Inseln umgebene Landmasse ist so klein, daß, wenn zwei Teilnehmer dort starten, der sofortige Kontakt mit dem Feind sehr wahrscheinlich ist. Starten Sie auf einer der vorgelagerten Inseln, um Zeit zum Aufbau der Armee zu gewinnen.\nTeilnehmerzahl: am besten 2-3 Teilnehmer. Spieldauer: Spiele in diesem Gebiet können sehr kurz sein.",
+			"it-IT": "Questa unica massa di terra emersa con le isole circostanti è cosí piccola che 2 partecipanti inizianti su di essa avranno probabilmente un immediato contatto con il nemico.\nNumero di Partecipanti: ne sono consigliati 2 o 3.\nTempo di Gioco: i Giochi in questa zona possono essere molto brevi.",
+			"es-ES": "Este continente rodeado de islas es tan pequeño que es probable que dos participantes que empiecen aquí hagancontacto inmediato con el enemigo. Empieza en una de las islas periféricas para tener tiempo de desarrollar tus fuerzas.\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\nTiempo de juego: En esta zona las partidas suelen durar poco.",
 			"ru-RU": "Лучше всего играть двумя или тремя игроками. Игра здесь будет очень короткой"
 		},
 		"8d9a": {
-			"en-US": "Participants who land on one of the smaller land masses should have plenty of time to build production before encountering an opponent. Landing two on the same land mass will cause instant combat.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: Games in this area are likely to be long.",
-			"fr-FR": "Les joueurs largués sur les petits continents ont le temps de produire avant le début du combat. Si on en largue deux, cela déclenchera instantanément le combat. \\nNombre de participants: 2 à 3 préférable.\\nTemps de jeu: dans cette zone doivent être de durée moyenne à longue.",
-			"de-DE": "Teilnehmer, die auf einer der kleineren Landmassen starten sollten genug Zeit haben, die Produktion aufzubauen, bevor sie einen Gegner treffen. Landen auf derselben Landmasse wird sofortigen Kampf verursachen.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpielzeit: Spiele in diesem Gebiet dauern recht lange.",
-			"it-IT": "I partecipanti che approdano su una delle terre emerse più piccole dovrebbero avere tempo sufficiente per allestire la produzione prima di incontrare un nemico.\\nNumero di Partecipanti: possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco:  i Giochi in questa zona potrebbero diventare lunghi.",
-			"es-ES": "Los participantes que aterricen en los continentes más pequeños tendrán bastante tiempo para poner en marcha la producción antes de encontrarse con un oponente. Si dos coinciden en el mismo continente habrá un combate instantáneo.\\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
+			"en-US": "Participants who land on one of the smaller land masses should have plenty of time to build production before encountering an opponent. Landing two on the same land mass will cause instant combat.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Games in this area are likely to be long.",
+			"fr-FR": "Les joueurs largués sur les petits continents ont le temps de produire avant le début du combat. Si on en largue deux, cela déclenchera instantanément le combat. \nNombre de participants: 2 à 3 préférable.\nTemps de jeu: dans cette zone doivent être de durée moyenne à longue.",
+			"de-DE": "Teilnehmer, die auf einer der kleineren Landmassen starten sollten genug Zeit haben, die Produktion aufzubauen, bevor sie einen Gegner treffen. Landen auf derselben Landmasse wird sofortigen Kampf verursachen.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpielzeit: Spiele in diesem Gebiet dauern recht lange.",
+			"it-IT": "I partecipanti che approdano su una delle terre emerse più piccole dovrebbero avere tempo sufficiente per allestire la produzione prima di incontrare un nemico.\nNumero di Partecipanti: possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco:  i Giochi in questa zona potrebbero diventare lunghi.",
+			"es-ES": "Los participantes que aterricen en los continentes más pequeños tendrán bastante tiempo para poner en marcha la producción antes de encontrarse con un oponente. Si dos coinciden en el mismo continente habrá un combate instantáneo.\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
 			"ru-RU": "Игра здесь будет очень долгой."
 		},
 		"cb1d": {
-			"en-US": "The nature of this land mass makes construction of water platforms mandatory for a successful colonization. The chance of a preemptive strike by an opponent is high, though not as high as from other single-land areas.\\nNumber of Participants: Two to three participants is preferable.\\nGame Time: Games in this area should be of medium to long length.",
-			"fr-FR": "La nature de ce continent impose de construire des plate-formes aquatiques nécessaires à la colonisation. Le risque d'attaque anticipée est élevé mais moindre que dans les autres terres isolées.\\nNombre de participants: 2 à 3 préférable.\\nTemps de jeu: dans cette zone doivent être de durée moyenne à longue.",
-			"de-DE": "Die Beschaffenheit dieser Landmasse macht die Konstruktion von Wasserplattformen für eine erfolgreiche Kolonisierung erforderlich. Die Chance eines frühzeitigen Angriffs Ihres Gegners ist hoch, jedoch nicht so hoch wie von anderen Land-Gebieten. Teilnehmerzahl: am besten 2-3 Teilnehmer.\\nSpieldauer: Spiele in diesem Gebiet haben eine mittlere bis lange Dauer.",
-			"it-IT": "La natura di questa terra emersa oblica la costruzione delle piattaforme galleggianti perché la colonizzazione abbia successo. Le probabilità  di un attacco preventivo da parte di un avversario sono elevate.\\nNumero dei Participanti: sono consigliati 2 o 3 partecipanti.\\nTempo di Gioco: i Giochi in questa zona dovrebbero essere di durata media o lunga.",
-			"es-ES": "A causa de la naturaleza de este continente se impone la construcción de plataformas de agua, necesarias para la colonización. La probabilidad de un ataque preventivo por parte de un oponente es alta, pero no tanto como en otros continentes aislados.\\nNúmero de participantes: Es preferible que participen dos o tres jugadores.",
+			"en-US": "The nature of this land mass makes construction of water platforms mandatory for a successful colonization. The chance of a preemptive strike by an opponent is high, though not as high as from other single-land areas.\nNumber of Participants: Two to three participants is preferable.\nGame Time: Games in this area should be of medium to long length.",
+			"fr-FR": "La nature de ce continent impose de construire des plate-formes aquatiques nécessaires à la colonisation. Le risque d'attaque anticipée est élevé mais moindre que dans les autres terres isolées.\nNombre de participants: 2 à 3 préférable.\nTemps de jeu: dans cette zone doivent être de durée moyenne à longue.",
+			"de-DE": "Die Beschaffenheit dieser Landmasse macht die Konstruktion von Wasserplattformen für eine erfolgreiche Kolonisierung erforderlich. Die Chance eines frühzeitigen Angriffs Ihres Gegners ist hoch, jedoch nicht so hoch wie von anderen Land-Gebieten. Teilnehmerzahl: am besten 2-3 Teilnehmer.\nSpieldauer: Spiele in diesem Gebiet haben eine mittlere bis lange Dauer.",
+			"it-IT": "La natura di questa terra emersa oblica la costruzione delle piattaforme galleggianti perché la colonizzazione abbia successo. Le probabilità  di un attacco preventivo da parte di un avversario sono elevate.\nNumero dei Participanti: sono consigliati 2 o 3 partecipanti.\nTempo di Gioco: i Giochi in questa zona dovrebbero essere di durata media o lunga.",
+			"es-ES": "A causa de la naturaleza de este continente se impone la construcción de plataformas de agua, necesarias para la colonización. La probabilidad de un ataque preventivo por parte de un oponente es alta, pero no tanto como en otros continentes aislados.\nNúmero de participantes: Es preferible que participen dos o tres jugadores.",
 			"ru-RU": "Игра здесь будет долгой или чуть покороче."
 		},
 		"5195": {
-			"en-US": "A starting position on one of the outlying islands almost ensures a long time for buildup before contact is made with an enemy.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: A long game unless the participants are all started in close proximity on the main continent.",
-			"fr-FR": "A partir d'une des îles extérieures, un démarrage donnera longtemps pour se renforcer avant le premier contact ennemi.\\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: Long, sauf si tous les participants démarrent proches sur le continent principal.",
-			"de-DE": "Eine Startposition auf einer der vorgelagerten Inseln garantiert geradezu eine lange Zeit für den Aufbau, bevor man in Kontakt mit einem Feind gerät.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Ein sehr langes Spiel, wenn die Teilnehmer nicht sehr dicht auf demselben Kontinent starten.",
-			"it-IT": "Un posizionamento iniziale su una delle isole esterne richiede un notevole tempo per accumulare risorse prima di avere un contatto col nemico.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da due a quattro\\nTempo di Gioco: lungo, a meno che i partecipanti abbiano tutti iniziato in notevole prossimità del continente.",
-			"es-ES": "Si se comienza desde una de las islas exteriores se tiene casi asegurado el tiempo necesario para contar con refuerzos antes de entrar en contacto con el enemigo.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Largo.",
+			"en-US": "A starting position on one of the outlying islands almost ensures a long time for buildup before contact is made with an enemy.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: A long game unless the participants are all started in close proximity on the main continent.",
+			"fr-FR": "A partir d'une des îles extérieures, un démarrage donnera longtemps pour se renforcer avant le premier contact ennemi.\nNombre de participants: 2 à 4 facilement.\nTemps de jeu: Long, sauf si tous les participants démarrent proches sur le continent principal.",
+			"de-DE": "Eine Startposition auf einer der vorgelagerten Inseln garantiert geradezu eine lange Zeit für den Aufbau, bevor man in Kontakt mit einem Feind gerät.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Ein sehr langes Spiel, wenn die Teilnehmer nicht sehr dicht auf demselben Kontinent starten.",
+			"it-IT": "Un posizionamento iniziale su una delle isole esterne richiede un notevole tempo per accumulare risorse prima di avere un contatto col nemico.\nNumero di Partecipanti:  possono esserne facilmente ospitati da due a quattro\nTempo di Gioco: lungo, a meno che i partecipanti abbiano tutti iniziato in notevole prossimità del continente.",
+			"es-ES": "Si se comienza desde una de las islas exteriores se tiene casi asegurado el tiempo necesario para contar con refuerzos antes de entrar en contacto con el enemigo.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Largo.",
 			"ru-RU": "Это большой континент."
 		},
 		"012c": {
-			"en-US": "This archipelago of closely placed islands could be the scene of an entirely land and bridge based campaign, though sea and air assets would be useful.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: Likely to be long unless there are only two participants and they both land on the same island.",
-			"fr-FR": "Cet archipel d'îles très voisines peut être le champ d'une campagne sur terres et ponts. Cependant, flotte et aviation pourraient être utiles.\\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: probablement long sauf si deux joueurs sont largués ensemble sur la même île.",
-			"de-DE": "Dieses Archipel sehr dicht gelegener Inseln könnte Szene einer gesamten Land- und Brücken-gestützten Kampagne sein, obwohl See- und Luft-Material nützlich wären. Teilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Wahrscheinlich lange, falls es nicht nur 2 Teilnehmer gibt, die beide auf derselben Insel landen.",
-			"it-IT": "Questo arcipelago di isole, l'una vicino all'altra potrebbe essere lo scenario per una campagna militare basata interamente sul terreno e sui ponti.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: probabilmente  lungo, a meno che vi siano due soli partecipanti che approdino nella stessa isola.",
-			"es-ES": "Este archipiélago de islas vecinas podría ser el escenario de  una campaña terrestre basada en puentes, aunque podrían ser útiles los efectivos aéreos y navales.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Tiende a ser largo.",
+			"en-US": "This archipelago of closely placed islands could be the scene of an entirely land and bridge based campaign, though sea and air assets would be useful.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Likely to be long unless there are only two participants and they both land on the same island.",
+			"fr-FR": "Cet archipel d'îles très voisines peut être le champ d'une campagne sur terres et ponts. Cependant, flotte et aviation pourraient être utiles.\nNombre de participants: 2 à 4 facilement.\nTemps de jeu: probablement long sauf si deux joueurs sont largués ensemble sur la même île.",
+			"de-DE": "Dieses Archipel sehr dicht gelegener Inseln könnte Szene einer gesamten Land- und Brücken-gestützten Kampagne sein, obwohl See- und Luft-Material nützlich wären. Teilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Wahrscheinlich lange, falls es nicht nur 2 Teilnehmer gibt, die beide auf derselben Insel landen.",
+			"it-IT": "Questo arcipelago di isole, l'una vicino all'altra potrebbe essere lo scenario per una campagna militare basata interamente sul terreno e sui ponti.\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: probabilmente  lungo, a meno che vi siano due soli partecipanti che approdino nella stessa isola.",
+			"es-ES": "Este archipiélago de islas vecinas podría ser el escenario de  una campaña terrestre basada en puentes, aunque podrían ser útiles los efectivos aéreos y navales.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Tiende a ser largo.",
 			"ru-RU": "Состоит из двух частей в основном материк и несколько островов."
 		},
 		"323e": {
-			"en-US": "Only these few islands peak up from the omnipresent muddy seas of this world. The islands are sufficiently scattered that sea and air elements are necessary for any successful endeavor.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: This is likely to be a long campaign.",
-			"fr-FR": "De rares îles surnagent des océans boueux. Elles sont si parsemées que flotte et aviation sont indispensables pour la réussite  d'une quelconque entreprise, \\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: probablement long.",
-			"de-DE": "Nur diese wenigen Inseln ragen aus den schlammigen Meeren dieser Welt heraus. Die Inseln sind ausreichend verteilt, so daß See- und Luftelemente notwendig für erfolgreiche Bemühungen sind.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Dies ist voraussichtlich eine langer Feldzug.",
-			"it-IT": "Solo poche isole si ergono dall'onnipresente e paludoso mare di questo mondo. Queste isole sono sufficientemente sparse da rendere necessarie le unita aeree e navali per avere successo.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: questa sarà probabilmente una lunga campagna.",
-			"es-ES": "Sólo unas pocas islas emergen del mar fangoso omnipresente en este mundo. Las islas están suficientemente dispersas como para que se hagan necesarios elementos navales y aéreos para la victoria.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Ésta tiende a ser una campaña larga.",
+			"en-US": "Only these few islands peak up from the omnipresent muddy seas of this world. The islands are sufficiently scattered that sea and air elements are necessary for any successful endeavor.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: This is likely to be a long campaign.",
+			"fr-FR": "De rares îles surnagent des océans boueux. Elles sont si parsemées que flotte et aviation sont indispensables pour la réussite  d'une quelconque entreprise, \nNombre de participants: 2 à 4 facilement.\nTemps de jeu: probablement long.",
+			"de-DE": "Nur diese wenigen Inseln ragen aus den schlammigen Meeren dieser Welt heraus. Die Inseln sind ausreichend verteilt, so daß See- und Luftelemente notwendig für erfolgreiche Bemühungen sind.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Dies ist voraussichtlich eine langer Feldzug.",
+			"it-IT": "Solo poche isole si ergono dall'onnipresente e paludoso mare di questo mondo. Queste isole sono sufficientemente sparse da rendere necessarie le unita aeree e navali per avere successo.\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: questa sarà probabilmente una lunga campagna.",
+			"es-ES": "Sólo unas pocas islas emergen del mar fangoso omnipresente en este mundo. Las islas están suficientemente dispersas como para que se hagan necesarios elementos navales y aéreos para la victoria.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Ésta tiende a ser una campaña larga.",
 			"ru-RU": "Скорее всего игра будет долгой."
 		},
 		"57a1": {
-			"en-US": "Named for the heart-shaped great lake in the center of the land mass, this world can be won by land and air forces alone, but the use of sea forces in the central lake could be crucial.\\nNumber of Participants: Two to four can be easily accommodated.\\nGame Time: This is likely to be a long campaign.",
-			"fr-FR": "Ce monde peut être conquis par une combinaison de forces aériennes et terrestres, mais l'emploi de forces navales dans le lac central s'avère crucial.\\nNombre de Participants: Deux à quatre facilement.\\nTemps de Jeu: Une longue campagne est à prévoir.",
-			"de-DE": "Der Name dieser Welt bezieht sich auf die drei Seen, die von den ansonsten sehr festen Landmassen der Welt umgeben sind. Es gibt eine Chance, daß die Produktion-zuerst Strategie durch einen frühzeitigen Angriff eines anderen Teilnehmers vereitelt werden kann.\\nTeilnehmerzahl: am besten 2-3 Teilnehmer.\\nSpieldauer: Voraussichtlich kurz.",
-			"it-IT": "Prende il nome da un grande lago a forma di cuore al centro della massa di terra.  Questo mondo può essere conquistato solo da forze aeronavali, ma potrebbe essere molto utile l'uso delle forze navali nel lago centrale.\\nNumero dei partecipanti: possono esserne facilmente ospitati da 2 a 4.\\nDurata del Gioco: Probabilmente sarà una lunga campagna.",
-			"es-ES": "Debe su nombre al gran lago en forma de corazón existente en el centro de su continente. Este mundo se puede conquistar solamente con elementos aéreos y terrestres, pero se impone el uso de fuerzas navales en el lago central.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Ésta tiende a ser una campaña larga.",
+			"en-US": "Named for the heart-shaped great lake in the center of the land mass, this world can be won by land and air forces alone, but the use of sea forces in the central lake could be crucial.\nNumber of Participants: Two to four can be easily accommodated.\nGame Time: This is likely to be a long campaign.",
+			"fr-FR": "Ce monde peut être conquis par une combinaison de forces aériennes et terrestres, mais l'emploi de forces navales dans le lac central s'avère crucial.\nNombre de Participants: Deux à quatre facilement.\nTemps de Jeu: Une longue campagne est à prévoir.",
+			"de-DE": "Der Name dieser Welt bezieht sich auf die drei Seen, die von den ansonsten sehr festen Landmassen der Welt umgeben sind. Es gibt eine Chance, daß die Produktion-zuerst Strategie durch einen frühzeitigen Angriff eines anderen Teilnehmers vereitelt werden kann.\nTeilnehmerzahl: am besten 2-3 Teilnehmer.\nSpieldauer: Voraussichtlich kurz.",
+			"it-IT": "Prende il nome da un grande lago a forma di cuore al centro della massa di terra.  Questo mondo può essere conquistato solo da forze aeronavali, ma potrebbe essere molto utile l'uso delle forze navali nel lago centrale.\nNumero dei partecipanti: possono esserne facilmente ospitati da 2 a 4.\nDurata del Gioco: Probabilmente sarà una lunga campagna.",
+			"es-ES": "Debe su nombre al gran lago en forma de corazón existente en el centro de su continente. Este mundo se puede conquistar solamente con elementos aéreos y terrestres, pero se impone el uso de fuerzas navales en el lago central.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Ésta tiende a ser una campaña larga.",
 			"ru-RU": "Скорее всего игра будет долгой."
 		},
 		"6da3": {
-			"en-US": "The name of this world refers to the three lakes encompassed by the otherwise solid land mass of the world. There is a chance that a production-first strategy can run afoul of a preemptive strike by another participant.\\nNumber of Participants: Two to three participants is preferable.\\nGame Time: Probably short.",
-			"fr-FR": "Le nom de ce monde fait référence aux trois lacs entourés par la masse terrestre homogène. Il y a une chance pour qu'une stratégie de priorité à la production puisse se heurter à une attaque immédiate d'un autre participant.\\nNombre de Participants: il est recommandé deux à trois participants.\\nTemps de Jeu: Certainement de courte durée.",
-			"de-DE": "Der Name dieser Welt bezieht sich auf die drei Seen, die von der sonst festen Landmasse der Welt umgeben sind. Es besteht die Möglichkeit, daß eine Produktionsstrategie zu Beginn  durch einen Streik eines anderen Teilnehmers unterwandert wird. Teilnehmerzahl: Zwei oder drei Teilnehmer sind die beste Wahl.\\nSpieldauer: Wahrscheinlich kurz.",
-			"it-IT": "Il nome di questo mondo deriva dai tre laghi circondati dalla massa di solida terraferma del pianeta. C'è la possibilità che una strategia basata sopratutto sulla produzione possa essere contrastata dall'attacco di un avversario.\\nNumero dei partecipanti: preferibilmente da 2 a 3.\\nDurata del gioco: probabilmente breve.",
-			"es-ES": "El nombre de este mundo se debe a los tres lagos repartidos en la masa continental. Una estrategia basada principalmente en la producción podría encontrarse con un ataque preventivo de otro jugador.\\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\\nTiempo de juego: Probablemente corto.",
+			"en-US": "The name of this world refers to the three lakes encompassed by the otherwise solid land mass of the world. There is a chance that a production-first strategy can run afoul of a preemptive strike by another participant.\nNumber of Participants: Two to three participants is preferable.\nGame Time: Probably short.",
+			"fr-FR": "Le nom de ce monde fait référence aux trois lacs entourés par la masse terrestre homogène. Il y a une chance pour qu'une stratégie de priorité à la production puisse se heurter à une attaque immédiate d'un autre participant.\nNombre de Participants: il est recommandé deux à trois participants.\nTemps de Jeu: Certainement de courte durée.",
+			"de-DE": "Der Name dieser Welt bezieht sich auf die drei Seen, die von der sonst festen Landmasse der Welt umgeben sind. Es besteht die Möglichkeit, daß eine Produktionsstrategie zu Beginn  durch einen Streik eines anderen Teilnehmers unterwandert wird. Teilnehmerzahl: Zwei oder drei Teilnehmer sind die beste Wahl.\nSpieldauer: Wahrscheinlich kurz.",
+			"it-IT": "Il nome di questo mondo deriva dai tre laghi circondati dalla massa di solida terraferma del pianeta. C'è la possibilità che una strategia basata sopratutto sulla produzione possa essere contrastata dall'attacco di un avversario.\nNumero dei partecipanti: preferibilmente da 2 a 3.\nDurata del gioco: probabilmente breve.",
+			"es-ES": "El nombre de este mundo se debe a los tres lagos repartidos en la masa continental. Una estrategia basada principalmente en la producción podría encontrarse con un ataque preventivo de otro jugador.\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\nTiempo de juego: Probablemente corto.",
 			"ru-RU": "Скорее всего игра будет короткой."
 		},
 		"708f": {
-			"en-US": "This world has a lot of space and virtually every land mass has plenty of room for large armies. Depending on initial placements, the islands might see no activity at all. If every place is populated, expect intense seaborne combats.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: Most games in this location will be long.",
-			"fr-FR": "Ce monde est vaste. Toutes  ses terres ont la place pour de grandes armées. Selon les points de départ, les îles peuvent rester paisibles. Si tout est peuplé, attendez  des batailles navales.\\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: la plupart des jeux seront longs.",
-			"de-DE": "Diese Welt hat eine Menge Raum und geradezu jede Landmasse hat genügend Platz für große Armeen. Abhängig von den Anfangsplazierungen kann diese Insel überhaupt keine Aktivität sehen. Wenn jede Stelle bevölkert ist, erwarten Sie intensive Seeschlachten. Teilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Die meisten Spiele an dieser Stelle dauern lange.",
-			"it-IT": "Questo mondo ha un grande spazio disponibile e ogni terra emersa ha teoricamente  la capacità di contenere grandi eserciti. A seconda dei posizionamenti iniziali, nelle isole potrebbe non esserci alcuna attività. Se ogni luogo è popolato, c'é d'aspettarsi intensi combattimenti navali.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da due a quattro\\nTempo di Gioco: la maggior parte dei Giochi in questa ubicazione saranno lunghi.",
-			"es-ES": "Este mundo posee mucho espacio, y la prácticatotalidad de las masas continentales puede albergar grandes ejércitos. Dependiendo de los emplazamientos iniciales, las islas podrían permanecer inactivas. Si todo acaba poblado, cuenta con intensas batallas navales.\\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
+			"en-US": "This world has a lot of space and virtually every land mass has plenty of room for large armies. Depending on initial placements, the islands might see no activity at all. If every place is populated, expect intense seaborne combats.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Most games in this location will be long.",
+			"fr-FR": "Ce monde est vaste. Toutes  ses terres ont la place pour de grandes armées. Selon les points de départ, les îles peuvent rester paisibles. Si tout est peuplé, attendez  des batailles navales.\nNombre de participants: 2 à 4 facilement.\nTemps de jeu: la plupart des jeux seront longs.",
+			"de-DE": "Diese Welt hat eine Menge Raum und geradezu jede Landmasse hat genügend Platz für große Armeen. Abhängig von den Anfangsplazierungen kann diese Insel überhaupt keine Aktivität sehen. Wenn jede Stelle bevölkert ist, erwarten Sie intensive Seeschlachten. Teilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Die meisten Spiele an dieser Stelle dauern lange.",
+			"it-IT": "Questo mondo ha un grande spazio disponibile e ogni terra emersa ha teoricamente  la capacità di contenere grandi eserciti. A seconda dei posizionamenti iniziali, nelle isole potrebbe non esserci alcuna attività. Se ogni luogo è popolato, c'é d'aspettarsi intensi combattimenti navali.\nNumero di Partecipanti:  possono esserne facilmente ospitati da due a quattro\nTempo di Gioco: la maggior parte dei Giochi in questa ubicazione saranno lunghi.",
+			"es-ES": "Este mundo posee mucho espacio, y la prácticatotalidad de las masas continentales puede albergar grandes ejércitos. Dependiendo de los emplazamientos iniciales, las islas podrían permanecer inactivas. Si todo acaba poblado, cuenta con intensas batallas navales.\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
 			"ru-RU": "Скорее всего игра будет долгой."
 		},
 		"6903": {
-			"en-US": "This archipelago is tightly grouped in the middle of the planetary sea. There are opportunities for extensive air and sea resources, though an entirely land-and-air-based campaign could be successful.\\nNumber of Participants: Two to three participants is preferable.\\nGame Time: varies greatly depending on the landing points of the participants.",
-			"fr-FR": "Archipel très dense au milieu  de l'océan planétaire. Possibilité de ressources air et mer, mais une  bataille terre et air pourrait réussir.\\nNombre de participants: 2 à 3 préférable.\\nTemps de jeu: essentiellement fonction des points de largage des participants.",
-			"de-DE": "Dieses Archipel ist eng gruppiert in der Mitte des Planetenmeeres. Es gibt Möglichkeiten für extensiven Einsatz von Luft- und See Ressourcen, obwohl ein nur auf Land und Luft gestützter Feldzug erfolgreich sein könnte.\\nTeilnehmerzahl: am besten 2-3 Teilnehmer.\\nSpieldauer: variiert sehr, abhängig von den Landepunkten der Teilnehmer.",
-			"it-IT": "Questo arcipelago è  fortemente raggruppato nel mezzo del mare del pianeta. Ci sono possibilità di utilizzo intensivo delle forze aeree e navali, anche se potrebbe avere successo una campagna basata su forze aero-terrestri.\\nNumero dei Participanti:  ne sono consigliati 2 o 3.\\nTempo di Gioco:  molto variabile a seconda dei punti di approdo dei partecipanti.",
-			"es-ES": "Este denso archipiélago existe en medio del mar planetario. Este entorno es propicio para los cuantiosos recursos aéreos y navales, aunque podría tener éxito una campaña enteramente aérea y terrestre.\\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\\nTiempo de juego: Muy variable, dependiendo de los puntos de aterrizaje.",
+			"en-US": "This archipelago is tightly grouped in the middle of the planetary sea. There are opportunities for extensive air and sea resources, though an entirely land-and-air-based campaign could be successful.\nNumber of Participants: Two to three participants is preferable.\nGame Time: varies greatly depending on the landing points of the participants.",
+			"fr-FR": "Archipel très dense au milieu  de l'océan planétaire. Possibilité de ressources air et mer, mais une  bataille terre et air pourrait réussir.\nNombre de participants: 2 à 3 préférable.\nTemps de jeu: essentiellement fonction des points de largage des participants.",
+			"de-DE": "Dieses Archipel ist eng gruppiert in der Mitte des Planetenmeeres. Es gibt Möglichkeiten für extensiven Einsatz von Luft- und See Ressourcen, obwohl ein nur auf Land und Luft gestützter Feldzug erfolgreich sein könnte.\nTeilnehmerzahl: am besten 2-3 Teilnehmer.\nSpieldauer: variiert sehr, abhängig von den Landepunkten der Teilnehmer.",
+			"it-IT": "Questo arcipelago è  fortemente raggruppato nel mezzo del mare del pianeta. Ci sono possibilità di utilizzo intensivo delle forze aeree e navali, anche se potrebbe avere successo una campagna basata su forze aero-terrestri.\nNumero dei Participanti:  ne sono consigliati 2 o 3.\nTempo di Gioco:  molto variabile a seconda dei punti di approdo dei partecipanti.",
+			"es-ES": "Este denso archipiélago existe en medio del mar planetario. Este entorno es propicio para los cuantiosos recursos aéreos y navales, aunque podría tener éxito una campaña enteramente aérea y terrestre.\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\nTiempo de juego: Muy variable, dependiendo de los puntos de aterrizaje.",
 			"ru-RU": "Время игры зависит от вашего умения ."
 		},
 		"4d80": {
-			"en-US": "The useful parts of this world are split apart by a central sea. Control of the central sea with seaborne assets will be essential unless the participants all land on the same continent.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: will be long unless two participants land close together.",
-			"fr-FR": "Les régions utiles de ce monde  sont séparées par une mer centrale. Son contrôle par une flotte sera essentiel sauf si les participants sont largués sur le même continent.\\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: long si deux participants sont largués proches l'un de l'autre.",
-			"de-DE": "Die nutzbaren Teile dieser Welt sind durch ein zentrales Meer getrennt. Die Kontrolle des zentralen Meeres durch Marine-Material wird notwendig sein, wenn nicht alle Teilnehmer auf demselben Kontinent landen.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Lange, wenn nicht alle Teilnehmer dicht beieinander landen.",
-			"it-IT": "Le parti utili di questo mondo sono separate da un mare centrale. Sarà essenziale il controllo del mare centrale mediante l'utilizzo delle risorse navali a meno che i partecipanti non approdino tutti sullo stesso continente.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: lungo, a meno che due partecipanti non approdino molto vicini.",
-			"es-ES": "Las partes útiles de este mundo están divididas por un mar central. Es esencial el control de este mar mediante efectivos navales. a no ser que todos los participantes aterricen en el mismo continente.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Largo.",
+			"en-US": "The useful parts of this world are split apart by a central sea. Control of the central sea with seaborne assets will be essential unless the participants all land on the same continent.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: will be long unless two participants land close together.",
+			"fr-FR": "Les régions utiles de ce monde  sont séparées par une mer centrale. Son contrôle par une flotte sera essentiel sauf si les participants sont largués sur le même continent.\nNombre de participants: 2 à 4 facilement.\nTemps de jeu: long si deux participants sont largués proches l'un de l'autre.",
+			"de-DE": "Die nutzbaren Teile dieser Welt sind durch ein zentrales Meer getrennt. Die Kontrolle des zentralen Meeres durch Marine-Material wird notwendig sein, wenn nicht alle Teilnehmer auf demselben Kontinent landen.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Lange, wenn nicht alle Teilnehmer dicht beieinander landen.",
+			"it-IT": "Le parti utili di questo mondo sono separate da un mare centrale. Sarà essenziale il controllo del mare centrale mediante l'utilizzo delle risorse navali a meno che i partecipanti non approdino tutti sullo stesso continente.\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: lungo, a meno che due partecipanti non approdino molto vicini.",
+			"es-ES": "Las partes útiles de este mundo están divididas por un mar central. Es esencial el control de este mar mediante efectivos navales. a no ser que todos los participantes aterricen en el mismo continente.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Largo.",
 			"ru-RU": "Скорее всего игра будет долгой так как противники разделены."
 		},
 		"ae4e": {
-			"en-US": "This world is generally resourceless except for the region around the impact crater from a major asteroid strike. A combatant can win using just land and air forces. However, control of the inner sea could be important.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: the game can be very long.",
-			"fr-FR": "Ce monde est généralement stérile sauf autour du cratère d'impact d'une attaque par astéroïde. La victoire peut venir de l'armée au sol et de l'aviation mais le contrôle de la mer centrale est essentiel. \\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: peut être très long.",
-			"de-DE": "Diese Welt hat keine Ressourcen bis auf die Gegend um den von einem harten Asteroid-Treffer gerissenen  Krater. Ein Kämpfer kann gewinnen, indem er nur Land- und Seearmeen benutzt. Trotzdem könnte die Kontrolle des inneren Meeres wichtig sein. Teilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Das Spiel kann sehr lange dauern.",
-			"it-IT": "Questo mondo è  in linea di massima privo di risorse eccetto per la regione intorno al cratere formato dall'impatto di un asteroide. Un combattente può vincere utilizzando solo le forze aeree e terrestri.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: il gioco può essere molto lungo.",
-			"es-ES": "Este mundo carece prácticamente de recursos, a excepción de la zona que bordea el cráter de un impacto de asteroide. Se puede obtener la victoria usando solamente fuerzas aéreas y terrestres. Sin embargo, el control del mar interior podría ser importante.\\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
+			"en-US": "This world is generally resourceless except for the region around the impact crater from a major asteroid strike. A combatant can win using just land and air forces. However, control of the inner sea could be important.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: the game can be very long.",
+			"fr-FR": "Ce monde est généralement stérile sauf autour du cratère d'impact d'une attaque par astéroïde. La victoire peut venir de l'armée au sol et de l'aviation mais le contrôle de la mer centrale est essentiel. \nNombre de participants: 2 à 4 facilement.\nTemps de jeu: peut être très long.",
+			"de-DE": "Diese Welt hat keine Ressourcen bis auf die Gegend um den von einem harten Asteroid-Treffer gerissenen  Krater. Ein Kämpfer kann gewinnen, indem er nur Land- und Seearmeen benutzt. Trotzdem könnte die Kontrolle des inneren Meeres wichtig sein. Teilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Das Spiel kann sehr lange dauern.",
+			"it-IT": "Questo mondo è  in linea di massima privo di risorse eccetto per la regione intorno al cratere formato dall'impatto di un asteroide. Un combattente può vincere utilizzando solo le forze aeree e terrestri.\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: il gioco può essere molto lungo.",
+			"es-ES": "Este mundo carece prácticamente de recursos, a excepción de la zona que bordea el cráter de un impacto de asteroide. Se puede obtener la victoria usando solamente fuerzas aéreas y terrestres. Sin embargo, el control del mar interior podría ser importante.\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
 			"ru-RU": "Скорее всего игра будет очень долгой."
 		},
 		"d0a4": {
-			"en-US": "This archipelago with a slice of mainland is suited to a balanced combined arm force with extensive resource building. Taking sanctuary from the incessant naval action on the slice of mainland is a legitimate tactic, of course.\\nNumber of Participants: Two to three participants is preferable.\\nGame Time: The game will probably be long.",
-			"fr-FR": "Cet archipel avec une bande de terrain convient à des forces équilibrées appuyées sur de fortes ressources. Se préserver des batailles navales en allant sur le continent constitue une tactique valable.\\nNombre de participants: 2 à 3 préférable.\\nTemps de jeu: probablement long.",
-			"de-DE": "Dieses Archipel mit einem Stückchen Festland ist geeignet für eine gleichmäßig kombinierte Armee mit extensivem Rohstoff Abbau. Die Flucht vor unendlicher Marine-Aktivität auf das Stückchen Festlandist natürlich eine legitime Taktik.\\nTeilnehmerzahl: am besten 2-3 Teilnehmer.\\nSpieldauer: Das Spiel wird wahrscheinlich lange dauern.",
-			"it-IT": "Questo arcipelago con un tratto di terraferma è idoneo a una forza armata combinata e bilanciata con esteso accumulo di risorse. Naturalmente mettersi al riparo dall'incessante azione navale rifugiandosi sulla stretta striscia di terraferma costituisce una tattica legittima.\\nNumero dei Participanti: sono consigliati 2 o 3.\\nTempo di Gioco: il gioco sarà probabilmente lungo.",
-			"es-ES": "Este archipiélago con una banda de terreno es adecuado para una fuerza combinada y equilibrada, apoyada por recursos extensos. Por supuesto, es legítimo refugiarse en la banda de tierra para escapar a la incesante acción naval .\\nNúmero de participantes: Es preferible que participen dos o tres jugadores.",
+			"en-US": "This archipelago with a slice of mainland is suited to a balanced combined arm force with extensive resource building. Taking sanctuary from the incessant naval action on the slice of mainland is a legitimate tactic, of course.\nNumber of Participants: Two to three participants is preferable.\nGame Time: The game will probably be long.",
+			"fr-FR": "Cet archipel avec une bande de terrain convient à des forces équilibrées appuyées sur de fortes ressources. Se préserver des batailles navales en allant sur le continent constitue une tactique valable.\nNombre de participants: 2 à 3 préférable.\nTemps de jeu: probablement long.",
+			"de-DE": "Dieses Archipel mit einem Stückchen Festland ist geeignet für eine gleichmäßig kombinierte Armee mit extensivem Rohstoff Abbau. Die Flucht vor unendlicher Marine-Aktivität auf das Stückchen Festlandist natürlich eine legitime Taktik.\nTeilnehmerzahl: am besten 2-3 Teilnehmer.\nSpieldauer: Das Spiel wird wahrscheinlich lange dauern.",
+			"it-IT": "Questo arcipelago con un tratto di terraferma è idoneo a una forza armata combinata e bilanciata con esteso accumulo di risorse. Naturalmente mettersi al riparo dall'incessante azione navale rifugiandosi sulla stretta striscia di terraferma costituisce una tattica legittima.\nNumero dei Participanti: sono consigliati 2 o 3.\nTempo di Gioco: il gioco sarà probabilmente lungo.",
+			"es-ES": "Este archipiélago con una banda de terreno es adecuado para una fuerza combinada y equilibrada, apoyada por recursos extensos. Por supuesto, es legítimo refugiarse en la banda de tierra para escapar a la incesante acción naval .\nNúmero de participantes: Es preferible que participen dos o tres jugadores.",
 			"ru-RU": "Скорее всего игра будет очень долгой."
 		},
 		"fdd7": {
-			"en-US": "This archipelago is best suited to a concentration on sea borne forces. Extensive engineering will be necessary to create areas for proper exploitation of the planetary resources.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: The necessary construction makes this a long game.",
-			"fr-FR": "Cet archipel convient à une concentration de forces navales. Un fort travail de génie sera nécessaire pour créer des zones d'exploitation des ressources planétaires. \\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: long à cause des constructions nécessaires.",
-			"de-DE": "Dieses Archipel ist bestens geeignet für eine Konzentration auf Seearmeen. Extensive Pionierarbeit wird nötig sein, um Gebiete zur richtigen Ausnutzung der Planetenressourcen zu entwickeln.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Die notwendige Konstruktion macht dies zu einem langen Spiel.",
-			"it-IT": "Questo arcipelago è  più adatto per una concentrazione di forze navali. Sarà necessario un ampio uso degli ingegneri per creare aree idonee allo sfruttamento delle risorse del pianeta.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: la necessità di costruire lo rende lungo.",
-			"es-ES": "Archipiélago que propicia la concentración de fuerzas navales. Se hace muy necesaria la ingeniería para crear áreas de explotación de los recursos planetarios.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Largo.",
+			"en-US": "This archipelago is best suited to a concentration on sea borne forces. Extensive engineering will be necessary to create areas for proper exploitation of the planetary resources.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: The necessary construction makes this a long game.",
+			"fr-FR": "Cet archipel convient à une concentration de forces navales. Un fort travail de génie sera nécessaire pour créer des zones d'exploitation des ressources planétaires. \nNombre de participants: 2 à 4 facilement.\nTemps de jeu: long à cause des constructions nécessaires.",
+			"de-DE": "Dieses Archipel ist bestens geeignet für eine Konzentration auf Seearmeen. Extensive Pionierarbeit wird nötig sein, um Gebiete zur richtigen Ausnutzung der Planetenressourcen zu entwickeln.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Die notwendige Konstruktion macht dies zu einem langen Spiel.",
+			"it-IT": "Questo arcipelago è  più adatto per una concentrazione di forze navali. Sarà necessario un ampio uso degli ingegneri per creare aree idonee allo sfruttamento delle risorse del pianeta.\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: la necessità di costruire lo rende lungo.",
+			"es-ES": "Archipiélago que propicia la concentración de fuerzas navales. Se hace muy necesaria la ingeniería para crear áreas de explotación de los recursos planetarios.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Largo.",
 			"ru-RU": "Скорее всего игра будет очень долгой."
 		},
 		"0ac0": {
-			"en-US": "The extensive land area on this planet makes it ideal for extensive land-based warfare. Sea borne assets may play a necessary but secondary role, depending on initial placement.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: this is likely to be a long game.",
-			"fr-FR": "Les grandes surfaces de terre de cette planète appellent une guerre au sol. La flotte peut être nécessaire mais demeurera sans doute secondaire, selon les positions initiales.\\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: probablement long.",
-			"de-DE": "Das ausgedehnte Landgebiet auf diesem Planeten machen ihn ideal für extensive Land-gestützte Kriegsführung. Seearmeen können eine notwendige aber sekundäre Rolle spielen, abhängig von anfänglicher Plazierung.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Dies ist wahrscheinlich ein langes Spiel.",
-			"it-IT": "Le grandi superfici di questo pianeta lo rendono ideale per le battaglie terrestri. Le risorse navali possono giocare un ruolo importante ma secondario in funzione del posizionamento iniziale.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco:  sarà probabilmente un Gioco lungo.",
-			"es-ES": "La gran zona de tierra de este planeta favorece el uso abundante de fuerzas terrestres. Los efectivos navales desempeñan un papel secundario, aunque pueden resultar necesarios dependiendo de la colocación inicial.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Probablemente largo.",
+			"en-US": "The extensive land area on this planet makes it ideal for extensive land-based warfare. Sea borne assets may play a necessary but secondary role, depending on initial placement.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: this is likely to be a long game.",
+			"fr-FR": "Les grandes surfaces de terre de cette planète appellent une guerre au sol. La flotte peut être nécessaire mais demeurera sans doute secondaire, selon les positions initiales.\nNombre de participants: 2 à 4 facilement.\nTemps de jeu: probablement long.",
+			"de-DE": "Das ausgedehnte Landgebiet auf diesem Planeten machen ihn ideal für extensive Land-gestützte Kriegsführung. Seearmeen können eine notwendige aber sekundäre Rolle spielen, abhängig von anfänglicher Plazierung.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Dies ist wahrscheinlich ein langes Spiel.",
+			"it-IT": "Le grandi superfici di questo pianeta lo rendono ideale per le battaglie terrestri. Le risorse navali possono giocare un ruolo importante ma secondario in funzione del posizionamento iniziale.\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco:  sarà probabilmente un Gioco lungo.",
+			"es-ES": "La gran zona de tierra de este planeta favorece el uso abundante de fuerzas terrestres. Los efectivos navales desempeñan un papel secundario, aunque pueden resultar necesarios dependiendo de la colocación inicial.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Probablemente largo.",
 			"ru-RU": "Скорее всего игра будет очень долгой."
 		},
 		"5f4b": {
-			"en-US": "This planet gets its name from its appearance when seen from space. The mountains jutting out of the desert give it a decidedly freckled appearance. There might be extensive use of naval assets, or none.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: Most games in this location will be long games.",
-			"fr-FR": "Son aspect explique le nom de cette planète. De l'espace, ses montagnes dans un désert lui font des taches de rousseur. Il pourrait y avoir des batailles navales, ou aucune.\\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: dans cette zone peuvent être longs.",
-			"de-DE": "Dieser Planet hat seinen Namen von seiner Erscheinung, wenn man ihn vom All aus sieht. Die aus der Wüste ragenden Berge geben ihm eine sommersprossige Erscheinung. Es könnte sehr viel Marine-Material benutzt werden, oder nichts.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden. Spielzeit: Die meisten Spiele an dieser Stelle werden lange dauern.",
-			"it-IT": "Il nome di questo pianeta deriva proprio come si presenta quando è  visto dallo spazio. Le cime delle montagne nel deserto gli danno un aspetto decisamente a macchie. L'uso dei mezzi navali potrebbere dare vantaggi.\\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: la maggior parte dei Giochi in questa ubicazione saranno lunghi.",
-			"es-ES": "Este planeta debe su nombre a la apariencia que presenta desde el espacio. Las montañas, al sobresalir del desierto, hacen que el terreno tenga un aspecto pecoso. Es posible que resulte necesario el uso exhaustivo de efectivos navales o que no haga falta.\\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
+			"en-US": "This planet gets its name from its appearance when seen from space. The mountains jutting out of the desert give it a decidedly freckled appearance. There might be extensive use of naval assets, or none.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Most games in this location will be long games.",
+			"fr-FR": "Son aspect explique le nom de cette planète. De l'espace, ses montagnes dans un désert lui font des taches de rousseur. Il pourrait y avoir des batailles navales, ou aucune.\nNombre de participants: 2 à 4 facilement.\nTemps de jeu: dans cette zone peuvent être longs.",
+			"de-DE": "Dieser Planet hat seinen Namen von seiner Erscheinung, wenn man ihn vom All aus sieht. Die aus der Wüste ragenden Berge geben ihm eine sommersprossige Erscheinung. Es könnte sehr viel Marine-Material benutzt werden, oder nichts.\nTeilnehmerzahl: 2-4 können gut untergebracht werden. Spielzeit: Die meisten Spiele an dieser Stelle werden lange dauern.",
+			"it-IT": "Il nome di questo pianeta deriva proprio come si presenta quando è  visto dallo spazio. Le cime delle montagne nel deserto gli danno un aspetto decisamente a macchie. L'uso dei mezzi navali potrebbere dare vantaggi.\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: la maggior parte dei Giochi in questa ubicazione saranno lunghi.",
+			"es-ES": "Este planeta debe su nombre a la apariencia que presenta desde el espacio. Las montañas, al sobresalir del desierto, hacen que el terreno tenga un aspecto pecoso. Es posible que resulte necesario el uso exhaustivo de efectivos navales o que no haga falta.\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
 			"ru-RU": "Скорее всего игра будет долгой."
 		},
 		"8475": {
-			"en-US": "Very few lumps of sand poke out of the ocean on this planet. Its situation demands heavy use of water platforms and naval assets. Two participants are very unlikely to end up on the same land mass.\\nNumber of Participants: Two to three participants is preferable.\\nGame Time: Most games in this location will be long games.",
-			"fr-FR": "Sur cette planète, des tas de sable surnagent de l'océan. Elle exige beaucoup de plate-formes aquatiques et une flotte. Deux joueurs ont peu de chance d'être sur un même continent. \\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: dans cette zone peuvent être longs.",
-			"de-DE": "Sehr wenige Sandhaufen ragen aus dem Meer heraus auf diesem Planeten. Seine Situation erfordert Wasserplattformen und Marine-Material. Zwei Teilnehmer werden sehr unwahrscheinlich auf derselben Landmasse enden. \\nTeilnehmerzahl: am besten 2-3 Teilnehmer.\\nSpielzeit: Die meisten Spiele an dieser Stelle dauern lange.",
-			"it-IT": "Sull'oceano di questo pianeta sporgono pochissimi banchi di sabbia. Questa situazione richiede un forte utilizzo di piattaforme galleggianti e di mezzi navali. É improbabile che due partecipanti finiscano sulla stessa terra emersa.\\nNumero dei Participanti: ne sono consigliati 2 o 3.\\nTempo di Gioco: la maggior parte dei Giochi in questa ubicazione saranno lunghi.",
-			"es-ES": "En este planeta surgen unas pocas masas de arena del océano. Su situación exige un uso exhaustivo de plataformas de agua y efectivos navales. No es probable que dos participantes coincidan en un mismo continente.\\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\\nTiempo de juego: Largo.",
+			"en-US": "Very few lumps of sand poke out of the ocean on this planet. Its situation demands heavy use of water platforms and naval assets. Two participants are very unlikely to end up on the same land mass.\nNumber of Participants: Two to three participants is preferable.\nGame Time: Most games in this location will be long games.",
+			"fr-FR": "Sur cette planète, des tas de sable surnagent de l'océan. Elle exige beaucoup de plate-formes aquatiques et une flotte. Deux joueurs ont peu de chance d'être sur un même continent. \nNombre de participants: 2 à 4 facilement.\nTemps de jeu: dans cette zone peuvent être longs.",
+			"de-DE": "Sehr wenige Sandhaufen ragen aus dem Meer heraus auf diesem Planeten. Seine Situation erfordert Wasserplattformen und Marine-Material. Zwei Teilnehmer werden sehr unwahrscheinlich auf derselben Landmasse enden. \nTeilnehmerzahl: am besten 2-3 Teilnehmer.\nSpielzeit: Die meisten Spiele an dieser Stelle dauern lange.",
+			"it-IT": "Sull'oceano di questo pianeta sporgono pochissimi banchi di sabbia. Questa situazione richiede un forte utilizzo di piattaforme galleggianti e di mezzi navali. É improbabile che due partecipanti finiscano sulla stessa terra emersa.\nNumero dei Participanti: ne sono consigliati 2 o 3.\nTempo di Gioco: la maggior parte dei Giochi in questa ubicazione saranno lunghi.",
+			"es-ES": "En este planeta surgen unas pocas masas de arena del océano. Su situación exige un uso exhaustivo de plataformas de agua y efectivos navales. No es probable que dos participantes coincidan en un mismo continente.\nNúmero de participantes: Es preferible que participen dos o tres jugadores.\nTiempo de juego: Largo.",
 			"ru-RU": "Скорее всего игра будет долгой."
 		},
 		"cffe": {
-			"en-US": "Like any other world where all the land is connected, this can be very risky for a high-production strategy. However, its size does give some protection against a preemptive strike by another participant.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: medium to long unless participants' landing points are close.",
-			"fr-FR": "Comme partout, quand toutes les terres se touchent, une stratégie haute-production est dangereuse. Cependant, sa taille protège contre une attaque anticipée d'un autre joueur. \\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: moyen à long sauf si les autres sont largués à proximité.",
-			"de-DE": "Wie jede andere Welt, wo alles Land verbunden ist kann dies sehr riskant für eine hohe Produktions-Strategie sein. Trotzdem, ihre Größe gibt ihr gewissen Schutz vor frühzeitigen Angriffen von anderen Teilnehmern.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Mittel bis lang, wenn Landepunkte der Teilnehmer nicht zu dicht.",
-			"it-IT": "Come ogni altro mondo dove tutte le terre sono collegate, questa situazione può essere molto pericolosa per una strategia di produzione intensiva, comunque, la sua dimensione offre una certa protezione contro un attacco preventivo. \\nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco: da medio a lungo salvo che i punti di approdo non siano vicini.",
-			"es-ES": "Como todos los planetas en los que la tierra está conectada, éste puede ser bastante arriesgado para planear una producción masiva. Sin embargo, su tamaño permite cierta protección contra un ataque preventivo de otro participante.\\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
+			"en-US": "Like any other world where all the land is connected, this can be very risky for a high-production strategy. However, its size does give some protection against a preemptive strike by another participant.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: medium to long unless participants' landing points are close.",
+			"fr-FR": "Comme partout, quand toutes les terres se touchent, une stratégie haute-production est dangereuse. Cependant, sa taille protège contre une attaque anticipée d'un autre joueur. \nNombre de participants: 2 à 4 facilement.\nTemps de jeu: moyen à long sauf si les autres sont largués à proximité.",
+			"de-DE": "Wie jede andere Welt, wo alles Land verbunden ist kann dies sehr riskant für eine hohe Produktions-Strategie sein. Trotzdem, ihre Größe gibt ihr gewissen Schutz vor frühzeitigen Angriffen von anderen Teilnehmern.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Mittel bis lang, wenn Landepunkte der Teilnehmer nicht zu dicht.",
+			"it-IT": "Come ogni altro mondo dove tutte le terre sono collegate, questa situazione può essere molto pericolosa per una strategia di produzione intensiva, comunque, la sua dimensione offre una certa protezione contro un attacco preventivo. \nNumero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco: da medio a lungo salvo che i punti di approdo non siano vicini.",
+			"es-ES": "Como todos los planetas en los que la tierra está conectada, éste puede ser bastante arriesgado para planear una producción masiva. Sin embargo, su tamaño permite cierta protección contra un ataque preventivo de otro participante.\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
 			"ru-RU": "Скорее всего игра будет долгой или средней."
 		},
 		"7842": {
-			"en-US": "The sea passage that separates the two main land masses makes naval action likely here. Those who wish to follow a production strategy might land on the island to the north east.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: this is likely to be a long game.",
-			"fr-FR": "Le détroit séparant les deux continents implique une bataille navale. Ceux qui ont une stratégie production  peuvent choisir l'île au nord-est.\\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: jeu probablement long.",
-			"de-DE": "Die Meerespassage, die die beiden Hauptlandmassen trennt, macht Marineaktivitäten hier wahrscheinlich. Wer eine Produktionsstrategie verfolgen will, sollte auf der Insel nord-östlich landen.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Dauert wahrscheinlich lange.",
-			"it-IT": "Il braccio di mare che separa le due terre emerse rende più adatte le azioni navali. Coloro che intendono seguire una strategia di produzione possono approdare a nord est dell'isola.\\nNumero di Partecipanti: ne possono essere facilmente ospitati da due a quattro\\nTempo di Gioco: probabilmente  lungo.",
-			"es-ES": "El estrecho que separa los dos continentes principales implica una batalla naval. Aquéllos que planeen unaestrategia de producción deberían aterrizar en la isla, al noreste..\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Esta partida suele ser larga.",
+			"en-US": "The sea passage that separates the two main land masses makes naval action likely here. Those who wish to follow a production strategy might land on the island to the north east.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: this is likely to be a long game.",
+			"fr-FR": "Le détroit séparant les deux continents implique une bataille navale. Ceux qui ont une stratégie production  peuvent choisir l'île au nord-est.\nNombre de participants: 2 à 4 facilement.\nTemps de jeu: jeu probablement long.",
+			"de-DE": "Die Meerespassage, die die beiden Hauptlandmassen trennt, macht Marineaktivitäten hier wahrscheinlich. Wer eine Produktionsstrategie verfolgen will, sollte auf der Insel nord-östlich landen.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Dauert wahrscheinlich lange.",
+			"it-IT": "Il braccio di mare che separa le due terre emerse rende più adatte le azioni navali. Coloro che intendono seguire una strategia di produzione possono approdare a nord est dell'isola.\nNumero di Partecipanti: ne possono essere facilmente ospitati da due a quattro\nTempo di Gioco: probabilmente  lungo.",
+			"es-ES": "El estrecho que separa los dos continentes principales implica una batalla naval. Aquéllos que planeen unaestrategia de producción deberían aterrizar en la isla, al noreste..\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Esta partida suele ser larga.",
 			"ru-RU": "Скорее всего игра будет долгой."
 		},
 		"dfdd": {
-			"en-US": "The central island of this planet makes a natural battleground for all participants, whether they start there or not. Start on one of the corner lands to gain a reasonable amount of time for a strategic buildup.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: Games on this world are likely to be very long.",
-			"fr-FR": "L'île centrale de cette planète  est un champ de bataille pour tous les joueurs, commençant ici ou pas. Partez d'un des coins pour avoir le temps de construire une force stratégique.\\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: probablement très long.",
-			"de-DE": "Die zentrale Insel dieses Planeten bildet ein natürliches Schlachtfeld für alle Teilnehmer, ob sie dort starten oder nicht. Starten Sie in einer der Ecken   , um genügend Zeit für einen strategischen Aufbau zu gewinnen.\\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Spiele auf dieser Welt dauern wahrscheinlich sehr lange.",
-			"it-IT": "L'isola centrale di questo pianeta costituisce un campo di battaglia naturale per tutti i concorrenti, sia che essi abbiano iniziato qui o meno. Tu comincia dall'estremità dell'isola per guadagnare un tempo ragionevole per accumulare risorse.\\nNumero dei Participanti: ne sono consigliati 2 o 3.\\nTempo di Gioco: è probabile che i giochi in questo pianeta siano lunghi.",
-			"es-ES": "La isla central de este planeta es un campo de batalla natural para todos los participantes, tanto si empiezandesde ella como si no. Parte de una de las esquinas para tener tiempo de crear una fuerza estratégica.\\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\\nTiempo de juego: Aquí las partidas suelen ser largas.",
+			"en-US": "The central island of this planet makes a natural battleground for all participants, whether they start there or not. Start on one of the corner lands to gain a reasonable amount of time for a strategic buildup.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Games on this world are likely to be very long.",
+			"fr-FR": "L'île centrale de cette planète  est un champ de bataille pour tous les joueurs, commençant ici ou pas. Partez d'un des coins pour avoir le temps de construire une force stratégique.\nNombre de participants: 2 à 4 facilement.\nTemps de jeu: probablement très long.",
+			"de-DE": "Die zentrale Insel dieses Planeten bildet ein natürliches Schlachtfeld für alle Teilnehmer, ob sie dort starten oder nicht. Starten Sie in einer der Ecken   , um genügend Zeit für einen strategischen Aufbau zu gewinnen.\nTeilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Spiele auf dieser Welt dauern wahrscheinlich sehr lange.",
+			"it-IT": "L'isola centrale di questo pianeta costituisce un campo di battaglia naturale per tutti i concorrenti, sia che essi abbiano iniziato qui o meno. Tu comincia dall'estremità dell'isola per guadagnare un tempo ragionevole per accumulare risorse.\nNumero dei Participanti: ne sono consigliati 2 o 3.\nTempo di Gioco: è probabile che i giochi in questo pianeta siano lunghi.",
+			"es-ES": "La isla central de este planeta es un campo de batalla natural para todos los participantes, tanto si empiezandesde ella como si no. Parte de una de las esquinas para tener tiempo de crear una fuerza estratégica.\nNúmero de participantes: Se pueden instalar fácilmente entre dos y cuatro jugadores.\nTiempo de juego: Aquí las partidas suelen ser largas.",
 			"ru-RU": "Скорее всего игра будет очень долгой."
 		},
 		"6517": {
-			"en-US": "This world gets its name from the land bottleneck controllable by sea forces and the sea bottleneck controllable by land forces. Both are in the center of the map. Extensive use of all forces is likely in this location.\\nNumber of Participants: two to four can be easily accommodated.\\nGame Time: Most games on this world are likely to be very long.",
-			"fr-FR": "Son nom vient du goulot d'étranglement terrestre pour la flotte et du goulot d'étranglement marin pour l'armée, tous deux situés au centre. Ici toutes les forces sont exploitées. \\nNombre de participants: 2 à 4 facilement.\\nTemps de jeu: probablement très long.",
-			"de-DE": "Diese Welt hat ihren Namen von dem Land-Engpaß, der von den Seearmeen kontrolliert werden kann und dem Meer-Engpaß, der von den Landarmeen kontrolliert werden kann. Beide sind in der Mitte der Karte. Starker Gebrauch aller Armeen ist an dieser Stelle wahrscheinlich. Teilnehmerzahl: 2-4 können gut untergebracht werden.\\nSpieldauer: Die meisten Spiele an dieser Stelle dauern wahrscheinlich sehr lange.",
-			"it-IT": "Il nome di questo mondo deriva proprio dalla lingua di terra controllabile dalle forze navali e dall'insenatura del mare controllabile dalle forze terrestri. Entrambi si trovano al centro della mappa. In questa ubicazione è probabile che si faccia ampio uso di tutte le forze.Numero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\\nTempo di Gioco:  la maggior parte dei Giochi in questo mondo potrebbero essere molto lunghi.",
-			"es-ES": "Este mundo debe su nombre al cuello de botella terrestre controlable por fuerzas navales y al cuello de botella marítimo controlable por fuerzas terrestres. Ambos están en el centro del mapa. Se recomienda un uso exhaustivo de todos los efectivos.\\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
+			"en-US": "This world gets its name from the land bottleneck controllable by sea forces and the sea bottleneck controllable by land forces. Both are in the center of the map. Extensive use of all forces is likely in this location.\nNumber of Participants: two to four can be easily accommodated.\nGame Time: Most games on this world are likely to be very long.",
+			"fr-FR": "Son nom vient du goulot d'étranglement terrestre pour la flotte et du goulot d'étranglement marin pour l'armée, tous deux situés au centre. Ici toutes les forces sont exploitées. \nNombre de participants: 2 à 4 facilement.\nTemps de jeu: probablement très long.",
+			"de-DE": "Diese Welt hat ihren Namen von dem Land-Engpaß, der von den Seearmeen kontrolliert werden kann und dem Meer-Engpaß, der von den Landarmeen kontrolliert werden kann. Beide sind in der Mitte der Karte. Starker Gebrauch aller Armeen ist an dieser Stelle wahrscheinlich. Teilnehmerzahl: 2-4 können gut untergebracht werden.\nSpieldauer: Die meisten Spiele an dieser Stelle dauern wahrscheinlich sehr lange.",
+			"it-IT": "Il nome di questo mondo deriva proprio dalla lingua di terra controllabile dalle forze navali e dall'insenatura del mare controllabile dalle forze terrestri. Entrambi si trovano al centro della mappa. In questa ubicazione è probabile che si faccia ampio uso di tutte le forze.Numero di Partecipanti:  possono esserne facilmente ospitati da 2 a 4\nTempo di Gioco:  la maggior parte dei Giochi in questo mondo potrebbero essere molto lunghi.",
+			"es-ES": "Este mundo debe su nombre al cuello de botella terrestre controlable por fuerzas navales y al cuello de botella marítimo controlable por fuerzas terrestres. Ambos están en el centro del mapa. Se recomienda un uso exhaustivo de todos los efectivos.\nNúmero de participantes: Se pueden instalar entre dos y cuatro jugadores.",
 			"ru-RU": "Скорее всего игра будет очень долгой."
 		},
 		"e43b": {
@@ -4684,7 +4684,7 @@
 		"eb1c": {
 			"en-US": "Basic opponent with some advanced tactics, and no building penalty.",
 			"fr-FR": "Ennemi de base possédant quelques tactiques avancées, et sans pénalité en construction.",
-			"de-DE": "Mittelstarker Gegner mit einigen fortgeschrittenen\\nTaktiken und ohne Strafe beim Bau.",
+			"de-DE": "Mittelstarker Gegner mit einigen fortgeschrittenen\nTaktiken und ohne Strafe beim Bau.",
 			"it-IT": "Avversario normale con qualche tattica avanzata, e nessuna penalità nelle costruzioni.",
 			"es-ES": "Enemigo sencillo con algunas tácticas avanzadas y sin penalización en construcción.",
 			"ru-RU": "Стандартный противник с зачатками тактики и без огран.на стройку."
@@ -4730,12 +4730,12 @@
 			"ru-RU": "OK"
 		},
 		"f9bb": {
-			"en-US": "Game Paused.\\nClick OK to continue.",
-			"fr-FR": "Pause.\\nCliquez sur OK pour continuer.",
-			"de-DE": "Spiel in Pausen-Position.\\n Klicken Sie OK um fortzufahren.",
-			"it-IT": "Gioco sospeso.\\nClicca OK per riprendere.",
-			"es-ES": "Juego en pausa.\\nHaz clic en Aceptar para continuar.",
-			"ru-RU": "На паузе.\\nНажмите OK для выхода"
+			"en-US": "Game Paused.\nClick OK to continue.",
+			"fr-FR": "Pause.\nCliquez sur OK pour continuer.",
+			"de-DE": "Spiel in Pausen-Position.\n Klicken Sie OK um fortzufahren.",
+			"it-IT": "Gioco sospeso.\nClicca OK per riprendere.",
+			"es-ES": "Juego en pausa.\nHaz clic en Aceptar para continuar.",
+			"ru-RU": "На паузе.\nНажмите OK для выхода"
 		},
 		"755f": {
 			"en-US": "OK",
@@ -4770,12 +4770,12 @@
 			"ru-RU": "Вых."
 		},
 		"00d3": {
-			"en-US": "Unable to continue with next turn - remote players are no longer synchronized.\\n\\nPress Restart to load from last auto-saved file.\\nPress Quit to exit this game.",
-			"fr-FR": "Impossible de passer au tour suivant - Les joueurs réseau ne sont plus synchronisés.\\n\\nAppuyer sur Relancer pour charger à partir du dernier fichier sauvegardé. \\n\\nAppuyer sur Quitter pour sortir du jeu.",
-			"de-DE": "Unmöglich, mit nächster Runde fortzufahren - angeschlossene Spieler sind nicht länger synchronisiert.\\n\\nDrücken Sie Start, um von den letzten auto-gespeicherten Dateien zu laden\\nDrücken Sie Beenden, um das Spiel zu verlassen.",
-			"it-IT": "Impossibile continuare col prossimo turno - I giocatori remoti non sono più sincronizzati.\\n\\nPremere Riavvio per ricaricare il gioco dall'ultimo file autosalvato.\\nPremere Esci per uscire dal gioco.",
-			"es-ES": "Imposible continuar con el próximo turno. Los jugadores en redya no están sincronizados.\\n\\nPulse Iniciar para abrir el último archivo autoguardado.\\nPulse Salir para abandonar el juego.",
-			"ru-RU": "Нельзя продолжить ход - другой игрок н может синхронизироваться .\\n\\nНажмите рестарт чтобы загрузить автосэйв.\\nНажмите Вых. для выхода."
+			"en-US": "Unable to continue with next turn - remote players are no longer synchronized.\n\nPress Restart to load from last auto-saved file.\nPress Quit to exit this game.",
+			"fr-FR": "Impossible de passer au tour suivant - Les joueurs réseau ne sont plus synchronisés.\n\nAppuyer sur Relancer pour charger à partir du dernier fichier sauvegardé. \n\nAppuyer sur Quitter pour sortir du jeu.",
+			"de-DE": "Unmöglich, mit nächster Runde fortzufahren - angeschlossene Spieler sind nicht länger synchronisiert.\n\nDrücken Sie Start, um von den letzten auto-gespeicherten Dateien zu laden\nDrücken Sie Beenden, um das Spiel zu verlassen.",
+			"it-IT": "Impossibile continuare col prossimo turno - I giocatori remoti non sono più sincronizzati.\n\nPremere Riavvio per ricaricare il gioco dall'ultimo file autosalvato.\nPremere Esci per uscire dal gioco.",
+			"es-ES": "Imposible continuar con el próximo turno. Los jugadores en redya no están sincronizados.\n\nPulse Iniciar para abrir el último archivo autoguardado.\nPulse Salir para abandonar el juego.",
+			"ru-RU": "Нельзя продолжить ход - другой игрок н может синхронизироваться .\n\nНажмите рестарт чтобы загрузить автосэйв.\nНажмите Вых. для выхода."
 		},
 		"7c8d": {
 			"en-US": "Unable to move unit into holding area.",
@@ -5170,20 +5170,20 @@
 			"ru-RU": "Сохранено."
 		},
 		"1dc1": {
-			"en-US": "Game Paused.\\nClick OK to continue.",
-			"fr-FR": "Pause.\\nCliquez sur OK pour continuer.",
-			"de-DE": "Spiel in Pausen-Position.\\n Klicken Sie OK um fortzufahren.",
-			"it-IT": "Gioco sospeso.\\nClicca OK per riprendere.",
-			"es-ES": "Juego en pausa.\\nHaz clic en Aceptar para continuar.",
-			"ru-RU": "На паузе.\\nНажмите OK для выхода"
+			"en-US": "Game Paused.\nClick OK to continue.",
+			"fr-FR": "Pause.\nCliquez sur OK pour continuer.",
+			"de-DE": "Spiel in Pausen-Position.\n Klicken Sie OK um fortzufahren.",
+			"it-IT": "Gioco sospeso.\nClicca OK per riprendere.",
+			"es-ES": "Juego en pausa.\nHaz clic en Aceptar para continuar.",
+			"ru-RU": "На паузе.\nНажмите OK для выхода"
 		},
 		"6da5": {
-			"en-US": "Waiting for remote player\\nto select starting location...",
+			"en-US": "Waiting for remote player\nto select starting location...",
 			"fr-FR": "Attente du joueur réseau pour sélectionner l'emplacement de départ...",
-			"de-DE": "Warte, daß angeschlossener Spieler\\nStartposition auswählt.",
-			"it-IT": "In attesa che il giocatore remoto\\nscelga il punto di partenza...",
+			"de-DE": "Warte, daß angeschlossener Spieler\nStartposition auswählt.",
+			"it-IT": "In attesa che il giocatore remoto\nscelga il punto di partenza...",
 			"es-ES": "En espera de que el jugador en red seleccione lugar de comienzo...",
-			"ru-RU": "Ждем другого игрока\\nдля выбора начала ..."
+			"ru-RU": "Ждем другого игрока\nдля выбора начала ..."
 		},
 		"f394": {
 			"en-US": "Red Team",
@@ -5498,12 +5498,12 @@
 			"ru-RU": "Построенg %s, за время  %i."
 		},
 		"4262": {
-			"en-US": "Currently building: %s.\\nTurns to completion: %i.",
-			"fr-FR": "Actuellement en construction: %s.\\nTours avant achèvement: %i.",
+			"en-US": "Currently building: %s.\nTurns to completion: %i.",
+			"fr-FR": "Actuellement en construction: %s.\nTours avant achèvement: %i.",
 			"de-DE": "Beim Bau: %s. Runden:  %i.",
-			"it-IT": "In fase di costruzione: %s.\\nTurni necessari per il completamento: %i.",
-			"es-ES": "Construyendo actualmente: %s.\\nTurnos para la terminación: %i.",
-			"ru-RU": "Строится : %s.\\nОсталось %i ходов."
+			"it-IT": "In fase di costruzione: %s.\nTurni necessari per il completamento: %i.",
+			"es-ES": "Construyendo actualmente: %s.\nTurnos para la terminación: %i.",
+			"ru-RU": "Строится : %s.\nОсталось %i ходов."
 		},
 		"0334": {
 			"en-US": "Eco-sphere",
@@ -6138,11 +6138,11 @@
 			"ru-RU": "Очист. Золота"
 		},
 		"1a05": {
-			"en-US": "A power station consumes six fuel each turn, and provides enough power for six factories or mining stations.\\n",
-			"fr-FR": "Un générateur d'énergie consomme 8 volumes de carburant à chaque tour, et fournit assez d'énergie pour six usines ou stations minières.\\n\\nConstruire une centrale d'énergie prend plus de temps que construire un générateur d'énergie, mais cela est aussi plus efficace.",
-			"de-DE": "Ein Energie-Generator verbraucht acht Treibstoffeinheitenin jeder Runde und liefert genug Energie für sechs Fabriken oder Bergwerke.\\n\\nEnergie-Stationen benötigen eine längere Bauzeit als Energie-Generatoren, aber sie sind auch effizienter",
-			"it-IT": "Un generatore d'energia consuma otto punti combustibile per turno, e fornisce energia sufficiente per sei fabbriche o stazioni minerarie.\\n\\nPer costruire le centrali d'energia occorre più tempo che per i generatori d'energia, ma queste sono più efficienti.",
-			"es-ES": "Una central eléctrica consume seis unidades de combustible en cada turno, y suministra la energía suficiente para el funcionamiento de seis fábricas o estaciones mineras.\\n",
+			"en-US": "A power station consumes six fuel each turn, and provides enough power for six factories or mining stations.\n",
+			"fr-FR": "Un générateur d'énergie consomme 8 volumes de carburant à chaque tour, et fournit assez d'énergie pour six usines ou stations minières.\n\nConstruire une centrale d'énergie prend plus de temps que construire un générateur d'énergie, mais cela est aussi plus efficace.",
+			"de-DE": "Ein Energie-Generator verbraucht acht Treibstoffeinheitenin jeder Runde und liefert genug Energie für sechs Fabriken oder Bergwerke.\n\nEnergie-Stationen benötigen eine längere Bauzeit als Energie-Generatoren, aber sie sind auch effizienter",
+			"it-IT": "Un generatore d'energia consuma otto punti combustibile per turno, e fornisce energia sufficiente per sei fabbriche o stazioni minerarie.\n\nPer costruire le centrali d'energia occorre più tempo che per i generatori d'energia, ma queste sono più efficienti.",
+			"es-ES": "Una central eléctrica consume seis unidades de combustible en cada turno, y suministra la energía suficiente para el funcionamiento de seis fábricas o estaciones mineras.\n",
 			"ru-RU": "Электростанция дает 6 единиц энергии каждый ход."
 		},
 		"1522": {
@@ -7066,11 +7066,11 @@
 			"ru-RU": "Скаут имеет мощный сканер и двигется очень быстро. Также у него есть небольшая пушка."
 		},
 		"b2bb": {
-			"en-US": "High speed scouting vehicle for exploration and spotting enemy units.  Can cross water without a bridge, but is faster on land.\\n\\nVery fast and good scan range, but much weaker than most combat units.",
-			"fr-FR": "Véhicule de reconnaissance à grande vitesse pour la recherche et le repérage des unités ennemies. Peut traverser les eaux sans pont, mais est plus rapide sur terre.\\n\\nTrès rapide et avec une bonne portée radar, mais beaucoup plus vulnérable que la plupart des unités de combat.",
-			"de-DE": "Hoch-Geschwindigkeits-Späher-Fahrzeug, das feindliche Einheiten auskundschaftet und ausspäht. Kann Wasser ohne Brücke überqueren, ist jedoch schneller auf Land.\\n\\nSehr schnell und gute Scan-Reichweite, aber viel schwächer als die meisten Kampfeinheiten.",
-			"it-IT": "Veicolo ad alta velocità per esplorazioni e per  individuare unità nemiche. Può attraversare i corsi d'acqua senza un ponte, ma è più veloce sulla terra.\\n\\nMolto veloce e con buona portata d'individuazione, ma molto più debole della maggior parte delle altre unità di combattimento.",
-			"es-ES": "Vehículo de reconocimiento de gran velocidad para la búsqueda de unidades enemigas. Puede cruzar el agua sin que haya un puente, pero es más rápido en tierra.\\n\\nMuy veloz y de gran alcance en la exploración, pero mucho más débil que la mayoría de las unidades de combate.",
+			"en-US": "High speed scouting vehicle for exploration and spotting enemy units.  Can cross water without a bridge, but is faster on land.\n\nVery fast and good scan range, but much weaker than most combat units.",
+			"fr-FR": "Véhicule de reconnaissance à grande vitesse pour la recherche et le repérage des unités ennemies. Peut traverser les eaux sans pont, mais est plus rapide sur terre.\n\nTrès rapide et avec une bonne portée radar, mais beaucoup plus vulnérable que la plupart des unités de combat.",
+			"de-DE": "Hoch-Geschwindigkeits-Späher-Fahrzeug, das feindliche Einheiten auskundschaftet und ausspäht. Kann Wasser ohne Brücke überqueren, ist jedoch schneller auf Land.\n\nSehr schnell und gute Scan-Reichweite, aber viel schwächer als die meisten Kampfeinheiten.",
+			"it-IT": "Veicolo ad alta velocità per esplorazioni e per  individuare unità nemiche. Può attraversare i corsi d'acqua senza un ponte, ma è più veloce sulla terra.\n\nMolto veloce e con buona portata d'individuazione, ma molto più debole della maggior parte delle altre unità di combattimento.",
+			"es-ES": "Vehículo de reconocimiento de gran velocidad para la búsqueda de unidades enemigas. Puede cruzar el agua sin que haya un puente, pero es más rápido en tierra.\n\nMuy veloz y de gran alcance en la exploración, pero mucho más débil que la mayoría de las unidades de combate.",
 			"ru-RU": "Скаут имеет мощный сканер и двигется очень быстро. Также у него есть небольшая пушка."
 		},
 		"95a3": {
@@ -7476,7 +7476,7 @@
 		"cc81": {
 			"en-US": "Commando trained in the arts of stealth and electronic warfare.  Infiltrators can disable or capture enemy units. Infiltrators are normally invisible until they make a mistake trying to capture enemy units, or until spotted by infantry or infiltrators.",
 			"fr-FR": "Commando entraîné à l'art du camouflage et de la guerre électronique.  Les Commandos peuvent neutraliser ou capturer les unités ennemies.  Les Commandos sont normalement invisibles à moins qu'ils ne commettent une erreur en essayant de capturer les unités ennemies, ou qu'ils ne soient repérés par l'infanterie ou les commandos.",
-			"de-DE": "Kommando, das in der Kunst der lautlosen und elektronischen Kriegsführung trainiert ist.  Infiltratoren können feindliche Einheiten unschädlich machen oder gefangennehmen. \\nInfiltratoren sind normalerweise unsichtbar, bis sie einen Fehler machen, wenn sie versuchen, feindliche Einheiten gefangenzunehmen, oder bis sie von Infanterie oder Infiltratoren gesichtet worden sind.",
+			"de-DE": "Kommando, das in der Kunst der lautlosen und elektronischen Kriegsführung trainiert ist.  Infiltratoren können feindliche Einheiten unschädlich machen oder gefangennehmen. \nInfiltratoren sind normalerweise unsichtbar, bis sie einen Fehler machen, wenn sie versuchen, feindliche Einheiten gefangenzunehmen, oder bis sie von Infanterie oder Infiltratoren gesichtet worden sind.",
 			"it-IT": "Commando addestrato nella guerriglia mobile e elettronica. Gli infiltratori possono disattivare o catturare unità nemiche. Gli infiltratori sono normalmente invisibili finché non commettono un errore cercando di catturare unità nemiche o vengono individuati da fanti o da infiltratori.",
 			"es-ES": "Soldado de élite entrenado en las artes de la furtividad y la guerra electrónica. Los infiltrados pueden neutralizar y capturar unidades enemigas. Normalmente, los infiltrados son invisibles al enemigo hasta que cometen un error al intentar capturar unidades enemigas, o hasta que son localizados por la infantería o los infiltrados enemigos.",
 			"ru-RU": "Способен выполнять шпионскую деятельность и захватывать объекты"
@@ -7572,7 +7572,7 @@
 		"fe06": {
 			"en-US": "Heavily armored ship with a high caliber, medium range cannon.  Excellent at destroying other ships and bombarding shore targets.",
 			"fr-FR": "Navire à blindage lourd avec un canon de gros calibre à moyenne portée. Excellent pour détruire les autres navires et bombarder les cibles côtières.",
-			"de-DE": "Schwer gepanzertes Schiff mit einer Hoch-Kaliber-Kanone mit mittlerer Reichweite. \\nExzellent beim Zerstören von anderen Schiffen und beim Bombardieren von Küstenzielen.",
+			"de-DE": "Schwer gepanzertes Schiff mit einer Hoch-Kaliber-Kanone mit mittlerer Reichweite. \nExzellent beim Zerstören von anderen Schiffen und beim Bombardieren von Küstenzielen.",
 			"it-IT": "Nave corazzata munita di cannone di grande calibro e di media portata. Eccellente per distruggere le altre navi e bombardare bersagli a riva.",
 			"es-ES": "Buque fuertemente blindado, dotado de un cañón de alto calibre y alcance medio. Excelente para destruir otras naves y bombardear objetivos costeros.",
 			"ru-RU": "Покрытые толстым слоем брони корабли с крупнокалиберными недальнобойными пушками."
@@ -8450,20 +8450,20 @@
 			"ru-RU": "Враг поломан на  %i ходов."
 		},
 		"c15c": {
-			"en-US": "%s %i has been loaded\\ninto air transport.",
+			"en-US": "%s %i has been loaded\ninto air transport.",
 			"fr-FR": "Chargement de %s %i effectué dans le transporteur aérien.",
-			"de-DE": "%s %i ist auf\\nTransportflugzeug aufgeladen worden.",
-			"it-IT": "%s %i caricato(a)\\n sull'aereo da trasporto.",
-			"es-ES": "Carga de %s %i efectuada\\nal transporte aéreo.",
-			"ru-RU": "%s %i загружен\\nв аэротранспорт."
+			"de-DE": "%s %i ist auf\nTransportflugzeug aufgeladen worden.",
+			"it-IT": "%s %i caricato(a)\n sull'aereo da trasporto.",
+			"es-ES": "Carga de %s %i efectuada\nal transporte aéreo.",
+			"ru-RU": "%s %i загружен\nв аэротранспорт."
 		},
 		"60f3": {
-			"en-US": "%s %i has been unloaded\\nfrom air transport.",
+			"en-US": "%s %i has been unloaded\nfrom air transport.",
 			"fr-FR": "Déchargement de %s %i effectué depuis le transporteur aérien.",
-			"de-DE": "%s %i ist aus\\nTransportflugzeug ausgeladen worden.",
-			"it-IT": "%s %i scaricato(a)\\n dall'aereo da trasporto.",
-			"es-ES": "Descarga de %s %i efectuada\\ndesde el transporte aéreo.",
-			"ru-RU": "%s %i выгружен из\\nаэротранспорта."
+			"de-DE": "%s %i ist aus\nTransportflugzeug ausgeladen worden.",
+			"it-IT": "%s %i scaricato(a)\n dall'aereo da trasporto.",
+			"es-ES": "Descarga de %s %i efectuada\ndesde el transporte aéreo.",
+			"ru-RU": "%s %i выгружен из\nаэротранспорта."
 		},
 		"1b93": {
 			"en-US": "%s at [%i,%i] reacting to enemy %s at [%i,%i].",
@@ -8542,10 +8542,10 @@
 			"en-US": "Failed to initialize SDL library."
 		},
 		"d0a2": {
-			"en-US": "Not enough memory available to run M.A.X.\\nAmount Needed: %i MiB, Amount found: %i MiB."
+			"en-US": "Not enough memory available to run M.A.X.\nAmount Needed: %i MiB, Amount found: %i MiB."
 		},
 		"efb0": {
-			"en-US": "The Drive has less than %.2f MiB available space.\\nYou may have trouble saving games..."
+			"en-US": "The Drive has less than %.2f MiB available space.\nYou may have trouble saving games..."
 		},
 		"cf05": {
 			"en-US": "M.A.X. Error",
