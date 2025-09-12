@@ -61,14 +61,15 @@ void from_json(const json& j, LanguageObject& l) {
     }
 }
 
-Language::Language() : m_languageobject(std::make_unique<LanguageObject>()) {}
+Language::Language()
+    : m_language(ResourceManager_GetSystemLocale()), m_languageobject(std::make_unique<LanguageObject>()) {}
 
-Language::Language(const std::string& language)
+Language::Language(std::string& language)
     : m_language(language), m_languageobject(std::make_unique<LanguageObject>()) {}
 
 Language::~Language() {}
 
-void Language::SetLanguage(const std::string& language) { m_language = language; }
+void Language::SetLanguage(std::string& language) { m_language = language; }
 
 std::string Language::LoadSchema() {
     uint32_t file_size = ResourceManager_GetResourceSize(SC_SCHEL);

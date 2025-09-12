@@ -497,7 +497,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                                 } break;
                                 case static_cast<uint32_t>(SmartFileFormat::V71): {
                                     /// \todo language
-                                    auto mission = std::make_shared<Mission>("en-US");
+                                    auto mission = std::make_shared<Mission>();
 
                                     if (mission && mission->LoadBinaryBuffer(save_file_info.script)) {
                                         if (ResourceManager_GetMissionManager()->LoadMission(mission)) {

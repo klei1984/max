@@ -752,7 +752,7 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
 
         if (file_exists && rng_seed == save_file_info.random_seed) {
             /// \todo language
-            auto mission = std::make_shared<Mission>("en-US");
+            auto mission = std::make_shared<Mission>();
 
             if (mission && mission->LoadBinaryBuffer(save_file_info.script)) {
                 if (ResourceManager_GetMissionManager()->LoadMission(mission)) {

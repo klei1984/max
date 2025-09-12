@@ -30,7 +30,7 @@
 struct LanguageObject;
 
 class Language {
-    std::string m_language{"en-US"};
+    std::string& m_language;
     std::string m_empty{""};
     std::string m_error{"error"};
     std::unique_ptr<LanguageObject> m_languageobject;
@@ -39,11 +39,11 @@ class Language {
 
 public:
     Language();
-    Language(const std::string& language);
+    Language(std::string& language);
     ~Language();
 
     [[nodiscard]] bool LoadFile(const std::string& path);
-    void SetLanguage(const std::string& language);
+    void SetLanguage(std::string& language);
 
     [[nodiscard]] const std::string& GetEntry(const uint32_t key);
 };

@@ -30,20 +30,21 @@
 struct HelpObject;
 
 class Help {
-    std::string m_language;
+    std::string& m_language;
     std::unique_ptr<HelpObject> m_help;
 
     [[nodiscard]] std::string LoadSchema();
 
 public:
     Help();
-    Help(const std::string& language);
+    Help(std::string& language);
     ~Help();
 
     [[nodiscard]] bool LoadFile(const std::string& path);
     void SetLanguage(const std::string& language);
 
-    [[nodiscard]] bool GetEntry(const std::string& section, const int32_t position_x, const int32_t position_y, std::string& text);
+    [[nodiscard]] bool GetEntry(const std::string& section, const int32_t position_x, const int32_t position_y,
+                                std::string& text);
 };
 
 #endif /* HELP_HPP */

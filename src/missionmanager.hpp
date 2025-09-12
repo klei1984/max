@@ -32,7 +32,7 @@
 class MissionManager {
     static std::unique_ptr<MissionRegistry> m_missionregistry;
 
-    std::string m_language{"en-US"};
+    std::string& m_language;
     std::shared_ptr<Mission> m_mission;
     std::unique_ptr<GameRulesHandler> m_gameruleshandler;
     std::unique_ptr<WinLossHandler> m_winlosshandler;
@@ -59,7 +59,7 @@ public:
     int32_t GetMissionIndex(const MissionCategory category, const std::vector<std::string>& hashes) const;
     int32_t GetMissionIndex(const MissionCategory category, const std::string hash) const;
     int32_t GetMissionIndex(const std::shared_ptr<Mission> mission) const;
-    void SetLanguage(const std::string language);
+    void SetLanguage(const std::string& language);
 };
 
 #endif /* MISSIONMANAGER_HPP */

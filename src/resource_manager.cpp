@@ -1985,7 +1985,7 @@ void ResourceManager_InitLanguageManager() {
     ResourceManager_LanguageManager = std::make_shared<Language>();
     if (ResourceManager_LanguageManager &&
         ResourceManager_LanguageManager->LoadFile((path / "language.json").lexically_normal().string())) {
-        ResourceManager_LanguageManager->SetLanguage(ResourceManager_SystemLocale);
+        ResourceManager_LanguageManager->SetLanguage(ResourceManager_GetSystemLocale());
 
     } else {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Failed to load `language.json` asset.",
@@ -1993,6 +1993,10 @@ void ResourceManager_InitLanguageManager() {
         exit(EXIT_FAILURE);
     }
 }
+
+std::string &ResourceManager_GetSystemLocale() { return ResourceManager_SystemLocale; }
+
+void ResourceManager_SetSystemLocale(const std::string locale) { ResourceManager_SystemLocale = locale; }
 
 const std::string &ResourceManager_GetLanguageEntry(const uint32_t key) {
     SDL_assert(ResourceManager_LanguageManager);
@@ -2005,7 +2009,7 @@ void ResourceManager_InitHelpManager() {
 
     ResourceManager_HelpManager = std::make_shared<Help>();
     (void)ResourceManager_HelpManager->LoadFile(path.lexically_normal().string());
-    ResourceManager_HelpManager->SetLanguage(ResourceManager_SystemLocale);
+    ResourceManager_HelpManager->SetLanguage(ResourceManager_GetSystemLocale());
 }
 
 std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,

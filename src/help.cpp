@@ -82,9 +82,9 @@ void from_json(const json& j, HelpObject& h) {
     }
 }
 
-Help::Help() : m_language("en-US"), m_help(std::make_unique<HelpObject>()) {}
+Help::Help() : m_language(ResourceManager_GetSystemLocale()), m_help(std::make_unique<HelpObject>()) {}
 
-Help::Help(const std::string& language) : m_language(language), m_help(std::make_unique<HelpObject>()) {}
+Help::Help(std::string& language) : m_language(language), m_help(std::make_unique<HelpObject>()) {}
 
 Help::~Help() {}
 

@@ -39,7 +39,7 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
 
             std::string script(reinterpret_cast<const char*>(file_base), file_size);
 
-            auto mission = std::make_shared<Mission>("en-US");
+            auto mission = std::make_shared<Mission>();
 
             if (mission && mission->LoadBuffer(script)) {
                 m_categories[mission->GetCategory()].push_back(std::move(mission));
@@ -57,7 +57,7 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
         for (const auto& entry : std::filesystem::recursive_directory_iterator(root)) {
             if (entry.is_regular_file() && entry.path().extension() == ".json") {
                 if (entry.path().filename().string().ends_with(".mission.json")) {
-                    auto mission = std::make_shared<Mission>("en-US");
+                    auto mission = std::make_shared<Mission>();
 
                     if (mission->LoadFile(entry.path().string())) {
                         m_categories[mission->GetCategory()].push_back(std::move(mission));

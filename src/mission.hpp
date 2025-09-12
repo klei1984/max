@@ -41,7 +41,7 @@ enum MissionCategory {
 };
 
 class Mission {
-    std::string m_language;
+    std::string& m_language;
     std::unique_ptr<MissionObject> m_mission;
 
     [[nodiscard]] std::string LoadSchema();
@@ -58,7 +58,7 @@ public:
     };
 
     Mission();
-    Mission(const std::string& language);
+    Mission(std::string& language);
     ~Mission();
 
     [[nodiscard]] bool LoadFile(const std::string& path);

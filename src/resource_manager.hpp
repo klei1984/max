@@ -136,6 +136,9 @@ void ResourceManager_InitTeamInfo();
 uint8_t *ResourceManager_GetBuffer(ResourceID id);
 std::string ResourceManager_Sha256(const ResourceID world);
 const std::string &ResourceManager_GetLanguageEntry(const uint32_t key);
+std::string &ResourceManager_GetSystemLocale();
+void ResourceManager_SetSystemLocale(const std::string locale);
+
 std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,
                                          const int32_t position_y);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();

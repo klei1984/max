@@ -443,13 +443,13 @@ void from_json(const json& j, MissionObject& m) {
     }
 }
 
-Mission::Mission() : m_language("en-US"), m_mission(std::make_unique<MissionObject>()) {}
+Mission::Mission() : m_language(ResourceManager_GetSystemLocale()), m_mission(std::make_unique<MissionObject>()) {}
 
-Mission::Mission(const std::string& language) : m_language(language), m_mission(std::make_unique<MissionObject>()) {}
+Mission::Mission(std::string& language) : m_language(language), m_mission(std::make_unique<MissionObject>()) {}
 
 Mission::~Mission() {}
 
-void Mission::SetLanguage(const std::string& tag) { m_language = tag; }
+void Mission::SetLanguage(const std::string& language) { m_language = language; }
 
 std::string Mission::GetTitle() const { return Mission_GetText(m_mission->title, m_language); }
 

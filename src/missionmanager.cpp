@@ -26,7 +26,7 @@
 
 std::unique_ptr<MissionRegistry> MissionManager::m_missionregistry;
 
-MissionManager::MissionManager() {
+MissionManager::MissionManager() : m_language(ResourceManager_GetSystemLocale()) {
     if (!m_missionregistry) {
         m_missionregistry = std::make_unique<MissionRegistry>(ResourceManager_FilePathGamePref);
     }
@@ -153,7 +153,7 @@ int32_t MissionManager::GetMissionIndex(const std::shared_ptr<Mission> mission) 
 
 void MissionManager::HandleMissionStateChanges() { MaxRegistryHandler::Update(); }
 
-void MissionManager::SetLanguage(const std::string language) {
+void MissionManager::SetLanguage(const std::string& language) {
     m_language = language;
 
     if (m_mission) {
