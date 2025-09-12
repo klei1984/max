@@ -8530,92 +8530,47 @@
 			"ru-RU": "Отмена"
 		},
 		"2690": {
-			"en-US": "Failed to obtain application base directory.",
-			"fr-FR": "Failed to obtain application base directory.",
-			"de-DE": "Failed to obtain application base directory.",
-			"it-IT": "Failed to obtain application base directory.",
-			"es-ES": "Failed to obtain application base directory.",
-			"ru-RU": "Failed to obtain application base directory."
+			"en-US": "Failed to obtain application base directory."
 		},
 		"416b": {
-			"en-US": "Failed to obtain application user directory.",
-			"fr-FR": "Failed to obtain application user directory.",
-			"de-DE": "Failed to obtain application user directory.",
-			"it-IT": "Failed to obtain application user directory.",
-			"es-ES": "Failed to obtain application user directory.",
-			"ru-RU": "Failed to obtain application user directory."
+			"en-US": "Failed to obtain application user directory."
 		},
 		"0f72": {
-			"en-US": "Failed to obtain application data directory.",
-			"fr-FR": "Failed to obtain application data directory.",
-			"de-DE": "Failed to obtain application data directory.",
-			"it-IT": "Failed to obtain application data directory.",
-			"es-ES": "Failed to obtain application data directory.",
-			"ru-RU": "Failed to obtain application data directory."
+			"en-US": "Failed to obtain application data directory."
 		},
 		"438a": {
-			"en-US": "Failed to initialize SDL library.",
-			"fr-FR": "Failed to initialize SDL library.",
-			"de-DE": "Failed to initialize SDL library.",
-			"it-IT": "Failed to initialize SDL library.",
-			"es-ES": "Failed to initialize SDL library.",
-			"ru-RU": "Failed to initialize SDL library."
+			"en-US": "Failed to initialize SDL library."
 		},
 		"d0a2": {
-			"en-US": "Not enough memory available to run M.A.X.\\nAmount Needed: %i MiB, Amount found: %i MiB.",
-			"fr-FR": "Not enough memory available to run M.A.X.\\nAmount Needed: %i MiB, Amount found: %i MiB.",
-			"de-DE": "Not enough memory available to run M.A.X.\\nAmount Needed: %i MiB, Amount found: %i MiB.",
-			"it-IT": "Not enough memory available to run M.A.X.\\nAmount Needed: %i MiB, Amount found: %i MiB.",
-			"es-ES": "Not enough memory available to run M.A.X.\\nAmount Needed: %i MiB, Amount found: %i MiB.",
-			"ru-RU": "Not enough memory available to run M.A.X.\\nAmount Needed: %i MiB, Amount found: %i MiB."
+			"en-US": "Not enough memory available to run M.A.X.\\nAmount Needed: %i MiB, Amount found: %i MiB."
 		},
 		"efb0": {
-			"en-US": "The Drive has less than %.2f MiB available space.\\nYou may have trouble saving games...",
-			"fr-FR": "The Drive has less than %.2f MiB available space.\\nYou may have trouble saving games...",
-			"de-DE": "The Drive has less than %.2f MiB available space.\\nYou may have trouble saving games...",
-			"it-IT": "The Drive has less than %.2f MiB available space.\\nYou may have trouble saving games...",
-			"es-ES": "The Drive has less than %.2f MiB available space.\\nYou may have trouble saving games...",
-			"ru-RU": "The Drive has less than %.2f MiB available space.\\nYou may have trouble saving games..."
+			"en-US": "The Drive has less than %.2f MiB available space.\\nYou may have trouble saving games..."
 		},
 		"cf05": {
 			"en-US": "M.A.X. Error",
-			"fr-FR": "M.A.X. Error",
-			"de-DE": "M.A.X. Error",
-			"it-IT": "M.A.X. Error",
-			"es-ES": "M.A.X. Error",
-			"ru-RU": "M.A.X. Error"
+			"fr-FR": "Erreur M.A.X.",
+			"de-DE": "M.A.X.-Fehler",
+			"it-IT": "Errore M.A.X.",
+			"es-ES": "Error M.A.X.",
+			"ru-RU": "Ошибка M.A.X."
 		},
 		"b7f4": {
 			"en-US": "M.A.X. Warning",
-			"fr-FR": "M.A.X. Warning",
-			"de-DE": "M.A.X. Warning",
-			"it-IT": "M.A.X. Warning",
-			"es-ES": "M.A.X. Warning",
-			"ru-RU": "M.A.X. Warning"
+			"fr-FR": "Avertissement M.A.X.",
+			"de-DE": "M.A.X.-Warnung",
+			"it-IT": "Avviso M.A.X.",
+			"es-ES": "Advertencia M.A.X.",
+			"ru-RU": "Предупреждение M.A.X."
 		},
 		"3889": {
-			"en-US": "Cannot create saved game backup: '%s'.",
-			"fr-FR": "Cannot create saved game backup: '%s'.",
-			"de-DE": "Cannot create saved game backup: '%s'.",
-			"it-IT": "Cannot create saved game backup: '%s'.",
-			"es-ES": "Cannot create saved game backup: '%s'.",
-			"ru-RU": "Cannot create saved game backup: '%s'."
+			"en-US": "Cannot create saved game backup: '%s'."
 		},
 		"37d9": {
-			"en-US": "Failed to initialize audio library.",
-			"fr-FR": "Failed to initialize audio library.",
-			"de-DE": "Failed to initialize audio library.",
-			"it-IT": "Failed to initialize audio library.",
-			"es-ES": "Failed to initialize audio library.",
-			"ru-RU": "Failed to initialize audio library."
+			"en-US": "Failed to initialize audio library."
 		},
 		"6a9c": {
-			"en-US": "Failed to initialize font library.",
-			"fr-FR": "Failed to initialize font library.",
-			"de-DE": "Failed to initialize font library.",
-			"it-IT": "Failed to initialize font library.",
-			"es-ES": "Failed to initialize font library.",
-			"ru-RU": "Failed to initialize font library."
+			"en-US": "Failed to initialize font library."
 		},
 		"17ee": {
 			"en-US": "Peer unresponsive. Reconnecting now.",
