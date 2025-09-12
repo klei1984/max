@@ -88,7 +88,6 @@ static struct MenuButton* menu_button_items;
 static int32_t menu_button_items_count;
 uint32_t menu_turn_timer_value;
 
-static const char* menu_tips_data;
 static SmartString* menu_tips_strings;
 static Button* menu_tips_button_up;
 static Button* menu_tips_button_down;
@@ -1130,12 +1129,10 @@ void menu_draw_tips_frame(WindowInfo* window) {
 
 void menu_draw_tips(WindowInfo* window) {
     Text_SetFont(GNW_TEXT_FONT_5);
-    menu_tips_data = reinterpret_cast<char*>(ResourceManager_ReadResource(TIPS));
 
     menu_tips_max_row_count_per_page = 236 / Text_GetHeight();
 
-    menu_tips_strings =
-        Text_SplitText(menu_tips_data, menu_tips_max_row_count_per_page * 100, 296, &menu_tips_row_count);
+    menu_tips_strings = Text_SplitText(_(e81f), menu_tips_max_row_count_per_page * 100, 296, &menu_tips_row_count);
 
     menu_tips_current_row_index = 0;
 
@@ -1157,9 +1154,6 @@ void menu_draw_tips(WindowInfo* window) {
 }
 
 void menu_delete_tips() {
-    delete menu_tips_data;
-    menu_tips_data = nullptr;
-
     delete[] menu_tips_strings;
     menu_tips_strings = nullptr;
 
