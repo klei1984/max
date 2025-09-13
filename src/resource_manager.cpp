@@ -29,6 +29,7 @@
 
 #include "access.hpp"
 #include "assertmenu.hpp"
+#include "attributes.hpp"
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
 #include "game_manager.hpp"
@@ -78,6 +79,7 @@ static constexpr uintmax_t ResourceManager_MinimumDiskSpace = 1024 * 1024;
 
 static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
 static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
+static std::shared_ptr<Attributes> ResourceManager_UnitAttributes;
 static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
@@ -171,6 +173,7 @@ static void Resourcemanager_InitLocale();
 static void ResourceManager_InitLanguageManager();
 static void ResourceManager_InitHelpManager();
 static void ResourceManager_InitMissionManager();
+static void ResourceManager_InitUnitAttributes();
 
 static inline std::filesystem::path ResourceManager_GetFileResourcePathPrefix(ResourceType type) {
     auto path{ResourceManager_FilePathGameData};
@@ -400,6 +403,7 @@ void ResourceManager_InitResources() {
     // tested RAM and NVM space
     ResourceManager_LoadMaxResources();
     // MAX resources are available
+    ResourceManager_InitUnitAttributes();
     Scripter::Init();
     ResourceManager_InitInternals();
     ResourceManager_InitHelpManager();
@@ -2027,6 +2031,21 @@ void ResourceManager_InitMissionManager() {
     ResourceManager_MissionManager = std::make_shared<MissionManager>();
 
     ResourceManager_MissionManager->SetLanguage(ResourceManager_SystemLocale);
+}
+
+void ResourceManager_InitUnitAttributes() {
+    ResourceManager_UnitAttributes = std::make_shared<Attributes>();
+
+    if (ResourceManager_UnitAttributes && ResourceManager_UnitAttributes->LoadResource()) {
+    } else {
+        ;
+    }
+}
+
+[[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes *const attributes) {
+    SDL_assert(ResourceManager_UnitAttributes);
+    return ResourceManager_UnitAttributes->GetUnitAttributes(
+        ResourceManager_GetResourceID(static_cast<ResourceID>(index)), attributes);
 }
 
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return ResourceManager_MissionManager; }

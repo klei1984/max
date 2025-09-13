@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include "attributes.hpp"
 #include "enums.hpp"
 #include "gnw.h"
 #include "point.hpp"
@@ -138,9 +139,9 @@ std::string ResourceManager_Sha256(const ResourceID world);
 const std::string &ResourceManager_GetLanguageEntry(const uint32_t key);
 std::string &ResourceManager_GetSystemLocale();
 void ResourceManager_SetSystemLocale(const std::string locale);
-
 std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,
                                          const int32_t position_y);
+[[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes *const attributes);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
 
 class ResourceManager_MutexLock {

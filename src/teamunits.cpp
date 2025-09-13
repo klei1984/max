@@ -101,82 +101,36 @@ void BaseUnit::Init(AbstractUnit* unit) {
     tutorial = unit->tutorial;
 }
 
-int32_t TeamUnits::GetParam(char* string, int32_t* offset) {
-    int32_t number;
-
-    while (string[*offset] == ' ') {
-        ++*offset;
-    }
-
-    number = strtol(&string[*offset], nullptr, 10);
-
-    while (string[*offset] != ' ' && string[*offset] != '\0') {
-        ++*offset;
-    }
-
-    return number;
-}
-
 TeamUnits::TeamUnits() : gold(0), hash_team_id(0), color_index_table(nullptr) {}
 
 TeamUnits::~TeamUnits() {}
 
 void TeamUnits::Init() {
-    char* attribs;
+    UnitAttributes attribs;
 
-    attribs = reinterpret_cast<char*>(ResourceManager_ReadResource(ATTRIBS));
+    for (int32_t id = 0; id < UNIT_END; ++id) {
+        SmartPointer<UnitValues> unitvalues = new (std::nothrow) UnitValues();
 
-    if (attribs) {
-        uint32_t file_size;
-        uint32_t file_pos;
+        if (ResourceManager_GetUnitAttributes(id, &attribs)) {
+            unitvalues->SetAttribute(ATTRIB_TURNS, attribs.turns_to_build);
+            unitvalues->SetAttribute(ATTRIB_HITS, std::min(attribs.hit_points, static_cast<uint32_t>(UINT8_MAX)));
+            unitvalues->SetAttribute(ATTRIB_ARMOR, attribs.armor_rating);
+            unitvalues->SetAttribute(ATTRIB_ATTACK, attribs.attack_rating);
+            unitvalues->SetAttribute(ATTRIB_MOVE_AND_FIRE, attribs.move_and_fire);
+            unitvalues->SetAttribute(ATTRIB_SPEED, std::min(attribs.movement_points, static_cast<uint32_t>(UINT8_MAX)));
+            unitvalues->SetAttribute(ATTRIB_FUEL, 0uL);
+            unitvalues->SetAttribute(ATTRIB_RANGE, attribs.attack_range);
+            unitvalues->SetAttribute(ATTRIB_ROUNDS, attribs.shots_per_turn);
+            unitvalues->SetAttribute(ATTRIB_SCAN, attribs.scan_range);
+            unitvalues->SetAttribute(ATTRIB_STORAGE, attribs.storage_capacity);
+            unitvalues->SetAttribute(ATTRIB_AMMO, attribs.ammunition);
+            unitvalues->SetAttribute(ATTRIB_ATTACK_RADIUS, attribs.blast_radius);
 
-        file_size = ResourceManager_GetResourceSize(ATTRIBS);
-        file_pos = 0;
+            SetBaseUnitValues(id, *unitvalues);
 
-        for (int32_t id = 0; id < UNIT_END;) {
-            char buffer[100];
-            int32_t position;
-
-            position = 0;
-
-            do {
-                buffer[position] = attribs[file_pos++];
-
-                if (buffer[position] == '\r') {
-                    --position;
-                }
-
-                if (!--file_size) {
-                    break;
-                }
-
-            } while (buffer[position++] != '\n');
-            buffer[position] = '\0';
-
-            if (buffer[0] != ';' && buffer[0] != '\n') {
-                SmartPointer<UnitValues> unitvalues = new (std::nothrow) UnitValues();
-
-                position = 0;
-                unitvalues->SetAttribute(ATTRIB_TURNS, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_HITS, std::min(GetParam(buffer, &position), UINT8_MAX));
-                unitvalues->SetAttribute(ATTRIB_ARMOR, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_ATTACK, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_MOVE_AND_FIRE, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_SPEED, std::min(GetParam(buffer, &position), UINT8_MAX));
-                unitvalues->SetAttribute(ATTRIB_FUEL, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_RANGE, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_ROUNDS, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_SCAN, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_STORAGE, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_AMMO, GetParam(buffer, &position));
-                unitvalues->SetAttribute(ATTRIB_ATTACK_RADIUS, GetParam(buffer, &position));
-
-                SetBaseUnitValues(id, *unitvalues);
-                ++id;
-            }
+        } else {
+            SDL_assert(0);
         }
-
-        delete[] attribs;
     }
 }
 

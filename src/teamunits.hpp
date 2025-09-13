@@ -105,8 +105,6 @@ class TeamUnits {
     SmartPointer<UnitValues> current_values[UNIT_END];
     SmartList<Complex> complexes;
 
-    static int32_t GetParam(char* string, int32_t* offset);
-
 public:
     TeamUnits();
     ~TeamUnits();
