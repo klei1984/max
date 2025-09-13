@@ -466,6 +466,15 @@ void ResourceManager_InitInternals() {
     }
 
     ini_config.Init();
+
+    {
+        char language[30];
+
+        ini_config.GetStringValue(INI_PLAYER_NAME, language, sizeof(language));
+
+        ResourceManager_SetSystemLocale(language);
+    }
+
     ini_clans.Init();
 
     if (WindowManager_Init()) {
