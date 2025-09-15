@@ -25,11 +25,6 @@
 #include <ctype.h>
 #include <strings.h>
 
-static char *dos_strupr(char *s);
-static char *dos_strlwr(char *s);
-
-char *strupr(char *s) { return dos_strupr(s); }
-char *strlwr(char *s) { return dos_strlwr(s); }
 int stricmp(const char *s1, const char *s2) { return strcasecmp(s1, s2); }
 int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1, s2, len); }
 #endif /* defined(__unix__) */
@@ -37,39 +32,6 @@ int strnicmp(const char *s1, const char *s2, size_t len) { return strncasecmp(s1
 static uint32_t *initrandnext(void);
 
 static uint32_t dos_rand_next = 1;
-
-#if defined(__unix__)
-char *dos_strupr(char *s) {
-    char *p = s;
-    while (*p) {
-        *p = toupper(*p);
-        ++p;
-    }
-    return s;
-}
-#endif /* defined(__unix__) */
-
-#if defined(__unix__)
-char *dos_strlwr(char *s) {
-    char *p = s;
-    while (*p) {
-        *p = tolower(*p);
-        ++p;
-    }
-    return s;
-}
-#endif /* defined(__unix__) */
-
-long int filesize(FILE *fp) {
-    long int save_pos, size_of_file;
-
-    save_pos = ftell(fp);
-    fseek(fp, 0, SEEK_END);
-    size_of_file = ftell(fp);
-    fseek(fp, save_pos, SEEK_SET);
-
-    return (size_of_file);
-}
 
 uint32_t *initrandnext(void) { return &dos_rand_next; }
 

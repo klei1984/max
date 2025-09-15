@@ -26,13 +26,9 @@
 #include <stdio.h>
 
 #if defined(__unix__)
-char *strupr(char *s);
-char *strlwr(char *s);
 int stricmp(const char *s1, const char *s2);
 int strnicmp(const char *s1, const char *s2, size_t len);
 #endif
-
-long int filesize(FILE *fp);
 
 int32_t dos_rand(void);
 
