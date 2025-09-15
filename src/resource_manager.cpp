@@ -594,7 +594,7 @@ int32_t ResourceManager_InitResManager() {
 uint8_t *ResourceManager_ReadResource(ResourceID id) {
     uint8_t *resource_buffer;
 
-    if (id < MEM_END && id >= RESOURCE_E) {
+    if (id < MEM_END || id >= RESOURCE_E) {
         resource_buffer = nullptr;
 
     } else {
