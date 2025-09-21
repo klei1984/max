@@ -77,9 +77,20 @@ static constexpr int32_t ResourceManager_MinimumMemory = 6;
 static constexpr int32_t ResourceManager_MinimumMemoryEnhancedGfx = 13;
 static constexpr uintmax_t ResourceManager_MinimumDiskSpace = 1024 * 1024;
 
+static const std::unordered_map<std::string, TeamClanType> ResourceManager_ClansLutStringKey = {
+    {"Random", TEAM_CLAN_RANDOM},        {"Clan A", TEAM_CLAN_THE_CHOSEN}, {"Clan B", TEAM_CLAN_CRIMSON_PATH},
+    {"Clan C", TEAM_CLAN_VON_GRIFFIN},   {"Clan D", TEAM_CLAN_AYERS_HAND}, {"Clan E", TEAM_CLAN_MUSASHI},
+    {"Clan F", TEAM_CLAN_SACRED_EIGHTS}, {"Clan G", TEAM_CLAN_7_KNIGHTS},  {"Clan H", TEAM_CLAN_AXIS_INC}};
+
+static const std::unordered_map<TeamClanType, std::string> ResourceManager_ClansLutEnumKey = {
+    {TEAM_CLAN_RANDOM, "Random"},        {TEAM_CLAN_THE_CHOSEN, "Clan A"}, {TEAM_CLAN_CRIMSON_PATH, "Clan B"},
+    {TEAM_CLAN_VON_GRIFFIN, "Clan C"},   {TEAM_CLAN_AYERS_HAND, "Clan D"}, {TEAM_CLAN_MUSASHI, "Clan E"},
+    {TEAM_CLAN_SACRED_EIGHTS, "Clan F"}, {TEAM_CLAN_7_KNIGHTS, "Clan G"},  {TEAM_CLAN_AXIS_INC, "Clan H"}};
+
 static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
 static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
 static std::shared_ptr<Attributes> ResourceManager_UnitAttributes;
+static std::shared_ptr<Clans> ResourceManager_Clans;
 static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
@@ -174,6 +185,7 @@ static void ResourceManager_InitLanguageManager();
 static void ResourceManager_InitHelpManager();
 static void ResourceManager_InitMissionManager();
 static void ResourceManager_InitUnitAttributes();
+static void ResourceManager_InitClans();
 
 static inline std::filesystem::path ResourceManager_GetFileResourcePathPrefix(ResourceType type) {
     auto path{ResourceManager_FilePathGameData};
@@ -404,6 +416,9 @@ void ResourceManager_InitResources() {
     ResourceManager_LoadMaxResources();
     // MAX resources are available
     ResourceManager_InitUnitAttributes();
+    // MAX unit attribute definitions are available
+    ResourceManager_InitClans();
+    // MAX clan definitions are available
     Scripter::Init();
     ResourceManager_InitInternals();
     ResourceManager_InitHelpManager();
@@ -2049,6 +2064,25 @@ void ResourceManager_InitUnitAttributes() {
     } else {
         ;
     }
+}
+
+void ResourceManager_InitClans() {
+    ResourceManager_Clans = std::make_shared<Clans>();
+
+    if (ResourceManager_Clans && ResourceManager_Clans->LoadResource()) {
+    } else {
+        ;
+    }
+}
+
+std::shared_ptr<Clans> ResourceManager_GetClans() { return ResourceManager_Clans; }
+
+TeamClanType ResourceManager_GetClanID(const std::string clan_id) {
+    return ResourceManager_ClansLutStringKey.at(clan_id);
+}
+
+std::string ResourceManager_GetClanID(const TeamClanType clan_id) {
+    return ResourceManager_ClansLutEnumKey.at(clan_id);
 }
 
 [[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes *const attributes) {

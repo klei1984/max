@@ -25,11 +25,11 @@
 
 #include <algorithm>
 #include <fstream>
+#include <nlohmann/json-schema.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 #include <stdexcept>
 
-#include "nlohmann/json-schema.hpp"
-#include "nlohmann/json.hpp"
 #include "scripter.hpp"
 #include "sha2.h"
 
@@ -386,6 +386,9 @@ void from_json(const json& j, Resource& m) {
         if (m.id.size() == 0) {
             throw std::runtime_error("No valid media resource found.");
         }
+
+    } else {
+        throw std::runtime_error("No valid media type found.");
     }
 }
 

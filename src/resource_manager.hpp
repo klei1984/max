@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "attributes.hpp"
+#include "clans.hpp"
 #include "enums.hpp"
 #include "gnw.h"
 #include "point.hpp"
@@ -143,6 +144,9 @@ std::string ResourceManager_GetHelpEntry(const std::string &section, const int32
                                          const int32_t position_y);
 [[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes *const attributes);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
+std::shared_ptr<Clans> ResourceManager_GetClans();
+TeamClanType ResourceManager_GetClanID(const std::string clan_id);
+std::string ResourceManager_GetClanID(const TeamClanType clan_id);
 
 class ResourceManager_MutexLock {
 private:
