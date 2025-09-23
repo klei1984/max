@@ -24,6 +24,7 @@
 
 #include <cstdio>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -43,7 +44,7 @@ class SmartFileReader {
     uint16_t m_format;
 
     void LoadObject(FileObject& object) noexcept;
-    [[nodiscard]] uint16_t ReadIndex() noexcept;
+    [[nodiscard]] uint32_t ReadIndex() noexcept;
     void SetFormat(const uint16_t format) noexcept;
 
 protected:
@@ -62,7 +63,7 @@ public:
     bool Read(T& buffer) noexcept;
     bool Read(std::string& text) noexcept;
     bool Read(std::vector<uint8_t>& buffer) noexcept;
-    [[nodiscard]] uint16_t ReadObjectCount() noexcept;
+    [[nodiscard]] uint32_t ReadObjectCount() noexcept;
     [[nodiscard]] FileObject* ReadObject() noexcept;
     [[nodiscard]] SmartFileFormat GetFormat() noexcept;
 };
@@ -72,7 +73,7 @@ class SmartFileWriter {
     uint16_t m_format;
 
     void SaveObject(FileObject* object) noexcept;
-    void WriteIndex(uint16_t index) noexcept;
+    void WriteIndex(const uint32_t index) noexcept;
 
 protected:
     FILE* file{nullptr};
@@ -93,7 +94,7 @@ public:
     bool Write(const T& buffer) noexcept;
     bool Write(const std::string& string) noexcept;
     bool Write(const std::vector<uint8_t>& buffer) noexcept;
-    void WriteObjectCount(uint16_t count) noexcept;
+    void WriteObjectCount(const uint32_t count) noexcept;
     void WriteObject(FileObject* object) noexcept;
     [[nodiscard]] SmartFileFormat GetFormat() noexcept;
     [[nodiscard]] bool SetFormat(const uint16_t format) noexcept;
@@ -115,10 +116,10 @@ inline bool SmartFileReader::Read(std::string& text) noexcept {
 
     if (Read(length)) {
         if (length) {
-            char buffer[length];
+            auto buffer = std::make_unique<char[]>(length);
 
-            if (Read(buffer, length)) {
-                text = std::string(buffer, length);
+            if (Read(buffer.get(), length)) {
+                text = std::string(buffer.get(), length);
                 result = true;
 
             } else {

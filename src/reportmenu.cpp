@@ -99,8 +99,8 @@ class ReportMenu : public Window {
 
     SmartPointer<MessageLogEntry> selected_message;
 
-    int32_t row_counts[3];
-    int32_t row_indices[3];
+    int64_t row_counts[3];
+    int64_t row_indices[3];
 
     bool active_units[UNIT_END];
 
@@ -153,17 +153,17 @@ class ReportMenu : public Window {
     void DrawCasualties();
     void DrawScores();
     void DrawMessages();
-    void SelectUnit(int32_t index);
+    void SelectUnit(int64_t index);
     void SelectUnit(Point point);
 
-    static int32_t GetWorkingEcoSphereCount(uint16_t team);
+    static int64_t GetWorkingEcoSphereCount(uint16_t team);
     static void UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width,
                                          int32_t height);
 
     void AddUnits(SmartList<UnitInfo> *unit_list);
-    int32_t GetSelectedUnitIndex();
-    int32_t GetMessageIndex(MessageLogEntry *message);
-    int32_t GetNextMessageIndex(MessageLogEntry *message);
+    int64_t GetSelectedUnitIndex();
+    int64_t GetMessageIndex(MessageLogEntry *message);
+    int64_t GetNextMessageIndex(MessageLogEntry *message);
     void SelectMessage(MessageLogEntry *message);
     void SelectMessage(Point point);
     void MessageUp();
@@ -407,7 +407,7 @@ void ReportMenu::Run() {
     SmartPointer<UnitInfo> selected_unit(GameManager_SelectedUnit);
     int32_t key;
     MouseEvent mouse_event;
-    int32_t index;
+    int64_t index;
 
     if (Remote_IsNetworkGame) {
         GameManager_ProcessState(false);
@@ -670,10 +670,10 @@ void ReportMenu::InitMessages() {
 }
 
 void ReportMenu::DrawUnits() {
-    int32_t row_limit;
+    int64_t row_limit;
     int32_t window_ulx;
     int32_t window_uly;
-    int32_t item_max;
+    int64_t item_max;
     WindowInfo window;
     Rect bounds;
     char text[50];
@@ -682,13 +682,13 @@ void ReportMenu::DrawUnits() {
 
     window_ulx = report_screen_image->GetULX();
 
-    item_max = std::min(static_cast<int32_t>(units.GetCount()), row_counts[0] + row_indices[0]);
+    item_max = std::min(static_cast<int64_t>(units.GetCount()), row_counts[0] + row_indices[0]);
 
     FillWindowInfo(&window);
 
     window_uly = report_screen_image->GetULY() + (row_limit - 50) / 2;
 
-    for (int32_t i = row_indices[0]; i < item_max; ++i) {
+    for (int64_t i = row_indices[0]; i < item_max; ++i) {
         ReportStats_DrawListItemIcon(window.buffer, window.width, units[i].GetUnitType(), GameManager_PlayerTeam,
                                      window_ulx + 16, window_uly + 25);
 
@@ -731,7 +731,7 @@ void ReportMenu::DrawCasualties() {
     int32_t row_limit;
     int32_t window_ulx;
     int32_t window_uly;
-    int32_t item_max;
+    int64_t item_max;
     WindowInfo window;
     int32_t width;
 
@@ -739,7 +739,7 @@ void ReportMenu::DrawCasualties() {
 
     window_ulx = report_screen_image->GetULX();
 
-    item_max = std::min(static_cast<int32_t>(unit_types.GetCount()), row_counts[1] + row_indices[1]);
+    item_max = std::min(static_cast<int64_t>(unit_types.GetCount()), row_counts[1] + row_indices[1]);
 
     FillWindowInfo(&window);
 
@@ -759,7 +759,7 @@ void ReportMenu::DrawCasualties() {
 
     window_uly = ((row_limit - 40) / 2) + report_screen_image->GetULY() + 20;
 
-    for (int32_t i = row_indices[1]; i < item_max; ++i) {
+    for (int64_t i = row_indices[1]; i < item_max; ++i) {
         window_ulx = report_screen_image->GetULX();
 
         ReportStats_DrawListItem(window.buffer, window.width, *unit_types[i], window_ulx, window_uly, 140, 0xA2);
@@ -980,7 +980,7 @@ void ReportMenu::DrawScores() {
 void ReportMenu::DrawMessages() {
     int32_t window_ulx;
     int32_t window_uly;
-    int32_t item_max;
+    int64_t item_max;
     WindowInfo window;
     MessageLogEntry *message1;
     MessageLogEntry *message2;
@@ -991,7 +991,7 @@ void ReportMenu::DrawMessages() {
     window_ulx = report_screen_image->GetULX() + 5;
     window_uly = report_screen_image->GetULY() + 6;
 
-    item_max = std::min<int32_t>(message_lines.GetCount(), row_counts[2] + row_indices[2]);
+    item_max = std::min<int64_t>(message_lines.GetCount(), row_counts[2] + row_indices[2]);
 
     FillWindowInfo(&window);
 
@@ -1002,7 +1002,7 @@ void ReportMenu::DrawMessages() {
         message1 = nullptr;
     }
 
-    for (int32_t i = row_indices[2]; i < item_max; ++i) {
+    for (int64_t i = row_indices[2]; i < item_max; ++i) {
         message2 = message_lines[i].GetMessage();
 
         if (selected_message == message2) {
@@ -1045,14 +1045,14 @@ void ReportMenu::DrawMessages() {
     }
 
     if (selected_message != nullptr) {
-        int32_t start_index;
-        int32_t end_index;
-        int32_t image_uly;
-        int32_t image_lry;
-        int32_t x1;
-        int32_t x2;
-        int32_t y1;
-        int32_t y2;
+        int64_t start_index;
+        int64_t end_index;
+        int64_t image_uly;
+        int64_t image_lry;
+        int64_t x1;
+        int64_t x2;
+        int64_t y1;
+        int64_t y2;
 
         start_index = GetMessageIndex(&*selected_message) - row_indices[2];
         end_index = GetNextMessageIndex(&*selected_message) - row_indices[2];
@@ -1081,8 +1081,8 @@ void ReportMenu::DrawMessages() {
     button_down->Enable(row_indices[2] + row_counts[2] < message_lines.GetCount());
 }
 
-int32_t ReportMenu::GetWorkingEcoSphereCount(uint16_t team) {
-    int32_t result;
+int64_t ReportMenu::GetWorkingEcoSphereCount(uint16_t team) {
+    int64_t result;
 
     result = 0;
 
@@ -1141,7 +1141,7 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, in
     Text_TextBox(window->buffer, window->width, string.GetCStr(), ulx, uly, width, height, 0xA2, false);
 }
 
-void ReportMenu::SelectUnit(int32_t index) {
+void ReportMenu::SelectUnit(int64_t index) {
     if (index >= 0 && index < units.GetCount()) {
         if (GameManager_SelectedUnit == units[index]) {
             exit_loop = true;
@@ -1163,7 +1163,7 @@ void ReportMenu::SelectUnit(int32_t index) {
 }
 
 void ReportMenu::SelectUnit(Point point) {
-    int32_t index;
+    int64_t index;
     int32_t image_uly;
     int32_t offset;
 
@@ -1185,7 +1185,7 @@ void ReportMenu::SelectUnit(Point point) {
 }
 
 void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
-    int32_t index;
+    int64_t index;
 
     for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
         if ((*it).team == GameManager_PlayerTeam && active_units[(*it).GetUnitType()] &&
@@ -1206,8 +1206,8 @@ void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
     }
 }
 
-int32_t ReportMenu::GetSelectedUnitIndex() {
-    for (int32_t i = units.GetCount() - 1; i >= 0; --i) {
+int64_t ReportMenu::GetSelectedUnitIndex() {
+    for (int64_t i = units.GetCount() - 1; i >= 0; --i) {
         if (GameManager_SelectedUnit == units[i]) {
             return i;
         }
@@ -1216,8 +1216,8 @@ int32_t ReportMenu::GetSelectedUnitIndex() {
     return -1;
 }
 
-int32_t ReportMenu::GetMessageIndex(MessageLogEntry *message) {
-    int32_t index;
+int64_t ReportMenu::GetMessageIndex(MessageLogEntry *message) {
+    int64_t index;
 
     for (index = 0; index < message_lines.GetCount(); ++index) {
         if (message_lines[index].GetMessage() == message) {
@@ -1228,8 +1228,8 @@ int32_t ReportMenu::GetMessageIndex(MessageLogEntry *message) {
     return index;
 }
 
-int32_t ReportMenu::GetNextMessageIndex(MessageLogEntry *message) {
-    int32_t index;
+int64_t ReportMenu::GetNextMessageIndex(MessageLogEntry *message) {
+    int64_t index;
 
     for (index = GetMessageIndex(message); index < message_lines.GetCount(); ++index) {
         if (message_lines[index].GetMessage() != message) {
@@ -1241,8 +1241,8 @@ int32_t ReportMenu::GetNextMessageIndex(MessageLogEntry *message) {
 }
 
 void ReportMenu::SelectMessage(MessageLogEntry *message) {
-    int32_t message_index;
-    int32_t index;
+    int64_t message_index;
+    int64_t index;
 
     if (selected_message == message) {
         exit_loop = true;
@@ -1280,7 +1280,7 @@ void ReportMenu::SelectMessage(MessageLogEntry *message) {
 void ReportMenu::SelectMessage(Point point) {
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    int32_t index = ((point.y - report_screen_image->GetULY() - 6) / Text_GetHeight()) + row_indices[2];
+    int64_t index = ((point.y - report_screen_image->GetULY() - 6) / Text_GetHeight()) + row_indices[2];
 
     if (message_lines.GetCount() > index) {
         if (message_lines[index].GetMessage()) {
@@ -1291,7 +1291,7 @@ void ReportMenu::SelectMessage(Point point) {
 
 void ReportMenu::MessageUp() {
     if (message_lines.GetCount()) {
-        int32_t index;
+        int64_t index;
 
         if (selected_message != nullptr) {
             index = GetMessageIndex(&*selected_message);
@@ -1308,7 +1308,7 @@ void ReportMenu::MessageUp() {
 
 void ReportMenu::MessageDown() {
     if (message_lines.GetCount()) {
-        int32_t index;
+        int64_t index;
 
         if (selected_message != nullptr) {
             index = GetNextMessageIndex(&*selected_message);

@@ -52,10 +52,11 @@ void TaskTransport::AddClients(SmartList<TaskMove>* list) {
                 }
 
                 SDL_assert((*it).GetTask()->GetType() == TaskType_TaskMove);
+                SDL_assert(unit_transporter->storage >= 0);
 
                 list->PushBack(*dynamic_cast<TaskMove*>((*it).GetTask()));
 
-                if (list->GetCount() == unit_transporter->storage) {
+                if (list->GetCount() == static_cast<uint32_t>(unit_transporter->storage)) {
                     return;
                 }
             }
@@ -125,8 +126,9 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
                         }
 
                     } else {
-                        if ((UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], transporter_unit_type)
-                                 ->GetAttribute(ATTRIB_STORAGE) > move_tasks.GetCount())) {
+                        if (static_cast<uint32_t>(
+                                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], transporter_unit_type)
+                                    ->GetAttribute(ATTRIB_STORAGE)) > move_tasks.GetCount()) {
                             result = true;
 
                         } else {

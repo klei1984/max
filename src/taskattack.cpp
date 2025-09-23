@@ -638,7 +638,7 @@ bool TaskAttack::EvaluateLandAttack() {
 
     AiLog log("Task Attack: Deciding if land attack is possible.");
 
-    for (int32_t i = 0; !unit && i < primary_targets.GetCount(); ++i) {
+    for (uint32_t i = 0; !unit && i < primary_targets.GetCount(); ++i) {
         unit = primary_targets[i].GetUnitSpotted();
     }
 
@@ -1356,7 +1356,8 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
                     if (distance < minimum_distance &&
                         (!access_flags || Access_GetModifiedSurfaceType(site.x, site.y) != SURFACE_TYPE_WATER) &&
-                        Access_IsAccessible(unit->GetUnitType(), team, site.x, site.y, AccessModifier_SameClassBlocks)) {
+                        Access_IsAccessible(unit->GetUnitType(), team, site.x, site.y,
+                                            AccessModifier_SameClassBlocks)) {
                         best_site = site;
                         minimum_distance = distance;
                     }

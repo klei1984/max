@@ -28,7 +28,7 @@ public:
     TestFileObject() noexcept = default;
     ~TestFileObject() noexcept = default;
     static FileObject* Allocate() noexcept;
-    [[nodiscard]] uint16_t GetTypeIndex() const noexcept override { return 0; }
+    [[nodiscard]] uint32_t GetTypeIndex() const noexcept override { return 0uL; }
     void FileLoad(SmartFileReader& file) noexcept override {}
     void FileSave(SmartFileWriter& file) noexcept override {}
 };
@@ -54,9 +54,9 @@ protected:
     }
 
 public:
-    uint16_t Test_TypeIndex1{0};
-    uint16_t Test_TypeIndex2{0};
-    uint16_t Test_TypeIndex3{0};
+    uint32_t Test_TypeIndex1{0};
+    uint32_t Test_TypeIndex2{0};
+    uint32_t Test_TypeIndex3{0};
 
     RegisterClass* Test_ClassRegister1;
     RegisterClass* Test_ClassRegister2;

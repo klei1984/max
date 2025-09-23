@@ -90,9 +90,9 @@ class RepairShopMenu : public Window {
     SmartList<UnitInfo> units;
     SmartPointer<UnitInfo> repairshop;
 
-    int32_t unit_slot_index;
-    int32_t unit_slots_per_screen;
-    int32_t raw_material_in_complex;
+    int64_t unit_slot_index;
+    int64_t unit_slots_per_screen;
+    int64_t raw_material_in_complex;
 
     RepairShopSlot *repair_slots[REPAIRSHOP_SLOT_COUNT];
 

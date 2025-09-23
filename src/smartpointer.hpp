@@ -30,11 +30,11 @@
 class SmartObject {
     template <class T>
     friend class SmartPointer;
-    uint16_t reference_count{0};
+    uint32_t reference_count{0};
 
 protected:
     inline void Increment() noexcept {
-        SDL_assert(reference_count != UINT16_MAX);
+        SDL_assert(reference_count != UINT32_MAX);
 
         ++reference_count;
     }

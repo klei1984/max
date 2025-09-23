@@ -66,7 +66,7 @@ TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int32_t button_up_value,
     button_down->SetPValue(GNW_INPUT_PRESS + 1);
     button_down->RegisterButton(window.id);
 
-    for (int32_t i = 0; i < row_count; ++i) {
+    for (uint32_t i = 0; i < row_count; ++i) {
         button_manager.Add(win_register_button(
             window.id, window.window.ulx, window.window.uly + Text_GetHeight() * i * 2, width, Text_GetHeight() * 2, -1,
             -1, -1, first_row_value + i, nullptr, nullptr, nullptr, 0x00));
@@ -135,7 +135,7 @@ void TaskDebugger::DrawRows() {
 
     image->Write(&window);
 
-    int32_t limit = row_index + row_count;
+    uint64_t limit = row_index + row_count;
 
     if (tasks.GetCount() > limit) {
         button_down->Enable();
@@ -155,7 +155,7 @@ void TaskDebugger::DrawRows() {
 
     int32_t uly = 0;
 
-    for (int32_t i = row_index; i < limit; ++i) {
+    for (uint64_t i = row_index; i < limit; ++i) {
         if (i < task_count) {
             DrawRow(uly, "Parent: ", &tasks[i], COLOR_GREEN);
 
@@ -173,21 +173,25 @@ void TaskDebugger::DrawRows() {
 }
 
 void TaskDebugger::SetLimits(int32_t limit) {
-    if (row_index > limit) {
-        row_index = limit;
+    int64_t index = row_index;
+
+    if (index > limit) {
+        index = limit;
     }
 
-    if (row_index + row_count <= limit) {
-        row_index = limit - row_count + 1;
+    if (index + row_count <= limit) {
+        index = limit - row_count + 1;
     }
 
-    if (row_index + row_count > tasks.GetCount()) {
-        row_index = tasks.GetCount() - row_count;
+    if (index + row_count > tasks.GetCount()) {
+        index = tasks.GetCount() - row_count;
     }
 
-    if (row_index < 0) {
-        row_index = 0;
+    if (index < 0) {
+        index = 0;
     }
+
+    row_index = index;
 }
 
 int32_t TaskDebugger_GetDebugMode() { return TaskDebugger_DebugMode; }
@@ -219,11 +223,11 @@ void TaskDebugger_DebugBreak(int32_t task_id) {
     }
 }
 
-bool TaskDebugger::ProcessKeyPress(int32_t key) {
+bool TaskDebugger::ProcessKeyPress(uint32_t key) {
     bool result;
 
     if (first_row_r_value <= key && first_row_r_value + row_count > key) {
-        int32_t index = key + row_index - first_row_r_value;
+        int64_t index = key + row_index - first_row_r_value;
 
         if (tasks.GetCount() > index) {
             if (index == task_count) {
@@ -241,26 +245,34 @@ bool TaskDebugger::ProcessKeyPress(int32_t key) {
         result = true;
 
     } else if (button_down_r_value == key) {
-        row_index += row_count - 1;
+        int64_t index = row_index;
 
-        if (row_index + row_count > tasks.GetCount()) {
-            row_index = tasks.GetCount() - row_count;
+        index += row_count - 1;
 
-            if (row_index < 0) {
-                row_index = 0;
+        if (index + row_count > tasks.GetCount()) {
+            index = tasks.GetCount() - row_count;
+
+            if (index < 0) {
+                index = 0;
             }
         }
+
+        row_index = index;
 
         DrawRows();
 
         result = true;
 
     } else if (key == button_up_r_value) {
-        row_index -= row_count - 1;
+        int64_t index = row_index;
 
-        if (row_index < 0) {
-            row_index = 0;
+        index -= row_count - 1;
+
+        if (index < 0) {
+            index = 0;
         }
+
+        row_index = index;
 
         DrawRows();
 

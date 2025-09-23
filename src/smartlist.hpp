@@ -63,10 +63,10 @@ class SmartList {
         [[nodiscard]] inline N* Get() const noexcept { return object.Get(); }
     };
 
-    uint16_t count{0};
+    uint32_t count{0};
     SmartPointer<ListNode<T>> list_node;
 
-    [[nodiscard]] inline ListNode<T>& Get(int32_t index) const noexcept {
+    [[nodiscard]] inline ListNode<T>& Get(uint32_t index) const noexcept {
         Iterator it;
 
         if (index >= (count / 2)) {
@@ -231,7 +231,7 @@ public:
         SDL_assert(count == 0 && Begin() == End());
     }
 
-    [[nodiscard]] inline uint16_t GetCount() const noexcept {
+    [[nodiscard]] inline uint32_t GetCount() const noexcept {
         SDL_assert(count == 0 ? Begin() == End() : true);
 
         return count;
@@ -251,8 +251,8 @@ public:
         return *this;
     }
 
-    [[nodiscard]] inline T& operator[](uint16_t index) const noexcept {
-        SDL_assert(index >= 0 && index < count);
+    [[nodiscard]] inline T& operator[](uint32_t index) const noexcept {
+        SDL_assert(index < count);
 
         return *Get(index).Get();
     }
@@ -267,7 +267,7 @@ private:
         SDL_assert(count == 0 ? Begin() == End() : true);
     }
 
-    inline void Swap(int32_t lhs, int32_t rhs) noexcept {
+    inline void Swap(uint32_t lhs, uint32_t rhs) noexcept {
         if (lhs == rhs) {
             return;
         }
@@ -277,11 +277,11 @@ private:
         Get(rhs).object = object;
     }
 
-    int32_t Partition(int32_t low, int32_t high, Compare compare) noexcept {
+    uint32_t Partition(uint32_t low, uint32_t high, Compare compare) noexcept {
         ListNode<T>& pivot = Get(high);
-        int32_t index{low - 1};
+        uint32_t index{low - 1};
 
-        for (int32_t j{low}; j < high; ++j) {
+        for (uint32_t j{low}; j < high; ++j) {
             if (compare(Get(j), pivot)) {
                 ++index;
                 Swap(index, j);
@@ -293,9 +293,9 @@ private:
         return index + 1;
     }
 
-    inline void Sort(int32_t low, int32_t high, Compare compare) noexcept {
+    inline void Sort(uint32_t low, uint32_t high, Compare compare) noexcept {
         if (low < high) {
-            const int32_t pivot = Partition(low, high, compare);
+            const uint32_t pivot = Partition(low, high, compare);
 
             Sort(low, pivot - 1, compare);
             Sort(pivot + 1, high, compare);

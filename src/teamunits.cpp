@@ -137,19 +137,19 @@ void TeamUnits::Init() {
 void TeamUnits::FileLoad(SmartFileReader& file) {
     file.Read(gold);
 
-    for (int32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
+    for (uint32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
         base_values[unit_id] = dynamic_cast<UnitValues*>(file.ReadObject());
     }
 
-    for (int32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
+    for (uint32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
         current_values[unit_id] = dynamic_cast<UnitValues*>(file.ReadObject());
     }
 
     complexes.Clear();
 
-    int32_t complex_count = file.ReadObjectCount();
+    uint32_t complex_count = file.ReadObjectCount();
 
-    for (int32_t i = 0; i < complex_count; ++i) {
+    for (uint32_t i = 0; i < complex_count; ++i) {
         complexes.PushBack(*dynamic_cast<Complex*>(file.ReadObject()));
     }
 }

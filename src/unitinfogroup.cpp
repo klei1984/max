@@ -32,7 +32,7 @@ UnitInfoArray::UnitInfoArray(uint16_t growth_factor) : array(growth_factor) {}
 UnitInfoArray::~UnitInfoArray() {}
 
 void UnitInfoArray::Insert(UnitInfo& unit) {
-    for (int32_t i = 0; i < array.GetCount(); ++i) {
+    for (uint32_t i = 0, count = array.GetCount(); i < count; ++i) {
         if (&array[i] == &unit) {
             return;
         }

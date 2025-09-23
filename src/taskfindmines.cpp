@@ -47,7 +47,7 @@ void TaskFindMines::BeginTurn() {
         int16_t** damage_potential_map =
             AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, false);
         int8_t** mine_map = AiPlayer_Teams[team].GetMineMap();
-        int32_t valuable_sites = 0;
+        uint32_t valuable_sites = 0;
 
         if (damage_potential_map && mine_map) {
             for (int32_t index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {

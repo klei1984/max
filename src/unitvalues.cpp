@@ -66,10 +66,10 @@ UnitValues::~UnitValues() {}
 
 FileObject* UnitValues::Allocate() noexcept { return new (std::nothrow) UnitValues(); }
 
-static uint16_t UnitValues_TypeIndex;
+static uint32_t UnitValues_TypeIndex;
 static RegisterClass UnitValues_ClassRegister("UnitValues", &UnitValues_TypeIndex, &UnitValues::Allocate);
 
-uint16_t UnitValues::GetTypeIndex() const { return UnitValues_TypeIndex; }
+uint32_t UnitValues::GetTypeIndex() const { return UnitValues_TypeIndex; }
 
 void UnitValues::FileLoad(SmartFileReader& file) noexcept {
     file.Read(turns);

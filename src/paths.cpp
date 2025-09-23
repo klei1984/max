@@ -48,13 +48,13 @@ static bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, bool is_diagonal_s
 
 SmartObjectArray<Point> Paths_SiteReservations;
 
-static uint16_t Paths_AirPath_TypeIndex;
+static uint32_t Paths_AirPath_TypeIndex;
 static RegisterClass Paths_AirPath_ClassRegister("AirPath", &Paths_AirPath_TypeIndex, &AirPath::Allocate);
 
-static uint16_t Paths_GroundPath_TypeIndex;
+static uint32_t Paths_GroundPath_TypeIndex;
 static RegisterClass Paths_GroundPath_ClassRegister("GroundPath", &Paths_GroundPath_TypeIndex, &GroundPath::Allocate);
 
-static uint16_t Paths_BuilderPath_TypeIndex;
+static uint32_t Paths_BuilderPath_TypeIndex;
 static RegisterClass Paths_BuilderPath_ClassRegister("BuilderPath", &Paths_BuilderPath_TypeIndex,
                                                      &BuilderPath::Allocate);
 
@@ -152,7 +152,7 @@ AirPath::~AirPath() {}
 
 FileObject* AirPath::Allocate() noexcept { return new (std::nothrow) AirPath(); }
 
-uint16_t AirPath::GetTypeIndex() const { return Paths_AirPath_TypeIndex; }
+uint32_t AirPath::GetTypeIndex() const { return Paths_AirPath_TypeIndex; }
 
 void AirPath::FileLoad(SmartFileReader& file) noexcept {
     file.Read(length);
@@ -452,7 +452,7 @@ GroundPath::~GroundPath() {}
 
 FileObject* GroundPath::Allocate() noexcept { return new (std::nothrow) GroundPath(); }
 
-uint16_t GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
+uint32_t GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
 
 void GroundPath::FileLoad(SmartFileReader& file) noexcept {
     int32_t count;
@@ -1195,7 +1195,7 @@ BuilderPath::~BuilderPath() {}
 
 FileObject* BuilderPath::Allocate() noexcept { return new (std::nothrow) BuilderPath(); }
 
-uint16_t BuilderPath::GetTypeIndex() const { return Paths_BuilderPath_TypeIndex; }
+uint32_t BuilderPath::GetTypeIndex() const { return Paths_BuilderPath_TypeIndex; }
 
 void BuilderPath::FileLoad(SmartFileReader& file) noexcept {
     file.Read(x);

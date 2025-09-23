@@ -236,10 +236,10 @@ bool TaskClearZone::ExamineZones() {
     auto info_map = AiPlayer_Teams[team].GetInfoMap();
 
     if (info_map) {
-        for (int32_t i = 0; i < zones.GetCount(); ++i) {
+        for (uint32_t i = 0; i < zones.GetCount(); ++i) {
             zone = zones[i];
 
-            for (int32_t j = 0; j < zone->points.GetCount(); ++j) {
+            for (uint32_t j = 0; j < zone->points.GetCount(); ++j) {
                 site = *zone->points[j];
 
                 info_map[site.x][site.y] &= ~INFO_MAP_CLEAR_OUT_ZONE;
@@ -247,12 +247,12 @@ bool TaskClearZone::ExamineZones() {
         }
     }
 
-    for (int32_t i = 0; i < zones.GetCount(); ++i) {
+    for (uint32_t i = 0; i < zones.GetCount(); ++i) {
         bool is_found = false;
 
         zone = zones[i];
 
-        for (int32_t j = 0; j < zone->points.GetCount(); ++j) {
+        for (uint32_t j = 0; j < zone->points.GetCount(); ++j) {
             site = *zone->points[j];
 
             if (info_map) {

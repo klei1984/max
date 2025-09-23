@@ -31,7 +31,7 @@ MapHash Hash_MapHash(HASH_HASH_SIZE);
 void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& file) {
     list.Clear();
 
-    for (int32_t count = file.ReadObjectCount(); count; --count) {
+    for (int64_t count = file.ReadObjectCount(); count; --count) {
         UnitInfo* unit = dynamic_cast<UnitInfo*>(file.ReadObject());
 
         list.PushBack(*unit);
@@ -53,7 +53,7 @@ void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& fil
 }
 
 void SmartList_UnitInfo_FileSave(SmartList<UnitInfo>& list, SmartFileWriter& file) {
-    uint16_t count = list.GetCount();
+    uint32_t count = list.GetCount();
 
     file.Write(count);
     for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != list.End(); ++unit) {
@@ -225,8 +225,8 @@ void MapHash::FileLoad(SmartFileReader& file) {
 
     entry = new (std::nothrow) SmartList<MapHashObject>[hash_size];
 
-    for (int32_t index = 0; index < hash_size; ++index) {
-        for (int32_t count = file.ReadObjectCount(); count; --count) {
+    for (uint32_t index = 0; index < hash_size; ++index) {
+        for (int64_t count = file.ReadObjectCount(); count; --count) {
             MapHashObject* object = new (std::nothrow) MapHashObject(0, 0);
 
             object->FileLoad(file);
@@ -239,8 +239,8 @@ void MapHash::FileSave(SmartFileWriter& file) {
     file.Write(hash_size);
     file.Write(x_shift);
 
-    for (int32_t index = 0; index < hash_size; ++index) {
-        uint16_t count = entry[index].GetCount();
+    for (uint32_t index = 0; index < hash_size; ++index) {
+        uint32_t count = entry[index].GetCount();
         file.Write(count);
 
         for (SmartList<MapHashObject>::Iterator object = entry[index].Begin(); object != entry[index].End(); ++object) {

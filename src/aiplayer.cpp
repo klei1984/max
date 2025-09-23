@@ -4234,7 +4234,7 @@ bool AiPlayer::SelectStrategy() {
 
     int32_t opponent_class = ini_get_setting(INI_OPPONENT);
 
-    for (int32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
+    for (uint32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
         strategy_scores[i] = 0;
     }
 
@@ -4242,13 +4242,13 @@ bool AiPlayer::SelectStrategy() {
         int32_t continent_score = 0;
         continent_size = 0;
 
-        for (int32_t i = 0; i < continents.GetCount(); ++i) {
+        for (uint32_t i = 0; i < continents.GetCount(); ++i) {
             if (continents[i].GetContinentSize() > continent_size) {
                 continent_size = continents[i].GetContinentSize();
             }
         }
 
-        for (int32_t i = 0; i < continents.GetCount(); ++i) {
+        for (uint32_t i = 0; i < continents.GetCount(); ++i) {
             if (continent_size <= 80 || continents[i].GetContinentSize() >= 80) {
                 if (continents[i].IsViableContinent(true, player_team)) {
                     ++continent_score;
@@ -4282,11 +4282,11 @@ bool AiPlayer::SelectStrategy() {
 
     continent_size = 0;
 
-    for (int32_t i = 0; i < continents.GetCount(); ++i) {
+    for (uint32_t i = 0; i < continents.GetCount(); ++i) {
         continents[i].TestIsolated();
     }
 
-    for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
+    for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
         if (continents[i].IsViableContinent(true, player_team)) {
             if (continents[i].GetContinentSize() > continent_size) {
                 continent_size = continents[i].GetContinentSize();
@@ -4298,7 +4298,7 @@ bool AiPlayer::SelectStrategy() {
     }
 
     if (continent_size > 80) {
-        for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
             if (continents[i].GetContinentSize() < 80) {
                 continents.Erase(i);
             }
@@ -4308,7 +4308,7 @@ bool AiPlayer::SelectStrategy() {
     int32_t isolated_continents = 0;
     int32_t continents_in_close_proximity = 0;
 
-    for (int32_t i = 0; i < continents.GetCount(); ++i) {
+    for (uint32_t i = 0; i < continents.GetCount(); ++i) {
         if (continents[i].IsIsolated()) {
             ++isolated_continents;
         }
@@ -4428,7 +4428,7 @@ bool AiPlayer::SelectStrategy() {
 
     switch (strategy) {
         case AI_STRATEGY_SEA: {
-            for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
                 if (!continents[i].IsIsolated()) {
                     continents.Erase(i);
                 }
@@ -4437,7 +4437,7 @@ bool AiPlayer::SelectStrategy() {
 
         case AI_STRATEGY_FAST_ATTACK:
         case AI_STRATEGY_COMBINED_ARMS: {
-            for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
                 if (continents[i].IsCloseProximity()) {
                     continents.Erase(i);
                 }
@@ -4445,7 +4445,7 @@ bool AiPlayer::SelectStrategy() {
         } break;
 
         case AI_STRATEGY_AIR: {
-            for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
                 if (!continents[i].IsCloseProximity()) {
                     continents.Erase(i);
                 }
@@ -4461,7 +4461,7 @@ bool AiPlayer::SelectStrategy() {
                 UnitsManager_TeamMissionSupplies[team]
                     .starting_position.x)[UnitsManager_TeamMissionSupplies[team].starting_position.y];
 
-            for (int32_t i = continents.GetCount() - 1; i >= 0 && continents.GetCount() > 1; --i) {
+            for (int64_t i = continents.GetCount() - 1; i >= 0 && continents.GetCount() > 1; --i) {
                 if (continents[i].GetFiller() == filler) {
                     continents.Erase(i);
                 }
@@ -4476,7 +4476,7 @@ bool AiPlayer::SelectStrategy() {
         int32_t maximum_distance = 0;
         int32_t distance;
 
-        for (int32_t i = 0; i < continents.GetCount(); ++i) {
+        for (uint32_t i = 0; i < continents.GetCount(); ++i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4486,7 +4486,7 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4501,7 +4501,7 @@ bool AiPlayer::SelectStrategy() {
         int32_t minimum_distance = ResourceManager_MapSize.x + ResourceManager_MapSize.y;
         int32_t distance;
 
-        for (int32_t i = 0; i < continents.GetCount(); ++i) {
+        for (uint32_t i = 0; i < continents.GetCount(); ++i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4511,7 +4511,7 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        for (int32_t i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4525,7 +4525,7 @@ bool AiPlayer::SelectStrategy() {
     int32_t total_continent_size = 0;
     bool result;
 
-    for (int32_t i = 0; i < continents.GetCount(); ++i) {
+    for (uint32_t i = 0; i < continents.GetCount(); ++i) {
         total_continent_size += continents[i].GetContinentSize();
     }
 

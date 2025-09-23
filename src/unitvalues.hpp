@@ -58,7 +58,7 @@ public:
     int32_t GetAgentSkill() const;
     void SetUnitsBuilt(uint8_t count);
 
-    uint16_t GetTypeIndex() const;
+    uint32_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;
     void FileSave(SmartFileWriter& file) noexcept;
 

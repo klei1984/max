@@ -43,7 +43,7 @@ public:
     UnitPath(int32_t distance_x, int32_t distance_y, int32_t euclidean_distance, int32_t target_x, int32_t target_y);
     virtual ~UnitPath();
 
-    virtual uint16_t GetTypeIndex() const = 0;
+    virtual uint32_t GetTypeIndex() const = 0;
     virtual void FileLoad(SmartFileReader& file) noexcept = 0;
     virtual void FileSave(SmartFileWriter& file) noexcept = 0;
     virtual Point GetPosition(UnitInfo* unit) const;
@@ -78,7 +78,7 @@ public:
 
     static FileObject* Allocate() noexcept;
 
-    uint16_t GetTypeIndex() const;
+    uint32_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;
     void FileSave(SmartFileWriter& file) noexcept;
     Point GetPosition(UnitInfo* unit) const;
@@ -117,7 +117,7 @@ public:
 
     static FileObject* Allocate() noexcept;
 
-    uint16_t GetTypeIndex() const;
+    uint32_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;
     void FileSave(SmartFileWriter& file) noexcept;
     Point GetPosition(UnitInfo* unit) const;
@@ -138,7 +138,7 @@ public:
 
     static FileObject* Allocate() noexcept;
 
-    uint16_t GetTypeIndex() const;
+    uint32_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;
     void FileSave(SmartFileWriter& file) noexcept;
     int32_t GetMovementCost(UnitInfo* unit);

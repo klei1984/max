@@ -22,22 +22,22 @@
 #ifndef SMARTARRAY_HPP
 #define SMARTARRAY_HPP
 
-#include <climits>
+#include <cstdint>
 
 #include "smartpointer.hpp"
 
 template <class T>
 class SmartArray {
-    static constexpr uint16_t MINIMUM_GROWTH_FACTOR = UINT16_C(5);
-    static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(20);
+    static constexpr uint32_t MINIMUM_GROWTH_FACTOR = 5uL;
+    static constexpr uint32_t DEFAULT_GROWTH_FACTOR = 20uL;
 
     SmartPointer<T>* smartarray{nullptr};
-    uint16_t growth_factor;
-    uint16_t capacity{0};
-    uint16_t count{0};
+    uint32_t growth_factor;
+    uint32_t capacity{0uL};
+    uint32_t count{0uL};
 
 public:
-    SmartArray(uint16_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
+    SmartArray(uint32_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
         : growth_factor(growth_factor < MINIMUM_GROWTH_FACTOR ? MINIMUM_GROWTH_FACTOR : growth_factor) {}
     virtual ~SmartArray() noexcept {
         Release();
@@ -45,11 +45,11 @@ public:
         delete[] smartarray;
     }
 
-    inline uint16_t Insert(T* object, uint16_t index = SHRT_MAX) noexcept {
+    inline uint32_t Insert(T* const object, uint32_t index = UINT32_MAX) noexcept {
         if (count == capacity) {
             auto* array = new (std::nothrow) SmartPointer<T>[growth_factor + capacity];
 
-            for (int32_t i = 0; i < count; ++i) {
+            for (uint32_t i = 0uL; i < count; ++i) {
                 array[i] = smartarray[i];
                 smartarray[i] = nullptr;
             }
@@ -64,7 +64,7 @@ public:
             index = count;
         }
 
-        for (int32_t i = count; i > index; --i) {
+        for (uint32_t i = count; i > index; --i) {
             smartarray[i] = smartarray[i - 1];
         }
 
@@ -74,10 +74,10 @@ public:
         return index;
     }
 
-    inline void Erase(uint16_t index) noexcept {
+    inline void Erase(const uint32_t index) noexcept {
         SDL_assert(index < count);
 
-        for (int32_t i = index; i < count - 1; ++i) {
+        for (uint32_t i = index; i < count - 1; ++i) {
             smartarray[i] = smartarray[i + 1];
         }
 
@@ -86,16 +86,20 @@ public:
     }
 
     inline void Release() noexcept {
-        for (int32_t i = 0; i < count; ++i) {
+        for (uint32_t i = 0uL; i < count; ++i) {
             smartarray[i] = nullptr;
         }
 
-        count = 0;
+        count = 0uL;
     }
 
-    [[nodiscard]] inline uint16_t GetCount() const noexcept { return count; }
+    [[nodiscard]] inline uint32_t GetCount() const noexcept { return count; }
 
-    [[nodiscard]] inline T& operator[](uint16_t index) const noexcept { return *smartarray[index]; }
+    [[nodiscard]] inline T& operator[](const uint32_t index) const noexcept {
+        SDL_assert(index < capacity);
+
+        return *smartarray[index];
+    }
 };
 
 #endif /* SMARTARRAY_HPP */

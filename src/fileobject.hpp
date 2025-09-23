@@ -28,19 +28,19 @@ class SmartFileReader;
 class SmartFileWriter;
 
 class FileObject : public SmartObject {
-    uint16_t object_index{0};
+    uint32_t object_index{0uL};
 
 public:
     FileObject() noexcept = default;
     FileObject(const FileObject& other) noexcept : object_index(other.object_index) {}
     ~FileObject() noexcept override = default;
 
-    [[nodiscard]] virtual uint16_t GetTypeIndex() const = 0;
+    [[nodiscard]] virtual uint32_t GetTypeIndex() const = 0;
     virtual void FileLoad(SmartFileReader& file) noexcept = 0;
     virtual void FileSave(SmartFileWriter& file) noexcept = 0;
 
-    [[nodiscard]] inline uint16_t GetIndex() const noexcept { return object_index; }
-    inline void SetIndex(uint16_t index) noexcept { object_index = index; }
+    [[nodiscard]] inline uint32_t GetIndex() const noexcept { return object_index; }
+    inline void SetIndex(const uint32_t index) noexcept { object_index = index; }
 };
 
 #endif /* FILEOBJECT_HPP */

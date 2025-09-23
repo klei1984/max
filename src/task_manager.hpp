@@ -67,7 +67,7 @@ public:
     void RemoveTask(Task& task);
     void RemoveDestroyedUnit(UnitInfo* unit);
     void AddSpottedUnit(UnitInfo* unit);
-    int32_t GetRemindersCount() const;
+    uint32_t GetRemindersCount() const;
     SmartList<Task>& GetTaskList();
 };
 

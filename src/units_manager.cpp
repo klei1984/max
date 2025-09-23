@@ -2379,7 +2379,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
     UnitInfo* upgraded_unit;
     SmartArray<Complex> complexes;
     ObjectArray<int16_t> costs;
-    int32_t index;
+    int64_t index;
     char mark_level[20];
 
     GameManager_DeinitPopupButtons(true);

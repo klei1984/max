@@ -30,9 +30,9 @@ class TaskDebugger {
     WindowInfo window;
     uint16_t team;
     SmartArray<Task> tasks;
-    int16_t row_index;
-    int16_t task_count;
-    int16_t row_count;
+    uint32_t row_index;
+    uint32_t task_count;
+    uint32_t row_count;
     Image *image;
     Button *button_up;
     Button *button_down;
@@ -46,10 +46,11 @@ class TaskDebugger {
     void SetLimits(int32_t limit);
 
 public:
-    TaskDebugger(WindowInfo *win, Task *task, int32_t button_up_value, int32_t button_down_value, int32_t first_row_value);
+    TaskDebugger(WindowInfo *win, Task *task, int32_t button_up_value, int32_t button_down_value,
+                 int32_t first_row_value);
     ~TaskDebugger();
 
-    bool ProcessKeyPress(int32_t key);
+    bool ProcessKeyPress(uint32_t key);
     void DrawRows();
 };
 

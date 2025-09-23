@@ -30,19 +30,22 @@ class RegisterArray;
 class RegisterClass : public SmartObject {
     friend class RegisterArray;
 
-    static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(5);
+    static constexpr uint32_t DEFAULT_GROWTH_FACTOR = 5uL;
     static RegisterArray* registered_classes;
     CharSortKey sortkey;
     FileObject* (*allocator)();
-    uint16_t* type_index;
+    uint32_t* type_index;
 
     void Insert() noexcept;
-    [[nodiscard]] inline uint16_t* GetTypeIndexPointer() const noexcept { return type_index; }
-    static void SetTypeIndex(uint16_t* type_index_pointer, uint16_t value) noexcept { *type_index_pointer = value; }
+    [[nodiscard]] inline uint32_t* GetTypeIndexPointer() const noexcept { return type_index; }
+    static void SetTypeIndex(uint32_t* const type_index_pointer, const uint32_t value) noexcept {
+        *type_index_pointer = value;
+    }
     [[nodiscard]] inline SortKey& GetSortKey() noexcept { return sortkey; }
 
 public:
-    RegisterClass(const char* class_name, uint16_t* type_index, FileObject* (*allocator)() noexcept) noexcept
+    RegisterClass(const char* const class_name, uint32_t* const type_index,
+                  FileObject* (*allocator)() noexcept) noexcept
         : sortkey(class_name), allocator(allocator), type_index(type_index) {
         Insert();
     }
@@ -57,11 +60,11 @@ public:
 
 class RegisterArray : public SortedArray<RegisterClass> {
 public:
-    explicit RegisterArray(uint16_t growth_factor) noexcept : SortedArray<RegisterClass>(growth_factor) {}
+    explicit RegisterArray(const uint32_t growth_factor) noexcept : SortedArray<RegisterClass>(growth_factor) {}
     ~RegisterArray() noexcept override = default;
 
     inline void Insert(RegisterClass& object) noexcept {
-        for (uint16_t position = SortedArray<RegisterClass>::Insert(object); position < GetCount(); ++position) {
+        for (uint32_t position = SortedArray<RegisterClass>::Insert(object); position < GetCount(); ++position) {
             RegisterClass::SetTypeIndex(operator[](position).GetTypeIndexPointer(), position + 1);
         }
     }

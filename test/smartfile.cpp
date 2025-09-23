@@ -26,7 +26,7 @@
 #include "point.hpp"
 #include "registerarray.hpp"
 
-static uint16_t TestSmartFileObject_TypeIndex{0};
+static uint32_t TestSmartFileObject_TypeIndex{0};
 
 class TestSmartFileObject : public FileObject {
     int8_t int8{0};
@@ -44,7 +44,7 @@ public:
 
     static FileObject* Allocate() noexcept;
 
-    [[nodiscard]] uint16_t GetTypeIndex() const override { return TestSmartFileObject_TypeIndex; }
+    [[nodiscard]] uint32_t GetTypeIndex() const override { return TestSmartFileObject_TypeIndex; }
     void FileLoad(SmartFileReader& file) noexcept override {
         file.Read(int8);
         file.Read(uint8);

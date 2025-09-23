@@ -800,10 +800,10 @@ UnitInfo::~UnitInfo() { delete[] name; }
 
 FileObject* UnitInfo::Allocate() noexcept { return new (std::nothrow) UnitInfo(); }
 
-static uint16_t UnitInfo_TypeIndex;
+static uint32_t UnitInfo_TypeIndex;
 static RegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &UnitInfo::Allocate);
 
-uint16_t UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
+uint32_t UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
 
 void UnitInfo::Init() {
     BaseUnit* base_unit;

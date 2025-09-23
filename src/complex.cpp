@@ -36,10 +36,10 @@ FileObject* Complex::Allocate() noexcept { return new (std::nothrow) Complex(0);
 
 int16_t Complex::GetId() const { return id; }
 
-static uint16_t Complex_TypeIndex;
+static uint32_t Complex_TypeIndex;
 static RegisterClass Complex_ClassRegister("Complex", &Complex_TypeIndex, &Complex::Allocate);
 
-uint16_t Complex::GetTypeIndex() const { return Complex_TypeIndex; }
+uint32_t Complex::GetTypeIndex() const { return Complex_TypeIndex; }
 
 void Complex::FileLoad(SmartFileReader& file) noexcept {
     file.Read(material);

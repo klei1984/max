@@ -69,9 +69,9 @@ TEST_F(SmartArrayTest, Growth) {
     SmartArray<TestObject> array3(0);
     SmartArray<TestObject> array4(-10);
 
-    static constexpr uint16_t OBJECT_COUNT = UINT16_C(32767);
+    static constexpr uint32_t OBJECT_COUNT = 131070uL;
 
-    for (int32_t i = 0; i < OBJECT_COUNT; ++i) {
+    for (uint32_t i = 0; i < OBJECT_COUNT; ++i) {
         array1.Insert(to1.Get());
         array2.Insert(to2.Get());
         array3.Insert(to3.Get());

@@ -50,7 +50,7 @@ class ShortSortKey : public SortKey {
     uint16_t key;
 
 public:
-    explicit ShortSortKey(uint16_t key) noexcept : key(key) {}
+    explicit ShortSortKey(const uint16_t key) noexcept : key(key) {}
     ShortSortKey(const ShortSortKey& other) noexcept : key(other.key) {}
 
     [[nodiscard]] inline int32_t Compare(const SortKey& other) const noexcept override {
@@ -59,17 +59,30 @@ public:
     [[nodiscard]] inline uint16_t GetKey() const noexcept { return key; }
 };
 
+class LongSortKey : public SortKey {
+    uint32_t key;
+
+public:
+    explicit LongSortKey(const uint32_t key) noexcept : key(key) {}
+    LongSortKey(const LongSortKey& other) noexcept : key(other.key) {}
+
+    [[nodiscard]] inline int32_t Compare(const SortKey& other) const noexcept override {
+        return (key - dynamic_cast<const LongSortKey&>(other).key) % INT32_MAX;
+    }
+    [[nodiscard]] inline uint32_t GetKey() const noexcept { return key; }
+};
+
 template <class T>
 class SortedArray : public SmartArray<T> {
-    [[nodiscard]] inline int32_t Find(SortKey& sort_key, bool mode) const noexcept {
-        int32_t last{this->GetCount() - 1};
-        int32_t first{0};
-        int32_t position{-1};
+    [[nodiscard]] inline int64_t Find(SortKey& sort_key, bool mode) const noexcept {
+        int64_t last{static_cast<int64_t>(this->GetCount()) - 1};
+        int64_t first{0};
+        int64_t position{-1};
 
         while (first <= last) {
             position = (first + last) / 2;
 
-            int32_t comparison_result = sort_key.Compare(GetSortKey(operator[](position)));
+            const auto comparison_result = sort_key.Compare(GetSortKey(operator[](position)));
 
             if (0 == comparison_result) {
                 return position;
@@ -94,14 +107,16 @@ class SortedArray : public SmartArray<T> {
     }
 
 public:
-    explicit SortedArray(uint16_t growth_factor = SmartArray<T>::DEFAULT_GROWTH_FACTOR) noexcept
+    explicit SortedArray(const uint32_t growth_factor = SmartArray<T>::DEFAULT_GROWTH_FACTOR) noexcept
         : SmartArray<T>(growth_factor) {}
     ~SortedArray() noexcept override = default;
 
-    inline uint16_t Insert(T& object) noexcept {
-        auto position = Find(GetSortKey(object), false);
+    inline uint32_t Insert(T& object) noexcept {
+        const auto position = Find(GetSortKey(object), false);
 
         SmartArray<T>::Insert(&object, position);
+
+        SDL_assert(position >= 0uL && position <= UINT32_MAX);
 
         return position;
     }
@@ -112,14 +127,14 @@ public:
         T* object{nullptr};
         auto position = Find(sort_key, true);
 
-        if (position >= 0) {
+        if (position >= 0L) {
             object = &(SmartArray<T>::operator[](position));
         }
 
         return object;
     }
 
-    [[nodiscard]] inline T& operator[](uint16_t index) const noexcept { return SmartArray<T>::operator[](index); }
+    [[nodiscard]] inline T& operator[](const uint32_t index) const noexcept { return SmartArray<T>::operator[](index); }
 };
 
 #endif /* SORTEDARRAY_HPP */

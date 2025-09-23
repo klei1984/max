@@ -734,7 +734,7 @@ void TaskManager::AddSpottedUnit(UnitInfo* unit) {
     }
 }
 
-int32_t TaskManager::GetRemindersCount() const { return normal_reminders.GetCount() + priority_reminders.GetCount(); }
+uint32_t TaskManager::GetRemindersCount() const { return normal_reminders.GetCount() + priority_reminders.GetCount(); }
 
 SmartList<Task>& TaskManager::GetTaskList() { return tasks; }
 

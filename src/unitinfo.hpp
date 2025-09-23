@@ -232,7 +232,7 @@ public:
     UnitOrderStateType SetPriorOrderState(UnitOrderStateType order_state) noexcept;
 
     static FileObject* Allocate() noexcept;
-    uint16_t GetTypeIndex() const;
+    uint32_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;
     void FileSave(SmartFileWriter& file) noexcept;
     static int32_t GetDrawLayer(ResourceID unit_type);
