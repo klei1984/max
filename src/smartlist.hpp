@@ -66,7 +66,7 @@ class SmartList {
     uint32_t count{0};
     SmartPointer<ListNode<T>> list_node;
 
-    [[nodiscard]] inline ListNode<T>& Get(uint32_t index) const noexcept {
+    [[nodiscard]] inline ListNode<T>& Get(int64_t index) const noexcept {
         Iterator it;
 
         if (index >= (count / 2)) {
@@ -267,7 +267,7 @@ private:
         SDL_assert(count == 0 ? Begin() == End() : true);
     }
 
-    inline void Swap(uint32_t lhs, uint32_t rhs) noexcept {
+    inline void Swap(int64_t lhs, int64_t rhs) noexcept {
         if (lhs == rhs) {
             return;
         }
@@ -277,11 +277,11 @@ private:
         Get(rhs).object = object;
     }
 
-    uint32_t Partition(uint32_t low, uint32_t high, Compare compare) noexcept {
+    uint32_t Partition(int64_t low, int64_t high, Compare compare) noexcept {
         ListNode<T>& pivot = Get(high);
-        uint32_t index{low - 1};
+        int64_t index{static_cast<int64_t>(low) - 1};
 
-        for (uint32_t j{low}; j < high; ++j) {
+        for (int64_t j{low}; j < high; ++j) {
             if (compare(Get(j), pivot)) {
                 ++index;
                 Swap(index, j);
@@ -293,9 +293,9 @@ private:
         return index + 1;
     }
 
-    inline void Sort(uint32_t low, uint32_t high, Compare compare) noexcept {
+    inline void Sort(int64_t low, int64_t high, Compare compare) noexcept {
         if (low < high) {
-            const uint32_t pivot = Partition(low, high, compare);
+            const int64_t pivot = Partition(low, high, compare);
 
             Sort(low, pivot - 1, compare);
             Sort(pivot + 1, high, compare);

@@ -37,8 +37,8 @@ class SmartArray {
     uint32_t count{0uL};
 
 public:
-    SmartArray(uint32_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
-        : growth_factor(growth_factor < MINIMUM_GROWTH_FACTOR ? MINIMUM_GROWTH_FACTOR : growth_factor) {}
+    SmartArray(int32_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
+        : growth_factor(std::min<uint32_t>(std::max<int32_t>(growth_factor, MINIMUM_GROWTH_FACTOR), UINT16_MAX)) {}
     virtual ~SmartArray() noexcept {
         Release();
 
